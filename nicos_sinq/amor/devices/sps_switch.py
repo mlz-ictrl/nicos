@@ -22,14 +22,15 @@
 #
 # *****************************************************************************
 
-from nicos import session
+from time import time as currenttime
+
 from nicos.core import Param, pvname, status, Override
 from nicos.core.errors import PositionError
 from nicos.devices.abstract import MappedMoveable
 from nicos_ess.devices.epics.base import EpicsDeviceEss
 
 
-class ProgrammableUnit(EpicsDeviceEss, MappedMoveable):
+class SpsSwitch(EpicsDeviceEss, MappedMoveable):
     """ AMOR has a Siemens programmable logic unit for controlling the shutter
     and a switch for the alignment laser and the spin flipper. This is SPS
     which is connected to the world as such via a custom RS232 interface and a
@@ -52,6 +53,10 @@ class ProgrammableUnit(EpicsDeviceEss, MappedMoveable):
                            userparam=False),
         'commandstr': Param('Command string to issue on commandpv', type=str,
                             mandatory=True, settable=False, userparam=False),
+        'lasttoggle': Param('Store the time when last toggled', type=int,
+                            settable=True, userparam=False, default=0),
+        'lasttarget': Param('Store the last raw target of move', type=bool,
+                            settable=True, userparam=False, default=None)
     }
 
     parameter_overrides = {
@@ -69,24 +74,77 @@ class ProgrammableUnit(EpicsDeviceEss, MappedMoveable):
 
     def doStatus(self, maxage=0):
         epics_status = EpicsDeviceEss.doStatus(self, maxage)
-        if epics_status[0] == status.OK:
-            return status.OK, ''
+        if epics_status[0] != status.OK:
+            return epics_status
 
-        return epics_status
+        now = currenttime()
+        if self.lasttarget is not None and \
+                self.lasttarget != self._readRaw(maxage) and \
+                now > self.lasttoggle+10:
+            return (status.WARN, '%s not reached!'
+                                 % self._inverse_mapping[self.lasttarget])
+        return status.OK, ''
 
-    def _readRaw(self, maxage=0):
+    def doIsAtTarget(self, pos):
+        # Don't check if it reached the target
+        return True
+
+    def _readBit(self, byte, bit):
         raw = self._get_pv('readpv')
-
-        if self.byte > len(raw):
+        if byte > len(raw):
             raise PositionError('Byte specified is out of bounds')
 
-        powered = 1 << self.bit
-        return int(raw[self.byte] & powered == powered)
+        powered = 1 << bit
+        return raw[byte] & powered == powered
+
+    def _readRaw(self, maxage=0):
+        return self._readBit(self.byte, self.bit)
 
     def _startRaw(self, target):
-        attempts = 0
-        while self._readRaw() != target and attempts < len(self.mapping):
-            # Following command toggles the current state
-            attempts += 1
+        if self._readRaw() != target:
+            self.lasttoggle = currenttime()
+            self.lasttarget = target
             self._put_pv('commandpv', self.commandstr)
-            session.delay(5)
+
+
+class AmorShutter(SpsSwitch):
+    """Class to represent AMOR shutter
+    Two bits from SPS are important in determinig the shutter state:
+    byte: 4, bit 0 (bit40) - parameters: byte, bit
+    byte: 4, bit 3 (bit43) - parameters: brokenbyte, brokenbit
+
+    Following is the logic to get the current state of the shutter:
+    if bit40 is true or is equal to 1
+        state is "OPEN"
+    else:
+        if bit43 is true or is equal to 1:
+            state is "CLOSED"
+        else:
+            state is "BROKEN" (shutter is not enabled)
+    """
+
+    parameters = {
+        'brokenbyte': Param('Byte representing the broken state', type=int,
+                            mandatory=True, userparam=False, settable=False),
+        'brokenbit': Param('Bit representing the broken state', type=int,
+                           mandatory=True, userparam=False, settable=False),
+    }
+
+    def _isBroken(self):
+        return not self._readRaw() and not self._readBit(self.brokenbyte,
+                                                         self.brokenbit)
+
+    def doIsAllowed(self, target):
+        if self._isBroken():
+            return False, 'Enclosure is broken! Cannot change state!'
+        return True, ''
+
+    def doStatus(self, maxage=0):
+        if self._isBroken():
+            return status.WARN, 'BROKEN'
+
+        super_status = SpsSwitch.doStatus(self, maxage)
+        if super_status[0] != status.OK:
+            return super_status
+
+        return status.OK, 'Enabled'

@@ -6,8 +6,7 @@ devices = dict(
                    readpv='SQ:AMOR:DIMETIX:DIST',
                    epicstimeout=3.0,),
 
-    laser_switch=device(
-        'nicos_sinq.amor.devices.programmable_unit.ProgrammableUnit',
+    laser_switch=device('nicos_sinq.amor.devices.sps_switch.SpsSwitch',
         description='Laser light controlled by SPS',
         epicstimeout=3.0,
         readpv='SQ:AMOR:SPS1:DigitalInput',
@@ -15,7 +14,7 @@ devices = dict(
         commandstr="S0001",
         byte=15,
         bit=7,
-        mapping={'OFF': 0, 'ON': 1}
+        mapping={'OFF': False, 'ON': True},
     ),
 
     xlz=device('nicos_ess.devices.epics.motor.EpicsMotor',
