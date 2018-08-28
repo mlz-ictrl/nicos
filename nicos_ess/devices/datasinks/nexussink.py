@@ -24,7 +24,6 @@
 
 import json
 import time
-from collections import Counter
 
 from nicos import session
 from nicos.core import Param, Override, status, Attach, tupleof, dictof
@@ -37,84 +36,142 @@ from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
 from nicos_ess.devices.kafka.status_handler import KafkaStatusHandler
 from nicos_ess.nexus.converter import NexusTemplateConverter
 
-# File writing status codes for the dataset
-UNKNOWN = 'UNKNOWN'
-WAITING = 'WAITING'
-WRITING = 'WRITING'
-FINISHED = 'FINISHED'
-ERROR = 'ERROR'
-
 
 class NexusFileWriterStatus(KafkaStatusHandler):
     """ Device to read the file writing status from the kafka status
     topic. All new messages appearing on the status topic are read
     from a thread and the status is updated accordingly.
+
+    In the context of file writing, dataset goes through following life-cycle:
+
+    ISSUED: The job has been issued to the file writer (notified from sink)
+    START: File writer has started writing the file (notified from FileWriter)
+    (may be) FAIL: File writer failed to write (notified from FileWriter)
+    (may be) ERROR: File writer had error but is still writing the file
+    STOP: The measurement stopped (using preset/user) (notified from sink)
+    CLOSE: File writer closed the file (notified from sink)
     """
 
+    parameters = {
+        'timeout': Param('Maximum waiting time for a job to start/close (sec)',
+                         type=int, default=90)
+    }
+
     def doInit(self, mode):
-        self._active_datasets = {}
+        self._tracked_datasets = {}
+        self._issued = []
+        self._started = []
+        self._stopped = []
+
+    def _on_issue(self, jobid, dataset):
+        # Called when a dataset started and job was issued to the file writer
+        if not self.is_process_running():
+            self.log.error('File Writer is down. Data will not be written!!')
+            return
+        self._tracked_datasets[jobid] = dataset
+        self._issued.append(jobid)
+
+    def _on_start(self, jobid, dataset):
+        # Called when a file writer actually starts to write
+        if jobid in self._issued:
+            self._issued.remove(jobid)
+        self._started.append(jobid)
+
+    def _on_error(self, jobid, dataset, message=''):
+        # Called when an error appears in writing the dataset
+        msg = "Unexpected error while writing #%d" % dataset.counter
+        if message:
+            msg += ' - ' + message
+        self.log.warn(msg)
+
+    def _on_fail(self, jobid, dataset, message=''):
+        # Called when the writing failed
+        self.log.error('Failed to write #%d - %s', dataset.counter, message)
+        if jobid in self._tracked_datasets:
+            self._tracked_datasets.pop(jobid)
+        if jobid in self._issued:
+            self._issued.remove(jobid)
+        if jobid in self._started:
+            self._started.remove(jobid)
+        if jobid in self._stopped:
+            self._stopped.remove(jobid)
+
+    def _on_stop(self, jobid, dataset):
+        # Called when the measurement stopped
+        self._stopped.append(jobid)
+
+    def _on_close(self, jobid, dataset):
+        # Called when the file writer finishes and closes the file
+        if jobid in self._tracked_datasets:
+            self._tracked_datasets.pop(jobid)
+        if jobid in self._started:
+            self._started.remove(jobid)
+        if jobid in self._stopped:
+            self._stopped.remove(jobid)
+
+    def _check_timeouts(self):
+        # Check if timeout occurred for issued or stopped datasets
+        for jobid in self._issued:
+            dset = self._tracked_datasets.get(jobid)
+            now = time.time()
+            if dset and now > dset.started + self.timeout:
+                msg = "Timeout while waiting for file writer to start writing"
+                self._on_fail(jobid, dset, msg)
+
+        for jobid in self._stopped:
+            dset = self._tracked_datasets.get(jobid)
+            now = time.time()
+            if dset and now > dset.finished + self.timeout:
+                msg = "Timeout while waiting for file writer to close the file"
+                self._on_fail(jobid, dset, msg)
+
+    def new_messages_callback(self, messages):
+        # Overridden method
+        # Super method calls this whenever new messages appear on topic
+        # Here, additionally check for timeouts in issued or stopped datasets
+        self._check_timeouts()
+        KafkaStatusHandler.new_messages_callback(self, messages)
 
     def _status_update_callback(self, messages):
         # This method is called whenever a new status messages appear on
         # the status topic.
         # *messages* is a dict of timestamp and message in JSON format
 
-        # Loop until a valid most recent message is read
+        # Loop and read all the new interesting messages
         for _, message in sorted(iteritems(messages), reverse=True):
-            # A valid message would have files key on the top hierarchy
-            if 'files' in message:
-                jobs = message['files'].keys()
+            # Find a valid message
+            msgkeys = ['type', 'job_id', 'code']
+            if not set(msgkeys).issubset(set(message.keys())) \
+                    or message['type'] != 'filewriter_event' \
+                    or message['job_id'] not in self._tracked_datasets:
+                continue
 
-                # Compare the status of current datasets with the jobs from
-                # status message and change the status if necessary
-                datasets_finished = []
-                for uid, dataset in iteritems(self._active_datasets):
-                    state = dataset.info  # Current state of the dataset
-                    if state == WRITING and uid not in jobs:
-                        # If the dataset was writing and does not exist in
-                        # the jobs now that means dataset has finished writing
-                        dataset.info = FINISHED
-                        datasets_finished.append(dataset)
-                    elif state == WAITING and uid in jobs:
-                        # If the dataset was waiting and now has appeared in
-                        # the jobs would imply that it has started writing
-                        dataset.info = WRITING
+            jobid = message['job_id']
+            dataset = self._tracked_datasets[jobid]
+            jobstate = message['code'].upper()
+            jobmsg = message.get('message', '')
 
-                # Remove unwanted datasets
-                for dataset in datasets_finished:
-                    self.remove_dataset(dataset)
+            if jobstate == 'START':
+                self._on_start(jobid, dataset)
+            elif jobstate == 'FAIL':
+                self._on_fail(jobid, dataset, jobmsg)
+            elif jobstate == 'ERROR':
+                self._on_error(jobid, dataset, jobmsg)
+            elif jobstate == 'CLOSE':
+                self._on_close(jobid, dataset)
 
-                # We need to read only one most recent valid message
-                break
+        # Update the status
+        writing = []
+        for jobid in self._started:
+            if jobid in self._tracked_datasets:
+                writing.append('#%d' % self._tracked_datasets[jobid].counter)
 
-        # Gather the currently waiting and writing jobs to be displayed as the
-        # device status
-        states = Counter([d.info for d in self._active_datasets.values()])
-        writing = states.get(WRITING, 0)
-        issued = states.get(WAITING, 0)
-
-        # Generate messages using the gathered dataset status
-        if issued == 0 and writing == 0:
-            stat = status.OK, 'Ok, no active job'
-        elif issued == 0 and writing > 0:
-            stat = status.BUSY, 'Writing %s files' % writing
+        if writing:
+            stat = status.BUSY, 'Writing %s' % ', '.join(writing)
+            # Finally set the status in cache for it to appear on GUI
+            self._setROParam('curstatus', stat)
         else:
-            stat = status.BUSY, 'Writing %s + Waiting %s' % (writing, issued)
-
-        # Finally set the status in cache for it to appear on GUI
-        self._setROParam('curstatus', stat)
-
-    def add_dataset(self, dataset):
-        dataset.info = WAITING
-        if not self.is_process_running():
-            self.log.warn('Process is down. Data will not be written..')
-            dataset.info = ERROR
-        self._active_datasets[str(dataset.uid)] = dataset
-
-    def remove_dataset(self, dataset):
-        # Remove the datasets once they finish
-        if str(dataset.uid) in self._active_datasets:
-            del self._active_datasets[str(dataset.uid)]
+            self._setROParam('curstatus', (status.OK, 'Listening...'))
 
 
 class NexusFileWriterSinkHandler(DataSinkHandler):
@@ -141,9 +198,18 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
 
     def begin(self):
         # Get the start time
-        starttime = int(time.time() * 1000)
-        if self.dataset.started:
-            starttime = int(self.dataset.started * 1000)
+        if not self.dataset.started:
+            self.dataset.started = time.time()
+
+        starttime = int(self.dataset.started * 1000)
+
+        metainfo = self.dataset.metainfo
+        # Put the start time in the metainfo
+        if ('dataset', 'starttime') not in metainfo:
+            starttime_str = time.strftime('%Y-%m-%d %H:%M:%S',
+                                          time.localtime(starttime/1000))
+            metainfo[('dataset', 'starttime')] = (starttime_str, starttime_str,
+                                                  '', 'general')
 
         structure = self._converter.convert(self.sink.template,
                                             self.dataset.metainfo)
@@ -175,9 +241,9 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
     def end(self):
         # Execute only if not rewriting
         if not self.rewriting:
-            stoptime = int(time.time() * 1000)
-            if self.dataset.finished:
-                stoptime = int(self.dataset.finished * 1000)
+            if not self.dataset.finished:
+                self.dataset.finished = time.time()
+            stoptime = int(self.dataset.finished * 1000)
 
             command = {
                 "cmd": "FileWriter_stop",
@@ -293,11 +359,12 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
 
     def dataset_started(self, dataset):
         """ Capture that a dataset has started and change the status
-        of the dataset using it's info attribute
+        of the dataset
         :param dataset: the dataset that has been started
         """
         if self.status_provider:
-            self.status_provider.add_dataset(dataset)
+            jobid = str(dataset.uid)
+            self.status_provider._on_issue(jobid, dataset)
 
     def dataset_ended(self, dataset, rewriting):
         """ Capture the end of the dataset. Record the counter number,
@@ -305,8 +372,11 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
         parameter.
         :param dataset: the dataset that was ended
         :param rewriting: Is this dataset being rewritten
-        :return:
         """
+        if self.status_provider:
+            jobid = str(dataset.uid)
+            self.status_provider._on_stop(jobid, dataset)
+
         # If rewriting, the dataset was already written in the lastsinked
         if not rewriting:
             self.lastsinked = (dataset.counter, dataset.started,

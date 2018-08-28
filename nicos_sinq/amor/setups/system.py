@@ -139,5 +139,6 @@ devices = dict(
         description="Status for nexus file writing",
         brokers=configdata('special/config.KAFKA_BROKERS'),
         statustopic="AMOR_filewriterStatus",
-    )
+        timeout=30,
+    ),
 )
