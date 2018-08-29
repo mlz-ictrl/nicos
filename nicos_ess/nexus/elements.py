@@ -336,8 +336,8 @@ class DeviceAttribute(NXAttribute):
     provided.
     """
 
-    def __init__(self, device, parameter='value', dtype=None):
-        val = DeviceValuePlaceholder(device, parameter)
+    def __init__(self, device, parameter='value', dtype=None, defaultval=None):
+        val = DeviceValuePlaceholder(device, parameter, defaultval)
         NXAttribute.__init__(self, val, dtype)
 
 
@@ -348,10 +348,13 @@ class DeviceDataset(NXDataset):
     associated to this dataset can also be added.
     """
 
-    def __init__(self, device, parameter='value', dtype=None, **attr):
-        val = DeviceValuePlaceholder(device, parameter)
+    def __init__(self, device, parameter='value', dtype=None, defaultval=None,
+                 **attr):
+        val = DeviceValuePlaceholder(device, parameter, defaultval)
         NXDataset.__init__(self, val, dtype, **attr)
 
         # Set the NICOS data as attributes
+        if defaultval is not None:
+            self.attrs["default_value"] = NXAttribute(defaultval)
         self.attrs["nicos_name"] = NXAttribute(device)
         self.attrs["nicos_param"] = NXAttribute(parameter)

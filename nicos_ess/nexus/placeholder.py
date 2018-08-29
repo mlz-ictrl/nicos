@@ -47,9 +47,10 @@ class DeviceValuePlaceholder(PlaceholderBase):
     parameter from the device.
     """
 
-    def __init__(self, device, parameter='value'):
+    def __init__(self, device, parameter='value', defaultval=None):
         self.device = device
         self.parameter = parameter
+        self.defaultval = defaultval
 
     def __repr__(self):
         return "(Device: %s and Parameter: %s)" % (self.device, self.parameter)
@@ -61,4 +62,7 @@ class DeviceValuePlaceholder(PlaceholderBase):
         :param metainfo: dictof device, parameter -> (val, str_val, unit, type)
         :return: info tupleof(val, str_val, unit, type)
         """
-        return metainfo.get((self.device, self.parameter))
+        defaultinfo = None
+        if self.defaultval is not None:
+            defaultinfo = (self.defaultval, '%s' % self.defaultval, '', '')
+        return metainfo.get((self.device, self.parameter), defaultinfo)
