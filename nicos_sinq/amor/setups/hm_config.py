@@ -20,7 +20,6 @@ devices = dict(
         chopper='chopper',
         tag='tof',
         formatter='%9d',
-        dim=[400],
     ),
     hm_b0_ax_x=device(
         'nicos_sinq.devices.sinqhm.configurator.HistogramConfAxis',

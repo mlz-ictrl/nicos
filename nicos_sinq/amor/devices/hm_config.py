@@ -25,7 +25,7 @@
 from math import log, floor
 
 from nicos import session
-from nicos.core import Attach
+from nicos.core import Attach, Override
 from nicos.core.errors import NicosError
 from nicos.pycompat import number_types
 from nicos_sinq.devices.epics.astrium_chopper import EpicsAstriumChopper
@@ -47,6 +47,10 @@ class AmorTofArray(HistogramConfTofArray):
         'chopper': Attach('The chopper device', EpicsAstriumChopper)
     }
 
+    parameter_overrides = {
+        'dim': Override(mandatory=False)
+    }
+
     schemes = {
         'c': float,
         'q': int,
@@ -56,6 +60,10 @@ class AmorTofArray(HistogramConfTofArray):
 
     # Constants
     mdh = 2.5277828e6
+
+    def doInit(self, mode):
+        if not self.data:
+            self.log.warn('TOF binning data missing. Please update it!')
 
     def dataText(self):
         # Due to limited size of the configuration memory we write
