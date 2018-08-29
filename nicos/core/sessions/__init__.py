@@ -620,6 +620,9 @@ class Session(object):
                                              self._watchdogHandler)
                 # make sure we process all initial keys
                 self.cache.waitForStartup(1)
+                # update cached cache device on all existing devices
+                for dev in itervalues(self.devices):
+                    dev._cache = dev._getCache()
 
         self.storeSysInfo()
 
