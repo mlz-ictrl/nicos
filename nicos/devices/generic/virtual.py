@@ -70,10 +70,10 @@ class VirtualMotor(HasOffset, Motor):
         # set current value to be at target on init, helps with devices
         # that switch between being virtual and real
         if self.target is not None and mode == MASTER:
-            self.curvalue = self.target + self.offset
+            self._setROParam('curvalue', self.target + self.offset)
 
     def doStart(self, pos):
-        self.curstatus = (status.BUSY, 'virtual moving')
+        self._setROParam('curstatus', (status.BUSY, 'virtual moving'))
         pos = float(pos) + self.offset
         if self._thread:
             self._stop = True
@@ -83,8 +83,8 @@ class VirtualMotor(HasOffset, Motor):
                                         self.__moving, (pos,))
         else:
             self.log.debug('moving to %s', pos)
-            self.curvalue = pos
-            self.curstatus = (status.OK, 'idle')
+            self._setROParam('curvalue', pos)
+            self._setROParam('curstatus', (status.OK, 'idle'))
 
     def doRead(self, maxage=0):
         return (self.curvalue - self.offset) + \
@@ -98,10 +98,10 @@ class VirtualMotor(HasOffset, Motor):
            self._thread is not None and self._thread.isAlive():
             self._stop = True
         else:
-            self.curstatus = (status.OK, 'idle')
+            self._setROParam('curstatus', (status.OK, 'idle'))
 
     def doSetPosition(self, pos):
-        self.curvalue = pos + self.offset
+        self._setROParam('curvalue', pos + self.offset)
 
     def _step(self, start, end, elapsed, speed):
         delta = end - start
@@ -124,12 +124,12 @@ class VirtualMotor(HasOffset, Motor):
                     return
                 time.sleep(self._base_loop_delay)
                 self.log.debug('thread moving to %s', value)
-                self.curvalue = value
+                self._setROParam('curvalue', value)
                 if value == pos:
                     return
         finally:
             self._stop = False
-            self.curstatus = (status.OK, 'idle')
+            self._setROParam('curstatus', (status.OK, 'idle'))
             self._thread = None
 
     def doReadRamp(self):
