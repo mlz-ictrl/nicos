@@ -601,15 +601,17 @@ class Session(object):
 
         # initialize the cache connection
         if sysconfig.get('cache') and self._mode != SIMULATION:
+            normalizer = self.cache_class.parameters['cache'].type
+            normalized_cache = normalizer(sysconfig['cache'])
             reuse_cache = False
             if self.cache:
-                if self.cache.cache == sysconfig['cache']:
+                if self.cache.cache == normalized_cache:
                     reuse_cache = True
                 else:
                     self.cache.shutdown()
             if not reuse_cache:
                 self.cache = self.cache_class('Cache',
-                                              cache=sysconfig['cache'],
+                                              cache=normalized_cache,
                                               prefix='nicos/', lowlevel=True)
                 # be notified about plug-and-play sample environment devices
                 self.cache.addPrefixCallback('se/', self._pnpHandler)
