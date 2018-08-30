@@ -132,6 +132,8 @@ class ValueLabel(NicosWidget, SqueezedLabel):
     designer_description = 'A label that just displays a single value'
     # designer_icon = ':/'     # XXX add appropriate icons
 
+    dev = PropDef('dev', str, '', 'NICOS device name, if set, display '
+                  'value of this device')
     key = PropDef('key', str, '', 'Cache key to display')
 
     def __init__(self, parent, designMode=False, **kwds):
@@ -146,7 +148,10 @@ class ValueLabel(NicosWidget, SqueezedLabel):
         self._callback = callback
 
     def propertyUpdated(self, pname, value):
-        if pname == 'key' and self._designMode:
+        if pname == 'dev':
+            if value:
+                self.key = value + '.value'
+        elif pname == 'key' and self._designMode:
             self.setText('(%s)' % value)
         NicosWidget.propertyUpdated(self, pname, value)
 
