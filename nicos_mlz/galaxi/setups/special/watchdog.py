@@ -17,7 +17,18 @@ group = 'special'
 #     or 'stop' or 'immediatestop' to cancel script execution
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
-watchlist = []
+watchlist = [
+    dict(
+        condition = 'stigmator_current > 400.',
+        message = 'Stigmator current exceeds 400 mA',
+        type = 'default',
+    ),
+    dict(
+        condition = 'vacuum_pressure > 3.0e-06',
+        message = 'Vacuum pressure exceeds 3.0E-6 mbar',
+        type = 'default',
+    ),
+]
 
 includes = ['notifiers']
 
