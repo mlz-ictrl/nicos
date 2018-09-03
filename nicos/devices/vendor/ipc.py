@@ -280,7 +280,8 @@ class IPCModBusRS232(HasCommunication, IPCModBus):
             raise ProgrammingError(self, 'invalid command parameter: %r' %
                                    convert(request))
         elif response == DC3:
-            raise CommunicationError(self, 'command failed, e.g. hardware error')
+            raise CommunicationError(self, 'command failed, e.g. limit '
+                                     'switch reached or hardware error')
         elif len(response) < 3:
             raise CommunicationError(self, 'response too short')
         elif response[0] != STX:
