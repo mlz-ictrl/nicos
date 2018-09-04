@@ -35,6 +35,7 @@ environment variable NICOS_QT=5 has to be set to select this version.
 # this one is temporary until build machines have Qt5 installed:
 # pylint: disable=import-error
 
+import sys
 import os
 
 if os.environ.get('NICOS_QT') == '5':
@@ -135,3 +136,17 @@ else:
         @staticmethod
         def getSaveFileName(*args, **kwds):
             return orig_QFileDialog.getSaveFileNameAndFilter(*args, **kwds)
+
+
+if 'linux' in sys.platform:
+    import ctypes
+    import ctypes.util
+    # preload opengl library for usage e.g. in QtWebkit
+    # otherwise on various linux systems the opengl shader program
+    # cannot be created which results in black/white window content.
+    # this is a well-known issue, see:
+    # https://github.com/qutebrowser/qutebrowser/issues/3106
+    # https://bugs.launchpad.net/ubuntu/+source/python-qt4/+bug/941826
+    libGL = ctypes.util.find_library('GL')
+    if libGL:
+        ctypes.CDLL(libGL, mode=ctypes.RTLD_GLOBAL)
