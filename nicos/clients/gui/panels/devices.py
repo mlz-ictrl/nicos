@@ -649,7 +649,8 @@ class DevicesPanel(Panel):
                 return dlg
         devinfo = self._devinfo[ldevname]
         item = self._devitems[ldevname]
-        dlg = ControlDialog(self, devname, devinfo, item, self.log)
+        dlg = ControlDialog(self, devname, devinfo, item, self.log,
+                            self._show_lowlevel)
         dlg.closed.connect(self._control_dialog_closed)
         dlg.rejected.connect(dlg.close)
         self._control_dialogs[ldevname] = dlg
@@ -690,7 +691,7 @@ class ControlDialog(QDialog):
 
     closed = pyqtSignal(object)
 
-    def __init__(self, parent, devname, devinfo, devitem, log):
+    def __init__(self, parent, devname, devinfo, devitem, log, expert):
         QDialog.__init__(self, parent)
         loadUi(self, 'devices_one.ui', 'panels')
         self.log = log
@@ -705,6 +706,7 @@ class ControlDialog(QDialog):
         self.target = None
 
         self._reinit()
+        self._show_extension(expert)
 
         if self.target:
             self.target.setFocus()
@@ -714,8 +716,9 @@ class ControlDialog(QDialog):
 
         self.deviceName.setText('Device: %s' % self.devname)
         self.setWindowTitle('Control %s' % self.devname)
-        self.buttonBox.clear()
-        self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
+
+        self.settingsBtn = self.buttonBox.button(QDialogButtonBox.RestoreDefaults)
+        self.settingsBtn.clicked.connect(self.on_settingsBtn_clicked)
 
         # trigger parameter poll
         self.client.eval('%s.pollParams()' % self.devname, None)
@@ -773,9 +776,11 @@ class ControlDialog(QDialog):
         else:
             self.aliasGroup.setVisible(False)
 
+        historyBtn = self.buttonBox.button(QDialogButtonBox.Reset)
         # show current value/status if it is readable
         if 'nicos.core.device.Readable' not in classes:
             self.valueFrame.setVisible(False)
+            self.buttonBox.removeButton(historyBtn)
         else:
             self.valuelabel.setText(self.devitem.text(1))
             self.statuslabel.setText(self.devitem.text(2))
@@ -783,9 +788,9 @@ class ControlDialog(QDialog):
             setForegroundBrush(self.statuslabel, self.devitem.foreground(2))
             setBackgroundBrush(self.statuslabel, self.devitem.background(2))
 
-            # add a button to the bottom button-box
-            historyBtn = QPushButton(QIcon(':/find'), 'Plot history...', self)
-            self.buttonBox.addButton(historyBtn, QDialogButtonBox.ResetRole)
+            # modify history button: add icon and set text
+            historyBtn.setIcon(QIcon(':/find'))
+            historyBtn.setText('Plot history...')
             historyBtn.clicked.connect(self.on_historyBtn_clicked)
 
         # show a "Control" group box if it is moveable
@@ -872,6 +877,18 @@ class ControlDialog(QDialog):
                      if action == refreshAction else '')
             # poll even non volatile parameter as requested explicitely
             self.client.eval(cmd, None)
+
+    @pyqtSlot()
+    def on_settingsBtn_clicked(self):
+        self._show_extension(self.extension.isHidden())
+
+    def _show_extension(self, show):
+        if show:
+            # make "settings shown" permanent
+            self.settingsBtn.hide()
+        self.extension.setVisible(show)
+        self.settingsBtn.setText('Settings %s' % ('<<<' if show else '>>>'))
+        self.adjustSize()
 
     @pyqtSlot()
     def on_actionSetLimits_triggered(self):
