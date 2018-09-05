@@ -35,6 +35,12 @@ watchlist = [
         'Selector in error status. Please check selector2.maria.frm2.',
         type = 'critical',
     ),
+    dict(
+        condition = 'selector_speed_target > 0 '
+                    'and selector_vacuum_status[0] == WARN',
+        message = 'Selector vacuum in warning range.',
+        type = 'default',
+    ),
 ]
 
 includes = ['notifiers']
