@@ -34,7 +34,7 @@ devices = dict(
         parameter = 'mode',
     ),
     kwsformat = device('nicos_mlz.kws1.devices.kwsfileformat.KWSFileSink',
-        transpose = False,
+        transpose = True,
     ),
     yamlformat = device('nicos_mlz.kws1.devices.yamlformat.YAMLFileSink',
     ),

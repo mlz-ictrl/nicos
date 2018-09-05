@@ -95,7 +95,7 @@ for ti in range(1, 3):
         device = 'ps%d_V' % ti,
         parameter = 'current',
         unit = 'A',
-        warnlimits = (2.8, 3.2),
+        warnlimits = (2.4, 2.9),
         lowlevel = True,
     )
 
