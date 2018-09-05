@@ -159,7 +159,7 @@ class TimeSeries(object):
         ltime = 0
         lvalue = None
         maxdelta = max(2 * self.interval, 11)
-        data = np.zeros((max(self.minsize, len(history) * 2), 2))
+        data = np.zeros((max(self.minsize, 3*len(history) + 2), 2))
         i = 0
         vtime = value = None  # stops pylint from complaining
         for vtime, value in history:
