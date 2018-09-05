@@ -117,4 +117,4 @@ class KFlipper(BaseFlipper):
 
     def doStop(self):
         # doStop needs to be implemented this way to not stop the kvalue device!
-        multiStop((self.field, self.compensate))
+        multiStop((self._attached_flip, self._attached_corr))
