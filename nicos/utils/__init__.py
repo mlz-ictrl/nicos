@@ -397,6 +397,7 @@ def tcpSocketContext(host, defaultport, timeout=None):
         with tcpSocketContext(host, port, timeout) as sock:
             do socket operations on sock
     """
+    sock = None
     try:
         sock = tcpSocket(host, defaultport, timeout)
         yield sock

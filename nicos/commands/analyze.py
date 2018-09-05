@@ -48,10 +48,11 @@ __all__ = [
 ]
 
 
-def _getData(columns=None):
-    if not session.data._last_scans:
-        raise NicosError('no latest dataset has been stored')
-    dataset = session.data._last_scans[-1]
+def _getData(columns=None, dataset=None):
+    if dataset is None:
+        if not session.data._last_scans:
+            raise NicosError('no latest dataset has been stored')
+        dataset = session.data._last_scans[-1]
 
     # append data from previous scans if this is a continuation
     i = -1
@@ -185,7 +186,7 @@ class CommandLineFitResult(tuple):
 
 
 def fit(fitclass, *columns, **kwargs):
-    xs, ys, dys, _, ds = _getData(columns)
+    xs, ys, dys, _, ds = _getData(columns, dataset=kwargs.pop('dataset', None))
     fit = fitclass(**kwargs)
     res = fit.run(xs, ys, dys)
     if res._failed:

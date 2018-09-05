@@ -380,8 +380,11 @@ class CosineFit(PredefinedFit):
         A = (ymax - ymin) / 2
         B = ymax - A
         maxes = argrelmax(y, order=2)[0]
-        dx = x[maxes[1]] - x[maxes[0]]
-        f = 1 / dx
+        if len(maxes) > 1:
+            dx = x[maxes[1]] - x[maxes[0]]
+            f = 1.0 / dx
+        else:
+            f = 1.0
         x0 = x[maxes[0]]
         return [A, f, x0, B]
 

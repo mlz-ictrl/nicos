@@ -9,7 +9,7 @@ sysconfig = dict(
     datasinks = ["NPGZFileSink", "YAMLSaver", "LiveViewSink"],
 )
 
-tango_base = "tango://phys.maria.frm2:10000/maria"
+tango_base = "tango://phys.maria.frm2:10000/maria/"
 
 basename = "%(proposal)s_%(session.experiment.sample.filename)s_"
 scanbasename = basename + "%(scancounter)08d_%(pointnumber)08d"
@@ -35,7 +35,7 @@ devices = dict(
     ),
     detimg = device("nicos_mlz.jcns.devices.detector.ImageChannel",
         description = "Denex detector image",
-        tangodevice = tango_base + "/fastcomtec/detector",
+        tangodevice = tango_base + "fastcomtec/detector",
         fmtstr="%d cts",
         unit = "",
         lowlevel = True,
@@ -85,6 +85,20 @@ devices = dict(
             ("full", "detimg", "timer"),
         ],
         liveinterval = 1.,
+    ),
+    HV_anode = device("nicos.devices.tango.Actuator",
+        description = "Anode voltage (2800V)",
+        tangodevice = tango_base + "iseg/ch_a",
+        fmtstr = "%d",
+        precision = 4,
+        warnlimits = (2795, 2805),
+    ),
+    HV_drift = device("nicos.devices.tango.Actuator",
+        description = "Drift voltage (-1000V)",
+        tangodevice = tango_base + "iseg/ch_b",
+        fmtstr = "%d",
+        precision = 2,
+        warnlimits = (-1005, -995),
     ),
 )
 

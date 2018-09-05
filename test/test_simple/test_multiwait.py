@@ -44,23 +44,22 @@ class TestMultiWait(object):
         dev1 = session.getDevice('dev1')
         dev1._value = 1
         dev1._status_exception = None
-        dev1._iscompleted_exception =  None
+        dev1._iscompleted_exception = None
 
         dev2 = session.getDevice('dev2')
         dev2._value = 2
         dev2._status_exception = None
-        dev2._iscompleted_exception =  None
+        dev2._iscompleted_exception = None
 
         dev3 = session.getDevice('dev3')
         dev3._value = 3
         dev3._status_exception = None
-        dev3._iscompleted_exception =  None
+        dev3._iscompleted_exception = None
 
-        dev4 = session.getDevice('dev5')
+        dev4 = session.getDevice('dev4')
         return [dev1, dev2, dev3, dev4]
 
     def test_multiwait_retval(self, devices):
-
         dev1, dev2, dev3, dev4 = devices
         res = multiWait([dev1, dev2, dev3, dev4])
 
@@ -82,8 +81,8 @@ class TestMultiWait(object):
 
     def test_multiwait_raising_multi(self, log, devices):
         dev1, dev2, dev3, dev4 = devices
-        dev1._iscompleted_exception = TimeoutError('Test 3')
-        dev3._iscompleted_exception = ComputationError('Test4')
+        dev1._iscompleted_exception = TimeoutError('multi_dev1')
+        dev3._iscompleted_exception = ComputationError('multi_dev3')
 
-        with log.assert_errors(regex=".*Test 3.*", count=2):
+        with log.assert_errors(regex=".*multi_dev1.*", count=1):
             assert raises(ComputationError, multiWait, [dev1, dev2, dev3, dev4])

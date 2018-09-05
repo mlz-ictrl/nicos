@@ -207,12 +207,14 @@ def multiWait(devices):
                     if done:
                         dev.finish()
                 except Exception:
-                    dev.log.exception('while waiting')
                     final_exc = filterExceptions(sys.exc_info(), final_exc)
                     # remove this device from the waiters - we might still have
                     # its subdevices in the list so that multiWait() should not
                     # return until everything is either OK or ERROR
                     devlist.remove(dev)
+                    if devlist:
+                        # at least one more device left, show the exception now
+                        dev.log.exception('while waiting')
                     continue
                 if not done:
                     # we found one busy dev, normally go to next iteration
