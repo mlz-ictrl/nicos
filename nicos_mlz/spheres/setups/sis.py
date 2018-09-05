@@ -2,7 +2,7 @@
 
 description = 'SIS detector setup'
 
-includes = ['timer', 'shutter']
+includes = ['timer', 'shutter', 'mock_sample']
 
 sysconfig = dict(
     datasinks = ['sisasink', 'sisusink', 'sislive']
@@ -46,5 +46,10 @@ devices = dict(
     sislive = device('nicos_mlz.spheres.devices.sissinks.PreviewSink',
         description = 'Sends image data to LiveViewWidget',
         detectors = ['sis'],
+    ),
+    flux=device('nicos_mlz.spheres.devices.flux.Flux',
+        description='Device which stores averages of the regular detectors '
+                    'of direct, elastic and inelastic flux',
+        tangodevice=sis + 'counter',
     ),
 )

@@ -477,7 +477,7 @@ class PreviewSinkHandler(special.LiveViewSinkHandler, SisSinkHandlerBase):
         return [flux, preview]
 
     def getAbscissa(self, result):
-        return [None, '<f4']
+        return ['<f4']
 
     def getAbscissaArrays(self, result):
         return [self.abscissa]
