@@ -58,7 +58,7 @@ devices = dict(
         tangodevice = tango_base + 'selector/vacuum',
         unit = 'mbar',
         fmtstr = '%.5f',
-        warnlimits = (0, 0.005),
+        warnlimits = (0, 0.001),
     ),
     selector_vibrt = device('nicos.devices.tango.AnalogInput',
         description = 'Selector vibration',
