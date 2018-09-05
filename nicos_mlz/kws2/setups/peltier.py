@@ -4,12 +4,12 @@ group = 'optional'
 
 includes = ['alias_T']
 
-tango_base = 'tango://phys.kws2.frm2:10000/kws2/'
+tango_base = 'tango://phys.kws2.frm2:10000/'
 
 devices = dict(
     T_peltier = device('nicos.devices.tango.TemperatureController',
         description = 'The regulated temperature',
-        tangodevice = tango_base + 'tlc40/control',
+        tangodevice = tango_base + 'ext/tlc40/control',
         abslimits = (5, 140),
         unit = 'degC',
         fmtstr = '%.2f',
