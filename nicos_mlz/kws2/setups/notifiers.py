@@ -9,6 +9,7 @@ devices = dict(
             ('g.brandl@fz-juelich.de', 'all'),
             ('a.radulescu@fz-juelich.de', 'all'),
             ('m.s.appavou@fz-juelich.de', 'all'),
+            ('t.kohnke@fz-juelich.de', 'all'),
         ],
         subject = '[KWS-2]',
         mailserver = 'mailhost.frm2.tum.de',

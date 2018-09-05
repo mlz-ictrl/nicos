@@ -65,7 +65,7 @@ devices = dict(
         description = 'beamstop translation Y',
         tangodevice = tango_base + 'fzjs7/beamstop_y',
         unit = 'mm',
-        precision = 1.5,
+        precision = 2,
         fmtstr = '%.1f',
     ),
     beamstop_y_encoder = device('nicos_mlz.kws2.devices.detector.DetectorBsEncoder',
