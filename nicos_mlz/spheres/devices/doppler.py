@@ -49,5 +49,5 @@ class Doppler(MultiSwitcher):
         self._attached_switch.maw('off')
         sleep(3)
         if target != 0:
-            self._attached_switch.move('on')
             MultiSwitcher.doStart(self, target)
+            self._attached_switch.move('on')
