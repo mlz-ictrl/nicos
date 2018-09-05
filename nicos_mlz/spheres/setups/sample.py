@@ -22,6 +22,7 @@ devices = dict(
         abslimits = (0, 500),
         precision = 0.1,
         lowlevel = True,
+        unit = 'K'
     ),
     T_tube = device('nicos.devices.tango.TemperatureController',
         description = 'Tube temperature regulation',
@@ -31,6 +32,7 @@ devices = dict(
         abslimits = (0, 300),
         precision = 0.1,
         lowlevel = True,
+        unit = 'K',
     ),
     v_flood = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Valve to flood the sample environment '
@@ -79,11 +81,12 @@ devices = dict(
         controller = tango_sample + 'controller',
         pollinterval = 2,
         maxage = 5,
-        precision = 0.1
+        precision = 0.1,
+        unit = 'mbar'
     ),
     setpoint = device('nicos.devices.generic.paramdev.ReadonlyParamDevice',
         description = 'Device to display the setpoint parameter of the '
-                      'temperature controller',
+        'temperature controller',
         device = 'c_temperature',
         parameter = 'setpoint',
         unit = 'K'

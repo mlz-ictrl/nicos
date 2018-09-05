@@ -2,11 +2,9 @@
 
 description = 'SIS detector setup'
 
-includes = ['timer', 'shutter', 'mock_sample']
+includes = ['timer', 'shutter', 'sample']
 
-sysconfig = dict(
-    datasinks = ['sisasink', 'sisusink', 'sislive']
-)
+sysconfig = dict(datasinks = ['sisasink', 'sisusink', 'sislive'])
 
 tangohost = 'phys.spheres.frm2'
 sis = 'tango://%s:10000/spheres/sis/' % tangohost

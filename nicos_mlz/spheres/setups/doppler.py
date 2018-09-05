@@ -34,7 +34,7 @@ devices = dict(
         precision = [0.0001, 0],
         unit = 'm/s',
         mapping = {
-            0.0: (0,    0), # values for this are arbitrary
+            0.0: (0,    0),  # values for this are arbitrary
             0.3: (0.3, 25),
             0.5: (0.5, 30),
             0.7: (0.7, 35),
