@@ -529,6 +529,8 @@ class ConnectionHandler(object):
               tuple of (status constant, line number)
            script
               current script or ''
+           scriptname
+              name (filename) of the current script or ''
            watch
               dict of current watch expressions
            requests
@@ -548,6 +550,7 @@ class ConnectionHandler(object):
             status   = (self.controller.status, self.controller.lineno),
             script   = current_script and current_script.text or '',
             eta      = eta,
+            scriptname = current_script and current_script.name or '',
             watch    = self.controller.eval_watch_expressions(),
             requests = request_queue,
             mode     = session.mode,
