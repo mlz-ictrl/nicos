@@ -133,6 +133,10 @@ class LiveDataPanel(Panel):
         bar.addWidget(self.rangeFrom)
         bar.addWidget(QLabel(' to '))
         bar.addWidget(self.rangeTo)
+        bar.addSeparator()
+        bar.addAction(self.actionOverviewMode)
+        bar.addAction(self.actionPhaseMode)
+        bar.addAction(self.actionContrastMode)
         return [bar]
 
     def on_widget_customContextMenuRequested(self, point):
@@ -319,3 +323,17 @@ class LiveDataPanel(Panel):
         with self.sgroup as settings:
             settings.setValue('geometry', self.saveGeometry())
         event.accept()
+
+    @pyqtSlot()
+    def on_actionOverviewMode_triggered(self):
+        self.widget.viewOverview()
+
+    @pyqtSlot()
+    def on_actionPhaseMode_triggered(self):
+        self.widget.SetFoil(7)
+        self.widget.viewPhases()
+
+    @pyqtSlot()
+    def on_actionContrastMode_triggered(self):
+        self.widget.SetFoil(7)
+        self.widget.viewContrasts()
