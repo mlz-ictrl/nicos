@@ -29,7 +29,7 @@ from nicos.core import Param, Override, Attach, Moveable, HasLimits, \
     dictof, dictwith, MASTER, SIMULATION, MoveError, ConfigurationError, \
     multiReset, multiStop, status, HasOffset
 from nicos.devices.generic.sequence import SequencerMixin, BaseSequencer, \
-    SeqDev
+    SeqDev, SeqCall
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.tango import Motor as TangoMotor, AnalogInput
 from nicos.utils import num_sort
@@ -137,14 +137,31 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
             seq.append(SeqDev(self._attached_psd_x, 0, stoppable=True))
             seq.append(SeqDev(self._attached_psd_y, self.psdtoppos,
                               stoppable=True))
-            # XXX: use a SeqMultiDev
             seq.append(SeqDev(self._attached_bs_y, pos[1], stoppable=True))
             seq.append(SeqDev(self._attached_bs_x, pos[0], stoppable=True))
             seq.append(SeqDev(self._attached_det_z, pos[2], stoppable=True))
-            # maybe reposition beamstop Y axis to counter jitter?
-            # seq.append(SeqDev(self._attached_bs_y, pos[1], stoppable=True))
+            # maybe reposition beamstop Y axis to counter jitter.
+            seq.append(SeqCall(self._check_bsy, pos[1]))
 
         self._startSequence(seq)
+
+    def _check_bsy(self, target):
+        bsy = self._attached_bs_y
+        for _i in range(5):
+            if self._seq_stopflag:
+                return
+            readings = []
+            for _j in range(20):
+                readings.append(bsy.read(0))
+                session.delay(0.2)
+            if all(abs(v - target) <= bsy.precision for v in readings):
+                return  # it's ok
+            self.log.warning('beamstop not ok, waiting 60 seconds for repositioning')
+            session.delay(60)
+            if self._seq_stopflag:
+                return
+            bsy.maw(target)
+        self.log.error('beamstop not ok after 5 reposition tries')
 
     def _readRaw(self, maxage=0):
         return {n: (d.read(maxage), getattr(d, 'precision', 0))

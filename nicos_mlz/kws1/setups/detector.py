@@ -38,7 +38,7 @@ devices = dict(
         description = 'detector translation Z',
         motor = 'det_z_mot',
         hv = 'gedet_HV',
-        abslimits = (0.0, 20.01),  # XXX: check this
+        abslimits = (1.49, 19.91),
     ),
     det_z_mot = device('nicos_mlz.kws2.devices.detector.LockedMotor',
         description = 'detector translation Z',
