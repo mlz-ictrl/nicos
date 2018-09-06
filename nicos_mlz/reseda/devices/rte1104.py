@@ -71,7 +71,6 @@ class RTE1104(Readable):
 
 
 class RTE1104TimescaleSetting(Moveable):
-
     attached_devices = {
        'io': Attach('Communication device', StringIO),
        'freqgen': Attach('frequency generator', Moveable, optional=True),
@@ -80,6 +79,8 @@ class RTE1104TimescaleSetting(Moveable):
     parameter_overrides = {
         'unit': Override(mandatory=False, default='Hz'),
     }
+
+    valuetype = float
 
     def doRead(self, maxage=0):
         # main value is freq!
@@ -117,6 +118,8 @@ class RTE1104YScaleSetting(Moveable):
     parameter_overrides = {
         'unit': Override(mandatory=False, volatile=True),
     }
+
+    valuetype = float
 
     def doReadUnit(self):
         if self._attached_regulator:
