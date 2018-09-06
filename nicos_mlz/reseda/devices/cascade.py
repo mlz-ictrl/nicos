@@ -60,6 +60,31 @@ def fit_a_sin(x, y):
         return popt, perr, 'Error during fit: %s' % e
 
 
+def fit_a_sin_fixed_freq(x, y):
+    perr = 4*[float('inf')]
+    if len(x) != len(y):
+        return 4*[0], 4*[0], 'need equal number of x and y values!'
+
+    freq = 2*np.pi/len(y)
+    if len(y) == 1:
+        startpar = [y[0], 0, 0]
+    else:
+        startpar = [sum(y)/len(y), len(y)*0.5*(max(y)-min(y))/(sum(y)+1e-6), 0]
+    popt = [startpar[0], startpar[1], freq, startpar[2]]
+
+    if len(y) < 4:
+        return popt, perr, 'not enough data points for a fit, guessing'
+
+    def model_sin(x, avg, contrast, phase):
+        return avg + avg * contrast * np.sin(freq * x + phase)
+    try:
+        popt, pcov = curve_fit(model_sin, x, y, startpar, np.sqrt(np.abs(y)))
+        perr = np.sqrt(abs(np.diagonal(pcov)))
+        return [popt[0], popt[1], freq, popt[2]], [perr[0], perr[1], 0, perr[2]], ''
+    except Exception as e:
+        return popt, perr, 'Error during fit: %s' % e
+
+
 class CascadeDetector(ImageChannel):
     """Detector channel for the CASCADE-MIEZE detector.
 
@@ -207,13 +232,13 @@ class CascadeDetector(ImageChannel):
 
         self.log.debug('fitting %r and %r' % (ty, ry))
 
-        tpopt, tperr, msg = fit_a_sin(x, ty)
+        tpopt, tperr, msg = fit_a_sin_fixed_freq(x, ty)
         if msg:
             self.log.debug(msg)
         self.log.debug('total result is %r +/- %r for [avg, contrast, freq, phase]',
                        tpopt, tperr)
 
-        rpopt, rperr, msg = fit_a_sin(x, ry)
+        rpopt, rperr, msg = fit_a_sin_fixed_freq(x, ry)
         if msg:
             self.log.debug(msg)
         self.log.debug('ROI result is %r +/- %r for [avg, contrast, freq, phase]',
@@ -231,8 +256,8 @@ class CascadeDetector(ImageChannel):
         for foil in self.foilsorder:
             foil_tot = shaped[foil].sum((1, 2))
             foil_roi = shaped[foil, :, y1:y2, x1:x2].sum((1, 2))
-            tpopt, tperr, _ = fit_a_sin(x, foil_tot)
-            rpopt, rperr, _ = fit_a_sin(x, foil_roi)
+            tpopt, tperr, _ = fit_a_sin_fixed_freq(x, foil_tot)
+            rpopt, rperr, _ = fit_a_sin_fixed_freq(x, foil_roi)
             payload.append([tpopt, tperr, foil_tot.tolist(),
                             rpopt, rperr, foil_roi.tolist()])
         self._cache.put(self.name, '_foildata', payload, flag='#')
