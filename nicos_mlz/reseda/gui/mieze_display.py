@@ -87,13 +87,14 @@ class FoilWidget(QWidget):
 
         # data contains a list [avg, avgErr, contrast, contrastErr,
         # freq, freErr, phase, phaseErr, 16 * counts]
-        self.avg_value.setText('%.0f' % abs(avg))
+        self.avg_value.setText('%.0f' % avg)
         self.avg_error.setText('%.1f' % davg)
         self.contrast_value.setText('%.2f' % abs(contrast))
         self.contrast_error.setText('%.3f' % dcontrast)
         self.freq_value.setText('%.2f' % freq)
         self.freq_error.setText('%.3f' % dfreq)
-        self.phase_value.setText('%.2f' % phase)
+        self.phase_value.setText('%.2f' % (phase + np.pi if contrast < 0
+                                           else phase))
         self.phase_error.setText('%.3f' % dphase)
 
         # now update plot
