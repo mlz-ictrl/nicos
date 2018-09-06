@@ -702,8 +702,12 @@ class ControlDialog(QDialog):
         self.devitem = devitem
         self.paramItems = {}
         self.moveBtn = None
+        self.target = None
 
         self._reinit()
+
+        if self.target:
+            self.target.setFocus()
 
     def _reinit(self):
         classes = self.devinfo.classes
@@ -828,6 +832,7 @@ class ControlDialog(QDialog):
             def stop(checked):
                 self.device_panel.exec_command('stop(%s)' % self.devrepr,
                                                immediate=True)
+
             def move(checked):
                 try:
                     target = self.target.getValue()
