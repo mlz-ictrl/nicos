@@ -34,6 +34,7 @@ devices = dict(
             device('test.test_simple.test_device.Dev1'),
             device('test.test_simple.test_device.Dev1')
         ],
+        missingok = 'idontexist',
         param2 = 1,
         unit = 'mm',
         abslimits = (0, 10),

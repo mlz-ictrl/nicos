@@ -240,14 +240,23 @@ class Attach(object):
       in the setup file which is not a valid subclass, a
       `ConfigurationError` is raised.
 
-    - *optional*: if True, the attached device does not need to be specified
-      in the config file and is assumed to be of the value None.
-      Defaults to False.
-
-    - *multiple*: Either False, specifying that there shall be exactly one
+    - *multiple*: either False, specifying that there shall be exactly one
       attached device (default), or True, allowing any number (1..N)
       attached devices, an integer requesting exactly that many devices
       or a nonempty list of integers, listing the allowed device counts.
+
+    - *optional*: if True, the attached device does not need to be specified in
+      the setup.  At runtime the device reference will be None.  Defaults to
+      False.
+
+    - *missingok*: if True, the device(s) mentioned in the setup can be missing
+      from the session's configured devices.  The device reference will be None
+      instead.  If a device is configured, but cannot be created due to an
+      error, the error will be propagated.  Defaults to False.
+
+    Note: *optional* specifies that devices need not be configured, whereas
+    *missingok* specifies that devices must be configured, but need not exist
+    at runtime.  The two options can be combined.
 
     If multiple is a list containing more than one number and optional is true,
     the list of devices is filled with None's until it is at least as long
@@ -255,7 +264,8 @@ class Attach(object):
 
     Only description and class are mandatory parameters.
     """
-    def __init__(self, description, devclass, optional=False, multiple=False):
+    def __init__(self, description, devclass, optional=False, multiple=False,
+                 missingok=False):
         def complain(multiple, test):
             raise ProgrammingError('devclass %r (%s): multiple should be a '
                                    'bool or a list of integers, but is %r '
@@ -299,6 +309,7 @@ class Attach(object):
         self.optional = optional
         self.multiple = multiple
         self.single = single
+        self.missingok = missingok
 
     def check(self, dev, aname, configargs):
         """Checks if the given arguments are valid for this entry.

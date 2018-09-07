@@ -438,19 +438,24 @@ class Device(object):
             devlist = []
             class_needed = entry.devclass
             if self._mode == SIMULATION:
-                # need to relax this instance check for simulation mode; aliases are
-                # not yet set correctly when the devices are created
+                # need to relax this instance check for simulation mode;
+                # aliases are not yet set correctly when the devices are
+                # created
                 class_needed = object
+
             for i, devname in enumerate(entry.check(self, aname, value)):
-                dev = None
-                if devname is not None:
-                    try:
-                        dev = session.getDevice(devname, class_needed, source=self)
-                    except UsageError:
-                        raise ConfigurationError(
-                            self, 'device %r item %d has wrong type (should be %s)' %
-                            (aname, i + 1, entry.devclass.__name__))
+                if (devname is None) or \
+                   (devname not in session.configured_devices and entry.missingok):
+                    devlist.append(None)
+                    continue
+                try:
+                    dev = session.getDevice(devname, class_needed, source=self)
+                except UsageError:
+                    raise ConfigurationError(
+                        self, 'device %r item %d has wrong type (should be %s)' %
+                        (aname, i + 1, entry.devclass.__name__))
                 devlist.append(dev)
+
             for dev in devlist:
                 if dev is not None:
                     dev._sdevs.add(self._name)
