@@ -24,7 +24,6 @@
 
 from __future__ import print_function
 
-import os
 import time
 import socket
 
@@ -149,18 +148,3 @@ def adminclient(daemon):
     if adminclient.isconnected:
         adminclient._disconnecting = True
         adminclient.disconnect()
-
-
-@pytest.fixture(scope='module')
-def cliclient(daemon):
-    """Create a TextClient session with a cliclient subprocess"""
-
-    if os.name != 'posix':
-        # text client needs the readline C library
-        pytest.skip('text client not available on this system')
-
-    os.environ['EDITOR'] = 'cat'
-    client = startSubprocess('cliclient', 'guest:guest@' + daemon_addr,
-                             piped=True)
-    yield client
-    killSubprocess(client)

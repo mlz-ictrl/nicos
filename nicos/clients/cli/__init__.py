@@ -34,7 +34,6 @@ import select
 import signal
 import getpass
 import readline
-import tempfile
 import threading
 import ctypes
 import ctypes.util
@@ -48,8 +47,8 @@ from html2text import HTML2Text
 
 from nicos.clients.base import NicosClient, ConnectionData
 from nicos.clients.cli.txtplot import txtplot
-from nicos.utils import colorize, which, formatDuration, formatEndtime, \
-    terminalSize, parseConnectionString, createSubprocess
+from nicos.utils import colorize, formatDuration, formatEndtime, \
+    terminalSize, parseConnectionString
 from nicos.utils.loggers import ACTION, INPUT
 from nicos.protocols.daemon import STATUS_INBREAK, \
     STATUS_IDLE, STATUS_IDLEEXC, BREAK_AFTER_STEP, BREAK_AFTER_LINE
@@ -345,11 +344,9 @@ class NicosCmdClient(NicosClient):
 
         Uses html2text to get nicely-formatted text from the html.
         """
-
         htmlconv = HTML2Text()
         htmlconv.ignore_links = True
-        self.out.write('\r\x1b[K\n')
-        self.out.write(htmlconv.handle(html))
+        self.put(htmlconv.handle(html))
 
     def put_message(self, msg, sim=False):
         """Handles the "message" signal."""
@@ -1047,7 +1044,7 @@ This client supports "meta-commands" beginning with a slash:
   /re(connect)        -- reconnect to NICOS daemon last used
   /q(uit)             -- quit this client (NICOS will continue running)
 
-Command parts in parenteses can be omitted.
+Command parts in parentheses can be omitted.
 
 All output prefixed with "#" comes from the client.
 
