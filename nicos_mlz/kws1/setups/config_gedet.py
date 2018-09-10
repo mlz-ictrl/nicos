@@ -10,7 +10,8 @@ EIGHT_PACKS = [
     ('ep06', 'GE-D72EB0-EP'),
     ('ep07', 'GE-D72F9D-EP'),
     ('ep08', 'GE-D73043-EP'),
-    ('ep09', 'GE-D7561E-EP'),
+#    ('ep09', 'GE-D7561E-EP'),  # defekt
+    ('ep09', 'GE-D71E2C-EP'),
     ('ep10', 'GE-D72EA6-EP'),
     ('ep11', 'GE-D75751-EP'),
     ('ep12', 'GE-D73046-EP'),

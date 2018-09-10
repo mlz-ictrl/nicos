@@ -18,6 +18,7 @@ DETECTOR_PRESETS = {
 #        '6m Hum':    dict(z=6,    x=-1.0,  y=7.0),
         '8m Tr':     dict(z=8,    x=53.0,  y=390.0),
         '4m Tr':     dict(z=4,    x=53.0,  y=390.0),
+        '20m GISANS': dict(z=19.9, x=52.2, y=400.0),
 #        '4m GISANS': dict(z=4,    x=-25,   y=-35),
     },
     '6A': {
@@ -80,11 +81,11 @@ DETECTOR_PRESETS = {
         '1.5m':    dict(z=1.5,  x=53.0,  y=452.0),
         '2m':      dict(z=2.3,  x=53.0,  y=452.0),
 #        '4m':      dict(z=4,    x=-1.5,  y=5.7),
-#        '8m':      dict(z=8,    x=-0.7,  y=2.2),
+        '8m':      dict(z=8,    x=51.7,  y=448.0),
         '8m Tr':   dict(z=8,    x=53.0,  y=390.0),
 #        '14m':     dict(z=14,   x=-1.9,  y=-9.0),
-#        '20m':     dict(z=20,   x=-6.0,  y=-28.5),
-#        '20m Tr':  dict(z=20,   x=-25,   y=-50),
+        '20m':     dict(z=19.9, x=49.5,  y=415.0),
+        '20m Tr':  dict(z=19.9, x=49.5,  y=590.0),
     },
     '20A': {
 #        '8m Tr':   dict(z=8,   x=-25,   y=-50),
