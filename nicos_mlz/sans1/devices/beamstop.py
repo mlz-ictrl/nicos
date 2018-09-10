@@ -30,9 +30,10 @@ from nicos.core import Param, oneof, Moveable, Attach, dictof, Override, \
     status, requires, UsageError, limits, PositionError
 from nicos.devices.generic.sequence import SequencerMixin, tupleof, SeqCall
 from nicos.devices.generic import Axis
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, reraise
 
 from nicos.devices.tango import Sensor
+
 
 class FunnySensor(Sensor):
     """Sensor which sometimes returns senseless values"""
@@ -48,11 +49,11 @@ class FunnySensor(Sensor):
             if self.limits[0] <= value <= self.limits[1]:
                 return value
             # at least warn (every retry!)
-            self.log.warning('Sensor value %s outside sensible range [%s..%s]'%(
-                            value, self.limits[0], self.limits[1]))
+            self.log.warning('Sensor value %s outside sensible range [%s..%s]' %
+                             (value, self.limits[0], self.limits[1]))
         # 10 times no good value -> error
-        raise PositionError('Sensor value %s outside sensible range [%s..%s]'%(
-                            value, self.limits[0], self.limits[1]))
+        raise PositionError('Sensor value %s outside sensible range [%s..%s]' %
+                            (value, self.limits[0], self.limits[1]))
 
 
 class BeamStopAxis(Axis):
@@ -107,16 +108,19 @@ class BeamStop(SequencerMixin, Moveable):
     """
 
     parameters = {
-        'slots':    Param('Mapping of shape to HW-X-value', type=dictof(str, float),
-                          mandatory=True, userparam=False),
-        'ypassage': Param('HW-Y-value for travelling along the passage below the shapes',
+        'slots':    Param('Mapping of shape to HW-X-value', userparam=False,
+                          type=dictof(str, float), mandatory=True),
+        'ypassage': Param('HW-Y-value of the passage below the shapes',
                           type=float, mandatory=True, userparam=False),
         'shape':    Param('Currently used shape', type=str, default='unknown',
-                           settable=True),
-        'offsetxy': Param('Offset of our logical coordinates with respect to the HW coords',
-                           type=tupleof(float, float), default=(0.,0.), settable=True),
-        'xlimits':  Param('HW-limits for free movement of X', type=limits, mandatory=True, userparam=False),
-        'ylimits':  Param('HW-limits for free movement of Y', type=limits, mandatory=True, userparam=False),
+                          settable=True),
+        'offsetxy': Param('Offset of our logical coordinates to the HW coords',
+                          type=tupleof(float, float), default=(0., 0.),
+                          settable=True),
+        'xlimits':  Param('HW-limits for free movement of X', type=limits,
+                          mandatory=True, userparam=False),
+        'ylimits':  Param('HW-limits for free movement of Y', type=limits,
+                          mandatory=True, userparam=False),
     }
     attached_devices = {
         'xaxis': Attach('Axis for the X-movement', BeamStopAxis),
@@ -154,15 +158,17 @@ class BeamStop(SequencerMixin, Moveable):
                         # at slot 'slot' allow vertical movement
                         if abs(target[0] - xpos) <= xprec:
                             if target[1] >= min(ylimits):
-                                #self._setROParam('shape', slot
-                                return True, 'pure vertical movement in slot %r allowed' % slot
-        #check for free-move limits
+                                # self._setROParam('shape', slot)
+                                return True, 'vertical movement in slot ' + slot
+        # check for free-move limits
         if not (xlimits[0] <= target[0] <= xlimits[1]):
-            return False, 'requested X-position %s outside allowed value, please move it '\
-                          'manually into %s..%s' % (target[0], xlimits[0], xlimits[1])
+            return False, 'requested X-position %s outside allowed value, ' \
+                          'please move it manually into %s..%s' % (
+                              target[0], xlimits[0], xlimits[1])
         if not (ylimits[0] <= target[1] <= ylimits[1]):
-            return False, 'requested Y-position %s outside allowed value, please move it '\
-                          'manually into %s..%s' % (target[1], ylimits[0], ylimits[1])
+            return False, 'requested Y-position %s outside allowed value, ' \
+                          'please move it manually into %s..%s' % (
+                              target[1], ylimits[0], ylimits[1])
 
         return True, ''
 
@@ -181,11 +187,15 @@ class BeamStop(SequencerMixin, Moveable):
         if self._seq_is_running():
             raise UsageError('can not change shape while Busy')
         if not self.shape in self.slots:
-            raise UsageError('currently used shape unknown, (Call instrument scientist!)')
+            raise UsageError('currently used shape unknown, '
+                             '(Call instrument scientist!)')
         if not target in self.slots:
-            raise UsageError('unknown shape, use one of %s' % ', '.join([repr(s) for s in self.slots]))
+            raise UsageError('unknown shape, use one of %s' %
+                             ', '.join([repr(s) for s in self.slots]))
         self._startSequence(self._generateSequence(target))
-        return self.shape  # important! shape will be changed by the sequence, so we force the old value here
+        # important!
+        # shape will be changed by the sequence, so we force the old value here
+        return self.shape
 
     def _generateSequence(self, target):
         seq = []
@@ -194,8 +204,13 @@ class BeamStop(SequencerMixin, Moveable):
                     self._attached_yaxis.read()]
         lowest_y_pos = min(self.ylimits)
 
+        if startpos[1] < lowest_y_pos:
+            raise UsageError('illegal start position for changing shape, '
+                             'please call instrument scientist!')
+
         # construct desired sequence: first move above slot of current shape
-        seq.append([SeqCall(Axis.start, self._attached_xaxis, self.slots[self.shape]),
+        seq.append([SeqCall(Axis.start, self._attached_xaxis,
+                            self.slots[self.shape]),
                     SeqCall(Axis.start, self._attached_yaxis, lowest_y_pos)])
         seq.append([SeqCall(self._attached_xaxis.wait),
                     SeqCall(self._attached_yaxis.wait)])
@@ -205,7 +220,8 @@ class BeamStop(SequencerMixin, Moveable):
         # adjust self._shape
         seq.append(SeqCall(self._setROParam, 'shape', 'none'))
         # move x to slot of new shape
-        seq.append(SeqCall(Axis.start, self._attached_xaxis, self.slots[target]))
+        seq.append(
+            SeqCall(Axis.start, self._attached_xaxis, self.slots[target]))
         seq.append(SeqCall(self._attached_xaxis.wait))
         # move up to lowest yvalue
         seq.append(SeqCall(Axis.start, self._attached_yaxis, lowest_y_pos))
@@ -218,3 +234,13 @@ class BeamStop(SequencerMixin, Moveable):
         seq.append([SeqCall(self._attached_xaxis.wait),
                     SeqCall(self._attached_yaxis.wait)])
         return seq
+
+    def _runFailed(self, step, action, exc_info):
+        return 1  # single retry
+
+    def _retryFailed(self, step, action, exc_info):
+        self._seq_stopflag = True
+        self._setROParam('fixed', 'Error during sequence (step %r), needs '
+                                  'manual fixing!' % step)
+        self._setROParam('fixedby', ('admin', 20))
+        reraise(*exc_info)
