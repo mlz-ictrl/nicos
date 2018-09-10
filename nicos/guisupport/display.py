@@ -37,7 +37,8 @@ from nicos.guisupport.qt import pyqtSignal, Qt, QSize, QTimer, QLabel, \
 
 from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, UNKNOWN, \
     DISABLED, statuses
-from nicos.guisupport.utils import setBackgroundColor, setBothColors
+from nicos.guisupport.utils import setBackgroundColor, setBothColors, \
+    setForegroundColor
 from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.pycompat import text_type, from_maybe_utf8
@@ -141,6 +142,9 @@ class ValueLabel(NicosWidget, SqueezedLabel):
     dev = PropDef('dev', str, '', 'NICOS device name, if set, display '
                   'value of this device')
     key = PropDef('key', str, '', 'Cache key to display')
+    format = PropDef('format', str, '', 'Python format string to use for the '
+                     'value; if "dev" is given this defaults to the '
+                     '"fmtstr" set in NICOS')
 
     def __init__(self, parent, designMode=False, **kwds):
         self._designMode = designMode
@@ -162,10 +166,16 @@ class ValueLabel(NicosWidget, SqueezedLabel):
         NicosWidget.propertyUpdated(self, pname, value)
 
     def registerKeys(self):
-        self.registerKey(self.props['key'])
+        if self.props['dev']:
+            self.registerDevice(self.props['dev'], fmtstr=self.props['format'])
+        else:
+            self.registerKey(self.props['key'], fmtstr=self.props['format'])
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
-        if not expired:
+        if expired:
+            setForegroundColor(self, QColor('grey'))
+        else:
+            setForegroundColor(self, QColor('black'))
             self.setText(self._callback(value, strvalue))
 
 
