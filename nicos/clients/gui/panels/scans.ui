@@ -439,6 +439,17 @@
     <string>Pick starting points for fit</string>
    </property>
   </action>
+  <action name="actionErrors">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Errors</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide error bars</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

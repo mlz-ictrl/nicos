@@ -196,7 +196,7 @@ class ScansPanel(Panel):
             self.actionUnzoom, self.actionLegend, self.actionModifyData,
             self.actionFitPeak, self.actionFitPeakPV, self.actionFitPeakPVII,
             self.actionFitTc, self.actionFitCosine, self.actionFitSigmoid,
-            self.actionFitArby,
+            self.actionFitArby, self.actionErrors,
         ]:
             action.setEnabled(on)
 
@@ -228,6 +228,7 @@ class ScansPanel(Panel):
             menu1.addAction(self.actionScaleX)
             menu1.addAction(self.actionScaleY)
             menu1.addAction(self.actionLegend)
+            menu1.addAction(self.actionErrors)
             menu1.addSeparator()
 
             menu2 = QMenu('Data &manipulation', self)
@@ -276,6 +277,7 @@ class ScansPanel(Panel):
             bar.addAction(self.actionScaleX)
             bar.addAction(self.actionScaleY)
             bar.addAction(self.actionLegend)
+            bar.addAction(self.actionErrors)
             bar.addAction(self.actionResetPlot)
             bar.addAction(self.actionDeletePlot)
             bar.addSeparator()
@@ -422,6 +424,7 @@ class ScansPanel(Panel):
 
             self.actionLogScale.setChecked(plot.isLogScaling())
             self.actionLegend.setChecked(plot.isLegendEnabled())
+            self.actionErrors.setChecked(plot.isErrorBarEnabled())
             if plot.HAS_AUTOSCALE:
                 from gr.pygr import PlotAxes
                 mask = plot.plot.autoscale
@@ -674,6 +677,10 @@ class ScansPanel(Panel):
     @pyqtSlot(bool)
     def on_actionLegend_toggled(self, on):
         self.currentPlot.setLegend(on)
+
+    @pyqtSlot(bool)
+    def on_actionErrors_toggled(self, on):
+        self.currentPlot.setErrorBarEnabled(on)
 
     @pyqtSlot()
     def on_actionModifyData_triggered(self):
