@@ -231,6 +231,27 @@ def test_params(session):
     assert dev2.param1 == 42
 
 
+def test_forbidden_assignments(session):
+    dev = session.getDevice('dev2_1')
+    # test assignment of a value to a device method must fail
+    assert raises(UsageError, setattr, dev, 'read', 0)
+    # changing valuetype function must be allowed
+    dev.valuetype = float
+    assert dev.valuetype == float
+    # internal variable '_val' exists and must be changeable
+    dev._val = 10
+    assert dev._val == 10
+    # creating a new member must be allowed
+    dev._myval = 1
+    assert dev._myval == 1
+    # creating a new method must be allowed
+    dev._myfunction = float
+    assert dev._myfunction(1) == 1
+    # changing a internal function to a value must be allowed
+    dev._myfunction = 1
+    assert dev._myfunction == 1
+
+
 def test_params_fromconfig(session):
     NewSetup('vmotor1')
     motor = session.getDevice('vmotor')

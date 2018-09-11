@@ -26,6 +26,7 @@
 
 import sys
 import re
+import inspect
 from time import time as currenttime
 
 import numpy
@@ -372,14 +373,29 @@ class Device(object):
                                  exc=1)
             reraise(t, v, tb)
 
+    attribute_whitelist = set((
+        'valuetype',  # for all devices
+        'arraydesc',  # for image producers
+    ))
+
     def __setattr__(self, name, value):
-        # disallow modification of public attributes that are not parameters
-        if name not in dir(self.__class__) and name[0] != '_' and \
-           not name.startswith('print'):
-            raise NicosError(self, 'device has no parameter %s, use '
-                             'ListParams(%s) to show all' % (name, self))
-        else:
-            object.__setattr__(self, name, value)
+        # disallow modification of any public attributes that are not
+        # parameters or otherwise properties
+        if name[0] != '_' and name not in self.attribute_whitelist:
+            obj = getattr(self.__class__, name, Ellipsis)
+            if obj is Ellipsis:
+                raise UsageError(self, 'device has no parameter %s, use '
+                                 'ListParams(%s) to show all' % (name, self))
+            elif inspect.isroutine(obj):
+                raise UsageError(self, '%s cannot be assigned; it is a device '
+                                 'method' % name)
+            elif not isinstance(obj, property):
+                # this should also be forbidden at some point, but for now just
+                # emit a warning to make sure it doesn't break the world
+                self.log.warning('Setting a non-parameter attribute %s.%s: '
+                                 'this is deprecated and will be an error '
+                                 'in a future version.', self, name)
+        object.__setattr__(self, name, value)
 
     def __str__(self):
         return self._name
