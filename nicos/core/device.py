@@ -1279,7 +1279,8 @@ class Waitable(Readable):
 
     busystates = (status.BUSY,)
     errorstates = {status.NOTREACHED: PositionError,
-                   status.ERROR: MoveError}
+                   status.ERROR: MoveError,
+                   status.DISABLED: MoveError}
 
     @usermethod
     def wait(self):
@@ -1331,7 +1332,8 @@ class Waitable(Readable):
 
            Mapping of status constants that indicate that the device movement
            has stopped with an error to exception class to raise.  Default is:
-           ``{status.ERROR: MoveError, status.NOTREACHED: PositionError}``.
+           ``{status.ERROR: MoveError, status.NOTREACHED: PositionError,
+           status.DISABLED: MoveError}``.
 
            This can be overridden in a derived class to provide different
            behavior when waiting for a device.  For example, ``NOTREACHED``

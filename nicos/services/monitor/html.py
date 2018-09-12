@@ -47,7 +47,7 @@ import numpy
 
 from nicos.core import Param
 from nicos.core.constants import NOT_AVAILABLE
-from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED
+from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, DISABLED
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.pycompat import from_utf8, string_types, escape_html
 from nicos.services.monitor.icon import nicos_icon
@@ -499,6 +499,8 @@ class Monitor(BaseMonitor):
                     field._valuelabel.fore = self._yellow
                 elif status in (ERROR, NOTREACHED):
                     field._valuelabel.fore = self._red
+                elif status == DISABLED:
+                    field._valuelabel.fore = self._white
                 else:
                     field._valuelabel.fore = self._white
         elif key == field.unitkey:

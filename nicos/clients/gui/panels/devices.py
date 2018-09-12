@@ -31,7 +31,8 @@ from nicos.guisupport.qt import pyqtSignal, pyqtSlot, Qt, QRegExp, QCursor, \
     QInputDialog, QDialogButtonBox, QPalette, QTreeWidgetItemIterator, \
     QDialog, QMessageBox, QPushButton, QComboBox
 
-from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, UNKNOWN
+from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, DISABLED, \
+    UNKNOWN
 from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit
 from nicos.clients.gui.dialogs.error import ErrorDialog
 from nicos.clients.gui.panels import Panel, showPanel
@@ -45,18 +46,20 @@ foregroundBrush = {
     OK:         QBrush(QColor('#00aa00')),
     WARN:       QBrush(Qt.black),
     BUSY:       QBrush(Qt.black),
-    UNKNOWN:    QBrush(QColor('#cccccc')),
-    ERROR:      QBrush(Qt.black),
     NOTREACHED: QBrush(Qt.black),
+    DISABLED:   QBrush(Qt.black),
+    ERROR:      QBrush(Qt.black),
+    UNKNOWN:    QBrush(QColor('#cccccc')),
 }
 
 backgroundBrush = {
     OK:         QBrush(),
     WARN:       QBrush(QColor('#ffa500')),
     BUSY:       QBrush(Qt.yellow),
-    UNKNOWN:    QBrush(),
-    ERROR:      QBrush(QColor('#ff6655')),
     NOTREACHED: QBrush(QColor('#ff6655')),
+    DISABLED:   QBrush(QColor('#bbbbbb')),
+    ERROR:      QBrush(QColor('#ff6655')),
+    UNKNOWN:    QBrush(),
 }
 
 # keys: (expired, fixed)
@@ -156,9 +159,10 @@ class DevicesPanel(Panel):
                 OK: QIcon(':/leds/status_green'),
                 WARN: QIcon(':/leds/status_warn'),
                 BUSY: QIcon(':/leds/status_yellow'),
-                UNKNOWN: QIcon(':/leds/status_white'),
-                ERROR: QIcon(':/leds/status_red'),
                 NOTREACHED: QIcon(':/leds/status_red'),
+                DISABLED: QIcon(':/leds/status_white'),
+                ERROR: QIcon(':/leds/status_red'),
+                UNKNOWN: QIcon(':/leds/status_unknown'),
             }
 
     def __init__(self, parent, client, options):

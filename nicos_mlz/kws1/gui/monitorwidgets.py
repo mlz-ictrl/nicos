@@ -26,7 +26,8 @@ from nicos.guisupport.qt import Qt, QSize, QBrush, QColor, QPainter, QWidget, \
     QPen, QFont
 
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.core.status import BUSY, ERROR, NOTREACHED, OK, UNKNOWN, WARN
+from nicos.core.status import BUSY, ERROR, NOTREACHED, OK, UNKNOWN, WARN, \
+    DISABLED
 
 
 _yellow = QBrush(QColor('yellow'))
@@ -44,6 +45,7 @@ statusbrush = {
     WARN: _orange,
     ERROR: _red,
     NOTREACHED: _red,
+    DISABLED: _white,
     OK: _white,
     UNKNOWN: _olive,
 }
@@ -217,6 +219,7 @@ collstatusbrush = {
     WARN: _orange,
     ERROR: _red,
     NOTREACHED: _red,
+    DISABLED: _white,
     OK: _green,
     UNKNOWN: _olive,
 }

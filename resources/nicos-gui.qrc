@@ -64,6 +64,7 @@
   </qresource>
   <qresource prefix="leds">
     <file alias="status_white">leds/simplewhite.png</file>
+    <file alias="status_unknown">leds/simpleunknown.png</file>
     <file alias="status_green">leds/simplegreen.png</file>
     <file alias="status_red">leds/simplered.png</file>
     <file alias="status_yellow">leds/simpleyellow.png</file>
@@ -80,5 +81,7 @@
     <file alias="red_off">leds/ledredoff.png</file>
     <file alias="yellow_on">leds/ledyellow.png</file>
     <file alias="yellow_off">leds/ledyellowoff.png</file>
+    <file alias="gray_on">leds/ledgray.png</file>
+    <file alias="gray_off">leds/ledgrayoff.png</file>
   </qresource>
 </RCC>

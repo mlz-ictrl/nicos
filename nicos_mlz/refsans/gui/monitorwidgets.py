@@ -29,7 +29,7 @@ from nicos.guisupport.qt import Qt, QSize, QPointF, QPainter, QWidget, \
     QColor, QBrush, QPen, QPolygonF
 
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.core.status import BUSY, OK, ERROR, NOTREACHED
+from nicos.core.status import OK
 from nicos.utils import readonlylist
 
 from nicos_mlz.sans1.gui.monitorwidgets import CollimatorTable
@@ -38,13 +38,6 @@ _yellow = QBrush(QColor('yellow'))
 _white = QBrush(QColor('white'))
 _red = QBrush(QColor('#FF3333'))
 _nobrush = QBrush()
-
-statusbrush = {
-    BUSY: _yellow,
-    ERROR: _red,
-    NOTREACHED: _red,
-    OK: _white,
-}
 
 nopen = QPen(QColor('white'))
 defaultpen = QPen(QColor('black'))

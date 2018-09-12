@@ -36,7 +36,7 @@ from nicos.guisupport.qt import pyqtSignal, Qt, QSize, QTimer, QLabel, \
     QFrame, QColor, QWidget, QVBoxLayout, QHBoxLayout, QFontMetrics, QPixmap
 
 from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, UNKNOWN, \
-    statuses
+    DISABLED, statuses
 from nicos.guisupport.utils import setBackgroundColor, setBothColors
 from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.widget import NicosWidget, PropDef
@@ -49,24 +49,27 @@ defaultColorScheme = {
         OK:         QColor('#00ff00'),
         WARN:       QColor('#ffa500'),
         BUSY:       QColor('yellow'),
-        ERROR:      QColor('red'),
         NOTREACHED: QColor('red'),
+        DISABLED:   QColor('#cccccc'),
+        ERROR:      QColor('red'),
         UNKNOWN:    QColor('white'),
     },
     'back': {
         OK:         QColor('black'),
         WARN:       QColor('black'),
         BUSY:       QColor('black'),
-        ERROR:      QColor('black'),
         NOTREACHED: QColor('black'),
+        DISABLED:   QColor('black'),
+        ERROR:      QColor('black'),
         UNKNOWN:    QColor('black'),
     },
     'label': {
         OK:         None,
         WARN:       QColor('#ffa500'),
         BUSY:       None,
-        ERROR:      QColor('red'),
         NOTREACHED: QColor('red'),
+        DISABLED:   QColor('gray'),
+        ERROR:      QColor('red'),
         UNKNOWN:    None,
     },
     'expired':      QColor('gray'),
@@ -77,24 +80,27 @@ lightColorScheme = {
         OK:         QColor('#00cc00'),
         WARN:       QColor('black'),
         BUSY:       QColor('black'),
-        ERROR:      QColor('black'),
         NOTREACHED: QColor('black'),
+        DISABLED:   QColor('black'),
+        ERROR:      QColor('black'),
         UNKNOWN:    QColor('black'),
     },
     'back': {
         OK:         QColor('white'),
         WARN:       QColor('#ffa500'),
         BUSY:       QColor('yellow'),
-        ERROR:      QColor('#ff4444'),
         NOTREACHED: QColor('#ff4444'),
+        DISABLED:   QColor('#cccccc'),
+        ERROR:      QColor('#ff4444'),
         UNKNOWN:    QColor('white'),
     },
     'label': {
         OK:         None,
         WARN:       QColor('red'),
         BUSY:       None,
-        ERROR:      QColor('red'),
         NOTREACHED: QColor('red'),
+        DISABLED:   QColor('gray'),
+        ERROR:      QColor('red'),
         UNKNOWN:    None,
     },
     'expired':      QColor('#cccccc'),

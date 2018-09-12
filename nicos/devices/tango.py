@@ -179,11 +179,11 @@ class PyTangoDevice(HasCommunication):
     hardware_access = True
 
     parameters = {
-        'tangodevice': Param('Tango device name', type=tangodev,
-                             mandatory=True, preinit=True),
+        'tangodevice':  Param('Tango device name', type=tangodev,
+                              mandatory=True, preinit=True),
         'tangotimeout': Param('TANGO network timeout for this process',
-                             unit='s', type=floatrange(0.0, 1200), default=3,
-                             settable=True, preinit=True),
+                              unit='s', type=floatrange(0.0, 1200), default=3,
+                              settable=True, preinit=True),
     }
     parameter_overrides = {
         'unit': Override(mandatory=False),
@@ -192,7 +192,7 @@ class PyTangoDevice(HasCommunication):
     tango_status_mapping = {
         PyTango.DevState.ON:     status.OK,
         PyTango.DevState.ALARM:  status.WARN,
-        PyTango.DevState.OFF:    status.ERROR,
+        PyTango.DevState.OFF:    status.DISABLED,
         PyTango.DevState.FAULT:  status.ERROR,
         PyTango.DevState.MOVING: status.BUSY,
     }

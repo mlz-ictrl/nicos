@@ -30,7 +30,8 @@ from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.guisupport.qt import QSize, Qt, QBrush, QColor, QPainter, QPen, \
     QWidget
 
-from nicos.core.status import BUSY, ERROR, NOTREACHED, OK, UNKNOWN, WARN
+from nicos.core.status import BUSY, ERROR, NOTREACHED, OK, UNKNOWN, WARN, \
+    DISABLED
 
 
 _magenta = QBrush(QColor('#A12F86'))
@@ -48,6 +49,7 @@ statusbrush = {
     WARN: _orange,
     ERROR: _red,
     NOTREACHED: _red,
+    DISABLED: _white,
     OK: _white,
     UNKNOWN: _olive,
 }

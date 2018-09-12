@@ -30,12 +30,13 @@ import ast
 
 from nicos.guisupport.qt import Qt, QSize, QLabel, QWidget, QPixmap
 
-from nicos.core.status import OK, BUSY
+from nicos.core.status import OK, BUSY, WARN, ERROR, NOTREACHED, DISABLED, \
+    UNKNOWN
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.pycompat import string_types
 
 
-ledColors = set(["blue", "green", "red", "yellow", "orange"])
+ledColors = set(["blue", "green", "red", "yellow", "orange", "gray"])
 
 
 class BaseLed(QLabel, NicosWidget):
@@ -129,6 +130,16 @@ class StatusLed(BaseLed):
     dev = PropDef('dev', str, '', 'Device name')
     key = PropDef('key', str, '', 'Key name of the device')
 
+    colors = {
+        OK:         'green',
+        BUSY:       'yellow',
+        WARN:       'orange',
+        NOTREACHED: 'red',
+        DISABLED:   'gray',
+        ERROR:      'red',
+        UNKNOWN:    'gray',
+    }
+
     def propertyUpdated(self, pname, value):
         if pname == 'dev':
             if value:
@@ -143,12 +154,7 @@ class StatusLed(BaseLed):
             self.ledStatus = False
         else:
             self.ledStatus = True
-        if value[0] == OK:
-            self.ledColor = 'green'
-        elif value[0] == BUSY:
-            self.ledColor = 'yellow'
-        else:
-            self.ledColor = 'red'
+        self.ledColor = self.colors[value[0]]
 
 
 class ClickableOutputLed(ValueLed):

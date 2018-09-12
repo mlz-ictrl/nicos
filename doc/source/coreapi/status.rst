@@ -19,6 +19,10 @@ as the first item of the tuple that `.Device.status` returns.  The whole
 
    The device has not reached its target/setpoint.
 
+.. data:: DISABLED
+
+   The device is disabled/off.
+
 .. data:: ERROR
 
    The device is in an error state.
