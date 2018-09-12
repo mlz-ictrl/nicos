@@ -38,6 +38,7 @@ import inspect
 import logging
 from os import path
 from time import sleep, time as currenttime
+from itertools import chain
 
 import numpy
 
@@ -461,6 +462,44 @@ class Session(object):
         if member == '*':
             return mod
         return getattr(mod, member)
+
+    def checkSetupCompatibility(self, new_setups, loaded_setups):
+        """Check if *new_setups* can be loaded into a setup that contains
+        *loaded_setups*.
+
+        Raises a `ConfigurationError` with a more detailed message if an
+        incompatibility is found.
+        """
+        if not self._setup_info:
+            self.readSetups()
+
+        def add_setup(name):
+            all_setups.add(name)
+            for include in self._setup_info[name]['includes']:
+                add_setup(include)
+
+        # generate a set of *all* setups loaded after adding new setups
+        all_setups = loaded_setups.copy()
+        for name in new_setups:
+            add_setup(name)
+
+        # generate a list of exclusions
+        excluded_setups = {}
+        for name in all_setups:
+            for exclude in self._setup_info[name]['excludes']:
+                excluded_setups.setdefault(exclude, set()).add(name)
+
+        conflicts = set()
+        for name in all_setups:
+            if name in excluded_setups:
+                for excl in excluded_setups[name]:
+                    conflicts.add((name, excl))
+
+        if conflicts:
+            self.log.error('Setup conflicts:')
+            for conflict in conflicts:
+                self.log.error("'%s' excludes '%s'", *conflict)
+            raise ConfigurationError('Cannot load new setups due to conflicts')
 
     def loadSetup(self, setupnames, allow_special=False, raise_failed=False,
                   autocreate_devices=None, autoload_system=True,

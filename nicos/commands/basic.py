@@ -197,6 +197,7 @@ def NewSetup(*setupnames):
         setupnames = session.explicit_setups
     # refresh setup files first
     session.readSetups()
+    session.checkSetupCompatibility(setupnames, set())
     session.unloadSetup()
     try:
         session.startMultiCreate()
@@ -232,6 +233,7 @@ def AddSetup(*setupnames):
         ListSetups()
         return
     session.readSetups()
+    session.checkSetupCompatibility(setupnames, session.loaded_setups)
     session.startMultiCreate()
     try:
         session.loadSetup(setupnames)
