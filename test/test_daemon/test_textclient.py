@@ -77,7 +77,7 @@ def test_textclient(daemon):
         def has_msg(msg):
             return any(msg in line for line in out)
 
-        def has_msg_wait(msg, timeout=2):
+        def has_msg_wait(msg, timeout=5):
             start = time.time()
             while not any(msg in line for line in out):
                 time.sleep(0.01)
@@ -86,7 +86,7 @@ def test_textclient(daemon):
                     return False
             return True
 
-        def wait_idle(timeout=2):
+        def wait_idle(timeout=5):
             start = time.time()
             while sts[0] != 'idle':
                 time.sleep(0.01)
@@ -94,8 +94,8 @@ def test_textclient(daemon):
                     assert False, 'idle wait timeout'
 
         # messages after connection
+        assert has_msg_wait('# Loaded setups:')
         assert has_msg('# Connected to')
-        assert has_msg('# Loaded setups:')
 
         yield '/log 100'
         assert has_msg('# Printing 100 previous messages.')
