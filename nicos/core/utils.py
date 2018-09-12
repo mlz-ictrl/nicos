@@ -60,6 +60,15 @@ system_user = User('system', ADMIN)
 watchdog_user = User('watchdog', ADMIN)
 
 
+def usermethod(func):
+    """Decorator that marks a method as a user-visible method.
+
+    The method will be shown to the user in the help for a device.
+    """
+    func.is_usermethod = True
+    return func
+
+
 def deprecated(since=nicos_version, comment=''):
     """This is a decorator which can be used to mark functions as deprecated.
 

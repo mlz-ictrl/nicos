@@ -33,7 +33,7 @@ import numpy
 from nicos import session
 from nicos.core import status
 from nicos.core.constants import MASTER, SIMULATION, SLAVE, POLLER
-from nicos.core.utils import formatStatus, statusString, \
+from nicos.core.utils import formatStatus, statusString, usermethod, \
     multiStop, multiStatus, multiWait
 from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
     HasTimeout, HasPrecision, IsController
@@ -50,15 +50,6 @@ from nicos.pycompat import reraise, add_metaclass, iteritems, listitems, \
 from nicos.protocols.cache import FLAG_NO_STORE
 
 ALLOWED_CATEGORIES = set(v[0] for v in INFO_CATEGORIES)
-
-
-def usermethod(func):
-    """Decorator that marks a method as a user-visible method.
-
-    The method will be shown to the user in the help for a device.
-    """
-    func.is_usermethod = True
-    return func
 
 
 def requires(**access):

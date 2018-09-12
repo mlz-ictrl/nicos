@@ -35,9 +35,11 @@ from nicos.core.errors import NicosError, ProgrammingError, \
 from nicos.core.mixins import AutoDevice, DeviceMixinBase, HasLimits, \
     HasOffset, HasPrecision, HasMapping, HasTimeout, HasWindowTimeout, \
     HasCommunication, IsController
+from nicos.core.utils import formatStatus, multiStatus, waitForCompletion, \
+    multiWait, multiStop, multiReset, GUEST, USER, ADMIN, ACCESS_LEVELS, \
+    User, system_user, watchdog_user, usermethod
 from nicos.core.device import DeviceMeta, Device, Readable, Waitable, \
-    Moveable, Measurable, SubscanMeasurable, DeviceAlias, NoDevice, \
-    usermethod, requires
+    Moveable, Measurable, SubscanMeasurable, DeviceAlias, NoDevice, requires
 from nicos.core.params import Attach, Param, Override, Value, ArrayDesc, \
     INFO_CATEGORIES, listof, nonemptylistof, tupleof, dictof, setof, tacodev, \
     tangodev, pvname, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
@@ -47,6 +49,3 @@ from nicos.core.data import BaseDataset, PointDataset, ScanDataset, DataSink, \
     DataSinkHandler
 from nicos.core.acquire import acquire, read_environment, DevStatistics
 from nicos.core.scan import Scan
-from nicos.core.utils import formatStatus, multiStatus, waitForCompletion, \
-    multiWait, multiStop, multiReset, GUEST, USER, ADMIN, ACCESS_LEVELS, \
-    User, system_user, watchdog_user
