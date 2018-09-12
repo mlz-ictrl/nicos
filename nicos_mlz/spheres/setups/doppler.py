@@ -6,6 +6,7 @@ group = 'optional'
 
 tangohost = 'phys.spheres.frm2'
 doppler = 'tango://%s:10000/spheres/doppler/' % tangohost
+acq = 'tango://%s:10000/spheres/sis/' % tangohost
 
 devices = dict(
     doppler_switch = device('nicos.devices.tango.NamedDigitalOutput',
@@ -31,6 +32,7 @@ devices = dict(
         description = 'Switcher to control the doppler',
         moveables = ['doppler_speed', 'doppler_amplitude'],
         switch = 'doppler_switch',
+        acq = 'acqdoppler',
         precision = [0.0001, 0],
         unit = 'm/s',
         mapping = {
@@ -51,5 +53,15 @@ devices = dict(
         },
         fallback = 'undefinded',
         pollinterval = 5
-    )
+    ),
+    acqdoppler = device('nicos_mlz.spheres.devices.doppler.AcqDoppler',
+        description = 'Doppler values as seen by the SIS detector',
+        tangodevice = acq + 'counter',
+        unit = '',
+        fmtstr = '%.3f m/s, %.3f m',
+        amplitude = 'doppler_amplitude',
+        speed = 'doppler_speed',
+        lowlevel = True,
+        margins = [0.01, 0.1]
+    ),
 )

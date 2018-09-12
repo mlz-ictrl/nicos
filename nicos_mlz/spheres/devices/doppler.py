@@ -23,20 +23,75 @@
 # ****************************************************************************
 
 """Doppler device for SPHERES"""
+
+
 from time import sleep
 
-from nicos.core.params import Attach
+from nicos.core.params import Attach, Param, listof
+from nicos.core import status
 from nicos.devices.generic.switcher import MultiSwitcher
-from nicos.devices.tango import NamedDigitalOutput
+from nicos.devices.tango import NamedDigitalOutput, VectorInput, AnalogOutput
 
 ELASTIC =   'elastic'
 INELASTIC = 'inelastic'
 
 
+class AcqDoppler(VectorInput):
+    '''Doppler values as read by the Detector'''
+
+    parameters ={
+        'margins': Param('margin for readout errors in refdevices',
+                         listof(float), default=[0,0], settable=True)
+    }
+
+    attached_devices = {
+        'amplitude': Attach('Referencedevice for amplitude',
+                            AnalogOutput),
+        'speed':     Attach('Referencedevice for speed',
+                            AnalogOutput)
+    }
+
+    def init(self):
+        VectorInput.init(self)
+        self._warning = 0
+
+    def doRead(self, maxage=0):
+        speed, ampl = self._dev.getDopplerValues()
+        ampl *= 1000
+
+        refspeed = self._attached_speed.read()
+        refampl = self._attached_amplitude.read()
+
+        if (speed < refspeed-self.margins[0]
+                or speed > refspeed+self.margins[0]
+                or ampl < refampl-self.margins[1]
+                or ampl > refampl+self.margins[1]):
+            self._warning = 1
+        else:
+            self._warning = 0
+
+        return speed, ampl
+
+    def doStatus(self, maxage=0):
+        normal = VectorInput.doStatus(self)
+        if normal[0] == status.OK and self._warning:
+            return (status.WARN, 'speed and/or amplitude do not '
+                                 'align with reference(s)')
+
+        return normal
+
+
 class Doppler(MultiSwitcher):
+    """Device to change the dopplerspeed.
+    It also compares the speed and amplitude 'seen' by the SIS detector to
+    the values set in the doppler and notifies the user if these values do
+    not match."""
+
     attached_devices = {
         'switch': Attach('The on/off switch of the doppler',
-                         NamedDigitalOutput)
+                         NamedDigitalOutput),
+        'acq':    Attach('The doppler as seen by the SIS-Detector',
+                         AcqDoppler),
     }
 
     def doRead(self, maxage=0):
@@ -45,9 +100,22 @@ class Doppler(MultiSwitcher):
         return self._mapReadValue(self._readRaw(maxage))
 
     def doStart(self, target):
+        cur = self.status()
+        if cur == (status.BUSY, 'counting'):
+            self.log.warning('Doppler speed can not be changed while '
+                             'SIS is counting.')
+            return
+
         # to change the doppler speed it has to be stopped first
         self._attached_switch.maw('off')
         sleep(3)
         if target != 0:
             MultiSwitcher.doStart(self, target)
             self._attached_switch.move('on')
+
+    def doStatus(self, maxage=0):
+        doppler = MultiSwitcher.doStatus(self, maxage)
+        if doppler[0] == status.OK:
+            return self._attached_acq.status()
+
+        return doppler
