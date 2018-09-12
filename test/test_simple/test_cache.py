@@ -30,6 +30,8 @@ from __future__ import print_function
 
 from time import sleep
 
+import pytest
+
 from nicos.devices.cacheclient import CacheClient
 from nicos.core.errors import LimitError, CommunicationError
 from nicos.utils import readonlylist, readonlydict
@@ -92,6 +94,7 @@ class TestCache(object):
         assert cachedval2[2] != Ellipsis
         assert cachedval_rw == 'test2'  # still from test_02setRewrite
 
+    @pytest.mark.timeout(timeout=60, method='thread', func_only=True)
     def test_write_to_rewritten(self, session):
         cc = session.cache
         cc.setRewrite('testrewrite2', 'testcache')
