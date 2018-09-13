@@ -354,7 +354,7 @@ parallel pylint: {
     }
 }, test_docs: {
     stage(name: 'Test docs') {
-        docker.image('localhost:5000/nicos-docs:latest').inside(){
+        docker.image('localhost:5000/nicos-jenkins:nicosdocs').inside(){
             runDocTest()
         }
     }
