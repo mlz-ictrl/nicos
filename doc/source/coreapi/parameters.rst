@@ -28,6 +28,8 @@ writing device classes.  They are re-exported in :mod:`nicos.core`.
    * ``'precisions'`` -- Precisions
    * ``'status'`` -- Instrument status (reserved for `status()` values)
    * ``'general'`` -- Instrument state, i.e. everything else of importance
+   * ``'presets'`` -- Detector preset information
+   * ``'result'`` -- Updated values after counting
 
 
 Converter functions
