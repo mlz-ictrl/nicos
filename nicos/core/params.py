@@ -60,9 +60,9 @@ class Param(object):
     - *description*: a concise parameter description.
 
     - *type*: the parameter type; either a standard Python type (`int`,
-      `float`, `str`) or one of the type converter functions from this module
-      that either return a value of the correct type, or raises `TypeError`
-      or `ValueError`.
+      `float`, `str`) or one of the :ref:`type-converter-functions` from this
+      module that either return a value of the correct type, or raises
+      `TypeError` or `ValueError`.
 
     - *default*: a default value, in case the parameter cannot be read from
       the hardware or the cache.

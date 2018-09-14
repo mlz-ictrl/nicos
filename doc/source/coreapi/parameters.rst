@@ -32,8 +32,10 @@ writing device classes.  They are re-exported in :mod:`nicos.core`.
    * ``'result'`` -- Updated values after counting
 
 
-Converter functions
--------------------
+.. _`type-converter-functions`:
+
+Type converter functions
+------------------------
 
 These functions can be used as (or used to create) parameter types (i.e. the
 *type* argument of `Param` and the *valuetype* attribute of devices) that not
