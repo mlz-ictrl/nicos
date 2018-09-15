@@ -74,8 +74,24 @@ def itemuid(item):
 
 
 class ScansPanel(Panel):
-    """Provides a display for the scans of the current experiment."""
+    """Provides a display for the scans of the current experiment.
 
+    Options:
+
+    * ``fit_functions`` (default {}) -- dictionary for special fitting
+      functions. The name of the fit function is followed by a set of
+      a list of fit parameters and the string containing the fit function
+      code::
+
+          fit_functions = {
+              'Resonance': (['Vmax = 0.1', 'R = 0.6', 'f = ', 'L = ', 'C = '],
+                            'Vmax / sqrt(R**2 + (f*L-1/(f*C))**2)'),
+          }
+
+      The function can use the all mathematical functions of the
+      `numpy <http://www.numpy.org/>`_ package.
+
+    """
     panelName = 'Scans'
 
     def __init__(self, parent, client, options):
