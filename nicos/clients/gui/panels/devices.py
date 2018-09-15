@@ -147,6 +147,17 @@ class DevicesPanel(Panel):
 
     * ``useicons`` (default True) -- if set to False, the list widget does not
       display status icons for the devices.
+
+    * ``param_display`` (default {}) -- a dictionary containing the device name
+      as key and a parameter name or a list of the parameter names which should
+      be displayed in the device tree as subitems of the device item, for
+      example::
+
+         param_display = {
+             'tas': 'scanmode',
+             'Exp': ['lastpoint', 'lastscan']
+         }
+
     """
 
     panelName = 'Devices'
