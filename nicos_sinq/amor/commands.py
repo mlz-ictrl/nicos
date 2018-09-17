@@ -89,6 +89,27 @@ walltimecount.__doc__ += \
 
 
 @usercommand
+@helparglist('state')
+def spin(state):
+    """Change the spin state to + or -
+
+    Example:
+
+    Following command bring spin state to +
+    >>> spin('+')
+    """
+    if state not in ('+', '-'):
+        session.log.error('Expected only +/- as the state for spin')
+
+    flipper = session.getDevice('SpinFlipper')
+
+    if state == '+':
+        flipper.maw('SPIN UP')
+    elif state == '-':
+        flipper.maw('SPIN DOWN')
+
+
+@usercommand
 @helparglist('scheme, [value]')
 def UpdateTimeBinning(scheme, value=None):
     """Changes the time binning for histogramming the data
