@@ -92,12 +92,9 @@ class AmorTofArray(HistogramConfTofArray):
                                scheme, typ)
 
         # Get the chopper speed, phase
-        chphase = 0
         chspeed = 0
         for ch in self._attached_chopper._attached_choppers:
-            if not ch.isMaster:
-                chphase = ch.phase
-            else:
+            if ch.isMaster:
                 chspeed = ch.speed
 
         if chspeed == 0:
@@ -123,7 +120,7 @@ class AmorTofArray(HistogramConfTofArray):
                           'frequency')
 
         # offset between chopper-pulse and time-zero for data acquisition
-        toffset = chphase * 1e7 / (6 * chspeed)
+        toffset = self._attached_chopper.indexphase * 1e7 / (6 * chspeed)
         threshold = toffset + tmax
 
         # Give user some information

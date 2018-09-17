@@ -47,10 +47,11 @@ devices = dict(
         phase='ch2_phase',
         ratio='ch2_ratio',
     ),
-    chopper=device('nicos_sinq.devices.epics.astrium_chopper.EpicsAstriumChopper',
+    chopper=device('nicos_sinq.amor.devices.chopper.AmorChopper',
         description='Astrium Chopper',
         precision=1,
-        choppers=['ch1', 'ch2']
+        choppers=['ch1', 'ch2'],
+        indexphase=-6.7
     ),
     dist_sample_chopper=device(
         'nicos_sinq.amor.devices.component_handler.ComponentReferenceDistance',
