@@ -24,7 +24,7 @@
 
 import json
 
-from nicos.core import Param, oneof, usermethod, MASTER, status
+from nicos.core import Param, oneof, usermethod, status
 from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
 from nicos_ess.devices.kafka.status_handler import KafkaStatusHandler
 
@@ -102,17 +102,17 @@ class EpicsKafkaForwarder(ProducesKafkaMessages, KafkaStatusHandler):
             # Update only when the not-forwarding PVs change
             self._notforwarding = set(not_forwarding)
 
-            # Update the status
-            if self._mode == MASTER:
-                if self._notforwarding:
-                    if len(self._notforwarding) == len(issued.keys()):
-                        self._setROParam('curstatus',
-                                         (status.ERROR, 'None forwarded!'))
-                    else:
-                        self._setROParam('curstatus',
-                                         (status.WARN, 'Some not forwarded!'))
-                else:
-                    self._setROParam('curstatus', (status.OK, 'Forwarding..'))
+        # Update the status
+        if self._notforwarding:
+            lnot = len(self._notforwarding)
+            lall = len(issued.keys())
+            if lnot == lall:
+                st = status.ERROR, 'None forwarded!'
+            else:
+                st = status.WARN, 'Not forwarded: %d/%d' % (lnot, lall)
+            self._setROParam('curstatus', st)
+        else:
+            self._setROParam('curstatus', (status.OK, 'Forwarding..'))
 
     def pv_forwarding_info(self, pv):
         """ Returns the forwarded topic and schema for the given pv

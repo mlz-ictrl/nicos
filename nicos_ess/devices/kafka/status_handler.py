@@ -49,6 +49,8 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
         'curstatus': Param('Store the current device status',
                            userparam=False, type=tupleof(int, str),
                            settable=True, ),
+        'nextupdate': Param('Time when the next message is expected', type=int,
+                            userparam=False, settable=True)
     }
 
     parameter_overrides = {
@@ -61,7 +63,7 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
             self.subscribe(self.statustopic)
 
         # Initialize the next update time
-        self._expected_next_update = currenttime() + self.statusinterval
+        self._setROParam('nextupdate', currenttime() + self.statusinterval)
 
         # Rewrite the status on each startup
         if self._mode == MASTER:
@@ -83,8 +85,8 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
                 interval = (js[field] / 1000 if field in js else
                             self.statusinterval)
                 next_update = timestamp / 1000 + interval
-                if next_update > self._expected_next_update:
-                    self._expected_next_update = next_update
+                if next_update > self.nextupdate:
+                    self._setROParam('nextupdate', next_update)
             except Exception:
                 self.log.warn('Could not decode message from status topic.')
 
@@ -92,20 +94,14 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
             self._status_update_callback(json_messages)
 
         # Check if the process is still running
-        if not self.is_process_running() and self._mode == MASTER:
+        if self._mode == MASTER and not self.is_process_running():
             self._setROParam('curstatus', (status.ERROR, 'Process down!'))
 
     def is_process_running(self):
-        # If the status messages appear as expected, the process is
-        # running in background. This can only be checked if the status
-        # topic is provided. If status topic is not provided returns True
-        if self._expected_next_update == 0:
-            return True
-
         # Wait for some time to ensure that the message is written
         message_flush_buffer = 10
         now = currenttime()
-        if self._expected_next_update + message_flush_buffer < now:
+        if self.nextupdate + message_flush_buffer < now:
             return False
 
         return True
