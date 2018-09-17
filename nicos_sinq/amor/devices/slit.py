@@ -24,13 +24,13 @@
 
 """Slit devices in AMOR"""
 
-from nicos.core import Override, status
+from nicos.core import Override, status, HasPrecision
 from nicos.devices.generic.slit import SlitAxis
 from nicos.core.utils import multiStatus
 from nicos.pycompat import iteritems
 
 
-class SlitOpening(SlitAxis):
+class SlitOpening(HasPrecision, SlitAxis):
     """Device to control the slit opening/height.
 
     Motor dXt changes moves the slit's top slab in turn changing the
@@ -47,7 +47,9 @@ class SlitOpening(SlitAxis):
         'fmtstr': Override(userparam=False),
         'maxage': Override(userparam=False),
         'pollinterval': Override(userparam=False),
-        'warnlimits': Override(userparam=False)
+        'warnlimits': Override(userparam=False),
+        'precision': Override(userparam=False, default=0.01),
+        'target': Override(volatile=True)
     }
 
     status_to_msg = {
@@ -58,6 +60,11 @@ class SlitOpening(SlitAxis):
         status.UNKNOWN: 'Unknown status in %s!',
         status.OK: 'Ready.'
     }
+
+    def doReadTarget(self):
+        # Do not allow None as target
+        target = self._getFromCache('target', self.doRead)
+        return target if target is not None else self.doRead(0)
 
     def _convertRead(self, positions):
         return positions[3]
