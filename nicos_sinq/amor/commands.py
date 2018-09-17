@@ -27,8 +27,65 @@
 from nicos import session
 from nicos.commands import usercommand, helparglist
 from nicos.core.errors import ConfigurationError
+from nicos.core.spm import spmsyntax, Bare
+from nicos.commands.scan import _infostr, _handleScanArgs, ADDSCANHELP0, \
+    ADDSCANHELP2
 
 from nicos_sinq.amor.devices.hm_config import AmorTofArray
+from nicos_sinq.devices.detector import SinqDetector
+from nicos_sinq.amor.scan import WallTimeScan
+
+
+@usercommand
+@helparglist('numpoints, walltime, ...')
+@spmsyntax(Bare)
+def walltimecount(numpoints, walltime, *args, **kwargs):
+    """Count a number of times for the given amount of time on wall.
+
+    "numpoints" can be -1 to scan for unlimited points (break using Ctrl-C or
+    the GUI to quit).
+
+    "walltime" provides the time in seconds
+
+    Example:
+
+    >>> walltimecount(500, 10)  # counts 500 times, every count for 10 seconds
+
+    A special "delay" argument is supported to allow time delays between two
+    points:
+
+    >>> walltimecount(500, 2, delay=5)
+    """
+    scanstr = _infostr('walltimecount', (numpoints, walltime, ) + args, kwargs)
+    preset, scaninfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(args, kwargs, scanstr)
+
+    # Get AMOR detector
+    if not detlist:
+        detlist = session.experiment.detectors
+
+    detector = None
+    for det in detlist:
+        if isinstance(det, SinqDetector):
+            detector = det
+
+    if not detector:
+        session.log.error('Detector not found in the detector list')
+
+    # Set the beam threshold to 0
+    oldthreshold = detector.threshold
+
+    # Complete the scan
+    scan = WallTimeScan([], [], numpoints, walltime, move, multistep, detlist,
+                        envlist, preset, scaninfo)
+    scan.run()
+
+    # Reset the beam threshold to oldvalue
+    detector.threshold = oldthreshold
+
+
+walltimecount.__doc__ += \
+    (ADDSCANHELP0 + ADDSCANHELP2).replace('scan(dev, ', 'walltimecount(5, ')
 
 
 @usercommand
