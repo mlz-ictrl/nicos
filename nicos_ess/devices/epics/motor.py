@@ -69,7 +69,7 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
 
         # speed, limits and offset may change from outside, can't rely on cache
         'speed': Override(volatile=True),
-        'offset': Override(volatile=True),
+        'offset': Override(volatile=True, chatty=False),
         'abslimits': Override(volatile=True),
         'userlimits': Override(volatile=True),
     }
