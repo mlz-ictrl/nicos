@@ -7,6 +7,7 @@ devices = dict(
                    description='Laser distance measurement device',
                    readpv='SQ:AMOR:DIMETIX:DIST',
                    epicstimeout=3.0,
+                   offset=-238,
                    lowlevel=True),
 
     laser_switch=device('nicos_sinq.amor.devices.sps_switch.SpsSwitch',
