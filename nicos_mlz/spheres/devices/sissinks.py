@@ -441,8 +441,7 @@ class UYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
 
 class PreviewSinkHandler(special.LiveViewSinkHandler, SisSinkHandlerBase):
     def processArrays(self, result):
-        flux = result[1][0][0][0]
-        previewdata = result[1][0][0][1]
+        previewdata = result[1][0][0]
 
         mergerows = 7
 
@@ -474,7 +473,7 @@ class PreviewSinkHandler(special.LiveViewSinkHandler, SisSinkHandlerBase):
                 else:
                     preview[i] = counts / (tsteps * timesteptime) # = counts/s
 
-        return [flux, preview]
+        return [preview]
 
     def getAbscissa(self, result):
         return ['<f4']

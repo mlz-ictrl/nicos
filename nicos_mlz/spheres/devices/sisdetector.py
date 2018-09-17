@@ -27,7 +27,6 @@ Devices for the SIS-detector at SPHERES
 """
 
 from math import ceil
-from numpy.core.numeric import array_equal
 
 from nicos import session
 from nicos.core import Param, LIVE, INTERMEDIATE, FINAL, INTERRUPTED, oneof, \
@@ -89,10 +88,11 @@ class SISChannel(ImageChannel):
         self._block = []
         self._reason = ''
 
-        self._accumulated = []
+        self.clearAccumulated()
 
     def clearAccumulated(self):
-        self._accumulated = []
+        self._accumulated_edata = None
+        self._accumulated_cdata = None
 
     def getMode(self):
         return self._dev.GetMeasureMode()
@@ -144,18 +144,19 @@ class SISChannel(ImageChannel):
         # strip the timesteps from the provided dataset
         # return [self._dev.GetData(INACTIVE)[:48]]
 
-        flux = self._dev.GetFlux()
         if self.getMode() == INELASTIC:
             live = self._readLiveInelastic()
         else:
             live = []
 
-        return [flux, live]
+        return live
 
     def _readLiveInelastic(self):
-        r = [self._dev.GetTickData(ENERGY), self._dev.GetData(ENERGY)]
+        energy = self._dev.GetData(ENERGY)
+        if self.incremental and not self._accumulated_edata is None:
+            energy = self._mergeCounts(self._accumulated_edata, energy)
 
-        return r
+        return [self._dev.GetTickData(ENERGY), energy]
 
     def _readElastic(self):
         live = self._readLiveData()
@@ -165,18 +166,7 @@ class SISChannel(ImageChannel):
         ticks = self._dev.GetTickData(TIME)
         counts = self._dev.GetData(TIME)
 
-        data = [
-            live,
-            params,
-            ticks,
-            counts
-        ]
-
-        if self.incremental:
-            self._incrementCounts(data)
-            return self._accumulated
-
-        return data
+        return live, params, ticks, counts
 
     def _readInelastic(self):
         live = self._readLiveData()
@@ -188,20 +178,12 @@ class SISChannel(ImageChannel):
         cticks = self._dev.GetTickData(CHOPPER)
         cdata = self._dev.GetData(CHOPPER)
 
-        data = [
-            live,
-            params,
-            eticks,
-            edata,
-            cticks,
-            cdata
-        ]
-
         if self.incremental:
-            self._incrementCounts(data)
-            return self._accumulated
+            self._incrementCounts(edata, cdata)
+            return (live, params, eticks, self._accumulated_edata,
+                    cticks, self._accumulated_cdata)
 
-        return data
+        return live, params, eticks, edata, cticks, cdata
 
     def getAdditionalParams(self):
         return ['monochromator', self.monochromator,
@@ -225,63 +207,56 @@ class SISChannel(ImageChannel):
 
         return total
 
-    def _incrementCounts(self, data):
+    def _incrementCounts(self, edata, cdata):
         """
         Increment accumulated data by the given data
         """
 
-        if not self._accumulated:
-            self._accumulated = data
+        if self._accumulated_edata is None:
+            self._accumulated_edata = edata
+            self._accumulated_cdata = cdata
             return
 
-        mode = self.getMode()
+        try:
+            self._accumulated_edata = self._mergeCounts(self._accumulated_edata,
+                                                        edata)
 
-        if mode == INELASTIC:
-            if not array_equal(data[2], self._accumulated[2]):
-                self.resetIncremental('Energy tick data does not match '
-                                      'previous dataset.', data)
-            if not array_equal(data[4], self._accumulated[4]):
-                self.resetIncremental('Chopper tick data does not match '
-                                      'previous dataset.', data)
-            try:
-                self._accumulated[3] = self._mergeCounts(self._accumulated[3],
-                                                         data[3])
+            self._accumulated_cdata = self._mergeCounts(self._accumulated_cdata,
+                                                        cdata)
+        except IndexError:
+            self.resetIncremental('Error while merging arrays. '
+                                  'Lenght of accumulated(%d, %d) differs '
+                                  'from provided(%d, %d) array. '
+                                  'Switching to non incremental mode.'
+                                  % (len(self._accumulated_edata),
+                                     len(self._accumulated_cdata),
+                                     len(edata),
+                                     len(cdata)))
+            return
 
-                self._accumulated[5] = self._mergeCounts(self._accumulated[5],
-                                                         data[5])
-            except IndexError:
-                self.resetIncremental('Error while merging arrays. '
-                                      'Lenght of accumulated(%d, %d) differs '
-                                      'from provided(%d, %d) array. '
-                                      'Switching to non incremental mode.'
-                                      % (len(self._accumulated[3]),
-                                         len(self._accumulated[5]),
-                                         len(data[3]),
-                                         len(data[5])), data)
-                return
+        # # TODO: incremental for elastic? (readElastic)
+        # if mode == ELASTIC:
+        #     if array_equal(data[2], self._accumulated[2]):
+        #         self.log.warning('Time tick data does not match previous '
+        #                          'dataset. Switching to non incremental mode.')
+        #         self.incremental = False
+        #         self._accumulated = data
+        #     try:
+        #         self._accumulated[3] = self._mergeCounts(self._accumulated[3],
+        #                                                  data[3])
+        #     except IndexError:
+        #         self.resetIncremental('Error while merging arrays. '
+        #                               'Lenght of accumulated(%d) differs '
+        #                               'from provided(%d) array. '
+        #                               'Switching to non incremental mode.'
+        #                               % (len(self._accumulated[3]),
+        #                                  len(data[3])), data)
 
-        # TODO: incremental for elastic? (readElastic)
-        if mode == ELASTIC:
-            if array_equal(data[2], self._accumulated[2]):
-                self.log.warning('Time tick data does not match previous '
-                                 'dataset. Switching to non incremental mode.')
-                self.incremental = False
-                self._accumulated = data
-            try:
-                self._accumulated[3] = self._mergeCounts(self._accumulated[3],
-                                                         data[3])
-            except IndexError:
-                self.resetIncremental('Error while merging arrays. '
-                                      'Lenght of accumulated(%d) differs '
-                                      'from provided(%d) array. '
-                                      'Switching to non incremental mode.'
-                                      % (len(self._accumulated[3]),
-                                         len(data[3])), data)
-
-    def resetIncremental(self, message, data):
+    def resetIncremental(self, message):
         self.log.warning(message + ' Switching to non incremental mode.')
         self.incremental = False
-        self._accumulated = data
+        self._accumulated_edata = None
+        self._accumulated_cdata = None
 
 
 class SISDetector(Detector):
@@ -310,6 +285,11 @@ class SISDetector(Detector):
 
     def doPrepare(self):
         self._checkShutter()
+
+    def clearAccumulated(self):
+        for image in self._attached_images:
+            if isinstance(image, SISChannel):
+                image.clearAccumulated()
 
     def doFinish(self):
         Detector.doFinish(self)

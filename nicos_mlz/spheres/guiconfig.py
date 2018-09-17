@@ -27,6 +27,13 @@ main_window = tabbed(
         ('Sample Environment',
          panel('nicos.clients.gui.panels.generic.GenericPanel',
                uifile='nicos_mlz/spheres/gui/sampleenvironment.ui')),
+        (' ',
+             hsplit(
+                panel('nicos.clients.gui.panels.generic.GenericPanel',
+                      uifile='nicos_mlz/spheres/gui/experiment.ui'),
+                panel('nicos.clients.gui.panels.generic.GenericPanel',
+                      uifile='nicos_mlz/spheres/gui/temperature.ui')
+             )),
     )),
     ('Script Editor',
         vsplit(
