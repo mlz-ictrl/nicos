@@ -77,16 +77,16 @@ class AmorDetector(EpicsScalerRecord):
             timepreset = set()
 
         if timepreset:
-            preset['n'] = 0
+            preset['m'] = 0
             self.log.debug('Setting time preset of %f',
                            preset[timepreset.pop()])
             self.log.debug('Also updating the count preset to 0')
 
         if countpreset:
             preset['t'] = 0
-            self.log.info('Setting count preset of %d',
-                          preset[countpreset.pop()])
-            self.log.info('Also updating the time preset to 0')
+            self.log.debug('Setting count preset of %d',
+                           preset[countpreset.pop()])
+            self.log.debug('Also updating the time preset to 0')
 
         # Let the parent handle the rest
         EpicsScalerRecord.doSetPreset(self, **preset)
