@@ -204,7 +204,8 @@ class ScanningDetector(NicosScanDet):
                                    self.echostart)
 
     def _calc_currents(self, n, echostep=4, startval=0):
-        return startval + np.arange(-n / 2 + 1, n / 2 + 1, 1) * echostep
+        return (startval +
+                np.arange(-n / 2 + 1, n / 2 + 1, 1) * echostep).tolist()
 
     def valueInfo(self):
         res = []

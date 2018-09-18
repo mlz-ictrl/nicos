@@ -189,12 +189,17 @@ class SeqSleep(SequenceItem):
         self.endtime = 0
 
     def run(self):
+        if session.mode == SIMULATION:
+            session.clock.tick(self.duration)
+            return
         if self.duration > 3:
             session.beginActionScope(self.reason or 'Sleeping %s (H:M:S)' %
                                      timedelta(seconds=self.duration))
         self.endtime = currenttime() + self.duration
 
     def isCompleted(self):
+        if session.mode == SIMULATION:
+            return True
         if not self.stopflag and self.endtime > currenttime():
             # arbitrary choice of max 5s
             session.delay(min(5, self.endtime - currenttime()))

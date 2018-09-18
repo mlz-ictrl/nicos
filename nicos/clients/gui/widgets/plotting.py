@@ -392,6 +392,7 @@ class NicosPlotCurve(MaskedPlotCurve):
                                  linetype, markertype, linecolor, markercolor,
                                  legend, fillx=fillx, filly=filly)
         self._dependent = []
+        self._enableErrBars = True
 
     @property
     def dependent(self):
@@ -411,6 +412,41 @@ class NicosPlotCurve(MaskedPlotCurve):
         MaskedPlotCurve.visible.__set__(self, flag)
         for dep in self.dependent:
             dep.visible = flag
+
+    def isErrorBarEnabled(self, idx):
+        return self._enableErrBars
+
+    def setErrorBarEnabled(self, flag):
+        """Dis/En-able error bars for this curve.
+
+        Disabled error bars are not drawn and the corresponding
+        property `errorBar{1,2}` returns None.
+
+        Note: The internal reference to the `ErrorBar` is still kept and
+        restored on enable.
+
+        """
+        self._enableErrBars = flag
+
+    @property
+    def errorBar1(self):
+        if not self._enableErrBars:
+            return None
+        return MaskedPlotCurve.errorBar1.__get__(self)
+
+    @errorBar1.setter
+    def errorBar1(self, value):
+        MaskedPlotCurve.errorBar1.__set__(self, value)
+
+    @property
+    def errorBar2(self):
+        if not self._enableErrBars:
+            return None
+        return MaskedPlotCurve.errorBar2.__get__(self)
+
+    @errorBar2.setter
+    def errorBar2(self, value):
+        MaskedPlotCurve.errorBar2.__set__(self, value)
 
     def drawGR(self):
         gr.setmarkersize(self.GR_MARKER_SIZE)
@@ -476,6 +512,13 @@ class NicosPlot(DlgUtils):
 
     def setLegend(self, on):
         """Switch legend on or off."""
+        raise NotImplementedError
+
+    def isErrorBarEnabled(self):
+        raise NotImplementedError
+
+    def setErrorBarEnabled(self, on):
+        """Switch error bars on or off."""
         raise NotImplementedError
 
     def setVisibility(self, item, on):
@@ -752,6 +795,20 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
 
     def setLogScale(self, on):
         self._plot.setLogY(on, rescale=True)
+        self.update()
+
+    def isErrorBarEnabled(self):
+        axes = self._plot.getAxes(0)
+        if axes:
+            curves = axes.getCurves()
+            if curves:
+                return curves[0].isErrorBarEnabled(1)
+        return False
+
+    def setErrorBarEnabled(self, flag):
+        for axis in self._plot.getAxes():
+            for curve in axis.getCurves():
+                curve.setErrorBarEnabled(flag)
         self.update()
 
     def setSymbols(self, on):
@@ -1271,7 +1328,6 @@ class DataSetPlot(NicosGrPlot):
         self.update()
 
     def pointsAdded(self):
-        curve = None
         for curve, plotcurve in zip(self.dataset.curves, self.plotcurves):
             self.setCurveData(curve, plotcurve)
         if self.plotcurves and len(self.plotcurves[0].x) == 2:

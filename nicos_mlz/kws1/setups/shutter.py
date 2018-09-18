@@ -22,6 +22,7 @@ devices = dict(
         description = 'shutter control',
         output = 'shutter_set',
         input = 'shutter_in',
+        waittime = 1,
     ),
     nl3b_shutter = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Neutron guide 3b shutter status',

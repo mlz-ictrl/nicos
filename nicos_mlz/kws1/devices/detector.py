@@ -27,7 +27,7 @@
 from nicos.core import Param, Override, Attach, Moveable, DeviceMixinBase, \
     status, oneof, dictof, dictwith, MASTER, SIMULATION, ConfigurationError, \
     MoveError, multiStop, multiReset
-from nicos.devices.generic.sequence import SequencerMixin, SeqDev
+from nicos.devices.generic.sequence import SequencerMixin, SeqDev, SeqSleep
 from nicos.devices.abstract import MappedMoveable
 from nicos.utils import num_sort
 from nicos.pycompat import iteritems
@@ -76,6 +76,8 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
                             mandatory=True),
         'mapkey':     Param('Last selector position for mapping',
                             type=str, settable=True, userparam=False),
+        'beamstopsettlepos': Param('Settling position for beamstop y axis',
+                                   settable=True, default=400),
     }
 
     parameter_overrides = {
@@ -121,12 +123,16 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
                                       'running (at %s)!' % self._seq_status[1])
 
         seq = []
-        # XXX: use a SeqMultiDev
         seq.append(SeqDev(self._attached_bs_y, pos[1], stoppable=True))
         seq.append(SeqDev(self._attached_bs_x, pos[0], stoppable=True))
         seq.append(SeqDev(self._attached_det_z, pos[2], stoppable=True))
-        # maybe reposition beamstop Y axis to counter jitter?
-        # seq.append(SeqDev(self._attached_bs_y, pos[1], stoppable=True))
+
+        # if z has to move, reposition beamstop y afterwards by going to
+        # some other value (damping vibrations) and back
+        if abs(self._attached_det_z.read(0) - pos[2]) > self._attached_det_z.precision:
+            seq.append(SeqDev(self._attached_bs_y, self.beamstopsettlepos, stoppable=True))
+            seq.append(SeqSleep(30))
+            seq.append(SeqDev(self._attached_bs_y, pos[1], stoppable=True))
 
         self._startSequence(seq)
 

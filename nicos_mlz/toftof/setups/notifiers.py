@@ -9,7 +9,6 @@ devices = dict(
         copies = [
             ('wiebke.lohstroh@frm2.tum.de', 'all'),
             # ('Josef.Huber@frm2.tum.de', 'all'),
-            ('zachary.evenson@frm2.tum.de', 'all'),
         ],
         subject = 'TOFTOF',
         lowlevel = True,

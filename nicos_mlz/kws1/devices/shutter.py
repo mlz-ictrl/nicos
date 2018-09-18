@@ -24,8 +24,10 @@
 
 """Class for controlling the KWS shutter."""
 
-from nicos.core import HasTimeout, Moveable, Readable, Attach, Override, \
-    status, oneof
+from nicos import session
+from nicos.core import HasTimeout, Moveable, Readable, Attach, Param, \
+    Override, status, oneof
+from nicos.devices.generic import ManualSwitch
 
 READ_CLOSED = 1
 READ_OPEN = 2
@@ -33,10 +35,25 @@ WRITE_CLOSED = 1
 WRITE_OPEN = 7
 
 
+class VirtualShutter(ManualSwitch):
+    """Override to always return a warning state."""
+
+    def doStatus(self, maxage=0):
+        sc, _ = ManualSwitch.doStatus(self, maxage)
+        if sc == status.OK:
+            sc = status.WARN
+        return sc, 'virtual'
+
+
 class Shutter(HasTimeout, Moveable):
     """Controlling the shutter."""
 
     valuetype = oneof('closed', 'open')
+
+    parameters = {
+        'waittime':  Param('Additional time to wait before open',
+                           settable=True, unit='s', default=0),
+    }
 
     attached_devices = {
         'output':    Attach('output bits', Moveable),
@@ -73,6 +90,7 @@ class Shutter(HasTimeout, Moveable):
         return 'unknown'
 
     def doStart(self, target):
+        session.delay(self.waittime)
         if target == 'open':
             self._attached_output.start(WRITE_OPEN)
         else:

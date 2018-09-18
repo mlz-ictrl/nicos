@@ -5,7 +5,7 @@ group = 'lowlevel'
 display_order = 5
 
 devices = dict(
-    shutter = device('nicos.devices.generic.ManualSwitch',
+    shutter = device('nicos_mlz.kws1.devices.shutter.VirtualShutter',
         description = 'shutter control',
         states = ['open', 'closed'],
     ),
