@@ -46,6 +46,7 @@ devices = dict(
             owner = 'toftof',
             group = 'toftof',
         ),
+        errorbehavior = 'abort',
         elog = True,
         counterfile = 'counter',
     ),
