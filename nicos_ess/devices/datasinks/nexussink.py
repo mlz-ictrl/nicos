@@ -98,7 +98,8 @@ class NexusFileWriterStatus(KafkaStatusHandler):
 
     def _on_stop(self, jobid, dataset):
         # Called when the measurement stopped
-        self._stopped.append(jobid)
+        if jobid in self._tracked_datasets:
+            self._stopped.append(jobid)
 
     def _on_close(self, jobid, dataset):
         # Called when the file writer finishes and closes the file
@@ -138,7 +139,7 @@ class NexusFileWriterStatus(KafkaStatusHandler):
         # *messages* is a dict of timestamp and message in JSON format
 
         # Loop and read all the new interesting messages
-        for _, message in sorted(iteritems(messages), reverse=True):
+        for _, message in sorted(iteritems(messages)):
             # Find a valid message
             msgkeys = ['type', 'job_id', 'code']
             if not set(msgkeys).issubset(set(message.keys())) \
