@@ -2,12 +2,12 @@ description = 'Sample manipulation stage'
 
 group = 'lowlevel'
 
-tango_base = 'tango://motor:10000/inl/nrs/'
+tango_base = 'tango://localhost:10000/st/'
 
 devices = dict(
     transm = device('nicos.devices.tango.Motor',
         description = 'Sample translation motor',
-        tangodevice = tango_base + 'trans',
+        tangodevice = tango_base + 'x/motor',
         unit = 'mm',
         fmtstr = '%.2f',
         lowlevel = True,
@@ -19,7 +19,7 @@ devices = dict(
     ),
     rotm = device('nicos.devices.tango.Motor',
         description = 'Sample rotation motor',
-        tangodevice = tango_base + 'rot',
+        tangodevice = tango_base + 'rot/motor',
         unit = 'deg',
         fmtstr = '%.3f',
         lowlevel = True,

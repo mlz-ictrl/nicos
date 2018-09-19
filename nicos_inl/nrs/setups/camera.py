@@ -2,7 +2,7 @@ description = 'Camera devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://camera:10000/zwo/camera/'
+tango_base = 'tango://localhost:10000/zwo/camera/'
 
 sysconfig = dict(
     datasinks = ['image'],
