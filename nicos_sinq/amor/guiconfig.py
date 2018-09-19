@@ -38,7 +38,7 @@ main_window = tabbed(
                 ('All output',
                  panel('nicos.clients.gui.panels.console.ConsolePanel',
                        hasinput=False, hasmenu=False,
-                       watermark='nicos_sinq/amor/watermark.png')),
+                       watermark='nicos_sinq/watermark.png')),
                 ('Errors/Warnings',
                  panel('nicos.clients.gui.panels.errors.ErrorPanel')),
             ),
