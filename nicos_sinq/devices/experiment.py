@@ -30,8 +30,8 @@ from nicos.devices.experiment import Experiment
 from nicos.utils import readFile, writeFile
 
 
-class AmorExperiment(Experiment):
-    """Follow the current file structure used in AMOR"""
+class SinqExperiment(Experiment):
+    """Follow the current file structure used in SINQ"""
 
     def proposalpath_of(self, proposal):
         return path.join(self.dataroot, 'nicos', time.strftime('%Y'), proposal)
@@ -59,7 +59,7 @@ class AmorExperiment(Experiment):
         return path.join(self.datapath, 'DataNumber')
 
     def updateSicsCounterFile(self, value):
-        """Update the amor counter file."""
+        """Update the counter file."""
         counterpath = self.sicscounterfile
         if not path.isdir(path.dirname(counterpath)):
             os.makedirs(path.dirname(counterpath))
