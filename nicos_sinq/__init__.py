@@ -18,15 +18,23 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
 """SINQ specific NICOS package."""
 
 from os import path
+import socket
 
 
 def determine_instrument(setup_package_path):
-    # TODO adopt to SINQ systems
-    return 'amor'
+    """SINQ specific way to find the NICOS instrument from the host name."""
+    try:
+        domain = 'nicos_sinq/' + socket.getfqdn()
+    except (ValueError, IndexError, socket.error):
+        pass
+    else:
+        # ... but only if a subdir exists for it
+        if path.isdir(path.join(setup_package_path, domain)):
+            return domain.replace('/', '.')
