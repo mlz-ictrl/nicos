@@ -68,7 +68,7 @@ devices = dict(
         detectorid=1,
     ),
     psd_tof=device(
-        'nicos_sinq.amor.devices.detector.AmorDetector',
+        'nicos_sinq.devices.detector.SinqDetector',
         epicstimeout=3.0,
         description='EL737 counter box that counts neutrons and '
                     'starts streaming events',

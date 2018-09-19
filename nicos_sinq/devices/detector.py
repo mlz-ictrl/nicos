@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""Module to extend generic sinq detector for AMOR
+"""Module to implement generic sinq detector
 """
 
 from nicos.core import Attach
@@ -32,8 +32,9 @@ from nicos_ess.devices.epics.detector import EpicsCounterActiveChannel, \
 from nicos_sinq.devices.epics.scaler_record import EpicsScalerRecord
 
 
-class AmorDetector(EpicsScalerRecord):
-    """Custom detector for AMOR.
+class SinqDetector(EpicsScalerRecord):
+    """Custom detector for SINQ.
+
     Only time and monitor presets are present.
     """
 
