@@ -28,8 +28,6 @@ Devices for the SIS-detector at SPHERES
 
 from __future__ import absolute_import, division, print_function
 
-from math import ceil
-
 from nicos import session
 from nicos.core import FINAL, INTERMEDIATE, INTERRUPTED, LIVE, Param, oneof, \
     status
@@ -144,9 +142,6 @@ class SISChannel(ImageChannel):
         return (Value(name=TOTAL, type="counter", fmtstr="%d", unit="cts"),)
 
     def _readLiveData(self):
-        # strip the timesteps from the provided dataset
-        # return [self._dev.GetData(INACTIVE)[:48]]
-
         if self.getMode() == INELASTIC:
             live = self._readLiveInelastic()
         else:
@@ -271,20 +266,15 @@ class SISDetector(Detector):
         'autoshutter': Param(
             'Automatically open and close shutter as needed',
             type=bool,
-            settable=True)
+            settable=True),
     }
 
     attached_devices = {
         'shutter': Attach('Shutter', NamedDigitalOutput)
     }
 
-    def doSetPreset(self, **preset):
-        Detector.doSetPreset(self, **preset)
-        if 't' in preset and self._adevs['images'][0]._mode == 'elastic':
-            duration = preset['t']
-            interv = self._adevs['images'][0].tscaninterval
-
-            self._adevs['images'][0].preselection = int(ceil(duration/interv))
+    def getSisImageDevice(self):
+        return self._adevs['images'][0]
 
     def doPrepare(self):
         self._checkShutter()
