@@ -601,11 +601,11 @@ class dictwith(object):
         self.__doc__ = 'a dict with the following keys: ' + \
             ', '.join('%s: %s' % (k, convdoc(c)) for k, c in convs.items())
         self.keys = set(convs)
-        self.convs = convs
+        self.convs = {k: fixup_conv(conv) for (k, conv) in iteritems(convs)}
 
     def __call__(self, val=None):
         if val is None:
-            return dict((k, conv()) for k, conv in self.convs.items())
+            return dict((k, conv()) for k, conv in iteritems(self.convs))
         if not isinstance(val, dict):
             raise ValueError('value needs to be a dict')
         vkeys = set(val)
