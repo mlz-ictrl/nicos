@@ -23,7 +23,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import status, Param, Override, pvname, requires, ADMIN
+from nicos.core import status, Param, Override, pvname
 from nicos.devices.abstract import Motor, HasOffset, CanReference
 from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 
@@ -57,9 +57,6 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
         'reseterrorpv': Param('Optional PV with error reset switch.',
                               type=pvname, mandatory=False, settable=False,
                               userparam=False),
-        'reversed': Param('Reverse the direction of movement',
-                          type=bool, mandatory=False, default=False,
-                          userparam=False, settable=True, volatile=True)
     }
 
     parameter_overrides = {
@@ -74,26 +71,19 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
         'userlimits': Override(volatile=True),
     }
 
-    # Fields of the motor record with which an interaction via Channel Access
+    # Fields of the motor record for which an interaction via Channel Access
     # is required.
     motor_record_fields = {
         'readpv': 'RBV',
         'writepv': 'VAL',
         'stop': 'STOP',
-
         'donemoving': 'DMOV',
         'moving': 'MOVN',
         'miss': 'MISS',
-
         'homeforward': 'HOMF',
         'homereverse': 'HOMR',
-
         'speed': 'VELO',
-
         'offset': 'OFF',
-
-        'direction': 'DIR',
-
         'highlimit': 'HLM',
         'lowlimit': 'LLM',
         'softlimit': 'LVIO',
@@ -105,6 +95,7 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
         """
         Implementation of inherited method to automatically account for fields
         present in motor record.
+
         :return: List of PV aliases.
         """
         pvs = set(self.motor_record_fields.keys())
@@ -125,10 +116,10 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
         Implementation of inherited method that translates between PV aliases
         and actual PV names. Automatically adds a prefix to the PV name
         according to the motorpv parameter.
+
         :param pvparam: PV alias.
         :return: Actual PV name.
         """
-
         motor_record_prefix = getattr(self, 'motorpv')
         motor_field = self.motor_record_fields.get(pvparam)
 
@@ -148,25 +139,6 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
                              'limits, using %s instead.', newValue, speed)
 
         self._put_pv('speed', speed)
-
-    def doReadReversed(self):
-        return bool(self._get_pv('direction'))
-
-    def doWriteReversed(self, direction):
-        # Changes the direction in the EPICS motor record.
-        # The motor record will adjust the offset to leave the current value
-        # unchanged.
-        self._put_pv('direction', int(direction))
-
-        # Read the offset again and update parameters dictionary
-        self.offset  # pylint: disable=pointless-statement
-
-    @requires(level=ADMIN)
-    def reverseSign(self):
-        """Reverses the sign of movement from +/- to -/+.
-        """
-        self.reversed = not self.reversed
-        self.log.info('Sign changed to: %s', '-' if self.reversed else '+')
 
     def doReadOffset(self):
         return self._get_pv('offset')
@@ -230,8 +202,8 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
 
         miss = self._get_pv('miss')
         if miss != 0:
-            return status.NOTREACHED, message or \
-                   'Did not reach target position.'
+            return (status.NOTREACHED, message
+                    or 'Did not reach target position.')
 
         high_limitswitch = self._get_pv('highlimitswitch')
         if high_limitswitch != 0:
@@ -248,6 +220,11 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
         return status.OK, message or 'Ready.'
 
     def _get_status_message(self):
+        """
+        Get the status message from the motor if the PV exists.
+
+        :return: The status message if it exists, otherwise None.
+        """
         if not self.errormsgpv:
             return None
 

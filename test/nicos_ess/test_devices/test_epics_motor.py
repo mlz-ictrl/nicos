@@ -79,7 +79,7 @@ class TestEpicsMotor(object):
     motor = None
 
     @pytest.fixture(autouse=True)
-    def initialize_device(self, session):
+    def prepare(self, session):
         self.session = session
         self.motor = self.session.getDevice('motor1')
         self.motor.offset = 0
