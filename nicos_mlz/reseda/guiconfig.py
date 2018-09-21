@@ -34,6 +34,8 @@ windows = [
            panel('nicos.clients.gui.panels.scans.ScansPanel',
                  fit_functions={
                      'Resonance': (['Vmax = 0.1', 'R = 0.6'], 'Vmax / sqrt(R**2 + (f*L-1/(f*C))**2)'),
+                     'Echo': ([], 'y_0 * (1 - pol * cos((pi * (t - x_0)) / (2 * echo2pistep)) *'
+                                  'sinc((st * (t - x_1))/(2 * echo2pistep))**2)'),
                  },
                 )
           ),
