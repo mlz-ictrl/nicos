@@ -76,6 +76,12 @@ class RTE1104TimescaleSetting(Moveable):
        'freqgen': Attach('frequency generator', Moveable, optional=True),
     }
 
+    parameters = {
+        'timescale': Param('Time scale setting',
+                           type=float, settable=False, userparam=False,
+                           default=10., category='general'),
+    }
+
     parameter_overrides = {
         'unit': Override(mandatory=False, default='Hz'),
     }
@@ -86,12 +92,12 @@ class RTE1104TimescaleSetting(Moveable):
         # main value is freq!
         if self._attached_freqgen:
             return self._attached_freqgen.read(maxage)
-        return 200./float(self._attached_io.communicate('TIM:SCAL?' %
-                                                        self.channel))
+        return self.timescale/float(self._attached_io.communicate(
+            'TIM:SCAL?' % self.channel))
 
     def doStart(self, target):
-        timescale = 200./float(target)
-        self._attached_io.communicate('TIM:SCAL %g' % timescale)
+        self._attached_io.writeLine('TIM:SCAL %g' %
+                                    self.timescale/float(target))
         if self._attached_freqgen:
             self._attached_freqgen.start(target)
 
