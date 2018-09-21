@@ -24,14 +24,29 @@
 
 """Module for RESEDA specific commands."""
 
+import scipy.constants as co
+
 from nicos import session
 from nicos.commands import usercommand
 from nicos.commands.device import move, stop, wait
 from nicos.commands.measure import count
 from nicos.commands.scan import manualscan
 
-__all__ = ['zero', 'setecho', 'set_cascade', 'pol', 'miezescan']
+__all__ = ['zero', 'setecho', 'set_cascade', 'pol', 'miezescan', 'miezetau']
 
+
+@usercommand
+def miezetau(wavelength, deltaFreq, distance):
+    """Calculate MIEZE time.
+
+    It will be calculated for wavelength (A), difference frequency of coils
+    (Hz) and sample detector distance (m).
+    deltaFreq is the single difference, not double difference.
+    """
+    # co.m_n  Mass of neutron
+    # co.h    Planck constant
+    return (2*co.m_n**2/co.h**2 * (wavelength*1e-10)**3 * deltaFreq * distance *
+            1e9)
 
 @usercommand
 def zero():
