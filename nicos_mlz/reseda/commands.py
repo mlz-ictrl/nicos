@@ -28,7 +28,7 @@ import scipy.constants as co
 
 from nicos import session
 from nicos.commands import usercommand
-from nicos.commands.device import move, stop, wait
+from nicos.commands.device import move, stop, wait, maw
 from nicos.commands.measure import count
 from nicos.commands.scan import manualscan
 
@@ -122,3 +122,20 @@ def pol(up, down):
     up = float(up)
     down = float(down)
     return (up - down) / (up + down)
+
+
+@usercommand
+def freqscan(device, start, step, numsteps):
+    """Special scan for finding a resonance.
+
+    Detector must be set to according device (e.g. cbox_0a_coil_rms)
+    device: cbox_0a_fg_freq
+    start:  starting frequency in Hz
+    step:   steps in Hz
+    numsteps: number of steps
+    """
+    with manualscan(device):
+        for i in range(numsteps):
+            maw(device, start + step*i)
+            session.delay(0.2)
+            count(1)
