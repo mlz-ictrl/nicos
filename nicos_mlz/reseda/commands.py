@@ -88,6 +88,11 @@ def set_cascade():
 
 @usercommand
 def miezescan(echolist, counttime):
+    """Iterate over a list of echotimes -> measure one S(Q,t) curve
+
+    echolist: list of echotimes
+    counttime: counting time (the **same** for all list entries)
+    """
     echotime = session.getDevice('echotime')
     with manualscan(echotime, counttime):
         for etime in echolist:
