@@ -99,4 +99,6 @@ def miezescan(echolist, counttime):
 @usercommand
 def pol(up, down):
     """Calculate contrast or polarisation."""
+    up = float(up)
+    down = float(down)
     return (up - down) / (up + down)
