@@ -1,4 +1,4 @@
-description = 'setup for the left status monitor'
+description = 'setup for the right status monitor'
 group = 'special'
 
 _guidefields = Column(
@@ -82,7 +82,8 @@ _column3 = Column(
 _subcoils = Column(
     Block('Field substraction coils', [
         BlockRow(Field(name='NSE 0', dev='nse0'),
-                 Field(name='NSE 1', dev='nse1')),
+                 Field(name='NSE 1', dev='nse1'),
+                 Field(name='Phase', dev='phase')),
         ],
         setups='sub_coils',
      ),
@@ -90,7 +91,7 @@ _subcoils = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-        title = 'RESEDA MIEZE Technical',
+        title = 'RESEDA Technical',
         loglevel = 'info',
         cache = 'resedactrl.reseda.frm2',
         prefix = 'nicos/',

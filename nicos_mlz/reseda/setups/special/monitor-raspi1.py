@@ -1,4 +1,4 @@
-description = 'setup for the right status monitor'
+description = 'setup for the middle status monitor'
 group = 'special'
 
 _expcolumn = Column(
@@ -8,13 +8,11 @@ _expcolumn = Column(
                        istext=True, maxlen=15),
                  Field(name='Sample',   key='sample/samplename', width=20,
                        istext=True, maxlen=15),
-                 #Field(name='Current status', key='exp/action', width=30,
-                 #      istext=True),
                  Field(name='Last file', key='exp/lastscan'),
-                 Field(name='EchoTime', key='echotime', unit='ns'),
+                 Field(name='EchoTime', dev='echotime', unit='ns', width=15),
                  Field(name='Wavelength', dev='selector_lambda', unit='A')),
         ],
-        setups='selector',
+        setups='selector and tuning',
     ),
 )
 
@@ -36,16 +34,7 @@ _column1 = Column(
     Block('Environment', [
         BlockRow(Field(name='Power', dev='ReactorPower', format='%.1f', width=6),
                  Field(name='6-fold', dev='Sixfold', min='open', width=6)),
-                 #Field(dev='NL5S', min='open', width=6),
-                 #Field(dev='UBahn', width=5, istext=True, unit=' '),
-                 #Field(dev='OutsideTemp', name='Temp', width=4, unit=' '),
         BlockRow(#Field(dev='DoseRate', name='Rate', width=6),
-                 #Field(dev='Cooling', width=6),
-                 #Field(dev='CoolTemp', name='CoolT', width=6, format='%.1f', unit=' '),
-                 #Field(dev='PSDGas', width=6),
-                 #Field(dev='ar', name='PSD Ar', width=4, format='%.1f', unit=' '),
-                 #Field(dev='co2', name='PSD CO2', width=4, format='%.1f', unit=' '),
-                 #Field(dev='t_in_fak40', name='FAK40', width=6, format='%.1f', unit=' '),
                  Field(dev='Crane', width=7)),
         ],
         setups='reactor and guidehall',
@@ -199,24 +188,34 @@ magnets = [_ccm2a, _ccmsans, _miramagnet, _amagnet]
 
 _column3 = Column(
     Block('Cascade detector', [
-        BlockRow(Field(name='ROI',   key='psd_channel.roi', format='%.0f', width=9),
-                 Field(name='Total', key='psd_channel.total', format='%.0f', width=9),
-                 Field(name='Contrast', key='psd_channel.contrast', format='%.3f', width=6),
+        BlockRow(Field(name='ROI', key='psd_channel.roi', format='%.0f', width=15),
                  Field(name='Last image', key='exp/lastpoint')),
+        BlockRow(Field(name='cts ROI', key='psd/value[2]', format='%.0f', width=9),
+                 Field(name='Contrast ROI', key='psd/value[4]', format='%.2f', width=9)),
+        BlockRow(Field(name='cts total', key='psd/value[3]', format='%.0f', width=9),
+                 Field(name='Contrast total', key='psd/value[8]', format='%.2f', width=9)),
         BlockRow('timer', 'monitor1' ),
-        BlockRow(Field(dev='mon_hv', width=6),
-                 Field(dev='det_hv', format='%.0f', width=6)),
-                 #Field(dev='dtx')),
+        BlockRow(Field(dev='mon_hv', width=9),
+                 Field(dev='det_hv', format='%.0f', width=9)),
+        BlockRow(Field(dev='psd_chop_freq', width=12),
+                 Field(dev='psd_timebin_freq', width=12)),
         ],
         setups='det_cascade and det_base',
     ),
+    Block('3He detector', [
+         BlockRow(Field(name='Counts', key='det/value[2]', format='%.0f', width=12)),
+         BlockRow(Field(name='monitor', key='det/value[1]', format='%.0f', width=12)),
+         BlockRow(Field(name='timer', key='det/value[0]', format='%.0f', width=12)),
+         BlockRow(Field(dev='mon_hv', width=9),
+                 Field(dev='det_hv', format='%.0f', width=9)),
+        ],
+        setups='det_3he and det_base',
+    ),
     Block('Cryostat', [
-        #BlockRow(
-        #    Field(widget='nicos.guisupport.plots.TrendPlot', devices='T', names='T',  plotwindow=7200)),
         BlockRow(
-            Field(name='Tube' , key='T_ccr_d', unit='K'),
-            Field(name='Stick', key='T_ccr_b', unit='K'),
-            Field(name='Pressure', key='P_ccr', unit='mbar')),
+            Field(name='Tube' , dev='T_ccr_d', unit='K'),
+            Field(name='Stick', dev='T_ccr_b', unit='K'),
+            Field(name='Pressure', dev='P_ccr', unit='mbar')),
         ],
         setups='ccr'
         ),
