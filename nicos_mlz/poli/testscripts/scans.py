@@ -1,5 +1,9 @@
 # pylint: skip-file
 
+# test: subdirs = frm2
+# test: setups = poli
+# test: setupcode = SetDetectors(det)
+
 # Typical continuous scans over several axes.
 
 maw(gamma, 32)

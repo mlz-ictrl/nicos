@@ -1,0 +1,8 @@
+nicos/det_rot/userlimits=(-20.0,-4.459,)
+nicos/sample_rot/userlimits=(0.0,241.0,)
+nicos/flipper_inbeam/target='in'
+nicos/pol_inbeam/target='in'
+nicos/xyzcoil_inbeam/target='in'
+nicos/selector_inbeam/target='in'
+nicos/exp/detlist=['det',]
+nicos/mon_lambda/target=4

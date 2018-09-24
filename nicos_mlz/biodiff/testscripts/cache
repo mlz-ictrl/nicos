@@ -1,0 +1,4 @@
+nicos/omega_samplestepper/userlimits=(0.0,360.0,)
+nicos/omega_sampletable_m/userlimits=(-10.0,390.0,)
+nicos/omega_sampletable/userlimits=(0.0,360.0,)
+nicos/omega_samplestepper_m/userlimits=(0.0,360.0,)

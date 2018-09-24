@@ -1,5 +1,8 @@
 # pylint: skip-file
 
+# test: subdirs = frm2
+# test: setups = ccr21,ccrtestbox
+
 from time import sleep as tsleep
 
 from nicos.core.status import ERROR

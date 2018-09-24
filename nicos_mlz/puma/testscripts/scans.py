@@ -1,5 +1,9 @@
 # pylint: skip-file
 
+# test: subdirs = frm2
+# test: setups = puma, monochanger
+# test: setupcode = SetDetectors(det)
+
 # Mono lift scan:
 for i in range(5):
     mchanger._step('lift', 'top2')

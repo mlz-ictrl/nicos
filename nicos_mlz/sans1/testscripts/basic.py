@@ -1,5 +1,10 @@
 # pylint: skip-file
 
+# test: subdirs = frm2
+# test: setups = sans1
+# test: setups = selector042
+# test: setupcode = SetDetectors(det1)
+
 # test selector
 maw(selector_rpm, 21230)
 maw(selector_rpm, 3100)
@@ -10,7 +15,7 @@ maw(selector_lambda, 12)
 maw(att, 'x1000')
 maw(att, 'x100')
 
-maw(ng_pol, 'las')
+maw(ng_pol, 'pol1')
 maw(ng_pol, 'ng')
 
 maw(col, 20)
@@ -23,7 +28,7 @@ maw(bg2, '20mm')
 maw(bg2, 'open')
 
 maw(sa1, '50x50')
-maw(sa1, '10mm')
+maw(sa1, '30mm')
 
 maw(sa2, 8)
 

@@ -1,8 +1,10 @@
 # pylint: skip-file
 
+# test: setups = dns
+
 # Typical sample-detector scan going through all field configurations.
 
-N = 100
+N = 1
 DET_CENTER = -15.0
 SAMPLE_CENTER = 70.
 

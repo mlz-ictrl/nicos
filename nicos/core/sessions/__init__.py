@@ -297,6 +297,9 @@ class Session(object):
                 db = client.get_values()
             finally:
                 client.doShutdown()
+        self._simulationSync_applyValues(db)
+
+    def _simulationSync_applyValues(self, db):
         setups = db.get('session/mastersetupexplicit')
         if setups is not None and set(setups) != set(self.explicit_setups):
             self.unloadSetup()

@@ -1480,7 +1480,7 @@ class Moveable(Waitable):
                                          max(min(umax, amax), amin))
                 if restricted_limits != (umin, umax):
                     self.userlimits = restricted_limits
-            else:
+            elif self._mode != SIMULATION:
                 if umin < amin:
                     self.log.warning('user minimum (%s) below absolute '
                                      'minimum (%s), please check and re-set '

@@ -2,7 +2,7 @@
 
 # test: subdirs = frm2
 # test: setups = robot
-# test: setupcode = SetDetectors(det)
+# test: setupcode = SetDetectors(adet)
 
 # robot testing script
 

@@ -1,0 +1,5 @@
+nicos/gamma/abslimits=(-20,130)
+nicos/gamma/userlimits=(-20,130)
+nicos/chi2/abslimits=(-5,5)
+nicos/chi2/userlimits=(-5,5)
+nicos/poli/wavelength=2

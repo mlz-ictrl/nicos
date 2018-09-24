@@ -1,5 +1,9 @@
 # pylint: skip-file
 
+# test: subdirs = frm2
+# test: setups = pgaa
+# test: setupcode = SetDetectors(det)
+
 # typical PGAA application
 
 from nicos import session

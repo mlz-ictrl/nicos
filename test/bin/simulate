@@ -6,11 +6,13 @@
 
 from __future__ import absolute_import, division, print_function
 
+import os
 import sys
 from test.utils import runtime_root, selfDestructAfter
 
 from nicos import config
 from nicos.core.sessions.simulation import SimulationSession
+from nicos.protocols.cache import cache_load
 from nicos.utils import which
 
 try:
@@ -23,6 +25,8 @@ else:
     coverage.process_startup()
 
 
+sync_cache_file = None
+
 
 class TestSimulationSession(SimulationSession):
 
@@ -32,13 +36,22 @@ class TestSimulationSession(SimulationSession):
         generate_stubs()
 
     def simulationSync(self, db=None):
-        # no cache available, we have to start with default values
-        pass
+        if sync_cache_file is None:
+            return
+        db = {}
+        with open(sync_cache_file) as fp:
+            for line in fp:
+                if line.startswith('nicos/'):
+                    line = line[6:]
+                key, value = line.split('=', 1)
+                db[key] = cache_load(value)
+        self._simulationSync_applyValues(db)
 
 
 args = sys.argv[1:]
 if len(args) < 5:
-    raise SystemExit('Usage: nicos-simulate sock setups user code uuid')
+    raise SystemExit('Usage: nicos-simulate sock uuid setups user code '
+                     '[setup_subdirs [sync_cache_file]]')
 sock = args[0]
 uuid = args[1]
 setups = args[2].split(',')
@@ -49,6 +62,9 @@ if len(args) > 5:
     setup_subdirs = args[5]
 else:
     setup_subdirs = '../test'
+
+if len(args) > 6 and os.path.isfile(args[6]):
+    sync_cache_file = args[6]
 
 config.apply()
 config.nicos_root = runtime_root

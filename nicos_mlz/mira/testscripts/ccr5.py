@@ -1,5 +1,9 @@
 # pylint: skip-file
 
+# test: subdirs = frm2
+# test: setups = mira
+# test: setupcode = SetDetectors(det)
+
 from nicos import session
 
 loaded_setups = session.loaded_setups

@@ -1,0 +1,6 @@
+nicos/session/mastersetupexplicit='stressi'
+nicos/cache/plane='311'
+nicos/transm/value='Ge'
+nicos/transm_m/value=60.29
+nicos/tthm/value=72
+nicos/tthm/userlimits=(50., 100.)

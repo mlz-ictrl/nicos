@@ -1,10 +1,14 @@
 # pylint: skip-file
 
+# test: needs = CARESS
 # test: subdirs = frm2
+# test: subdirs = spodi
 # test: setups = spodi
-# test: setupcode = SetDetectors(det)
+# test: setupcode = SetDetectors(adet)
+# test: setupcode = tthm.maw(155)
 
 read()
+status()
 adet.resosteps = 40
 tths.precision = 0.001
 count(1)

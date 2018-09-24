@@ -1,0 +1,7 @@
+nicos/a2_status/value=0x5555
+nicos/att_set/value=0x0
+nicos/att_sw/value=0x155
+nicos/uni_st/value=500000
+nicos/uni_sw/value=1
+nicos/holdstat_io/value=7
+nicos/monostat_io/value=3
