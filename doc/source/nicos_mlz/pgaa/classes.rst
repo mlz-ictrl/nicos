@@ -14,18 +14,16 @@
 .. automodule:: nicos_mlz.pgaa.devices.beamfocus
 .. autoclass:: BeamFocus()
 
-.. automodule:: nicos_mlz.pgaa.devices.dspecdemo
-.. autoclass:: Spectrum()
-.. autoclass:: DSPec()
-
 .. automodule:: nicos_mlz.pgaa.devices.ellcol
 .. autoclass:: EllCol()
 
 .. automodule:: nicos_mlz.pgaa.devices.samplechanger
+.. autoclass:: SampleChanger()
+
+.. automodule:: nicos_mlz.pgaa.devices.sampledevices.py
 .. autoclass:: TacoSerial()
 .. autoclass:: SamplePusher()
 .. autoclass:: SampleMotor()
-.. autoclass:: SampleChanger()
 
 Data sinks
 ----------
