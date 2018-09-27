@@ -47,7 +47,7 @@ _frm = Column(
 ccrs = []
 ccrsupps = []
 ccrplots = []
-_ccrnrs = [6,] + range(10, 22 + 1)
+_ccrnrs = [6,] + list(range(10, 22 + 1))
 for i in _ccrnrs:
     ccrs.append(
         Block('CCR%d-Pulse tube' % i, [
