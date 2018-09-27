@@ -25,7 +25,8 @@
 
 from IO import StringIO
 
-from nicos.core import Attach, Device, Moveable, Override, Readable, status
+from nicos.core import Attach, Device, Moveable, Override, Readable, \
+    SIMULATION, status
 from nicos.devices.taco import NamedDigitalOutput, TacoDevice
 
 from nicos_mlz.panda.devices.mcc2 import MCC2Motor
@@ -97,7 +98,8 @@ class SampleMotor(MCC2Motor):
     def doInit(self, mode):
         MCC2Motor.doInit(self, mode)
         # unlock motor
-        self.comm('XP27S1')
+        if mode != SIMULATION:
+            self.comm('XP27S1')
 
     def doIsAllowed(self, pos):
         if pos != self.doRead(0):
