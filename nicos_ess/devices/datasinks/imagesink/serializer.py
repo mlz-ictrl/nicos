@@ -48,6 +48,12 @@ class HistogramFlatbuffersSerializer(object):
         # Serialize the metadatas for each dimensions
         dims = []
         for d in range(len(desc.shape)):
+            pos_unit = 0
+            if hasattr(desc, 'dimunits'):
+                pos_unit = b.CreateString(desc.dimunits[d])
+
+            pos_label = b.CreateString(desc.dimnames[d])
+
             pos_bin = 0
             if hasattr(desc, 'dimbins'):
                 bins = desc.dimbins[d]
@@ -56,17 +62,11 @@ class HistogramFlatbuffersSerializer(object):
                     ArrayFloat.ArrayFloatStartValueVector(b, len(bins))
                     # Prepend the bins
                     for bin in bins[::-1]:
-                        b.PrependFloat64(bin)
+                        b.PrependFloat32(bin)
                     pos_val = b.EndVector(len(bins))
                     ArrayFloat.ArrayFloatStart(b)
                     ArrayFloat.ArrayFloatAddValue(b, pos_val)
                     pos_bin = ArrayFloat.ArrayFloatEnd(b)
-
-            pos_unit = 0
-            if hasattr(desc, 'dimunits'):
-                pos_unit = b.CreateString(desc.dimunits[d])
-
-            pos_label = b.CreateString(desc.dimnames[d])
 
             DimensionMetaData.DimensionMetaDataStart(b)
             DimensionMetaData.DimensionMetaDataAddLength(b, desc.shape[d])
@@ -74,9 +74,9 @@ class HistogramFlatbuffersSerializer(object):
             if pos_unit:
                 DimensionMetaData.DimensionMetaDataAddUnit(b, pos_unit)
             if pos_bin:
+                DimensionMetaData.DimensionMetaDataAddBinBoundaries(b, pos_bin)
                 DimensionMetaData.DimensionMetaDataAddBinBoundariesType(
                     b, Array.Array.ArrayFloat)
-                DimensionMetaData.DimensionMetaDataAddBinBoundaries(b, pos_bin)
             dims.append(DimensionMetaData.DimensionMetaDataEnd(b))
         return dims
 
@@ -134,11 +134,6 @@ class HistogramFlatbuffersSerializer(object):
             builder.PrependUint32(s)
         pos_shape = builder.EndVector(rank)
 
-        EventHistogram.EventHistogramStartOffsetVector(builder, rank)
-        for iloop in [0] * rank:
-            builder.PrependUint32(iloop)
-        pos_offset = builder.EndVector(rank)
-
         pos_data = self._encodeArray(builder, array,
                                      numpy.prod(arraydesc.shape))
 
@@ -153,10 +148,9 @@ class HistogramFlatbuffersSerializer(object):
         EventHistogram.EventHistogramAddLastMetadataTimestamp(builder,
                                                               metadata_ts)
         EventHistogram.EventHistogramAddCurrentShape(builder, pos_shape)
-        EventHistogram.EventHistogramAddOffset(builder, pos_offset)
+        EventHistogram.EventHistogramAddData(builder, pos_data)
         EventHistogram.EventHistogramAddDataType(builder,
                                                  Array.Array.ArrayUInt)
-        EventHistogram.EventHistogramAddData(builder, pos_data)
         EventHistogram.EventHistogramAddInfo(builder, pos_info)
         hist = EventHistogram.EventHistogramEnd(builder)
         builder.Finish(hist)
