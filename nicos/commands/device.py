@@ -502,7 +502,7 @@ def get(dev, parameter):
     Examples:
 
     >>> get(phi, 'speed')
-    >>> print phi.speed
+    >>> print(phi.speed)
     """
     dev = session.getDevice(dev)
     value = getattr(dev, parameter)
