@@ -1843,6 +1843,7 @@ class Measurable(Waitable):
            class supports.
         """
         if self._sim_active:
+            self._sim_preset = preset
             return
         self.doSetPreset(**preset)
 
@@ -1861,15 +1862,16 @@ class Measurable(Waitable):
         if self._mode == SLAVE:
             raise ModeError(self, 'start not possible in slave mode')
         elif self._sim_active:
+            if preset:
+                self._sim_preset = preset
             if hasattr(self, 'doTime'):
-                time = self.doTime(preset)
+                time = self.doTime(self._sim_preset)
             else:
-                if 't' in preset:
-                    time = preset['t']
+                if 't' in self._sim_preset:
+                    time = self._sim_preset['t']
                 else:
                     time = 0
             session.clock.tick(time)
-            self._sim_preset = preset
             return
         if preset:
             self.doSetPreset(**preset)
