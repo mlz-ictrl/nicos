@@ -42,7 +42,7 @@ devices = dict(
     ),
 )
 
-for i in xrange(1, 3):
+for i in range(1, 3):
     devices['chopper_ch%i_gear' % i] = device('nicos.devices.tango.AnalogOutput',
         description = 'Chopper channel %i gear' % i,
         tangodevice = '%s/ch%igear' % (tango_base, i),
