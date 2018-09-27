@@ -57,12 +57,15 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
 
     def doInit(self, mode):
         # Determine image type
-        try:
-            data = self._communicate('GetSize')
-            iwstr, ihstr = data.split(';')
-        except IOError:
-            self.log.warning('Error during init', exc=1)
+        if self._sim_active:
             iwstr, ihstr = '2000', '1598'
+        else:
+            try:
+                data = self._communicate('GetSize')
+                iwstr, ihstr = data.split(';')
+            except IOError:
+                self.log.warning('Error during init', exc=1)
+                iwstr, ihstr = '2000', '1598'
         self._setROParam('imagewidth', int(iwstr))
         self._setROParam('imageheight', int(ihstr))
         shape = (self.imagewidth, self.imageheight)
@@ -79,13 +82,17 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
     # def doRead(self, maxage=0): ...
 
     def doReadArray(self, quality):
-        (shape, data) = self._communicate('GetImage')
-        mode = self._communicate('GetMode')
+        if not self._sim_active:
+            (shape, data) = self._communicate('GetImage')
+            mode = self._communicate('GetMode')
+        else:
+            shape = (self.imagewidth, self.imageheight)
+            data = b'0' * self.imagewidth * self.imageheight
         self._setROParam('imagewidth', shape[0])
         self._setROParam('imageheight', shape[1])
         # default for detector 'I:16' mode
         self.arraydesc = ArrayDesc('data', shape, self._modemap[mode])
-        na = np.frombuffer(data, self._modemap[mode])
+        na = np.frombuffer(bytearray(data), self._modemap[mode])
 
         na = np.flipud(na.reshape(shape))
         # as flipud creates a view, we need to copy first
