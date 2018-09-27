@@ -907,7 +907,9 @@ class ControlDialog(QDialog):
             self.settingsBtn.hide()
         self.extension.setVisible(show)
         self.settingsBtn.setText('Settings %s' % ('<<<' if show else '>>>'))
-        self.adjustSize()
+        sz = self.size()
+        sz.setHeight(self.sizeHint().height())
+        self.resize(sz)
 
     @pyqtSlot()
     def on_actionSetLimits_triggered(self):
