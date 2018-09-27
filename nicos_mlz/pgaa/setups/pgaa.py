@@ -20,8 +20,8 @@ includes = [
 devices = dict(
     sink = device('nicos_mlz.pgaa.devices.PGAASink',
         settypes = set(['scan']),
-        det1 = 'det',
-        det2 = 'detLEGe',
+        det1 = '_60p',
+        det2 = 'LEGe',
         vac = 'chamber_pressure',
     ),
 )
