@@ -52,10 +52,10 @@ class ExpPanel(Panel):
 
     Options:
 
-    * ``new_exp_panel`` -- class name of the panel which should be opened if
-      the ``proposal`` button is activated.
-    * ``finish_exp_panel`` -- class name of the panel which should be opened if
-      ``finish`` button is activated.
+    * ``new_exp_panel`` -- class name of the panel which should be opened after
+      a new experiment has been started.
+    * ``finish_exp_panel`` -- class name of the panel which should be opened
+      before an experiment is finished.
     """
 
     panelName = 'Experiment setup'

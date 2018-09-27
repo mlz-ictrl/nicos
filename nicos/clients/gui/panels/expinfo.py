@@ -60,6 +60,10 @@ class ExpInfoPanel(Panel):
     * ``popup_proposal_after`` -- if given, the proposal dialog will be opened
       when the daemon has been idle for more than the specified time interval
       (in hours).
+    * ``new_exp_panel`` -- class name of the panel which should be opened after
+      a new experiment has been started from the proposal info panel.
+    * ``finish_exp_panel`` -- class name of the panel which should be opened
+      before an experiment is finished from the proposal info panel.
     """
 
     panelName = 'Experiment Info'
