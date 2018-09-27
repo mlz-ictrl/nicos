@@ -42,6 +42,10 @@ class GenericPanel(Panel):
     Options:
 
     * ``uifile`` -- the path to the UI file to display
+    * ``showmsg`` -- if set to `True` a dialog window pops up in case of an
+      error or warning inside the daemon and displays the corresponding
+      message. If the dialog is already open, a new line with the error or
+      warning message will be added to the open dialog.
     """
 
     panelName = 'Generic'  # XXX this is not unique
