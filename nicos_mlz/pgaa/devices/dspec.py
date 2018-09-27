@@ -111,10 +111,10 @@ class DSPec(PyTangoDevice, Measurable):
     def doRead(self, maxage=0):
         return self._dev.Value.tolist()
 
-    # def doSetPreset(self, **preset):
-    #     if not preset:
-    #         return  # keep previous settings
-    #     self._lastpreset = preset
+    def presetInfo(self):
+        return set(['cond', 'value', 'Name', 'Comment', 'Filename',
+                    'Detectors', 'Comment', 'Pos', 'Beam', 'Attenuator',
+                    'ElCol', 'started'])
 
     def doSetPreset(self, **preset):
         self._started = None
@@ -264,8 +264,3 @@ class DSPec(PyTangoDevice, Measurable):
         self._read_cache = None
         self._lastread = None
         self._dont_stop_flag = False
-
-    def presetInfo(self):
-        return ('cond', 'value', 'Name', 'Name', 'Comment', 'Pos', 'Beam',
-                'Attenuator', 'ElCol', 'started', 'Subfolder', 'Detectors',
-                'Filename')
