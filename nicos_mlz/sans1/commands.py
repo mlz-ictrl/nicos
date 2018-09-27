@@ -66,10 +66,10 @@ def freqmes(assumed_freq, number_of_counts):
     obere_grenze = assumed_freq*1.1
     untere_grenze = assumed_freq*0.9
 
-    print 'Berechnung über %i Messpunkte'  %number_of_counts
+    print('Berechnung über %i Messpunkte' % number_of_counts)
 
     for i in range(number_of_counts):
-        print i+1
+        print(i + 1)
         value = valuedev.read(0)
         if value > untere_grenze and value < obere_grenze:
             value_list.append(value)
