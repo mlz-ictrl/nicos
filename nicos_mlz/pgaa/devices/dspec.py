@@ -156,6 +156,15 @@ class DSPec(PyTangoDevice, Measurable):
         self._name_ = preset['Name']
         self._comment = preset['Comment']
 
+    def doTime(self, preset):
+        if preset['cond'] in ['TrueTime', 'RealTime']:
+            return preset['value'] if 'value' in preset else 0
+        elif preset['cond'] == 'ClockTime':
+            return abs(float(preset['value']) - currenttime()) \
+                if 'value' in preset else 0
+        else:
+            return 0
+
     def doStart(self):
         try:
             self._dev.Stop()
