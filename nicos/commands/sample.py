@@ -355,8 +355,7 @@ def _extract_powder_data(num, dataset):
 @parallel_safe
 def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
               spacegroup=1):
-    """Fit powder peaks of a cubic powder sample to calibrate instrument
-    wavelength.
+    """Fit powder peaks of a powder sample to calibrate instrument wavelength.
 
     First argument is either a string that names a known material (currently
     only ``'YIG'`` is available) or a cubic lattice parameter.  Then you need

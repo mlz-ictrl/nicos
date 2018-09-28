@@ -34,9 +34,10 @@ from nicos_ess.devices.datasinks.nexussink import NexusFileWriterSink
 @usercommand
 @helparglist('template')
 def SetNexusTemplate(template):
-    """Selects the given template for the nexus files. The template
-    should be one of the specified dictionaries in the nexus_templates module
-    of the nexus data sink
+    """Selects the given template for the nexus files.
+
+    The template should be one of the specified dictionaries in the
+    nexus_templates module of the nexus data sink
 
     Example:
 
@@ -50,7 +51,7 @@ def SetNexusTemplate(template):
 @usercommand
 @helparglist('fromtime[, totime]')
 def RewriteHistory(fromtime, totime=None):
-    """ Rewrite the datasets to files in the given time period
+    """Rewrite the datasets to files in the given time period.
 
     *fromtime* and *totime* are either numbers giving **hours** in the past, or
     otherwise strings with a time specification (see below). If *totime* is not
@@ -59,27 +60,31 @@ def RewriteHistory(fromtime, totime=None):
     For example:
 
     Following commands rewrites the data from the time specified until now
+
     >>> RewriteHistory('1 day')             # allowed: d/day/days
     >>> RewriteHistory('1 week')            # allowed: w/week/weeks
     >>> RewriteHistory('30 minutes')        # allowed: m/min/minutes
     >>> RewriteHistory('2012-05-04 14:00')  # from that date/time on
 
     Following commands rewrites the data in the specified interval
+
     >>> RewriteHistory('14:00', '17:00')    # between 14h and 17h today
     >>> RewriteHistory('2012-05-04', '2012-05-08')  # between two days
 
     Following commands rewrites the data in the specified hours in past
+
     >>> RewriteHistory(3, 1)              # between last 3 to 1 hours from now
     >>> RewriteHistory(1)                 # in last 1 hour
 
     Following commands rewrites the data in the specified epoch times (sec)
+
     >>> RewriteHistory(1510827000, 1510828000)
     >>> RewriteHistory(1510827000)          # From specified time until now
 
     A combination can also be used
+
     >>> RewriteHistory(1510827000, 3)
     >>> RewriteHistory('2012-05-08', 1)
-
     """
     for sink in session.datasinks:
         if isinstance(sink, NexusFileWriterSink):

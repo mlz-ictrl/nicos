@@ -34,7 +34,7 @@ __all__ = ['tcount', 'freqmes']
 
 @usercommand
 def tcount(time_to_measure):
-    """set the switch, fg1 and fg2 for tisane counts"""
+    """Set the switch, fg1 and fg2 for tisane counts."""
     out_1 = session.getDevice('out_1')
     #tisane_fg1_sample = session.getDevice('tisane_fg1_sample')
     #tisane_fg2_det = session.getDevice('tisane_fg2_det')
@@ -52,8 +52,9 @@ def tcount(time_to_measure):
 
 @usercommand
 def freqmes(assumed_freq, number_of_counts):
-    """gives the mean frequency of the frequency counter for tisane measurements
-    for a defined number of counts
+    """Determine mean frequency of the frequency counter for *number_of_counts*.
+
+    Used or tisane measurements.
     """
     import numpy
     import time
@@ -89,15 +90,17 @@ def freqmes(assumed_freq, number_of_counts):
     print("Standardabweichung          = %f" % std_value)
     print("Verworfene Werte: %s" % wrong_list)
 
+
 @usercommand
 def setfg(freq_sample, amplitude_sample, offset_sample, shape_sample, freq_detector):
-    """opens the trigger relais and sets desired values of the multi frequency
-    generator for the sample and the detector\n
-    example: setfg(100, 0.5, 0.1, 'sin', 200)\n
-    options for shape_samle:\n
-    SINE = 'sin'\n
-    Square = 'squ'\n
-    Ramp = 'ramp' (with symmetry of 50%)\n
+    """Open the trigger relais and sets desired values of the multi frequency.
+
+    generator for the sample and the detector
+    example: setfg(100, 0.5, 0.1, 'sin', 200)
+    options for shape_samle:
+    SINE = 'sin'
+    Square = 'squ'
+    Ramp = 'ramp' (with symmetry of 50%)
     Triangle = 'tri'
     """
     multifg = session.getDevice('tisane_fg_multi')

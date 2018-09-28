@@ -37,8 +37,9 @@ __all__ = ['ExportTuning', 'ImportTuning']
 
 @usercommand
 def ExportTuning(mode, wavelength, filename='tuning'):
-    """Export tuning for *mode* (nrse or mieze) and *wavelength* to a
-    CSV file for review and editing.
+    """Export tuning for *mode* and *wavelength* to a CSV file.
+
+    Mode can be "nrse" or "mieze".
     """
     echotime = session.getDevice('echotime')
     exp = session.getDevice('Exp')
@@ -84,8 +85,9 @@ def try_float(d):
 
 @usercommand
 def ImportTuning(mode, wavelength, filename='tuning'):
-    """Import tuning for *mode* (nrse or mieze) and *wavelength* from
-    a CSV file.
+    """Import tuning for *mode* and *wavelength* from a CSV file.
+
+    Mode can be "nrse" or "mieze".
     """
     echotime = session.getDevice('echotime')
     exp = session.getDevice('Exp')

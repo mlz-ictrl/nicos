@@ -40,8 +40,10 @@ __all__ = ['tomo', 'openbeamimage', 'darkimage']
 
 @usercommand
 @helparglist('shutter, [detectors], [presets]')
+# pylint: disable=keyword-arg-before-vararg
 def openbeamimage(shutter=None, *detlist, **preset):
     """ANTARES specific openbeam image acquisition.
+
     Acquires a openbeam image and creates a current link.
     """
     exp = session.experiment
@@ -63,8 +65,10 @@ def openbeamimage(shutter=None, *detlist, **preset):
 
 @usercommand
 @helparglist('shutter, [detectors], [presets]')
+# pylint: disable=keyword-arg-before-vararg
 def darkimage(shutter=None, *detlist, **preset):
     """ANTARES specific dark image acquisition.
+
     Acquires a dark image and creates a current link.
     """
     exp = session.experiment
@@ -85,10 +89,12 @@ def darkimage(shutter=None, *detlist, **preset):
 
 @usercommand
 @helparglist('n_images, p, angle, [detectors], [presets]')
+# pylint: disable=keyword-arg-before-vararg
 def nGI_stepping(n_images, p=1, angle=0, *detlist, **preset):
     """Performs a nGI stepping scan of G0 over p periods in n_images-1 steps.
-    Calculates the stepping period from the angle of the
-    grating lines to the vertical axis 'angle'.
+
+    Calculates the stepping period from the angle of the grating lines to the
+    vertical axis *angle*.
 
     Example:
 

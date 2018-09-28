@@ -91,11 +91,12 @@ walltimecount.__doc__ += \
 @usercommand
 @helparglist('state')
 def spin(state):
-    """Change the spin state to + or -
+    """Change the spin state to + or -.
 
     Example:
 
-    Following command bring spin state to +
+    Following command brings spin state to +
+
     >>> spin('+')
     """
     if state not in ('+', '-'):
@@ -112,7 +113,8 @@ def spin(state):
 @usercommand
 @helparglist('scheme, [value]')
 def UpdateTimeBinning(scheme, value=None):
-    """Changes the time binning for histogramming the data
+    """Change the time binning for histogramming the data.
+
     Time binning schemes:
         c/q/t <argument>
         c means Delta q / q = constant = <argument>
@@ -123,9 +125,11 @@ def UpdateTimeBinning(scheme, value=None):
     Example:
 
     Following command uses the scheme c with resolution of 0.005
+
     >>> UpdateTimeBinning('c', 0.005)
 
     Following command uses the scheme q with 250 channels
+
     >>> UpdateTimeBinning('q', 250)
 
     """

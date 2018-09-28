@@ -8,10 +8,16 @@ apply the `~nicos.commands.usercommand` decorator::
 
    @usercommand
    def mycommand(...):
-      ...
+      """Summary (first line only).
+
+      Rest of documentation.
+      """
+      # code
 
 The docstring of the function is the help for the command and should include a
-usage example.  A user command should raise `~nicos.core.errors.UsageError` when
+usage example.  The first line is used as a summary in the help contents table.
+
+A user command should raise `~nicos.core.errors.UsageError` when
 used improperly: the command help is shown automatically when such an error is
 raised.
 

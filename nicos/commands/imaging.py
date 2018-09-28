@@ -39,9 +39,11 @@ __all__ = ['tomo']
 @helparglist('nangles, moveables, imgsperangle=1, [detectors], [presets]')
 # pylint: disable=keyword-arg-before-vararg
 def tomo(nangles, moveables=None, imgsperangle=1, *detlist, **preset):
-    """Performs a tomography by scanning over 360 deg in nangles steps
-    and capturing a desired amount of images (imgsperangle) per step.
-    The scanning movement will be done by all given moveables.
+    """Performs a tomography.
+
+    This is done by scanning over 360 deg in *nangles* steps and capturing a
+    desired amount of images (*imgsperangle*) per step.  The scanning movement
+    will be done by all given moveables.
 
     Examples:
 

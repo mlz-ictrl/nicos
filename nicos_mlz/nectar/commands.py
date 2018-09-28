@@ -39,9 +39,12 @@ __all__ = ['grtomo', 'alignsample']
 @usercommand
 @helparglist('nangles, moveable, imgsperangle=1, img180=True, startpoint=0, '
              '[detectors], [presets]')
+# pylint: disable=keyword-arg-before-vararg
 def grtomo(nangles, moveable=None, imgsperangle=1, img180=True, startpoint=0,
            *detlist, **preset):
-    """Performs a tomography by scanning over nangles steps in a sequence from
+    """Golden Ratio tomography.
+
+    Performs a tomography by scanning over nangles steps in a sequence from
     the Golden ratio and capturing a desired amount of images (imgsperangle)
     per step.
 
@@ -73,11 +76,11 @@ def grtomo(nangles, moveable=None, imgsperangle=1, img180=True, startpoint=0,
 @usercommand
 @helparglist('xpos, ypos, exposuretime=1, number_ob=15, number_di=15')
 def alignsample(xpos, ypos, exposuretime=1, number_ob=15, number_di=15):
-    """
-    Performs an 'sample alignment': Move the sample to a save position and
-    take first 'number_di' so called dark images with 'exposuretime' s
-    and then 'number_ob' so called open beam image with 'exposuretime s.
-    Thereafter move the sample to 'xpos, ypos'.
+    """Performs a 'sample alignment'.
+
+    Moves the sample to a safe position and takes first *number_di* dark images
+    with *exposuretime* and then *number_ob* open beam images with the same
+    *exposuretime*.  Thereafter moves the sample to *xpos*, *ypos*.
     """
     if not (0 < number_ob < 100):
         raise UsageError('Number of open beam images must be in [1..99]')

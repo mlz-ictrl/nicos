@@ -709,7 +709,9 @@ def adjust(dev, value, newvalue=None):
 @parallel_safe
 def version(*devlist):
     """List version info of the device(s).
-    If no device is given, the version of nicos-core is printed."""
+
+    If no device is given, the version of nicos-core is printed.
+    """
     if devlist:
         for dev in devlist:
             dev = session.getDevice(dev, Device)

@@ -662,8 +662,10 @@ def hklplot(**kwds):
 @usercommand
 @helparglist('(h, k, l), [psival]')
 def setalign(hkl, psival=None):
-    """Readjust Sample psi0 to the current value of the sample rotation axis
-    or the given *psival* value.
+    """Readjust sample in-plane rotation offset (psi0).
+
+    The Sample psi0 value is adjusted to the current value of the sample
+    rotation axis or the given *psival* value.
 
     Example:
 
@@ -689,7 +691,9 @@ def setalign(hkl, psival=None):
 @usercommand
 @helparglist('(h, k, l), step, numpoints, ...')
 def checkalign(hkl, step, numpoints, *args, **kwargs):
-    """Readjust Sample psi0 to the fitted center of a sample rocking scan around
+    """Readjust sample psi0 by scanning a peak.
+
+    The psi0 is adjusted to the fitted center of a sample rocking scan around
     the (h, k, l) position.  After the scan, moves back to (h, k, l).
 
     An additional a keyword "ycol" gives the Y column of the dataset to use for

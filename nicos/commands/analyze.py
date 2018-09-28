@@ -146,6 +146,7 @@ def center_of_mass(*columns):
     cm = (xs * ys).sum() / ys.sum()
     return float(cm)
 
+
 center_of_mass.__doc__ += COLHELP.replace('func(', 'center_of_mass(')
 
 
@@ -165,6 +166,7 @@ def fwhm(*columns):
     """
     xs, ys = _getData(columns)[:2]
     return estimateFWHM(xs, ys)
+
 
 fwhm.__doc__ += COLHELP.replace('func(', 'fwhm(')
 
@@ -287,13 +289,16 @@ def sigmoid(*columns):
     printTable(('parameter', 'value', 'error'), vals, session.log.info)
     return CommandLineFitResult((tuple(res._pars[1]), tuple(res._pars[2])))
 
+
 sigmoid.__doc__ += COLHELP.replace('func(', 'sigmoid(')
 
 
 @usercommand
 def ListFitters():
-    """Print a table with all known fitters usable for `center()`,
-    `checkoffset()` and related commands.
+    """Print a table with all known fitters.
+
+    These fitters are usable for `center()`, `checkoffset()` and related
+    commands.
     """
     items = []
     for k, v in FitterRegistry.fitters.items():
@@ -353,6 +358,7 @@ def center(dev, center, step, numpoints, *args, **kwargs):
         session.log.info('centered peak for %s', dev)
         maw(dev, newcenter)
 
+
 center.__doc__ += _scanFC.__doc__
 
 
@@ -387,6 +393,7 @@ def checkoffset(dev, center, step, numpoints, *args, **kwargs):
                          dev, dev.format(abs(diff), True))
         # what was formerly newcenter is now the real center
         dev.doAdjust(newcenter, center)
+
 
 checkoffset.__doc__ += _scanFC.__doc__
 
@@ -442,5 +449,6 @@ def findpeaks(*columns, **kwds):
                 peaks.append(res._pars[1][2])
 
     return peaks
+
 
 findpeaks.__doc__ += COLHELP.replace('func(', 'findpeaks(')

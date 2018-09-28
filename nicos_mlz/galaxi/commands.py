@@ -34,8 +34,7 @@ from nicos_mlz.galaxi.devices.pilatus import PilatusDetector
 @usercommand
 @helparglist('proposal, title, localcontact, ...')
 def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
-    """Start a new experiment with the given proposal number and title and
-    welcome the new user with the GALAXI voice output device.
+    """Start a new experiment with the given proposal number and title.
 
     You should also give a argument for the local contact and the primary user.
     More users can be added later with `AddUser`.  Example:
@@ -55,8 +54,7 @@ def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
 @usercommand
 @helparglist('[number of counts], [preset, ...]')
 def count(n=1, **presets):
-    """Perform ``n`` counts with all default detectors set with
-    `SetDetectors()`.
+    """Perform *n* counts with all default detectors set with `SetDetectors()`.
 
     A temporary filename will be set when using DECTRIS Pilatus detector in
     order to be able to overwrite the TIFF images.

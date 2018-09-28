@@ -37,7 +37,7 @@ from nicos import session
 
 @usercommand
 def calcEsmeraldaRots(xrot, yrot, zrot):
-    """Move goniometer to new position as specified by orienting angles
+    """Move goniometer to new position as specified by orienting angles.
 
     *x*,*y*,*z* Orienting angles as determined e.g. by Esmeralda
     """
@@ -55,15 +55,25 @@ def calcEsmeraldaRots(xrot, yrot, zrot):
     rx = Xrot(np.radians(yrot))
     ry = Yrot(np.radians(-xrot))
     rz = Zrot(np.radians(zrot))
-    rotmat = np.dot(rz,np.dot(ry,rx))
+    rotmat = np.dot(rz, np.dot(ry, rx))
     newmat = np.dot(ma, rotmat)
     npos = cpos.asG().With(matrix=newmat)
     return npos.asK()
 
+
 @usercommand
 def rmove(dev, delta):
+    """Relative move.
+
+    Move *dev* to current position plus *delta*.
+    """
     move(dev, dev() + delta)
+
 
 @usercommand
 def rmaw(dev, delta):
+    """Relative move and wait.
+
+    Move *dev* to current position plus *delta*, and wait until arrived.
+    """
     maw(dev, dev() + delta)

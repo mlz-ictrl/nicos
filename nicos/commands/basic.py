@@ -88,6 +88,7 @@ def help(obj=None):  # pylint: disable=W0622
     """
     session.showHelp(obj)
 
+
 builtins.__orig_dir = builtins.dir
 
 
@@ -525,7 +526,9 @@ def SetMode(mode):
 @usercommand
 @spmsyntax(Bool)
 def SetSimpleMode(enable):
-    """Enable or disable Simple Parameter Mode.  Example:
+    """Enable or disable Simple Parameter Mode.
+
+    Example:
 
     >>> SetSimpleMode(True)
 
@@ -650,7 +653,7 @@ class _ScriptScope(object):
         session.elogEvent('scriptend', self.filename)
 
 
-@usercommand
+@hiddenusercommand
 def _RunScript(filename, statdevices, debug=False):
     fn = _scriptfilename(filename)
     if not path.isfile(fn) and os.access(fn, os.R_OK):
@@ -706,7 +709,7 @@ def _RunScript(filename, statdevices, debug=False):
                              dev.format(dev._sim_value), dev.unit)
 
 
-@usercommand
+@hiddenusercommand
 def _RunCode(code, debug=False):
     if session.mode == SIMULATION:
         starttime = session.clock.time
@@ -788,7 +791,7 @@ def sim(what, *devices, **kwargs):
 @helparglist('[subject, ]bodytext')
 @parallel_safe
 def notify(*args):
-    """Send a message via email and/or SMS.
+    """Send a message via a notification system (email, SMS, Slack, or others).
 
     The receivers of email messages can be selected by `SetMailReceivers()`.
 
@@ -900,8 +903,10 @@ def SetDataReceivers(*emails):
 @usercommand
 @parallel_safe
 def ListDataReceivers():
-    """List email addresses to which experimental data will be sent when a
-    proposal is finished.  See also `SetDataReceivers`.
+    """List email addresses to which experimental data will be sent.
+
+    Data is sent once when a proposal is finished.  See also
+    `SetDataReceivers`.
 
     Example:
 
@@ -932,6 +937,7 @@ class timer(object):
     def __exit__(self, *args):
         duration = time.time() - self.starttime
         session.log.info('Elapsed time: %.3f s', duration)
+
 
 timer = timer()
 

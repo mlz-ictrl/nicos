@@ -74,8 +74,7 @@ __all__ = [
 
 @usercommand
 def lubricate_liftingctr(startpos, endpos):
-    """Lubricate the lifting counter, while starting from *startpos* and
-    moving to *endpos*.
+    """Lubricate the lifting counter, while going from *startpos* to *endpos*.
 
     Example:
 
