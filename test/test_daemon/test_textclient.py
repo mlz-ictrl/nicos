@@ -31,6 +31,7 @@ import time
 import mock
 
 from nicos.clients.cli import NicosCmdClient, main as cli_main
+from nicos.protocols.daemon import STATUS_RUNNING, STATUS_IDLE
 
 from test.utils import daemon_addr
 
@@ -39,7 +40,7 @@ class CmdClient(NicosCmdClient):
 
     interact = None
     test_output = []
-    test_status = ['idle']
+    test_signals = []
 
     def readline(self, prompt, add_history=True):
         self.put(prompt)
@@ -48,6 +49,7 @@ class CmdClient(NicosCmdClient):
         except StopIteration:
             assert False, 'ran out of commands in input'
         del self.test_output[:]
+        del self.test_signals[:]
         return cmd
 
     def put(self, string):
@@ -59,13 +61,13 @@ class CmdClient(NicosCmdClient):
     def put_client(self, string):
         self.test_output.append('# ' + string)
 
-    def set_status(self, status):
-        self.test_status[0] = status
-        NicosCmdClient.set_status(self, status)
+    def signal(self, name, data=None, exc=None):
+        self.test_signals.append((name, data, exc))
+        return NicosCmdClient.signal(self, name, data, exc)
 
 
 def test_textclient(daemon):
-    def dialog(out, sts):
+    def dialog(out, sig):
         def has_msg(msg):
             return any(msg in line for line in out)
 
@@ -74,16 +76,27 @@ def test_textclient(daemon):
             while not any(msg in line for line in out):
                 time.sleep(0.01)
                 if time.time() > start + timeout:
-                    print('messages:', out)
+                    print('!!! messages:', out)
                     return False
+            print('messages:', out)
             return True
 
         def wait_idle(timeout=5):
             start = time.time()
-            while sts[0] != 'idle':
+            have_processing = have_busy = have_idle = False
+            while not (have_processing and have_busy and have_idle):
                 time.sleep(0.01)
+                for (name, data, _) in sig:
+                    if name == 'processing':
+                        have_processing = True
+                    elif name == 'status' and data[0] == STATUS_RUNNING:
+                        have_busy = True
+                    elif name == 'status' and data[0] == STATUS_IDLE:
+                        have_idle = True
                 if time.time() > start + timeout:
+                    print('!!! events:', sig)
                     assert False, 'idle wait timeout'
+            print('events:', sig)
 
         # messages after connection
         assert has_msg_wait('# Loaded setups:')
@@ -159,6 +172,6 @@ def test_textclient(daemon):
         yield '/quit'
 
     CmdClient.interact = dialog(CmdClient.test_output,
-                                CmdClient.test_status)
+                                CmdClient.test_signals)
     with mock.patch('nicos.clients.cli.NicosCmdClient', CmdClient):
         cli_main(['', 'guest:guest@' + daemon_addr])
