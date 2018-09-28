@@ -392,7 +392,8 @@ class MainWindow(DlgUtils, QMainWindow):
         if self.helpWindow:
             self.helpWindow.close()
 
-        self.on_actionConnect_triggered(False)
+        if self.client.isconnected:
+            self.on_actionConnect_triggered(False)
 
         event.accept()
         QApplication.instance().quit()
