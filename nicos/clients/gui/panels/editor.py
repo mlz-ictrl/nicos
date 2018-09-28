@@ -125,7 +125,8 @@ class EditorPanel(Panel):
         self.menuToolsActions = []
 
         for fn in self.recentf:
-            action = QAction(fn, self)
+            action = QAction(fn.replace('&', '&&'), self)
+            action.setData(fn)
             action.triggered.connect(self.openRecentFile)
             self.recentf_actions.append(action)
             self.menuRecent.addAction(action)
@@ -667,7 +668,7 @@ class EditorPanel(Panel):
         self.clearSimPane()
 
     def openRecentFile(self):
-        fn = self.sender().text().encode(sys.getfilesystemencoding())
+        fn = self.sender().data().encode(sys.getfilesystemencoding())
         self.openFile(fn)
 
     def openFile(self, fn, quiet=False):
@@ -700,7 +701,8 @@ class EditorPanel(Panel):
         editor.setFocus()
 
     def addToRecentf(self, fn):
-        new_action = QAction(fn, self)
+        new_action = QAction(fn.replace('&', '&&'), self)
+        new_action.setData(fn)
         new_action.triggered.connect(self.openRecentFile)
         if self.recentf_actions:
             self.menuRecent.insertAction(self.recentf_actions[0], new_action)
@@ -711,7 +713,8 @@ class EditorPanel(Panel):
             self.recentf_actions.append(new_action)
         with self.sgroup as settings:
             settings.setValue('recentf',
-                              [a.text() for a in self.recentf_actions])
+                              [a.data().encode(sys.getfilesystemencoding())
+                               for a in self.recentf_actions])
 
     @pyqtSlot()
     def on_actionSave_triggered(self):
