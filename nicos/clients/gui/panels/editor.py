@@ -649,7 +649,7 @@ class EditorPanel(Panel):
                                          'Script files (*.py *.txt)')[0]
         if not fn:
             return
-        self.openFile(fn.encode(sys.getfilesystemencoding()))
+        self.openFile(fn)
         self.addToRecentf(fn)
 
     @pyqtSlot()
@@ -668,12 +668,12 @@ class EditorPanel(Panel):
         self.clearSimPane()
 
     def openRecentFile(self):
-        fn = self.sender().data().encode(sys.getfilesystemencoding())
-        self.openFile(fn)
+        self.openFile(self.sender().data())
 
     def openFile(self, fn, quiet=False):
         try:
-            with io.open(fn, 'r', encoding='utf-8') as f:
+            with io.open(fn.encode(sys.getfilesystemencoding()), 'r',
+                         encoding='utf-8') as f:
                 text = f.read()
         except Exception as err:
             if quiet:
@@ -713,8 +713,7 @@ class EditorPanel(Panel):
             self.recentf_actions.append(new_action)
         with self.sgroup as settings:
             settings.setValue('recentf',
-                              [a.data().encode(sys.getfilesystemencoding())
-                               for a in self.recentf_actions])
+                              [a.data() for a in self.recentf_actions])
 
     @pyqtSlot()
     def on_actionSave_triggered(self):
@@ -765,7 +764,6 @@ class EditorPanel(Panel):
             return False
         if not fn.endswith(('.py', '.txt')):
             fn += defaultext
-        fn = fn.encode(sys.getfilesystemencoding())
         self.addToRecentf(fn)
         self.watchers[editor].removePath(self.filenames[editor])
         self.filenames[editor] = fn
