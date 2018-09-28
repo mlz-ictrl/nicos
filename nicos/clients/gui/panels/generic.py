@@ -59,6 +59,8 @@ class GenericPanel(Panel):
         loadUi(self, findResource(options['uifile']))
         if options.get('showmsg'):
             self.client.message.connect(self.on_client_message)
+        if client.isconnected:
+            self.on_client_connected()
         client.connected.connect(self.on_client_connected)
 
     def on_client_connected(self):
