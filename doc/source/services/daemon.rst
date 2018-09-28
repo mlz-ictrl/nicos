@@ -79,7 +79,7 @@ default port is ``1301``.
 It also has a list attached devices, the ``authenticators``.  Authenticators
 determine if the login name and password presented in clients are accepted by
 the daemon, and which user level the user gets.  There are different
-:ref:`authenicator classes <authenticator_classes>`.
+:ref:`authenticator classes <authenticator_classes>`.
 
 In our example the password for the user ``guest`` is empty meaning no password
 is needed to authenticate.
