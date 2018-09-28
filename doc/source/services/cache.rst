@@ -79,7 +79,7 @@ There is an attached device for the server, the cache database.  In our example
 it is a :class:`FlatfileCacheDatabase <nicos.services.cache.database.FlatfileCacheDatabase>`,
 which stores the data under directory ``data/cache`` in the current directory.
 
-There are :ref:`several database classes <cache_databases>` that can be used
+There are :ref:`several database classes <cache-databases>` that can be used
 here.
 
 
@@ -94,7 +94,7 @@ Server class
 Cache databases
 ---------------
 
-.. _cache_databases:
+.. _cache-databases:
 
 .. module:: nicos.services.cache.database
 

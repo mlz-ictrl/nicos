@@ -35,7 +35,7 @@ functionality of the specific instrument.  It is selected in setups using
 .. autoclass:: Instrument()
 
 
-.. _data_sinks:
+.. _data-sinks:
 
 Data Sinks
 ----------

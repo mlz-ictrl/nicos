@@ -40,7 +40,7 @@ Existing widgets are:
 All widgets are provided in the Qt designer when starting it :ref:`in the
 correct way <gui-designer>`.
 
-.. _widget_sizes:
+.. _widget-sizes:
 
 Widget size
 -----------

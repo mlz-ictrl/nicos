@@ -41,7 +41,7 @@ except the **description** entry:
 
    It's a good pratice to add the description to every setup file and device.
 
-.. _setup_group:
+.. _setup-group:
 
 ``group``
    A string giving the group of the setup.  The following groups are
@@ -274,7 +274,7 @@ The possible entries for the ``sysconfig`` dictionary are:
 
 .. data:: datasinks
 
-   A list of names of :ref:`data_sinks`, i.e. special devices that process
+   A list of names of :ref:`data-sinks`, i.e. special devices that process
    measured data.  These devices must be defined somewhere in a ``devices``
    dictionary.
 
