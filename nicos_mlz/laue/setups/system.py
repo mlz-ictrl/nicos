@@ -11,10 +11,7 @@ sysconfig = dict(
     notifiers = ['email', 'smser'],
 )
 
-modules = [
-    'nicos.commands.standard', 'nicos.commands.utility',
-    'nicos_mlz.laue.lauecommands'
-]
+modules = ['nicos.commands.standard',]
 
 devices = dict(
     Laue = device('nicos.devices.instrument.Instrument',
@@ -51,4 +48,4 @@ devices = dict(
     ),
 )
 
-includes = ['notifiers', 'detector', 'kappa', 'reactor', 'slits']
+includes = ['notifiers',]
