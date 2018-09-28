@@ -145,8 +145,6 @@ class ScriptStatusPanel(Panel):
         self.showETA = bool(options.get('eta', False))
         self.etaWidget.hide()
 
-        self.dateformat = options.get('dateformat', '%Y/%m/%d %H:%M:%S')
-
         client.request.connect(self.on_client_request)
         client.processing.connect(self.on_client_processing)
         client.blocked.connect(self.on_client_blocked)
