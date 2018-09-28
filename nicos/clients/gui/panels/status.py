@@ -110,6 +110,10 @@ class ScriptStatusPanel(Panel):
       if is set to ``True``, the execution of a script will be aborted,
       otherwise a counting will be finished first before the script will be
       stopped.
+    * ``eta`` (default False) - if set to ``True`` the "ETA" (estimated time of
+      end of script) will be displayed if the
+      :class:`daemon <nicos.services.daemon.NicosDaemon>` is configured to run
+      with automatic simulation of the current command.
     """
 
     panelName = 'Script status'
