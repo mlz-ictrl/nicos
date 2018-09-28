@@ -28,14 +28,6 @@ from __future__ import print_function
 
 import time
 
-try:
-    import readline
-except ImportError:
-    readline = None
-    is_libedit = False
-else:
-    is_libedit = 'libedit' in readline.__doc__
-
 import mock
 
 from nicos.clients.cli import NicosCmdClient, main as cli_main
