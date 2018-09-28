@@ -90,6 +90,13 @@ class EditorPanel(Panel):
     opportunity to create and check measurement scripts.  The editor widget
     uses `QScintilla` if it is installed, and a standard text edit box
     otherwise.
+
+    Options:
+
+    * ``tools`` (default None) -- a list of `tools` which may configure some
+      special commands or scripts.  The tools can generate code to insert
+      into the editor window.  The access to these tools will be given via a
+      special menu ``Editor tools``.
     """
 
     panelName = 'User editor'
