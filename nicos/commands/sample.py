@@ -25,7 +25,7 @@
 
 """NICOS Sample related usercommands"""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import json
 from copy import deepcopy
