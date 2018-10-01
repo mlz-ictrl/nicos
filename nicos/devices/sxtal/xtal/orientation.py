@@ -24,7 +24,7 @@
 
 """Tools for handling orientation calculations."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import numpy as np
 import scipy.optimize

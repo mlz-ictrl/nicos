@@ -26,7 +26,7 @@
 Single crystal sample device
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from nicos.core import Param, dictof, floatrange, listof, oneof
 from nicos.devices.sample import Sample

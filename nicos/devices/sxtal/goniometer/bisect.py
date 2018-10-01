@@ -28,7 +28,7 @@ Bisect
 class for storing a bisecting position.
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import numpy as np
 

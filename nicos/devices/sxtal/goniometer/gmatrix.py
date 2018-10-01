@@ -26,7 +26,7 @@ Gmatrix
 
 store position as goniometer matrix
 '''
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import numpy as np
 
