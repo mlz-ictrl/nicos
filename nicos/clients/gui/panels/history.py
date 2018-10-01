@@ -25,6 +25,8 @@
 
 """NICOS GUI history log window."""
 
+from __future__ import absolute_import
+
 import functools
 import operator
 import os

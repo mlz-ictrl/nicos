@@ -25,6 +25,8 @@
 
 """NICOS GUI electronic logbook window."""
 
+from __future__ import absolute_import
+
 from cgi import escape
 from os import path
 

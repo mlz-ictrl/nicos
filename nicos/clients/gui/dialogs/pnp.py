@@ -24,6 +24,8 @@
 
 """Dialog for showing information about new plug-and-play events."""
 
+from __future__ import absolute_import
+
 from nicos.guisupport.qt import QMessageBox, QStyle, Qt, pyqtSignal
 
 

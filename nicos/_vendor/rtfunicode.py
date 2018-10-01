@@ -4,6 +4,8 @@
 # Command codes are of the form `\uN?`, where N is a signed 16-bit integer and
 # ? is a placeholder character for pre-1.5 RTF readers.
 
+from __future__ import absolute_import
+
 import codecs
 import re
 import sys

@@ -24,6 +24,8 @@
 
 """Utilities for the electronic logbook daemon."""
 
+from __future__ import absolute_import
+
 import time
 from cgi import escape
 from logging import DEBUG, ERROR, FATAL, INFO, WARNING

@@ -24,6 +24,8 @@
 
 """The NICOS electronic logbook."""
 
+from __future__ import absolute_import
+
 import io
 from cgi import escape
 from logging import ERROR

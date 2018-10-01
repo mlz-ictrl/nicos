@@ -24,6 +24,8 @@
 
 """NICOS GUI data handler class."""
 
+from __future__ import absolute_import
+
 import copy
 import uuid
 from itertools import chain

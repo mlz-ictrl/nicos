@@ -24,6 +24,8 @@
 
 """The NICOS version info pushing daemon."""
 
+from __future__ import absolute_import
+
 from datetime import datetime
 
 from nicos.pycompat import urllib

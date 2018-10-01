@@ -24,6 +24,8 @@
 
 """NICOS GUI command line input component."""
 
+from __future__ import absolute_import
+
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, modePrompt
 from nicos.guisupport.utils import setBackgroundColor

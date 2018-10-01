@@ -24,6 +24,8 @@
 
 """Always-on-top emergency stop button."""
 
+from __future__ import absolute_import
+
 from nicos.clients.gui.utils import SettingGroup
 from nicos.guisupport.qt import QAbstractButton, QByteArray, QHBoxLayout, \
     QIcon, QMainWindow, QPainter, QPoint, QSize, Qt, QWidget

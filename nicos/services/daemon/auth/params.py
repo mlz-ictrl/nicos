@@ -25,6 +25,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.core import ACCESS_LEVELS
 from nicos.pycompat import string_types
 

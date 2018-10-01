@@ -24,6 +24,8 @@
 
 """NICOS temperature controller classes."""
 
+from __future__ import absolute_import
+
 import TACOStates
 import Temperature
 

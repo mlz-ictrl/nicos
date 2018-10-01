@@ -24,6 +24,8 @@
 
 """Module for basic user commands."""
 
+from __future__ import absolute_import
+
 import inspect
 import io
 import os

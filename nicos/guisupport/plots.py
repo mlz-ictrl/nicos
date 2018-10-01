@@ -26,6 +26,8 @@
 NICOS value plot widget.
 """
 
+from __future__ import absolute_import
+
 import functools
 import operator
 from time import localtime, strftime, time as currenttime

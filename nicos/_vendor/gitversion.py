@@ -10,7 +10,7 @@
 # rather than in a git working copy), then we fall back on reading the
 # contents of the RELEASE-VERSION file.
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 from os import path
 from subprocess import PIPE, Popen

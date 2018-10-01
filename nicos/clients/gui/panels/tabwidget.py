@@ -24,6 +24,8 @@
 
 """NICOS GUI enhanced TabWidget."""
 
+from __future__ import absolute_import
+
 from nicos.clients.gui.panels.auxwindows import AuxiliarySubWindow, Panel
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
 from nicos.guisupport.qt import QApplication, QByteArray, QCursor, QDrag, \

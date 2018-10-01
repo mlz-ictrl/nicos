@@ -24,6 +24,8 @@
 
 """System-related device classes for NICOS."""
 
+from __future__ import absolute_import
+
 import ctypes
 import os
 

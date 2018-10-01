@@ -26,6 +26,8 @@
 The nicos package contains all standard NICOS commands and devices.
 """
 
+from __future__ import absolute_import
+
 import sys
 from logging import getLogger
 

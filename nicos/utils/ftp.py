@@ -24,6 +24,8 @@
 
 """Utilities for uploading files to a ftp-server."""
 
+from __future__ import absolute_import
+
 import time
 from ftplib import FTP
 from hashlib import md5

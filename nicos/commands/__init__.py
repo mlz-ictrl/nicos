@@ -24,6 +24,8 @@
 
 """Base package for NICOS commands."""
 
+from __future__ import absolute_import
+
 import sys
 from functools import wraps
 

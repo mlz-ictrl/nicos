@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from time import time as currenttime
 
 import numpy as np

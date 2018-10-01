@@ -26,6 +26,8 @@
 
 """NICOS core utility functions."""
 
+from __future__ import absolute_import
+
 import sys
 from collections import namedtuple
 from functools import wraps

@@ -25,6 +25,8 @@
 
 """Support for "auxiliary" windows containing panels."""
 
+from __future__ import absolute_import
+
 from nicos.clients.gui.panels.base import SetupDepPanelMixin
 from nicos.guisupport.qt import QSplitter, Qt
 from nicos.utils.loggers import NicosLogger

@@ -24,6 +24,8 @@
 
 """NICOS GUI user editor utility classes."""
 
+from __future__ import absolute_import
+
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QDialog, QMessageBox, QStyle, pyqtSlot
 from nicos.guisupport.utils import waitCursor

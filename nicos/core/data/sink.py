@@ -24,6 +24,8 @@
 
 """Base classes for NICOS data sinks."""
 
+from __future__ import absolute_import
+
 from gzip import GzipFile as StdGzipFile
 from os import path
 

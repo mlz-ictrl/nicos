@@ -4,11 +4,9 @@
 # isort:skip-file
 
 import omniORB
-
-# ** 1. Stub files contributing to this module
-
 omniORB.updateModule("_GlobalIDL__POA")
 
+# ** 1. Stub files contributing to this module
 import nicos.devices.vendor.caress.absdev_idl
 
 # ** 2. Sub-modules

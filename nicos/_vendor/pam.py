@@ -9,7 +9,7 @@ a user against the Pluggable Authentication Modules (PAM) on the system.
 
 Implemented using ctypes, so no compilation is necessary.
 """
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 from ctypes import CDLL, CFUNCTYPE, POINTER, Structure, c_char, c_char_p, \
     c_int, c_uint, c_void_p, cast, pointer, sizeof

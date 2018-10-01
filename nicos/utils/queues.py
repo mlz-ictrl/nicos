@@ -26,6 +26,8 @@
 In-memory queue implementations for  NICOS
 """
 
+from __future__ import absolute_import
+
 from nicos.pycompat import queue
 
 

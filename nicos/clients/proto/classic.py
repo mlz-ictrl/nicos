@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 import socket
 import uuid
 

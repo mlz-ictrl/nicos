@@ -24,6 +24,8 @@
 
 """Virtual TAS devices."""
 
+from __future__ import absolute_import
+
 from time import time as currenttime
 
 from numpy import random

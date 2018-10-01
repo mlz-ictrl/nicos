@@ -24,6 +24,8 @@
 
 """Graphical interface to send an instrument downtime report."""
 
+from __future__ import absolute_import
+
 import collections
 
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi

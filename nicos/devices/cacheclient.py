@@ -25,6 +25,8 @@
 
 """NICOS cache clients."""
 
+from __future__ import absolute_import
+
 import select
 import socket
 import threading

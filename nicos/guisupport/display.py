@@ -26,6 +26,8 @@
 NICOS value display widget.
 """
 
+from __future__ import absolute_import
+
 from cgi import escape
 from os.path import getmtime, isfile
 from time import time as currenttime

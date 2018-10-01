@@ -24,6 +24,8 @@
 
 """Raw image formats."""
 
+from __future__ import absolute_import
+
 import re
 from os import path
 

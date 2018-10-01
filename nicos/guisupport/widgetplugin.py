@@ -24,7 +24,7 @@
 
 """Qt designer plugin for NICOS UI widgets."""
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import os
 

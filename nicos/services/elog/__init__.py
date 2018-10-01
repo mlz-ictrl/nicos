@@ -24,6 +24,8 @@
 
 """The NICOS electronic logbook."""
 
+from __future__ import absolute_import
+
 import sys
 from time import time as currenttime
 

@@ -24,6 +24,8 @@
 
 """Calculation GUI tool."""
 
+from __future__ import absolute_import
+
 import math
 import re
 from os import path

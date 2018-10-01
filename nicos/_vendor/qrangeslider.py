@@ -32,16 +32,27 @@
 #   http://rsgalloway.github.com/qrangeslider
 # ---------------------------------------------------------------------------------------------
 
-__author__ = "Ryan Galloway <ryan@rsgalloway.com>"
-__version__ = "0.1.1"
-
-
 # ---------------------------------------------------------------------------------------------
 # SUMMARY
 # ---------------------------------------------------------------------------------------------
 """The QRangeSlider class implements a horizontal range slider widget.
 
 """
+
+# ---------------------------------------------------------------------------------------------
+# IMPORTS
+# ---------------------------------------------------------------------------------------------
+from __future__ import absolute_import
+
+import sys
+
+from nicos.guisupport.qt import QApplication, QColor, QFont, QGridLayout, \
+    QGroupBox, QHBoxLayout, QMetaObject, QPainter, QSize, QSplitter, Qt, \
+    QWidget, pyqtSignal
+
+__author__ = "Ryan Galloway <ryan@rsgalloway.com>"
+__version__ = "0.1.1"
+
 
 # ---------------------------------------------------------------------------------------------
 # TODO
@@ -55,14 +66,7 @@ __version__ = "0.1.1"
 
 """
 
-# ---------------------------------------------------------------------------------------------
-# IMPORTS
-# ---------------------------------------------------------------------------------------------
-import sys
 
-from nicos.guisupport.qt import QApplication, QColor, QFont, QGridLayout, \
-    QGroupBox, QHBoxLayout, QMetaObject, QPainter, QSize, QSplitter, Qt, \
-    QWidget, pyqtSignal
 
 __all__ = ['QRangeSlider']
 

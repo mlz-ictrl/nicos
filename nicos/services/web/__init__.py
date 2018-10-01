@@ -24,6 +24,8 @@
 
 """Session used for the NICOS web interface."""
 
+from __future__ import absolute_import
+
 import sys
 from wsgiref.simple_server import make_server
 

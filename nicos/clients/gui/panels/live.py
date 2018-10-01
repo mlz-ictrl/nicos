@@ -24,6 +24,8 @@
 
 """Mapping for the live data panels."""
 
+from __future__ import absolute_import
+
 try:
     from nicos.clients.gui.panels.livegr import LiveDataPanel
 except ImportError:

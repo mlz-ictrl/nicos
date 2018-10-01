@@ -24,6 +24,8 @@
 
 """A line editor control with history stepping."""
 
+from __future__ import absolute_import
+
 import re
 
 from nicos.clients.gui.utils import ScriptExecQuestion

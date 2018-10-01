@@ -26,6 +26,8 @@
 Commands for single-crystal diffraction.
 """
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.commands import helparglist, usercommand
 from nicos.commands.scan import cscan

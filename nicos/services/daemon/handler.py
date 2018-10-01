@@ -27,6 +27,8 @@ The connection handler for the execution daemon, handling the protocol
 commands.
 """
 
+from __future__ import absolute_import
+
 import base64
 import os
 import socket

@@ -25,6 +25,8 @@
 
 """NICOS axis classes."""
 
+from __future__ import absolute_import
+
 import TACOStates
 from Motor import Motor as TACOMotor
 

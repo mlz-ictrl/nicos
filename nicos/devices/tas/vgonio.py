@@ -25,6 +25,8 @@
 """Virtual goniometers that sit along the orientation reflexes, at an angle
 to the real goniometers."""
 
+from __future__ import absolute_import
+
 from numpy import arcsin, cos, pi, sin
 
 from nicos.core import Attach, Moveable, Param, oneof

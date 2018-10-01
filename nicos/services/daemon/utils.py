@@ -24,6 +24,8 @@
 
 """Utilities for the NICOS daemon."""
 
+from __future__ import absolute_import
+
 import ast
 import linecache
 import logging

@@ -24,6 +24,8 @@
 
 """"Manual" moveable devices, to keep track of manual instrument changes."""
 
+from __future__ import absolute_import
+
 from nicos.core import HasLimits, Moveable, Override, Param, PositionError, \
     anytype, nonemptylistof, oneof, status
 

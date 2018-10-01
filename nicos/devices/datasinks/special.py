@@ -24,6 +24,8 @@
 
 """Data sink classes (new API) for NICOS."""
 
+from __future__ import absolute_import
+
 from os import path
 from time import time as currenttime
 

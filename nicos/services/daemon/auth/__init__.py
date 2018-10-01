@@ -25,6 +25,8 @@
 
 """NICOS daemon authentication and user abstraction."""
 
+from __future__ import absolute_import
+
 from nicos.core import ADMIN, Device, User
 
 

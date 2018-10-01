@@ -29,6 +29,8 @@ All NICOS - TANGO devices only support devices which fulfill the official
 MLZ TANGO interface for the respective device classes.
 """
 
+from __future__ import absolute_import
+
 import os
 import re
 import socket

@@ -25,6 +25,8 @@
 
 """Toni-protocol device classes."""
 
+from __future__ import absolute_import
+
 from time import sleep, time as currenttime
 
 from IO import StringIO

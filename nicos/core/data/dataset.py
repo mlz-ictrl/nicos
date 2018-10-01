@@ -24,6 +24,8 @@
 
 """Dataset classes."""
 
+from __future__ import absolute_import
+
 from math import sqrt
 from threading import Lock
 from time import localtime, time as currenttime

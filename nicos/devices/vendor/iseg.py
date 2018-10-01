@@ -24,6 +24,8 @@
 
 """Iseg high voltage power supply device classes."""
 
+from __future__ import absolute_import
+
 from IO import StringIO
 
 from nicos.core import SIMULATION, CommunicationError, ConfigurationError, \

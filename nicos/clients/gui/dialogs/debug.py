@@ -24,6 +24,8 @@
 
 """NICOS GUI debug console window."""
 
+from __future__ import absolute_import
+
 import codeop
 import sys
 

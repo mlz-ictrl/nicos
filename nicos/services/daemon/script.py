@@ -24,6 +24,8 @@
 
 """Thread that executes user scripts."""
 
+from __future__ import absolute_import
+
 import ast
 import sys
 import time

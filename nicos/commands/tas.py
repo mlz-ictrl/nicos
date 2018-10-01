@@ -24,6 +24,8 @@
 
 """TAS commands for NICOS."""
 
+from __future__ import absolute_import
+
 from numpy import ndarray
 
 from nicos import session

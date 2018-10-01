@@ -22,7 +22,7 @@
 # Use freely, but please attribute when using.
 # from http://starship.python.net/crew/hooft/
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 # How much does it cost to make a hole in one of the strings?
 GAPOPENPENALTY = -0.3

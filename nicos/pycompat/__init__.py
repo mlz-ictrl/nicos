@@ -24,15 +24,7 @@
 
 """Python 2/3 compatibility."""
 
-__all__ = [
-    'builtins', 'cPickle', 'socketserver', 'input',
-    'queue', 'xrange', 'configparser', 'urllib',
-    'reraise', 'exec_', 'add_metaclass', 'BytesIO', 'StringIO',
-    'string_types', 'integer_types', 'text_type', 'binary_type',
-    'number_types',
-    'iteritems', 'itervalues', 'iterkeys', 'listitems', 'listvalues',
-    'get_thread_id', 'escape_html', 'b64encode', 'b64decode'
-]
+from __future__ import absolute_import
 
 import inspect
 import threading
@@ -172,3 +164,14 @@ try:
     numpy.set_printoptions(sign=' ')
 except Exception:
     pass
+
+
+__all__ = [
+    'builtins', 'cPickle', 'socketserver', 'input',
+    'queue', 'xrange', 'configparser', 'urllib',
+    'reraise', 'exec_', 'add_metaclass', 'BytesIO', 'StringIO',
+    'string_types', 'integer_types', 'text_type', 'binary_type',
+    'number_types',
+    'iteritems', 'itervalues', 'iterkeys', 'listitems', 'listvalues',
+    'get_thread_id', 'escape_html', 'b64encode', 'b64decode'
+]

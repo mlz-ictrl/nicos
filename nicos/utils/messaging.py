@@ -24,6 +24,8 @@
 
 """Centralized location for ZMQ context."""
 
+from __future__ import absolute_import
+
 import zmq
 
 __all__ = ['nicos_zmq_ctx']

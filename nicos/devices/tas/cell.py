@@ -27,6 +27,8 @@
 coordinates.
 """
 
+from __future__ import absolute_import
+
 from numpy import arccos, arcsin, arctan2, array, cos, cross, dot, identity, \
     pi, sign, sin, sqrt, zeros
 from numpy.linalg import inv, norm

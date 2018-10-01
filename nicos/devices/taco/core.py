@@ -24,6 +24,8 @@
 
 """NICOS-TACO base classes."""
 
+from __future__ import absolute_import
+
 import sys
 
 import TACOStates

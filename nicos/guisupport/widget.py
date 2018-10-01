@@ -26,6 +26,8 @@
 Base class for NICOS UI widgets.
 """
 
+from __future__ import absolute_import
+
 import functools
 import operator
 from copy import copy

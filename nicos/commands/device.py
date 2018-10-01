@@ -24,6 +24,8 @@
 
 """Module for simple device-related user commands."""
 
+from __future__ import absolute_import
+
 import ast
 import time
 

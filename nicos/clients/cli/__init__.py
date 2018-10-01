@@ -24,6 +24,8 @@
 
 """Command-line client for the NICOS daemon."""
 
+from __future__ import absolute_import
+
 import ctypes
 import ctypes.util
 import errno

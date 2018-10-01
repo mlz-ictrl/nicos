@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 import hashlib
 
 from nicos.core import GUEST, USER, Param, User, listof, oneof

@@ -26,7 +26,7 @@
 Plotting tools for triple-axis spectrometers.
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import os
 import time

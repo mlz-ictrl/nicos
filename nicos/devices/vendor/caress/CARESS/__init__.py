@@ -4,14 +4,11 @@
 # isort:skip-file
 
 import omniORB
-
-# ** 1. Stub files contributing to this module
-
 omniORB.updateModule("CARESS")
 
-# import corbadevice_idl
-
+# ** 1. Stub files contributing to this module
 import nicos.devices.vendor.caress.corbadevice_idl
+# import corbadevice_idl
 
 # ** 2. Sub-modules
 

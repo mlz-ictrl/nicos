@@ -31,7 +31,7 @@ All angle move clockwise for positive values.
 to allow conversions, the kappa-angle alpha needs to be known
 '''
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import numpy as np
 

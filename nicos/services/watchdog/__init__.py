@@ -24,6 +24,8 @@
 
 """The NICOS watchdog daemon."""
 
+from __future__ import absolute_import
+
 import ast
 import sys
 from collections import OrderedDict

@@ -24,6 +24,8 @@
 
 """NICOS GUI settings window."""
 
+from __future__ import absolute_import
+
 from nicos.clients.base import ConnectionData
 from nicos.clients.gui.dialogs.instr_select import InstrSelectDialog
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, dialogFromUi, \

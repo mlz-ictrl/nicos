@@ -25,6 +25,8 @@
 
 """NICOS GUI main window."""
 
+from __future__ import absolute_import
+
 import sys
 import traceback
 from time import strftime, time as currenttime

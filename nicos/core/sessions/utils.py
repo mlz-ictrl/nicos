@@ -24,6 +24,8 @@
 
 """Utilities for the session classes."""
 
+from __future__ import absolute_import
+
 import keyword
 import os
 import re

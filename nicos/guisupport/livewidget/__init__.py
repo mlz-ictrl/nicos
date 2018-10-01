@@ -25,6 +25,8 @@
 
 """NICOS livewidget with GR."""
 
+from __future__ import absolute_import
+
 import math
 
 import gr

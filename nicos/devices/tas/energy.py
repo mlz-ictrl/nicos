@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from math import pi, sqrt
 
 THZ2MEV = 4.1356675

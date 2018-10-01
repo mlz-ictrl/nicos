@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from gzip import GzipFile as StdGzipFile
 
 import numpy

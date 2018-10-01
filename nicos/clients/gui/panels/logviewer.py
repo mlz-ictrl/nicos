@@ -24,6 +24,8 @@
 
 """NICOS GUI log viewer panel with simple filter options."""
 
+from __future__ import absolute_import
+
 import os.path
 from cgi import escape
 

@@ -24,6 +24,8 @@
 
 """NICOS GUI tools."""
 
+from __future__ import absolute_import
+
 from nicos.utils import createSubprocess, importString
 
 from nicos.guisupport.qt import QAction, Qt, QTimer

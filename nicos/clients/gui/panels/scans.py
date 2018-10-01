@@ -25,6 +25,8 @@
 
 """NICOS GUI scan plot window."""
 
+from __future__ import absolute_import
+
 import os
 from math import sqrt
 

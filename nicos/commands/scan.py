@@ -24,6 +24,8 @@
 
 """Scan commands for NICOS."""
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.commands import helparglist, usercommand
 from nicos.core import Device, Measurable, Moveable, NicosError, Readable, \

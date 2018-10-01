@@ -25,6 +25,8 @@
 
 """The base class for communication with the NICOS server."""
 
+from __future__ import absolute_import
+
 import hashlib
 import socket
 import threading

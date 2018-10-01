@@ -24,6 +24,8 @@
 
 """Definition of abstract base device classes."""
 
+from __future__ import absolute_import
+
 from nicos.pycompat import iteritems
 
 from nicos.utils import num_sort

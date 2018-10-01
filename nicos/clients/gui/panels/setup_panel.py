@@ -24,6 +24,8 @@
 
 """NICOS GUI experiment setup window."""
 
+from __future__ import absolute_import
+
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.utils import loadUi
 from nicos.core import ConfigurationError

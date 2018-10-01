@@ -24,6 +24,8 @@
 
 """NICOS GUI error and warning window."""
 
+from __future__ import absolute_import
+
 from logging import WARNING
 
 from nicos.clients.gui.dialogs.traceback import TracebackDialog

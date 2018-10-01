@@ -25,6 +25,8 @@
 
 """NICOS triple-axis instrument devices."""
 
+from __future__ import absolute_import
+
 from math import asin, cos, degrees, pi, radians, sin
 
 from nicos.core import MASTER, SIMULATION, Attach, HasLimits, HasPrecision, \

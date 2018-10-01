@@ -24,6 +24,8 @@
 
 """Qt version of instrument monitor."""
 
+from __future__ import absolute_import
+
 import sys
 import traceback
 

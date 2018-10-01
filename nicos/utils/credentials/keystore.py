@@ -38,6 +38,8 @@ To set a password in the default store, run the keyring utility:
 
 """
 
+from __future__ import absolute_import
+
 import os.path
 
 from keyring.util import properties

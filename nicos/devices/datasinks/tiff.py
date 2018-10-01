@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 import numpy
 
 from nicos.core import NicosError, Override, Param

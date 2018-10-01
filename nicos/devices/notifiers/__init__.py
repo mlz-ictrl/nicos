@@ -24,6 +24,8 @@
 
 """NICOS notification classes."""
 
+from __future__ import absolute_import
+
 import subprocess
 from time import time as currenttime
 

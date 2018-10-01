@@ -25,6 +25,8 @@
 # *****************************************************************************
 """NICOS GR plotting backend."""
 
+from __future__ import absolute_import
+
 import os
 import tempfile
 import time

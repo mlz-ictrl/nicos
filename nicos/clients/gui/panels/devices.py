@@ -24,6 +24,8 @@
 
 """NICOS GUI panel with a list of all devices."""
 
+from __future__ import absolute_import
+
 from logging import WARNING
 
 from nicos.clients.gui.dialogs.error import ErrorDialog

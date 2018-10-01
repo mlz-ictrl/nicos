@@ -24,6 +24,8 @@
 
 """Base device classes for usage in NICOS."""
 
+from __future__ import absolute_import
+
 import inspect
 import re
 import sys

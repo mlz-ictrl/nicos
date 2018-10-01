@@ -24,6 +24,8 @@
 
 """Utilities to generate HTML-format help for displaying in the GUI client."""
 
+from __future__ import absolute_import
+
 import inspect
 import pydoc
 import sys

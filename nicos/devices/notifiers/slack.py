@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 import slackclient
 
 from nicos.core import ConfigurationError, Override, Param

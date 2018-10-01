@@ -4,11 +4,9 @@
 # isort:skip-file
 
 import omniORB
-
-# ** 1. Stub files contributing to this module
-
 omniORB.updateModule("CARESS__POA")
 
+# ** 1. Stub files contributing to this module
 import nicos.devices.vendor.caress.corbadevice_idl
 
 # ** 2. Sub-modules

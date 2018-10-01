@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.core import HasLimits, HasPrecision, Moveable, Param, oneof, status
 from nicos.devices.tango import PyTangoDevice
 

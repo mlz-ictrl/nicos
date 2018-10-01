@@ -28,6 +28,8 @@ Bisect
 class for storing a bisecting position.
 """
 
+from __future__ import absolute_import
+
 import numpy as np
 
 from nicos import session

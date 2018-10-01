@@ -24,6 +24,8 @@
 
 """Taco coder class for NICOS."""
 
+from __future__ import absolute_import
+
 from Encoder import Encoder
 
 from nicos.devices.abstract import Coder as AbstractCoder

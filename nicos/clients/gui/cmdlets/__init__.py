@@ -24,6 +24,8 @@
 
 """NICOS GUI command input widgets."""
 
+from __future__ import absolute_import
+
 from nicos.utils import findResource, formatDuration
 
 from nicos.guisupport.qt import QAbstractSpinBox, \

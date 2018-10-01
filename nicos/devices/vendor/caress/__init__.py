@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.devices.vendor.caress.base import Driveable
 from nicos.devices.vendor.caress.motor import EKFMotor, Motor, MuxMotor
 from nicos.devices.vendor.caress.mux import MUX

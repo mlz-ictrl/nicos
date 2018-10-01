@@ -24,6 +24,8 @@
 
 """Data sink classes (new API) for NICOS."""
 
+from __future__ import absolute_import
+
 from nicos.devices.datasinks.file import FileSink
 from nicos.devices.datasinks.fits import FITSImageSink
 from nicos.devices.datasinks.image import ImageSink

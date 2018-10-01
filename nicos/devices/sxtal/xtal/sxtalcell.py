@@ -34,6 +34,8 @@ Relation to the TAS UB matrix:
   rmat = UB^T / 2* pi
 """
 
+from __future__ import absolute_import
+
 from collections import namedtuple
 
 import numpy as np

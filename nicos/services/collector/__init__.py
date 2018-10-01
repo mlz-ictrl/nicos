@@ -23,6 +23,8 @@
 # *****************************************************************************
 """The NICOS cache collector daemon."""
 
+from __future__ import absolute_import
+
 import re
 
 from nicos.utils import createThread

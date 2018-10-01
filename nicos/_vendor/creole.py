@@ -6,6 +6,8 @@
 # Creole parser/HTML converter, from http://devel.sheep.art.pl/creole/.
 # Copyright 2007 by Radomir Dopieralski. Licensed under the BSD license.
 
+from __future__ import absolute_import
+
 import re
 import sys
 

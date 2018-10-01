@@ -27,6 +27,8 @@
 The supported types are defined in `nicos.core.params`.
 """
 
+from __future__ import absolute_import
+
 import numpy as np
 
 from nicos.core import anytype, params

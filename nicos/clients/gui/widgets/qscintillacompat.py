@@ -24,6 +24,8 @@
 
 """NICOS GUI user editor qscintilla compat edit widget."""
 
+from __future__ import absolute_import
+
 from nicos.guisupport.qt import QColor, QPainter, QPlainTextEdit, QRect, \
     QSize, Qt, QTextCursor, QTextDocument, QTextEdit, QTextFormat, QWidget
 

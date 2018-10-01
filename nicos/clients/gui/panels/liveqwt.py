@@ -24,6 +24,8 @@
 
 """NICOS livewidget 2D data plot window/panel."""
 
+from __future__ import absolute_import
+
 import os
 import struct
 from math import pi, radians, sin

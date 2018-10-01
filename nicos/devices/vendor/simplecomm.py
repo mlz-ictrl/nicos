@@ -29,6 +29,8 @@ The SimpleComm devices create a connection to a server that understands the
 Simple Communication Protocol. They support TCP and serial connection.
 """
 
+from __future__ import absolute_import
+
 import ast
 import re
 import select

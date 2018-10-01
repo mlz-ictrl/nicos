@@ -24,6 +24,8 @@
 
 """Generic device class for "moving" a parameter of another device."""
 
+from __future__ import absolute_import
+
 from nicos.core import Attach, Device, Moveable, Override, Param, Readable, \
     status
 

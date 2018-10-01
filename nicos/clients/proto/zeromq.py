@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 import zmq
 
 from nicos.protocols.daemon import DAEMON_EVENTS, \

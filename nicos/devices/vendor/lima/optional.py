@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 import re
 
 from nicos.core import ConfigurationError, DeviceMixinBase, NicosError, Param

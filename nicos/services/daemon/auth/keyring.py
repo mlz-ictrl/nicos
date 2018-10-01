@@ -25,6 +25,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.core import USER, Param, User, listof
 from nicos.services.daemon.auth import AuthenticationError, \
     Authenticator as BaseAuthenticator

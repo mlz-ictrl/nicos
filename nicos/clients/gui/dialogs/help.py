@@ -24,6 +24,8 @@
 
 """NICOS GUI help window."""
 
+from __future__ import absolute_import
+
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QMainWindow, QUrl, QWebPage, QWebView, pyqtSlot
 

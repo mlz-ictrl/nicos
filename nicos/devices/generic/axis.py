@@ -26,6 +26,8 @@
 
 """NICOS axis classes."""
 
+from __future__ import absolute_import
+
 from time import sleep
 
 from nicos.core import Attach, ConfigurationError, HasOffset, MoveError, \

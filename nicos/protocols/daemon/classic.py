@@ -25,6 +25,8 @@
 
 """Common parts of the "classic" daemon protocol."""
 
+from __future__ import absolute_import
+
 import json
 import struct
 

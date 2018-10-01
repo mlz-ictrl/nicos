@@ -24,6 +24,8 @@
 
 """Base Image data sink classes for NICOS."""
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.core import FINAL, INTERRUPTED, LIVE, Override
 from nicos.core.constants import POINT

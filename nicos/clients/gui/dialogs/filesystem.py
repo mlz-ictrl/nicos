@@ -24,6 +24,8 @@
 
 """NICOS filesystem dialog classes"""
 
+from __future__ import absolute_import
+
 import fnmatch
 from os import path
 

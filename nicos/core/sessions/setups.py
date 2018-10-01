@@ -26,6 +26,8 @@
 Setup file handling.
 """
 
+from __future__ import absolute_import
+
 from os import path
 
 from nicos.core.params import nicosdev_re

@@ -24,6 +24,8 @@
 
 """NICOS GUI virtual console panel component."""
 
+from __future__ import absolute_import
+
 import io
 import sys
 from os import path
