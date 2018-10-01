@@ -42,7 +42,7 @@ class Timer(object):
     _run_for = None
     _cb_func = None
 
-    def __init__(self, run_for=None, cb_func=None, *cb_args, **cb_kwds):
+    def __init__(self, run_for=None, cb_func=None, cb_args=None, cb_kwds=None):
         """
         Constructor for timers.
 
@@ -56,9 +56,9 @@ class Timer(object):
         and is ONLY ever called if the timer runs out and ``is_running`` is
         called or the ``wait`` method is used.
         """
-        self.start(run_for, cb_func, *cb_args, **cb_kwds)
+        self.start(run_for, cb_func, cb_args, cb_kwds)
 
-    def start(self, run_for=None, cb_func=Ellipsis, *cb_args, **cb_kwds):
+    def start(self, run_for=None, cb_func=Ellipsis, cb_args=None, cb_kwds=None):
         """
         Start the timer.
 
@@ -83,8 +83,8 @@ class Timer(object):
         called.
         """
         if cb_func is not Ellipsis:
-            self._cb_args = cb_args
-            self._cb_kwds = cb_kwds
+            self._cb_args = cb_args or tuple()
+            self._cb_kwds = cb_kwds or dict()
             self._cb_func = cb_func
         self._run_for = run_for
         self._started = time.time()
@@ -133,7 +133,7 @@ class Timer(object):
         if callable(self._cb_func):
             self._cb_func(self, *self._cb_args, **self._cb_kwds)
 
-    def wait(self, interval=5, notify_func=None, *notify_args):
+    def wait(self, interval=5, notify_func=None, notify_args=None):
         """Wait until the timer is finished.
 
         The timer must be already started with a run_for argument
@@ -143,6 +143,7 @@ class Timer(object):
         we call it at the end of the slice with the timer object
         and the remaining arguments.
         """
+        notify_args = notify_args or tuple()
         if self._run_for is None or not self._active:
             return
         while self.is_running():

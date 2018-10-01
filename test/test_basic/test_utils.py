@@ -229,11 +229,16 @@ def test_tcpsocket(serversocket):
 def test_timer():
     t = time.time()
 
-    def cb(tmr, x):
-        if x == 3:
+    def cb(tmr, x, y=None):
+        if x == 3 and y == 'ykwd':
             tmr.cb_called = True
+    def nf(tmr, info):
+        if info == "notify":
+            tmr.notify_called = True
+    def nf1(tmr):
+        tmr.notify_called = "yes"
     # a) test a (short) timed timer
-    tmr = Timer(0.1, cb, 3)
+    tmr = Timer(0.1, cb, cb_args=(3,),cb_kwds={'y':'ykwd'})
     assert tmr.is_running()
     while (time.time() - t < 1.5) and tmr.is_running():
         time.sleep(0.05)
@@ -267,7 +272,11 @@ def test_timer():
     time.sleep(0.1)
     tmr.stop()
     tmr.restart()
-    tmr.wait(interval=0.1)
+    tmr.wait(interval=0.1, notify_func=nf, notify_args=('notify',))
+    assert tmr.notify_called
+    tmr.start(run_for=0.5)
+    tmr.wait(0.1, nf1)
+    assert tmr.notify_called=="yes"
 
 
 def test_num_sort():
