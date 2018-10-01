@@ -24,16 +24,15 @@
 
 """Parameter definition helpers and typechecking combinators."""
 
-import re
 import copy
+import re
 from os import path
 
 import numpy as np
 
-from nicos.utils import readonlylist, readonlydict, parseHostPort
-from nicos.core.errors import ProgrammingError, ConfigurationError
-from nicos.pycompat import iteritems, text_type, string_types
-
+from nicos.core.errors import ConfigurationError, ProgrammingError
+from nicos.pycompat import iteritems, string_types, text_type
+from nicos.utils import parseHostPort, readonlydict, readonlylist
 
 INFO_CATEGORIES = [
     ('experiment', 'Experiment information'),
@@ -419,7 +418,7 @@ class Value(object):
       will generally be ``device.fmtstr`` for Readables.
     """
 
-    # pylint: disable=W0622
+    # pylint: disable=redefined-builtin
     def __init__(self, name, type='other', errors='none', unit='',
                  fmtstr='%.3f'):
         if type not in ('counter', 'monitor', 'time', 'other', 'error',

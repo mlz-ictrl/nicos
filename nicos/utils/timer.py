@@ -26,7 +26,6 @@
 
 import time
 
-
 # XXX
 # also use a singleton to 'register' all timer objects and
 # one single thread regularly checking all timers 'is_running'

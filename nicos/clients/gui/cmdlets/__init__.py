@@ -24,14 +24,14 @@
 
 """NICOS GUI command input widgets."""
 
-from nicos.guisupport.qt import Qt, pyqtSignal, QColor, QWidget, \
-    QAbstractSpinBox
-
-from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.typedvalue import DeviceParamEdit
-from nicos.guisupport.utils import setBackgroundColor, DoubleValidator
 from nicos.utils import findResource, formatDuration
 
+from nicos.guisupport.qt import QAbstractSpinBox, \
+    QColor, Qt, QWidget, pyqtSignal
+from nicos.guisupport.typedvalue import DeviceParamEdit
+from nicos.guisupport.utils import DoubleValidator, setBackgroundColor
+
+from nicos.clients.gui.utils import loadUi
 
 invalid = QColor('#ffcccc')
 

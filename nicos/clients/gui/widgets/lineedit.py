@@ -26,14 +26,12 @@
 
 import re
 
-from nicos.guisupport.qt import pyqtSignal, Qt, QEvent, QRegExp, QColor, \
-    QApplication, QCompleter, QKeyEvent, QLineEdit, QMessageBox, QPalette, \
-    QStringListModel, QRegExpValidator
-
 from nicos.clients.gui.utils import ScriptExecQuestion
+from nicos.guisupport.qt import QApplication, QColor, QCompleter, QEvent, \
+    QKeyEvent, QLineEdit, QMessageBox, QPalette, QRegExp, QRegExpValidator, \
+    QStringListModel, Qt, pyqtSignal
 from nicos.guisupport.utils import setBackgroundColor, setForegroundColor
-from nicos.pycompat import xrange as range  # pylint: disable=W0622
-
+from nicos.pycompat import xrange as range  # pylint: disable=redefined-builtin
 
 wordsplit_re = re.compile(r'[ \t\n\"\\\'`@$><=;|&{(\[]')
 

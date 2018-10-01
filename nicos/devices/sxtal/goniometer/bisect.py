@@ -28,12 +28,13 @@ Bisect
 class for storing a bisecting position.
 """
 
-from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
-
 import numpy as np
+
 from nicos import session
 from nicos.core import NicosError
-from nicos.devices.sxtal.goniometer.posutils import normalangle, sign, Xrot, Yrot, Zrot
+from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
+from nicos.devices.sxtal.goniometer.posutils import Xrot, Yrot, Zrot, \
+    normalangle, sign
 
 
 class Bisecting(PositionBase):

@@ -25,12 +25,12 @@
 """Base Image data sink classes for NICOS."""
 
 from nicos import session
-from nicos.core import FINAL, LIVE, INTERRUPTED, Override
+from nicos.core import FINAL, INTERRUPTED, LIVE, Override
 from nicos.core.constants import POINT
 from nicos.core.data import DataFile, DataSink, DataSinkHandler
 from nicos.devices.datasinks import FileSink
-from nicos.utils import syncFile, ReaderRegistry
 from nicos.pycompat import add_metaclass
+from nicos.utils import ReaderRegistry, syncFile
 
 
 class ImageSink(FileSink):

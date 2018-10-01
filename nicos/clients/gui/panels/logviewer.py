@@ -27,10 +27,9 @@
 import os.path
 from cgi import escape
 
-from nicos.guisupport.qt import pyqtSlot, QDateTime
-
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QDateTime, pyqtSlot
 
 
 class LogViewerPanel(Panel):

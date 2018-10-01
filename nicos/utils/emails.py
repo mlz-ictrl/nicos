@@ -24,19 +24,20 @@
 
 """Utilities for sending E-Mails."""
 
+import smtplib
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import formatdate
 from os import path
+
+from nicos.core.params import mailaddress
+from nicos.pycompat import string_types
 
 # do not call this file email.py !
 
-from email.mime.application import MIMEApplication
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.utils import formatdate
 
-import smtplib
 
-from nicos.pycompat import string_types
-from nicos.core.params import mailaddress
 
 
 def sendMail(mailserver, receiverlist, mailsender, topic, body,

@@ -24,15 +24,14 @@
 
 """NICOS GUI panel with most important experiment info."""
 
-from nicos.guisupport.qt import pyqtSlot, QTimer, QDialog, QMessageBox, \
-    QPushButton
-
 from nicos.clients.gui.panels import Panel, PanelDialog
-from nicos.clients.gui.panels.setup_panel import ExpPanel, SetupsPanel, \
-    DetEnvPanel, GenericSamplePanel
+from nicos.clients.gui.panels.setup_panel import DetEnvPanel, ExpPanel, \
+    GenericSamplePanel, SetupsPanel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.widget import NicosWidget
 from nicos.core.utils import ADMIN
+from nicos.guisupport.qt import QDialog, QMessageBox, QPushButton, QTimer, \
+    pyqtSlot
+from nicos.guisupport.widget import NicosWidget
 
 
 class ExpInfoPanel(Panel):

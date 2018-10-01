@@ -25,9 +25,9 @@
 
 """Taco motor class for NICOS."""
 
-from Motor import Motor as TACOMotor # pylint: disable=F0401
+from Motor import Motor as TACOMotor  # pylint: disable=import-error
 
-from nicos.core import oneof, Param, Override
+from nicos.core import Override, Param, oneof
 from nicos.devices.abstract import CanReference, Motor as AbstractMotor
 from nicos.devices.taco.core import TacoDevice
 

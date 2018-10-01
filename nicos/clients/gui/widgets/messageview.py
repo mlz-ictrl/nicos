@@ -28,14 +28,12 @@ import re
 from logging import DEBUG, ERROR, FATAL, INFO, WARNING
 from time import localtime, strftime
 
-from nicos.guisupport.qt import Qt, QRect, QRegExp, QSize, QBrush, QColor, \
-    QFont, QMainWindow, QPainter, QPixmap, QTextBrowser, QTextCharFormat, \
+from nicos.guisupport.qt import QBrush, QColor, QFont, QMainWindow, QPainter, \
+    QPixmap, QRect, QRegExp, QSize, Qt, QTextBrowser, QTextCharFormat, \
     QTextCursor, QTextEdit
-
-from nicos.pycompat import from_maybe_utf8, xrange as range  # pylint: disable=W0622
-from nicos.pycompat import urllib
+# pylint: disable=redefined-builtin
+from nicos.pycompat import from_maybe_utf8, urllib, xrange as range
 from nicos.utils.loggers import ACTION, INPUT
-
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
           ERROR: 'ERROR', FATAL: 'FATAL'}

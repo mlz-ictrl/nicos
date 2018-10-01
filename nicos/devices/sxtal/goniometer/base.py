@@ -33,6 +33,7 @@ import numpy as np
 
 from nicos import session
 
+
 def PositionFactory(ptype, **kwds):
     """ Position factory function.
 
@@ -107,13 +108,13 @@ class PositionBase(object):
         raise TypeError("unknown position type")
 
 
-from nicos.devices.sxtal.goniometer.euler import Euler
-from nicos.devices.sxtal.goniometer.kappa import Kappa
-from nicos.devices.sxtal.goniometer.neuler import NEuler
-from nicos.devices.sxtal.goniometer.cvector import CVector
-from nicos.devices.sxtal.goniometer.gmatrix import GMatrix
-from nicos.devices.sxtal.goniometer.bisect import Bisecting
-from nicos.devices.sxtal.goniometer.lifting import Lifting
+from nicos.devices.sxtal.goniometer.bisect import Bisecting  # isort:skip
+from nicos.devices.sxtal.goniometer.cvector import CVector  # isort:skip
+from nicos.devices.sxtal.goniometer.euler import Euler  # isort:skip
+from nicos.devices.sxtal.goniometer.gmatrix import GMatrix  # isort:skip
+from nicos.devices.sxtal.goniometer.kappa import Kappa  # isort:skip
+from nicos.devices.sxtal.goniometer.lifting import Lifting  # isort:skip
+from nicos.devices.sxtal.goniometer.neuler import NEuler  # isort:skip
 
 typelist = {'k': Kappa,
             'e': Euler,

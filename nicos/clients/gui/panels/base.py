@@ -27,13 +27,12 @@
 
 from time import time as currenttime
 
-from nicos.guisupport.qt import pyqtSignal, QObject, QWidget, QHBoxLayout, \
-    QDialog, QPalette
-
-from nicos.utils.loggers import NicosLogger
-from nicos.clients.gui.utils import DlgUtils, SettingGroup
 from nicos.clients.gui.config import panel
+from nicos.clients.gui.utils import DlgUtils, SettingGroup
+from nicos.guisupport.qt import QDialog, QHBoxLayout, QObject, QPalette, \
+    QWidget, pyqtSignal
 from nicos.utils import checkSetupSpec
+from nicos.utils.loggers import NicosLogger
 
 
 class SetupDepWindowMixin(object):

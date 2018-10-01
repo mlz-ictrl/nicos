@@ -28,14 +28,13 @@ import os
 import sys
 import time
 import traceback
+from logging import DEBUG, ERROR, INFO, WARNING, Formatter, Handler, Logger, \
+    LogRecord, addLevelName
 from os import path
-from logging import addLevelName, Logger, LogRecord, Formatter, \
-    Handler, DEBUG, INFO, WARNING, ERROR
 
 from nicos import session
+from nicos.pycompat import binary_type, from_maybe_utf8, text_type
 from nicos.utils import colorize, formatExtendedTraceback
-from nicos.pycompat import text_type, from_maybe_utf8, binary_type
-
 
 LOGFMT = '%(asctime)s : %(levelname)-7s : %(name)s: %(message)s'
 DATEFMT = '%H:%M:%S'

@@ -12,14 +12,16 @@
 
 from __future__ import print_function
 
-__all__ = ['get_git_version', 'get_nicos_version']
-
-from subprocess import Popen, PIPE
 from os import path
+from subprocess import PIPE, Popen
 
 # read config file and set environment variables
 from nicos import config
 from nicos.pycompat import from_utf8
+
+__all__ = ['get_git_version', 'get_nicos_version']
+
+
 
 config.apply()
 

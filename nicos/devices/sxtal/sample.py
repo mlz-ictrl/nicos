@@ -26,10 +26,10 @@
 Single crystal sample device
 """
 
-from nicos.core import Param, floatrange, dictof, listof, oneof
+from nicos.core import Param, dictof, floatrange, listof, oneof
 from nicos.devices.sample import Sample
-from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell, SXTalCellType
 from nicos.devices.sxtal.xtal import symmetry
+from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell, SXTalCellType
 
 
 class SXTalSample(Sample):

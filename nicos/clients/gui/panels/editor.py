@@ -27,25 +27,25 @@
 import io
 import sys
 import time
+from logging import WARNING
 from os import path
 from uuid import uuid1
-from logging import WARNING
 
-from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QFileSystemWatcher, \
-    QDialog, QHeaderView, QHBoxLayout, QTreeWidgetItem, QMessageBox, QMenu, \
-    QPen, QColor, QFont, QAction, QPrintDialog, QPrinter, QFileDialog, \
-    QToolBar, QFileSystemModel, QTabWidget, QInputDialog, QFontMetrics, \
-    QActionGroup, QsciScintilla, QsciLexerPython, QsciPrinter
-
-from nicos.utils import formatDuration, formatEndtime
-from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.widgets.qscintillacompat import QScintillaCompatible
-from nicos.clients.gui.dialogs.editordialogs import SearchDialog, OverwriteQuestion
-from nicos.clients.gui.utils import showToolText, loadUi
-from nicos.clients.gui.tools import createToolMenu
+from nicos.clients.gui.dialogs.editordialogs import OverwriteQuestion, \
+    SearchDialog
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
+from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.tools import createToolMenu
+from nicos.clients.gui.utils import loadUi, showToolText
+from nicos.clients.gui.widgets.qscintillacompat import QScintillaCompatible
+from nicos.guisupport.qt import QAction, QActionGroup, QByteArray, QColor, \
+    QDialog, QFileDialog, QFileSystemModel, QFileSystemWatcher, QFont, \
+    QFontMetrics, QHBoxLayout, QHeaderView, QInputDialog, QMenu, QMessageBox, \
+    QPen, QPrintDialog, QPrinter, QsciLexerPython, QsciPrinter, \
+    QsciScintilla, Qt, QTabWidget, QToolBar, QTreeWidgetItem, pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.pycompat import iteritems
+from nicos.utils import formatDuration, formatEndtime
 
 has_scintilla = QsciScintilla is not None
 

@@ -29,16 +29,16 @@ from os import path
 import numpy
 
 from nicos import session
-from nicos.utils import readFile, writeFile
-from nicos.core import Param, SIMULATION, ArrayDesc, MASTER
-from nicos.devices.generic.detector import ActiveChannel, TimerChannelMixin, \
-    CounterChannelMixin
+from nicos.core import MASTER, SIMULATION, ArrayDesc, Param
 from nicos.core.errors import CommunicationError, ConfigurationError, \
-    NicosError, ProgrammingError, InvalidValueError
+    InvalidValueError, NicosError, ProgrammingError
+from nicos.devices.generic.detector import ActiveChannel, \
+    CounterChannelMixin, TimerChannelMixin
+from nicos.devices.vendor.caress.core import CARESS, CORBA, INIT_NORMAL, \
+    INIT_REINIT, LOAD_NORMAL, LOADMASTER, LOADSLAVE, OFF_LINE, ON_LINE, \
+    READBLOCK_NORMAL, RESETMODULE, CARESSDevice
 from nicos.devices.vendor.qmesydaq import Image as QMesyDAQImage
-from nicos.devices.vendor.caress.core import CORBA, CARESS, CARESSDevice, \
-    LOADSLAVE, LOADMASTER, RESETMODULE, READBLOCK_NORMAL, OFF_LINE, \
-    LOAD_NORMAL, INIT_NORMAL, INIT_REINIT, ON_LINE
+from nicos.utils import readFile, writeFile
 
 
 class QMesydaqCaressDevice(CARESSDevice):

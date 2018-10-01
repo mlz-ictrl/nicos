@@ -27,9 +27,9 @@ Commands for single-crystal diffraction.
 """
 
 from nicos import session
-from nicos.core import Scan, FINAL, NicosError
-from nicos.commands import usercommand, helparglist
+from nicos.commands import helparglist, usercommand
 from nicos.commands.scan import cscan
+from nicos.core import FINAL, NicosError, Scan
 from nicos.devices.generic.detector import DummyDetector
 from nicos.devices.sxtal.instrument import SXTalBase
 

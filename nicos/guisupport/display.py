@@ -27,23 +27,21 @@ NICOS value display widget.
 """
 
 from cgi import escape
-from time import time as currenttime
 from os.path import getmtime, isfile
+from time import time as currenttime
 
-import sip
-
-from nicos.guisupport.qt import pyqtSignal, Qt, QSize, QTimer, QLabel, \
-    QFrame, QColor, QWidget, QVBoxLayout, QHBoxLayout, QFontMetrics, QPixmap
-
-from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, UNKNOWN, \
-    DISABLED, statuses
+from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
+    WARN, statuses
+from nicos.guisupport.qt import QColor, QFontMetrics, QFrame, QHBoxLayout, \
+    QLabel, QPixmap, QSize, Qt, QTimer, QVBoxLayout, QWidget, pyqtSignal
+from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.utils import setBackgroundColor, setBothColors, \
     setForegroundColor
-from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.pycompat import text_type, from_maybe_utf8
+from nicos.pycompat import from_maybe_utf8, text_type
 from nicos.utils import findResource
 
+import sip
 
 defaultColorScheme = {
     'fore': {

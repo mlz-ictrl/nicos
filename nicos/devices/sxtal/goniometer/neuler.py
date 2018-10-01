@@ -28,10 +28,10 @@ NEuler
 store eulerian coordinates with all angles except phi counterclockwise.
 
 """
-from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
-
 import numpy as np
+
 from nicos.core import NicosError
+from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
 from nicos.devices.sxtal.goniometer.posutils import normalangle
 
 

@@ -24,9 +24,8 @@
 
 """Dialog for showing (potentially multiple) error messages."""
 
-from nicos.guisupport.qt import QDialog, QStyle
-
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QDialog, QStyle
 from nicos.pycompat import from_maybe_utf8
 
 

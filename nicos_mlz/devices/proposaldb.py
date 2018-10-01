@@ -30,7 +30,7 @@ import datetime
 import hashlib
 
 try:
-    import mysql.connector as DB  # pylint: disable=F0401
+    import mysql.connector as DB  # pylint: disable=import-error
 except ImportError:
     try:
         import MySQLdb as DB

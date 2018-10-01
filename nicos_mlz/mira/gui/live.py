@@ -37,7 +37,7 @@ from nicos.utils import findResource
 from nicos.pycompat import string_types
 
 try:
-    from nicoscascadewidget import CascadeWidget, TmpImage  # pylint: disable=F0401
+    from nicoscascadewidget import CascadeWidget, TmpImage  # pylint: disable=import-error
 except ImportError:
     CascadeWidget = TmpImage = None
 

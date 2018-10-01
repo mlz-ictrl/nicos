@@ -25,9 +25,9 @@
 """NICOS slit device."""
 
 from nicos import session
-from nicos.core import oneof, Moveable, HasPrecision, Param, Value, Override, \
-    AutoDevice, InvalidValueError, tupleof, multiStatus, multiReset, \
-    multiWait, Attach
+from nicos.core import Attach, AutoDevice, HasPrecision, InvalidValueError, \
+    Moveable, Override, Param, Value, multiReset, multiStatus, multiWait, \
+    oneof, tupleof
 from nicos.core.utils import devIter
 from nicos.devices.abstract import CanReference
 

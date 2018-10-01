@@ -32,7 +32,7 @@ from __future__ import print_function
 import sys
 
 from struct import pack, unpack
-from pymodbus.client.sync import ModbusTcpClient  # pylint: disable=F0401
+from pymodbus.client.sync import ModbusTcpClient  # pylint: disable=import-error
 
 from nicos.guisupport.qt import QWidget, QFrame, QLabel, QHBoxLayout, \
     QVBoxLayout, QPushButton, QLineEdit, QMainWindow, QApplication, \

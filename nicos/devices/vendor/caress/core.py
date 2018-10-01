@@ -27,12 +27,19 @@
 import subprocess
 import sys
 
+from nicos import session
+from nicos.core import POLLER, SIMULATION, HasCommunication, Override, Param, \
+    absolute_path, none_or, status
+from nicos.core.errors import CommunicationError, ConfigurationError, \
+    InvalidValueError, NicosError, ProgrammingError
+from nicos.utils import createSubprocess
+
 try:
     from omniORB import CORBA
     import CosNaming
 
-    import CARESS  # pylint: disable=F0401,E0611,W0403
-    import _GlobalIDL  # pylint: disable=F0401,E0611,W0403,W0611
+    import CARESS  # pylint: disable=import-error,no-name-in-module,W0403
+    import _GlobalIDL  # pylint: disable=import-error,no-name-in-module,W0403,W0611
     import omniORB
 
     sys.modules['CARESS'] = sys.modules['nicos.devices.vendor.caress.CARESS']
@@ -46,12 +53,6 @@ try:
 except ImportError:
     omniORB = None
 
-from nicos import session
-from nicos.core import HasCommunication, Override, POLLER, Param, SIMULATION, \
-    absolute_path, none_or, status
-from nicos.core.errors import CommunicationError, ConfigurationError, \
-    InvalidValueError, NicosError, ProgrammingError
-from nicos.utils import createSubprocess
 
 
 CORBA_DEVICE = 500

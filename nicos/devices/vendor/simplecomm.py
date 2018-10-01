@@ -29,18 +29,20 @@ The SimpleComm devices create a connection to a server that understands the
 Simple Communication Protocol. They support TCP and serial connection.
 """
 
-import select
-import time
-import serial
-import threading
-import re
 import ast
+import re
+import select
+import threading
+import time
 
-from nicos.core import Readable, Moveable, status, Param, CommunicationError, SIMULATION
-from nicos.core.mixins import HasCommunication
+import serial
+
+from nicos.core import SIMULATION, CommunicationError, Moveable, Param, \
+    Readable, status
 from nicos.core.device import Device
-from nicos.core.params import host, Attach
-from nicos.utils import tcpSocket, closeSocket
+from nicos.core.mixins import HasCommunication
+from nicos.core.params import Attach, host
+from nicos.utils import closeSocket, tcpSocket
 
 
 class Communicator(HasCommunication, Device):

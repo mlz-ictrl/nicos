@@ -28,11 +28,10 @@ Setup file handling.
 
 from os import path
 
-from nicos.utils import make_load_config, Device
-from nicos.utils.files import iterSetups
-from nicos.pycompat import exec_, iteritems, listitems
 from nicos.core.params import nicosdev_re
-
+from nicos.pycompat import exec_, iteritems, listitems
+from nicos.utils import Device, make_load_config
+from nicos.utils.files import iterSetups
 
 SETUP_GROUPS = set([
     'basic', 'optional', 'plugplay', 'lowlevel', 'special', 'configdata'

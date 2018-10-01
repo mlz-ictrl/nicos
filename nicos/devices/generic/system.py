@@ -24,12 +24,12 @@
 
 """System-related device classes for NICOS."""
 
-import os
 import ctypes
+import os
 
 from nicos import session
-from nicos.core import Readable, Param, Override, status, none_or
-from nicos.core.errors import NicosError, ConfigurationError
+from nicos.core import Override, Param, Readable, none_or, status
+from nicos.core.errors import ConfigurationError, NicosError
 
 units = {'B': 1,
          'KiB': 1024.,

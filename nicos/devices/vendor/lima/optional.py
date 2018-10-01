@@ -24,7 +24,7 @@
 
 import re
 
-from nicos.core import Param, ConfigurationError, DeviceMixinBase, NicosError
+from nicos.core import ConfigurationError, DeviceMixinBase, NicosError, Param
 
 
 class OptionalLimaFunctionality(object):

@@ -25,12 +25,11 @@
 
 """NICOS GUI single cmdlet command input."""
 
-from nicos.guisupport.qt import pyqtSlot, Qt, QApplication, QAction, QMenu, \
-    QKeyEvent
-
 from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, modePrompt
+from nicos.guisupport.qt import QAction, QApplication, QKeyEvent, QMenu, Qt, \
+    pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.utils import importString
 

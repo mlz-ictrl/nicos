@@ -27,4 +27,4 @@
 
 from nicos.clients.gui.panels.auxwindows import AuxiliaryWindow
 from nicos.clients.gui.panels.base import Panel, PanelDialog
-from nicos.clients.gui.panels.utils import showPanel, createWindowItem
+from nicos.clients.gui.panels.utils import createWindowItem, showPanel

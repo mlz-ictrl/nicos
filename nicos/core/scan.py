@@ -26,21 +26,21 @@
 """Scan classes, new API."""
 
 import sys
-from time import time as currenttime
 from contextlib import contextmanager
+from time import time as currenttime
 
 from nicos import session
 from nicos.core import status
-from nicos.core.mixins import HasLimits
+from nicos.core.acquire import DevStatistics, acquire, read_environment, \
+    stop_acquire_thread
+from nicos.core.constants import FINAL, INTERMEDIATE, SIMULATION, SLAVE
 from nicos.core.errors import LimitError, ModeError, NicosError
+from nicos.core.mixins import HasLimits
 from nicos.core.params import Value
-from nicos.core.acquire import acquire, read_environment, stop_acquire_thread, \
-    DevStatistics
-from nicos.core.constants import INTERMEDIATE, SLAVE, SIMULATION, FINAL
-from nicos.core.utils import waitForCompletion, multiWait, SKIP_EXCEPTIONS, \
-    CONTINUE_EXCEPTIONS
-from nicos.utils import Repeater
+from nicos.core.utils import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, multiWait, \
+    waitForCompletion
 from nicos.pycompat import iteritems, number_types, reraise
+from nicos.utils import Repeater
 
 
 class SkipPoint(Exception):

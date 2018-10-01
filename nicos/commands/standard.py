@@ -24,12 +24,12 @@
 
 """Package for importing all normally used NICOS commands."""
 
-# pylint: disable=wildcard-import,unused-wildcard-import
-# pylint: disable=redefined-builtin
+# pylint: disable=unused-wildcard-import,redefined-builtin
+
+from nicos.commands.analyze import *
 from nicos.commands.basic import *
-from nicos.commands.output import *
 from nicos.commands.device import *
 from nicos.commands.measure import *
-from nicos.commands.scan import *
-from nicos.commands.analyze import *
+from nicos.commands.output import *
 from nicos.commands.sample import *
+from nicos.commands.scan import *

@@ -26,27 +26,34 @@
 
 from __future__ import print_function
 
-import os
-import re
-import sys
 import errno
-import signal
-import socket
 import fnmatch
 import linecache
+import os
+import re
+import signal
+import socket
+import subprocess
+import sys
 import threading
 import traceback
-import subprocess
 import unicodedata
-from os import path
-from contextlib import contextmanager
-from stat import S_IRWXU, S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IXGRP, \
-    S_IROTH, S_IXOTH
-from time import time as currenttime, strftime, strptime, localtime, mktime, \
-    sleep
-from itertools import islice, chain
-from functools import wraps
 from collections import OrderedDict
+from contextlib import contextmanager
+from functools import wraps
+from itertools import chain, islice
+from os import path
+from stat import S_IRGRP, S_IROTH, S_IRUSR, \
+    S_IRWXU, S_IWUSR, S_IXGRP, S_IXOTH, S_IXUSR
+from time import localtime, mktime, sleep, strftime, strptime
+from time import time as currenttime
+
+from nicos.pycompat import exec_, iteritems, string_types, text_type
+from nicos.pycompat import xrange as range  # pylint: disable=redefined-builtin
+
+# do **not** import nicos.session here
+# session dependent nicos utilities should be implemented in nicos.core.utils
+from nicos import config, get_custom_version, nicos_version
 
 try:
     import pwd
@@ -54,11 +61,6 @@ try:
 except ImportError:
     pwd = grp = None
 
-# do **not** import nicos.session here
-# session dependent nicos utilities should be implemented in nicos.core.utils
-from nicos import config, nicos_version, get_custom_version
-from nicos.pycompat import xrange as range  # pylint: disable=W0622
-from nicos.pycompat import iteritems, string_types, text_type, exec_
 
 
 class AttrDict(dict):
@@ -990,7 +992,7 @@ def nocolor():
 if os.name == 'nt':
     try:
         # colorama provides ANSI-colored console output support under Windows
-        import colorama  # pylint: disable=F0401
+        import colorama  # pylint: disable=import-error
     except ImportError:
         nocolor()
     else:

@@ -24,31 +24,31 @@
 
 """Base device classes for usage in NICOS."""
 
-import sys
-import re
 import inspect
+import re
+import sys
 from time import time as currenttime
 
 import numpy
 
 from nicos import session
 from nicos.core import status
-from nicos.core.constants import MASTER, SIMULATION, SLAVE, POLLER
-from nicos.core.utils import formatStatus, statusString, usermethod, \
-    multiStop, multiStatus, multiWait
+from nicos.core.constants import MASTER, POLLER, SIMULATION, SLAVE
+from nicos.core.errors import AccessError, CacheLockError, \
+    CommunicationError, ConfigurationError, InvalidValueError, LimitError, \
+    ModeError, MoveError, NicosError, PositionError, ProgrammingError, \
+    UsageError
 from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
-    HasTimeout, HasPrecision, IsController
-from nicos.core.params import Param, Override, Value, floatrange, oneof, \
-    anytype, none_or, dictof, listof, tupleof, nicosdev, Attach, \
-    INFO_CATEGORIES
-from nicos.core.errors import NicosError, ConfigurationError, MoveError, \
-    ProgrammingError, UsageError, LimitError, ModeError, PositionError, \
-    CommunicationError, CacheLockError, InvalidValueError, AccessError
-from nicos.core.utils import deprecated
-from nicos.utils import loggers, getVersions, parseDateString
-from nicos.pycompat import reraise, add_metaclass, iteritems, listitems, \
-    string_types, integer_types, number_types
+    HasPrecision, HasTimeout, IsController
+from nicos.core.params import INFO_CATEGORIES, Attach, Override, Param, \
+    Value, anytype, dictof, floatrange, listof, nicosdev, none_or, oneof, \
+    tupleof
+from nicos.core.utils import deprecated, formatStatus, multiStatus, \
+    multiStop, multiWait, statusString, usermethod
 from nicos.protocols.cache import FLAG_NO_STORE
+from nicos.pycompat import add_metaclass, integer_types, iteritems, \
+    listitems, number_types, reraise, string_types
+from nicos.utils import getVersions, loggers, parseDateString
 
 ALLOWED_CATEGORIES = set(v[0] for v in INFO_CATEGORIES)
 

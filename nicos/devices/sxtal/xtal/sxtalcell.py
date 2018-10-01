@@ -40,7 +40,6 @@ import numpy as np
 
 from nicos.devices.sxtal.xtal import symmetry
 
-
 CellParam = namedtuple('CellParam', ['a', 'b', 'c', 'alpha', 'beta', 'gamma'])
 
 

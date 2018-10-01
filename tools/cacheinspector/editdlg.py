@@ -28,7 +28,7 @@ from nicos.guisupport.qt import uic, QDialog, QMessageBox
 
 from nicos.protocols.cache import cache_load
 
-from .cacheclient import Entry  # pylint: disable=E0611
+from .cacheclient import Entry  # pylint: disable=no-name-in-module
 
 
 class EntryEditDialog(QDialog):

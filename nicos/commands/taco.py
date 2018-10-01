@@ -27,17 +27,16 @@
 import os
 import subprocess
 
-from nicos import session
-from nicos.commands import usercommand
-from nicos.utils import printTable, createSubprocess
-from nicos.pycompat import string_types
-
-from nicos.devices.taco.core import TacoDevice
-
 import TACOClient
 import TACOStates as st
-import TACOCommands as cmds
 
+from nicos import session
+from nicos.commands import usercommand
+from nicos.devices.taco.core import TacoDevice
+from nicos.pycompat import string_types
+from nicos.utils import createSubprocess, printTable
+
+import TACOCommands as cmds
 
 __all__ = ['TacoRes', 'TacoStatus']
 

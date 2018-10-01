@@ -26,21 +26,19 @@
 
 from logging import WARNING
 
-from nicos.guisupport.qt import pyqtSignal, pyqtSlot, Qt, QRegExp, QCursor, \
-    QByteArray, QIcon, QBrush, QColor, QFont, QTreeWidgetItem, QMenu, \
-    QInputDialog, QDialogButtonBox, QPalette, QTreeWidgetItemIterator, \
-    QDialog, QMessageBox, QPushButton, QComboBox
-
-from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, DISABLED, \
-    UNKNOWN
-from nicos.guisupport.typedvalue import DeviceValueEdit, DeviceParamEdit
 from nicos.clients.gui.dialogs.error import ErrorDialog
 from nicos.clients.gui.panels import Panel, showPanel
-from nicos.clients.gui.utils import loadUi, dialogFromUi, ScriptExecQuestion
-from nicos.protocols.cache import cache_load, cache_dump, OP_TELL
+from nicos.clients.gui.utils import ScriptExecQuestion, dialogFromUi, loadUi
+from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
+    WARN
+from nicos.guisupport.qt import QBrush, QByteArray, QColor, QComboBox, \
+    QCursor, QDialog, QDialogButtonBox, QFont, QIcon, QInputDialog, QMenu, \
+    QMessageBox, QPalette, QPushButton, QRegExp, Qt, QTreeWidgetItem, \
+    QTreeWidgetItemIterator, pyqtSignal, pyqtSlot
+from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
+from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
 from nicos.pycompat import iteritems, itervalues, srepr, string_types
 from nicos.utils import AttrDict
-
 
 foregroundBrush = {
     OK:         QBrush(QColor('#00aa00')),

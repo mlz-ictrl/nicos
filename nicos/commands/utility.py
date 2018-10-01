@@ -34,9 +34,8 @@ import math
 
 import numpy
 
+from nicos.commands import helparglist, parallel_safe, usercommand
 from nicos.core import UsageError
-from nicos.commands import usercommand, helparglist, parallel_safe
-
 
 __all__ = ['floatrange', 'RangeListLog', 'RangeListGeneral']
 

@@ -23,11 +23,12 @@
 #
 # *****************************************************************************
 
-from nicos.core import GUEST, USER, ADMIN, User
-from nicos.services.daemon.auth import AuthenticationError, Authenticator as \
-    BaseAuthenticator
-import nicos._vendor.pam as pam
 import pwd
+
+import nicos._vendor.pam as pam
+from nicos.core import ADMIN, GUEST, USER, User
+from nicos.services.daemon.auth import AuthenticationError, \
+    Authenticator as BaseAuthenticator
 
 
 class Authenticator(BaseAuthenticator):

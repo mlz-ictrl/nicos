@@ -29,7 +29,7 @@ Extracted from PowderCell's PCWSPGR.DAT file.
 """
 
 from nicos.core import NicosError
-from nicos.pycompat import string_types, integer_types
+from nicos.pycompat import integer_types, string_types
 
 
 def get_spacegroup(sg):

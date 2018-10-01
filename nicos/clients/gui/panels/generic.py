@@ -26,12 +26,12 @@
 
 from logging import WARNING
 
-from nicos.utils import findResource
+from nicos.clients.gui.dialogs.error import ErrorDialog
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.clients.gui.dialogs.error import ErrorDialog
 from nicos.core.errors import ConfigurationError
 from nicos.guisupport.widget import NicosWidget
+from nicos.utils import findResource
 
 
 class GenericPanel(Panel):

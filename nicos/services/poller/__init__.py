@@ -24,24 +24,28 @@
 
 """Contains a process that polls devices automatically."""
 
-import os
-import sys
 import errno
+import os
 import signal
-import traceback
+import sys
 import threading
+import traceback
 from os import path
-from time import time as currenttime, sleep
+from time import sleep
+from time import time as currenttime
 
-from nicos import session, config
-from nicos.core import status, listof, Device, Readable, Param, \
-    ConfigurationError, DeviceAlias
+from nicos.pycompat import iteritems, itervalues, listitems
+from nicos.pycompat import queue as Queue
+
+from nicos.utils import createSubprocess, createThread, \
+    loggers, watchFileContent, whyExited
 from nicos.utils.files import findSetup
-from nicos.utils import whyExited, watchFileContent, loggers, createThread, \
-    createSubprocess
-from nicos.devices.generic.cache import CacheReader
-from nicos.pycompat import listitems, queue as Queue, itervalues, iteritems
 
+from nicos import config, session
+from nicos.core import ConfigurationError, Device, \
+    DeviceAlias, Param, Readable, listof, status
+
+from nicos.devices.generic.cache import CacheReader
 
 POLL_MIN_VALID_TIME = 0.15  # latest time slot to poll before value times out due to maxage
 POLL_BUSY_INTERVAL = 0.5    # if dev is busy, poll this often

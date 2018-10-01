@@ -27,10 +27,10 @@
 import numpy as np
 import scipy.optimize
 
-from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell, matrixfromcell
+from nicos.core.errors import ComputationError
 from nicos.devices.sxtal.goniometer.base import PositionFactory
 from nicos.devices.sxtal.goniometer.posutils import Xrot, Yrot, Zrot
-from nicos.core.errors import ComputationError
+from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell, matrixfromcell
 
 
 def _norm(mat):

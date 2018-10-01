@@ -25,26 +25,26 @@
 
 """Virtual devices for testing."""
 
-import time
 import random
 import threading
-from math import exp, atan
+import time
+from math import atan, exp
 
 import numpy as np
 from numpy.random import normal
 
 from nicos import session
+from nicos.core import MASTER, POLLER, SIMULATION, ArrayDesc, Attach, \
+    CanDisable, HasLimits, HasOffset, HasWindowTimeout, InvalidValueError, \
+    Measurable, Moveable, MoveError, Override, Param, Readable, \
+    SubscanMeasurable, Value, floatrange, intrange, listof, none_or, oneof, \
+    status, tupleof
+from nicos.core.scan import Scan
+from nicos.devices.abstract import Coder, Motor
+from nicos.devices.generic.detector import ActiveChannel, ImageChannelMixin, \
+    PassiveChannel
 from nicos.utils import clamp, createThread
 from nicos.utils.timer import Timer
-from nicos.core import status, Readable, HasOffset, HasLimits, Param, \
-    Override, none_or, oneof, tupleof, floatrange, intrange, Measurable, \
-    Moveable, Value, MASTER, SIMULATION, POLLER, Attach, HasWindowTimeout, \
-    listof, SubscanMeasurable, ArrayDesc, CanDisable, MoveError, \
-    InvalidValueError
-from nicos.core.scan import Scan
-from nicos.devices.abstract import Motor, Coder
-from nicos.devices.generic.detector import ActiveChannel, PassiveChannel, \
-    ImageChannelMixin
 
 
 class VirtualMotor(HasOffset, CanDisable, Motor):

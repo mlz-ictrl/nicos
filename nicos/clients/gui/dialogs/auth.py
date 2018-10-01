@@ -24,11 +24,10 @@
 
 """Dialog for entering authentication data."""
 
-from nicos.guisupport.qt import QSize, QDialog, QFontMetrics, QIcon, \
-    QListWidgetItem, QPalette, QPyNullVariant
-
 from nicos.clients.base import ConnectionData
 from nicos.clients.gui.utils import loadUi, splitTunnelString
+from nicos.guisupport.qt import QDialog, QFontMetrics, QIcon, \
+    QListWidgetItem, QPalette, QPyNullVariant, QSize
 from nicos.protocols.daemon.classic import DEFAULT_PORT
 
 

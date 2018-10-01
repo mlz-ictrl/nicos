@@ -25,9 +25,9 @@
 """Utilities for uploading files to a ftp-server."""
 
 import time
-from os import path
 from ftplib import FTP
 from hashlib import md5
+from os import path
 
 from nicos.pycompat import to_utf8
 

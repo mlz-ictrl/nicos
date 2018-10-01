@@ -27,8 +27,8 @@ File writer for tiff files compatible with ESMERALDA
 """
 
 try:
-    from PIL import PILLOW_VERSION  # pylint: disable=E0611
-    from distutils.version import LooseVersion  # pylint: disable=E0611
+    from PIL import PILLOW_VERSION  # pylint: disable=no-name-in-module
+    from distutils.version import LooseVersion  # pylint: disable=no-name-in-module
     if LooseVersion(PILLOW_VERSION) < LooseVersion('3.99.0'):
         raise ImportError
     from PIL import Image

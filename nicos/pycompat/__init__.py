@@ -38,18 +38,15 @@ import inspect
 import threading
 
 from nicos._vendor import six
-
+# For consistency import everything from "six" here.
+from nicos._vendor.six import BytesIO, StringIO, add_metaclass, \
+    binary_type, exec_, integer_types, iteritems, iterkeys, \
+    itervalues, reraise, string_types, text_type
 # Pylint cannot handle submodules created by "six".  Import them here to
 # ignore the Pylint errors only once.
-from nicos._vendor.six.moves import builtins, cPickle, socketserver  # pylint: disable=F0401
-from nicos._vendor.six.moves import queue, configparser, urllib      # pylint: disable=F0401
-from nicos._vendor.six.moves import xrange, input, reduce            # pylint: disable=F0401,W0622
-from nicos._vendor.six.moves import zip_longest    # pylint: disable=F0401,W0622
-
-# For consistency import everything from "six" here.
-from nicos._vendor.six import reraise, exec_, add_metaclass, BytesIO, StringIO
-from nicos._vendor.six import string_types, integer_types, text_type, binary_type
-from nicos._vendor.six import iteritems, itervalues, iterkeys
+# pylint: disable=import-error, redefined-builtin
+from nicos._vendor.six.moves import builtins, configparser, cPickle, \
+    input, queue, reduce, socketserver, urllib, xrange, zip_longest
 
 # functionality in addition to what "six" provides
 
@@ -59,14 +56,14 @@ except AttributeError:
     get_thread_id = threading.get_ident
 
 try:
-    from html import escape as escape_html  # pylint: disable=F0401
+    from html import escape as escape_html  # pylint: disable=import-error
 except ImportError:
     from cgi import escape as escape_html
 
 # base64 encode/decode
 try:
-    from base64 import encodebytes as b64encode  # pylint: disable=F0401
-    from base64 import decodebytes as b64decode  # pylint: disable=F0401
+    from base64 import encodebytes as b64encode  # pylint: disable=import-error
+    from base64 import decodebytes as b64decode  # pylint: disable=import-error
 except ImportError:
     from base64 import encodestring as b64encode
     from base64 import decodestring as b64decode

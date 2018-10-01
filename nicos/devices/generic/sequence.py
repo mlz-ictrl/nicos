@@ -30,11 +30,10 @@ from datetime import timedelta
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import Attach, Device, DeviceMixinBase, LimitError, \
-    Measurable, MoveError, Moveable, NicosError, Override, Param, \
-    ProgrammingError, Readable, SIMULATION, anytype, none_or, status, \
-    tupleof, formatStatus
-
+from nicos.core import SIMULATION, Attach, Device, DeviceMixinBase, \
+    LimitError, Measurable, Moveable, MoveError, NicosError, Override, Param, \
+    ProgrammingError, Readable, anytype, formatStatus, none_or, status, \
+    tupleof
 from nicos.core.utils import devIter
 from nicos.pycompat import reraise
 from nicos.utils import createThread

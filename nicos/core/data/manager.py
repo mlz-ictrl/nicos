@@ -24,18 +24,18 @@
 
 """The global data manager class."""
 
-import os
 import logging
+import os
 from os import path
 from time import time as currenttime
 
 from nicos import session
-from nicos.core.constants import BLOCK, POINT, SCAN, SUBSCAN, SIMULATION
+from nicos.core.constants import BLOCK, POINT, SCAN, SIMULATION, SUBSCAN
+from nicos.core.data.dataset import BlockDataset, PointDataset, ScanDataset, \
+    SubscanDataset
+from nicos.core.data.sink import DataFile
 from nicos.core.errors import ProgrammingError
 from nicos.core.utils import DeviceValueDict
-from nicos.core.data.dataset import PointDataset, ScanDataset, \
-    SubscanDataset, BlockDataset
-from nicos.core.data.sink import DataFile
 from nicos.pycompat import iteritems, string_types
 from nicos.utils import DEFAULT_FILE_MODE, lazy_property, readFileCounter, \
     updateFileCounter

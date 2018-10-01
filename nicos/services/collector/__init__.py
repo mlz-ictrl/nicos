@@ -25,6 +25,18 @@
 
 import re
 
+from nicos.utils import createThread
+from nicos.utils.queues import SizedQueue, queue
+
+from nicos.core import Attach, Override, Param
+from nicos.core.device import Device
+from nicos.core.errors import ConfigurationError
+from nicos.core.mixins import DeviceMixinBase
+from nicos.core.params import listof, oneof
+from nicos.protocols.cache import OP_TELL, OP_TELLOLD
+
+from nicos.devices.cacheclient import BaseCacheClient
+
 try:
     import requests
 except ImportError:
@@ -35,15 +47,6 @@ try:
 except ImportError:
     import json
 
-from nicos.core import Attach, Override, Param
-from nicos.core.device import Device
-from nicos.core.errors import ConfigurationError
-from nicos.core.mixins import DeviceMixinBase
-from nicos.core.params import listof, oneof
-from nicos.devices.cacheclient import BaseCacheClient
-from nicos.protocols.cache import OP_TELL, OP_TELLOLD
-from nicos.utils import createThread
-from nicos.utils.queues import queue, SizedQueue
 
 PREFIX_RE = re.compile(r'[a-zA-Z0-9_/]+\.\*$')
 

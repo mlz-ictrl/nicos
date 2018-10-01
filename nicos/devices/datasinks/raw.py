@@ -30,12 +30,11 @@ from os import path
 import numpy as np
 
 from nicos import session
-from nicos.core import Override, DataSinkHandler, LIVE, \
-    ConfigurationError
-from nicos.pycompat import TextIOWrapper
-from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler, \
-    ImageFileReader
+from nicos.core import LIVE, ConfigurationError, DataSinkHandler, Override
 from nicos.core.data.sink import NicosMetaWriterMixin
+from nicos.devices.datasinks.image import ImageFileReader, ImageSink, \
+    SingleFileSinkHandler
+from nicos.pycompat import TextIOWrapper
 
 
 class SingleRawImageSinkHandler(NicosMetaWriterMixin, SingleFileSinkHandler):

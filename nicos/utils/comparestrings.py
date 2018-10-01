@@ -24,7 +24,6 @@
 
 from __future__ import print_function
 
-
 # How much does it cost to make a hole in one of the strings?
 GAPOPENPENALTY = -0.3
 # How much does it cost to elongate a hole in one of the strings?

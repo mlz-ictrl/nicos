@@ -30,7 +30,7 @@ import TACOStates
 
 try:
     from SIS3400 import (Timer as SIS3400Timer,
-                         MonitorCounter,  # pylint: disable=F0401
+                         MonitorCounter,  # pylint: disable=import-error
                          HistogramCounter)
 except ImportError:
     SIS3400Timer = None

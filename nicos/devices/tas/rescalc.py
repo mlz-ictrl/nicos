@@ -33,10 +33,10 @@ Marc Janoschek.
 
 from __future__ import print_function
 
-from numpy import pi, radians, degrees, sin, cos, tan, arcsin, arccos, \
-     arctan2, absolute, sqrt, real, matrix, diag, cross, dot, array, arange, \
-     zeros, concatenate, reshape, delete, exp
-from numpy.linalg import inv, det, eig, norm
+from numpy import absolute, arange, arccos, arcsin, arctan2, array, \
+    concatenate, cos, cross, degrees, delete, diag, dot, exp, matrix, pi, \
+    radians, real, reshape, sin, sqrt, tan, zeros
+from numpy.linalg import det, eig, inv, norm
 from numpy.random import randn
 
 

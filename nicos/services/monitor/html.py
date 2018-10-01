@@ -24,15 +24,25 @@
 
 """Instrument monitor that generates an HTML page."""
 
-import os
-import time
-import operator
-import tempfile
 import functools
-
-from time import sleep, time as currenttime
+import operator
+import os
+import tempfile
+import time
 from binascii import b2a_base64
 from threading import RLock
+from time import sleep, time as currenttime
+
+import numpy
+
+from nicos._vendor.lttb import lttb
+from nicos.core import Param
+from nicos.core.constants import NOT_AVAILABLE
+from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, WARN
+from nicos.pycompat import escape_html, from_utf8, string_types
+from nicos.services.monitor import Monitor as BaseMonitor
+from nicos.services.monitor.icon import nicos_icon
+from nicos.utils import checkSetupSpec, extractKeyAndIndex
 
 try:
     from gr import pygr
@@ -43,16 +53,7 @@ try:
     from nicos.guisupport.plots import NicosTimePlotAxes
 except ImportError:
     pygr = None
-import numpy
 
-from nicos.core import Param
-from nicos.core.constants import NOT_AVAILABLE
-from nicos.core.status import OK, WARN, BUSY, ERROR, NOTREACHED, DISABLED
-from nicos.services.monitor import Monitor as BaseMonitor
-from nicos.pycompat import from_utf8, string_types, escape_html
-from nicos.services.monitor.icon import nicos_icon
-from nicos.utils import checkSetupSpec, extractKeyAndIndex
-from nicos._vendor.lttb import lttb
 
 HEAD = '''\
 <html>

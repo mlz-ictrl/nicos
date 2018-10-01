@@ -28,9 +28,9 @@ from time import sleep, time as currenttime
 
 from kafka import KafkaConsumer, KafkaProducer, TopicPartition
 
-from nicos.core import Param, Attach, listof, host
+from nicos.core import Attach, Param, host, listof
 from nicos.core.errors import ConfigurationError
-from nicos.protocols.cache import OP_TELL, OP_TELLOLD, FLAG_NO_STORE
+from nicos.protocols.cache import FLAG_NO_STORE, OP_TELL, OP_TELLOLD
 from nicos.pycompat import iteritems
 from nicos.services.cache.database.memory import MemoryCacheDatabase
 from nicos.services.cache.entry import CacheEntry

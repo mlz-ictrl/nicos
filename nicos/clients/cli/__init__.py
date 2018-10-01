@@ -24,38 +24,37 @@
 
 """Command-line client for the NICOS daemon."""
 
-import os
-import sys
-import glob
-import time
-import errno
-import random
-import select
-import signal
-import getpass
-import readline
-import threading
 import ctypes
 import ctypes.util
-from os import path
-from uuid import uuid1
-from time import strftime, localtime
-from logging import DEBUG, INFO, WARNING, ERROR, FATAL
+import errno
+import getpass
+import glob
+import os
+import random
+import readline
+import select
+import signal
+import sys
+import threading
+import time
 from collections import OrderedDict
+from logging import DEBUG, ERROR, FATAL, INFO, WARNING
+from os import path
+from time import localtime, strftime
+from uuid import uuid1
 
 from html2text import HTML2Text
 
-from nicos.clients.base import NicosClient, ConnectionData
+from nicos.clients.base import ConnectionData, NicosClient
 from nicos.clients.cli.txtplot import txtplot
-from nicos.utils import colorize, formatDuration, formatEndtime, \
-    terminalSize, parseConnectionString
-from nicos.utils.loggers import ACTION, INPUT
-from nicos.protocols.daemon import STATUS_INBREAK, \
-    STATUS_IDLE, STATUS_IDLEEXC, BREAK_AFTER_STEP, BREAK_AFTER_LINE
+from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
+from nicos.protocols.daemon import BREAK_AFTER_LINE, \
+    BREAK_AFTER_STEP, STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK
 from nicos.protocols.daemon.classic import DEFAULT_PORT
-from nicos.core import SIMULATION, SLAVE, MAINTENANCE, MASTER
 from nicos.pycompat import configparser, iteritems, to_encoding
-
+from nicos.utils import colorize, formatDuration, \
+    formatEndtime, parseConnectionString, terminalSize
+from nicos.utils.loggers import ACTION, INPUT
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
           ERROR: 'ERROR', FATAL: 'FATAL'}

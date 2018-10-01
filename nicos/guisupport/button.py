@@ -24,10 +24,9 @@
 
 import ast
 
-from nicos.guisupport.qt import Qt
-
-from nicos.guisupport.widget import PropDef
 from nicos.guisupport.led import ClickableOutputLed
+from nicos.guisupport.qt import Qt
+from nicos.guisupport.widget import PropDef
 from nicos.pycompat import string_types
 
 

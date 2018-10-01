@@ -30,7 +30,7 @@ try:
     from omniORB import CORBA
     import CosNaming
 
-    import CARESS  # pylint: disable=F0401,E0611,W0403
+    import CARESS  # pylint: disable=import-error,no-name-in-module,W0403
 
     sys.modules['CARESS'] = sys.modules['nicos_mlz.delab.devices.CARESS']
     import omniORB

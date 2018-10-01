@@ -28,21 +28,20 @@
 import os
 from math import sqrt
 
-from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QDialog, QMenu, \
-    QToolBar, QStatusBar, QFont, QListWidgetItem, QSizePolicy, QPalette, \
-    QKeySequence, QShortcut, QTableWidgetItem, QActionGroup, QComboBox, \
-    QWidgetAction, QCheckBox, QHBoxLayout, QFrame
-
-from nicos.utils import safeName
-from nicos.core.data import ScanData
-from nicos.core.params import INFO_CATEGORIES
 from nicos.clients.gui.data import DataProxy
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, dialogFromUi
-from nicos.clients.gui.widgets.plotting import DataSetPlot, GaussFitter, \
-    PseudoVoigtFitter, PearsonVIIFitter, TcFitter, ArbitraryFitter, \
-    CosineFitter, SigmoidFitter, LinearFitter, ExponentialFitter
+from nicos.clients.gui.utils import dialogFromUi, loadUi
+from nicos.clients.gui.widgets.plotting import ArbitraryFitter, CosineFitter, \
+    DataSetPlot, ExponentialFitter, GaussFitter, LinearFitter, \
+    PearsonVIIFitter, PseudoVoigtFitter, SigmoidFitter, TcFitter
+from nicos.core.data import ScanData
+from nicos.core.params import INFO_CATEGORIES
+from nicos.guisupport.qt import QActionGroup, QByteArray, QCheckBox, \
+    QComboBox, QDialog, QFont, QFrame, QHBoxLayout, QKeySequence, \
+    QListWidgetItem, QMenu, QPalette, QShortcut, QSizePolicy, QStatusBar, Qt, \
+    QTableWidgetItem, QToolBar, QWidgetAction, pyqtSlot
 from nicos.pycompat import itervalues
+from nicos.utils import safeName
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
 TOGETHER, COMBINE, ADD, SUBTRACT, DIVIDE = range(5)

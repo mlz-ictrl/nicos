@@ -29,7 +29,7 @@
 """
 
 try:
-    import xmpp  # pylint: disable=F0401
+    import xmpp  # pylint: disable=import-error
 except ImportError:
     xmpp = None
 

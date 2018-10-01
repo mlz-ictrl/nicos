@@ -25,9 +25,9 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, USER, User, listof
-from nicos.services.daemon.auth import AuthenticationError, Authenticator as \
-    BaseAuthenticator
+from nicos.core import USER, Param, User, listof
+from nicos.services.daemon.auth import AuthenticationError, \
+    Authenticator as BaseAuthenticator
 from nicos.services.daemon.auth.params import UserLevelAuthEntry
 from nicos.utils.credentials.keystore import nicoskeystore
 

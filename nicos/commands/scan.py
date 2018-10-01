@@ -25,17 +25,16 @@
 """Scan commands for NICOS."""
 
 from nicos import session
-from nicos.core import Device, Measurable, Moveable, Readable, UsageError, \
-    NicosError
+from nicos.commands import helparglist, usercommand
+from nicos.core import Device, Measurable, Moveable, NicosError, Readable, \
+    UsageError
 from nicos.core.constants import SUBSCAN
-from nicos.core.spm import spmsyntax, Dev, Bare
-from nicos.core.scan import SweepScan, ContinuousScan, ManualScan, \
-    StopScan, CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS
-from nicos.core.scan import Scan
-from nicos.commands import usercommand, helparglist
-from nicos.pycompat import iteritems, number_types, string_types
-from nicos.pycompat import xrange as range  # pylint: disable=W0622
-
+from nicos.core.scan import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, \
+    ContinuousScan, ManualScan, Scan, StopScan, SweepScan
+from nicos.core.spm import Bare, Dev, spmsyntax
+# pylint: disable=redefined-builtin
+from nicos.pycompat import iteritems, number_types, string_types, \
+    xrange as range
 
 __all__ = [
     'scan', 'cscan', 'timescan', 'sweep', 'twodscan', 'contscan',

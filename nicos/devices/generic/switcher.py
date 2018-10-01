@@ -25,14 +25,13 @@
 
 """NICOS "switcher" devices."""
 
-from nicos.utils import lazy_property
-from nicos.core import anytype, dictof, none_or, listof, floatrange, \
-    PositionError, ConfigurationError, Moveable, Readable, Param, \
-    Override, status, InvalidValueError, multiStatus, multiStop, multiReset, \
-    multiWait
+from nicos.core import ConfigurationError, InvalidValueError, Moveable, \
+    Override, Param, PositionError, Readable, anytype, dictof, floatrange, \
+    listof, multiReset, multiStatus, multiStop, multiWait, none_or, status
 from nicos.core.params import Attach
-from nicos.devices.abstract import MappedReadable, MappedMoveable
+from nicos.devices.abstract import MappedMoveable, MappedReadable
 from nicos.pycompat import iteritems
+from nicos.utils import lazy_property
 
 
 class Switcher(MappedMoveable):

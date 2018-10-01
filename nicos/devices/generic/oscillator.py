@@ -25,8 +25,8 @@
 """Classes to let devices oscillate."""
 
 from nicos import session
-from nicos.core import Attach, ConfigurationError, Moveable, Override, POLLER,\
-    Param, SIMULATION, limits, oneof, status, tupleof
+from nicos.core import POLLER, SIMULATION, Attach, ConfigurationError, \
+    Moveable, Override, Param, limits, oneof, status, tupleof
 from nicos.core.errors import UsageError
 from nicos.utils import createThread
 

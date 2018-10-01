@@ -35,7 +35,7 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.core.errors import ConfigurationError
 from nicos.guisupport.typedvalue import DeviceValueEdit
-from nicos.pycompat import iteritems, xrange  # pylint: disable=W0622
+from nicos.pycompat import iteritems, xrange  # pylint: disable=redefined-builtin
 
 
 class TimelineWidget(QGraphicsView):

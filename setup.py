@@ -27,7 +27,7 @@ import glob
 from os import path
 from setuptools import setup
 from setuptools.command.install import install as stinstall
-from distutils.dir_util import mkpath  # pylint: disable=E0611,F0401
+from distutils.dir_util import mkpath  # pylint: disable=no-name-in-module,import-error
 
 from nicos import nicos_version
 from nicos.pycompat import configparser

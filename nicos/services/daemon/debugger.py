@@ -27,8 +27,8 @@ A remote debugger for the NICOS daemon.
 """
 
 import sys
-from pdb import Pdb
 from bdb import Breakpoint
+from pdb import Pdb
 
 from nicos.pycompat import queue
 

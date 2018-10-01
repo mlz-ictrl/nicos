@@ -26,7 +26,7 @@
 
 import numpy as np
 
-from nicos.devices.tas.spacegroups import get_spacegroup, can_reflect
+from nicos.devices.tas.spacegroups import can_reflect, get_spacegroup
 
 lnot = np.logical_not
 land = np.logical_and

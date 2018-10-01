@@ -29,7 +29,7 @@ from collections import OrderedDict
 import numpy
 
 from nicos.core import Readable, Moveable, Attach, Param, tupleof
-from nicos.pycompat import xrange, iteritems  # pylint: disable=W0622
+from nicos.pycompat import xrange, iteritems  # pylint: disable=redefined-builtin
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod
 
 

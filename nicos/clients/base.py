@@ -25,23 +25,24 @@
 
 """The base class for communication with the NICOS server."""
 
-import socket
 import hashlib
+import socket
 import threading
 from time import time as currenttime
 
+from nicos.clients.proto.classic import ClientTransport
+from nicos.protocols.daemon import ACTIVE_COMMANDS, ProtocolError
+from nicos.protocols.daemon.classic import COMPATIBLE_PROTO_VERSIONS, \
+    PROTO_VERSION
+from nicos.pycompat import b64decode, b64encode, to_utf8
+from nicos.utils import createThread
+
 try:
-    import rsa  # pylint: disable=F0401
+    import rsa  # pylint: disable=import-error
 except ImportError:
     rsa = None
 
-from nicos.protocols.daemon import ACTIVE_COMMANDS, ProtocolError
-from nicos.pycompat import to_utf8, b64encode, b64decode
-from nicos.utils import createThread
 
-from nicos.clients.proto.classic import ClientTransport
-from nicos.protocols.daemon.classic import \
-    PROTO_VERSION, COMPATIBLE_PROTO_VERSIONS
 
 BUFSIZE = 8192
 

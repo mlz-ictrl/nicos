@@ -34,7 +34,6 @@ from nicos.core.device import Measurable
 from nicos.core.errors import NicosError
 from nicos.core.scan import SkipPoint
 
-
 __all__ = ['tomo']
 
 

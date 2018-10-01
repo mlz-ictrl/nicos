@@ -28,13 +28,11 @@ NICOS GUI LED class.
 
 import ast
 
-from nicos.guisupport.qt import Qt, QSize, QLabel, QWidget, QPixmap
-
-from nicos.core.status import OK, BUSY, WARN, ERROR, NOTREACHED, DISABLED, \
-    UNKNOWN
+from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
+    WARN
+from nicos.guisupport.qt import QLabel, QPixmap, QSize, Qt, QWidget
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.pycompat import string_types
-
 
 ledColors = set(["blue", "green", "red", "yellow", "orange", "gray"])
 

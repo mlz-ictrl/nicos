@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, status, HasLimits, HasPrecision, Moveable, \
-    oneof
+from nicos.core import HasLimits, HasPrecision, Moveable, Param, oneof, status
 from nicos.devices.tango import PyTangoDevice
+
 from .generic import GenericLimaCCD
 from .optional import LimaCooler
 

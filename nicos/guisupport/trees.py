@@ -26,7 +26,6 @@
 """
 
 from nicos.guisupport.qt import QTreeWidget, QTreeWidgetItem
-
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.pycompat import iteritems
 

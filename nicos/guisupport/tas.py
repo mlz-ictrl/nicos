@@ -26,12 +26,10 @@
 
 from math import cos, pi, sin
 
+from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, WARN
+from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, QPoint, \
+    QPointF, QPolygonF, QSize, Qt, QWidget
 from nicos.guisupport.widget import NicosWidget, PropDef
-
-from nicos.guisupport.qt import Qt, QSize, QPointF, QPoint, QPainter, \
-    QWidget, QColor, QBrush, QPen, QPolygonF
-
-from nicos.core.status import BUSY, OK, ERROR, NOTREACHED, WARN, DISABLED
 
 _yellow = QBrush(QColor('yellow'))
 _white = QBrush(QColor('white'))

@@ -24,15 +24,14 @@
 
 """Class for Metrolab THM 1176 magnetic field probe."""
 
-import os
-import math
 import fcntl
+import math
+import os
 import struct
 
 from nicos import session
-from nicos.core import status, Measurable, Param, Value, usermethod, \
-    CommunicationError, ModeError
-from nicos.core import SIMULATION, SLAVE
+from nicos.core import SIMULATION, SLAVE, CommunicationError, Measurable, \
+    ModeError, Param, Value, status, usermethod
 
 USBDEVFS_RESET = 21780
 

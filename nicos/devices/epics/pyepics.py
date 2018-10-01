@@ -26,23 +26,25 @@
 This module contains some classes for NICOS - EPICS integration.
 """
 from __future__ import absolute_import
+
 import threading
 from time import time as currenttime
 
+import epics
+
 from nicos import session
-from nicos.core import CommunicationError, ConfigurationError, \
-    DeviceMixinBase, HasLimits, Moveable, Override, Param, Readable, \
-    SIMULATION, anytype, floatrange, none_or, status, pvname
+from nicos.core import SIMULATION, CommunicationError, ConfigurationError, \
+    DeviceMixinBase, HasLimits, Moveable, Override, Param, Readable, anytype, \
+    floatrange, none_or, pvname, status
 from nicos.core.mixins import HasWindowTimeout
-from nicos.utils import HardwareStub
 from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
+from nicos.utils import HardwareStub
 
 # ca.clear_cache() only works from the main thread
 if not isinstance(threading.currentThread(), threading._MainThread):
     raise ImportError('the nicos.devices.epics module must be first '
                       'imported from the main thread')
 
-import epics
 
 # Clear the EPICS cache of CA connections, which are (somehow) kept across
 # subprocesses.  This call ensures fresh connections for each process, since

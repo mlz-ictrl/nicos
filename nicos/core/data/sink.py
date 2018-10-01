@@ -24,19 +24,18 @@
 
 """Base classes for NICOS data sinks."""
 
-from os import path
 from gzip import GzipFile as StdGzipFile
+from os import path
 
 from nicos import session
 from nicos.core.constants import POINT, SIMULATION
-from nicos.core.device import Device
-from nicos.core.params import Override, Param, listof, setof
-from nicos.core.errors import ProgrammingError
 from nicos.core.data.dataset import SETTYPES
+from nicos.core.device import Device
+from nicos.core.errors import ProgrammingError
+from nicos.core.params import INFO_CATEGORIES, Override, Param, listof, setof
 from nicos.core.status import statuses
-from nicos.pycompat import File
-from nicos.pycompat import iteritems, TextIOWrapper, listitems
-from nicos.core import INFO_CATEGORIES
+from nicos.pycompat import File, TextIOWrapper, iteritems, listitems
+
 
 class DataFileBase(object):
     """Base class for Nicos data files."""

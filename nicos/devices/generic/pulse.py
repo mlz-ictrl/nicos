@@ -26,7 +26,6 @@
 
 from nicos.core import Attach, Moveable, Param, anytype, oneof
 from nicos.core.errors import ConfigurationError
-
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
 
 

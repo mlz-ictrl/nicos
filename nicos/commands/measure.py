@@ -26,13 +26,13 @@
 """New acquisition commands (scan and count)."""
 
 from nicos import session
-from nicos.core.device import Measurable, SubscanMeasurable
-from nicos.core.errors import UsageError, NicosError
-from nicos.core.acquire import acquire, read_environment, Average, MinMax, \
+from nicos.commands import helparglist, parallel_safe, usercommand
+from nicos.core.acquire import Average, MinMax, acquire, read_environment, \
     stop_acquire_thread
+from nicos.core.device import Measurable, SubscanMeasurable
+from nicos.core.errors import NicosError, UsageError
 from nicos.core.utils import waitForCompletion
-from nicos.commands import helparglist, usercommand, parallel_safe
-from nicos.pycompat import number_types, string_types, iteritems
+from nicos.pycompat import iteritems, number_types, string_types
 from nicos.utils import createThread
 
 __all__ = [

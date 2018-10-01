@@ -31,13 +31,13 @@ import threading
 from time import sleep, time as currenttime
 
 from nicos import session
-from nicos.core import Device, Param, CacheLockError, CacheError, host
-from nicos.utils import tcpSocket, closeSocket, createThread, getSysInfo
-from nicos.protocols.cache import msg_pattern, line_pattern, \
-    cache_load, cache_dump, DEFAULT_CACHE_PORT, OP_TELL, OP_TELLOLD, OP_ASK, \
-    OP_WILDCARD, OP_SUBSCRIBE, OP_UNSUBSCRIBE, OP_LOCK, OP_LOCK_LOCK, \
-    OP_LOCK_UNLOCK, OP_REWRITE, END_MARKER, SYNC_MARKER, CYCLETIME, BUFSIZE
-from nicos.pycompat import queue, iteritems, to_utf8, from_utf8, string_types
+from nicos.core import CacheError, CacheLockError, Device, Param, host
+from nicos.protocols.cache import BUFSIZE, CYCLETIME, DEFAULT_CACHE_PORT, \
+    END_MARKER, OP_ASK, OP_LOCK, OP_LOCK_LOCK, OP_LOCK_UNLOCK, OP_REWRITE, \
+    OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, OP_UNSUBSCRIBE, OP_WILDCARD, \
+    SYNC_MARKER, cache_dump, cache_load, line_pattern, msg_pattern
+from nicos.pycompat import from_utf8, iteritems, queue, string_types, to_utf8
+from nicos.utils import closeSocket, createThread, getSysInfo, tcpSocket
 
 
 class BaseCacheClient(Device):

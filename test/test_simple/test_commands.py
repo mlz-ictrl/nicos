@@ -39,8 +39,8 @@ from nicos.commands.device import move, maw, drive, switch, wait, read, \
     status, stop, reset, get, getall, setall, fix, release, adjust, \
     version, history, info, limits, resetlimits, ListParams, ListMethods, \
     ListDevices, unfix, reference, finish, waitfor, disable, enable
-from nicos.commands.device import set  # pylint: disable=W0622
-from nicos.commands.basic import help, dir  # pylint: disable=W0622
+from nicos.commands.device import set  # pylint: disable=redefined-builtin
+from nicos.commands.basic import help, dir  # pylint: disable=redefined-builtin
 from nicos.commands.basic import ListCommands, sleep, \
     NewSetup, AddSetup, RemoveSetup, ListSetups, \
     LogEntry, _LogAttach, SetErrorAbort, \

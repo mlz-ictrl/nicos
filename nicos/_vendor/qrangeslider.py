@@ -60,10 +60,9 @@ __version__ = "0.1.1"
 # ---------------------------------------------------------------------------------------------
 import sys
 
-from nicos.guisupport.qt import Qt, QApplication, QColor, QFont, QGridLayout, \
-    QGroupBox, QHBoxLayout, QPainter, QSplitter, QSize, QMetaObject, QWidget, \
-    pyqtSignal
-
+from nicos.guisupport.qt import QApplication, QColor, QFont, QGridLayout, \
+    QGroupBox, QHBoxLayout, QMetaObject, QPainter, QSize, QSplitter, Qt, \
+    QWidget, pyqtSignal
 
 __all__ = ['QRangeSlider']
 

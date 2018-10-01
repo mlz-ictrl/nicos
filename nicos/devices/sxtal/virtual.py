@@ -26,9 +26,10 @@
 """Virtual SXTAL devices."""
 
 from time import time as currenttime
+
 import numpy as np
 
-from nicos.core import Readable, Measurable, Param, Value, Attach, status, vec3
+from nicos.core import Attach, Measurable, Param, Readable, Value, status, vec3
 
 
 class VirtualSXtalDetector(Measurable):

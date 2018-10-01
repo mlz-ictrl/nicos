@@ -44,7 +44,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Cache Inspector'
-copyright = u'2014-2015, Pascal Neubert' # pylint: disable=W0622
+copyright = u'2014-2015, Pascal Neubert' # pylint: disable=redefined-builtin
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

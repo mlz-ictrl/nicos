@@ -19,6 +19,8 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
+# isort:skip_file
+
 
 import sys
 import os
@@ -69,7 +71,7 @@ master_doc = 'index'
 # General information about the project.
 project = u'NICOS'
 author = u'NICOS authors and contributors'
-copyright = u'2009-2018, FRM II / ' + author  # pylint: disable=W0622
+copyright = u'2009-2018, FRM II / ' + author  # pylint: disable=redefined-builtin
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

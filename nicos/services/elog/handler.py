@@ -25,16 +25,16 @@
 """The NICOS electronic logbook."""
 
 import io
-from os import path, unlink
 from cgi import escape
-from time import strftime, localtime
-from shutil import copyfile
 from logging import ERROR
+from os import path, unlink
+from shutil import copyfile
+from time import localtime, strftime
 
+from nicos.pycompat import to_utf8
+from nicos.services.elog.genplot import plotDataset
 from nicos.services.elog.utils import formatMessage, formatMessagePlain, \
     pretty1, pretty2
-from nicos.services.elog.genplot import plotDataset
-from nicos.pycompat import to_utf8
 
 try:
     import nicos._vendor.creole as creole

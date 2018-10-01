@@ -27,10 +27,10 @@
 import numpy as np
 
 from nicos import session
-from nicos.core import Moveable, Param, Override, AutoDevice, LimitError, \
-    Value, Attach, oneof, vec3, intrange, tupleof
-from nicos.devices.instrument import Instrument
+from nicos.core import Attach, AutoDevice, LimitError, Moveable, Override, \
+    Param, Value, intrange, oneof, tupleof, vec3
 from nicos.devices.generic.mono import Monochromator
+from nicos.devices.instrument import Instrument
 from nicos.devices.sxtal.goniometer.base import PositionFactory
 
 

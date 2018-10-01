@@ -25,16 +25,15 @@
 
 """NICOS GUI electronic logbook window."""
 
-from os import path
 from cgi import escape
-
-from nicos.guisupport.qt import pyqtSlot, Qt, QTimer, QUrl, QMainWindow, \
-    QTextEdit, QDialog, QInputDialog, QMenu, QToolBar, QPrintDialog, \
-    QPrinter, QTextDocument, QDesktopServices, QPushButton, QLineEdit, \
-    QActionGroup, QWebView, QWebPage
+from os import path
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, dialogFromUi
+from nicos.clients.gui.utils import dialogFromUi, loadUi
+from nicos.guisupport.qt import QActionGroup, QDesktopServices, QDialog, \
+    QInputDialog, QLineEdit, QMainWindow, QMenu, QPrintDialog, QPrinter, \
+    QPushButton, Qt, QTextDocument, QTextEdit, QTimer, QToolBar, QUrl, \
+    QWebPage, QWebView, pyqtSlot
 
 if QWebView is None:
     raise ImportError('Qt webview component is not available')

@@ -24,18 +24,17 @@
 
 """Utilities for the NICOS daemon."""
 
-import re
 import ast
-import time
-import logging
 import linecache
-from threading import Lock, Event
+import logging
+import re
+import time
+from threading import Event, Lock
 
 from nicos import session
+from nicos.pycompat import text_type
 from nicos.utils import fixupScript
 from nicos.utils.loggers import ACTION, recordToMessage
-from nicos.pycompat import text_type
-
 
 TIMESTAMP_FMT = '%Y-%m-%d %H:%M:%S'
 

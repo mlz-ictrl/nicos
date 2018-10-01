@@ -24,9 +24,10 @@
 
 import re
 
-from nicos.core import Param, status, oneof, Override, HasLimits, \
-    HasPrecision, Moveable
+from nicos.core import HasLimits, HasPrecision, Moveable, Override, Param, \
+    oneof, status
 from nicos.devices.tango import PyTangoDevice
+
 from .generic import GenericLimaCCD
 from .optional import LimaCooler
 

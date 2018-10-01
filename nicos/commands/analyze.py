@@ -31,16 +31,15 @@ from math import sqrt
 import numpy as np
 
 from nicos import session
-from nicos.core import NicosError, UsageError
-from nicos.utils import printTable, FitterRegistry
-from nicos.utils.fitting import Fit, GaussFit, PolyFit, SigmoidFit
-from nicos.utils.analyze import estimateFWHM
-from nicos.pycompat import string_types
-from nicos.pycompat import xrange as range  # pylint: disable=W0622
-from nicos.commands import usercommand, helparglist
-from nicos.commands.scan import cscan
+from nicos.commands import helparglist, usercommand
 from nicos.commands.device import maw
-
+from nicos.commands.scan import cscan
+from nicos.core import NicosError, UsageError
+# pylint: disable=redefined-builtin
+from nicos.pycompat import string_types, xrange as range
+from nicos.utils import FitterRegistry, printTable
+from nicos.utils.analyze import estimateFWHM
+from nicos.utils.fitting import Fit, GaussFit, PolyFit, SigmoidFit
 
 __all__ = [
     'center_of_mass', 'fwhm', 'root_mean_square', 'poly', 'gauss', 'sigmoid',

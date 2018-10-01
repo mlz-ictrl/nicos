@@ -24,12 +24,13 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, dictof, oneof, ACCESS_LEVELS, User
-from nicos.pycompat import iteritems
-from nicos.services.daemon.auth import AuthenticationError, Authenticator as \
-    BaseAuthenticator
+import ldap3  # pylint: disable=import-error
 
-import ldap3  # pylint: disable=F0401
+from nicos.core import ACCESS_LEVELS, Param, User, dictof, oneof
+from nicos.pycompat import iteritems
+from nicos.services.daemon.auth import AuthenticationError, \
+    Authenticator as BaseAuthenticator
+
 # do not use default repr, which might leak passwords
 ldap3.Connection.__repr__ = object.__repr__
 

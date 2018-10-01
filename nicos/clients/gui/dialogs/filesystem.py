@@ -27,9 +27,8 @@
 import fnmatch
 from os import path
 
-from nicos.guisupport.qt import QFileDialog, QLineEdit, QSortFilterProxyModel
-
 from nicos.core.errors import NicosError
+from nicos.guisupport.qt import QFileDialog, QLineEdit, QSortFilterProxyModel
 
 
 class FileFilterProxyModel(QSortFilterProxyModel):

@@ -26,18 +26,21 @@
 
 import ast
 import sys
-
 from collections import OrderedDict
 from os import path
-from time import ctime, strftime, time as currenttime
+from time import ctime, strftime
+from time import time as currenttime
+
+from nicos.pycompat import iteritems, listitems
+
+from nicos.utils import LCDict, createSubprocess
 
 from nicos import config, session
 from nicos.core import Override, Param, anytype, dictof, listof, status
+from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
+
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.devices.notifiers import Mailer, Notifier
-from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
-from nicos.pycompat import iteritems, listitems
-from nicos.utils import LCDict, createSubprocess
 
 
 class Entry(object):

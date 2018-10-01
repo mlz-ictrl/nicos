@@ -24,10 +24,9 @@
 
 """NICOS GUI traceback display window."""
 
-from nicos.guisupport.qt import pyqtSlot, QDialog, QPushButton, QFont, \
-    QTreeWidgetItem, QDialogButtonBox, QApplication, QClipboard
-
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QApplication, QClipboard, QDialog, \
+    QDialogButtonBox, QFont, QPushButton, QTreeWidgetItem, pyqtSlot
 from nicos.pycompat import iteritems
 
 

@@ -27,14 +27,14 @@
 NICOS value plot widget.
 """
 
-import operator
 import functools
+import operator
 from time import time as currenttime
 
 import numpy as np
 
-from nicos.pycompat import number_types, string_types, iteritems
 from nicos._vendor import lttb
+from nicos.pycompat import iteritems, number_types, string_types
 
 
 def buildTickDistAndSubTicks(mintime, maxtime, minticks=3):

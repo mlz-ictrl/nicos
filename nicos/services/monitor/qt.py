@@ -27,18 +27,17 @@
 import sys
 import traceback
 
-from nicos.guisupport.qt import uic, pyqtSignal, Qt, QFrame, QLabel, \
-    QPalette, QMainWindow, QVBoxLayout, QColor, QFont, QFontMetrics, \
-    QSizePolicy, QHBoxLayout, QApplication, QCursor, QIcon
-
-from nicos.core import Param
-from nicos.utils import findResource, checkSetupSpec
-from nicos.services.monitor import Monitor as BaseMonitor
-from nicos.guisupport.widget import NicosWidget
-from nicos.guisupport.display import ValueDisplay, PictureDisplay, \
-    lightColorScheme
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
+from nicos.core import Param
+from nicos.guisupport.display import PictureDisplay, ValueDisplay, \
+    lightColorScheme
+from nicos.guisupport.qt import QApplication, QColor, QCursor, QFont, \
+    QFontMetrics, QFrame, QHBoxLayout, QIcon, QLabel, QMainWindow, QPalette, \
+    QSizePolicy, Qt, QVBoxLayout, pyqtSignal, uic
+from nicos.guisupport.widget import NicosWidget
 from nicos.pycompat import iteritems, string_types
+from nicos.services.monitor import Monitor as BaseMonitor
+from nicos.utils import checkSetupSpec, findResource
 
 try:
     from nicos.guisupport.plots import TrendPlot

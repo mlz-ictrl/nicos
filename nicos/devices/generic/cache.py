@@ -27,9 +27,8 @@
 
 from time import time as currenttime
 
-from nicos.core import status, Readable, Moveable, HasLimits, Param, \
-    CommunicationError, HasWindowTimeout, CacheError, Override
-
+from nicos.core import CacheError, CommunicationError, HasLimits, \
+    HasWindowTimeout, Moveable, Override, Param, Readable, status
 
 CACHE_NOSTATUS_STRING = 'no status found in cache'
 CACHE_NOVALUE_STRING = 'no value found in cache'

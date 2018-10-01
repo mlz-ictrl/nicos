@@ -22,13 +22,14 @@
 #
 # *****************************************************************************
 
-import numpy
 from gzip import GzipFile as StdGzipFile
 
+import numpy
+
 from nicos.core.data.sink import GzipFile
+from nicos.devices.datasinks.image import ImageFileReader, ImageSink, \
+    MultipleFileSinkHandler
 from nicos.pycompat import File
-from nicos.devices.datasinks.image import MultipleFileSinkHandler, ImageSink, \
-    ImageFileReader
 
 
 class NPImageSinkHandler(MultipleFileSinkHandler):

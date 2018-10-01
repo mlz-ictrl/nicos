@@ -32,11 +32,11 @@ see the `Unitcell` class for conversion to reciprocal space
 
 from __future__ import print_function
 
-from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
-
 import numpy as np
+
 from nicos import session
 from nicos.core import NicosError
+from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
 from nicos.devices.sxtal.goniometer.posutils import normalangle
 
 

@@ -25,19 +25,20 @@
 """NICOS daemon package."""
 
 import sys
+import threading
 import time
 import traceback
-import threading
 
-from nicos import nicos_version, config
-from nicos.core import listof, Device, Param, ConfigurationError, host, Attach
-from nicos.core.utils import system_user
-from nicos.utils import createThread, importString, parseHostPort
 from nicos.pycompat import listitems
+
+from nicos.utils import createThread, importString, parseHostPort
+
+from nicos import config, nicos_version
+from nicos.core import Attach, ConfigurationError, Device, Param, host, listof
+from nicos.core.utils import system_user
+from nicos.protocols.daemon.classic import DEFAULT_PORT
 from nicos.services.daemon.auth import Authenticator
 from nicos.services.daemon.script import ExecutionController
-
-from nicos.protocols.daemon.classic import DEFAULT_PORT
 
 
 class NicosDaemon(Device):

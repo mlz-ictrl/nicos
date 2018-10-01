@@ -24,8 +24,8 @@
 
 """Utilities for (de-)compressing files."""
 
-import os
 import errno
+import os
 import zipfile
 from os import path
 

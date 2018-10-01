@@ -22,12 +22,12 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, Override, ConfigurationError
-from nicos.devices.notifiers import Notifier
-from nicos.utils.credentials.keystore import nicoskeystore
-from nicos.pycompat import escape_html
-
 import slackclient
+
+from nicos.core import ConfigurationError, Override, Param
+from nicos.devices.notifiers import Notifier
+from nicos.pycompat import escape_html
+from nicos.utils.credentials.keystore import nicoskeystore
 
 
 class Slacker(Notifier):

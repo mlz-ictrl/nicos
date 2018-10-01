@@ -24,7 +24,7 @@
 
 """Dialog for showing information about new plug-and-play events."""
 
-from nicos.guisupport.qt import pyqtSignal, Qt, QMessageBox, QStyle
+from nicos.guisupport.qt import QMessageBox, QStyle, Qt, pyqtSignal
 
 
 class PnPSetupQuestion(QMessageBox):

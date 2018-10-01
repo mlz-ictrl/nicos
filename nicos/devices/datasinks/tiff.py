@@ -23,6 +23,10 @@
 # *****************************************************************************
 
 import numpy
+
+from nicos.core import NicosError, Override, Param
+from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
+
 try:
     import PIL
     from PIL import Image
@@ -30,8 +34,6 @@ except ImportError as e:
     PIL = None
     _import_error = e
 
-from nicos.core import NicosError, Param, Override
-from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 
 
 class TIFFImageSinkHandler(SingleFileSinkHandler):

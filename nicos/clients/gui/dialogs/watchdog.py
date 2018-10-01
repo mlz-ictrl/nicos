@@ -26,10 +26,9 @@
 
 import time
 
-from nicos.guisupport.qt import QDialog, QFrame, QVBoxLayout, QWidget, \
-    QDialogButtonBox
-
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QDialog, QDialogButtonBox, QFrame, \
+    QVBoxLayout, QWidget
 
 
 class WatchdogDialog(QDialog):

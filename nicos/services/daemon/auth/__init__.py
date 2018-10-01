@@ -25,7 +25,7 @@
 
 """NICOS daemon authentication and user abstraction."""
 
-from nicos.core import Device, User, ADMIN
+from nicos.core import ADMIN, Device, User
 
 
 class AuthenticationError(Exception):

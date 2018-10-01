@@ -50,7 +50,6 @@ from itertools import chain, cycle, islice
 from nicos.core import Device, SPMError
 from nicos.pycompat import iteritems, srepr
 
-
 id_re = re.compile('[a-zA-Z_][a-zA-Z0-9_]*$')
 string1_re = re.compile(r"'(\\\\|\\'|[^'])*'")
 string2_re = re.compile(r'"(\\\\|\\"|[^"])*"')

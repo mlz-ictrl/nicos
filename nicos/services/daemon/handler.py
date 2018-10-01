@@ -27,27 +27,25 @@ The connection handler for the execution daemon, handling the protocol
 commands.
 """
 
-import os
 import base64
+import os
 import socket
 import tempfile
 
 import rsa
 
-
-from nicos import session, nicos_version, get_custom_version, config
+from nicos import config, get_custom_version, nicos_version, session
 from nicos.core import ADMIN, ConfigurationError, SPMError, User
 from nicos.core.data import ScanData
-from nicos.utils.queues import SizedQueue
-from nicos.services.daemon.auth import AuthenticationError
-from nicos.services.daemon.utils import LoggerWrapper
-from nicos.services.daemon.script import ScriptRequest, ScriptError, \
-    RequestError
-from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC, \
-    STATUS_RUNNING, STATUS_STOPPING, STATUS_INBREAK, SIM_STATES, \
-    BREAK_NOW, DAEMON_COMMANDS, CloseConnection
+from nicos.protocols.daemon import BREAK_NOW, DAEMON_COMMANDS, SIM_STATES, \
+    STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK, STATUS_RUNNING, \
+    STATUS_STOPPING, CloseConnection
 from nicos.pycompat import queue, string_types
-
+from nicos.services.daemon.auth import AuthenticationError
+from nicos.services.daemon.script import RequestError, ScriptError, \
+    ScriptRequest
+from nicos.services.daemon.utils import LoggerWrapper
+from nicos.utils.queues import SizedQueue
 
 command_wrappers = {}
 

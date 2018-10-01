@@ -24,12 +24,12 @@
 
 """NICOS GUI settings window."""
 
-from nicos.guisupport.qt import pyqtSlot, QDialog, QTreeWidgetItem, \
-    QListWidgetItem
-
 from nicos.clients.base import ConnectionData
-from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils, SettingGroup
 from nicos.clients.gui.dialogs.instr_select import InstrSelectDialog
+from nicos.clients.gui.utils import DlgUtils, SettingGroup, dialogFromUi, \
+    loadUi
+from nicos.guisupport.qt import QDialog, QListWidgetItem, QTreeWidgetItem, \
+    pyqtSlot
 
 
 class SettingsDialog(DlgUtils, QDialog):

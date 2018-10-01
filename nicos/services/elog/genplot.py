@@ -26,8 +26,8 @@
 
 import subprocess
 
-from nicos.utils import createSubprocess
 from nicos.pycompat import to_utf8
+from nicos.utils import createSubprocess
 
 
 def plotDataset(dataset, fn, fmt):

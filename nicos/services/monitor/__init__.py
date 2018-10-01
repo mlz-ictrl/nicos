@@ -29,15 +29,19 @@ import os
 import re
 import sys
 from os import path
-from time import sleep, strftime, time as currenttime
+from time import sleep, strftime
+from time import time as currenttime
+
+from nicos.pycompat import to_utf8
+
+from nicos.utils import createThread, watchFileContent
 
 from nicos import session
-from nicos.core import listof, oneof, none_or, Param, Override
-from nicos.utils import watchFileContent, createThread
-from nicos.protocols.cache import OP_TELL, OP_TELLOLD, OP_SUBSCRIBE, \
-    OP_WILDCARD, cache_load
+from nicos.core import Override, Param, listof, none_or, oneof
+from nicos.protocols.cache import OP_SUBSCRIBE, \
+    OP_TELL, OP_TELLOLD, OP_WILDCARD, cache_load
+
 from nicos.devices.cacheclient import BaseCacheClient
-from nicos.pycompat import to_utf8
 
 
 class Monitor(BaseCacheClient):

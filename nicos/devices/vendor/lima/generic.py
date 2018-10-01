@@ -26,12 +26,13 @@ import time
 
 import numpy
 
-from nicos.core import ArrayDesc, Param, Device, AutoDevice, status, tupleof, \
-    oneof, none_or, tangodev, SIMULATION, HardwareError, NicosError
+from nicos.core import INTERRUPTED, SIMULATION, ArrayDesc, AutoDevice, \
+    Device, HardwareError, NicosError, Param, none_or, oneof, status, \
+    tangodev, tupleof
+from nicos.devices.generic.detector import ActiveChannel, ImageChannelMixin, \
+    PassiveChannel, TimerChannelMixin
 from nicos.devices.tango import PyTangoDevice
-from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel, \
-    ActiveChannel, TimerChannelMixin
-from nicos.core import INTERRUPTED
+
 from .optional import LimaShutter
 
 

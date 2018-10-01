@@ -29,9 +29,9 @@ from time import sleep, time as currenttime
 
 from IO import StringIO
 
-from nicos.core import Attach, CommunicationError, ConfigurationError, \
-    Device, MASTER, Moveable, Override, Param, Readable, intrange, listof, \
-    oneof, status
+from nicos.core import MASTER, Attach, CommunicationError, \
+    ConfigurationError, Device, Moveable, Override, Param, Readable, \
+    intrange, listof, oneof, status
 from nicos.devices.taco.core import TacoDevice
 
 

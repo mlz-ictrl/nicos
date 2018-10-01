@@ -25,11 +25,11 @@
 """Devices via the CARESS device service."""
 
 from nicos import session
-from nicos.core import HasLimits, HasPrecision, Moveable, POLLER, Param, \
-    SIMULATION
+from nicos.core import POLLER, SIMULATION, HasLimits, HasPrecision, Moveable, \
+    Param
 from nicos.core.errors import ConfigurationError, NicosError
-from nicos.devices.vendor.caress.core import ACTIVE, ACTIVE1, CARESS, \
-    CARESSDevice, CORBA, KEEP_ACTION
+from nicos.devices.vendor.caress.core import ACTIVE, ACTIVE1, CARESS, CORBA, \
+    KEEP_ACTION, CARESSDevice
 
 
 class Driveable(HasLimits, HasPrecision, CARESSDevice, Moveable):

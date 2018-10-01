@@ -26,27 +26,26 @@
 
 from __future__ import print_function
 
+import logging
 import os
 import sys
-import time
-import logging
 import tempfile
+import time
 from os import path
 from threading import Thread
 
 import zmq
 
-from nicos import session, config
+from nicos import config, session
 from nicos.core import SIMULATION, NicosError
-from nicos.core.utils import User
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import LoggingStdout
+from nicos.core.utils import User
+from nicos.pycompat import cPickle as pickle, exec_, iteritems
 from nicos.services.daemon.script import parseScript
 from nicos.utils import createSubprocess
-from nicos.utils.loggers import recordToMessage, SimDebugHandler
+from nicos.utils.loggers import SimDebugHandler, recordToMessage
 from nicos.utils.messaging import nicos_zmq_ctx
-from nicos.pycompat import iteritems, exec_, cPickle as pickle
-
 
 # a message to be logged
 SIM_MESSAGE = 0x01

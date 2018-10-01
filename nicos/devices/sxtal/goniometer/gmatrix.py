@@ -26,9 +26,9 @@ Gmatrix
 
 store position as goniometer matrix
 '''
-from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
-
 import numpy as np
+
+from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
 from nicos.devices.sxtal.goniometer.posutils import Xrot, Yrot, Zrot
 
 

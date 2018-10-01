@@ -24,11 +24,10 @@
 
 """NICOS GUI multiple cmdlet script-builder input."""
 
-from nicos.guisupport.qt import pyqtSlot, QAction, QMenu, QToolButton
-
 from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QAction, QMenu, QToolButton, pyqtSlot
 from nicos.utils import importString
 
 

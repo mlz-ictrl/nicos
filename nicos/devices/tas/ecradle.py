@@ -26,12 +26,12 @@
 
 """Eulerian cradle calculations."""
 
-from numpy import array, cross, dot, cos, sin, sqrt, arctan2, zeros, identity
+from numpy import arctan2, array, cos, cross, dot, identity, sin, sqrt, zeros
 from numpy.linalg import inv, norm
 
-from nicos.core import Moveable, Param, Override, NicosError, vec3, tupleof, \
-    ComputationError, usermethod, multiStatus, Attach
-from nicos.devices.tas.cell import Cell, D2R
+from nicos.core import Attach, ComputationError, Moveable, NicosError, \
+    Override, Param, multiStatus, tupleof, usermethod, vec3
+from nicos.devices.tas.cell import D2R, Cell
 
 
 class EulerianCradle(Moveable):

@@ -26,29 +26,26 @@
 """NICOS livewidget with GR."""
 
 import os
-from os import path
 from collections import OrderedDict
+from os import path
 from uuid import uuid4
 
 import numpy
-
-from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QPoint, QStatusBar, \
-    QSizePolicy, QListWidgetItem, QMenu, QToolBar, QActionGroup
-
 from gr import COLORMAPS as GR_COLORMAPS
 from qtgr.events import GUIConnector
 from qtgr.events.mouse import MouseEvent
 
-from nicos.utils import BoundedOrderedDict
 from nicos.clients.gui.dialogs.filesystem import FileFilterDialog
-from nicos.clients.gui.utils import loadUi, enumerateWithProgress
 from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.utils import enumerateWithProgress, loadUi
 from nicos.core.errors import NicosError
-from nicos.guisupport.livewidget import IntegralLiveWidget, LiveWidget, \
-    LiveWidget1D, DATATYPES
+from nicos.guisupport.livewidget import DATATYPES, IntegralLiveWidget, \
+    LiveWidget, LiveWidget1D
+from nicos.guisupport.qt import QActionGroup, QByteArray, QListWidgetItem, \
+    QMenu, QPoint, QSizePolicy, QStatusBar, Qt, QToolBar, pyqtSlot
 from nicos.protocols.cache import cache_load
-from nicos.utils import ReaderRegistry
 from nicos.pycompat import iteritems, string_types
+from nicos.utils import BoundedOrderedDict, ReaderRegistry
 
 COLORMAPS = OrderedDict(GR_COLORMAPS)
 

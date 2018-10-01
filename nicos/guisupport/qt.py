@@ -35,8 +35,8 @@ environment variable NICOS_QT=5 has to be set to select this version.
 # this one is temporary until build machines have Qt5 installed:
 # pylint: disable=import-error
 
-import sys
 import os
+import sys
 
 if os.environ.get('NICOS_QT') == '5':
     from PyQt5.QtGui import *
@@ -110,7 +110,7 @@ else:
     import nicos.guisupport.gui_rc_qt4
 
     try:
-        from PyQt4.QtCore import QPyNullVariant  # pylint: disable=E0611
+        from PyQt4.QtCore import QPyNullVariant  # pylint: disable=no-name-in-module
     except ImportError:
         class QPyNullVariant(object):
             pass

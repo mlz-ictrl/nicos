@@ -43,8 +43,8 @@ from nicos import session
 
 # imports from the nonius libs
 try:
-    from sc_scan_new import HuberScan  # pylint: disable=F0401
-    from goniometer import position    # pylint: disable=F0401
+    from sc_scan_new import HuberScan  # pylint: disable=import-error
+    from goniometer import position    # pylint: disable=import-error
 except ImportError as e:
     # at least make the module importable for setup checking
     session.log.info(e)

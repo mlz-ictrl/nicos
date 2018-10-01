@@ -26,9 +26,9 @@
 # generate stub TACO modules as needed to be able to import nicos.devices.taco
 # modules and document them
 
+import logging
 import sys
 import types
-import logging
 
 
 class NICOSTACOStub(object):

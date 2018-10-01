@@ -27,18 +27,17 @@
 """NICOS core utility functions."""
 
 import sys
-from time import localtime, time as currenttime
-from functools import wraps
 from collections import namedtuple
+from functools import wraps
+from time import localtime, time as currenttime
 
-from nicos import session, nicos_version
-from nicos.core import status, SIMULATION
+from nicos import nicos_version, session
+from nicos.core import SIMULATION, status
 from nicos.core.errors import CommunicationError, ComputationError, \
-    InvalidValueError, LimitError, MoveError, NicosError, \
-    PositionError, TimeoutError
-from nicos.pycompat import reraise, to_ascii_escaped, listitems
+    InvalidValueError, LimitError, MoveError, NicosError, PositionError, \
+    TimeoutError
+from nicos.pycompat import listitems, reraise, to_ascii_escaped
 from nicos.utils import formatDuration
-
 
 # Exceptions at which a scan point is measured anyway.
 CONTINUE_EXCEPTIONS = (PositionError, MoveError, TimeoutError)

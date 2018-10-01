@@ -24,12 +24,14 @@
 
 """Definition of abstract base device classes."""
 
-from nicos.core import ConfigurationError, DeviceMixinBase, HasLimits, \
-    HasMapping, HasOffset, HasPrecision, InvalidValueError, ModeError, \
-    Moveable, Override, Param, PositionError, ProgrammingError, Readable, \
-    SLAVE, oneof, status, usermethod
-from nicos.utils import num_sort
 from nicos.pycompat import iteritems
+
+from nicos.utils import num_sort
+
+from nicos.core import SLAVE, ConfigurationError, DeviceMixinBase, \
+    HasLimits, HasMapping, HasOffset, HasPrecision, InvalidValueError, \
+    ModeError, Moveable, Override, Param, PositionError, \
+    ProgrammingError, Readable, oneof, status, usermethod
 
 
 class Coder(HasPrecision, Readable):

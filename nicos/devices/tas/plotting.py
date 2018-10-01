@@ -32,13 +32,13 @@ import os
 import time
 from fractions import gcd
 
-from numpy import array, linspace, sqrt, delete, sin, cos, arctan2, mat, cross
+from numpy import arctan2, array, cos, cross, delete, linspace, mat, sin, sqrt
 
 from nicos.core import ComputationError
 from nicos.devices.tas.cell import CellBase
 from nicos.devices.tas.rescalc import resmat as resmat_class
+from nicos.devices.tas.spacegroups import can_reflect, get_spacegroup
 from nicos.devices.tas.spectro import THZ2MEV
-from nicos.devices.tas.spacegroups import get_spacegroup, can_reflect
 
 
 def pylab_key_handler(event):

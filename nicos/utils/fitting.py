@@ -23,8 +23,13 @@
 # *****************************************************************************
 """Utilities for function fitting."""
 
-from numpy import array, power, linspace, isscalar, asarray, inf, diagonal, \
-    pi, sqrt, exp, log, cos, piecewise, isinf, mean
+from numpy import array, asarray, cos, diagonal, exp, inf, isinf, isscalar, \
+    linspace, log, mean, pi, piecewise, power, sqrt
+
+from nicos.core import ProgrammingError
+from nicos.pycompat import add_metaclass, getargspec
+from nicos.utils import FitterRegistry
+from nicos.utils.analyze import estimateFWHM
 
 try:
     from scipy.optimize.minpack import leastsq
@@ -32,10 +37,6 @@ try:
 except ImportError:
     leastsq = None
 
-from nicos.utils import FitterRegistry
-from nicos.utils.analyze import estimateFWHM
-from nicos.core import ProgrammingError
-from nicos.pycompat import getargspec, add_metaclass
 
 
 def _general_function(params, xdata, ydata, function):
