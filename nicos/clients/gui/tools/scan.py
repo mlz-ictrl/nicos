@@ -24,7 +24,7 @@
 
 """Graphical interface to prepare scan commands."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from nicos.clients.gui.utils import DlgPresets, loadUi
 from nicos.guisupport.qt import QButtonGroup, QDialog, QIntValidator, \
@@ -50,10 +50,9 @@ def fmt_time(seconds):
     if seconds < 60:
         return '%d sec' % seconds
     elif seconds < 3600:
-        return '%d min' % (seconds / 60)
+        return '%d min' % (seconds // 60)
     else:
-        return '%d h %d min' % (seconds / 3600, (seconds % 3600) / 60)
-
+        return '%d h %d min' % (seconds // 3600, (seconds % 3600) // 60)
 
 class ScanTool(QDialog):
     addCode = pyqtSignal(str)
