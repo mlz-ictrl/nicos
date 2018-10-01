@@ -33,7 +33,15 @@ exe = EXE(pyz,
           a.binaries,
           a.zipfiles,
           a.datas,
-          name='nicos-gui',
-          debug=False,
+          name='nicos-gui-debug',
+          debug=True,
           strip=False,
-          console=False)
+          console=True,
+          # don't compress anything
+          cdict={'EXTENSION': 0,
+                 'DATA': 0,
+                 'BINARY': 0,
+                 'EXECUTABLE': 0,
+                 'PYSOURCE': 0,
+                 'PYMODULE': 0,
+                 'PYZ': 0})
