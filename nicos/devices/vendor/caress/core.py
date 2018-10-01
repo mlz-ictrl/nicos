@@ -24,6 +24,8 @@
 
 """Devices via the CARESS device service."""
 
+from __future__ import absolute_import
+
 import subprocess
 import sys
 
@@ -38,8 +40,8 @@ try:
     from omniORB import CORBA
     import CosNaming
 
-    import CARESS  # pylint: disable=import-error,no-name-in-module,W0403
-    import _GlobalIDL  # pylint: disable=import-error,no-name-in-module,W0403,W0611
+    from . import CARESS  # pylint: disable=import-error,no-name-in-module
+    from . import _GlobalIDL  # pylint: disable=import-error,no-name-in-module,unused-import
     import omniORB
 
     sys.modules['CARESS'] = sys.modules['nicos.devices.vendor.caress.CARESS']
