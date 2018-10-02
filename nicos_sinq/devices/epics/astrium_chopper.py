@@ -23,6 +23,8 @@
 # *****************************************************************************
 """Astrium chopper devices via EPICS."""
 
+from __future__ import absolute_import
+
 from collections import OrderedDict
 
 from nicos.core import ADMIN, Attach, ConfigurationError, HasPrecision, \

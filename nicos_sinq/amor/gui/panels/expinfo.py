@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.clients.gui.panels import PanelDialog
 from nicos.clients.gui.panels.generic import GenericPanel
 from nicos.clients.gui.panels.setup_panel import DetEnvPanel, \

@@ -25,6 +25,8 @@
 """Module to implement generic sinq detector
 """
 
+from __future__ import absolute_import
+
 from nicos.core import Attach
 from nicos.utils import uniq
 

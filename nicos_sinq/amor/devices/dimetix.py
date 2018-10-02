@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.core import HasOffset
 
 from nicos_ess.devices.epics.base import EpicsReadableEss

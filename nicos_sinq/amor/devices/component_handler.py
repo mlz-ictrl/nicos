@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.core import Attach, Param, dictof, listof, status, usermethod
 from nicos.core.device import Moveable, Readable

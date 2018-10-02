@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.clients.gui.panels.livegr import LiveDataPanel as BaseLiveDataPanel
 from nicos.guisupport.livewidget import IntegralLiveWidget as BaseIntegralLiveWidget, \
     LiveWidget1D as BaseLiveWidget1D, Plot

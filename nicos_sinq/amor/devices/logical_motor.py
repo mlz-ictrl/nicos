@@ -32,6 +32,8 @@ motors are:
 soz, com, cox, coz, d1b, d2b, d3b, d4b, aoz, aom.
 """
 
+from __future__ import absolute_import
+
 import math
 
 from nicos import session

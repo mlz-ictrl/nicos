@@ -29,6 +29,8 @@ SINQ  monochromator
 SINQ uses a different way to calculate monochromator focusing
 """
 
+from __future__ import absolute_import
+
 from nicos.devices.generic.mono import from_k, to_k
 from nicos.devices.tas.mono import Monochromator
 
