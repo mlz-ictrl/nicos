@@ -61,8 +61,8 @@ class HistogramFlatbuffersSerializer(object):
                 if len(bins) == desc.shape[d] + 1:
                     ArrayFloat.ArrayFloatStartValueVector(b, len(bins))
                     # Prepend the bins
-                    for bin in bins[::-1]:
-                        b.PrependFloat32(bin)
+                    for bin_ in bins[::-1]:
+                        b.PrependFloat32(bin_)
                     pos_val = b.EndVector(len(bins))
                     ArrayFloat.ArrayFloatStart(b)
                     ArrayFloat.ArrayFloatAddValue(b, pos_val)
