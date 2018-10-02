@@ -25,7 +25,7 @@
 
 """TOFTOF chopper calculations and chopper control (MACCON)."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from time import time as currenttime
 

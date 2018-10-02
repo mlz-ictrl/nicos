@@ -23,7 +23,7 @@
 # *****************************************************************************
 """Base classes for the TOFTOF chopper system."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from nicos.core import Attach, HasLimits, HasTimeout, Moveable, Override, \
     Param, Readable, intrange, listof, oneof, status, tupleof

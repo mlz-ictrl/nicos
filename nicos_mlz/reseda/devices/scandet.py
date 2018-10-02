@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import numpy as np
 
@@ -90,9 +90,9 @@ class ScanningDetector(NicosScanDet):
         return self._calc_currents(self.echopoints, self.echostep,
                                    self.echostart)
 
-    def _calc_currents(self, n, echostep=4, startval=0):
+    def _calc_currents(self, n, echostep=0.1, startval=0):
         return (startval +
-                np.arange(-n / 2 + 1, n / 2 + 1, 1) * echostep).tolist()
+                np.arange(-n // 2 + 1, n // 2 + 1, 1) * echostep).tolist()
 
     def valueInfo(self):
         res = []

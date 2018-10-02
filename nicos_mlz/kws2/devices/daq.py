@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from nicos.core import FINAL, INTERRUPTED, SIMULATION, Attach, Measurable, \
     Override, Param, Readable, Value, tupleof

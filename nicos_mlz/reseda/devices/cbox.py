@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from bisect import bisect_left
 from collections import OrderedDict

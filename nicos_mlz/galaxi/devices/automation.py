@@ -24,7 +24,7 @@
 
 """GALAXI Automatic vacuum control and detector positioning"""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from nicos.core.device import Readable
 from nicos.core.params import Attach, Param
@@ -54,7 +54,7 @@ class DetectorDistance(Readable):
         for tube in enumerate(self._attached_detectubes, start=2):
             if tube[1].read(maxage) != 'up':
                 break
-            distance += tube[0] / 2
+            distance += tube[0] // 2
         return self.offset + distance * 450
 
 

@@ -24,7 +24,7 @@
 
 """Special devices for recording and fitting 3He cell polarization."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import time
 

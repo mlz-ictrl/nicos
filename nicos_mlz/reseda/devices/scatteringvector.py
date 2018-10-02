@@ -24,7 +24,7 @@
 
 """Calculation of Q vector from wavelength and scattering angle."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import math
 

@@ -24,7 +24,7 @@
 
 """Class for Stanford Research SR850 lock-in amplifier."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from math import atan2, degrees, hypot
 from time import time

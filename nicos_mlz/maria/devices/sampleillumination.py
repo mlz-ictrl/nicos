@@ -27,7 +27,7 @@
 Calculate Sample illumination for reflectometers
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from numpy import nan, radians, sin
 

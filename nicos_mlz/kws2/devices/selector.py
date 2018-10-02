@@ -24,7 +24,7 @@
 
 """Special class for KWS 2 selector, which can be tilted."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from nicos.core import Attach, Moveable, Override, Param, Readable, dictof, \
     dictwith, tupleof

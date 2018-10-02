@@ -24,7 +24,7 @@
 # *****************************************************************************
 """REFSANS SDS (safe detector system) devices."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import requests
 

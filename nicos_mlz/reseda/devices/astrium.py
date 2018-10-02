@@ -24,7 +24,7 @@
 
 """Astrium selector device with adoptions for RESEDA"""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from nicos.core import Param
 from nicos.devices.vendor.astrium import SelectorLambda as NicosSelectorLambda
