@@ -27,13 +27,12 @@
 import IO
 
 from nicos import session
-from nicos.core import Moveable, HasLimits, Override, Param, SIMULATION, \
-    ConfigurationError, InvalidValueError, ProgrammingError, oneof, \
-    floatrange, tacodev, status, Attach, limits
-from nicos.utils import clamp
+from nicos.core import SIMULATION, Attach, ConfigurationError, HasLimits, \
+    InvalidValueError, Moveable, Override, Param, ProgrammingError, \
+    floatrange, limits, oneof, status, tacodev
 from nicos.devices.taco.io import NamedDigitalOutput
-
 from nicos.devices.tango import AnalogInput
+from nicos.utils import clamp
 
 
 class CCRControl(HasLimits, Moveable):

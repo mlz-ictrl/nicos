@@ -28,8 +28,8 @@ Memographs are the logging system for 'cooling water' related data in the
 neutron guide hall of the FRM II.
 """
 
-from nicos.core import Param, Readable, Override, CommunicationError, \
-    ConfigurationError, NicosError, status
+from nicos.core import CommunicationError, ConfigurationError, NicosError, \
+    Override, Param, Readable, status
 
 try:
     from lxml.html import parse

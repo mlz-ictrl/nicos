@@ -30,11 +30,13 @@
 import re
 import time
 from os import path
+
 from nicos import session
-from nicos.core import Param, Override, oneof
-from nicos.utils import safeName
+from nicos.core import Override, Param, oneof
 from nicos.devices.experiment import Experiment as BaseExperiment, \
     ImagingExperiment as BaseImagingExperiment
+from nicos.utils import safeName
+
 from nicos_mlz.devices.proposaldb import queryCycle, queryProposal
 
 

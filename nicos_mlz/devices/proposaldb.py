@@ -25,9 +25,16 @@
 """NICOS FRM II specific authentication and proposal DB utilities."""
 
 
-from os import path
 import datetime
 import hashlib
+from os import path
+
+from nicos import session
+from nicos.core import USER, ConfigurationError, InvalidValueError, User
+from nicos.pycompat import from_maybe_utf8, integer_types, text_type, to_utf8
+from nicos.services.daemon.auth import AuthenticationError, \
+    Authenticator as BaseAuthenticator
+from nicos.utils import readFile
 
 try:
     import mysql.connector as DB  # pylint: disable=import-error
@@ -37,12 +44,6 @@ except ImportError:
     except ImportError:
         DB = None
 
-from nicos import session
-from nicos.core import ConfigurationError, InvalidValueError, USER, User
-from nicos.utils import readFile
-from nicos.pycompat import integer_types, text_type, to_utf8, from_maybe_utf8
-from nicos.services.daemon.auth import AuthenticationError, \
-    Authenticator as BaseAuthenticator
 
 
 class ProposalDB(object):

@@ -25,7 +25,7 @@
 """Class for FRM II Helios 3He polarizer operation."""
 
 
-from nicos.core import Param, Override, usermethod, UsageError
+from nicos.core import Override, Param, UsageError, usermethod
 from nicos.devices.tango import NamedDigitalOutput
 
 
