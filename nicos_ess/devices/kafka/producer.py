@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 import kafka
 
 from nicos.core import DeviceMixinBase, Param, host, listof

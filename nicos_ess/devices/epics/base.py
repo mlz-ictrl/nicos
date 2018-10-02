@@ -26,6 +26,8 @@
 This module contains ESS specific Base classes for EPICS.
 """
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.core import Override, Param
 from nicos.core.errors import ConfigurationError

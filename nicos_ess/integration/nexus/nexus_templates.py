@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from nicos_ess.nexus import EventStream
 
 integration_default = {

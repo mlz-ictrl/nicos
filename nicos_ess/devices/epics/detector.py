@@ -26,6 +26,8 @@
 This module contains EPICS and detector integration.
 """
 
+from __future__ import absolute_import
+
 from nicos.core import Override, Param, pvname
 from nicos.devices.generic.detector import ActiveChannel, \
     CounterChannelMixin, Detector, PassiveChannel, TimerChannelMixin

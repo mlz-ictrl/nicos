@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 import json
 
 from nicos.core import Param, oneof, status, usermethod

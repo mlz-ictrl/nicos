@@ -26,6 +26,8 @@
 """
 This module contains ESS specific EPICS developments.
 """
+from __future__ import absolute_import
+
 from nicos.core import Device, DeviceMixinBase, Param, anytype, dictwith, \
     pvname, usermethod
 from nicos.devices.abstract import MappedMoveable
