@@ -25,7 +25,7 @@
 
 """NICOS triple-axis instrument devices."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from math import cos, pi, radians, sqrt
 
