@@ -27,6 +27,8 @@
 
 """NICOS FRM II experiment classes."""
 
+from __future__ import absolute_import
+
 import re
 import time
 from os import path

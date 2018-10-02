@@ -24,6 +24,8 @@
 
 """Support classes for the CCR TACO boxes"""
 
+from __future__ import absolute_import
+
 import IO
 
 from nicos import session

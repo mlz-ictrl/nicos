@@ -26,6 +26,8 @@
 Supporting classes for FRM2 magnets, currently only Garfield (amagnet).
 """
 
+from __future__ import absolute_import
+
 from nicos.core import SIMULATION, Attach, HasLimits, Moveable, Override, \
     Param, dictof, status, tupleof
 from nicos.devices.generic.magnet import BipolarSwitchingMagnet

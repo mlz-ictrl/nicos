@@ -25,6 +25,8 @@
 
 """NICOS Sample device."""
 
+from __future__ import absolute_import
+
 from nicos.core import Param, none_or
 from nicos.devices.sample import Sample as NicosSample
 
