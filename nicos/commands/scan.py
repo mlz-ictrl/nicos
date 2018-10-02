@@ -24,7 +24,7 @@
 
 """Scan commands for NICOS."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from nicos import session
 from nicos.commands import helparglist, usercommand
