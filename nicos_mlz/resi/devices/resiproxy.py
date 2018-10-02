@@ -29,10 +29,14 @@ Created on 30.05.2011
 """
 
 import sys
+
+from nicos.utils.proxy import NicosProxy
+
 sys.path.append('/home/pedersen/Eclispe_projects_git/singlecounter')
 sys.path.append('/usr/local/nonius_new/app')
-from goniometer.position import PositionFromStorage  # pylint: disable=import-error
-from nicos.utils.proxy import NicosProxy
+# pylint: disable=import-error
+from goniometer.position import PositionFromStorage  # isort:skip
+
 
 
 class ResiPositionProxy(NicosProxy):

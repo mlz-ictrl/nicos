@@ -29,6 +29,7 @@ from time import time as currenttime
 from nicos import session
 from nicos.core import Override
 from nicos.pycompat import memory_buffer
+
 from nicos_mlz.toftof.devices.datasinks.base import TofSink, TofSinkHandler
 
 

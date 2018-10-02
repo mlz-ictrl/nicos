@@ -25,6 +25,7 @@
 '''Class to use the Servostar-Motors'''
 
 import TACOStates
+
 from nicos.core import status
 from nicos.devices.taco import Motor as TacoMotor
 

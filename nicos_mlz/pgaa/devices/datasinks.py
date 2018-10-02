@@ -37,7 +37,6 @@ from nicos.core.errors import NicosError
 from nicos.devices.datasinks import FileSink
 from nicos.pycompat import File
 
-
 __all__ = ('MCASink', 'CHNSink', 'CSVDataSink')
 
 

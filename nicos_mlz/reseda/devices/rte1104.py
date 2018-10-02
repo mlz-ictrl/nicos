@@ -25,8 +25,8 @@
 
 import math
 
-from nicos.core import Attach, Param, Readable, intrange, status, Moveable, \
-    Override
+from nicos.core import Attach, Moveable, Override, Param, Readable, intrange, \
+    status
 from nicos.devices.tango import StringIO
 
 

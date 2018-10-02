@@ -27,7 +27,7 @@
 
 from IO import StringIO
 
-from nicos.core import status, intrange, Readable, Param, Override
+from nicos.core import Override, Param, Readable, intrange, status
 from nicos.devices.taco.core import TacoDevice
 
 

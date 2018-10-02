@@ -27,9 +27,10 @@ from __future__ import print_function
 
 import numbers
 import time
-
 from collections import OrderedDict, namedtuple
 from struct import pack
+
+import numpy as np
 
 from nicos import get_custom_version, nicos_version, session
 from nicos.core import Override, Param, dictof
@@ -38,8 +39,6 @@ from nicos.core.data import DataSinkHandler
 from nicos.core.errors import ConfigurationError
 from nicos.devices.datasinks import FileSink
 from nicos.pycompat import iteritems, string_types, to_utf8
-
-import numpy as np
 
 __version__ = '0.0.1'
 

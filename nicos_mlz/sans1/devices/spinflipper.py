@@ -25,7 +25,8 @@
 """Sans1 spinflipper specific devices."""
 
 import time
-from nicos.core import Param, status, tangodev, SIMULATION, HasTimeout
+
+from nicos.core import SIMULATION, HasTimeout, Param, status, tangodev
 from nicos.devices.tango import AnalogInput, AnalogOutput
 
 

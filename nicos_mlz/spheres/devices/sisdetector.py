@@ -29,12 +29,13 @@ Devices for the SIS-detector at SPHERES
 from math import ceil
 
 from nicos import session
-from nicos.core import Param, LIVE, INTERMEDIATE, FINAL, INTERRUPTED, oneof, \
+from nicos.core import FINAL, INTERMEDIATE, INTERRUPTED, LIVE, Param, oneof, \
     status
 from nicos.core.constants import SIMULATION
 from nicos.core.params import Attach, Value, listof
 from nicos.devices.generic.detector import Detector
 from nicos.devices.tango import ImageChannel, NamedDigitalOutput
+
 from nicos_mlz.spheres.devices.doppler import ELASTIC, INELASTIC
 
 CHOPPER =  'chopper'

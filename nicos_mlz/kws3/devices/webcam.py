@@ -24,7 +24,7 @@
 
 import requests
 
-from nicos.core import Param, Override
+from nicos.core import Override, Param
 from nicos.core.constants import POINT
 from nicos.core.data import DataSink
 from nicos.devices.datasinks.file import FileSink

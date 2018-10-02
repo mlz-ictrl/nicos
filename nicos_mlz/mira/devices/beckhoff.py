@@ -24,9 +24,8 @@
 
 """Devices for the Beckhoff Busklemmensystem."""
 
-from nicos.core import Param, listof
+from nicos.core import SIMULATION, Param, listof
 from nicos.devices import tango
-from nicos.core import SIMULATION
 
 
 class DigitalInput(tango.DigitalInput):

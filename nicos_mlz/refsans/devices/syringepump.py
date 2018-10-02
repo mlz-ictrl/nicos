@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import MoveError, HasPrecision
+from nicos.core import HasPrecision, MoveError
 from nicos.devices.tango import AnalogOutput
 
 

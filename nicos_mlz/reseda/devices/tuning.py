@@ -23,11 +23,10 @@
 # *****************************************************************************
 
 from nicos import session
-from nicos.core import Readable, Moveable, Param, Attach, oneof, listof, \
-    InvalidValueError, dictof, anytype, Override
+from nicos.core import Attach, InvalidValueError, Moveable, Override, Param, \
+    Readable, anytype, dictof, listof, oneof
 from nicos.core.utils import multiWait
 from nicos.pycompat import iteritems
-
 
 # Storage structure of tunewave tables:
 # {measmode: {wavelength: {echotime: {tunedev : value}}}}

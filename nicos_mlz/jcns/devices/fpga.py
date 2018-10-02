@@ -32,11 +32,11 @@ masters, e.g. counting on time and count rate.
 
 from time import time as currenttime
 
-from nicos.core import status, Param, Override, Value, intrange, UsageError, \
-    Readable, MASTER
+from nicos.core import MASTER, Override, Param, Readable, UsageError, Value, \
+    intrange, status
+from nicos.devices.generic import ActiveChannel, CounterChannelMixin, \
+    TimerChannelMixin
 from nicos.devices.tango import PyTangoDevice
-from nicos.devices.generic import ActiveChannel, TimerChannelMixin, \
-    CounterChannelMixin
 
 # XXX: implement doReadIsmaster to determine which channel is actually the
 # current master.

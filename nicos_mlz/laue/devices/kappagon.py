@@ -33,8 +33,7 @@ main purposes:
 from nicos.core import Attach
 from nicos.core.device import Moveable
 from nicos.core.mixins import IsController
-
-from nicos.devices.sxtal.goniometer.base import PositionFactory, PositionBase
+from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
 
 
 class KappaGon(IsController, Moveable):

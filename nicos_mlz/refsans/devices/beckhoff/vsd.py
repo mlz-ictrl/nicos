@@ -28,8 +28,8 @@ import struct
 
 from Modbus import Modbus
 
-from nicos.core import Param, Override, status, SIMULATION, usermethod, \
-    Readable, oneof, Attach, dictof
+from nicos.core import SIMULATION, Attach, Override, Param, Readable, dictof, \
+    oneof, status, usermethod
 from nicos.devices.taco.core import TacoDevice
 
 # according to docu: 'anhang_a_refsans_vsd.pdf'

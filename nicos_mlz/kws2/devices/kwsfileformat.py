@@ -26,6 +26,7 @@
 
 from nicos import session
 from nicos.core import Override
+
 from nicos_mlz.kws1.devices.kwsfileformat import KWSFileSink as KWS1FileSink, \
     KWSFileSinkHandler as KWS1FileSinkHandler
 

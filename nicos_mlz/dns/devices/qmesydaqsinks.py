@@ -27,7 +27,7 @@
 from os import path
 
 from nicos import session
-from nicos.core import Attach, DataSinkHandler, Override, Device
+from nicos.core import Attach, DataSinkHandler, Device, Override
 from nicos.core.constants import POINT
 from nicos.devices.datasinks import FileSink
 

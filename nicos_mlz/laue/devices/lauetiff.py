@@ -41,7 +41,7 @@ import numpy
 
 from nicos.core import NicosError
 from nicos.core.params import Override
-from nicos.devices.datasinks.image import SingleFileSinkHandler, ImageSink
+from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.pycompat import iteritems
 
 # tag values for esmeralda /Image_Modules_Src/Laue_tiff_read.f90

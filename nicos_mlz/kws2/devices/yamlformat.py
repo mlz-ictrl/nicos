@@ -25,8 +25,8 @@
 """KWS-2 file format saver with YAML."""
 
 from nicos import session
-from nicos_mlz.kws1.devices.yamlformat import \
-    YAMLFileSink as KWS1YAMLFileSink, \
+
+from nicos_mlz.kws1.devices.yamlformat import YAMLFileSink as KWS1YAMLFileSink, \
     YAMLFileSinkHandler as KWS1YAMLFileSinkHandler
 
 

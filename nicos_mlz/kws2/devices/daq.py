@@ -22,9 +22,10 @@
 #
 # *****************************************************************************
 
-from nicos.core import Readable, Measurable, Param, Override, Attach, Value, \
-    tupleof, SIMULATION, FINAL, INTERRUPTED
+from nicos.core import FINAL, INTERRUPTED, SIMULATION, Attach, Measurable, \
+    Override, Param, Readable, Value, tupleof
 from nicos.devices.generic.detector import PostprocessPassiveChannel
+
 from nicos_mlz.kws1.devices.daq import KWSImageChannel
 
 

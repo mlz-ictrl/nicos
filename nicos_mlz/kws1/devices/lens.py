@@ -24,9 +24,8 @@
 
 """Class for controlling lenses."""
 
-from nicos.core import HasTimeout, Moveable, Readable, Param, Attach, oneof, \
-    listof, intrange, Override, status
-
+from nicos.core import Attach, HasTimeout, Moveable, Override, Param, \
+    Readable, intrange, listof, oneof, status
 
 LENS_CONFIGS = ['%s-%s-%s' % (l1, l2, l3)
                 for l1 in ('out', 'in')

@@ -26,10 +26,10 @@
 
 import numpy as np
 
-from nicos.core import Override, Attach, Readable
+from nicos.core import Attach, Override, Readable
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.devices.generic.detector import ActiveChannel
-from nicos.devices.tas.mono import Monochromator, to_k, from_k
+from nicos.devices.tas.mono import Monochromator, from_k, to_k
 
 
 class MiraXmlHandler(SingleFileSinkHandler):

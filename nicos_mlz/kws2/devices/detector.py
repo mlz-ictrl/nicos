@@ -25,17 +25,18 @@
 """Detector switcher for KWS 2 with large/small detector selection."""
 
 from nicos import session
-from nicos.core import Param, Override, Attach, Moveable, HasLimits, \
-    dictof, dictwith, MASTER, SIMULATION, MoveError, ConfigurationError, \
-    multiReset, multiStop, status, HasOffset
-from nicos.devices.generic.sequence import SequencerMixin, BaseSequencer, \
-    SeqDev, SeqCall
+from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
+    HasLimits, HasOffset, Moveable, MoveError, Override, Param, dictof, \
+    dictwith, multiReset, multiStop, status
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.tango import Motor as TangoMotor, AnalogInput
-from nicos.utils import num_sort
+from nicos.devices.generic.sequence import BaseSequencer, SeqCall, SeqDev, \
+    SequencerMixin
+from nicos.devices.tango import AnalogInput, Motor as TangoMotor
 from nicos.pycompat import iteritems
-from nicos_mlz.kws1.devices.detector import oneof_detector, \
-    DetectorPosSwitcherMixin
+from nicos.utils import num_sort
+
+from nicos_mlz.kws1.devices.detector import DetectorPosSwitcherMixin, \
+    oneof_detector
 
 
 class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,

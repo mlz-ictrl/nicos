@@ -26,19 +26,18 @@
 Sinks which handle the data provided from the SIS detector at SPHERES.
 '''
 
-import quickyaml
-from time import strftime, localtime
+from time import localtime, strftime
 
 import numpy
-
-from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
+import quickyaml
 
 from nicos import session
-from nicos.core.data.dataset import ScanDataset, PointDataset
+from nicos.core.data.dataset import PointDataset, ScanDataset
 from nicos.core.params import Param
 from nicos.devices.datasinks import special
 from nicos.devices.datasinks.image import ImageSink
 
+from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
 
 timesteptime = 2e-5 #s = 20µs
 

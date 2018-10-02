@@ -27,9 +27,8 @@
 import IO
 
 from nicos import session
-from nicos.core import Param, SIMULATION, status, tacodev
+from nicos.core import SIMULATION, Param, status, tacodev
 from nicos.core.mixins import HasTimeout
-
 from nicos.devices.taco.io import NamedDigitalOutput
 
 

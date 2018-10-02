@@ -24,9 +24,9 @@
 
 """Class for controlling the collimation."""
 
-from nicos.core import HasTimeout, Moveable, Readable, Attach, Override, \
-    status, intrange, dictof, listof, tupleof, oneof, HasLimits, Param, \
-    ConfigurationError
+from nicos.core import Attach, ConfigurationError, HasLimits, HasTimeout, \
+    Moveable, Override, Param, Readable, dictof, intrange, listof, oneof, \
+    status, tupleof
 from nicos.devices.generic.slit import TwoAxisSlit
 from nicos.devices.tango import Motor as TangoMotor
 from nicos.utils import num_sort

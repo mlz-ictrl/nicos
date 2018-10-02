@@ -24,9 +24,9 @@
 
 import subprocess
 
-from nicos.core import Readable, NicosError, status
-from nicos.utils import createSubprocess
+from nicos.core import NicosError, Readable, status
 from nicos.pycompat import urllib
+from nicos.utils import createSubprocess
 
 
 class RadMon(Readable):

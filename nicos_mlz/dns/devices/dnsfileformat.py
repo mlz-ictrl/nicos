@@ -28,7 +28,7 @@
 .d_dat: document the file format here.
 """
 
-from time import strftime, localtime, time as currenttime
+from time import localtime, strftime, time as currenttime
 
 import numpy as np
 

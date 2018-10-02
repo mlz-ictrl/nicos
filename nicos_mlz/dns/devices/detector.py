@@ -26,14 +26,13 @@
 import numpy
 
 from nicos import session
-from nicos.core import Value, SIMULATION
-from nicos.core.params import Param, Attach, dictof, tupleof, intrange, \
-    ArrayDesc
-from nicos.devices.polarized.flipper import BaseFlipper, ON, OFF
-from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel, \
-    Detector
+from nicos.core import SIMULATION, Value
+from nicos.core.params import ArrayDesc, Attach, Param, dictof, intrange, \
+    tupleof
+from nicos.devices.generic.detector import Detector, ImageChannelMixin, \
+    PassiveChannel
+from nicos.devices.polarized.flipper import OFF, ON, BaseFlipper
 from nicos.devices.tango import PyTangoDevice
-
 
 P_TIME = 't'
 P_TIME_SF = 'tsf'

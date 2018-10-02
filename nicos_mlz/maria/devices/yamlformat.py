@@ -27,10 +27,11 @@
 """MARIA file format saver for the new YAML based format."""
 
 from nicos import session
-from nicos.core import Override, NicosError
+from nicos.core import NicosError, Override
 from nicos.core.data.dataset import ScanDataset
 from nicos.core.device import Readable
 from nicos.devices.datasinks.image import ImageSink
+
 from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
 
 

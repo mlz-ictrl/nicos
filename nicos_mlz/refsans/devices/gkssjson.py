@@ -27,9 +27,9 @@
 import requests
 
 from nicos.core import Override, Param, Readable, intrange, oneof, status
-from nicos.core.mixins import HasOffset
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     NicosError
+from nicos.core.mixins import HasOffset
 
 
 class JsonBase(Readable):

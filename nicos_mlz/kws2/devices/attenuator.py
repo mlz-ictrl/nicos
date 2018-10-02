@@ -24,8 +24,8 @@
 
 """Class for controlling the KWS2 attenuator."""
 
-from nicos.core import HasTimeout, Moveable, Readable, Attach, Override, \
-    status, oneof
+from nicos.core import Attach, HasTimeout, Moveable, Override, Readable, \
+    oneof, status
 
 OUT = 1
 IN = 2

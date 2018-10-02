@@ -25,6 +25,7 @@
 """NICOS MIRA Experiment."""
 
 from nicos.core import Override
+
 from nicos_mlz.devices.experiment import Experiment
 
 

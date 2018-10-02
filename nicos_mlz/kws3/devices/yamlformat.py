@@ -32,6 +32,7 @@ from nicos.core.data.dataset import ScanDataset
 from nicos.core.device import Readable
 from nicos.devices.datasinks.image import ImageSink
 from nicos.pycompat import from_maybe_utf8
+
 from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
 
 

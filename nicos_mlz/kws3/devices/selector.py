@@ -26,8 +26,8 @@
 
 import time
 
-from nicos.core import Moveable, Readable, HasLimits, HasPrecision, \
-    Attach, MoveError, status
+from nicos.core import Attach, HasLimits, HasPrecision, Moveable, MoveError, \
+    Readable, status
 
 
 class SelectorSpeed(HasLimits, HasPrecision, Moveable):

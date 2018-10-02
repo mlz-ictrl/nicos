@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+import nicos.core.status as status
+from nicos.core import HasOffset, Override, Param, Readable, oneof
 from nicos.core.errors import NicosError
 
 try:
@@ -31,8 +33,6 @@ except ImportError as e:
     _thirdparty_available = False
     _import_error = e
 
-from nicos.core import Readable, HasOffset, Param, oneof, Override
-import nicos.core.status as status
 
 _REST_URL = "http://jcnswww.jcns.frm2/meteo"
 

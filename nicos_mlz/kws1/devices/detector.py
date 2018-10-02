@@ -24,13 +24,13 @@
 
 """Detector switcher for KWS."""
 
-from nicos.core import Param, Override, Attach, Moveable, DeviceMixinBase, \
-    status, oneof, dictof, dictwith, MASTER, SIMULATION, ConfigurationError, \
-    MoveError, multiStop, multiReset
-from nicos.devices.generic.sequence import SequencerMixin, SeqDev, SeqSleep
+from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
+    DeviceMixinBase, Moveable, MoveError, Override, Param, dictof, dictwith, \
+    multiReset, multiStop, oneof, status
 from nicos.devices.abstract import MappedMoveable
-from nicos.utils import num_sort
+from nicos.devices.generic.sequence import SeqDev, SeqSleep, SequencerMixin
 from nicos.pycompat import iteritems
+from nicos.utils import num_sort
 
 
 class oneof_detector(oneof):

@@ -24,8 +24,8 @@
 
 """Special devices for magnets."""
 
-from nicos.core import Attach, Param, Moveable, listof, tupleof, \
-    ComputationError
+from nicos.core import Attach, ComputationError, Moveable, Param, listof, \
+    tupleof
 
 
 def to_range(x):

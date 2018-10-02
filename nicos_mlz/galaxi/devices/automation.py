@@ -25,7 +25,7 @@
 """GALAXI Automatic vacuum control and detector positioning"""
 
 from nicos.core.device import Readable
-from nicos.core.params import Param, Attach
+from nicos.core.params import Attach, Param
 from nicos.devices.tango import NamedDigitalOutput
 
 

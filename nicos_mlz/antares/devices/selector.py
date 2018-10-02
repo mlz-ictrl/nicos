@@ -24,7 +24,7 @@
 
 """Selector tilt motor for ANTARES with interlock."""
 
-from nicos.core import Moveable, HasLimits, Attach, Param, MoveError
+from nicos.core import Attach, HasLimits, Moveable, MoveError, Param
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod
 
 

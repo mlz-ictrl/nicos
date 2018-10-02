@@ -24,14 +24,12 @@
 
 """Class for Stanford Research SR850 lock-in amplifier."""
 
-from math import hypot, atan2, degrees
+from math import atan2, degrees, hypot
 from time import time
 
-from nicos.core import intrange, Measurable, Param, Value, CommunicationError, \
-    ConfigurationError, NicosError, Override
+from nicos.core import SIMULATION, CommunicationError, ConfigurationError, \
+    Measurable, NicosError, Override, Param, Value, intrange
 from nicos.devices.tango import PyTangoDevice
-from nicos.core import SIMULATION
-
 
 TIMECONSTANTS = sum(([k, 3*k] for k in range(1, 11)), [])
 

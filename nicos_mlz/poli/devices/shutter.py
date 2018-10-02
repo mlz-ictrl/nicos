@@ -26,8 +26,8 @@
 
 import time
 
-from nicos.core import HasTimeout, Moveable, Attach, Override, \
-    MoveError, status, oneof
+from nicos.core import Attach, HasTimeout, Moveable, MoveError, Override, \
+    oneof, status
 
 
 class Shutter(HasTimeout, Moveable):

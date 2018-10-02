@@ -25,24 +25,27 @@
 """Special device for Refsans Fast Detector (Comtec p7888)"""
 
 import os
-# import shutil
 
 import numpy as np
-
-from IO import Counter
 from Detector import Detector
+from IO import Counter
 
 from nicos import session
-from nicos.core import Attach, Param, Value, Override, oneof, SIMULATION, \
-    INFO_CATEGORIES, LIVE, listof
+from nicos.core import INFO_CATEGORIES, LIVE, SIMULATION, Attach, Override, \
+    Param, Value, listof, oneof
 from nicos.core.constants import POINT, SCAN
 from nicos.core.data import DataSinkHandler
-from nicos.devices.generic.detector import PassiveChannel, ActiveChannel, \
-    TimerChannelMixin, CounterChannelMixin
-from nicos.devices.taco.detector import BaseChannel as TacoBaseChannel
 from nicos.devices.datasinks import ImageSink
+from nicos.devices.generic.detector import ActiveChannel, \
+    CounterChannelMixin, PassiveChannel, TimerChannelMixin
+from nicos.devices.taco.detector import BaseChannel as TacoBaseChannel
 from nicos.pycompat import iteritems
 from nicos.utils import syncFile
+
+# import shutil
+
+
+
 
 
 class ComtecCounter(CounterChannelMixin, TacoBaseChannel, PassiveChannel):

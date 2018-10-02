@@ -25,12 +25,12 @@
 
 from time import time as currenttime
 
+import numpy as np
+
 from nicos import session
 from nicos.core import ArrayDesc, Measurable, Param, Value, status
 from nicos.core.errors import NicosError
 from nicos.devices.tango import PyTangoDevice
-
-import numpy as np
 
 
 class DSPec(PyTangoDevice, Measurable):

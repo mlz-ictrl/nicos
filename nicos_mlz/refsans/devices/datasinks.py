@@ -29,7 +29,6 @@ from nicos import session
 from nicos.core import DataSinkHandler, NicosError, Override, Param, listof
 from nicos.core.constants import POINT
 from nicos.devices.datasinks import FileSink
-
 from nicos.utils import AutoDefaultODict
 
 # if these labels apear as part of a key, they are "known"

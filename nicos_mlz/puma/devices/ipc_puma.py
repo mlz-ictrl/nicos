@@ -29,6 +29,8 @@ u"""PUMA specific modifications to NICOS's module for IPC.
 (Institut für Physikalische Chemie, Göttingen) hardware classes.
 """
 
+import numpy as np
+
 from nicos import session
 from nicos.core import Override, Param, intrange, none_or, nonemptylistof, \
     oneof, status
@@ -39,8 +41,6 @@ from nicos.devices.abstract import CanReference
 from nicos.devices.vendor.ipc import Coder as IPCCoder, Motor as IPCMotor
 from nicos.pycompat import string_types
 from nicos.utils import createThread
-
-import numpy as np
 
 DIR_POS = 34
 DIR_NEG = 35

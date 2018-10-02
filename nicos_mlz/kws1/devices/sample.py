@@ -25,8 +25,9 @@
 """KWS sample object."""
 
 from nicos import session
-from nicos.core import Param, dictof, tupleof, anytype, multiWait, \
-    ConfigurationError
+from nicos.core import ConfigurationError, Param, anytype, dictof, multiWait, \
+    tupleof
+
 from nicos_mlz.devices.sample import Sample
 
 

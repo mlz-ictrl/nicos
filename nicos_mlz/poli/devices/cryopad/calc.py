@@ -29,10 +29,10 @@ NOTE: All angles are taken and returned in degrees.
 From IgorPro routines in Cryopad.c.
 """
 
-from nicos.core import ComputationError
+from numpy import arccos, arcsin, arctan2, cos, degrees, isnan, radians, sin, \
+    sqrt
 
-from numpy import sin, cos, radians, degrees, arcsin, arccos, arctan2, \
-    sqrt, isnan
+from nicos.core import ComputationError
 
 # Polarization directions, mapped to (theta, phi) polar angles.
 DIRECTIONS = {

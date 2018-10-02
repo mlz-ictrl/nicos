@@ -24,11 +24,11 @@
 
 """Detector class for the laue PSL detector via the windows server."""
 
+import numpy as np
+
 from nicos.core import ArrayDesc, Param, status
 from nicos.core.constants import SIMULATION
-from nicos.devices.generic.detector import ImageChannelMixin, ActiveChannel
-
-import numpy as np
+from nicos.devices.generic.detector import ActiveChannel, ImageChannelMixin
 
 from nicos_mlz.laue.devices.psldrv import PSLdrv
 

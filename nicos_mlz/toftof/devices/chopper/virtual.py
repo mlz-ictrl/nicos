@@ -27,9 +27,8 @@
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import ADMIN, Attach, NicosError, Override, Param, POLLER, \
-    SIMULATION, floatrange, requires, status
-
+from nicos.core import ADMIN, POLLER, SIMULATION, Attach, NicosError, \
+    Override, Param, floatrange, requires, status
 from nicos.devices.generic.virtual import VirtualMotor
 from nicos.pycompat import xrange as range  # pylint: disable=redefined-builtin
 

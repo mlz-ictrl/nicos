@@ -28,8 +28,8 @@ as CARESS or UniversalDeviceProxy.
 
 import UniversalDeviceClient as UDC  # pylint: disable=import-error
 
-from nicos.core import Moveable, Readable, Param, Override, HasPrecision, \
-    HasLimits, status, ProgrammingError
+from nicos.core import HasLimits, HasPrecision, Moveable, Override, Param, \
+    ProgrammingError, Readable, status
 
 
 class UDCReadable(Readable):

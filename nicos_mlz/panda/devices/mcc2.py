@@ -25,13 +25,12 @@
 
 """PANDA MCC2 Interface for foci control and support for mono-changer"""
 
-from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
-    usermethod, Param, CommunicationError, HardwareError, MoveError, \
-    Device, Readable, none_or
-from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder
-from nicos.core import Attach, SIMULATION
-from nicos.pycompat import iteritems
+from nicos.core import SIMULATION, Attach, CommunicationError, Device, \
+    HardwareError, MoveError, Param, Readable, floatrange, intrange, none_or, \
+    oneof, oneofdict, status, usermethod
+from nicos.devices.abstract import Coder as NicosCoder, Motor as NicosMotor
 from nicos.devices.tango import PyTangoDevice
+from nicos.pycompat import iteritems
 
 
 class TangoSerial(PyTangoDevice, Device):

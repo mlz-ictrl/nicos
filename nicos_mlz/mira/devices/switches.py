@@ -24,8 +24,8 @@
 
 """Class for MIRA beam elements."""
 
-from nicos.core import HasTimeout, Moveable, Readable, Attach, oneof, \
-    multiReset, Override, status
+from nicos.core import Attach, HasTimeout, Moveable, Override, Readable, \
+    multiReset, oneof, status
 
 
 class BeamElement(HasTimeout, Moveable):

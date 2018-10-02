@@ -25,7 +25,7 @@
 """Special device for kompass primary beamstop"""
 
 
-from nicos.core import Attach, Param, Moveable, tupleof, anytype, limits
+from nicos.core import Attach, Moveable, Param, anytype, limits, tupleof
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev
 
 

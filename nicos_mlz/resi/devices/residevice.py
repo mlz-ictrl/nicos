@@ -30,16 +30,17 @@ Created on 30.05.2011
 
 from __future__ import print_function
 
-import sys
 import math
+import sys
+
+from nicos import session
+from nicos.core import Attach, Moveable, NicosError, Param, vec3
+from nicos.core.status import BUSY, OK
+from nicos.devices.sample import Sample
+
 sys.path.append('/home/resi/pedersen/workspace/singlecounter')
 sys.path.append('/home/resi/pedersen/workspace/nonius_new/app')
 
-from nicos.core import Moveable, Param, Attach
-from nicos.devices.sample import Sample
-from nicos.core import vec3, NicosError
-from nicos.core.status import OK, BUSY
-from nicos import session
 
 # imports from the nonius libs
 try:

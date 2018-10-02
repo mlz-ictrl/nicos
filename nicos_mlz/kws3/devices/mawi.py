@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import Readable, Param, intrange
+from nicos.core import Param, Readable, intrange
 from nicos.devices.tango import PyTangoDevice
 
 

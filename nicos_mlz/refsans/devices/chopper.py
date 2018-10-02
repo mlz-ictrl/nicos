@@ -25,7 +25,6 @@
 """Chopper related devices."""
 
 from nicos import session
-
 from nicos.core import HasLimits, HasPrecision, Moveable, Override, Param, \
     dictwith, floatrange, intrange, listof, status
 from nicos.core.errors import NicosError

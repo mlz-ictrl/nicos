@@ -27,13 +27,15 @@ from PyTango import DevState
 
 from nicos import session
 from nicos.core import Moveable, status
-from nicos.devices.tango import PyTangoDevice
-from nicos.core.params import Attach, Param, Override, oneof, tupleof, ArrayDesc
-from nicos.core.errors import NicosError, MoveError, InvalidValueError
 from nicos.core.constants import FINAL, SIMULATION
-from nicos.devices.generic.detector import Detector, PassiveChannel, \
-    ImageChannelMixin
-from nicos_mlz.jcns.devices.shutter import OPEN, CLOSED
+from nicos.core.errors import InvalidValueError, MoveError, NicosError
+from nicos.core.params import ArrayDesc, Attach, Override, Param, oneof, \
+    tupleof
+from nicos.devices.generic.detector import Detector, ImageChannelMixin, \
+    PassiveChannel
+from nicos.devices.tango import PyTangoDevice
+
+from nicos_mlz.jcns.devices.shutter import CLOSED, OPEN
 
 
 class ImagePlateDrum(PyTangoDevice, Moveable):

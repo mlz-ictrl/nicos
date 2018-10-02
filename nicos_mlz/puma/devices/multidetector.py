@@ -28,7 +28,7 @@ import sys
 
 from nicos import session
 from nicos.commands import hiddenusercommand
-from nicos.core import Attach, Moveable, Override, Param, SIMULATION, \
+from nicos.core import SIMULATION, Attach, Moveable, Override, Param, \
     floatrange, listof, status, tupleof
 from nicos.core.errors import MoveError
 from nicos.core.mixins import HasTimeout

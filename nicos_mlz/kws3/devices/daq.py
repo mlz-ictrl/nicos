@@ -25,8 +25,8 @@
 import numpy
 from scipy.signal import convolve2d
 
-from nicos.core import DeviceAlias, Attach, Param, Override, Moveable, \
-    Value, Measurable, status, oneof, listof, tupleof
+from nicos.core import Attach, DeviceAlias, Measurable, Moveable, Override, \
+    Param, Value, listof, oneof, status, tupleof
 from nicos.devices.generic.detector import PostprocessPassiveChannel
 
 

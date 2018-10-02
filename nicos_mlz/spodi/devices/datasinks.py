@@ -31,9 +31,8 @@ import numpy as np
 from nicos.core import Override
 from nicos.core.constants import POINT
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-from nicos.devices.datasinks.special import \
-    LiveViewSinkHandler as BaseLiveViewSinkHandler, \
-    LiveViewSink as BaseLiveViewSink
+from nicos.devices.datasinks.special import LiveViewSink as BaseLiveViewSink, \
+    LiveViewSinkHandler as BaseLiveViewSinkHandler
 from nicos.pycompat import iteritems, to_utf8
 
 

@@ -25,7 +25,7 @@
 """Axis with brake control for SANS-1 sample changer sword."""
 
 from nicos import session
-from nicos.core import Attach, Moveable, Param, anytype, tupleof, status
+from nicos.core import Attach, Moveable, Param, anytype, status, tupleof
 from nicos.devices.generic.axis import Axis
 
 

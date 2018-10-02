@@ -30,17 +30,17 @@ import time
 from Modbus import Modbus
 
 from nicos import session
-from nicos.core import Param, Override, listof, none_or, oneof, oneofdict, \
-    floatrange, intrange, status, InvalidValueError, Moveable, \
-    UsageError, CommunicationError, PositionError, MoveError, SIMULATION, \
-    HasTimeout, Attach, usermethod, requires
+from nicos.core import SIMULATION, Attach, CommunicationError, HasTimeout, \
+    InvalidValueError, Moveable, MoveError, Override, Param, PositionError, \
+    UsageError, floatrange, intrange, listof, none_or, oneof, oneofdict, \
+    requires, status, usermethod
 from nicos.core.utils import multiStatus
-from nicos.devices.abstract import CanReference, Motor, Coder
-from nicos.devices.generic.sequence import SequencerMixin, SeqMethod
-from nicos.devices.taco.core import TacoDevice
-from nicos.devices.taco.io import DigitalOutput, NamedDigitalOutput, \
-    DigitalInput, NamedDigitalInput
+from nicos.devices.abstract import CanReference, Coder, Motor
 from nicos.devices.generic import Switcher
+from nicos.devices.generic.sequence import SeqMethod, SequencerMixin
+from nicos.devices.taco.core import TacoDevice
+from nicos.devices.taco.io import DigitalInput, DigitalOutput, \
+    NamedDigitalInput, NamedDigitalOutput
 
 
 class Sans1ColliSlit(Switcher):

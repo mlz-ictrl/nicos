@@ -27,8 +27,8 @@
 w&t box creates trigger signal for tisane fg1 burst mode.
 """
 
-from nicos.core import Param, Moveable, Override, CommunicationError, \
-     ConfigurationError, NicosError, status
+from nicos.core import CommunicationError, ConfigurationError, Moveable, \
+    NicosError, Override, Param, status
 
 try:
     from urllib2 import urlopen

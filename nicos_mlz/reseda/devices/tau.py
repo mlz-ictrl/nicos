@@ -22,7 +22,8 @@
 #
 # *****************************************************************************
 
-from nicos.core import Readable, Override, Attach, status
+from nicos.core import Attach, Override, Readable, status
+
 
 class tauTwoarms(Readable):
 

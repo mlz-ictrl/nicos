@@ -56,13 +56,12 @@
 
 import numpy as np
 
-from nicos.utils import lazy_property
-from nicos.core import Param, Override, LimitError, Attach
+from nicos.core import Attach, LimitError, Override, Param
 from nicos.core.params import floatrange, tupleof
-from nicos.devices.generic import VirtualMotor
 from nicos.devices.abstract import MappedMoveable
+from nicos.devices.generic import VirtualMotor
 from nicos.devices.tango import PowerSupply
-
+from nicos.utils import lazy_property
 
 ###############################################################################
 # configuration

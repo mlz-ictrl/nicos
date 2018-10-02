@@ -25,8 +25,8 @@
 """MTT class for PUMA."""
 
 from nicos import session
-from nicos.core import Attach, MoveError, Moveable, Param, \
-    Readable, SIMULATION, status, waitForCompletion
+from nicos.core import SIMULATION, Attach, Moveable, MoveError, Param, \
+    Readable, status, waitForCompletion
 from nicos.devices.generic.axis import Axis
 from nicos.utils import createThread
 

@@ -27,6 +27,7 @@
 from nicos.core import Param
 from nicos.devices.vendor.astrium import SelectorLambda as NicosSelectorLambda
 
+
 class SelectorLambda(NicosSelectorLambda):
     """
     Control selector wavelength directly, converting between speed and

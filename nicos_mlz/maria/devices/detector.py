@@ -24,8 +24,9 @@
 
 from nicos.core import Attach, Moveable, Param
 from nicos.core.errors import InvalidValueError
-from nicos.devices.generic.detector import PassiveChannel, Detector
-from nicos_mlz.jcns.devices.shutter import OPEN, CLOSED
+from nicos.devices.generic.detector import Detector, PassiveChannel
+
+from nicos_mlz.jcns.devices.shutter import CLOSED, OPEN
 
 
 class MariaDetector(Detector):

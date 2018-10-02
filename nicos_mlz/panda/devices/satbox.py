@@ -25,8 +25,8 @@
 """PANDA's Attenuator controling device for NICOS."""
 
 from nicos import session
-from nicos.core import InvalidValueError, Moveable, Param, floatrange, listof,\
-    oneof, status, HasTimeout, Override, Attach, Readable
+from nicos.core import Attach, HasTimeout, InvalidValueError, Moveable, \
+    Override, Param, Readable, floatrange, listof, oneof, status
 
 
 def bits(x, n):

@@ -28,9 +28,10 @@ import os
 import time
 from os import path
 
-from nicos_mlz.devices.experiment import Experiment
-from nicos.utils import printTable
 from nicos.pycompat import to_utf8
+from nicos.utils import printTable
+
+from nicos_mlz.devices.experiment import Experiment
 
 
 class KWSExperiment(Experiment):

@@ -24,7 +24,7 @@
 
 """Class for delta (difference) axis."""
 
-from nicos.core import Readable, Attach, Override
+from nicos.core import Attach, Override, Readable
 
 
 class DeltaAxis(Readable):

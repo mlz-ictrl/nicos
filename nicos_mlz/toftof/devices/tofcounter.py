@@ -26,7 +26,14 @@
 
 """TOFTOF histogram counter card Taco devices."""
 
+import numpy as np
 import TACOStates
+
+from nicos.core import SIMULATION, ArrayDesc, Override, Param, Value, \
+    intrange, status
+from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
+from nicos.devices.taco.core import TacoDevice
+from nicos.devices.taco.detector import FRMCounterChannel, FRMTimerChannel
 
 try:
     from SIS3400 import (Timer as SIS3400Timer,
@@ -37,13 +44,7 @@ except ImportError:
     MonitorCounter = None
     HistogramCounter = None
 
-from nicos.core import ArrayDesc, Override, Param, Value, SIMULATION, \
-    intrange, status
-from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
-from nicos.devices.taco.core import TacoDevice
-from nicos.devices.taco.detector import FRMCounterChannel, FRMTimerChannel
 
-import numpy as np
 
 
 class Monitor(FRMCounterChannel):

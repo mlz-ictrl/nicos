@@ -24,10 +24,10 @@
 
 """Cryopad related polarization devices."""
 
-from nicos.core import Param, Override, Attach, Moveable, multiStatus, \
-    status, tupleof, listof, oneof
-from nicos.devices.sxtal.instrument import SXTalBase
+from nicos.core import Attach, Moveable, Override, Param, listof, \
+    multiStatus, oneof, status, tupleof
 from nicos.devices.generic.switcher import Switcher
+from nicos.devices.sxtal.instrument import SXTalBase
 
 from . import calc
 

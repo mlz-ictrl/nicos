@@ -25,11 +25,11 @@
 """KWS-3 sample position switcher."""
 
 from nicos import session
-from nicos.core import Moveable, Attach, Param, Override, oneof, dictof, \
-    listof, anytype, DeviceAlias, NicosError, ConfigurationError, HasPrecision
+from nicos.core import Attach, ConfigurationError, DeviceAlias, HasPrecision, \
+    Moveable, NicosError, Override, Param, anytype, dictof, listof, oneof
 from nicos.devices.generic import Slit
-from nicos.utils import num_sort
 from nicos.pycompat import iteritems
+from nicos.utils import num_sort
 
 
 class SamplePos(Moveable):

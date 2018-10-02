@@ -24,11 +24,11 @@
 
 """GALAXI Absorber plates"""
 
-from nicos.core import Moveable
-from nicos.core.params import Attach
-from nicos.core.mixins import HasLimits
-
 from math import log, sqrt
+
+from nicos.core import Moveable
+from nicos.core.mixins import HasLimits
+from nicos.core.params import Attach
 
 
 class AbsorberDevice(HasLimits, Moveable):

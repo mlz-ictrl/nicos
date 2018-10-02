@@ -24,9 +24,10 @@
 
 """Class for Keysight Technologies 34461A TrueVolt."""
 
-from nicos.core import Measurable, CommunicationError, Override, status
+from nicos.core import SIMULATION, CommunicationError, Measurable, Override, \
+    status
 from nicos.devices.tango import PyTangoDevice
-from nicos.core import SIMULATION
+
 
 class VoltageMeter(PyTangoDevice, Measurable):
     """

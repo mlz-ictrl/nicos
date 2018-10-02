@@ -25,7 +25,7 @@
 from nicos.core.constants import SIMULATION
 from nicos.core.device import Device
 from nicos.core.errors import ConfigurationError
-from nicos.core.params import Param, tupleof, listof
+from nicos.core.params import Param, listof, tupleof
 from nicos.devices.tango import PyTangoDevice
 
 

@@ -26,7 +26,6 @@
 
 from nicos.core import Moveable, Override, Param, floatrange, oneof
 from nicos.core.params import Attach
-
 from nicos.pycompat import number_types, string_types
 
 
