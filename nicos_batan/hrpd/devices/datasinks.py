@@ -24,6 +24,8 @@
 
 """HRPD specific file format(s)."""
 
+from __future__ import absolute_import
+
 from nicos.core import Override
 from nicos.core.constants import POINT
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
