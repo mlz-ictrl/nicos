@@ -24,7 +24,7 @@
 
 """The NICOS electronic logbook."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import io
 from cgi import escape
@@ -524,7 +524,7 @@ class Handler(object):
             html.append('<td>...</td>')
         html.append('</tr>')
         headers = ''.join('<th width="%d%%">%s</th>' %
-                          (100/len(headers), escape(h)) for h in headers)
+                          (100//len(headers), escape(h)) for h in headers)
         self.out.newstate('scan-' + names,
                           '<table class="scan"><tr class="head">' + headers
                           + '</tr>', '</table>\n', ''.join(html))

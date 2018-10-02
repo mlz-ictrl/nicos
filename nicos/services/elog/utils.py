@@ -24,7 +24,7 @@
 
 """Utilities for the electronic logbook daemon."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import time
 from cgi import escape
