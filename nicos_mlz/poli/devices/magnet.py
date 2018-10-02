@@ -24,6 +24,8 @@
 
 """Special devices for magnets."""
 
+from __future__ import absolute_import
+
 from nicos.core import Attach, ComputationError, Moveable, Param, listof, \
     tupleof
 

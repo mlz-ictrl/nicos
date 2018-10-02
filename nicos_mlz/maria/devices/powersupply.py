@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.core import Param
 from nicos.core.constants import SIMULATION
 from nicos.devices.tango import AnalogInput

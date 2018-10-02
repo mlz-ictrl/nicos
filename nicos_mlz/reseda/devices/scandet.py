@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 import numpy as np
 
 from nicos.core import Override, Param, Value, floatrange, oneof

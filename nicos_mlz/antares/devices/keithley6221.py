@@ -24,6 +24,8 @@
 
 """Class for Keithley 6221 constant current source."""
 
+from __future__ import absolute_import
+
 from IO import StringIO
 
 from nicos.core import SIMULATION, CommunicationError, HasLimits, Moveable, \

@@ -25,6 +25,8 @@
 """Special device for Sans1 High Voltage supply"""
 
 
+from __future__ import absolute_import
+
 from time import localtime, strftime, time as currenttime
 
 import PyTango

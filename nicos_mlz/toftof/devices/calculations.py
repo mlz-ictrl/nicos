@@ -25,6 +25,8 @@
 
 """TOFTOF chopper and resolution calculations."""
 
+from __future__ import absolute_import
+
 from math import sqrt
 
 try:

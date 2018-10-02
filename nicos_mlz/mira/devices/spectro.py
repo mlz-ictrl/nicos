@@ -24,6 +24,8 @@
 
 """Custom TAS instrument class for MIRA."""
 
+from __future__ import absolute_import
+
 from nicos.devices.tas.spectro import TAS
 
 

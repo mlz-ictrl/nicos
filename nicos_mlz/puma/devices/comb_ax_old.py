@@ -27,6 +27,8 @@ to the incoming beam.
 For example, when the magnet is used
 """
 
+from __future__ import absolute_import
+
 from nicos.core import Attach, Moveable, Param, status
 
 

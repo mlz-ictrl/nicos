@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from time import localtime, strftime, time as currenttime
 
 import h5py

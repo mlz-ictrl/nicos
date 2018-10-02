@@ -24,6 +24,8 @@
 
 """Devices for the Refsans VSD."""
 
+from __future__ import absolute_import
+
 import struct
 
 from Modbus import Modbus

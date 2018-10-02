@@ -24,6 +24,8 @@
 
 """PANDA Monochromator changer hardware classes. FOR TESTING ONLY!"""
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.core import Moveable, Readable, status, usermethod
 from nicos.core.device import HasOffset

@@ -24,6 +24,8 @@
 
 """Beamstop switcher for KWS 3."""
 
+from __future__ import absolute_import
+
 from nicos.core import Attach, HasPrecision, Moveable, MoveError, Override, \
     Param, anytype, dictof, oneof, status
 from nicos.devices.generic import MultiSwitcher

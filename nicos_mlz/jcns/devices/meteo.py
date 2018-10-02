@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 import nicos.core.status as status
 from nicos.core import HasOffset, Override, Param, Readable, oneof
 from nicos.core.errors import NicosError

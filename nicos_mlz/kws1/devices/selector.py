@@ -24,6 +24,8 @@
 
 """Class for KWS selector."""
 
+from __future__ import absolute_import
+
 from nicos.core import Attach, Moveable, Param, dictof, dictwith
 from nicos.devices.generic.switcher import MultiSwitcher
 from nicos.devices.tango import WindowTimeoutAO

@@ -26,6 +26,8 @@
 
 """DNS file format saver for the new YAML based format."""
 
+from __future__ import absolute_import
+
 import quickyaml
 
 from nicos import session

@@ -24,6 +24,8 @@
 
 """Device class for the shutter cylinder device."""
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.core import Attach, Moveable, NicosError, Param, Readable
 

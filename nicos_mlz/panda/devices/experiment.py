@@ -25,6 +25,8 @@
 
 """NICOS PANDA Experiment."""
 
+from __future__ import absolute_import
+
 from os import path
 
 from nicos.core import Override

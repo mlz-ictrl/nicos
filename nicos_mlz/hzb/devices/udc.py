@@ -26,6 +26,8 @@
 as CARESS or UniversalDeviceProxy.
 """
 
+from __future__ import absolute_import
+
 import UniversalDeviceClient as UDC  # pylint: disable=import-error
 
 from nicos.core import HasLimits, HasPrecision, Moveable, Override, Param, \

@@ -24,6 +24,8 @@
 
 """GALAXI Absorber plates"""
 
+from __future__ import absolute_import
+
 from math import log, sqrt
 
 from nicos.core import Moveable

@@ -24,6 +24,8 @@
 
 """Wave length device for STRESS-SPEC diffractometer."""
 
+from __future__ import absolute_import
+
 from math import asin, pi, sin
 
 from nicos.core import SIMULATION, Attach, HasLimits, HasPrecision, Moveable, \

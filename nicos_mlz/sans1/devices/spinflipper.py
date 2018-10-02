@@ -24,6 +24,8 @@
 
 """Sans1 spinflipper specific devices."""
 
+from __future__ import absolute_import
+
 import time
 
 from nicos.core import SIMULATION, HasTimeout, Param, status, tangodev

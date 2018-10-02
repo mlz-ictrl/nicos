@@ -25,6 +25,8 @@
 """Class for Oxford magnet consisting of the Mercury iPS power supply
 """
 
+from __future__ import absolute_import
+
 # from PowerSupply import CurrentControl
 from IO import StringIO
 

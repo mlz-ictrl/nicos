@@ -24,6 +24,8 @@
 
 """Class for controlling the KWS2 polarizer."""
 
+from __future__ import absolute_import
+
 from nicos.core import Attach, HasTimeout, Moveable, Override, Param, \
     Readable, listof, oneof, status
 

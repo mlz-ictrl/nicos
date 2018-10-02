@@ -24,6 +24,8 @@
 
 """File data sink classes for PUMA."""
 
+from __future__ import absolute_import
+
 from nicos.core import INFO_CATEGORIES, Override, Param
 from nicos.core.errors import ConfigurationError
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler

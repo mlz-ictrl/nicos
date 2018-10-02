@@ -24,6 +24,8 @@
 
 """Some robot specific CARESS devices."""
 
+from __future__ import absolute_import
+
 from nicos.core.params import Attach, Override
 from nicos.devices.vendor.caress.motor import Motor
 

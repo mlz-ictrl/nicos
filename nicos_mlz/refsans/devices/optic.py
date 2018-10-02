@@ -24,6 +24,8 @@
 # *****************************************************************************
 """REFSANS neutron guide system class."""
 
+from __future__ import absolute_import
+
 from nicos.core import Moveable, Override, Param, floatrange, oneof
 from nicos.core.params import Attach
 from nicos.pycompat import number_types, string_types

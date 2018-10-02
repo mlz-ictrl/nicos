@@ -24,6 +24,8 @@
 
 """Calculation of Q vector from wavelength and scattering angle."""
 
+from __future__ import absolute_import
+
 import math
 
 from nicos.core import Attach, Override, Readable, status

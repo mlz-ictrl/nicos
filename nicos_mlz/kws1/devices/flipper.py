@@ -24,6 +24,8 @@
 
 """Class for controlling the KWS flipper."""
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.core import SIMULATION, Attach, HasTimeout, Moveable, Override, \
     oneof, status

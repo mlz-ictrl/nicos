@@ -25,6 +25,8 @@
 
 """GALAXI Mythen detector"""
 
+from __future__ import absolute_import
+
 import time
 
 import numpy

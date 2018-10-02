@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.core.params import Param
 from nicos.devices.tango import NamedDigitalOutput
 

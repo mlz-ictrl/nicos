@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.core.constants import SIMULATION
 from nicos.core.device import Device
 from nicos.core.errors import ConfigurationError

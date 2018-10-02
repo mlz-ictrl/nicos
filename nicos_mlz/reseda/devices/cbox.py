@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from bisect import bisect_left
 from collections import OrderedDict
 from math import pi, sqrt

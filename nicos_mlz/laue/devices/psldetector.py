@@ -24,6 +24,8 @@
 
 """Detector class for the laue PSL detector via the windows server."""
 
+from __future__ import absolute_import
+
 import numpy as np
 
 from nicos.core import ArrayDesc, Param, status

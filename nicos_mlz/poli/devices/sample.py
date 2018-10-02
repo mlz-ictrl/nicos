@@ -24,6 +24,8 @@
 
 """Sample device for POLI."""
 
+from __future__ import absolute_import
+
 from nicos.core import Param, listof
 from nicos.devices.sample import Sample as BaseSample
 

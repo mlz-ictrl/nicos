@@ -24,6 +24,8 @@
 
 """Acqiris Detector via the CARESS device service."""
 
+from __future__ import absolute_import
+
 import sys
 
 from nicos.core import SIMULATION, Param, status
@@ -38,7 +40,7 @@ try:
     from omniORB import CORBA
     import CosNaming
 
-    import CARESS  # pylint: disable=import-error,no-name-in-module,W0403
+    from . import CARESS  # pylint: disable=import-error,no-name-in-module
 
     sys.modules['CARESS'] = sys.modules['nicos_mlz.delab.devices.CARESS']
     import omniORB

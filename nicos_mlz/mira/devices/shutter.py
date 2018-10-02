@@ -24,6 +24,8 @@
 
 """Class for MIRA shutter readout/operation."""
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.core import SIMULATION, SLAVE, ModeError, Param, Readable, status, \
     usermethod

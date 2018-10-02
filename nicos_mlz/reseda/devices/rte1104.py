@@ -23,6 +23,8 @@
 # *****************************************************************************
 """Devices accessing the Rohde & Schwarz oscillosope RTE1104"""
 
+from __future__ import absolute_import
+
 import math
 
 from nicos.core import Attach, Moveable, Override, Param, Readable, intrange, \

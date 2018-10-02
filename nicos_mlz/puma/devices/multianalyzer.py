@@ -23,6 +23,8 @@
 # *****************************************************************************
 """PUMA multi analyser class."""
 
+from __future__ import absolute_import
+
 import sys
 
 from nicos import session

@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.core import Attach, Moveable, Param
 from nicos.core.errors import InvalidValueError
 from nicos.devices.generic.detector import Detector, PassiveChannel

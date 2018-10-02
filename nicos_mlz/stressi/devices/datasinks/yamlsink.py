@@ -23,6 +23,8 @@
 # *****************************************************************************
 """YAML data sink classes for STRESS-SPEC."""
 
+from __future__ import absolute_import
+
 import re
 import time
 

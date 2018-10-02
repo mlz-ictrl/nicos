@@ -23,6 +23,8 @@
 # *****************************************************************************
 """ConfigObj data sink classes for REFSANS."""
 
+from __future__ import absolute_import
+
 import time
 
 from nicos import session

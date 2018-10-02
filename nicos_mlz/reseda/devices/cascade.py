@@ -25,6 +25,8 @@
 
 """Class for CASCADE detector measurement and readout."""
 
+from __future__ import absolute_import
+
 from time import sleep
 
 import numpy as np

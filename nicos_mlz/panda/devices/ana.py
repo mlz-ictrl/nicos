@@ -24,6 +24,8 @@
 
 """Analysator stuff for PANDA"""
 
+from __future__ import absolute_import
+
 from nicos.core import Attach, Param, oneofdict, status
 from nicos.devices.generic.axis import Axis
 from nicos.devices.tango import AnalogOutput

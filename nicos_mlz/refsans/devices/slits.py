@@ -24,6 +24,8 @@
 
 """Special devices for Refsans slits."""
 
+from __future__ import absolute_import
+
 from math import radians, tan
 
 from nicos.core import Attach, AutoDevice, HasPrecision, Moveable, Override, \

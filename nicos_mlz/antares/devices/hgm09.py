@@ -26,6 +26,8 @@
 Devices for the HGM09 gaussmeter.
 """
 
+from __future__ import absolute_import
+
 from IO import StringIO
 
 from nicos.core import SIMULATION, CommunicationError, NicosError, Override, \

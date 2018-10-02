@@ -54,6 +54,8 @@
 # suggestion for a nicm_conf.py entry
 
 
+from __future__ import absolute_import
+
 import numpy as np
 
 from nicos.core import Attach, LimitError, Override, Param

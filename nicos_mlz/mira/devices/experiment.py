@@ -24,6 +24,8 @@
 
 """NICOS MIRA Experiment."""
 
+from __future__ import absolute_import
+
 from nicos.core import Override
 
 from nicos_mlz.devices.experiment import Experiment

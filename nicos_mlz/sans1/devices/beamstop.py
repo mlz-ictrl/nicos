@@ -24,6 +24,8 @@
 
 """Beamstop handling for SANS1"""
 
+from __future__ import absolute_import
+
 import numpy as np
 
 from nicos.core import Attach, Moveable, Override, Param, PositionError, \

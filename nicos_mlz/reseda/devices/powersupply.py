@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.core import Override
 from nicos.devices.tango import PowerSupply as TangoPowerSupply
 

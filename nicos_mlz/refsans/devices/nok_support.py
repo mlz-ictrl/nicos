@@ -23,6 +23,8 @@
 # **************************************************************************
 """Support Code for REFSANS's NOK's."""
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.core import SIMULATION, ConfigurationError, HasPrecision, \
     Moveable, MoveError, Readable, dictwith, status

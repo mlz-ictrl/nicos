@@ -29,6 +29,8 @@ u"""PUMA specific modifications to NICOS's module for IPC.
 (Institut für Physikalische Chemie, Göttingen) hardware classes.
 """
 
+from __future__ import absolute_import
+
 import numpy as np
 
 from nicos import session

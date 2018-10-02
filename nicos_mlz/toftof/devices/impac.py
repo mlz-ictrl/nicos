@@ -25,6 +25,8 @@
 
 """IMPAC Pyrometer IGAR 12-LO"""
 
+from __future__ import absolute_import
+
 from IO import StringIO
 
 from nicos.core import Override, Param, Readable, intrange, status

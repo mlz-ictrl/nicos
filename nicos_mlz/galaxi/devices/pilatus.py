@@ -24,6 +24,8 @@
 # *****************************************************************************
 """GALAXI Pilatus detector"""
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.core import DataSinkHandler, status, usermethod, waitForCompletion
 from nicos.core.constants import MASTER

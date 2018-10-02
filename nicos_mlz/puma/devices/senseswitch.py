@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.core import HasTimeout, Override
 from nicos.devices.generic import MultiSwitcher
 

@@ -23,6 +23,8 @@
 # *****************************************************************************
 """Special device for Sans1 Tisane triggering or mieze on Reseda"""
 
+from __future__ import absolute_import
+
 from nicos.core import Moveable, Override, Param, dictof, oneof, status
 from nicos.devices.tango import PyTangoDevice
 

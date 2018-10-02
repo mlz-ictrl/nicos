@@ -26,6 +26,8 @@
 NICOS Resi Experiment.
 """
 
+from __future__ import absolute_import
+
 import os
 from os import path
 

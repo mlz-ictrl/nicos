@@ -24,6 +24,8 @@
 
 """LASCON pyrometer temperature devices."""
 
+from __future__ import absolute_import
+
 from IO import StringIO
 
 from nicos.core import HasLimits, HasWindowTimeout, Moveable, MoveError, \

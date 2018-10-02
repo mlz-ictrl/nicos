@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.core import Attach, DeviceMixinBase, Param, status
 from nicos.core.utils import waitForCompletion
 from nicos.devices.generic import Switcher

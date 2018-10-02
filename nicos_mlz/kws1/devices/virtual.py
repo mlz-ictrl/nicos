@@ -24,6 +24,8 @@
 
 """Standin motors for virtual instrument setups."""
 
+from __future__ import absolute_import
+
 from nicos.core import HasPrecision, Override
 from nicos.devices.generic.manual import ManualMove
 

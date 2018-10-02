@@ -24,6 +24,8 @@
 
 """POLI up/down measuring detector."""
 
+from __future__ import absolute_import
+
 from math import sqrt
 
 from nicos.core import Attach, ConfigurationError, Moveable, Param, Value, \

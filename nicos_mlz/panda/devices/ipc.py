@@ -25,6 +25,8 @@
 """IPC class to work around reset bug of triple cards from göttingen"""
 
 
+from __future__ import absolute_import
+
 from nicos.core import status, usermethod
 from nicos.devices.vendor.ipc import Motor as _Motor
 

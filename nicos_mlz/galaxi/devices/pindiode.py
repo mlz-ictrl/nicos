@@ -25,6 +25,8 @@
 
 """GALAXI PIN diode single detectors"""
 
+from __future__ import absolute_import
+
 import time
 
 from nicos import session

@@ -24,6 +24,8 @@
 
 """Antares Monochromator"""
 
+from __future__ import absolute_import
+
 from math import asin, degrees, radians, sin, tan
 
 from nicos.core import Attach, HasLimits, Moveable, Override, Param, \

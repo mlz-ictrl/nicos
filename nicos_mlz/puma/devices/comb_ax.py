@@ -24,6 +24,8 @@
 
 """Class for PUMA phi axis."""
 
+from __future__ import absolute_import
+
 from nicos.core import Attach, Moveable, Param
 from nicos.devices.generic.axis import Axis
 

@@ -24,6 +24,8 @@
 
 """Classes to access to the switches via the Pilz Box."""
 
+from __future__ import absolute_import
+
 import IO
 
 from nicos import session

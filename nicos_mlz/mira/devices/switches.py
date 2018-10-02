@@ -24,6 +24,8 @@
 
 """Class for MIRA beam elements."""
 
+from __future__ import absolute_import
+
 from nicos.core import Attach, HasTimeout, Moveable, Override, Readable, \
     multiReset, oneof, status
 

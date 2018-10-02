@@ -24,6 +24,8 @@
 
 """KWS-2 file format saver with YAML."""
 
+from __future__ import absolute_import
+
 from nicos import session
 
 from nicos_mlz.kws1.devices.yamlformat import YAMLFileSink as KWS1YAMLFileSink, \

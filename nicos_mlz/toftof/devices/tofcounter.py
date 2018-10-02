@@ -26,6 +26,8 @@
 
 """TOFTOF histogram counter card Taco devices."""
 
+from __future__ import absolute_import
+
 import numpy as np
 import TACOStates
 

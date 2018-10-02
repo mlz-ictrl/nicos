@@ -24,6 +24,8 @@
 
 """TOFTOF detector."""
 
+from __future__ import absolute_import
+
 import io
 from time import time as currenttime
 

@@ -24,6 +24,8 @@
 
 """Detector for triggering dynamic light scattering (DLS) during counting."""
 
+from __future__ import absolute_import
+
 import time
 
 from nicos import session

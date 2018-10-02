@@ -24,6 +24,8 @@
 
 """Special devices for recording and fitting 3He cell polarization."""
 
+from __future__ import absolute_import
+
 import time
 
 import numpy as np

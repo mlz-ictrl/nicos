@@ -24,6 +24,8 @@
 
 """NICOS MARIA Experiment."""
 
+from __future__ import absolute_import
+
 from nicos.utils import safeName
 
 from nicos_mlz.devices.experiment import Experiment as _Experiment

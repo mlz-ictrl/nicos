@@ -24,6 +24,8 @@
 
 """Sans1 Sample device."""
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.core import Override
 from nicos.devices.sample import Sample as NicosSample

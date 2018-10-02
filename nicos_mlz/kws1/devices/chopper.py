@@ -24,6 +24,8 @@
 
 """Class for KWS chopper control."""
 
+from __future__ import absolute_import
+
 from nicos.core import MASTER, Attach, HasPrecision, Moveable, Override, \
     Param, PositionError, floatrange, intrange, listof, oneof, status, \
     tupleof

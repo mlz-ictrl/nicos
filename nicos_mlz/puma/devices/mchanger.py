@@ -24,6 +24,8 @@
 
 """PUMA Monochromator changer."""
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.core import Attach, Moveable, Param, PositionError, Readable, \
     anytype, dictof, multiWait, oneof

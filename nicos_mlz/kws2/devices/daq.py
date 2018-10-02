@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.core import FINAL, INTERRUPTED, SIMULATION, Attach, Measurable, \
     Override, Param, Readable, Value, tupleof
 from nicos.devices.generic.detector import PostprocessPassiveChannel

@@ -25,6 +25,8 @@
 
 """KWS file format saver"""
 
+from __future__ import absolute_import
+
 from os import path
 from time import localtime, strftime
 

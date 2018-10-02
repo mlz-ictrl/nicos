@@ -24,6 +24,8 @@
 
 """TOFTOF special Live view sink for NICOS."""
 
+from __future__ import absolute_import
+
 from time import time as currenttime
 
 from nicos import session

@@ -23,6 +23,8 @@
 # *****************************************************************************
 """PUMA specific virtual devices."""
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.core import Attach, Moveable, Override, Param, intrange, none_or, \
     oneof, status

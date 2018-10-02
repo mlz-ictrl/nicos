@@ -24,6 +24,8 @@
 
 """PANDA S7 Interface for NICOS."""
 
+from __future__ import absolute_import
+
 from time import sleep, time as currenttime
 
 from nicos import session

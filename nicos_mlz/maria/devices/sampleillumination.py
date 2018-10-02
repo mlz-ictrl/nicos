@@ -27,6 +27,8 @@
 Calculate Sample illumination for reflectometers
 """
 
+from __future__ import absolute_import
+
 from numpy import nan, radians, sin
 
 from nicos.core import Attach, Param, Readable

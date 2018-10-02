@@ -24,6 +24,8 @@
 
 """Devices for Janitza power quality monitors"""
 
+from __future__ import absolute_import
+
 from nicos.core import Attach, Override, Param, Readable, listof, status
 from nicos.devices.tango import AnalogInput
 

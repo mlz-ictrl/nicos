@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.core.params import Param
 from nicos.devices.vendor.astrium import SelectorLambda as _SelectorLambda
 

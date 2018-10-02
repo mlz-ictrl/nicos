@@ -27,6 +27,8 @@
 w&t box shows pressore before and after the filter at the instrument.
 """
 
+from __future__ import absolute_import
+
 from nicos.core import CommunicationError, ConfigurationError, NicosError, \
     Override, Param, Readable, status
 

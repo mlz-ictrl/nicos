@@ -24,6 +24,8 @@
 
 '''Class to use the Servostar-Motors'''
 
+from __future__ import absolute_import
+
 import TACOStates
 
 from nicos.core import status

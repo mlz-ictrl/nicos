@@ -24,6 +24,8 @@
 
 """CARESS histogram file format."""
 
+from __future__ import absolute_import
+
 from time import strftime, time as currenttime
 
 import numpy as np

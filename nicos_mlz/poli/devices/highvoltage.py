@@ -24,6 +24,8 @@
 
 """Device controlling watching over high voltage output."""
 
+from __future__ import absolute_import
+
 from nicos.core import Param
 from nicos.devices.generic import ManualSwitch
 

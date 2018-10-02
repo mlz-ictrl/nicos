@@ -24,6 +24,8 @@
 
 """TOFTOF neutron guide/collimator switcher device."""
 
+from __future__ import absolute_import
+
 from nicos.core import NicosError, Override, Param, intrange
 from nicos.core.params import Attach
 from nicos.devices.abstract import CanReference

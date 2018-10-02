@@ -24,6 +24,8 @@
 
 """Base data sink classes (new API) for TOFTOF."""
 
+from __future__ import absolute_import
+
 from nicos.core import Override
 from nicos.core.data import DataSinkHandler
 from nicos.devices.datasinks.image import ImageSink
