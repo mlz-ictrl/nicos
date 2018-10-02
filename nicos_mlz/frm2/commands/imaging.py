@@ -41,6 +41,7 @@ def changeImgSinkSubdir(newsubdir):
             entry._setROParam('subdir', newsubdir)
 
 
+#pylint: disable=keyword-arg-before-vararg
 @usercommand
 @helparglist('shutter, [detectors], [presets]')
 def openbeamimage(shutter=None, *detlist, **preset):
@@ -72,6 +73,7 @@ def openbeamimage(shutter=None, *detlist, **preset):
             limadev.shuttermode = oldmode
 
 
+#pylint: disable=keyword-arg-before-vararg
 @usercommand
 @helparglist('shutter, [detectors], [presets]')
 def darkimage(shutter=None, *detlist, **preset):
