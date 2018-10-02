@@ -27,7 +27,7 @@
 NICOS value plot widget.
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import functools
 import operator
@@ -55,13 +55,13 @@ def buildTickDistAndSubTicks(mintime, maxtime, minticks=3):
     # calculate maxticks, depends on 'good' values
     maxticks = minticks
     for i in range(len(good)-1):
-        if maxticks < minticks * good[i+1]/float(good[i]):
-            maxticks = minticks * good[i+1]/float(good[i])
+        if maxticks < minticks * good[i+1]/good[i]:
+            maxticks = minticks * good[i+1]/good[i]
 
     # determine ticking range
     length = maxtime - mintime
-    maxd = length / float(minticks)
-    mind = length / float(maxticks+1)
+    maxd = length / minticks
+    mind = length / (maxticks+1)
 
     # scale to useful numbers
     scale_ind = 0
@@ -86,7 +86,7 @@ def buildTickDistAndSubTicks(mintime, maxtime, minticks=3):
     subticks = 0
     for i, d in enumerate(good):
         if mind * scale <= d <= maxd * scale:
-            tickdist = d / float(scale)
+            tickdist = d / scale
             subticks = divs[i]
 
     # check ticking
