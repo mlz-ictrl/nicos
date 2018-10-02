@@ -24,7 +24,7 @@
 
 """Class for Metrolab THM 1176 magnetic field probe."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import fcntl
 import math

@@ -25,7 +25,7 @@
 
 u"""IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import select
 import socket
