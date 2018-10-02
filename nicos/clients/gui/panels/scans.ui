@@ -324,7 +324,7 @@
     <string>Auto scale</string>
    </property>
    <property name="toolTip">
-    <string>autoscale: growing window</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;autoscale: growing window&lt;/p&gt;&lt;p&gt;The autoscale feature defines a growing window in x, y direction. If the drawn curve is within this window and does not cross the boundaries the next added point is taken into account on autoscaling.&lt;/p&gt;&lt;p&gt;If the curve already crosses boundaries the next point is not taken into account. This allows you to zoom into a region of interest without turning autoscale off.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
   <action name="actionXAxis">
@@ -340,7 +340,7 @@
     <string>X</string>
    </property>
    <property name="toolTip">
-    <string>Automatic scaling in x direction</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Automatic scaling in x direction&lt;/p&gt;&lt;p&gt;The autoscale feature defines a growing window in x direction. If the drawn curve is within this window and does not cross the boundaries the next added point is taken into account on autoscaling.&lt;/p&gt;&lt;p&gt;If the curve already crosses boundaries the next point is not taken into account. This allows you to zoom into a region of interest without turning autoscale off.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
   <action name="actionScaleY">
@@ -351,7 +351,7 @@
     <string>Y</string>
    </property>
    <property name="toolTip">
-    <string>Automatic scaling in y direction</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Automatic scaling in y direction&lt;/p&gt;&lt;p&gt;The autoscale feature defines a growing window in y direction. If the drawn curve is within this window and does not cross the boundaries the next added point is taken into account on autoscaling.&lt;/p&gt;&lt;p&gt;If the curve already crosses boundaries the next point is not taken into account. This allows you to zoom into a region of interest without turning autoscale off.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </action>
   <action name="actionFitCosine">
