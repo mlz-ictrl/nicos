@@ -25,15 +25,15 @@
 """AMOR specific commands and routines"""
 
 from nicos import session
-from nicos.commands import usercommand, helparglist
+from nicos.commands import helparglist, usercommand
+from nicos.commands.scan import ADDSCANHELP0, ADDSCANHELP2, _handleScanArgs, \
+    _infostr
 from nicos.core.errors import ConfigurationError
-from nicos.core.spm import spmsyntax, Bare
-from nicos.commands.scan import _infostr, _handleScanArgs, ADDSCANHELP0, \
-    ADDSCANHELP2
+from nicos.core.spm import Bare, spmsyntax
 
 from nicos_sinq.amor.devices.hm_config import AmorTofArray
-from nicos_sinq.devices.detector import SinqDetector
 from nicos_sinq.amor.scan import WallTimeScan
+from nicos_sinq.devices.detector import SinqDetector
 
 
 @usercommand

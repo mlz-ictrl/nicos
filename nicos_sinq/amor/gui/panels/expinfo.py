@@ -22,12 +22,13 @@
 #
 # *****************************************************************************
 
-from nicos.guisupport.qt import pyqtSlot
 from nicos.clients.gui.panels import PanelDialog
-from nicos.clients.gui.panels.setup_panel import SetupsPanel, \
-    DetEnvPanel, GenericSamplePanel
 from nicos.clients.gui.panels.generic import GenericPanel
+from nicos.clients.gui.panels.setup_panel import DetEnvPanel, \
+    GenericSamplePanel, SetupsPanel
+from nicos.guisupport.qt import pyqtSlot
 from nicos.guisupport.widget import NicosWidget
+
 from nicos_sinq.amor.gui.panels.newexp import AmorNewExpPanel
 
 

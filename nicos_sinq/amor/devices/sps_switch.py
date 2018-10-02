@@ -24,9 +24,10 @@
 
 from time import time as currenttime
 
-from nicos.core import Param, pvname, status, Override
+from nicos.core import Override, Param, pvname, status
 from nicos.core.errors import PositionError
 from nicos.devices.abstract import MappedMoveable
+
 from nicos_ess.devices.epics.base import EpicsDeviceEss
 
 

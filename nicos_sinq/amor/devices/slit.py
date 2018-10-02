@@ -24,9 +24,9 @@
 
 """Slit devices in AMOR"""
 
-from nicos.core import Override, status, HasPrecision
-from nicos.devices.generic.slit import SlitAxis
+from nicos.core import HasPrecision, Override, status
 from nicos.core.utils import multiStatus
+from nicos.devices.generic.slit import SlitAxis
 from nicos.pycompat import iteritems
 
 

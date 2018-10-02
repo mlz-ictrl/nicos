@@ -27,6 +27,7 @@
 
 from nicos.core import Attach
 from nicos.utils import uniq
+
 from nicos_ess.devices.epics.detector import EpicsCounterActiveChannel, \
     EpicsTimerActiveChannel
 from nicos_sinq.devices.epics.scaler_record import EpicsScalerRecord

@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 from nicos.core import Param
+
 from nicos_sinq.devices.sinqhm.channel import HistogramImageChannel
 
 

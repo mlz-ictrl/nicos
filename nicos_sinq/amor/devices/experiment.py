@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 from nicos.core import Param, oneof
+
 from nicos_sinq.devices.experiment import SinqExperiment
 
 

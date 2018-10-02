@@ -22,7 +22,8 @@
 #
 # *****************************************************************************
 
-from nicos.core import status, Param, Override, pvname, Attach
+from nicos.core import Attach, Override, Param, pvname, status
+
 from nicos_ess.devices.epics.base import EpicsWindowTimeoutDeviceEss
 from nicos_ess.devices.epics.extensions import EpicsMappedMoveable
 

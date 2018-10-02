@@ -22,12 +22,13 @@
 #
 # *****************************************************************************
 
-from math import log, floor
+from math import floor, log
 
 from nicos import session
 from nicos.core import Attach, Override
 from nicos.core.errors import NicosError
 from nicos.pycompat import number_types
+
 from nicos_sinq.devices.epics.astrium_chopper import EpicsAstriumChopper
 from nicos_sinq.devices.sinqhm.configurator import ConfiguratorBase, \
     HistogramConfTofArray

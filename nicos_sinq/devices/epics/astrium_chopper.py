@@ -25,8 +25,9 @@
 
 from collections import OrderedDict
 
-from nicos.core import Attach, ConfigurationError, Override, Param, Readable, \
-    UsageError, pvname, status, requires, HasPrecision, ADMIN
+from nicos.core import ADMIN, Attach, ConfigurationError, HasPrecision, \
+    Override, Param, Readable, UsageError, pvname, requires, status
+
 from nicos_ess.devices.epics.base import EpicsDeviceEss, \
     EpicsDigitalMoveableEss, EpicsWindowTimeoutDeviceEss
 

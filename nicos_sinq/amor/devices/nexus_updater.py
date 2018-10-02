@@ -22,10 +22,11 @@
 #
 # *****************************************************************************
 
-import numpy
 import h5py
+import numpy
 
 from nicos.core import Param, dictof, listof
+
 from nicos_ess.devices.datasinks.nexussink import NexusFileWriterStatus
 
 

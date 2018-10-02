@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 from nicos.core import Param
+
 from nicos_sinq.devices.epics.astrium_chopper import EpicsAstriumChopper
 
 

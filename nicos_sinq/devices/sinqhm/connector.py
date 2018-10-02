@@ -24,9 +24,9 @@
 
 import requests
 
-from nicos.core import Readable, Param, tupleof, status, Override, oneof
-from nicos.core.mixins import HasCommunication
+from nicos.core import Override, Param, Readable, oneof, status, tupleof
 from nicos.core.errors import CommunicationError
+from nicos.core.mixins import HasCommunication
 
 
 class HttpConnector(HasCommunication, Readable):

@@ -27,8 +27,8 @@ from logging import WARNING
 from nicos.clients.gui.dialogs.error import ErrorDialog
 from nicos.clients.gui.panels.generic import GenericPanel
 from nicos.clients.gui.utils import ScriptExecQuestion
-from nicos.guisupport.qt import QMessageBox, pyqtSlot, QRegExp, \
-    QRegExpValidator
+from nicos.guisupport.qt import QMessageBox, QRegExp, QRegExpValidator, \
+    pyqtSlot
 from nicos.guisupport.typedvalue import MissingWidget
 from nicos.guisupport.widget import NicosWidget
 from nicos.pycompat import iteritems

@@ -24,11 +24,11 @@
 
 import os
 
-from nicos.guisupport.qt import pyqtSlot, QDialogButtonBox, QMessageBox
 from nicos.clients.gui.panels.generic import GenericPanel
 from nicos.core import ConfigurationError
-from nicos.utils import decodeAny
 from nicos.core.params import mailaddress
+from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, pyqtSlot
+from nicos.utils import decodeAny
 
 
 class AmorNewExpPanel(GenericPanel):

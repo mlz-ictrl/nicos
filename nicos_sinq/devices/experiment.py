@@ -22,14 +22,14 @@
 #
 # *****************************************************************************
 
-import time
 import os
+import time
 from os import path
 
 from nicos.core import Override
 from nicos.devices.experiment import Experiment
-from nicos.utils import readFile, writeFile
 from nicos.pycompat import string_types
+from nicos.utils import readFile, writeFile
 
 
 class SinqExperiment(Experiment):

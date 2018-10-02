@@ -22,15 +22,16 @@
 #
 # *****************************************************************************
 
-import numpy
 from time import time as currenttime
+
+import numpy
 
 from nicos import session
 from nicos.core import FINAL, LIVE
 from nicos.pycompat import memory_buffer
 
-from nicos_ess.devices.datasinks.imagesink import ImageKafkaDataSinkHandler, \
-    ImageKafkaDataSink
+from nicos_ess.devices.datasinks.imagesink import ImageKafkaDataSink, \
+    ImageKafkaDataSinkHandler
 
 
 class ImageKafkaWithLiveViewDataSinkHandler(ImageKafkaDataSinkHandler):

@@ -1,7 +1,7 @@
 """ SICS equivalent NICOS commands
 """
 
-from nicos.commands.device import maw, adjust
+from nicos.commands.device import adjust, maw
 from nicos.commands.scan import timescan
 
 # Equivalent of sics dr (drive) command

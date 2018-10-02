@@ -25,8 +25,9 @@
 from lxml import etree
 from numpy import prod
 
-from nicos.core import Device, Param, oneof, listof, Attach, Override
+from nicos.core import Attach, Device, Override, Param, listof, oneof
 from nicos.pycompat import iteritems
+
 from nicos_sinq.devices.sinqhm.connector import HttpConnector
 
 

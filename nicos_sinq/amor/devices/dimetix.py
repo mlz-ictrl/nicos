@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 from nicos.core import HasOffset
+
 from nicos_ess.devices.epics.base import EpicsReadableEss
 
 
