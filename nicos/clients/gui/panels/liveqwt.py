@@ -24,7 +24,7 @@
 
 """NICOS livewidget 2D data plot window/panel."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import os
 import struct

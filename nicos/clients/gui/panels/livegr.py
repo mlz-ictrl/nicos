@@ -25,7 +25,7 @@
 
 """NICOS livewidget with GR."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import os
 from collections import OrderedDict
@@ -300,10 +300,10 @@ class LiveDataPanel(Panel):
             height = max(region.y) - min(region.y)
             if width > height:
                 dwidth = 500
-                dheight = 500 * height / width
+                dheight = 500 * height // width
             else:
                 dheight = 500
-                dwidth = 500 * width / height
+                dwidth = 500 * width // height
             widget.resize(dwidth, dheight)
             widget.closed.connect(self.on_roiWindowClosed)
         widget.setWindowForRoi(region)
