@@ -24,7 +24,7 @@
 
 import kafka
 
-from nicos.core import DeviceMixinBase, Param, listof, host
+from nicos.core import DeviceMixinBase, Param, host, listof
 
 
 class ProducesKafkaMessages(DeviceMixinBase):

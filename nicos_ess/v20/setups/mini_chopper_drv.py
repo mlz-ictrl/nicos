@@ -31,4 +31,3 @@ devices = dict(
                    writepv='HZB-V20:Chop-Drv-01:PW',
                    ),
     )
-

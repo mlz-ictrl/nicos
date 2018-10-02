@@ -22,10 +22,11 @@
 #
 # *****************************************************************************
 
-from nicos.devices.generic import ActiveChannel
-from nicos.core import Param, host, status, Value, POLLER, Override
-from nicos import session
 import socket
+
+from nicos import session
+from nicos.core import POLLER, Override, Param, Value, host, status
+from nicos.devices.generic import ActiveChannel
 
 
 class PixelmanUDPChannel(ActiveChannel):

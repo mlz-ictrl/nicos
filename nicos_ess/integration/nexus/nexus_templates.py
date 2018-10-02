@@ -1,6 +1,5 @@
 from nicos_ess.nexus import EventStream
 
-
 integration_default = {
     "entry-01:NXentry": {
         "instrument:NXinstrument": {

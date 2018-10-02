@@ -23,8 +23,9 @@
 #
 # *****************************************************************************
 
-from nicos.core import status, Param, Override, pvname
-from nicos.devices.abstract import Motor, HasOffset, CanReference
+from nicos.core import Override, Param, pvname, status
+from nicos.devices.abstract import CanReference, HasOffset, Motor
+
 from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 
 

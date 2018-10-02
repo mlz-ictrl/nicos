@@ -22,8 +22,8 @@
 #
 # *****************************************************************************
 
-from nicos.core import oneof, HasLimits, Moveable, HasPrecision, Param, Override, \
-    multiStatus, multiReset, multiWait, Attach
+from nicos.core import Attach, HasLimits, HasPrecision, Moveable, Override, \
+    Param, multiReset, multiStatus, multiWait, oneof
 from nicos.devices.abstract import CanReference
 
 

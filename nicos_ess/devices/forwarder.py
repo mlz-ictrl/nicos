@@ -24,7 +24,8 @@
 
 import json
 
-from nicos.core import Param, oneof, usermethod, status
+from nicos.core import Param, oneof, status, usermethod
+
 from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
 from nicos_ess.devices.kafka.status_handler import KafkaStatusHandler
 

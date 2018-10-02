@@ -22,9 +22,10 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, host, status, Override, CommunicationError
-from nicos.devices.abstract import MappedMoveable
 import requests
+
+from nicos.core import CommunicationError, Override, Param, host, status
+from nicos.devices.abstract import MappedMoveable
 
 status_map = {
     'running': (status.OK, 'Service is up and running'),

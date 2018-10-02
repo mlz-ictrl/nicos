@@ -25,10 +25,11 @@
 from nicos import session
 from nicos.core.errors import NicosError
 from nicos.pycompat import iteritems
-from nicos_ess.nexus.elements import NXAttribute, NXDataset, NXGroup, NXLink, \
-    KafkaStream
-from nicos_ess.nexus.placeholder import DeviceValuePlaceholder
+
 from nicos_ess.nexus import DeviceStream
+from nicos_ess.nexus.elements import KafkaStream, NXAttribute, NXDataset, \
+    NXGroup, NXLink
+from nicos_ess.nexus.placeholder import DeviceValuePlaceholder
 
 
 class NexusTemplateConverter(object):

@@ -24,12 +24,13 @@
 
 from time import time as currenttime
 
-from nicos.core import DataSink, DataSinkHandler, Param, Override, dictof, \
-    tupleof, INTERMEDIATE, FINAL
+from nicos.core import FINAL, INTERMEDIATE, DataSink, DataSinkHandler, \
+    Override, Param, dictof, tupleof
 from nicos.core.constants import POINT
-from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
+
 from nicos_ess.devices.datasinks.imagesink.serializer import \
     HistogramFlatbuffersSerializer
+from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
 
 
 class ImageKafkaDataSinkHandler(DataSinkHandler):

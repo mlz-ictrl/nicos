@@ -22,11 +22,12 @@
 #
 # *****************************************************************************
 
-from nicos.devices.abstract import Motor
-from nicos.core import Param, host, status, CommunicationError, requires, \
-    ADMIN, Override, HasPrecision
 import socket
 from time import sleep
+
+from nicos.core import ADMIN, CommunicationError, HasPrecision, Override, \
+    Param, host, requires, status
+from nicos.devices.abstract import Motor
 
 STATUS_MAP = {
     -6: (status.WARN, 'Aborting movement.'),

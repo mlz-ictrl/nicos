@@ -59,5 +59,3 @@ devices = dict(
                    command=['chop_command']
                    )
     )
-
-

@@ -4,6 +4,7 @@
 
 import flatbuffers
 
+
 class ArrayFloat(object):
     __slots__ = ['_tab']
 

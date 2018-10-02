@@ -22,11 +22,10 @@
 #
 # *****************************************************************************
 
+from nicos.core import Attach, status
+from nicos.devices.abstract import Motor
 from nicos.devices.epics.pvaccess import EpicsAnalogMoveable, \
     EpicsDigitalMoveable, EpicsReadable
-from nicos.core import Attach
-from nicos.core import status
-from nicos.devices.abstract import Motor
 
 
 class LewisEpicsMotor(EpicsAnalogMoveable, Motor):

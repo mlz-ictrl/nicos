@@ -85,4 +85,3 @@ devices = dict(
         reseterrorpv = pvprefix + 'm11-ErrRst'
     ),
 )
-

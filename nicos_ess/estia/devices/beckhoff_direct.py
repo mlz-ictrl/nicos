@@ -24,7 +24,8 @@
 # *****************************************************************************
 
 import pyads
-from nicos.core import Attach, Readable, HasCommunication, Param, Override, \
+
+from nicos.core import Attach, HasCommunication, Override, Param, Readable, \
     status
 from nicos.core.errors import CommunicationError
 from nicos.core.params import ipv4

@@ -23,8 +23,8 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, Override, MoveError, status, oneof, \
-    intrange, pvname, SIMULATION
+from nicos.core import SIMULATION, MoveError, Override, Param, intrange, \
+    oneof, pvname, status
 from nicos.devices.epics import EpicsAnalogMoveable
 
 chopper_status = [
