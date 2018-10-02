@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 try:
     from genie_python.genie_startup import * #  pylint: disable=E0401,W0401
 except ImportError:
