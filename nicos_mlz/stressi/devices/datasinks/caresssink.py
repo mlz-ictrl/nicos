@@ -611,7 +611,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         for (info, val) in zip(point.detvalueinfo, point.detvaluelist):
             if info.type == 'time':
                 if self._scan_type == 'SGEN1':
-                    self._write_integer((100 * val) / 100)
+                    self._write_integer(val)
                 else:
                     tim1 = 100 * val
         tths = session.getDevice('tths').read()
