@@ -1,1 +1,2 @@
+scanf==1.4.1 ; python_version < '3.0'
 lewis>=1.0.3
