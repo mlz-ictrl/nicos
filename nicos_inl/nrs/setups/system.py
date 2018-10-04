@@ -40,7 +40,7 @@ devices = dict(
         instrument = 'NRS',
         responsible = 'Aaron E. Craft <aaron.craft@inl.gov>',
         operators = ['Idaho National Laboratory'],
-        website = 'http://www.inl.gov',
+        website = 'http://mfc.inl.gov',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
         description = 'Scanfile storing device',
