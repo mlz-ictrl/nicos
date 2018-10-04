@@ -189,7 +189,7 @@
     <string>&amp;Logarithmic Y scale</string>
    </property>
    <property name="iconText">
-    <string>Log Scale</string>
+    <string>Log(y)</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
@@ -448,6 +448,20 @@
    </property>
    <property name="toolTip">
     <string>Show or hide error bars</string>
+   </property>
+  </action>
+  <action name="actionLogXScale">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Logarithmic &amp;X scale</string>
+   </property>
+   <property name="iconText">
+    <string>Log(x)</string>
+   </property>
+   <property name="toolTip">
+    <string>Logarithmic X scale</string>
    </property>
   </action>
  </widget>

@@ -529,8 +529,16 @@ class NicosPlot(DlgUtils):
         """Return true if main Y axis is logscaled."""
         raise NotImplementedError
 
+    def isLogXScaling(self, idx=0):
+        """Return true if X axis is logscaled."""
+        raise NotImplementedError
+
     def setLogScale(self, on):
         """Set logscale on main Y axis."""
+        raise NotImplementedError
+
+    def setLogXScale(self, on):
+        """Set logscale on X axis"""
         raise NotImplementedError
 
     def setSymbols(self, on):
@@ -793,8 +801,16 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         axes = self._plot.getAxes(idx)
         return (axes.scale & gr.OPTION_Y_LOG if axes is not None else False)
 
+    def isLogXScaling(self, idx=0):
+        axes = self._plot.getAxes(idx)
+        return (axes.scale & gr.OPTION_X_LOG if axes is not None else False)
+
     def setLogScale(self, on):
         self._plot.setLogY(on, rescale=True)
+        self.update()
+
+    def setLogXScale(self, on):
+        self._plot.setLogX(on, rescale=True)
         self.update()
 
     def isErrorBarEnabled(self):

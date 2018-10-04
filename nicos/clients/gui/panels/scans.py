@@ -206,8 +206,8 @@ class ScansPanel(Panel):
         for action in [
             self.actionSavePlot, self.actionPrint, self.actionResetPlot,
             self.actionAttachElog, self.actionCombine, self.actionClosePlot,
-            self.actionDeletePlot, self.actionLogScale, self.actionAutoScale,
-            self.actionScaleX, self.actionScaleY,
+            self.actionDeletePlot, self.actionLogXScale, self.actionLogScale,
+            self.actionAutoScale, self.actionScaleX, self.actionScaleY,
             self.actionXAxis, self.actionYAxis, self.actionNormalized,
             self.actionUnzoom, self.actionLegend, self.actionModifyData,
             self.actionFitPeak, self.actionFitPeakPV, self.actionFitPeakPVII,
@@ -239,6 +239,7 @@ class ScansPanel(Panel):
             menu1.addAction(self.actionNormalized)
             menu1.addSeparator()
             menu1.addAction(self.actionUnzoom)
+            menu1.addAction(self.actionLogXScale)
             menu1.addAction(self.actionLogScale)
             menu1.addAction(self.actionAutoScale)
             menu1.addAction(self.actionScaleX)
@@ -286,6 +287,7 @@ class ScansPanel(Panel):
             bar.addAction(self.actionYAxis)
             bar.addAction(self.actionNormalized)
             bar.addSeparator()
+            bar.addAction(self.actionLogXScale)
             bar.addAction(self.actionLogScale)
             bar.addAction(self.actionUnzoom)
             bar.addSeparator()
@@ -355,6 +357,10 @@ class ScansPanel(Panel):
     def on_logYinDomain(self, flag):
         if not flag:
             self.actionLogScale.setChecked(flag)
+
+    def on_logXinDomain(self, flag):
+        if not flag:
+            self.actionLogXScale.setChecked(flag)
 
     def on_datasetList_currentItemChanged(self, item, previous):
         if self.no_openset or item is None:
@@ -439,6 +445,7 @@ class ScansPanel(Panel):
             self.actionNormalized.setChecked(bool(plot.normalized))
 
             self.actionLogScale.setChecked(plot.isLogScaling())
+            self.actionLogXScale.setChecked(plot.isLogXScaling())
             self.actionLegend.setChecked(plot.isLegendEnabled())
             self.actionErrors.setChecked(plot.isErrorBarEnabled())
             if plot.HAS_AUTOSCALE:
@@ -447,6 +454,7 @@ class ScansPanel(Panel):
                 self._autoscale(x=mask & PlotAxes.SCALE_X,
                                 y=mask & PlotAxes.SCALE_Y)
                 plot.logYinDomain.connect(self.on_logYinDomain)
+                plot.logXinDomain.connect(self.on_logXinDomain)
             self.plotLayout.addWidget(plot)
             plot.show()
 
@@ -568,6 +576,10 @@ class ScansPanel(Panel):
     @pyqtSlot(bool)
     def on_actionLogScale_toggled(self, on):
         self.currentPlot.setLogScale(on)
+
+    @pyqtSlot(bool)
+    def on_actionLogXScale_toggled(self, on):
+        self.currentPlot.setLogXScale(on)
 
     @pyqtSlot(bool)
     def on_actionAutoScale_toggled(self, on):
