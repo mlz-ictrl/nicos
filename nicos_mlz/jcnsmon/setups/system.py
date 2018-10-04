@@ -28,7 +28,7 @@ devices = dict(
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',
         dataroot = '/data',
-        sendmail = True,
+        sendmail = False,
         serviceexp = 'service',
         sample = 'Sample',
     ),

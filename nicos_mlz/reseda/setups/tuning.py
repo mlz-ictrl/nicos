@@ -17,7 +17,7 @@ devices = dict(
         dependencies = ['gf%i' % i for i in ([1, 2] + list(range(4, 11)))]
         + ['hsf_%s' % entry for entry in packs]
         + ['sf_%s' % entry for entry in packs]
-        + ['hrf_0a','hrf_0b', 'hrf_1']
+        + ['hrf_0a','hrf_0b', 'hrf_1a', 'hrf_1b']
         + ['nse0', 'nse1']
         + ['cbox_%s_%s' % (pack, component)
             for pack in packs

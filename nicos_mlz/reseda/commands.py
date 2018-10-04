@@ -24,14 +24,29 @@
 
 """Module for RESEDA specific commands."""
 
+import scipy.constants as co
+
 from nicos import session
 from nicos.commands import usercommand
-from nicos.commands.device import move, stop, wait
+from nicos.commands.device import move, stop, wait, maw
 from nicos.commands.measure import count
 from nicos.commands.scan import manualscan
 
-__all__ = ['zero', 'setecho', 'set_cascade', 'pol', 'miezescan']
+__all__ = ['zero', 'setecho', 'set_cascade', 'pol', 'miezescan', 'miezetau']
 
+
+@usercommand
+def miezetau(wavelength, deltaFreq, distance):
+    """Calculate MIEZE time.
+
+    It will be calculated for wavelength (A), difference frequency of coils
+    (Hz) and sample detector distance (m).
+    deltaFreq is the single difference, not double difference.
+    """
+    # co.m_n  Mass of neutron
+    # co.h    Planck constant
+    return (2*co.m_n**2/co.h**2 * (wavelength*1e-10)**3 * deltaFreq * distance *
+            1e9)
 
 @usercommand
 def zero():
@@ -88,6 +103,11 @@ def set_cascade():
 
 @usercommand
 def miezescan(echolist, counttime):
+    """Iterate over a list of echotimes -> measure one S(Q,t) curve
+
+    echolist: list of echotimes
+    counttime: counting time (the **same** for all list entries)
+    """
     echotime = session.getDevice('echotime')
     with manualscan(echotime, counttime):
         for etime in echolist:
@@ -99,4 +119,23 @@ def miezescan(echolist, counttime):
 @usercommand
 def pol(up, down):
     """Calculate contrast or polarisation."""
+    up = float(up)
+    down = float(down)
     return (up - down) / (up + down)
+
+
+@usercommand
+def freqscan(device, start, step, numsteps):
+    """Special scan for finding a resonance.
+
+    Detector must be set to according device (e.g. cbox_0a_coil_rms)
+    device: cbox_0a_fg_freq
+    start:  starting frequency in Hz
+    step:   steps in Hz
+    numsteps: number of steps
+    """
+    with manualscan(device):
+        for i in range(numsteps):
+            maw(device, start + step*i)
+            session.delay(0.2)
+            count(1)
