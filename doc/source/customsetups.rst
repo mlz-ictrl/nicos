@@ -14,3 +14,5 @@
       nicos_ess/*/setups
       nicos_sinq/*/setups
       nicos_batan/*/setups
+      nicos_inl/*/setups
+      nicos_isis/*/setups
