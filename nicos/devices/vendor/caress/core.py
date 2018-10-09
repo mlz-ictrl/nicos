@@ -381,7 +381,7 @@ class CARESSDevice(HasCommunication):
             self.log.warning('Unhandled status : %r', state)
             return status.OK, 'idle'
         except (InvalidValueError, CommunicationError, NicosError) as e:
-            return status.ERROR, e.message
+            return status.ERROR, str(e)
 
     def _caress_guard_nolog(self, function, *args):
 
