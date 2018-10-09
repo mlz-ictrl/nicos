@@ -46,7 +46,7 @@ from nicos.guisupport.livewidget import DATATYPES, IntegralLiveWidget, \
 from nicos.guisupport.qt import QActionGroup, QByteArray, QListWidgetItem, \
     QMenu, QPoint, QSizePolicy, QStatusBar, Qt, QToolBar, pyqtSlot
 from nicos.protocols.cache import cache_load
-from nicos.pycompat import iteritems, string_types
+from nicos.pycompat import iteritems, itervalues, string_types
 from nicos.utils import BoundedOrderedDict, ReaderRegistry
 
 COLORMAPS = OrderedDict(GR_COLORMAPS)
@@ -252,6 +252,11 @@ class LiveDataPanel(Panel):
         menu.addAction(self.actionROI)
         return [menu]
 
+    def _get_all_widgets(self):
+        yield self.widget
+        for w in  itervalues(self._livewidgets):
+            yield w
+
     def getToolbars(self):
         return [self.toolbar]
 
@@ -275,7 +280,7 @@ class LiveDataPanel(Panel):
 
     def on_colormap_triggered(self):
         action = self.actionsColormap.checkedAction()
-        for widget in [self.widget] + self._livewidgets.values():
+        for widget in self._get_all_widgets():
             widget.setColormap(COLORMAPS[action.text().upper()])
         name = action.text()
         self.actionColormap.setText(name[0] + name[1:].lower())
@@ -376,7 +381,7 @@ class LiveDataPanel(Panel):
     def on_roiChange(self, key, value):
         self.log.debug('on_roiChange: %s %s', key, (value,))
         self.rois[key] = value
-        for widget in [self.widget] + self._livewidgets.values():
+        for widget in self._get_all_widgets():
             widget.setROI(key, value)
         widget = self._livewidgets.get(key, None)
         if widget:
@@ -454,7 +459,7 @@ class LiveDataPanel(Panel):
             self._datacache[uid] = array
         if display:
             self._initLiveWidget(array)
-            for widget in [self.widget] + self._livewidgets.values():
+            for widget in self._get_all_widgets():
                 widget.setData(array)
 
     def setDataFromFile(self, filename, tag, uid=None, display=True):
@@ -620,13 +625,13 @@ class LiveDataPanel(Panel):
 
     @pyqtSlot()
     def on_actionLogScale_triggered(self):
-        for widget in [self.widget] + self._livewidgets.values():
+        for widget in self._get_all_widgets():
             widget.logscale(self.actionLogScale.isChecked())
 
     @pyqtSlot()
     def on_actionMarkCenter_triggered(self):
         flag = self.actionMarkCenter.isChecked()
-        for widget in [self.widget] + self._livewidgets.values():
+        for widget in self._get_all_widgets():
             widget.setCenterMark(flag)
 
     @pyqtSlot()
