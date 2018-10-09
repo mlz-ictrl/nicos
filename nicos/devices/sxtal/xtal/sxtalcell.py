@@ -306,6 +306,7 @@ class SXTalCell(object):
             numzone = numk * numl
             if numzone > 0:
                 h = np.ones(numzone, dtype='i4') * curh
+                # pylint: disable=range-builtin-not-iterating
                 k = np.repeat(range(lmink, lmaxk + 1), np.ones(numk, dtype='i4') * numl)
                 if lminl == lmaxl == 0:
                     l = np.zeros([numzone], dtype='i4')
