@@ -27,9 +27,8 @@
 from os import path
 
 import gr
-from gr.pygr import ErrorBar
-
 import numpy as np
+from gr.pygr import ErrorBar
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi

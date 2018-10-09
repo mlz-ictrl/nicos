@@ -25,12 +25,12 @@
 """Custom commands for KWS-3."""
 
 from nicos import session
-from nicos.core import Moveable, multiWait, UsageError
 from nicos.commands import usercommand
 from nicos.commands.measure import count
+from nicos.core import Moveable, UsageError, multiWait
 from nicos.pycompat import listitems
-from nicos_mlz.kws1.commands import _fixupSampleenv
 
+from nicos_mlz.kws1.commands import _fixupSampleenv
 
 DEFAULT = ['selector', 'resolution', 'sample_pos', 'beamstop', 'detector',
            'polarizer', 'chopper']

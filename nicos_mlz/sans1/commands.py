@@ -26,9 +26,8 @@
 
 from nicos import session
 from nicos.commands import usercommand
-from nicos.commands.measure import count
 from nicos.commands.device import maw, move
-
+from nicos.commands.measure import count
 
 __all__ = ['tcount', 'freqmes']
 

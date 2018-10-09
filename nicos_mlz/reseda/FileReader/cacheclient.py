@@ -24,8 +24,8 @@
 #
 # *****************************************************************************
 
-import socket
 import logging
+import socket
 import time
 from os import path
 

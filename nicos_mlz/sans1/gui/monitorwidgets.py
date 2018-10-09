@@ -25,14 +25,11 @@
 """Special widgets for the SANS1 statusmonitor."""
 
 
-from nicos.guisupport.widget import NicosWidget, PropDef
-
-from nicos.guisupport.qt import QSize, Qt, QBrush, QColor, QPainter, QPen, \
+from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
+    WARN
+from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, QSize, Qt, \
     QWidget
-
-from nicos.core.status import BUSY, ERROR, NOTREACHED, OK, UNKNOWN, WARN, \
-    DISABLED
-
+from nicos.guisupport.widget import NicosWidget, PropDef
 
 _magenta = QBrush(QColor('#A12F86'))
 _yellow = QBrush(QColor('yellow'))

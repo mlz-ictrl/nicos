@@ -28,17 +28,15 @@
 import math
 import time
 
-from nicos.guisupport.qt import pyqtSlot, QMessageBox, QDialog, QFrame, \
-    QVBoxLayout, QDialogButtonBox, QListWidgetItem, QTableWidgetItem, QMenu, \
-    QFileDialog, QRadioButton, QLineEdit
-
-from nicos.utils import findResource
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport import typedvalue
+from nicos.guisupport.qt import QDialog, QDialogButtonBox, QFileDialog, \
+    QFrame, QLineEdit, QListWidgetItem, QMenu, QMessageBox, QRadioButton, \
+    QTableWidgetItem, QVBoxLayout, pyqtSlot
 from nicos.guisupport.utils import DoubleValidator
 from nicos.pycompat import builtins, exec_
-
+from nicos.utils import findResource
 
 SAMPLE_KEYS = ['aperture', 'position', 'timefactor',
                'thickness', 'detoffset', 'comment']

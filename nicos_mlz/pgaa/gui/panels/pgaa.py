@@ -28,13 +28,12 @@ from __future__ import print_function
 
 from os import path
 
-from nicos.guisupport.qt import pyqtSlot, QTimer, QColor, QButtonGroup, \
-    QMessageBox
-
-from nicos.utils import chunks
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, enumerateWithProgress, \
-    ScriptExecQuestion
+from nicos.clients.gui.utils import ScriptExecQuestion, \
+    enumerateWithProgress, loadUi
+from nicos.guisupport.qt import QButtonGroup, QColor, QMessageBox, QTimer, \
+    pyqtSlot
+from nicos.utils import chunks
 
 my_uipath = path.dirname(__file__)
 

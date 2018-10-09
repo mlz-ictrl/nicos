@@ -28,7 +28,7 @@ import scipy.constants as co
 
 from nicos import session
 from nicos.commands import usercommand
-from nicos.commands.device import move, stop, wait, maw
+from nicos.commands.device import maw, move, stop, wait
 from nicos.commands.measure import count
 from nicos.commands.scan import manualscan
 

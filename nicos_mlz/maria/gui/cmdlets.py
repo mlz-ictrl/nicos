@@ -25,7 +25,7 @@
 
 """NICOS GUI cmdlets for MARIA."""
 
-from nicos.clients.gui.cmdlets import Cmdlet, register, isFloat
+from nicos.clients.gui.cmdlets import Cmdlet, isFloat, register
 from nicos.guisupport.utils import DoubleValidator
 from nicos.utils import findResource, formatDuration
 

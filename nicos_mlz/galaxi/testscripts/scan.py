@@ -14,4 +14,3 @@ move(shutter, 'open')
 scan(pz, -15, 0.1, 401, t=1)
 move(shutter, 'closed')
 move(pindiodesample_move, 'out')
-

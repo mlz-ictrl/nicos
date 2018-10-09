@@ -26,11 +26,11 @@
 import numpy
 
 from nicos import session
-from nicos.core.errors import PositionError
-from nicos.commands import usercommand, helparglist
+from nicos.commands import helparglist, usercommand
 from nicos.commands.basic import sleep
 from nicos.commands.device import maw
 from nicos.commands.scan import contscan
+from nicos.core.errors import PositionError
 
 __all__ = (
     'gauge_to_base', 'base_to_gauge', 'set_sample', 'pole_figure',

@@ -24,12 +24,11 @@
 
 """Helpers for commandlets for KWS(-1)."""
 
-from nicos.guisupport.qt import pyqtSignal, QObject, QComboBox, QCheckBox, \
-    QLineEdit, QWidget, QSpinBox, QHBoxLayout
-
-from nicos.utils import num_sort
 from nicos.guisupport import typedvalue
+from nicos.guisupport.qt import QCheckBox, QComboBox, QHBoxLayout, QLineEdit, \
+    QObject, QSpinBox, QWidget, pyqtSignal
 from nicos.guisupport.utils import DoubleValidator
+from nicos.utils import num_sort
 
 
 class MeasElement(QObject):

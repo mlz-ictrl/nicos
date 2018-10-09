@@ -27,15 +27,16 @@ from __future__ import print_function
 import math
 
 from nicos import session
+from nicos.commands import helparglist, usercommand
+from nicos.commands.scan import _handleScanArgs, _infostr
 from nicos.core import Moveable, UsageError
 from nicos.core.scan import Scan
-from nicos.core.spm import spmsyntax, Dev, Bare
+from nicos.core.spm import Bare, Dev, spmsyntax
 from nicos.core.utils import waitForCompletion
-from nicos.commands import usercommand, helparglist
-from nicos.commands.scan import _handleScanArgs, _infostr
 from nicos.devices.abstract import Motor as NicosMotor
-from nicos_mlz.biodiff.devices.motor import MicrostepMotor
+
 from nicos_mlz.biodiff.devices.detector import BiodiffDetector
+from nicos_mlz.biodiff.devices.motor import MicrostepMotor
 from nicos_mlz.jcns.devices.shutter import OPEN
 
 

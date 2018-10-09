@@ -25,13 +25,13 @@
 import math
 
 from nicos import session
-from nicos.core.errors import UsageError
-from nicos.commands import usercommand, helparglist
-from nicos.commands.measure import count
+from nicos.commands import helparglist, usercommand
 from nicos.commands.device import maw
+from nicos.commands.measure import count
 from nicos.commands.scan import manualscan
-from nicos_mlz.antares.commands import openbeamimage, darkimage
+from nicos.core.errors import UsageError
 
+from nicos_mlz.antares.commands import darkimage, openbeamimage
 
 __all__ = ['grtomo', 'alignsample']
 

@@ -23,13 +23,13 @@
 # *****************************************************************************
 
 from nicos import session
+from nicos.commands import helparglist, usercommand
+from nicos.commands.scan import ADDSCANHELP2, _fixType as _fixTypeNPoints, \
+    _handleScanArgs, _infostr
 from nicos.core import Moveable, UsageError
 from nicos.core.acquire import acquire
 from nicos.core.scan import Scan
-from nicos.core.spm import spmsyntax, Dev, Bare
-from nicos.commands import usercommand, helparglist
-from nicos.commands.scan import _handleScanArgs, _infostr, ADDSCANHELP2,\
-    _fixType as _fixTypeNPoints
+from nicos.core.spm import Bare, Dev, spmsyntax
 
 
 class KScan(Scan):

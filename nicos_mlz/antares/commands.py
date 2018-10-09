@@ -27,13 +27,12 @@ import os
 from os.path import join
 
 from nicos import session
-from nicos.commands import usercommand, helparglist
-from nicos.commands.scan import scan
+from nicos.commands import helparglist, usercommand
 from nicos.commands.device import maw
-from nicos_mlz.frm2.commands.imaging import tomo, \
-    openbeamimage as _openbeamimage, \
-    darkimage as _darkimage
+from nicos.commands.scan import scan
 
+from nicos_mlz.frm2.commands.imaging import darkimage as _darkimage, \
+    openbeamimage as _openbeamimage, tomo
 
 __all__ = ['tomo', 'openbeamimage', 'darkimage']
 

@@ -22,20 +22,20 @@
 #
 # *****************************************************************************
 
-from pprint import pformat
 from datetime import datetime
+from pprint import pformat
 
-from nicos.guisupport.qt import pyqtSignal, pyqtSlot, Qt, QEvent, QDateTime, \
-    QMenu, QTableWidgetItem, QGraphicsView, QFont, QColor, QGraphicsLineItem, \
-    QGraphicsScene, QPen, QBrush, QGraphicsEllipseItem, QPainter, \
-    QGraphicsTextItem, QDialog, QTextEdit, QFrame
-
-from nicos.utils import findResource
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.core.errors import ConfigurationError
+from nicos.guisupport.qt import QBrush, QColor, QDateTime, QDialog, QEvent, \
+    QFont, QFrame, QGraphicsEllipseItem, QGraphicsLineItem, QGraphicsScene, \
+    QGraphicsTextItem, QGraphicsView, QMenu, QPainter, QPen, Qt, \
+    QTableWidgetItem, QTextEdit, pyqtSignal, pyqtSlot
 from nicos.guisupport.typedvalue import DeviceValueEdit
-from nicos.pycompat import iteritems, xrange  # pylint: disable=redefined-builtin
+# pylint: disable=redefined-builtin
+from nicos.pycompat import iteritems, xrange
+from nicos.utils import findResource
 
 
 class TimelineWidget(QGraphicsView):

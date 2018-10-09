@@ -25,11 +25,13 @@
 """Commands for MIEZE operation."""
 
 from nicos import session
-from nicos.core import UsageError
-from nicos.core.scan import Scan, ManualScan
 from nicos.commands import usercommand
-from nicos.commands.scan import _fixType, _handleScanArgs, _infostr, _ManualScan
+from nicos.commands.scan import _fixType, _handleScanArgs, _infostr, \
+    _ManualScan
+from nicos.core import UsageError
+from nicos.core.scan import ManualScan, Scan
 from nicos.pycompat import integer_types, string_types
+
 from nicos_mlz.mira.devices.mieze import MiezeMaster
 
 

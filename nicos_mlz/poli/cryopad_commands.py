@@ -29,8 +29,8 @@ import numpy as np
 
 from nicos import session
 from nicos.commands import usercommand
-from nicos.commands.device import maw
 from nicos.commands.analyze import fit
+from nicos.commands.device import maw
 from nicos.commands.scan import scan
 from nicos.utils.fitting import PredefinedFit
 

@@ -24,11 +24,10 @@
 
 """'Instrument reconfiguration' tool for KWS instruments."""
 
-from nicos.guisupport.qt import QMainWindow, QLabel, QRadioButton, QButtonGroup
-
 from nicos.clients.gui.utils import DlgUtils, loadUi
-from nicos.utils import findResource
+from nicos.guisupport.qt import QButtonGroup, QLabel, QMainWindow, QRadioButton
 from nicos.pycompat import exec_
+from nicos.utils import findResource
 
 TEMPLATE = '''\
 # -*- coding: utf-8 -*-

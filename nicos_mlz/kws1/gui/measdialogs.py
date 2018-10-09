@@ -27,17 +27,16 @@
 import itertools
 from collections import OrderedDict
 
-from nicos.guisupport.qt import pyqtSignal, pyqtSlot, Qt, QDialog, QLabel, \
-    QListWidgetItem, QTableWidgetItem, QVBoxLayout, QFrame, QWidget, \
-    QTableWidgetSelectionRange, QFileDialog
-
-from nicos.clients.gui.utils import loadUi, DlgUtils
+from nicos.clients.gui.utils import DlgUtils, loadUi
+from nicos.guisupport.qt import QDialog, QFileDialog, QFrame, QLabel, \
+    QListWidgetItem, Qt, QTableWidgetItem, QTableWidgetSelectionRange, \
+    QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
 from nicos.guisupport.utils import DoubleValidator
 from nicos.utils import findResource, formatDuration
-from nicos_mlz.kws1.gui.measelement import Selector, Detector, Chopper, Lenses, \
-    Polarizer, Collimation, MeasTime, Sample, Device
-from nicos_mlz.kws1.gui.sampleconf import parse_sampleconf
 
+from nicos_mlz.kws1.gui.measelement import Chopper, Collimation, Detector, \
+    Device, Lenses, MeasTime, Polarizer, Sample, Selector
+from nicos_mlz.kws1.gui.sampleconf import parse_sampleconf
 
 SAMPLES = 'samples'
 DETSETS = 'instrument configuration'

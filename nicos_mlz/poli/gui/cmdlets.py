@@ -24,7 +24,7 @@
 
 """NICOS GUI cmdlets for POLI."""
 
-from nicos.clients.gui.cmdlets import Cmdlet, register, isFloat, isInt
+from nicos.clients.gui.cmdlets import Cmdlet, isFloat, isInt, register
 from nicos.utils import findResource
 
 

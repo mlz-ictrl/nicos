@@ -29,8 +29,8 @@ from os import path
 
 from nicos import session
 from nicos.commands import usercommand
-from nicos.commands.output import printinfo, printerror
-from nicos.pycompat import itervalues, iteritems
+from nicos.commands.output import printerror, printinfo
+from nicos.pycompat import iteritems, itervalues
 
 __all__ = ['ExportTuning', 'ImportTuning']
 

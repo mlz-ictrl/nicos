@@ -28,6 +28,7 @@
 
 from nicos import session
 from nicos.commands import basic, device, helparglist, measure, usercommand
+
 from nicos_mlz.galaxi.devices.pilatus import PilatusDetector
 
 
