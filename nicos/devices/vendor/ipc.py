@@ -369,7 +369,7 @@ class IPCModBusTango(PyTangoDevice, IPCModBusRS232):
             self._dev.communicationTimeout = self.bustimeout
 
     def _transmit(self, request, retlen, last_try=False):
-        reply = self._dev.BinaryCommunicate([retlen] + map(ord, request))
+        reply = self._dev.BinaryCommunicate([retlen] + [ord(x) for x in request])
         return ''.join(map(chr, reply))
 
 
