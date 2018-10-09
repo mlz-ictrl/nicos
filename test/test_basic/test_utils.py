@@ -89,7 +89,6 @@ def test_readonlylist_hashable():
     l = readonlylist([1, 2, 3])
     assert l == [1, 2, 3]
     dt = {l: 'testval'}
-    print(dt.keys())
     assert dt[readonlylist([1, 2, 3])] == 'testval'
 
 
