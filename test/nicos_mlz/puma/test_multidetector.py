@@ -60,7 +60,7 @@ class TestMultiDetector(object):
         med = session.getDevice('med')
         assert not med._checkPositionReached(None, '')
         assert not med._checkPositionReached([], '')
-        assert not med._checkPositionReached(range(11), '')
+        assert not med._checkPositionReached(list(range(11)), '')
 
     def test_targets(self, session):
         """Test a set of targets."""
