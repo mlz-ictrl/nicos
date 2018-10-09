@@ -730,10 +730,10 @@ class MainWindow(DlgUtils, QMainWindow):
                 self.conndata.host = 'localhost'
                 self.conndata.port = tunnel_port
             except ValueError as e:
-                self.showError(e.message)
+                self.showError(str(e))
                 self.tunnelServer = None
             except BaseSSHTunnelForwarderError as e:
-                self.showError(e.message)
+                self.showError(str(e))
                 self.tunnelServer = None
         self.client.connect(self.conndata)
 
