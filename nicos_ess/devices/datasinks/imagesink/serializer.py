@@ -30,8 +30,10 @@ try:
     import flatbuffers
     from nicos_ess.devices.datasinks.imagesink.fbschema import \
         EventHistogram, Array, ArrayUInt, ArrayFloat, DimensionMetaData
+    uint32_bytes = flatbuffers.number_types.Uint32Flags.bytewidth
 except ImportError:
     flatbuffers = None
+    uint32_bytes = 4
     EventHistogram = None
     Array = None
     ArrayUInt = None
@@ -44,7 +46,7 @@ class HistogramFlatbuffersSerializer(object):
     """
 
     file_identifier = "hs00"
-    uint32_bytes = flatbuffers.number_types.Uint32Flags.bytewidth
+    uint32_bytes = uint32_bytes
 
     def _encodeMetadata(self, b, desc):
         # Serialize the metadatas for each dimensions
