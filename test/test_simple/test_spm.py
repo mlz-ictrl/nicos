@@ -24,9 +24,9 @@
 
 """NICOS tests for Simple Parameter Mode."""
 
-from nicos.core import SPMError
-
 from test.utils import raises
+
+from nicos.core import SPMError
 
 session_setup = 'axis'
 session_spmode = True

@@ -24,11 +24,11 @@
 
 """NICOS tests for session-less TAS code."""
 
-from nicos.core import UsageError, NicosError
-from nicos.commands.tas import Q
-from nicos.devices.tas import spacegroups
-
 from test.utils import raises
+
+from nicos.commands.tas import Q
+from nicos.core import NicosError, UsageError
+from nicos.devices.tas import spacegroups
 
 
 def test_Q_object():

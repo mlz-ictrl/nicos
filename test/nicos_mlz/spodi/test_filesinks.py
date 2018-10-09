@@ -26,9 +26,9 @@
 
 from os import path
 
-from nicos.commands.measure import count
-
 import pytest
+
+from nicos.commands.measure import count
 
 session_setup = 'spodi'
 exp_dataroot = 'spodidata'

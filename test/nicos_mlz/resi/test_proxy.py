@@ -27,6 +27,7 @@ from __future__ import print_function
 import pytest
 
 from nicos.pycompat import cPickle as pickle
+
 from nicos_mlz.resi.devices import residevice
 
 

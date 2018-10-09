@@ -30,11 +30,11 @@ General test plan:
 Generate data with and without noise and check the fit results
 """
 
-import pytest
 import numpy as np
+import pytest
 
-from nicos.utils.fitting import LinearFit, GaussFit, SigmoidFit, TcFit, \
-    PolyFit, PearsonVIIFit, PseudoVoigtFit, CosineFit, ExponentialFit
+from nicos.utils.fitting import CosineFit, ExponentialFit, GaussFit, \
+    LinearFit, PearsonVIIFit, PolyFit, PseudoVoigtFit, SigmoidFit, TcFit
 
 
 @pytest.fixture(scope='function')

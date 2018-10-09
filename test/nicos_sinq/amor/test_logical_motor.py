@@ -22,12 +22,13 @@
 #
 # *****************************************************************************
 
-import pytest
 import sys
 import time
+from test.utils import ErrorLogged, approx, raises
 
-from nicos.core import status, LimitError
-from test.utils import raises, approx, ErrorLogged
+import pytest
+
+from nicos.core import LimitError, status
 
 session_setup = 'sinq_amor_logical_motors'
 

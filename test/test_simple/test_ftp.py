@@ -26,9 +26,13 @@
 
 """Tests for the ftp upload module."""
 
-import pytest
-import tempfile
 import os
+import tempfile
+
+import pytest
+
+from nicos.pycompat import BytesIO, StringIO
+from nicos.utils import createThread, ftp
 
 try:
     from pyftpdlib.servers import ThreadedFTPServer
@@ -41,9 +45,6 @@ except ImportError:
     AbstractedFS = object
     DummyAuthorizer = object
 
-from nicos.utils import createThread
-from nicos.utils import ftp
-from nicos.pycompat import BytesIO, StringIO
 
 session_setup = None
 

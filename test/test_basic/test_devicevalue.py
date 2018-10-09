@@ -26,8 +26,9 @@
 Tests for DeviceInfo
 """
 
-from nicos.core.utils import DeviceValue, DeviceValueDict
 from test.utils import raises
+
+from nicos.core.utils import DeviceValue, DeviceValueDict
 
 
 def test_deviceinfo():

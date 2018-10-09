@@ -26,8 +26,8 @@
 Tests for the single (4-circle and related) positions
 """
 
-import pytest
 import numpy as np
+import pytest
 
 from nicos.devices.sxtal.goniometer.base import PositionFactory, typelist
 from nicos.devices.sxtal.goniometer.posutils import equal

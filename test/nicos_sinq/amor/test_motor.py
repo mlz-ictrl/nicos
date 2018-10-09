@@ -31,12 +31,14 @@ of a motor. The real, hardware,  position of a  motor is
 hpos = sign*(val +zero)
 """
 
+from test.utils import ErrorLogged, approx, raises
+
 import pytest
 
 from nicos.core import status
 from nicos.core.errors import LimitError
-from test.utils import raises, approx, ErrorLogged
-from .utils import unit_value, is_at_target
+
+from .utils import is_at_target, unit_value
 
 session_setup = 'sinq_amor_movable'
 

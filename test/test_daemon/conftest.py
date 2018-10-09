@@ -24,16 +24,15 @@
 
 from __future__ import print_function
 
-import time
 import socket
+import time
+from test.utils import daemon_addr, killSubprocess, startSubprocess
 
 import pytest
 
-from nicos.clients.base import NicosClient, ConnectionData
+from nicos.clients.base import ConnectionData, NicosClient
 from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC
-from nicos.utils import tcpSocket, parseConnectionString
-
-from test.utils import startSubprocess, killSubprocess, daemon_addr
+from nicos.utils import parseConnectionString, tcpSocket
 
 
 def daemon_wait_cb():

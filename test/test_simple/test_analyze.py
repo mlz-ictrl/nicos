@@ -31,8 +31,8 @@ except ImportError:
 
 import pytest
 
-from nicos.commands.analyze import fwhm, center_of_mass, root_mean_square, \
-    poly, gauss
+from nicos.commands.analyze import center_of_mass, fwhm, gauss, poly, \
+    root_mean_square
 from nicos.core import FINAL
 
 session_setup = 'scanning'

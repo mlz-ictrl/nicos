@@ -24,9 +24,9 @@
 
 """SPODI specific detector tests."""
 
-from nicos.commands.measure import count
-
 import pytest
+
+from nicos.commands.measure import count
 
 session_setup = 'spodi'
 

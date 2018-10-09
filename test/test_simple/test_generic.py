@@ -26,13 +26,13 @@
 
 from __future__ import print_function
 
+from test.utils import approx, raises
+
 import mock
 
-from nicos.core import PositionError, NicosError, LimitError, \
-    ConfigurationError, InvalidValueError, status
 from nicos.commands.measure import count
-
-from test.utils import raises, approx
+from nicos.core import ConfigurationError, InvalidValueError, LimitError, \
+    NicosError, PositionError, status
 
 session_setup = 'generic'
 

@@ -28,15 +28,14 @@ import os
 import sys
 import time
 from os import path
+from test.utils import TestSession, cache_addr, cleanup, killSubprocess, \
+    startCache, startSubprocess
 
 import pytest
 
 from nicos import config, session as nicos_session
 from nicos.core import MASTER
 from nicos.utils import updateFileCounter
-
-from test.utils import cleanup, startCache, startSubprocess, killSubprocess, \
-    cache_addr, TestSession
 
 
 # This fixture will run during the entire test suite.  Therefore, the special

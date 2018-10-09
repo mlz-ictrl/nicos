@@ -24,8 +24,9 @@
 
 """STRESS-SPEC specific slits tests."""
 
-from nicos.core.errors import MoveError
 from test.utils import raises
+
+from nicos.core.errors import MoveError
 
 session_setup = 'stressi'
 

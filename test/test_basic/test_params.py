@@ -24,14 +24,14 @@
 
 """NICOS parameter utilities tests."""
 
-from nicos.core.params import listof, nonemptylistof, tupleof, dictof, \
-    tacodev, tangodev, pvname, anytype, vec3, intrange, floatrange, oneof, \
-    oneofdict, none_or, limits, mailaddress, Param, Value, absolute_path, \
-    relative_path, subdir, nicosdev, nonemptystring, host, ipv4, \
-    dictwith, Attach, setof, ArrayDesc
-from nicos.core.errors import ProgrammingError, ConfigurationError
-
 from test.utils import raises
+
+from nicos.core.errors import ConfigurationError, ProgrammingError
+from nicos.core.params import ArrayDesc, Attach, Param, Value, absolute_path, \
+    anytype, dictof, dictwith, floatrange, host, intrange, ipv4, limits, \
+    listof, mailaddress, nicosdev, none_or, nonemptylistof, nonemptystring, \
+    oneof, oneofdict, pvname, relative_path, setof, subdir, tacodev, \
+    tangodev, tupleof, vec3
 
 # pylint: disable=compare-to-empty-string
 

@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-import pytest
+from test.utils import killSubprocess, startSubprocess
 
-from test.utils import startSubprocess, killSubprocess
+import pytest
 
 
 @pytest.fixture(scope='module')

@@ -27,7 +27,6 @@
 from __future__ import print_function
 
 from nicos.guisupport.qt import QValidator
-
 from nicos.guisupport.utils import DoubleValidator
 
 

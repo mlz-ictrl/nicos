@@ -28,15 +28,14 @@
 
 from __future__ import print_function
 
+from test.utils import cache_addr, raises
 from time import sleep
 
 import pytest
 
+from nicos.core.errors import CommunicationError, LimitError
 from nicos.devices.cacheclient import CacheClient
-from nicos.core.errors import LimitError, CommunicationError
-from nicos.utils import readonlylist, readonlydict
-
-from test.utils import raises, cache_addr
+from nicos.utils import readonlydict, readonlylist
 
 session_setup = 'cachetests'
 

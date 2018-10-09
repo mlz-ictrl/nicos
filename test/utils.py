@@ -26,35 +26,35 @@
 
 from __future__ import print_function
 
+import contextlib
+import math
 import os
 import re
-import sys
-import math
-import time
 import shutil
 import signal
 import socket
-import contextlib
 import subprocess
+import sys
+import time
+from logging import DEBUG, ERROR, WARNING, Formatter, StreamHandler
 from os import path
-from logging import ERROR, WARNING, DEBUG, StreamHandler, Formatter
 
 import mock
 import pytest
 
 from nicos import config
-from nicos.core import ACCESS_LEVELS, AccessError, Moveable, HasLimits, \
-    DataSink, DataSinkHandler, Attach, status, system_user
+from nicos.core import ACCESS_LEVELS, AccessError, Attach, DataSink, \
+    DataSinkHandler, HasLimits, Moveable, status, system_user
 from nicos.core.mixins import IsController
 from nicos.core.sessions import Session
 from nicos.devices.abstract import CanReference
+from nicos.devices.cacheclient import CacheClient
 from nicos.devices.generic import VirtualMotor
 from nicos.devices.notifiers import Mailer
-from nicos.devices.cacheclient import CacheClient
-from nicos.services.cache.database import FlatfileCacheDatabase
-from nicos.utils import tcpSocket, closeSocket, createSubprocess
-from nicos.utils.loggers import NicosLogger, ACTION
 from nicos.pycompat import exec_, reraise, string_types
+from nicos.services.cache.database import FlatfileCacheDatabase
+from nicos.utils import closeSocket, createSubprocess, tcpSocket
+from nicos.utils.loggers import ACTION, NicosLogger
 
 # The NICOS checkout directory, where to find modules.
 module_root = path.normpath(path.join(path.dirname(__file__), '..'))

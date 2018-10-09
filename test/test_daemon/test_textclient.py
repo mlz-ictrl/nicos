@@ -27,13 +27,12 @@
 from __future__ import print_function
 
 import time
+from test.utils import daemon_addr
 
 import mock
 
 from nicos.clients.cli import NicosCmdClient, main as cli_main
-from nicos.protocols.daemon import STATUS_RUNNING, STATUS_IDLE
-
-from test.utils import daemon_addr
+from nicos.protocols.daemon import STATUS_IDLE, STATUS_RUNNING
 
 
 class CmdClient(NicosCmdClient):

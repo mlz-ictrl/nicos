@@ -24,13 +24,12 @@
 
 """NICOS custom lib tests: import all custom modules at least once."""
 
-import os
 import glob
+import os
 from os import path
+from test.utils import module_root
 
 import pytest
-
-from test.utils import module_root
 
 
 def import_and_check(modname):

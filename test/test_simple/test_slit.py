@@ -25,9 +25,10 @@
 
 from __future__ import print_function
 
-from nicos.core import status, LimitError, InvalidValueError
-from nicos.devices.generic.slit import Slit
 from test.utils import raises
+
+from nicos.core import InvalidValueError, LimitError, status
+from nicos.devices.generic.slit import Slit
 
 session_setup = 'slit'
 Slit._delay = 0.01

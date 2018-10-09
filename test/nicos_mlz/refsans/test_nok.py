@@ -26,10 +26,10 @@
 
 from test.utils import raises
 
+import pytest
+
 from nicos.commands.device import adjust
 from nicos.core.errors import ConfigurationError, InvalidValueError, LimitError
-
-import pytest
 
 session_setup = 'refsans'
 

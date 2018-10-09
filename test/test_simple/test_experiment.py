@@ -28,14 +28,13 @@ import os
 import sys
 import time
 from os import path
+from test.utils import runtime_root
 
 import pytest
 
-from nicos.utils import ensureDirectory, enableDirectory, readFileCounter
-from nicos.commands.scan import scan
 from nicos.commands.basic import run
-
-from test.utils import runtime_root
+from nicos.commands.scan import scan
+from nicos.utils import enableDirectory, ensureDirectory, readFileCounter
 
 year = time.strftime('%Y')
 

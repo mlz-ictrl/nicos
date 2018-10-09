@@ -24,9 +24,9 @@
 
 import pytest
 
-from nicos_ess.nexus.elements import NXGroup, NXDataset, NXAttribute, \
-    DeviceDataset, DeviceAttribute, EventStream
 from nicos_ess.nexus.converter import NexusTemplateConverter
+from nicos_ess.nexus.elements import DeviceAttribute, DeviceDataset, \
+    EventStream, NXAttribute, NXDataset, NXGroup
 
 session_setup = 'sinq_amor_system'
 

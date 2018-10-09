@@ -28,22 +28,21 @@
 from __future__ import print_function
 
 import os
+import socket
 import sys
 import time
-import socket
+from test.utils import raises
 
 import pytest
 
-from nicos.utils import lazy_property, Repeater, formatDuration, chunks, \
-    bitDescription, parseConnectionString, formatExtendedFrame, \
-    formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict, \
-    comparestrings, timedRetryOnExcept, tcpSocket, closeSocket, num_sort, \
-    checkSetupSpec, extractKeyAndIndex, squeeze, moveOutOfWay
-from nicos.utils.timer import Timer
-from nicos.pycompat import cPickle as pickle
 from nicos.core.errors import NicosError
-
-from test.utils import raises
+from nicos.pycompat import cPickle as pickle
+from nicos.utils import Repeater, bitDescription, checkSetupSpec, chunks, \
+    closeSocket, comparestrings, extractKeyAndIndex, formatDuration, \
+    formatExtendedFrame, formatExtendedStack, formatExtendedTraceback, \
+    lazy_property, moveOutOfWay, num_sort, parseConnectionString, \
+    readonlydict, readonlylist, squeeze, tcpSocket, timedRetryOnExcept
+from nicos.utils.timer import Timer
 
 
 def test_lazy_property():

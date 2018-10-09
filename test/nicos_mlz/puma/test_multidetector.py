@@ -25,15 +25,16 @@
 """Module to test PUMA specific modules."""
 
 import os
+from test.utils import approx
+
+import pytest
 
 try:
     from string import maketrans  # pylint: disable=deprecated-module
 except ImportError:
     maketrans = str.maketrans
 
-from test.utils import approx
 
-import pytest
 
 session_setup = 'multidetector'
 

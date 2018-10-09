@@ -27,9 +27,9 @@
 
 from __future__ import print_function
 
-from numpy import array
-
 from test.utils import approx
+
+from numpy import array
 
 session_setup = 'tas'
 
