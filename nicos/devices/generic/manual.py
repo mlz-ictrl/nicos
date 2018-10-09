@@ -75,7 +75,7 @@ class ManualSwitch(Moveable):
         'unit':   Override(mandatory=False),
     }
 
-    hardware_access = False
+    hardware_access = True
 
     def doInit(self, mode):
         self.valuetype = oneof(*self.states)
