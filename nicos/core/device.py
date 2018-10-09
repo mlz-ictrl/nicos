@@ -2357,6 +2357,9 @@ class DeviceAlias(Device):
     def __ne__(self, other):
         return self is not other
 
+    # use the default __hash__
+    __hash__ = Device.__hash__
+
     def shutdown(self):
         # re-implemented from Device to avoid running doShutdown
         # of the pointed-to device prematurely

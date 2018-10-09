@@ -200,6 +200,9 @@ class unitcell(object):
             self.beta == other.beta and \
             self.gamma == other.gamma
 
+    # fore python3 default (unhashable)
+    __hash__ = None
+
     def crys2cart(self, rx, ry, rz):
         """Calculates vectors in the cartesian coordinate frame in units of
         Angstrom from given (rx,ry,rz) in fractional units in the
