@@ -174,6 +174,7 @@ class Repeater(object):
     def __iter__(self):
         return self
 
+    # pylint: disable=next-method-defined
     def next(self):
         return self.object
 
