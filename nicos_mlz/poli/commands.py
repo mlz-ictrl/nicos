@@ -24,7 +24,7 @@
 
 """Module with specific commands for POLI."""
 
-from __future__ import division
+from __future__ import absolute_import, division
 
 import csv
 import math

@@ -24,6 +24,8 @@
 
 """Custom commands for KWS(-1)."""
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.commands import usercommand
 from nicos.commands.measure import SetEnvironment, count

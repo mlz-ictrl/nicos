@@ -25,6 +25,8 @@
 """
 LAUE specific commands
 """
+from __future__ import absolute_import
+
 import numpy as np
 
 from nicos import session

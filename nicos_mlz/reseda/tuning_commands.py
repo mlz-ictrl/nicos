@@ -24,6 +24,8 @@
 
 """Module for RESEDA tunewavetable specific commands."""
 
+from __future__ import absolute_import
+
 import csv
 from os import path
 

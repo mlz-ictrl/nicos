@@ -23,6 +23,8 @@
 # *****************************************************************************
 """STRESS-SPEC specific commands for the robot to change the sample."""
 
+from __future__ import absolute_import
+
 import numpy
 
 from nicos import session
