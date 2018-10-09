@@ -112,13 +112,13 @@ class Optic(Moveable):
                       '48mrad')(target)
                 return True, ''
             except ValueError as e:
-                return False, e.message
+                return False, str(e)
         elif isinstance(target, number_types):
             try:
                 floatrange(0, 48)(target)
                 return True, ''
             except ValueError as e:
-                return False, e.message
+                return False, str(e)
         return False, 'Wrong value type'
 
     def doStart(self, target):
