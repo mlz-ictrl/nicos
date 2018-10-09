@@ -54,7 +54,7 @@ try:
 except epics.ca.ChannelAccessException as err:
     # python 2.x
     if hasattr(err, 'message'):
-        msg = err.message
+        msg = err.message  # pylint: disable=exception-message-attribute
     # python 3.x
     elif hasattr(err, 'args'):
         msg = err.args[0]
