@@ -84,6 +84,7 @@ number_types = integer_types + (float,)
 # missing str/bytes helpers
 
 if six.PY2:
+    # pylint: disable=unicode-builtin
     # use standard file and buffer for Py2
     File = file
     memory_buffer = buffer

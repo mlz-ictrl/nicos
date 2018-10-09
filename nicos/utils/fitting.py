@@ -109,6 +109,7 @@ class FitResult(object):
             self.chi2,
             ', '.join('%s = %8.3g' % v[:2] for v in zip(*self._pars)))
 
+    # pylint: disable=nonzero-method
     def __nonzero__(self):
         return not self._failed
 

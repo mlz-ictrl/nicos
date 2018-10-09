@@ -93,6 +93,7 @@ class ScriptQueue(object):
         self._view.clear()
         self._id2item.clear()
 
+    # pylint: disable=nonzero-method
     def __nonzero__(self):
         return bool(self._id2item)
 
