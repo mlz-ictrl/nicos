@@ -87,7 +87,7 @@ def test_temp_point(session):
 
 
 def test_point_dataset(session):
-    assert len(session.data._stack) == 0
+    assert len(session.data._stack) == 0  # pylint: disable=len-as-condition
     with dataset_scope(session, 'point'):
         ds = session.data._current
 

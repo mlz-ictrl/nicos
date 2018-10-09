@@ -39,7 +39,7 @@ def test_alias_nodev(session, log):
     alias = session.getDevice('aliasNoDev', object)
     # first, proxy without target
     assert isinstance(alias._obj, NoDevice)
-    assert alias.alias == ''
+    assert alias.alias == ''  # pylint: disable=compare-to-empty-string
     # accesses raise ConfigurationError
     assert raises(AttributeError, getattr, alias, 'read')
     assert raises(ConfigurationError, setattr, alias, 'speed', 0)
