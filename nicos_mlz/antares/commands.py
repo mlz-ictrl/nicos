@@ -23,7 +23,7 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import os
 from os.path import join
