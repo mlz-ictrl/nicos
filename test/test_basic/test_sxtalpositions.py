@@ -60,6 +60,7 @@ def getPositions():
 
 class TestPostions(object):
 
+    # pylint: disable=dict-keys-not-iterating
     @pytest.mark.parametrize('p',getPositions())
     @pytest.mark.parametrize('type1', typelist.keys())
     @pytest.mark.parametrize('type2', typelist.keys())

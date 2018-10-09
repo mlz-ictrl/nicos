@@ -191,6 +191,7 @@ class TestLogicalMotor(object):
         assert raises(ErrorLogged, motor, hlm - 0.1)
         assert motor.target == approx(motor.read())
 
+    #  pylint: disable=dict-keys-not-iterating
     @pytest.mark.parametrize("targets", test_targets.keys())
     def test_motor_has_correct_targets(self, targets, session):
         # Move the motors to targets
