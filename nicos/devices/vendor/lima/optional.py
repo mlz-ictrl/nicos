@@ -44,7 +44,7 @@ class OptionalLimaFunctionality(object):
         try:
             self._testFunctionality()
         except NicosError as e:
-            if re.match('Error: No .*? capability', e.message):
+            if re.match('Error: No .*? capability', str(e)):
                 return False
             else:
                 raise e
