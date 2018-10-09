@@ -30,6 +30,8 @@ from nicos.utils import createThread
 
 class EllCol(Moveable):
 
+    hardware_access = False
+
     attached_devices = {
         'ellipse': Attach('output signal for ellipse', Moveable),
         'collimator': Attach('output signal for collimator', Moveable)
@@ -43,8 +45,8 @@ class EllCol(Moveable):
     def doInit(self, mode):
         self._timer = True
         self._thread = None
-        ell_state = self._attached_ellipse.read()
-        col_state = self._attached_collimator.read()
+        col_state = self._attached_collimator.read(0)
+        ell_state = self._attached_ellipse.read(0)
 
         if [ell_state, col_state] == [1, 1]:
             # reset

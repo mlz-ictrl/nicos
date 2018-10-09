@@ -29,9 +29,11 @@ includes = ['stdsystem']
 devices = dict(
     ellipse = device('nicos.devices.generic.ManualSwitch',
         states = [0, 1],
+        lowlevel = True,
     ),
     collimator = device('nicos.devices.generic.ManualSwitch',
         states = [0, 1],
+        lowlevel = True,
     ),
     ellcol = device('nicos_mlz.pgaa.devices.ellcol.EllCol',
         ellipse = 'ellipse',
