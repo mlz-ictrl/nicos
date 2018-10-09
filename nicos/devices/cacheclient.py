@@ -38,7 +38,9 @@ from nicos.protocols.cache import BUFSIZE, CYCLETIME, DEFAULT_CACHE_PORT, \
     END_MARKER, OP_ASK, OP_LOCK, OP_LOCK_LOCK, OP_LOCK_UNLOCK, OP_REWRITE, \
     OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, OP_UNSUBSCRIBE, OP_WILDCARD, \
     SYNC_MARKER, cache_dump, cache_load, line_pattern, msg_pattern
-from nicos.pycompat import from_utf8, iteritems, queue, string_types, to_utf8
+#pylint: disable=redefined-builtin
+from nicos.pycompat import from_utf8, iteritems, \
+    queue, string_types, to_utf8, xrange
 from nicos.utils import closeSocket, createThread, getSysInfo, tcpSocket
 
 
@@ -212,7 +214,6 @@ class BaseCacheClient(Device):
 
     def _worker_inner(self):
         data = b''
-        range10 = range(10)
         process = self._process_data
 
         while not self._stoprequest:
@@ -266,7 +267,7 @@ class BaseCacheClient(Device):
                     itemcount = 0
                     try:
                         # bunch a few messages together, but not unlimited
-                        for _ in range10:
+                        for _ in xrange(10):
                             tosend += self._queue.get(False)
                             itemcount += 1
                     except queue.Empty:
