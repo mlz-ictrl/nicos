@@ -431,7 +431,7 @@ class SweepScan(Scan):
         for dev, (start, end) in zip(devices, startend):
             if start is not None:
                 firstmoves.append((dev, start))
-            self._sweeptargets.append((dev, end))
+            self._sweeptargets.append(end)
         # sweep scans support a special "delay" preset
         self._delay = preset.pop('delay', 0)
         Scan.__init__(self, [], points, [], firstmoves, multistep,
@@ -468,7 +468,8 @@ class SweepScan(Scan):
             self._etime.started = currenttime()
             if self._sweeptargets:
                 try:
-                    self.moveDevices(*zip(*self._sweeptargets), wait=False)
+                    self.moveDevices(self._sweepdevices, self._sweeptargets,
+                                     wait=False)
                 except SkipPoint:
                     raise StopScan
         elif self._delay:
