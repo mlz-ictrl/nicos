@@ -24,7 +24,7 @@
 
 """NICOS device class test suite."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 from test.utils import raises
 
