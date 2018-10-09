@@ -24,7 +24,7 @@
 
 """Module for RESEDA specific commands."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 import scipy.constants as co
 
@@ -121,8 +121,6 @@ def miezescan(echolist, counttime):
 @usercommand
 def pol(up, down):
     """Calculate contrast or polarisation."""
-    up = float(up)
-    down = float(down)
     return (up - down) / (up + down)
 
 
