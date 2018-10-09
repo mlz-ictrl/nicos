@@ -24,6 +24,8 @@
 
 """NICOS tests for session-less TAS code."""
 
+from __future__ import absolute_import
+
 from test.utils import raises
 
 from nicos.commands.tas import Q

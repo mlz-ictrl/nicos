@@ -24,7 +24,7 @@
 
 """NICOS generic devices test suite."""
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 from test.utils import approx, raises
 

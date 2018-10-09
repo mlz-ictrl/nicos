@@ -24,6 +24,8 @@
 
 """SPODI specific data sink tests."""
 
+from __future__ import absolute_import
+
 from os import path
 
 import pytest

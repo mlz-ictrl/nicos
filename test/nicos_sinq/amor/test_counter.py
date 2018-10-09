@@ -26,6 +26,8 @@
 Tests for the counter type detectors in SINQ
 """
 
+from __future__ import absolute_import
+
 import time
 
 import pytest

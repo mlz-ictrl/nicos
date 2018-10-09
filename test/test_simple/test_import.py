@@ -24,6 +24,8 @@
 
 """NICOS custom lib tests: import all custom modules at least once."""
 
+from __future__ import absolute_import
+
 import glob
 import os
 from os import path

@@ -24,6 +24,8 @@
 
 """TOFTOF chopper calculation tests."""
 
+from __future__ import absolute_import
+
 from nicos_mlz.toftof.devices.calculations import Eres1, alpha, \
     calculateChopperDelay, calculateCounterDelay, calculateTimeInterval, phi, \
     phi1, speedRatio, t1, t2

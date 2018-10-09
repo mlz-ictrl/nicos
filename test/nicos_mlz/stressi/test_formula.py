@@ -24,6 +24,8 @@
 
 """STRESS-SPEC formula calculation tests."""
 
+from __future__ import absolute_import
+
 import math
 
 from nicos_mlz.stressi.devices.mixins import Formula

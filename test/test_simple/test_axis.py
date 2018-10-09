@@ -25,6 +25,8 @@
 
 """NICOS axis test suite."""
 
+from __future__ import absolute_import
+
 from test.utils import approx, raises
 from time import sleep
 

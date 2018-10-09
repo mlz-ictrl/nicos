@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from test.utils import ErrorLogged, approx, raises
 
 import pytest

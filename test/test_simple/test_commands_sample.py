@@ -24,6 +24,8 @@
 
 """NICOS commands tests."""
 
+from __future__ import absolute_import
+
 import json
 from test.utils import approx, raises
 

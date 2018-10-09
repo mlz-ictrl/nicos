@@ -24,6 +24,8 @@
 
 """Py.test configuration file containing fixtures for individual tests."""
 
+from __future__ import absolute_import
+
 import os
 import sys
 import time

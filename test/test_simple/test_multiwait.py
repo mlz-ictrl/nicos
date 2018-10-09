@@ -26,6 +26,8 @@
 Test for multiwait
 """
 
+from __future__ import absolute_import
+
 from test.utils import raises
 
 import pytest

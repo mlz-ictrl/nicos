@@ -24,6 +24,8 @@
 
 """Module to test custom specific modules."""
 
+from __future__ import absolute_import
+
 import os
 
 import pytest

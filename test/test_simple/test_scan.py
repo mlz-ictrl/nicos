@@ -25,6 +25,8 @@
 
 """NICOS tests for nicos.commands.scan and nicos.core.scan modules."""
 
+from __future__ import absolute_import
+
 import warnings
 from test.utils import raises
 

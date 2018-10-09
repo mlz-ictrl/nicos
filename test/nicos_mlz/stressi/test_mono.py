@@ -24,6 +24,8 @@
 
 """STRESS-SPEC specific monochromator tests."""
 
+from __future__ import absolute_import
+
 import time
 from test.utils import raises
 

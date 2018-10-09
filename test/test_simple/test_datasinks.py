@@ -24,6 +24,8 @@
 
 """NICOS data handlers test suite."""
 
+from __future__ import absolute_import
+
 import os
 import time
 from os import path

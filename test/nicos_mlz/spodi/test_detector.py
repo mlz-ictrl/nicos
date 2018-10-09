@@ -24,6 +24,8 @@
 
 """SPODI specific detector tests."""
 
+from __future__ import absolute_import
+
 import pytest
 
 from nicos.commands.measure import count

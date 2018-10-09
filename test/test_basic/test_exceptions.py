@@ -24,6 +24,8 @@
 
 """NICOS exception tests."""
 
+from __future__ import absolute_import
+
 from nicos.core.errors import CacheLockError
 
 

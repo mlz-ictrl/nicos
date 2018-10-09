@@ -24,6 +24,8 @@
 
 """Tests for simulation mode."""
 
+from __future__ import absolute_import
+
 from nicos.commands.basic import sleep
 from nicos.commands.scan import scan
 from nicos.core import SIMULATION

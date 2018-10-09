@@ -24,6 +24,8 @@
 
 """STRESS-SPEC specific slits tests."""
 
+from __future__ import absolute_import
+
 from test.utils import raises
 
 from nicos.core.errors import MoveError

@@ -24,6 +24,8 @@
 
 """NICOS device class test suite."""
 
+from __future__ import absolute_import
+
 from test.utils import raises
 
 import pytest

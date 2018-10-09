@@ -24,6 +24,8 @@
 
 """NICOS sequence class test suite."""
 
+from __future__ import absolute_import
+
 import os
 import time
 from test.utils import raises

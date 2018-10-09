@@ -24,6 +24,8 @@
 
 """Utilities for SINQ tests."""
 
+from __future__ import absolute_import
+
 from nicos.core.device import Readable
 
 unit_correction = {

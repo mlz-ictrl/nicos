@@ -24,7 +24,7 @@
 
 """Test the text client."""
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import time
 from test.utils import daemon_addr

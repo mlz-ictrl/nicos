@@ -24,6 +24,8 @@
 
 """NICOS tests for nicos.commands.scan and nicos.core.scan modules."""
 
+from __future__ import absolute_import
+
 from os import path
 from test.utils import hasGnuplot, runtime_root
 

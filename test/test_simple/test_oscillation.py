@@ -24,6 +24,8 @@
 
 """NICOS oscillation device test suite."""
 
+from __future__ import absolute_import
+
 from test.utils import raises
 
 from nicos.core import ConfigurationError, UsageError, status

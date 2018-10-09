@@ -30,6 +30,8 @@ General test plan:
 Generate data with and without noise and check the fit results
 """
 
+from __future__ import absolute_import
+
 import numpy as np
 import pytest
 

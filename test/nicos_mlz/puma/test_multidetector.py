@@ -24,6 +24,8 @@
 
 """Module to test PUMA specific modules."""
 
+from __future__ import absolute_import
+
 import os
 from test.utils import approx
 
