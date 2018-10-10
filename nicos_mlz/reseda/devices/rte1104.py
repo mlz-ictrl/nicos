@@ -98,7 +98,7 @@ class RTE1104TimescaleSetting(Moveable):
 
     def doStart(self, target):
         self._attached_io.writeLine('TIM:SCAL %g' %
-                                    self.timescale/float(target))
+                                    (self.timescale/float(target)))
         if self._attached_freqgen:
             self._attached_freqgen.start(target)
 
