@@ -213,14 +213,10 @@ addopts = --junit-xml=pytest-${pyver}.xml
 
     verifyresult.put(pyver, 0)
     try {
-        portallocator([plainports:['NICOS_DAEMON_PORT',
-                                   'NICOS_CACHE_PORT',
-                                   'NICOS_CACHE_ALT_PORT']]) {
-            timeout(10) {
-              sh "./ciscripts/run_pytest.sh $venv"
-              verifyresult.put(pyver, 1)
-            } // timeout
-        } // wrap
+         timeout(10) {
+           sh "./ciscripts/run_pytest.sh $venv"
+           verifyresult.put(pyver, 1)
+         } // timeout
     } catch(all) {
         verifyresult.put(pyver, -1)
     }
