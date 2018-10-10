@@ -189,14 +189,17 @@ class EchoTime(Moveable):
         # matched wavelength
         for wavelength, tunewavetable in iteritems(table):
             if self._fuzzy_match(cur_wavelength, wavelength, precision):
-                return tunewavetable
+                return self._validate_table(tunewavetable)
 
         return {}
 
     def getTable(self, measurement_mode, wavelength):
-        """Get a specific tunewave table. Avoid transfering all tables for each
-        access."""
-        return self.tables.get(measurement_mode, {}).get(wavelength, {})
+        """Get a specific tunewave table.
+
+        Avoid transfering all tables for each access.
+        """
+        return self._validate_table(
+            self.tables.get(measurement_mode, {}).get(wavelength, {}))
 
     def setTable(self, measurement_mode, wavelength, table):
         """Set a specific tunewave table. Avoid transfering all tables for each
