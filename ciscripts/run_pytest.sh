@@ -5,4 +5,6 @@ set +x
 . $venv/bin/activate
 set -x
 
+mkdir -p ~/test/testroot
+export NICOS_TEST_ROOT=~/test/testroot
 pytest -v test
