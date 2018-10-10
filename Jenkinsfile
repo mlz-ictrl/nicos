@@ -175,6 +175,31 @@ def runPylint() {
     }
 }
 
+def runIsort() {
+    verifyresult.put('isort',0)
+    try {
+        withCredentials([string(credentialsId: 'GERRITHTTP', variable: 'GERRITHTTP')]) {
+            refreshVenv()
+            sh '''if [ -x ./ciscripts/run_isort.sh ] ; then
+                      ./ciscripts/run_isort.sh
+                  fi
+               '''
+            verifyresult.put('isort', 1)
+        }
+    }
+    catch (all) {
+        verifyresult.put('isort',-1)
+    }
+    echo "isort: result=" + verifyresult['isort']
+    publishGerrit('isort', verifyresult['isort'])
+
+    if (verifyresult['isort'] < 0) {
+        // currently only warn, but do not fail the job
+        // error('Failure in isort')
+
+    }
+}
+
 def runSetupcheck() {
     verifyresult.put('sc', 0)
     try {
@@ -299,6 +324,14 @@ parallel pylint: {
         u16.inside('-v /home/git:/home/git') {
                 runPylint()
                 parseLogs([[parserName: 'PyLint', pattern: 'pylint_*.txt']])
+        }
+    }
+}, isort: {
+    stage(name: 'isort') {
+        u16.inside('-v /home/git:/home/git') {
+                runIsort()
+                parseLogs([[parserName: 'python-isort', pattern: 'isort_*.tx']])
+
         }
     }
 }, setup_check: {
