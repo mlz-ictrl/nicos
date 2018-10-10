@@ -110,6 +110,8 @@ def test_textclient(daemon):
         yield '/help'
         assert has_msg('# This is the NICOS command-line client')
 
+        assert has_msg_wait('localhost[idle]')
+
         yield 'NewSetup("daemontest")'
         assert has_msg_wait('setups loaded: daemontest')
 
