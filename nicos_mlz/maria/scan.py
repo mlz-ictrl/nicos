@@ -163,6 +163,7 @@ def sscan(dev, *args, **kwargs):
          scaninfo).run()
 
 
+# pylint:disable=keyword-arg-before-vararg
 @usercommand
 @helparglist('dev, start, step, numpoints, ...')
 @spmsyntax(Dev(Moveable), Bare, Bare, Bare)
