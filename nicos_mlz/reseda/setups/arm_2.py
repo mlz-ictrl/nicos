@@ -36,7 +36,7 @@ devices = dict(
         fmtstr = '%.2f',
         precision = 0.01,
         # abslimits = (-5.0, 60.0),
-        unit = '\xb0'
+        unit = 'deg'
         #pollinterval = 60,
         #maxage = 119,
     ),

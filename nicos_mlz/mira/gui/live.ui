@@ -209,6 +209,21 @@
     <string>Custom range</string>
    </property>
   </action>
+  <action name="actionOverviewMode">
+   <property name="text">
+    <string>Counts</string>
+   </property>
+  </action>
+  <action name="actionPhaseMode">
+   <property name="text">
+    <string>Phases</string>
+   </property>
+  </action>
+  <action name="actionContrastMode">
+   <property name="text">
+    <string>Contrast</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

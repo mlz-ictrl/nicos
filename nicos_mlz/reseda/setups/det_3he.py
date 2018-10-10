@@ -52,7 +52,7 @@ devices = dict(
         coder = 'det_rot_enc',
         fmtstr = '%.3f',
         precision = 0.1,
-        unit = '\xb0',
+        unit = 'deg',
     ),
     det_x = device('nicos.devices.tango.Motor',
         description = 'Detector x translation (motor)',

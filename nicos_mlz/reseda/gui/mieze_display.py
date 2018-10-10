@@ -93,7 +93,8 @@ class FoilWidget(QWidget):
         self.contrast_error.setText('%.3f' % dcontrast)
         self.freq_value.setText('%.2f' % freq)
         self.freq_error.setText('%.3f' % dfreq)
-        self.phase_value.setText('%.2f' % phase)
+        self.phase_value.setText('%.2f' % (phase + np.pi if contrast < 0
+                                           else phase))
         self.phase_error.setText('%.3f' % dphase)
 
         # now update plot
