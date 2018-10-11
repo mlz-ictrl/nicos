@@ -8,8 +8,8 @@ sysconfig = dict(
 
 includes = [
     'system',
-    # 'reactor',
-    # 'nl4b',
+    'reactor',
+    'nl4b',
     'pressure',
     'samplechanger',
     'pilz',

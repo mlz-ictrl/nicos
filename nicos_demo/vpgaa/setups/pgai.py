@@ -4,8 +4,8 @@ group = 'basic'
 
 includes = [
     'system',
-    # 'reactor',
-    # 'nl4b',
+    'reactor',
+    'nl4b',
     'pressure',
     'sampletable',
     'pilz',
