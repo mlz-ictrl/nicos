@@ -29,6 +29,8 @@ servos are too small and inaccurate to be used at the instrument,
 but are quite handy for shows
 """
 
+from __future__ import absolute_import
+
 import threading
 import time
 

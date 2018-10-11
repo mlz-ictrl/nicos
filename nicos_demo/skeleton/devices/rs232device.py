@@ -28,6 +28,8 @@ Skeleton module for directly using an attached RS232 device.
 Please remember to change the class names if copying from this file!
 """
 
+from __future__ import absolute_import
+
 import serial
 
 from nicos import session

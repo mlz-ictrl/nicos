@@ -27,15 +27,17 @@
 * using the freedesktop notification protocol.
 * using Jabber.
 """
+from __future__ import absolute_import
+
+from nicos import session
+from nicos.core import Param, listof
+from nicos.devices.notifiers import Notifier
 
 try:
     import xmpp  # pylint: disable=import-error
 except ImportError:
     xmpp = None
 
-from nicos import session
-from nicos.core import Param, listof
-from nicos.devices.notifiers import Notifier
 
 NS_XHTML = 'http://www.w3.org/1999/xhtml'
 

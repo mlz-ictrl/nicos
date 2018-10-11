@@ -23,6 +23,8 @@
 # *****************************************************************************
 """Classes to simulate the DSpec detector."""
 
+from __future__ import absolute_import
+
 from nicos.core import Override, Param, intrange, status, tupleof, usermethod
 from nicos.devices.generic.detector import Detector
 from nicos.devices.generic.virtual import VirtualImage
