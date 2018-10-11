@@ -22,8 +22,8 @@
 #
 # *****************************************************************************
 
-from nicos.devices.instrument import Instrument
 from nicos.core import Param
+from nicos.devices.instrument import Instrument
 
 
 class ViewableInstrument(Instrument):

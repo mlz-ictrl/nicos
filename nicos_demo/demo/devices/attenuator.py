@@ -24,10 +24,8 @@
 
 """An virtual Attentuator"""
 
-from nicos.core import status
+from nicos.core import Attach, Override, Param, status
 from nicos.core.device import Moveable
-
-from nicos.core import Attach, Override, Param
 from nicos.core.mixins import HasLimits
 
 

@@ -31,8 +31,8 @@ Please remember to change the class names if copying from this file!
 import serial
 
 from nicos import session
-from nicos.core import Readable, Param, CommunicationError, NicosError
-from nicos.core import SIMULATION
+from nicos.core import SIMULATION, CommunicationError, NicosError, Param, \
+    Readable
 
 
 class RS232Example(Readable):

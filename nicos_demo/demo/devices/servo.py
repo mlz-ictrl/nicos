@@ -29,17 +29,16 @@ servos are too small and inaccurate to be used at the instrument,
 but are quite handy for shows
 """
 
-import time
 import threading
-
-from nicos import session
-from nicos.core import Param, Override, intrange, floatrange, status, \
-    HasOffset, Device, Attach, SIMULATION, POLLER
-from nicos.utils import createThread
-from nicos.devices.abstract import Motor
+import time
 
 import serial
 
+from nicos import session
+from nicos.core import POLLER, SIMULATION, Attach, Device, HasOffset, \
+    Override, Param, floatrange, intrange, status
+from nicos.devices.abstract import Motor
+from nicos.utils import createThread
 
 CRLF = '\r\n'
 

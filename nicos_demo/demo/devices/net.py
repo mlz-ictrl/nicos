@@ -25,15 +25,17 @@
 """NICOS demo class displaying the network traffic"""
 
 import time
+
+from nicos import session
+from nicos.core import POLLER, SIMULATION, Param, Readable, status
+from nicos.core.params import floatrange, oneof
+from nicos.utils import createThread
+
 try:
     from psutil import net_io_counters
 except ImportError:
     from psutil import network_io_counters as net_io_counters
 
-from nicos import session
-from nicos.core import status, Readable, Param, POLLER, SIMULATION
-from nicos.core.params import oneof, floatrange
-from nicos.utils import createThread
 
 
 class Network(Readable):

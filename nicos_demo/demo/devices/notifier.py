@@ -34,7 +34,7 @@ except ImportError:
     xmpp = None
 
 from nicos import session
-from nicos.core import listof, Param
+from nicos.core import Param, listof
 from nicos.devices.notifiers import Notifier
 
 NS_XHTML = 'http://www.w3.org/1999/xhtml'

@@ -26,7 +26,9 @@
 
 import os
 
+from nicos.clients.gui.panels import Panel
 from nicos.guisupport.qt import QHBoxLayout, QWidget
+from nicos.guisupport.widget import NicosWidget
 
 try:
     import mantid.simpleapi as simpleapi  # pylint: disable=import-error
@@ -35,8 +37,6 @@ except ImportError:
     simpleapi = None
     mpy = None
 
-from nicos.clients.gui.panels import Panel
-from nicos.guisupport.widget import NicosWidget
 
 
 class MantidDeviceWatcher(NicosWidget, QWidget):

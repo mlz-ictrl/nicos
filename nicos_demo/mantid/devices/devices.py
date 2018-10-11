@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import Readable, Param, Override, Attach, dictof, anytype
+from nicos.core import Attach, Override, Param, Readable, anytype, dictof
 
 
 class MantidDevice(Readable):
