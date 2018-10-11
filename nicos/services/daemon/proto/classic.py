@@ -155,7 +155,7 @@ class Server(BaseServer, socketserver.TCPServer):
         with self.handler_ident_lock:
             self.pending_clients[host, client_id] = handler
             self.handler_ident += 1
-            handler.ident = self.handler_ident
+            handler.setIdent(self.handler_ident)
             self.handlers[get_thread_id()] = handler
 
     def unregister_handler(self, ident):
@@ -182,8 +182,8 @@ class ServerTransport(ConnectionHandler, BaseServerTransport,
         self.sock = request
         ip = client_address[0]
         # register self as a new handler
-        server.register_handler(self, ip, client_id)
         ConnectionHandler.__init__(self, server.daemon)
+        server.register_handler(self, ip, client_id)
         try:
             host, aliases, addrlist = socket.gethostbyaddr(ip)
         except socket.herror:

@@ -140,13 +140,16 @@ class LoggerWrapper(object):
     """
     def __init__(self, logger, prepend):
         self.logger = logger
+        self.setPrefix(prepend)
+
+    def setPrefix(self, prepend):
         self.prepend = prepend
 
         for name in ('debug', 'info', 'warning', 'error',
                      'critical', 'exception'):
             def getlogfunc(name=name):
                 def logfunc(msg, *args, **kwds):
-                    getattr(self.logger, name)(prepend+msg, *args, **kwds)
+                    getattr(self.logger, name)(prepend + msg, *args, **kwds)
                 return logfunc
             setattr(self, name, getlogfunc())
 

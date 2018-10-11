@@ -117,8 +117,11 @@ class ConnectionHandler(object):
         # limit memory usage to 100 Megs
         self.event_queue = SizedQueue(100*1024*1024)
         self.event_mask = set()
-        self.log = LoggerWrapper(self.daemon.log,
-                                 '[handler #%s] ' % self.ident)
+        self.log = LoggerWrapper(self.daemon.log, '[new handler] ')
+
+    def setIdent(self, ident):
+        self.ident = ident
+        self.log.setPrefix('[handler #%s] ' % ident)
 
     def close(self):
         try:
