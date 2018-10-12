@@ -6,16 +6,18 @@ main_window = tabbed(
         vsplit(
             hsplit(
                 vsplit(
-                    panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel'),
+                    panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
+                          modules=['nicos_mlz.spheres.gui.cmdlets']),
                     panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
                           eta=True),
-                )),
+                )
+            ),
             tabbed(
                 ('All output',
-                    panel('nicos.clients.gui.panels.console.ConsolePanel',
-                          hasinput=False, hasmenu=False, eta=True)),
+                 panel('nicos.clients.gui.panels.console.ConsolePanel',
+                       hasinput=False, hasmenu=False, eta=True)),
                 ('Errors/Warnings',
-                    panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+                 panel('nicos.clients.gui.panels.errors.ErrorPanel')),
             ),
         ),
         ('Experiment Info',
@@ -31,6 +33,10 @@ main_window = tabbed(
             panel('nicos.clients.gui.panels.generic.GenericPanel',
                   uifile='nicos_mlz/spheres/gui/temperature.ui')
          )),
+        ('Temperature/Flux',
+         panel('nicos.clients.gui.panels.history.BareHistoryPanel',
+               dockpos='right', device_keys='cct6_T_sample.value, flux.value[1]',
+               detailthreshold=[300, 200])),
      )),
     ('Script Editor',
      vsplit(
