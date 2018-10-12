@@ -4,7 +4,10 @@ group = 'basic'
 
 sysconfig = dict(
     datasinks = ['FITSFileSaver', 'DiObSink'],
+    experiment = 'Exp',
 )
+
+modules = ['nicos.commands.standard', 'nicos.commands.imaging']
 
 includes = [
     'system',
@@ -18,6 +21,12 @@ includes = [
 ]
 
 devices = dict(
+    Exp = device('nicos_mlz.devices.experiment.ImagingExperiment',
+        description = 'The currently running experiment',
+        dataroot = '/localdata/',
+        sample = 'Sample',
+        propdb = '/pgaacontrol/propdbb',
+    ),
     FITSFileSaver = device('nicos.devices.datasinks.FITSImageSink',
         description = 'Saves image data in FITS format',
         filenametemplate = ['%(pointcounter)08d.fits'],
