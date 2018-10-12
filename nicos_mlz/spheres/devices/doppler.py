@@ -24,8 +24,7 @@
 
 """Doppler device for SPHERES"""
 
-
-from time import sleep
+from nicos import session
 
 from nicos.core.params import Attach, Param, listof
 from nicos.core import status
@@ -108,7 +107,7 @@ class Doppler(MultiSwitcher):
 
         # to change the doppler speed it has to be stopped first
         self._attached_switch.maw('off')
-        sleep(3)
+        session.delay(3)
         if target != 0:
             MultiSwitcher.doStart(self, target)
             self._attached_switch.move('on')
