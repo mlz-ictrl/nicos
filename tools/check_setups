@@ -305,8 +305,10 @@ class SetupChecker(object):
                 if other in self.ns.get('excludes', []) or \
                    self.setupname in self.setup_info[other].get('excludes', []):
                     continue
-                # it's also ok if it is a sample or instrument device
-                if devname == 'Sample' or 'instrument' in devs[devname][1]:
+                # it's also ok if it is a sample, experiment, or instrument
+                # device
+                if devname in ['Sample', 'Exp'] or \
+                   'instrument' in devs[devname][1]:
                     continue
                 self.log.warning('device name %s duplicate: also in %s',
                                  devname, self.devs_seen[devname],
