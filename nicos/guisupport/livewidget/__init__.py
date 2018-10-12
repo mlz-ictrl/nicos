@@ -40,10 +40,9 @@ from gr.pygr import Plot as OrigPlot, PlotAxes, Point, RegionOfInterest, \
 
 from nicos.guisupport.plots import MaskedPlotCurve
 
-# the empty string means: no live data is coming, only the filename is important
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        '<u1', '<i1', '>u1', '>i1', '<f8', '<f4', '>f8', '>f4',
-                       '<u8', '<i8', '>u8', '>i8', ''))
+                       '<u8', '<i8', '>u8', '>i8'))
 
 COLOR_WHITE = 91
 COLOR_BLUE = 4
