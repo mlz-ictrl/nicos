@@ -12,15 +12,14 @@
 .. autoclass:: Doppler()
 
 .. automodule:: nicos_mlz.spheres.devices.sample
-.. autoclass:: Controller()
-.. autoclass:: TemperatureController()
+.. autoclass:: SEController()
 .. autoclass:: PressureController()
 
-.. automodule::nicos_mlz.spheres.devices.sissinks
+.. automodule:: nicos_mlz.spheres.devices.sissinks
 .. autoclass:: SisFileSinkHandlerBase()
-.. autoclass:: AFileSinkHandler()
+.. autoclass:: AYamlFileSinkHandler()
 .. autoclass:: AFileSink()
-.. autoclass:: UFileSinkHandler()
+.. autoclass:: UYamlFileSinkHandler()
 .. autoclass:: UFileSink()
 .. autoclass:: PreviewSinkHandler()
 .. autoclass:: PreviewSink()
