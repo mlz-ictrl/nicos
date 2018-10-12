@@ -195,8 +195,10 @@ def runIsort() {
 
     if (verifyresult['isort'] < 0) {
         // currently only warn, but do not fail the job
+	echo("Imports are incorrectly sorted")
+        echo("To fix the isort errors run:")
+        echo("git diff HEAD^ --name-only --diff-filter d '*.py' | xargs isort")
         // error('Failure in isort')
-
     }
 }
 
