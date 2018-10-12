@@ -23,6 +23,8 @@
 # *****************************************************************************
 
 
+from __future__ import absolute_import
+
 from nicos.devices.vendor.qmesydaq.taco import Timer as MesyTimer
 
 

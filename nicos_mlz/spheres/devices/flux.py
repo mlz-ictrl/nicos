@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division
+
 from nicos.core.params import Param, listof
 from nicos.devices.tango import VectorInput
 

@@ -26,6 +26,8 @@
 Devices for the SIS-detector at SPHERES
 """
 
+from __future__ import absolute_import, division
+
 from math import ceil
 
 from nicos import session

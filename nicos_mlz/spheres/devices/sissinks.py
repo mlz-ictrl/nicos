@@ -26,6 +26,8 @@
 Sinks which handle the data provided from the SIS detector at SPHERES.
 '''
 
+from __future__ import absolute_import, division
+
 from time import localtime, strftime
 
 import numpy
@@ -54,9 +56,9 @@ class SisSinkHandlerBase(object):
 
         ret = []
 
-        histolen = len(data) / 2 / amount # = DETAMOUNT*amount*len(xvals)
+        histolen = len(data) // 2 // amount # = DETAMOUNT*amount*len(xvals)
 
-        offset = len(data) / 2 # timestep offset
+        offset = len(data) // 2 # timestep offset
 
         for i in range(len(xvals)):
             # first insert the xvalue
@@ -450,7 +452,7 @@ class PreviewSinkHandler(special.LiveViewSinkHandler, SisSinkHandlerBase):
         else:
             p = self.splitHisto(previewdata[0], previewdata[1], 4)
 
-            entryamount = int(len(p)/mergerows)
+            entryamount = len(p) // mergerows
 
             preview = numpy.zeros(entryamount, dtype=numpy.uint32)
             self.abscissa = numpy.zeros(entryamount, dtype=numpy.float32)

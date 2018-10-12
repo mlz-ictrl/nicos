@@ -26,6 +26,8 @@
 Device related to the shutter at SPHERES
 """
 
+from __future__ import absolute_import
+
 from nicos.core import status
 from nicos.core.mixins import HasTimeout
 from nicos.core.params import Attach, Param

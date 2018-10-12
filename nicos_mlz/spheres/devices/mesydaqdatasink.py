@@ -27,6 +27,8 @@ Datasink and handler for QMesydaq on Spheres.
 Writes the data so it can be read by frida.
 '''
 
+from __future__ import absolute_import
+
 from time import localtime, strftime
 
 import numpy

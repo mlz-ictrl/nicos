@@ -26,7 +26,7 @@
 Devices to control the sample environment at SPHERES
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 from nicos.core.params import Param, tangodev
 from nicos.core.status import WARN

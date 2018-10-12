@@ -24,6 +24,8 @@
 
 """Doppler device for SPHERES"""
 
+from __future__ import absolute_import
+
 from nicos import session
 from nicos.core import status
 from nicos.core.params import Attach, Param, listof
