@@ -30,8 +30,9 @@ devices = dict(
         description = 'The current used sample',
     ),
 
-    Exp = device('nicos.devices.experiment.Experiment',
-        description = 'experiment object',
+    # Configure dataroot here (usually /data).
+    Exp = device('nicos_mlz.devices.experiment.Experiment',
+        description = 'Experiment object',
         dataroot = '/data',
         managerights = dict(
             enableDirMode = 0o775,
@@ -43,7 +44,6 @@ devices = dict(
             disableOwner = 'jcns',
             disableGroup = 'treff',
         ),
-        mailserver = 'mailhost.frm2.tum.de',
         mailsender = 'treff@frm2.tum.de',
         sendmail = True,
         zipdata = True,

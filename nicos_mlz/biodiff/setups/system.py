@@ -20,7 +20,8 @@ devices = dict(
         description = 'Sample under investigation'
     ),
 
-    Exp = device('nicos.devices.experiment.Experiment',
+    # Configure dataroot here (usually /data).
+    Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'Experiment device',
         dataroot = '/data',
         managerights = dict(
@@ -33,7 +34,6 @@ devices = dict(
             disableOwner = 'jcns',
             disableGroup = 'biodiff',
         ),
-        mailserver = 'mailhost.frm2.tum.de',
         mailsender = 'biodiff@frm2.tum.de',
         sendmail = True,
         zipdata = True,

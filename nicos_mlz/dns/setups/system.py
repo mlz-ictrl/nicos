@@ -20,8 +20,9 @@ devices = dict(
         description = 'Default Sample',
     ),
 
-    Exp = device('nicos.devices.experiment.Experiment',
-        description = 'Dns Experiment ',
+    # Configure dataroot here (usually /data).
+    Exp = device('nicos_mlz.devices.experiment.Experiment',
+        description = 'DNS Experiment',
         dataroot = '/data',
         managerights = dict(
             enableDirMode = 0o775,
