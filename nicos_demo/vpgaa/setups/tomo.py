@@ -3,7 +3,7 @@ description = 'VPGAA setup for Tomography with XYZOmega sample table'
 group = 'basic'
 
 sysconfig = dict(
-    datasinks = ['FITSFileSaver', 'DiObSink'],
+    datasinks = ['FITSFileSaver'],  #, 'DiObSink'],
     experiment = 'Exp',
 )
 
