@@ -47,6 +47,9 @@ windows = [
            panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
     window('Errors', 'errors',
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+    window('Live data', 'live',
+           panel('nicos.clients.gui.panels.liveqwt.LiveDataPanel',
+                 instrument = 'imaging')),
 ]
 
 tools = [
