@@ -17,10 +17,6 @@ modules = ['nicos.commands.standard']
 
 # includes = ['notifiers']
 
-# devices: Contains all device definitions.
-# A device definition consists of a call like device(classname, parameters).
-# The class name is fully qualified (i.e., includes the package/module name).
-# The parameters are given as keyword arguments.
 devices = dict(
     Stressi = device('nicos.devices.instrument.Instrument',
         description = 'Virtual STRESSI instrument',
@@ -34,7 +30,6 @@ devices = dict(
     Sample = device('nicos.devices.sample.Sample',
         description = 'The current used sample',
     ),
-    # Configure dataroot here (usually /data).
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'The current running experiment',
         dataroot = 'data',

@@ -33,7 +33,6 @@ devices = dict(
         description = 'The currently used sample',
     ),
 
-    # Configure dataroot here (usually /data).
     Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'experiment object',
         dataroot = '/data',

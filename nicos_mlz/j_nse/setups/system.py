@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# description: Description of the setup (detailed)
 description = 'system setup'
 
 group = 'lowlevel'

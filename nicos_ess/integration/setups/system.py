@@ -16,7 +16,6 @@ devices = dict(
         description='The current used sample',
         ),
 
-    # Configure dataroot here (usually /data).
     Exp=device('nicos.devices.experiment.Experiment',
         description='experiment object',
         dataroot='/opt/nicos-data',

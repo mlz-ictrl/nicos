@@ -17,10 +17,6 @@ modules = ['nicos.commands.standard']
 
 # includes = ['notifiers']
 
-# devices: Contains all device definitions.
-# A device definition consists of a call like device(classname, parameters).
-# The class name is fully qualified (i.e., includes the package/module name).
-# The parameters are given as keyword arguments.
 devices = dict(
     Spodi = device('nicos.devices.instrument.Instrument',
         description = 'Virtual SPODI instrument',
