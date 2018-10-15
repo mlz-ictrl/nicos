@@ -86,6 +86,8 @@ class TestEpicsMotor(object):
     def prepare(self, session):
         self.session = session
         self.motor = self.session.getDevice('motor1')
+        self.motor.values['lowlimit'] = -110
+        self.motor.values['highlimit'] = 110
         self.motor.offset = 0
 
     def test_adjust_command_sets_offset_correctly(self):
@@ -99,7 +101,7 @@ class TestEpicsMotor(object):
         # Check new offset value
         assert new_pos == self.motor.offset
 
-    def test_adjust_command_causes_absolute_limits_not_to_be_updated(self):
+    def test_adjust_command_causes_absolute_limits_to_be_updated(self):
         # Get initial limits
         low, high = self.motor.abslimits
 
@@ -108,7 +110,7 @@ class TestEpicsMotor(object):
         adjust(self.motor, new_pos)
 
         # Check new limits
-        assert (low, high) == self.motor.abslimits
+        assert (low + new_pos, high + new_pos) == self.motor.abslimits
 
     def test_adjust_command_causes_user_limits_to_be_updated(self):
         # Get initial limits
@@ -132,7 +134,7 @@ class TestEpicsMotor(object):
         # Check new offset value
         assert new_offset == self.motor.offset
 
-    def test_setting_offset_causes_absolute_limits_not_to_be_updated(self):
+    def test_setting_offset_causes_absolute_limits_to_be_updated(self):
         # Get initial limits
         low, high = self.motor.abslimits
 
@@ -141,7 +143,7 @@ class TestEpicsMotor(object):
         self.motor.offset = new_offset
 
         # Check new limits
-        assert (low, high) == self.motor.abslimits
+        assert (low + new_offset, high + new_offset) == self.motor.abslimits
 
     def test_setting_offset_causes_user_limits_to_be_updated(self):
         # Get initial limits

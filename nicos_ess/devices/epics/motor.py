@@ -26,6 +26,7 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.core import Override, Param, pvname, status
+from nicos.core.errors import ConfigurationError
 from nicos.devices.abstract import CanReference, HasOffset, Motor
 
 from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
@@ -34,7 +35,7 @@ from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
     """
     This device exposes some of the functionality provided by the EPICS motor
-    record. The PV-names for the fields of the record (readback, speed, etc.)
+    record. The PV names for the fields of the record (readback, speed, etc.)
     are derived by combining the motorpv-parameter with the predefined field
     names.
 
@@ -63,7 +64,7 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
     }
 
     parameter_overrides = {
-        # readpv and writepv are determined automatically from the base-PV
+        # readpv and writepv are determined automatically from the base PV
         'readpv': Override(mandatory=False, userparam=False, settable=False),
         'writepv': Override(mandatory=False, userparam=False, settable=False),
 
@@ -71,7 +72,6 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
         'speed': Override(volatile=True),
         'offset': Override(volatile=True, chatty=False),
         'abslimits': Override(volatile=True),
-        'userlimits': Override(volatile=True),
     }
 
     # Fields of the motor record for which an interaction via Channel Access
@@ -151,15 +151,17 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
         # USERval = HARDval + offset
 
         if self.offset != value:
+            diff = value - self.offset
+
             # Set the offset in motor record
             self._put_pv_blocking('offset', value)
 
-            # Read the limits, values, target again
-            # Reading abslimits will do the following:
-            # call doReadAbslimits() [because the parameter is volatile]
-            # update the internal parameter dictionary
-            # transfer the value to the NICOS cache
+            # Read the absolute limits from the device as they have changed.
             self.abslimits  # pylint: disable=pointless-statement
+
+            # Adjust user limits
+            self.userlimits = (self.userlimits[0] + diff,
+                               self.userlimits[1] + diff)
 
             self.log.info('The new user limits are: ' + str(self.userlimits))
 
@@ -236,21 +238,21 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
     def doStop(self):
         self._put_pv('stop', 1, False)
 
-    def doReadUserlimits(self):
-        # User limits are exactly the same at the
-        # EPICS HLM and LLM motor records
-        usrmin = self._get_pv('lowlimit')
-        usrmax = self._get_pv('highlimit')
+    def _checkLimits(self, limits):
+        # Called by doReadUserlimits and doWriteUserlimits
+        low, high = self.abslimits
+        if low == 0 and high == 0:
+            # No limits defined in IOC.
+            # Could be a rotation stage for example.
+            return
 
-        return usrmin, usrmax
+        if limits[0] < low or limits[1] > high:
+            raise ConfigurationError('cannot set user limits outside of '
+                                     'absolute limits (%s, %s)' % (low, high))
 
     def doReadAbslimits(self):
-        # This should be independent of the offset, and
-        # as the EPICS HLM, LLM fields change with the
-        # offset, it should be corrected accordingly
-        absmin = self._get_pv('lowlimit') - self.offset
-        absmax = self._get_pv('highlimit') - self.offset
-
+        absmin = self._get_pv('lowlimit')
+        absmax = self._get_pv('highlimit')
         return absmin, absmax
 
     def doReference(self):
