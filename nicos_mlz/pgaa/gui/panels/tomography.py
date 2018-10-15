@@ -26,18 +26,18 @@
 
 from __future__ import absolute_import, division, print_function
 
+import time
 from os import path
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import ScriptExecQuestion, loadUi
-from nicos.guisupport.qt import QColor, QMenu, QMessageBox
+from nicos.guisupport.qt import QColor, QMessageBox
 
 my_uipath = path.dirname(__file__)
 
 
 class TomographyPanel(Panel):
     panelName = 'Tomography'
-    menu = None
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
@@ -49,7 +49,7 @@ class TomographyPanel(Panel):
 
         client.connected.connect(self.on_client_connected)
         client.message.connect(self.on_client_message)
-        client.initstatus.connect(self.on_client_initstatus)
+        client.status.connect(self.on_client_initstatus)
         client.mode.connect(self.on_client_mode)
 
     def loadSettings(self, settings):
@@ -65,14 +65,14 @@ class TomographyPanel(Panel):
         pass
 
     def getMenus(self):
-        if not self.menu:
-            menu = QMenu('&Output', self)
+        # if not self.menu:
+        #   menu = QMenu('&Output', self)
         #   menu.addAction(self.actionGrep)
         #   menu.addSeparator()
         #   menu.addAction(self.actionSave)
         #   menu.addAction(self.actionPrint)
-            self.menu = menu
-        return [self.menu]
+        #   self.menu = menu
+        return []
 
     def updateStatus(self, status, exception=False):
         self.current_status = status
@@ -93,7 +93,7 @@ class TomographyPanel(Panel):
         pass
 
     def on_client_initstatus(self, state):
-        self.on_client_mode(state['mode'])
+        # self.on_client_mode(state['mode'])
         # messages = self.client.ask('getmessages', '10000')
         # self.outView.clear()
         # total = len(messages) // 2500 + 1
@@ -102,6 +102,7 @@ class TomographyPanel(Panel):
         #                                       parent=self, total=total):
         #     self.outView.addMessages(batch)
         # self.outView.scrollToBottom()
+        pass
 
     def on_client_message(self, message):
         if message[-1] == '(sim) ':
@@ -153,5 +154,6 @@ class TomographyPanel(Panel):
                 action = 'execute'
         if action == 'queue':
             self.client.run(script)
+            self.mainwindow.action_start_time = time.time()
         else:
             self.client.tell('exec', script)

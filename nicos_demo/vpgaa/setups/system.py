@@ -9,7 +9,7 @@ sysconfig = dict(
     notifiers = [],
 )
 
-modules = ['nicos.commands.standard']
+modules = ['nicos.commands.standard', 'nicos_mlz.pgaa.commands']
 
 group = 'lowlevel'
 
