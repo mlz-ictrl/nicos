@@ -320,17 +320,9 @@ class CSVSinkHandler(DataSinkHandler):
         if 'Comment' not in addinfo:
             addinfo['Comment'] = self.dataset.preset.get('info', '')
 
-        fileinfo = addinfo.copy()
-        code = ''
-        for i, item in enumerate(self.atts[self._value('att')]):
-            code += '%d' % (i + 1) if item == 'in' else ''
-        fileinfo['Attenuator'] = code
-        fileinfo['Beam'] = 'O' if self._value('shutter') == 'closed' else ''
-        fileinfo['Vacuum'] = 'V' if self._value('chamber_pressure') < 10. \
-            else ''
 
-        addinfo['Filename'] = session.data.expandNameTemplates(
-            self.sink.datafilenametemplate, fileinfo)[0]
+        fname = path.basename(self.dataset.filenames[0])
+        addinfo['Filename'] = fname[1:fname.rfind(path.extsep)]
 
         self.dataset.preset['FILENAME'] = addinfo['Filename']
 
