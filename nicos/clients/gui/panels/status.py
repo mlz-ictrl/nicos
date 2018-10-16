@@ -65,7 +65,7 @@ class ScriptQueue(object):
     def update(self, request):
         item = self._id2item.get(request['reqid'])
         if item:
-            text = self._format_item(request['script'])
+            text = self._format_item(request)
             item.setText(text)
 
     def remove(self, reqid):
