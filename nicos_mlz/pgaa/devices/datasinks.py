@@ -38,7 +38,11 @@ from nicos.devices.datasinks import FileSink
 from nicos.pycompat import File
 
 
+__all__ = ('MCASink', 'CHNSink', 'CSVDataSink')
+
+
 class PGAASinkHandler(DataSinkHandler):
+    """Base data sink handler for the PGAA files."""
 
     atts = {
         100.: ('out', 'out', 'out'),
@@ -125,6 +129,7 @@ class PGAASinkHandler(DataSinkHandler):
 
 
 class MCASinkHandler(PGAASinkHandler):
+    """Data sink handler for the Ortec MCA files."""
 
     def _write_file(self, addinfo, livetime, truetime, spectrum, ecalslope,
                     ecalintercept):
@@ -172,6 +177,7 @@ class MCASinkHandler(PGAASinkHandler):
 
 
 class CHNSinkHandler(PGAASinkHandler):
+    """Data sink handler for the channel data files."""
 
     def _write_file(self, addinfo, livetime, truetime, spectrum, ecalslope,
                     ecalintercept):
@@ -246,11 +252,13 @@ class PGAASink(FileSink):
 
 
 class MCASink(PGAASink):
+    """Write spectrum to file in Ortec format."""
 
     handlerclass = MCASinkHandler
 
 
 class CHNSink(PGAASink):
+    """Write spectrum to file in channel format."""
 
     handlerclass = CHNSinkHandler
 
@@ -319,7 +327,6 @@ class CSVSinkHandler(DataSinkHandler):
         addinfo['Name'] = self.dataset.metainfo['Sample', 'samplename'][0]
         if 'Comment' not in addinfo:
             addinfo['Comment'] = self.dataset.preset.get('info', '')
-
 
         fname = path.basename(self.dataset.filenames[0])
         addinfo['Filename'] = fname[1:fname.rfind(path.extsep)]

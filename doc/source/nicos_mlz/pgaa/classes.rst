@@ -29,4 +29,6 @@ Data sinks
 ----------
 
 .. automodule:: nicos_mlz.pgaa.devices.datasinks
-.. autoclass:: PGAASink()
+.. autoclass:: MCASink()
+.. autoclass:: CHNSink()
+.. autoclass:: CVSDataSink()
