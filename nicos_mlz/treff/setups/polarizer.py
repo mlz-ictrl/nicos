@@ -6,13 +6,14 @@ group = 'optional'
 tango_base = 'tango://phys.treff.frm2:10000/treff/'
 
 devices = dict(
-    pflipper = device('nicos.devices.tango.NamedDigitalOutput',
-        description = "Flipper",
+    pflipper = device('nicos_mlz.jcns.devices.polarizer.DOFlipper',
+        description = 'Polarizer flipper',
         tangodevice = tango_base + 'FZJDP_Digital/pflipper',
         mapping = {
             'up': 1,
             'down': 0,
-        }
+        },
+        powersupplies = ['pow4grad', 'pow4hf'],
     ),
     polarizer_tilt = device('nicos.devices.tango.Motor',
         description = 'Polarizer tilt',
@@ -27,5 +28,15 @@ devices = dict(
         unit = 'mm',
         precision = 0.01,
         fmtstr = '%.2f',
+    ),
+    pow4hf = device('nicos.devices.tango.PowerSupply',
+        description = 'Power supply 4 current control ch 1',
+        tangodevice = tango_base + 'toellner/pow4hf',
+        voltage = 32.0,  # pflipper down
+    ),
+    pow4grad = device('nicos.devices.tango.PowerSupply',
+        description = 'Power supply 4 current control ch 2',
+        tangodevice = tango_base + 'toellner/pow4grad',
+        voltage = 17.66,
     ),
 )
