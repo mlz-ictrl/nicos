@@ -22,13 +22,14 @@ devices = dict(
             "out": 0,
         },
     ),
-    pflipper = device("nicos.devices.tango.NamedDigitalOutput",
-        description = "Flipper",
+    pflipper = device("nicos_mlz.jcns.devices.polarizer.DOFlipper",
+        description = "Polarizer flipper",
         tangodevice = tango_dio + "/pflipper",
         mapping = {
             "up": 0,
             "down": 1,
-        }
+        },
+        powersupplies = ["pow4curr1", "pow4curr2"],
     ),
     # aflipper (3HE) has inverted up/down mapping
     aflipper = device("nicos_mlz.maria.devices.pyro4.NamedDigitalOutput",
@@ -51,5 +52,17 @@ devices = dict(
         description = "Power supply 4 current control ch 2",
         tangodevice = tango_ps + "/pow4curr2",
         unit = 'A',
+    ),
+    pol_state = device("nicos.devices.generic.MultiSwitcher",
+        description = "Guide field switcher",
+        moveables = ["pflipper", "aflipper"],
+        mapping = {
+            "dd": ("down", "down"),
+            "du": ("down", "up"),
+            "ud": ("up", "down"),
+            "uu": ("up", "up"),
+        },
+        precision = None,
+        unit = ''
     ),
 )
