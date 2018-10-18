@@ -208,6 +208,8 @@ class PyTangoDevice(HasCommunication):
         # Don't create PyTango device in simulation mode
         if mode != SIMULATION:
             self._dev = self._createPyTangoDevice(self.tangodevice)
+        else:
+            self._dev = HardwareStub(self)
 
     def doStatus(self, maxage=0):
         # Query status code and string

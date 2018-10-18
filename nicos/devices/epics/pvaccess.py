@@ -119,6 +119,10 @@ class EpicsDevice(DeviceMixinBase):
                 except pvaccess.PvaException:
                     raise CommunicationError(self, 'could not connect to PV %r'
                                              % pv_name)
+        else:
+            for pvparam in self._get_pv_parameters():
+                self._pvs[pvparam] = HardwareStub(self)
+                self._pvctrls[pvparam] = {}
 
     def doInit(self, mode):
         if mode != SIMULATION:

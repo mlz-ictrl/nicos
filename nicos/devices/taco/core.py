@@ -161,6 +161,8 @@ class TacoDevice(HasCommunication):
                                    self.__class__.__name__)
         if mode != SIMULATION:
             self._dev = self._create_client()
+        else:
+            self._dev = HardwareStub(self)
 
     def doShutdown(self):
         if self._dev:
