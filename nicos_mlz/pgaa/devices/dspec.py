@@ -151,8 +151,15 @@ class DSPec(PyTangoDevice, Measurable):
         self._preset = preset
 
     def doTime(self, preset):
-        self.doSetPreset(**preset)  # okay in simmode
-        return self.doEstimateTime(0) or 0
+        if 'TrueTime' in preset:
+            return preset['TrueTime']
+        elif 'LiveTime' in preset:
+            return preset['LiveTime']
+        elif 'ClockTime' in preset:
+            return abs(float(preset['ClockTime']) - currenttime())
+        elif 'counts' in preset:
+            return 1
+        return None
 
     def doEstimateTime(self, elapsed):
         if self.doStatus()[0] == status.BUSY:
@@ -214,8 +221,12 @@ class DSPec(PyTangoDevice, Measurable):
         return None
 
     def doSimulate(self, preset):
-        self.doSetPreset(**preset)  # okay in simmode
-        return self.doRead()
+        for t in 'TrueTime', 'LiveTime', 'ClockTime':
+            if t in preset:
+                return [preset[t], preset[t], 0]
+        if 'counts' in preset:
+            return [1, 1, preset['counts']]
+        return [0, 0, 0]
 
     def doIsCompleted(self):
         if self._started is None:
