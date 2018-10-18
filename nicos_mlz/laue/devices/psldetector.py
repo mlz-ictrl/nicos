@@ -25,6 +25,7 @@
 """Detector class for the laue PSL detector via the windows server."""
 
 from nicos.core import ArrayDesc, Param, status
+from nicos.core.constants import SIMULATION
 from nicos.devices.generic.detector import ImageChannelMixin, ActiveChannel
 
 import numpy as np
@@ -57,7 +58,7 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
 
     def doInit(self, mode):
         # Determine image type
-        if self._sim_active:
+        if mode == SIMULATION:
             iwstr, ihstr = '2000', '1598'
         else:
             try:
