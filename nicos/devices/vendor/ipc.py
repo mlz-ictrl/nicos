@@ -1172,6 +1172,8 @@ class IPCRelay(Moveable):
 
     valuetype = oneofdict({0: 'off', 1: 'on'})
 
+    hardware_access = False
+
     def doStart(self, target):
         self._attached_stepper.relay = target
 
@@ -1195,6 +1197,8 @@ class IPCInhibit(Readable):
     attached_devices = {
         'stepper': Attach('The stepper card whose inhibit is read out', Motor),
     }
+
+    hardware_access = False
 
     def doRead(self, maxage=0):
         return 'on' if self._attached_stepper.inhibit else 'off'
