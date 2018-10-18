@@ -74,6 +74,8 @@ class PumaSecCollBlockChanger(Moveable):
         'unit': Override(mandatory=False, default=''),
     }
 
+    hardware_access = False
+
     valuetype = oneof('in', 'out')
 
     def doInit(self, mode):

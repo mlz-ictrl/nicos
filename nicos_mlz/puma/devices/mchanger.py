@@ -60,7 +60,7 @@ class Mchanger(Moveable):
                          settable=False),
     }
 
-    # hardware_access = False
+    hardware_access = False
 
     def doInit(self, mode):
         # self._switchlist = self._attached_holdstat._iolist.keys()
@@ -108,7 +108,7 @@ class Mchanger(Moveable):
         return self._attached_holdstat.read(maxage)
 
     def doIsAllowed(self, pos):
-        if self._attached_lift.doRead(0) != 'ref':
+        if self._attached_lift.read(0) != 'ref':
             return (False, 'Lift is not at reference position. Please check if'
                     ' mono is fixed at the magazin or at the monotable')
         return True, ''

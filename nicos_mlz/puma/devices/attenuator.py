@@ -39,13 +39,15 @@ class Attenuator(HasLimits, Moveable):
         'io_press': Attach('...', Readable),
     }
 
+    hardware_access = False
+
     def doInit(self, mode):
         self._filterlist = [1, 2, 5, 10, 20]
         self._filmax = sum(self._filterlist)
 
         if mode == SIMULATION:
             return
-        stat1 = self._attached_io_status.doRead()
+        stat1 = self._attached_io_status.read()
         stat2 = 0
         for i in range(0, 5):
             stat2 += (((stat1 >> (2 * i + 1)) & 1) << i)
@@ -91,7 +93,7 @@ class Attenuator(HasLimits, Moveable):
             if self.read(0) < actpos:
                 self.log.info('requested filter combination not possible; '
                               'switched to %r %s thickness:',
-                              self.doRead(), self.unit)
+                              self.read(), self.unit)
         finally:
             self.log.info('new attenuation: %s %s', self.read(), self.unit)
 
@@ -99,7 +101,7 @@ class Attenuator(HasLimits, Moveable):
         if self.doStatus()[0] == status.OK:
             result = 0
             fil = 0
-            readvalue = self._attached_io_status.doRead()
+            readvalue = self._attached_io_status.read(maxage)
             for i in range(0, 5):
                 fil = (readvalue >> (i * 2 + 1)) & 1
                 self.log.debug('filterstatus of %d: %d', i, fil)
@@ -113,8 +115,8 @@ class Attenuator(HasLimits, Moveable):
         self.start(0)
 
     def doStatus(self, maxage=0):
-        stat1 = self._attached_io_set.doRead()
-        checkstatus = self._checkstatus()
+        stat1 = self._attached_io_set.read(maxage)
+        checkstatus = self._checkstatus(maxage)
         stat2 = checkstatus[0] + checkstatus[1]
         stat3 = checkstatus[0]
         if (abs(stat1 - stat3) == 0) and stat2 == 31:
@@ -122,12 +124,12 @@ class Attenuator(HasLimits, Moveable):
         else:
             return (status.ERROR, 'device undefined, please check')
 
-    def _checkstatus(self):
-        stat1 = self._attached_io_status.doRead()
+    def _checkstatus(self, maxage=0):
+        stat1 = self._attached_io_status.read(maxage)
         stat2 = 0
         stat3 = 0
         for i in range(5):
             stat2 += (((stat1 >> (2 * i + 1)) & 1) << i)
             stat3 += (((stat1 >> (2 * i)) & 1) << i)
-            self.log.debug('%d,  %d,     %d', stat1, stat2, stat3)
+            self.log.debug('%d, %d, %d', stat1, stat2, stat3)
         return (stat2, stat3)
