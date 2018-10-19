@@ -29,12 +29,19 @@ from time import time as currenttime
 
 import numpy as np
 
-from nicos.core import ArrayDesc, Measurable, Param, Value, status
+from nicos.core import ArrayDesc, Attach, Measurable, Moveable, Param, Value, \
+    anytype, listof, status
 from nicos.core.errors import NicosError
+from nicos.core.utils import multiWait
 from nicos.devices.tango import PyTangoDevice
 
 
 class DSPec(PyTangoDevice, Measurable):
+
+    attached_devices = {
+        'gates':   Attach('Gating devices', Moveable,
+                          multiple=True, optional=True),
+    }
 
     parameters = {
         'prefix': Param('prefix for filesaving',
@@ -51,7 +58,26 @@ class DSPec(PyTangoDevice, Measurable):
         'cacheinterval': Param('Interval to cache intermediate spectra',
                                type=float, unit='s', settable=True,
                                default=1800),
+        'enablevalues':  Param('List of values to enable the gates',
+                               type=listof(anytype), default=[],
+                               settable=True),
+        'disablevalues': Param('List of values to disable the gates',
+                               type=listof(anytype), default=[]),
     }
+
+    def _enable_gates(self):
+        self.log.debug('enabling gates')
+        for dev, val in zip(self._attached_gates, self.enablevalues):
+            dev.move(val)
+        multiWait(self._attached_gates)
+        self.log.debug('gates enabled')
+
+    def _disable_gates(self):
+        self.log.debug('disabling gates')
+        for dev, val in reversed(zip(self._attached_gates, self.disablevalues)):
+            dev.move(val)
+        multiWait(self._attached_gates)
+        self.log.debug('gates disabled')
 
     # XXX: issues with ortec API -> workarounds and only truetime and livetime
     # working.
@@ -175,6 +201,7 @@ class DSPec(PyTangoDevice, Measurable):
         return None
 
     def doStart(self):
+        self._enable_gates()
         try:
             self._dev.Stop()
             self._dev.Clear()
@@ -192,9 +219,13 @@ class DSPec(PyTangoDevice, Measurable):
 
     def doPause(self):
         self._dev.Stop()
+        self._disable_gates()
         return True
 
     def doResume(self):
+        # check first gate to see if we need to (re-)enable them
+        if self._attached_gates[0].read(0) != self.enablevalues[0]:
+            self._enable_gates()
         try:
             self._dev.Start()
         except NicosError:
@@ -211,6 +242,7 @@ class DSPec(PyTangoDevice, Measurable):
         except NicosError:
             self._dev.Init()
             self._dev.Stop()
+        self._disable_gates()
 
     def duringMeasurementHook(self, elapsed):
         if (elapsed - self._lastread) > self.cacheinterval:

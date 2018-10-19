@@ -26,7 +26,7 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.core import Override, Param, intrange, status, tupleof
-from nicos.devices.generic.detector import Detector
+from nicos.devices.generic.detector import GatedDetector
 from nicos.devices.generic.virtual import VirtualImage
 
 
@@ -62,7 +62,7 @@ class Spectrum(VirtualImage):
         return self._buf[0]
 
 
-class DSPec(Detector):
+class DSPec(GatedDetector):
 
     parameters = {
         'prefix': Param('prefix for filesaving',
@@ -75,6 +75,10 @@ class DSPec(Detector):
                                type=int, mandatory=False, settable=True,
                                prefercache=True, default=0,
                                category='general'),
+    }
+
+    parameter_overrides = {
+        'enablevalues':  Override(settable=True),
     }
 
     def _presetiter(self):
@@ -102,10 +106,10 @@ class DSPec(Detector):
 
     def doReset(self):
         self._clear()
-        Detector.doReset(self)
+        GatedDetector.doReset(self)
 
     def doPreinit(self, mode):
-        Detector.doPreinit(self, mode)
+        GatedDetector.doPreinit(self, mode)
         self._clear()
 
     def doSetPreset(self, **preset):
@@ -134,7 +138,7 @@ class DSPec(Detector):
                   'LiveTime', 'TrueTime', 'ClockTime', 'counts'):
             preset.pop(k, '')
         self.log.debug('Preset keys: %r', self._presetkeys)
-        Detector.doSetPreset(self, **preset)
+        GatedDetector.doSetPreset(self, **preset)
 
     def presetInfo(self):
         return set(['info', 'Filename',
