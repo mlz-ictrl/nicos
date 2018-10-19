@@ -10,7 +10,7 @@ includes = [
 excludes = ['eulerian_huber', 'eulerian_newport', 'robot']
 
 sysconfig = dict(
-    datasinks = ['caresssink', 'yamlsink'],
+    datasinks = ['caresssink'],
 )
 
 servername = 'VME'
