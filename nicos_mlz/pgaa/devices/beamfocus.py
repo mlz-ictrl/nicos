@@ -30,7 +30,7 @@ class BeamFocus(Moveable):
 
     attached_devices = {
         'ellipse': Attach('output signal for ellipse', Moveable),
-        'collimator': Attach('output signal for collimator', Moveable)
+        'collimator': Attach('output signal for collimator', Moveable),
     }
 
     parameter_overrides = {
@@ -40,10 +40,11 @@ class BeamFocus(Moveable):
 
     valuetype = oneof('Ell', 'Col')
 
-    def doInit(self, mode):
-        ell_state = self._attached_ellipse.read()
-        col_state = self._attached_collimator.read()
+    hardware_access = False
 
+    def doInit(self, mode):
+        ell_state = self._attached_ellipse.read(0)
+        col_state = self._attached_collimator.read(0)
         if [ell_state, col_state] == [1, 1]:
             self.reset()
 
