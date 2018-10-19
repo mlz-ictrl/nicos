@@ -26,8 +26,8 @@ _axisblock = Block('Axes angles', [
              Field(name='Focus ana', key='ana/focmode'),
              'afpg'),
     ],
-    setups='puma',  # this is the name of a setup that must be loaded in the
-                    # NICOS master instance for this block to be displayed
+    # setups='puma',  # this is the name of a setup that must be loaded in the
+                      # NICOS master instance for this block to be displayed
 )
 
 _sampletable = Block('Sampletable', [
@@ -72,7 +72,7 @@ _tasblock = Block('Triple-axis', [
              Field(dev='ana', name='kf'),
              Field(key='puma/energytransferunit', name='Unit')),
     ],
-    setups='puma',
+    # setups='puma',
 )
 
 _shutterblock = Block('Shutter / Filters', [
