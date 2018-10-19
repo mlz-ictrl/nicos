@@ -20,7 +20,7 @@ devices = dict(
         addr = 51,
         slope = -160,
         unit = 'mm',
-        abslimits = (-144, 360),
+        abslimits = (-144, 370),
         zerosteps = 500000,
         lowlevel = True,
         confbyte = 52,
@@ -60,12 +60,12 @@ devices = dict(
         description = 'Monochromator lift',
         moveables = 'mli',
         readables = 'sw_lift',
-        # distance between upper and lower limit switch is 598.2 !!
+        # distance between upper and lower limit switch is 498.2 !!
         mapping = dict(
-            top2   = (359.6, 1),
-            top1 = (355.3, 0),
+            top2   = (357.5, 1), #before 359.6
+            top1 = (355.3, 0), # 355.3
             ref = (0, 4),
-            bottom = (-138.6, 2),
+            bottom = (-138.04, 2),
         ),
         precision = [0.5, 0],
         blockingmove = True,
