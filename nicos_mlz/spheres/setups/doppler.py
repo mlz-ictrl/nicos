@@ -12,8 +12,8 @@ devices = dict(
     doppler_switch = device('nicos.devices.tango.NamedDigitalOutput',
         description = 'Switch doppler on and off',
         tangodevice = doppler + 'switch',
-        mapping = {'on': 1,
-                   'off': 0},
+        mapping = dict(on=1,
+                       off=0),
         lowlevel = True,
     ),
     doppler_speed = device('nicos.devices.tango.AnalogOutput',
@@ -52,16 +52,15 @@ devices = dict(
             4.7: (4.7, 75),
         },
         fallback = 'undefinded',
-        pollinterval = 5
+        pollinterval = 5,
+        margins = dict(speed=0.01,
+                       amplitude=0.1)
     ),
     acqdoppler = device('nicos_mlz.spheres.devices.doppler.AcqDoppler',
         description = 'Doppler values as seen by the SIS detector',
         tangodevice = acq + 'counter',
         unit = '',
         fmtstr = '%.3f m/s, %.3f m',
-        amplitude = 'doppler_amplitude',
-        speed = 'doppler_speed',
         lowlevel = True,
-        margins = [0.01, 0.1]
     ),
 )
