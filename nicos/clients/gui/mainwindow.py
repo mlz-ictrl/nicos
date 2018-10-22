@@ -39,7 +39,6 @@ except ImportError:
     SSHTunnelForwarder = None
 
 from nicos import nicos_version
-from nicos.utils import importString
 from nicos.core.utils import ADMIN
 from nicos.clients.base import ConnectionData
 from nicos.clients.gui.data import DataHandler
@@ -59,11 +58,33 @@ from nicos.protocols.daemon import STATUS_INBREAK, STATUS_IDLE, \
     STATUS_IDLEEXC, BREAK_NOW
 from nicos.pycompat import iteritems, listvalues, text_type
 from nicos.clients.gui.config import tabbed
+from nicos.utils import checkSetupSpec, importString
 
 try:
     from nicos.clients.gui.dialogs.help import HelpWindow
 except ImportError:
     HelpWindow = None
+
+
+class ToolAction(QAction):
+    """Extended QAction which is setup depending visible.
+
+    The action is visible if no special setup is configured or the loaded setup
+    matches the ``setups`` rule.
+    """
+
+    def __init__(self, client, icon, text, options, parent=None):
+        QAction.__init__(self, icon, text, parent)
+        setups = options.get('setups', '')
+        if not isinstance(setups, str):
+            setups = list(setups)
+        self.setupSpec = setups
+        if self.setupSpec:
+            client.register(self, 'session/mastersetup')
+
+    def on_keyChange(self, key, value, time, expired):
+        if key == 'session/mastersetup' and self.setupSpec:
+            self.setVisible(checkSetupSpec(self.setupSpec, value))
 
 
 class MainWindow(DlgUtils, QMainWindow):
@@ -227,7 +248,8 @@ class MainWindow(DlgUtils, QMainWindow):
         if not self.gui_conf.windows:
             self.menuBar().removeAction(self.menuWindows.menuAction())
         for i, wconfig in enumerate(self.gui_conf.windows):
-            action = QAction(QIcon(':/' + wconfig.icon), wconfig.name, self)
+            action = ToolAction(self.client, QIcon(':/' + wconfig.icon),
+                                wconfig.name, wconfig.options, self)
             self.toolBarWindows.addAction(action)
             self.menuWindows.addAction(action)
 

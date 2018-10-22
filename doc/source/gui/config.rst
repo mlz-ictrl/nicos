@@ -34,6 +34,10 @@ A small example configuration file looks like this:
            )
        ),
        window('Scans', 'plotter', panel('nicos.clients.gui.panels.scans.ScansPanel')),
+       window('Live data', 'live',
+              panel('nicos.clients.gui.panels.liveqwt.LiveDataPanel',
+                    instrument = 'imaging'),
+              setups='tomo'),
    ]
 
    tools = [
@@ -331,13 +335,18 @@ Nicos includes a comprehensive set of Panels for most general use cases:
 Auxiliary windows
 -----------------
 
-.. function:: window(name, icon, panelconf)
+.. function:: window(name, icon, panelconf, **options)
 
    This represents an auxiliary window.  ``name`` is the label for the window
    (and the action that opens it) and ``icon`` the name of an icon in the NICOS
-   Qt resources to use for the action that opens the window.
+   Qt resources to use for the action that opens the window.  ``panelconf`` is
+   the panel configuration for that window and ``options`` entry is a dict for
+   further configuration of that window.
 
-   ``panelconf`` is the panel configuration for that window.
+   Options:
+
+   * The ``setups`` option gives the possibility to define a setup depending
+     display of the panels, see :ref:`gui-config-setup`.
 
 
 Tools
@@ -365,6 +374,7 @@ Tools
 
    Represents a tool sub-menu.  The ``subitems`` are again ``tool``, ``cmdtool``
    or ``menu`` items.
+
 
 Delivered tools
 ---------------

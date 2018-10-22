@@ -57,14 +57,15 @@ class docked(tuple):
 
 
 class window(tuple):
-    def __new__(cls, *args):
+    def __new__(cls, *args, **options):
         assert len(args) == 3
-        return tuple.__new__(cls, args)
+        return tuple.__new__(cls, (args, options))
 
-    def __init__(self, *args):  # pylint: disable=super-init-not-called
-        self.name = self[0]
-        self.icon = self[1]
-        self.contents = self[2]
+    def __init__(self, *args, **kw):  # pylint: disable=super-init-not-called
+        self.name = self[0][0]
+        self.icon = self[0][1]
+        self.contents = self[0][2]
+        self.options = self[1]
 
 
 class panel(tuple):

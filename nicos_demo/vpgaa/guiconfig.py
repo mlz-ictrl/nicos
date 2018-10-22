@@ -49,7 +49,7 @@ windows = [
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
     window('Live data', 'live',
            panel('nicos.clients.gui.panels.liveqwt.LiveDataPanel',
-                 instrument = 'imaging')),
+                 instrument = 'imaging'), setups='tomo'),
 ]
 
 tools = [
