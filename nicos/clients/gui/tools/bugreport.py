@@ -190,10 +190,10 @@ class BugreportTool(DlgUtils, QDialog):
                          '<p>' + wrap(reproduction) + '</p>'
         if self.traceback:
             full_desc += '\n\n<p><b>Traceback:</b></p>\n' + \
-                         '<pre>' + self.traceback + '</pre>'
+                         '<pre>' + escape(self.traceback) + '</pre>'
         if add_log and self.log_excerpt:
             full_desc += '\n\n<p><b>Log excerpt:</b></p>\n' + \
-                         '<pre>' + self.log_excerpt + '</pre>'
+                         '<pre>' + escape(self.log_excerpt) + '</pre>'
 
         rm = redminelib.Redmine(TRACKER_URL, key=self.apikey)
         issue = rm.issue.new()
