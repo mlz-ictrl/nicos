@@ -72,8 +72,8 @@ windows = [
                 panel('nicos_mlz.sans1.gui.samplechanger.SamplechangerSetupPanel',
                       # image='nicos_mlz/sans1/gui/sampleChanger11.png',
                       image='nicos_mlz/sans1/gui/sampleChanger22.png',
-                      # positions = 11, setups='!setup22',)),
-                      positions = 22, setups=['sc1', 'sc2', 'ccmsanssc'],),
+                      # positions = 11, setups='not setup22',)),
+                      positions = 22, setups='sc? or ccmsanssc',),
                ),
            )
     ),

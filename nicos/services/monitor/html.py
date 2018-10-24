@@ -534,7 +534,7 @@ class Monitor(BaseMonitor):
         fields = []
         for block in self._onlyblocks:
             block.enabled = checkSetupSpec(block.setups, self._setups,
-                                           compat='and', log=self.log)
+                                           log=self.log)
             # check fields inside the block, if the block isn't invisible
             if block.enabled:
                 fields.extend(block._onlyfields)
@@ -542,7 +542,7 @@ class Monitor(BaseMonitor):
         fields.extend(self._onlyfields)
         for field in fields:
             field.enabled = checkSetupSpec(field.setups, self._setups,
-                                           compat='and', log=self.log)
+                                           log=self.log)
             if hasattr(field, '_namelabel'):
                 field._namelabel.enabled = field.enabled
             if hasattr(field, '_valuelabel'):

@@ -91,7 +91,7 @@ _column3 = Column(
         BlockRow(Field(dev='MonHV', width=5),
                  Field(dev='DetHV', width=5)),
         ],
-        setups='!cascade',
+        setups='not cascade',
     ),
     Block('Cascade detector', [
         BlockRow(Field(name='ROI',   key='psd/lastcounts[0]', width=9),

@@ -185,24 +185,24 @@ _sanscolumn = Column(
     ),
 )
 
-#~ _birmag = Column(
-    #~ Block('17T Magnet', [
-        #~ BlockRow(
-                 #~ Field(name='helium level', dev='helevel_birmag', width=13),
-                 #~ Field(name='field birmag', dev='field_birmag', width=13),
-                #~ ),
-        #~ BlockRow(
-                 #~ Field(name='Setpoint 1 birmag', dev='sp1_birmag', width=13),
-                 #~ Field(name='Setpoint 2 birmag', dev='sp2_birmag', width=13),
-                #~ ),
-        #~ BlockRow(
-                 #~ Field(name='Temp a birmag', dev='ta_birmag', width=13),
-                 #~ Field(name='Temp b birmag', dev='tb_birmag', width=13),
-                #~ ),
-        #~ ],
-        #~ setups='!always!birmag',
-    #~ ),
-#~ )
+# _birmag = Column(
+#     Block('17T Magnet', [
+#         BlockRow(
+#                  Field(name='helium level', dev='helevel_birmag', width=13),
+#                  Field(name='field birmag', dev='field_birmag', width=13),
+#                 ),
+#         BlockRow(
+#                  Field(name='Setpoint 1 birmag', dev='sp1_birmag', width=13),
+#                  Field(name='Setpoint 2 birmag', dev='sp2_birmag', width=13),
+#                 ),
+#         BlockRow(
+#                  Field(name='Temp a birmag', dev='ta_birmag', width=13),
+#                  Field(name='Temp b birmag', dev='tb_birmag', width=13),
+#                 ),
+#         ],
+#         setups='birmag',
+#     ),
+# )
 
 _miramagnet = Column(
     Block('MIRA Magnet', [

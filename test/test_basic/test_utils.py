@@ -315,21 +315,28 @@ CASES = [
     ('(b and not (c or h))', ['h'], False),
     ('(b and not (c or h))', ['h', 'c'], False),
     ('a and',      ['b'],           True),  # warns
-    # compatibility cases
+    ('a?', ['a1'], True),
+    ('a? or c', ['c'], True),
+    ('a?', ['a12', 'a2'], True),
+    ('a?', ['a12', 'a34'], False),
+]
+
+OLDSTYLE_CASES = [
+    # old style cases
     (['a'],        ['a', 'b', 'c'], True),
-    ('!a',         ['a', 'b', 'c'], False),
-    (['!a'],       ['a', 'b', 'c'], False),
+    ('!a',         ['a', 'b', 'c'], True),
+    (['!a'],       ['a', 'b', 'c'], True),
     (['a', 'd'],   ['a', 'b', 'c'], True),
-    (['d'],        ['a', 'b', 'c'], False),
+    (['d'],        ['a', 'b', 'c'], True),
     (['!d'],       ['a', 'b', 'c'], True),
     (['a', '!d'],  ['a', 'b', 'c'], True),
-    (['!a', 'd'],  ['a', 'b', 'c'], False),
+    (['!a', 'd'],  ['a', 'b', 'c'], True),
     (['!a', '!d'], ['a', 'b', 'c'], True),
 ]
 
 
 def test_check_setup_spec():
-    for spec, setups, result in CASES:
+    for spec, setups, result in CASES + OLDSTYLE_CASES:
         # print is here to aid in finding the offending input parameters
         # as the stacktrace doesn't output locals
         res = checkSetupSpec(spec, setups)

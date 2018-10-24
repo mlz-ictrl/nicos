@@ -91,14 +91,13 @@ class SetupDepPanelMixin(QObject):
 
     def __init__(self, client, options):
         setups = options.get('setups', '')
-        if not isinstance(setups, str):
-            setups = list(setups)
         self.setSetups(setups)
         client.register(self, 'session/mastersetup')
 
     def setSetups(self, setupSpec):
         self.setupSpec = setupSpec
         self.log.debug('Setups are: %r', self.setupSpec)
+        checkSetupSpec(self.setupSpec, '', log=self.log)
 
     def on_keyChange(self, key, value, time, expired):
         if key == 'session/mastersetup' and self.setupSpec:

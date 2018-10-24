@@ -28,7 +28,7 @@ from nicos.core.errors import ConfigurationError
 from nicos.core.sessions.setups import SETUP_GROUPS, prepareNamespace, \
     fixup_stacked_devices
 from nicos.core.params import nicosdev_re
-from nicos.utils import importString
+from nicos.utils import checkSetupSpec, importString
 from nicos.utils.files import findSetupRoots, iterSetups
 from nicos.utils.loggers import ColoredConsoleHandler, StreamHandler
 from nicos.utils.stubs import generate_stubs
@@ -467,6 +467,7 @@ class SetupChecker(object):
                 if qt and not issubclass(cls, Panel):
                     self.log.warning('class %r for %s is not a Panel '
                                      'subclass', spec.clsname, context)
+            self.validate_setup_spec(spec)
         else:
             self.log_error('found unsupported panel item %r', spec)
 
@@ -476,6 +477,7 @@ class SetupChecker(object):
             self.log_error('window spec %r is not a window()', spec)
 
         self.check_guiconfig_panel_spec(spec.contents, 'window %s' % spec.name)
+        self.validate_setup_spec(spec)
 
     def check_guiconfig_tool_spec(self, spec):
         # recursively check a tool spec
@@ -496,6 +498,16 @@ class SetupChecker(object):
                 if qt and not issubclass(cls, (qt.QDialog, qt.QMainWindow)):
                     self.log.warning('class %r for tool %r is not a QDialog or'
                                      ' QMainWindow', spec.clsname, spec.name)
+            self.validate_setup_spec(spec)
+
+    def validate_setup_spec(self, spec):
+        """Validate the 'setups' option.
+
+        If there is a definitions of the old style of setup dependenciest a
+        warning will be given.
+        """
+        setupspec = spec.options.get('setups', '')
+        checkSetupSpec(setupspec, '', log=self.log)
 
 
 parser = argparse.ArgumentParser()

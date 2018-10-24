@@ -79,8 +79,6 @@ class ToolAction(QAction):
     def __init__(self, client, icon, text, options, parent=None):
         QAction.__init__(self, icon, text, parent)
         setups = options.get('setups', '')
-        if not isinstance(setups, str):
-            setups = list(setups)
         self.setupSpec = setups
         if self.setupSpec:
             client.register(self, 'session/mastersetup')

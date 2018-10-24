@@ -1461,14 +1461,9 @@ def extractKeyAndIndex(spec, append_value=True):
     return key, indices, scale, offset
 
 
-def checkSetupSpec(setupspec, setups, compat='or', log=None):
+def checkSetupSpec(setupspec, setups, log=None):
     """Check if the given setupspec should be displayed given the loaded setups.
     """
-    def fixup_old(s):
-        if s.startswith('!'):
-            return 'not %s' % s[1:]
-        return s
-
     def subst_setupexpr(match):
         if match.group() in ('has_setup', 'and', 'or', 'not'):
             return match.group()
@@ -1479,12 +1474,17 @@ def checkSetupSpec(setupspec, setups, compat='or', log=None):
 
     if not setupspec:
         return True  # no spec -> always visible
+    if isinstance(setupspec, list):
+        if log:
+            log.warning("\"%s\" is old 'setups' style (list)", setupspec)
+        return True
+    if setupspec.startswith('!'):
+        if log:
+            log.warning("\"%s\" is old 'setups' style (negation via '!')",
+                        setupspec)
+        return True
     if not setups:
         return False  # no setups -> not visible (safety)
-    if isinstance(setupspec, list):
-        setupspec = (' %s ' % compat).join(fixup_old(v) for v in setupspec)
-    if setupspec.startswith('!'):
-        setupspec = fixup_old(setupspec)
     expr = re.sub(r'[\w\[\]*?]+', subst_setupexpr, setupspec)
     ns = {'has_setup': has_setup}
     try:

@@ -425,7 +425,7 @@ class Monitor(BaseMonitor):
         fields = []
         for (layout, box) in self._onlyblocks:
             emitdict[layout, box] = checkSetupSpec(box.setups, self._setups,
-                                                   compat='and', log=self.log)
+                                                   log=self.log)
             # check fields inside the block, if the block isn't invisible
             if emitdict[layout, box]:
                 fields.extend(box._onlyfields)
@@ -433,5 +433,5 @@ class Monitor(BaseMonitor):
         fields.extend(self._onlyfields)
         for field in fields:
             emitdict[None, field] = checkSetupSpec(field.setups, self._setups,
-                                                   compat='and', log=self.log)
+                                                   log=self.log)
         self._master.reconfigure.emit(emitdict)
