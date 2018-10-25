@@ -10,6 +10,8 @@ devices = dict(
     c_temperature = device('nicos_mlz.spheres.devices.sample.SEController',
         description = 'Temperaturecontroller',
         tangodevice = tango_sample + 'controller',
+        samplecontroller = 'T_sample',
+        tubecontroller = 'T_tube',
         pollinterval = 1,
         maxage = 5,
         precision = 0.1
@@ -88,7 +90,7 @@ devices = dict(
         description = 'Device to display the setpoint parameter of the '
         'temperature controller',
         device = 'c_temperature',
-        parameter = 'setpoint',
+        parameter = 'target',
         unit = 'K'
     ),
 )

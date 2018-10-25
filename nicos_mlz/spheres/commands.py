@@ -33,6 +33,7 @@ from nicos.core import UsageError
 from nicos.core.status import OK
 from nicos.utils import parseDuration as pd
 from nicos_mlz.spheres.devices.doppler import Doppler, ELASTIC, INELASTIC
+from nicos_mlz.spheres.devices.sample import SEController, PressureController
 from nicos_mlz.spheres.devices.sisdetector import SISDetector
 
 
@@ -60,6 +61,15 @@ def getSisImageDevice():
 
     session.log.warning('No SIS Detector found/active. Add it to the '
                         'environment after loading the sis setup.')
+
+
+def getTemperatureController():
+    for device in session.devices.values():
+        if isinstance(device, SEController):
+            return device
+
+    session.log.warning('No SEController found. '
+                        'Load the sample environment setup.')
 
 
 def getDoppler():
@@ -110,6 +120,89 @@ def startinelasticscan(time, interval, incremental):
     else:
         session.log.warning('Scanduration must be at least one scaninterval '
                             '(currently: %ds).', interval)
+
+
+@usercommand
+def ramp(target, ramp=None):
+    """Move the temperature to target with the given ramp.
+    If ramp is omitted and the current ramp is > 0 it is used.
+    If the current ramp is 0 the command is not executed.
+    """
+
+    controller = getTemperatureController()
+
+    if not ramp is None:
+        if ramp > 100:
+            session.log.warning('TemperatureController does not support ramps '
+                                'higher then 100 K/min. If you want to get to '
+                                '%f as fast as possible use rush(%f). '
+                                'Ramp will be set to max.', target, target)
+        controller.ramp = ramp
+    elif controller.ramp == 0:
+        session.log.warning('Ramp of the TemperatureController is 0. '
+                            'Please specify a ramp with this command.\n'
+                            'Use "ramp(target, RAMP)", '
+                            '"timeramp(target, time)", or "rush(target)"')
+        return
+
+    controller.move(target)
+
+
+@usercommand
+def timeramp(target, time):
+    """Ramp to the given target in the given timeframe.
+    Ramp will be calculated by taking current temperature, given target and
+    given time into account. Ramps for tube and sample will be calculated
+    separately"""
+
+    time = parseDuration(time, 'timeramp')
+
+    controller = getTemperatureController()
+
+    sample = controller.getSampleController()
+    tube = controller.getTubeController()
+
+    controller.ramp = 0
+
+    sample.move(sample.read())
+    tube.move(tube.read())
+
+    sample.ramp = abs(target-sample.read())/(time/60)
+    tube.ramp = abs(target-tube.read())/(time/60)
+
+    controller.move(target)
+
+
+@usercommand
+def rush(target):
+    """Move to the given temperature as fast as possible.
+    Previously set ramps will be ignored but preserved.
+    """
+
+    getTemperatureController().rushTemperature(target)
+
+
+@usercommand
+def setpressure(target):
+    """Adjust pressure to the given value.
+    Due to the nature of the underlying hardware the target will have a
+    margin of 15 mbar.
+    """
+
+    for device in session.devices.values():
+        if isinstance(device, PressureController):
+            device.move(target)
+            return
+
+    session.log.warning('No PressureController found. '
+                        'Load the sample environment setup.')
+
+
+@usercommand
+def stoppressure():
+    """Stop pressure regulation"""
+
+    getTemperatureController().stopPressure()
 
 
 @usercommand

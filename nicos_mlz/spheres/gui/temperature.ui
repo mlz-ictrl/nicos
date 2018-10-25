@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>510</width>
-    <height>146</height>
+    <height>148</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -122,10 +122,10 @@
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
      <property name="dev" stdset="0">
-      <string>c_temperature</string>
+      <string>setpoint</string>
      </property>
      <property name="key" stdset="0">
-      <string>c_temperature.target</string>
+      <string>setpoint.value</string>
      </property>
      <property name="fmtstr" stdset="0">
       <string>%.2f</string>
@@ -483,7 +483,7 @@
         </font>
        </property>
        <property name="text">
-        <string>(c_pr…</string>
+        <string>(c_pressure.…</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

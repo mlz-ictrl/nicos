@@ -28,27 +28,29 @@ Devices to control the sample environment at SPHERES
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.core.params import Param, tangodev
+from nicos.core.params import tangodev, Param, Attach
 from nicos.core.status import WARN
 from nicos.devices import tango
+from nicos.devices.tango import TemperatureController
 
 
 class SEController(tango.TemperatureController):
+    """Controller to set Temperature
     """
-    Controller to set Temperature
-    """
+
+    attached_devices = {
+        'samplecontroller': Attach('Controller of the sampletemperature',
+                                   TemperatureController),
+        'tubecontroller':   Attach('Controller of the tubetemperature',
+                                   TemperatureController)
+    }
 
     def rushTemperature(self, temperature):
-        """Move to temperature as fast as possible"""
+        """Move to temperature as fast as possible
+        Due to potential delay when going over 310K this will be handled
+        in the underlying Tango server."""
         self._dev.RushTemperature(temperature)
         self._setROParam('target', temperature)
-
-    def rampTo(self, temperature, ramp=None):
-        """Ramp to temperature"""
-        if ramp is not None:
-            self.doWriteRamp(ramp)
-
-        self.move(temperature)
 
     def _combinedStatus(self, maxage=0):
         state = tango.TemperatureController.doStatus(self, maxage)
@@ -58,10 +60,15 @@ class SEController(tango.TemperatureController):
         else:
             return tango.TemperatureController._combinedStatus(self, maxage)
 
+    def getSampleController(self):
+        return self._attached_samplecontroller
+
+    def getTubeController(self):
+        return self._attached_tubecontroller
+
 
 class PressureController(tango.TemperatureController):
-    """
-    Device to be able to set the pressure manually.
+    """Device to be able to set the pressure manually.
     Pressure is set via the controller, which is supposed to handle the limits
     within which setting pressure is allowed.
     """
