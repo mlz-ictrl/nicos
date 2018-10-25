@@ -40,7 +40,7 @@ class Flux(VectorInput):
 
     def init(self):
         VectorInput.init(self)
-        self._fluxvalues = [[],[],[]]
+        self._fluxvalues = [[], [], []]
 
     def doPoll(self, i, maxage):
         val = self.doRead()

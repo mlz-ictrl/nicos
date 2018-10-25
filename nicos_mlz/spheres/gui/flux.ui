@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>171</width>
-    <height>84</height>
+    <height>90</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -28,8 +28,8 @@
        <bold>true</bold>
       </font>
      </property>
-     <property name="dev" stdset="0">
-      <string>flux</string>
+     <property name="text">
+      <string>(flux.value[2])</string>
      </property>
      <property name="key" stdset="0">
       <string>flux.value[2]</string>
@@ -94,11 +94,8 @@
        <bold>true</bold>
       </font>
      </property>
-     <property name="dev" stdset="0">
-      <string>flux</string>
-     </property>
      <property name="key" stdset="0">
-      <string>flux.value[3]</string>
+      <string>flux.value[0]</string>
      </property>
      <property name="fmtstr" stdset="0">
       <string>%.1f</string>
@@ -202,10 +199,7 @@
       </font>
      </property>
      <property name="text">
-      <string>(flux.v…</string>
-     </property>
-     <property name="dev" stdset="0">
-      <string>flux</string>
+      <string>(flux.value[1])</string>
      </property>
      <property name="key" stdset="0">
       <string>flux.value[1]</string>
