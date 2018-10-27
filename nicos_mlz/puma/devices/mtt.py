@@ -88,7 +88,7 @@ class MttAxis(Axis):
                                            self._positioningThread)
 
     def _preMoveAction(self):
-        """Called before the motor will be moved.
+        """Will be called before the motor will be moved.
 
         It should be overwritten in derived classes for special actions.
         To abort the move, raise an exception from this method.
@@ -102,7 +102,7 @@ class MttAxis(Axis):
         self.log.debug('self._poly = %s', self._poly)
 
     def _postMoveAction(self):
-        """Called after the axis reached the position or will be stopped.
+        """Will be called after axis reached the position or will be stopped.
 
         It should be overwritten in derived classes for special actions.
         To signal an error, raise an exception from this method.
@@ -110,7 +110,7 @@ class MttAxis(Axis):
         # self._switchpoly()
 
     def _duringMoveAction(self, position):
-        """Called during every cycle in positioning thread.
+        """Will be called during every cycle in positioning thread.
 
         It should be used to do some special actions like changing shielding
         blocks, checking for air pressure etc.  It should be overwritten in

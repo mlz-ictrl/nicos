@@ -23,7 +23,6 @@
 # *****************************************************************************
 
 """Custom TAS instrument class for PUMA."""
-# derived from the PANDA one ....
 
 # !!! keep in sync with the nicos_mlz/puma/setups/lengths.py setup file !!!
 
@@ -32,6 +31,10 @@ from nicos.devices.tas import TAS
 
 
 class PUMA(TAS):
+    """PUMA specific TAS device.
+
+    Derived fromt the PANDA specific one ...
+    """
 
     def _getCollimation(self):
         ret = []

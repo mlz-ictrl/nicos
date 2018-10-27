@@ -29,6 +29,7 @@ from nicos.core import Attach, Moveable, NicosError, Readable, oneof, status
 
 
 class PGFilter(Moveable):
+    """PUMA specific device for the PG filter."""
 
     attached_devices = {
         'io_status': Attach('status of the limit switches', Readable),

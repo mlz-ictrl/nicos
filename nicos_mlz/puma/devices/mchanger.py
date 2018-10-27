@@ -31,6 +31,7 @@ from nicos.core import Attach, Moveable, Param, PositionError, Readable, \
 
 
 class Mchanger(Moveable):
+    """PUMA specific monochromator changer device."""
 
     attached_devices = {
         'monochromator': Attach('Monochromator', Moveable),
@@ -169,7 +170,7 @@ class Mchanger(Moveable):
             foch.motor.power = 'on'
 
     def _finalize(self):
-        """Called after a successful monochromator change."""
+        """Will be called after a successful monochromator change."""
         # test this!
         # self.log.debug('Enabling Powerstages for %s',
         #                ', '.join(sorted(self.changing_positions)))

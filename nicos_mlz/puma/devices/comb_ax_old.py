@@ -31,6 +31,11 @@ from nicos.core import Attach, Moveable, Param, status
 
 
 class CombAxis(Moveable):
+    """Special class for PUMA phi axis.
+
+    Applied when psi axis must stay at the same angle relative to the incoming
+    beam, e.g. if the magnet is used.
+    """
 
     attached_devices = {
         'main_ax': Attach('moving axis', Moveable),

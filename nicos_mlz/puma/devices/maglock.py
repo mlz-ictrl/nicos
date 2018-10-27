@@ -31,6 +31,7 @@ from nicos.core import Attach, Moveable, NicosError, Param, Readable, listof, \
 
 
 class MagLock(Moveable):
+    """Puma specific magnetic lock device."""
 
     attached_devices = {
         'magazin': Attach('The monochromator magazin', Moveable),
@@ -80,9 +81,7 @@ class MagLock(Moveable):
             self.log.info('Maglock: %s', self.read(0))
 
     def _read(self):
-        '''return an internal string representation of the right sensing
-        switches
-        '''
+        """Return internal string repr. of the right sensing switches."""
         magpos = self._magpos
 
 #        if magpos == 4:

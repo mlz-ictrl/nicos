@@ -27,8 +27,7 @@ from nicos.devices.generic import MultiSwitcher
 
 
 class SenseSwitch(HasTimeout, MultiSwitcher):
-    """Combine the MultiSwitcher with HasTimeout
-    """
+    """Combine the MultiSwitcher with HasTimeout."""
 
     parameter_overrides = {
         'timeout': Override(default=13),

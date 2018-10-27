@@ -29,6 +29,7 @@ from nicos.core import Attach, Moveable, NicosError, Param, Readable
 
 
 class SH_Cylinder(Moveable):
+    """PUMA specific device for the shutter cylinder."""
 
     attached_devices = {
         'io_ref': Attach('limit switches', Readable),

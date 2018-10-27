@@ -30,6 +30,7 @@ from nicos.core import Attach, HasLimits, Moveable, NicosError, Readable, \
 
 
 class Attenuator(HasLimits, Moveable):
+    """Puma specific attenuator."""
 
     # XXX rework this as it is basically a MultiSwitcher with a blocking start
 
