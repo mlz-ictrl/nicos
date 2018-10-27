@@ -645,7 +645,7 @@ class MainWindow(DlgUtils, QMainWindow):
         # XXX: change URL to current release version
         dlg = WebsiteTool(
             self, self.client,
-            url='http://forge.frm2.tum.de/nicos/doc/nicos-3.2/')
+            url='http://www.nicos-controls.org')
         dlg.setWindowModality(Qt.NonModal)
         dlg.show()
 
