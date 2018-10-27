@@ -26,8 +26,8 @@
 """Magnetic Lock."""
 
 from nicos import session
-from nicos.core import Moveable, Readable, status, NicosError, oneof, Param, \
-    Attach, listof
+from nicos.core import Attach, Moveable, NicosError, Param, Readable, listof, \
+    oneof, status
 
 
 class MagLock(Moveable):
@@ -42,8 +42,8 @@ class MagLock(Moveable):
     valuetype = oneof('open', 'closed')
 
     parameters = {
-        'states':    Param('List of state names', type=listof(str),
-                           mandatory=True),
+        'states': Param('List of state names', type=listof(str),
+                        mandatory=True),
     }
 #    parameters = {
 #        'values':    Param('List of values to move to', type=listof(anytype),
@@ -91,7 +91,8 @@ class MagLock(Moveable):
         bitmask = self._bitmask(magpos)
         val = list(map(str,
                        [(self._attached_io_open.read(0) & bitmask) // bitmask,
-                        (self._attached_io_closed.read(0) & bitmask) // bitmask]
+                        (self._attached_io_closed.read(0) & bitmask) //
+                        bitmask],
                        ))
         self.log.debug('Sensing switches are in State %s', val)
         return ''.join(val)

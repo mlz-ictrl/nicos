@@ -25,8 +25,8 @@
 
 """Class for PUMA PG filter."""
 
-from nicos.core import Moveable, Readable, Param, PositionError, oneof, \
-    status, Override, HasTimeout, Attach
+from nicos.core import Attach, HasTimeout, Moveable, Override, Param, \
+    PositionError, Readable, oneof, status
 
 
 class PumaFilter(HasTimeout, Moveable):
@@ -41,23 +41,23 @@ class PumaFilter(HasTimeout, Moveable):
     """
 
     attached_devices = {
-        'motor':     Attach('rotation axis of filter device', Moveable),
+        'motor': Attach('rotation axis of filter device', Moveable),
         'io_status': Attach('status of the limit switches', Readable),
-        'io_set':    Attach('query bit to set filter in/out of beam', Moveable),
-        'io_press':  Attach('air pressure status readout', Readable),
+        'io_set': Attach('query bit to set filter in/out of beam', Moveable),
+        'io_press': Attach('air pressure status readout', Readable),
     }
 
     parameters = {
-        'material':  Param('Material of filter', type=str, mandatory=True),
-        'width':     Param('Width of filter', unit='cm', mandatory=True),
-        'height':    Param('Height of filter', unit='cm', mandatory=True),
+        'material': Param('Material of filter', type=str, mandatory=True),
+        'width': Param('Width of filter', unit='cm', mandatory=True),
+        'height': Param('Height of filter', unit='cm', mandatory=True),
         'thickness': Param('Thickness of filter', unit='cm', mandatory=True),
-        'justpos':   Param('...', mandatory=True),
+        'justpos': Param('...', mandatory=True),
     }
 
     parameter_overrides = {
-        'unit':      Override(mandatory=False, default=''),
-        'timeout':   Override(mandatory=False, default=5),
+        'unit': Override(mandatory=False, default=''),
+        'timeout': Override(mandatory=False, default=5),
     }
 
     valuetype = oneof('in', 'out')

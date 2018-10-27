@@ -30,9 +30,7 @@ from nicos.core import Attach, HasTimeout, Moveable, Override, Param, status, \
     tupleof
 from nicos.core.errors import PositionError
 from nicos.core.utils import filterExceptions, multiStatus, multiWait
-
 from nicos.devices.abstract import CanReference
-
 from nicos.pycompat import reraise
 
 
@@ -53,7 +51,7 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, Moveable):
 
     parameters = {
         'distance': Param('',
-                          type=float, settable=False, default=0,),
+                          type=float, settable=False, default=0),
         'general_reset': Param('',
                                type=int, settable=False, default=0),
         '_status': Param('read only status',

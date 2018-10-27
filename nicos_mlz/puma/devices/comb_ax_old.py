@@ -27,7 +27,7 @@ to the incoming beam.
 For example, when the magnet is used
 """
 
-from nicos.core import Moveable, Param, Attach, status
+from nicos.core import Attach, Moveable, Param, status
 
 
 class CombAxis(Moveable):

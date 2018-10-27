@@ -25,14 +25,14 @@
 """Device class for PUMA PG filter."""
 
 from nicos import session
-from nicos.core import Moveable, Readable, status, NicosError, oneof, Attach
+from nicos.core import Attach, Moveable, NicosError, Readable, oneof, status
 
 
 class PGFilter(Moveable):
 
     attached_devices = {
         'io_status': Attach('status of the limit switches', Readable),
-        'io_set':    Attach('output to set', Moveable),
+        'io_set': Attach('output to set', Moveable),
     }
 
     valuetype = oneof('in', 'out')

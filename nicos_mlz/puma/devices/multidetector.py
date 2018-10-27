@@ -114,8 +114,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
             else:
                 raise MoveError(self, 'Cannot park device, sequence is still '
                                       'running (at %s)!' % self._seq_status[1])
-        self._startSequence([
-                             SeqMethod(self, '_move_guides_to_zero_pos'),
+        self._startSequence([SeqMethod(self, '_move_guides_to_zero_pos'),
                              SeqMethod(self, '_move_detectors', self.parkpos),
                              ] +
                             [SeqDev(d, p) for d, p in zip(
@@ -345,7 +344,8 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
                 if not g.motor.isAtReference(not_ref_sw):
                     free = g
                     freeguides = self._rotguide1[self._rotguide1.index(g):]
-                    self.log.debug('found free guide: %s, %r', free, freeguides)
+                    self.log.debug('found free guide: %s, %r', free,
+                                   freeguides)
                     break
 
             # Try to free all left from found free guide if there was one

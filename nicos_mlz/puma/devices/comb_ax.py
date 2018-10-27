@@ -42,7 +42,7 @@ class CombAxis(Axis):
     parameters = {
         'iscomb': Param('If it is combined or normal axis',
                         type=bool, default=False, mandatory=True,
-                        settable=True,),
+                        settable=True),
     }
 
     _fixpos = None

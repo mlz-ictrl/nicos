@@ -22,8 +22,8 @@
 #
 # *****************************************************************************
 
+from nicos.core import HasTimeout, Override
 from nicos.devices.generic import MultiSwitcher
-from nicos.core import Override, HasTimeout
 
 
 class SenseSwitch(HasTimeout, MultiSwitcher):

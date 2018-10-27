@@ -25,7 +25,7 @@
 """Device class for the shutter cylinder device."""
 
 from nicos import session
-from nicos.core import Moveable, Readable, NicosError, Param, Attach
+from nicos.core import Attach, Moveable, NicosError, Param, Readable
 
 
 class SH_Cylinder(Moveable):

@@ -361,7 +361,7 @@ class PumaSecondaryCollimator(HasTimeout, BlockingSequencer):
             0: self._attached_pair1,
             1: self._attached_pair2,
             2: self._attached_pair3,
-            3: self._attached_diaphragma
+            3: self._attached_diaphragma,
         }
         if self._attached_pair1:
             self.valuetype = oneof(120, 60, 45, 24, 30, 20, 14)
