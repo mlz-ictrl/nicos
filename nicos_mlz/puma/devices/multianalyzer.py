@@ -52,11 +52,6 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
     parameters = {
         'distance': Param('',
                           type=float, settable=False, default=0),
-        'general_reset': Param('',
-                               type=int, settable=False, default=0),
-        '_status': Param('read only status',
-                         type=bool, settable=False, userparam=False,
-                         default=False),
     }
 
     parameter_overrides = {
