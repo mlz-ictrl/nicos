@@ -151,7 +151,7 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
                            mvt)
             # check if translation movement is allowed, i.e. if all
             # rotation axis at reference switch
-            if not self._checkRefSwitchRotation(range(self._num_axes)):
+            if not self._checkRefSwitchRotation():
                 if not self._refrotation():
                     raise PositionError(self, 'Could not reference rotations')
 
@@ -174,7 +174,6 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
                     self.log.warn('neighbour XX distance < %7.3f; cannot move '
                                   'rotation!', self.distance)
                     continue
-                # TODO: check move or maw
                 self._rotation[i].move(target[self._num_axes + i])
             self._hw_wait([self._rotation[i] for i in mvr])
             if self._checkPositionReachedRot(target):
@@ -248,15 +247,6 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
         return self._reference(self._rotation)
 
     def _reftranslation(self):
-        # TODO: Check if reset is really needed !
-        # if self.stoprequest == 0:
-        #     for ax in self._translation:
-        #         if not ax.motor.isAtReference():
-        #             ax.motor.usermin = 0
-        #             session.delay(0.5)
-        #             ax.motor.usermax = 0
-        #             ax.reset()
-        #             session.delay(0.5)
         return self._reference(self._translation)
 
     def doRead(self, maxage=0):
@@ -270,14 +260,15 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
             out.append('rotation    %2d: %7.2f %s' % (i, dev.read(), dev.unit))
         self.log.debug('%s', '\n'.join(out))
 
-    def _checkRefSwitchRotation(self, rotation):
-        checkrefswitch = 0
-        for i in rotation:
-            if self._rotation[i].motor.isAtReference():
-                checkrefswitch += 1
-                self.log.debug('rot switch for %s ok, check: %s',
-                               self._rotation[i], checkrefswitch)
-        return checkrefswitch == len(rotation)
+    def _checkRefSwitchRotation(self, rotation=None):
+        if rotation is None:
+            tocheck = [r.motor for r in self._rotation]
+        else:
+            tocheck = [self._rotation[i].motor for i in rotation]
+        checked = [m.isAtReference() for m in tocheck]
+        for c, d in zip(checked, tocheck):
+            self.log.debug('rot switch for %s ok, check: %s', d, c)
+        return all(checked)
 
     # to be checked
     def _checkTransNeighbour(self, trans):
