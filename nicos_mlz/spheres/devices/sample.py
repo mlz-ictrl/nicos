@@ -68,6 +68,9 @@ class SEController(tango.TemperatureController):
     def getTubeController(self):
         return self._attached_tubecontroller
 
+    def stopPressure(self):
+        self._dev.StopPressureRegulation()
+
 
 class PressureController(tango.TemperatureController):
     """Device to be able to set the pressure manually.
@@ -92,4 +95,4 @@ class PressureController(tango.TemperatureController):
         self._controller.setPressure(value)
 
     def doStop(self):
-        self._controller.StopPressure()
+        pass
