@@ -47,7 +47,7 @@ for i in range(1, 12):
             unit = 'deg',
             refpos = 0.1,
             fmtstr = '%.3f',
-            speed = 5.0,
+            speed = 1.0,
         ),
         precision = 0.01,
         lowlevel = level,

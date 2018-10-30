@@ -26,9 +26,13 @@
 from __future__ import absolute_import, division, print_function
 
 import sys
+from contextlib import contextmanager
+
+from numpy import sign
 
 from nicos import session
-from nicos.core import Attach, HasTimeout, Override, Param, status, tupleof
+from nicos.core import Attach, HasTimeout, IsController, Override, status, \
+    tupleof
 from nicos.core.errors import PositionError
 from nicos.core.utils import filterExceptions, multiWait
 from nicos.devices.abstract import CanReference
@@ -36,7 +40,7 @@ from nicos.devices.generic.sequence import BaseSequencer, SeqMethod
 from nicos.pycompat import reraise
 
 
-class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
+class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
     """PUMA multianalyzer device.
 
     The device combines 11 devices consisting of a rotation and a translation.
@@ -51,11 +55,6 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
                             CanReference, multiple=_num_axes),
     }
 
-    parameters = {
-        'distance': Param('',
-                          type=float, settable=False, default=0),
-    }
-
     parameter_overrides = {
         'timeout': Override(default=600),
         'unit': Override(mandatory=False, default=''),
@@ -68,57 +67,127 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
 
     valuetype = tupleof(*(float for i in range(2 * _num_axes)))
 
+    _allowed_called = False
+
     def doPreinit(self, mode):
         self._rotation = self._attached_rotations
         self._translation = self._attached_translations
 
-    def doIsAllowed(self, target):
-        """Check if requested targets are within allowed range for devices."""
-        why = []
-        for i, (ax, t) in enumerate(zip(self._rotation,
-                                        target[self._num_axes:])):
-            ok, w = ax.isAllowed(t)
-            if ok:
-                self.log.debug('requested rotation %2d to %.2f deg allowed',
-                               i + 1, t)
-            else:
-                why.append('requested rotation %d to %.2f deg out of limits: '
-                           '%s' % (i + 1, t, w))
-        for i, (ax, t) in enumerate(zip(self._translation,
-                                        target[:self._num_axes])):
-            ok, w = ax.isAllowed(t)
-            if ok:
-                self.log.debug('requested translation %2d to %.2f mm allowed',
-                               i + 1, t)
-            else:
-                why.append('requested translation %2d to %.2f mm out of '
-                           'limits: %s' % (i + 1, t, w))
-        for i, rot in enumerate(target[self._num_axes:]):
-            l, h = self._calc_rotlimits(i, target)
-            if not l <= rot <= h:
-                why.append('requested rotation %2d to %.2f deg out of limits: '
-                           '(%.3f, %3f)' % (i + 1, rot, l, h))
-        if why:
-            return False, '; '.join(why)
+    @contextmanager
+    def _allowed(self):
+        """Indicator: position checks will done by controller itself.
+
+        If the controller methods ``doStart`` or ``doIsAllowed`` are called the
+        ``isAdevTargetAllowed`` must give back always True otherwise a no
+        movement of any component can be achieved.
+        """
+        self._allowed_called = True
+        yield
+        self._allowed_called = False
+
+    def isAdevTargetAllowed(self, dev, target):
+        if not self._allowed_called:
+            stat = self.doStatus(0)
+            if stat[0] != status.OK:
+                return False, '%s: Controller device is busy!' % self
+            if dev in self._translation:
+                return self._check_translation(self._translation.index(dev),
+                                               target)
+            return self._check_rotation(self._rotation.index(dev), target)
         return True, ''
 
-    def _calc_rotlimits(self, trans, target):
-        if 0 <= trans < 10:
-            deltati = target[trans + 1] - target[trans]
-            if deltati < -11.9:
-                rmini = -50 + (deltati + 20) * 3
-            elif -11.9 <= deltati <= -2.8:
-                rmini = -23.3
-            if deltati > -2.8:
-                rmini = -34.5 - deltati * 4
-            if (rmini < -60):
-                rmini = -60.
-        else:
-            deltati = -12
-            rmini = -60.
-        self.log.debug('calculated rot limits (%d %d): %.1f -> [%.1f, %.1f]',
-                       trans + 1, trans, deltati, rmini, 0.5)
-        return rmini, 0.5
+    def _check_rotation(self, rindex, target):
+        delta = self._translation[rindex + 1].read(0) - \
+                self._translation[rindex].read(0) \
+                if 0 <= rindex < self._num_axes - 1 else 13
+        ll, hl = self._rotlimits(delta)
+        self.log.debug('%s, %s, %s', ll, target, hl)
+        if not ll <= target <= hl:
+            return False, 'neighbour distance: %.3f; cannot move rotation ' \
+                'to : %.3f!' % (delta, target)
+        return True, ''
+
+    def _check_translation(self, tindex, target):
+        cdelta = [13, 13]  # current delta between device and neighour devices
+        tdelta = [13, 13]  # delta between devices and neighbours at target
+
+        rot = [None, self._rotation[tindex].read(0), None]
+        trans = [None, self._translation[tindex].read(0), None]
+
+        # determine the current and the upcoming deltas between translation
+        # device and its neighbouring devices
+        if tindex < self._num_axes - 1:
+            trans[2] = self._translation[tindex + 1].read(0)
+            rot[2] = self._rotation[tindex + 1].read(0)
+            cdelta[1] = trans[2] - trans[1]
+            tdelta[1] = trans[2] - target
+        if tindex > 0:
+            trans[0] = self._translation[tindex - 1].read(0)
+            rot[0] = self._rotation[tindex - 1].read(0)
+            cdelta[0] = trans[0] - trans[1]
+            tdelta[0] = trans[0] - target
+        for dc, dt, r in zip(cdelta, tdelta, rot[::2]):
+            # self.log.info('dc:%s dt:%s t:%s r:%s', dc, dt, t, r)
+            # self.log.info('s(dc): %s s(dt): %s', sign(dc), sign(dt))
+            if 0 in (sign(dc), sign(dt)) or sign(dc) == sign(dt):
+                # No passing of the other translation devices
+                # self.log.info('No passing device: %s %s', dc, dt)
+                if abs(dt) < abs(dc):
+                    # self.log.info('Come closer to other device')
+                    if r:
+                        ll, hl = self._rotlimits(dt)
+                        if not ll <= r <= hl:
+                            self.log.info('(%s): %s, %s, %s', target, ll, r, hl)
+                            self.log.info('%r, %r; %r', trans, rot, tdelta)
+                            return False, 'neighbour distance: %.3f; cannot ' \
+                                'move translation to : %.3f!' % (dt, target)
+                # elif -13 < dc < 0 and dt < 0:
+                #     # self.log.info('It is critical')
+                #     if (r is not None and r < -23.33) or rot[1] < -23.33:
+                #         return False, 'Path %s to %s is not free. One of the '\
+                #             'mirrors would hit another one. (%s, %s)' % (
+                #                 trans[1], target, r, rot[1])
+            else:
+                # Passing another translation device
+                # self.log.info('Passing device: %s %s', dc, dt)
+                # self.log.info('rotations: %s %s', r, rot[1])
+                if (r is not None and r < -23.33) or rot[1] < -23.33:
+                    return False, 'Path %s to %s is not free. One of the ' \
+                        'mirrors would hit another one. (%s, %s)' % (
+                            trans[1], target, r, rot[1])
+        return True, ''
+
+    def doIsAllowed(self, target):
+        """Check if requested targets are within allowed range for devices."""
+        with self._allowed():
+            why = []
+            for i, (ax, t) in enumerate(zip(self._rotation,
+                                            target[self._num_axes:])):
+                ok, w = ax.isAllowed(t)
+                if ok:
+                    self.log.debug('requested rotation %2d to %.2f deg '
+                                   'allowed', i + 1, t)
+                else:
+                    why.append('requested rotation %d to %.2f deg out of '
+                               'limits: %s' % (i + 1, t, w))
+            for i, (ax, t) in enumerate(zip(self._translation,
+                                            target[:self._num_axes])):
+                ok, w = ax.isAllowed(t)
+                if ok:
+                    self.log.debug('requested translation %2d to %.2f mm '
+                                   'allowed', i + 1, t)
+                else:
+                    why.append('requested translation %2d to %.2f mm out of '
+                               'limits: %s' % (i + 1, t, w))
+            for i, rot in enumerate(target[self._num_axes:]):
+                ll, hl = self._calc_rotlimits(i, target)
+                if not ll <= rot <= hl:
+                    why.append('requested rotation %2d to %.2f deg out of '
+                               'limits: (%.3f, %3f)' % (i + 1, rot, ll, hl))
+            if why:
+                self.log.info('target: %s', target)
+                return False, '; '.join(why)
+            return True, ''
 
     def valueInfo(self):
         ret = []
@@ -159,7 +228,8 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
 
             self.log.debug('all rotation at refswitch, start translation')
             for i, dev in enumerate(self._translation):
-                dev.move(target[i])
+                with self._allowed():
+                    dev.move(target[i])
             self._hw_wait(self._translation)
 
             if self._checkPositionReachedTrans(target):
@@ -172,14 +242,17 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
         if mvr:
             self.log.debug('The following rotation axes start moving: %r', mvr)
             for i in mvr:
-                if not self._checkTransNeighbour(i):
-                    self.log.warning('neighbour XX distance < %7.3f; cannot '
-                                     'move rotation!', self.distance)
+                ll, hl = self._calc_rotlimits(i, target)
+                if not ll <= target[self._num_axes + i] <= hl:
+                    self.log.warning('neighbour is to close; cannot move '
+                                     'rotation!')
                     continue
-                self._rotation[i].move(target[self._num_axes + i])
+                with self._allowed():
+                    self._rotation[i].move(target[self._num_axes + i])
             self._hw_wait([self._rotation[i] for i in mvr])
             if self._checkPositionReachedRot(target):
-                raise PositionError(self, 'Rotation drive not successful')
+                raise PositionError(self, 'Rotation drive not successful: '
+                                    '%r' % ['%s' % d for d in mvr])
             self.log.debug('rotation movement done')
 
     def doReset(self):
@@ -187,14 +260,15 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
             dev.reset()
 
     def doReference(self, *args):
-        check = self._refrotation()
-        if not check:
-            self.log.warning('reference of rotations not successful')
-        check += self._reftranslation()
-        if check != 2:
-            self.log.warning('reference of translations not successful')
-        else:
-            self.log.debug('reset of %s sucessful', self.name)
+        with self._allowed():
+            check = self._refrotation()
+            if not check:
+                self.log.warning('reference of rotations not successful')
+            check += self._reftranslation()
+            if check != 2:
+                self.log.warning('reference of translations not successful')
+            else:
+                self.log.debug('reset of %s sucessful', self.name)
 
     def _hw_wait(self, devices):
         loops = 0
@@ -272,29 +346,25 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
             self.log.debug('rot switch for %s ok, check: %s', d, c)
         return all(checked)
 
-    # to be checked
-    def _checkTransNeighbour(self, trans):
-        if not 0 <= trans < self._num_axes:
-            self.log.warning('cannot move translation: %d', trans)
-            return False
+    def _rotlimits(self, delta):
+        rmini = -60.
+        if -13 < delta < -11.9:
+            rmini = -50 + (delta + 20.) * 3
+        elif -11.9 <= delta <= -2.8:
+            rmini = -23.3
+        elif delta > -2.8:
+            rmini = -34.5 - delta * 4
+        if rmini < -60:
+            rmini = -60.
+        return rmini, 1.7  # 1.7 max of the absolute limits of the rotations
 
-        self.log.debug('checkTransNeigbour: %s %s %s', trans - 1, trans,
-                       trans + 1)
-        tr0 = self._translation[trans].read()
-        if trans == 0:  # No left neighbour
-            tr2 = self._translation[trans + 1].read()
-            self.log.debug('case 0: neighbour translations:%s %s', tr0, tr2)
-            return abs(tr0 - tr2) >= self.distance
-        elif trans == 10:  # No right neighbour
-            tr1 = self._translation[trans - 1].read()
-            self.log.debug('case 10: neighbour translations:%s %s', tr1, tr0)
-            return abs(tr0 - tr1) >= self.distance
-        else:
-            tr1 = self._translation[trans - 1].read()
-            tr2 = self._translation[trans + 1].read()
-            self.log.debug('neighbour translations:%s %s %s', tr1, tr0, tr2)
-            return abs(tr0 - tr1) >= self.distance and \
-                abs(tr0 - tr2) >= self.distance
+    def _calc_rotlimits(self, trans, target):
+        delta = target[trans + 1] - target[trans] \
+            if 0 <= trans < self._num_axes - 1 else 12
+        rmin, rmax = self._rotlimits(delta)
+        self.log.debug('calculated rot limits (%d %d): %.1f -> [%.1f, %.1f]',
+                       trans + 1, trans, delta, rmin, rmax)
+        return rmin, rmax
 
     def _checkPositionReachedTrans(self, position):
         mv = []

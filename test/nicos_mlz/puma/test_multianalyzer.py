@@ -37,15 +37,15 @@ try:
 except ImportError:
     maketrans = str.maketrans
 
-
-
 session_setup = 'multianalyzer'
 
 
 class TestMultiAnalyzer(object):
+    """Multi analyzer test class."""
 
     @pytest.fixture(scope='function', autouse=True)
     def prepare(self, session):
+        """Prepare tests."""
         man = session.getDevice('man')
         session.getDevice('ra1').release()
         session.getDevice('ta1').release()
@@ -56,12 +56,69 @@ class TestMultiAnalyzer(object):
 
         man.stop()
 
-    def test_neighbours(self, session):
+    def test_neighbours_rot(self, session):
+        """Check some positions of a rotation device."""
+        ra1 = session.getDevice('ra1')
+
+        assert not ra1.isAllowed(10)[0]
+        assert not ra1.isAllowed(-45)[0]
+        assert ra1.isAllowed(-25)[0]
+        assert ra1.isAllowed(0)[0]
+
+    def test_single_move(self, session):
+        """Check not allowed if one device is moving."""
+        ra1 = session.getDevice('ra1')
+        ra2 = session.getDevice('ra2')
+
+        ra1.speed = 1
+        assert ra1.speed != 0
+        ra1.move(-2)
+        assert ra2.isAllowed(-2)
+        ra1.stop()
+        ra1.speed = 0
+
+    @pytest.mark.timeout(timeout=10, method='thread', func_only=True)
+    def test_neighbours_trans(self, session):
+        """Check some positions of translation devices."""
         man = session.getDevice('man')
-        # case which should normally not happen
-        assert not man._checkTransNeighbour(11)
+        ta1 = session.getDevice('ta1')
+        ta2 = session.getDevice('ta2')
+        ra1 = session.getDevice('ra1')
+        ra2 = session.getDevice('ra2')
+
+        for d in ta1, ta2, ra1, ra2:
+            assert d.speed == 0
+
+        # Create collision free setup
+        man.maw([-30, -10, 20] + [0] * 19)
+        assert man.isAdevTargetAllowed(ta1, -10)[0]
+        assert man.isAdevTargetAllowed(ta2, -30)[0]
+        assert man.isAdevTargetAllowed(ra1, -60)[0]
+        assert man.isAdevTargetAllowed(ra2, -60)[0]
+
+        # Move crystals to positions where passing is not allowed
+        man.maw([-30, -10, 30] + [0] * 8 + [-60, -60, -60] + [0] * 8)
+        assert not man.isAdevTargetAllowed(ta1, -10)[0]
+        assert not man.isAdevTargetAllowed(ta1, 0)[0]
+        # approaching to neighbour is allowed
+        assert man.isAdevTargetAllowed(ta1, -23)[0]
+        assert man.isAdevTargetAllowed(ta2, -17)[0]
+        # now too close
+        assert not man.isAdevTargetAllowed(ta2, -18)[0]
+
+        # rotate to a "passing" angle
+        ra1.maw(-23.3)
+        assert man.isAdevTargetAllowed(ta1, -20)[0]
+
+        # rotate to non "passing" angle but come closer to 13 mm
+        ra2.maw(-23.3)
+        ta1.maw(2.9)
+        ra2.maw(-60)
+        ra1.maw(-28)
+        assert man.isAdevTargetAllowed(ta2, 2.8)[0]
 
     def test_targets(self, session):
+        """Check targets of the whole device."""
         man = session.getDevice('man')
         assert not man.isAllowed([300] + [0] * 10 + [1] + [0] * 10)[0]
         # To less arguments
@@ -90,6 +147,7 @@ class TestMultiAnalyzer(object):
                 assert not man.isAllowed(v)[0]
 
     def test_movement(self, session):
+        """Check some special movements."""
         man = session.getDevice('man')
 
         man.maw([0] * 22)
@@ -102,6 +160,7 @@ class TestMultiAnalyzer(object):
         man.maw([i for i in range(11)] + [-i * 0.1 for i in range(11)])
 
     def test_reset(self, session):
+        """Check reset and reference of device."""
         man = session.getDevice('man')
 
         man.reset()
