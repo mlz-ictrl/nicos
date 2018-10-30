@@ -5,6 +5,8 @@ group = 'optional'
 nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test' % nethost
 
+tango_base = 'tango://refsanshw:10000/test/sample1/'
+
 
 devices = dict(
     gonio_theta = device('nicos.devices.generic.Axis',
@@ -31,18 +33,21 @@ devices = dict(
         abslimits = (-9.75, 9.5),
         lowlevel = True,
     ),
-    #gonio_omega = device('nicos.devices.generic.Axis',
-    #    description = 'Omega axis',
-    #    motor = 'gonio_omega_m',
-    #    coder = 'gonio_omega_m',
-    #    precision = 0.01,
-    #),
-    #gonio_omega_m = device('nicos.devices.taco.Motor',
-    #    description = 'Omega axis motor',
-    #    tacodevice = '%s/phytron/kanal_03' % tacodev, #MP 09.03.2018 09:22:17 bg2_2
-    #    abslimits = (-2.5, 2.5),
-    #    lowlevel = True,
-    #),
+    gonio_omega = device('nicos.devices.generic.Axis',
+        description = 'Omega axis',
+        motor = 'gonio_omega_m',
+        coder = 'gonio_omega_e',
+        precision = 0.01,
+    ),
+    gonio_omega_m = device('nicos.devices.tango.Motor',
+        description = 'Omega axis motor',
+        tangodevice = tango_base + 'omega_m',
+        lowlevel = True,
+    ),
+    gonio_omega_e = device('nicos.devices.tango.Sensor',
+        description = 'Omega axis coder',
+        tangodevice = tango_base + 'omega_e',
+    ),
     #gonio_y = device('nicos.devices.generic.Axis',
     #    description = 'Y axis',
     #    motor = 'gonio_y_m',
