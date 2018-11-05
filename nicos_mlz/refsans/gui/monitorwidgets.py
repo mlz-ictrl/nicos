@@ -25,6 +25,8 @@
 
 # from math import sin, cos, pi
 
+from __future__ import absolute_import
+
 from nicos.core.status import OK
 from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, QPointF, \
     QPolygonF, QSize, Qt, QWidget
