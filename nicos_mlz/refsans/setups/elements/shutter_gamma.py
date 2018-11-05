@@ -1,13 +1,11 @@
 description = "neutronguide, leadblock"
 
 group = 'lowlevel'
-#group = 'optional'
 
 includes = ['nok_ref', 'nokbus1']
 hide_poti = True
 
-nethost = 'refsanssrv.refsans.frm2'
-tango_host = 'tango://refsanshw:10000/test/'
+tango_base = 'tango://refsanshw:10000/test/'
 
 devices = dict(
     shutter_gamma = device('nicos.devices.generic.Switcher',
@@ -22,7 +20,6 @@ devices = dict(
     nok1 = device('nicos_mlz.refsans.devices.nok_support.SingleMotorNOK',
         description = 'shutter_gamma NOK1',
         motor = 'nok1_motor',
-        coder = 'nok1_motor',
         # obs = ['nok1_obs'],
         nok_start = 198.0,
         nok_length = 90.0,
@@ -30,41 +27,6 @@ devices = dict(
         nok_gap = 1.0,
         backlash = -2,   # is this configured somewhere?
         precision = 0.05,
-        lowlevel = True,
-    ),
-    nok1_srrel = device('nicos.devices.taco.DigitalInput',
-        description = 'Device test/nok1/srrel of Server ipcsmsserver nok1',
-        tacodevice = '//%s/test/nok1/srrel' % nethost,
-        lowlevel = True,
-    ),
-
-    nok1_srll = device('nicos.devices.taco.DigitalInput',
-        description = 'Device test/nok1/srll of Server ipcsmsserver nok1',
-        tacodevice = '//%s/test/nok1/srll' % nethost,
-        lowlevel = True,
-    ),
-
-    nok1_srhl = device('nicos.devices.taco.DigitalInput',
-        description = 'Device test/nok1/srhl of Server ipcsmsserver nok1',
-        tacodevice = '//%s/test/nok1/srhl' % nethost,
-        lowlevel = True,
-    ),
-
-    nok1_srref = device('nicos.devices.taco.DigitalInput',
-        description = 'Device test/nok1/srref of Server ipcsmsserver nok1',
-        tacodevice = '//%s/test/nok1/srref' % nethost,
-        lowlevel = True,
-    ),
-
-    nok1_srsll = device('nicos.devices.taco.DigitalInput',
-        description = 'Device test/nok1/srsll of Server ipcsmsserver nok1',
-        tacodevice = '//%s/test/nok1/srsll' % nethost,
-        lowlevel = True,
-    ),
-
-    nok1_srshl = device('nicos.devices.taco.DigitalInput',
-        description = 'Device test/nok1/srshl of Server ipcsmsserver nok1',
-        tacodevice = '//%s/test/nok1/srshl' % nethost,
         lowlevel = True,
     ),
 
@@ -100,7 +62,7 @@ devices = dict(
     # generated from global/inf/poti_tracing.inf
     nok1_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK1',
-        tangodevice = tango_host + 'wb_a/1_0',
+        tangodevice = tango_base + 'wb_a/1_0',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),
