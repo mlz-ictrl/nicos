@@ -51,6 +51,7 @@ from nicos.devices.generic.detector import ActiveChannel, CounterChannelMixin, \
 
 # Only export Nicos devices for 'from nicos.device.tango import *'
 __all__ = [
+    'PyTangoDevice',
     'AnalogInput', 'Sensor', 'AnalogOutput', 'Actuator', 'RampActuator',
     'Motor', 'TemperatureController', 'PowerSupply', 'DigitalInput',
     'NamedDigitalInput', 'PartialDigitalInput', 'DigitalOutput',
