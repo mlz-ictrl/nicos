@@ -87,7 +87,7 @@ devices = dict(
         pollinterval = 1,
         fmtstr = '%.6f',
     ),
-    tisane_fc_trigger = device('nicos_mlz.sans1.devices.io_trigger.Trigger',
+    tisane_fc_trigger = device('nicos_mlz.devices.io_trigger.Trigger',
         description = "String blasting device",
         tangodevice = "%s/fc1_io" % tango_base,
         lowlevel = True,
@@ -117,7 +117,7 @@ devices = dict(
 #        mapping = dict(On = 1, Off = 0),
 #    ),
 
-    tisane_fg_multi = device('nicos_mlz.sans1.devices.io_trigger.Trigger',
+    tisane_fg_multi = device('nicos_mlz.devices.io_trigger.Trigger',
         description = "String blasting device",
         tangodevice = "%s_multifg/io" % tango_base,
         safesetting = 'idle',

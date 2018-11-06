@@ -60,7 +60,7 @@ devices = dict(
     #     maxage = 2,
     #     pollinterval = 0.5,
     # ),
-    fg_burst = device('nicos_mlz.reseda.devices.io_trigger.Trigger',
+    fg_burst = device('nicos_mlz.devices.io_trigger.Trigger',
         description = "String blasting device",
         tangodevice = tango_base + 'cascade/io_fg',
         safesetting = 'idle',
