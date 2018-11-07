@@ -24,6 +24,7 @@
 
 """NICOS logo as base64 encoded PNG."""
 
+from __future__ import absolute_import, division, print_function
 
 nicos_icon = str(
      'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAGlUlEQVRYhaWXXVCTVxrHXzuz'
