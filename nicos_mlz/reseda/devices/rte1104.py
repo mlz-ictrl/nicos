@@ -23,7 +23,7 @@
 # *****************************************************************************
 """Devices accessing the Rohde & Schwarz oscillosope RTE1104"""
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 import math
 

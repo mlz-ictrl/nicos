@@ -29,7 +29,7 @@ All NICOS - TANGO devices only support devices which fulfill the official
 MLZ TANGO interface for the respective device classes.
 """
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 import os
 import re

@@ -24,7 +24,7 @@
 
 """Mapping for the live data panels."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 try:
     from nicos.clients.gui.panels.livegr import LiveDataPanel

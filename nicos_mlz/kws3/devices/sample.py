@@ -24,7 +24,7 @@
 
 """KWS-3 sample position switcher."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.core import Attach, ConfigurationError, DeviceAlias, HasPrecision, \

@@ -24,7 +24,7 @@
 
 """Class for KWS-3 selector (custom solution using Pfeiffer controller)."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import time
 

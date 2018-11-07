@@ -24,7 +24,7 @@
 
 """Class for Keithley 6221 constant current source."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from IO import StringIO
 

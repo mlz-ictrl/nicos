@@ -26,7 +26,7 @@
 Sinks which handle the data provided from the SIS detector at SPHERES.
 '''
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 from time import localtime, strftime
 

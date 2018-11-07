@@ -28,7 +28,7 @@ Utility routines for nicos file finding
 This modules contains helper functions to find e.g. setupfiles etc.
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 from os import path

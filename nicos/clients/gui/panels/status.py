@@ -24,7 +24,7 @@
 
 """NICOS GUI script status panel component."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from time import time
 

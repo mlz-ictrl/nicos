@@ -27,7 +27,7 @@
 * using the freedesktop notification protocol.
 * using Jabber.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.core import Param, listof

@@ -9,7 +9,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from PyQt5 import QtCore
 

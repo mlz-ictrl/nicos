@@ -24,7 +24,7 @@
 
 """Session class used with the NICOS poller."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.core import POLLER, Device, DeviceAlias, Override
 from nicos.core.sessions.simple import NoninteractiveSession

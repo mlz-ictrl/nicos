@@ -24,7 +24,7 @@
 
 """NICOS axis test suite."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from os import path
 from test.utils import ErrorLogged, module_root, raises

@@ -24,7 +24,7 @@
 
 """NICOS daemon client object for the GUI."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from time import time as currenttime
 from weakref import ref

@@ -25,7 +25,7 @@
 """Class for FRM II Helios 3He polarizer operation."""
 
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.core import Override, Param, UsageError, usermethod
 from nicos.devices.tango import NamedDigitalOutput

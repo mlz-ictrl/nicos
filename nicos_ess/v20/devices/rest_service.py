@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import requests
 
 from nicos.core import CommunicationError, Override, Param, host, status

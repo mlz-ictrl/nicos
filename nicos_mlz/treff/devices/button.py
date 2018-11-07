@@ -24,7 +24,7 @@
 
 """Shutter button simulation devices."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.core import Attach, Moveable, Param, Readable, floatrange
 from nicos.devices.generic import BaseSequencer

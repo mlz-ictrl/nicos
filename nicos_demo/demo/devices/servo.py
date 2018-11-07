@@ -29,7 +29,7 @@ servos are too small and inaccurate to be used at the instrument,
 but are quite handy for shows
 """
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 import threading
 import time

@@ -24,7 +24,7 @@
 
 """NICOS test suite utilities."""
 
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, division, print_function
 
 import contextlib
 import math

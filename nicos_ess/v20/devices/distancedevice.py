@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import Attach, HasLimits, HasPrecision, Moveable, Override, \
     Param, multiReset, multiStatus, multiWait, oneof
 from nicos.devices.abstract import CanReference

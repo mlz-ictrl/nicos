@@ -26,7 +26,7 @@
 Test for multiwait
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from test.utils import raises
 

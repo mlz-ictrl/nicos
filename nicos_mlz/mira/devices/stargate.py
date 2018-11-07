@@ -40,7 +40,7 @@ bits of three consecutive 16-bit holding registers (offset_out).  Readback is
 done in three different holding registers with addresses n, n+2, n+4.
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from time import time as currenttime
 

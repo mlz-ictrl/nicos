@@ -25,7 +25,7 @@
 """ Extend the array description and support additional data for histograms
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.core import ArrayDesc
 from nicos.core.errors import ConfigurationError

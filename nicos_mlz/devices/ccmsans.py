@@ -20,7 +20,7 @@
 
 """Devices for the SANS-1 oxford magnet (ccmsans)."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.core import HasTimeout, Override, Param, oneof, status
 from nicos.devices.taco.power import CurrentSupply

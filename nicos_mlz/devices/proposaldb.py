@@ -25,7 +25,7 @@
 """NICOS FRM II specific authentication and proposal DB utilities."""
 
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import datetime
 import hashlib

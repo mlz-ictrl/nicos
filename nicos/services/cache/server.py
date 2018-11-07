@@ -35,7 +35,7 @@ module `nicos.protocols.cache`.  It also contains the documentation of the used
 line protocol.
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import select
 import socket

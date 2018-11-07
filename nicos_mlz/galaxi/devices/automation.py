@@ -24,7 +24,7 @@
 
 """GALAXI Automatic vacuum control and detector positioning"""
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 from nicos.core.device import Readable
 from nicos.core.params import Attach, Param, listof

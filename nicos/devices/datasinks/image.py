@@ -24,7 +24,7 @@
 
 """Base Image data sink classes for NICOS."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.core import FINAL, INTERRUPTED, LIVE, Override

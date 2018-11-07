@@ -35,7 +35,7 @@ environment variable NICOS_QT=5 has to be set to select this version.
 # this one is temporary until build machines have Qt5 installed:
 # pylint: disable=import-error
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import os
 import sys

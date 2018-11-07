@@ -24,7 +24,7 @@
 
 """Devices for the Beckhoff Busklemmensystem."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.core import SIMULATION, Param, listof
 from nicos.devices import tango

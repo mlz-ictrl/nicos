@@ -26,7 +26,7 @@
 as CARESS or UniversalDeviceProxy.
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import UniversalDeviceClient as UDC  # pylint: disable=import-error
 

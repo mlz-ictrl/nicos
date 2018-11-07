@@ -26,7 +26,7 @@
 
 """Tests for the cache."""
 
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, division, print_function
 
 from test.utils import cache_addr, raises
 from time import sleep

@@ -24,7 +24,7 @@
 
 """HRPD specific file format(s)."""
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 from nicos.core import Override
 from nicos.core.constants import POINT

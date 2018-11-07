@@ -24,7 +24,7 @@
 
 """NICOS pulse device."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.core import Attach, Moveable, Param, anytype, oneof
 from nicos.core.errors import ConfigurationError

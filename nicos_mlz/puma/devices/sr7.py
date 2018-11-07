@@ -25,7 +25,7 @@
 
 """Class for PUMA SR7 shutter control."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.core import Attach, HasTimeout, Moveable, Override, PositionError, \
     Readable, oneof, status

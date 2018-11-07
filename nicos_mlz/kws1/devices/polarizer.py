@@ -24,7 +24,7 @@
 
 """Class for controlling the KWS1 polarizer."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.core import SIMULATION, Attach, ConfigurationError, Moveable, \
     MoveError, Override, Param, listof, oneof, tupleof

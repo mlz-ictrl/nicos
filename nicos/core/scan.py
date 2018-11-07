@@ -25,7 +25,7 @@
 
 """Scan classes, new API."""
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 import sys
 from contextlib import contextmanager

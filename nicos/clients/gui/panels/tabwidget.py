@@ -24,7 +24,7 @@
 
 """NICOS GUI enhanced TabWidget."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.panels.auxwindows import AuxiliarySubWindow, Panel
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings

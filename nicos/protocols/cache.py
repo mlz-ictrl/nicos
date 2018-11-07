@@ -196,7 +196,7 @@ Works only with the "set a key" operator.  This flag makes no sense otherwise.
 
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import re
 from ast import Add, BinOp, Call, Dict, List, Name, Num, Set, Str, Sub, \

@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import nicos.core.status as status
 from nicos.core import HasOffset, Override, Param, Readable, oneof

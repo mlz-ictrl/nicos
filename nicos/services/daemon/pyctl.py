@@ -26,7 +26,7 @@
 Python interface to the _pyctl module, to control the execution of Python
 code via a C trace function.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import threading
 import traceback

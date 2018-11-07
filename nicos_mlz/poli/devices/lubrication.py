@@ -24,7 +24,7 @@
 
 """Lubrication device for lifting counter."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.core import status
 from nicos.devices.tango import DigitalOutput

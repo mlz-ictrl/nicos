@@ -24,7 +24,7 @@
 
 """Some mixins used at STRESS-SPEC instrument."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import math
 

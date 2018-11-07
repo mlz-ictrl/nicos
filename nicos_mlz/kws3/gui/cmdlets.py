@@ -24,6 +24,8 @@
 
 """Commandlets for KWS-3."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.clients.gui.cmdlets import register
 from nicos.utils import num_sort
 

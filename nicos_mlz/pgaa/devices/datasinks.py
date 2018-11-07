@@ -24,7 +24,7 @@
 
 """PGAA specific data sink(s)."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import csv
 from array import array

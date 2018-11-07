@@ -29,7 +29,7 @@ The position handling uses quite a lot of chaining to
 keep maintenance effort low.
 """
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 

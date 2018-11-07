@@ -24,7 +24,7 @@
 
 """Class for CASCADE detector measurement and readout."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 

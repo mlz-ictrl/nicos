@@ -27,7 +27,7 @@
 
 """NICOS FRM II experiment classes."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import re
 import time

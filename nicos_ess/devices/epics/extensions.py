@@ -26,7 +26,7 @@
 """
 This module contains ESS specific EPICS developments.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.core import Device, DeviceMixinBase, Param, anytype, dictwith, \
     pvname, usermethod

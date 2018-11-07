@@ -24,7 +24,7 @@
 
 """Detector switcher for KWS 2 with large/small detector selection."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \

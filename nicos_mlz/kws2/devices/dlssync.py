@@ -24,7 +24,7 @@
 
 """Detector for triggering dynamic light scattering (DLS) during counting."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import time
 

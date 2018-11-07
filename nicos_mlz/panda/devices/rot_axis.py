@@ -24,7 +24,7 @@
 
 """PANDA rotary axis for NICOS."""
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.core import MAINTENANCE, MASTER, SIMULATION, ConfigurationError, \

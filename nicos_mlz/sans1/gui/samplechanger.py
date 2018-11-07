@@ -27,6 +27,8 @@
 positions.
 """
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.clients.gui.panels import AuxiliaryWindow, Panel
 from nicos.clients.gui.panels.tabwidget import DetachedWindow
 from nicos.guisupport.qt import QAbstractButton, QAbstractItemView, \

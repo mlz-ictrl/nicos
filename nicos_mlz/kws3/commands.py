@@ -24,7 +24,7 @@
 
 """Custom commands for KWS-3."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.commands import usercommand

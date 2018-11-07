@@ -24,7 +24,7 @@
 
 """REFSANS specific parameter definition helpers."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 
 def motoraddress(address=0x3020):

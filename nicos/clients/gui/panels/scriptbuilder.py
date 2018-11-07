@@ -24,7 +24,7 @@
 
 """NICOS GUI multiple cmdlet script-builder input."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
 from nicos.clients.gui.panels import Panel

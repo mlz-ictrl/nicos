@@ -23,7 +23,7 @@
 # *****************************************************************************
 """Utilities for function fitting."""
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 from numpy import array, asarray, cos, diagonal, exp, inf, isinf, isscalar, \
     linspace, log, mean, pi, piecewise, power, sqrt

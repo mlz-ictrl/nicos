@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import numpy
 
 from nicos.clients.gui.panels.livegr import LiveDataPanel as BaseLiveDataPanel

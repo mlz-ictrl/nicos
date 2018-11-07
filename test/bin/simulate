@@ -4,6 +4,8 @@
 # It is adapted from bin/nicos-simulate to run correctly in the test
 # environment.
 
+from __future__ import absolute_import, division, print_function
+
 import sys
 from test.utils import runtime_root, selfDestructAfter
 

@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.core.device import Measurable

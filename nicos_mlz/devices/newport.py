@@ -24,7 +24,7 @@
 
 """Support code for the Newport Motors"""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.devices.taco.motor import Motor as TacoMotor
 

@@ -28,7 +28,7 @@ This module contains some classes for NICOS - EPICS integration. The underlying 
 for handling EPICS communication is pvaPy.
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from time import time as currenttime
 

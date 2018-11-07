@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 try:
     from genie_python.genie_startup import * #  pylint: disable=E0401,W0401

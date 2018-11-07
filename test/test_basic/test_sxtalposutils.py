@@ -26,7 +26,7 @@
 Tests for the single (4-circle and related) positions utils
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from pytest import approx

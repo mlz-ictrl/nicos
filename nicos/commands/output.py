@@ -24,7 +24,7 @@
 
 """Module for output/logging user commands."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.commands import helparglist, hiddenusercommand, parallel_safe, \

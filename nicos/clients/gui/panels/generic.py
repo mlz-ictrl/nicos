@@ -24,7 +24,7 @@
 
 """NICOS GUI panel for generic panels made with Qt designer."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from logging import WARNING
 

@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from lewis.core.control_client import ControlClient
 
 from nicos import session

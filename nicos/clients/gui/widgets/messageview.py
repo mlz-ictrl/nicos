@@ -24,7 +24,7 @@
 
 """A text control to display logging messages of the daemon."""
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 import re
 from logging import DEBUG, ERROR, FATAL, INFO, WARNING

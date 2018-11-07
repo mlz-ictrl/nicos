@@ -24,7 +24,7 @@
 
 """Test configuration file containing fixtures for individual tests."""
 
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import, division, print_function
 
 test_devices = {
     'sinq_motor': ['com', 'coz', 'aom', 'd1b'],

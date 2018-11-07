@@ -24,6 +24,8 @@
 
 """Generate a measurement protocol from saved runs."""
 
+from __future__ import absolute_import, division, print_function
+
 from os import path
 
 from nicos.clients.gui.panels import Panel

@@ -24,6 +24,8 @@
 
 """Commandlets for KWS(-1)."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.clients.gui.cmdlets import Cmdlet, register
 from nicos.guisupport.qt import QDialog, QIcon, QMessageBox, QSize, \
     QTableWidgetItem, QToolButton, pyqtSlot

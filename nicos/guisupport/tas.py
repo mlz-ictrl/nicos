@@ -24,7 +24,7 @@
 
 """TAS specific display widgets."""
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 from math import cos, pi, sin
 

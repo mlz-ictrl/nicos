@@ -24,7 +24,7 @@
 
 """Detector class for the laue PSL detector via the windows server."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 

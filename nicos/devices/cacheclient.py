@@ -25,7 +25,7 @@
 
 """NICOS cache clients."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import select
 import socket
@@ -39,8 +39,8 @@ from nicos.protocols.cache import BUFSIZE, CYCLETIME, DEFAULT_CACHE_PORT, \
     OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, OP_UNSUBSCRIBE, OP_WILDCARD, \
     SYNC_MARKER, cache_dump, cache_load, line_pattern, msg_pattern
 #pylint: disable=redefined-builtin
-from nicos.pycompat import from_utf8, iteritems, \
-    queue, string_types, to_utf8, xrange
+from nicos.pycompat import from_utf8, iteritems, queue, string_types, \
+    to_utf8, xrange
 from nicos.utils import closeSocket, createThread, getSysInfo, tcpSocket
 
 

@@ -25,6 +25,8 @@
 
 """Direct manual control of KWS-1 Hexapod via Tango special device."""
 
+from __future__ import absolute_import, division, print_function
+
 import PyTango
 
 from nicos.clients.gui.utils import DlgUtils, loadUi

@@ -24,7 +24,7 @@
 
 """Dialog for entering authentication data."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.clients.base import ConnectionData
 from nicos.clients.gui.utils import loadUi, splitTunnelString

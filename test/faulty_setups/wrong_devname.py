@@ -21,7 +21,7 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 devices = {
     'my-dev': device('nicos.core.Device'),

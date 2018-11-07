@@ -23,7 +23,7 @@
 # *****************************************************************************
 """STRESS-SPEC specific commands for the robot to change the sample."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import numpy
 

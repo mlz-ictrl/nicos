@@ -25,7 +25,7 @@
 
 """GALAXI Bruker AXS control"""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.core import Waitable, status
 from nicos.devices.tango import NamedDigitalInput, PartialDigitalInput

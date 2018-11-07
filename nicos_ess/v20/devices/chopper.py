@@ -24,6 +24,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import SIMULATION, Attach, Moveable, Override, status, \
     tupleof, usermethod
 from nicos.devices.epics import EpicsMoveable, EpicsReadable

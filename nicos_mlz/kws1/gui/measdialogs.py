@@ -24,6 +24,8 @@
 
 """Dialogs for the "Measurement" commandlet."""
 
+from __future__ import absolute_import, division, print_function
+
 import itertools
 from collections import OrderedDict
 

@@ -44,7 +44,7 @@ Examples::
 # * figure out how to convert code examples in docstrings
 # * add a way to make commands unavailable (e.g. manualscan)
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import re
 from itertools import chain, cycle, islice

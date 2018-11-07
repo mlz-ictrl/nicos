@@ -24,7 +24,7 @@
 
 """Detector devices for QMesyDAQ type detectors."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import IO
 import IOCommon

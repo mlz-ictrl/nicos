@@ -26,7 +26,7 @@
 
 """Eulerian cradle calculations."""
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 from numpy import arctan2, array, cos, cross, dot, identity, sin, sqrt, zeros
 from numpy.linalg import inv, norm

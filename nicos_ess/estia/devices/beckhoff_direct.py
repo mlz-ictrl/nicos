@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import pyads
 
 from nicos.core import Attach, HasCommunication, Override, Param, Readable, \

@@ -24,7 +24,7 @@
 
 """Devices for the Refsans NOK system."""
 
-from __future__ import absolute_import, division
+from __future__ import absolute_import, division, print_function
 
 import struct
 

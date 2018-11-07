@@ -24,7 +24,7 @@
 
 """LASCON pyrometer temperature devices."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from IO import StringIO
 

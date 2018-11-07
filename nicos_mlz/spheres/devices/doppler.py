@@ -24,7 +24,7 @@
 
 """Doppler device for SPHERES"""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.core import status

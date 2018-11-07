@@ -26,7 +26,7 @@
 A remote debugger for the NICOS daemon.
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import sys
 from bdb import Breakpoint
