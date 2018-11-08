@@ -56,9 +56,6 @@ class FocusAxis(Axis):
         # If a blacklash is needed, it should start from the 'startpos' value
         curpos = self.read(0)
         direct = (target - curpos) * (curpos - self.startpos)
-        if direct < 0:
-            self.backlash = self.startpos - target
-        else:
-            self.backlash = 0
+        self.backlash = self.startpos - target if direct < 0 else 0
         self.log.debug('backlash is now: %.3f', self.backlash)
         Axis.doStart(self, target)
