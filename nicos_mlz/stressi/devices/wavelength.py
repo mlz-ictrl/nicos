@@ -111,7 +111,7 @@ class Wavelength(HasLimits, Moveable):
             self._d(maxage)
             return status.OK, 'idle'
         except ConfigurationError as e:
-            return status.ERROR, e.message
+            return status.ERROR, str(e)
 
     def doRead(self, maxage=0):
         try:
