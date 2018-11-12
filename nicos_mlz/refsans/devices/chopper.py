@@ -26,7 +26,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos import session
 from nicos.core import HasLimits, HasPrecision, Moveable, Override, Param, \
     dictwith, floatrange, intrange, listof, status
 from nicos.core.errors import NicosError
@@ -54,7 +53,7 @@ class ChopperBase(Moveable, StringIO):
         # TODO: fix formatting for single values and lists
         # TODO: this has to be fix somehow
         if hasattr(self, 'chopper'):
-            what = mvalue % ((self.chopper,) + values)
+            what = mvalue % ((self.chopper, ) + values)
         else:
             what = mvalue % (values)
         self.log.debug('_write_controller what: %s', what)
@@ -175,14 +174,14 @@ class ChopperMaster(SequencerMixin, ChopperBase):
                                int(round(delay * 100)))
 
     def doReadDelay(self):
-        return int(self._read_controller("m4080")) / 100.0
+        return int(self._read_controller('m4080')) / 100.0
 
 
 class ChopperDisc(HasPrecision, HasLimits, ChopperBase):
 
     parameters = {
         'phase': Param('Phase of chopper',
-                       type=floatrange(-360, 360),
+                       type=floatrange(0, 360),
                        settable=True,
                        volatile=True, userparam=True),
         'current': Param('motor current',
@@ -248,27 +247,37 @@ class ChopperDisc(HasPrecision, HasLimits, ChopperBase):
         res = int(self._read_controller('m410%s'))
         if res == 99999:
             return 0
-        res /= 100.
-        set_to = (res - self.reference) * self.gear
-        self.log.debug('read %.2f phase  %.2f gear %d', res, set_to, self.gear)
+        # The Chopper understands "negative hundreths degrees", SB
+        # since we changed the sign above, change sign of reference
+        set_to = res * self.gear + self.reference  # SB
+        # The Chopper uses -180..180 degrees, we use 0..360 degrees
+        while set_to < 0.:
+            set_to += 360.
+        while set_to >= 360.:
+            set_to -= 360.
+        self.log.info('read %.2f phase  %.2f ref %.2f gear %d SB', res, set_to,
+                      self.reference, self.gear)
         return set_to
 
     def doWritePhase(self, value):
-        # off = self.offsets[disk] - self.offsets[1]
-        set_to = value / self.gear + self.reference
-        self.log.info('Disk %d angle %0.2f Phase %0.2f gear %d ref %.2f',
+        # Change sign of offset since the sign of the value is now changed
+        # afterwards
+        set_to = (value - self.reference) / self.gear  # SB
+        self.log.info('Disk %d angle %0.2f Phase %0.2f gear %d ref %.2f SB',
                       self.chopper, value, set_to, self.gear, self.reference)
-        set_to = int(round(set_to * 100))
-        while set_to > +18000:
-            set_to -= 36000
-        while set_to < -18000:
-            set_to += 36000
+        # We think in 0..360 degrees, choppers 1 to 4 in -180..180 degrees
+        # and choppers 5 and 6 in -90..90 degrees
+        while set_to > (+180. / self.gear):
+            set_to -= 360. / self.gear
+        while set_to < (-180. / self.gear):
+            set_to += 360. / self.gear
+        # The Chopper understands "negative hundreths degrees"
+        set_to = int(round(set_to * -100))  # SB
         self.log.info('Disk %d Phase %d gear %d', self.chopper, set_to,
                       self.gear)
         # TODO: Check the following lines
         self._write_controller('m4073=%d m4074=0 m4075=%d m4076=%d m4070=7',
                                set_to, self.gear)
-        session.delay(10)  # time needed to take over the phase!!!
 
     def doStatus(self, maxage=0):
         if self.doIsAtTarget(self.doRead(0)) or self.chopper != 1:
@@ -277,7 +286,7 @@ class ChopperDisc(HasPrecision, HasLimits, ChopperBase):
 
     def _current_speed(self):
         res = float(self._read_controller('m408%s'))
-        self.log.debug('speed: %f', res)
+        self.log.debug('_current_speed: %f', res)
         return res
 
 
@@ -301,7 +310,7 @@ class ChopperDisc2(ChopperDisc):
 
 
 class ChopperDisc2Pos(CanReference, ChopperBase):
-    """Position of chopper disc 2 along the x axis"""
+    """Position of chopper disc 2 along the x axis."""
 
     valuetype = intrange(1, 5)
 
@@ -315,22 +324,25 @@ class ChopperDisc2Pos(CanReference, ChopperBase):
 
     def _read_pos(self):
         what = 'm4078'
-        self.log.debug('what: %s', what)
+        self.log.debug('_read_pos what: %s', what)
         res = self.communicate(what)
         res = int(res.replace('\x06', ''))
-        self.log.debug('pos: %d', res)
+        self.log.debug('_read_pos what: %s pos: %d', what, res)
         return res
 
     def doRead(self, maxage=0):
+        self.log.debug('doRead ChopperDisc2Pos')
         try:
             return self.valuetype(self._read_pos())
         except ValueError:
             return self.target
 
     def doIsAllowed(self, target):
+        self.log.debug('doIsAllowed ChopperDisc2Pos')
         if self._attached_disc.isAtTarget(0):
             return True, ''
-        return False, 'Disc speed is to high'
+        return False, 'Disc speed is too high, check also target: %d!' % \
+            self._attached_disc.target
 
     def doStart(self, value):
         value = intrange(1, 5)(value)
