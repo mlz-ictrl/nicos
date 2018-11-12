@@ -32,8 +32,8 @@ watchlist = [
 includes = ['notifiers']
 
 notifiers = {
-    'default': ['mailer'],
-    'critical': ['mailer', 'smser'],
+    'default': ['email'],
+    'critical': ['email', 'smser'],
 }
 
 devices = dict(
