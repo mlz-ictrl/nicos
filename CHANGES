@@ -1,6 +1,85 @@
 Changelog
 =========
 
+Release 3.4.0
+-------------
+
+* New client/server protocol(s)
+
+  - The daemon communication layer has been made protocol independent. It is
+    now possible to configure the transport layer and serializer to allow
+    connections from clients which are not running in the Python world, without
+    implementing the Python pickle protocol on the client side.
+
+* Core
+
+  - Added support for disabling devices.  The components here are a new
+    'CanDisable' mixin, a new status 'DISABLED' to show disabled devices,
+    and new GUI elements to disable/reenable the devices.
+
+  - The compatibility of new setups will be checked *before* starting to
+    unload/load anything, so the user will not get an empty device list in case
+    of an error during loading a new setup.
+
+  - Attached devices can now be allowed to not exist in the loaded
+    configuration.
+
+  - Userlimits are reinitialized when set to (0, 0).
+
+  - 'Multi' methods (multiWait, multiStatus, ...) now raise the highest-
+    severity exception. Repeated display of exceptions when waiting on a
+    single device is avoided.
+
+  - Runtime re-assignment of device methods is now forbidden.
+
+  - Current script name is now returned in the daemon "getstatus" query.
+
+* GUI
+
+  - Implemented log-x scale for scan plotting.
+
+  - Added an option to show/hide error bars in scan plots.
+
+  - The window entries in the GUI config learned the 'setups' option to display
+    them depending on the loaded setups in daemon.
+
+  - The "control device" dialog now hides the device parameters at first, but
+    allows to display them. In 'expert mode' they will be displayed by default.
+
+* Commands
+
+  - tomo: add a parameter to rearrange the 180 deg position into the sequence
+    of the positions instead beeing the first position.
+
+  - Improved cosine fit.
+
+* Dry-run
+
+  - Full log output is now available even in sandbox mode.
+
+  - Fixed TACO/TANGO/EPICS devices access.
+
+  - Fixed Measurables with hardware access.
+
+  - SeqSleep is now not executed anymore.
+
+* Tools
+
+  - check_setups: 'Exp' device is now allowed in more than one setup.
+
+* Tests
+
+  - Added timeout decorator to test functions that seem to hang sporadically.
+
+  - Do not try to import special/hidden dirs.
+
+* Doc
+
+  - Added tutorials to create new devices, commands, and data sinks.
+
+  - Added options description of some panels.
+
+
 Release 3.3.0
 -------------
 
