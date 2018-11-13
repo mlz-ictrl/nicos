@@ -33,9 +33,9 @@ class NicosError(Exception):
     Every NicosError subclass has a "category" attribute, a string that is
     shown to the user instead of the exception class.
 
-    The constructor also accepts a :class:`.Device` instance as its first
-    argument, which is then used to display the error to the user as coming
-    from this device.  For example::
+    The constructor also accepts a :class:`nicos.core.Device` instance as its
+    first argument, which is then used to display the error to the user as
+    coming from this device.  For example::
 
        def doRead(self, maxage=0):
            if not self._ready:
