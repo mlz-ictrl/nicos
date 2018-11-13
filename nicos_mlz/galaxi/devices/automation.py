@@ -27,7 +27,7 @@
 from __future__ import absolute_import, division
 
 from nicos.core.device import Readable
-from nicos.core.params import Attach, Param
+from nicos.core.params import Attach, Param, listof
 from nicos.devices.tango import NamedDigitalOutput
 
 
@@ -41,6 +41,9 @@ class DetectorDistance(Readable):
     parameters = {
         'offset': Param('Minimum distance between Pilatus and sample',
                         type=int, settable=True),
+        'tubelength': Param('List of tube length',
+                            type=listof(int), settable=False,
+                            default=[450, 450, 900, 900]),
     }
 
     hardware_access = False
@@ -51,12 +54,12 @@ class DetectorDistance(Readable):
 
     def doRead(self, maxage=0):
         distance = 0
-        for tube in enumerate(self._attached_detectubes, start=2):
-            if tube[1].read(maxage) != 'up':
+        for tube, l in zip(self._attached_detectubes, self.tubelength):
+            # tubes can only be set in correct sequence
+            if tube.read(maxage) != 'up':
                 break
-            distance += tube[0] // 2
-        return self.offset + distance * 450
-
+            distance += l
+        return self.offset + distance
 
 class VacuumOperation(NamedDigitalOutput):
     """Provide different vacuum operation states"""
