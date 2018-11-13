@@ -2,16 +2,13 @@ description = 'Vacuum sensors of sample chamber'
 
 group = 'lowlevel'
 
-includes = []
-
-nethost = 'pgaasrv.pgaa.frm2'
+tango_base = 'tango://pgaahw.pgaa.frm2:10000/pgaa/sample/'
 
 devices = dict(
-    chamber_pressure = device('nicos.devices.taco.AnalogInput',
+    chamber_pressure = device('nicos.devices.tango.Sensor',
         description = 'vacuum sensor in sample chamber',
-        tacodevice = '//%s/pgaa/sample/vacuum' % (nethost,),
+        tangodevice = tango_base + 'vacuum',
         fmtstr = '%.2g',
-        unit = 'mbar',
         pollinterval = 15,
         maxage = 60,
         warnlimits = (None, 1),
