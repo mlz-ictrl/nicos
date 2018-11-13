@@ -430,7 +430,9 @@ man_pages = [
      [u'NICOS contributors'], 1)
 ]
 
-autodoc_default_options = ['members']
+# from the doc: Setting None is equivalent to giving the option
+# name in the list format (i.e. it means “yes/true/on”).
+autodoc_default_options = {'members': None}
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
