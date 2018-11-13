@@ -20,8 +20,6 @@ class implements, how the data should be written.
    .. automethod:: end
    .. automethod:: addSubset
 
-.. module:: nicos.core.data.sink
-
 .. autoclass:: DataFileBase
 
 .. module:: nicos.core.data
