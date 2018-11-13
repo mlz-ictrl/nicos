@@ -42,11 +42,11 @@ class DSPec(PyTangoDevice, Measurable):
                         type=str, settable=False, mandatory=True,
                         category='general'),
         'ecalslope': Param('Energy calibration slope',
-                           type=int, mandatory=False, settable=True,
-                           prefercache=True, default=0),
+                           type=float, mandatory=False, settable=True,
+                           volatile=True, default=0),
         'ecalintercept': Param('Energy calibration interception',
-                               type=int, mandatory=False, settable=True,
-                               prefercache=True, default=0),
+                               type=float, mandatory=False, settable=True,
+                               volatile=True, default=0),
         'poll': Param('Polling time of the TANGO device driver',
                       type=float, settable=False, volatile=True),
         'cacheinterval': Param('Interval to cache intermediate spectra',
@@ -58,10 +58,12 @@ class DSPec(PyTangoDevice, Measurable):
     # working.
 
     def doReadEcalslope(self):
-        return self._dev.EnergyCalibration[1]
+        ec = self._dev.EnergyCalibration.strip()
+        return float(ec.split()[1])
 
     def doReadEcalintercept(self):
-        return self._dev.EnergyCalibration[2]
+        ec = self._dev.EnergyCalibration.strip()
+        return float(ec.split()[2])
 
     def doReadArrays(self, quality):
         spectrum = None
