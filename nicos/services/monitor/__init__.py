@@ -58,7 +58,7 @@ class Monitor(BaseCacheClient):
     parameters = {
         'title':     Param('Title of status window', type=str,
                            default='Status'),
-        'layout':    Param('Status monitor layout', type=listof(list),
+        'layout':    Param('Status monitor layout', type=list,
                            mandatory=True),
         'font':      Param('Font name for the window', type=str,
                            default='Luxi Sans'),

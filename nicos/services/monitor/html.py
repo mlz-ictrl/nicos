@@ -126,6 +126,8 @@ class Field(object):
     def __init__(self, prefix, desc):
         if isinstance(desc, string_types):
             desc = {'dev': desc}
+        else:
+            desc = desc._options
         if 'dev' in desc:
             dev = desc.pop('dev')
             if 'name' not in desc:
@@ -411,14 +413,12 @@ class Monitor(BaseMonitor):
             for column in superrow:
                 add('  <table class="column"><tr><td>')
                 for block in column:
-                    blockconfig = block[1] if len(block) > 1 else {}
-                    block = block[0]
-                    blk = Block(blockconfig)
+                    blk = Block(block._options)
                     blk.add('<div class="block">')
                     blk.add('<div class="blockhead">%s</div>' %
-                            escape_html(block[0]))
+                            escape_html(block._title))
                     blk.add('\n    <table class="blocktable">')
-                    for row in block[1]:
+                    for row in block:
                         if row is None:
                             blk.add('<tr></tr>')
                         else:

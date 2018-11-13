@@ -40,6 +40,88 @@ SETUP_GROUPS = set([
 ])
 
 
+class MonitorElement(object):
+
+    pass
+
+
+class HasChildren(object):
+
+    def __init__(self, *children):
+        self._children = children
+
+    def __iter__(self):
+        return iter(self._children)
+
+    def __len__(self):
+        return len(self._children)
+
+    def __getitem__(self, index):
+        return self._children[index]
+
+
+class Row(HasChildren, MonitorElement):
+
+    pass
+
+
+class Column(HasChildren, MonitorElement):
+
+    def __add__(self, other):
+        if isinstance(other, tuple):
+            return Column(*(self._children + other))
+        elif isinstance(other, Column):
+            Column(*(self._children + other._children))
+        return self
+
+    def __radd__(self, other):
+        if isinstance(other, tuple):
+            return Column(*(other + self._children))
+        elif isinstance(other, Column):
+            return Column(*(other._children + self._children))
+        return self
+
+
+class Block(HasChildren, MonitorElement):
+
+    def __init__(self, title, children, **options):
+        self._title = title
+        HasChildren.__init__(self, *children)
+        self._options = options
+
+    def __str__(self):
+        return '%s: %r %r' % (self._title, self._children, self._options)
+
+
+class Field(MonitorElement):
+    def __init__(self, **options):
+        self._options = options
+
+    def __contains__(self, key):
+        return key in self._options
+
+    def __len__(self):
+        return len(self._options)
+
+    def __iter__(self):
+        return iter(self._options)
+
+    def __getitem__(self, key):
+        return self._options.get(key)
+
+    def __setitem__(self, key, value):
+        self._options.__setitem__(key, value)
+
+    def get(self, key, default=None):
+        return self._options.get(key, default)
+
+    def pop(self, key):
+        return self._options.pop(key)
+
+    def __str__(self):
+        return '%r' % self._options
+
+
 def readSetups(paths, logger):
     """Read all setups on the given paths."""
     infodict = {}
@@ -70,11 +152,11 @@ def prepareNamespace(setupname, filepath, all_setups):
         '_configdata_files': cd_files,
     }
     if path.basename(setupname).startswith('monitor'):
-        ns['Row'] = lambda *args: args
-        ns['Column'] = lambda *args: args
-        ns['BlockRow'] = lambda *args: args
-        ns['Block'] = lambda *args, **kwds: (args, kwds)
-        ns['Field'] = lambda *args, **kwds: args or kwds
+        ns['Row'] = Row
+        ns['Column'] = Column
+        ns['BlockRow'] = Row
+        ns['Block'] = Block
+        ns['Field'] = Field
     return ns
 
 

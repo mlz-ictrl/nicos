@@ -335,15 +335,13 @@ class Monitor(BaseMonitor):
             for column in superrow:
                 columnlayout = QVBoxLayout(spacing=0.8*blheight)
                 for block in column:
-                    blockconfig = block[1] if len(block) > 1 else {}
-                    block = block[0]
                     blocklayout_outer = QHBoxLayout()
                     blocklayout_outer.addStretch()
                     blocklayout = QVBoxLayout()
                     blocklayout.addSpacing(0.5 * blheight)
-                    blockbox = BlockBox(displayframe, block[0], blockfont,
-                                        blockconfig)
-                    for row in block[1]:
+                    blockbox = BlockBox(displayframe, block._title, blockfont,
+                                        block._options)
+                    for row in block:
                         if row in (None, '---'):
                             blocklayout.addSpacing(12)
                         else:
