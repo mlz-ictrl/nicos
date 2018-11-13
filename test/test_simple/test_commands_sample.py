@@ -94,5 +94,5 @@ def test_powderfit_from_data(session):
         cscan(phidev, phidev(), 0.2, 10, 1, tasdet)
     # since datasets are not numbered (no sink), number 0 will catch all
     res = powderfit('YIG', scans=[0])
-    assert -0.1 <= res[0] <= 0.1
-    assert -0.1 <= res[1] <= 0.1
+    assert -0.105 <= res[0] <= 0.105
+    assert -0.105 <= res[1] <= 0.105
