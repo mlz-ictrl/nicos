@@ -24,8 +24,8 @@
 
 from __future__ import absolute_import, division, print_function
 
-from time import time as currenttime
 import ntpath
+from time import time as currenttime
 
 from nicos import session
 from nicos.core import Attach, DeviceMixinBase, Param, status
