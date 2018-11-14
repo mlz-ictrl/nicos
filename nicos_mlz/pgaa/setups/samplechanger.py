@@ -5,6 +5,7 @@ group = 'lowlevel'
 excludes = ['sampletable']
 
 nethost = 'pgaasrv.pgaa.frm2'
+tango_base = 'tango://pgaahw.pgaa.frm2:10000/pgaa/'
 
 devices = dict(
     sensort = device('nicos.devices.taco.io.DigitalInput',
@@ -17,10 +18,9 @@ devices = dict(
         tacodevice = '//pgaasrv.pgaa.frm2/pgaa/sample/tube_sensor_low',
         lowlevel = True
     ),
-    usb485 = device('nicos_mlz.pgaa.devices.sampledevices.TacoSerial',
+    usb485 = device('nicos_mlz.panda.devices.mcc2.TangoSerial',
         lowlevel = True,
-        tacodevice = '//pgaasrv.pgaa.frm2/pgaa/rs232/usb485',
-        tacotimeout = 10,
+        tangodevice = tango_base + 'rs232/usb485',
         comtries = 6,
     ),
     samplemotor = device('nicos_mlz.pgaa.devices.sampledevices.SampleMotor',
