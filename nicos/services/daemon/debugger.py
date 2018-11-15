@@ -28,6 +28,7 @@ A remote debugger for the NICOS daemon.
 
 import sys
 from pdb import Pdb
+from bdb import Breakpoint
 
 from nicos.pycompat import queue
 
@@ -46,6 +47,11 @@ class Rpdb(Pdb):  # pylint: disable=too-many-public-methods
 
     def __init__(self, endcallback):
         Pdb.__init__(self)
+        # completely reinitialize breakpoints since they sometimes seem
+        # to get stuck
+        Breakpoint.next = 1
+        Breakpoint.bplist = {}
+        Breakpoint.bpbynumber = [None]
         self._endcallback = endcallback
         # do not display any prompt
         self.prompt = ''
