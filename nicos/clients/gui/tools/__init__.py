@@ -24,10 +24,13 @@
 
 """NICOS GUI tools."""
 
-from nicos.guisupport.qt import Qt, QTimer, QAction
+from __future__ import absolute_import
 
-from nicos.utils import importString, createSubprocess
-from nicos.clients.gui.config import tool, cmdtool, menu
+from nicos.utils import createSubprocess, importString
+
+from nicos.guisupport.qt import QAction, Qt, QTimer
+
+from nicos.clients.gui.config import cmdtool, menu, tool
 
 
 def runTool(window, tconfig):

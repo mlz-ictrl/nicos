@@ -24,12 +24,13 @@
 
 """Doppler device for SPHERES"""
 
-from nicos import session
+from __future__ import absolute_import, division, print_function
 
-from nicos.core.params import Attach, Param, listof
+from nicos import session
 from nicos.core import status
+from nicos.core.params import Attach, Param, listof
 from nicos.devices.generic.switcher import MultiSwitcher
-from nicos.devices.tango import NamedDigitalOutput, VectorInput, AnalogOutput
+from nicos.devices.tango import AnalogOutput, NamedDigitalOutput, VectorInput
 
 ELASTIC =   'elastic'
 INELASTIC = 'inelastic'

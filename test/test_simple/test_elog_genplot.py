@@ -24,15 +24,16 @@
 
 """NICOS tests for nicos.commands.scan and nicos.core.scan modules."""
 
+from __future__ import absolute_import, division, print_function
+
 from os import path
+from test.utils import hasGnuplot, runtime_root
 
 import pytest
 
-from nicos.core.data import ScanData
 from nicos.commands.scan import scan
+from nicos.core.data import ScanData
 from nicos.services.elog import genplot
-
-from test.utils import runtime_root, hasGnuplot
 
 session_setup = 'scanning'
 

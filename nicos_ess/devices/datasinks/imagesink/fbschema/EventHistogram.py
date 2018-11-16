@@ -4,6 +4,7 @@
 
 import flatbuffers
 
+
 class EventHistogram(object):
     __slots__ = ['_tab']
 

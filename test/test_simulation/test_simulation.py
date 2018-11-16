@@ -24,9 +24,11 @@
 
 """Tests for simulation mode."""
 
-from nicos.core import SIMULATION
-from nicos.commands.scan import scan
+from __future__ import absolute_import, division, print_function
+
 from nicos.commands.basic import sleep
+from nicos.commands.scan import scan
+from nicos.core import SIMULATION
 
 session_setup = 'simscan'
 session_mode = SIMULATION

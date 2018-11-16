@@ -28,17 +28,17 @@ This module contains some classes for NICOS - EPICS integration. The underlying 
 for handling EPICS communication is pvaPy.
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import CommunicationError, ConfigurationError, \
-    DeviceMixinBase, HasLimits, Moveable, Override, Param, Readable, \
-    SIMULATION, anytype, floatrange, none_or, status, pvname, POLLER
+from nicos.core import POLLER, SIMULATION, CommunicationError, \
+    ConfigurationError, DeviceMixinBase, HasLimits, Moveable, Override, \
+    Param, Readable, anytype, floatrange, none_or, pvname, status
 from nicos.core.mixins import HasWindowTimeout
-from nicos.utils import HardwareStub
 from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
+from nicos.utils import HardwareStub
 
 try:
     import pvaccess

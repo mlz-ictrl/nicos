@@ -1,5 +1,6 @@
-from nicos_ess.nexus import EventStream
+from __future__ import absolute_import, division, print_function
 
+from nicos_ess.nexus import EventStream
 
 integration_default = {
     "entry-01:NXentry": {

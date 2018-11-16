@@ -23,19 +23,21 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import os
 import shutil
 import threading
 from os import path
-from time import time as currenttime, sleep, localtime, mktime
+from time import localtime, mktime, sleep, time as currenttime
 
 from nicos import config
 from nicos.core import Param
-from nicos.protocols.cache import OP_TELL, OP_TELLOLD, FLAG_NO_STORE
+from nicos.protocols.cache import FLAG_NO_STORE, OP_TELL, OP_TELLOLD
 from nicos.pycompat import iteritems, listitems
 from nicos.services.cache.database.base import CacheDatabase
 from nicos.services.cache.entry import CacheEntry
-from nicos.utils import ensureDirectory, allDays, createThread
+from nicos.utils import allDays, createThread, ensureDirectory
 
 try:  # Windows compatibility: it does not provide os.link
     os_link = os.link

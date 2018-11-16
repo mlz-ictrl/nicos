@@ -28,23 +28,24 @@ Created on 30.05.2011
 @author: pedersen
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
-import sys
 import math
+import sys
+
+from nicos import session
+from nicos.core import Attach, Moveable, NicosError, Param, vec3
+from nicos.core.status import BUSY, OK
+from nicos.devices.sample import Sample
+
 sys.path.append('/home/resi/pedersen/workspace/singlecounter')
 sys.path.append('/home/resi/pedersen/workspace/nonius_new/app')
 
-from nicos.core import Moveable, Param, Attach
-from nicos.devices.sample import Sample
-from nicos.core import vec3, NicosError
-from nicos.core.status import OK, BUSY
-from nicos import session
 
 # imports from the nonius libs
 try:
-    from sc_scan_new import HuberScan  # pylint: disable=F0401
-    from goniometer import position    # pylint: disable=F0401
+    from sc_scan_new import HuberScan  # pylint: disable=import-error
+    from goniometer import position    # pylint: disable=import-error
 except ImportError as e:
     # at least make the module importable for setup checking
     session.log.info(e)

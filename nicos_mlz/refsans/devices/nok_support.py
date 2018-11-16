@@ -23,9 +23,11 @@
 # **************************************************************************
 """Support Code for REFSANS's NOK's."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import ConfigurationError, HasPrecision, MoveError, Moveable, \
-    Readable, SIMULATION, dictwith, status
+from nicos.core import SIMULATION, ConfigurationError, HasPrecision, \
+    Moveable, MoveError, Readable, dictwith, status
 from nicos.core.errors import HardwareError
 from nicos.core.params import Attach, Override, Param, floatrange, intrange, \
     limits, none_or, nonemptylistof, oneof, tupleof

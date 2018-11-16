@@ -24,9 +24,11 @@
 
 """NICOS test suite."""
 
-from nicos.core.device import Device
+from __future__ import absolute_import
 
 from nicos.utils.stubs import generate_stubs
+
+from nicos.core.device import Device
 
 # generate stubs for TACO/Tango modules to be able to import anything needed
 # in the custom tests

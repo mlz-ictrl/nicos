@@ -25,14 +25,15 @@
 
 """NICOS triple-axis instrument devices."""
 
+from __future__ import absolute_import, division, print_function
+
 from math import asin, cos, degrees, pi, radians, sin
 
-from nicos.core import Attach, HasLimits, HasPrecision, \
-    LimitError, Moveable, Override, Param, listof, multiReset, \
-    multiStatus, oneof, status, MASTER, SIMULATION
-from nicos.devices.generic.mono import Monochromator as BaseMonochromator, \
-    to_k, from_k, THZ2MEV, ANG2MEV
-
+from nicos.core import MASTER, SIMULATION, Attach, HasLimits, HasPrecision, \
+    LimitError, Moveable, Override, Param, listof, multiReset, multiStatus, \
+    oneof, status
+from nicos.devices.generic.mono import ANG2MEV, THZ2MEV, \
+    Monochromator as BaseMonochromator, from_k, to_k
 from nicos.pycompat import listvalues
 
 

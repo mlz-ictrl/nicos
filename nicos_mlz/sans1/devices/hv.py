@@ -25,21 +25,25 @@
 """Special device for Sans1 High Voltage supply"""
 
 
+from __future__ import absolute_import, division, print_function
+
 from time import localtime, strftime, time as currenttime
 
-from nicos.core import Attach, Param, Override, Readable, Moveable, listof, \
-    tupleof, HasPrecision, HasTimeout, status, InvalidValueError, PositionError
+import PyTango
+
+from nicos.core import Attach, HasPrecision, HasTimeout, InvalidValueError, \
+    Moveable, Override, Param, PositionError, Readable, listof, status, \
+    tupleof
+from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, \
+    SeqParam, SeqSleep
 from nicos.devices.generic.switcher import Switcher
-from nicos.devices.generic.sequence import BaseSequencer, \
-    SeqDev, SeqMethod, SeqParam, SeqSleep
+from nicos.devices.taco.power import VoltageSupply as TacoVoltageSupply
+from nicos.devices.tango import Motor as TangoMotor
 from nicos.pycompat import iteritems
 
-from nicos.devices.taco.power import VoltageSupply as TacoVoltageSupply
 #from nicos.devices.taco.motor import Motor as TacoMotor
 #import TACOStates
 
-import PyTango
-from nicos.devices.tango import Motor as TangoMotor
 
 
 class VoltageSwitcher(Switcher):

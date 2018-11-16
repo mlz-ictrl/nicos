@@ -23,19 +23,20 @@
 # *****************************************************************************
 """YAML data sink classes for STRESS-SPEC."""
 
+from __future__ import absolute_import, division, print_function
+
 import re
 import time
+
+import numpy as np
 
 from nicos import session
 from nicos.core import Override, Param, listof
 from nicos.core.constants import FINAL, POINT, SCAN, SUBSCAN
-from nicos.devices.datasinks.scan import AsciiScanfileSink, \
-    AsciiScanfileSinkHandler, TIMEFMT
-
+from nicos.devices.datasinks.scan import TIMEFMT, AsciiScanfileSink, \
+    AsciiScanfileSinkHandler
 from nicos.pycompat import TextIOWrapper, iteritems, to_utf8
 from nicos.utils import AutoDefaultODict
-
-import numpy as np
 
 try:
     import quickyaml

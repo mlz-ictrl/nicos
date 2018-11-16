@@ -22,7 +22,9 @@
 #
 # *****************************************************************************
 
-from nicos.core import Readable, Param, intrange
+from __future__ import absolute_import, division, print_function
+
+from nicos.core import Param, Readable, intrange
 from nicos.devices.tango import PyTangoDevice
 
 

@@ -25,17 +25,17 @@
 
 """NICOS triple-axis instrument devices."""
 
-from math import pi, cos, sqrt, radians
+from __future__ import absolute_import, division, print_function
 
-from nicos.core import Moveable, Param, Override, AutoDevice, Value, tupleof, \
-    InvalidValueError, ComputationError, LimitError, oneof, multiStatus, \
-    Attach, Readable, status
-from nicos.devices.tas.cell import Cell
-from nicos.devices.tas.mono import Monochromator, THZ2MEV, from_k, to_k
-from nicos.devices.tas import spurions
+from math import cos, pi, radians, sqrt
+
+from nicos.core import SIMULATION, Attach, AutoDevice, ComputationError, \
+    InvalidValueError, LimitError, Moveable, Override, Param, Readable, \
+    Value, multiStatus, oneof, status, tupleof
 from nicos.devices.instrument import Instrument
-from nicos.core import SIMULATION
-
+from nicos.devices.tas import spurions
+from nicos.devices.tas.cell import Cell
+from nicos.devices.tas.mono import THZ2MEV, Monochromator, from_k, to_k
 
 SCANMODES = ['CKI', 'CKF', 'CPHI', 'CPSI', 'DIFF']
 

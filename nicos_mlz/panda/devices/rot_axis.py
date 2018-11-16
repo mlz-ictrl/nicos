@@ -24,12 +24,14 @@
 
 """PANDA rotary axis for NICOS."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import Param, NicosError, none_or, ConfigurationError, status
+from nicos.core import MAINTENANCE, MASTER, SIMULATION, ConfigurationError, \
+    NicosError, Param, none_or, status
 from nicos.core.utils import devIter
 from nicos.devices.generic.axis import Axis
 from nicos.devices.generic.virtual import VirtualMotor
-from nicos.core import SIMULATION, MASTER, MAINTENANCE
 
 
 class RefAxis(Axis):

@@ -22,12 +22,15 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from time import time as currenttime
 
 from nicos import session
-from nicos.commands import usercommand, helparglist
-from nicos.pycompat import string_types, number_types
+from nicos.commands import helparglist, usercommand
+from nicos.pycompat import number_types, string_types
 from nicos.utils import parseDateString
+
 from nicos_ess.devices.datasinks.nexussink import NexusFileWriterSink
 
 

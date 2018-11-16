@@ -24,11 +24,14 @@
 
 """TOFTOF special Live view sink for NICOS."""
 
+from __future__ import absolute_import, division, print_function
+
 from time import time as currenttime
 
 from nicos import session
 from nicos.core import Override
 from nicos.pycompat import memory_buffer
+
 from nicos_mlz.toftof.devices.datasinks.base import TofSink, TofSinkHandler
 
 

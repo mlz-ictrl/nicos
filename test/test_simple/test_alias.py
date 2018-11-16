@@ -24,13 +24,14 @@
 
 """NICOS generic devices test suite."""
 
+from __future__ import absolute_import, division, print_function
+
+from test.utils import ErrorLogged, raises
 from time import sleep
 
-from nicos.core import UsageError, ConfigurationError, NoDevice
-from nicos.commands.device import read, adjust
 from nicos.commands.basic import ListCommands
-
-from test.utils import raises, ErrorLogged
+from nicos.commands.device import adjust, read
+from nicos.core import ConfigurationError, NoDevice, UsageError
 
 session_setup = 'alias'
 

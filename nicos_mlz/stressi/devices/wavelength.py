@@ -24,10 +24,12 @@
 
 """Wave length device for STRESS-SPEC diffractometer."""
 
+from __future__ import absolute_import, division, print_function
+
 from math import asin, pi, sin
 
-from nicos.core import Attach, HasLimits, HasPrecision, Moveable, Override, \
-    Param, SIMULATION, status
+from nicos.core import SIMULATION, Attach, HasLimits, HasPrecision, Moveable, \
+    Override, Param, status
 from nicos.core.errors import ConfigurationError, PositionError
 from nicos.devices.generic import Switcher
 

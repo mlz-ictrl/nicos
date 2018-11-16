@@ -24,8 +24,11 @@
 
 """NICOS MARIA Experiment."""
 
-from nicos_mlz.devices.experiment import Experiment as _Experiment
+from __future__ import absolute_import, division, print_function
+
 from nicos.utils import safeName
+
+from nicos_mlz.devices.experiment import Experiment as _Experiment
 
 
 class Experiment(_Experiment):

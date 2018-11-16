@@ -24,10 +24,13 @@
 
 """Special class for KWS 2 selector, which can be tilted."""
 
-from nicos.core import Moveable, Readable, Attach, Param, Override, dictof, \
+from __future__ import absolute_import, division, print_function
+
+from nicos.core import Attach, Moveable, Override, Param, Readable, dictof, \
     dictwith, tupleof
-from nicos_mlz.kws1.devices.selector import SelectorSwitcher as \
-    KWS1SelectorSwitcher
+
+from nicos_mlz.kws1.devices.selector import \
+    SelectorSwitcher as KWS1SelectorSwitcher
 
 
 class SelectorLambda(Moveable):

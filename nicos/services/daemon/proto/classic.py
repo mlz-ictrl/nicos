@@ -24,19 +24,21 @@
 
 """Implementation of the "classic" daemon protocol: pickling, plain sockets."""
 
-import time
-import socket
-import weakref
-import threading
+from __future__ import absolute_import, division, print_function
 
-from nicos.services.daemon.handler import ConnectionHandler
-from nicos.protocols.daemon import DAEMON_EVENTS, ProtocolError, \
-    CloseConnection, Server as BaseServer, \
+import socket
+import threading
+import time
+import weakref
+
+from nicos.protocols.daemon import DAEMON_EVENTS, CloseConnection, \
+    ProtocolError, Server as BaseServer, \
     ServerTransport as BaseServerTransport
-from nicos.protocols.daemon.classic import ENQ, ACK, NAK, STX, LENGTH, \
-    READ_BUFSIZE, PROTO_VERSION, event2code, code2command
+from nicos.protocols.daemon.classic import ACK, ENQ, LENGTH, NAK, \
+    PROTO_VERSION, READ_BUFSIZE, STX, code2command, event2code
+from nicos.pycompat import get_thread_id, queue, socketserver
+from nicos.services.daemon.handler import ConnectionHandler
 from nicos.utils import closeSocket, createThread
-from nicos.pycompat import get_thread_id, socketserver, queue
 
 
 class Server(BaseServer, socketserver.TCPServer):

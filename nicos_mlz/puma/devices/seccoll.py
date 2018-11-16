@@ -24,6 +24,8 @@
 # *****************************************************************************
 """PUMA device classes for the secondary collimator changer."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
 from nicos.core import Attach, Moveable, Override, Param, Readable, intrange, \
     oneof, status

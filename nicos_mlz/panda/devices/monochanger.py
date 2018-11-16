@@ -24,14 +24,16 @@
 
 """PANDA Monochromator changer hardware classes. FOR TESTING ONLY!"""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import Readable, Moveable, status, usermethod
+from nicos.core import Moveable, Readable, status, usermethod
 from nicos.core.device import HasOffset
-from nicos.core.utils import multiWait
-from nicos.core.params import Param, Override, Attach, oneof
 from nicos.core.errors import MoveError, NicosError, UsageError
-from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, \
-    SequenceItem, SeqCall
+from nicos.core.params import Attach, Override, Param, oneof
+from nicos.core.utils import multiWait
+from nicos.devices.generic.sequence import BaseSequencer, SeqCall, SeqDev, \
+    SeqMethod, SequenceItem
 
 
 class HWError(NicosError):

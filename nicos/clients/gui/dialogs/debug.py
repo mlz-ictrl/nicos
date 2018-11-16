@@ -24,14 +24,16 @@
 
 """NICOS GUI debug console window."""
 
-import sys
+from __future__ import absolute_import, division, print_function
+
 import codeop
+import sys
 
-from nicos.guisupport.qt import Qt, QCoreApplication, pyqtSignal, \
-    QMainWindow, QPlainTextEdit, QFont, QTextOption, QTextCursor, QSplitter
-
+from nicos.guisupport.qt import QCoreApplication, QFont, QMainWindow, \
+    QPlainTextEdit, QSplitter, Qt, QTextCursor, QTextOption, pyqtSignal
 from nicos.protocols.daemon import DAEMON_EVENTS
-from nicos.pycompat import exec_, xrange as range  # pylint: disable=W0622
+# pylint: disable=redefined-builtin
+from nicos.pycompat import exec_, xrange as range
 
 # prevent importing the traceback.py from this package
 traceback = __import__('traceback')

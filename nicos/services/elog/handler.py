@@ -24,17 +24,19 @@
 
 """The NICOS electronic logbook."""
 
-import io
-from os import path, unlink
-from cgi import escape
-from time import strftime, localtime
-from shutil import copyfile
-from logging import ERROR
+from __future__ import absolute_import, division, print_function
 
+import io
+from cgi import escape
+from logging import ERROR
+from os import path, unlink
+from shutil import copyfile
+from time import localtime, strftime
+
+from nicos.pycompat import to_utf8
+from nicos.services.elog.genplot import plotDataset
 from nicos.services.elog.utils import formatMessage, formatMessagePlain, \
     pretty1, pretty2
-from nicos.services.elog.genplot import plotDataset
-from nicos.pycompat import to_utf8
 
 try:
     import nicos._vendor.creole as creole
@@ -522,7 +524,7 @@ class Handler(object):
             html.append('<td>...</td>')
         html.append('</tr>')
         headers = ''.join('<th width="%d%%">%s</th>' %
-                          (100/len(headers), escape(h)) for h in headers)
+                          (100//len(headers), escape(h)) for h in headers)
         self.out.newstate('scan-' + names,
                           '<table class="scan"><tr class="head">' + headers
                           + '</tr>', '</table>\n', ''.join(html))

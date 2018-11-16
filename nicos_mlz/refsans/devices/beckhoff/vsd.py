@@ -24,12 +24,14 @@
 
 """Devices for the Refsans VSD."""
 
+from __future__ import absolute_import, division, print_function
+
 import struct
 
 from Modbus import Modbus
 
-from nicos.core import Param, Override, status, SIMULATION, usermethod, \
-    Readable, oneof, Attach, dictof
+from nicos.core import SIMULATION, Attach, Override, Param, Readable, dictof, \
+    oneof, status, usermethod
 from nicos.devices.taco.core import TacoDevice
 
 # according to docu: 'anhang_a_refsans_vsd.pdf'
@@ -142,7 +144,7 @@ class VSDIO(TacoDevice, Readable):
 
     # mapping of user selectable channel name to BYTE_OFFSET, bit number
     _HW_DigitalChannels = dict(
-        (('Merker%d' % i, (160 + 2*(i/16), i % 16)) for i in range(128, 255)),
+        (('Merker%d' % i, (160 + 2*(i//16), i % 16)) for i in range(128, 255)),
         ControllerStatus = (148, 0),
         TempVibration = (148, 1),
         ChopperEnable1 = (148, 2),
@@ -180,7 +182,7 @@ class VSDIO(TacoDevice, Readable):
     #
 
     def _HW_readVersion(self):
-        return 'V%.1f' % (self._readU32(120/2) *0.1)
+        return 'V%.1f' % (self._readU32(120//2) *0.1)
 
     #
     # Nicos Methods
@@ -200,17 +202,17 @@ class VSDIO(TacoDevice, Readable):
         """output all available diagnostic values"""
         self.log.info("Analog Values:")
         for k, v in sorted(self._HW_AnalogChannels.items()):
-            self.log.info("%s: %.2f %s", k, v[1] * self._readI16(v[0]/2), v[2])
+            self.log.info("%s: %.2f %s", k, v[1] * self._readI16(v[0]//2), v[2])
         self.log.info("Digital Values:")
         for k, v in sorted(self._HW_DigitalChannels.items()):
             if k.startswith('Merker'):
                 continue
             self.log.info("%s: %s", k,
-                          'SET' if self._readU16(v[0]/2) & (1<<v[1]) else 'clear')
+                          'SET' if self._readU16(v[0]//2) & (1<<v[1]) else 'clear')
         self.log.info("Merkerwords:")
         for i in range(16):
             self.log.info("Merker%d..%d : 0x%04x",
-                          128+15+16*i, 128+16*i, self._readU16(160/2+i))
+                          128+15+16*i, 128+16*i, self._readU16(160//2+i))
 
 
 class AnalogValue(Readable):
@@ -234,7 +236,7 @@ class AnalogValue(Readable):
     def doRead(self, maxage=0):
         ofs, scale, _unit = self._attached_iodev._HW_AnalogChannels[self.channel]
         # ofs is in Bytes, we need it in words! => /2
-        return scale * self._attached_iodev._readI16(ofs/2)
+        return scale * self._attached_iodev._readI16(ofs//2)
 
     def doStatus(self, maxage=0):
         return status.OK, ''
@@ -262,7 +264,7 @@ class DigitalValue(Readable):
     def doRead(self, maxage=0):
         ofs, bit = self._attached_iodev._HW_DigitalChannels[self.channel]
         # ofs is in Bytes, we need it in words! => /2
-        if self._attached_iodev._readU16(ofs/2) & (1<<bit):
+        if self._attached_iodev._readU16(ofs//2) & (1<<bit):
             return self._revmapping[1]
         else:
             return self._revmapping[0]

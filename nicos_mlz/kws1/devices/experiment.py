@@ -24,13 +24,16 @@
 
 """NICOS experiment class for KWS1/2."""
 
+from __future__ import absolute_import, division, print_function
+
 import os
 import time
 from os import path
 
-from nicos_mlz.devices.experiment import Experiment
-from nicos.utils import printTable
 from nicos.pycompat import to_utf8
+from nicos.utils import printTable
+
+from nicos_mlz.devices.experiment import Experiment
 
 
 class KWSExperiment(Experiment):

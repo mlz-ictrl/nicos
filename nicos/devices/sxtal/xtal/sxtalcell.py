@@ -34,12 +34,13 @@ Relation to the TAS UB matrix:
   rmat = UB^T / 2* pi
 """
 
+from __future__ import absolute_import, division, print_function
+
 from collections import namedtuple
 
 import numpy as np
 
 from nicos.devices.sxtal.xtal import symmetry
-
 
 CellParam = namedtuple('CellParam', ['a', 'b', 'c', 'alpha', 'beta', 'gamma'])
 
@@ -305,6 +306,7 @@ class SXTalCell(object):
             numzone = numk * numl
             if numzone > 0:
                 h = np.ones(numzone, dtype='i4') * curh
+                # pylint: disable=range-builtin-not-iterating
                 k = np.repeat(range(lmink, lmaxk + 1), np.ones(numk, dtype='i4') * numl)
                 if lminl == lmaxl == 0:
                     l = np.zeros([numzone], dtype='i4')

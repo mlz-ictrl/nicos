@@ -24,16 +24,16 @@
 
 """Calculation GUI tool."""
 
-import re
+from __future__ import absolute_import, division, print_function
+
 import math
+import re
 from os import path
 
+from nicos.clients.gui.utils import DlgPresets, loadUi
 from nicos.guisupport.qt import QDialog, QPixmap, QTreeWidgetItem
-
-from nicos.clients.gui.utils import loadUi, DlgPresets
 from nicos.guisupport.utils import DoubleValidator
 from nicos.pycompat import iteritems
-
 
 M_N = 1.6749274e-27
 H   = 6.6260696e-34

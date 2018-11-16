@@ -25,11 +25,11 @@
 
 """Tests for the cell.py HKL transformation routines."""
 
-from __future__ import print_function
-
-from numpy import array
+from __future__ import absolute_import, division, print_function
 
 from test.utils import approx
+
+from numpy import array
 
 session_setup = 'tas'
 

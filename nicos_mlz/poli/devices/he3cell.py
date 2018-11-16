@@ -24,11 +24,13 @@
 
 """Special devices for recording and fitting 3He cell polarization."""
 
+from __future__ import absolute_import, division, print_function
+
 import time
 
 import numpy as np
 
-from nicos.core import Attach, Param, Override, Readable, Moveable, tupleof, \
+from nicos.core import Attach, Moveable, Override, Param, Readable, tupleof, \
     usermethod
 from nicos.core.constants import SCAN, SUBSCAN
 from nicos.core.data import DataSink, DataSinkHandler, PointDataset

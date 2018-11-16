@@ -10,16 +10,18 @@
 # rather than in a git working copy), then we fall back on reading the
 # contents of the RELEASE-VERSION file.
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
-__all__ = ['get_git_version', 'get_nicos_version']
-
-from subprocess import Popen, PIPE
 from os import path
+from subprocess import PIPE, Popen
 
 # read config file and set environment variables
 from nicos import config
 from nicos.pycompat import from_utf8
+
+__all__ = ['get_git_version', 'get_nicos_version']
+
+
 
 config.apply()
 

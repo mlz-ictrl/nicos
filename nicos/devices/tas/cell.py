@@ -27,11 +27,14 @@
 coordinates.
 """
 
-from numpy import arccos, arcsin, arctan2, cos, sin, pi, sqrt,\
-    array, identity, zeros, cross, dot, sign
+from __future__ import absolute_import, division, print_function
+
+from numpy import arccos, arcsin, arctan2, array, cos, cross, dot, identity, \
+    pi, sign, sin, sqrt, zeros
 from numpy.linalg import inv, norm
 
-from nicos.core import Device, Param, ComputationError, vec3, anytype, NicosError
+from nicos.core import ComputationError, Device, NicosError, Param, anytype, \
+    vec3
 from nicos.devices.sample import Sample
 from nicos.devices.tas.spacegroups import get_spacegroup
 

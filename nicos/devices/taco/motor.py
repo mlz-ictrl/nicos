@@ -25,9 +25,11 @@
 
 """Taco motor class for NICOS."""
 
-from Motor import Motor as TACOMotor # pylint: disable=F0401
+from __future__ import absolute_import, division, print_function
 
-from nicos.core import oneof, Param, Override
+from Motor import Motor as TACOMotor  # pylint: disable=import-error
+
+from nicos.core import Override, Param, oneof
 from nicos.devices.abstract import CanReference, Motor as AbstractMotor
 from nicos.devices.taco.core import TacoDevice
 

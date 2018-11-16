@@ -25,12 +25,14 @@
 
 """Basic data acquisition, new API."""
 
+from __future__ import absolute_import, division, print_function
+
 import sys
 from time import time as currenttime
 
 from nicos import session
+from nicos.core.constants import FINAL, INTERRUPTED, SIMULATION
 from nicos.core.errors import NicosError
-from nicos.core.constants import SIMULATION, INTERRUPTED, FINAL
 from nicos.core.params import Value
 from nicos.pycompat import reraise
 

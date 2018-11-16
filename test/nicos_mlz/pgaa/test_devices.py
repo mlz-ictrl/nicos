@@ -24,7 +24,10 @@
 
 """Module to test custom specific modules."""
 
+from __future__ import absolute_import, division, print_function
+
 from test.utils import raises
+
 from nicos.core.errors import LimitError
 
 session_setup = 'pgaa'

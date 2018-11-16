@@ -22,10 +22,12 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import threading
 from time import time as currenttime
 
-from nicos.core import Device, ConfigurationError
+from nicos.core import ConfigurationError, Device
 from nicos.protocols.cache import OP_LOCK, OP_LOCK_LOCK, OP_LOCK_UNLOCK
 from nicos.services.cache.entry import CacheEntry
 

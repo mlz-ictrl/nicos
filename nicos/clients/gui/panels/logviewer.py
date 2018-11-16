@@ -24,13 +24,14 @@
 
 """NICOS GUI log viewer panel with simple filter options."""
 
+from __future__ import absolute_import, division, print_function
+
 import os.path
 from cgi import escape
 
-from nicos.guisupport.qt import pyqtSlot, QDateTime
-
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QDateTime, pyqtSlot
 
 
 class LogViewerPanel(Panel):

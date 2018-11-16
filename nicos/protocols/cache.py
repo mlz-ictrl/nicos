@@ -196,10 +196,16 @@ Works only with the "set a key" operator.  This flag makes no sense otherwise.
 
 """
 
+from __future__ import absolute_import, division, print_function
+
 import re
-from ast import parse, Str, Num, Tuple, List, Dict, Set, BinOp, UnaryOp, \
-    Add, Sub, USub, Name, Call
-from base64 import b64encode, b64decode
+from ast import Add, BinOp, Call, Dict, List, Name, Num, Set, Str, Sub, \
+    Tuple, UnaryOp, USub, parse
+from base64 import b64decode, b64encode
+
+from nicos.pycompat import binary_type, cPickle as pickle, from_utf8, \
+    iteritems, number_types, text_type
+from nicos.utils import readonlydict, readonlylist
 
 try:
     from ast import NameConstant  # pylint: disable=no-name-in-module
@@ -213,9 +219,6 @@ except ImportError:
     class Bytes(object):
         pass
 
-from nicos.utils import readonlylist, readonlydict
-from nicos.pycompat import cPickle as pickle, iteritems, from_utf8, \
-    number_types, text_type, binary_type
 
 DEFAULT_CACHE_PORT = 14869
 
@@ -317,6 +320,7 @@ _safe_names = {'None': None, 'True': True, 'False': False,
 
 def ast_eval(node):
     # copied from Python 2.7 ast.py, but added support for float inf/-inf/nan
+    #  pylint: disable=map-builtin-not-iterating
     def _convert(node):
         if isinstance(node, (Str, Bytes)):
             return node.s

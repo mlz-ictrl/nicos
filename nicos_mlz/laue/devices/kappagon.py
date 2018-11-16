@@ -30,11 +30,12 @@ main purposes:
  * coord conversions
 """
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import Attach
 from nicos.core.device import Moveable
 from nicos.core.mixins import IsController
-
-from nicos.devices.sxtal.goniometer.base import PositionFactory, PositionBase
+from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
 
 
 class KappaGon(IsController, Moveable):

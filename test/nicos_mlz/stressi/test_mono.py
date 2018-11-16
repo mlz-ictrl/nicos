@@ -24,15 +24,16 @@
 
 """STRESS-SPEC specific monochromator tests."""
 
-import time
+from __future__ import absolute_import, division, print_function
 
+import time
 from test.utils import raises
+
+import pytest
 
 from nicos.core import status
 from nicos.core.errors import ConfigurationError, InvalidValueError, \
     PositionError
-
-import pytest
 
 session_setup = 'stressi'
 

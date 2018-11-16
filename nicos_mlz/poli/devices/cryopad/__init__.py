@@ -24,4 +24,4 @@
 
 """Cryopad related devices and routines."""
 
-from .device import SXTalCryopad, CryopadPol, CryopadFlip
+from .device import CryopadFlip, CryopadPol, SXTalCryopad

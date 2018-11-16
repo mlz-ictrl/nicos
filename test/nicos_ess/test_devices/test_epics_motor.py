@@ -22,9 +22,13 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import pytest
-from nicos_ess.devices.epics.motor import EpicsMotor
+
 from nicos.commands.device import adjust
+
+from nicos_ess.devices.epics.motor import EpicsMotor
 
 session_setup = 'ess_motors'
 

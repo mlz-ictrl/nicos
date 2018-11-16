@@ -24,19 +24,20 @@
 
 """NICOS livewidget 2D data plot window/panel."""
 
+from __future__ import absolute_import, division, print_function
+
 import os
 from os import path
 
-from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QPrinter, QDialog, \
-    QPrintDialog, QMenu, QToolBar, QStatusBar, QSizePolicy, QDoubleSpinBox, \
-    QListWidgetItem
+from nicoslivewidget import LWData, LWWidget
 
-from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
-from nicos.utils import findResource
+from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QByteArray, QDialog, QDoubleSpinBox, \
+    QListWidgetItem, QMenu, QPrintDialog, QPrinter, QSizePolicy, QStatusBar, \
+    Qt, QToolBar, pyqtSlot
 from nicos.pycompat import integer_types
-
-from nicoslivewidget import LWWidget, LWData
+from nicos.utils import findResource
 
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        'u1', 'i1', 'f8', 'f4'))

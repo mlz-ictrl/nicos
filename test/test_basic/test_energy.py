@@ -25,12 +25,13 @@
 """NICOS device class test suite."""
 
 
+from __future__ import absolute_import, division, print_function
+
+from test.utils import approx, raises
+
+from nicos.core import ComputationError, ProgrammingError
 from nicos.devices.tas import energy
 from nicos.devices.tas.mono import from_k, to_k
-
-from nicos.core import ProgrammingError, ComputationError
-from test.utils import raises, approx
-
 
 # input for to/from k tests (input, unit , output)
 # note: specifiy enough precision here for backwards calculation

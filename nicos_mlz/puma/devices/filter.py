@@ -25,6 +25,8 @@
 
 """Class for PUMA PG filter."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import Attach, HasTimeout, Moveable, Override, Param, \
     PositionError, Readable, oneof, status
 

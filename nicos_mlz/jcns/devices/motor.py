@@ -23,6 +23,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import HasOffset, Param, Value
 from nicos.core.device import Moveable
 from nicos.core.params import Attach, Override

@@ -25,33 +25,34 @@
 # *****************************************************************************
 """NICOS GR plotting backend."""
 
+from __future__ import absolute_import, division, print_function
+
 import os
-import time
 import tempfile
+import time
 from os import path
 
+import gr
 import numpy as np
 import numpy.ma
-import gr
-from gr.pygr import Plot, PlotAxes, ErrorBar, Text, RegionOfInterest, \
-    CoordConverter
+from gr.pygr import CoordConverter, ErrorBar, Plot, PlotAxes, \
+    RegionOfInterest, Text
 from gr.pygr.helper import ColorIndexGenerator
-
-from nicos.guisupport.qt import Qt, QPoint, QApplication, QMenu, QAction, \
-    QDialog, QFileDialog, QCursor, QFont, QListWidgetItem
-
 from qtgr import InteractiveGRWidget
-from qtgr.events import GUIConnector, MouseEvent, LegendEvent, ROIEvent
+from qtgr.events import GUIConnector, LegendEvent, MouseEvent, ROIEvent
 
-from nicos.guisupport.plots import NicosPlotAxes, NicosTimePlotAxes, \
-    MaskedPlotCurve, DATEFMT, TIMEFMT
 from nicos.clients.gui.dialogs.data import DataExportDialog
-from nicos.clients.gui.utils import DlgUtils, DlgPresets, dialogFromUi, loadUi
+from nicos.clients.gui.utils import DlgPresets, DlgUtils, dialogFromUi, loadUi
+from nicos.guisupport.plots import DATEFMT, TIMEFMT, MaskedPlotCurve, \
+    NicosPlotAxes, NicosTimePlotAxes
+from nicos.guisupport.qt import QAction, QApplication, QCursor, QDialog, \
+    QFileDialog, QFont, QListWidgetItem, QMenu, QPoint, Qt
+# pylint: disable=redefined-builtin
+from nicos.pycompat import exec_, string_types
 from nicos.utils import safeName
-from nicos.utils.fitting import Fit, FitResult, LinearFit, GaussFit, \
-    PseudoVoigtFit, PearsonVIIFit, TcFit, CosineFit, SigmoidFit, FitError, \
-    ExponentialFit
-from nicos.pycompat import string_types, exec_, xrange as range  # pylint: disable=W0622
+from nicos.utils.fitting import CosineFit, ExponentialFit, Fit, FitError, \
+    FitResult, GaussFit, LinearFit, PearsonVIIFit, PseudoVoigtFit, \
+    SigmoidFit, TcFit
 
 
 def prepareData(x, y, dy, norm):

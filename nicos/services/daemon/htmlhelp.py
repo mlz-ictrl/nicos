@@ -24,10 +24,18 @@
 
 """Utilities to generate HTML-format help for displaying in the GUI client."""
 
-import sys
-import pydoc
+from __future__ import absolute_import, division, print_function
+
 import inspect
+import pydoc
+import sys
 import threading
+
+from nicos import session
+from nicos.core import Device, DeviceAlias
+from nicos.pycompat import StringIO, escape_html, getargspec, iteritems, \
+    string_types
+from nicos.utils import formatDocstring
 
 try:
     from docutils.core import publish_parts
@@ -46,11 +54,6 @@ else:
         return [nodes.reference(text, text, refuri='cmd:%s' % reftext)], []
     roles._roles[''] = std_role
 
-from nicos import session
-from nicos.core import Device, DeviceAlias
-from nicos.utils import formatDocstring
-from nicos.pycompat import StringIO, escape_html, iteritems, string_types, \
-    getargspec
 
 
 STYLE = '''

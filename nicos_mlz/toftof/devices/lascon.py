@@ -24,10 +24,12 @@
 
 """LASCON pyrometer temperature devices."""
 
+from __future__ import absolute_import, division, print_function
+
 from IO import StringIO
 
-from nicos.core import status, Moveable, Readable, HasLimits, \
-    HasWindowTimeout, Param, oneof, MoveError, PositionError
+from nicos.core import HasLimits, HasWindowTimeout, Moveable, MoveError, \
+    Param, PositionError, Readable, oneof, status
 from nicos.devices.taco.core import TacoDevice
 
 

@@ -25,30 +25,29 @@
 
 """NICOS livewidget with GR."""
 
+from __future__ import absolute_import, division, print_function
+
 import os
-from os import path
 from collections import OrderedDict
+from os import path
 from uuid import uuid4
 
 import numpy
-
-from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QPoint, QStatusBar, \
-    QSizePolicy, QListWidgetItem, QMenu, QToolBar, QActionGroup
-
 from gr import COLORMAPS as GR_COLORMAPS
 from qtgr.events import GUIConnector
 from qtgr.events.mouse import MouseEvent
 
-from nicos.utils import BoundedOrderedDict
 from nicos.clients.gui.dialogs.filesystem import FileFilterDialog
-from nicos.clients.gui.utils import loadUi, enumerateWithProgress
 from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.utils import enumerateWithProgress, loadUi
 from nicos.core.errors import NicosError
-from nicos.guisupport.livewidget import IntegralLiveWidget, LiveWidget, \
-    LiveWidget1D, DATATYPES
+from nicos.guisupport.livewidget import DATATYPES, IntegralLiveWidget, \
+    LiveWidget, LiveWidget1D
+from nicos.guisupport.qt import QActionGroup, QByteArray, QListWidgetItem, \
+    QMenu, QPoint, QSizePolicy, QStatusBar, Qt, QToolBar, pyqtSlot
 from nicos.protocols.cache import cache_load
-from nicos.utils import ReaderRegistry
-from nicos.pycompat import iteritems, string_types
+from nicos.pycompat import iteritems, itervalues, string_types
+from nicos.utils import BoundedOrderedDict, ReaderRegistry
 
 COLORMAPS = OrderedDict(GR_COLORMAPS)
 
@@ -253,6 +252,11 @@ class LiveDataPanel(Panel):
         menu.addAction(self.actionROI)
         return [menu]
 
+    def _get_all_widgets(self):
+        yield self.widget
+        for w in  itervalues(self._livewidgets):
+            yield w
+
     def getToolbars(self):
         return [self.toolbar]
 
@@ -276,7 +280,7 @@ class LiveDataPanel(Panel):
 
     def on_colormap_triggered(self):
         action = self.actionsColormap.checkedAction()
-        for widget in [self.widget] + self._livewidgets.values():
+        for widget in self._get_all_widgets():
             widget.setColormap(COLORMAPS[action.text().upper()])
         name = action.text()
         self.actionColormap.setText(name[0] + name[1:].lower())
@@ -301,10 +305,10 @@ class LiveDataPanel(Panel):
             height = max(region.y) - min(region.y)
             if width > height:
                 dwidth = 500
-                dheight = 500 * height / width
+                dheight = 500 * height // width
             else:
                 dheight = 500
-                dwidth = 500 * width / height
+                dwidth = 500 * width // height
             widget.resize(dwidth, dheight)
             widget.closed.connect(self.on_roiWindowClosed)
         widget.setWindowForRoi(region)
@@ -377,7 +381,7 @@ class LiveDataPanel(Panel):
     def on_roiChange(self, key, value):
         self.log.debug('on_roiChange: %s %s', key, (value,))
         self.rois[key] = value
-        for widget in [self.widget] + self._livewidgets.values():
+        for widget in self._get_all_widgets():
             widget.setROI(key, value)
         widget = self._livewidgets.get(key, None)
         if widget:
@@ -455,7 +459,7 @@ class LiveDataPanel(Panel):
             self._datacache[uid] = array
         if display:
             self._initLiveWidget(array)
-            for widget in [self.widget] + self._livewidgets.values():
+            for widget in self._get_all_widgets():
                 widget.setData(array)
 
     def setDataFromFile(self, filename, tag, uid=None, display=True):
@@ -621,13 +625,13 @@ class LiveDataPanel(Panel):
 
     @pyqtSlot()
     def on_actionLogScale_triggered(self):
-        for widget in [self.widget] + self._livewidgets.values():
+        for widget in self._get_all_widgets():
             widget.logscale(self.actionLogScale.isChecked())
 
     @pyqtSlot()
     def on_actionMarkCenter_triggered(self):
         flag = self.actionMarkCenter.isChecked()
-        for widget in [self.widget] + self._livewidgets.values():
+        for widget in self._get_all_widgets():
             widget.setCenterMark(flag)
 
     @pyqtSlot()

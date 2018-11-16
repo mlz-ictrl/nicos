@@ -25,12 +25,14 @@
 
 """Class for CASCADE detector measurement and readout."""
 
+from __future__ import absolute_import, division, print_function
+
 from time import sleep
 
 import numpy as np
 
-from nicos.core import Param, Override, Value, ArrayDesc, tupleof, oneof, \
-    intrange, listof
+from nicos.core import ArrayDesc, Override, Param, Value, intrange, listof, \
+    oneof, tupleof
 from nicos.core.data import GzipFile
 from nicos.devices.datasinks.raw import SingleRawImageSink
 from nicos.devices.tango import ImageChannel

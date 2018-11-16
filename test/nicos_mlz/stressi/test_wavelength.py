@@ -24,6 +24,8 @@
 
 """STRESS-SPEC specific wavelength device tests."""
 
+from __future__ import absolute_import, division, print_function
+
 from test.utils import approx, raises
 
 from nicos.core import status

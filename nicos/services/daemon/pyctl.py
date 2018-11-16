@@ -26,15 +26,17 @@
 Python interface to the _pyctl module, to control the execution of Python
 code via a C trace function.
 """
-from __future__ import absolute_import
-
-__all__ = ['LINENO_ALL', 'LINENO_TOPLEVEL', 'LINENO_NAME',
-           'Controller', 'ControlStop']
+from __future__ import absolute_import, division, print_function
 
 import threading
 import traceback
 
-from nicos.protocols.daemon import STATUS_RUNNING, STATUS_INBREAK
+from nicos.protocols.daemon import STATUS_INBREAK, STATUS_RUNNING
+
+__all__ = ['LINENO_ALL', 'LINENO_TOPLEVEL', 'LINENO_NAME',
+           'Controller', 'ControlStop']
+
+
 
 # import logic here - please do not change this order:
 #    1) try the in-package version (for inplace builds)

@@ -22,12 +22,15 @@
 #
 # *****************************************************************************
 
-import pytest
+from __future__ import absolute_import, division, print_function
+
 import sys
 import time
+from test.utils import ErrorLogged, approx, raises
 
-from nicos.core import status, LimitError
-from test.utils import raises, approx, ErrorLogged
+import pytest
+
+from nicos.core import LimitError, status
 
 session_setup = 'sinq_amor_logical_motors'
 
@@ -188,6 +191,7 @@ class TestLogicalMotor(object):
         assert raises(ErrorLogged, motor, hlm - 0.1)
         assert motor.target == approx(motor.read())
 
+    #  pylint: disable=dict-keys-not-iterating
     @pytest.mark.parametrize("targets", test_targets.keys())
     def test_motor_has_correct_targets(self, targets, session):
         # Move the motors to targets

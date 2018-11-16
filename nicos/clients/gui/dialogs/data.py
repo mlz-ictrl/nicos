@@ -24,7 +24,9 @@
 
 """Dialog for exporting data."""
 
-from nicos.guisupport.qt import QFileDialog, QLabel, QComboBox
+from __future__ import absolute_import, division, print_function
+
+from nicos.guisupport.qt import QComboBox, QFileDialog, QLabel
 
 
 class DataExportDialog(QFileDialog):

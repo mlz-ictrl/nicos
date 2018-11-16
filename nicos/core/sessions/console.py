@@ -24,27 +24,27 @@
 
 """Session class for console interface."""
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
+import code
 import os
 import pdb
-import sys
-import code
 import signal
+import sys
+
+from nicos import nicos_version, session
+from nicos.core import MASTER, SIMULATION, SLAVE, AccessError
+from nicos.core.sessions import Session
+from nicos.core.sessions.utils import NicosCompleter
+from nicos.pycompat import exec_, input as input_func
+from nicos.utils import colorcode, formatExtendedStack
+from nicos.utils.loggers import INFO, INPUT
 
 try:
     import readline
 except ImportError:  # on Windows (without pyreadline)
     readline = None
 
-from nicos import session, nicos_version
-from nicos.core import AccessError
-from nicos.utils import colorcode, formatExtendedStack
-from nicos.utils.loggers import INPUT, INFO
-from nicos.core.sessions import Session
-from nicos.core.sessions.utils import NicosCompleter
-from nicos.core import SIMULATION, SLAVE, MASTER
-from nicos.pycompat import input as input_func, exec_
 
 
 DEFAULT_BINDINGS = '''\

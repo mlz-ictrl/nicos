@@ -23,6 +23,8 @@
 # *****************************************************************************
 """Class for the sample changer."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import Attach, Moveable, Override
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
 

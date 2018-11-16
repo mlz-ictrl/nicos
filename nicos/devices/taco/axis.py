@@ -25,14 +25,17 @@
 
 """NICOS axis classes."""
 
+from __future__ import absolute_import, division, print_function
+
 import TACOStates
 from Motor import Motor as TACOMotor
 
 from nicos import session
-from nicos.core import ModeError, Moveable, Param, Attach, SLAVE, anytype, \
+from nicos.core import SLAVE, Attach, ModeError, Moveable, Param, anytype, \
     oneof, requires, status, tupleof, usermethod
 from nicos.devices.abstract import Axis as AbstractAxis, CanReference
-from nicos.devices.generic.sequence import SequencerMixin, SeqDev, SeqSleep, SeqCall
+from nicos.devices.generic.sequence import SeqCall, SeqDev, SeqSleep, \
+    SequencerMixin
 from nicos.devices.taco.core import TacoDevice
 
 

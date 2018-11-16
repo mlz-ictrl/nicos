@@ -22,17 +22,19 @@
 #
 # *****************************************************************************
 
-import numpy
-from time import time as currenttime, strftime, localtime
+from __future__ import absolute_import, division, print_function
 
-from nicos import session
-from nicos.core import Override, DataSinkHandler, Param
-from nicos.core.data.sink import DataFileBase
-from nicos.devices.datasinks import FileSink
-from nicos.core.constants import SCAN, SUBSCAN
-from nicos.pycompat import iteritems, to_ascii_string
+from time import localtime, strftime, time as currenttime
 
 import h5py
+import numpy
+
+from nicos import session
+from nicos.core import DataSinkHandler, Override, Param
+from nicos.core.constants import SCAN, SUBSCAN
+from nicos.core.data.sink import DataFileBase
+from nicos.devices.datasinks import FileSink
+from nicos.pycompat import iteritems, to_ascii_string
 
 
 class ResedaHDF5DataFile(DataFileBase, h5py.File):

@@ -35,24 +35,26 @@ module `nicos.protocols.cache`.  It also contains the documentation of the used
 line protocol.
 """
 
+from __future__ import absolute_import, division, print_function
+
 import select
 import socket
 import threading
 from errno import EAGAIN
-from time import time as currenttime, sleep
+from time import sleep, time as currenttime
 
-from nicos import session, config
-from nicos.core import Device, Param, host, Attach
-from nicos.utils import loggers, closeSocket, createThread, getSysInfo, \
-    parseHostPort
-from nicos.pycompat import queue, listitems, listvalues, from_utf8, to_utf8
-
+from nicos import config, session
+from nicos.core import Attach, Device, Param, host
+from nicos.protocols.cache import BUFSIZE, CYCLETIME, DEFAULT_CACHE_PORT, \
+    OP_ASK, OP_LOCK, OP_REWRITE, OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
+    OP_UNSUBSCRIBE, OP_WILDCARD, line_pattern, msg_pattern
+from nicos.pycompat import from_utf8, listitems, listvalues, queue, to_utf8
 # pylint: disable=W0611
-from nicos.services.cache.database import CacheDatabase, FlatfileCacheDatabase, \
-    MemoryCacheDatabase, MemoryCacheDatabaseWithHistory
-from nicos.protocols.cache import msg_pattern, line_pattern, \
-    DEFAULT_CACHE_PORT, OP_TELL, OP_ASK, OP_WILDCARD, OP_SUBSCRIBE, \
-    OP_UNSUBSCRIBE, OP_TELLOLD, OP_LOCK, OP_REWRITE, CYCLETIME, BUFSIZE
+from nicos.services.cache.database import CacheDatabase, \
+    FlatfileCacheDatabase, MemoryCacheDatabase, \
+    MemoryCacheDatabaseWithHistory
+from nicos.utils import closeSocket, createThread, getSysInfo, loggers, \
+    parseHostPort
 
 
 class CacheWorker(object):

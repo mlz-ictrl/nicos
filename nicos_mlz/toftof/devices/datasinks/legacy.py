@@ -24,8 +24,12 @@
 
 """Data sink classes (new API) for NICOS."""
 
+from __future__ import absolute_import, division, print_function
+
 import os
 from time import asctime, localtime, strftime, time as currenttime
+
+import numpy as np
 
 from nicos import session
 from nicos.core.constants import LIVE
@@ -33,8 +37,6 @@ from nicos.pycompat import from_maybe_utf8, to_utf8
 
 from nicos_mlz.toftof.devices import calculations as calc
 from nicos_mlz.toftof.devices.datasinks.base import TofSink, TofSinkHandler
-
-import numpy as np
 
 
 class TofImageSinkHandler(TofSinkHandler):

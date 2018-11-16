@@ -24,12 +24,13 @@
 
 """Classes to access to the switches via the Pilz Box."""
 
+from __future__ import absolute_import, division, print_function
+
 import IO
 
 from nicos import session
-from nicos.core import Param, SIMULATION, status, tacodev
+from nicos.core import SIMULATION, Param, status, tacodev
 from nicos.core.mixins import HasTimeout
-
 from nicos.devices.taco.io import NamedDigitalOutput
 
 

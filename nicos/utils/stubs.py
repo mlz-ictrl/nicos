@@ -26,9 +26,11 @@
 # generate stub TACO modules as needed to be able to import nicos.devices.taco
 # modules and document them
 
+from __future__ import absolute_import, division, print_function
+
+import logging
 import sys
 import types
-import logging
 
 
 class NICOSTACOStub(object):

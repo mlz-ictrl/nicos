@@ -22,10 +22,13 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
 from nicos.core import ConfigurationError, NicosError
 from nicos.pycompat import iteritems, string_types
-from nicos_ess.nexus.placeholder import PlaceholderBase, DeviceValuePlaceholder
+
+from nicos_ess.nexus.placeholder import DeviceValuePlaceholder, PlaceholderBase
 
 
 class NexusElementBase(object):

@@ -7,6 +7,7 @@
 # robot testing script
 
 from nicos import session
+
 read()
 scan(tths, 30, 9, 9, 'test', t=1)
 timescan(1, 'V_pin', t=1)

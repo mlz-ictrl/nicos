@@ -24,10 +24,12 @@
 
 """Class for controlling the KWS1 polarizer."""
 
-from nicos.core import Moveable, Param, Override, Attach, SIMULATION, \
-    oneof, tupleof, listof, MoveError, ConfigurationError
+from __future__ import absolute_import, division, print_function
+
+from nicos.core import SIMULATION, Attach, ConfigurationError, Moveable, \
+    MoveError, Override, Param, listof, oneof, tupleof
 from nicos.devices.generic import MultiSwitcher
-from nicos.devices.generic.sequence import SequencerMixin, SeqDev
+from nicos.devices.generic.sequence import SeqDev, SequencerMixin
 from nicos.utils import num_sort
 
 POL_SETTINGS = ['out', 'up', 'down']

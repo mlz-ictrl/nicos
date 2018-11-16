@@ -24,14 +24,16 @@
 
 """Module for MIEZE operation."""
 
+from __future__ import absolute_import, division, print_function
+
 import copy
 from itertools import chain
 
 from nicos import session
-from nicos.core import dictof, listof, anytype, usermethod, Moveable, Param, \
-    Override, Value, NicosError
-from nicos.utils import printTable
+from nicos.core import Moveable, NicosError, Override, Param, Value, anytype, \
+    dictof, listof, usermethod
 from nicos.pycompat import integer_types
+from nicos.utils import printTable
 
 
 class MiezeMaster(Moveable):

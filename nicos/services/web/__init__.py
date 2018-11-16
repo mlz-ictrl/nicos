@@ -24,11 +24,14 @@
 
 """Session used for the NICOS web interface."""
 
+from __future__ import absolute_import
+
 import sys
 from wsgiref.simple_server import make_server
 
-from nicos import session
 from nicos.utils.loggers import INFO
+
+from nicos import session
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.services.web.app import FakeInput, MTWSGIServer, NicosApp

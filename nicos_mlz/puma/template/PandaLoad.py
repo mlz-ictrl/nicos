@@ -1,14 +1,15 @@
 # pylint: skip-file
 
+import ast
 import math
 import os
 import os.path
 import re
-import math
-import ast
+
+import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.mlab import griddata
-import matplotlib.pyplot as plt
+
 #~ import numpy.ma as ma
 
 def fromto(start, stop, step):

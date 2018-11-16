@@ -22,15 +22,18 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from bisect import bisect_left
-from math import pi, sqrt
 from collections import OrderedDict
+from math import pi, sqrt
 
 import numpy
 
-from nicos.core import Readable, Moveable, Attach, Param, tupleof
-from nicos.pycompat import xrange, iteritems  # pylint: disable=W0622
+from nicos.core import Attach, Moveable, Param, Readable, tupleof
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod
+# pylint: disable=redefined-builtin
+from nicos.pycompat import iteritems, xrange
 
 
 class CBoxResonanceFrequency(BaseSequencer):

@@ -24,13 +24,14 @@
 
 """Detector devices for QMesyDAQ type detectors."""
 
-import numpy as np
+from __future__ import absolute_import, division, print_function
 
 import IO
 import IOCommon
+import numpy as np
 from Detector import Detector
 
-from nicos.core import ArrayDesc, FINAL, MASTER, Param, SIMULATION, Value, \
+from nicos.core import FINAL, MASTER, SIMULATION, ArrayDesc, Param, Value, \
     listof, oneof
 from nicos.devices.generic import ActiveChannel, CounterChannelMixin, \
     PassiveChannel, TimerChannelMixin

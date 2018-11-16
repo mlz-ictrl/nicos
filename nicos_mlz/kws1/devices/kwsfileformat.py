@@ -25,8 +25,10 @@
 
 """KWS file format saver"""
 
+from __future__ import absolute_import, division, print_function
+
 from os import path
-from time import strftime, localtime
+from time import localtime, strftime
 
 import numpy as np
 
@@ -34,7 +36,6 @@ from nicos import session
 from nicos.core import Override, Param
 from nicos.core.utils import DeviceValueDict
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-
 
 KWSHEADER = """\
 %(instr)s_MEASUREMENT KFA-IFF spectrum_data file version V-5.00

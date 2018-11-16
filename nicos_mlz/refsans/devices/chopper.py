@@ -24,8 +24,9 @@
 # *****************************************************************************
 """Chopper related devices."""
 
-from nicos import session
+from __future__ import absolute_import, division, print_function
 
+from nicos import session
 from nicos.core import HasLimits, HasPrecision, Moveable, Override, Param, \
     dictwith, floatrange, intrange, listof, status
 from nicos.core.errors import NicosError

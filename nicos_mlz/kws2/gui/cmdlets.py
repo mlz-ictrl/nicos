@@ -24,9 +24,11 @@
 
 """Commandlets for KWS-2."""
 
-from nicos.guisupport.qt import QCheckBox
+from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.cmdlets import register
+from nicos.guisupport.qt import QCheckBox
+
 from nicos_mlz.kws1.gui.cmdlets import MeasureTable as KWS1MeasureTable
 
 

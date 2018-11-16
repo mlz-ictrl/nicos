@@ -24,12 +24,13 @@
 
 """NICOS GUI enhanced TabWidget."""
 
-from nicos.guisupport.qt import pyqtSlot, pyqtSignal, Qt, QByteArray, QEvent, \
-    QMimeData, QPoint, QApplication, QCursor, QDrag, QMainWindow, QWidget, \
-    QMouseEvent, QPixmap, QTabBar, QTabWidget
+from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.panels.auxwindows import AuxiliarySubWindow, Panel
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
+from nicos.guisupport.qt import QApplication, QByteArray, QCursor, QDrag, \
+    QEvent, QMainWindow, QMimeData, QMouseEvent, QPixmap, QPoint, Qt, \
+    QTabBar, QTabWidget, QWidget, pyqtSignal, pyqtSlot
 
 
 def findTab(tab, w):

@@ -24,13 +24,17 @@
 
 """Class for KWS chopper control."""
 
-from nicos.core import Moveable, Attach, Param, Override, status, tupleof, \
-    listof, oneof, intrange, floatrange, PositionError, MASTER, HasPrecision
+from __future__ import absolute_import, division, print_function
+
+from nicos.core import MASTER, Attach, HasPrecision, Moveable, Override, \
+    Param, PositionError, floatrange, intrange, listof, oneof, status, \
+    tupleof
 from nicos.devices.tango import WindowTimeoutAO
 from nicos.utils import clamp
+
 from nicos_mlz.kws1.devices.daq import KWSDetector
-from nicos_mlz.kws1.devices.selector import SelectorSwitcher
 from nicos_mlz.kws1.devices.detector import DetectorPosSwitcherMixin
+from nicos_mlz.kws1.devices.selector import SelectorSwitcher
 
 # neutron speed at 1A, in m/ms
 SPEED = 3.956

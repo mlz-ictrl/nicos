@@ -24,10 +24,13 @@
 
 """Virtual devices for testing."""
 
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 
 from nicos.core import Override, Param, intrange
 from nicos.devices.generic.virtual import VirtualImage as BaseImage
+
 from nicos_mlz.toftof.devices import calculations as calc
 
 

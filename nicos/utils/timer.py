@@ -24,8 +24,9 @@
 
 """Flexible Timers, thread free."""
 
-import time
+from __future__ import absolute_import, division, print_function
 
+import time
 
 # XXX
 # also use a singleton to 'register' all timer objects and

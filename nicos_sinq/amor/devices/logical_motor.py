@@ -32,18 +32,19 @@ motors are:
 soz, com, cox, coz, d1b, d2b, d3b, d4b, aoz, aom.
 """
 
+from __future__ import absolute_import, division, print_function
+
 import math
 
 from nicos import session
-from nicos.core import Attach, Param, Override, status, oneof, dictwith
+from nicos.core import Attach, Override, Param, dictwith, oneof, status
 from nicos.core.device import Moveable
 from nicos.core.errors import PositionError
-from nicos.devices.abstract import Motor
 from nicos.core.utils import multiStatus
+from nicos.devices.abstract import Motor
 from nicos.pycompat import iteritems, number_types
 
 from nicos_ess.devices.epics.motor import EpicsMotor
-
 from nicos_sinq.amor.devices.component_handler import DistancesHandler
 
 # Possible motor types

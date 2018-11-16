@@ -24,19 +24,21 @@
 
 """Meta classes and Mixins for usage in NICOS."""
 
-import types
+from __future__ import absolute_import, division, print_function
+
 import inspect
 import threading
+import types
 from time import time as currenttime
 
 from nicos import session
 from nicos.core import MAINTENANCE, MASTER, SLAVE, status
-from nicos.core.errors import ConfigurationError, CommunicationError, \
-    ModeError, AccessError
+from nicos.core.errors import AccessError, CommunicationError, \
+    ConfigurationError, ModeError
 from nicos.core.params import Override, Param, anytype, dictof, floatrange, \
     intrange, limits, none_or, nonemptylistof, string, tupleof
 from nicos.core.utils import statusString, usermethod
-from nicos.pycompat import add_metaclass, itervalues, getargspec
+from nicos.pycompat import add_metaclass, getargspec, itervalues
 from nicos.utils import lazy_property
 
 
@@ -89,6 +91,7 @@ class DeviceMixinMeta(type):
         return newtype
 
     def __instancecheck__(cls, inst):  # pylint: disable=C0203
+        from nicos.core.device import DeviceAlias, NoDevice  # isort:skip
         if inst.__class__ == DeviceAlias and inst._initialized:
             if isinstance(inst._obj, NoDevice):
                 return issubclass(inst._cls, cls)
@@ -481,6 +484,7 @@ class HasTimeout(DeviceMixinBase):
         call `timeoutAction` once if defined. Pollers and other `SLAVE`s do
         *not* call `timeoutAction`.
         """
+        from nicos.core.device import Readable  # isort:skip
         code, msg = Readable._combinedStatus(self, maxage)
 
         if code in (status.OK, status.WARN) and self._timeoutTime:
@@ -763,6 +767,3 @@ class IsController(DeviceMixinBase):
         """
         raise NotImplementedError('Please implement the isAdevTargetAllowed'
                                   ' method')
-
-
-from nicos.core.device import DeviceAlias, NoDevice, Readable

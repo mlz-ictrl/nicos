@@ -24,16 +24,17 @@
 
 """Graphical maintenance command runner."""
 
-import time
+from __future__ import absolute_import, division, print_function
+
 import subprocess
+import time
+from os import path
 from select import select
 from threading import Thread
-from os import path
-
-from nicos.guisupport.qt import pyqtSignal, pyqtSlot, QDialog, QPushButton, \
-    QMessageBox
 
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QDialog, QMessageBox, QPushButton, \
+    pyqtSignal, pyqtSlot
 from nicos.utils import createSubprocess
 
 

@@ -24,13 +24,23 @@
 
 """Acqiris Detector via the CARESS device service."""
 
+from __future__ import absolute_import, division, print_function
+
 import sys
+
+from nicos.core import SIMULATION, Param, status
+from nicos.core.errors import CommunicationError, ConfigurationError, \
+    NicosError, ProgrammingError
+from nicos.devices.generic.detector import ActiveChannel, \
+    CounterChannelMixin, TimerChannelMixin
+from nicos.pycompat import integer_types
+from nicos.utils import readFile, writeFile
 
 try:
     from omniORB import CORBA
     import CosNaming
 
-    import CARESS  # pylint: disable=F0401,E0611,W0403
+    from . import CARESS  # pylint: disable=import-error,no-name-in-module
 
     sys.modules['CARESS'] = sys.modules['nicos_mlz.delab.devices.CARESS']
     import omniORB
@@ -38,13 +48,6 @@ try:
 except ImportError:
     omniORB = None
 
-from nicos.core import Param, status, SIMULATION
-from nicos.devices.generic.detector import ActiveChannel, TimerChannelMixin, \
-    CounterChannelMixin
-from nicos.core.errors import CommunicationError, ConfigurationError, \
-    NicosError, ProgrammingError
-from nicos.utils import readFile, writeFile
-from nicos.pycompat import integer_types
 
 
 COUNTER_ID = 100

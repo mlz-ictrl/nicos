@@ -8,4 +8,3 @@ class Array(object):
     ArrayULong = 2
     ArrayDouble = 3
     ArrayFloat = 4
-

@@ -24,16 +24,20 @@
 
 """NICOS tests for nicos.commands.analyze."""
 
+from __future__ import absolute_import, division, print_function
+
+import pytest
+
+from nicos.commands.analyze import center_of_mass, fwhm, gauss, poly, \
+    root_mean_square
+from nicos.core import FINAL
+
 try:
     from scipy.optimize.minpack import leastsq
 except ImportError:
     leastsq = None
 
-import pytest
 
-from nicos.commands.analyze import fwhm, center_of_mass, root_mean_square, \
-    poly, gauss
-from nicos.core import FINAL
 
 session_setup = 'scanning'
 

@@ -24,9 +24,11 @@
 
 """Class for controlling the KWS flipper."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import HasTimeout, Moveable, Attach, Override, status, oneof, \
-    SIMULATION
+from nicos.core import SIMULATION, Attach, HasTimeout, Moveable, Override, \
+    oneof, status
 
 
 class Flipper(HasTimeout, Moveable):

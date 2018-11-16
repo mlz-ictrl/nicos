@@ -31,10 +31,10 @@ from nicos.guisupport.qt import uic, Qt, QMainWindow, QTreeWidgetItem, \
 from nicos.guisupport.utils import setBackgroundColor
 
 # The pylint errors must be fixed, but later
-from .connectdlg import ConnectDialog  # pylint: disable=F0401
-from .watcher import WatcherWindow  # pylint: disable=F0401
-from .entrywidget import EntryWidget, ttlColor, expiredColor  # pylint: disable=F0401
-from .editdlg import EntryEditDialog  # pylint: disable=F0401
+from .connectdlg import ConnectDialog  # pylint: disable=import-error
+from .watcher import WatcherWindow  # pylint: disable=import-error
+from .entrywidget import EntryWidget, ttlColor, expiredColor  # pylint: disable=import-error
+from .editdlg import EntryEditDialog  # pylint: disable=import-error
 
 
 class MainWindow(QMainWindow):

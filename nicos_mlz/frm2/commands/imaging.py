@@ -22,15 +22,16 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from os.path import relpath
 
 from nicos import session
-from nicos.devices.datasinks.image import ImageSink
-from nicos.commands import usercommand, helparglist
-from nicos.commands.measure import count
+from nicos.commands import helparglist, usercommand
 from nicos.commands.device import maw
 from nicos.commands.imaging import tomo
-
+from nicos.commands.measure import count
+from nicos.devices.datasinks.image import ImageSink
 
 __all__ = ['tomo', 'openbeamimage', 'darkimage']
 

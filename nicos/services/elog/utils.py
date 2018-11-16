@@ -24,12 +24,13 @@
 
 """Utilities for the electronic logbook daemon."""
 
+from __future__ import absolute_import, division, print_function
+
 import time
 from cgi import escape
-from logging import DEBUG, INFO, WARNING, ERROR, FATAL
+from logging import DEBUG, ERROR, FATAL, INFO, WARNING
 
-from nicos.utils.loggers import INPUT, ACTION
-
+from nicos.utils.loggers import ACTION, INPUT
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
           ERROR: 'ERROR', FATAL: 'FATAL', INPUT: 'INPUT'}

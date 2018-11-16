@@ -22,15 +22,18 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import numpy
 
-from nicos.core import Attach, status, Value, Override
+from nicos.core import Attach, Override, Value, status
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel
 from nicos.pycompat import iteritems
-from nicos_ess.devices.datasinks.imagesink.histogramdesc import \
-    HistogramDimDesc, HistogramDesc
-from nicos_sinq.devices.sinqhm.connector import HttpConnector
+
+from nicos_ess.devices.datasinks.imagesink.histogramdesc import HistogramDesc, \
+    HistogramDimDesc
 from nicos_sinq.devices.sinqhm.configurator import HistogramConfBank
+from nicos_sinq.devices.sinqhm.connector import HttpConnector
 
 
 class HistogramImageChannel(ImageChannelMixin, PassiveChannel):

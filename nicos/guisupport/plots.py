@@ -26,25 +26,23 @@
 NICOS value plot widget.
 """
 
-import operator
+from __future__ import absolute_import, division, print_function
+
 import functools
-
-from time import time as currenttime, strftime, localtime
-
-from nicos.guisupport.qt import pyqtSignal, QWidget, QTimer, QSize, \
-    QHBoxLayout
+import operator
+from time import localtime, strftime, time as currenttime
 
 import gr
-from gr.pygr import Plot, PlotCurve, PlotAxes
-from qtgr import InteractiveGRWidget
-from qtgr.events import GUIConnector, MouseEvent, LegendEvent
 import numpy.ma
+from gr.pygr import Plot, PlotAxes, PlotCurve
+from qtgr import InteractiveGRWidget
+from qtgr.events import GUIConnector, LegendEvent, MouseEvent
 
+from nicos.guisupport.qt import QHBoxLayout, QSize, QTimer, QWidget, pyqtSignal
 from nicos.guisupport.timeseries import TimeSeries, buildTickDistAndSubTicks
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.utils import extractKeyAndIndex
 from nicos.pycompat import zip_longest
-
+from nicos.utils import extractKeyAndIndex
 
 DATEFMT = '%Y-%m-%d'
 TIMEFMT = '%H:%M:%S'

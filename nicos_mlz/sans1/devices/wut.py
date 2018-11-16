@@ -27,8 +27,10 @@
 w&t box shows pressore before and after the filter at the instrument.
 """
 
-from nicos.core import Param, Readable, Override, CommunicationError, \
-     ConfigurationError, NicosError, status
+from __future__ import absolute_import, division, print_function
+
+from nicos.core import CommunicationError, ConfigurationError, NicosError, \
+    Override, Param, Readable, status
 
 try:
     from urllib2 import urlopen

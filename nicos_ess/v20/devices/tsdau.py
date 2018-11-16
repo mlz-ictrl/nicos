@@ -23,12 +23,15 @@
 #
 # *****************************************************************************
 
-from nicos.devices.generic import ActiveChannel, PassiveChannel, \
-    TimerChannelMixin,  CounterChannelMixin, Detector
-from nicos.core import Param, host, status, Value, POLLER, Override, \
-    DeviceMixinBase, SIMULATION, ConfigurationError
-from nicos import session
+from __future__ import absolute_import, division, print_function
+
 from lewis.core.control_client import ControlClient
+
+from nicos import session
+from nicos.core import POLLER, SIMULATION, ConfigurationError, \
+    DeviceMixinBase, Override, Param, Value, host, status
+from nicos.devices.generic import ActiveChannel, CounterChannelMixin, \
+    Detector, PassiveChannel, TimerChannelMixin
 
 
 class LewisControlClientDevice(DeviceMixinBase):

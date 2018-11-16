@@ -26,8 +26,10 @@
 Tests for the single (4-circle and related) positions utils
 """
 
-from pytest import approx
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
+from pytest import approx
 
 from nicos.devices.sxtal.goniometer.posutils import vectorangle
 

@@ -24,9 +24,12 @@
 
 """Class for KWS selector."""
 
-from nicos.core import Moveable, Attach, Param, dictof, dictwith
+from __future__ import absolute_import, division, print_function
+
+from nicos.core import Attach, Moveable, Param, dictof, dictwith
 from nicos.devices.generic.switcher import MultiSwitcher
 from nicos.devices.tango import WindowTimeoutAO
+
 from nicos_mlz.kws1.devices.detector import DetectorPosSwitcherMixin
 
 

@@ -38,12 +38,14 @@ To set a password in the default store, run the keyring utility:
 
 """
 
-from nicos import config
+from __future__ import absolute_import, division, print_function
 
 import os.path
+
 from keyring.util import properties
 from keyrings.alt.file import EncryptedKeyring
 
+from nicos import config
 
 from . import NicosKeyStore
 

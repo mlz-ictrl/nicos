@@ -24,17 +24,19 @@
 
 """Session class used with the NICOS daemon."""
 
+from __future__ import absolute_import, division, print_function
+
 import sys
 import threading
 
-from nicos.core import AccessError, ACCESS_LEVELS, watchdog_user
-from nicos.utils.loggers import INFO
-from nicos.core.sessions.utils import LoggingStdout
+from nicos.core import ACCESS_LEVELS, AccessError, watchdog_user
 from nicos.core.sessions.simple import NoninteractiveSession
+from nicos.core.sessions.utils import LoggingStdout
 from nicos.devices.cacheclient import DaemonCacheClient
 from nicos.protocols.daemon import BREAK_AFTER_STEP
-from nicos.services.daemon.htmlhelp import HelpGenerator
 from nicos.pycompat import builtins, exec_, string_types
+from nicos.services.daemon.htmlhelp import HelpGenerator
+from nicos.utils.loggers import INFO
 
 
 class DaemonSession(NoninteractiveSession):

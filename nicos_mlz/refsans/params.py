@@ -24,6 +24,8 @@
 
 """REFSANS specific parameter definition helpers."""
 
+from __future__ import absolute_import, division, print_function
+
 
 def motoraddress(address=0x3020):
     """The motor address should start either at addresses 0x3020 or 0x4020

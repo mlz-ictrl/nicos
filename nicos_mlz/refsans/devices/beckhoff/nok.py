@@ -24,18 +24,19 @@
 
 """Devices for the Refsans NOK system."""
 
+from __future__ import absolute_import, division, print_function
+
 import struct
 
 from Modbus import Modbus
 
 from nicos import session
-from nicos.utils import bitDescription
-from nicos.core import Param, Override, status, UsageError, SIMULATION, \
-    CommunicationError, usermethod, requires, DeviceMixinBase,  MoveError, \
-    TimeoutError
-from nicos.devices.abstract import CanReference, Motor, Coder
+from nicos.core import SIMULATION, CommunicationError, DeviceMixinBase, \
+    MoveError, Override, Param, TimeoutError, UsageError, requires, status, \
+    usermethod
+from nicos.devices.abstract import CanReference, Coder, Motor
 from nicos.devices.taco.core import TacoDevice
-
+from nicos.utils import bitDescription
 
 from nicos_mlz.refsans.params import motoraddress
 

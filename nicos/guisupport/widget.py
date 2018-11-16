@@ -26,18 +26,18 @@
 Base class for NICOS UI widgets.
 """
 
-import operator
-import functools
+from __future__ import absolute_import, division, print_function
 
+import functools
+import operator
 from copy import copy
 
-from nicos.guisupport.qt import pyqtProperty, QFont, QFontMetrics
-
-from nicos.utils import lazy_property, AttrDict, extractKeyAndIndex
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import OK
+from nicos.guisupport.qt import QFont, QFontMetrics, pyqtProperty
 from nicos.protocols.daemon import DAEMON_EVENTS
 from nicos.pycompat import iteritems
+from nicos.utils import AttrDict, extractKeyAndIndex, lazy_property
 
 
 class NicosListener(object):

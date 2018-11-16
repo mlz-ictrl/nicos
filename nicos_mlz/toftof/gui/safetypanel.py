@@ -24,14 +24,14 @@
 
 """NICOS GUI panel with information about the TOFTOF safety status."""
 
-from nicos.guisupport.qt import QByteArray, QTableWidgetItem
-
-from nicos.utils import findResource
+from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-
+from nicos.guisupport.qt import QByteArray, QTableWidgetItem
 from nicos.protocols.cache import cache_load
+from nicos.utils import findResource
+
 from nicos_mlz.toftof.devices.safety_desc import bit_description
 
 

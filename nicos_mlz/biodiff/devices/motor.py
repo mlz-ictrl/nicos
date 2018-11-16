@@ -22,16 +22,18 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import math
 import time
 
+from nicos.core import Attach, status
+from nicos.core.device import Moveable
+from nicos.core.errors import LimitError
+from nicos.core.params import Override, Param
 from nicos.devices.abstract import Motor as NicosMotor
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
 from nicos.devices.tango import Motor as TangoMotor
-from nicos.core.device import Moveable
-from nicos.core.params import Param, Override
-from nicos.core import Attach, status
-from nicos.core.errors import LimitError
 
 
 class MicrostepMotor(BaseSequencer, NicosMotor):

@@ -25,20 +25,21 @@
 
 """NICOS livewidget with GR."""
 
+from __future__ import absolute_import, division
+
 import math
 
+import gr
 import numpy
 import numpy.ma
-
-from nicos.guisupport.qt import pyqtSignal, QWidget, QHBoxLayout
-
-import gr
+from gr.pygr import Coords2D
+from gr.pygr import Plot as OrigPlot
+from gr.pygr import PlotAxes, Point, RegionOfInterest
 from gr.pygr.base import GRMeta, GRVisibility
 from qtgr import InteractiveGRWidget
-from gr.pygr import Plot as OrigPlot, PlotAxes, Point, RegionOfInterest, \
-    Coords2D
 
 from nicos.guisupport.plots import MaskedPlotCurve
+from nicos.guisupport.qt import QHBoxLayout, QWidget, pyqtSignal
 
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        '<u1', '<i1', '>u1', '>i1', '<f8', '<f4', '>f8', '>f4',

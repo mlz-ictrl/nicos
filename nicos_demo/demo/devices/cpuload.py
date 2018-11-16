@@ -24,9 +24,12 @@
 
 """NICOS demo class displaying the CPU load"""
 
+from __future__ import absolute_import, division, print_function
+
 import psutil
+
 from nicos import session
-from nicos.core import status, Readable, Param, POLLER, SIMULATION
+from nicos.core import POLLER, SIMULATION, Param, Readable, status
 from nicos.core.params import floatrange
 from nicos.utils import createThread
 

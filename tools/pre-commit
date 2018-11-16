@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+#  -*- coding: utf-8 -*-
+
+from __future__ import absolute_import, print_function
+
+import sys
+
+from isort.hooks import git_hook
+
+if __name__ == '__main__':
+    res = git_hook(strict=True)
+    if res:
+        print("""The code contains wrongly sorted imports, use:
+        git diff --staged --name-only --diff-filter d '*.py' | xargs isort""")
+
+    sys.exit(0)

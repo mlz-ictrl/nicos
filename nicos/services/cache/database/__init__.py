@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
 from nicos.services.cache.database.base import CacheDatabase
 from nicos.services.cache.database.flatfile import FlatfileCacheDatabase
 from nicos.services.cache.database.memory import MemoryCacheDatabase, \

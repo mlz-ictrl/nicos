@@ -24,11 +24,13 @@
 
 """NICOS temperature controller classes."""
 
+from __future__ import absolute_import, division, print_function
+
 import TACOStates
 import Temperature
 
-from nicos.core import status, oneof, Param, Readable, Moveable, HasLimits, \
-    Override, HasWindowTimeout, MoveError, PositionError
+from nicos.core import HasLimits, HasWindowTimeout, Moveable, MoveError, \
+    Override, Param, PositionError, Readable, oneof, status
 from nicos.devices.taco.core import TacoDevice
 
 

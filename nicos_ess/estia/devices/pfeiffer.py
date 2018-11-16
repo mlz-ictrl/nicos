@@ -28,7 +28,9 @@ This module contains a device for reading the Pfeiffer TPG 261
 vacuum gauge controller using a Moxa terminal server.
 """
 
-from nicos.core import Override, status, Readable
+from __future__ import absolute_import, division, print_function
+
+from nicos.core import Override, Readable, status
 from nicos.devices.vendor.moxa import MoxaCommunicator
 
 

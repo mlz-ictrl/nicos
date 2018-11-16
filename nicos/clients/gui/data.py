@@ -24,15 +24,16 @@
 
 """NICOS GUI data handler class."""
 
+from __future__ import absolute_import, division, print_function
+
 import copy
 import uuid
 from itertools import chain
 
 import numpy as np
 
-from nicos.guisupport.qt import QObject, pyqtSignal, QApplication, \
-    QProgressDialog
-
+from nicos.guisupport.qt import QApplication, QObject, QProgressDialog, \
+    pyqtSignal
 from nicos.utils.fitting import FitResult
 
 

@@ -24,15 +24,16 @@
 
 """Beamstop handling for SANS1"""
 
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 
-from nicos.core import Param, oneof, Moveable, Attach, dictof, Override, \
-    status, requires, UsageError, limits, PositionError
-from nicos.devices.generic.sequence import SequencerMixin, tupleof, SeqCall
+from nicos.core import Attach, Moveable, Override, Param, PositionError, \
+    UsageError, dictof, limits, oneof, requires, status
 from nicos.devices.generic import Axis
-from nicos.pycompat import iteritems, reraise
-
+from nicos.devices.generic.sequence import SeqCall, SequencerMixin, tupleof
 from nicos.devices.tango import Sensor
+from nicos.pycompat import iteritems, reraise
 
 
 class FunnySensor(Sensor):

@@ -24,12 +24,14 @@
 
 """NICOS integration for GE detector."""
 
+from __future__ import absolute_import, division, print_function
+
 import time
 
 import PyTango
 
-from nicos.core import Moveable, Attach, Param, Override, tupleof, dictof, \
-    status
+from nicos.core import Attach, Moveable, Override, Param, dictof, status, \
+    tupleof
 from nicos.devices.epics import EpicsAnalogMoveable
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
 from nicos.devices.generic.switcher import Switcher

@@ -30,7 +30,7 @@ from nicos.guisupport.qt import uic, pyqtSlot, pyqtProperty, QTimer, QColor, \
 
 from nicos.guisupport.utils import setBackgroundColor
 
-from .editdlg import EntryEditDialog  # pylint: disable=F0401
+from .editdlg import EntryEditDialog  # pylint: disable=import-error
 
 
 ttlColor = QColor(0xff, 0xfa, 0x66)

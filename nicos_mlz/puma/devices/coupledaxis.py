@@ -24,12 +24,14 @@
 
 """PUMA multianalyzer coupled 'att' axis."""
 
+from __future__ import absolute_import, division, print_function
+
 import math
 import sys
 
 from nicos import session
-from nicos.core import Attach, HasLimits, HasPrecision, Moveable, \
-    Override, Param, floatrange, status  # HasTimeout,
+from nicos.core import Attach, HasLimits, HasPrecision, Moveable, Override, \
+    Param, floatrange, status
 from nicos.core.errors import PositionError
 from nicos.core.utils import filterExceptions, multiReset, multiStatus
 from nicos.pycompat import reraise

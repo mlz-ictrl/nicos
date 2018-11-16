@@ -1,6 +1,7 @@
 # pylint: skip-file
 
 from time import sleep as tsleep
+
 from nicos.core.status import ERROR
 
 

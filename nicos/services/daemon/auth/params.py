@@ -25,8 +25,14 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import ACCESS_LEVELS
-from nicos.pycompat import string_types
+from nicos.pycompat import itervalues, string_types
+
+
+def _access_level_list():
+    return ', '.join(repr(l) for l in itervalues(ACCESS_LEVELS))
 
 
 def UserPassLevelAuthEntry(val=None):
@@ -53,16 +59,13 @@ def UserPassLevelAuthEntry(val=None):
                 val[2] = i
                 break
         else:
-            raise ValueError('access level must be one of %s' %
-                             ', '.join(map(repr, ACCESS_LEVELS.values())))
+            raise ValueError('access level must be one of %s' % _access_level_list())
     elif not isinstance(val[2], int):
         # for backwards compatibility: allow integer values as well
-        raise ValueError('access level must be one of %s' %
-                         ', '.join(map(repr, ACCESS_LEVELS.values())))
+        raise ValueError('access level must be one of %s' % _access_level_list())
     else:
         if val[2] not in ACCESS_LEVELS:
-            raise ValueError('access level must be one of %s' %
-                             ', '.join(map(repr, ACCESS_LEVELS.values())))
+            raise ValueError('access level must be one of %s' % _access_level_list())
     return tuple(val)
 
 

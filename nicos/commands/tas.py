@@ -24,27 +24,29 @@
 
 """TAS commands for NICOS."""
 
+from __future__ import absolute_import, division, print_function
+
 from numpy import ndarray
 
 from nicos import session
-from nicos.core import Measurable, Moveable, Readable, UsageError, NicosError
-from nicos.core.spm import spmsyntax, Bare
+from nicos.commands import helparglist, hiddenusercommand, parallel_safe, \
+    usercommand
+from nicos.commands.analyze import gauss
+from nicos.commands.device import maw, read
+from nicos.commands.scan import ADDSCANHELP2, _infostr, cscan
+from nicos.core import Measurable, Moveable, NicosError, Readable, UsageError
 from nicos.core.scan import QScan
+from nicos.core.spm import Bare, spmsyntax
 from nicos.devices.tas.mono import to_k
-from nicos.devices.tas.rescalc import resmat
-from nicos.devices.tas.spectro import TAS, THZ2MEV
 from nicos.devices.tas.plotting import plot_hklmap, plot_resatpoint, \
     plot_resscan
-from nicos.devices.tas.spurions import check_acc_bragg, check_ho_spurions, \
-    check_powderrays, alu_hkl, copper_hkl
-from nicos.commands import usercommand, hiddenusercommand, helparglist, \
-    parallel_safe
-from nicos.commands.scan import _infostr, ADDSCANHELP2, cscan
-from nicos.commands.device import maw, read
-from nicos.commands.analyze import gauss
-from nicos.pycompat import iteritems, string_types, number_types
-from nicos.pycompat import xrange as range  # pylint: disable=W0622
-
+from nicos.devices.tas.rescalc import resmat
+from nicos.devices.tas.spectro import TAS, THZ2MEV
+from nicos.devices.tas.spurions import alu_hkl, check_acc_bragg, \
+    check_ho_spurions, check_powderrays, copper_hkl
+# pylint: disable=redefined-builtin
+from nicos.pycompat import iteritems, number_types, string_types, \
+    xrange as range
 
 __all__ = [
     'qscan', 'qcscan', 'Q', 'calpos', 'pos', 'rp',

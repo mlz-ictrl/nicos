@@ -24,19 +24,19 @@
 
 """Implementation of the daemon protocol over ZMQ."""
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import threading
 
 import zmq
 
+from nicos.protocols.daemon import DAEMON_EVENTS, CloseConnection, \
+    ProtocolError, Server as BaseServer, \
+    ServerTransport as BaseServerTransport
+from nicos.pycompat import from_utf8, queue, to_utf8
 from nicos.services.daemon.handler import ConnectionHandler
-from nicos.protocols.daemon import CloseConnection, ProtocolError, \
-    DAEMON_EVENTS, Server as BaseServer, ServerTransport as BaseServerTransport
 from nicos.utils import createThread
 from nicos.utils.messaging import nicos_zmq_ctx
-from nicos.pycompat import queue, from_utf8, to_utf8
-
 
 # Framing for commands:
 #

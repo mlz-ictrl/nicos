@@ -24,9 +24,11 @@
 
 """Class for controlling the KWS shutter."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import HasTimeout, Moveable, Readable, Attach, Param, \
-    Override, status, oneof
+from nicos.core import Attach, HasTimeout, Moveable, Override, Param, \
+    Readable, oneof, status
 from nicos.devices.generic import ManualSwitch
 
 READ_CLOSED = 1

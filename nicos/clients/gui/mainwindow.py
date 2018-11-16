@@ -25,40 +25,42 @@
 
 """NICOS GUI main window."""
 
+from __future__ import absolute_import, division, print_function
+
 import sys
 import traceback
 from time import strftime, time as currenttime
 
-from nicos.guisupport.qt import pyqtSignal, pyqtSlot, Qt, QTimer, QSize, \
-    QApplication, QMainWindow, QMessageBox, QDialog, QLabel, QSystemTrayIcon, \
-    QPixmap, QMenu, QIcon, QAction, QFontDialog, QColorDialog, QWebView
+from nicos import nicos_version
+from nicos.clients.base import ConnectionData
+from nicos.clients.gui.client import NicosGuiClient
+from nicos.clients.gui.config import tabbed
+from nicos.clients.gui.data import DataHandler
+from nicos.clients.gui.dialogs.auth import ConnectionDialog
+from nicos.clients.gui.dialogs.debug import DebugConsole
+from nicos.clients.gui.dialogs.error import ErrorDialog
+from nicos.clients.gui.dialogs.pnp import PnPSetupQuestion
+from nicos.clients.gui.dialogs.settings import SettingsDialog
+from nicos.clients.gui.dialogs.watchdog import WatchdogDialog
+from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
+from nicos.clients.gui.panels.console import ConsolePanel
+from nicos.clients.gui.tools import createToolMenu, startStartupTools
+from nicos.clients.gui.utils import DlgUtils, SettingGroup, \
+    loadBasicWindowSettings, loadUi, loadUserStyle, splitTunnelString
+from nicos.core.utils import ADMIN
+from nicos.guisupport.qt import QAction, QApplication, QColorDialog, QDialog, \
+    QFontDialog, QIcon, QLabel, QMainWindow, QMenu, QMessageBox, QPixmap, \
+    QSize, QSystemTrayIcon, Qt, QTimer, QWebView, pyqtSignal, pyqtSlot
+from nicos.protocols.daemon import BREAK_NOW, STATUS_IDLE, STATUS_IDLEEXC, \
+    STATUS_INBREAK
+from nicos.pycompat import iteritems, listvalues, text_type
+from nicos.utils import checkSetupSpec, importString
 
 try:
     from sshtunnel import BaseSSHTunnelForwarderError, SSHTunnelForwarder
 except ImportError:
     SSHTunnelForwarder = None
 
-from nicos import nicos_version
-from nicos.core.utils import ADMIN
-from nicos.clients.base import ConnectionData
-from nicos.clients.gui.data import DataHandler
-from nicos.clients.gui.client import NicosGuiClient
-from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi, \
-    loadBasicWindowSettings, loadUserStyle, splitTunnelString
-from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
-from nicos.clients.gui.panels.console import ConsolePanel
-from nicos.clients.gui.tools import createToolMenu, startStartupTools
-from nicos.clients.gui.dialogs.auth import ConnectionDialog
-from nicos.clients.gui.dialogs.error import ErrorDialog
-from nicos.clients.gui.dialogs.pnp import PnPSetupQuestion
-from nicos.clients.gui.dialogs.debug import DebugConsole
-from nicos.clients.gui.dialogs.settings import SettingsDialog
-from nicos.clients.gui.dialogs.watchdog import WatchdogDialog
-from nicos.protocols.daemon import STATUS_INBREAK, STATUS_IDLE, \
-    STATUS_IDLEEXC, BREAK_NOW
-from nicos.pycompat import iteritems, listvalues, text_type
-from nicos.clients.gui.config import tabbed
-from nicos.utils import checkSetupSpec, importString
 
 try:
     from nicos.clients.gui.dialogs.help import HelpWindow
@@ -728,10 +730,10 @@ class MainWindow(DlgUtils, QMainWindow):
                 self.conndata.host = 'localhost'
                 self.conndata.port = tunnel_port
             except ValueError as e:
-                self.showError(e.message)
+                self.showError(str(e))
                 self.tunnelServer = None
             except BaseSSHTunnelForwarderError as e:
-                self.showError(e.message)
+                self.showError(str(e))
                 self.tunnelServer = None
         self.client.connect(self.conndata)
 

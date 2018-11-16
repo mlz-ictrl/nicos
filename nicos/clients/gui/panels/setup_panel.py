@@ -24,19 +24,20 @@
 
 """NICOS GUI experiment setup window."""
 
-from nicos.guisupport.qt import pyqtSlot, Qt, QDialog, QDialogButtonBox, \
-    QListWidgetItem, QMessageBox, QFrame, QHBoxLayout, QLabel, QComboBox, \
-    QPushButton
+from __future__ import absolute_import, division, print_function
 
-from nicos.core import ConfigurationError
-from nicos.core.params import mailaddress, vec3
-from nicos.guisupport import typedvalue
-from nicos.guisupport.widget import NicosWidget
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.utils import loadUi
+from nicos.core import ConfigurationError
+from nicos.core.params import mailaddress, vec3
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell
+from nicos.guisupport import typedvalue
+from nicos.guisupport.qt import QComboBox, QDialog, QDialogButtonBox, QFrame, \
+    QHBoxLayout, QLabel, QListWidgetItem, QMessageBox, QPushButton, Qt, \
+    pyqtSlot
+from nicos.guisupport.widget import NicosWidget
+from nicos.pycompat import iteritems, itervalues, listitems
 from nicos.utils import decodeAny
-from nicos.pycompat import iteritems, listitems, itervalues
 
 
 def iterChecked(listwidget):

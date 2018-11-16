@@ -24,28 +24,29 @@
 
 """NICOS core APIs and classes."""
 
+from __future__ import absolute_import
+
 from nicos.core import status
-from nicos.core.constants import MASTER, SLAVE, SIMULATION, MAINTENANCE, \
-    MAIN, POLLER, LIVE, INTERMEDIATE, INTERRUPTED, FINAL
-from nicos.core.errors import NicosError, ProgrammingError, \
-    ConfigurationError, UsageError, InvalidValueError, ModeError, \
-    PositionError, MoveError, LimitError, CommunicationError, \
-    HardwareError, TimeoutError, ComputationError, \
-    CacheLockError, AccessError, CacheError, SPMError
-from nicos.core.mixins import AutoDevice, DeviceMixinBase, HasLimits, \
-    HasOffset, HasPrecision, HasMapping, HasTimeout, HasWindowTimeout, \
-    HasCommunication, IsController, CanDisable
-from nicos.core.utils import formatStatus, multiStatus, waitForCompletion, \
-    multiWait, multiStop, multiReset, GUEST, USER, ADMIN, ACCESS_LEVELS, \
-    User, system_user, watchdog_user, usermethod
-from nicos.core.device import DeviceMeta, Device, Readable, Waitable, \
-    Moveable, Measurable, SubscanMeasurable, DeviceAlias, NoDevice, requires
-from nicos.core.params import Attach, Param, Override, Value, ArrayDesc, \
-    INFO_CATEGORIES, listof, nonemptylistof, tupleof, dictof, setof, tacodev, \
-    tangodev, pvname, anytype, vec3, intrange, floatrange, oneof, oneofdict, \
-    none_or, nicosdev, relative_path, absolute_path, subdir, mailaddress, \
-    limits, dictwith, host
-from nicos.core.data import BaseDataset, PointDataset, ScanDataset, DataSink, \
-    DataSinkHandler
-from nicos.core.acquire import acquire, read_environment, DevStatistics
+from nicos.core.acquire import DevStatistics, acquire, read_environment
+from nicos.core.constants import FINAL, INTERMEDIATE, INTERRUPTED, \
+    LIVE, MAIN, MAINTENANCE, MASTER, POLLER, SIMULATION, SLAVE
+from nicos.core.data import BaseDataset, DataSink, \
+    DataSinkHandler, PointDataset, ScanDataset
+from nicos.core.device import Device, DeviceAlias, DeviceMeta, Measurable, \
+    Moveable, NoDevice, Readable, SubscanMeasurable, Waitable, requires
+from nicos.core.errors import AccessError, CacheError, CacheLockError, \
+    CommunicationError, ComputationError, ConfigurationError, HardwareError, \
+    InvalidValueError, LimitError, ModeError, MoveError, NicosError, \
+    PositionError, ProgrammingError, SPMError, TimeoutError, UsageError
+from nicos.core.mixins import AutoDevice, CanDisable, DeviceMixinBase, \
+    HasCommunication, HasLimits, HasMapping, HasOffset, HasPrecision, \
+    HasTimeout, HasWindowTimeout, IsController
+from nicos.core.params import INFO_CATEGORIES, ArrayDesc, Attach, \
+    Override, Param, Value, absolute_path, anytype, dictof, dictwith, \
+    floatrange, host, intrange, limits, listof, mailaddress, \
+    nicosdev, none_or, nonemptylistof, oneof, oneofdict, pvname, \
+    relative_path, setof, subdir, tacodev, tangodev, tupleof, vec3
 from nicos.core.scan import Scan
+from nicos.core.utils import ACCESS_LEVELS, ADMIN, GUEST, USER, User, \
+    formatStatus, multiReset, multiStatus, multiStop, multiWait, \
+    system_user, usermethod, waitForCompletion, watchdog_user

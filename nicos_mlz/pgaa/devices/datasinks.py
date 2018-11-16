@@ -24,6 +24,8 @@
 
 """PGAA specific data sink(s)."""
 
+from __future__ import absolute_import, division, print_function
+
 import csv
 from array import array
 from datetime import datetime
@@ -36,7 +38,6 @@ from nicos.core.data.sink import DataSinkHandler
 from nicos.core.errors import NicosError
 from nicos.devices.datasinks import FileSink
 from nicos.pycompat import File
-
 
 __all__ = ('MCASink', 'CHNSink', 'CSVDataSink')
 

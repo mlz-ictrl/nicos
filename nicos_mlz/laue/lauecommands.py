@@ -25,14 +25,15 @@
 """
 LAUE specific commands
 """
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 
-from nicos.devices.sxtal.goniometer.posutils import Xrot, Yrot, Zrot
-from nicos.devices.sxtal.goniometer.base import PositionFactory
+from nicos import session
 from nicos.commands import usercommand
 from nicos.commands.device import maw, move
-
-from nicos import session
+from nicos.devices.sxtal.goniometer.base import PositionFactory
+from nicos.devices.sxtal.goniometer.posutils import Xrot, Yrot, Zrot
 
 
 @usercommand

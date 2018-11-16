@@ -24,10 +24,11 @@
 
 """Always-on-top emergency stop button."""
 
-from nicos.guisupport.qt import Qt, QByteArray, QSize, QPoint, QMainWindow, \
-    QWidget, QAbstractButton, QHBoxLayout, QIcon, QPainter
+from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.utils import SettingGroup
+from nicos.guisupport.qt import QAbstractButton, QByteArray, QHBoxLayout, \
+    QIcon, QMainWindow, QPainter, QPoint, QSize, Qt, QWidget
 
 
 class PicButton(QAbstractButton):

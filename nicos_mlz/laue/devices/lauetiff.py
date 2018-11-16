@@ -26,9 +26,18 @@
 File writer for tiff files compatible with ESMERALDA
 """
 
+from __future__ import absolute_import, division, print_function
+
+import numpy
+
+from nicos.core import NicosError
+from nicos.core.params import Override
+from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
+from nicos.pycompat import iteritems
+
 try:
-    from PIL import PILLOW_VERSION  # pylint: disable=E0611
-    from distutils.version import LooseVersion  # pylint: disable=E0611
+    from PIL import PILLOW_VERSION  # pylint: disable=no-name-in-module
+    from distutils.version import LooseVersion  # pylint: disable=no-name-in-module
     if LooseVersion(PILLOW_VERSION) < LooseVersion('3.99.0'):
         raise ImportError
     from PIL import Image
@@ -37,12 +46,7 @@ try:
 except ImportError:
     Image = None
 
-import numpy
 
-from nicos.core import NicosError
-from nicos.core.params import Override
-from nicos.devices.datasinks.image import SingleFileSinkHandler, ImageSink
-from nicos.pycompat import iteritems
 
 # tag values for esmeralda /Image_Modules_Src/Laue_tiff_read.f90
 # format: nicos key: ( tiff tag nr, descr, tiff valuetype (2=str, 11, float)

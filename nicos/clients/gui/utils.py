@@ -24,19 +24,18 @@
 
 """NICOS GUI utilities."""
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import logging
 import os
 import socket
 from os import path
 
-from nicos.guisupport.qt import uic, PYQT_VERSION, Qt, QByteArray, QDateTime, \
-    QSettings, QSize, QApplication, QColor, QDialog, QFileDialog, QFont, \
-    QLabel, QMessageBox, QProgressDialog, QPushButton, QStyle, QTextEdit, \
-    QToolButton, QVBoxLayout, QWidget
-
 from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
+from nicos.guisupport.qt import PYQT_VERSION, QApplication, QByteArray, \
+    QColor, QDateTime, QDialog, QFileDialog, QFont, QLabel, QMessageBox, \
+    QProgressDialog, QPushButton, QSettings, QSize, QStyle, Qt, QTextEdit, \
+    QToolButton, QVBoxLayout, QWidget, uic
 from nicos.pycompat import string_types
 
 
@@ -197,7 +196,7 @@ class DlgUtils(object):
 # for compatibility with PyQt < 4.8.3
 if PYQT_VERSION < 0x040803:
     class CompatSettings(QSettings):
-        def value(self, name, default, type=None):  # pylint: disable=W0622
+        def value(self, name, default, type=None):  # pylint: disable=redefined-builtin
             value = QSettings.value(self, name, default)
             if type is bool:
                 value = value not in (False, 'false')

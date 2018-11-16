@@ -22,13 +22,13 @@
 #
 # *****************************************************************************
 
-from nicos.guisupport.qt import Qt, QSize, QBrush, QColor, QPainter, QWidget, \
-    QPen, QFont
+from __future__ import absolute_import, division, print_function
 
+from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
+    WARN
+from nicos.guisupport.qt import QBrush, QColor, QFont, QPainter, QPen, QSize, \
+    Qt, QWidget
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.core.status import BUSY, ERROR, NOTREACHED, OK, UNKNOWN, WARN, \
-    DISABLED
-
 
 _yellow = QBrush(QColor('yellow'))
 _white = QBrush(QColor('white'))

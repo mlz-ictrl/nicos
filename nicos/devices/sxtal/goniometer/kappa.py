@@ -31,13 +31,13 @@ All angle move clockwise for positive values.
 to allow conversions, the kappa-angle alpha needs to be known
 '''
 
-from __future__ import print_function
-
-from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
+
 from nicos.core import NicosError
-from nicos.devices.sxtal.goniometer.posutils import normalangle, Yrot, Zrot
+from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory
+from nicos.devices.sxtal.goniometer.posutils import Yrot, Zrot, normalangle
 
 
 class Kappa(PositionBase):

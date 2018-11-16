@@ -24,9 +24,11 @@
 #
 # *****************************************************************************
 
-from nicos.devices.epics import EpicsReadable, EpicsMoveable
-from nicos.core import status, Override, Attach, usermethod, \
-    Moveable, SIMULATION, tupleof
+from __future__ import absolute_import, division, print_function
+
+from nicos.core import SIMULATION, Attach, Moveable, Override, status, \
+    tupleof, usermethod
+from nicos.devices.epics import EpicsMoveable, EpicsReadable
 
 
 class EpicsFloatMoveable(EpicsMoveable):

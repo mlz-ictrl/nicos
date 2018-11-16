@@ -24,11 +24,13 @@
 
 """TOFTOF neutron guide/collimator switcher device."""
 
-from nicos.core import Param, Override, NicosError, intrange
+from __future__ import absolute_import, division, print_function
+
+from nicos.core import NicosError, Override, Param, intrange
+from nicos.core.params import Attach
 from nicos.devices.abstract import CanReference
 from nicos.devices.generic import Switcher as GenericSwitcher
-from nicos.core.params import Attach
-from nicos.devices.taco import Motor as TacoMotor, DigitalInput
+from nicos.devices.taco import DigitalInput, Motor as TacoMotor
 
 
 class Switcher(GenericSwitcher):

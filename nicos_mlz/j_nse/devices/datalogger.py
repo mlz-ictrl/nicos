@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import time
 
 from nicos.core import Override, Readable
@@ -42,11 +44,11 @@ class LastEvent(PyTangoDevice, Readable):
         # The PLC stores the timestamp of the last event as two float values,
         # for example 24/06/2018 12:13:14 is [180624.0, 121314.0].
         date, tod = map(int, self._dev.value)
-        year = date / 10000
-        month = (date % 10000) / 100
+        year = date // 10000
+        month = (date % 10000) // 100
         day = date % 100
-        hour = tod / 10000
-        minute = (tod % 10000) / 100
+        hour = tod // 10000
+        minute = (tod % 10000) // 100
         second = tod % 100
         # add +1 hour for timezone
         ts = time.mktime((year, month, day, hour+1, minute, second, 0, 0, 0))

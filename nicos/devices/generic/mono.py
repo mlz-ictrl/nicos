@@ -25,10 +25,12 @@
 Base monochromator class
 """
 
+from __future__ import absolute_import, division, print_function
+
 from math import pi, sqrt
 
-from nicos.core import ComputationError, Moveable, Override, \
-    ProgrammingError, oneof, status, MASTER, SIMULATION
+from nicos.core import MASTER, SIMULATION, ComputationError, Moveable, \
+    Override, ProgrammingError, oneof, status
 
 THZ2MEV = 4.1356675
 ANG2MEV = 81.804165

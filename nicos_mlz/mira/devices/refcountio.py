@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import Attach, Moveable, NicosError
 from nicos.devices.tango import DigitalOutput
 

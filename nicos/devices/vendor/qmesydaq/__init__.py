@@ -24,7 +24,10 @@
 
 """Base classes for the QMesyDAQ devices."""
 
-from nicos.core import Param, Value, ArrayDesc
+from __future__ import absolute_import
+
+from nicos.core import ArrayDesc, Param, Value
+
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
 
 

@@ -24,11 +24,13 @@
 
 """Module for RESEDA specific commands."""
 
+from __future__ import absolute_import, division, print_function
+
 import scipy.constants as co
 
 from nicos import session
 from nicos.commands import usercommand
-from nicos.commands.device import move, stop, wait, maw
+from nicos.commands.device import maw, move, stop, wait
 from nicos.commands.measure import count
 from nicos.commands.scan import manualscan
 
@@ -119,8 +121,6 @@ def miezescan(echolist, counttime):
 @usercommand
 def pol(up, down):
     """Calculate contrast or polarisation."""
-    up = float(up)
-    down = float(down)
     return (up - down) / (up + down)
 
 

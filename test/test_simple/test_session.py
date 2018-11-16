@@ -24,12 +24,13 @@
 
 """NICOS axis test suite."""
 
+from __future__ import absolute_import, division, print_function
+
 from os import path
+from test.utils import ErrorLogged, module_root, raises
 
 from nicos.core import ConfigurationError
 from nicos.core.sessions.setups import readSetups
-
-from test.utils import module_root, raises, ErrorLogged
 
 session_setup = 'empty'
 

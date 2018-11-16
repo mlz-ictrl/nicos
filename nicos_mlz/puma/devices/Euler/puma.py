@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 description = 'PUMA triple-axis setup'
 
 includes = ['virtualtas', 'sampletable', 'analyser', 'power', 'detector',

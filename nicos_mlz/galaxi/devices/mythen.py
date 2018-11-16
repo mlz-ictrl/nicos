@@ -25,14 +25,18 @@
 
 """GALAXI Mythen detector"""
 
-import numpy
+from __future__ import absolute_import, division, print_function
+
 import time
-from nicos.core import waitForCompletion, status, usermethod, MASTER, Value
-from nicos.core.params import Param, ArrayDesc
-from nicos.devices.tango import PyTangoDevice
+
+import numpy
+
+from nicos.core import MASTER, Value, status, usermethod, waitForCompletion
 from nicos.core.constants import FINAL, INTERRUPTED
-from nicos.devices.generic.detector import TimerChannelMixin, ImageChannelMixin,\
-    ActiveChannel, Detector
+from nicos.core.params import ArrayDesc, Param
+from nicos.devices.generic.detector import ActiveChannel, Detector, \
+    ImageChannelMixin, TimerChannelMixin
+from nicos.devices.tango import PyTangoDevice
 
 P_TIME = 't'
 P_FRAMES = 'f'

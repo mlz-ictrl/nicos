@@ -25,24 +25,25 @@
 
 u"""IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
+from __future__ import absolute_import, division, print_function
+
 import select
 import socket
 from threading import RLock
 
 from IO import StringIO
-from RS485Client import RS485Client  # pylint: disable=F0401
+from RS485Client import RS485Client  # pylint: disable=import-error
 from TACOClient import TACOError
 
 from nicos import session
-from nicos.core import status, intrange, floatrange, oneofdict, oneof, \
-    none_or, usermethod, Device, Readable, Moveable, Param, Override, \
-    NicosError, CommunicationError, ProgrammingError, InvalidValueError, \
-    HasTimeout, HasCommunication, SIMULATION, Attach
+from nicos.core import SIMULATION, Attach, CommunicationError, Device, \
+    HasCommunication, HasTimeout, InvalidValueError, Moveable, NicosError, \
+    Override, Param, ProgrammingError, Readable, floatrange, intrange, \
+    none_or, oneof, oneofdict, status, usermethod
 from nicos.devices.abstract import Coder as NicosCoder, Motor as NicosMotor
 from nicos.devices.taco.core import TacoDevice
 from nicos.devices.tango import PyTangoDevice
 from nicos.utils import HardwareStub, closeSocket, lazy_property
-
 
 STX = chr(2)
 EOT = chr(4)
@@ -368,7 +369,7 @@ class IPCModBusTango(PyTangoDevice, IPCModBusRS232):
             self._dev.communicationTimeout = self.bustimeout
 
     def _transmit(self, request, retlen, last_try=False):
-        reply = self._dev.BinaryCommunicate([retlen] + map(ord, request))
+        reply = self._dev.BinaryCommunicate([retlen] + [ord(x) for x in request])
         return ''.join(map(chr, reply))
 
 

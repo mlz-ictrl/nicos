@@ -27,30 +27,32 @@
 
 """NICOS Experiment devices."""
 
+from __future__ import absolute_import, division, print_function
+
 import os
 import re
 import time
 from os import path
 from textwrap import dedent
 
-from nicos import session, config
-from nicos.core import listof, anytype, oneof, \
-    none_or, dictof, mailaddress, usermethod, Device, Measurable, Readable, \
-    Param, NicosError, ConfigurationError, UsageError, SIMULATION, MASTER, \
-    Attach
-from nicos.core.params import subdir, nonemptystring, expanded_path
-from nicos.core.acquire import DevStatistics
-from nicos.utils import ensureDirectory, expandTemplate, disableDirectory, \
-    enableDirectory, lazy_property, printTable, pwd, grp, DEFAULT_FILE_MODE, \
-    createThread
-from nicos.utils.ftp import ftpUpload
-from nicos.utils.emails import sendMail
-from nicos.utils.loggers import ELogHandler
-from nicos.utils.compression import zipFiles
+from nicos import config, session
+# import for side-effects
+from nicos._vendor import rtfunicode  # pylint: disable=unused-import
 from nicos.commands.basic import run
-from nicos.pycompat import string_types, from_maybe_utf8, listitems
+from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
+    Device, Measurable, NicosError, Param, Readable, UsageError, anytype, \
+    dictof, listof, mailaddress, none_or, oneof, usermethod
+from nicos.core.acquire import DevStatistics
+from nicos.core.params import expanded_path, nonemptystring, subdir
 from nicos.devices.sample import Sample
-from nicos._vendor import rtfunicode  # for side effects - pylint: disable=W0611
+from nicos.pycompat import from_maybe_utf8, listitems, string_types
+from nicos.utils import DEFAULT_FILE_MODE, createThread, disableDirectory, \
+    enableDirectory, ensureDirectory, expandTemplate, grp, lazy_property, \
+    printTable, pwd
+from nicos.utils.compression import zipFiles
+from nicos.utils.emails import sendMail
+from nicos.utils.ftp import ftpUpload
+from nicos.utils.loggers import ELogHandler
 
 
 class Experiment(Device):

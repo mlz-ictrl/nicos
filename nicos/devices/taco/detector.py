@@ -25,14 +25,16 @@
 
 """Detector classes for NICOS."""
 
+from __future__ import absolute_import, division, print_function
+
 import IOCommon
 import TACOStates
-from IO import Timer, Counter
+from IO import Counter, Timer
 
 from nicos.core import Param, UsageError, oneofdict
+from nicos.devices.generic import ActiveChannel, CounterChannelMixin, \
+    TimerChannelMixin
 from nicos.devices.taco.core import TacoDevice
-from nicos.devices.generic import ActiveChannel, TimerChannelMixin, \
-    CounterChannelMixin
 
 
 class BaseChannel(TacoDevice):

@@ -1,6 +1,10 @@
-# test data for the symmetry tests
-# These are very long, so keep them in a
-# separate file
+""" test data for the symmetry tests
+   These are very long, so keep them in a
+   separate file
+"""
+
+from __future__ import absolute_import, division, print_function
+
 import numpy
 
 uniq = {

@@ -24,13 +24,16 @@
 
 """TOFTOF detector."""
 
-from time import time as currenttime
+from __future__ import absolute_import, division, print_function
+
 import io
+from time import time as currenttime
 
 from nicos import session
 from nicos.core import Attach, Moveable, NicosError, Param, intrange, listof
 from nicos.core.constants import INTERMEDIATE, SIMULATION
 from nicos.devices.generic.detector import Detector as GenericDetector
+
 from nicos_mlz.toftof.devices import calculations as calc
 from nicos_mlz.toftof.devices.chopper import BaseChopperController
 

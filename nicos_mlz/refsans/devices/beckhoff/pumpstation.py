@@ -24,16 +24,18 @@
 
 """Devices for the Refsans NOK system."""
 
+from __future__ import absolute_import, division, print_function
+
 import struct
 
 from Modbus import Modbus
 
 from nicos import session
-from nicos.utils import bitDescription, clamp
-from nicos.core import Param, Override, status, SIMULATION, usermethod, \
-    requires, TimeoutError, Readable, oneof, limits, floatrange, NicosError, \
-    Moveable, Attach
+from nicos.core import SIMULATION, Attach, Moveable, NicosError, Override, \
+    Param, Readable, TimeoutError, floatrange, limits, oneof, requires, \
+    status, usermethod
 from nicos.devices.taco.core import TacoDevice
+from nicos.utils import bitDescription, clamp
 
 # according to docu: '_Anhang_A_REFSANS_Pumpstand.pdf'
 

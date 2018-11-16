@@ -24,16 +24,18 @@
 
 """NICOS device class test suite."""
 
-from nicos.core import ADMIN, AccessError, CommunicationError, \
-    ConfigurationError, Device, HasCommunication, HasLimits, HasOffset, \
-    LimitError, Moveable, Param, ProgrammingError, UsageError, NicosError, \
-    CanDisable, requires, status, usermethod, Attach
-from nicos.core.sessions.utils import MAINTENANCE
-from nicos.commands.basic import NewSetup
+from __future__ import absolute_import, division, print_function
+
+from test.utils import raises
 
 import pytest
 
-from test.utils import raises
+from nicos.commands.basic import NewSetup
+from nicos.core import ADMIN, AccessError, Attach, CanDisable, \
+    CommunicationError, ConfigurationError, Device, HasCommunication, \
+    HasLimits, HasOffset, LimitError, Moveable, NicosError, Param, \
+    ProgrammingError, UsageError, requires, status, usermethod
+from nicos.core.sessions.utils import MAINTENANCE
 
 session_setup = 'device'
 methods_called = set()

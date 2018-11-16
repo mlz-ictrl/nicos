@@ -22,19 +22,21 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 import PyTango
 
-from nicos.core import status, Moveable, Measurable, Value, Param, Attach, \
-    oneof, listof, intrange, ConfigurationError, SIMULATION, MASTER
+from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
+    Measurable, Moveable, Param, Value, intrange, listof, oneof, status
 from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.core.params import ArrayDesc
-from nicos.devices.generic.detector import ImageChannelMixin, ActiveChannel, \
-    Detector
+from nicos.devices.generic.detector import ActiveChannel, Detector, \
+    ImageChannelMixin
 from nicos.devices.generic.virtual import VirtualImage
 from nicos.devices.tango import PyTangoDevice
-from nicos_mlz.jcns.devices.fpga import FPGAChannelBase
 
+from nicos_mlz.jcns.devices.fpga import FPGAChannelBase
 
 RTMODES = ('standard', 'tof', 'realtime', 'realtime_external')
 

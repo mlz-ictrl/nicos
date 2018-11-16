@@ -24,24 +24,23 @@
 
 """Web interface for NICOS."""
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
+import json
+import logging
 import os
 import sys
-import json
-import time
-import logging
 import threading
+import time
 from cgi import escape
-from time import sleep
 from hashlib import md5
+from time import sleep
 from wsgiref.simple_server import WSGIServer
 
 from nicos import session
+from nicos.pycompat import exec_, socketserver, to_utf8
 from nicos.utils import formatExtendedTraceback
-from nicos.utils.loggers import DATEFMT, ACTION, INPUT, INFO, DEBUG, WARNING
-from nicos.pycompat import socketserver, exec_, to_utf8
-
+from nicos.utils.loggers import ACTION, DATEFMT, DEBUG, INFO, INPUT, WARNING
 
 QUIT_MESSAGE = 'Just close the browser window to quit the session.'
 

@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import threading
 
 import Pyro4
@@ -30,8 +32,7 @@ from nicos.core import status
 from nicos.core.constants import SIMULATION
 from nicos.core.device import Moveable
 from nicos.core.mixins import HasCommunication, HasTimeout
-from nicos.core.params import Param, Override, dictof, oneofdict
-
+from nicos.core.params import Override, Param, dictof, oneofdict
 
 globalLock = threading.Lock()
 

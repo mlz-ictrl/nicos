@@ -26,9 +26,11 @@
 
 """NICOS Sample device."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import Moveable, Param, Override, status, oneof, none_or, \
-    dictof, anytype, InvalidValueError
+from nicos.core import InvalidValueError, Moveable, Override, Param, anytype, \
+    dictof, none_or, oneof, status
 from nicos.utils import safeName
 
 

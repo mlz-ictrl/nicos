@@ -24,11 +24,14 @@
 
 """Virtual TAS devices."""
 
+from __future__ import absolute_import, division, print_function
+
 from time import time as currenttime
+
 from numpy import random
 
-from nicos.core import Readable, Measurable, Param, Value, Attach, status, \
-    ComputationError
+from nicos.core import Attach, ComputationError, Measurable, Param, Readable, \
+    Value, status
 
 
 class VirtualTasDetector(Measurable):

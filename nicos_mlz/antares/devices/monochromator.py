@@ -24,13 +24,15 @@
 
 """Antares Monochromator"""
 
-from math import asin, sin, tan, radians, degrees
+from __future__ import absolute_import, division, print_function
 
-from nicos.utils import lazy_property
-from nicos.core import floatrange, PositionError, HasLimits, Moveable, Param, \
-    Override, Attach, status, none_or, dictof, anytype, oneof
+from math import asin, degrees, radians, sin, tan
+
+from nicos.core import Attach, HasLimits, Moveable, Override, Param, \
+    PositionError, anytype, dictof, floatrange, none_or, oneof, status
 from nicos.core.utils import multiStatus
 from nicos.pycompat import listitems
+from nicos.utils import lazy_property
 
 
 class Monochromator(HasLimits, Moveable):

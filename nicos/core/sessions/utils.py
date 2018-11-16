@@ -24,23 +24,25 @@
 
 """Utilities for the session classes."""
 
+from __future__ import absolute_import, division, print_function
+
+import keyword
 import os
 import re
-import time
-import socket
-import keyword
 import rlcompleter
+import socket
+import time
+
+from nicos import session
+from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE, Device, \
+    DeviceAlias, UsageError
+from nicos.pycompat import builtins, iteritems
 
 try:
     import readline
 except ImportError:
     readline = None
 
-from nicos import session
-from nicos.core import Device, UsageError, \
-    MASTER, SLAVE, SIMULATION, MAINTENANCE, \
-    DeviceAlias
-from nicos.pycompat import builtins, iteritems
 
 
 BUILTIN_EXCEPTIONS = set(name for name in dir(builtins)
@@ -395,6 +397,7 @@ class AttributeRaiser(object):
     def __delattr__(self, key):
         raise self.excls(self.exmsg)
 
+    # pylint: disable=nonzero-method
     def __nonzero__(self):
         return False
 

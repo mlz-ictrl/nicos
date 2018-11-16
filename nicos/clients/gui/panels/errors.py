@@ -24,13 +24,14 @@
 
 """NICOS GUI error and warning window."""
 
+from __future__ import absolute_import, division, print_function
+
 from logging import WARNING
 
-from nicos.guisupport.qt import QDialogButtonBox
-
-from nicos.clients.gui.utils import loadUi
-from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
+from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QDialogButtonBox
 from nicos.guisupport.utils import setBackgroundColor
 
 

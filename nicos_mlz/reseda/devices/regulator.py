@@ -22,11 +22,13 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import time
 
 from nicos import session
-from nicos.core import Attach, Readable, Moveable, Param, status, tupleof,\
-    POLLER, Override, NicosError, none_or
+from nicos.core import POLLER, Attach, Moveable, NicosError, Override, Param, \
+    Readable, none_or, status, tupleof
 from nicos.utils import createThread
 
 

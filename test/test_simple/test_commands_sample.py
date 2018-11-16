@@ -24,16 +24,17 @@
 
 """NICOS commands tests."""
 
+from __future__ import absolute_import, division, print_function
+
 import json
+from test.utils import approx, raises
 
 import mock
 
-from nicos.core import UsageError
-from nicos.commands.scan import cscan
 from nicos.commands.sample import activation, powderfit
+from nicos.commands.scan import cscan
+from nicos.core import UsageError
 from nicos.pycompat import StringIO
-
-from test.utils import raises, approx
 
 session_setup = 'tas'
 
@@ -94,5 +95,5 @@ def test_powderfit_from_data(session):
         cscan(phidev, phidev(), 0.2, 10, 1, tasdet)
     # since datasets are not numbered (no sink), number 0 will catch all
     res = powderfit('YIG', scans=[0])
-    assert -0.1 <= res[0] <= 0.1
-    assert -0.1 <= res[1] <= 0.1
+    assert -0.105 <= res[0] <= 0.105
+    assert -0.105 <= res[1] <= 0.105

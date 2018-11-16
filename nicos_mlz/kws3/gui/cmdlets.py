@@ -24,12 +24,15 @@
 
 """Commandlets for KWS-3."""
 
-from nicos.utils import num_sort
+from __future__ import absolute_import, division, print_function
+
 from nicos.clients.gui.cmdlets import register
+from nicos.utils import num_sort
+
 from nicos_mlz.kws1.gui.cmdlets import MeasureTable as KWS1MeasureTable
 from nicos_mlz.kws1.gui.measdialogs import MeasDef as KWS1MeasDef
-from nicos_mlz.kws1.gui.measelement import ChoiceElement, Selector, Chopper, \
-    MeasTime
+from nicos_mlz.kws1.gui.measelement import ChoiceElement, Chopper, MeasTime, \
+    Selector
 
 
 class Detector(ChoiceElement):

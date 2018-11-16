@@ -25,6 +25,7 @@
 
 """TOFTOF safety system readout descriptions."""
 
+from __future__ import absolute_import, division, print_function
 
 bit_description = [
     "door of chopper shielded area is closed (switch 1)",                       # bit 1-0

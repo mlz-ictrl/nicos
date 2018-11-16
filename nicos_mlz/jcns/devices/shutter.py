@@ -23,9 +23,10 @@
 #
 # *****************************************************************************
 
-from nicos.devices.tango import NamedDigitalOutput
-from nicos.core.params import Param
+from __future__ import absolute_import, division, print_function
 
+from nicos.core.params import Param
+from nicos.devices.tango import NamedDigitalOutput
 
 OPEN = "open"
 CLOSED = "closed"

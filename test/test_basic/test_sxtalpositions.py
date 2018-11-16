@@ -26,8 +26,10 @@
 Tests for the single (4-circle and related) positions
 """
 
-import pytest
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
+import pytest
 
 from nicos.devices.sxtal.goniometer.base import PositionFactory, typelist
 from nicos.devices.sxtal.goniometer.posutils import equal
@@ -58,6 +60,7 @@ def getPositions():
 
 class TestPostions(object):
 
+    # pylint: disable=dict-keys-not-iterating
     @pytest.mark.parametrize('p',getPositions())
     @pytest.mark.parametrize('type1', typelist.keys())
     @pytest.mark.parametrize('type2', typelist.keys())

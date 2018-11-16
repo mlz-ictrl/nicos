@@ -25,13 +25,13 @@
 
 """Direct manual control of KWS-1 Hexapod via Tango special device."""
 
-from nicos.guisupport.qt import pyqtSlot, QTimer, QMainWindow
+from __future__ import absolute_import, division, print_function
 
 import PyTango
 
-from nicos.clients.gui.utils import loadUi, DlgUtils
+from nicos.clients.gui.utils import DlgUtils, loadUi
+from nicos.guisupport.qt import QMainWindow, QTimer, pyqtSlot
 from nicos.utils import findResource
-
 
 TANGO_DEV_BASE = 'tango://phys.kws1.frm2:10000/kws1/hexapod'
 AXES = ['tx', 'ty', 'tz', 'rz', 'ry', 'rx', 'dt']

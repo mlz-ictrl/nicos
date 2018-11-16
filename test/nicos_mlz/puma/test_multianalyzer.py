@@ -24,16 +24,20 @@
 
 """Module to test custom specific modules."""
 
+from __future__ import absolute_import, division, print_function
+
 import os
+
+import pytest
+
+from nicos.core.errors import InvalidValueError, LimitError
 
 try:
     from string import maketrans  # pylint: disable=deprecated-module
 except ImportError:
     maketrans = str.maketrans
 
-from nicos.core.errors import LimitError, InvalidValueError
 
-import pytest
 
 session_setup = 'multianalyzer'
 
@@ -75,15 +79,15 @@ class TestMultiAnalyzer(object):
         with open(os.path.join(dirname, 'man_test.txt')) as f:
             for s in f.readlines():
                 # convert stringified list to list avoiding use of 'eval'
-                v = map(float, s.translate(maketrans('][,', '   ')).split())
-                assert man.isAllowed(list(v))[0]
+                v = [float(x) for x in s.translate(maketrans('][,', '   ')).split()]
+                assert man.isAllowed(v)[0]
 
         # read bad targets from file
         with open(os.path.join(dirname, 'man_test_fail.txt')) as f:
             for s in f.readlines():
                 # convert stringified list to list avoiding use of 'eval'
-                v = map(float, s.translate(maketrans('][,', '   ')).split())
-                assert not man.isAllowed(list(v))[0]
+                v = [float(x) for x in s.translate(maketrans('][,', '   ')).split()]
+                assert not man.isAllowed(v)[0]
 
     def test_movement(self, session):
         man = session.getDevice('man')

@@ -24,29 +24,29 @@
 
 """NICOS livewidget 2D data plot window/panel."""
 
+from __future__ import absolute_import, division, print_function
+
 import os
 import struct
+from math import pi, radians, sin
+from os import path
 
 import numpy
+from nicoslivewidget import TYPE_FITS, TYPE_RAW, TYPE_TIFF, \
+    BrightnessContrast, CreateProfile, Darkfield, Despeckle, Grayscale, \
+    Histogram, Integrate, Logscale, LWData, LWWidget, MinimumMaximum, \
+    Normalize, ShowGrid
+from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotMarker, QwtPlotPicker, \
+    QwtPlotZoomer, QwtSymbol
 
-from os import path
-from math import sin, radians, pi
-
-from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QSize, QPrinter, \
-    QPrintDialog, QDialog, QMainWindow, QMenu, QToolBar, QStatusBar, QFont, \
-    QSizePolicy, QListWidgetItem, QLabel, QBrush, QPen, QComboBox, QFrame, \
-    QVBoxLayout, QHBoxLayout
-from PyQt4.Qwt5 import QwtPlot, QwtPlotPicker, QwtPlotZoomer, QwtPlotCurve, \
-    QwtPlotMarker, QwtSymbol
-
-from nicos.utils import BoundedOrderedDict
-from nicos.pycompat import string_types
-from nicos.clients.gui.utils import loadUi, DlgUtils
 from nicos.clients.gui.panels import Panel
-
-from nicoslivewidget import LWWidget, LWData, Logscale, MinimumMaximum, \
-    BrightnessContrast, Integrate, Histogram, TYPE_FITS, ShowGrid, Grayscale, \
-    Normalize, Darkfield, Despeckle, CreateProfile, TYPE_RAW, TYPE_TIFF
+from nicos.clients.gui.utils import DlgUtils, loadUi
+from nicos.guisupport.qt import QBrush, QByteArray, QComboBox, QDialog, \
+    QFont, QFrame, QHBoxLayout, QLabel, QListWidgetItem, QMainWindow, QMenu, \
+    QPen, QPrintDialog, QPrinter, QSize, QSizePolicy, QStatusBar, Qt, \
+    QToolBar, QVBoxLayout, pyqtSlot
+from nicos.pycompat import string_types
+from nicos.utils import BoundedOrderedDict
 
 # the empty string means: no live data is coming, only the filename is important
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',

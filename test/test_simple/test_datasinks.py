@@ -24,11 +24,19 @@
 
 """NICOS data handlers test suite."""
 
+from __future__ import absolute_import, division, print_function
+
 import os
 import time
 from os import path
+from test.utils import raises
 
 import pytest
+
+from nicos import config
+from nicos.commands.scan import scan
+from nicos.pycompat import cPickle as pickle
+from nicos.utils import readFile, updateFileCounter
 
 try:
     import astropy.io.fits as pyfits
@@ -53,12 +61,7 @@ try:
 except ImportError:
     yaml = None
 
-from nicos import config
-from nicos.pycompat import cPickle as pickle
-from nicos.utils import readFile, updateFileCounter
-from nicos.commands.scan import scan
 
-from test.utils import raises
 
 year = time.strftime('%Y')
 

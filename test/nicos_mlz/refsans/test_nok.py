@@ -24,12 +24,14 @@
 
 """Module to test custom specific modules."""
 
+from __future__ import absolute_import, division, print_function
+
 from test.utils import raises
+
+import pytest
 
 from nicos.commands.device import adjust
 from nicos.core.errors import ConfigurationError, InvalidValueError, LimitError
-
-import pytest
 
 session_setup = 'refsans'
 

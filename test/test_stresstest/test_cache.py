@@ -24,17 +24,16 @@
 
 """NICOS cache tests."""
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import os
+from test.utils import TestCacheClient as CacheClient, alt_cache_addr, \
+    killSubprocess, raises, startCache
 from time import sleep
 
 import pytest
 
 from nicos.devices.cacheclient import CacheError
-
-from test.utils import startCache, killSubprocess, alt_cache_addr, raises, \
-    TestCacheClient as CacheClient
 
 session_setup = 'cachestress'
 

@@ -25,14 +25,14 @@
 
 """Support for "auxiliary" windows containing panels."""
 
-from nicos.guisupport.qt import pyqtSlot, pyqtSignal, QWidget, QMainWindow, \
-    QSplitter, QFontDialog, QColorDialog, QVBoxLayout
-
-from nicos.utils.loggers import NicosLogger
-from nicos.clients.gui.utils import SettingGroup, loadUi, \
-    loadBasicWindowSettings, loadUserStyle
+from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.panels.base import Panel, SetupDepWindowMixin
+from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings, \
+    loadUi, loadUserStyle
+from nicos.guisupport.qt import QColorDialog, QFontDialog, QMainWindow, \
+    QSplitter, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
+from nicos.utils.loggers import NicosLogger
 
 
 class AuxiliaryWindow(SetupDepWindowMixin, QMainWindow):

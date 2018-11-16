@@ -22,9 +22,11 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import re
 
-from nicos.core import Param, ConfigurationError, DeviceMixinBase, NicosError
+from nicos.core import ConfigurationError, DeviceMixinBase, NicosError, Param
 
 
 class OptionalLimaFunctionality(object):
@@ -42,7 +44,7 @@ class OptionalLimaFunctionality(object):
         try:
             self._testFunctionality()
         except NicosError as e:
-            if re.match('Error: No .*? capability', e.message):
+            if re.match('Error: No .*? capability', str(e)):
                 return False
             else:
                 raise e

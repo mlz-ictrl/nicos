@@ -25,11 +25,12 @@
 
 # from math import sin, cos, pi
 
-from nicos.guisupport.qt import Qt, QSize, QPointF, QPainter, QWidget, \
-    QColor, QBrush, QPen, QPolygonF
+from __future__ import absolute_import, division, print_function
 
-from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.core.status import OK
+from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, QPointF, \
+    QPolygonF, QSize, Qt, QWidget
+from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.utils import readonlylist
 
 from nicos_mlz.sans1.gui.monitorwidgets import CollimatorTable

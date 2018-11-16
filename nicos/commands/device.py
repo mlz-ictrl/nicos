@@ -24,25 +24,26 @@
 
 """Module for simple device-related user commands."""
 
+from __future__ import absolute_import, division, print_function
+
 import ast
 import time
 
-from nicos import session, nicos_version, __version__ as nicos_revision
-from nicos.utils import printTable, parseDateString, createThread
-from nicos.core import SIMULATION, Device, Moveable, Waitable, Measurable, \
-    Readable, HasOffset, HasLimits, TimeoutError, UsageError, AccessError, \
-    formatStatus, INFO_CATEGORIES, multiWait, DeviceMixinBase, CanDisable
-from nicos.core.status import OK, BUSY
-from nicos.core.spm import spmsyntax, AnyDev, Dev, Bare, String, DevParam, \
-    Multi
-from nicos.devices.abstract import CanReference
-from nicos.commands import usercommand, hiddenusercommand, helparglist, \
-    parallel_safe
+from nicos import __version__ as nicos_revision, nicos_version, session
+from nicos.commands import helparglist, hiddenusercommand, parallel_safe, \
+    usercommand
 from nicos.commands.basic import sleep
-from nicos.pycompat import builtins, itervalues, iteritems, number_types, \
+from nicos.core import INFO_CATEGORIES, SIMULATION, AccessError, CanDisable, \
+    Device, DeviceMixinBase, HasLimits, HasOffset, Measurable, Moveable, \
+    Readable, TimeoutError, UsageError, Waitable, formatStatus, multiWait
+from nicos.core.spm import AnyDev, Bare, Dev, DevParam, Multi, String, \
+    spmsyntax
+from nicos.core.status import BUSY, OK
+from nicos.devices.abstract import CanReference
+from nicos.pycompat import builtins, iteritems, itervalues, number_types, \
     string_types
+from nicos.utils import createThread, parseDateString, printTable
 from nicos.utils.timer import Timer
-
 
 __all__ = [
     'move', 'drive', 'maw', 'switch', 'wait', 'read', 'status', 'stop',
@@ -467,7 +468,7 @@ def reset(*devlist):
 @usercommand
 @spmsyntax(AnyDev, DevParam, Bare)
 @parallel_safe
-def set(dev, parameter, value):  # pylint: disable=W0622
+def set(dev, parameter, value):  # pylint: disable=redefined-builtin
     """Set a the parameter of the device to a new value.
 
     The following commands are equivalent:

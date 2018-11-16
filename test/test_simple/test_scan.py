@@ -25,22 +25,22 @@
 
 """NICOS tests for nicos.commands.scan and nicos.core.scan modules."""
 
+from __future__ import absolute_import, division, print_function
+
 import warnings
+from test.utils import raises
 
-from nicos.core import UsageError, PositionError, CommunicationError, \
-    NicosError, ModeError
-from nicos.core.scan import ContinuousScan
-
-from nicos.commands.measure import count, live, avg, minmax, SetEnvironment
-from nicos.commands.scan import scan, cscan, timescan, twodscan, contscan, \
-    manualscan, sweep, appendscan
 from nicos.commands.analyze import checkoffset
 from nicos.commands.imaging import tomo
+from nicos.commands.measure import SetEnvironment, avg, count, live, minmax
+from nicos.commands.scan import appendscan, contscan, cscan, manualscan, \
+    scan, sweep, timescan, twodscan
+from nicos.core import CommunicationError, ModeError, NicosError, \
+    PositionError, UsageError
+from nicos.core.scan import ContinuousScan
 from nicos.core.sessions.utils import MASTER, SLAVE
 from nicos.core.status import BUSY, OK
 from nicos.core.utils import waitForState
-
-from test.utils import raises
 
 # this can happen during fitting, just don't print it out
 warnings.filterwarnings('ignore', 'Covariance of the parameters could not '

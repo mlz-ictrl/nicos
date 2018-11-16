@@ -23,12 +23,15 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, listof, oneof, User, GUEST, USER
-from nicos.pycompat import to_utf8, from_maybe_utf8
-from nicos.services.daemon.auth import AuthenticationError, Authenticator as \
-    BaseAuthenticator
-from nicos.services.daemon.auth.params import UserPassLevelAuthEntry
+from __future__ import absolute_import, division, print_function
+
 import hashlib
+
+from nicos.core import GUEST, USER, Param, User, listof, oneof
+from nicos.pycompat import from_maybe_utf8, to_utf8
+from nicos.services.daemon.auth import AuthenticationError, \
+    Authenticator as BaseAuthenticator
+from nicos.services.daemon.auth.params import UserPassLevelAuthEntry
 
 
 class Authenticator(BaseAuthenticator):

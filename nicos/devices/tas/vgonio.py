@@ -25,9 +25,11 @@
 """Virtual goniometers that sit along the orientation reflexes, at an angle
 to the real goniometers."""
 
-from numpy import sin, cos, arcsin, pi
+from __future__ import absolute_import, division, print_function
 
-from nicos.core import Moveable, Param, Attach, oneof
+from numpy import arcsin, cos, pi, sin
+
+from nicos.core import Attach, Moveable, Param, oneof
 from nicos.devices.tas.cell import Cell
 
 D2R = pi / 180

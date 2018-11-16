@@ -24,14 +24,15 @@
 
 """Generate a measurement protocol from saved runs."""
 
+from __future__ import absolute_import, division, print_function
+
 from os import path
 
-from nicos.guisupport.qt import pyqtSlot, QPrintDialog, QPrinter, QFileDialog
-
-from nicos.utils import findResource
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QFileDialog, QPrintDialog, QPrinter, pyqtSlot
 from nicos.pycompat import to_utf8
+from nicos.utils import findResource
 
 
 class ProtocolPanel(Panel):

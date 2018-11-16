@@ -24,10 +24,12 @@
 
 """Class for Keithley 6221 constant current source."""
 
+from __future__ import absolute_import, division, print_function
+
 from IO import StringIO
 
-from nicos.core import CommunicationError, status, Moveable, HasLimits, \
-    SIMULATION
+from nicos.core import SIMULATION, CommunicationError, HasLimits, Moveable, \
+    status
 from nicos.devices.taco.core import TacoDevice
 
 

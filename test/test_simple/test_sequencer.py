@@ -24,14 +24,15 @@
 
 """NICOS sequence class test suite."""
 
+from __future__ import absolute_import, division, print_function
+
 import os
 import time
+from test.utils import raises
 
 from nicos.core import LimitError
-from nicos.devices.generic.sequence import SeqDev, SeqParam, SeqMethod, \
-    SeqCall, SeqSleep, SeqNOP
-
-from test.utils import raises
+from nicos.devices.generic.sequence import SeqCall, SeqDev, SeqMethod, \
+    SeqNOP, SeqParam, SeqSleep
 
 session_setup = 'sequencer'
 methods_called = set()

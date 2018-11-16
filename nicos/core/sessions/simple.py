@@ -24,16 +24,16 @@
 
 """Session classes for simple and noninteractive use."""
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
-import sys
 import signal
+import sys
 
 from nicos import session
-from nicos.utils import daemonize, setuser, writePidfile, removePidfile
-from nicos.core.sessions import Session
 from nicos.core import SLAVE
+from nicos.core.sessions import Session
 from nicos.pycompat import exec_
+from nicos.utils import daemonize, removePidfile, setuser, writePidfile
 
 
 class NoninteractiveSession(Session):

@@ -25,20 +25,22 @@
 
 """NICOS Sample related usercommands"""
 
+from __future__ import absolute_import, division, print_function
+
 import json
 from copy import deepcopy
 
-from numpy import sqrt, pi, sin, arcsin, radians, degrees
+from numpy import arcsin, degrees, pi, radians, sin, sqrt
 
 from nicos import session
-from nicos.core import UsageError, ConfigurationError
-from nicos.commands import usercommand, helparglist, parallel_safe
+from nicos.commands import helparglist, parallel_safe, usercommand
 from nicos.commands.analyze import CommandLineFitResult
-from nicos.utils import printTable
-from nicos.pycompat import urllib, iteritems
-from nicos.pycompat import xrange as range  # pylint: disable=W0622
-from nicos.utils.fitting import Fit, GaussFit
+from nicos.core import ConfigurationError, UsageError
 from nicos.devices.tas.spacegroups import can_reflect, get_spacegroup
+# pylint: disable=redefined-builtin
+from nicos.pycompat import iteritems, urllib
+from nicos.utils import printTable
+from nicos.utils.fitting import Fit, GaussFit
 
 __all__ = [
     'NewSample', 'SetSample', 'SelectSample', 'ClearSamples', 'ListSamples',

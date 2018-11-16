@@ -23,15 +23,17 @@
 #
 # *****************************************************************************
 
-import uuid
+from __future__ import absolute_import, division, print_function
+
 import socket
+import uuid
 
 import numpy as np
 
-from nicos.protocols.daemon.classic import ENQ, ACK, NAK, STX, LENGTH, \
-    READ_BUFSIZE, command2code, code2event, SERIALIZERS
-from nicos.protocols.daemon import DAEMON_EVENTS, ProtocolError, \
-    ClientTransport as BaseClientTransport
+from nicos.protocols.daemon import DAEMON_EVENTS, \
+    ClientTransport as BaseClientTransport, ProtocolError
+from nicos.protocols.daemon.classic import ACK, ENQ, LENGTH, NAK, \
+    READ_BUFSIZE, SERIALIZERS, STX, code2event, command2code
 from nicos.utils import closeSocket, tcpSocket
 
 

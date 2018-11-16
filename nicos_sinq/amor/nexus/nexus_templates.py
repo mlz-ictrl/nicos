@@ -1,8 +1,10 @@
-from nicos_ess.nexus import DeviceAttribute, NXDataset, DeviceDataset, NXLink
+from __future__ import absolute_import, division, print_function
+
+from nicos_ess.nexus import DeviceAttribute, DeviceDataset, NXDataset, NXLink
 from nicos_sinq.amor.nexus.elements import HistogramStream
-from nicos_sinq.amor.nexus.placeholder import SlitGeometryPlaceholder, \
-    UserEmailPlaceholder, ComponentDistancePlaceholder, \
-    TimeBinningPlaceholder, DistancesPlaceholder
+from nicos_sinq.amor.nexus.placeholder import ComponentDistancePlaceholder, \
+    DistancesPlaceholder, SlitGeometryPlaceholder, TimeBinningPlaceholder, \
+    UserEmailPlaceholder
 
 _dv = 9999.9
 

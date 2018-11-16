@@ -22,14 +22,16 @@
 #
 # *****************************************************************************
 
-from time import time as currenttime, strftime, localtime
+from __future__ import absolute_import, division, print_function
+
 from collections import OrderedDict
+from time import localtime, strftime, time as currenttime
 
 import numpy
 
-from nicos.core.params import Override
-from nicos.devices.datasinks.image import SingleFileSinkHandler, ImageSink
 from nicos.core import NicosError
+from nicos.core.params import Override
+from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.pycompat import iteritems, to_ascii_string
 
 try:

@@ -24,7 +24,9 @@
 
 """Special devices for Refsans slits."""
 
-from math import tan, radians
+from __future__ import absolute_import, division, print_function
+
+from math import radians, tan
 
 from nicos.core import Attach, AutoDevice, HasPrecision, Moveable, Override, \
     Param, Value, dictof, dictwith, floatrange, multiReset, multiWait, oneof, \
@@ -32,7 +34,6 @@ from nicos.core import Attach, AutoDevice, HasPrecision, Moveable, Override, \
 from nicos.core.errors import ProgrammingError
 from nicos.core.mixins import HasOffset
 from nicos.devices.abstract import CanReference
-
 from nicos.utils import lazy_property
 
 from nicos_mlz.refsans.devices.mixins import PseudoNOK

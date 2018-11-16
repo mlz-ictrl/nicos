@@ -27,18 +27,20 @@
 
 """Generic detector and channel classes for NICOS."""
 
+from __future__ import absolute_import, division, print_function
+
 import numpy
 
 from nicos import session
-from nicos.core import Attach, DeviceMixinBase, Measurable, Override, Param, \
-    Readable, UsageError, Value, multiStatus, status, listof, oneof, none_or, \
-    LIVE, INTERMEDIATE, anytype, tupleof, Moveable, SubscanMeasurable
+from nicos.core import INTERMEDIATE, LIVE, Attach, DeviceMixinBase, \
+    Measurable, Moveable, Override, Param, Readable, SubscanMeasurable, \
+    UsageError, Value, anytype, listof, multiStatus, none_or, oneof, status, \
+    tupleof
 from nicos.core.constants import FINAL
 from nicos.core.errors import ConfigurationError
+from nicos.core.scan import Scan
 from nicos.core.utils import multiWait
 from nicos.utils import uniq
-
-from nicos.core.scan import Scan
 
 
 class PassiveChannel(Measurable):

@@ -24,9 +24,11 @@
 
 """Attenuator class for PUMA."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import Attach, HasLimits, Moveable, NicosError, Readable, \
-    SIMULATION, status
+from nicos.core import SIMULATION, Attach, HasLimits, Moveable, NicosError, \
+    Readable, status
 
 
 class Attenuator(HasLimits, Moveable):

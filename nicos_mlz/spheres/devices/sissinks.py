@@ -26,19 +26,20 @@
 Sinks which handle the data provided from the SIS detector at SPHERES.
 '''
 
-import quickyaml
-from time import strftime, localtime
+from __future__ import absolute_import, division, print_function
+
+from time import localtime, strftime
 
 import numpy
-
-from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
+import quickyaml
 
 from nicos import session
-from nicos.core.data.dataset import ScanDataset, PointDataset
+from nicos.core.data.dataset import PointDataset, ScanDataset
 from nicos.core.params import Param
 from nicos.devices.datasinks import special
 from nicos.devices.datasinks.image import ImageSink
 
+from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
 
 timesteptime = 2e-5 #s = 20µs
 
@@ -55,9 +56,9 @@ class SisSinkHandlerBase(object):
 
         ret = []
 
-        histolen = len(data) / 2 / amount # = DETAMOUNT*amount*len(xvals)
+        histolen = len(data) // 2 // amount # = DETAMOUNT*amount*len(xvals)
 
-        offset = len(data) / 2 # timestep offset
+        offset = len(data) // 2 # timestep offset
 
         for i in range(len(xvals)):
             # first insert the xvalue
@@ -451,7 +452,7 @@ class PreviewSinkHandler(special.LiveViewSinkHandler, SisSinkHandlerBase):
         else:
             p = self.splitHisto(previewdata[0], previewdata[1], 4)
 
-            entryamount = int(len(p)/mergerows)
+            entryamount = len(p) // mergerows
 
             preview = numpy.zeros(entryamount, dtype=numpy.uint32)
             self.abscissa = numpy.zeros(entryamount, dtype=numpy.float32)

@@ -24,9 +24,10 @@
 
 """Browser GUI tool."""
 
-from nicos.guisupport.qt import QUrl, QDialog, QWebView
+from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QDialog, QUrl, QWebView
 
 if QWebView is None:
     raise ImportError('Qt webview component is not available')

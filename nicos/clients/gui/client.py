@@ -24,15 +24,16 @@
 
 """NICOS daemon client object for the GUI."""
 
+from __future__ import absolute_import, division, print_function
+
 from time import time as currenttime
 from weakref import ref
 
-from nicos.guisupport.qt import QObject, pyqtSignal
-
-from nicos.utils.loggers import NicosLogger
 from nicos.clients.base import NicosClient
+from nicos.guisupport.qt import QObject, pyqtSignal
 from nicos.protocols.cache import OP_TELLOLD, cache_load
 from nicos.protocols.daemon import DAEMON_EVENTS
+from nicos.utils.loggers import NicosLogger
 
 
 class NicosGuiClient(NicosClient, QObject):

@@ -24,6 +24,8 @@
 
 """The PGAA attentuator."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import Override, multiWait
 from nicos.core.errors import ConfigurationError, InvalidValueError
 from nicos.devices.generic.switcher import MultiSwitcher

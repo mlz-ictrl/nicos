@@ -25,8 +25,10 @@
 
 """Spin flipper classes."""
 
-from nicos.core import Moveable, Param, Override, oneof, tupleof, multiStop, \
-    nonemptylistof, Attach
+from __future__ import absolute_import, division, print_function
+
+from nicos.core import Attach, Moveable, Override, Param, multiStop, \
+    nonemptylistof, oneof, tupleof
 
 ON = 'on'
 OFF = 'off'

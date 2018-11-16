@@ -27,14 +27,15 @@
 positions.
 """
 
-from nicos.guisupport.qt import Qt, QSize, QEvent, QDialogButtonBox, QLabel, \
-    QPixmap, QTableWidget, QAbstractButton, QStyle, QStylePainter, \
-    QStyleOptionHeader, QLineEdit, QAbstractItemView, QVBoxLayout
+from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.panels import AuxiliaryWindow, Panel
 from nicos.clients.gui.panels.tabwidget import DetachedWindow
-from nicos.utils import findResource
+from nicos.guisupport.qt import QAbstractButton, QAbstractItemView, \
+    QDialogButtonBox, QEvent, QLabel, QLineEdit, QPixmap, QSize, QStyle, \
+    QStyleOptionHeader, QStylePainter, Qt, QTableWidget, QVBoxLayout
 from nicos.pycompat import from_maybe_utf8
+from nicos.utils import findResource
 
 
 class TableWidget(QTableWidget):

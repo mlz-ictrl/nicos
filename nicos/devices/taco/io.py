@@ -24,10 +24,12 @@
 
 """Implementation of TACO I/O devices."""
 
+from __future__ import absolute_import, division, print_function
+
 import IO
 
-from nicos.core import dictof, Readable, Moveable, HasLimits, Param, Override, \
-    NicosError, oneof, oneofdict, tupleof, Attach
+from nicos.core import Attach, HasLimits, Moveable, NicosError, Override, \
+    Param, Readable, dictof, oneof, oneofdict, tupleof
 from nicos.devices.taco.core import TacoDevice
 
 

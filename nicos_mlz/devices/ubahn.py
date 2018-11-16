@@ -25,13 +25,15 @@
 """Show next U-Bahn departures from Garching-Forschungszentrum (or any stop)
 in the MVG network."""
 
-from nicos.core import Readable, Override, Param, NicosError, status
+from __future__ import absolute_import, division, print_function
+
+from nicos.core import NicosError, Override, Param, Readable, status
 
 URL = ('http://www.mvg-live.de/ims/dfiStaticAnzeige.svc?'
        'haltestelle=%s')
 
 try:
-    from lxml.html import parse  # pylint: disable=F0401
+    from lxml.html import parse  # pylint: disable=import-error
 except ImportError:
     parse = None
 

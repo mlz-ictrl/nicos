@@ -24,10 +24,12 @@
 
 """Agilent wave generator classes."""
 
+from __future__ import absolute_import, division, print_function
+
 from time import sleep
 
-from nicos.core import status, oneof, HasLimits, Moveable, Readable, Param, \
-    Override, MASTER, Attach
+from nicos.core import MASTER, Attach, HasLimits, Moveable, Override, Param, \
+    Readable, oneof, status
 from nicos.devices.taco import AnalogOutput
 from nicos.utils import createThread
 

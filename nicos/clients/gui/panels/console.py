@@ -24,16 +24,17 @@
 
 """NICOS GUI virtual console panel component."""
 
+from __future__ import absolute_import, division, print_function
+
 import io
 import sys
 from os import path
 
-from nicos.guisupport.qt import pyqtSlot, Qt, QAbstractPrintDialog, QDialog, \
-    QFileDialog, QMenu, QMessageBox, QPrintDialog, QPrinter, QTextEdit
-
 from nicos.clients.gui.dialogs.traceback import TracebackDialog
 from nicos.clients.gui.panels import Panel, showPanel
 from nicos.clients.gui.utils import enumerateWithProgress, loadUi, modePrompt
+from nicos.guisupport.qt import QAbstractPrintDialog, QDialog, QFileDialog, \
+    QMenu, QMessageBox, QPrintDialog, QPrinter, Qt, QTextEdit, pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.utils import chunks, findResource
 

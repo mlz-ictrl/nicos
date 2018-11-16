@@ -24,8 +24,11 @@
 
 """ISEG power supply support."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core.params import Override
 from nicos.devices.taco.power import VoltageSupply as BaseVoltageSupply
+
 
 class VoltageSupply(BaseVoltageSupply):
     """ISEG hardware switches back to maximum ramp after switching off/on.

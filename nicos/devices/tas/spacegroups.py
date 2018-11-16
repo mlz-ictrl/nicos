@@ -28,8 +28,10 @@ Crystallographic space-group symmetry information.
 Extracted from PowderCell's PCWSPGR.DAT file.
 """
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import NicosError
-from nicos.pycompat import string_types, integer_types
+from nicos.pycompat import integer_types, string_types
 
 
 def get_spacegroup(sg):

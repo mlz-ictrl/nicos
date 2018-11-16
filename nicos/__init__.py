@@ -26,6 +26,8 @@
 The nicos package contains all standard NICOS commands and devices.
 """
 
+from __future__ import absolute_import
+
 import sys
 from logging import getLogger
 
@@ -33,7 +35,7 @@ from logging import getLogger
 from nicos.configmod import config
 
 # Determine our version(s).
-from nicos._vendor.gitversion import get_nicos_version, get_git_version
+from nicos._vendor.gitversion import get_git_version, get_nicos_version  # isort:skip
 __version__ = nicos_version = get_nicos_version()
 
 # Check for Python version 2.7+ or 3.3+.

@@ -24,14 +24,16 @@
 
 """PANDA S7 Interface for NICOS."""
 
+from __future__ import absolute_import, division, print_function
+
 from time import sleep, time as currenttime
 
 from nicos import session
-from nicos.core import status, oneof, Device, Param, Override, NicosError, \
-    ProgrammingError, MoveError, HasTimeout, Attach, \
-    HasOffset, ConfigurationError, PositionError, floatrange, waitForCompletion
-from nicos.devices.abstract import Motor as NicosMotor, Coder as NicosCoder, \
-    Axis as AbstractAxis, CanReference
+from nicos.core import Attach, ConfigurationError, Device, HasOffset, \
+    HasTimeout, MoveError, NicosError, Override, Param, PositionError, \
+    ProgrammingError, floatrange, oneof, status, waitForCompletion
+from nicos.devices.abstract import Axis as AbstractAxis, CanReference, \
+    Coder as NicosCoder, Motor as NicosMotor
 from nicos.devices.taco.core import TacoDevice
 from nicos.utils import createThread
 

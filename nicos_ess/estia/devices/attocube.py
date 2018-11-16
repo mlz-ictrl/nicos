@@ -27,13 +27,17 @@ This module contains the NICOS integration of the Attocube IDS 3010
 interferometer.
 """
 
-import jsonrpclib
+from __future__ import absolute_import, division, print_function
+
 from time import time as currenttime
+
+import jsonrpclib
+from numpy import cos, pi
+
 from nicos import session
-from nicos.core import Attach, Device, Readable, HasCommunication, Param, \
-    Override, status, Moveable, Measurable, SIMULATION
+from nicos.core import SIMULATION, Attach, Device, HasCommunication, \
+    Measurable, Moveable, Override, Param, Readable, status
 from nicos.core.params import ipv4, oneof
-from numpy import pi, cos
 
 
 class IDS3010Server(HasCommunication, Device):

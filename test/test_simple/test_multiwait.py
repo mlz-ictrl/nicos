@@ -26,13 +26,14 @@
 Test for multiwait
 """
 
-import pytest
-
-from nicos.core.utils import multiWait
-from nicos.core.errors import TimeoutError, MoveError, ComputationError
+from __future__ import absolute_import, division, print_function
 
 from test.utils import raises
 
+import pytest
+
+from nicos.core.errors import ComputationError, MoveError, TimeoutError
+from nicos.core.utils import multiWait
 
 session_setup = 'multiwait'
 

@@ -24,11 +24,13 @@
 
 """STRESS-SPEC specific data sink tests."""
 
+from __future__ import absolute_import, division, print_function
+
 from os import path
 
-from nicos.commands.scan import contscan, scan, timescan
-
 import pytest
+
+from nicos.commands.scan import contscan, scan, timescan
 
 try:
     import quickyaml

@@ -60,6 +60,8 @@ Unit    [ SEC | MINUTE | DEGREE | URAD | RAD | MM | PIXEL |
 Help                    show this help message
 """
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import Override, Param, Readable, floatrange, intrange, status
 from nicos.core.errors import CommunicationError
 from nicos.core.mixins import HasOffset

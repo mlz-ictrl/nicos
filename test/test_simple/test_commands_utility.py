@@ -24,15 +24,15 @@
 
 """NICOS commands tests."""
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
+
+from test.utils import approx, raises
 
 import numpy
 
+from nicos.commands.utility import RangeListByCount, RangeListByStep, \
+    RangeListGeneral, RangeListLog, floatrange
 from nicos.core import UsageError
-from nicos.commands.utility import RangeListByStep, RangeListByCount, \
-    RangeListLog, floatrange, RangeListGeneral
-
-from test.utils import raises, approx
 
 
 def test_rangelistbystep():

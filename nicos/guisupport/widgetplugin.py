@@ -24,7 +24,7 @@
 
 """Qt designer plugin for NICOS UI widgets."""
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import os
 
@@ -89,10 +89,13 @@ class NicosPluginBase(QPyDesignerCustomWidgetPlugin):
         return False
 
 
-from nicos.guisupport.widget import NicosWidget
+from nicos.guisupport.widget import NicosWidget  # isort:skip
 
 # imported for side effects
-from nicos.guisupport import display, led, button, typedvalue, containers, tas, trees  # pylint: disable=W0611
+# pylint: disable=unused-import
+from nicos.guisupport import (button, containers, display, led, # isort:skip
+    tas, trees, typedvalue)
+
 try:
     from nicos.guisupport import plots  # pylint: disable=W0611
 except (ImportError, RuntimeError):

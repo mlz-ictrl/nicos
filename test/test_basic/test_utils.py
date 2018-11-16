@@ -25,25 +25,24 @@
 
 """NICOS tests for some utility modules."""
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import os
+import socket
 import sys
 import time
-import socket
+from test.utils import raises
 
 import pytest
 
-from nicos.utils import lazy_property, Repeater, formatDuration, chunks, \
-    bitDescription, parseConnectionString, formatExtendedFrame, \
-    formatExtendedTraceback, formatExtendedStack, readonlylist, readonlydict, \
-    comparestrings, timedRetryOnExcept, tcpSocket, closeSocket, num_sort, \
-    checkSetupSpec, extractKeyAndIndex, squeeze, moveOutOfWay
-from nicos.utils.timer import Timer
-from nicos.pycompat import cPickle as pickle
 from nicos.core.errors import NicosError
-
-from test.utils import raises
+from nicos.pycompat import cPickle as pickle
+from nicos.utils import Repeater, bitDescription, checkSetupSpec, chunks, \
+    closeSocket, comparestrings, extractKeyAndIndex, formatDuration, \
+    formatExtendedFrame, formatExtendedStack, formatExtendedTraceback, \
+    lazy_property, moveOutOfWay, num_sort, parseConnectionString, \
+    readonlydict, readonlylist, squeeze, tcpSocket, timedRetryOnExcept
+from nicos.utils.timer import Timer
 
 
 def test_lazy_property():
@@ -90,7 +89,6 @@ def test_readonlylist_hashable():
     l = readonlylist([1, 2, 3])
     assert l == [1, 2, 3]
     dt = {l: 'testval'}
-    print(dt.keys())
     assert dt[readonlylist([1, 2, 3])] == 'testval'
 
 
@@ -125,7 +123,8 @@ def test_functions():
         {'user': 'user', 'password': None, 'host': 'ho-st', 'port': 1301}
     assert parseConnectionString('', 1302) is None
 
-    assert list(map(tuple, chunks(range(10), 3))) == \
+    # pylint: disable=range-builtin-not-iterating
+    assert [tuple(x) for x in chunks(range(10), 3)] == \
         [(0, 1, 2), (3, 4, 5), (6, 7, 8), (9,)]
 
 

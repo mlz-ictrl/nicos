@@ -24,12 +24,13 @@
 
 """Motor device via the CARESS device service."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import Attach, HasOffset, Override, POLLER, Param, status
+from nicos.core import POLLER, Attach, HasOffset, Override, Param, status
 from nicos.core.errors import NicosError
 from nicos.devices.abstract import Motor as AbstractMotor
 from nicos.devices.generic.sequence import SeqCall, SeqSleep, SequencerMixin
-
 from nicos.devices.vendor.caress.base import Driveable
 from nicos.devices.vendor.caress.core import CARESS, INIT_REINIT, OFF_LINE, \
     STOP_ACTION

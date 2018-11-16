@@ -26,12 +26,14 @@
 This module contains ESS specific Base classes for EPICS.
 """
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import Param, Override
+from nicos.core import Override, Param
 from nicos.core.errors import ConfigurationError
-from nicos.devices.epics import EpicsDevice, EpicsReadable, \
-    EpicsStringReadable, EpicsMoveable, EpicsAnalogMoveable, \
-    EpicsDigitalMoveable, EpicsWindowTimeoutDevice
+from nicos.devices.epics import EpicsAnalogMoveable, EpicsDevice, \
+    EpicsDigitalMoveable, EpicsMoveable, EpicsReadable, EpicsStringReadable, \
+    EpicsWindowTimeoutDevice
 
 
 class EpicsDeviceEss(EpicsDevice):

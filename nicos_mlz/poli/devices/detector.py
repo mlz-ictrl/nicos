@@ -24,10 +24,12 @@
 
 """POLI up/down measuring detector."""
 
+from __future__ import absolute_import, division, print_function
+
 from math import sqrt
 
-from nicos.core import Attach, Param, Value, Moveable, tupleof, anytype, \
-    ConfigurationError
+from nicos.core import Attach, ConfigurationError, Moveable, Param, Value, \
+    anytype, tupleof
 from nicos.devices.generic.detector import Detector as GenericDetector
 from nicos.devices.generic.sequence import MeasureSequencer, SeqCall, SeqWait
 

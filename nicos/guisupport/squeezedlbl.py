@@ -26,8 +26,9 @@
 A label that "squeezes" its text, inserting an ellipsis if necessary.
 """
 
-from nicos.guisupport.qt import Qt, QLabel
+from __future__ import absolute_import, division, print_function
 
+from nicos.guisupport.qt import QLabel, Qt
 from nicos.pycompat import text_type
 
 

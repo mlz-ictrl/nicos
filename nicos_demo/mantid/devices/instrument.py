@@ -22,8 +22,10 @@
 #
 # *****************************************************************************
 
-from nicos.devices.instrument import Instrument
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import Param
+from nicos.devices.instrument import Instrument
 
 
 class ViewableInstrument(Instrument):

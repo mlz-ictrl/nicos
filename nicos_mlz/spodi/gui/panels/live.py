@@ -23,10 +23,12 @@
 #
 # *****************************************************************************
 
-from nicos.clients.gui.panels.livegr import LiveDataPanel as BaseLiveDataPanel
-from nicos.guisupport.livewidget import LiveWidget1D
+from __future__ import absolute_import, division, print_function
 
 import numpy
+
+from nicos.clients.gui.panels.livegr import LiveDataPanel as BaseLiveDataPanel
+from nicos.guisupport.livewidget import LiveWidget1D
 
 
 class FullScreen1DWidget(LiveWidget1D):

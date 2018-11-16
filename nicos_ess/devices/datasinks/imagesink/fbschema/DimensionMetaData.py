@@ -4,6 +4,7 @@
 
 import flatbuffers
 
+
 class DimensionMetaData(object):
     __slots__ = ['_tab']
 

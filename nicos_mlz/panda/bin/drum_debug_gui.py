@@ -25,18 +25,22 @@
 
 """Q'n'D, hacked together GUI for debugging PANDA's Monochanger"""
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
+
+import sys
+from struct import pack, unpack
+
+from nicos.guisupport.qt import QApplication, QFormLayout, QFrame, \
+    QHBoxLayout, QLabel, QLineEdit, QMainWindow, QPushButton, QScrollArea, \
+    QVBoxLayout, QWidget
+
+# pylint: disable=import-error
+from pymodbus.client.sync import ModbusTcpClient
 
 # This is supposed to be a custom instrument specific stand-alone tool!
 
-import sys
 
-from struct import pack, unpack
-from pymodbus.client.sync import ModbusTcpClient  # pylint: disable=F0401
 
-from nicos.guisupport.qt import QWidget, QFrame, QLabel, QHBoxLayout, \
-    QVBoxLayout, QPushButton, QLineEdit, QMainWindow, QApplication, \
-    QFormLayout, QScrollArea
 
 
 def Stati(status):

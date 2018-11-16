@@ -24,16 +24,19 @@
 
 """Module to test PUMA specific modules."""
 
+from __future__ import absolute_import, division, print_function
+
 import os
+from test.utils import approx
+
+import pytest
 
 try:
     from string import maketrans  # pylint: disable=deprecated-module
 except ImportError:
     maketrans = str.maketrans
 
-from test.utils import approx
 
-import pytest
 
 session_setup = 'multidetector'
 
@@ -57,7 +60,7 @@ class TestMultiDetector(object):
         med = session.getDevice('med')
         assert not med._checkPositionReached(None, '')
         assert not med._checkPositionReached([], '')
-        assert not med._checkPositionReached(range(11), '')
+        assert not med._checkPositionReached(list(range(11)), '')
 
     def test_targets(self, session):
         """Test a set of targets."""
@@ -92,15 +95,15 @@ class TestMultiDetector(object):
         with open(os.path.join(dirname, 'med_test.txt')) as f:
             for s in f.readlines():
                 # convert stringified list to list avoiding use of 'eval'
-                v = map(float, s.translate(maketrans('][,', '   ')).split())
-                assert med.isAllowed(list(v))[0]
+                v = [float(x) for x in s.translate(maketrans('][,', '   ')).split()]
+                assert med.isAllowed(v)[0]
 
         # read bad targets from file
         with open(os.path.join(dirname, 'med_test_fail.txt')) as f:
             for s in f.readlines():
                 # convert stringified list to list avoiding use of 'eval'
-                v = map(float, s.translate(maketrans('][,', '   ')).split())
-                assert not med.isAllowed(list(v))[0]
+                v = [float(x) for x in s.translate(maketrans('][,', '   ')).split()]
+                assert not med.isAllowed(v)[0]
 
     def test_reference(self, session):
         """Test different reference parameters."""

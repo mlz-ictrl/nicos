@@ -24,10 +24,12 @@
 
 """Class for MIRA shutter readout/operation."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import usermethod, Param, ModeError, Readable, status
+from nicos.core import SIMULATION, SLAVE, ModeError, Param, Readable, status, \
+    usermethod
 from nicos.devices.tango import PyTangoDevice
-from nicos.core import SIMULATION, SLAVE
 
 
 class Shutter(PyTangoDevice, Readable):

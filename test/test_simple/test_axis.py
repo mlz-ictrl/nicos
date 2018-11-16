@@ -25,11 +25,12 @@
 
 """NICOS axis test suite."""
 
+from __future__ import absolute_import, division, print_function
+
+from test.utils import approx, raises
 from time import sleep
 
 from nicos.core import LimitError, status
-from test.utils import approx, raises
-
 
 session_setup = 'axis'
 

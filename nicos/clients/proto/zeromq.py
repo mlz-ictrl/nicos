@@ -22,10 +22,12 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import zmq
 
-from nicos.protocols.daemon import DAEMON_EVENTS, ProtocolError, \
-    ClientTransport as BaseClientTransport
+from nicos.protocols.daemon import DAEMON_EVENTS, \
+    ClientTransport as BaseClientTransport, ProtocolError
 from nicos.pycompat import from_utf8, to_utf8
 
 

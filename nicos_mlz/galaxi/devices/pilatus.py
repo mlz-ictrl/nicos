@@ -24,13 +24,15 @@
 # *****************************************************************************
 """GALAXI Pilatus detector"""
 
-from nicos.core import DataSinkHandler, waitForCompletion, status, usermethod
+from __future__ import absolute_import, division, print_function
+
+from nicos import session
+from nicos.core import DataSinkHandler, status, usermethod, waitForCompletion
 from nicos.core.constants import MASTER
-from nicos.core.device import Readable, Measurable
-from nicos.core.params import Param, dictof, subdir, Override, Attach
+from nicos.core.device import Measurable, Readable
+from nicos.core.params import Attach, Override, Param, dictof, subdir
 from nicos.devices.datasinks.image import FileSink
 from nicos.devices.tango import PyTangoDevice
-from nicos import session
 
 P_TIME = 't'
 P_FRAMES = 'f'

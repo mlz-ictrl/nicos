@@ -24,10 +24,20 @@
 
 """NICOS-TACO base classes."""
 
+from __future__ import absolute_import, division, print_function
+
 import sys
 
 import TACOStates
 from TACOClient import TACOError
+
+from nicos import session
+from nicos.core import SIMULATION, CommunicationError, HasCommunication, \
+    InvalidValueError, LimitError, NicosError, Override, Param, \
+    ProgrammingError, floatrange, status, tacodev
+from nicos.pycompat import reraise
+from nicos.utils import HardwareStub
+
 try:
     from TACOErrors import DevErr_ExecutionDenied, DevErr_RangeError, \
         DevErr_InvalidValue, DevErr_RuntimeError, DevErr_InternalError, \
@@ -46,12 +56,6 @@ try:
 except ImportError:
     DevErr_RPCTimedOut     = 2
 
-from nicos import session
-from nicos.core import status, tacodev, floatrange, Param, SIMULATION, \
-    Override, NicosError, ProgrammingError, CommunicationError, LimitError, \
-    InvalidValueError, HasCommunication
-from nicos.utils import HardwareStub
-from nicos.pycompat import reraise
 
 
 class TacoDevice(HasCommunication):

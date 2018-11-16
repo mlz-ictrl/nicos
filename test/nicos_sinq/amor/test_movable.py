@@ -24,14 +24,17 @@
 
 """Module to test movable devices at SINQ."""
 
+from __future__ import absolute_import, division, print_function
+
 import pytest
+
+from .utils import is_at_target, unit_value
 
 try:
     from nicos_ess.devices.epics.extensions import HasSwitchPv
 except ImportError:
     HasSwitchPv = None
 
-from .utils import unit_value, is_at_target
 
 session_setup = 'sinq_amor_movable'
 

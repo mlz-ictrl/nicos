@@ -25,7 +25,7 @@
 
 """3He cell specific commands for POLI."""
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 from os import path
 from time import strftime
@@ -33,9 +33,10 @@ from time import strftime
 from nicos import session
 from nicos.commands import usercommand
 from nicos.commands.basic import pause
-from nicos.commands.output import printinfo
 from nicos.commands.device import maw
 from nicos.commands.measure import count
+from nicos.commands.output import printinfo
+
 from nicos_mlz.poli.commands import pos
 
 __all__ = [

@@ -26,14 +26,16 @@
 
 """NICOS axis classes."""
 
+from __future__ import absolute_import, division, print_function
+
 from time import sleep
 
-from nicos.core import status, HasOffset, Override, ConfigurationError, \
-    NicosError, PositionError, MoveError, floatrange, Param, Attach, \
+from nicos.core import Attach, ConfigurationError, HasOffset, MoveError, \
+    NicosError, Override, Param, PositionError, floatrange, status, \
     waitForCompletion
 from nicos.core.constants import SIMULATION
-from nicos.devices.abstract import Axis as AbstractAxis, Motor, Coder, \
-    CanReference
+from nicos.devices.abstract import Axis as AbstractAxis, CanReference, Coder, \
+    Motor
 from nicos.utils import createThread
 
 

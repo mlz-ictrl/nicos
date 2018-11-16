@@ -27,18 +27,19 @@
 The supported types are defined in `nicos.core.params`.
 """
 
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 
-from nicos.guisupport.qt import pyqtSignal, Qt, QLineEdit, QIntValidator, \
-    QIcon, QTableWidget, QCheckBox, QWidget, QLabel, QComboBox, QHBoxLayout, \
-    QVBoxLayout, QPushButton, QSpinBox, QScrollArea, QFrame, QSizePolicy, \
-    QTableWidgetItem, QFormLayout
-
-from nicos.core import params, anytype
+from nicos.core import anytype, params
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCellType
-from nicos.protocols.cache import cache_dump, cache_load
-from nicos.guisupport.widget import NicosWidget, PropDef
+from nicos.guisupport.qt import QCheckBox, QComboBox, QFormLayout, QFrame, \
+    QHBoxLayout, QIcon, QIntValidator, QLabel, QLineEdit, QPushButton, \
+    QScrollArea, QSizePolicy, QSpinBox, Qt, QTableWidget, QTableWidgetItem, \
+    QVBoxLayout, QWidget, pyqtSignal
 from nicos.guisupport.utils import DoubleValidator
+from nicos.guisupport.widget import NicosWidget, PropDef
+from nicos.protocols.cache import cache_dump, cache_load
 from nicos.pycompat import iteritems, listvalues
 
 

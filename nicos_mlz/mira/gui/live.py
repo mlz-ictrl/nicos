@@ -24,20 +24,21 @@
 
 """NICOS live 2D data plot window/panel."""
 
+from __future__ import absolute_import, division, print_function
+
 import os
 from os import path
 
-from nicos.guisupport.qt import pyqtSlot, Qt, QByteArray, QStatusBar, \
-    QFileDialog, QPrinter, QListWidgetItem, QDoubleSpinBox, QPrintDialog, \
-    QDialog, QMenu, QToolBar, QSizePolicy, QLabel
-
-from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.panels import Panel
-from nicos.utils import findResource
+from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QByteArray, QDialog, QDoubleSpinBox, \
+    QFileDialog, QLabel, QListWidgetItem, QMenu, QPrintDialog, QPrinter, \
+    QSizePolicy, QStatusBar, Qt, QToolBar, pyqtSlot
 from nicos.pycompat import string_types
+from nicos.utils import findResource
 
 try:
-    from nicoscascadewidget import CascadeWidget, TmpImage  # pylint: disable=F0401
+    from nicoscascadewidget import CascadeWidget, TmpImage  # pylint: disable=import-error
 except ImportError:
     CascadeWidget = TmpImage = None
 

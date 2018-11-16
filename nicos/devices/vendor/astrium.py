@@ -24,9 +24,11 @@
 
 """Astrium selector device."""
 
-from math import pi, tan, radians
+from __future__ import absolute_import, division, print_function
 
-from nicos.core import Moveable, Param, Attach
+from math import pi, radians, tan
+
+from nicos.core import Attach, Moveable, Param
 
 
 class SelectorLambda(Moveable):

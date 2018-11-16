@@ -23,7 +23,9 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, HasCommunication
+from __future__ import absolute_import, division, print_function
+
+from nicos.core import HasCommunication, Param
 from nicos.core.params import host
 from nicos.utils import tcpSocketContext
 

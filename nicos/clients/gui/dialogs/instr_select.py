@@ -24,13 +24,14 @@
 
 """Dialog for selecting an instrument guiconfig."""
 
+from __future__ import absolute_import, division, print_function
+
 import os
 from os import path
 
-from nicos.guisupport.qt import QDialog, QIcon, QTreeWidgetItem
-
 from nicos import config
-from nicos.clients.gui.utils import loadUi, SettingGroup
+from nicos.clients.gui.utils import SettingGroup, loadUi
+from nicos.guisupport.qt import QDialog, QIcon, QTreeWidgetItem
 
 
 class InstrSelectDialog(QDialog):

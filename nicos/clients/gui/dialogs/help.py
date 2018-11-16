@@ -24,9 +24,10 @@
 
 """NICOS GUI help window."""
 
-from nicos.guisupport.qt import pyqtSlot, QUrl, QMainWindow, QWebView, QWebPage
+from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QMainWindow, QUrl, QWebPage, QWebView, pyqtSlot
 
 if QWebView is None:
     raise ImportError('Qt webview component is not available')

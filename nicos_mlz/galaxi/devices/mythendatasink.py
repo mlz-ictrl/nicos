@@ -24,12 +24,15 @@
 # *****************************************************************************
 
 """GALAXI file format saver"""
+from __future__ import absolute_import, division, print_function
+
+from time import localtime, strftime
+
 import numpy
 
-from time import strftime, localtime
 from nicos import session
 from nicos.core import Override
-from nicos.devices.datasinks.image import SingleFileSinkHandler, ImageSink
+from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 
 
 class MythenImageSinkHandler(SingleFileSinkHandler):

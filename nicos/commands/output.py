@@ -24,10 +24,11 @@
 
 """Module for output/logging user commands."""
 
-from nicos import session
-from nicos.commands import usercommand, hiddenusercommand, helparglist, \
-    parallel_safe
+from __future__ import absolute_import, division, print_function
 
+from nicos import session
+from nicos.commands import helparglist, hiddenusercommand, parallel_safe, \
+    usercommand
 
 __all__ = [
     'printdebug', 'printinfo', 'printwarning', 'printerror', 'printexception',

@@ -25,8 +25,10 @@
 
 """TOFTOF safety system readout."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import Readable, Moveable, Override, Attach, status, oneofdict
+from nicos.core import Attach, Moveable, Override, Readable, oneofdict, status
 from nicos.devices.tango import DigitalInput, DigitalOutput
 
 from nicos_mlz.toftof.devices.safety_desc import bit_description

@@ -26,18 +26,20 @@
 Class for magnets powered by unipolar power supplies.
 """
 
+from __future__ import absolute_import, division, print_function
+
 import math
 
 from scipy.optimize import fsolve
 
 from nicos import session
+from nicos.core import Attach, HasLimits, LimitError, Moveable, NicosError, \
+    status, usermethod
+from nicos.core.params import Override, Param, tupleof
+from nicos.core.utils import multiStop
+from nicos.devices.generic.sequence import BaseSequencer, SeqDev
 from nicos.utils import clamp
 from nicos.utils.fitting import Fit
-from nicos.core import Moveable, HasLimits, status, LimitError, usermethod, \
-    NicosError, Attach
-from nicos.core.params import Param, Override, tupleof
-from nicos.core.utils import multiStop
-from nicos.devices.generic.sequence import SeqDev, BaseSequencer
 
 
 class CalibratedMagnet(HasLimits, Moveable):

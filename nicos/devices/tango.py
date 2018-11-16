@@ -29,25 +29,27 @@ All NICOS - TANGO devices only support devices which fulfill the official
 MLZ TANGO interface for the respective device classes.
 """
 
+from __future__ import absolute_import, division, print_function
+
+import os
 import re
 import socket
-import os
 
-import PyTango
 import numpy
+import PyTango
 
 from nicos import session
-from nicos.core import Param, Override, status, Readable, Moveable, \
-    HasLimits, Device, tangodev, HasCommunication, oneofdict, oneof, \
-    dictof, intrange, nonemptylistof, listof, NicosError, CommunicationError, \
-    ConfigurationError, ProgrammingError, HardwareError, InvalidValueError, \
-    HasTimeout, HasPrecision, CanDisable, ArrayDesc, Value, floatrange
-from nicos.devices.abstract import Coder, Motor as NicosMotor, CanReference
-from nicos.utils import HardwareStub, tcpSocketContext, squeeze
-from nicos.core import SIMULATION
+from nicos.core import SIMULATION, ArrayDesc, CanDisable, CommunicationError, \
+    ConfigurationError, Device, HardwareError, HasCommunication, HasLimits, \
+    HasPrecision, HasTimeout, InvalidValueError, Moveable, NicosError, \
+    Override, Param, ProgrammingError, Readable, Value, dictof, floatrange, \
+    intrange, listof, nonemptylistof, oneof, oneofdict, status, tangodev
 from nicos.core.mixins import HasWindowTimeout
-from nicos.devices.generic.detector import ActiveChannel, CounterChannelMixin, \
-    ImageChannelMixin, TimerChannelMixin, PassiveChannel
+from nicos.devices.abstract import CanReference, Coder, Motor as NicosMotor
+from nicos.devices.generic.detector import ActiveChannel, \
+    CounterChannelMixin, ImageChannelMixin, PassiveChannel, \
+    TimerChannelMixin
+from nicos.utils import HardwareStub, squeeze, tcpSocketContext
 
 # Only export Nicos devices for 'from nicos.device.tango import *'
 __all__ = [

@@ -30,41 +30,47 @@ the NICOS runtime.
 Only for internal usage by functions and methods.
 """
 
-import os
-import sys
+from __future__ import absolute_import
+
 import copy
-import stat
 import inspect
 import logging
-from os import path
-from time import sleep, time as currenttime
+import os
+import stat
+import sys
 from itertools import chain
+from os import path
+from time import sleep
+from time import time as currenttime
 
 import numpy
 
-from nicos import config, nicos_version, get_custom_version
+from nicos.pycompat import builtins, exec_, getargspec, \
+    iteritems, itervalues, listvalues, string_types
+
+from nicos.utils import fixupScript, formatDocstring, formatScriptError, which
+from nicos.utils.loggers import ColoredConsoleHandler, \
+    NicosLogfileHandler, NicosLogger, initLoggers
+
+from nicos import config, get_custom_version, nicos_version
 from nicos.core.acquire import stop_acquire_thread
-from nicos.core.spm import SPMHandler
-from nicos.core.data import DataSink, DataManager
-from nicos.core.device import Device, DeviceAlias, DeviceMeta
-from nicos.core.errors import NicosError, UsageError, ModeError, \
-    ConfigurationError, AccessError, CacheError
-from nicos.core.utils import system_user
-from nicos.devices.notifiers import Notifier
-from nicos.utils import formatDocstring, formatScriptError, fixupScript, which
-from nicos.utils.loggers import initLoggers, NicosLogger, \
-    ColoredConsoleHandler, NicosLogfileHandler
-from nicos.devices.instrument import Instrument
-from nicos.devices.cacheclient import CacheClient, CacheLockError, \
-    SyncCacheClient
-from nicos.protocols.cache import FLAG_NO_STORE
-from nicos.core.sessions.utils import makeSessionId, sessionInfo, \
-    NicosNamespace, SimClock, AttributeRaiser, EXECUTIONMODES, MASTER, SLAVE, \
-    SIMULATION, MAINTENANCE, guessCorrectCommand
-from nicos.core.sessions.setups import readSetups
-from nicos.pycompat import builtins, exec_, string_types, itervalues, \
-    iteritems, listvalues, getargspec
 from nicos.core.constants import MAIN
+from nicos.core.data import DataManager, DataSink
+from nicos.core.device import Device, DeviceAlias, DeviceMeta
+from nicos.core.errors import AccessError, CacheError, \
+    ConfigurationError, ModeError, NicosError, UsageError
+from nicos.core.sessions.setups import readSetups
+from nicos.core.sessions.utils import EXECUTIONMODES, MAINTENANCE, \
+    MASTER, SIMULATION, SLAVE, AttributeRaiser, NicosNamespace, \
+    SimClock, guessCorrectCommand, makeSessionId, sessionInfo
+from nicos.core.spm import SPMHandler
+from nicos.core.utils import system_user
+from nicos.protocols.cache import FLAG_NO_STORE
+
+from nicos.devices.cacheclient import CacheClient, \
+    CacheLockError, SyncCacheClient
+from nicos.devices.instrument import Instrument
+from nicos.devices.notifiers import Notifier
 
 
 class Session(object):
@@ -1506,4 +1512,4 @@ class Session(object):
 
 
 # must be imported after class definitions due to module interdependencies
-from nicos.devices.experiment import Experiment
+from nicos.devices.experiment import Experiment  # isort:skip

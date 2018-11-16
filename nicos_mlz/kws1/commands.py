@@ -24,10 +24,12 @@
 
 """Custom commands for KWS(-1)."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import Moveable, multiWait, UsageError, DeviceAlias
 from nicos.commands import usercommand
-from nicos.commands.measure import count, SetEnvironment
+from nicos.commands.measure import SetEnvironment, count
+from nicos.core import DeviceAlias, Moveable, UsageError, multiWait
 from nicos.pycompat import listitems
 
 

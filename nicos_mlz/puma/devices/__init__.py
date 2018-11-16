@@ -24,5 +24,4 @@
 
 from .seccoll import PumaSecCollBlockChanger, PumaSecCollLift, \
     PumaSecCollPair, PumaSecondaryCollimator
-
 from .stackedaxis import StackedAxis

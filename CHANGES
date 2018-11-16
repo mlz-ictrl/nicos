@@ -79,6 +79,11 @@ Release 3.4.0
 
   - Added options description of some panels.
 
+* Development
+
+  - All includes are now sorted according to PEP8 rules (but facility
+    import follow nicos core imports).
+
 
 Release 3.3.0
 -------------

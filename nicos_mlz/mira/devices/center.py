@@ -24,6 +24,8 @@
 
 """Special feature for Leybold Center."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import status
 from nicos.devices.tango import Sensor
 

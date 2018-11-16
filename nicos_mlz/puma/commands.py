@@ -23,16 +23,15 @@
 # *****************************************************************************
 """PUMA specific command for the multi detector/analyzer setup."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-
 from nicos.commands import helparglist, usercommand
-
 from nicos.core.constants import BLOCK, FINAL, POINT, SCAN, SUBSCAN
 from nicos.core.data.dataset import PointDataset, ScanDataset
 from nicos.core.errors import NicosError
 from nicos.core.params import Value
 from nicos.core.scan import Scan, SkipPoint, StopScan
-
 from nicos.utils import lazy_property
 
 __all__ = (

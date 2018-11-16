@@ -22,14 +22,17 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import Param, Attach, dictof, status, usermethod, listof
-from nicos.core.device import Readable, Moveable
+from nicos.core import Attach, Param, dictof, listof, status, usermethod
+from nicos.core.device import Moveable, Readable
 from nicos.core.errors import ConfigurationError
-from nicos.devices.generic.sequence import BaseSequencer, SeqSleep, SeqDev, \
-    SeqCall
-from nicos.utils import printTable
+from nicos.devices.generic.sequence import BaseSequencer, SeqCall, SeqDev, \
+    SeqSleep
 from nicos.pycompat import number_types
+from nicos.utils import printTable
+
 from nicos_sinq.amor.devices.sps_switch import SpsSwitch
 
 

@@ -25,14 +25,15 @@
 """Class for Oxford magnet consisting of the Mercury iPS power supply
 """
 
+from __future__ import absolute_import, division, print_function
+
 # from PowerSupply import CurrentControl
 from IO import StringIO
 
-from nicos.core import Moveable, HasLimits, Param, Override, \
-    floatrange, status, oneof, CommunicationError, InvalidValueError, \
-    ConfigurationError
+from nicos.core import SIMULATION, Attach, CommunicationError, \
+    ConfigurationError, HasLimits, InvalidValueError, Moveable, Override, \
+    Param, floatrange, oneof, status
 from nicos.devices.taco.core import TacoDevice
-from nicos.core import Attach, SIMULATION
 
 
 class OxfordMercury(HasLimits, TacoDevice, Moveable):

@@ -24,12 +24,13 @@
 
 """Iseg high voltage power supply device classes."""
 
+from __future__ import absolute_import, division, print_function
+
 from IO import StringIO
 
-from nicos.core import status, intrange, Moveable, HasLimits, Param, Override, \
-     NicosError, CommunicationError, ConfigurationError
+from nicos.core import SIMULATION, CommunicationError, ConfigurationError, \
+    HasLimits, Moveable, NicosError, Override, Param, intrange, status
 from nicos.devices.taco.core import TacoDevice
-from nicos.core import SIMULATION
 
 
 class IsegHV(TacoDevice, HasLimits, Moveable):

@@ -22,9 +22,11 @@
 #
 # *****************************************************************************
 
-import pytest
+from __future__ import absolute_import, division, print_function
 
-from test.utils import startSubprocess, killSubprocess
+from test.utils import killSubprocess, startSubprocess
+
+import pytest
 
 
 @pytest.fixture(scope='module')

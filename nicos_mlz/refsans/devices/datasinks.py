@@ -23,13 +23,14 @@
 # *****************************************************************************
 """ConfigObj data sink classes for REFSANS."""
 
+from __future__ import absolute_import, division, print_function
+
 import time
 
 from nicos import session
 from nicos.core import DataSinkHandler, NicosError, Override, Param, listof
 from nicos.core.constants import POINT
 from nicos.devices.datasinks import FileSink
-
 from nicos.utils import AutoDefaultODict
 
 # if these labels apear as part of a key, they are "known"

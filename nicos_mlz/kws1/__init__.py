@@ -24,6 +24,8 @@
 
 """Helpers for the "instrument config" dialog."""
 
+from __future__ import absolute_import
+
 import os
 
 from nicos import config

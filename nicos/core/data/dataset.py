@@ -24,17 +24,18 @@
 
 """Dataset classes."""
 
-from math import sqrt
-from time import time as currenttime, localtime
-from uuid import uuid4
-from threading import Lock
+from __future__ import absolute_import, division, print_function
 
+from math import sqrt
+from threading import Lock
+from time import localtime, time as currenttime
+from uuid import uuid4
+
+from nicos.core.acquire import DevStatistics
 from nicos.core.constants import BLOCK, POINT, SCAN, SUBSCAN, UNKNOWN
 from nicos.core.errors import ProgrammingError
-from nicos.core.acquire import DevStatistics
 from nicos.pycompat import iteritems, number_types
 from nicos.utils import lazy_property
-
 
 SETTYPES = (POINT, SCAN, SUBSCAN, BLOCK)
 

@@ -24,15 +24,16 @@
 
 """Bersans file format saver, exclusively used at SANS1"""
 
+from __future__ import absolute_import, division, print_function
+
 import os
-from time import strftime, localtime, time as currenttime
+from time import localtime, strftime, time as currenttime
 
 from nicos import session
-from nicos.core import Readable, Override, Param, status
+from nicos.core import Override, Param, Readable, status
 from nicos.core.utils import DeviceValueDict
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.pycompat import iteritems, to_ascii_escaped, to_utf8
-
 
 # not a good solution: BerSANS keys are fixed, but devicenames
 # (and their existence) is instrument specific...

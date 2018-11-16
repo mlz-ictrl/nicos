@@ -24,11 +24,13 @@
 
 """STRESS-SPEC specific data sink tests."""
 
+from __future__ import absolute_import, division, print_function
+
 from os import path
 
-from nicos.commands.measure import count
-
 import pytest
+
+from nicos.commands.measure import count
 
 try:
     import configobj

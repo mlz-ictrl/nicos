@@ -24,40 +24,38 @@
 
 """NICOS commands tests."""
 
+from __future__ import absolute_import, division, print_function
+
 import os
 import shutil
 import tempfile
 import timeit
-
-from nicos.core import GUEST, UsageError, LimitError, NicosError, MoveError, \
-    AccessError, TimeoutError, status as devstatus
-from nicos.utils import ensureDirectory
-
-from nicos.commands import usercommandWrapper
-from nicos.commands.measure import count
-from nicos.commands.device import move, maw, drive, switch, wait, read, \
-    status, stop, reset, get, getall, setall, fix, release, adjust, \
-    version, history, info, limits, resetlimits, ListParams, ListMethods, \
-    ListDevices, unfix, reference, finish, waitfor, disable, enable
-from nicos.commands.device import set  # pylint: disable=W0622
-from nicos.commands.basic import help, dir  # pylint: disable=W0622
-from nicos.commands.basic import ListCommands, sleep, \
-    NewSetup, AddSetup, RemoveSetup, ListSetups, \
-    LogEntry, _LogAttach, SetErrorAbort, \
-    CreateDevice, RemoveDevice, CreateAllDevices, \
-    NewExperiment, FinishExperiment, AddUser, \
-    Remark, SetMode, ClearCache, UserInfo, run, \
-    notify, SetMailReceivers, SetDataReceivers, ListMailReceivers, \
-    ListDataReceivers
-from nicos.commands.sample import NewSample, SetSample, SelectSample, \
-    ClearSamples, ListSamples
-from nicos.commands.output import printdebug, printinfo, printwarning, \
-    printerror, printexception
-from nicos.core.sessions.utils import MASTER, SLAVE
-
 from test.utils import ErrorLogged, raises
 
 import pytest
+
+from nicos.commands import usercommandWrapper
+# pylint: disable=redefined-builtin
+from nicos.commands.basic import AddSetup, AddUser, ClearCache, \
+    CreateAllDevices, CreateDevice, FinishExperiment, ListCommands, \
+    ListDataReceivers, ListMailReceivers, ListSetups, LogEntry, \
+    NewExperiment, NewSetup, Remark, RemoveDevice, RemoveSetup, \
+    SetDataReceivers, SetErrorAbort, SetMailReceivers, SetMode, UserInfo, \
+    _LogAttach, dir, help, notify, run, sleep
+from nicos.commands.device import set  # pylint: disable=redefined-builtin
+from nicos.commands.device import ListDevices, ListMethods, ListParams, \
+    adjust, disable, drive, enable, finish, fix, get, getall, history, info, \
+    limits, maw, move, read, reference, release, reset, resetlimits, setall, \
+    status, stop, switch, unfix, version, wait, waitfor
+from nicos.commands.measure import count
+from nicos.commands.output import printdebug, printerror, printexception, \
+    printinfo, printwarning
+from nicos.commands.sample import ClearSamples, ListSamples, NewSample, \
+    SelectSample, SetSample
+from nicos.core import GUEST, AccessError, LimitError, MoveError, NicosError, \
+    TimeoutError, UsageError, status as devstatus
+from nicos.core.sessions.utils import MASTER, SLAVE
+from nicos.utils import ensureDirectory
 
 session_setup = 'test_commands'
 

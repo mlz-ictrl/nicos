@@ -22,7 +22,11 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import
+
+from nicos.devices.vendor.lima.andor2 import Andor2LimaCCD, \
+    Andor2TemperatureController
+from nicos.devices.vendor.lima.andor3 import Andor3LimaCCD, \
+    Andor3TemperatureController
 from nicos.devices.vendor.lima.generic import GenericLimaCCD, LimaCCDTimer
-from nicos.devices.vendor.lima.andor2 import Andor2LimaCCD, Andor2TemperatureController
-from nicos.devices.vendor.lima.andor3 import Andor3LimaCCD, Andor3TemperatureController
 from nicos.devices.vendor.lima.zwo import ZwoTC

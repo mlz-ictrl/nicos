@@ -4,6 +4,7 @@
 
 import flatbuffers
 
+
 class ArrayUInt(object):
     __slots__ = ['_tab']
 

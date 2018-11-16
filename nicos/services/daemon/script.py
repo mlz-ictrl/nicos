@@ -24,29 +24,32 @@
 
 """Thread that executes user scripts."""
 
+from __future__ import absolute_import, division, print_function
+
 import ast
 import sys
 import time
-import weakref
 import traceback
-from os import path
+import weakref
 from bdb import BdbQuit
+from os import path
+from threading import Event, Lock, current_thread, local as thread_local
 from uuid import uuid1
-from threading import Lock, Event, current_thread, local as thread_local
 
-from nicos import session, config
+from nicos import config, session
+from nicos.core import MASTER, SIMULATION, SLAVE
+from nicos.core.sessions.utils import NicosCompleter
+from nicos.core.utils import system_user
+from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_NOW, SIM_STATES, \
+    STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK, STATUS_RUNNING, \
+    STATUS_STOPPING
+from nicos.pycompat import exec_
+from nicos.services.daemon.debugger import Rpdb
+from nicos.services.daemon.pyctl import Controller, ControlStop
+from nicos.services.daemon.utils import ScriptQueue, formatScript, \
+    parseScript, splitBlocks, updateLinecache
 from nicos.utils import createThread, fixupScript
 from nicos.utils.loggers import INPUT
-from nicos.core.utils import system_user
-from nicos.services.daemon.utils import formatScript, \
-    updateLinecache, ScriptQueue, parseScript, splitBlocks
-from nicos.services.daemon.pyctl import Controller, ControlStop
-from nicos.services.daemon.debugger import Rpdb
-from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_NOW, STATUS_IDLE, \
-    STATUS_IDLEEXC, STATUS_RUNNING, STATUS_INBREAK, STATUS_STOPPING, SIM_STATES
-from nicos.core.sessions.utils import NicosCompleter
-from nicos.core import SIMULATION, SLAVE, MASTER
-from nicos.pycompat import exec_
 
 
 class RequestError(Exception):
@@ -90,7 +93,7 @@ class ScriptRequest(Request):
     can be done with the script: execute it, and update it.
     """
 
-    # pylint: disable=W0622
+    # pylint: disable=redefined-builtin
     def __init__(self, text, name=None, user=None, quiet=False,
                  settrace=None, handler=None, format=None):
         Request.__init__(self, user)

@@ -28,11 +28,13 @@ Skeleton module for directly using an attached RS232 device.
 Please remember to change the class names if copying from this file!
 """
 
+from __future__ import absolute_import, division, print_function
+
 import serial
 
 from nicos import session
-from nicos.core import Readable, Param, CommunicationError, NicosError
-from nicos.core import SIMULATION
+from nicos.core import SIMULATION, CommunicationError, NicosError, Param, \
+    Readable
 
 
 class RS232Example(Readable):

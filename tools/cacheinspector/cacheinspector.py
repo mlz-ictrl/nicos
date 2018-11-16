@@ -31,8 +31,8 @@ from nicos import session
 from nicos.utils.loggers import NicosLogger, ColoredConsoleHandler
 from nicos.core.sessions.simple import SingleDeviceSession
 
-from .mainwindow import MainWindow  # pylint: disable=F0401
-from .cacheclient import CICacheClient  # pylint: disable=E0611
+from .mainwindow import MainWindow  # pylint: disable=import-error
+from .cacheclient import CICacheClient  # pylint: disable=no-name-in-module
 
 
 class StatusBarHandler(Handler):

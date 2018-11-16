@@ -26,11 +26,12 @@
 Devices for the HGM09 gaussmeter.
 """
 
+from __future__ import absolute_import, division, print_function
+
 from IO import StringIO
 
-from nicos.core import Readable, Override, CommunicationError, NicosError, \
-    SIMULATION
-
+from nicos.core import SIMULATION, CommunicationError, NicosError, Override, \
+    Readable
 from nicos.devices.taco import TacoDevice
 
 

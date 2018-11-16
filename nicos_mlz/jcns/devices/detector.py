@@ -22,9 +22,11 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.core.device import Measurable
-from nicos.core.params import Value, Attach
+from nicos.core.params import Attach, Value
 from nicos.devices.tango import ImageChannel as BaseImageChannel
 
 

@@ -25,6 +25,8 @@
 
 """Toni-protocol device classes."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import ADMIN, Attach, CommunicationError, Moveable, Override, \
     Param, intrange, oneofdict, requires, status
 from nicos.devices.tango import StringIO

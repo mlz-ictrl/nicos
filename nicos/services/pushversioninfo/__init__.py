@@ -24,7 +24,21 @@
 
 """The NICOS version info pushing daemon."""
 
+from __future__ import absolute_import
+
 from datetime import datetime
+
+from nicos.pycompat import urllib
+
+from nicos.utils import getfqdn
+from nicos.utils.credentials.keystore import nicoskeystore
+
+from nicos import config, get_custom_version, nicos_version
+from nicos.core import Override, Param, none_or
+from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_load
+
+from nicos.devices.cacheclient import BaseCacheClient
+
 try:
     # recommended
     import simplejson as json
@@ -33,13 +47,6 @@ except ImportError:
     import json
 
 
-from nicos import nicos_version, get_custom_version, config
-from nicos.core import Param, Override, none_or
-from nicos.devices.cacheclient import BaseCacheClient
-from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_load
-from nicos.utils import getfqdn
-from nicos.utils.credentials.keystore import nicoskeystore
-from nicos.pycompat import urllib
 
 TIME_FMT = '%Y-%m-%d %H:%M:%S'
 

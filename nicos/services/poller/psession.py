@@ -24,10 +24,12 @@
 
 """Session class used with the NICOS poller."""
 
-from nicos.core import Device, Override, DeviceAlias, POLLER
+from __future__ import absolute_import, division, print_function
+
+from nicos.core import POLLER, Device, DeviceAlias, Override
 from nicos.core.sessions.simple import NoninteractiveSession
-from nicos.devices.generic.cache import CacheReader
 from nicos.devices.cacheclient import CacheClient
+from nicos.devices.generic.cache import CacheReader
 from nicos.protocols.cache import OP_TELL, cache_load
 
 

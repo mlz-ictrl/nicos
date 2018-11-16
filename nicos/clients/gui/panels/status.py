@@ -24,17 +24,18 @@
 
 """NICOS GUI script status panel component."""
 
+from __future__ import absolute_import, division, print_function
+
 from time import time
 
-from nicos.guisupport.qt import pyqtSlot, Qt, QTimer, QToolBar, QMenu, QIcon, \
-    QListWidgetItem, QActionGroup, QPixmap, QColor
-
-from nicos.utils import formatEndtime
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QActionGroup, QColor, QIcon, QListWidgetItem, \
+    QMenu, QPixmap, Qt, QTimer, QToolBar, pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
-from nicos.protocols.daemon import BREAK_NOW, BREAK_AFTER_STEP, \
-    BREAK_AFTER_LINE, SIM_STATES, STATUS_IDLEEXC
+from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \
+    BREAK_NOW, SIM_STATES, STATUS_IDLEEXC
+from nicos.utils import formatEndtime
 
 
 class ScriptQueue(object):
@@ -92,6 +93,7 @@ class ScriptQueue(object):
         self._view.clear()
         self._id2item.clear()
 
+    # pylint: disable=nonzero-method
     def __nonzero__(self):
         return bool(self._id2item)
 

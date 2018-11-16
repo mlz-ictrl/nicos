@@ -25,14 +25,15 @@
 
 """Support for "auxiliary" windows containing panels."""
 
-from nicos.guisupport.qt import Qt, QSplitter, QDockWidget, QTabWidget
+from __future__ import absolute_import, division, print_function
 
-from nicos.utils import importString
-from nicos.clients.gui.config import hsplit, vsplit, tabbed, panel, docked
+from nicos.clients.gui.config import docked, hsplit, panel, tabbed, vsplit
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.panels.splitter import VerticalSplitter, \
-    HorizontalSplitter
+from nicos.clients.gui.panels.splitter import HorizontalSplitter, \
+    VerticalSplitter
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
+from nicos.guisupport.qt import QDockWidget, QSplitter, Qt, QTabWidget
+from nicos.utils import importString
 
 
 def createPanel(item, window, menuwindow, topwindow, log):

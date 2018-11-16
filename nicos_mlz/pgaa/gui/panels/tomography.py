@@ -24,12 +24,13 @@
 
 """NICOS GUI PGAA panel components."""
 
+from __future__ import absolute_import, division, print_function
+
 from os import path
 
-from nicos.guisupport.qt import QColor, QMessageBox, QMenu
-
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, ScriptExecQuestion
+from nicos.clients.gui.utils import ScriptExecQuestion, loadUi
+from nicos.guisupport.qt import QColor, QMenu, QMessageBox
 
 my_uipath = path.dirname(__file__)
 

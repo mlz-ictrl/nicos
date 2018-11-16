@@ -24,7 +24,9 @@
 
 """POLI monochromator switcher."""
 
-from nicos.core import Param, NicosError
+from __future__ import absolute_import, division, print_function
+
+from nicos.core import NicosError, Param
 from nicos.devices.generic.switcher import \
     MultiSwitcher as GenericMultiSwitcher
 

@@ -22,18 +22,21 @@
 #
 # *****************************************************************************
 
-from numpy import sqrt, dot, pi, allclose
+from __future__ import absolute_import, division, print_function
+
+from test.utils import ErrorLogged, approx, raises
+
 import pytest
+from numpy import allclose, dot, pi, sqrt
 
-from nicos.core import UsageError, LimitError, ConfigurationError, MoveError, \
-    InvalidValueError, ComputationError, PositionError, status
-from nicos.commands.tas import qscan, qcscan, Q, calpos, pos, rp, \
-    acc_bragg, ho_spurions, alu, copper, rescal, _resmat_args, \
-    setalign, checkalign
 from nicos.commands.measure import count
+from nicos.commands.tas import Q, _resmat_args, acc_bragg, alu, calpos, \
+    checkalign, copper, ho_spurions, pos, qcscan, qscan, rescal, rp, \
+    setalign
+from nicos.core import ComputationError, ConfigurationError, \
+    InvalidValueError, LimitError, MoveError, PositionError, UsageError, \
+    status
 from nicos.devices.sxtal.goniometer.posutils import Xrot, Yrot, Zrot
-
-from test.utils import raises, approx, ErrorLogged
 
 session_setup = 'tas'
 

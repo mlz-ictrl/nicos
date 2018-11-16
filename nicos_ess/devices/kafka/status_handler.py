@@ -22,13 +22,16 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import json
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import POLLER, Readable, Param, status, Override, tupleof, \
-    MASTER
+from nicos.core import MASTER, POLLER, Override, Param, Readable, status, \
+    tupleof
 from nicos.pycompat import iteritems
+
 from nicos_ess.devices.kafka.consumer import KafkaSubscriber
 
 

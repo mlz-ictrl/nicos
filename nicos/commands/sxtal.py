@@ -26,10 +26,12 @@
 Commands for single-crystal diffraction.
 """
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import Scan, FINAL, NicosError
-from nicos.commands import usercommand, helparglist
+from nicos.commands import helparglist, usercommand
 from nicos.commands.scan import cscan
+from nicos.core import FINAL, NicosError, Scan
 from nicos.devices.generic.detector import DummyDetector
 from nicos.devices.sxtal.instrument import SXTalBase
 
@@ -100,7 +102,7 @@ def ScanOmega(hkl, preset=1., subscan=False):
     sps = instr.scansteps
     sw = width / sps
     op = instr._attached_omega.read(0)
-    cscan(instr._attached_omega, op, sw, sps / 2, instr,
+    cscan(instr._attached_omega, op, sw, sps // 2, instr,
           preset, subscan=subscan)
 
 
@@ -117,7 +119,7 @@ def ScanT2T(hkl, preset=1., subscan=False):
     op = instr._attached_omega.read(0)
     tp = instr._attached_ttheta.read(0)
     cscan([instr._attached_omega, instr._attached_ttheta], [op, tp],
-          [sw, 2 * sw], sps / 2, instr, preset, subscan=subscan)
+          [sw, 2 * sw], sps // 2, instr, preset, subscan=subscan)
 
 _scanfuncs = {
     'omega': ScanOmega,

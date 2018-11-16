@@ -24,14 +24,15 @@
 
 """Virtual chopper devices for testing."""
 
+from __future__ import absolute_import, division, print_function
+
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import ADMIN, Attach, NicosError, Override, Param, POLLER, \
-    SIMULATION, floatrange, requires, status
-
+from nicos.core import ADMIN, POLLER, SIMULATION, Attach, NicosError, \
+    Override, Param, floatrange, requires, status
 from nicos.devices.generic.virtual import VirtualMotor
-from nicos.pycompat import xrange as range  # pylint: disable=W0622
+from nicos.pycompat import xrange as range  # pylint: disable=redefined-builtin
 
 from nicos_mlz.toftof.devices import calculations as calc
 from nicos_mlz.toftof.devices.chopper.base import BaseChopperController

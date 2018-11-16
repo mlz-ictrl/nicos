@@ -28,11 +28,17 @@ Created on 30.05.2011
 @author: pedersen
 """
 
+from __future__ import absolute_import, division, print_function
+
 import sys
+
+from nicos.utils.proxy import NicosProxy
+
 sys.path.append('/home/pedersen/Eclispe_projects_git/singlecounter')
 sys.path.append('/usr/local/nonius_new/app')
-from goniometer.position import PositionFromStorage  # pylint: disable=F0401
-from nicos.utils.proxy import NicosProxy
+# pylint: disable=import-error
+from goniometer.position import PositionFromStorage  # isort:skip
+
 
 
 class ResiPositionProxy(NicosProxy):

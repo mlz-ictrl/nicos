@@ -24,10 +24,12 @@
 
 """Utilities for uploading files to a ftp-server."""
 
+from __future__ import absolute_import, division, print_function
+
 import time
-from os import path
 from ftplib import FTP
 from hashlib import md5
+from os import path
 
 from nicos.pycompat import to_utf8
 

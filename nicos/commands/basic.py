@@ -24,30 +24,30 @@
 
 """Module for basic user commands."""
 
+from __future__ import absolute_import, division, print_function
+
+import inspect
 import io
 import os
+import subprocess
 import sys
 import time
-import inspect
 import traceback
-import subprocess
-from os import path
 from collections import defaultdict
+from os import path
 
 from nicos import session
-from nicos.core import requires, Device, Readable, ModeError, NicosError, \
-    UsageError
-from nicos.core.spm import spmsyntax, AnyDev, Bool, Num, Multi, Oneof, \
-    String, SetupName, DeviceName
+from nicos.commands import helparglist, hiddenusercommand, parallel_safe, \
+    usercommand
+from nicos.core import ADMIN, MAINTENANCE, MASTER, SIMULATION, Device, \
+    ModeError, NicosError, Readable, UsageError, requires
 from nicos.core.sessions.utils import EXECUTIONMODES
-from nicos.utils import formatDuration, printTable, fixupScript, resolveClasses
-from nicos.utils.timer import Timer
+from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
+    SetupName, String, spmsyntax
 from nicos.devices.notifiers import Mailer
-from nicos.commands import usercommand, hiddenusercommand, helparglist, \
-    parallel_safe
-from nicos.core import SIMULATION, MASTER, MAINTENANCE, ADMIN
-from nicos.pycompat import builtins, exec_, iteritems, getargspec
-
+from nicos.pycompat import builtins, exec_, getargspec, iteritems
+from nicos.utils import fixupScript, formatDuration, printTable, resolveClasses
+from nicos.utils.timer import Timer
 
 CO_DIVISION = 0x2000
 
@@ -71,7 +71,7 @@ __all__ = [
 @usercommand
 @helparglist('[object]')
 @parallel_safe
-def help(obj=None):  # pylint: disable=W0622
+def help(obj=None):  # pylint: disable=redefined-builtin
     """Show help for a command, for a device or for any other object.
 
     For commands, the command help and usage will be shown.  For devices, the
@@ -95,7 +95,7 @@ builtins.__orig_dir = builtins.dir
 @hiddenusercommand
 @helparglist('[object]')
 @parallel_safe
-def dir(obj=None):  # pylint: disable=W0622
+def dir(obj=None):  # pylint: disable=redefined-builtin
     """Show all public attributes for the given object."""
     if obj is None:
         return sorted(sys._getframe(1).f_locals)

@@ -24,29 +24,33 @@
 #
 # *****************************************************************************
 
-import pytest
-import hashlib
-import tempfile
-import shutil
-from os import path
+from __future__ import absolute_import, division, print_function
 
-from nicos.core import GUEST, USER, ADMIN, User, NicosError
+import hashlib
+import shutil
+import tempfile
+from os import path
+from test.utils import raises
+
+import pytest
+
+from nicos.core import ADMIN, GUEST, USER, NicosError, User
+from nicos.pycompat import to_utf8
 from nicos.services.daemon.auth import AuthenticationError
-from nicos.services.daemon.auth.params import UserPassLevelAuthEntry, \
-    UserLevelAuthEntry
+from nicos.services.daemon.auth.list import Authenticator as ListAuthenticator
+from nicos.services.daemon.auth.params import UserLevelAuthEntry, \
+    UserPassLevelAuthEntry
+
 try:
     from nicos.services.daemon.auth.keyring import Authenticator as \
         KeyringAuthenticator
 except ImportError:
     KeyringAuthenticator = None
-from nicos.services.daemon.auth.list import Authenticator as ListAuthenticator
 try:
     from nicos.utils.credentials.keystore import nicoskeystore
 except ImportError:
     nicoskeystore = None
 
-from test.utils import raises
-from nicos.pycompat import to_utf8
 
 session_setup = 'empty'
 

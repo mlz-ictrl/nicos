@@ -22,9 +22,11 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import kafka
 
-from nicos.core import DeviceMixinBase, Param, listof, host
+from nicos.core import DeviceMixinBase, Param, host, listof
 
 
 class ProducesKafkaMessages(DeviceMixinBase):

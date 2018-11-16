@@ -24,9 +24,11 @@
 
 """NICOS tests for Simple Parameter Mode."""
 
-from nicos.core import SPMError
+from __future__ import absolute_import, division, print_function
 
 from test.utils import raises
+
+from nicos.core import SPMError
 
 session_setup = 'axis'
 session_spmode = True

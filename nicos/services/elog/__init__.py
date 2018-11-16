@@ -24,16 +24,21 @@
 
 """The NICOS electronic logbook."""
 
+from __future__ import absolute_import
+
 import sys
 from time import time as currenttime
 
-from nicos.core import Param, Override, oneof, CacheLockError
-from nicos.core.sessions.utils import sessionInfo
-from nicos.services.elog.handler import Handler
-from nicos.protocols.cache import OP_TELL, OP_ASK, OP_SUBSCRIBE, cache_load
-from nicos.devices.cacheclient import BaseCacheClient
-from nicos.utils import timedRetryOnExcept
 from nicos.pycompat import to_utf8
+
+from nicos.utils import timedRetryOnExcept
+
+from nicos.core import CacheLockError, Override, Param, oneof
+from nicos.core.sessions.utils import sessionInfo
+from nicos.protocols.cache import OP_ASK, OP_SUBSCRIBE, OP_TELL, cache_load
+from nicos.services.elog.handler import Handler
+
+from nicos.devices.cacheclient import BaseCacheClient
 
 
 class Logbook(BaseCacheClient):

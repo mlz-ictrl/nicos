@@ -23,9 +23,15 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from time import time as currenttime
 
 import numpy as np
+
+from nicos.core import DataSinkHandler, NicosError, Override, Param
+from nicos.devices.datasinks.image import ImageSink
+
 try:
     import PIL
     from PIL import Image
@@ -33,8 +39,6 @@ except ImportError as e:
     PIL = None
     _import_error = e
 
-from nicos.core import Param, Override, DataSinkHandler, NicosError
-from nicos.devices.datasinks.image import ImageSink
 
 
 def makeLUT(n, spec):

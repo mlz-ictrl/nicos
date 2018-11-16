@@ -22,10 +22,13 @@
 #
 # *****************************************************************************
 
-import kafka
+from __future__ import absolute_import, division, print_function
+
 from time import sleep
 
-from nicos.core import DeviceMixinBase, Param, listof, host
+import kafka
+
+from nicos.core import DeviceMixinBase, Param, host, listof
 from nicos.core.errors import NicosError
 from nicos.utils import createThread
 

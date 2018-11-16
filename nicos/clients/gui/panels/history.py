@@ -25,33 +25,34 @@
 
 """NICOS GUI history log window."""
 
+from __future__ import absolute_import, division, print_function
+
+import functools
+import operator
 import os
 import sys
-import operator
-import functools
-from time import time as currenttime, localtime, mktime
 from collections import OrderedDict
+from time import localtime, mktime, time as currenttime
 
-from nicos.guisupport.qt import pyqtSignal, pyqtSlot, Qt, QObject, QTimer, \
-    QDateTime, QByteArray, QDialog, QFont, QListWidgetItem, QToolBar, QMenu, \
-    QStatusBar, QSizePolicy, QMainWindow, QAction, QMessageBox, QFrame, \
-    QBrush, QColor, QCompleter, QStyledItemDelegate, QActionGroup, \
-    QComboBox, QWidgetAction, QApplication, QCheckBox, QHBoxLayout
-
-from nicos.core import Param, listof
-from nicos.utils import safeName, extractKeyAndIndex
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi, dialogFromUi, DlgUtils, \
-    enumerateWithProgress, CompatSettings
-from nicos.clients.gui.widgets.plotting import ViewPlot, GaussFitter, \
-    PseudoVoigtFitter, PearsonVIIFitter, TcFitter, ArbitraryFitter, \
-    CosineFitter, SigmoidFitter, LinearFitter, ExponentialFitter
+from nicos.clients.gui.utils import CompatSettings, DlgUtils, dialogFromUi, \
+    enumerateWithProgress, loadUi
+from nicos.clients.gui.widgets.plotting import ArbitraryFitter, CosineFitter, \
+    ExponentialFitter, GaussFitter, LinearFitter, PearsonVIIFitter, \
+    PseudoVoigtFitter, SigmoidFitter, TcFitter, ViewPlot
+from nicos.core import Param, listof
+from nicos.devices.cacheclient import CacheClient
+from nicos.guisupport.qt import QAction, QActionGroup, QApplication, QBrush, \
+    QByteArray, QCheckBox, QColor, QComboBox, QCompleter, QDateTime, QDialog, \
+    QFont, QFrame, QHBoxLayout, QListWidgetItem, QMainWindow, QMenu, \
+    QMessageBox, QObject, QSizePolicy, QStatusBar, QStyledItemDelegate, Qt, \
+    QTimer, QToolBar, QWidgetAction, pyqtSignal, pyqtSlot
 from nicos.guisupport.timeseries import TimeSeries
 from nicos.guisupport.trees import DeviceParamTree
 from nicos.protocols.cache import cache_load
-from nicos.devices.cacheclient import CacheClient
-from nicos.pycompat import cPickle as pickle, iteritems, integer_types, \
+from nicos.pycompat import cPickle as pickle, integer_types, iteritems, \
     number_types
+from nicos.utils import extractKeyAndIndex, safeName
 
 
 class NoEditDelegate(QStyledItemDelegate):
@@ -107,7 +108,7 @@ class View(QObject):
                     if not history:
                         from nicos.clients.gui.main import log
                         if log is None:
-                            from __main__ import log  # pylint: disable=E0611
+                            from __main__ import log  # pylint: disable=no-name-in-module
                         log.error('Error getting history for %s.', key)
                         QMessageBox.warning(widget, 'Error',
                                             'Could not get history for %s, '

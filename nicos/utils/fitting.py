@@ -23,8 +23,15 @@
 # *****************************************************************************
 """Utilities for function fitting."""
 
-from numpy import array, power, linspace, isscalar, asarray, inf, diagonal, \
-    pi, sqrt, exp, log, cos, piecewise, isinf, mean
+from __future__ import absolute_import, division, print_function
+
+from numpy import array, asarray, cos, diagonal, exp, inf, isinf, isscalar, \
+    linspace, log, mean, pi, piecewise, power, sqrt
+
+from nicos.core import ProgrammingError
+from nicos.pycompat import add_metaclass, getargspec
+from nicos.utils import FitterRegistry
+from nicos.utils.analyze import estimateFWHM
 
 try:
     from scipy.optimize.minpack import leastsq
@@ -32,10 +39,6 @@ try:
 except ImportError:
     leastsq = None
 
-from nicos.utils import FitterRegistry
-from nicos.utils.analyze import estimateFWHM
-from nicos.core import ProgrammingError
-from nicos.pycompat import getargspec, add_metaclass
 
 
 def _general_function(params, xdata, ydata, function):
@@ -106,6 +109,7 @@ class FitResult(object):
             self.chi2,
             ', '.join('%s = %8.3g' % v[:2] for v in zip(*self._pars)))
 
+    # pylint: disable=nonzero-method
     def __nonzero__(self):
         return not self._failed
 

@@ -24,8 +24,10 @@
 
 """SINQ specific NICOS package."""
 
-from os import path
+from __future__ import absolute_import
+
 import socket
+from os import path
 
 
 def determine_instrument(setup_package_path):

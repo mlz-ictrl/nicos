@@ -24,11 +24,13 @@
 
 """Sans1 spin flipper specific commands."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import UsageError
-from nicos.core.spm import spmsyntax, Num
-from nicos.commands import hiddenusercommand, helparglist
+from nicos.commands import helparglist, hiddenusercommand
 from nicos.commands.scan import scan
+from nicos.core import UsageError
+from nicos.core.spm import Num, spmsyntax
 
 
 @hiddenusercommand

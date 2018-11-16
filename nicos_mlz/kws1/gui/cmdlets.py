@@ -24,14 +24,16 @@
 
 """Commandlets for KWS(-1)."""
 
-from nicos.guisupport.qt import pyqtSlot, QSize, QDialog, QTableWidgetItem, \
-    QMessageBox, QToolButton, QIcon
+from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.cmdlets import Cmdlet, register
-from nicos.utils import findResource, formatDuration
+from nicos.guisupport.qt import QDialog, QIcon, QMessageBox, QSize, \
+    QTableWidgetItem, QToolButton, pyqtSlot
 from nicos.pycompat import srepr
-from nicos_mlz.kws1.gui.measdialogs import MeasDef, SampleDialog, DetsetDialog, \
-    DevicesDialog, RtConfigDialog, LOOPS
+from nicos.utils import findResource, formatDuration
+
+from nicos_mlz.kws1.gui.measdialogs import LOOPS, DetsetDialog, \
+    DevicesDialog, MeasDef, RtConfigDialog, SampleDialog
 
 
 class MeasureTable(Cmdlet):

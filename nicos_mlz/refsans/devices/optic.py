@@ -24,9 +24,10 @@
 # *****************************************************************************
 """REFSANS neutron guide system class."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import Moveable, Override, Param, floatrange, oneof
 from nicos.core.params import Attach
-
 from nicos.pycompat import number_types, string_types
 
 
@@ -111,13 +112,13 @@ class Optic(Moveable):
                       '48mrad')(target)
                 return True, ''
             except ValueError as e:
-                return False, e.message
+                return False, str(e)
         elif isinstance(target, number_types):
             try:
                 floatrange(0, 48)(target)
                 return True, ''
             except ValueError as e:
-                return False, e.message
+                return False, str(e)
         return False, 'Wrong value type'
 
     def doStart(self, target):

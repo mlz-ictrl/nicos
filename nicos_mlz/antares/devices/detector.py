@@ -22,7 +22,9 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, Attach, status, DeviceMixinBase
+from __future__ import absolute_import, division, print_function
+
+from nicos.core import Attach, DeviceMixinBase, Param, status
 from nicos.core.utils import waitForCompletion
 from nicos.devices.generic import Switcher
 from nicos.devices.vendor.lima import Andor2LimaCCD, Andor3LimaCCD

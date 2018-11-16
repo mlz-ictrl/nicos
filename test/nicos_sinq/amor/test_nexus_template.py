@@ -22,11 +22,13 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import pytest
 
-from nicos_ess.nexus.elements import NXGroup, NXDataset, NXAttribute, \
-    DeviceDataset, DeviceAttribute, EventStream
 from nicos_ess.nexus.converter import NexusTemplateConverter
+from nicos_ess.nexus.elements import DeviceAttribute, DeviceDataset, \
+    EventStream, NXAttribute, NXDataset, NXGroup
 
 session_setup = 'sinq_amor_system'
 
@@ -225,6 +227,7 @@ class TestNexusTemplate(object):
 
         return True, ''
 
+    #  pylint: disable=dict-keys-not-iterating
     @pytest.mark.parametrize("element", elements.keys())
     def test_element_provides_correct_json(self, element):
         """ Test that elements provide correct JSON structures

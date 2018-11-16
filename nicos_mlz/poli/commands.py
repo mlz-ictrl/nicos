@@ -24,7 +24,7 @@
 
 """Module with specific commands for POLI."""
 
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 import csv
 import math
@@ -34,19 +34,19 @@ from os import path
 from numpy import array
 
 from nicos import session
-from nicos.commands import usercommand, helparglist, parallel_safe
+from nicos.commands import helparglist, parallel_safe, usercommand
+from nicos.commands.analyze import center_of_mass, gauss
 from nicos.commands.basic import Remark
 from nicos.commands.device import maw, move, read
-from nicos.commands.scan import cscan, contscan, _infostr
-from nicos.commands.analyze import center_of_mass, gauss
+from nicos.commands.scan import _infostr, contscan, cscan
+from nicos.core import Measurable, Moveable, NicosError, Readable, UsageError
+from nicos.core.constants import SIMULATION
+from nicos.core.scan import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, Scan
+from nicos.core.spm import Bare, spmsyntax
 from nicos.devices.sxtal.instrument import SXTalBase
 from nicos.devices.sxtal.xtal.orientation import orient
-from nicos.core import Readable, Measurable, Moveable, UsageError, NicosError
-from nicos.core.constants import SIMULATION
-from nicos.core.spm import spmsyntax, Bare
-from nicos.core.scan import Scan, CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS
-from nicos.pycompat import number_types, iteritems, string_types
-from nicos.utils import printTable, createSubprocess
+from nicos.pycompat import iteritems, number_types, string_types
+from nicos.utils import createSubprocess, printTable
 
 __all__ = [
     'lubricate_liftingctr',

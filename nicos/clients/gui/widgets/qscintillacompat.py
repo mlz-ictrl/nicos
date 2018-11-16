@@ -24,8 +24,10 @@
 
 """NICOS GUI user editor qscintilla compat edit widget."""
 
-from nicos.guisupport.qt import Qt, QRect, QSize, QPlainTextEdit, QWidget, \
-    QTextCursor, QTextDocument, QColor, QTextEdit, QTextFormat, QPainter
+from __future__ import absolute_import, division, print_function
+
+from nicos.guisupport.qt import QColor, QPainter, QPlainTextEdit, QRect, \
+    QSize, Qt, QTextCursor, QTextDocument, QTextEdit, QTextFormat, QWidget
 
 
 class LineNumberArea(QWidget):
@@ -81,7 +83,7 @@ class QScintillaCompatible(QPlainTextEdit):
                                  self.fontMetrics().height(), Qt.AlignRight,
                                  number)
 
-            block = block.next()
+            block = block.next()  # pylint: disable=next-method-called
             top = bottom
             bottom = top + int(self.blockBoundingRect(block).height())
             blockNumber += 1

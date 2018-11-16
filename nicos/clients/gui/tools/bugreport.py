@@ -24,20 +24,22 @@
 
 """Simplified interface to report a ticket to the NICOS Redmine tracker."""
 
+from __future__ import absolute_import, division, print_function
+
 from cgi import escape
 
-from nicos.guisupport.qt import QUrl, QDesktopServices, QDialog, \
-    QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QCheckBox
+from nicos.clients.gui.utils import CompatSettings, DlgUtils, loadUi
+from nicos.guisupport.qt import QCheckBox, QDesktopServices, QDialog, \
+    QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QUrl
 
 try:
-    import redminelib  # pylint: disable=F0401
+    import redminelib  # pylint: disable=import-error
 except ImportError:
     try:
         import redmine as redminelib
     except ImportError:
         redminelib = None
 
-from nicos.clients.gui.utils import loadUi, CompatSettings, DlgUtils
 
 
 TRACKER_URL = 'https://forge.frm2.tum.de/redmine'

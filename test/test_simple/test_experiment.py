@@ -24,18 +24,19 @@
 
 """NICOS device class test suite."""
 
+from __future__ import absolute_import, division, print_function
+
 import os
 import sys
 import time
 from os import path
+from test.utils import runtime_root
 
 import pytest
 
-from nicos.utils import ensureDirectory, enableDirectory, readFileCounter
-from nicos.commands.scan import scan
 from nicos.commands.basic import run
-
-from test.utils import runtime_root
+from nicos.commands.scan import scan
+from nicos.utils import enableDirectory, ensureDirectory, readFileCounter
 
 year = time.strftime('%Y')
 

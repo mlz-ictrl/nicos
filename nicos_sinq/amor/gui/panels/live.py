@@ -23,9 +23,11 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.clients.gui.panels.livegr import LiveDataPanel as BaseLiveDataPanel
-from nicos.guisupport.livewidget import LiveWidget1D as BaseLiveWidget1D, \
-    IntegralLiveWidget as BaseIntegralLiveWidget, Plot
+from nicos.guisupport.livewidget import IntegralLiveWidget as BaseIntegralLiveWidget, \
+    LiveWidget1D as BaseLiveWidget1D, Plot
 
 
 class ProvidesTitleSetter(object):

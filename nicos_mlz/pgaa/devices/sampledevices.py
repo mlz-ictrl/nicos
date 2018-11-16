@@ -23,10 +23,12 @@
 # *****************************************************************************
 """Auxiliary classes for the sample changer."""
 
+from __future__ import absolute_import, division, print_function
+
 from IO import StringIO
 
-from nicos.core import Attach, Device, Moveable, Override, Readable, \
-    SIMULATION, status
+from nicos.core import SIMULATION, Attach, Device, Moveable, Override, \
+    Readable, status
 from nicos.devices.taco import NamedDigitalOutput, TacoDevice
 
 from nicos_mlz.panda.devices.mcc2 import MCC2Motor

@@ -24,15 +24,14 @@
 
 """Graphical interface to send an instrument downtime report."""
 
+from __future__ import absolute_import, division, print_function
+
 import collections
 
-from nicos.guisupport.qt import QDateTime, QDialog, QIcon, QDialogButtonBox
-
-from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.utils import DlgUtils, SettingGroup, loadUi
+from nicos.guisupport.qt import QDateTime, QDialog, QDialogButtonBox, QIcon
 from nicos.utils.emails import sendMail
 from nicos.utils.loggers import NicosLogger
-
-from nicos.clients.gui.utils import DlgUtils, SettingGroup
 
 
 class DownTimeTool(DlgUtils, QDialog):

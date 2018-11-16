@@ -24,11 +24,14 @@
 
 """NICOS generic devices test suite."""
 
+from __future__ import absolute_import, division, print_function
+
+from test.utils import raises
+
 import mock
 
-from nicos.core import LimitError, ConfigurationError, InvalidValueError, \
-    PositionError, NicosError, status
-from test.utils import raises
+from nicos.core import ConfigurationError, InvalidValueError, LimitError, \
+    NicosError, PositionError, status
 
 session_setup = 'multiswitch'
 

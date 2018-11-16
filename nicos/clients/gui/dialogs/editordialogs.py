@@ -24,10 +24,11 @@
 
 """NICOS GUI user editor utility classes."""
 
-from nicos.guisupport.qt import pyqtSlot, QDialog, QMessageBox, QStyle
+from __future__ import absolute_import, division, print_function
 
-from nicos.guisupport.utils import waitCursor
 from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QDialog, QMessageBox, QStyle, pyqtSlot
+from nicos.guisupport.utils import waitCursor
 
 
 class SearchDialog(QDialog):
