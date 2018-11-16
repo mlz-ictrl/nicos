@@ -5,15 +5,13 @@ group = 'optional'
 tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 
 devices = dict(
-    center3_sens1 = device('nicos.devices.taco.AnalogInput',
-        description = 'Center 3 Sensor 1',
-        tacodevice = 'antares/center3/sens1',
-        unit = 'mbar',
+    Ambient_pressure = device('nicos.devices.tango.Sensor',
+        description = 'Ambient pressure',
+        tangodevice = tango_base + 'pressure/ambient',
     ),
-    center3_sens2 = device('nicos.devices.taco.AnalogInput',
-        description = 'Center 3 Sensor 2',
-        tacodevice = 'antares/center3/sens2',
-        unit = 'mbar',
+    Flighttube_pressure = device('nicos.devices.tango.Sensor',
+        description = 'Pressure in flight tube',
+        tangodevice = tango_base + 'pressure/flighttube',
     ),
     He_pressure = device('nicos.devices.tango.AnalogInput',
         description = 'Pressure of He bottle',

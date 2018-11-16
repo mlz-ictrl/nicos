@@ -79,12 +79,12 @@ _shutterblock = Block('Shutters & Collimators', [
 
 _basicblock = Block('Info', [
     BlockRow(
-        Field(name='Ambient', dev='center3_sens1'),
-        Field(name='Flight Tube', dev='center3_sens2'),
+        Field(name='Ambient', dev='Ambient_pressure'),
+        Field(name='Flight Tube', dev='Flighttube_pressure'),
         Field(dev='UBahn', width=12, istext=True),
         ),
-    BlockRow(Field(plot='Pressure', name='Ambient', dev='center3_sens1', width=40, height=20, plotwindow=24*3600),
-        Field(plot='Pressure', name='Flight Tube', dev='center3_sens2')),
+    BlockRow(Field(plot='Pressure', name='Ambient', dev='Ambient_pressure', width=40, height=20, plotwindow=24*3600),
+        Field(plot='Pressure', name='Flight Tube', dev='Flighttube_pressure')),
     ],
     setups='basic',
 )

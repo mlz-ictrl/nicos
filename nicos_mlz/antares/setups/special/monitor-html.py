@@ -126,8 +126,8 @@ _shutterblock = Block('Shutters & Collimators', [
 
 _basicblock = Block('Info', [
     BlockRow(
-        Field(name='Ambient', dev='center3_sens1'),
-        Field(name='Flight Tube', dev='center3_sens2'),
+        Field(name='Ambient', dev='Ambient_pressure'),
+        Field(name='Flight Tube', dev='Flighttube_pressure'),
         Field(name='He bottle',dev='He_pressure'),
         ),
     ],
