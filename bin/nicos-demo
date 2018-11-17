@@ -188,7 +188,7 @@ except (NoOptionError, NoSectionError):
     connect = 'guest:guest@localhost'
 ui.add_argument('-u', dest='guiuser', action='store',
                 default=connect,
-                help='use given user:password@server for the daemon login')
+                help='use given user:password@server:port for the daemon login')
 
 debug = parser.add_argument_group('debug options')
 debug.add_argument('--profile', action='store', default=None,
