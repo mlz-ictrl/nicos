@@ -84,8 +84,8 @@ class Detector(MeasureSequencer):
                               default=0.5,
                               ),
         'rates': Param('The rates detected by the detector',
-                       settable=False, type=listof(float),
-                       userparam=False, category='status',
+                       settable=False, type=listof(float), userparam=False,
+                       category='status',
                        ),
     }
 
