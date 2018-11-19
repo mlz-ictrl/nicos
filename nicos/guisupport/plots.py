@@ -194,6 +194,7 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
         self.widget = InteractiveGRWidget(self)
         self.plot = Plot(viewport=(.1, .95, .25, .95))
         self.axes = NicosTimePlotAxes(self.plot._viewport)
+        self.axes.setWindow(0, 1, 0, 1)
         self.plot.addAxes(self.axes)
         self.plot.setLegend(True)
         self.plot.setLegendWidth(0.07)
