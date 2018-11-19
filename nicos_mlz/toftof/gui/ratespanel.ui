@@ -28,9 +28,6 @@
           <height>0</height>
          </size>
         </property>
-        <property name="format" stdset="0">
-         <string>%.1f</string>
-        </property>
         <property name="key" stdset="0">
          <string>det.rates[0][0]</string>
         </property>
@@ -39,6 +36,9 @@
         </property>
         <property name="unit" stdset="0">
          <string>cts/s</string>
+        </property>
+        <property name="format" stdset="0">
+         <string>%.1f</string>
         </property>
         <property name="text" stdset="0">
          <string>0</string>
@@ -53,9 +53,6 @@
           <height>0</height>
          </size>
         </property>
-        <property name="format" stdset="0">
-         <string>%.1f</string>
-        </property>
         <property name="key" stdset="0">
          <string>det.rates[1][0]</string>
         </property>
@@ -64,6 +61,9 @@
         </property>
         <property name="unit" stdset="0">
          <string>cts/s</string>
+        </property>
+        <property name="format" stdset="0">
+         <string>%.1f</string>
         </property>
         <property name="text" stdset="0">
          <string>0</string>
@@ -87,9 +87,6 @@
           <height>0</height>
          </size>
         </property>
-        <property name="format" stdset="0">
-         <string>%.1f</string>
-        </property>
         <property name="key" stdset="0">
          <string>det.rates[0][1]</string>
         </property>
@@ -98,6 +95,9 @@
         </property>
         <property name="unit" stdset="0">
          <string>cts/s</string>
+        </property>
+        <property name="format" stdset="0">
+         <string>%.1f</string>
         </property>
         <property name="text" stdset="0">
          <string>0</string>
@@ -112,9 +112,6 @@
           <height>0</height>
          </size>
         </property>
-        <property name="format" stdset="0">
-         <string>%.1f</string>
-        </property>
         <property name="key" stdset="0">
          <string>det.rates[1][1]</string>
         </property>
@@ -123,6 +120,9 @@
         </property>
         <property name="unit" stdset="0">
          <string>cts/s</string>
+        </property>
+        <property name="format" stdset="0">
+         <string>%.1f</string>
         </property>
         <property name="text" stdset="0">
          <string>0</string>
@@ -137,6 +137,9 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Minimum</enum>
+     </property>
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
@@ -147,6 +150,18 @@
    </item>
    <item row="2" column="0">
     <widget class="TrendPlot" name="trendPlot">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>60</width>
+       <height>30</height>
+      </size>
+     </property>
      <property name="devices" stdset="0">
       <stringlist>
        <string>det.rates[0][1]</string>
@@ -155,9 +170,6 @@
        <string>det.rates[1][0]</string>
       </stringlist>
      </property>
-     <property name="legend" stdset="0">
-      <bool>true</bool>
-     </property>
      <property name="names" stdset="0">
       <stringlist>
        <string>Monitor</string>
@@ -165,6 +177,9 @@
        <string>Monitor (inst.)</string>
        <string>Detector (inst.)</string>
       </stringlist>
+     </property>
+     <property name="legend" stdset="0">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -178,13 +193,8 @@
   </customwidget>
   <customwidget>
    <class>TrendPlot</class>
-   <extends>QwtPlot</extends>
+   <extends>QWidget</extends>
    <header>nicos.guisupport.plots</header>
-  </customwidget>
-  <customwidget>
-   <class>QwtPlot</class>
-   <extends>QFrame</extends>
-   <header>qwt_plot.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
