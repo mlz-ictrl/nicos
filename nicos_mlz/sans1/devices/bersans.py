@@ -214,12 +214,12 @@ Attenuation=
 Import=
 Merged=
 Operation=
+ChannelNumber=
+ChannelStart=
+ChannelWidth=
+ChannelCenter=
 
 %%Comment
-MesyDAQFile=%(Histfile)s
-ListModeFile=%(Listfile)s
-QMesyDAQ_setup_file=%(Setupfile)s
-LookUpTable=%(LookUpTable)s
 """
 
 #TISANEHEADER = """
@@ -240,9 +240,15 @@ LookUpTable=%(LookUpTable)s
 #
 #"""
 
-TISANEHEADER = """
+TISANEHEADER_old = """
 tisane_counts=%(tisane_det_pulses)s
 tisane_fc=%(tisane_fc)s
+tisane_fg_multi=%(tisane_fg_multi.strings)s
+
+"""
+
+TISANEHEADER = """
+tisane_counts=%(tisane_det_pulses)s
 tisane_fg_multi=%(tisane_fg_multi.strings)s
 
 """
