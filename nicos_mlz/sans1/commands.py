@@ -36,6 +36,9 @@ __all__ = ['tcount', 'freqmes']
 @usercommand
 def tcount(time_to_measure):
     """Set the switch, fg1 and fg2 for tisane counts."""
+
+    session.delay(5)
+
     out_1 = session.getDevice('out_1')
     #tisane_fg1_sample = session.getDevice('tisane_fg1_sample')
     #tisane_fg2_det = session.getDevice('tisane_fg2_det')
@@ -44,11 +47,20 @@ def tcount(time_to_measure):
     #maw(tisane_fg2_det, 'On')
 
     maw(out_1, 1)
+
+    session.delay(5)
+
     count(time_to_measure)
 
+    session.delay(5)
+
     maw(out_1, 0)
+
+    session.delay(5)
+
     #maw(tisane_fg1_sample, 'Off')
     #maw(tisane_fg2_det, 'Off')
+    print("measurement finished")
 
 
 @usercommand
@@ -58,10 +70,14 @@ def freqmes(assumed_freq, number_of_counts):
     Used or tisane measurements.
     """
     import numpy
-    import time
     valuedev = session.getDevice('tisane_fc')
     #erwartete frequenz setzen
     valuedev._dev.expectedFreq = assumed_freq
+
+    armdev = session.getDevice('tisane_fc_trigger')
+    #tisane_fc_trigger -> arm; parameter in fc schreiben
+    maw(armdev, 'arm')
+    session.delay(0.5)
 
     value_list = []
     wrong_list = []
@@ -77,7 +93,7 @@ def freqmes(assumed_freq, number_of_counts):
             value_list.append(value)
         else:
             wrong_list.append(value)
-        time.sleep(0.1)
+        session.delay(0.1)
     mean_value = numpy.mean(value_list)
     std_value = numpy.std(value_list)
     print("------------------------------------")
@@ -90,6 +106,8 @@ def freqmes(assumed_freq, number_of_counts):
     print("Mittelwert [rpm]            = %f" % (mean_value*60))
     print("Standardabweichung          = %f" % std_value)
     print("Verworfene Werte: %s" % wrong_list)
+
+    maw(armdev, 'idle')
 
 
 @usercommand
@@ -104,10 +122,12 @@ def setfg(freq_sample, amplitude_sample, offset_sample, shape_sample, freq_detec
     Ramp = 'ramp' (with symmetry of 50%)
     Triangle = 'tri'
     """
+
     multifg = session.getDevice('tisane_fg_multi')
 
     out_1 = session.getDevice('out_1')
     maw(out_1, 0)
+
 
     # template = ':SOUR1:FUNC:SHAP SQU;:SOUR1:FREQ 116.621036;:SOUR1:VOLT 2.4;:SOUR1:VOLT:UNIT ' \
     #            'VPP;:SOUR1:VOLT:OFFS 1.3;:SOUR1:FUNCtion:SQU:DCYCle 50;:SOUR1:AM:STATe ' \
