@@ -622,7 +622,7 @@ for i in range(10, 22 + 1):
 _ccrs = Column(*tuple(ccrs))
 
 cryos = []
-for cryo in 'cci3he1 cci3he2 cci3he3 ccidu1 ccidu2'.split():
+for cryo in ['cci3he1', 'cci3he2', 'cci3he3', 'cci3he10', 'ccidu1', 'ccidu2']:
     cryos.append(Block(cryo.title(), [
         BlockRow(
                  Field(name='Setpoint', key='t_%s/setpoint' % cryo,
