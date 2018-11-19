@@ -16,7 +16,7 @@ ARMING_STRING_FC = (
                 ':INP:COUP AC;'
                 ':INP:FILT 0;'
                 ':INP:IMP +1.00000000E+006;'
-                ':INP:LEV +2.20000000E+000;'
+                ':INP:LEV -1.80000000E+000;'
                 ':INP:LEV:REL +50;'
                 ':INP:LEV:AUTO 0;'
                 ':INP:NREJ 1;'
@@ -81,16 +81,16 @@ OFF_STRING = (
 
 devices = dict(
     tisane_fc = device('nicos.devices.tango.Sensor',
-#    tisane_fc = device('nicos_mlz.sans1.devices.funccount.FC53210A',
         description = "Frequency counter for chopper signal",
         tangodevice = "%s/fc1_frequency" % tango_base,
         unit = "Hz",
-        pollinterval = 15,
-        fmtstr = '%.1f',
+        pollinterval = 1,
+        fmtstr = '%.6f',
     ),
     tisane_fc_trigger = device('nicos_mlz.sans1.devices.io_trigger.Trigger',
         description = "String blasting device",
         tangodevice = "%s/fc1_io" % tango_base,
+        lowlevel = True,
         safesetting = 'idle',
         strings = {'idle' : '',
                    'arm' : ARMING_STRING_FC,
