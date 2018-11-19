@@ -141,7 +141,7 @@ class NicosTimePlotAxes(NicosPlotAxes):
         return self.getWindow()
 
 
-class TrendPlot(QWidget, NicosWidget):
+class TrendPlot(NicosWidget, QWidget):
 
     designer_description = 'A trend plotter for one or more devices'
     designer_icon = ':/plotter'
@@ -201,7 +201,7 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
         self.plot.offsetXLabel = -.2
         self.axes.setXtickCallback(self.xtickCallBack)
         self.widget.addPlot(self.plot)
-        layout = QHBoxLayout()
+        layout = QHBoxLayout(self)
         layout.addWidget(self.widget)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
