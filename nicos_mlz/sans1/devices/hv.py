@@ -31,19 +31,13 @@ from time import localtime, strftime, time as currenttime
 
 import PyTango
 
-from nicos.core import Attach, HasPrecision, HasTimeout, InvalidValueError, \
-    Moveable, Override, Param, PositionError, Readable, listof, status, \
-    tupleof
+from nicos.core import Attach, InvalidValueError, Moveable, Override, Param, \
+    PositionError, Readable, listof, status, tupleof
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, \
     SeqParam, SeqSleep
 from nicos.devices.generic.switcher import Switcher
-from nicos.devices.taco.power import VoltageSupply as TacoVoltageSupply
-from nicos.devices.tango import Motor as TangoMotor
+from nicos.devices.tango import Motor as TangoMotor, PowerSupply
 from nicos.pycompat import iteritems
-
-#from nicos.devices.taco.motor import Motor as TacoMotor
-#import TACOStates
-
 
 
 class VoltageSwitcher(Switcher):
@@ -82,7 +76,7 @@ class VoltageSwitcher(Switcher):
         return move_status
 
 
-class VoltageSupply(HasPrecision, HasTimeout, TacoVoltageSupply):
+class VoltageSupply(PowerSupply):
     """work around a bug either in the taco server or in the hv supply itself
 
     basically the idle status is returned at the end of the ramp,
@@ -110,27 +104,27 @@ class VoltageSupply(HasPrecision, HasTimeout, TacoVoltageSupply):
 
     def doStart(self, target):  # pylint: disable=W0221
         self._stopflag = False
-        TacoVoltageSupply.doStart(self, target)
+        PowerSupply.doStart(self, target)
 
     def doStatus(self, maxage=0):
         # suppress intermittent tripped messages
-        st = TacoVoltageSupply.doStatus(self, maxage)
-        if 'tripped' in st[1]:
-            if 'tripped' not in self._last_st[1]:
+        st = PowerSupply.doStatus(self, maxage)
+        if st[0] == status.ERROR and 'trip' in st[1]:
+            if 'trip' not in self._last_st[1]:
                 st = (status.WARN, st[1])
         self._last_st = st
         return st
 
     def doStop(self):
         self._stopflag = True
-        TacoVoltageSupply.doStop(self)
+        PowerSupply.doStop(self)
         self.wait()
-        TacoVoltageSupply.doStart(self, self.read(0))
+        PowerSupply.doStart(self, self.read(0))
         self.wait()
 
     def doReset(self):
         self._stopflag = False
-        self._taco_reset(self._dev)
+        self._dev.Reset()
 
     def doReadPrecision(self):
         if self.target == 1:
