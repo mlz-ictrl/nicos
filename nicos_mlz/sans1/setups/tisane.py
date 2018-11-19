@@ -3,8 +3,10 @@ description = 'tisane setup for SANS1'
 includes = ['collimation', 'detector', 'sample_table_1', 'det1',
             'pressure', 'selector_tower', 'memograph',
             'manual', 'guidehall', 'outerworld', 'pressure_filter',
-            'slit', 'nl4a']
-#            'frequency']
+            'slit', 'nl4a',
+            'flipbox', 'tisane_multifg',  # for setfg and tcount
+            # 'frequency',
+           ]
 
 excludes = ['sans1']
 
@@ -31,7 +33,7 @@ devices = dict(
         #disablevalues = ['off'],
     ),
     tisane_det_pulses = device('nicos.devices.generic.DeviceAlias',
-        description = 'tisane detector channel',
+        description = 'QMesyDAQ Counter2 (reference for tisane)',
         devclass = 'nicos.devices.generic.PassiveChannel',
         alias = 'det1_mon3',
     )
