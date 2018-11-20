@@ -30,9 +30,21 @@ from nicos import session
 from nicos.core import SIMULATION, Override
 from nicos.core.errors import ProgrammingError
 from nicos.utils import readFileCounter, updateFileCounter
-
 from nicos_ess.devices.datasinks.nexussink import NexusFileWriterSink, \
     NexusFileWriterSinkHandler
+
+
+def delete_keys_from_dict(dict_del, keys):
+    for key in keys:
+        if key in dict_del.keys():
+            del dict_del[key]
+
+    for val in dict_del.values():
+        if isinstance(val, dict):
+            delete_keys_from_dict(val, keys)
+        if isinstance(val, list):
+            for elem in val:
+                delete_keys_from_dict(elem, keys)
 
 
 class SinqNexusFileSinkHandler(NexusFileWriterSinkHandler):
@@ -76,6 +88,21 @@ class SinqNexusFileSinkHandler(NexusFileWriterSinkHandler):
         exp.updateSicsCounterFile(counter)
 
         session.experiment._setROParam('lastpoint', self.dataset.counter)
+
+    def _remove_optional_components(self):
+        # Remove from the NeXus structure the components not present
+        delete_keys = []
+        if 'analyser' not in session.loaded_setups:
+            delete_keys.append('analyzer:NXfilter')
+        if 'polariser' not in session.loaded_setups:
+            delete_keys.append('polarizer:NXpolariser')
+        if 'slit2' not in session.loaded_setups:
+            delete_keys.append('pre_sample_slit2:NXaperture')
+        if 'slit3' not in session.loaded_setups:
+            delete_keys.append('pre_sample_slit3:NXaperture')
+        if 'slit4' not in session.loaded_setups:
+            delete_keys.append('after_sample1:NXaperture')
+        delete_keys_from_dict(self.template, delete_keys)
 
     def prepare(self):
         self._assignCounter()

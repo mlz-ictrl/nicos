@@ -34,10 +34,22 @@ from nicos.core.data import DataSinkHandler
 from nicos.core.errors import NicosError
 from nicos.devices.datasinks import FileSink
 from nicos.pycompat import iteritems
-
 from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
 from nicos_ess.devices.kafka.status_handler import KafkaStatusHandler
 from nicos_ess.nexus.converter import NexusTemplateConverter
+
+
+def copy_nexus_template(template):
+    """ Implement a specialized version of copy. The dict structure is deep
+    copied while the placeholders are a shallow copy of the original """
+    if isinstance(template, dict):
+        return {k: copy_nexus_template(v) for k, v in
+                template.items()}
+    elif isinstance(template, list):
+        return [copy_nexus_template(elem) for elem in
+                template]
+    else:
+        return template
 
 
 class NexusFileWriterStatus(KafkaStatusHandler):
@@ -187,6 +199,9 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
         self._converter = NexusTemplateConverter()
         self.rewriting = False
 
+    def _remove_optional_components(self):
+        pass
+
     def prepare(self):
         # Assign the counter
         session.data.assignCounter(self.dataset)
@@ -201,6 +216,9 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
             session.data.updateMetainfo()
 
     def begin(self):
+        self.template = copy_nexus_template(self.sink.template)
+        self._remove_optional_components()
+
         # Get the start time
         if not self.dataset.started:
             self.dataset.started = time.time()
@@ -211,11 +229,11 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
         # Put the start time in the metainfo
         if ('dataset', 'starttime') not in metainfo:
             starttime_str = time.strftime('%Y-%m-%d %H:%M:%S',
-                                          time.localtime(starttime/1000))
+                                          time.localtime(starttime / 1000))
             metainfo[('dataset', 'starttime')] = (starttime_str, starttime_str,
                                                   '', 'general')
 
-        structure = self._converter.convert(self.sink.template,
+        structure = self._converter.convert(self.template,
                                             self.dataset.metainfo)
 
         command = {
@@ -352,7 +370,6 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
 
         if self.templatename != val:
             self._setROParam('templatename', val)
-        self.log.info('Finished setting template')
 
     @property
     def status_provider(self):
