@@ -66,8 +66,8 @@ devices = dict(
     KafkaForwarder=device(
         'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
         description="Configures commands to forward-epics-to-kafka",
-        cmdtopic="AMOR_forwarderCommands",
-        statustopic="AMOR_forwarderStatus",
+        cmdtopic=configdata('config.FORWARDER_CMD_TOPIC'),
+        statustopic=configdata('config.FORWARDER_STATUS_TOPIC'),
         instpvtopic="AMOR_metadata",
         instpvschema='f142',
         brokers=configdata('config.KAFKA_BROKERS'),
@@ -82,7 +82,7 @@ devices = dict(
         description="Sink for NeXus file writer (kafka-to-nexus)",
         brokers=configdata('config.KAFKA_BROKERS'),
         filenametemplate=['amor%(year)sn%(pointcounter)06d.hdf'],
-        cmdtopic="AMOR_filewriterCommands",
+        cmdtopic=configdata('config.FILEWRITER_CMD_TOPIC'),
         status_provider='NexusFileWriter',
         templatesmodule='nicos_sinq.amor.nexus.nexus_templates',
         templatename='amor_default',
@@ -103,7 +103,7 @@ devices = dict(
         'nicos_sinq.amor.devices.nexus_updater.AmorNexusUpdater',
         description="Status for nexus file writing",
         brokers=configdata('config.KAFKA_BROKERS'),
-        statustopic="AMOR_filewriterStatus",
+        statustopic=configdata('config.FILEWRITER_STATUS_TOPIC'),
         timeout=30,
         fileupdates={
             '/entry1/AMOR/control/monitor1': ('monitorval', 'i32', 'cts'),
