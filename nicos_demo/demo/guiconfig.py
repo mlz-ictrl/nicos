@@ -38,6 +38,10 @@ main_window = docked(
            dockpos='right',
            param_display={'tas': 'scanmode',
                           'Exp': ['lastpoint', 'lastscan']},
+           filters=[('All', ''),
+                    ('Default', 'T|UBahn'),
+                    ('Ooos', 'o$'),
+                   ],
           )
     ),
     ('Experiment Information and Setup',

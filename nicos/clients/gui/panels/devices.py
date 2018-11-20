@@ -35,8 +35,8 @@ from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
     WARN
 from nicos.guisupport.qt import QBrush, QByteArray, QColor, QComboBox, \
     QCursor, QDialog, QDialogButtonBox, QFont, QIcon, QInputDialog, QMenu, \
-    QMessageBox, QPalette, QPushButton, QRegExp, Qt, QTreeWidgetItem, \
-    QTreeWidgetItemIterator, pyqtSignal, pyqtSlot
+    QMessageBox, QPalette, QPushButton, QRegExp, QTreeWidgetItem, \
+    QTreeWidgetItemIterator, Qt, pyqtSignal, pyqtSlot
 from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
 from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
 from nicos.pycompat import iteritems, itervalues, srepr, string_types
@@ -158,6 +158,16 @@ class DevicesPanel(Panel):
              'Exp': ['lastpoint', 'lastscan']
          }
 
+    * ``filters`` (default []) -- a list of tuples containing the name of the
+      filter and the regular expression to filter out the devices.
+      example::
+
+          filters = [
+              ('All', ''),
+              ('Default', 'T|UBahn'),
+              ('Foo', 'bar$'),
+          ]
+
     """
 
     panelName = 'Devices'
@@ -231,6 +241,10 @@ class DevicesPanel(Panel):
         client.device.connect(self.on_client_device)
         client.setup.connect(self.on_client_setup)
         client.message.connect(self.on_client_message)
+
+        self.filters = options.get('filters', [])
+        for text, rx in self.filters:
+            self.filter.addItem('Filter: %s' % text, rx)
 
     def updateStatus(self, status, exception=False):
         self._current_status = status
@@ -580,8 +594,13 @@ class DevicesPanel(Panel):
             elif 'nicos.core.device.Readable' in self._devinfo[ldevname].classes:
                 self.devmenu_ro.popup(self.tree.viewport().mapToGlobal(point))
 
-    def on_filter_textChanged(self, text):
-        rx = QRegExp(text)
+    def on_filter_editTextChanged(self, text):
+        for i in range(self.filter.count()):
+            if text == self.filter.itemText(i):
+                rx = QRegExp(self.filter.itemData(i))
+                break
+        else:
+            rx = QRegExp(text)
         # QTreeWidgetItemIterator: an ugly Qt C++ API translated to an even
         # uglier Python API...
         it = QTreeWidgetItemIterator(self.tree,
