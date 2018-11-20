@@ -31,6 +31,8 @@ import sys
 from contextlib import contextmanager
 from time import time as currenttime
 
+from numpy import array_equal, ndarray
+
 from nicos import session
 from nicos.core import status
 from nicos.core.acquire import DevStatistics, acquire, read_environment, \
@@ -60,7 +62,7 @@ class Scan(object):
 
     def __init__(self, devices, startpositions, endpositions=None,
                  firstmoves=None, multistep=None, detlist=None, envlist=None,
-                 preset=None, scaninfo=None, subscan=False):
+                 preset=None, scaninfo=None, subscan=False, xindex=None):
         if session.mode == SLAVE:
             raise ModeError('cannot scan in slave mode')
         self.dataset = None
@@ -114,13 +116,36 @@ class Scan(object):
         self._preset = preset or {}
         self._scaninfo = scaninfo
         self._subscan = subscan
-        self._xindex = 0
+        self._guessPlotIndex(xindex)
         self._continuation = []
         self._cont_direction = None
         try:
             self._npoints = len(startpositions)  # can be zero if not known
         except TypeError:
             self._npoints = 0
+
+    def _guessPlotIndex(self, xindex):
+        if xindex is not None:
+            self._xindex=xindex
+            return
+        self._xindex = 0
+        if len(self._startpositions) == 1:
+            return
+        #iterate over devices
+        for j, dev in enumerate(self._devices):
+            valueInfo = dev.valueInfo()
+            subvals = len(valueInfo)
+            st0 = self._startpositions[0][j]
+            st1 = self._startpositions[1][j]
+            if isinstance(st0, ndarray):
+                if not array_equal(st0, st1):
+                    break
+            elif st0 != st1:
+                break
+            # if the device has multiple values, use the first as default.
+            self._xindex += subvals
+        session.log.debug('Using field %d as primary x-axis for plotting',
+                         self._xindex)
 
     @contextmanager
     def pointScope(self, num):
@@ -411,7 +436,7 @@ class SweepScan(Scan):
 
     def __init__(self, devices, startend, numpoints, firstmoves=None,
                  multistep=None, detlist=None, envlist=None, preset=None,
-                 scaninfo=None, subscan=False):
+                 scaninfo=None, subscan=False, xindex=None):
         self._etime = ElapsedTime('SweepScan')
         # for sweeps the dry run usually shows only one step; in the case of
         # multisteps we take the first N
@@ -435,7 +460,7 @@ class SweepScan(Scan):
         # sweep scans support a special "delay" preset
         self._delay = preset.pop('delay', 0)
         Scan.__init__(self, [], points, [], firstmoves, multistep,
-                      detlist, envlist, preset, scaninfo, subscan)
+                      detlist, envlist, preset, scaninfo, subscan, xindex)
         # XXX(dataapi): devices should be in devlist, not envlist
         if not devices:
             self._envlist.insert(0, self._etime)
@@ -498,13 +523,14 @@ class ContinuousScan(Scan):
     """
 
     def __init__(self, device, start, end, speed, timedelta=None,
-                 firstmoves=None, detlist=None, envlist=None, scaninfo=None):
+                 firstmoves=None, detlist=None, envlist=None, scaninfo=None,
+                 xindex=None):
 
         self._speed = device.speed / 5. if speed is None else speed
         self._timedelta = timedelta or 1.0
 
         Scan.__init__(self, [device], [[start]], [[end]], firstmoves, None,
-                      detlist, envlist, None, scaninfo)
+                      detlist, envlist, None, scaninfo, xindex)
 
     def shortDesc(self):
         if self.dataset and self.dataset.counter > 0:
@@ -652,14 +678,15 @@ class ManualScan(Scan):
     """
 
     def __init__(self, firstmoves=None, multistep=None, detlist=None,
-                 envlist=None, preset=None, scaninfo=None, subscan=False):
+                 envlist=None, preset=None, scaninfo=None, subscan=False,
+                 xindex=None):
         # put mentioned envlist devices first in envlist (usually the desired
         # X axis is among them)
         envlist = envlist or []
         envlist.extend(dev for dev in session.experiment.sampleenv
                        if dev not in envlist)
         Scan.__init__(self, [], Repeater([]), Repeater([]), firstmoves,
-                      None, detlist, envlist, preset, scaninfo, subscan)
+                      None, detlist, envlist, preset, scaninfo, subscan, xindex)
         self._envlist = envlist
         self._multistep = multistep
         if multistep:
@@ -720,6 +747,7 @@ class QScan(Scan):
         if not isinstance(inst, TAS):
             raise NicosError('cannot do a Q scan, your instrument device '
                              'is not a triple axis device')
+        self._xindex = 0
         Scan.__init__(self, [inst], positions, [],
                       firstmoves, multistep, detlist, envlist, preset,
                       scaninfo, subscan)
@@ -744,7 +772,7 @@ class QScan(Scan):
                                     self.dataset.counter)
         return 'Scan %s' % (','.join(comps) or 'Q')
 
-    def beginScan(self):
+    def _guessPlotIndex(self, _xindex):
         if len(self._startpositions) > 1:
             # determine first varying index as the plotting index
             for i in range(4):
@@ -752,4 +780,6 @@ class QScan(Scan):
                    self._startpositions[1][0][i]:
                     self._xindex = i
                     break
+
+    def beginScan(self):
         Scan.beginScan(self)
