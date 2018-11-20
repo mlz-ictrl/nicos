@@ -671,11 +671,11 @@ class floatrange(object):
         val = float(val)
         if self.to is not None:
             if not self.fr <= val <= self.to:
-                raise ValueError('value needs to fulfill %d <= x <= %d' %
+                raise ValueError('value needs to fulfill %f <= x <= %f' %
                                  (self.fr, self.to))
         else:
             if not self.fr <= val:
-                raise ValueError('value needs to fulfill %d <= x' % self.fr)
+                raise ValueError('value needs to fulfill %f <= x' % self.fr)
         return val
 
 
