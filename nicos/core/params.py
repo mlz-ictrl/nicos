@@ -560,7 +560,7 @@ class tupleof(object):
     def __call__(self, val=None):
         if val is None:
             return tuple(type() for type in self.types)
-        if not isinstance(val, (list, tuple)) or \
+        if not isinstance(val, (list, tuple, np.ndarray)) or \
            not len(self.types) == len(val):
             raise ValueError('value needs to be a %d-tuple' % len(self.types))
         return tuple(t(v) for (t, v) in zip(self.types, val))

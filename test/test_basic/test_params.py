@@ -28,6 +28,8 @@ from __future__ import absolute_import, division, print_function
 
 from test.utils import raises
 
+from numpy import array
+
 from nicos.core.errors import ConfigurationError, ProgrammingError
 from nicos.core.params import ArrayDesc, Attach, Param, Value, absolute_path, \
     anytype, dictof, dictwith, floatrange, host, intrange, ipv4, limits, \
@@ -157,6 +159,7 @@ def test_tupleof():
     assert tupleof(int, str, float)((1.0, 1.0, 1.0)) == (1, '1.0', 1.0)
     assert tupleof(int, str, float)() == (0, '', 0.0)
     assert tupleof(float, float)() == (0.0, 0.0)
+    assert tupleof(int, int, int, int)(array((1, 2, 3, 4))) == (1, 2, 3, 4)
     assert raises(ValueError, tupleof(int, str), ('a', 'b'))
     assert raises(ValueError, tupleof(int, str), ('a',))
     assert raises(ValueError, tupleof(int, str), 'x')
