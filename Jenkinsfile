@@ -133,10 +133,12 @@ def publishGerrit(name, value) {
 }
 
 
-def refreshVenv(venv='$NICOSVENV', checkupdates=false) {
-    sh("./ciscripts/run_venvupdate.sh $venv")
+def refreshVenv(info="" , venv='$NICOSVENV', checkupdates=false) {
+    sh("./ciscripts/run_venvupdate.sh $venv $info")
 
-    archiveArtifacts([allowEmptyArchive: true, artifacts: "pip-*.log"])
+    if (info?.trim()) {
+        archiveArtifacts([allowEmptyArchive: true, artifacts: "pip-*.log"])
+    }
     if (checkupdates) {
         // currently only core requirements are checked
         def pconf = [
@@ -190,12 +192,13 @@ def runIsort() {
     catch (all) {
         verifyresult.put('isort',-1)
     }
+    archiveArtifacts([allowEmptyArchive: true, artifacts: "isort_all.txt"])
     echo "isort: result=" + verifyresult['isort']
     publishGerrit('isort', verifyresult['isort'])
 
     if (verifyresult['isort'] < 0) {
         // currently only warn, but do not fail the job
-	echo("Imports are incorrectly sorted")
+        echo("Imports are incorrectly sorted")
         echo("To fix the isort errors run:")
         echo("git diff HEAD^ --name-only --diff-filter d '*.py' | xargs isort")
         // error('Failure in isort')
@@ -226,7 +229,7 @@ def runSetupcheck() {
 }
 
 def runTests(venv, pyver, withcov, checkpypiupdates=false) {
-    refreshVenv(venv, checkpypiupdates)
+    refreshVenv('pytest', venv, checkpypiupdates)
     writeFile file: 'setup.cfg', text: """
 [tool:pytest]
 addopts = --junit-xml=pytest-${pyver}.xml
