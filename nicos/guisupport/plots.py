@@ -35,10 +35,10 @@ from time import localtime, strftime, time as currenttime
 import gr
 import numpy.ma
 from gr.pygr import Plot, PlotAxes, PlotCurve
-from qtgr import InteractiveGRWidget
-from qtgr.events import GUIConnector, LegendEvent, MouseEvent
 
 from nicos.guisupport.qt import QHBoxLayout, QSize, QTimer, QWidget, pyqtSignal
+from nicos.guisupport.qtgr import GUIConnector, InteractiveGRWidget, \
+    LegendEvent, MouseEvent
 from nicos.guisupport.timeseries import TimeSeries, buildTickDistAndSubTicks
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.pycompat import zip_longest

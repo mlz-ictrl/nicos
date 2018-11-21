@@ -38,8 +38,6 @@ import numpy.ma
 from gr.pygr import CoordConverter, ErrorBar, Plot, PlotAxes, \
     RegionOfInterest, Text
 from gr.pygr.helper import ColorIndexGenerator
-from qtgr import InteractiveGRWidget
-from qtgr.events import GUIConnector, LegendEvent, MouseEvent, ROIEvent
 
 from nicos.clients.gui.dialogs.data import DataExportDialog
 from nicos.clients.gui.utils import DlgPresets, DlgUtils, dialogFromUi, loadUi
@@ -47,6 +45,8 @@ from nicos.guisupport.plots import DATEFMT, TIMEFMT, MaskedPlotCurve, \
     NicosPlotAxes, NicosTimePlotAxes
 from nicos.guisupport.qt import QAction, QApplication, QCursor, QDialog, \
     QFileDialog, QFont, QListWidgetItem, QMenu, QPoint, Qt
+from nicos.guisupport.qtgr import GUIConnector, InteractiveGRWidget, \
+    LegendEvent, MouseEvent, ROIEvent
 # pylint: disable=redefined-builtin
 from nicos.pycompat import exec_, string_types
 from nicos.utils import safeName

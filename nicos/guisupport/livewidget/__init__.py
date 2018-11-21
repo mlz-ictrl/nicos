@@ -32,14 +32,13 @@ import math
 import gr
 import numpy
 import numpy.ma
-from gr.pygr import Coords2D
-from gr.pygr import Plot as OrigPlot
-from gr.pygr import PlotAxes, Point, RegionOfInterest
+from gr.pygr import Coords2D, Plot as OrigPlot, PlotAxes, Point, \
+    RegionOfInterest
 from gr.pygr.base import GRMeta, GRVisibility
-from qtgr import InteractiveGRWidget
 
 from nicos.guisupport.plots import MaskedPlotCurve
 from nicos.guisupport.qt import QHBoxLayout, QWidget, pyqtSignal
+from nicos.guisupport.qtgr import InteractiveGRWidget
 
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        '<u1', '<i1', '>u1', '>i1', '<f8', '<f4', '>f8', '>f4',
