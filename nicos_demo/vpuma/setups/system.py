@@ -38,8 +38,6 @@ devices = dict(
             enableFileMode = 0o664,
             disableDirMode = 0o700,
             disableFileMode = 0o600,
-            owner = 'nicd',
-            group = 'puma'
         ),
         sendmail = True,
         zipdata = True,

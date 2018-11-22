@@ -7,4 +7,8 @@ devices = dict(
         description = 'analyser alias device',
         devclass = 'nicos.devices.tas.Monochromator',
     ),
+    theta = device('nicos.devices.generic.DeviceAlias',
+        description = 'analyser angle',
+        devclass = 'nicos.core.Readable',
+    ),
 )

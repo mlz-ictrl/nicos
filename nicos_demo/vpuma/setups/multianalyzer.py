@@ -2,6 +2,8 @@ description = 'PUMA multianalyzer device'
 
 group = 'lowlevel'
 
+includes = ['aliases']
+
 level = False
 
 devices = dict(
@@ -50,3 +52,7 @@ for i in range(1, 12):
         precision = 0.01,
         lowlevel = level,
     )
+
+alias_config = {
+    'theta': {'ra6': 200},
+}

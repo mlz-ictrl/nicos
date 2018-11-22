@@ -9,6 +9,6 @@ devices = dict(
     Poller = device('nicos.services.poller.Poller',
         alwayspoll = [],
         neverpoll = ['detector'],
-        blacklist = ['adet', 'image', 'events', 'det'],
+        blacklist = ['image', 'events', 'det'],
     ),
 )
