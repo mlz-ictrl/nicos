@@ -28,11 +28,13 @@ from __future__ import absolute_import, division, print_function
 from nicos.core import Override, Param, pvname, status
 from nicos.core.errors import ConfigurationError
 from nicos.devices.abstract import CanReference, HasOffset, Motor
+from nicos.core.mixins import CanDisable
 
 from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 
 
-class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
+class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
+                 Motor):
     """
     This device exposes some of the functionality provided by the EPICS motor
     record. The PV names for the fields of the record (readback, speed, etc.)
@@ -91,7 +93,8 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
         'lowlimit': 'LLM',
         'softlimit': 'LVIO',
         'lowlimitswitch': 'LLS',
-        'highlimitswitch': 'HLS'
+        'highlimitswitch': 'HLS',
+        'enable': 'CNEN',
     }
 
     def _get_pv_parameters(self):
@@ -266,3 +269,7 @@ class EpicsMotor(CanReference, HasOffset, EpicsAnalogMoveableEss, Motor):
                     'Error bit is not set, can not reset error state.')
             else:
                 self._put_pv('reseterrorpv', 1)
+
+    def _enable(self, on):
+        what = 1 if on else 0
+        self._put_pv('enable', what, False)
