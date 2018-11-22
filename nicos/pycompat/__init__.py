@@ -31,7 +31,7 @@ import threading
 
 from nicos._vendor import six
 # For consistency import everything from "six" here.
-from nicos._vendor.six import BytesIO, StringIO, add_metaclass, \
+from nicos._vendor.six import BytesIO, PY2, StringIO, add_metaclass, \
     binary_type, exec_, integer_types, iteritems, iterkeys, \
     itervalues, reraise, string_types, text_type
 # Pylint cannot handle submodules created by "six".  Import them here to
@@ -60,7 +60,7 @@ except ImportError:
     from base64 import encodestring as b64encode
     from base64 import decodestring as b64decode
 
-if six.PY2:
+if PY2:
     getargspec = inspect.getargspec
 else:
     def getargspec(func):
@@ -68,7 +68,7 @@ else:
 
 # missing dict helpers to get a list of items/values
 
-if six.PY2:
+if PY2:
     listitems = dict.items
     listvalues = dict.values
 else:
@@ -83,7 +83,7 @@ number_types = integer_types + (float,)
 
 # missing str/bytes helpers
 
-if six.PY2:
+if PY2:
     # pylint: disable=unicode-builtin
     # use standard file and buffer for Py2
     File = file

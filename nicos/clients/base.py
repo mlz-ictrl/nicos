@@ -36,7 +36,7 @@ from nicos.clients.proto.classic import ClientTransport
 from nicos.protocols.daemon import ACTIVE_COMMANDS, ProtocolError
 from nicos.protocols.daemon.classic import COMPATIBLE_PROTO_VERSIONS, \
     PROTO_VERSION
-from nicos.pycompat import b64decode, b64encode, to_utf8
+from nicos.pycompat import PY2, b64decode, b64encode, to_utf8
 from nicos.utils import createThread
 
 try:
@@ -152,6 +152,8 @@ class NicosClient(object):
                 encodedkey = banner.get('rsakey', None)
                 if encodedkey is None:
                     raise ProtocolError('rsa requested, but rsakey missing in banner')
+                if not PY2 and not isinstance(encodedkey, bytes):
+                    encodedkey = bytes(encodedkey, 'utf-8')
                 pubkey = rsa.PublicKey.load_pkcs1(b64decode(encodedkey))
                 password = rsa.encrypt(to_utf8(password), pubkey)
                 password = 'RSA:' + b64encode(password).decode()
