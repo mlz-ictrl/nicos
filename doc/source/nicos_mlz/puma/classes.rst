@@ -71,6 +71,9 @@
 .. automodule:: nicos_mlz.puma.devices.collimator
 .. autoclass:: Collimator()
 
+.. automodule:: nicos_mlz.puma.devices.deflector
+.. autoclass:: Deflector()
+
 Data sinks
 ----------
 .. automodule:: nicos_mlz.puma.devices.datasinks

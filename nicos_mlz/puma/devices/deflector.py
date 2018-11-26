@@ -22,8 +22,27 @@
 #
 # *****************************************************************************
 
-from .collimator import Collimator
-from .deflector import Deflector
-from .seccoll import PumaSecCollBlockChanger, PumaSecCollLift, \
-    PumaSecCollPair, PumaSecondaryCollimator
-from .stackedaxis import StackedAxis
+"""Deflector device."""
+
+from nicos.core.params import Override, Param, floatrange
+from nicos.devices.generic import Axis
+
+
+class Deflector(Axis):
+    """Special axis to store additional parameters for the deflectors."""
+
+    parameters = {
+        'reflectivity': Param('Reflectivity of the material',
+                              type=floatrange(0, 1), settable=False,
+                              userparam=False, default=0.9),
+        'length': Param('Length of the deflector blades',
+                        type=floatrange(0, None), settable=False,
+                        userparam=False, default=4., unit='mm'),
+        'thickness': Param('Thickness of the wafer',
+                           type=floatrange(0, None), settable=False,
+                           userparam=False, default=0.55, unit='mm'),
+    }
+
+    parameter_overrides = {
+        'unit': Override(mandatory=False, default='deg'),
+    }
