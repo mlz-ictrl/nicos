@@ -31,8 +31,8 @@ from contextlib import contextmanager
 from numpy import sign
 
 from nicos import session
-from nicos.core import Attach, HasTimeout, IsController, Override, status, \
-    tupleof
+from nicos.core import Attach, HasTimeout, IsController, Override, Param, \
+    floatrange, status, tupleof
 from nicos.core.errors import PositionError
 from nicos.core.utils import filterExceptions, multiWait
 from nicos.devices.abstract import CanReference
@@ -53,6 +53,23 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
                                CanReference, multiple=_num_axes),
         'rotations': Attach('Rotation axes of the crystals',
                             CanReference, multiple=_num_axes),
+    }
+
+    parameters = {
+        'distance': Param('',
+                          type=float, settable=False, default=0),
+        'mosaicity': Param('Mosaicity of the crystals',
+                           type=floatrange(0, None), unit='deg',
+                           category='general', default=0.4),
+        'bladewidth': Param('Width of the analyzer crystals',
+                            type=floatrange(0, None), unit='mm',
+                            category='general', default=25),
+        'planedistance': Param('Distance between the net planes of crystals',
+                               type=floatrange(0, None), unit='AA',
+                               category='general', default=3.354),
+        'raildistance': Param('Distance between the rails of the crystals',
+                              type=floatrange(0, None), default = 20,
+                              unit = 'mm', category='general'),
     }
 
     parameter_overrides = {

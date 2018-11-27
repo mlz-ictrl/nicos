@@ -74,7 +74,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
         'refgap': Param('Gap between detectors during the reference of the '
                         'guides',
                         type=floatrange(2.75, 4.1), settable=False,
-                        userparam=False, default=3.),
+                        userparam=True, default=3.),
         'gapoffset': Param('Minimum gap for the det 1 from reference position',
                            type=float, settable=False, userparam=False,
                            default=4.),
@@ -85,6 +85,12 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
                                   -32.5, -35., -37.5, -40.,
                                   3.5, 2.75, 2.5, 2.25, 2.0, 1.75, 1.5, 1.25,
                                   1.0, 0.75, 0.5]),
+        'tubediameter': Param('diameter of detector tubes',
+                              type=floatrange(0, None), unit='mm',
+                              category='general', default=25.4),
+        'psdchannelwidth': Param('PSD channel width',
+                                 type=floatrange(0, None), category='general',
+                                 unit='mm', prefercache=False, default=0.7),
     }
 
     parameter_overrides = {

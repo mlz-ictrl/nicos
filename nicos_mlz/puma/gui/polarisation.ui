@@ -1,0 +1,1510 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Polarisation</class>
+ <widget class="QWidget" name="Polarisation">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1389</width>
+    <height>1027</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab_30">
+      <attribute name="title">
+       <string>Polarization analysis</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="4" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QPushButton" name="buttonRecall">
+           <property name="text">
+            <string>Recall data</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="buttonOK">
+           <property name="text">
+            <string>OK</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="buttonCancel">
+           <property name="text">
+            <string>Cancel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0">
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QLabel" name="label_24">
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Simulation results&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <item row="5" column="12">
+            <widget class="QLabel" name="label_39">
+             <property name="text">
+              <string> det. 7</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="4">
+            <widget class="QLineEdit" name="PSDintUp">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="6">
+            <widget class="QLineEdit" name="I7Up">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="6">
+            <widget class="QLineEdit" name="Dminus">
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="13">
+            <widget class="QLineEdit" name="I7Down">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="10">
+            <widget class="QLabel" name="label_38">
+             <property name="text">
+              <string> det. 6</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_30">
+             <property name="text">
+              <string>total PSD-intensity</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="4">
+            <widget class="QLineEdit" name="fractionUp">
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_32">
+             <property name="text">
+              <string>fraction detected</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="4">
+            <widget class="QLineEdit" name="ratioUp">
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="11">
+            <widget class="QLineEdit" name="ratioDown">
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="4">
+            <widget class="QLineEdit" name="IgesUp">
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="11">
+            <widget class="QLineEdit" name="IgesDown">
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QLabel" name="label_61">
+             <property name="text">
+              <string>calibration parameter</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="11">
+            <widget class="QLineEdit" name="I6Down">
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="label_40">
+             <property name="text">
+              <string>intensity ratio </string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="11">
+            <widget class="QLineEdit" name="fractionDown">
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="4">
+            <widget class="QLineEdit" name="I6Up">
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="11">
+            <widget class="QLineEdit" name="PSDintDown">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_33">
+             <property name="text">
+              <string>total single detector intensity</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="3">
+            <widget class="QLabel" name="label_63">
+             <property name="text">
+              <string>D+</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="4">
+            <widget class="QLineEdit" name="Dplus">
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="5">
+            <widget class="QLabel" name="label_62">
+             <property name="text">
+              <string>D-</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="5">
+            <widget class="QLabel" name="label_36">
+             <property name="text">
+              <string>det. 7</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="2">
+            <widget class="QLineEdit" name="I5Up">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="8">
+            <widget class="QLabel" name="label_37">
+             <property name="text">
+              <string> det. 5</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_34">
+             <property name="text">
+              <string>intensity                      det. 5</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="9">
+            <widget class="QLineEdit" name="I5Down">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="3">
+            <widget class="QLabel" name="label_35">
+             <property name="text">
+              <string>det. 6</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2" colspan="6">
+            <widget class="QLabel" name="label_9">
+             <property name="text">
+              <string>spin-up neutrons</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="8" colspan="6">
+            <widget class="QLabel" name="label_29">
+             <property name="text">
+              <string>spin-down neutrons</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLineEdit" name="progress">
+         <property name="palette">
+          <palette>
+           <active>
+            <colorrole role="Text">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>255</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </brush>
+            </colorrole>
+           </active>
+           <inactive>
+            <colorrole role="Text">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>255</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </brush>
+            </colorrole>
+           </inactive>
+           <disabled>
+            <colorrole role="Text">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>120</red>
+               <green>120</green>
+               <blue>120</blue>
+              </color>
+             </brush>
+            </colorrole>
+           </disabled>
+          </palette>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QLabel" name="label_48">
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Polarization analysis settings&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <layout class="QGridLayout" name="gridLayout_3">
+             <item row="0" column="1" colspan="2">
+              <widget class="QLabel" name="label_216">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;5&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2">
+              <widget class="QLineEdit" name="x05_cur">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="2">
+              <widget class="QLineEdit" name="ta5_cur">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="5">
+              <widget class="QLineEdit" name="y06">
+               <property name="text">
+                <string>0.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="theta05">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QLineEdit" name="ta5">
+               <property name="text">
+                <string>-7.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="label_203">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;translation&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="1">
+              <widget class="QLineEdit" name="rd5">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>-7.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_199">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;rotation angle&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="11">
+              <widget class="QLabel" name="label_21">
+               <property name="text">
+                <string>mm</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="11">
+              <widget class="QLabel" name="label_26">
+               <property name="text">
+                <string>mm</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="5">
+              <widget class="QLineEdit" name="rg6">
+               <property name="text">
+                <string>0.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="9">
+              <widget class="QLineEdit" name="x07">
+               <property name="text">
+                <string>-2.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="9">
+              <widget class="QLineEdit" name="rd7">
+               <property name="text">
+                <string>8.4</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="label_187">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;transverse displacement&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="7">
+              <widget class="QLabel" name="label_51">
+               <property name="text">
+                <string>mm</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="label_188">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;longitudinal displacement &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="11">
+              <widget class="QLabel" name="label_57">
+               <property name="text">
+                <string>deg</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="3">
+              <widget class="QLabel" name="label_18">
+               <property name="text">
+                <string>mm</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="11">
+              <widget class="QLabel" name="label_49">
+               <property name="text">
+                <string>mm</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="9">
+              <widget class="QLineEdit" name="ta7">
+               <property name="text">
+                <string>8.4</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="0">
+              <widget class="QLabel" name="label_210">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;rotation&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="1">
+              <widget class="QLineEdit" name="rg5">
+               <property name="text">
+                <string>-7.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="5">
+              <widget class="QLineEdit" name="rd6">
+               <property name="text">
+                <string>0.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="0">
+              <widget class="QLabel" name="label_206">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;rotation&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="7">
+              <widget class="QLabel" name="label_20">
+               <property name="text">
+                <string>mm</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="7">
+              <widget class="QLabel" name="label_54">
+               <property name="text">
+                <string>deg</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="5">
+              <widget class="QLineEdit" name="theta06">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLineEdit" name="x05">
+               <property name="text">
+                <string>2.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="5">
+              <widget class="QLineEdit" name="x06">
+               <property name="text">
+                <string>0.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QLabel" name="label_28">
+               <property name="text">
+                <string>deg</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="3">
+              <widget class="QLabel" name="label_50">
+               <property name="text">
+                <string>mm</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLineEdit" name="y05">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="3">
+              <widget class="QLabel" name="label_53">
+               <property name="text">
+                <string>deg</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="8">
+              <spacer name="horizontalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="3" column="3">
+              <widget class="QLabel" name="label_19">
+               <property name="text">
+                <string>mm</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="9">
+              <widget class="QLineEdit" name="y07">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="3">
+              <widget class="QLabel" name="label_55">
+               <property name="text">
+                <string>deg</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="9">
+              <widget class="QLineEdit" name="theta07">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="7">
+              <widget class="QLabel" name="label_23">
+               <property name="text">
+                <string>mm</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="11">
+              <widget class="QLabel" name="label_22">
+               <property name="text">
+                <string>mm</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="4">
+              <spacer name="horizontalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="8" column="9">
+              <widget class="QLineEdit" name="rg7">
+               <property name="text">
+                <string>8.4</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="11">
+              <widget class="QLabel" name="label_52">
+               <property name="text">
+                <string>deg</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="7">
+              <widget class="QLabel" name="label_27">
+               <property name="text">
+                <string>deg</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="5">
+              <widget class="QLineEdit" name="ta6">
+               <property name="text">
+                <string>0.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="7">
+              <widget class="QLabel" name="label_56">
+               <property name="text">
+                <string>deg</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="label_214">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Analyzer&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QLabel" name="label_215">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Detector&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="0">
+              <widget class="QLabel" name="label_218">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Guide&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QLineEdit" name="theta05_cur">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="2">
+              <widget class="QLineEdit" name="rd5_cur">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="2">
+              <widget class="QLineEdit" name="rg5_cur">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="5" colspan="2">
+              <widget class="QLabel" name="label_198">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;6&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="6">
+              <widget class="QLineEdit" name="theta06_cur">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="10">
+              <widget class="QLineEdit" name="theta07_cur">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="9" colspan="2">
+              <widget class="QLabel" name="label_196">
+               <property name="text">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;7&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="6">
+              <widget class="QLineEdit" name="x06_cur">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="10">
+              <widget class="QLineEdit" name="x07_cur">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="6">
+              <widget class="QLineEdit" name="ta6_cur">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="10">
+              <widget class="QLineEdit" name="ta7_cur">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="6">
+              <widget class="QLineEdit" name="rd6_cur">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="10">
+              <widget class="QLineEdit" name="rd7_cur">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="6">
+              <widget class="QLineEdit" name="rg6_cur">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="10">
+              <widget class="QLineEdit" name="rg7_cur">
+               <property name="text">
+                <string>0.0</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout">
+             <item>
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="buttonOptimize">
+               <property name="text">
+                <string>Optimize setting</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="buttonApply">
+               <property name="text">
+                <string>Apply values</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0">
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Instrument settings&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="gamma1">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_44">
+             <property name="text">
+              <string>kf</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="kf">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_45">
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>1/A</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="4">
+            <widget class="QLabel" name="label_46">
+             <property name="text">
+              <string>net-plane distance analyzer</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="5">
+            <widget class="QLineEdit" name="dA">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="6">
+            <widget class="QLabel" name="label_47">
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>A</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="7">
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="8">
+            <widget class="QLabel" name="label_222">
+             <property name="text">
+              <string>peak reflectivity</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="9">
+            <widget class="QLineEdit" name="R">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>collimator-divergency</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2" colspan="2">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>deg</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="4">
+            <widget class="QLabel" name="label_184">
+             <property name="text">
+              <string>distance sample-analyzer</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="5">
+            <widget class="QLineEdit" name="LSA">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="6" colspan="2">
+            <widget class="QLabel" name="label_13">
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="8">
+            <widget class="QLabel" name="label_201">
+             <property name="text">
+              <string>deflector length</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="9">
+            <widget class="QLineEdit" name="L">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="10">
+            <widget class="QLabel" name="label_42">
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_10">
+             <property name="text">
+              <string>analyzer-mosaicity</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="eta">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2" colspan="2">
+            <widget class="QLabel" name="label_12">
+             <property name="text">
+              <string>deg</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="4">
+            <widget class="QLabel" name="label_185">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;distance sample-deflector 1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="5">
+            <widget class="QLineEdit" name="LSD1">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="6" colspan="2">
+            <widget class="QLabel" name="label_14">
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="8">
+            <widget class="QLabel" name="label_202">
+             <property name="text">
+              <string>wafer thickness</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="9">
+            <widget class="QLineEdit" name="d">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="10">
+            <widget class="QLabel" name="label_43">
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_190">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;tilt-angle deflector 1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::RichText</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2" colspan="2">
+            <widget class="QLabel" name="label_17">
+             <property name="text">
+              <string>deg</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="4">
+            <widget class="QLabel" name="label_186">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;distance sample-deflector 2&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="5">
+            <widget class="QLineEdit" name="LSD2">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="6" colspan="2">
+            <widget class="QLabel" name="label_15">
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="8">
+            <widget class="QLabel" name="label_192">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;width sample slit&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="9">
+            <widget class="QLineEdit" name="bS">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="10">
+            <widget class="QLabel" name="label_60">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;mm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_197">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;tilt-angle deflector 2&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::RichText</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="gamma2">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="2" colspan="2">
+            <widget class="QLabel" name="label_16">
+             <property name="text">
+              <string>deg</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="4">
+            <widget class="QLabel" name="label_200">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;distance sample-PSD&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="5">
+            <widget class="QLineEdit" name="LPSD">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="6" colspan="2">
+            <widget class="QLabel" name="label_31">
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="8">
+            <widget class="QLabel" name="label_223">
+             <property name="text">
+              <string>PSD channel width</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="9">
+            <widget class="QLineEdit" name="psdwidth">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="10">
+            <widget class="QLabel" name="label_81">
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_193">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;width analyzer blade&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLineEdit" name="bA">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="2" colspan="2">
+            <widget class="QLabel" name="label_25">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;mm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="4">
+            <widget class="QLabel" name="label_212">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;distance analyzer-detector&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="5">
+            <widget class="QLineEdit" name="LAD">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="6" colspan="2">
+            <widget class="QLabel" name="label_58">
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="8">
+            <widget class="QLabel" name="label_213">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;detector width&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="9">
+            <widget class="QLineEdit" name="bD">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="10">
+            <widget class="QLabel" name="label_59">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;mm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="alpha0">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="plotTab">
+      <attribute name="title">
+       <string>Simulation results</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="0">
+        <widget class="QWidget" name="plotWidget1" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QWidget" name="plotWidget2" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QWidget" name="plotWidget3" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QWidget" name="plotWidget4" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>kf</tabstop>
+  <tabstop>dA</tabstop>
+  <tabstop>R</tabstop>
+  <tabstop>alpha0</tabstop>
+  <tabstop>LSA</tabstop>
+  <tabstop>L</tabstop>
+  <tabstop>eta</tabstop>
+  <tabstop>LSD1</tabstop>
+  <tabstop>d</tabstop>
+  <tabstop>gamma1</tabstop>
+  <tabstop>LSD2</tabstop>
+  <tabstop>bS</tabstop>
+  <tabstop>gamma2</tabstop>
+  <tabstop>LPSD</tabstop>
+  <tabstop>psdwidth</tabstop>
+  <tabstop>bA</tabstop>
+  <tabstop>LAD</tabstop>
+  <tabstop>bD</tabstop>
+  <tabstop>theta05</tabstop>
+  <tabstop>theta06</tabstop>
+  <tabstop>theta07</tabstop>
+  <tabstop>x05</tabstop>
+  <tabstop>x06</tabstop>
+  <tabstop>x07</tabstop>
+  <tabstop>y05</tabstop>
+  <tabstop>y06</tabstop>
+  <tabstop>y07</tabstop>
+  <tabstop>ta5</tabstop>
+  <tabstop>ta6</tabstop>
+  <tabstop>ta7</tabstop>
+  <tabstop>rd5</tabstop>
+  <tabstop>rd6</tabstop>
+  <tabstop>rd7</tabstop>
+  <tabstop>rg5</tabstop>
+  <tabstop>rg6</tabstop>
+  <tabstop>rg7</tabstop>
+  <tabstop>buttonOptimize</tabstop>
+  <tabstop>PSDintUp</tabstop>
+  <tabstop>IgesUp</tabstop>
+  <tabstop>fractionUp</tabstop>
+  <tabstop>ratioUp</tabstop>
+  <tabstop>PSDintDown</tabstop>
+  <tabstop>IgesDown</tabstop>
+  <tabstop>fractionDown</tabstop>
+  <tabstop>ratioDown</tabstop>
+  <tabstop>Dplus</tabstop>
+  <tabstop>buttonRecall</tabstop>
+  <tabstop>buttonOK</tabstop>
+  <tabstop>progress</tabstop>
+  <tabstop>label_45</tabstop>
+  <tabstop>label_47</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>Polarisation</sender>
+   <signal>destroyed()</signal>
+   <receiver>Polarisation</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>3</x>
+     <y>2</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>5</x>
+     <y>67</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
