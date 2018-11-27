@@ -195,7 +195,7 @@ def runIsort() {
     archiveArtifacts([allowEmptyArchive: true, artifacts: "isort_all.txt"])
     echo "isort: result=" + verifyresult['isort']
     publishGerrit('isort', verifyresult['isort'])
-    parseLogs([[parserName: 'python-isort', pattern: 'isort_*.tx']])
+    parseLogs([[parserName: 'python-isort', pattern: 'isort_*.txt']])
 
     if (verifyresult['isort'] < 0) {
         // currently only warn, but do not fail the job
