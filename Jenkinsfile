@@ -171,7 +171,7 @@ def runPylint() {
     }
     echo "pylint: result=" + verifyresult['pylint']
     publishGerrit('pylint', verifyresult['pylint'])
-
+    parseLogs([[parserName: 'PyLint', pattern: 'pylint_*.txt']])
     if (verifyresult['pylint'] < 0) {
         error('Failure in pylint')
     }
@@ -195,6 +195,7 @@ def runIsort() {
     archiveArtifacts([allowEmptyArchive: true, artifacts: "isort_all.txt"])
     echo "isort: result=" + verifyresult['isort']
     publishGerrit('isort', verifyresult['isort'])
+    parseLogs([[parserName: 'python-isort', pattern: 'isort_*.tx']])
 
     if (verifyresult['isort'] < 0) {
         // currently only warn, but do not fail the job
@@ -222,6 +223,11 @@ def runSetupcheck() {
     }
     echo "setupcheck: result=" + verifyresult['sc']
     publishGerrit('setupcheck',verifyresult['sc'])
+    parseLogs([
+        [parserName: 'nicos-setup-check-syntax-errors', pattern: 'setupcheck.log'],
+        [parserName: 'nicos-setup-check-errors-file', pattern: 'setupcheck.log'],
+        [parserName: 'nicos-setup-check-warnings', pattern: 'setupcheck.log'],
+    ])
 
     if (verifyresult['sc'] < 0) {
          error('Failure in setupcheck')
@@ -328,15 +334,12 @@ parallel pylint: {
     stage(name: 'pylint') {
         u16.inside('-v /home/git:/home/git') {
                 runPylint()
-                parseLogs([[parserName: 'PyLint', pattern: 'pylint_*.txt']])
         }
     }
 }, isort: {
     stage(name: 'isort') {
         u16.inside('-v /home/git:/home/git') {
                 runIsort()
-                parseLogs([[parserName: 'python-isort', pattern: 'isort_*.tx']])
-
         }
     }
 }, setup_check: {
@@ -345,11 +348,6 @@ parallel pylint: {
                 timeout(5) {
                     runSetupcheck()
                 }
-                parseLogs([
-                    [parserName: 'nicos-setup-check-syntax-errors', pattern: 'setupcheck.log'],
-                    [parserName: 'nicos-setup-check-errors-file', pattern: 'setupcheck.log'],
-                    [parserName: 'nicos-setup-check-warnings', pattern: 'setupcheck.log'],
-                ])
         }
     }
 }, test_python2: {
