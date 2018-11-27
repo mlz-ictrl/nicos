@@ -22,7 +22,21 @@
 #
 # *****************************************************************************
 
-from .collimator import Collimator
-from .seccoll import PumaSecCollBlockChanger, PumaSecCollLift, \
-    PumaSecCollPair, PumaSecondaryCollimator
-from .stackedaxis import StackedAxis
+"""Polarization collimator device."""
+
+from nicos.core.params import Override, Param, floatrange
+from nicos.devices.generic import Axis
+
+
+class Collimator(Axis):
+    """Polarization collimator device."""
+
+    parameters = {
+        'divergency': Param('Divergency of the collimator',
+                            type=floatrange(0, None), settable=False,
+                            userparam=False, default=0.5, unit='deg'),
+    }
+
+    parameter_overrides = {
+        'unit': Override(mandatory=False, default='deg'),
+    }

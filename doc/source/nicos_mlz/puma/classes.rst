@@ -68,6 +68,9 @@
 .. autoclass:: LogoFeedBack()
 .. autoclass:: DigitalOutput()
 
+.. automodule:: nicos_mlz.puma.devices.collimator
+.. autoclass:: Collimator()
+
 Data sinks
 ----------
 .. automodule:: nicos_mlz.puma.devices.datasinks
