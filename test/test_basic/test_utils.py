@@ -31,6 +31,8 @@ import os
 import socket
 import sys
 import time
+
+from nicos.core import UsageError, parseDuration
 from test.utils import raises
 
 import pytest
@@ -383,3 +385,15 @@ def test_moveOutOfWay(tmpdir, maxbackup):
     files = [f for f in os.listdir(str(tmpdir)) if f.startswith('test1')]
     assert 'test1' not in files
     assert len(files) == maxbackup if maxbackup is not None else 3
+
+
+def test_parse_duration():
+    assert parseDuration('1d:2h:3m:14s', '') == \
+           parseDuration('1d2h 3m  14s', '') == \
+           parseDuration('1d :2h: 3m : 14s ', '') == \
+           parseDuration(93794, '') == 93794
+    assert parseDuration(1.0, '') == 1.0
+    assert raises(UsageError, parseDuration, [], '')
+    assert raises(UsageError, parseDuration, '1m3d', '')
+    assert raises(NicosError, parseDuration, '1d::3m', '')
+    assert raises(NicosError, parseDuration, '1d:3m jad', '')

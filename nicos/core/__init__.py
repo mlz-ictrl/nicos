@@ -49,4 +49,4 @@ from nicos.core.params import INFO_CATEGORIES, ArrayDesc, Attach, \
 from nicos.core.scan import Scan
 from nicos.core.utils import ACCESS_LEVELS, ADMIN, GUEST, USER, User, \
     formatStatus, multiReset, multiStatus, multiStop, multiWait, \
-    system_user, usermethod, waitForCompletion, watchdog_user
+    system_user, usermethod, waitForCompletion, watchdog_user, parseDuration

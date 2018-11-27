@@ -28,8 +28,10 @@
 
 from __future__ import absolute_import, division, print_function
 
+import re
 import sys
 from collections import namedtuple
+from datetime import timedelta
 from functools import wraps
 from time import localtime, time as currenttime
 
@@ -37,7 +39,7 @@ from nicos import nicos_version, session
 from nicos.core import SIMULATION, status
 from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, MoveError, NicosError, PositionError, \
-    TimeoutError
+    TimeoutError, UsageError
 from nicos.pycompat import listitems, reraise, to_ascii_escaped
 from nicos.utils import formatDuration
 
@@ -358,6 +360,68 @@ def multiReset(devices):
     """
     from nicos.core import Readable
     _multiMethod(Readable, 'reset', devices)
+
+
+def parseDuration(inputvalue, description):
+    """Convert a string into seconds.
+    The string can be provided in denominations of days (d), hours (h),
+    minutes (m) and seconds (s) or combinations of these.
+
+    - Each denomination can be omitted.
+    - Each present value has to be named.
+    - The present values have to be sorted in descending size (d h m s)
+    - The values can be divided by spaces and/or ':' or written en block.
+
+    If inputvalue is an int or float, it is assumed it is already in seconds and
+    returned as is.
+
+    """
+
+    # time has already been provided as seconds
+    if isinstance(inputvalue, (int, float)):
+        return inputvalue
+    elif not isinstance(inputvalue, str):
+        raise UsageError('Provided value for "%s" can not be parsed due to '
+                         'mismatched type. Provide it as str, int or float.'
+                         % description)
+
+    index = 0
+
+    for identifier in ['d', 'h', 'm', 's']:
+        ind = inputvalue.find(identifier)
+        if ind != -1:
+            if ind < index:
+                raise UsageError('Wrong identifier order in "%s". '
+                                 'Provide as d:h:m:s.' % description)
+            else:
+                index = ind
+
+    inputvalue = inputvalue.strip()
+
+    r = re.compile(r'''((?P<days>[0-9]+)d    # days as 'xd'
+                       \ *:?\ *)?            # split with '', ' ' and/or ':'
+                       ((?P<hours>[0-9]+)h   # hours as 'xh'
+                       \ *:?\ *)?            # split with '', ' ' and/or ':'
+                       ((?P<minutes>[0-9]+)m # minutes as 'xm'
+                       \ *:?\ *)?            # split with '', ' ' and/or ':'
+                       ((?P<seconds>[0-9]+)s # seconds as 'xs'
+                       \ *)?$                # end the string only with spaces
+                       ''', re.X)
+
+    m = r.match(inputvalue)
+    if not m:
+        raise NicosError('"%s" for "%s" can not be parsed.'
+                         % (inputvalue, description))
+
+    timedict = m.groupdict()
+
+    for key, value in timedict.items():
+        if value:
+            timedict[key] = int(value)
+        else:
+            timedict[key] = 0
+
+    return int(timedelta(**timedict).total_seconds())
 
 
 class DeviceValue(namedtuple('DeviceValue',
