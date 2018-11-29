@@ -27,7 +27,7 @@ maw(bg1, 'open')
 maw(bg2, '20mm')
 maw(bg2, 'open')
 
-maw(sa1, '50x50')
+maw(sa1, '10mm')
 maw(sa1, '30mm')
 
 maw(sa2, 8)
