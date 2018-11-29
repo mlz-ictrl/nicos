@@ -96,7 +96,7 @@ class BaseCacheClient(Device):
 
     def doShutdown(self):
         self._stoprequest = True
-        if self._worker.isAlive():
+        if self._worker and self._worker.isAlive():
             self._worker.join()
 
     def _connect(self):
@@ -426,7 +426,7 @@ class BaseCacheClient(Device):
     def wait(self):
         while not self._stoprequest:
             sleep(self._long_loop_delay)
-        if self._worker.isAlive():
+        if self._worker and self._worker.isAlive():
             self._worker.join()
 
     def quit(self, signum=None):
