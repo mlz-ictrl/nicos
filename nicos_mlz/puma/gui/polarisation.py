@@ -35,7 +35,8 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.widgets.plotting import NicosPlotCurve
 from nicos.core.errors import NicosError
-from nicos.guisupport.livewidget import COLOR_BLUE, LiveWidget1D
+from nicos.guisupport.livewidget import LiveWidget1D
+from nicos.guisupport.plots import GRCOLORS
 from nicos.guisupport.qt import QApplication, QCursor, QDoubleValidator, \
     QLabel, QMessageBox, QSize, QSizePolicy, Qt, QVBoxLayout, QWidget, \
     pyqtSlot
@@ -44,10 +45,6 @@ from nicos.guisupport.widget import NicosWidget
 from nicos_mlz.puma.lib.pa import PA
 
 my_uipath = path.dirname(path.realpath(__file__))
-
-COLOR_BLACK = 1
-COLOR_RED = 2
-COLOR_GREEN = 3
 
 
 @contextmanager
@@ -68,19 +65,19 @@ class MiniPlot(LiveWidget1D):
         self.plot.xlabel = xlabel
         self.plot.ylabel = ylabel
 
-        self.curve.linecolor = kwds.get('color2', COLOR_RED)
+        self.curve.linecolor = kwds.get('color2', GRCOLORS['red'])
         self.curve.linewidth = 2
         self.curve.GR_MARKERSIZE = 20
         self.curve.markertype = MARKERTYPE_SOLID_CIRCLE
-        self.curve.markercolor = kwds.get('color2', COLOR_RED)
+        self.curve.markercolor = kwds.get('color2', GRCOLORS['red'])
 
         self.downcurve = NicosPlotCurve(
-            [0], [.1], linecolor=kwds.get('color1', COLOR_BLACK))
+            [0], [.1], linecolor=kwds.get('color1', GRCOLORS['black']))
         self.downcurve.linewidth = 2
         self.downcurve.markertype = MARKERTYPE_SOLID_CIRCLE
         self.downcurve.GR_MARKERSIZE = 20
         self.downcurve.markertype = MARKERTYPE_SOLID_CIRCLE
-        self.downcurve.markercolor = kwds.get('color1', COLOR_BLACK)
+        self.downcurve.markercolor = kwds.get('color1', GRCOLORS['black'])
         self.axes.addCurves(self.downcurve)
 
         # Disable creating a mouse selection to zoom
@@ -101,8 +98,8 @@ class PlotWidget(QWidget):
         QWidget.__init__(self, parent)
         self.name = name
         parent.setLayout(QVBoxLayout())
-        self.plot = MiniPlot(xlabel, ylabel, self, color1=COLOR_BLACK,
-                             color2=COLOR_RED)
+        self.plot = MiniPlot(xlabel, ylabel, self, color1=GRCOLORS['black'],
+                             color2=GRCOLORS['red'])
         titleLabel = QLabel(title)
         titleLabel.setAlignment(Qt.AlignCenter)
         titleLabel.setStyleSheet('QLabel {font-weight: 600}')
@@ -139,12 +136,12 @@ class TransmissionPlot(PlotWidget):
                             'for spin-%s neutrons' % direction,
                             'Deflector angle (deg)', 'Refl/trans coefficient',
                             parent=parent)
-        self.plot.curve.linecolor = COLOR_BLUE
+        self.plot.curve.linecolor = GRCOLORS['blue']
         self.plot.curve.legend = 'Reflectivity'
-        self.plot.curve.markercolor = COLOR_BLUE
-        self.plot.downcurve.linecolor = COLOR_GREEN
+        self.plot.curve.markercolor = GRCOLORS['blue']
+        self.plot.downcurve.linecolor = GRCOLORS['green']
         self.plot.downcurve.legend = 'Transmissivity'
-        self.plot.downcurve.markercolor = COLOR_GREEN
+        self.plot.downcurve.markercolor = GRCOLORS['green']
 
 
 class PolarisationPanel(NicosWidget, Panel):
