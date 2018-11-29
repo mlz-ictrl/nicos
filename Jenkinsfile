@@ -66,7 +66,8 @@ this.verifyresult = [:]
 
 // ************* Function defs ***/
 
-def parseLogs(parserConfigurations) {
+def parseLogs(parserConfigurations, maxfail = 0) {
+    maxfail = String.valueOf(maxfail);
     step([$class: 'WarningsPublisher',
           parserConfigurations: parserConfigurations,
           canComputeNew: false,
@@ -78,14 +79,14 @@ def parseLogs(parserConfigurations) {
           messagesPattern: '',
           healthy: '',
           unHealthy: '',
-          failedTotalAll: '0',
-          failedTotalHigh: '0',
-          failedTotalLow: '0',
-          failedTotalNormal: '0',
-          unstableTotalAll: '0',
-          unstableTotalHigh: '0',
-          unstableTotalLow: '0',
-          unstableTotalNormal: '0'])
+          failedTotalAll: maxfail,
+          failedTotalHigh: maxfail,
+          failedTotalLow: maxfail,
+          failedTotalNormal: maxfail,
+          unstableTotalAll: maxfail,
+          unstableTotalHigh: maxfail,
+          unstableTotalLow: maxfail,
+          unstableTotalNormal: maxfail])
 }
 
 def checkoutSource() {
@@ -195,7 +196,7 @@ def runIsort() {
     archiveArtifacts([allowEmptyArchive: true, artifacts: "isort_all.txt"])
     echo "isort: result=" + verifyresult['isort']
     publishGerrit('isort', verifyresult['isort'])
-    parseLogs([[parserName: 'python-isort', pattern: 'isort_*.txt']])
+    parseLogs([[parserName: 'python-isort', pattern: 'isort_*.txt']], 20)
 
     if (verifyresult['isort'] < 0) {
         // currently only warn, but do not fail the job
