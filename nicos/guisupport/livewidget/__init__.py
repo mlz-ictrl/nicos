@@ -36,7 +36,7 @@ from gr.pygr import Coords2D, Plot as OrigPlot, PlotAxes, Point, \
     RegionOfInterest
 from gr.pygr.base import GRMeta, GRVisibility
 
-from nicos.guisupport.plots import MaskedPlotCurve
+from nicos.guisupport.plots import MaskedPlotCurve, GRCOLORS
 from nicos.guisupport.qt import QHBoxLayout, QWidget, pyqtSignal
 from nicos.guisupport.qtgr import InteractiveGRWidget
 
@@ -44,9 +44,6 @@ DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        '<u1', '<i1', '>u1', '>i1', '<f8', '<f4', '>f8', '>f4',
                        '<u8', '<i8', '>u8', '>i8'))
 
-COLOR_WHITE = 91
-COLOR_BLUE = 4
-COLOR_MANGENTA = 7
 COLOR_MAXINTENSITY = 1255
 
 
@@ -127,7 +124,7 @@ class Axes(PlotAxes):
         self.drawxylines = False
         self.xlines = []  # draw vertical lines at x-coordinates
         self.ylines = []  # draw horizontal lines at y-coordinates
-        self.xylinecolor = COLOR_MANGENTA
+        self.xylinecolor = GRCOLORS['magenta']
 
     def setWindow(self, xmin, xmax, ymin, ymax):
         res = PlotAxes.setWindow(self, xmin, xmax, ymin, ymax)
@@ -204,7 +201,7 @@ class ROI(Coords2D, RegionOfInterest, GRVisibility, GRMeta):
     def drawGR(self):
         if self.visible:
             color = gr.inqlinecolorind()
-            gr.setlinecolorind(COLOR_WHITE)
+            gr.setlinecolorind(GRCOLORS['white'])
             gr.polyline(self.x, self.y)
             gr.setlinecolorind(color)
 
@@ -430,8 +427,10 @@ class IntegralLiveWidget(LiveWidget):
 
         self.plotyint.addAxes(self.axesyint)
         self.plotxint.addAxes(self.axesxint)
-        self.curvey = MaskedPlotCurve([0], [0], filly=.1, linecolor=COLOR_BLUE)
-        self.curvex = MaskedPlotCurve([0], [0], fillx=.1, linecolor=COLOR_BLUE)
+        self.curvey = MaskedPlotCurve([0], [0], filly=.1,
+                                      linecolor=GRCOLORS['blue'])
+        self.curvex = MaskedPlotCurve([0], [0], fillx=.1,
+                                      linecolor=GRCOLORS['blue'])
 
         self.axesyint.addCurves(self.curvey)
         self.axesxint.addCurves(self.curvex)
@@ -531,7 +530,7 @@ class LiveWidget1D(LiveWidgetBase):
 
         self.plot._lstAxes = []
         self.plot._countAxes = 0
-        self.curve = MaskedPlotCurve([0], [.1], linecolor=COLOR_BLUE)
+        self.curve = MaskedPlotCurve([0], [.1], linecolor=GRCOLORS['blue'])
         self.axes = AutoScaleAxes(self, viewport=self.plot.viewport,
                                   xdual=True)
         self.axes.setGrid(True)
