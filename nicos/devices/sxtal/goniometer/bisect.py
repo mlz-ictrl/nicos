@@ -89,7 +89,7 @@ class Bisecting(PositionBase):
         try:
             chi = np.arctan2(sinche, cosche)
         except ValueError:
-            self.log.warn("B-E Chi problem: %r", self)
+            self.log.warning("B-E Chi problem: %r", self)
             chi = 0.0
         if sinchb == 0 and sinpsi == 0:
             omega = self.theta - 90.0 * (signcb - 1.0)
@@ -102,14 +102,14 @@ class Bisecting(PositionBase):
             try:
                 omega = np.arctan2(sinome, cosome) + self.theta
             except ValueError:
-                self.log.warn("B-E Omega problem: %r", self)
+                self.log.warning("B-E Omega problem: %r", self)
                 omega = 0.0
             sinphe = -signch * signcb * sinpsi
             cosphe = signch * signth * signcb * sinchb * cospsi
         try:
             phi = np.arctan2(sinphe, cosphe) + self.phi
         except ValueError:
-            self.log.warn("B-E Phi problem: %r", self)
+            self.log.warning("B-E Phi problem: %r", self)
             phi = 0.0
         return PositionFactory(ptype='er',
                                theta=self.theta,

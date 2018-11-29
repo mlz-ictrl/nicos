@@ -173,8 +173,8 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
             self.log.debug('The following rotation axes start moving: %r', mvr)
             for i in mvr:
                 if not self._checkTransNeighbour(i):
-                    self.log.warn('neighbour XX distance < %7.3f; cannot move '
-                                  'rotation!', self.distance)
+                    self.log.warning('neighbour XX distance < %7.3f; cannot '
+                                     'move rotation!', self.distance)
                     continue
                 self._rotation[i].move(target[self._num_axes + i])
             self._hw_wait([self._rotation[i] for i in mvr])
@@ -189,10 +189,10 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
     def doReference(self, *args):
         check = self._refrotation()
         if not check:
-            self.log.warn('reference of rotations not successful')
+            self.log.warning('reference of rotations not successful')
         check += self._reftranslation()
         if check != 2:
-            self.log.warn('reference of translations not successful')
+            self.log.warning('reference of translations not successful')
         else:
             self.log.debug('reset of %s sucessful', self.name)
 
@@ -241,8 +241,8 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
             if ax.motor.isAtReference():
                 check += 1
             else:
-                self.log.warn('%s is not at reference: %r %r', ax.name,
-                              ax.motor.refpos, ax.motor.read(0))
+                self.log.warning('%s is not at reference: %r %r', ax.name,
+                                 ax.motor.refpos, ax.motor.read(0))
         return check == len(devlist)
 
     def _refrotation(self):
@@ -275,7 +275,7 @@ class PumaMultiAnalyzer(CanReference, HasTimeout, BaseSequencer):
     # to be checked
     def _checkTransNeighbour(self, trans):
         if not 0 <= trans < self._num_axes:
-            self.log.warn('cannot move translation: %d', trans)
+            self.log.warning('cannot move translation: %d', trans)
             return False
 
         self.log.debug('checkTransNeigbour: %s %s %s', trans - 1, trans,

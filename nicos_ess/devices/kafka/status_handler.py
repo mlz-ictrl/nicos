@@ -91,7 +91,7 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
                 if next_update > self.nextupdate:
                     self._setROParam('nextupdate', next_update)
             except Exception:
-                self.log.warn('Could not decode message from status topic.')
+                self.log.warning('Could not decode message from status topic.')
 
         if json_messages:
             self._status_update_callback(json_messages)

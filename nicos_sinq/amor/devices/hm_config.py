@@ -66,13 +66,13 @@ class AmorTofArray(HistogramConfTofArray):
 
     def doInit(self, mode):
         if not self.data:
-            self.log.warn('TOF binning data missing. Please update it!')
+            self.log.warning('TOF binning data missing. Please update it!')
 
     def dataText(self):
         # Due to limited size of the configuration memory we write
         # diff instead of actual values
         if not self.data:
-            self.log.warn('Data for the array missing.')
+            self.log.warning('Data for the array missing.')
             return ''
 
         arraytxt = '\n'
@@ -129,8 +129,8 @@ class AmorTofArray(HistogramConfTofArray):
         tau = int(30e7 / chspeed)
         # check if tau, lambda_max and CDD are compatible
         if tau < lmax * dist / 4e6:
-            self.log.warn('Chopper-Detector distance is too large for chopper '
-                          'frequency')
+            self.log.warning('Chopper-Detector distance is too large for '
+                             'chopper frequency')
 
         # offset between chopper-pulse and time-zero for data acquisition
         toffset = self._attached_chopper.indexphase * 1e7 / (6 * chspeed)

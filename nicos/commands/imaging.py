@@ -97,8 +97,8 @@ def tomo(nangles, moveables=None, imgsperangle=1, ref_first=True, *detlist,
                         except NicosError:
                             if not i:
                                 raise
-                            session.log.warn('Count failed, try it again.'
-                                             '%d remaining tries', i)
+                            session.log.warning('Count failed, try it again.'
+                                                '%d remaining tries', i)
                             if detlist:
                                 reset(*detlist)
                             else:

@@ -306,7 +306,7 @@ class PumpstandIO(TacoDevice, Readable):
         for idx, msg in sorted(self._HW_Alarms + self._HW_Alarms_CB +
                                self._HW_Alarms_SR + self._HW_Alarms_SFK):
             if alarms & (1 << idx):
-                self.log.warn('Alarm %d: %s', idx, msg)
+                self.log.warning('Alarm %d: %s', idx, msg)
 
 
 class PumpstandPressure(Readable):

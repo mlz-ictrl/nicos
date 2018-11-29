@@ -136,7 +136,7 @@ class Optic(Moveable):
                 self.log.debug(line)
             else:
                 line += ' not attached'
-                self.log.warn(line)
+                self.log.warning(line)
 
     def doWriteMode(self, target):
         # Calculate positions and move devices
@@ -153,7 +153,7 @@ class Optic(Moveable):
                 self.log.debug(line)
             else:
                 line += ' not attached'
-                self.log.warn(line)
+                self.log.warning(line)
 
     def doWriteLmode(self, value):
         # Calculate the positions for the ...

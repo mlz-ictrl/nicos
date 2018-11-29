@@ -119,16 +119,17 @@ class DistancesHandler(BaseSequencer):
                 inactive_loaded.append(component)
 
         if unknown:
-            self.log.warn('Distances for following components unknown:')
-            self.log.warn('** ' + ', '.join(unknown))
-            self.log.warn(' ')
+            self.log.warning('Distances for following components unknown:')
+            self.log.warning('** ' + ', '.join(unknown))
+            self.log.warning(' ')
 
         if inactive_loaded:
-            self.log.warn('Following components are inactive but loaded in setups:')
-            self.log.warn('** ' + ', '.join(inactive_loaded))
-            self.log.warn('Do one of the following:')
-            self.log.warn('Unload these setups OR Run: %s.mesaure() to '
-                          'redo distances!' % self.name)
+            self.log.warning('Following components are inactive but loaded in '
+                             'setups:')
+            self.log.warning('** ' + ', '.join(inactive_loaded))
+            self.log.warning('Do one of the following:')
+            self.log.warning('Unload these setups OR Run: %s.mesaure() to '
+                             'redo distances!' % self.name)
 
     def doInfo(self):
         ret = []

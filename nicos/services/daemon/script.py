@@ -417,7 +417,7 @@ class ExecutionController(Controller):
         suffix = user.name
         if message:
             suffix += ': ' + message
-        session.log.warn('Immediate stop requested by %s', suffix)
+        session.log.warning('Immediate stop requested by %s', suffix)
         self.block_all_requests()
         if self.status == STATUS_RUNNING:
             self.set_break(('emergency stop', 5, user.name))
@@ -568,7 +568,7 @@ class ExecutionController(Controller):
         return len(self.estop_functions)
 
     def execute_estop(self, user):
-        self.log.warn('emergency stop caught, executing ESFs')
+        self.log.warning('emergency stop caught, executing ESFs')
         session.log.info('Stopping devices for immediate stop')
         # now execute emergency stop functions
         for (func, args) in self.estop_functions:

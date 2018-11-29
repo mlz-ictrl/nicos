@@ -95,7 +95,7 @@ class HistogramConfArray(HistogramConfElement):
         :return: (string) representation of the data vector
         """
         if not self.data:
-            self.log.warn('Data for the array missing.')
+            self.log.warning('Data for the array missing.')
             return ''
 
         arraytxt = '\n'
@@ -205,8 +205,8 @@ class HistogramConfAxis(HistogramConfElement):
         if self._attached_array:
             arraylen = len(self._attached_array.data)
             if arraylen == 0:
-                self.log.warn('Data not configured in the array: %s!',
-                              self._attached_array.name)
+                self.log.warning('Data not configured in the array: %s!',
+                                 self._attached_array.name)
                 return 0
             # If mapping is boundary then length is 1 less than size of array
             if self.mapping == 'boundary':

@@ -365,8 +365,8 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
                 if g == guide:
                     return
             if free is None:
-                self.log.warn("Can't free the guide: %s. Please check manually"
-                              ' why!', guide)
+                self.log.warning("Can't free the guide: %s. Please check "
+                                 'manually why!', guide)
 
     def _hw_wait(self, devices):
         loops = 0
@@ -445,8 +445,8 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
         elif mode == 'cor':
             pos = self._read_cor()
         else:
-            self.log.warn('not a valid mode given; corrected values or raw '
-                          'values?')
+            self.log.warning('not a valid mode given; corrected values or raw '
+                             'values?')
             return False
 
         check = 0
@@ -570,7 +570,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
             self.log.debug('check: %s', check)
         self.log.debug('movement allowed for the following axes: %s', allowed)
         if check != self._num_axes:
-            self.log.warn('movement not allowed for the following axes: %s',
-                          notallowed)
+            self.log.warning('movement not allowed for the following axes: %s',
+                             notallowed)
             return False, '; '.join(why)
         return True, ''

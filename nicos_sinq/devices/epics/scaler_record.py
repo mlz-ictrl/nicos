@@ -85,13 +85,13 @@ class EpicsScalerRecord(EpicsDetector):
 
     def doReadThreshold(self):
         if not self.thresholdpv:
-            self.log.warn('Threshold PV not set, cannot read it!')
+            self.log.warning('Threshold PV not set, cannot read it!')
             return 0.0
         return self._get_pv('thresholdpv')
 
     def doWriteThreshold(self, newValue):
         if not self.thresholdpv:
-            self.log.warn('Threshold PV not set, cannot write it!')
+            self.log.warning('Threshold PV not set, cannot write it!')
         self._put_pv('thresholdpv', newValue)
 
     def doStatus(self, maxage=0):

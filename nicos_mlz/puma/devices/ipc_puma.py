@@ -376,10 +376,11 @@ class ReferenceMotor(CanReference, Motor1):
                        (self.abslimits[1] + self.precision):
                         self._resetlimits()
                     else:
-                        self.log.warn('in _referencing limits not restored '
-                                      'after positioning')
+                        self.log.warning('in _referencing limits not restored '
+                                         'after positioning')
                 except NicosError as e:
-                    self.log.warn('error catched in finally positioning %s', e)
+                    self.log.warning('error catched in finally positioning %s',
+                                     e)
 
     def _drive_to_limit_switch(self, switch, direction):
         self.log.debug('driving to %r switch towards %r', switch, direction)

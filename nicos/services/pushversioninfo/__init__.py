@@ -96,10 +96,11 @@ class PushVersionInfo(BaseCacheClient):
 
     def doInit(self, mode):
         if self.update_uri is None:
-            self.log.warn('No update URI configured, updates will not be sent')
+            self.log.warning('No update URI configured, updates will not be '
+                             'sent')
         if  not nicoskeystore.getCredential(self.tokenid):
-            self.log.warn('No token %s found in keystore, updates will not be '
-                          'sent' % self.tokenid)
+            self.log.warning('No token %s found in keystore, updates will not '
+                             'be sent' % self.tokenid)
         BaseCacheClient.doInit(self, mode)
 
     def _connect_action(self):

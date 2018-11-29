@@ -117,7 +117,7 @@ class Euler(PositionBase):
         co = np.sin(self.alpha) ** 2 - si ** 2
         con3 = np.cos(self.kappamax / 2.0) ** 2 * np.sin(self.alpha) ** 2
         if con3 > co:
-            self.log.warn("Chi can not be reached on this hardware")
+            self.log.warning("Chi can not be reached on this hardware")
             kappa = np.deg2rad(180.0)
             omega = np.deg2rad(90.0)
             # raise error("Chi high")

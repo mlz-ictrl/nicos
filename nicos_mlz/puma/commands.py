@@ -299,11 +299,11 @@ def multiadscan(info_header, parnames, parlist, psipos, phipos, monopos,
 #                 cad.reset()
 #             multiWait([phi, psi, cad, mono])
 #         except PositionError:
-#             session.log.warn('cad status %s', cad.status()[0])
-#             session.log.warn('phi status %s', phi.status()[0])
-#             session.log.warn('psi status %s', psi.status()[0])
-#             session.log.warn('mono status %s', mono.status()[0])
-#             session.log.warn('something is wrong')
+#             session.log.warning('cad status %s', cad.status()[0])
+#             session.log.warning('phi status %s', phi.status()[0])
+#             session.log.warning('psi status %s', psi.status()[0])
+#             session.log.warning('mono status %s', mono.status()[0])
+#             session.log.warning('something is wrong')
 #             if abs(psi.read() - psipos) > 0.1:
 #                 error = 1
 #                 msg = 'psi has not reached position'

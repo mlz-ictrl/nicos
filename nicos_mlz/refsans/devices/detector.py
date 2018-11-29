@@ -206,7 +206,7 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
             image = result[1][0]
             self.log.debug("results: %r", results)
             if not self.linkpaths:  # XXX: remove
-                self.log.warn('no linkpaths set, NOT saving header')
+                self.log.warning('no linkpaths set, NOT saving header')
                 return
             self._file = session.data.createDataFile(
                 self.dataset, [self.linkpaths[0] + self.prefix + '.header'],

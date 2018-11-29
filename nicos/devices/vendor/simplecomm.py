@@ -237,7 +237,7 @@ class SimpleCommMoveable(SimpleCommReadable, Moveable):
         msg = self.name + '/target=' + str(target)
         reTarget = self._attached_comm.communicate(msg)
         if reTarget != target:
-            self.log.warn('Target value has not been updated')
+            self.log.warning('Target value has not been updated')
 
     def doStop(self):
         self.start(self.read())
@@ -246,4 +246,4 @@ class SimpleCommMoveable(SimpleCommReadable, Moveable):
         msg = self.name + '/speed=' + str(newValue)
         reValue = self._attached_comm.communicate(msg)
         if reValue != newValue:
-            self.log.warn('Speed value has not been updated')
+            self.log.warning('Speed value has not been updated')

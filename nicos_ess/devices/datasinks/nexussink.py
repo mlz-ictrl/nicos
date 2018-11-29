@@ -85,7 +85,7 @@ class NexusFileWriterStatus(KafkaStatusHandler):
         msg = "Unexpected error while writing #%d" % dataset.counter
         if message:
             msg += ' - ' + message
-        self.log.warn(msg)
+        self.log.warning(msg)
 
     def _on_fail(self, jobid, dataset, message=''):
         # Called when the writing failed
