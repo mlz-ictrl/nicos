@@ -103,9 +103,9 @@ class CascadeDetector(ImageChannel):
         'tofchannels':  Param('Number of TOF channels to use', type=int,
                               default=128, settable=True),
         'foils':        Param('Number of spaces for foils in the TOF data',
-                              type=intrange(1, 10), default=8),
+                              type=intrange(1, 32), default=8),
         'foilsorder':   Param('Usable foils, ordered by number',
-                              type=listof(intrange(0, 10)), settable=False,
+                              type=listof(intrange(0, 31)), settable=False,
                               default=[7, 6, 5, 0, 1, 2]),  # XXX make it mandatory
         'fitfoil':      Param('Foil for contrast fitting', type=int, default=0,
                               settable=True),
