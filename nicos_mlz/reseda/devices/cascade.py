@@ -133,7 +133,8 @@ class CascadeDetector(ImageChannel):
 
     def doUpdateMode(self, value):
         self._dataprefix = (value == 'image') and 'IMAG' or 'DATA'
-        self._datashape = (value == 'image') and (128, 128) or (self.tofchannels, 128, 128)
+        self._datashape = (value == 'image') and (128, 128) or (128, 128,
+                                                                self.tofchannels)
         self._tres = (value == 'image') and 1 or self.tofchannels
 
     #
@@ -226,7 +227,7 @@ class CascadeDetector(ImageChannel):
 
         # demux timing into foil + timing
         nperfoil = self.tofchannels // self.foils
-        shaped = data.reshape((self.foils, nperfoil) +  self._datashape[1:])
+        shaped = data.reshape((self.foils, nperfoil) +  self._datashape[:2])
 
         x = np.arange(nperfoil)
         ty = shaped[self.fitfoil].sum((1, 2))
