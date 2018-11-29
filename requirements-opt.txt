@@ -13,3 +13,4 @@ slackclient>=1.0.9
 sshtunnel>=0.1.2
 requests>=2.0
 #PyTango>=8.1.8
+Pillow>=4.0.0
