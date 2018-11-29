@@ -44,7 +44,7 @@ change-merged''',
                                                  [compareType: 'PLAIN', pattern: 'release-3.1'],
                                                  [compareType: 'PLAIN', pattern: 'release-3.2'],
                                                  [compareType: 'PLAIN', pattern: 'release-3.3'],
-                                                 [compareType: 'PLAIN', pattern: 'p3'],
+                                                 [compareType: 'REG_EXP', pattern: 'feature-.*']
                                                  ],
                                  ]],
                                  serverName: 'defaultServer',
