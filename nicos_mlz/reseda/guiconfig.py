@@ -23,7 +23,7 @@ main_window = tabbed(
     ),
     ('Mieze display',
      panel('nicos_mlz.reseda.gui.mieze_display.MiezePanel',
-           setups='det_cascade')
+           setups='det_cascade*')
     ),
 )
 
