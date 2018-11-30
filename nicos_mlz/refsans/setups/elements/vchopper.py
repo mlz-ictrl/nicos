@@ -46,7 +46,7 @@ devices = dict(
     ),
     disc2_pos = device('nicos.devices.generic.ManualSwitch',
         description = 'pos of disk2',
-        states = range(1, 5+1),
+        states = [i for i in range(1, 5+1)],
         fmtstr = '%d',
         unit = '',
     ),
