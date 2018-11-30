@@ -410,7 +410,7 @@ class SetupChecker(object):
 
         # check for validity of display_order
         display_order = self.ns.get('display_order', 50)
-        if not isinstance(display_order, (int, long)) or \
+        if not isinstance(display_order, integer_types) or \
            not 0 <= display_order <= 100:
             self.log_error('display_order should be an integer between '
                            '0 and 100',
