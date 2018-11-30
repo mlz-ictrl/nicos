@@ -1336,7 +1336,7 @@ def make_load_config(filepath, all_setups, cd_files):
             fullname = all_setups[setupname]
         ns = {}
         with open(fullname) as fp:
-            exec_(fp, ns)
+            exec_(fp.read(), ns)
         cd_files.add(fullname)
         try:
             return ns[element]
