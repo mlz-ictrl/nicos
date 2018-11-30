@@ -515,8 +515,7 @@ class Coder(NicosCoder):
         self._lasterror = None
 
     def doVersion(self):
-        version = self._attached_bus.get(self.addr, 151)
-        return [('IPC encoder card, %s' % self._hwtype, str(version))]
+        return [('IPC encoder card, %s' % self._hwtype, str(self.firmware))]
 
     def doReadFirmware(self):
         return self._attached_bus.get(self.addr, 151)
@@ -648,8 +647,7 @@ class Resolver(Coder):
     }
 
     def doVersion(self):
-        version = self._attached_bus.get(self.addr, 151)
-        return [('IPC resolver card, %s' % self._hwtype, str(version))]
+        return [('IPC resolver card, %s' % self._hwtype, str(self.firmware))]
 
     def doReadConfbyte(self):
         confbyte = self._attached_bus.get(self.addr, 152)
