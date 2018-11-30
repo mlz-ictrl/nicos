@@ -884,7 +884,8 @@ class Device(object):
            (component, version) tuples that are added to the version info.
         """
         versions = getVersions(self)
-        if hasattr(self, 'doVersion'):
+        if not getattr(self, '_sim_active', False) and \
+           hasattr(self, 'doVersion'):
             versions.extend(self.doVersion())
         return versions
 
