@@ -23,7 +23,13 @@ main_window = tabbed(
     ),
     ('Mieze display',
      panel('nicos_mlz.reseda.gui.mieze_display.MiezePanel',
-           setups='det_cascade*')
+           setups='det_cascade',
+           columns=3, rows=2, foils=[7, 6, 5, 0, 1, 2])
+    ),
+    ('Mieze display (Reseda II)',
+     panel('nicos_mlz.reseda.gui.mieze_display.MiezePanel',
+           setups='det_cascade2',
+           columns=4, rows=2, foils=[6, 5, 4, 3, 2, 1, 0])
     ),
 )
 

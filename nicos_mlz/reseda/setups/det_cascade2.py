@@ -1,7 +1,7 @@
-description = 'CASCADE detector'
+description = 'CASCADE detector Reseda II'
 group = 'lowlevel'
 includes = ['det_base']
-excludes = ['det_3he', 'det_cascade2']
+excludes = ['det_3he', 'det_cascade']
 
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda/'
 
@@ -82,8 +82,8 @@ devices = dict(
     psd_channel = device('nicos_mlz.reseda.devices.cascade.CascadeDetector',
         description = 'CASCADE detector channel',
         tangodevice = tango_base + 'cascade/tofchannel',
-        tofchannels = 128,
-        foilsorder = [5, 4, 3, 0, 1, 2, 6, 7],
+        tofchannels = 512,
+	foilsorder = [6, 5, 4, 3, 2, 1, 0, 7],  # last foil is dummy
     ),
     psd = device('nicos.devices.generic.Detector',
         description = 'CASCADE detector',

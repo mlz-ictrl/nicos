@@ -27,12 +27,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-from time import sleep
-
 import numpy as np
 
 from nicos.core import ArrayDesc, Override, Param, Value, intrange, listof, \
-    oneof, tupleof
+    oneof, tupleof, ConfigurationError, SIMULATION
 from nicos.core.data import GzipFile
 from nicos.devices.datasinks.raw import SingleRawImageSink
 from nicos.devices.tango import ImageChannel
@@ -101,15 +99,14 @@ class CascadeDetector(ImageChannel):
         'roi':          Param('Region of interest, given as (x1, y1, x2, y2)',
                               type=tupleof(int, int, int, int),
                               default=(-1, -1, -1, -1), settable=True),
-        'tofchannels':  Param('Number of TOF channels to use', type=int,
+        'tofchannels':  Param('Total number of TOF channels to use', type=int,
                               default=128, settable=True),
-        'foils':        Param('Number of spaces for foils in the TOF data',
-                              type=intrange(1, 32), default=8),
-        'foilsorder':   Param('Usable foils, ordered by number',
+        'foilsorder':   Param('Usable foils, ordered by number. Must match the '
+                              'number of foils configured in the server!',
                               type=listof(intrange(0, 31)), settable=False,
-                              default=[7, 6, 5, 0, 1, 2]),  # XXX make it mandatory
-        'fitfoil':      Param('Foil for contrast fitting', type=int, default=0,
-                              settable=True),
+                              mandatory=True),
+        'fitfoil':      Param('Foil for contrast fitting (number BEFORE resorting)',
+                              type=int, default=0, settable=True),
     }
 
     parameter_overrides = {
@@ -130,26 +127,33 @@ class CascadeDetector(ImageChannel):
 
     def doWriteTofchannels(self, value):
         self._dev.timeChannels = value if self.mode == 'tof' else 1
-        self.doUpdateMode(self.mode)
 
     def doUpdateMode(self, value):
         self._dataprefix = (value == 'image') and 'IMAG' or 'DATA'
-        self._datashape = (value == 'image') and (128, 128) or (128, 128,
-                                                                self.tofchannels)
-        self._tres = (value == 'image') and 1 or self.tofchannels
+        self._datashape = (value == 'image') and (128, 128) or \
+            (self._perfoil * len(self.foilsorder), 128, 128)
 
     #
     # Device interface
     #
 
+    _perfoil = 16
+
     def doPreinit(self, mode):
         ImageChannel.doPreinit(self, mode)
-        #if mode != SIMULATION:
-        #    self.doReset()
+        if mode != SIMULATION:
+            if self._getProperty('compact_readout') != 'True':
+                raise ConfigurationError(self, 'server must be set to '
+                                         'compact readout mode')
+            if len(eval(self._getProperty('compact_foil_start'))) != \
+               len(self.foilsorder):
+                raise ConfigurationError(self, 'number of foils to read '
+                                         'out from server does not match '
+                                         'with "foilsorder" parameter')
+            self._perfoil = int(self._getProperty('compact_per_foil'))
 
     def doInit(self, mode):
-        # self._tres is set by doUpdateMode
-        self._xres, self._yres = (128, 128)
+        pass
 
     def doReset(self):
         oldmode = self.mode
@@ -165,7 +169,6 @@ class CascadeDetector(ImageChannel):
 
     def doStart(self):
         self.readresult = [0, 0]
-        sleep(0.005)
         self._dev.Start()
 
     def doFinish(self):
@@ -206,9 +209,7 @@ class CascadeDetector(ImageChannel):
 
     @property
     def arraydesc(self):
-        if self.mode == 'image':
-            return ArrayDesc('data', self._datashape, '<u4', ['X', 'Y'])
-        return ArrayDesc('data', self._datashape, '<u4', ['X', 'Y', 'T'])
+        return ArrayDesc('data', self._datashape, '<u4')
 
     def doReadArray(self, quality):
         # get current data array from detector, reshape properly
@@ -227,8 +228,8 @@ class CascadeDetector(ImageChannel):
             return data
 
         # demux timing into foil + timing
-        nperfoil = self.tofchannels // self.foils
-        shaped = data.reshape((self.foils, nperfoil) +  self._datashape[:2])
+        nperfoil = self._datashape[0] // len(self.foilsorder)
+        shaped = data.reshape((len(self.foilsorder), nperfoil) + self._datashape[1:])
 
         x = np.arange(nperfoil)
         ty = shaped[self.fitfoil].sum((1, 2))
