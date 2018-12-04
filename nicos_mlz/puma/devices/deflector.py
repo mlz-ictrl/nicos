@@ -37,7 +37,7 @@ class Deflector(Axis):
                               userparam=False, default=0.9),
         'length': Param('Length of the deflector blades',
                         type=floatrange(0, None), settable=False,
-                        userparam=False, default=4., unit='mm'),
+                        prefercache=False, default=40., unit='mm'),
         'thickness': Param('Thickness of the wafer',
                            type=floatrange(0, None), settable=False,
                            userparam=False, default=0.55, unit='mm'),
