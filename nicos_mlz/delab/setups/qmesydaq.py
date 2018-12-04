@@ -2,7 +2,7 @@ description = 'testing qmesydaq'
 
 group = 'optional'
 
-excludes = ['acqiris']
+excludes = []
 
 sysconfig = dict(
     datasinks = ['LiveViewSink'],
