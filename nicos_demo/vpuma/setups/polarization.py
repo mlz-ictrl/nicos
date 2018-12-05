@@ -3,7 +3,7 @@ description = 'Polarization analysis'
 group = 'basic'
 
 includes = ['pumabase', 'multianalyzer', 'multidetector', 'cad', 'analyzer',
-            'monochromator', 'aliases']
+            'monochromator', 'aliases', 'lengths', 'slits']
 
 devices = dict(
     ana_polarization = device('nicos.devices.tas.Monochromator',
