@@ -8,3 +8,7 @@ div.wy-side-nav-search > div.version
     color:#000000;
 }
 
+.wy-side-nav-search > a
+{
+   max-width: 100%;
+}
