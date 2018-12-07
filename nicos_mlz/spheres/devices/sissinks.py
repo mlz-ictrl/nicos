@@ -140,7 +140,7 @@ class SisYamlFileSinkHandlerBase(YAMLBaseFileSinkHandler, SisSinkHandlerBase):
         self.contents = []
 
     def getCountDuration(self):
-        return self.dataset.values['timer']
+        return self.dataset.values['sistimer']
 
     def getDatasetFinish(self):
         return self.dataset.finished if self.dataset.finished \
