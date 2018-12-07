@@ -38,6 +38,7 @@ devices = dict(
         sample = 'Sample',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
+        semicolon = False,
     ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink',
     ),
