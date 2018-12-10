@@ -29,11 +29,11 @@ import os
 import signal
 import subprocess
 import sys
-
 from os import path
 from time import sleep
 
 import psutil
+from six.moves import input
 
 thisfile = path.realpath(__file__)
 bin_path = path.normpath(path.dirname(thisfile))
@@ -77,7 +77,7 @@ def spawn(script, *args, **kwds):
 def wait():
     echo('Services started, press Enter to stop them.\n')
     try:
-        raw_input()
+        input()
     except (KeyboardInterrupt, EOFError):
         pass
 
