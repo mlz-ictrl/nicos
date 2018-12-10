@@ -10,6 +10,8 @@ includes = []
 
 nethost = 'spodisrv.spodi.frm2'
 
+tango_base = 'tango://spodictrl.spodi.frm2:10000/spodi/'
+
 devices = dict(
 
     # mon1 = device('nicos.devices.vendor.qmesydaq.taco.Counter',
@@ -89,6 +91,26 @@ devices = dict(
         pollinterval = None,
         maxage = 86400,
         liveinterval = 5,
+    ),
+    hv_det = device('nicos.devices.tango.PowerSupply',
+        description = 'Detector high voltage',
+        tangodevice = tango_base + 'hv/detector',
+        requires = {'level': 'admin'},
+    ),
+    hv_det_current = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = 'Detector high voltage current',
+        device = 'hv_det',
+        parameter = 'current',
+    ),
+    hv_mon = device('nicos.devices.tango.PowerSupply',
+        description = 'Monitor high voltage',
+        tangodevice = tango_base + 'hv/monitor',
+        requires = {'level': 'admin'},
+    ),
+    hv_mon_current = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = 'Monitor high voltage current',
+        device = 'hv_det',
+        parameter = 'current',
     ),
     histogram = device('nicos_mlz.devices.qmesydaqsinks.HistogramSink',
         description = 'Histogram data written via QMesyDAQ',
