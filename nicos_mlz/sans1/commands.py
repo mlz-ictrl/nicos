@@ -152,3 +152,66 @@ def setfg(freq_sample, amplitude_sample, offset_sample, shape_sample, freq_detec
     strings['arm'] = template_new
     multifg.strings = strings
     move(multifg, 'arm')
+
+
+@usercommand
+def tcalc(sd, cs, chop_num, chop_speed, wav_mean, wav_spread):
+    """calculates the tisane frequencies
+
+    """
+
+    import math
+
+    #the chopper
+    T_c = 1 / (chop_num * chop_speed)
+
+    #lets calculate the sample repetition time using the TISANE equation
+    T_s = T_c * sd / (sd + cs)
+
+    #sample frequency
+    F_s = 1/T_s
+
+    #lets calculate the detector repetition tiem using the TISANE equation
+    T_d = T_s * (sd + cs) / cs
+
+    #detector frequency
+    F_d = 1 / T_d
+
+    #define wavelength [A]
+    wav = []
+
+    i = 4
+    while i <= 20:
+        wav.append(float(i))
+        i += 0.01
+
+    speed = []
+    for i in wav:
+        speed.append(6.262e-34 / (1.674e-27 * i * 1e-10))
+
+    #transmission function of the selector is assumed to be gaussian
+    trans_selector = []
+    for i in wav:
+        trans_selector.append(math.exp(-0.5 * ((i - wav_mean)**2) - ((0.5 * wav_mean * 0.01 * wav_spread)**2)))
+
+    #define a cutoff for the slowest and the fastest neutrons
+    # use two sigma for an assumption of the maximal and mininmal test_doppler_wavelength_0
+    wav_min = wav_mean * (1 - 0.01 * wav_spread)
+    wav_max = wav_mean * (1 + 0.01 * wav_spread)
+
+    speed_min = 6.262e-34 / (1.674e-27 * wav_max * 1e-10)
+    speed_max = 6.262e-34 / (1.674e-27 * wav_min * 1e-10)
+
+    #calculate the frame overlap
+    frame_overlap_detector = ((cs + sd) / speed_min - (cs + sd) / speed_max) / T_c
+    frame_overlap_sample = (cs / speed_min - cs / speed_max) / T_c
+
+    print("Chopper speed             = %f [Hz]" % chop_speed)
+    print("Chopper opening frequency = %f [rpm]" % (chop_speed*60))
+    print("Chopper numbers           = %f" % chop_num)
+    print("SD                        = %f [m]" % sd)
+    print("Sample frequency          = %.6f [Hz]" % F_s)
+    print("Sample time               = %f [mu s]" % (T_s*1000000))
+    print("Detector frequency        = %.6f [Hz]" % F_d)
+    print("Frame overlap sample      = %f" % frame_overlap_sample)
+    print("Frame overlap detector    = %f" % frame_overlap_detector)
