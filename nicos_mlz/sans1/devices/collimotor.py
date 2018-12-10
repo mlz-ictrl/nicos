@@ -26,23 +26,24 @@
 
 from __future__ import absolute_import, division, print_function
 
-import struct
 import time
 
-from Modbus import Modbus
-
 from nicos import session
-from nicos.core import SIMULATION, Attach, CommunicationError, HasTimeout, \
-    InvalidValueError, Moveable, MoveError, Override, Param, PositionError, \
-    UsageError, floatrange, intrange, listof, none_or, oneof, oneofdict, \
-    requires, status, usermethod
+from nicos.core import SIMULATION, Attach, CommunicationError, \
+    ConfigurationError, HasTimeout, InvalidValueError, Moveable, MoveError, \
+    Override, Param, PositionError, UsageError, floatrange, intrange, \
+    none_or, oneof, oneofdict, requires, status, usermethod
 from nicos.core.utils import multiStatus
 from nicos.devices.abstract import CanReference, Coder, Motor
 from nicos.devices.generic import Switcher
 from nicos.devices.generic.sequence import SeqMethod, SequencerMixin
-from nicos.devices.taco.core import TacoDevice
-from nicos.devices.taco.io import DigitalInput, DigitalOutput, \
-    NamedDigitalInput, NamedDigitalOutput
+from nicos.devices.tango import PyTangoDevice
+
+
+WATCHDOG_REGISTER = 0x1120
+WATCHDOG_DISABLE = 0
+CODER_VALIDATOR = intrange(0x4000, 0x4800)
+MOTOR_VALIDATOR = oneof(*range(0x4020, 0x4800, 10))
 
 
 class Sans1ColliSlit(Switcher):
@@ -123,20 +124,29 @@ class Sans1ColliSwitcher(Switcher):
                             self._attached_moveable)
 
 
-class Sans1ColliCoder(TacoDevice, Coder):
+class Sans1ColliBase(PyTangoDevice):
+
+    hardware_access = True
+
+    def doInit(self, mode):
+        # switch off watchdog, important before doing any write access
+        if mode != SIMULATION:
+            self._dev.WriteOutputWord((WATCHDOG_REGISTER, WATCHDOG_DISABLE))
+            # check 'dwordorder' is 'little'
+            if self._getProperty('dwordorder') != 'little':
+                raise ConfigurationError("dwordorder property must be set to 'little'!")
+
+
+class Sans1ColliCoder(Sans1ColliBase, Coder):
     """
     Reads out the Coder for a collimation axis
     """
-
-    taco_class = Modbus
-
-    hardware_access = True
 
     parameters = {
         # provided by parent class: speed, unit, fmtstr, warnlimits, abslimits,
         #                           userlimits, precision and others
         'address': Param('Starting offset of motor control block in words',
-                         type=int, mandatory=True, settable=False,
+                         type=CODER_VALIDATOR, mandatory=True, settable=False,
                          userparam=False),
         'slope':   Param('Slope of the coder in FULL steps per physical unit',
                          type=float, default=1000000., unit='steps/main',
@@ -148,21 +158,10 @@ class Sans1ColliCoder(TacoDevice, Coder):
                          type=int, settable=False, unit='steps'),
     }
 
-    def doInit(self, mode):
-        # make sure we are in the right address range
-        if not (0x4000 <= self.address <= 0x47ff):
-            raise InvalidValueError(
-                self,
-                'invalid address %#06x, please check settings!' % self.address)
-        # switch off watchdog, important before doing any write access
-        if mode != SIMULATION:
-            self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
-
     def doRead(self, maxage=0):
-        regs = self._taco_guard(self._dev.readHoldingRegisters,
-                                (0, self.address, 2))
-        self._setROParam('steps',
-                         struct.unpack('=i', struct.pack('<2H', *regs))[0])
+        steps = self._dev.ReadOutputDword(self.address)
+        self._setROParam('steps', steps)
+
         value = self.steps / self.slope
         self.log.debug('doRead: %d steps -> %s',
                        self.steps, self.format(value, unit=True))
@@ -174,7 +173,7 @@ class Sans1ColliCoder(TacoDevice, Coder):
         return status.WARN, 'Coder should never be at 0 Steps, Coder may be broken!'
 
 
-class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Motor):
+class Sans1ColliMotor(Sans1ColliBase, CanReference, SequencerMixin, HasTimeout, Motor):
     """
     Device object for a digital output device via a Beckhoff modbus interface.
     Minimum Parameter Implementation.
@@ -182,16 +181,13 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
     Beckhoff PLC.
     """
 
-    taco_class = Modbus
-
     relax_mapping = True
-    hardware_access = True
 
     parameters = {
         # provided by parent class: speed, unit, fmtstr, warnlimits, abslimits,
         #                           userlimits, precision and others
         'address':    Param('Starting offset of Motor control Block in words',
-                            type=int, mandatory=True, settable=False,
+                            type=MOTOR_VALIDATOR, mandatory=True, settable=False,
                             userparam=False),
         'slope':      Param('Slope of the Motor in FULL steps per physical '
                             'unit', type=float, default=1., unit='steps/main',
@@ -217,17 +213,8 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
     _busy_until = 0
 
     def doInit(self, mode):
-        # make sure we are in the right address range
-        if not (0x4000 <= self.address <= 0x47ff) or \
-           (self.address - 0x4020) % 10:
-            # each motor-control-block is 20 bytes = 10 words, starting from
-            # byte 64
-            raise InvalidValueError(
-                self,
-                'Invalid address %#06x, please check settings!' % self.address)
-        # switch off watchdog, important before doing any write access
+        Sans1ColliBase.doInit(self, mode)
         if mode != SIMULATION:
-            self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
             if self.autopower == 'on':
                 self._HW_disable()
 
@@ -236,68 +223,53 @@ class Sans1ColliMotor(TacoDevice, CanReference, SequencerMixin, HasTimeout, Moto
     #
     def _readControlBit(self, bit):
         self.log.debug('_readControlBit %d', bit)
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                 (0, self.address, 1))[0]
+        value = self._dev.ReadOutputWord(self.address)
         return (value & (1 << int(bit))) >> int(bit)
 
     def _writeControlBit(self, bit, value):
         self._busy_until = time.time() + 3
         self.log.debug('_writeControlBit %r, %r', bit, value)
-        tmpval = self._taco_guard(self._dev.readHoldingRegisters,
-                                  (0, self.address, 1))[0]
+        tmpval = self._dev.ReadOutputWord(self.address)
         tmpval &= ~(1 << int(bit))
         tmpval |= (int(value) << int(bit))
-        self._taco_guard(self._dev.writeSingleRegister,
-                         (0, self.address, tmpval))
-        session.delay(0.5)  # work around race conditions....
+        self._dev.WriteOutputWord((self.address, tmpval))
+        session.delay(0.5)  # work around race conditions inside plc....
 
     def _writeDestination(self, value):
         self.log.debug('_writeDestination %r', value)
-        value = struct.unpack('<2H', struct.pack('=i', value))
-        self._taco_guard(self._dev.writeMultipleRegisters,
-                         (0, self.address + 2) + value)
+        self._dev.WriteOutputDword((self.address + 2, value))
 
     def _readStatusWord(self):
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                 (0, self.address + 4, 1))[0]
+        value = self._dev.ReadOutputWord(self.address + 4)
         self.log.debug('_readStatusWord %04x', value)
         return value
 
     def _readErrorWord(self):
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                 (0, self.address + 5, 1))[0]
+        value = self._dev.ReadOutputWord(self.address + 5)
         self.log.debug('_readErrorWord %04x', value)
         return value
 
     def _readPosition(self):
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                 (0, self.address + 6, 2))
-        value = struct.unpack('=i', struct.pack('<2H', *value))[0]
+        value = self._dev.ReadOutputDword(self.address + 6)
         self.log.debug('_readPosition: -> %d steps', value)
         return value
 
     def _readUpperControlWord(self):
         self.log.error('_readUpperControlWord')
-        return self._taco_guard(self._dev.readHoldingRegisters,
-                                (0, self.address + 1, 1))[0]
+        return self._dev.ReadOutputWord(self.address + 1)
 
     def _writeUpperControlWord(self, value):
         self.log.debug('_writeUpperControlWord 0x%04x', value)
         value = int(value) & 0xffff
-        self._taco_guard(self._dev.writeSingleRegister,
-                         (0, self.address + 1, value))
+        self._dev.WriteOutputWord((self.address + 1, value))
 
     def _readDestination(self):
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                 (0, self.address + 2, 2))
-        value = struct.unpack('=i', struct.pack('<2H', *value))[0]
+        value = self._dev.ReadOutputDword(self.address + 2)
         self.log.debug('_readDestination: -> %d steps', value)
         return value
 
     def _readReturn(self):
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                 (0, self.address + 8, 2))
-        value = struct.unpack('=i', struct.pack('<2H', *value))[0]
+        value = self._dev.ReadOutputDword(self.address + 8)
         self.log.debug('_readReturn: -> %d (0x%08x)', value, value)
         return value
 
@@ -586,7 +558,6 @@ class Sans1ColliMotorAllParams(Sans1ColliMotor):
     Maximum Parameter Implementation.
     All Relevant Parameters are accessible and can be configured.
     """
-    taco_class = Modbus
 
     _paridx = dict(
         refpos=2, vmax=3, v_max=3, vmin=4, v_min=4, vref=5, v_ref=5,
@@ -1063,115 +1034,3 @@ class Sans1ColliMotorAllParams(Sans1ColliMotor):
         for the right password see docu"""
         # 0x544B4531
         self.writeParameter(255, password)
-
-
-class BeckhoffDigitalInput(DigitalInput):
-    """
-    Device object for a digital input device via a Beckhoff modbus interface.
-    """
-    taco_class = Modbus
-    valuetype = listof(int)
-
-    parameters = {
-        'startoffset': Param('Starting offset of digital output values',
-                             type=int, mandatory=True),
-        'bitwidth':    Param('Number of bits to read', type=int,
-                             mandatory=True),
-    }
-
-    def doInit(self, mode):
-        # switch off watchdog, important before doing any write access
-        if mode != SIMULATION:
-            self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
-
-    def doRead(self, maxage=0):
-        return tuple(self._taco_guard(self._dev.readDiscreteInputs, (0,
-                                      self.startoffset, self.bitwidth)))
-
-    def doReadFmtstr(self):
-        return '[' + ', '.join(['%d'] * self.bitwidth) + ']'
-
-
-class BeckhoffNamedDigitalInput(NamedDigitalInput):
-    taco_class = Modbus
-
-    parameters = {
-        'startoffset': Param('Starting offset of digital output values',
-                             type=int, mandatory=True),
-    }
-
-    def doInit(self, mode):
-        # switch off watchdog, important before doing any write access
-        if mode != SIMULATION:
-            self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
-        NamedDigitalOutput.doInit(self, mode)
-
-    def doRead(self, maxage=0):
-        value = self._taco_guard(self._dev.readDiscreteInputs,
-                                 (0, self.startoffset, 1))[0]
-        return self._reverse.get(value, value)
-
-
-class BeckhoffDigitalOutput(DigitalOutput):
-    """
-    Device object for a digital output device via a Beckhoff modbus interface.
-    """
-    taco_class = Modbus
-    valuetype = listof(int)
-
-    parameters = {
-        'startoffset': Param('Starting offset of digital output values',
-                             type=int, mandatory=True),
-        'bitwidth':    Param('Number of bits to switch', type=int,
-                             mandatory=True),
-    }
-
-    def doInit(self, mode):
-        # switch off watchdog, important before doing any write access
-        if mode != SIMULATION:
-            self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
-
-    def doRead(self, maxage=0):
-        return tuple(self._taco_guard(self._dev.readCoils, (0,
-                                      self.startoffset, self.bitwidth)))
-
-    def doStart(self, value):
-        self._taco_guard(self._dev.writeMultipleCoils, (0,
-                         self.startoffset) + tuple(value))
-
-    def doIsAllowed(self, target):
-        try:
-            if len(target) != self.bitwidth:
-                return False, ('value needs to be a sequence of length %d, '
-                               'not %r' % (self.bitwidth, target))
-        except TypeError:
-            return False, 'invalid value for device: %r' % target
-        return True, ''
-
-    def doReadFmtstr(self):
-        return '[' + ', '.join(['%d'] * self.bitwidth) + ']'
-
-
-class BeckhoffNamedDigitalOutput(NamedDigitalOutput):
-    taco_class = Modbus
-
-    parameters = {
-        'startoffset': Param('Starting offset of digital output values',
-                             type=int, mandatory=True),
-    }
-
-    def doInit(self, mode):
-        # switch off watchdog, important before doing any write access
-        if mode != SIMULATION:
-            self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
-        NamedDigitalOutput.doInit(self, mode)
-
-    def doStart(self, target):
-        value = self.mapping.get(target, target)
-        self._taco_guard(self._dev.writeMultipleCoils,
-                         (0, self.startoffset) + (value,))
-
-    def doRead(self, maxage=0):
-        value = self._taco_guard(self._dev.readCoils,
-                                 (0, self.startoffset, 1))[0]
-        return self._reverse.get(value, value)
