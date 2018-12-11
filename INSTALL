@@ -16,6 +16,7 @@ If not mentioned otherwise, Python packages are available from PyPI
   - numpy
   - pyzmq version >= 2
   - rsa
+  - six
 
 * For the provided SysV compatible init script
 
@@ -100,7 +101,7 @@ Ubuntu
 
 * Basic system::
 
-     apt-get install python python-{dev,zmq,numpy,scipy,psutil,rsa} gnuplot
+     apt-get install python python-{dev,zmq,numpy,scipy,psutil,rsa,six} gnuplot
 
 * Optional components::
 
