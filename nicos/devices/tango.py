@@ -248,10 +248,12 @@ class PyTangoDevice(HasCommunication):
         """
         if dev is None:
             dev = self._dev
-        # Entangle and later API
+        # Entangle and later API: [name, value, name, value, ...]
         if dev.command_query('GetProperties').in_type == PyTango.DevVoid:
             props = dev.GetProperties()
-            return props[props.index(name) + 1] if name in props else None
+            propnames = props[::2]
+            return props[2*propnames.index(name) + 1] \
+                if name in propnames else None
         # old (pre-Entangle) API
         return dev.GetProperties([name, 'device'])[2]
 
