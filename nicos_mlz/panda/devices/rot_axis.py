@@ -296,10 +296,8 @@ class RotAxis(RefAxis):
             # wait until a) refswitch fires or b) we did a complete turn
             wait_for_motor(m)
             if not refsw(m):
-                self.log.error('Referencing: No refswitch found!!! Exiting')
-                # no need to start, as we are (hopefully) physically at the
-                # same point as before.
-                return
+                self.log.warning('Referencing: No refswitch active after stop, '
+                                 'but continuing anyway...')
 
             # Step 2) Try find a position without refswitch active, but close
             # to it.
