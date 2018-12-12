@@ -34,9 +34,9 @@ import numpy as np
 from nicos.core import anytype, params
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCellType
 from nicos.guisupport.qt import QCheckBox, QComboBox, QFormLayout, QFrame, \
-    QHBoxLayout, QIcon, QIntValidator, QLabel, QLineEdit, QPushButton, \
-    QScrollArea, QSizePolicy, QSpinBox, Qt, QTableWidget, QTableWidgetItem, \
-    QVBoxLayout, QWidget, pyqtSignal
+    QGridLayout, QHBoxLayout, QIcon, QIntValidator, QLabel, QLineEdit, \
+    QPushButton, QScrollArea, QSizePolicy, QSpinBox, Qt, QTableWidget, \
+    QTableWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 from nicos.guisupport.utils import DoubleValidator
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.protocols.cache import cache_dump, cache_load
@@ -103,23 +103,29 @@ class DeviceValueEdit(NicosWidget, QWidget):
             return
         devname = str(self.props['dev'])
         if devname:
-            unit = self._client.getDeviceParam(devname, 'unit') \
-                if self.props['showUnit'] else ''
-            fmtstr = self._client.getDeviceParam(devname, 'fmtstr')
+            params = self._client.getDeviceParams(devname)
             valuetype = self._client.getDeviceValuetype(devname)
+            valueinfo = self._client.eval('session.getDevice(%r).valueInfo()' %
+                                          devname, None)
+            unit = params.get('unit', '') if self.props['showUnit'] else ''
+            fmtstr = params.get('fmtstr', '%s')
+            # pylint: disable=unused-variable
+            target = params.get('target', valuetype())
             if curvalue is None:
                 curvalue = self._client.getDeviceParam(devname, 'target')
             if curvalue is None and valuetype is not None:
                 curvalue = valuetype()
         else:
             valuetype = str
-            curvalue = ''
+            curvalue = target = valuetype()
             fmtstr = '%s'
             unit = ''
+            valueinfo = None
+
         self._inner = create(self, valuetype, curvalue, fmtstr, unit,
                              allow_buttons=self.props['useButtons'],
                              allow_enter=self.props['allowEnter'],
-                             client=self._client)
+                             client=self._client, valinfo=valueinfo)
         last = self._layout.takeAt(0)
         if last:
             last.widget().deleteLater()
@@ -187,7 +193,7 @@ class DeviceParamEdit(DeviceValueEdit):
 
 
 def create(parent, typ, curvalue, fmtstr='', unit='',
-           allow_buttons=False, allow_enter=True, client=None):
+           allow_buttons=False, allow_enter=True, client=None, valinfo=None):
     # make sure the type is correct
     try:
         curvalue = typ(curvalue)
@@ -197,7 +203,7 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
         return MissingWidget(parent, curvalue, 'device not found')
     if unit:
         inner = create(parent, typ, curvalue, fmtstr, unit='', client=client,
-                       allow_enter=allow_enter)
+                       allow_enter=allow_enter, valinfo=valinfo)
         return AnnotatedWidget(parent, inner, unit)
     if isinstance(typ, params.oneof):
         if allow_buttons and len(typ.vals) <= 3:
@@ -211,7 +217,7 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
         return CheckWidget(parent, typ.conv, curvalue, client)
     elif isinstance(typ, params.tupleof):
         return MultiWidget(parent, typ.types, curvalue, client,
-                           allow_enter=allow_enter)
+                           allow_enter=allow_enter, valinfo=valinfo)
     elif isinstance(typ, params.dictwith):
         return DictWithWidget(parent, typ.keys, typ.convs.values(),
                               curvalue, client, allow_enter=allow_enter)
@@ -296,12 +302,16 @@ class MultiWidget(QWidget):
     dataChanged = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
-    def __init__(self, parent, types, curvalue, client, allow_enter=False):
+    def __init__(self, parent, types, curvalue, client, allow_enter=False,
+                 valinfo=None):
         QWidget.__init__(self, parent)
-        layout = self._layout = QHBoxLayout()
+        layout = self._layout = QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self._widgets = []
-        for (typ, val) in zip(types, curvalue):
+        if valinfo is not None:
+            for i, info in enumerate(valinfo):
+                layout.addWidget(QLabel(info.name), 0, i)
+        for i, (typ, val) in enumerate(zip(types, curvalue)):
             widget = create(self, typ, val, client=client,
                             allow_enter=allow_enter)
             self._widgets.append(widget)
@@ -309,7 +319,7 @@ class MultiWidget(QWidget):
             if allow_enter:
                 widget.valueChosen.connect(
                     lambda val: self.valueChosen.emit(self.getValue()))
-            layout.addWidget(widget)
+            layout.addWidget(widget, 1, i)
         self.setLayout(layout)
 
     def getValue(self):
