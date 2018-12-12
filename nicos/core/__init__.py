@@ -28,10 +28,10 @@ from __future__ import absolute_import
 
 from nicos.core import status
 from nicos.core.acquire import DevStatistics, acquire, read_environment
-from nicos.core.constants import FINAL, INTERMEDIATE, INTERRUPTED, \
-    LIVE, MAIN, MAINTENANCE, MASTER, POLLER, SIMULATION, SLAVE
-from nicos.core.data import BaseDataset, DataSink, \
-    DataSinkHandler, PointDataset, ScanDataset
+from nicos.core.constants import FINAL, INTERMEDIATE, INTERRUPTED, LIVE, \
+    MAIN, MAINTENANCE, MASTER, POLLER, SIMULATION, SLAVE
+from nicos.core.data import BaseDataset, DataSink, DataSinkHandler, \
+    PointDataset, ScanDataset
 from nicos.core.device import Device, DeviceAlias, DeviceMeta, Measurable, \
     Moveable, NoDevice, Readable, SubscanMeasurable, Waitable, requires
 from nicos.core.errors import AccessError, CacheError, CacheLockError, \
@@ -41,12 +41,12 @@ from nicos.core.errors import AccessError, CacheError, CacheLockError, \
 from nicos.core.mixins import AutoDevice, CanDisable, DeviceMixinBase, \
     HasCommunication, HasLimits, HasMapping, HasOffset, HasPrecision, \
     HasTimeout, HasWindowTimeout, IsController
-from nicos.core.params import INFO_CATEGORIES, ArrayDesc, Attach, \
-    Override, Param, Value, absolute_path, anytype, dictof, dictwith, \
-    floatrange, host, intrange, limits, listof, mailaddress, \
-    nicosdev, none_or, nonemptylistof, oneof, oneofdict, pvname, \
-    relative_path, setof, subdir, tacodev, tangodev, tupleof, vec3
+from nicos.core.params import INFO_CATEGORIES, ArrayDesc, Attach, Override, \
+    Param, Value, absolute_path, anytype, dictof, dictwith, floatrange, host, \
+    intrange, limits, listof, mailaddress, nicosdev, none_or, nonemptylistof, \
+    oneof, oneofdict, pvname, relative_path, setof, subdir, tacodev, \
+    tangodev, tupleof, vec3
 from nicos.core.scan import Scan
 from nicos.core.utils import ACCESS_LEVELS, ADMIN, GUEST, USER, User, \
-    formatStatus, multiReset, multiStatus, multiStop, multiWait, \
-    system_user, usermethod, waitForCompletion, watchdog_user, parseDuration
+    formatStatus, multiReset, multiStatus, multiStop, multiWait, system_user, \
+    usermethod, waitForCompletion, watchdog_user

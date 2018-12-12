@@ -25,5 +25,3 @@ are re-exported in :mod:`nicos.core`.
 .. autofunction:: multiStop
 
 .. autofunction:: multiReset
-
-.. autofunction:: parseDuration

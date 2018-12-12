@@ -111,6 +111,8 @@ The :mod:`nicos.utils` contains a collection of general use utility functions:
 
 .. autofunction:: parseDateString
 
+.. autofunction:: parseDuration
+
 .. autofunction:: parseHostPort
 
 .. autofunction:: printTable

@@ -40,20 +40,21 @@ import traceback
 import unicodedata
 from collections import OrderedDict
 from contextlib import contextmanager
+from datetime import timedelta
 from functools import wraps
 from itertools import chain, islice
 from os import path
-from stat import S_IRGRP, S_IROTH, S_IRUSR, \
-    S_IRWXU, S_IWUSR, S_IXGRP, S_IXOTH, S_IXUSR
-from time import localtime, mktime, sleep, strftime, strptime
-from time import time as currenttime
-
-from nicos.pycompat import exec_, iteritems, string_types, text_type
-from nicos.pycompat import xrange as range  # pylint: disable=redefined-builtin
+from stat import S_IRGRP, S_IROTH, S_IRUSR, S_IRWXU, S_IWUSR, S_IXGRP, \
+    S_IXOTH, S_IXUSR
+from time import localtime, mktime, sleep, strftime, strptime, \
+    time as currenttime
 
 # do **not** import nicos.session here
 # session dependent nicos utilities should be implemented in nicos.core.utils
 from nicos import config, get_custom_version, nicos_version
+# pylint: disable=redefined-builtin
+from nicos.pycompat import exec_, iteritems, string_types, text_type, \
+    xrange as range
 
 try:
     import pwd
@@ -1514,3 +1515,72 @@ def squeeze(shape, n=0):
         if dim > 1:
             dims.append(dim)
     return type(shape)(dims)
+
+
+durRegex = re.compile(r'''((?P<days>[0-9]+(\.[0-9]*)?)d    # days as 'xd'
+                          \ *:?\ *)?                       # split with '', ' ' and/or ':'
+                          ((?P<hours>[0-9]+(\.[0-9]*)?)h   # hours as 'xh'
+                          \ *:?\ *)?                       # split with '', ' ' and/or ':'
+                          ((?P<minutes>[0-9]+(\.[0-9]*)?)m # minutes as 'xm'
+                          \ *:?\ *)?                       # split with '', ' ' and/or ':'
+                          ((?P<seconds>[0-9]+(\.[0-9]*)?)s # seconds as 'xs'
+                          )?$                              # ensure whole string matches
+                       ''', re.X)
+
+valid_duration_formats = (
+    "<number>",
+    "[<number>d][:][<number>h][:][<number>m][:][<number>s]",
+    )
+
+duration_hint = 'Provide value as %s or %s.' % valid_duration_formats
+
+
+def parseDuration(inputvalue):
+    """Convert a string into seconds.
+    The string can be provided in denominations of days (d), hours (h),
+    minutes (m) and seconds (s) or combinations of these.
+
+    - Each denomination can be omitted.
+    - Each present value has to be named.
+    - The present values have to be sorted in descending size (d h m s)
+    - The values can be divided by spaces and/or ':' or written en block.
+
+    If inputvalue is an int or float, it is assumed it is already in seconds and
+    returned as is.
+    If the input is a timedelta instance, total_seconds is returned.
+
+    Raises a ValueError if the input cannot get parsed (this is typically
+    an error in user input).
+    Raises a TypeError if an unhandled input type is passed.
+    """
+
+    # time has already been provided as seconds
+    if isinstance(inputvalue, (int, float)):
+        return inputvalue
+    if isinstance(inputvalue, (timedelta)):
+        return inputvalue.total_seconds()
+    elif not isinstance(inputvalue, string_types):
+        raise TypeError('Wrong input data type')
+
+    inputvalue = inputvalue.strip()
+
+    try:
+        return float(inputvalue)
+    except ValueError:
+        pass
+
+    m = durRegex.match(inputvalue)
+
+    if not m:
+        raise ValueError('"%s" can not be parsed. ' % inputvalue
+                         + duration_hint)
+
+    timedict = m.groupdict()
+
+    for key, value in timedict.items():
+        if value is not None:
+            timedict[key] = float(value)
+        else:
+            timedict[key] = 0
+
+    return timedelta(**timedict).total_seconds()

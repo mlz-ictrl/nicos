@@ -31,8 +31,7 @@ import os
 import socket
 import sys
 import time
-
-from nicos.core import UsageError, parseDuration
+from datetime import timedelta
 from test.utils import raises
 
 import pytest
@@ -43,7 +42,8 @@ from nicos.utils import Repeater, bitDescription, checkSetupSpec, chunks, \
     closeSocket, comparestrings, extractKeyAndIndex, formatDuration, \
     formatExtendedFrame, formatExtendedStack, formatExtendedTraceback, \
     lazy_property, moveOutOfWay, num_sort, parseConnectionString, \
-    readonlydict, readonlylist, squeeze, tcpSocket, timedRetryOnExcept
+    parseDuration, readonlydict, readonlylist, squeeze, tcpSocket, \
+    timedRetryOnExcept
 from nicos.utils.timer import Timer
 
 
@@ -387,13 +387,28 @@ def test_moveOutOfWay(tmpdir, maxbackup):
     assert len(files) == maxbackup if maxbackup is not None else 3
 
 
-def test_parse_duration():
-    assert parseDuration('1d:2h:3m:14s', '') == \
-           parseDuration('1d2h 3m  14s', '') == \
-           parseDuration('1d :2h: 3m : 14s ', '') == \
-           parseDuration(93794, '') == 93794
-    assert parseDuration(1.0, '') == 1.0
-    assert raises(UsageError, parseDuration, [], '')
-    assert raises(UsageError, parseDuration, '1m3d', '')
-    assert raises(NicosError, parseDuration, '1d::3m', '')
-    assert raises(NicosError, parseDuration, '1d:3m jad', '')
+@pytest.mark.parametrize('inp,expected', [
+    ['1d:2h:3m:14s', 93794],
+    ['1d2h 3m  14s', 93794],
+    ['1d :2h: 3m : 14s ', 93794],
+    ['1d 2h 2m 74s', 93794],
+    [93794, 93794],
+    ['0.5h', 1800],
+    [1.0, 1.0],
+    ['2.0', 2.0],
+    ['1h:0.005s', 3600.005],
+    [timedelta(hours=2), 7200],
+    ])
+def test_parse_duration(inp, expected):
+    assert parseDuration(inp) == expected
+
+@pytest.mark.parametrize('inp', [
+    [1,2,3], {'days':5}, ])
+def test_parse_duration_type_errors(inp):
+    assert raises(TypeError, parseDuration, inp)
+
+
+@pytest.mark.parametrize('inp', [
+    '1m3d', '1d::3m', '1d:3m jad'])
+def test_parse_duration_parse_errors(inp):
+    assert raises(ValueError, parseDuration, inp)
