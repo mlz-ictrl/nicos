@@ -4,7 +4,7 @@ description = 'Monochanger'
 
 group = 'optional'
 
-includes = ['system', 'monochromator', 'tas']
+includes = ['system', 'monochromator']
 
 monostates = ['GE311', 'PG002', 'CU220', 'CU111', 'None']
 monodevices = ['mono_ge311', 'mono_pg002', 'mono_cu220', 'mono_cu111',
