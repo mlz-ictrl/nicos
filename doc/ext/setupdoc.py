@@ -27,12 +27,15 @@ import re
 from os import path
 
 from docutils import nodes
-from docutils.statemachine import ViewList
 from docutils.parsers.rst import Directive
-from sphinx.util.nodes import nested_parse_with_titles
+from docutils.statemachine import ViewList
+
 from sphinx.util.docstrings import prepare_docstring
+from sphinx.util.nodes import nested_parse_with_titles
 
 from nicos.core.sessions.setups import readSetup
+from nicos.pycompat import configparser
+from nicos.utils.files import iterSetups
 
 EXCLUDE_PARAMS = set(['description', 'passwd', 'target'])
 
@@ -95,6 +98,8 @@ RST_SETUP_FILE = '''
 
 CLASS_CACHE = {}  # cache for already imported device classes
 
+all_setups_cache = {}  # cache for already seen setups
+
 
 class SetupDirective(Directive):
 
@@ -130,16 +135,24 @@ class SetupDirective(Directive):
         return node.children
 
     def exception(self, *args, **kwargs):
-        self.warn(*args, **kwargs)
+        self.warning(*args, **kwargs)
 
-    def warn(self, *args, **kwargs):
+    def warning(self, *args, **kwargs):
         self.env.app.warn(*args, **kwargs)
 
     def _readSetup(self):
         uniqueId = self._getUniqueSetupId(self._shortSetupPath)
 
         setups = {}
-        readSetup(setups, self._absSetupPath, self)
+        setup_roots = self._find_setup_roots(self._absSetupPath)
+        if setup_roots in all_setups_cache:
+            all_setups = all_setups_cache[setup_roots]
+        else:
+            all_setups_cache[setup_roots] = all_setups = \
+                dict(iterSetups(setup_roots))
+
+        modname = path.splitext(path.basename(self._absSetupPath))[0]
+        readSetup(setups, modname, self._absSetupPath, all_setups, self)
 
         if not setups:
             # logging will be done by readSetup
@@ -286,14 +299,15 @@ class SetupDirective(Directive):
             CLASS_CACHE[classPath] = klass
             return klass
         except ImportError as e:
-            self.warn('Could not import device class %s' % classPath)
+            self.warning('Could not import device class %s' % classPath)
         except AttributeError as e:
-            self.warn(str(e))
-            self.warn('Could not get device class %s from module' % classPath)
+            self.warning(str(e))
+            self.warning('Could not get device class %s from module' % classPath)
         return None
 
     def _getAbsoluteSetupPath(self, shortpath):
         """Return the absolute path to the setup file.
+
         Short path is: setup_pkg/xy/setups/z.py
         """
         return path.join(self.env.srcdir,
@@ -302,6 +316,24 @@ class SetupDirective(Directive):
 
     def _getUniqueSetupId(self, shortpath):
         return 'setup-%s' % shortpath.replace('.', '-').replace('/', '-')
+
+    def _find_setup_roots(self, filename):
+        """Find nicos.conf and resolve setup root directories."""
+        dirname = path.dirname(filename)
+        while not path.isfile(path.join(dirname, 'nicos.conf')):
+            new_dirname = path.dirname(dirname)
+            if new_dirname == dirname:
+                # we arrived at the root directory (/ or X:\) without finding
+                # nicos.conf, let's just search in the setup's directory
+                return (path.dirname(filename),)
+            dirname = new_dirname
+        cfg = configparser.SafeConfigParser()
+        cfg.read(path.join(dirname, 'nicos.conf'))
+        if cfg.has_option('nicos', 'setup_subdirs'):
+            return tuple(path.join(path.dirname(dirname), subdir) for subdir in
+                         cfg.get('nicos', 'setup_subdirs').split(','))
+        else:
+            return (dirname,)
 
 
 # Events
