@@ -27,7 +27,7 @@
 from nicos import session
 from nicos.core import POLLER, Attach, HasOffset, Override, Param, status
 from nicos.core.errors import NicosError
-from nicos.devices.abstract import Motor as AbstractMotor
+from nicos.devices.abstract import Motor as AbstractMotor, TransformedMoveable
 from nicos.devices.generic.sequence import SeqCall, SeqSleep, SequencerMixin
 from nicos.devices.vendor.caress.base import Driveable
 from nicos.devices.vendor.caress.core import CARESS, INIT_REINIT, OFF_LINE, \
@@ -109,6 +109,26 @@ class Motor(HasOffset, Driveable, AbstractMotor):
                     raise NicosError(self, 'Could not set speed to module!'
                                      '(%r) %d' % ((res,), self._device_kind()))
         self._params['speed'] = speed
+
+
+class GearMotor(TransformedMoveable, Motor):
+
+    def _readRaw(self, maxage=0):
+        return Driveable.doRead(self, maxage)
+
+    def _mapReadValue(self, value):
+        if value is None and session.sessiontype == POLLER:
+            return None
+        self.log.debug('Raw  value: %r', value)
+        return self.gear * value - (self.coderoffset + self.offset)
+
+    def _mapTargetValue(self, target):
+        raw = (target + (self.coderoffset + self.offset)) * self.gear
+        self.log.debug('Raw target: %r', raw)
+        return raw
+
+    def _startRaw(self, target):
+        Driveable.doStart(self, target)
 
 
 class EKFMotor(SequencerMixin, Motor):
