@@ -34,7 +34,7 @@ devices = dict(
         'nicos_ess.devices.datasinks.nexussink.NexusFileWriterSink',
         description="Sink for NeXus file writer (kafka-to-nexus)",
         brokers=["192.168.12.109:9092"],
-        cmdtopic="filewriter_cmds",
+        cmdtopic="INT-TEST_writerCommand",
         status_provider='NexusFileWriter',
         templatesmodule='nicos_ess.integration.nexus.nexus_templates',
         templatename='integration_default',
@@ -44,6 +44,6 @@ devices = dict(
         'nicos_ess.devices.datasinks.nexussink.NexusFileWriterStatus',
         description="Status for nexus file writing",
         brokers=["192.168.12.109:9092"],
-        statustopic="filewriter_status",
+        statustopic="INT-TEST_writerStatus",
     )
 )
