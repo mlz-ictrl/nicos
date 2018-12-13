@@ -25,7 +25,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.core import Override, Param, intrange, status, tupleof, usermethod
+from nicos.core import Override, Param, intrange, status, tupleof
 from nicos.devices.generic.detector import Detector
 from nicos.devices.generic.virtual import VirtualImage
 
@@ -132,10 +132,6 @@ class DSPec(Detector):
             preset.pop(k, '')
         self.log.debug('Preset keys: %r', self._presetkeys)
         Detector.doSetPreset(self, **preset)
-
-    @usermethod
-    def resetvals(self):
-        self._clear()
 
     def presetInfo(self):
         return set(['info', 'Filename',
