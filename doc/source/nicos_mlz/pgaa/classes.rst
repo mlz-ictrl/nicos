@@ -20,7 +20,7 @@
 .. automodule:: nicos_mlz.pgaa.devices.samplechanger
 .. autoclass:: SampleChanger()
 
-.. automodule:: nicos_mlz.pgaa.devices.sampledevices.py
+.. automodule:: nicos_mlz.pgaa.devices.sampledevices
 .. autoclass:: TacoSerial()
 .. autoclass:: SamplePusher()
 .. autoclass:: SampleMotor()
@@ -31,4 +31,4 @@ Data sinks
 .. automodule:: nicos_mlz.pgaa.devices.datasinks
 .. autoclass:: MCASink()
 .. autoclass:: CHNSink()
-.. autoclass:: CVSDataSink()
+.. autoclass:: CSVDataSink()

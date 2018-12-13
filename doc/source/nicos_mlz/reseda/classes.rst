@@ -17,8 +17,10 @@
 .. automodule:: nicos_mlz.reseda.devices.regulator
 .. autoclass:: Regulator
 
-.. automodule:: nicos_mlz.reseda.devices.scandet
+.. automodule:: nicos_mlz.reseda.devices.cascade
 .. autoclass:: CascadeDetector()
+
+.. automodule:: nicos_mlz.reseda.devices.scandet
 .. autoclass:: ScanningDetector()
 
 .. automodule:: nicos_mlz.reseda.devices.scatteringvector

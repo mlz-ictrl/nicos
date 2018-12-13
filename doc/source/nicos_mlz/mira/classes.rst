@@ -11,9 +11,6 @@
 .. autoclass:: HoveringAxis()
 
 .. automodule:: nicos_mlz.mira.devices.cascade
-.. autoclass:: CascadeDetector()
-.. autoclass:: CascadePadSink()
-.. autoclass:: CascadeTofSink()
 .. autoclass:: MiraXmlHandler()
 .. autoclass:: MiraXmlSink()
 

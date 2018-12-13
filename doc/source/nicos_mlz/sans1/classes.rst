@@ -8,10 +8,6 @@
 .. autoclass:: Sans1ColliCoder()
 .. autoclass:: Sans1ColliMotor()
 .. autoclass:: Sans1ColliMotorAllParams()
-.. autoclass:: BeckhoffDigitalInput()
-.. autoclass:: BeckhoffNamedDigitalInput()
-.. autoclass:: BeckhoffDigitalOutput()
-.. autoclass:: BeckhoffNamedDigitalOutput()
 
 .. automodule:: nicos_mlz.sans1.devices.hv
 .. autoclass:: VoltageSwitcher()
@@ -45,12 +41,12 @@
 .. automodule:: nicos_mlz.sans1.devices.wmirfgen
 .. autoclass:: Frequency()
 
+.. automodule:: nicos_mlz.sans1.devices.bersans
+.. autoclass:: IEEEDevice()
+
 .. automodule:: nicos_mlz.sans1.devices.wut
 .. autoclass:: WutValue()
 .. autoclass:: WutDiff()
-
-.. automodule:: nicos_mlz.sans1.devices.bersans
-.. autoclass:: IEEEDevice()
 
 Data Sinks
 ----------

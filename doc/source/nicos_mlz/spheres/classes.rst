@@ -16,7 +16,6 @@
 .. autoclass:: PressureController()
 
 .. automodule:: nicos_mlz.spheres.devices.sissinks
-.. autoclass:: SisFileSinkHandlerBase()
 .. autoclass:: AYamlFileSinkHandler()
 .. autoclass:: AFileSink()
 .. autoclass:: UYamlFileSinkHandler()
