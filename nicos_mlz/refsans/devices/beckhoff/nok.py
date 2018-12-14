@@ -30,8 +30,8 @@ import struct
 
 from nicos import session
 from nicos.core import SIMULATION, CommunicationError, DeviceMixinBase, \
-    MoveError, NicosTimeoutError, Override, Param, UsageError, requires, \
-    status
+    MoveError, NicosTimeoutError, Override, Param, UsageError, floatrange, \
+    requires, status
 from nicos.core.params import nonemptylistof
 from nicos.devices.abstract import CanReference, Coder, Motor
 from nicos.devices.tango import PyTangoDevice
@@ -284,8 +284,7 @@ class BeckhoffCoderBase(PyTangoDevice, Coder):
         """returns highest statusvalue"""
         if self._mode == SIMULATION:
             return (status.OK, 'simulation')
-        else:
-            return self._HW_status()
+        return self._HW_status()
 
     def doSetPosition(self, target):
         pass
@@ -311,8 +310,30 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
         (0b0000000010100000, status.BUSY),
         (0b0011111000011011, status.WARN),
     )
-    HW_readable_Params = dict(firmwareVersion=253)
-    HW_writeable_Params = dict()
+    HW_readable_Params = dict(refPos=2, vMax=3, motorTemp=41,
+                              maxValue=120, minValue=121, firmwareVersion=253)
+    HW_writeable_Params = dict(vMax=3)
+
+    parameters = {
+        'refpos': Param('Reference position',
+                        type=float, settable=False, userparam=False,
+                        volatile=True,),
+        'vmax': Param('Maximum speed.',
+                      type=floatrange(0), settable=False, userparam=False,
+                      volatile=True,),
+        'motortemp': Param('Motor temperature',
+                           type=float, settable=False, userparam=True,
+                           volatile=True, unit='degC'),
+        'minvalue': Param('abs minimum',
+                          type=float, settable=False, userparam=True,
+                          volatile=True, unit='main'),
+        'maxvalue': Param('abs maximum',
+                          type=float, settable=False, userparam=True,
+                          volatile=True, unit='main'),
+        'firmware': Param('firmware version',
+                          type=str, settable=False, userparam=True,
+                          volatile=True),
+    }
 
     #
     # Hardware abstraction: which actions do we want to do...
@@ -473,27 +494,43 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
         self._HW_ACK_Error()
 
     def doReadFirmware(self):
-        return 'V%.1f' % (0.1 * self._HW_readParameter(253))
+        return 'V%.1f' % (0.1 * self._HW_readParameter('firmwareVersion'))
 
-
-class BeckhoffMotorCab1(BeckhoffMotorBase):
-    HW_readable_Params = dict(refPos=2, vMax=3, motorTemp=41,
-                              encoderRawValue=60, maxValue=120,
-                              minValue=121, firmwareVersion=253)
-    HW_writeable_Params = dict(vMax=3)
-
-    def HW_readRefPos(self):
+    def doReadRefpos(self):
         return self._steps2phys(self._HW_readParameter('refPos'))
 
-    def HW_readVMax(self):
+    def doReadVmax(self):
         return self._speed2phys(self._HW_readParameter('vMax'))
 
-    def HW_readMotorTemp(self):
+    def doReadMotortemp(self):
         # in degC
         if Numeric_Parameter:
             return self._HW_readParameter_index('motorTemp')
         else:
             return self._HW_readParameter('motorTemp')
+
+    def doReadMaxvalue(self):
+        return self._steps2phys(self._HW_readParameter('maxValue'))
+
+    def doReadMinvalue(self):
+        return self._steps2phys(self._HW_readParameter('minValue'))
+
+
+class BeckhoffMotorCab1(BeckhoffMotorBase):
+
+    parameters = {
+        'encoderrawvalue': Param('encoder raw value',
+                                 type=float, settable=False, userparam=True,
+                                 volatile=True, unit='main'),
+    }
+
+    def doInit(self, mode):
+        self.HW_readable_Params.update(dict(encoderRawValue=60))
+
+    def doReadEncoderrawvalue(self):
+        if Numeric_Parameter:
+            return self._HW_readParameter_index('encoderRawValue')
+        return self._HW_readParameter('encoderRawValue')
 
     def _HW_readParameter_index(self, index):
         ###
@@ -542,27 +579,14 @@ class BeckhoffMotorCab1(BeckhoffMotorBase):
             # if not, then anyway ;-)
             return val
 
-    def HW_readEncoderRawValue(self):
-        if Numeric_Parameter:
-            return self._HW_readParameter_index('encoderRawValue')
-        else:
-            return self._HW_readParameter('encoderRawValue')
-
-    def HW_readMaxValue(self):
-        return self._steps2phys(self._HW_readParameter('maxValue'))
-
-    def HW_readMinValue(self):
-        return self._steps2phys(self._HW_readParameter('minValue'))
-
-    def HW_readFirmware(self):
-        return self._steps2phys(self._HW_readParameter('firmwareVersion'))
-
 
 class BeckhoffMotorCab1M0x(BeckhoffMotorCab1):
-    def HW_writeVMax(self, value):
+    parameter_overrides = {
         # see docu: speed <= 8mm/s
-        if value > 8:
-            raise ValueError('Speed must be below or at 8mm/s')
+        'vmax': Override(settable=True, type=floatrange(0, 8)),
+    }
+
+    def doWriteVMax(self, value):
         self._HW_writeParameter('vMax', self._phys2speed(value))
 
 
@@ -574,7 +598,7 @@ class BeckhoffPoti(BeckhoffMotorCab1):
     }
 
     def doRead(self, maxage=0):
-        value = self.HW_readEncoderRawValue()
+        value = self.doReadEncoderrawvalue()
         result = 0.
         for i, ai in enumerate(self.poly):
             result += ai * (value ** i)
@@ -584,14 +608,18 @@ class BeckhoffPoti(BeckhoffMotorCab1):
 class BeckhoffTemp(BeckhoffMotorCab1):
 
     def doRead(self, maxage=0):
-        return self.HW_readMotorTemp()
+        return self.doReadMotorTemp()
 
 
 class BeckhoffMotorCab1M13(BeckhoffMotorCab1):
-    def HW_writeVMax(self, value):
+
+    parameter_overrides = {
         # see docu: speed <= 2mm/s
-        if not 0 <= value <= 2:
-            raise ValueError('Speed must be below or at 8mm/s')
+        'vmax': Override(settable=True, type=floatrange(0, 8)),
+    }
+
+    @requires(level='admin')
+    def doWriteVmax(self, value):
         self._HW_writeParameter('vMax', self._phys2speed(value))
 
 
@@ -611,44 +639,36 @@ class BeckhoffMotorCab1M1x(SingleMotorOfADoubleMotorNOK, BeckhoffMotorCab1M13):
 
 
 class BeckhoffMotorDetector(BeckhoffMotorBase):
+
+    parameter = {
+        'disablecoder': Param('disable/enable coder flag',
+                              type=bool, userparam=False, default=False),
+        'dragerror': Param('Drag error',
+                           type=float, userparam=False),
+    }
+
     parameter_overrides = {
+        # see docu: speed = 1..70mm/s
+        'vmax': Override(settable=True, type=floatrange(1, 70), default=1),
         'slope': Override(default=100),
     }
-    HW_readable_Params = dict(refPos=2, vMax=3, motorTemp=41, maxValue=120,
-                              minValue=121, disableCoder=135, dragError=136,
-                              firmwareVersion=253)
-    HW_writeable_Params = dict(vMax=3, disableCoder=135, dragError=136)
 
-    def HW_readRefPos(self):
-        return self._steps2phys(self._HW_readParameter('refPos'))
+    def doInit(self, mode):
+        self.HW_readable_Params.update(dict(disableCoder=135, dragError=136))
+        self.HW_writeable_Params.update(dict(disableCoder=135, dragError=136))
 
-    def HW_readVMax(self):
-        return self._speed2phys(self._HW_readParameter('vMax'))
-
-    def HW_readMotorTemp(self):
-        return self._HW_readParameter('motorTemp')  # in degC
-
-    def HW_readMaxValue(self):
-        return self._steps2phys(self._HW_readParameter('maxValue'))
-
-    def HW_readMinValue(self):
-        return self._steps2phys(self._HW_readParameter('minValue'))
-
-    def HW_readDisableCoder(self):
+    def doReadDisablecoder(self):
         return self._HW_readParameter('disableCoder')
 
-    def HW_readDragError(self):
+    def doReadDragerror(self):
         return self._steps2phys(self._HW_readParameter('dragError'))
 
     @requires(level='admin')
-    def HW_writeVMax(self, value):
-        # see docu: speed = 1..70mm/s
-        if not 1 <= value <= 70:
-            raise ValueError('Speed must be below or at 70mm/s')
+    def doWriteVmax(self, value):
         self._HW_writeParameter('vMax', self._phys2speed(value))
 
     @requires(level='admin')
-    def HW_writeDisableCoder(self, value):
+    def doWriteDisablecoder(self, value):
         if value:
             self.log.warning('disabling Coder !!!')
             self._HW_writeParameter('disableCoder', 1)
@@ -656,8 +676,8 @@ class BeckhoffMotorDetector(BeckhoffMotorBase):
             self._HW_writeParameter('disableCoder', 0)
 
     @requires(level='admin')
-    def HW_writedragError(self, value):
-        self._HW_writeParameter('vMax', self._phys2steps(value))
+    def doWriteDragerror(self, value):
+        self._HW_writeParameter('dragError', self._phys2steps(value))
 
 
 class BeckhoffCoderDetector(BeckhoffCoderBase):
@@ -665,38 +685,33 @@ class BeckhoffCoderDetector(BeckhoffCoderBase):
     parameter_overrides = {
         'slope': Override(default=100),
     }
+
     HW_Status_Inv = 0
 
 
 class BeckhoffMotorHSlit(BeckhoffMotorBase):
     parameter_overrides = {
+        # see docu: speed = 0.1..8mm/s
+        'vmax': Override(settable=True, type=floatrange(0.1, 8), default=0.1),
         'slope': Override(default=1000),
     }
-    HW_readable_Params = dict(vMax=3, offset=50, firmwareVersion=253)
-    HW_writeable_Params = dict(vMax=3, offset=50, firmwareReset=255)
+
+    def doInit(self, mode):
+        self.HW_readable_Params.update(dict(offset=50))
+        self.HW_writeable_Params.update(dict(offset=50, firmwareReset=255))
 
     def doReference(self):
         self.log.info('Absolute encoders are working fine.')
 
-    def HW_readVMax(self):
-        return self._speed2phys(self._HW_readParameter('vMax'))
-
-    @requires(level='admin')
-    def HW_writeVMax(self, value):
-        # see docu: speed = 0.1..8mm/s
-        if not 0.1 <= value <= 8:
-            raise ValueError('Speed must be between 0.1 ... 8mm/s')
-        self._HW_writeParameter('vMax', self._phys2speed(value))
-
-    def HW_readOffset(self):
+    def doReadOffset(self):
         return self._steps2phys(self._HW_readParameter('offset'))
 
     @requires(level='admin')
-    def HW_writeOffset(self, value):
+    def doWriteOffset(self, value):
         self._HW_writeParameter('offset', self._phys2steps(value),
                                 store2eeprom=True)
 
     @requires(level='admin')
-    def HW_firmwareReset(self):
+    def doReset(self):
         # see docu for MAGIC NUMBER
         self._HW_writeParameter('firmwareReset', 0x544b4531)
