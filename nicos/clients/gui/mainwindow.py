@@ -48,9 +48,10 @@ from nicos.clients.gui.tools import createToolMenu, startStartupTools
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, \
     loadBasicWindowSettings, loadUi, loadUserStyle, splitTunnelString
 from nicos.core.utils import ADMIN
-from nicos.guisupport.qt import QAction, QApplication, QColorDialog, QDialog, \
-    QFontDialog, QIcon, QLabel, QMainWindow, QMenu, QMessageBox, QPixmap, \
-    QSize, QSystemTrayIcon, Qt, QTimer, QWebView, pyqtSignal, pyqtSlot
+from nicos.guisupport.qt import PYQT_VERSION_STR, QT_VERSION_STR, QAction, \
+    QApplication, QColorDialog, QDialog, QFontDialog, QIcon, QLabel, \
+    QMainWindow, QMenu, QMessageBox, QPixmap, QSize, QSystemTrayIcon, Qt, \
+    QTimer, QWebView, pyqtSignal, pyqtSlot
 from nicos.protocols.daemon import BREAK_NOW, STATUS_IDLE, STATUS_IDLEEXC, \
     STATUS_INBREAK
 from nicos.pycompat import iteritems, listvalues, text_type
@@ -659,29 +660,27 @@ class MainWindow(DlgUtils, QMainWindow):
 
     @pyqtSlot()
     def on_actionAbout_triggered(self):
-        info = {'version': nicos_version,
-                'server_host': 'not connected',
-                'server_version': '',
-                'custom_version': '',
-                'nicos_root': '',
-                'custom_path': ''}
-        if self.client.isconnected:
-            dinfo = self.client.daemon_info
-            info['server_host'] = self.conndata.host
-            info['server_version'] = dinfo.get('daemon_version', 'unknown')
-            info['custom_version'] = dinfo.get('custom_version', 'unknown')
-            info['nicos_root'] = dinfo.get('nicos_root', 'unknown')
-            info['custom_path'] = dinfo.get('custom_path', 'unknown')
-        QMessageBox.information(
-            self, 'About this application', 'NICOS GUI client version '
-            '%(version)s.\n\nServer info (from %(server_host)s):\n'
-            'NICOS path: %(nicos_root)s\nNICOS version: %(server_version)s\n'
-            'Custom path: %(custom_path)s\nCustom version: %(custom_version)s'
-            % info)
+        import nicos.authors
 
-    @pyqtSlot()
-    def on_actionAboutQt_triggered(self):
-        QMessageBox.aboutQt(self)
+        if self.client.isconnected:
+            dinfo = self.client.daemon_info.copy()
+            dinfo['server_host'] = self.client.host
+        else:
+            dinfo = {}
+        dlg = QDialog(self)
+        loadUi(dlg, 'about.ui', 'dialogs')
+        dlg.clientVersion.setText(nicos_version)
+        dlg.pyVersion.setText('%s/%s/%s' % (sys.version.split()[0],
+                                            QT_VERSION_STR,
+                                            PYQT_VERSION_STR))
+        dlg.serverHost.setText(dinfo.get('server_host', 'not connected'))
+        dlg.nicosRoot.setText(dinfo.get('nicos_root', ''))
+        dlg.serverVersion.setText(dinfo.get('daemon_version', ''))
+        dlg.customPath.setText(dinfo.get('custom_path', ''))
+        dlg.customVersion.setText(dinfo.get('custom_version', ''))
+        dlg.contributors.setPlainText(nicos.authors.authors_list)
+        dlg.adjustSize()
+        dlg.exec_()
 
     @pyqtSlot(bool)
     def on_actionConnect_triggered(self, on):
