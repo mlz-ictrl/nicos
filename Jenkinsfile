@@ -245,6 +245,7 @@ addopts = --junit-xml=pytest-${pyver}.xml
   --cov-config=.coveragerc
   --cov-report=html:cov-$pyver
   --cov-report=term
+   -p no:cacheprovider
 """ : "")
 
 
