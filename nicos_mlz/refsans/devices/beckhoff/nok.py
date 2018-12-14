@@ -32,8 +32,7 @@ from Modbus import Modbus
 
 from nicos import session
 from nicos.core import SIMULATION, CommunicationError, DeviceMixinBase, \
-    MoveError, Override, Param, TimeoutError, UsageError, requires, status, \
-    usermethod
+    MoveError, Override, Param, TimeoutError, UsageError, requires, status
 from nicos.devices.abstract import CanReference, Coder, Motor
 from nicos.devices.taco.core import TacoDevice
 from nicos.utils import bitDescription
@@ -520,31 +519,24 @@ class BeckhoffMotorCab1(BeckhoffMotorBase):
                               minValue=121, firmwareVersion=253)
     HW_writeable_Params = dict(vMax=3)
 
-    @usermethod
     def HW_readRefPos(self):
         return self._steps2phys(self._HW_readParameter('refPos'))
 
-    @usermethod
     def HW_readVMax(self):
         return self._speed2phys(self._HW_readParameter('vMax'))
 
-    @usermethod
     def HW_readMotorTemp(self):
         return self._HW_readParameter('motorTemp')  # in degC
 
-    @usermethod
     def HW_readEncoderRawValue(self):
         return self._HW_readParameter('encoderRawValue')
 
-    @usermethod
     def HW_readMaxValue(self):
         return self._steps2phys(self._HW_readParameter('maxValue'))
 
-    @usermethod
     def HW_readMinValue(self):
         return self._steps2phys(self._HW_readParameter('minValue'))
 
-    @usermethod
     def HW_readFirmware(self):
         return self._steps2phys(self._HW_readParameter('firmwareVersion'))
 
@@ -552,7 +544,7 @@ class BeckhoffMotorCab1(BeckhoffMotorBase):
 # Motor M01 (0x3020) & M02 (0x302a)
 # Blendenschild (reactorside, 0x3020) + (sample side, 0x302a)
 class BeckhoffMotorCab1M0x(BeckhoffMotorCab1):
-    @usermethod
+
     def HW_writeVMax(self, value):
         # see docu: speed <= 8mm/s
         if value > 8:
@@ -563,7 +555,7 @@ class BeckhoffMotorCab1M0x(BeckhoffMotorCab1):
 # Blende zB0: Motor M13 (0x3048)
 # Blende zB1: Motor M13 (0x3066)
 class BeckhoffMotorCab1M13(BeckhoffMotorCab1):
-    @usermethod
+
     def HW_writeVMax(self, value):
         # see docu: speed <= 2mm/s
         if not 0 <= value <= 2:
@@ -600,35 +592,27 @@ class BeckhoffMotorDetector(BeckhoffMotorBase):
                               firmwareVersion=253)
     HW_writeable_Params = dict(vMax=3, disableCoder=135, dragError=136)
 
-    @usermethod
     def HW_readRefPos(self):
         return self._steps2phys(self._HW_readParameter('refPos'))
 
-    @usermethod
     def HW_readVMax(self):
         return self._speed2phys(self._HW_readParameter('vMax'))
 
-    @usermethod
     def HW_readMotorTemp(self):
         return self._HW_readParameter('motorTemp')  # in degC
 
-    @usermethod
     def HW_readMaxValue(self):
         return self._steps2phys(self._HW_readParameter('maxValue'))
 
-    @usermethod
     def HW_readMinValue(self):
         return self._steps2phys(self._HW_readParameter('minValue'))
 
-    @usermethod
     def HW_readDisableCoder(self):
         return self._HW_readParameter('disableCoder')
 
-    @usermethod
     def HW_readDragError(self):
         return self._steps2phys(self._HW_readParameter('dragError'))
 
-    @usermethod
     @requires(level='admin')
     def HW_writeVMax(self, value):
         # see docu: speed = 1..70mm/s
@@ -636,7 +620,6 @@ class BeckhoffMotorDetector(BeckhoffMotorBase):
             raise ValueError('Speed must be below or at 70mm/s')
         self._HW_writeParameter('vMax', self._phys2speed(value))
 
-    @usermethod
     @requires(level='admin')
     def HW_writeDisableCoder(self, value):
         if value:
@@ -645,7 +628,6 @@ class BeckhoffMotorDetector(BeckhoffMotorBase):
         else:
             self._HW_writeParameter('disableCoder', 0)
 
-    @usermethod
     @requires(level='admin')
     def HW_writedragError(self, value):
         self._HW_writeParameter('vMax', self._phys2steps(value))
@@ -670,11 +652,9 @@ class BeckhoffMotorHSlit(BeckhoffMotorBase):
     def doReference(self):
         self.log.info('Absolute encoders are working fine.')
 
-    @usermethod
     def HW_readVMax(self):
         return self._speed2phys(self._HW_readParameter('vMax'))
 
-    @usermethod
     @requires(level='admin')
     def HW_writeVMax(self, value):
         # see docu: speed = 0.1..8mm/s
@@ -682,17 +662,14 @@ class BeckhoffMotorHSlit(BeckhoffMotorBase):
             raise ValueError('Speed must be between 0.1 ... 8mm/s')
         self._HW_writeParameter('vMax', self._phys2speed(value))
 
-    @usermethod
     def HW_readOffset(self):
         return self._steps2phys(self._HW_readParameter('offset'))
 
-    @usermethod
     @requires(level='admin')
     def HW_writeOffset(self, value):
         self._HW_writeParameter('offset', self._phys2steps(value),
                                 store2eeprom=True)
 
-    @usermethod
     @requires(level='admin')
     def HW_firmwareReset(self):
         # see docu for MAGIC NUMBER

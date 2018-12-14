@@ -199,7 +199,7 @@ class VSDIO(TacoDevice, Readable):
 
     @usermethod
     def diag(self):
-        """output all available diagnostic values"""
+        """Display all available diagnostic values."""
         self.log.info("Analog Values:")
         for k, v in sorted(self._HW_AnalogChannels.items()):
             self.log.info("%s: %.2f %s", k, v[1] * self._readI16(v[0]//2), v[2])

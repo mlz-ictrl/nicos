@@ -293,7 +293,7 @@ class PumpstandIO(TacoDevice, Readable):
 
     @usermethod
     def diag(self):
-        """displays all available diagnostic information"""
+        """Display all available diagnostic information."""
         sb = self._attached_iodev._HW_readStatusByte()
         for idx, msg in sorted(self._HW_Status):
             if sb & (1 << idx):
@@ -426,7 +426,6 @@ class PumpstandPump(Moveable):
             return 1  # venting
         return 0
 
-    @usermethod
     @requires(level='admin')
     def doStart(self, target):
         if target == -1:
