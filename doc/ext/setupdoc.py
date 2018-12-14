@@ -34,8 +34,7 @@ from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.nodes import nested_parse_with_titles
 
 from nicos.core.sessions.setups import readSetup
-from nicos.pycompat import configparser
-from nicos.utils.files import iterSetups
+from nicos.utils.files import findSetupRoots, iterSetups
 
 EXCLUDE_PARAMS = set(['description', 'passwd', 'target'])
 
@@ -144,7 +143,7 @@ class SetupDirective(Directive):
         uniqueId = self._getUniqueSetupId(self._shortSetupPath)
 
         setups = {}
-        setup_roots = self._find_setup_roots(self._absSetupPath)
+        setup_roots = findSetupRoots(self._absSetupPath)
         if setup_roots in all_setups_cache:
             all_setups = all_setups_cache[setup_roots]
         else:
@@ -316,24 +315,6 @@ class SetupDirective(Directive):
 
     def _getUniqueSetupId(self, shortpath):
         return 'setup-%s' % shortpath.replace('.', '-').replace('/', '-')
-
-    def _find_setup_roots(self, filename):
-        """Find nicos.conf and resolve setup root directories."""
-        dirname = path.dirname(filename)
-        while not path.isfile(path.join(dirname, 'nicos.conf')):
-            new_dirname = path.dirname(dirname)
-            if new_dirname == dirname:
-                # we arrived at the root directory (/ or X:\) without finding
-                # nicos.conf, let's just search in the setup's directory
-                return (path.dirname(filename),)
-            dirname = new_dirname
-        cfg = configparser.SafeConfigParser()
-        cfg.read(path.join(dirname, 'nicos.conf'))
-        if cfg.has_option('nicos', 'setup_subdirs'):
-            return tuple(path.join(path.dirname(dirname), subdir) for subdir in
-                         cfg.get('nicos', 'setup_subdirs').split(','))
-        else:
-            return (dirname,)
 
 
 # Events

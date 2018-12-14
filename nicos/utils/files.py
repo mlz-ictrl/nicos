@@ -33,6 +33,8 @@ from __future__ import absolute_import, division, print_function
 import os
 from os import path
 
+from nicos.pycompat import configparser
+
 
 def iterSetups(paths):
     """Iterate over full file names of all setups within the given paths."""
@@ -77,3 +79,22 @@ def findInstrGuiConfigs(where):
     for guiconf in sorted(os.listdir(where)):
         if 'guiconf' in guiconf and guiconf.endswith('.py'):
             yield guiconf, path.join(where, guiconf)
+
+
+def findSetupRoots(filename):
+    """Find nicos.conf and resolve setup root directories."""
+    dirname = path.dirname(filename)
+    while not path.isfile(path.join(dirname, 'nicos.conf')):
+        new_dirname = path.dirname(dirname)
+        if new_dirname == dirname:
+            # we arrived at the root directory (/ or X:\) without finding
+            # nicos.conf, let's just search in the setup's directory
+            return (path.dirname(filename),)
+        dirname = new_dirname
+    cfg = configparser.SafeConfigParser()
+    cfg.read(path.join(dirname, 'nicos.conf'))
+    if cfg.has_option('nicos', 'setup_subdirs'):
+        return tuple(path.join(path.dirname(dirname), subdir) for subdir in
+                     cfg.get('nicos', 'setup_subdirs').split(','))
+    else:
+        return (dirname,)

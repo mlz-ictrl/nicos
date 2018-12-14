@@ -29,12 +29,12 @@ from nicos.core.sessions.setups import SETUP_GROUPS, prepareNamespace, \
     fixup_stacked_devices
 from nicos.core.params import nicosdev_re
 from nicos.utils import importString
-from nicos.utils.files import iterSetups
+from nicos.utils.files import findSetupRoots, iterSetups
 from nicos.utils.loggers import ColoredConsoleHandler, StreamHandler
 from nicos.utils.stubs import generate_stubs
 from nicos.clients.gui.config import prepareGuiNamespace
 from nicos.clients.gui import config as guicfg
-from nicos.pycompat import string_types, integer_types, exec_, configparser
+from nicos.pycompat import exec_, integer_types, string_types
 
 # read NICOS config
 config.apply()
@@ -67,7 +67,7 @@ class SetupChecker(object):
         self.setupname = path.basename(filename)[:-3]
         self.log = logging.getLogger(filename)
         self.is_guiconfig = self.setupname.startswith('guiconfig')
-        setup_roots = self._find_setup_roots(filename)
+        setup_roots = findSetupRoots(filename)
         if setup_roots in all_setups_cache:
             all_setups = all_setups_cache[setup_roots]
         else:
@@ -94,25 +94,6 @@ class SetupChecker(object):
         self.log.error(msg, *args, **kw)
 
     error = log_error  # disguise ourself as a logger object
-
-    # find nicos.conf and resolve setup root directories
-
-    def _find_setup_roots(self, filename):
-        dirname = path.dirname(filename)
-        while not path.isfile(path.join(dirname, 'nicos.conf')):
-            new_dirname = path.dirname(dirname)
-            if new_dirname == dirname:
-                # we arrived at the root directory (/ or X:\) without finding
-                # nicos.conf, let's just search in the setup's directory
-                return (path.dirname(filename),)
-            dirname = new_dirname
-        cfg = configparser.SafeConfigParser()
-        cfg.read(path.join(dirname, 'nicos.conf'))
-        if cfg.has_option('nicos', 'setup_subdirs'):
-            return tuple(path.join(path.dirname(dirname), subdir) for subdir in
-                         cfg.get('nicos', 'setup_subdirs').split(','))
-        else:
-            return (dirname,)
 
     # find line numbers in the AST
 
