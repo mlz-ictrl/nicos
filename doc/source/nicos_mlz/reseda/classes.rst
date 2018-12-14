@@ -8,9 +8,6 @@
 .. automodule:: nicos_mlz.reseda.devices.cbox
 .. autoclass:: CBoxResonanceFrequency()
 
-.. automodule:: nicos_mlz.reseda.devices.io_trigger
-.. autoclass:: Trigger()
-
 .. automodule:: nicos_mlz.reseda.devices.powersupply
 .. autoclass:: PowerSupply()
 

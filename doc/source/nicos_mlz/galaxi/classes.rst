@@ -8,12 +8,6 @@ Absorber
 .. automodule:: nicos_mlz.galaxi.devices.absorber
 .. autoclass:: AbsorberDevice()
 
-Conditioner
------------
-
-.. automodule:: nicos_mlz.galaxi.devices.conditioner
-.. autoclass:: TubeConditioner()
-
 Detectors
 ---------
 
@@ -27,12 +21,6 @@ Detectors
 
 .. automodule:: nicos_mlz.galaxi.devices.pindiode
 .. autoclass:: SingleDetectors()
-
-Distances
----------
-
-.. automodule:: nicos_mlz.galaxi.devices.distance
-.. autoclass:: DetectorDistance()
 
 File formats
 ------------

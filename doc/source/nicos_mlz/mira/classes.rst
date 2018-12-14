@@ -14,13 +14,6 @@
 .. autoclass:: MiraXmlHandler()
 .. autoclass:: MiraXmlSink()
 
-.. automodule:: nicos_mlz.mira.devices.cascade_win
-.. autoclass:: CascadeDetector()
-.. autoclass:: CascadePadSink()
-.. autoclass:: CascadeTofSink()
-.. autoclass:: MiraXmlHandler()
-.. autoclass:: MiraXmlSink()
-
 .. automodule:: nicos_mlz.mira.devices.center
 .. autoclass:: CrappySensor()
 
