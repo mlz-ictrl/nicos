@@ -115,7 +115,8 @@ def find_scripts():
         for testscript in sorted(os.listdir(testdir)):
             # For now, only the "basic" scripts are run.
             if testscript.endswith('basic.py'):
-                yield (instr, testscript)
+                yield pytest.param(instr, testscript,
+                                   id="{}-{}".format(instr, testscript))
 
 
 @pytest.mark.parametrize('instr, script', find_scripts())
