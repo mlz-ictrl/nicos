@@ -1,9 +1,8 @@
 `AMOR <https://www.psi.ch/sinq/amor/>`_
 =======================================
 
-.. automodule:: nicos_sinq.devices.epics.extensions
+.. automodule:: nicos_ess.devices.epics.detector
 
-.. autoclass:: EpicsAsynController()
 .. autoclass:: EpicsPassiveChannel()
 .. autoclass:: EpicsActiveChannel()
 .. autoclass:: EpicsCounterPassiveChannel()
