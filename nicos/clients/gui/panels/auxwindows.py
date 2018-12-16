@@ -32,10 +32,13 @@ from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings, \
     loadUi, loadUserStyle
 from nicos.guisupport.qt import QColorDialog, QFontDialog, QMainWindow, \
     QSplitter, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
+from nicos.utils import checkSetupSpec
 from nicos.utils.loggers import NicosLogger
 
 
 class AuxiliaryWindow(SetupDepWindowMixin, QMainWindow):
+
+    setupSpec = ''
 
     closed = pyqtSignal('QMainWindow')
 
@@ -69,7 +72,20 @@ class AuxiliaryWindow(SetupDepWindowMixin, QMainWindow):
             for sp, st in zip(self.splitters, self.splitstate):
                 sp.restoreState(st)
 
+        setups = config[1].get('setups', '')
+        self.setSetups(setups)
+        self.client.register(self, 'session/mastersetup')
+
         SetupDepWindowMixin.__init__(self, self.client)
+
+    def on_keyChange(self, key, value, time, expired):
+        if key == 'session/mastersetup' and self.setupSpec:
+            if not checkSetupSpec(self.setupSpec, value, log=self.log):
+                self.close()
+
+    def setSetups(self, setupSpec):
+        self.setupSpec = setupSpec
+        self.log.debug('Setups are: %r', self.setupSpec)
 
     def getPanel(self, panelName):
         for panelobj in self.panels:
