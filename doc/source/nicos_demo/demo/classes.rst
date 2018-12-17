@@ -1,6 +1,9 @@
 Demo
 ====
 
+.. automodule:: nicos_demo.demo.devices.attenuator
+.. autoclass:: Attenuator()
+
 .. automodule:: nicos_demo.demo.devices.cpuload
 .. autoclass:: CPULoad()
 
