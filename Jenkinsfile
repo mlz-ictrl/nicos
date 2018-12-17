@@ -237,8 +237,7 @@ def runSetupcheck() {
 
 def runTests(venv, pyver, withcov, checkpypiupdates=false) {
     refreshVenv('pytest', venv, checkpypiupdates)
-    writeFile file: 'setup.cfg', text: """
-[tool:pytest]
+    writeFile file: 'pytest_ini.add', text: """
 addopts = --junit-xml=pytest-${pyver}.xml
   --junit-prefix=$pyver""" + (withcov ? """
   --cov
@@ -247,11 +246,13 @@ addopts = --junit-xml=pytest-${pyver}.xml
   --cov-report=term
    -p no:cacheprovider
 """ : "")
+    sh "cat pytest_ini.add >> pytest.ini"
 
 
     verifyresult.put(pyver, 0)
     try {
          timeout(10) {
+
            sh "./ciscripts/run_pytest.sh $venv"
            verifyresult.put(pyver, 1)
          } // timeout
