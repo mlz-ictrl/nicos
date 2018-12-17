@@ -28,6 +28,8 @@ from __future__ import absolute_import, division, print_function
 
 import time
 
+from numpy import uint16, int16, uint32, int32
+
 from nicos import session
 from nicos.core import SIMULATION, Attach, CommunicationError, \
     ConfigurationError, HasTimeout, InvalidValueError, Moveable, MoveError, \
@@ -159,7 +161,7 @@ class Sans1ColliCoder(Sans1ColliBase, Coder):
     }
 
     def doRead(self, maxage=0):
-        steps = self._dev.ReadOutputDword(self.address)
+        steps = int32(self._dev.ReadOutputDword(self.address))
         self._setROParam('steps', steps)
 
         value = self.steps / self.slope
@@ -223,53 +225,53 @@ class Sans1ColliMotor(Sans1ColliBase, CanReference, SequencerMixin, HasTimeout, 
     #
     def _readControlBit(self, bit):
         self.log.debug('_readControlBit %d', bit)
-        value = self._dev.ReadOutputWord(self.address)
+        value = uint16(self._dev.ReadOutputWord(self.address))
         return (value & (1 << int(bit))) >> int(bit)
 
     def _writeControlBit(self, bit, value):
         self._busy_until = time.time() + 3
         self.log.debug('_writeControlBit %r, %r', bit, value)
-        tmpval = self._dev.ReadOutputWord(self.address)
+        tmpval = uint16(self._dev.ReadOutputWord(self.address))
         tmpval &= ~(1 << int(bit))
         tmpval |= (int(value) << int(bit))
-        self._dev.WriteOutputWord((self.address, tmpval))
+        self._dev.WriteOutputWord((self.address, uint16(tmpval)))
         session.delay(0.5)  # work around race conditions inside plc....
 
     def _writeDestination(self, value):
         self.log.debug('_writeDestination %r', value)
-        self._dev.WriteOutputDword((self.address + 2, value))
+        self._dev.WriteOutputDword((self.address + 2, uint32(value)))
 
     def _readStatusWord(self):
-        value = self._dev.ReadOutputWord(self.address + 4)
+        value = uint16(self._dev.ReadOutputWord(self.address + 4))
         self.log.debug('_readStatusWord %04x', value)
         return value
 
     def _readErrorWord(self):
-        value = self._dev.ReadOutputWord(self.address + 5)
+        value = uint16(self._dev.ReadOutputWord(self.address + 5))
         self.log.debug('_readErrorWord %04x', value)
         return value
 
     def _readPosition(self):
-        value = self._dev.ReadOutputDword(self.address + 6)
+        value = int32(self._dev.ReadOutputDword(self.address + 6))
         self.log.debug('_readPosition: -> %d steps', value)
         return value
 
     def _readUpperControlWord(self):
         self.log.error('_readUpperControlWord')
-        return self._dev.ReadOutputWord(self.address + 1)
+        return uint16(self._dev.ReadOutputWord(self.address + 1))
 
     def _writeUpperControlWord(self, value):
         self.log.debug('_writeUpperControlWord 0x%04x', value)
-        value = int(value) & 0xffff
+        value = uint16(value)
         self._dev.WriteOutputWord((self.address + 1, value))
 
     def _readDestination(self):
-        value = self._dev.ReadOutputDword(self.address + 2)
+        value = int32(self._dev.ReadOutputDword(self.address + 2))
         self.log.debug('_readDestination: -> %d steps', value)
         return value
 
     def _readReturn(self):
-        value = self._dev.ReadOutputDword(self.address + 8)
+        value = int32(self._dev.ReadOutputDword(self.address + 8))
         self.log.debug('_readReturn: -> %d (0x%08x)', value, value)
         return value
 
