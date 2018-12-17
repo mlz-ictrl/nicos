@@ -21,14 +21,14 @@ maw(ng_pol, 'ng')
 maw(col, 20)
 maw(col, 2)
 
-maw(bg1, '42mm')
+maw(bg1, '41mm')
 maw(bg1, 'open')
 
-maw(bg2, '20mm')
+maw(bg2, '19mm')
 maw(bg2, 'open')
 
-maw(sa1, '10mm')
-maw(sa1, '30mm')
+maw(sa1, '9mm')
+maw(sa1, '29mm')
 
 maw(sa2, 8)
 
