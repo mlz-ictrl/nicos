@@ -34,7 +34,7 @@ from nicos_ess.devices.epics.base import EpicsDeviceEss
 
 
 class SpsSwitch(EpicsDeviceEss, MappedMoveable):
-    """ AMOR has a Siemens programmable logic unit for controlling the shutter
+    """AMOR has a Siemens programmable logic unit for controlling the shutter
     and a switch for the alignment laser and the spin flipper. This is SPS
     which is connected to the world as such via a custom RS232 interface and a
     terminal server. *readpv* returns a waveform record with 16 bytes giving
@@ -111,19 +111,22 @@ class SpsSwitch(EpicsDeviceEss, MappedMoveable):
 
 
 class AmorShutter(SpsSwitch):
-    """Class to represent AMOR shutter
-    Two bits from SPS are important in determinig the shutter state:
-    byte: 4, bit 0 (bit40) - parameters: byte, bit
-    byte: 4, bit 3 (bit43) - parameters: brokenbyte, brokenbit
+    """Class to represent AMOR shutter.
 
-    Following is the logic to get the current state of the shutter:
-    if bit40 is true or is equal to 1
-        state is "OPEN"
-    else:
-        if bit43 is true or is equal to 1:
-            state is "CLOSED"
-        else:
-            state is "BROKEN" (shutter is not enabled)
+    Two bits from PLC are important in determing the shutter state:
+
+     - byte: 4, bit 0 (bit40) - parameters: byte, bit
+     - byte: 4, bit 3 (bit43) - parameters: brokenbyte, brokenbit
+
+    Following is the logic to get the current state of the shutter::
+
+      if bit40 is true or is equal to 1
+          state is "OPEN"
+      else:
+          if bit43 is true or is equal to 1:
+              state is "CLOSED"
+          else:
+              state is "BROKEN" (shutter is not enabled)
     """
 
     parameters = {

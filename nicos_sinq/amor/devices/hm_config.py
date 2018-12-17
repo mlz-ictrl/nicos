@@ -40,6 +40,7 @@ class AmorTofArray(HistogramConfTofArray):
     """ Special TOF Array for AMOR. The time bins can be changed using one
     of the schemes.
     Time binning schemes:
+
         c/q/t <argument>
         c means Delta q / q = constant = <argument>
         q means Delta q = constant, <argument> is the number of bins/channels
@@ -219,7 +220,7 @@ class AmorTofArray(HistogramConfTofArray):
 
 
 class AmorHMConfigurator(ConfiguratorBase):
-    """ The configurator for AMOR is a special case as it writes
+    """The configurator for AMOR is a special case as it writes
     different mask depending on if the chopper is spinning or not.
     """
     attached_devices = {

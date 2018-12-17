@@ -47,12 +47,15 @@ class DistancesHandler(BaseSequencer):
 
     The calculation of distance for each component involves following
     properties:
-    - Known offset of the attached mirror to the actual component
-    - Offset in the calculation of the distance (occurs when laser is not at 0)
-    - Value read from the laser
+
+     - Known offset of the attached mirror to the actual component
+     - Offset in the calculation of the distance (occurs when laser is not at 0)
+     - Value read from the laser
 
     The actual value is then given with the following equation:
-    S = d - S' -ls
+
+     S = d - S' - ls
+
     where d is scale offset, S' is the value read by laser and ls is the
     known offset.
     """
