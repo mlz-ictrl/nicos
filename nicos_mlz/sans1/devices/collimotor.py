@@ -28,7 +28,7 @@ from __future__ import absolute_import, division, print_function
 
 import time
 
-from numpy import uint16, int16, uint32, int32
+from numpy import uint16, uint32, int32
 
 from nicos import session
 from nicos.core import SIMULATION, Attach, CommunicationError, \
