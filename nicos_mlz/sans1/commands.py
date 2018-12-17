@@ -155,12 +155,14 @@ def setfg(freq_sample, amplitude_sample, offset_sample, shape_sample, freq_detec
 
 
 @usercommand
-def tcalc(sd, cs, chop_num, chop_speed, wav_mean, wav_spread):
+def tcalc(sd, cs, chop_speed, wav_mean, wav_spread):
     """calculates the tisane frequencies
 
     """
 
     import math
+
+    chop_num = 14.0
 
     #the chopper
     T_c = 1 / (chop_num * chop_speed)
