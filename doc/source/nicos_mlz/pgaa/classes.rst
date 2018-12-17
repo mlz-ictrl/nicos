@@ -25,6 +25,10 @@
 .. autoclass:: SamplePusher()
 .. autoclass:: SampleMotor()
 
+.. automodule:: nicos_mlz.pgaa.devices.pilz
+.. autoclass:: Switch()
+.. autoclass:: Attenuator()
+
 Data sinks
 ----------
 
