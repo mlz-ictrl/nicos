@@ -25,7 +25,6 @@
 
 """Directives to document daemon commands and events."""
 
-import keyword
 import inspect
 
 from docutils.statemachine import ViewList
@@ -34,18 +33,14 @@ from sphinx.util.docfields import Field
 from sphinx.util.docstrings import prepare_docstring
 
 from nicos.pycompat import getargspec
-from nicos.services.daemon.handler import ConnectionHandler
+from nicos.services.daemon.handler import command_wrappers
 
 
 class DaemonCommand(PyModulelevel):
     """Directive for daemon command description."""
 
     def handle_signature(self, sig, signode):
-        if sig in keyword.kwlist:
-            # append '_' to Python keywords
-            self.object = getattr(ConnectionHandler, sig+'_')
-        else:
-            self.object = getattr(ConnectionHandler, sig)
+        self.object = command_wrappers[sig].orig_function
         args = getargspec(self.object)
         del args[0][0]  # remove self
         sig = '%s%s' % (sig, inspect.formatargspec(*args))
