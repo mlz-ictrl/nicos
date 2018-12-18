@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import os
 import re
 from os import path
@@ -29,7 +31,6 @@ from os import path
 from docutils import nodes
 from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
-
 from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.nodes import nested_parse_with_titles
 

@@ -25,6 +25,8 @@
 
 """Directives to document daemon commands and events."""
 
+from __future__ import absolute_import, division, print_function
+
 import inspect
 
 from docutils.statemachine import ViewList
