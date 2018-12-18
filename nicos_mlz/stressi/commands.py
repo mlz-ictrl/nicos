@@ -28,7 +28,7 @@ from __future__ import absolute_import, division, print_function
 import numpy
 
 from nicos import session
-from nicos.commands import helparglist, usercommand
+from nicos.commands import helparglist, hiddenusercommand, usercommand
 from nicos.commands.basic import sleep
 from nicos.commands.device import maw
 from nicos.commands.scan import contscan
@@ -36,7 +36,7 @@ from nicos.core.errors import PositionError
 
 __all__ = (
     'gauge_to_base', 'base_to_gauge', 'set_sample', 'pole_figure',
-    'change_sample'
+    'change_sample',
 )
 
 
@@ -52,9 +52,16 @@ def move_dev(dev, pos, sleeptime=0, maxtries=3):
     raise PositionError(dev, 'Could not move %d to %f' % (dev, pos))
 
 
-@usercommand
+@hiddenusercommand
 @helparglist('')
 def gauge_to_base():
+    """Move robot from the current tool position to base position.
+
+    Example::
+       # Move to base position
+       >>> gauge_to_base()
+
+    """
     session.getDevice('phis').speed = 2 * 50
     session.getDevice('xt').speed = 2 * 40
     dev_pos = [('robt', 13),
@@ -72,15 +79,16 @@ def gauge_to_base():
     session.log.info('Base reached')
 
 
-@usercommand
+@hiddenusercommand
 @helparglist('toolnumber')
 def base_to_gauge(tool):
-    """Move from the base position to the measurement position 'toolnumber'.
+    """Move robot from base position to measurement position 'toolnumber'.
 
     Examples::
 
         # Move to measurement position 1
         >>> base_to_gauge(1)
+
     """
     session.getDevice('phis').speed = 2 * 50
     session.getDevice('xt').speed = 2 * 40
@@ -104,9 +112,19 @@ def base_to_gauge(tool):
     session.log.info('Tool %d reached', tool)
 
 
-@usercommand
+@hiddenusercommand
 @helparglist('samplenumber')
 def set_sample(sample):
+    """Instruct the robot to take a new sample from the sample magazine.
+
+    The robot must be moved first into the base position.
+
+    Example::
+
+        # Take sample 1
+        >>> set_sample(1)
+
+    """
     # the CARESS device give pos 0 during movement, which confuses the axis
     # code if the position is moving up
     d = session.getDevice('robs')
@@ -155,6 +173,7 @@ def pole_figure(numrows, speed, timedelta, sampleinfo):
 
 
 @usercommand
+@helparglist('samplenumber, [toolnumber]')
 def change_sample(samplenr, toolnr=None):
     """Change the sample with the help of the robot.
 
