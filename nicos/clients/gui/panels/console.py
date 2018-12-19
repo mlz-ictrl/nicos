@@ -204,7 +204,7 @@ class ConsolePanel(Panel):
     def on_actionPrint_triggered(self):
         printer = QPrinter()
         printdlg = QPrintDialog(printer, self)
-        printdlg.addEnabledOption(QAbstractPrintDialog.PrintSelection)
+        printdlg.setOption(QAbstractPrintDialog.PrintSelection)
         if printdlg.exec_() == QDialog.Accepted:
             self.outView.print_(printer)
 
