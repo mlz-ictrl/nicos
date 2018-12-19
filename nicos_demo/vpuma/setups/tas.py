@@ -1,5 +1,12 @@
-description = 'TAS'
+description = 'PUMA triple-axis setup with FRM2-Detector'
 
 group = 'basic'
 
-includes = ['monochromator', 'analyzer', 'monochanger']
+includes = ['pumabase',
+            # 'seccoll',
+            # 'collimation',
+            # 'ios',
+            # 'hv',
+            # 'notifiers',
+            # 'detector',
+            ]
