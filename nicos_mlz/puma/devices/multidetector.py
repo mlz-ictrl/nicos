@@ -27,6 +27,7 @@ from __future__ import absolute_import, division, print_function
 
 import math
 import sys
+from itertools import tee
 
 from nicos import session
 from nicos.commands import hiddenusercommand
@@ -146,7 +147,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
     def doIsAllowed(self, target):
         # check if requested position is allowed in principle
         why = []
-        for dev, pos in zip(self._rotdetector0, target[:self._num_axes]):
+        for dev, pos in zip(self._rotdetector0 + self._rotguide0, target):
             ok, _why = dev.isAllowed(pos)
             if ok:
                 self.log.debug('%s: requested position %.3f deg allowed', dev,
@@ -154,11 +155,11 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
             else:
                 why.append('%s: requested position %.3f deg out of limits; %s'
                            % (dev, pos, _why))
-        # now check detector and guide rotation allowed within single limits
-        # and sequence limits
         if why:
             return False, '; '.join(why)
-        return self._sequentialAngleLimit(target[:self._num_axes])
+        # now check detector and guide rotation allowed within single limits
+        # and sequence limits
+        return self._sequentialAngleLimit(target)
 
     def _move_guides_to_zero_pos(self):
         """Move all guides to a position '0.'.
@@ -533,44 +534,83 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
 
     def _sequentialAngleLimit(self, pos):
         """Check individual movement ranges allowed for detector or guide."""
-        check = 0
-        allowed = []
-        notallowed = []
+        dtarget = pos[:self._num_axes]
+
+        def is_reverse_sorted(l):
+            l1, l2 = tee(l)
+            next(l2, None)
+            return all(a >= b for a, b in zip(l1, l2))
+
+        def is_sorted(l):
+            l1, l2 = tee(l)
+            next(l2, None)
+            return all(a <= b for a, b in zip(l1, l2))
+
+        if not is_reverse_sorted(dtarget):
+            return False, 'detector targets not a list of consecutive values'
+        check = set(range(1, self._num_axes + 1))
+        allowed = check.copy()
         self.log.debug('position: %s', pos)
         self.log.debug('anglis: %s', self.anglis)
         why = []
 
-        for i in range(len(pos)):
+        for i in range(self._num_axes):
             self.log.debug('check position %s %s', i, pos[i])
             if i == 0:
-                if abs(pos[i] - pos[i + 1]) > self.anglis[0]:
-                    allowed.append(i)
-                    check += 1
-                else:
-                    why.append('case 0: %s %s %s' % (pos[i], pos[i + 1],
-                                                     self.anglis[0]))
-                    notallowed.append(i)
+                if abs(dtarget[i] - dtarget[i + 1]) < self.anglis[0]:
+                    why.append('case 0: %s %s %s' % (
+                        dtarget[i], dtarget[i + 1], self.anglis[0]))
+                    allowed.discard(i + 1)
             elif i == 10:
-                if abs(pos[i] - pos[i - 1]) > self.anglis[9]:
-                    allowed.append(i)
-                    check += 1
-                else:
-                    why.append('case 10: %s %s %s' % (pos[i], pos[i - 1],
-                                                      self.anglis[9]))
-                    notallowed.append(i)
+                if abs(dtarget[i] - dtarget[i - 1]) < self.anglis[9]:
+                    why.append('case 10: %s %s %s' % (
+                        dtarget[i], dtarget[i - 1], self.anglis[9]))
+                    allowed.discard(i + 1)
             else:
-                if abs(pos[i] - pos[i + 1]) > self.anglis[i] and \
-                   abs(pos[i] - pos[i - 1]) > self.anglis[i]:
-                    allowed.append(i)
-                    check += 1
-                else:
-                    why.append('%s %s %s %s' % (pos[i - 1], pos[i], pos[i + 1],
-                                                self.anglis[i]))
-                    notallowed.append(i)
-            self.log.debug('check: %s', check)
-        self.log.debug('movement allowed for the following axes: %s', allowed)
-        if check != self._num_axes:
-            self.log.warning('movement not allowed for the following axes: %s',
-                             notallowed)
+                if abs(dtarget[i] - dtarget[i + 1]) < self.anglis[i] or \
+                   abs(dtarget[i] - dtarget[i - 1]) < self.anglis[i]:
+                    why.append('%s %s %s %s' % (
+                        dtarget[i - 1], dtarget[i], dtarget[i + 1],
+                        self.anglis[i]))
+                    allowed.discard(i)
+        self.log.debug('movement allowed for the following detectors: %s',
+                       ', '.join([str(i) for i in allowed]))
+        notallowed = check - allowed
+        if notallowed:
+            self.log.warning('movement not allowed for the following '
+                             'detectors: %s',
+                             ', '.join([str(i) for i in notallowed]))
             return False, '; '.join(why)
+
+        allowed = check.copy()
+        gtarget = pos[self._num_axes:]
+        if not is_sorted(gtarget):
+            return False, 'detector guide targets not a list of consecutive ' \
+                'values'
+        first = 0
+        last = self._num_axes - 1
+        rg1_min = -7.5
+        if dtarget[first] < 4.2:
+            rg1_min += 1.4 * (dtarget[first] - 4.2)
+        rg11_max = 21.9
+        if dtarget[last] < -23.5:
+            rg11_max += 1.4 * (23.5 + dtarget[last - 1])
+        if not (rg1_min <= gtarget[first] <= gtarget[first + 1]):
+            why.append('rg1: %s %s %s' % (rg1_min, gtarget[first],
+                                          gtarget[first + 1]))
+            allowed.discard(first + 1)
+        if not (gtarget[last - 1] <= gtarget[last] <= rg11_max):
+            why.append('rg11: %s %s %s' % (gtarget[last - 1], gtarget[last],
+                                           rg11_max))
+            allowed.discard(last + 1)
+        for i in range(1, last):
+            if not (gtarget[i - 1] <= gtarget[i] <= gtarget[i + 1]):
+                why.append('rg%i: %s %s %s' % (i + 1, gtarget[i - 1],
+                                               gtarget[i], gtarget[i + 1]))
+                allowed.discard(i + 1)
+        notallowed = check - allowed
+        if notallowed:
+            self.log.warning('movement not allowed for the following guides: '
+                             '%s', ', '.join([str(i) for i in notallowed]))
+            return False, why
         return True, ''

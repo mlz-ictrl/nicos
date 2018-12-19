@@ -30,7 +30,7 @@ for i in range(11):
     )
     devices['rg%d' % (i + 1)] = device('nicos.devices.generic.Axis',
         motor = device('nicos_mlz.puma.devices.virtual.VirtualReferenceMotor',
-            abslimits = (-45, 5),
+            abslimits = (-10, 20),
             unit = 'deg',
             refpos = 0,
             fmtstr = '%.3f',
