@@ -93,7 +93,9 @@ class TestBasic(object):
             ListSetups()
 
         NewSetup('axis')
-        AddSetup()  # should list all setups but not fail
+        with log.assert_msg_matches([r'axis +yes', r'stdsystem +yes',
+                                     r'cache +(?!yes)']):  # cache not loaded
+            AddSetup()  # should list all setups but not fail
         AddSetup('slit')
         assert 'slit' in session.configured_devices  # not autocreated
         RemoveSetup('slit')
