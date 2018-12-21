@@ -319,84 +319,87 @@ node('master') {
     }
 
     stage(name: 'prepare') {
-        withCredentials([string(credentialsId: 'RMAPIKEY', variable: 'RMAPIKEY'), string(credentialsId: 'RMSYSKEY', variable: 'RMSYSKEY')]) {
+        withCredentials([string(credentialsId: 'RMAPIKEY', variable: 'RMAPIKEY'),
+                         string(credentialsId: 'RMSYSKEY', variable: 'RMSYSKEY')]) {
             docker.image('localhost:5000/nicos-jenkins:xenial').inside(){
                 sh  '''\
 #!/bin/bash
 export PYTHONIOENCODING=utf-8
 ~/tools2/bin/mlzrmupdater
 '''
-            }
-        }
-    }
+            } // image.inside
+        } // credentials
+    } // stage
 
 u16 = docker.image('localhost:5000/nicos-jenkins:xenial')
 u14 = docker.image('localhost:5000/nicos-jenkins:trusty')
 
-parallel pylint: {
-    stage(name: 'pylint') {
-        u16.inside('-v /home/git:/home/git') {
-                runPylint()
-        }
-    }
-}, isort: {
-    stage(name: 'isort') {
-        u16.inside('-v /home/git:/home/git') {
-                runIsort()
-        }
-    }
-}, setup_check: {
-    stage(name: 'Nicos Setup check') {
-        u16.inside('-v /home/git:/home/git') {
-                timeout(5) {
-                    runSetupcheck()
-                }
-        }
-    }
-}, test_python2: {
-    stage(name: 'Python2 tests')  {
-        ws {
-            checkoutSource()
-            docker.image('localhost:5000/kafka').withRun() { kafka ->
-                sleep(time:10, unit: 'SECONDS')  // needed to allow kafka to start
-                sh "docker exec ${kafka.id} /opt/kafka_2.11-0.11.0.1/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1"
-                sh "docker exec ${kafka.id} /opt/kafka_2.11-0.11.0.1/bin/kafka-topics.sh --create --topic test-flatbuffers-history --zookeeper localhost --partitions 1 --replication-factor 1"
-                u14.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092  --link ${kafka.id}:kafka") {
-                    runTests( '$NICOSVENV', 'python2', GERRIT_EVENT_TYPE == 'change-merged')
-                }
+try {
+    parallel pylint: {
+        stage(name: 'pylint') {
+            u16.inside('-v /home/git:/home/git') {
+                    runPylint()
             }
-        }
-    }
-}, test_python2centos: {
-    stage(name: 'Python2(centos) tests') {
-        if (GERRIT_EVENT_TYPE == 'change-merged') {
+        } // stage
+    }, isort: {
+        stage(name: 'isort') {
+            u16.inside('-v /home/git:/home/git') {
+                    runIsort()
+            }
+        } //stage
+    }, setup_check: {
+        stage(name: 'Nicos Setup check') {
+            u16.inside('-v /home/git:/home/git') {
+                    timeout(5) {
+                        runSetupcheck()
+                    }
+            }
+        } //stage
+    }, test_python2: {
+        stage(name: 'Python2 tests')  {
             ws {
                 checkoutSource()
-                docker.image('localhost:5000/nicos-jenkins:centos6').inside('-v /home/git:/home/git') {
-                    runTests('$NICOSVENV', 'python2-centos', false, true)
-                }
-            }
-        }
-    }
-}, test_python3: {
-    stage(name: 'Python3 tests') {
-        ws {
-            checkoutSource()
-            u16.inside('-v /home/git:/home/git') {
-                runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
-            }
-        }
-    }
-}, test_docs: {
-    stage(name: 'Test docs') {
-        docker.image('localhost:5000/nicos-jenkins:nicosdocs').inside(){
-            runDocTest()
-        }
-    }
-},
-failFast: false
-
-/*** set final vote **/
-setGerritReview()
-}
-}
+                docker.image('localhost:5000/kafka').withRun() { kafka ->
+                    sleep(time:10, unit: 'SECONDS')  // needed to allow kafka to start
+                    sh "docker exec ${kafka.id} /opt/kafka_2.11-0.11.0.1/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1"
+                    sh "docker exec ${kafka.id} /opt/kafka_2.11-0.11.0.1/bin/kafka-topics.sh --create --topic test-flatbuffers-history --zookeeper localhost --partitions 1 --replication-factor 1"
+                    u14.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092  --link ${kafka.id}:kafka") {
+                        runTests( '$NICOSVENV', 'python2', GERRIT_EVENT_TYPE == 'change-merged')
+                    } // image.inside
+                } // image.WithRun
+            } // ws
+        } // stage
+    }, test_python2centos: {
+        stage(name: 'Python2(centos) tests') {
+            if (GERRIT_EVENT_TYPE == 'change-merged') {
+                ws {
+                    checkoutSource()
+                    docker.image('localhost:5000/nicos-jenkins:centos6').inside('-v /home/git:/home/git') {
+                        runTests('$NICOSVENV', 'python2-centos', false, true)
+                    } // image.inside
+                } // ws
+            } // if
+        } // stage
+    }, test_python3: {
+        stage(name: 'Python3 tests') {
+            ws {
+                checkoutSource()
+                u16.inside('-v /home/git:/home/git') {
+                    runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
+                } // image.inside
+            } // ws
+        } //stage
+    }, test_docs: {
+        stage(name: 'Test docs') {
+            docker.image('localhost:5000/nicos-jenkins:nicosdocs').inside(){
+                runDocTest()
+            }  image.inside
+        } // stage
+    },
+    failFast: false
+} finally {
+    /*** set final vote **/
+    setGerritReview()
+} // finally
+} // node
+} // timestamps
