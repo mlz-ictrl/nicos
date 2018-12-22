@@ -393,7 +393,7 @@ try {
         stage(name: 'Test docs') {
             docker.image('localhost:5000/nicos-jenkins:nicosdocs').inside(){
                 runDocTest()
-            }  image.inside
+            }  // image.inside
         } // stage
     },
     failFast: false
