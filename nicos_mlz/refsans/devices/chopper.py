@@ -32,6 +32,7 @@ from nicos.core import HasLimits, HasPrecision, Moveable, Override, Param, \
 from nicos.core.errors import NicosError
 from nicos.core.params import Attach, oneof
 from nicos.devices.abstract import CanReference
+from nicos.devices.generic.sequence import SeqDev, SeqParam, SequencerMixin
 from nicos.devices.tango import StringIO
 
 
@@ -60,11 +61,11 @@ class ChopperBase(Moveable, StringIO):
         self.writeLine(what)
 
 
-class ChopperMaster(ChopperBase):
+class ChopperMaster(SequencerMixin, ChopperBase):
 
     valuetype = dictwith(rpm=float, disk2_Pos=intrange(1, 6),
                          angles=listof(float), wl_min=float, wl_max=float,
-                         D=float)
+                         gap=float, D=float)
 
     # attached_devices = {
     #    'choppers': Attach('Chopper chopper', ChopperDisc, multiple=6),
@@ -101,35 +102,36 @@ class ChopperMaster(ChopperBase):
                                self._attached_chopper5,
                                self._attached_chopper6)
 
-    def doStart(self, target):
+    def _generateSequence(self, target):
+        seq = []
         if target['disk2_Pos'] == 6:
-            self._attached_chopper_mode.move('virtual_disc2_pos_6')
-            # self._attached_chopper_mode.move('virtual_pos_6')
+            seq.append(SeqDev(self._attached_chopper_mode,
+                              'virtual_disc2_pos_6'
+                              # 'virtual_pos_6'
+                              ))
         else:
-            self._attached_chopper_mode.move('normal_mode')
-            # chopper2_pos_akt = self._attached_choppers[2].pos.read()
+            seq.append(SeqDev(self._attached_chopper_mode, 'normal_mode'))
             chopper2_pos_akt = self._attached_chopper2_pos.read()
-            # TODO: Sequencer!
+            # chopper2_pos_akt = self._attached_choppers[2].pos.read()
             if chopper2_pos_akt != target['disk2_Pos']:
                 self.log.info('Stop chopper and move Disc2_pos from %d to %d!',
                               chopper2_pos_akt, target['disk2_Pos'])
-                if self._attached_shutter.read(0) == 'open':
-                    self._attached_shutter.maw('closed')
-                if self._attached_chopper1.read(0) > 0:
-                    self._attached_chopper1.maw(0)
-                self.log.info('chopper stopped')
-                self._attached_chopper2_pos.maw(target['disk2_Pos'])
-                self.log.info('Disc2_pos %d reached!', target['disk2_Pos'])
-
+                seq.append(SeqDev(self._attached_shutter, 'closed'))
+                seq.append(SeqDev(self._attached_chopper1, 0))
+                seq.append(SeqDev(self._attached_chopper2_pos,
+                                  target['disk2_Pos']))
         self.log.debug('angles %s', target['angles'])
-        # TODO: Sequencer, because of needed wait time in doWritePhase
         for i, (dev, t) in enumerate(zip(self._devices_phase,
                                          target['angles'])):
             if dev:
                 self.log.info('%d angle %.2f %s', i, t, dev)
-                dev.phase = -t  # sign by history
-        # self._attached_choppers[1].move(target['rpm'])
-        self._attached_chopper1.move(target['rpm'])
+                # The chopper measures the phase in the opposite direction
+                # as we do. This was catered for here, we have moved the sign
+                # conversion to the doWritePhase function, SB
+                seq.append(SeqParam(dev, 'phase', t))
+        seq.append(SeqDev(self._attached_chopper1, target['rpm']))
+        # seq.append(SeqDev(self._attached_choppers[1], target['rpm']))
+        return seq
 
     def doReadMode(self):
         return self._attached_chopper_mode.read(0)
@@ -141,7 +143,7 @@ class ChopperMaster(ChopperBase):
             value = {
                 'D': None,
                 'wl_min': None,
-                'wl_max': None
+                'wl_max': None,
             }
         value['disk2_Pos'] = self._attached_chopper2_pos.read(maxage)
         value['rpm'] = self._attached_chopper1.read(maxage)
@@ -154,14 +156,19 @@ class ChopperMaster(ChopperBase):
         self.log.debug('value chopper %s', value)
         return value
 
-    def doStatus(self, maxage=0):
-        # TODO implement other possible states
-        _disc = int(self._read_controller("m4079"))
-        # TODO disc handling
-        # if _disc != 1:
-        #     pass  # nicht gut!
-        return self._attached_chopper1.status(maxage)
-        # return status.OK, 'idle'
+    def _getWaiters(self):
+        return [self._attached_chopper1]
+
+    # These lines of code should remain here until all details about the state
+    # detection are clarified with the instrument guys
+    # def doStatus(self, maxage=0):
+    #   TODO implement other possible states
+    #   _disc = int(self._read_controller('m4079'))
+    #   TODO disc handling
+    #   if _disc != 1:
+    #       pass  # nicht gut!
+    #   return self._attached_chopper1.status(maxage)
+    #   return status.OK, 'idle'
 
     def doWriteDelay(self, delay):
         self._write_controller('m4079=%dm4080=%%d' % 1,
