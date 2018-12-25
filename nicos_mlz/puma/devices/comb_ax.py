@@ -57,10 +57,8 @@ class CombAxis(Axis):
         self._update_fixpos(val)
 
     def _update_fixpos(self, val):
-        if val:
-            self._fixpos = self.read(0) + self._attached_fix_ax.read(0)
-        else:
-            self._fixpos = None
+        self._fixpos = self.read(0) + self._attached_fix_ax.read(0) if val \
+            else None
 
     def doIsAllowed(self, pos):
         mainax = Axis.doIsAllowed(self, pos)
