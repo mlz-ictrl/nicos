@@ -33,13 +33,13 @@ from os import path, unlink
 from shutil import copyfile
 from time import localtime, strftime
 
-from nicos.pycompat import to_utf8
+from nicos.pycompat import from_utf8, to_utf8
 from nicos.services.elog.genplot import plotDataset
 from nicos.services.elog.utils import formatMessage, formatMessagePlain, \
     pretty1, pretty2
 
 try:
-    import nicos._vendor.creole as creole
+    import creole
 except ImportError:
     creole = None
 
@@ -349,7 +349,10 @@ class Handler(object):
     def handle_entry(self, time, data):
         self.out.timestamp(time)
         if creole:
-            data, headers = creole.translate(data, self.out.new_id)
+            emitter = creole.HtmlEmitter(
+                creole.Parser(from_utf8(data)).parse(), self.out.new_id)
+            data = emitter.emit()
+            headers = emitter.headers
         else:
             data, headers = escape(data), []
         self.out.newstate('entry', '', '', data)
