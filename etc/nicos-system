@@ -136,7 +136,7 @@ def read_pidfile(name, wait=0):
         try:
             pid = file(pidpath, 'rb').read()
             pid = int(pid)
-        except:
+        except (IOError, ValueError):
             if time.time() > begin + wait:
                 return
         else:
@@ -205,7 +205,7 @@ def start_daemon(name):
         return
     try:
         procname, instname = name.split('-')
-    except:
+    except ValueError:
         procname, instname = name, None
     executable = path.join(nicos_root, 'bin', 'nicos-%s' % procname)
     os.system('%s%s -d' % (executable, ' -S %s' % (name,) if instname
