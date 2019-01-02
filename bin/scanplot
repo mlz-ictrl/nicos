@@ -25,20 +25,26 @@
 
 """Script to plot and fit NICOS data files."""
 
+from __future__ import absolute_import, division, print_function
+
 import sys
 from os import path
 
-sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
+from numpy import argsort, array, concatenate, diagonal, exp, linspace, log, \
+    log10, ndarray, pi, piecewise, sqrt
 
-from numpy import array, linspace, sqrt, exp, log, log10, pi, piecewise, \
-     argsort, concatenate, ndarray, diagonal
+try:
+    import GracePlot
+except ImportError:
+    print('please install GracePlot, plotting won\'t work...')
+    sys.exit()
+
+sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
 try:
     from scipy.optimize import curve_fit
 except ImportError:
-    print 'please install scipy, fitting won\'t work...'
-
-import GracePlot
+    print('please install scipy, fitting won\'t work...')
 
 
 def getguess(xs, ys, func):
@@ -77,27 +83,37 @@ def gausswlorentz(xs, center, ampg, ampl, widthg, widthl, back):
     return back + gauss + \
         piecewise(xs, [xs < 0, xs == 0, xs > 0],
                   [lorentz/(bose + 1), lorentz, lorentz/bose])
+
+
 gausswlorentz.params = ['center', 'amplitudeGauss', 'amplitudeLorentz',
                         'widthGauss', 'widthLorentz', 'background']
+
 
 def lorentz(xs, center, amp, width, back):
     """Lorentzian peak function."""
     return back + amp / (1 + (xs - center)**2/width**2)
+
+
 lorentz.params = ['center', 'amplitude', 'width', 'background']
+
 
 def gauss(xs, center, amp, width, back):
     """Gauss peak function."""
     return back + amp * exp(-0.5 * (xs-center)**2 / (width/(2*sqrt(2*log(2))))**2)
+
+
 gauss.params = ['center', 'amplitude', 'width', 'background']
+
 
 def twogauss(xs, center1, amp1, width1, back, center2, amp2):
     """Two gauss peaks function with the same width."""
     gauss1 = amp1 * exp(-0.5 * (xs - center1)**2 / width1**2)
     gauss2 = amp2 * exp(-0.5 * (xs - center2)**2 / width1**2)
     return back + gauss1 + gauss2
+
+
 twogauss.params = ['center1', 'amplitude1', 'width1', 'background',
                    'center2', 'amplitude2']
-
 
 fitfunlist = {
     'gauss': gauss,
@@ -106,15 +122,16 @@ fitfunlist = {
     'l': lorentz,
     'gwl': gausswlorentz,
     'gaussgauss': twogauss,
-    'gg': twogauss
+    'gg': twogauss,
 }
 
 colormap = {0: 1,  1: 2,  2: 3,  3: 4,   4: 6,   5: 8, 6: 9,
             7: 10, 8: 11, 9: 12, 10: 13, 11: 14, 12: 15}
 
+
 def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
     grpl('s%1d on' % cnum)
-    grpl('s%1d symbol %1d' % (cnum, cnum+1))
+    grpl('s%1d symbol %1d' % (cnum, cnum + 1))
     grpl('s%1d symbol size 0.3' % cnum)
     grpl('s%1d symbol fill pattern 1' % cnum)
     # avoid color #5 (yellow) and #7 (light grey)
@@ -140,10 +157,14 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
                 dy1 = abs(log10(y - dy) - log10(y))
             dy2 = abs(log10(y + dy) - log10(y))
             y = log10(y)
-        if ymin is not None and y < ymin: continue
-        if ymax is not None and y > ymax: continue
-        if xmin is not None and x < xmin: continue
-        if xmax is not None and x > xmax: continue
+        if ymin is not None and y < ymin:
+            continue
+        if ymax is not None and y > ymax:
+            continue
+        if xmin is not None and x < xmin:
+            continue
+        if xmax is not None and x > xmax:
+            continue
         grpl('g0.s%1d point %g,%g' % (cnum, x, y))
         grpl('g0.s%1d.y1[%d] = %g' % (cnum, i, dy1))
         grpl('g0.s%1d.y2[%d] = %g' % (cnum, i, dy2))
@@ -161,25 +182,26 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
                 ps, pcov = curve_fit(ff, xs, ys, guess)[0], None
                 chi2 = ((ys - ff(xs, *ps))**2).sum() / ndf
         except RuntimeError as err:
-            print err
+            print(err)
             return
         if isinstance(pcov, ndarray):
             dps = sqrt(diagonal(pcov))
         else:
             dps = [0] * len(ps)
-        print ' result of least squares fit:'
-        print ' function %s' % ff.__name__
-        print ' reduced chisqr %.3f' % chi2
-        print '_____parameters______fitted value____estimated error'
+        print(' result of least squares fit:')
+        print(' function %s' % ff.__name__)
+        print(' reduced chisqr %.3f' % chi2)
+        print('_____parameters______fitted value____estimated error')
         for i in range(len(ps)):
-            if i == len(ps)-1:
+            if i == len(ps) - 1:
                 fill = '_'
             else:
                 fill = ' '
-            print '%20s%12.4f\t%7.4f' % \
-                (ff.params[i].center(20, fill), ps[i], dps[i])
+            print('%20s%12.4f\t%7.4f' % (ff.params[i].center(20, fill),
+                                         ps[i], dps[i]))
         if ff == gauss:
-            print '       area         %12.3f' % abs(ps[1] / sqrt(2*pi) / ps[2])
+            print('       area         %12.3f' % abs(ps[1] / sqrt(2 * pi) /
+                                                     ps[2]))
 
         grpl('s1%1d on' % cnum)
         grpl('s1%1d symbol 0' % cnum)
@@ -187,8 +209,8 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
         grpl('s1%1d line type 1' % cnum)
         grpl('s1%1d line color %1d' % (cnum, colornum))
         # XXX fix wrong area calculation
-        outstring = "Ctr: %6.4f, Amp.: %6.3f, FWHM: %6.4f, Area %6.3f" % \
-            (ps[0], ps[1], ps[2], ps[1] / sqrt(2*pi) / (ps[2]/2.3548))
+        outstring = 'Ctr: %6.4f, Amp.: %6.3f, FWHM: %6.4f, Area %6.3f' % (
+            ps[0], ps[1], ps[2], ps[1] / sqrt(2 * pi) / (ps[2] / 2.3548))
         grpl('g0.s1%1d legend "%s"' % (cnum, outstring))
         fxs = linspace(xs[0], xs[-1], 101)
         for x, y in zip(fxs, ff(fxs, *ps)):
@@ -208,12 +230,15 @@ def prepareplot(grpl, title, subtitle, xaxis, yaxis):
     grpl('with g0;legend 0.15,0.85')
     grpl('with g0;legend on')
 
+
 def try_float(x):
     try:
         return float(x)
     except ValueError:
         return 0
 
+
+# pylint: disable=too-many-branches,too-many-statements
 def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
                     normalize=False, mcorr=False, xcolhint=None, **kwargs):
     """Read NICOS data file."""
@@ -273,7 +298,7 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
     while line and not line.startswith('###'):
         parts = line.split()
         if ystart > 0:
-            values.append(map(try_float, parts[:ystart] + parts[ystart+1:]))
+            values.append(map(try_float, parts[:ystart] + parts[ystart + 1:]))
         else:
             values.append(map(try_float, parts))
         line = f.readline()
@@ -352,7 +377,7 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
         if n in colnames:
             tcol = colnames.index(n)
             break
-        else: # no match, try unit...
+        else:  # no match, try unit...
             if 'K' in colunits:
                 tcol = colunits.index('K')
             else:
@@ -457,8 +482,9 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
 
 # start normal code here
 if 'help' in sys.argv:
-    print 'usage: scanplot prefix filenumber,filenumber,... option... fitfunction'
-    print '''\
+    print('usage: scanplot prefix filenumber,filenumber,... option... '
+          'fitfunction')
+    print("""
 Available options:
 ==================
  - fit: tries to fit a fitfunction (default gauss) to each datafile
@@ -484,20 +510,21 @@ Available fitfunctions:
  - l, lorentz: a lorentzian parameterized with FWHM instead of SIGMA
  - gwl: a lorentzian and a gaussian at the same position
  - gg, gaussgauss: two gaussian with the same width
-'''
+""")
     sys.exit(1)
 
 numargs = len(sys.argv)
 if numargs < 3:
-    print 'usage: scanplot prefix filenumber,filenumber,... option... fitfunction'
-    print 'Hint: try "scanplot help"'
+    print('usage: scanplot prefix filenumber,filenumber,... option... '
+          'fitfunction')
+    print('Hint: try "scanplot help"')
     sys.exit(1)
 
 fileprefix = sys.argv[1]
 filelist = sys.argv[2].split(',')
 
 if len(filelist) < 1 or len(filelist) > 9:
-    print 'error: number of files must be in [1..9]'
+    print('error: number of files must be in [1..9]')
     sys.exit(1)
 # default is plot only
 function = gauss
@@ -521,14 +548,14 @@ for arg in sys.argv:
         newtcol = arg.split('=')[1]
         try:
             newtcol = int(newtcol)
-        except:
+        except ValueError:
             pass
         kwargs['tcol'] = newtcol
     elif arg[0:4] == 'xcol':
         newxcol = arg.split('=')[1]
         try:
             newxcol = int(newxcol)
-        except:
+        except ValueError:
             pass
     elif arg[0:4] == 'ycol':
         # add code for multicolumn for polarised mode
@@ -536,7 +563,7 @@ for arg in sys.argv:
         for i in range(len(newycols)): # convert element-by-element to int
             try:
                 newycols[i] = int(newycols[i])
-            except:
+            except ValueError:
                 pass
     elif arg[0:4] == 'xlim':
         newxlims = arg.split('=')[1]
@@ -569,22 +596,22 @@ fitflag   = 'fit' in sys.argv
 sumflag   = 'sum' in sys.argv
 diffflag  = 'diff' in sys.argv
 if sumflag + diffflag + mergeflag > 1:
-    print 'illegal option combination: diff / sum / merge'
+    print('illegal option combination: diff / sum / merge')
     sys.exit(1)
 normflag = 'norm' in sys.argv
 monitorcorrection = 'mcorr' in sys.argv
 
-for fitfunname in fitfunlist.keys():
+for fitfunname in fitfunlist:
     if fitfunname in sys.argv:
         function = fitfunlist[fitfunname]
 
 if diffflag:
     if len(filelist) != 2:
-        print 'must have exactly two filenumbers to build difference plot'
+        print('must have exactly two filenumbers to build difference plot')
         sys.exit(1)
 if sumflag or mergeflag:
     if len(filelist) < 2:
-        print 'must have at least two files to sum or merge'
+        print('must have at least two files to sum or merge')
         sys.exit(1)
 
 pl = GracePlot.GracePlot().write
@@ -604,7 +631,7 @@ for filenumber in filelist:
                                       normflag,
                                       monitorcorrection, xcolhint, **kwargs)
         except Exception as err:
-            print 'Could not read data file %r: %s' % (filename, err)
+            print('Could not read data file %r: %s' % (filename, err))
             sys.exit(1)
         xs, ys, dys, title, subtitle, xaxis, yaxis, legend, xcolhint = thedata
         if logflag:
