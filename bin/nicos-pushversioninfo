@@ -42,4 +42,3 @@ opts = parser.parse_args()
 
 NoninteractiveSession.run(opts.setupname, 'PushVersionInfo',
                           daemon=opts.daemon)
-

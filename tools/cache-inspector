@@ -33,11 +33,11 @@ sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
 
 try:
-    from nicos.core import sessions
+    from nicos.core import sessions  # pylint: disable=unused-import
 except ImportError:
     thisfile = path.abspath(__file__)
     sys.path.insert(0, path.normpath(path.join(path.dirname(thisfile), '..')))
-    from nicos.core import sessions
+    from nicos.core import sessions  # pylint: disable=unused-import
 
 from cacheinspector.cacheinspector import CacheInspector, CISession
 
@@ -59,4 +59,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
