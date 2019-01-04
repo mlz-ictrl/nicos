@@ -157,7 +157,8 @@ class VirtualCoder(HasOffset, Coder):
     """A virtual coder that just returns the value of a motor, with offset."""
 
     attached_devices = {
-        'motor': Attach('Motor to read out to get coder value', Readable)
+        'motor': Attach('Motor to read out to get coder value', Readable,
+                        optional=True)
     }
 
     def doRead(self, maxage=0):
