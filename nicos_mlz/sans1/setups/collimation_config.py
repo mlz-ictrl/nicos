@@ -9,8 +9,8 @@ group = 'lowlevel'  # should not be visible to users
 tangohost = 'tango://sans1hw.sans1.frm2:10000'
 
 devices = dict(
-    col_2a_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
-        description = 'CollimatorMotor 2a',
+    col_2_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
+        description = 'CollimatorMotor 2',
         # IP-adresse: 172.16.17.7
         tangodevice = '%s/coll/col-2m/modbus' % (tangohost, ),
         address = 0x4020+1*10,
@@ -47,8 +47,8 @@ devices = dict(
     #     abslimits = (-400, 600),
     #     mapping = dict( P1=0, P2=117, P3=234, P4=351, NG=0, POL1=117, POL2=234, LASER=351 ),
     # ),
-    # col_20a = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
-    #     description = 'CollimatorMotor 20a',
+    # col_20 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
+    #     description = 'CollimatorMotor 20',
     #     # IP-adresse: 172.16.17.2
     #     tangodevice='%s/coll/col-20m/modbus'% (tangohost, ),
     #     address = 0x4020+0*10,
@@ -59,8 +59,8 @@ devices = dict(
     #     abslimits = (-400, 600),
     #     mapping = dict( P1=0, P2=117, P3=234, P4=351, NG=0, COL=117, FREE=234, LASER=351 ),
     # ),
-    # col_20b = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
-    #     description = 'CollimatorMotor 20b',
+    # col_18 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
+    #     description = 'CollimatorMotor 18',
     #     # IP-adresse: 172.16.17.2
     #     tangodevice='%s/coll/col-20m/modbus'% (tangohost, ),
     #     address = 0x4020+1*10,
@@ -84,8 +84,8 @@ devices = dict(
     #     mapping = {'P1':0, 'P2':90, 'P3':180, 'P4':270,
     #     '50mm':0, 'OPEN':90, '20mm':180, '42mm':270 },
     # ),
-    # col_16a = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
-    #     description = 'CollimatorMotor 16a',
+    # col_16 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
+    #     description = 'CollimatorMotor 16',
     #     # IP-adresse: 172.16.17.3
     #     tangodevice='%s/coll/col-16m/modbus'% (tangohost, ),
     #     address = 0x4020+1*10,
@@ -96,8 +96,8 @@ devices = dict(
     #     abslimits = (-400, 600),
     #     mapping = dict( P1=0, P2=117, P3=234, P4=351, NG=0, COL=117, FREE=234, LASER=351 ),
     # ),
-    # col_16b = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
-    #     description = 'CollimatorMotor 16b',
+    # col_14 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
+    #     description = 'CollimatorMotor 14',
     #     # IP-adresse: 172.16.17.3
     #     tangodevice='%s/coll/col-16m/modbus'% (tangohost, ),
     #     address = 0x4020+2*10,
@@ -108,8 +108,8 @@ devices = dict(
     #     abslimits = (-400, 600),
     #     mapping = dict( P1=0, P2=117, P3=234, P4=351, NG=0, COL=117, FREE=234, LASER=351 ),
     # ),
-    # col_12a = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
-    #     description = 'CollimatorMotor 12a',
+    # col_12 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
+    #     description = 'CollimatorMotor 12',
     #     # IP-adresse: 172.16.17.4
     #     tangodevice='%s/coll/col-12m/modbus'% (tangohost, ),
     #     address = 0x4020+0*10,
@@ -120,8 +120,8 @@ devices = dict(
     #     abslimits = (-400, 600),
     #     mapping = dict( P1=0, P2=117, P3=234, P4=351, NG=0, COL=117, FREE=234, LASER=351 ),
     # ),
-    # col_12b = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
-    #     description = 'CollimatorMotor 12b',
+    # col_10 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
+    #     description = 'CollimatorMotor 10',
     #     # IP-adresse: 172.16.17.4
     #     tangodevice='%s/coll/col-12m/modbus'% (tangohost, ),
     #     address = 0x4020+1*10,
@@ -145,8 +145,8 @@ devices = dict(
     #     mapping = {'P1':0, 'P2':90, 'P3':180, 'P4':270,
     #     '28mm':0, '20mm':90, '12mm':180, 'OPEN':270 },
     # ),
-    # col_8a = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
-    #     description = 'CollimatorMotor 8a',
+    # col_8 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
+    #     description = 'CollimatorMotor 8',
     #     # IP-adresse: 172.16.17.5
     #     tangodevice='%s/coll/col-8m/modbus'% (tangohost, ),
     #     address = 0x4020+1*10,
@@ -157,8 +157,8 @@ devices = dict(
     #     abslimits = (-400, 600),
     #     mapping = dict( P1=0, P2=117, P3=234, P4=351, NG=0, COL=117, FREE=234, LASER=351 ),
     # ),
-    # col_8b = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
-    #     description = 'CollimatorMotor 8b',
+    # col_6 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
+    #     description = 'CollimatorMotor 6',
     #     # IP-adresse: 172.16.17.5
     #     tangodevice='%s/coll/col-8m/modbus'% (tangohost, ),
     #     address = 0x4020+2*10,
@@ -169,8 +169,8 @@ devices = dict(
     #     abslimits = (-400, 600),
     #     mapping = dict( P1=0, P2=117, P3=234, P4=351, NG=0, COL=117, FREE=234, LASER=351 ),
     # ),
-    # col_4a = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
-    #     description = 'CollimatorMotor 4a',
+    # col_4 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
+    #     description = 'CollimatorMotor 4',
     #     # IP-adresse: 172.16.17.6
     #     tangodevice='%s/coll/col-4m/modbus'% (tangohost, ),
     #     address = 0x4020+1*10,
@@ -181,8 +181,8 @@ devices = dict(
     #     abslimits = (-400, 600),
     #     mapping = dict( P1=0, P2=117, P3=234, P4=351, NG=0, COL=117, FREE=234, LASER=351 ),
     # ),
-    # col_4b = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
-    #     description = 'CollimatorMotor 4b',
+    # col_3 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotorAllParams',
+    #     description = 'CollimatorMotor 3',
     #     # IP-adresse: 172.16.17.6
     #     tangodevice='%s/coll/col-4m/modbus'% (tangohost, ),
     #     address = 0x4020+2*10,
