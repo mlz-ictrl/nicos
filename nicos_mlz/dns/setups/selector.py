@@ -75,7 +75,7 @@ devices = dict(
     ),
     selector_lift = device('nicos.devices.tango.Motor',
         description = 'Selector lift',
-        tangodevice = tango_base + 'fzjs7/sel_lift',
+        tangodevice = tango_base + 's7_motor/sel_lift',
     ),
 )
 

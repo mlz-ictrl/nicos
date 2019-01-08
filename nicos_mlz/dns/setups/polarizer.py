@@ -26,11 +26,11 @@ devices = dict(
     ),
     pol_trans = device('nicos.devices.tango.Motor',
         description = 'Polarizer translation',
-        tangodevice = tango_base + 'fzjs7/pol_trans',
+        tangodevice = tango_base + 's7_motor/pol_trans',
     ),
     pol_rot = device('nicos.devices.tango.Motor',
         description = 'Polarizer rotation',
-        tangodevice = tango_base + 'fzjs7/pol_rot',
+        tangodevice = tango_base + 's7_motor/pol_rot',
     ),
 )
 
