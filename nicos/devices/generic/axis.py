@@ -33,7 +33,7 @@ from time import sleep
 from nicos.core import Attach, ConfigurationError, HasOffset, MoveError, \
     NicosError, Override, Param, PositionError, floatrange, status, \
     waitForCompletion
-from nicos.core.constants import SIMULATION
+from nicos.core.constants import MASTER, SIMULATION
 from nicos.devices.abstract import Axis as AbstractAxis, CanReference, Coder, \
     Motor
 from nicos.utils import createThread
@@ -102,6 +102,16 @@ class Axis(CanReference, AbstractAxis):
         self._posthread = None
         self._stoprequest = 0
         self._maxdiff = self.dragerror if self._hascoder else 0.0
+
+        if mode == MASTER and self._hascoder and \
+           self.motor.status()[0] != status.BUSY and \
+           abs(self.motor.read() - self.coder.read()) > self.precision:
+            self.log.warning('Motor and encoder have different positions '
+                             '(%s vs. %s). Set motor position to coder '
+                             'position.' % (
+                                 self.motor.format(self.motor.read()),
+                                 self.coder.format(self.coder.read())))
+            self.motor.setPosition(self._getReading())
 
     # legacy properties for users, DO NOT USE lazy_property here!
 
