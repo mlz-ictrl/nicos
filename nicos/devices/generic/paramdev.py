@@ -45,6 +45,9 @@ class ReadonlyParamDevice(Readable):
     parameters = {
         'parameter': Param('The name of the parameter to use', type=str,
                            mandatory=True),
+        'copy_status': Param('Derive status from the master device', type=bool,
+                             mandatory=False, settable=True, verbose=True,
+                             default=False),
     }
 
     parameter_overrides = {
@@ -55,6 +58,8 @@ class ReadonlyParamDevice(Readable):
         return getattr(self._attached_device, self.parameter)
 
     def doStatus(self, maxage=0):
+        if self.copy_status:
+            return self._attached_device.status(maxage)
         return status.OK, ''
 
     def doReadUnit(self):
