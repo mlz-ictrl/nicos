@@ -16,10 +16,6 @@
 .. autoclass:: Sans1HVOffDuration()
 .. autoclass:: Sans1ZMotor()
 
-.. automodule:: nicos_mlz.sans1.devices.mercury
-.. autoclass:: OxfordMercury()
-.. autoclass:: MercuryAsymmetricalMagnet()
-
 .. automodule:: nicos_mlz.sans1.devices.sans1_sample
 .. autoclass:: Sans1Sample()
 
