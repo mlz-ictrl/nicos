@@ -68,9 +68,9 @@ def tomo(nangles, moveables=None, imgsperangle=1, ref_first=True, *detlist,
         # TODO: currently, sry is the common name on nectar and antares for the
         # sample rotation (phi - around y axis).  Is this convenience function
         # ok, or should it be omitted and added to the instrument custom?
-        moveables = [session.getDevice('sry')]
+        moveables = (session.getDevice('sry'),)
     elif not isinstance(moveables, list):
-        moveables = [moveables]
+        moveables = (moveables,)
 
     session.log.info('Performing 360 deg scan.')
 
@@ -84,7 +84,7 @@ def tomo(nangles, moveables=None, imgsperangle=1, ref_first=True, *detlist,
 
     session.log.debug('Used angles: %r', angles)
 
-    with manualscan(*moveables) as scan:
+    with manualscan(*(moveables + detlist)) as scan:
         for angle in angles:
             # Move the given movable to the target angle
             try:
@@ -93,7 +93,7 @@ def tomo(nangles, moveables=None, imgsperangle=1, ref_first=True, *detlist,
                 for _ in range(imgsperangle):
                     for i in range(2, -1, -1):
                         try:
-                            count(*detlist, **preset)
+                            count(**preset)
                         except NicosError:
                             if not i:
                                 raise
