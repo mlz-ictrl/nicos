@@ -43,23 +43,23 @@ sinklist = [
 # Omit them from the datasinks list in that case.
 
 try:
-    import PIL  # pylint: disable=unused-import
+    import PIL  # pylint: disable=unused-import, import-error
     sinklist.append('tiffsink')
 except Exception:
     pass
 
 try:
-    import astropy.io.fits  # pylint: disable=unused-import
+    import astropy.io.fits  # pylint: disable=unused-import, import-error
     sinklist.append('fitssink')
 except Exception:
     try:
-        import pyfits  # pylint: disable=unused-import
+        import pyfits  # pylint: disable=unused-import, import-error
         sinklist.append('fitssink')
     except Exception:
         pass
 
 try:
-    import quickyaml  # pylint: disable=unused-import
+    import quickyaml  # pylint: disable=unused-import, import-error
     sinklist.append('yamlsink')
 except Exception:
     pass
