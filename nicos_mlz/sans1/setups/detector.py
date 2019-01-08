@@ -286,5 +286,6 @@ devices = dict(
                        description = 'selected beam shape',
                        device = 'bs1',
                        parameter = 'shape',
+                       copy_status = True,
                       ),
 )
