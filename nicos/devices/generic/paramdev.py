@@ -46,7 +46,7 @@ class ReadonlyParamDevice(Readable):
         'parameter': Param('The name of the parameter to use', type=str,
                            mandatory=True),
         'copy_status': Param('Derive status from the master device', type=bool,
-                             mandatory=False, settable=True, verbose=True,
+                             mandatory=False, settable=True, chatty=True,
                              default=False),
     }
 
