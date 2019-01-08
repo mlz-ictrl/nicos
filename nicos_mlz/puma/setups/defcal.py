@@ -1,4 +1,4 @@
-description = 'Calbration of the deflectors'
+description = 'Calibration of the deflectors'
 
 group = 'basic'
 
