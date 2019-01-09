@@ -69,14 +69,18 @@ class SequenceItem(object):
     def run(self):
         """Initate an action, define in derived classes."""
 
-    def retry(self, amount):
+    def retry(self, retries):
         """Retry the start of an already failed action."""
-        for _ in range(amount):
+        if retries <= 0:
+            return
+        while retries > 1:
             try:
                 self.run()
                 return
             except Exception:
                 pass
+            retries -= 1
+        self.run()
 
     def isCompleted(self):
         """Check for completion of the initiated action.
