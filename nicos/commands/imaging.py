@@ -84,7 +84,7 @@ def tomo(nangles, moveables=None, imgsperangle=1, ref_first=True, *detlist,
 
     session.log.debug('Used angles: %r', angles)
 
-    with manualscan(*(moveables + detlist)) as scan:
+    with manualscan(*(moveables + detlist), _title='tomography') as scan:
         for angle in angles:
             # Move the given movable to the target angle
             try:

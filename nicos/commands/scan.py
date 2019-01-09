@@ -477,7 +477,8 @@ def contscan(dev, start, end, speed=None, timedelta=None, *args, **kwargs):
 
 class _ManualScan(object):
     def __init__(self, args, kwargs):
-        scanstr = _infostr('manualscan', args, kwargs)
+        title = kwargs.pop('_title', 'manualscan')
+        scanstr = _infostr(title, args, kwargs)
         preset, scaninfo, detlist, envlist, move, multistep = \
             _handleScanArgs(args, kwargs, scanstr)
         self.scan = ManualScan(move, multistep, detlist, envlist,
