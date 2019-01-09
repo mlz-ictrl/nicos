@@ -5,11 +5,12 @@ group = 'lowlevel'
 includes = ['alias_sth']
 
 tango_base = 'tango://phys.poli.frm2:10000/poli/'
+s7_motor = tango_base + 's7_motor/'
 
 devices = dict(
     omega = device('nicos_mlz.jcns.devices.motor.Motor',
         description = 'table omega axis',
-        tangodevice = tango_base + 'fzjs7/omega',
+        tangodevice = s7_motor + 'omega',
         abslimits = (-180, 180),
         unit = 'deg',
         fmtstr = '%.2f',
@@ -17,7 +18,7 @@ devices = dict(
     ),
     gamma = device('nicos_mlz.jcns.devices.motor.Motor',
         description = 'table gamma axis',
-        tangodevice = tango_base + 'fzjs7/gamma',
+        tangodevice = s7_motor + 'gamma',
         abslimits = (-20, 130),
         unit = 'deg',
         fmtstr = '%.2f',
@@ -25,7 +26,7 @@ devices = dict(
     ),
     chi1 = device('nicos_mlz.jcns.devices.motor.Motor',
         description = 'table chi1 axis',
-        tangodevice = tango_base + 'fzjs7/chi1',
+        tangodevice = s7_motor + 'chi1',
         abslimits = (-5, 5),
         unit = 'deg',
         fmtstr = '%.2f',
@@ -33,7 +34,7 @@ devices = dict(
     ),
     chi2 = device('nicos_mlz.jcns.devices.motor.Motor',
         description = 'table chi2 axis',
-        tangodevice = tango_base + 'fzjs7/chi2',
+        tangodevice = s7_motor + 'chi2',
         abslimits = (-5, 5),
         unit = 'deg',
         fmtstr = '%.2f',
@@ -41,7 +42,7 @@ devices = dict(
     ),
     xtrans = device('nicos_mlz.jcns.devices.motor.Motor',
         description = 'table x translation axis',
-        tangodevice = tango_base + 'fzjs7/xtrans',
+        tangodevice = s7_motor + 'xtrans',
         abslimits = (-15, 15),
         unit = 'mm',
         fmtstr = '%.2f',
@@ -49,7 +50,7 @@ devices = dict(
     ),
     ytrans = device('nicos_mlz.jcns.devices.motor.Motor',
         description = 'table y translation axis',
-        tangodevice = tango_base + 'fzjs7/ytrans',
+        tangodevice = s7_motor + 'ytrans',
         abslimits = (-15, 15),
         unit = 'mm',
         fmtstr = '%.2f',
