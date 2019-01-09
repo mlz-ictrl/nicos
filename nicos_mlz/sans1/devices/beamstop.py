@@ -28,10 +28,12 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
-from nicos.core import Attach, Moveable, Override, Param, PositionError, \
-    UsageError, dictof, limits, oneof, requires, status
+from nicos import session
+from nicos.core import SIMULATION, SLAVE, Attach, Moveable, Override, Param, \
+    PositionError, UsageError, dictof, limits, oneof, requires, status
 from nicos.devices.generic import Axis
-from nicos.devices.generic.sequence import SeqCall, SequencerMixin, tupleof
+from nicos.devices.generic.sequence import SeqCall, SeqDev as NicosSeqDev, \
+    SequencerMixin, tupleof
 from nicos.devices.tango import Sensor
 from nicos.pycompat import iteritems, reraise
 
@@ -72,6 +74,9 @@ class BeamStopAxis(Axis):
         if self.maxtries < 1000:
             self._setROParam('maxtries', 1000)
         self._setROParam('userlimits', self.abslimits)
+        if mode not in (SIMULATION, SLAVE) and self._attached_motor.status()[0] != status.BUSY:
+            self._attached_motor.doSetPosition(self._attached_coder.read())
+            self._attached_motor.userlimits = self._attached_motor.abslimits
 
     def doReadOffset(self):
         return 0.
@@ -83,8 +88,43 @@ class BeamStopAxis(Axis):
         return Axis.doReadAbslimits(self)
 
 
+class SeqDev(NicosSeqDev):
+    """Improved SeqDev.
+
+    Improved handling for buggy hardware, where the status is not so reliable *sigh*.
+    """
+
+    def run(self):
+        while self.dev.status(0)[0] == status.BUSY:
+            # if still BUSY, stop first
+            self.dev.stop()
+            session.delay(0.3)
+            self.dev.wait()
+            session.delay(0.3)
+        try:
+            self.dev.wait()
+            NicosSeqDev.run(self)
+        except Exception:
+            while True:
+                # stop first
+                self.dev.stop()
+                session.delay(0.3)
+                self.dev.wait()
+                session.delay(0.3)
+                if self.dev.status(0)[0] != status.BUSY:
+                    NicosSeqDev.run(self)
+                    break
+
+
+    def isCompleted(self):
+        if NicosSeqDev.isCompleted(self):
+            session.delay(0.5)  # catch too early IDLE
+            return NicosSeqDev.isCompleted(self) and \
+                   self.dev.status(0)[0] != status.BUSY
+
+
 class BeamStop(SequencerMixin, Moveable):
-    """handles the delicate beamstop
+    """Handles the delicate beamstop of SANS1.
 
     This device represents the beamstops position as (x,y) tuple
 
@@ -93,19 +133,28 @@ class BeamStop(SequencerMixin, Moveable):
     the beamstop may be freely moved within some limits.
     It also is allowed to exceed these limits at predefined paths to
     change the selected beamstop.
-    Between changes, the beamstop may travel along X if it is at a predfiend Y.
+    Between changes, the beamstop may travel along X if it is at a predefined Y.
 
-    ASCII-art:
-    +++++++++++++++++++++++++++++
-    +                           +
-    +    free move area         +
-    +  (userlimits of xaxis     +
-    +    + yaxis )              +
-    +                           +
-    +++++ +++++ +++++ +++++ +++++  <- slots for different shapes
-    +++++ +++++ +++++ +++++ +++++
-    + travel while shape change +
-    +++++++++++++++++++++++++++++
+    .. code::
+
+      .----------------------------,
+      |                            |
+      |                            |
+      |    free move area          |
+      |  (defined by `xlimits`     |
+      |        & `ylimits` )       |
+      |                            |
+      |                            |
+      `-----, .-, .-, .-, .-, .----´
+      ######| |#| |#| |#| |#| |#####
+      ######| |#| |#| |#| |#| |##### <- slots for different shapes
+      ######| |#| |#| |#| |#| |#####
+      ######| `-´ `-´ `-´ `-´ |#####
+      ######|                 |##### <- travel while shape change
+      ######`-----------------´#####
+      ##############################
+
+
     """
 
     parameters = {
@@ -210,34 +259,28 @@ class BeamStop(SequencerMixin, Moveable):
                              'please call instrument scientist!')
 
         # construct desired sequence: first move above slot of current shape
-        seq.append([SeqCall(Axis.start, self._attached_xaxis,
-                            self.slots[self.shape]),
-                    SeqCall(Axis.start, self._attached_yaxis, lowest_y_pos)])
-        seq.append([SeqCall(self._attached_xaxis.wait),
-                    SeqCall(self._attached_yaxis.wait)])
+        seq.append([SeqDev(self._attached_xaxis, self.slots[self.shape]),
+                    SeqDev(self._attached_yaxis, lowest_y_pos)])
         # move down to ypassage to put shape back to slot/shapeholder
-        seq.append(SeqCall(Axis.start, self._attached_yaxis, self.ypassage))
-        seq.append(SeqCall(self._attached_yaxis.wait))
+        seq.append(SeqDev(self._attached_yaxis, self.ypassage))
         # adjust self._shape
         seq.append(SeqCall(self._setROParam, 'shape', 'none'))
         # move x to slot of new shape
-        seq.append(
-            SeqCall(Axis.start, self._attached_xaxis, self.slots[target]))
-        seq.append(SeqCall(self._attached_xaxis.wait))
+        seq.append(SeqDev(self._attached_xaxis, self.slots[target]))
         # move up to lowest yvalue
-        seq.append(SeqCall(Axis.start, self._attached_yaxis, lowest_y_pos))
-        seq.append(SeqCall(self._attached_yaxis.wait))
+        seq.append(SeqDev(self._attached_yaxis, lowest_y_pos))
         # adjust self._shape
         seq.append(SeqCall(self._setROParam, 'shape', target))
         # move to last xvalue
-        seq.append([SeqCall(Axis.start, self._attached_xaxis, startpos[0]),
-                    SeqCall(Axis.start, self._attached_yaxis, startpos[1])])
-        seq.append([SeqCall(self._attached_xaxis.wait),
-                    SeqCall(self._attached_yaxis.wait)])
+        seq.append([SeqDev(self._attached_xaxis, startpos[0]),
+                    SeqDev(self._attached_yaxis, startpos[1])])
         return seq
 
     def _runFailed(self, step, action, exc_info):
-        return 1  # single retry
+        return 10  # retry up to 10 times
+
+    def _waitFailed(self, step, action, exc_info):
+        return True  # ignore error + retry
 
     def _retryFailed(self, step, action, exc_info):
         self._seq_stopflag = True

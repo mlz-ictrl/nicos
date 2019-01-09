@@ -234,7 +234,6 @@ devices = dict(
         tangodevice = '%s/sans1/beamstop1/y_mot' % tangohost,
         fmtstr = '%.1f',
         # abslimits = (60, 590), # taken from entangle
-        userlimits = (100, 500),
         lowlevel = True,
     ),
 #    bs1_yenc = device('nicos.devices.tango.Sensor',
@@ -264,28 +263,29 @@ devices = dict(
         lowlevel = True
     ),
     bs1 = device('nicos_mlz.sans1.devices.beamstop.BeamStop',
-                       description = 'selects the shape of the beamstop',
-                       xaxis = 'bs1_xax',
-                       yaxis = 'bs1_yax',
-                       ypassage = -99, # encoder value! # XXX!
-                       unit = 'mm',
-                       slots = { # in encoder values !
-                                '100x100' : 125.2 - BS1_X_OFS,
-                                'd35'     : 197.0 - BS1_X_OFS,
-                                '70x70'   : 253.4 - BS1_X_OFS,
-                                '55x55'   : 317.4 - BS1_X_OFS,
-                                'none'    : 348.0 - BS1_X_OFS,  # no shapeholder!
-                                '85x85'   : 390.4 - BS1_X_OFS,
-                               },
-                       # limits for free-move area (in encoder values!)
-                       xlimits = (480, 868), # XXX!
-                       ylimits = (100, 590), # XXX!
-#                       requires = dict(level='admin'),
-                      ),
+        description = 'selects the shape of the beamstop',
+        xaxis = 'bs1_xax',
+        yaxis = 'bs1_yax',
+        ypassage = -99, # encoder value! # XXX!
+        unit = 'mm',
+        slots = { # in encoder values !
+            '100x100' : 125.2 - BS1_X_OFS,
+            'd35'     : 197.0 - BS1_X_OFS,
+            '70x70'   : 253.4 - BS1_X_OFS,
+            '55x55'   : 317.4 - BS1_X_OFS,
+            'none'    : 348.0 - BS1_X_OFS,  # no shapeholder!
+            '85x85'   : 390.4 - BS1_X_OFS,
+        },
+        # limits for free-move area (in encoder values!)
+        xlimits = (480, 868), # XXX!
+        ylimits = (100, 590), # XXX!
+        # requires = dict(level='admin'),
+    ),
     bs1_shape = device('nicos.devices.generic.ParamDevice',
-                       description = 'selected beam shape',
-                       device = 'bs1',
-                       parameter = 'shape',
-                       copy_status = True,
-                      ),
+        description = 'selected beam shape',
+        device = 'bs1',
+        parameter = 'shape',
+        copy_status = True,
+        requires = {'level': 'admin'},
+    ),
 )
