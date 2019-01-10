@@ -1,18 +1,21 @@
 description = 'setup for the execution daemon'
+
 group = 'special'
+
+import hashlib
 
 devices = dict(
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
-        hashing = 'md5',
+        hashing = 'sha1',
         # first entry is the user name, second the hashed password, third the user level
         passwd = [
             ('guest', '', 'guest'),
-            ('user', 'ee11cbb19052e40b07aac0ca060c23ee', 'user'),
-            ('admin', '21232f297a57a5a743894a0e4a801fc3', 'admin'),
+            ('user', hashlib.sha1(b'user').hexdigest(), 'user'),
+            ('admin', hashlib.sha1(b'admin').hexdigest(), 'admin'),
         ],
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-        server = '',
-        authenticators = ['Auth']
+        authenticators = ['Auth'],
+        server = 'localhost',
     ),
 )
