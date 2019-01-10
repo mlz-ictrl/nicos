@@ -137,6 +137,7 @@ Scanning commands
 .. autofunction:: timescan
 .. autofunction:: sweep
 .. autofunction:: contscan
+.. autofunction:: appendscan
 
 .. autofunction:: manualscan
 

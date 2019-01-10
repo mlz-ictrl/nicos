@@ -545,6 +545,36 @@ def appendscan(numpoints=5, stepsize=None):
     >>> appendscan(5)   # append 5 more points to last scan
     >>> appendscan(-5)  # append 5 more points to beginning of last scan
 
+    If *stepsize* is given, the step size of the last scan will be overridden.
+
+    Example:
+
+    >>> scan(x, 10, 0.1, 10)  # original scan
+    >>> appendscan(10, 0.5)  # continue the scan, but with other step size
+
+    If the previous scan wasn't a scan with fixed step size and *stepsize* is
+    not given, the new step size will be calculated as the averaged step size
+    from the previous scan:
+
+    >>> scan(x, [0, 0.1, 0.2, 0.5, 1])
+    >>> appendscan(5)
+
+    moves x to the following positions:
+
+    ==== ====
+    Step x
+    ==== ====
+    1/5  1.25
+    2/5  1.50
+    3/5  1.75
+    4/5  2.00
+    5/5  2.25
+    ==== ====
+
+    .. note::
+       The *stepsize* is only used if the device has a single value as parameter
+       not a list.
+
     The scan data will be plotted into the same live plot, if possible, but
     will be saved into a separate data file.
     """
