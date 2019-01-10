@@ -30,8 +30,11 @@ Setups are distinguishable by their absolute path.
 
 import os
 from copy import copy
+from os import path
 
 from nicos.core.sessions.setups import readSetup
+from nicos.utils.files import findSetupRoots, iterSetups
+
 from setupfiletool.utilities.utilities import getNicosDir
 
 # root directory containing all the setups or subdirs with setups.
@@ -39,6 +42,8 @@ setup_root = os.path.join(getNicosDir(), 'nicos_mlz')
 setup_directories = {}
 
 log = None
+
+all_setups_cache = {}  # cache for already seen setups
 
 
 def __walkForSetups(log, previousDir, newDir, listOfSetups):
@@ -86,7 +91,14 @@ def init(logger):
 class Setup(object):
     def __init__(self, abspath, log):
         info = {}
-        readSetup(info, abspath, log)
+        setup_roots = findSetupRoots(abspath)
+        if setup_roots in all_setups_cache:
+            all_setups = all_setups_cache[setup_roots]
+        else:
+            all_setups_cache[setup_roots] = all_setups = \
+                dict(iterSetups(setup_roots))
+        modname = path.splitext(path.basename(abspath))[0]
+        readSetup(info, modname, abspath, all_setups, log)
 
         self.abspath = abspath
         if not info:
