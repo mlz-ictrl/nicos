@@ -26,10 +26,10 @@
 import sys
 from os import path
 
-from nicos.guisupport.qt import QApplication
-
 thisfile = path.abspath(__file__)
 sys.path.insert(0, path.normpath(path.join(path.dirname(thisfile), '..')))
+
+from nicos.guisupport.qt import QApplication
 
 from setupfiletool.mainwindow import MainWindow
 

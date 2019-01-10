@@ -64,14 +64,6 @@ def init(log):
         moduleName = '.'.join(fqdn)
         if moduleName.endswith('__init__'):
             moduleName = moduleName[:-9]
-        if moduleName.startswith('nicos_mlz'):
-            # module is from custom instrument, remove lib in it's path
-            moduleName = moduleName.split('.')
-            moduleName.pop(2)
-            moduleName.pop(0)
-            moduleName = '.'.join(moduleName)
-        if moduleName.startswith('nicos'):
-            moduleName = moduleName[6:]
         try:
             mod = session._nicos_import(moduleName)
             modules[moduleName] = mod
