@@ -1,6 +1,49 @@
 Changelog
 =========
 
+Release 3.5.0
+-------------
+
+* Core
+
+  - Setups with group 'configdata' will now be handled like normal setups. This
+    allows to access to the values from any other setup file.
+
+  - The 'tupleof' parameter type now accepts numpy arrays.
+
+  - The 'ParamDevice' can now return the status of the referenced device.
+
+  - Improved 'Dry run' mode by fixing some issues like calling 'doVersion' and
+    (for TACO devices) 'doUpdate*' methods and using the hardware stubs for
+    TACO/TANGO/EPICS devices.
+
+  - Breakpoints now work as expected in the daemon debugger.
+
+* GUI
+
+  - Improved compatibility with Qt 5.
+
+  - Created a nicer 'About' dialog and removed the 'About Qt' dialog.
+
+  - The scan plot now tries harder to select a proper X axis by determining
+    the first changing device.
+
+* Commands
+
+  - The 'tomo' command now accepts additional detectors.
+
+* Tests
+
+  - Instrument specific test scripts are now run during the test suite, in
+    dry-run mode.
+
+* Development
+
+  - All modules now using several future imports for Python 3 compatibility.
+
+  - Import order has been made consistent using 'isort'.
+
+
 Release 3.4.0
 -------------
 
