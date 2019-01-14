@@ -27,7 +27,8 @@ from __future__ import absolute_import, division, print_function
 
 import pwd
 
-import nicos._vendor.pam as pam
+import pamela as pam
+
 from nicos.core import ADMIN, GUEST, USER, User
 from nicos.services.daemon.auth import AuthenticationError, \
     Authenticator as BaseAuthenticator
@@ -44,10 +45,7 @@ class Authenticator(BaseAuthenticator):
 
     def authenticate(self, username, password):
         try:
-            message = pam.authenticate(username, password)
-            if message:
-                raise AuthenticationError('PAM authentication failed: %s'
-                                          % message)
+            pam.authenticate(username, password, resetcred=0)
             entry = pwd.getpwnam(username)
             idx = entry.pw_gecos.find('access=')
             if idx > -1:
@@ -55,8 +53,8 @@ class Authenticator(BaseAuthenticator):
                 if access in (GUEST, USER, ADMIN):
                     return User(username, access)
             return User(username, ADMIN)
-        except AuthenticationError:
-            raise
+        except pam.PAMError as err:
+            raise AuthenticationError('PAM authentication failed: %s' % err)
         except Exception as err:
             raise AuthenticationError('exception during PAM authentication: %s'
                                       % err)
