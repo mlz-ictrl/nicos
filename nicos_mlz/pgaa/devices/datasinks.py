@@ -242,7 +242,6 @@ class PGAASink(FileSink):
 
     parameter_overrides = {
         'settypes': Override(default=[POINT]),
-        'subdir': Override(default='logfiles'),
         'filenametemplate': Override(
             default=['%(Prefix)s%(pointcounter)05d_%(Pos)02d-%(Name)s_'
                      '%(Comment)s__%(Attenuator)s%(ElCol)s%(Beam)s%(Vacuum)s'
@@ -369,7 +368,6 @@ class CSVDataSink(FileSink):
     }
     parameter_overrides = {
         'settypes': Override(default=[POINT]),
-        'subdir': Override(default='logfiles'),
         'filenametemplate': Override(default=['logbook.csv']),
     }
 
