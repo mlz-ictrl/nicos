@@ -26,7 +26,25 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.core import Attach, IsController, Moveable, Override, status
+from nicos.core.errors import LimitError
+from nicos.core.mixins import HasLimits
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
+from nicos.pycompat import number_types
+
+
+class SeqSampleMotor(SeqDev):
+    """Special SeqDev item for the sample changer motor."""
+
+    def check(self):
+        if isinstance(self, HasLimits):
+            limits = self.dev.userlimits
+            if isinstance(self.target, number_types):
+                if not limits[0] <= self.target <= limits[1]:
+                    raise LimitError(self.dev, 'limits are [%s, %s]' % limits)
+        if hasattr(self, 'doIsAllowed'):
+            res = self.doIsAllowed(self.target)
+            if not res[0]:
+                raise LimitError(self.dev, res[1])
 
 
 class SampleChanger(IsController, BaseSequencer):
@@ -60,7 +78,8 @@ class SampleChanger(IsController, BaseSequencer):
         if target != self.doRead(0):
             seq.append(SeqDev(self._attached_push, 'up', stoppable=False))
             seq.append(SeqSleep(2))
-            seq.append(SeqDev(self._attached_motor, target, stoppable=False))
+            seq.append(SeqSampleMotor(self._attached_motor, target,
+                                      stoppable=False))
             seq.append(SeqSleep(2))
             seq.append(SeqDev(self._attached_push, 'down', stoppable=False))
         return seq
