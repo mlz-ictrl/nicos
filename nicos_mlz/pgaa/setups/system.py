@@ -26,6 +26,7 @@ devices = dict(
         responsible = 'Dr. Zsolt Revay <zsolt.revay@frm2.tum.de>',
         operators = [u'Universität zu Köln'],
         website = 'http://www.mlz-garching.de/pgaa',
+        instrument = 'pgaa',
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'The currently running experiment',
