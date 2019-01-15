@@ -1,4 +1,4 @@
-description = 'POLI silicon monochromator'
+description = 'POLI slits'
 
 group = 'lowlevel'
 
