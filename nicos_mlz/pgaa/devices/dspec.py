@@ -29,7 +29,6 @@ from time import time as currenttime
 
 import numpy as np
 
-from nicos import session
 from nicos.core import ArrayDesc, Measurable, Param, Value, status
 from nicos.core.errors import NicosError
 from nicos.devices.tango import PyTangoDevice
@@ -68,12 +67,12 @@ class DSPec(PyTangoDevice, Measurable):
     def doReadArrays(self, quality):
         spectrum = None
         try:
-            spectrum = [int(i) for i in self._dev.Value.tolist()]
+            spectrum = self._dev.Value
         except NicosError:
             # self._comment += 'CACHED'
             if self._read_cache is not None:
                 self.log.warning('using cached spectrum')
-                spectrum = [int(i) for i in self._read_cache.tolist()]
+                spectrum = self._read_cache
             else:
                 self.log.warning('no spectrum cached')
         return [spectrum]
@@ -182,7 +181,7 @@ class DSPec(PyTangoDevice, Measurable):
             self._dev.Start()
         except NicosError:
             try:
-                self._dev.stop()
+                self._dev.Stop()
                 self._dev.Init()
                 self._dev.Clear()
                 self._dev.Start()
@@ -216,7 +215,7 @@ class DSPec(PyTangoDevice, Measurable):
     def duringMeasurementHook(self, elapsed):
         if (elapsed - self._lastread) > self.cacheinterval:
             try:
-                self._read_cache = self.doRead()
+                self._read_cache = self._dev.Value
                 self.log.info('spectrum cached')
             except NicosError:
                 self.log.warning('caching spectrum failed')
@@ -242,23 +241,21 @@ class DSPec(PyTangoDevice, Measurable):
             if currenttime() >= self._stop:
                 return True
 
-        if self._preset['cond'] in ['LiveTime', 'TrueTime']:
-            if ((currenttime() - self._started) + 20) < self._preset['value']:
-                # self.log.warning('poll every 0.2 secs')
-                return False
-            elif ((currenttime() - self._started) < self._preset['value']) or \
-                 ((currenttime() - self._started) > self._preset['value']):
-                self.log.warning('poll every 1 secs')
-                session.delay(1)
-            try:
-                # self.log.warning('poll')
-                stop = self._dev.PollTime[0]
-            except NicosError:
-                self._dont_stop_flag = True
-                # self.log.warning('read poll time failed, waiting for other '
-                #                  'detector(s)...')
-                return False
+        if 'TrueTime' in self._preset:
+            return self._dev.TrueTime >= self._preset['TrueTime']
+        elif 'LiveTime' in self._preset:
+            return self._dev.LiveTime >= self._preset['LiveTime']
+        elif 'counts' in self._preset:
+            return self.doRead(0)[2] >= self._preset['counts']
+        try:
+            # self.log.warning('poll')
+            stop = self.poll[0]
             return stop < 0
+        except NicosError:
+            self._dont_stop_flag = True
+            # self.log.warning('read poll time failed, waiting for other '
+            #                  'detector(s)...')
+            return False
         return False
 
     def valueInfo(self):
