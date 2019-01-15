@@ -2,7 +2,7 @@ description = 'PANDA PG-monochromator'
 
 group = 'lowlevel'
 
-includes = ['monofoci', 'monoturm', 'panda_s7']
+includes = ['monofoci', 'monoturm', 'panda_mtt']
 
 excludes = ['mono_pg', 'mono_si', 'mono_cu', 'mono_heusler']
 

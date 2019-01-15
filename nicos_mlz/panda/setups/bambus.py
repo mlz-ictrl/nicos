@@ -3,10 +3,9 @@ description = 'PANDA triple-axis setup'
 group = 'basic'
 
 includes = [
-    'system', 'sampletable', 'panda_s7', 'manual', 'alias_sth', 'monofoci',
-    'qmesydaq',
+    'system', 'sampletable', 'panda_mtt', 'manual', 'alias_sth', 'monofoci',
+    'qmesydaq', 'monoturm',
 ]
-# monoturm is included by panda_s7
 
 modules = ['nicos.commands.tas']
 
