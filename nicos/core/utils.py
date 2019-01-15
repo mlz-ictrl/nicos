@@ -54,7 +54,7 @@ SKIP_EXCEPTIONS = (InvalidValueError, LimitError, CommunicationError,
 GUEST = 0
 USER = 10
 ADMIN = 20
-ACCESS_LEVELS = {0: 'guest', 10: 'user', 20: 'admin'}
+ACCESS_LEVELS = {GUEST: 'guest', USER: 'user', ADMIN: 'admin'}
 
 
 User = namedtuple('User', 'name, level')
