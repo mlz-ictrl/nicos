@@ -9,12 +9,12 @@ tango_base = 'tango://pgaahw.pgaa.frm2:10000/pgaa/'
 
 devices = dict(
     sensort = device('nicos.devices.taco.io.DigitalInput',
-        description = ' sensor on top of tube',
+        description = 'sensor at the top of tube',
         tacodevice = '//pgaasrv.pgaa.frm2/pgaa/sample/tube_sensor_top',
         lowlevel = True
     ),
     sensorl = device('nicos.devices.taco.io.DigitalInput',
-        description = ' sensor on bottom of tube',
+        description = 'sensor at the bottom of tube',
         tacodevice = '//pgaasrv.pgaa.frm2/pgaa/sample/tube_sensor_low',
         lowlevel = True
     ),
@@ -39,7 +39,6 @@ devices = dict(
         microstep = 128,
         speed = 0.2,
         accel = 0.2,
-        sensor = 'sensort',
         lowlevel = True,
     ),
     push = device('nicos_mlz.pgaa.devices.sampledevices.SamplePusher',
@@ -50,7 +49,6 @@ devices = dict(
         sensorl = 'sensorl',
         mapping = {'down': 1,
                    'up': 0},
-        motor = 'samplemotor'
     ),
     sc = device('nicos_mlz.pgaa.devices.SampleChanger',
         description = 'The sample changer',

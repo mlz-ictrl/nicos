@@ -25,11 +25,11 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.core import Attach, Moveable, Override
+from nicos.core import Attach, IsController, Moveable, Override, status
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
 
 
-class SampleChanger(BaseSequencer):
+class SampleChanger(IsController, BaseSequencer):
     """The PGAA sample changer device."""
 
     attached_devices = {
@@ -41,6 +41,19 @@ class SampleChanger(BaseSequencer):
         'unit': Override(default=''),
         'fmtstr': Override(default='%.f'),
     }
+
+    def isAdevTargetAllowed(self, dev, target):
+        if dev == self._attached_motor:
+            if not self._attached_push._attached_sensort.read(0):
+                return False, '"push" is not in top position or moving'
+        elif dev == self._attached_push:
+            if self._attached_motor.status(0)[0] == status.BUSY:
+                return False, 'motor moving'
+            if self._attached_motor.read(0) not in (1., 2., 3., 4., 5., 6., 7.,
+                                                    8., 9., 10., 11., 12., 13.,
+                                                    14., 15., 16.):
+                return False, 'invalid motor position'
+        return True, ''
 
     def _generateSequence(self, target):
         seq = []

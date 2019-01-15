@@ -25,20 +25,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-from IO import StringIO
-
-from nicos.core import SIMULATION, Attach, Device, Moveable, Override, \
-    Readable, status
-from nicos.devices.taco import NamedDigitalOutput, TacoDevice
+from nicos.core import SIMULATION, Attach, Override, Readable, status
+from nicos.devices.taco import NamedDigitalOutput
 
 from nicos_mlz.panda.devices.mcc2 import MCC2Motor
-
-
-class TacoSerial(TacoDevice, Device):
-    taco_class = StringIO
-
-    def communicate(self, what):
-        return self._taco_guard(self._dev.communicate, what)
 
 
 class SamplePusher(NamedDigitalOutput):
@@ -46,7 +36,6 @@ class SamplePusher(NamedDigitalOutput):
     attached_devices = {
         'sensort': Attach('Sensor on top of the tube.', Readable),
         'sensorl': Attach('Sensor on the downside', Readable),
-        'motor': Attach('Stage rotation', Moveable),
     }
 
     parameter_overrides = {
@@ -57,15 +46,6 @@ class SamplePusher(NamedDigitalOutput):
     def doInit(self, mode):
         NamedDigitalOutput.doInit(self, mode)
         self._target_sens = None
-
-    def doIsAllowed(self, pos):
-        if self._attached_motor.status(0)[0] == status.BUSY:
-            return False, 'motor moving'
-        if self._attached_motor.read(0) not in (1., 2., 3., 4., 5., 6., 7., 8.,
-                                                9., 10., 11., 12., 13., 14.,
-                                                15., 16.):
-            return False, 'invalid motor position'
-        return True, 'ok'
 
     def doStart(self, val):
         pos = self.mapping.get(val, val)
@@ -93,18 +73,8 @@ class SamplePusher(NamedDigitalOutput):
 
 class SampleMotor(MCC2Motor):
 
-    attached_devices = {
-        'sensor': Attach('Active sensor locks the motor', Readable),
-    }
-
     def doInit(self, mode):
         MCC2Motor.doInit(self, mode)
         # unlock motor
         if mode != SIMULATION:
             self.comm('XP27S1')
-
-    def doIsAllowed(self, pos):
-        if pos != self.doRead(0):
-            if not self._attached_sensor.read(0):
-                return False, 'top sensor not active'
-        return True, 'ok'
