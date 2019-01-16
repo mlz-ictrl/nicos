@@ -26,6 +26,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+from nicos.core import SIMULATION
 from nicos.utils import safeName
 
 from nicos_mlz.devices.experiment import Experiment as _Experiment
@@ -37,6 +38,10 @@ class Experiment(_Experiment):
     directory."""
 
     def newSample(self, parameters):
+        if self._mode == SIMULATION:
+            _Experiment.newSample(self, parameters)
+            return
+
         self.sampledir = safeName(parameters["name"])
         _Experiment.newSample(self, parameters)
         self.log.debug("changed samplepath to: %s" % self.samplepath)
