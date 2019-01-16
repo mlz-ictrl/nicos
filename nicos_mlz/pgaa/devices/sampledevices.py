@@ -25,17 +25,21 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.core import SIMULATION, Attach, Override, Readable, status
-from nicos.devices.taco import NamedDigitalOutput
+from nicos.core import SIMULATION, Attach, Moveable, Override, Readable, \
+    oneof, status
 
 from nicos_mlz.panda.devices.mcc2 import MCC2Motor
 
 
-class SamplePusher(NamedDigitalOutput):
+class SamplePusher(Moveable):
+    """Move the sample up/down inside the sample changer device."""
+
+    valuetype = oneof('down', 'up')
 
     attached_devices = {
-        'sensort': Attach('Sensor on top of the tube.', Readable),
-        'sensorl': Attach('Sensor on the downside', Readable),
+        'actuator': Attach('Actuator to perform the switch', Moveable),
+        'sensort': Attach('Sensor at top of the tube.', Readable),
+        'sensorl': Attach('Sensor at down of the tube', Readable),
     }
 
     parameter_overrides = {
@@ -44,15 +48,13 @@ class SamplePusher(NamedDigitalOutput):
     }
 
     def doInit(self, mode):
-        NamedDigitalOutput.doInit(self, mode)
         self._target_sens = None
 
-    def doStart(self, val):
-        pos = self.mapping.get(val, val)
-        self._taco_guard(self._dev.write, pos)
-        if pos == 0:
+    def doStart(self, target):
+        self._attached_actuator.move(target)
+        if target == 'up':
             self._target_sens = self._attached_sensort
-        elif pos == 1:
+        elif target == 'down':
             self._target_sens = self._attached_sensorl
 
     def doStatus(self, maxage=0):
@@ -66,9 +68,9 @@ class SamplePusher(NamedDigitalOutput):
 
     def doRead(self, maxage=0):
         if self._attached_sensort.read(maxage):
-            return self._reverse.get(0, 0)
+            return 'up'
         elif self._attached_sensorl.read(maxage):
-            return self._reverse.get(1, 1)
+            return 'down'
 
 
 class SampleMotor(MCC2Motor):
