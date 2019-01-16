@@ -30,8 +30,8 @@ from nicos.core.sessions.simple import SingleDeviceSession
 from nicos.guisupport.qt import QApplication, QIcon, QPalette, Qt
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
 
-from .cacheclient import CICacheClient
-from .mainwindow import MainWindow
+from nicostools.cacheinspector.cacheclient import CICacheClient
+from nicostools.cacheinspector.mainwindow import MainWindow
 
 
 class StatusBarHandler(Handler):

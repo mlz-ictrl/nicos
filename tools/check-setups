@@ -22,6 +22,7 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
+# isort:skip_file
 
 import argparse
 import logging
@@ -84,7 +85,7 @@ def main():
     if opts.verbose:
         root_log.setLevel(logging.INFO)
     if opts.filename:
-        outfile = open(opts.filename, 'a', encoding='utf-8')
+        outfile = open(opts.filename, 'a', encoding='utf-8') # pylint: disable=consider-using-with
         root_log.addHandler(FileHandler(outfile))
 
     ret = SetupValidator().walk(paths, opts.separate)
