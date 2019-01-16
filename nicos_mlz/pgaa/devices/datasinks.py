@@ -112,7 +112,7 @@ class PGAASinkHandler(DataSinkHandler):
         for i, item in enumerate(self.atts[self._value('att')]):
             code += '%d' % (i + 1) if item == 'in' else ''
         addinfo['Attenuator'] = code
-        addinfo['ElCol'] = self._value('ellcol')
+        addinfo['ElCol'] = self._value('ellcol')[:1]
         addinfo['Beam'] = 'O' if self._value('shutter') == 'closed' else ''
         addinfo['Vacuum'] = 'V' if self._value('chamber_pressure') < 10. else ''
         addinfo['Prefix'] = self.detector.prefix
