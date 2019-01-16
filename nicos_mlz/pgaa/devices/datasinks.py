@@ -94,7 +94,7 @@ class PGAASinkHandler(DataSinkHandler):
         self.log.debug('type: %r', self.dataset.settype)
 
         try:
-            spectrum = self.results[1][0].tolist()[0]
+            spectrum = self.results[1][0].tolist()
             for i, vi in enumerate(self.detector.valueInfo()):
                 if vi.name == 'truetim':
                     truetime = self.results[0][i]
