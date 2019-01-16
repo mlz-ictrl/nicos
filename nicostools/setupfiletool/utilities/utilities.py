@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
@@ -22,31 +21,23 @@
 #   Andreas Schulz <andreas.schulz@frm2.tum.de>
 #
 # *****************************************************************************
-# isort:skip_file
 
 from __future__ import absolute_import, division, print_function
 
-import sys
 from os import path
 
-try:
-    from nicos.guisupport.qt import QApplication
-except ImportError:
-    sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
-    from nicos.guisupport.qt import QApplication
 
-from nicostools.passwordeditor.mainwindow import MainWindow
-
-
-def main(argv=None):
-    if not argv:
-        argv = sys.argv
-
-    app = QApplication(argv)
-    window = MainWindow()
-    window.show()
-    return app.exec_()
+class ItemTypes(object):
+    # used to distinguish QTreeWidgetItems
+    Directory = 1200
+    Setup = 1300
+    Device = 1400
 
 
-if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+def getNicosDir():
+    # this file should be in */nicos-core/tools/setupfiletool/utilities
+    return(path.abspath(path.join(path.dirname(__file__), '..', '..', '..')))
+
+
+def getResDir():
+    return(path.join(getNicosDir(), 'tools', 'setupfiletool', 'res'))

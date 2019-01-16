@@ -1,4 +1,5 @@
 # PGAA specific script
+# pylint: skip-file
 
 start, _wait = __start__
 wa = start - currenttime()

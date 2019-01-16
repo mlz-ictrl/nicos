@@ -23,11 +23,12 @@ extension-pkg-whitelist=numpy,
     PyQt5.Qsci,
     nicospyctl.pyctl,
     nicoslivewidget,
-    quickyaml
+    quickyaml,
+    lxml.etree
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=_vendor,.git,pyctl.so,corbadevice_idl.py,pylintrc
+ignore=_vendor,.git,pyctl.so,corbadevice_idl.py,pylintrc,fbschema
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
@@ -129,6 +130,7 @@ disable=useless-object-inheritance
         ,arguments-differ # it is unclear if this helpful for us.
         ,inconsistent-return-statements # unhelpful
         ,assignment-from-no-return  # too many numpy spurions
+        ,useless-object-inheritance  # not good for mixed py2/py3 code
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

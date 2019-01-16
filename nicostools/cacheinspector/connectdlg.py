@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
@@ -19,34 +18,20 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Andreas Schulz <andreas.schulz@frm2.tum.de>
+#   Pascal Neubert <pascal.neubert@frm2.tum.de>
 #
 # *****************************************************************************
-# isort:skip_file
 
 from __future__ import absolute_import, division, print_function
 
-import sys
 from os import path
 
-try:
-    from nicos.guisupport.qt import QApplication
-except ImportError:
-    sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
-    from nicos.guisupport.qt import QApplication
-
-from nicostools.passwordeditor.mainwindow import MainWindow
+from nicos.guisupport.qt import QDialog, uic
 
 
-def main(argv=None):
-    if not argv:
-        argv = sys.argv
+class ConnectDialog(QDialog):
 
-    app = QApplication(argv)
-    window = MainWindow()
-    window.show()
-    return app.exec_()
-
-
-if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    def __init__(self, parent=None):
+        QDialog.__init__(self, parent)
+        uic.loadUi(path.join(path.dirname(path.abspath(__file__)), 'ui',
+                             'connect.ui'), self)

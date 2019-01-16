@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
@@ -22,31 +21,17 @@
 #   Andreas Schulz <andreas.schulz@frm2.tum.de>
 #
 # *****************************************************************************
-# isort:skip_file
-
 from __future__ import absolute_import, division, print_function
 
-import sys
-from os import path
-
-try:
-    from nicos.guisupport.qt import QApplication
-except ImportError:
-    sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
-    from nicos.guisupport.qt import QApplication
-
-from nicostools.passwordeditor.mainwindow import MainWindow
-
-
-def main(argv=None):
-    if not argv:
-        argv = sys.argv
-
-    app = QApplication(argv)
-    window = MainWindow()
-    window.show()
-    return app.exec_()
-
-
-if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+excluded_device_classes = [
+    'nicos.devices.abstract.Coder',
+    'nicos.devices.abstract.Motor',
+    'nicos.devices.abstract.Axis',
+    'nicos.devices.abstract.MappedReadable',
+    'nicos.devices.abstract.MappedMoveable',
+    'nicos.core.device.Readable',
+    'nicos.core.device.Moveable',
+    'nicos.core.device.Measurable',
+    'nicos.devices.vendor.simplecomm.SimpleCommReadable',
+    'nicos.devices.vendor.simplecomm.SimpleCommMoveable'
+]

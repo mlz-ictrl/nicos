@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
@@ -19,34 +18,34 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Andreas Schulz <andreas.schulz@frm2.tum.de>
+#   Pascal Neubert <pascal.neubert@frm2.tum.de>
 #
 # *****************************************************************************
-# isort:skip_file
 
 from __future__ import absolute_import, division, print_function
 
-import sys
 from os import path
 
-try:
-    from nicos.guisupport.qt import QApplication
-except ImportError:
-    sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
-    from nicos.guisupport.qt import QApplication
-
-from nicostools.passwordeditor.mainwindow import MainWindow
+from nicos.guisupport.qt import QMainWindow, QWidgetItem, uic
 
 
-def main(argv=None):
-    if not argv:
-        argv = sys.argv
+class WatcherWindow(QMainWindow):
+    def __init__(self, parent=None):
+        QMainWindow.__init__(self, parent)
+        uic.loadUi(path.join(path.dirname(path.abspath(__file__)), 'ui',
+                             'watcher.ui'), self)
+        self.buttonClear.clicked.connect(self.clear)
 
-    app = QApplication(argv)
-    window = MainWindow()
-    window.show()
-    return app.exec_()
+    def addWidgetKey(self, widget):
+        """Insert the given widget into the watcher window."""
+        layout = self.scrollContents.layout()
+        layout.insertWidget(layout.count() - 1, widget)
 
-
-if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    def clear(self):
+        """Remove all watched items."""
+        layout = self.scrollContents.layout()
+        for i in range(layout.count()-1, -1, -1):
+            item = layout.takeAt(i)
+            if isinstance(item, QWidgetItem):
+                item.widget().deleteLater()
+        layout.addStretch()

@@ -1,0 +1,83 @@
+#!/usr/bin/env python
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the MLZ
+# Copyright (c) 2009-2019 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Georg Brandl <georg.brandl@fz-juelich.de>
+#
+# *****************************************************************************
+
+from __future__ import absolute_import, division, print_function
+
+import argparse
+import logging
+import sys
+from os import path
+
+try:
+    from nicos.clients.gui.tools.downtime import DownTimeTool
+except ImportError:
+    sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
+    from nicos.clients.gui.tools.downtime import DownTimeTool
+
+from nicos.guisupport.qt import QApplication, QMainWindow
+from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger, initLoggers
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-r', '--receiver', dest='receiver', action='store',
+                    help='mailaddress of the receiver, defaults to'
+                    'f.carsughi@fz-juelich.de',
+                    default='f.carsughi@fz-juelich.de')
+parser.add_argument('-m', '--mailserver', dest='mailserver', action='store',
+                    help='name of the mail server, defaults to smtp.frm2.tum.de',
+                    default='smtp.frm2.tum.de')
+parser.add_argument('instrument', nargs=1, action='store', default='DEMO',
+                    help='name of the instrument')
+parser.add_argument('sender', nargs=1, action='store',
+                    help='mail address of the sender')
+
+args = parser.parse_args()
+
+# Set up logging for the GUI instance.
+initLoggers()
+log = NicosLogger('gui')
+log.parent = None
+log.setLevel(logging.INFO)
+log.addHandler(ColoredConsoleHandler())
+
+
+# set up logging for unhandled exceptions in Qt callbacks
+def log_unhandled(*exc_info):
+    import traceback
+    traceback.print_exception(*exc_info)
+    log.exception('unhandled exception in QT callback', exc_info=exc_info)
+
+
+sys.excepthook = log_unhandled
+
+app = QApplication(sys.argv)
+widget = QMainWindow()
+
+dt = DownTimeTool(widget, None, receiver=args.receiver,
+                  mailserver=args.mailserver, sender=args.sender[0],
+                  instrument=args.instrument[0], log=log)
+dt.show()
+
+sys.exit(app.exec_())

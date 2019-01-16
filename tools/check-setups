@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# isort:skip_file
+from __future__ import absolute_import, division, print_function
 
 import argparse
 import ast
@@ -7,7 +9,6 @@ import os
 import re
 import sys
 import traceback
-
 from os import path
 
 try:
@@ -15,13 +16,6 @@ try:
 except ImportError:
     sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
     from nicos import config
-
-try:
-    import nicos.guisupport.qt as qt
-    from nicos.clients.gui.panels import Panel
-except ImportError:
-    qt = None
-    Panel = None
 
 from nicos.core.errors import ConfigurationError
 from nicos.core.sessions.setups import SETUP_GROUPS, prepareNamespace, \
@@ -34,6 +28,13 @@ from nicos.utils.stubs import generate_stubs
 from nicos.clients.gui.config import prepareGuiNamespace
 from nicos.clients.gui import config as guicfg
 from nicos.pycompat import exec_, integer_types, string_types
+
+try:
+    import nicos.guisupport.qt as qt
+    from nicos.clients.gui.panels import Panel
+except ImportError:
+    qt = None
+    Panel = None
 
 # read NICOS config
 config.apply()

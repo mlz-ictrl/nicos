@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
@@ -22,31 +21,37 @@
 #   Andreas Schulz <andreas.schulz@frm2.tum.de>
 #
 # *****************************************************************************
-# isort:skip_file
+"""Excludes and includes widgets."""
 
 from __future__ import absolute_import, division, print_function
 
-import sys
 from os import path
 
-try:
-    from nicos.guisupport.qt import QApplication
-except ImportError:
-    sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
-    from nicos.guisupport.qt import QApplication
-
-from nicostools.passwordeditor.mainwindow import MainWindow
+from nicos.guisupport.qt import QDialog, QListWidgetItem, uic
 
 
-def main(argv=None):
-    if not argv:
-        argv = sys.argv
+class AddXcludeDialog(QDialog):
+    def __init__(self, setups, typ, parent=None):
+        QDialog.__init__(self, parent)
+        uic.loadUi(path.abspath(path.join(path.dirname(__file__),
+                                          '..',
+                                          'ui',
+                                          'dialogs',
+                                          'addxcludedialog.ui')), self)
+        self.setWindowTitle('New %s ... ' % typ)
+        self.labelHeader.setText('Add new %s:' % typ)
+        for setup in setups:
+            QListWidgetItem(setup, self.listWidgetSetups)
 
-    app = QApplication(argv)
-    window = MainWindow()
-    window.show()
-    return app.exec_()
+    def getValue(self):
+        return [i.text() for i in self.listWidgetSetups.selectedItems()]
 
 
-if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+class AddIncludeDialog(AddXcludeDialog):
+    def __init__(self, setups, parent=None):
+        AddXcludeDialog.__init__(self, setups, 'include', parent)
+
+
+class AddExcludeDialog(AddXcludeDialog):
+    def __init__(self, setups, parent=None):
+        AddXcludeDialog.__init__(self, setups, 'exclude', parent)

@@ -25,7 +25,7 @@
 
 """Cleans up Cache data files from stray NUL Bytes e.g. after Harddisk crashes"""
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import os
 

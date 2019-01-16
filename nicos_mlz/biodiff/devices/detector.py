@@ -25,7 +25,7 @@
 from __future__ import absolute_import, division, print_function
 
 import numpy
-from PyTango import DevState
+from PyTango import DevState  # pylint: disable=no-name-in-module
 
 from nicos import session
 from nicos.core import Moveable, status

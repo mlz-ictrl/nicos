@@ -81,7 +81,7 @@ test-coverage:
 		$(PYTHON) `which py.test` -v $(T) --cov --cov-report=html --cov-report=term $(O)
 
 lint:
-	@-PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc nicos/ nicos_*/
+	@-PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc nicos/ nicos_*/ nicostools/ tools/* bin/*
 
 changelint:
 	PYFILESCHANGED=$$(git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/.\t//'  | grep "\.py\$$"); \

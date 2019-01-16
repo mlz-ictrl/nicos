@@ -28,14 +28,19 @@ Utility script for reformatting NICOS setup files via yapf
 (https://github.com/google/yapf).
 """
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
-import sys
 import argparse
-import logging
 import difflib
+import logging
+import sys
+from os import path
 
-from utils import format_setup_text
+try:
+    from nicostools.utils import format_setup_text
+except ImportError:
+    sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
+    from nicostools.utils import format_setup_text
 
 
 def parseArgv(argv):

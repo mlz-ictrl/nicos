@@ -22,15 +22,19 @@
 #   Andreas Schulz <andreas.schulz@frm2.tum.de>
 #
 # *****************************************************************************
+# isort:skip_file
+from __future__ import absolute_import, division, print_function
 
 import sys
 from os import path
 
-sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
+try:
+    from nicos.guisupport.qt import QApplication
+except ImportError:
+    sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
+    from nicos.guisupport.qt import QApplication
 
-from nicos.guisupport.qt import QApplication
-
-from setupfiletool.mainwindow import MainWindow
+from nicostools.setupfiletool.mainwindow import MainWindow
 
 
 def main(argv=None):
