@@ -58,6 +58,9 @@ class Spectrum(VirtualImage):
                 if 0 <= counted <= self.preselection:
                     return (self.preselection - counted) * elapsed / counted
 
+    def doReadArray(self, _quality):
+        return self._buf[0]
+
 
 class DSPec(Detector):
 
