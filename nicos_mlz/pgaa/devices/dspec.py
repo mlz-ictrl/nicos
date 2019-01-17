@@ -60,7 +60,7 @@ class DSPec(PyTangoDevice, Measurable):
                                default=1800),
         'enablevalues':  Param('List of values to enable the gates',
                                type=listof(anytype), default=[],
-                               settable=True),
+                               settable=True, category='general'),
         'disablevalues': Param('List of values to disable the gates',
                                type=listof(anytype), default=[]),
     }

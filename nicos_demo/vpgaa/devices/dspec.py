@@ -78,7 +78,7 @@ class DSPec(GatedDetector):
     }
 
     parameter_overrides = {
-        'enablevalues':  Override(settable=True),
+        'enablevalues':  Override(settable=True, category='general'),
     }
 
     def _presetiter(self):
