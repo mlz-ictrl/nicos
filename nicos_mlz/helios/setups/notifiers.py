@@ -8,7 +8,6 @@ devices = dict(
         sender = 'peter.stein@frm2.tum.de',
         copies = [('peter.stein@frm2.tum.de', 'all')],
         subject = 'NICOS:helios',
-        lowlevel = True,
     ),
     # smser = device('nicos.devices.notifiers.SMSer',
     #     server = 'triton.admin.frm2'

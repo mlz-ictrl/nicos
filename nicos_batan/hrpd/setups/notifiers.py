@@ -12,6 +12,5 @@ devices = dict(
         ],
         mailserver = '',  # please add it later !
         subject = 'NICOS HRPD',
-        lowlevel = True,
     ),
 )

@@ -12,6 +12,5 @@ devices = dict(
         ],
         mailserver = 'mailserver.host',  # please adapt!
         subject = 'NICOS',
-        lowlevel = True,
     ),
 )

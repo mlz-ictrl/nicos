@@ -11,13 +11,11 @@ devices = dict(
             ('marcell.wolf@frm2.tum.de', 'all'),
         ],
         subject = 'TOFTOF',
-        lowlevel = True,
         mailserver = 'mailhost.frm2.tum.de',
     ),
     smser = device('nicos.devices.notifiers.SMSer',
         description = 'Notifier service to send SMS',
         server = 'triton.admin.frm2',
         # receivers = [],
-        lowlevel = True,
     ),
 )

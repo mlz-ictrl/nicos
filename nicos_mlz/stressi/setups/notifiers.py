@@ -12,7 +12,6 @@ devices = dict(
             ('joana.kornmeier@frm2.tum.de', 'important'),
         ],
         subject = 'STRESS-SPEC',
-        lowlevel = True,
         mailserver = 'mailhost.frm2.tum.de',
     ),
     hvemail = device('nicos.devices.notifiers.Mailer',
@@ -25,13 +24,11 @@ devices = dict(
             ('joana.kornmeier@frm2.tum.de', 'important'),
         ],
         subject = 'STRESS-SPEC',
-        lowlevel = True,
         mailserver = 'mailhost.frm2.tum.de',
     ),
     # Configure SMS receivers if wanted and registered with IT.
     smser = device('nicos.devices.notifiers.SMSer',
         server = 'triton.admin.frm2',
         receivers = [],
-        lowlevel = True,
     ),
 )

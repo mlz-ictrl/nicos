@@ -14,13 +14,11 @@ devices = dict(
             ('alerts.sw.zea2@fz-juelich.de', 'important'),
         ],
         subject = '[NICOS] TREFF',
-        lowlevel = True,
     ),
 
     # Configure SMS receivers if wanted and registered with IT.
     smser = device('nicos.devices.notifiers.SMSer',
         server = 'triton.admin.frm2',
         receivers = [],
-        lowlevel = True,
     ),
 )

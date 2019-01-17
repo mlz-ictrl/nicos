@@ -9,12 +9,10 @@ devices = dict(
         sender = 'powtex@frm2.tum.de',
         copies = [('christian.randau@frm2.tum.de', 'all')],
         subject = 'NICOS Warning POWTEX',
-        lowlevel = True,
     ),
     # Configure SMS receivers if wanted and registered with IT.
     smser = device('nicos.devices.notifiers.SMSer',
         server = 'triton.admin.frm2',
         receivers = [],
-        lowlevel = True,
     ),
 )

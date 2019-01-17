@@ -12,13 +12,11 @@ devices = dict(
         ],
         mailserver = 'mailhost.frm2.tum.de',
         subject = 'NICOS',
-        lowlevel = True,
     ),
 
     # Configure SMS receivers if wanted and registered with IT.
     smser = device('nicos.devices.notifiers.SMSer',
         server = 'triton.admin.frm2',
         receivers = [],
-        lowlevel = True,
     ),
 )

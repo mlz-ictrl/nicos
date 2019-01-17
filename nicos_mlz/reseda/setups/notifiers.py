@@ -12,17 +12,14 @@ devices = dict(
             'christian.franz@frm2.tum.de', 'olaf.soltwedel@frm2.tum.de'
         ],
         subject = 'NICOS@RESEDA',
-        lowlevel = True,
     ),
     # Configure SMS receivers if wanted and registered with IT.
     smser = device('nicos.devices.notifiers.SMSer',
         server = 'triton.admin.frm2',
         receivers = [],
-        lowlevel = True,
     ),
     slacker = device('nicos.devices.notifiers.slack.Slacker',
         receivers = ['#nicos_build-up'],
-        lowlevel = True,
         keystoretoken = 'slack',
     ),
 )

@@ -69,6 +69,11 @@ class Notifier(Device):
         'subject':    Param('Subject prefix', type=str, default='NICOS'),
     }
 
+
+    parameter_overrides = {
+        'lowlevel': Override(default=True, mandatory=False),
+    }
+
     _lastsent = 0
 
     def _checkRateLimit(self):

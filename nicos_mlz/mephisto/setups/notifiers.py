@@ -17,6 +17,5 @@ devices = dict(
         description = 'Reports via SMS',
         server = 'triton.admin.frm2',
         receivers = [],
-        lowlevel = True,
     ),
 )

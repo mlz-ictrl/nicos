@@ -12,12 +12,10 @@ devices = dict(
             ('Avishek.Maity@frm2.tum.de', 'all'),
         ],
         subject = 'PUMA',
-        lowlevel = True,
     ),
     smser = device('nicos.devices.notifiers.SMSer',
         description = 'Reports via SMS',
         server = 'triton.admin.frm2',
         receivers = ['017680508564', '015219120504'],
-        lowlevel = True,
     ),
 )
