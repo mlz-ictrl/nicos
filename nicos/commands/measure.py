@@ -219,8 +219,7 @@ def SetDetectors(*detlist):
     >>> SetDetectors(det, psd)  # to use both the "det" and "psd" detectors
     """
     session.experiment.setDetectors(detlist)
-    session.log.info('standard detectors are now: %s',
-                     ', '.join(session.experiment.detlist))
+    ListDetectors()
 
 
 @usercommand
@@ -234,16 +233,18 @@ def AddDetector(*detlist):
     """
     existing = session.experiment.detlist
     session.experiment.setDetectors(existing + list(detlist))
-    session.log.info('standard detectors are now: %s',
-                     ', '.join(session.experiment.detlist))
+    ListDetectors()
 
 
 @usercommand
 @parallel_safe
 def ListDetectors():
     """List the standard detectors."""
-    session.log.info('standard detectors are %s',
-                     ', '.join(session.experiment.detlist))
+    if session.experiment.detlist:
+        session.log.info('standard detectors are: %s',
+                             ', '.join(session.experiment.detlist))
+    else:
+        session.log.info('at the moment no standard detectors are set.')
 
 
 @usercommand
@@ -259,8 +260,7 @@ def SetEnvironment(*devlist):
     >>> SetEnvironment()       # to read out no additional devices
     """
     session.experiment.setEnvironment(devlist)
-    session.log.info('standard environment is now: %s',
-                     ', '.join(session.experiment.envlist))
+    ListEnvironment()
 
 
 @usercommand
@@ -274,16 +274,18 @@ def AddEnvironment(*devlist):
     """
     existing = session.experiment.envlist
     session.experiment.setEnvironment(existing + list(devlist))
-    session.log.info('standard environment is now: %s',
-                     ', '.join(session.experiment.envlist))
+    ListEnvironment()
 
 
 @usercommand
 @parallel_safe
 def ListEnvironment():
     """List the standard environment devices."""
-    session.log.info('standard environment is %s',
-                     ', '.join(session.experiment.envlist))
+    if session.experiment.envlist:
+        session.log.info('standard environment is: %s',
+                         ', '.join(session.experiment.envlist))
+    else:
+        session.log.info('at the moment no standard environment is set.')
 
 
 @usercommand
