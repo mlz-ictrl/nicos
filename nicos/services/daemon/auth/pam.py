@@ -26,12 +26,16 @@
 from __future__ import absolute_import, division, print_function
 
 import pwd
+import re
 
 import pamela as pam
 
 from nicos.core import ADMIN, GUEST, USER, User
+from nicos.pycompat import to_utf8
 from nicos.services.daemon.auth import AuthenticationError, \
     Authenticator as BaseAuthenticator
+
+access_re = re.compile(r'access=(?P<level>\d+)')
 
 
 class Authenticator(BaseAuthenticator):
@@ -47,9 +51,9 @@ class Authenticator(BaseAuthenticator):
         try:
             pam.authenticate(username, password, resetcred=0)
             entry = pwd.getpwnam(username)
-            idx = entry.pw_gecos.find('access=')
-            if idx > -1:
-                access = int(entry.pw_gecos[idx+7])
+            idx = access_re.search(to_utf8(entry.pw_gecos))
+            if idx:
+                access = int(idx.group('level'))
                 if access in (GUEST, USER, ADMIN):
                     return User(username, access)
             return User(username, ADMIN)
