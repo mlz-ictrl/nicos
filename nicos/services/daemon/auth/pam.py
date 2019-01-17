@@ -45,6 +45,12 @@ class Authenticator(BaseAuthenticator):
     daemon runs as the root user.
 
     The access level info can be put into the "gecos" field.
+
+    Example:
+
+    John Doe,access=20
+
+    where 20 is the 'ADMIN' level. (see `nicos.core.utils.py` file)
     """
 
     def authenticate(self, username, password):
