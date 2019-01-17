@@ -30,7 +30,7 @@ import re
 
 import pamela as pam
 
-from nicos.core import ADMIN, GUEST, USER, User
+from nicos.core import ADMIN, GUEST, USER, Param, User, oneof
 from nicos.pycompat import to_utf8
 from nicos.services.daemon.auth import AuthenticationError, \
     Authenticator as BaseAuthenticator
@@ -53,6 +53,12 @@ class Authenticator(BaseAuthenticator):
     where 20 is the 'ADMIN' level. (see `nicos.core.utils.py` file)
     """
 
+    parameters = {
+        'defaultlevel': Param('Default user level if not in PAM settings',
+                              settable=False, userparam=False,
+                              type=oneof(GUEST, USER, ADMIN), default=GUEST),
+    }
+
     def authenticate(self, username, password):
         try:
             pam.authenticate(username, password, resetcred=0)
@@ -62,7 +68,7 @@ class Authenticator(BaseAuthenticator):
                 access = int(idx.group('level'))
                 if access in (GUEST, USER, ADMIN):
                     return User(username, access)
-            return User(username, ADMIN)
+            return User(username, self.defaultlevel)
         except pam.PAMError as err:
             raise AuthenticationError('PAM authentication failed: %s' % err)
         except Exception as err:
