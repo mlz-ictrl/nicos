@@ -76,6 +76,7 @@ class TestMultiAnalyzer(object):
         assert ra2.isAllowed(-2)
         ra1.stop()
         ra1.speed = 0
+        ra1.wait()
 
     @pytest.mark.timeout(timeout=10, method='thread', func_only=True)
     def test_neighbours_trans(self, session):
@@ -169,8 +170,8 @@ class TestMultiAnalyzer(object):
         man.reference()
         man.wait()
 
-        assert man.read() == [0] * 11 + [0.1] * 11
+        assert man.read(0) == [0] * 11 + [0.1] * 11
 
         # test move away from referenced system
         man.maw([1] * 11 + [0] * 11)
-        assert man.read() == [1] * 11 + [0] * 11
+        assert man.read(0) == [1] * 11 + [0] * 11
