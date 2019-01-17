@@ -113,7 +113,8 @@ class PGAASinkHandler(DataSinkHandler):
             code += '%d' % (i + 1) if item == 'in' else ''
         addinfo['Attenuator'] = code
         addinfo['ElCol'] = self._value('ellcol')[:1]
-        addinfo['Beam'] = 'O' if self._value('shutter') == 'closed' else ''
+        addinfo['Beam'] = 'O' if self.dataset.metainfo[
+            self.detector.name, 'enablevalues'][0][0] == 'closed' else ''
         addinfo['Vacuum'] = 'V' if self._value('chamber_pressure') < 10. else ''
         addinfo['Prefix'] = self.detector.prefix
         addinfo['Pos'] = self.dataset.metainfo.get(('sc', 'value'), [0])[0]
@@ -309,7 +310,8 @@ class CSVSinkHandler(DataSinkHandler):
         addinfo.update(self.dataset.preset)
         addinfo['Attenuator'] = self._value('att')
         addinfo['ElCol'] = self._value('ellcol')
-        addinfo['Beam'] = self._value('shutter')
+        addinfo['Beam'] = self.dataset.metainfo[self.detector.name,
+                                                'enablevalues'][0][0]
 
         for cond in ['LiveTime', 'TrueTime', 'ClockTime', 'counts']:
             if cond in self.dataset.preset:
