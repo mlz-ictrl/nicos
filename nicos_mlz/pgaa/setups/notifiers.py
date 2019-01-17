@@ -11,7 +11,8 @@ devices = dict(
             ('revayzs@gmail.com', 'all'),
             ('christian.stieghorst@frm2.tum.de', 'all')
         ],
-        subject = 'NICOS',
+        mailserver = 'mailhost.frm2.tum.de',
+        subject = 'PGAA',
         lowlevel = True,
     ),
 
