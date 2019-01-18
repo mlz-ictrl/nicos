@@ -35,7 +35,12 @@ __all__ = ['tcount', 'freqmes']
 
 @usercommand
 def tcount(time_to_measure):
-    """Set the switch, fg1 and fg2 for tisane counts."""
+    """Initiate a count using the flipbox
+
+    1) close the relais of the flipbox in order to burst the multifg device
+    2) count for x seconds (in listmode)
+    3) open the relais of the flipbox to prepare for a new count
+    """
 
     session.delay(5)
 
@@ -65,9 +70,14 @@ def tcount(time_to_measure):
 
 @usercommand
 def freqmes(assumed_freq, number_of_counts):
-    """Determine mean frequency of the frequency counter for *number_of_counts*.
+    """Triggers and measures the current tisane frequency
 
-    Used or tisane measurements.
+    by averaging over `number_of_counts` measurements.
+    Also prints average and standard deviation.
+
+    Needs to have a (rough) estimation of the frequency beforehand.
+
+    Used for tisane measurements.
     """
     import numpy
     valuedev = session.getDevice('tisane_fc')
@@ -112,15 +122,18 @@ def freqmes(assumed_freq, number_of_counts):
 
 @usercommand
 def setfg(freq_sample, amplitude_sample, offset_sample, shape_sample, freq_detector):
-    """Open the trigger relais and sets desired values of the multi frequency.
+    """Set several values of the multi frequency generator at once
 
-    generator for the sample and the detector
+    and switch to burst mode.
+
     example: setfg(100, 0.5, 0.1, 'sin', 200)
     options for shape_samle:
     SINE = 'sin'
     Square = 'squ'
     Ramp = 'ramp' (with symmetry of 50%)
     Triangle = 'tri'
+
+    Used for tisane measurements.
     """
 
     multifg = session.getDevice('tisane_fg_multi')
@@ -138,26 +151,27 @@ def setfg(freq_sample, amplitude_sample, offset_sample, shape_sample, freq_detec
     #            'OFF;:SOUR2:BURSt:MODE TRIG;:OUTP2:LOAD 50;:OUTP2:POL NORM;:TRIG2:SOUR ' \
     #            'EXT;:SOUR2:BURSt:NCYCles 9.9E37;:SOUR1:BURSt:STATe ON;:SOUR2:BURSt:STATe ' \
     #            'ON;:OUTP1 ON;:OUTP2 ON;'
-    template_new = ':SOUR1:FUNC:SHAP {0};:SOUR1:FREQ {1};:SOUR1:VOLT {2};:SOUR1:VOLT:UNIT VPP;' \
-                   ':SOUR1:VOLT:OFFS {3};:SOUR1:FUNCtion:SQU:DCYCle 50;:SOUR1:AM:STATe OFF;' \
-                   ':SOUR1:SWEep:STATe OFF;:SOUR1:BURSt:MODE TRIG;:OUTP1:LOAD 50;:OUTP1:POL NORM;' \
-                   ':TRIG1:SOUR EXT;:SOUR1:BURSt:NCYCles 9.9E37;:SOUR2:FUNC:SHAP SQU;' \
-                   ':SOUR2:FREQ {4};:SOUR2:VOLT 5;:SOUR2:VOLT:UNIT VPP;:SOUR2:VOLT:OFFS 1.3;' \
-                   ':SOUR2:FUNCtion:SQU:DCYCle 50;:SOUR2:AM:STATe OFF;:SOUR2:SWEep:STATe OFF;' \
-                   ':SOUR2:BURSt:MODE TRIG;:OUTP2:LOAD 50;:OUTP2:POL NORM;:TRIG2:SOUR EXT;' \
-                   ':SOUR2:BURSt:NCYCles 9.9E37;:SOUR1:BURSt:STATe ON;:SOUR2:BURSt:STATe ON;' \
-                   ':OUTP1 ON;:OUTP2 ON;'.format(shape_sample, freq_sample, amplitude_sample,
-                                                 offset_sample, freq_detector)
+    template = ':SOUR1:FUNC:SHAP {0};:SOUR1:FREQ {1};:SOUR1:VOLT {2};:SOUR1:VOLT:UNIT VPP;' \
+               ':SOUR1:VOLT:OFFS {3};:SOUR1:FUNCtion:SQU:DCYCle 50;:SOUR1:AM:STATe OFF;' \
+               ':SOUR1:SWEep:STATe OFF;:SOUR1:BURSt:MODE TRIG;:OUTP1:LOAD 50;:OUTP1:POL NORM;' \
+               ':TRIG1:SOUR EXT;:SOUR1:BURSt:NCYCles 9.9E37;:SOUR2:FUNC:SHAP SQU;' \
+               ':SOUR2:FREQ {4};:SOUR2:VOLT 5;:SOUR2:VOLT:UNIT VPP;:SOUR2:VOLT:OFFS 1.3;' \
+               ':SOUR2:FUNCtion:SQU:DCYCle 50;:SOUR2:AM:STATe OFF;:SOUR2:SWEep:STATe OFF;' \
+               ':SOUR2:BURSt:MODE TRIG;:OUTP2:LOAD 50;:OUTP2:POL NORM;:TRIG2:SOUR EXT;' \
+               ':SOUR2:BURSt:NCYCles 9.9E37;:SOUR1:BURSt:STATe ON;:SOUR2:BURSt:STATe ON;' \
+               ':OUTP1 ON;:OUTP2 ON;'.format(shape_sample, freq_sample, amplitude_sample,
+                                             offset_sample, freq_detector)
     strings = dict(multifg.strings)
-    strings['arm'] = template_new
+    strings['arm'] = template
     multifg.strings = strings
     move(multifg, 'arm')
 
 
 @usercommand
 def tcalc(sd, cs, chop_speed, wav_mean, wav_spread):
-    """calculates the tisane frequencies
+    """Calculate the tisane frequencies from a given set of parameters.
 
+    Used for preparation of tisane measurements.
     """
 
     import math
