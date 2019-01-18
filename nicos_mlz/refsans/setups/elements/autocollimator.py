@@ -1,6 +1,5 @@
 description = 'autocollimator, water subtracted, vendor Trioptic'
 
-# not included by others
 group = 'optional'
 
 all_lowlevel = False  # or True
@@ -19,13 +18,15 @@ devices = dict(
         lowlevel = all_lowlevel,
         index = 0,
         tangodevice = tango_host,
-        unit = '',
+        scale = 1,
+        unit = 'deg',
     ),
     autocollimator_phi = device('nicos_mlz.refsans.devices.triangle.TriangleAngle',
         description = description + ', autocollimator X on PC',
         lowlevel = all_lowlevel,
         index = 1,
         tangodevice = tango_host,
-        unit = '',
+        scale = -1,
+        unit = 'deg',
     ),
 )
