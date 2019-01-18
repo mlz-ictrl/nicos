@@ -33,15 +33,14 @@ from Modbus import Modbus
 from nicos import session
 from nicos.core import SIMULATION, CommunicationError, DeviceMixinBase, \
     MoveError, Override, Param, TimeoutError, UsageError, requires, status
+from nicos.core.params import nonemptylistof
 from nicos.devices.abstract import CanReference, Coder, Motor
 from nicos.devices.taco.core import TacoDevice
 from nicos.utils import bitDescription
 
 from nicos_mlz.refsans.params import motoraddress
 
-# according to docu: 'Anhang_A_REFSANS_Cab1 ver25.06.2014 0.1.3 mit nok5b.pdf'
-# according to docu: '_2013-04-08 Anhang_A_REFSANS_Schlitten V0.7.pdf '
-# according to docu: '_2013-04-05 Anhang A V0.6.pdf'
+Numeric_Parameter = True
 
 
 class SingleMotorOfADoubleMotorNOK(DeviceMixinBase):
@@ -179,16 +178,17 @@ class BeckhoffCoderBase(TacoDevice, Coder):
 
     def _writeControlBit(self, bit, value, numbits=1):
         self.log.debug('_writeControlBit %r, %r', bit, value)
-#        tmpval = self._taco_guard(self._dev.readHoldingRegisters,
-#                                  (0, self.address, 1))[0]
-#        mask = (1 << numbits) - 1
-#        tmpval &= ~(mask << int(bit))
-#        tmpval |= ((mask & int(value)) << int(bit))
-#        self.log.debug('write control bit: 0x%x', tmpval)
-#        self._taco_guard(self._dev.writeSingleRegister,
-#                         (0, self.address, tmpval))
+        # tmpval = self._taco_guard(self._dev.readHoldingRegisters,
+        #                           (0, self.address, 1))[0]
+        # mask = (1 << numbits) - 1
+        # tmpval &= ~(mask << int(bit))
+        # tmpval |= ((mask & int(value)) << int(bit))
+        # self.log.debug('write control bit: 0x%x', tmpval)
+        # self._taco_guard(self._dev.writeSingleRegister,
+        #                  (0, self.address, tmpval))
         self._taco_guard(self._dev.writeSingleRegister,
-                         (0, self.address, (value & ((1 << int(numbits))-1)) << int(bit)))
+                         (0, self.address,
+                          (value & ((1 << int(numbits))-1)) << int(bit)))
         session.delay(0.1)  # work around race conditions....
 
     def _writeDestination(self, value):
@@ -274,7 +274,8 @@ class BeckhoffCoderBase(TacoDevice, Coder):
         """Used status bits."""
         # read HW values
         errval = self._readErrorWord()
-        statval = (self._readStatusWord() ^ self.HW_Status_Inv)& ~self.HW_Status_Ign
+        statval = (self._readStatusWord() ^ self.HW_Status_Inv) & \
+            ~self.HW_Status_Ign
 
         msg = bitDescription(statval, *self.HW_Statusbits)
         # check for errors first, then warnings, busy and Ok
@@ -309,7 +310,6 @@ class BeckhoffCoderBase(TacoDevice, Coder):
         pass
 
 
-#class BeckhoffMotorBase(CanReference, HasTimeout, BeckhoffCoderBase, Motor):
 class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
     """
     Device object for a digital output device via a Beckhoff modbus interface.
@@ -318,15 +318,12 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
     Beckhoff PLC.
     """
 
-#    parameter_overrides = {
-#        'timeout':  Override(mandatory=False, default=300),
-#    }
-
     # invert bit 13 (referenced) to NOT REFERENCED
     ### invert bit 8 (ready) to NOT READY
     # invert bit 0 (enabled) to NOT ENABLED
     HW_Status_Inv = (1 << 13) | (1 << 0)
     HW_Status_Ign = (1 << 6)
+
     # map mask of bits to status to return if any bits within mask is set
     HW_Status_map = (
         #  FEDCBA9876543210
@@ -339,7 +336,6 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
     #
     # Hardware abstraction: which actions do we want to do...
     #
-
     def _HW_writeDestinationandStart(self, target):
         """Write Target value and Initiate movement in one go."""
         self.log.debug('_writeDestination %r and start', target)
@@ -373,7 +369,6 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
 
     # more advanced stuff: setting/getting parameters
     # only to be used manually at the moment
-    @requires(level='user')
     def _HW_readParameter(self, index):
         if index not in self.HW_readable_Params:
             raise UsageError('Reading not possible for parameter index %d' %
@@ -381,33 +376,21 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
 
         index = self.HW_readable_Params.get(index, index)
         self.log.debug('readParameter %d', index)
-        if self._readStatusWord() & (1 << 7):
-            raise UsageError(self, 'Can not access Parameters while Motor is '
-                             'moving, please stop it first!')
-        # wait for inactive ACK/NACK
-        self.log.debug('Wait for idle ACK/NACK bits')
-        for _ in range(1000):
-            if self._readStatusWord() & (3 << 14) == 0:
-                break
-        else:
-            raise CommunicationError(self, 'HW still busy, can not read '
-                                     'Parameter, please retry later')
 
-        # index goes to bits 8..15, also set bit2 (4) = get_parameter
-        self._writeUpperControlWord((index << 8) | 4)
-
-        self.log.debug('Wait for ACK/NACK bits')
-        for _ in range(1000):
-            if self._readStatusWord() & (3 << 14) != 0:
-                break
-        else:
-            raise CommunicationError(self, 'ReadPar command not recognized by '
-                                     'HW, please retry later....')
-
-        if self._readStatusWord() & (1 << 14):
-            raise CommunicationError(self, 'Reading of Parameter %r failed, '
-                                     'got a NACK' % index)
-        return self._readReturn()
+        for i in range(10):
+            self._writeUpperControlWord((index << 8) | 4)
+            for ii in range(1):
+                session.delay(0.15)
+                stat = self._readStatusWord()
+                if stat & (0x8000) != 0:
+                    if i > 0 or ii > 0:
+                        self.log.info('readParameter %d %d', i + 1, ii + 1)
+                    return self._readReturn()
+                if stat & (0x4000) != 0:
+                    raise UsageError(self, 'NACK ReadPar command not '
+                                     'recognized by HW, please retry later...')
+        raise UsageError(self, 'ReadPar command not recognized by HW, please '
+                         'retry later ...')
 
     @requires(level='admin')
     def _HW_writeParameter(self, index, value, store2eeprom=False):
@@ -512,7 +495,6 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
         return 'V%.1f' % (0.1 * self._HW_readParameter(253))
 
 
-# Box Cab1: B1, NOK5a, NOK5b
 class BeckhoffMotorCab1(BeckhoffMotorBase):
     HW_readable_Params = dict(refPos=2, vMax=3, motorTemp=41,
                               encoderRawValue=60, maxValue=120,
@@ -526,10 +508,65 @@ class BeckhoffMotorCab1(BeckhoffMotorBase):
         return self._speed2phys(self._HW_readParameter('vMax'))
 
     def HW_readMotorTemp(self):
-        return self._HW_readParameter('motorTemp')  # in degC
+        # in degC
+        if Numeric_Parameter:
+            return self._HW_readParameter_index('motorTemp')
+        else:
+            return self._HW_readParameter('motorTemp')
+
+    def _HW_readParameter_index(self, index):
+        ###
+        LDebug = True
+        if index not in self.HW_readable_Params:
+            raise UsageError('Reading not possible for parameter index %d' %
+                             index)
+
+        index = self.HW_readable_Params.get(index, index)
+        self.log.debug('readParameter index %d', index)
+
+        for i in range(10):
+            self._writeUpperControlWord((index << 8) | 4)
+            for ii in range(1):
+                session.delay(0.15)
+                stat = self._readStatusWord()
+
+                if stat & (0x8000) != 0:
+                    if LDebug:
+                        if i > 0 or ii > 0:
+                            self.log.info('readParameter %d %d', i, ii)
+                    # old return self._readReturn()
+                    value = self._taco_guard(self._dev.readHoldingRegisters,
+                                             (0, self.address + 1, 9))
+                    retindex = value[0] >> 8
+                    if retindex != index:
+                        if LDebug:
+                            self.log.info('read second!')
+                        continue
+                    value = value[7:]
+                    value = struct.unpack('=i', struct.pack('<2H', *value))[0]
+                    return value
+                if stat & (0x4000) != 0:
+                    raise UsageError(self, 'NACK ReadPar command not '
+                                     'recognized by HW, please retry later...')
+        raise UsageError(self, 'ReadPar command not recognized by '
+                         'HW, please retry later ...')
+
+    def _HW_readParameter_numeric(self, index, minimum=None, maximum=None):
+        for patience in range(12):
+            val = self._HW_readParameter(index)
+            if (maximum is None or val < maximum) and \
+               (minimum is None or val > minimum):
+                break
+            session.delay(0.1 * (patience + 1))
+        else:
+            # if not, then anyway ;-)
+            return val
 
     def HW_readEncoderRawValue(self):
-        return self._HW_readParameter('encoderRawValue')
+        if Numeric_Parameter:
+            return self._HW_readParameter_index('encoderRawValue')
+        else:
+            return self._HW_readParameter('encoderRawValue')
 
     def HW_readMaxValue(self):
         return self._steps2phys(self._HW_readParameter('maxValue'))
@@ -541,10 +578,7 @@ class BeckhoffMotorCab1(BeckhoffMotorBase):
         return self._steps2phys(self._HW_readParameter('firmwareVersion'))
 
 
-# Motor M01 (0x3020) & M02 (0x302a)
-# Blendenschild (reactorside, 0x3020) + (sample side, 0x302a)
 class BeckhoffMotorCab1M0x(BeckhoffMotorCab1):
-
     def HW_writeVMax(self, value):
         # see docu: speed <= 8mm/s
         if value > 8:
@@ -552,10 +586,28 @@ class BeckhoffMotorCab1M0x(BeckhoffMotorCab1):
         self._HW_writeParameter('vMax', self._phys2speed(value))
 
 
-# Blende zB0: Motor M13 (0x3048)
-# Blende zB1: Motor M13 (0x3066)
-class BeckhoffMotorCab1M13(BeckhoffMotorCab1):
+class BeckhoffPoti(BeckhoffMotorCab1):
+    parameters = {
+        'poly': Param('Polynomial coefficients in ascending order',
+                      type=nonemptylistof(float), settable=False,
+                      mandatory=True, default=[0, 1]),
+    }
 
+    def doRead(self, maxage=0):
+        value = self.HW_readEncoderRawValue()
+        result = 0.
+        for i, ai in enumerate(self.poly):
+            result += ai * (value ** i)
+        return result
+
+
+class BeckhoffTemp(BeckhoffMotorCab1):
+
+    def doRead(self, maxage=0):
+        return self.HW_readMotorTemp()
+
+
+class BeckhoffMotorCab1M13(BeckhoffMotorCab1):
     def HW_writeVMax(self, value):
         # see docu: speed <= 2mm/s
         if not 0 <= value <= 2:
@@ -563,10 +615,6 @@ class BeckhoffMotorCab1M13(BeckhoffMotorCab1):
         self._HW_writeParameter('vMax', self._phys2speed(value))
 
 
-# NOK5a: Motor M11 (reactorside, 0x3034) & M12 (sample side, 0x303e),
-# should be moved together!
-# NOK5b: Motor M11 (reactorside, 0x3052) & M12 (sample side, 0x305c),
-# should be moved together!
 class BeckhoffMotorCab1M1x(SingleMotorOfADoubleMotorNOK, BeckhoffMotorCab1M13):
     def _HW_start(self):
         # from docu:
@@ -582,7 +630,6 @@ class BeckhoffMotorCab1M1x(SingleMotorOfADoubleMotorNOK, BeckhoffMotorCab1M13):
                          'see docu!, try referencing one of %s' % self._sdevs)
 
 
-# Box detectorantrieb: det_z: Achse 0x3020, Coder_readout 0x302a
 class BeckhoffMotorDetector(BeckhoffMotorBase):
     parameter_overrides = {
         'slope': Override(default=100),
@@ -641,7 +688,6 @@ class BeckhoffCoderDetector(BeckhoffCoderBase):
     HW_Status_Inv = 0
 
 
-# Box horizontalblende: _2013-04-05\ Anhang\ A\ V0.6.pdf
 class BeckhoffMotorHSlit(BeckhoffMotorBase):
     parameter_overrides = {
         'slope': Override(default=1000),
