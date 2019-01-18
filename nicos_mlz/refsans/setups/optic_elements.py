@@ -10,6 +10,8 @@ includes = [
     'nok2',
     'nok3',
     'nok4',
+    'disc3',
+    'disc4',
     'nok5a',
     'nok5b',
     'nok6',
@@ -72,7 +74,10 @@ devices = dict(
             'b1'    : [  -1.0,      -11.686477],        #04   12.099516
             'nok5a' : [ -21.971213, -30.971213],        #05
             'zb0'   :   -34.837178             ,        #06
-            'nok5b' : [ -38.479458, -54.667368],        #07
+            # Due to a mechanical limit the values are reduced by 1
+            # normally the values should be:
+            # 'nok5b' : [ -38.479458, -54.667368],      #07
+            'nok5b' : [ -37.479458, -53.667368],        #07
             'zb1'   :   -57.845240             ,        #08
             'nok6'  : [ -61.487520, -77.675430],        #09
             'zb2'   :   -80.866571             ,        #10
@@ -80,7 +85,10 @@ devices = dict(
             'zb3'   : [  12.092881, -97.445910],        #12
             'nok8'  : [-101.068287,-106.110423],        #13
             'bs1'   : [  12.072978,-109.659821],        #14
-            'nok9'  : [-113.056628,-117.557398],        #15
+            # Due to a mechanical limit the values are reduced by 1.5
+            # normally the values should be:
+            # 'nok9'  : [-113.056628,-117.557398],        #15
+            'nok9'  : [-111.556628,-115.057398],        #15
             'sc2'   :  -121.435862             ,        #16
             'b2'    : [  -1.0,     -126.769911],        #17   12.199032
             'b3'    : [   0.0,        0.0],             #18
@@ -158,7 +166,7 @@ devices = dict(
             'fc:nok9'             :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'ng','zb0':  'slit','nok5b':    'ng','zb1':  'slit','nok6':    'ng','zb2':  'slit','nok7':    'ng','zb3':  'slit','nok8':    'ng','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
             'neutronguide'        :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'ng','zb0':  'slit','nok5b':    'ng','zb1':  'slit','nok6':    'ng','zb2':  'slit','nok7':    'ng','zb3':  'slit','nok8':    'ng','bs1':  'slit','nok9':    'ng','b2':  'slit','b3':  'slit'},
             'vc:nok5a_fc:nok5b'   :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'fc','zb1':  'slit','nok6':    'fc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            #'vc:nok5a_fc:nok6'    :
+            'vc:nok5a_fc:nok6'    :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'vc','zb1':  'slit','nok6':    'fc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
             'vc:nok5a_fc:nok7'    :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'vc','zb1':  'slit','nok6':    'vc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
             #'vc:nok5a_fc:nok8'    :
             #'vc:nok5a_fc:nok9'    :

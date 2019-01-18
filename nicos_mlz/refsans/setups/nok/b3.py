@@ -1,7 +1,7 @@
 description = 'B3 aperture devices'
 
-# group = 'lowlevel'
 group = 'optional'
+
 lprecision = 0.01
 
 
@@ -40,7 +40,6 @@ else:
     devices = dict(
         b3 = device('nicos_mlz.refsans.devices.nok_support.DoubleSlitSequence',
             description = 'b3 and h3 inside Samplechamber',
-            # fmtstr = 'opening: %.3f mm, zpos: %.3f mm',
             fmtstr = '%.3f mm, %.3f mm',
             unit = '',
             nok_start = -1,
@@ -49,14 +48,7 @@ else:
             nok_gap = -1,
             inclinationlimits = (-1000, 1000),
             masks = dict(
-                # slit = [84.044, 50.4169, 0.00, 4.06],
                 slit = [84.044, 50.4169, 0.10, 16.565],
-                # MP 27.03.18 bend
-                # slit = [84.044, 50.4169, 0.00, 45.22],
-                # MP 22.02.2018 12:47:22 Schwanenhals
-                # MP height scan 22.02.2018 12:46:29
-                # slit = [84.044, 50.4169, 0.00, 4.06],
-                # MP hight scann 30.01.2018 13:24:04 open=todo
                 pinhole = [84.044, 50.4169, 0.00, 45.22],
                 gisans = [84.044, 50.4169, 0.00, 45.22],
             ),
@@ -78,9 +70,9 @@ else:
            nok_end = -1,
            nok_gap = -1,
            masks = {
-               'slit': 33.55,  # -16.045,  # 84.044,
-               'point': 84.044,
-               'gisans': 84.044,
+               'slit': 36.32,
+               'point': 36.32,
+               'gisans': 36.32,
            },
            unit = 'mm',
         ),
@@ -93,9 +85,9 @@ else:
            nok_end = -1,
            nok_gap = -1,
            masks = {
-               'slit': 33.6333,  # -15.965,  # 50.4169,
-               'point': 50.4169,
-               'gisans': 50.4169,
+               'slit': 36.404,
+               'point': 36.404,
+               'gisans': 36.404,
            },
            unit = 'mm',
         ),
@@ -105,7 +97,6 @@ else:
             address = 0x3214+3*10, # decimal 12820
             slope = -10000,
             unit = 'mm',
-            # abslimits = (-193.0, 130.0),
             abslimits = (-393.0, 330.0),
             ruler = -200.0,
             lowlevel = True,

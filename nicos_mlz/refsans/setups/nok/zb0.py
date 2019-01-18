@@ -5,21 +5,13 @@ group = 'lowlevel'
 nethost = 'refsanssrv.refsans.frm2'
 global_values = configdata('global.GLOBAL_Values')
 
-# according to docu: 'Anhang_A_REFSANS_Cab1 ver25.06.2014 0.1.3 mit nok5b.pdf'
-# according to docu: '_2013-04-08 Anhang_A_REFSANS_Schlitten V0.7.pdf'
-# according to docu: '_2013-04-05 Anhang A V0.6.pdf'
-# according to docu: '_Anhang_A_REFSANS_Pumpstand.pdf'
 devices = dict(
-    # zb0 is at exit of NOK5a (so on its sample side)
     zb0_m = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M13',
         description = 'CAB1 controlled zb0 (M13), sample side',
-        tacodevice = '//%s/test/modbus/optic'% (nethost,),
-        address = 0x3020+4*10, # word adress
+        tacodevice = '//%s/test/modbus/optic' % (nethost,),
+        address = 0x3020+4*10, # word address
         slope = 10000,
         unit = 'mm',
-        # acording to docu:
-        # abslimits = (-184, -0.1),
-        # MP 12.12.2017 07:01:32 - ruler -28.2111 bzw offset
         ruler = -28.2111,
         abslimits = (-155.7889, 28.111099999999997),
         lowlevel = True,
@@ -44,6 +36,28 @@ devices = dict(
             'gisans': -110,
         },
         unit = 'mm',
+    ),
+    zb0_temp = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffTemp',
+        description = 'Temperatur for ZB0 Motor',
+        tacodevice = '//%s/test/modbus/optic'% (nethost,),
+        address = 0x3020+4*10, # word address
+        abslimits = (-1000, 1000),
+        lowlevel = global_values['hide_poti'],
+    ),
+    zb0_obs = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffPoti',
+        description = 'Poti for ZB0 no ref',
+        tacodevice = '//%s/test/modbus/optic' % (nethost,),
+        address = 0x3020+4*10, # word address
+        abslimits = (-1000, 1000),
+        poly = [-176.49512271969755, 0.00794154091586989],
+        lowlevel = global_values['hide_poti'],
+    ),
+    zb0_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+         description = 'calc error Motor and poti',
+         motor = 'zb0_m',
+         analog = 'zb0_obs',
+         lowlevel = global_values['hide_acc'],
+         unit = 'mm'
     ),
     zb0_mode = device('nicos.devices.generic.ReadonlyParamDevice',
         description = 'zb0 mode',

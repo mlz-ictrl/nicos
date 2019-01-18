@@ -5,17 +5,11 @@ group = 'lowlevel'
 nethost = 'refsanssrv.refsans.frm2'
 global_values = configdata('global.GLOBAL_Values')
 
-# according to docu: 'Anhang_A_REFSANS_Cab1 ver25.06.2014 0.1.3 mit nok5b.pdf'
-# according to docu: '_2013-04-08 Anhang_A_REFSANS_Schlitten V0.7.pdf'
-# according to docu: '_2013-04-05 Anhang A V0.6.pdf'
-# according to docu: '_Anhang_A_REFSANS_Pumpstand.pdf'
 devices = dict(
     zb1 = device('nicos_mlz.refsans.devices.slits.SingleSlit',
         description = 'zb1, singleslit at nok5b before nok6',
         unit = 'mm',
         motor = 'zb1_m',
-        # coder = 'zb1_m',
-        # obs = [],
         offset = 0.0,
         nok_start = 5856.5,
         nok_length = 13,
@@ -42,16 +36,27 @@ devices = dict(
     ),
     zb1_m = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M13',
         description = 'CAB1 controlled zb1 (M23), sample side',
-        tacodevice = '//%s/test/modbus/optic'% (nethost,),
-        address = 0x3020+7*10, # word adress
+        tacodevice = '//%s/test/modbus/optic' % (nethost,),
+        address = 0x3020+7*10, # word address
         slope = 10000,
         unit = 'mm',
-        # acording to docu:
-        # abslimits = (-184, -0.1),
-        # MP 12.12.2017 07:21:50 ruler
-        # ruler = -37.9344, #MP 12.12.2017 07:09:29
-        ruler = -35.078,  #MP 12.12.2017 07:44:11 #05.05.2017 08:03:07 scan Schaden am Encoder jeden PowerUP neu machen!
-        abslimits = (-146.06560000000002, 37.834399999999995),
+        ruler = -54.080,
+        abslimits = (-178.9,  53.9),
         lowlevel = True,
+    ),
+    zb1_obs = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffPoti',
+        description = 'Poti for ZB1 no ref',
+        tacodevice = '//%s/test/modbus/optic'% (nethost,),
+        address = 0x3020+7*10, # word address
+        abslimits = (-1000, 1000),
+        poly =  [-231.66351478707793, 0.015860537603265893],
+        lowlevel = global_values['hide_poti'],
+    ),
+    zb1_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+         description = 'calc error Motor and poti',
+         motor = 'zb1_m',
+         analog = 'zb1_obs',
+         lowlevel = global_values['hide_acc'],
+         unit = 'mm'
     ),
 )

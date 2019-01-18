@@ -16,11 +16,11 @@ devices = dict(
         nok_length = 300.0,
         nok_end = 634.0,
         nok_gap = 1.0,
-        inclinationlimits = (-11.34, 13.61),   #MP from ALT
+        inclinationlimits = (-11.34, 13.61),
         motor_r = 'nok2r_axis',
         motor_s = 'nok2s_axis',
         nok_motor = [408.5, 585.0],
-        backlash = -2,   # is this configured somewhere?
+        backlash = -2,
         precision = 0.5,
         masks = {
             'ng': global_values['ng'],
@@ -29,7 +29,6 @@ devices = dict(
             'fc': global_values['ng'],
         },
     ),
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf
     nok2r_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK2, reactor side',
         motor = 'nok2r_motor',
@@ -40,79 +39,36 @@ devices = dict(
         unit = 'mm',
         lowlevel = True,
     ),
-
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     nok2r_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of NOK2, reactor side',
         abslimits = (-22.36, 10.88),
-        bus = 'nokbus1',     # from ipcsms_*.res
-        addr = 0x32,     # from resources.inf
-        slope = 2000.0,  # FULL steps per physical unit
+        bus = 'nokbus1',
+        addr = 0x32,
+        slope = 2000.0,
         speed = 10,
         accel = 10,
         confbyte = 48,
         ramptype = 2,
         microstep = 1,
-        refpos = -4.42,  # from ipcsms_*.res
-        zerosteps = int(254.36 * 2000),  # offset * slope
+        refpos = -4.42,
+        zerosteps = int(254.36 * 2000),
         lowlevel = global_values['hide_poti'],
     ),
-
-    nok2_sshl = device('nicos.devices.taco.DigitalInput',
-        description = 'high limit switch',
-        tacodevice = '//%s/test/nok2/sshl' % nethost,
-        lowlevel = True,
-    ),
-
-    nok2_ssll = device('nicos.devices.taco.DigitalInput',
-        description = 'low limit switch',
-        tacodevice = '//%s/test/nok2/ssll' % nethost,
-        lowlevel = True,
-    ),
-
-    nok2_ssref = device('nicos.devices.taco.DigitalInput',
-        description = 'Device test/nok2/ssref of Server ipcsmsserver nok2',
-        tacodevice = '//%s/test/nok2/ssref' % nethost,
-        lowlevel = True,
-    ),
-
-    nok2_ssrel = device('nicos.devices.taco.DigitalInput',
-        description = 'Device test/nok2/ssrel of Server ipcsmsserver nok2',
-        tacodevice = '//%s/test/nok2/ssrel' % nethost,
-        lowlevel = True,
-    ),
-
-    nok2_sssll = device('nicos.devices.taco.DigitalInput',
-        description = 'Device test/nok2/sssll of Server ipcsmsserver nok2',
-        tacodevice = '//%s/test/nok2/sssll' % nethost,
-        lowlevel = True,
-    ),
-
-    nok2_ssshl = device('nicos.devices.taco.DigitalInput',
-        description = 'Device test/nok2/ssshl of Server ipcsmsserver nok2',
-        tacodevice = '//%s/test/nok2/ssshl' % nethost,
-        lowlevel = True,
-    ),
-
-    # generated from global/inf/poti_tracing.inf
     nok2r_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
         description = 'Position sensing for NOK2, reactor side',
         reference = 'nok_refa1',
         measure = 'nok2r_poti',
-        poly = [9.169441, 996.418 / 3.858],  # off, mul * 1000 / sensitivity, higher orders...
+        poly = [9.169441, 996.418 / 3.858],
         serial = 6510,
         length = 250.0,
         lowlevel = global_values['hide_poti'],
     ),
-
-    # generated from global/inf/poti_tracing.inf
     nok2r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK2, reactor side',
         tangodevice = tango_host + 'wb_a/1_1',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),
-
     nok2r_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'nok2r_motor',
@@ -120,8 +76,6 @@ devices = dict(
          lowlevel = global_values['hide_acc'],
          unit = 'mm'
     ),
-
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf
     nok2s_axis = device('nicos.devices.generic.Axis',
          description = 'Axis of NOK2, sample side',
          motor = 'nok2s_motor',
@@ -132,72 +86,30 @@ devices = dict(
          unit = 'mm',
          lowlevel = True,
     ),
-
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
     nok2s_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
          description = 'IPC controlled Motor of NOK2, sample side',
          abslimits = (-21.61, 6.885),
-         bus = 'nokbus1',     # from ipcsms_*.res
-         addr = 0x33,     # from resources.inf
-         slope = 2000.0,  # FULL steps per physical unit
+         bus = 'nokbus1',
+         addr = 0x33,
+         slope = 2000.0,
          speed = 10,
          accel = 10,
          confbyte = 48,
          ramptype = 2,
          microstep = 1,
-         refpos = -18.19,     # from ipcsms_*.res
-         zerosteps = int(268.11 * 2000),  # offset * slope
+         refpos = -18.19,
+         zerosteps = int(268.11 * 2000),
          lowlevel = global_values['hide_poti'],
     ),
-
-    nok2_srll = device('nicos.devices.taco.DigitalInput',
-         description = 'Device test/nok2/srll of Server ipcsmsserver nok2',
-         tacodevice = '//%s/test/nok2/srll' % nethost,
-         lowlevel = True,
-    ),
-
-    nok2_srhl = device('nicos.devices.taco.DigitalInput',
-         description = 'Device test/nok2/srhl of Server ipcsmsserver nok2',
-         tacodevice = '//%s/test/nok2/srhl' % nethost,
-         lowlevel = True,
-    ),
-
-    nok2_srref = device('nicos.devices.taco.DigitalInput',
-         description = 'Device test/nok2/srref of Server ipcsmsserver nok2',
-         tacodevice = '//%s/test/nok2/srref' % nethost,
-         lowlevel = True,
-    ),
-
-    nok2_srrel = device('nicos.devices.taco.DigitalInput',
-         description = 'Device test/nok2/srrel of Server ipcsmsserver nok2',
-         tacodevice = '//%s/test/nok2/srrel' % nethost,
-         lowlevel = True,
-    ),
-
-    nok2_srsll = device('nicos.devices.taco.DigitalInput',
-         description = 'Device test/nok2/srsll of Server ipcsmsserver nok2',
-         tacodevice = '//%s/test/nok2/srsll' % nethost,
-         lowlevel = True,
-    ),
-
-    nok2_srshl = device('nicos.devices.taco.DigitalInput',
-         description = 'Device test/nok2/srshl of Server ipcsmsserver nok2',
-         tacodevice = '//%s/test/nok2/srshl' % nethost,
-         lowlevel = True,
-    ),
-
-    # generated from global/inf/poti_tracing.inf
     nok2s_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
          description = 'Position sensing for NOK2, sample side',
          reference = 'nok_refa1',
          measure = 'nok2s_poti',
-         poly = [-22.686241, 1003.096 / 3.846],   # off, mul * 1000 / sensitivity, higher orders...
+         poly = [-22.686241, 1003.096 / 3.846],
          serial = 6512,
          length = 250.0,
          lowlevel = global_values['hide_poti'],
     ),
-
-    # generated from global/inf/poti_tracing.inf
     nok2s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
          description = 'Poti for NOK2, sample side',
          tangodevice = tango_host + 'wb_a/1_2',

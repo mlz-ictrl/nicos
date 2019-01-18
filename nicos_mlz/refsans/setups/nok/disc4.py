@@ -6,9 +6,10 @@ nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test' % nethost
 
 devices = dict(
-    disc4 = device('nicos.devices.taco.Motor',
+    disc4 = device('nicos.devices.taco.Axis',
         description = 'disc 4 Motor',
         tacodevice = '%s/disk4/motor' % tacodev,
-        abslimits = (-22, 49.5),
+        abslimits = (-30, 46),
+        refpos = 8.45,
     ),
 )
