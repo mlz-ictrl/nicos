@@ -5,7 +5,7 @@ group = 'lowlevel'
 includes = [
     'b1',
     'b2',
-    #'b3',
+    'b3',
     'bs1',
     'nok2',
     'nok3',
@@ -28,7 +28,7 @@ devices = dict(
         description = 'Beam optic',
         b1 = 'b1',
         b2 = 'b2',
-        #b3 = 'b3',
+        b3 = 'b3',
         bs1 = 'bs1',
         nok2 = 'nok2',
         nok3 = 'nok3',

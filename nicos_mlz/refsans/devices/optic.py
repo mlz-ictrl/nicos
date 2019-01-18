@@ -38,19 +38,18 @@ class Optic(Moveable):
 
     parameters = {
         'mode': Param('mode of the beam',
-                      type=oneof(
-                            'debug',
-                            'gisans',
-                            'point',
-                            'fc:nok5a',
-                            'fc:nok5b',
-                            'fc:nok6',
-                            'fc:nok7',
-                            'fc:nok8',
-                            'fc:nok9',
-                            'neutronguide',
-                            'vc:nok5a_fc:nok5b',
-                            ),
+                      type=oneof('debug',
+                                 'gisans',
+                                 'point',
+                                 'fc:nok5a',
+                                 'fc:nok5b',
+                                 'fc:nok6',
+                                 'fc:nok7',
+                                 'fc:nok8',
+                                 'fc:nok9',
+                                 'neutronguide',
+                                 'vc:nok5a_fc:nok5b',
+                                 ),
                       settable=True,
                       userparam=True),
         # 'polarisation': Param('Polarisation',
@@ -61,11 +60,9 @@ class Optic(Moveable):
         'setting': Param('Maps positon to attached devices positions for '
                          'bending beam',
                          type=dict,
-                         # type=dictof(str, tupleof(int, float, float)),
                          mandatory=True),
         'masks': Param('Maps mask to attached devices positions',
                        type=dict,
-                       # type=dictof(str, tupleof(int, float, float)),
                        mandatory=True),
     }
 
@@ -76,7 +73,7 @@ class Optic(Moveable):
     attached_devices = {
         'b1': Attach('b1', Moveable),
         'b2': Attach('b2', Moveable),
-        # 'b3': Attach('b3', Moveable),
+        'b3': Attach('b3', Moveable),
         'bs1': Attach('bs1', Moveable),
         'nok2': Attach('nok2', Moveable),
         'nok3': Attach('nok3', Moveable),
@@ -93,9 +90,6 @@ class Optic(Moveable):
         'zb2': Attach('zb2', Moveable),
         'zb3': Attach('zb3', Moveable),
     }
-
-    def doInit(self, mode):
-        pass
 
     def doRead(self, maxage=0):
         self.log.debug('doRead')
@@ -155,32 +149,5 @@ class Optic(Moveable):
                 line += ' not attached'
                 self.log.warning(line)
 
-    def doWriteLmode(self, value):
-        # Calculate the positions for the ...
-        self.log.info('Lmode Change to: %s', value)
-        # self._attached_nok2.move((0, 0))
-
-    # def doReadLmode(self):
-    #     # Only needed if it could be calculated
-    #     return ''
-
     def doReadUnit(self):
         return '' if isinstance(self.target, string_types) else 'mrad'
-
-    def doWriteCollimation(self, value):
-        # TODO: Implement the change of the positions of the NOK's and
-        # apertures.
-        self.log.info('doWriteCollimation info >%s<', value)
-
-    # def doReadCollimation(self):
-        # TODO: Implement the determination of the collimation depending of the
-        # NOK and apertures positions
-
-    def doWritePolarisation(self, value):
-        # TODO: Implement the move of the NOK5a, the spin flipper, and the
-        # guide field to the corresponding values
-        pass
-
-    # def doReadPolarisation(self):
-        # TODO: Implement the determination of the polarisation depending of
-        # the NOK5a, the spin flipper, and the guide field
