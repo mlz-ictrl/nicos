@@ -41,8 +41,7 @@ class JsonBase(Readable):
 
     parameters = {
         'url': Param('URL reading the values',
-                     type=str,
-                     ),
+                     type=str),
         'timeout': Param('timeout to get an answers from URL',
                          default=0.1),
         'valuekey': Param('Key inside the json dict, only to proof comm',
@@ -50,14 +49,21 @@ class JsonBase(Readable):
     }
 
     def _read_controller(self, keys):
-        self.log.debug(keys)
+        line = '_read_controller %s' % keys
+        self.log.debug(line)
         try:
             data = requests.get(self.url, timeout=self.timeout).json()
             self.log.debug(data)
         except requests.Timeout as e:
-            raise CommunicationError(self, 'HTTP request failed: %s' % e)
+            self.log.info(line)
+            self.log.info('url %s' % self.url)
+            self.log.info('err %s' % e)
+            raise CommunicationError(self, 'HTTP Timeout failed')
         except Exception as e:
-            raise ConfigurationError(self, 'HTTP request failed: %s' % e)
+            self.log.info(line)
+            self.log.info('url %s' % self.url)
+            self.log.info('err %s' % e)
+            raise ConfigurationError(self, 'HTTP request failed')
         res = {}
         for key in keys:
             res[key] = data[key]
@@ -73,13 +79,15 @@ class JsonBase(Readable):
             return status.ERROR, 'Could not talk to hardware.'
 
 
-class CPTMaster(JsonBase):
+class CPTReadout(HasOffset, JsonBase):
 
     parameters = {
         'phasesign': Param('Phase sign',
                            type=oneof('unsigned', 'signed'),
                            settable=False,
                            default='unsigned'),
+        'channel': Param('Index of value',
+                         type=intrange(-1, 99),),
     }
 
     def _read_ctrl(self, channel):
@@ -105,33 +113,23 @@ class CPTMaster(JsonBase):
         return res
 
     def _kreis(self, phase, kreis=360.0):
-        line = 'kreis phase %.2f %s' % (phase, self.range)
+        line = 'kreis phase %.2f' % phase
         if self.phasesign == 'signed':
             while phase > kreis / 2:
                 phase -= kreis
             while phase < -kreis / 2:
                 phase += kreis
         else:
-            phase = - phase
+            phase = -phase
             while phase > kreis:
                 phase -= kreis
             while phase < 0:
                 phase += kreis
-        self.log.debug(line + ' %.2f' % phase)
+        self.log.debug('%s %.2f', line, phase)
         return phase
-
-
-class CPTReadout(HasOffset, CPTMaster):
-
-    parameters = {
-        'channel': Param('Index of value',
-                         type=intrange(-1, 99),),
-    }
 
     def doRead(self, maxage=0):
         return self._read_ctrl(self.channel)
-        # res = self._kreis(self._read_ctrl(self.index) - self.offset)
-        # return res
 
 
 class SdsRatemeter(JsonBase):
