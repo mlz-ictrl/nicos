@@ -65,16 +65,14 @@ element_part = [
     'wegbox_C_2ref',
 ]
 chopper = [
-    'chopper2_pos',
+    'chopper2_position',
     'chopper',
     'chopper_mode',
     'chopper_resolution',
-    'chopper1',
-    'chopper2_phase',
-    'chopper3_phase',
-    'chopper4_phase',
-    'chopper5_phase',
-    'chopper6_phase',
+    'chopper_speed',
+    'chopper_wl_min',
+    'chopper_wl_max',
+    'chopper_gap',
 ]
 
 Gonio = [
@@ -98,7 +96,7 @@ Gonio = [
 NOKs = [
     'nok1', 'nok2', 'nok3', 'nok4',
     'nok5a', 'nok5b', 'nok6', 'nok7', 'nok8', 'nok9',
-    ]
+]
 NOKs_label = ['', '_mode']
 
 Slits = ['b1', 'zb0', 'zb1', 'zb2', 'zb3', 'bs1', 'b2', 'h2', 'b3']
@@ -110,7 +108,14 @@ lateral_label = ['', '_width', '_center']
 simple_lateral = ['h3']
 simple_lateral_label = ['', '_mode']
 
-det_pos = ['det_pivot', 'det_table', 'det_yoke']
+det_pos = [
+    'det_pivot',
+    'det_table',
+    'det_yoke',
+    'beamstop_height',
+    'beamstop_center',
+    'beamstop_asym',
+]
 
 optic = ['optic']
 optic_label = ['', '_mode']
@@ -124,7 +129,7 @@ Miscellaneous = [
     'pressure_SR',
     'pressure_SFK',
     'pressure_CB',
-    ]
+]
 
 VSD = [
     'ChopperEnable2',
@@ -196,14 +201,13 @@ VSD = [
     'Water4Temp',
     'Water5Flow',
     'Water5Temp',
-    ]
+]
 
 cpt = ['cpt', 6]
 
 analog_encoder = '_acc'
 
 element_part += chopper
-# element_part += Slits
 element_part += simple_slit
 element_part += Gonio
 element_part += VSD
@@ -232,7 +236,7 @@ for l in Slits:
     for label in Slits_label:
         element_part.append(l + label)
 for i in range(cpt[1]):
-    element_part.append(cpt[0] + '%d' % (i+1))
+    element_part.append(cpt[0] + '%d' % (i + 1))
 
 try:
     import configobj
@@ -302,10 +306,15 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
 
     def _write_meas_comment(self, metainfo):
         # TODO: Check which of the 'Measurement Comment' is the right one
-        self._data['Measurement Comment'] = metainfo[('Exp', 'remark')][0]
-        self._data['Sample Name'] = '%s' % metainfo[('Sample',
-                                                     'samplename')][0]
-        self._data['Proposal'] = '%s' % metainfo[('Exp', 'proposal')][0]
+        self._data['Measurement Comment'] = metainfo['Exp', 'remark'][0]
+        self._data['instrument'] = metainfo['REFSANS', 'instrument'][0]
+        try:
+            self._data['usercomment'] = metainfo['det', 'usercomment'][0]
+        except (KeyError, IndexError):
+            self._data['usercomment'] = 'None'
+        self._data['Sample Name'] = '%s' % metainfo['Sample',
+                                                    'samplename'][0]
+        self._data['Proposal'] = '%s' % metainfo['Exp', 'proposal'][0]
 
     def _write_meas_info(self, metainfo):
         pass
@@ -332,21 +341,21 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
     def _write_misc(self, metainfo):
         for dev in Miscellaneous:
             if (dev, 'value') in metainfo:
-                self._data['Miscellaneous'][dev] = metainfo[(dev, 'value')][0]
+                self._data['Miscellaneous'][dev] = metainfo[dev, 'value'][0]
 
     def _write_vsd(self, metainfo):
         for dev in VSD:
             if (dev, 'value') in metainfo:
-                self._data['vsd'][dev] = metainfo[(dev, 'value')][0]
+                self._data['vsd'][dev] = metainfo[dev, 'value'][0]
 
     def _write_optic(self, metainfo):
         self._write_label_ext(metainfo, 'optic', optic, optic_label)
 
     def _write_cpt(self, metainfo):
         for i in range(cpt[1]):
-            dev = cpt[0] + '%d' % (i+1)
+            dev = cpt[0] + '%d' % (i + 1)
             try:  # SB hack for setup cpt not loaded
-                self._data['cpt'][dev] = metainfo[(dev, 'value')][0]
+                self._data['cpt'][dev] = metainfo[dev, 'value'][0]
             except KeyError:
                 pass
 
@@ -355,8 +364,8 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         for tup in keys:
             if tup[1] == 'value' and analog_encoder in tup[0]:
                 element_part.append(tup[0])
-                self._data['analog_encoder'][tup[0]] = metainfo[(tup[0],
-                                                                 'value')][0]
+                self._data['analog_encoder'][tup[0]] = metainfo[tup[0],
+                                                                'value'][0]
 
     def _write_detector_params(self, metainfo):
         detparams = self._data['Detector Parameters']
@@ -367,7 +376,7 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
     def _write_detector(self, metainfo):
         for dev in det_pos:
             if (dev, 'value') in metainfo:
-                self._data['Detector'][dev] = metainfo[(dev, 'value')][0]
+                self._data['Detector'][dev] = metainfo[dev, 'value'][0]
 
     def _write_monitor(self, metainfo):
         self._write_label_ext(metainfo, 'Monitor', monitor, monitor_label)
@@ -375,22 +384,24 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
     def _write_chopper(self, metainfo):
         for dev in chopper:
             if (dev, 'value') in metainfo:
-                self._data['Chopper'][dev] = metainfo[(dev, 'value')][0]
+                self._data['Chopper'][dev] = metainfo[dev, 'value'][0]
+            else:
+                self.log.info('missing %s' % dev)
         self.log.debug('chopper_mode %s',
-                       metainfo[('chopper_mode', 'value')][0])
+                       metainfo['chopper_mode', 'value'][0])
 
     def _write_sample(self, metainfo):
         sample = self._dict()
         for dev in Gonio:
             if (dev, 'value') in metainfo:
-                sample[dev] = metainfo[(dev, 'value')][0]
+                sample[dev] = metainfo[dev, 'value'][0]
         self._data['Sample'] = sample
 
     def _write_extra(self, metainfo, elements):
         extra = self._dict()
         for dev in elements:
             if (dev, 'value') in metainfo:
-                extra[dev] = metainfo[(dev, 'value')][0]
+                extra[dev] = metainfo[dev, 'value'][0]
         self._data['Extra'] = extra
 
     def putMetainfo(self, metainfo):

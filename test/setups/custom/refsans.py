@@ -28,9 +28,15 @@ includes = ['detector']
 
 sysconfig = dict(
     datasinks = ['configsink'],
+    instrument = 'REFSANS',
 )
 
 devices = dict(
+    REFSANS = device('nicos.devices.instrument.Instrument',
+        description = 'Container storing Instrument properties',
+        instrument = 'REFSANS',
+        responsible = 'Joe Doe <joe@doe.org>',
+    ),
     nok1 = device('nicos_mlz.refsans.devices.nok_support.SingleMotorNOK',
         motor = device('nicos.devices.generic.VirtualMotor',
             unit = 'mm',
