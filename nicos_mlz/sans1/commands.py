@@ -35,7 +35,11 @@ __all__ = ['tcount', 'freqmes']
 
 @usercommand
 def tcount(time_to_measure):
-    """Set the switch, fg1 and fg2 for tisane counts."""
+    """-close the relais of the flipbox in order to burst the multifg device
+
+     - count for x seconds (in listmode)
+    - open the relais of the flipbox to prepare for a new count
+    """
 
     session.delay(5)
 
@@ -65,8 +69,9 @@ def tcount(time_to_measure):
 
 @usercommand
 def freqmes(assumed_freq, number_of_counts):
-    """Determine mean frequency of the frequency counter for *number_of_counts*.
+    """calculate the mean frequency and standard deviation of the frequency
 
+    counter for *number_of_counts*.
     Used or tisane measurements.
     """
     import numpy
@@ -112,7 +117,7 @@ def freqmes(assumed_freq, number_of_counts):
 
 @usercommand
 def setfg(freq_sample, amplitude_sample, offset_sample, shape_sample, freq_detector):
-    """Open the trigger relais and sets desired values of the multi frequency.
+    """set desired values of the multi frequency and into burst mode
 
     generator for the sample and the detector
     example: setfg(100, 0.5, 0.1, 'sin', 200)
