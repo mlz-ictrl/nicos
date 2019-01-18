@@ -34,8 +34,6 @@ from nicos.core import SIMULATION, Attach, Override, Param, Readable, dictof, \
     oneof, status, usermethod
 from nicos.devices.taco.core import TacoDevice
 
-# according to docu: 'anhang_a_refsans_vsd.pdf'
-
 
 class VSDIO(TacoDevice, Readable):
     """
@@ -47,13 +45,12 @@ class VSDIO(TacoDevice, Readable):
     hardware_access = True
 
     parameters = {
-        'address':          Param('Starting offset (words) of IO area',
-                                  #type=intrange(0x3000, 0x47ff),
-                                  type=oneof(12288),
-                                  mandatory=True, settable=False,
-                                  userparam=False, default=12288),
-        'firmware':         Param('Firmware Version', settable=False,
-                                  type=str, mandatory=False, volatile=True),
+        'address': Param('Starting offset (words) of IO area',
+                         type=oneof(12288),
+                         mandatory=True, settable=False,
+                         userparam=False, default=12288),
+        'firmware': Param('Firmware Version', settable=False,
+                          type=str, mandatory=False, volatile=True),
     }
 
     def doInit(self, mode):
@@ -78,7 +75,7 @@ class VSDIO(TacoDevice, Readable):
                                  (0, self.address + addr, 1))[0]
         if value > 32767:
             value = value - 65536
-        self.log.debug('_readI16(%d): -> %d', addr, value)
+        self.log.info('_readI16(%d): -> %d', addr, value)
         return value
 
     def _writeU16(self, addr, value):
@@ -106,40 +103,40 @@ class VSDIO(TacoDevice, Readable):
 
     # mapping of user selectable channel name to BYTE_OFFSET, scaling and unit
     _HW_AnalogChannels = dict(
-        User1Voltage =  (200, 0.01, 'V'),
-        User1Current =  (202, 0.01, 'mA'),
-        User2Voltage =  (204, 0.01, 'V'),
-        User2Current =  (206, 0.01, 'mA'),
-        Temperature1 =  (208, 0.01, 'degC'),
-        Temperature2 =  (210, 0.01, 'degC'),
-        Temperature3 =  (212, 0.01, 'degC'),
-        Temperature4 =  (214, 0.01, 'degC'),
-        Temperature5 =  (344, 0.01, 'degC'),
-        Temperature6 =  (346, 0.01, 'degC'),
-        Temperature7 =  (348, 0.01, 'degC'),
-        Temperature8 =  (350, 0.01, 'degC'),
-        Media1Voltage = (300, 0.01, 'V'),
-        Media1Current = (302, 0.01, 'mA'),
-        Media2Voltage = (304, 0.01, 'V'),
-        Media2Current = (306, 0.01, 'mA'),
-        Media3Voltage = (308, 0.01, 'V'),
-        Media3Current = (310, 0.01, 'mA'),
-        Media4Voltage = (312, 0.01, 'V'),
-        Media4Current = (314, 0.01, 'mA'),
-        Air1Pressure =  (316, 0.01, 'bar'),
-        Air2Pressure =  (318, 0.01, 'bar'),
-        Water1Temp =    (320, 0.01, 'degC'),
-        Water1Flow =    (322, 0.01, 'l/min'),
-        Water2Temp =    (324, 0.01, 'degC'),
-        Water2Flow =    (326, 0.01, 'l/min'),
-        Water3Temp =    (328, 0.01, 'degC'),
-        Water3Flow =    (330, 0.01, 'l/min'),
-        Water4Temp =    (332, 0.01, 'degC'),
-        Water4Flow =    (334, 0.01, 'l/min'),
-        Water5Temp =    (336, 0.01, 'degC'),
-        Water5Flow =    (338, 0.01, 'l/min'),
-        Water1Pressure =(340, 0.01, 'bar'),
-        Water2Pressure =(342, 0.01, 'bar'),
+        User1Voltage=(200, 0.01, 'V-foo'),
+        User1Current=(202, 0.01, 'mA-foo'),
+        User2Voltage=(204, 0.01, 'V-foo'),
+        User2Current=(206, 0.01, 'mA-foo'),
+        Temperature1=(208, 0.01, 'degC'),
+        Temperature2=(210, 0.01, 'degC'),
+        Temperature3=(212, 0.01, 'degC'),
+        Temperature4=(214, 0.01, 'degC'),
+        Temperature5=(344, 0.01, 'degC'),
+        Temperature6=(346, 0.01, 'degC'),
+        Temperature7=(348, 0.01, 'degC'),
+        Temperature8=(350, 0.01, 'degC'),
+        Media1Voltage=(300, 0.01, 'V'),
+        Media1Current=(302, 0.01, 'mA'),
+        Media2Voltage=(304, 0.01, 'V'),
+        Media2Current=(306, 0.01, 'mA'),
+        Media3Voltage=(308, 0.01, 'V'),
+        Media3Current=(310, 0.01, 'mA'),
+        Media4Voltage=(312, 0.01, 'V'),
+        Media4Current=(314, 0.01, 'mA'),
+        Air1Pressure=(316, 0.01, 'bar'),
+        Air2Pressure=(318, 0.01, 'bar'),
+        Water1Temp=(320, 0.01, 'degC'),
+        Water1Flow=(322, 0.01, 'l/min'),
+        Water2Temp=(324, 0.01, 'degC'),
+        Water2Flow=(326, 0.01, 'l/min'),
+        Water3Temp=(328, 0.01, 'degC'),
+        Water3Flow=(330, 0.01, 'l/min'),
+        Water4Temp=(332, 0.01, 'degC'),
+        Water4Flow=(334, 0.01, 'l/min'),
+        Water5Temp=(336, 0.01, 'degC'),
+        Water5Flow=(338, 0.01, 'l/min'),
+        Water1Pressure=(340, 0.01, 'bar'),
+        Water2Pressure=(342, 0.01, 'bar'),
         X16Voltage1=(352, 0.01, 'V'),
         X16Voltage2=(354, 0.01, 'V'),
         X16Voltage3=(356, 0.01, 'V'),
@@ -149,44 +146,44 @@ class VSDIO(TacoDevice, Readable):
     # mapping of user selectable channel name to BYTE_OFFSET, bit number
     _HW_DigitalChannels = dict(
         (('Merker%d' % i, (160 + 2*(i//16), i % 16)) for i in range(128, 255)),
-        ControllerStatus = (148, 0),
-        TempVibration = (148, 1),
-        ChopperEnable1 = (148, 2),
-        ChopperEnable2 = (148, 3),
-        AkkuPower = (148, 4),
-        PowerBreakdown = (148, 5),
-        SolenoidValve = (148, 6),
-        PowerSupplyUSV = (148, 7),
-        PowerSupplyNormal = (148, 8),
-        VSD_User1DigitalInput = (154, 0),
-        VSD_User2DigitalInput = (154, 1),
-        VSD_User3DigitalInput1 = (154, 2),
-        VSD_User3DigitalInput2 = (154, 3),
-        VSD_User3DigitalInput3 = (154, 4),
-        VSD_User4DigitalInput1 = (154, 5),
-        VSD_User4DigitalInput2 = (154, 6),
-        VSD_User4DigitalInput3 = (156, 7),
-        VSD_User1DigitalOutput1 = (156, 0),
-        VSD_User1DigitalOutput2 = (156, 1),
-        VSD_User2DigitalOutput1 = (156, 2),
-        VSD_User2DigitalOutput2 = (156, 3),
-        VSD_User3DigitalOutput1 = (156, 4),
-        VSD_User3DigitalOutput2 = (156, 5),
-        VSD_User3DigitalOutput3 = (156, 6),
-        VSD_User4DigitalOutput1 = (156, 7),
-        VSD_User4DigitalOutput2 = (156, 8),
-        VSD_User4DigitalOutput3 = (156, 9),
-        Media_DigitalOutput1 = (158, 0),
-        Media_DigitalOutput2 = (158, 1),
-        Media_DigitalOutput3 = (158, 2),
-        Media_DigitalOutput4 = (158, 3),
+        ControllerStatus=(148, 0),
+        TempVibration=(148, 1),
+        ChopperEnable1=(148, 2),
+        ChopperEnable2=(148, 3),
+        AkkuPower=(148, 4),
+        PowerBreakdown=(148, 5),
+        SolenoidValve=(148, 6),
+        PowerSupplyUSV=(148, 7),
+        PowerSupplyNormal=(148, 8),
+        VSD_User1DigitalInput=(154, 0),
+        VSD_User2DigitalInput=(154, 1),
+        VSD_User3DigitalInput1=(154, 2),
+        VSD_User3DigitalInput2=(154, 3),
+        VSD_User3DigitalInput3=(154, 4),
+        VSD_User4DigitalInput1=(154, 5),
+        VSD_User4DigitalInput2=(154, 6),
+        VSD_User4DigitalInput3=(156, 7),
+        VSD_User1DigitalOutput1=(156, 0),
+        VSD_User1DigitalOutput2=(156, 1),
+        VSD_User2DigitalOutput1=(156, 2),
+        VSD_User2DigitalOutput2=(156, 3),
+        VSD_User3DigitalOutput1=(156, 4),
+        VSD_User3DigitalOutput2=(156, 5),
+        VSD_User3DigitalOutput3=(156, 6),
+        VSD_User4DigitalOutput1=(156, 7),
+        VSD_User4DigitalOutput2=(156, 8),
+        VSD_User4DigitalOutput3=(156, 9),
+        Media_DigitalOutput1=(158, 0),
+        Media_DigitalOutput2=(158, 1),
+        Media_DigitalOutput3=(158, 2),
+        Media_DigitalOutput4=(158, 3),
     )
     #
     # Hardware abstraction: which actions do we want to do...
     #
 
     def _HW_readVersion(self):
-        return 'V%.1f' % (self._readU32(120//2) *0.1)
+        return 'V%.1f' % (self._readU32(120//2) * 0.1)
 
     #
     # Nicos Methods
@@ -212,7 +209,8 @@ class VSDIO(TacoDevice, Readable):
             if k.startswith('Merker'):
                 continue
             self.log.info("%s: %s", k,
-                          'SET' if self._readU16(v[0]//2) & (1<<v[1]) else 'clear')
+                          'SET' if self._readU16(v[0]//2) & (1 << v[1])
+                          else 'clear')
         self.log.info("Merkerwords:")
         for i in range(16):
             self.log.info("Merker%d..%d : 0x%04x",
@@ -221,26 +219,57 @@ class VSDIO(TacoDevice, Readable):
 
 class AnalogValue(Readable):
     attached_devices = {
-        'iodev' : Attach('IO Device', VSDIO),
+        'iodev': Attach('IO Device', VSDIO),
     }
     parameters = {
-        'channel' : Param('Channel for readout',
-                          type = oneof(*VSDIO._HW_AnalogChannels),
-                          settable = True, preinit=True),
+        'channel': Param('Channel for readout',
+                         type=oneof(*VSDIO._HW_AnalogChannels),
+                         settable=True, preinit=True),
     }
 
     parameter_overrides = {
-        'unit' : Override(mandatory=False, volatile=True, settable=False),
+        'unit': Override(mandatory=False, volatile=True, settable=False),
     }
 
     def doReadUnit(self):
-        _ofs, _scale, unit = self._attached_iodev._HW_AnalogChannels[self.channel]
+        _ofs, _scale, unit = \
+            self._attached_iodev._HW_AnalogChannels[self.channel]
+        if unit == 'mA-foo':
+            unit = 'mA'
+        elif unit == 'V-foo':
+            unit = 'V'
         return unit
 
     def doRead(self, maxage=0):
-        ofs, scale, _unit = self._attached_iodev._HW_AnalogChannels[self.channel]
+        ofs, scale, _unit = \
+            self._attached_iodev._HW_AnalogChannels[self.channel]
         # ofs is in Bytes, we need it in words! => /2
-        return scale * self._attached_iodev._readI16(ofs//2)
+        if _unit == 'mA-foo':
+            raw = scale * self._attached_iodev._readU16(ofs//2)
+            self.log.debug('mA-foo %.2f' % raw)
+            # Work around bug in firmware
+            if raw > 20.0:
+                raw -= 615.37
+            self.log.debug('mA-foo %.2f' % raw)
+            # Tested against Multimeter (2018-08-07)
+            raw /= 2.0
+            self.log.debug('mA-foo %.2f' % raw)
+        elif _unit == 'V-foo':
+            raw = self._attached_iodev._readU16(ofs//2)
+            self.log.debug('V-foo %d' % raw)
+            # Work around bug in firmware
+            if raw > 0x8000:
+                raw -= 63536
+                self.log.debug('V-foo %d sign1' % raw)
+            self.log.debug('V-foo %d sign' % raw)
+            # Tested against Multimeter (2018-08-07)
+            raw /= 2.0
+            self.log.debug('v-foo %.2f /2.0' % raw)
+            raw *= scale
+            self.log.debug('v-foo %.2f scale' % raw)
+        else:
+            raw = scale * self._attached_iodev._readU16(ofs//2)
+        return raw
 
     def doStatus(self, maxage=0):
         return status.OK, ''
@@ -248,27 +277,27 @@ class AnalogValue(Readable):
 
 class DigitalValue(Readable):
     attached_devices = {
-        'iodev' : Attach('IO Device', VSDIO),
+        'iodev': Attach('IO Device', VSDIO),
     }
     parameters = {
-        'channel' : Param('Channel for readout',
-                          type = oneof(*VSDIO._HW_DigitalChannels),
-                          settable = True, preinit=True),
-        'mapping' : Param('Mapping of 0/1 to sensible strings',
-                          type = dictof(str, oneof(0,1)), mandatory=True),
+        'channel': Param('Channel for readout',
+                         type=oneof(*VSDIO._HW_DigitalChannels),
+                         settable=True, preinit=True),
+        'mapping': Param('Mapping of 0/1 to sensible strings',
+                         type=dictof(str, oneof(0, 1)), mandatory=True),
     }
 
     parameter_overrides = {
-        'unit' : Override(mandatory=False, settable=False, default=''),
+        'unit': Override(mandatory=False, settable=False, default=''),
     }
 
     def doInit(self, mode):
-        self._revmapping = dict( ((v, k) for k,v in self.mapping.items()))
+        self._revmapping = dict(((v, k) for k, v in self.mapping.items()))
 
     def doRead(self, maxage=0):
         ofs, bit = self._attached_iodev._HW_DigitalChannels[self.channel]
         # ofs is in Bytes, we need it in words! => /2
-        if self._attached_iodev._readU16(ofs//2) & (1<<bit):
+        if self._attached_iodev._readU16(ofs//2) & (1 << bit):
             return self._revmapping[1]
         else:
             return self._revmapping[0]
