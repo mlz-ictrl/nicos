@@ -140,6 +140,10 @@ class VSDIO(TacoDevice, Readable):
         Water5Flow =    (338, 0.01, 'l/min'),
         Water1Pressure =(340, 0.01, 'bar'),
         Water2Pressure =(342, 0.01, 'bar'),
+        X16Voltage1=(352, 0.01, 'V'),
+        X16Voltage2=(354, 0.01, 'V'),
+        X16Voltage3=(356, 0.01, 'V'),
+        X16Voltage4=(358, 0.01, 'V'),
     )
 
     # mapping of user selectable channel name to BYTE_OFFSET, bit number

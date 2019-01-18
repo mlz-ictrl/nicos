@@ -4,8 +4,6 @@ group = 'optional'
 
 nethost = 'refsanssrv.refsans.frm2'
 
-# according to docu: 'anhang_a_refsans_vsd.pdf'
-
 devices = dict(
     _vsdio = device('nicos_mlz.refsans.devices.beckhoff.vsd.VSDIO',
         description = 'TACO Modbus Device for communication with VSD',
@@ -80,7 +78,7 @@ devices = dict(
         unit = 'degC',
     ),
     Temperature2 = device('nicos_mlz.refsans.devices.beckhoff.vsd.AnalogValue',
-        description = 'VSD: Analog value of Temperature2',
+        description = 'VSD: Analog value of Temperature2 at RACK3 so NL-Halle',
         iodev = '_vsdio',
         channel = 'Temperature2',
         unit = 'degC',
@@ -426,5 +424,29 @@ devices = dict(
         iodev = '_vsdio',
         channel = 'VSD_User4DigitalOutput3',
         mapping = dict(On = 1, Off = 0),
+    ),
+    X16Voltage1 = device('nicos_mlz.refsans.devices.beckhoff.vsd.AnalogValue',
+        description = 'VSD: Analog value of Media1Voltage',
+        iodev = '_vsdio',
+        channel = 'X16Voltage1',
+        unit = 'V',
+    ),
+    X16Voltage2 = device('nicos_mlz.refsans.devices.beckhoff.vsd.AnalogValue',
+        description = 'VSD: Analog value of Media1Voltage',
+        iodev = '_vsdio',
+        channel = 'X16Voltage2',
+        unit = 'V',
+    ),
+    X16Voltage3 = device('nicos_mlz.refsans.devices.beckhoff.vsd.AnalogValue',
+        description = 'VSD: Analog value of Media1Voltage',
+        iodev = '_vsdio',
+        channel = 'X16Voltage3',
+        unit = 'V',
+    ),
+    X16Voltage4 = device('nicos_mlz.refsans.devices.beckhoff.vsd.AnalogValue',
+        description = 'VSD: Analog value of Media1Voltage',
+        iodev = '_vsdio',
+        channel = 'X16Voltage4',
+        unit = 'V',
     ),
 )
