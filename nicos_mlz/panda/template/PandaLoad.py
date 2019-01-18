@@ -1,5 +1,7 @@
 # pylint: skip-file
 
+from __future__ import absolute_import, division, print_function
+
 import ast
 import math
 import os
@@ -13,7 +15,7 @@ from matplotlib.mlab import griddata
 #~ import numpy.ma as ma
 
 def fromto(start, stop, step):
-    #~ print 'fromto(%r, %r, %r) -> '%(start, stop, step),
+    #~ print('fromto(%r, %r, %r) -> '%(start, stop, step),)
     assert (float(stop-start)/float(step))>0
     r = []
     p = start
@@ -22,11 +24,11 @@ def fromto(start, stop, step):
         p += step
     if not stop in r:
         r.append(stop)
-    #~ print r
+    #~ print(r)
     return r
 
 def tickstep(a, b, minticks = 9):
-    #~ print 'ticking %r, %r, %r'%(a, b, minticks),
+    #~ print('ticking %r, %r, %r'%(a, b, minticks),)
     a, b = min(a, b), max(a, b)
     d = float(b - a) / float(minticks)     #make a first guess
     scale = 1.0
@@ -403,11 +405,11 @@ class NicosData(dict):
                 self.join(o)
             return
         elif not isinstance(other, NicosData):
-            print 'can not join %r, it needs to be of type NicosData!!!' % other
+            print('can not join %r, it needs to be of type NicosData!!!' % other)
             raise UsageError
         if self.colnames != other.colnames:
-            print 'can not join scans with different colnames !'
-            print 'me = %r\nother = %r!' % (self.colnames, other.colnames)
+            print('can not join scans with different colnames !')
+            print('me = %r\nother = %r!' % (self.colnames, other.colnames))
 
 #for new style files
 def NicosLoad(prefix, filenum=-1, **kwargs):
@@ -427,7 +429,7 @@ def NicosLoad(prefix, filenum=-1, **kwargs):
                     if s != None:
                         r.append(s)
                 except Exception:
-                    print 'Error loading filenumber %d' % fn
+                    print('Error loading filenumber %d' % fn)
                     import traceback
                     traceback.print_exc()
             return r
@@ -438,9 +440,9 @@ def NicosLoad(prefix, filenum=-1, **kwargs):
             filename = f
             break
     if not filename:
-        print "File %s:%d does not exist!" % (prefix, filenum)
+        print("File %s:%d does not exist!" % (prefix, filenum))
         return None
-    print "Loading file %s" % filename
+    print("Loading file %s" % filename)
 
     def pythify(v):
         ''' tries to return a pythonic value for a given string'''
@@ -500,7 +502,7 @@ def NicosLoad(prefix, filenum=-1, **kwargs):
         return v, u
 
     def process_old(data, line):
-        print 'warning, not implemented for old style files'
+        print('warning, not implemented for old style files')
 
     def process_header_nicos2(data, line, _re_header = re.compile(r'^#?\s*([^:]*?)\s*:\s*(.*?)\s*$')):
         ''' process part of header, where values are literal or special'''
@@ -525,8 +527,8 @@ def NicosLoad(prefix, filenum=-1, **kwargs):
             else:
                 data[k] = pythify(v)      # insert into data object
         except AttributeError:
-            print 'Warning: malformed headerline detected!'
-            print 'Offending line was: %r' % line
+            print('Warning: malformed headerline detected!')
+            print('Offending line was: %r' % line)
         return True
 
     def process_tableheader_nicos2(data, line):
@@ -569,8 +571,8 @@ def NicosLoad(prefix, filenum=-1, **kwargs):
             return False        # next section please
         c = line.split()
         if len(c) != len(data.colnames):
-            print 'Data block: Line too short! has %d columns, but should have %d!' % (len(c), len(data.colnames))
-            print 'Offending line was: %r' % line
+            print('Data block: Line too short! has %d columns, but should have %d!' % (len(c), len(data.colnames)))
+            print('Offending line was: %r' % line)
             return False #don't continue!
         for i in range(len(c)): # iterate over all columns
             if c[i] == ';': continue    # try next column
@@ -595,28 +597,28 @@ def NicosLoad(prefix, filenum=-1, **kwargs):
                        process_tableheader_nicos2,
                        process_table_nicos2]
         else:
-            print 'WARNING: unknown format detected, aborting!'
-            print '(first line was %r)' % l
+            print('WARNING: unknown format detected, aborting!')
+            print('(first line was %r)' % l)
             return
-        print "detected %s format, " % fileformat,
+        print("detected %s format, " % fileformat,)
         data = NicosData()    # used to store stuff
-        while l != '':
-            #~ print '%r %r'%(process[0], l),
+        while l:
+            #~ print('%r %r'%(process[0], l),)
             # process data
             r = process[0](data, l)  # pylint: disable=E1111
-            #~ print r
+            #~ print(r)
             if not r:
                 process.pop(0)  #remove sectionparser
-            if len(process)  ==  0: # no parsers left
+            if not process: # no parsers left
                 break
             l = f.readline()
     data.colnames = data.get('colnames', [])
     try:
         d = data.colnames
     except Exception:
-        print 'colnames not found !'
+        print('colnames not found !')
         for k, v in data.items():
-            print k, '\t', repr(v)
+            print(k, '\t', repr(v))
     for i in range(len(data.colnames)-1, -1, -1):
         d = data.colnames[i]
         if d == ';' or d in data.colnames[i + 1:]:
@@ -633,8 +635,8 @@ def NicosLoad(prefix, filenum=-1, **kwargs):
         for k, v in kwargs.items():  # ignore other kwargs....
             if k in data.detcols:
                 if normcol != None:
-                    print 'Can not normalize to more than one detector colum! Found %s+%s at least!' % (normcol, k)
-                    print 'Skipping normalisation !'
+                    print('Can not normalize to more than one detector colum! Found %s+%s at least!' % (normcol, k))
+                    print('Skipping normalisation !')
                     return data
                 else:
                     normcol = k
@@ -693,12 +695,12 @@ def PandaLoad(filename):
             if filename is None:
                 filename = self._filename # try a reload
             if filename is None:  # no filename to be found!
-                print "Please give me a filename to load!"
+                print("Please give me a filename to load!")
                 return
             if filename == self._filename:
-                print "Reloading file %s" % filename
+                print("Reloading file %s" % filename)
             else:
-                print "Loading file %s" % filename
+                print("Loading file %s" % filename)
             self._filename = filename
             with open(filename, 'r') as f:
                 line = '***'
@@ -752,7 +754,7 @@ def PandaLoad(filename):
                             else:
                                 line = line.split()
                                 if len(line) != self.columns:
-                                    print 'INCOMPLETE DATA !'
+                                    print('INCOMPLETE DATA !')
                                 else: # now store data into the object
                                     for i in range(self.columns):
                                         l = self.colnames[i]
@@ -773,35 +775,35 @@ def PandaLoad(filename):
                         k, v = self._re_direct.findall(line)[0]
                         if v.strip() == v and len(v.split()) == 1:
                             self.__dict__[k] = v
-                            #~ print "SIMPLE", k, v
+                            #~ print("SIMPLE", k, v)
                         elif k.find('filter') > -1 or k in ('saph', 'user', 'phone', 'fax', 'orient1', 'orient2',
                                                             'zoneaxis', 'responsable', 'created', 'scattersense',
                                                             'samplename'): #take whole value
                             self.__dict__[k] = v
-                            #~ print "FILTER", k, v
+                            #~ print("FILTER", k, v)
                         elif k in ('ss1', 'ss2'):
                             for i in range(4):
                                 self.__dict__['%s_%s' % (k, ('left', 'right', 'bottom', 'top')[i])] = float(v.split()[i])
                                 self.__dict__['%s_%s_unit' % (k, ('left', 'right', 'bottom', 'top')[i])] = v.split()[4]
                             self.__dict__[k] = tuple([float(b) for b in v.split()[:4]])
                             self.__dict__['%s_unit' % k] = v.split()[4]
-                            #~ print "SLIT", k, v
+                            #~ print("SLIT", k, v)
                         elif k in ('a, b, c (A)', 'alpha, beta, gamma (deg)'):
                             for i in range(3):
                                 self.__dict__[(k.split()[0].split(', '))[i]] = float(v.split(', ')[i])
                                 self.__dict__['%s_unit' % (k.split()[0].split(', '))[i]] = k.split()[1][1:-1]
-                            #~ print "LATTICE", k, v
+                            #~ print("LATTICE", k, v)
                         elif k == 'opmode':
                             self.__dict__[k] = v.split()[0][1:-1]
                             self.__dict__[v.split()[0][1:-1]] = v.split()[2]
-                            #~ print "OPMODE", k, v.split()[0][1:-1], v.split()[2]
+                            #~ print("OPMODE", k, v.split()[0][1:-1], v.split()[2])
                         elif v.endswith(('mm', 'deg', 'A-1', 'THz', 'meV', 'T', 'K', 'bar', '%', 's', 'min', 'A')):
                             self.__dict__[k] = v.split()[0]
                             self.__dict__['%s_unit' % k] = v.split()[1]
-                            #~ print "UNITS", k, v.split()
-                        else: print "X: ", k, v.split()
+                            #~ print("UNITS", k, v.split())
+                        else: print("X: ", k, v.split())
                     except Exception as e:
-                        print e
+                        print(e)
                         #~ pass #ignore bad lines.....
 
     return PandaScan(filename)
@@ -818,7 +820,7 @@ if __name__ == '__main__':
 
     #~ s = PandaScan('../data/test_00033343')
     s1 = PandaLoad('/data/2010/cycle_25/p4305_00044189')
-    print s1, dir(s1)
+    print(s1, dir(s1))
     s2 = PandaLoad('/data/2010/cycle_25/p4305_00044190')
     s3 = PandaLoad('/data/2010/cycle_25/p4305_00044191')
     sp = PandaLoad('/data/2009/cycle_22a/p3705_00036828')
@@ -830,12 +832,12 @@ if __name__ == '__main__':
     import sys
     sys.exit(1)
 
-    #~ print n, dir(n)
+    #~ print(n, dir(n))
 
-    #~ print sp.pol_devices
-    #~ print sp.pol_states
-    #~ print sp.colnames
-    #~ print sp.colunits
+    #~ print(sp.pol_devices)
+    #~ print(sp.pol_states)
+    #~ print(sp.colnames)
+    #~ print(sp.colunits)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)

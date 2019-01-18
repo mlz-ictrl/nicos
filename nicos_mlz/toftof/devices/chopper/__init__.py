@@ -22,9 +22,10 @@
 #
 # *****************************************************************************
 
-from nicos_mlz.toftof.devices.chopper.base import CRC, \
-    BaseChopperController, Ratio, SlitType, Speed, SpeedReadout, Wavelength
+from __future__ import absolute_import, division, print_function
+
+from nicos_mlz.toftof.devices.chopper.base import CRC, BaseChopperController, \
+    Ratio, SlitType, Speed, SpeedReadout, Wavelength
 from nicos_mlz.toftof.devices.chopper.real import Controller
-from nicos_mlz.toftof.devices.chopper.virtual import \
-    Controller as VirtualController
-from nicos_mlz.toftof.devices.chopper.virtual import Disc
+from nicos_mlz.toftof.devices.chopper.virtual import Controller as VirtualController, \
+    Disc

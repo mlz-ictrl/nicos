@@ -28,7 +28,7 @@ from __future__ import absolute_import, division, print_function
 
 import time
 
-from numpy import uint16, uint32, int32
+from numpy import int32, uint16, uint32
 
 from nicos import session
 from nicos.core import SIMULATION, Attach, CommunicationError, \
@@ -40,7 +40,6 @@ from nicos.devices.abstract import CanReference, Coder, Motor
 from nicos.devices.generic import Switcher
 from nicos.devices.generic.sequence import SeqMethod, SequencerMixin
 from nicos.devices.tango import PyTangoDevice
-
 
 WATCHDOG_REGISTER = 0x1120
 WATCHDOG_DISABLE = 0

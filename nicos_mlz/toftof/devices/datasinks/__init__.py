@@ -22,5 +22,7 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from nicos_mlz.toftof.devices.datasinks.legacy import TofImageSink
 from nicos_mlz.toftof.devices.datasinks.live import ToftofLiveViewSink

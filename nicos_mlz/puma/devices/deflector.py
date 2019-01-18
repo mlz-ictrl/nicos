@@ -24,6 +24,8 @@
 
 """Deflector device."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core.params import Override, Param, floatrange
 from nicos.devices.generic import Axis
 
