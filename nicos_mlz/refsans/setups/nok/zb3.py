@@ -15,7 +15,7 @@ devices = dict(
         fmtstr = 'open: %.3f, zpos: %.3f',
         unit = 'mm',
     ),
-    zb3_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+    zb3_mode = device('nicos.devices.generic.ParamDevice',
         description = 'zb3 mode',
         device = 'zb3',
         parameter = 'mode',

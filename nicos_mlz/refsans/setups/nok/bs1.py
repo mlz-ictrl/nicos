@@ -15,7 +15,7 @@ devices = dict(
         slit_r = 'bs1r',
         slit_s = 'bs1s',
     ),
-    bs1_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+    bs1_mode = device('nicos.devices.generic.ParamDevice',
         description = 'bs1 mode',
         device = 'bs1',
         parameter = 'mode',

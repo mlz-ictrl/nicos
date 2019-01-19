@@ -30,7 +30,7 @@ devices = dict(
         },
     ),
 
-    nok4_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+    nok4_mode = device('nicos.devices.generic.ParamDevice',
         description = 'nok4 mode',
         device = 'nok4',
         parameter = 'mode',

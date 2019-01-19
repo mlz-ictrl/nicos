@@ -24,7 +24,7 @@ devices = dict(
             'gisans':    -122.0,
         },
     ),
-    zb2_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+    zb2_mode = device('nicos.devices.generic.ParamDevice',
         description = 'zb2 mode',
         device = 'zb2',
         parameter = 'mode',

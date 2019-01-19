@@ -31,7 +31,7 @@ devices = dict(
         maxtries = 3,
         lowlevel = True,
     ),
-    zb1_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+    zb1_mode = device('nicos.devices.generic.ParamDevice',
         description = 'zb1 mode',
         device = 'zb1',
         parameter = 'mode',

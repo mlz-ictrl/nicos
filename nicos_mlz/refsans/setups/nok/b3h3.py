@@ -25,7 +25,7 @@ devices = dict(
         slit_s = 'b3s',
         # nok_motor = [-1, -1],
     ),
-    b3_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+    b3_mode = device('nicos.devices.generic.ParamDevice',
         description = 'b3 mode',
         device = 'b3',
         parameter = 'mode',

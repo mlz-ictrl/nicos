@@ -29,7 +29,7 @@ devices = dict(
             'fc': optic_values['fc'],
         }
     ),
-    nok9_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+    nok9_mode = device('nicos.devices.generic.ParamDevice',
         description = 'nok9 mode',
         device = 'nok9',
         parameter = 'mode',

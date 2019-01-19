@@ -31,7 +31,7 @@ devices = dict(
         slit_s = 'b1s',
         unit = 'mm',
     ),
-    b1_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+    b1_mode = device('nicos.devices.generic.ParamDevice',
         description = 'b1 mode',
         device = 'b1',
         parameter = 'mode',
