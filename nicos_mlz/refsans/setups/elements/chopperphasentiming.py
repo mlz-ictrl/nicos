@@ -5,12 +5,11 @@ group = 'lowlevel'
 window_delay = 120
 
 all_lowlevel = False  # or True
-# atts = 'nicos.devices.generic.ParamDevice'
-atts = 'nicos_mlz.refsans.devices.gkssjson.CPTReadout'
+dev_class = 'nicos_mlz.refsans.devices.gkssjson.CPTReadout'
 URL = 'http://cpt.refsans.frm2/json-visual'
 
 devices = dict(
-    cpt0 = device(atts,
+    cpt0 = device(dev_class,
         description = 'Disc 1 light barrier ' + description + ' Phase of Disk1!',
         url = URL,
         valuekey = 'chopper_act',
@@ -20,7 +19,7 @@ devices = dict(
         unit = 'deg',
         lowlevel = True,
     ),
-    cpt1 = device(atts,
+    cpt1 = device(dev_class,
         description = 'Disc 1 light barrier ' + description,
         url = URL,
         valuekey = 'chopper_act',
@@ -29,7 +28,7 @@ devices = dict(
         # offset = 0,
         unit = 'rpm',
     ),
-     cpt2 = device(atts,
+    cpt2 = device(dev_class,
          description = 'Disc 2 light barrier ' + description,
          url = URL,
          valuekey = 'chopper_act',
@@ -38,7 +37,7 @@ devices = dict(
          offset = 28.44 + window_delay,
          unit = 'deg',
      ),
-    cpt3 = device(atts,
+    cpt3 = device(dev_class,
         description = 'Disc 3 light barrier ' + description,
         url = URL,
         valuekey = 'chopper_act',
@@ -47,7 +46,7 @@ devices = dict(
         offset = 70.30 + window_delay,
         unit = 'deg',
     ),
-    cpt4 = device(atts,
+    cpt4 = device(dev_class,
         description = 'Disc 4 light barrier ' + description,
         url = URL,
         valuekey = 'chopper_act',
@@ -56,7 +55,7 @@ devices = dict(
         offset = 75.66 + window_delay,
         unit = 'deg',
     ),
-    cpt5 = device(atts,
+    cpt5 = device(dev_class,
         description = 'Disc 5 index ' + description,
         url = URL,
         valuekey = 'chopper_act',
@@ -65,7 +64,7 @@ devices = dict(
         offset = 266.60 + window_delay,
         unit = 'deg',
     ),
-    cpt6 = device(atts,
+    cpt6 = device(dev_class,
         description = 'Disc 6 index ' + description,
         url = URL,
         valuekey = 'chopper_act',
