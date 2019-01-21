@@ -2,19 +2,23 @@ description = 'Sample table devices'
 
 group = 'optional'
 
-nethost = 'refsanssrv.refsans.frm2'
-tacodev = '//%s/test' % nethost
+tango_base = 'tango://refsanshw:10000/sample/phy_mo1/'
 
 devices = dict(
     samplechanger = device('nicos.devices.generic.Axis',
-        description = 'Samplechanger axis',
+        description = 'Samplechanger',
         motor = 'samplechanger_m',
-        precision = 0.1,  # better would be 0.05, but hardware does not work as expected
+        coder = 'samplechanger_e',
+        precision = 0.01,
     ),
-    samplechanger_m = device('nicos.devices.taco.Motor',
+    samplechanger_m = device('nicos.devices.tango.Motor',
         description = 'Samplechanger axis motor',
-        tacodevice = '%s/phytron/kanal_06' % tacodev,
-        abslimits = (-.5, 400.5),
+        tangodevice = tango_base + 'samplechanger_m',
+        lowlevel = True,
+    ),
+    samplechanger_e = device('nicos.devices.tango.Sensor',
+        description = 'Samplechanger axis coder',
+        tangodevice = tango_base + 'samplechanger_e',
         lowlevel = True,
     ),
 )
