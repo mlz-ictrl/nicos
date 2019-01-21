@@ -17,7 +17,7 @@ main_window = docked(
         ),
         ('Shutter/Attenuators',
          panel('nicos.clients.gui.panels.generic.GenericPanel',
-               uifile='nicos_mlz/pgaa/gui/shutter.ui'),
+               uifile='nicos_mlz/pgaa/gui/shutter.ui', setups='not pgaa'),
         ),
     ),
     ('NICOS devices',
