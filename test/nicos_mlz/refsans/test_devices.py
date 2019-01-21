@@ -94,6 +94,13 @@ def test_focuspoint(session):
     assert state[1] == 'idle'
 
 
+def test_resolution(session):
+    rfp = session.getDevice('real_flight_path')
+    res = session.getDevice('resolution')
+    assert rfp.read(0) == 10.88
+    assert res.read(0) == 12.67
+
+
 class TestChopper(object):
     """Test class for the REFSANS chopper device."""
 
