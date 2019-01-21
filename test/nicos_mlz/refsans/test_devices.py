@@ -54,3 +54,22 @@ def test_beamstop(session):
     ci.maw(8)
     assert c.read(0) == 'On'
     assert c.status(0)[0] == status.OK
+
+
+def test_focuspoint(session):
+    table = session.getDevice('det_table_a')
+    pivot = session.getDevice('det_pivot')
+    pivot.maw(9)
+    assert pivot.read(0) == 9
+    table.maw(9575)
+    assert table.read(0) == 9575
+    fp = session.getDevice('det_table')
+    assert fp.read(0) == 9575
+    state = fp.status(0)
+    assert state[0] == status.OK
+    assert state[1] == 'focus'
+
+    fp.maw(1000)
+    state = fp.status(0)
+    assert state[0] == status.OK
+    assert state[1] == 'idle'
