@@ -75,8 +75,8 @@ class TestMultiAnalyzer(object):
         ra1.move(-2)
         assert ra2.isAllowed(-2)
         ra1.stop()
-        ra1.speed = 0
         ra1.wait()
+        ra1.speed = 0
 
     @pytest.mark.timeout(timeout=10, method='thread', func_only=True)
     def test_neighbours_trans(self, session):
