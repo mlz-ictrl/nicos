@@ -7,7 +7,7 @@ group = 'lowlevel'
 
 includes = [
     'reactor', 'shutters', 'collimator', 'pilz_states', 'center3', #'ubahn',
-    'light', 'memograph', 'estops',
+    'light', 'memograph', 'estops', 'detector_parameters'
 ]
 
 devices = dict()
