@@ -43,6 +43,7 @@ from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
 
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.devices.notifiers import Mailer, Notifier
+from nicos.utils import checkSetupSpec
 
 
 class Entry(object):
@@ -280,7 +281,7 @@ class Watchdog(BaseCacheClient):
             self._setups = set(cache_load(value))
             for eid in list(self._warnings) + list(self._watch_grace):
                 entry = self._entries[eid]
-                if entry.setup and entry.setup not in self._setups:
+                if not checkSetupSpec(entry.setup, self._setups, log=self.log):
                     del self._warnings[eid]
             self._update_warnings_str()
         if key == self._prefix + self.mailreceiverkey:
@@ -303,7 +304,7 @@ class Watchdog(BaseCacheClient):
         for entry in entries:
             eid = entry.id
             # is the necessary setup loaded?
-            if entry.setup and entry.setup not in self._setups:
+            if not checkSetupSpec(entry.setup, self._setups, log=self.log):
                 self._clear_warning(entry)
                 continue
             # is it a new value or an expiration?
@@ -337,7 +338,7 @@ class Watchdog(BaseCacheClient):
     def _update_preconditions(self, entries, time, key, op, value):
         for entry in entries:
             eid = entry.id
-            if entry.setup and entry.setup not in self._setups:
+            if not checkSetupSpec(entry.setup, self._setups, log=self.log):
                 continue
             try:
                 value = eval(entry.precondition, self._keydict)

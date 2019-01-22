@@ -32,6 +32,11 @@ Release 3.5.0
 
   - The 'tomo' command now accepts additional detectors.
 
+* Watchdog
+
+  - Conditions learned the full setup dependency syntax like the status monitor
+    fields and groups
+
 * Tests
 
   - Instrument specific test scripts are now run during the test suite, in
