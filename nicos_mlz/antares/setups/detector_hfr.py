@@ -11,7 +11,7 @@ devices = dict(
         description = 'Andor Basic HFR',
         tangodevice = tango_base + 'andor/io',
         fastshutter = 'fastshutter',
-        spooldirectory = 'C:\\spool\\',
+        spooldirectory = 'E:\\spool\\',
     ),
 )
 
