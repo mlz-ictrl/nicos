@@ -56,6 +56,20 @@ def test_beamstop(session):
     assert c.status(0)[0] == status.OK
 
 
+def test_skewmotor(session):
+    bg = session.getDevice('backguard')
+    assert bg.skew == 2
+    assert bg.precision == 0.1
+    assert bg.read(0) == 0
+    bg.maw(1)
+    assert bg.read(0) == 1
+    assert bg._attached_motor_1.read(0) == 0
+    assert bg._attached_motor_2.read(0) == 2
+    assert bg._attached_motor_1.isAtTarget(0)
+    assert bg._attached_motor_2.isAtTarget(2)
+    assert bg.isAtTarget(1)
+
+
 def test_focuspoint(session):
     table = session.getDevice('det_table_a')
     pivot = session.getDevice('det_pivot')

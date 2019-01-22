@@ -56,6 +56,9 @@
 .. autoclass:: ChopperDisc()
 .. autoclass:: ChopperDisc2Pos()
 
+.. automodule:: nicos_mlz.refsans.devices.skew_motor
+.. autoclass:: SkewMotor()
+
 Data Sinks
 ----------
 
