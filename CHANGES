@@ -28,6 +28,8 @@ Release 3.5.0
   - The scan plot now tries harder to select a proper X axis by determining
     the first changing device.
 
+  - Show value labels for for multi-value devices in device dialogs.
+
 * Commands
 
   - The 'tomo' command now accepts additional detectors.
