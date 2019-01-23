@@ -22,27 +22,29 @@
 #
 # *****************************************************************************
 
-"""
-Devices for the HGM09 gaussmeter.
-"""
+"""Devices for the HGM09 gaussmeter."""
 
 from __future__ import absolute_import, division, print_function
 
-from IO import StringIO
-
 from nicos.core import SIMULATION, CommunicationError, NicosError, Override, \
     Readable
-from nicos.devices.taco import TacoDevice
+from nicos.devices.tango import PyTangoDevice
 
 
-class HGM09(TacoDevice, Readable):
+class HGM09(PyTangoDevice, Readable):
     """Class for the HGM09 gaussmeter.
 
-    Uses a taco StringIO device to communicate directly with the hardware.
+    Uses a Tango device to communicate directly with the hardware.
     """
 
-    taco_class = StringIO
     valuetype = float
+
+    unit_map = {
+        'TESL': 'T',
+        'GAUS': 'G',
+        'OE': 'Oe',
+        'APM': 'A/m',
+    }
 
     parameter_overrides = {
         'unit': Override(mandatory=False, volatile=True),
@@ -64,7 +66,7 @@ class HGM09(TacoDevice, Readable):
         return value
 
     def doReadUnit(self):
-        return self._communicate('UNIT?')
+        return self.unit_map.get(self._communicate('UNIT?'), '')
 
     def _communicate(self, msg):
-        return self._taco_guard(self._dev.communicate, msg).strip()
+        return self._dev.Communicate(msg).strip()
