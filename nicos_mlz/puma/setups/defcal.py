@@ -2,10 +2,10 @@ description = 'Calibration of the deflectors'
 
 group = 'basic'
 
-includes = ['pumabase', 'seccoll', 'collimation', 'ios', 'hv', 'notifiers',
-            'multidet', 'multiana', 'cad', 'opticalbench', 'detector']
-
-excludes = ['tas']
+includes = [
+    'pumabase', 'seccoll', 'collimation', 'ios', 'hv', 'notifiers', 'multidet',
+    'multiana', 'cad', 'opticalbench', 'detector', 'pollengths',
+]
 
 sysconfig = dict(
     datasinks = ['polsink',]

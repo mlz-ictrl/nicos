@@ -2,8 +2,11 @@ description = 'Polarization analysis'
 
 group = 'basic'
 
-includes = ['pumabase', 'multianalyzer', 'multidetector', 'cad', 'analyzer',
-            'monochromator', 'aliases', 'lengths', 'slits', 'opticalbench']
+includes = [
+    'pumabase', 'multianalyzer', 'multidetector', 'rdcad', 'analyzer',
+    'monochromator', 'aliases', 'lengths', 'slits', 'opticalbench',
+    'pollengths',
+]
 
 devices = dict(
     ana_polarization = device('nicos.devices.tas.Monochromator',
@@ -17,43 +20,6 @@ devices = dict(
         abslimits = (0.1, 10),
         scatteringsense = -1,
         crystalside = -1,
-    ),
-    rd5_cad = device('nicos_mlz.puma.devices.StackedAxis',
-        description = "Combined axis of 'rd5' and 'cad'",
-        bottom = 'cad',
-        top = 'rd5',
-    ),
-    rd6_cad = device('nicos_mlz.puma.devices.StackedAxis',
-        description = "Combined axis of 'rd6' and 'cad'",
-        # description = 'Sample scattering angle Two Theta',
-        bottom = 'cad',
-        top = 'rd6',
-    ),
-    rd7_cad = device('nicos_mlz.puma.devices.StackedAxis',
-        description = "Combined axis of 'rd7' and 'cad'",
-        bottom = 'cad',
-        top = 'rd7',
-    ),
-    lsd1 = device('nicos.devices.generic.ManualMove',
-        description = 'distance sample-deflector 1',
-        default = 613,
-        unit = 'mm',
-        fmtstr = '%.0f',
-        abslimits = (0, 1000),
-    ),
-    lsd2 = device('nicos.devices.generic.ManualMove',
-        description = 'distance sample-deflector 2',
-        default = 663,
-        unit = 'mm',
-        fmtstr = '%.0f',
-        abslimits = (0, 1000),
-    ),
-    lpsd = device('nicos.devices.generic.ManualMove',
-        description = 'distance sample PSD',
-        default = 2316,
-        unit = 'mm',
-        fmtstr = '%.0f',
-        abslimits = (2316, 2316),
     ),
 )
 
