@@ -140,7 +140,7 @@ class HardwareError(NicosError):
     category = 'Hardware failure'
 
 
-class TimeoutError(NicosError):
+class NicosTimeoutError(NicosError):
     """Exception to be raised when a timeout waiting for hardware occurs.
 
     This is *not* a communication timeout; for that purpose

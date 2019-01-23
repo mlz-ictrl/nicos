@@ -37,7 +37,7 @@ from nicos.core.device import Device, DeviceAlias, DeviceMeta, Measurable, \
 from nicos.core.errors import AccessError, CacheError, CacheLockError, \
     CommunicationError, ComputationError, ConfigurationError, HardwareError, \
     InvalidValueError, LimitError, ModeError, MoveError, NicosError, \
-    PositionError, ProgrammingError, SPMError, TimeoutError, UsageError
+    NicosTimeoutError, PositionError, ProgrammingError, SPMError, UsageError
 from nicos.core.mixins import AutoDevice, CanDisable, DeviceMixinBase, \
     HasCommunication, HasLimits, HasMapping, HasOffset, HasPrecision, \
     HasTimeout, HasWindowTimeout, IsController

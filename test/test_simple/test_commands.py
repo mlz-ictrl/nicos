@@ -53,7 +53,7 @@ from nicos.commands.output import printdebug, printerror, printexception, \
 from nicos.commands.sample import ClearSamples, ListSamples, NewSample, \
     SelectSample, SetSample
 from nicos.core import GUEST, AccessError, LimitError, MoveError, NicosError, \
-    TimeoutError, UsageError, status as devstatus
+    NicosTimeoutError, UsageError, status as devstatus
 from nicos.core.sessions.utils import MASTER, SLAVE
 from nicos.utils import ensureDirectory
 
@@ -547,7 +547,7 @@ class TestDevice(object):
         motor.speed = 10
         move(motor, 2)
         waitfor(motor, '> 1.2')
-        assert raises(TimeoutError, waitfor, motor, '< 1', 0.1)
+        assert raises(NicosTimeoutError, waitfor, motor, '< 1', 0.1)
         waitfor(motor, '> 1', 0.1)
 
         # check waitfor wrong condition syntax

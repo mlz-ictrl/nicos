@@ -36,13 +36,13 @@ from time import localtime, time as currenttime
 from nicos import nicos_version, session
 from nicos.core import SIMULATION, status
 from nicos.core.errors import CommunicationError, ComputationError, \
-    InvalidValueError, LimitError, MoveError, NicosError, PositionError, \
-    TimeoutError
+    InvalidValueError, LimitError, MoveError, NicosError, NicosTimeoutError, \
+    PositionError
 from nicos.pycompat import listitems, reraise, to_ascii_escaped
 from nicos.utils import formatDuration
 
 # Exceptions at which a scan point is measured anyway.
-CONTINUE_EXCEPTIONS = (PositionError, MoveError, TimeoutError)
+CONTINUE_EXCEPTIONS = (PositionError, MoveError, NicosTimeoutError)
 # Exceptions at which a scan point is skipped.
 SKIP_EXCEPTIONS = (InvalidValueError, LimitError, CommunicationError,
                    ComputationError)

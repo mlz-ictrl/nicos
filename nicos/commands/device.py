@@ -35,7 +35,8 @@ from nicos.commands import helparglist, hiddenusercommand, parallel_safe, \
 from nicos.commands.basic import sleep
 from nicos.core import INFO_CATEGORIES, SIMULATION, AccessError, CanDisable, \
     Device, DeviceMixinBase, HasLimits, HasOffset, Measurable, Moveable, \
-    Readable, TimeoutError, UsageError, Waitable, formatStatus, multiWait
+    NicosTimeoutError, Readable, UsageError, Waitable, formatStatus, \
+    multiWait
 from nicos.core.spm import AnyDev, Bare, Dev, DevParam, Multi, String, \
     spmsyntax
 from nicos.core.status import BUSY, OK
@@ -293,8 +294,8 @@ def waitfor(dev, condition, timeout=86400):
         tmr.wait(dev._base_loop_delay * 3, check)
     finally:
         if not waitfor.cond_fulfilled:
-            raise TimeoutError(dev, 'Waiting for \'%s %s\' timed out.' % (dev,
-                               condition))
+            raise NicosTimeoutError(dev, 'Waiting for \'%s %s\' timed out.' %
+                                    (dev, condition))
         session.endActionScope()
 
 

@@ -37,7 +37,7 @@ from nicos import session
 from nicos.core import Override, Param, intrange, none_or, nonemptylistof, \
     oneof, status
 from nicos.core.constants import SIMULATION
-from nicos.core.errors import NicosError, TimeoutError, UsageError
+from nicos.core.errors import NicosError, NicosTimeoutError, UsageError
 from nicos.core.mixins import HasOffset
 from nicos.devices.abstract import CanReference
 from nicos.devices.vendor.ipc import Coder as IPCCoder, Motor as IPCMotor
@@ -356,7 +356,7 @@ class ReferenceMotor(CanReference, Motor1):
                         self._start(self.parkpos)
                 if self._stoprequest == 1:
                     raise NicosError(self, 'reference stopped by user')
-        except TimeoutError as e:
+        except NicosTimeoutError as e:
             self.log.error('%s occured during referencing', e)
         except NicosError as e:
             self.log.error('%s: occured during referencing', e)
@@ -488,7 +488,7 @@ class ReferenceMotor(CanReference, Motor1):
             if self._stoprequest:
                 raise NicosError(self, 'move until reference stopped by user')
             if self.isTimedOut():
-                raise TimeoutError(self, 'timeout occured during reference '
+                raise NicosTimeoutError(self, 'timeout occured during reference '
                                    'drive')
         self._setrefcounter(False)
         # avoid message 'target not reached' in status message

@@ -30,7 +30,7 @@ The following exceptions can be used when writing custom devices:
 
 .. autoexception:: CommunicationError()
 
-.. autoexception:: TimeoutError()
+.. autoexception:: NicosTimeoutError()
 
 .. autoexception:: HardwareError()
 

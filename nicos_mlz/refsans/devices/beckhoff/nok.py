@@ -32,7 +32,8 @@ from Modbus import Modbus
 
 from nicos import session
 from nicos.core import SIMULATION, CommunicationError, DeviceMixinBase, \
-    MoveError, Override, Param, TimeoutError, UsageError, requires, status
+    MoveError, NicosTimeoutError, Override, Param, UsageError, requires, \
+    status
 from nicos.core.params import nonemptylistof
 from nicos.devices.abstract import CanReference, Coder, Motor
 from nicos.devices.taco.core import TacoDevice
@@ -460,7 +461,7 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
             if statval & (7 << 10):
                 session.delay(0.5)
                 return
-        raise TimeoutError('HW still BUSY after 100s')
+        raise NicosTimeoutError('HW still BUSY after 100s')
 
     #
     # Nicos methods

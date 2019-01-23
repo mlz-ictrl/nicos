@@ -31,9 +31,9 @@ import struct
 from Modbus import Modbus
 
 from nicos import session
-from nicos.core import SIMULATION, Attach, Moveable, NicosError, Override, \
-    Param, Readable, TimeoutError, floatrange, limits, oneof, requires, \
-    status, usermethod
+from nicos.core import SIMULATION, Attach, Moveable, NicosError, \
+    NicosTimeoutError, Override, Param, Readable, floatrange, limits, oneof, \
+    requires, status, usermethod
 from nicos.devices.taco.core import TacoDevice
 from nicos.utils import bitDescription, clamp
 
@@ -251,7 +251,7 @@ class PumpstandIO(TacoDevice, Readable):
                 return
             elif nack and not ack:
                 raise NicosError('Command rejected by Beckhoff')
-        raise TimeoutError('Command not recognized by Beckhoff within 1s!')
+        raise NicosTimeoutError('Command not recognized by Beckhoff within 1s!')
 
     def _HW_readACK(self):
         return self._readU16(37)
