@@ -18,15 +18,11 @@ devices = dict(
     puma = device('nicos.devices.tas.TAS',
         description = 'Virtual DAS PUMA',
         instrument = 'V-PUMA',
-        responsible = 'J. T. Park <jitae.park@frm2.tum.de>',
+        responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-36',
         website = 'http://www.mlz-garching.de/puma',
         facility = 'NICOS demo instruments',
-        operators = [
-            u'Technische Universität München (TUM)',
-            u'Institut für Physikalische Chemie, Georg-August-Universität '
-            u'Göttingen',
-        ],
+        operators = ['NICOS developer team'],
         energytransferunit = 'meV',
         scatteringsense = (-1, 1, -1),
         cell = 'Sample',
