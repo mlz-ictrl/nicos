@@ -278,14 +278,16 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
 
     def doReference(self, *args):
         with self._allowed():
-            check = self._refrotation()
-            if not check:
-                self.log.warning('reference of rotations not successful')
-            check += self._reftranslation()
-            if check != 2:
-                self.log.warning('reference of translations not successful')
-            else:
-                self.log.debug('reset of %s sucessful', self.name)
+            self._startSequence([SeqMethod(self, '_checkedRefRot'),
+                                 SeqMethod(self, '_checkedRefTrans')])
+
+    def _checkedRefRot(self):
+        if not self._refrotation():
+            self.log.warning('reference of rotations not successful')
+
+    def _checkedRefTrans(self):
+        if not self._reftranslation():
+            self.log.warning('reference of translations not successful')
 
     def _hw_wait(self, devices):
         loops = 0
