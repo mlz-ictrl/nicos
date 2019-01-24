@@ -298,9 +298,9 @@ class S7Motor(HasTimeout, NicosMotor):
                     'retry next round of positioning...'
             else:       # other values give real errors....
                 return status.ERROR, 'NC-ERROR, check with ' \
-                    'mtt._printstatusinfo() !'
+                    'mtt.motor.printstatusinfo() !'
             # return status.ERROR, 'NC-ERROR, check with ' \
-            #       'mtt._printstatusinfo() !'
+            #       'mtt.motor.printstatusinfo() !'
 
         if b20 & 0x40:
             self.log.debug('MTT actively moving')
@@ -323,9 +323,9 @@ class S7Motor(HasTimeout, NicosMotor):
             if (b20 & ~0x40) != 0b00010001 or (b24 & 0b10111111) != 0:
                 # or (b23 & 0b00000011) != 0:
                 self.log.debug('MTT in Error State, check with '
-                               'mtt._printstatusinfo() !')
+                               'mtt.motor.printstatusinfo() !')
                 return status.ERROR, 'MTT in Error State, check with ' \
-                    'mtt._printstatusinfo() !'
+                    'mtt.motor.printstatusinfo() !'
             # if (( b24 & 0b01000000 ) == 0 ):
             #     return status.BUSY, 'Target not (yet) reached ' \
             #         (Zielwert erreicht = 0)'
