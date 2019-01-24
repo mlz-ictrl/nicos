@@ -1,14 +1,30 @@
 """NICOS GUI default configuration."""
 
-main_window = docked (
-        panel('nicos.clients.gui.panels.console.ConsolePanel'),
+main_window = docked(
+    tabbed(
         ('Script',
-                panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-#               panel('nicos.clients.gui.panels.watch.WatchPanel'),
+         vsplit(
+            panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
+            panel('nicos.clients.gui.panels.console.ConsolePanel'),
+         ),
         ),
-        ('NICOS Devices',
-                panel('nicos.clients.gui.panels.devices.DevicesPanel'),
-        ),
+    ),
+    ('NICOS Devices',
+        panel('nicos.clients.gui.panels.devices.DevicesPanel'),
+    ),
+    ('Experiment Information and Setup',
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
+           sample_panel=tabbed(
+               ('TAS sample',
+                panel('nicos.clients.gui.panels.setup_panel.TasSamplePanel',
+                      setups='tas',)
+               ),
+           ),
+           # to configure panels to show on New/FinishExperiment
+           # new_exp_panel=panel('nicos_demo.demo.some.panel'),
+           # finish_exp_panel=panel('nicos_demo.demo.some.panel'),
+     ),
+    ),
 )
 
 windows = [
