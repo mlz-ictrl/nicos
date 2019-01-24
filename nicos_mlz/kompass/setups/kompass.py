@@ -2,9 +2,10 @@ description = 'Kompass standard instrument'
 
 group = 'basic'
 
-includes = ['mono', 'guidefocus', 'selector', 'astrium', 'sample',
+includes = ['mono', 'guidefocus', 'selector', 'astrium', 'sample', 'alias_sth',
             'reactor',
-            #'detector',
+            'detector',
+            'analyzer',
            ]
 
 modules = ['nicos.commands.tas']

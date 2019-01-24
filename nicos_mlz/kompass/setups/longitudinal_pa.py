@@ -2,8 +2,6 @@ description = 'Kompass setup for longitudinal polarisation analysis mode'
 
 group = 'optional'
 
-includes = ['diff']
-excludes = ['kepco']
 tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/'
 
 devices = dict(
@@ -71,7 +69,6 @@ devices = dict(
         # flipcurrent = [0.765, 0],
         # compcurrent = 2.4474,
     ),
-
     kepco1_current = device('nicos.devices.entangle.PowerSupply',
         description = "kepco power supply 1",
         tangodevice = tango_base + 'kepco/current1',
