@@ -39,7 +39,8 @@ class HistogramSinkHandler(DataSinkHandler):
         filepaths = session.data.getFilenames(self.dataset,
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
-        self.sink._attached_image.histogramfile = filepaths[0]
+        if self.sink._attached_image:
+            self.sink._attached_image.histogramfile = filepaths[0]
 
 
 class ListmodeSinkHandler(DataSinkHandler):
@@ -49,7 +50,8 @@ class ListmodeSinkHandler(DataSinkHandler):
         filepaths = session.data.getFilenames(self.dataset,
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
-        self.sink._attached_image.listmodefile = filepaths[0]
+        if self.sink._attached_image:
+            self.sink._attached_image.listmodefile = filepaths[0]
 
 
 class QMesyDAQSink(ImageSink):
