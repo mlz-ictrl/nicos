@@ -94,8 +94,12 @@ class Param(object):
       preferred to a value from the config -- the default is true for
       settable parameters and false for non-settable parameters.
 
+    - *internal*: true if the parameter should not be given in the config file
+      because it is handled internally in the device implementation (default
+      is False).
+
     - *userparam*: whether this parameter should be shown to the user
-      (default is True).
+      (default is True for non *internal* parameters otherwise False).
 
     - *chatty*: whether changes of the parameter should produce a message
       (default is False).
@@ -125,7 +129,7 @@ class Param(object):
     def __init__(self, description, type=float, default=_notset,
                  mandatory=False, settable=False, volatile=False,
                  unit=None, fmtstr='%r', category=None, preinit=False,
-                 prefercache=None, userparam=True, chatty=False,
+                 prefercache=None, userparam=None, internal=False, chatty=False,
                  no_sim_restore=False, ext_desc=''):
         self.type = fixup_conv(type)
         if default is self._notset:
@@ -140,11 +144,21 @@ class Param(object):
         self.description = description
         self.preinit = preinit
         self.prefercache = prefercache
-        self.userparam = userparam
+        self.internal = internal
         self.chatty = chatty
         self.no_sim_restore = no_sim_restore
         self.ext_desc = ext_desc
         self.classname = None  # filled by DeviceMeta
+
+        if internal and mandatory:
+            raise ProgrammingError("Ambiguous parameter settings detected. "
+                                   "'internal' and 'mandatory' must be used "
+                                   "exclusively.")
+
+        if userparam is None:  # implicit settings
+            self.userparam = False if self.internal else True
+        else:
+            self.userparam = userparam
 
     def __repr__(self):
         return '<Param info>'

@@ -242,6 +242,14 @@ class SetupChecker(object):
                                      extra=self.find_deventry(devname))
             for pname, pinfo in cls.parameters.items():
                 if pname in config:
+                    if pinfo.internal:
+                        self.log_error(
+                            "%s: '%s' is configured in a setup file although "
+                            "declared as internal parameter", devname, pname,
+                            extra=self.find_deventry(devname, pname)
+                        )
+                        del config[pname]
+                        continue
                     try:
                         pinfo.type(config[pname])
                     except (ValueError, TypeError) as e:

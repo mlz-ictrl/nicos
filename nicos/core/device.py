@@ -578,7 +578,8 @@ class Device(object):
                     # the default is intended to be used but has changed)
                     defvalue = paraminfo.default
                     if defvalue != value:
-                        defvalue = self._validateType(defvalue, param, paraminfo)
+                        defvalue = self._validateType(defvalue, param,
+                                                      paraminfo)
                     if defvalue != value:
                         valuestr = self.formatParam(param, value)
                         defvstr = self.formatParam(param, paraminfo.default)
@@ -595,6 +596,14 @@ class Device(object):
             else:
                 self._initParam(param, paraminfo)
                 notfromcache.append(param)
+
+            if param in self._config and paraminfo.internal:
+                self.log.warning(
+                    "'%s' is configured in a setup file although "
+                    "declared as internal parameter",
+                    param
+                )
+
             if paraminfo.category is not None:
                 if paraminfo.category not in ALLOWED_CATEGORIES:
                     self.log.error('parameter %s uses illegal category %r!',

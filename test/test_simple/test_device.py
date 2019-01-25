@@ -144,6 +144,18 @@ class Dev3(HasLimits, HasOffset, Moveable):
         self.offset += self.offsetsign * (old - new)
 
 
+class Dev4(Device):
+
+    parameters = {
+        'intparam': Param('internal parameter', internal=True),
+        'param': Param('non-internal parameter'),
+        'intexplicit': Param('internal parameter with explicit userparam',
+                             internal=True, userparam=True),
+        'explicit': Param('non-internal parameter with explicit userparam '
+                          'setting', userparam=False),
+    }
+
+
 class Bus(HasCommunication, Device):
 
     _replyontry = 5
@@ -181,6 +193,11 @@ def test_initialization(session, log):
     # assert device is cleaned up anyway
     assert 'dev2_5' not in session.devices
 
+    # assert parameter configured although declared internal
+    with log.assert_warns(
+            "'intparam' is configured in a setup file although declared as "
+            "internal parameter"):
+        session.getDevice('dev4')
 
 def test_special_methods(session):
     dev = session.getDevice('dev2_1')
@@ -241,6 +258,16 @@ def test_params(session):
     session.createDevice('dev2_1', recreate=True)
     # restored the default value from the code?
     assert dev2.param1 == 42
+    # test default values for userparam in respect to internal
+    dev4 = session.getDevice('dev4')
+    assert dev4.parameters['intparam'].userparam is False
+    assert dev4.parameters['param'].userparam is True
+    # test explicit userparam settings in respect to internal
+    assert dev4.parameters['intexplicit'].userparam is True
+    assert dev4.parameters['explicit'].userparam is False
+    # ambiguous parameter settings of internal and mandatory should raise
+    assert raises(ProgrammingError, Param, "ambiguous", internal=True,
+                  mandatory=True)
 
 
 def test_forbidden_assignments(session):
