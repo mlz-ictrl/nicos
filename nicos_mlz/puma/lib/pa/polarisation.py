@@ -20,6 +20,7 @@
 #   Goetz Eckold <geckold@gwdg.de>
 #
 # *****************************************************************************
+"""Polarization module support library."""
 
 from math import degrees, pi, radians, tan
 
@@ -32,6 +33,7 @@ from .xa import xA
 
 
 class PA:
+    """Polarization module."""
 
     kf = 2.662  # wavevector of scattered neutrons / A-1
     da = 3.354  # netplane distance of analyser / A
@@ -116,7 +118,6 @@ class PA:
 
     def run(self):
         """Calculate profiles/intensities of polarisation analysis setup."""
-
         self.psdup = [0] * 202
         self.psddown = [0] * 202
         self.psdupa = [0] * 202
@@ -318,16 +319,21 @@ if __name__ == '__main__':
     def write(pa):
         with open('PolData_Out.txt', 'w', encoding='utf-8') as f:
             f.write('Parameter-List:\n')
-            f.write('wavevector of scattered neutrons     : %6.3f 1/A\n' % pa.kf)
+            f.write('wavevector of scattered neutrons     : %6.3f 1/A\n' %
+                    pa.kf)
             f.write('netplane-distance of analyzer        : %6.3f A\n' % pa.da)
             f.write('Bragg-angle of analyzer              : %6.2f deg\n' %
                     pa.theta0)
             f.write('collimator-divergency                : %5.2f deg\n' %
-                pa.alpha0)
-            f.write('analyzer-mosaicity                   : %5.2f deg\n' % pa.eta)
-            f.write('distance sample-analyzer             : %6.1f cm\n' % pa.lsa)
-            f.write('distance sample-deflector 1          : %6.2f cm\n' % pa.lsd1)
-            f.write('distance sample-deflector 2          : %6.2f cm\n' % pa.lsd2)
+                    pa.alpha0)
+            f.write('analyzer-mosaicity                   : %5.2f deg\n' %
+                    pa.eta)
+            f.write('distance sample-analyzer             : %6.1f cm\n' %
+                    pa.lsa)
+            f.write('distance sample-deflector 1          : %6.2f cm\n' %
+                    pa.lsd1)
+            f.write('distance sample-deflector 2          : %6.2f cm\n' %
+                    pa.lsd2)
             f.write('tilt-angle deflector 1               : %5.2f, deg\n' %
                     pa.gamma1)
             f.write('tilt-angle deflector 2               : %5.2f, deg\n' %
@@ -338,15 +344,17 @@ if __name__ == '__main__':
                     '%5.1f cm\n' % (pa.x05, pa.x06, pa.x07))
             f.write('longitudinal analyzer- displacements : %5.1f cm%5.1f cm'
                     '%5.1f cm\n' % (pa.y05, pa.y06, pa.y07))
-            f.write('width of sample-slit                 : %4.1f cm\n' % pa.bS)
-            f.write('width of analyzer blade              : %4.1f cm\n\n' % pa.bA)
+            f.write('width of sample-slit                 : %4.1f cm\n' %
+                    pa.bS)
+            f.write('width of analyzer blade              : %4.1f cm\n\n' %
+                    pa.bA)
 
             f.write('\nSpin-up neutrons\n')
             f.write('total PSD intensity : %7.2f\n' % pa.psdintup)
             f.write('fraction detected : %5.2f\n' % pa.fractionup)
             f.write('intensities channels 5,6,7, total : %10.2f%10.2f%10.2f'
                     '%10.2f\n' % (pa.i5up, pa.i6up, pa.i7up,
-                              pa.igesup))
+                                  pa.igesup))
             f.write('intensity ratio: %5.2f\n' % pa.ratioup)
 
             f.write('\nSpin-down neutrons\n')
@@ -369,8 +377,8 @@ if __name__ == '__main__':
             f.write('angle   spin-up  spin-down\n')
             for i in range(1, 41 + 1):
                 x = -2.1 + i * 0.1
-                f.write('%5.1f   %7.2f  %7.2f\n' % (x, rdefl(x, 1), rdefl(x, 2)))
-
+                f.write('%5.1f   %7.2f  %7.2f\n' % (x, rdefl(x, 1),
+                                                    rdefl(x, 2)))
 
     pa = PA(**read())
 
