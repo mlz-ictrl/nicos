@@ -331,8 +331,8 @@ class LimitsWidget(MultiWidget):
     def __init__(self, parent, curvalue, client, allow_enter=False):
         MultiWidget.__init__(self, parent, (float, float), curvalue, client,
                              allow_enter=allow_enter)
-        self._layout.insertWidget(0, QLabel('from', self))
-        self._layout.insertWidget(2, QLabel('to', self))
+        self._layout.addWidget(QLabel('from', self), 0, 0)
+        self._layout.addWidget(QLabel('to', self), 0, 1)
 
 
 class DictWithWidget(QWidget):
