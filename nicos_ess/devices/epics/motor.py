@@ -27,8 +27,8 @@ from __future__ import absolute_import, division, print_function
 
 from nicos.core import Override, Param, pvname, status
 from nicos.core.errors import ConfigurationError
-from nicos.devices.abstract import CanReference, HasOffset, Motor
-from nicos.core.mixins import CanDisable
+from nicos.core.mixins import CanDisable, HasOffset
+from nicos.devices.abstract import CanReference, Motor
 
 from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 
