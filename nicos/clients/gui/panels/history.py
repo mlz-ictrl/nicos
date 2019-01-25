@@ -434,7 +434,7 @@ class BaseHistoryWindow(object):
         loadUi(self, 'history.ui', 'panels')
 
         self.user_color = Qt.white
-        self.user_font = QFont('monospace')
+        self.user_font = QFont('Monospace')
 
         self.views = []
         # stack of views to display

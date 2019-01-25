@@ -66,7 +66,7 @@ class ConsoleBox(QPlainTextEdit):
 
         self.setWordWrapMode(QTextOption.WrapAnywhere)
         self.setUndoRedoEnabled(False)
-        self.document().setDefaultFont(QFont("monospace", 10, QFont.Normal))
+        self.document().setDefaultFont(QFont('Monospace', 10, QFont.Normal))
         self.showMessage(startup_message)
 
     def showMessage(self, message):

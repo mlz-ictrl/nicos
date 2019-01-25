@@ -83,7 +83,7 @@ def loadBasicWindowSettings(window, settings):
 
 
 def loadUserStyle(window, settings):
-    window.user_font = QFont(settings.value('font'))
+    window.user_font = QFont(settings.value('font', QFont('Monospace')))
     color = QColor(settings.value('color'))
     if color.isValid():
         window.user_color = color

@@ -232,7 +232,7 @@ class NicosWidget(NicosListener):
     designer_icon = None
 
     # define properties
-    valueFont = PropDef('valueFont', 'QFont', QFont('monospace'),
+    valueFont = PropDef('valueFont', 'QFont', QFont('Monospace'),
                         'Font used for displaying values')
 
     # collects all properties of self's class

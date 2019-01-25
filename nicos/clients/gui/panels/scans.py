@@ -124,7 +124,7 @@ class ScansPanel(Panel):
         quickfit.activated.connect(self.on_quickfit)
 
         self.user_color = Qt.white
-        self.user_font = QFont('monospace')
+        self.user_font = QFont('Monospace')
 
         self.bulk_adding = False
         self.no_openset = False
