@@ -63,6 +63,7 @@ Instrument-specific code was contributed by:
 * Goetz Eckold <geckold@gwdg.de>
 * Artem Feoktystov <a.feoktystov@fz-juelich.de>
 * Lydia Fleischhauer-Fuss <l.fleischhauer-fuss@fz-juelich.de>
+* Jonathan Frank <jonathan.frank@frm2.tum.de>
 * Christian Franz <christian.franz@frm2.tum.de>
 * Weimin Gan <weimin.gan@hzg.de>
 * Holger Gibhardt <hgibhar@gwdg.de>
