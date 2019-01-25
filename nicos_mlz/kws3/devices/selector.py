@@ -33,27 +33,26 @@ from nicos.core import Attach, HasLimits, HasPrecision, Moveable, MoveError, \
 
 
 class SelectorSpeed(HasLimits, HasPrecision, Moveable):
-    """Control selector speed via SPS I/O devices."""
+    """Control selector speed via PLC I/O devices."""
 
     attached_devices = {
-        'valid':     Attach('Output for the "valid" bit', Moveable),
-        'speedset':  Attach('Output for speed setpoint', Moveable),
-        'speedread': Attach('Input for reading the speed', Readable),
-        'status':    Attach('Input for reading the status', Readable),
+        'valid':  Attach('Output for the "valid" bit', Moveable),
+        'speed':  Attach('I/O for current speed and its setpoint', Moveable),
+        'status': Attach('Input for reading the status', Readable),
     }
 
     def _getWaiters(self):
-        return [self._attached_speedset]
+        return [self._attached_speed]
 
     def doRead(self, maxage=0):
-        return self._attached_speedread.read(maxage)
+        return self._attached_speed.read(maxage)
 
     def doStatus(self, maxage=0):
         stbits = self._attached_status.read(maxage)
         if not stbits & 1:
             return status.WARN, 'local mode'
         if not stbits & 2:
-            if self._attached_speedread.read(maxage) < 0.1:
+            if self._attached_speed.read(maxage) < 0.1:
                 return status.WARN, 'off'
             return status.BUSY, 'moving'
         return status.OK, ''
@@ -68,7 +67,7 @@ class SelectorSpeed(HasLimits, HasPrecision, Moveable):
             raise MoveError(self, 'selector is in local mode')
         # valid bit needs a rising edge
         self._attached_valid.move(0)
-        self._attached_speedset.maw(pos)
+        self._attached_speed.maw(pos)
         time.sleep(0.2)
         self._attached_valid.move(1)
         time.sleep(0.2)

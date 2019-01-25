@@ -7,6 +7,7 @@ display_order = 25
 excludes = ['virtual_polarizer']
 
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
+s7_motor = tango_base + 's7_motor/'
 
 devices = dict(
     polarizer = device('nicos_mlz.kws1.devices.polarizer.Polarizer',
@@ -28,18 +29,18 @@ devices = dict(
     ),
     pol_y = device('nicos.devices.tango.Motor',
         description = 'polarizer y-table',
-        tangodevice = tango_base + 'fzjs7/pol_y',
+        tangodevice = s7_motor + 'pol_y',
         unit = 'mm',
         precision = 0.01,
     ),
     pol_tilt = device('nicos.devices.tango.Motor',
         description = 'polarizer tilt',
-        tangodevice = tango_base + 'fzjs7/pol_tilt',
+        tangodevice = s7_motor + 'pol_tilt',
         unit = 'deg',
         precision = 0.01,
     ),
     flip_set = device('nicos.devices.tango.DigitalOutput',
-        tangodevice = tango_base + 'fzjdp_digital/flipper_write',
+        tangodevice = tango_base + 's7_digital/flipper',
         lowlevel = True,
     ),
     flip_ps = device('nicos.devices.tango.PowerSupply',

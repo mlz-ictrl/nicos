@@ -9,6 +9,7 @@ excludes = ['virtual_selector']
 sel_presets = configdata('config_selector.SELECTOR_PRESETS')
 
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
+s7_motor = tango_base + 's7_motor/'
 
 # TODO (later): add sel_rot to switcher devices
 devices = dict(
@@ -20,36 +21,28 @@ devices = dict(
         fallback = 'unknown',
         precision = [0.05],
     ),
-
     sel_speed_valid = device('nicos.devices.tango.DigitalOutput',
-        tangodevice = tango_base + 'fzjdp_digital/sel_speed_valid',
+        tangodevice = tango_base + 's7_digital/sel_speed_valid',
         lowlevel = True,
     ),
     sel_speed_status = device('nicos.devices.tango.DigitalInput',
-        tangodevice = tango_base + 'fzjdp_digital/sel_speed_status',
+        tangodevice = tango_base + 's7_digital/sel_speed_status',
         lowlevel = True,
     ),
-    sel_speed_set = device('nicos.devices.tango.AnalogOutput',
-        tangodevice = tango_base + 'fzjdp_analog/sel_speed_set',
+    sel_speed_raw = device('nicos.devices.tango.AnalogOutput',
+        tangodevice = tango_base + 's7_analog/sel_speed',
         abslimits = (60, 300),
         lowlevel = True,
     ),
-    sel_speed_read = device('nicos.devices.tango.AnalogInput',
-        tangodevice = tango_base + 'fzjdp_analog/sel_speed_read',
-        lowlevel = True,
-    ),
-
     sel_speed = device('nicos_mlz.kws3.devices.selector.SelectorSpeed',
         description = 'selector speed',
         valid = 'sel_speed_valid',
-        speedset = 'sel_speed_set',
-        speedread = 'sel_speed_read',
+        speed = 'sel_speed_raw',
         status = 'sel_speed_status',
         abslimits = (60, 300),
         precision = 0.5,
         unit = 'Hz',
     ),
-
     sel_lambda = device('nicos_mlz.kws1.devices.selector.SelectorLambda',
         description = 'Selector wavelength control',
         seldev = 'sel_speed',
@@ -58,10 +51,9 @@ devices = dict(
         constant = 3133.4 / 60,  # SelectorLambda uses RPM
         offset = -0.00195,
     ),
-
     sel_rot = device('nicos.devices.tango.Motor',
         description = 'selector rotation table',
-        tangodevice = tango_base + 'fzjs7/sel_rot',
+        tangodevice = s7_motor + 'sel_rot',
         unit = 'deg',
         precision = 0.01,
         lowlevel = True,

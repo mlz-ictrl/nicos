@@ -7,6 +7,7 @@ display_order = 65
 excludes = ['virtual_detector']
 
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
+s7_motor = tango_base + 's7_motor/'
 
 devices = dict(
     beamstop = device('nicos_mlz.kws3.devices.resolution.Beamstop',
@@ -17,25 +18,25 @@ devices = dict(
     ),
     det_x = device('nicos.devices.tango.Motor',
         description = 'detector translation X',
-        tangodevice = tango_base + 'fzjs7/det_x',
+        tangodevice = s7_motor + 'det_x',
         unit = 'mm',
         precision = 0.01,
     ),
     det_y = device('nicos.devices.tango.Motor',
         description = 'detector translation Y',
-        tangodevice = tango_base + 'fzjs7/det_y',
+        tangodevice = s7_motor + 'det_y',
         unit = 'cm',
         precision = 0.01,
     ),
     det_z = device('nicos.devices.tango.Motor',
         description = 'detector translation Z',
-        tangodevice = tango_base + 'fzjs7/det_z',
+        tangodevice = s7_motor + 'det_z',
         unit = 'mm',
         precision = 0.01,
     ),
     det_beamstop_x = device('nicos.devices.tango.Motor',
         description = 'beamstop x',
-        tangodevice = tango_base + 'fzjs7/beamstop_x',
+        tangodevice = s7_motor + 'beamstop_x',
         unit = 'mm',
         precision = 0.5,
     ),
