@@ -29,6 +29,8 @@ import math
 import sys
 from itertools import tee
 
+import numpy as np
+
 from nicos import session
 from nicos.commands import hiddenusercommand
 from nicos.core import SIMULATION, Attach, Moveable, Override, Param, \
@@ -198,11 +200,11 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
         movement.
         """
         self.log.debug('Collision sorting')
-        # Goetz collision sort
-        nstart = [[0] * self._num_axes] * self._num_axes
+        nstart = np.zeros((self._num_axes, self._num_axes), dtype=np.int8)
+        rotpos = [d.read(0) for d in self._rotdetector0]
         for i in range(self._num_axes):
             for j in range(i + 1, self._num_axes):
-                if target[i] < self._rotdetector0[j].read(0) + 2.5:
+                if target[i] < rotpos[j] + 2.5:
                     nstart[i][j] = 1
         self.log.debug('Collision sorting done: %r', nstart)
 
