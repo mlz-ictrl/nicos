@@ -5,7 +5,6 @@ group = 'lowlevel'
 nameservice = 'stressictrl.stressi.frm2'
 caresspath = '/opt/caress'
 toolpath = '/opt/caress'
-nethost = 'stressisrv.stressi.frm2'
 
 tango_host = 'tango://ps01.stressi.frm2:10000/stressi/det/'
 
