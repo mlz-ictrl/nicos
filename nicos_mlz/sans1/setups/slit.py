@@ -43,6 +43,5 @@ devices = dict(
         coordinates = 'opposite',
         pollinterval = 5,
         maxage = 12,
-        fmtstr = '%.2f, %.2f',
     ),
 )
