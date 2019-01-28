@@ -67,4 +67,11 @@ devices = dict(
         maxage = 30,
         fmtstr = '%d',
     ),
+    VetoHV = device('nicos.devices.tango.PowerSupply',
+        description = 'Veto HV power supply (usual value 500 V)',
+        tangodevice = tango_base + 'vetohv/voltage',
+        fmtstr = '%d',
+        pollinterval = 10,
+        maxage = 21,
+    ),
 )
