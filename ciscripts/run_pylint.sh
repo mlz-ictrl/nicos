@@ -1,6 +1,10 @@
 #! /bin/bash
-. $NICOSVENV/bin/activate
-echo $PATH
+venv=$1
+echo $venv
+set -e
+set +x
+. $venv/bin/activate
+set -x
 set +e
 
 PYFILESCHANGED=$(~/tools2/bin/changedfiles --py)

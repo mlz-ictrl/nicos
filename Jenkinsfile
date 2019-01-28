@@ -56,36 +56,13 @@ change-merged''',
                                     )])
     ])
 
-
-// ********************************/
-
+// ************ Global arrays  ***/
 
 this.verifyresult = [:]
+this.pipissues = []
 
 // ************* Function defs ***/
 
-def parseLogs(parserConfigurations, maxfail = 0) {
-    maxfail = String.valueOf(maxfail);
-    step([$class: 'WarningsPublisher',
-          parserConfigurations: parserConfigurations,
-          canComputeNew: false,
-          canResolveRelativePaths: false,
-          canRunOnFailed: true,
-          defaultEncoding: 'UTF-8',
-          excludePattern: '',
-          includePattern: '',
-          messagesPattern: '',
-          healthy: '',
-          unHealthy: '',
-          failedTotalAll: maxfail,
-          failedTotalHigh: maxfail,
-          failedTotalLow: maxfail,
-          failedTotalNormal: maxfail,
-          unstableTotalAll: maxfail,
-          unstableTotalHigh: maxfail,
-          unstableTotalLow: maxfail,
-          unstableTotalNormal: maxfail])
-}
 
 def checkoutSource() {
     echo(GERRIT_PROJECT)
@@ -140,39 +117,64 @@ def refreshVenv(info="" , venv='$NICOSVENV', checkupdates=false) {
     }
     if (checkupdates) {
         // currently only core requirements are checked
-        def pconf = [
-            [parserName: 'pip-output-error', pattern: 'pip-core*.log'],
-            [parserName: 'pip-output-error-compile', pattern: 'pip-core*.log'],
-            [parserName: 'pip-output-updated', pattern: 'pip-core*.log'],
-        ]
-        warnings([canComputeNew: false,
-              canResolveRelativePaths: false,
-              canRunOnFailed: true,
-              failedTotalAll: '0',
-              healthy: '0',
-              parserConfigurations: pconf,
-              unHealthy: '1',
-        ])
+        this.pipissues.add(scanForIssues( tool: groovyScript(id: 'pip-updates',
+                                         name: 'pip updates',
+                                         parserId: 'pip-output-updated-ng',
+                                         pattern: 'pip-core-*.log')))
+        this.pipissues.add(scanForIssues(tool: groovyScript(id: 'pip-errors',
+                                         name: 'pip errors',
+                                         parserId: 'pip-output-error-ng',
+                                         pattern: 'pip-core-*.log')))
+        this.pipissues.add(scanForIssues(tool: groovyScript(id: 'pip-errors-compile',
+                                         name: 'pip errors',
+                                         parserId: 'pip-output-error-compile-ng',
+                                         pattern: 'pip-core-*.log')))
     }
 }
 
-def runPylint() {
-    verifyresult.put('pylint',0)
+def runPylint(info='', venv='$NICOSVENV') {
+    def idtag = "pylint-$info".toString()
+    verifyresult.put(idtag, 0)
     try {
         withCredentials([string(credentialsId: 'GERRITHTTP', variable: 'GERRITHTTP')]) {
-            refreshVenv()
-            sh './ciscripts/run_pylint.sh'
-            verifyresult.put('pylint', 1)
+            try {
+                refreshVenv("$idtag", venv)
+            } catch (all) { echo  "refreshVenv failed"}
+
+            sh "./ciscripts/run_pylint.sh $venv"
+
+            verifyresult.put(idtag, 1)
         }
     }
     catch (all) {
-        verifyresult.put('pylint',-1)
+        verifyresult.put(idtag,-1)
     }
-    echo "pylint: result=" + verifyresult['pylint']
-    publishGerrit('pylint', verifyresult['pylint'])
-    parseLogs([[parserName: 'PyLint', pattern: 'pylint_*.txt']])
-    if (verifyresult['pylint'] < 0) {
-        error('Failure in pylint')
+
+    try {
+        sh """
+ls pylint_*.txt
+mv pylint_all.txt ${idtag}.txt
+ls  pylint-*.txt"""
+    } catch (all) {
+        echo "Move failed?"
+    }
+    echo "********************"
+    echo "${idtag}: result=" + verifyresult[idtag]
+    echo "********************"
+
+    publishGerrit(idtag,verifyresult[idtag])
+    archiveArtifacts([allowEmptyArchive: true,
+                          artifacts: 'pylint-*.txt'])
+    recordIssues([enabledForFailure: true,
+                  ignoreQualityGate: true,
+                  tools: [pyLint(id: idtag, name: "Pylint $info", pattern: 'pylint-*.txt')],
+                  unhealthy: 2,
+                  healthy: 1,
+                  failedTotalAll: 1])
+
+
+    if (verifyresult[idtag] < 0) {
+        error("Failure in $idtag")
     }
 }
 
@@ -194,7 +196,14 @@ def runIsort() {
     archiveArtifacts([allowEmptyArchive: true, artifacts: "isort_all.txt"])
     echo "isort: result=" + verifyresult['isort']
     publishGerrit('isort', verifyresult['isort'])
-    parseLogs([[parserName: 'python-isort', pattern: 'isort_*.txt']], 20)
+    recordIssues([enabledForFailure: true,
+                  ignoreQualityGate: true,
+                  tools: [groovyScript(parserId: 'isort_diff',
+                                       pattern: 'isort_*.txt',
+                                       reportEncoding: 'UTF-8')],
+                  unhealthy: 20,
+                  healthy: 1,
+                  ])
 
     if (verifyresult['isort'] < 0) {
         // currently only warn, but do not fail the job
@@ -222,11 +231,25 @@ def runSetupcheck() {
     }
     echo "setupcheck: result=" + verifyresult['sc']
     publishGerrit('setupcheck',verifyresult['sc'])
-    parseLogs([
-        [parserName: 'nicos-setup-check-syntax-errors', pattern: 'setupcheck.log'],
-        [parserName: 'nicos-setup-check-errors-file', pattern: 'setupcheck.log'],
-        [parserName: 'nicos-setup-check-warnings', pattern: 'setupcheck.log'],
-    ])
+    archiveArtifacts([allowEmptyArchive: true,
+                      artifacts: 'setupcheck.log'])
+
+    recordIssues([enabledForFailure: true,
+                  ignoreQualityGate: true,
+                  tools: [groovyScript(parserId: 'nicos-setup-check-syntax-error-ng',
+                                       pattern: 'setupcheck.log',
+                                       reportEncoding: 'UTF-8'),
+                          groovyScript(parserId: 'nicos-setup-check-errors-file-ng',
+                                       pattern: 'setupcheck.log',
+                                       reportEncoding: 'UTF-8'),
+                          groovyScript(parserId: 'nicos-setup-check-warnings-ng',
+                                       pattern: 'setupcheck.log',
+                                       reportEncoding: 'UTF-8'),
+                                                                              ],
+                  unhealthy: 2,
+                  healthy: 1,
+                  ])
+
 
     if (verifyresult['sc'] < 0) {
          error('Failure in setupcheck')
@@ -244,7 +267,9 @@ addopts = --junit-xml=pytest-${pyver}.xml
   --cov-report=term
    -p no:cacheprovider
 """ : "")
-    sh "cat pytest_ini.add >> pytest.ini"
+    sh """
+     [-f pytest.ini] || echo "[pytest]" > pytest.ini
+    cat pytest_ini.add >> pytest.ini"""
 
 
     verifyresult.put(pyver, 0)
@@ -334,9 +359,21 @@ u14 = docker.image('localhost:5000/nicos-jenkins:trusty')
 
 try {
     parallel pylint: {
-        stage(name: 'pylint') {
+        stage(name: 'pylint-py2') {
             u16.inside('-v /home/git:/home/git') {
-                    runPylint()
+                    runPylint('py2', '$NICOSVENV')
+            }
+        } // stage
+    }, pylint3: {
+        stage(name: 'pylint-py3') {
+        when ( GERRIT_BRANCH != 'release-3.3' ||
+               GERRIT_BRANCH != 'release-3.4') {
+                ws {
+                    checkoutSource()
+                    u16.inside('-v /home/git:/home/git') {
+                        runPylint('py3', '$NICOS3VENV')
+                    }
+                } //ws
             }
         } // stage
     }, isort: {
@@ -397,6 +434,11 @@ try {
     failFast: false
 } finally {
     /*** set final vote **/
+    if (this.pipissues) {
+        publishIssues(issues: this.pipissues,
+                      ignoreFailedBuilds: false,
+                      ignoreQualityGate: true)
+    }
     setGerritReview()
 } // finally
 } // node
