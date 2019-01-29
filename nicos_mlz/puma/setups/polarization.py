@@ -2,9 +2,11 @@ description = 'Polarized neutron beam measurements'
 
 group = 'basic'
 
-includes = ['pumabase', 'seccoll', 'collimation', 'ios', 'hv', 'notifiers',
-            'multidet', 'multiana', 'rdcad', 'opticalbench', 'detector',
-            'ana_alias', 'pollengths']
+includes = [
+    'pumabase', 'seccoll', 'collimation', 'ios', 'hv', 'notifiers', 'multidet',
+    'multiana', 'rdcad', 'opticalbench', 'detector', 'ana_alias', 'pollengths',
+    'slits',
+]
 
 nethost = 'pumasrv.puma.frm2'
 
