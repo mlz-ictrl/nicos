@@ -1688,9 +1688,9 @@ class Moveable(Waitable):
         """
         if hasattr(self, 'doIsAtTarget'):
             return self.doIsAtTarget(pos)
-        elif isinstance(pos, (string_types, integer_types)) and \
-                self.target != pos:
-            return False
+        elif (isinstance(pos, (string_types, integer_types)) and
+                      self.target is not None):
+            return self.target == pos
         return True
 
     def _hw_wait(self):
