@@ -27,12 +27,40 @@ import numpy as np
 
 from nicos.core import ArrayDesc, Param, status
 from nicos.core.constants import SIMULATION
-from nicos.devices.generic.detector import ActiveChannel, ImageChannelMixin
+from nicos.devices.generic.detector import ActiveChannel, Detector, \
+    ImageChannelMixin
 
 from nicos_mlz.laue.devices.psldrv import PSLdrv
 
 
+class SyncedDetector(Detector):
+    """A special synced detector for NLAUE
+
+    This detector propagates the time preset to all devices, not only to the
+    first timer as the default implementation does.
+
+    The timer here is typically just a virtual device, while the true timing
+    is done by the image device (but that one can not be read back).
+    """
+
+    def doSetPreset(self, **preset):
+        if not preset:
+            return
+
+        if 't' in preset:
+            for img in self._attached_images:
+                img.preselection = preset['t']
+                img.ismaster = True
+            for timer in self._attached_timers:
+                timer.preselection = preset['t']
+                timer.ismaster = False
+
+
 class PSLDetector(ImageChannelMixin, ActiveChannel):
+    """PhotonicScience detector
+
+    This detector is an interface to the PhotonicScience AUI server
+    """
 
     parameters = {
         'address': Param('Inet address', type=str,
@@ -57,11 +85,13 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
 
     def doInit(self, mode):
         # Determine image type
+        self._preset=0
         if mode == SIMULATION:
             iwstr, ihstr = '2000', '1598'
         else:
             try:
                 data = self._communicate('GetSize')
+                self.doReadPreselection()
                 iwstr, ihstr = data.split(';')
             except OSError:
                 self.log.warning('Error during init', exc=1)

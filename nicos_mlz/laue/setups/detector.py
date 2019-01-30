@@ -33,7 +33,7 @@ devices = dict(
         description = 'timer',
         visibility = (),
     ),
-    det1 = device('nicos.devices.generic.Detector',
+    det1 = device('nicos_mlz.laue.devices.psldetector.SyncedDetector',
         description = 'PSL detector',
         timers = ['timer'],
         images = ['image'],
