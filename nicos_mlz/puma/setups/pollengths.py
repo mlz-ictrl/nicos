@@ -22,6 +22,6 @@ devices = dict(
         default = 2316,
         unit = 'mm',
         fmtstr = '%.0f',
-        abslimits = (2316, 2316),
+        abslimits = (1800, 2800),
     ),
 )
