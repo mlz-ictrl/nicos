@@ -2,7 +2,7 @@ description = 'PUMA secondary collimator unit'
 
 group = 'optional'
 
-includes = ['motorbus9']
+includes = ['motorbus9', 'pumabase']
 
 devices = dict(
     sca1b = device('nicos_mlz.puma.devices.PumaSecCollBlockChanger',
