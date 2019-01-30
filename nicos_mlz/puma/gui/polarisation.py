@@ -333,8 +333,8 @@ class PolarisationPanel(NicosWidget, Panel):
             man[15 + i] = float(w.text())
 
         refgap = self.client.getDeviceParam('med', 'refgap')
-        absmax = self.client.getDeviceParam('rd1', 'abslimits')[1]
-        absmin = self.client.getDeviceParam('rd11', 'abslimits')[0]
+        absmax = self.client.getDeviceParam('rd1', 'userlimits')[1]
+        absmin = self.client.getDeviceParam('rd11', 'userlimits')[0]
 
         med = [absmax - i * refgap for i in range(4)]  # pos of rd1..4]
         med += [0] * 3  # place holder for rd5..6
