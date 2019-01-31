@@ -98,7 +98,7 @@ class SeqDev(SequenceItem):
     ``stoppable=True`` when calling the constructor.
     """
 
-    def __init__(self, dev, target, stoppable=False):
+    def __init__(self, dev, target, stoppable=True):
         SequenceItem.__init__(self, dev=dev, target=target, stoppable=stoppable)
 
     def check(self):
