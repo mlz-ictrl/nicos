@@ -46,5 +46,5 @@ devices = dict(
 
 startupcode = '''
 SetDetectors(det)
-image.listmode = True
+set('image', 'listmode', True)
 '''
