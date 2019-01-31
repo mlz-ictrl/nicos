@@ -15,11 +15,12 @@ sysconfig = {
 nethost = 'pumasrv.puma.frm2'
 
 devices = dict(
-    Listmode = device('nicos_mlz.devices.qmesydaqsinks.ListmodeSink',
+    Listmode = device('nicos_mlz.puma.devices.kineticdetector.ListmodeSink',
         description = 'Listmode data written via QMesyDAQ',
         image = 'image',
         subdir = 'list',
         filenametemplate = ['%(pointcounter)07d.mdat'],
+        detectors = ['det'],
     ),
     channels = device('nicos.devices.vendor.qmesydaq.taco.MultiCounter',
         tacodevice = '//%s/puma/qmesydaq/det' % nethost,
