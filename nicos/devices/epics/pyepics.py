@@ -370,6 +370,17 @@ class EpicsMoveable(EpicsDevice, Moveable):
         self.doStart(self.doRead())
 
 
+class EpicsStringMoveable(EpicsMoveable):
+    """
+    This device handles string PVs, also when they are implemented as
+    character waveforms.
+    """
+    valuetype = str
+
+    def doRead(self, maxage=0):
+        return self._get_pv('readpv', as_string=True)
+
+
 class EpicsAnalogMoveable(HasLimits, EpicsMoveable):
     """
     Handles EPICS devices which can set and read a floating value.
