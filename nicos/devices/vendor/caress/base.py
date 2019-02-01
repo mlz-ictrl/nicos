@@ -31,7 +31,8 @@ from nicos.core import POLLER, SIMULATION, HasLimits, HasPrecision, Moveable, \
     Param
 from nicos.core.errors import ConfigurationError, NicosError
 from nicos.devices.vendor.caress.core import ACTIVE, ACTIVE1, CARESS, CORBA, \
-    KEEP_ACTION, CARESSDevice
+    CORBA_DEVICE, KEEP_ACTION, READBLOCK_NORMAL, CHTYPE_INT32, DEVICE_READABLE,\
+    DEVICE_DRIVABLE, CARESSDevice
 
 
 class Driveable(HasLimits, HasPrecision, CARESSDevice, Moveable):
@@ -55,11 +56,33 @@ class Driveable(HasLimits, HasPrecision, CARESSDevice, Moveable):
         if hasattr(self._caressObject, 'is_readable_module'):
             is_readable = self._caress_guard(
                 self._caressObject.is_readable_module, self.cid)
-        self.log.debug('Readable module: %r', is_readable)
 
         if hasattr(self._caressObject, 'is_drivable_module'):
             is_drivable = self._caress_guard(
                 self._caressObject.is_drivable_module, self.cid)
+        elif self._device_kind() in [CORBA_DEVICE, 501]:
+            # 500, 501 devices may be any combination of readable or drivable
+            # Query capabilities from server
+            (ret, _, _, chtype) = self._caress_guard(
+                self._caressObject.readblock_params_orb, -0x80000000,
+                self.cid, 1, 0, 0)
+            if ret != READBLOCK_NORMAL or chtype != CHTYPE_INT32:
+                # Something went wrong, assume no capabilities
+                is_readable = False
+                is_drivable = False
+            else:
+                (ret, _, dataseq) = self._caress_guard(
+                    self._caressObject.int_readblock_module_orb, -0x80000000,
+                    self.cid, 1, 1, ())
+                if ret != READBLOCK_NORMAL or len(dataseq) != 1:
+                    # Something went wrong, assume no capabilities
+                    is_readable = False
+                    is_drivable = False
+                else:
+                    is_readable = bool(dataseq[0] & DEVICE_READABLE)
+                    is_drivable = bool(dataseq[0] & DEVICE_DRIVABLE)
+                    # readable, drivable, counting, status, needs_reference,
+                    # new_interface
         else:
             is_drivable = self._device_kind() in [3, 7, 13, 14, 15, 23, 24, 25,
                                                   28, 29, 30, 31, 32, 33, 37,
@@ -69,6 +92,8 @@ class Driveable(HasLimits, HasPrecision, CARESSDevice, Moveable):
                                                   103, 105, 106, 107, 108, 110,
                                                   111, 112, 114, 115, 123, 124,
                                                   125, 126]
+
+        self.log.debug('Readable module: %r', is_readable)
         self.log.debug('Driveable module: %r', is_drivable)
         if not (is_drivable or is_readable):
             raise ConfigurationError(self, 'Object is not a moveable module')
