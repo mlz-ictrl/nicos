@@ -48,7 +48,8 @@ devices = dict(
         description = 'Slit 2 Vertical Bottom',
         fmtstr = '%.2f',
         unit = 'mm',
-        coderoffset = 0,
+        # 2018-10-03 coderoffset was changed (was 0 before). Encoder-zero-point shifted (wobble at motor-encoder joint).
+        coderoffset = 12.5,
         abslimits = (-60, 60),
         nameserver = '%s' % (nameservice,),
         objname = '%s' % (servername),
@@ -62,7 +63,8 @@ devices = dict(
         description = 'Slit 2 Vertical Top',
         fmtstr = '%.2f',
         unit = 'mm',
-        coderoffset = 0,
+        # 2018-10-03 coderoffset was changed (was 0 before). Encoder-zero-point shifted (wobble at motor-encode joint).
+        coderoffset = 11.0,
         abslimits = (-60, 60),
         nameserver = '%s' % (nameservice,),
         objname = '%s' % (servername),
