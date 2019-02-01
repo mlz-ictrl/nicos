@@ -227,7 +227,7 @@ class TacoDevice(HasCommunication):
                                  self._config['unit'], value)
 
     def doUpdateTacotimeout(self, value):
-        if not self._sim_active and self._dev:
+        if not getattr(self, '_sim_active', False) and self._dev:
             if value != 3.0:
                 self.log.warning('%r: client network timeout changed to: '
                                  '%.2f s', self.tacodevice, value)

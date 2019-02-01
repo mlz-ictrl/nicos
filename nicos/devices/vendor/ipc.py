@@ -219,7 +219,7 @@ class IPCModBusTaco(TacoDevice, IPCModBus):
         raise ProgrammingError(self, "TacoDevice has no 'timeout'!")
 
     def doUpdateBustimeout(self, value):
-        if not self._sim_active and self._dev:
+        if not getattr(self, '_sim_active', False) and self._dev:
             try:
                 self._taco_update_resource('timeout', str(value))
             except (TACOError, Exception) as e:
