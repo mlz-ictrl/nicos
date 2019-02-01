@@ -485,7 +485,8 @@ class Session(object):
         def add_setup(name):
             all_setups.add(name)
             for include in self._setup_info[name]['includes']:
-                add_setup(include)
+                if include not in all_setups:
+                    add_setup(include)
 
         # generate a set of *all* setups loaded after adding new setups
         all_setups = loaded_setups.copy()
