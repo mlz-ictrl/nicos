@@ -1,6 +1,6 @@
 description = 'TsDau detector'
 
-connection = '192.168.1.102:10000'
+connection = '192.168.1.6:10000'
 
 devices = dict(
     tsd_timer=device('nicos_ess.v20.devices.tsdau.TsDauTimeChannel',
