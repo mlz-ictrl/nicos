@@ -33,7 +33,8 @@ from numpy import sign
 from nicos import session
 from nicos.core import Attach, HasTimeout, IsController, Override, Param, \
     floatrange, status, tupleof
-from nicos.core.errors import PositionError
+from nicos.core.constants import SIMULATION
+from nicos.core.errors import MoveError, PositionError
 from nicos.core.utils import filterExceptions, multiWait
 from nicos.devices.abstract import CanReference
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod
@@ -277,6 +278,13 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
             dev.reset()
 
     def doReference(self, *args):
+        if self._seq_is_running():
+            if self._mode == SIMULATION:
+                self._seq_thread.join()
+                self._seq_thread = None
+            else:
+                raise MoveError(self, 'Cannot reference device, device is '
+                                'still moving (at %s)!' % self._seq_status[1])
         with self._allowed():
             self._startSequence([SeqMethod(self, '_checkedRefRot'),
                                  SeqMethod(self, '_checkedRefTrans')])
