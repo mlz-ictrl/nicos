@@ -58,7 +58,7 @@ windows = [
                   uifile='nicos/clients/gui/panels/tasaxes.ui')),
         window('Polarization analysis', 'polarization',
             panel('nicos_mlz.puma.gui.polarisation.PolarisationPanel'),
-            setups='polarization or defcal',
+            setups='polarization* or defcal',
         ),
 ]
 

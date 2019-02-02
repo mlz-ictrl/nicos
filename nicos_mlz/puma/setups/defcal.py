@@ -4,7 +4,8 @@ group = 'basic'
 
 includes = [
     'pumabase', 'seccoll', 'collimation', 'ios', 'hv', 'notifiers', 'multidet',
-    'multiana', 'cad', 'opticalbench', 'detector', 'pollengths',
+    'multiana', 'rdcad', 'opticalbench', 'detector', 'ana_alias', 'pollengths',
+    'slits',
 ]
 
 sysconfig = dict(
@@ -47,4 +48,5 @@ devices = dict(
 
 startupcode = '''
 SetDetectors(det)
+set('image', 'listmode', False)
 '''

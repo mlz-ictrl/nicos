@@ -718,7 +718,7 @@ _col_slit = Column(
                        format='%.2f', width=12),
                 ),
         BlockRow(
-                 Field(name='Slit [width, height]', dev='slit', unit='mm'),
+                 Field(name='Slit [width x height]', dev='slit', unit='mm'),
                 ),
         ],
     ),

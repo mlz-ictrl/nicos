@@ -84,12 +84,13 @@ _column2 = Column(
 
 _column3 = Column(
     Block('Detector', [
-        BlockRow('timer', 'mon2', 'ctr1'),
+        BlockRow('timer', 'mon2', 'ctr1', 'ctr2'),
         BlockRow(Field(dev='det_fore[0]', name='Forecast', format='%.2f'),
                  Field(dev='det_fore[2]', name='Forecast', format='%d'),
                  Field(dev='det_fore[3]', name='Forecast', format='%d')),
         BlockRow(Field(dev='MonHV', width=5),
-                 Field(dev='DetHV', width=5)),
+                 Field(dev='DetHV', width=5),
+                 Field(dev='VetoHV', width=5)),
         ],
         setups='not cascade',
     ),
@@ -98,9 +99,10 @@ _column3 = Column(
                  Field(name='Total', key='psd/lastcounts[1]', width=9),
                  Field(name='MIEZE', key='psd/lastcontrast[0]', format='%.3f', width=6),
                  Field(name='Last image', key='exp/lastpoint')),
-        BlockRow('timer', 'mon2', 'ctr1'),
+        BlockRow('timer', 'mon2', 'ctr1', 'ctr2'),
         BlockRow(Field(dev='MonHV', width=5),
                  Field(dev='PSDHV', width=5),
+                 Field(dev='VetoHV', width=5),
                  Field(dev='dtx')),
         ],
         setups='cascade',

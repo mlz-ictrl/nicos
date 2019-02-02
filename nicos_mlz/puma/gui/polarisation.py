@@ -24,6 +24,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+from contextlib import contextmanager
 from math import cos, degrees, pi, radians, sin, sqrt, tan
 from os import path
 
@@ -32,15 +33,26 @@ from numpy import arange, arcsin, arctan, array, sign
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.widgets.plotting import NicosPlotCurve
+from nicos.core.errors import NicosError
 from nicos.guisupport.livewidget import COLOR_BLUE, COLOR_MANGENTA, \
     LiveWidget1D
-from nicos.guisupport.qt import QDoubleValidator, QLabel, QSize, QSizePolicy, \
-    Qt, QVBoxLayout, QWidget, pyqtSlot
+from nicos.guisupport.qt import QApplication, QCursor, QDoubleValidator, \
+    QLabel, QMessageBox, QSize, QSizePolicy, Qt, QVBoxLayout, QWidget, \
+    pyqtSlot
 from nicos.guisupport.widget import NicosWidget
 
 from nicos_mlz.puma.lib.pa import PA
 
 my_uipath = path.dirname(path.realpath(__file__))
+
+
+@contextmanager
+def wait_cursor():
+    try:
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        yield
+    finally:
+        QApplication.restoreOverrideCursor()
 
 
 class MiniPlot(LiveWidget1D):
@@ -104,7 +116,8 @@ class PolarisationPanel(NicosWidget, Panel):
         pass
 
     def initUi(self):
-        loadUi(self, 'polarisation.ui', my_uipath)
+        with wait_cursor():
+            loadUi(self, 'polarisation.ui', my_uipath)
 
         valid = QDoubleValidator()
 
@@ -159,24 +172,36 @@ class PolarisationPanel(NicosWidget, Panel):
             self.registerKey(k)
 
     def on_client_connected(self):
-        for d in ('def1', 'polcol', 'man', 'med'):
-            self.client.eval('%s.pollParam()', None)
-            params = self.client.getDeviceParams(d)
-            for p, v in params.items():
-                self._update_key('%s/%s' % (d, p), v)
-        for d in ('ra5', 'ra6', 'ra7', 'ta5', 'ta6', 'ta7',
-                  'rd5', 'rd6', 'rd7', 'rg5', 'rg6', 'rg7',
-                  'rd5_cad', 'rd6_cad', 'rd7_cad',
-                  'lsa', 'lsd1', 'lsd2', 'lad', 'lpsd',
-                  'kf', 'def1', 'def2', 'slit2.width'):
-            self.client.eval('%s.poll()' % d)
-            val = self.client.getDeviceValue(d)
-            self._update_key('%s/value' % d, val)
-        self.recalculate()
-
-        for w in (self.kf, self.LSA, self.LSD1, self.LSD1, self.gamma1,
-                  self.gamma2, self.LAD, self.bA, self.bD, self.bS):
-            w.textChanged.connect(self.recalculate)
+        with wait_cursor():
+            missed_devices = []
+            for d in ('def1', 'polcol', 'man', 'med'):
+                self.client.eval('%s.pollParam()', None)
+                params = self.client.getDeviceParams(d)
+                for p, v in params.items():
+                    self._update_key('%s/%s' % (d, p), v)
+            for d in ('ra5', 'ra6', 'ra7', 'ta5', 'ta6', 'ta7',
+                      'rd5', 'rd6', 'rd7', 'rg5', 'rg6', 'rg7',
+                      'rd5_cad', 'rd6_cad', 'rd7_cad',
+                      'lsa', 'lsd1', 'lsd2', 'lad', 'lpsd',
+                      'kf', 'def1', 'def2', 'slit2.width'):
+                try:
+                    self.log.debug('poll: %s', d)
+                    self.client.eval("session.getDevice('%s').poll()" % d)
+                    val = self.client.getDeviceValue('%s' % d)
+                    self._update_key('%s/value' % d, val)
+                    self.log.debug('%s/%s', d, val)
+                except (NicosError, NameError):
+                    missed_devices += [d]
+        if not missed_devices:
+            self.recalculate()
+            for w in (self.kf, self.LSA, self.LSD1, self.LSD1, self.gamma1,
+                      self.gamma2, self.LAD, self.bA, self.bD, self.bS):
+                w.textChanged.connect(self.recalculate)
+        else:
+            QMessageBox.warning(self.parent().parent(), 'Error',
+                                'The following devices are not available:<br>'
+                                "'%s'" % ', '.join(missed_devices))
+            self.setDisabled(True)
 
     def on_client_cache(self, data):
         (_time, key, _op, value) = data
@@ -232,7 +257,12 @@ class PolarisationPanel(NicosWidget, Panel):
     @pyqtSlot()
     def recalculate(self):
         self._optimize()
-        self._simulate()
+        try:
+            self._simulate()
+        except (ZeroDivisionError, IndexError):
+            QMessageBox.warning(self.parent().parent(), 'Error',
+                                'The current instrument setup is not well '
+                                'defined for polarisation analysis')
 
     def _optimize(self):
         kf = float(self.kf.text())
@@ -333,8 +363,8 @@ class PolarisationPanel(NicosWidget, Panel):
             man[15 + i] = float(w.text())
 
         refgap = self.client.getDeviceParam('med', 'refgap')
-        absmax = self.client.getDeviceParam('rd1', 'abslimits')[1]
-        absmin = self.client.getDeviceParam('rd11', 'abslimits')[0]
+        absmax = self.client.getDeviceParam('rd1', 'userlimits')[1]
+        absmin = self.client.getDeviceParam('rd11', 'userlimits')[0]
 
         med = [absmax - i * refgap for i in range(4)]  # pos of rd1..4]
         med += [0] * 3  # place holder for rd5..6

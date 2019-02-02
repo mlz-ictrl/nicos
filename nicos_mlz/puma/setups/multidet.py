@@ -2,7 +2,7 @@
 
 description = 'Multidetector motors'
 
-includes = ['system', 'motorbus10']
+includes = ['system', 'motorbus10', 'cad']
 
 excludes = []
 
@@ -538,6 +538,6 @@ devices = dict(
         rotguide = ['rg1', 'rg2', 'rg3', 'rg4', 'rg5', 'rg6', 'rg7', 'rg8',
                     'rg9', 'rg10', 'rg11'],
         refgap = 3.0,
-        att = 'att',
+        att = 'att_cad',
     ),
 )
