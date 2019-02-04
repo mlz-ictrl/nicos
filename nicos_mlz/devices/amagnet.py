@@ -53,14 +53,16 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
     }
 
     parameters = {
-        'calibrationtable': Param('Map of Coefficients for calibration  per symmetry setting',
+        'calibrationtable': Param('Map of coefficients for calibration '
+                                  'per symmetry setting',
                                   type=dictof(str, tupleof(
                                       float, float, float, float, float)),
-                                  mandatory=True,),
+                                  mandatory=True),
     }
 
     parameter_overrides = {
-        'calibration': Override(volatile=True, settable=False, mandatory=False),
+        'calibration': Override(volatile=True, settable=False,
+                                mandatory=False),
     }
 
     def _getWaiters(self):
@@ -124,38 +126,42 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
             BipolarSwitchingMagnet.doStart(self, target)
 
 
-# improved version: polarity switching + current ramping now in the PLC
-# similiar to MiraMagnet
 class GarfieldMagnet2(CanDisable, CalibratedMagnet):
     """Garfield Magnet
 
-    uses a polarity switch ('+' or '-') to flip polarity and an onoff switch
+    Uses a polarity switch ('+' or '-') to flip polarity and an onoff switch
     to cut power (to be able to switch polarity) in addition to an
     unipolar current source.
+
+    Improved version: polarity switching + current ramping now in the PLC,
+    similiar to MiraMagnet.
     """
 
     attached_devices = {
-        'currentreadback': Attach('Device to read back actual current', Readable, optional=True),
+        'currentreadback': Attach('Device to read back actual current',
+                                  Readable, optional=True),
         'enable':          Attach('Switch to set for on/off', Moveable),
         'symmetry':        Attach('Switch to read for symmetry', Moveable),
     }
 
     parameters = {
-        'calibrationtable': Param('Map of Coefficients for calibration  per symmetry setting',
+        'calibrationtable': Param('Map of coefficients for calibration '
+                                  'per symmetry setting',
                                   type=dictof(str, tupleof(
                                       float, float, float, float, float)),
-                                  mandatory=True,),
+                                  mandatory=True),
     }
 
     parameter_overrides = {
-        'calibration': Override(volatile=True, settable=False, mandatory=False),
+        'calibration': Override(volatile=True, settable=False,
+                                mandatory=False),
     }
 
     def doRead(self, maxage=0):
         if self._attached_currentreadback is not None:
-            return self._current2field(self._attached_currentreadback.read(maxage))
+            return self._current2field(
+                self._attached_currentreadback.read(maxage))
         return self._current2field(self._attached_currentsource.read(maxage))
-
 
     def doWriteUserlimits(self, limits):
         abslimits = self.abslimits
