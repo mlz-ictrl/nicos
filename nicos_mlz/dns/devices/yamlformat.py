@@ -90,7 +90,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         polarizer = meas['setup']['polarizer']
         polarizer['is_in_place'] = self._readdev('pol_inbeam') == 'in'
         if polarizer['is_in_place']:
-            polarizer['displacement'] = self._readdev('pol_trans')
+            polarizer['displacement'] = self._readdev('pol_trans_x')
             polarizer['rotation_angle'] = self._readdev('pol_rot')
 
         flipper = meas['setup']['flipper']
