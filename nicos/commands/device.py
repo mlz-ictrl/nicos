@@ -874,6 +874,11 @@ def resetlimits(*devlist):
                          '%8s --- %8s %s',
                          dev.format(dev.userlimits[0]),
                          dev.format(dev.userlimits[1]), dev.unit)
+        else:
+            dev.log.info('limits kept at: '
+                         '%8s --- %8s %s',
+                         dev.format(dev.userlimits[0]),
+                         dev.format(dev.userlimits[1]), dev.unit)
 
 
 @usercommand
