@@ -28,8 +28,9 @@ Supporting classes for FRM2 magnets, currently only Garfield (amagnet).
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.core import SIMULATION, Attach, HasLimits, Moveable, Override, \
-    Param, dictof, status, tupleof
+from nicos.core import SIMULATION, Attach, CanDisable, HasLimits, Moveable, \
+    Override, Param, Readable, dictof, status, tupleof
+from nicos.devices.generic import CalibratedMagnet
 from nicos.devices.generic.magnet import BipolarSwitchingMagnet
 from nicos.devices.generic.sequence import SeqCall, SeqDev, SeqSleep
 
@@ -121,3 +122,71 @@ class GarfieldMagnet(BipolarSwitchingMagnet):
             self._attached_symmetry._dev.On()
             self._attached_currentsource._dev.On()
             BipolarSwitchingMagnet.doStart(self, target)
+
+
+# improved version: polarity switching + current ramping now in the PLC
+# similiar to MiraMagnet
+class GarfieldMagnet2(CanDisable, CalibratedMagnet):
+    """Garfield Magnet
+
+    uses a polarity switch ('+' or '-') to flip polarity and an onoff switch
+    to cut power (to be able to switch polarity) in addition to an
+    unipolar current source.
+    """
+
+    attached_devices = {
+        'currentreadback': Attach('Device to read back actual current', Readable, optional=True),
+        'enable':          Attach('Switch to set for on/off', Moveable),
+        'symmetry':        Attach('Switch to read for symmetry', Moveable),
+    }
+
+    parameters = {
+        'calibrationtable': Param('Map of Coefficients for calibration  per symmetry setting',
+                                  type=dictof(str, tupleof(
+                                      float, float, float, float, float)),
+                                  mandatory=True,),
+    }
+
+    parameter_overrides = {
+        'calibration': Override(volatile=True, settable=False, mandatory=False),
+    }
+
+    def doRead(self, maxage=0):
+        if self._attached_currentreadback is not None:
+            return self._current2field(self._attached_currentreadback.read(maxage))
+        return self._current2field(self._attached_currentsource.read(maxage))
+
+
+    def doWriteUserlimits(self, limits):
+        abslimits = self.abslimits
+        # include 0 in limits
+        lmin = min(max(limits[0], abslimits[0]), 0)
+        lmax = max(min(limits[1], abslimits[1]), 0)
+        newlimits = (lmin, lmax)
+        self.log.debug('Set limits: %r', newlimits)
+        HasLimits.doWriteUserlimits(self, newlimits)
+        # intentionally not calling CalibratedMagnet.doWriteUserlimits
+        # we do not want to change the limits of the current source
+        return newlimits
+
+    def doReadCalibration(self):
+        symval = self._attached_symmetry.read()
+        return self.calibrationtable.get(symval, (0.0, 0.0, 0.0, 0.0, 0.0))
+
+    def doWriteCalibration(self, cal):
+        symval = self._attached_symmetry.read()
+        self.calibrationtable[symval] = cal
+
+    def doReset(self):
+        self.disable()
+        self.enable()
+        # setting enable to 'on' will clear all errors. (if possible)
+
+    def doStart(self, target):
+        self.enable()
+        CalibratedMagnet.doStart(self, target)
+
+    def doEnable(self, on):
+        # disabling via the enable device will rampdown fast, if needed.
+        self._attached_enable.maw('on' if on else 'off')
+        self._attached_currentsource.enable() # never disable!
