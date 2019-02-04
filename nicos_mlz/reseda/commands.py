@@ -53,7 +53,7 @@ def miezetau(wavelength, deltaFreq, distance):
 @usercommand
 def zero():
     """Shut down all (static) power supplies."""
-    ps = ['hrf_0a', 'hrf_0b', 'hrf_1', 'hsf_0a', 'hsf_0b', 'hsf_1', 'sf_0a',
+    ps = ['hrf_0a', 'hrf_0b', 'hrf_1a', 'hrf_1b', 'hsf_0a', 'hsf_0b', 'hsf_1', 'sf_0a',
           'sf_0b', 'sf_1', 'gf0', 'gf1', 'gf2', 'gf4', 'gf5', 'gf6', 'gf7',
           'gf8', 'gf9', 'gf10']
     for powersupply in ps:
