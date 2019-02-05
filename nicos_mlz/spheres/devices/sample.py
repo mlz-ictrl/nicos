@@ -28,10 +28,12 @@ Devices to control the sample environment at SPHERES
 
 from __future__ import absolute_import, division, print_function
 
+from nicos.core import SIMULATION
 from nicos.core.params import tangodev, Param, Attach
 from nicos.core.status import WARN
 from nicos.devices import tango
 from nicos.devices.tango import TemperatureController
+from nicos.utils import HardwareStub
 
 
 class SEController(tango.TemperatureController):
@@ -78,9 +80,13 @@ class PressureController(tango.TemperatureController):
                              mandatory=True, preinit=True)
     }
 
-    def init(self):
-        tango.TemperatureController.init(self)
-        self._controller = self._createPyTangoDevice(self.controller)
+    def doPreinit(self, mode):
+        tango.TemperatureController.doPreinit(self, mode)
+
+        if mode != SIMULATION:
+            self._controller = self._createPyTangoDevice(self.controller)
+        else:
+            self._controller = HardwareStub(self)
 
     def doStart(self, value):
         self._controller.setPressure(value)

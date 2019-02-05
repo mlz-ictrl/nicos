@@ -96,6 +96,8 @@ class SISChannel(ImageChannel):
         self._accumulated_cdata = None
 
     def getMode(self):
+        if session.sessiontype == SIMULATION:
+            return
         return self._dev.GetMeasureMode()
 
     def doReadElasticparams(self):
@@ -136,6 +138,8 @@ class SISChannel(ImageChannel):
             return self._readInelastic()
 
     def doReadRegulardets(self):
+        if session.sessiontype == SIMULATION:
+            return []
         return list(self._dev.GetRegularDetectors())
 
     def valueInfo(self):
