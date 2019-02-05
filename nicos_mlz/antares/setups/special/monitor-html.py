@@ -109,6 +109,17 @@ _detectorzwo01column = Column(
     ),
 )
 
+_live = Column(
+    Block('Live image of Detector', [
+        BlockRow(
+            Field(picture='antares-online/live_lin.png',
+                  width=96, height=96),
+        ),
+        ],
+    setups='liveimage'
+    ),
+)
+
 _shutterblock = Block('Shutters & Collimators', [
     BlockRow(
         Field(name='Reactor', dev='ReactorPower', width=7),
@@ -442,7 +453,7 @@ devices = dict(
         fontsize = 15,
         padding = 5,
         layout = [[_expcolumn], [_detectorikonlcolumn], [_detectorneocolumn],
-                  [_detectorzwo01column],
+                  [_detectorzwo01column],[_live],
                   [_leftcolumn, _rightcolumn]],
     ),
 )

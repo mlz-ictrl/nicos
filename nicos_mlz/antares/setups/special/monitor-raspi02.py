@@ -27,6 +27,14 @@ _detectorcolumn = Column(
     ),
 )
 
+_live = Block('Live image of Detector', [
+        BlockRow(
+            Field(picture='webroot/live_lin.png',
+                  width=50, height=50,refresh=10), 
+        ),
+        ],
+)
+
 
 _sockets1block = Block('Sockets Cabinet 1', [
     BlockRow(
@@ -221,7 +229,8 @@ for cryo, name in cryodict.items():
     )
 
 _leftcolumn = Column(
-    _selectorblock,
+	_live,
+	_selectorblock,
     _temperatureblock,
     _filterwheelblock,
     _sockets1block,
