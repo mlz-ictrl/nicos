@@ -35,6 +35,10 @@ from nicos_mlz.kws1.devices.kwsfileformat import KWSFileSink as KWS1FileSink, \
 
 class KWSFileSinkHandler(KWS1FileSinkHandler):
 
+    def getMon3(self):
+        """Return counter value for "mon3" (transmission), if present."""
+        return ''
+
     def getDetectorPos(self):
         """Return (x, y, z) for detector position."""
         if session.getDevice('det_img').alias == 'det_img_jum':

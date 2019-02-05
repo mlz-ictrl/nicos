@@ -88,7 +88,7 @@ Data_Field     Time Time_Factor  Repetition
 
 (* Selector and Monitor Counter *)
 Selector Monitor_1 Monitor_2 Monitor_3
-%(selctr)8s %(mon1)9s %(mon2)9s %(mon3)9s
+%(selctr)8s %(mon1)9s %(mon2)9s %(mon3_entry)9s
 
 %(hexapod_0)s
 %(hexapod_1)s
@@ -112,6 +112,12 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
         return (session.getDevice('beamstop_x').read(),
                 session.getDevice('beamstop_y').read(),
                 session.getDevice('det_z').read())
+
+    def getMon3(self):
+        """Return counter value for "mon3" (transmission)."""
+        if 'det_roi' in session.configured_devices:
+            return int(session.getDevice('det_roi').read()[0])
+        return ''
 
     def writeData(self, fp, image):
         _collslit = 'aperture_%02d' % session.getDevice('coll_guides').read()
@@ -167,6 +173,7 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
             det_x_entry = detpos[0],
             det_y_entry = detpos[1],
             det_z_entry = detpos[2],
+            mon3_entry = self.getMon3(),
         )
         w(KWSHEADER % data)
 
