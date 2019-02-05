@@ -148,6 +148,16 @@ def changeDopplerSpeed(target):
 
 
 @usercommand
+def setStick(value):
+    """Adjust the Hardware to use the selected stick"""
+
+    if value not in ('ht', 'lt'):
+        raise UsageError('Value must be either "ht" for the high temperature'
+                         ' or "lt" for the low temperature stick.')
+    getTemperatureController().getSampleController().SetActiveStick(value)
+
+
+@usercommand
 def ramp(target, ramp=None):
     """Move the temperature to target with the given ramp.
     If ramp is omitted and the current ramp is > 0 it is used.
