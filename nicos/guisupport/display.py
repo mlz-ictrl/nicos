@@ -420,6 +420,7 @@ class PictureDisplay(NicosWidget, QWidget):
     def __init__(self, parent=None, designMode=False, **kwds):
         QWidget.__init__(self, parent, **kwds)
         NicosWidget.__init__(self)
+        self._last_mtime = None
         self.namelabel = QLabel(self)
         self.namelabel.setAlignment(Qt.AlignHCenter)
         self.piclabel = QLabel(self)
@@ -449,8 +450,11 @@ class PictureDisplay(NicosWidget, QWidget):
     def updatePicture(self):
         if not isfile(self._filePath):
             return
-        if (currenttime() - getmtime(self._filePath)
-                < self._refreshTimer.interval()/1000):
+
+        # on first iteration self._last_mtime is None -> always setPicture()
+        mtime = getmtime(self._filePath)
+        if self._last_mtime != mtime:
+            self._last_mtime = mtime
             self.setPicture()
 
     def propertyUpdated(self, pname, value):
