@@ -27,9 +27,10 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos import session
-from nicos.commands import usercommand
+from nicos.commands import usercommand, parallel_safe
+from nicos.commands.device import maw
 from nicos.commands.scan import timescan
-from nicos.core import UsageError
+from nicos.core import UsageError, ModeError, SIMULATION
 from nicos.core.status import OK
 from nicos.utils import parseDuration as pd
 from nicos_mlz.spheres.devices.doppler import Doppler, ELASTIC, INELASTIC
@@ -41,7 +42,7 @@ def parseDuration(interval, reason):
     try:
         return pd(interval)
     except TypeError:
-        raise UsageError('Can not parse %d from %s. '
+        raise UsageError('Can not parse %s from %s. '
                          'Please provide it as a string, int or float. '
                          'When in doubt encapsulate it in quotation marks.'
                          % (reason, type(interval)))
@@ -59,8 +60,8 @@ def getSisImageDevice():
         if isinstance(detector, SISDetector):
             return detector.getSisImageDevice()
 
-    session.log.warning('No SIS Detector found/active. Add it to the '
-                        'environment after loading the sis setup.')
+    raise UsageError('No SIS Detector found/active. Add it to the '
+                     'environment after loading the sis setup.')
 
 
 def getTemperatureController():
@@ -68,8 +69,8 @@ def getTemperatureController():
         if isinstance(device, SEController):
             return device
 
-    session.log.warning('No SEController found. '
-                        'Load the sample environment setup.')
+    raise UsageError('No SEController found. '
+                     'Load the sample environment setup.')
 
 
 def getDoppler():
@@ -77,28 +78,45 @@ def getDoppler():
         if isinstance(device, Doppler):
             return device
 
-    session.log.warning('No doppler found.')
+    raise UsageError('No doppler found. Load the doppler setup.')
 
 
-def canStartSisScan():
-    doppler = getDoppler()
-    if getSisImageDevice() and doppler and doppler.status()[0] == OK:
+def canStartSisScan(measuremode):
+    if session.mode == SIMULATION:
         return True
 
-    return False
+    doppler = getDoppler()
+    sis = getSisImageDevice()
+    if sis and doppler:
+        sismode = sis.getMode()
+        if measuremode != sismode:
+            if sismode == INELASTIC:
+                raise ModeError('Detector is measuring in inelastic mode. '
+                                'Stop the doppler to change the mode first.')
+            if sismode == ELASTIC:
+                raise ModeError('Detector is measuring in elastic mode. '
+                                'Start the doppler to change the mode first.')
+
+        elif doppler.status()[0] == OK:
+            return True
+        else:
+            print('Doppler not (yet) ready, waiting a bit.')
+            for _ in range(5):
+                session.delay(1)
+                if doppler.status[0] == OK:
+                    return True
+
+            raise ModeError('Scan can currently NOT be started. '
+                            'Doppler is not ready.')
 
 
 def startinelasticscan(time, interval, incremental):
-    if not canStartSisScan():
-        return
     image = getSisImageDevice()
 
     if not image:
         return
-    elif image.getMode() == ELASTIC:
-        session.log.warning('Detector is measuring in elastic mode. '
-                            'Start the doppler to change the mode first.')
-        return
+
+    canStartSisScan(INELASTIC)
 
     if not interval:
         interval = image.inelasticinterval
@@ -118,8 +136,15 @@ def startinelasticscan(time, interval, incremental):
         image.clearAccumulated()
         timescan(scans, t=interval)
     else:
-        session.log.warning('Scanduration must be at least one scaninterval '
-                            '(currently: %ds).', interval)
+        raise UsageError('Scanduration must be at least one scaninterval '
+                         '(currently: %ds). If you want to measure in shorter '
+                         'intervals, please specify with "interval="'
+                         % interval)
+
+
+@usercommand
+def changeDopplerSpeed(target):
+    maw(getDoppler(), target)
 
 
 @usercommand
@@ -131,19 +156,18 @@ def ramp(target, ramp=None):
 
     controller = getTemperatureController()
 
-    if not ramp is None:
+    if ramp is not None:
         if ramp > 100:
-            session.log.warning('TemperatureController does not support ramps '
-                                'higher then 100 K/min. If you want to get to '
-                                '%f as fast as possible use rush(%f). '
-                                'Ramp will be set to max.', target, target)
+            raise UsageError('TemperatureController does not support ramps '
+                             'higher then 100 K/min. If you want to get to '
+                             '%f as fast as possible use rush(%f). '
+                             'Ramp will be set to max.' % (target, target))
         controller.ramp = ramp
     elif controller.ramp == 0:
-        session.log.warning('Ramp of the TemperatureController is 0. '
-                            'Please specify a ramp with this command.\n'
-                            'Use "ramp(target, RAMP)", '
-                            '"timeramp(target, time)", or "rush(target)"')
-        return
+        raise UsageError('Ramp of the TemperatureController is 0. '
+                         'Please specify a ramp with this command.\n'
+                         'Use "ramp(target, RAMP)", '
+                         '"timeramp(target, time)", or "rush(target)"')
 
     controller.move(target)
 
@@ -194,8 +218,8 @@ def setpressure(target):
             device.move(target)
             return
 
-    session.log.warning('No PressureController found. '
-                        'Load the sample environment setup.')
+    raise UsageError('No PressureController found. '
+                     'Load the sample environment setup.')
 
 
 @usercommand
@@ -205,6 +229,7 @@ def stoppressure():
     getTemperatureController().stopPressure()
 
 
+@parallel_safe
 @usercommand
 def showDetectorSettings():
     """Print the current detector settings.
@@ -251,16 +276,11 @@ def acquireElastic(time, interval=15, count=60):
     The dryrun and calculated finishing time take this into account.
     """
 
-    if not canStartSisScan():
-        return
-
     image = getSisImageDevice()
     if not image:
         return
-    if image.getMode() == INELASTIC:
-        session.log.warning('Detector is measuring in inelastic mode. '
-                            'Stop the doppler to change the mode first.')
-        return
+
+    canStartSisScan(ELASTIC)
 
     elastParams = [interval, count]
 
@@ -276,8 +296,10 @@ def acquireElastic(time, interval=15, count=60):
         image.elasticparams = elastParams
         timescan(scans, t=fileduration)
     else:
-        session.log.warning('Scanduration must be at least %ds, %ds was set.',
-                            fileduration, seconds)
+        raise UsageError('Scanduration must be at least %ds, %ds was set. '
+                         'If you want to measure for a shorter time, please '
+                         'specify with "interval=" and/or "count=".'
+                         % (fileduration, seconds))
 
 
 @usercommand
