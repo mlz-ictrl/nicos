@@ -27,7 +27,7 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos import session
-from nicos.core import status, SIMULATION, MoveError, dictwith
+from nicos.core import status, SIMULATION, dictwith
 from nicos.core.params import Attach, Param
 from nicos.devices.generic.sequence import SequencerMixin, SeqDev, SeqCall
 from nicos.devices.generic.switcher import MultiSwitcher
@@ -58,7 +58,10 @@ class Doppler(SequencerMixin, MultiSwitcher):
     parameters ={
         'margins': Param('margin for readout errors in refdevices',
                          dictwith(speed=float, amplitude=float),
-                         default=dict(speed=.0, amplitude=.0), settable=True)
+                         default=dict(speed=.0, amplitude=.0), settable=True),
+        'maxacqdelay': Param('maximum time to wait for the detector to adjust '
+                             'when a measurement is started in seconds',
+                             int, default=50, settable=True)
     }
 
     attached_devices = {
@@ -77,10 +80,9 @@ class Doppler(SequencerMixin, MultiSwitcher):
         if self._seq_is_running():
             if self._mode == SIMULATION:
                 self._seq_thread.join()
-                self._seq_thread = None
             else:
-                raise MoveError(self, 'Cannot start device, sequence is still '
-                                      'running (at %s)!' % self._seq_status[1])
+                self._seq_thread.join(0)
+            self._seq_thread = None
 
         cur = self._attached_acq.status()
         if cur == (status.BUSY, 'counting'):

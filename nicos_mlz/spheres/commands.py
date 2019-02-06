@@ -31,7 +31,7 @@ from nicos.commands import usercommand, parallel_safe
 from nicos.commands.device import maw
 from nicos.commands.scan import timescan
 from nicos.core import UsageError, ModeError, SIMULATION
-from nicos.core.status import OK
+from nicos.core.status import OK, BUSY
 from nicos.utils import parseDuration as pd
 from nicos_mlz.spheres.devices.doppler import Doppler, ELASTIC, INELASTIC
 from nicos_mlz.spheres.devices.sample import SEController, PressureController
@@ -82,32 +82,51 @@ def getDoppler():
 
 
 def canStartSisScan(measuremode):
+    """Check whether the SIS detector is ready for a measurement of the
+    specified type. Wait for up to the doppler's maxacqdelay just in case the
+    doppler is still adjusting."""
+
     if session.mode == SIMULATION:
         return True
 
     doppler = getDoppler()
     sis = getSisImageDevice()
-    if sis and doppler:
-        sismode = sis.getMode()
-        if measuremode != sismode:
-            if sismode == INELASTIC:
-                raise ModeError('Detector is measuring in inelastic mode. '
-                                'Stop the doppler to change the mode first.')
-            if sismode == ELASTIC:
-                raise ModeError('Detector is measuring in elastic mode. '
-                                'Start the doppler to change the mode first.')
+    if not sis or not doppler:
+        return False
 
-        elif doppler.status()[0] == OK:
-            return True
-        else:
-            print('Doppler not (yet) ready, waiting a bit.')
-            for _ in range(5):
-                session.delay(1)
-                if doppler.status[0] == OK:
-                    return True
-
+    status = doppler.status()[0]
+    if status == BUSY:
+        print('Doppler not yet ready, waiting a bit.')
+        if not waitForAcq():
             raise ModeError('Scan can currently NOT be started. '
-                            'Doppler is not ready.')
+                            'Doppler does not leave busy state.')
+    elif status != OK:
+        raise ModeError('Scan can not be started. '
+                        'Doppler is not synchronized.')
+
+    sismode = sis.getMode()
+    if measuremode != sismode:
+        if sismode == INELASTIC:
+            raise ModeError('Detector is measuring in inelastic mode. '
+                            'Stop the doppler to change the mode first.')
+        if sismode == ELASTIC:
+            raise ModeError('Detector is measuring in elastic mode. '
+                            'Start the doppler to change the mode first.')
+
+    # doppler is OK, and measure modes match.
+    return True
+
+
+def waitForAcq():
+    doppler = getDoppler()
+    for i in range(doppler.maxacqdelay):
+        if doppler.status()[0] != BUSY:
+            return True
+        elif i == 0:
+            session.log.info('Acq is busy, waiting a bit')
+        session.delay(1)
+
+    return False
 
 
 def startinelasticscan(time, interval, incremental):
@@ -144,7 +163,14 @@ def startinelasticscan(time, interval, incremental):
 
 @usercommand
 def changeDopplerSpeed(target):
-    maw(getDoppler(), target)
+    # for simulation mode only
+    getSisImageDevice()._dev.dummy_doppvel = target
+
+    if waitForAcq():
+        maw(getDoppler(), target)
+    else:
+        raise UsageError('Detector is busy. Therefore the doppler speed can '
+                         'not be changed.')
 
 
 @usercommand
