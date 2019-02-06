@@ -1000,12 +1000,13 @@ class Readable(Device):
     def _sim_setValue(self, pos):
         self._sim_old_value = self._sim_value
         self._sim_value = pos
-        if self._sim_min is None:
-            self._sim_min = pos
-        self._sim_min = min(pos, self._sim_min)
-        if self._sim_max is None:
-            self._sim_max = pos
-        self._sim_max = max(pos, self._sim_max)
+        if isinstance(pos, number_types):
+            if self._sim_min is None:
+                self._sim_min = pos
+            self._sim_min = min(pos, self._sim_min)
+            if self._sim_max is None:
+                self._sim_max = pos
+            self._sim_max = max(pos, self._sim_max)
 
     def _setMode(self, mode):
         sim_active = mode == SIMULATION and self.hardware_access
