@@ -28,9 +28,11 @@ Devices for the SIS-detector at SPHERES
 
 from __future__ import absolute_import, division, print_function
 
+from collections import namedtuple
+
 from nicos import session
 from nicos.core import FINAL, INTERMEDIATE, INTERRUPTED, LIVE, Param, oneof, \
-    status
+    status, NicosError
 from nicos.core.constants import SIMULATION
 from nicos.core.params import Attach, Value, listof
 from nicos.devices.generic.detector import Detector
@@ -54,6 +56,18 @@ ENERGYSIZE =  4
 TIMESIZE =    2
 SUMSIZE =     2
 TOTALSIZE =   1
+
+EnergyHisto = namedtuple('EnergyHisto', 'energy '
+                                        'c_refl_l c_refl_r '
+                                        'c_open_l c_open_r '
+                                        't_refl_l t_refl_r '
+                                        't_open_l t_open_r')
+TimeHisto = namedtuple('TimeHisto', 'tval '
+                                    'c_refl c_open '
+                                    't_refl t_open')
+ChopperHisto = namedtuple('ChopperHisto', 'angle '
+                                          'c_refl c_open '
+                                          't_refl t_open')
 
 
 class SISChannel(ImageChannel):
@@ -81,6 +95,10 @@ class SISChannel(ImageChannel):
                                    'datafile',
                                    type=listof(int),
                                    settable=True, volatile=True),
+        'detamount':         Param('Amount of detectors for the reshaping '
+                                   'of the read data.',
+                                   type=int,
+                                   default=16),
     }
 
     def __init__(self, name, **config):
@@ -92,8 +110,8 @@ class SISChannel(ImageChannel):
         self.clearAccumulated()
 
     def clearAccumulated(self):
-        self._accumulated_edata = None
-        self._accumulated_cdata = None
+        self._last_edata = None
+        self._last_cdata = None
 
     def getMode(self):
         if session.sessiontype == SIMULATION:
@@ -143,49 +161,84 @@ class SISChannel(ImageChannel):
         return list(self._dev.GetRegularDetectors())
 
     def valueInfo(self):
-        return (Value(name=TOTAL, type="counter", fmtstr="%d", unit="cts"),)
+        return Value(name=TOTAL, type="counter", fmtstr="%d", unit="cts"),
 
     def _readLiveData(self):
         if self.getMode() == INELASTIC:
-            live = self._readLiveInelastic()
+            if self._last_edata is not None:
+                if self.incremental:
+                    live = self._readData(ENERGY)
+                    self._mergeCounts(live, self._last_edata)
+                else:
+                    live = self._last_edata
+            else:
+                live = self._readData(ENERGY)
         else:
             live = []
 
         return live
-
-    def _readLiveInelastic(self):
-        energy = self._dev.GetData(ENERGY)
-        if self.incremental and not self._accumulated_edata is None:
-            energy = self._mergeCounts(self._accumulated_edata, energy)
-
-        return [self._dev.GetTickData(ENERGY), energy]
 
     def _readElastic(self):
         live = self._readLiveData()
         params = self._dev.GetParams() + \
             ['type', 'elastic'] + \
             self.getAdditionalParams()
-        ticks = self._dev.GetTickData(TIME)
-        counts = self._dev.GetData(TIME)
+        data = self._readData(TIME)
 
-        return live, params, ticks, counts
+        return live, params, data
 
     def _readInelastic(self):
         live = self._readLiveData()
         params = self._dev.GetParams() + \
             ['type', 'inelastic'] + \
             self.getAdditionalParams()
-        eticks = self._dev.GetTickData(ENERGY)
-        edata = self._dev.GetData(ENERGY)
-        cticks = self._dev.GetTickData(CHOPPER)
-        cdata = self._dev.GetData(CHOPPER)
+        edata = self._readData(ENERGY)
+        cdata = self._readData(CHOPPER)
 
-        if self.incremental:
-            self._incrementCounts(edata, cdata)
-            return (live, params, eticks, self._accumulated_edata,
-                    cticks, self._accumulated_cdata)
+        self._incrementCounts(edata, cdata)
+        return (live, params, edata, self._last_edata,
+                cdata, self._last_cdata)
 
-        return live, params, eticks, edata, cticks, cdata
+    def _readData(self, target):
+        '''Read the requested data from the hardware and generate the according
+        histogram tuples to make further processing easier.
+        '''
+
+        if target == ENERGY:
+            targettuple = EnergyHisto
+        elif target == TIME:
+            targettuple = TimeHisto
+        elif target == CHOPPER:
+            targettuple = ChopperHisto
+        else:
+            raise NicosError('Can not read "%s"-data. Target not supported' %
+                             target)
+
+        xvals = self._dev.GetTickData(target)
+        xvalsize = len(xvals)
+        rawdata = self._dev.GetData(target)
+        rawdatasize = len(rawdata)
+
+        data = []
+
+        amount = rawdatasize // (xvalsize*self.detamount*2)
+        counts = rawdata[:rawdatasize // 2].reshape(amount, xvalsize,
+                                                    self.detamount)
+        times = rawdata[rawdatasize // 2:].reshape(amount, xvalsize,
+                                                   self.detamount)
+
+        for i, xval in enumerate(xvals):
+            # first insert the xvalue
+            block = [float(xval)]
+            # then add the i-th count array from each of the count blocks
+            for h in range(amount):
+                block.append(counts[h, i, :])
+            # then add the corresponding timesteps the same way
+            for h in range(amount):
+                block.append(times[h, i, :])
+            data.append(targettuple._make(block))
+
+        return data
 
     def getAdditionalParams(self):
         return ['monochromator', self.monochromator,
@@ -198,67 +251,43 @@ class SISChannel(ImageChannel):
         """
         Increments the first array, entry by entry with the corresponding
         entries from the second array.
-
-        :param total: Array containing the summed up counts.
-        :param increment: Array containing incremental counts.
-        :return: incremented array
         """
 
-        for i in range(len(total)):
-            total[i] += increment[i]
-
-        return total
+        for i, entry in enumerate(total):
+            for j, arr in enumerate(entry):
+                if j == 0:
+                    continue
+                arr.__iadd__(increment[i][j])
 
     def _incrementCounts(self, edata, cdata):
         """
         Increment accumulated data by the given data
         """
 
-        if self._accumulated_edata is None:
-            self._accumulated_edata = edata
-            self._accumulated_cdata = cdata
+        if self._last_edata is None or not self.incremental:
+            self._last_edata = edata
+            self._last_cdata = cdata
             return
 
         try:
-            self._accumulated_edata = self._mergeCounts(self._accumulated_edata,
-                                                        edata)
-
-            self._accumulated_cdata = self._mergeCounts(self._accumulated_cdata,
-                                                        cdata)
+            self._mergeCounts(self._last_edata, edata)
+            self._mergeCounts(self._last_cdata, cdata)
         except IndexError:
             self.resetIncremental('Error while merging arrays. '
                                   'Lenght of accumulated(%d, %d) differs '
                                   'from provided(%d, %d) array. '
                                   'Switching to non incremental mode.'
-                                  % (len(self._accumulated_edata),
-                                     len(self._accumulated_cdata),
+                                  % (len(self._last_edata),
+                                     len(self._last_cdata),
                                      len(edata),
                                      len(cdata)))
             return
 
-        # # TODO: incremental for elastic? (readElastic)
-        # if mode == ELASTIC:
-        #     if array_equal(data[2], self._accumulated[2]):
-        #         self.log.warning('Time tick data does not match previous '
-        #                          'dataset. Switching to non incremental mode.')
-        #         self.incremental = False
-        #         self._accumulated = data
-        #     try:
-        #         self._accumulated[3] = self._mergeCounts(self._accumulated[3],
-        #                                                  data[3])
-        #     except IndexError:
-        #         self.resetIncremental('Error while merging arrays. '
-        #                               'Lenght of accumulated(%d) differs '
-        #                               'from provided(%d) array. '
-        #                               'Switching to non incremental mode.'
-        #                               % (len(self._accumulated[3]),
-        #                                  len(data[3])), data)
-
     def resetIncremental(self, message):
         self.log.warning(message + ' Switching to non incremental mode.')
         self.incremental = False
-        self._accumulated_edata = None
-        self._accumulated_cdata = None
+        self._last_edata = None
+        self._last_cdata = None
 
 
 class SISDetector(Detector):

@@ -35,7 +35,6 @@ import numpy
 import quickyaml
 
 from nicos import session
-from nicos.core import NicosError
 from nicos.core.data.dataset import PointDataset, ScanDataset
 from nicos.core.params import Param
 from nicos.devices.datasinks import special
@@ -44,72 +43,26 @@ from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
 
 timesteptime = 2e-5  # =20µs
 
-class SisSinkHandlerBase(object):
-    DETAMOUNT = 16
 
-    def splitHisto(self, xvals, data):
-        """
-        Merges xvals and data into arrays for further processing.
-
-        Returns a list of lists. the later consist of one xvalue and an
-        equisized portion of data.
-
-        Expects data to be of size len(xvals)*self.DETAMOUNT*x*2
-        Where x is an int. 2 due to the data providing an equal amount of counts
-        and timesteps.
-        """
-
-        # check for datasize first
-
-        amountdevisor = len(xvals)*self.DETAMOUNT*2
-        datasize = len(data)
-        xvalsize = len(xvals)
-
-        if datasize % amountdevisor != 0:
-            raise NicosError(self, 'length of provided data does not match '
-                             'the other parameters. Expected a multiple '
-                             'of %d entries, got %d',
-                             xvalsize*self.DETAMOUNT*2, datasize)
-
-        ret = []
-
-        amount = datasize // xvalsize*self.DETAMOUNT*2
-        counts = data[:datasize//2].reshape((amount*xvalsize, 16))
-        times = data[datasize//2:].reshape((amount*xvalsize, 16))
-
-        for i, xval in enumerate(xvals):
-            # first insert the xvalue
-            block = [float(xval)]
-            # then add the counts in blocks of self.DETAMOUNT
-            for h in range(amount):
-                block.append(counts[h*xvalsize+i])
-            # then add the corresponding timesteps the same way
-            for h in range(amount):
-                block.append(times[h*xvalsize+i])
-
-            ret.append(block)
-
-        return ret
-
-
-class SisYamlFileSinkHandlerBase(YAMLBaseFileSinkHandler, SisSinkHandlerBase):
+class SisYamlFileSinkHandlerBase(YAMLBaseFileSinkHandler):
     """
     Base for the Sis File Sinks
     """
+
+    DETAMOUNT = 16
 
     ENERGY = 0
     CHOPPER = 1
     TIME = 2
 
     # indices of data in the provided images
-    TOTAL = 0         # (in)elastic
+    LIVE = 0          # (in)elastic
     PARAMS = 1        # (in)elastic
-    TIMETICKS = 2     # elastic
-    TIMEDATA = 3      # elastic
-    ENERGYTICKS = 2   # inelastic
-    ENERGYDATA = 3    # inelastic
-    CHOPPERTICKS = 4  # inelastic
-    CHOPPERDATA = 5   # inelastic
+    TIMEDATA = 2      # elastic
+    ENERGYDATA = 2    # inelastic
+    LASTENERGY = 3    # inelastic
+    CHOPPERDATA = 4   # inelastic
+    LASTCHOPPER = 5   # inelastic
 
     def setScanDataSet(self):
         stack = session.data._stack
@@ -147,19 +100,18 @@ class SisYamlFileSinkHandlerBase(YAMLBaseFileSinkHandler, SisSinkHandlerBase):
             else self.dataset.started + self.getCountDuration()
 
     def extractFromHisto(self, image, histogram):
-        if histogram == self.ENERGY and self.inelasticmode:
-            xvals = image[self.ENERGYTICKS]
-            histo = image[self.ENERGYDATA]
-        elif histogram == self.CHOPPER and self.inelasticmode:
-            xvals = image[self.CHOPPERTICKS]
-            histo = image[self.CHOPPERDATA]
-        elif histogram == self.TIME and not self.inelasticmode:
-            xvals = image[self.TIMETICKS]
-            histo = image[self.TIMEDATA]
+        if self.inelasticmode:
+            if histogram == self.ENERGY:
+                return image[self.ENERGYDATA]
+            elif histogram == self.CHOPPER:
+                return image[self.CHOPPERDATA]
+            else:
+                return []
         else:
-            return []
-
-        return self.splitHisto(xvals, histo)
+            if histogram == self.TIME:
+                return image[self.TIMEDATA]
+            else:
+                return []
 
     def formatValue(self, value, prec=2):
         if isinstance(value, float):
@@ -326,7 +278,7 @@ class UYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
         o['expdir'] = session.experiment.proposal
         o['scan'] = self.dataset.counter
         o['subscan'] = self.dataset.number
-        #o['docfile_version'] = 0 # legacy
+        # o['docfile_version'] = 0 # legacy
         o['team'] = session.experiment.users
         o['localcontact'] = session.experiment.localcontact
         o['title'] = session.experiment.title
@@ -415,20 +367,22 @@ class UYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
             # - count timesteps (per detector)
             # - counts for the individual detectors (currently 16)
             # values are provided as numpy.int64 and have to be cast to int
-            for entry in rawHistos:
+            for histo in rawHistos:
                 # energy (1)
-                row = list([entry[0]])
+                row = [histo.energy]
                 # pseudomonitor timesteps (1)
-                row.append(int(sum(entry[5] + entry[6]) /
-                               ((len(entry[5]) + len(entry[6])) / 2)))
+                row.append(int(sum(histo.t_open_l + histo.t_open_r) /
+                               ((len(histo.t_open_l) +
+                                 len(histo.t_open_r)) / 2)))
                 # pseudomonitor counts (1)
-                row.append(int(sum(entry[3][dets[0]:dets[1]] +
-                                   entry[4][dets[0]:dets[1]])))
+                row.append(int(sum(histo.c_open_l[dets[0]:dets[1]] +
+                                   histo.c_open_r[dets[0]:dets[1]])))
                 # time steps (1)
-                row.append(int(sum(entry[7] + entry[8]) /
-                               ((len(entry[7]) + len(entry[8])) / 2)))
+                row.append(int(sum(histo.t_refl_r + histo.t_refl_l) /
+                               ((len(histo.t_refl_r) +
+                                 len(histo.t_refl_l)) / 2)))
                 # counts (16)
-                row += [int(entry[1][x] + entry[2][x])
+                row += [int(histo.c_refl_r[x] + histo.c_refl_l[x])
                         for x in range(self.DETAMOUNT)]
 
                 histogram.append(self._flowlist(row))
@@ -445,23 +399,24 @@ class UYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
             # - elastic timesteps (average per detector)
             # - elastic counts for the individual detectors (currently 16)
             # values are provided as numpy.int64 and have to be cast to int
-            for entry in rawHistos:
+            for histo in rawHistos:
                 # lineno (1)
-                row = list(entry.tval)
+                row = list(histo.tval)
+
                 # env.sam.temp (1)
                 row.append(self._cache.get(self.sink.envcontroller, 'value',
-                                           mintime=entry[0]))
+                                           mintime=histo.tval))
                 # env.setp (1)
                 row.append(self._cache.get(self.sink.setpointdev, 'value',
-                                           mintime=entry[0]))
+                                           mintime=histo.tval))
                 # direct timesteps (1)
-                row.append(int(sum(entry[3]) / len(entry[3])))
+                row.append(int(sum(histo.t_open) / len(histo.t_open)))
                 # direct counts (1)
-                row.append(int(sum(entry[2])))
+                row.append(int(sum(histo.c_open)))
                 # elastic timesteps (1)
-                row.append(int(sum(entry[4]) / len(entry[4])))
+                row.append(int(sum(histo.t_refl) / len(histo.t_refl)))
                 # elastic counts (16)
-                counts = [int(value) for value in entry[1]]
+                counts = [int(value) for value in histo.c_refl]
                 row += counts
 
                 histogram.append(self._flowlist(row))
@@ -469,22 +424,20 @@ class UYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
         return histogram
 
 
-class PreviewSinkHandler(special.LiveViewSinkHandler, SisSinkHandlerBase):
+class PreviewSinkHandler(special.LiveViewSinkHandler):
     def processArrays(self, result):
         try:
-            previewdata = result[1][0][0]
+            pdata = result[1][0][0]
         except TypeError:
             return []
 
         mergerows = 7
 
-        if not previewdata:
+        if not pdata:
             preview = numpy.zeros(1, dtype=numpy.uint32)
             self.abscissa = numpy.zeros(1, dtype=numpy.float32)
         else:
-            p = self.splitHisto(previewdata[0], previewdata[1])
-
-            entryamount = len(p) // mergerows
+            entryamount = len(pdata) // mergerows
 
             preview = numpy.zeros(entryamount, dtype=numpy.uint32)
             self.abscissa = numpy.zeros(entryamount, dtype=numpy.float32)
@@ -496,15 +449,16 @@ class PreviewSinkHandler(special.LiveViewSinkHandler, SisSinkHandlerBase):
 
                 for j in range(mergerows):
                     index = i*mergerows+j
-                    energy += p[index][0]
-                    counts += sum(p[index][1]) + sum(p[index][2])
-                    tsteps += sum(p[index][5]) + sum(p[index][6])
+                    energy += pdata[index][0]
+                    counts += sum(pdata[index][1]) + sum(pdata[index][2])
+                    tsteps += sum(pdata[index][5]) + sum(pdata[index][6])
 
                 self.abscissa[i] = energy/mergerows
                 if tsteps == 0:
                     preview[i] = 0
                 else:
                     preview[i] = counts / (tsteps * timesteptime)  # = counts/s
+
 
         return [preview]
 
