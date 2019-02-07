@@ -113,7 +113,7 @@ class DNSFileSinkHandler(SingleFileSinkHandler):
         w("# Detector_Position_vertical  %4d mm\n" % 0)
         w("#\n")
         w("# Polariser\n")
-        w("#    Translation              %4d mm\n" % readdev('pol_trans'))
+        w("#    Translation              %4d mm\n" % readdev('pol_trans_x'))
         w("#    Rotation              %6.2f deg\n" % readdev('pol_rot'))
         w("#\n")
         w("# Analysers                 undefined\n")

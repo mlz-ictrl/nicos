@@ -208,7 +208,7 @@ class LockedMotor(TangoMotor):
 
     def doStatus(self, maxage=None):
         code, text = TangoMotor.doStatus(self, maxage)
-        if code == status.ERROR:
+        if code == status.DISABLED:
             # an error here most likely just means that the interlock is on
             code = status.OK
         return code, text
@@ -220,7 +220,7 @@ class LockedMotor(TangoMotor):
 
     def doStop(self):
         code = TangoMotor.doStatus(self, 0)[0]
-        if code != status.ERROR:
+        if code != status.DISABLED:
             TangoMotor.doStop(self)
 
 
