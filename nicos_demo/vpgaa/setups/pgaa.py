@@ -3,7 +3,7 @@ description = 'virtual PGAA experiment setup'
 group = 'basic'
 
 sysconfig = dict(
-    datasinks = ['mcasink', 'chnsink', 'csvsink']
+    datasinks = ['mcasink', 'chnsink', 'csvsink', 'livesink']
 )
 
 includes = [
