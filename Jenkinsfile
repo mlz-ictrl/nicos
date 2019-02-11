@@ -355,6 +355,7 @@ export PYTHONIOENCODING=utf-8
     } // stage
 
 u16 = docker.image('localhost:5000/nicos-jenkins:xenial')
+u16tango9 = docker.image('localhost:5000/nicos-jenkins:xenialtango9')
 u14 = docker.image('localhost:5000/nicos-jenkins:trusty')
 
 try {
@@ -370,7 +371,7 @@ try {
                GERRIT_BRANCH != 'release-3.4') {
                 ws {
                     checkoutSource()
-                    u16.inside('-v /home/git:/home/git') {
+                    u16tango9.inside('-v /home/git:/home/git') {
                         runPylint('py3', '$NICOS3VENV')
                     }
                 } //ws
@@ -419,7 +420,7 @@ try {
         stage(name: 'Python3 tests') {
             ws {
                 checkoutSource()
-                u16.inside('-v /home/git:/home/git') {
+                u16tango9.inside('-v /home/git:/home/git') {
                     runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
                 } // image.inside
             } // ws
