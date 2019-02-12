@@ -367,8 +367,7 @@ try {
         } // stage
     }, pylint3: {
         stage(name: 'pylint-py3') {
-        when ( GERRIT_BRANCH != 'release-3.3' ||
-               GERRIT_BRANCH != 'release-3.4') {
+        when ( false ) {
                 ws {
                     checkoutSource()
                     u16tango9.inside('-v /home/git:/home/git') {
