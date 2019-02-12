@@ -196,8 +196,7 @@ class SISChannel(ImageChannel):
         cdata = self._readData(CHOPPER)
 
         self._incrementCounts(edata, cdata)
-        return (live, params, edata, self._last_edata,
-                cdata, self._last_cdata)
+        return (live, params, self._last_edata, self._last_cdata)
 
     def _readData(self, target):
         '''Read the requested data from the hardware and generate the according

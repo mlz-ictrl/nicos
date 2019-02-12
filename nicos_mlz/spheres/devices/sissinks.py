@@ -60,9 +60,7 @@ class SisYamlFileSinkHandlerBase(YAMLBaseFileSinkHandler):
     PARAMS = 1        # (in)elastic
     TIMEDATA = 2      # elastic
     ENERGYDATA = 2    # inelastic
-    LASTENERGY = 3    # inelastic
-    CHOPPERDATA = 4   # inelastic
-    LASTCHOPPER = 5   # inelastic
+    CHOPPERDATA = 3   # inelastic
 
     def setScanDataSet(self):
         stack = session.data._stack
@@ -78,6 +76,7 @@ class SisYamlFileSinkHandlerBase(YAMLBaseFileSinkHandler):
         return strftime('%Y-%m-%d %a %H:%M:%S %Z', time)
 
     def writeData(self, fp, image):
+        fp.seek(0, 0)
         self.setScanDataSet()
         self.params = self.toDict(image[self.PARAMS])
         self.params['dets4mon'] = tuple(self.params['dets4mon'])
@@ -88,6 +87,8 @@ class SisYamlFileSinkHandlerBase(YAMLBaseFileSinkHandler):
 
         quickyaml.Dumper(width=self.max_yaml_width, indent=2,
             array_handling=self.yaml_array_handling).dump(self.contents, fp)
+
+        fp.truncate()
 
     def buildFileContents(self, image):
         self.contents = []
