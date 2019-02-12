@@ -34,8 +34,8 @@ from nicos.core.errors import ConfigurationError, ProgrammingError
 from nicos.core.params import ArrayDesc, Attach, Param, Value, absolute_path, \
     anytype, dictof, dictwith, floatrange, host, intrange, ipv4, limits, \
     listof, mailaddress, nicosdev, none_or, nonemptylistof, nonemptystring, \
-    oneof, oneofdict, pvname, relative_path, setof, subdir, tacodev, \
-    tangodev, tupleof, vec3
+    oneof, oneofdict, oneofdict_or, pvname, relative_path, setof, subdir, \
+    tacodev, tangodev, tupleof, vec3
 
 # pylint: disable=compare-to-empty-string
 
@@ -363,6 +363,16 @@ def test_path():
     assert raises(ValueError, relative_path, '/tmp')
     assert raises(ValueError, relative_path, '../')
     assert raises(ValueError, subdir, 'tmp/')
+
+
+def test_oneofdict_or():
+    m = dict(a=1, b=2)
+    v = oneofdict_or(m, floatrange(0, 10))
+    assert v('a') == 1.0
+    assert v('b') == 2.0
+    assert v(5) == 5.0
+    assert raises(ValueError, v, 'c')
+    assert raises(ValueError, v, 11)
 
 
 def test_nicosdev():

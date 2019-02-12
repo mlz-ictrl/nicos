@@ -746,6 +746,17 @@ class oneofdict(object):
         return val
 
 
+class oneofdict_or(object):
+    def __init__(self, named_vals, validator):
+        self.conv = fixup_conv(validator)
+        self.__doc__ = 'one of ' + ', '.join(map(repr, named_vals)) + \
+            ', or ' + self.conv.__doc__
+        self.named_vals = {k: self.conv(v) for (k, v) in iteritems(named_vals)}
+
+    def __call__(self, val=None):
+        return self.conv(self.named_vals.get(val, val))
+
+
 class none_or(object):
 
     def __init__(self, conv):

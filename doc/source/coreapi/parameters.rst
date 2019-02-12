@@ -128,6 +128,16 @@ they return a converter.
 
        Param(..., type=oneofdict({'up': 1, 'down': 0}))
 
+.. function:: oneofdict_or(named_vals, basic_converter)
+
+   Create a converter that accepts all values the *basic_converter* would also
+   accept, plus the strings given as keys in *named_vals*. The mapped values
+   must conform to the *basic_converter*.
+
+   Returns only values conforming to the *basic_converter*. Examples::
+
+       Param(..., type=oneofdict_or(dict(refpos=12.34, e=2.718), floatrange(0, 100))
+
 .. function:: setof(element_converter)
 
    Create a converter that accepts only sets with element types given by the

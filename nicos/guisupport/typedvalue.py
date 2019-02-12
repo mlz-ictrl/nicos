@@ -203,6 +203,7 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
         return MissingWidget(parent, curvalue, 'device not found')
     if unit:
         inner = create(parent, typ, curvalue, fmtstr, unit='', client=client,
+                       allow_buttons=allow_buttons,
                        allow_enter=allow_enter, valinfo=valinfo)
         return AnnotatedWidget(parent, inner, unit)
     if isinstance(typ, params.oneof):
@@ -213,6 +214,20 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
         if allow_buttons and len(typ.vals) <= 3:
             return ButtonWidget(parent, listvalues(typ.vals))
         return ComboWidget(parent, listvalues(typ.vals), curvalue)
+    elif isinstance(typ, params.oneofdict_or):
+        inner = create(parent, typ.conv, curvalue, fmtstr, unit,
+                       allow_buttons, allow_enter, client, valinfo)
+        if allow_buttons and len(typ.named_vals) <= 3:
+            selector = ButtonWidget(parent, typ.named_vals)
+            return OneofdictOrWidget(parent, inner, selector, buttons=True)
+        else:
+            for (name, value) in iteritems(typ.named_vals):
+                if value == curvalue:
+                    curvalue = name
+                    break
+            selector = ComboWidget(parent, list(typ.named_vals), curvalue,
+                                   add_other=True)
+            return OneofdictOrWidget(parent, inner, selector, buttons=False)
     elif isinstance(typ, params.none_or):
         return CheckWidget(parent, typ.conv, curvalue, client)
     elif isinstance(typ, params.tupleof):
@@ -367,18 +382,59 @@ class ComboWidget(QComboBox):
     valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
-    def __init__(self, parent, values, curvalue):
+    def __init__(self, parent, values, curvalue, add_other=False):
         QComboBox.__init__(self, parent)
         self._values = sorted(values, key=str)
         self._textvals = list(map(str, self._values))
+        self._add_other = add_other
+        if add_other:
+            self._values.append(Ellipsis)
+            self._textvals.append('<other value>')
         self.addItems(self._textvals)
         if curvalue in self._values:
             self.setCurrentIndex(self._values.index(curvalue))
+        elif add_other:
+            self.setCurrentIndex(len(self._values) - 1)
         self.currentIndexChanged['int'].connect(
             lambda idx: self.valueModified.emit())
 
     def getValue(self):
         return self._values[self._textvals.index(self.currentText())]
+
+
+class OneofdictOrWidget(QWidget):
+
+    dataChanged = pyqtSignal()
+    valueChosen = pyqtSignal(object)
+
+    def __init__(self, parent, inner, selector, buttons):
+        QWidget.__init__(self, parent)
+        self._inner = inner
+        self._selector = selector
+
+        layout = self._layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        inner.dataChanged.connect(self.dataChanged)
+        inner.valueChosen.connect(self.valueChosen)
+        if not buttons:
+            selector.dataChanged.connect(self.on_selector_dataChanged)
+            inner.setVisible(selector.getValue() is Ellipsis)
+        else:
+            selector.valueChosen.connect(self.valueChosen)
+        layout.addWidget(selector)
+        layout.addWidget(inner)
+        self.setLayout(layout)
+
+    def on_selector_dataChanged(self):
+        val = self._selector.getValue()
+        self._inner.setVisible(val is Ellipsis)
+        self.dataChanged.emit()
+
+    def getValue(self):
+        val = self._selector.getValue()
+        if val is Ellipsis:
+            return self._inner.getValue()
+        return val
 
 
 class ButtonWidget(QWidget):
