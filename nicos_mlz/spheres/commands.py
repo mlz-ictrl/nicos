@@ -163,11 +163,16 @@ def startinelasticscan(time, interval, incremental):
 
 @usercommand
 def changeDopplerSpeed(target):
-    # for simulation mode only
-    getSisImageDevice()._dev.dummy_doppvel = target
+    doppler = getDoppler()
 
+    # for simulation mode only
+    if target == 0:
+        dummytarget = 0
+    else:
+        dummytarget = doppler.mapping[target][0]
+    getSisImageDevice()._dev.dummy_doppvel = dummytarget
     if waitForAcq():
-        maw(getDoppler(), target)
+        maw(doppler, target)
     else:
         raise UsageError('Detector is busy. Therefore the doppler speed can '
                          'not be changed.')

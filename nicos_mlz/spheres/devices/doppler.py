@@ -27,11 +27,12 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos import session
-from nicos.core import status, SIMULATION, dictwith
+from nicos.core import status, SIMULATION, dictwith, UsageError
 from nicos.core.params import Attach, Param
 from nicos.devices.generic.sequence import SequencerMixin, SeqDev, SeqCall
 from nicos.devices.generic.switcher import MultiSwitcher
 from nicos.devices.tango import NamedDigitalOutput, VectorInput
+from nicos.protocols.daemon import STATUS_INBREAK
 
 ELASTIC =   'elastic'
 INELASTIC = 'inelastic'
@@ -77,6 +78,9 @@ class Doppler(SequencerMixin, MultiSwitcher):
         return self._mapReadValue(self._readRaw(maxage))
 
     def _startRaw(self, target):
+        if session.daemon_device._controller.status == STATUS_INBREAK:
+            raise UsageError('Doppler speed can not be changed when script is '
+                             'paused.')
         if self._seq_is_running():
             if self._mode == SIMULATION:
                 self._seq_thread.join()
