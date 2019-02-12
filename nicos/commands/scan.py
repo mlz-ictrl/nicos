@@ -607,7 +607,7 @@ def appendscan(numpoints=5, stepsize=None):
         scan = dslist[i]
 
     if len(scan.devices) != 1:
-        raise NicosError('cannot append to scan with more than one device')
+        raise NicosError('can only append to scan with one device')
     npos = len(scan.subsets)
     if npos < 2:
         raise NicosError('cannot append to scan with no positions')
