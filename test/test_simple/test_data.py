@@ -28,6 +28,8 @@ from __future__ import absolute_import, division, print_function
 
 from contextlib import contextmanager
 
+from nicos.commands.measure import count
+
 session_setup = 'data'
 
 
@@ -118,3 +120,15 @@ def test_point_dataset(session):
         mean, stdev, mini, maxi = ds.valuestats['dev2']
         assert mini == maxi == mean == 5.
         assert stdev == float('inf')
+
+
+def test_force_scandata(session):
+    session.experiment._setROParam('forcescandata', True)
+    try:
+        count(1)
+        # ensure that a scan dataset was produced
+        ds = session.data._last_scans[-1]
+        assert ds.npoints == 1
+        assert session.experiment.lastscan == ds.counter
+    finally:
+        session.experiment._setROParam('forcescandata', False)

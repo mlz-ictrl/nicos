@@ -94,6 +94,9 @@ class Experiment(Device):
         'dataroot':       Param('Root data path under which all proposal '
                                 'specific paths are created', mandatory=True,
                                 type=expanded_path),
+        'forcescandata':  Param('If true, force scan datasets to be created '
+                                'also for single counts', type=bool,
+                                default=False),
         'detlist':        Param('List of default detector device names',
                                 type=listof(str), settable=True,
                                 userparam=False),

@@ -58,6 +58,15 @@ def inner_count(detectors, preset, temporary=False, threaded=False):
     # stop previous inner_count / acquisition thread if available
     stop_acquire_thread()
 
+    if session.experiment.forcescandata:
+        session.data.beginScan(
+            info=preset.get('info', 'count(%s)' %
+                            ', '.join('%s=%s' % kv for kv in preset.items())),
+            npoints=1,
+            environment=session.experiment.sampleenv,
+            detectors=detectors,
+            preset=preset)
+
     # start counting
     args = dict(detectors=detectors,
                 environment=session.experiment.sampleenv,
@@ -73,12 +82,15 @@ def inner_count(detectors, preset, temporary=False, threaded=False):
             acquire(point, preset)
         finally:
             session.data.finishPoint()
+            if session.experiment.forcescandata:
+                session.data.finishScan()
 
     if threaded:
         session._thd_acquire = createThread("acquire", _acquire_func)
         return None
     else:
         _acquire_func()
+
     msg = []
     retval = []
     for det in detectors:
@@ -87,9 +99,12 @@ def inner_count(detectors, preset, temporary=False, threaded=False):
             for (info, val) in zip(det.valueInfo(), res[0]):
                 msg.append('%s = %s' % (info.name, info.fmtstr % val))
                 retval.append(val)
-    for filename in point.filenames:
-        msg.append('file = %s' % filename)
-    session.log.info('count: %s', ', '.join(msg))
+
+    if not session.experiment.forcescandata:
+        for filename in point.filenames:
+            msg.append('file = %s' % filename)
+        session.log.info('count: %s', ', '.join(msg))
+
     return CountResult(retval)
 
 
