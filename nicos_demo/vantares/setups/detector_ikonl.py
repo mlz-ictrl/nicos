@@ -4,6 +4,8 @@ description = 'Andor IKON-L CCD camera emulation'
 
 group = 'optional'
 
+includes = ['shutters', 'filesavers']
+
 devices = dict(
     timer_ikonl = device('nicos.devices.generic.VirtualTimer',
         description = 'The camera\'s internal timer',
