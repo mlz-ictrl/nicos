@@ -31,7 +31,7 @@ from nicos.commands.device import reset
 from nicos.commands.measure import count
 from nicos.commands.scan import manualscan
 from nicos.commands.utility import floatrange
-from nicos.core.device import Measurable
+from nicos.core.device import Measurable, Moveable
 from nicos.core.errors import NicosError
 from nicos.core.scan import SkipPoint
 
@@ -69,8 +69,9 @@ def tomo(nangles, moveables=None, imgsperangle=1, ref_first=True, *detlist,
         # sample rotation (phi - around y axis).  Is this convenience function
         # ok, or should it be omitted and added to the instrument custom?
         moveables = (session.getDevice('sry'),)
-    elif not isinstance(moveables, list):
+    elif isinstance(moveables, Moveable):
         moveables = (moveables,)
+    moveables = tuple(moveables)
 
     session.log.info('Performing 360 deg scan.')
 

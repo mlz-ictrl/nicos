@@ -343,6 +343,32 @@ def test_tomo(session):
     tomo(10, sry)
     assert sry.read() == 360.0
 
+    # use more than one moveable
+    sry.maw(0.0)
+    tomo(10, [sry, sry])
+    assert sry.read() == 360.0
+
+    # more than one picture per position
+    sry.maw(0.0)
+    tomo(10, sry, 2)
+    assert sry.read() == 360.0
+
+    # start not with the 180 deg picture
+    sry.maw(0.0)
+    tomo(10, sry, 2, False)
+    assert sry.read() == 360.0
+
+    # use a different detector
+    det = session.getDevice('det')
+    sry.maw(0.0)
+    tomo(10, sry, 2, True, det, t=0.)
+    assert sry.read() == 360.0
+
+    # ref_first parameter is a detector device
+    sry.maw(0.0)
+    tomo(10, sry, 1, det, t=0.)
+    assert sry.read() == 360.0
+
 
 def test_live_count(session):
     det = session.getDevice('det')
