@@ -38,7 +38,6 @@ import logging
 import os
 import stat
 import sys
-from itertools import chain
 from os import path
 from time import sleep
 from time import time as currenttime
@@ -482,16 +481,23 @@ class Session(object):
         if not self._setup_info:
             self.readSetups()
 
-        def add_setup(name):
+        def add_setup(name, include_chain):
+            if name not in self._setup_info:
+                msg = "Setup '%s' does not exist" % name
+                if include_chain:
+                    msg += ' (included by %s)' % '->'.join(include_chain)
+                raise ConfigurationError(msg)
             all_setups.add(name)
+            include_chain.append(name)
             for include in self._setup_info[name]['includes']:
                 if include not in all_setups:
-                    add_setup(include)
+                    add_setup(include, include_chain)
+            include_chain.pop()
 
         # generate a set of *all* setups loaded after adding new setups
         all_setups = loaded_setups.copy()
         for name in new_setups:
-            add_setup(name)
+            add_setup(name, [])
 
         # generate a list of exclusions
         excluded_setups = {}

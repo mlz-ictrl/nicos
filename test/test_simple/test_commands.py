@@ -52,8 +52,8 @@ from nicos.commands.output import printdebug, printerror, printexception, \
     printinfo, printwarning
 from nicos.commands.sample import ClearSamples, ListSamples, NewSample, \
     SelectSample, SetSample
-from nicos.core import GUEST, AccessError, LimitError, MoveError, NicosError, \
-    TimeoutError, UsageError, status as devstatus
+from nicos.core import GUEST, AccessError, ConfigurationError, LimitError, \
+    MoveError, NicosError, TimeoutError, UsageError, status as devstatus
 from nicos.core.sessions.utils import MASTER, SLAVE
 from nicos.utils import ensureDirectory
 
@@ -102,6 +102,8 @@ class TestBasic(object):
         assert 'slit' not in session.configured_devices
         with log.assert_warns('is not a loaded setup, ignoring'):
             RemoveSetup('blah')
+        assert raises(ConfigurationError, NewSetup, 'foobar01')
+        assert raises(ConfigurationError, AddSetup, 'foobar01')
 
     def test_devicecreation_commands(self, session, log):
         if 'motor' in session.devices:
