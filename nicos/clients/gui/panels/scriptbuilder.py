@@ -54,6 +54,7 @@ class CommandsPanel(Panel):
         self.window = parent
         self.runBtn.setVisible(False)
         self.mapping = {}
+        self.expertmode = self.mainwindow.expertmode
 
         modules = options.get('modules', [])
         for module in modules:
@@ -61,7 +62,7 @@ class CommandsPanel(Panel):
 
         for cmdlet in all_cmdlets:
             def callback(on, cmdlet=cmdlet):
-                inst = cmdlet(self.frame, self.client)
+                inst = cmdlet(self, self.client)
                 inst.cmdletUp.connect(self.on_cmdletUp)
                 inst.cmdletDown.connect(self.on_cmdletDown)
                 inst.cmdletRemove.connect(self.on_cmdletRemove)
@@ -82,6 +83,9 @@ class CommandsPanel(Panel):
             menu.addActions(self.mapping[category])
             toolbtn.setMenu(menu)
             self.btnLayout.insertWidget(1, toolbtn)
+
+    def setExpertMode(self, expert):
+        self.expertmode = expert
 
     def on_cmdletRemove(self):
         cmdlet = self.sender()

@@ -31,6 +31,7 @@ from nicos.guisupport.qt import QAbstractSpinBox, QColor, Qt, QWidget, \
     pyqtSignal
 from nicos.guisupport.typedvalue import DeviceParamEdit
 from nicos.guisupport.utils import DoubleValidator, setBackgroundColor
+from nicos.pycompat import srepr
 from nicos.utils import findResource, formatDuration
 
 invalid = QColor('#ffcccc')
@@ -89,16 +90,28 @@ class Cmdlet(QWidget):
 
     def _getDeviceList(self, special_clause=''):
         """Helper for getting a list of devices for manipulation."""
-        clause = ('(dn in session.explicit_devices or '
-                  '("nicos.core.mixins.AutoDevice" in d.classes and '
-                  'dn.split(".")[0] in session.explicit_devices))')
-        if special_clause:
-            clause += ' and ' + special_clause
+        exp = getattr(self.parent(), 'expertmode', False)
+        if exp:
+            clause = special_clause
+        else:
+            clause = ('(dn in session.explicit_devices or '
+                      '("nicos.core.mixins.AutoDevice" in d.classes and '
+                      'dn.split(".")[0] in session.explicit_devices))')
+            if special_clause:
+                clause += ' and ' + special_clause
         # special construction to get AutoDevices like slit.centerx which is
         # useful to make scans over
         return self.client.getDeviceList('nicos.core.device.Moveable',
                                          only_explicit=False,
                                          special_clause=clause)
+
+    def _getDeviceRepr(self, devname):
+        """Return bare ``dev`` if the device is in the NICOS user namespace,
+        else ``'dev'`` in quotes.
+        """
+        if self.client.eval(devname, None) is None:
+            return srepr(devname)
+        return devname
 
     def _setDevice(self, values):
         """Helper for setValues for setting a device combo box."""
@@ -191,9 +204,9 @@ class Move(Cmdlet):
             return cmd + ''.join(' %s %r' % (frm.device.currentText(),
                                              frm.target.getValue())
                                  for frm in self.multiList.entries())
-        return cmd + '(' + ', '.join('%s, %r' % (frm.device.currentText(),
-                                                 frm.target.getValue())
-                                     for frm in self.multiList.entries()) + ')'
+        return cmd + '(' + ', '.join('%s, %r' % (
+            self._getDeviceRepr(frm.device.currentText()), frm.target.getValue())
+            for frm in self.multiList.entries()) + ')'
 
 
 class Count(Cmdlet):
@@ -284,12 +297,14 @@ class CommonScan(Cmdlet):
             if mode == 'simple':
                 return 'contscan %s %s %s %s %s' % (values['dev'], start, end,
                                                     speed, delta)
+            values['dev'] = self._getDeviceRepr(values['dev'])
             return 'contscan(%s, %s, %s, %s, %s)' % (values['dev'], start, end,
                                                      speed, delta)
         else:
             if mode == 'simple':
                 return self.cmdname + ' %(dev)s %(scanstart)s %(scanstep)s ' \
                     '%(scanpoints)s %(counttime)s' % values
+            values['dev'] = self._getDeviceRepr(values['dev'])
             return self.cmdname + '(%(dev)s, %(scanstart)s, %(scanstep)s, ' \
                 '%(scanpoints)s, %(counttime)s)' % values
 
@@ -462,11 +477,13 @@ class ContScan(Cmdlet):
         return all(valid)
 
     def generate(self, mode):
+        values = self.getValues()
         if mode == 'simple':
             return 'contscan %(dev)s %(scanstart)s %(scanend)s %(devspeed)s ' \
-                   '%(counttime)s' % self.getValues()
+                   '%(counttime)s' % values
+        values['dev'] = self._getDeviceRepr(values['dev'])
         return 'contscan(%(dev)s, %(scanstart)s, %(scanend)s, %(devspeed)s, ' \
-               '%(counttime)s)' % self.getValues()
+               '%(counttime)s)' % values
 
 
 class Sleep(Cmdlet):
@@ -547,9 +564,11 @@ class Configure(Cmdlet):
         return self.markValid(self.target, True)
 
     def generate(self, mode):
+        values = self.getValues()
         if mode == 'simple':
-            return 'set %(dev)s %(param)s %(paramvalue)r' % self.getValues()
-        return 'set(%(dev)s, %(param)r, %(paramvalue)r)' % self.getValues()
+            return 'set %(dev)s %(param)s %(paramvalue)r' % values
+        values['dev'] = self._getDeviceRepr(values['dev'])
+        return 'set(%(dev)s, %(param)r, %(paramvalue)r)' % values
 
 
 class NewSample(Cmdlet):
