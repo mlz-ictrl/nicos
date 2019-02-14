@@ -30,8 +30,8 @@ import time
 
 import PyTango
 
-from nicos.core import Attach, Moveable, Override, Param, dictof, status, \
-    tupleof
+from nicos.core import Attach, Moveable, Override, Param, NicosTimeoutError, \
+    dictof, status, tupleof
 from nicos.devices.epics import EpicsAnalogMoveable
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
 from nicos.devices.generic.switcher import Switcher
@@ -90,9 +90,13 @@ class MultiHV(BaseSequencer):
     }
 
     parameters = {
-        'voltagestep': Param('Maximum step in voltage', default=200),
+        'voltagestep': Param('Maximum voltage step ramping up', default=200),
         'stepsettle':  Param('Settle time between steps', default=2, unit='s'),
         'finalsettle': Param('Final settle time', default=30, unit='s'),
+        # note: this should be <= the precision of the switcher above
+        'offlimit':    Param('Limit under which HV is considered OFF',
+                             default=24, unit='V'),
+        'offtimeout':  Param('Timeout waiting for rampdown', default=900),
     }
 
     parameter_overrides = {
@@ -106,27 +110,48 @@ class MultiHV(BaseSequencer):
         seq = []
         current = [int(dev.read(0)) for dev in self._attached_ephvs]
 
-        while True:
+        if all(v == 0 for v in target):
+            # shut down without ramp via capacitors
             subseq = []
             for (i, dev) in enumerate(self._attached_ephvs):
                 if abs(target[i] - current[i]) <= 5:
                     continue
-                if target[i] > current[i]:
-                    setval = min(current[i] + self.voltagestep, target[i])
-                elif target[i] < current[i]:
-                    setval = max(current[i] - self.voltagestep, target[i])
-                # XXX: only one step with all starts
-                subseq.append(SeqMethod(dev, 'start', setval))
-                current[i] = setval
-            if not subseq:
-                break
-            seq.extend(subseq)
-            seq.append(SeqSleep(self.stepsettle))
+                subseq.append(SeqMethod(dev, 'start', 0))
+            if subseq:
+                seq.append(subseq)
+                seq.append(SeqMethod(self, '_wait_for_shutdown'))
 
-        # final settle
-        if seq:
-            seq.append(SeqSleep(self.finalsettle))
+        else:
+            while True:
+                subseq = []
+                for (i, dev) in enumerate(self._attached_ephvs):
+                    if abs(target[i] - current[i]) <= 5:
+                        continue
+                    if target[i] > current[i]:
+                        setval = min(current[i] + self.voltagestep, target[i])
+                    elif target[i] < current[i]:
+                        setval = max(current[i] - self.voltagestep, target[i])
+                    subseq.append(SeqMethod(dev, 'start', setval))
+                    current[i] = setval
+                if not subseq:
+                    break
+                seq.extend(subseq)
+                seq.append(SeqSleep(self.stepsettle))
+            # final settle
+            if seq:
+                seq.append(SeqSleep(self.finalsettle))
         return seq
+
+    def _wait_for_shutdown(self):
+        timeout = time.time() + self.offtimeout
+        while time.time() < timeout:
+            time.sleep(1)
+            for dev in self._attached_ephvs:
+                if dev.read(0) > self.offlimit:
+                    break
+            else:
+                return
+        raise NicosTimeoutError(self, 'timeout waiting for HV to ramp down')
 
     def doRead(self, maxage=None):
         return [d.read(0) for d in self._attached_ephvs]
