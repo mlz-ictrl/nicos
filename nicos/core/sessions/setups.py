@@ -59,6 +59,9 @@ class HasChildren(object):
     def __getitem__(self, index):
         return self._children[index]
 
+    def __repr__(self):
+        return '%s<%r>' % (self.__class__.__name__, self._children)
+
 
 class Row(HasChildren, MonitorElement):
 
@@ -89,8 +92,9 @@ class Block(HasChildren, MonitorElement):
         HasChildren.__init__(self, *children)
         self._options = options
 
-    def __str__(self):
-        return '%s: %r %r' % (self._title, self._children, self._options)
+    def __repr__(self):
+        return 'Block<%r, %r, %r>' % (self._title, self._children,
+                                      self._options)
 
 
 class Field(MonitorElement):
@@ -118,8 +122,8 @@ class Field(MonitorElement):
     def pop(self, key):
         return self._options.pop(key)
 
-    def __str__(self):
-        return '%r' % self._options
+    def __repr__(self):
+        return 'Field<%r>' % self._options
 
 
 def readSetups(paths, logger):
