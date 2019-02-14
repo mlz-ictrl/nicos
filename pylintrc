@@ -117,6 +117,7 @@ disable=access-member-before-definition
         ,invalid-unary-operand-type
         ,arguments-differ # it is unclear if this helpful for us.
         ,inconsistent-return-statements # unhelpful
+        ,assignment-from-no-return  # too many numpy spurions
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

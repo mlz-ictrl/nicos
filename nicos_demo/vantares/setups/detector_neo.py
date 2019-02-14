@@ -2,7 +2,9 @@
 
 description = 'Andor Neo sCMOS camera emulation'
 
-group = 'lowlevel'
+group = 'optional'
+
+includes = ['shutters', 'filesavers']
 
 devices = dict(
     timer_neo = device('nicos.devices.generic.VirtualTimer',

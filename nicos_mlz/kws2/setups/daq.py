@@ -43,7 +43,7 @@ devices = dict(
         fmtstr = '%d (%.1f cps)',
     ),
     det_roi = device('nicos_mlz.kws2.devices.daq.ROIRateChannel',
-        description = 'Counts outside beamstop',
+        description = 'Counts inside beamstop area',
         bs_x = 'beamstop_x',
         bs_y = 'beamstop_y',
         timer = 'timer',

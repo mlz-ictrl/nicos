@@ -234,6 +234,8 @@ class PyTangoDevice(HasCommunication):
 
     def doReset(self):
         self._dev.Reset()
+        while self._dev.State() == PyTango.DevState.INIT:
+            session.delay(self._base_loop_delay)
 
     def _setMode(self, mode):
         super(PyTangoDevice, self)._setMode(mode)

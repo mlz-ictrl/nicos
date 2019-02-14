@@ -209,7 +209,11 @@ class NicosClient(object):
 
     def disconnect(self):
         self.disconnecting = True
-        self.transport.send_command('quit', ())
+        try:
+            self.transport.send_command('quit', ())
+        except Exception:
+            # if the connection is already dead, at least close the socket
+            pass
         self._close()
 
     def _close(self):

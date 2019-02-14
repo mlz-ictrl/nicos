@@ -3,6 +3,13 @@ group = 'special'
 
 watchlist = [
     dict(condition = 'det_kwscounting and '
+                     'ep10_HV_value < ep10_HV_target - 10',
+         message = 'EP 10 HV too low!',
+         okmessage = 'EP 10 HV back to normal',
+         gracetime = 1,
+         type = 'default',
+    ),
+    dict(condition = 'det_kwscounting and '
                      'abs(selector_speed_value - selector_speed_target) > '
                      'selector_speed_precision',
          message = 'Selector outside of target speed, count paused',

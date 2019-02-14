@@ -36,7 +36,7 @@ from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
 from nicos.guisupport.qt import QBrush, QByteArray, QColor, QComboBox, \
     QCursor, QDialog, QDialogButtonBox, QFont, QIcon, QInputDialog, QMenu, \
     QMessageBox, QPalette, QPushButton, QRegExp, QTreeWidgetItem, \
-    QTreeWidgetItemIterator, Qt, pyqtSignal, pyqtSlot
+    Qt, pyqtSignal, pyqtSlot
 from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
 from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
 from nicos.pycompat import iteritems, itervalues, srepr, string_types
@@ -243,8 +243,10 @@ class DevicesPanel(Panel):
         client.message.connect(self.on_client_message)
 
         self.filters = options.get('filters', [])
+        self.filter.addItem('')
         for text, rx in self.filters:
             self.filter.addItem('Filter: %s' % text, rx)
+        self.filter.lineEdit().setPlaceholderText('Enter search expression')
 
     def updateStatus(self, status, exception=False):
         self._current_status = status
@@ -601,20 +603,17 @@ class DevicesPanel(Panel):
                 break
         else:
             rx = QRegExp(text)
-        # QTreeWidgetItemIterator: an ugly Qt C++ API translated to an even
-        # uglier Python API...
-        it = QTreeWidgetItemIterator(self.tree,
-                                     QTreeWidgetItemIterator.NoChildren)
-        while it.value():
-            it.value().setHidden(rx.indexIn(it.value().text(0)) == -1)
-            it += 1
-        it2 = QTreeWidgetItemIterator(self.tree,
-                                      QTreeWidgetItemIterator.HasChildren)
-        while it2.value():
-            item = it2.value()
-            item.setHidden(not any(not item.child(i).isHidden()
-                                   for i in range(item.childCount())))
-            it2 += 1
+        for i in range(self.tree.topLevelItemCount()):
+            setupitem = self.tree.topLevelItem(i)
+            all_children_hidden = True
+            for j in range(setupitem.childCount()):
+                devitem = setupitem.child(j)
+                if rx.indexIn(devitem.text(0)) == -1:
+                    devitem.setHidden(True)
+                else:
+                    devitem.setHidden(False)
+                    all_children_hidden = False
+            setupitem.setHidden(all_children_hidden)
 
     @pyqtSlot()
     def on_actionShutDown_triggered(self):

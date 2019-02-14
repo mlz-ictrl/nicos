@@ -10,7 +10,7 @@ tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 
 devices = dict(
     hexapod_dt = device('nicos.devices.tango.Motor',
-        description = 'Hexapod base rotation table',
+        description = 'Hexapod rotation table',
         tangodevice = tango_base + 'hexapodbase/dt',
         unit = 'deg',
         precision = 0.01,
@@ -56,6 +56,6 @@ devices = dict(
         tangodevice = tango_base + 'hexapodbase/tz',
         unit = 'mm',
         precision = 0.1,
-        fmtstr = '%.1f',
+        fmtstr = '%.2f',
     ),
 )

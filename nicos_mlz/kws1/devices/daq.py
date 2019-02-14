@@ -169,8 +169,7 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         self._last = cur
         self.readresult = [cur[0], rate]
 
-        # live image handled in separate application - KWSLive
-        return None
+        return np.asarray(arr, np.uint32).reshape(shape)
 
 
 class VirtualKWSImageChannel(VirtualImage):

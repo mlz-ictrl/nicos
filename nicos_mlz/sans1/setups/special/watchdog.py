@@ -84,6 +84,7 @@ watchlist = [
          type = None,
          setup = 'not tisane',
          gracetime = 5,
+         action = 'move(chopper_ch2_parkingpos, 4.8)'
     ),
     dict(condition = 'chopper_ch1_phase_value < 16.1 or chopper_ch1_phase_value > 16.3',
          message = 'Chopper 1 lost parking phase position!',
@@ -91,6 +92,7 @@ watchlist = [
          type = None,
          setup = 'not tisane',
          gracetime = 5,
+         action = 'move(chopper_ch1_parkingpos, 16.2)'
     ),
 ]
 
