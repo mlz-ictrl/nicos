@@ -315,7 +315,7 @@ class Device(MeasElement):
     def createWidget(self, parent, client):
         self._widget = typedvalue.create(parent, self._valuetype, self.value,
                                          allow_enter=False)
-        self._widget.dataChanged.connect(self._updateValue)
+        self._widget.valueModified.connect(self._updateValue)
         return self._widget
 
     def _updateValue(self):

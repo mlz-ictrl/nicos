@@ -45,7 +45,7 @@ class DeviceParam(QWidget):
             lambda: self.clickedRemoveButton.emit(self.param))
         self.labelParam.setText(self.param + ':')
         self.horizontalLayout.addWidget(self.valueWidget)
-        self.valueWidget.dataChanged.connect(self.editedParam)
+        self.valueWidget.valueModified.connect(self.editedParam)
         self.valueWidget.valueChosen.connect(lambda _: self.editedParam.emit())
 
     def getValue(self):

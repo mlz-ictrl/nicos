@@ -416,7 +416,7 @@ Existing widget classes
 
    This widget, as an interactive widget, can emit two signals:
 
-   .. attribute:: dataChanged
+   .. attribute:: valueModified
 
       This is emitted without arguments when the value in the widget changes.
       Call :meth:`getValue` to query the new value.

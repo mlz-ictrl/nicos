@@ -48,7 +48,7 @@ class DeviceValueEdit(NicosWidget, QWidget):
     designer_description = 'Editor for a device value with the right kind ' \
         'of widget'
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     dev = PropDef('dev', str, '', 'Device name')
@@ -130,7 +130,7 @@ class DeviceValueEdit(NicosWidget, QWidget):
         if last:
             last.widget().deleteLater()
         self._layout.insertWidget(0, self._inner)
-        self._inner.dataChanged.connect(self.dataChanged)
+        self._inner.valueModified.connect(self.valueModified)
         self._inner.valueChosen.connect(self.valueChosen)
 
     def getValue(self):
@@ -189,7 +189,7 @@ class DeviceParamEdit(DeviceValueEdit):
         if last:
             last.widget().deleteLater()
         self._layout.insertWidget(0, self._inner)
-        self._inner.dataChanged.connect(self.dataChanged)
+        self._inner.valueModified.connect(self.valueModified)
 
 
 def create(parent, typ, curvalue, fmtstr='', unit='',
@@ -276,7 +276,7 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
 
 class AnnotatedWidget(QWidget):
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     def __init__(self, parent, inner, annotation):
@@ -284,7 +284,7 @@ class AnnotatedWidget(QWidget):
         layout = self._layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self._inner = inner
-        self._inner.dataChanged.connect(self.dataChanged)
+        self._inner.valueModified.connect(self.valueModified)
         self._inner.valueChosen.connect(self.valueChosen)
         layout.addWidget(inner)
         layout.addWidget(QLabel(annotation, parent))
@@ -299,7 +299,7 @@ class AnnotatedWidget(QWidget):
 
 class MultiWidget(QWidget):
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     def __init__(self, parent, types, curvalue, client, allow_enter=False,
@@ -315,7 +315,7 @@ class MultiWidget(QWidget):
             widget = create(self, typ, val, client=client,
                             allow_enter=allow_enter)
             self._widgets.append(widget)
-            widget.dataChanged.connect(self.dataChanged)
+            widget.valueModified.connect(self.valueModified)
             if allow_enter:
                 widget.valueChosen.connect(
                     lambda val: self.valueChosen.emit(self.getValue()))
@@ -337,7 +337,7 @@ class LimitsWidget(MultiWidget):
 
 class DictWithWidget(QWidget):
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     def __init__(self, parent, keys, types, curvalue, client,
@@ -351,7 +351,7 @@ class DictWithWidget(QWidget):
             widget = create(self, typ, val, client=client,
                             allow_enter=allow_enter)
             self._widgets.append(widget)
-            widget.dataChanged.connect(self.dataChanged)
+            widget.valueModified.connect(self.valueModified)
             if allow_enter:
                 widget.valueChosen.connect(
                     lambda val: self.valueChosen.emit(self.getValue()))
@@ -364,7 +364,7 @@ class DictWithWidget(QWidget):
 
 class ComboWidget(QComboBox):
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     def __init__(self, parent, values, curvalue):
@@ -375,7 +375,7 @@ class ComboWidget(QComboBox):
         if curvalue in self._values:
             self.setCurrentIndex(self._values.index(curvalue))
         self.currentIndexChanged['int'].connect(
-            lambda idx: self.dataChanged.emit())
+            lambda idx: self.valueModified.emit())
 
     def getValue(self):
         return self._values[self._textvals.index(self.currentText())]
@@ -383,7 +383,7 @@ class ComboWidget(QComboBox):
 
 class ButtonWidget(QWidget):
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     def __init__(self, parent, values):
@@ -407,7 +407,7 @@ class ButtonWidget(QWidget):
 
 class EditWidget(QLineEdit):
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     def __init__(self, parent, typ, curvalue, fmtstr='%.4g', minmax=None,
@@ -431,7 +431,7 @@ class EditWidget(QLineEdit):
             self.setText(str(curvalue))
         else:
             self.setText(str(curvalue))
-        self.textChanged.connect(lambda txt: self.dataChanged.emit())
+        self.textChanged.connect(lambda txt: self.valueModified.emit())
         if allow_enter:
             self.returnPressed.connect(
                 lambda: self.valueChosen.emit(self._typ(self.text())))
@@ -442,7 +442,7 @@ class EditWidget(QLineEdit):
 
 class SpinBoxWidget(QSpinBox):
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     def __init__(self, parent, curvalue, minmax, fmtstr='%.4g',
@@ -450,7 +450,7 @@ class SpinBoxWidget(QSpinBox):
         QSpinBox.__init__(self, parent)
         self.setRange(minmax[0], minmax[1])
         self.setValue(curvalue)
-        self.valueChanged['int'].connect(lambda val: self.dataChanged.emit())
+        self.valueChanged['int'].connect(lambda val: self.valueModified.emit())
         if allow_enter:
             self.lineEdit().returnPressed.connect(
                 lambda: self.valueChosen.emit(self.value()))
@@ -461,13 +461,13 @@ class SpinBoxWidget(QSpinBox):
 
 class ExprWidget(QLineEdit):
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     def __init__(self, parent, curvalue, allow_enter=False):
         QLineEdit.__init__(self, parent)
         self.setText(cache_dump(curvalue))
-        self.textChanged.connect(lambda txt: self.dataChanged.emit())
+        self.textChanged.connect(lambda txt: self.valueModified.emit())
         if allow_enter:
             self.returnPressed.connect(
                 lambda: self.valueChosen.emit(cache_load(self.text())))
@@ -478,7 +478,7 @@ class ExprWidget(QLineEdit):
 
 class CheckWidget(QWidget):
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     def __init__(self, parent, inner, curvalue, client):
@@ -491,7 +491,7 @@ class CheckWidget(QWidget):
             curvalue = inner()  # generate a dummy value
         self.inner_widget = create(self, inner, curvalue, client=client)
         self.inner_widget.setEnabled(self.checkbox.isChecked())
-        self.inner_widget.dataChanged.connect(self.dataChanged)
+        self.inner_widget.valueModified.connect(self.valueModified)
         layout.addWidget(self.checkbox)
         layout.addWidget(self.inner_widget)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -500,7 +500,7 @@ class CheckWidget(QWidget):
 
     def on_checkbox_stateChanged(self, state):
         self.inner_widget.setEnabled(state == Qt.Checked)
-        self.dataChanged.emit()
+        self.valueModified.emit()
 
     def getValue(self):
         if self.checkbox.isChecked():
@@ -510,7 +510,7 @@ class CheckWidget(QWidget):
 
 class SetOfWidget(QWidget):
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     def __init__(self, parent, values, curvalue, client):
@@ -530,7 +530,7 @@ class SetOfWidget(QWidget):
         self.setLayout(layout)
 
     def on_checkbox_stateChanged(self, state):
-        self.dataChanged.emit()
+        self.valueModified.emit()
 
     def getValue(self):
         result = set()
@@ -542,7 +542,7 @@ class SetOfWidget(QWidget):
 
 class MissingWidget(QLabel):
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     def __init__(self, parent, curvalue, text='editing impossible'):
@@ -556,7 +556,7 @@ class MissingWidget(QLabel):
 
 class DeviceComboWidget(QComboBox):
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     def __init__(self, parent, curvalue, client,
@@ -574,7 +574,7 @@ class DeviceComboWidget(QComboBox):
                 self.setEditText(curvalue)
         else:
             self.setEditText(curvalue)
-        self.editTextChanged.connect(lambda _: self.dataChanged.emit())
+        self.editTextChanged.connect(lambda _: self.valueModified.emit())
         if allow_enter:
             self.lineEdit().returnPressed.connect(
                 lambda: self.valueChosen.emit(self.currentText()))
@@ -585,7 +585,7 @@ class DeviceComboWidget(QComboBox):
 
 class ItemsWidget(QScrollArea):
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     allow_reorder = True
@@ -634,7 +634,7 @@ class ItemsWidget(QScrollArea):
 
     def on_addBtn_clicked(self):
         self.insertItem(*self.createItem())
-        self.dataChanged.emit()
+        self.valueModified.emit()
 
     def on_removeBtn_clicked(self):
         if len(self.items) <= self.nmin:
@@ -643,7 +643,7 @@ class ItemsWidget(QScrollArea):
         index = self.items.index(item)
         del self.items[index]
         self.layout.takeAt(index).widget().deleteLater()
-        self.dataChanged.emit()
+        self.valueModified.emit()
 
     def on_upBtn_clicked(self):
         item = self.sender()._item
@@ -667,7 +667,7 @@ class ItemsWidget(QScrollArea):
         self.items[firstindex:firstindex+2] = [item2, item1]
         self.layout.insertWidget(firstindex, item2)
         self.layout.insertWidget(firstindex+1, item1)
-        self.dataChanged.emit()
+        self.valueModified.emit()
 
 
 class ListOfWidget(ItemsWidget):
@@ -686,7 +686,7 @@ class ListOfWidget(ItemsWidget):
             value = self.inner()
         widget = create(self, self.inner, value, client=self.client,
                         allow_enter=self.allow_enter)
-        widget.dataChanged.connect(self.dataChanged)
+        widget.valueModified.connect(self.valueModified)
         widget.valueChosen.connect(
             lambda val: self.valueChosen.emit(self.getValue()))
         return (widget,)
@@ -717,12 +717,12 @@ class DictOfWidget(ItemsWidget):
             key, val = keyval  # pylint: disable=W0633
         keywidget = create(self, self.keytype, key, client=self.client,
                            allow_enter=self.allow_enter)
-        keywidget.dataChanged.connect(self.dataChanged)
+        keywidget.valueModified.connect(self.valueModified)
         keywidget.valueChosen.connect(
             lambda val: self.valueChosen.emit(self.getValue()))
         valwidget = create(self, self.valtype, val, client=self.client,
                            allow_enter=self.allow_enter)
-        valwidget.dataChanged.connect(self.dataChanged)
+        valwidget.valueModified.connect(self.valueModified)
         valwidget.valueChosen.connect(
             lambda val: self.valueChosen.emit(self.getValue()))
         return (keywidget, QLabel('=>', self), valwidget)
@@ -734,18 +734,18 @@ class DictOfWidget(ItemsWidget):
 
 class TableWidget(QTableWidget):
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     def __init__(self, parent, validator, curvalue, fmtstr, client,
                  allow_enter=False):
         self._rows, self._cols = curvalue.shape
         self.validator = validator
-        QTableWidget.__init__(self, self._rows, self._cols, parent)
+        QTableWidget.__init__(self, self._rows, self._cols, self)
         for i in range(self._rows):
             for j in range(self._cols):
                 self.setItem(i, j, QTableWidgetItem(fmtstr % curvalue[i, j]))
-        self.cellChanged.connect(lambda i, j: self.dataChanged.emit())
+        self.cellChanged.connect(lambda i, j: self.valueModified.emit())
 
     def getValue(self):
         value = np.zeros((self._rows, self._cols))
