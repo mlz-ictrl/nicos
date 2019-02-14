@@ -29,7 +29,8 @@ Sinks which handle the data provided from the SIS detector at SPHERES.
 
 from __future__ import absolute_import, division, print_function
 
-from time import localtime, strftime
+import os
+from time import localtime, strftime, time as currenttime
 
 import numpy
 import quickyaml
@@ -48,6 +49,7 @@ class SisYamlFileSinkHandlerBase(YAMLBaseFileSinkHandler):
     """
     Base for the Sis File Sinks
     """
+    accept_final_images_only = False
 
     DETAMOUNT = 16
 
@@ -76,6 +78,7 @@ class SisYamlFileSinkHandlerBase(YAMLBaseFileSinkHandler):
         return strftime('%Y-%m-%d %a %H:%M:%S %Z', time)
 
     def writeData(self, fp, image):
+        self.writeStart = currenttime()
         fp.seek(0, 0)
         self.setScanDataSet()
         self.params = self.toDict(image[self.PARAMS])
@@ -89,16 +92,13 @@ class SisYamlFileSinkHandlerBase(YAMLBaseFileSinkHandler):
             array_handling=self.yaml_array_handling).dump(self.contents, fp)
 
         fp.truncate()
+        self.sink._setROParam('filename', os.path.basename(fp.name))
 
     def buildFileContents(self, image):
         self.contents = []
 
     def getCountDuration(self):
         return self.dataset.values['sistimer']
-
-    def getDatasetFinish(self):
-        return self.dataset.finished if self.dataset.finished \
-            else self.dataset.started + self.getCountDuration()
 
     def extractFromHisto(self, image, histogram):
         if self.inelasticmode:
@@ -192,7 +192,7 @@ class AYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
         else:
             o['scan_since'] = self.convertTime(localtime(self.dataset.started))
         o['subs_since'] = self.convertTime(localtime(self.dataset.started))
-        o['subs_until'] = self.convertTime(localtime(self.getDatasetFinish()))
+        o['subs_until'] = self.convertTime(localtime(self.writeStart))
         o['subs_duration'] = '%.6f' % self.getCountDuration()
         o['scan_duration'] = '%.6f' % self.getScanDuration()
         o['saved_because'] = self.params['reason']
@@ -258,8 +258,7 @@ class UYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
         o['Meta']['type'] = 'compact subscan data'
         # o['Warnings'] = []
         o['Shortpar'] = self.getShortpar()
-        o['Longpar'] = self.getLongpar(self.dataset.started,
-                                       self.getDatasetFinish())
+        o['Longpar'] = self.getLongpar(self.dataset.started, self.writeStart)
         o['DetectorAngles'] = self._flowlist(eval(self.params['angles']))
         o['HistogramExplain'] = self.getHistoExplain()
         o['Histogram'] = self.getHistogram(image)
@@ -291,7 +290,7 @@ class UYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
         else:
             o['scan_since'] = self.convertTime(localtime(self.dataset.started))
         o['subs_since'] = self.convertTime(localtime(self.dataset.started))
-        o['subs_until'] = self.convertTime(localtime(self.getDatasetFinish()))
+        o['subs_until'] = self.convertTime(localtime(self.writeStart))
         o['saved_because'] = self.params['reason']
         o['ndet'] = len(eval(self.params['distances']))
         o['daq_time_step'] = '%.6f s' % float(self.params['daq_time_step'])
@@ -473,6 +472,11 @@ class PreviewSinkHandler(special.LiveViewSinkHandler):
 class AFileSink(ImageSink):
     handlerclass = AYamlFileSinkHandler
 
+    parameters = {
+        'filename': Param('Latest filename',
+                          type=str)
+    }
+
 
 class UFileSink(ImageSink):
     handlerclass = UYamlFileSinkHandler
@@ -482,6 +486,8 @@ class UFileSink(ImageSink):
                                   type = str),
         'setpointdev':      Param('Device for the setpoint',
                                   type = str),
+        'filename':         Param('Latest filename',
+                                  type=str)
     }
 
 

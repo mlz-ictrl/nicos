@@ -305,6 +305,20 @@ class SISDetector(Detector):
         'shutter': Attach('Shutter', NamedDigitalOutput)
     }
 
+    def doInit(self, mode):
+        Detector.doInit(self, mode)
+
+        self._continueCounting = False
+        self._saveIntermediate = False
+
+    def doPause(self):
+        Detector.doPause(self)
+        self.saveIntermediate()
+
+    def saveIntermediate(self):
+        session.data.putResults(INTERMEDIATE,
+                                {self.name: self.readResults(INTERMEDIATE)})
+
     def getSisImageDevice(self):
         return self._adevs['images'][0]
 
@@ -312,6 +326,9 @@ class SISDetector(Detector):
         self._checkShutter()
 
     def clearAccumulated(self):
+        if self._continueCounting:
+            return
+
         for image in self._attached_images:
             if isinstance(image, SISChannel):
                 image.clearAccumulated()

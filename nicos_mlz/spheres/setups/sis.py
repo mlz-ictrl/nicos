@@ -19,6 +19,7 @@ devices = dict(
         shutter = 'shutter',
         liveinterval = 1.,
         autoshutter = True,
+        saveintervals = [60, 100, 140, 300]
     ),
     sisimg = device('nicos_mlz.spheres.devices.sisdetector.SISChannel',
         description = 'SIS detector',
@@ -49,6 +50,7 @@ devices = dict(
         description='Device which stores averages of the regular detectors '
                     'of direct, elastic and inelastic flux',
         tangodevice=sis + 'counter',
+        lowlevel=True
     ),
     sistimer = device('nicos.devices.tango.TimerChannel',
         description='Timer for the SIS detector',
