@@ -114,7 +114,7 @@ class MultiHV(BaseSequencer):
             # shut down without ramp via capacitors
             subseq = []
             for (i, dev) in enumerate(self._attached_ephvs):
-                if abs(target[i] - current[i]) <= 5:
+                if current[i] <= 10:
                     continue
                 subseq.append(SeqMethod(dev, 'start', 0))
             if subseq:
@@ -125,7 +125,7 @@ class MultiHV(BaseSequencer):
             while True:
                 subseq = []
                 for (i, dev) in enumerate(self._attached_ephvs):
-                    if abs(target[i] - current[i]) <= 5:
+                    if target[i] - 5 <= current[i] <= target[i] + 10:
                         continue
                     if target[i] > current[i]:
                         setval = min(current[i] + self.voltagestep, target[i])
