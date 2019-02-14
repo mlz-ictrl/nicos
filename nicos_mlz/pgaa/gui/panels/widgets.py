@@ -399,8 +399,8 @@ class AttCell(CellItem):
 
         self.state = float(self.state)
         self.cb = CustomCombo(
-            None, box_data=AttCell.Attenuators.keys(),
-            init_state=AttCell.Attenuators.keys().index(self.state))
+            None, box_data=list(AttCell.Attenuators.keys()),
+            init_state=list(AttCell.Attenuators).index(self.state))
         self.widgets.append(self.cb)
         self.cled = []
         for i in range(3):

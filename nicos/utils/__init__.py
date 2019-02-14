@@ -1264,7 +1264,7 @@ def findResource(filepath):
     components = filepath.split('/')
     try:
         modpath = path.dirname(__import__(components[0]).__file__)
-    except ImportError:
+    except (ImportError, AttributeError):
         # fallback: relative to the nicos_root directory
         return path.join(config.nicos_root, filepath)
     return path.join(path.abspath(modpath), *components[1:])

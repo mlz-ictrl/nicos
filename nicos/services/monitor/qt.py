@@ -284,10 +284,11 @@ class Monitor(BaseMonitor):
                 except Exception as err:
                     self.log.exception('could not load .ui file %r, ignoring',
                                        resource)
-                    return QLabel('%r could not be loaded:\n%s' %
-                                  (resource, err))
-                for child in instance.findChildren(NicosWidget):
-                    _setup(child)
+                    instance = QLabel('%r could not be loaded:\n%s' %
+                                      (resource, err))
+                else:
+                    for child in instance.findChildren(NicosWidget):
+                        _setup(child)
                 instance.setups = setups
                 return instance
             elif 'widget' in field:
