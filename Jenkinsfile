@@ -152,9 +152,11 @@ def runPylint(info='', venv='$NICOSVENV') {
 
     try {
         sh """
-ls pylint_*.txt
-mv pylint_all.txt ${idtag}.txt
-ls  pylint-*.txt"""
+if [ -f pylint_all.txt ] ; then
+    mv pylint_all.txt ${idtag}.txt
+else
+    touch ${idtag}.txt
+fi"""
     } catch (all) {
         echo "Move failed?"
     }
