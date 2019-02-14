@@ -31,7 +31,7 @@ import math
 import subprocess
 from os import path
 
-from numpy import array
+from numpy import array, isfinite
 
 from nicos import session
 from nicos.commands import helparglist, parallel_safe, usercommand
@@ -915,6 +915,7 @@ def GenDataset(name, hmax, kmax, lmax, uniq=False, kvector=None):
     instr = session.instrument
     sample = session.experiment.sample
     root = session.experiment.samplepath
+
     session.log.info('Generating HKLs...')
     hkls = sample.cell.dataset(0, 100, uhmin=-hmax, uhmax=hmax,
                                ukmin=-kmax, ukmax=kmax,
@@ -943,23 +944,25 @@ def GenDataset(name, hmax, kmax, lmax, uniq=False, kvector=None):
                 new_hkls.append(hkl - kvec)
         hkls = new_hkls
 
+    wavelength = session.instrument.wavelength
     all_pos = []
-    for hkl in hkls:
+    for (i, hkl) in enumerate(hkls, 1):
+        if i % 10000 == 0:
+            session.log.info('%s/%s', i, len(hkls))
+            # allow immediate stop here
+            session.breakpoint(5)
         hkl = hkl.tolist()
         try:
-            poslist = instr._extractPos(instr._calcPos(hkl))
+            poslist = instr._extractPos(instr._calcPos(hkl, wavelength))
         except Exception:
             continue
-        ok = True
         posdict = {}
         for (devname, devvalue) in poslist:
+            if not isfinite(devvalue) or \
+               not instr._adevs[devname].isAllowed(devvalue)[0]:
+                break
             posdict[devname] = devvalue
-            dev = instr._adevs[devname]
-            if dev is None:
-                continue
-            else:
-                ok &= dev.isAllowed(devvalue)[0]
-        if ok:
+        else:
             scanwidth = instr.getScanWidthFor(hkl)
             all_pos.append(hkl + ['%.3f' % posdict['gamma'],
                                   '%.3f' % posdict['omega'],

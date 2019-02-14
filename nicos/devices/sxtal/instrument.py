@@ -84,11 +84,11 @@ class SXTalBase(Instrument, Moveable):
             if name in self.__dict__:
                 self.__dict__[name].shutdown()
 
-    def _calcPos(self, hkl):
+    def _calcPos(self, hkl, wavelength=None):
         """Calculate instrument position object for given HKL position."""
         cell = session.experiment.sample.cell
         cpos = PositionFactory('c', c=cell.CVector(hkl))
-        return self._convertPos(cpos)
+        return self._convertPos(cpos, wavelength)
 
     def _extractPos(self, pos):
         """Extract values for the attached devices from a position object.
@@ -96,7 +96,7 @@ class SXTalBase(Instrument, Moveable):
         """
         raise NotImplementedError
 
-    def _convertPos(self, pos):
+    def _convertPos(self, pos, wavelength=None):
         """Convert given position to the type usable by this geometry.
         Must be implemented in subclasses.
         """
@@ -238,8 +238,8 @@ class EulerSXTal(SXTalBase):
             ('phi',    np.rad2deg(pos.phi)),
         ]
 
-    def _convertPos(self, pos):
-        return pos.asE()
+    def _convertPos(self, pos, wavelength=None):
+        return pos.asE(wavelength)
 
     def _readPos(self, maxage=0):
         return PositionFactory('e',
@@ -280,8 +280,8 @@ class LiftingSXTal(SXTalBase):
             ('nu',    np.rad2deg(pos.nu)),
         ]
 
-    def _convertPos(self, pos):
-        return pos.asL()
+    def _convertPos(self, pos, wavelength=None):
+        return pos.asL(wavelength)
 
     def _readPos(self, maxage=0):
         return PositionFactory('l',
