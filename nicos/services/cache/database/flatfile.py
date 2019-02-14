@@ -32,17 +32,12 @@ from os import path
 from time import localtime, mktime, sleep, time as currenttime
 
 from nicos import config
-from nicos.core import Param
+from nicos.core import Param, oneof
 from nicos.protocols.cache import FLAG_NO_STORE, OP_TELL, OP_TELLOLD
 from nicos.pycompat import iteritems, listitems
 from nicos.services.cache.database.base import CacheDatabase
 from nicos.services.cache.entry import CacheEntry
 from nicos.utils import allDays, createThread, ensureDirectory
-
-try:  # Windows compatibility: it does not provide os.link
-    os_link = os.link
-except AttributeError:
-    os_link = lambda a, b: None
 
 
 class FlatfileCacheDatabase(CacheDatabase):
@@ -53,16 +48,15 @@ class FlatfileCacheDatabase(CacheDatabase):
 
     * Each cache key is separated at the last slash.  The part before the slash
       is called "category" (usually prefix + a device name).
-    * For each category, there is a subdirectory (with slashes in the category
-      name replaced by dashes) in the store path.  This contains subdirectories
-      for every year, and these subdirectories contain one file per day, in the
-      format "MM-DD".
-    * These files are also hardlinked at another hierarchy, starting with year
-      and day subdirectories, where the files are named by category.
+    * The store consists of a two-level subdirectory hierarchy "YYYY/MM-DD"
+      below the chosen store path.  The directories contain a file per category
+      (with slashes in the name replaced by dashes).
+    * If not deactivated, these files are also hardlinked at another hierarchy,
+      starting with the category, and containing files by year and day.
 
     For example, the cache entries for category "nicos/slit" at 2012-01-05 are
-    available in the files ``nicos-slit/2012/01-05`` and
-    ``2012/01-05/nicos-slit``.
+    available in the files ``2012/01-05/nicos-slit`` and
+    ``nicos-slit/2012/01-05``.
 
     The format of these files is a simple four-column tab-separated ascii
     format:
@@ -84,12 +78,29 @@ class FlatfileCacheDatabase(CacheDatabase):
     parameters = {
         'storepath': Param('Directory where history stores should be saved',
                            type=str, mandatory=True),
+        'makelinks': Param('Selects the type of file links in the second '
+                           'store hierarchy (auto meaning none on Windows, '
+                           'hard else)', default='auto',
+                           type=oneof('auto', 'hard', 'soft', 'none')),
     }
 
     def doInit(self, mode):
         self._cat = {}
         self._cat_lock = threading.Lock()
         CacheDatabase.doInit(self, mode)
+
+        if self.makelinks == 'auto':
+            # Windows compatibility: it does not provide os.link
+            if not hasattr(os, 'link'):
+                self._make_link = lambda a, b: None
+            else:
+                self._make_link = os.link
+        elif self.makelinks == 'hard':
+            self._make_link = os.link
+        elif self.makelinks == 'soft':
+            self._make_link = os.symlink
+        else:
+            self._make_link = lambda a, b: None
 
         self._basepath = path.join(config.nicos_root, self.storepath)
         ltime = localtime()
@@ -242,7 +253,10 @@ class FlatfileCacheDatabase(CacheDatabase):
         ensureDirectory(bycat)
         linkname = path.join(bycat, self._currday)
         if not path.isfile(linkname):
-            os_link(filename, linkname)
+            try:
+                self._make_link(filename, linkname)
+            except Exception:
+                self.log.exception('linking %s -> %s', linkname, filename)
         return fd
 
     def ask(self, key, ts, time, ttl):
