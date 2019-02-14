@@ -31,7 +31,7 @@ from time import time
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QActionGroup, QColor, QIcon, QListWidgetItem, \
-    QMenu, QPixmap, Qt, QTimer, QToolBar, pyqtSlot
+    QMenu, QPixmap, Qt, QStyledItemDelegate, QTimer, QToolBar, pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \
     BREAK_NOW, SIM_STATES, STATUS_IDLEEXC
@@ -100,6 +100,19 @@ class ScriptQueue(object):
     __bool__ = __nonzero__
 
 
+class LineDelegate(QStyledItemDelegate):
+    def __init__(self, offset, view):
+        QStyledItemDelegate.__init__(self, view)
+        self._offset = offset
+
+    def paint(self, painter, option, index):
+        QStyledItemDelegate.paint(self, painter, option, index)
+        text = index.data(Qt.UserRole)
+        rect = option.rect.adjusted(self._offset, 0, 0, 0)
+        painter.setPen(QColor('grey'))
+        painter.drawText(rect, 0, text)
+
+
 class ScriptStatusPanel(Panel):
     """Provides a view of the currently executed script.
 
@@ -140,6 +153,7 @@ class ScriptStatusPanel(Panel):
         empty = QPixmap(16, 16)
         empty.fill(Qt.transparent)
         self.otherlineicon = QIcon(empty)
+        self.traceView.setItemDelegate(LineDelegate(24, self.traceView))
 
         self.stopcounting = bool(options.get('stopcounting', False))
         if self.stopcounting:
@@ -248,8 +262,13 @@ class ScriptStatusPanel(Panel):
 
     def setScript(self, script):
         self.traceView.clear()
-        for line in script.splitlines():
-            item = QListWidgetItem(self.otherlineicon, line, self.traceView)
+        lines = script.splitlines()
+        longest = len(str(len(lines)))
+        padding = ' ' * (longest + 3)
+        for (i, line) in enumerate(lines):
+            item = QListWidgetItem(self.otherlineicon, padding + line,
+                                   self.traceView)
+            item.setData(Qt.UserRole, '%*d |' % (longest, i+1))
             self.traceView.addItem(item)
         self.current_line = -1
 
