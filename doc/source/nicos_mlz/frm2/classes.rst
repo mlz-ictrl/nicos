@@ -48,3 +48,6 @@
 
 .. automodule:: nicos_mlz.devices.sample
 .. autoclass:: Sample()
+
+.. automodule:: nicos_mlz.devices.barcodes
+.. autoclass:: BarcodeInterpreter()
