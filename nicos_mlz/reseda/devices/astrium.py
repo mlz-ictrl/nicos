@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""Astrium selector device with adoptions for RESEDA"""
+"""Astrium selector device with adaptations for RESEDA"""
 
 from __future__ import absolute_import, division, print_function
 

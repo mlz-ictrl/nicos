@@ -92,7 +92,7 @@ class Sans1ColliSlit(Switcher):
 
 
 class Sans1ColliSwitcher(Switcher):
-    """Switcher, specially adopted to Sans1 needs"""
+    """Switcher, specially adapted to Sans1 needs"""
     parameter_overrides = {
         'precision':    Override(default=0.1, mandatory=False),
         'fallback':     Override(default='Unknown', mandatory=False),

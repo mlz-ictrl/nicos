@@ -335,7 +335,7 @@ class CompressorSwitch(NamedDigitalOutput):
 class PLCLimits(AnalogInput, Moveable):
     """Device accessing the limits of an pressure PLC-device
 
-    1st Iteration. Implementation will adopt to requirements,
+    1st Iteration. Implementation will adapt to requirements,
     which are not yet fully defined.
     Deriving from AnalogInput as this already handles the unit.
     AnalogOutput has HasLimits mixin is therefore too complex.

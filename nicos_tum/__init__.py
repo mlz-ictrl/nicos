@@ -24,9 +24,7 @@
 
 """TUM specific NICOS package."""
 
-from os import path
-
 
 def determine_instrument(setup_package_path):
-    # TODO adopt to TUM systems
+    # TODO adapt to TUM systems
     return 'utg'

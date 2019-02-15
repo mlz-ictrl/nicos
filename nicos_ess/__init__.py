@@ -24,9 +24,7 @@
 
 """ESS specific NICOS package."""
 
-from os import path
-
 
 def determine_instrument(setup_package_path):
-    # TODO adopt to ESS systems
+    # TODO adapt to ESS systems
     return 'essiip'

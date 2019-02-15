@@ -35,7 +35,7 @@ from nicos.devices.taco import DigitalInput, Motor as TacoMotor
 
 class Switcher(GenericSwitcher):
     """
-    Switcher, specially adopted to TOFTOF needs
+    Switcher, specially adapted to TOFTOF needs
 
     The neutron guide switcher has two different guides and the job is to
     change between them. Since there is no encoder mounted to check the

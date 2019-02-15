@@ -24,9 +24,7 @@
 
 """INL (Idaho national labs) specific NICOS package."""
 
-from os import path
-
 
 def determine_instrument(setup_package_path):
-    # TODO adopt to INL systems
+    # TODO adapt to INL systems
     return 'NRS'

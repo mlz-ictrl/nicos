@@ -30,7 +30,6 @@ from __future__ import absolute_import
 import os
 import re
 import sys
-from os import path
 from time import sleep, strftime
 from time import time as currenttime
 
@@ -39,7 +38,7 @@ from nicos.pycompat import to_utf8
 from nicos.utils import createThread, watchFileContent
 
 from nicos import session
-from nicos.core import Override, Param, listof, none_or, oneof
+from nicos.core import Override, Param, none_or, oneof
 from nicos.protocols.cache import OP_SUBSCRIBE, \
     OP_TELL, OP_TELLOLD, OP_WILDCARD, cache_load
 

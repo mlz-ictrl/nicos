@@ -83,7 +83,7 @@ class BeckhoffCoderBase(TacoDevice, Coder):
     control blocks (20 Bytes = 10 words). So the lowest legal value is 0x3020
     (control block 0) and the higest would be 0x47fa (control block 201).
     Normaly, only the first N motor control blocks are used (without gaps).
-    If this scheme changes, the check needs to be adopted.
+    If this scheme changes, the check needs to be adapted.
     '''
 
     parameter_overrides = {

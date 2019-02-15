@@ -22,11 +22,9 @@
 #
 # *****************************************************************************
 
-"""ESS specific NICOS package."""
-
-from os import path
+"""Batan specific NICOS package."""
 
 
 def determine_instrument(setup_package_path):
-    # TODO adopt to ESS systems
+    # TODO adapt to Batan systems
     return 'hrpd'
