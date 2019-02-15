@@ -4,7 +4,6 @@ description = 'ZEA-2 counter card setup'
 
 group = 'optional'
 
-includes = []
 excludes = ['detector']
 
 tango_base = 'tango://phys.poli.frm2:10000/poli/'

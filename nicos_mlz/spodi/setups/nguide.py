@@ -4,8 +4,6 @@ description = 'Spodi neutron guide'
 
 group = 'lowlevel'
 
-includes = []
-
 taco_base = '//nguidectrl.spodi.frm2/spodi/'
 
 devices = dict(

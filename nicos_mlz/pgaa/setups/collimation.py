@@ -2,8 +2,6 @@ description = 'collimation devices'
 
 group = 'lowlevel'
 
-includes = []
-
 nethost = 'pgaasrv.pgaa.frm2'
 
 devices = dict(

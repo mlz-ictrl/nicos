@@ -2,8 +2,6 @@ description = 'Heater for ZEBRA Battery'
 
 group = 'optional'
 
-includes = []
-
 nethost = '172.25.20.210'
 
 devices = dict(

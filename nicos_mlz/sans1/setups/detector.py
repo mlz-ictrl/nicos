@@ -1,7 +1,5 @@
 description = 'detector related devices including beamstop'
 
-includes = []
-
 # included by sans1
 group = 'lowlevel'
 

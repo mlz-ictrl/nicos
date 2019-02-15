@@ -2,8 +2,6 @@ description = 'LASCON pyrometer devices'
 
 includes = ['alias_T']
 
-excludes = []
-
 group = 'optional'
 
 nethost = 'toftofsrv.toftof.frm2'

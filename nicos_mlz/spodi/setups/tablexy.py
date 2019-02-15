@@ -2,8 +2,6 @@ description = 'sample translation XY'
 
 group = 'optional'
 
-includes = []
-
 servername = 'VMESPODI'
 
 nameservice = 'spodisrv.spodi.frm2'

@@ -2,8 +2,6 @@ description = 'elliptical neutron guide nose'
 
 group = 'optional'
 
-includes = []
-
 nethost = 'ng-focus.toftof.frm2'
 
 devices = dict(

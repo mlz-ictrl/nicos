@@ -1,7 +1,5 @@
 description = 'qmesydaq detector devices'
 
-includes = []
-
 # included by kompass
 group = 'lowlevel'
 

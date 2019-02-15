@@ -2,8 +2,6 @@ description = 'Philipps Polarizer Setup'
 
 group = 'optional'
 
-includes = []
-
 devices = dict(
     pry = device('nicos.devices.taco.Motor',
         description = 'Polarizer Rotation around Y',

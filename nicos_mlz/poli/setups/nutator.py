@@ -1,7 +1,6 @@
 description = 'POLI nutator'
 
 group = 'lowlevel'
-includes = []
 
 tango_base = 'tango://phys.poli.frm2:10000/poli/'
 

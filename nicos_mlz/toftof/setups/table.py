@@ -2,8 +2,6 @@ description = 'sample table and radial collimator'
 
 group = 'lowlevel'
 
-includes = []
-
 nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(

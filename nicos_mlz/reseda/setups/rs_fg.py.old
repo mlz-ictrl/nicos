@@ -4,8 +4,6 @@ description = 'R&S signal generator from NREX'
 
 group = 'optional'
 
-includes = []
-
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda/rs_fg/'
 
 devices = dict(

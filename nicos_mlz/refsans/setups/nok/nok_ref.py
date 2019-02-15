@@ -2,8 +2,6 @@ description = 'Reference readouts for NOK poti'
 
 group = 'lowlevel'
 
-includes = []
-
 tango_host = 'tango://refsanshw:10000/test/'
 
 devices = dict(

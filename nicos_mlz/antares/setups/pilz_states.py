@@ -3,8 +3,6 @@ description = 'ANTARES Pilz security system states'
 
 group = 'optional'
 
-includes = []
-
 tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 
 devices = dict(

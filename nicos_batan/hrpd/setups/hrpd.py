@@ -2,8 +2,6 @@ description = 'Simulated HRPD instrument'
 
 group = 'basic'
 
-excludes = []
-
 sysconfig = dict(
     datasinks = ['hrpdsink'],
 )

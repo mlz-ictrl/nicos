@@ -4,8 +4,6 @@ description = 'Agilent multimeter'
 
 group = 'optional'
 
-includes = []
-
 tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 
 devices = dict(

@@ -4,8 +4,6 @@ description = 'Multidetector motors'
 
 includes = ['system', 'motorbus10', 'cad']
 
-excludes = []
-
 group = 'lowlevel'
 
 modules = ['nicos_mlz.puma.commands']

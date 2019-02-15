@@ -4,9 +4,6 @@ group = 'optional'
 
 tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 
-includes = []
-
-
 devices = dict(
     G0rz = device('nicos.devices.tango.Motor',
         speed = 1,

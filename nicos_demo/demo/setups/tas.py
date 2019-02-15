@@ -3,8 +3,6 @@ group = 'basic'
 
 modules = ['nicos.commands.tas']
 
-excludes = []
-
 includes = ['cryo', 'source']
 
 sysconfig = dict(

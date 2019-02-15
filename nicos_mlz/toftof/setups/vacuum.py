@@ -2,8 +2,6 @@ description = 'chopper vacuum readout'
 
 group = 'lowlevel'
 
-includes = []
-
 tango_host = 'tango://tofhw.toftof.frm2:10000/toftof/vacuum/'
 
 devices = dict(

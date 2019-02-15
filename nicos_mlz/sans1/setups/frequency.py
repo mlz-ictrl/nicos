@@ -1,7 +1,5 @@
 description = 'frequency counter, fg1 and fg2'
 
-includes = []
-
 excludes = ['tisane_multifg']
 
 # group = 'lowlevel'

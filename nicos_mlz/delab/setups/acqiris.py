@@ -4,8 +4,6 @@ group = 'optional'
 
 excludes = ['qmesydaq']
 
-includes = []
-
 acqiris_config = (
     'TIMEBASE: Time_div: 100.0e-6  MaxSample: 10000 Delay: -500.0e-6',
     'CHANNEL: 1  FullScale:  5.0  Offset: -2.0  Coupling: DC_50Ohm Bandwidth: No_Limit',

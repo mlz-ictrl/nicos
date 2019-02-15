@@ -2,8 +2,6 @@ description = 'Setup for the pressure cell'
 
 group = 'optional'
 
-includes = []
-
 nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(

@@ -5,6 +5,4 @@ includes = [
     'table_lab',
 ]
 
-modules = []
-
 group = 'basic'

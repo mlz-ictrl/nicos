@@ -3,8 +3,6 @@
 description = "Hexapod control"
 group = "optional"
 
-excludes = []
-
 tango_base = "tango://phys.maria.frm2:10000/maria/"
 
 hexapod_workspaces = [

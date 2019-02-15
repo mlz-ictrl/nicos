@@ -1,8 +1,6 @@
 description = 'Gas flow for the (Cascade) PSD detector'
 group = 'lowlevel'
 
-includes = []
-
 tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
 devices = dict(

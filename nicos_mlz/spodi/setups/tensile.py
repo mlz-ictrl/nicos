@@ -4,8 +4,6 @@ group = 'optional'
 
 nameservice = 'spodisrv.spodi.frm2'
 
-includes = []
-
 devices = dict(
     tepos = device('nicos.devices.vendor.caress.Motor',
         description = 'HWB TEPOS',

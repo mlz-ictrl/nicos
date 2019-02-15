@@ -1,7 +1,6 @@
 description = 'Alias for monochromator axes'
 
 group = 'lowlevel'
-includes = []
 
 devices = dict(
     mth = device('nicos.devices.generic.DeviceAlias'),

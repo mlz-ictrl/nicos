@@ -2,8 +2,6 @@ description = 'sample table rotations'
 
 group = 'lowlevel'
 
-includes = []
-
 servername = 'VMESPODI'
 
 nameservice = 'spodisrv.spodi.frm2'

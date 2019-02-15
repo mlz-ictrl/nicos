@@ -5,8 +5,6 @@ sysconfig = dict(
     datasinks = ['tiff', 'raw', 'sraw', 'live'],
 )
 
-modules = []
-
 devices = dict(
     image = device('nicos_mlz.laue.devices.psldetector.PSLDetector',
         description = 'PSL detector image',

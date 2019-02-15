@@ -6,8 +6,6 @@ servername = 'VMESPODI'
 
 nameservice = 'spodisrv.spodi.frm2'
 
-includes = []
-
 devices = dict(
     samsm = device('nicos.devices.vendor.caress.EKFMotor',
                    description = 'HWB SAMS',

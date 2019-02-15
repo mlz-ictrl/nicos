@@ -4,8 +4,6 @@ group = 'lowlevel'
 
 includes = ['monofoci', 'monoturm', 'panda_s7']
 
-modules = []
-
 excludes = ['mono_pg', 'mono_si', 'mono_cu', 'mono_heusler']
 
 extended = dict(dynamic_loaded = True)

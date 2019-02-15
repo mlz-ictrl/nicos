@@ -1,7 +1,6 @@
 description = 'POLI detector and counter card'
 group = 'lowlevel'
 
-includes = []
 excludes = ['zeadetector']
 
 tango_base = 'tango://phys.poli.frm2:10000/poli/'

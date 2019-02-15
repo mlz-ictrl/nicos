@@ -2,8 +2,6 @@ description = 'sample table devices'
 
 group = 'optional'
 
-includes = []
-
 excludes = ['sc1']
 
 devices = dict(

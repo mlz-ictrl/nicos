@@ -1,8 +1,6 @@
 description = 'Sample manipulation stage using servostar controller'
 group = 'optional'
 
-includes = []
-
 nethost = 'nectarsrv.nectar.frm2'
 
 devices = dict(

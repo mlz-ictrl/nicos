@@ -2,8 +2,6 @@ description = 'high voltage power supplies for detector'
 
 group = 'lowlevel'
 
-includes = []
-
 nethost = 'localhost'
 
 devices = dict(

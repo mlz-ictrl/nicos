@@ -2,8 +2,6 @@ description = 'Virtual SPODI detector'
 
 group = 'lowlevel'
 
-includes = []
-
 devices = dict(
     mon = device('nicos.devices.generic.VirtualCounter',
         description = 'Simulated MON1',

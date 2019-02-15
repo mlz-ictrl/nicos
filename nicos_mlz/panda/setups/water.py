@@ -2,8 +2,6 @@
 
 description = 'setup for water flow'
 
-includes = []
-
 group = 'optional'
 
 tango_base = 'tango://phys.panda.frm2:10000/panda/'

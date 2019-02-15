@@ -1,7 +1,6 @@
 description = 'Alias devices for robot and sample table'
 
 group = 'lowlevel'
-includes = []
 
 devices = dict(
     tths = device('nicos.devices.generic.DeviceAlias'),

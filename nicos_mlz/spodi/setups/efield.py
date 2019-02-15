@@ -2,8 +2,6 @@ description = 'Electric field sample stick'
 
 group = 'optional'
 
-includes = []
-
 nethost = 'spodisrv.spodi.frm2'
 
 devices = dict(

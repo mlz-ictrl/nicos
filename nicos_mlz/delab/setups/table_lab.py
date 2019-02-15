@@ -2,8 +2,6 @@ description = 'x-z detector table in the kiosk'
 
 group = 'lowlevel'
 
-includes = []
-
 nethost = 'localhost'
 
 devices = dict(

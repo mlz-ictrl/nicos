@@ -1,7 +1,5 @@
 description = 'memograph readout for the chopper cooling system'
 
-includes = []
-
 group = 'lowlevel'
 
 system = 'chopper'

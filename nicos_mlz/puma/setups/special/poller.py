@@ -1,8 +1,6 @@
 description = 'setup for the poller'
 group = 'special'
 
-includes = []
-
 sysconfig = dict(
     cache = 'pumahw.puma.frm2'
 )

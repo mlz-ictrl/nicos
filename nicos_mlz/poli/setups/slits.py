@@ -4,8 +4,6 @@ group = 'lowlevel'
 
 includes = ['mono']
 
-excludes = []
-
 tango_base = 'tango://phys.poli.frm2:10000/poli/'
 s7_motor = tango_base + 's7_motor/'
 

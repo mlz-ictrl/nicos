@@ -1,7 +1,5 @@
 description = 'memograph04 readout'
 
-includes = []
-
 group = 'lowlevel'
 
 memograph_host = '%s.care.frm2' % setupname

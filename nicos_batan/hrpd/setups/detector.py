@@ -2,10 +2,6 @@ description = 'Simulated HRPD instrument'
 
 group = 'lowlevel'
 
-excludes = []
-
-includes = []
-
 devices = dict(
     mon = device('nicos.devices.generic.VirtualCounter',
         description = 'Simulated Monitor Detector',

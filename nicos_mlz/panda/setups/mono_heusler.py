@@ -5,8 +5,6 @@ group = 'lowlevel'
 includes = ['monofoci', 'monoturm', 'panda_s7']
 excludes = ['mono_pg', 'mono_cu', 'mono_si', 'ana_heusler']
 
-modules = []
-
 extended = dict(dynamic_loaded = True)
 
 # for ipc-stuff

@@ -6,8 +6,6 @@ nameservice = 'spodisrv.spodi.frm2'
 caresspath = '/opt/caress'
 toolpath = '/opt/caress'
 
-includes = []
-
 nethost = 'spodisrv.spodi.frm2'
 
 tango_base = 'tango://spodictrl.spodi.frm2:10000/spodi/'

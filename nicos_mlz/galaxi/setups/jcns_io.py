@@ -4,8 +4,6 @@ description = 'GALAXI in- and outputs'
 
 group = 'optional'
 
-includes = []
-
 tango_base = 'tango://phys.galaxi.kfa-juelich.de:10000/galaxi/'
 tango_digital = tango_base + 'fzjdp_digital/'
 tango_analog = tango_base + 'plc_io/'

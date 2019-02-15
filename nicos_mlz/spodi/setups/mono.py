@@ -6,8 +6,6 @@ servername = 'VMESPODI'
 
 nameservice = 'spodisrv.spodi.frm2'
 
-includes = []
-
 devices = dict(
     # ;Monochromator
     omgm = device('nicos.devices.vendor.caress.Motor',

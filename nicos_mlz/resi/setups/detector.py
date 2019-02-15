@@ -4,12 +4,6 @@ description = 'detectors'
 
 group = 'lowlevel'
 
-includes = []
-
-excludes = []
-
-modules = []
-
 devices = dict(
     timer = device('nicos.devices.taco.FRMTimerChannel',
         tacodevice = '//resictrl/resi/frmctr/at',

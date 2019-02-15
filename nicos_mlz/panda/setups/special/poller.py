@@ -2,8 +2,6 @@ description = 'setup for the poller'
 
 group = 'special'
 
-includes = []
-
 sysconfig = dict(
     cache = 'phys.panda.frm2'
 )

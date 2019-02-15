@@ -2,8 +2,6 @@ description = 'sample table'
 
 group = 'lowlevel'
 
-includes = []
-
 devices = dict(
     x = device('nicos.devices.generic.virtual.VirtualMotor',
         description = 'X translation of the sample table',

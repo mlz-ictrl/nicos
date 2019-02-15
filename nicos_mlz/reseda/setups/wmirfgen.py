@@ -4,8 +4,6 @@ description = 'WMI microwave generator'
 
 group = 'optional'
 
-includes = []
-
 tango_base = 'tango://%s:10000/box/' % setupname
 
 devices = dict(

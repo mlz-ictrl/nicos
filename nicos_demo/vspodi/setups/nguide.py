@@ -4,8 +4,6 @@ description = 'Spodi neutron guide'
 
 group = 'lowlevel'
 
-includes = []
-
 devices = dict(
     p1_nguide = device('nicos.devices.generic.VirtualMotor',
         description = 'Pressure 1',

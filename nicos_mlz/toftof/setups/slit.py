@@ -2,8 +2,6 @@ description = 'sample slit'
 
 group = 'lowlevel'
 
-includes = []
-
 nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(

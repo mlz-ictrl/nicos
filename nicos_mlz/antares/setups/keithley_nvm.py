@@ -1,8 +1,6 @@
 description = 'Keithley Nanovoltmeter'
 group = 'optional'
 
-includes = []
-
 tango_base = 'tango://antareshw.antares.frm2:10000/antares/keithley_nvm/'
 
 devices = dict(

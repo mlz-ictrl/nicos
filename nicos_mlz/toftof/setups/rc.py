@@ -4,8 +4,6 @@ description = 'TOFTOF radial collimator'
 
 group = 'optional'
 
-includes = []
-
 tango_base = 'tango://tofhw.toftof.frm2:10000/toftof/'
 
 devices = dict(

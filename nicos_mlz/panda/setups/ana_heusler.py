@@ -3,9 +3,6 @@ description = 'PANDA Heusler-analyzer'
 group = 'lowlevel'
 
 includes = ['monofoci', 'monoturm', 'panda_s7']
-excludes = []
-
-modules = []
 
 extended = dict(dynamic_loaded = True)
 

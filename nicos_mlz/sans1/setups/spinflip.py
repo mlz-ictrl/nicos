@@ -1,7 +1,5 @@
 description = 'Spin Flipper'
 
-includes = []
-
 group = 'optional'
 
 modules = ['nicos_mlz.sans1.spinflipper_commands']

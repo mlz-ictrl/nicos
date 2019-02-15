@@ -2,8 +2,6 @@ description = 'Focusing guides translation x'
 
 group = 'optional'
 
-includes = []
-
 devices = dict(
     gtx = device('nicos.devices.taco.Motor',
         description = 'Focusing guides translation x',

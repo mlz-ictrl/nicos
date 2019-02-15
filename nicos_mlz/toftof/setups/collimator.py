@@ -2,8 +2,6 @@ description = 'neutron guide changer or collimator'
 
 group = 'lowlevel'
 
-includes = []
-
 nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(

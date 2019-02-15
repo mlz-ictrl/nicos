@@ -2,8 +2,6 @@ description = 'Shutter and attenuators via Pilz box'
 
 group = 'lowlevel'
 
-includes = []
-
 nethost = 'pgaasrv.pgaa.frm2'
 
 devices = dict(

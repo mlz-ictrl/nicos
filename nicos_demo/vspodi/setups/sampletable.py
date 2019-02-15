@@ -2,8 +2,6 @@ description = 'sample table rotations'
 
 group = 'lowlevel'
 
-includes = []
-
 devices = dict(
     tths = device('nicos.devices.generic.Axis',
         description = 'Simulated TTHS',
