@@ -12,7 +12,7 @@
 .. autoclass:: PowerSupply()
 
 .. automodule:: nicos_mlz.reseda.devices.regulator
-.. autoclass:: Regulator
+.. autoclass:: Regulator()
 
 .. automodule:: nicos_mlz.reseda.devices.cascade
 .. autoclass:: CascadeDetector()
@@ -20,21 +20,11 @@
 .. automodule:: nicos_mlz.reseda.devices.scandet
 .. autoclass:: ScanningDetector()
 
-.. automodule:: nicos_mlz.reseda.devices.scatteringvector
-.. autoclass:: ScatteringVector()
-
-.. automodule:: nicos_mlz.reseda.devices.sel
-.. autoclass:: Wavelength()
-
-.. automodule:: nicos_mlz.reseda.devices.tau
-.. autoclass:: tauTwoarms()
-.. autoclass:: tauMieze()
-
 .. automodule:: nicos_mlz.reseda.devices.tuning
-.. autoclass:: EchoTime
+.. autoclass:: EchoTime()
 
 .. automodule:: nicos_mlz.reseda.devices.armcontrol
-.. autoclass:: ArmController
+.. autoclass:: ArmController()
 
 
 Data file formats
