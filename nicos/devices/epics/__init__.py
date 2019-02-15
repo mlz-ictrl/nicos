@@ -45,8 +45,10 @@ STAT_TO_STATUS = {
 if os.environ.get('NICOS_EPICS') == 'pvaccess':
     from nicos.devices.epics.pvaccess import EpicsDevice, EpicsReadable, \
         EpicsStringReadable, EpicsMoveable, EpicsStringMoveable, \
-        EpicsAnalogMoveable, EpicsDigitalMoveable, EpicsWindowTimeoutDevice
+        EpicsAnalogMoveable, EpicsDigitalMoveable, EpicsWindowTimeoutDevice, \
+        pvget, pvput
 else:
     from nicos.devices.epics.pyepics import EpicsDevice, EpicsReadable, \
         EpicsStringReadable, EpicsMoveable, EpicsStringMoveable, \
-        EpicsAnalogMoveable, EpicsDigitalMoveable, EpicsWindowTimeoutDevice
+        EpicsAnalogMoveable, EpicsDigitalMoveable, EpicsWindowTimeoutDevice, \
+        pvget, pvput

@@ -39,6 +39,7 @@ from nicos.core import SIMULATION, CommunicationError, ConfigurationError, \
 from nicos.core.mixins import HasWindowTimeout
 from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
 from nicos.utils import HardwareStub
+from nicos.commands import helparglist, hiddenusercommand
 
 # ca.clear_cache() only works from the main thread
 if not isinstance(threading.currentThread(), threading._MainThread):
@@ -94,6 +95,19 @@ FTYPE_TO_VALUETYPE = {
     33: int,
     34: float,
 }
+
+
+@hiddenusercommand
+@helparglist('name[, as_string, count, as_numpy, timeout]')
+def pvget(name, as_string=False, count=None, as_numpy=True,
+          timeout=5.0):
+    return epics.caget(name, as_string, count, as_numpy, timeout=timeout)
+
+
+@hiddenusercommand
+@helparglist('name, value[, wait, timeout]')
+def pvput(name, value, wait=False, timeout=60):
+    epics.caput(name, value, wait, timeout)
 
 
 class EpicsDevice(DeviceMixinBase):

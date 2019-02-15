@@ -39,6 +39,7 @@ from nicos.core import POLLER, SIMULATION, CommunicationError, \
 from nicos.core.mixins import HasWindowTimeout
 from nicos.devices.epics import SEVERITY_TO_STATUS, STAT_TO_STATUS
 from nicos.utils import HardwareStub
+from nicos.commands import helparglist, hiddenusercommand
 
 try:
     import pvaccess
@@ -58,6 +59,49 @@ __all__ = [
     'EpicsMoveable','EpicsAnalogMoveable', 'EpicsDigitalMoveable',
     'EpicsWindowTimeoutDevice',
 ]
+
+
+@hiddenusercommand
+@helparglist('name[, as_string, use_ca]')
+def pvget(name, as_string=False, use_ca=True):
+    channel = pvaccess.Channel(name, pvaccess.CA if use_ca else pvaccess.PVA)
+    return _pvget(channel, as_string=as_string)
+
+
+@hiddenusercommand
+@helparglist('name, value[, use_ca]')
+def pvput(name, value, use_ca=True):
+    pvaccess.Channel(name, pvaccess.CA if use_ca else pvaccess.PVA).put(value)
+
+
+def _pvget(channel, field='value', as_string=False):
+    try:
+        result = channel.get(field).getPyObject()
+    except pvaccess.PvaException:
+        return None
+
+    if as_string:
+        if (isinstance(result, dict) and
+                {'index', 'choices'}.issubset(set(result))):
+            # convert (most probably) enum to string
+            return result.get('choices')[result.get('index')]
+        elif isinstance(result, list):
+            # convert char waveform to string
+            firstnull = result.index(0) if 0 in result else len(result)
+            try:
+                cval = ''.join([chr(i) for i in result[:firstnull]]).rstrip()
+            except ValueError:
+                cval = ''
+            return cval
+        else:
+            return str(result)
+
+    # For ENUMs do not return the dict but just the index
+    if isinstance(result, dict) and 'index' in result:
+        return result['index']
+
+    return result
+
 
 
 class EpicsDevice(DeviceMixinBase):
@@ -171,34 +215,11 @@ class EpicsDevice(DeviceMixinBase):
         Returns: Value of the queried PV field.
         """
         # result = self._pvs[pvparam].get(field).toDict().get(field)
-        try:
-            result = self._pvs[pvparam].get(field).getPyObject()
-        except pvaccess.PvaException:
-            result = None
+        result = _pvget(self._pvs[pvparam], field, as_string)
 
         if result is None:  # timeout or channel not connected
             raise CommunicationError(self, 'timed out getting PV %r from EPICS'
                                      % self._get_pv_name(pvparam))
-
-        if as_string:
-            if (isinstance(result, dict) and
-                    set(['index', 'choices']).issubset(set(result))):
-                # convert (most probably) enum to string
-                return result.get('choices')[result.get('index')]
-            elif isinstance(result, list):
-                # convert char waveform to string
-                firstnull = result.index(0) if 0 in result else len(result)
-                try:
-                    cval = ''.join([chr(i) for i in result[:firstnull]]).rstrip()
-                except ValueError:
-                    cval = ''
-                return cval
-            else:
-                return str(result)
-
-        # For ENUMs do not return the dict but just the index
-        if isinstance(result, dict) and 'index' in result:
-            return result['index']
 
         return result
 
