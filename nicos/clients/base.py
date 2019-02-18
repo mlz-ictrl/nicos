@@ -225,14 +225,14 @@ class NicosClient(object):
 
     def handle_error(self, err):
         if isinstance(err, ErrorResponse):
-            self.signal('error', 'Error from daemon: ' + err.args[0] + '.')
+            self.signal('error', 'Error from daemon: %s.' % (err.args[0],))
         else:
             if isinstance(err, ProtocolError):
-                msg = 'Communication error: %s.' % err.args[0]
+                msg = 'Communication error: %s.' % (err.args[0],)
             elif isinstance(err, socket.timeout):
                 msg = 'Connection to server timed out.'
             elif isinstance(err, socket.error):
-                msg = 'Server connection broken: %s.' % err.args[1]
+                msg = 'Server connection broken: %s.' % (err.args[1],)
             # we cannot handle this without breaking connection, since
             # it generally means that the response is not yet received;
             # and to carry on means that we receive the pending response
@@ -240,7 +240,7 @@ class NicosClient(object):
             elif isinstance(err, KeyboardInterrupt):
                 msg = 'Server communication interrupted by user.'
             else:
-                msg = 'Exception occurred: %s.' % err
+                msg = 'Exception occurred: %s.' % (err,)
             self.signal('broken', msg)
             self._close()
 
@@ -392,7 +392,8 @@ class NicosClient(object):
     def getDeviceParams(self, devname):
         """Return values of all device parameters from cache, as a dictionary."""
         params = {}
-        devkeys = self.ask('getcachekeys', devname.lower() + '/', default=[])
+        devkeys = self.ask('getcachekeys', devname.lower() + '/',
+                           quiet=True, default=[])
         for item in devkeys:
             try:
                 key, value = item

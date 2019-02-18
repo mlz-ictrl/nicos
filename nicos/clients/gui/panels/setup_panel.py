@@ -711,9 +711,9 @@ class SXTalSamplePanel(GenericSamplePanel):
 
     def applyChanges(self):
         code = 'NewSample(%r, ' % self.samplenameEdit.getValue()
-        code += 'cell=%r, ' % self.cellEdit.getValue().tolist()
-        code += 'bravais=%r, ' % self.bravaisEdit.getValue()
-        code += 'laue=%r)' % self.laueEdit.getValue()
+        code += 'cell=(%r, ' % self.cellEdit.getValue().tolist()
+        code += '%r, ' % self.bravaisEdit.getValue()
+        code += '%r))' % self.laueEdit.getValue()
 
         self.client.run(code.rstrip())
         self.showInfo('Sample parameters changed.')

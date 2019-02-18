@@ -136,13 +136,14 @@ def SXTalCellType(val=None):
         return SXTalCell.fromabc(**val)
     elif isinstance(val, np.ndarray) and val.shape == (3, 3):
         return SXTalCell(val.T)
-    elif isinstance(val, tuple) and isinstance(val[0], np.ndarray) and \
-            val[0].shape == (3, 3):
-        bravais = val[1] if len(val) > 1 else 'P'
-        laue = val[2] if len(val) > 2 else '1'
-        return SXTalCell(val[0].T, bravais, laue)
     elif isinstance(val, list) and len(val) == 3 and isinstance(val[0], list):
         return SXTalCell(np.array(val).T)
+    elif isinstance(val, tuple) and len(val) <= 3:
+        cellarr = np.asarray(val[0])
+        if cellarr.shape == (3, 3):
+            bravais = val[1] if len(val) > 1 else 'P'
+            laue = val[2] if len(val) > 2 else '1'
+            return SXTalCell(cellarr.T, bravais, laue)
     elif isinstance(val, (list, tuple)) and len(val) >= 6:
         bravais = val[6] if len(val) > 6 else 'P'
         laue = val[7] if len(val) > 7 else '1'

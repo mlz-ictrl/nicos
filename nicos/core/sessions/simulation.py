@@ -44,7 +44,7 @@ from nicos.core.utils import User
 from nicos.pycompat import cPickle as pickle, exec_, iteritems
 from nicos.services.daemon.script import parseScript
 from nicos.utils import createSubprocess
-from nicos.utils.loggers import SimDebugHandler, recordToMessage
+from nicos.utils.loggers import ACTION, SimDebugHandler, recordToMessage
 from nicos.utils.messaging import nicos_zmq_ctx
 
 # a message to be logged
@@ -92,6 +92,8 @@ class SimLogSender(logging.Handler):
         self.level = 0
 
     def emit(self, record):
+        if record.levelno == ACTION:
+            return
         if not self.quiet:
             msg = recordToMessage(record, self.simuuid)
             self.socket.send(serialize((SIM_MESSAGE, msg)))

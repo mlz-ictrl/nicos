@@ -32,7 +32,7 @@ import struct
 
 from nicos.protocols.daemon import DAEMON_COMMANDS, DAEMON_EVENTS, \
     Serializer as BaseSerializer
-from nicos.pycompat import cPickle as pickle
+from nicos.pycompat import cPickle as pickle, PY2
 
 # default port for the daemon
 
@@ -109,16 +109,31 @@ class ClassicSerializer(BaseSerializer):
 
     # deserializing
 
-    def deserialize_cmd(self, data, cmdname=None):
-        return cmdname, pickle.loads(data)
+    if not PY2:
+        # try to support messages coming from Python 2 daemons
 
-    def deserialize_reply(self, data, success=None):
-        assert success is not None
-        data = pickle.loads(data) if data else None
-        return success, data
+        def deserialize_cmd(self, data, cmdname=None):
+            return cmdname, pickle.loads(data, encoding='latin1')
 
-    def deserialize_event(self, data, evtname=None):
-        return evtname, pickle.loads(data)
+        def deserialize_reply(self, data, success=None):
+            assert success is not None
+            data = pickle.loads(data, encoding='latin1') if data else None
+            return success, data
+
+        def deserialize_event(self, data, evtname=None):
+            return evtname, pickle.loads(data, encoding='latin1')
+
+    else:
+        def deserialize_cmd(self, data, cmdname=None):
+            return cmdname, pickle.loads(data)
+
+        def deserialize_reply(self, data, success=None):
+            assert success is not None
+            data = pickle.loads(data) if data else None
+            return success, data
+
+        def deserialize_event(self, data, evtname=None):
+            return evtname, pickle.loads(data)
 
 
 class JsonSerializer(BaseSerializer):
