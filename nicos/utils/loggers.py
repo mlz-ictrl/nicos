@@ -370,6 +370,11 @@ class SimDebugHandler(StreamHandler):
         StreamHandler.__init__(self, sys.stderr)
         self.setFormatter(NicosLogfileFormatter('(sim) ' + LOGFMT, DATEFMT))
 
+    def emit(self, record):
+        if record.levelno == ACTION:
+            return
+        StreamHandler.emit(self, record)
+
 
 class ELogHandler(Handler):
 
