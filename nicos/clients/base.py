@@ -392,7 +392,8 @@ class NicosClient(object):
     def getDeviceParams(self, devname):
         """Return values of all device parameters from cache, as a dictionary."""
         params = {}
-        devkeys = self.ask('getcachekeys', devname.lower() + '/', default=[])
+        devkeys = self.ask('getcachekeys', devname.lower() + '/',
+                           quiet=True, default=[])
         for item in devkeys:
             try:
                 key, value = item
