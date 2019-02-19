@@ -206,7 +206,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         done_moving = self._get_pv('donemoving')
         moving = self._get_pv('moving')
         if done_moving == 0 or moving != 0:
-            return status.BUSY, 'Motor is moving to target...'
+            return status.BUSY, message or 'Motor is moving to target...'
 
         miss = self._get_pv('miss')
         if miss != 0:
@@ -225,16 +225,16 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         if limit_violation != 0:
             return status.WARN, message or 'Soft limit violation.'
 
-        return status.OK, message or 'Ready.'
+        return status.OK, message
 
     def _get_status_message(self):
         """
         Get the status message from the motor if the PV exists.
 
-        :return: The status message if it exists, otherwise None.
+        :return: The status message if it exists, otherwise an empty string.
         """
         if not self.errormsgpv:
-            return None
+            return ''
 
         return self._get_pv('errormsgpv', as_string=True)
 
