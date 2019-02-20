@@ -345,8 +345,33 @@ class CSVSinkHandler(DataSinkHandler):
                                     extrasaction='ignore')
             writer.writerow(addinfo)
 
-        session.emitfunc('dataset', self.dataset)
-        self.dataset.preset.pop('FILENAME')
+        # add some members to the datase to fake the point dataset as a scan
+        # point dataset to make the DataHandler happy
+        ds = self.dataset
+        ds.xindex = 0
+        ds.xnames = ['channels']
+        ds.xunits = ['']
+        ds.ynames = ['counts']
+        ds.yunits = ['']
+        ds.xvalueinfo = ds.devvalueinfo + ds.envvalueinfo
+        ds.yvalueinfo = ds.detvalueinfo
+        ds.xresults = [ds.devvaluelist + ds.envvaluelist]
+        ds.yresults = [ds.detvaluelist]
+
+        # Update the log view
+        session.emitfunc('dataset', ds)
+
+        # Clean up point dataset
+        del ds.yresults
+        del ds.xresults
+        del ds.yvalueinfo
+        del ds.xvalueinfo
+        del ds.yunits
+        del ds.ynames
+        del ds.xunits
+        del ds.xnames
+        del ds.xindex
+        ds.preset.pop('FILENAME')
 
 
 class CSVDataSink(FileSink):

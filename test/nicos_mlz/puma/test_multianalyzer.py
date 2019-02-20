@@ -30,6 +30,7 @@ import os
 
 import pytest
 
+from nicos.core import status
 from nicos.core.errors import InvalidValueError, LimitError
 
 try:
@@ -70,13 +71,12 @@ class TestMultiAnalyzer(object):
         ra1 = session.getDevice('ra1')
         ra2 = session.getDevice('ra2')
 
-        ra1.speed = 1
-        assert ra1.speed != 0
-        ra1.move(-2)
-        assert ra2.isAllowed(-2)
-        ra1.stop()
-        ra1.wait()
         ra1.speed = 0
+        ra1.move(-0.3)
+        ra1.motor.curstatus = status.BUSY, 'moving'
+        assert ra2.isAllowed(-2)
+        ra1.motor.curstatus = status.OK, ''
+        ra1.wait()
 
     @pytest.mark.skip(reason='flaky test, disabled for now')
     @pytest.mark.timeout(timeout=10, method='thread', func_only=True)

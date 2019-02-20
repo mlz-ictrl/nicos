@@ -35,6 +35,7 @@ devices = dict(
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
+    livesink = device('nicos.devices.datasinks.LiveViewSink'),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         minfree = 5,

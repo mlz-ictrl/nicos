@@ -3,7 +3,7 @@ description = 'PGAA setup with XYZOmega sample table'
 group = 'basic'
 
 sysconfig = dict(
-    datasinks = ['mcasink', 'chnsink', 'csvsink']
+    datasinks = ['mcasink', 'chnsink', 'csvsink', 'livesink']
 )
 
 includes = [
