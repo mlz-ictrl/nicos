@@ -5,6 +5,11 @@
 # run arbitrary code
 extension-pkg-whitelist=numpy,
     scipy,
+    OpenGL,
+    OpenGL.GL,
+    OpenGL.GLU,
+    OpenGL.GLUT,
+    OpenGL.GLUT.fonts,
     PyQt4.QtCore,
     PyQt4.QtGui,
     PyQt4.QtWebKit,

@@ -27,4 +27,5 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos_mlz.pgaa.gui.panels.pgaa import PGAAPanel
+from nicos_mlz.pgaa.gui.panels.pgai import PGAIPanel
 from nicos_mlz.pgaa.gui.panels.tomography import TomographyPanel

@@ -8,6 +8,9 @@ main_window = docked(
         ('Tomography',
          panel('nicos_mlz.pgaa.gui.panels.TomographyPanel', setups='tomography',),
         ),
+        ('PGAI',
+         panel('nicos_mlz.pgaa.gui.panels.PGAIPanel', setups='pgai',)
+        ),
         ('Expert mode',
          vsplit(
             panel('nicos.clients.gui.panels.status.ScriptStatusPanel', eta=True),
