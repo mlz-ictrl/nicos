@@ -366,8 +366,8 @@ class EditorPanel(Panel):
         del self.watchers[editor]
         self.tabber.removeTab(index)
 
-    def setDirty(self, dirty):
-        if self.sender() is self.currentEditor:
+    def setDirty(self, editor, dirty):
+        if editor is self.currentEditor:
             self.actionSave.setEnabled(dirty)
             self.actionUndo.setEnabled(dirty)
             self.window.setWindowModified(dirty)
@@ -416,7 +416,8 @@ class EditorPanel(Panel):
         else:
             editor = QScintillaCompatible(self)
         # editor.setFrameStyle(0)
-        editor.modificationChanged.connect(self.setDirty)
+        editor.modificationChanged.connect(
+            lambda dirty: self.setDirty(editor, dirty))
         self._updateStyle(editor)
         return editor
 

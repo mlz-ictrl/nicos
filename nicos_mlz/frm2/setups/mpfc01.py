@@ -1,5 +1,5 @@
 description = 'battery furnace'
-group = 'optional'
+group = 'plugplay'
 
 includes = ['alias_T']
 
