@@ -73,8 +73,8 @@ class Server(BaseServer, socketserver.TCPServer):
             except queue.Full:
                 # close event socket to let the connection get
                 # closed by the handler
-                self.log.warning('handler %s: queue full, closing socket',
-                                 hdlr.ident)
+                self.daemon.log.warning('handler %s: queue full, '
+                                        'closing socket', hdlr.ident)
                 closeSocket(hdlr.event_sock)
                 closeSocket(hdlr.sock)
 
