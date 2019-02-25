@@ -304,6 +304,7 @@ class Scan(object):
             try:
                 waitresults[dev.name] = (None, dev.read())
             except NicosError:
+                dev.log.warning('Readout problem, continuing', exc=1)
                 waitresults[dev.name] = (None, [None] * len(dev.valueInfo()))
 
         return waitresults
