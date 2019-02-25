@@ -126,12 +126,12 @@ class Scan(object):
 
     def _guessPlotIndex(self, xindex):
         if xindex is not None:
-            self._xindex=xindex
+            self._xindex = xindex
             return
         self._xindex = 0
         if len(self._startpositions) == 1:
             return
-        #iterate over devices
+        # iterate over devices
         for j, dev in enumerate(self._devices):
             valueInfo = dev.valueInfo()
             subvals = len(valueInfo)
@@ -145,15 +145,15 @@ class Scan(object):
             # if the device has multiple values, use the first as default.
             self._xindex += subvals
         session.log.debug('Using field %d as primary x-axis for plotting',
-                         self._xindex)
+                          self._xindex)
 
     @contextmanager
     def pointScope(self, num):
         if self.dataset.npoints == 0:
             session.beginActionScope('Point %d' % num)
         else:
-            session.beginActionScope('Point %d/%d' % (num,
-                                                      self.dataset.npoints))
+            session.beginActionScope('Point %d/%d' %
+                                     (num, self.dataset.npoints))
         try:
             yield
         finally:
