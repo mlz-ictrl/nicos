@@ -24,9 +24,6 @@ main_window = tabbed(
         ('NICOS devices',
          panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
                dockpos='right')),
-        ('Sample Environment',
-         panel('nicos.clients.gui.panels.generic.GenericPanel',
-               uifile='nicos_mlz/spheres/gui/sampleenvironment.ui')),
         (' ',
              hsplit(
                 panel('nicos.clients.gui.panels.generic.GenericPanel',
