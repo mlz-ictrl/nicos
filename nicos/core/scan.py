@@ -88,6 +88,7 @@ class Scan:
                                   if dev not in allenvlist)
         self._firstmoves = firstmoves
         # convert multistep to device positions
+        self._primary_devicesindex = len(devices)
         self._mscount = 1
         if multistep:
             self._mscount = mscount = len(multistep[0][1])
@@ -131,7 +132,7 @@ class Scan:
         if len(self._startpositions) <= self._mscount:
             return
         # iterate over devices (only primary scan devices)
-        for j, dev in enumerate(self._devices):
+        for j, dev in enumerate(self._devices[:self._primary_devicesindex]):
             valueInfo = dev.valueInfo()
             subvals = len(valueInfo)
             st0 = self._startpositions[0][j]
@@ -491,7 +492,7 @@ class SweepScan(Scan):
                     self.moveDevices(self._sweepdevices, self._sweeptargets,
                                      wait=False)
                 except SkipPoint:
-                    raise StopScan
+                    raise StopScan  # pylint:disable=raise-missing-from
         elif self._delay:
             # wait between points, but only from the second point on
             session.action('Delay')
