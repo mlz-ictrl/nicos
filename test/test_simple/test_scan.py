@@ -30,6 +30,8 @@ from __future__ import absolute_import, division, print_function
 import warnings
 from test.utils import raises
 
+import pytest
+
 from nicos.commands.analyze import checkoffset
 from nicos.commands.imaging import tomo
 from nicos.commands.measure import SetEnvironment, avg, count, live, minmax
@@ -147,6 +149,26 @@ def test_scan2(session):
         session.experiment.envlist = []
         session.experiment.detlist = []
 
+@pytest.mark.parametrize('sargs,xindex',[
+    # first device is moving
+      ('[m, m2], [0, 0], [2,0], 2, t=0.', 0),
+    # second device is moving
+      ('[m, m2], [0, 0], [0,2], 2, t=0.', 1),
+    #second device is moving, with multistep (issue #4030, #4031)
+      ('[m, m2], [0, 0], [0, 2], 2, t=0., manual=[1, 2]', 1),
+     #degenerate case only multistep moving, with multistep (issue #4030, #4031)
+      ('[m, m2], [0, 0], [0, 0], 2, t=0., manual=[1, 2]', 0),
+    ])
+def test_scan_plotindex(session, sargs, xindex):
+    m = session.getDevice('motor')  # pylint: disable=unused-variable
+    m2 = session.getDevice('motor2')  # pylint: disable=unused-variable
+    mm = session.getDevice('manual')
+    mm.move(0)
+
+    session.experiment.setDetectors([session.getDevice('det')])
+    eval("scan(%s)" % sargs)
+    dataset = session.data._last_scans[-1]
+    assert dataset.xindex == xindex
 
 def test_scan_usageerrors(session):
     m = session.getDevice('motor')

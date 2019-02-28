@@ -90,8 +90,9 @@ class Scan(object):
                 allenvlist.extend(dev for dev in envlist if dev not in allenvlist)
         self._firstmoves = firstmoves
         # convert multistep to device positions
+        self._mscount = 1
         if multistep:
-            mscount = len(multistep[0][1])
+            self._mscount = mscount = len(multistep[0][1])
             mspos = [[multistep[i][1][j]
                       for i in range(len(multistep))]
                      for j in range(mscount)]
@@ -129,14 +130,14 @@ class Scan(object):
             self._xindex = xindex
             return
         self._xindex = 0
-        if len(self._startpositions) == 1:
+        if len(self._startpositions) <= self._mscount:
             return
-        # iterate over devices
+        #iterate over devices (only primary scan devices)
         for j, dev in enumerate(self._devices):
             valueInfo = dev.valueInfo()
             subvals = len(valueInfo)
             st0 = self._startpositions[0][j]
-            st1 = self._startpositions[1][j]
+            st1 = self._startpositions[self._mscount][j]
             if isinstance(st0, ndarray):
                 if not array_equal(st0, st1):
                     break
@@ -144,6 +145,8 @@ class Scan(object):
                 break
             # if the device has multiple values, use the first as default.
             self._xindex += subvals
+        else:
+            self._xindex = 0
         session.log.debug('Using field %d as primary x-axis for plotting',
                           self._xindex)
 
