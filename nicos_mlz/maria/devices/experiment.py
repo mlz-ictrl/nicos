@@ -26,6 +26,8 @@
 
 from __future__ import absolute_import, division, print_function
 
+from os import path
+
 from nicos.core import SIMULATION
 from nicos.utils import safeName
 
@@ -50,3 +52,7 @@ class Experiment(_Experiment):
             params = dict(parameters) if parameters else dict()
             params.update(self.propinfo)
             self.handleTemplates(self.proposal, params)
+
+    @property
+    def elogpath(self):
+        return path.join(self.proposalpath, 'logbook')
