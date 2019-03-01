@@ -260,12 +260,15 @@
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="seconds">
-       <property name="maximum">
-        <number>1000000</number>
+      <widget class="QDoubleSpinBox" name="seconds">
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
-       <property name="value">
+       <property name="decimals">
         <number>1</number>
+       </property>
+       <property name="maximum">
+        <double>1000000.000000000000000</double>
        </property>
       </widget>
      </item>
