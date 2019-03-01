@@ -827,9 +827,52 @@ class ControlDialog(QDialog):
             historyBtn.setText('Plot history...')
             historyBtn.clicked.connect(self.on_historyBtn_clicked)
 
-        # show a "Control" group box if it is moveable
-        if 'nicos.core.device.Moveable' not in classes or self.client.viewonly:
-            self.controlGroup.setVisible(False)
+        if self.client.viewonly:
+            self.limitFrame.setVisible(False)
+            self.targetFrame.setVisible(False)
+            return
+
+        # add a menu for the "More" button
+        self.moveBtns.clear()
+        menu = QMenu(self)
+        if 'nicos.core.mixins.HasLimits' in classes:
+            menu.addAction(self.actionSetLimits)
+        if 'nicos.core.mixins.HasOffset' in classes:
+            menu.addAction(self.actionAdjustOffset)
+        if 'nicos.devices.abstract.CanReference' in classes:
+            menu.addAction(self.actionReference)
+        if 'nicos.core.device.Moveable' in classes:
+            menu.addAction(self.actionFix)
+            menu.addAction(self.actionRelease)
+        if 'nicos.core.mixins.CanDisable' in classes:
+            if not menu.isEmpty():
+                menu.addSeparator()
+            menu.addAction(self.actionEnable)
+            menu.addAction(self.actionDisable)
+        if not menu.isEmpty():
+            menuBtn = QPushButton('More', self)
+            menuBtn.setMenu(menu)
+            self.moveBtns.addButton(menuBtn, QDialogButtonBox.ResetRole)
+
+        def reset(checked):
+            self.device_panel.exec_command('reset(%s)' % self.devrepr)
+
+        def stop(checked):
+            self.device_panel.exec_command('stop(%s)' % self.devrepr,
+                                           immediate=True)
+
+        self.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole)\
+                     .clicked.connect(reset)
+
+        if 'nicos.core.device.Moveable' in classes or \
+           'nicos.core.device.Measurable' in classes:
+            self.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole)\
+                         .clicked.connect(stop)
+
+        # show target and limits if the device is Moveable
+        if 'nicos.core.device.Moveable' not in classes:
+            self.limitFrame.setVisible(False)
+            self.targetFrame.setVisible(False)
         else:
             if 'nicos.core.mixins.HasLimits' not in classes:
                 self.limitFrame.setVisible(False)
@@ -847,34 +890,8 @@ class ControlDialog(QDialog):
                 self.device_panel.exec_command('move(%s, %s)' %
                                                (self.devrepr, srepr(target)))
             self.target.valueChosen.connect(btn_callback)
-            self.targetLayout.takeAt(1).widget().deleteLater()
-            self.targetLayout.insertWidget(1, self.target)
-
-            # add a menu for the "More" button
-            menu = QMenu(self)
-            if 'nicos.core.mixins.HasLimits' in classes:
-                menu.addAction(self.actionSetLimits)
-            if 'nicos.core.mixins.HasOffset' in classes:
-                menu.addAction(self.actionAdjustOffset)
-            if 'nicos.devices.abstract.CanReference' in classes:
-                menu.addAction(self.actionReference)
-            menu.addAction(self.actionFix)
-            menu.addAction(self.actionRelease)
-            if 'nicos.core.mixins.CanDisable' in classes:
-                menu.addSeparator()
-                menu.addAction(self.actionEnable)
-                menu.addAction(self.actionDisable)
-            menuBtn = QPushButton('More', self)
-            menuBtn.setMenu(menu)
-            self.moveBtns.clear()
-            self.moveBtns.addButton(menuBtn, QDialogButtonBox.ResetRole)
-
-            def reset(checked):
-                self.device_panel.exec_command('reset(%s)' % self.devrepr)
-
-            def stop(checked):
-                self.device_panel.exec_command('stop(%s)' % self.devrepr,
-                                               immediate=True)
+            self.targetFrame.layout().takeAt(1).widget().deleteLater()
+            self.targetFrame.layout().insertWidget(1, self.target)
 
             def move(checked):
                 try:
@@ -884,8 +901,6 @@ class ControlDialog(QDialog):
                 self.device_panel.exec_command(
                     'move(%s, %s)' % (self.devrepr, srepr(target)))
 
-            self.moveBtns.addButton('Reset', QDialogButtonBox.ResetRole).clicked.connect(reset)
-            self.moveBtns.addButton('Stop', QDialogButtonBox.ResetRole).clicked.connect(stop)
             if self.target.getValue() is not Ellipsis:  # (button widget)
                 self.moveBtn = self.moveBtns.addButton(
                     'Move', QDialogButtonBox.AcceptRole)
