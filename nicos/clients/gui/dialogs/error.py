@@ -46,6 +46,8 @@ class ErrorDialog(QDialog):
         existing = self.errorText.text()
         message = from_maybe_utf8(message)
         if existing:
-            self.errorText.setText(existing + '\n' + message)
+            # limit the amount of displayed lines
+            new = existing.splitlines()[-20:] + [message]
+            self.errorText.setText('\n'.join(new))
         else:
             self.errorText.setText(message)
