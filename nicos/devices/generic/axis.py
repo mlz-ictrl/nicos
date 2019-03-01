@@ -158,15 +158,12 @@ class Axis(CanReference, AbstractAxis):
 
     def doStart(self, target):
         """Starts the movement of the axis to target."""
-        if self._checkTargetPosition(self.read(0), target, error=False):
-            self.log.debug('not moving, already at %.4f within precision',
-                           target)
-            return
-
         if self._mode == SIMULATION:
-            self._attached_motor.start(target + self.offset)
-            if self._hascoder:
-                self._attached_coder._sim_setValue(target + self.offset)
+            if not self._checkTargetPosition(self.read(0), target,
+                                             error=False):
+                self._attached_motor.start(target + self.offset)
+                if self._hascoder:
+                    self._attached_coder._sim_setValue(target + self.offset)
             return
 
         if self.status(0)[0] == status.BUSY:
@@ -179,12 +176,16 @@ class Axis(CanReference, AbstractAxis):
                 self._posthread.join()
             self._posthread = None
 
-        self._target = target
         self._stoprequest = 0
         self._errorstate = None
-        if not self._posthread:
-            self._posthread = createThread('positioning thread %s' % self,
-                                           self.__positioningThread)
+        if self._checkTargetPosition(self.read(0), target, error=False):
+            self.log.debug('not moving, already at %.4f within precision',
+                           target)
+            return
+
+        self._target = target
+        self._posthread = createThread('positioning thread %s' % self,
+                                       self.__positioningThread)
 
     def _getWaiters(self):
         if self._mode == SIMULATION:
