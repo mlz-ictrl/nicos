@@ -93,8 +93,8 @@ from nicos.guisupport.widget import NicosWidget  # isort:skip
 
 # imported for side effects
 # pylint: disable=unused-import
-from nicos.guisupport import (button, containers, display, led, # isort:skip
-    tas, trees, typedvalue)
+from nicos.guisupport import (button, containers, display, led,  # isort:skip
+                              squeezedlbl, tas, trees, typedvalue)
 
 try:
     from nicos.guisupport import plots  # pylint: disable=W0611

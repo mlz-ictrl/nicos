@@ -133,7 +133,7 @@ def nicedelta(t):
         return '%.1f hours' % (t / 3600.)
 
 
-class ValueLabel(NicosWidget, SqueezedLabel):
+class ValueLabel(SqueezedLabel):
     """Label that just displays a single value."""
 
     designer_description = 'A label that just displays a single value'
@@ -148,8 +148,7 @@ class ValueLabel(NicosWidget, SqueezedLabel):
 
     def __init__(self, parent, designMode=False, **kwds):
         self._designMode = designMode
-        SqueezedLabel.__init__(self, parent, **kwds)
-        NicosWidget.__init__(self)
+        SqueezedLabel.__init__(self, parent, designMode, **kwds)
         if designMode:
             self.setText('(value display)')
         self._callback = lambda value, strvalue: from_maybe_utf8(strvalue)

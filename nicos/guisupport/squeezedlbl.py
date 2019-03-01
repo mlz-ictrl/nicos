@@ -29,15 +29,19 @@ A label that "squeezes" its text, inserting an ellipsis if necessary.
 from __future__ import absolute_import, division, print_function
 
 from nicos.guisupport.qt import QLabel, Qt
+from nicos.guisupport.widget import NicosWidget
 from nicos.pycompat import text_type
 
 
-class SqueezedLabel(QLabel):
+class SqueezedLabel(QLabel, NicosWidget):
     """A label that elides text to fit its width."""
 
-    def __init__(self, *args):
+    designer_description = 'A label that elides text to fit its width'
+
+    def __init__(self, parent, designMode=False, **kwds):
         self._fulltext = ''
-        QLabel.__init__(self, *args)
+        QLabel.__init__(self, parent, **kwds)
+        NicosWidget.__init__(self)
         self._squeeze()
 
     def resizeEvent(self, event):

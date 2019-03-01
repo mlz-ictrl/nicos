@@ -64,13 +64,6 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1" colspan="2">
-         <widget class="QLabel" name="valuelabel">
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_10">
           <property name="sizePolicy">
@@ -115,15 +108,12 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="1" colspan="2">
+         <widget class="SqueezedLabel" name="valuelabel"/>
+        </item>
         <item row="1" column="2">
-         <widget class="QLabel" name="statuslabel">
+         <widget class="SqueezedLabel" name="statuslabel">
           <property name="autoFillBackground">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-          <property name="wordWrap">
            <bool>true</bool>
           </property>
          </widget>
@@ -349,6 +339,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SqueezedLabel</class>
+   <extends>QLabel</extends>
+   <header>nicos.guisupport.squeezedlbl</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>moveBtns</tabstop>
   <tabstop>setAliasBtn</tabstop>
