@@ -54,7 +54,6 @@ devices = dict(
         description = 'Currently used sample',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
-        description = 'metadevice storing the scanfiles',
         filenametemplate = [
             '%(proposal)s_'
             '%(scancounter)08d.dat', '/%(year)d/cycle_%(cycle)s/'
@@ -62,12 +61,8 @@ devices = dict(
             '%(scancounter)08d.dat'
         ],
     ),
-    conssink = device('nicos.devices.datasinks.ConsoleScanSink',
-        description = 'handles console output',
-    ),
-    daemonsink = device('nicos.devices.datasinks.DaemonSink',
-        description = 'handles I/O inside daemon',
-    ),
+    conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
+    daemonsink = device('nicos.devices.datasinks.DaemonSink'),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free space on the log drive',
         path = 'log',
