@@ -455,6 +455,9 @@ def contscan(dev, start, end, speed=None, timedelta=None, *args, **kwargs):
     dev = session.getDevice(dev, Moveable)
     if not hasattr(dev, 'speed'):
         raise UsageError('continuous scan device must have a speed parameter')
+    if getattr(dev, 'backlash', 0) != 0:
+        session.log.warning('device has a nonzero backlash; this will most '
+                            'likely not work properly with a continuous scan')
     # allow skipping speed/timedelta arguments
     if timedelta is not None and not isinstance(timedelta, number_types):
         args = (timedelta,) + args
