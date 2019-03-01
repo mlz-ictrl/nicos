@@ -51,7 +51,7 @@ class KWSExperiment(Experiment):
             return
         proto_path = path.join(self.proposalpath, 'protocol.txt')
         try:
-            text = self._generate_protocol()
+            text = self._generate_protocol(with_ts=True)
             with open(proto_path, 'wb') as fp:
                 fp.write(to_utf8(text))
         except Exception:
