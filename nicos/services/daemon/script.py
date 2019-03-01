@@ -152,6 +152,8 @@ class ScriptRequest(Request):
         if self.name:
             session.elogEvent('scriptbegin', self.name)
             session.beginActionScope(path.basename(self.name))
+        # notify clients of "input"
+        session.log.log(INPUT, formatScript(self))
         try:
             while self.curblock < len(self.code) - 1:
                 self._run.wait()
@@ -665,13 +667,12 @@ class ExecutionController(Controller):
                     request.setSimstate('running')
                 # notify clients that we're processing this request now
                 self.eventfunc('processing', request.serialize())
-                # notify clients of "input"
-                session.log.log(INPUT, formatScript(request))
                 # parse the script and split it into blocks
                 try:
                     self.current_script = request
                     self.current_script.parse()
                 except Exception:
+                    session.log.log(INPUT, formatScript(request))
                     session.logUnhandledException(cut_frames=1)
                     continue
                 try:
