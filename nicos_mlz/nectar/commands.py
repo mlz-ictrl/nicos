@@ -28,7 +28,6 @@ import math
 
 from nicos import session
 from nicos.commands import helparglist, usercommand
-from nicos.commands.device import maw
 from nicos.commands.measure import count
 from nicos.commands.scan import manualscan
 from nicos.core.errors import UsageError
@@ -78,7 +77,7 @@ def grtomo(nangles, moveable=None, imgsperangle=1, img180=True, startpoint=0,
 @usercommand
 @helparglist('xpos, ypos, exposuretime=1, number_ob=15, number_di=15')
 def alignsample(xpos, ypos, exposuretime=1, number_ob=15, number_di=15):
-    """Performs a 'sample alignment'.
+    """Perform a 'sample alignment'.
 
     Moves the sample to a safe position and takes first *number_di* dark images
     with *exposuretime* and then *number_ob* open beam images with the same
@@ -92,14 +91,14 @@ def alignsample(xpos, ypos, exposuretime=1, number_ob=15, number_di=15):
     sty = session.getDevice('sty')
 
     session.log.info('Acquire openbeam and dark images')
-    maw(sty, 1.0)
-    maw(stx, 1.0)
+    sty.maw(1.0)
+    stx.maw(1.0)
 
     for _i in range(number_di):
         darkimage(t=exposuretime)
     for _i in range(number_ob):
         openbeamimage(t=exposuretime)
 
-    maw(stx, xpos)
-    maw(sty, ypos)
+    stx.maw(xpos)
+    sty.maw(ypos)
     session.log.info('Sample is aligned')
