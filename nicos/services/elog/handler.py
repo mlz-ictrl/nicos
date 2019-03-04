@@ -46,6 +46,7 @@ except ImportError:
 FRAMESET = u'''\
 <html>
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>%s logbook: %s</title>
 </head>
 <frameset cols="200,*">
