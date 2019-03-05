@@ -127,9 +127,8 @@ class Detector(MeasureSequencer):
 
     def doSetPreset(self, **preset):
         if preset:
-            self._time_preset = preset['t'] if 't' in preset else 0
-            self._mon_preset = preset['mon1'] if 'mon1' in preset else \
-                preset['mon2'] if 'mon2' in preset else 0
+            self._time_preset = preset.get('t', 0)
+            self._mon_preset = preset.get('mon1', preset.get('mon2', 0))
             if 'resosteps' in preset:
                 self.resosteps = int(preset['resosteps'])
                 preset.pop('resosteps')
