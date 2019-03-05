@@ -34,7 +34,8 @@ from functools import wraps
 from time import localtime, time as currenttime
 
 from nicos import nicos_version, session
-from nicos.core import SIMULATION, status
+from nicos.core import status
+from nicos.core.constants import SIMULATION
 from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, MoveError, NicosError, NicosTimeoutError, \
     PositionError
