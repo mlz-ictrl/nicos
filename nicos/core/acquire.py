@@ -34,6 +34,7 @@ from nicos import session
 from nicos.core.constants import FINAL, INTERRUPTED, SIMULATION
 from nicos.core.errors import NicosError
 from nicos.core.params import Value
+from nicos.core.utils import waitForCompletion
 from nicos.pycompat import reraise
 
 
@@ -104,6 +105,12 @@ def acquire(point, preset, iscompletefunc=None):
         _wait_for_continuation(delay, only_pause=True)
     for det in point.detectors:
         det.setPreset(**preset)
+
+    for det in point.detectors:
+        det.prepare()
+    for det in point.detectors:
+        waitForCompletion(det)
+
     session.data.updateMetainfo()
     point.started = currenttime()
     try:

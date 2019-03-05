@@ -41,8 +41,7 @@ from nicos.core.constants import FINAL, INTERMEDIATE, SIMULATION, SLAVE
 from nicos.core.errors import LimitError, ModeError, NicosError
 from nicos.core.mixins import HasLimits
 from nicos.core.params import Value
-from nicos.core.utils import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, multiWait, \
-    waitForCompletion
+from nicos.core.utils import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, multiWait
 from nicos.pycompat import iteritems, number_types, reraise
 from nicos.utils import Repeater
 
@@ -132,7 +131,7 @@ class Scan(object):
         self._xindex = 0
         if len(self._startpositions) <= self._mscount:
             return
-        #iterate over devices (only primary scan devices)
+        # iterate over devices (only primary scan devices)
         for j, dev in enumerate(self._devices):
             valueInfo = dev.valueInfo()
             subvals = len(valueInfo)
@@ -194,15 +193,7 @@ class Scan(object):
 
     def preparePoint(self, num, xvalues):
         # called before moving to current scanpoint
-        try:
-            for det in self._detlist:
-                # preparation before count command
-                det.prepare()
-            # wait for preparation has been finished.
-            for det in self._detlist:
-                waitForCompletion(det)
-        except NicosError as err:
-            self.handleError('prepare', err)
+        pass
 
     def finishPoint(self):
         session.breakpoint(2)

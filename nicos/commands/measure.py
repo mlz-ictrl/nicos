@@ -33,7 +33,6 @@ from nicos.core.acquire import Average, MinMax, acquire, read_environment, \
     stop_acquire_thread
 from nicos.core.device import Measurable, SubscanMeasurable
 from nicos.core.errors import NicosError, UsageError
-from nicos.core.utils import waitForCompletion
 from nicos.pycompat import iteritems, number_types, string_types
 from nicos.utils import createThread
 
@@ -59,10 +58,6 @@ def inner_count(detectors, preset, temporary=False, threaded=False):
     # stop previous inner_count / acquisition thread if available
     stop_acquire_thread()
 
-    for det in detectors:
-        det.prepare()
-    for det in detectors:
-        waitForCompletion(det)
     # start counting
     args = dict(detectors=detectors,
                 environment=session.experiment.sampleenv,
