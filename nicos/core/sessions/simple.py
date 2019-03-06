@@ -30,7 +30,7 @@ import signal
 import sys
 
 from nicos import session
-from nicos.core import SLAVE
+from nicos.core.constants import SLAVE
 from nicos.core.sessions import Session
 from nicos.pycompat import exec_
 from nicos.utils import daemonize, removePidfile, setuser, writePidfile

@@ -33,7 +33,8 @@ import signal
 import sys
 
 from nicos import nicos_version, session
-from nicos.core import MASTER, SIMULATION, SLAVE, AccessError
+from nicos.core.constants import MASTER, SIMULATION, SLAVE
+from nicos.core.errors import AccessError
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import NicosCompleter
 from nicos.pycompat import exec_, input as input_func

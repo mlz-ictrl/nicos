@@ -32,7 +32,8 @@ import types
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import MAINTENANCE, MASTER, SLAVE, status
+from nicos.core import status
+from nicos.core.constants import MAINTENANCE, MASTER, SLAVE
 from nicos.core.errors import AccessError, CommunicationError, \
     ConfigurationError, ModeError
 from nicos.core.params import Override, Param, anytype, dictof, floatrange, \

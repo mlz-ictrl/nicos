@@ -157,7 +157,7 @@ def multiStatus(devices, maxage=None):
     The resulting state text is a combination of the status texts of all
     devices.
     """
-    from nicos.core import Readable
+    from nicos.core.device import Readable
     # get to work
     rettext = []
     retstate = 0
@@ -191,7 +191,7 @@ def multiWait(devices):
 
     *baseclass* allows to restrict the devices waited on.
     """
-    from nicos.core import Waitable
+    from nicos.core.device import Waitable
 
     def get_target_str():
         return ', '.join('%s -> %s' % (dev, dev.format(dev.target))
@@ -347,7 +347,7 @@ def multiStop(devices):
     The first given exception is re-raised after all stop() calls have been
     finished, all other exceptions are logged and not re-raised.
     """
-    from nicos.core import Moveable
+    from nicos.core.device import Moveable
     _multiMethod(Moveable, 'stop', devices)
 
 
@@ -357,7 +357,7 @@ def multiReset(devices):
     The first given exception is re-raised after all reset() calls have been
     finished, all other exceptions are logged and not re-raised.
     """
-    from nicos.core import Readable
+    from nicos.core.device import Readable
     _multiMethod(Readable, 'reset', devices)
 
 

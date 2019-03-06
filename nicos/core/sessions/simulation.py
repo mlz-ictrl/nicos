@@ -37,7 +37,8 @@ from threading import Thread
 import zmq
 
 from nicos import config, session
-from nicos.core import SIMULATION, NicosError
+from nicos.core.constants import SIMULATION
+from nicos.core.errors import NicosError
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.core.utils import User

@@ -49,7 +49,8 @@ from __future__ import absolute_import, division, print_function
 import re
 from itertools import chain, cycle, islice
 
-from nicos.core import Device, SPMError
+from nicos.core.device import Device
+from nicos.core.errors import SPMError
 from nicos.pycompat import iteritems, srepr
 
 id_re = re.compile('[a-zA-Z_][a-zA-Z0-9_]*$')
