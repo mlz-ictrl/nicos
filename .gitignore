@@ -51,3 +51,5 @@ mprofile_*.dat
 *.prof
 *.lprof
 
+
+__pycache__
