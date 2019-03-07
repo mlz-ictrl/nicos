@@ -163,12 +163,12 @@ class TearOffTabWidget(QTabWidget):
     def __init__(self, item, window, menuwindow, parent=None):
         QTabWidget.__init__(self, parent)
         self.menuwindow = menuwindow
-        self.tabBar = TearOffTabBar(self)
-        self.setTabBar(self.tabBar)
+        tabBar = TearOffTabBar(self)
+        self.setTabBar(tabBar)
         self.setMovable(False)
         self.previousTabIdx = 0
-        self.tabBar.tabDetached.connect(self.detachTab)
-        self.tabBar.tabMoved.connect(self.moveTab)
+        tabBar.tabDetached.connect(self.detachTab)
+        tabBar.tabMoved.connect(self.moveTab)
         self.currentChanged[int].connect(self.tabChangedTab)
         self.tabIdx = {}
         # don't draw a frame around the tab contents
@@ -197,7 +197,7 @@ class TearOffTabWidget(QTabWidget):
         return widget
 
     def _tabWidgetIndex(self, widget):
-        for i in range(self.tabBar.count()):
+        for i in range(self.tabBar().count()):
             if self.widget(i) == widget:
                 return i
         return -1
@@ -328,7 +328,7 @@ class TearOffTabWidget(QTabWidget):
 
         newIndex = -1
 
-        for i in range(self.tabBar.count()):
+        for i in range(self.tabBar().count()):
             w = self.widget(i)
             for j in self.tabIdx.values():
                 if j.widget == w and j.index > detachWindow.tabIdx:
@@ -339,7 +339,7 @@ class TearOffTabWidget(QTabWidget):
             break
 
         if newIndex == -1:
-            newIndex = self.tabBar.count()
+            newIndex = self.tabBar().count()
 
         newIndex = self.insertTab(newIndex, tearOffWidget,
                                   detachWindow.windowTitle())
