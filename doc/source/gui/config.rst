@@ -95,7 +95,7 @@ The functions to combine several panels are:
 
    Options:
 
-   * The ``setups`` options gives the possibility to define a setup depending
+   * The ``setups`` option gives the possibility to define a setup depending
      display of the panels, see :ref:`gui-config-setup`
 
 .. function:: vsplit(*confs, **options)
@@ -104,7 +104,7 @@ The functions to combine several panels are:
 
    Options:
 
-   * The ``setups`` options gives the possibility to define a setup depending
+   * The ``setups`` option gives the possibility to define a setup depending
      display of the panels, see :ref:`gui-config-setup`
 
 
@@ -126,7 +126,7 @@ The syntax of the option is the following:
 * a ``not`` in front of the setup name inverts the meaning
 * setup names could be combined with the keywords ``and`` and ``or``
 * as wildcard an asterisk ``*`` is used
-* brackets may be used to group the experessions
+* brackets may be used to group the expressions
 
 If a simple name is given the setup condition is fulfilled if the setup is
 loaded in the NICOS :term:`master`.  Otherwise you can use Python boolean
