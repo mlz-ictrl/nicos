@@ -82,12 +82,18 @@ The functions to combine several panels are:
    This must be the toplevel element for a window, it should not be a child
    element.
 
-.. function:: tabbed(*tabs)
+.. function:: tabbed(*tabs, **options)
 
    Creates a tab widget (with tabs that can be reordered and dragged out of the
    widget as separate windows).  The arguments are tuples of ``(tabname,
    panelconf)``.  This can be used as the "main" element of a ``docked``
    configuration.
+
+   Options:
+
+   * The ``position`` option defines the position of the tab bar. If it is set
+     to ``left`` the tab bar will positioned on the left side of the tab widget.
+     All other values will put the tab bar at the top position of the tab widget.
 
 .. function:: hsplit(*confs, **options)
 

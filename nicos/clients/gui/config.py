@@ -49,8 +49,12 @@ class vsplit(tuple):
 
 
 class tabbed(tuple):
-    def __new__(cls, *children):
-        return tuple.__new__(cls, children)
+    def __new__(cls, *children, **options):
+        return tuple.__new__(cls, (children, options))
+
+    def __init__(self, *args, **kw):  # pylint: disable=super-init-not-called
+        self.children = self[0]
+        self.options = self[1]
 
 
 class docked(tuple):
@@ -126,7 +130,7 @@ class gui_config(object):
         elif isinstance(config, panel):
             return config.clsname in panel_classes
         elif isinstance(config, tabbed):
-            return any(self._has_panel(child[1], panel_classes)
+            return any(self._has_panel(child, panel_classes)
                        for child in config)
         elif isinstance(config, docked):
             if self._has_panel(config[0], panel_classes):

@@ -29,8 +29,9 @@ from __future__ import absolute_import, division, print_function
 from nicos.clients.gui.panels.auxwindows import AuxiliarySubWindow, Panel
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
 from nicos.guisupport.qt import QApplication, QByteArray, QCursor, QDrag, \
-    QEvent, QMainWindow, QMimeData, QMouseEvent, QPixmap, QPoint, Qt, \
-    QTabBar, QTabWidget, QWidget, pyqtSignal, pyqtSlot
+    QEvent, QMainWindow, QMimeData, QMouseEvent, QPixmap, QPoint, QSize, \
+    QStyle, QStyleOptionTab, QStylePainter, Qt, QTabBar, QTabWidget, QWidget, \
+    pyqtSignal, pyqtSlot
 
 
 def findTab(tab, w):
@@ -141,6 +142,27 @@ class TearOffTabBar(QTabBar):
     #     QTabBar.dragMoveEvent(self, event)
 
 
+class LeftTabBar(TearOffTabBar):
+
+    def paintEvent(self, event):
+        painter = QStylePainter(self)
+        option = QStyleOptionTab()
+
+        for index in range(self.count()):
+            self.initStyleOption(option, index)
+            tabRect = self.tabRect(index)
+            tabRect.moveLeft(10)
+            painter.drawControl(QStyle.CE_TabBarTabShape, option)
+            text = self.tabText(index)
+            painter.drawText(tabRect, Qt.AlignVCenter | Qt.TextDontClip |
+                             Qt.TextShowMnemonic, text)
+
+    def tabSizeHint(self, index):
+        fm = self.fontMetrics()
+        tabSize = fm.boundingRect(self.tabText(index)).size() + QSize(20, 10)
+        return tabSize
+
+
 class TearOffTabWidget(QTabWidget):
 
     class TabWidgetStorage(object):
@@ -163,8 +185,11 @@ class TearOffTabWidget(QTabWidget):
     def __init__(self, item, window, menuwindow, parent=None):
         QTabWidget.__init__(self, parent)
         self.menuwindow = menuwindow
-        tabBar = TearOffTabBar(self)
+        tb_pos = item.options.get('position', 'top')
+        tabBar = LeftTabBar(self) if tb_pos == 'left' else TearOffTabBar(self)
         self.setTabBar(tabBar)
+        if tb_pos == 'left':
+            self.setTabPosition(QTabWidget.West)
         self.setMovable(False)
         self.previousTabIdx = 0
         tabBar.tabDetached.connect(self.detachTab)
@@ -172,10 +197,10 @@ class TearOffTabWidget(QTabWidget):
         self.currentChanged[int].connect(self.tabChangedTab)
         self.tabIdx = {}
         # don't draw a frame around the tab contents
-        self.setStyleSheet('QTabWidget:tab:disabled{width:0;height:0;margin:0;'
-                           'padding:0;border:none}')
+        self.setStyleSheet('QTabWidget:tab:disabled{width:0;height:0;'
+                           'margin:0;padding:0;border:none}')
         self.setDocumentMode(True)
-        for entry in item:
+        for entry in item.children:
             self.addPanel(
                 AuxiliarySubWindow(entry[1:], window, menuwindow, self),
                 entry[0])
@@ -257,7 +282,8 @@ class TearOffTabWidget(QTabWidget):
 
     def detachTab(self, index, point):
         # print '({0}, {1})'.format(point.x(), point.y())
-        detachWindow = DetachedWindow(self.tabText(index), self.parentWidget())
+        detachWindow = DetachedWindow(self.tabText(index).replace('&', ''),
+                                      self.parentWidget())
         w = self.widget(index)
         for i in self.tabIdx.values():
             if i.widget == w:
@@ -404,7 +430,8 @@ class TearOffTabWidget(QTabWidget):
         else:
             # self.tabDetached.emit(
             #           self.tabAt(self._dragStartPos), QCursor.pos())
-            detachWindow = DetachedWindow(label, self.parentWidget())
+            detachWindow = DetachedWindow(label.replace('&', ''),
+                                          self.parentWidget())
             detachWindow.tabIdx = index
             detachWindow.setAttribute(Qt.WA_DeleteOnClose, True)
             self.tabIdx[index].setDetached(detachWindow)

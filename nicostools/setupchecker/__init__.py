@@ -521,14 +521,8 @@ class SetupChecker(object):
             for child in spec.children:
                 self.check_guiconfig_panel_spec(child, context)
         elif isinstance(spec, guicfg.tabbed):
-            for child in spec:
-                if not (isinstance(child, tuple) and len(child) == 2):
-                    self.log_error(
-                        'tab item should be a (name, panel) tuple,'
-                        ' found %r', child
-                    )
-                else:
-                    self.check_guiconfig_panel_spec(child[1], context)
+            for child in spec.children:
+                self.check_guiconfig_panel_spec(child[1], context)
         elif isinstance(spec, guicfg.docked):
             self.check_guiconfig_panel_spec(spec[0])
             for child in spec[1]:
