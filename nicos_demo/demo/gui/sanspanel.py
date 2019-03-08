@@ -22,53 +22,30 @@
 #
 # *****************************************************************************
 
-"""NICOS livewidget 2D data plot window/panel."""
+"""Demonstrates a custom panel to do simple measurements with GUI."""
 
 from __future__ import absolute_import, division, print_function
 
-import os
-from os import path
-
-from nicoslivewidget import CreateProfile, Histogram, Integrate, Logscale, \
-    LWData, LWWidget, MinimumMaximum
-
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import dialogFromUi, loadUi
-from nicos.guisupport.qt import QByteArray, QColor, QDialog, \
-    QDialogButtonBox, QListWidgetItem, QMenu, QPrintDialog, QPrinter, \
-    QPushButton, QSizePolicy, QStatusBar, QStyle, Qt, QToolBar, pyqtSlot
+from nicos.guisupport.qt import QColor, QDialogButtonBox, QIcon, QPushButton, \
+    QSizePolicy, QStatusBar, QStyle, Qt, pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.protocols.cache import cache_load
-from nicos.pycompat import string_types
-
-DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
-                       'u1', 'i1', 'f8', 'f4'))
-
-
-my_uipath = path.dirname(__file__)
+from nicos.utils import findResource
 
 
 class SANSPanel(Panel):
-    panelName = 'SANS acquisition'
-    bar = None
-    menu = None
+    panelName = 'SANS acquisition demo'
 
-    def __init__(self, parent, client):
-        Panel.__init__(self, parent, client)
-        loadUi(self, 'sanspanel.ui', my_uipath)
+    def __init__(self, parent, client, options):
+        Panel.__init__(self, parent, client, options)
+        loadUi(self, findResource('nicos_demo/demo/gui/sanspanel.ui'))
 
-        self._format = '<u4'
-        self._runtime = 0
-        self._no_direct_display = False
-        self._range_active = False
-        self._filename = ''
-        self._nx = self._ny = 128
-        self._nz = 1
-        self._last_data = '\x00' * 128*128*4
         self.current_status = None
 
-        self._green = QColor('#99FF99')
-        self._red = QColor('#FF9999')
+        self._idle = QColor('#99FF99')
+        self._busy = QColor(Qt.yellow)
 
         self.statusBar = QStatusBar(self)
         policy = self.statusBar.sizePolicy()
@@ -77,158 +54,32 @@ class SANSPanel(Panel):
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
-        self.widget = LWWidget(self)
-        self.widget.setAxisLabels('pixels x', 'pixels y')
-        self.widget.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.widget.setKeepAspect(True)
-        self.widget.setControls(Logscale | MinimumMaximum | Integrate |
-                                Histogram | CreateProfile)
-        self.widgetLayout.addWidget(self.widget)
-
-        self.liveitem = QListWidgetItem('<Live>', self.fileList)
-        self.liveitem.setData(32, '')
-        self.liveitem.setData(33, '')
-
-        self.splitter.setSizes([20, 80])
-        self.splitter.restoreState(self.splitterstate)
-
-        client.livedata.connect(self.on_client_livedata)
-        client.liveparams.connect(self.on_client_liveparams)
-        if client.isconnected:
-            self.on_client_connected()
-        client.connected.connect(self.on_client_connected)
-        client.setup.connect(self.on_client_connected)
         client.cache.connect(self.on_client_cache)
 
-        self.actionLogScale.toggled.connect(self.widget.setLog10)
-        self.widget.profileUpdate.connect(self.on_widget_profileUpdate)
-        self.widget.customContextMenuRequested.connect(
-            self.on_widget_customContextMenuRequested)
-
-    def setSettings(self, settings):
-        self._instrument = settings.get('instrument', '')
-        self.widget.setInstrumentOption(self._instrument)
-
-    def loadSettings(self, settings):
-        self.splitterstate = settings.value('splitter', '', QByteArray)
+        run = self.buttonBox.button(QDialogButtonBox.Yes)
+        run.setText('Run')
+        run.setIcon(QIcon(':/continue'))
+        self.buttonBox.accepted.connect(self.on_start_clicked)
 
     def saveSettings(self, settings):
-        settings.setValue('splitter', self.splitter.saveState())
         settings.setValue('geometry', self.saveGeometry())
-
-    def getMenus(self):
-        if not self.menu:
-            menu = QMenu('&Live data', self)
-            menu.addAction(self.actionPrint)
-            menu.addSeparator()
-            menu.addAction(self.actionSetAsROI)
-            menu.addAction(self.actionUnzoom)
-            menu.addAction(self.actionLogScale)
-            menu.addAction(self.actionNormalized)
-            menu.addAction(self.actionLegend)
-            self.menu = menu
-        return [self.menu]
-
-    def getToolbars(self):
-        if not self.bar:
-            bar = QToolBar('Live data')
-            bar.addAction(self.actionPrint)
-            bar.addSeparator()
-            bar.addAction(self.actionLogScale)
-            bar.addSeparator()
-            bar.addAction(self.actionUnzoom)
-            # bar.addAction(self.actionSetAsROI)
-            self.bar = bar
-        return [self.bar]
 
     def updateStatus(self, status, exception=False):
         self.current_status = status
-        if status == 'idle':
-            setBackgroundColor(self.curstatus, self._green)
-        else:
-            setBackgroundColor(self.curstatus, self._red)
-
-    def on_widget_customContextMenuRequested(self, point):
-        self.menu.popup(self.mapToGlobal(point))
-
-    def on_widget_profileUpdate(self, ptype, nbins, x, y):
-        pass
-
-    def on_fileList_itemClicked(self, item):
-        if item is None:
-            return
-        fname = item.data(32)
-        if not fname:
-            if self._no_direct_display:
-                self._no_direct_display = False
-                self.widget.setData(LWData(self._nx, self._ny, self._nz,
-                                           self._format, self._last_data))
-        else:
-            self._no_direct_display = True
-            fcontent = open(fname, 'rb').read()
-            self.widget.setData(LWData(self._nx, self._ny, self._nz,
-                                       self._format, fcontent))
-
-    def on_fileList_currentItemChanged(self, item, previous):
-        self.on_fileList_itemClicked(item)
+        setBackgroundColor(self.curstatus,
+                           self._idle if status == 'idle' else self._busy)
 
     def on_client_cache(self, data):
         _time, key, _op, value = data
         if key == 'exp/action':
             self.curstatus.setText(cache_load(value) or 'Idle')
 
-    def on_client_connected(self):
-        self.fileList.clear()
-        self.liveitem = QListWidgetItem('<Live>', self.fileList)
-        self.liveitem.setData(32, '')
-        self.liveitem.setData(33, '')
-
-        datapath = self.client.eval('session.experiment.datapath', '')
-        caspath = path.join(datapath, '2ddata')
-        if path.isdir(caspath):
-            for fn in sorted(os.listdir(caspath)):
-                if fn.endswith('.dat'):
-                    self.add_to_flist(path.join(caspath, fn), '', False)
-
-    def on_client_liveparams(self, params):
-        _tag, _uid, _det, fname, dtype, nx, ny, nz, runtime = params
-        # TODO: remove compatibility code
-        if not isinstance(fname, string_types):
-            fname, nx, ny, nz = fname[0], nx[0], ny[0], nz[0]
-
-        self._runtime = runtime
-        self._filename = fname
-        if dtype not in DATATYPES:
-            self._format = None
-            self.log.warning('Unsupported live data format: %r', params)
-            return
-        self._format = dtype
-        self._nx = nx
-        self._ny = ny
-        self._nz = nz
-
-    def on_client_livedata(self, data):
-        self._last_data = data
-        if not self._no_direct_display:
-            self.widget.setData(
-                LWData(self._nx, self._ny, self._nz, self._format, data))
-        if self._filename:
-            self.add_to_flist(self._filename, self._format)
-
-    def add_to_flist(self, filename, fformat, scroll=True):
-        shortname = path.basename(filename)
-        item = QListWidgetItem(shortname)
-        item.setData(32, filename)
-        item.setData(33, fformat)
-        self.fileList.insertItem(self.fileList.count()-1, item)
-        if scroll:
-            self.fileList.scrollToBottom()
-
     @pyqtSlot()
     def on_start_clicked(self):
         dpos = []
         for dp, cb in zip([1, 2, 5, 10, 20],
-                          [self.dp1m, self.dp2m, self.dp5m, self.dp10m, self.dp20m]):
+                          [self.dp1m, self.dp2m, self.dp5m, self.dp10m,
+                           self.dp20m]):
             if cb.isChecked():
                 dpos.append(dp)
         if not dpos:
@@ -241,25 +92,12 @@ class SANSPanel(Panel):
             (coll, ', '.join(str(x) for x in dpos), ctime)
         self.execScript(code)
 
-    @pyqtSlot()
-    def on_actionUnzoom_triggered(self):
-        self.widget.plot().getZoomer().zoom(0)
-
-    @pyqtSlot()
-    def on_actionPrint_triggered(self):
-        printer = QPrinter(QPrinter.HighResolution)
-        printer.setColorMode(QPrinter.Color)
-        printer.setOrientation(QPrinter.Landscape)
-        printer.setOutputFileName('')
-        if QPrintDialog(printer, self).exec_() == QDialog.Accepted:
-            self.widget.plot().print_(printer)
-
     def execScript(self, script):
         action = 'queue'
         if self.current_status != 'idle':
             qwindow = dialogFromUi(self, 'question.ui', 'panels')
-            qwindow.questionText.setText('A script is currently running.  What '
-                                         'do you want to do?')
+            qwindow.questionText.setText('A script is currently running.  What'
+                                         ' do you want to do?')
             icon = qwindow.style().standardIcon
             qwindow.iconLabel.setPixmap(
                 icon(QStyle.SP_MessageBoxQuestion).pixmap(32, 32))

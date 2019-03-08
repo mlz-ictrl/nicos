@@ -4,11 +4,19 @@ main_window = docked(
     tabbed(
         ('Command line',
          vsplit(
-            panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
-                  eta=True),
-            # panel('nicos.clients.gui.panels.watch.WatchPanel'),
+            panel('nicos.clients.gui.panels.cmdbuilder.CommandPanel',
+                  modules=['nicos.clients.gui.cmdlets'],
+            ),
+            panel('nicos.clients.gui.panels.status.ScriptStatusPanel', eta=True),
             panel('nicos.clients.gui.panels.console.ConsolePanel',
-                  watermark='nicos_demo/demo/gui/nicos-watermark.png'),
+                  watermark='nicos_demo/demo/gui/nicos-watermark.png', hasinput=False),
+         ),
+        ),
+        ('SANS',
+         vsplit(
+          panel('nicos_demo.demo.gui.sanspanel.SANSPanel'),
+          panel('nicos.clients.gui.panels.live.LiveDataPanel'),
+          setups='sans',
          ),
         ),
         ('PGAA',
