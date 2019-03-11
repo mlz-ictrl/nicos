@@ -48,10 +48,10 @@ class TestMultiAnalyzer(object):
     def prepare(self, session):
         """Prepare tests."""
         man = session.getDevice('man')
-        session.getDevice('ra1').release()
-        session.getDevice('ta1').release()
         man.reference()
         man.wait()
+        for d in man._attached_rotations + man._attached_translations:
+            d.speed = 0.
 
         yield
 
