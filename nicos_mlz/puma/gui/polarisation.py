@@ -28,7 +28,8 @@ from contextlib import contextmanager
 from math import cos, degrees, pi, radians, sin, sqrt, tan
 from os import path
 
-from numpy import arange, arcsin, arctan, array, sign
+from numpy import arange, array, sign
+from math import asin, atan
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
@@ -267,7 +268,7 @@ class PolarisationPanel(NicosWidget, Panel):
     def _optimize(self):
         kf = float(self.kf.text())
         dA = float(self.dA.text())
-        theta0 = -arcsin(pi / (kf * dA))
+        theta0 = -asin(pi / (kf * dA))
         theta0deg = degrees(theta0)
 
         x5 = float(self.x05.text())
@@ -282,8 +283,11 @@ class PolarisationPanel(NicosWidget, Panel):
         tg2 = tan(radians(2 * gamma2))
 
         # calculate longitudinal translation of analyzers in mm
-        y5 = (LSA - LSD2) - x5 / tg2
-        y7 = (LSA - LSD1) - x7 / tg1
+        try:
+            y5 = (LSA - LSD2) - x5 / tg2
+            y7 = (LSA - LSD1) - x7 / tg1
+        except ZeroDivisionError:
+            return
         self.y05.setText('%.2f' % y5)
         self.y07.setText('%.2f' % y7)
 
@@ -305,7 +309,7 @@ class PolarisationPanel(NicosWidget, Panel):
         # calculate detector settings
         rd6 = 2 * theta0deg
         e1 = (-BA * sin(theta0) - BD) / (-BA * sin(theta0) - LAD)
-        rg6 = degrees(arctan(e1))
+        rg6 = degrees(atan(e1))
 
         beta5 = radians(2 * (theta0deg + gamma2))
         beta7 = radians(2 * (theta0deg + gamma1))
@@ -313,18 +317,24 @@ class PolarisationPanel(NicosWidget, Panel):
         if abs(y5) < 0.1:
             kappa5 = sign(x5) * pi
         else:
-            kappa5 = arctan(-x5 / y5)
+            kappa5 = atan(-x5 / y5)
         if abs(y7) < 0.1:
             kappa7 = sign(x7) * pi
         else:
-            kappa7 = arctan(-x7 / y7)
+            kappa7 = atan(-x7 / y7)
 
         e1 = sqrt(x5 * x5 + y5 * y5) / LAD * sin(beta5 - kappa5)
-        eps5 = arcsin(e1)
+        try:
+            eps5 = asin(e1)
+        except ValueError:
+            return
         delta5 = beta5 - eps5
 
         e1 = sqrt(x7 * x7 + y7 * y7) / LAD * sin(-beta7 + kappa7)
-        eps7 = arcsin(e1)
+        try:
+            eps7 = asin(e1)
+        except ValueError:
+            return
         delta7 = beta7 - eps7
 
         # calculate the correction angle allowing for the effective width of
@@ -333,13 +343,13 @@ class PolarisationPanel(NicosWidget, Panel):
         L = LAD * sin(-delta5 + kappa5) / sin(-beta5 + kappa5) - \
             0.5 * BA * cos(theta0)
         deps = 0.5 * (-BD - BA * sin(theta0)) / L
-        deps = arctan(deps)
+        deps = atan(deps)
         eps5 += abs(deps)
 
         L = LAD * sin(-delta7 + kappa7) / sin(-beta7 + kappa7) - \
             0.5 * BA * cos(theta0)
         deps = 0.5 * (-BD - BA * sin(theta0)) / L
-        deps = arctan(deps)
+        deps = atan(deps)
         eps7 += abs(deps)
 
         # convert angles to degrees
