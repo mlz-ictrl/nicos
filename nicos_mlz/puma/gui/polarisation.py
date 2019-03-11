@@ -35,16 +35,21 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.widgets.plotting import NicosPlotCurve
 from nicos.core.errors import NicosError
-from nicos.guisupport.livewidget import COLOR_BLUE, COLOR_MANGENTA, \
-    LiveWidget1D
+from nicos.guisupport.livewidget import COLOR_BLUE, LiveWidget1D
 from nicos.guisupport.qt import QApplication, QCursor, QDoubleValidator, \
     QLabel, QMessageBox, QSize, QSizePolicy, Qt, QVBoxLayout, QWidget, \
     pyqtSlot
 from nicos.guisupport.widget import NicosWidget
 
+from gr import MARKERTYPE_SOLID_CIRCLE
+
 from nicos_mlz.puma.lib.pa import PA
 
 my_uipath = path.dirname(path.realpath(__file__))
+
+COLOR_BLACK = 1
+COLOR_RED = 2
+COLOR_GREEN = 3
 
 
 @contextmanager
@@ -64,13 +69,25 @@ class MiniPlot(LiveWidget1D):
         LiveWidget1D.__init__(self, parent)
         self.plot.xlabel = xlabel
         self.plot.ylabel = ylabel
-        self.downcurve = NicosPlotCurve([0], [.1], linecolor=COLOR_BLUE)
-        self.downcurve.linewidth = 2
-        self.curve.linecolor = COLOR_MANGENTA
+
+        self.curve.linecolor = kwds.get('color2', COLOR_RED)
         self.curve.linewidth = 2
+        self.curve.GR_MARKERSIZE = 20
+        self.curve.markertype = MARKERTYPE_SOLID_CIRCLE
+        self.curve.markercolor = kwds.get('color2', COLOR_RED)
+
+        self.downcurve = NicosPlotCurve(
+            [0], [.1], linecolor=kwds.get('color1', COLOR_BLACK))
+        self.downcurve.linewidth = 2
+        self.downcurve.markertype = MARKERTYPE_SOLID_CIRCLE
+        self.downcurve.GR_MARKERSIZE = 20
+        self.downcurve.markertype = MARKERTYPE_SOLID_CIRCLE
+        self.downcurve.markercolor = kwds.get('color1', COLOR_BLACK)
         self.axes.addCurves(self.downcurve)
+
         # Disable creating a mouse selection to zoom
         self.gr.setMouseSelectionEnabled(False)
+        self.plot.setLegend(True)
 
     def sizeHint(self):
         return QSize(120, 120)
@@ -81,11 +98,13 @@ class MiniPlot(LiveWidget1D):
 
 class PlotWidget(QWidget):
 
-    def __init__(self, title, xlabel, ylabel, name='unknown', parent=None):
+    def __init__(self, title, xlabel, ylabel, name='unknown', parent=None,
+                 **kwds):
         QWidget.__init__(self, parent)
         self.name = name
         parent.setLayout(QVBoxLayout())
-        self.plot = MiniPlot(xlabel, ylabel, self)
+        self.plot = MiniPlot(xlabel, ylabel, self, color1=COLOR_BLACK,
+                             color2=COLOR_RED)
         titleLabel = QLabel(title)
         titleLabel.setAlignment(Qt.AlignCenter)
         titleLabel.setStyleSheet('QLabel {font-weight: 600}')
@@ -102,6 +121,32 @@ class PlotWidget(QWidget):
 
         self.plot.reset()
         self.plot.update()
+
+
+class IntensityPlot(PlotWidget):
+
+    def __init__(self, direction, parent=None):
+        PlotWidget.__init__(self, 'Calculated intensity at PSD for spin-%s '
+                            'neutrons' % direction,
+                            'PSD channel position (cm)', 'intensity',
+                            parent=parent)
+        self.plot.curve.legend = 'without analyzer'
+        self.plot.downcurve.legend = 'with analyzer'
+
+
+class TransmissionPlot(PlotWidget):
+
+    def __init__(self, direction, parent=None):
+        PlotWidget.__init__(self, 'Calculated refl/trans coeff of deflectors '
+                            'for spin-%s neutrons' % direction,
+                            'Deflector angle (deg)', 'Refl/trans coefficient',
+                            parent=parent)
+        self.plot.curve.linecolor = COLOR_BLUE
+        self.plot.curve.legend = 'Reflectivity'
+        self.plot.curve.markercolor = COLOR_BLUE
+        self.plot.downcurve.linecolor = COLOR_GREEN
+        self.plot.downcurve.legend = 'Transmissivity'
+        self.plot.downcurve.markercolor = COLOR_GREEN
 
 
 class PolarisationPanel(NicosWidget, Panel):
@@ -146,17 +191,10 @@ class PolarisationPanel(NicosWidget, Panel):
                   self.x05_cur, self.x06_cur, self.x07_cur, self.progress):
             b.hide()
 
-        self.plot1 = PlotWidget('Spin up', 'PSD channel position / cm',
-                                'intensity', parent=self.plotWidget1)
-
-        self.plot2 = PlotWidget('Spin down', 'PSD channel position / cm',
-                                'intensity', parent=self.plotWidget2)
-
-        self.plot3 = PlotWidget('Spin up', 'angle / deg', 'transmission',
-                                parent=self.plotWidget3)
-
-        self.plot4 = PlotWidget('Spin up', 'angle / deg', 'reflectivity',
-                                parent=self.plotWidget4)
+        self.plot1 = IntensityPlot('up', self.plotWidget1)
+        self.plot2 = IntensityPlot('down', self.plotWidget2)
+        self.plot3 = TransmissionPlot('up', self.plotWidget3)
+        self.plot4 = TransmissionPlot('down', self.plotWidget4)
 
     def registerKeys(self):
         for d in ('ta5', 'ta6', 'ta7',
