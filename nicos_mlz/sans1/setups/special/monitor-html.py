@@ -625,14 +625,22 @@ cryos = []
 for cryo in ['cci3he1', 'cci3he2', 'cci3he3', 'cci3he10', 'ccidu1', 'ccidu2']:
     cryos.append(Block(cryo.title(), [
         BlockRow(
-                 Field(name='Setpoint', key='t_%s/setpoint' % cryo,
-                       unitkey='t/unit'),
-                 Field(name='Manual Heater Power', key='t_%s/heaterpower' % cryo,
-                       unitkey='t/unit'),
-                ),
+            Field(name='Setpoint', key='t_%s/setpoint' % cryo,
+                   unitkey='t/unit'),
+            Field(name='Target', key='t_%s/target' % cryo,
+                   unitkey='t/unit'),
+        ),
+        BlockRow(
+            Field(name='Manual Heater Power', key='t_%s/heaterpower' % cryo,
+                   unitkey='t/unit'),
+        ),
         BlockRow(
              Field(name='A', dev='T_%s_A' % cryo),
              Field(name='B', dev='T_%s_B' % cryo),
+        ),
+        BlockRow(
+             Field(name='C', dev='T_%s_C' % cryo),
+             Field(name='D', dev='T_%s_D' % cryo),
         ),
         ],
         setups=cryo,

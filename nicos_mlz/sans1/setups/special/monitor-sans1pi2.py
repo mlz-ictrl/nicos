@@ -481,7 +481,7 @@ for k in range(10, 22 + 1):
     T_Ts_plot.append(Block('30min T and Ts plot', [
         BlockRow(
             Field(widget='nicos.guisupport.plots.TrendPlot',
-                  width=30, height=5, plotwindow=30*60,
+                  width=35, height=20, plotwindow=30*60,
                   devices=['T', 'Ts', 'T/setpoint', 'T/target'],
                   names=['T', 'Ts', 'Setpoint', 'Target'],
                   legend=True,
@@ -507,6 +507,10 @@ for cryo in ['cci3he1', 'cci3he2', 'cci3he3', 'cci3he10', 'ccidu1', 'ccidu2']:
         BlockRow(
              Field(name='A', dev='T_%s_A' % cryo),
              Field(name='B', dev='T_%s_B' % cryo),
+        ),
+        BlockRow(
+             Field(name='C', dev='T_%s_C' % cryo),
+             Field(name='D', dev='T_%s_D' % cryo),
         ),
         ],
         setups=cryo,
@@ -700,6 +704,7 @@ _helios01 = Block('Helios', [
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
         description = 'Status monitor',
+        showwatchdog = False,
         title = 'SANS-1 status monitor',
         cache = 'sans1ctrl.sans1.frm2',
         font = 'Luxi Sans',
@@ -722,7 +727,8 @@ devices = dict(
                 Column(_htf01_plot, _htf03_plot,
                        _irf01_plot, _irf10_plot,
                        _spinflipper, _julabo_plot),
-                Column(*ccrs) + Column(*cryos) + Column(_birmag),
+                Column(*ccrs) + Column(_birmag),
+                Column(*cryos),
             ),
             Row(
                 Column(_ccmsans_plot, _miramagnet_plot,
