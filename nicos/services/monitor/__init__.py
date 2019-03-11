@@ -29,6 +29,7 @@ from __future__ import absolute_import
 
 import os
 import re
+import subprocess
 import sys
 from time import sleep, strftime
 from time import time as currenttime
@@ -173,6 +174,7 @@ class Monitor(BaseCacheClient):
         fn = session._setup_info[setupname]['filenames']
         watchFileContent(fn, self.log)
         self.log.info('setup file changed; restarting monitor process')
+        os.closerange(3, subprocess.MAXFD)
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
     def wait(self):
