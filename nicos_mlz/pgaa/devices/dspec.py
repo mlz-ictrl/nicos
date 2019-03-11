@@ -31,6 +31,7 @@ import numpy as np
 
 from nicos.core import ArrayDesc, Attach, Measurable, Moveable, Param, Value, \
     anytype, listof, status
+from nicos.core.constants import LIVE
 from nicos.core.errors import NicosError
 from nicos.core.utils import multiWait
 from nicos.devices.tango import PyTangoDevice
@@ -244,15 +245,16 @@ class DSPec(PyTangoDevice, Measurable):
             self._dev.Stop()
         self._disable_gates()
 
-    def duringMeasurementHook(self, elapsed):
+    def duringMeasureHook(self, elapsed):
         if (elapsed - self._lastread) > self.cacheinterval:
             try:
                 self._read_cache = self._dev.Value
-                self.log.info('spectrum cached')
+                self.log.debug('spectrum cached')
             except NicosError:
                 self.log.warning('caching spectrum failed')
             finally:
                 self._lastread = elapsed
+            return LIVE
         return None
 
     def doSimulate(self, preset):
