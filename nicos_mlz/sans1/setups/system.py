@@ -36,6 +36,14 @@ devices = dict(
         sample = 'Sample',
         sendmail = True,
         mailsender = 'sans1@frm2.tum.de',
+        managerights = dict(
+            enableDirMode = 0o777,
+            enableFileMode = 0o666,
+            disableDirMode = 0o750,
+            disableFileMode = 0o640,
+            owner = 'nicd',
+            group = 'sans1'
+        ),
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
         description = 'filesink',
