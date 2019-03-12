@@ -9,8 +9,8 @@ devices = dict(
         copies = [
             ('y.su@fz-juelich.de', 'all'),
             ('t.mueller@fz-juelich.de', 'all'),
+            ('g.brandl@fz-juelich.de', 'all'),
             ('l.fleischhauer-fuss@fz-juelich.de', 'important'),
-            ('alerts.sw.zea2@fz-juelich.de', 'important'),
         ],
         subject = '[NICOS] DNS',
     ),
