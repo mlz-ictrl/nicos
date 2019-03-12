@@ -95,7 +95,7 @@ devices = dict(
         fmtstr = '%.1f',
     ),
     # by convention this needs to be B_%(setupname)s
-    B_amagnet = device('nicos_mlz.devices.amagnet.GarfieldMagnet2',
+    B_amagnet = device('nicos_mlz.devices.amagnet.GarfieldMagnet',
         description = 'magnetic field device, handling polarity switching and stuff',
         currentsource = 'I_amagnet',
         currentreadback = 'I_amagnet',

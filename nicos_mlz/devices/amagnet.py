@@ -28,105 +28,12 @@ Supporting classes for FRM2 magnets, currently only Garfield (amagnet).
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.core import SIMULATION, Attach, CanDisable, HasLimits, Moveable, \
-    Override, Param, Readable, dictof, status, tupleof
+from nicos.core import Attach, CanDisable, HasLimits, Moveable, \
+    Override, Param, Readable, dictof, tupleof
 from nicos.devices.generic import CalibratedMagnet
-from nicos.devices.generic.magnet import BipolarSwitchingMagnet
-from nicos.devices.generic.sequence import SeqCall, SeqDev, SeqSleep
 
 
-class GarfieldMagnet(BipolarSwitchingMagnet):
-    """Garfield Magnet
-
-    uses a polarity switch ('+' or '-') to flip polarity and an onoff switch
-    to cut power (to be able to switch polarity) in addition to an
-    unipolar current source.
-
-    Please try to avoid to build anything like this or get headaches!
-    Better version would be the MiraMagnet.
-    """
-
-    attached_devices = {
-        'onoffswitch': Attach('Switch to set for on/off', Moveable),
-        'polswitch':   Attach('Switch to set for polarity', Moveable),
-        'symmetry':    Attach('Switch to read for symmetry', Moveable),
-    }
-
-    parameters = {
-        'calibrationtable': Param('Map of coefficients for calibration '
-                                  'per symmetry setting',
-                                  type=dictof(str, tupleof(
-                                      float, float, float, float, float)),
-                                  mandatory=True),
-    }
-
-    parameter_overrides = {
-        'calibration': Override(volatile=True, settable=False,
-                                mandatory=False),
-    }
-
-    def _getWaiters(self):
-        return []
-
-    def doWriteUserlimits(self, limits):
-        abslimits = self.abslimits
-        # include 0 in limits
-        lmin = min(max(limits[0], abslimits[0]), 0)
-        lmax = max(min(limits[1], abslimits[1]), 0)
-        newlimits = (lmin, lmax)
-        self.log.debug('Set limits: %r', newlimits)
-        HasLimits.doWriteUserlimits(self, newlimits)
-        # intentionally not calling CalibratedMagnet.doWriteUserlimits
-        # we do not want to change the limits of the current source
-        return newlimits
-
-    def doReadCalibration(self):
-        symval = self._attached_symmetry.read()
-        return self.calibrationtable.get(symval, (0.0, 0.0, 0.0, 0.0, 0.0))
-
-    def doWriteCalibration(self, cal):
-        symval = self._attached_symmetry.read()
-        self.calibrationtable[symval] = cal
-
-    def _get_field_polarity(self):
-        sign = int(self._attached_polswitch.read())
-        if self._attached_onoffswitch.read() == 'off':
-            return 0
-        return sign
-
-    def doReset(self):
-        if self._attached_onoffswitch.status()[0] == status.ERROR:
-            self._attached_onoffswitch.reset()
-            self._attached_onoffswitch.move('on')
-            # immediate action, no need to wait....
-        BipolarSwitchingMagnet.doReset(self)
-        self._attached_currentsource._dev.On()
-
-    def _seq_set_field_polarity(self, polarity, sequence):
-        if polarity == 0:
-            return
-        pol, onoff = self._attached_polswitch, self._attached_onoffswitch
-        # handle switching polarity
-
-        sequence.append(SeqDev(onoff, 'off'))
-        sequence.append(SeqSleep(0.3, 'disabling power'))
-        sequence.append(SeqDev(pol, '%+d' % polarity))
-        sequence.append(SeqSleep(0.3, 'switching polarity'))
-        sequence.append(SeqDev(onoff, 'on'))
-        sequence.append(SeqSleep(0.3, 'enabling power'))
-        sequence.append(SeqCall(self._attached_currentsource._dev.On))
-        sequence.append(SeqSleep(0.3, 're-enabling power supply'))
-
-    def doStart(self, target):
-        if self._mode != SIMULATION:
-            self._attached_onoffswitch._dev.On()
-            self._attached_polswitch._dev.On()
-            self._attached_symmetry._dev.On()
-            self._attached_currentsource._dev.On()
-            BipolarSwitchingMagnet.doStart(self, target)
-
-
-class GarfieldMagnet2(CanDisable, CalibratedMagnet):
+class GarfieldMagnet(CanDisable, CalibratedMagnet):
     """Garfield Magnet
 
     Uses a polarity switch ('+' or '-') to flip polarity and an onoff switch
