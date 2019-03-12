@@ -168,7 +168,7 @@ class AuxiliarySubWindow(QMainWindow):
                 # if tab has its own setups overwrite panels setups
                 if setupSpec:
                     it.setSetups(setupSpec)
-                it.setWidgetVisible.connect(parent.setWidgetVisible)
+                it.setWidgetVisible.connect(parent.setWidgetVisibleSlot)
             layout.addWidget(it)
             central.setLayout(layout)
             self.setCentralWidget(central)

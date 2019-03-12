@@ -247,7 +247,7 @@ class TearOffTabWidget(QTabWidget):
             m.menuAction().setVisible(visible)
 
     @pyqtSlot(QWidget, bool)
-    def setWidgetVisible(self, widget, visible):
+    def setWidgetVisibleSlot(self, widget, visible):
         w = self._findFirstWindow(widget)  # get widget which is related to tab
         for i in self.tabIdx.values():     # search for it in the list of tabs
             if i.widget == w:              # found
@@ -295,8 +295,9 @@ class TearOffTabWidget(QTabWidget):
 
         tearOffWidget = self.widget(index)
         panel = self._getPanel(tearOffWidget)
-        panel.setWidgetVisible.disconnect(self.setWidgetVisible)
-        panel.setWidgetVisible.connect(detachWindow.setWidgetVisible)
+        if not isinstance(panel, QTabWidget):
+            panel.setWidgetVisible.disconnect(self.setWidgetVisibleSlot)
+            panel.setWidgetVisible.connect(detachWindow.setWidgetVisibleSlot)
         tearOffWidget.setParent(detachWindow)
 
         if self.count() < 0:
@@ -341,9 +342,11 @@ class TearOffTabWidget(QTabWidget):
         detachWindow.saveSettings(False)
         tearOffWidget = detachWindow.centralWidget()
         panel = self._getPanel(tearOffWidget)
-        panel.setWidgetVisible.disconnect(detachWindow.setWidgetVisible)
+        if not isinstance(panel, QTabWidget):
+            panel.setWidgetVisible.disconnect(detachWindow.setWidgetVisibleSlot)
         tearOffWidget.setParent(self)
-        panel.setWidgetVisible.connect(self.setWidgetVisible)
+        if not isinstance(panel, QTabWidget):
+            panel.setWidgetVisible.connect(self.setWidgetVisibleSlot)
 
 #       self._moveMenuTools(tearOffWidget)
 
@@ -439,8 +442,10 @@ class TearOffTabWidget(QTabWidget):
             detachWindow.closed.connect(self.attachTab)
 
             panel = self._getPanel(widget)
-            panel.setWidgetVisible.disconnect(self.setWidgetVisible)
-            panel.setWidgetVisible.connect(detachWindow.setWidgetVisible)
+            if not isinstance(panel, QTabWidget):
+                panel.setWidgetVisible.disconnect(self.setWidgetVisibleSlot)
+                panel.setWidgetVisible.connect(
+                    detachWindow.setWidgetVisibleSlot)
             widget.setParent(detachWindow)
 
             self._moveMenuTools(widget)
@@ -477,7 +482,7 @@ class DetachedWindow(QMainWindow):
             loadBasicWindowSettings(self, settings)
 
     @pyqtSlot(QWidget, bool)
-    def setWidgetVisible(self, widget, visible):
+    def setWidgetVisibleSlot(self, widget, visible):
         self.setVisible(visible)
 
     def setWidget(self, widget):
