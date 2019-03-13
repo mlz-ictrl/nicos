@@ -138,3 +138,22 @@ def test_dualaccess(client, adminclient):
     adminclient.tell('exec', 'release(dm2)')
     client.wait_idle()
     assert 'fixed by' not in client.eval('dm2.fixed')
+
+
+def test_get_device_list(client):
+    load_setup(client, 'daemontest')
+    full = client.eval('[(dn, str(d.classes)) '
+                       'for (dn, d) in session.devices.items()]')
+    assert full
+
+    l1 = client.getDeviceList()
+    l2 = client.getDeviceList('nicos.core.device.Moveable')
+    # expected:
+    # l1: ['dax', 'dm1', 'dm2', 'Exp', 'Instr', 'Sample', 'testnotifier']
+    # l2: ['dax', 'dm1', 'dm2', 'Sample']
+    assert 'Instr' in l1
+    assert l1 != l2
+    assert all(item in l1 for item in l2)
+    assert 'Exp' not in l2
+    assert 'Instr' not in l2
+    assert 'testnotifier' not in l2
