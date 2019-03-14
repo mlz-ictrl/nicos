@@ -391,7 +391,7 @@ def test_tomo(session):
     tomo(10, sry, 1, det, t=0.)
     assert sry.read() == 360.0
 
-
+@pytest.mark.timeout(timeout=60, method='thread', func_only=True)
 def test_live_count(session):
     det = session.getDevice('det')
     m = session.getDevice('motor')
