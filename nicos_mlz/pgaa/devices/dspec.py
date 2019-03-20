@@ -75,7 +75,8 @@ class DSPec(PyTangoDevice, Measurable):
 
     def _disable_gates(self):
         self.log.debug('disabling gates')
-        for dev, val in reversed(zip(self._attached_gates, self.disablevalues)):
+        for dev, val in zip(reversed(self._attached_gates),
+                            reversed(self.disablevalues)):
             dev.move(val)
         multiWait(self._attached_gates)
         self.log.debug('gates disabled')
