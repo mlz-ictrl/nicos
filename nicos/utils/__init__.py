@@ -121,6 +121,9 @@ class readonlylist(list):
     def __hash__(self):
         return hash(tuple(self))
 
+    def __reduce__(self):
+        return list.__reduce__(self)
+
 
 class readonlydict(dict):
     def _no(self, *args, **kwds):
