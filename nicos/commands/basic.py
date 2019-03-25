@@ -29,7 +29,6 @@ from __future__ import absolute_import, division, print_function
 import inspect
 import io
 import os
-import subprocess
 import sys
 import time
 import traceback
@@ -46,7 +45,8 @@ from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
     SetupName, String, spmsyntax
 from nicos.devices.notifiers import Mailer
 from nicos.pycompat import builtins, exec_, getargspec, iteritems
-from nicos.utils import fixupScript, formatDuration, printTable, resolveClasses
+from nicos.utils import fixupScript, formatDuration, printTable, \
+    reexecProcess, resolveClasses
 from nicos.utils.timer import Timer
 
 CO_DIVISION = 0x2000
@@ -320,8 +320,7 @@ def _Restart():
 
     @atexit.register
     def restart_nicos():  # pylint: disable=W0612
-        os.closerange(3, subprocess.MAXFD)
-        os.execv(sys.executable, [sys.executable] + sys.argv)
+        reexecProcess()
     os.kill(os.getpid(), signal.SIGTERM)
 
 

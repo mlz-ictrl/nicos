@@ -27,16 +27,13 @@
 
 from __future__ import absolute_import
 
-import os
 import re
-import subprocess
-import sys
 from time import sleep, strftime
 from time import time as currenttime
 
 from nicos.pycompat import to_utf8
 
-from nicos.utils import createThread, watchFileContent
+from nicos.utils import createThread, reexecProcess, watchFileContent
 
 from nicos import session
 from nicos.core import Override, Param, none_or, oneof
@@ -174,8 +171,7 @@ class Monitor(BaseCacheClient):
         fn = session._setup_info[setupname]['filenames']
         watchFileContent(fn, self.log)
         self.log.info('setup file changed; restarting monitor process')
-        os.closerange(3, subprocess.MAXFD)
-        os.execv(sys.executable, [sys.executable] + sys.argv)
+        reexecProcess()
 
     def wait(self):
         self.log.info('monitor quitting')

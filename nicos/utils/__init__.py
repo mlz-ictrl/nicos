@@ -63,7 +63,6 @@ except ImportError:
     pwd = grp = None
 
 
-
 class AttrDict(dict):
     """Dictionary whose items can be set with attribute access."""
     def __getattr__(self, key):
@@ -449,6 +448,18 @@ def createSubprocess(cmdline, **kwds):
                                       kwds.get('stderr')):
             kwds['close_fds'] = True
     return subprocess.Popen(cmdline, **kwds)
+
+
+try:
+    MAXFD = os.sysconf('SC_OPEN_MAX')
+except Exception:
+    MAXFD = 256
+
+
+def reexecProcess():
+    """Re-execute the current process with the same arguments."""
+    os.closerange(3, MAXFD)
+    os.execv(sys.executable, [sys.executable] + sys.argv)
 
 
 def parseDateString(s, enddate=False):
