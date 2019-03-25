@@ -441,11 +441,14 @@ class IntegralLiveWidget(LiveWidget):
     def xtick(self, x, y, svalue, _value):
         gr.setcharup(-1., 1.)
         gr.settextalign(gr.TEXT_HALIGN_RIGHT, gr.TEXT_VALIGN_TOP)
-        gr.text(x, y, svalue)
+        # We want to pass through the string value, but we are passed a bytes
+        # object by the C layer and gr.text() needs a string.  Since it is
+        # encoded using latin1 again, this is the right encoding to use here.
+        gr.text(x, y, svalue.decode('latin1'))
 
     def yinttick(self, x, y, svalue, _value):
         gr.setcharheight(self._charheight)
-        gr.text(x, y, svalue)
+        gr.text(x, y, svalue.decode('latin1'))
 
     def _applymask(self):
         """Mask or unmask values in plotcurves if necessary and rescale
