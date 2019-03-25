@@ -1,9 +1,9 @@
 TREFF
 =====
 
-Button
-------
+Flipper
+-------
 
-.. automodule:: nicos_mlz.treff.devices.button
+.. automodule:: nicos_mlz.treff.devices.flipper
 
-.. autoclass:: Button()
+.. autoclass:: Flipper()

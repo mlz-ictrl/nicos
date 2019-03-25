@@ -32,6 +32,7 @@ DOWN = "down"
 
 
 class Flipper(MezeiFlipper):
+    """MezeiFlipper subclass that has values of up/down instead of on/off."""
 
     valuetype = oneof(UP, DOWN)
 
