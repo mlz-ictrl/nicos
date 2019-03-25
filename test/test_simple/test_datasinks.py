@@ -266,7 +266,7 @@ class TestSinks(object):
         yamlfile = path.join(session.experiment.datapath, '00000168.yaml')
         assert path.isfile(yamlfile)
         with open(yamlfile) as df:
-            contents = yaml.load(df)
+            contents = yaml.safe_load(df)
         assert contents['instrument']['name'] == 'INSTR'
         assert contents['experiment']['proposal'] == 'p1234'
         assert contents['measurement']['sample']['description']['name'] == \
