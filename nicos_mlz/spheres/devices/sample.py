@@ -47,6 +47,11 @@ class SEController(tango.TemperatureController):
                                    TemperatureController)
     }
 
+    parameters = {
+        'tubeoffset': Param('Keep tube this many degrees below the setpoint.',
+                            volatile=True, settable=True)
+    }
+
     def rushTemperature(self, temperature):
         """Move to temperature as fast as possible
         Due to potential delay when going over 310K this will be handled
@@ -71,6 +76,12 @@ class SEController(tango.TemperatureController):
     def stopPressure(self):
         self._dev.StopPressureRegulation()
 
+    def doReadTubeoffset(self):
+        return self._dev.tube_offset
+
+    def doWriteTubeoffset(self, value):
+        self._dev.tube_offset = value
+
 
 class PressureController(tango.TemperatureController):
     """Device to be able to set the pressure manually.
@@ -80,7 +91,10 @@ class PressureController(tango.TemperatureController):
 
     parameters = {
         'controller': Param('SEController device name', type=tangodev,
-                             mandatory=True, preinit=True)
+                             mandatory=True, preinit=True),
+        'pressuretolerance': Param('Tolerance for the adjustment of the '
+                                   'pressure',
+                                   settable=True, volatile=True)
     }
 
     def doPreinit(self, mode):
@@ -96,3 +110,9 @@ class PressureController(tango.TemperatureController):
 
     def doStop(self):
         pass
+
+    def doReadPressuretolerance(self):
+        return self._dev.pressure_tolerance
+
+    def doWritePressuretolerance(self, value):
+        self._dev.pressure_tolerance = value
