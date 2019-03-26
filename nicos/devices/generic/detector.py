@@ -514,7 +514,9 @@ class Detector(Measurable):
             master.prepare()
 
     def doStart(self):
-        self._last_live = 0
+        # setting this to -interval, instead of 0, will send some live data at
+        # the very start of each count, clearing the "live" data from last time
+        self._last_live = -(self.liveinterval or 0)
         self._last_save = 0
         self._last_save_index = 0
         for slave in self._slaves:

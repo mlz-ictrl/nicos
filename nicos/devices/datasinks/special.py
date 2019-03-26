@@ -137,7 +137,24 @@ class LiveViewSinkHandler(DataSinkHandler):
 
 
 class LiveViewSink(ImageSink):
-    """A DataSink that sends images to attached clients for live preview."""
+    """A DataSink that sends images to attached clients for "live" preview.
+
+    This sinks sends any data it receives in putResults, and also notifies
+    clients about data filenames at the end of a measurement.
+
+    For this sink to actually send "live" data, i.e. while counting is in
+    progress, the detector(s) must return LIVE in their `duringMeasureHook`.
+    Whenever it does, the NICOS acquire loop will read out data immediately and
+    push it to the sink.  Returning INTERMEDIATE is also possible, but designed
+    for use by data sinks that want to save data as "checkpoints" while
+    counting, not just for live display.
+
+    The frequency of the hook returning something other than None determines
+    how often live data is updated.
+
+    For the `nicos.devices.generic.Detector`, this is controlled by its
+    "liveinterval" and "saveintervals" parameters.
+    """
 
     parameter_overrides = {
         # this is fixed string for labeling cached live data
