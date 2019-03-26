@@ -172,6 +172,7 @@ class NicosClient(object):
 
         response = self.ask('authenticate', credentials)
         if not response:
+            self._close()
             return
         self.user_level = response['user_level']
 
