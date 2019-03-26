@@ -117,7 +117,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         self._cleaner.join()
 
     def _read_one_storefile(self, filename):
-        with open(filename, 'r+U') as fd:
+        with open(filename, 'r+') as fd:
             # read file format identification
             firstline = fd.readline()
             if firstline.startswith('# NICOS cache store file v2'):
