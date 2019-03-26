@@ -21,57 +21,17 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
+"""NECTAR special commands."""
 
 from __future__ import absolute_import, division, print_function
 
-import math
-
 from nicos import session
 from nicos.commands import helparglist, usercommand
-from nicos.commands.measure import count
-from nicos.commands.scan import manualscan
 from nicos.core.errors import UsageError
 
 from nicos_mlz.antares.commands import darkimage, openbeamimage
 
-__all__ = ['grtomo', 'alignsample']
-
-
-@usercommand
-@helparglist('nangles, moveable, imgsperangle=1, img180=True, startpoint=0, '
-             '[detectors], [presets]')
-# pylint: disable=keyword-arg-before-vararg
-def grtomo(nangles, moveable=None, imgsperangle=1, img180=True, startpoint=0,
-           *detlist, **preset):
-    """Golden Ratio tomography.
-
-    Performs a tomography by scanning over nangles steps in a sequence from
-    the Golden ratio and capturing a desired amount of images (imgsperangle)
-    per step.
-
-    see: https://en.wikipedia.org/wiki/Golden_angle
-    """
-    session.log.info('Starting golden ratio tomography scan.')
-    if moveable is None:
-        # TODO: currently, sry is the common name on nectar and antares for the
-        # sample rotation (phi - around y axis).  Is this convenience function
-        # ok, or should it be omitted and added to the instrument custom?
-        moveable = session.getDevice('sry')
-
-    session.log.info('Performing golden ratio scan.')
-
-    angles = []
-    if img180 and startpoint == 0:
-        angles += [180.0]
-    _x = 180. * (3.0 - math.sqrt(5))
-    angles += [(i * _x) % 360 for i in range(startpoint, startpoint + nangles)]
-    with manualscan(moveable):
-        for angle in angles:
-            # Move the given movable to the target angle
-            moveable.maw(angle)
-            # Capture the desired amount of images
-            for _ in range(imgsperangle):
-                count(*detlist, **preset)
+__all__ = ['alignsample']
 
 
 @usercommand

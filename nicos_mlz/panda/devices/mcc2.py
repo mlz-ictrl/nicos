@@ -28,7 +28,7 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.core import SIMULATION, Attach, CommunicationError, Device, \
-    HardwareError, MoveError, Param, Readable, floatrange, intrange, none_or, \
+    HardwareError, MoveError, Param, Readable, floatrange, intrange, \
     oneof, oneofdict, status, usermethod
 from nicos.devices.abstract import Coder as NicosCoder, Motor as NicosMotor
 from nicos.devices.tango import PyTangoDevice
@@ -105,6 +105,17 @@ class MCC2core(Device):
         pass
 
 
+# Maps the mono code input triple to (led_num, name).
+MONOCODES = {
+    '000': (None, 'None'),
+    '111': (1,    'Cu'),
+    '011': (2,    'Si'),
+    '100': (3,    'empty frame'),
+    '110': (4,    'PG'),
+    '101': (5,    'Heusler'),
+}
+
+
 class MCC2Monoframe(MCC2core, Readable):
     """Class for the readout of a Mcc2 unit
 
@@ -126,17 +137,9 @@ class MCC2Monoframe(MCC2core, Readable):
         'driverenable': Param('Enable pin (Output 8)', type=bool,
                               mandatory=False, settable=True, default=False,
                               prefercache=False),
-        'override':     Param('Manual override of monocode', type=none_or(str),
+        'override':     Param('Manual override of detected monocode',
+                              type=oneof('no', *MONOCODES),
                               settable=True),
-    }
-
-    monocodes = {   # input triple : (led_num, name)
-        '000': (None, 'None'),
-        '111': (1,    'Cu'),
-        '011': (2,    'Si'),
-        '100': (3,    'empty frame'),
-        '110': (4,    'PG'),
-        '101': (5,    'Heusler'),
     }
 
     def doInit(self, mode):
@@ -149,13 +152,8 @@ class MCC2Monoframe(MCC2core, Readable):
     def doRead(self, maxage=0):
         self.comm('A1R2R3R4R')  # all LEDs off
 
-        if self.override is not None:
-            if self.override not in self.monocodes:
-                self.log.error('invalid override, must be one of %s',
-                               ', '.join(self.monocodes))
-                monoh = monov = '000'
-            else:
-                monoh = monov = self.override
+        if self.override != 'no':
+            monoh = monov = self.override
         else:
             monoh = self.comm('ER1;2;3')
             self.log.debug('mono_h code is %s', monoh)
@@ -167,9 +165,9 @@ class MCC2Monoframe(MCC2core, Readable):
             raise HardwareError(self, 'monocodes from MFV and MFH are '
                                 'different!')
 
-        if monoh in self.monocodes:
+        if monoh in MONOCODES:
             # set LED
-            led = self.monocodes[monoh][0]
+            led = MONOCODES[monoh][0]
             if led:
                 if led < 5:
                     self.comm('A%dS' % led)
@@ -178,7 +176,7 @@ class MCC2Monoframe(MCC2core, Readable):
             else:
                 # set all to indicate empty to distinguish from no power....
                 self.comm('A1S2S3S4S')
-            return self.monocodes[monoh][1]
+            return MONOCODES[monoh][1]
         else:
             raise HardwareError(self, 'unknown monochromator or wires broken')
 

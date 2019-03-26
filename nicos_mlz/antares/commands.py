@@ -33,10 +33,10 @@ from nicos.commands import helparglist, usercommand
 from nicos.commands.device import maw
 from nicos.commands.scan import scan
 
-from nicos_mlz.frm2.commands.imaging import darkimage as _darkimage, \
+from nicos_mlz.frm2.commands.imaging import darkimage as _darkimage, grtomo, \
     openbeamimage as _openbeamimage, tomo
 
-__all__ = ['tomo', 'openbeamimage', 'darkimage']
+__all__ = ['tomo', 'openbeamimage', 'darkimage', 'grtomo']
 
 
 @usercommand

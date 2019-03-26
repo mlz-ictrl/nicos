@@ -29,11 +29,11 @@ from os.path import relpath
 from nicos import session
 from nicos.commands import helparglist, usercommand
 from nicos.commands.device import maw
-from nicos.commands.imaging import tomo
+from nicos.commands.imaging import grtomo, tomo
 from nicos.commands.measure import count
 from nicos.devices.datasinks.image import ImageSink
 
-__all__ = ['tomo', 'openbeamimage', 'darkimage']
+__all__ = ['tomo', 'openbeamimage', 'darkimage', 'grtomo']
 
 
 def changeImgSinkSubdir(newsubdir):
