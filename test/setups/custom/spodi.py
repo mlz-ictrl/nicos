@@ -27,7 +27,7 @@ name = 'test_spodi setup'
 includes = ['stdsystem']
 
 sysconfig = dict(
-    datasinks = ['spodisink'],
+    datasinks = ['spodisink', 'spodilivesink'],
 )
 
 devices = dict(
@@ -70,4 +70,5 @@ devices = dict(
         filenametemplate = ['m1%(pointcounter)08d.ctxt'],
         detectors = ['adet'],
     ),
+    spodilivesink = device('nicos_mlz.spodi.devices.datasinks.LiveViewSink'),
 )
