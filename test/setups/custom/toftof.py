@@ -27,7 +27,7 @@ name = 'test_toftof setup'
 includes = ['stdsystem']
 
 sysconfig = dict(
-    datasinks = ['tofsink'],
+    datasinks = ['tofsink', 'livesink'],
 )
 
 devices = dict(
@@ -256,4 +256,5 @@ devices = dict(
     tofsink = device('nicos_mlz.toftof.devices.datasinks.TofImageSink',
         filenametemplate = ['%(pointcounter)08d_0000.raw'],
     ),
+    livesink = device('nicos_mlz.toftof.devices.datasinks.ToftofLiveViewSink'),
 )
