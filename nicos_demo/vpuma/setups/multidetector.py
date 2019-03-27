@@ -66,7 +66,7 @@ for i in range(11):
     devices['rd%d' % (i + 1)] = device('nicos.devices.generic.Axis',
         description = 'Rotation detector %d multidetector' % (i + 1),
         motor = device('nicos_mlz.puma.devices.virtual.VirtualReferenceMotor',
-            abslimits = (-40 + (11 - (i + 1)) * 2.5, 12 - i * 2.5),
+            abslimits = (-42 + (11 - (i + 1)) * 2.5, 13 - i * 2.4),
             unit = 'deg',
             refpos = -13.5 - i * 2.5,
             fmtstr = '%.3f',

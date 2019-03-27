@@ -23,4 +23,5 @@ devices = dict(
 
 startupcode = '''
 SetDetectors(det)
+med.opmode = 'multi'
 '''

@@ -21,7 +21,7 @@ devices = dict(
 for i in range(11):
     devices['rd%d' % (i + 1)] = device('nicos.devices.generic.Axis',
         motor = device('nicos_mlz.puma.devices.virtual.VirtualReferenceMotor',
-            abslimits = (-39 + (11 - (i + 1)) * 2.5 , 12 - i * 2.5),
+            abslimits = (-42 + (11 - (i + 1)) * 2.5 , 12 - i * 2.4),
             unit = 'deg',
             refpos = 11. - i * 2.5,
             fmtstr = '%.3f',

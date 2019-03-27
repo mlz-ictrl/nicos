@@ -26,3 +26,7 @@ devices = dict(
 alias_config = {
     'ana': {'ana_polarization': 200},
 }
+
+startupcode = '''
+med.opmode = 'pa'
+'''

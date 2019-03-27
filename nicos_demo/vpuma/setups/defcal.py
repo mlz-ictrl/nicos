@@ -45,5 +45,6 @@ devices = dict(
 )
 
 startupcode = '''
+med.opmode = 'pa'
 # SetDetectors(det)
 '''

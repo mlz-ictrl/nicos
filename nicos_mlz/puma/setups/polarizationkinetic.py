@@ -46,6 +46,7 @@ devices = dict(
 )
 
 startupcode = '''
+med.opmode = 'pa'
 SetDetectors(det)
 set('image', 'listmode', True)
 '''

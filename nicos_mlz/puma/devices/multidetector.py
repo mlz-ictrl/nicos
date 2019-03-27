@@ -34,7 +34,7 @@ import numpy as np
 from nicos import session
 from nicos.commands import hiddenusercommand
 from nicos.core import SIMULATION, Attach, Moveable, Override, Param, \
-    floatrange, listof, status, tupleof
+    floatrange, listof, oneof, status, tupleof
 from nicos.core.errors import MoveError
 from nicos.core.mixins import HasTimeout
 from nicos.core.utils import filterExceptions
@@ -93,6 +93,10 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
         'psdchannelwidth': Param('PSD channel width',
                                  type=floatrange(0, None), category='general',
                                  unit='mm', prefercache=False, default=0.7),
+        'opmode': Param('Operation mode, either "multi" for multi analysis or '
+                        ' "pa" for polarization analysis',
+                        type=oneof('multi', 'pa'), settable=True,
+                        default='multi'),
     }
 
     parameter_overrides = {
@@ -592,9 +596,9 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
 
         allowed = check.copy()
         gtarget = pos[self._num_axes:]
-        if not is_sorted(gtarget):
+        if self.opmode == 'multi' and not is_sorted(gtarget):
             return False, 'detector guide targets not a list of consecutive ' \
-                'values'
+                'values %s' % (gtarget,)
         first = 0
         last = self._num_axes - 1
         rg1_min = -7.5
@@ -611,11 +615,12 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
             why.append('rg11: %s %s %s' % (gtarget[last - 1], gtarget[last],
                                            rg11_max))
             allowed.discard(last + 1)
-        for i in range(1, last):
-            if not (gtarget[i - 1] <= gtarget[i] <= gtarget[i + 1]):
-                why.append('rg%i: %s %s %s' % (i + 1, gtarget[i - 1],
+        if self.opmode == 'multi':
+            for i in range(1, last):
+                if not (gtarget[i - 1] <= gtarget[i] <= gtarget[i + 1]):
+                    why.append('rg%i: %s %s %s' % (i + 1, gtarget[i - 1],
                                                gtarget[i], gtarget[i + 1]))
-                allowed.discard(i + 1)
+                    allowed.discard(i + 1)
         notallowed = check - allowed
         if notallowed:
             self.log.warning('movement not allowed for the following guides: '
