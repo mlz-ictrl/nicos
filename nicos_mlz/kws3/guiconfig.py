@@ -50,6 +50,9 @@ tools = [
     cmdtool('Detector live view', 'KWSlive'),
     cmdtool('Server control (Marche)', 'marche-gui'),
 #    cmdtool('NICOS status', 'nicos-monitor'),
+    tool('Sample environment logbooks',
+         'nicos.clients.gui.tools.website.WebsiteTool',
+         url='https://wiki.frm2.tum.de/se:jcns:log:index'),
     tool('Emergency stop button', 'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=False),
     tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),
@@ -64,6 +67,5 @@ tools = [
     tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
          receiver='f.carsughi@fz-juelich.de',
          mailserver='smtp.frm2.tum.de',
-         sender='kws3@frm2.tum.de',
-        ),
+         sender='kws3@frm2.tum.de'),
 ]
