@@ -664,15 +664,16 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
 
     def doPrepare(self):
         self.readresult = [0]
+        if self._mythread and self._mythread.isAlive():
+            self._stopflag = True
+            self._mythread.join()
+            self._mythread = None
         self._buf = self._generate(0).astype('<u4')
 
     def doStart(self):
         self._last_update = 0
         self._timer = Timer()
         self._timer.start()
-        if self._mythread and self._mythread.isAlive():
-            self._stopflag = True
-            self._mythread.join()
         self._stopflag = False
         self._mythread = createThread('virtual detector %s' % self, self._run)
 
