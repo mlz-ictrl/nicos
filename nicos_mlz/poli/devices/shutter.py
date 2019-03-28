@@ -29,7 +29,7 @@ from __future__ import absolute_import, division, print_function
 import time
 
 from nicos.core import Attach, HasTimeout, Moveable, MoveError, Override, \
-    oneof, status
+    Readable, oneof, status
 
 
 class Shutter(HasTimeout, Moveable):
@@ -38,7 +38,8 @@ class Shutter(HasTimeout, Moveable):
     valuetype = oneof('closed', 'open')
 
     attached_devices = {
-        'io': Attach('shutter I/Os', Moveable),
+        'data_out': Attach('shutter output', Moveable),
+        'data_in':  Attach('shutter input', Readable),
     }
 
     parameter_overrides = {
@@ -48,7 +49,7 @@ class Shutter(HasTimeout, Moveable):
     }
 
     def doStatus(self, maxage=0):
-        bits = self._attached_io.read(maxage)
+        bits = self._attached_data_in.read(maxage)
         text = []
         code = status.OK
         if bits & 0b100:
@@ -65,7 +66,7 @@ class Shutter(HasTimeout, Moveable):
         return code, ', '.join(text)
 
     def doRead(self, maxage=0):
-        value = self._attached_io.read(maxage)
+        value = self._attached_data_in.read(maxage)
         if value & 1:
             return 'open'
         elif value & 2:
@@ -73,9 +74,9 @@ class Shutter(HasTimeout, Moveable):
         return 'unknown'
 
     def doStart(self, target):
-        if target == 'open' and not self._attached_io.read(0) & 0b100:
+        if target == 'open' and not self._attached_data_in.read(0) & 0b100:
             raise MoveError(self, 'cannot open shutter: set to local mode')
         # bit 0: data valid, bit 1: open, bit 2: close (inverted)
-        self._attached_io.start(0)
+        self._attached_data_out.start(0)
         time.sleep(0.1)
-        self._attached_io.start(0b111 if target == 'open' else 0b001)
+        self._attached_data_out.start(0b111 if target == 'open' else 0b001)
