@@ -54,7 +54,7 @@ devices = dict(
         description = 'Detector polarizer correction current 1',
         tacodevice = taco_base + 'decpolcorr1/current',
         fmtstr = '%.2f',
-        abslimits = (0, 2),
+        abslimits = (0, 5),
         unit = 'A',
         pollinterval = 60,
         maxage = 65,
@@ -63,7 +63,7 @@ devices = dict(
         description = 'Detector polarizer correction current 2',
         tacodevice = taco_base + 'decpolcorr2/current',
         fmtstr = '%.2f',
-        abslimits = (0, 2),
+        abslimits = (0, 5),
         unit = 'A',
         pollinterval = 60,
         maxage = 65,
@@ -107,8 +107,8 @@ devices = dict(
 
     pcflipper = device('nicos.devices.polarized.MezeiFlipper',
         description = 'Mezei flipper using pc1 and pc2 supplies',
-        flip = 'pc1',
-        corr = 'pc2',
+        flip = 'decpolcorr2',
+        corr = 'decpolcorr1',
     ),
 
     #    cryo_t1 = device('nicos.devices.taco.TemperatureSensor',

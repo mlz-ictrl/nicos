@@ -44,6 +44,8 @@ windows = [
     window('Camera', 'live',
            panel('nicos.clients.gui.panels.liveqwt.LiveDataPanel',
                  instrument='poli')),
+    window('PLC', 'table',
+           panel('nicos_mlz.gui.plcpanel.PlcDeviceControlPanel')),
 ]
 
 tools = [

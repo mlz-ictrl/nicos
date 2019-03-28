@@ -260,7 +260,17 @@ kelvinox1 = Block('Kelvinox', [
     setups='kelvinox1',
 )
 
-column2 = Column(shutters, collimation) + Column(*cryos) + Column(*ccrs) + \
+jvm2 = Block('8T Magnet', [
+    BlockRow(
+        Field(dev='B'),
+        Field(dev='T'),
+        Field(dev='Ts'),
+    ),
+    ],
+    setups='jvm2',
+)
+
+column2 = Column(shutters, collimation, jvm2) + Column(*cryos) + Column(*ccrs) + \
           Column(variox1, kelvinox1)
 column3 = Column(variox1supp1, variox1supp2) + \
           Column(*cryosupps) + Column(*ccrsupps)
