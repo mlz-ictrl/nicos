@@ -60,7 +60,7 @@ class FunnySensor(Sensor):
 
 
 class BeamStopAxis(Axis):
-    """special Axis, which alwas has an offset of 0
+    """special Axis, which always has an offset of 0
     """
     parameter_overrides = {
         'fixed': Override(type=oneof(''), default=''),
