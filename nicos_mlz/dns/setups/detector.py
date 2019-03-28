@@ -18,7 +18,7 @@ devices = dict(
         description = 'TOF data channel',
         tangodevice = tango_base + 'sistofdetector/1',
         readchannels = (0, 23),
-        readtimechan = (0, 0),
+        readtimechan = (0, 1000),
     ),
     det = device('nicos_mlz.dns.devices.detector.DNSDetector',
         description = 'Tof detector',

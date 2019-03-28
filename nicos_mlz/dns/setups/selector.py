@@ -6,24 +6,19 @@ group = 'lowlevel'
 tango_base = 'tango://phys.dns.frm2:10000/dns/'
 
 SELECTOR_POSITIONS = {
-    # XXX: need the correct values for this
-    'in':  -146.8,
-    'out': 0,
+    'in':  -139.0,
+    'out': 139,
 }
 
 
 devices = dict(
-    # selector_inbeam = device('nicos.devices.generic.Switcher',
-    #     description = 'Automatic in/out switch for the selector',
-    #     mapping = SELECTOR_POSITIONS,
-    #     fallback = 'unknown',
-    #     moveable = 'selector_lift',
-    #     precision = 0.1,
-    # ),
-    selector_inbeam = device('nicos.devices.generic.ManualSwitch',
-        description = 'In/out switch for the selector',
-        states = ['in', 'out'],
-    ),
+     selector_inbeam = device('nicos.devices.generic.Switcher',
+         description = 'Automatic in/out switch for the selector',
+         mapping = SELECTOR_POSITIONS,
+         fallback = 'unknown',
+         moveable = 'selector_lift',
+         precision = 0.1,
+     ),
     selector_speed = device('nicos.devices.tango.AnalogOutput',
         description = 'Selector speed control',
         tangodevice = tango_base + 'selector/speed',
