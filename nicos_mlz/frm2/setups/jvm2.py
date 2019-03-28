@@ -12,6 +12,15 @@ devices = dict(
         fmtstr = '%.3f',
         precision = 0.002,
     ),
+    sth_jvm2_ax = device('nicos.devices.generic.Axis',
+        description = 'sample rotation motor, with backlash correction',
+        motor = 'sth_jvm2',
+        coder = 'sth_jvm2',
+        fmtstr = '%.3f',
+        abslimits = (-360, 360),
+        precision = 0.002,
+        backlash = -1.0,
+    ),
     stz_jvm2 = device('nicos_mlz.jcns.devices.motor.Motor',
         description = 'sample height motor',
         tangodevice = tango_base + 'motor/motz',
@@ -107,7 +116,7 @@ alias_config = {
     'T': {'T_jvm2_vti': 220, 'T_jvm2_stick': 210, 'T_jvm2_htstick': 210},
     'Ts': {'T_jvm2_stick': 120, 'T_jvm2_htstick': 120},
     'B': {'B_jvm2': 100},
-    'sth': {'sth_jvm2': 200},
+    'sth': {'sth_jvm2_ax': 250, 'sth_jvm2': 200},
 }
 
 extended = dict(
