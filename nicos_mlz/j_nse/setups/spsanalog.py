@@ -117,4 +117,15 @@ devices = dict(
         pollinterval = 60,
         maxage = 130,
     ),
+    KompassArmMono = device('nicos.devices.tango.Sensor',
+        description = 'Position of Kompass mono-2theta',
+        # strange name, since it also masquerades as a GPIB communication device for NSE prog.
+        tangodevice = tango_base + 'gpib/7',
+        unit = 'deg',
+    ),
+    KompassArmSample = device('nicos.devices.tango.Sensor',
+        description = 'Position of Kompass sample-2theta',
+        tangodevice = tango_base + 'gpib/8',
+        unit = 'deg',
+    ),
 )
