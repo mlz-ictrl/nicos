@@ -30,7 +30,8 @@ import time
 
 import PyTango
 
-from nicos.core import Attach, Moveable, Override, Param, NicosTimeoutError, \
+from nicos import session
+from nicos.core import Attach, Moveable, NicosTimeoutError, Override, Param, \
     dictof, status, tupleof
 from nicos.devices.epics import EpicsAnalogMoveable
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
@@ -46,12 +47,12 @@ class HVSwitcher(Switcher):
     detector.
     """
 
+    hardware_access = True
+
     parameters = {
         'pv_values': Param('PV values to set when starting the detector',
                            type=dictof(str, list), mandatory=True),
     }
-
-    hardware_access = True
 
     def _mapReadValue(self, pos):
         prec = self.precision
@@ -63,6 +64,11 @@ class HVSwitcher(Switcher):
                 return name
         return self.fallback
 
+    def doTime(self, old, new):
+        if old != new:
+            session.clock.tick(90)
+        return 0
+
     def doStart(self, target):
         # on start, also set all configured parameters
         if target == 'on' and self.read() != 'on':
@@ -72,7 +78,7 @@ class HVSwitcher(Switcher):
                     fullpvname = '%s:%s_W' % (epicsid, pvname)
                     self.log.debug('setting %s = %s' % (fullpvname, pvvalue))
                     epics.caput(fullpvname, pvvalue)
-            time.sleep(2)
+            session.delay(2)
         Switcher.doStart(self, target)
 
 
