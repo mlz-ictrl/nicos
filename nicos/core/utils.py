@@ -201,6 +201,8 @@ def multiWait(devices):
     delay = 0.3
     final_exc = None
     devlist = list(devIter(devices, baseclass=Waitable, allwaiters=True))
+    session.log.debug('multiWait: initial devices %s, all waiters %s',
+                      devices, devlist)
     values = {}
     loops = -2  # wait 2 iterations for full loop
     eta_update = 1 if session.mode != SIMULATION else 0
@@ -211,6 +213,8 @@ def multiWait(devices):
     session.action(target_str)
     try:
         while devlist:
+            session.log.debug('multiWait: iteration %d, devices left %s',
+                              loops, devlist)
             loops += 1
             for dev in devlist[:]:
                 try:
@@ -261,6 +265,7 @@ def multiWait(devices):
             reraise(*final_exc)
     finally:
         session.endActionScope()
+        session.log.debug('multWait: finished')
     return values
 
 
