@@ -47,6 +47,7 @@ _chop_phase = Column(
                  Field(name='2', dev='chopper_ch2_phase', unit='deg', format='%.2f'),
                 ),
         ],
+        setups='chopper_phase',
     ),
 )
 
@@ -239,7 +240,7 @@ _col_slit = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-        title = 'SANS-1 status monitor',
+        title = 'SANS-1 status monitor 1',
         loglevel = 'debug',
         # loglevel = 'info',
         cache = 'sans1ctrl.sans1.frm2',

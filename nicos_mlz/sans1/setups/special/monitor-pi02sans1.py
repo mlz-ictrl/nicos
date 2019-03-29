@@ -701,6 +701,18 @@ _helios01 = Block('Helios', [
     setups='helios01',
 )
 
+wuts = []
+for wut in ['wut-0-10-01', 'wut-0-10-02', 'wut-4-20-01', 'wut-4-20-02']:
+    _wd = wut.replace('-', '_')
+    wuts.append(Block(wut, [
+        BlockRow(
+            Field(name='input 1', dev=_wd +'_1'),
+            Field(name='input 2', dev=_wd+'_2'),
+        ),
+        ],
+        setups=wut,
+    ))
+
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
         description = 'Status monitor',
@@ -729,6 +741,7 @@ devices = dict(
                        _spinflipper, _julabo_plot),
                 Column(*ccrs) + Column(_birmag),
                 Column(*cryos),
+                Column(*wuts),
             ),
             Row(
                 Column(_ccmsans_plot, _miramagnet_plot,

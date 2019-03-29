@@ -261,6 +261,7 @@ _chop_phase = Column(
                  Field(name='2', dev='chopper_ch2_phase', unit='deg', format='%.2f'),
                 ),
         ],
+        setups='chopper',
     ),
 )
 

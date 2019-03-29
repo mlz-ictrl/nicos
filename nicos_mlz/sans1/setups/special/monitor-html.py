@@ -742,6 +742,19 @@ _helios01 = Column(
     ),
 )
 
+wuts = []
+for wut in ['wut-0-10-01', 'wut-0-10-02', 'wut-4-20-01', 'wut-4-20-02']:
+    _wd = wut.replace('-', '_')
+    wuts.append(Block(wut, [
+        BlockRow(
+            Field(name='input 1', dev=_wd +'_1'),
+            Field(name='input 2', dev=_wd+'_2'),
+        ),
+        ],
+        setups=wut,
+    ))
+_wuts = Column(*tuple(wuts))
+
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
         title = 'SANS-1 Status monitor',
@@ -763,7 +776,7 @@ devices = dict(
                 _spinflipper, _ccrs, _cryos, _sc1, _sc2,
                 _sc_t, _ccmsanssc, _miramagnet, _amagnet,
                 _htf03, _htf01, _irf01, _irf10, _newports, _julabo,
-                _tisane_counts, _tisane_fc, _helios01),
+                _tisane_counts, _tisane_fc, _helios01, _wuts),
             Row(_ccmsans_plot, _ccm2a_plot, _ccr19_plot,
                 _htf03_plot, _irf01_plot, _irf10_plot, _htf01_plot, _julabo_plot,
                 _miramagnet_plot),
