@@ -34,7 +34,7 @@ import sys
 from os import path
 from re import compile as regexcompile, escape as regexescape
 
-from nicos.pycompat import configparser
+from nicos.pycompat import ConfigParser
 
 
 class config(object):
@@ -112,7 +112,7 @@ class config(object):
 
 # read nicos.conf files
 
-class NicosConfigParser(configparser.SafeConfigParser):
+class NicosConfigParser(ConfigParser):
     def optionxform(self, key):
         return key
 

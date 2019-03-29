@@ -42,9 +42,11 @@ dev_null = open(os.devnull, 'wb')
 background_processes = []
 
 try:
-    from configparser import NoOptionError, NoSectionError, SafeConfigParser
+    from configparser import NoOptionError, NoSectionError, ConfigParser
 except ImportError:
-    from ConfigParser import NoOptionError, NoSectionError, SafeConfigParser
+    from ConfigParser import NoOptionError, NoSectionError, \
+        SafeConfigParser as ConfigParser
+
 
 def echo(s):
     sys.stdout.write(s)
@@ -130,7 +132,7 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.RawTextHelpFormatter,
 )
 
-global_cfg = SafeConfigParser()
+global_cfg = ConfigParser()
 nicos_root = path.normpath(path.dirname(path.dirname(__file__)))
 global_cfg.read(path.join(nicos_root, 'nicos.conf'))
 

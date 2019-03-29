@@ -37,7 +37,7 @@ from test.utils import module_root
 from nicos import session
 from nicos.core.sessions.simulation import SimulationSupervisor
 from nicos.core.utils import system_user
-from nicos.pycompat import configparser
+from nicos.pycompat import ConfigParser
 
 import pytest
 
@@ -107,7 +107,7 @@ def find_scripts():
         if not path.isdir(testdir):
             continue
         custom_subdirs[instr] = []
-        cp = configparser.ConfigParser()
+        cp = ConfigParser()
         cp.read(nicosconf)
         if cp.has_option('nicos', 'setup_subdirs'):
             sbd = cp.get('nicos', 'setup_subdirs').split(',')

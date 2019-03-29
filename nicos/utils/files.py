@@ -34,7 +34,7 @@ import os
 import re
 from os import path
 
-from nicos.pycompat import configparser
+from nicos.pycompat import ConfigParser
 
 SETUPNAME_RE = re.compile(r'[-\w]+$')
 
@@ -95,7 +95,7 @@ def findSetupRoots(filename):
             # nicos.conf, let's just search in the setup's directory
             return (path.dirname(filename),)
         dirname = new_dirname
-    cfg = configparser.SafeConfigParser()
+    cfg = ConfigParser()
     cfg.read(path.join(dirname, 'nicos.conf'))
     if cfg.has_option('nicos', 'setup_subdirs'):
         return tuple(path.join(path.dirname(dirname), subdir) for subdir in

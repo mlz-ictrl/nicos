@@ -72,6 +72,13 @@ else:
     def listvalues(d):
         return list(d.values())
 
+# the class is renamed in addition to the module
+
+if PY2:
+    ConfigParser = configparser.SafeConfigParser
+else:
+    ConfigParser = configparser.ConfigParser
+
 # all builtin number types (useful for isinstance checks)
 
 number_types = integer_types + (float,)

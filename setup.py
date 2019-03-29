@@ -30,7 +30,7 @@ from setuptools.command.install import install as stinstall
 from distutils.dir_util import mkpath  # pylint: disable=no-name-in-module,import-error
 
 from nicos import nicos_version
-from nicos.pycompat import configparser
+from nicos.pycompat import ConfigParser
 
 root_packages = ['nicos'] + [d for d in glob.glob('nicos_*') if path.isdir(d)]
 
@@ -130,7 +130,7 @@ class nicosinstall(stinstall):
                            path.join(self.install_icons, res))
 
     def createInitialGlobalNicosConf(self):
-        cfg = configparser.SafeConfigParser()
+        cfg = ConfigParser()
         cfg.optionxform = str
         cfg.read(self.install_conf)
         if not cfg.has_section('nicos'):
