@@ -25,7 +25,7 @@ The :mod:`nicos.utils` contains a collection of general use utility classes:
 
 .. autoclass:: lazy_property
 
-.. autoclass: readonlydict
+.. autoclass:: readonlydict
 
 .. autoclass:: readonlylist
 

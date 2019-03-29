@@ -40,6 +40,21 @@ from nicos.utils import lazy_property
 SETTYPES = (POINT, SCAN, SUBSCAN, BLOCK)
 
 
+class finish_property(lazy_property):
+    """A property which will not change after its owner's trigger flag
+    has been set"""
+
+    def __get__(self, obj, obj_class):
+        if obj is None:
+            return obj
+
+        result = self._func(obj)
+
+        if obj.finished:
+            obj.__dict__[self.__name__] = result
+        return result
+
+
 class BaseDataset(object):
     """Base class for scan and point datasets."""
 
@@ -223,15 +238,15 @@ class PointDataset(BaseDataset):
                 res[devname] = mean, stdev, mini, maxi
         return res
 
-    @lazy_property
+    @finish_property
     def devvaluelist(self):
         return self._reslist(self.devices, self.canonical_values)
 
-    @lazy_property
+    @finish_property
     def envvaluelist(self):
         return self._reslist(self.environment, self.values)
 
-    @lazy_property
+    @finish_property
     def detvaluelist(self):
         return self._reslist(self.detectors, self.results, 0)
 

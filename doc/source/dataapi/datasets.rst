@@ -3,6 +3,8 @@ Data sets
 
 .. module:: nicos.core.data.dataset
 
+.. autoclass:: finish_property
+
 .. autoclass:: BaseDataset
 
    .. automethod:: dispatch
