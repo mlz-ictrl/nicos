@@ -110,7 +110,7 @@ IEEE9=%(ieee_9)s
 IEEE10=%(ieee_10)s
 
 %%Setup
-SelSelection=SEL1
+SelSelection=%(selector_ng)s
 Lambda=%(selector_lambda)s
 LambdaC=%(selector_rpm)s
 Tilting=0.00
