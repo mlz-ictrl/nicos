@@ -1,7 +1,7 @@
 Requirements
 ------------
 
-* At least Python 2.7 or Python 3.3
+* At least Python 2.7 or Python 3.5
 
 If not mentioned otherwise, Python packages are available from PyPI
 (https://pypi.python.org/pypi).
