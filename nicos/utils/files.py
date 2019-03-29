@@ -31,9 +31,12 @@ This modules contains helper functions to find e.g. setupfiles etc.
 from __future__ import absolute_import, division, print_function
 
 import os
+import re
 from os import path
 
 from nicos.pycompat import configparser
+
+SETUPNAME_RE = re.compile(r'[-\w]+$')
 
 
 def iterSetups(paths):
@@ -45,7 +48,8 @@ def iterSetups(paths):
                     continue
                 filepath = path.join(root, filename)
                 setupname = path.splitext(path.basename(filepath))[0]
-                yield (setupname, filepath)
+                if SETUPNAME_RE.match(setupname):
+                    yield (setupname, filepath)
 
 
 def findSetup(paths, setupname):

@@ -307,6 +307,7 @@ CASES = [
     ('a or b',     ['c'], False),
     ('a*',         ['alpha', 'b'],  True),
     ('c*',         ['alpha', 'b'],  False),
+    ('c-d*',       ['c-de'], True),
     ('(b and not (c or h)', ['b'], True),
     ('(b and not (c or h))', ['b', 'c'], False),
     ('(b and not (c or h))', ['b', 'h'], False),

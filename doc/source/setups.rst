@@ -17,7 +17,8 @@ specialized commands) is collected in a "setup file"[#f1]_.
 The syntax of the setup files is python-like.
 
 Each setup is available by the filename without the '.py' extension, e.g. the
-'test' setup is located in 'test.py' file.
+'test' setup is located in 'test.py' file.  Setup names may contain ASCII
+letters, numbers, the underscore and the minus sign.
 
 A setup named ``system``, if it exists, is always loaded by NICOS.
 

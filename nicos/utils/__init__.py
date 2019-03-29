@@ -1519,7 +1519,7 @@ def checkSetupSpec(setupspec, setups, log=None):
         return True
     if not setups:
         return False  # no setups -> not visible (safety)
-    expr = re.sub(r'[\w\[\]*?]+', subst_setupexpr, setupspec)
+    expr = re.sub(r'[-\w\[\]*?]+', subst_setupexpr, setupspec)
     ns = {'has_setup': has_setup}
     try:
         return eval(expr, ns)
