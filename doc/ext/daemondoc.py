@@ -27,15 +27,13 @@
 
 from __future__ import absolute_import, division, print_function
 
-import inspect
-
 from docutils.statemachine import ViewList
 from sphinx.domains.python import PyModulelevel
 from sphinx.util.docfields import Field
 from sphinx.util.docstrings import prepare_docstring
 
-from nicos.pycompat import getargspec
 from nicos.services.daemon.handler import command_wrappers
+from nicos.utils import formatArgs
 
 
 class DaemonCommand(PyModulelevel):
@@ -43,9 +41,7 @@ class DaemonCommand(PyModulelevel):
 
     def handle_signature(self, sig, signode):
         self.object = command_wrappers[sig].orig_function
-        args = getargspec(self.object)
-        del args[0][0]  # remove self
-        sig = '%s%s' % (sig, inspect.formatargspec(*args))
+        sig = '%s%s' % (sig, formatArgs(self.object, strip_self=True))
         return PyModulelevel.handle_signature(self, sig, signode)
 
     def needs_arglist(self):

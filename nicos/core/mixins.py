@@ -26,7 +26,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-import inspect
 import threading
 import types
 from time import time as currenttime
@@ -39,8 +38,8 @@ from nicos.core.errors import AccessError, CommunicationError, \
 from nicos.core.params import Override, Param, anytype, dictof, floatrange, \
     intrange, limits, none_or, nonemptylistof, string, tupleof
 from nicos.core.utils import statusString, usermethod
-from nicos.pycompat import add_metaclass, getargspec, itervalues
-from nicos.utils import lazy_property
+from nicos.pycompat import add_metaclass, itervalues
+from nicos.utils import formatArgs, lazy_property
 
 
 class DeviceMixinMeta(type):
@@ -78,10 +77,7 @@ class DeviceMixinMeta(type):
             value = getattr(newtype, aname)
             if not isinstance(value, (types.FunctionType, types.MethodType)):
                 continue
-            argspec = getargspec(value)
-            if argspec[0] and argspec[0][0] == 'self':
-                del argspec[0][0]  # get rid of "self"
-            args = inspect.formatargspec(*argspec)
+            args = formatArgs(value, strip_self=True)
             if value.__doc__:
                 docline = value.__doc__.strip().splitlines()[0]
             else:

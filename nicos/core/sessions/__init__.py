@@ -44,10 +44,11 @@ from time import time as currenttime
 
 import numpy
 
-from nicos.pycompat import builtins, exec_, getargspec, \
-    iteritems, itervalues, listvalues, string_types
+from nicos.pycompat import builtins, exec_, iteritems, itervalues, \
+    listvalues, string_types
 
-from nicos.utils import fixupScript, formatDocstring, formatScriptError, which
+from nicos.utils import fixupScript, formatArgs, formatDocstring, \
+    formatScriptError, which
 from nicos.utils.loggers import ColoredConsoleHandler, \
     NicosLogfileHandler, NicosLogger, initLoggers
 
@@ -990,7 +991,7 @@ class Session(object):
             if hasattr(real_func, 'help_arglist'):
                 argspec = '(%s)' % real_func.help_arglist
             else:
-                argspec = inspect.formatargspec(*getargspec(real_func))
+                argspec = formatArgs(real_func)
             self.log.info('Usage: ' + real_func.__name__ + argspec)
             for line in formatDocstring(real_func.__doc__ or '', '   '):
                 self.log.info(line)

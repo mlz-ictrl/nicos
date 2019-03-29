@@ -61,12 +61,6 @@ except ImportError:
     from base64 import encodestring as b64encode
     from base64 import decodestring as b64decode
 
-if PY2:
-    getargspec = inspect.getargspec
-else:
-    def getargspec(func):
-        return inspect.getfullargspec(func)[:4]
-
 # missing dict helpers to get a list of items/values
 
 if PY2:

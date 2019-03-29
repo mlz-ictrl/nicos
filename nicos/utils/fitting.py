@@ -29,8 +29,8 @@ from numpy import array, asarray, cos, diagonal, exp, inf, isinf, isscalar, \
     linspace, log, mean, pi, piecewise, power, sqrt
 
 from nicos.core import ProgrammingError
-from nicos.pycompat import add_metaclass, getargspec
-from nicos.utils import FitterRegistry
+from nicos.pycompat import add_metaclass
+from nicos.utils import FitterRegistry, getNumArgs
 from nicos.utils.analyze import estimateFWHM
 
 try:
@@ -55,13 +55,13 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, **kw):
     """
     if p0 is None or isscalar(p0):
         # determine number of parameters by inspecting the function
-        args, _varargs, _varkw, _defaults = getargspec(f)
-        if len(args) < 2:
+        nargs = getNumArgs(f)
+        if nargs < 2:
             msg = "Unable to determine number of fit parameters."
             raise ValueError(msg)
         if p0 is None:
             p0 = 1.0
-        p0 = [p0]*(len(args)-1)
+        p0 = [p0]*(nargs - 1)
 
     args = (xdata, ydata, f)
     if sigma is None:

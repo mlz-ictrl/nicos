@@ -28,6 +28,7 @@ from __future__ import absolute_import, division, print_function
 
 import errno
 import fnmatch
+import inspect
 import linecache
 import os
 import re
@@ -53,7 +54,7 @@ from time import localtime, mktime, sleep, strftime, strptime, \
 # session dependent nicos utilities should be implemented in nicos.core.utils
 from nicos import config, get_custom_version, nicos_version
 # pylint: disable=redefined-builtin
-from nicos.pycompat import exec_, iteritems, string_types, text_type, \
+from nicos.pycompat import PY2, exec_, iteritems, string_types, text_type, \
     xrange as range
 
 try:
@@ -1618,3 +1619,34 @@ def parseDuration(inputvalue):
             timedict[key] = 0
 
     return timedelta(**timedict).total_seconds()
+
+
+def formatArgs(obj, strip_self=False):
+    """Return a formatted version of the object's argument list, enclosed in
+    parentheses.
+
+    If *strip_self* is true, strip the "self" argument if present.
+    """
+    if PY2:
+        argspec = inspect.getargspec(obj)
+        if strip_self and argspec[0] and argspec[0][0] == 'self':
+            del argspec[0][0]
+        return inspect.formatargspec(*argspec)
+
+    sig = inspect.signature(obj)
+    if strip_self and 'self' in sig.parameters:
+        sig = sig.replace(parameters=[p for p in sig.parameters.values()
+                                      if p.name != 'self'])
+    return str(sig)
+
+
+def getNumArgs(obj):
+    """Return the number of "normal" arguments a callable object takes."""
+    if PY2:
+        argspec = inspect.getargspec(obj)
+        return len(argspec[0])
+
+    sig = inspect.signature(obj)
+    return sum(1 for p in sig.parameters.values()
+               if p.kind == inspect.Parameter.POSITIONAL_ONLY or
+               p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD)

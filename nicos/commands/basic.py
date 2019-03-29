@@ -26,7 +26,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-import inspect
 import io
 import os
 import sys
@@ -44,8 +43,8 @@ from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
     SetupName, String, spmsyntax
 from nicos.devices.notifiers import Mailer
-from nicos.pycompat import builtins, exec_, getargspec, iteritems
-from nicos.utils import fixupScript, formatDuration, printTable, \
+from nicos.pycompat import builtins, exec_, iteritems
+from nicos.utils import fixupScript, formatArgs, formatDuration, printTable, \
     reexecProcess, resolveClasses
 from nicos.utils.timer import Timer
 
@@ -125,7 +124,7 @@ def ListCommands():
             if hasattr(real_func, 'help_arglist'):
                 argspec = '(%s)' % real_func.help_arglist
             else:
-                argspec = inspect.formatargspec(*getargspec(real_func))
+                argspec = formatArgs(real_func)
             docstring = real_func.__doc__ or ' '
             signature = real_func.__name__ + argspec
             if len(signature) > 50:

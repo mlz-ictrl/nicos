@@ -33,8 +33,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-import inspect
-
 from docutils import nodes
 from sphinx import addnodes
 from sphinx.domains import ObjType
@@ -44,7 +42,7 @@ from sphinx.ext.autodoc import ClassDocumenter
 from nicos.core import Device
 from nicos.core.mixins import DeviceMixinBase
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.pycompat import getargspec
+from nicos.utils import formatArgs
 
 
 class PyParameter(PyClassmember):
@@ -91,6 +89,8 @@ def new_handle_signature(self, sig, signode):
            node.astext().startswith('nicos.commands.'):
             signode.remove(node)
     return ret
+
+
 PyModulelevel.handle_signature = new_handle_signature
 
 
@@ -312,7 +312,7 @@ def process_signature(app, objtype, fullname, obj, options, args, retann):
         if hasattr(obj, 'help_arglist'):
             return '(' + obj.help_arglist + ')', retann
         else:
-            return inspect.formatargspec(*getargspec(obj)), retann
+            return formatArgs(obj), retann
 
 
 def setup(app):

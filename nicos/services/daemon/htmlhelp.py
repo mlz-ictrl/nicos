@@ -33,9 +33,8 @@ import threading
 
 from nicos import session
 from nicos.core import Device, DeviceAlias
-from nicos.pycompat import StringIO, escape_html, getargspec, iteritems, \
-    string_types
-from nicos.utils import formatDocstring
+from nicos.pycompat import StringIO, escape_html, iteritems, string_types
+from nicos.utils import formatArgs, formatDocstring
 
 try:
     from docutils.core import publish_parts
@@ -135,7 +134,7 @@ class HelpGenerator(object):
             if hasattr(real_func, 'help_arglist'):
                 argspec = '(%s)' % real_func.help_arglist
             else:
-                argspec = inspect.formatargspec(*getargspec(real_func))
+                argspec = formatArgs(real_func)
             signature = '<tt><a href="cmd:%s">%s</a></tt><small>' % \
                 ((real_func.__name__,)*2) + escape_html(argspec) + '</small>'
             docstring = escape_html(real_func.__doc__ or ' ').splitlines()[0]
@@ -210,8 +209,9 @@ class HelpGenerator(object):
         if hasattr(real_func, 'help_arglist'):
             argspec = '(%s)' % real_func.help_arglist
         else:
-            argspec = inspect.formatargspec(*getargspec(real_func))
-        ret.append(self.gen_heading('Help on the %s command' % real_func.__name__))
+            argspec = formatArgs(real_func)
+        ret.append(self.gen_heading('Help on the %s command' %
+                                    real_func.__name__))
         ret.append('<p class="usage">Usage: <tt>' +
                    escape_html(real_func.__name__ + argspec) +
                    '</tt></p>')
