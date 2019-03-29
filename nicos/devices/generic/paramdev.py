@@ -54,6 +54,11 @@ class ReadonlyParamDevice(Readable):
         'unit':      Override(mandatory=False),
     }
 
+    def _getWaiters(self):
+        if self.copy_status:
+            return [self._attached_device]
+        return []
+
     def doRead(self, maxage=0):
         return getattr(self._attached_device, self.parameter)
 
