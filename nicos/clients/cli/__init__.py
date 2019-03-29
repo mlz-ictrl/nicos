@@ -147,6 +147,8 @@ class NicosCmdClient(NicosClient):
         self.out = sys.stdout
         # uuid of the last simulation
         self.simuuid = ''
+        # whether we display timestamps with subsecond precision
+        self.subsec_ts = False
 
         # set up readline
         for line in DEFAULT_BINDINGS.splitlines():
@@ -362,22 +364,27 @@ class NicosCmdClient(NicosClient):
                            (action and ' (%s)' % action or ''))
             return
         else:
+            if self.subsec_ts:
+                timesuf = '.%.06d] ' % ((msg[1] % 1) * 1000000)
+            else:
+                timesuf = '] '
             if levelno <= DEBUG:
-                timefmt = strftime('[%H:%M:%S] ', localtime(msg[1]))
-                newtext = colorize('lightgray', timefmt) + \
+                timefmt = strftime('[%H:%M:%S', localtime(msg[1]))
+                newtext = colorize('lightgray', timefmt + timesuf) + \
                     colorize('darkgray', namefmt + msg[3].rstrip())
             elif levelno <= INFO:
-                timefmt = strftime('[%H:%M:%S] ', localtime(msg[1]))
-                newtext = colorize('lightgray', timefmt) + namefmt + msg[3].rstrip()
+                timefmt = strftime('[%H:%M:%S', localtime(msg[1]))
+                newtext = colorize('lightgray', timefmt + timesuf) + \
+                    namefmt + msg[3].rstrip()
             elif levelno == INPUT:
                 newtext = colorize('darkgreen', msg[3].rstrip())
             elif levelno <= WARNING:
-                timefmt = strftime('[%Y-%m-%d %H:%M:%S] ', localtime(msg[1]))
-                newtext = colorize('purple', timefmt + namefmt +
+                timefmt = strftime('[%Y-%m-%d %H:%M:%S', localtime(msg[1]))
+                newtext = colorize('purple', timefmt + timesuf + namefmt +
                                    levels[levelno] + ': ' + msg[3].rstrip())
             else:
-                timefmt = strftime('[%Y-%m-%d %H:%M:%S] ', localtime(msg[1]))
-                newtext = colorize('red', timefmt + namefmt +
+                timefmt = strftime('[%Y-%m-%d %H:%M:%S', localtime(msg[1]))
+                newtext = colorize('red', timefmt + timesuf + namefmt +
                                    levels[levelno] + ': ' + msg[3].rstrip())
         if sim:
             newtext = '(sim) ' + newtext
@@ -891,6 +898,8 @@ class NicosCmdClient(NicosClient):
             self.set_status(self.status)
         elif cmd == 'plot':
             self.plot_data(xterm_mode=(arg == 'x'))
+        elif cmd == 'subsec':
+            self.subsec_ts = not self.subsec_ts
         else:
             self.put_error('Unknown command %r.' % cmd)
 
@@ -920,7 +929,7 @@ class NicosCmdClient(NicosClient):
     commands = ['run', 'simulate', 'edit', 'update', 'break', 'continue',
                 'stop', 'where', 'disconnect', 'connect', 'reconnect',
                 'quit', 'help', 'log', 'pending', 'cancel', 'eval', 'spy',
-                'plot']
+                'debug', 'trace', 'subsec', 'plot']
 
     def completer(self, text, state):
         """Try to complete the command line.  Called by readline."""
@@ -1099,6 +1108,7 @@ At any time:
                          is interpreted as /eval)
   /debugclient        -- drop into a pdb shell to debug the client:
                          exit using the "c" command
+  /subsec             -- toggle subsecond display for message timestamps
 '''
 }
 
