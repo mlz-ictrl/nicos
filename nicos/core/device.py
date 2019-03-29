@@ -1882,16 +1882,9 @@ class Measurable(Waitable):
         if self._mode == SLAVE:
             raise ModeError(self, 'start not possible in slave mode')
         elif self._sim_active:
+            self._sim_started = session.clock.time
             if preset:
                 self._sim_preset = preset
-            if hasattr(self, 'doTime'):
-                time = self.doTime(self._sim_preset)
-            else:
-                if 't' in self._sim_preset:
-                    time = self._sim_preset['t']
-                else:
-                    time = 0
-            session.clock.tick(time)
             return
         if preset:
             self.doSetPreset(**preset)
@@ -1972,6 +1965,13 @@ class Measurable(Waitable):
         if self._mode == SLAVE:
             raise ModeError(self, 'finish not possible in slave mode')
         elif self._sim_active:
+            if hasattr(self, 'doTime'):
+                time = self.doTime(self._sim_preset)
+            elif 't' in self._sim_preset:
+                time = self._sim_preset['t']
+            else:
+                time = 0
+            session.clock.wait(self._sim_started + time)
             return
         self.doFinish()
 
