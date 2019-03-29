@@ -6,7 +6,7 @@ tango_base = 'tango://jvm2:10000/box/'
 includes = ['alias_T', 'alias_B', 'alias_sth']
 
 devices = dict(
-    sth_jvm2 = device('nicos_mlz.jcns.devices.motor.Motor',
+    sth_jvm2 = device('nicos.devices.tango.MotorAxis',
         description = 'sample rotation motor',
         tangodevice = tango_base + 'motor/motx',
         fmtstr = '%.3f',
@@ -21,7 +21,7 @@ devices = dict(
         precision = 0.002,
         backlash = -1.0,
     ),
-    stz_jvm2 = device('nicos_mlz.jcns.devices.motor.Motor',
+    stz_jvm2 = device('nicos.devices.tango.MotorAxis',
         description = 'sample height motor',
         tangodevice = tango_base + 'motor/motz',
         fmtstr = '%.3f',

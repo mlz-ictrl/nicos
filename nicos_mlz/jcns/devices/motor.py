@@ -31,23 +31,6 @@ from nicos.core.params import Attach, Override
 from nicos.devices.tango import Motor as TangoMotor
 
 
-class Motor(HasOffset, TangoMotor):
-    """Tango motor with offset.
-
-    This class is provided for motors which do not need any other features
-    of the NICOS axis except the user offset.
-    """
-
-    def doRead(self, maxage=0):
-        return TangoMotor.doRead(self, maxage) - self.offset
-
-    def doStart(self, target):
-        return TangoMotor.doStart(self, target + self.offset)
-
-    def doSetPosition(self, value):
-        return TangoMotor.doSetPosition(self, value + self.offset)
-
-
 class InvertableMotor(HasOffset, TangoMotor):
     """Tango motor with offset and the possibility to invert the axis.
 

@@ -44,7 +44,7 @@ from nicos.core import SIMULATION, ArrayDesc, CanDisable, CommunicationError, \
     HasPrecision, HasTimeout, InvalidValueError, Moveable, NicosError, \
     Override, Param, ProgrammingError, Readable, Value, dictof, floatrange, \
     intrange, listof, nonemptylistof, oneof, oneofdict, status, tangodev
-from nicos.core.mixins import HasWindowTimeout
+from nicos.core.mixins import HasOffset, HasWindowTimeout
 from nicos.devices.abstract import CanReference, Coder, Motor as NicosMotor
 from nicos.devices.generic.detector import ActiveChannel, \
     CounterChannelMixin, ImageChannelMixin, PassiveChannel, \
@@ -531,6 +531,23 @@ class Motor(CanReference, Actuator):
         if s > v**2/a:  # do we reach nominal speed?
             return s/v + 0.5*(v/a + v/d)
         return (a/d + 1) * (s/a)**0.5
+
+
+class MotorAxis(HasOffset, Motor):
+    """Tango motor with offset.
+
+    This class is provided for motors which do not need any other features
+    of the NICOS axis except the user offset.
+    """
+
+    def doRead(self, maxage=0):
+        return Motor.doRead(self, maxage) - self.offset
+
+    def doStart(self, target):
+        return Motor.doStart(self, target + self.offset)
+
+    def doSetPosition(self, value):
+        return Motor.doSetPosition(self, value + self.offset)
 
 
 class RampActuator(HasPrecision, AnalogOutput):
