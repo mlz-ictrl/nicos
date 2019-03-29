@@ -31,7 +31,8 @@ from os import path
 def determine_instrument(setup_package_path):
     """MLZ specific way to find the NICOS instrument from the host name."""
     try:
-        # Take the middle part of the domain name (machine.instrument.frm2)
+        # Take the second part of the domain name (machine.instrument.frm2
+        # or new-style machine.instrument.frm2.tum.de)
         domain = socket.getfqdn().split('.')[1].replace('-', '_')
     except (ValueError, IndexError, socket.error):
         pass
