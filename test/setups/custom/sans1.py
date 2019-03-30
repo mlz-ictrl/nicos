@@ -24,6 +24,7 @@
 
 name = 'test_sans1 setup'
 
+BS1_X_OFS = -475.055  # from entangle
 
 devices = dict(
     dev1 = device('nicos.devices.generic.virtual.VirtualMotor',
@@ -84,5 +85,47 @@ devices = dict(
         fmtstr = '%.0f',
         maxage = 120,
         pollinterval = 15,
+    ),
+    bs_ax_motor = device('nicos.devices.generic.virtual.VirtualMotor',
+        fmtstr = '%.2f',
+        abslimits = (480, 868),
+        unit = 'mm',
+        curvalue = 500,
+    ),
+    bs_xax = device('nicos_mlz.sans1.devices.beamstop.BeamStopAxis',
+        motor = 'bs_ax_motor',
+        coder = 'bs_ax_motor',
+        precision = 0.1,
+        fmtstr = '%.2f',
+    ),
+    bs_ay_motor = device('nicos.devices.generic.virtual.VirtualMotor',
+        fmtstr = '%.1f',
+        abslimits = (-100, 590),
+        unit = 'mm',
+        curvalue = 300,
+    ),
+    bs_yax = device('nicos_mlz.sans1.devices.beamstop.BeamStopAxis',
+        motor = 'bs_ay_motor',
+        coder = 'bs_ay_motor',
+        precision = 0.1,
+        fmtstr = '%.2f',
+    ),
+    bs = device('nicos_mlz.sans1.devices.beamstop.BeamStop',
+        xaxis = 'bs_xax',
+        yaxis = 'bs_yax',
+        ypassage = -99,
+        unit = 'mm',
+        slots = {
+            '100x100' : (125.2 - BS1_X_OFS, (100, 100)),
+            'd35'     : (197.0 - BS1_X_OFS, (35, 35)),
+            '70x70'   : (253.4 - BS1_X_OFS, (70, 70)),
+            '55x55'   : (317.4 - BS1_X_OFS, (55, 55)),
+            'none'    : (348.0 - BS1_X_OFS, (0, 0)),  # no shapeholder!
+            '85x85'   : (390.4 - BS1_X_OFS, (85, 85)),
+        },
+        xlimits = (480, 868),
+        ylimits = (100, 590),
+        shape = 'none',
+        maxtries = 3,
     ),
 )
