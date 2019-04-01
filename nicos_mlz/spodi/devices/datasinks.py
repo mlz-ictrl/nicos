@@ -30,12 +30,15 @@ from time import strftime, time as currenttime
 
 import numpy as np
 
-from nicos.core import Override
+from nicos.core import Override, Param
 from nicos.core.constants import POINT
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.devices.datasinks.special import LiveViewSink as BaseLiveViewSink, \
     LiveViewSinkHandler as BaseLiveViewSinkHandler
 from nicos.pycompat import iteritems, to_utf8
+from nicos.utils import findResource
+
+import dataparser as DataParser
 
 
 class CaressHistogramHandler(SingleFileSinkHandler):
@@ -145,11 +148,53 @@ class CaressHistogram(ImageSink):
         return len(arraydesc.shape) == 2
 
 
-class LiveViewSinkHandler(BaseLiveViewSinkHandler):
+class Straight(object):
+    """Data 'straightener' mixin."""
+
+    corrData = None
+
+    def prepare(self):
+        if self.sink.correctionfile:
+            self.corrData = DataParser.ReadCorrectionFile(
+                findResource(self.sink.correctionfile))
+
+    def _ringStraight(self, result):
+        if not self.sink.correctionfile:
+            return result[1]
+        metainfo = self.dataset.metainfo
+        ndim = 254
+        det = self.sink.detectors[0] if self.sink.detectors else 'adet'
+        ndet = metainfo[det, 'numinputs'][0]
+        resosteps = metainfo[det, 'resosteps'][0]
+        _range = metainfo[det, 'range'][0]
+        stepsize = _range / resosteps
+        startpos = metainfo[det, '_startpos'][0]
+        start = startpos - (resosteps - 1) * stepsize
+        thetaRaw = DataParser.ThetaInitial(start, resosteps, ndet)
+        thetaCorr = DataParser.ThetaModified(
+            thetaRaw, self.corrData, resosteps, ndet)
+        return [DataParser.RingStraight(
+                thetaCorr, thetaRaw,
+                DataParser.VertCalibIntensCorr(
+                    result[1][0], self.corrData, resosteps, ndet, ndim),
+                resosteps, ndet, ndim,
+                metainfo['detsampledist', 'value'][0])]
+
+
+class LiveViewSinkHandler(Straight, BaseLiveViewSinkHandler):
+    """Data live view handler."""
 
     def processArrays(self, result):
-        return [np.sum(array, axis=1) for array in result[1]]
+        return [np.sum(arr, axis=1) for arr in self._ringStraight(result)]
 
 
 class LiveViewSink(BaseLiveViewSink):
+    """Data live view sink."""
+
     handlerclass = LiveViewSinkHandler
+
+    parameters = {
+        'correctionfile': Param('Intensity correction file',
+                                type=str, settable=False, prefercache=False,
+                                default=''),
+    }

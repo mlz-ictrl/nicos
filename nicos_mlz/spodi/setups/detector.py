@@ -6,7 +6,7 @@ nameservice = 'spodisrv.spodi.frm2'
 caresspath = '/opt/caress'
 toolpath = '/opt/caress'
 
-nethost = 'spodisrv.spodi.frm2'
+# nethost = 'spodisrv.spodi.frm2'
 
 tango_base = 'tango://spodictrl.spodi.frm2:10000/spodi/'
 
@@ -117,5 +117,11 @@ devices = dict(
     listmode = device('nicos_mlz.devices.qmesydaqsinks.ListmodeSink',
         description = 'Listmode data written via QMesyDAQ',
         image = 'image',
+    ),
+    detsampledist = device('nicos.devices.generic.ManualMove',
+        description = 'Distance between sample and detector',
+        default = 1.117,
+        abslimits = (1.117, 1.117),
+        unit = 'm',
     ),
 )

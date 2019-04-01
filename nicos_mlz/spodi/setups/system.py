@@ -59,6 +59,7 @@ devices = dict(
     daemonsink = device('nicos.devices.datasinks.DaemonSink',
     ),
     spodilivesink = device('nicos_mlz.spodi.devices.datasinks.LiveViewSink',
+        correctionfile='nicos_mlz/spodi/data/detcorrection.dat'
     ),
     spodisink = device('nicos_mlz.spodi.devices.datasinks.CaressHistogram',
         description = 'SPODI specific histogram file format',

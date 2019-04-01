@@ -54,7 +54,9 @@ devices = dict(
         filenametemplate = ['m1%(pointcounter)08d.ctxt'],
         detectors = ['adet'],
     ),
-    spodilivesink = device('nicos_mlz.spodi.devices.datasinks.LiveViewSink'),
+    spodilivesink = device('nicos_mlz.spodi.devices.datasinks.LiveViewSink',
+        correctionfile='nicos_mlz/spodi/data/detcorrection.dat'
+    ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         path = 'data',

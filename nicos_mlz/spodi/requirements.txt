@@ -1,1 +1,2 @@
-https://forge.frm2.tum.de/cgit/cgit.cgi/frm2/spodi/DataParser.git/snapshot/DataParser-1.0.8.tar.bz2
+--extra-index-url https://forge.frm2.tum.de/simple
+dataparser>=1.0.10
