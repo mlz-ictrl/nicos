@@ -41,7 +41,7 @@ from nicos._vendor.lttb import lttb
 from nicos.core import Param
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, WARN
-from nicos.pycompat import escape_html, from_utf8, string_types
+from nicos.pycompat import escape_html, from_utf8, string_types, to_utf8
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.services.monitor.icon import nicos_icon
 from nicos.utils import checkSetupSpec, extractKeyAndIndex
@@ -60,6 +60,7 @@ except ImportError:
 HEAD = '''\
 <html>
 <head>
+<meta charset="utf-8"/>
 <meta http-equiv="refresh" content="%(intv)s">
 <link rel="shortcut icon" type="image/png" href="data:image/png;base64,%(icon)s">
 <style type="text/css">
@@ -192,7 +193,8 @@ class Label(object):
             return ''
         return ('<div class="%s" style="color: %s; min-width: %sex; '
                 'background-color: %s">%s</div>' %
-                (self.cls, self.fore, self.width, self.back, self.text))
+                (self.cls, self.fore, self.width, self.back,
+                 to_utf8(self.text)))
 
 
 DATEFMT = '%Y-%m-%d'
