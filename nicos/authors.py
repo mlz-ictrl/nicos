@@ -59,7 +59,7 @@ Instrument-specific code was contributed by:
 
 * Fabian Beule <f.beule@fz-juelich.de>
 * Michele Brambilla <michele.brambilla@psi.ch>
-* Petr Cermak <p.cermak@fz-juelich.de>
+* Petr Cermak <cermak@mag.mff.cuni.cz>
 * Goetz Eckold <geckold@gwdg.de>
 * Artem Feoktystov <a.feoktystov@fz-juelich.de>
 * Lydia Fleischhauer-Fuss <l.fleischhauer-fuss@fz-juelich.de>
