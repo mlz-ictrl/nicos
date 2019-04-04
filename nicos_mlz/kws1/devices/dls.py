@@ -131,7 +131,7 @@ class DLSDetector(Measurable):
         self._nfinished = 0
         self._nstarted = 0
         self._measuring = True
-        self._attached_limiter.move(self.intensity)
+        self._attached_limiter.start(self.intensity)
 
     def doFinish(self):
         self.doStop()
@@ -144,7 +144,7 @@ class DLSDetector(Measurable):
             except Exception:
                 pass
         self._attached_shutter.start(0)
-        self._attached_limiter.move(0)   # close wheels
+        self._attached_limiter.maw(0)   # close wheels
 
     def duringMeasureHook(self, elapsed):
         retval = None
