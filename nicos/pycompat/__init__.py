@@ -150,7 +150,11 @@ else:
             return s
         return s.decode()
     srepr = repr
-    memory_buffer = memoryview
+    def memory_buffer(obj):
+        # For numpy arrays, memoryview() keeps info about the element size and
+        # shape, so that len() gives unexpected results compared to buffer().
+        # Casting to a pure byte view gets rid of that.
+        return memoryview(obj).cast('B')
     def to_ascii_escaped(s):
         if isinstance(s, bytes):
             s = s.decode('ascii', 'ignore')

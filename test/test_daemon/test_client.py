@@ -157,3 +157,24 @@ def test_get_device_list(client):
     assert 'Exp' not in l2
     assert 'Instr' not in l2
     assert 'testnotifier' not in l2
+
+
+def test_live_events(client):
+    idx = len(client._signals)
+    client.run_and_wait('''\
+import numpy
+from nicos import session
+from nicos.pycompat import memory_buffer
+arr = numpy.array([[1, 2], [3, 4]], dtype='<u1')
+session.updateLiveData(
+    'Live', 'uid', 'detname',
+    ['file.name'], '<u1', [2], [2], [1], 12345,
+    [memory_buffer(arr)])
+''', 'live.py')
+    for name, data, _exc in client.iter_signals(idx, timeout=10.0):
+        if name == 'liveparams':
+            assert data == ['Live', 'uid', 'detname', ['file.name'], '<u1',
+                            [2], [2], [1], 12345]
+        elif name == 'livedata':
+            assert bytes(data) == b'\x01\x02\x03\x04'
+            return
