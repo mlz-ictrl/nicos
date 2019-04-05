@@ -25,7 +25,7 @@ devices = dict(
     beamstop_y = device('nicos_mlz.kws1.devices.virtual.Standin',
         description = 'detector translation Y',
     ),
-    det_z = device('nicos_mlz.kws2.devices.detector.DetectorZAxis',
+    det_z = device('nicos_mlz.kws1.devices.detector.DetectorZAxis',
         description = 'detector translation Z',
         motor = 'det_z_mot',
         hv = 'gedet_HV',

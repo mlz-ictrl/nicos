@@ -7,13 +7,13 @@ eps = configdata('config_gedet.EIGHT_PACKS')
 hv_values = configdata('config_gedet.HV_VALUES')
 
 devices = dict(
-    ep_HV_all = device('nicos_mlz.kws2.devices.gedet.MultiHV',
+    ep_HV_all = device('nicos_mlz.kws1.devices.gedet.MultiHV',
         ephvs = [epname + '_HV' for (epname, _) in eps],
         lowlevel = True,
         stepsettle = 2,
         finalsettle = 30,
     ),
-    gedet_HV = device('nicos_mlz.kws2.devices.gedet.HVSwitcher',
+    gedet_HV = device('nicos_mlz.kws1.devices.gedet.HVSwitcher',
         description = 'switches the GE detector HV',
         moveable = 'ep_HV_all',
         mapping = {

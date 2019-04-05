@@ -28,12 +28,11 @@ from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
-    HasLimits, HasOffset, Moveable, MoveError, Override, Param, dictof, \
-    dictwith, multiReset, multiStop, status
+    HasOffset, Moveable, MoveError, Override, Param, dictof, dictwith, \
+    multiReset, multiStop, status
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.generic.sequence import BaseSequencer, SeqCall, SeqDev, \
-    SequencerMixin
-from nicos.devices.tango import AnalogInput, Motor as TangoMotor
+from nicos.devices.generic.sequence import SeqCall, SeqDev, SequencerMixin
+from nicos.devices.tango import AnalogInput
 from nicos.pycompat import iteritems
 from nicos.utils import num_sort
 
@@ -201,72 +200,6 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
 
     def doStop(self):
         multiStop(self._adevs)
-
-
-class LockedMotor(TangoMotor):
-    """A motor that is sometimes switched off by the SPS due to interlocks."""
-
-    def doStatus(self, maxage=None):
-        code, text = TangoMotor.doStatus(self, maxage)
-        if code == status.DISABLED:
-            # an error here most likely just means that the interlock is on
-            code = status.OK
-        return code, text
-
-    def doStart(self, target):
-        if abs(self.read(0) - target) <= self.precision:
-            return
-        return TangoMotor.doStart(self, target)
-
-    def doStop(self):
-        code = TangoMotor.doStatus(self, 0)[0]
-        if code != status.DISABLED:
-            TangoMotor.doStop(self)
-
-
-class DetectorZAxis(HasLimits, BaseSequencer):
-    """Special device for the detector Z axis.
-
-    Switches HV off before moving.
-    """
-
-    hardware_access = False
-
-    parameters = {
-        'precision': Param('Precision', volatile=True),
-    }
-
-    attached_devices = {
-        'motor': Attach('The raw motor', Moveable),
-        'hv':    Attach('The HV switch', Moveable),
-    }
-
-    def doReadPrecision(self):
-        return self._attached_motor.precision
-
-    def doReadAbslimits(self):
-        return self._attached_motor.abslimits
-
-    def _generateSequence(self, target):  # pylint: disable=W0221
-        seq = []
-        if self._attached_hv.read(0) != 'off':
-            seq.append(SeqDev(self._attached_hv, 'off'))
-        seq.append(SeqDev(self._attached_motor, target, stoppable=True))
-        return seq
-
-    def doRead(self, maxage=None):
-        return self._attached_motor.read(maxage)
-
-    def doStatus(self, maxage=None):
-        code, text = BaseSequencer.doStatus(self, maxage)
-        if code == status.OK:
-            text = self._attached_motor.status(maxage)[1]
-        return code, text
-
-    def doStart(self, target):
-        if abs(self.read(0) - target) <= self.precision:
-            return
-        BaseSequencer.doStart(self, target)
 
 
 class DetectorBsEncoder(HasOffset, AnalogInput):

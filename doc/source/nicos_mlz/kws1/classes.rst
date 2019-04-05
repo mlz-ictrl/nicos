@@ -1,9 +1,6 @@
 `KWS-1 <http://www.mlz-garching.de/kws-1>`_
 ===========================================
 
-.. automodule:: nicos_mlz.kws1.devices.axis
-.. autoclass:: DeltaAxis()
-
 .. automodule:: nicos_mlz.kws1.devices.chopper
 .. autoclass:: ChopperFrequency()
 .. autoclass:: ChopperParams()
@@ -18,17 +15,27 @@
 .. automodule:: nicos_mlz.kws1.devices.daq
 .. autoclass:: KWSImageChannel()
 .. autoclass:: VirtualKWSImageChannel()
+.. autoclass:: GEImageChannel()
+.. autoclass:: ROIRateChannel()
 .. autoclass:: KWSDetector()
 
 .. automodule:: nicos_mlz.kws1.devices.detector
 .. autoclass:: oneof_detector()
 .. autoclass:: DetectorPosSwitcher()
+.. autoclass:: LockedMotor()
+.. autoclass:: DetectorZAxis()
 
 .. automodule:: nicos_mlz.kws1.devices.experiment
 .. autoclass:: KWSExperiment()
 
 .. automodule:: nicos_mlz.kws1.devices.flipper
 .. autoclass:: Flipper()
+
+.. automodule:: nicos_mlz.kws1.devices.gedet
+.. autoclass:: HVSwitcher()
+.. autoclass:: MultiHV()
+.. autoclass:: GEPowerSupply()
+.. autoclass:: HVEpicsAnalogMoveable()
 
 .. automodule:: nicos_mlz.kws1.devices.julabo
 .. autoclass:: TemperatureController()

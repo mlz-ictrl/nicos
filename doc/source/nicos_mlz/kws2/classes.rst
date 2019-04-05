@@ -4,23 +4,12 @@
 .. automodule:: nicos_mlz.kws2.devices.attenuator
 .. autoclass:: Attenuator()
 
-.. automodule:: nicos_mlz.kws2.devices.daq
-.. autoclass:: GEImageChannel()
-
 .. automodule:: nicos_mlz.kws2.devices.detector
 .. autoclass:: DetectorPosSwitcher()
-.. autoclass:: LockedMotor()
-.. autoclass:: DetectorZAxis()
 .. autoclass:: DetectorBsEncoder()
 
 .. automodule:: nicos_mlz.kws2.devices.dlssync
 .. autoclass:: DLSSync()
-
-.. automodule:: nicos_mlz.kws2.devices.gedet
-.. autoclass:: HVSwitcher()
-.. autoclass:: MultiHV()
-.. autoclass:: GEPowerSupply()
-.. autoclass:: HVEpicsAnalogMoveable()
 
 .. automodule:: nicos_mlz.kws2.devices.polarizer
 .. autoclass:: Polarizer()
