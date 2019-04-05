@@ -44,25 +44,28 @@ def test_cleanup(session):
 @contextmanager
 def dataset_scope(session, settype, **kwds):
     getattr(session.data, 'begin' + settype.capitalize())(**kwds)
-    yield
+    yield session.data._current
     getattr(session.data, 'finish' + settype.capitalize())()
 
 
 def test_dataset_stack(session, log):
     session.experiment.new(0, user='user')
     # create some datasets on the stack, check nesting
-    with dataset_scope(session, 'block'):
+    with dataset_scope(session, 'block') as blockset:
         with log.assert_warns('no scan to finish'):
             session.data.finishScan()
         with log.assert_warns('no data point to finish'):
             session.data.finishPoint()
 
-        with dataset_scope(session, 'scan'):
+        with dataset_scope(session, 'scan') as scanset:
             with log.assert_warns('no block to finish'):
                 session.data.finishBlock()
             assert session.data._current.number == 1
 
-            with dataset_scope(session, 'point'):
+            with dataset_scope(session, 'point') as pointset:
+                assert list(session.data.iterParents(pointset)) == \
+                    [scanset, blockset]
+
                 with dataset_scope(session, 'scan', subscan=True):
                     with dataset_scope(session, 'point'):
                         assert len(session.data._stack) == 5
