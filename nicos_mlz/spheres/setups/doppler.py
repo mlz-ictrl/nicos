@@ -6,7 +6,9 @@ group = 'optional'
 
 tangohost = 'phys.spheres.frm2'
 doppler = 'tango://%s:10000/spheres/doppler/' % tangohost
-acq = 'tango://%s:10000/spheres/sis/' % tangohost
+
+acqhost = 'phys.spheres.frm2'
+acq = 'tango://%s:10000/spheres/sis/' % acqhost
 
 devices = dict(
     doppler_switch = device('nicos.devices.tango.NamedDigitalOutput',
@@ -29,27 +31,31 @@ devices = dict(
         lowlevel = True,
     ),
     doppler = device('nicos_mlz.spheres.devices.doppler.Doppler',
-        description = 'Switcher to control the doppler',
+        description = 'Switcher to control the doppler.\n'
+                      '"Stop" does not stop doppler movement.\n'
+                      'To Stop doppler movement select "Standby" or "0.0"\n'
+                      'from the dropdown and click move.',
         moveables = ['doppler_speed', 'doppler_amplitude'],
         switch = 'doppler_switch',
         acq = 'acqdoppler',
         precision = [0.0001, 0],
         unit = 'm/s',
         mapping = {
-            0.0: (0,    0),  # values for this are arbitrary
-            0.3: (0.3, 25),
-            0.5: (0.5, 30),
-            0.7: (0.7, 35),
-            1.0: (1.0, 40),
-            1.3: (1.3, 45),
-            1.6: (1.6, 50),
-            2.0: (2.0, 60),
-            2.4: (2.4, 60),
-            2.9: (2.9, 75),
-            3.4: (3.4, 75),
-            3.9: (3.9, 75),
-            4.4: (4.4, 75),
-            4.7: (4.7, 75),
+            'Standby': (0,    0),  # values for this are arbitrary
+            0.0:       (0,    0),
+            0.3:       (0.3, 25),
+            0.5:       (0.5, 30),
+            0.7:       (0.7, 35),
+            1.0:       (1.0, 40),
+            1.3:       (1.3, 45),
+            1.6:       (1.6, 50),
+            2.0:       (2.0, 60),
+            2.4:       (2.4, 60),
+            2.9:       (2.9, 75),
+            3.4:       (3.4, 75),
+            3.9:       (3.9, 75),
+            4.4:       (4.4, 75),
+            4.7:       (4.7, 75),
         },
         fallback = 'undefinded',
         pollinterval = 5,

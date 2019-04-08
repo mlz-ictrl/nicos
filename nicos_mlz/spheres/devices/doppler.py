@@ -78,7 +78,8 @@ class Doppler(SequencerMixin, MultiSwitcher):
         return self._mapReadValue(self._readRaw(maxage))
 
     def _startRaw(self, target):
-        if session.daemon_device._controller.status == STATUS_INBREAK:
+        if self._mode != SIMULATION \
+                and session.daemon_device._controller.status == STATUS_INBREAK:
             raise UsageError('Doppler speed can not be changed when script is '
                              'paused.')
         if self._seq_is_running():
