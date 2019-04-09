@@ -44,7 +44,7 @@ from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, WARN
 from nicos.pycompat import escape_html, from_utf8, string_types, to_utf8
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.services.monitor.icon import nicos_icon
-from nicos.utils import checkSetupSpec, extractKeyAndIndex
+from nicos.utils import checkSetupSpec, extractKeyAndIndex, safeWriteFile
 
 try:
     from gr import pygr
@@ -328,7 +328,7 @@ class Monitor(BaseMonitor):
         while not self._stoprequest:
             try:
                 content = ''.join(map(str, self._content))
-                open(self.filename, 'w').write(content)
+                safeWriteFile(self.filename, content, maxbackups=0)
             except Exception:
                 self.log.error('could not write status to %r', self.filename,
                                exc=1)

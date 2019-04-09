@@ -665,7 +665,8 @@ def safeWriteFile(filepath, content, mode='w', maxbackups=10):
     else:
         open(tmpfile, mode).write(content)
     try:
-        moveOutOfWay(filepath, maxbackups)
+        if maxbackups:
+            moveOutOfWay(filepath, maxbackups)
     finally:
         os.rename(tmpfile, filepath)
 
