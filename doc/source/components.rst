@@ -14,16 +14,19 @@ Components of the NICOS system
         color = lightsalmon;
 
 
-        "nicos-watchdog" {rank = same; "nicos-elog"; "nicos-poller"}
+        "nicos-watchdog" {rank = same; "nicos-elog"; "nicos-poller";
+                          "nicos-collector"; "nicos-watchdog"}
         "nicos-cache" {rank = same; "nicos-daemon";}
 
         "nicos-cache"   -> "nicos-daemon"
         "nicos-cache"   -> "nicos-poller"
         "nicos-cache"   -> "nicos-watchdog"
         "nicos-cache"   -> "nicos-elog"
+        "nicos-cache"   -> "nicos-collector"
         "nicos-watchdog"-> "nicos-cache"
         "nicos-daemon"  -> "nicos-cache"
         "nicos-poller"  -> "nicos-cache"
+        "nicos-collector" -> "nicos-cache"
 
         edge[style=invis];
         "nicos-watchdog" -> "nicos-poller" -> "nicos-elog"
@@ -167,3 +170,10 @@ instrument.
    eliminated.
 
    See :ref:`watchdog`.
+
+.. describe:: nicos-collector
+
+   This daemon provides the possibility to forward cache events from one cache
+   instance to another one.
+
+   See :ref:`collector`.

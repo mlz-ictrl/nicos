@@ -15,3 +15,4 @@ use.
    watchdog
    monitor
    history
+   collector
