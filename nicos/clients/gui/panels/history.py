@@ -430,6 +430,7 @@ class NewViewDialog(DlgUtils, QDialog):
 class BaseHistoryWindow(object):
 
     client = None
+    presetdict = None
 
     def __init__(self):
         loadUi(self, 'history.ui', 'panels')
@@ -445,8 +446,19 @@ class BaseHistoryWindow(object):
         # current plot object
         self.currentPlot = None
         self.fitclass = LinearFitter
+        self.fitfuncmap = {}
 
         self.enablePlotActions(False)
+
+        self.presetmenu = QMenu('&Presets', self)
+
+        for (name, view) in self.last_views:
+            item = QListWidgetItem(name, self.viewList)
+            item.setForeground(QBrush(QColor('#aaaaaa')))
+            item.setData(Qt.UserRole, view)
+
+        self.menus = None
+        self.bar = None
 
         # NOTE: for this class, automatic connections don't work on PyQt4 >=
         # 4.12 since this class is not derived from QObject. But on older PyQt4
@@ -464,6 +476,9 @@ class BaseHistoryWindow(object):
         self.actionPrint.triggered.connect(self.on__actionPrint_triggered)
         self.actionUnzoom.triggered.connect(self.on__actionUnzoom_triggered)
         self.actionLogScale.toggled.connect(self.on__actionLogScale_toggled)
+        self.actionAutoScale.toggled.connect(self.on__actionAutoScale_toggled)
+        self.actionScaleX.toggled.connect(self.on__actionScaleX_toggled)
+        self.actionScaleY.toggled.connect(self.on__actionScaleY_toggled)
         self.actionLegend.toggled.connect(self.on__actionLegend_toggled)
         self.actionSymbols.toggled.connect(self.on__actionSymbols_toggled)
         self.actionLines.toggled.connect(self.on__actionLines_toggled)
@@ -478,6 +493,138 @@ class BaseHistoryWindow(object):
         self.actionFitSigmoid.triggered.connect(self.on__actionFitSigmoid_triggered)
         self.actionFitLinear.triggered.connect(self.on__actionFitLinear_triggered)
         self.actionFitExponential.triggered.connect(self.on__actionFitExponential_triggered)
+
+    def getMenus(self):
+        menu = QMenu('&History viewer', self)
+        menu.addAction(self.actionNew)
+        menu.addSeparator()
+        menu.addAction(self.actionSavePlot)
+        menu.addAction(self.actionPrint)
+        menu.addAction(self.actionAttachElog)
+        menu.addAction(self.actionSaveData)
+        menu.addSeparator()
+        menu.addAction(self.actionEditView)
+        menu.addAction(self.actionCloseView)
+        menu.addAction(self.actionDeleteView)
+        menu.addAction(self.actionResetView)
+        menu.addSeparator()
+        menu.addAction(self.actionLogScale)
+        menu.addAction(self.actionAutoScale)
+        menu.addAction(self.actionScaleX)
+        menu.addAction(self.actionScaleY)
+        menu.addAction(self.actionUnzoom)
+        menu.addAction(self.actionLegend)
+        menu.addAction(self.actionSymbols)
+        menu.addAction(self.actionLines)
+        ag = QActionGroup(menu)
+        ag.addAction(self.actionFitPeakGaussian)
+        ag.addAction(self.actionFitPeakPV)
+        ag.addAction(self.actionFitPeakPVII)
+        ag.addAction(self.actionFitTc)
+        ag.addAction(self.actionFitCosine)
+        ag.addAction(self.actionFitSigmoid)
+        ag.addAction(self.actionFitLinear)
+        ag.addAction(self.actionFitExponential)
+        menu.addAction(self.actionFitPeak)
+        menu.addAction(self.actionPickInitial)
+        menu.addAction(self.actionFitPeakGaussian)
+        menu.addAction(self.actionFitPeakPV)
+        menu.addAction(self.actionFitPeakPVII)
+        menu.addAction(self.actionFitTc)
+        menu.addAction(self.actionFitCosine)
+        menu.addAction(self.actionFitSigmoid)
+        menu.addAction(self.actionFitLinear)
+        menu.addAction(self.actionFitExponential)
+        menu.addSeparator()
+        menu.addAction(self.actionFitArby)
+        menu.addSeparator()
+        menu.addAction(self.actionClose)
+        self._refresh_presets()
+        return [menu, self.presetmenu]
+
+    def getToolbars(self):
+        if not self.bar:
+            bar = QToolBar('History viewer')
+            bar.addAction(self.actionNew)
+            bar.addAction(self.actionEditView)
+            bar.addSeparator()
+            bar.addAction(self.actionSavePlot)
+            bar.addAction(self.actionPrint)
+            bar.addAction(self.actionSaveData)
+            bar.addSeparator()
+            bar.addAction(self.actionUnzoom)
+            bar.addAction(self.actionLogScale)
+            bar.addSeparator()
+            bar.addAction(self.actionAutoScale)
+            bar.addAction(self.actionScaleX)
+            bar.addAction(self.actionScaleY)
+            bar.addSeparator()
+            bar.addAction(self.actionResetView)
+            bar.addAction(self.actionDeleteView)
+            bar.addSeparator()
+            bar.addAction(self.actionFitPeak)
+            wa = QWidgetAction(bar)
+            self.fitPickCheckbox = QCheckBox(bar)
+            self.fitPickCheckbox.setText('Pick')
+            self.fitPickCheckbox.setChecked(True)
+            self.actionPickInitial.setChecked(True)
+            self.fitPickCheckbox.toggled.connect(self.actionPickInitial.setChecked)
+            self.actionPickInitial.toggled.connect(self.fitPickCheckbox.setChecked)
+            layout = QHBoxLayout()
+            layout.setContentsMargins(10, 0, 10, 0)
+            layout.addWidget(self.fitPickCheckbox)
+            frame = QFrame(bar)
+            frame.setLayout(layout)
+            wa.setDefaultWidget(frame)
+            bar.addAction(wa)
+            ag = QActionGroup(bar)
+            ag.addAction(self.actionFitPeakGaussian)
+            ag.addAction(self.actionFitPeakPV)
+            ag.addAction(self.actionFitPeakPVII)
+            ag.addAction(self.actionFitTc)
+            ag.addAction(self.actionFitCosine)
+            ag.addAction(self.actionFitSigmoid)
+            ag.addAction(self.actionFitLinear)
+            ag.addAction(self.actionFitExponential)
+            wa = QWidgetAction(bar)
+            self.fitComboBox = QComboBox(bar)
+            for a in ag.actions():
+                itemtext = a.text().replace('&', '')
+                self.fitComboBox.addItem(itemtext)
+                self.fitfuncmap[itemtext] = a
+            self.fitComboBox.currentIndexChanged.connect(
+                self.on__fitComboBox_currentIndexChanged)
+            wa.setDefaultWidget(self.fitComboBox)
+            bar.addAction(wa)
+            bar.addSeparator()
+            bar.addAction(self.actionFitArby)
+            self.bar = bar
+            self.actionFitLinear.trigger()
+
+        return [self.bar]
+
+    def loadSettings(self, settings):
+        self.splitterstate = settings.value('splitter', '', QByteArray)
+        presetval = settings.value('presets')
+        self.presetdict = presetval if presetval is not None else {}
+        self.last_views = []
+        settings.beginGroup('views')
+        for key in settings.childKeys():
+            try:
+                info = pickle.loads(str(settings.value(key, b'', QByteArray)))
+                self.last_views.append((key, info))
+            except Exception:
+                pass
+        settings.endGroup()
+
+    def saveSettings(self, settings):
+        settings.setValue('splitter', self.splitter.saveState())
+        settings.setValue('presets', self.presetdict)
+        settings.beginGroup('views')
+        settings.remove('')
+        for view in self.views:
+            settings.setValue(view.name, pickle.dumps(view.dlginfo))
+        settings.endGroup()
 
     def openViews(self, views):
         """Open some views given by the specs in *views*, a list of strings.
@@ -508,9 +655,41 @@ class BaseHistoryWindow(object):
             )
             self._createViewFromDialog(info)
 
-    def addPreset(self, name, info):
-        # overridden in the Panel
-        pass
+    def _refresh_presets(self):
+        pmenu = self.presetmenu
+        pmenu.clear()
+        delmenu = QMenu('Delete', self)
+        try:
+            for preset, info in iteritems(self.presetdict):
+                paction = QAction(preset, self)
+                pdelaction = QAction(preset, self)
+                info = pickle.loads(str(info))
+
+                def launchpreset(on, info=info):
+                    self._createViewFromDialog(info)
+
+                def delpreset(on, name=preset, act=paction, delact=pdelaction):
+                    pmenu.removeAction(act)
+                    delmenu.removeAction(delact)
+                    self.presetdict.pop(name, None)
+                    self._refresh_presets()
+
+                paction.triggered[bool].connect(launchpreset)
+                pmenu.addAction(paction)
+                pdelaction.triggered[bool].connect(delpreset)
+                delmenu.addAction(pdelaction)
+        except AttributeError:
+            self.presetdict = {}
+        if self.presetdict:
+            pmenu.addSeparator()
+            pmenu.addMenu(delmenu)
+        else:
+            pmenu.addAction('(no presets created)')
+
+    def _add_preset(self, name, info):
+        if name:
+            self.presetdict[name] = pickle.dumps(info)
+            self._refresh_presets()
 
     def _autoscale(self, x=None, y=None):
         xflag = x if x is not None else self.actionScaleX.isChecked()
@@ -529,7 +708,7 @@ class BaseHistoryWindow(object):
             self.actionScaleY, self.actionEditView, self.actionCloseView,
             self.actionDeleteView, self.actionResetView, self.actionUnzoom,
             self.actionLogScale, self.actionLegend, self.actionSymbols,
-            self.actionLines, self.actionFitLinear, self.actionFitExponential,
+            self.actionLines, self.actionFitPeak, self.actionFitArby,
         ]:
             action.setEnabled(on)
 
@@ -537,6 +716,9 @@ class BaseHistoryWindow(object):
         for action in [self.actionAutoScale, self.actionScaleX,
                        self.actionScaleY]:
             action.setEnabled(on)
+
+    def on__fitComboBox_currentIndexChanged(self, index):
+        self.fitfuncmap[self.fitComboBox.currentText()].trigger()
 
     def on__viewList_currentItemChanged(self, item, previous):
         if item is None:
@@ -672,7 +854,7 @@ class BaseHistoryWindow(object):
         info = newdlg.infoDict()
         self._createViewFromDialog(info)
         if newdlg.savePreset.isChecked():
-            self.addPreset(info['name'], info)
+            self._add_preset(info['name'], info)
 
     def newView(self, devices):
         newdlg = NewViewDialog(self)
@@ -737,7 +919,7 @@ class BaseHistoryWindow(object):
             return
         info = newdlg.infoDict()
         if newdlg.savePreset.isChecked():
-            self.addPreset(info['name'], info)
+            self._add_preset(info['name'], info)
         self.viewStack.pop()
         row = self.clearView(view)
         new_view = self._createViewFromDialog(info, row)
@@ -793,6 +975,15 @@ class BaseHistoryWindow(object):
 
     def on__actionLogScale_toggled(self, on):
         self.currentPlot.setLogScale(on)
+
+    def on__actionAutoScale_toggled(self, on):
+        self._autoscale(on, on)
+
+    def on__actionScaleX_toggled(self, on):
+        self._autoscale(x=on)
+
+    def on__actionScaleY_toggled(self, on):
+        self._autoscale(y=on)
 
     def on__actionLegend_toggled(self, on):
         self.currentPlot.setLegend(on)
@@ -862,13 +1053,11 @@ class HistoryPanel(BaseHistoryWindow, Panel):
     panelName = 'History viewer'
 
     def __init__(self, parent, client, options):
-        self.presetdict = {}
-
         Panel.__init__(self, parent, client, options)
         BaseHistoryWindow.__init__(self)
-        self.fitfuncmap = {}
 
-        self.presetmenu = QMenu('&Presets', self)
+        self.actionClose.setVisible(False)
+
         self.statusBar = QStatusBar(self)
         policy = self.statusBar.sizePolicy()
         policy.setVerticalPolicy(QSizePolicy.Fixed)
@@ -876,191 +1065,9 @@ class HistoryPanel(BaseHistoryWindow, Panel):
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
-        self.menus = None
-        self.bar = None
-
-        for (name, view) in self.last_views:
-            item = QListWidgetItem(name, self.viewList)
-            item.setForeground(QBrush(QColor('#aaaaaa')))
-            item.setData(Qt.UserRole, view)
-
         self.splitter.setSizes([20, 80])
         self.splitter.restoreState(self.splitterstate)
         self.client.cache.connect(self.newvalue_callback)
-
-    def getMenus(self):
-        menu = QMenu('&History viewer', self)
-        menu.addAction(self.actionNew)
-        menu.addSeparator()
-        menu.addAction(self.actionSavePlot)
-        menu.addAction(self.actionPrint)
-        menu.addAction(self.actionAttachElog)
-        menu.addAction(self.actionSaveData)
-        menu.addSeparator()
-        menu.addAction(self.actionEditView)
-        menu.addAction(self.actionCloseView)
-        menu.addAction(self.actionDeleteView)
-        menu.addAction(self.actionResetView)
-        menu.addSeparator()
-        menu.addAction(self.actionLogScale)
-        menu.addAction(self.actionAutoScale)
-        menu.addAction(self.actionScaleX)
-        menu.addAction(self.actionScaleY)
-        menu.addAction(self.actionUnzoom)
-        menu.addAction(self.actionLegend)
-        menu.addAction(self.actionSymbols)
-        menu.addAction(self.actionLines)
-        menu.addSeparator()
-        ag = QActionGroup(menu)
-        ag.addAction(self.actionFitPeakGaussian)
-        ag.addAction(self.actionFitPeakPV)
-        ag.addAction(self.actionFitPeakPVII)
-        ag.addAction(self.actionFitTc)
-        ag.addAction(self.actionFitCosine)
-        ag.addAction(self.actionFitSigmoid)
-        ag.addAction(self.actionFitLinear)
-        ag.addAction(self.actionFitExponential)
-        menu.addAction(self.actionFitPeak)
-        menu.addAction(self.actionPickInitial)
-        menu.addAction(self.actionFitPeakGaussian)
-        menu.addAction(self.actionFitPeakPV)
-        menu.addAction(self.actionFitPeakPVII)
-        menu.addAction(self.actionFitTc)
-        menu.addAction(self.actionFitCosine)
-        menu.addAction(self.actionFitSigmoid)
-        menu.addAction(self.actionFitLinear)
-        menu.addAction(self.actionFitExponential)
-        menu.addSeparator()
-        menu.addAction(self.actionFitArby)
-        menu.addSeparator()
-        self._refresh_presets()
-        return [menu, self.presetmenu]
-
-    def _refresh_presets(self):
-        pmenu = self.presetmenu
-        pmenu.clear()
-        delmenu = QMenu('Delete', self)
-        try:
-            for preset, info in iteritems(self.presetdict):
-                paction = QAction(preset, self)
-                pdelaction = QAction(preset, self)
-                info = pickle.loads(str(info))
-
-                def launchpreset(on, info=info):
-                    self._createViewFromDialog(info)
-
-                def delpreset(on, name=preset, act=paction, delact=pdelaction):
-                    pmenu.removeAction(act)
-                    delmenu.removeAction(delact)
-                    self.presetdict.pop(name, None)
-                    self._refresh_presets()
-
-                paction.triggered[bool].connect(launchpreset)
-                pmenu.addAction(paction)
-                pdelaction.triggered[bool].connect(delpreset)
-                delmenu.addAction(pdelaction)
-        except AttributeError:
-            self.presetdict = {}
-        if self.presetdict:
-            pmenu.addSeparator()
-            pmenu.addMenu(delmenu)
-        else:
-            pmenu.addAction('(no presets created)')
-
-    def getToolbars(self):
-        if not self.bar:
-            bar = QToolBar('History viewer')
-            bar.addAction(self.actionNew)
-            bar.addAction(self.actionEditView)
-            bar.addSeparator()
-            bar.addAction(self.actionSavePlot)
-            bar.addAction(self.actionPrint)
-            bar.addAction(self.actionSaveData)
-            bar.addSeparator()
-            bar.addAction(self.actionUnzoom)
-            bar.addAction(self.actionLogScale)
-            bar.addSeparator()
-            bar.addAction(self.actionAutoScale)
-            bar.addAction(self.actionScaleX)
-            bar.addAction(self.actionScaleY)
-            bar.addSeparator()
-            bar.addAction(self.actionResetView)
-            bar.addAction(self.actionDeleteView)
-            bar.addSeparator()
-            bar.addAction(self.actionFitPeak)
-            wa = QWidgetAction(bar)
-            self.fitPickCheckbox = QCheckBox(bar)
-            self.fitPickCheckbox.setText('Pick')
-            self.fitPickCheckbox.setChecked(True)
-            self.actionPickInitial.setChecked(True)
-            self.fitPickCheckbox.toggled.connect(self.actionPickInitial.setChecked)
-            self.actionPickInitial.toggled.connect(self.fitPickCheckbox.setChecked)
-            layout = QHBoxLayout()
-            layout.setContentsMargins(10, 0, 10, 0)
-            layout.addWidget(self.fitPickCheckbox)
-            frame = QFrame(bar)
-            frame.setLayout(layout)
-            wa.setDefaultWidget(frame)
-            bar.addAction(wa)
-            ag = QActionGroup(bar)
-            ag.addAction(self.actionFitPeakGaussian)
-            ag.addAction(self.actionFitPeakPV)
-            ag.addAction(self.actionFitPeakPVII)
-            ag.addAction(self.actionFitTc)
-            ag.addAction(self.actionFitCosine)
-            ag.addAction(self.actionFitSigmoid)
-            ag.addAction(self.actionFitLinear)
-            ag.addAction(self.actionFitExponential)
-            wa = QWidgetAction(bar)
-            self.fitComboBox = QComboBox(bar)
-            for a in ag.actions():
-                itemtext = a.text().replace('&', '')
-                self.fitComboBox.addItem(itemtext)
-                self.fitfuncmap[itemtext] = a
-            self.fitComboBox.currentIndexChanged.connect(
-                self.on_fitComboBox_currentIndexChanged)
-            wa.setDefaultWidget(self.fitComboBox)
-            bar.addAction(wa)
-            bar.addSeparator()
-            bar.addAction(self.actionFitArby)
-            self.bar = bar
-            self.actionFitLinear.trigger()
-
-        return [self.bar]
-
-    @pyqtSlot(int)
-    def on_fitComboBox_currentIndexChanged(self, index):
-        self.fitfuncmap[self.fitComboBox.currentText()].trigger()
-
-    def loadSettings(self, settings):
-        self.splitterstate = settings.value('splitter', '', QByteArray)
-        presetval = settings.value('presets')
-        if presetval is not None:
-            # there may be a problem reading the preset value...
-            try:
-                self.presetdict = presetval
-            except TypeError:
-                self.presetdict = {}
-        else:
-            self.presetdict = {}
-        self.last_views = []
-        settings.beginGroup('views')
-        for key in settings.childKeys():
-            try:
-                info = pickle.loads(str(settings.value(key, b'', QByteArray)))
-                self.last_views.append((key, info))
-            except Exception:
-                pass
-        settings.endGroup()
-
-    def saveSettings(self, settings):
-        settings.setValue('splitter', self.splitter.saveState())
-        settings.setValue('presets', self.presetdict)
-        settings.beginGroup('views')
-        settings.remove('')
-        for view in self.views:
-            settings.setValue(view.name, pickle.dumps(view.dlginfo))
-        settings.endGroup()
 
     def setCustomStyle(self, font, back):
         self.user_font = font
@@ -1087,11 +1094,6 @@ class HistoryPanel(BaseHistoryWindow, Panel):
         self.client.cache.disconnect(self.newvalue_callback)
         return True
 
-    def addPreset(self, name, info):
-        if name:
-            self.presetdict[name] = pickle.dumps(info)
-            self._refresh_presets()
-
     def gethistory_callback(self, key, fromtime, totime):
         return self.client.ask('gethistory', key, str(fromtime), str(totime),
                                default=[])
@@ -1115,18 +1117,6 @@ class HistoryPanel(BaseHistoryWindow, Panel):
                              (descr, remotefn, fname))
         os.unlink(pathname)
 
-    @pyqtSlot(bool)
-    def on_actionAutoScale_toggled(self, on):
-        self._autoscale(on, on)
-
-    @pyqtSlot(bool)
-    def on_actionScaleX_toggled(self, on):
-        self._autoscale(x=on)
-
-    @pyqtSlot(bool)
-    def on_actionScaleY_toggled(self, on):
-        self._autoscale(y=on)
-
 
 class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
 
@@ -1134,21 +1124,22 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
 
     def __init__(self, app):
         QMainWindow.__init__(self, None)
+
+        # this is done in Panel.__init__ for the panel version
+        self.settings = CompatSettings()
+        self.splitter.setSizes([20, 80])
+        self.loadSettings(self.settings)
+
         BaseHistoryWindow.__init__(self)
         DlgUtils.__init__(self, 'History viewer')
 
-        self.settings = CompatSettings()
-        self.splitter.setSizes([20, 80])
-        self.splitter.restoreState(
-            self.settings.value('splitstate', '', QByteArray))
+        self.actionAttachElog.setVisible(False)
+
+        self.splitter.restoreState(self.splitterstate)
 
         self.app = app
         self.setCentralWidget(self.splitter)
         self.newValue.connect(self.newvalue_callback)
-
-        self.menus = None
-        self.bar = None
-        self.fitfuncmap = {}
 
         for toolbar in self.getToolbars():
             self.addToolBar(toolbar)
@@ -1158,119 +1149,12 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
         self.statusBar = QStatusBar(self)
         self.setStatusBar(self.statusBar)
 
-    def getMenus(self):
-        if not self.menus:
-            menu = QMenu('&History viewer', self)
-            menu.addAction(self.actionNew)
-            menu.addSeparator()
-            menu.addAction(self.actionSavePlot)
-            menu.addAction(self.actionPrint)
-            menu.addAction(self.actionSaveData)
-            menu.addSeparator()
-            menu.addAction(self.actionEditView)
-            menu.addAction(self.actionCloseView)
-            menu.addAction(self.actionDeleteView)
-            menu.addAction(self.actionResetView)
-            menu.addSeparator()
-            menu.addAction(self.actionLogScale)
-            menu.addAction(self.actionUnzoom)
-            menu.addAction(self.actionLegend)
-            menu.addAction(self.actionSymbols)
-            menu.addAction(self.actionLines)
-            menu.addSeparator()
-            ag = QActionGroup(menu)
-            ag.addAction(self.actionFitPeakGaussian)
-            ag.addAction(self.actionFitPeakPV)
-            ag.addAction(self.actionFitPeakPVII)
-            ag.addAction(self.actionFitTc)
-            ag.addAction(self.actionFitCosine)
-            ag.addAction(self.actionFitSigmoid)
-            ag.addAction(self.actionFitLinear)
-            ag.addAction(self.actionFitExponential)
-            menu.addAction(self.actionFitPeak)
-            menu.addAction(self.actionPickInitial)
-            menu.addAction(self.actionFitPeakGaussian)
-            menu.addAction(self.actionFitPeakPV)
-            menu.addAction(self.actionFitPeakPVII)
-            menu.addAction(self.actionFitTc)
-            menu.addAction(self.actionFitCosine)
-            menu.addAction(self.actionFitSigmoid)
-            menu.addAction(self.actionFitLinear)
-            menu.addAction(self.actionFitExponential)
-            menu.addSeparator()
-            menu.addAction(self.actionFitArby)
-            menu.addSeparator()
-            menu.addSeparator()
-            menu.addAction(self.actionClose)
-            self.menus = menu
-
-        return [self.menus]
-
-    def getToolbars(self):
-        if not self.bar:
-            bar = QToolBar('History viewer')
-            bar.addAction(self.actionNew)
-            bar.addAction(self.actionEditView)
-            bar.addSeparator()
-            bar.addAction(self.actionSavePlot)
-            bar.addAction(self.actionPrint)
-            bar.addAction(self.actionSaveData)
-            bar.addAction(self.actionClose)
-            bar.addSeparator()
-            bar.addAction(self.actionUnzoom)
-            bar.addAction(self.actionLogScale)
-            bar.addSeparator()
-            bar.addAction(self.actionResetView)
-            bar.addAction(self.actionDeleteView)
-            self.bar = bar
-            bar.addAction(self.actionFitPeak)
-            wa = QWidgetAction(bar)
-            self.fitPickCheckbox = QCheckBox(bar)
-            self.fitPickCheckbox.setText('Pick')
-            self.fitPickCheckbox.setChecked(True)
-            self.actionPickInitial.setChecked(True)
-            self.fitPickCheckbox.toggled.connect(self.actionPickInitial.setChecked)
-            self.actionPickInitial.toggled.connect(self.fitPickCheckbox.setChecked)
-            layout = QHBoxLayout()
-            layout.setContentsMargins(10, 0, 10, 0)
-            layout.addWidget(self.fitPickCheckbox)
-            frame = QFrame(bar)
-            frame.setLayout(layout)
-            wa.setDefaultWidget(frame)
-            bar.addAction(wa)
-            ag = QActionGroup(bar)
-            ag.addAction(self.actionFitPeakGaussian)
-            ag.addAction(self.actionFitPeakPV)
-            ag.addAction(self.actionFitPeakPVII)
-            ag.addAction(self.actionFitTc)
-            ag.addAction(self.actionFitCosine)
-            ag.addAction(self.actionFitSigmoid)
-            ag.addAction(self.actionFitLinear)
-            ag.addAction(self.actionFitExponential)
-            wa = QWidgetAction(bar)
-            self.fitComboBox = QComboBox(bar)
-            for a in ag.actions():
-                self.fitComboBox.addItem(a.text())
-                self.fitfuncmap[a.text()] = a
-            self.fitComboBox.currentIndexChanged.connect(
-                self.on_fitComboBox_currentIndexChanged)
-            wa.setDefaultWidget(self.fitComboBox)
-            bar.addAction(wa)
-            bar.addSeparator()
-            bar.addAction(self.actionFitArby)
-            self.bar = bar
-        return [self.bar]
-
     def gethistory_callback(self, key, fromtime, totime):
         return self.app.history(None, key, fromtime, totime)
 
     def closeEvent(self, event):
-        self.settings.setValue('splitstate', self.splitter.saveState())
+        self.saveSettings(self.settings)
         return QMainWindow.closeEvent(self, event)
-
-    @pyqtSlot(int)
-    def on_fitComboBox_currentIndexChanged(self, index):
-        self.fitfuncmap[self.fitComboBox.currentText()].trigger()
 
 
 class StandaloneHistoryApp(CacheClient):
