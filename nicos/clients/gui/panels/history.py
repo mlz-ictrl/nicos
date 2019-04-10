@@ -53,7 +53,7 @@ from nicos.guisupport.utils import scaledFont
 from nicos.protocols.cache import cache_load
 from nicos.pycompat import cPickle as pickle, integer_types, iteritems, \
     number_types
-from nicos.utils import extractKeyAndIndex, safeName
+from nicos.utils import extractKeyAndIndex, safeName, parseDuration
 
 
 class NoEditDelegate(QStyledItemDelegate):
@@ -66,6 +66,21 @@ def float_with_default(s, d):
         return float(s)
     except ValueError:
         return d
+
+
+def get_time_and_interval(intv):
+    itime = parseDuration(intv)
+    if itime >= 24 * 3600:
+        interval = 30
+    elif itime >= 6 * 3600:
+        interval = 10
+    elif itime >= 3 * 3600:
+        interval = 5
+    elif itime >= 1800:
+        interval = 2
+    else:
+        interval = 1
+    return itime, interval
 
 
 class View(QObject):
@@ -348,9 +363,10 @@ class NewViewDialog(DlgUtils, QDialog):
                                        in iteritems(self.deviceTreeSel)))
 
     def showSimpleHelp(self):
-        self.showInfo('Please enter a time interval with unit like this:\n\n'
+        self.showInfo('Please enter a time interval with units like this:\n\n'
                       '30m   (30 minutes)\n'
                       '12h   (12 hours)\n'
+                      '1d 6h (30 hours)\n'
                       '3d    (3 days)\n')
 
     def showDeviceHelp(self):
@@ -383,7 +399,7 @@ class NewViewDialog(DlgUtils, QDialog):
 
     def setIntervalFromSimple(self, text):
         try:
-            _itime, interval = parseTimeSpec(text)
+            _itime, interval = get_time_and_interval(text)
         except Exception:
             pass
         else:
@@ -392,7 +408,7 @@ class NewViewDialog(DlgUtils, QDialog):
     def accept(self):
         if self.simpleTime.isChecked():
             try:
-                parseTimeSpec(self.simpleTimeSpec.text())
+                get_time_and_interval(self.simpleTimeSpec.text())
             except ValueError:
                 self.showSimpleHelp()
                 return
@@ -770,7 +786,7 @@ class BaseHistoryWindow(object):
         window = None
         if info['simpleTime']:
             try:
-                itime, _ = parseTimeSpec(info['simpleTimeSpec'])
+                itime, _ = get_time_and_interval(info['simpleTimeSpec'])
             except ValueError:
                 return
             fromtime = currenttime() - itime
@@ -1183,38 +1199,3 @@ class StandaloneHistoryApp(CacheClient):
 
     def _propagate(self, data):
         self._window.newValue.emit(data)
-
-
-def parseTimeSpec(intv):
-    if not intv:
-        itime = 0
-    elif intv.endswith('sec'):
-        itime = float(intv[:-3])
-    elif intv.endswith('s'):
-        itime = float(intv[:-1])
-    elif intv.endswith('min'):
-        itime = float(intv[:-3]) * 60
-    elif intv.endswith('m'):
-        itime = float(intv[:-1]) * 60
-    elif intv.endswith('h'):
-        itime = float(intv[:-1]) * 3600
-    elif intv.endswith('days'):
-        itime = float(intv[:-4]) * 24 * 3600
-    elif intv.endswith('d'):
-        itime = float(intv[:-1]) * 24 * 3600
-    elif intv.endswith('y'):
-        itime = float(intv[:-1]) * 24 * 3600 * 365
-    else:
-        raise ValueError
-    itime = abs(itime)
-    if itime >= 24 * 3600:
-        interval = 30
-    elif itime >= 6 * 3600:
-        interval = 10
-    elif itime >= 3 * 3600:
-        interval = 5
-    elif itime >= 1800:
-        interval = 2
-    else:
-        interval = 1
-    return itime, interval

@@ -1553,22 +1553,21 @@ def squeeze(shape, n=0):
     return type(shape)(dims)
 
 
-durRegex = re.compile(r'''((?P<days>[0-9]+(\.[0-9]*)?)d    # days as 'xd'
-                          \ *:?\ *)?                       # split with '', ' ' and/or ':'
-                          ((?P<hours>[0-9]+(\.[0-9]*)?)h   # hours as 'xh'
-                          \ *:?\ *)?                       # split with '', ' ' and/or ':'
-                          ((?P<minutes>[0-9]+(\.[0-9]*)?)m # minutes as 'xm'
-                          \ *:?\ *)?                       # split with '', ' ' and/or ':'
-                          ((?P<seconds>[0-9]+(\.[0-9]*)?)s # seconds as 'xs'
-                          )?$                              # ensure whole string matches
-                       ''', re.X)
+DURATION_RE = re.compile(r'''
+    ((?P<days>[0-9]+(\.[0-9]*)?)d(ays?)?   # days as 'xd'
+    \ *:?\ *)?                             # split with '', ' ' and/or ':'
+    ((?P<hours>[0-9]+(\.[0-9]*)?)hr?       # hours as 'xh'
+    \ *:?\ *)?                             # split with '', ' ' and/or ':'
+    ((?P<minutes>[0-9]+(\.[0-9]*)?)m(in)?  # minutes as 'xm'
+    \ *:?\ *)?                             # split with '', ' ' and/or ':'
+    ((?P<seconds>[0-9]+(\.[0-9]*)?)s(ec)?  # seconds as 'xs'
+    )?$                                    # ensure whole string matches
+''', re.X)
 
-valid_duration_formats = (
+DURATION_HINT = 'Provide value as %s or %s.' % (
     "<number>",
     "[<number>d][:][<number>h][:][<number>m][:][<number>s]",
-    )
-
-duration_hint = 'Provide value as %s or %s.' % valid_duration_formats
+)
 
 
 def parseDuration(inputvalue):
@@ -1605,11 +1604,11 @@ def parseDuration(inputvalue):
     except ValueError:
         pass
 
-    m = durRegex.match(inputvalue)
+    m = DURATION_RE.match(inputvalue)
 
     if not m:
         raise ValueError('"%s" can not be parsed. ' % inputvalue
-                         + duration_hint)
+                         + DURATION_HINT)
 
     timedict = m.groupdict()
 

@@ -399,28 +399,35 @@ def test_moveOutOfWay(tmpdir, maxbackup):
     ['1d:2h:3m:14s', 93794],
     ['1d2h 3m  14s', 93794],
     ['1d :2h: 3m : 14s ', 93794],
-    ['1d 2h 2m 74s', 93794],
+    ['1day 2hr 2min 74sec', 93794],
+    ['5days', 5*86400],
     [93794, 93794],
     ['0.5h', 1800],
     [1.0, 1.0],
     ['2.0', 2.0],
     ['1h:0.005s', 3600.005],
     [timedelta(hours=2), 7200],
-    ])
+])
 def test_parse_duration(inp, expected):
     assert parseDuration(inp) == expected
 
 
 @pytest.mark.parametrize('inp', [
-    [1,2,3], {'days':5}, ])
-def test_parse_duration_type_errors(inp):
-    assert raises(TypeError, parseDuration, inp)
+    '1m3d',
+    '1d::3m',
+    '1d:3m jad',
+    '42secop',
+])
+def test_parse_duration_parse_errors(inp):
+    assert raises(ValueError, parseDuration, inp)
 
 
 @pytest.mark.parametrize('inp', [
-    '1m3d', '1d::3m', '1d:3m jad'])
-def test_parse_duration_parse_errors(inp):
-    assert raises(ValueError, parseDuration, inp)
+    [1, 2, 3],
+    {'days': 5},
+])
+def test_parse_duration_type_errors(inp):
+    assert raises(TypeError, parseDuration, inp)
 
 
 @pytest.mark.parametrize('maxbackup', [2, None, 0])
