@@ -1185,6 +1185,12 @@ class StandaloneHistoryApp(CacheClient):
         self._qtapp.setOrganizationName('nicos')
         self._qtapp.setApplicationName('history')
         self._window = StandaloneHistoryWindow(self)
+        # if no cache was given on the command line...
+        if not self._config['cache']:
+            dlg = SettingsDialog(self._window)
+            dlg.exec_()
+            self._setROParam('cache', dlg.cacheBox.currentText())
+            self._setROParam('prefix', dlg.prefixEdit.text())
         CacheClient.doInit(self, mode)
 
     def start(self):
@@ -1199,3 +1205,24 @@ class StandaloneHistoryApp(CacheClient):
 
     def _propagate(self, data):
         self._window.newValue.emit(data)
+
+
+class SettingsDialog(QDialog):
+    def __init__(self, parent):
+        QDialog.__init__(self, parent)
+        loadUi(self, 'history_settings.ui', 'panels')
+        settings = CompatSettings()
+        self._caches = settings.value('cachehosts') or []
+        prefix = settings.value('keyprefix', 'nicos/')
+        self.cacheBox.addItems(self._caches)
+        self.prefixEdit.setText(prefix)
+
+    def accept(self):
+        settings = CompatSettings()
+        cache = self.cacheBox.currentText()
+        if cache in self._caches:
+            self._caches.remove(cache)
+        self._caches.insert(0, cache)
+        settings.setValue('cachehosts', self._caches)
+        settings.setValue('keyprefix', self.prefixEdit.text())
+        QDialog.accept(self)

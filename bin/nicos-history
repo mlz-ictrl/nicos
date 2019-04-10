@@ -50,8 +50,8 @@ A separate view plot is opened for each such argument.
 
 parser = argparse.ArgumentParser(usage=usage)
 parser.add_argument('-c', '--cache', dest='cache', action='store',
-                    help='CACHE server:port, defaults to localhost:14869',
-                    default='localhost')
+                    help='CACHE server:port, user is asked if not given',
+                    default='')
 parser.add_argument('-p', '--prefix', dest='prefix', action='store',
                     help='PREFIX is the key prefix; it will be added in front '
                     'of the key, defaults to \'nicos/\'', default='nicos/')
