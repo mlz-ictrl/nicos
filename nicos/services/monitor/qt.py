@@ -228,16 +228,20 @@ class Monitor(BaseMonitor):
         # first the timeframe:
         masterframe = QFrame(master)
         masterlayout = QVBoxLayout()
-        self._titlelabel = QLabel('', master,
-            font=timefont, autoFillBackground=True, alignment=Qt.AlignHCenter)
-        pal = self._titlelabel.palette()
-        pal.setColor(QPalette.WindowText, self._gray)
-        self._titlelabel.setPalette(pal)
-        self._titlelabel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        self._master.updateTitle.connect(self._titlelabel.setText)
-
-        masterlayout.addWidget(self._titlelabel)
-        masterlayout.addSpacing(0.2 * tiheight)
+        if self.title:
+            self._titlelabel = QLabel(
+                '', master, font=timefont, autoFillBackground=True,
+                alignment=Qt.AlignHCenter)
+            pal = self._titlelabel.palette()
+            pal.setColor(QPalette.WindowText, self._gray)
+            self._titlelabel.setPalette(pal)
+            self._titlelabel.setSizePolicy(QSizePolicy.Preferred,
+                                           QSizePolicy.Fixed)
+            self._master.updateTitle.connect(self._titlelabel.setText)
+            masterlayout.addWidget(self._titlelabel)
+            masterlayout.addSpacing(0.2 * tiheight)
+        else:
+            self._titlelabel = None
 
         self._warnpanel = QFrame(master)
         self._warnpanel.setVisible(False)
@@ -409,19 +413,21 @@ class Monitor(BaseMonitor):
 
     def _switch_warnpanel(self, on):
         if on:
-            pal = self._titlelabel.palette()
-            pal.setColor(QPalette.WindowText, self._black)
-            pal.setColor(QPalette.Window, self._red)
-            self._titlelabel.setPalette(pal)
+            if self._titlelabel:
+                pal = self._titlelabel.palette()
+                pal.setColor(QPalette.WindowText, self._black)
+                pal.setColor(QPalette.Window, self._red)
+                self._titlelabel.setPalette(pal)
             self._warnlabel.setText(self._currwarnings)
             self._warnpanel.setVisible(True)
             self._master.update()
         else:
             self._warnpanel.setVisible(False)
-            pal = self._titlelabel.palette()
-            pal.setColor(QPalette.WindowText, self._gray)
-            pal.setColor(QPalette.Window, self._bgcolor)
-            self._titlelabel.setPalette(pal)
+            if self._titlelabel:
+                pal = self._titlelabel.palette()
+                pal.setColor(QPalette.WindowText, self._gray)
+                pal.setColor(QPalette.Window, self._bgcolor)
+                self._titlelabel.setPalette(pal)
             # resize to minimum
             self.reconfigureBoxes()
             # self._master.update()
