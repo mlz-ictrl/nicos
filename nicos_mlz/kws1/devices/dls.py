@@ -210,15 +210,18 @@ class DLSFileSinkHandler(DataSinkHandler):
     def _write(self, arrays):
         self._counter += 1
         for (i, card) in enumerate(self.detector._attached_cards):
-            correlation = np.stack([arrays[3*i+1], arrays[3*i][:,0], arrays[3*i][:,1]], 1)
+            correlation = np.stack([arrays[3*i+1],
+                                    arrays[3*i][:,0],
+                                    arrays[3*i][:,1]], 1)
             correlation[np.isinf(correlation)] = 0.
             intensity = arrays[3*i+2]
 
             tmpldict = dict(
                 date = time.strftime('%m.%d.%Y'),
                 time = time.strftime('%H:%M:%S'),
-                sample = self._meta.get(('Sample', 'samplename')[0], 'unknown'),
-                temperature = self._meta.get(('Ts', 'value')[0], -1),
+                sample = self._meta.get(('Sample', 'samplename'),
+                                        ('unknown',))[0],
+                temperature = self._meta.get(('Ts', 'value'), (-1,))[0],
                 viscosity = self.detector.viscosity,
                 refrindex = self.detector.refrindex,
                 wavelength = self.detector.wavelength,
