@@ -29,7 +29,7 @@ from __future__ import absolute_import, division, print_function
 from contextlib import contextmanager
 
 from nicos.guisupport.qt import QApplication, QDoubleValidator, QPalette, Qt, \
-    QValidator
+    QValidator, QFont
 
 
 def setBackgroundColor(widget, color):
@@ -56,6 +56,12 @@ def setBothColors(widget, colors):
     widget.setBackgroundRole(QPalette.Window)
     widget.setForegroundRole(QPalette.WindowText)
     widget.setPalette(palette)
+
+
+def scaledFont(font, scale):
+    new = QFont(font)
+    new.setPointSizeF(font.pointSizeF() * scale)
+    return new
 
 
 class DoubleValidator(QDoubleValidator):

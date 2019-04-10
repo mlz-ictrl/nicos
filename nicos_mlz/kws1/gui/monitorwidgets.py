@@ -26,8 +26,9 @@ from __future__ import absolute_import, division, print_function
 
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
     WARN
-from nicos.guisupport.qt import QBrush, QColor, QFont, QPainter, QPen, QSize, \
+from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, QSize, \
     Qt, QWidget
+from nicos.guisupport.utils import scaledFont
 from nicos.guisupport.widget import NicosWidget, PropDef
 
 _yellow = QBrush(QColor('yellow'))
@@ -274,9 +275,7 @@ class Collimation(NicosWidget, QWidget):
         pen = painter.pen()
 
         fontscale = float(self._scale)
-        smallerfont = QFont(self.valueFont)
-        smallerfont.setPointSizeF(smallerfont.pointSizeF() * 0.9)
-        painter.setFont(smallerfont)
+        painter.setFont(scaledFont(self.valueFont, 0.9))
         h = self.props['height'] * fontscale
         w = self.props['width'] * fontscale
         elwidth = w / 20.
@@ -475,9 +474,7 @@ class SampleSlit(NicosWidget, QWidget):
         painter.setBrush(collstatusbrush[self._curstatus])
         painter.drawRect(2 + x0, 2 + y1, x1 - x0, y0 - y1)
 
-        smallerfont = QFont(self.valueFont)
-        smallerfont.setPointSizeF(smallerfont.pointSizeF() * 0.8)
-        painter.setFont(smallerfont)
+        painter.setFont(scaledFont(self.valueFont, 0.8))
         painter.drawText(2, 2, ww, wh,
                          Qt.AlignTop | Qt.AlignHCenter, l1)
         painter.drawText(2, 2, ww, wh,

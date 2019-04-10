@@ -42,9 +42,10 @@ from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotMarker, QwtPlotPicker, \
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import DlgUtils, loadUi
 from nicos.guisupport.qt import QBrush, QByteArray, QComboBox, QDialog, \
-    QFont, QFrame, QHBoxLayout, QLabel, QListWidgetItem, QMainWindow, QMenu, \
+    QFrame, QHBoxLayout, QLabel, QListWidgetItem, QMainWindow, QMenu, \
     QPen, QPrintDialog, QPrinter, QSize, QSizePolicy, QStatusBar, Qt, \
     QToolBar, QVBoxLayout, pyqtSlot
+from nicos.guisupport.utils import scaledFont
 from nicos.pycompat import string_types
 from nicos.utils import BoundedOrderedDict
 
@@ -369,8 +370,7 @@ class ToftofProfileWindow(DlgUtils, QMainWindow):
         mainframe.setLayout(layout1)
         self.setCentralWidget(mainframe)
         self.setContentsMargins(6, 6, 6, 6)
-        plotfont = QFont(self.font())
-        plotfont.setPointSize(plotfont.pointSize() * 0.7)
+        plotfont = scaledFont(self.font(), 0.7)
         self.plot.setAxisFont(QwtPlot.xBottom, plotfont)
         self.plot.setAxisFont(QwtPlot.yLeft, plotfont)
         self.plot.setCanvasBackground(Qt.white)

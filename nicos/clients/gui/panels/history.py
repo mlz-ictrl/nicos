@@ -49,6 +49,7 @@ from nicos.guisupport.qt import QAction, QActionGroup, QApplication, QBrush, \
     QTimer, QToolBar, QWidgetAction, pyqtSignal, pyqtSlot
 from nicos.guisupport.timeseries import TimeSeries
 from nicos.guisupport.trees import DeviceParamTree
+from nicos.guisupport.utils import scaledFont
 from nicos.protocols.cache import cache_load
 from nicos.pycompat import cPickle as pickle, integer_types, iteritems, \
     number_types
@@ -1071,8 +1072,7 @@ class HistoryPanel(BaseHistoryWindow, Panel):
 
         bold = QFont(font)
         bold.setBold(True)
-        larger = QFont(font)
-        larger.setPointSize(font.pointSize() * 1.6)
+        larger = scaledFont(font, 1.6)
         for view in self.views:
             if view.plot:
                 view.plot.setFonts(font, bold, larger)

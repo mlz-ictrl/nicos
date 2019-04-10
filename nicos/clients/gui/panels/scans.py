@@ -42,6 +42,7 @@ from nicos.guisupport.qt import QActionGroup, QByteArray, QCheckBox, \
     QComboBox, QDialog, QFont, QFrame, QHBoxLayout, QKeySequence, \
     QListWidgetItem, QMenu, QPalette, QShortcut, QSizePolicy, QStatusBar, Qt, \
     QTableWidgetItem, QToolBar, QWidgetAction, pyqtSlot
+from nicos.guisupport.utils import scaledFont
 from nicos.pycompat import itervalues
 from nicos.utils import safeName
 
@@ -181,8 +182,7 @@ class ScansPanel(Panel):
 
         bold = QFont(font)
         bold.setBold(True)
-        larger = QFont(font)
-        larger.setPointSize(font.pointSize() * 1.6)
+        larger = scaledFont(font, 1.6)
         for plot in itervalues(self.setplots):
             plot.setFonts(font, bold, larger)
 

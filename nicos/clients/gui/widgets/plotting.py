@@ -47,6 +47,7 @@ from nicos.guisupport.qt import QAction, QApplication, QCursor, QDialog, \
     QFileDialog, QFont, QListWidgetItem, QMenu, QPoint, Qt
 from nicos.guisupport.qtgr import GUIConnector, InteractiveGRWidget, \
     LegendEvent, MouseEvent, ROIEvent
+from nicos.guisupport.utils import scaledFont
 # pylint: disable=redefined-builtin
 from nicos.pycompat import exec_, string_types
 from nicos.utils import safeName
@@ -479,8 +480,7 @@ class NicosPlot(DlgUtils):
         font = self.window.user_font
         bold = QFont(font)
         bold.setBold(True)
-        larger = QFont(font)
-        larger.setPointSize(font.pointSize() * 1.6)
+        larger = scaledFont(font, 1.6)
         self.setFonts(font, bold, larger)
 
     def setBackgroundColor(self, color):
