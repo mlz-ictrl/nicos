@@ -62,8 +62,8 @@ Detector
 
 .. automodule:: nicos_mlz.toftof.devices.toni
 
+.. autoclass:: ToniBus()
 .. autoclass:: LVPower()
-
 .. autoclass:: DelayBox()
 
 Data formats
@@ -72,3 +72,15 @@ Data formats
 .. automodule:: nicos_mlz.toftof.devices.datasinks
 
 .. autoclass:: TofImageSink()
+
+Experiment
+----------
+
+.. automodule:: nicos_mlz.toftof.devices.experiment
+.. autoclass:: Experiment()
+
+
+.. Misc
+   ----
+   .. automodule:: nicos_mlz.toftof.devices.virtual
+   .. autoclass:: VirtualImage()
