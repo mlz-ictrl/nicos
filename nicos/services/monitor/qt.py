@@ -36,6 +36,7 @@ from nicos.guisupport.display import PictureDisplay, ValueDisplay, \
 from nicos.guisupport.qt import QApplication, QColor, QCursor, QFont, \
     QFontMetrics, QFrame, QHBoxLayout, QIcon, QLabel, QMainWindow, QPalette, \
     QSizePolicy, Qt, QVBoxLayout, pyqtSignal, uic
+from nicos.guisupport.utils import scaledFont
 from nicos.guisupport.widget import NicosWidget
 from nicos.pycompat import iteritems, string_types
 from nicos.services.monitor import Monitor as BaseMonitor
@@ -255,11 +256,15 @@ class Monitor(BaseMonitor):
         self._plots = {}
 
         colorScheme = lightColorScheme if self.colors == 'light' else None
+        fontCache = {1.0: valuefont}
 
         def _create_field(groupframe, field):
 
             def _setup(widget):
-                widget.valueFont = valuefont
+                fontscale = field.get('fontscale', 1.0)
+                if fontscale not in fontCache:
+                    fontCache[fontscale] = scaledFont(valuefont, fontscale)
+                widget.valueFont = fontCache[fontscale]
                 widget.setFont(labelfont)
                 for key in field:
                     if key in widget.properties:
