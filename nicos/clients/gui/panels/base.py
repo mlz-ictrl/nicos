@@ -114,13 +114,13 @@ class Panel(DlgUtils, QWidget, SetupDepPanelMixin):
     def __init__(self, parent, client, options):
         QWidget.__init__(self, parent)
         self.log = NicosLogger(self.panelName)
+        self.log.parent = parent.mainwindow.log
         SetupDepPanelMixin.__init__(self, client, options)
         DlgUtils.__init__(self, self.panelName)
         self.parentwindow = parent
         self.client = client
         self.mainwindow = parent.mainwindow
         self.actions = set()
-        self.log.parent = self.mainwindow.log
         self.sgroup = SettingGroup(self.panelName)
         with self.sgroup as settings:
             self.loadSettings(settings)
