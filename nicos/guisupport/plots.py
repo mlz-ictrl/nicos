@@ -260,7 +260,8 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
         curve.x = series.x
         curve.y = series.y
         c = self.axes.getCurves()
-        self.axes.setWindow(c.xmin, c.xmax, c.ymin, c.ymax)
+        dy = abs(c.ymin - c.ymax) * 0.05
+        self.axes.setWindow(c.xmin, c.xmax, c.ymin - dy, c.ymax + dy)
         self.widget.update()
         self.ctimers[curve].start(5000)
 
