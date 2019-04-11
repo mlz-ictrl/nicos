@@ -89,6 +89,7 @@ class SANSPanel(Panel):
         self.liveitem.setData(32, '')
         self.liveitem.setData(33, '')
 
+        self.splitter.setSizes([20, 80])
         self.splitter.restoreState(self.splitterstate)
 
         client.livedata.connect(self.on_client_livedata)

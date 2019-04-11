@@ -884,6 +884,7 @@ class HistoryPanel(BaseHistoryWindow, Panel):
             item.setForeground(QBrush(QColor('#aaaaaa')))
             item.setData(Qt.UserRole, view)
 
+        self.splitter.setSizes([20, 80])
         self.splitter.restoreState(self.splitterstate)
         self.client.cache.connect(self.newvalue_callback)
 
@@ -1137,6 +1138,7 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
         DlgUtils.__init__(self, 'History viewer')
 
         self.settings = CompatSettings()
+        self.splitter.setSizes([20, 80])
         self.splitter.restoreState(
             self.settings.value('splitstate', '', QByteArray))
 

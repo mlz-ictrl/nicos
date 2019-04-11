@@ -124,6 +124,7 @@ class LiveDataPanel(Panel):
         self.setLiveItems(1)
         self._livechannel = 0
 
+        self.splitter.setSizes([20, 80])
         self.splitter.restoreState(self.splitterstate)
 
         if hasattr(self.window(), 'closed'):
