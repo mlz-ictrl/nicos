@@ -281,8 +281,8 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
             else:
                 series.add_value(time, value)
 
-    def addcurve(self, key, index, title):
-        series = TimeSeries(key, self.props['plotinterval'], 1.0, 0.0,
+    def addcurve(self, key, index, title, scale, offset):
+        series = TimeSeries(key, self.props['plotinterval'], scale, offset,
                             self.props['plotwindow'], self)
         series.init_empty()
         curve = PlotCurve([currenttime()], [0], legend=title)
@@ -304,8 +304,7 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
         for key, name in zip_longest(self.props['devices'], self.props['names']):
             if name is None:
                 name = key
-            # TODO: support scale/offset
-            key, index = extractKeyAndIndex(key)[:2]
+            key, index, scale, offset = extractKeyAndIndex(key)
             keyid = self._source.register(self, key)
             self.keyindices.setdefault(keyid, []).append(index)
-            self.addcurve(keyid, index, name)
+            self.addcurve(keyid, index, name, scale, offset)
