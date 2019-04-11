@@ -48,7 +48,7 @@ from nicos.guisupport.qt import QAction, QActionGroup, QApplication, QBrush, \
     QMessageBox, QObject, QSizePolicy, QStatusBar, QStyledItemDelegate, Qt, \
     QTimer, QToolBar, QWidgetAction, pyqtSignal, pyqtSlot
 from nicos.guisupport.timeseries import TimeSeries
-from nicos.guisupport.trees import DeviceParamTree
+from nicos.guisupport.trees import BaseDeviceParamTree
 from nicos.guisupport.utils import scaledFont
 from nicos.protocols.cache import cache_load
 from nicos.pycompat import cPickle as pickle, integer_types, iteritems, \
@@ -272,7 +272,7 @@ class NewViewDialog(DlgUtils, QDialog):
             item.setCheckState(0, Qt.Unchecked)
             return True
 
-        self.deviceTree = tree = DeviceParamTree(self)
+        self.deviceTree = tree = BaseDeviceParamTree(self)
         tree.device_clause = '"." not in dn'
         tree.param_predicate = param_predicate
         tree.item_callback = item_callback
@@ -1140,6 +1140,8 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
 
     def __init__(self, app):
         QMainWindow.__init__(self, None)
+        self.app = app
+        self.client = app  # used by the NewViewDialog
 
         # this is done in Panel.__init__ for the panel version
         self.settings = CompatSettings()
@@ -1153,7 +1155,6 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
 
         self.splitter.restoreState(self.splitterstate)
 
-        self.app = app
         self.setCentralWidget(self.splitter)
         self.newValue.connect(self.newvalue_callback)
 
@@ -1192,6 +1193,26 @@ class StandaloneHistoryApp(CacheClient):
             self._setROParam('cache', dlg.cacheBox.currentText())
             self._setROParam('prefix', dlg.prefixEdit.text())
         CacheClient.doInit(self, mode)
+
+    def getDeviceList(self, only_explicit=True, special_clause=None):
+        devlist = [key[:-6] for (key, _) in self.query_db('')
+                   if key.endswith('/value')]
+        if special_clause:
+            devlist = [dn for dn in devlist
+                       if eval(special_clause, {'dn': dn})]
+        return sorted(devlist)
+
+    def getDeviceParam(self, devname, parname):
+        return self.get(devname, parname)
+
+    def getDeviceParams(self, devname):
+        ldevname = devname.lower()
+        index = len(ldevname) + 1
+        return dict((key[index:], value) for (key, value) in self.query_db('')
+                    if key.startswith(ldevname + '/'))
+
+    def getDeviceParamInfo(self, _):
+        return {}  # we can't deliver this info from the cache alone
 
     def start(self):
         self._startup_done.wait(2)

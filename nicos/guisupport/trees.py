@@ -32,15 +32,11 @@ from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.pycompat import iteritems
 
 
-class DeviceParamTree(NicosWidget, QTreeWidget):
-
-    designer_description = 'Displays devices and their parameters'
-
-    showparams = PropDef('showparams', bool, True, 'Show parameters as subitems')
+class BaseDeviceParamTree(QTreeWidget):
 
     def __init__(self, parent, designMode=False, **kwds):
         QTreeWidget.__init__(self, parent, **kwds)
-        NicosWidget.__init__(self)
+        self._showparams = True
         self.only_explicit = True
         self.device_clause = None
         self.param_predicate = lambda name, value, info: True
@@ -48,7 +44,6 @@ class DeviceParamTree(NicosWidget, QTreeWidget):
         self.itemExpanded.connect(self.on_itemExpanded)
 
     def setClient(self, client):
-        NicosWidget.setClient(self, client)
         self.client = client
         self._reinit()
 
@@ -65,7 +60,7 @@ class DeviceParamTree(NicosWidget, QTreeWidget):
         if item.childCount():
             return
         devname = item.text(0)
-        if self.props['showparams']:
+        if self._showparams:
             paraminfo = self.client.getDeviceParamInfo(devname)
             for param, value in sorted(iteritems(
                     self.client.getDeviceParams(devname))):
@@ -89,3 +84,23 @@ class DeviceParamTree(NicosWidget, QTreeWidget):
             if not self.item_callback(item):
                 continue
             self.addTopLevelItem(item)
+
+
+class DeviceParamTree(NicosWidget, BaseDeviceParamTree):
+
+    designer_description = 'Displays devices and their parameters'
+
+    showparams = PropDef('showparams', bool, True, 'Show parameters as subitems')
+
+    def __init__(self, parent, designMode=False, **kwds):
+        BaseDeviceParamTree.__init__(self, parent, **kwds)
+        NicosWidget.__init__(self)
+
+    def setClient(self, client):
+        NicosWidget.setClient(self, client)
+        BaseDeviceParamTree.setClient(self, client)
+
+    def propertyUpdated(self, pname, value):
+        if pname == 'showparams':
+            self._showparams = value
+        NicosWidget.propertyUpdated(self, pname, value)
