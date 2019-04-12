@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>369</width>
+    <height>90</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Latest files</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="ValueLabel" name="valueLabel">
+     <property name="text">
+      <string>(sisasink.filename)</string>
+     </property>
+     <property name="dev" stdset="0">
+      <string/>
+     </property>
+     <property name="key" stdset="0">
+      <string>sisasink.filename</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Timer</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="ValueLabel" name="valueLabel_3">
+     <property name="dev" stdset="0">
+      <string>sistimer</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="ValueLabel" name="valueLabel_2">
+     <property name="text">
+      <string>(sisusink.filename)</string>
+     </property>
+     <property name="dev" stdset="0">
+      <string/>
+     </property>
+     <property name="key" stdset="0">
+      <string>sisusink.filename</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ValueLabel</class>
+   <extends>QLabel</extends>
+   <header>nicos.guisupport.display</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
