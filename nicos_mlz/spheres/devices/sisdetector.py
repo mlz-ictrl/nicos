@@ -32,7 +32,7 @@ from collections import namedtuple
 
 from nicos import session
 from nicos.core import FINAL, INTERMEDIATE, INTERRUPTED, LIVE, Param, oneof, \
-    status, NicosError
+    status, NicosError, UsageError
 from nicos.core.constants import SIMULATION
 from nicos.core.params import Attach, Value, listof
 from nicos.devices.generic.detector import Detector
@@ -99,7 +99,29 @@ class SISChannel(ImageChannel):
                                    'of the read data.',
                                    type=int,
                                    default=16),
+        'backgroundmode':    Param('Mode of the background chopper',
+                                   type=float,
+                                   volatile=True),
+        'backgroundoffset':  Param('Count offset in relation to the first PST '
+                                   'zero after each background zero.',
+                                   type=float,
+                                   settable=True,
+                                   volatile=True),
+        'chopperopen':       Param('Chopper is open in this range. If the '
+                                   'first value is bigger then the second the '
+                                   'area is wrapped around 360 deg',
+                                   type=listof(float),
+                                   settable=True,
+                                   volatile=True),
+        'chopperreflecting': Param('Chopper is reflecting in this range. If '
+                                   'the first value is bigger then the second '
+                                   'the area is wrapped around 360 deg',
+                                   type=listof(float),
+                                   settable=True,
+                                   volatile=True),
     }
+
+
 
     def __init__(self, name, **config):
         ImageChannel.__init__(self, name, **config)
@@ -125,6 +147,39 @@ class SISChannel(ImageChannel):
     def doWriteElasticparams(self, val):
         self._dev.tscan_interval = val[0]
         self._dev.tscan_amount = val[1]
+
+    def doReadBackgroundmode(self):
+        return self._dev.backgr_mode
+
+    def doReadBackgroundoffset(self):
+        return self._dev.backgr_offset
+
+    def doWriteBackgroundoffset(self, value):
+        self._dev.backgr_offset = value
+
+    def doReadChopperopen(self):
+        return [self._dev.chop_open_f,
+                self._dev.chop_open_t]
+
+    def doWriteChopperopen(self, value):
+        if len(value) != 2:
+            raise UsageError('Chopperopen needs exactly 2 values: '
+                             '"from" and "to"')
+
+        self._dev.chop_open_f = value[0]
+        self._dev.chop_open_t = value[1]
+
+    def doReadChopperreflecting(self):
+        return [self._dev.chop_refl_f,
+                self._dev.chop_refl_t]
+
+    def doWriteChopperreflecting(self, value):
+        if len(value) != 2:
+            raise UsageError('Chopperreflecting needs exactly 2 values: '
+                             '"from" and "to"')
+
+        self._dev.chop_refl_f = value[0]
+        self._dev.chop_refl_t = value[1]
 
     def setTscanAmount(self, amount):
         if session.sessiontype == SIMULATION:
