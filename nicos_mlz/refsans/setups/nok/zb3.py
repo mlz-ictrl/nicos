@@ -2,7 +2,7 @@ description = "DoubleSlit [slit k1] between nok6 and nok7"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'nokbus3']
+includes = ['nok_ref', 'nokbus3', 'aperture_primary']
 global_values = configdata('global.GLOBAL_Values')
 
 tango_host = 'tango://refsanshw:10000/test/'
@@ -125,3 +125,7 @@ devices = dict(
         lowlevel = True,
     ),
 )
+
+alias_config = {
+    'primary_aperture': {'zb3': 100},
+}

@@ -3,6 +3,7 @@ description = 'Slit B1 using Beckhoff controllers'
 group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
+includes = ['aperture_primary']
 global_values = configdata('global.GLOBAL_Values')
 lprecision = 0.005 # global_values['precision']
 
@@ -125,3 +126,7 @@ devices = dict(
          unit = 'mm'
     ),
 )
+
+alias_config = {
+    'primary_aperture': {'b1': 100},
+}
