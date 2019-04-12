@@ -44,7 +44,7 @@ _tididiagcol = Column(
         BlockRow(
             Field(dev='td_diag',
                 picture='/refsanscontrol/src/nicos-core/nicos_mlz/refsans/setups/screenshots/time_distance.png',
-                width=57, height=48),
+                refresh=1, width=57, height=48),
             ),
         ],
     ),
