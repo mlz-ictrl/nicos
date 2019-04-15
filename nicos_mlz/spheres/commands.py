@@ -26,6 +26,8 @@
 
 from __future__ import absolute_import, division, print_function
 
+from math import ceil
+
 from nicos import session
 from nicos.commands import usercommand, parallel_safe
 from nicos.commands.device import maw
@@ -149,7 +151,14 @@ def startinelasticscan(time, interval, incremental):
 
     image.incremental = incremental
 
-    scans = int(time // interval)
+    scans = int(ceil(time/interval))
+
+    overhang = time % interval
+
+    if overhang:
+        session.log.warning('Measurement will take an additional %ds because '
+                            '%ds are left after equal division of %d and %d.',
+                            interval - overhang, overhang, time, interval)
 
     if scans:
         image.clearAccumulated()
@@ -313,11 +322,8 @@ def acquireElastic(time, interval=15, count=60):
 
         If either is omitted the defaults of 15s and 60 lines are used.
 
-    Number of files is calculated so that ``time`` is the longest possible
-    scan duration with files of ``interval``*``count`` duration.
-    So with default ``interval`` and ``count`` anything between 15m and 29m59s
-    will result in a measurement time of 15 minutes.
-    The dryrun and calculated finishing time take this into account.
+    Number of files is rounded up, so any leftover time will result in an
+    additional file with full duration.
     """
 
     image = getSisImageDevice()
@@ -328,11 +334,19 @@ def acquireElastic(time, interval=15, count=60):
 
     elastParams = [interval, count]
 
-    seconds = parseDuration(time, 'elastic time')
+    time = parseDuration(time, 'elastic time')
 
     fileduration = elastParams[0]*elastParams[1]
 
-    scans = int(seconds//fileduration)
+    scans = int(ceil(time/fileduration))
+
+    overhang = time % fileduration
+
+    if overhang:
+        session.log.warning('Measurement will take an additional %ds because '
+                            '%ds are left after equal division of %d and %d.',
+                            fileduration - overhang, overhang, time,
+                            fileduration)
 
     if scans:
         # after confirming that there is a measurement possible,
@@ -343,7 +357,7 @@ def acquireElastic(time, interval=15, count=60):
         raise UsageError('Scanduration must be at least %ds, %ds was set. '
                          'If you want to measure for a shorter time, please '
                          'specify with "interval=" and/or "count=".'
-                         % (fileduration, seconds))
+                         % (fileduration, time))
 
 
 @usercommand
@@ -359,8 +373,8 @@ def acquireInelasticAccu(time, interval=1200):
     Optional:
     ``interval``: count duration for one file. Defaults to 20min.
 
-    Number of files is calculated so that ``time`` is the longest possible
-    scan duration with files of ``interval`` duration.
+    Number of files is rounded up, so any leftover time will result in an
+    additional file with full duration.
     """
     startinelasticscan(time, interval, incremental=True)
 
@@ -378,7 +392,7 @@ def acquireInelasticTime(time, interval=1200):
     Optional:
     ``interval``: count duration for one file. Defaults to 20min.
 
-    Number of files is calculated so that ``time`` is the longest possible
-    scan duration with files of ``interval`` duration.
+    Number of files is rounded up, so any leftover time will result in an
+    additional file with full duration.
     """
     startinelasticscan(time, interval, incremental=False)
