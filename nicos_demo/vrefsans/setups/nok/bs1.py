@@ -1,0 +1,73 @@
+description = "DoubleSlit [slit k1] between nok8 and nok9"
+
+group = 'lowlevel'
+
+includes = ['aperture_primary']
+
+devices = dict(
+    bs1 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
+        description = 'BS1 double between nok8 and nok9',
+        fmtstr = 'opening: %.3f mm, zpos: %.3f mm',
+        unit = '',
+        slit_r = 'bs1r',
+        slit_s = 'bs1s',
+    ),
+    bs1r = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+        description = 'bs1 slit, reactor side',
+        motor = 'bs1r_axis',
+        nok_start = 9764.5,
+        nok_length = 6.0,
+        # nok_motor = [9764.75, 9770.25],
+        nok_end = 9770.5,
+        nok_gap = 18.0,
+        masks = {
+            'slit':   -1.725,
+            'point':  -2.325,
+            'gisans': -40.915,
+        },
+        lowlevel = True,
+        unit = 'mm',
+    ),
+    bs1s = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+        description = 'bs1 slit, sample side',
+        motor = 'bs1s_axis',
+        nok_start = 9764.5,
+        nok_length = 6.0,
+        # nok_motor = [9764.75, 9770.25],
+        nok_end = 9770.5,
+        nok_gap = 18.0,
+        masks = {
+            'slit':   -2.255,
+            'point':  -1.655,
+            'gisans': 0.915,
+        },
+        lowlevel = True,
+        unit = 'mm',
+    ),
+    bs1r_axis = device('nicos.devices.generic.Axis',
+        description = 'Axis of BS1, reactor side',
+        motor = device('nicos.devices.generic.VirtualMotor',
+            abslimits = (-178.0, 10.0),
+            unit = 'mm',
+            speed = 1.,
+        ),
+        backlash = 0,
+        precision = 0.05,
+        lowlevel = True,
+    ),
+    bs1s_axis = device('nicos.devices.generic.Axis',
+        description = 'Axis of BS1, sample side',
+        motor = device('nicos.devices.generic.VirtualMotor',
+            abslimits = (-177.002, 139.998),
+            unit = 'mm',
+            speed = 1.,
+        ),
+        backlash = 0,
+        precision = 0.05,
+        lowlevel = True,
+    ),
+)
+
+alias_config = {
+    'primary_aperture': {'bs1': 100},
+}

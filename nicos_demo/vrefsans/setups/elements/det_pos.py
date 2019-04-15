@@ -3,6 +3,10 @@ description = 'detector moving devices'
 group = 'lowlevel'
 
 devices = dict(
+    det_drift = device('nicos.devices.generic.ManualSwitch',
+        description = 'depth of detector drift1=40mm drift2=65mm',
+        states = ['off', 'drift1', 'drift2'],
+    ),
     det_pivot = device('nicos.devices.generic.ManualSwitch',
         description = 'Pivot point at floor of samplechamber',
         states = list(range(1, 15)),

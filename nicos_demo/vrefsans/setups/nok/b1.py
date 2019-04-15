@@ -1,0 +1,76 @@
+description = 'Slit B1 using Beckhoff controllers'
+
+group = 'lowlevel'
+
+includes = ['aperture_primary']
+lprecision = 0.005
+
+devices = dict(
+    b1 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
+        description = 'b1 end of Chopperburg',
+        fmtstr = 'opening: %.3f mm, zpos: %.3f mm',
+        slit_r = 'b1r',
+        slit_s = 'b1s',
+        unit = '',
+    ),
+    b1r = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+        description = 'b1 slit, reactor side',
+        motor = 'b1_r',
+        masks = {
+            'slit':   0.0,
+            'point':  3.5699,
+            'gisans': 3.5699,
+        },
+        nok_start = 2374.0,
+        nok_length = 13.5,
+        # nok_motor = [2380.0, 2387.5],
+        nok_end = 2387.5,
+        nok_gap = 0,
+        unit = 'mm',
+        lowlevel = True,
+    ),
+    b1s = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+        description = 'xxx slit, sample side',
+        motor = 'b1_s',
+        masks = {
+            'slit':   0.0,
+            'point':  3.73,
+            'gisans': 3.73,
+        },
+        nok_start = 2374.0,
+        nok_length = 13.5,
+        # nok_motor = [2380.0, 2387.5],
+        nok_end = 2387.5,
+        nok_gap = 0,
+        unit = 'mm',
+        lowlevel = True,
+    ),
+    b1_r = device('nicos.devices.generic.Axis',
+        description = 'B1, reactorside',
+        motor = device('nicos.devices.generic.VirtualMotor',
+            unit = 'mm',
+            abslimits = (-133, 127),
+            speed = 1.,
+        ),
+        offset = 0.0,
+        precision = lprecision,
+        maxtries = 3,
+        lowlevel = True,
+    ),
+    b1_s = device('nicos.devices.generic.Axis',
+        description = 'B1, sampleside',
+        motor = device('nicos.devices.generic.VirtualMotor',
+            unit = 'mm',
+            abslimits = (-102, 170),
+            speed = 1.,
+        ),
+        offset = 0.0,
+        precision = lprecision,
+        maxtries = 3,
+        lowlevel = True,
+    ),
+)
+
+alias_config = {
+    'primary_aperture': {'b1': 100},
+}
