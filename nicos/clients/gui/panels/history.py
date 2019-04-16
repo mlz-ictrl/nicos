@@ -627,7 +627,7 @@ class BaseHistoryWindow(object):
         settings.beginGroup('views')
         for key in settings.childKeys():
             try:
-                info = pickle.loads(str(settings.value(key, b'', QByteArray)))
+                info = pickle.loads(bytes(settings.value(key, '', QByteArray)))
                 self.last_views.append((key, info))
             except Exception:
                 pass
