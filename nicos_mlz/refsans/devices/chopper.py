@@ -187,7 +187,9 @@ class ChopperDisc(HasPrecision, HasLimits, ChopperBase):
         'current': Param('motor current',
                          settable=False,
                          volatile=True,
-                         userparam=True),
+                         userparam=True,
+                         fmtstr='%.2f',
+                         unit='A'),
         'mode': Param('Internal mode',
                       type=int,
                       settable=False,
@@ -283,6 +285,9 @@ class ChopperDisc(HasPrecision, HasLimits, ChopperBase):
         if self.doIsAtTarget(self.doRead(0)) or self.chopper != 1:
             return status.OK, ''
         return status.BUSY, 'moving'
+
+    def doPoll(self, n, maxage):
+        self._pollParam('current')
 
     def _current_speed(self):
         res = float(self._read_controller('m408%s'))
