@@ -134,7 +134,7 @@ def read_pidfile(name, wait=0):
     pidpath = path.join(PID_PATH, '%s.pid' % name)
     while True:
         try:
-            pid = file(pidpath, 'rb').read()
+            pid = open(pidpath, 'rb').read()
             pid = int(pid)
         except (IOError, ValueError):
             if time.time() > begin + wait:
