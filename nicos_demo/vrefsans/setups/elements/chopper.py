@@ -1,0 +1,52 @@
+description = 'Emulation of the hardware chopper'
+
+group = 'optional'
+
+includes = ['shutter']
+
+devices = dict(
+    chopper_mode = device('nicos.devices.generic.ManualSwitch',
+        description = 'Modus Disc2_ pos, normal or virtual_disc2_pos_6',
+        states = ['normal_mode', 'virtual_disc2_pos_6'],
+    ),
+    chopper1 = device('nicos_demo.vrefsans.devices.ChopperDisc',
+        description = 'MC chopper_disk1',
+        chopper = 1,
+        edge = 'open',
+        gear = 1,  # in REFSANS 0 ??
+    ),
+    chopper2 = device('nicos_demo.vrefsans.devices.ChopperDisc2',
+        description = 'MC chopper_disk2',
+        chopper = 2,
+        gear = 1,
+        edge = 'close',
+        translation = 'disc2_pos',
+    ),
+    chopper3 = device('nicos_demo.vrefsans.devices.ChopperDisc',
+        description = 'MC chopper_disk3',
+        chopper = 3,
+        gear = 1,
+        edge = 'open',
+    ),
+    chopper4 = device('nicos_demo.vrefsans.devices.ChopperDisc',
+        description = 'MC chopper_disk4',
+        chopper = 4,
+        gear = 1,
+        edge = 'close',
+    ),
+    chopper5 = device('nicos_demo.vrefsans.devices.ChopperDisc',
+        description = 'sc2 chopper_disk5 gear=2',
+        chopper = 5,
+        gear = 2,
+        edge = 'open',
+    ),
+    chopper6 = device('nicos_demo.vrefsans.devices.ChopperDisc',
+        description = 'sc2 chopper_disk6 gear=2',
+        chopper = 6,
+        gear = 2,
+        edge = 'close',
+    ),
+    disc2_pos = device('nicos_demo.vrefsans.devices.ChopperDisc2Pos',
+        description = 'pos of disk2',
+    ),
+)
