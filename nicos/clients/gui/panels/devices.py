@@ -137,6 +137,22 @@ class DevInfo(AttrDict):
         return fmted + ' ' + self.unit
 
 
+class ParamInfo(object):
+    """Collects parameter infos."""
+
+    def __init__(self, param):
+        self.param = param
+
+    def fmtValUnit(self, value):
+        try:
+            fmtvalue = self.param.fmtstr % value
+        except Exception:
+            fmtvalue = str(value)
+        if self.param.unit:
+            fmtvalue += ' %s' % self.param.unit
+        return fmtvalue
+
+
 class DevicesPanel(Panel):
     """Provides a graphical list of NICOS devices and their current values.
 
@@ -289,6 +305,7 @@ class DevicesPanel(Panel):
         # map lowercased devname -> DevInfo instance
         self._devinfo = {}
         self.tree.clear()
+        self._paraminfo = {}
 
     def on_client_connected(self):
         self.clear()
@@ -436,6 +453,11 @@ class DevicesPanel(Panel):
                     item = self._devitems[ldevname]
                     del self._devitems[ldevname]
                     del self._devinfo[ldevname]
+                    # delete device parameter infos from list
+                    rmkeys = [key for key in self._paraminfo
+                              if key.startswith('%s_' % ldevname)]
+                    for key in rmkeys:
+                        self._paraminfo.pop(key, None)
                     self._devparamitems.pop(ldevname, None)
                     try:
                         catitem = item.parent()
@@ -555,7 +577,8 @@ class DevicesPanel(Panel):
         elif subkey == 'description':
             devitem.setToolTip(0, cache_load(value or "''"))
         if subkey in self.param_display.get(ldevname, ()):
-            value = str(cache_load(value))
+            value = self._getParamInfo(ldevname, subkey).fmtValUnit(
+                cache_load(value))
             if subkey not in self._devparamitems.setdefault(ldevname, {}):
                 devitem = self._devitems[ldevname]
                 self._devparamitems[ldevname][subkey] = \
@@ -563,6 +586,16 @@ class DevicesPanel(Panel):
                 devitem.setExpanded(True)
             else:
                 self._devparamitems[ldevname][subkey].setText(1, value)
+
+    def _getParamInfo(self, devname, paramname):
+        searchkey = '%s_%s' % (devname, paramname)
+        if searchkey not in self._paraminfo:
+            query = 'session.getDevice(%r).parameters[%r]' % (devname,
+                                                              paramname)
+            param = self.client.eval(query, None)
+            if param:
+                self._paraminfo[searchkey] = ParamInfo(param)
+        return self._paraminfo[searchkey]
 
     def on_tree_itemExpanded(self, item):
         if item.type() == SETUP_TYPE:
