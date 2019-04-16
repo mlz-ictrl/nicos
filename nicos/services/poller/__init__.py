@@ -131,7 +131,8 @@ class Poller(Device):
             """
             # get the initial values
             interval = dev.pollinterval
-            maxage = interval - POLL_MIN_VALID_TIME if interval else dev.maxage
+            maxage = interval - POLL_MIN_VALID_TIME if interval else (
+                dev.maxage or 0)
 
             i = 0
             lastpoll = 0  # last timestamp of successful poll
@@ -141,7 +142,8 @@ class Poller(Device):
                 ct = currenttime()
                 nextpoll = lastpoll + (interval or 3600)
                 # note: dev.maxage is intended here!
-                timesout = lastpoll + dev.maxage - POLL_MIN_VALID_TIME
+                timesout = lastpoll + (dev.maxage - POLL_MIN_VALID_TIME
+                                       if dev.maxage else POLL_MIN_VALID_TIME)
                 dnext = nextpoll - ct
                 dto = timesout - ct
                 maxwait = min(dnext, dto)
@@ -187,7 +189,7 @@ class Poller(Device):
                         elif event == 'param':  # update local vars
                             interval = dev.pollinterval
                             maxage = interval - POLL_MIN_VALID_TIME \
-                                if interval else dev.maxage
+                                if interval else (dev.maxage or 0)
                             continue
                         elif event == 'quit':  # stop doing anything
                             return
