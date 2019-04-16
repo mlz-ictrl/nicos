@@ -2,6 +2,8 @@ description = 'at samplecamper [slit k1]'
 
 group = 'lowlevel'
 
+includes = ['aperture_last']
+
 devices = dict(
     b2 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
         description = 'b2 at sample pos',
@@ -65,3 +67,7 @@ devices = dict(
         lowlevel = True,
     ),
 )
+
+alias_config = {
+    'last_slit': {'b2': 100},
+}

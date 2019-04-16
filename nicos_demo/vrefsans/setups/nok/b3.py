@@ -2,6 +2,8 @@ description = 'B3 aperture devices'
 
 group = 'optional'
 
+includes = ['aperture_last']
+
 lprecision = 0.01
 
 devices = dict(
@@ -76,3 +78,7 @@ devices = dict(
         lowlevel = True,
     ),
 )
+
+alias_config = {
+    'last_slit': {'b3': 100},
+}
