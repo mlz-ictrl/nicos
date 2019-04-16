@@ -70,9 +70,6 @@ class SEController(tango.TemperatureController):
     def SetActiveStick(self, value):
         self._dev.SetActiveStick(value)
 
-    def getTubeController(self):
-        return self._attached_tubecontroller
-
     def stopPressure(self):
         self._dev.StopPressureRegulation()
 

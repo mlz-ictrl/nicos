@@ -131,6 +131,16 @@ def waitForAcq():
     return False
 
 
+def notifyOverhang(time, interval):
+    """Warn about additional measurement time"""
+    overhang = time % interval
+
+    if overhang:
+        session.log.warning('Measurement will take an additional %ds because '
+                            '%ds are left after equal division of %d and %d.',
+                            interval - overhang, overhang, time, interval)
+
+
 def startinelasticscan(time, interval, incremental):
     image = getSisImageDevice()
 
@@ -153,12 +163,7 @@ def startinelasticscan(time, interval, incremental):
 
     scans = int(ceil(time/interval))
 
-    overhang = time % interval
-
-    if overhang:
-        session.log.warning('Measurement will take an additional %ds because '
-                            '%ds are left after equal division of %d and %d.',
-                            interval - overhang, overhang, time, interval)
+    notifyOverhang(time, interval)
 
     if scans:
         image.clearAccumulated()
@@ -236,17 +241,12 @@ def timeramp(target, time):
 
     controller = getTemperatureController()
 
-    sample = controller.getSampleController()
-    tube = controller.getTubeController()
-
+    # stop current ramp
     controller.ramp = 0
+    controller.move(controller.read())
 
-    sample.move(sample.read())
-    tube.move(tube.read())
-
-    sample.ramp = abs(target-sample.read())/(time/60)
-    tube.ramp = abs(target-tube.read())/(time/60)
-
+    # set new target
+    controller.ramp = abs(target-controller.read())/(time/60)
     controller.move(target)
 
 
@@ -280,6 +280,18 @@ def stoppressure():
     """Stop pressure regulation"""
 
     getTemperatureController().stopPressure()
+
+
+@usercommand
+def stoptemperature():
+    """Stop the temperature ramp"""
+
+    controller = getTemperatureController()
+    old_ramp = controller.ramp
+
+    controller.ramp = 0
+    controller.move(controller.read())
+    controller.ramp = old_ramp
 
 
 @parallel_safe
@@ -340,13 +352,7 @@ def acquireElastic(time, interval=15, count=60):
 
     scans = int(ceil(time/fileduration))
 
-    overhang = time % fileduration
-
-    if overhang:
-        session.log.warning('Measurement will take an additional %ds because '
-                            '%ds are left after equal division of %d and %d.',
-                            fileduration - overhang, overhang, time,
-                            fileduration)
+    notifyOverhang(time, fileduration)
 
     if scans:
         # after confirming that there is a measurement possible,
