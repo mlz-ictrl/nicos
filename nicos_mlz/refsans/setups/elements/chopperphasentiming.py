@@ -7,7 +7,7 @@ window_delay = 120
 all_lowlevel = False  # or True
 # atts = 'nicos.devices.generic.ParamDevice'
 atts = 'nicos_mlz.refsans.devices.gkssjson.CPTReadout'
-URL = 'http://cpt.refsans.frm2/json?1'
+URL = 'http://cpt.refsans.frm2/json-visual'
 
 devices = dict(
     cpt0 = device(atts,
@@ -16,7 +16,7 @@ devices = dict(
         valuekey = 'chopper_act',
         timeout = .3,
         channel = -1,
-        offset = -106.8,
+        offset = 0.0,
         unit = 'deg',
         lowlevel = True,
     ),
@@ -35,7 +35,7 @@ devices = dict(
          valuekey = 'chopper_act',
          timeout = .3,
          channel = 7,
-         offset = 5.993 + window_delay,
+         offset = 28.44 + window_delay,
          unit = 'deg',
      ),
     cpt3 = device(atts,
@@ -44,7 +44,7 @@ devices = dict(
         valuekey = 'chopper_act',
         timeout = .3,
         channel = 8,
-        offset = -44.2 + window_delay,
+        offset = 70.30 + window_delay,
         unit = 'deg',
     ),
     cpt4 = device(atts,
@@ -53,7 +53,7 @@ devices = dict(
         valuekey = 'chopper_act',
         timeout = .3,
         channel = 9,
-        offset = 174.65 + window_delay,
+        offset = 75.66 + window_delay,
         unit = 'deg',
     ),
     cpt5 = device(atts,
@@ -62,7 +62,7 @@ devices = dict(
         valuekey = 'chopper_act',
         timeout = .3,
         channel = 10,
-        offset = 146.74 + window_delay,
+        offset = 266.60 + window_delay,
         unit = 'deg',
     ),
     cpt6 = device(atts,
@@ -71,7 +71,7 @@ devices = dict(
         valuekey = 'chopper_act',
         timeout = .3,
         channel = 11,
-        offset = 56.17 + window_delay,
+        offset = 176.15 + window_delay,
         unit = 'deg',
     ),
 )
