@@ -41,7 +41,7 @@ devices = dict(
         nok7 = 'nok7',
         nok8 = 'nok8',
         nok9 = 'nok9',
-        sc2 = 'sc2',
+        # sc2 = 'sc2',
         zb0 = 'zb0',
         zb1 = 'zb1',
         zb2 = 'zb2',
@@ -168,9 +168,9 @@ devices = dict(
             'vc:nok5a_fc:nok5b'   :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'fc','zb1':  'slit','nok6':    'fc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
             'vc:nok5a_fc:nok6'    :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'vc','zb1':  'slit','nok6':    'fc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
             'vc:nok5a_fc:nok7'    :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'vc','zb1':  'slit','nok6':    'vc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            #'vc:nok5a_fc:nok8'    :
-            #'vc:nok5a_fc:nok9'    :
-            #'vc:nok5a'            :
+            'vc:nok5a_fc:nok8'    :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'vc','zb1':  'slit','nok6':    'vc','zb2':  'slit','nok7':    'vc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
+            'vc:nok5a_fc:nok9'    :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'vc','zb1':  'slit','nok6':    'vc','zb2':  'slit','nok7':    'vc','zb3':  'slit','nok8':    'vc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
+            'vc:nok5a'            :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'vc','zb1':  'slit','nok6':    'vc','zb2':  'slit','nok7':    'vc','zb3':  'slit','nok8':    'vc','bs1':  'slit','nok9':    'vc','b2':  'slit','b3':  'slit'},
             #'vc:nok5b_fc:nok6'    :
             #'vc:nok5b_fc:nok7'    :
             #'vc:nok5b_fc:nok8'    :

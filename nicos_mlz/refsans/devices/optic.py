@@ -84,7 +84,7 @@ class Optic(Moveable):
         'nok7': Attach('nok7', Moveable),
         'nok8': Attach('nok8', Moveable),
         'nok9': Attach('nok9', Moveable),
-        'sc2': Attach('sc2', Moveable),
+        #'sc2': Attach('sc2', Moveable),
         'zb0': Attach('zb0', Moveable),
         'zb1': Attach('zb1', Moveable),
         'zb2': Attach('zb2', Moveable),
