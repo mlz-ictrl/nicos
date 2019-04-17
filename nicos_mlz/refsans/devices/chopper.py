@@ -29,6 +29,7 @@ from __future__ import absolute_import, division, print_function
 from nicos.core import HasLimits, HasPrecision, Moveable, Override, Param, \
     dictwith, floatrange, intrange, listof, status
 from nicos.core.errors import NicosError
+from nicos.core.mixins import IsController
 from nicos.core.params import Attach, oneof
 from nicos.devices.abstract import CanReference
 from nicos.devices.generic.sequence import SeqDev, SeqParam, SequencerMixin
@@ -295,33 +296,36 @@ class ChopperDisc(HasPrecision, HasLimits, ChopperBase):
         return res
 
 
-class ChopperDisc2(ChopperDisc):
+class ChopperDisc2(IsController, ChopperDisc):
     """Chopper disc 2 device.
 
     Since the chopper disc 2 can be translated, the chopper speed must be low
-    enough (around 0, defined by its precision), the change of speed must be
-    blocked during a translation.
+    enough (around 0, defined by its precision).
+
+    The change of speed must be blocked if the translation device is not at
+    a defined position.
     """
 
     attached_devices = {
         'translation': Attach('Chopper translation device', Moveable),
     }
 
+    def isAdevTargetAllowed(self, dev, target):
+        if self._isStopped():
+            return True, ''
+        return False, 'Disc speed is too high, %.0f!' % self.read(0)
+
     def doIsAllowed(self, target):
         state = self._attached_translation.status()
         if state[0] == status.OK:
             return True, ''
-        return False, 'translation state: %s' % state[1]
+        return False, 'translation is: %s' % state[1]
 
 
 class ChopperDisc2Pos(CanReference, ChopperBase):
     """Position of chopper disc 2 along the x axis."""
 
     valuetype = intrange(1, 5)
-
-    attached_devices = {
-        'disc': Attach('Chopper disc device', ChopperDisc),
-    }
 
     parameter_overrides = {
         'unit': Override(default='', mandatory=False),
@@ -341,13 +345,6 @@ class ChopperDisc2Pos(CanReference, ChopperBase):
             return self.valuetype(self._read_pos())
         except ValueError:
             return self.target
-
-    def doIsAllowed(self, target):
-        self.log.debug('doIsAllowed ChopperDisc2Pos')
-        if self._attached_disc.isAtTarget(0):
-            return True, ''
-        return False, 'Disc speed is too high, check also target: %d!' % \
-            self._attached_disc.target
 
     def doStart(self, value):
         value = intrange(1, 5)(value)

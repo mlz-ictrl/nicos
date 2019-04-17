@@ -57,7 +57,6 @@ devices = dict(
     chopper2_pos = device('nicos_mlz.refsans.devices.chopper.ChopperDisc2Pos',
         description = 'position of chopper disc 2',
         tangodevice = tango_host,
-        disc = 'chopper1',
         unit = '',
     ),
     chopper3 = device('nicos_mlz.refsans.devices.chopper.ChopperDisc',
