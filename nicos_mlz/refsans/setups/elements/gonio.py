@@ -4,12 +4,14 @@ group = 'optional'
 
 tango_base1 = 'tango://refsanshw:10000/sample/phy_mo1/'
 tango_base2 = 'tango://refsanshw:10000/sample/phy_mo2/'
+# coder_ss = 'm'
+coder_ss = 'e'
 
 devices = dict(
     gonio_theta = device('nicos.devices.generic.Axis',
         description = 'Theta axis',
         motor = 'gonio_theta_m',
-        coder = 'gonio_theta_e',
+        coder = 'gonio_theta_%s' % coder_ss,
         precision = 0.01,
     ),
     gonio_theta_m = device('nicos.devices.tango.Motor',
@@ -25,7 +27,7 @@ devices = dict(
     gonio_phi = device('nicos.devices.generic.Axis',
         description = 'Phi axis',
         motor = 'gonio_phi_m',
-        coder = 'gonio_phi_e',
+        coder = 'gonio_phi_%s' % coder_ss,
         precision = 0.01,
     ),
     gonio_phi_m = device('nicos.devices.tango.Motor',
@@ -41,7 +43,7 @@ devices = dict(
     gonio_omega = device('nicos.devices.generic.Axis',
         description = 'Omega axis',
         motor = 'gonio_omega_m',
-        coder = 'gonio_omega_e',
+        coder = 'gonio_omega_%s' % coder_ss,
         precision = 0.01,
     ),
     gonio_omega_m = device('nicos.devices.tango.Motor',
@@ -55,9 +57,9 @@ devices = dict(
         lowlevel = True,
     ),
     gonio_y = device('nicos.devices.generic.Axis',
-        description = 'Y axis',
+        description = 'Y axis. towards TOFTOF is plus',
         motor = 'gonio_y_m',
-        coder = 'gonio_y_e',
+        coder = 'gonio_y_%s' % coder_ss,
         precision = 0.01,
     ),
     gonio_y_m = device('nicos.devices.tango.Motor',
@@ -73,7 +75,7 @@ devices = dict(
     gonio_z = device('nicos.devices.generic.Axis',
         description = 'Z axis',
         motor = 'gonio_z_m',
-        coder = 'gonio_z_e',
+        coder = 'gonio_z_%s' % coder_ss,
         precision = 0.01,
     ),
     gonio_z_m = device('nicos.devices.tango.Motor',
