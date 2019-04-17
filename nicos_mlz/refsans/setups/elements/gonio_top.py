@@ -20,7 +20,7 @@ devices = dict(
     gonio_top_z_m = device('nicos.devices.tango.Motor',
         description = 'Top Z axis motor',
         tangodevice = tango_base + 'top_z_m',
-        abslimits = (-0.05, 15),
+        abslimits = (-0.05, 16),
         lowlevel = True,
     ),
     gonio_top_phi = device('nicos.devices.tango.Motor',
