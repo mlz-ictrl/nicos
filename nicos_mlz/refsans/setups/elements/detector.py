@@ -3,11 +3,7 @@ description = 'all values for detector positon'
 group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
-tacodev = '//%s/test' % nethost
-
-tango_base = 'tango://refsanshw.refsans.frm2:10000/test/'
-
-includes = ['det_yoke']
+tango_base = 'tango://refsansctrl02.refsans.frm2.tum.de:10000/test/'
 
 devices = dict(
     det_drift = device('nicos.devices.generic.ManualSwitch',
@@ -67,7 +63,7 @@ devices = dict(
     ),
     tube_m = device('nicos.devices.taco.Motor',
         description = 'tube Motor',
-        tacodevice = '%s/servostar/tube0' % tacodev,
+        tacodevice = '//%s/test/servostar/tube0' % nethost,
         abslimits = (-200, 1000),
         lowlevel = True,
     ),
