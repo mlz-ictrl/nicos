@@ -160,4 +160,4 @@ class SdsRatemeter(JsonBase):
 
     def doRead(self, maxage=0):
         res = self._read_controller(['mon_counts_cps_%s' % self.channel])
-        return int(res.values()[0])
+        return int(int(res.values()[0]) / 1.56)
