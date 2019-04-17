@@ -62,6 +62,7 @@
     <file alias="splitterh">splitterh.png</file>
     <file alias="splitterv">splitterv.png</file>
     <file alias="polarization">icons/polarization.png</file>
+    <file alias="strategy">icons/strategy.png</file>
   </qresource>
   <qresource prefix="leds">
     <file alias="status_white">leds/simplewhite.png</file>

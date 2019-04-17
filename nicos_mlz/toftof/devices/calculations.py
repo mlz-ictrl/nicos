@@ -27,17 +27,21 @@
 
 from __future__ import absolute_import, division, print_function
 
-from math import sqrt
+from math import cos, pi, radians, sqrt
+
+import numpy as np
 
 try:
     from scipy import constants
     h = constants.value('Planck constant')
     mn = constants.value('neutron mass')
     e = constants.value('elementary charge')
+    hbar = constants.value('Planck constant over 2 pi')
 except ImportError:
     h = 6.62606896e-34                  # Planck constant [Js]
     mn = 1.674927211e-27                # Neutron mass [kg]
     e = 1.602176487e-19                 # Elementary charge [C]
+    hbar = h / (2 * pi)                 # h-bar
 
 # in us (1e6) / AA (1e-10) / m
 alpha = 1e6 * (mn / h) / 1e10           # Should be 252.7784
@@ -55,6 +59,10 @@ ttr = 5.0e-8
 # a[0]:   distance chopper1 - sample in m
 # a[1-7]: distance chopper1 - chopperX in m
 a = (11.4, 0.0, 0.1, 3.397, 7.953, 8.028, 9.925, 10.0)
+
+Lsd = 4                                 # flight distance sample-detector
+Lpm = a[7] - a[1]                       # flight distance chopper1-chopper7
+Lms = a[0] - a[7]                       # flight distance chopper7-sample
 
 # offsets of chopper zero position in deg (definition of the sign is unknown
 # chopperOffset = (0.00, 0.00, -0.25, 0.45, 0.39, -0.25, 0.13, 0.36)
@@ -75,6 +83,12 @@ sigmax = (0.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0)    # pronounce: sigma x
 st0 = (0.0, 0.0, 0.0, -90.0, -90.0, 90.0, 0.0, 0.0)
 # for slit type 2 small(g)/small(k)
 st1 = (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 90.0, -90.0)
+
+# instrument parameters and constants
+
+low_angle = 7.5915 / 2
+high_angle = 139.186 / 2
+Ls = 0.02
 
 
 def speedRatio(ratio=1):
@@ -189,7 +203,7 @@ def phi(x, w, ilambda=4.5, crc=1, slittype=0, ratio=1, ch5_90deg_offset=0):
 
 # Energy resolution calculation
 
-def Eres1(li, w, st=0, crc=1, dL=0.0):
+def Eres1(li, w, st=0, crc=1, dL=0.0, lf=None):
     """Return energy resolution at position *x* [m] downstream the sample.
 
     * li: wavelength [A]
@@ -198,36 +212,97 @@ def Eres1(li, w, st=0, crc=1, dL=0.0):
     * st: slit type (0=gg, 1=kk, 2=gk)
     * crc: counter-rotating P and M disks
     """
-    x = 4.0
     if w == 0:
         return (0, 0)
     wc = w / 60.0
     if st == 0:
         ap = 13.82              # aperture P-Chopper
         am = 5.0                # aperture M-Chopper
+    elif st == 1:
+        ap = 13.82 / 2.         # aperture P-Chopper
+        am = 5.0 / 2.           # aperture M-Chopper
     else:
-        if st == 1:
-            ap = 13.82 / 2.0    # aperture P-Chopper
-            am = 5.0 / 2.0      # aperture M-Chopper
-        else:
-            ap = 13.82          # aperture P-Chopper
-            am = 5.0 / 2.0      # aperture M-Chopper
-    tm = am / (2.0 * 360 * wc)  # opening time M-Chopper
-    tp = ap / (2.0 * 360 * wc)  # opening time P-Chopper
+        ap = 13.82              # aperture P-Chopper
+        am = 5.0 / 2.          # aperture M-Chopper
+    tm = am / (2. * 360 * wc)   # opening time M-Chopper
+    tp = ap / (2. * 360 * wc)   # opening time P-Chopper
     if crc == 0:
-        tm *= 2.0
-        tp *= 2.0
-    Lpm = a[7] - a[1]           # flight distance chopper1-chopper7
-    Lms = a[0] - a[7]           # flight distance chopper7-sample
-    Lsd = x                     # flight distance sample-detector
+        tm *= 2.
+        tp *= 2.
     # Lpd = a[0] + x            # flight distance chopper1-detector
     li *= 1.0e-10
-    lf = li
+    if lf is None:
+        lf = li
+    lfi = lf / li
 
-    A = tm * (Lpm + Lms + Lsd * (lf / li) ** 3)
-    B = tp * (Lms + Lsd * (lf / li) ** 3)
+    A = tm * (Lpm + Lms + Lsd * lfi ** 3)
+    B = tp * (Lms + Lsd * lfi ** 3)
     C = Lpm * mn * lf * dL / h
-    dt = sqrt(A ** 2 + B ** 2 + C ** 2) / Lpm            # uncertainty in time
-    res = h ** 3 / (mn ** 2 * e) * dt / (Lsd * lf ** 3)  # uncertainty in energy
+    dt = sqrt(A * A + B * B + C * C) / Lpm             # uncertainty in time
+    res = h ** 3 * dt / (mn * mn * e * Lsd * lf ** 3)  # uncertainty in energy
 
     return (res, dt)
+
+
+def Energy(wavelength):
+    """Convert neutron wavelength to neutron energy."""
+
+    k0 = 2 * pi / (wavelength * 1e-10)
+    return 1000. * (hbar * k0) ** 2 / (2 * mn * e)
+
+
+class ResolutionAnalysis(object):
+
+    def __init__(self, chSpeed, chWL, chRatio, chST):
+        self.speed = chSpeed
+        self.wl = chWL
+        self.ratio = chRatio
+        self.st = chST
+
+        # calculate E0
+        self.k0 = 2 * pi / (chWL * 1e-10)
+        self.E0 = Energy(chWL)
+
+        self.run()
+
+    def run(self):
+        # Calculate Dynamic Range
+
+        tobs = 1. / (2. * self.speed / 60.) * self.ratio
+        lambda_max = tobs * 1e6 / (alpha * Lsd) * 1e-10
+        kf_min = 2 * pi / lambda_max
+
+        self.dE_all = np.arange(-self.E0, 50 + 0.1, 0.1)
+
+        kf_all = np.abs(np.sqrt(
+            1e-3 * 2 * mn * e * self.dE_all / (hbar * hbar) + self.k0 * self.k0))
+        index = np.argwhere(kf_all >= kf_min).flatten()
+        self.dE = self.dE_all[index]
+        self.dE_min = min(self.dE)
+        kf = kf_all[index]
+
+        self.q_low = 1e-10 * np.sqrt(
+            self.k0 * self.k0 + kf * kf - 2 * abs(self.k0) * np.abs(kf) *
+            cos(2 * radians(low_angle)))
+        self.q_high = 1e-10 * np.sqrt(
+            self.k0 * self.k0 + kf * kf - 2 * abs(self.k0) * np.abs(kf) *
+            cos(2 * radians(high_angle)))
+
+        self.q_low_0 = 1e-10 * self.k0 * sqrt(
+            2 * (1 - cos(radians(2 * low_angle))))
+        self.q_high_0 = 1e-10 * self.k0 * sqrt(
+            2 * (1 - cos(radians(2 * high_angle))))
+
+        # Calculate elastic resolution
+        self.lambdas = np.arange(1, 20.1, 0.1)
+        i2 = np.argwhere(((self.lambdas - self.wl) * (self.lambdas - self.wl))
+                         < 1e-15).flatten().astype(int).tolist()
+        self.dE_res = np.array([1000 * Eres1(l, self.speed, self.st, dL=Ls)[0]
+                                for l in self.lambdas])
+        self.dE_el = (1e3 * self.dE_res[i2])[0]
+
+        # Calculate inelastic resolution
+        self.lambdaf = 2 * pi / kf
+        self.dE_in = np.array(
+            [1e3 * Eres1(self.wl, self.speed, self.st, dL=Ls, lf=l)[0]
+             for l in self.lambdaf])

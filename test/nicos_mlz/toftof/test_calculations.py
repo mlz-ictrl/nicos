@@ -26,9 +26,11 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos_mlz.toftof.devices.calculations import Eres1, alpha, \
-    calculateChopperDelay, calculateCounterDelay, calculateTimeInterval, phi, \
-    phi1, speedRatio, t1, t2
+from test.utils import approx
+
+from nicos_mlz.toftof.devices.calculations import Eres1, ResolutionAnalysis, \
+    alpha, calculateChopperDelay, calculateCounterDelay, \
+    calculateTimeInterval, phi, phi1, speedRatio, t1, t2
 
 
 def test_basic_calculations():
@@ -98,3 +100,19 @@ def test_delay_calculations():
     assert '%.7f' % calculateTimeInterval(14000, 5) == '0.0107143'
 
     assert calculateTimeInterval(0, 1) == 0.052
+
+
+def test_resolution_analysis():
+
+    chSpeed = 14000
+    chWL = 6.
+    chRatio = 4
+    chST = 1
+
+    ra = ResolutionAnalysis(chSpeed, chWL, chRatio, chST)
+
+    assert approx(ra.E0, abs=5e-5) == 2.2723
+    assert approx(ra.q_low_0, abs=5e-5) == 0.1386
+    assert approx(ra.q_high_0, abs=5e-5) == 1.9629
+    assert approx(ra.dE_min, abs=5e-5) == -1.0723
+    assert approx(ra.dE_el, abs=5e-5) == 32.9835

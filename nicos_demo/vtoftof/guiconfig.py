@@ -55,6 +55,9 @@ windows = [
     window('Live data', 'live',
            panel('nicos.clients.gui.panels.live.LiveDataPanel',
                  instrument = 'toftof'),),
+    window('Planning', 'strategy',
+           panel('nicos_mlz.toftof.gui.resolutionpanel.ResolutionPanel'),
+           ),
 ]
 
 tools = [
