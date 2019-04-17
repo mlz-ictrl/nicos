@@ -1,17 +1,22 @@
-description = 'REFSANS basic setup'
+description = 'REFSANS no b3h3 but b2'
 
 group = 'basic'
 
 includes = [
+    'autocollimator',
+    #'b3h3',
+    'backguard',
     'beamstop',
     'chamber',
     'chopper',
     'chopperphasentiming',
-    'det_pos',
+    'detector',
     'fak40',
     'gonio',
+    #'gonio_top',
     'guidehall',
     'h2',
+    'height',
     'memograph',
     'nl2b',
     'optic_elements',
@@ -21,16 +26,13 @@ includes = [
     'qmesydaq',
     'reactor',
     'safedetectorsystem',
-    'sample',
-    'detector',
     'safetysystem',
+    'sample',
+    #'samplechanger',
     'shutter',
     'shutter_gamma',
     'vsd',
 ]
 
-startupcode = """
-# set offsets of the blades ...
-# for d in [zb1, zb2, ... ]:
-#    d.mask = 'slit'
-"""
+startupcode = '''
+'''
