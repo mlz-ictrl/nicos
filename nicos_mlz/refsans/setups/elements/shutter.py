@@ -1,15 +1,13 @@
 description = 'Instrument shutter device'
 
 group = 'lowlevel'
-# group = 'optional'
 
-nethost = 'refsanssrv.refsans.frm2'
-tacodev = '//%s/test' % nethost
+tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/test/copley/'
 
 devices = dict(
-    shutter_m = device('nicos.devices.taco.Motor',
+    shutter_m = device('nicos.devices.tango.Motor',
         description = 'Instrument shutter linear motor',
-        tacodevice = '%s/shutter/motor' % tacodev,
+        tangodevice = tango_base + 'shutter',
         abslimits = (0, 55),
         precision = 0.5,
         lowlevel = True,

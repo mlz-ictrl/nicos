@@ -2,13 +2,12 @@ description = "sc2 height after nok9"
 
 group = 'lowlevel'
 
-nethost = 'refsanssrv.refsans.frm2'
-tacodev = '//%s/test' % nethost
+tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/test/copley/'
 
 devices = dict(
-    sc2 = device('nicos.devices.taco.Axis',
+    sc2 = device('nicos.devices.tango.Motor',
         description = 'sc2 Motor',
-        tacodevice = '%s/sc2/motor' % tacodev,
+        tangodevice = tango_base + 'sc2',
         abslimits = (-150, 150),
         refpos = -7.2946,
     ),

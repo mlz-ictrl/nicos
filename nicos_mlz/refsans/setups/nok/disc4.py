@@ -2,13 +2,12 @@ description = "disc4 height"
 
 group = 'lowlevel'
 
-nethost = 'refsanssrv.refsans.frm2'
-tacodev = '//%s/test' % nethost
+tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/test/copley/'
 
 devices = dict(
-    disc4 = device('nicos.devices.taco.Axis',
+    disc4 = device('nicos.devices.tango.Motor',
         description = 'disc 4 Motor',
-        tacodevice = '%s/disk4/motor' % tacodev,
+        tangodevice = tango_base + 'disc4',
         abslimits = (-30, 46),
         refpos = 8.45,
     ),
