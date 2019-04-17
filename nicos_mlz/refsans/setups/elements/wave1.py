@@ -1,6 +1,6 @@
 description = 'Funktionsgenerator HP33220'
 
-group = 'optional'
+group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
 

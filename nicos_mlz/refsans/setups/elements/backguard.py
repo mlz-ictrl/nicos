@@ -1,6 +1,6 @@
 description = 'backguard: after sample'
 
-group = 'optional'
+group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
 tango_base = 'tango://refsanshw:10000/sample/phy_mo2/'

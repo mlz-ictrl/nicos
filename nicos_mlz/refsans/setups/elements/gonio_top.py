@@ -1,6 +1,6 @@
 description = 'small goniometer to adjust sample on gonio'
 
-group = 'optional'
+group = 'lowlevel'
 
 tango_base = 'tango://refsanshw:10000/sample/phy_mo2/'
 

@@ -1,6 +1,6 @@
 description = 'Sample table devices'
 
-group = 'optional'
+group = 'lowlevel'
 
 tango_base = 'tango://refsanshw:10000/sample/phy_mo1/'
 coder_ss = 'm'

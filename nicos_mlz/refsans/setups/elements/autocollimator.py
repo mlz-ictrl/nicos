@@ -1,6 +1,6 @@
 description = 'autocollimator, water subtracted, vendor Trioptic'
 
-group = 'optional'
+group = 'lowlevel'
 
 all_lowlevel = False  # or True
 

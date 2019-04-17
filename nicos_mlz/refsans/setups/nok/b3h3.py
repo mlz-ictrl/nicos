@@ -1,6 +1,6 @@
 description = 'B3 aperture devices'
 
-group = 'optional'
+group = 'lowlevel'
 
 lprecision = 0.01
 

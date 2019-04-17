@@ -1,6 +1,6 @@
 description = 'Sample surface position measurement'
 
-group = 'optional'
+group = 'lowlevel'
 
 tango_base = 'tango://refsanshw.refsans.frm2:10000/refsans/'
 
