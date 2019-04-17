@@ -2,10 +2,10 @@ description = 'Slit B1 using Beckhoff controllers'
 
 group = 'lowlevel'
 
-nethost = 'refsanssrv.refsans.frm2'
 includes = ['aperture_primary']
+instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
-lprecision = 0.005 # 0.02
+lprecision = 0.005
 
 devices = dict(
     # b1_open = device('nicos_mlz.refsans.devices.slits.DoubleSlitOpen',
