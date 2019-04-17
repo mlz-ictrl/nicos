@@ -10,8 +10,7 @@ _experimentcol = Column(
             Field(name='Sample name', key='sample/samplename', width=16),
             Field(name='User name', key='exp/username',    width=20,
                 istext=True, maxlen=20),
-            Field(name='Last file', key='det/lastfilenumber'),
-            Field(name='Last point', key='exp/lastpoint'),
+            Field(name='current point', key='exp/lastpoint'),
             ),
         BlockRow(
             Field(name='Remark',   key='exp/remark',   width=40,
