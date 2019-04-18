@@ -143,11 +143,13 @@ def notifyOverhang(time, interval):
 
 def startinelasticscan(time, interval, incremental):
     image = getSisImageDevice()
-
     if not image:
         return
 
     canStartSisScan(INELASTIC)
+
+    time = parseDuration(time, 'inelastic time')
+    interval = parseDuration(interval, 'inelastic interval')
 
     if not interval:
         interval = image.inelasticinterval
@@ -156,8 +158,6 @@ def startinelasticscan(time, interval, incremental):
     else:
         interval = parseDuration(interval, 'inelastic interval')
         image.inelasticinterval = interval
-
-    time = parseDuration(time, 'inelastic time')
 
     image.incremental = incremental
 
@@ -344,9 +344,10 @@ def acquireElastic(time, interval=15, count=60):
 
     canStartSisScan(ELASTIC)
 
-    elastParams = [interval, count]
-
     time = parseDuration(time, 'elastic time')
+    interval = parseDuration(interval, 'elastic interval')
+
+    elastParams = [interval, count]
 
     fileduration = elastParams[0]*elastParams[1]
 
