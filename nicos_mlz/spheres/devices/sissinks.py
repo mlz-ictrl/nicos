@@ -401,7 +401,7 @@ class UYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
             # values are provided as numpy.int64 and have to be cast to int
             for histo in rawHistos:
                 # lineno (1)
-                row = list(histo.tval)
+                row = [histo.tval]
 
                 # env.sam.temp (1)
                 row.append(self._cache.get(self.sink.envcontroller, 'value',
