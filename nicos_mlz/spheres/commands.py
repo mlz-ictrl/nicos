@@ -163,6 +163,9 @@ def startinelasticscan(time, interval, incremental):
 
 @usercommand
 def changeDopplerSpeed(target):
+    """Change the doppler speed to the specified speed.
+    Only the predefined values in the doppler setup are allowed."""
+
     doppler = getDoppler()
 
     # for simulation mode only
@@ -185,7 +188,7 @@ def setStick(value):
     if value not in ('ht', 'lt'):
         raise UsageError('Value must be either "ht" for the high temperature'
                          ' or "lt" for the low temperature stick.')
-    getTemperatureController().getSampleController().SetActiveStick(value)
+    getTemperatureController().SetActiveStick(value)
 
 
 @usercommand

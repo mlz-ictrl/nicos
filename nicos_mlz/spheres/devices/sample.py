@@ -67,8 +67,8 @@ class SEController(tango.TemperatureController):
         else:
             return tango.TemperatureController._combinedStatus(self, maxage)
 
-    def getSampleController(self):
-        return self._attached_samplecontroller
+    def SetActiveStick(self, value):
+        self._dev.SetActiveStick(value)
 
     def getTubeController(self):
         return self._attached_tubecontroller
