@@ -545,9 +545,7 @@ class Device(object):
                     self._params[param] = value
                     return
                 if param in self._config:
-                    cfgvalue = self._config[param]
-                    if cfgvalue != value:
-                        cfgvalue = self._validateType(cfgvalue, param, paraminfo)
+                    cfgvalue = self._validateType(self._config[param], param)
                     if cfgvalue != value:
                         valuestr = self.formatParam(param, value)
                         cfgvstr = self.formatParam(param, cfgvalue)
