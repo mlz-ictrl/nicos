@@ -22,7 +22,7 @@ devices = dict(
         ],
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-        server = 'refsansctrl01.refsans.frm2',
+        server = 'refsanssw.refsans.frm2',
         authenticators = ['LDAPAuth', 'UserDB', 'Auth'],
     ),
 )

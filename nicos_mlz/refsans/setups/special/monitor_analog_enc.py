@@ -126,11 +126,23 @@ _bs1col = Column(
     ),
 )
 
+_refcolumn = Column(
+    Block('References', [
+        BlockRow( Field(dev='nok_refa1', name='ref_A1'),
+                  Field(dev='nok_refb1', name='ref_B1'),
+                  Field(dev='nok_refc1', name='ref_C1'),),
+        BlockRow( Field(dev='nok_refa2', name='ref_A2'),
+                  Field(dev='nok_refb2', name='ref_B2'),
+                  Field(dev='nok_refc2', name='ref_C2'),),
+        ],
+    ),
+)
+
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
         title = description,
         loglevel = 'info',
-        cache = 'refsansctrl01.refsans.frm2',
+        cache = 'refsanssw.refsans.frm2',
         prefix = 'nicos/',
         font = 'Luxi Sans',
         valuefont = 'Consolas',
@@ -147,6 +159,9 @@ devices = dict(
                 _nok7col,_zb3col,
                 _nok8col, _bs1col,
                 _nok9col,
+                ),
+            Row(
+                _refcolumn
                 ),
         ],
     ),

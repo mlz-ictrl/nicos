@@ -8,7 +8,7 @@ devices = dict(
     ),
     Server = device('nicos.services.cache.server.CacheServer',
         db = 'DB',
-        server = 'refsansctrl01.refsans.frm2',
+        server = 'refsanssw.refsans.frm2',
         loglevel = 'info'
     ),
 )
