@@ -33,6 +33,7 @@ from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, QPointF, \
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.utils import readonlylist
 
+from nicos_mlz.refsans.gui.timedistancewidget import TimeDistanceWidget
 from nicos_mlz.sans1.gui.monitorwidgets import CollimatorTable
 
 _yellow = QBrush(QColor('yellow'))
@@ -200,3 +201,59 @@ class BeamPosition(CollimatorTable):
     def registerKeys(self):
         self.registerKey(self.props['key'])
         CollimatorTable.registerKeys(self)
+
+
+class TimeDistance(NicosWidget, TimeDistanceWidget):
+
+    designer_description = 'REFSANS time distance diagram display'
+
+    chopper1 = PropDef('chopper1', str, 'chopper1', 'Chopper 1 device')
+    chopper2 = PropDef('chopper2', str, 'chopper2', 'Chopper 2 device')
+    chopper3 = PropDef('chopper3', str, 'chopper3', 'Chopper 3 device')
+    chopper4 = PropDef('chopper4', str, 'chopper4', 'Chopper 4 device')
+    chopper5 = PropDef('chopper5', str, 'chopper5', 'Chopper 5 device')
+    chopper6 = PropDef('chopper6', str, 'chopper6', 'Chopper 6 device')
+
+    disc2_pos = PropDef('disc2_pos', str, 'disc2_pos',
+                       'Position of disc2 translation')
+
+    periods = PropDef('periods', int, 2,
+                     'Number of periods to display')
+    D = PropDef('D', float, 22.8, 'Beamline length')
+
+    def __init__(self, parent, designMode=False):
+        TimeDistanceWidget.__init__(self, parent)
+        NicosWidget.__init__(self)
+        self._speed = 0
+        self._phases = [0] * 6
+        self._disk2_pos = 5
+
+    def registerKeys(self):
+        # chopperspeed, chopper phases,a
+        for dev in ['chopper1', 'disc2_pos']:
+            devname = self.props.get(dev)
+            if devname:
+                self._source.register(self, devname + '/value')
+
+        for dev in ['chopper1', 'chopper2', 'chopper3', 'chopper4', 'chopper5',
+                    'chopper6']:
+            devname = self.props.get(dev)
+            if devname:
+                self._source.register(self, devname + '/phase')
+
+    def on_keyChange(self, key, value, time, expired):
+        _, dev, param = key.split('/')
+        devs = [key for key, d in self.props.items() if d == dev]
+        if devs:
+            devname = devs[0]
+            if param == 'value':
+                if devname == 'chopper1':
+                    self._speed = int(value)
+                elif devname == 'disc2_pos':
+                    self._disk2_pos = int(value)
+            elif param == 'phase':
+                if devname.startswith('chopper'):
+                    index = int(devname[-1]) - 1
+                    self._phases[index] = float(value)
+            self.plot(self._speed, self._phases, self.props['periods'],
+                      self._disk2_pos, self.props['D'])

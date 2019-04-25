@@ -42,9 +42,8 @@ _chconfigcol = Column(
 _tididiagcol = Column(
     Block(' time distance diagram ONLY SYMBOL!', [
         BlockRow(
-            Field(dev='td_diag',
-                picture='/refsanscontrol/src/nicos-core/nicos_mlz/refsans/setups/screenshots/time_distance.png',
-                refresh=1, width=57, height=48),
+            Field(widget='nicos_mlz.refsans.gui.monitorwidgets.TimeDistance',
+                  width=57, height=48),
             ),
         ],
     ),
@@ -103,7 +102,7 @@ devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
         title = description,
         loglevel = 'info',
-        cache = 'refsansctrl01.refsans.frm2',
+        cache = 'localhost',
         prefix = 'nicos/',
         font = 'Luxi Sans',
         valuefont = 'Consolas',
