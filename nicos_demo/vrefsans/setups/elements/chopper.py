@@ -48,5 +48,6 @@ devices = dict(
     ),
     disc2_pos = device('nicos_demo.vrefsans.devices.ChopperDisc2Pos',
         description = 'pos of disk2',
+        curvalue = 1,
     ),
 )
