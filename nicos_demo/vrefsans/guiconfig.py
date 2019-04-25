@@ -1,5 +1,7 @@
 """NICOS GUI default configuration."""
 
+chopper_params = ['current', 'phase']
+
 main_window = docked(
     vsplit(
         panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
@@ -11,11 +13,11 @@ main_window = docked(
            dockpos='right',
            param_display={
                'chopper1': 'current',
-               'chopper2': 'current',
-               'chopper3': 'current',
-               'chopper4': 'current',
-               'chopper5': 'current',
-               'chopper6': 'current',
+               'chopper2': chopper_params,
+               'chopper3': chopper_params,
+               'chopper4': chopper_params,
+               'chopper5': chopper_params,
+               'chopper6': chopper_params,
                'nok9': 'mode',
                'nok8': 'mode',
                'nok7': 'mode',
