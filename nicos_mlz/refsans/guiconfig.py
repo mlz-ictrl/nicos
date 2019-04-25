@@ -28,6 +28,8 @@ windows = [
            panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
     window('Errors', 'errors',
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+    window('Planning', 'strategy',
+           panel('nicos_mlz.refsans.gui.resolutionpanel.ResolutionPanel')),
 ]
 
 tools = [
