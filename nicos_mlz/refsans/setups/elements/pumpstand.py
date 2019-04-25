@@ -12,7 +12,7 @@ devices = dict(
     # according to '_Anhang_A_REFSANS_Pumpstand.pdf'
     pumpstand = device('nicos_mlz.refsans.devices.beckhoff.pumpstation.PumpstandIO',
         description = 'io device for pumpstand',
-        tacodevice = '//%s/test/modbus/pumpenstand' % (nethost,),
+        tangodevice = 'tango://refsanshw.refsans.frm2:10000/pumpstand/io/modbus',
         address = 0x4026,  # 16422
         parallel_pumping = 10,  # below 10mbar, parallel pumping is allowed
         lowlevel = True,

@@ -28,13 +28,11 @@ from __future__ import absolute_import, division, print_function
 
 import struct
 
-from Modbus import Modbus
-
 from nicos import session
 from nicos.core import SIMULATION, Attach, Moveable, NicosError, \
     NicosTimeoutError, Override, Param, Readable, floatrange, limits, oneof, \
     requires, status, usermethod
-from nicos.devices.taco.core import TacoDevice
+from nicos.devices.tango import PyTangoDevice
 from nicos.utils import bitDescription, clamp
 
 # according to docu: '_Anhang_A_REFSANS_Pumpstand.pdf'
@@ -46,34 +44,33 @@ from nicos.utils import bitDescription, clamp
 # XXX: disentangle !
 # XXX: split into basic support class and concrete Impls.
 
-class PumpstandIO(TacoDevice, Readable):
+
+class PumpstandIO(PyTangoDevice, Readable):
     """
     Basic IO Device object for devices in refsans' pumping rack
     contains common things for all devices.
     """
-    taco_class = Modbus
 
     hardware_access = True
 
     parameters = {
-        'address':          Param('Starting offset (words) of IO area',
-                                  # type=intrange(0x3000, 0x47ff),
-                                  type=oneof(16422),
-                                  mandatory=True, settable=False,
-                                  userparam=False, default=16422),
+        'address': Param('Starting offset (words) of IO area',
+                         # type=intrange(0x3000, 0x47ff),
+                         type=oneof(16422), mandatory=True, settable=False,
+                         userparam=False, default=16422),
         'parallel_pumping': Param('Pressure below which all recipients will '
                                   'be pumped parallel, instead of serially',
                                   default=10, type=floatrange(0, 13),
                                   unit='mbar', settable=True, chatty=True,
                                   volatile=True),
-        'firmware':         Param('Firmware Version', settable=False,
-                                  type=str, mandatory=False, volatile=True),
+        'firmware': Param('Firmware Version', settable=False,
+                          type=str, mandatory=False, volatile=True),
     }
 
     def doInit(self, mode):
         # switch off watchdog, important before doing any write access
         if mode != SIMULATION:
-            self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
+            self._dev.WriteOutputWord((0x1120, 0))
 
     #
     # access-helpers for accessing the fields inside the IO area
@@ -81,8 +78,7 @@ class PumpstandIO(TacoDevice, Readable):
 
     def _readU16(self, addr):
         # reads a uint16 from self.address + addr
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                 (0, self.address + addr, 1))[0]
+        value = self._dev.ReadOutputWords((self.address + addr, 1))[0]
         self.log.debug('_readU16(%d): -> %d', addr, value)
         return value
 
@@ -90,13 +86,11 @@ class PumpstandIO(TacoDevice, Readable):
         # writes a uint16 to self.address+addr
         value = int(value)
         self.log.debug('_writeU16(%d, %d)', addr, value)
-        self._taco_guard(self._dev.writeSingleRegister,
-                         (0, self.address + addr, value))
+        self._dev.WriteOutputWord((self.address + addr, value))
 
     def _readU32(self, addr):
         # reads a uint32 from self.address + addr .. self.address + addr + 1
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                 (0, self.address + addr, 2))
+        value = self._dev.ReadOutputWords((self.address + addr, 2))
         value = struct.unpack('=I', struct.pack('<2H', *value))[0]
         self.log.debug('_readU32(%d): -> %d', addr, value)
         return value
@@ -106,8 +100,7 @@ class PumpstandIO(TacoDevice, Readable):
         value = int(value)
         self.log.debug('_writeU32(%d, %d)', addr, value)
         value = struct.unpack('<2H', struct.pack('=I', value))
-        self._taco_guard(self._dev.writeMultipleRegisters,
-                         (0, self.address + addr) + value)
+        self._dev.WriteOutputWords(tuple([self.address + addr]) + value)
 
     #
     # Hardware abstraction: which actions do we want to do...
@@ -246,6 +239,7 @@ class PumpstandIO(TacoDevice, Readable):
         for _ in range(10):
             ack = bool(self._HW_readACK())
             nack = bool(self._HW_readNACK())
+            self.log.debug('%s %s', ack, nack)
             if ack and not nack:
                 self.log.debug('Command accepted')
                 return
@@ -297,11 +291,11 @@ class PumpstandIO(TacoDevice, Readable):
         sb = self._attached_iodev._HW_readStatusByte()
         for idx, msg in sorted(self._HW_Status):
             if sb & (1 << idx):
-                self.log.info('Status %d: %s', idx, msg)
+                self.log.debug('Status %d: %s', idx, msg)
         diags = self._attached_iodev._HW_read_outputs()
         for idx, msg in sorted(self._HW_Outputs):
             if diags & (1 << idx):
-                self.log.info('Output %d: %s', idx, msg)
+                self.log.debug('Output %d: %s', idx, msg)
         alarms = self._attached_iodev._HW_readAlarms()
         for idx, msg in sorted(self._HW_Alarms + self._HW_Alarms_CB +
                                self._HW_Alarms_SR + self._HW_Alarms_SFK):
@@ -380,7 +374,7 @@ class PumpstandPump(Moveable):
                          mandatory=True, settable=False,
                          userparam=False, default='SR'),
         'pumptime': Param('Max pumping time', settable=True, unit='s',
-                          type=floatrange(0, 4294967), default=10*3600,
+                          type=floatrange(0, 4294967), default=10 * 3600,
                           volatile=True, chatty=True),
     }
 
@@ -411,7 +405,8 @@ class PumpstandPump(Moveable):
         elif target == 0:
             mask = (1 << self._HW_pumping_bit[self.chamber]) | \
                    (1 << self._HW_venting_bit[self.chamber])  # | \
-            #      (1 << self._HW_priming_pump[self.chamber]) # ??? stop while priming allowed?
+            # ??? stop while priming allowed?
+            #      (1 << self._HW_priming_pump[self.chamber])
             if sb & mask:
                 return True, ''
             return False, 'stop currently not possible'
@@ -429,26 +424,28 @@ class PumpstandPump(Moveable):
     @requires(level='admin')
     def doStart(self, target):
         if target == -1:
-            self._HW_rawCommand('pump_%s' % self.chamber)
+            self._attached_iodev._HW_rawCommand('pump_%s' % self.chamber)
         elif target == 1:
-            self._HW_rawCommand('vent_%s' % self.chamber)
+            self._attached_iodev._HW_rawCommand('vent_%s' % self.chamber)
         elif target == 0:
-            self._HW_rawCommand('stop_%s' % self.chamber)
+            self._attached_iodev._HW_rawCommand('stop_%s' % self.chamber)
 
     def doReset(self):
-        self._HW_rawCommand('ackErr')
+        self._attached_iodev._HW_rawCommand('ackErr')
 
     def doReadPumptime(self):
         return getattr(self._attached_iodev, '_HW_%s_timeout' % self.chamber)()
 
     def doWritePumptime(self, value):
-        self._HW_rawCommand('setTme_%s' % self.chamber, int(value*1e3))
+        self._attached_iodev._HW_rawCommand('setTme_%s' % self.chamber,
+                                            int(value * 1e3))
 
     def doStatus(self, maxage=0):
         alarms = self._attached_iodev._HW_readAlarms()
-        almsg = bitDescription(alarms, *(self._attached_iodev._HW_Alarms +
-                               getattr(self._attached_iodev,
-                                       '_HW_Alarms_%s' % self.chamber)))
+        almsg = bitDescription(
+            alarms,
+            *(self._attached_iodev._HW_Alarms +
+              getattr(self._attached_iodev, '_HW_Alarms_%s' % self.chamber)))
 
         if almsg:
             return status.ERROR, almsg
@@ -456,5 +453,5 @@ class PumpstandPump(Moveable):
         work = self.doRead(maxage)
         if work in (1, 0):
             # off or ventings; pumping is good!
-            return status.BUSY, ['off', 'venting', 'priming or pumping'][work]
+            return status.OK, ['off', 'venting', 'priming or pumping'][work]
         return status.OK, ''
