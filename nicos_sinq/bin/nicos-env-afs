@@ -1,0 +1,6 @@
+#!/bin/bash
+# A little script which first initialises the virtual environment
+# for NICOS and then runs a nicos-program. This script is supposed to
+# be renamed or linked to the name of the nicos-program, like nicos-daemon
+NICOSROOT=/afs/psi.ch/project/sinq//rhel7/distsrc/nicos-core
+source ${NICOSROOT}/nicos_sinq/bin/nicos-env-common

@@ -1,0 +1,42 @@
+#!/bin/bash
+
+NICOSROOT=/home/nicos/nicos-core
+
+if test $# -lt 1; then
+echo "Tmux session listing"
+tmux ls
+echo "To start NICOS in tmux, call tmuxnicos start"
+echo "To stop NICOS in tmux, call tmuxnicos stop"
+echo "In order to attach to a NICOS process, call tmux attach -t nicos-process"
+echo "For example, to see the output of the daemon, call tmux attach -t nicos-daemon"
+exit 0
+fi
+
+
+if [ $1 = "start" ]; then
+tmux new-session -d -s nicos-cache /bin/bash
+tmux send-keys -t nicos-cache "cd ${NICOSROOT}" "Enter"
+tmux send-keys -t nicos-cache "source nicosenv/bin/activate" "Enter"
+tmux send-keys -t nicos-cache "bin/nicos-cache" "Enter"
+
+tmux new-session -d -s nicos-poller /bin/bash
+tmux send-keys -t nicos-poller "cd ${NICOSROOT}" "Enter"
+tmux send-keys -t nicos-poller "source nicosenv/bin/activate" "Enter"
+tmux send-keys -t nicos-poller "bin/nicos-poller" "Enter"
+
+tmux new-session -d -s nicos-daemon /bin/bash
+tmux send-keys -t nicos-daemon "cd ${NICOSROOT}" "Enter"
+tmux send-keys -t nicos-daemon "source nicosenv/bin/activate" "Enter"
+tmux send-keys -t nicos-daemon "bin/nicos-daemon" "Enter"
+
+echo "NICOS daemons started in tmux sessions"
+fi
+
+if [ $1 = "stop" ]; then
+tmux kill-session -t nicos-daemon
+tmux kill-session -t nicos-poller
+tmux kill-session -t nicos-cache
+echo 'All NICOS sessions terminated'
+fi
+
+
