@@ -28,19 +28,16 @@ from __future__ import absolute_import, division, print_function
 
 import struct
 
-from Modbus import Modbus
-
 from nicos.core import SIMULATION, Attach, Override, Param, Readable, dictof, \
     oneof, status, usermethod
-from nicos.devices.taco.core import TacoDevice
+from nicos.devices.tango import PyTangoDevice
 
 
-class VSDIO(TacoDevice, Readable):
+class VSDIO(PyTangoDevice, Readable):
     """
     Basic IO Device object for devices in refsans' vsd rack
     contains common things for all devices.
     """
-    taco_class = Modbus
 
     hardware_access = True
 
@@ -56,7 +53,7 @@ class VSDIO(TacoDevice, Readable):
     def doInit(self, mode):
         # switch off watchdog, important before doing any write access
         if mode != SIMULATION:
-            self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
+            self._dev.WriteOutputWord((0x1120, 0))
 
     #
     # access-helpers for accessing the fields inside the IO area
@@ -64,15 +61,13 @@ class VSDIO(TacoDevice, Readable):
 
     def _readU16(self, addr):
         # reads a uint16 from self.address + addr
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                 (0, self.address + addr, 1))[0]
+        value = self._dev.ReadOutputWords((self.address + addr, 1))[0]
         self.log.debug('_readU16(%d): -> %d', addr, value)
         return value
 
     def _readI16(self, addr):
         # reads a int16 from self.address + addr
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                 (0, self.address + addr, 1))[0]
+        value = self._dev.ReadOutputWords((self.address + addr, 1))[0]
         if value > 32767:
             value = value - 65536
         self.log.info('_readI16(%d): -> %d', addr, value)
@@ -82,13 +77,11 @@ class VSDIO(TacoDevice, Readable):
         # writes a uint16 to self.address+addr
         value = int(value)
         self.log.debug('_writeU16(%d, %d)', addr, value)
-        self._taco_guard(self._dev.writeSingleRegister,
-                         (0, self.address + addr, value))
+        self._dev.WriteOutputWord((self.address + addr, value))
 
     def _readU32(self, addr):
         # reads a uint32 from self.address + addr .. self.address + addr + 1
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                 (0, self.address + addr, 2))
+        value = self._dev.ReadOutputWords((self.address + addr, 2))
         value = struct.unpack('=I', struct.pack('<2H', *value))[0]
         self.log.debug('_readU32(%d): -> %d', addr, value)
         return value
@@ -98,8 +91,7 @@ class VSDIO(TacoDevice, Readable):
         value = int(value)
         self.log.debug('_writeU32(%d, %d)', addr, value)
         value = struct.unpack('<2H', struct.pack('=I', value))
-        self._taco_guard(self._dev.writeMultipleRegisters,
-                         (0, self.address + addr) + value)
+        self._dev.WriteOutputWords(tuple([self.address + addr]) + value)
 
     # mapping of user selectable channel name to BYTE_OFFSET, scaling and unit
     _HW_AnalogChannels = dict(
@@ -145,7 +137,8 @@ class VSDIO(TacoDevice, Readable):
 
     # mapping of user selectable channel name to BYTE_OFFSET, bit number
     _HW_DigitalChannels = dict(
-        (('Merker%d' % i, (160 + 2*(i//16), i % 16)) for i in range(128, 255)),
+        (('Merker%d' % i, (160 + 2 * (i // 16), i % 16))
+         for i in range(128, 255)),
         ControllerStatus=(148, 0),
         TempVibration=(148, 1),
         ChopperEnable1=(148, 2),
@@ -183,7 +176,7 @@ class VSDIO(TacoDevice, Readable):
     #
 
     def _HW_readVersion(self):
-        return 'V%.1f' % (self._readU32(120//2) * 0.1)
+        return 'V%.1f' % (self._readU32(120 // 2) * 0.1)
 
     #
     # Nicos Methods
@@ -203,18 +196,19 @@ class VSDIO(TacoDevice, Readable):
         """Display all available diagnostic values."""
         self.log.info("Analog Values:")
         for k, v in sorted(self._HW_AnalogChannels.items()):
-            self.log.info("%s: %.2f %s", k, v[1] * self._readI16(v[0]//2), v[2])
+            self.log.info("%s: %.2f %s", k, v[1] * self._readI16(v[0] // 2),
+                          v[2])
         self.log.info("Digital Values:")
         for k, v in sorted(self._HW_DigitalChannels.items()):
             if k.startswith('Merker'):
                 continue
             self.log.info("%s: %s", k,
-                          'SET' if self._readU16(v[0]//2) & (1 << v[1])
+                          'SET' if self._readU16(v[0] // 2) & (1 << v[1])
                           else 'clear')
         self.log.info("Merkerwords:")
         for i in range(16):
-            self.log.info("Merker%d..%d : 0x%04x",
-                          128+15+16*i, 128+16*i, self._readU16(160//2+i))
+            self.log.info("Merker%d..%d : 0x%04x", 128 + 15 + 16 * i,
+                          128 + 16 * i, self._readU16(160 // 2 + i))
 
 
 class AnalogValue(Readable):
@@ -245,30 +239,30 @@ class AnalogValue(Readable):
             self._attached_iodev._HW_AnalogChannels[self.channel]
         # ofs is in Bytes, we need it in words! => /2
         if _unit == 'mA-foo':
-            raw = scale * self._attached_iodev._readU16(ofs//2)
-            self.log.debug('mA-foo %.2f' % raw)
+            raw = scale * self._attached_iodev._readU16(ofs // 2)
+            self.log.debug('mA-foo %.2f', raw)
             # Work around bug in firmware
             if raw > 20.0:
                 raw -= 615.37
-            self.log.debug('mA-foo %.2f' % raw)
+            self.log.debug('mA-foo %.2f', raw)
             # Tested against Multimeter (2018-08-07)
             raw /= 2.0
-            self.log.debug('mA-foo %.2f' % raw)
+            self.log.debug('mA-foo %.2f', raw)
         elif _unit == 'V-foo':
-            raw = self._attached_iodev._readU16(ofs//2)
-            self.log.debug('V-foo %d' % raw)
+            raw = self._attached_iodev._readU16(ofs // 2)
+            self.log.debug('V-foo %d', raw)
             # Work around bug in firmware
             if raw > 0x8000:
                 raw -= 63536
-                self.log.debug('V-foo %d sign1' % raw)
-            self.log.debug('V-foo %d sign' % raw)
+                self.log.debug('V-foo %d sign1', raw)
+            self.log.debug('V-foo %d sign', raw)
             # Tested against Multimeter (2018-08-07)
             raw /= 2.0
-            self.log.debug('v-foo %.2f /2.0' % raw)
+            self.log.debug('v-foo %.2f /2.0', raw)
             raw *= scale
-            self.log.debug('v-foo %.2f scale' % raw)
+            self.log.debug('v-foo %.2f scale', raw)
         else:
-            raw = scale * self._attached_iodev._readU16(ofs//2)
+            raw = scale * self._attached_iodev._readU16(ofs // 2)
         return raw
 
     def doStatus(self, maxage=0):
@@ -297,10 +291,9 @@ class DigitalValue(Readable):
     def doRead(self, maxage=0):
         ofs, bit = self._attached_iodev._HW_DigitalChannels[self.channel]
         # ofs is in Bytes, we need it in words! => /2
-        if self._attached_iodev._readU16(ofs//2) & (1 << bit):
+        if self._attached_iodev._readU16(ofs // 2) & (1 << bit):
             return self._revmapping[1]
-        else:
-            return self._revmapping[0]
+        return self._revmapping[0]
 
     def doStatus(self, maxage=0):
         return status.OK, ''

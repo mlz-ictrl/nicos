@@ -3,7 +3,7 @@ description = 'B3 aperture devices'
 group = 'lowlevel'
 
 lprecision = 0.01
-
+tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
 
 nethost = 'refsanssrv.refsans.frm2'
 devices = dict(
@@ -62,7 +62,7 @@ devices = dict(
     ),
     b3_rm = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M0x',
         description = 'tbd',
-        tacodevice = '//%s/test/modbus/probenort'% (nethost,),
+        tangodevice = tango_base + 'refsans/b3/modbus',
         address = 0x3214+3*10, # decimal 12820
         slope = -10000,
         unit = 'mm',
@@ -80,7 +80,7 @@ devices = dict(
     ),
     b3_sm = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M0x',
         description = 'tbd',
-        tacodevice = '//%s/test/modbus/probenort'% (nethost,),
+        tangodevice = tango_base + 'refsans/b3/modbus',
         address = 0x3214+2*10, # decimal 12820
         slope = 10000,
         unit = 'mm',
@@ -154,7 +154,7 @@ devices = dict(
     ),
     h3_rm = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M0x',
         description = 'tbd',
-        tacodevice = '//%s/test/modbus/probenort'% (nethost,),
+        tangodevice = tango_base + 'refsans/b3/modbus',
         address = 0x3214+0*10, # decimal 12820
         slope = -10000,
         unit = 'mm',
@@ -165,7 +165,7 @@ devices = dict(
     ),
     h3_sm = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M0x',
         description = 'tbd',
-        tacodevice = '//%s/test/modbus/probenort'% (nethost,),
+        tangodevice = tango_base + 'refsans/b3/modbus',
         address = 0x3214+1*10, # decimal 12820
         slope = 10000,
         unit = 'mm',
@@ -173,4 +173,4 @@ devices = dict(
         ruler = 0.0,
         lowlevel = True,
     ),
-    )
+)

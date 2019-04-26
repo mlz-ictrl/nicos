@@ -2,12 +2,12 @@ description = 'Slit H2 using Beckhoff controllers'
 
 group = 'lowlevel'
 
-nethost = 'refsanssrv.refsans.frm2'
+tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
 
 devices = dict(
     h2_center = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorHSlit',
         description = 'Horizontal slit system: offset of the slit-center to the beam. towards TOFTOF is plus',
-        tacodevice = '//%s/test/modbus/h2' % (nethost,),
+        tangodevice = tango_base + 'h2/io/modbus',
         address = 0x3020+0*10, # word address
         slope = -1000,
         unit = 'mm',
@@ -15,7 +15,7 @@ devices = dict(
     ),
     h2_width = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorHSlit',
         description = 'Horizontal slit system: opening of the slit',
-        tacodevice = '//%s/test/modbus/h2' % (nethost,),
+        tangodevice = tango_base + 'h2/io/modbus',
         address = 0x3020+1*10, # word address
         slope = 1000,
         unit = 'mm',

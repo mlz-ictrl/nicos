@@ -2,7 +2,6 @@ description = 'shs SicherHeitsSystem'
 
 group = 'lowlevel'
 
-nethost = 'refsanssrv.refsans.frm2'
 tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
 
 devices = dict(

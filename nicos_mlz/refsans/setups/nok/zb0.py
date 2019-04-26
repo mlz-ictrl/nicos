@@ -2,14 +2,17 @@ description = 'Slit ZB0 using Beckhoff controllers'
 
 group = 'lowlevel'
 
-nethost = 'refsanssrv.refsans.frm2'
 showcase_values = configdata('cf_showcase.showcase_values')
+
+tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
+
+index = 4
 
 devices = dict(
     zb0_m = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M13',
         description = 'CAB1 controlled zb0 (M13), sample side',
-        tacodevice = '//%s/test/modbus/optic' % (nethost,),
-        address = 0x3020+4*10, # word address
+        tangodevice = tango_base + 'optic/io/modbus',
+        address = 0x3020+index*10, # word address
         slope = 10000,
         unit = 'mm',
         ruler = -28.2111,
@@ -39,15 +42,15 @@ devices = dict(
     ),
     zb0_temp = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffTemp',
         description = 'Temperatur for ZB0 Motor',
-        tacodevice = '//%s/test/modbus/optic'% (nethost,),
-        address = 0x3020+4*10, # word address
+        tangodevice = tango_base + 'optic/io/modbus',
+        address = 0x3020+index*10, # word address
         abslimits = (-1000, 1000),
-        lowlevel = showcase_values['hide_poti'],
+        lowlevel = showcase_values['hide_temp'],
     ),
     zb0_obs = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffPoti',
         description = 'Poti for ZB0 no ref',
-        tacodevice = '//%s/test/modbus/optic' % (nethost,),
-        address = 0x3020+4*10, # word address
+        tangodevice = tango_base + 'optic/io/modbus',
+        address = 0x3020+index*10, # word address
         abslimits = (-1000, 1000),
         poly = [-176.49512271969755, 0.00794154091586989],
         lowlevel = True or showcase_values['hide_poti'],

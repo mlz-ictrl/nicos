@@ -6,6 +6,10 @@ includes = ['aperture_primary']
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 lprecision = 0.005
+tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
+
+index_r = 0
+index_s = 1
 
 devices = dict(
     # b1_open = device('nicos_mlz.refsans.devices.slits.DoubleSlitOpen',
@@ -82,8 +86,8 @@ devices = dict(
     ),
     b1_rm = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M0x',
         description = 'CAB1 controlled Blendenschild (M01), reactorside',
-        tacodevice = '//%s/test/modbus/optic'% (nethost,),
-        address = 0x3020+0*10, # word adress
+        tangodevice = tango_base + 'optic/io/modbus',
+        address = 0x3020+index_r*10, # word adress
         slope = 10000,
         unit = 'mm',
         abslimits = (-133, 127), # XX: check values!
@@ -93,8 +97,8 @@ devices = dict(
 
     b1_rm_obs = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffPoti',
         description = 'Poti for B1 Reactor no ref',
-        tacodevice = '//%s/test/modbus/optic'% (nethost,),
-        address = 0x3020+0*10, # word adress
+        tangodevice = tango_base + 'optic/io/modbus',
+        address = 0x3020+index_r*10, # word adress
         slope = 10000,
         abslimits = (-1000, 1000),
         poly = [-301.3,0.01626],
@@ -109,8 +113,8 @@ devices = dict(
     ),
     b1_sm = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M0x',
         description = 'CAB1 controlled Blendenschild (M02), sample side',
-        tacodevice = '//%s/test/modbus/optic'% (nethost,),
-        address = 0x3020+1*10, # word adress
+        tangodevice = tango_base + 'optic/io/modbus',
+        address = 0x3020+index_s*10, # word adress
         slope = 10000,
         unit = 'mm',
         abslimits = (-102, 170),
@@ -119,8 +123,8 @@ devices = dict(
     ),
     b1_sm_obs = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffPoti',
         description = 'Poti for B1 Sample no ref',
-        tacodevice = '//%s/test/modbus/optic'% (nethost,),
-        address = 0x3020+1*10, # word adress
+        tangodevice = tango_base + 'optic/io/modbus',
+        address = 0x3020+index_s*10, # word adress
         slope = 10000,
         abslimits = (-1000, 1000),
         poly = [-249.17,0.01626],

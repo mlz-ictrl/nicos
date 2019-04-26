@@ -3,7 +3,7 @@ description = 'all values for detector positon'
 group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
-tango_base = 'tango://refsansctrl02.refsans.frm2.tum.de:10000/test/'
+tango_base = 'tango://refsansctrl02.refsans.frm2.tum.de:10000/'
 
 devices = dict(
     det_drift = device('nicos.devices.generic.ManualSwitch',
@@ -18,7 +18,7 @@ devices = dict(
     ),
     det_yoke_m = device('nicos.devices.tango.Motor',
         description = 'yoke Motor',
-        tangodevice = tango_base + 'tube/servostar',
+        tangodevice = tango_base + 'test/tube/servostar',
         abslimits = (-120, 1000),
         lowlevel = True,
     ),
@@ -31,7 +31,7 @@ devices = dict(
     ),
     table_z_motor = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorDetector',
         description = 'table inside scatteringtube',
-        tacodevice = '//%s/test/modbus/tablee'% (nethost,),
+        tangodevice = tango_base + 'det_table/io/modbus',
         address = 0x3020 + 0 * 10,  # word address
         slope = 100,
         unit = 'mm',
@@ -41,7 +41,7 @@ devices = dict(
     ),
     table_z_obs = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffCoderDetector',
         description = 'Coder of detector table inside scatteringtube',
-        tacodevice = '//%s/test/modbus/tablee'% (nethost,),
+        tangodevice = tango_base + 'det_table/io/modbus',
         address = 0x3020 + 1 * 10,  # word address
         slope = 100,
         unit = 'mm',

@@ -28,15 +28,13 @@ from __future__ import absolute_import, division, print_function
 
 import struct
 
-from Modbus import Modbus
-
 from nicos import session
 from nicos.core import SIMULATION, CommunicationError, DeviceMixinBase, \
     MoveError, NicosTimeoutError, Override, Param, UsageError, requires, \
     status
 from nicos.core.params import nonemptylistof
 from nicos.devices.abstract import CanReference, Coder, Motor
-from nicos.devices.taco.core import TacoDevice
+from nicos.devices.tango import PyTangoDevice
 from nicos.utils import bitDescription
 
 from nicos_mlz.refsans.params import motoraddress
@@ -51,13 +49,12 @@ class SingleMotorOfADoubleMotorNOK(DeviceMixinBase):
     pass
 
 
-class BeckhoffCoderBase(TacoDevice, Coder):
+class BeckhoffCoderBase(PyTangoDevice, Coder):
     """
     Device object for a digital Input device via a Beckhoff modbus interface.
     For a stripped down motor control block which only provides the current
     position.
     """
-    taco_class = Modbus
 
     hardware_access = True
 
@@ -166,78 +163,61 @@ class BeckhoffCoderBase(TacoDevice, Coder):
     def doInit(self, mode):
         # switch off watchdog, important before doing any write access
         if mode != SIMULATION:
-            self._taco_guard(self._dev.writeSingleRegister, (0, 0x1120, 0))
+            self.log.info('BeckhoffCoderBase doInit')
+            self._dev.WriteOutputWord((0, 0x1120, 0))
 
     #
     # access-helpers for accessing the fields inside the MotorControlBlock
     #
     def _readControlBit(self, bit):
         self.log.debug('_readControlBit %d', bit)
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                 (0, self.address, 1))[0]
+        value = self._dev.ReadOutputWords((0, self.address, 1))[0]
         return (value & (1 << int(bit))) >> int(bit)
 
     def _writeControlBit(self, bit, value, numbits=1):
         self.log.debug('_writeControlBit %r, %r', bit, value)
-        # tmpval = self._taco_guard(self._dev.readHoldingRegisters,
-        #                           (0, self.address, 1))[0]
-        # mask = (1 << numbits) - 1
-        # tmpval &= ~(mask << int(bit))
-        # tmpval |= ((mask & int(value)) << int(bit))
-        # self.log.debug('write control bit: 0x%x', tmpval)
-        # self._taco_guard(self._dev.writeSingleRegister,
-        #                  (0, self.address, tmpval))
-        self._taco_guard(self._dev.writeSingleRegister,
-                         (0, self.address,
-                          (value & ((1 << int(numbits))-1)) << int(bit)))
+        self._dev.WriteOutputWord(
+            (self.address, (value & ((1 << int(numbits)) - 1)) << int(bit)))
         session.delay(0.1)  # work around race conditions....
 
     def _writeDestination(self, value):
-        self.log.debug('_writeDestination %r', value)
+        self.log.info('_writeDestination %r', value)
         value = struct.unpack('<2H', struct.pack('=i', value))
-        self._taco_guard(self._dev.writeMultipleRegisters,
-                         (0, self.address + 2) + value)
+        self._dev.WriteOutputWords(tuple([self.address + 2]) + value)
 
     def _readStatusWord(self):
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                (0, self.address + 4, 1))[0]
+        value = self._dev.ReadOutputWords((self.address + 4, 1))[0]
         self.log.debug('_readStatusWord 0x%04x', value)
         return value
 
     def _readErrorWord(self):
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                (0, self.address + 5, 1))[0]
+        value = self._dev.ReadOutputWords((self.address + 5, 1))[0]
         self.log.debug('_readErrorWord 0x%04x', value)
         return value
 
     def _readPosition(self):
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                 (0, self.address + 6, 2))
+        value = self._dev.ReadOutputWords((self.address + 6, 2))
         value = struct.unpack('=i', struct.pack('<2H', *value))[0]
         self.log.debug('_readPosition: -> %d steps', value)
         return value
 
     def _readUpperControlWord(self):
         self.log.error('_readUpperControlWord')
-        return self._taco_guard(self._dev.readHoldingRegisters,
-                                (0, self.address + 1, 1))[0]
+        return self._dev.ReadOutputWords((self.address + 1, 1))[0]
 
     def _writeUpperControlWord(self, value):
         self.log.debug('_writeUpperControlWord 0x%04x', value)
         value = int(value) & 0xffff
-        self._taco_guard(self._dev.writeSingleRegister,
-                         (0, self.address + 1, value))
+        self._dev.WriteOutputWord((self.address + 1, value))
 
     def _readDestination(self):
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                 (0, self.address + 2, 2))
+        value = self._dev.ReadOutputWords((self.address + 2, 2))
         value = struct.unpack('=i', struct.pack('<2H', *value))[0]
         self.log.debug('_readDestination: -> %d steps', value)
         return value
 
     def _readReturn(self):
-        value = self._taco_guard(self._dev.readHoldingRegisters,
-                                 (0, self.address + 8, 2))
+        value = self._dev.ReadOutputWords((self.address + 8, 2))
         value = struct.unpack('=i', struct.pack('<2H', *value))[0]
         self.log.debug('_readReturn: -> %d (0x%08x)', value, value)
         return value
@@ -320,7 +300,7 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
     """
 
     # invert bit 13 (referenced) to NOT REFERENCED
-    ### invert bit 8 (ready) to NOT READY
+    # invert bit 8 (ready) to NOT READY
     # invert bit 0 (enabled) to NOT ENABLED
     HW_Status_Inv = (1 << 13) | (1 << 0)
     HW_Status_Ign = (1 << 6)
@@ -345,7 +325,7 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
         self.log.debug('words: %r' % (words, ))
 
         data = (0, self.address) + words
-        self._taco_guard(self._dev.writeMultipleRegisters, data)
+        self._dev.WriteOutputWords(data)
         session.delay(0.1)  # work around race conditions....
 
     def _HW_start(self):
@@ -536,8 +516,7 @@ class BeckhoffMotorCab1(BeckhoffMotorBase):
                         if i > 0 or ii > 0:
                             self.log.info('readParameter %d %d', i, ii)
                     # old return self._readReturn()
-                    value = self._taco_guard(self._dev.readHoldingRegisters,
-                                             (0, self.address + 1, 9))
+                    value = self._dev.ReadOutputWords((self.address + 1, 9))
                     retindex = value[0] >> 8
                     if retindex != index:
                         if LDebug:

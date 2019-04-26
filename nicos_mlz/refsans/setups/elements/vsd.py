@@ -2,12 +2,12 @@ description = 'vsd readout devices'
 
 group = 'lowlevel'
 
-nethost = 'refsanssrv.refsans.frm2'
+tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
 
 devices = dict(
     _vsdio = device('nicos_mlz.refsans.devices.beckhoff.vsd.VSDIO',
-        description = 'TACO Modbus Device for communication with VSD',
-        tacodevice = '//%s/test/modbus/vsd' % (nethost,),
+        description = 'Modbus Device for communication with VSD',
+        tangodevice = tango_base + 'vsd/io/modbus',
         address = 0x3000,
         lowlevel = True,
     ),

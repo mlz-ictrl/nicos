@@ -2,25 +2,42 @@ description = 'NOK5a using Beckhoff controllers'
 
 group = 'lowlevel'
 
-nethost = 'refsanssrv.refsans.frm2'
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
+tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
+
+index_r = 2
+index_s = 3
 
 devices = dict(
     nok5a_r = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M1x',
         description = 'nok5a motor (M11), reactor side',
-        tacodevice = '//%s/test/modbus/optic'% (nethost,),
-        address = 0x3020+2*10, # word addresses
+        tangodevice = tango_base + 'optic/io/modbus',
+        address = 0x3020+index_r*10, # word addresses
         slope = 10000,
         unit = 'mm',
         abslimits = (-70.0,67.68),
         ruler = 71.0889,
         lowlevel = True,
     ),
+    nok5a_s_temp = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffTemp',
+        description = 'Temperatur for nok5a_s Motor',
+        tangodevice = tango_base + 'optic/io/modbus',
+        address = 0x3020+index_r*10, # word address
+        abslimits = (-1000, 1000),
+        lowlevel = showcase_values['hide_temp'],
+    ),
+    nok5a_r_temp = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffTemp',
+        description = 'Temperatur for nok5a_r Motor',
+        tangodevice = tango_base + 'optic/io/modbus',
+        address = 0x3020+index_r*10, # word address
+        abslimits = (-1000, 1000),
+        lowlevel = showcase_values['hide_temp'],
+    ),
     nok5a_s = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M1x',
         description = 'nok5a motor (M12), sample side',
-        tacodevice = '//%s/test/modbus/optic'% (nethost,),
-        address = 0x3020+3*10, # word addresses
+        tangodevice = tango_base + 'optic/io/modbus',
+        address = 0x3020+index_s*10, # word addresses
         slope = 10000,
         unit = 'mm',
         abslimits = (-79.0,77.85),

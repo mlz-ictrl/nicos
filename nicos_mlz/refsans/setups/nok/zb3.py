@@ -5,7 +5,7 @@ group = 'lowlevel'
 includes = ['nok_ref', 'nokbus3', 'aperture_primary']
 showcase_values = configdata('cf_showcase.showcase_values')
 
-tango_host = 'tango://refsanshw:10000/test/'
+tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/test/'
 
 devices = dict(
     zb3 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
@@ -98,7 +98,7 @@ devices = dict(
     ),
     zb3r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for ZB3, reactor side',
-        tangodevice = tango_host + 'wb_c/1_2',
+        tangodevice = tango_base + 'wb_c/1_2',
         scale = -1,  # mounted from top
         lowlevel = True,
     ),
@@ -120,7 +120,7 @@ devices = dict(
     ),
     zb3s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for ZB3, sample side',
-        tangodevice = tango_host + 'wb_c/1_3',
+        tangodevice = tango_base + 'wb_c/1_3',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),
