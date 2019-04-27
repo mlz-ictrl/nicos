@@ -29,7 +29,7 @@ from nicos.guisupport.qt import uic, pyqtSignal, QMessageBox, QSpacerItem, \
     QWidget
 
 from nicos.guisupport.typedvalue import create
-from nicos.pycompat import string_types
+from nicos.pycompat import iteritems, string_types
 
 from setupfiletool import classparser
 from setupfiletool.deviceparam import DeviceParam
@@ -164,12 +164,12 @@ class DeviceWidget(QWidget):
     def setOptimalWidth(self):
         # get necessary width to align labels
         maxWidth = 100  # default minimum 100
-        for _, widget in self.parameters.iteritems():
+        for _, widget in iteritems(self.parameters):
             labelWidth = widget.labelParam.sizeHint().width()
 
             if labelWidth > maxWidth:
                 maxWidth = labelWidth
-        for _, widget in self.parameters.iteritems():
+        for _, widget in iteritems(self.parameters):
             widget.labelParam.setMinimumWidth(maxWidth)
 
     def removeParam(self, param):

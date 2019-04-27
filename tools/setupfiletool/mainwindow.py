@@ -34,7 +34,7 @@ from nicos.guisupport.qt import uic, Qt, QApplication, QFileDialog, QIcon, \
     QLabel, QMainWindow, QMessageBox, QTreeWidgetItem
 
 from nicos import config
-from nicos.pycompat import string_types
+from nicos.pycompat import iteritems, string_types
 
 from setupfiletool import classparser, setupcontroller
 from setupfiletool.devicewidget import DeviceWidget
@@ -111,7 +111,7 @@ class MainWindow(QMainWindow):
         self.setupWidgets[setup.abspath] = setupWidget
         # initialize device widgets dictionary for this setup
         self.deviceWidgets[setup.abspath] = {}
-        for deviceName, device in setup.devices.iteritems():
+        for deviceName, device in iteritems(setup.devices):
             deviceWidget = DeviceWidget(setupWidget)
             deviceWidget.editedDevice.connect(self.editedSetupSlot)
             deviceWidget.loadDevice(device)
@@ -214,7 +214,7 @@ class MainWindow(QMainWindow):
         if setupItem.setup.abspath not in self.setupWidgets.keys():
             self.loadSetup(setupItem.setup, setupItem.parent().text(0))
         else:
-            for deviceName, device in setupItem.setup.devices.iteritems():
+            for deviceName, device in iteritems(setupItem.setup.devices):
                 if deviceName == newDeviceName:
                     deviceWidget = DeviceWidget(self.setupWidgets[
                         setupItem.setup.abspath])
@@ -395,7 +395,7 @@ class MainWindow(QMainWindow):
         output = []
         if setupData.treeWidgetSysconfig.topLevelItemCount() > 0:
             output.append('sysconfig = dict(\n')
-            for key, value in setupData.treeWidgetSysconfig.getData().items():
+            for key, value in iteritems(setupData.treeWidgetSysconfig.getData()):
                 output.append('    ' + key + ' = ' + repr(value) + ',\n')
             output.append(')\n\n')
             return ''.join(output)
@@ -413,12 +413,12 @@ class MainWindow(QMainWindow):
             return ''
 
         output.append('devices = dict(\n')
-        for name, info in self.deviceWidgets[setupItem.setup.abspath].items():
+        for name, info in iteritems(self.deviceWidgets[setupItem.setup.abspath]):
             output.append('    ' + name + ' = device(')
             # class string must be first parameter. Also mustn't have a key.
             output.append(repr(info.parameters['Class'].getValue()) + ',\n')
             indent = len(name) + 14
-            for _, params in info.parameters.iteritems():
+            for _, params in iteritems(info.parameters):
                 # skip class as it has already been added
                 if not params.param == 'Class':
                     if isinstance(params.getValue(), string_types):

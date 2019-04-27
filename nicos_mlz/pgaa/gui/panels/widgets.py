@@ -37,6 +37,7 @@ from nicos.guisupport.qt import QAbstractButton, QAbstractSpinBox, QCheckBox, \
     QPixmap, QSlider, QSpinBox, QStackedWidget, QToolTip, QWidget, Qt, \
     pyqtSignal, pyqtSlot
 from nicos.guisupport.widget import NicosListener, NicosWidget
+from nicos.pycompat import iteritems
 
 widgetpath = path.dirname(__file__)
 
@@ -424,7 +425,7 @@ class AttCell(CellItem):
         if not self.cb.isVisible():
             # Count back from 3 Attenuator Buttons to rel Flux
             att_vals = tuple(l.current for l in self.cled)
-            for key, values in AttCell.Attenuators.iteritems():
+            for key, values in iteritems(AttCell.Attenuators):
                 if values == att_vals:
                     return key
         else:
