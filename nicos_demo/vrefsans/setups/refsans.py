@@ -18,6 +18,7 @@ includes = [
     # 'memograph',
     'sample',
     'det_pos',
+    'qmesydaq',
 ]
 
 startupcode = """
