@@ -65,14 +65,14 @@ element_part = [
     'wegbox_C_2ref',
 ]
 chopper = [
-    'chopper2_position',
+    'chopper2/pos',
     'chopper',
-    'chopper_mode',
-    'chopper_resolution',
-    'chopper_speed',
-    'chopper_wl_min',
-    'chopper_wl_max',
-    'chopper_gap',
+    'chopper/mode',
+    'chopper/resolution',
+    'chopper/speed',
+    'chopper/wlmin',
+    'chopper/wlmax',
+    'chopper/gap',
 ]
 
 Gonio = [
@@ -382,11 +382,16 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         self._write_label_ext(metainfo, 'Monitor', monitor, monitor_label)
 
     def _write_chopper(self, metainfo):
-        for dev in chopper:
-            if (dev, 'value') in metainfo:
-                self._data['Chopper'][dev] = metainfo[dev, 'value'][0]
+        for devname in chopper:
+            if (devname, 'value') in metainfo:
+                self._data['Chopper'][devname] = metainfo[devname, 'value'][0]
             else:
-                self.log.info('missing %s' % dev)
+                dev, key = devname.split('/')
+                if (dev, key) in metainfo:
+                    self._data['Chopper']['%s' % devname.replace('/', '_')] = \
+                        metainfo[dev, key][0]
+                else:
+                    self.log.warn('missing %s', devname)
         self.log.debug('chopper_mode %s',
                        metainfo['chopper', 'mode'][0])
 
