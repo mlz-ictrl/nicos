@@ -388,7 +388,7 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             else:
                 self.log.info('missing %s' % dev)
         self.log.debug('chopper_mode %s',
-                       metainfo['chopper_mode', 'value'][0])
+                       metainfo['chopper', 'mode'][0])
 
     def _write_sample(self, metainfo):
         sample = self._dict()

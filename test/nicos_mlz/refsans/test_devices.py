@@ -26,7 +26,12 @@
 
 from __future__ import absolute_import, division, print_function
 
+from test.utils import raises
+
+import pytest
+
 from nicos.core import status
+from nicos.core.errors import LimitError
 
 session_setup = 'refsans'
 
@@ -87,3 +92,63 @@ def test_focuspoint(session):
     state = fp.status(0)
     assert state[0] == status.OK
     assert state[1] == 'idle'
+
+
+class TestChopper(object):
+    """Test class for the REFSANS chopper device."""
+
+    @pytest.fixture(scope='function', autouse=True)
+    def prepare(self, session):
+        chopper = session.getDevice('chopper')
+        chopper1 = session.getDevice('chopper1')
+        chopper2 = session.getDevice('chopper2')
+
+        # test configuration
+        assert chopper1.read(0) == 1200
+        assert chopper1.read(0) == chopper2.read(0)
+        assert chopper2.pos == 5
+        assert chopper1.current == 3.2
+
+        assert chopper.read(0) == {'D': 22.8, 'chopper2_pos': 5, 'gap': 0.0,
+                                   'wlmax': 21.0, 'wlmin': 3.0}
+        yield
+
+        chopper.maw({'D': 22.8, 'chopper2_pos': 5, 'gap': 0.0, 'wlmax': 21.0,
+                     'wlmin': 3.0})
+        chopper1.maw(1200)
+
+    def test_change_chopper2_pos(self, session):
+        chopper1 = session.getDevice('chopper1')
+        chopper2 = session.getDevice('chopper2')
+
+        # not allowed due to chopper speed isn't zero
+        assert raises(LimitError, setattr, chopper2, 'pos', 4)
+
+        # all choppers should follow chopper1 in speed
+        chopper1.maw(1000)
+        assert chopper2.read() == 1000
+
+        # moving speed to zero and allow chopper2 position change
+        chopper1.maw(0)
+        chopper2.pos = 4
+        assert chopper1.current == 0
+        chopper1.maw(1000)
+
+    def test_full_chopper_change(self, session):
+        chopper = session.getDevice('chopper')
+        chopper2 = session.getDevice('chopper2')
+
+        chopper.maw({'D': 22.8, 'chopper2_pos': 5, 'gap': 0.0, 'wlmax': 21.0,
+                     'wlmin': 0.0})
+        assert chopper.read(0) == {'D': 22.8, 'chopper2_pos': 5, 'gap': 0.0,
+                                   'wlmax': 21.0, 'wlmin': 0.0}
+        assert chopper2.phase == 0
+        assert chopper.mode == 'normal_mode'
+
+        # check 'chopper_pos == 6' move
+        chopper.maw({'D': 22.8, 'chopper2_pos': 6, 'gap': 0.0, 'wlmax': 21.0,
+                     'wlmin': 0.0})
+        assert chopper.read(0) == {'D': 22.8, 'chopper2_pos': 6, 'gap': 0.0,
+                                   'wlmax': 21.0, 'wlmin': 0.0}
+        assert chopper2.phase == 300
+        assert chopper.mode == 'virtual_disc2_pos_6'

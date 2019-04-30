@@ -1,6 +1,6 @@
 """NICOS GUI default configuration."""
 
-chopper_params = ['current', 'phase']
+chopper_params = ['current', 'phase', 'mode']
 
 main_window = docked(
     vsplit(
@@ -12,6 +12,7 @@ main_window = docked(
      panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
            dockpos='right',
            param_display={
+               'chopper': ['mode', 'wlmin', 'wlmax'],
                'chopper1': 'current',
                'chopper2': chopper_params,
                'chopper3': chopper_params,

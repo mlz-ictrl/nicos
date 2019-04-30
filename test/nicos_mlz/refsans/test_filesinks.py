@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""STRESS-SPEC specific data sink tests."""
+"""REFSANS specific data sink tests."""
 
 from __future__ import absolute_import, division, print_function
 
@@ -47,8 +47,7 @@ def prepare(session, dataroot):
 
     session.experiment.setDetectors(['det'])
     for d in ['nok1', 'nok2', 'zb0', 'shutter', 'vacuum_CB', 'table', 'tube',
-              'h2_center', 'h2_width', 'pivot', 'top_phi', 'chopper',
-              'chopper_mode']:
+              'h2_center', 'h2_width', 'pivot', 'top_phi', 'chopper']:
         session.getDevice(d)
 
     # Perform different scans

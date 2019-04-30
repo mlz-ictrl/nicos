@@ -31,7 +31,7 @@ _chconfigcol = Column(
             Field(name='speed', dev='chopper1', width=10),
             Field(name='gap', key='chopper/gap', width=10),
             Field(name='Modus', key='chopper/mode', width=24),
-            Field(name='real', dev='chopper2_position', width=24),
+            Field(name='real', key='chopper2/pos', width=10),
             Field(name='START delay', key='chopper/delay', unit='deg', width=24),
             Field(name='Fatal', key='chopper/fatal', width=10),
             ),
