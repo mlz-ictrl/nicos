@@ -1,6 +1,6 @@
 description = 'postion of Monitor: X in beam; Z may be motor'
 
-group = 'optional'
+group = 'lowlevel'
 
 devices = dict(
     prim_monitor_z = device('nicos.devices.generic.ManualMove',

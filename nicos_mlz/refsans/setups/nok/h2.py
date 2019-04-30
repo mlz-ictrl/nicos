@@ -6,7 +6,7 @@ nethost = 'refsanssrv.refsans.frm2'
 
 devices = dict(
     h2_center = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorHSlit',
-        description = 'Horizontal slit system: offset of the slit-center to the beam',
+        description = 'Horizontal slit system: offset of the slit-center to the beam. towards TOFTOF is plus',
         tacodevice = '//%s/test/modbus/h2' % (nethost,),
         address = 0x3020+0*10, # word address
         slope = -1000,

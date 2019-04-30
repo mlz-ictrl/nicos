@@ -1,6 +1,6 @@
 description = '2 Beamstops 50x50mm one on the left, the other in Center'
 
-group = 'optional'
+group = 'lowlevel'
 
 includes = ['vsd']
 

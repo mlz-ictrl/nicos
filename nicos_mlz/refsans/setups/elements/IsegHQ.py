@@ -1,6 +1,6 @@
 description = 'REFSANS setup for IsegHQ.res'
 
-group = 'optional'
+group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
 

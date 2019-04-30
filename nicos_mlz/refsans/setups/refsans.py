@@ -3,22 +3,30 @@ description = 'REFSANS basic setup'
 group = 'basic'
 
 includes = [
-    # 'vacuum', readout (hardware) defect MP 02.05.2018 09:13:28
-    'shutter',
-    'shutter_gamma',
-    'guidehall',
-    'reactor',
-    'fak40',
+    'beamstop',
+    'chamber',
     'chopper',
-    'optic_elements',
+    'chopperphasentiming',
+    'det_pos',
+    'fak40',
+    'gonio',
+    'guidehall',
     'h2',
-    'poti_ref',
-    'nl2b',
-    'vsd',
-    'pumpstand',
     'memograph',
+    'nl2b',
+    'optic_elements',
+    'poti_ref',
+    'prim_monitor',
+    'pumpstand',
+    'qmesydaq',
+    'reactor',
+    'safedetectorsystem',
     'sample',
     'detector',
+    'safetysystem',
+    'shutter',
+    'shutter_gamma',
+    'vsd',
 ]
 
 startupcode = """

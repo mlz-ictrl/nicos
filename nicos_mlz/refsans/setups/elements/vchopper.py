@@ -1,6 +1,6 @@
 description = 'Emulation of the hardware chopper'
 
-group = 'optional'
+group = 'lowlevel'
 
 devices = dict(
     software = device('nicos.devices.generic.ManualSwitch',

@@ -3,7 +3,7 @@ description = "DoubleSlit [slit k1] between nok6 and nok7"
 group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus3', 'aperture_primary']
-global_values = configdata('global.GLOBAL_Values')
+showcase_values = configdata('cf_showcase.showcase_values')
 
 tango_host = 'tango://refsanshw:10000/test/'
 
@@ -12,8 +12,8 @@ devices = dict(
         description = 'ZB3 slit',
         slit_r = 'zb3r',
         slit_s = 'zb3s',
-        fmtstr = 'opening: %.3f mm, zpos: %.3f mm',
-        unit = '',
+        fmtstr = 'open: %.3f, zpos: %.3f',
+        unit = 'mm',
     ),
     zb3_mode = device('nicos.devices.generic.ReadonlyParamDevice',
         description = 'zb3 mode',
@@ -63,7 +63,7 @@ devices = dict(
         microstep = 1,
         refpos = 72.774,
         zerosteps = int(677.125 * 800),
-        lowlevel = global_values['hide_poti'] and global_values['NOreference'],
+        lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
     ),
     zb3s_m = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of ZB3, sample side',
@@ -78,13 +78,13 @@ devices = dict(
         microstep = 1,
         refpos = 105.837,
         zerosteps = int(644.562 * 800),
-        lowlevel = global_values['hide_poti'] and global_values['NOreference'],
+        lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
     ),
     zb3r_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'zb3r_m',
          analog = 'zb3r_obs',
-         lowlevel = global_values['hide_acc'],
+         lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),
     zb3r_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
@@ -94,7 +94,7 @@ devices = dict(
         poly = [-140.539293, 1004.824 / 1.92],
         serial = 7778,
         length = 500.0,
-        lowlevel = global_values['hide_poti'] and global_values['NOreference'],
+        lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
     ),
     zb3r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for ZB3, reactor side',
@@ -106,7 +106,7 @@ devices = dict(
          description = 'calc error Motor and poti',
          motor = 'zb3s_m',
          analog = 'zb3s_obs',
-         lowlevel = global_values['hide_acc'],
+         lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),
     zb3s_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
@@ -116,7 +116,7 @@ devices = dict(
         poly = [118.68, 1000. / 1.921],
         serial = 7781,
         length = 500.0,
-        lowlevel = global_values['hide_poti'] and global_values['NOreference'],
+        lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
     ),
     zb3s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for ZB3, sample side',

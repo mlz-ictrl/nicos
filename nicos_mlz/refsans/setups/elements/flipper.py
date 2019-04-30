@@ -1,7 +1,6 @@
-description = 'Refsans_flipper special HW'
+description = 'Refsans_flipper special HW; but NOT yet!'
 
-# not included by others
-group = 'optional'
+group = 'lowlevel'
 
 uribase = 'tango://refsanshw.refsans.frm2:10000/test/flipper/'
 

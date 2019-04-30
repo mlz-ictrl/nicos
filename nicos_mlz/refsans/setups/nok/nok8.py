@@ -3,7 +3,8 @@ description = "neutronguide sideMirror noMirror"
 group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus3']
-global_values = configdata('global.GLOBAL_Values')
+showcase_values = configdata('cf_showcase.showcase_values')
+optic_values = configdata('cf_optic.optic_values')
 
 tango_host = 'tango://refsanshw:10000/test/'
 
@@ -22,10 +23,10 @@ devices = dict(
         backlash = -2,
         precision = 0.5,
         masks = {
-            'ng': global_values['ng'],
-            'rc': global_values['ng'],
-            'vc': global_values['vc'],
-            'fc': global_values['fc'],
+            'ng': optic_values['ng'],
+            'rc': optic_values['ng'],
+            'vc': optic_values['vc'],
+            'fc': optic_values['fc'],
         },
     ),
     nok8_mode = device('nicos.devices.generic.ReadonlyParamDevice',
@@ -57,14 +58,14 @@ devices = dict(
         microstep = 1,
         refpos = 80.915,
         zerosteps = int(669.085 * 800),
-        lowlevel = global_values['hide_poti'],
+        lowlevel = showcase_values['hide_poti'],
     ),
 
     nok8r_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'nok8r_motor',
          analog = 'nok8r_obs',
-         lowlevel = global_values['hide_acc'],
+         lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),
 
@@ -75,7 +76,7 @@ devices = dict(
         poly = [10.518174, 1001.53 / 3.85],
         serial = 6508,
         length = 250.0,
-        lowlevel = global_values['hide_poti'],
+        lowlevel = showcase_values['hide_poti'],
     ),
 
     nok8r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
@@ -108,14 +109,14 @@ devices = dict(
         microstep = 1,
         refpos = 85.499,
         zerosteps = int(664.6 * 800),
-        lowlevel = global_values['hide_poti'],
+        lowlevel = showcase_values['hide_poti'],
     ),
 
     nok8s_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'nok8s_motor',
          analog = 'nok8s_obs',
-         lowlevel = global_values['hide_acc'],
+         lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),
 
@@ -126,7 +127,7 @@ devices = dict(
         poly = [8.752627, 998.722 / 3.85],
         serial = 6511,
         length = 250.0,
-        lowlevel = global_values['hide_poti'],
+        lowlevel = showcase_values['hide_poti'],
     ),
 
     nok8s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',

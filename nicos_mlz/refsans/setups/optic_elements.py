@@ -5,7 +5,7 @@ group = 'lowlevel'
 includes = [
     'b1',
     'b2',
-    'b3',
+    'b3h3',
     'bs1',
     'nok2',
     'nok3',

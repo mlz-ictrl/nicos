@@ -1,6 +1,6 @@
 description = 'vsd readout devices'
 
-group = 'optional'
+group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
 

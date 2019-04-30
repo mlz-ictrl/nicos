@@ -3,7 +3,7 @@ description = "SingleSlit [slit k1] between nok6 and nok7"
 group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus2']
-global_values = configdata('global.GLOBAL_Values')
+showcase_values = configdata('cf_showcase.showcase_values')
 
 tango_host = 'tango://refsanshw:10000/test/'
 
@@ -42,7 +42,7 @@ devices = dict(
         microstep = 1,
         refpos = 68.0465,
         zerosteps = int(681.95 * 800),
-        lowlevel = global_values['hide_poti'],
+        lowlevel = showcase_values['hide_poti'],
     ),
     zb2_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
         description = 'Position sensing for ZB2',
@@ -51,13 +51,13 @@ devices = dict(
         poly = [-116.898256, 999.872 / 1.921],
         serial = 7786,
         length = 500.0,
-        lowlevel = global_values['hide_poti'],
+        lowlevel = showcase_values['hide_poti'],
     ),
     zb2_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'zb2_motor',
          analog = 'zb2_obs',
-         lowlevel = global_values['hide_acc'],
+         lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),
     zb2_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',

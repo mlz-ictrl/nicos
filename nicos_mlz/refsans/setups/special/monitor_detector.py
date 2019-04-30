@@ -7,19 +7,22 @@
 # cd /refsanscontrol/src/nicos-core
 # INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_detector
 
-description = 'REFSANS detector monitor'
+description = 'detector and experiment'
 group = 'special'
 
 _experimentcol = Column(
     Block(' experiment ', [
         BlockRow(
-                 Field(name='proposal', key='exp/proposal', width=8),
-                 Field(name='proposer', key='exp/proposer', width=24),
-                 Field(name='title',    key='exp/title',    width=24,
-                       istext=True, maxlen=20),
-                 Field(name='Sample', dev='Sample', width=20),
-                 Field(name='current status', key='exp/action', width=24,
-                       istext=True, maxlen=40),
+            Field(name='proposal', key='exp/proposal', width=8),
+            Field(name='proposer', key='exp/proposer', width=24),
+            Field(name='proposer', key='exp_proposer', width=24),
+            Field(name='title',    key='exp/title',    width=24,
+                 istext=True, maxlen=20),
+            Field(name='Sample', dev='Sample', width=20),
+            Field(name='current status', key='exp/action', width=24,
+                 istext=True, maxlen=40),
+            Field(name='last file', key='det/lastfilenumber', width=12),
+            Field(name='current number', key='det/point', width=12),
             )
         ],
     ),
@@ -37,7 +40,6 @@ _detconfigcol = Column(
             Field(name='count rate',   dev='detector_count_rate', width=12, unit='cps'),
             Field(name='monitor 1', key='mon1', width=12),
             Field(name='monitor 2', key='mon2', width=12),
-            Field(name='last file', key='det/lastfilenumber', width=12),
             ),
         ],
     ),
@@ -117,8 +119,8 @@ devices = dict(
         layout = [
             Row(_experimentcol),
             Row(_detconfigcol),
-            Row(_detarecol, _histogramcol),
-            Row(_beanstop1col, _beanstop2col, _momentumcol),
+            #Row(_detarecol, _histogramcol),
+            #Row(_beanstop1col, _beanstop2col, _momentumcol),
         ],
     ),
 )

@@ -1,7 +1,7 @@
 description = 'devices for fast detector using comtec p7888 for REFSANS'
 
 # to be included by refsans?
-group = 'optional'
+group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test/fast' % nethost

@@ -3,7 +3,7 @@ description = 'Slit ZB0 using Beckhoff controllers'
 group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
-global_values = configdata('global.GLOBAL_Values')
+showcase_values = configdata('cf_showcase.showcase_values')
 
 devices = dict(
     zb0_m = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M13',
@@ -19,7 +19,7 @@ devices = dict(
     zb0_a = device('nicos.devices.generic.Axis',
         description = 'zb0 axis',
         motor = 'zb0_m',
-        precision = global_values['precision'],
+        precision = 0.02,
         maxtries = 3,
         lowlevel = True,
     ),
@@ -42,7 +42,7 @@ devices = dict(
         tacodevice = '//%s/test/modbus/optic'% (nethost,),
         address = 0x3020+4*10, # word address
         abslimits = (-1000, 1000),
-        lowlevel = global_values['hide_poti'],
+        lowlevel = showcase_values['hide_poti'],
     ),
     zb0_obs = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffPoti',
         description = 'Poti for ZB0 no ref',
@@ -50,13 +50,13 @@ devices = dict(
         address = 0x3020+4*10, # word address
         abslimits = (-1000, 1000),
         poly = [-176.49512271969755, 0.00794154091586989],
-        lowlevel = global_values['hide_poti'],
+        lowlevel = True or showcase_values['hide_poti'],
     ),
     zb0_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'zb0_m',
          analog = 'zb0_obs',
-         lowlevel = global_values['hide_acc'],
+         lowlevel = True or showcase_values['hide_acc'],
          unit = 'mm'
     ),
     zb0_mode = device('nicos.devices.generic.ReadonlyParamDevice',

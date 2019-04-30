@@ -7,7 +7,7 @@
 # cd /refsanscontrol/src/nicos-core
 # INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_optic
 
-description = 'REFSANS all analog encoder to take care of'
+description = 'all analog encoder to take care of'
 group = 'special'
 
 _shgacol = Column(

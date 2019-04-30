@@ -8,7 +8,7 @@
 # cd /refsanscontrol/src/nicos-core
 # INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_chopper
 
-description = 'REFSANS chopper monitor commute'
+description = 'chopper commute'
 group = 'special'
 
 # Legende fuer _chconfigcol
@@ -18,26 +18,27 @@ Lwidth_low = 15.0
 
 _disk1col = Column(
     Block('disk 1', [
-        BlockRow(Field(name='speed',  dev='chopper1',  width = Lwidth_low, unit='rpm')),
+        BlockRow(Field(name='speed',  dev='chopper_speed',  width = Lwidth_low, unit='rpm')),
         BlockRow(Field(name='CPT',  dev='cpt1',  width = Lwidth_low, unit='rpm')),
-        BlockRow(Field(name='gear',   key='chopper1/gear',   width = Lwidth_low)),
-        BlockRow(Field(name='mode', key='chopper1/mode', width = Lwidth_low)),
-        BlockRow(Field(name='condition', key='chopper1/condition', width = Lwidth_low)),
-        BlockRow(Field(name='status', key='chopper1/status', width = Lwidth_low)),
-        BlockRow(Field(name='current', key='chopper1/current', width = Lwidth_low, unit='A')),
+        BlockRow(Field(name='gear',   key='chopper_speed/gear',   width = Lwidth_low)),
+        BlockRow(Field(name='mode', key='chopper_speed/mode', width = Lwidth_low)),
+        BlockRow(Field(name='condition', key='chopper_speed/condition', width = Lwidth_low)),
+        BlockRow(Field(name='status', key='chopper_speed/status', width = Lwidth_low)),
+        BlockRow(Field(name='current', key='chopper_speed/current', width = Lwidth_low, unit='A')),
         ],
     ),
 )
 
 _disk2col = Column(
     Block('disk 2', [
-        BlockRow(Field(name='phase',  dev='chopper2_phase',  width = Lwidth_low, unit='deg')),
+        BlockRow(Field(name='phase',  key='chopper2/phase',  width = Lwidth_low, unit='deg')),
         BlockRow(Field(name='CPT',  dev='cpt2',  width = Lwidth_low, unit='deg')),
         BlockRow(Field(name='gear',   key='chopper2/gear',   width = Lwidth_low)),
         BlockRow(Field(name='mode', key='chopper2/mode', width = Lwidth_low)),
         BlockRow(Field(name='condition', key='chopper2/condition', width = Lwidth_low)),
         BlockRow(Field(name='status', key='chopper2/status', width = Lwidth_low)),
         BlockRow(Field(name='current', key='chopper2/current', width = Lwidth_low, unit='A')),
+        BlockRow(Field(name='speed',  dev='chopper2',  width = Lwidth_low, unit='rpm')),
         ],
     ),
 )
@@ -51,6 +52,7 @@ _disk3col = Column(
         BlockRow(Field(name='condition', key='chopper3/condition', width = Lwidth_low)),
         BlockRow(Field(name='status', key='chopper3/status', width = Lwidth_low)),
         BlockRow(Field(name='current', key='chopper3/current', width = Lwidth_low, unit='A')),
+        BlockRow(Field(name='speed',  dev='chopper3',  width = Lwidth_low, unit='rpm')),
         ],
     ),
 )
@@ -64,6 +66,7 @@ _disk4col = Column(
         BlockRow(Field(name='condition', key='chopper4/condition', width = Lwidth_low)),
         BlockRow(Field(name='status', key='chopper4/status', width = Lwidth_low)),
         BlockRow(Field(name='current', key='chopper4/current', width = Lwidth_low, unit='A')),
+        BlockRow(Field(name='speed',  dev='chopper4',  width = Lwidth_low, unit='rpm')),
         ],
     ),
 )
@@ -77,6 +80,7 @@ _disk5col = Column(
         BlockRow(Field(name='condition', key='chopper5/condition', width = Lwidth_low)),
         BlockRow(Field(name='status', key='chopper5/status', width = Lwidth_low)),
         BlockRow(Field(name='current', key='chopper5/current', width = Lwidth_low, unit='A')),
+        BlockRow(Field(name='speed',  dev='chopper5',  width = Lwidth_low, unit='rpm')),
         ],
     ),
 )
@@ -90,6 +94,7 @@ _disk6col = Column(
         BlockRow(Field(name='condition', key='chopper6/condition', width = Lwidth_low)),
         BlockRow(Field(name='status', key='chopper6/status', width = Lwidth_low)),
         BlockRow(Field(name='current', key='chopper6/current', width = Lwidth_low, unit='A')),
+        BlockRow(Field(name='speed',  dev='chopper6',  width = Lwidth_low, unit='rpm')),
         ],
     ),
 )

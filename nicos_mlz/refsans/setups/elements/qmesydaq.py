@@ -1,7 +1,7 @@
 description = 'qmesydaq devices for REFSANS'
 
 # to be included by refsans ?
-group = 'optional'
+group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test/qmesydaq' % nethost

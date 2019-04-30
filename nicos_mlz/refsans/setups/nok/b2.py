@@ -2,7 +2,7 @@ description = 'at samplecamper [slit k1]'
 
 group = 'lowlevel'
 
-tango_host = 'tango://refsanshw:10000/test/'
+tango_host = 'tango://refsanshw.refsans.frm2.tum.de:10000/test/'
 
 devices = dict(
     #
@@ -15,6 +15,11 @@ devices = dict(
         slit_r = 'b2r',
         slit_s = 'b2s',
     ),
+    b2_mode = device('nicos.devices.generic.ReadonlyParamDevice',
+        description = 'b2 mode',
+        device = 'b2',
+        parameter = 'mode',
+    ),
     b2r = device('nicos_mlz.refsans.devices.slits.SingleSlit',
         description = 'b2 slit, reactor side; 220 full access, 74 for upper srcews',
         motor = 'b2_r',
@@ -26,7 +31,7 @@ devices = dict(
         masks = {
             'slit':   0.0,
             'point':  -4.067,
-            'gisans': -218.645,
+            'gisans': 0.0, #  -218.645,
         },
         lowlevel = True,
         unit = 'mm',
@@ -42,7 +47,7 @@ devices = dict(
         masks = {
             'slit':   0.0,
             'point':  -0.233,
-            'gisans': 206.4,
+            'gisans': -85, #  206.4,
         },
         unit = 'mm',
         lowlevel = True,

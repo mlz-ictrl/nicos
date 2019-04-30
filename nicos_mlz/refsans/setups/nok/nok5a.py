@@ -3,7 +3,8 @@ description = 'NOK5a using Beckhoff controllers'
 group = 'lowlevel'
 
 nethost = 'refsanssrv.refsans.frm2'
-global_values = configdata('global.GLOBAL_Values')
+showcase_values = configdata('cf_showcase.showcase_values')
+optic_values = configdata('cf_optic.optic_values')
 
 devices = dict(
     nok5a_r = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M1x',
@@ -31,7 +32,7 @@ devices = dict(
         motor = 'nok5a_r',
         offset = 0.0,
         backlash = 0,
-        precision = global_values['precision'],
+        precision = 0.02,
         maxtries = 3,
         unit = 'mm',
         lowlevel = True,
@@ -41,7 +42,7 @@ devices = dict(
         motor = 'nok5a_s',
         offset = 0.0,
         backlash = 0,
-        precision = global_values['precision'],
+        precision = 0.02,
         maxtries = 3,
         unit = 'mm',
         lowlevel = True,
@@ -60,11 +61,11 @@ devices = dict(
         motor_s = 'nok5a_s_axis',
         backlash = -2,
         masks = {
-            'ng': global_values['ng'],
-            'rc': global_values['ng'],
-            'vc': global_values['vc'],
-            'fc': global_values['fc'],
-            # 'pola': global_values['pola'],
+            'ng': optic_values['ng'],
+            'rc': optic_values['ng'],
+            'vc': optic_values['vc'],
+            'fc': optic_values['fc'],
+            # 'pola': showcase_values['pola'],
         },
     ),
     nok5a_mode = device('nicos.devices.generic.ReadonlyParamDevice',

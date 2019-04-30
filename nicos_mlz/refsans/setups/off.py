@@ -7,6 +7,7 @@ includes = [
     'reactor',
     'fak40',
     'poti_ref',
+    'chamber',
     'vsd',
     'nl2b',
     'pumpstand',

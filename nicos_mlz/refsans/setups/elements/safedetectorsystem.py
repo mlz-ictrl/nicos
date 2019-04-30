@@ -1,6 +1,6 @@
 description = 'Safety detector system'
 
-group = 'optional'
+group = 'lowlevel'
 
 all_lowlevel = False  # or True
 

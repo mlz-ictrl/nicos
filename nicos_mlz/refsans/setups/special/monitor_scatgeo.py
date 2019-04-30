@@ -7,7 +7,7 @@
 # cd /refsanscontrol/src/nicos-core
 # INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_scatgeo
 
-description = 'REFSANS scattering geometry monitor'
+description = 'scattering geometry'
 group = 'special'
 
 # Legende fuer _componentpositioncol

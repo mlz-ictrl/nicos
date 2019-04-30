@@ -3,7 +3,8 @@ description = "neutronguide"
 group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus1']
-global_values = configdata('global.GLOBAL_Values')
+showcase_values = configdata('cf_showcase.showcase_values')
+optic_values = configdata('cf_optic.optic_values')
 
 nethost = 'refsanssrv.refsans.frm2'
 tango_host = 'tango://refsanshw:10000/test/'
@@ -23,10 +24,10 @@ devices = dict(
         backlash = -2,
         precision = 0.5,
         masks = {
-            'ng': global_values['ng'],
-            'rc': global_values['ng'],
-            'vc': global_values['ng'],
-            'fc': global_values['ng'],
+            'ng': optic_values['ng'],
+            'rc': optic_values['ng'],
+            'vc': optic_values['ng'],
+            'fc': optic_values['ng'],
         },
     ),
     nok2_mode = device('nicos.devices.generic.ReadonlyParamDevice',
@@ -57,7 +58,7 @@ devices = dict(
         microstep = 1,
         refpos = -4.42,
         zerosteps = int(254.36 * 2000),
-        lowlevel = global_values['hide_poti'],
+        lowlevel = showcase_values['hide_poti'],
     ),
     nok2r_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
         description = 'Position sensing for NOK2, reactor side',
@@ -66,7 +67,7 @@ devices = dict(
         poly = [9.169441, 996.418 / 3.858],
         serial = 6510,
         length = 250.0,
-        lowlevel = global_values['hide_poti'],
+        lowlevel = showcase_values['hide_poti'],
     ),
     nok2r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK2, reactor side',
@@ -78,7 +79,7 @@ devices = dict(
          description = 'calc error Motor and poti',
          motor = 'nok2r_motor',
          analog = 'nok2r_obs',
-         lowlevel = global_values['hide_acc'],
+         lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),
     nok2s_axis = device('nicos.devices.generic.Axis',
@@ -104,7 +105,7 @@ devices = dict(
          microstep = 1,
          refpos = -18.19,
          zerosteps = int(268.11 * 2000),
-         lowlevel = global_values['hide_poti'],
+         lowlevel = showcase_values['hide_poti'],
     ),
     nok2s_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
          description = 'Position sensing for NOK2, sample side',
@@ -113,7 +114,7 @@ devices = dict(
          poly = [-22.686241, 1003.096 / 3.846],
          serial = 6512,
          length = 250.0,
-         lowlevel = global_values['hide_poti'],
+         lowlevel = showcase_values['hide_poti'],
     ),
     nok2s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
          description = 'Poti for NOK2, sample side',
@@ -126,7 +127,7 @@ devices = dict(
          description = 'calc error Motor and poti',
          motor = 'nok2s_motor',
          analog = 'nok2s_obs',
-         lowlevel = global_values['hide_acc'],
+         lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),
 

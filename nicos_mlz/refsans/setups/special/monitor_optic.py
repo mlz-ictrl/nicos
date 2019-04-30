@@ -7,11 +7,11 @@
 # cd /refsanscontrol/src/nicos-core
 # INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_optic
 
-description = 'REFSANS optic monitor'
+description = 'optic collimation and slits'
 group = 'special'
 
 layout_width = 10
-layout_doubleslit = 35
+layout_doubleslit = 25
 layout_two = 15
 
 # Legende fuer _modecol
@@ -40,86 +40,86 @@ _modecol = Column(
 # vc   = vertical collimated, seitlich verspiegelter Bereich
 #
 # widget='...' muss natuerlich fuer REFSANS gemacht werden
-
+wig_hight=5
 _collimationcol = Column(
     Block('beam guide setting',[
         BlockRow(
             Field(dev='shutter', name='shutter',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['open', 'closed'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(dev='shutter_gamma', name='gamma',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['open', 'closed'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='nok2/mode', name='nok2',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['ng'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='nok3/mode', name='nok3',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['ng', 'rc'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='nok4/mode', name='nok4',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['ng', 'rc'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='b1/mode', name='b1',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['slit', 'gisans', 'point'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='nok5a/mode', name='nok5a',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['fc', 'vc', 'ng', 'pola'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='zb0/mode', name='zb0',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['slit', 'gisans', 'point'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='nok5b/mode', name='nok5b',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['fc', 'vc', 'ng'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='zb1/mode', name='zb1',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['slit', 'gisans', 'point'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='nok6/mode', name='nok6',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['fc', 'vc', 'ng'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='zb2/mode', name='zb2',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['slit', 'gisans', 'point'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='nok7/mode', name='nok7',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['fc', 'vc', 'ng'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='zb3/mode', name='zb3',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['slit', 'gisans', 'point'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='nok8/mode', name='nok8',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['fc', 'vc', 'ng'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='bs1/mode', name='bs1',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['slit', 'gisans', 'point'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='nok9/mode', name='nok9',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['fc', 'vc', 'ng'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='b2/mode', name='b2',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['slit', 'gisans', 'pinhole'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             Field(key='b3/mode', name='b3',
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['slit', 'gisans', 'pinhole'],
-                  width=6.5, height=9),
+                  width=6.5, height=wig_hight),
             ),
         ],
     ),
@@ -164,8 +164,8 @@ _nok4col = Column(
 
 _sc1col = Column(
     Block('SC1', [  # slave chopper 1
-        BlockRow(Field(name='disk 3', dev='disc3', width=layout_width)),
-        BlockRow(Field(name='disk 4', dev='disc4', width=layout_width)),
+        BlockRow(Field(name='disk 3', dev='disc3', width=layout_width ),
+                 Field(name='disk 4', dev='disc4', width=layout_width)),
         ],
     ),
 )

@@ -1,4 +1,4 @@
-description = 'REFSANS status monitor'
+description = 'status monitor'
 group = 'special'
 
 _experimentcol = Column(

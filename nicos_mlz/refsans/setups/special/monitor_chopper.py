@@ -7,7 +7,7 @@
 # cd /refsanscontrol/src/nicos-core
 # INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_chopper
 
-description = 'REFSANS chopper monitor'
+description = 'chopper monitor'
 group = 'special'
 
 # Legende fuer _chconfigcol
@@ -18,19 +18,22 @@ _chconfigcol = Column(
         BlockRow(
             Field(name='Lambda Min', key='chopper/wlmin', width=14, unit='AA'),
             Field(name='Lambda Max', key='chopper/wlmax', width=14, unit='AA'),
-            Field(name='resolution [1-6]', dev='chopper_resolution', width=14),
+            Field(name='disc2 [1-6]', dev='chopper_resolution', width=14),
             Field(name='maximum flight path', key='chopper/dist', width=14, unit='Meter'),
             Field(name='real flight path', dev='real_flight_path', width=14, unit='Meter'),
-            Field(name='resolution', dev='resolution', width=14, unit='%'),
+            # Field(name='real flight path', dev='real_flight_path', width=14, unit='m'),
+            Field(name='wavelength res.', dev='resolution', width=14, unit='%'),
             ),
         ],
     ),
-    Block(' chopper configuration ', [
-        BlockRow(
+    Block(' real chopper setting ', [
+         BlockRow(
+            Field(name='speed', dev='chopper1', width=10),
+            Field(name='gap', key='chopper/gap', width=10),
             Field(name='Modus', key='chopper/mode', width=24),
             Field(name='real', dev='chopper2_position', width=24),
-            Field(name='START delay', dev='chopper_delay', unit='deg', width=24),
-            Field(name='Fatal', dev='chopper_fatal', width=24),
+            Field(name='START delay', key='chopper/delay', unit='deg', width=24),
+            Field(name='Fatal', key='chopper/fatal', width=10),
             ),
         ],
     ),
@@ -111,7 +114,7 @@ devices = dict(
         layout = [
             Row(_chconfigcol),
             Row(_tididiagcol),
-            Row(_disk1col, _disk2col, _disk3col, _disk4col,
+            Row(_disk2col, _disk3col, _disk4col,
                 _disk5col, _disk6col),
         ],
     ),
