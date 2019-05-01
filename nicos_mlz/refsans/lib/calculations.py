@@ -385,7 +385,8 @@ def practical_SC2(wl_min=0,
     if t_SC2o < min_t_SC2o:
         t_SC2o = min_t_SC2o
         wl_min_real = neutron_vel2wavelength(d_SC2 / t_SC2o) * 1e10
-        print('Minimum wavelength cannot be satisfied, you get %s' % wl_min_real)
+        print('Minimum wavelength cannot be satisfied, you get %s' %
+              wl_min_real)
     else:
         wl_min_real = wl_min * 1e10
 

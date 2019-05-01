@@ -32,33 +32,33 @@ from nicos_mlz.refsans.lib.calculations import SC1_Pos, chopper_pos, \
     chopper_resolution, d_SC2
 
 
-def timedistancediagram(rpm, angles, disk2_pos=5, SC2_mode='default',
+def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
                         SC2_full_open=240, D=22.8, n_per=2, title_prefix='',
                         plot=None):
     """Draw a time-distance diagram for the chopper.
 
-    input:
-       rpm    : the running speed  (rounds per min)
-       angles : the angles for d1 to d6 as returned by chopper_config ([deg])
-       d_MCo  : dist from disk1 to the opening disk for the master (d2) (m)
-       d_SCo  : dist from disk1 to the opening disk for the SC1 (m)
-       d_SCc  : dist from disk1 to the closing disk for the SC1 (m)
-       d_SC2  : distance from disk1 to SC2 (should not change...) (m)
-       D      : beamline length (distance disk1 - detector !!NOT flightpath)(m)
-       n_per  : the number of periods to display (int)
-
+    :param speed: the running speed  (rounds per min)
+    :param angles: the angles for d1 to d6 as returned by chopper_config (deg)
+    :param disk2_pos: translation position of chopper2 disc
+    :param SC_mode: ????
+    :param D: beamline length (distance disk1 - detector)(m)
+    :param n_per: the number of periods to display (int)
+    :param title_prefix: ???
+    :param plot: matplotlib plot object
     """
     plot.clear()
     # if d_MCo == d_SCo:
     #    raise ValueError('Disk2 and 3 collide !')
     # ++ Param hack todo ###
 
-    # --
+    # distance from disk1 to the opening disk for the master (d2) (m)
     d_MCo = chopper_pos[disk2_pos]
+    # distance from disk1 to the opening disk for the SC1 (m)
     d_SCo = chopper_pos[SC1_Pos]
+    # distance from disk1 to the closing disk for the SC1 (m)
     d_SCc = chopper_pos[SC1_Pos]
 
-    per = 60. / rpm if rpm else 1e10
+    per = 60. / speed if speed else 1e10
     freq = 1. / per
 
     resolution = chopper_resolution(disk2_pos, D)
@@ -179,8 +179,8 @@ def timedistancediagram(rpm, angles, disk2_pos=5, SC2_mode='default',
         detect_st += ' , Last n. : '
     detect_st = detect_st[:-10]
 
-    title = '%s Angles : %s (deg) at %d rpm\n%s\nResolution %.1f (%%)' % (
-        title_prefix, angles.round(2), int(rpm), detect_st, resolution * 100.)
+    title = '%s Angles : %s (deg) at %.0f speed\n%s\nResolution %.1f (%%)' % (
+        title_prefix, angles.round(2), speed, detect_st, resolution)
 
     plot.set_title(title, fontsize='x-small')
     plot.set_xlabel('Time since start signal (s)')
