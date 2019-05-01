@@ -17,7 +17,7 @@ includes = [
     # 'pumpstand',
     # 'memograph',
     'sample',
-    'det_pos',
+    'detector',
     'qmesydaq',
 ]
 
