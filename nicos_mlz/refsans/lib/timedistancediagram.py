@@ -28,7 +28,8 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
-from nicos_mlz.refsans.lib.calculations import chopper_pos, d_SC2, SC1_Pos
+from nicos_mlz.refsans.lib.calculations import SC1_Pos, chopper_pos, \
+    chopper_resolution, d_SC2
 
 
 def timedistancediagram(rpm, angles, disk2_pos=5, SC2_mode='default',
@@ -60,7 +61,7 @@ def timedistancediagram(rpm, angles, disk2_pos=5, SC2_mode='default',
     per = 60. / rpm if rpm else 1e10
     freq = 1. / per
 
-    resolution = d_MCo / (D - d_MCo / 2.)
+    resolution = chopper_resolution(disk2_pos, D)
 
     angles = np.array(angles, dtype=float)
     trailing_edge_MC = (0 + 240) / (360 * freq)
