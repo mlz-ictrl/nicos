@@ -28,7 +28,8 @@ from __future__ import absolute_import, division, print_function
 
 from test.utils import approx
 
-from nicos_mlz.refsans.lib.calculations import chopper_config
+from nicos_mlz.refsans.lib.calculations import chopper_config, \
+    chopper_resolution
 
 
 def test_chopper_config():
@@ -83,3 +84,13 @@ def test_chopper_config():
 
     check_results(chopper_config(5., 10., D=21.455, disk2_pos=6, gap=0.1),  # 22
                   (2569, (0, 300, 70.86, 0, 322.69, 206.75)))
+
+
+def test_chopper_resolution():
+    assert chopper_resolution(6, 21.455) == 11.48
+    assert chopper_resolution(5, 21.455) == 6.23
+    assert chopper_resolution(4, 21.455) == 3.08
+
+    assert chopper_resolution(6, 14.38) == 17.63
+    assert chopper_resolution(5, 14.38) == 9.44
+    assert chopper_resolution(4, 14.38) == 4.63

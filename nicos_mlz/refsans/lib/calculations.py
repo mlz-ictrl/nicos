@@ -29,12 +29,21 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 from scipy import constants
 
-chopper_pos = [None, .0715, 0.168, 0.305, 0.651, 1.296, 2.33]
+chopper_pos = [None, .0715, 0.168, 0.305, 0.651, 1.296, 2.33]  # in m
 
-# distance disk1 SC2 (m)
+# distance from disk1 to SC2 (should not change...) (m)
 d_SC2 = 10.61
 # SC1_Pos is the distance from disk 1 to SC1 which is now fixed at pos 6
 SC1_Pos = 6
+# horizontal distance from first chopper disc (position) to pivot point 0 in mm
+pre_sample_path = 10755
+
+# die Dicke des Detektors D900 ist bei Drift1 40mm und bei Drift2 65mm
+# refsanssrv\docu\Instrument\Detektor+Elektronik\
+# Detektor900 DNX-700 SeNr 2016-700-01\ImDetektor.pdf
+# bezogen auf die length des MasterChopperst ergibt sich ein Fehler
+#   65mm              90.9   38.7 21,3 10.0   5.0   2.8
+Detectordepth = 65
 
 h = constants.value('Planck constant')
 mn = constants.value('neutron mass')
@@ -444,3 +453,23 @@ def neutron_wavelength2vel(wavelength):
             return None
             # return s.Inf
     return h / (mn * wavelength)
+
+
+def chopper_resolution(chopper2_pos, D):
+    """Calculates the choper resolution.
+
+    :param int chopper2_pos: Translation position of the chopper2
+    :param float D: Real flight path distance in m
+    :ret: Resolution in percent
+    :rtype: float
+    """
+    # res = d_MCo / (D - d_MCo / 2.)
+    d_MCo = chopper_pos[chopper2_pos]
+    d_MCo_h = d_MCo / 2.
+
+    # denominator and numerator should be increased by half of Detectordepth
+    # Detectordepth_h = 65 / .5  # [40,65]
+    # numerator = d_MCo_h  # + Detectordepth_h
+    numerator = d_MCo  # + Detectordepth_h
+    denominator = D - d_MCo_h  # + Detectordepth_h
+    return round(numerator / denominator * 100, 2)
