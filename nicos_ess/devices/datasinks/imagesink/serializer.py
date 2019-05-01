@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
@@ -26,10 +27,13 @@ from __future__ import absolute_import, division, print_function
 
 import numpy
 
+from nicos.pycompat import to_utf8
+
 try:
     import flatbuffers
     from nicos_ess.devices.datasinks.imagesink.fbschema import \
         EventHistogram, Array, ArrayUInt, ArrayFloat, DimensionMetaData
+
     uint32_bytes = flatbuffers.number_types.Uint32Flags.bytewidth
 except ImportError:
     flatbuffers = None
@@ -41,8 +45,10 @@ except ImportError:
     DimensionMetaData = None
 
 
+
 class HistogramFlatbuffersSerializer(object):
-    """ Encode the histogram using the flatbuffers schema hs00
+    """
+    Encode the histogram using the flatbuffers schema hs00
     """
 
     file_identifier = "hs00"
@@ -161,5 +167,5 @@ class HistogramFlatbuffersSerializer(object):
 
         # Generate the output and replace the file_identifier
         buff = builder.Output()
-        buff[4:8] = bytes(self.file_identifier)
+        buff[4:8] = to_utf8(self.file_identifier)
         return bytes(buff)
