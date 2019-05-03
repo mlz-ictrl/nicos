@@ -167,17 +167,13 @@ class ChopperDisc(ChopperDiscBase, ChopperBase, Moveable):
         'mode': Override(volatile=True),
     }
 
-    def doStart(self, request):
-        if self.chopper == 1 and self.gear == 0:
-            self.log.info('set speed %d', request)
-            self._write_controller('m4073=%d m4074=%d m4075=0 m4076=0 m4070=7',
-                                   int(round(request)))
-        else:
-            self.log.debug('request %d', request)
+    def doStart(self, target):
+        self.log.info('set speed %d', target)
+        if self.chopper != 1 or self.gear != 0:
             self.log.warning('changed chopper:%d gear:%d edge:%s',
                              self.chopper, self.gear, self.edge)
-            self._write_controller('m4073=%d m4074=%d m4075=0 m4076=0 m4070=7',
-                                   int(round(request)))
+        self._write_controller('m4073=%d m4074=%.0f m4075=0 m4076=0 m4070=7',
+                               round(target))
 
     def doRead(self, maxage=0):
         return self._current_speed()
