@@ -4,136 +4,126 @@ group = 'lowlevel'
 
 tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
 
+# 'Shutter':                              (0, 0),  # 0x0000
+# 'Ampeltest_inv':                        (3, 0),  # 0x0001
+# 'Betreten_Verboten_inv':                (3, 1),  # 0x0002
+# 'Hupentest_inv':                        (3, 2),  # 0x0004
+# 'Schluesselschalter_Wartung_inv':       (3, 3),  # 0x0008
+# 'Tuer_PO_auf':                          (3, 6),  # 0x0040
+# 'Tuer_PO_zu':                           (3, 7),  # 0x0080
+# 'Schnellschluss-Shutter_auf':           (3, 8),  # 0x0100
+# 'Schnellschluss-Shutter_zu':            (3, 9),  # 0x0200
+# '6-fach-Shutter_auf':                   (3, 10),  # 0x0400
+# '6-fach-Shutter_zu':                    (3, 11),  # 0x0800
+# 'Verbindung_zu_Warte_iO':               (3, 12),  # 0x1000
+# 'Freigabe_von_Warte_fuer_ESShutter':    (3, 13),  # 0x2000
+# 'Instrumentenverantwortlicher':         (3, 14),  # 0x4000
+# 'Not-Aus_Kreis_inv':                    (3, 15),  # 0x8000
+# 'Verbindungstuer':                      (4, 8),  # 0x0100
+# 'Tuer_SR_auf':                          (4, 10),  # 0x0400
+# 'Tuer_SR_zu':                           (4, 11),  # 0x0800
+# 'externer_User_Kontakt_A':              (5, 0),  # 0x0001
+# 'externer_User_Kontakt_B':              (5, 1),  # 0x0002
+# 'PO-Aus-Schalter_1':                    (5, 2),  # 0x0004
+# 'PO-Aus-Schalter_2':                    (5, 4),  # 0x0008
+# 'Drucksensor_CB':                       (6, 0),  # 0x0001
+# 'Drucksensor_SFK':                      (6, 1),  # 0x0002
+# 'Drucksensor_Tube':                     (6, 2),  # 0x0004
+# 'Chopper_Drehzahl':                     (6, 3),  # 0x0008
+# 'Druck_service_inv':                    (6, 4),  # 0x0010
+# 'Personenschluessel_Terminal':          (6, 11),  # 0x0800
+# 'Freigabe_Taster':                      (6, 12),  # 0x1000
+# 'Lampentest_inv':                       (6, 13),  # 0x2000
+# 'Endschalter_Ex_Shutter_inv':           (6, 14),  # 0x4000
+# 'Handbetrieb_tube_inv':                 (6, 15),  # 0x8000
+# 'Probenort_Geraeumt_inv':               (14, 2),  # 0x0004
+# 'Streurohr_Geraeumt_inv':               (14, 3),  # 0x0008
+# 'IV_key_1':                             (15, 8),  # 0x0100
+# 'IV_key_2':                             (15, 9),  # 0x0200
+# 'gelb_inv':                             (17, 3),  # 0x0008
+# 'Freigabe_EIN':                         (17, 10),  # 0x0400
+# 'rot_inv':                              (18, 8),  # 0x0100
+# 'Warnschilder':                         (18, 9),  # 0x0200
+# 'Keine_Freigabe_Hub_Streurohr':         (18, 10),  # 0x0400
+# 'Freigabe_Hub_Streurohr_inv':           (18, 10),  # 0x0400
+# 'shutterzustand':                       (18, 11),  # 0x0800
+# 'gruen_inv':                            (18, 12),  # 0x0800
+
 devices = dict(
     safetysystem = device('nicos_mlz.refsans.devices.safetysystem.Shs',
         description = 'io device for Pilz',
         tangodevice = tango_base + 'safetysystem/io/modbus',
         lowlevel = True,
     ),
-    techOK = device('nicos_mlz.refsans.devices.safetysystem.Group4',
+    techOK = device('nicos_mlz.refsans.devices.safetysystem.Group',
         description = ' ',
-        p1 = 'chopper_drive',
-        p2 = 'Shspressure_CB',
-        p3 = 'Shspressure_SFK',
-        p4 = 'Shspressure_SR',
-        unit = '',
+        shs = 'safetysystem',
+        bitlist = ['Chopper_Drehzahl', 'Drucksensor_CB', 'Drucksensor_SFK',
+                   'Drucksensor_Tube'],
+        okmask = 0b1111,
         lowlevel = False,
     ),
-    chopper_drive = device('nicos_mlz.refsans.devices.safetysystem.ShsSingleBit',
-        description = '',
-        shs = 'safetysystem',
-        unit = '',
-        lowlevel = True,
-        word_address = 0x0008,
-        bit_index = 6,
-    ),
-    Shspressure_CB = device('nicos_mlz.refsans.devices.safetysystem.ShsSingleBit',
-        description = '',
-        shs = 'safetysystem',
-        unit = '',
-        lowlevel = True,
-        word_address = 0x0001,
-        bit_index = 6,
-    ),
-    Shspressure_SFK = device('nicos_mlz.refsans.devices.safetysystem.ShsSingleBit',
-        description = '',
-        shs = 'safetysystem',
-        unit = '',
-        lowlevel = True,
-        word_address = 0x0002,
-        bit_index = 6,
-    ),
-    Shspressure_SR = device('nicos_mlz.refsans.devices.safetysystem.ShsSingleBit',
-        description = '',
-        shs = 'safetysystem',
-        unit = '',
-        lowlevel = True,
-        word_address = 0x0004,
-        bit_index = 6,
-    ),
-    sampleposition_clear = device('nicos_mlz.refsans.devices.safetysystem.ShsSingleBitReverse',
-        description = '',
-        shs = 'safetysystem',
-        unit = '',
-        lowlevel = True,
-        word_address = 0x0004,
-        bit_index = 14,
-    ),
-    Streurohr_clear = device('nicos_mlz.refsans.devices.safetysystem.ShsSingleBitReverse',
-        description = '',
-        shs = 'safetysystem',
-        unit = '',
-        lowlevel = True,
-        word_address = 0x0008,
-        bit_index = 14,
-    ),
-    Verbindungstuer = device('nicos_mlz.refsans.devices.safetysystem.ShsSingleBit',
-        description = '',
-        shs = 'safetysystem',
-        unit = '',
-        lowlevel = True,
-        word_address = 0x0100,
-        bit_index = 4,
-    ),
-    Tuer_PO_auf = device('nicos_mlz.refsans.devices.safetysystem.ShsSingleBit',
-        description = '',
-        shs = 'safetysystem',
-        unit = '',
-        lowlevel = True,
-        word_address = 0x0040,
-        bit_index = 3,
-    ),
-    Tuer_PO_zu = device('nicos_mlz.refsans.devices.safetysystem.ShsSingleBitReverse',
-        description = '',
-        shs = 'safetysystem',
-        unit = '',
-        lowlevel = True,
-        word_address = 0x0080,
-        bit_index = 3,
-    ),
-    Tuer_PO = device('nicos_mlz.refsans.devices.safetysystem.ShsInversBit',
-        description = '',
-        unit = '',
-        even = 'Tuer_PO_zu',
-        odd  = 'Tuer_PO_auf',
-        lowlevel = True,
-    ),
-    Tuer_SR_auf = device('nicos_mlz.refsans.devices.safetysystem.ShsSingleBit',
-        description = '',
-        shs = 'safetysystem',
-        unit = '',
-        lowlevel = True,
-        word_address = 0x0400,
-        bit_index = 4,
-    ),
-    Tuer_SR_zu = device('nicos_mlz.refsans.devices.safetysystem.ShsSingleBitReverse',
-        description = '',
-        shs = 'safetysystem',
-        unit = '',
-        lowlevel = True,
-        word_address = 0x0800,
-        bit_index = 4,
-    ),
-    Tuer_SR = device('nicos_mlz.refsans.devices.safetysystem.ShsInversBit',
-        description = '',
-        unit = '',
-        even = 'Tuer_SR_zu',
-        odd  = 'Tuer_SR_auf',
-        lowlevel = True,
-    ),
-    doors = device('nicos_mlz.refsans.devices.safetysystem.Group3',
+    place = device('nicos_mlz.refsans.devices.safetysystem.Group',
         description = ' ',
-        p1 = 'Tuer_PO',
-        p2 = 'Verbindungstuer',
-        p3 = 'Tuer_SR',
-        unit = '',
+        shs = 'safetysystem',
+        bitlist = ['Probenort_Geraeumt_inv', 'Streurohr_Geraeumt_inv'],
+        okmask = 0b00,
         lowlevel = False,
     ),
-    place = device('nicos_mlz.refsans.devices.safetysystem.Group2',
+    doors = device('nicos_mlz.refsans.devices.safetysystem.Group',
         description = ' ',
-        p1 = 'sampleposition_clear',
-        p2 = 'Streurohr_clear',
-        unit = '',
+        shs = 'safetysystem',
+        bitlist = ['Tuer_PO_auf', 'Tuer_PO_zu', 'Verbindungstuer',
+                   'Tuer_SR_auf', 'Tuer_SR_zu'],
+        okmask = 0b01101,
+        lowlevel = False,
+    ),
+    signal = device('nicos_mlz.refsans.devices.safetysystem.Group',
+        description = '',
+        shs = 'safetysystem',
+        bitlist = ['gruen_inv', 'gelb_inv', 'rot_inv'],
+        okmask = 0b000,
+        lowlevel = True,
+    ),
+    service = device('nicos_mlz.refsans.devices.safetysystem.Group',
+        description = ' ',
+        shs = 'safetysystem',
+        bitlist = ['Hupentest_inv', 'Schluesselschalter_Wartung_inv',
+                   'Lampentest_inv', 'Handbetrieb_tube_inv',
+                   'Druck_service_inv', 'Ampeltest_inv'],
+        okmask = 0b000000,
+        lowlevel = False,
+    ),
+    PO_save = device('nicos_mlz.refsans.devices.safetysystem.Group',
+        description = ' ',
+        shs = 'safetysystem',
+        bitlist = ['Probenort_Geraeumt_inv', 'Tuer_PO_auf', 'Tuer_PO_zu',
+                   'Verbindungstuer'],
+        okmask = 0b1010,
+        lowlevel = False,
+    ),
+    SR_save = device('nicos_mlz.refsans.devices.safetysystem.Group',
+        description = ' ',
+        shs = 'safetysystem',
+        bitlist = ['Streurohr_Geraeumt_inv', 'Tuer_SR_auf', 'Tuer_SR_zu',
+                   'Verbindungstuer'],
+        okmask = 0b1010,
+        lowlevel = False,
+    ),
+    supervisor = device('nicos_mlz.refsans.devices.safetysystem.Group',
+        description = ' ',
+        shs = 'safetysystem',
+        bitlist = ['6-fach-Shutter_auf', '6-fach-Shutter_zu',
+                   'Schnellschluss-Shutter_auf', 'Schnellschluss-Shutter_zu',
+                   'Verbindung_zu_Warte_iO', 'Freigabe_von_Warte_fuer_ESShutter'],
+        okmask = 0b100101,
+        lowlevel = False,
+    ),
+    user = device('nicos_mlz.refsans.devices.safetysystem.Group',
+        description = ' ',
+        shs = 'safetysystem',
+        bitlist = ['externer_User_Kontakt_A', 'externer_User_Kontakt_B'],
+        okmask = 0b11,
         lowlevel = False,
     ),
 )
