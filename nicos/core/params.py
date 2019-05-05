@@ -741,7 +741,7 @@ class none_or(object):
         return self.conv(val)
 
 
-nicosdev_re = re.compile(r'^[a-z_][a-z_0-9]*$', re.I)  # valid Python identifier
+nicosdev_re = re.compile(r'^[a-z_][a-z_0-9]*(\.[a-z_][a-z_0-9]*)?$', re.I)
 
 
 def nicosdev(val=None):

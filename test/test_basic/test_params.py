@@ -366,7 +366,9 @@ def test_path():
 
 
 def test_nicosdev():
-    assert raises(ValueError, nicosdev, 'nicos.dev')
+    assert nicosdev('nicosdev') == 'nicosdev'
+    assert nicosdev('nicos.dev') == 'nicos.dev'
+    assert raises(ValueError, nicosdev, 'a.nicos.dev')
 
 
 def test_string_params():

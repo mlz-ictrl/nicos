@@ -384,10 +384,12 @@ class SetupChecker(object):
                                        extra=self.find_global('alias_config'))
                         break
                     if target not in self.ns.get('devices', {}):
-                        self.log_error('alias_config device target should be a '
-                                       'device from the current setup',
-                                       extra=self.find_global('alias_config'))
-                        break
+                        basedev = target.partition('.')[0]
+                        if basedev not in self.ns.get('devices'):
+                            self.log_error('alias_config device target should '
+                                           'be a device from the current setup',
+                                           extra=self.find_global('alias_config'))
+                            break
 
         # check for validity of display_order
         display_order = self.ns.get('display_order', 50)
