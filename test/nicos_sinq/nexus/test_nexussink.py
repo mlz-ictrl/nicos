@@ -1,0 +1,226 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the MLZ
+# Copyright (c) 2009-2019 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Mark Koennecke <mark.koennecke@psi.ch>
+#
+# *****************************************************************************
+from __future__ import absolute_import, division, print_function
+
+import os
+import time
+from os import path
+
+import h5py
+import pytest
+
+from nicos import config
+from nicos.commands.device import maw
+from nicos.commands.measure import count
+from nicos.commands.scan import scan
+from nicos.utils import updateFileCounter
+
+from nicos_sinq.nexus.elements import ConstDataset, DetectorDataset, \
+    DeviceAttribute, DeviceDataset, ImageDataset, NXAttribute, NXLink, \
+    NXScanLink
+
+from test.nicos_sinq.nexus.TestTemplateProvider import setTemplate
+
+session_setup = 'sinq_nexussink'
+
+
+class TestNexusSink(object):
+
+    datadir = 'testdata2'
+
+    @pytest.fixture(scope='class', autouse=True)
+    def init_system(self, session):
+        exp = session.experiment
+        dataroot = path.join(config.nicos_root, self.datadir)
+        if not os.path.isdir(dataroot):
+            os.makedirs(dataroot)
+
+        exp._setROParam('dataroot', dataroot)
+        exp.new(1234, user='testuser', localcontact=exp.localcontact)
+        exp.sample.new({'name': 'GurkenOxid'})
+        year = time.strftime('%Y')
+        assert path.abspath(exp.datapath) == path.abspath(
+            path.join(config.nicos_root, self.datadir, str(year), 'p1234',
+                      'data'))
+        session.experiment.setEnvironment([])
+
+    @pytest.fixture(scope='function', autouse=True)
+    def setScanCounter(self, session):
+        dataroot = path.join(config.nicos_root, self.datadir)
+        counter = path.join(dataroot, session.experiment.counterfile)
+        open(counter, 'w').close()
+        updateFileCounter(counter, 'scan', 42)
+        # print('SetCounter')
+        updateFileCounter(counter, 'point', 167)
+
+    def test_hierarchy(self, session):
+        template = {
+            'instrument': 'test',
+            'entry:NXentry': {},
+        }
+        setTemplate(template)
+
+        count(t=0.1)
+
+        fin = h5py.File(session.experiment.datapath + '/test2019n000043.hdf',
+                        'r')
+        att = fin.attrs['instrument']
+        assert (att == b'test')
+
+        g = fin['entry']
+        att = g.attrs['NX_class']
+        assert (att == b'NXentry')
+
+        fin.close()
+
+    def test_Datasets(self, session):
+        template = {
+            'entry:NXentry': {
+                'name': DeviceDataset('Exp', 'title'),
+                'def': ConstDataset('NXmonopd', 'string'),
+                'sry': DeviceDataset('sry',
+                                     units=NXAttribute('deg', 'string')),
+            },
+        }
+        session.experiment.title = 'GurkenTitle'
+        maw(session.getDevice('sry'), 23.7)
+        setTemplate(template)
+        count(t=.1)
+
+        fin = h5py.File(session.experiment.datapath + '/test2019n000043.hdf',
+                        'r')
+        ds = fin['entry/name']
+        assert (ds[0] == b'GurkenTitle')
+
+        ds = fin['entry/def']
+        assert (ds[0] == b'NXmonopd')
+
+        ds = fin['entry/sry']
+        assert (ds[0] == 23.7)
+        assert (ds.attrs['units'] == b'deg')
+        fin.close()
+
+    def test_Attributes(self, session):
+        template = {
+            'entry:NXentry': {'title': DeviceAttribute('Exp', 'title'),
+            'units': NXAttribute('mm', 'string'),},
+        }
+
+        session.experiment.title = 'GurkenTitle'
+        setTemplate(template)
+
+        count(t=.1)
+
+        fin = h5py.File(session.experiment.datapath + '/test2019n000043.hdf',
+                        'r')
+        g = fin['entry']
+        assert (g.attrs['title'] == b'GurkenTitle')
+        assert (g.attrs['units'] == b'mm')
+        fin.close()
+
+    def test_Scan(self, session):
+        template = {
+            'entry:NXentry': {
+                'time': DetectorDataset('timer', 'float32'),
+                'mon': DetectorDataset('mon1', 'uint32'),
+                'counts': ImageDataset(0, 0,
+                                       signal=NXAttribute(1, 'int32')),
+                'sry': DeviceDataset('sry'),
+            },
+            'data:NXdata': {'None': NXScanLink(),},
+        }
+
+        setTemplate(template)
+        session.experiment.setDetectors(['det', ])
+        sry = session.getDevice('sry')
+        scan(sry, 0, 1, 5, t=0.001)
+
+        fin = h5py.File(session.experiment.datapath + '/test2019n000043.hdf',
+                        'r')
+
+        ds = fin['entry/sry']
+        assert (len(ds) == 5)
+
+        ds = fin['entry/time']
+        assert (len(ds) == 5)
+        ds = fin['entry/mon']
+        assert (len(ds) == 5)
+
+        ds = fin['entry/counts']
+        assert (len(ds) == 5)
+
+        ds = fin['data/sry']
+        assert (len(ds) == 5)
+        assert (ds[0] == 0)
+        assert (ds[1] == 1)
+        assert (ds[2] == 2)
+        assert (ds[3] == 3)
+        assert (ds.attrs['target'] == b'/entry/sry')
+
+        fin.close()
+
+    def test_Detector(self, session):
+        template = {
+            'data:NXdata': {
+                'time': DetectorDataset('timer', 'float32'),
+                'mon': DetectorDataset('mon1', 'uint32'),
+                'counts': ImageDataset(0, 0,
+                                       signal=NXAttribute(1, 'int32')),
+            },
+        }
+
+        setTemplate(template)
+        session.experiment.setDetectors(['det', ])
+        count(t=.1)
+
+        fin = h5py.File(session.experiment.datapath + '/test2019n000043.hdf',
+                        'r')
+        ds = fin['data/time']
+        ds = fin['data/mon']
+        ds = fin['data/counts']
+        assert (ds.attrs['signal'] == 1)
+        fin.close()
+
+    def test_Link(self, session):
+        template = {
+            'entry:NXentry': {'sry': DeviceDataset('sry'), },
+            'data:NXdata': {'srlink': NXLink('/entry/sry'), }
+        }
+
+        maw(session.getDevice('sry'), 77.7)
+
+        setTemplate(template)
+        count(t=.1)
+
+        fin = h5py.File(session.experiment.datapath + '/test2019n000043.hdf',
+                        'r')
+        ds = fin['entry/sry']
+        assert (ds[0] == 77.7)
+
+        ds = fin['data/srlink']
+        assert (ds[0] == 77.7)
+
+        assert (ds.attrs['target'] == b'/entry/sry')
+
+        fin.close()
