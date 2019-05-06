@@ -61,10 +61,4 @@ devices = dict(
         table = 'det_table_a',
         pivot = 'det_pivot',
     ),
-    tube_m = device('nicos.devices.taco.Motor',
-        description = 'tube Motor',
-        tacodevice = '//%s/test/servostar/tube0' % nethost,
-        abslimits = (-200, 1000),
-        lowlevel = True,
-    ),
 )
