@@ -29,15 +29,23 @@ from __future__ import absolute_import, division, print_function
 from nicos import session
 from nicos.core import Moveable, Override, Param, status
 from nicos.core.errors import NicosError
+from nicos.core.mixins import DeviceMixinBase, HasOffset
+from nicos.core.params import Attach
+from nicos.devices.abstract import Motor
 from nicos.devices.tango import StringIO
 
-from nicos_mlz.refsans.devices.chopper.base import ChopperDisc as ChopperDiscBase, \
+from nicos_mlz.refsans.devices.chopper.base import \
+    ChopperDisc as ChopperDiscBase, \
     ChopperDisc2 as ChopperDisc2Base, \
     ChopperDiscTranslation as ChopperDiscTranslationBase, \
     ChopperMaster as ChopperMasterBase
 
 
-class ChopperBase(StringIO):
+class ChopperBase(DeviceMixinBase):
+
+    attached_devices = {
+        'comm': Attach('Communication device', StringIO),
+    }
 
     def _read_controller(self, mvalue):
         # TODO  this has to be fix somehow
@@ -46,13 +54,13 @@ class ChopperBase(StringIO):
         else:
             what = mvalue
         # self.log.debug('_read_controller what: %s', what)
-        res = self.communicate(what)
+        res = self._attached_comm.communicate(what)
         res = res.replace('\x06', '')
         # self.log.debug('_read_controller res for %s: %s', what, res)
         return res
 
     def _read_base(self, what):
-        res = self.communicate(what)
+        res = self._attached_comm.communicate(what)
         res = res.replace('\x06', '')
         return res
 
@@ -64,10 +72,10 @@ class ChopperBase(StringIO):
         else:
             what = mvalue % (values)
         self.log.debug('_write_controller what: %s', what)
-        self.writeLine(what)
+        self._attached_comm.writeLine(what)
 
 
-class ChopperMaster(ChopperMasterBase, ChopperBase):
+class ChopperMaster(ChopperBase, ChopperMasterBase):
 
     parameters = {
         'fatal': Param('Emergency off: Frontswitch and Backplane',
@@ -133,7 +141,7 @@ class ChopperMaster(ChopperMasterBase, ChopperBase):
 
     def _commute(self):
         self.log.debug('CMD commute')
-        self.writeLine('m4070=5')
+        self._attached_comm.writeLine('m4070=5')
         self.log.debug('DEVELOPING just wait!')
 
     def _position(self, disc, angle):
@@ -149,11 +157,11 @@ class ChopperMaster(ChopperMasterBase, ChopperBase):
         angle = int(round(angle * 100))
         line = 'm4073=%d m4074=0 m4075=%d m4076=0 m4070=7' % (disc, angle)
         self.log.info('line %s' % line)
-        self.writeLine(line)
+        self._attached_comm.writeLine(line)
         self.log.info('you should be MP!')
 
 
-class ChopperDisc(ChopperDiscBase, ChopperBase, Moveable):
+class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
 
     parameters = {
         'condition': Param('Internal condition',
@@ -172,16 +180,16 @@ class ChopperDisc(ChopperDiscBase, ChopperBase, Moveable):
         if self.chopper != 1 or self.gear != 0:
             self.log.warning('changed chopper:%d gear:%d edge:%s',
                              self.chopper, self.gear, self.edge)
-        self._write_controller('m4073=%d m4074=%.0f m4075=0 m4076=0 m4070=7',
-                               round(target))
+        self._write_controller(
+            'm4073=%d m4074=%.0f m4075=0 m4076=0 m4070=7', round(target))
 
     def doRead(self, maxage=0):
         return self._current_speed()
 
     def doReadCurrent(self):
         # res = int(self._read_controller('m%s68'))  # peak current
-        res = int(self._read_controller('m420%s'))  # averaged current
-        res /= 1000.0
+        # averaged current
+        res = int(self._read_controller('m420%s')) / 1e3
         self.log.debug('current: %d', res)
         return res
 
@@ -342,8 +350,8 @@ class ChopperDisc(ChopperDiscBase, ChopperBase, Moveable):
         #    #session.delay(0.04) 4 loops!
         #    session.delay(0.2)
         #    TODO
-        self._write_controller('m4073=%d m4074=0 m4075=%d m4076=%d m4070=7',
-                               set_to, self.gear)
+        self._write_controller(
+            'm4073=%d m4074=0 m4075=%d m4076=%d m4070=7', set_to, self.gear)
         session.delay(5)  # MP: isso
 
     def doStatus(self, maxage=0):
@@ -388,20 +396,21 @@ class ChopperDisc2(ChopperDisc2Base, ChopperDisc):
     """Chopper disc 2 device."""
 
 
-class ChopperDiscTranslation(ChopperDiscTranslationBase, ChopperBase):
+class ChopperDiscTranslation(ChopperDiscTranslationBase, ChopperBase,
+                             HasOffset, Motor):
     """Chopper disc translation device."""
 
     def doStart(self, value):
         self.log.info('requested position %d', value)
         what = 'm4077=%d' % value
         self.log.debug('doWritePos what: %s', what)
-        res = self.writeLine(what)
+        res = self._attached_comm.writeLine(what)
         self.log.debug('doWritePos res: %d', res)
 
     def _read_pos(self):
         what = 'm4078'
         self.log.debug('_read_pos what: %s', what)
-        res = self.communicate(what)
+        res = self._attached_comm.communicate(what)
         res = int(res.replace('\x06', ''))
         self.log.debug('_read_pos what: %s pos: %d', what, res)
         return res
