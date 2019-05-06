@@ -28,91 +28,145 @@ from __future__ import absolute_import, division, print_function
 
 from test.utils import approx
 
+import pytest
+
 from nicos_mlz.toftof.devices.calculations import Eres1, ResolutionAnalysis, \
     alpha, calculateChopperDelay, calculateCounterDelay, \
     calculateTimeInterval, phi, phi1, speedRatio, t1, t2
 
 
-def test_basic_calculations():
+class TestBasicCalculations(object):
 
-    assert '%.4f' % alpha == '252.7784'
+    @pytest.fixture(scope='function', autouse=True)
+    def prepare(self):
+        assert alpha == approx(252.7784, abs=1e-4)
 
-    r = [0, 1.0, 0.5, 0, 0.75, 0.8, 0, 0, 0.875, 0, 0.7]
-    for i in [1, 2, 4, 5, 8, 10]:
-        assert speedRatio(i) == r[i]
+    def test_speedRatio(self):
+        for x, expected in [
+            (1., 1.),
+            (2., 0.5),
+            (4., 0.75),
+            (5., 0.8),
+            (8., 0.875),
+            (10., 0.7),
+        ]:
+            assert speedRatio(x) == expected
 
-    res1 = ['0.00', '12.74', '432.78', '1013.21', '1022.77', '1264.45',
-            '1274.00']
-    for x in range(1, 8):
-        assert '%.2f' % phi1(x, 14000, 6) == res1[x - 1]
+    def test_phi1_calculations(self):
+        for x, speed, wl, expected in [
+            (1, 14000, 6, 0.),
+            (2, 14000, 6, 12.74),
+            (3, 14000, 6, 432.78),
+            (4, 14000, 6, 1013.21),
+            (5, 14000, 6, 1022.77),
+            (6, 14000, 6, 1264.45),
+            (7, 14000, 6, 1274.00),
+            (5, 7000, 6, 511.38)
+        ]:
+            assert phi1(x, speed, wl) == approx(expected, abs=1e-2)
 
-    assert '%.2f' % phi1(5, 7000, 6) == '511.38'
+    def test_phi_calculations(self):
+        res2 = ['0.00', '-12.74', '-72.78', '66.79', '-57.23', '176.25',
+                '166.70']
+        for x in range(1, 8):
+            assert '%.2f' % phi(x, 14000, 6) == res2[x - 1]
 
-    res2 = ['0.00', '-12.74', '-72.78', '66.79', '-57.23', '176.25', '166.70']
-    for x in range(1, 8):
-        assert '%.2f' % phi(x, 14000, 6) == res2[x - 1]
+        assert '%.2f' % phi(5, 14000, 6, ch5_90deg_offset=1) == '32.77'
 
-    assert '%.2f' % phi(5, 14000, 6, ch5_90deg_offset=1) == '32.77'
+        res3 = ['0.00', '-12.74', '-162.78', '-23.21', '32.77', '176.25',
+                '166.70']
+        for x in range(1, 8):
+            assert '%.2f' % phi(x, 14000, 6, slittype=1) == res3[x - 1]
 
-    res3 = ['0.00', '-12.74', '-162.78', '-23.21', '32.77', '176.25', '166.70']
-    for x in range(1, 8):
-        assert '%.2f' % phi(x, 14000, 6, slittype=1) == res3[x - 1]
+        res3_1 = ['0.00', '12.74', '-162.78', '-23.21', '32.77', '176.25',
+                  '-165.30']
+        for x in range(1, 8):
+            assert '%.2f' % phi(x, 14000, 6, 0, slittype=1) == res3_1[x - 1]
 
-    res3_1 = ['0.00', '12.74', '-162.78', '-23.21', '32.77', '176.25',
-              '-165.30']
-    for x in range(1, 8):
-        assert '%.2f' % phi(x, 14000, 6, 0, slittype=1) == res3_1[x - 1]
+        res3_2 = ['0.00', '12.74', '-72.78', '66.79', '-57.23', '-93.75',
+                  '104.70']
+        for x in range(1, 8):
+            assert '%.2f' % phi(x, 14000, 6, 0, slittype=2) == res3_2[x - 1]
 
-    res3_2 = ['0.00', '12.74', '-72.78', '66.79', '-57.23', '-93.75', '104.70']
-    for x in range(1, 8):
-        assert '%.2f' % phi(x, 14000, 6, 0, slittype=2) == res3_2[x - 1]
+        assert '%.2f' % phi(5, 14000, ratio=5, ilambda=6) == '98.22'
+        assert '%.2f' % phi(5, 14000, ratio=5, slittype=1, ilambda=6) == \
+            '170.22'
 
-    assert '%.2f' % phi(5, 14000, ratio=5, ilambda=6) == '98.22'
-    assert '%.2f' % phi(5, 14000, ratio=5, slittype=1, ilambda=6) == '170.22'
+    def test_t1(self):
+        for x, expected in [
+            (2, 0.000152),
+            (3, 0.005152),
+            (4, 0.012062),
+            (5, 0.012176),
+            (6, 0.015053),
+            (7, 0.015167)
+        ]:
+            assert t1(1, x, ilambda=6) == approx(expected, abs=1e-6)
 
-    res4 = ['0.000152', '0.005152', '0.012062', '0.012176', '0.015053',
-            '0.015167']
-    for x in range(2, 8):
-        assert '%.6f' % t1(1, x, ilambda=6) == res4[x - 2]
+    def test_t2(self):
+        for x, expected in [
+            (2, 0.017138),
+            (3, 0.012138),
+            (4, 0.005228),
+            (5, 0.005114),
+            (6, 0.002237),
+            (7, 0.002123),
+        ]:
+            assert t2(x, ilambda=6) == approx(expected, abs=1e-6)
 
-    res5 = ['0.017138', '0.012138', '0.005228', '0.005114', '0.002237',
-            '0.002123']
-    for x in range(2, 8):
-        assert '%.6f' % t2(x, ilambda=6) == res5[x - 2]
+    def test_eres1(self):
+        def check_results(res, expected, precision):
+            for v, e in zip(res, expected):
+                assert v == approx(e, abs=precision)
 
-    assert Eres1(6, 0) == (0, 0)
-    assert '%f, %f' % Eres1(6, 14000, crc=0) == '0.000096, 0.000128'
-    assert '%f, %f' % Eres1(6, 14000, crc=1) == '0.000048, 0.000064'
-    assert '%f, %f' % Eres1(6, 14000, st=1) == '0.000024, 0.000032'
-    assert '%f, %f' % Eres1(6, 14000, st=2) == '0.000037, 0.000050'
+        for wl, speed, st, crc, expected in [
+            (6, 0, 0, 1, (0, 0)),
+            (6, 14000, 0, 0, (0.000096, 0.000128)),
+            (6, 14000, 0, 1, (0.000048, 0.000064)),
+            (6, 14000, 1, 1, (0.000024, 0.000032)),
+            (6, 14000, 2, 1, (0.000037, 0.000050)),
+        ]:
+            check_results(Eres1(wl, speed, st, crc), expected, 1e-6)
 
+    def test_delay_calculations(self):
+        for wl, speed, ratio, st, ch5_90deg, expected in [
+            (6, 14000, 5, 0, False, 1094),
+            (6, 14000, 5, 1, False, 22),
+            (6, 14000, 5, 0, True, 1897),
+            (6, 14000, 6, 0, False, 1147),
+            (6, 14000, 6, 0, True, 2004),
+        ]:
+            assert calculateChopperDelay(wl, speed, ratio, st, ch5_90deg) == \
+                expected
 
-def test_delay_calculations():
+    def test_timeinterval_calculations(self):
+        for speed, ratio, expected in [
+            (14000, 5, 0.0107143),
+            (0, 1, 0.052),
+        ]:
+            assert calculateTimeInterval(speed, ratio) == approx(expected,
+                                                                 abs=1e-7)
 
-    assert calculateChopperDelay(6, 14000, 5, 0, False) == 1094
-    assert calculateChopperDelay(6, 14000, 5, 1, False) == 22
+    def test_counterdelay_calculations(self):
+        for wl, speed, ratio, delay, ch5_90deg_offset, expected in [
+            (6, 14000, 5, 0, False, 129070),
+            (6, 14000, 5, 1, False, 200499),
+            (6, 14000, 5, 0, True, 155856),
+            (6, 14000, 6, 0, False, 127999),
+            (6, 14000, 6, 0, True, 153713),
+        ]:
+            assert calculateCounterDelay(wl, speed, ratio, delay,
+                                         ch5_90deg_offset) == expected
 
-    assert calculateChopperDelay(6, 14000, 5, 0, True) == 1897
+    def test_resolution_analysis(self):
+        chSpeed = 14000
+        chWL = 6.
+        chRatio = 4
+        chST = 1
+        ra = ResolutionAnalysis(chSpeed, chWL, chRatio, chST)
 
-    assert calculateCounterDelay(6, 14000, 5, 0, False) == 129070
-    assert calculateCounterDelay(6, 14000, 5, 0, True) == 155856
-
-    assert '%.7f' % calculateTimeInterval(14000, 5) == '0.0107143'
-
-    assert calculateTimeInterval(0, 1) == 0.052
-
-
-def test_resolution_analysis():
-
-    chSpeed = 14000
-    chWL = 6.
-    chRatio = 4
-    chST = 1
-
-    ra = ResolutionAnalysis(chSpeed, chWL, chRatio, chST)
-
-    assert approx(ra.E0, abs=5e-5) == 2.2723
-    assert approx(ra.q_low_0, abs=5e-5) == 0.1386
-    assert approx(ra.q_high_0, abs=5e-5) == 1.9629
-    assert approx(ra.dE_min, abs=5e-5) == -1.0723
-    assert approx(ra.dE_el, abs=5e-5) == 32.9835
+        assert approx(ra.E0, abs=5e-5) == 2.2723
+        assert approx(ra.q_low_0, abs=5e-5) == 0.1386
+        assert approx(ra.q_high_0, abs=5e-5) == 1.9629
+        assert approx(ra.dE_min, abs=5e-5) == -1.0723
+        assert approx(ra.dE_el, abs=5e-5) == 32.9835
