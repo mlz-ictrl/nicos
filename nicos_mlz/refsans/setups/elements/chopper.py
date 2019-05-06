@@ -48,7 +48,7 @@ devices = dict(
     chopper2_pos = device('nicos_mlz.refsans.devices.chopper.real.ChopperDiscTranslation',
         description = 'position of chopper disc 2',
         comm = 'chopper_io',
-        disc = 'chopper1',
+        disc = 'chopper2', # because of speed
     ),
     chopper3 = device('nicos_mlz.refsans.devices.chopper.real.ChopperDisc',
         description = 'chopper3',
