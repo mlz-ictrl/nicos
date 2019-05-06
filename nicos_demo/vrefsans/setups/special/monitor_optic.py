@@ -182,8 +182,8 @@ _sc1col = Column(
 
 _b1col = Column(
     Block('b1', [
-        BlockRow(Field(name='position', dev='b1_position', width=8)),
-        BlockRow(Field(name='opening',  dev='b1_opening', width=8)),
+        BlockRow(Field(name='position', dev='b1.center', width=8)),
+        BlockRow(Field(name='opening',  dev='b1.height', width=8)),
         BlockRow(Field(name='accuracy', dev='b1_accuracy', width=8)),
         ],
     ),
@@ -201,8 +201,8 @@ _nok5acol = Column(
 
 _zb0col = Column(
     Block('zb0', [
-        BlockRow(Field(name='position', dev='zb0_position', width=8)),
-        BlockRow(Field(name='opening',  dev='zb0_opening', width=8)),
+        BlockRow(Field(name='position', dev='zb0.center', width=8)),
+        BlockRow(Field(name='opening',  dev='zb0.height', width=8)),
         BlockRow(Field(name='accuracy', dev='zb0_accuracy', width=8)),
         ],
     ),
@@ -220,8 +220,8 @@ _nok5bcol = Column(
 
 _zb1col = Column(
     Block('zb1', [
-        BlockRow(Field(name='position', dev='zb1_position', width=8)),
-        BlockRow(Field(name='opening',  dev='zb1_opening', width=8)),
+        BlockRow(Field(name='position', dev='zb1.center', width=8)),
+        BlockRow(Field(name='opening',  dev='zb1.height', width=8)),
         BlockRow(Field(name='accuracy', dev='zb1_accuracy', width=8)),
         ],
     ),
@@ -239,8 +239,8 @@ _nok6col = Column(
 
 _zb2col = Column(
     Block('zb2', [
-        BlockRow(Field(name='position', dev='zb2_position', width=8)),
-        BlockRow(Field(name='opening',  dev='zb2_opening', width=8)),
+        BlockRow(Field(name='position', dev='zb2.center', width=8)),
+        BlockRow(Field(name='opening',  dev='zb2.height', width=8)),
         BlockRow(Field(name='accuracy', dev='zb2_accuracy', width=8)),
         ],
     ),
@@ -258,8 +258,8 @@ _nok7col = Column(
 
 _zb3col = Column(
     Block('zb3', [
-        BlockRow(Field(name='position', dev='zb3_position', width=8)),
-        BlockRow(Field(name='opening',  dev='zb3_opening', width=8)),
+        BlockRow(Field(name='position', dev='zb3.center', width=8)),
+        BlockRow(Field(name='opening',  dev='zb3.height', width=8)),
         BlockRow(Field(name='accuracy', dev='zb3_accuracy', width=8)),
         ],
     ),
@@ -277,8 +277,8 @@ _nok8col = Column(
 
 _bs1col = Column(
     Block('bs1', [
-        BlockRow(Field(name='position', dev='bs1_position', width=8)),
-        BlockRow(Field(name='opening',  dev='bs1_opening', width=8)),
+        BlockRow(Field(name='position', dev='bs1.center', width=8)),
+        BlockRow(Field(name='opening',  dev='bs1.height', width=8)),
         BlockRow(Field(name='accuracy', dev='bs1_accuracy', width=8)),
         ],
     ),
@@ -304,8 +304,8 @@ _sc2col = Column(
 
 _b2col = Column(
     Block('b2', [
-        BlockRow(Field(name='position', dev='b2_position', width=8)),
-        BlockRow(Field(name='opening',  dev='b2_opening', width=8)),
+        BlockRow(Field(name='position', dev='b2.center', width=8)),
+        BlockRow(Field(name='opening',  dev='b2.height', width=8)),
         BlockRow(Field(name='accuracy', dev='b2_accuracy', width=8)),
         ],
     ),
@@ -313,8 +313,8 @@ _b2col = Column(
 
 _h2col = Column(
     Block('h2', [
-        BlockRow(Field(name='position', dev='h2_position', width=8)),
-        BlockRow(Field(name='opening',  dev='h2_opening', width=8)),
+        BlockRow(Field(name='position', dev='h2.center', width=8)),
+        BlockRow(Field(name='opening',  dev='h2.height', width=8)),
         BlockRow(Field(name='accuracy', dev='h2_accuracy', width=8)),
         ],
     ),
@@ -322,8 +322,8 @@ _h2col = Column(
 
 _h3col = Column(
     Block('h3', [
-        BlockRow(Field(name='position', dev='h3_position', width=8)),
-        BlockRow(Field(name='opening',  dev='h3_opening', width=8)),
+        BlockRow(Field(name='position', dev='h3.center', width=8)),
+        BlockRow(Field(name='opening',  dev='h3.height', width=8)),
         BlockRow(Field(name='accuracy', dev='h3_accuracy', width=8)),
         ],
     ),
@@ -331,8 +331,8 @@ _h3col = Column(
 
 _b3col = Column(
     Block('b3', [
-        BlockRow(Field(name='position', dev='b3_position', width=8)),
-        BlockRow(Field(name='opening',  dev='b3_opening', width=8)),
+        BlockRow(Field(name='position', dev='b3.center', width=8)),
+        BlockRow(Field(name='opening',  dev='b3.height', width=8)),
         BlockRow(Field(name='accuracy', dev='b3_accuracy', width=8)),
         ],
     ),

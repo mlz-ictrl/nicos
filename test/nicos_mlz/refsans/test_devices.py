@@ -36,6 +36,32 @@ from nicos.core.errors import LimitError
 session_setup = 'refsans'
 
 
+def test_slits(session):
+    zb1 = session.getDevice('zb1')
+    zb3 = session.getDevice('zb3')
+    assert zb1.read(0) == 0.
+    assert zb1.mode == 'slit'
+
+    assert zb3.read(0) == [12., 0.]
+    assert zb3.mode == 'slit'
+
+    assert zb3.height.read(0) == 12.
+    assert zb3.center.read(0) == 0.
+
+    assert zb3.height.isAllowed(12.)[0]
+    assert zb3.height.isAllowed(0.)[0]
+
+    zb3.center.maw(10)
+    assert zb3.read(0) == [12., 10]
+
+    zb3.mode = 'point'
+    assert zb3.read(0) == [12., 10]
+
+    assert not zb3.height.isAllowed(20)[0]
+
+    zb3.stop()
+
+
 def test_beamstop(session):
     hil = session.getDevice('bsh_input_low')
     hi = session.getDevice('bsh_input')

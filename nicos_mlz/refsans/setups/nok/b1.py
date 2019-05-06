@@ -12,18 +12,6 @@ index_r = 0
 index_s = 1
 
 devices = dict(
-    # b1_open = device('nicos_mlz.refsans.devices.slits.DoubleSlitOpen',
-    #     description = 'Opening of b1 end of Chopperburg',
-    #     fmtstr = '%.3f',
-    #     classic = 'b1',
-    #     unit = 'mm',
-    # ),
-    # b1_height = device('nicos_mlz.refsans.devices.slits.DoubleSlitHight',
-    #     description = 'higth of b1 end of Chopperburg',
-    #     fmtstr = '%.3f',
-    #     classic = 'b1',
-    #     unit = 'mm',
-    # ),
     b1 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
         description = 'b1 end of Chopperburg',
         fmtstr = 'open: %.3f, zpos: %.3f',
@@ -140,5 +128,5 @@ devices = dict(
 )
 
 alias_config = {
-#    'primary_aperture': {'b1_open': 100},
+    'primary_aperture': {'b1.height': 100},
 }
