@@ -269,3 +269,6 @@ class ChopperDiscTranslation(CanReference, IsController, DeviceMixinBase):
         if state[0] == status.OK:
             return True, ''
         return False, 'translation is: %s' % state[1]
+
+    def _getWaiters(self):
+        return []
