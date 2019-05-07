@@ -142,6 +142,7 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
     def _commute(self):
         self.log.debug('CMD commute')
         self._attached_comm.writeLine('m4070=5')
+        session.delay(0.5)
         self.log.debug('DEVELOPING just wait!')
 
     def _position(self, disc, angle):
@@ -406,6 +407,8 @@ class ChopperDiscTranslation(ChopperDiscTranslationBase, ChopperBase,
         self.log.debug('doWritePos what: %s', what)
         res = self._attached_comm.writeLine(what)
         self.log.debug('doWritePos res: %d', res)
+        # Better solution would be to take the solution from TOFTOF
+        session.delay(.1)  # time is needed to transfer and initiate start
 
     def _read_pos(self):
         what = 'm4078'
