@@ -50,6 +50,23 @@ class SeqSlowParam(SeqParam):
         return getattr(self.dev, self.paramname) == self.value
 
 
+class SeqFuzzyParam(SeqParam):
+    """Set a parameter of a device and check the value with a precision."""
+
+    def __init__(self, dev, paramname, value, precision=None):
+        self.precision = precision
+        SeqParam.__init__(self, dev=dev, paramname=paramname, value=value)
+
+    def run(self):
+        setattr(self.dev, self.paramname, self.value)
+
+    def isCompleted(self):
+        value = getattr(self.dev, self.paramname)
+        if self.precision is None:
+            return value == self.value
+        return abs(value - self.value) <= self.precision
+
+
 class ChopperMaster(BaseSequencer):
 
     valuetype = dictwith(
@@ -139,7 +156,7 @@ class ChopperMaster(BaseSequencer):
                 # as we do this was catered for here, we have moved the
                 # sign conversion to the doWritePhase function
                 # dev.phase = -t  # sign by history
-                seq.append(SeqParam(dev, 'phase', t))
+                seq.append(SeqFuzzyParam(dev, 'phase', t, 0.5))
         seq.append(SeqDev(self._attached_chopper1, speed, stoppable=True))
         return seq
 
