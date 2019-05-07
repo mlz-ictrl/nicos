@@ -27,7 +27,7 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos import session
-from nicos.core import Moveable, Override, Param, status
+from nicos.core import ADMIN, Moveable, Override, Param, requires, status
 from nicos.core.errors import NicosError
 from nicos.core.mixins import DeviceMixinBase, HasOffset
 from nicos.core.params import Attach
@@ -145,6 +145,7 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         session.delay(0.5)
         self.log.debug('DEVELOPING just wait!')
 
+    @requires(level=ADMIN)
     def _position(self, disc, angle):
         # This method is only for installing new motors, so it is needed every
         # 5 years, it could be written as part of the disc 2 to 6 but it is
