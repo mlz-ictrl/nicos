@@ -166,6 +166,9 @@ class ChopperMaster(BaseSequencer):
         }
         return value
 
+    def _getWaiters(self):
+        return self._choppers
+
 
 class ChopperDisc(HasLimits, HasPrecision, DeviceMixinBase):
 
