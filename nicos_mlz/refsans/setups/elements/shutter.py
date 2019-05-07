@@ -12,7 +12,7 @@ devices = dict(
         precision = 0.5,
         lowlevel = True,
     ),
-    shutter = device('nicos.devices.generic.Switcher',
+    shutter = device('nicos_mlz.refsans.devices.shutter.Shutter',
         description = 'Instrument shutter',
         moveable = 'shutter_m',
         precision = 0.5,
