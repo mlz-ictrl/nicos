@@ -25,3 +25,33 @@
 """Special commands only useable at REFSANS"""
 
 from __future__ import absolute_import, division, print_function
+
+from nicos.commands import helparglist, parallel_safe, usercommand
+from nicos.commands.device import move
+
+
+@usercommand
+@helparglist('wlmin, wlmax, [D=22.8, chopper2_pos=3, gap=0.1]')
+@parallel_safe
+def chopper_config(wl_min, wl_max, D=22.8, chopper2_pos=3, gap=.1):
+    """Configures the chopper.
+
+    The chopper system will be moved to the settings for speed, and chopper
+    disc phases according to the given parameters.
+
+    Examples:
+
+    >>> chopper_config(0, 22) # D=22.8, chopper2_pos=3, gap=0.1
+    >>> chopper_config(0, 22, 21.455)  # chopper2_pos=3, gap=0.1
+    >>> chopper_config(0, 22, 21.455, 1)  # gap=0.1
+    >>> chopper_config(0, 22, 21.455, 2, 0.1)
+
+    """
+    target = {
+        'wlmin': wl_min,
+        'wlmax': wl_max,
+        'D': D,
+        'chopper2_pos': chopper2_pos,
+        'gap': gap
+    }
+    move('chopper', target)
