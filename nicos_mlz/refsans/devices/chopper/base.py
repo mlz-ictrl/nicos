@@ -31,8 +31,7 @@ from nicos.core import HasLimits, HasPrecision, Moveable, Override, Param, \
 from nicos.core.mixins import DeviceMixinBase, IsController
 from nicos.core.params import Attach, limits, oneof
 from nicos.devices.abstract import CanReference
-from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqParam, \
-    SeqWait
+from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqParam
 
 from nicos_mlz.refsans.lib.calculations import chopper_config
 
@@ -111,11 +110,9 @@ class ChopperMaster(BaseSequencer):
     }
 
     def doInit(self, mode):
-        self._devices_phase = (None, self._attached_chopper2,
-                               self._attached_chopper3,
-                               self._attached_chopper4,
-                               self._attached_chopper5,
-                               self._attached_chopper6)
+        self._choppers = (self._attached_chopper1, self._attached_chopper2,
+                          self._attached_chopper3, self._attached_chopper4,
+                          self._attached_chopper5, self._attached_chopper6)
 
     def _generateSequence(self, target):
         self.wlmin, self.wlmax = limits((target.get('wlmin', self.wlmin),
@@ -130,34 +127,31 @@ class ChopperMaster(BaseSequencer):
         self.log.debug('speed: %d, angles = %s', speed, angles)
 
         seq = []
+        shutter_pos = self._attached_shutter.read(0)
+        shutter_ok = self._attached_shutter.status(0)[0] == status.OK
         if chopper2_pos == 6:
             self._setROParam('mode', 'virtual_disc2_pos_6')
         else:
             self._setROParam('mode', 'normal_mode')
             chopper2_pos_akt = self._attached_chopper2.pos
             if chopper2_pos_akt != chopper2_pos:
-                # TODO: Fix problem with chopper status 'TRIPPED' and maw
-                # if self._attached_shutter.status(0)[0] == status.OK:
-                shutter_pos = self._attached_shutter.read(0)
-
-                seq.append(SeqDev(self._attached_shutter, 'closed',
-                                  stoppable=True))
+                if shutter_ok:
+                    seq.append(SeqDev(self._attached_shutter, 'closed',
+                                      stoppable=True))
                 seq.append(SeqDev(self._attached_chopper1, 0, stoppable=True))
                 seq.append(SeqSlowParam(self._attached_chopper2, 'pos',
                                         chopper2_pos))
-                seq.append(
-                    SeqWait(self._attached_chopper2._attached_translation))
-                seq.append(SeqDev(self._attached_shutter, shutter_pos,
-                                  stoppable=True))
 
-        for dev, t in zip(self._devices_phase, angles):
-            if dev:
-                # The Chopper measures the phase in the opposite direction
-                # as we do this was catered for here, we have moved the
-                # sign conversion to the doWritePhase function
-                # dev.phase = -t  # sign by history
-                seq.append(SeqFuzzyParam(dev, 'phase', t, 0.5))
+        for dev, t in zip(self._choppers[1:], angles[1:]):
+            # The Chopper measures the phase in the opposite direction
+            # as we do this was catered for here, we have moved the
+            # sign conversion to the doWritePhase function
+            # dev.phase = -t  # sign by history
+            seq.append(SeqFuzzyParam(dev, 'phase', t, 0.5))
         seq.append(SeqDev(self._attached_chopper1, speed, stoppable=True))
+        if shutter_ok:
+            seq.append(SeqDev(self._attached_shutter, shutter_pos,
+                              stoppable=True))
         return seq
 
     def doRead(self, maxage=0):
