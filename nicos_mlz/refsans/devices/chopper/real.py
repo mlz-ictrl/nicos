@@ -28,6 +28,7 @@ from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.core import ADMIN, Moveable, Override, Param, requires, status
+from nicos.core.errors import PositionError, NicosError
 from nicos.core.mixins import DeviceMixinBase, HasOffset
 from nicos.core.params import Attach
 from nicos.devices.abstract import Motor
@@ -160,6 +161,47 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         self.log.info('line %s' % line)
         self._attached_comm.writeLine(line)
         self.log.info('you should be MP!')
+
+    def doReference(self, *args):
+        self.log.info('chopper reference')
+        for dev in self._choppers:
+            try:
+                dev.maw(0)
+            except PositionError:
+                # choppers are in inactive state
+                pass
+            except NicosError as e:
+                self.log.info('%s', e)
+        self.log.info('check for pending E-Stop')
+
+        fatal = self.fatal  # avoid unneeded hardware access
+        if fatal and fatal != 'ok':
+            self.log.info('chopper fatal: %s', fatal)
+        self.log.info('three BUCKs dont care about the warning and Error!')
+        self._attached_comm.writeLine('$$$')
+        session.delay(2.5)
+
+        self.log.info('three BUCKs dont care about the warning and Error!')
+        fatal = self.fatal
+        if fatal and fatal != 'ok':
+            self.log.error('still fatal %s deny reset: clear Error in RACK2',
+                           fatal)
+            # return
+
+        self.log.info('Disk2_Pos 1')
+        self._attached_chopper2._attached_translation.maw(1)
+
+        self.log.info('commute in speed burst for 4min, a return of 30sec, '
+                      'an a peak, final break of 2min total ca 7min')
+        self._commute()
+        self.wait()
+
+        z_ero = 10
+        self.log.info('setting all phases to %d', z_ero)
+        for dev in self._choppers[1:]:
+            dev.phase = z_ero
+        self.log.info('reset done')
+        self.log.warn('CHECK chopper.delay value! (%.2f)', self.delay)
 
 
 class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
@@ -361,7 +403,7 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
         else:
             self.log.debug('doStatus chopperdisc no number')
         if self.doIsAtTarget(self.doRead(0)) or self.chopper != 1:
-            mode = self.doReadMode()
+            mode = self.mode
             if mode == 0:
                 return status.ERROR, 'inactive'
             elif mode == 1:

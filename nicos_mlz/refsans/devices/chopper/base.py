@@ -66,7 +66,7 @@ class SeqFuzzyParam(SeqParam):
         return abs(value - self.value) <= self.precision
 
 
-class ChopperMaster(BaseSequencer):
+class ChopperMaster(CanReference, BaseSequencer):
 
     valuetype = dictwith(
         wlmin=float,
