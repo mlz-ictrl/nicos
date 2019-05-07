@@ -28,7 +28,6 @@ from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.core import ADMIN, Moveable, Override, Param, requires, status
-from nicos.core.errors import NicosError
 from nicos.core.mixins import DeviceMixinBase, HasOffset
 from nicos.core.params import Attach
 from nicos.devices.abstract import Motor
@@ -402,6 +401,12 @@ class ChopperDiscTranslation(ChopperDiscTranslationBase, ChopperBase,
                              HasOffset, Motor):
     """Chopper disc translation device."""
 
+    parameters = {
+        '_lastpos': Param('Store last valid position',
+                          type=int, settable=False, userparam=False,
+                          mandatory=False, default=1),
+    }
+
     def doStart(self, value):
         self.log.info('requested position %d', value)
         what = 'm4077=%d' % value
@@ -421,18 +426,27 @@ class ChopperDiscTranslation(ChopperDiscTranslationBase, ChopperBase,
 
     def doRead(self, maxage=0):
         self.log.debug('doReadPos')
-        return self.valuetype(self._read_pos())
+        res = self._read_pos()
+        stat = self._status(res)
+        if stat[0] == status.OK:
+            if self._lastpos != res:
+                self._setROParam('_lastpos', res)
+            return res
+        if stat[0] == status.BUSY:
+            return self._lastpos
+        return res  # This should always raise an error
+
+    def _status(self, val):
+        self.log.debug('_status: %d', val)
+        if val == 99:
+            return status.BUSY, 'moving'
+        elif val == 0:
+            return status.NOTREACHED, 'device not referenced'
+        try:
+            self.valuetype(val)
+            return status.OK, ''
+        except ValueError:
+            return status.ERROR, 'Unknown status from read(): %d' % val
 
     def doStatus(self, maxage=0):
-        try:
-            res = self._read_pos()
-            self.log.debug('doStatus: %d', res)
-            if res == 99:
-                return status.BUSY, 'moving'
-            elif res == 0:
-                return status.NOTREACHED, 'device not referenced'
-            elif 1 <= res <= 5:
-                return status.OK, ''
-            return status.ERROR, 'Unknown status from read(): %d' % res
-        except NicosError as e:
-            return status.ERROR, '%s' % e
+        return self._status(self._read_pos())
