@@ -119,9 +119,16 @@ class SISChannel(ImageChannel):
                                    type=listof(float),
                                    settable=True,
                                    volatile=True),
+        'chopstatisticlen':  Param('Revolutions for Background chopper '
+                                   'statistics',
+                                   type=int,
+                                   settable=True,
+                                   volatile=True),
+        'backzerorange':     Param('Range of the pst zero passes for the last'
+                                   'chopstatisticlen pst revolutions',
+                                   type=listof(float),
+                                   volatile=True)
     }
-
-
 
     def __init__(self, name, **config):
         ImageChannel.__init__(self, name, **config)
@@ -180,6 +187,15 @@ class SISChannel(ImageChannel):
 
         self._dev.chop_refl_f = value[0]
         self._dev.chop_refl_t = value[1]
+
+    def doReadChopstatisticlen(self):
+        return self._dev.chop_statisticlen
+
+    def doWriteChopstatisticlen(self, value):
+        self._dev.chop_statisticlen = value
+
+    def doReadBackzerorange(self):
+        return [self._dev.backgr_zero_min, self._dev.backgr_zero_max]
 
     def setTscanAmount(self, amount):
         if session.sessiontype == SIMULATION:
