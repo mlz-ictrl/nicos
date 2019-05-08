@@ -211,7 +211,7 @@ class ChopperDisc(HasLimits, HasPrecision, DeviceMixinBase):
         return abs(self.read(0)) <= self.precision
 
 
-class ChopperDisc2(ChopperDisc):
+class ChopperDisc2(DeviceMixinBase):
     """Chopper disc device with translation."""
 
     parameter_overrides = {
