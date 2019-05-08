@@ -13,7 +13,7 @@ main_window = docked(
            dockpos='right',
            param_display={
                'chopper': ['mode', 'wlmin', 'wlmax'],
-               'chopper1': 'current',
+               'chopper_speed': ['current', 'mode'],
                'chopper2': chopper_params,
                'chopper3': chopper_params,
                'chopper4': chopper_params,

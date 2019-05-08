@@ -9,7 +9,7 @@ devices = dict(
         description = 'Interface',
         fmtstr = '%s',
         unit = '',
-        chopper1 = 'chopper1',
+        chopper1 = 'chopper_speed',
         chopper2 = 'chopper2',
         chopper3 = 'chopper3',
         chopper4 = 'chopper4',
@@ -20,7 +20,7 @@ devices = dict(
         wlmax = 21,
         dist = 22.8,
     ),
-    chopper1 = device('nicos_mlz.refsans.devices.chopper.virtual.ChopperDisc1',
+    chopper_speed = device('nicos_mlz.refsans.devices.chopper.virtual.ChopperDisc1',
         description = 'MC chopper_disk1',
         chopper = 1,
         edge = 'open',
@@ -36,8 +36,9 @@ devices = dict(
     ),
     chopper2_pos = device('nicos_mlz.refsans.devices.chopper.virtual.ChopperDiscTranslation',
         description = 'position of chopper disc 2',
-        # Normally the chopper1 device should be used, but this creates cyclic
-        # dependencies, which couldn't solved during the shutdown !
+        # Normally the chopper1 device of chopper should be used, but this
+        # creates cyclic dependencies, which couldn't solved during the
+        # shutdown !
         disc = 'chopper3',
         curvalue = 5,
         lowlevel = True,

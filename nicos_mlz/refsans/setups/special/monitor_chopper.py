@@ -28,7 +28,7 @@ _chconfigcol = Column(
     ),
     Block(' real chopper setting ', [
          BlockRow(
-            Field(name='speed', dev='chopper1', width=10),
+            Field(name='speed', dev='chopper_speed', width=10),
             Field(name='gap', key='chopper/gap', width=10),
             Field(name='Modus', key='chopper/mode', width=24),
             Field(name='real', key='chopper2/pos', width=10),
@@ -46,7 +46,7 @@ _tididiagcol = Column(
     Block(' time distance diagram ONLY SYMBOL!', [
         BlockRow(
             Field(widget='nicos_mlz.refsans.gui.monitorwidgets.TimeDistance',
-                  width=57, height=48),
+                  chopper1='chopper_speed', width=57, height=48),
             ),
         ],
     ),
@@ -61,7 +61,7 @@ _tididiagcol = Column(
 
 _disk1col = Column(
     Block('disk 1', [
-        BlockRow(Field(name='speed',  dev='chopper1',  width=6.5, unit='rpm')),
+        BlockRow(Field(name='speed',  dev='chopper_speed',  width=6.5, unit='rpm')),
         ],
     ),
 )

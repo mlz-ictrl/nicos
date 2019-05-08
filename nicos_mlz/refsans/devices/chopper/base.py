@@ -100,7 +100,7 @@ class ChopperMaster(CanReference, BaseSequencer):
     _max_disks = 6
 
     attached_devices = {
-        'chopper1': Attach('chopper1 speed', Moveable),
+        'chopper1': Attach('chopper1 defining speed', Moveable),
         'chopper2': Attach('chopper2 phase', Moveable),
         'chopper3': Attach('chopper3 phase also height', Moveable),
         'chopper4': Attach('chopper4 phase also height', Moveable),
