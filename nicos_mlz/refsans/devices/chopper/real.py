@@ -140,6 +140,14 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
             msg.append('h1FFFF extra Errors')
         return ', '.join(msg)
 
+    def _hot_off(self):
+        self.log.warn('chopper is shut down because of hot cores!')
+        self._shut_down()
+
+    def _shut_down(self):
+        self._attached_comm.writeLine('$$$')
+        session.delay(2.5)
+
     def _commute(self):
         self.log.info('commute: see in speed history: burst for 3min, '
                       'a break of 20sec, an a peak, final break of 2min '
@@ -169,7 +177,16 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         self.log.info('chopper reference')
         for dev in self._choppers:
             try:
-                dev.maw(0)
+                dev.move(0)
+                session.delay(.5)
+            except PositionError:
+                # choppers are in inactive state
+                pass
+            except NicosError as e:
+                self.log.info('%s', e)
+        for dev in self._choppers:
+            try:
+                dev.wait()
             except PositionError:
                 # choppers are in inactive state
                 pass
@@ -181,8 +198,7 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         if fatal and fatal != 'ok':
             self.log.info('chopper fatal: %s', fatal)
         self.log.info('three BUCKs')
-        self._attached_comm.writeLine('$$$')
-        session.delay(2.5)
+        self._shut_down()
 
         fatal = self.fatal
         if fatal and fatal != 'ok':
@@ -196,12 +212,14 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         self._commute()
         self.wait()
 
-        z_ero = 10
-        self.log.info('setting all phases to %d', z_ero)
-        for dev in self._choppers[1:]:
-            dev.phase = z_ero
+        self._set_all_phases(10)
         self.log.info('reset done')
         self.log.warning('CHECK chopper.delay value! (%.2f)', self.delay)
+
+    def _set_all_phases(self, target=10):
+        self.log.info('setting all phases to %d', target)
+        for dev in self._choppers[1:]:
+            dev.phase = target
 
 
 class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
