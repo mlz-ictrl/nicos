@@ -135,10 +135,21 @@ class TofNeXuSHandler(TofSinkHandler):
                     _mean, _std, _min, _max = self.dataset.valuestats[dev.name]
                     self._tof.write_sample_pressure('%.4f %s' % (_mean, unit),
                                                     '%.4f %s' % (_std, unit))
+            self._save()
+
+    def _save(self):
         tmpfilename = self._filename + '.new'
-        self._tof.save(tmpfilename, 'w5')
-        self.log.debug('Rename from %s to %s', tmpfilename, self._filename)
-        os.rename(tmpfilename, self._filename)
+        self.log.debug('Create tmp NXS file: %s', tmpfilename)
+        try:
+            self._tof.save(tmpfilename, 'w5')
+            self.log.debug('Rename from %s to %s', tmpfilename, self._filename)
+            os.rename(tmpfilename, self._filename)
+        except Exception as e:
+            self.log.warning('Error occured during NeXuS writing: %s', e)
+            try:
+                os.remove(tmpfilename)
+            except IOError:
+                pass
 
     def putMetainfo(self, metainfo):
         if ('det', 'usercomment') in metainfo:
@@ -218,7 +229,7 @@ class TofNeXuSHandler(TofSinkHandler):
 
     def end(self):
         # self.log.info('%s' % self._tof._entry.nxroot.tree)
-        self._tof.save(self._filename, 'w5')
+        self._save()
         self._tof = None
 
 

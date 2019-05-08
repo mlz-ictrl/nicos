@@ -36,16 +36,16 @@
 #
 # The full license is in the file COPYING.bsd, distributed with this software.
 
-from __future__ import (absolute_import, division, print_function)
+from __future__ import absolute_import, division, print_function
 
 import os
-
-from nexusformat.nexus import NXfield, NXlink, NeXusError
-from nexusformat.nexus.tree import is_text
 
 import numpy as np
 
 import nxs
+from nexusformat.nexus import NeXusError, NXfield, NXlink
+from nexusformat.nexus.tree import is_text
+
 # import h5py as h5
 
 __all__ = ('NexusFile',)
@@ -207,7 +207,8 @@ class NexusFile(object):
                     self._file.compmakedata(data.nxname, data.dtype, data.shape,
                                             'lzw',
                                             [data.shape[0], data.shape[1],
-                                             data.shape[0] / 50.])
+                                             data.shape[0] / 50.
+                                             ])
                 else:
                     self._file.makedata(data.nxname, data.dtype, dlen)
             self._file.opendata(data.nxname)
