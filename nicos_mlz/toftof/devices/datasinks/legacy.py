@@ -114,11 +114,11 @@ class TofImageSinkHandler(TofSinkHandler):
             [header.get(('lv%d' % i, 'value'), (0, 'unknown'))[1]
              for i in range(8)]))
 
-        slit_pos = header['slit', 'value'][1].split()
-        headlines.append('SampleSlit_ho: %s' % slit_pos[0])
-        headlines.append('SampleSlit_hg: %s' % slit_pos[2])
-        headlines.append('SampleSlit_vo: %s' % slit_pos[1])
-        headlines.append('SampleSlit_vg: %s' % slit_pos[3])
+        slit_pos = header['slit', 'value'][0]
+        headlines.append('SampleSlit_ho: %.2f' % slit_pos[0])
+        headlines.append('SampleSlit_hg: %.2f' % slit_pos[2])
+        headlines.append('SampleSlit_vo: %.2f' % slit_pos[1])
+        headlines.append('SampleSlit_vg: %.2f' % slit_pos[3])
 
         headlines.append('Guide_config: %s' % header['ngc', 'value'][1])
         if header['ngc', 'value'][1] == 'focus':

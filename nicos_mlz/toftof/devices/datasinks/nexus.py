@@ -25,7 +25,6 @@
 """Nexus data sink classes for TOFTOF."""
 
 import os
-
 from time import localtime, strftime, time as currenttime
 
 from nicos import session
@@ -160,7 +159,7 @@ class TofNeXuSHandler(TofSinkHandler):
                              if metainfo['det', 'mode'][1] == 'time'
                              else 'MonitorCounts')
 
-        slit_pos = metainfo['slit', 'value'][1].split()
+        slit_pos = metainfo['slit', 'value'][0]
         self._tof.write_slit_ho(slit_pos[0])
         self._tof.write_slit_hg(slit_pos[1])
         self._tof.write_slit_vo(slit_pos[2])
