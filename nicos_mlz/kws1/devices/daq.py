@@ -37,7 +37,7 @@ from nicos.devices.generic.detector import ActiveChannel, Detector, \
 from nicos.devices.generic.virtual import VirtualImage
 from nicos.devices.tango import PyTangoDevice
 
-from nicos_mlz.jcns.devices.fpga import FPGAChannelBase
+from nicos_mlz.jcns.devices.fpga_new import FPGATimerChannel
 
 RTMODES = ('standard', 'tof', 'realtime', 'realtime_external')
 
@@ -336,7 +336,7 @@ class KWSDetector(Detector):
 
     def _configure(self):
         for ch in self._channels:
-            if isinstance(ch, FPGAChannelBase):
+            if isinstance(ch, FPGATimerChannel):
                 ch.extmode = self.mode == 'realtime_external'
         # TODO: ensure that total meas. time < 2**31 usec
         self._img._configure((self.tofchannels, self.tofinterval,
