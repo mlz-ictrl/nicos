@@ -7,7 +7,7 @@ devices = dict(
         description = 'depth of detector drift1=40mm drift2=65mm',
         states = ['off', 'drift1', 'drift2'],
     ),
-    det_pivot = device('nicos.devices.generic.ManualSwitch',
+    det_pivot = device('nicos_mlz.refsans.devices.pivot.PivotPoint',
         description = 'Pivot point at floor of samplechamber',
         states = list(range(1, 15)),
         fmtstr = 'Point %d',
