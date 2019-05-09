@@ -215,7 +215,7 @@ class ChopperDisc2(DeviceMixinBase):
     """Chopper disc device with translation."""
 
     parameter_overrides = {
-        'pos': Override(settable=True, type=intrange(1, 5), format='%d',
+        'pos': Override(settable=True, type=intrange(1, 5), fmtstr='%d',
                         volatile=True, unit=''),
     }
 
