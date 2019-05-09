@@ -241,19 +241,29 @@ class TimeDistance(NicosWidget, TimeDistanceWidget):
             if devname:
                 self._source.register(self, devname + '/phase')
 
+        devname = self.props.get('chopper2')
+        if devname:
+            self._source.register(self, devname + '/pos')
+
     def on_keyChange(self, key, value, time, expired):
         _, dev, param = key.split('/')
         devs = [key for key, d in self.props.items() if d == dev]
         if devs:
             devname = devs[0]
             if param == 'value':
+                if value is None:
+                    return
                 if devname == 'chopper1':
                     self._speed = int(value)
                 elif devname == 'disc2_pos':
                     self._disk2_pos = int(value)
             elif param == 'phase':
                 if devname.startswith('chopper'):
-                    index = int(devname[-1]) - 1
-                    self._phases[index] = float(value)
+                    if not value is None:
+                        index = int(devname[-1]) - 1
+                        self._phases[index] = float(value)
+            elif param == 'pos' and devname == 'chopper2':
+                if not value is None:
+                    self._disk2_pos = int(value)
             self.plot(self._speed, self._phases, self.props['periods'],
                       self._disk2_pos, self.props['D'])
