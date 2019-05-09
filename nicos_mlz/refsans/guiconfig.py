@@ -1,5 +1,7 @@
 """NICOS GUI default configuration."""
 
+chopper_params = ['current', 'phase', 'mode']
+
 main_window = docked(
     vsplit(
         panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
@@ -8,7 +10,34 @@ main_window = docked(
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
-           dockpos='right',)
+           dockpos='right',
+           param_display={
+               'chopper': ['mode', 'wlmin', 'wlmax'],
+               'chopper_speed': ['current', 'mode'],
+               'chopper2': chopper_params + ['pos'],
+               'chopper3': chopper_params,
+               'chopper4': chopper_params,
+               'chopper5': chopper_params,
+               'chopper6': chopper_params,
+               'nok9': 'mode',
+               'nok8': 'mode',
+               'nok7': 'mode',
+               'nok6': 'mode',
+               'nok5b': 'mode',
+               'nok5a': 'mode',
+               'nok4': 'mode',
+               'nok3': 'mode',
+               'nok2': 'mode',
+               'b1': 'mode',
+               'b2': 'mode',
+               'b3': 'mode',
+               'bs1': 'mode',
+               'zb0': 'mode',
+               'zb1': 'mode',
+               'zb2': 'mode',
+               'zb3': 'mode',
+               },
+           ),
     ),
     ('Experiment Information and Setup',
      panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',),

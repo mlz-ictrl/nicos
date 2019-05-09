@@ -14,7 +14,7 @@ main_window = docked(
            param_display={
                'chopper': ['mode', 'wlmin', 'wlmax'],
                'chopper_speed': ['current', 'mode'],
-               'chopper2': chopper_params,
+               'chopper2': chopper_params + ['pos'],
                'chopper3': chopper_params,
                'chopper4': chopper_params,
                'chopper5': chopper_params,
