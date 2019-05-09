@@ -27,6 +27,10 @@ devices = dict(
         tangodevice = tango_base + 'shutter/ctrl',
         mapping = {'open': 1, 'closed': 0},
     ),
+    wheel_pos = device('nicos.devices.tango.DigitalOutput',
+        description = 'Position of the filter wheel',
+        tangodevice = tango_base + 'wheel1/pos',
+    ),
     limiter = device('nicos.devices.tango.AnalogOutput',
         description = 'Helper device to limit photon intensity using filter wheel',
         tangodevice = tango_base + 'wheel1/limiter',
@@ -37,11 +41,11 @@ devices = dict(
         abslimits = (0, 1e6),
     ),
     dlssink = device('nicos_mlz.kws1.devices.dls.DLSFileSink',
-        detectors = ['DLS'],
+        detectors = ['DLSdet'],
     ),
-    DLS = device('nicos_mlz.kws1.devices.dls.DLSDetector',
+    DLSdet = device('nicos_mlz.kws1.devices.dls.DLSDetector',
         description = 'DLS detector',
-        cards = ['card1', 'card2'],
+        cards = ['card1'],
         limiter = 'limiter',
         shutter = 'shutter',
     ),
@@ -49,12 +53,20 @@ devices = dict(
         description = 'Mirror table to select laser',
         tangodevice = tango_base + 'mirror/table',
         fmtstr = '%.2f',
+        precision = 0.1,
+    ),
+    laser = device('nicos.devices.generic.Switcher',
+        description = 'Selected laser from mirror table',
+        moveable = 'mirror_pos',
+        mapping = {'red': 0, 'green': 21.9},
+        precision = 0.1,
     ),
 )
 
-extended = dict(
-    representative = 'DLS',
-)
+startupcode = '''
+SetDetectors(DLSdet)
+'''
 
-alias_config = dict(
+extended = dict(
+    representative = 'DLSdet',
 )

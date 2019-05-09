@@ -36,8 +36,10 @@ main_window = tabbed(
 windows = []
 
 tools = [
+    cmdtool('DLS GUI (card 1)', ['dlsgui', 'tango://localhost:10000/dls/corr1/spectra']),
+    cmdtool('DLS GUI (card 2)', ['dlsgui', 'tango://localhost:10000/dls/corr2/spectra']),
     tool('Report NICOS bug or request enhancement',
          'nicos.clients.gui.tools.bugreport.BugreportTool'),
     tool('Emergency stop button', 'nicos.clients.gui.tools.estop.EmergencyStopTool',
-         runatstartup=True),
+         runatstartup=False),
 ]
