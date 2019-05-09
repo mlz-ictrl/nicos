@@ -429,6 +429,22 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
                 return status.ERROR, 'unknown >%d<' % mode
         return status.BUSY, 'moving'
 
+    def doIsCompleted(self):
+        if self.chopper == 1:
+            st = self.status(0)
+            if st[0] in self.busystates:
+                return False
+            if st[0] in self.errorstates:
+                raise self.errorstates[st[0]](self, st[1])
+            return True
+
+        return self.mode == 5 or self.doIsAtTarget(self.doRead(0))
+
+    def doFinish(self):
+        if self.chopper == 1:
+            return True
+        return self.mode != 5  # no further checks if synced
+
     def _current_speed(self):
         res = float(self._read_controller('m408%s'))
         self.log.debug('_current_speed: %f', res)
