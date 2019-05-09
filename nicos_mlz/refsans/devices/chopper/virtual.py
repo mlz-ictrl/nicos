@@ -89,10 +89,17 @@ class ChopperDiscTranslation(ChopperDiscTranslationBase, VirtualMotor):
 
     parameter_overrides = {
         'speed': Override(default=0.1),
+        'fmtstr': Override(default='%.0f'),
     }
 
     def doRead(self, maxage=0):
         try:
-            return self.valuetype(VirtualMotor.doRead(self, maxage))
+            val = VirtualMotor.doRead(self, maxage)
+            if not self.isAtTarget(val):
+                # This is because of cutting to int values. If the target is
+                # lower than val the cut would give the wrong result.
+                if self.target - val < 0:
+                    val += 1.
+            return self.valuetype(val)
         except ValueError:
             return self.target
