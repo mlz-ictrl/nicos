@@ -2,7 +2,7 @@ description = 'real flight path'
 
 group = 'lowlevel'
 
-includes = ['det_pos']
+includes = ['detector']
 
 devices = dict(
     real_flight_path = device('nicos_mlz.refsans.devices.resolution.RealFlightPath',
