@@ -43,7 +43,8 @@ _tididiagcol = Column(
     Block(' time distance diagram ONLY SYMBOL!', [
         BlockRow(
             Field(widget='nicos_mlz.refsans.gui.monitorwidgets.TimeDistance',
-                  chopper1='chopper_speed', width=57, height=48),
+                  chopper1='chopper_speed', disc2_pos='chopper2_pos',
+                  width=57, height=48),
             ),
         ],
     ),
