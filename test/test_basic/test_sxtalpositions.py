@@ -29,7 +29,6 @@ Tests for the single (4-circle and related) positions
 from __future__ import absolute_import, division, print_function
 
 import numpy as np
-import pytest
 
 from nicos.devices.sxtal.goniometer.base import PositionFactory, typelist
 from nicos.devices.sxtal.goniometer.posutils import equal
@@ -58,27 +57,26 @@ def getPositions():
     pos.append(p0.With(theta=0))
     return pos
 
-class TestPostions(object):
 
-    # pylint: disable=dict-keys-not-iterating
-    @pytest.mark.parametrize('p',getPositions())
-    @pytest.mark.parametrize('type1', typelist.keys())
-    @pytest.mark.parametrize('type2', typelist.keys())
-    def test_positions(self, p, type1, type2, session):
-        # Set up a range of interesting positions
-        type1 = type1.upper()
-        if (type1 in ['C', 'B', 'L'] and getattr(p, 'theta', None) == 0):
-            return
-        if (type1 in ['L'] and hasattr(p, 'chi') and p.chi == np.pi/2):
-            return
+# pylint: disable=dict-keys-not-iterating
+def test_positions(session):
+    for p in getPositions():
+        for type1 in typelist:
+            for type2 in typelist:
+                # Set up a range of interesting positions
+                type1 = type1.upper()
+                if type1 in ['C', 'B', 'L'] and getattr(p, 'theta', None) == 0:
+                    return
+                if type1 in ['L'] and hasattr(p, 'chi') and p.chi == np.pi/2:
+                    return
 
-        p1 = p.asType(type1)
+                p1 = p.asType(type1)
 
-        type2 = type2.upper()
-        if (type2 in ['C', 'B', 'L'] and getattr(p, 'theta', None) == 0):
-            return
-        if (type2 in ['L'] and hasattr(p, 'chi') and p.chi == np.pi/2):
-            return
-        p2 = p.asType(type2).asType(type1)
+                type2 = type2.upper()
+                if type2 in ['C', 'B', 'L'] and getattr(p, 'theta', None) == 0:
+                    return
+                if type2 in ['L'] and hasattr(p, 'chi') and p.chi == np.pi/2:
+                    return
+                p2 = p.asType(type2).asType(type1)
 
-        assert equal(p1, p2)
+                assert equal(p1, p2)
