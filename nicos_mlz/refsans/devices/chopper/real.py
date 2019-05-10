@@ -177,11 +177,10 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         fatal = self.fatal  # avoid unneeded hardware access
         if fatal and fatal != 'ok':
             self.log.info('chopper fatal: %s', fatal)
-        self.log.info('three BUCKs dont care about the warning and Error!')
+        self.log.info('three BUCKs')
         self._attached_comm.writeLine('$$$')
         session.delay(2.5)
 
-        self.log.info('three BUCKs dont care about the warning and Error!')
         fatal = self.fatal
         if fatal and fatal != 'ok':
             self.log.error('still fatal %s deny reset: clear Error in RACK2',
@@ -191,8 +190,9 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         self.log.info('Disk2_Pos 1')
         self._attached_chopper2._attached_translation.maw(1)
 
-        self.log.info('commute in speed burst for 4min, a return of 30sec, '
-                      'an a peak, final break of 2min total ca 7min')
+        self.log.info('commute: see in speed history: burst for 3min, '
+                      'a break of 20sec, an a peak, final break of 2min '
+                      'total ca 6min')
         self._commute()
         self.wait()
 
@@ -361,7 +361,7 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
             set_to += 360.
         while set_to >= 360.:
             set_to -= 360.
-        self.log.info('read %.2f phase  %.2f ref %.2f gear %d SB', res, set_to,
+        self.log.debug('read %.2f phase  %.2f ref %.2f gear %d SB', res, set_to,
                       self.reference, self.gear)
         return set_to
 
@@ -369,7 +369,7 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
         # Change sign of offset since the sign of the value is now changed
         # afterwards
         set_to = (value - self.reference) / self.gear  # SB
-        self.log.info('Disk %d angle %0.2f Phase %0.2f gear %d ref %.2f SB',
+        self.log.info('Disk %d angle %0.2f Phase %0.2f gear %d ref %.2f',
                       self.chopper, value, set_to, self.gear, self.reference)
         # We think in 0..360 degrees, choppers 1 to 4 in -180..180 degrees
         # and choppers 5 and 6 in -90..90 degrees
@@ -379,7 +379,7 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
             set_to += 360. / self.gear
         # The Chopper understands "negative hundreths degrees"
         set_to = int(round(set_to * -100))  # SB
-        self.log.info('Disk %d Phase %d gear %d', self.chopper, set_to,
+        self.log.debug('Disk %d Phase %d gear %d', self.chopper, set_to,
                       self.gear)
         # Notausgang = 10
         # while Notausgang:
