@@ -35,6 +35,11 @@ from nicos.commands.measure import count
 session_setup = 'toftof'
 exp_dataroot = 'toftofdata'
 
+try:
+    import nxs  # pylint: disable=unused-import
+except ImportError:
+    nxs = None
+
 
 @pytest.fixture(scope='class', autouse=True)
 def prepare(session, dataroot):
@@ -77,6 +82,7 @@ def prepare(session, dataroot):
 
 class TestSinks(object):
 
+    @pytest.mark.skipif(nxs is None, reason='NeXuS library missing')
     def test_toftof_sink(self, session):
         toftoffile = path.join(session.experiment.datapath, '00000043_0000.raw')
         assert path.isfile(toftoffile)

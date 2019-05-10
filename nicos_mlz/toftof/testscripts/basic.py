@@ -3,6 +3,7 @@
 # test: subdirs = frm2
 # test: setups = toftof
 # test: setupcode = SetDetectors(det)
+# test: needs = nxs
 
 # read some special devices
 
