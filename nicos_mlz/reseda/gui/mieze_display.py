@@ -28,7 +28,6 @@ from __future__ import absolute_import, division, print_function
 
 from os import path
 
-import gr
 import numpy as np
 from gr.pygr import ErrorBar
 
@@ -36,11 +35,16 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.widgets.plotting import NicosPlotCurve
 from nicos.guisupport.livewidget import LiveWidget1D
-from nicos.guisupport.plots import GRCOLORS
+from nicos.guisupport.plots import GRCOLORS, GRMARKS
 from nicos.guisupport.qt import QSize, QSizePolicy, QWidget
 from nicos.protocols.cache import cache_load
 
 my_uipath = path.dirname(__file__)
+
+COLOR_BLUE = GRCOLORS['blue']
+
+CIRCLE_MARKER = GRMARKS['circle']
+DOT_MARKER = GRMARKS['dot']
 
 
 class MiniPlot(LiveWidget1D):
@@ -51,10 +55,10 @@ class MiniPlot(LiveWidget1D):
         LiveWidget1D.__init__(self, parent)
         self.plot.xlabel = 'time slots'
         self.plot.ylabel = 'summed counts'
-        self.fitcurve = NicosPlotCurve([0], [.1], linecolor=GRCOLORS['blue'])
+        self.fitcurve = NicosPlotCurve([0], [.1], linecolor=COLOR_BLUE)
         self.curve.GR_MARKERSIZE = 10
-        self.curve.markertype = gr.MARKERTYPE_CIRCLE
-        self.fitcurve.markertype = gr.MARKERTYPE_DOT
+        self.curve.markertype = CIRCLE_MARKER
+        self.fitcurve.markertype = DOT_MARKER
         self.axes.addCurves(self.fitcurve)
         # Disable creating a mouse selection to zoom
         self.gr.setMouseSelectionEnabled(False)

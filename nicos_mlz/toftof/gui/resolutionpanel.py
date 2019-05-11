@@ -34,6 +34,7 @@ from nicos.clients.gui.widgets.plotting import NicosPlotCurve
 from nicos.core.errors import NicosError
 from nicos.core.utils import ADMIN
 from nicos.guisupport.livewidget import LiveWidget1D
+from nicos.guisupport.plots import GRCOLORS
 from nicos.guisupport.qt import QApplication, QCursor, QDialogButtonBox, \
     QDoubleValidator, QLabel, QMessageBox, QSize, QSizePolicy, Qt, \
     QVBoxLayout, QWidget, pyqtSlot
@@ -42,10 +43,10 @@ from nicos.utils import findResource
 
 from nicos_mlz.toftof.devices.calculations import ResolutionAnalysis
 
-COLOR_BLACK = 1
-COLOR_RED = 2
-COLOR_GREEN = 3
-COLOR_BLUE = 4
+COLOR_BLACK = GRCOLORS['black']
+COLOR_RED = GRCOLORS['red']
+COLOR_GREEN = GRCOLORS['green']
+COLOR_BLUE = GRCOLORS['blue']
 
 
 @contextmanager
