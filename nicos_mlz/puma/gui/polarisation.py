@@ -25,11 +25,10 @@
 from __future__ import absolute_import, division, print_function
 
 from contextlib import contextmanager
-from math import cos, degrees, pi, radians, sin, sqrt, tan
+from math import asin, atan, cos, degrees, pi, radians, sin, sqrt, tan
 from os import path
 
 from numpy import arange, array, sign
-from math import asin, atan
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
