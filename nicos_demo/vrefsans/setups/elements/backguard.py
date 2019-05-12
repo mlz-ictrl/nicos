@@ -18,7 +18,7 @@ devices = dict(
             unit = 'mm',
         ),
         precision = 0.01,
-        abslimits = (-60, 60),
+        # abslimits = (-60, 60),
         lowlevel = True,
     ),
     backguard_2 = device('nicos.devices.generic.Axis',
@@ -29,7 +29,7 @@ devices = dict(
             unit = 'mm',
         ),
         precision = 0.01,
-        abslimits = (-60, 60),
+        # abslimits = (-60, 60),
         lowlevel = True,
     ),
 )

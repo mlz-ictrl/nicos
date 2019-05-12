@@ -3,42 +3,40 @@ description = 'Virtual REFSANS basic setup'
 group = 'basic'
 
 includes = [
-    'vacuum',
-    'shutter',
-    'shutter_gamma',
-    # 'guidehall',
-    'reactor',
-    # 'fak40',
+    # 'autocollimator',
+    # 'b3h3',
+    'backguard',
+    'beamstop',
+    # 'chamber',
     'chopper',
-    # 'instrument_mode',
+    # 'chopperphasentiming',
+    'detector',
+    # 'fak40',
+    # 'gonio',
+    # 'gonio_top',
+    # 'guidehall',
+    # 'h2',
+    # 'height',
+    # 'memograph',
+    # 'nl2b',
     'optic_elements',
     # 'poti_ref',
-    # 'nl2b',
+    # 'prim_monitor',
     # 'pumpstand',
-    # 'memograph',
+    # 'qmesydaq',
+    'reactor',
+    # 'safedetectorsystem',
+    # 'safetysystem',
     'sample',
-    'detector',
-    'qmesydaq',
+    # 'samplechanger',
+    'shutter',
+    'shutter_gamma',
+    # 'vsd',
+
+    #  'vacuum',
+    #  'instrument_mode',
+    #  'qmesydaq',
 ]
 
 startupcode = """
-# set offsets of the blades ...
-# for d in [zb1, zb2, ... ]:
-#    d.mask = 'slit'
 """
-
-devices = dict(
-    table = device('nicos.devices.generic.Axis',
-        description = 'detector table inside tube',
-        motor = device('nicos.devices.generic.VirtualMotor',
-            abslimits = (620, 11025),
-            unit = 'mm',
-        ),
-        precision = 0.05,
-    ),
-    tube = device('nicos.devices.generic.VirtualMotor',
-        description = 'tube Motor',
-        abslimits = (-120, 1000),
-        unit = 'mm',
-    ),
-)
