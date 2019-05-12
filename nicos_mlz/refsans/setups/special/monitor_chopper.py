@@ -18,7 +18,7 @@ _chconfigcol = Column(
         BlockRow(
             Field(name='Lambda Min', key='chopper/wlmin', width=14, unit='AA'),
             Field(name='Lambda Max', key='chopper/wlmax', width=14, unit='AA'),
-            Field(name='disc2 [1-6]', dev='chopper_resolution', width=14),
+            Field(name='disc2 [1-6]', dev='chopper/resolution', width=14),
             Field(name='maximum flight path', key='chopper/dist', width=14, unit='Meter'),
             Field(name='real flight path', dev='real_flight_path', width=14, unit='Meter'),
             # Field(name='real flight path', dev='real_flight_path', width=14, unit='m'),

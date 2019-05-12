@@ -95,6 +95,12 @@ class ChopperMaster(CanReference, BaseSequencer):
         'gap': Param('Gap ... ',
                      type=floatrange(0, 100), settable=True, userparam=True,
                      unit='%', category='status'),
+        'resolution': Param('Resolution ...',
+                            type=intrange(1, 6), settable=False, userparam=True,
+                            mandatory=False, volatile=True, category='status'),
+        'speed': Param('Chopper1 speed ... ',
+                       type=float, settable=False, userparam=True,
+                       mandatory=False, volatile=True, category='status'),
     }
 
     _max_disks = 6
@@ -168,6 +174,15 @@ class ChopperMaster(CanReference, BaseSequencer):
 
     def _getWaiters(self):
         return self._choppers
+
+    def doReadResolution(self):
+        if self.mode == 'normal_mode':
+            return self._attached_chopper2.pos
+        else:
+            return 6
+
+    def doReadSpeed(self):
+        return self._attached_chopper1.read(0)
 
 
 class ChopperDisc(HasLimits, HasPrecision, DeviceMixinBase):
