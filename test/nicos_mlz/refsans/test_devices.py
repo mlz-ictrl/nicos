@@ -133,7 +133,7 @@ class TestChopper(object):
     @pytest.fixture(scope='function', autouse=True)
     def prepare(self, session):
         chopper = session.getDevice('chopper')
-        chopper1 = session.getDevice('chopper1')
+        chopper1 = session.getDevice('chopper_speed')
         chopper2 = session.getDevice('chopper2')
 
         # test configuration
@@ -151,7 +151,7 @@ class TestChopper(object):
         chopper1.maw(1200)
 
     def test_change_chopper2_pos(self, session):
-        chopper1 = session.getDevice('chopper1')
+        chopper1 = session.getDevice('chopper_speed')
         chopper2 = session.getDevice('chopper2')
 
         # not allowed due to chopper speed isn't zero

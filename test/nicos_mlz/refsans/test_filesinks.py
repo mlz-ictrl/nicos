@@ -33,7 +33,7 @@ import pytest
 from nicos.commands.measure import count
 
 try:
-    import configobj
+    import configobj  # pylint: disable=unused-import
 except ImportError:
     configobj = None
 
@@ -46,11 +46,13 @@ def prepare(session, dataroot):
     """Prepare a dataset for refsans"""
 
     session.experiment.setDetectors(['det'])
-    for d in ['nok1', 'nok2', 'zb0', 'shutter', 'vacuum_CB', 'table', 'tube',
-              'h2_center', 'h2_width', 'pivot', 'top_phi', 'chopper']:
-        session.getDevice(d)
 
-    # Perform different scans
+    for dev in ['nok1', 'nok2', 'zb0', 'shutter', 'vacuum_CB', 'table', 'tube',
+                # 'h2.center', 'h2.height',
+                'det_pivot', 'top_phi', 'chopper',
+                'gonio_theta', 'User2Voltage', 'det', 'det_pivot', 'zb3',
+                'zb3r_acc', 'zb3s_acc']:
+        session.getDevice(dev)
     count(t=0.01)
 
     yield
@@ -58,10 +60,9 @@ def prepare(session, dataroot):
 
 class TestSinks(object):
 
-    @pytest.mark.skipif(not configobj,
-                        reason='configobj libraries missing')
+    @pytest.mark.skipif(configobj is None, reason='configobj library missing')
     def test_config_sink(self, session):
-        cfgfile = path.join(session.experiment.datapath, 'p1234_00000043.cfg')
-        assert path.isfile(cfgfile)
-        contents = configobj.ConfigObj(cfgfile)
+        datafile = path.join(session.experiment.datapath, 'p1234_00000043.cfg')
+        assert path.isfile(datafile)
+        contents = configobj.ConfigObj(datafile)
         assert len(contents['NOKs']) == 2
