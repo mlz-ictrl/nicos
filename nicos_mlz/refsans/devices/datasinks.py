@@ -391,7 +391,7 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
                     self._data['Chopper']['%s' % devname.replace('/', '_')] = \
                         metainfo[dev, key][0]
                 else:
-                    self.log.warn('missing %s', devname)
+                    self.log.warning('missing %s', devname)
         self.log.debug('chopper_mode %s',
                        metainfo['chopper', 'mode'][0])
 

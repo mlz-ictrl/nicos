@@ -201,7 +201,7 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         for dev in self._choppers[1:]:
             dev.phase = z_ero
         self.log.info('reset done')
-        self.log.warn('CHECK chopper.delay value! (%.2f)', self.delay)
+        self.log.warning('CHECK chopper.delay value! (%.2f)', self.delay)
 
 
 class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
