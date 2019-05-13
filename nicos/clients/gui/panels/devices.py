@@ -114,10 +114,11 @@ class SetupTreeWidgetItem(QTreeWidgetItem):
 class DevInfo(AttrDict):
     """Collects device infos."""
 
-    def __init__(self, value='-', status=(OK, ''), fmtstr='%s', unit='',
+    def __init__(self, name, value='-', status=(OK, ''), fmtstr='%s', unit='',
                  expired=False, fixed=False, classes=None,
                  valtime=0, stattime=0):
         AttrDict.__init__(self, {
+            'name': name,
             'value': value,
             'status': status,
             'fmtstr': fmtstr,
@@ -127,6 +128,7 @@ class DevInfo(AttrDict):
             'classes': classes or [],
             'valtime': valtime,
             'stattime': stattime,
+            'params': {},
         })
 
     def fmtValUnit(self):
@@ -136,21 +138,15 @@ class DevInfo(AttrDict):
             fmted = str(self.value)
         return fmted + ' ' + self.unit
 
-
-class ParamInfo(object):
-    """Collects parameter infos."""
-
-    def __init__(self, param):
-        self.param = param
-
-    def fmtValUnit(self, value):
-        try:
-            fmtvalue = self.param.fmtstr % value
-        except Exception:
-            fmtvalue = str(value)
-        if self.param.unit:
-            fmtvalue += ' %s' % self.param.unit
-        return fmtvalue
+    def fmtParam(self, param, value):
+        info = self.params.get(param)
+        if info:
+            try:
+                fmtvalue = info['fmtstr'] % value
+            except Exception:
+                fmtvalue = str(value)
+            return fmtvalue + ' ' + (info['unit'] or '')
+        return str(value)
 
 
 class DevicesPanel(Panel):
@@ -305,7 +301,6 @@ class DevicesPanel(Panel):
         # map lowercased devname -> DevInfo instance
         self._devinfo = {}
         self.tree.clear()
-        self._paraminfo = {}
 
     def on_client_connected(self):
         self.clear()
@@ -420,7 +415,7 @@ class DevicesPanel(Panel):
         devitem.setToolTip(0, params.get('description', ''))
         self._devitems[ldevname] = devitem
         # fill the device info with dummy values, will be populated below
-        self._devinfo[ldevname] = DevInfo()
+        self._devinfo[ldevname] = DevInfo(devname)
 
         # let the cache handler process all properties
         for key, value in iteritems(params):
@@ -449,15 +444,10 @@ class DevicesPanel(Panel):
             for devname in devlist:
                 ldevname = devname.lower()
                 if ldevname in self._devitems:
-                    # remove device item...
+                    # remove device item and cached info...
                     item = self._devitems[ldevname]
                     del self._devitems[ldevname]
                     del self._devinfo[ldevname]
-                    # delete device parameter infos from list
-                    rmkeys = [key for key in self._paraminfo
-                              if key.startswith('%s_' % ldevname)]
-                    for key in rmkeys:
-                        self._paraminfo.pop(key, None)
                     self._devparamitems.pop(ldevname, None)
                     try:
                         catitem = item.parent()
@@ -466,7 +456,7 @@ class DevicesPanel(Panel):
                         pass
                     else:
                         catitem.removeChild(item)
-                        # and remove category item if it has no further children
+                        # remove category item if it has no further children
                         if catitem.childCount() == 0:
                             self.tree.takeTopLevelItem(
                                 self.tree.indexOfTopLevelItem(catitem))
@@ -577,8 +567,9 @@ class DevicesPanel(Panel):
         elif subkey == 'description':
             devitem.setToolTip(0, cache_load(value or "''"))
         if subkey in self.param_display.get(ldevname, ()):
-            value = self._getParamInfo(ldevname, subkey).fmtValUnit(
-                cache_load(value))
+            if not devinfo.params:
+                devinfo.params = self.client.getDeviceParamInfo(devinfo.name)
+            value = devinfo.fmtParam(subkey, cache_load(value))
             if subkey not in self._devparamitems.setdefault(ldevname, {}):
                 devitem = self._devitems[ldevname]
                 self._devparamitems[ldevname][subkey] = \
@@ -586,16 +577,6 @@ class DevicesPanel(Panel):
                 devitem.setExpanded(True)
             else:
                 self._devparamitems[ldevname][subkey].setText(1, value)
-
-    def _getParamInfo(self, devname, paramname):
-        searchkey = '%s_%s' % (devname, paramname)
-        if searchkey not in self._paraminfo:
-            query = 'session.getDevice(%r).parameters[%r]' % (devname,
-                                                              paramname)
-            param = self.client.eval(query, None)
-            if param:
-                self._paraminfo[searchkey] = ParamInfo(param)
-        return self._paraminfo[searchkey]
 
     def on_tree_itemExpanded(self, item):
         if item.type() == SETUP_TYPE:
