@@ -43,6 +43,8 @@ CENTERED = 'centered'
 class SingleSlit(PseudoNOK, HasOffset, Moveable):
     """Slit using one axis."""
 
+    hardware_access = False
+
     attached_devices = {
         'motor': Attach('moving motor', Moveable),
     }
@@ -98,6 +100,8 @@ class SingleSlit(PseudoNOK, HasOffset, Moveable):
 
 class DoubleSlit(PseudoNOK, Moveable):
     """Double slit using two SingleSlits."""
+
+    hardware_access = False
 
     attached_devices = {
         'slit_r': Attach('Reactor side single slit', SingleSlit),
