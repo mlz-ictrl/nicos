@@ -216,7 +216,7 @@ class ChopperDisc2(DeviceMixinBase):
 
     parameter_overrides = {
         'pos': Override(settable=True, type=intrange(1, 5), fmtstr='%d',
-                        volatile=True, unit=''),
+                        volatile=True, default=intrange(1, 5)(), unit=''),
     }
 
     attached_devices = {
