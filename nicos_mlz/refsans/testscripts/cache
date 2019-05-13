@@ -1,0 +1,8 @@
+nicos/chopper2/pos=1
+nicos/chopper2_pos/target=1
+nicos/chopper2_pos/value=1
+nicos/length/target=100
+nicos/width/target=100
+nicos/d_last_slit_sample/target=100
+nicos/prim_monitor_x/target=0
+nicos/prim_monitor_z/target=0
