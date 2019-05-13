@@ -41,7 +41,6 @@ devices = dict(
         # shutdown !
         disc = 'chopper3',
         curvalue = 5,
-        lowlevel = True,
     ),
     chopper3 = device('nicos_mlz.refsans.devices.chopper.virtual.ChopperDisc',
         description = 'MC chopper_disk3',
