@@ -142,7 +142,7 @@ class AndorHFRCamera(PyTangoDevice, UsesFastshutter, ImageChannelMixin,
                            type=floatrange(0), default=3, settable=True),
         '_started': Param('Cached counting start flag',
                           type=none_or(float), default=None, settable=True,
-                          userparam=False),
+                          internal=True),
     }
 
     def doPreinit(self, mode):

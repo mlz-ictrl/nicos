@@ -126,11 +126,11 @@ class Changer(BaseSequencer):
         'mono_on_table':   Param('Name of Mono on the Monotable',
                                  type=oneof('PG', 'Si', 'Cu', 'Heusler',
                                             'None', 'empty frame'),
-                                 default='None', settable=True, userparam=False),
+                                 default='None', settable=True, internal=True),
         'mono_in_lift':    Param('Which mono is in the lift',
                                  type=oneof('PG', 'Si', 'Cu', 'Heusler',
                                             'None', 'empty frame'),
-                                 default='None', settable=True, userparam=False),
+                                 default='None', settable=True, internal=True),
         'exchangepos':     Param('dict of device names to positional values '
                                  'for changing monos',
                                  type=dict, settable=False, userparam=False),

@@ -51,9 +51,9 @@ class MythenTimer(PyTangoDevice, TimerChannelMixin, ActiveChannel):
     parameters = {
         '_starttime':   Param('Cached counting start time',
                               type=float, default=0, settable=False,
-                              userparam=False),
+                              internal=True),
         '_stoptime':    Param('Cached counting stop time',
-                              type=float, settable=False, userparam=False),
+                              type=float, settable=False, internal=True),
     }
 
     def doInit(self, mode):

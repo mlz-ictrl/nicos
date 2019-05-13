@@ -109,7 +109,7 @@ class Polarizer(Moveable):
     }
 
     parameters = {
-        'values':   Param('Possible values (for GUI)', userparam=False,
+        'values':   Param('Possible values (for GUI)', internal=True,
                           type=listof(str), default=POL_SETTINGS),
         'switchervalues': Param('Possible values for the switcher (out, in)',
                                 type=tupleof(str, str), default=('ng', 'pol')),

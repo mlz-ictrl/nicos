@@ -55,7 +55,7 @@ class FPGAChannelBase(PyTangoDevice, ActiveChannel):
         'extwait': Param('If nonzero, we are waiting for external start '
                          'since that timestamp',
                          type=float, default=0, settable=True,
-                         userparam=False),
+                         internal=True),
     }
 
     def _setPreselection(self):
@@ -113,7 +113,7 @@ class FPGATimerChannel(TimerChannelMixin, FPGAChannelBase):
 
     parameters = {
         'islive': Param('If this channel is a live channel', type=bool,
-                        settable=True, userparam=False, default=False),
+                        settable=True, internal=True, default=False),
         'exttimeout': Param('Timeout for waiting for external start',
                             type=float, unit='s', default=600),
     }

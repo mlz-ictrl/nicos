@@ -50,10 +50,10 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
                                 type=int, default=20, settable=True,
                                 userparam=False),
         'curstatus': Param('Store the current device status',
-                           userparam=False, type=tupleof(int, str),
+                           internal=True, type=tupleof(int, str),
                            settable=True, ),
         'nextupdate': Param('Time when the next message is expected', type=int,
-                            userparam=False, settable=True)
+                            internal=True, settable=True)
     }
 
     parameter_overrides = {

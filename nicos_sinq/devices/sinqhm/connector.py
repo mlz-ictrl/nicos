@@ -47,7 +47,7 @@ class HttpConnector(HasCommunication, Readable):
                            default='little'),
         'curstatus': Param('Current status of the connection (readonly)',
                            type=tupleof(int, str), settable=True,
-                           userparam=False)
+                           internal=True)
     }
 
     parameter_overrides = {

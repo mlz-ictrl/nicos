@@ -50,10 +50,10 @@ class LimaCCDTimer(PyTangoDevice, TimerChannelMixin, ActiveChannel):
     parameters = {
         '_starttime':   Param('Cached counting start time',
                               type=float, default=0, settable=False,
-                              userparam=False),
+                              internal=True),
         '_stoptime':    Param('Cached counting start time',
                               type=float, default=0, settable=False,
-                              userparam=False),
+                              internal=True),
     }
 
     def doWritePreselection(self, value):
@@ -134,25 +134,25 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
                                   category='general'),
         '_starttime':   Param('Cached counting start time',
                               type=float, default=0, settable=False,
-                              userparam=False),
+                              internal=True),
         # some cached values are necessary as hw params are volatile on request
         '_curexpotime': Param('Cached exposure time for current acquisition',
                               type=float,
                               default=0,
                               settable=False,
-                              userparam=False),
+                              internal=True),
         '_curshutteropentime':  Param('Cached shutter open time for current'
                                       ' acquisition',
                                       type=float,
                                       default=0,
                                       settable=False,
-                                      userparam=False),
+                                      internal=True),
         '_curshutterclosetime': Param('Cached shutter close time for current'
                                       ' acquisition',
                                       type=float,
                                       default=0,
                                       settable=False,
-                                      userparam=False),
+                                      internal=True),
 
     }
 

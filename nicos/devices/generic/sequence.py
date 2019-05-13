@@ -279,7 +279,7 @@ class SequencerMixin(DeviceMixinBase):
     parameters = {
         '_seq_status': Param('Status of the currently executed sequence, '
                              'or (status.OK, idle)', settable=True,
-                             mandatory=False, userparam=False,
+                             mandatory=False, internal=True,
                              default=(status.OK, 'idle'), no_sim_restore=True,
                              type=tupleof(int, str)),
     }

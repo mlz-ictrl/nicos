@@ -56,7 +56,7 @@ class PixelmanUDPChannel(ActiveChannel):
         'finished': Param('Keyword to wait for to determine '
                           'whether the acquisition is done', type=str),
         'acquiring': Param('Internal parameter to synchronise between processes.',
-                           type=bool, userparam=False, default=False, mandatory=False,
+                           type=bool, internal=True, default=False, mandatory=False,
                            settable=False)
     }
 

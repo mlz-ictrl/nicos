@@ -90,7 +90,7 @@ class DigitalInput(Moveable):
     parameters = {
         '_value': Param('Simulated value',
                         type=intrange(0, 0xFFFFFFFF), default=0,
-                        settable=False, userparam=False),
+                        settable=False, internal=True),
     }
 
     parameter_overrides = {

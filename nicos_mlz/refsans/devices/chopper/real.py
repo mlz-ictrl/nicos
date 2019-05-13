@@ -461,7 +461,7 @@ class ChopperDiscTranslation(ChopperDiscTranslationBase, ChopperBase,
 
     parameters = {
         '_lastpos': Param('Store last valid position',
-                          type=int, settable=False, userparam=False,
+                          type=int, settable=False, internal=True,
                           mandatory=False, default=1),
     }
 

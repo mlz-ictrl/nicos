@@ -330,7 +330,7 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
         'lastsinked': Param(
             'Saves the counter, start and end time of sinks',
             type=tupleof(int, float, float, dictof(tuple, tuple)),
-            settable=True, userparam=False),
+            settable=True, internal=True),
         'useswmr': Param('Use SWMR feature when writing HDF files', type=bool,
                          settable=False, userparam=False, default=True)
     }

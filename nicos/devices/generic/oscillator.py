@@ -46,19 +46,19 @@ class Oscillator(Moveable):
     }
 
     parameters = {
-        'range': Param('User defined limits of device value',
-                       unit='main',
-                       type=limits, settable=True, chatty=True,
-                       category='limits', mandatory=False, fmtstr='main'),
-        'curvalue': Param('Store the current device value',
-                          userparam=False, type=oneof(*_targets),
-                          settable=True,),
+        'range':     Param('User defined limits of device value',
+                           unit='main',
+                           type=limits, settable=True, chatty=True,
+                           category='limits', mandatory=False, fmtstr='main'),
+        'curvalue':  Param('Store the current device value',
+                           internal=True, type=oneof(*_targets),
+                           settable=True),
         'curstatus': Param('Store the current device status',
-                           userparam=False, type=tupleof(int, str),
-                           settable=True,),
+                           internal=True, type=tupleof(int, str),
+                           settable=True),
         'stoppable': Param("Stop the oscillation via 'stop' command",
                            userparam=True, type=bool, settable=False,
-                           default=False,)
+                           default=False),
     }
 
     parameter_overrides = {

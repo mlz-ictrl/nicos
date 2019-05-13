@@ -58,9 +58,9 @@ class SXTalSample(Sample):
         'laue':      Param('Laue group', type=oneof(*symmetry.symbols),
                            settable=True, default='1', category='sample'),
 
-        'peaklists': Param('Lists of peaks for scanning', userparam=False,
+        'peaklists': Param('Lists of peaks for scanning', internal=True,
                            type=dictof(str, list), settable=True),
-        'poslists':  Param('Lists of positions for indexing', userparam=False,
+        'poslists':  Param('Lists of positions for indexing', internal=True,
                            type=dictof(str, list), settable=True),
     }
 

@@ -76,7 +76,7 @@ class Detector(MeasureSequencer):
                            ),
         '_startpos': Param('Store the starting position',
                            type=float, settable=True, mandatory=False,
-                           userparam=False, category='instrument',
+                           internal=True, category='instrument',
                            ),
         'liveinterval': Param('Interval to read out live images (None to '
                               'disable live readout)',
@@ -84,7 +84,7 @@ class Detector(MeasureSequencer):
                               default=0.5,
                               ),
         'rates': Param('The rates detected by the detector',
-                       settable=False, type=listof(float), userparam=False,
+                       settable=False, type=listof(float), internal=True,
                        category='status',
                        ),
     }

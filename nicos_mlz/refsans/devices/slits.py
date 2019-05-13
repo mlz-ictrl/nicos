@@ -56,7 +56,7 @@ class SingleSlit(PseudoNOK, HasOffset, Moveable):
                       type=oneof(*MODES),
                       settable=True, userparam=True, default='slit'),
         '_offsets': Param('List of offsets per mode position',
-                          settable=False, userparam=False,
+                          settable=False, internal=True,
                           type=dictof(str, float), default={}),
         'opmode': Param('Mode of operation for the slit',
                         type=oneof(CENTERED), userparam=True, settable=True,

@@ -58,7 +58,7 @@ class BaseChopperController(HasTimeout, Readable):
         'slittype': Param('Slit type',
                           type=int, settable=True, default=1),
         'phases': Param('Current phases',
-                        type=listof(float), userparam=False, default=[0] * 8),
+                        type=listof(float), internal=True, default=[0] * 8),
         'changetime': Param('Time of last change',
                             userparam=False, type=float,),
     }

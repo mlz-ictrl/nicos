@@ -85,7 +85,7 @@ class VoltageSupply(PowerSupply):
     parameters = {
         '_stopflag': Param('Supply was stopped',
                            type=bool, settable=True, mandatory=False,
-                           userparam=False, default=False),
+                           internal=True, default=False),
     }
 
     parameter_overrides = {
@@ -148,7 +148,7 @@ class Sans1HV(BaseSequencer):
                             type=int, unit='main/min', settable=True,
                             volatile=True),
         'lasthv':     Param('When was hv applied last (timestamp)',
-                            type=float, userparam=False, default=0.0,
+                            type=float, internal=True, default=0.0,
                             mandatory=False, settable=False),
         'maxofftime': Param('Maximum allowed Off-time for fast ramp-up',
                             type=int, unit='s', default=4 * 3600),

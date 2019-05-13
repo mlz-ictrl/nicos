@@ -33,8 +33,7 @@ class Flux(VectorInput):
     """
 
     parameters = {
-        'fluxvalues': Param('Raw flux values',
-                            userparam=False,
+        'fluxvalues': Param('Raw flux values', internal=True,
                             type=listof(listof(int)))
     }
 

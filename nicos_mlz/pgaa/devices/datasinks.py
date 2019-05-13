@@ -379,10 +379,10 @@ class CSVDataSink(FileSink):
 
     parameters = {
         'lastuid': Param('UUID of the last handled dataset',
-                         settable=False, type=str, userparam=False,
+                         settable=False, type=str, internal=True,
                          mandatory=False, default=''),
         'filecount': Param('Last value of the point counter',
-                           settable=False, type=int, userparam=False,
+                           settable=False, type=int, internal=True,
                            mandatory=False, default=0),
         'datafilenametemplate': Param('Template for data file name',
                                       type=str, settable=False,

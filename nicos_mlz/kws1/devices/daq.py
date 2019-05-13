@@ -53,7 +53,7 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
     parameters = {
         'mode':        Param('Measurement mode switch', type=oneof(*RTMODES),
                              settable=True, category='general'),
-        'slices':      Param('Calculated TOF slices', userparam=False,
+        'slices':      Param('Calculated TOF slices', internal=True,
                              unit='us', settable=True, type=listof(int),
                              category='general'),
     }
@@ -192,7 +192,7 @@ class VirtualKWSImageChannel(VirtualImage):
     parameters = {
         'mode':        Param('Measurement mode switch', type=oneof(*RTMODES),
                              settable=True, category='general'),
-        'slices':      Param('Calculated TOF slices', userparam=False,
+        'slices':      Param('Calculated TOF slices', internal=True,
                              unit='us', settable=True, type=listof(int),
                              category='general'),
     }
@@ -316,7 +316,7 @@ class KWSDetector(Detector):
                              type=listof(int), settable=True),
         'kwscounting': Param('True when taking data with kwscount()',
                              type=bool, default=False, settable=True,
-                             userparam=False),
+                             internal=True),
         'openshutter': Param('True to open/close shutter while counting',
                              type=bool, default=True, settable=True),
     }

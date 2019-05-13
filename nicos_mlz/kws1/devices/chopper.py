@@ -187,7 +187,7 @@ class Chopper(Moveable):
                              type=intrange(1, 128), default=25, settable=True),
         'calcresult':  Param('Last calculated setting',
                              type=tupleof(float, float, int), settable=True,
-                             userparam=False),
+                             internal=True),
     }
 
     parameter_overrides = {

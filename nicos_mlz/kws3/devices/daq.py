@@ -45,7 +45,7 @@ class DetSwitcher(Moveable):
 
     parameters = {
         'values': Param('Possible values', type=listof(str),
-                        default=_values, settable=False, userparam=False),
+                        default=_values, settable=False, internal=True),
     }
 
     parameter_overrides = {

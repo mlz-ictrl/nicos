@@ -34,7 +34,7 @@ class ScanningDetector(SubscanMeasurable):
                             settable=True),
         'readresult': Param('Storage for processed results from detector, to'
                             'be returned from doRead()', type=listof(anytype),
-                            settable=True, userparam=False),
+                            settable=True, internal=True),
     }
 
     fitcls = CosineFit

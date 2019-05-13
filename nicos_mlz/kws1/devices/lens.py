@@ -47,7 +47,7 @@ class Lenses(Moveable):
     }
 
     parameters = {
-        'values': Param('Possible values (for GUI)', userparam=False,
+        'values': Param('Possible values (for GUI)', internal=True,
                         type=listof(str), default=LENS_CONFIGS),
     }
 

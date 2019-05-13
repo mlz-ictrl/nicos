@@ -57,9 +57,9 @@ class SpsSwitch(EpicsDeviceEss, MappedMoveable):
         'commandstr': Param('Command string to issue on commandpv', type=str,
                             mandatory=True, settable=False, userparam=False),
         'lasttoggle': Param('Store the time when last toggled', type=int,
-                            settable=True, userparam=False, default=0),
+                            settable=True, internal=True, default=0),
         'lasttarget': Param('Store the last raw target of move', type=bool,
-                            settable=True, userparam=False, default=None)
+                            settable=True, internal=True, default=None)
     }
 
     parameter_overrides = {

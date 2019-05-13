@@ -70,7 +70,7 @@ class PumaCoupledAxis(HasPrecision, HasLimits, Moveable):
                            'during a positioning step', unit='main', default=1,
                            settable=True),
         '_status': Param('read only status',
-                         type=bool, settable=False, userparam=False,
+                         type=bool, settable=False, internal=True,
                          default=False),
     }
 

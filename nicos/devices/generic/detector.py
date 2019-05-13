@@ -136,7 +136,7 @@ class PostprocessPassiveChannel(PassiveChannel):
         'readresult': Param('Storage for scalar results from image '
                             'filtering, to be returned from doRead()',
                             type=listof(float), settable=True,
-                            userparam=False),
+                            internal=True),
     }
 
     def doRead(self, maxage=0):
@@ -309,7 +309,7 @@ class ImageChannelMixin(DeviceMixinBase):
         'readresult': Param('Storage for scalar results from image '
                             'filtering, to be returned from doRead()',
                             type=listof(float), settable=True,
-                            userparam=False),
+                            internal=True),
     }
 
     parameter_overrides = {
@@ -774,7 +774,7 @@ class ScanningDetector(SubscanMeasurable):
         'positions': Param('Positions to scan over', type=listof(anytype)),
         'readresult': Param('Storage for processed results from detector, to'
                             'be returned from doRead()', type=listof(anytype),
-                            settable=True, userparam=False),
+                            settable=True, internal=True),
     }
 
     def doInit(self, mode):

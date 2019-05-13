@@ -75,8 +75,8 @@ class RTE1104(Readable):
 class RTE1104TimescaleSetting(Moveable):
 
     attached_devices = {
-       'io': Attach('Communication device', StringIO),
-       'freqgen': Attach('frequency generator', Moveable, optional=True),
+        'io': Attach('Communication device', StringIO),
+        'freqgen': Attach('frequency generator', Moveable, optional=True),
     }
 
     parameters = {

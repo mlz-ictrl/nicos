@@ -133,7 +133,7 @@ class CARESSDevice(HasCommunication):
         'loadblock': Param('Additional init block',
                            type=str, settable=False, default=''),
         'cid': Param('CARESS device ID',
-                     type=int, settable=False, userparam=False, default=0),
+                     type=int, settable=False, internal=True, default=0),
     }
 
     parameter_overrides = {

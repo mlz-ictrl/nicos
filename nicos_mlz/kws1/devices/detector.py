@@ -54,7 +54,7 @@ class DetectorPosSwitcherMixin(DeviceMixinBase):
                           type=dictof(float, float),
                           mandatory=True),
         'mapkey':   Param('Last selector position for mapping',
-                          type=str, settable=True, userparam=False),
+                          type=str, settable=True, internal=True),
     }
 
 
@@ -79,13 +79,13 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
                             type=dictof(float, float),
                             mandatory=True),
         'mapkey':     Param('Last selector position for mapping',
-                            type=str, settable=True, userparam=False),
+                            type=str, settable=True, internal=True),
         'beamstopsettlepos': Param('Settling position for beamstop y axis',
                                    settable=True, default=400),
     }
 
     parameter_overrides = {
-        'mapping':  Override(mandatory=False, settable=True, userparam=False),
+        'mapping':  Override(mandatory=False, settable=True, internal=True),
         'fallback':  Override(userparam=False, type=str, mandatory=True),
     }
 

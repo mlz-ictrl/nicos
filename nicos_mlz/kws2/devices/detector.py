@@ -71,7 +71,7 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
                             type=dictof(float, float),
                             mandatory=True),
         'mapkey':     Param('Last selector position for mapping',
-                            type=str, settable=True, userparam=False),
+                            type=str, settable=True, internal=True),
         'psdtoppos':  Param('"Top" end position of small detector',
                             unit='mm', mandatory=True),
         'detbackpos': Param('"Back" end position of large detector',
@@ -79,7 +79,7 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
     }
 
     parameter_overrides = {
-        'mapping':  Override(mandatory=False, settable=True, userparam=False),
+        'mapping':  Override(mandatory=False, settable=True, internal=True),
         'fallback':  Override(userparam=False, type=str, mandatory=True),
     }
 

@@ -56,7 +56,7 @@ class Sample(Moveable):
                               settable=True),
         'samples':      Param('Information about all defined samples',
                               type=dictof(int, dictof(str, anytype)),
-                              settable=True, userparam=False, preinit=True),
+                              settable=True, internal=True, preinit=True),
     }
 
     parameter_overrides = {

@@ -58,8 +58,8 @@ class Regulator(Moveable):
                          settable=True,
                          mandatory=False, default=None),
         'curstatus': Param('Store the current device status',
-                           userparam=False, type=tupleof(int, str),
-                           settable=True, ),
+                           internal=True, type=tupleof(int, str),
+                           settable=True),
     }
 
     parameter_overrides = {

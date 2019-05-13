@@ -41,7 +41,7 @@ class CPULoad(Readable):
                            type=floatrange(0.1, 60),
                            default=0.1, settable=False,),
         'lastvalue': Param('Last obtained value', type=float,
-                           userparam=False, mandatory=False, default=0.0),
+                           internal=True, mandatory=False, default=0.0),
     }
 
     def doInit(self, mode):

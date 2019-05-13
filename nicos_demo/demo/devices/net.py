@@ -39,7 +39,6 @@ except ImportError:
     from psutil import network_io_counters as net_io_counters
 
 
-
 class Network(Readable):
 
     parameters = {
@@ -52,7 +51,7 @@ class Network(Readable):
         'direction': Param('Transport direction', type=oneof('tx', 'rx'),
                            default='tx', settable=True,),
         'lastvalue': Param('Last obtained value', type=float,
-                           userparam=False, mandatory=False, default=0.0),
+                           internal=True, mandatory=False, default=0.0),
     }
 
     def doInit(self, mode):

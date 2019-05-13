@@ -80,7 +80,7 @@ class Experiment(Device):
         'proposal':       Param('Current proposal number or proposal string',
                                 type=str, settable=True, category='experiment'),
         'proptype':       Param('Current proposal type', settable=False,
-                                userparam=False,
+                                internal=True,
                                 type=oneof('service', 'user', 'other')),
         'propprefix':     Param('Prefix of the proposal if is a number',
                                 type=str, settable=True, default='p'),
@@ -99,14 +99,14 @@ class Experiment(Device):
                                 default=False),
         'detlist':        Param('List of default detector device names',
                                 type=listof(str), settable=True,
-                                userparam=False),
+                                internal=True),
         'envlist':        Param('List of default environment device names to '
                                 'read at every scan point', type=listof(str),
-                                settable=True, userparam=False),
+                                settable=True, internal=True),
         'elog':           Param('True if the electronic logbook should be '
                                 'enabled', type=bool, default=True),
         'scripts':        Param('Currently executed scripts', type=listof(str),
-                                settable=True, userparam=False,
+                                settable=True, internal=True,
                                 no_sim_restore=True),
         'templates':      Param('Name of the directory with script templates '
                                 '(relative to dataroot)', type=str),
@@ -147,14 +147,14 @@ class Experiment(Device):
                                 type=bool,
                                 default=False, settable=False),
         'pausecount':     Param('Reason for pausing the count loop', type=str,
-                                settable=True, userparam=False,
+                                settable=True, internal=True,
                                 no_sim_restore=True),
         'propinfo':       Param('Dict of info for the current proposal',
-                                type=dict, default={}, userparam=False),
+                                type=dict, default={}, internal=True),
         'proposalpath':   Param('Proposal prefix upon creation of experiment',
-                                type=str, userparam=False, settable=True),
+                                type=str, internal=True, settable=True),
         'sampledir':      Param('Current sample-specific subdir', type=subdir,
-                                default='', userparam=False, settable=True),
+                                default='', internal=True, settable=True),
         'counterfile':    Param('Name of the file with data counters in '
                                 'dataroot and datapath', default='counters',
                                 userparam=False, type=subdir),
@@ -162,9 +162,11 @@ class Experiment(Device):
                                 type=oneof('abort', 'report'), settable=True,
                                 default='report'),
         'lastscan':       Param('Last used value of the scan counter - '
-                                'ONLY for display purposes', type=int),
+                                'ONLY for display purposes', type=int,
+                                internal=True),
         'lastpoint':      Param('Last used value of the point counter - '
-                                'ONLY for display purposes', type=int),
+                                'ONLY for display purposes', type=int,
+                                internal=True),
     }
 
     attached_devices = {
