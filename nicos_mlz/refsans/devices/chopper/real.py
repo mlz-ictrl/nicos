@@ -483,7 +483,7 @@ class ChopperDiscTranslation(ChopperDiscTranslationBase, ChopperBase,
         return res
 
     def doRead(self, maxage=0):
-        self.log.debug('doReadPos')
+        self.log.debug('doRead')
         res = self._read_pos()
         stat = self._status(res)
         if stat[0] == status.OK:

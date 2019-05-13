@@ -441,7 +441,7 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             self.log.debug('EXTRA %s', str(elements))
 
         if self._data:
-            # shoult be empty
+            # should be empty
             self._write_extra(metainfo, elements)
         self._dump()
 
