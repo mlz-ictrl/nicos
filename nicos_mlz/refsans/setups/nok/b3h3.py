@@ -7,7 +7,7 @@ tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
 
 nethost = 'refsanssrv.refsans.frm2'
 devices = dict(
-    b3 = device('nicos_mlz.refsans.devices.nok_support.DoubleSlitSequence',
+    b3 = device('nicos_mlz.refsans.devices.slits.DoubleSlitSequence',
         description = 'b3 and h3 inside Samplechamber. towards TOFTOF is plus',
         fmtstr = '%.3f, %.3f',
         unit = 'mm',
@@ -15,12 +15,6 @@ devices = dict(
         nok_length = -1,
         nok_end = -1,
         nok_gap = -1,
-        inclinationlimits = (-1000, 1000),
-        masks = dict(
-            slit = [84.044, 50.4169, 0.10, 16.565],
-            pinhole = [84.044, 50.4169, 0.00, 45.22],
-            gisans = [84.044, 50.4169, 0.00, 45.22],
-        ),
         slit_r = 'b3r',
         slit_s = 'b3s',
         # nok_motor = [-1, -1],
@@ -34,9 +28,9 @@ devices = dict(
        nok_end = -1,
        nok_gap = -1,
        masks = {
-           'slit': 36.32,
-           'point': 36.32,
-           'gisans': 36.32,
+           'slit': 136.9795,
+           'point': 136.9795,
+           'gisans': 136.9795,
        },
        unit = 'mm',
     ),
@@ -49,9 +43,9 @@ devices = dict(
        nok_end = -1,
        nok_gap = -1,
        masks = {
-           'slit': 36.404,
-           'point': 36.404,
-           'gisans': 36.404,
+           'slit': 103.3345,
+           'point': 103.3345,
+           'gisans': 103.3345,
        },
        unit = 'mm',
     ),
@@ -169,3 +163,6 @@ devices = dict(
         lowlevel = True,
     ),
 )
+alias_config = {
+    'last_aperture': {'b3.height': 100},
+}

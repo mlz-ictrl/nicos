@@ -7,7 +7,7 @@ includes = ['aperture_last']
 group = 'lowlevel'
 
 devices = dict(
-    b3 = device('nicos_mlz.refsans.devices.nok_support.DoubleSlitSequence',
+    b3 = device('nicos_mlz.refsans.devices.slits.DoubleSlitSequence',
         description = 'b3 and h3 inside Samplechamber',
         fmtstr = '%.3f mm, %.3f mm',
         unit = '',
@@ -15,12 +15,6 @@ devices = dict(
         nok_length = -1,
         nok_end = -1,
         nok_gap = -1,
-        inclinationlimits = (-1000, 1000),
-        masks = dict(
-            slit = [84.044, 50.4169, 0.10, 16.565],
-            pinhole = [84.044, 50.4169, 0.00, 45.22],
-            gisans = [84.044, 50.4169, 0.00, 45.22],
-        ),
         slit_r = 'b3r',
         slit_s = 'b3s',
     ),

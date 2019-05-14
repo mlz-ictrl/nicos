@@ -26,9 +26,11 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.core import Attach, AutoDevice, Moveable, Override, \
+from nicos.core import SIMULATION, Attach, AutoDevice, Moveable, Override, \
     Param, dictof, dictwith, floatrange, oneof, status, tupleof
 from nicos.core.mixins import HasOffset
+from nicos.core.errors import MoveError
+from nicos.devices.generic.sequence import SeqDev, SequencerMixin
 from nicos.utils import lazy_property
 
 from nicos_mlz.refsans.devices.mixins import PseudoNOK
@@ -203,6 +205,51 @@ class DoubleSlit(PseudoNOK, Moveable):
         for dev, target in zip([self._attached_slit_r, self._attached_slit_s],
                                self._calculate_slits(targets, False)):
             dev.start(target)
+
+
+class DoubleSlitSequence(SequencerMixin, DoubleSlit):
+
+    def doStart(self, target):
+        """Generate and start a sequence if non is running.
+
+        Just calls ``self._startSequence(self._generateSequence(target))``
+        """
+        if self._seq_is_running():
+            if self._mode == SIMULATION:
+                self._seq_thread.join()
+                self._seq_thread = None
+            else:
+                raise MoveError(self, 'Cannot start device, sequence is still '
+                                      'running (at %s)!' % self._seq_status[1])
+        self._startSequence(self._generateSequence(target))
+
+    def doStatus(self, maxage=0):
+        st = SequencerMixin.doStatus(self, maxage)
+        if st[0] == status.OK:
+            return st[0], self.name  # display device name
+        return st
+
+    def _generateSequence(self, target):
+        """Generate and start a sequence if none is running.
+
+        be sure not to cross the blades
+        """
+
+        targets = self._calculate_slits(target, False)
+        if (target[1] - self.center.read(0)) < 0:
+            self.log.debug('DoubleSlitSequence Seq swap')
+            sequence = [
+                SeqDev(self._attached_slit_s, targets[1], stoppable=True),
+                SeqDev(self._attached_slit_r, targets[0], stoppable=True),
+            ]
+        else:
+            self.log.debug('DoubleSlitSequence Seq org')
+            sequence = [
+                SeqDev(self._attached_slit_r, targets[0], stoppable=True),
+                SeqDev(self._attached_slit_s, targets[1], stoppable=True),
+            ]
+        self.log.debug('Seq_2: %r', sequence)
+        return sequence
 
 
 class SingleSlitAxis(AutoDevice, Moveable):
