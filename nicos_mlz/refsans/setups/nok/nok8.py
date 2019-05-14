@@ -29,12 +29,6 @@ devices = dict(
             'fc': optic_values['fc'],
         },
     ),
-    nok8_mode = device('nicos.devices.generic.ParamDevice',
-        description = 'nok8 mode',
-        device = 'nok8',
-        parameter = 'mode',
-    ),
-
     nok8r_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK8, reactor side',
         motor = 'nok8r_motor',

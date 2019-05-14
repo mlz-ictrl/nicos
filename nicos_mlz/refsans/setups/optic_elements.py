@@ -186,11 +186,6 @@ devices = dict(
             #'vc:nok8_fc:nok9'     :
             #'vc:nok8'             :
             #'vc:nok9'             :
-            },
-        ),
-    optic_mode = device('nicos.devices.generic.ReadonlyParamDevice',
-        description = 'optic mode',
-        device = 'optic',
-        parameter = 'mode',
-        ),
-    )
+        },
+    ),
+)

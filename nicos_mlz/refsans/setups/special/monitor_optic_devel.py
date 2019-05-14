@@ -20,7 +20,7 @@ layout_two = 15
 _modecol = Column(
     Block('Measurement configuration', [
         BlockRow(
-            Field(name='Collimation', dev='optic_mode', width=34),
+            Field(name='Collimation', key='optic/mode', width=34),
             Field(name='Angle', dev='optic', width=34),
             ),
         ],

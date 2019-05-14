@@ -62,9 +62,4 @@ devices = dict(
          lowlevel = True or showcase_values['hide_acc'],
          unit = 'mm'
     ),
-    zb0_mode = device('nicos.devices.generic.ParamDevice',
-        description = 'zb0 mode',
-        device = 'zb0',
-        parameter = 'mode',
-    ),
 )

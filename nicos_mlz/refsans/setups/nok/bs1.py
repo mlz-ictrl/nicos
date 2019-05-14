@@ -15,12 +15,6 @@ devices = dict(
         slit_r = 'bs1r',
         slit_s = 'bs1s',
     ),
-    bs1_mode = device('nicos.devices.generic.ParamDevice',
-        description = 'bs1 mode',
-        device = 'bs1',
-        parameter = 'mode',
-    ),
-
     bs1r = device('nicos_mlz.refsans.devices.slits.SingleSlit',
         description = 'bs1 slit, reactor side',
         motor = 'bs1r_axis',

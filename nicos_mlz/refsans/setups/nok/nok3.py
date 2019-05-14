@@ -30,12 +30,6 @@ devices = dict(
             'fc': optic_values['ng'],
         },
     ),
-    nok3_mode = device('nicos.devices.generic.ParamDevice',
-        description = 'nok3 mode',
-        device = 'nok3',
-        parameter = 'mode',
-    ),
-
     nok3r_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK3, reactor side',
         motor = 'nok3r_motor',

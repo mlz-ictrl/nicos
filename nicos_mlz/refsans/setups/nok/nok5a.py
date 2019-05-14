@@ -85,9 +85,4 @@ devices = dict(
             # 'pola': showcase_values['pola'],
         },
     ),
-    nok5a_mode = device('nicos.devices.generic.ParamDevice',
-        description = 'nok5a mode',
-        device = 'nok5a',
-        parameter = 'mode',
-    ),
 )
