@@ -690,7 +690,7 @@ class Device(object):
         umethod = getattr(self, 'doUpdate' + param.title(), None)
         done = False
         # try to read from the hardware (only in non-simulation mode)
-        if self._mode != SIMULATION and rmethod:
+        if not self._sim_intercept and rmethod:
             try:
                 value = rmethod()
             except NicosError:
@@ -984,8 +984,6 @@ class Readable(Device):
 
     def init(self):
         self._info_errcount = 0
-        self._sim_intercept = False
-        Device.init(self)
         # value in simulation mode
         self._sim_intercept = self._mode == SIMULATION and self.hardware_access
         self._sim_old_value = None
@@ -994,6 +992,7 @@ class Readable(Device):
         self._sim_max = None
         self._sim_started = None
         self._sim_preset = {}
+        Device.init(self)
 
     def _sim_getMinMax(self):
         """Return info about the value range this device had in a simulation.
