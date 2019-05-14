@@ -59,7 +59,7 @@ levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
           ERROR: 'ERROR', FATAL: 'FATAL'}
 
 # disable sending events with potentially large data we don't handle
-EVENTMASK = ('livedata', 'liveparams', 'watch', 'dataset', 'datacurve',
+EVENTMASK = ('livedata', 'watch', 'dataset', 'datacurve',
              'datapoint', 'clientexec')
 
 # introduce the readline C library to our program (we will use Python's

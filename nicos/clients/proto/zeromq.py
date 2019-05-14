@@ -24,8 +24,8 @@
 
 import zmq
 
-from nicos.protocols.daemon import DAEMON_EVENTS, \
-    ClientTransport as BaseClientTransport, ProtocolError
+from nicos.protocols.daemon import ClientTransport as BaseClientTransport, \
+    ProtocolError
 
 
 class ClientTransport(BaseClientTransport):
@@ -71,8 +71,4 @@ class ClientTransport(BaseClientTransport):
         if len(item) < 3:
             raise ProtocolError('invalid frames received')
         event = item[1].decode()
-        # serialized or raw event data?
-        if DAEMON_EVENTS[event][0]:
-            return self.serializer.deserialize_event(item[2], item[1])
-        else:
-            return item[2]
+        return self.serializer.deserialize_event(item[2], event) + (item[3:],)

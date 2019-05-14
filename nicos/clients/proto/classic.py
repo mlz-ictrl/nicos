@@ -25,8 +25,10 @@
 
 import uuid
 
-from nicos.protocols.daemon import DAEMON_EVENTS, \
-    ClientTransport as BaseClientTransport, ProtocolError
+import numpy as np
+
+from nicos.protocols.daemon import ClientTransport as BaseClientTransport, \
+    ProtocolError
 from nicos.protocols.daemon.classic import ACK, ENQ, LENGTH, NAK, \
     READ_BUFSIZE, SERIALIZERS, STX, code2event, command2code
 from nicos.utils import closeSocket, tcpSocket
@@ -105,17 +107,35 @@ class ClientTransport(BaseClientTransport):
         # XXX: handle errors
         return self.serializer.deserialize_reply(buf, start[0:1] == STX)
 
-    def recv_event(self):
-        # receive STX (1 byte) + eventcode (2) + length (4)
+    def _recv_blob(self):
         start = b''
-        while len(start) < 7:
-            data = self.event_sock.recv(7 - len(start))
+        while len(start) < 4:
+            data = self.event_sock.recv(4 - len(start))
+            if not data:
+                raise ProtocolError('read: event connection broken')
+            start += data
+        length, = LENGTH.unpack(start)
+        got = 0
+        buf = np.zeros(length, 'c')  # Py3: replace with bytearray+memoryview
+        while got < length:
+            read = self.event_sock.recv_into(buf[got:], length - got)
+            if not read:
+                raise ProtocolError('read: event connection broken')
+            got += read
+        return buf
+
+    def recv_event(self):
+        # receive STX (1 byte) + eventcode (2) + nblobs(1) + length (4)
+        start = b''
+        while len(start) < 8:
+            data = self.event_sock.recv(8 - len(start))
             if not data:
                 raise ProtocolError('read: event connection broken')
             start += data
         if start[0:1] != STX:
             raise ProtocolError('wrong event header')
-        length, = LENGTH.unpack(start[3:])
+        nblobs = ord(start[3:4])
+        length, = LENGTH.unpack(start[4:])
         got = 0
         # read into a pre-allocated buffer to avoid copying lots of data
         # around several times
@@ -128,9 +148,7 @@ class ClientTransport(BaseClientTransport):
             got += read
         # XXX: error handling
         event = code2event[start[1:3]]
-        # serialized or raw event data?
-        if DAEMON_EVENTS[event][0]:
-            data = self.serializer.deserialize_event(buf, event)
-        else:
-            data = event, buf_view
-        return data
+
+        data = self.serializer.deserialize_event(buf, event)
+        blobs = [self._recv_blob() for _ in range(nblobs)]
+        return data + (blobs,)

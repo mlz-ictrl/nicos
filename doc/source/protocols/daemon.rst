@@ -178,12 +178,13 @@ Events
 ======
 
 These are the events emitted by the daemon and transferred on the event
-connection.  The data is serialized (using pickle, see Serialization_) unless
-noted.
+connection.  Event data is serialized (using pickle, see Serialization_).
+However, some events can also transport a number of blobs in addition
+to the serialized data.
 
 The possible events are listed in the `nicos.protocols.daemon.DAEMON_EVENTS`
-dictionary, which maps the event name to a boolean indicating whether event data
-for this event should be serialized.
+dictionary, which maps the event name to a numeric identifier used in some
+protocols.
 
 .. daemonevt:: message
 
@@ -302,23 +303,13 @@ for this event should be serialized.
 
    :arg: A tuple of ``(curve name, xvalues list, yvalues list)``.
 
-.. daemonevt:: liveparams
-
-   Set the data parameters for the next `livedata` event.
-
-   :arg: A tuple of ``(tag, filename, dtype, nx, ny, nt, time)``, where
-
-      - ``tag``: an application specific "tag" for the data format
-      - ``filename``: (eventual) filename of the data being transferred
-      - ``dtype``: data type of each pixel, in numpy format (such as ``<u4``)
-      - ``nx``, ``ny``, ``nt``: array dimensions
-      - ``time``: the counting time in seconds
-
 .. daemonevt:: livedata
 
-   New live data to display on the client.
+   An assortment of live data.
 
-   :arg: The data, as an *unserialized* byte string.
+   :arg: XXX document this once format is finalized.
+
+   This event contains blobs, which are raw arrays with the actual data.
 
 .. daemonevt:: simresult
 

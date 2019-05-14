@@ -243,11 +243,11 @@ class ConnectionHandler:
             item = queue_get()
             if item is stop_queue:
                 break
-            event, data = item
+            event, data, blobs = item
             if event in event_mask:
                 continue
             try:
-                self.send_event(event, data)
+                self.send_event(event, data, blobs)
             except socket.timeout:
                 # XXX move socket specific error handling to transport
                 self.log.error('send timeout in event sender')

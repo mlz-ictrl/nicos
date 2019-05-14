@@ -43,7 +43,10 @@ class NicosGuiClient(NicosClient, QObject):
     initstatus = pyqtSignal(object)
 
     for evt in DAEMON_EVENTS:
-        locals()[evt] = pyqtSignal(object)
+        if DAEMON_EVENTS[evt][1]:
+            locals()[evt] = pyqtSignal(object, object)
+        else:
+            locals()[evt] = pyqtSignal(object)
 
     def __init__(self, parent, parent_logger):
         QObject.__init__(self, parent)
@@ -51,7 +54,7 @@ class NicosGuiClient(NicosClient, QObject):
         logger.parent = parent_logger
         NicosClient.__init__(self, logger.warning)
         self._reg_keys = {}
-        self._event_mask = ['livedata', 'liveparams']
+        self._event_mask = ['livedata']
         self.cache.connect(self.on_cache_event)
         self.connected.connect(self.on_connected_event)
 

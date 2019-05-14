@@ -34,7 +34,8 @@ from time import time as currenttime
 import rsa
 
 from nicos.clients.proto.classic import ClientTransport
-from nicos.protocols.daemon import ACTIVE_COMMANDS, ProtocolError
+from nicos.protocols.daemon import ACTIVE_COMMANDS, DAEMON_EVENTS, \
+    ProtocolError
 from nicos.protocols.daemon.classic import COMPATIBLE_PROTO_VERSIONS, \
     PROTO_VERSION
 from nicos.utils import createThread
@@ -185,7 +186,7 @@ class NicosClient:
     def event_handler(self):
         while 1:
             try:
-                event, data = self.transport.recv_event()
+                event, data, blobs = self.transport.recv_event()
             except InterruptedError:
                 continue
             except Exception as err:
@@ -195,7 +196,10 @@ class NicosClient:
                     self._close()
                 return
             try:
-                self.signal(event, data)
+                if DAEMON_EVENTS[event][1]:
+                    self.signal(event, data, blobs)
+                else:
+                    self.signal(event, data)
             except Exception as err:
                 self.log_func('Error in event handler: %s' % err)
 

@@ -30,9 +30,8 @@ import threading
 
 import zmq
 
-from nicos.protocols.daemon import DAEMON_EVENTS, CloseConnection, \
-    ProtocolError, Server as BaseServer, \
-    ServerTransport as BaseServerTransport
+from nicos.protocols.daemon import CloseConnection, ProtocolError, \
+    Server as BaseServer, ServerTransport as BaseServerTransport
 from nicos.services.daemon.handler import ConnectionHandler
 from nicos.utils import createThread
 from nicos.utils.messaging import nicos_zmq_ctx
@@ -49,11 +48,12 @@ from nicos.utils.messaging import nicos_zmq_ctx
 #
 # Framing for events:
 #
-# [id, verb, data]
+# [id, verb, data, ...]
 #
 # The id is the client id for subscription purposes, or 'ALL' (XXX).
 # The verb is the event name.
-# The data is (maybe) serialized payload.
+# The first data is a serialized data payload.
+# Rest of the data are blob payloads, if applicable.
 
 
 class Server(BaseServer):
@@ -84,7 +84,8 @@ class Server(BaseServer):
         poller.register(self.sock, zmq.POLLIN)
         poller.register(reply_collect, zmq.POLLIN)
 
-        # ZeroMQ expects a poll timeout given in msec. interval is passed through in seconds.
+        # ZeroMQ expects a poll timeout given in msec. interval is passed
+        # through in seconds.
         interval_ms = interval * 1000
 
         while not self._stoprequest:
@@ -115,11 +116,10 @@ class Server(BaseServer):
         with self.handler_lock:
             self.handlers.pop(client_id, None)
 
-    def emit(self, event, data, handler=None):
-        if DAEMON_EVENTS[event][0]:
-            data = self.serializer.serialize_event(event, data)
+    def emit(self, event, data, blobs, handler=None):
+        data = self.serializer.serialize_event(event, data)
         self.event_queue.put([handler.client_id if handler else b'ALL',
-                              event.encode(), data])
+                              event.encode(), data] + blobs)
 
     def stop(self):
         self._stoprequest = True
@@ -174,7 +174,7 @@ class ServerTransport(ConnectionHandler, BaseServerTransport):
             # after a long stretch of inactivity
             item = self.command_queue.get(timeout=3600.)
         except queue.Empty:
-            raise CloseConnection
+            raise CloseConnection from None
         return self.serializer.deserialize_cmd(item[4], item[2].decode())
 
     def send_ok_reply(self, payload):

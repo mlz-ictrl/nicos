@@ -69,14 +69,14 @@ class TestClient(NicosClient):
         self._disconnecting = False
         NicosClient.__init__(self, print)
 
-    def signal(self, name, data=None, exc=None):
+    def signal(self, name, data=None, data2=None):  # pylint: disable=W0221
         if name == 'error':
-            raise AssertionError('client error: %s (%s)' % (data, exc))
+            raise AssertionError('client error: %s (%s)' % (data, data2))
         if name == 'disconnected' and not self._disconnecting:
             raise AssertionError('client disconnected')
         if name == 'status':
             self._estatus = data[0]
-        self._signals.append((name, data, exc))
+        self._signals.append((name, data, data2))
 
     def iter_signals(self, startindex, timeout):
         starttime = time.time()

@@ -123,15 +123,15 @@ class NicosDaemon(Device):
                 emit('watch', watch)
                 lastwatch = watch
 
-    def emit_event(self, event, data):
+    def emit_event(self, event, data, blobs=None):
         """Emit an event to all handlers."""
-        self._server.emit(event, data)
+        self._server.emit(event, data, blobs or [])
 
-    def emit_event_private(self, event, data):
+    def emit_event_private(self, event, data, blobs=None):
         """Emit an event to only the calling handler."""
         handler = self._controller.get_current_handler()
         if handler:
-            self._server.emit(event, data, handler)
+            self._server.emit(event, data, blobs or [], handler=handler)
 
     def statusinfo(self):
         self.log.info('got SIGUSR2 - current stacktraces for each thread:')

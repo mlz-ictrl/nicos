@@ -175,7 +175,7 @@ class ConsoleBox(QPlainTextEdit):
             return
         elif event.key() == Qt.Key_D and event.modifiers() == Qt.ControlModifier:
             self.closeConsole.emit()
-        super(ConsoleBox, self).keyPressEvent(event)
+        QPlainTextEdit.keyPressEvent(self, event)
 
 
 class DebugConsole(QMainWindow):
@@ -217,7 +217,7 @@ Helper functions:
                 self.on_client_signal(event, args)
             return handler
         if not events:
-            events = DAEMON_EVENTS.keys()
+            events = DAEMON_EVENTS
         for event in events:
             getattr(self.parent().client, event).connect(make_handler(event))
 

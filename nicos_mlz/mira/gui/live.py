@@ -84,7 +84,6 @@ class LiveDataPanel(Panel):
         self.splitter.restoreState(self.splitterstate)
 
         client.livedata.connect(self.on_client_livedata)
-        client.liveparams.connect(self.on_client_liveparams)
         if client.isconnected:
             self.on_client_connected()
         client.connected.connect(self.on_client_connected)
@@ -142,7 +141,7 @@ class LiveDataPanel(Panel):
         self.menu.popup(self.mapToGlobal(point))
 
     def on_client_connected(self):
-        self.client.tell('eventunmask', ['livedata', 'liveparams'])
+        self.client.tell('eventunmask', ['livedata'])
         datapath = self.client.eval('session.experiment.datapath', '')
         if not datapath:
             return
@@ -154,7 +153,7 @@ class LiveDataPanel(Panel):
                 elif fn.endswith('tof'):
                     self.add_to_flist(path.join(caspath, fn), 'tof', False)
 
-    def on_client_liveparams(self, params):
+    def on_client_livedata(self, params, blobs):
         tag, _uid, _det, filename, dtype, nx, ny, nt, runtime = params
         # TODO: remove compatibility code
         if not isinstance(filename, str):
@@ -175,7 +174,10 @@ class LiveDataPanel(Panel):
                 # print 'Unsupported live data format:', params
                 self._format = None
 
-    def on_client_livedata(self, data):
+        for blob in blobs:
+            self._process_livedata(blob)
+
+    def _process_livedata(self, data):
         if self._format not in ('pad', 'tof'):
             return
         if data:

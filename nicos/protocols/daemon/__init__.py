@@ -96,66 +96,64 @@ ACTIVE_COMMANDS = {
 # daemon event specification
 
 # key: event name
-# value: - whether the event data is serialized or raw bytes
-#        - event code (integer < 65535, will be converted to 2 bytes)
+# value: - event code (integer < 65535, will be converted to 2 bytes)
+#        - whether the event data can contain blobs
 
 # IMPORTANT: add new events to the documentation too!
 
 DAEMON_EVENTS = {
     # a new message arrived
-    'message':     (True, 0x1001),
+    'message':     (0x1001, False),
     # a new request arrived
-    'request':     (True, 0x1002),
+    'request':     (0x1002, False),
     # a request is now being processed
-    'processing':  (True, 0x1003),
+    'processing':  (0x1003, False),
     # one or more requests have been blocked from execution
-    'blocked':     (True, 0x1004),
+    'blocked':     (0x1004, False),
     # the execution status changed
-    'status':      (True, 0x1005),
+    'status':      (0x1005, False),
     # the watched variables changed
-    'watch':       (True, 0x1006),
+    'watch':       (0x1006, False),
     # the mode changed
-    'mode':        (True, 0x1007),
+    'mode':        (0x1007, False),
     # a new cache value has arrived
-    'cache':       (True, 0x1008),
+    'cache':       (0x1008, False),
     # a new dataset was created
-    'dataset':     (True, 0x1009),
+    'dataset':     (0x1009, False),
     # a new point was added to a dataset
-    'datapoint':   (True, 0x100A),
+    'datapoint':   (0x100A, False),
     # a new fit curve was added to a dataset
-    'datacurve':   (True, 0x100B),
-    # new parameters for the data sent with the "livedata" event
-    'liveparams':  (True, 0x100C),
-    # live detector data to display
-    'livedata':    (False, 0x100D),
+    'datacurve':   (0x100B, False),
+    # new live data, parameters and blob(s)
+    'livedata':    (0x100D, True),
     # a simulation finished with the given result
-    'simresult':   (True, 0x100E),
+    'simresult':   (0x100E, False),
     # request to display given help page
-    'showhelp':    (True, 0x100F),
+    'showhelp':    (0x100F, False),
     # request to execute something on the client side
-    'clientexec':  (True, 0x1010),
+    'clientexec':  (0x1010, False),
     # a watchdog notification has arrived
-    'watchdog':    (True, 0x1011),
+    'watchdog':    (0x1011, False),
     # the remote-debugging status changed
-    'debugging':   (True, 0x1012),
+    'debugging':   (0x1012, False),
     # a plug-and-play/sample-environment event occurred
-    'plugplay':    (True, 0x1013),
+    'plugplay':    (0x1013, False),
     # a setup was loaded or unloaded
-    'setup':       (True, 0x1014),
+    'setup':       (0x1014, False),
     # a device was created or destroyed
-    'device':      (True, 0x1015),
+    'device':      (0x1015, False),
     # the experiment has changed
-    'experiment':  (True, 0x1016),
+    'experiment':  (0x1016, False),
     # the user is prompted to continue
-    'prompt':      (True, 0x1017),
+    'prompt':      (0x1017, False),
     # queued script has been updated
-    'updated':     (True, 0x1018),
+    'updated':     (0x1018, False),
     # order of queued scripts changed
-    'rearranged':  (True, 0x1019),
+    'rearranged':  (0x1019, False),
     # estimated finishing time for the currently running script
-    'eta':         (True, 0x101A),
+    'eta':         (0x101A, False),
     # message sent out while simulating
-    'simmessage':  (True, 0x101B),
+    'simmessage':  (0x101B, False),
 }
 
 # possible states of ETA simulation
@@ -205,7 +203,7 @@ class Server:
         """
         raise NotImplementedError
 
-    def emit(self, event, data, handler=None):
+    def emit(self, event, data, blobs, handler=None):
         """Emit an event.  If *handler* is given, only to this client.
         """
         raise NotImplementedError
@@ -246,12 +244,12 @@ class ServerTransport:
         """
         raise NotImplementedError
 
-    def send_event(self, evtname, payload):
+    def send_event(self, evtname, payload, blobs):
         """Send an event to the client.
 
         *evtname* is the event name, as defined in nicos.protocols.daemon.
-        *payload* is the event data.  It is transport specific whether this
-        data is already serialized.
+        *payload* is the serialized event data.  *blobs* is a sequence of
+        non-serialized blobs.
         """
         raise NotImplementedError
 

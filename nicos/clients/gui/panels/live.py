@@ -128,7 +128,6 @@ class LiveDataPanel(Panel):
         if hasattr(self.window(), 'closed'):
             self.window().closed.connect(self.on_closed)
         client.livedata.connect(self.on_client_livedata)
-        client.liveparams.connect(self.on_client_liveparams)
         client.connected.connect(self.on_client_connected)
         client.cache.connect(self.on_cache)
 
@@ -407,7 +406,7 @@ class LiveDataPanel(Panel):
             self._register_rois(value)
 
     def on_client_connected(self):
-        self.client.tell('eventunmask', ['livedata', 'liveparams'])
+        self.client.tell('eventunmask', ['livedata'])
         datapath = self.client.eval('session.experiment.datapath', '')
         if not datapath or not path.isdir(datapath):
             return
@@ -419,7 +418,7 @@ class LiveDataPanel(Panel):
         self.detectorskey = (self.client.eval('session.experiment.name')
                              + '/detlist').lower()
 
-    def on_client_liveparams(self, params):
+    def on_client_livedata(self, params, blobs):
         tag, uid, det, fname, dtype, nx, ny, nz, runtime = params
         # TODO: remove compatibility code
         if isinstance(fname, str):
@@ -448,6 +447,8 @@ class LiveDataPanel(Panel):
         self._ny = ny
         self._nz = nz
         self._last_idx = 0
+        for blob in blobs:
+            self._process_livedata(blob)
 
     def _initLiveWidget(self, array):
         """Initialize livewidget based on array's shape"""
@@ -477,15 +478,14 @@ class LiveDataPanel(Panel):
         try:
             array = ReaderRegistry.getReaderCls(tag).fromfile(filename)
         except KeyError:
-            raise NicosError('Unsupported fileformat %r' % tag)
+            raise NicosError('Unsupported fileformat %r' % tag) from None
         if array is not None:
             self.setData(array, uid, display=display)
         else:
             raise NicosError('Cannot read file %r' % filename)
 
-    def on_client_livedata(self, data):
-        if self._ignore_livedata:  # ignore all live events
-            return
+    def _process_livedata(self, data):
+        # TODO: needs to be merged into on_client_livedata() above
 
         idx = self._last_idx  # 0 <= array number < n
         self._last_idx += 1
