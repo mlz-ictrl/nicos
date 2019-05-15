@@ -5,6 +5,13 @@ venv=${venvfull##*/}
 . $venvfull/bin/activate
 echo
 
+if [ -f /etc/system-release-cpe ] ; then
+    if grep -qs Centos  /etc/system-release-cpe; then
+        sed -i -e "s/PyTango>=8.1.7,<9.0.0;python_version<'3.0'/PyTango>=9;python_version<'3.0'/" requirements-opt.txt
+    fi
+fi
+
+
 echo "==== Developer dependencies ======"
 pip install -r requirements-dev.txt 2>&1  > pip-dev-$venv-$pbranch.log
 cat pip-dev-$venv-$pbranch.log
