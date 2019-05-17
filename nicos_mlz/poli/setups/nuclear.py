@@ -7,7 +7,7 @@ tango_base = 'tango://phys.poli.frm2:10000/poli/'
 
 modules = ['nicos.commands.standard', 'nicos_mlz.poli.nuclear_commands', 'nicos_mlz.poli.devices.amplscan']
 
-excludes = ['detector', 'zeadetector', 'cryopad_currents']
+excludes = ['detector', 'cryopad_currents']
 
 devices = dict(
     nutator1c = device('nicos.devices.taco.CurrentSupply',
