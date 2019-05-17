@@ -49,8 +49,21 @@ class DNSFileSinkHandler(SingleFileSinkHandler):
         w = fp.write
         separator = "#" + "-"*74 + "\n"
 
+        scannumber = 0
+        scaninfo = ''
+        scanpos = ''
+        for ds in session.data.iterParents(self.dataset):
+            if ds.settype == 'scan':
+                scannumber = ds.counter
+                scaninfo = ds.info
+                scanpos = '%d/%d' % (self.dataset.number, ds.npoints)
+                break
+
         def readdev(name):
-            return session.getDevice(name).read()
+            try:
+                return session.getDevice(name).read()
+            except Exception:
+                return -1
 
         fp.seek(0)
         exp = session.experiment
@@ -58,11 +71,6 @@ class DNSFileSinkHandler(SingleFileSinkHandler):
           (exp.users, exp.proposal, self.dataset.counter,
            exp.sample.samplename))
         w(separator)
-
-        # TODO: use right value, remove dummylines
-        # w("# %d\n" % len(datacomment))
-        # for i in range(len(datacomment)):
-        #     w("# " + datacomment[i] + "\n")
 
         w("# 2\n")  # TODO: add other comment maybe
         w("# User: %s\n" % exp.users)
@@ -168,6 +176,17 @@ class DNSFileSinkHandler(SingleFileSinkHandler):
         end_t = strftime('%Y-%m-%d %H:%M:%S', localtime(currenttime()))
         w("#    start   at      %s\n" % begin_t)
         w("#    stopped at      %s\n" % end_t)
+        w(separator)
+
+        w("# Extended data\n")
+        w("#  Scannumber               %8d\n" % scannumber)
+        w("#  Scancommand              %s\n" % scaninfo)
+        w("#  Scanposition             %8s\n" % scanpos)
+        w("#  pol_trans_x              %8.1f mm\n" % readdev('pol_trans_x'))
+        w("#  pol_trans_y              %8.1f mm\n" % readdev('pol_trans_y'))
+        w("#  field                    %8s\n" % readdev('field'))
+        w("#  selector_lift            %8.1f mm\n" % readdev('selector_lift'))
+        w("#  selector_speed           %8.1f rpm\n" % readdev('selector_speed'))
         w(separator)
 
         # write array
