@@ -18,7 +18,7 @@ devices = dict(
     image = device('nicos.devices.generic.VirtualImage',
         description = 'Image data device',
         fmtstr = '%d',
-        pollinterval = 86400,
+        pollinterval = None,
         lowlevel = True,
         sizes = (80, 256),
     ),
