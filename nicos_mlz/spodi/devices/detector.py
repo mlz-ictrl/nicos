@@ -30,7 +30,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import ArrayDesc, Attach, Moveable, Override, Param, Value, \
-    listof, none_or, oneof, status
+    intrange, listof, none_or, oneof, status
 from nicos.core.constants import FINAL, LIVE, SIMULATION
 from nicos.core.utils import waitForCompletion
 from nicos.devices.generic.detector import Detector as GenericDetector
@@ -71,13 +71,8 @@ class Detector(MeasureSequencer):
                        default=2.0, category='instrument',
                        ),
         'numinputs': Param('Number of detector channels',
-                           type=int,
-                           default=80, settable=False,
+                           type=int, default=80, settable=False,
                            category='general',
-                           ),
-        '_startpos': Param('Store the starting position',
-                           type=float, settable=True, mandatory=False,
-                           internal=True, category='instrument',
                            ),
         'liveinterval': Param('Interval to read out live images (None to '
                               'disable live readout)',
@@ -87,6 +82,13 @@ class Detector(MeasureSequencer):
         'rates': Param('The rates detected by the detector',
                        settable=False, type=listof(float), internal=True,
                        category='status',
+                       ),
+        '_startpos': Param('Store the starting position',
+                           type=float, settable=True, internal=True,
+                           category='instrument',
+                           ),
+        '_step': Param('Store the current step',
+                       type=intrange(0, 100), settable=True, internal=True,
                        ),
     }
 
