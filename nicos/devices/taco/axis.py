@@ -93,7 +93,7 @@ class Axis(CanReference, TacoDevice, AbstractAxis):
         if self._mode == SLAVE:
             raise ModeError(self, 'setting new position not possible in '
                             'slave mode')
-        elif self._sim_active:
+        elif self._sim_intercept:
             self._sim_setValue(pos)
             return
         self._taco_guard(self._dev.setpos, pos)

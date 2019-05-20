@@ -85,7 +85,7 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
     # def doRead(self, maxage=0): ...
 
     def doReadArray(self, quality):
-        if not self._sim_active:
+        if not self._sim_intercept:
             (shape, data) = self._communicate('GetImage')
             mode = self._communicate('GetMode')
         else:

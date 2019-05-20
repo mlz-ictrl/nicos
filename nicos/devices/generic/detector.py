@@ -342,7 +342,7 @@ class ImageChannelMixin(DeviceMixinBase):
         and `None` otherwise.  Most other detectors should also read out and
         return the data when *quality* is `INTERRUPTED`.
         """
-        if self._sim_active:
+        if self._sim_intercept:
             if self.arraydesc:
                 return numpy.zeros(self.arraydesc.shape)
             return numpy.zeros(1)

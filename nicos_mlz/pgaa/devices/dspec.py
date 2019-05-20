@@ -147,7 +147,7 @@ class DSPec(PyTangoDevice, Measurable):
         self._clear()
 
         if 'TrueTime' in preset:
-            if self._sim_active:
+            if self._sim_intercept:
                 return
             try:
                 self._dev.SyncMode = 'RealTime'
@@ -161,7 +161,7 @@ class DSPec(PyTangoDevice, Measurable):
                 self._dev.SyncMode = 'RealTime'
                 self._dev.SyncValue = preset['TrueTime'] * 1000
         elif 'LiveTime' in preset:
-            if self._sim_active:
+            if self._sim_intercept:
                 return
             try:
                 self._dev.SyncMode = 'LiveTime'

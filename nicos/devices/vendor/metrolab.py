@@ -137,7 +137,7 @@ class THM1176(Measurable):
         """Zero the probe in zero-gauss chamber."""
         if self._mode == SLAVE:
             raise ModeError(self, 'cannot zero probe in slave mode')
-        elif self._sim_active:
+        elif self._sim_intercept:
             return
         self.log.info('Zeroing sensor, please wait a few seconds...')
         try:

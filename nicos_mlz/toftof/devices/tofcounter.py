@@ -271,7 +271,7 @@ class Image(ImageChannelMixin, TacoDevice, PassiveChannel):
         self._taco_guard(self._dev.clear)
 
     def _read_full(self):
-        if self._sim_active:
+        if self._sim_intercept:
             arr = np.zeros(2 + self.numinputs * self.timechannels, np.uint32)
             arr[0] = self.numinputs
             arr[1] = self.timechannels

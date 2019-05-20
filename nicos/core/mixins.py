@@ -724,7 +724,7 @@ class CanDisable(DeviceMixinBase):
                 session.checkAccess(self.requires)
             except AccessError as err:
                 raise AccessError(self, 'cannot %s device: %s' % (what, err))
-        if self._sim_active:
+        if self._sim_intercept:
             return
         self.doEnable(on)
 

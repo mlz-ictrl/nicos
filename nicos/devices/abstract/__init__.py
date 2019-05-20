@@ -53,7 +53,7 @@ class Coder(HasPrecision, Readable):
         if self._mode == SLAVE:
             raise ModeError(self, 'setting new position not possible in '
                             'slave mode')
-        elif self._sim_active:
+        elif self._sim_intercept:
             self._sim_setValue(pos)
             return
         self.doSetPosition(pos)
@@ -117,7 +117,7 @@ class CanReference(DeviceMixinBase):
         """Do a reference drive of the axis."""
         if self._mode == SLAVE:
             raise ModeError(self, 'referencing not possible in slave mode')
-        elif self._sim_active:
+        elif self._sim_intercept:
             return
         elif hasattr(self, 'fixed') and self.fixed:
             self.log.error('device fixed, not referencing: %s', self.fixed)

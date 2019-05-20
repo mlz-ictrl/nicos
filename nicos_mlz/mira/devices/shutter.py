@@ -75,7 +75,7 @@ class Shutter(PyTangoDevice, Readable):
     def close(self):
         if self._mode == SLAVE:
             raise ModeError(self, 'closing shutter not allowed in slave mode')
-        elif self._sim_active:
+        elif self._sim_intercept:
             return
         self._dev.WriteOutputBit([self.switchoffset, 1])
         session.delay(0.5)
