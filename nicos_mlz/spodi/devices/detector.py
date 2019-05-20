@@ -32,6 +32,7 @@ from nicos import session
 from nicos.core import ArrayDesc, Attach, Moveable, Override, Param, Value, \
     listof, none_or, oneof, status
 from nicos.core.constants import FINAL, LIVE, SIMULATION
+from nicos.core.utils import waitForCompletion
 from nicos.devices.generic.detector import Detector as GenericDetector
 from nicos.devices.generic.sequence import MeasureSequencer, SeqCall, SeqDev, \
     SeqWait
@@ -156,6 +157,8 @@ class Detector(MeasureSequencer):
         Since the detector is not really in BUSY mode after start, we need an
         additional flag to mark the detector started.
         """
+        self._attached_detector.prepare()
+        waitForCompletion(self._attached_detector)
         self._attached_detector.start()
         self._det_run = True
 
