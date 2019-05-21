@@ -47,8 +47,6 @@ except ImportError:
     HistogramCounter = None
 
 
-
-
 class Monitor(FRMCounterChannel):
 
     taco_class = MonitorCounter
@@ -270,19 +268,10 @@ class Image(ImageChannelMixin, TacoDevice, PassiveChannel):
         self._fix_state(self._mode)
         self._taco_guard(self._dev.clear)
 
-    def _read_full(self):
-        if self._sim_intercept:
-            arr = np.zeros(2 + self.numinputs * self.timechannels, np.uint32)
-            arr[0] = self.numinputs
-            arr[1] = self.timechannels
-        else:
-            arr = np.array(self._taco_guard(self._dev.read))
+    def doReadArray(self, quality):
+        arr = np.array(self._taco_guard(self._dev.read))
         ndata = np.reshape(arr[2:], (arr[1], arr[0]))
+        self.arraydesc = ArrayDesc(self.name, ndata.shape, np.uint32)
         self.readresult = [ndata[2:self.monitorchannel].sum() +
                            ndata[self.monitorchannel + 1:].sum()]
-        self.arraydesc = ArrayDesc(self.name, ndata.shape, np.uint32)
         return ndata
-
-    def doReadArray(self, quality):
-        counts = self._read_full()
-        return counts
