@@ -127,6 +127,23 @@ def test_resolution(session):
     assert res.read(0) == 12.67
 
 
+class TestDevices(object):
+    """Test class for the 'simple' REFSANS devices."""
+
+    @pytest.fixture(scope='function', autouse=True)
+    def prepare(self, session):
+        pass
+
+    def test_analog_encoder(self, session):
+        dev = session.getDevice('acoder')
+        raw = session.getDevice('rawcoder')
+        assert dev.read(0) == 1
+        raw.maw(1)
+        assert dev.read(0) == 3
+        raw.maw(-1)
+        assert dev.read(0) == -1
+
+
 class TestChopper(object):
     """Test class for the REFSANS chopper device."""
 

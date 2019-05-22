@@ -59,6 +59,9 @@
 .. automodule:: nicos_mlz.refsans.devices.skew_motor
 .. autoclass:: SkewMotor()
 
+.. automodule:: nicos_mlz.refsans.devices.analogencoder
+.. autoclass:: AnalogEncoder()
+
 Data Sinks
 ----------
 
