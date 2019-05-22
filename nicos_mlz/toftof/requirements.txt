@@ -1,2 +1,3 @@
+pytz
 -e git+https://github.com/jkrueger1/python-nxs#egg=nexus
 nexusformat>=0.4.18
