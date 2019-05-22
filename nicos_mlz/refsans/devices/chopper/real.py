@@ -27,8 +27,9 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos import session
-from nicos.core import ADMIN, Moveable, Override, Param, requires, status
-from nicos.core.errors import PositionError, NicosError
+from nicos.core import ADMIN, Moveable, Override, Param, intrange, requires, \
+    status
+from nicos.core.errors import ConfigurationError, PositionError, NicosError
 from nicos.core.mixins import DeviceMixinBase, HasOffset
 from nicos.core.params import Attach
 from nicos.devices.abstract import Motor
@@ -85,6 +86,7 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
 
     parameter_overrides = {
         'delay': Override(volatile=True),
+        'resolution': Override(type=intrange(0, 6)),
     }
 
     def doWriteDelay(self, delay):
@@ -361,8 +363,8 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
             set_to += 360.
         while set_to >= 360.:
             set_to -= 360.
-        self.log.debug('read %.2f phase  %.2f ref %.2f gear %d SB', res, set_to,
-                      self.reference, self.gear)
+        self.log.debug('read %.2f phase  %.2f ref %.2f gear %d SB', res,
+                       set_to, self.reference, self.gear)
         return set_to
 
     def doWritePhase(self, value):
@@ -380,7 +382,7 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
         # The Chopper understands "negative hundreths degrees"
         set_to = int(round(set_to * -100))  # SB
         self.log.debug('Disk %d Phase %d gear %d', self.chopper, set_to,
-                      self.gear)
+                       self.gear)
         # Notausgang = 10
         # while Notausgang:
         #    Notausgang -= 1
@@ -453,6 +455,24 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
 
 class ChopperDisc2(ChopperDisc2Base, ChopperDisc):
     """Chopper disc 2 device."""
+
+    # Due to a limitation of the hardware the position of the chopper disc2
+    # position can be 0 but it is not a valid position. It indicates that the
+    # hardware is not referenced. The parameter read raises always an error, so
+    #  the device can't be initialised.
+
+    # To overcome the problem the parameter type for the hardware is extended
+    # to the 0 position, but the writing of 0 raises an error.
+
+    parameter_overrides = {
+        'pos': Override(type=intrange(0, 5)),
+    }
+
+    def doWritePos(self, target):
+        if target == 0:
+            raise ConfigurationError(self, "'%d' is an invalid value for "
+                                     "parameter 'pos'" % target)
+        self._attached_translation.move(target)
 
 
 class ChopperDiscTranslation(ChopperDiscTranslationBase, ChopperBase,
