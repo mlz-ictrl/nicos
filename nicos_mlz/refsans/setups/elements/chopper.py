@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 tango_base = 'tango://refsanshw.refsans.frm2:10000/test/chopper/io'
 
-includes = ['shutter']
+includes = ['shutter', 'vsd']
 
 devices = dict(
     chopper_io = device('nicos.devices.tango.StringIO',
@@ -93,5 +93,33 @@ devices = dict(
         gear = 2,
         edge = 'close',
         reference = 129.7,
+    ),
+    core1 = device('nicos_mlz.refsans.devices.analogencoder.AnalogEncoder',
+        description = 'Temperature of motorcoil 1',
+        device = 'Temperature8',
+        poly = [-6.9, 1],
+        unit = 'degC',
+        lowlevel = True,
+    ),
+    core2 = device('nicos_mlz.refsans.devices.analogencoder.AnalogEncoder',
+        description = 'Temperature of motorcoil 2',
+        device = 'Temperature7',
+        poly = [-9.3, 1],
+        unit = 'degC',
+        lowlevel = True,
+    ),
+    core3 = device('nicos_mlz.refsans.devices.analogencoder.AnalogEncoder',
+        description = 'Temperature of motorcoil 3',
+        device = 'Temperature6',
+        poly = [-10.1, 1],
+        unit = 'degC',
+        lowlevel = True,
+    ),
+    core4 = device('nicos_mlz.refsans.devices.analogencoder.AnalogEncoder',
+        description = 'Temperature of motorcoil 4',
+        device = 'Temperature5',
+        poly = [-9.7, 1],
+        unit = 'degC',
+        lowlevel = True,
     ),
 )
