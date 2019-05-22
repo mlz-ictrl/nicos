@@ -27,7 +27,7 @@ extension-pkg-whitelist=numpy,
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=_vendor,.git,pyctl.so,corbadevice_idl.py
+ignore=_vendor,.git,pyctl.so,corbadevice_idl.py,pylintrc
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
@@ -35,7 +35,12 @@ ignore-patterns=
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
-init-hook= "import PyQt4.QtGui,PyQt4.QtCore, numpy;from nicos.utils.stubs import generate_stubs;generate_stubs()"
+init-hook= "
+ import numpy
+ try: import PyQt4.QtGui,PyQt4.QtCore
+ except ImportError: pass
+ from nicos.utils.stubs import generate_stubs
+ generate_stubs()"
 
 # Use multiple processes to speed up Pylint.
 jobs=1
@@ -73,7 +78,8 @@ confidence=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
-disable=access-member-before-definition
+disable=useless-object-inheritance
+        ,access-member-before-definition
         ,locally-enabled
         ,no-member
         ,maybe-no-member
