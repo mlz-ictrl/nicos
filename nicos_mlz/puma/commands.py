@@ -222,13 +222,47 @@ class MultiADScan(Scan):
 
 
 @usercommand
-@helparglist('')
+@helparglist('infoheader, parnames, parlist, psi, phi, mono, cad, preset, '
+             '[detseq=1]')
 def multiadscan(info_header, parnames, parlist, psipos, phipos, monopos,
                 cadpos, preset, detseq=1):
     """Multi analyzer 'scan'.
 
     This is a single point scan. The detector data (monitor, timer, and the
     counters) will be rearranged as a 11 point scan.
+
+    * infoheader - additional header (maybe stored in data file)
+    * parnames - additional parameters (stored in data file)
+    * parlist - values to additional parnames (stored in data files), must have
+                a length of 11 (one for each detector) and each entry must have
+                the length of the parnames list
+    * psipos - target position of psi device
+    * phipos - target position of phi device
+    * monopos - target position of mono device
+    * cadpos - target position of cad device
+    * preset - time to count per point
+    * detseq - 1 if detector numbers in ascending order otherwise -1
+
+    Example:
+
+    >>> multiadscan('The following configs are selected: configuration 419 '
+                    'ki= 5.40  Psi = 151.22  Phi0 = 65.50  CAD = -7.83  '
+                    'tilt =-2.00 config-type 2',
+                    ['h', 'k', 'l', 'ny/THz', 'x/cm', 'y/cm',  'theta/deg',
+                     'phi/deg'],
+                    [
+                     [-4.68, 2.97, 0.00, -6.64, 10.00, 2.00, -8.27, 71.89],
+                     [-4.51, 2.73, 0.00, -4.54, 8.00, 1.60, -8.71, 70.59],
+                     [-4.37, 2.52, 0.00, -2.76, 6.00, 1.20, -9.15, 69.31],
+                     [-4.23, 2.33, 0.00, -1.24, 4.00, 0.80, -9.58, 68.03],
+                     [-4.11, 2.16, 0.00, 0.07, 2.00, 0.40, -10.01, 66.76],
+                     [-4.00, 2.00, 0.00, 1.20, 0.00, 0.00, -10.43, 65.50],
+                     [-3.90, 1.85, 0.00, 2.18, -2.00, -0.40, -10.84, 64.25],
+                     [-3.80, 1.72, 0.00, 3.05, -4.00, -0.80, -11.24, 63.01],
+                     [-3.72, 1.60, 0.00, 3.80, -6.00, -1.20, -11.63, 61.79],
+                     [-3.64, 1.48, 0.00, 4.47, -8.00, -1.60, -12.01, 60.58],
+                     [-3.56, 1.38, 0.00, 5.07, -10.00, -2.00, -12.39, 59.38],
+                    ], 276.25, 19.995, 3.235, -0.8016, 1)
     """
     MultiADScan(info_header, parnames, parlist, psipos, phipos, monopos,
                 cadpos, preset, detseq).run()
