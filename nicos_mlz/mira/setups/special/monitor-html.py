@@ -61,15 +61,30 @@ _column3 = Column(
         setups='helios',
     ),
     Block('MIEZE', [
-        BlockRow(Field(name='Setting', dev='mieze[0]', istext=True, width=5),
-                 Field(name='tau', dev='mieze[1]', unit='ps', width=7),
-                 Field(name='Tuning', key='mieze/tuning', istext=True, width=10)),
-        BlockRow('dc1', 'freq1', 'amp1', 'coilamp1'),
-        BlockRow('dc2', 'freq2', 'amp2', 'coilamp2'),
-        BlockRow('fp1', 'fp2', 'rp1', 'rp2'),
-        BlockRow('cc1', 'cc2', 'freq3', 'amp3'),
+        BlockRow(Field(name='Echotime', dev='echotime', unit='ns', width=22),
+                ),
+        BlockRow('hrf1',
+                 Field(name='freq1', dev='cbox1_fg_freq'),
+                 Field(name='amp1', dev='cbox1_fg_amp'),
+                 Field(name='coil1', dev='cbox1_coil_rms'),
+                ),
+        BlockRow('hrf2',
+                 Field(name='freq2', dev='cbox2_fg_freq'),
+                 Field(name='amp2', dev='cbox2_fg_amp'),
+                 Field(name='coil2', dev='cbox2_coil_rms'),
+                ),
+        BlockRow(Field(name='fp1', dev='cbox1_fwdp'),
+                 Field(name='fp2', dev='cbox2_fwdp'),
+                 Field(name='rp1', dev='cbox1_revp'),
+                 Field(name='rp2', dev='cbox2_revp'),
+                ),
+        BlockRow('hsf1', 'sf1', 'hsf2', 'sf2'),
+        BlockRow(
+                 Field(name='f_chop', dev='psd_chop_freq', format='%g'),
+                 Field(name='f_timebin', dev='psd_timebin_freq', format='%g'),
+                ),
         ],
-        setups='mieze',
+        setups='mieze'
     ),
 #   Block('X-Z table axes', [
 #       BlockRow('mx', 'my')
@@ -250,6 +265,18 @@ _column2 = Column(
 )
 
 _column1 = Column(
+    Block('Environment', [
+        BlockRow(Field(name='Power', dev='ReactorPower', width=7),
+                 Field(name='6-fold', dev='Sixfold', min='open', width=7),
+                 Field(dev='NL6', min='open', width=7)),
+        BlockRow(Field(dev='Shutter', width=7), Field(dev='Cooling', width=6),
+                 Field(dev='CoolTemp', width=6, format='%.1f', unit=" "),
+                 Field(dev='t_in_fak40', name='FAK40', width=6, format='%.1f', unit=' ')),
+        BlockRow(Field(dev='ar', name='PSD Ar', width=4, format='%.1f', unit=' '),
+                 Field(dev='co2', name='PSD CO2', width=4, format='%.1f', unit=' '),
+                 Field(dev='Crane', min=10, width=7,)),
+        ],
+    ),
     Block('MIRA1', [
         BlockRow('FOL', 'flip1'),
         BlockRow('m1th', 'm1tt'),
@@ -269,18 +296,6 @@ _column1 = Column(
                  Field(dev='ms2', name='Mono slit 2 (ms2)', width=20, istext=True)),
         ],
         setups='mono2',
-    ),
-    Block('Environment', [
-        BlockRow(Field(name='Power', dev='ReactorPower', width=7),
-                 Field(name='6-fold', dev='Sixfold', min='open', width=7),
-                 Field(dev='NL6', min='open', width=7)),
-        BlockRow(Field(dev='Shutter', width=7), Field(dev='Cooling', width=6),
-                 Field(dev='CoolTemp', width=6, format='%.1f', unit=" "),
-                 Field(dev='t_in_fak40', name='FAK40', width=6, format='%.1f', unit=' ')),
-        BlockRow(Field(dev='ar', name='PSD Ar', width=4, format='%.1f', unit=' '),
-                 Field(dev='co2', name='PSD CO2', width=4, format='%.1f', unit=' '),
-                 Field(dev='Crane', min=10, width=7,)),
-        ],
     ),
 )
 

@@ -1,7 +1,7 @@
 description = 'setup for the right status monitor'
 group = 'special'
 
-# location: cabin, top right
+# location: Buro R.Georgii, right
 
 _column1 = Column(
     Block('Heater long-term', [
@@ -126,7 +126,7 @@ _column1 = Column(
         setups='hvstick',
     ),
     Block('Gas pressure cell', [
-        BlockRow('diptron3plus', 'sentronicplus'),
+        BlockRow('diptron3plus', 'sentronicplus')
         ],
         setups='gascell',
     ),
@@ -298,7 +298,7 @@ devices = dict(
         prefix = 'nicos/',
         font = 'Droid Sans',
         valuefont = 'Droid Sans Mono',
-        fontsize = 22,
+        fontsize = 16,
         padding = 5,
         layout = [[_column1, _column2, _column3]]
     )

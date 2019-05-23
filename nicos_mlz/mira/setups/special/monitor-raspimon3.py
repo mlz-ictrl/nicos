@@ -1,7 +1,7 @@
 description = 'setup for the left status monitor'
 group = 'special'
 
-# location: cabin, top left
+# location: Buro R.Georgii, left
 
 _expcolumn = Column(
     Block('Experiment', [
@@ -145,7 +145,7 @@ devices = dict(
         prefix = 'nicos/',
         font = 'Droid Sans',
         valuefont = 'Droid Sans Mono',
-        fontsize = 20,
+        fontsize = 16,
         padding = 2,
         layout = [[_expcolumn], [_column1, _column2, _column3]]
     ),

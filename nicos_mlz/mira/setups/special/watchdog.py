@@ -36,10 +36,10 @@ watchlist = [
         type = 'critical',
         setup = 'cascade',
     ),
-    dict(
-        condition = 'tbe_value > 70',
-        message = 'Be filter temperature > 70 K, check cooling water!',
-    ),
+#    dict(
+#        condition = 'tbe_value > 70',
+#        message = 'Be filter temperature > 70 K, check cooling water!',
+#    ),
 ]
 
 includes = ['notifiers']

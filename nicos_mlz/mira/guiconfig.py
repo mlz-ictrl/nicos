@@ -1,7 +1,7 @@
 # Default MIRA GUI config
 
-main_window = hsplit(
-    docked(
+main_window = tabbed(
+    ('Instrument', docked(
         vsplit(
             panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
             panel('nicos.clients.gui.panels.console.ConsolePanel'),
@@ -13,7 +13,17 @@ main_window = hsplit(
                dockpos='right')),
         ('Experiment info',
          panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
-               sample_panel='nicos.clients.gui.panels.setup_panel.TasSamplePanel')),
+               sample_panel='nicos.clients.gui.panels.setup_panel.TasSamplePanel')
+        ),
+      ),
+    ),
+    ('Tunewave table',
+     panel('nicos_mlz.mira.gui.tunewavetable.TunewaveTablePanel',
+           tabledev='echotime', setups='tuning')
+    ),
+    ('Mieze display',
+     panel('nicos_mlz.reseda.gui.mieze_display.MiezePanel',
+           setups='mieze')
     ),
 )
 
@@ -61,7 +71,7 @@ tools = [
          sender = 'mira@frm2.tum.de',
     ),
     cmdtool('Server control panel',
-            ['marche-gui', '-B', 'mira1', 'miracascade', 'mira2', 'cascade02']
+            ['marche-gui', '-B', 'miractrl', 'miracascade', 'heinzinger', 'mira2']
     ),
     tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool',
          mieze = MIEZE_settings),

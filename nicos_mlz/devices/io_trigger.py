@@ -21,7 +21,7 @@
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
-"""Special device for Sans1 Tisane triggering or mieze on Reseda"""
+"""Special device for Sans1 Tisane triggering or mieze on Reseda/Mira"""
 
 from __future__ import absolute_import, division, print_function
 

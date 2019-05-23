@@ -52,6 +52,13 @@ devices = dict(
         tas = 'mira',
         scanmode = 'CKF',
     ),
+    lam = device('nicos.devices.tas.Wavelength',
+        description = 'incoming wavelength for diffraction',
+        unit = 'AA',
+        base = 'mono',
+        tas = 'mira',
+        scanmode = 'CKI',
+    ),
 )
 
 startupcode = '''

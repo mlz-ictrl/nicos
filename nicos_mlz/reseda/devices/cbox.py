@@ -88,12 +88,14 @@ class CBoxResonanceFrequency(BaseSequencer):
         'coil2_transformer': Attach('Coil 2: Used to manipulate the coil '
                                     'resistance to match the power amplifier '
                                     'resistance', Moveable),
-        'pa_fwdp': Attach('Device to measure the forward power for adjustment '
-                          'quality', Readable),
-        'pa_revp': Attach('Device to measure the reverse power for adjustment '
-                          'quality', Readable),
         'fg': Attach('Frequency generator', Moveable),
-        'coil_amp': Attach('Current in coil represented by Voltage measured by Keithley', Readable),
+        'coil_amp': Attach('Current in coil represented by Voltage measured by Keithley',
+                           Readable, optional=True),
+        # if coil_amp is NOT configured, we need pa_fwdp and pa_revp !!!
+        'pa_fwdp': Attach('Device to measure the forward power for adjustment '
+                          'quality', Readable, optional=True),
+        'pa_revp': Attach('Device to measure the reverse power for adjustment '
+                          'quality', Readable, optional=True),
     }
 
     parameters = {
@@ -183,7 +185,10 @@ class CBoxResonanceFrequency(BaseSequencer):
         for entry in caps:
             self._applyCapacity(entry)
             #self._getResonanceFrequency(1)  # logging
-            quality = self._getCurrentAdjustmentQuality()
+            if self._attached_coil_amp:
+                quality = self._getCurrentAdjustmentQuality()
+            else:
+                quality = self._getCurrentAdjustmentQualityOLD()
             self.log.debug('Adjustment quality for %g F: %g', entry, quality)
             result[quality] = entry
 
