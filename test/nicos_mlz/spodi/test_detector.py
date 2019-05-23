@@ -33,12 +33,11 @@ from nicos.commands.measure import count
 session_setup = 'spodi'
 
 
-@pytest.fixture(scope='function', autouse=True)
-def prepare(session):
+@pytest.fixture(scope='function')
+def adet(session):
     """Prepare for SPODI tests"""
 
-    session.experiment.new(0, user='user')
-
+    pytest.importorskip('dataparser')
     # Check correct detector configuration
     basedet = session.getDevice('basedet')
     assert len(basedet._attached_timers) == 1
@@ -51,21 +50,18 @@ def prepare(session):
     assert session.experiment.detlist == ['adet']
 
     # Move the detector to a distinct position and check it
-    tths = session.getDevice('tths')
+    tths = adet._attached_motor
+    tths.speed=0
     tths.maw(0)
-    assert tths.read() == 0
 
-    yield
+    yield adet
 
     # session.experiment.setDetectors(detectors)
 
 
-def test_detector(session):
-    adet = session.getDevice('adet')
+def test_detector(adet):
     assert adet.liveinterval == 5
 
-    tths = session.getDevice('tths')
-    assert tths.speed == 0
 
     adet.reset()
     assert adet.read() == [1, 0, 0, 0]
@@ -73,13 +69,15 @@ def test_detector(session):
     adet.liveinterval = 0.5
     assert adet.liveinterval == 0.5
 
+    assert adet.resosteps == 40
+    assert adet._step_size == adet.range/adet.resosteps
     adet.resosteps = 2
     assert adet.resosteps == 2
+    assert adet.range == 2
+    assert adet._step_size == 1
 
     count(t=0.01)
 
-    assert adet.range == 2
-    assert adet._step_size == 1
     assert adet._startpos == 1
     assert adet._attached_motor.speed == 0
     assert adet._attached_motor.read(0) == 0
