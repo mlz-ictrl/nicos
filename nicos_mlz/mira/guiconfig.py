@@ -18,8 +18,8 @@ main_window = tabbed(
       ),
     ),
     ('Tunewave table',
-     panel('nicos_mlz.mira.gui.tunewavetable.TunewaveTablePanel',
-           tabledev='echotime', setups='tuning')
+     panel('nicos_mlz.gui.tunewavetable.TunewaveTablePanel',
+           tabledev='echotime', measuremode='mieze', setups='tuning')
     ),
     ('Mieze display',
      panel('nicos_mlz.reseda.gui.mieze_display.MiezePanel',

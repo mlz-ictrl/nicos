@@ -18,7 +18,7 @@ main_window = tabbed(
         )
     ),
     ('Tunewave table',
-     panel('nicos_mlz.reseda.gui.tunewavetable.TunewaveTablePanel',
+     panel('nicos_mlz.gui.tunewavetable.TunewaveTablePanel',
            tabledev='echotime')
     ),
     ('Mieze display',

@@ -264,7 +264,7 @@ class PreviewDialog(QDialog):
                  client, parent):
         QDialog.__init__(self, parent)
         loadUi(self,
-               findResource('nicos_mlz/mira/gui/tunewavetablepreviewdlg.ui'))
+               findResource('nicos_mlz/gui/tunewavetablepreviewdlg.ui'))
 
         self._client = client
         self._measmode = measmode
@@ -422,20 +422,32 @@ class TunewaveTableItem(QTableWidgetItem):
 
 
 class TunewaveTablePanel(Panel):
-    """Panel to access and edit the mira tunewave tables.
-    It requires the ``echotime`` device to be loaded and working.
-    Supported panel options:
+    """Panel to access and edit the tunewave tables.
 
-        tabledev: echotime device name
+    It requires the ``echotime`` device to be loaded and working.
+
+    Options:
+
+    * ``tabledev`` -- echotime device name
+
+    * ``measuremode`` (default 'nrse') -- string containing the preferred
+      measurement mode, either 'nrse' or 'mieze'.
     """
 
     panelName = 'Tunewave table'
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, findResource('nicos_mlz/mira/gui/tunewavetable.ui'))
+        loadUi(self, findResource('nicos_mlz/gui/tunewavetable.ui'))
 
         self._dev = options.get('tabledev')
+        measuremode = options.get('measuremode', 'nrse')
+        if measuremode not in ['nrse', 'mieze']:
+            measuremode = 'nrse'
+        for i in range(self.measModeComboBox.count()):
+            if measuremode == self.measModeComboBox.itemText(i):
+                self.measModeComboBox.setCurrentIndex(i)
+                break
         # access to the echotime device
         if not self._dev:
             raise ConfigurationError('TuneWaveTable panel: At least `tabledev`'
