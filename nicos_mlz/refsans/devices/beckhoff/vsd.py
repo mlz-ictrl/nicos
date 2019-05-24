@@ -178,6 +178,9 @@ class VSDIO(PyTangoDevice, Readable):
     def _HW_readVersion(self):
         return 'V%.1f' % (self._readU32(120 // 2) * 0.1)
 
+    def _HW_parallel_pumping_pressure(self):
+        return 0
+
     #
     # Nicos Methods
     #
