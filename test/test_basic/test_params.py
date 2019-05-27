@@ -371,7 +371,9 @@ def test_nicosdev():
     assert raises(ValueError, nicosdev, 'a.nicos.dev')
 
 
-def test_string_params():
+def test_nonemptystring():
+    p = Param('nonemptystring', type=nonemptystring)
+    assert p.default is None
     assert raises(ValueError, nonemptystring, '')
 
 

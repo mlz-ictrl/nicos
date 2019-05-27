@@ -556,8 +556,11 @@ class nonemptylistof(object):
         return readonlylist(map(self.conv, val))  # pylint: disable=map-builtin-not-iterating
 
 
-def nonemptystring(s):
+def nonemptystring(s=Ellipsis):
     """a non-empty string"""
+    if s is Ellipsis:
+        # used for setting the internal default if no default is given
+        return None
     if not (s and isinstance(s, string_types) ):
         raise ValueError('must be a non-empty string!')
     return s
