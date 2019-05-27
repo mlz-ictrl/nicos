@@ -87,7 +87,7 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
                 field = 'next_message_eta_ms'
                 interval = (js[field] / 1000 if field in js else
                             self.statusinterval)
-                next_update = timestamp / 1000 + interval
+                next_update = currenttime() + interval
                 if next_update > self.nextupdate:
                     self._setROParam('nextupdate', next_update)
             except Exception:
