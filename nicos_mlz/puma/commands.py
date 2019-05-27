@@ -59,8 +59,9 @@ class ADPointDataset(PointDataset):
 
     @lazy_property
     def detvalueinfo(self):
-        return (Value('timer', unit='s'), Value('monitor', unit='cts'),
-                Value('ctr', unit='cts'))
+        return (Value('timer', unit='s', fmtstr='%.1f'),
+                Value('monitor', unit='cts', fmtstr='%d'),
+                Value('ctr', unit='cts', fmtstr='%d'))
 
     @lazy_property
     def detvaluelist(self):
