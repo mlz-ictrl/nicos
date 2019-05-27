@@ -65,7 +65,7 @@ class ADPointDataset(PointDataset):
 
     @lazy_property
     def detvaluelist(self):
-        return self.results['det']
+        return self.results['det'][0]
 
 
 class ADScanDataset(ScanDataset):
@@ -218,7 +218,7 @@ class MultiADScan(Scan):
             if det._attached_images:  # setup with an image
                 result = det.readArrays(FINAL)[0][0].astype('f').tolist()
             else:
-                result = result[2:]
+                result = result[-11:]
             if self._detseq == -1:
                 result = list(reversed(result))
         try:
