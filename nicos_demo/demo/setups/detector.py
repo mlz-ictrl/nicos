@@ -2,7 +2,7 @@ description = 'virtual detector'
 group = 'lowlevel'
 
 includes = ['system']
-excludes = ['refsans', 'sans', 'qmchannel', 'pgaa', 'vtof', 'vspodi']
+excludes = ['sans']
 
 devices = dict(
     timer = device('nicos.devices.generic.VirtualTimer',

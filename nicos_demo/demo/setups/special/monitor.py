@@ -28,23 +28,6 @@ _axisblock = Block('Axes', [
                    # NICOS master instance for this block to be displayed
 )
 
-_refsansblock = Block('Axes', [
-    BlockRow(Field(gui='nicos_demo/demo/gui/refsansflightchamber.ui')),
-    BlockRow(Field(widget='nicos_mlz.refsans.gui.monitorwidgets.VRefsans',
-                   width=40, height=30,
-                   nok2dev='nok2',
-                   nok3dev='nok3',
-                   nok4dev='nok4',
-                   nok5adev='nok5a',
-                   nok5bdev='nok5b',
-                   nok6dev='nok6',
-                   nok7dev='nok7',
-                   nok8dev='nok8',
-                  )),
-    ],
-    setups='refsans',
-)
-
 _detectorblock = Block('Detector', [
     BlockRow(Field(name='timer', dev='timer'),
              Field(name='ctr1',  dev='ctr1'),
@@ -131,22 +114,9 @@ _sansblock = Block('SANS', [
     setups='sans',
 )
 
-_pgaablock = Block('PGAA', [
-    BlockRow(
-        Field(dev='x', name='X',),
-        Field(dev='y', name='Y',),
-        Field(dev='z', name='Z',),
-        Field(dev='phi', name='Phi',),
-    ),
-    ],
-    setups='pgaa',
-)
-
-_pgaacolumn = Column(_pgaablock)
-
 _rightcolumn = Column(_axisblock, _tempblock,)
 
-_leftcolumn = Column(_tasblock, _sansblock, _refsansblock,)
+_leftcolumn = Column(_tasblock, _sansblock,)
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
@@ -160,7 +130,6 @@ devices = dict(
         layout = [
             Row(_expcolumn),
             Row(_leftcolumn, _rightcolumn),
-            Row(_pgaacolumn),
         ],
     ),
 )

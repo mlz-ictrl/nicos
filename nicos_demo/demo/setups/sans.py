@@ -8,7 +8,7 @@ sysconfig = dict(
     ],
 )
 
-excludes = ['detector', 'qmchannel']
+excludes = ['detector']
 includes = ['cryo', 'source']
 
 devices = dict(

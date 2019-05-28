@@ -3,7 +3,7 @@ group = 'basic'
 
 modules = ['nicos.commands.sxtal']
 
-excludes = ['sans', 'refsans', 'tas', 'table']
+excludes = ['sans', 'tas', 'table']
 
 includes = ['cryo']
 
