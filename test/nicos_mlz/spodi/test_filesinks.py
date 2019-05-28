@@ -35,21 +35,20 @@ from nicos.commands.measure import count
 session_setup = 'spodi'
 exp_dataroot = 'spodidata'
 
-
-@pytest.fixture(scope='class', autouse=True)
-def prepare(session, dataroot):
-    """Prepare SPODI dataset"""
-
-    session.experiment.setDetectors(['adet'])
-    # Create devices needed in data sinks
-    for dev in ['omgs', 'tths']:
-        session.getDevice(dev)
-    count(resosteps=1, t=0.01)
-    count(resosteps=1, mon1=100)
-    yield
-
-
 class TestSinks(object):
+
+    @pytest.fixture(scope='class', autouse=True)
+    def prepare(self, session, dataroot):
+        """Prepare SPODI dataset"""
+
+        pytest.importorskip('dataparser')
+        session.experiment.setDetectors(['adet'])
+        # Create devices needed in data sinks
+        for dev in ['omgs', 'tths']:
+            session.getDevice(dev)
+        count(resosteps=1, t=0.01)
+        count(resosteps=1, mon1=100)
+        yield
 
     def test_caress_sink(self, session):
         caressfile = path.join(session.experiment.datapath, 'm100000043.ctxt')
