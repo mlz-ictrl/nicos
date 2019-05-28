@@ -30,8 +30,9 @@ from time import time
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QActionGroup, QColor, QIcon, QListWidgetItem, \
-    QMenu, QPixmap, Qt, QStyledItemDelegate, QTimer, QToolBar, pyqtSlot
+from nicos.guisupport.qt import QActionGroup, QColor, QFontMetrics, QIcon, \
+    QListWidgetItem, QMenu, QPixmap, Qt, QSize, QStyledItemDelegate, QTimer, \
+    QToolBar, pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \
     BREAK_NOW, SIM_STATES, STATUS_IDLEEXC
@@ -265,9 +266,11 @@ class ScriptStatusPanel(Panel):
         lines = script.splitlines()
         longest = len(str(len(lines)))
         padding = ' ' * (longest + 3)
+        height = QFontMetrics(self.traceView.font()).height()
         for (i, line) in enumerate(lines):
             item = QListWidgetItem(self.otherlineicon, padding + line,
                                    self.traceView)
+            item.setSizeHint(QSize(-1, height))
             item.setData(Qt.UserRole, '%*d |' % (longest, i+1))
             self.traceView.addItem(item)
         self.current_line = -1
