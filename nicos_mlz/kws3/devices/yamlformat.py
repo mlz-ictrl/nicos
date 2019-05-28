@@ -18,92 +18,29 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Stefanie Keuler <s.keuler@fz-juelich.de>
-#   Lydia Fleischhauer-Fuss <l.fleischhauer-fuss@fz-juelich.de>
 #   Georg Brandl <g.brandl@fz-juelich.de>
 #
 # *****************************************************************************
 
-"""MARIA file format saver for the new YAML based format."""
+"""KWS3 specific adaptation of the KWS YAML format."""
 
 from nicos import session
-from nicos.core import NicosError, Override
-from nicos.core.data.dataset import ScanDataset
-from nicos.core.device import Readable
-from nicos.devices.datasinks.image import ImageSink
 
-from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
+from nicos_mlz.kws1.devices import yamlformat
 
 
-class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
+class YAMLFileSinkHandler(yamlformat.YAMLFileSinkHandler):
 
-    filetype = "MLZ.MARIA.2.0-beta1"
-
-    def _write_instr_data(self, meas, image):
-        # get corresponding scan dataset with scan info if available
-        stack = self.manager._stack
-        if len(stack) >= 2 and isinstance(stack[-2], ScanDataset):
-            scands = stack[-2]
-            meas["info"] = scands.info
+    def _set_detector_resolution(self, det1):
+        det_img = session.getDevice('det_img')
+        if det_img.alias == 'det_img_vhrd':
+            det1['pixel_width'] = 0.2
+            det1['pixel_height'] = 0.2
         else:
-            meas["info"] = self.dataset.info
-
-        sample = session.experiment.sample
-        meas["sample"]["comment"] = sample.comment
-        meas["sample"]["timefactor"] = sample.timefactor
-        meas["sample"]["thickness"] = sample.thickness
-        meas["sample"]["detoffset"] = sample.detoffset
-
-        # store device information
-        devs = meas["devices"] = []
-        # all available nicos devices
-        devices = dict(session.devices)
-        # log all devices in the dataset
-        for (info, val) in zip(self.dataset.devvalueinfo,
-                               self.dataset.devvaluelist):
-            dev = session.getDevice(info.name)
-            try:
-                state, status = dev.status()
-            except NicosError:
-                dev.log.warning('could not get status for data file')
-                devices.pop(info.name, None)
-                continue
-            entry = self._dict()
-            entry["name"] = info.name
-            entry["unit"] = info.unit
-            entry["value"] = val
-            entry["state"] = state
-            entry["status"] = status
-            devs.append(entry)
-            # remove devices already logged here
-            devices.pop(info.name, None)
-
-        # log all remaining nicos devices
-        for name, dev in devices.items():
-            if isinstance(dev, Readable):
-                entry = self._dict()
-                try:
-                    state, status = dev.status()
-                except NicosError:
-                    dev.log.warning('could not get status for data file')
-                    continue
-                entry["name"] = name
-                entry["unit"] = self._devpar(name, "unit")
-                entry["value"] = self._readdev(name)
-                entry["state"] = state
-                entry["status"] = status
-                devs.append(entry)
+            det1['pixel_width'] = 0.5
+            det1['pixel_height'] = 0.5
 
 
-class YAMLFileSink(ImageSink):
-    """Saves MARIA image data and header in yaml format"""
-
-    parameter_overrides = {
-        "filenametemplate": Override(mandatory=False, settable=False,
-                                     userparam=False,
-                                     default=["%(proposal)s_"
-                                              "%(pointcounter)010d.yaml"],
-                                     ),
-    }
+class YAMLFileSink(yamlformat.YAMLFileSink):
 
     handlerclass = YAMLFileSinkHandler

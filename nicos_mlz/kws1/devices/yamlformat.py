@@ -24,128 +24,106 @@
 
 """KWS-1 file format saver with YAML."""
 
-import quickyaml
-
 from nicos import session
-from nicos.core import Override
-from nicos.devices.datasinks.image import ImageSink
+from nicos.core import Override, status
+from nicos.core.utils import formatStatus
+from nicos.core.data.sink import GzipFile
+from nicos.core.data.dataset import ScanDataset
+from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
+from nicos.utils import byteBuffer
 
 from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
 
 
 class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
 
-    filetype = 'MLZ.KWS1.2.0-beta1'
-    max_yaml_width = 10000
-    yaml_array_handling = quickyaml.ARRAY_AS_MAP
+    filetype = 'MLZ.KWS1.2.0-gamma1'
 
-    def setDetectorPos(self, det):
-        det['z_displacement'] = self._readdev('det_z') * 1000
-        det['x_displacement'] = self._readdev('det_x')
-        det['y_displacement'] = self._readdev('det_y')
+    objects = []
+    units = []
 
-    def setDetectorInfo(self, det1):
-        det1['pixel_width'] = 5.3
-        det1['pixel_height'] = 5.3
+    def _set_detector_resolution(self, det1):
+        det_img = session.getDevice('det_img')
+        det1['pixel_width'] = 8.0
+        if getattr(det_img, 'rebin8x8', False):
+            det1['pixel_height'] = 8.0
+        else:
+            det1['pixel_height'] = 4.0
 
     def _write_instr_data(self, meas, image):
-        expdev = session.experiment
+        manager = session.experiment.data  # get datamanager
+        # get corresponding scan dataset with scan info if available
+        stack = manager._stack
+        if len(stack) >= 2 and isinstance(stack[-2], ScanDataset):
+            scands = stack[-2]
+            meas['info'] = scands.info
+        else:
+            meas['info'] = self.dataset.info
 
-        hist = meas['history']
-        hist['duration_counted'] = self._readdev('timer')[0]
-        hist['duration_scheduled'] = self._devpar('timer', 'preselection')
-        hist['termination_reason'] = self._devpar('timer', 'name')
-
-        sample = meas['sample']['description']
-        sample['time_factor'] = expdev.sample.timefactor
-        sample['length'] = expdev.sample.thickness
-        sample['detector_offset'] = expdev.sample.detoffset
-        sample['comment'] = expdev.sample.comment
-
-        orient = meas['sample']['orientation']
-        orient['rotation_angle'] = self._readdev('sam_rot')
-        orient['x_displacement'] = self._readdev('sam_trans_x')
-        orient['y_displacement'] = self._readdev('sam_trans_y')
-
-        if 'hexapod' in session.loaded_setups:
-            hexapod = orient['hexapod']
-            hexapod['table_angle'] = self._readdev('hexapod_dt')
-            hexapod['x_angle'] = self._readdev('hexapod_rx')
-            hexapod['y_angle'] = self._readdev('hexapod_ry')
-            hexapod['z_angle'] = self._readdev('hexapod_rz')
-            hexapod['x_displacement'] = self._readdev('hexapod_tx')
-            hexapod['y_displacement'] = self._readdev('hexapod_ty')
-            hexapod['z_displacement'] = self._readdev('hexapod_tz')
-
-        setup = meas['setup']
-        selector = setup['velocity_selector']
-        selector['preset'] = self._readdev('selector')
-        selector['wavelength'] = self._readdev('selector_lambda')
-        selector['frequency'] = self._readdev('selector_speed',
-                                              lambda x: x / 60.)
-
-        chopper = setup['chopper']
-        chopper['preset'] = self._readdev('chopper')
-        if chopper['preset'] != 'off':
-            chopper['frequency'] = self._readdev('chopper_params',
-                                                 lambda x: x[0])
-            chopper['opening_angle'] = self._readdev('chopper_params',
-                                                     lambda x: x[1])
-
-        _collslit = 'aperture_%02d' % self._readdev('coll_guides')
-        coll = setup['collimation']
-        coll['preset'] = self._readdev('collimation')
-        coll['length'] = self._readdev('coll_guides')
-        coll['aperture']['width'] = self._readdev(_collslit, lambda x: x[0])
-        coll['aperture']['height'] = self._readdev(_collslit, lambda x: x[1])
-
-        pol = setup['polarizer']
-        pol_state = self._readdev('polarizer')
-        pol['is_in_place'] = pol_state not in (None, 'out')
-
-        if pol['is_in_place']:
-            flipper = setup['flipper']
-            flipper['is_in_place'] = True
-            flipper['setting'] = pol_state
-
-        det = setup['detector']
-        det['preset'] = self._readdev('detector')
-        self.setDetectorPos(det)
-
-        slit = setup['sample_aperture']
-        slit['upper_clearance'] = self._readdev('ap_sam_y1')
-        slit['lower_clearance'] = self._readdev('ap_sam_y0')
-        slit['left_clearance'] = self._readdev('ap_sam_x0')
-        slit['right_clearance'] = self._readdev('ap_sam_x1')
-
-        lenses = setup['lenses']
-        lens_state = self._readdev('lenses')
-        lenses['is_in_place'] = lens_state != 'out-out-out'
-        lenses['state'] = lens_state
-
-        meas['monitors'] = self._flowlist([
-            self._readdev('mon1', lambda x: x[0]),
-            self._readdev('mon2', lambda x: x[0]),
-            self._readdev('mon3', lambda x: x[0]),
-        ])
+        sample = session.experiment.sample
+        meas['sample']['comment'] = sample.comment
+        meas['sample']['timefactor'] = sample.timefactor
+        meas['sample']['thickness'] = sample.thickness
+        meas['sample']['detoffset'] = sample.detoffset
 
         det1 = self._dict()
         det1['type'] = 'position_sensitive_detector'
-        det1['is_in_place'] = True
-        detimg = session.getDevice('det')._attached_images[0]
-        uses_tof = detimg.mode == 'tof'
-        if uses_tof:
-            tof = meas['setup']['time_of_flight']
-            tof['number_of_channels'] = image.shape[0]
-            tof['channel_duration'] = self._flowlist(
-                [d / 1000000. for d in detimg.slices])
-            det1['axes'] = self._flowlist(['x', 'y', 'tof'])
-        else:
-            det1['axes'] = self._flowlist(['x', 'y'])
-        self.setDetectorInfo(det1)
-        det1['counts'] = image
-        det1['total_counts'] = int(image.sum())
+        det1['mode'] = self.dataset.metainfo['det_img', 'mode'][0]
+        # the first entry in "slices" is always 0 in the TOF modes
+        slices = self.dataset.metainfo['det_img', 'slices'][0][1:]
+        det1['time_channels'] = len(slices) or 1
+        det1['time_slices_us'] = self._flowlist(slices)
+        det1['pixels_x'] = image.shape[-1]
+        det1['pixels_y'] = image.shape[-2]
+        self._set_detector_resolution(det1)
+        values = det1['results'] = self._dict()
+        for (info, val) in zip(self.dataset.detvalueinfo,
+                               self.dataset.detvaluelist):
+            values[info.name] = val
+        det1['data'] = '<see .array file>'
+        det1['dataformat'] = '32-bit integer'
+
         meas['detectors'] = [det1]
+
+        # store device information
+        deventries = {}
+
+        for ((dev, key), meta) in sorted(self.dataset.metainfo.items()):
+            if dev in ('Exp', 'Sample') or dev.startswith('KWS'):
+                continue
+            if meta[3] == 'limits':
+                continue
+            if dev not in deventries:
+                deventry = deventries[dev] = self._dict()
+                deventry['name'] = dev
+            else:
+                deventry = deventries[dev]
+            if key == 'status':
+                if meta[0][0] == status.OK:
+                    continue
+                deventry['status'] = formatStatus(meta[0])
+                continue
+            deventry[key] = meta[0]
+            if key == 'value' and meta[2]:
+                deventry['unit'] = meta[2]
+
+        meas['devices'] = [
+            entry for (_, entry) in sorted(deventries.items())
+            if len(entry) > 1
+        ]
+
+
+NAME_TEMPLATE = (
+    '%(pointcounter)08d_%(pointnumber)04d_'
+    '%(proposal)s_'
+    '%(session.experiment.sample.filename)s_'
+    'C%(coll_guides)dm_'
+    'D%(detector)s_'
+    'L%(selector)s_'
+    'P%(polarizer)s_'
+    '%(det_img.mode)s.'
+    '%(session.instrument.name)s'
+)
 
 
 class YAMLFileSink(ImageSink):
@@ -154,8 +132,7 @@ class YAMLFileSink(ImageSink):
     parameter_overrides = {
         'filenametemplate': Override(mandatory=False, settable=False,
                                      userparam=False,
-                                     default=['%(proposal)s_'
-                                              '%(pointcounter)010d.yaml'],
+                                     default=[NAME_TEMPLATE + '.yaml'],
                                      ),
     }
 
@@ -163,3 +140,24 @@ class YAMLFileSink(ImageSink):
 
     def isActiveForArray(self, arraydesc):
         return len(arraydesc.shape) in (2, 3)
+
+
+class BinarySinkHandler(SingleFileSinkHandler):
+    """Numpy text format filesaver using `numpy.savetxt`"""
+
+    filetype = 'arraygz'
+    fileclass = GzipFile
+
+    def writeData(self, fp, image):
+        fp.write(byteBuffer(image.astype('<u4', 'C')))
+
+
+class BinaryArraySink(ImageSink):
+    handlerclass = BinarySinkHandler
+
+    parameter_overrides = {
+        'filenametemplate': Override(mandatory=False, settable=False,
+                                     userparam=False,
+                                     default=[NAME_TEMPLATE + '.array.gz'],
+                                     ),
+    }

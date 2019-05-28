@@ -338,6 +338,12 @@
        </item>
        <item>
         <widget class="QLabel" name="label_10">
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string>mm</string>
          </property>
@@ -375,6 +381,12 @@
        </item>
        <item>
         <widget class="QLabel" name="label_9">
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string>mm</string>
          </property>
@@ -396,7 +408,11 @@
       </layout>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="nameBox"/>
+      <widget class="QLineEdit" name="nameBox">
+       <property name="placeholderText">
+        <string>Short, for data filenames</string>
+       </property>
+      </widget>
      </item>
      <item row="2" column="1">
       <widget class="QLineEdit" name="commentBox"/>
@@ -439,6 +455,12 @@
        </item>
        <item>
         <widget class="QLabel" name="label_16">
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string/>
          </property>

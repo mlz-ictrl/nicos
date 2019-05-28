@@ -34,7 +34,7 @@ from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.guisupport import typedvalue
 from nicos.guisupport.qt import QDialog, QDialogButtonBox, QFileDialog, \
     QFrame, QLineEdit, QListWidgetItem, QMenu, QMessageBox, QRadioButton, \
-    QTableWidgetItem, QVBoxLayout, pyqtSlot
+    QRegExp, QRegExpValidator, QTableWidgetItem, QVBoxLayout, pyqtSlot
 from nicos.guisupport.utils import DoubleValidator
 from nicos.utils import findResource
 
@@ -95,6 +95,8 @@ class ConfigEditDialog(QDialog):
         self.frm.delDevBtn.clicked.connect(self.on_delDevBtn_clicked)
         self.frm.readDevsBtn.clicked.connect(self.on_readDevsBtn_clicked)
         self.frm.readApBtn.clicked.connect(self.on_readApBtn_clicked)
+        self.frm.nameBox.setValidator(
+            QRegExpValidator(QRegExp(r'[A-Za-z0-9.,=+-]{1,20}'), self))
         box = QDialogButtonBox(self)
         box.setStandardButtons(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         box.accepted.connect(self.maybeAccept)

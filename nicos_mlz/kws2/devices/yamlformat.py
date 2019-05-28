@@ -22,29 +22,16 @@
 #
 # *****************************************************************************
 
-"""KWS-2 file format saver with YAML."""
+"""KWS2 specific adaptation of the KWS YAML format."""
 
 from nicos import session
 
-from nicos_mlz.kws1.devices.yamlformat import YAMLFileSink as KWS1YAMLFileSink, \
-    YAMLFileSinkHandler as KWS1YAMLFileSinkHandler
+from nicos_mlz.kws1.devices import yamlformat
 
 
-class YAMLFileSinkHandler(KWS1YAMLFileSinkHandler):
+class YAMLFileSinkHandler(yamlformat.YAMLFileSinkHandler):
 
-    filetype = 'MLZ.KWS2.2.0-beta1'
-
-    def setDetectorPos(self, det):
-        if session.getDevice('det_img').alias == 'det_img_jum':
-            det['x_displacement'] = self._readdev('psd_x')
-            det['y_displacement'] = self._readdev('psd_y')
-            det['z_displacement'] = 17000
-        else:
-            det['beamstop_x_displacement'] = self._readdev('beamstop_x')
-            det['beamstop_y_displacement'] = self._readdev('beamstop_y')
-            det['z_displacement'] = self._readdev('det_z') * 1000
-
-    def setDetectorInfo(self, det1):
+    def _set_detector_resolution(self, det1):
         det_img = session.getDevice('det_img')
         if det_img.alias == 'det_img_jum':
             det1['pixel_width'] = 0.5
@@ -57,7 +44,6 @@ class YAMLFileSinkHandler(KWS1YAMLFileSinkHandler):
                 det1['pixel_height'] = 4.0
 
 
-class YAMLFileSink(KWS1YAMLFileSink):
-    """Saves image data and header in yaml format"""
+class YAMLFileSink(yamlformat.YAMLFileSink):
 
     handlerclass = YAMLFileSinkHandler
