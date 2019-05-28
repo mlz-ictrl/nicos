@@ -213,13 +213,13 @@ class VirtualKWSImageChannel(VirtualImage):
                 for i in range(channels):
                     times.append(times[-1] + int(interval * q**i))
             self.slices = times
-            self.arraydesc = ArrayDesc('data', self.sizes + (channels,),
+            self.arraydesc = ArrayDesc('data', (channels,) + self.sizes,
                                        np.uint32)
 
     def doReadArray(self, quality):
         res = VirtualImage.doReadArray(self, quality)
         if self.mode != 'standard':
-            return np.repeat(np.expand_dims(res, 2), len(self.slices) - 1, 2)
+            return np.repeat([res], len(self.slices) - 1, 0)
         return res
 
 
