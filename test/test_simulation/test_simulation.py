@@ -48,3 +48,8 @@ def test_special_behavior(session):
     sleep(1000)   # should take no time in simulation mode, but advance clock
     newtime = session.clock.time
     assert newtime - oldtime == 1000
+
+
+def test_simulated_read(session):
+    m = session.getDevice('manualsim')
+    assert m.read() == m.default

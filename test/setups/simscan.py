@@ -68,4 +68,9 @@ devices = dict(
         maxage = 3,
         pollinterval = 0.5,
     ),
+    manualsim = device('nicos.devices.generic.ManualMove',
+        abslimits = (0, 359),
+        unit = 'deg',
+        default = 45,
+    ),
 )
