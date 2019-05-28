@@ -52,6 +52,12 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
     accept_final_images_only = True
     yaml_array_handling = quickyaml.ARRAY_AS_SEQ
 
+    objects = ['angle', 'clearance', 'current', 'displacement', 'duration',
+               'energy', 'frequency', 'temperature', 'wavelength',
+               'offset', 'width', 'height', 'length']
+    units = ['deg', 'mm', 'A', 'mm', 's', 'meV', 'hertz', 'K', 'A',
+             'mm', 'mm', 'mm', 'mm']
+
     def _readdev(self, devname, mapper=lambda x: x):
         try:
             return mapper(session.getDevice(devname).read())
@@ -85,14 +91,8 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
         instr['website'] = instrdev.website
         instr['references'] = [AutoDefaultODict({'doi': instrdev.doi})]
 
-        objects = ['angle', 'clearance', 'current', 'displacement', 'duration',
-                   'energy', 'frequency', 'temperature', 'wavelength',
-                   'offset', 'width', 'height', 'length']
-        units = ['deg', 'mm', 'A', 'mm', 's', 'meV', 'hertz', 'K', 'A',
-                 'mm', 'mm', 'mm', 'mm']
-
         o['format']['identifier'] = self.__class__.filetype
-        for obj, unit in zip(objects, units):
+        for obj, unit in zip(self.objects, self.units):
             o['format']['units'][obj] = unit
 
         exp = o['experiment']
