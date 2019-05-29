@@ -34,7 +34,7 @@ from nicos.core import Attach, Override, Param
 from nicos.core.device import Device
 from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import DeviceMixinBase
-from nicos.core.params import listof, oneof
+from nicos.core.params import listof, oneof, dictof
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD
 
 from nicos.devices.cacheclient import BaseCacheClient
@@ -127,6 +127,30 @@ class CacheForwarder(ForwarderBase, BaseCacheClient):
 
     def _handle_msg(self, _time, _ttlop, _ttl, _tsop, _key, _op, _value):
         pass
+
+
+class MappingCacheForwarder(CacheForwarder):
+    """Forwards cache updates to another cache, while remapping
+    the device part of the key.
+    """
+
+    parameters = {
+        'map': Param('Mapping for devices', type=dictof(str, str),
+                     mandatory=True),
+    }
+
+    def _putChange(self, time, key, value):
+        if not self._checkKey(key):
+            return
+        dev, slash, sub = key.partition('/')
+        dev = self.map.get(dev, dev)
+        if value is None:
+            msg = '%s@%s%s%s\n' % (time, self._prefix, dev + slash + sub,
+                                   OP_TELLOLD)
+        else:
+            msg = '%s@%s%s%s%s\n' % (time, self._prefix, dev + slash + sub,
+                                     OP_TELL, value)
+        self._queue.put(msg)
 
 
 class WebhookForwarder(ForwarderBase, Device):
