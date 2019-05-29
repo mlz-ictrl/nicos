@@ -12,7 +12,7 @@ tango_base = 'tango://mesydaq.puma.frm2.tum.de:10000/qm/qmesydaq/'
 devices = dict(
     channels = device('nicos.devices.vendor.qmesydaq.tango.MultiCounter',
         tangodevice = tango_base + 'image',
-        lowlevel = True,
+        visibility = (),
         channels = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
     ),
     det = device('nicos.devices.generic.Detector',

@@ -10,7 +10,7 @@ devices = dict(
         unit = 'mm',
         abslimits = (-133.4, 120),
         speed = 10,
-        lowlevel = True,
+        visibility = (),
         curvalue = -8,
     ),
     saph = device('nicos.devices.generic.Switcher',

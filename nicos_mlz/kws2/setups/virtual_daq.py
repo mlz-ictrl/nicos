@@ -55,13 +55,13 @@ devices = dict(
         description = 'Monitor 1 (before selector)',
         type = 'monitor',
         fmtstr = '%d',
-        lowlevel = True,
+        visibility = (),
     ),
     mon2 = device('nicos.devices.generic.VirtualCounter',
         description = 'Monitor 2 (after selector)',
         type = 'monitor',
         fmtstr = '%d',
-        lowlevel = True,
+        visibility = (),
     ),
 )
 

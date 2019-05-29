@@ -11,7 +11,6 @@ URL = instrument_values['url_base'] % 'savedetector'
 devices = dict(
     sds = device(code_base + 'gkssjson.SdsRatemeter',
         description = description,
-        lowlevel = False,
         # valuekey = 'time',
         valuekey = 'mon_alarm',
         unit = 'cps',

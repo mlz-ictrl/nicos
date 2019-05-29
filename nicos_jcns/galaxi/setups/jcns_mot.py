@@ -20,7 +20,7 @@ devices = dict(
         precision = 0.01,
         fixed = 'Do not move until hardware is in save state',
         fixedby = ('admin', 20),
-        lowlevel = True,
+        visibility = (),
     ),
     bssy = device('nicos.devices.entangle.MotorAxis',
         description = 'BSSY axis',

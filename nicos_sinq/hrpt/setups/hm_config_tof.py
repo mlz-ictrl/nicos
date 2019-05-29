@@ -8,12 +8,12 @@ devices = dict(
         byteorder=configdata('config.HISTOGRAM_MEMORY_ENDIANESS'),
         baseurl=configdata('config.HISTOGRAM_MEMORY_URL'),
         base64auth='c3B5OjAwNw==',
-        lowlevel=True
+        visibility=(),
     ),
     hm_b0_ax_x=device(
         'nicos_sinq.devices.sinqhm.configurator.HistogramConfAxis',
         description='First bank axis two theta',
-        lowlevel=True,
+        visibility=(),
         length=1601,
         mapping='direct',
         label='Two Theta',
@@ -22,7 +22,7 @@ devices = dict(
     hm_ax_tof=device(
         'nicos_sinq.devices.sinqhm.configurator.HistogramConfAxis',
         description='TOF axis',
-        lowlevel=True,
+        visibility=(),
         mapping='calculate',
         preoffset=0,
         length=100,
@@ -33,7 +33,7 @@ devices = dict(
     hm_bank0=device(
         'nicos_sinq.devices.sinqhm.configurator.HistogramConfBank',
         description='HM First Bank',
-        lowlevel=True,
+        visibility=(),
         bankid=0,
         axes=['hm_b0_ax_x','hm_ax_tof']
     ),

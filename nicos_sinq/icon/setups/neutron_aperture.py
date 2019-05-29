@@ -9,7 +9,7 @@ devices = dict(
         description = 'Rotary position of neutron aperture selector',
         motorpv = 'SQ:ICON:board5:NA',
         errormsgpv = 'SQ:ICON:board5:NA-MsgTxt',
-        lowlevel = True,
+        visibility = (),
     ),
     na_selector = device('nicos.devices.generic.Switcher',
         description = 'Selected neutron aperture',

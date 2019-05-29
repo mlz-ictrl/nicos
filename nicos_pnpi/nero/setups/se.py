@@ -17,7 +17,7 @@ devices = dict(
                             description = current_conf['description'],
                             tangodevice = tango_base + "cs",
                             abslimits = current_conf['abslimits'],
-                            lowlevel = current_conf['lowlevel'],
+                            visibility = current_conf['visibility'],
                             unit = current_conf['unit'],
                             ),
 
@@ -25,7 +25,7 @@ devices = dict(
                    description = alpha_conf['description'],
                    tangodevice = tango_base + 'alpha',
                    precision = alpha_conf['precision'],
-                   lowlevel = alpha_conf['lowlevel'],
+                   visibility = alpha_conf['visibility'],
                    abslimits = alpha_conf['abslimits'],
                    speed = alpha_conf['speed'],
                    unit = alpha_conf['unit'],
@@ -35,13 +35,11 @@ devices = dict(
                 description = 'Flipper before sample table',
                 tangodevice = tango_base + 'fb',
                 fmtstr = '%#x',
-                lowlevel = False,
                 ),
 
     fa = device('nicos.devices.entangle.DigitalOutput',
                 description = 'Flipper after sample table',
                 tangodevice = tango_base + 'fa',
                 fmtstr = '%#x',
-                lowlevel = False,
                 ),
 )

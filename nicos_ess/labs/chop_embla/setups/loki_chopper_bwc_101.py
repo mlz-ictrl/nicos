@@ -9,7 +9,7 @@ devices = dict(
         readpv='{}C_Execute'.format(pv_root),
         writepv='{}C_Execute'.format(pv_root),
         requires={'level': 'admin'},
-        lowlevel=True,
+        visibility=(),
         mapping={'Start chopper': 6,
                  'Stop chopper': 3,
                  'Reset chopper': 1,

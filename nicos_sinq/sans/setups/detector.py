@@ -95,7 +95,7 @@ devices = dict(
     ),
     sans_detector = device('nicos_sinq.devices.sinqhm.channel.ReshapeHistogramImageChannel',
         description = "Image channel for area detector",
-        lowlevel = True,
+        visibility = (),
         bank = 'hm_bank0',
         connector = 'hm_connector',
         dimensions = {

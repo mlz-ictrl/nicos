@@ -24,7 +24,7 @@ devices = dict(
         images = [
             'middle_image',
         ],
-        lowlevel = True
+        visibility = ()
     ),
 )
 startupcode = """

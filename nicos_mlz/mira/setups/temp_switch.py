@@ -7,7 +7,7 @@ devices = dict(
     temp_volt = device('nicos.devices.entangle.PowerSupply',
                   description = 'current in first channel of supply (flipper current)',
                   tangodevice = tango_base + 'tti2/out1volt',
-                  lowlevel = True,
+                  visibility = (),
                   timeout = 5,
                   precision = 0.2,
                  ),

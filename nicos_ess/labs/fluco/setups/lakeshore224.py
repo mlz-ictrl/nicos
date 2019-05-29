@@ -127,19 +127,19 @@ devices = dict(
         'nicos.devices.epics.pva.EpicsStringReadable',
         description='The device firmware',
         readpv='{}FIRMWARE'.format(pv_root),
-        lowlevel=True,
+        visibility=(),
     ),
     ls224_model=device(
         'nicos.devices.epics.pva.EpicsStringReadable',
         description='The device model',
         readpv='{}MODEL'.format(pv_root),
-        lowlevel=True,
+        visibility=(),
     ),
     ls224_serial=device(
         'nicos.devices.epics.pva.EpicsStringReadable',
         description='The serial number',
         readpv='{}SERIAL'.format(pv_root),
-        lowlevel=True,
+        visibility=(),
     ),
     ls224_curve_file=device(
         'nicos.devices.epics.pva.EpicsStringReadable',

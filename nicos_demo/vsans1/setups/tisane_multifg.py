@@ -84,7 +84,7 @@ devices = dict(
 #    ),
 #    tisane_fc_trigger = device('nicos_mlz.devices.io_trigger.Trigger',
 #        description = "String blasting device",
-#        lowlevel = True,
+#        visibility = (),
 #        safesetting = 'idle',
 #        strings = {'idle' : '',
 #                   'arm' : ARMING_STRING_FC,

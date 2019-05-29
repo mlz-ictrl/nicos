@@ -12,7 +12,7 @@ devices = dict(
         description = 'Modbus Device for communication with VSD',
         tangodevice = tango_base + 'vsd/io/modbus',
         address = 0x3000,
-        lowlevel = True,
+        visibility = (),
     ),
     Air1Pressure = device(code_base + 'AnalogValue',
         description = 'VSD: Analog value of Air1Pressure',

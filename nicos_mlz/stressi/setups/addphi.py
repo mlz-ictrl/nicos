@@ -8,7 +8,7 @@ devices = dict(
     addphi_m = device('nicos.devices.entangle.Motor',
         tangodevice = tango_base + 'channel4/motor',
         fmtstr = '%.2f',
-        lowlevel = True,
+        visibility = (),
         speed = 4,
     ),
     addphi = device('nicos.devices.generic.Axis',

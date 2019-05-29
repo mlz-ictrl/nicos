@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 includes = ['aliases']
 
-level = False
+vis = ('devlist', 'namespace', 'metadata')
 
 devices = dict(
     man = device('nicos_mlz.puma.devices.PumaMultiAnalyzer',
@@ -37,7 +37,7 @@ for i in range(1, 12):
             speed = 5.0,
         ),
         precision = 0.01,
-        lowlevel = level,
+        visibility = vis,
     )
     devices['ra%d' % i] = device('nicos.devices.generic.Axis',
         description = 'Rotation crystal %d multianalyzer' % i,
@@ -50,7 +50,7 @@ for i in range(1, 12):
             speed = 1.0,
         ),
         precision = 0.01,
-        lowlevel = level,
+        visibility = vis,
     )
 
 alias_config = {

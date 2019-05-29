@@ -13,13 +13,13 @@ devices = dict(
         jitter = 0,
         precision = 0.1,
         window = 30.0,
-        lowlevel = True,
+        visibility = (),
     ),
     T_sample = device('nicos.devices.generic.ReadonlyParamDevice',
         parameter = 'sample',
         device = 'T_demo',
         description = 'Temperature of virtual sample',
-        lowlevel = True,
+        visibility = (),
     ),
 )
 

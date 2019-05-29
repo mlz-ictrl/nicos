@@ -35,7 +35,7 @@ devices = dict(
         right = 'msr',
         top = 'mst',
         bottom = 'msb',
-        lowlevel = True
+        visibility = (),
     ),
     mslit_height = device('nicos_sinq.amor.devices.slit.SlitOpening',
         description = 'Detector Slit opening controller',

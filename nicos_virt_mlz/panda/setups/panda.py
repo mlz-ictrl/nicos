@@ -18,7 +18,7 @@ devices = dict(
         description = 'Virtual device for handling \\alpha changes',
         abslimits = (-360, 360),
         unit = 'deg',
-        lowlevel = True,
+        visibility = (),
     ),
     panda = device('nicos.devices.tas.TAS',
         description = 'the PANDA spectrometer',
@@ -81,7 +81,7 @@ devices = dict(
         crystalside = -1,
         fixed = 'DO NOT USE THIS DUMMY DEVICE! please set mono.alias to another device.',
         fixedby = ('NICOS', 99),
-        lowlevel = True,
+        visibility = (),
     ),
     ana = device('nicos.devices.generic.DeviceAlias',
         devclass = 'nicos.devices.tas.Monochromator',
@@ -110,7 +110,7 @@ devices = dict(
         description = 'Virtual device to startup the TAS-Device, DONT USE !',
         fixed = 'DO NOT USE THIS DUMMY DEVICE! please set sth.alias to another device.',
         fixedby = ('NICOS', 99),
-        lowlevel = True,
+        visibility = (),
     ),
 )
 

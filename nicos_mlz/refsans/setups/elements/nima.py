@@ -10,7 +10,7 @@ code_base = instrument_values['code_base'] + 'nima.'
 devices = dict(
     nima_io = device('nicos.devices.entangle.StringIO',
         tangodevice = tango_host,
-        lowlevel = True,
+        visibility = (),
     ),
     nima_area = device(code_base + 'MoveName',
         description = 'Area of Langmuir trough',

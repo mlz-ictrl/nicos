@@ -5,7 +5,7 @@ devices = dict(
     io = device('nicos_demo.demo.devices.servo.SerComIO',
         description = "dev for communication",
         devfile = "/dev/ttyACM0",
-        lowlevel = True,
+        visibility = (),
     ),
     s1 = device('nicos_demo.demo.devices.servo.MicroPythonServo',
         description = "Servo1",

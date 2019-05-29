@@ -13,7 +13,7 @@ devices = dict(
         tangodevice = tango_base + 'shutter/shutter/motor',
         abslimits = (0, 55),
         precision = 0.5,
-        lowlevel = True,
+        visibility = (),
     ),
     shutter = device(code_base + 'shutter.Shutter',
         description = 'Instrument shutter',

@@ -47,12 +47,11 @@ devices = dict(
         templates = path.join(module_root, 'test', 'script_templates'),
         zipdata = True,
         serviceexp = 'service',
-        lowlevel = False,
     ),
     img_index = device('nicos.devices.generic.manual.ManualMove',
         description = 'Keeps the index of the last measured image',
         unit = '',
         abslimits = (0, 1e9),
-        lowlevel = True,
+        visibility = (),
     ),
 )

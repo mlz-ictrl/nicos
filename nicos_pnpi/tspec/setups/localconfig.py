@@ -10,7 +10,7 @@ DP_CONF = {
     'speed': 0.5,
     'unit': 'cm',
     'abslimits': (-100, 100),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 CP_CONF = {
@@ -19,5 +19,5 @@ CP_CONF = {
     'speed': 0.5,
     'unit': 'cm',
     'abslimits': (-100, 100),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }

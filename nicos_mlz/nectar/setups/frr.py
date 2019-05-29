@@ -6,7 +6,7 @@ devices = dict(
     frr_m = device('nicos.devices.entangle.Motor',
         tangodevice = 'tango://phytron01.nectar.frm2.tum.de:10000/box/frr/mot',
         fmtstr = '%.1f',
-        lowlevel = True,
+        visibility = (),
         userlimits = (0., 242.),
     ),
     frr = device('nicos_mlz.nectar.devices.FocusRing',

@@ -16,7 +16,7 @@ devices = dict(
         det_width = 32,
         det_height = 160,
         det_range = (0, 32*160),
-        lowlevel= True
+        visibility = (),
     ),
     proton_charge = device(
         'nicos_sinq.devices.epics.proton_counter.SINQProtonCharge',

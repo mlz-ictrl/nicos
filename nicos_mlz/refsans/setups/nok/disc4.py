@@ -10,6 +10,5 @@ devices = dict(
         description = 'disc 4 Motor',
         tangodevice = tango_base + 'optic/disc34/disc4',
         abslimits = (-30, 46),
-        lowlevel = False,
     ),
 )

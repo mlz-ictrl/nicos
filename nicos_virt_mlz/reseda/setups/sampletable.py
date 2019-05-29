@@ -9,7 +9,7 @@ devices = dict(
         abslimits = (-180, 180),
         fmtstr = '%.3f',
         unit = 'deg',
-        lowlevel = True,
+        visibility = (),
     ),
     srz = device('nicos.devices.generic.Axis',
         description = 'Sample rotation: z',

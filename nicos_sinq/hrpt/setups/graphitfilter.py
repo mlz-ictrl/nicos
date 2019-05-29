@@ -9,7 +9,7 @@ devices = dict(
                         byte=4,
                         bit=4,
                         mapping={'OFF': False, 'ON': True},
-                        lowlevel=True
+                        visibility=(),
                         ),
     sps1=device(
         'nicos_ess.devices.epics.extensions.EpicsCommandReply',

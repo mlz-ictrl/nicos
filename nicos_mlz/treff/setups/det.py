@@ -44,7 +44,7 @@ devices = dict(
         size = (256, 256),
         fmtstr="%d cts",
         unit = "",
-        lowlevel = True,
+        visibility = (),
     ),
     full = device("nicos.devices.generic.RateChannel",
         description = "Full detector cts and rate",

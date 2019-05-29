@@ -12,7 +12,7 @@ devices = dict(
         description = 'height of both beamstops',
         unit = 'foo',
         att = 'User2Voltage',
-        lowlevel = True,
+        visibility = (),
     ),
     beamstop_height = device(code_base + 'converters.LinearKorr',
         description = 'height of both beamstops',

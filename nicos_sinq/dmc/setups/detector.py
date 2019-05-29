@@ -44,7 +44,7 @@ devices = dict(
         presetpv = 'SQ:DMC:monitor:target'
     ),
     timer = device('nicos.devices.generic.VirtualTimer',
-        lowlevel = True,
+        visibility = (),
     ),
     det = device('nicos_ess.devices.datasources.just_bin_it.JustBinItDetector',
         description = 'The just-bin-it histogrammer',

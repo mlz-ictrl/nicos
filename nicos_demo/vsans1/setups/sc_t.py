@@ -18,7 +18,7 @@ devices = dict(
         description = 'Sample Changer 1/2/t Axis motor',
         fmtstr = '%.2f',
         abslimits = (-0, 600),
-        lowlevel = True,
+        visibility = (),
         unit = 'mm',
     ),
     sc_t = device('nicos.devices.generic.MultiSwitcher',
@@ -40,7 +40,6 @@ devices = dict(
         fmtstr = '%d',
         precision = [0.05, 0.05],
         blockingmove = False,
-        lowlevel = False,
     ),
 )
 

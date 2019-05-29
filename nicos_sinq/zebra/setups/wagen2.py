@@ -72,7 +72,7 @@ devices = dict(
         right = 's2anr',
         top = 's2ant',
         bottom = 's2anb',
-        lowlevel = True
+        visibility = (),
     ),
     ana_opening = device('nicos_sinq.amor.devices.slit.SlitOpening',
         description = 'Analyser slit  opening controller',

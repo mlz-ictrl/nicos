@@ -102,7 +102,7 @@ devices = dict(
         description = 'Selector translation',
         unit = 'mm',
         tangodevice = tango_base + 'fzjs7/Selektor_linear',
-        lowlevel = True,
+        visibility = (),
     ),
     selector_inout = device('nicos.devices.generic.Switcher',
         description = 'Moves Selector in and out of beam',
@@ -129,7 +129,7 @@ devices = dict(
         description = 'lowlevel motor for tilt of velocity selector',
         tangodevice = tango_base + 'fzjs7/selector_tilt',
         abslimits = (-5, 5),
-        lowlevel = True,
+        visibility = (),
         precision = 0.001,
     ),
 )

@@ -17,7 +17,7 @@ devices = dict(
     samplechanger_motor = device('nicos.devices.entangle.Motor',
         description = 'Samplechanger axis motor  100mm/3.5min',
         tangodevice = tango_base + 'samplechanger_m',
-        lowlevel = True,
+        visibility = (),
         unit = 'mm',
         abslimits = [14,350],
     ),
@@ -25,6 +25,6 @@ devices = dict(
         description = 'Samplechanger axis coder',
         tangodevice = tango_base + 'samplechanger_e',
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
 )

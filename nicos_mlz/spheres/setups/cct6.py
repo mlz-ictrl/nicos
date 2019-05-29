@@ -23,7 +23,7 @@ devices = dict(
         maxage = 5,
         abslimits = (0, 500),
         precision = 0.1,
-        lowlevel = True,
+        visibility = (),
         unit = 'K'
     ),
     cct6_T_tube = device('nicos.devices.entangle.TemperatureController',
@@ -33,7 +33,7 @@ devices = dict(
         maxage = 5,
         abslimits = (0, 300),
         precision = 0.1,
-        lowlevel = True,
+        visibility = (),
         unit = 'K',
     ),
     cct6_v_flood = device('nicos.devices.entangle.NamedDigitalInput',
@@ -42,7 +42,7 @@ devices = dict(
         tangodevice = tango_sample + 'floodvalve',
         mapping = {'closed': 0,
                    'open': 1},
-        lowlevel = True,
+        visibility = (),
         pollinterval = 2,
         unit = '',
     ),
@@ -51,7 +51,7 @@ devices = dict(
         tangodevice = tango_sample + 'vacuumvalve',
         mapping = {'closed': 0,
                    'open': 1},
-        lowlevel = True,
+        visibility = (),
         pollinterval = 2,
         unit = ''
     ),
@@ -62,7 +62,7 @@ devices = dict(
                    'low': 1,
                    'medium': 2,
                    'high': 3},
-        lowlevel = True,
+        visibility = (),
         pollinterval = 2,
         unit = ''
     ),
@@ -73,7 +73,7 @@ devices = dict(
                    'low': 1,
                    'medium': 2,
                    'high': 3},
-        lowlevel = True,
+        visibility = (),
         pollinterval = 2,
         unit = ''
     ),

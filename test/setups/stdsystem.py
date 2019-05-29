@@ -23,7 +23,8 @@
 # *****************************************************************************
 
 from os import path
-from test.utils import cache_addr, runtime_root, module_root
+
+from test.utils import cache_addr, module_root, runtime_root
 
 name = 'test system setup'
 # This setup is called "stdsystem" so that it is not loaded automatically
@@ -50,7 +51,6 @@ devices = dict(
         templates = path.join(module_root, 'test', 'script_templates'),
         zipdata = True,
         serviceexp = 'service',
-        lowlevel = False,
     ),
     Instr = device('nicos.devices.instrument.Instrument',
         instrument = 'INSTR',

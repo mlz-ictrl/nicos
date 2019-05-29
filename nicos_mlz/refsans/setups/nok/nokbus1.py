@@ -19,6 +19,6 @@ tango_base = instrument_values['tango_base']
 devices = dict(
     nokbus1 = device('nicos.devices.vendor.ipc.IPCModBusTango',
        tangodevice = tango_base + 'test/ipcsms_a/bio',
-       lowlevel = True,
+       visibility = (),
     ),
 )

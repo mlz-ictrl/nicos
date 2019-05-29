@@ -12,7 +12,7 @@ devices = dict(
     lens_io = device('nicos_mlz.kws1.devices.virtual.Standin',
         description = 'lens I/O device',
         abslimits = (0, 7),
-        lowlevel = True,
+        visibility = (),
     ),
 )
 

@@ -48,7 +48,7 @@ devices = dict(
         microstep = 64,  # ok
         speed = 20,
         accel = 5,
-        lowlevel = True,
+        visibility = (),
     ),
     # mfv_heusler_poti = device('nicos_mlz.panda.devices.mcc2.MCC2Poti',
     #     description = 'vertical focusing CODER of Heusler monochromator',
@@ -59,7 +59,7 @@ devices = dict(
     #     slope = 1024.0 / 5.0, #???
     #     unit = 'mm',
     #     zerosteps = 0,
-    #     lowlevel = True,
+    #     visibility = (),
     # ),
 
     # mfv_heusler = device('nicos_mlz.panda.devices.rot_axis.RotAxis',
@@ -70,7 +70,7 @@ devices = dict(
         precision = 0.1,
         backlash = 0,
         refpos = -44,
-        lowlevel = True,
+        visibility = (),
         autoref = -10,
     ),
     ana_heusler = device('nicos.devices.tas.Monochromator',
@@ -103,7 +103,7 @@ devices = dict(
         startdelay = 0,
         stopdelay = 0,
         ramptype = 1,
-        lowlevel = True,
+        visibility = (),
     ),
     afh_heusler = device('nicos_mlz.panda.devices.rot_axis.RotAxis',
         description = 'horizontal focus of heusler ana',
@@ -113,7 +113,7 @@ devices = dict(
         precision = 1,
         fmtstr = '%.1f',
         autoref = None,  # disable autoref since there is no refswitch
-        lowlevel = True,
+        visibility = (),
     ),
 )
 

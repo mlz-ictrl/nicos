@@ -23,7 +23,7 @@ devices = dict(
         jitter = 0.2,
         dragerror = 1,
         maxtries = 30,
-	lowlevel = True,
+        visibility = (),
     ),
 )
 

@@ -29,6 +29,6 @@ devices = dict(
         ),
         precision = lprecision,
         maxtries = 3,
-        lowlevel = True,
+        visibility = (),
     ),
 )

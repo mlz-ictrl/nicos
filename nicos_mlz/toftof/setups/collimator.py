@@ -13,7 +13,7 @@ devices = dict(
         abslimits = (-131.4, 0.),
         requires = {'level': 'admin'},
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     ngc = device('nicos_mlz.toftof.devices.neutronguide.Switcher',
         description = 'The neutron guide changer/collimator',

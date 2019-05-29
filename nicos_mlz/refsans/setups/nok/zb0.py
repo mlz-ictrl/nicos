@@ -18,7 +18,7 @@ devices = dict(
     #     motor = 'zb0_motor',
     #     precision = 0.02,
     #     maxtries = 3,
-    #     lowlevel = True,
+    #     visibility = (),
     # ),
     zb0 = device(code_base + 'slits.SingleSlit',
         # length: 13 mm
@@ -39,7 +39,7 @@ devices = dict(
     #     tangodevice = tango_base + 'optic/io/modbus',
     #     address = 0x3020+index*10, # word address
     #     abslimits = (-1000, 1000),
-    #     lowlevel = showcase_values['hide_temp'],
+    #     visibility = showcase_values['hide_temp'],
     # ),
     # zb0_analog = device(code_base + 'beckhoff.nok.BeckhoffPoti',
     #     description = 'Poti for ZB0 no ref',
@@ -47,13 +47,13 @@ devices = dict(
     #     address = 0x3020+index*10, # word address
     #     abslimits = (-1000, 1000),
     #     poly = [-176.49512271969755, 0.00794154091586989],
-    #     lowlevel = True or showcase_values['hide_poti'],
+    #     visibility = () or showcase_values['hide_poti'],
     # ),
     # zb0_acc = device(code_base + 'nok_support.MotorEncoderDifference',
     #      description = 'calc error Motor and poti',
     #      motor = 'zb0_motor',
     #      analog = 'zb0_analog',
-    #      lowlevel = True or showcase_values['hide_acc'],
+    #      visibility = () or showcase_values['hide_acc'],
     #      unit = 'mm'
     # ),
 )

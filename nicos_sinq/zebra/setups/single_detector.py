@@ -62,7 +62,7 @@ devices = dict(
         description = 'Sink for writing SINQ ASCII files',
         filenametemplate = ['zebra%(year)sn%(scancounter)06d.dat'],
         templatefile = 'nicos_sinq/zebra/zebra.hdd',
-        lowlevel = True,
+        visibility = (),
         scaninfo = [
             ('COUNTS', 'counts'), ('MONITOR1', 'monitor1'),
             ('TIME', 'elapsedtime')
@@ -72,7 +72,7 @@ devices = dict(
         description = 'Sink for writing SINQ ASCII files',
         filenametemplate = ['zebra%(year)sn%(scancounter)06d.ccl'],
         templatefile = 'nicos_sinq/zebra/mess.hdd',
-        lowlevel = True,
+        visibility = (),
         detector = 'counts',
         scaninfo = [
             ('COUNTS', 'counts'), ('MONITOR1', 'monitor1'),

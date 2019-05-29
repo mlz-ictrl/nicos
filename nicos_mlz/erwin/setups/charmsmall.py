@@ -11,7 +11,7 @@ devices = dict(
         description = 'Window',
         tangodevice = tango_base + 'window',
         fmtstr = '%.1f',
-        lowlevel = True,
+        visibility = (),
         precision = 1,
     ),
     s_window_c = device('nicos.devices.generic.ReadonlyParamDevice',
@@ -21,7 +21,7 @@ devices = dict(
         copy_status = True,
         fmtstr = '%.6g',
         unit = 'µA',
-        lowlevel = True,
+        visibility = (),
     ),
     s_tripped = device('nicos.devices.entangle.NamedDigitalInput',
         description = 'Trip indicator',
@@ -80,7 +80,7 @@ for i in range(1, 3):
         description = 'Cathode %d' % i,
         tangodevice = tango_base + 'cathode%d' % i,
         fmtstr = '%.1f',
-        lowlevel = True,
+        visibility = (),
         precision = 1,
     )
     devices['s_cathode%d_c' % i] = device('nicos.devices.generic.ReadonlyParamDevice',
@@ -90,7 +90,7 @@ for i in range(1, 3):
         copy_status = True,
         fmtstr = '%.6g',
         unit = 'µA',
-        lowlevel = True,
+        visibility = (),
     )
 
 for i in range(1, 3):
@@ -98,7 +98,7 @@ for i in range(1, 3):
         description = 'Anode %d HV' % i,
         tangodevice = tango_base + 'anode%d' % (i - 1),
         fmtstr = '%.1f',
-        lowlevel = True,
+        visibility = (),
         precision = 1,
     )
     devices['s_anode%s_c' % i] = device('nicos.devices.generic.ReadonlyParamDevice',
@@ -108,7 +108,7 @@ for i in range(1, 3):
         copy_status = True,
         fmtstr = '%.6g',
         unit = 'µA',
-        lowlevel = True,
+        visibility = (),
     )
 
 for i in range(1, 2):
@@ -116,7 +116,7 @@ for i in range(1, 2):
         description = 'Boundary anode %d HV' % i,
         tangodevice = tango_base + 'banode%d' % (i - 1),
         fmtstr = '%.1f',
-        lowlevel = True,
+        visibility = (),
         precision = 1,
     )
     devices['s_banode%s_c' % i] = device('nicos.devices.generic.ReadonlyParamDevice',
@@ -126,5 +126,5 @@ for i in range(1, 2):
         copy_status = True,
         fmtstr = '%.6g',
         unit = 'µA',
-        lowlevel = True,
+        visibility = (),
     )

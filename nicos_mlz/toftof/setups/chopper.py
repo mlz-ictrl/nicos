@@ -73,7 +73,7 @@ devices = dict(
     ),
     chdelaybus = device('nicos_mlz.toftof.devices.toni.ToniBus',
         tangodevice = tango_host + 'toftof/rs232/ifchdelay',
-        lowlevel = True,
+        visibility = (),
     ),
     chdelay = device('nicos_mlz.toftof.devices.toni.DelayBox',
         description = 'Trigger time-offset',

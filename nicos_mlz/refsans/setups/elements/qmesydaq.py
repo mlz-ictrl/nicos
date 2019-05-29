@@ -23,7 +23,6 @@ devices = dict(
         description = 'Listmode data written via QMesyDAQ',
         image = 'image',
         subdir = 'list',
-        lowlevel = False,
         filenametemplate = ['%(proposal)s_%(pointcounter)08d.mdat'],
     ),
     LiveViewSink = device('nicos.devices.datasinks.LiveViewSink',

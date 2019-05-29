@@ -1,6 +1,6 @@
 description = 'SmarAct stick-slip piezo motor slit'
 
-# TODO: opmode, coordinates, lowlevel
+# TODO: opmode, coordinates, visibility
 
 group = 'optional'
 
@@ -16,7 +16,6 @@ devices = dict(
         unit = 'mm',
         precision = 0.01,
         fmtstr = '%.2f',
-        lowlevel = False,
     ),
     piezo_right = device('nicos.devices.entangle.Motor',
         description = 'Right blade of the SmarAct piezo slit',
@@ -24,7 +23,6 @@ devices = dict(
         unit = 'mm',
         precision = 0.01,
         fmtstr = '%.2f',
-        lowlevel = False,
     ),
     piezo_bottom = device('nicos.devices.entangle.Motor',
         description = 'Bottom blade of the SmarAct piezo slit',
@@ -32,7 +30,6 @@ devices = dict(
         unit = 'mm',
         precision = 0.01,
         fmtstr = '%.2f',
-        lowlevel = False,
     ),
     piezo_top = device('nicos.devices.entangle.Motor',
         description = 'Top blade of the SmarAct piezo slit',
@@ -40,7 +37,6 @@ devices = dict(
         unit = 'mm',
         precision = 0.01,
         fmtstr = '%.2f',
-        lowlevel = False,
     ),
     piezo_slit = device('nicos.devices.generic.Slit',
         description = 'SmarAct piezo slit',

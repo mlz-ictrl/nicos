@@ -9,7 +9,7 @@ hv_values = configdata('config_gedet.HV_VALUES')
 devices = dict(
     ep_HV_all = device('nicos_mlz.kws1.devices.gedet.MultiHV',
         ephvs = [epname + '_HV' for (epname, _) in eps],
-        lowlevel = True,
+        visibility = (),
         stepsettle = 2,
         finalsettle = 30,
     ),
@@ -33,7 +33,7 @@ devices = dict(
 for (epname, _) in eps:
     devices[epname + '_HV'] = device('nicos_mlz.kws1.devices.virtual.Standin',
         description = epname + ' HV setting',
-        lowlevel = True
+        visibility = ()
     )
 
 extended = dict(

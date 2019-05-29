@@ -8,7 +8,7 @@ excludes = ['detector']
 
 modules = ['nicos_mlz.puma.commands']
 
-level = False
+vis = ('devlist', 'namespace', 'metadata')
 
 devices = dict(
     med = device('nicos_mlz.puma.devices.PumaMultiDetectorLayout',
@@ -34,20 +34,20 @@ devices = dict(
         description = 'Monitor',
         fmtstr = '%d',
         type = 'monitor',
-        lowlevel = True,
+        visibility = (),
     ),
     timer = device('nicos.devices.generic.VirtualTimer',
         description = 'timer',
         fmtstr = '%.2f',
         unit = 's',
-        lowlevel = True,
+        visibility = (),
     ),
     image = device('nicos.devices.generic.VirtualImage',
         description = 'Image data device',
         fmtstr = '%d',
         pollinterval = 86400,
-        lowlevel = True,
         size = (1, 11),
+        visibility = (),
     ),
     det = device('nicos.devices.generic.Detector',
         description = 'Multidetector with single channels',
@@ -74,7 +74,7 @@ for i in range(11):
             speed = 3,
         ),
         precision = 0.01,
-        lowlevel = level,
+        visibility = vis,
     )
     devices['rg%d' % (i + 1)] = device('nicos.devices.generic.Axis',
         description = 'Rotation guide %d multidetector' % (i + 1),
@@ -86,10 +86,10 @@ for i in range(11):
             speed = 1,
         ),
         precision = 0.01,
-        lowlevel = level,
+        visibility = vis,
     )
     devices['ctr%d' % (i + 1)] = device('nicos.devices.generic.VirtualCounter',
-        lowlevel = True,
+        visibility = (),
         type = 'counter',
         countrate = 1 + int(2000 * math.exp(-((i + 1) - 6) ** 2 / 2.)),
         fmtstr = '%d',

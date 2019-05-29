@@ -55,7 +55,7 @@ devices = dict(
     ),
     det_z_mot = device('nicos_mlz.kws1.devices.virtual.Standin',
         description = 'detector translation Z',
-        lowlevel = True,
+        visibility = (),
     ),
     psd_x = device('nicos_mlz.kws1.devices.virtual.Standin',
         description = 'small detector translation X',

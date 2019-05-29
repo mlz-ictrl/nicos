@@ -4,21 +4,21 @@ group = 'optional'
 
 devices = dict(
     b_cathode1 = device('nicos.devices.generic.VirtualMotor',
-        lowlevel = True,
+        visibility = (),
         abslimits = [0, 2225],
         unit = 'V',
         speed = 50,
         fmtstr = '%.1f',
     ),
     b_cathode2 = device('nicos.devices.generic.VirtualMotor',
-        lowlevel = True,
+        visibility = (),
         abslimits = [0, 2225],
         unit = 'V',
         speed = 50,
         fmtstr = '%.1f',
     ),
     b_window = device('nicos.devices.generic.VirtualMotor',
-        lowlevel = True,
+        visibility = (),
         abslimits = [-2225, 0],
         unit = 'V',
         speed = 50,
@@ -112,7 +112,7 @@ devices = dict(
 
 for i in range(1, 10):
     devices['b_anode%d' % i] = device('nicos.devices.generic.VirtualMotor',
-        lowlevel = True,
+        visibility = (),
         abslimits = [0, 2225],
         unit = 'V',
         speed = 5,
@@ -121,7 +121,7 @@ for i in range(1, 10):
 
 for i in range(1, 9):
     devices['b_banode%d' % i] = device('nicos.devices.generic.VirtualMotor',
-        lowlevel = True,
+        visibility = (),
         abslimits = [0, 2225],
         unit = 'V',
         speed = 5,

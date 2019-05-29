@@ -31,7 +31,7 @@ devices = dict(
     ),
     timer = device('nicos.devices.generic.VirtualTimer',
         description = 'timer',
-        lowlevel = True,
+        visibility = (),
     ),
     det1 = device('nicos.devices.generic.Detector',
         description = 'PSL detector',

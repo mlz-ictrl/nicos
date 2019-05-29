@@ -27,7 +27,7 @@ devices = dict(
             'gisans': -110,
         },
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     zb3s = device('nicos_mlz.refsans.devices.slits.SingleSlit',
         # length: 13.0 mm
@@ -46,7 +46,7 @@ devices = dict(
             'gisans': 0,
         },
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
 )
 

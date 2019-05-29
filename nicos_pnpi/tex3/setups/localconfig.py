@@ -15,7 +15,7 @@ COLX1_CONF = {
     'speed': 1.0,                          # unit of x1 damper
     'unit': 'mm',                          # set speed move of x1 damper
     'abslimits': (-50, 50),                # set absolute range limits ranges for x1 damper
-    'lowlevel': False,                     # visible to the user
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 
@@ -25,7 +25,7 @@ COLX2_CONF = {
     'speed': 1.0,                          # unit of x2 damper
     'unit': 'mm',                          # set speed move of x2 damper
     'abslimits': (-50, 50),                # set absolute range limits ranges for x2 damper
-    'lowlevel': False,                     # visible to the user
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 
@@ -35,7 +35,7 @@ COLY1_CONF = {
     'speed': 1.0,                          # unit of y1 damper
     'unit': 'mm',                          # set speed move of y1 damper
     'abslimits': (-50, 50),                # set absolute range limits ranges for y1 damper
-    'lowlevel': False,                     # visible to the user
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 
@@ -45,7 +45,7 @@ COLY2_CONF = {
     'speed': 1.0,                          # unit of y2 damper
     'unit': 'mm',                          # set speed move of y2 damper
     'abslimits': (-50, 50),                # set absolute range limits ranges for y2 damper
-    'lowlevel': False,                     # visible to the user
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 # --------------- Sample Environment --------------- #
@@ -55,7 +55,7 @@ OMEGA_CONF = {
     'unit': 'deg',                           # unit of omega axis
     'speed': 0.05,                           # set speed rotation of omega axis
     'abslimits': (-360, 360),                # set absolute range limits for omega axis
-    'lowlevel': False,                       # visible to the user
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 
@@ -65,7 +65,7 @@ PHI_CONF = {
     'unit': 'deg',                         # unit of phy axis
     'speed': 1.0,                          # set speed rotation of phy axis
     'abslimits': (-360, 360),              # set absolute range limits for phy axis
-    'lowlevel': False,                     # visible to the user
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 
@@ -75,7 +75,7 @@ CHI_CONF = {
     'unit': 'deg',                         # unit of chi axis
     'speed': 0.25,                         # set speed rotation of chi axis
     'abslimits': (-360, 360),              # set absolute range limits for chi axis
-    'lowlevel': False,                     # visible to the user
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 
@@ -85,7 +85,7 @@ THETA_CONF = {
     'unit': 'deg',                         # unit of theta axis
     'speed': 0.5,                          # set speed rotation of theta axis
     'abslimits': (-360, 360),              # set absolute range limits for theta axis
-    'lowlevel': False,                     # visible to the user
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 # --------------- Monochromator --------------- #
@@ -95,7 +95,7 @@ M_X_CONF = {
     'speed': 0.5,                          # unit of x monochromator axis
     'unit': 'mm',                          # set speed move of x monochromator axis
     'abslimits': (-30, 30),                # set absolute range limits for x of monochromator axis
-    'lowlevel': False,                     # visible to the user
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 
@@ -105,7 +105,7 @@ M_Y_CONF = {
     'speed': 0.5,                          # unit of y monochromator axis
     'unit': 'mm',                          # set speed move of y monochromator axis
     'abslimits': (-50, 50),                # set absolute range limits for y of monochromator axis
-    'lowlevel': False,                     # visible to the user
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 
@@ -115,7 +115,7 @@ M_Z_CONF = {
     'speed': 0.5,                          # unit of z monochromator axis
     'unit': 'mm',                          # set speed move of z monochromator axis
     'abslimits': (-100, 100),              # set absolute range limits for z of monochromator axis
-    'lowlevel': False,                     # visible to the user
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 M_THETA_CONF = {
@@ -124,7 +124,7 @@ M_THETA_CONF = {
     'unit': 'deg',                         # unit of theta monochromator axis
     'speed': 0.5,                          # set speed rotation of theta axis
     'abslimits': (-360, 360),              # set absolute range limits for theta axis
-    'lowlevel': False,                     # visible to the user
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 M_ALPHA_CONF = {
@@ -133,5 +133,5 @@ M_ALPHA_CONF = {
     'unit': 'deg',                         # unit of alpha monochromator axis
     'speed': 1,                            # set speed rotation of alpha monochromator axis
     'abslimits': (-50, 195),               # set absolute range limits for theta axis
-    'lowlevel': False,                     # visible to the user
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }

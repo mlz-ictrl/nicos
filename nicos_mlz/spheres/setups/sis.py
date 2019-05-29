@@ -54,10 +54,10 @@ devices = dict(
         description = 'Device which stores averages of the regular detectors '
                       'of direct, elastic and inelastic flux',
         tangodevice = sis + 'counter',
-        lowlevel = True,
+        visibility = (),
     ),
     sistimer = device('nicos.devices.entangle.TimerChannel',
-        description='Timer for the SIS detector',
-        tangodevice=sis + 'timer',
+        description = 'Timer for the SIS detector',
+        tangodevice = sis + 'timer',
     ),
 )

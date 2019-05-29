@@ -33,7 +33,7 @@ from nicos_ess.nexus.converter import NexusTemplateConverter
 class NexusStructureProvider(Device):
 
     parameter_overrides = {
-        'lowlevel': Override(default=True),
+        'visibility': Override(default=()),
     }
 
     def get_structure(self, dataset, start_time):

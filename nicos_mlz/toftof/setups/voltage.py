@@ -7,7 +7,7 @@ tango_host = 'tango://tofhw.toftof.frm2:10000/toftof/'
 devices = dict(
     lvbus = device('nicos_mlz.toftof.devices.toni.ToniBus',
         tangodevice = tango_host + 'rs232/ifpowersupply',
-        lowlevel = True,
+        visibility = (),
     ),
     lv0 = device('nicos_mlz.toftof.devices.toni.LVPower',
         description = 'LV power supply 1',

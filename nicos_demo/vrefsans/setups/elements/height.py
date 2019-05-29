@@ -12,6 +12,6 @@ devices = dict(
         description = 'Sample surface position',
         abslimits = (-30, 30),
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
 )

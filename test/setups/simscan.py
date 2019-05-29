@@ -23,7 +23,8 @@
 # *****************************************************************************
 
 from os import path
-from test.utils import cache_addr, runtime_root, module_root
+
+from test.utils import cache_addr, module_root, runtime_root
 
 name = 'simulation tests setup'
 
@@ -44,7 +45,6 @@ devices = dict(
         templates = path.join(module_root, 'test', 'script_templates'),
         zipdata = True,
         serviceexp = 'service',
-        lowlevel = False,
     ),
     motor = device('nicos.devices.generic.VirtualMotor',
         unit = 'deg',
@@ -52,10 +52,10 @@ devices = dict(
         abslimits = (0, 5),
     ),
     timer = device('nicos.devices.generic.VirtualTimer',
-        lowlevel = True,
+        visibility = (),
     ),
     ctr1 = device('nicos.devices.generic.VirtualCounter',
-        lowlevel = True,
+        visibility = (),
         type = 'counter',
         countrate = 2000.,
         fmtstr = '%d',

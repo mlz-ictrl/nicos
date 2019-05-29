@@ -6,22 +6,22 @@ devices = dict(
     pf_flightpath = device('nicos.devices.epics.EpicsReadable',
         description = 'Vakuum value for flightpath',
         readpv = pvprefix + 'Flightpath',
-        lowlevel = True
+        visibility = ()
     ),
     pf_antitrumpet = device('nicos.devices.epics.EpicsReadable',
         description = 'Vakuum value for antitrumpet',
         readpv = pvprefix + 'Antitrumpet',
-        lowlevel = True
+        visibility = ()
     ),
     pf_sample = device('nicos.devices.epics.EpicsReadable',
         description = 'Vakuum value for sample chamber',
         readpv = pvprefix + 'SampleChamber',
-        lowlevel = True
+        visibility = ()
     ),
     pf_bef = device('nicos.devices.epics.EpicsReadable',
         description = 'Vakuum value for BE filter',
         readpv = pvprefix + 'BeFilter',
-        lowlevel = True
+        visibility = ()
     ),
     pfeiffer = device('nicos_sinq.focus.devices.pfeiffer.PfeifferReadable',
         description = 'Master device for pfeiffer',

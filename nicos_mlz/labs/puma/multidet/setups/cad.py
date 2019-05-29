@@ -9,7 +9,7 @@ devices = dict(
         unit = 'deg',
         abslimits = (-117, 117),
         speed = 0.5,
-        lowlevel = True,
+        visibility = (),
     ),
     # cad = device('nicos_mlz.puma.devices.PumaCoupledAxis',
     #     description = 'cad - combined axis for multianalyzer',
@@ -28,7 +28,7 @@ devices = dict(
         jitter = 0.2,
         dragerror = 1,
         maxtries = 30,
-	# lowlevel = True,
+	# visibility = (),
     ),
 )
 

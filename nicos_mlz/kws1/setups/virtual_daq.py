@@ -11,7 +11,7 @@ sysconfig = dict(
 devices = dict(
     det_ext_rt = device('nicos.devices.generic.ManualSwitch',
         description = 'Switch for external-start realtime mode',
-        lowlevel = True,
+        visibility = (),
         states = ['on', 'off', 1, 0],
     ),
     det_img = device('nicos_mlz.kws1.devices.daq.VirtualKWSImageChannel',

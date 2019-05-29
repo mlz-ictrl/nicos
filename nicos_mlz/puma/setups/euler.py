@@ -14,7 +14,7 @@ devices = dict(
         unit = 'deg',
         abslimits = (-355, 355),
         zerosteps = 500000,
-        lowlevel = True,
+        visibility = (),
     ),
 
     co_echi = device('nicos.devices.vendor.ipc.Coder',
@@ -23,7 +23,7 @@ devices = dict(
         slope = -8192.5,
         zerosteps = 5334445,
         unit = 'deg',
-        lowlevel = True,
+        visibility = (),
     ),
 
     echi = device('nicos.devices.generic.Axis',
@@ -44,7 +44,7 @@ devices = dict(
         unit = 'deg',
         abslimits = (-180, 180),
         zerosteps = 500000,
-        lowlevel = True,
+        visibility = (),
     ),
 
     co_ephi = device('nicos.devices.vendor.ipc.Coder',
@@ -54,7 +54,7 @@ devices = dict(
         zerosteps = 9059075,
         unit = 'deg',
         circular = -360,  # map values to -180..0..180 degree
-        lowlevel = True,
+        visibility = (),
     ),
 
     ephi = device('nicos.devices.generic.Axis',

@@ -63,6 +63,6 @@ devices = dict(
         description = 'Keeps the index of the last measured image',
         unit = '',
         abslimits = (0, 1e9),
-        lowlevel = True,
+        visibility = (),
     ),
 )

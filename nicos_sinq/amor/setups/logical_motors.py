@@ -11,6 +11,6 @@ devices = dict(
         slit2z = 'slit2z',
         slit3 = 'slit3',
         slit3z = 'slit3z',
-        lowlevel = True
+        visibility = ()
     ),
 )

@@ -50,7 +50,7 @@ devices = dict(
         path = 'log',
         warnlimits = (.5, None),
         minfree = 0.5,
-        lowlevel = True,
+        visibility = (),
     ),
     LiveImgSink = device('nicos.devices.datasinks.PNGLiveFileSink',
         description = 'Saves live image as .png every now and then',

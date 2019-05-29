@@ -43,7 +43,7 @@ devices = dict(
     ),
     det_z_mot = device('nicos.devices.generic.VirtualMotor',
         description = 'detector translation Z',
-        lowlevel = True,
+        visibility = (),
         unit = 'm',
         abslimits = (0, 20.01),
         speed = 0.5,

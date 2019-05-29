@@ -10,7 +10,7 @@ devices = dict(
     NsRV16115 = device('nicos.devices.entangle.TOFChannel',
                        description = 'USB TOF device of RV161_15',
                        tangodevice = tango_base + 'nv16115/1',
-                       lowlevel = True,
+                       visibility = (),
                        ),
 
     mon1 = device('nicos.devices.entangle.CounterChannel',

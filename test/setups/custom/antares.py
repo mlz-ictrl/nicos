@@ -109,6 +109,6 @@ devices = dict(
         abslimits = (-5, 5),
         speed = 0,
         unit = 'deg',
-        lowlevel = True,
+        visibility = (),
     ),
 )

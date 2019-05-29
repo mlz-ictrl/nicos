@@ -19,7 +19,7 @@ devices = dict(
         fmtstr = '%.2f',
         abslimits = (-0, 600),
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     sc2 = device('nicos.devices.generic.MultiSwitcher',
         description = 'Sample Changer 2 Huber device',
@@ -52,7 +52,6 @@ devices = dict(
         fmtstr = '%d',
         precision = [0.05, 0.05],
         blockingmove = False,
-        lowlevel = False,
     ),
 )
 

@@ -27,7 +27,7 @@ devices = dict(
     selector_tilted = device('nicos.devices.generic.ManualSwitch',
         description = 'Whether the selector is tilted',
         states = [False, True],
-        lowlevel = True,
+        visibility = (),
     ),
     selector_lambda = device('nicos_mlz.kws2.devices.selector.SelectorLambda',
         description = 'Selector wavelength control',

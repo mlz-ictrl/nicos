@@ -35,17 +35,17 @@ devices = dict(
     amagnet_IMonitor = device('nicos.devices.entangle.AnalogInput',
         description = 'Monitors the current via the PLC',
         tangodevice = tango_base + 'plc/_i_monitor',
-        lowlevel = True,
+        visibility = (),
     ),
     amagnet_UMonitor = device('nicos.devices.entangle.AnalogInput',
         description = 'Monitors the voltage via the PLC',
         tangodevice = tango_base + 'plc/_u_monitor',
-        lowlevel = True,
+        visibility = (),
     ),
     amagnet_unipolar = device('nicos.devices.entangle.AnalogInput',
         description = 'Monitors the current ramping device in the PLC',
         tangodevice = tango_base + 'plc/_unipolar',
-        lowlevel = True,
+        visibility = (),
     ),
     # previously used to control the current, now just for monitoring
     amagnet_pscurrent = device('nicos.devices.entangle.PowerSupply',
@@ -54,7 +54,7 @@ devices = dict(
         unit = 'A',
         abslimits = (0, 200),
         precision = 0.05,
-        lowlevel = True,
+        visibility = (),
     ),
 
     # control devices
@@ -77,7 +77,7 @@ devices = dict(
                    '0': 0,
                    '-1': -1},
         unit = '',
-        lowlevel = True,  # handled by current control device
+        visibility = (),  # handled by current control device
     ),
     amagnet_symmetry = device('nicos.devices.entangle.NamedDigitalOutput',
         description = 'Garfield magnet: par/ser switch selecting (a)symmetric mode',

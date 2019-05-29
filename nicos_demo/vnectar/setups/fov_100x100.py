@@ -8,7 +8,7 @@ includes = ['frr']
 devices = dict(
     fov_100_mot = device('nicos.devices.generic.VirtualMotor',
         description = 'FOV motor',
-        lowlevel = True,
+        visibility = (),
         abslimits = (15, 615),
         userlimits = (16, 514),
         unit = 'mm',
@@ -17,7 +17,7 @@ devices = dict(
     fov_100_enc = device('nicos.devices.generic.VirtualCoder',
         description = 'FOV encoder',
         motor = 'fov_100_mot',
-        lowlevel = True,
+        visibility = (),
     ),
     fov_100 = device('nicos.devices.generic.Axis',
         description = 'FOV linear axis',

@@ -6,7 +6,7 @@ group = 'optional'
 
 devices = dict(
     sat_inout = device('nicos_virt_mlz.panda.devices.stubs.SatBoxInOut',
-        lowlevel = True,
+        visibility = (),
         unit = '',
     ),
     sat = device('nicos_mlz.panda.devices.satbox.SatBox',

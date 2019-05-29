@@ -35,7 +35,7 @@ devices = dict(
         backlash = 0,
         precision = 0.5,
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     nok3s_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK3, sample side',
@@ -46,6 +46,6 @@ devices = dict(
         ),
         backlash = 0,
         precision = 0.5,
-        lowlevel = True,
+        visibility = (),
     ),
 )

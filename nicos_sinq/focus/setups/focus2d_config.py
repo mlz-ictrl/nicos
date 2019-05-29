@@ -10,11 +10,11 @@ devices = dict(
         byteorder = configdata('config.HISTOGRAM_MEMORY_ENDIANESS'),
         baseurl = configdata('config.F2DH_MEMORY_URL'),
         base64auth = 'c3B5OjAwNw==',
-        lowlevel = True
+        visibility = ()
     ),
     f2d_b0_ax_x = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfAxis',
         description = 'Detector ID',
-        lowlevel = True,
+        visibility = (),
         length = 69,
         mapping = 'direct',
         label = 'Tube-ID',
@@ -28,7 +28,7 @@ devices = dict(
     ),
     f2d_b0_ax_y = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfAxis',
         description = 'Tube segment ID',
-        lowlevel = True,
+        visibility = (),
         length = 64,
         mapping = 'lookuptable',
         label = 'Tube segment ID',
@@ -37,7 +37,7 @@ devices = dict(
     ),
     f2d_bank = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfBank',
         description = 'FOCUS 2D bank',
-        lowlevel = True,
+        visibility = (),
         bankid = 0,
         axes = ['f2d_b0_ax_x', 'f2d_b0_ax_y', 'hm_ax_tof']
     ),

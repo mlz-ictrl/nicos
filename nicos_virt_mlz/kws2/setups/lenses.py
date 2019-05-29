@@ -13,7 +13,7 @@ devices = dict(
         description = 'lens I/O device',
         unit = '',
         abslimits = (0, 7),
-        lowlevel = True,
+        visibility = (),
     ),
 )
 

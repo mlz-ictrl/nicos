@@ -10,7 +10,7 @@ devices = dict(
     fastshutter_io = device('nicos.devices.entangle.DigitalOutput',
         description = 'Beckhoff controlled fast shutter',
         tangodevice = '%s/shutter/plc_shutter' % tango_base,
-        lowlevel = True,
+        visibility = (),
     ),
     fastshutter = device('nicos.devices.generic.Switcher',
         description = 'Fast shutter',

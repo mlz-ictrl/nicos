@@ -25,7 +25,7 @@ devices = dict(
         images = [
             'f2d_image',
         ],
-        lowlevel = True
+        visibility = ()
     ),
 )
 startupcode = """

@@ -9,13 +9,11 @@ s7_motor = tango_base + 's7_motor/'
 
 devices = dict(
     sih = device('nicos.devices.entangle.Motor',
-        lowlevel = False,
         description = 'Silicon monochromator horizontal focus',
         tangodevice = s7_motor + 'sih',
         fmtstr = '%.2f',
     ),
     siv = device('nicos.devices.entangle.Motor',
-        lowlevel = False,
         description = 'Silicon monochromator vertical focus',
         tangodevice = s7_motor + 'siv',
         fmtstr = '%.2f',

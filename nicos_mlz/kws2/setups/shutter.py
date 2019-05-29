@@ -12,11 +12,11 @@ tango_base_mlz = 'tango://ictrlfs.ictrl.frm2:10000/mlz/'
 devices = dict(
     shutter_in = device('nicos.devices.entangle.DigitalInput',
         tangodevice = tango_base + 'sps/shutter_read',
-        lowlevel = True,
+        visibility = (),
     ),
     shutter_set = device('nicos.devices.entangle.DigitalOutput',
         tangodevice = tango_base + 'sps/shutter_write',
-        lowlevel = True,
+        visibility = (),
     ),
     shutter = device('nicos_mlz.kws1.devices.shutter.Shutter',
         description = 'shutter control',

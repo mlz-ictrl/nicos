@@ -5,7 +5,7 @@ includes = ['sinq_amor_movable']
 devices = dict(
     controller = device('nicos_sinq.amor.devices.logical_motor.AmorLogicalMotorHandler',
         description = 'Logical Motors Controller',
-        lowlevel = True,
+        visibility = (),
         loglevel = 'debug'
     ),
     m2t = device('nicos_sinq.amor.devices.logical_motor.AmorLogicalMotor',
@@ -40,7 +40,7 @@ devices = dict(
         description = 'Counter z position distance laser motor',
         motorpv = 'SQ:AMOR:mota:xlz',
         errormsgpv = 'SQ:AMOR:mota:xlz-MsgTxt',
-        lowlevel = True
+        visibility = (),
     ),
     laser_positioner = device('nicos.devices.generic.Switcher',
         description = 'Position laser to read components',

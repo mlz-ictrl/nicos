@@ -45,7 +45,7 @@ devices = dict(
         tangodevice = tango_base + 'fzjs7/detector_z',
         unit = 'm',
         precision = 0.002,
-        lowlevel = True,
+        visibility = (),
     ),
 )
 

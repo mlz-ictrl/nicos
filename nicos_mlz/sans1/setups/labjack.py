@@ -11,7 +11,6 @@ devices = dict(
         fmtstr = '%.5f',
         pollinterval = 0.5,
         maxage = 2,
-        lowlevel = False,
     ),
     ai1 = device('nicos.devices.entangle.Sensor',
         description = 'Analog Input 1',
@@ -19,6 +18,5 @@ devices = dict(
         fmtstr = '%.5f',
         pollinterval = 0.5,
         maxage = 2,
-        lowlevel = False,
     ),
 )

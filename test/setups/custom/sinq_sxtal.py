@@ -123,7 +123,7 @@ devices = dict(
         plane_normal = [0.015167, 0.005586, 0.999869],
         center_counter='gausscount'),
     timer=device('nicos.devices.generic.VirtualTimer',
-                 lowlevel=True,
+                 visibility=(),
                  ),
     det=device('nicos.devices.generic.Detector',
                description='Test detector',

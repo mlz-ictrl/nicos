@@ -287,9 +287,6 @@ class Device(metaclass=DeviceMeta):
                              type=listof(str), settable=False, userparam=False),
         'description': Param('A description of the device', type=str,
                              settable=True),
-        'lowlevel':    Param('Deprecated, use "visibility" instead',
-                             type=bool, default=False, userparam=False,
-                             prefercache=False),
         'visibility':  Param('Selects in which context the device should be '
                              'shown/included',
                              type=setof('metadata', 'namespace', 'devlist'),
@@ -420,15 +417,6 @@ class Device(metaclass=DeviceMeta):
             self.log.setLevel(loggers.WARNING)
         else:
             self.log.setLevel(loggers.loglevels[value])
-
-    def doUpdateLowlevel(self, value):
-        # Warn, but only if it's also in the configuration.
-        # If old values persist in the cache, we don't really care.
-        if value and self._config.get('lowlevel'):
-            self.log.warning('the "lowlevel" parameter is replaced by '
-                             '"visibility"; please update your configuration: '
-                             'lowlevel=True means visibility=(), but you may '
-                             'select visibility in detail now')
 
     def _attachDevices(self):
         """Validate and create attached devices."""

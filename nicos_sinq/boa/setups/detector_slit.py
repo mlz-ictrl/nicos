@@ -31,7 +31,7 @@ devices = dict(
         right = 'dsr',
         top = 'dst',
         bottom = 'dsb',
-        lowlevel = True
+        visibility = (),
     ),
     dslit_opening = device('nicos_sinq.amor.devices.slit.SlitOpening',
         description = 'Detector Slit opening controller',

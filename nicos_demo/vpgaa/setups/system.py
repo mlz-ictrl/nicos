@@ -45,6 +45,6 @@ devices = dict(
         warnlimits = (10, None),
         minfree = 5,
         path = 'log/',
-        lowlevel = True,
+        visibility = (),
     ),
 )

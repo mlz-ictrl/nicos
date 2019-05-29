@@ -7,7 +7,7 @@ devices = dict(
         slit1 = 'slit1',
         slit2 = 'slit2',
         slit2z = 'd2z',
-        lowlevel = True
+        visibility = (),
     ),
     d1l = device('nicos.devices.generic.virtual.VirtualMotor',
         description = 'Slit 1 left motor',
@@ -47,7 +47,7 @@ devices = dict(
         description = 'test device',
         slit = 'slit1',
         distance = 'xs',
-        lowlevel=True
+        visibility = (),
     ),
     did = device('nicos.devices.generic.DeviceAlias',
         alias = 'divergence.displacement',

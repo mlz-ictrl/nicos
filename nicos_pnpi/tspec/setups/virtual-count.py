@@ -9,7 +9,7 @@ devices = dict(
 
     NsRV16115 = device('nicos.devices.generic.VirtualImage',
                        description = 'USB TOF device of RV161_15',
-                       lowlevel = True,
+                       visibility = (),
                        ),
 
     mon1 = device('nicos.devices.generic.VirtualCounter',

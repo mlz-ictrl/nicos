@@ -37,7 +37,7 @@ devices = dict(
         precision = 0.5,  # should be < 1.0
         window = 20.0,
         timeout = 1800.0,
-        lowlevel = True,
+        visibility = (),
     ),
     chopper1_freq = device('nicos_mlz.kws1.devices.chopper.ChopperFrequency',
         description = 'Frequency of the first chopper',
@@ -47,7 +47,7 @@ devices = dict(
         precision = 0.1,
         window = 20.0,
         timeout = 1800.0,
-        lowlevel = True,
+        visibility = (),
     ),
     chopper2_phase = device('nicos.devices.entangle.WindowTimeoutAO',
         description = 'Phase of the second chopper',
@@ -57,7 +57,7 @@ devices = dict(
         precision = 0.5,
         window = 20.0,
         timeout = 1800.0,
-        lowlevel = True,
+        visibility = (),
     ),
     chopper2_freq = device('nicos.devices.entangle.WindowTimeoutAO',
         description = 'Frequency of the second chopper',
@@ -67,7 +67,7 @@ devices = dict(
         precision = 0.1,
         window = 20.0,
         timeout = 1800.0,
-        lowlevel = True,
+        visibility = (),
     ),
 )
 

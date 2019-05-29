@@ -28,7 +28,7 @@ includes = ['stdsystem']
 
 devices = dict(
     x = device('nicos.devices.generic.VirtualMotor',
-        lowlevel = True,
+        visibility = (),
         fmtstr = '%.2f',
         abslimits = (0, 600),
         jitter = 0.02,
@@ -44,7 +44,7 @@ devices = dict(
         blockingmove = False,
     ),
     y = device('nicos.devices.generic.VirtualMotor',
-        lowlevel = True,
+        visibility = (),
         fmtstr = '%.2f',
         abslimits = (-50, 50),
         jitter = 0.02,

@@ -34,7 +34,7 @@ devices = dict(
         description = 'Detector rotation (motor)',
         tangodevice = '%s/3he_det/rot' % tango_base,
         fmtstr = '%.3f',
-        lowlevel = True,
+        visibility = (),
         unit = 'deg',
     ),
     det_rot_enc = device('nicos.devices.vendor.ipc.Coder',
@@ -55,7 +55,7 @@ devices = dict(
         confbyte = 0x79, # 0111 1001
         unit = 'deg',
         fmtstr = '%.3f',
-        lowlevel = True,
+        visibility = (),
     ),
     det_rot = device('nicos.devices.generic.Axis',
         description = 'Detector rotation',

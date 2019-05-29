@@ -12,7 +12,7 @@ devices = dict(
         tangodevice = tango_base + '/cam/focus',
         abslimits = (-720, 720),
         comtries = 3,
-        lowlevel = True,
+        visibility = set(),
     ),
     sry_huber    = device('nicos.devices.generic.Axis',
         description = 'sry_huber for ct',

@@ -20,7 +20,7 @@ devices = dict(
     gonio_top_z_motor = device('nicos.devices.entangle.Motor',
         description = 'Top Z axis motor dont care about the scala!',
         tangodevice = tango_base + 'sample/phy_mo2/top_z_m',
-        lowlevel = True,
+        visibility = (),
     ),
     gonio_top_phi = device('nicos.devices.entangle.Motor',
         description = 'Top Phi axis motor',

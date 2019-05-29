@@ -7,7 +7,7 @@ devices = dict(
         'nicos.devices.epics.EpicsStringReadable',
         description='The current pump status',
         readpv='{}STATUS_TEXT'.format(pv_root),
-        lowlevel=True,
+        visibility=(),
     ),
     syringe_pump_1600=device(
         'nicos_ess.devices.epics.syringe_pump.SyringePumpController',

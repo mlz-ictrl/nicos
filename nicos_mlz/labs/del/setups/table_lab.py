@@ -6,7 +6,7 @@ tango_base = 'tango://localhost:10000/del/table/'
 
 devices = dict(
     mo_x = device('nicos.devices.entangle.Motor',
-        lowlevel = True,
+        visibility = (),
         tangodevice = tango_base + 'xmot',
         unit = 'mm',
         abslimits = (0, 972),
@@ -19,7 +19,7 @@ devices = dict(
         precision = 0.01,
     ),
     mo_y = device('nicos.devices.generic.VirtualMotor',
-        lowlevel = True,
+        visibility = (),
         abslimits = (0, 264.5),
         userlimits = (0, 264.5),
         fmtstr = '%.3f',

@@ -26,7 +26,7 @@ devices = dict(
         coder = 'att_c',
         dragerror = 17,
         precision = 0.05,
-        lowlevel = True,
+        visibility = (),
         jitter = 1,
     ),
     att_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
@@ -39,7 +39,7 @@ devices = dict(
         unit = 'mm',
         refpos = 10.92,
         abslimits = (-400, 600),
-        lowlevel = True,
+        visibility = (),
         precision = 0.0025,
         autozero = None, # no auto referencing with an axis !!!
         #autozero = 80,
@@ -52,7 +52,7 @@ devices = dict(
         slope = 1000000, # resolution = nm, we want mm
         zeropos = -13.191 + 26.5861880569,
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
 
 )

@@ -16,7 +16,7 @@ tango_base = 'tango://phys.kws2.frm2:10000/kws2/'
 devices = dict(
     ep_HV_all = device('nicos_mlz.kws1.devices.gedet.MultiHV',
         ephvs = [epname + '_HV' for (epname, _) in eps],
-        lowlevel = True,
+        visibility = (),
         stepsettle = 2,
         finalsettle = 30,
     ),
@@ -58,7 +58,7 @@ for (epname, epicsid) in eps:
     devices[epname + '_T'] = device('nicos.devices.epics.EpicsReadable',
         description = epname + ' FPGA temperature',
         readpv = epicsid + ':FpgaTemperature',
-        lowlevel = True,
+        visibility = (),
         unit = 'degC',
         pollinterval = 10,
         fmtstr = '%.1f',
@@ -67,7 +67,7 @@ for (epname, epicsid) in eps:
     devices[epname + '_TB'] = device('nicos.devices.epics.EpicsReadable',
         description = epname + ' board temperature',
         readpv = epicsid + ':RsppTemperature',
-        lowlevel = True,
+        visibility = (),
         unit = 'degC',
         pollinterval = 10,
         fmtstr = '%.1f',
@@ -78,7 +78,7 @@ for (epname, epicsid) in eps:
         description = epname + ' HV setting',
         readpv = epicsid + ':HighVoltage_R',
         writepv = epicsid + ':HighVoltage_W',
-        lowlevel = True,
+        visibility = (),
         unit = 'V',
         pollinterval = 10,
         fmtstr = '%.0f',
@@ -94,7 +94,7 @@ for ti in range(1, 3):
         abslimits = (0, 54),
         userlimits = (0, 54),
         warnlimits = (53.9, 54.1),
-        lowlevel = True,
+        visibility = (),
     )
     devices['ps%d_I' % ti] = device('nicos.devices.generic.ReadonlyParamDevice',
         description = 'detector power supply current',
@@ -102,7 +102,7 @@ for ti in range(1, 3):
         parameter = 'current',
         unit = 'A',
         warnlimits = (2.8, 3.2),
-        lowlevel = True,
+        visibility = (),
     )
 
 extended = dict(

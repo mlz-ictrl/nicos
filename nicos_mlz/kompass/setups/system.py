@@ -61,7 +61,7 @@ devices = dict(
         description = 'Virtual device for handling \\alpha changes',
         abslimits = (-360, 360),
         unit = 'deg',
-        lowlevel = True,
+        visibility = (),
     ),
     ki = device('nicos.devices.tas.Wavevector',
         description = 'incoming wavevector, also sets constant-ki mode when moved',
@@ -95,7 +95,7 @@ devices = dict(
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free space on the log drive',
         path = '/control/log',
-        lowlevel = True,
+        visibility = (),
         warnlimits = (0.5, None),
     ),
 )

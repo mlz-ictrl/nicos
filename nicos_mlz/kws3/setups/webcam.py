@@ -13,6 +13,6 @@ devices = dict(
         description = 'Takes webcam image for every count',
         url = 'http://kws3:kws3@cam3.kws3.frm2/jpg/1/image.jpg',
         filenametemplate = ['pre_%(pointcounter)08d.jpg'],
-        lowlevel = False,  # explicitly
+        visibility = ('devlist', 'namespace'),
     ),
 )

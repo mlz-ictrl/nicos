@@ -12,7 +12,6 @@ devices = dict(
         # orientation = (0.53, 0.53, 0),  # mT - calibrated 08/04/2021 at KOMPASS
         orientation = (0.53, 0.53, 0),    # mT - calibrated 30/04/2021 at KOMPASS
         calibrationcurrent = 10,          # A
-        lowlevel = False,
     ),
     coil_2 = device('nicos_mlz.panda.devices.guidefield.VectorCoil',
         description = 'Powersupply for horizontal field 2 at sample',
@@ -21,7 +20,6 @@ devices = dict(
         # orientation = (0.53, -0.53, 0),  # mT - calibrated 08/04/2021 at KOMPASS
         orientation = (0.53, -0.53, 0),    # mT - calibrated 30/04/2021 at KOMPASS
         calibrationcurrent = 10,           # A
-        lowlevel = False,
     ),
     coil_3 = device('nicos_mlz.panda.devices.guidefield.VectorCoil',
         description = 'Powersupply for vertical field at sample',
@@ -30,7 +28,6 @@ devices = dict(
         # orientation = (0, 0, 2.33),   # mT - calibrated 08/04/2021 at KOMPASS
         orientation = (0, 0, 2.33),     # mT - calibrated 30/04/2021 at KOMPASS
         calibrationcurrent = 2,         # A  only 2A at KOMPASS, at PANDA was 10 A
-        lowlevel = False,
     ),
     gf = device('nicos_mlz.panda.devices.guidefield.GuideField',
         description = 'Vector field at sample location',

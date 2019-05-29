@@ -48,14 +48,14 @@ devices = dict(
                 'ComponentName': 'front-detector'},
         x = 'det_x',
         z = 'det_z',
-        lowlevel = True,
+        visibility = (),
     ),
     mantid_rot_det = device('nicos_demo.mantid.devices.devices.MantidRotationDevice',
         args = {'RelativeRotation': False,
                 'ComponentName': 'front-detector'},
         y = 1,
         angle = 'det_omega',
-        lowlevel = True,
+        visibility = (),
     ),
 )
 

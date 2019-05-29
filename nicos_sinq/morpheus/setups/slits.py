@@ -121,7 +121,7 @@ devices = dict(
         right = 'd1r',
         top = 'd1t',
         bottom = 'd1b',
-        lowlevel = True
+        visibility = (),
     ),
     slit1_opening = device('nicos_sinq.amor.devices.slit.SlitOpening',
         description = 'Slit 1 opening controller',
@@ -139,7 +139,7 @@ devices = dict(
         right = 'd2r',
         top = 'd2t',
         bottom = 'd2b',
-        lowlevel = True
+        visibility = (),
     ),
     slit2_opening = device('nicos_sinq.amor.devices.slit.SlitOpening',
         description = 'Slit 2 opening controller',
@@ -157,7 +157,7 @@ devices = dict(
         right = 'd3r',
         top = 'd3t',
         bottom = 'd3b',
-        lowlevel = True
+        visibility = (),
     ),
     slit3_opening = device('nicos_sinq.amor.devices.slit.SlitOpening',
         description = 'Slit 3 opening controller',

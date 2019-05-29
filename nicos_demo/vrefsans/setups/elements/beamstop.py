@@ -9,7 +9,7 @@ devices = dict(
         description = 'height of both beamstops',
         unit = 'V',
         att = 'User2Voltage',
-        lowlevel = True,
+        visibility = (),
     ),
     beamstop_height = device('nicos_mlz.refsans.devices.converters.LinearKorr',
         description = 'height of both beamstops',

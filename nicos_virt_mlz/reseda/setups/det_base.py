@@ -21,7 +21,7 @@ devices = dict(
     # tangodevice = '%s/frmctr/counter1' % tango_base,
     # type = 'monitor',
     # fmtstr = '%d',
-    # lowlevel = True,
+    # visibility = (),
     # ),
     # mon_hv = device('nicos.devices.entangle.PowerSupply',
     #     description = 'High voltage power supply of the monitor',

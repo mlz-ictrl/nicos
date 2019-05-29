@@ -30,7 +30,7 @@ devices = dict(
         right = 'sbr',
         top = 'sbt',
         bottom = 'sbb',
-        lowlevel = True
+        visibility = (),
     ),
     slit2_height = device('nicos_sinq.amor.devices.slit.SlitOpening',
         description = 'Slit 2 height controller',

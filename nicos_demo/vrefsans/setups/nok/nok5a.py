@@ -16,7 +16,7 @@ devices = dict(
         backlash = 0,
         precision = global_values['precision'],
         maxtries = 3,
-        lowlevel = True,
+        visibility = (),
     ),
     nok5a_s_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK5a, sample side',
@@ -29,7 +29,7 @@ devices = dict(
         backlash = 0,
         precision = global_values['precision'],
         maxtries = 3,
-        lowlevel = True,
+        visibility = (),
     ),
     nok5a = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
         # length: 1719.20 mm

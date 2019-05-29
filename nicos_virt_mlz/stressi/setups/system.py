@@ -65,7 +65,7 @@ devices = dict(
         description = 'Space on log drive',
         path = 'log',
         minfree = 0.5,
-        lowlevel = True,
+        visibility = (),
     ),
     UBahn = device('nicos_mlz.devices.mvg.MVG',
         description = 'Next subway departures',

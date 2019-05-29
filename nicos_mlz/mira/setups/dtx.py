@@ -5,12 +5,12 @@ tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
 devices = dict(
     # co_dtx = device('nicos.devices.entangle.Sensor',
-    #     lowlevel = True,
+    #     visibility = (),
     #     tangodevice = tango_base + 'detector/dtx_enc',
     #     unit = 'mm',
     # ),
     mo_dtx = device('nicos.devices.entangle.Motor',
-        lowlevel = True,
+        visibility = (),
         tangodevice = tango_base + 'detector/dtx_mot',
         unit = 'mm',
         # precision = 0.1,

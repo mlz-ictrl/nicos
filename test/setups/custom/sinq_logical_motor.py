@@ -53,7 +53,7 @@ devices = dict(
         reala2 = 'a2rot',
         left = 'd2l',
         right = 'd2r',
-        lowlevel = True
+        visibility = (),
     ),
     a2 = device('nicos_sinq.devices.logical_motor.LogicalMotor',
         description = 'Logical A2 motor',

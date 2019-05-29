@@ -8,7 +8,6 @@ devices = dict(
         port = 1,
         description = 'pressure in front of filter',
         fmtstr = '%.2F',
-        lowlevel = False,
         loglevel = 'info',
         unit = 'bar',
     ),
@@ -17,7 +16,6 @@ devices = dict(
         port = 2,
         description = 'pressure behind filter',
         fmtstr = '%.2F',
-        lowlevel = False,
         loglevel = 'info',
         unit = 'bar',
     ),
@@ -27,7 +25,6 @@ devices = dict(
         device2 = 'p_out_filter',
         op = '-',
         fmtstr = '%.2F',
-        lowlevel = False,
         loglevel = 'info',
     ),
 )

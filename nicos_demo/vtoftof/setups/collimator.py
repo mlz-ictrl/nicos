@@ -9,7 +9,7 @@ devices = dict(
             fmtstr = "%7.2f",
             abslimits = (-131.4, 0.),
             unit = 'mm',
-            lowlevel = True,
+            visibility = (),
             speed = 2,
             curvalue = -5.1,
         ),

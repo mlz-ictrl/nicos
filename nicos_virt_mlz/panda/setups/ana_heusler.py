@@ -27,7 +27,7 @@ devices = dict(
         unit = 'deg',
         abslimits = (-179, 179),
         speed = 1,
-        lowlevel = True,
+        visibility = (),
     ),
     afh_heusler = device('nicos_mlz.panda.devices.rot_axis.RotAxis',
         description = 'horizontal focus of heusler ana',
@@ -37,7 +37,7 @@ devices = dict(
         precision = 1,
         fmtstr = '%.1f',
         autoref = None,  # disable autoref since there is no refswitch
-        lowlevel = True,
+        visibility = (),
     ),
 )
 

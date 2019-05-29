@@ -10,7 +10,7 @@ devices = dict(
         maxage = 5,
         fmtstr = '0x%02x',
         pollinterval = 2,
-        lowlevel = True,
+        visibility = (),
     ),
     out_all = device('nicos.devices.entangle.DigitalOutput',
         description = 'All outputs in one device',
@@ -18,7 +18,7 @@ devices = dict(
         maxage = 5,
         fmtstr = '0x%02x',
         pollinterval = 2,
-        lowlevel = True,
+        visibility = (),
     ),
 )
 
@@ -28,12 +28,12 @@ for i in range(8):
         tangodevice = tango_base + 'in_%d' % i,
         maxage = 5,
         pollinterval = 2,
-        lowlevel = True,
+        visibility = (),
     )
     devices['out_%d' % i] = device('nicos.devices.entangle.DigitalOutput',
         description = '%d. Output' % i,
         tangodevice = tango_base + 'out_%d' % i,
         maxage = 5,
         pollinterval = 2,
-        lowlevel = True,
+        visibility = (),
     )

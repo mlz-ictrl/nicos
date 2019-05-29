@@ -270,8 +270,8 @@ class SetupChecker:
             )
         else:
             if 'lowlevel' in config:
-                self.log.warning('%s: "lowlevel" parameter is given', devname,
-                                 extra=self.find_deventry(devname, 'lowlevel'))
+                self.log_error('%s: "lowlevel" parameter is given', devname,
+                               extra=self.find_deventry(devname, 'lowlevel'))
             vis = config.get('visibility', cls.parameters['visibility'].default)
             if 'devlist' in vis and not issubclass(cls, DeviceAlias):
                 if not config.get('description') and not is_special:

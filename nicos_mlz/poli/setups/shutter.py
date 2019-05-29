@@ -6,11 +6,11 @@ tango_base = 'tango://phys.poli.frm2:10000/poli/'
 devices = dict(
     ShutterOut = device('nicos.devices.entangle.DigitalOutput',
         tangodevice = tango_base + 's7_digital/shutter',
-        lowlevel = True,
+        visibility = (),
     ),
     ShutterIn = device('nicos.devices.entangle.DigitalOutput',
         tangodevice = tango_base + 's7_digital/shutter_in',
-        lowlevel = True,
+        visibility = (),
     ),
     Shutter = device('nicos_mlz.poli.devices.shutter.Shutter',
         description = 'POLI shutter control',

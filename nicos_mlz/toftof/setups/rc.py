@@ -18,6 +18,6 @@ devices = dict(
     rc_motor = device('nicos.devices.entangle.AnalogOutput',
         description = 'Radial collimator motor',
         tangodevice = tango_base + 'rc/_rc_motor',
-        lowlevel = True,
+        visibility = (),
     ),
 )

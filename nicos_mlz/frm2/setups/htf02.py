@@ -39,7 +39,7 @@ devices = {
         tangodevice = tango_base + 'eurotherm/maxheateroutput',
         fmtstr = '%.2f',
         unit = '%',
-        lowlevel = True,
+        visibility = (),
     ),
 }
 

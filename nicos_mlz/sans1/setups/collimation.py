@@ -17,7 +17,6 @@ devices = dict(
         #lockvalue = None,     # go back to previous value
         unlockvalue = 'close',
         #keepfixed = False,    # dont fix attenuator after movement
-        lowlevel = False,
         pollinterval = 15,
         maxage = 60,
     ),
@@ -45,7 +44,7 @@ devices = dict(
             18: ['ng',  'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
             20: ['col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col', 'col'],
         },
-        lowlevel = True,
+        visibility = (),
     ),
 #    att = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
 #        description = 'Attenuator',
@@ -62,7 +61,7 @@ devices = dict(
 #        coder = 'att_c',
 #        dragerror = 17,
 #        precision = 0.05,
-#        lowlevel = True,
+#        visibility = (),
 #        jitter = 1,
 #    ),
 #    att_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
@@ -75,7 +74,7 @@ devices = dict(
 #        unit = 'mm',
 #        refpos = 10.92,
 #        abslimits = (-400, 600),
-#        lowlevel = True,
+#        visibility = (),
 #        precision = 0.0025,
 #        autozero = None, # no auto referencing with an axis !!!
 #        #autozero = 80,
@@ -88,7 +87,7 @@ devices = dict(
 #        slope = 1000000, # resolution = nm, we want mm
 #        zeropos = -13.191 + 26.5861880569,
 #        unit = 'mm',
-#        lowlevel = True,
+#        visibility = (),
 #    ),
     ng_pol = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
         description = 'Neutronguide polariser',
@@ -105,7 +104,7 @@ devices = dict(
         coder = 'ng_pol_c',
         dragerror = 17,
         precision = 0.05,
-        lowlevel = True,
+        visibility = (),
         jitter = 1,
     ),
     ng_pol_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
@@ -120,7 +119,7 @@ devices = dict(
         abslimits = (-400, 600),
         autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
-        lowlevel = True,
+        visibility = (),
     ),
     ng_pol_c = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
         description = 'Neutronguide polariser coder',
@@ -130,7 +129,7 @@ devices = dict(
         slope = 1000000, # resolution = nm, we want mm
         zeropos = -13.191 + 26.5861880569,
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
 #-------------------------------------------------------------------------------
 #    ng_pol_c_test = device('nicos.devices.entangle.Sensor',
@@ -138,7 +137,7 @@ devices = dict(
 #        # IP-adresse: 172.25.49.114
 #        tangodevice='%s/coll/3m_test/plc_encoder1'% (tangohost,),
 #        unit = 'mm',
-#        lowlevel = True,
+#        visibility = (),
 #    ),
 #-------------------------------------------------------------------------------
     col_20 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
@@ -148,7 +147,6 @@ devices = dict(
         blockingmove = False,
         pollinterval = 15,
         maxage = 60,
-        lowlevel = False,
         precision = 0.05,
     ),
     col_20_a = device('nicos.devices.generic.Axis',
@@ -157,7 +155,7 @@ devices = dict(
         coder = 'col_20_c',
         dragerror = 17,
         precision = 0.05,
-        lowlevel = True,
+        visibility = (),
         jitter = 1,
     ),
     col_20_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
@@ -172,7 +170,7 @@ devices = dict(
         abslimits = (-400, 600),
         autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
-        lowlevel = True,
+        visibility = (),
     ),
     col_20_c = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
         description = 'Collimotor 20 coder',
@@ -182,7 +180,7 @@ devices = dict(
         slope = 1000000, # resolution = nm, we want mm
         zeropos = 12.8533378965, # unspecified in docu page 9
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     col_18 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
         description = 'Collimotor 18',
@@ -191,7 +189,7 @@ devices = dict(
         blockingmove = False,
         pollinterval = 15,
         maxage = 60,
-        lowlevel = True,
+        visibility = (),
         precision = 0.05,
     ),
     col_18_a = device('nicos.devices.generic.Axis',
@@ -200,7 +198,7 @@ devices = dict(
         coder = 'col_18_c',
         dragerror = 17,
         precision = 0.05,
-        lowlevel = True,
+        visibility = (),
         jitter = 1,
     ),
     col_18_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
@@ -215,7 +213,7 @@ devices = dict(
         abslimits = (-400, 600),
         autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
-        lowlevel = True,
+        visibility = (),
     ),
     col_18_c = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
         description = 'Collimotor 18 coder',
@@ -225,7 +223,7 @@ devices = dict(
         slope = 1000000, # resolution = nm, we want mm
         zeropos = 13.899101438, # unspecified in docu page 10
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     col_16 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
         description = 'Collimotor 16',
@@ -234,7 +232,7 @@ devices = dict(
         blockingmove = False,
         pollinterval = 1,
         maxage = 60,
-        lowlevel = True,
+        visibility = (),
         precision = 0.05,
     ),
     col_16_a = device('nicos.devices.generic.Axis',
@@ -243,7 +241,7 @@ devices = dict(
         coder = 'col_16_c',
         dragerror = 17,
         precision = 0.05,
-        lowlevel = True,
+        visibility = (),
         jitter = 1,
     ),
     col_16_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
@@ -258,7 +256,7 @@ devices = dict(
         abslimits = (-400, 600),
         autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
-        lowlevel = True,
+        visibility = (),
     ),
     col_16_c = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
         description = 'Collimotor 16 coder',
@@ -268,7 +266,7 @@ devices = dict(
         slope = 1000000, # resolution = nm, we want mm
         zeropos = 17.8761710467, # unspecified in docu page 12
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     bg1 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSlit',
         description = 'Background slit1',
@@ -289,7 +287,7 @@ devices = dict(
         unit = 'deg',
         refpos = -28.85,
         abslimits = (-40, 300),
-        lowlevel = True,
+        visibility = (),
         precision = 0.05,
         autozero = 400,
     ),
@@ -300,7 +298,7 @@ devices = dict(
         blockingmove = False,
         pollinterval = 15,
         maxage = 60,
-        lowlevel = True,
+        visibility = (),
         precision = 0.05,
     ),
     col_14_a = device('nicos.devices.generic.Axis',
@@ -309,7 +307,7 @@ devices = dict(
         coder = 'col_14_c',
         dragerror = 17,
         precision = 0.05,
-        lowlevel = True,
+        visibility = (),
         jitter = 1,
     ),
     col_14_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
@@ -324,7 +322,7 @@ devices = dict(
         abslimits = (-400, 600),
         autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
-        lowlevel = True,
+        visibility = (),
     ),
     col_14_c = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
         description = 'Collimotor 14 coder',
@@ -334,7 +332,7 @@ devices = dict(
         slope = 1000000, # resolution = nm, we want mm
         zeropos = 17.2842048903, # unspecified in docu page 13
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     col_12 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
         description = 'Collimotor 12',
@@ -343,7 +341,7 @@ devices = dict(
         blockingmove = False,
         pollinterval = 15,
         maxage = 60,
-        lowlevel = True,
+        visibility = (),
         precision = 0.05,
     ),
     col_12_a = device('nicos.devices.generic.Axis',
@@ -352,7 +350,7 @@ devices = dict(
         coder = 'col_12_c',
         dragerror = 17,
         precision = 0.05,
-        lowlevel = True,
+        visibility = (),
         jitter = 1,
     ),
     col_12_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
@@ -367,7 +365,7 @@ devices = dict(
         abslimits = (-400, 600),
         autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
-        lowlevel = True,
+        visibility = (),
     ),
     col_12_c = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
         description = 'Collimotor 12 coder',
@@ -377,7 +375,7 @@ devices = dict(
         slope = 1000000, # resolution = nm, we want mm
         zeropos = 17.1303596823, # unspecified in docu page 14
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     col_10 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
         description = 'Collimotor 10',
@@ -386,7 +384,7 @@ devices = dict(
         blockingmove = False,
         pollinterval = 15,
         maxage = 60,
-        lowlevel = True,
+        visibility = (),
         precision = 0.05,
     ),
     col_10_a = device('nicos.devices.generic.Axis',
@@ -395,7 +393,7 @@ devices = dict(
         coder = 'col_10_c',
         dragerror = 17,
         precision = 0.05,
-        lowlevel = True,
+        visibility = (),
         jitter = 1,
     ),
     col_10_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
@@ -410,7 +408,7 @@ devices = dict(
         abslimits = (-400, 600),
         autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
-        lowlevel = True,
+        visibility = (),
     ),
     col_10_c = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
         description = 'Collimotor 10 coder',
@@ -420,7 +418,7 @@ devices = dict(
         slope = 1000000, # resolution = nm, we want mm
         zeropos = 17.2115868978, # unspecified in docu page 15
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     col_8 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
         description = 'Collimotor 8',
@@ -429,7 +427,7 @@ devices = dict(
         blockingmove = False,
         pollinterval = 15,
         maxage = 60,
-        lowlevel = True,
+        visibility = (),
         precision = 0.05,
     ),
     col_8_a = device('nicos.devices.generic.Axis',
@@ -438,7 +436,7 @@ devices = dict(
         coder = 'col_8_c',
         dragerror = 17,
         precision = 0.05,
-        lowlevel = True,
+        visibility = (),
         jitter = 1,
     ),
     col_8_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
@@ -453,7 +451,7 @@ devices = dict(
         abslimits = (-400, 600),
         autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
-        lowlevel = True,
+        visibility = (),
     ),
     col_8_c = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
         description = 'Collimotor 8 coder',
@@ -463,7 +461,7 @@ devices = dict(
         slope = 1000000, # resolution = nm, we want mm
         zeropos = 17.0752135418, # unspecified in docu page 17
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     col_6 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
         description = 'Collimotor 6',
@@ -472,7 +470,7 @@ devices = dict(
         blockingmove = False,
         pollinterval = 15,
         maxage = 60,
-        lowlevel = True,
+        visibility = (),
         precision = 0.05,
     ),
     col_6_a = device('nicos.devices.generic.Axis',
@@ -481,7 +479,7 @@ devices = dict(
         coder = 'col_6_c',
         dragerror = 17,
         precision = 0.05,
-        lowlevel = True,
+        visibility = (),
         jitter = 1,
     ),
     col_6_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
@@ -496,7 +494,7 @@ devices = dict(
         abslimits = (-400, 600),
         autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
-        lowlevel = True,
+        visibility = (),
     ),
     col_6_c = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
         description = 'Collimotor 6 coder',
@@ -506,7 +504,7 @@ devices = dict(
         slope = 1000000, # resolution = nm, we want mm
         zeropos = 15.859918895, # unspecified in docu page 18
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     bg2 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSlit',
         description = 'Background slit2',
@@ -527,7 +525,7 @@ devices = dict(
         unit = 'deg',
         refpos = -1.5,
         abslimits = (-40, 300),
-        lowlevel = True,
+        visibility = (),
         precision = 0.05,
         autozero = 400,
     ),
@@ -538,7 +536,7 @@ devices = dict(
         blockingmove = False,
         pollinterval = 15,
         maxage = 60,
-        lowlevel = True,
+        visibility = (),
         precision = 0.05,
     ),
     col_4_a = device('nicos.devices.generic.Axis',
@@ -547,7 +545,7 @@ devices = dict(
         coder = 'col_4_c',
         dragerror = 17,
         precision = 0.05,
-        lowlevel = True,
+        visibility = (),
         jitter = 1,
     ),
     col_4_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
@@ -562,7 +560,7 @@ devices = dict(
         abslimits = (-400, 600),
         autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
-        lowlevel = True,
+        visibility = (),
     ),
     col_4_c = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
         description = 'Collimotor 4 coder',
@@ -572,7 +570,7 @@ devices = dict(
         slope = 1000000, # resolution = nm, we want mm
         zeropos = 17.5324112754, # unspecified in docu page 20
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     col_3 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
         description = 'Collimotor 3',
@@ -581,7 +579,7 @@ devices = dict(
         blockingmove = False,
         pollinterval = 15,
         maxage = 60,
-        lowlevel = True,
+        visibility = (),
         precision = 0.05,
     ),
     col_3_a = device('nicos.devices.generic.Axis',
@@ -590,7 +588,7 @@ devices = dict(
         # coder = 'col_3_m',
         dragerror = 17,
         precision = 0.05,
-        lowlevel = True,
+        visibility = (),
         jitter = 1,
     ),
     col_3_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
@@ -605,7 +603,7 @@ devices = dict(
         abslimits = (-400, 600),
         autozero = 100, # auto referencing with an axis !!!
         precision = 0.0025,
-        lowlevel = True,
+        visibility = (),
     ),
 #    col_3_c = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
 #        description = 'Collimotor 3 coder',
@@ -615,7 +613,7 @@ devices = dict(
 #        slope = 1000000, # resolution = nm, we want mm
 #        zeropos = 18.6575767247, # unspecified in docu page 19
 #        unit = 'mm',
-#        lowlevel = True,
+#        visibility = (),
 #    ),
 
     col_2 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
@@ -625,7 +623,7 @@ devices = dict(
         blockingmove = False,
         pollinterval = 15,
         maxage = 60,
-        lowlevel = True,
+        visibility = (),
         precision = 0.05,
     ),
     col_2_a = device('nicos.devices.generic.Axis',
@@ -634,7 +632,7 @@ devices = dict(
         coder = 'col_2_c',
         dragerror = 17,
         precision = 0.05,
-        lowlevel = True,
+        visibility = (),
         jitter = 1,
     ),
     col_2_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
@@ -650,7 +648,7 @@ devices = dict(
         autopower = 'on',
         autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
-        lowlevel = True,
+        visibility = (),
     ),
     col_2_c = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
         description = 'Collimotor 2 coder',
@@ -660,7 +658,7 @@ devices = dict(
         slope = 1000000, # resolution = nm, we want mm
         zeropos = 17.7929853926, # unspecified in docu page 22
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     sa1 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
         description = 'attenuation slits',
@@ -680,7 +678,7 @@ devices = dict(
         unit = 'mm',
         refpos = -34.7,
         abslimits = (-40, 300),
-        lowlevel = True,
+        visibility = (),
         autozero = 400,
     ),
 )

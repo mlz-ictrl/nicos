@@ -10,12 +10,12 @@ devices = dict(
         byteorder = configdata('config.HISTOGRAM_MEMORY_ENDIANESS'),
         baseurl = configdata('config.LOWERHM_MEMORY_URL'),
         base64auth = 'c3B5OjAwNw==',
-        lowlevel = True
+        visibility = ()
     ),
     lower_hm_b0_ax_x = device('nicos_sinq.devices.sinqhm.configurator'
         '.HistogramConfAxis',
         description = 'Detector ID',
-        lowlevel = True,
+        visibility = (),
         length = 116,
         mapping = 'direct',
         label = 'Detector-ID',
@@ -24,7 +24,7 @@ devices = dict(
     hm_lower = device('nicos_sinq.devices.sinqhm.configurator'
         '.HistogramConfBank',
         description = 'FOCUS lower bank',
-        lowlevel = True,
+        visibility = (),
         bankid = 0,
         axes = ['lower_hm_b0_ax_x', 'hm_ax_tof']
     ),

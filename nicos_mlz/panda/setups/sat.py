@@ -10,11 +10,11 @@ tango_base = 'tango://phys.panda.frm2:10000/panda/'
 devices = dict(
     sat_in = device('nicos.devices.entangle.DigitalInput',
         tangodevice = tango_base + 'sat/input',
-        lowlevel = True,
+        visibility = (),
     ),
     sat_out = device('nicos.devices.entangle.DigitalOutput',
         tangodevice = tango_base + 'sat/output',
-        lowlevel = True,
+        visibility = (),
     ),
     sat = device('nicos_mlz.panda.devices.satbox.SatBox',
         description = 'Sample beam attenuator',

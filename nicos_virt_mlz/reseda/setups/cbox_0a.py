@@ -66,14 +66,14 @@ devices = {
             unit = 'Hz',
             power_divider = device('nicos.devices.generic.ManualSwitch',
                 description = 'Power divider to split the power for both coils',
-                lowlevel = False,  # temporary due to inaccurate auto tune
+                # visibility = (),  # temporary due to inaccurate auto tune
                 states = [0, 1],
                 unit = '',
                 fmtstr = '%d',
             ),
             highpass = device('nicos.devices.generic.ManualSwitch',
                 description = 'Highpass filter to smooth the signal',
-                lowlevel = False,  # temporary due to inaccurate auto tune
+                # visibility = (),  # temporary due to inaccurate auto tune
                 states = [0, 1],
                 unit = '',
                 fmtstr = '%d',
@@ -84,77 +84,77 @@ devices = {
             # coil_amp = '%s_coil_rms' % setupname,
             diplexer = device('nicos.devices.generic.ManualSwitch',
                 description = 'Lowpass filter to smooth the signal (enable for low frequency, disable for high frequency)',
-                lowlevel = False,  # temporary due to inaccurate auto tune
+                # visibility = (),  # temporary due to inaccurate auto tune
                 states = [0, 1],
                 unit = '',
                 fmtstr = '%d',
             ),
             coil1_c1 = device('nicos.devices.generic.ManualSwitch',
                 description = 'Coil 1: Capacitor bank 1',
-                lowlevel = False,  # temporary due to inaccurate auto tune
+                # visibility = (),  # temporary due to inaccurate auto tune
                 states = [0, 1],
                 unit = '',
                 fmtstr = '%d',
             ),
             coil1_c2 = device('nicos.devices.generic.ManualSwitch',
                 description = 'Coil 1: Capacitor bank 2',
-                lowlevel = False,  # temporary due to inaccurate auto tune
+                # visibility = (),  # temporary due to inaccurate auto tune
                 states = [0, 1],
                 unit = '',
                 fmtstr = '%.0f',
             ),
             coil1_c3 = device('nicos.devices.generic.ManualSwitch',
                 description = 'Coil 1: Capacitor bank 3',
-                lowlevel = False,  # temporary due to inaccurate auto tune
+                # visibility = (),  # temporary due to inaccurate auto tune
                 states = [0, 1],
                 unit = '',
                 fmtstr = '%d',
             ),
             coil1_c1c2serial = device('nicos.devices.generic.ManualSwitch',
                 description = 'Coil 1: Use c1 and c2 in serial instead of parallel',
-                lowlevel = False,  # temporary due to inaccurate auto tune
+                # visibility = (),  # temporary due to inaccurate auto tune
                 states = [0, 1],
                 unit = '',
                 fmtstr = '%.0f',
             ),
             coil1_transformer = device('nicos.devices.generic.ManualSwitch',
                 description = 'Coil 1: Used to manipulate the coil resistance to match the power amplifier resistance',
-                lowlevel = False,  # temporary due to inaccurate auto tune
+                # visibility = (),  # temporary due to inaccurate auto tune
                 states = [0, 1],
                 unit = '',
                 fmtstr = '%.0f',
             ),
             coil2_c1 = device('nicos.devices.generic.ManualSwitch',
                 description = 'Coil 2: Capacitor bank 1',
-                lowlevel = False,  # temporary due to inaccurate auto tune
+                # visibility = (),  # temporary due to inaccurate auto tune
                 states = [0, 1],
                 unit = '',
                 fmtstr = '%.0f',
             ),
             coil2_c2 = device('nicos.devices.generic.ManualSwitch',
                 description = 'Coil 2: Capacitor bank 2',
-                lowlevel = False,  # temporary due to inaccurate auto tune
+                # visibility = (),  # temporary due to inaccurate auto tune
                 states = [0, 1],
                 unit = '',
                 fmtstr = '%.0f',
             ),
             coil2_c3 = device('nicos.devices.generic.ManualSwitch',
                 description = 'Coil 2: Capacitor bank 3',
-                lowlevel = False,  # temporary due to inaccurate auto tune
+                # visibility = (),  # temporary due to inaccurate auto tune
                 states = [0, 1],
                 unit = '',
                 fmtstr = '%.0f',
             ),
             coil2_c1c2serial = device('nicos.devices.generic.ManualSwitch',
                 description = 'Coil 2: Use c1 and c2 in serial instead of parallel',
-                lowlevel = False,  # temporary due to inaccurate auto tune
+                # visibility = (),  # temporary due to inaccurate auto tune
                 states = [0, 1],
                 unit = '',
                 fmtstr = '%.0f',
             ),
             coil2_transformer = device('nicos.devices.generic.ManualSwitch',
                 description = 'Coil 2: Used to manipulate the coil resistance to match the power amplifier resistance',
-                lowlevel = False,  # temporary due to inaccurate auto tune
+                # visibility = (),  # temporary due to inaccurate auto tune
                 states = [0, 1],
                 unit = '',
                 fmtstr = '%.0f',

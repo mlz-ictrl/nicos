@@ -74,7 +74,7 @@ devices = dict(
         description = 'Space on log drive',
         path = '/spodicontrol/log',
         minfree = 0.5,
-        lowlevel = True,
+        visibility = (),
     ),
 )
 

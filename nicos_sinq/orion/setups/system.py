@@ -49,9 +49,8 @@ devices = dict(
         path = None,
         minfree = 5,
     ),
-    conssink = device('nicos.devices.datasinks.ConsoleScanSink', lowlevel = True
-    ),
-    dmnsink = device('nicos.devices.datasinks.DaemonSink', lowlevel = True),
+    conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
+    dmnsink = device('nicos.devices.datasinks.DaemonSink'),
     livesink = device('nicos.devices.datasinks.LiveViewSink',
         description = 'Sink for forwarding live data to the GUI',
     ),
@@ -63,7 +62,6 @@ devices = dict(
         description = 'Sink for writing SINQ ASCII files',
         filenametemplate = ['orion%(year)sn%(scancounter)06d.dat'],
         templatefile = 'nicos_sinq/orion/orion.hdd',
-        lowlevel = True,
         scaninfo = [
             ('COUNTS', 'counts'), ('MONITOR1', 'monitor1'),
             ('TIME', 'elapsedtime')
@@ -73,7 +71,6 @@ devices = dict(
         description = 'Sink for writing SINQ ASCII files',
         filenametemplate = ['orion%(year)sn%(scancounter)06d.ccl'],
         templatefile = 'nicos_sinq/orion/mess.hdd',
-        lowlevel = True,
         detector = 'counts',
         scaninfo = [
             ('COUNTS', 'counts'), ('MONITOR1', 'monitor1'),

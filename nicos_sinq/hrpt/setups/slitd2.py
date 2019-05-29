@@ -35,7 +35,7 @@ devices = dict(
                  right='brri',
                  top='brto',
                  bottom='brbo',
-                 lowlevel=True
+                 visibility=(),
                  ),
     slit2_opening=device('nicos_sinq.amor.devices.slit.SlitOpening',
                          description='Slit 2 opening controller',

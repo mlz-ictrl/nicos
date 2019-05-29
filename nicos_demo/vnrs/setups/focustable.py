@@ -10,7 +10,7 @@ devices = dict(
         speed = 1,
         unit = 'mm',
         fmtstr = '%.2f',
-        lowlevel = True,
+        visibility = (),
         abslimits = (0, 300),
     ),
     focus = device('nicos.devices.generic.Axis',

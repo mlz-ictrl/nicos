@@ -5,7 +5,7 @@ group = 'optional'
 devices = dict(
     trigger_hw = device('nicos.devices.generic.ManualSwitch',
         states = [0, 1],
-        lowlevel = True,
+        visibility = (),
     ),
     fastshutter = device('nicos.devices.generic.ManualSwitch',
         description = 'Fast shutter device',
@@ -17,7 +17,7 @@ devices = dict(
         offvalue = 0,
         ontime = 0.1,
         moveable = 'trigger_hw',
-        lowlevel = True,
+        visibility = (),
     ),
     timer_ill = device('nicos_mlz.antares.devices.TriggerTimer',
         description = 'Software timer',

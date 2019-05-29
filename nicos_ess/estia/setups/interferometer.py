@@ -5,7 +5,7 @@ ip_address = '192.168.1.1'
 devices = dict(
     # ids_server = device(#     'nicos_ess.estia.devices.attocube.IDS3010Server',
     #     ip = ip_address,
-    #     lowlevel = True
+    #     visibility = (),
     # ),
     # ih1 = device(#     'nicos_ess.estia.devices.attocube.IDS3010Axis',
     #     axis = 1,
@@ -46,22 +46,22 @@ devices = dict(
             'read': 'ESTIA-ETALON-001:RedPilotLaser-S',
             'write': 'ESTIA-ETALON-001:RedPilotLaser-S'
         },
-        lowlevel = True
+        visibility = (),
     ),
     env_humidity = device('nicos.devices.epics.EpicsReadable',
         description = 'Environmental humidity',
         readpv = 'ESTIA-ETALON-001:EnvDataHum-R',
-        lowlevel = True
+        visibility = (),
     ),
     env_pressure = device('nicos.devices.epics.EpicsReadable',
         description = 'Environmental pressure',
         readpv = 'ESTIA-ETALON-001:EnvDataPress-R',
-        lowlevel = True
+        visibility = (),
     ),
     env_temperature = device('nicos.devices.epics.EpicsReadable',
         description = 'Environmental temperature',
         readpv = 'ESTIA-ETALON-001:EnvDataTemp-R',
-        lowlevel = True
+        visibility = (),
     ),
     temp_1 = device('nicos.devices.epics.EpicsReadable',
         description = 'First temperature sensor',

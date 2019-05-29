@@ -2,7 +2,7 @@ description = 'Chopper phase timing, readout for light barrier and coder index'
 
 group = 'lowlevel'
 
-all_lowlevel = False  # or True
+all_lowlevel = {'metadata', 'devlist', 'namespace'}  # & set()
 
 instrument_values = configdata('instrument.values')
 
@@ -23,7 +23,7 @@ devices = dict(
         channel = 6,
         offset = 47.514,  # 2020-07-06 10:18:29 56.404,
         unit = 'deg',
-        lowlevel = all_lowlevel,
+        visibility = all_lowlevel,
     ),
     cpt1 = device(code_base,
         description = 'Disc 1 speed ' + description,
@@ -87,7 +87,7 @@ devices = dict(
         channel = 0,
         offset = -6.490,
         unit = 'deg',
-        lowlevel = all_lowlevel,
+        visibility = all_lowlevel,
     ),
     cptoptic2 = device(code_base,
         description = 'Disc 2 optic ' + description,
@@ -97,7 +97,7 @@ devices = dict(
         channel = 1,
         offset = -132.535,  # 2020-07-06 10:26:03 -132.5,
         unit = 'deg',
-        lowlevel = all_lowlevel,
+        visibility = all_lowlevel,
     ),
     cptoptic3 = device(code_base,
         description = 'Disc 3 optic ' + description,
@@ -107,7 +107,7 @@ devices = dict(
         channel = 2,
         offset = -62.479,  # 2020-07-06 10:26:53 -62.5,
         unit = 'deg',
-        lowlevel = all_lowlevel,
+        visibility = all_lowlevel,
     ),
     cptoptic4 = device(code_base,
         description = 'Disc 4 optic ' + description,
@@ -117,6 +117,6 @@ devices = dict(
         channel = 3,
         offset = -183.981,  # 2020-07-06 10:27:32 -184.0,
         unit = 'deg',
-        lowlevel = all_lowlevel,
+        visibility = all_lowlevel,
     ),
 )

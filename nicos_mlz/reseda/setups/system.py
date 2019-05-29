@@ -53,7 +53,7 @@ devices = dict(
         description = 'Space on log drive',
         path = '/resedacontrol/log',
         minfree = 1.5,
-        lowlevel = True,
+        visibility = (),
     ),
     LiveImgSink = device('nicos.devices.datasinks.PNGLiveFileSink',
         description = 'Saves live image as .png every now and then',

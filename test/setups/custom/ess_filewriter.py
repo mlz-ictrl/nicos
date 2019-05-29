@@ -71,11 +71,11 @@ devices = dict(
     ),
     timer=device(
         'nicos.devices.generic.VirtualTimer',
-        lowlevel=True,
+        visibility=(),
     ),
     ctr1=device(
         'nicos.devices.generic.VirtualCounter',
-        lowlevel=True,
+        visibility=(),
         type='counter',
         countrate=2000.,
         fmtstr='%d',

@@ -8,7 +8,7 @@ devices = dict(
     collimator_io = device('nicos.devices.generic.ManualSwitch',
         description = 'Tango device for Collimator',
         states = [1, 2, 3, 4, 5, 6, 7],
-        lowlevel = True,
+        visibility = (),
     ),
     L = device('nicos.devices.generic.ManualMove',
         description = 'Distance ... ',

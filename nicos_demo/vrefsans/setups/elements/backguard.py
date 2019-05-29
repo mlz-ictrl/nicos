@@ -19,7 +19,7 @@ devices = dict(
         ),
         precision = 0.01,
         # abslimits = (-60, 60),
-        lowlevel = True,
+        visibility = (),
     ),
     backguard_2 = device('nicos.devices.generic.Axis',
         description = 'Backguard axis TOFTOF. Use this to adjust TOFTOF-side',
@@ -30,6 +30,6 @@ devices = dict(
         ),
         precision = 0.01,
         # abslimits = (-60, 60),
-        lowlevel = True,
+        visibility = (),
     ),
 )

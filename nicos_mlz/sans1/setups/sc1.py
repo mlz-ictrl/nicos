@@ -22,13 +22,13 @@ devices = dict(
         tangodevice = tango_host + 'y_mot',
         fmtstr = '%.2f',
         abslimits = (-0, 600),
-        lowlevel = True,
+        visibility = (),
     ),
     sc1_yenc = device('nicos.devices.entangle.Sensor',
         description = 'Sample Changer 1 Axis encoder',
         tangodevice = tango_host + 'y_enc',
         fmtstr = '%.2f',
-        lowlevel = True,
+        visibility = (),
     ),
     sc1 = device('nicos.devices.generic.MultiSwitcher',
         description = 'Sample Changer 1 Huber device',
@@ -62,7 +62,6 @@ devices = dict(
         precision = [0.05, 0.05],
         # precision = [0.05, 0.05, 100], # for use without nicos
         blockingmove = False,
-        lowlevel = False,
     ),
 )
 

@@ -10,7 +10,7 @@ devices = dict(
         tangodevice = tango_base + 'focus/motor',
         unit = 'mm',
         fmtstr = '%.2f',
-        lowlevel = True,
+        visibility = (),
     ),
     focus = device('nicos.devices.generic.Axis',
         description = 'Camera focus (translation)',

@@ -39,7 +39,7 @@ devices = dict(
         description = 'The amount of free space for storing data',
         path = None,
         minfree = 5,
-        lowlevel = True,
+        visibility = (),
     ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     dmnsink = device('nicos.devices.datasinks.DaemonSink'),

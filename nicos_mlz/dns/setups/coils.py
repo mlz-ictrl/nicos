@@ -60,7 +60,7 @@ devices = dict(
         device = 'flipper',
         parameter = 'currents',
         unit = 'A',
-        lowlevel = True,
+        visibility = (),
     ),
 
     Fi = device('nicos.devices.entangle.PowerSupply',

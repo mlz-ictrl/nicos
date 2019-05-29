@@ -21,7 +21,7 @@ segread = [
     'rbol_unlock', 'mot_error', 'seq_error', 'bol_error'
 ]
 
-hide = True
+hide = ()
 
 devices = dict()
 
@@ -29,7 +29,7 @@ for col, colpv in segments.items():
     for name, itempv in segwrite.items():
         devices[col + '_io' + name] = device('nicos_sinq.sans.devices.collimator.SegmentMoveable',
             description = '%s %s switch device' % (col, name),
-            lowlevel = hide,
+            visibility = hide,
             writepv = pvprefix + colpv + itempv,
             readpv = pvprefix + colpv + itempv + '_RBV',
             )
@@ -38,13 +38,13 @@ for col, colpv in segments.items():
             moveable = col + '_io' + name,
             onvalue = 1,
             offvalue = 0,
-            lowlevel = hide,
+            visibility = hide,
             ontime = 1.5
         )
     for name in segread:
         devices[col + '_' + name] = device('nicos.devices.epics.EpicsReadable',
             description = '%s %s readout' % (col, name),
-            lowlevel = hide,
+            visibility = hide,
             readpv = pvprefix + colpv + ':' + name.upper() + '_RBV',
             )
     devices[col] = device('nicos_sinq.sans.devices.collimator.Segment',

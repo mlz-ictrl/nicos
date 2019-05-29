@@ -11,7 +11,7 @@ devices = dict(
         curvalue=1,
         unit='mm',
         speed=5.,
-        lowlevel=True,
+        visibility=(),
     ),
     sc_a_sample=device('nicos.devices.generic.Switcher',
         description='The current sample',

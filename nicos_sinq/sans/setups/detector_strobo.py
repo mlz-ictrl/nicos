@@ -96,7 +96,7 @@ devices = dict(
     ),
     sans_detector = device('nicos_sinq.sans.devices.sanschannel.StroboHistogramImageChannel',
         description = "Image channel for area detector",
-        lowlevel = True,
+        visibility = (),
         bank = 'hm_bank0',
         dimensions = {
             'x': 128,

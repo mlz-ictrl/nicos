@@ -7,11 +7,10 @@ includes = ['sample_changer']
 devices = dict(
     ccmsanssc_switch = device('nicos.devices.generic.ManualSwitch',
         description = 'position switch for pressure valve',
-        lowlevel = False,
         states = ('free', 'closed'),
     ),
     ccmsanssc_motor = device('nicos.devices.generic.VirtualMotor',
-        lowlevel = True,
+        visibility = (),
         abslimits = (0, 600),
         unit = 'mm',
     ),

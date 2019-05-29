@@ -11,7 +11,7 @@ devices = dict(
         curvalue=-5.1,
         unit='mm',
         speed=5.,
-        lowlevel=True,
+        visibility=(),
     ),
     coll_1_pos=device('nicos.devices.generic.Switcher',
         description='The collimator',

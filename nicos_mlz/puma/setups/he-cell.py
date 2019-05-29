@@ -11,7 +11,7 @@ devices = dict(
         addr = 111,
         first = 15,
         last = 15,
-        lowlevel = True,
+        visibility = (),
         unit = ''
     ),
     he_cell_bottom = device('nicos.devices.vendor.ipc.Input',
@@ -20,7 +20,7 @@ devices = dict(
         addr = 111,
         first = 14,
         last = 14,
-        lowlevel = True,
+        visibility = (),
         unit = ''
     ),
     he_cell_sw = device('nicos.devices.vendor.ipc.Output',
@@ -29,7 +29,7 @@ devices = dict(
         addr = 103,
         first = 5,
         last = 5,
-        lowlevel = True,
+        visibility = (),
         unit = ''
     ),
     he_cell_lift = device('nicos_mlz.puma.devices.hecell.HeCellLifter',

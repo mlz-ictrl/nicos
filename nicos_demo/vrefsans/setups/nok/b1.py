@@ -25,7 +25,7 @@ devices = dict(
         nok_end = 2387.5,
         nok_gap = 0,
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     b1s = device('nicos_mlz.refsans.devices.slits.SingleSlit',
         # length: 13.5 mm
@@ -40,7 +40,7 @@ devices = dict(
         nok_end = 2387.5,
         nok_gap = 0,
         unit = 'mm',
-        lowlevel = True,
+        visibility = (),
     ),
     b1_r = device('nicos.devices.generic.Axis',
         description = 'B1, reactorside',
@@ -52,7 +52,7 @@ devices = dict(
         offset = 0.0,
         precision = lprecision,
         maxtries = 3,
-        lowlevel = True,
+        visibility = (),
     ),
     b1_s = device('nicos.devices.generic.Axis',
         description = 'B1, sampleside',
@@ -64,7 +64,7 @@ devices = dict(
         offset = 0.0,
         precision = lprecision,
         maxtries = 3,
-        lowlevel = True,
+        visibility = (),
     ),
 )
 

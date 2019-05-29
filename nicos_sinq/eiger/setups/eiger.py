@@ -68,7 +68,7 @@ devices = dict(
         right = 'msr',
         top = 'mst',
         bottom = 'msb',
-        lowlevel = True
+        visibility = (),
     ),
     sslit_opening = device('nicos_sinq.amor.devices.slit.SlitOpening',
         description = 'Sample slit opening controller',
@@ -108,7 +108,7 @@ devices = dict(
         motorpv = mcu4prefix + 'a6',
         errormsgpv = mcu4prefix + 'a6-MsgTxt',
         precision = 0.02,
-        lowlevel = True,
+        visibility = (),
     ),
     a6 = device('nicos_sinq.eiger.devices.a6motor.A6Motor',
         description = 'Analyser two theta',

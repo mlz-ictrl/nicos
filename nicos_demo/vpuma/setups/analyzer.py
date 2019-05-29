@@ -20,7 +20,7 @@ devices = dict(
         unit = 'deg',
         abslimits = (-117, 117),
         speed = 0.5,
-        lowlevel = True,
+        visibility = (),
     ),
     att = device('nicos.devices.generic.Axis',
         description = 'Scattering angle two-theta of analyser',

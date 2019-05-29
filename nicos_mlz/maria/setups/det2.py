@@ -14,7 +14,7 @@ devices = dict(
         tangodevice = tango_base + "fastcomtec/detector2",
         fmtstr = "%d cts",
         unit = "",
-        lowlevel = True,
+        visibility = (),
     ),
     det2 = device("nicos_mlz.maria.devices.detector.MariaDetector",
         description = "Second Denex detector",

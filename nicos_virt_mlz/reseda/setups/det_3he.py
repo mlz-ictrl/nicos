@@ -34,7 +34,7 @@ devices = dict(
         description = 'Detector rotation (motor)',
         abslimits = (-20, 20),
         fmtstr = '%.3f',
-        lowlevel = True,
+        visibility = (),
         unit = 'deg',
     ),
     det_rot = device('nicos.devices.generic.Axis',

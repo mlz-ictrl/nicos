@@ -31,7 +31,7 @@ devices = dict(
         userlimits = (-4, 360),
         unit = 'deg',
         speed = 20,
-        lowlevel = True,
+        visibility = (),
     ),
     mfv_heusler = device('nicos_mlz.panda.devices.rot_axis.RefAxis',
         description = 'vertical focus of Heusler monochromator',
@@ -39,7 +39,7 @@ devices = dict(
         precision = 0.1,
         backlash = 0,
         refpos = -44,
-        lowlevel = True,
+        visibility = (),
         autoref = -10,
     ),
 
@@ -63,7 +63,7 @@ devices = dict(
         unit = 'deg',
         abslimits = (-179, 179),
         speed = 1,
-        lowlevel = True,
+        visibility = (),
     ),
     afh_heusler = device('nicos_mlz.panda.devices.rot_axis.RotAxis',
         description = 'horizontal focus of heusler ana',
@@ -73,7 +73,7 @@ devices = dict(
         precision = 1,
         fmtstr = '%.1f',
         autoref = None,  # disable autoref since there is no refswitch
-        lowlevel = True,
+        visibility = (),
     ),
 )
 

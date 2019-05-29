@@ -11,7 +11,7 @@ devices = dict(
     collimator_io = device('nicos.devices.entangle.DigitalOutput',
         description = 'Tango device for Collimator',
         tangodevice = tango_base + 'fzjdp_digital/Collimator',
-        lowlevel = True,
+        visibility = (),
     ),
     L = device('nicos.devices.generic.ManualMove',
         description = 'Distance of detector from the pinhole',

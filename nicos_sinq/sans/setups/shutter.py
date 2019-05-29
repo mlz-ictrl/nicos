@@ -12,7 +12,6 @@ devices = dict(
             'open': False,
             'closed': True
         },
-        lowlevel = False
     ),
     sps1 = device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
         description = 'Controller of the SPS-S5',

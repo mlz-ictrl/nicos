@@ -28,7 +28,7 @@ devices = dict(
     ),
     StandardSample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',
-        lowlevel = True,
+        visibility = (),
     ),
     Sample = device('nicos_virt_mlz.treff.devices.MirrorSample',
         description = 'The currently used mirror sample',

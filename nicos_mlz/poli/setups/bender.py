@@ -12,7 +12,7 @@ devices = dict(
         fmtstr = '%.2f',
         abslimits = (-180, 180),
         precision = 0.2,
-        lowlevel = False,
+        # visibility = ('metadata', 'devices', 'namespace'),
     ),
     bender_trans = device('nicos.devices.entangle.Motor',
         description = 'SM polarizer translation',
@@ -20,6 +20,6 @@ devices = dict(
         fmtstr = '%.2f',
         abslimits = (0, 200),
         precision = 0.2,
-        lowlevel = False,
+        # visibility = ('metadata', 'devices', 'namespace'),
     ),
 )

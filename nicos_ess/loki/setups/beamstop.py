@@ -17,7 +17,7 @@ devices = dict(
         curvalue=0,
         unit='mm',
         speed=10.,
-        lowlevel=True,
+        visibility=(),
     ),
     beamstop_size=device('nicos.devices.generic.Switcher',
         description='The current beamstop',

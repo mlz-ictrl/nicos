@@ -21,13 +21,13 @@ vssetpwritable['setp'] = pvprefix + 'VSSP:Speed'
 #vswritables['b2'] = pvprefix + 'VSSP:B2'
 
 # hide/unhide low level devices
-hide = True
+hide = ()
 
 for name, pv in vsreadables.items():
     devices['vs_' + name] = device('nicos.devices.epics.EpicsReadable',
         description = 'VS %s readout' % name,
         readpv = pv,
-        lowlevel = hide,
+        visibility = hide,
     )
 
 for name, pv in vswritables.items():
@@ -35,7 +35,7 @@ for name, pv in vswritables.items():
         description = 'VS %s switch' % name,
         readpv = pv,
         writepv = pv,
-        lowlevel = hide,
+        visibility = hide,
     )
 
 for name, pv in vssetpwritable.items():
@@ -43,13 +43,13 @@ for name, pv in vssetpwritable.items():
         description = 'VS %s analog' % name,
         readpv = pv,
         writepv = pv,
-        lowlevel = hide,
+        visibility = hide,
         abslimits = (0, 4095),
     )
 
 devices['vs_state'] = device('nicos_sinq.icon.devices.velocity_selector.VSState',
     description = 'Device to control the state of the velocity selector',
-    lowlevel = hide,
+    visibility = hide,
     on = 'vs_on',
     off = 'vs_off',
     hand = 'vs_manual',

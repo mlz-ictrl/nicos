@@ -56,13 +56,13 @@ devices = dict(
         'nicos.devices.epics.EpicsStringReadable',
         description='The pump status',
         readpv='{}STATUS_TEXT'.format(pv_root),
-        lowlevel=True,
+        visibility=(),
     ),
     pump_message_1002=device(
         'nicos.devices.epics.pva.EpicsStringReadable',
         description='The pump message',
         readpv='{}MESSAGE'.format(pv_root),
-        lowlevel=True,
+        visibility=(),
     ),
     seconds_to_pause_1002=device(
         'nicos.devices.epics.EpicsAnalogMoveable',

@@ -11,7 +11,7 @@ ALPHA_CONF = {
     'speed': 0.5,
     'unit': 'deg',
     'abslimits': (-360, 360),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 #  B(I) = Ic0 + c1*erf(c2*I) + c3*atan(c4*I)
@@ -24,7 +24,7 @@ B_CONF = {
 CURRENT_CONF = {
     'description': 'Current source for magnet field',
     'abslimits': (0, 15),
-    'lowlevel': True,
+    'visibility': (),
     'unit': 'A',
 }
 
@@ -35,7 +35,7 @@ X_CONF = {
     'speed': 0.5,
     'unit': 'mm',
     'abslimits': (-100, 100),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 Y_CONF = {
@@ -44,7 +44,7 @@ Y_CONF = {
     'speed': 0.5,
     'unit': 'mm',
     'abslimits': (-100, 100),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 CHI1_CONF = {
@@ -53,7 +53,7 @@ CHI1_CONF = {
     'speed': 0.5,
     'unit': 'arcmin',
     'abslimits': (-120, 120),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 CHI2_CONF = {
@@ -62,7 +62,7 @@ CHI2_CONF = {
     'speed': 0.5,
     'unit': 'arcmin',
     'abslimits': (-120, 120),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 CHI3_CONF = {
@@ -71,7 +71,7 @@ CHI3_CONF = {
     'speed': 0.5,
     'unit': 'arcmin',
     'abslimits': (-120, 120),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 CHI4_CONF = {
@@ -80,7 +80,7 @@ CHI4_CONF = {
     'speed': 0.5,
     'unit': 'arcmin',
     'abslimits': (-120, 120),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 OMEGA_CONF = {
@@ -89,7 +89,7 @@ OMEGA_CONF = {
     'speed': 0.5,
     'unit': 'deg',
     'abslimits': (-90, 90),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 # --------------- Colimator --------------- #
@@ -99,7 +99,7 @@ X_GAP_CONF = {
     'speed': 0.5,
     'unit': 'mm',
     'abslimits': (-100, 100),
-    'lowlevel': True,
+    'visibility': (),
 }
 
 Y_GAP_CONF = {
@@ -108,7 +108,7 @@ Y_GAP_CONF = {
     'speed': 0.5,
     'unit': 'mm',
     'abslimits': (-100, 100),
-    'lowlevel': True,
+    'visibility': (),
 }
 
 THETA_S_CONF = {
@@ -117,7 +117,7 @@ THETA_S_CONF = {
     'speed': 0.25,
     'unit': 'deg',
     'abslimits': (-5, 5),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 X_S_CONF = {
@@ -126,7 +126,7 @@ X_S_CONF = {
     'speed': 0.5,
     'unit': 'mm',
     'abslimits': (-50, 50),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 DIA1_ANGLE_CONF = {
@@ -135,7 +135,7 @@ DIA1_ANGLE_CONF = {
     'speed': 0.25,
     'unit': 'deg',
     'abslimits': (-5, 5),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 DIA1_POS_CONF = {
@@ -144,7 +144,7 @@ DIA1_POS_CONF = {
     'speed': 0.5,
     'unit': 'mm',
     'abslimits': (-50, 50),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 DIA2_ANGLE_CONF = {
@@ -153,7 +153,7 @@ DIA2_ANGLE_CONF = {
     'speed': 0.25,
     'unit': 'deg',
     'abslimits': (-5, 5),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }
 
 DIA2_POS_CONF = {
@@ -162,5 +162,5 @@ DIA2_POS_CONF = {
     'speed': 0.5,
     'unit': 'mm',
     'abslimits': (-50, 50),
-    'lowlevel': False,
+    'visibility': {'metadata', 'namespace', 'devlist'},
 }

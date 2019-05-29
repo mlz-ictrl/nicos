@@ -9,7 +9,7 @@ devices = dict(
         description = 'spare motor',
         tangodevice = tango_base + 'spare_mot_x2',
         fmtstr = '%.4f',
-        lowlevel = True,
+        visibility = (),
     ),
     shutter = device('nicos.devices.entangle.NamedDigitalOutput',
         description = 'neutron shutter',
@@ -34,7 +34,7 @@ for key in ('analyser', 'detector', 'sampletable'):
         description = 'supply pressure for %s airpads',
         tangodevice = tango_base + 'p_%s' % key,
         unit = 'bar',
-        lowlevel = True,
+        visibility = (),
     )
 
 
@@ -44,7 +44,7 @@ for key in ('ana', 'arm', 'det', 'st'):
             description = 'actual pressure in airpad %d of %s' % (idx, key),
             tangodevice = tango_base + 'p_airpad_%s_%d' % (key, idx),
             unit = 'bar',
-            lowlevel = True,
+            visibility = (),
         )
 
 for key in (1, 2, 3, 4):

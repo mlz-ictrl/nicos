@@ -76,7 +76,7 @@ devices = dict(
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free space on the log drive',
         path = '/antarescontrol/log',
-        lowlevel = True,
+        visibility = (),
         warnlimits = (0.5, None),
     ),
     BarcodeReader = device('nicos_mlz.devices.barcodes.BarcodeInterpreter',

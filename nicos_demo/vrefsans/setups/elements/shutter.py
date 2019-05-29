@@ -7,7 +7,7 @@ devices = dict(
         description = 'Instrument shutter linear motor',
         abslimits = (0, 55),
         precision = 0.5,
-        lowlevel = True,
+        visibility = (),
         speed = 150.,
         unit = 'mm',
     ),

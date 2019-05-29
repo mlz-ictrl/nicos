@@ -8,6 +8,5 @@ devices = dict(
         description = 'Trigger bit',
         readpv = 'SQ:ICON:b4io3:CamTrig',
         writepv = 'SQ:ICON:b4io3:CamTrig',
-        lowlevel = False,
     ),
 )

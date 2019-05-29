@@ -8,7 +8,7 @@ devices = dict(
     sy2_m = device('nicos.devices.entangle.Motor',
         tangodevice = tango_base + 'sample/sy2_m',
         fmtstr = '%.1f',
-        lowlevel = True,
+        visibility = (),
     ),
     sy2 = device('nicos.devices.generic.Axis',
         description = 'Additional sample table Y translation',

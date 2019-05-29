@@ -14,7 +14,7 @@ bottom = -31.0
 
 devices = dict(
     sc1_x = device('nicos.devices.generic.VirtualMotor',
-        lowlevel = True,
+        visibility = (),
         fmtstr = '%.2f',
         abslimits = (0, 600),
         jitter = 0.02,

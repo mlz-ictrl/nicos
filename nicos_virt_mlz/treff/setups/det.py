@@ -56,7 +56,7 @@ devices = dict(
         mcstasfile = 'PSD_TREFF_total.psd',
         fmtstr = '%d',
         unit = 'cts',
-        lowlevel = True,
+        visibility = (),
     ),
     full = device('nicos.devices.generic.RateChannel',
         description = 'Full detector cts and rate',

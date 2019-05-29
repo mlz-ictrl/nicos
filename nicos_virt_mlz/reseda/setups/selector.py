@@ -91,7 +91,7 @@ devices = dict(
         abslimits = (-10, 10),
         fmtstr = '%.3f',
         unit = 'deg',
-        lowlevel = True,
+        visibility = (),
     ),
     selcradle = device('nicos.devices.generic.Axis',
         description = 'Selector rotation',

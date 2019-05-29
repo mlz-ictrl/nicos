@@ -72,7 +72,7 @@ devices = dict(
         images = [
             'ccdwww',
         ],
-        lowlevel = True
+        visibility = (),
     ),
     el737 = device('nicos_sinq.devices.detector.SinqDetector',
         description = 'EL737 counter box that counts neutrons and '

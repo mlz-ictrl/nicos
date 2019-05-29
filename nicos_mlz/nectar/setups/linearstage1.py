@@ -9,7 +9,7 @@ devices = dict(
         tangodevice = tango_base + '/cam/fov',
         abslimits = (0.0001, 900),
         comtries = 3,
-        lowlevel = True,
+        visibility = (),
     ),
     linst1 = device('nicos.devices.generic.Axis',
         description = 'Free useable linear stage',

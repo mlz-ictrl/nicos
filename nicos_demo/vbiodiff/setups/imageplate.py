@@ -34,7 +34,7 @@ devices = dict(
         description = 'Image plate image',
         fmtstr = '%d',
         # size = (625, 450),
-        lowlevel = True,
+        visibility = (),
     ),
     imgdet = device('nicos_mlz.biodiff.devices.detector.BiodiffDetector',
         description = 'Image plate detector',

@@ -16,7 +16,7 @@ devices = dict(
         description = 'Flags of the master chopper',
         readpv = pvprefix + 'DCU1:Flags',
         fmtstr = '%d',
-        lowlevel = True
+        visibility = (),
     ),
     ch1_state = device('nicos_ess.devices.epics.base.EpicsStringReadableEss',
         description = 'State of the master chopper',
@@ -25,18 +25,18 @@ devices = dict(
     ch1_motor_temperature = device('nicos_ess.devices.epics.base.EpicsReadableEss',
         description = 'Motor temperature of the master chopper',
         readpv = pvprefix + 'DCU1:MotorTemp',
-        lowlevel = True
+        visibility = (),
     ),
     ch1_drive_temperature = device('nicos_ess.devices.epics.base.EpicsReadableEss',
         description = 'Drive temperature of the master chopper',
         readpv = pvprefix + 'DCU1:DriveTemp',
-        lowlevel = True
+        visibility = (),
     ),
     ch1_command = device('nicos.devices.epics.EpicsStringMoveable',
         description = 'Command to the master chopper',
         readpv = pvprefix + 'DCU1:Command:SP',
         writepv = pvprefix + 'DCU1:Command:SP',
-        lowlevel = True
+        visibility = (),
     ),
     ch2_speed = device('nicos_ess.devices.epics.base.EpicsReadableEss',
         description = 'Speed of the master chopper',
@@ -56,7 +56,7 @@ devices = dict(
         description = 'Flags of the master chopper',
         readpv = pvprefix + 'DCU2:Flags',
         fmtstr = '%d',
-        lowlevel = True
+        visibility = (),
     ),
     ch2_state = device('nicos_ess.devices.epics.base.EpicsStringReadableEss',
         description = 'State of the master chopper',
@@ -65,17 +65,17 @@ devices = dict(
     ch2_motor_temperature = device('nicos_ess.devices.epics.base.EpicsReadableEss',
         description = 'Motor temperature of the master chopper',
         readpv = pvprefix + 'DCU2:MotorTemp',
-        lowlevel = True
+        visibility = (),
     ),
     ch2_drive_temperature = device('nicos_ess.devices.epics.base.EpicsReadableEss',
         description = 'Drive temperature of the master chopper',
         readpv = pvprefix + 'DCU2:DriveTemp',
-        lowlevel = True
+        visibility = (),
     ),
     ch2_command = device('nicos.devices.epics.EpicsStringMoveable',
         description = 'Command to the master chopper',
         readpv = pvprefix + 'DCU2:Command:SP',
         writepv = pvprefix + 'DCU2:Command:SP',
-        lowlevel = True
+        visibility = (),
     ),
 )

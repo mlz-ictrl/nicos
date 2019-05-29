@@ -30,7 +30,7 @@ devices = dict(
         nok_gap = 1.0,
         backlash = -2,   # is this configured somewhere?
         precision = 0.05,
-        lowlevel = True,
+        visibility = (),
     ),
     # generated from global/inf/poti_tracing.inf
     shutter_gamma_analog = device(code_base + 'nok_support.NOKPosition',
@@ -40,20 +40,20 @@ devices = dict(
         poly = [-13.748035, 996.393 / 3.856],    # off, mul * 1000 / sensitivity, higher orders...
         serial = 6505,
         length = 250.0,
-        lowlevel = True,
+        visibility = (),
     ),
     # generated from global/inf/poti_tracing.inf
     shutter_gamma_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
         description = 'Poti for shutter_gamma',
         tangodevice = tango_base + 'test/wb_a/1_0',
         scale = 1,   # mounted from bottom
-        lowlevel = showcase_values['hide_poti'],
+        visibility = showcase_values['hide_poti'],
     ),
     shutter_gamma_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'shutter_gamma_motor',
          analog = 'shutter_gamma_analog',
-         lowlevel = showcase_values['hide_acc'],
+         visibility = showcase_values['hide_acc'],
          unit = 'mm'
     ),
 )

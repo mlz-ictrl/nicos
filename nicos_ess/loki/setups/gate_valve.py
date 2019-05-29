@@ -11,7 +11,7 @@ devices = dict(
         curvalue=-5.1,
         unit='mm',
         speed=20.,
-        lowlevel=True,
+        visibility=(),
     ),
     gv_position=device('nicos.devices.generic.Switcher',
         description='The position of the gate valve',

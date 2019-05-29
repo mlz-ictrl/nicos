@@ -11,12 +11,12 @@ devices = dict(
         byteorder=configdata('config.HISTOGRAM_MEMORY_ENDIANESS'),
         baseurl=configdata('config.HISTOGRAM_MEMORY_URL'),
         base64auth='c3B5OjAwNw==',
-        lowlevel=True
+        visibility=()
     ),
     hm_tof_array=device(
         'nicos_sinq.amor.devices.hm_config.AmorTofArray',
         description='TOF Array for histogramming',
-        lowlevel=True,
+        visibility=(),
         chopper='chopper',
         tag='tof',
         formatter='%9d',
@@ -24,7 +24,7 @@ devices = dict(
     hm_b0_ax_x=device(
         'nicos_sinq.devices.sinqhm.configurator.HistogramConfAxis',
         description='First bank axis x',
-        lowlevel=True,
+        visibility=(),
         length=128,
         mapping='calculate',
         preoffset=-2048,
@@ -56,7 +56,7 @@ devices = dict(
     hm_b0_ax_y=device(
         'nicos_sinq.devices.sinqhm.configurator.HistogramConfAxis',
         description='First bank axis y',
-        lowlevel=True,
+        visibility=(),
         length=256,
         mapping='calculate',
         preoffset=-2048,
@@ -112,7 +112,7 @@ devices = dict(
     hm_ax_tof=device(
         'nicos_sinq.devices.sinqhm.configurator.HistogramConfAxis',
         description='TOF axis',
-        lowlevel=True,
+        visibility=(),
         mapping='boundary',
         array='hm_tof_array',
         label='TOF',
@@ -121,14 +121,14 @@ devices = dict(
     hm_bank0=device(
         'nicos_sinq.devices.sinqhm.configurator.HistogramConfBank',
         description='HM First Bank',
-        lowlevel=True,
+        visibility=(),
         bankid=0,
         axes=['hm_b0_ax_x', 'hm_b0_ax_y', 'hm_ax_tof']
     ),
     hm_b1_ax=device(
         'nicos_sinq.devices.sinqhm.configurator.HistogramConfAxis',
         description='Second bank first axis',
-        lowlevel=True,
+        visibility=(),
         length=3,
         mapping='calculate',
         preoffset=-1,
@@ -137,7 +137,7 @@ devices = dict(
     hm_bank1=device(
         'nicos_sinq.devices.sinqhm.configurator.HistogramConfBank',
         description='HM Second Bank',
-        lowlevel=True,
+        visibility=(),
         bankid=1,
         axes=['hm_b1_ax', 'hm_ax_tof']
     ),
@@ -149,7 +149,7 @@ devices = dict(
         increment=1,
         banks=['hm_bank0', 'hm_bank1'],
         connector='hm_connector',
-        lowlevel=True
+        visibility=()
     ),
 
 )
