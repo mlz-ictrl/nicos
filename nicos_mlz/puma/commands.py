@@ -27,15 +27,16 @@ from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.commands import helparglist, usercommand
+from nicos.commands.scan import _infostr
 from nicos.core.constants import BLOCK, FINAL, POINT, SCAN, SUBSCAN
 from nicos.core.data.dataset import PointDataset, ScanDataset
 from nicos.core.errors import NicosError
 from nicos.core.params import Value
-from nicos.core.scan import Scan, SkipPoint, StopScan
+from nicos.core.scan import Scan, SkipPoint, StopScan, SweepScan
 from nicos.utils import lazy_property
 
 __all__ = (
-    'multiadscan'
+    'multiadscan', 'timeadscan',
 )
 
 
@@ -162,7 +163,6 @@ class MultiADScan(Scan):
             # remember the read values so that they can be used for the
             # data point
             if self._point is not None:
-                session.log.info('readPosition: %r', actualpos)
                 for i, dev in enumerate(self._parnames):
                     actualpos[dev] = (None, self._parlist[self._point][i])
         except NicosError as err:
@@ -254,175 +254,89 @@ def multiadscan(info_header, parnames, parlist, psipos, phipos, monopos,
                 cadpos, preset, detseq).run()
 
 
-# @usercommand
-# @helparglist('')
-# def MultiADscanOrig(info_header, parnames, parlist, psipos, phipos, monopos,
-#                     cadpos, preset, detseq=1):
+class TimeADScan(SweepScan):
 
-#     session.log.info('Multiscan: %r', cadpos)
+    def __init__(self, header, parnames, parlist, numpoints, firstmoves=None,
+                 multistep=None, detlist=None, envlist=None, preset=None,
+                 scaninfo=None, subscan=False, xindex=None):
 
-#     cad = session.getDevice('cad')
-#     det = session.getDevice('det')
-#     mono = session.getDevice('mono')
+        self._parlist = parlist
+        self._parnames = [(v.split('/')[0:] or [''])[0] for v in parnames]
+        self._parunits = [(v.split('/')[1:] or [''])[0] for v in parnames]
+        self._valueInfo = tuple(Value(n, unit=u if u else 'rlu', fmtstr='%.2f')
+                                for n, u in zip(self._parnames, self._parunits))
+        SweepScan.__init__(self, [], [], numpoints, firstmoves, multistep,
+                           detlist, envlist, preset, scaninfo, subscan,
+                           xindex)
 
-#     inst = session.instrument
-#     med = session.getDevice('med')
-#     mfvpg = session.getDevice('mfvpg')
-#     mfhpg = session.getDevice('mfhpg')
-#     phi = session.getDevice('phi')
-#     psi = session.getDevice('psi')
-#     muslit_t = session.getDevice('muslit_t')
+    def readEnvironment(self):
+        SweepScan.readEnvironment(self)
+        self._init_par_values()
 
-#     det_type = getattr(inst, 'detectortype', '3He multi')
-#     session.log.info('inst.detectortype = %s', det_type)
+    def _init_par_values(self):
+        newinfo = {}
+        for i, values in enumerate(self._parlist):
+            for name, value, unit in zip(self._parnames, values,
+                                         self._parunits):
+                if name in ('rd', 'rg'):
+                    continue
+                strvalue = '%.2f' % value
+                newinfo['%s%d' % (name, i + 1), 'value'] = (value, strvalue,
+                                                            unit, 'general')
+        session.data.putMetainfo(newinfo)
 
-#     error = 0
-#     if det_type == 'PSD':
-#         multiWait(med)
-#     for i in range(5):
-#         session.log.info('try #%d', i)
-#         try:
-#             if mono.status()[0] == status.OK:
-#                 mono.move(monopos)
-#             elif mono.status()[0] == status.ERROR:
-#                 mono.reset()
-#             if phi.status()[0] == status.OK:
-#                 phi.move(phipos)
-#             elif phi.status()[0] == status.ERROR:
-#                 phi.reset()
-#             if psi.status()[0] == status.OK:
-#                 psi.move(psipos)
-#             elif psi.status()[0] == status.ERROR:
-#                 psi.reset()
-#             if cad.status()[0] == status.OK:
-#                 cad.move(cadpos)
-#             elif cad.status()[0] == status.ERROR:
-#                 cad.reset()
-#             multiWait([phi, psi, cad, mono])
-#         except PositionError:
-#             session.log.warning('cad status %s', cad.status()[0])
-#             session.log.warning('phi status %s', phi.status()[0])
-#             session.log.warning('psi status %s', psi.status()[0])
-#             session.log.warning('mono status %s', mono.status()[0])
-#             session.log.warning('something is wrong')
-#             if abs(psi.read() - psipos) > 0.1:
-#                 error = 1
-#                 msg = 'psi has not reached position'
-#                 if psi.status()[0] == status.ERROR:
-#                     psi.reset()
-#             if abs(phi.read() - phipos) > 0.1:
-#                 error = 1
-#                 msg = 'phi has not reached position'
-#                 if phi.status() == status.ERROR:
-#                     phi.reset()
-#             if abs(mono.read() - monopos) > 0.1:
-#                 error = 1
-#                 msg = 'mono has not reached position 0'
-#                 if mono.status()[0] == status.ERROR:
-#                     mono.reset()
-#             #  vertical focusing
-#             if mono.th.read() < 15.5:
-#                 if abs(15.5 - mfvpg.read()) > mfvpg.precision:
-#                     error = 1
-#                     msg = 'mono has not reached position 1'
-#                     if mfvpg.status() == status.ERROR:
-#                         mfvpg.reset()
-#             elif abs(mono.th.read() - mfvpg.read()) > mfvpg.precision:
-#                 error = 1
-#                 msg = 'mono has not reached position 2'
-#                 if mfvpg.doStatus() == status.ERROR:
-#                     mfvpg.reset()
-#             #  horizontal focusing
-#             if (mono.fmode == 'double'):
-#                 if abs(mono.th.read() - mfhpg.read()) > mfhpg.precision:
-#                     error = 1
-#                     msg = 'mono has not reached position 3'
-#                     if mfhpg.status()[0] == status.ERROR:
-#                         mfhpg.reset()
-#             if (mono.fmode == 'vertical'):
-#                 if abs(4.0 - mfhpg.read()) > mfhpg.precision:
-#                     error = 1
-#                     msg = 'mono has not reached position 4'
-#                     if mfhpg.status()[0] == status.ERROR:
-#                         mfhpg.reset()
-#             if abs(cad.read() - cadpos) > 0.1:
-#                 error = 1
-#                 msg = 'cad has not reached position'
-#                 if cad.status()[0] == status.ERROR:
-#                     cad.reset()
-#         if error == 0:
-#             break
-#     if error == 1:
-#         session.log.error(msg)
-#         return
 
-#     # det._preset(preset)
+@usercommand
+@helparglist('numpoints, header, parnames, parlist, psipos, phipos, monopos, '
+             'cadpos, timepreset')
+def timeadscan(numpoints, header, parnames, parlist, psi, phi, mono, cad, t):
+    """Time scan in multianalyzer setup.
 
-#     if det_type == 'PSD':
-#         multiWait(muslit_t)
-#         det._preset(preset)
-#         result = count(preset)
-#         textline = ' time = %r mon1 = %r' % (det.timer.read(), det.m1.read())
-#         session.log.info(textline)
-#         # DataBox._addtextline(textline)
-#         textline = ''
-#         hist = []
-#         ist = 3
-#         ifin = 960 + 3
-#         for pname in parnames:
-#             textline += '%10s ' % pname
-#         session.log.info(textline)
-#         # DataBox._addtextline(textline)
-#         for j in range(11):
-#             textline = ''
-#             for i in range(len(parnames)):
-#                 textline += '%10s ' % parlist[j][i]
-#             session.log.info(textline)
-#             # DataBox._addtextline(textline)
-#         # DataBox._addtextline('PSD data')
-#         for i in range(8):
-#             hist.append(det.z1.detector.read()[ist:ifin])
-#             ist += 960
-#             ifin += 960
-#         for i in range(960):
-#             textline = '%d' % i
-#             for j in range(7):
-#                 textline += '%10s ' % hist[j][i]
-#                 # textline +=  '  ' + repr(int(hist[j][i]))
-#             session.log.debug(textline)
-#             # DataBox._addtextline(textline)
-#     else:
-#         point = session.data.beginPoint(target=parlist[0])
-#         for i in range(5):
-#             # result = count(preset)
-#             acquire(point, det)
-#             result = det.read()
-#             #  If MesyDaq send 0, count again
-#             _sum = sum(result[-11:])
-#             session.log.info('detector sum: %d', _sum)
-#             if _sum != 0:
-#                 break
+    Count a number of times without moving devices, except the 'psi', 'phi',
+    'mono', and 'cad' before counting the first time.
 
-#         textline = ' time = %r mon1 = %r' % (result[0], result[1])
-#         session.log.info(textline)
-#         # DataBox._addtextline(textline)
-#         textline = ''
-#         for pname in parnames:
-#             textline += '%10s ' % pname
-#         textline += '%10s ' % 'counts'
-#         session.log.info(textline)
-#         # DataBox._addtextline(textline)
-#         for i in range(11):
-#             try:
-#                 # session.log.info('result len: %d', len(result))
-#                 if detseq == 1:
-#                     ct = result[0], result[i + 2]
-#                 elif detseq == -1:
-#                     ct = result[0], result[12 - i]
-#                 point = session.data.beginPoint(target=parlist[i])
-#                 read = {det.name: ct}
-#                 session.log.info('%r %r', parlist[i], read)
-#                 session.data.putResults(FINAL, read)
-#                 # DataBox.addMultiPoint(parlist[i], ct)
-#             finally:
-#                 session.data.finishPoint()
+    * numpoints - number of repititions can be -1 to scan for unlimited points
+                  (break using Ctrl-C or the GUI to quit).
+    * header - additional header (maybe stored in data file)
+    * parnames - additional parameters (stored in data file)
+    * parlist - values to additional parnames (stored in data files), must have
+                a length of 11 (one for each detector) and each entry must have
+                the length of the parnames list
+    * psipos - target position of psi device
+    * phipos - target position of phi device
+    * monopos - target position of mono device
+    * cadpos - target position of cad device
+    * timepreset - time to count per point
+
+    Example:
+
+    >>> timeadscan(5, 'The following configs are selected: configuration 419 '
+                   'ki= 5.40  Psi = 151.22  Phi0 = 65.50  CAD = -7.83  '
+                   'tilt =-2.00 config-type 2',
+                   ['h', 'k', 'l', 'ny/THz', 'x/cm', 'y/cm',  'theta/deg',
+                    'phi/deg'],
+                   [
+                    [-4.68, 2.97, 0.00, -6.64, 10.00, 2.00, -8.27, 71.89],
+                    [-4.51, 2.73, 0.00, -4.54, 8.00, 1.60, -8.71, 70.59],
+                    [-4.37, 2.52, 0.00, -2.76, 6.00, 1.20, -9.15, 69.31],
+                    [-4.23, 2.33, 0.00, -1.24, 4.00, 0.80, -9.58, 68.03],
+                    [-4.11, 2.16, 0.00, 0.07, 2.00, 0.40, -10.01, 66.76],
+                    [-4.00, 2.00, 0.00, 1.20, 0.00, 0.00, -10.43, 65.50],
+                    [-3.90, 1.85, 0.00, 2.18, -2.00, -0.40, -10.84, 64.25],
+                    [-3.80, 1.72, 0.00, 3.05, -4.00, -0.80, -11.24, 63.01],
+                    [-3.72, 1.60, 0.00, 3.80, -6.00, -1.20, -11.63, 61.79],
+                    [-3.64, 1.48, 0.00, 4.47, -8.00, -1.60, -12.01, 60.58],
+                    [-3.56, 1.38, 0.00, 5.07, -10.00, -2.00, -12.39, 59.38],
+                   ], 276.25, 19.995, 3.235, -0.8016, 1)
+    """
+    preset = {'t': t}
+    scanstr = _infostr('timeadscan',
+                       (numpoints,) + (psi, phi, mono, cad),
+                       preset)
+    move = [[session.getDevice(devname), pos]
+            for devname, pos in zip(['psi', 'phi', 'mono', 'cad'],
+                                    [psi, phi, mono, cad])]
+
+    scan = TimeADScan(header, parnames, parlist, numpoints, move,
+                      preset=preset, scaninfo='%s %s' % (scanstr, header))
+    scan.run()
