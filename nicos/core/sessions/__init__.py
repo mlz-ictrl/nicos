@@ -289,7 +289,7 @@ class Session:
         if self.simulation_db is None:
             client = SyncCacheClient('Syncer',
                                      cache=self.current_sysconfig['cache'],
-                                     prefix='nicos/', lowlevel=True)
+                                     prefix='nicos/', visibility=())
             try:
                 self.simulation_db = client.get_values()
             finally:
@@ -688,7 +688,7 @@ class Session:
             if not reuse_cache:
                 self.cache = self.cache_class('Cache',
                                               cache=normalized_cache,
-                                              prefix='nicos/', lowlevel=True)
+                                              prefix='nicos/', visibility=())
                 # be notified about plug-and-play sample environment devices
                 self.cache.addPrefixCallback('se/', self._pnpHandler)
                 # be notified about watchdog events
@@ -709,8 +709,9 @@ class Session:
             self.log.debug('autocreating devices...')
             for devname, (_, devconfig) in sorted(devlist.items()):
                 try:
-                    lowlevel = devconfig.get('lowlevel', False)
-                    self.createDevice(devname, explicit=not lowlevel)
+                    explicit = 'namespace' in devconfig.get('visibility',
+                                                            ('namespace',))
+                    self.createDevice(devname, explicit=explicit)
                 except Exception:
                     if raise_failed:
                         raise

@@ -201,7 +201,7 @@ class Configuration(PyTangoDevice, PassiveChannel):
     }
 
     parameter_overrides = {
-        'lowlevel': Override(default=True),
+        'visibility': Override(default=()),
     }
 
     def _poll_all_channels(self):

@@ -141,7 +141,7 @@ class DoubleSlit(PseudoNOK, Moveable):
                                   ('center', 1, CENTERED)]:
             self.__dict__[name] = SingleSlitAxis('%s.%s' % (self.name, name),
                                                  slit=self, unit=self.unit,
-                                                 lowlevel=True, index=idx,
+                                                 visibility=(), index=idx,
                                                  opmode=opmode)
         self._motors = [self._attached_slit_r, self._attached_slit_s]
 
@@ -445,7 +445,7 @@ class Gap(HasAutoDevices, CanReference, Moveable):
         ]:
             self.add_autodevice(name, cls,
                                 gap=self, unit=self.unit,
-                                lowlevel=self.autodevice_visibility)
+                                visibility=self.autodevice_visibility)
 
     def _getPositions(self, target):
         if self.opmode == '2blades':

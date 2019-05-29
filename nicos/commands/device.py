@@ -670,8 +670,8 @@ def info(*devlist):
     >>> info(Sample)     # show information relevant to the Sample object
     """
     if not devlist:
-        devlist = [dev for dev in session.devices.values()
-                   if not dev.lowlevel]
+        devlist = [session.devices[devname]
+                   for devname in session.explicit_devices]
     bycategory = {}
     for dev in devlist:
         for key, _value, strvalue, unit, category in dev.info():

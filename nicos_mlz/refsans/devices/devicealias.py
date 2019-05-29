@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 from nicos.core.device import DeviceAlias
+from nicos.core.params import Override
 
 
 class HighlevelDeviceAlias(DeviceAlias):
@@ -31,5 +32,10 @@ class HighlevelDeviceAlias(DeviceAlias):
     This class may used to hide the lowlevel devices and make only the link
     to them visible.
     """
-    def doReadLowlevel(self):
-        return False
+
+    parameter_overrides = {
+        'visibility': Override(volatile=True),
+    }
+
+    def doReadVisibility(self):
+        return {'namespace', 'metadata', 'devlist'}

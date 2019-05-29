@@ -41,7 +41,7 @@ from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
     HasPrecision, HasTimeout, IsController
 from nicos.core.params import INFO_CATEGORIES, Attach, Override, Param, \
     Value, anytype, dictof, floatrange, listof, nicosdev, none_or, oneof, \
-    tupleof
+    setof, tupleof
 from nicos.core.utils import formatStatus, multiStatus, multiStop, multiWait, \
     statusString, usermethod
 from nicos.protocols.cache import FLAG_NO_STORE
@@ -287,9 +287,14 @@ class Device(metaclass=DeviceMeta):
                              type=listof(str), settable=False, userparam=False),
         'description': Param('A description of the device', type=str,
                              settable=True),
-        'lowlevel':    Param('Whether the device is not interesting to users',
+        'lowlevel':    Param('Deprecated, use "visibility" instead',
                              type=bool, default=False, userparam=False,
                              prefercache=False),
+        'visibility':  Param('Selects in which context the device should be '
+                             'shown/included',
+                             type=setof('metadata', 'namespace', 'devlist'),
+                             default=['metadata', 'namespace', 'devlist'],
+                             settable=False),
         # Don't allow setting loglevel to > INFO, as it could be confusing.
         'loglevel':    Param('The logging level of the device',
                              type=oneof('debug', 'info'),
@@ -415,6 +420,15 @@ class Device(metaclass=DeviceMeta):
             self.log.setLevel(loggers.WARNING)
         else:
             self.log.setLevel(loggers.loglevels[value])
+
+    def doUpdateLowlevel(self, value):
+        # Warn, but only if it's also in the configuration.
+        # If old values persist in the cache, we don't really care.
+        if value and self._config.get('lowlevel'):
+            self.log.warning('the "lowlevel" parameter is replaced by '
+                             '"visibility"; please update your configuration: '
+                             'lowlevel=True means visibility=(), but you may '
+                             'select visibility in detail now')
 
     def _attachDevices(self):
         """Validate and create attached devices."""
@@ -2212,7 +2226,7 @@ class DeviceAlias(Device):
     }
 
     _ownattrs = ['_obj', '_mode', '_cache', 'alias']
-    _ownparams = {'alias', 'name', 'devclass', 'lowlevel'}
+    _ownparams = {'alias', 'name', 'devclass', 'visibility'}
     _initialized = False
 
     __display__ = True

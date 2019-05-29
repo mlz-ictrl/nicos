@@ -281,7 +281,7 @@ class DataSink(Device):
     }
 
     parameter_overrides = {
-        'lowlevel': Override(default=True, mandatory=False),
+        'visibility': Override(default=()),
     }
 
     # Set to true in subclasses that are safe for simulation.

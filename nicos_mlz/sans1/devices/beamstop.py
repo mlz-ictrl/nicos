@@ -64,7 +64,7 @@ class BeamStopAxis(Axis):
     parameter_overrides = {
         'fixed': Override(type=oneof(''), default=''),
         'offset': Override(type=oneof(0.0), default=0.0),
-        'lowlevel': Override(default=True),
+        'visibility': Override(default=()),
         'maxtries': Override(default=1000, settable=False,
                              type=intrange(1, 1000)),
     }

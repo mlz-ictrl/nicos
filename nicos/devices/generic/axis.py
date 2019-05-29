@@ -277,8 +277,8 @@ class Axis(CanReference, AbstractAxis):
     def doStop(self):
         """Stops the movement of the motor."""
         self._stoprequest = 1
-        # send a stop in case the motor was  started via
-        # the lowlevel device or externally.
+        # send a stop in case the motor was started via the attached motor
+        # device, or externally.
         self._attached_motor.stop()
 
     def doFinish(self):

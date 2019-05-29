@@ -350,7 +350,7 @@ def CreateDevice(*devnames):
     >>> CreateDevice('det')                 # create "det" device
     >>> CreateDevice('stx', 'sty', 'stz')   # create all of "stx", "sty", "stz"
 
-    CreateDevice can also be used to make lowlevel devices accessible in the
+    CreateDevice can also be used to make non-visible devices accessible in the
     user namespace.
 
     see also: `CreateAllDevices`, `RemoveDevice`
@@ -393,8 +393,8 @@ def CreateAllDevices(**kwargs):
 
     >>> CreateAllDevices()
 
-    Note: Devices that are marked as lowlevel will not be automatically
-    created, unless you set the lowlevel flag like:
+    Note: Devices that are marked as invisible in the user namespace will not
+    be automatically created, unless you set the lowlevel flag like:
 
     >>> CreateAllDevices(lowlevel=True)
 
@@ -409,7 +409,8 @@ def CreateAllDevices(**kwargs):
     session.startMultiCreate()
     try:
         for devname, (_, devconfig) in session.configured_devices.items():
-            if devconfig.get('lowlevel', False) and not lowlevel:
+            if 'namespace' not in devconfig.get('visibility', ('namespace,')) \
+               and not lowlevel:
                 continue
             try:
                 session.createDevice(devname, explicit=True)

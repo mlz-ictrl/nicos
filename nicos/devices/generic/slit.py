@@ -124,7 +124,7 @@ class Slit(HasAutoDevices, CanReference, Moveable):
         ]:
             self.add_autodevice(name, cls, slit=self,
                                 unit=self.unit,
-                                lowlevel=self.autodevice_visibility)
+                                visibility=self.autodevice_visibility)
 
     def _getPositions(self, target):
         if self.opmode == '4blades':

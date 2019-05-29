@@ -255,14 +255,15 @@ class DataManager:
         """Utility function to gather metainfo from all relevant devices and
         write it to the current dataset with `putMetainfo`.
 
-        Relevant devices are (currently) those that are not lowlevel.
+        Relevant devices are selected by the "metadata" entry in the
+        visibility parameter.
         """
         devices = [dev for (_, dev) in
                    sorted(session.devices.items(),
                           key=lambda name_dev: name_dev[0].lower())]
         newinfo = {}
         for device in devices:
-            if device.lowlevel:
+            if 'metadata' not in device.visibility:
                 continue
             for key, value, strvalue, unit, category in device.info():
                 newinfo[device.name, key] = (value, strvalue, unit, category)

@@ -69,11 +69,11 @@ class SpinflipperPower(HasTimeout, AnalogOutput):
         if mode != SIMULATION:
             self._forwardDev = AnalogInput('%s._forwardDev' % self.name,
                                            tangodevice=self.forwardtangodevice,
-                                           lowlevel=True)
+                                           visibility=())
 
             self._reverseDev = AnalogInput('%s._reverseDev' % self.name,
                                            tangodevice=self.reversetangodevice,
-                                           lowlevel=True)
+                                           visibility=())
 
     def doTime(self, old_value, target):
         return self.busytime

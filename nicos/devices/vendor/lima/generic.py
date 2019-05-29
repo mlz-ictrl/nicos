@@ -162,7 +162,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         # Create hw specific device if given
         if self.hwdevice:
             self._hwDev = HwDevice(self.name + '._hwDev',
-                                   tangodevice=self.hwdevice, lowlevel=True)
+                                   tangodevice=self.hwdevice, visibility=())
 
         # optional components
         self._shutter = None

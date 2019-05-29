@@ -199,12 +199,12 @@ except the :ref:`description <setup-description>` entry:
 
           mth_motor = device('nicos.devices.taco.Motor',
                              tacodevice = 'mira/motor/mth',
-                             lowlevel = True,
+                             visibility = (),
                              unit = 'deg'),
 
           mth_coder = device('nicos.devices.taco.Coder',
                              tacodevice = 'mira/coder/mth',
-                             lowlevel = True,
+                             visibility = (),
                              unit = 'deg'),
 
           mth = device('nicos.devices.generic.Axis',

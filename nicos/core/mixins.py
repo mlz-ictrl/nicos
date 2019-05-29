@@ -34,7 +34,7 @@ from nicos.core.constants import MAINTENANCE, MASTER, SLAVE
 from nicos.core.errors import AccessError, CommunicationError, \
     ConfigurationError, ModeError
 from nicos.core.params import Override, Param, anytype, dictof, floatrange, \
-    intrange, limits, none_or, nonemptylistof, string, tupleof
+    intrange, limits, none_or, nonemptylistof, setof, string, tupleof
 from nicos.core.utils import statusString, usermethod
 from nicos.utils import formatArgs, lazy_property
 
@@ -125,8 +125,9 @@ class HasAutoDevices(DeviceMixinBase):
         'autodevice_visibility': Param('Selects in which context the auto '
                                        'created devices should be '
                                        'shown/included',
-                                       type=bool,
-                                       default=True,
+                                       type=setof('metadata', 'namespace',
+                                                  'devlist'),
+                                       default=(),
                                        ),
     }
 

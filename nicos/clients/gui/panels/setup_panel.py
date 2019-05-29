@@ -568,7 +568,7 @@ class SetupsPanel(Panel):
         info = self._setupinfo[str(setup)]
         devs = []
         for devname, devconfig in info['devices'].items():
-            if not devconfig[1].get('lowlevel'):
+            if 'devlist' in devconfig[1].get('visibility', ('devlist',)):
                 devs.append(devname)
         devs = ', '.join(sorted(devs))
         self.setupDescription.setText(

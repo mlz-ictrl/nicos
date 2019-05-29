@@ -62,16 +62,15 @@ possible with the device:
       The :attr:`parameters` attribute does *not* need to contain the parameters
       of base classes again, they are automatically merged.
 
-      As an example, here is the parameter specification of the ``Device`` class
-      itself::
+      As an example, here is part of the parameter specification of the
+      ``Device`` class itself::
 
           parameters = {
               'description': Param('A description of the device', type=str,
                                    settable=True),
-              'lowlevel':    Param('Whether the device is not interesting to users',
-                                   type=bool, default=False),
               'loglevel':    Param('The logging level of the device', type=str,
                                    default='info', settable=True),
+              ...
           }
 
    .. attribute:: parameter_overrides
@@ -211,10 +210,19 @@ possible with the device:
       A more verbose device description.  If not given, this parameter is set to be
       the same as the ``name`` parameter.
 
-   .. parameter:: lowlevel : bool, optional
+   .. parameter:: visibility : set, optional
 
-      Indicates whether the device is "low-level" and should neither be
-      presented to users, nor created automatically.  Default is: ``False``.
+      Indicates in which contexts the device should be shown/included.  These
+      are:
+
+      - ``'metadata'``: include in device metadata query for datasets
+      - ``'namespace'``: automatically create and include in the user namespace
+      - ``'devlist'``: show in the GUI device list
+
+      The default is visibility in all cases.
+
+      For intentionally hiding the device on all levels, set this parameter to
+      an empty python set.
 
    .. parameter:: loglevel : string, optional
 

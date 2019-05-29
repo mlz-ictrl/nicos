@@ -346,5 +346,5 @@ class DivergenceAperture(HasAutoDevices, Device):
             self.add_autodevice(name, cls,
                                 slit=self._attached_slit,
                                 controller=self,
-                                lowlevel=self.autodevice_visibility,
+                                visibility=self.autodevice_visibility,
                                 unit='deg')

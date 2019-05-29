@@ -198,9 +198,9 @@ def fixup_stacked_devices(logger, devdict):
                          'subdevice of %r which should be renamed',
                          newname, devname)
             newname = '_' + newname
-        # set subDevice lowlevel if not specified otherwise
-        if 'lowlevel' not in devconfig[1]:
-            devconfig[1]['lowlevel'] = True
+        # set subDevice visibility if not specified otherwise
+        if 'visibility' not in devconfig[1]:
+            devconfig[1]['visibility'] = ()
         # 'rename' device, keeping logical connection
         devdict[newname] = devconfig
         return newname

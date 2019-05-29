@@ -25,9 +25,9 @@ include the management of
 
    .. attribute:: autocreate_devices
 
-      A boolean that determines if the session automatically creates all
-      non-`.lowlevel` devices in a setup (if true), or if devices are created
-      on-demand by calls to `getDevice` (if false).
+      A boolean that determines if the session automatically creates all devices
+      with "namespace" `.visibility` in a setup (if true), or if devices are
+      created on-demand by calls to `getDevice` (if false).
 
    .. attribute:: cache
 

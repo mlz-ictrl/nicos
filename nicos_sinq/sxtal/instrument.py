@@ -96,13 +96,13 @@ class SXTalBase(HasAutoDevices, Instrument, Moveable):
     def doInit(self, mode):
         self.add_autodevice('h', SXTalIndex, namespace='global',
                             unit='rlu', fmtstr='%.3f', index=0,
-                            lowlevel=self.autodevice_visibility, sxtal=self)
+                            visibility=self.autodevice_visibility, sxtal=self)
         self.add_autodevice('k', SXTalIndex, namespace='global',
                             unit='rlu', fmtstr='%.3f', index=1,
-                            lowlevel=self.autodevice_visibility, sxtal=self)
+                            visibility=self.autodevice_visibility, sxtal=self)
         self.add_autodevice('l', SXTalIndex, namespace='global',
                             unit='rlu', fmtstr='%.3f', index=2,
-                            lowlevel=self.autodevice_visibility, sxtal=self)
+                            visibility=self.autodevice_visibility, sxtal=self)
         self._last_calpos = None
 
     def _calcPos(self, hkl, wavelength=None):
@@ -477,7 +477,7 @@ class TASSXTal(SXTalBase):
         if self.inelastic:
             self.add_autodevice('en', SXTalIndex, namespace='global',
                                 unit='meV', fmtstr='%.3f', index=3,
-                                lowlevel=self.autodevice_visibility, sxtal=self)
+                                visibility=self.autodevice_visibility, sxtal=self)
             self.valuetype = tupleof(float, float, float, float)
 
     def _calcPos(self, hkl, wavelength=None):

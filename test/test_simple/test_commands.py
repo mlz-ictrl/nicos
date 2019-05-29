@@ -455,6 +455,7 @@ class TestDevice:
 
     def test_info(self, session, log):
         """Check info()."""
+        session.createDevice('motor', explicit=True)
         with log.assert_msg_matches([r'Device status',
                                      r'motor +status: +ok: idle']):
             info()

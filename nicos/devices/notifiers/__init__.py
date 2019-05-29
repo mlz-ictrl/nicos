@@ -65,7 +65,7 @@ class Notifier(Device):
     }
 
     parameter_overrides = {
-        'lowlevel': Override(default=True, mandatory=False),
+        'visibility': Override(default=()),
     }
 
     _lastsent = 0

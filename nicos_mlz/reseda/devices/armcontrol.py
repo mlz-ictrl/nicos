@@ -42,7 +42,7 @@ class ArmController(IsController, Device):
     }
 
     parameter_overrides = {
-        'lowlevel': Override(default=True),
+        'visibility': Override(default=()),
     }
 
     def isAdevTargetAllowed(self, adev, adevtarget):

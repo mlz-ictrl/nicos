@@ -96,16 +96,16 @@ class TAS(HasAutoDevices, Instrument, Moveable):
     def doInit(self, mode):
         self.add_autodevice('h', TASIndex, namespace='global',
                             unit='rlu', fmtstr='%.3f', index=0,
-                            lowlevel=self.autodevice_visibility, tas=self)
+                            visibility=self.autodevice_visibility, tas=self)
         self.add_autodevice('k', TASIndex, namespace='global',
                             unit='rlu', fmtstr='%.3f', index=1,
-                            lowlevel=self.autodevice_visibility, tas=self)
+                            visibility=self.autodevice_visibility, tas=self)
         self.add_autodevice('l', TASIndex, namespace='global',
                             unit='rlu', fmtstr='%.3f', index=2,
-                            lowlevel=self.autodevice_visibility, tas=self)
+                            visibility=self.autodevice_visibility, tas=self)
         self.add_autodevice('E', TASIndex, namespace='global',
                             unit=self.energytransferunit, fmtstr='%.3f',
-                            index=3, lowlevel=self.autodevice_visibility,
+                            index=3, visibility=self.autodevice_visibility,
                             tas=self)
         self._last_calpos = None
 

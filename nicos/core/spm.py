@@ -248,10 +248,10 @@ class DeviceName(Token):
         return arg
 
     def complete(self, text, session, argsofar):
+        # This also completes normally non-visible devices, since the token
+        # is used for CreateDevice.
         return [c for c in session.configured_devices
-                if c.startswith(text) and
-                c not in session.devices and not
-                session.configured_devices[c][1].get('lowlevel')]
+                if c.startswith(text) and c not in session.devices]
 
 
 DeviceName = DeviceName()

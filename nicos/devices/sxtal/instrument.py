@@ -69,11 +69,11 @@ class SXTalBase(Instrument, Moveable):
 
     def doInit(self, mode):
         self.__dict__['h'] = SXTalIndex('h', unit='rlu', fmtstr='%.3f',
-                                        index=0, lowlevel=True, sxtal=self)
+                                        index=0, visibility=(), sxtal=self)
         self.__dict__['k'] = SXTalIndex('k', unit='rlu', fmtstr='%.3f',
-                                        index=1, lowlevel=True, sxtal=self)
+                                        index=1, visibility=(), sxtal=self)
         self.__dict__['l'] = SXTalIndex('l', unit='rlu', fmtstr='%.3f',
-                                        index=2, lowlevel=True, sxtal=self)
+                                        index=2, visibility=(), sxtal=self)
         self._last_calpos = None
 
     def doShutdown(self):

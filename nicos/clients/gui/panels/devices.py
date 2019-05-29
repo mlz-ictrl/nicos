@@ -387,7 +387,7 @@ class DevicesPanel(Panel):
         params = self.client.getDeviceParams(devname)
         if not params and not failure:
             return
-        lowlevel_device = params.get('lowlevel') or False
+        lowlevel_device = 'devlist' in params.get('visibility', ('devlist,'))
         if lowlevel_device and not self._show_lowlevel:
             return
         if 'nicos.core.data.sink.DataSink' in params.get('classes', []) and \
@@ -862,9 +862,10 @@ class ControlDialog(QDialog):
         else:
             self.description.setVisible(False)
 
-        # check how to refer to the device in commands: if it is lowlevel,
-        # we need to use quotes
-        self.devrepr = repr(self.devname) if params.get('lowlevel', True) \
+        # check how to refer to the device in commands: if it is not in the
+        # namespace, we need to use quotes
+        self.devrepr = repr(self.devname) \
+            if 'namespace' not in params.get('visibility', ('namespace',)) \
             else self.devname
 
         # show "Set alias" group box if it is an alias device
