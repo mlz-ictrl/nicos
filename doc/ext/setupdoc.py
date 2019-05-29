@@ -31,13 +31,17 @@ from os import path
 from docutils import nodes
 from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
+from sphinx.util import logging
 from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.nodes import nested_parse_with_titles
 
 from nicos.core.sessions.setups import readSetup
 from nicos.utils.files import findSetupRoots, iterSetups
+from nicos.pycompat import listvalues
 
 EXCLUDE_PARAMS = set(['description', 'passwd', 'target'])
+
+logger = logging.getLogger(__name__)
 
 
 def escape_rst(s, rex=re.compile('([`*:])')):
@@ -138,7 +142,7 @@ class SetupDirective(Directive):
         self.warning(*args, **kwargs)
 
     def warning(self, *args, **kwargs):
-        self.env.app.warn(*args, **kwargs)
+        logger.warning(*args, **kwargs)
 
     def _readSetup(self):
         uniqueId = self._getUniqueSetupId(self._shortSetupPath)
@@ -158,7 +162,7 @@ class SetupDirective(Directive):
             # logging will be done by readSetup
             return None
 
-        info = setups.values()[0]
+        info = listvalues(setups)[0]
         info['uniqueid'] = uniqueId
         info['setupname'] = self._setupName
         info['shortsetuppath'] = self._shortSetupPath

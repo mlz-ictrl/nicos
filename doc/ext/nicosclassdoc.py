@@ -38,11 +38,14 @@ from sphinx import addnodes
 from sphinx.domains import ObjType
 from sphinx.domains.python import PyClassmember, PyModulelevel, PythonDomain
 from sphinx.ext.autodoc import ClassDocumenter
+from sphinx.util import logging
 
 from nicos.core import Device
 from nicos.core.mixins import DeviceMixinBase
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.utils import formatArgs
+
+logger = logging.getLogger(__name__)
 
 
 class PyParameter(PyClassmember):
@@ -131,8 +134,8 @@ class NicosClassDocumenter(ClassDocumenter):
             self.add_line('', '<autodoc>')
             self.indent += self.content_indent
             if not doc:
-                self.env.app.warn('%s.%s: usermethod has no documentation' %
-                                  (myclsname, name))
+                logger.warning('%s.%s: usermethod has no documentation' %
+                               (myclsname, name))
             for line in doc.splitlines():
                 self.add_line(line, '<doc of %s.%s>' % (self.object, name))
             self.add_line('', '<autodoc>')
