@@ -30,7 +30,6 @@ from nicos.commands import helparglist, usercommand
 from nicos.commands.scan import _infostr
 from nicos.core.constants import BLOCK, FINAL, POINT, SCAN, SUBSCAN
 from nicos.core.data.dataset import PointDataset, ScanDataset
-from nicos.core.errors import NicosError
 from nicos.core.params import Value
 from nicos.core.scan import Scan, SkipPoint, StopScan, SweepScan
 from nicos.utils import lazy_property
@@ -96,32 +95,22 @@ class MultiADScan(Scan):
     def __init__(self, info_header, parnames, parlist, psipos, phipos, monopos,
                  cadpos, preset, detseq=1):
         detlist = [session.getDevice('det')]
-        Scan.__init__(self, [], [], preset={'t': preset}, detlist=detlist,
-                      scaninfo=info_header)
-        cad = session.getDevice('cad')
-        mono = session.getDevice('mono')
-        phi = session.getDevice('phi')
-        psi = session.getDevice('psi')
-        self._ad_devices = [cad, mono, psi, phi]
-        self._ad_positions = [cadpos, monopos, psipos, phipos]
+        move = [[session.getDevice(devname), pos]
+                for devname, pos in zip(['psi', 'phi', 'mono', 'cad'],
+                                        [psipos, phipos, monopos, cadpos])]
+        Scan.__init__(self, [], [[]], preset={'t': preset}, detlist=detlist,
+                      scaninfo=info_header, firstmoves=move)
         self._detseq = detseq
         self._parnames = [(v.split('/')[0:] or [''])[0] for v in parnames]
         self._parunits = [(v.split('/')[1:] or [''])[0] for v in parnames]
         self._paraValueinfo = tuple(Value(n, unit=u if u else 'rlu',
                                           fmtstr='%.2f') for n, u in
-                                    zip(self._parnames, self._parunits))
+                                    zip(self._parnames, self._parunits)) + \
+                              (Value('rd', unit='deg', fmtstr='%.2f'),
+                               Value('rg', unit='deg', fmtstr='%.2f'))
         self._parlist = parlist
-        # self._envlist[0:0] = self._ad_devices
         self._point = None
         self._data = session.data
-
-    def prepareScan(self, positions):
-        # XXX with actionscope
-        session.beginActionScope('Moving to start')
-        try:
-            self.moveDevices(self._ad_devices, positions, wait=True)
-        finally:
-            session.endActionScope()
 
     def beginScan(self):
         # Copy of the data.manager.beginScan with s/ScanDataset/ADScanDataset/
@@ -157,34 +146,21 @@ class MultiADScan(Scan):
         self.dataset.dispatch('begin')
         session.elogEvent('scanbegin', self.dataset)
 
-    def readPosition(self):
-        actualpos = {}
-        try:
-            # remember the read values so that they can be used for the
-            # data point
-            if self._point is not None:
-                for i, dev in enumerate(self._parnames):
-                    actualpos[dev] = (None, self._parlist[self._point][i])
-        except NicosError as err:
-            self.handleError('read', err)
-        return actualpos
-
     def beginTemporaryPoint(self, **kwds):
         """Create and begin a point dataset that does not use datasinks."""
         self._data._clean((BLOCK, SCAN, SUBSCAN))
         self._data._updatePointKeywords(kwds)
-        dataset = ADPointDataset(**kwds)
-        return self._data._init(dataset, skip_handlers=True)
+        return self._data._init(ADPointDataset(**kwds), skip_handlers=True)
 
     def beginPoint(self, **kwds):
         """Create and begin a point dataset."""
         self._data._clean((BLOCK, SCAN, SUBSCAN))
         self._data._updatePointKeywords(kwds)
-        dataset = ADPointDataset(**kwds)
-        return self._data._init(dataset)
+        return self._data._init(ADPointDataset(**kwds))
 
     def finishPoint(self):
         self._data.finishPoint()
+        Scan.finishPoint(self)
 
     def finishTemporaryPoint(self):
         """Remove the current point dataset."""
@@ -197,7 +173,7 @@ class MultiADScan(Scan):
 
     def _inner_run(self):
         try:
-            self.prepareScan(self._ad_positions)
+            self.prepareScan(self._startpositions[0])
         except StopScan:
             return
         except SkipPoint:
@@ -208,8 +184,7 @@ class MultiADScan(Scan):
         try:
             self.preparePoint(0, [])
             self.beginScan()
-            point = self.beginTemporaryPoint(target=self._ad_positions,
-                                             detectors=self._detlist)
+            point = self.beginTemporaryPoint(detectors=self._detlist)
             self.acquire(point, self._preset)
             self.finishTemporaryPoint()
         finally:
@@ -225,20 +200,25 @@ class MultiADScan(Scan):
             for i, v in enumerate(result):
                 self._point = i
                 with self.pointScope(i + 1):
-                    point = self.beginPoint(target=self._parlist[i],
-                                            parameters=self._paraValueinfo)
+                    point = self.beginPoint(parameters=self._paraValueinfo)
                     if i == 0:
                         self._data.updateMetainfo()
-                    values = {}
-                    for n, pv in zip(self._parnames, self._parlist[i]):
-                        values[n] = (None, pv)
-                    self._data.putValues(values)
                     self._data.putResults(FINAL, {detname: (ct + [v], [])})
                     self.readEnvironment()
                     self.finishPoint()
         finally:
             self._point = None
             self.endScan()
+
+    def readEnvironment(self):
+        Scan.readEnvironment(self)
+        values = {}
+        for n, pv in zip(self._parnames, self._parlist[self._point]):
+            values[n] = (None, pv)
+        for dev in 'rd', 'rg':
+            n = '%s%d' % (dev, self._point + 1)
+            values[dev] = (None, session.getDevice(n).read(0))
+        self._data.putValues(values)
 
 
 @usercommand
