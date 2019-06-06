@@ -9,7 +9,8 @@ devices = dict(
         mailserver = 'mailhost.frm2.tum.de',
         sender = 'reseda@frm2.tum.de',
         receivers = [
-            'christian.franz@frm2.tum.de', 'olaf.soltwedel@frm2.tum.de'
+            'christian.franz@frm2.tum.de',
+            'johanna.jochum@frm2.tum.de'
         ],
         subject = 'NICOS@RESEDA',
     ),
