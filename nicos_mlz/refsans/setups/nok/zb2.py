@@ -2,7 +2,7 @@ description = "SingleSlit [slit k1] between nok6 and nok7"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'nokbus2']
+includes = ['nok_ref', 'nokbus1']
 showcase_values = configdata('cf_showcase.showcase_values')
 
 tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/test/'
@@ -27,8 +27,8 @@ devices = dict(
     zb2_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of ZB2',
         abslimits = (-215.69, 93.0),
-        bus = 'nokbus2',
-        addr = 0x47,
+        bus = 'nokbus1',
+        addr = 0x37,
         slope = 800.0,
         speed = 50,
         accel = 50,

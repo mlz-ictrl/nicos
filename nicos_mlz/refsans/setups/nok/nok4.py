@@ -2,7 +2,7 @@ description = "neutronguide, radialcollimator"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'nokbus1', 'nokbus2']
+includes = ['nok_ref', 'nokbus1', 'nokbus4']
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
 
@@ -93,8 +93,8 @@ devices = dict(
     nok4s_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of NOK4, sample side',
         abslimits = (-21.3025, 41.1975),
-        bus = 'nokbus2',
-        addr = 0x41,
+        bus = 'nokbus4',
+        addr = 0x64,
         slope = 2000.0,
         speed = 10,
         accel = 10,

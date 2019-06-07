@@ -2,7 +2,7 @@ description = "neutronguide sideMirror noMirror"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'nokbus2', 'nokbus3']
+includes = ['nok_ref', 'nokbus4', 'nokbus3']
 
 tango_host = 'tango://refsanshw:10000/test/'
 showcase_values = configdata('cf_showcase.showcase_values')
@@ -42,8 +42,8 @@ devices = dict(
     nok6r_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
         description = 'IPC controlled Motor of NOK6, reactor side',
         abslimits = (-66.2, 96.59125),
-        bus = 'nokbus2',
-        addr = 0x46,
+        bus = 'nokbus4',
+        addr = 0x63,
         slope = 800.0,
         speed = 10,
         accel = 10,
