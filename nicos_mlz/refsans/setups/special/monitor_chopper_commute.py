@@ -25,7 +25,7 @@ _disk1col = Column(
         BlockRow(Field(name='condition', key='chopper_speed/condition', width = Lwidth_low)),
         BlockRow(Field(name='status', key='chopper_speed/status', width = Lwidth_low)),
         BlockRow(Field(name='current', key='chopper_speed/current', width = Lwidth_low, unit='A')),
-        BlockRow(Field(name='START delay', dev='chopper/delay', unit='deg', width=10)),
+        BlockRow(Field(name='START delay', key='chopper/delay', unit='deg', width=10)),
         ],
     ),
 )
