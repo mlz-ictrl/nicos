@@ -380,15 +380,23 @@ class SISDetector(Detector):
         Detector.doInit(self, mode)
 
         self._continueCounting = False
-        self._saveIntermediate = False
+        self._saveIntermediateFlag = False
 
     def doPause(self):
         Detector.doPause(self)
-        self.saveIntermediate()
+        self._saveIntermediate()
 
     def saveIntermediate(self):
+        self._saveIntermediateFlag = True
+
+    def _saveIntermediate(self):
         session.data.putResults(INTERMEDIATE,
                                 {self.name: self.readResults(INTERMEDIATE)})
+
+    def duringMeasureHook(self, elapsed):
+        if self._saveIntermediate:
+            self._saveIntermediate()
+            self._saveIntermediateFlag = False
 
     def getSisImageDevice(self):
         return self._adevs['images'][0]

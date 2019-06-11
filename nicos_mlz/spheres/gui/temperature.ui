@@ -312,7 +312,10 @@
         <string>Is the heater on?</string>
        </property>
        <property name="dev" stdset="0">
-        <string>jlc22_h_tube</string>
+        <string>h_tube</string>
+       </property>
+       <property name="key" stdset="0">
+        <string>h_tube.value</string>
        </property>
        <property name="goal" stdset="0">
         <string>&quot;high&quot;</string>
@@ -401,7 +404,10 @@
         <string>Is the heater on?</string>
        </property>
        <property name="dev" stdset="0">
-        <string>jlc22_h_sample</string>
+        <string>h_sample</string>
+       </property>
+       <property name="key" stdset="0">
+        <string>h_sample.value</string>
        </property>
        <property name="goal" stdset="0">
         <string>&quot;high&quot;</string>

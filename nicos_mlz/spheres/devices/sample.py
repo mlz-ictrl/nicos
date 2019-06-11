@@ -28,6 +28,7 @@ Devices to control the sample environment at SPHERES
 
 from __future__ import absolute_import, division, print_function
 
+from nicos import session
 from nicos.core import SIMULATION
 from nicos.core.params import Attach, Param, tangodev
 from nicos.core.status import WARN
@@ -56,6 +57,9 @@ class SEController(tango.TemperatureController):
         """Move to temperature as fast as possible
         Due to potential delay when going over 310K this will be handled
         in the underlying Tango server."""
+        if session.mode == SIMULATION:
+            return
+
         self._dev.RushTemperature(temperature)
         self._setROParam('target', temperature)
 
