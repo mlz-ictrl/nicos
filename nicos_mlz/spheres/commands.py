@@ -28,118 +28,15 @@ from __future__ import absolute_import, division, print_function
 
 from math import ceil
 
-from nicos import session
 from nicos.commands import parallel_safe, usercommand
 from nicos.commands.device import maw
 from nicos.commands.scan import timescan
-from nicos.core import SIMULATION, ModeError, UsageError
-from nicos.core.status import BUSY, OK
+from nicos.core import UsageError
 from nicos.utils import parseDuration as pd
 
-from nicos_mlz.spheres.devices.doppler import ELASTIC, INELASTIC, Doppler
-from nicos_mlz.spheres.devices.sample import PressureController, SEController
-from nicos_mlz.spheres.devices.sisdetector import SISDetector
-
-
-def parseDuration(interval, reason):
-    try:
-        return pd(interval)
-    except TypeError:
-        raise UsageError('Can not parse %s from %s. '
-                         'Please provide it as a string, int or float. '
-                         'When in doubt encapsulate it in quotation marks.'
-                         % (reason, type(interval)))
-    except ValueError:
-        raise UsageError('The format of the provided string for %s can not be '
-                         'converted to a duration. Please separate the values '
-                         'with spaces and/or ":", sort the durations by size '
-                         'and (only) name them with "d", "h", "m", "s". e.g. '
-                         '"1d:2h:3m:4s" '
-                         % reason)
-
-
-def getSisImageDevice():
-    for detector in session.experiment.detectors:
-        if isinstance(detector, SISDetector):
-            return detector.getSisImageDevice()
-
-    raise UsageError('No SIS Detector found/active. Add it to the '
-                     'environment after loading the sis setup.')
-
-
-def getTemperatureController():
-    for device in session.devices.values():
-        if isinstance(device, SEController):
-            return device
-
-    raise UsageError('No SEController found. '
-                     'Load the sample environment setup.')
-
-
-def getDoppler():
-    for device in session.devices.values():
-        if isinstance(device, Doppler):
-            return device
-
-    raise UsageError('No doppler found. Load the doppler setup.')
-
-
-def canStartSisScan(measuremode):
-    """Check whether the SIS detector is ready for a measurement of the
-    specified type. Wait for up to the doppler's maxacqdelay just in case the
-    doppler is still adjusting."""
-
-    if session.mode == SIMULATION:
-        return True
-
-    doppler = getDoppler()
-    sis = getSisImageDevice()
-    if not sis or not doppler:
-        return False
-
-    status = doppler.status()[0]
-    if status == BUSY:
-        print('Doppler not yet ready, waiting a bit.')
-        if not waitForAcq():
-            raise ModeError('Scan can currently NOT be started. '
-                            'Doppler does not leave busy state.')
-    elif status != OK:
-        raise ModeError('Scan can not be started. '
-                        'Doppler is not synchronized.')
-
-    sismode = sis.getMode()
-    if measuremode != sismode:
-        if sismode == INELASTIC:
-            raise ModeError('Detector is measuring in inelastic mode. '
-                            'Stop the doppler to change the mode first.')
-        if sismode == ELASTIC:
-            raise ModeError('Detector is measuring in elastic mode. '
-                            'Start the doppler to change the mode first.')
-
-    # doppler is OK, and measure modes match.
-    return True
-
-
-def waitForAcq():
-    doppler = getDoppler()
-    for i in range(doppler.maxacqdelay):
-        if doppler.status()[0] != BUSY:
-            return True
-        elif i == 0:
-            session.log.info('Acq is busy, waiting a bit')
-        session.delay(1)
-
-    return False
-
-
-def notifyOverhang(time, interval):
-    """Warn about additional measurement time"""
-    overhang = time % interval
-
-    if overhang:
-        session.log.warning('Measurement will take an additional %ds because '
-                            '%ds are left after equal division of %d and %d.',
-                            interval - overhang, overhang, time, interval)
+from nicos_mlz.spheres.devices.doppler import ELASTIC, INELASTIC
+from nicos_mlz.spheres.utils import getTemperatureController, parseDuration, \
+    getSisImageDevice, getDoppler, canStartSisScan, notifyOverhang, waitForAcq
 
 
 def startinelasticscan(time, interval, incremental):
@@ -252,22 +149,6 @@ def rush(target):
     """
 
     getTemperatureController().rushTemperature(target)
-
-
-@usercommand
-def setpressure(target):
-    """Adjust pressure to the given value.
-    Due to the nature of the underlying hardware the target will have a
-    margin of 15 mbar.
-    """
-
-    for device in session.devices.values():
-        if isinstance(device, PressureController):
-            device.move(target)
-            return
-
-    raise UsageError('No PressureController found. '
-                     'Load the sample environment setup.')
 
 
 @usercommand
