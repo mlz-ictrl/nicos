@@ -181,7 +181,7 @@ class BeckhoffCoderBase(PyTangoDevice, Coder):
         session.delay(0.1)  # work around race conditions....
 
     def _writeDestination(self, value):
-        self.log.info('_writeDestination %r', value)
+        self.log.debug('_writeDestination %r', value)
         value = struct.unpack('<2H', struct.pack('=i', value))
         self._dev.WriteOutputWords(tuple([self.address + 2]) + value)
 
