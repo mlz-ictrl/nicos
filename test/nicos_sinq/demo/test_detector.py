@@ -29,7 +29,6 @@ Tests for EPICS area detector
 from __future__ import absolute_import, division, print_function
 
 import time
-from test.nicos_sinq.demo.utils import create_hs00
 
 import numpy
 import pytest
@@ -38,11 +37,15 @@ from epics import PV
 from nicos.core import CommunicationError, status
 from nicos.core.constants import LIVE
 
+pytest.importorskip('flatbuffers')
+
 from nicos_ess.devices.datasinks.imagesink.fbschema import Array, \
     EventHistogram
 from nicos_ess.devices.epics.status import ADKafkaStatus
 from nicos_ess.devices.kafka.area_detector import \
     HistogramFlatbuffersDeserializer
+
+from test.nicos_sinq.demo.utils import create_hs00
 
 session_setup = "epics_ad_sim_detector"
 
