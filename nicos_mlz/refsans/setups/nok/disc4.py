@@ -2,7 +2,7 @@ description = "disc4 height"
 
 group = 'lowlevel'
 
-tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/test/copley/'
+tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/optic/disc34/'
 
 devices = dict(
     disc4 = device('nicos.devices.tango.Motor',
