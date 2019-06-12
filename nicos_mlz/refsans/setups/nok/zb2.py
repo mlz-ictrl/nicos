@@ -17,7 +17,6 @@ devices = dict(
         nok_end = 7597.5,
         nok_gap = 1.0,
         offset = 0.0,
-        # nok_motor = 7597.5,
         masks = {
             'slit':     -2,
             'point':   -2,
