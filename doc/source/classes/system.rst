@@ -14,7 +14,8 @@ The experiment device collects all configuration pertaining to the current
 experiment -- i.e. proposal information, sample, current configuration of
 detectors and sample environment.
 
-The experiment device is selected in setups using :ref:`sysconfig`.
+The experiment device is selected in setups using
+:ref:`sysconfig <setup-sysconfig>`.
 
 .. autoclass:: Experiment()
 
@@ -30,7 +31,7 @@ Instrument
 
 Each setup requires an instrument device, giving basic information and
 functionality of the specific instrument.  It is selected in setups using
-:ref:`sysconfig`.
+:ref:`sysconfig <setup-sysconfig>`.
 
 .. autoclass:: Instrument()
 
@@ -45,7 +46,8 @@ Data Sinks
    adapt this
 
 These data sinks provide different ways of processing measured data.  They can
-be configured in setups like normal devices and selected in :ref:`sysconfig`.
+be configured in setups like normal devices and selected in
+:ref:`sysconfig <setup-sysconfig>`.
 
 .. module:: nicos.devices.datasinks
 
@@ -87,7 +89,8 @@ example, in case of unhandled exceptions a notification is always sent if the
 script has run for more than a few seconds.
 
 Notifiers can be configured in setups like normal devices and are selected in
-:ref:`sysconfig`.  They are also used by the :ref:`watchdog <watchdog>` service.
+:ref:`sysconfig <setup-sysconfig>`.  They are also used by the
+:ref:`watchdog <watchdog>` service.
 
 .. todo::
 
