@@ -21,7 +21,6 @@
 .. autoclass:: SampleChanger()
 
 .. automodule:: nicos_mlz.pgaa.devices.sampledevices
-.. autoclass:: TacoSerial()
 .. autoclass:: SamplePusher()
 .. autoclass:: SampleMotor()
 

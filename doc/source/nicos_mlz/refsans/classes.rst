@@ -15,10 +15,10 @@
 
 .. automodule:: nicos_mlz.refsans.devices.slits
 
-.. autoclass:: Opening()
-.. autoclass:: Slit()
-.. autoclass:: SlitAxis()
 .. autoclass:: SingleSlit()
+.. autoclass:: DoubleSlit()
+.. autoclass:: DoubleSlitSequence()
+.. autoclass:: SingleSlitAxis()
 
 .. automodule:: nicos_mlz.refsans.devices.optic
 .. autoclass:: Optic()
@@ -51,10 +51,11 @@
 .. autoclass:: SdsRatemeter()
 .. autoclass:: CPTReadout()
 
-.. automodule:: nicos_mlz.refsans.devices.chopper
+.. automodule:: nicos_mlz.refsans.devices.chopper.real
 .. autoclass:: ChopperMaster()
 .. autoclass:: ChopperDisc()
-.. autoclass:: ChopperDisc2Pos()
+.. autoclass:: ChopperDisc2()
+.. autoclass:: ChopperDiscTranslation()
 
 .. automodule:: nicos_mlz.refsans.devices.skew_motor
 .. autoclass:: SkewMotor()

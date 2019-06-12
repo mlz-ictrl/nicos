@@ -13,7 +13,6 @@ JCNS
 .. autoclass:: Shutter()
 
 .. automodule:: nicos_mlz.jcns.devices.motor
-.. autoclass:: Motor()
 .. autoclass:: InvertableMotor()
 .. autoclass:: MasterSlaveMotor()
 
