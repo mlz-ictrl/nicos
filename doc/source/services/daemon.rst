@@ -124,10 +124,18 @@ Daemon class
    For this purpose the possibility of multiple daemon setups (see above) also
    comes in handy.
 
+
 .. _authenticator-classes:
 
 Authenticator classes
 ---------------------
+
+These are the available authenticator classes:
+
+* `LDAP <.ldap.Authenticator>`
+* `Keyring <.keyring.Authenticator>`
+* `List <.list.Authenticator>`
+* `PAM <.pam.Authenticator>`
 
 .. module:: nicos.services.daemon.auth.ldap
 

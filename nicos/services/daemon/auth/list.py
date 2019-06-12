@@ -40,9 +40,26 @@ class Authenticator(BaseAuthenticator):
 
     An empty password means that any password is accepted.
     An empty username means that any username is accepted.
-    Password less entries and anonymous entries are restricted
+    Passwordless entries and anonymous entries are restricted
     to 'at most' USER level. If both fields are unspecified, we still request
     a username and restrict to GUEST level.
+
+    One way to create the password hashes is to use `hashlib` from a Python
+    shell::
+
+       >>> import hashlib
+       >>> hashlib.md5(b'password').hexdigest()
+       '5f4dcc3b5aa765d61d8327deb882cf99'
+       >>> hashlib.sha1(b'password').hexdigest()
+       '5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8'
+
+    These hexdigests can be used in the `passwd` list::
+
+       passwd = [
+           ...
+           ('username', '5f4dcc3b5aa765d61d8327deb882cf99', 'user'),
+           ...
+       ]
     """
 
     parameters = {
