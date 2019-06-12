@@ -122,5 +122,5 @@ devices = dict(
 )
 
 alias_config = {
-    'primary_aperture': {'zb3': 100},
+    'primary_aperture': {'zb3.height': 300},
 }
