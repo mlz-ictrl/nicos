@@ -25,27 +25,17 @@ A setup named ``system``, if it exists, is **always** loaded by NICOS.
 A setup file can consist of the following entries, all of which are optional
 except the :ref:`description <setup-description>` entry:
 
-   * :ref:`description <setup-description>`
-
-   * :ref:`group <setup-group>`
-
-   * :ref:`includes <setup-includes>`
-
-   * :ref:`excludes <setup-excludes>`
-
-   * :ref:`sysconfig <setup-sysconfig>`
-
-   * :ref:`devices <setup-devices>`
-
-   * :ref:`modules <setup-modules>`
-
-   * :ref:`startupcode <setup-startupcode>`
-
-   * :ref:`display_order <setup-display_order>`
-
-   * :ref:`alias_config <setup-alias_config>`
-
-   * :ref:`extended <setup-extended>`
+* :ref:`description <setup-description>`
+* :ref:`group <setup-group>`
+* :ref:`includes <setup-includes>`
+* :ref:`excludes <setup-excludes>`
+* :ref:`sysconfig <setup-sysconfig>`
+* :ref:`devices <setup-devices>`
+* :ref:`modules <setup-modules>`
+* :ref:`startupcode <setup-startupcode>`
+* :ref:`display_order <setup-display_order>`
+* :ref:`alias_config <setup-alias_config>`
+* :ref:`extended <setup-extended>`
 
 .. _setup-description:
 
@@ -126,9 +116,9 @@ except the :ref:`description <setup-description>` entry:
 .. _setup-sysconfig:
 
 ``sysconfig``
-   A dictionary with basic system configuration values.  This is generally only
-   put in one very basic setup file that is included from other, more high-level
-   files.
+   A dictionary with basic system configuration values.  Most values are usually
+   only put in one very basic setup file that is included from other, more
+   high-level files.
 
    Example::
 
@@ -166,11 +156,11 @@ except the :ref:`description <setup-description>` entry:
       measured data.  These devices *must* be defined somewhere in a ``devices``
       dictionary.
 
-      A 'data sink' can work as a data storage device, writing the measured data
-      in a special format, read by data analysis software.
+      A data sink can represent a data storage device, writing the measured data
+      in a given format, to be read by data analysis software.
 
-      The other type of data sink is the support to transport the measured data
-      to the different components of NICOS to display the data of the measurement.
+      Other types of data sinks can be used to forward the measured data to other
+      components of NICOS (for display purposes) or enter metadata into a catalog.
 
       Datasinks lists from different loaded setups are merged.
 
