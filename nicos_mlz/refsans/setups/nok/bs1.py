@@ -2,7 +2,7 @@ description = "DoubleSlit [slit k1] between nok8 and nok9"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'nokbus4', 'aperture_primary']
+includes = ['nok_ref', 'nokbus4']
 showcase_values = configdata('cf_showcase.showcase_values')
 
 tango_host = 'tango://refsanshw:10000/test/'

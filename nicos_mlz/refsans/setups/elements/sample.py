@@ -24,9 +24,4 @@ devices = dict(
         fmtstr = '%.1f',
         unit = 'mm',
     ),
-    last_slit = device('nicos.devices.generic.ManualSwitch',
-        description = 'what is the last slit',
-        states = ['b2', 'b3'],
-        fmtstr = '%s',
-    ),
 )

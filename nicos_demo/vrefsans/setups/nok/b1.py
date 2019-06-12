@@ -2,7 +2,6 @@ description = 'Slit B1 using Beckhoff controllers'
 
 group = 'lowlevel'
 
-includes = ['aperture_primary']
 lprecision = 0.005
 
 devices = dict(

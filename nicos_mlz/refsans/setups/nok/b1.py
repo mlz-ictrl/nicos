@@ -2,7 +2,6 @@ description = 'Slit B1 using Beckhoff controllers'
 
 group = 'lowlevel'
 
-includes = ['aperture_primary']
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 lprecision = 0.005

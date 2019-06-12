@@ -23,7 +23,9 @@ includes = [
     'zb1',
     'zb2',
     'zb3',
-    ]
+    'primary_aperture',
+    'last_aperture',
+]
 
 devices = dict(
     optic = device('nicos_mlz.refsans.devices.optic.Optic',

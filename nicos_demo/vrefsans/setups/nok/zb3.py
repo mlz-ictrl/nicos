@@ -2,8 +2,6 @@ description = "DoubleSlit [slit k1] between nok6 and nok7"
 
 group = 'lowlevel'
 
-includes = ['aperture_primary']
-
 devices = dict(
     zb3 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
         description = 'ZB3 slit',
