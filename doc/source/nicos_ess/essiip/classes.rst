@@ -16,6 +16,6 @@ ESSIIP
 Mixins
 ------
 
-.. automodule:: nicos_ess.devices.epics.extensions
+.. currentmodule:: nicos_ess.devices.epics.extensions
 
 .. autoclass:: HasSwitchPv
