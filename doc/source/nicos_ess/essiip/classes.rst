@@ -13,11 +13,6 @@ ESSIIP
 
 .. autoclass:: EpicsJulaboController
 
-.. automodule:: nicos_ess.essiip.devices.lewis_motor
-
-.. autoclass:: LewisEpicsMotor()
-
-
 Mixins
 ------
 
