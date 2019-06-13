@@ -17,4 +17,8 @@ distribution.
    tango
    epics
    vendor/index
-   custom
+   nicos_mlz
+   nicos_ess
+   nicos_sinq
+   nicos_batan
+   nicos_demo

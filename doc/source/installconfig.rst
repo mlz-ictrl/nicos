@@ -17,4 +17,4 @@ For a full overview over available classes and their functions check
    services/index
    gui/config
    classes/index
-   customsetups
+   instrumentsetups/index
