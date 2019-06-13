@@ -354,17 +354,17 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
 
     def _HW_reference(self):
         """Do the referencing and update position to refpos"""
-        self._writeControlBit(4, 1)     # docu: bit4 = reference, autoresets
-        session.delay(0.1)             # work around race conditions....
+        # self._writeControlBit(4, 1)  # docu: bit4 = reference, autoresets
+        # session.delay(0.1)           # work around race conditions....
 
     def _HW_stop(self):
         """stop any actions"""
-        self._writeControlBit(6, 1)     # docu: bit6 = stop, autoresets
+        self._writeControlBit(6, 1)    # docu: bit6 = stop, autoresets
         session.delay(0.1)             # work around race conditions....
 
     def _HW_ACK_Error(self):
         """acknowledge any error"""
-        self._writeControlBit(7, 1)     # docu: bit7 = stop, autoresets
+        self._writeControlBit(7, 1)    # docu: bit7 = stop, autoresets
         session.delay(0.1)             # work around race conditions....
 
     # more advanced stuff: setting/getting parameters

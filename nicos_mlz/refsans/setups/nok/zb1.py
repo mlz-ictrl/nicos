@@ -39,7 +39,7 @@ devices = dict(
         address = 0x3020+index*10, # word address
         slope = 10000,
         unit = 'mm',
-        ruler = -54.080,
+        ruler = 291.092, #abs enc! -54.080,
         abslimits = (-178.9,  53.9),
         lowlevel = True,
     ),

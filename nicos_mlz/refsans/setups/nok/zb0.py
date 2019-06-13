@@ -17,7 +17,7 @@ devices = dict(
         address = 0x3020+index*10, # word address
         slope = 10000,
         unit = 'mm',
-        ruler = -28.2111,
+        ruler = 302.679, #abs enc! -28.2111,
         abslimits = (-155.7889, 28.111099999999997),
         lowlevel = True,
     ),
@@ -32,9 +32,8 @@ devices = dict(
         # length: 13 mm
         description = 'zb0, singleslit',
         motor = 'zb0_m',
-        nok_start = 4138.8,  # 4121.5
-        nok_end = 4151.8,  # 4134.5
-        # motor = 4145.35,  # 4128.5
+        nok_start = 4121.5,
+        nok_end = 4134.5,
         nok_gap = 1,
         masks = {
             'slit': 0,
