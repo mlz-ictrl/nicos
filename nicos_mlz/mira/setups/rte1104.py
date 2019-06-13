@@ -1,12 +1,13 @@
-#:  -*- coding: utf-8 -*-
-
+#  -*- coding: utf-8 -*-
 description = 'Oscilloscope RTE1104 for reading the RMS values of all 4RF coils'
 
 group = 'optional'
 
+tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
+
 devices = {
     'rte1104_io': device('nicos.devices.tango.StringIO',
-        tangodevice = 'tango://miractrl.mira.frm2:10000/mira/rte1104/io',
+        tangodevice = tango_base + 'rte1104/io',
         lowlevel = True,
     ),
 }
