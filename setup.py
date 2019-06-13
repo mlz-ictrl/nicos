@@ -22,12 +22,14 @@
 #
 # *****************************************************************************
 
-import os
 import glob
+import os
+# pylint: disable=no-name-in-module,import-error
+from distutils.dir_util import mkpath
 from os import path
+
 from setuptools import setup
 from setuptools.command.install import install as stinstall
-from distutils.dir_util import mkpath  # pylint: disable=no-name-in-module,import-error
 
 from nicos import nicos_version
 from nicos.pycompat import ConfigParser
@@ -150,7 +152,7 @@ class nicosinstall(stinstall):
             self.announce("SETUPPACKAGE not given, please check %s to set the"
                           " correct setup_package! "
                           "(see Installation guide in docs)" % self.install_conf, 2)
-        with open(self.install_conf, 'wb') as configfile:
+        with open(self.install_conf, 'w') as configfile:
             cfg.write(configfile)
 
     def run_install_etc(self):
