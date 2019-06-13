@@ -26,9 +26,9 @@
 
 from __future__ import absolute_import, division, print_function
 
-from math import pi, radians, tan
+from math import pi, radians, tan, atan
 
-from nicos.core import Attach, Moveable, Param
+from nicos.core import Attach, Moveable, Param, Readable, status
 
 
 class SelectorLambda(Moveable):
@@ -86,3 +86,32 @@ class SelectorLambda(Moveable):
         speed = int(self._constant(self._get_tilt(0)) / value)
         self.log.debug('moving selector to %d rpm', speed)
         self._attached_seldev.start(speed)
+
+
+class SelectorLambdaSpread(Readable):
+    """
+    Returns the calculated wavelength spread.
+    """
+
+    parameters = {
+        'n_lamellae': Param('Number of lamellae', mandatory=True, unit=''),
+        'd_lamellae': Param('Thickness of a lamella', mandatory=True,
+                            unit='mm'),
+        'diameter':   Param('Rotor diameter', mandatory=True, unit='m'),
+    }
+
+    attached_devices = {
+        'lamdev': Attach('The wavelength device', SelectorLambda),
+    }
+
+    def doRead(self, maxage=0):
+        lamdev = self._attached_lamdev
+        tilt = lamdev._get_tilt(maxage)
+        eff_twistangle = lamdev.twistangle + \
+            tilt * lamdev.length / lamdev.beamcenter
+        spread = atan((2*pi / self.n_lamellae) -
+                      (2 * self.d_lamellae / self.diameter)) / eff_twistangle
+        return 100 * spread
+
+    def doStatus(self, maxage=0):
+        return status.OK, ''
