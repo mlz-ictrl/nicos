@@ -588,7 +588,7 @@ Currently NICOS supports the following list of common mixin classes:
 .. autoclass:: CanDisable()
 
 
-.. module:: nicos.devices.abstract
+.. currentmodule:: nicos.devices.abstract
 
 ``CanReference``
 ================
@@ -596,7 +596,7 @@ Currently NICOS supports the following list of common mixin classes:
 .. autoclass:: CanReference()
 
 
-.. module:: nicos.devices.generic.detector
+.. currentmodule:: nicos.devices.generic.detector
 
 ``TimerChannelMixin``
 =====================
@@ -614,7 +614,7 @@ Currently NICOS supports the following list of common mixin classes:
 .. autoclass:: ImageChannelMixin()
 
 
-.. module:: nicos.devices.generic.sequence
+.. currentmodule:: nicos.devices.generic.sequence
 
 ``SequencerMixin``
 ==================

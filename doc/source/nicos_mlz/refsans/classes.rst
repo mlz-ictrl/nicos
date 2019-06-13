@@ -69,7 +69,7 @@ Data Sinks
 .. automodule:: nicos_mlz.refsans.devices.datasinks
 .. autoclass:: ConfigObjDatafileSink()
 
-.. automodule:: nicos_mlz.refsans.devices.detector
+.. currentmodule:: nicos_mlz.refsans.devices.detector
 .. autoclass:: ComtecHeaderSink()
 
 Instrument specific widgets

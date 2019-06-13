@@ -22,7 +22,7 @@ class implements, how the data should be written.
 
 .. autoclass:: DataFileBase
 
-.. module:: nicos.core.data
+.. currentmodule:: nicos.core.data
 
 .. autoclass:: DataFile
 

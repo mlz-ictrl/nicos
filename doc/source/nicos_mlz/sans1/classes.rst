@@ -47,7 +47,7 @@
 Data Sinks
 ----------
 
-.. automodule:: nicos_mlz.sans1.devices.bersans
+.. currentmodule:: nicos_mlz.sans1.devices.bersans
 .. autoclass:: BerSANSImageSink()
 
 .. automodule:: nicos_mlz.sans1.devices.copysink
