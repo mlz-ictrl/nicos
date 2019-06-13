@@ -23,7 +23,7 @@ devices = dict(
         website = 'http://www.mlz-garching.de/refsans',
         facility = 'NICOS demo instruments',
     ),
-    Sample = device('nicos.devices.sample.Sample',
+    Sample = device('nicos_mlz.refsans.devices.sample.Sample',
         description = 'Container storing Sample properties',
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',

@@ -26,7 +26,7 @@ devices = dict(
         operators = ['German Engineering Materials Science Centre (GEMS)'],
         website = 'http://www.mlz-garching.de/refsans',
     ),
-    Sample = device('nicos.devices.sample.Sample',
+    Sample = device('nicos_mlz.refsans.devices.sample.Sample',
         description = 'Container storing Sample properties',
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',

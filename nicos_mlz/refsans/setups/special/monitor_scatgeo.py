@@ -121,8 +121,8 @@ _altimetercol = Column(
 _samplesizecol = Column(
     Block(' sample size ', [
         BlockRow(
-            Field(name='length', dev='length', width=14, unit='mm'),
-            Field(name='width', dev='width', width=14, unit='mm'),
+            Field(name='length', key='sample/length', width=14, unit='mm'),
+            Field(name='width', key='sample/width', width=14, unit='mm'),
             Field(name='footprint', dev='footprint', width=14, unit='mm'),
             ),
         ],

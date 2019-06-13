@@ -63,6 +63,9 @@
 .. automodule:: nicos_mlz.refsans.devices.analogencoder
 .. autoclass:: AnalogEncoder()
 
+.. automodule:: nicos_mlz.refsans.devices.sample
+.. autoclass:: Sample()
+
 Data Sinks
 ----------
 

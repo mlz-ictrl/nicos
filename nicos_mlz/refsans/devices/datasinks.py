@@ -90,8 +90,8 @@ Gonio = [
     'autocollimator_theta',
     'last_slit',
     'samplechanger',
-    'length',
-    'width',
+    'Sample/length',
+    'Sample/width',
 ]
 NOKs = [
     'nok1', 'nok2', 'nok3', 'nok4',
