@@ -77,3 +77,5 @@ Instrument specific widgets
 
 .. automodule:: nicos_mlz.refsans.gui.monitorwidgets
 .. autoclass:: VRefsans()
+.. autoclass:: BeamPosition()
+.. autoclass:: TimeDistance()
