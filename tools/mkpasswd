@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the MLZ
+# Copyright (c) 2009-2019 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Jens Krüger <jens.krueger@frm2.tum.de>
+#
+# *****************************************************************************
+
+from __future__ import print_function
+
+import argparse
+import getpass
+import hashlib
+
+parser = argparse.ArgumentParser(
+    description='Create an encrypted password hash for the ListAuthenticator.',
+    epilog='The printed hash number can be used as password hash.',
+    formatter_class=argparse.RawTextHelpFormatter,
+)
+
+parser.add_argument('--encryption', '-E', action='store',
+                    type=str, default='md5', choices=['md5', 'sha1'],
+                    help="encryption type, 'md5' or 'sha1', default='md5'")
+
+opts = parser.parse_args()
+
+prompt = 'Please enter password: '
+if opts.encryption == 'md5':
+    print(hashlib.md5(getpass.getpass(prompt)).hexdigest())
+else:
+    print(hashlib.sha1(getpass.getpass(prompt)).hexdigest())
