@@ -33,5 +33,8 @@ class PivotPoint(ManualSwitch):
     parameters = {
         'grid': Param('Distance between the possible points',
                       type=floatrange(0), settable=False, userparam=False,
-                      default=125.)
+                      default=125., unit='mm'),
+        'height': Param('Height above ground level',
+                        type=floatrange(0), settable=False, default=373,
+                        unit='mm'),
     }

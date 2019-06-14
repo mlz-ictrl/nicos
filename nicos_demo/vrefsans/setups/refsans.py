@@ -40,3 +40,31 @@ includes = [
 
 startupcode = """
 """
+
+devices = dict(
+    table = device('nicos.devices.generic.Axis',
+        description = 'detector table inside tube',
+        motor = device('nicos.devices.generic.VirtualMotor',
+            abslimits = (620, 11025),
+            unit = 'mm',
+        ),
+        precision = 0.05,
+    ),
+    tube = device('nicos.devices.generic.VirtualMotor',
+        description = 'tube Motor',
+        abslimits = (-120, 1000),
+        unit = 'mm',
+    ),
+    alphai = device('nicos.devices.generic.VirtualMotor',
+        description = 'theta',
+        abslimits = (0, 3.5),
+        unit = 'deg',
+        speed = 0.1,
+    ),
+    alphaf = device('nicos_mlz.refsans.devices.tube.DetAngle',
+        description = 'gamma',
+        tubeangle = 'tube_angle',
+        tubepos = 'det_table',
+        pivot = 'det_pivot',
+    ),
+)
