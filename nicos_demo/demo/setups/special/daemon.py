@@ -7,7 +7,8 @@ import hashlib
 devices = dict(
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         hashing = 'sha1',
-        # first entry is the user name, second the hashed password, third the user level
+        # for the meaning of these entries see
+        # https://forge.frm2.tum.de/nicos/doc/nicos-stable/services/daemon/#nicos.services.daemon.auth.list.Authenticator
         passwd = [
             ('guest', '', 'guest'),
             ('user', hashlib.sha1(b'user').hexdigest(), 'user'),

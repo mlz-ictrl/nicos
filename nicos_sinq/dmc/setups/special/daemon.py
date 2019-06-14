@@ -3,7 +3,6 @@ group = 'special'
 
 devices = dict(
     Auth=device('nicos.services.daemon.auth.list.Authenticator',
-                # the hashing maybe 'md5' or 'sha1'
                 hashing='sha1',
                 passwd=[('spy', '15346b593c4d0cf05fb6e67a5669d852e6550481',
                          'guest'),
@@ -15,7 +14,7 @@ devices = dict(
                 ),
     Daemon=device('nicos.services.daemon.NicosDaemon',
                   server='',
-                  authenticators=['Auth', ],  # and/or 'UserDB'
+                  authenticators=['Auth', ],
                   loglevel='info',
                   ),
 )
