@@ -35,7 +35,7 @@ includes = [
 
     #  'vacuum',
     #  'instrument_mode',
-    #  'qmesydaq',
+    'qmesydaq',
 ]
 
 startupcode = """
