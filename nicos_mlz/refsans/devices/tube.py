@@ -71,6 +71,7 @@ class DetAngle(HasLimits, Moveable):
         'tubeangle': Attach('Angle of the tube to the ground', Moveable),
         'tubepos': Attach('Position of detector inside tube', Readable),
         'pivot': Attach('Position of the pivot point', Readable),
+        'theta': Attach('Tilt angle of the sample', Readable, optional=True),
     }
 
     parameters = {
@@ -121,7 +122,10 @@ class DetAngle(HasLimits, Moveable):
         self._update(maxage)
         beta = self._attached_tubeangle.read(maxage)
         self.log.debug('Tube angle: %.3f', beta)
-        return self._alpha(beta)
+        alphaf = self._alpha(beta)
+        if self._attached_theta:
+            alphaf -= self._attached_theta.read(maxage)
+        return alphaf
 
     def _update(self, maxage=0):
         pivot = self._attached_pivot
@@ -144,6 +148,8 @@ class DetAngle(HasLimits, Moveable):
         self._update(0)
         x = np.arange(self.absmin, self.absmax + 0.01, 0.01)
         y = self._func(x)
+        if self._attached_theta:
+            target += self._attached_theta.read(0)
         val = np.interp(target, y, x)
         self.log.debug('new beta: %f', val)
         self._attached_tubeangle.start(val)

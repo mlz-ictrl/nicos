@@ -6,7 +6,7 @@ devices = dict(
     gonio_theta = device('nicos.devices.generic.Axis',
         description = 'Theta axis',
         motor = device('nicos.devices.generic.VirtualMotor',
-            abslimits = (-500, 500),
+            abslimits = (-5, 5),
             speed = 0.125,
             unit = 'deg',
         ),
@@ -28,7 +28,6 @@ devices = dict(
             speed = 0.1,
             unit = 'deg',
         ),
-        coder = 'gonio_omega_e',
         precision = 0.01,
     ),
     gonio_y = device('nicos.devices.generic.Axis',
@@ -50,3 +49,7 @@ devices = dict(
         precision = 0.01,
     ),
 )
+
+alias_config = {
+    'alphai': {'gonio_theta': 100}
+}

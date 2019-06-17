@@ -12,7 +12,7 @@ includes = [
     # 'chopperphasentiming',
     'detector',
     # 'fak40',
-    # 'gonio',
+    'gonio',
     # 'gonio_top',
     # 'guidehall',
     # 'h2',
@@ -36,6 +36,7 @@ includes = [
     #  'vacuum',
     #  'instrument_mode',
     'qmesydaq',
+    'alphai',
 ]
 
 startupcode = """
@@ -55,16 +56,21 @@ devices = dict(
         abslimits = (-120, 1000),
         unit = 'mm',
     ),
-    alphai = device('nicos.devices.generic.VirtualMotor',
-        description = 'theta',
-        abslimits = (0, 3.5),
-        unit = 'deg',
-        speed = 0.1,
-    ),
+    # alphai = device('nicos.devices.generic.VirtualMotor',
+    #     description = 'theta',
+    #     abslimits = (0, 3.5),
+    #     unit = 'deg',
+    #     speed = 0.1,
+    # ),
     alphaf = device('nicos_mlz.refsans.devices.tube.DetAngle',
         description = 'gamma',
         tubeangle = 'tube_angle',
         tubepos = 'det_table',
         pivot = 'det_pivot',
+        theta = 'gonio_theta',
     ),
 )
+
+startupcode = '''
+alphai.userlimits = (0, 3.5)
+'''
