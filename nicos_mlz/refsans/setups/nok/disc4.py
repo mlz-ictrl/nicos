@@ -9,6 +9,6 @@ devices = dict(
         description = 'disc 4 Motor',
         tangodevice = tango_base + 'disc4',
         abslimits = (-30, 46),
-        refpos = 8.45,
+        lowlevel = False,
     ),
 )
