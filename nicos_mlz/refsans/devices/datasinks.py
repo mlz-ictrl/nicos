@@ -386,14 +386,12 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             if (devname, 'value') in metainfo:
                 self._data['Chopper'][devname] = metainfo[devname, 'value'][0]
             else:
-                dev, key = devname.split('/')
-                if (dev, key) in metainfo:
-                    self._data['Chopper']['%s' % devname.replace('/', '_')] = \
-                        metainfo[dev, key][0]
+                key = tuple(devname.split('/'))
+                if key in metainfo:
+                    self._data['Chopper']['%s_%s' % key] = metainfo[key][0]
                 else:
                     self.log.warning('missing %s', devname)
-        self.log.debug('chopper_mode %s',
-                       metainfo['chopper', 'mode'][0])
+        self.log.debug('chopper_mode %s', metainfo['chopper', 'mode'][0])
 
     def _write_sample(self, metainfo):
         sample = self._dict()
