@@ -32,7 +32,7 @@ import numpy as np
 
 from nicos.core import Moveable, Readable
 from nicos.core.mixins import HasLimits
-from nicos.core.params import Attach, Override, Param, floatrange
+from nicos.core.params import Attach, Override, Param, floatrange, tupleof
 
 
 class TubeAngle(HasLimits, Moveable):
@@ -99,6 +99,9 @@ class DetAngle(HasLimits, Moveable):
         'beamheight': Param('Height of beam above ground level',
                             type=floatrange(0), mandatory=False,
                             default=1193.7, unit='mm'),
+        'range': Param('range of angles between upper and lower detector edge',
+                       type=tupleof(float, float), volatile=True,
+                       unit='deg, deg', internal=True, preinit=False),
     }
 
     parameter_overrides = {
@@ -106,11 +109,13 @@ class DetAngle(HasLimits, Moveable):
         'abslimits': Override(mandatory=False, volatile=True),
     }
 
-    def doInit(self, mode):
-        self._func = np.vectorize(self._alpha)
+    def doPreinit(self, mode):
         # center of the detector in respect to the tube base line
         self._detcenter = self.detheight / 2 + self.detoffset
         self._yoffset = self.beamheight - self._attached_pivot.height
+
+    def doInit(self, mode):
+        self._func = np.vectorize(self._alpha)
 
     def doRead(self, maxage=0):
         self._update(maxage)
@@ -145,3 +150,8 @@ class DetAngle(HasLimits, Moveable):
 
     def doReadAbslimits(self):
         return self._attached_tubeangle.abslimits
+
+    def doReadRange(self):
+        alpha = self.doRead(0)
+        opening = degrees(atan2(self.detheight, self._tpos)) / 2.
+        return (alpha - opening, alpha + opening)
