@@ -397,9 +397,15 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
 
     def _write_sample(self, metainfo):
         sample = self._dict()
-        for dev in Gonio:
-            if (dev, 'value') in metainfo:
-                sample[dev] = metainfo[dev, 'value'][0]
+        for devname in Gonio:
+            if (devname, 'value') in metainfo:
+                sample[devname] = metainfo[devname, 'value'][0]
+            else:
+                key = tuple(devname.split('/'))
+                if key in metainfo:
+                    sample[key[1]] = metainfo[key][0]
+                else:
+                    self.log.warning('missing %s', devname)
         self._data['Sample'] = sample
 
     def _write_extra(self, metainfo, elements):
