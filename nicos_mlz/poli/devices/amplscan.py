@@ -1,10 +1,12 @@
+from __future__ import absolute_import, division, print_function
+
 from nicos import session
-from nicos.core import SubscanMeasurable, Attach, Param, listof, \
-    Measurable, anytype, Value
+from nicos.commands import usercommand
+from nicos.commands.analyze import _getData, fit
+from nicos.core import Attach, Measurable, Param, SubscanMeasurable, Value, \
+    anytype, listof
 from nicos.core.scan import Scan
 from nicos.utils.fitting import CosineFit
-from nicos.commands import usercommand
-from nicos.commands.analyze import fit, _getData
 
 
 @usercommand

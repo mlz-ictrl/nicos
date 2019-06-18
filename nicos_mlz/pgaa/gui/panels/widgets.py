@@ -23,7 +23,7 @@
 # *****************************************************************************
 """PGAA panel specific widgets."""
 
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import time
 from collections import OrderedDict
@@ -33,8 +33,8 @@ from nicos.core import status
 from nicos.guisupport.led import ClickableOutputLed
 from nicos.guisupport.qt import QAbstractButton, QAbstractSpinBox, QCheckBox, \
     QComboBox, QCursor, QDateTime, QDateTimeEdit, QDoubleValidator, \
-    QHBoxLayout, QIntValidator, QLCDNumber, QLabel, QLineEdit, QPainter, \
-    QPixmap, QSlider, QSpinBox, QStackedWidget, QToolTip, QWidget, Qt, \
+    QHBoxLayout, QIntValidator, QLabel, QLCDNumber, QLineEdit, QPainter, \
+    QPixmap, QSlider, QSpinBox, QStackedWidget, Qt, QToolTip, QWidget, \
     pyqtSignal, pyqtSlot
 from nicos.guisupport.widget import NicosListener, NicosWidget
 from nicos.pycompat import iteritems

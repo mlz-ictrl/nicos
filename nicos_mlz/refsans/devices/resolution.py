@@ -24,6 +24,8 @@
 
 """Devices to display some instrument values in status monitor."""
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import Override, Readable
 from nicos.core.params import Attach
 

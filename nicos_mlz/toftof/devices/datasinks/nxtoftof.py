@@ -22,22 +22,26 @@
 #
 # *****************************************************************************
 
-import re
+from __future__ import absolute_import, division, print_function
 
+import re
 from datetime import datetime
 
+import numpy as np
+import pytz
+
 # pylint: disable=no-name-in-module
-from nexusformat.nexus import NXattr, NXdata, NXdetector, \
+from nexusformat.nexus import NeXusError, NXattr, NXdata, NXdetector, \
     NXdisk_chopper, NXentry, NXfield, NXinstrument, NXmonitor, NXroot, \
-    NXsample, NXuser, NeXusError
-# NXbeam, NXbeam_stop, NXcollimator, NXFile, NXgeometry, NXgroup, NXlink,
-# NXlog, NXnote, NXpositioner, NXsource,
+    NXsample, NXuser
 
 from nicos_mlz.toftof.devices.datasinks.nxfile import NexusFile
 
-import numpy as np
+# NXbeam, NXbeam_stop, NXcollimator, NXFile, NXgeometry, NXgroup, NXlink,
+# NXlog, NXnote, NXpositioner, NXsource,
 
-import pytz
+
+
 
 
 def string_(value):
