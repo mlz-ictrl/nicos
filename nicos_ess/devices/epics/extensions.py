@@ -62,6 +62,11 @@ class EpicsMappedMoveable(MappedMoveable, EpicsDigitalMoveableEss):
         EpicsDigitalMoveableEss.doStart(self, target)
 
 
+class EpicsMappedFloatMoveable(EpicsMappedMoveable):
+    valuetype = float
+    relax_mapping = True
+
+
 class HasSwitchPv(DeviceMixinBase):
     """
     A mixin that can be used with EPICS based devices.
