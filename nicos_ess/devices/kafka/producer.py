@@ -38,11 +38,15 @@ class ProducesKafkaMessages(DeviceMixinBase):
     parameters = {
         'brokers': Param('List of kafka hosts to be connected',
                          type=listof(host(defaultport=9092)),
-                         default=['localhost'], preinit=True, userparam=False)
+                         default=['localhost'], preinit=True, userparam=False),
+        'max_request_size': Param('Maximum size of kafka message',
+                                  type=int, default=16000000, preinit=True,
+                                  userparam=False),
     }
 
     def doPreinit(self, mode):
-        self._producer = kafka.KafkaProducer(bootstrap_servers=self.brokers)
+        self._producer = kafka.KafkaProducer(bootstrap_servers=self.brokers,
+                                             max_request_size=self.max_request_size)
 
     def doShutdown(self):
         self._producer.close()

@@ -6,11 +6,12 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = None,
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'daemonsink', 'NexusDataSink'],
 #    notifiers = ['email', 'smser'],
 )
 
-modules = ['nicos.commands.standard']
+modules = ['nicos.commands.standard', 'nicos_ess.commands.file_writing',
+           'nicos_ess.v20.commands.filewriter']
 
 #includes = ['notifiers']
 
@@ -50,4 +51,23 @@ devices = dict(
                       path = '/opt/nicos-data/data',
                       minfree = 5,
                      ),
+
+    NexusDataSink=device(
+        'nicos_ess.devices.datasinks.nexussink.NexusFileWriterSink',
+        description="Sink for NeXus file writer (kafka-to-nexus)",
+        brokers=["192.168.1.80:9092"],
+        cmdtopic="V20_writerCommand",
+        status_provider='NexusFileWriter',
+        templatesmodule='nicos_ess.v20.nexus.nexus_templates',
+        templatename='essiip_default',
+        start_fw_file='/opt/nicos-core/nicos_ess/v20/V20_file_write_start.json',
+    ),
+
+    NexusFileWriter=device(
+        'nicos_ess.devices.datasinks.nexussink.NexusFileWriterStatus',
+        description="Status for nexus file writing",
+        brokers=["192.168.1.80:9092"],
+        statustopic="V20_writerStatus",
+    ),
 )
+
