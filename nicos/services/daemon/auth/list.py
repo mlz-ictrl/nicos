@@ -44,14 +44,17 @@ class Authenticator(BaseAuthenticator):
     to 'at most' USER level. If both fields are unspecified, we still request
     a username and restrict to GUEST level.
 
-    One way to create the password hashes is to use `hashlib` from a Python
-    shell::
+    One way to create the password hashes is the use of the `mkpasswd` tool::
 
-       >>> import hashlib
-       >>> hashlib.md5(b'password').hexdigest()
-       '5f4dcc3b5aa765d61d8327deb882cf99'
-       >>> hashlib.sha1(b'password').hexdigest()
-       '5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8'
+      # tools/mkpasswd -E md5
+      Please enter password:
+      5f4dcc3b5aa765d61d8327deb882cf99
+
+    or::
+
+      # tools/mkpasswd -E sha1
+      Please enter password:
+      5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8
 
     These hexdigests can be used in the `passwd` list::
 
