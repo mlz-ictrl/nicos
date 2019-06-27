@@ -128,7 +128,7 @@ devices = dict(
             'out': 0
         },
     ),
-    absorber = device('nicos_mlz.galaxi.devices.absorber.AbsorberDevice',
+    absorber = device('nicos_jcns.galaxi.devices.absorber.AbsorberDevice',
         description = 'Absorber attenuation',
         absorbers = [
             'absorber00', 'absorber01', 'absorber02', 'absorber03',

@@ -27,13 +27,18 @@
 from __future__ import absolute_import, division, print_function
 
 import socket
+
 from os import path
 
 
 def determine_instrument(setup_package_path):
     """JCNS lab and infrastructure way to find the instrument."""
     try:
-        domain = socket.gethostname().split('.')[0]
+        hostname = socket.gethostname().split('.')
+        if hostname[1] in ('fourcircle', 'galaxi'):
+            domain = hostname[1]
+        else:
+            domain = hostname[0]
     except (ValueError, IndexError, socket.error):
         pass
     else:

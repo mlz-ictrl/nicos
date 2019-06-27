@@ -54,7 +54,7 @@ devices = dict(
             'open': 1,
         },
     ),
-    tubecond = device('nicos_mlz.galaxi.devices.bruker_axs.TubeConditioner',
+    tubecond = device('nicos_jcns.galaxi.devices.bruker_axs.TubeConditioner',
         description = 'Tube conditioning device of the x-ray source',
         tangodevice = metaljet + 'comp_tube_conditioner',
         mapping = {

@@ -64,7 +64,7 @@ devices = dict(
         mapping = dict(up = 1, down = 2),
         fmtstr = '%d',
     ),
-    detdistance = device('nicos_mlz.galaxi.devices.automation.DetectorDistance',
+    detdistance = device('nicos_jcns.galaxi.devices.automation.DetectorDistance',
         description = 'Pilatus detector distance',
         detectubes = [
             'detectube01', 'detectube02', 'detectube03', 'detectube04'
@@ -121,7 +121,7 @@ devices = dict(
         mapping = dict(open = 0, close = 1),
         fmtstr = '%s',
     ),
-    coolerxraysource = device('nicos_mlz.galaxi.devices.bruker_axs.WaterCooler',
+    coolerxraysource = device('nicos_jcns.galaxi.devices.bruker_axs.WaterCooler',
         description = 'Water cooler info',
         tangodevice = tango_digital + 'Waterworks',
         mapping = dict(ok = 1, error = 0),
@@ -144,7 +144,7 @@ devices = dict(
         fmtstr = '%d',
         unit = '',
     ),
-    vacuumoperation = device('nicos_mlz.galaxi.devices.automation.VacuumOperation',
+    vacuumoperation = device('nicos_jcns.galaxi.devices.automation.VacuumOperation',
         description = 'Different Vacuum operations',
         tangodevice = tango_digital + 'VacuumMode',
         mapping = {

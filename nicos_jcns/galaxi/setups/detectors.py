@@ -13,22 +13,22 @@ tango_base = 'tango://phys.galaxi.kfa-juelich.de:10000/galaxi/'
 sysconfig = dict(datasinks = ['mythensink', 'pilatussink'],)
 
 devices = dict(
-    mythen_timer = device('nicos_mlz.galaxi.devices.mythen.MythenTimer',
+    mythen_timer = device('nicos_jcns.galaxi.devices.mythen.MythenTimer',
         description = 'Timer',
         tangodevice = tango_base + 'Mythen/1',
         lowlevel = True,
     ),
-    mythen_image = device('nicos_mlz.galaxi.devices.mythen.MythenImage',
+    mythen_image = device('nicos_jcns.galaxi.devices.mythen.MythenImage',
         description = 'GALAXI Mythen detector data',
         tangodevice = tango_base + 'Mythen/1',
     ),
-    mythen = device('nicos_mlz.galaxi.devices.mythen.MythenDetector',
+    mythen = device('nicos_jcns.galaxi.devices.mythen.MythenDetector',
         description = 'GALAXI Mythen detector',
         timers = ['mythen_timer'],
         images = ['mythen_image'],
         monitors = [],
     ),
-    pilatus = device('nicos_mlz.galaxi.devices.pilatus.PilatusDetector',
+    pilatus = device('nicos_jcns.galaxi.devices.pilatus.PilatusDetector',
         description = 'GALAXI Pilatus detector',
         fmtstr = '%s',
         subdir = '',
@@ -45,11 +45,11 @@ devices = dict(
         pchi = 'pchi',
         pom = 'pom'
     ),
-    pilatussink = device('nicos_mlz.galaxi.devices.pilatus.PilatusSink',
+    pilatussink = device('nicos_jcns.galaxi.devices.pilatus.PilatusSink',
         detector = 'pilatus',
         detectors = ['pilatus'],
     ),
-    mythensink = device('nicos_mlz.galaxi.devices.mythendatasink.MythenImageSink',
+    mythensink = device('nicos_jcns.galaxi.devices.mythendatasink.MythenImageSink',
         filenametemplate = [
             '%(Exp.users)s_%(session.experiment.sample.'
             'filename)s_%(scancounter)s.%(pointnumber)s.mydat'

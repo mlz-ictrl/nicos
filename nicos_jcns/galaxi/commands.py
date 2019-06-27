@@ -31,7 +31,7 @@ from __future__ import absolute_import, division, print_function
 from nicos import session
 from nicos.commands import basic, device, helparglist, measure, usercommand
 
-from nicos_mlz.galaxi.devices.pilatus import PilatusDetector
+from nicos_jcns.galaxi.devices.pilatus import PilatusDetector
 
 
 @usercommand

@@ -32,7 +32,7 @@ devices = dict(
         tangodevice = tango_digital + 'StatIntegralPin2',
         lowlevel = True,
     ),
-    singledetectors = device('nicos_mlz.galaxi.devices.pindiode.SingleDetectors',
+    singledetectors = device('nicos_jcns.galaxi.devices.pindiode.SingleDetectors',
         description = 'Integrated PIN diode values',
         pintimer = 'pintimer',
         pinstate = 'pinstate',
