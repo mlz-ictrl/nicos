@@ -149,26 +149,27 @@ def test_scan2(session):
         session.experiment.envlist = []
         session.experiment.detlist = []
 
-@pytest.mark.parametrize('sargs,xindex',[
-    # first device is moving
-      ('[m, m2], [0, 0], [2,0], 2, t=0.', 0),
-    # second device is moving
-      ('[m, m2], [0, 0], [0,2], 2, t=0.', 1),
-    #second device is moving, with multistep (issue #4030, #4031)
-      ('[m, m2], [0, 0], [0, 2], 2, t=0., manual=[1, 2]', 1),
-     #degenerate case only multistep moving, with multistep (issue #4030, #4031)
-      ('[m, m2], [0, 0], [0, 0], 2, t=0., manual=[1, 2]', 0),
-    ])
-def test_scan_plotindex(session, sargs, xindex):
-    m = session.getDevice('motor')  # pylint: disable=unused-variable
-    m2 = session.getDevice('motor2')  # pylint: disable=unused-variable
+
+def test_scan_plotindex(session):
+    m = session.getDevice('motor')
+    m2 = session.getDevice('motor2')
     mm = session.getDevice('manual')
     mm.move(0)
 
     session.experiment.setDetectors([session.getDevice('det')])
-    eval("scan(%s)" % sargs)
-    dataset = session.data._last_scans[-1]
-    assert dataset.xindex == xindex
+    # first device is moving
+    scan([m, m2], [0, 0], [2, 0], 2, t=0)
+    assert session.data._last_scans[-1].xindex == 0
+    # second device is moving
+    scan([m, m2], [0, 0], [0, 2], 2, t=0)
+    assert session.data._last_scans[-1].xindex == 1
+    # second device is moving, with multistep (issue #4030, #4031)
+    scan([m, m2], [0, 0], [0, 2], 2, t=0., manual=[1, 2])
+    assert session.data._last_scans[-1].xindex == 1
+    # degenerate case only multistep moving, with multistep (issue #4030, #4031)
+    scan([m, m2], [0, 0], [0, 0], 2, t=0., manual=[1, 2])
+    assert session.data._last_scans[-1].xindex == 0
+
 
 def test_scan_usageerrors(session):
     m = session.getDevice('motor')
@@ -390,6 +391,7 @@ def test_tomo(session):
     sry.maw(0.0)
     tomo(10, sry, 1, det, t=0.)
     assert sry.read() == 360.0
+
 
 @pytest.mark.timeout(timeout=60, method='thread', func_only=True)
 def test_live_count(session):
