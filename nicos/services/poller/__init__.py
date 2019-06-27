@@ -401,7 +401,7 @@ class Poller(Device):
             info = []
             for worker in itervalues(self._workers):
                 wname = worker.getName()
-                if worker.isAlive():
+                if worker.is_alive():
                     info.append('%s: alive' % wname)
                 else:
                     info.append('%s: dead' % wname)
@@ -566,5 +566,5 @@ class Poller(Device):
                 except Exception:
                     pass
         killer = threading.Timer(4, kill_all)
-        killer.setDaemon(True)
+        killer.daemon = True
         killer.start()

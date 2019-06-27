@@ -96,7 +96,7 @@ class Regulator(Moveable):
 
     def doStatus(self, maxage=0):
         if session.sessiontype != POLLER:  # XXX!
-            if self._regulation_thread and self._regulation_thread.isAlive():
+            if self._regulation_thread and self._regulation_thread.is_alive():
                 # self.curstatus = status.BUSY, 'regulating'
                 pass
             else:

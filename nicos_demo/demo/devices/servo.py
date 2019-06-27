@@ -109,7 +109,7 @@ class SerComIO(Device):
                 self._polls.append(device)
         else:
             self._polls = [device]
-            if (self._thread is None) or not(self._thread.isAlive()):
+            if (self._thread is None) or not(self._thread.is_alive()):
                 self._thread = createThread('servo poller', self._poller)
 
     def delPollDev(self, device):

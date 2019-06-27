@@ -172,7 +172,7 @@ class Axis(CanReference, AbstractAxis):
             waitForCompletion(self, ignore_errors=True)
 
         if self._posthread:
-            if self._posthread.isAlive():
+            if self._posthread.is_alive():
                 self._posthread.join()
             self._posthread = None
 
@@ -198,7 +198,7 @@ class Axis(CanReference, AbstractAxis):
         """Return the status of the motor controller."""
         if self._mode == SIMULATION:
             return (status.OK, '')
-        elif self._posthread and self._posthread.isAlive():
+        elif self._posthread and self._posthread.is_alive():
             return (status.BUSY, 'moving')
         elif self._errorstate:
             return (status.ERROR, str(self._errorstate))

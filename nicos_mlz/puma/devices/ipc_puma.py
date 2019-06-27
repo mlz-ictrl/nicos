@@ -238,7 +238,7 @@ class ReferenceMotor(CanReference, Motor1):
     def doStop(self):
         self._stoprequest = 1
         Motor1.doStop(self)
-        if self._refcontrol and self._refcontrol.isAlive():
+        if self._refcontrol and self._refcontrol.is_alive():
             self._refcontrol.join()
         self._refcontrol = None
 
@@ -246,7 +246,7 @@ class ReferenceMotor(CanReference, Motor1):
         """Return the status of the motor controller."""
         if self._mode == SIMULATION:
             return (status.OK, '')
-        elif self._refcontrol and self._refcontrol.isAlive():
+        elif self._refcontrol and self._refcontrol.is_alive():
             return (status.BUSY, 'referencing')
         return Motor1.doStatus(self, maxage)
 
@@ -263,7 +263,7 @@ class ReferenceMotor(CanReference, Motor1):
         # self.wait()
 
         if self.doStatus()[0] == status.OK:
-            if self._refcontrol and self._refcontrol.isAlive():
+            if self._refcontrol and self._refcontrol.is_alive():
                 self._refcontrol.join()
             self._refcontrol = None
 

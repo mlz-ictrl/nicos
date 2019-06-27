@@ -457,7 +457,7 @@ class Experiment(Device):
         if not proposal:
             proposal = self.proposal
         if proposal in self._proposal_thds:
-            if self._proposal_thds[proposal].isAlive():
+            if self._proposal_thds[proposal].is_alive():
                 return True
         return False
 
@@ -467,7 +467,7 @@ class Experiment(Device):
 
         """
         for iproposal, thd in listitems(self._proposal_thds):
-            if not thd.isAlive():
+            if not thd.is_alive():
                 del self._proposal_thds[iproposal]
                 self.log.debug('delete reference on closed thread for '
                                'proposal %s', iproposal)
@@ -689,7 +689,7 @@ class Experiment(Device):
                                    daemon=False)
                 # wait up to 5 seconds
                 thd.join(5)
-                if thd.isAlive():
+                if thd.is_alive():
                     self.log.info('continuing finishing of proposal %s in '
                                   'background', self.proposal)
                     self._proposal_thds[self.proposal] = thd

@@ -100,7 +100,7 @@ class VirtualMotor(HasOffset, CanDisable, Motor):
 
     def doStop(self):
         if self.speed != 0 and \
-           self._thread is not None and self._thread.isAlive():
+           self._thread is not None and self._thread.is_alive():
             self._stop = True
         else:
             self._setROParam('curstatus', (status.OK, 'idle'))
@@ -190,7 +190,7 @@ class VirtualChannel(ActiveChannel):
             self.curvalue = 0
 
     def doStart(self):
-        if self._thread and self._thread.isAlive():
+        if self._thread and self._thread.is_alive():
             return
         self.curvalue = 0
         self.doResume()
@@ -206,7 +206,7 @@ class VirtualChannel(ActiveChannel):
                                     self._counting)
 
     def doFinish(self):
-        if self._thread and self._thread.isAlive():
+        if self._thread and self._thread.is_alive():
             self._stopflag = True
             self._thread.join()
         else:
@@ -664,7 +664,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
 
     def doPrepare(self):
         self.readresult = [0]
-        if self._mythread and self._mythread.isAlive():
+        if self._mythread and self._mythread.is_alive():
             self._stopflag = True
             self._mythread.join()
             self._mythread = None
@@ -703,7 +703,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
         self.doFinish()
 
     def doStatus(self,  maxage=0):
-        if self._mythread and self._mythread.isAlive():
+        if self._mythread and self._mythread.is_alive():
             return status.BUSY,  'busy'
         return status.OK,  'idle'
 

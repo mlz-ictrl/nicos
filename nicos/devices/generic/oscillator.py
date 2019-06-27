@@ -93,7 +93,7 @@ class Oscillator(Moveable):
     def _stop(self):
         self._stop_request = True
         self._attached_moveable.stop()
-        if self._osc_thread and self._osc_thread.isAlive():
+        if self._osc_thread and self._osc_thread.is_alive():
             self._osc_thread.join()
         self._osc_thread = None
 
@@ -107,7 +107,7 @@ class Oscillator(Moveable):
     def doRead(self, maxage=0):
         """Return the current status of the moveable controller."""
         if session.sessiontype != POLLER:
-            if self._osc_thread and self._osc_thread.isAlive():
+            if self._osc_thread and self._osc_thread.is_alive():
                 self.curvalue = self._targets[1]
             else:
                 self.curvalue = self._targets[0]
@@ -116,7 +116,7 @@ class Oscillator(Moveable):
     def doStatus(self, maxage=0):
         """Return the status of the moveable."""
         if session.sessiontype != POLLER:
-            if self._osc_thread and not self._osc_thread.isAlive():
+            if self._osc_thread and not self._osc_thread.is_alive():
                 self.curstatus = (status.BUSY, 'moving')
             else:
                 self.curstatus = (status.OK, 'idle')

@@ -492,7 +492,7 @@ class Panda_mtt(CanReference, AbstractAxis):
             waitForCompletion(self, ignore_errors=True)
 
         if self._posthread:
-            if self._posthread.isAlive():
+            if self._posthread.is_alive():
                 self._posthread.join()
             self._posthread = None
 
@@ -510,7 +510,7 @@ class Panda_mtt(CanReference, AbstractAxis):
 
     def doStatus(self, maxage=0):
         """Returns the status of the motor controller."""
-        if self._posthread and self._posthread.isAlive():
+        if self._posthread and self._posthread.is_alive():
             return (status.BUSY, 'moving')
         elif self._errorstate:
             return (status.ERROR, str(self._errorstate))

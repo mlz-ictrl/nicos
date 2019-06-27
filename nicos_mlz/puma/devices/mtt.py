@@ -78,7 +78,7 @@ class MttAxis(Axis):
             waitForCompletion(self, ignore_errors=True)
 
         if self._posthread:
-            if self._posthread.isAlive():
+            if self._posthread.is_alive():
                 self._posthread.join()
             self._posthread = None
 

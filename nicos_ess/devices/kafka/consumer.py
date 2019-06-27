@@ -58,7 +58,7 @@ class KafkaSubscriber(DeviceMixinBase):
     def doShutdown(self):
         if self._updater_thread is not None:
             self._stoprequest = True
-            if self._updater_thread.isAlive():
+            if self._updater_thread.is_alive():
                 self._updater_thread.join()
             self._consumer.close()
 

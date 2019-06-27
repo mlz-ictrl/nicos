@@ -95,7 +95,7 @@ class CacheWorker(object):
         return 'worker(%s)' % self.name
 
     def is_active(self):
-        return not self.stoprequest and self.receiver.isAlive()
+        return not self.stoprequest and self.receiver.is_alive()
 
     def closedown(self):
         # try our best to close the connection gracefully

@@ -208,7 +208,7 @@ def read_environment(envlist):
 
 def stop_acquire_thread():
     """Stops an live() count if in progress."""
-    if session._thd_acquire and session._thd_acquire.isAlive():
+    if session._thd_acquire and session._thd_acquire.is_alive():
         session.log.info('live() counting in progress, stopping detectors.')
         for det in session.data._current.detectors:
             session.log.debug("stop detector: %s", det)
