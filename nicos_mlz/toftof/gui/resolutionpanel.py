@@ -72,7 +72,7 @@ class MiniPlot(LiveWidget1D):
 
         if ncurves > 1:
             self.curve2 = NicosPlotCurve(
-                [0], [.1], linecolor=kwds.get('color2', COLOR_RED))
+                [0], [.1], linecolor=kwds.get('color2', COLOR_GREEN))
             self.curve2.linewidth = 2
             self.axes.addCurves(self.curve2)
         else:
