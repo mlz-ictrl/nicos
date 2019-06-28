@@ -16,9 +16,6 @@ Detectors
 .. autoclass:: MythenTimer()
 .. autoclass:: MythenImage()
 
-.. automodule:: nicos_jcns.galaxi.devices.pilatus
-.. autoclass:: PilatusDetector()
-
 .. automodule:: nicos_jcns.galaxi.devices.pindiode
 .. autoclass:: SingleDetectors()
 
@@ -27,6 +24,3 @@ File formats
 
 .. automodule:: nicos_jcns.galaxi.devices.mythendatasink
 .. autoclass:: MythenImageSink()
-
-.. automodule:: nicos_jcns.galaxi.devices.pilatus
-.. autoclass:: PilatusSink()

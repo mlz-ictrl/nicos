@@ -28,10 +28,13 @@
 
 from __future__ import absolute_import, division, print_function
 
+from datetime import datetime
+from os import path
+
 from nicos import session
 from nicos.commands import basic, device, helparglist, measure, usercommand
 
-from nicos_jcns.galaxi.devices.pilatus import PilatusDetector
+from nicos_jcns.devices.pilatus_det import Detector as PilatusDetector
 
 
 @usercommand
@@ -55,28 +58,76 @@ def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
 
 
 @usercommand
-@helparglist('[number of counts], [preset, ...]')
-def count(n=1, **presets):
-    """Perform *n* counts with all default detectors set with `SetDetectors()`.
+@helparglist('num_counts, [detectors], [presets]')
+def count(n, *detlist, **presets):
+    """Perform **n** counts while the TIFF image filename of the DECTRIS
+    Pilatus detector will be set to a temporary value that remains unchanged
+    during execution of this command.
 
-    A temporary filename will be set when using DECTRIS Pilatus detector in
-    order to be able to overwrite the TIFF images.
+    With preset arguments, this preset is used instead of the default preset.
+
+    With detector devices as arguments, these detectors are used instead of the
+    default detectors set with `SetDetectors()`.
 
     Examples:
 
-    >>> count()           # count once with the default preset and detectors
-    >>> count(100)        # perform 100 counts without changing presets
-    >>> count(t=10)       # count once with time preset of 10 seconds
-    >>> count(10, t=60)  # perform 10 counts with time preset of 60 seconds
+    >>> # count 100 times without changing presets
+    >>> count(100)
+    >>>
+    >>> # count 10 times and set the temporary filename to 'tmp.tif'
+    >>> count(10, filename='tmp.tif')
+    >>>
+    >>> # count once with time preset of 10 seconds
+    >>> count(1, t=10)
 
-    :param int num: number of counts to be executed
-    :param presets: presets to be used when counting
+    Within a manual scan, this command is also used to perform the count as one
+    point of the manual scan.
     """
-    exp = session.experiment
+    filename = presets.pop('filename', 'tmpcount.tif')
     presets['temporary'] = True
     for _ in range(n):
-        for _det in exp.detectors:
-            if isinstance(_det, PilatusDetector):
-                _det.nextfilename = 'tmpcount.tif'
-        measure.count(**presets)
+        for det in session.experiment.detectors:
+            if isinstance(det, PilatusDetector):
+                det.imagedir = path.join(str(datetime.now().year),
+                                         session.experiment.proposal)
+                det.nextfilename = filename
+        measure.count(*detlist, **presets)
         session.breakpoint(2)  # allow daemon to stop here
+
+
+@usercommand
+@helparglist('radiation | (xray, threshold), [wait]')
+def SetDetectorEnergy(radiation=None, **value):
+    """For all default detectors set with `SetDetectors()` either load the
+    predefined settings for that are suitable for usage with silver, chromium,
+    copper, iron or molybdenum radiation or set the x-ray and threshold energy
+    to any other appropriate values.
+
+    The following keyword arguments are accepted:
+
+      * *xray* -- x-ray energy in kilo electron volt
+      * *threshold* -- threshold energy in kilo electron volt
+      * *wait* -- whether the command should wait until all detectors
+        completed the parameter update (defaults to 'True')
+
+    Examples:
+
+    >>> # load predefined settings for copper radiation
+    >>> SetDetectorEnergy('Cu')
+    >>>
+    >>> # set energy values explicitly
+    >>> SetDetectorEnergy(xray= 9.243, threshold= 8.0)
+    >>>
+    >>> # load predefined settings for silver radiation and return immediately
+    >>> SetDetectorEnergy('Ag', wait=False)
+    """
+    wait = value.pop('wait', True)
+    configured = []
+    for det in session.experiment.detectors:
+        for ch in det._channels:
+            if hasattr(ch, 'setEnergy'):
+                configured.append(det)
+                ch.setEnergy(radiation, **value)
+                break  # maximum one channel per detector can set energy
+    if wait:
+        device.wait(*configured)

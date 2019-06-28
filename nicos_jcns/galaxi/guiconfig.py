@@ -25,7 +25,10 @@ main_window = tabbed(
         )),
         ('NICOS devices', panel(
             'nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
-            dockpos='right',
+            dockpos='right', param_display={
+                'pilatus': ['diskspace', 'filename', 'imagedir'],
+                'pilatus_config': 'energy',
+            },
         )),
     )),
     ('Script Editor', vsplit(
