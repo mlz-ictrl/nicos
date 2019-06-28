@@ -26,6 +26,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import socket
 import threading
 
 import zmq
@@ -61,11 +62,12 @@ class Server(BaseServer):
 
     def __init__(self, daemon, address, serializer):
         BaseServer.__init__(self, daemon, address, serializer)
+        host, port = socket.gethostbyname(address[0]), address[1]
         self.sock = nicos_zmq_ctx.socket(zmq.ROUTER)
-        self.sock.bind('tcp://%s:%s' % (address[0], address[1]))
+        self.sock.bind('tcp://%s:%s' % (host, port))
         self.event_queue = queue.Queue()
         self.event_sock = nicos_zmq_ctx.socket(zmq.PUB)
-        self.event_sock.bind('tcp://%s:%s' % (address[0], address[1] + 1))
+        self.event_sock.bind('tcp://%s:%s' % (host, port + 1))
         self.handlers = {}
         self.handler_ident = 0
         self.handler_lock = threading.Lock()
