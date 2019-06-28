@@ -174,12 +174,15 @@ class AutoDefaultODict(OrderedDict):
 class Repeater(object):
     def __init__(self, obj):
         self.object = obj
+        self._stop = False
 
     def __iter__(self):
         return self
 
     # pylint: disable=next-method-defined
     def next(self):
+        if self._stop:
+            raise StopIteration
         return self.object
 
     __next__ = next  # Python 3
@@ -189,6 +192,9 @@ class Repeater(object):
 
     def __getitem__(self, item):
         return self.object
+
+    def stop(self):
+        self._stop = True
 
 
 class HardwareStub(object):
