@@ -29,9 +29,10 @@ from nicos.core.errors import ProgrammingError
 
 
 class CacheEntrySerializer(Device):
-    """Base class to serialize and de-serialize the entries for cache
+    """Base class to serialize and de-serialize the entries for cache.
 
     Following methods must be implemented in the derived classes:
+
     * encode(key, entry, **params)
     where `entry` represents the instance to be serialized and the `key`
     is the NICOS key for which this entry is written.

@@ -31,12 +31,11 @@ from nicos.services.cache.entry.serializer import CacheEntrySerializer
 
 
 class JsonCacheEntrySerializer(CacheEntrySerializer):
-    """Encodes the entry object to JSON format
+    """Encodes the entry object to JSON format.
 
     For encoding, first converts the entry object to a python dict and then
-    uses the inbuilt JSON encoder to serialize to JSON object.
-    For decoding, converts the JSON object to python dict and then to the
-    entry class
+    uses the inbuilt JSON encoder to serialize to JSON object.  For decoding,
+    converts the JSON object to python dict and then to the entry class.
     """
 
     def doInit(self, mode):

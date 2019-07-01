@@ -34,12 +34,11 @@ from nicos.services.cache.entry.serializer.flatbuffers.ns10 import \
 class FlatbuffersCacheEntrySerializer(CacheEntrySerializer):
     """Serializes entries using flatbuffers
 
-    Serialization is done using flatbuffers generated helper class
-    `fbentry.CacheEntry` (automatically generated using schema). The
-    serialized output is a byte array which is converted to bytes
-    for storing the data. The `encode` method returns the serialized
-    bytes and the `decode` method can read the buffer and return the
-    entry instance.
+    Serialization is done using flatbuffers generated helper class within an
+    auto-generated schema-specific submodule. The serialized output is a byte
+    array which is converted to bytes for storing the data. The `encode` method
+    returns the serialized bytes and the `decode` method can read the buffer
+    and return the entry instance.
     """
 
     def encode(self, key, entry, schema='ns10', **params):
