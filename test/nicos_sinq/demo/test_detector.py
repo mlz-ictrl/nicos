@@ -39,8 +39,7 @@ from nicos.core.constants import LIVE
 
 pytest.importorskip('flatbuffers')
 
-from nicos_ess.devices.datasinks.imagesink.fbschema import Array, \
-    EventHistogram
+from nicos_ess.devices.fbschemas.hs00 import Array, EventHistogram
 from nicos_ess.devices.epics.status import ADKafkaStatus
 from nicos_ess.devices.kafka.area_detector import \
     HistogramFlatbuffersDeserializer

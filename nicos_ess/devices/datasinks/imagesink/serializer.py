@@ -31,8 +31,8 @@ from nicos.pycompat import to_utf8
 
 try:
     import flatbuffers
-    from nicos_ess.devices.datasinks.imagesink.fbschema import \
-        EventHistogram, Array, ArrayUInt, ArrayFloat, DimensionMetaData
+    from nicos_ess.devices.fbschemas.hs00 import ArrayUInt, ArrayFloat, \
+        DimensionMetaData, EventHistogram, Array
 
     uint32_bytes = flatbuffers.number_types.Uint32Flags.bytewidth
 except ImportError:

@@ -35,8 +35,7 @@ import numpy
 
 from nicos.core import UsageError
 
-from nicos_ess.devices.datasinks.imagesink.fbschema import ArrayDouble, \
-    ArrayFloat, ArrayULong
+from nicos_ess.devices.fbschemas.hs00 import ArrayDouble, ArrayFloat, ArrayULong
 from nicos_ess.devices.datasinks.imagesink.histogramdesc import HistogramDesc, \
     HistogramDimDesc
 from nicos_ess.devices.datasinks.imagesink.serializer import \

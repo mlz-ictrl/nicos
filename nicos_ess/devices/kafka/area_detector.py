@@ -35,8 +35,9 @@ from nicos_ess.devices.epics.area_detector import ADKafkaPlugin
 from nicos_ess.devices.kafka.consumer import KafkaSubscriber
 
 try:
-    from nicos_ess.devices.datasinks.imagesink.fbschema import EventHistogram, \
-        Array, ArrayUInt
+    from nicos_ess.devices.fbschemas.hs00 import Array, ArrayUInt, \
+        EventHistogram
+
 except ImportError:
     EventHistogram = None
     Array = None

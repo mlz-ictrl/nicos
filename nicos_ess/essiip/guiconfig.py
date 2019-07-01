@@ -33,11 +33,11 @@ main_window = docked(
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel',
            icons=True, dockpos='right',
-          )
-    ),
+           )
+     ),
     ('Experiment Information and Setup',
      panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
-       )),
+           )),
 )
 
 windows = [
@@ -53,6 +53,8 @@ windows = [
            panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
     window('Errors', 'errors',
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+    window('Live data', 'live',
+           panel('nicos.clients.gui.panels.live.LiveDataPanel')),
 ]
 
 tools = [

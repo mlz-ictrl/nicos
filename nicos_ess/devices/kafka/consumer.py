@@ -72,10 +72,14 @@ class KafkaSubscriber(DeviceMixinBase):
         # Remove all the assigned topics
         self._consumer.unsubscribe()
 
+        topics = self._consumer.topics()
+        if topic not in topics:
+            raise NicosError('Provided topic %s does not exist' % topic)
+
         # Assign the partitions
         partitions = self._consumer.partitions_for_topic(topic)
         if not partitions:
-            raise NicosError('Provided topic %s does not exist' % topic)
+            raise NicosError('Cannot query partitions for %s' % topic)
 
         self._consumer.assign([kafka.TopicPartition(topic, p)
                                for p in partitions])
@@ -95,7 +99,8 @@ class KafkaSubscriber(DeviceMixinBase):
                     msg = next(self._consumer)
                     messages[msg.timestamp] = msg.value
 
-            self.new_messages_callback(messages)
+            if messages:
+                self.new_messages_callback(messages)
 
     def new_messages_callback(self, messages):
         """This method is called whenever a new messages appear on
