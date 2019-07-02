@@ -130,9 +130,10 @@ class Doppler(SequencerMixin, MultiSwitcher):
         return target - self.margins[name] < value < target + self.margins[name]
 
     def doStatus(self, maxage=0):
-        seq_status = SequencerMixin.doStatus(self, maxage)
-        if seq_status[0] not in (status.OK, status.WARN):
-            return seq_status
+        if self._seq_is_running():
+            seq_status = SequencerMixin.doStatus(self, maxage)
+            if seq_status[0] not in (status.OK, status.WARN):
+                return seq_status
 
         acq_speed, acq_ampl = self._attached_acq.read()
         speed, ampl = self._readRaw()
