@@ -26,51 +26,14 @@
 
 from __future__ import absolute_import, division, print_function
 
-from math import ceil
-
-from nicos.commands import parallel_safe, usercommand
+from nicos.commands import usercommand, parallel_safe
 from nicos.commands.device import maw
-from nicos.commands.scan import timescan
 from nicos.core import UsageError
 from nicos.utils import parseDuration as pd
 
-from nicos_mlz.spheres.devices.doppler import ELASTIC, INELASTIC
+from nicos_mlz.spheres.devices.doppler import INELASTIC
 from nicos_mlz.spheres.utils import getTemperatureController, parseDuration, \
-    getSisImageDevice, getDoppler, canStartSisScan, notifyOverhang, waitForAcq
-
-
-def startinelasticscan(time, interval, incremental):
-    image = getSisImageDevice()
-    if not image:
-        return
-
-    canStartSisScan(INELASTIC)
-
-    time = parseDuration(time, 'inelastic time')
-    interval = parseDuration(interval, 'inelastic interval')
-
-    if not interval:
-        interval = image.inelasticinterval
-        if interval == 0:
-            interval = 1200
-    else:
-        interval = parseDuration(interval, 'inelastic interval')
-        image.inelasticinterval = interval
-
-    image.incremental = incremental
-
-    scans = int(ceil(time/interval))
-
-    notifyOverhang(time, interval)
-
-    if scans:
-        image.clearAccumulated()
-        timescan(scans, t=interval)
-    else:
-        raise UsageError('Scanduration must be at least one scaninterval '
-                         '(currently: %ds). If you want to measure in shorter '
-                         'intervals, please specify with "interval="'
-                         % interval)
+    getSisImageDevice, getDoppler, waitForAcq
 
 
 @usercommand
@@ -192,90 +155,3 @@ def showDetectorSettings():
               'Lines per file: %d' % params[0],
               'Counttime per line: %s' % pd(params[1]),
               'Counttime per file: %s' % pd(params[0]*params[1]))
-
-
-@usercommand
-def acquireElastic(time, interval=15, count=60):
-    """Measure elastic.
-    Will only start if the doppler is standing.
-    Will not stop the doppler if it is running to ensure that elastic
-    measurement is explicitly wanted.
-
-    Required:
-        ``time``: time frame of for the measurement
-
-    Optional:
-        ``interval``: duration for one line in a datafile
-        ``count``:   number of lines per datafile.
-
-        If either is omitted the defaults of 15s and 60 lines are used.
-
-    Number of files is rounded up, so any leftover time will result in an
-    additional file with full duration.
-    """
-
-    image = getSisImageDevice()
-    if not image:
-        return
-
-    canStartSisScan(ELASTIC)
-
-    time = parseDuration(time, 'elastic time')
-    interval = parseDuration(interval, 'elastic interval')
-
-    elastParams = [interval, count]
-
-    fileduration = elastParams[0]*elastParams[1]
-
-    scans = int(ceil(time/fileduration))
-
-    notifyOverhang(time, fileduration)
-
-    if scans:
-        # after confirming that there is a measurement possible,
-        # write the values to the detector and start the measurement.
-        image.elasticparams = elastParams
-        timescan(scans, t=fileduration)
-    else:
-        raise UsageError('Scanduration must be at least %ds, %ds was set. '
-                         'If you want to measure for a shorter time, please '
-                         'specify with "interval=" and/or "count=".'
-                         % (fileduration, time))
-
-
-@usercommand
-def acquireInelasticAccu(time, interval=1200):
-    """Measure inelastic with count accumulation.
-    Will only start if doppler is running.
-    Will not start the doppler if it is standing to ensure inelastic
-    measurement is explicitly wanted.
-
-    Required:
-    ``time``: time frame for the measurement
-
-    Optional:
-    ``interval``: count duration for one file. Defaults to 20min.
-
-    Number of files is rounded up, so any leftover time will result in an
-    additional file with full duration.
-    """
-    startinelasticscan(time, interval, incremental=True)
-
-
-@usercommand
-def acquireInelasticTime(time, interval=1200):
-    """Measure inelastic without count accumulation.
-    Will only start if doppler is running.
-    Will not start the doppler if it is standing to ensure inelastic
-    measurement is explicitly wanted.
-
-    Required:
-    ``time``: time frame for the measurement
-
-    Optional:
-    ``interval``: count duration for one file. Defaults to 20min.
-
-    Number of files is rounded up, so any leftover time will result in an
-    additional file with full duration.
-    """
-    startinelasticscan(time, interval, incremental=False)

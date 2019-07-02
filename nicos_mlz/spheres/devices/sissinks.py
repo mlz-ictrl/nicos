@@ -432,6 +432,7 @@ class PreviewSinkHandler(special.LiveViewSinkHandler):
         try:
             pdata = result[1][0][0]
         except TypeError:
+            self.abscissa = numpy.zeros(1, dtype=numpy.float32)
             return []
 
         mergerows = 7

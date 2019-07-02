@@ -29,7 +29,7 @@ Devices to control the sample environment at SPHERES
 from __future__ import absolute_import, division, print_function
 
 from nicos import session
-from nicos.core import SIMULATION
+from nicos.core import SIMULATION, oneof
 from nicos.core.params import Attach, Param, tangodev
 from nicos.core.status import WARN
 from nicos.devices import tango
@@ -50,7 +50,10 @@ class SEController(tango.TemperatureController):
 
     parameters = {
         'tubeoffset': Param('Keep tube this many degrees below the setpoint.',
-                            volatile=True, settable=True)
+                            volatile=True, settable=True),
+        'samplestick': Param('Sample stick currently in use',
+                             type=oneof('lt', 'ht'),
+                             volatile=True, settable=True)
     }
 
     def rushTemperature(self, temperature):
@@ -82,6 +85,12 @@ class SEController(tango.TemperatureController):
 
     def doWriteTubeoffset(self, value):
         self._dev.tube_offset = value
+
+    def doReadSamplestick(self):
+        return self._dev.sample_stick
+
+    def doWriteSamplestick(self, value):
+        self._dev.sample_stick = value
 
 
 class PressureController(tango.TemperatureController):
