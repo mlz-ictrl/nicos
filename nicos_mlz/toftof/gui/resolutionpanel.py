@@ -33,7 +33,7 @@ from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.widgets.plotting import NicosPlotCurve
 from nicos.core.errors import NicosError
 from nicos.core.utils import ADMIN
-from nicos.guisupport.livewidget import COLOR_BLUE, LiveWidget1D
+from nicos.guisupport.livewidget import LiveWidget1D
 from nicos.guisupport.qt import QApplication, QCursor, QDialogButtonBox, \
     QDoubleValidator, QLabel, QMessageBox, QSize, QSizePolicy, Qt, \
     QVBoxLayout, QWidget, pyqtSlot
@@ -45,6 +45,7 @@ from nicos_mlz.toftof.devices.calculations import ResolutionAnalysis
 COLOR_BLACK = 1
 COLOR_RED = 2
 COLOR_GREEN = 3
+COLOR_BLUE = 4
 
 
 @contextmanager
