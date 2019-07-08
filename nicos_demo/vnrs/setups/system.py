@@ -48,7 +48,7 @@ devices = dict(
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
     DataSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free Space on the DataStorage',
-        path = '/data',
+        path = 'data',
         minfree = 5,
     ),
 )
