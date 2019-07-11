@@ -15,7 +15,6 @@ _experimentcol = Column(
         BlockRow(
             Field(name='proposal', key='exp/proposal', width=8),
             Field(name='proposer', key='exp/proposer', width=24),
-            Field(name='proposer', key='exp_proposer', width=24),
             Field(name='title',    key='exp/title',    width=24,
                  istext=True, maxlen=20),
             Field(name='Sample', dev='Sample', width=20),
