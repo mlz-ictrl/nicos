@@ -55,7 +55,7 @@ devices = dict(
         address = 0x3214+3*10, # decimal 12820
         slope = -10000,
         unit = 'mm',
-        abslimits = (-393.0, 330.0),
+        abslimits = (42, 180.0),
         ruler = -200.0,
         lowlevel = True,
     ),
@@ -73,7 +73,7 @@ devices = dict(
         address = 0x3214+2*10, # decimal 12820
         slope = 10000,
         unit = 'mm',
-        abslimits = (-102.0, 170.0),
+        abslimits = (22.0, 160.0),
         ruler = 0.0,
         lowlevel = True,
     ),
