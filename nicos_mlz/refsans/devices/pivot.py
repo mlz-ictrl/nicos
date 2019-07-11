@@ -25,6 +25,8 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.core import Param, floatrange
+from nicos.core.device import requires
+from nicos.core.utils import ADMIN
 from nicos.devices.generic import ManualSwitch
 
 
@@ -38,3 +40,7 @@ class PivotPoint(ManualSwitch):
                         type=floatrange(0), settable=False, default=373,
                         unit='mm'),
     }
+
+    @requires(level=ADMIN)
+    def doStart(self, target):
+        ManualSwitch.doStart(self, target)

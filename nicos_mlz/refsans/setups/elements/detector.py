@@ -15,7 +15,6 @@ devices = dict(
         states = list(range(1, 14)),
         fmtstr = 'Point %d',
         unit = '',
-        requires = {'level': 'admin'},
     ),
     det_yoke_m = device('nicos.devices.tango.Motor',
         description = 'yoke Motor',
