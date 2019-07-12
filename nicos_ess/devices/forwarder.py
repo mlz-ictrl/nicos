@@ -30,6 +30,7 @@ from nicos.core import Param, oneof, status, usermethod
 
 from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
 from nicos_ess.devices.kafka.status_handler import KafkaStatusHandler
+from nicos.pycompat import to_utf8
 
 
 class EpicsKafkaForwarder(ProducesKafkaMessages, KafkaStatusHandler):
@@ -92,10 +93,10 @@ class EpicsKafkaForwarder(ProducesKafkaMessages, KafkaStatusHandler):
                     pv = stream['channel_name']
                     pvs_read.append(pv)
                     if pv in issued:
-                        found_issued = [
-                            (converter['topic'], converter['schema']) ==
-                            issued[pv] for converter in stream['converters']]
-                        if True not in found_issued:
+                        forwarding = self._is_forwarding(issued[pv][0],
+                                                         issued[pv][1],
+                                                         stream['converters'])
+                        if not forwarding:
                             not_forwarding.append(pv)
 
                 for pv in issued:
@@ -116,6 +117,18 @@ class EpicsKafkaForwarder(ProducesKafkaMessages, KafkaStatusHandler):
             self._setROParam('curstatus', st)
         else:
             self._setROParam('curstatus', (status.OK, 'Forwarding..'))
+
+    def _is_forwarding(self, topic, schema, converters):
+        # Must check that the topic and schema match as the same PV could be
+        # forwarded multiple times with different settings.
+        for converter in converters:
+            full_uri = "{}/{}".format(converter['broker'], converter['topic'])
+            name_present = converter['topic'] == topic or topic.endswith(
+                full_uri)
+            schema_present = converter['schema'] == schema
+            if name_present and schema_present:
+                return True
+        return False
 
     def pv_forwarding_info(self, pv):
         """ Returns the forwarded topic and schema for the given pv
@@ -165,7 +178,7 @@ class EpicsKafkaForwarder(ProducesKafkaMessages, KafkaStatusHandler):
             'streams': streams
         }
 
-        self.send(self.cmdtopic, json.dumps(cmd))
+        self.send(self.cmdtopic, to_utf8(json.dumps(cmd)))
 
     @usermethod
     def reissue(self):
