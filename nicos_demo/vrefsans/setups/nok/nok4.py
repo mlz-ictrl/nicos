@@ -6,10 +6,10 @@ global_values = configdata('global.GLOBAL_Values')
 
 devices = dict(
     nok4 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
+        # length: 1000.0 mm
         description = 'NOK4',
         fmtstr = '%.2f, %.2f',
         nok_start = 1326.0,
-        nok_length = 1000.0,
         nok_end = 2326.0,
         nok_gap = 1.0,
         inclinationlimits = (-100, 100),

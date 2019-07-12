@@ -16,11 +16,11 @@ devices = dict(
         unit = 'mm',
     ),
     zb3r = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+        # length: 13.0 mm
         description = 'ZB3 slit, reactor side',
         motor = 'zb3r_m',
-        nok_start = 8837.5,
-        nok_length = 13.0,
-        nok_end = 8850.5,
+        nok_start = 8856.5, # 8837.5,
+        nok_end = 8869.5, # 8850.5,
         nok_gap = 1.0,
         masks = {
             'slit': -0.3,
@@ -31,11 +31,11 @@ devices = dict(
         lowlevel = True,
     ),
     zb3s = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+        # length: 13.0 mm
         description = 'ZB3 slit, sample side',
         motor = 'zb3s_m',
-        nok_start = 8837.5,
-        nok_length = 13.0,
-        nok_end = 8850.5,
+        nok_start = 8856.5, # 8837.5,
+        nok_end = 8869.5, # 8850.5,
         nok_gap = 1.0,
         masks = {
             'slit': 1.7,

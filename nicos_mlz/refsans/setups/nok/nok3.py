@@ -11,10 +11,10 @@ tango_host = 'tango://refsanshw:10000/test/'
 
 devices = dict(
     nok3 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
+        # length: 600.0 mm
         description = 'NOK3',
         fmtstr = '%.2f, %.2f',
         nok_start = 680.0,
-        nok_length = 600.0,
         nok_end = 1280.0,
         nok_gap = 1.0,
         inclinationlimits = (-100, 100),

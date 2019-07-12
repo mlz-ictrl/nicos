@@ -10,10 +10,10 @@ optic_values = configdata('cf_optic.optic_values')
 
 devices = dict(
     nok6 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
+        # length: 1720.0 mm
         description = 'NOK6',
         fmtstr = '%.2f, %.2f',
         nok_start = 5887.5,
-        nok_length = 1720.0,
         nok_end = 7607.5,
         nok_gap = 1.0,
         inclinationlimits = (-100, 100),

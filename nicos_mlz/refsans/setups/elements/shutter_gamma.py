@@ -18,11 +18,11 @@ devices = dict(
         unit = '',
     ),
     nok1 = device('nicos_mlz.refsans.devices.nok_support.SingleMotorNOK',
+        # length: 90.0 mm
         description = 'shutter_gamma NOK1',
         motor = 'nok1_motor',
         # obs = ['nok1_obs'],
         nok_start = 198.0,
-        nok_length = 90.0,
         nok_end = 288.0,
         nok_gap = 1.0,
         backlash = -2,   # is this configured somewhere?

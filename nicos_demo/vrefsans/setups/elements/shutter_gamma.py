@@ -11,11 +11,11 @@ devices = dict(
         fallback = 'offline',
     ),
     nok1 = device('nicos_mlz.refsans.devices.nok_support.SingleMotorNOK',
+        # length: 90.0 mm
         description = 'shutter_gamma NOK1',
         motor = 'nok1_motor',
         coder = 'nok1_motor',
         nok_start = 198.0,
-        nok_length = 90.0,
         nok_end = 288.0,
         nok_gap = 1.0,
         backlash = -2,

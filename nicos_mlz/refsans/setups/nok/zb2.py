@@ -9,12 +9,12 @@ tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/test/'
 
 devices = dict(
     zb2 = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+        # length: 6.0,
         description = 'zb2 single Slit at nok6 before nok7',
         unit = 'mm',
         motor = 'zb2_motor',
-        nok_start = 7591.5,
-        nok_length = 6.0,
-        nok_end = 7597.5,
+        nok_start = 7633.5, # 7591.5
+        nok_end = 7639.5, # 7597.5
         nok_gap = 1.0,
         offset = 0.0,
         masks = {

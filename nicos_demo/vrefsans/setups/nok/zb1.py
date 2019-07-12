@@ -6,13 +6,13 @@ lprecision = 0.01
 
 devices = dict(
     zb1 = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+        # length: 13 mm
         description = 'zb1, singleslit at nok5b before nok6',
         unit = 'mm',
         motor = 'zb1_a',
         offset = 0.0,
-        nok_start = 5856.5,
-        nok_length = 13,
-        nok_end = 5862.5,
+        nok_start = 5873.6, # 5856.5
+        nok_end = 5886.6, # 5862.5
         nok_gap = 1,
         # nok_motor = 5862.5,
         masks = {

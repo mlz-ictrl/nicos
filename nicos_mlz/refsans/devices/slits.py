@@ -122,6 +122,11 @@ class DoubleSlit(PseudoNOK, Moveable):
                         default=CENTERED),
     }
 
+    parameter_overrides = {
+        'nok_start': Override(volatile=True),
+        'nok_end': Override(volatile=True),
+    }
+
     def doInit(self, mode):
         # Even if the slit could not be become closer then 0 and not more
         # opened the maxheight the instrument scientist want to scan over
@@ -205,6 +210,12 @@ class DoubleSlit(PseudoNOK, Moveable):
         for dev, target in zip([self._attached_slit_r, self._attached_slit_s],
                                self._calculate_slits(targets, False)):
             dev.start(target)
+
+    def doReadNok_Start(self):
+        return self._attached_slit_r.nok_start
+
+    def doReadNok_End(self):
+        return self._attached_slit_s.nok_end
 
 
 class DoubleSlitSequence(SequencerMixin, DoubleSlit):

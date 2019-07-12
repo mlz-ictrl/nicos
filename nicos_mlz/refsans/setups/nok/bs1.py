@@ -16,10 +16,10 @@ devices = dict(
         slit_s = 'bs1s',
     ),
     bs1r = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+        # length: 6.0 mm
         description = 'bs1 slit, reactor side',
         motor = 'bs1r_axis',
         nok_start = 9764.5,
-        nok_length = 6.0,
         nok_end = 9770.5,
         nok_gap = 18.0,
         masks = {
@@ -31,10 +31,10 @@ devices = dict(
         unit = 'mm',
     ),
     bs1s = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+        # length: 6.0 mm
         description = 'bs1 slit, sample side',
         motor = 'bs1s_axis',
         nok_start = 9764.5,
-        nok_length = 6.0,
         nok_end = 9770.5,
         nok_gap = 18.0,
         masks = {

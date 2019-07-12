@@ -26,7 +26,7 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.core import DeviceMixinBase
-from nicos.core.params import Param
+from nicos.core.params import Param, floatrange
 
 
 class PseudoNOK(DeviceMixinBase):
@@ -34,17 +34,20 @@ class PseudoNOK(DeviceMixinBase):
 
     parameters = {
         'nok_start':  Param('Start of the  NOK (beginning from NLE2b)',
-                            type=float, settable=False, mandatory=False,
-                            unit='mm', default=0),
-        'nok_length': Param('Length of the NOK',
-                            type=float, default=0, settable=False,
-                            mandatory=False, unit='mm'),
+                            type=floatrange(-1), settable=False,
+                            mandatory=False, unit='mm', default=-1),
         'nok_end':    Param('End of the NOK (beginning from NLE2b)',
-                            type=float, default=0, settable=False,
+                            type=floatrange(-1), default=-1, settable=False,
                             mandatory=False, unit='mm'),
         'nok_gap':    Param('Gap after the NOK (beginning from NLE2b)',
-                            type=float, default=0, settable=False,
+                            type=floatrange(0), default=0, settable=False,
                             mandatory=False, unit='mm'),
         'masks':      Param('Masks for this NOK',
                             type=dict, settable=False, default={}),
+        'length':     Param('NOK length',
+                            type=floatrange(0), settable=False,
+                            mandatory=False, volatile=True, unit='mm'),
     }
+
+    def doReadLength(self):
+        return self.nok_end - self.nok_start

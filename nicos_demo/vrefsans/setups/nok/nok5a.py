@@ -32,10 +32,10 @@ devices = dict(
         lowlevel = True,
     ),
     nok5a = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
+        # length: 1719.20 mm
         description = 'NOK5a',
         fmtstr = '%.2f, %.2f',
         nok_start = 2418.50,
-        nok_length = 1719.20,
         nok_end = 4137.70,
         nok_gap = 1.0,
         nok_motor = [3108.00, 3888.00],

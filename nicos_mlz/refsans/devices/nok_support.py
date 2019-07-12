@@ -264,7 +264,6 @@ class SingleMotorNOK(PseudoNOK, Axis):
     }
 
 
-
 class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
                      Moveable):
     """NOK using two axes.

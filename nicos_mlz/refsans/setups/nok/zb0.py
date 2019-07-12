@@ -27,11 +27,12 @@ devices = dict(
         lowlevel = True,
     ),
     zb0 = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+        # length: 13 mm
         description = 'zb0, singleslit',
         motor = 'zb0_a',
-        nok_start = 4121.5,
-        nok_length = 13,
-        nok_end = 4134.5,
+        nok_start = 4138.8,  # 4121.5
+        nok_end = 4151.8,  # 4134.5
+        # motor = 4145.35,  # 4128.5
         nok_gap = 1,
         masks = {
             'slit': 0,
