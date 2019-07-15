@@ -29,8 +29,8 @@ devices = dict(
        description = 'b3 slit, sample side',
        lowlevel = True,
        motor = 'b3_s',
-       nok_start = -1,
-       nok_end = -1,
+       nok_start = 11334.5,
+       nok_end = 11334.5,
        masks = {
            'slit': 36.404,
            'point': 36.404,
