@@ -156,7 +156,6 @@ class Timer(FRMTimerChannel):
     def doPrepare(self):
         self.doFinish()
         self._fix_state(self._mode)
-        self.preselection = 0
         FRMTimerChannel.doPrepare(self)
 
     def valueInfo(self):
