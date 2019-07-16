@@ -41,10 +41,10 @@ from __future__ import absolute_import, division, print_function
 import os
 
 import numpy as np
-
-import nxs
 from nexusformat.nexus import NeXusError, NXfield, NXlink
 from nexusformat.nexus.tree import is_text
+
+import nxs
 
 # import h5py as h5
 
@@ -203,9 +203,10 @@ class NexusFile(object):
                 if np.prod(data.shape) > 10000:
                     if not data._compression:
                         data._compression = 'lzw'
-                if data._compression:
-                    self._file.compmakedata(data.nxname, data.dtype, data.shape,
-                                            'lzw',
+                if data._compression and isinstance(data, np.ndarray) and \
+                   data._value.sum() > 0:
+                    self._file.compmakedata(data.nxname, data.dtype,
+                                            data.shape, data._compression,
                                             [data.shape[0], data.shape[1],
                                              data.shape[0] / 50.
                                              ])
