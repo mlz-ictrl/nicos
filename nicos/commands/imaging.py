@@ -36,6 +36,7 @@ from nicos.commands.utility import floatrange
 from nicos.core.device import Measurable, Moveable
 from nicos.core.errors import NicosError
 from nicos.core.scan import SkipPoint
+from nicos.pycompat import integer_types
 
 __all__ = ['tomo', 'grtomo']
 
@@ -79,11 +80,11 @@ def _tomo(title, angles, moveables, imgsperangle, *detlist, **preset):
 
 
 @usercommand
-@helparglist('nangles, moveables, imgsperangle=1, ref_first=True, '
+@helparglist('nangles, moveables, imgsperangle=1, ref_first=True, start=0, '
              '[detectors], [presets]')
 # pylint: disable=keyword-arg-before-vararg
-def tomo(nangles, moveables=None, imgsperangle=1, ref_first=True, *detlist,
-         **preset):
+def tomo(nangles, moveables=None, imgsperangle=1, ref_first=True, start=0,
+         *detlist, **preset):
     """Performs a tomography.
 
     This is done by scanning over 360 deg in *nangles* steps and capturing a
@@ -93,6 +94,9 @@ def tomo(nangles, moveables=None, imgsperangle=1, ref_first=True, *detlist,
     be done (for reference). It can be prepended or inserted in the correct
     order (ref_first).
 
+    If you give a starting angle, the tomo command performs a continuation of
+    a stopped tomography at the closest point to the given start point.
+
     Examples:
 
     >>> tomo(10, sry) # single moveable
@@ -101,17 +105,35 @@ def tomo(nangles, moveables=None, imgsperangle=1, ref_first=True, *detlist,
     >>> tomo(10, sry, t=1) # tomography with 1s exposure time
     >>> tomo(10, sry, 1, True, det_neo, det_ikonl) # tomography by using 2 detectors (neo + ikonl)
     >>> tomo(10, sry, 5, True, det_neo, det_ikonl, t=1) # full version
+    >>>
+    >>> # continue a tomography at 40 deg with stepsize of 40 to 360 deg
+    >>> tomo(10, sry, 5, start=60)
+    >>> # continue a tomography at 80 deg with stepsize of 40 to 360 deg
+    >>> tomo(10, sry, 5, start=70)
     """
 
-    title = '360 deg tomography '
+    angles = floatrange(0.0, 360.0, num=nangles)
+    if isinstance(start, (float, integer_types)) and start != 0:
+        if ref_first is False:  # explicit check for ref_first=False
+            angles = sorted([180.] + angles)
+        # remove unnecessary angles for continued tomography
+        startidx = min(range(len(angles)),
+                       key=lambda i: abs(angles[i] - start))
+        angles = angles[startidx:]
 
-    angles = [180.0] + floatrange(0.0, 360.0, num=nangles)
-
-    # This only for compatibility to older scripts
-    if isinstance(ref_first, Measurable):
-        detlist += (ref_first,)
-    elif ref_first is False:  # explicit check for ref_first=False
-        angles = sorted(angles)
+        title = 'append tomo: %.3f deg scan with %d scan points' % (
+            angles[-1] - angles[0], len(angles))
+        session.log.info('%s', title)
+        session.log.debug('remaining angles: %r', angles)
+    else:
+        title = '360 deg tomography'
+        angles = [180.0] + angles
+        # This only for compatibility to older scripts
+        if isinstance(ref_first, Measurable):
+            detlist += (ref_first,)
+        elif ref_first is False:  # explicit check for ref_first=False
+            angles = sorted(angles)
+        session.log.debug('angles: %r', angles)
 
     session.log.info('Performing %s scan.', title)
 

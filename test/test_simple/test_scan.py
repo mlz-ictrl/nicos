@@ -399,6 +399,11 @@ def test_tomo(session):
     tomo(10, sry, 1, det, t=0.)
     assert sry.read() == 360.0
 
+    # continue tomo
+    sry.maw(0.0)
+    tomo(10, sry, start=321.)
+    assert sry.read() == 360.0
+
 
 @pytest.mark.timeout(timeout=60, method='thread', func_only=True)
 def test_live_count(session):
