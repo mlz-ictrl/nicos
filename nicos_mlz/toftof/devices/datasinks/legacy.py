@@ -188,7 +188,7 @@ class TofImageSinkHandler(TofSinkHandler):
             if time < preset:
                 lines.append('ToGo: %.0f s' % (preset - time))
             lines.append('Status: %5.1f %% completed' %
-                         (100. * time / preset))
+                         (100. * time / preset if preset else 100.))
 
         tempfound = False
         for dev in session.experiment.sampleenv:
@@ -224,8 +224,10 @@ class TofImageSinkHandler(TofSinkHandler):
 
         lines.append('MonitorCounts: %d' % int(info[1]))
         lines.append('TotalCounts: %d' % int(info[2]))
-        lines.append('MonitorCountRate: %.3f' % (info[1] / info[0]))
-        lines.append('TotalCountRate: %.3f' % (info[2] / info[0]))
+        lines.append('MonitorCountRate: %.3f' % (info[1] / info[0]
+                                                 if info[0] else 0.))
+        lines.append('TotalCountRate: %.3f' % (info[2] / info[0]
+                                               if info[0] else 0.))
         lines.append('NumOfChannels: %s' %
                      self.dataset.metainfo['det', 'timechannels'][1])
         lines.append('NumOfDetectors: %s' %

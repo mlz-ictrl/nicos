@@ -93,7 +93,8 @@ class TofNeXuSHandler(TofSinkHandler):
                 else:
                     self._tof.write_togo('0 s')
                 self._tof.write_status('%5.1f %% completed' %
-                                       (100. * tim / preset))
+                                       (100. * tim / preset
+                                        if preset else 100.))
             data = results[self.detector.name][1][0]
             if data is not None:
                 self._tof.write_data(
@@ -101,9 +102,11 @@ class TofNeXuSHandler(TofSinkHandler):
                 self._tof.write_monitor_data(
                     data[self.dataset.metainfo['det', 'monitorchannel'][0]])
                 self._tof.write_sample_counts(int(info[2]),
-                                              '%.3f' % (info[2] / info[0]))
+                                              '%.3f' % (info[2] / info[0]
+                                                        if info[0] else 0.))
                 self._tof.write_monitor_integral(int(info[1]))
-                self._tof.write_monitor_rate('%.3f' % (info[1] / info[0]))
+                self._tof.write_monitor_rate('%.3f' % (info[1] / info[0]
+                                                       if info[0] else 0.))
             tempfound = False
             for dev in session.experiment.sampleenv:
                 if dev.name.startswith('T') or dev.name == 'bio':
