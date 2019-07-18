@@ -31,7 +31,7 @@ from kafka import KafkaConsumer, KafkaProducer, TopicPartition
 from nicos.core import Attach, Param, host, listof
 from nicos.core.errors import ConfigurationError
 from nicos.protocols.cache import FLAG_NO_STORE, OP_TELL, OP_TELLOLD
-from nicos.pycompat import iteritems
+from nicos.pycompat import iteritems, to_utf8
 from nicos.services.cache.database.memory import MemoryCacheDatabase
 from nicos.services.cache.entry import CacheEntry
 from nicos.services.cache.entry.serializer import CacheEntrySerializer
@@ -180,7 +180,7 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
         self._producer.send(
             topic=self.currenttopic,
             value=value,
-            key=bytes(key),
+            key=to_utf8(key),
             timestamp_ms=int(entry.time * 1000))
 
         # clear all local buffers and produce pending messages
@@ -251,6 +251,13 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
         # Create the history consumer
         self._history_consumer = KafkaConsumer(bootstrap_servers=self.brokers)
 
+        # Give up if the topic does not exist
+        if self.historytopic not in self._history_consumer.topics():
+            raise ConfigurationError(
+                'Topic "%s" does not exit. Create this topic and restart.'
+                % self.historytopic)
+
+        # Assign the partitions
         partitions = self._history_consumer.partitions_for_topic(
             self.historytopic)
         self._history_consumer.assign(

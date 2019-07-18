@@ -26,6 +26,7 @@ from __future__ import absolute_import
 
 from nicos import session
 from nicos.services.cache.entry import CacheEntry as NicosCacheEntry
+from nicos.pycompat import to_utf8
 
 try:
     import flatbuffers
@@ -66,7 +67,7 @@ def encode(key, entry):
 
     # Generate the output and replace the file_identifier
     fb_array = builder.Output()
-    fb_array[4:8] = bytes('ns10')
+    fb_array[4:8] = to_utf8('ns10')
 
     return bytes(fb_array)
 
