@@ -18,7 +18,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    det1 = device('nicos.devices.generic.Detector',
+    det1 = device('nicos_mlz.sans1.devices.detector.Detector',
         description = 'QMesyDAQ Image type Detector1',
         timers = ['det1_timer'],
         counters = [],

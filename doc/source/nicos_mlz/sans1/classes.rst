@@ -44,6 +44,10 @@
 .. autoclass:: WutValue()
 .. autoclass:: WutDiff()
 
+.. automodule:: nicos_mlz.sans1.devices.detector
+.. autoclass:: Detector()
+.. autoclass:: GatedDetector()
+
 Data Sinks
 ----------
 
