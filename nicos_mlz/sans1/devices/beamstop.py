@@ -163,7 +163,7 @@ class BeamStop(SequencerMixin, Moveable):
         'ypassage': Param('HW-Y-value of the passage below the shapes',
                           type=float, mandatory=True, userparam=False),
         'shape':    Param('Currently used shape', type=str, default='unknown',
-                          settable=True),
+                          settable=True, prefercache=True),
         'offsetxy': Param('Offset of our logical coordinates to the HW coords',
                           type=tupleof(float, float), default=(0., 0.),
                           settable=True),
