@@ -295,6 +295,8 @@ class UYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
         o['saved_because'] = self.params['reason']
         o['ndet'] = len(eval(self.params['distances']))
         o['daq_time_step'] = '%.6f s' % float(self.params['daq_time_step'])
+        if not self.inelasticmode:
+            o['scan_time_step'] = self.params['scan_time_step'] + ' s'
         o['analyzers'] = self.params['analyzers']
         o['monochromator'] = self.params['monochromator']
         o['lambda_i'] = self.getWavelength(self.params['analyzers'])
@@ -325,7 +327,7 @@ class UYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
         o = self._dict()
         values = self.dataset.valuestats[dev]
 
-        o['units'] = self._cache.get(dev, 'unit')
+        o['unit'] = self._cache.get(dev, 'unit')
         o['nobs'] = max(len(self._cache.history(dev, 'value', start, end)) - 1,
                         1)
         o['avge'] = values[0]
