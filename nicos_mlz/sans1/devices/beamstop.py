@@ -30,10 +30,11 @@ import numpy as np
 
 from nicos import session
 from nicos.core import SIMULATION, SLAVE, Attach, Moveable, Override, Param, \
-    PositionError, UsageError, dictof, limits, oneof, requires, status
+    PositionError, UsageError, dictof, floatrange, limits, oneof, requires, \
+    status, tupleof
 from nicos.devices.generic import Axis
 from nicos.devices.generic.sequence import SeqCall, SeqDev as NicosSeqDev, \
-    SequencerMixin, tupleof
+    SequencerMixin
 from nicos.devices.tango import Sensor
 from nicos.pycompat import iteritems, reraise
 
@@ -158,8 +159,12 @@ class BeamStop(SequencerMixin, Moveable):
     """
 
     parameters = {
-        'slots':    Param('Mapping of shape to HW-X-value', userparam=False,
-                          type=dictof(str, float), mandatory=True),
+        'slots':    Param('Mapping of shape to HW-X-value and sizes',
+                          userparam=False,
+                          type=dictof(str, tupleof(float,
+                                                   tupleof(floatrange(0),
+                                                           floatrange(0)))),
+                          mandatory=True),
         'ypassage': Param('HW-Y-value of the passage below the shapes',
                           type=float, mandatory=True, userparam=False),
         'shape':    Param('Currently used shape', type=str, default='unknown',
@@ -203,7 +208,7 @@ class BeamStop(SequencerMixin, Moveable):
                     return True, 'pure horizontal movement allowed'
             else:
                 # purely vertical movement if around a slot
-                for slot, slotx in iteritems(self.slots):
+                for slot, (slotx, _shapesize) in iteritems(self.slots):
                     if abs(xpos - slotx) <= xprec:
                         # at slot 'slot' allow vertical movement
                         if abs(target[0] - xpos) <= xprec:
@@ -259,14 +264,14 @@ class BeamStop(SequencerMixin, Moveable):
                              'please call instrument scientist!')
 
         # construct desired sequence: first move above slot of current shape
-        seq.append([SeqDev(self._attached_xaxis, self.slots[self.shape]),
+        seq.append([SeqDev(self._attached_xaxis, self.slots[self.shape][0]),
                     SeqDev(self._attached_yaxis, lowest_y_pos)])
         # move down to ypassage to put shape back to slot/shapeholder
         seq.append(SeqDev(self._attached_yaxis, self.ypassage))
         # adjust self._shape
         seq.append(SeqCall(self._setROParam, 'shape', 'none'))
         # move x to slot of new shape
-        seq.append(SeqDev(self._attached_xaxis, self.slots[target]))
+        seq.append(SeqDev(self._attached_xaxis, self.slots[target][0]))
         # move up to lowest yvalue
         seq.append(SeqDev(self._attached_yaxis, lowest_y_pos))
         # adjust self._shape

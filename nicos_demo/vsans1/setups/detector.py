@@ -184,12 +184,12 @@ devices = dict(
         unit = 'mm',
         shape = 'none',
         slots = { # in encoder values !
-            '100x100' : 125.2 - BS1_X_OFS,
-            'd35'     : 197.0 - BS1_X_OFS,
-            '70x70'   : 253.4 - BS1_X_OFS,
-            '55x55'   : 317.4 - BS1_X_OFS,
-            'none'    : 348.0 - BS1_X_OFS,  # no shapeholder!
-            '85x85'   : 390.4 - BS1_X_OFS,
+            '100x100' : (125.2 - BS1_X_OFS, (100, 100)),
+            'd35'     : (197.0 - BS1_X_OFS, (35, 35)),
+            '70x70'   : (253.4 - BS1_X_OFS, (70, 70)),
+            '55x55'   : (317.4 - BS1_X_OFS, (55, 55)),
+            'none'    : (348.0 - BS1_X_OFS, (0, 0)),  # no shapeholder!
+            '85x85'   : (390.4 - BS1_X_OFS, (85, 85)),
         },
         # limits for free-move area (in encoder values!)
         xlimits = (480, 868), # XXX!
