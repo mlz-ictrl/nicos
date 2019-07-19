@@ -56,7 +56,7 @@ class Doppler(SequencerMixin, MultiSwitcher):
     the values set in the doppler and notifies the user if these values do
     not match."""
 
-    parameters ={
+    parameters = {
         'margins': Param('margin for readout errors in refdevices',
                          dictwith(speed=float, amplitude=float),
                          default=dict(speed=.0, amplitude=.0), settable=True),
@@ -131,9 +131,7 @@ class Doppler(SequencerMixin, MultiSwitcher):
 
     def doStatus(self, maxage=0):
         if self._seq_is_running():
-            seq_status = SequencerMixin.doStatus(self, maxage)
-            if seq_status[0] not in (status.OK, status.WARN):
-                return seq_status
+            return SequencerMixin.doStatus(self, maxage)
 
         acq_speed, acq_ampl = self._attached_acq.read()
         speed, ampl = self._readRaw()
@@ -142,12 +140,11 @@ class Doppler(SequencerMixin, MultiSwitcher):
             if not self.withinMargins(acq_speed, 0, SPEED):
                 return (status.WARN, 'detector registers movement of the '
                                      'doppler, although it has been stopped.')
-
         elif not self.withinMargins(acq_speed, speed, SPEED):
-            return (status.WARN, 'doppler and detector do not display matching '
-                                 'doppler speeds')
+            return (status.WARN, 'detector observes a speed differing '
+                                 'from the dopplerspeed')
         elif not self.withinMargins(acq_ampl, ampl, AMPLITUDE):
-            return (status.WARN, 'doppler and detector do not display matching '
-                                 'doppler amplitudes')
+            return (status.WARN, 'detector observes an amplitude differing '
+                                 'from the doppleramplitude')
 
         return MultiSwitcher.doStatus(self, maxage)
