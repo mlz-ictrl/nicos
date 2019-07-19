@@ -176,7 +176,9 @@ class TearOffTabWidget(QTabWidget):
                            'padding:0;border:none}')
         self.setDocumentMode(True)
         for entry in item:
-            AuxiliarySubWindow(entry, window, menuwindow, self)
+            self.addPanel(
+                AuxiliarySubWindow(entry[1:], window, menuwindow, self),
+                entry[0])
 
     def moveTab(self, fromInd, toInd):
         w = self.widget(fromInd)

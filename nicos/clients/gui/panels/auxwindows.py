@@ -152,10 +152,10 @@ class AuxiliarySubWindow(QMainWindow):
         layout = QVBoxLayout()
         # only keep margin at the top (below the tabs)
         layout.setContentsMargins(0, 6, 0, 0)
-        if len(item) == 2:
-            (title, subitem, setupSpec) = item + (None,)
+        if len(item) == 1:
+            (subitem, setupSpec) = item + (None,)
         else:
-            (title, subitem, setupSpec) = item
+            (subitem, setupSpec) = item
         it = createWindowItem(subitem, window, menuwindow, self, self.log)
         if it:
             if isinstance(it, (Panel, QSplitter,)):
@@ -168,7 +168,6 @@ class AuxiliarySubWindow(QMainWindow):
             layout.addWidget(it)
             central.setLayout(layout)
             self.setCentralWidget(central)
-            parent.addPanel(self, title)
 
     def getPanel(self, panelName):
         for panelobj in self.panels:
