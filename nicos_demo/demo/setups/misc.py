@@ -22,7 +22,6 @@ devices = dict(
     c1 = device('nicos.devices.generic.VirtualCoder',
         lowlevel = True,
         motor = 'm1',
-        unit = 'deg',
     ),
     a1 = device('nicos.devices.generic.Axis',
         description = 'demo axis',

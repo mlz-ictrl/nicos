@@ -161,6 +161,10 @@ class VirtualCoder(HasOffset, Coder):
                         optional=True)
     }
 
+    parameter_overrides = {
+        'unit': Override(mandatory=False),
+    }
+
     def doRead(self, maxage=0):
         val = self._attached_motor.read(maxage) if self._attached_motor else 0
         return val - self.offset
@@ -170,6 +174,13 @@ class VirtualCoder(HasOffset, Coder):
 
     def doSetPosition(self, _pos):
         pass
+
+    def doReadUnit(self):
+        """For devices with a unit attribute."""
+        # prefer configured unit if nothing is set on the Tango device
+        if 'unit' in self._config:
+            return self._config['unit']
+        return self._attached_motor.unit
 
 
 class VirtualChannel(ActiveChannel):

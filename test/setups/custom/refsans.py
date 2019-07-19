@@ -115,7 +115,6 @@ devices = dict(
                 unit = 'V',
                 curvalue = 10.,
             ),
-            unit = 'V',
         ),
         measure = device('nicos.devices.generic.VirtualCoder',
             motor = device('nicos.devices.generic.VirtualMotor',
@@ -123,7 +122,6 @@ devices = dict(
                 unit = 'V',
                 curvalue = 5.,
             ),
-            unit = 'V',
         ),
         # off, mul * 1000 / sensitivity, higher orders...
         poly = [9., 900.],
