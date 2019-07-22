@@ -72,18 +72,22 @@ class TestEpicsAreaDetector(object):
 
         request.addfinalizer(fin)
 
+    @pytest.fixture(scope='class')
+    def devices(self, session):
+        try:
+            detector = session.getDevice('areadetector_base')
+            time_remaining = session.getDevice('time_remaining')
+        except CommunicationError as e:
+            pytest.skip('%r: areaDetector not connected' % e)
+        yield detector, time_remaining
+
     @pytest.fixture(autouse=True)
-    def initialize_devices(self, session):
+    def initialize_devices(self, devices):
         """
         Initialize the devices if they are not already initialized. If the
         IOC is not running skip all tests
         """
-        try:
-            self.detector = session.getDevice('areadetector_base')
-            self.time_remaining = session.getDevice('time_remaining')
-        except CommunicationError as e:
-            pytest.skip('%r: areaDetector not connected' % e)
-
+        self.detector, self.time_remaining = devices
         self.status = PV(self.detector.errormsgpv)
         if not self.status.connected:
             pytest.skip('PVs not connected')
@@ -158,13 +162,17 @@ class TestKafkaPlugin(object):
     PVmessage = None
     PVstatus = None
 
-    @pytest.fixture(autouse=True)
-    def initialize_devices(self, session):
+    @pytest.fixture(scope='class')
+    def devices(self, session):
         try:
-            self.detector = session.getDevice('kafka_plugin')
+            detector = session.getDevice('kafka_plugin')
         except CommunicationError as e:
             pytest.skip('%r: ADPluginKafka not connected' % e)
+        yield detector
 
+    @pytest.fixture(autouse=True)
+    def initialize_devices(self, devices):
+        self.detector = devices
         self.log = self.detector.log
         self.PVbroker = PV(self.detector.brokerpv[:-4])
         self.PVtopic = PV(self.detector.topicpv[:-4])
@@ -199,13 +207,13 @@ class TestKafkaPlugin(object):
         names = self.detector._get_pv_parameters()
         assert sorted(names) == sorted(list(set(names)))
 
-    def test_broker(self, restore_pvs):
+    def test_broker(self):
         assert self.detector.broker == self.broker
         self.PVbroker.put('a_different_broker.psi.ch:9092')
         time.sleep(.5)
         assert self.detector.broker == 'a_different_broker.psi.ch:9092'
 
-    def test_topic(self, restore_pvs):
+    def test_topic(self):
         assert self.detector.topic == self.topic
         self.PVtopic.put('a_different_topic')
         time.sleep(.5)
@@ -215,24 +223,24 @@ class TestKafkaPlugin(object):
         st = self.detector.doStatus()
         assert st[0] == status.OK
 
-    def test_status_on_empty_broker(self, restore_pvs):
+    def test_status_on_empty_broker(self):
         self.PVbroker.put('')
         st = self.detector.doStatus()
         assert st[0] == status.ERROR
 
-    def test_status_on_empty_topic(self, restore_pvs):
+    def test_status_on_empty_topic(self):
         self.PVtopic.put('')
         st = self.detector.doStatus()
         assert st[0] == status.ERROR
 
-    def test_status_on_connecting(self, restore_pvs):
+    def test_status_on_connecting(self):
         if not self.PVstatus:
             pytest.skip('Can\'t change PV status')
         self.PVstatus.put(ADKafkaStatus.CONNECTING)
         time.sleep(.5)
         assert self.detector.doStatus()[0] == status.WARN
 
-    def test_status_on_disconnected(self, restore_pvs):
+    def test_status_on_disconnected(self):
         if not self.PVstatus:
             pytest.skip('Can\'t change PV status')
         self.PVstatus.put(ADKafkaStatus.DISCONNECTED)
@@ -240,7 +248,7 @@ class TestKafkaPlugin(object):
         st = self.detector.doStatus()
         assert st[0] == status.ERROR
 
-    def test_status_on_error(self, restore_pvs):
+    def test_status_on_error(self):
         if not self.PVstatus:
             pytest.skip('Can\'t change PV status')
         self.PVstatus.put(ADKafkaStatus.ERROR)
@@ -248,7 +256,7 @@ class TestKafkaPlugin(object):
         st = self.detector.doStatus()
         assert st[0] == status.ERROR
 
-    def test_status_on_message(self, restore_pvs):
+    def test_status_on_message(self):
         if not self.PVmessage or not self.PVmessage.connected:
             pytest.skip('Can\'t change PV status')
         msg = 'Any Kafka status message'
@@ -366,12 +374,17 @@ class TestKafkaAreaDetectorConsumer(object):
     PVmessage = None
     PVstatus = None
 
-    @pytest.fixture(autouse=True)
-    def initialize_devices(self, session):
+    @pytest.fixture(scope='class')
+    def devices(self, session):
         try:
-            self.detector = session.getDevice('kafka_image_channel')
+            detector = session.getDevice('kafka_image_channel')
         except CommunicationError as e:
             pytest.skip('%r: ADPluginKafka not connected' % e)
+        yield detector
+
+    @pytest.fixture(autouse=True)
+    def initialize_devices(self, devices):
+        self.detector = devices
         self.plugin = self.detector._attached_kafka_plugin
         self.warning = self.detector.log.warning
         self.PVbroker = PV(self.plugin.brokerpv[:-4])
@@ -411,12 +424,12 @@ class TestKafkaAreaDetectorConsumer(object):
     def test_broker_and_topic_are_valid(self):
         assert self.plugin.broker and self.plugin.topic
 
-    def test_status_on_empty_broker(self, restore_pvs):
+    def test_status_on_empty_broker(self):
         self.PVbroker.put('')
         st = self.detector.doStatus()
         assert st == (status.ERROR, 'Empty broker')
 
-    def test_status_on_empty_topic(self, restore_pvs):
+    def test_status_on_empty_topic(self):
         self.PVtopic.put('')
         st = self.detector.doStatus()
         assert st == (status.ERROR, 'Empty topic')
@@ -503,24 +516,28 @@ class TestEpicsAreaDetectorWithKafkaPlugin(object):
 
         request.addfinalizer(fin)
 
+    @pytest.fixture(scope='class')
+    def devices(self, session):
+        try:
+            detector = session.getDevice('areadetector_kafka')
+            plugin = session.getDevice('kafka_plugin')
+            image_channel = session.getDevice('kafka_image_channel')
+        except CommunicationError as e:
+            pytest.skip('%r: ADPluginKafka not connected' % e)
+        yield detector, plugin, image_channel
+
     @pytest.fixture(autouse=True)
-    def initialize_devices(self, session):
+    def initialize_devices(self, devices):
         """
         Initialize the devices if they are not already initialized. If the
         IOC is not running skip all tests
         """
-        try:
-            self.detector = session.getDevice('areadetector_kafka')
-            self.plugin = session.getDevice('kafka_plugin')
-            self.image_channel = session.getDevice('kafka_image_channel')
-        except CommunicationError as e:
-            pytest.skip('%r: areaDetector not connected' % e)
+        # set single image mode, else will continuously acquire
+        self.detector, self.plugin, self.image_channel = devices
 
         self.status = PV(self.detector.errormsgpv)
         if not self.status.connected:
             pytest.skip('PVs not connected')
-
-        # set single image mode, else will continuously acquire
         image_mode = PV('13SIM1:cam1:ImageMode')
         image_mode.put('Single')
         self.PVtime = PV('13SIM1:cam1:AcquireTime')
@@ -538,11 +555,11 @@ class TestEpicsAreaDetectorWithKafkaPlugin(object):
             self.PVstatus = pv
         self.log = self.detector.log
 
-    def test_status_on_empty_broker(self, restore_pvs):
+    def test_status_on_empty_broker(self):
         self.PVbroker.put('')
         assert self.detector.doStatus() == (status.ERROR, 'Empty broker')
 
-    def test_status_on_empty_topic(self, restore_pvs):
+    def test_status_on_empty_topic(self):
         self.PVtopic.put('')
         assert self.detector.doStatus() == (status.ERROR, 'Empty topic')
 
@@ -553,7 +570,7 @@ class TestEpicsAreaDetectorWithKafkaPlugin(object):
         time.sleep(.5)
         assert self.detector.doStatus() == (status.WARN, 'Connecting')
 
-    def test_status_on_disconnected(self, restore_pvs):
+    def test_status_on_disconnected(self):
         if not self.PVstatus:
             pytest.skip('Can\'t change PV status')
         self.PVstatus.put(ADKafkaStatus.DISCONNECTED)
@@ -562,7 +579,7 @@ class TestEpicsAreaDetectorWithKafkaPlugin(object):
         assert self.detector.doStatus() == (
             status.ERROR, 'A meaningful disconnected error message')
 
-    def test_status_on_error(self, restore_pvs):
+    def test_status_on_error(self):
         if not self.PVstatus:
             pytest.skip('Can\'t change PV status')
         self.PVstatus.put(ADKafkaStatus.ERROR)
