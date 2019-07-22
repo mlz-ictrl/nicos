@@ -177,7 +177,7 @@ class VirtualCoder(HasOffset, Coder):
 
     def doReadUnit(self):
         """For devices with a unit attribute."""
-        # prefer configured unit if nothing is set on the Tango device
+        # prefer configured unit if nothing is set on the motor device
         if 'unit' in self._config:
             return self._config['unit']
         return self._attached_motor.unit
