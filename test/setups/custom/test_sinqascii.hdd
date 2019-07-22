@@ -1,0 +1,8 @@
+**** SINQASCII TEST TEMPLATE ****
+Original Filename = !!FILE!!
+File Creation = !!DATE!!
+motor2 = !!DRIV(motor2)!!
+motor2 softzero = !!ZERO(motor2)!!
+Title = !!VAR(Exp,title)!!
+ScriptTest = !!SCRIPT('str('Oops')')!!
+!!SCANZERO!!
