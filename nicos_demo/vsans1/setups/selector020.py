@@ -2,6 +2,8 @@ description = 'setup for the 6% velocity selector'
 
 group = 'optional'
 
+includes = ['resolution', 'alias_lambda']
+
 excludes = ['selector042']
 
 devices = dict(
@@ -31,6 +33,7 @@ devices = dict(
         fmtstr = '%.5f',
         warnlimits = (0, 0.008),
         abslimits = (0, 1000),
+        default = 1.23e-5,
         maxage = 35,
     ),
     selector_rtemp = device('nicos.devices.generic.ManualMove',
@@ -39,6 +42,7 @@ devices = dict(
         fmtstr = '%.1f',
         warnlimits = (10, 45),
         abslimits = (0, 100),
+        default = 35,
         maxage = 35,
     ),
     selector_wflow = device('nicos.devices.generic.ManualMove',
@@ -47,6 +51,7 @@ devices = dict(
         fmtstr = '%.1f',
         warnlimits = (1.5, 10),
         abslimits = (0, 100),
+        default = 10.1,
         maxage = 35,
     ),
     selector_winlt = device('nicos.devices.generic.ManualMove',
@@ -55,6 +60,7 @@ devices = dict(
         fmtstr = '%.1f',
         warnlimits = (15, 28),
         abslimits = (0, 100),
+        default = 15.1,
         maxage = 35,
     ),
     selector_woutt = device('nicos.devices.generic.ManualMove',
@@ -63,6 +69,7 @@ devices = dict(
         fmtstr = '%.1f',
         warnlimits = (15, 28),
         abslimits = (0, 100),
+        default = 27.8,
         maxage = 35,
     ),
     selector_vibrt = device('nicos.devices.generic.ManualMove',
@@ -71,6 +78,11 @@ devices = dict(
         fmtstr = '%.2f',
         warnlimits = (0, 1),
         abslimits = (0, 5),
+        default = 0.1,
         maxage = 35,
     ),
 )
+
+alias_config = {
+    'wl': {'selector_lambda': 100}
+}
