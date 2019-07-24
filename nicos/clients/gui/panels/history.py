@@ -1145,10 +1145,11 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
 
         # this is done in Panel.__init__ for the panel version
         self.settings = CompatSettings()
-        self.splitter.setSizes([20, 80])
         self.loadSettings(self.settings)
 
         BaseHistoryWindow.__init__(self)
+        self.splitter.setSizes([20, 80])
+
         DlgUtils.__init__(self, 'History viewer')
 
         self.actionAttachElog.setVisible(False)
