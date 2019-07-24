@@ -237,7 +237,6 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
             metainfo[('dataset', 'starttime')] = (starttime_str, starttime_str,
                                                   '', 'general')
 
-
         if self.sink.start_fw_file:
             # Load the JSON file containing the command to send.
             # This functionality is primarily for testing and debugging.
@@ -248,6 +247,7 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
                     command_str = f.read()
                 command_str = command_str.replace("STARTTIME", str(starttime))
                 command_str = command_str.replace("8601TIME", self.iso8601_time)
+                command_str = command_str.replace("TITLE", self.sink.title)
                 command = json.loads(command_str)
             except Exception as err:
                 self.log.error(
@@ -361,6 +361,8 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
         'start_fw_file': Param('JSON file containing the command for starting '
                                'the filewriter (for testing)',
                                type=str, default=None),
+        'title': Param('Title to set in NeXus file', type=str,
+                       settable=True, userparam=True, default=""),
     }
 
     parameter_overrides = {
