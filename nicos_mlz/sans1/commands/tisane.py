@@ -44,14 +44,14 @@ def tcount(time_to_measure):
 
     session.delay(5)
 
-    out_1 = session.getDevice('out_1')
-    #tisane_fg1_sample = session.getDevice('tisane_fg1_sample')
-    #tisane_fg2_det = session.getDevice('tisane_fg2_det')
-    #maw(out_1, 0)
-    #maw(tisane_fg1_sample, 'On')
-    #maw(tisane_fg2_det, 'On')
+    tisane_relais = session.getDevice('tisane_relais')
+    # tisane_fg1_sample = session.getDevice('tisane_fg1_sample')
+    # tisane_fg2_det = session.getDevice('tisane_fg2_det')
+    # maw(tisane_relais, 0)
+    # maw(tisane_fg1_sample, 'On')
+    # maw(tisane_fg2_det, 'On')
 
-    maw(out_1, 1)
+    maw(tisane_relais, 1)
 
     session.delay(5)
 
@@ -59,12 +59,12 @@ def tcount(time_to_measure):
 
     session.delay(5)
 
-    maw(out_1, 0)
+    maw(tisane_relais, 0)
 
     session.delay(5)
 
-    #maw(tisane_fg1_sample, 'Off')
-    #maw(tisane_fg2_det, 'Off')
+    # maw(tisane_fg1_sample, 'Off')
+    # maw(tisane_fg2_det, 'Off')
     print("measurement finished")
 
 
@@ -81,11 +81,11 @@ def freqmes(assumed_freq, number_of_counts):
     """
     import numpy
     valuedev = session.getDevice('tisane_fc')
-    #erwartete frequenz setzen
+    # erwartete frequenz setzen
     valuedev._dev.expectedFreq = assumed_freq
 
     armdev = session.getDevice('tisane_fc_trigger')
-    #tisane_fc_trigger -> arm; parameter in fc schreiben
+    # tisane_fc_trigger -> arm; parameter in fc schreiben
     maw(armdev, 'arm')
     session.delay(0.5)
 
@@ -138,8 +138,8 @@ def setfg(freq_sample, amplitude_sample, offset_sample, shape_sample, freq_detec
 
     multifg = session.getDevice('tisane_fg_multi')
 
-    out_1 = session.getDevice('out_1')
-    maw(out_1, 0)
+    tisane_relais = session.getDevice('tisane_relais')
+    maw(tisane_relais, 0)
 
 
     # template = ':SOUR1:FUNC:SHAP SQU;:SOUR1:FREQ 116.621036;:SOUR1:VOLT 2.4;:SOUR1:VOLT:UNIT ' \
@@ -178,22 +178,22 @@ def tcalc(sd, cs, chop_speed, wav_mean, wav_spread):
 
     chop_num = 14.0
 
-    #the chopper
+    # the chopper
     T_c = 1 / (chop_num * chop_speed)
 
-    #lets calculate the sample repetition time using the TISANE equation
+    # calculate the sample repetition time using the TISANE equation
     T_s = T_c * sd / (sd + cs)
 
-    #sample frequency
+    # sample frequency
     F_s = 1/T_s
 
-    #lets calculate the detector repetition tiem using the TISANE equation
+    # calculate the detector repetition tiem using the TISANE equation
     T_d = T_s * (sd + cs) / cs
 
-    #detector frequency
+    # detector frequency
     F_d = 1 / T_d
 
-    #define wavelength [A]
+    # define wavelength [A]
     wav = []
 
     i = 4
@@ -205,12 +205,12 @@ def tcalc(sd, cs, chop_speed, wav_mean, wav_spread):
     for i in wav:
         speed.append(6.262e-34 / (1.674e-27 * i * 1e-10))
 
-    #transmission function of the selector is assumed to be gaussian
+    # transmission function of the selector is assumed to be gaussian
     trans_selector = []
     for i in wav:
         trans_selector.append(math.exp(-0.5 * ((i - wav_mean)**2) - ((0.5 * wav_mean * 0.01 * wav_spread)**2)))
 
-    #define a cutoff for the slowest and the fastest neutrons
+    # define a cutoff for the slowest and the fastest neutrons
     # use two sigma for an assumption of the maximal and mininmal test_doppler_wavelength_0
     wav_min = wav_mean * (1 - 0.01 * wav_spread)
     wav_max = wav_mean * (1 + 0.01 * wav_spread)
@@ -218,7 +218,7 @@ def tcalc(sd, cs, chop_speed, wav_mean, wav_spread):
     speed_min = 6.262e-34 / (1.674e-27 * wav_max * 1e-10)
     speed_max = 6.262e-34 / (1.674e-27 * wav_min * 1e-10)
 
-    #calculate the frame overlap
+    # calculate the frame overlap
     frame_overlap_detector = ((cs + sd) / speed_min - (cs + sd) / speed_max) / T_c
     frame_overlap_sample = (cs / speed_min - cs / speed_max) / T_c
 
