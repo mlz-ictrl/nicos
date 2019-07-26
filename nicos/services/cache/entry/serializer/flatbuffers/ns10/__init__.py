@@ -43,25 +43,24 @@ def encode(key, entry):
     # Start with a buffer which can automatically grow
     builder = flatbuffers.Builder(136)
 
-    # Create the buffered strings for key and value
-    # This has to be done before starting to build
-    value_fb_str = 0
+    # Create the strings - this has to be done before starting to build
+    value_fb_str = None
     if entry.value is not None:
         value_fb_str = builder.CreateString(entry.value)
     key_fb_str = builder.CreateString(key)
 
-    # Start building the buffer
+    # Start building the buffer.
+    # Flatbuffer must be constructed in the reverse order of the schema.
+    # This might be a bug in flatbuffers.
     CacheEntryFB.CacheEntryStart(builder)
-    CacheEntryFB.CacheEntryAddKey(builder, key_fb_str)
     if value_fb_str:
         CacheEntryFB.CacheEntryAddValue(builder, value_fb_str)
     CacheEntryFB.CacheEntryAddExpired(builder, entry.expired)
-    CacheEntryFB.CacheEntryAddTime(builder, entry.time)
-
     # Do not write ttl if it is None
     if entry.ttl is not None:
         CacheEntryFB.CacheEntryAddTtl(builder, entry.ttl)
-
+    CacheEntryFB.CacheEntryAddTime(builder, entry.time)
+    CacheEntryFB.CacheEntryAddKey(builder, key_fb_str)
     fb_entry = CacheEntryFB.CacheEntryEnd(builder)
     builder.Finish(fb_entry)
 
