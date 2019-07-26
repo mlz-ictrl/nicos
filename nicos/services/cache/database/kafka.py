@@ -103,7 +103,7 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
         # Give up if the topic does not exist
         if self.currenttopic not in self._consumer.topics():
             raise ConfigurationError(
-                'Topic "%s" does not exit. Create this topic and restart.'
+                'Topic "%s" does not exist. Create this topic and restart.'
                 % self.currenttopic)
 
         # Assign the partitions
@@ -245,7 +245,7 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
 
         if self.historytopic not in self._consumer.topics():
             raise ConfigurationError(
-                'Topic "%s" does not exit. Create this topic and restart.'
+                'Topic "%s" does not exist. Create this topic and restart.'
                 % self.historytopic)
 
         # Create the history consumer
@@ -254,7 +254,7 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
         # Give up if the topic does not exist
         if self.historytopic not in self._history_consumer.topics():
             raise ConfigurationError(
-                'Topic "%s" does not exit. Create this topic and restart.'
+                'Topic "%s" does not exist. Create this topic and restart.'
                 % self.historytopic)
 
         # Assign the partitions
