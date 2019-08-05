@@ -1,10 +1,14 @@
 #!/usr/bin/env python
-import re
-import sys
-import socket
+from __future__ import absolute_import, division, print_function
+
 import inspect
 import optparse
+import re
+import socket
+import sys
 from math import ceil
+
+from nicos.pycompat import from_utf8, to_utf8
 
 # default cache server to use when no arguments are given
 CACHES = ["localhost"]
@@ -111,12 +115,12 @@ class CClient(object):
         self._socket = s
 
     def _comm(self, request):
-        self._socket.sendall(request + '\n###?\n') # always put a end-of-list marker
+        self._socket.sendall(to_utf8(request + '\n###?\n')) # always put a end-of-list marker
         data = ''
         reloop = False
         while True:
             try:
-                newdata = self._socket.recv(1024)
+                newdata = from_utf8(self._socket.recv(1024))
             except socket.timeout:
                 return
             if newdata:
@@ -196,20 +200,20 @@ class CClient(object):
     def apply(self, dryrun, verbose, *fixes):
         '''apply a fix to all matching devices in the cache'''
         if verbose:
-            print "Querying list of devices"
+            print("Querying list of devices")
         devlist = list(self.devices())
         if verbose:
-            print "Checking Devices..."
+            print("Checking Devices...")
         for dev in devlist:
             if verbose:
-                print dev, '\r',
+                print(dev, end= '\r',)
             for fix in fixes:
                 # ask fix about required keys and types
                 argspec = inspect.getargspec(fix)
                 keys = argspec.args
                 types = argspec.defaults
                 if len(keys) != len(types):
-                    print "Can not apply fix", fix.__name__, "not all argumens have types as default!"
+                    print("Can not apply fix %s, not all argumens have types as default!" % fix.__name__)
                 # ask cache about the values of the keys
                 args = [self.querykey(dev, k) for k in keys]
                 if None in args:
@@ -219,18 +223,18 @@ class CClient(object):
                 try:
                     args = [t(k) for k, t in zip(args, types)]
                 except Exception as e:
-                    print fix.__name__, e, args
+                    print(fix.__name__, e, args)
                     continue
                 # ask fix what it wants to fix
                 res = fix(*args)
                 if res:
                     if not isinstance(res, dict):
-                        print "Error: a fix should return a DICT of the fixed key:value pairs!"
+                        print("Error: a fix should return a DICT of the fixed key:value pairs!")
                         continue
-                    print "Would fix" if dryrun else "FIXING", fix.__name__,'for device %s :' % dev
+                    print("%s %s for device %s:" % ("Would fix" if dryrun else "FIXING", fix.__name__, dev))
                     for k, a in zip(keys, args):
-                        print '\t',k,'=', repr(a)
-                    print "\t\t => ", res
+                        print('\t %s=%r'%(k,a))
+                    print("\t\t => %s" % res)
                     for k, v in res.items():
                         if not dryrun:
                             self.set(dev, k, value=repr(v))
@@ -253,12 +257,12 @@ if __name__ == '__main__':
             opts.caches.append(arg)
             continue
         parser.print_help()
-        print
-        print 'fix_cache_entries.py: error: no such option:', arg
+        print()
+        print('fix_cache_entries.py: error: no such option: %s' % arg)
         sys.exit(2)
 
     fixes = [f for (n, f) in globals().items() if n.startswith('fix_')]
     for cache in opts.caches or CACHES:  # fallback to default
-        print "Checking", cache, 'in', 'dryrun' if opts.dryrun else 'real', 'mode'
+        print("Checking %s in %s mode" %(cache, 'dryrun' if opts.dryrun else 'real'))
         c = CClient(cache)
         c.apply(opts.dryrun, opts.verbose, *fixes)
