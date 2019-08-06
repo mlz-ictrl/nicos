@@ -52,6 +52,8 @@ Script-related commands
 -----------------------
 
 .. autofunction:: run
+.. autofunction:: pause
+.. autofunction:: abort
 
 Simulation mode commands
 ------------------------

@@ -127,6 +127,10 @@ class SimLogSender(logging.Handler):
                                     [stoptime, devinfo, self.simuuid])))
 
 
+class Abort(Exception):
+    """Used for aborting the script programmatically."""
+
+
 class SimulationSession(Session):
     """
     Subclass of Session for spawned simulation processes.
@@ -208,6 +212,8 @@ class SimulationSession(Session):
                 time = session.clock.time - last_clock
                 last_clock = session.clock.time
                 session.log_sender.send_block_result(i, time)
+        except Abort:
+            session.log.info('Dry run finished by abort()')
         except:  # pylint: disable=W0702
             session.log.exception('Exception in dry run')
             exception = True
@@ -233,6 +239,9 @@ class SimulationSession(Session):
         # Use a short, fixed sleep here to release the GIL and allow e.g.
         # multiWait  run virtual motor threads inbetween.
         sleep(0.0001)
+
+    def abortScript(self):
+        raise Abort
 
 
 class SimulationSupervisor(Thread):

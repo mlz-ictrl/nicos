@@ -318,3 +318,6 @@ class ConsoleSession(Session):
     def clientExec(self, func, args):
         # the client is the console itself -- just execute it
         func(*args)
+
+    def abortScript(self):
+        raise NicosInteractiveStop

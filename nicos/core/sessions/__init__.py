@@ -1178,6 +1178,12 @@ class Session(object):
         for notifier in self.notifiers:
             notifier.send(subject, body, what, short, important)
 
+    def abortScript(self):
+        """Abort a running script, with the proper method depending on the
+        session.
+        """
+        raise NotImplementedError
+
     # -- Special cache handlers -----------------------------------------------
 
     def _pnpHandler(self, key, value, time, expired=False):

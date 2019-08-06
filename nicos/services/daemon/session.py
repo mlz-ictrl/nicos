@@ -36,6 +36,7 @@ from nicos.devices.cacheclient import DaemonCacheClient
 from nicos.protocols.daemon import BREAK_AFTER_STEP
 from nicos.pycompat import builtins, exec_, string_types
 from nicos.services.daemon.htmlhelp import HelpGenerator
+from nicos.services.daemon.pyctl import ControlStop
 from nicos.utils.loggers import INFO
 
 
@@ -220,3 +221,6 @@ class DaemonSession(NoninteractiveSession):
         if event == 'warning':
             self.log.warning('WATCHDOG ALERT: %s', data)
         self.emitfunc('watchdog', (event, time, data))
+
+    def abortScript(self):
+        raise ControlStop('', '', 'abort()')

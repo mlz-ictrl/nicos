@@ -61,7 +61,7 @@ __all__ = [
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode', 'run', 'sim',
     'notify', 'SetMailReceivers', 'ListMailReceivers', 'SetDataReceivers',
     'ListDataReceivers', '_trace', 'timer',
-    'LogEntry', '_LogAttach', 'SetErrorAbort', 'pause',
+    'LogEntry', '_LogAttach', 'SetErrorAbort', 'pause', 'abort',
 ]
 
 
@@ -994,3 +994,11 @@ def pause(prompt='Script paused by pause() command.'):
     The *prompt* text is shown to the user.
     """
     session.pause(prompt)
+
+
+@usercommand
+def abort(message=None):
+    """Abort any running script with a given message."""
+    if message:
+        session.log.warning('Aborting script: %s', message)
+    session.abortScript()

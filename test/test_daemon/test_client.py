@@ -178,3 +178,13 @@ session.updateLiveData(
         elif name == 'livedata':
             assert bytes(data) == b'\x01\x02\x03\x04'
             return
+
+
+def test_abort(client):
+    # load_setup(client, 'daemontest')
+    idx = len(client._signals)
+    client.run_and_wait('abort(); sleep(600)', allow_exc=True)
+    for name, data, _exc in client.iter_signals(idx, timeout=10.0):
+        if name == 'message':
+            if 'Script stopped by abort()' in data[3]:
+                return
