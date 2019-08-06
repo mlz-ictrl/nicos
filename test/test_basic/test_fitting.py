@@ -36,7 +36,8 @@ import numpy as np
 import pytest
 
 from nicos.utils.fitting import CosineFit, ExponentialFit, GaussFit, \
-    LinearFit, PearsonVIIFit, PolyFit, PseudoVoigtFit, SigmoidFit, TcFit
+    LinearFit, LorentzFit, PearsonVIIFit, PolyFit, PseudoVoigtFit, \
+    SigmoidFit, TcFit
 
 
 @pytest.fixture(scope='function')
@@ -75,6 +76,7 @@ def idfn(val):
     (PseudoVoigtFit, {'B': 1., 'A': 20., 'x0': 4., 'hwhm': .3, 'eta': .3}, None),
     (CosineFit, {'A': 20, 'f': .5, 'x0': 2, 'B': .5}, None),
     (ExponentialFit, {'b': -0.3, 'x0': 5}, None),
+    (LorentzFit, {'x0': 2, 'A': 1, 'fwhm': 0.5, 'B': 0}, None),
     ], indirect=['fitconf'], ids=idfn)
 def test_fit(fitconf):
     fitter = fitconf[0]

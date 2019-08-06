@@ -467,6 +467,33 @@ class GaussFit(PredefinedFit):
         ]
 
 
+class LorentzFit(PredefinedFit):
+
+    names = ['lorentzian', 'lorentz']
+    fit_title = 'lorentz'
+    fit_params = ['x0', 'A', 'fwhm', 'B']
+    fit_p_descr = ['center', 'amplitude', 'FWHM', 'background']
+    center_index = 0
+
+    def fit_model(self, x, x0, A, fwhm, B):
+        return abs(B) + A / (1 + 4 * ((x - x0) / fwhm) ** 2)
+
+    def guesspar(self, x, y):
+        fwhm, x0, ymax, B = estimateFWHM(x, y)
+        A = ymax - B
+        return [x0, A, fwhm, B]
+
+    def process_result(self, res):
+        res.label_x = res.x0 + res.fwhm / 2
+        res.label_y = res.B + res.A
+        res.label_contents = [
+            ('Center', res.x0, res.dx0),
+            ('FWHM', res.fwhm, res.dfwhm),
+            ('Ampl', res.A, res.dA),
+            ('Integr', res.A * res.fwhm / 2 * pi, '')
+        ]
+
+
 class PseudoVoigtFit(PredefinedFit):
 
     names = ['pseudovoigt', 'pseudo-voigt']

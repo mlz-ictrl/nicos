@@ -38,8 +38,8 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import CompatSettings, DlgUtils, dialogFromUi, \
     enumerateWithProgress, loadUi
 from nicos.clients.gui.widgets.plotting import ArbitraryFitter, CosineFitter, \
-    ExponentialFitter, GaussFitter, LinearFitter, PearsonVIIFitter, \
-    PseudoVoigtFitter, SigmoidFitter, TcFitter, ViewPlot
+    ExponentialFitter, GaussFitter, LinearFitter, LorentzFitter, \
+    PearsonVIIFitter, PseudoVoigtFitter, SigmoidFitter, TcFitter, ViewPlot
 from nicos.core import Param, listof
 from nicos.devices.cacheclient import CacheClient
 from nicos.guisupport.qt import QAction, QActionGroup, QApplication, QBrush, \
@@ -502,6 +502,7 @@ class BaseHistoryWindow(object):
         self.actionFitPeak.triggered.connect(self.on__actionFitPeak_triggered)
         self.actionFitArby.triggered.connect(self.on__actionFitArby_triggered)
         self.actionFitPeakGaussian.triggered.connect(self.on__actionFitPeakGaussian_triggered)
+        self.actionFitPeakLorentzian.triggered.connect(self.on__actionFitPeakLorentzian_triggered)
         self.actionFitPeakPV.triggered.connect(self.on__actionFitPeakPV_triggered)
         self.actionFitPeakPVII.triggered.connect(self.on__actionFitPeakPVII_triggered)
         self.actionFitTc.triggered.connect(self.on__actionFitTc_triggered)
@@ -534,6 +535,7 @@ class BaseHistoryWindow(object):
         menu.addAction(self.actionLines)
         ag = QActionGroup(menu)
         ag.addAction(self.actionFitPeakGaussian)
+        ag.addAction(self.actionFitPeakLorentzian)
         ag.addAction(self.actionFitPeakPV)
         ag.addAction(self.actionFitPeakPVII)
         ag.addAction(self.actionFitTc)
@@ -544,6 +546,7 @@ class BaseHistoryWindow(object):
         menu.addAction(self.actionFitPeak)
         menu.addAction(self.actionPickInitial)
         menu.addAction(self.actionFitPeakGaussian)
+        menu.addAction(self.actionFitPeakLorentzian)
         menu.addAction(self.actionFitPeakPV)
         menu.addAction(self.actionFitPeakPVII)
         menu.addAction(self.actionFitTc)
@@ -595,6 +598,7 @@ class BaseHistoryWindow(object):
             bar.addAction(wa)
             ag = QActionGroup(bar)
             ag.addAction(self.actionFitPeakGaussian)
+            ag.addAction(self.actionFitPeakLorentzian)
             ag.addAction(self.actionFitPeakPV)
             ag.addAction(self.actionFitPeakPVII)
             ag.addAction(self.actionFitTc)
@@ -1031,6 +1035,11 @@ class BaseHistoryWindow(object):
         cbi = self.fitComboBox.findText(self.actionFitPeakGaussian.text().replace('&', ''))
         self.fitComboBox.setCurrentIndex(cbi)
         self.fitclass = GaussFitter
+
+    def on__actionFitPeakLorentzian_triggered(self):
+        cbi = self.fitComboBox.findText(self.actionFitPeakLorentzian.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = LorentzFitter
 
     def on__actionFitPeakPV_triggered(self):
         cbi = self.fitComboBox.findText(self.actionFitPeakPV.text().replace('&', ''))

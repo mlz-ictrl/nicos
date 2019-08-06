@@ -35,7 +35,8 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.clients.gui.widgets.plotting import ArbitraryFitter, CosineFitter, \
     DataSetPlot, ExponentialFitter, GaussFitter, LinearFitter, \
-    PearsonVIIFitter, PseudoVoigtFitter, SigmoidFitter, TcFitter
+    LorentzFitter, PearsonVIIFitter, PseudoVoigtFitter, SigmoidFitter, \
+    TcFitter
 from nicos.core.data import ScanData
 from nicos.core.params import INFO_CATEGORIES
 from nicos.guisupport.qt import QActionGroup, QByteArray, QCheckBox, \
@@ -255,6 +256,7 @@ class ScansPanel(Panel):
             menu2.addSeparator()
             ag = QActionGroup(menu2)
             ag.addAction(self.actionFitPeakGaussian)
+            ag.addAction(self.actionFitPeakLorentzian)
             ag.addAction(self.actionFitPeakPV)
             ag.addAction(self.actionFitPeakPVII)
             ag.addAction(self.actionFitTc)
@@ -265,6 +267,7 @@ class ScansPanel(Panel):
             menu2.addAction(self.actionFitPeak)
             menu2.addAction(self.actionPickInitial)
             menu2.addAction(self.actionFitPeakGaussian)
+            menu2.addAction(self.actionFitPeakLorentzian)
             menu2.addAction(self.actionFitPeakPV)
             menu2.addAction(self.actionFitPeakPVII)
             menu2.addAction(self.actionFitTc)
@@ -322,6 +325,7 @@ class ScansPanel(Panel):
             fitbar.addAction(wa)
             ag = QActionGroup(fitbar)
             ag.addAction(self.actionFitPeakGaussian)
+            ag.addAction(self.actionFitPeakLorentzian)
             ag.addAction(self.actionFitPeakPV)
             ag.addAction(self.actionFitPeakPVII)
             ag.addAction(self.actionFitTc)
@@ -730,6 +734,12 @@ class ScansPanel(Panel):
         cbi = self.fitComboBox.findText(self.actionFitPeakGaussian.text().replace('&', ''))
         self.fitComboBox.setCurrentIndex(cbi)
         self.fitclass = GaussFitter
+
+    @pyqtSlot()
+    def on_actionFitPeakLorentzian_triggered(self):
+        cbi = self.fitComboBox.findText(self.actionFitPeakLorentzian.text().replace('&', ''))
+        self.fitComboBox.setCurrentIndex(cbi)
+        self.fitclass = LorentzFitter
 
     @pyqtSlot()
     def on_actionFitPeakPV_triggered(self):

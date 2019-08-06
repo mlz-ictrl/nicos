@@ -464,6 +464,14 @@
     <string>Logarithmic X scale</string>
    </property>
   </action>
+  <action name="actionFitPeakLorentzian">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Lorent&amp;zian</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

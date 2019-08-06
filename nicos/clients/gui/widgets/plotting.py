@@ -52,8 +52,8 @@ from nicos.guisupport.utils import scaledFont
 from nicos.pycompat import exec_, string_types
 from nicos.utils import safeName
 from nicos.utils.fitting import CosineFit, ExponentialFit, Fit, FitError, \
-    FitResult, GaussFit, LinearFit, PearsonVIIFit, PseudoVoigtFit, \
-    SigmoidFit, TcFit
+    FitResult, GaussFit, LinearFit, LorentzFit, PearsonVIIFit, \
+    PseudoVoigtFit, SigmoidFit, TcFit
 
 
 def prepareData(x, y, dy, norm):
@@ -195,6 +195,25 @@ class CosineFitter(Fitter):
             pars = [a, freq, x1, b]
 
         f = CosineFit(pars)
+        return f.run_or_raise(*self.data)
+
+
+class LorentzFitter(Fitter):
+    title = 'peak fit'
+    picks = ['Background', 'Peak', 'Half Maximum']
+
+    def do_fit(self):
+        if self.pickmode:
+            (xb, yb), (x0, y0), (xw, _) = self.values  # pylint: disable=unbalanced-tuple-unpacking
+            pars = [x0, abs(y0-yb), abs(x0-xw), yb]
+            totalwidth = abs(x0 - xb)
+            xmin = x0 - totalwidth
+            xmax = x0 + totalwidth
+        else:
+            pars = None
+            xmin, xmax = self.limitsFromPlot()
+
+        f = LorentzFit(pars, xmin=xmin, xmax=xmax)
         return f.run_or_raise(*self.data)
 
 
