@@ -27,15 +27,21 @@ from __future__ import absolute_import, division, print_function
 import ntpath
 from time import time as currenttime
 
+import numpy as np
+
 from nicos import session
 from nicos.core import Attach, DeviceMixinBase, Param, status
 from nicos.core.errors import CommunicationError, InvalidValueError, NicosError
-from nicos.core.params import floatrange, intrange, none_or, oneof, tupleof
+from nicos.core.params import Value, floatrange, intrange, none_or, oneof, \
+    tupleof
 from nicos.core.utils import waitForCompletion
 from nicos.devices.generic import Switcher
-from nicos.devices.generic.detector import ActiveChannel, ImageChannelMixin
+from nicos.devices.generic.detector import ActiveChannel, ImageChannelMixin, \
+    PostprocessPassiveChannel
 from nicos.devices.tango import PyTangoDevice
 from nicos.devices.vendor.lima import Andor2LimaCCD, Andor3LimaCCD
+
+from nicos_mlz.antares.lib.calculations import gam_rem_adp_log, scharr_filter
 
 
 class UsesFastshutter(DeviceMixinBase):
@@ -250,3 +256,29 @@ class AndorHFRCamera(PyTangoDevice, UsesFastshutter, ImageChannelMixin,
             self._write_command('SetKineticCycleTime %f' % value)
         elif preset == 'spoolfile':
             self._write_command('SetSpoolFileName %s' % value)
+
+
+class Sharpness(PostprocessPassiveChannel):
+
+    parameters = {
+        'thr3': Param('Threshold for 3x3 pixels',
+                      type=intrange(0, 1000), settable=True, userparam=True,
+                      default=25),
+        'thr5': Param('Threshold for 5x5 pixels',
+                      type=intrange(0, 1000), settable=True, userparam=True,
+                      default=100),
+        'thr7': Param('Threshold for 7x7 pixels',
+                      type=intrange(0, 1000), settable=True, userparam=True,
+                      default=400),
+        'sig_log': Param('Sig log',
+                         type=floatrange(0, 1), settable=True, userparam=True,
+                         default=0.8),
+    }
+
+    def valueInfo(self):
+        return Value(name=self.name, type='counter', fmtstr='%.3f'),
+
+    def getReadResult(self, arrays, results, quality):
+        arr = np.array(arrays[0], dtype=int)
+        return [scharr_filter(gam_rem_adp_log(arr, self.thr3, self.thr5,
+                                              self.thr7, self.sig_log))]
