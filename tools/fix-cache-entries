@@ -258,7 +258,7 @@ if __name__ == '__main__':
             continue
         parser.print_help()
         print()
-        print('fix_cache_entries.py: error: no such option: %s' % arg)
+        print('fix-cache-entries: error: no such option: %s' % arg)
         sys.exit(2)
 
     fixes = [f for (n, f) in globals().items() if n.startswith('fix_')]

@@ -35,8 +35,7 @@ sip.setapi('QVariant', 2)
 try:
     from nicos.core import sessions  # pylint: disable=unused-import
 except ImportError:
-    thisfile = path.abspath(__file__)
-    sys.path.insert(0, path.normpath(path.join(path.dirname(thisfile), '..')))
+    sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
     from nicos.core import sessions  # pylint: disable=unused-import
 
 from cacheinspector.cacheinspector import CacheInspector, CISession
@@ -56,6 +55,7 @@ def main():
     CISession.run('Inspector', CacheInspector,
                   {'cache': opts.cache, 'prefix': opts.prefix},
                   pidfile=False)
+
 
 if __name__ == '__main__':
     main()

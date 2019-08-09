@@ -13,8 +13,7 @@ from os import path
 try:
     from nicos import config
 except ImportError:
-    thisfile = path.abspath(__file__)
-    sys.path.insert(0, path.normpath(path.join(path.dirname(thisfile), '..')))
+    sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
     from nicos import config
 
 try:

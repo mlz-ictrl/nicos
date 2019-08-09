@@ -60,10 +60,10 @@ install-requirements:
 
 
 check:
-	$(PYTHON) tools/check_setups $(CHECK_DIRS)
+	$(PYTHON) tools/check-setups $(CHECK_DIRS)
 
 setupcheck:
-	$(PYTHON) tools/check_setups -s nicos_*/*/setups nicos_*/*/guiconfig.py
+	$(PYTHON) tools/check-setups -s nicos_*/*/setups nicos_*/*/guiconfig.py
 
 T = test
 
