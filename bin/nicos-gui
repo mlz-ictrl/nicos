@@ -23,8 +23,11 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import sys
 from os import path
+
 sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
 from nicos.clients.gui.main import main

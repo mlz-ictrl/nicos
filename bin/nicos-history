@@ -23,10 +23,11 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import argparse
 import logging
 import sys
-
 from os import path
 
 sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
@@ -73,6 +74,8 @@ def log_unhandled(*exc_info):
     import traceback
     traceback.print_exception(*exc_info)
     log.exception('unhandled exception in QT callback', exc_info=exc_info)
+
+
 sys.excepthook = log_unhandled
 
 

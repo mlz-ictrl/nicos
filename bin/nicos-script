@@ -23,14 +23,16 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 import argparse
 import signal
 import sys
-
 from os import path
 
 sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
+from nicos.core.sessions.simple import ScriptSession
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-M', '--maintenance', dest='mode', const='maintenance',
@@ -59,5 +61,4 @@ else:
 if opts.stop:
     signal.alarm(opts.stop)
 
-from nicos.core.sessions.simple import ScriptSession
 ScriptSession.run(setup, script_text, mode=opts.mode, appname=opts.appname)
