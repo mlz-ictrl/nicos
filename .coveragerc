@@ -12,5 +12,4 @@ omit =
 	nicos/devices/vendor/*
 	nicos/guisupport/*
 	nicos/services/monitor/qt.py
-	nicos/services/web/*
 parallel = true

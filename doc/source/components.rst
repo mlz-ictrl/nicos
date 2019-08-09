@@ -91,10 +91,6 @@ NICOS system and execute commands.
    takes the job of the daemon and gui, and presents to the user a slightly
    enhanced builtin Python shell, where commands can be executed.
 
-.. .. describe:: nicos-web
-..    This is a web-frontend version of the NICOS console.  It implements a simple
-..    web server that presents a console-like user interface via the web browser.
-
 
 .. index:: nicos-monitor, nicos-history
 
