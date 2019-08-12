@@ -135,7 +135,6 @@ class VirtualMotor(HasOffset, CanDisable, Motor):
         finally:
             self._stop = False
             self._setROParam('curstatus', (status.OK, 'idle'))
-            self._thread = None
 
     def doReadRamp(self):
         return self.speed * 60.
