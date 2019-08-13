@@ -37,14 +37,12 @@ from epics import PV
 from nicos.core import CommunicationError, status
 from nicos.core.constants import LIVE
 
+from nicos_ess.devices.epics.status import ADKafkaStatus
+
+from .utils import create_hs00
+
 pytest.importorskip('flatbuffers')
 
-from nicos_ess.devices.fbschemas.hs00 import Array, EventHistogram
-from nicos_ess.devices.epics.status import ADKafkaStatus
-from nicos_ess.devices.kafka.area_detector import \
-    HistogramFlatbuffersDeserializer
-
-from test.nicos_sinq.demo.utils import create_hs00
 
 session_setup = "epics_ad_sim_detector"
 
@@ -265,98 +263,6 @@ class TestKafkaPlugin(object):
         assert st[1] == msg
 
 
-class TestHistogramDeserializer(object):
-    """
-    Test for operation of Flatbuffer hs00 deserializer
-    """
-
-    decoder = None
-
-    @pytest.fixture(autouse=True)
-    def initialize_devices(self, session):
-        self.log = session.log
-        self.decoder = HistogramFlatbuffersDeserializer()
-
-    def test_1d_encoded_buffer(self):
-        data = numpy.random.randint(1, high=100, size=[10, ], dtype='uint32')
-        ts = 1234
-        source = 'test_1d_histo'
-        buff = create_hs00(data=data, timestamp=ts, source=source)
-        histogram = EventHistogram.EventHistogram.GetRootAsEventHistogram(
-            buff, 0)
-        assert histogram.Source().decode('utf-8') == source
-        assert histogram.Timestamp() == ts
-        assert histogram.DataType() == Array.Array.ArrayUInt
-
-    def test_decoder_1d_uint(self):
-        data = numpy.random.randint(1, high=100, size=[10, ], dtype='uint32')
-        ts = 1234
-        src = 'test_1d_histo'
-        buff = create_hs00(data=data, timestamp=ts, source=src)
-        histogram = self.decoder.decode(buff)
-        assert histogram is not None
-        value, timestamp, source = histogram
-        assert (value == data).all()
-        assert timestamp == ts
-        assert source == src
-
-    @pytest.mark.skip('Not implemented')
-    def test_decoder_1d_ulong(self):
-        data = numpy.random.randint(1, high=100, size=[10, ], dtype='uint64')
-        ts = 1234
-        source = 'test_1d_histo'
-        buff = create_hs00(data=data, timestamp=ts, source=source)
-        histogram = self.decoder.decode(buff)
-        assert histogram is not None
-        assert (histogram == data).all()
-
-    @pytest.mark.skip('Not implemented')
-    def test_decoder_1d_float(self):
-        data = numpy.random.random(size=[10, ])
-        ts = 1234
-        source = 'test_1d_histo'
-        buff = create_hs00(data=data.astype('float32'), timestamp=ts,
-                           source=source)
-        histogram = self.decoder.decode(buff)
-        assert histogram is not None
-        assert (histogram == data).all()
-
-    @pytest.mark.skip('Not implemented')
-    def test_decoder_1d_double(self):
-        data = numpy.random.random(size=[10, ])
-        ts = 1234
-        src = 'test_1d_histo'
-        buff = create_hs00(data=data.astype('float64'), timestamp=ts,
-                           source=src)
-        histogram = self.decoder.decode(buff)
-        assert histogram is not None
-        assert (histogram == data).all()
-
-    def test_decoder_2d_uint(self):
-        data = numpy.random.randint(1, high=100, size=[10, 10, ],
-                                    dtype='uint32')
-        ts = 5678
-        src = 'test_2d_histo'
-        buff = create_hs00(data=data, timestamp=ts, source=src)
-        histogram = self.decoder.decode(buff)
-        assert histogram is not None
-        value, timestamp, source = histogram
-        assert (value == data).all()
-        assert timestamp == ts
-        assert source == src
-
-    def test_decoder_3d_uint(self):
-        data = numpy.random.randint(1, high=100, size=[12, 8, 4],
-                                    dtype='uint32')
-        ts = int(time.time() * 1e9)
-        src = 'test_3d_histo'
-        buff = create_hs00(data=data, timestamp=ts, source=src)
-        histogram = self.decoder.decode(buff)
-        assert histogram is not None
-        value, timestamp, source = histogram
-        assert (value == data).all()
-        assert timestamp == ts
-        assert source == src
 
 
 class TestKafkaAreaDetectorConsumer(object):
@@ -475,7 +381,7 @@ class TestKafkaAreaDetectorConsumer(object):
 class TestEpicsAreaDetectorWithKafkaPlugin(object):
     """
     Tests for the operations of EPICS areaDetector with configured PluginKafka.
-    In practice, mke sure that information propagates correctly from
+    In practice, make sure that information propagates correctly from
     attached devices down to areaDetector
     """
 
