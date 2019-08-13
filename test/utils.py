@@ -21,7 +21,6 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
-
 """NICOS test suite utilities."""
 
 from __future__ import absolute_import, division, print_function
@@ -38,6 +37,7 @@ import sys
 import time
 from logging import DEBUG, ERROR, WARNING, Formatter, StreamHandler
 from os import path
+from time import sleep
 
 import mock
 import pytest
@@ -318,6 +318,7 @@ class TestCacheDatabase(FlatfileCacheDatabase):
             with self._cat_lock:
                 self._cat.clear()
             return
+
         FlatfileCacheDatabase.tell(self, key, value, time, ttl, from_client)
 
 
@@ -355,8 +356,9 @@ class TestSession(Session):
         exec_(code, self.namespace)
 
     def delay(self, _secs):
-        # Not necessary for test suite.
-        pass
+        # Use a short, fixed sleep here to release the GIL and allow e.g.
+        # multiWait  run virtual motor threads inbetween.
+        sleep(0.0001)
 
     def _string_to_level(self, level):
         if isinstance(level, string_types):
