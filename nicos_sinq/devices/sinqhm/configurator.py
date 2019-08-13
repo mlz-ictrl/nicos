@@ -25,7 +25,7 @@
 from __future__ import absolute_import, division, print_function
 
 from lxml import etree
-from numpy import prod
+import numpy as np
 
 from nicos.core import Attach, Device, Override, Param, listof, oneof
 from nicos.pycompat import iteritems
@@ -79,7 +79,7 @@ class HistogramConfArray(HistogramConfElement):
         :param dim: (list) new shape of the array
         :param data: (list) Flattened list of the array (C Style, Row-Major)
         """
-        if prod(dim) != len(data):
+        if np.prod(dim) != len(data):
             self.log.error('Mismatch in dimensions and data length: '
                            'dims %s and data length %s', dim, len(data))
             return
@@ -132,7 +132,7 @@ class HistogramConfTofArray(HistogramConfArray):
         :param tstep: time step
         :param channels: number of channels to use
         """
-        data = range(tmin, tmin + tstep * channels, tstep)
+        data = np.arange(tmin, tmin + tstep * channels, tstep)
         self.setData([channels], data)
 
 
