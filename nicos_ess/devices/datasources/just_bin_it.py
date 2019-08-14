@@ -128,6 +128,10 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
                            internal=True, type=tupleof(int, str),
                            default=(status.OK, ""),
                            settable=True),
+        'unique_id': Param('Store the current identifier',
+                           internal=True, type=str,
+                           default="",
+                           settable=True),
     }
 
     parameter_overrides = {
@@ -148,7 +152,10 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         key = list(messages.keys())[-1]
         hist = deserialise_hs00(messages[key])
         info = json.loads(hist["info"])
-        if info["state"] == "COUNTING":
+        self.log.debug("received unique id = {}".format(info["id"]))
+        if info["id"] != self.unique_id:
+            return
+        if info["state"] in ["COUNTING", "INITIALISED"]:
             self.curstatus = status.BUSY, "Counting"
         else:
             self.curstatus = status.OK, ""
@@ -160,12 +167,13 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         self.curstatus = status.BUSY, "Starting"
 
         # Generate a unique-ish id
-        unique_id = "nicos-{}".format(int(time.time()))
-        config = self._create_config(self._count_secs, unique_id)
+        self.unique_id = "nicos-{}".format(int(time.time()))
+        self.log.debug("set unique id = %s", self.unique_id)
+        config = self._create_config(self._count_secs, self.unique_id)
 
         # Ask just-bin-it to start counting
         self.log.info(
-            "Starting counting for {} seconds".format(self._count_secs))
+            "Starting counting for %s seconds", self._count_secs)
         self._send(self.command_topic, json.dumps(config).encode("utf-8"))
 
     def _send(self, topic, message):
