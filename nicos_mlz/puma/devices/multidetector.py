@@ -314,7 +314,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
         If the 'guide' hits the upper limit switch and the 'det' is not at it's
         reference position it will be moved away in steps of 1 deg.
         """
-        not_ref_switch = 'low' if guide.motor.refswitch == 'high' else 'low'
+        not_ref_switch = 'low' if guide.motor.refswitch == 'high' else 'high'
         try:
             det.reference()
             self._hw_wait([det])
@@ -355,7 +355,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
             freeguides = self._rotguide1
             free = None
             for g in self._rotguide0[self._rotguide0.index(guide) + 1:]:
-                not_ref_sw = 'low' if g.motor.refswitch == 'high' else 'low'
+                not_ref_sw = 'low' if g.motor.refswitch == 'high' else 'high'
                 if not g.motor.isAtReference(not_ref_sw):
                     free = g
                     freeguides = self._rotguide1[self._rotguide1.index(g):]
