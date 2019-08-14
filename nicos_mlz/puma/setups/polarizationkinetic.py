@@ -27,7 +27,7 @@ devices = dict(
         lowlevel = True,
         channels = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
     ),
-    cycles = device('nicos.devices.vendor.qmesydaq.taco.Counter',
+    cycles = device('nicos_mlz.puma.devices.taco.CycleCounter',
         description = 'QMesyDAQ cycle channel',
         tacodevice = '//%s/puma/qmesydaq/counter4' % nethost,
         type = 'counter',
