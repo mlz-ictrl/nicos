@@ -21,8 +21,8 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
-
 """Simulation session with support for ZeroMQ messaging."""
+
 
 from __future__ import absolute_import, division, print_function
 
@@ -33,6 +33,7 @@ import tempfile
 import time
 from os import path
 from threading import Thread
+from time import sleep
 
 import zmq
 
@@ -229,8 +230,9 @@ class SimulationSession(Session):
         return self._user
 
     def delay(self, _secs):
-        # Not necessary for dry run.
-        pass
+        # Use a short, fixed sleep here to release the GIL and allow e.g.
+        # multiWait  run virtual motor threads inbetween.
+        sleep(0.0001)
 
 
 class SimulationSupervisor(Thread):
