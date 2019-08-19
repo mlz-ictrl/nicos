@@ -39,8 +39,6 @@ from nicos.core.constants import LIVE
 
 from nicos_ess.devices.epics.status import ADKafkaStatus
 
-pytest.importorskip('flatbuffers')
-
 from .utils import create_hs00
 
 
