@@ -26,10 +26,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import approx
-
 from nicos_mlz.refsans.lib.calculations import chopper_config, \
     chopper_resolution
+
+from test.utils import approx
 
 
 class TestBasicCalculations(object):

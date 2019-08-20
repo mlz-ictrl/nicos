@@ -26,11 +26,12 @@ from __future__ import absolute_import, division, print_function
 
 import sys
 import time
-from test.utils import ErrorLogged, approx, raises
 
 import pytest
 
 from nicos.core import LimitError, status
+
+from test.utils import ErrorLogged, approx, raises
 
 session_setup = 'sinq_amor_logical_motors'
 

@@ -26,12 +26,13 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import ErrorLogged, raises
 from time import sleep
 
 from nicos.commands.basic import ListCommands
 from nicos.commands.device import adjust, read
 from nicos.core import ConfigurationError, NoDevice, UsageError
+
+from test.utils import ErrorLogged, raises
 
 session_setup = 'alias'
 

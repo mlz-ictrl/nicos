@@ -30,7 +30,6 @@ import hashlib
 import shutil
 import tempfile
 from os import path
-from test.utils import raises
 
 import pytest
 
@@ -40,6 +39,8 @@ from nicos.services.daemon.auth import AuthenticationError
 from nicos.services.daemon.auth.list import Authenticator as ListAuthenticator
 from nicos.services.daemon.auth.params import UserLevelAuthEntry, \
     UserPassLevelAuthEntry
+
+from test.utils import raises
 
 try:
     from nicos.services.daemon.auth.keyring import Authenticator as \

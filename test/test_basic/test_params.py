@@ -26,8 +26,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import raises
-
 from numpy import array
 
 from nicos.core.errors import ConfigurationError, ProgrammingError
@@ -36,6 +34,8 @@ from nicos.core.params import ArrayDesc, Attach, Param, Value, absolute_path, \
     listof, mailaddress, nicosdev, none_or, nonemptylistof, nonemptystring, \
     oneof, oneofdict, oneofdict_or, pvname, relative_path, setof, subdir, \
     tacodev, tangodev, tupleof, vec3
+
+from test.utils import raises
 
 # pylint: disable=compare-to-empty-string
 

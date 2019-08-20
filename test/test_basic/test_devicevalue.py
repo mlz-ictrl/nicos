@@ -28,9 +28,9 @@ Tests for DeviceInfo
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import raises
-
 from nicos.core.utils import DeviceValue, DeviceValueDict
+
+from test.utils import raises
 
 
 def test_deviceinfo():

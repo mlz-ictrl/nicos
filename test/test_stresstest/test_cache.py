@@ -27,13 +27,14 @@
 from __future__ import absolute_import, division, print_function
 
 import os
-from test.utils import TestCacheClient as CacheClient, alt_cache_addr, \
-    killSubprocess, raises, startCache
 from time import sleep
 
 import pytest
 
 from nicos.devices.cacheclient import CacheError
+
+from test.utils import TestCacheClient as CacheClient, alt_cache_addr, \
+    killSubprocess, raises, startCache
 
 session_setup = 'cachestress'
 

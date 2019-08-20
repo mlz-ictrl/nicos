@@ -27,9 +27,9 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import approx
-
 from numpy import array
+
+from test.utils import approx
 
 session_setup = 'tas'
 

@@ -26,13 +26,13 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import approx
-
 import pytest
 
 from nicos_mlz.toftof.devices.calculations import Eres1, ResolutionAnalysis, \
     alpha, calculateChopperDelay, calculateCounterDelay, \
     calculateTimeInterval, phi, phi1, speedRatio, t1, t2
+
+from test.utils import approx
 
 
 class TestBasicCalculations(object):

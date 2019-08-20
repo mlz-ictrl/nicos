@@ -24,8 +24,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import ErrorLogged, approx, raises
-
 import pytest
 from numpy import allclose, dot, pi, sqrt
 
@@ -37,6 +35,8 @@ from nicos.core import ComputationError, ConfigurationError, \
     InvalidValueError, LimitError, MoveError, PositionError, UsageError, \
     status
 from nicos.devices.sxtal.goniometer.posutils import Xrot, Yrot, Zrot
+
+from test.utils import ErrorLogged, approx, raises
 
 session_setup = 'tas'
 

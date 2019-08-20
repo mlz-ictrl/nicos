@@ -26,11 +26,11 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import raises
-
 from nicos.commands.tas import Q
 from nicos.core import NicosError, UsageError
 from nicos.devices.tas import spacegroups
+
+from test.utils import raises
 
 
 def test_Q_object():

@@ -32,7 +32,6 @@ import socket
 import sys
 import time
 from datetime import timedelta
-from test.utils import raises
 
 import pytest
 
@@ -45,6 +44,8 @@ from nicos.utils import Repeater, bitDescription, checkSetupSpec, chunks, \
     parseDuration, readonlydict, readonlylist, safeWriteFile, squeeze, \
     tcpSocket, timedRetryOnExcept
 from nicos.utils.timer import Timer
+
+from test.utils import raises
 
 
 def test_lazy_property():

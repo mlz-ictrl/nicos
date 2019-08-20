@@ -27,9 +27,10 @@
 from __future__ import absolute_import, division, print_function
 
 import os
-from test.utils import approx
 
 import pytest
+
+from test.utils import approx
 
 try:
     from string import maketrans  # pylint: disable=deprecated-module

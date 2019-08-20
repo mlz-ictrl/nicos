@@ -26,8 +26,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import raises
-
 import pytest
 
 from nicos.commands.basic import NewSetup
@@ -36,6 +34,8 @@ from nicos.core import ADMIN, AccessError, Attach, CanDisable, \
     HasLimits, HasOffset, LimitError, Moveable, NicosError, Param, \
     ProgrammingError, UsageError, requires, status, usermethod
 from nicos.core.sessions.utils import MAINTENANCE
+
+from test.utils import raises
 
 session_setup = 'device'
 methods_called = set()

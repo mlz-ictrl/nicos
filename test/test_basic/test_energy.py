@@ -27,11 +27,11 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import approx, raises
-
 from nicos.core import ComputationError, ProgrammingError
 from nicos.devices.tas import energy
 from nicos.devices.tas.mono import from_k, to_k
+
+from test.utils import approx, raises
 
 # input for to/from k tests (input, unit , output)
 # note: specifiy enough precision here for backwards calculation

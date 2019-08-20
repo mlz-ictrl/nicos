@@ -24,9 +24,9 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import killSubprocess, startSubprocess
-
 import pytest
+
+from test.utils import killSubprocess, startSubprocess
 
 
 @pytest.fixture(scope='module')

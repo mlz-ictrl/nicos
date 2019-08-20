@@ -26,12 +26,12 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import raises
-
 import mock
 
 from nicos.core import ConfigurationError, InvalidValueError, LimitError, \
     NicosError, PositionError, status
+
+from test.utils import raises
 
 session_setup = 'multiswitch'
 

@@ -28,7 +28,6 @@
 from __future__ import absolute_import, division, print_function
 
 import warnings
-from test.utils import raises
 
 import pytest
 
@@ -43,6 +42,8 @@ from nicos.core.scan import ContinuousScan
 from nicos.core.sessions.utils import MASTER, SLAVE
 from nicos.core.status import BUSY, OK
 from nicos.core.utils import waitForState
+
+from test.utils import raises
 
 # this can happen during fitting, just don't print it out
 warnings.filterwarnings('ignore', 'Covariance of the parameters could not '

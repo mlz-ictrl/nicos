@@ -28,11 +28,12 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import time
-from test.utils import raises
 
 from nicos.core import LimitError
 from nicos.devices.generic.sequence import SeqCall, SeqDev, SeqMethod, \
     SeqNOP, SeqParam, SeqSleep
+
+from test.utils import raises
 
 session_setup = 'sequencer'
 methods_called = set()

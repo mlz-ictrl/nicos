@@ -28,7 +28,6 @@ import logging
 import os
 import re
 from os import path
-from test.utils import module_root, raises, runtime_root
 
 import pytest
 
@@ -36,6 +35,8 @@ from nicos.core import *  # pylint: disable=unused-wildcard-import,wildcard-impo
 from nicos.core.sessions.simple import ScriptSession
 from nicos.pycompat import exec_
 from nicos.utils import loggers
+
+from test.utils import module_root, raises, runtime_root
 
 
 class ScriptSessionTest(ScriptSession):

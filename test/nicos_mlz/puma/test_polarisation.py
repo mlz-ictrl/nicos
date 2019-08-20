@@ -27,10 +27,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import approx
-
 from nicos_mlz.puma.lib.pa.deflector import ddefl, rdefl
 from nicos_mlz.puma.lib.pa.gauss import gaussian
+
+from test.utils import approx
 
 
 def test_gauss():

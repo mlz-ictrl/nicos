@@ -26,11 +26,11 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import raises
-
 import pytest
 
 from nicos.core.errors import LimitError, PositionError  # , MoveError
+
+from test.utils import raises
 
 session_setup = 'puma'
 

@@ -26,10 +26,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import raises
-
 from nicos.core import ConfigurationError, waitForCompletion
 from nicos.devices.generic.manual import ManualSwitch
+
+from test.utils import raises
 
 session_setup = 'pulse'
 

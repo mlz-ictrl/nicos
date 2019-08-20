@@ -30,7 +30,6 @@ import os
 import shutil
 import tempfile
 import timeit
-from test.utils import ErrorLogged, raises
 
 import pytest
 
@@ -57,6 +56,8 @@ from nicos.core import GUEST, AccessError, ConfigurationError, LimitError, \
     status as devstatus
 from nicos.core.sessions.utils import MASTER, SLAVE
 from nicos.utils import ensureDirectory
+
+from test.utils import ErrorLogged, raises
 
 session_setup = 'test_commands'
 

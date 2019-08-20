@@ -29,7 +29,6 @@ from __future__ import absolute_import, division, print_function
 import os
 import time
 from os import path
-from test.utils import raises
 
 import pytest
 
@@ -37,6 +36,8 @@ from nicos import config
 from nicos.commands.scan import scan
 from nicos.pycompat import cPickle as pickle
 from nicos.utils import readFile, updateFileCounter
+
+from test.utils import raises
 
 try:
     import astropy.io.fits as pyfits

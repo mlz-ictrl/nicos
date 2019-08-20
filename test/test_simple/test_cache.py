@@ -28,7 +28,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import cache_addr, raises
 from time import sleep
 
 import pytest
@@ -36,6 +35,8 @@ import pytest
 from nicos.core.errors import CommunicationError, LimitError
 from nicos.devices.cacheclient import CacheClient
 from nicos.utils import readonlydict, readonlylist
+
+from test.utils import cache_addr, raises
 
 session_setup = 'cachetests'
 

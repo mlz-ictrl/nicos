@@ -33,12 +33,12 @@ hpos = sign*(val +zero)
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import ErrorLogged, approx, raises
-
 import pytest
 
 from nicos.core import status
 from nicos.core.errors import LimitError
+
+from test.utils import ErrorLogged, approx, raises
 
 from .utils import is_at_target, unit_value
 

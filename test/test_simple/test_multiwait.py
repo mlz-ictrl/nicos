@@ -28,12 +28,12 @@ Test for multiwait
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import raises
-
 import pytest
 
 from nicos.core.errors import ComputationError, MoveError, NicosTimeoutError
 from nicos.core.utils import multiWait
+
+from test.utils import raises
 
 session_setup = 'multiwait'
 

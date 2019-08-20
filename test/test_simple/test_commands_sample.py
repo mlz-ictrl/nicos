@@ -27,7 +27,6 @@
 from __future__ import absolute_import, division, print_function
 
 import json
-from test.utils import approx, raises
 
 import mock
 
@@ -35,6 +34,8 @@ from nicos.commands.sample import activation, powderfit
 from nicos.commands.scan import cscan
 from nicos.core import UsageError
 from nicos.pycompat import StringIO
+
+from test.utils import approx, raises
 
 session_setup = 'tas'
 

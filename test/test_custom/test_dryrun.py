@@ -31,17 +31,16 @@ from __future__ import absolute_import, division, print_function
 import os
 from logging import ERROR, LogRecord
 from os import path
+from uuid import uuid1
 
-from test.utils import module_root
+import pytest
 
 from nicos import session
 from nicos.core.sessions.simulation import SimulationSupervisor
 from nicos.core.utils import system_user
 from nicos.pycompat import ConfigParser
 
-import pytest
-
-from uuid import uuid1
+from test.utils import module_root
 
 session_setup = None
 

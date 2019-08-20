@@ -24,13 +24,13 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import raises
-
 import pytest
 
 from nicos import nicos_version
 from nicos.core import MASTER
 from nicos.protocols.daemon import STATUS_IDLE
+
+from test.utils import raises
 
 
 @pytest.fixture

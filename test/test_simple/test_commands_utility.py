@@ -26,13 +26,13 @@
 
 from __future__ import absolute_import, division, print_function
 
-from test.utils import approx, raises
-
 import numpy
 
 from nicos.commands.utility import RangeListByCount, RangeListByStep, \
     RangeListGeneral, RangeListLog, floatrange
 from nicos.core import UsageError
+
+from test.utils import approx, raises
 
 
 def test_rangelistbystep():
