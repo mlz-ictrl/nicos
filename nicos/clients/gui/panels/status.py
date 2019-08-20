@@ -31,7 +31,7 @@ from time import time
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QActionGroup, QColor, QFontMetrics, QIcon, \
-    QListWidgetItem, QMenu, QPixmap, Qt, QSize, QStyledItemDelegate, QTimer, \
+    QListWidgetItem, QMenu, QPixmap, QSize, QStyledItemDelegate, Qt, QTimer, \
     QToolBar, pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \

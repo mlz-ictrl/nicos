@@ -53,7 +53,7 @@ from nicos.guisupport.utils import scaledFont
 from nicos.protocols.cache import cache_load
 from nicos.pycompat import cPickle as pickle, integer_types, iteritems, \
     number_types
-from nicos.utils import extractKeyAndIndex, safeName, parseDuration
+from nicos.utils import extractKeyAndIndex, parseDuration, safeName
 
 
 class NoEditDelegate(QStyledItemDelegate):

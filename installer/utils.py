@@ -22,10 +22,10 @@
 #
 # *****************************************************************************
 
-import os
-import sys
 import glob
+import os
 import subprocess
+import sys
 from os import path
 
 import gr

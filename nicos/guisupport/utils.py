@@ -28,8 +28,8 @@ from __future__ import absolute_import, division, print_function
 
 from contextlib import contextmanager
 
-from nicos.guisupport.qt import QApplication, QDoubleValidator, QPalette, Qt, \
-    QValidator, QFont
+from nicos.guisupport.qt import QApplication, QDoubleValidator, QFont, \
+    QPalette, Qt, QValidator
 
 
 def setBackgroundColor(widget, color):

@@ -32,7 +32,7 @@ import struct
 
 from nicos.protocols.daemon import DAEMON_COMMANDS, DAEMON_EVENTS, \
     Serializer as BaseSerializer
-from nicos.pycompat import cPickle as pickle, PY2
+from nicos.pycompat import PY2, cPickle as pickle
 
 # default port for the daemon
 

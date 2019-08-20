@@ -34,12 +34,12 @@
 
 from __future__ import print_function
 
+import errno
 import os
+import signal
+import socket
 import sys
 import time
-import errno
-import socket
-import signal
 from os import path
 
 import psutil

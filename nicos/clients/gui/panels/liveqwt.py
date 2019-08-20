@@ -42,9 +42,9 @@ from PyQt4.Qwt5 import QwtPlot, QwtPlotCurve, QwtPlotMarker, QwtPlotPicker, \
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import DlgUtils, loadUi
 from nicos.guisupport.qt import QBrush, QByteArray, QComboBox, QDialog, \
-    QFrame, QHBoxLayout, QLabel, QListWidgetItem, QMainWindow, QMenu, \
-    QPen, QPrintDialog, QPrinter, QSize, QSizePolicy, QStatusBar, Qt, \
-    QToolBar, QVBoxLayout, pyqtSlot
+    QFrame, QHBoxLayout, QLabel, QListWidgetItem, QMainWindow, QMenu, QPen, \
+    QPrintDialog, QPrinter, QSize, QSizePolicy, QStatusBar, Qt, QToolBar, \
+    QVBoxLayout, pyqtSlot
 from nicos.guisupport.utils import scaledFont
 from nicos.pycompat import string_types
 from nicos.utils import BoundedOrderedDict

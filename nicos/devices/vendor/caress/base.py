@@ -30,9 +30,9 @@ from nicos import session
 from nicos.core import POLLER, SIMULATION, HasLimits, HasPrecision, Moveable, \
     Param
 from nicos.core.errors import ConfigurationError, NicosError
-from nicos.devices.vendor.caress.core import ACTIVE, ACTIVE1, CARESS, CORBA, \
-    CORBA_DEVICE, KEEP_ACTION, READBLOCK_NORMAL, CHTYPE_INT32, DEVICE_READABLE,\
-    DEVICE_DRIVABLE, CARESSDevice
+from nicos.devices.vendor.caress.core import ACTIVE, ACTIVE1, CARESS, \
+    CHTYPE_INT32, CORBA, CORBA_DEVICE, DEVICE_DRIVABLE, DEVICE_READABLE, \
+    KEEP_ACTION, READBLOCK_NORMAL, CARESSDevice
 
 
 class Driveable(HasLimits, HasPrecision, CARESSDevice, Moveable):
