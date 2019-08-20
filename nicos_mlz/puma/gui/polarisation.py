@@ -28,6 +28,7 @@ from contextlib import contextmanager
 from math import asin, atan, cos, degrees, pi, radians, sin, sqrt, tan
 from os import path
 
+from gr import MARKERTYPE_SOLID_CIRCLE
 from numpy import arange, array, sign
 
 from nicos.clients.gui.panels import Panel
@@ -39,8 +40,6 @@ from nicos.guisupport.qt import QApplication, QCursor, QDoubleValidator, \
     QLabel, QMessageBox, QSize, QSizePolicy, Qt, QVBoxLayout, QWidget, \
     pyqtSlot
 from nicos.guisupport.widget import NicosWidget
-
-from gr import MARKERTYPE_SOLID_CIRCLE
 
 from nicos_mlz.puma.lib.pa import PA
 

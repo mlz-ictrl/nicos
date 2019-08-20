@@ -31,8 +31,8 @@ from __future__ import absolute_import, division, print_function
 from collections import namedtuple
 
 from nicos import session
-from nicos.core import FINAL, INTERMEDIATE, INTERRUPTED, LIVE, Param, oneof, \
-    status, NicosError, UsageError
+from nicos.core import FINAL, INTERMEDIATE, INTERRUPTED, LIVE, NicosError, \
+    Param, UsageError, oneof, status
 from nicos.core.constants import SIMULATION
 from nicos.core.params import Attach, Value, listof
 from nicos.devices.generic.detector import Detector

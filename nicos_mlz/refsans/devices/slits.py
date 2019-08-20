@@ -28,8 +28,8 @@ from __future__ import absolute_import, division, print_function
 
 from nicos.core import SIMULATION, Attach, AutoDevice, Moveable, Override, \
     Param, dictof, dictwith, floatrange, oneof, status, tupleof
-from nicos.core.mixins import HasOffset
 from nicos.core.errors import MoveError
+from nicos.core.mixins import HasOffset
 from nicos.devices.generic.sequence import SeqDev, SequencerMixin
 from nicos.utils import lazy_property
 

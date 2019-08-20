@@ -28,8 +28,8 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.core import SIMULATION, Attach, CommunicationError, Device, \
-    HardwareError, MoveError, Param, Readable, floatrange, intrange, \
-    oneof, oneofdict, status, usermethod
+    HardwareError, MoveError, Param, Readable, floatrange, intrange, oneof, \
+    oneofdict, status, usermethod
 from nicos.devices.abstract import Coder as NicosCoder, Motor as NicosMotor
 from nicos.devices.tango import PyTangoDevice
 from nicos.pycompat import iteritems

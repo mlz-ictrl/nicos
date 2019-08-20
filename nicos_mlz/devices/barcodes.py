@@ -30,8 +30,8 @@ import re
 import time
 
 from nicos import session
-from nicos.core import dictof, Param, SIMULATION
-from nicos.core.utils import User, USER
+from nicos.core import SIMULATION, Param, dictof
+from nicos.core.utils import USER, User
 from nicos.devices.tango import StringIO
 from nicos.pycompat import urllib
 from nicos.services.daemon.script import RequestError, ScriptRequest

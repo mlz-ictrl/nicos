@@ -29,17 +29,7 @@ import os
 import sys
 from os import path
 
-from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QDialogButtonBox, QDoubleSpinBox, \
-    QFileDialog, QGridLayout, QMessageBox, QScrollBar, QStyledItemDelegate, \
-    QTableWidget, QTableWidgetItem, QWidget, Qt, pyqtSignal, pyqtSlot
-
-from nicos_mlz.pgaa.gui.panels.collision import cuboid_values, \
-    cylinder_values, sphere_values
-
 import numpy as np
-
 from OpenGL.GL import GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, \
     GL_DEPTH_TEST, GL_LINES, GL_MODELVIEW, GL_PROJECTION, GL_SMOOTH, glBegin, \
     glClear, glColor3f, glColor3fv, glEnable, glEnd, glLoadIdentity, \
@@ -53,6 +43,14 @@ from OpenGL.GLUT import GLUT_DEPTH, GLUT_DOUBLE, GLUT_RGB, glutInit, \
 # pylint: disable=no-name-in-module
 from OpenGL.GLUT.fonts import GLUT_STROKE_MONO_ROMAN
 
+from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QDialogButtonBox, QDoubleSpinBox, \
+    QFileDialog, QGridLayout, QMessageBox, QScrollBar, QStyledItemDelegate, \
+    Qt, QTableWidget, QTableWidgetItem, QWidget, pyqtSignal, pyqtSlot
+
+from nicos_mlz.pgaa.gui.panels.collision import cuboid_values, \
+    cylinder_values, sphere_values
 
 try:
     if os.environ.get('NICOS_QT') == '5':

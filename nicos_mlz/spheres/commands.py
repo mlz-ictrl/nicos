@@ -29,14 +29,15 @@ from __future__ import absolute_import, division, print_function
 from math import ceil
 
 from nicos import session
-from nicos.commands import usercommand, parallel_safe
+from nicos.commands import parallel_safe, usercommand
 from nicos.commands.device import maw
 from nicos.commands.scan import timescan
-from nicos.core import UsageError, ModeError, SIMULATION
-from nicos.core.status import OK, BUSY
+from nicos.core import SIMULATION, ModeError, UsageError
+from nicos.core.status import BUSY, OK
 from nicos.utils import parseDuration as pd
-from nicos_mlz.spheres.devices.doppler import Doppler, ELASTIC, INELASTIC
-from nicos_mlz.spheres.devices.sample import SEController, PressureController
+
+from nicos_mlz.spheres.devices.doppler import ELASTIC, INELASTIC, Doppler
+from nicos_mlz.spheres.devices.sample import PressureController, SEController
 from nicos_mlz.spheres.devices.sisdetector import SISDetector
 
 

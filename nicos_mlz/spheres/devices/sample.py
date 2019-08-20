@@ -29,7 +29,7 @@ Devices to control the sample environment at SPHERES
 from __future__ import absolute_import, division, print_function
 
 from nicos.core import SIMULATION
-from nicos.core.params import tangodev, Param, Attach
+from nicos.core.params import Attach, Param, tangodev
 from nicos.core.status import WARN
 from nicos.devices import tango
 from nicos.devices.tango import TemperatureController

@@ -28,7 +28,7 @@ from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import Qt, QListWidgetItem, QMessageBox, \
+from nicos.guisupport.qt import QListWidgetItem, QMessageBox, Qt, \
     QTableWidgetItem, pyqtSlot
 from nicos.utils import findResource
 

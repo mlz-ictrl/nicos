@@ -29,7 +29,7 @@ from __future__ import absolute_import, division, print_function
 from nicos import session
 from nicos.core import ADMIN, Moveable, Override, Param, intrange, requires, \
     status
-from nicos.core.errors import ConfigurationError, PositionError, NicosError
+from nicos.core.errors import ConfigurationError, NicosError, PositionError
 from nicos.core.mixins import DeviceMixinBase, HasOffset
 from nicos.core.params import Attach
 from nicos.devices.abstract import Motor

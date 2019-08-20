@@ -33,7 +33,7 @@ from nicos.core import Override
 from nicos.core.data.dataset import ScanDataset
 from nicos.core.device import Readable
 from nicos.devices.datasinks.image import ImageSink
-from nicos.pycompat import iteritems, from_maybe_utf8
+from nicos.pycompat import from_maybe_utf8, iteritems
 
 from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
 

@@ -31,14 +31,13 @@ import time
 import numpy as np
 
 from nicos import session
-from nicos.core import Measurable, Moveable, Attach, Override, Param, oneof, \
-    ArrayDesc
-from nicos.core.constants import POINT, INTERMEDIATE, FINAL
-from nicos.core.status import BUSY, OK
-from nicos.devices.tango import ImageChannel
+from nicos.core import ArrayDesc, Attach, Measurable, Moveable, Override, \
+    Param, oneof
+from nicos.core.constants import FINAL, INTERMEDIATE, POINT
 from nicos.core.data import DataSinkHandler
+from nicos.core.status import BUSY, OK
 from nicos.devices.datasinks import FileSink
-
+from nicos.devices.tango import ImageChannel
 
 MODES = ['cross_auto1', 'cross_auto2', 'auto1_auto2', 'cross_cross']
 
