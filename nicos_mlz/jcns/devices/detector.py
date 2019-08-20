@@ -31,6 +31,9 @@ from nicos.devices.tango import ImageChannel as BaseImageChannel
 
 
 class ImageChannel(BaseImageChannel):
+    """Subclass of the Tango image channel that automatically returns the
+    sum of all counts as a scalar value.
+    """
 
     def doReadArray(self, quality):
         narray = BaseImageChannel.doReadArray(self, quality)
@@ -43,6 +46,9 @@ class ImageChannel(BaseImageChannel):
 
 
 class RateImageChannel(BaseImageChannel):
+    """Subclass of the Tango image channel that automatically returns the
+    sum of all counts and the momentary count rate as scalar values.
+    """
 
     attached_devices = {
         'timer': Attach('The timer channel', Measurable),
@@ -62,7 +68,7 @@ class RateImageChannel(BaseImageChannel):
                 cts_per_second = cts / seconds
             else:  # live rate on detector (using deltas)
                 cts_per_second = (cts - self._cts_seconds[0]) / (
-                                            seconds - self._cts_seconds[1])
+                    seconds - self._cts_seconds[1])
         self._cts_seconds = [cts, seconds]
 
         self.readresult = [cts, cts_per_second]
