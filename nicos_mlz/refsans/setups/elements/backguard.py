@@ -11,7 +11,7 @@ devices = dict(
         description = description + ' adjust in Expertmode',
         motor_1 = 'backguard_1',
         motor_2 = 'backguard_2',
-        abslimits = (-60, 60),
+        abslimits = (-30.0, 30.0),
         unit = 'mm',
     ),
     backguard_1 = device('nicos.devices.generic.Axis',
