@@ -33,13 +33,13 @@ import time
 import numpy
 import pytest
 
+pytest.importorskip('flatbuffers')
+
 from nicos_ess.devices.fbschemas.hs00 import Array, EventHistogram
 from nicos_ess.devices.kafka.area_detector import \
     HistogramFlatbuffersDeserializer
 
 from .utils import create_hs00
-
-pytest.importorskip('flatbuffers')
 
 
 session_setup = "epics_ad_sim_detector"

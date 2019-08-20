@@ -39,9 +39,9 @@ from nicos.core.constants import LIVE
 
 from nicos_ess.devices.epics.status import ADKafkaStatus
 
-from .utils import create_hs00
-
 pytest.importorskip('flatbuffers')
+
+from .utils import create_hs00
 
 
 session_setup = "epics_ad_sim_detector"
