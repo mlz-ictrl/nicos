@@ -356,8 +356,7 @@ class TestSession(Session):
         exec_(code, self.namespace)
 
     def delay(self, _secs):
-        # Use a short, fixed sleep here to release the GIL and allow e.g.
-        # multiWait  run virtual motor threads inbetween.
+        # TODO: this sleep shouldn't be necessary
         sleep(0.0001)
 
     def _string_to_level(self, level):
