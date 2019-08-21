@@ -28,10 +28,6 @@ import sys
 
 from os import path
 
-import sip
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
-
 try:
     from nicos.core import sessions  # pylint: disable=unused-import
 except ImportError:

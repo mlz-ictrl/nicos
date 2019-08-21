@@ -35,15 +35,13 @@ from time import time as currenttime
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
     WARN, statuses
 from nicos.guisupport.qt import QColor, QFontMetrics, QFrame, QHBoxLayout, \
-    QLabel, QPixmap, QSize, Qt, QTimer, QVBoxLayout, QWidget, pyqtSignal
+    QLabel, QPixmap, QSize, Qt, QTimer, QVBoxLayout, QWidget, pyqtSignal, sip
 from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.utils import setBackgroundColor, setBothColors, \
     setForegroundColor
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.pycompat import from_maybe_utf8, text_type
 from nicos.utils import findResource
-
-import sip
 
 defaultColorScheme = {
     'fore': {

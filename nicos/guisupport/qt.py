@@ -50,6 +50,11 @@ if os.environ.get('NICOS_QT') == '5':
     from PyQt5 import uic
 
     try:
+        from PyQt5 import sip
+    except ImportError:
+        import sip
+
+    try:
         from PyQt5 import QtWebEngineWidgets
     except (ImportError, RuntimeError):
         try:
