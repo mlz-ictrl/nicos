@@ -32,8 +32,8 @@ from nicos.core.sessions.simple import SingleDeviceSession
 from nicos.guisupport.qt import QApplication, QIcon, QPalette, Qt
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger
 
-from .cacheclient import CICacheClient  # pylint: disable=no-name-in-module
-from .mainwindow import MainWindow  # pylint: disable=import-error
+from .cacheclient import CICacheClient
+from .mainwindow import MainWindow
 
 
 class StatusBarHandler(Handler):

@@ -29,7 +29,7 @@ from os import path
 from nicos.guisupport.qt import QDialog, QMessageBox, uic
 from nicos.protocols.cache import cache_load
 
-from .cacheclient import Entry  # pylint: disable=no-name-in-module
+from .cacheclient import Entry
 
 
 class EntryEditDialog(QDialog):

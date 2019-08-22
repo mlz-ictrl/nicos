@@ -32,7 +32,7 @@ from nicos.guisupport.qt import QCheckBox, QColor, QDialog, QLineEdit, \
     uic
 from nicos.guisupport.utils import setBackgroundColor
 
-from .editdlg import EntryEditDialog  # pylint: disable=import-error
+from .editdlg import EntryEditDialog
 
 ttlColor = QColor(0xff, 0xfa, 0x66)
 expiredColor = QColor(0xce, 0x9b, 0x9b)
