@@ -1,4 +1,4 @@
-from nicos_ess.nexus import DeviceAttribute, NXDataset, DeviceDataset
+from nicos_ess.nexus import DeviceAttribute, DeviceDataset, NXDataset
 
 # Default template for DMC including most of the devices
 dmc_default = {

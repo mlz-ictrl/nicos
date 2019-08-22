@@ -3,6 +3,9 @@ from __future__ import absolute_import, division, print_function
 from nicos_ess.nexus import DeviceAttribute, DeviceDataset, NXDataset, NXLink
 from nicos_sinq.amor.nexus.placeholder import UserEmailPlaceholder
 
+from .instrument_components import detectors, instrument, \
+    instrument_removable, sample
+
 # Default template for AMOR including most of the devices
 amor_default = {
     "NeXus_Version": "4.3.0",
@@ -52,8 +55,6 @@ sample_only = {
     }
 }
 
-from .instrument_components import detectors, instrument, \
-    instrument_removable, sample
 
 amor_default["entry1:NXentry"]["AMOR:NXinstrument"].update(detectors)
 amor_default["entry1:NXentry"]["AMOR:NXinstrument"].update(instrument)

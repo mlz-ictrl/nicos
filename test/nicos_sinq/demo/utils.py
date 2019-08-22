@@ -35,11 +35,12 @@ import numpy
 
 from nicos.core import UsageError
 
-from nicos_ess.devices.fbschemas.hs00 import ArrayDouble, ArrayFloat, ArrayULong
 from nicos_ess.devices.datasinks.imagesink.histogramdesc import HistogramDesc, \
     HistogramDimDesc
 from nicos_ess.devices.datasinks.imagesink.serializer import \
     HistogramFlatbuffersSerializer
+from nicos_ess.devices.fbschemas.hs00 import ArrayDouble, ArrayFloat, \
+    ArrayULong
 
 uint32_bytes = flatbuffers.number_types.Float32Flags.bytewidth
 float_bytes = flatbuffers.number_types.Float32Flags.bytewidth

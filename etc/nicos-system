@@ -75,7 +75,7 @@ if path.isfile(_DEFAULT) and 'INSTRUMENT' not in os.environ:
         printerr('WARNING: Ignoring defaults in %s.' % _DEFAULT)
 
 # We need to read the nicos.conf file, so let nicos do that.
-from nicos import config
+from nicos import config  # isort:skip
 
 config.apply()
 

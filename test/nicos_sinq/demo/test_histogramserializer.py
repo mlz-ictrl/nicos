@@ -39,7 +39,6 @@ from nicos_ess.devices.kafka.area_detector import \
 
 from .utils import create_hs00
 
-
 session_setup = "epics_ad_sim_detector"
 
 

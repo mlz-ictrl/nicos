@@ -1,9 +1,7 @@
 from nicos_ess.nexus import DeviceDataset, NXDataset
 from nicos_sinq.amor.nexus.elements import HistogramStream
 from nicos_sinq.amor.nexus.placeholder import ComponentDistancePlaceholder, \
-    TimeBinningPlaceholder
-from nicos_sinq.amor.nexus.placeholder import DistancesPlaceholder, \
-    SlitGeometryPlaceholder
+    DistancesPlaceholder, SlitGeometryPlaceholder, TimeBinningPlaceholder
 
 detectors = {}
 instrument = {}

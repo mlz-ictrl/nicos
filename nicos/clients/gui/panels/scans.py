@@ -34,9 +34,8 @@ from nicos.clients.gui.data import DataProxy
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.clients.gui.widgets.plotting import ArbitraryFitter, CosineFitter, \
-    DataSetPlot, ExponentialFitter, GaussFitter, LinearFitter, \
-    LorentzFitter, PearsonVIIFitter, PseudoVoigtFitter, SigmoidFitter, \
-    TcFitter
+    DataSetPlot, ExponentialFitter, GaussFitter, LinearFitter, LorentzFitter, \
+    PearsonVIIFitter, PseudoVoigtFitter, SigmoidFitter, TcFitter
 from nicos.core.data import ScanData
 from nicos.core.params import INFO_CATEGORIES
 from nicos.guisupport.qt import QActionGroup, QByteArray, QCheckBox, \

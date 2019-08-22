@@ -27,10 +27,10 @@ from __future__ import absolute_import, division, print_function
 import json
 
 from nicos.core import Param, oneof, status, usermethod
+from nicos.pycompat import to_utf8
 
 from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
 from nicos_ess.devices.kafka.status_handler import KafkaStatusHandler
-from nicos.pycompat import to_utf8
 
 
 class EpicsKafkaForwarder(ProducesKafkaMessages, KafkaStatusHandler):

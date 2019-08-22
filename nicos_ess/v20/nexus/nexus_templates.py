@@ -1,6 +1,5 @@
 from nicos_ess.nexus import EventStream
 
-
 essiip_default = {
     "entry-01:NXentry": {
         "instrument:NXinstrument": {

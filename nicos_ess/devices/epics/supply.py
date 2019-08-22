@@ -22,8 +22,9 @@
 #
 # *****************************************************************************
 
+from nicos.core import SIMULATION, Override, Param, floatrange, pvname, status
+
 from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
-from nicos.core import status, Param, Override, pvname, floatrange, SIMULATION
 
 
 class IsegNHQChannel(EpicsAnalogMoveableEss):

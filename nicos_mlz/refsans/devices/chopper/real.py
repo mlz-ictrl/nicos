@@ -35,8 +35,7 @@ from nicos.core.params import Attach
 from nicos.devices.abstract import Motor
 from nicos.devices.tango import StringIO
 
-from nicos_mlz.refsans.devices.chopper.base import \
-    ChopperDisc as ChopperDiscBase, \
+from nicos_mlz.refsans.devices.chopper.base import ChopperDisc as ChopperDiscBase, \
     ChopperDisc2 as ChopperDisc2Base, \
     ChopperDiscTranslation as ChopperDiscTranslationBase, \
     ChopperMaster as ChopperMasterBase

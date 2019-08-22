@@ -22,16 +22,19 @@
 #
 # *****************************************************************************
 import json
+import time
+
 import kafka
 import numpy as np
-import time
-from nicos.core.device import Measurable
-from nicos_ess.devices.kafka.consumer import KafkaSubscriber
-import nicos_ess.devices.fbschemas.hs00.EventHistogram as EventHistogram
-import nicos_ess.devices.fbschemas.hs00.ArrayDouble as ArrayDouble
-from nicos_ess.devices.fbschemas.hs00.Array import Array
-from nicos.core import ArrayDesc, Override, Param, status, tupleof, Value
+
+from nicos.core import ArrayDesc, Override, Param, Value, status, tupleof
 from nicos.core.constants import LIVE
+from nicos.core.device import Measurable
+
+import nicos_ess.devices.fbschemas.hs00.ArrayDouble as ArrayDouble
+import nicos_ess.devices.fbschemas.hs00.EventHistogram as EventHistogram
+from nicos_ess.devices.fbschemas.hs00.Array import Array
+from nicos_ess.devices.kafka.consumer import KafkaSubscriber
 
 
 def get_schema(buf):

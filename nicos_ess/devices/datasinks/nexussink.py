@@ -24,10 +24,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-import json
-import time
-import os
 import datetime
+import json
+import os
+import time
 
 from nicos import session
 from nicos.core import Attach, Override, Param, dictof, status, tupleof
@@ -36,6 +36,7 @@ from nicos.core.data import DataSinkHandler
 from nicos.core.errors import NicosError
 from nicos.devices.datasinks import FileSink
 from nicos.pycompat import iteritems
+
 from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
 from nicos_ess.devices.kafka.status_handler import KafkaStatusHandler
 from nicos_ess.nexus.converter import NexusTemplateConverter

@@ -24,8 +24,8 @@
 
 from __future__ import absolute_import, division, print_function
 
-from lxml import etree
 import numpy as np
+from lxml import etree
 
 from nicos.core import Attach, Device, Override, Param, listof, oneof
 from nicos.pycompat import iteritems
