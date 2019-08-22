@@ -95,6 +95,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         'lowlimitswitch': 'LLS',
         'highlimitswitch': 'HLS',
         'enable': 'CNEN',
+        'set': 'SET',
     }
 
     def _get_pv_parameters(self):
@@ -273,3 +274,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
     def _enable(self, on):
         what = 1 if on else 0
         self._put_pv('enable', what, False)
+
+    def doSetPosition(self, pos):
+        self._put_pv('set', 1)
+        self._put_pv('writepv', pos)
+        self._put_pv('set', 0)
