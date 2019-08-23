@@ -7,7 +7,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'galaxi',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'daemonsink', 'filesink'],
     notifiers = ['email'],
 )
 
@@ -19,9 +19,8 @@ devices = dict(
     Sample = device('nicos.devices.sample.Sample',
         description = 'Default Sample',
     ),
-
     Exp = device('nicos.devices.experiment.Experiment',
-        description = 'Galaxi Experiment ',
+        description = 'GALAXI experiment.',
         dataroot = '/home/jcns/data',
         sample = 'Sample',
         serviceexp = 'service',
@@ -30,26 +29,26 @@ devices = dict(
         localcontact = 'Ulrich Ruecker <u.ruecker@fz-juelich.de>'
     ),
     galaxi = device('nicos.devices.instrument.Instrument',
-        description = 'GALAXI high resolution diffractometer',
+        description = 'GALAXI high resolution diffractometer.',
         instrument = 'GALAXI',
-        facility = 'FZ-Juelich',
+        facility = 'Forschungszentrum Juelich',
         responsible = 'Ulrich Ruecker <u.ruecker@fz-juelich.de>',
         doi = 'http://dx.doi.org/10.17815/jlsrf-2-109',
         operators = [u'Jülich Centre for Neutron Science (JCNS)'],
-    ),
-    filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
-        description = 'Device storing scanfiles in Ascii output '
-        'format.',
-        filenametemplate = [
-            '%(session.experiment.users)s_%(session.experiment.sample.filename)s_'
-            '%(session.experiment.lastscan)s.dat'
-        ],
     ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink',
         description = 'Device storing console output.',
     ),
     daemonsink = device('nicos.devices.datasinks.DaemonSink',
-        description = 'Device storing deamon output.',
+        description = 'Device storing daemon output.',
+    ),
+    filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
+        description = 'Device storing scanfiles in Ascii output format.',
+        filenametemplate = [
+            '%(session.experiment.users)s_'
+            '%(session.experiment.sample.filename)s_'
+            '%(session.experiment.lastscan)s.dat'
+        ],
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',

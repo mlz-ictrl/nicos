@@ -6,7 +6,7 @@
 
 # sample scan with pilatus and pindioden
 
-SetDetectors(pilatus,singledetectors)
+SetDetectors(pilatus, singledetectors)
 move(shutter, 'open')
 maw(pz, -15.0)
 scan(pz, [-12.3, -8.2, -4.2, -0.2, 3.8, 7.8, 11.7, 15.8, 19.5], t=10)
