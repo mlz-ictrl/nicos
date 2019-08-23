@@ -2,15 +2,16 @@ description = 'Sample table devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://refsanshw:10000/sample/phy_mo1/'
-coder_ss = 'm'
+instrument_values = configdata('instrument.values')
+
+tango_base = instrument_values['tango_base'] + 'sample/phy_mo1/'
 
 
 devices = dict(
     samplechanger = device('nicos.devices.generic.Axis',
         description = 'Samplechanger. towards TOFTOF is plus, motion limeted due to 45deg mounting',
         motor = 'samplechanger_m',
-        coder = 'samplechanger_%s' % coder_ss,
+        coder = 'samplechanger_e',
         precision = 0.01,
     ),
     samplechanger_m = device('nicos.devices.tango.Motor',

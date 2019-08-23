@@ -3,9 +3,10 @@ description = "neutronguide, leadblock"
 group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus1']
-hide_poti = True
+instrument_values = configdata('instrument.values')
+showcase_values = configdata('cf_showcase.showcase_values')
 
-tango_base = 'tango://refsanshw:10000/test/'
+tango_base = instrument_values['tango_base']
 
 devices = dict(
     shutter_gamma = device('nicos.devices.generic.Switcher',
@@ -62,7 +63,7 @@ devices = dict(
     # generated from global/inf/poti_tracing.inf
     nok1_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK1',
-        tangodevice = tango_base + 'wb_a/1_0',
+        tangodevice = tango_base + 'test/wb_a/1_0',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),
@@ -71,7 +72,7 @@ devices = dict(
          description = 'calc error Motor and poti',
          motor = 'nok1_motor',
          analog = 'nok1_obs',
-         lowlevel = hide_poti,
+         lowlevel = showcase_values['hide_poti'],
          unit = 'mm'
     ),
 )

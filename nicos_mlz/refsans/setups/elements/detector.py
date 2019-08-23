@@ -2,7 +2,9 @@ description = 'all values for detector positon'
 
 group = 'lowlevel'
 
-tango_base = 'tango://refsansctrl02.refsans.frm2.tum.de:10000/'
+instrument_values = configdata('instrument.values')
+
+tango_base = instrument_values['tango_base']
 
 devices = dict(
     det_drift = device('nicos.devices.generic.ManualSwitch',
@@ -27,7 +29,7 @@ devices = dict(
         precision = 0.05,
         dragerror = 10.,
         fmtstr = '%.0f',
-        lowlevel = True,
+        lowlevel = False,
     ),
     table_z_motor = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorDetector',
         description = 'table inside scatteringtube',

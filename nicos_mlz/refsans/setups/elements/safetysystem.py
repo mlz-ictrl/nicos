@@ -2,7 +2,9 @@ description = 'shs SicherHeitsSystem'
 
 group = 'lowlevel'
 
-tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
+instrument_values = configdata('instrument.values')
+
+tango_base = instrument_values['tango_base']
 
 # 'Shutter':                              (0, 0),  # 0x0000
 # 'Ampeltest_inv':                        (3, 0),  # 0x0001

@@ -3,10 +3,11 @@ description = "neutronguide, radialcollimator"
 group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus1', 'nokbus4']
+instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
 
-tango_host = 'tango://refsanshw:10000/test/'
+tango_base = instrument_values['tango_base']
 
 devices = dict(
     nok4 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
@@ -75,7 +76,7 @@ devices = dict(
 
     nok4r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK4, reactor side',
-        tangodevice = tango_host + 'wb_a/2_0',
+        tangodevice = tango_base + 'test/wb_a/2_0',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),
@@ -126,7 +127,7 @@ devices = dict(
 
     nok4s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK4, sample side',
-        tangodevice = tango_host + 'wb_a/2_1',
+        tangodevice = tango_base + 'test/wb_a/2_1',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),

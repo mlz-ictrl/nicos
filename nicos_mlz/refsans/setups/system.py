@@ -3,8 +3,13 @@ description = 'system setup'
 
 group = 'lowlevel'
 
+instrument_values = configdata('instrument.values')
+
+code_base = instrument_values['code_base']
+pc_ctrl = instrument_values['pc_ctrl']
+
 sysconfig = dict(
-    cache = 'refsansctrl.refsans.frm2.tum.de',
+    cache = pc_ctrl,
     instrument = 'REFSANS',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'configsink'],
@@ -23,7 +28,7 @@ devices = dict(
         operators = ['German Engineering Materials Science Centre (GEMS)'],
         website = 'http://www.mlz-garching.de/refsans',
     ),
-    Sample = device('nicos_mlz.refsans.devices.sample.Sample',
+    Sample = device(code_base + 'sample.Sample',
         description = 'Container storing Sample properties',
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',
@@ -39,7 +44,7 @@ devices = dict(
         description = 'Device outputting logmessages to the console',
     ),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
-    configsink = device('nicos_mlz.refsans.devices.datasinks.ConfigObjDatafileSink'),
+    configsink = device(code_base + 'datasinks.ConfigObjDatafileSink'),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         minfree = 5,

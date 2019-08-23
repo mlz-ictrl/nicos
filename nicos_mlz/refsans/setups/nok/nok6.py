@@ -4,9 +4,11 @@ group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus4', 'nokbus3']
 
-tango_host = 'tango://refsanshw:10000/test/'
+instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
+
+tango_base = instrument_values['tango_base']
 
 devices = dict(
     nok6 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
@@ -75,7 +77,7 @@ devices = dict(
 
     nok6r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK6, reactor side',
-        tangodevice = tango_host + 'wb_b/2_1',
+        tangodevice = tango_base + 'test/wb_b/2_1',
         scale = -1,  # mounted from top
         lowlevel = True,
     ),
@@ -126,7 +128,7 @@ devices = dict(
 
     nok6s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK6, sample side',
-        tangodevice = tango_host + 'wb_b/2_2',
+        tangodevice = tango_base + 'test/wb_b/2_2',
         scale = -1,  # mounted from top
         lowlevel = True,
     ),

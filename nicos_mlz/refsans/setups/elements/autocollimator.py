@@ -4,7 +4,9 @@ group = 'lowlevel'
 
 all_lowlevel = False  # or True
 
-tango_host = 'tango://refsanshw.refsans.frm2:10000/test/triangle/io'
+instrument_values = configdata('instrument.values')
+
+tango_host = instrument_values['tango_base'] + 'test/triangle/io'
 
 devices = dict(
     autocollimator = device('nicos_mlz.refsans.devices.triangle.TriangleMaster',

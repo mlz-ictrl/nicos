@@ -2,7 +2,8 @@ description = 'Slit H2 using Beckhoff controllers'
 
 group = 'lowlevel'
 
-tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
+instrument_values = configdata('instrument.values')
+tango_base = instrument_values['tango_base']
 
 devices = dict(
     h2_center = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorHSlit',

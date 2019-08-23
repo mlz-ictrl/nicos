@@ -2,7 +2,9 @@ description = 'Refsans_flipper special HW; but NOT yet!'
 
 group = 'lowlevel'
 
-uribase = 'tango://refsanshw.refsans.frm2:10000/test/flipper/'
+instrument_values = configdata('instrument.values')
+
+uribase = instrument_values['tango_base'] + 'test/flipper/'
 
 devices = dict(
     guide = device('nicos.devices.tango.AnalogInput',

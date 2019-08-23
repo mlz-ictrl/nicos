@@ -2,7 +2,9 @@ description = 'vsd readout devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
+instrument_values = configdata('instrument.values')
+
+tango_base = instrument_values['tango_base']
 
 devices = dict(
     _vsdio = device('nicos_mlz.refsans.devices.beckhoff.vsd.VSDIO',

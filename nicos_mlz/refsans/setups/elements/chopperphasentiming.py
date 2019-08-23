@@ -6,7 +6,10 @@ window_delay = 120
 
 all_lowlevel = False  # or True
 dev_class = 'nicos_mlz.refsans.devices.gkssjson.CPTReadout'
-URL = 'http://cpt.refsans.frm2/json-visual'
+
+instrument_values = configdata('instrument.values')
+
+URL = (instrument_values['url_base'] % 'cpt') + 'json-visual'
 
 devices = dict(
     cpt0 = device(dev_class,

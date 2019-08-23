@@ -1,9 +1,11 @@
 description = 'NOK5b using Beckhoff controllers'
 
 group = 'lowlevel'
+instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
-tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
+
+tango_base = instrument_values['tango_base']
 
 excludes = ['nok5b_old']
 

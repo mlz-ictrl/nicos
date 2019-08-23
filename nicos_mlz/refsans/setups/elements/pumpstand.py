@@ -2,6 +2,10 @@ description = 'Pumpstand devices using Beckhoff controllers'
 
 group = 'lowlevel'
 
+instrument_values = configdata('instrument.values')
+
+tango_host = instrument_values['tango_base'] + 'pumpstand/io/modbus'
+
 # according to docu: 'Anhang_A_REFSANS_Cab1 ver25.06.2014 0.1.3 mit nok5b.pdf'
 # according to docu: '_2013-04-08 Anhang_A_REFSANS_Schlitten V0.7.pdf'
 # according to docu: '_2013-04-05 Anhang A V0.6.pdf'
@@ -10,7 +14,7 @@ devices = dict(
     # according to '_Anhang_A_REFSANS_Pumpstand.pdf'
     pumpstand = device('nicos_mlz.refsans.devices.beckhoff.pumpstation.PumpstandIO',
         description = 'io device for pumpstand',
-        tangodevice = 'tango://refsanshw.refsans.frm2:10000/pumpstand/io/modbus',
+        tangodevice = tango_host,
         address = 0x4026,  # 16422
         parallel_pumping = 10,  # below 10mbar, parallel pumping is allowed
         lowlevel = True,

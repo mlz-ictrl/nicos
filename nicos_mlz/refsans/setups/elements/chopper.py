@@ -2,13 +2,15 @@ description = 'Chopper devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://refsanshw.refsans.frm2:10000/test/chopper/io'
+instrument_values = configdata('instrument.values')
+
+tango_host = instrument_values['tango_base'] + 'test/chopper/io'
 
 includes = ['shutter', 'vsd']
 
 devices = dict(
     chopper_io = device('nicos.devices.tango.StringIO',
-        tangodevice = tango_base,
+        tangodevice = tango_host,
         lowlevel = True,
     ),
     chopper = device('nicos_mlz.refsans.devices.chopper.real.ChopperMaster',
@@ -25,7 +27,7 @@ devices = dict(
         comm = 'chopper_io',
     ),
     chopper_speed = device('nicos_mlz.refsans.devices.chopper.real.ChopperDisc',
-        description = 'chopper speed',
+        description = 'chopper speed; reguler 100rpm/min Nothalt 400rpm/min',
         comm = 'chopper_io',
         fmtstr = '%d',
         unit = 'rpm',

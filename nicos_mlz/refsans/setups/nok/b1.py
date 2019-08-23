@@ -5,7 +5,7 @@ group = 'lowlevel'
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 lprecision = 0.005
-tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
+tango_base = instrument_values['tango_base']
 
 index_r = 0
 index_s = 1

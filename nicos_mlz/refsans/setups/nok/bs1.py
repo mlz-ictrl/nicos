@@ -3,9 +3,10 @@ description = "DoubleSlit [slit k1] between nok8 and nok9"
 group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus4']
+instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 
-tango_host = 'tango://refsanshw:10000/test/'
+tango_base = instrument_values['tango_base']
 
 devices = dict(
     bs1 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
@@ -87,7 +88,7 @@ devices = dict(
     ),
     bs1r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for BS1, reactor side',
-        tangodevice = tango_host + 'wb_c/2_1',
+        tangodevice = tango_base + 'test/wb_c/2_1',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),
@@ -133,7 +134,7 @@ devices = dict(
     ),
     bs1s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for BS1, sample side',
-        tangodevice = tango_host + 'wb_c/2_5',
+        tangodevice = tango_base + 'test/wb_c/2_5',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),

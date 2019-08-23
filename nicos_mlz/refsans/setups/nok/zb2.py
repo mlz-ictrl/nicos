@@ -3,9 +3,10 @@ description = "SingleSlit [slit k1] between nok6 and nok7"
 group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus1']
+instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 
-tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/test/'
+tango_base = instrument_values['tango_base']
 
 devices = dict(
     zb2 = device('nicos_mlz.refsans.devices.slits.SingleSlit',
@@ -56,7 +57,7 @@ devices = dict(
     ),
     zb2_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
         description = 'Poti for ZB2',
-        tangodevice = tango_base + 'wb_b/2_3',
+        tangodevice = tango_base + 'test/wb_b/2_3',
         scale = -1,  # mounted from top
         lowlevel = True,
     ),

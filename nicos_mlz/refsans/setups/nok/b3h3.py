@@ -3,7 +3,8 @@ description = 'B3 aperture devices'
 group = 'lowlevel'
 
 lprecision = 0.01
-tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
+instrument_values = configdata('instrument.values')
+tango_base = instrument_values['tango_base']
 
 devices = dict(
     b3 = device('nicos_mlz.refsans.devices.slits.DoubleSlitSequence',

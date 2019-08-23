@@ -2,7 +2,8 @@ description = 'at samplecamper [slit k1]'
 
 group = 'lowlevel'
 
-tango_host = 'tango://refsanshw.refsans.frm2.tum.de:10000/test/'
+instrument_values = configdata('instrument.values')
+tango_base = instrument_values['tango_base']
 
 devices = dict(
     #
@@ -63,13 +64,13 @@ devices = dict(
     ),
     smccorvus_b2mr = device('nicos.devices.tango.Motor',
         description = 'Device test/smccorvus/b2mr of Server smccorvusserver b2',
-        tangodevice = tango_host + 'smccorvus/b2mr',
+        tangodevice = tango_base + 'test/smccorvus/b2mr',
         abslimits = (-1294, 1222),
         lowlevel = True,
     ),
     smccorvus_b2ms = device('nicos.devices.tango.Motor',
         description = 'Device test/smccorvus/b2ms of Server smccorvusserver b2',
-        tangodevice = tango_host + 'smccorvus/b2ms',
+        tangodevice = tango_base + 'test/smccorvus/b2ms',
         abslimits = (-2960, 2130),
         lowlevel = True,
     ),
