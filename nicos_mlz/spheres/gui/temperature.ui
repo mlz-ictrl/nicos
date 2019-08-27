@@ -31,7 +31,7 @@
         </sizepolicy>
        </property>
        <property name="dev" stdset="0">
-        <string>jlc22_c_temperature</string>
+        <string>cct6_c_temperature</string>
        </property>
       </widget>
      </item>
@@ -68,7 +68,7 @@
         <string/>
        </property>
        <property name="key" stdset="0">
-        <string>setpoint.value</string>
+        <string>cct6_setpoint.value</string>
        </property>
        <property name="format" stdset="0">
         <string>%.2f</string>
@@ -107,7 +107,7 @@
         </sizepolicy>
        </property>
        <property name="dev" stdset="0">
-        <string>jlc22_c_pressure</string>
+        <string>cct6_c_pressure</string>
        </property>
       </widget>
      </item>
@@ -141,7 +141,7 @@
         </font>
        </property>
        <property name="text">
-        <string>(c_pressure.value)</string>
+        <string>(cct6_c_pressure.value)</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -150,7 +150,7 @@
         <string/>
        </property>
        <property name="key" stdset="0">
-        <string>c_pressure.value</string>
+        <string>cct6_c_pressure.value</string>
        </property>
        <property name="format" stdset="0">
         <string>%.2f</string>
@@ -201,13 +201,13 @@
         </font>
        </property>
        <property name="text">
-        <string>(T_tube.ramp)</string>
+        <string>(cct6_T_tube.ram…</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="key" stdset="0">
-        <string>T_tube.ramp</string>
+        <string>cct6_T_tube.ramp</string>
        </property>
        <property name="format" stdset="0">
         <string>%.2f</string>
@@ -234,7 +234,7 @@
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="key" stdset="0">
-        <string>T_tube.heateroutput</string>
+        <string>cct6_T_tube.heateroutput</string>
        </property>
        <property name="format" stdset="0">
         <string>%.2f</string>
@@ -308,10 +308,10 @@
         <string>Is the heater on?</string>
        </property>
        <property name="dev" stdset="0">
-        <string>h_tube</string>
+        <string>cct6_h_tube</string>
        </property>
        <property name="key" stdset="0">
-        <string>h_tube.value</string>
+        <string>cct6_h_tube.value</string>
        </property>
        <property name="goal" stdset="0">
         <string>&quot;high&quot;</string>
@@ -352,7 +352,7 @@
         </font>
        </property>
        <property name="text">
-        <string>(T_Sample.value)</string>
+        <string>(cct6_T_Sample.v…</string>
        </property>
        <property name="textFormat">
         <enum>Qt::AutoText</enum>
@@ -364,7 +364,7 @@
         <string/>
        </property>
        <property name="key" stdset="0">
-        <string>T_Sample.value</string>
+        <string>cct6_T_Sample.value</string>
        </property>
        <property name="format" stdset="0">
         <string>%.2f</string>
@@ -399,10 +399,10 @@
         <string>Is the heater on?</string>
        </property>
        <property name="dev" stdset="0">
-        <string>h_sample</string>
+        <string>cct6_h_sample</string>
        </property>
        <property name="key" stdset="0">
-        <string>h_sample.value</string>
+        <string>cct6_h_sample.value</string>
        </property>
        <property name="goal" stdset="0">
         <string>&quot;high&quot;</string>
@@ -452,7 +452,7 @@
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="key" stdset="0">
-        <string>T_sample.heateroutput</string>
+        <string>cct6_T_sample.heateroutput</string>
        </property>
        <property name="format" stdset="0">
         <string>%.2f</string>
@@ -479,7 +479,7 @@
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="key" stdset="0">
-        <string>T_sample.setpoint</string>
+        <string>cct6_T_sample.setpoint</string>
        </property>
        <property name="format" stdset="0">
         <string>%.2f</string>
@@ -506,7 +506,7 @@
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="key" stdset="0">
-        <string>T_tube.setpoint</string>
+        <string>cct6_T_tube.setpoint</string>
        </property>
        <property name="format" stdset="0">
         <string>%.2f</string>
@@ -556,13 +556,13 @@
         </font>
        </property>
        <property name="text">
-        <string>(T_tube.value)</string>
+        <string>(cct6_T_tube.valu…</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="key" stdset="0">
-        <string>T_tube.value</string>
+        <string>cct6_T_tube.value</string>
        </property>
        <property name="format" stdset="0">
         <string>%.2f</string>
@@ -657,13 +657,13 @@
         </font>
        </property>
        <property name="text">
-        <string>(T_sample.ramp)</string>
+        <string>(cct6_T_sample.r…</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
        <property name="key" stdset="0">
-        <string>T_sample.ramp</string>
+        <string>cct6_T_sample.ramp</string>
        </property>
        <property name="format" stdset="0">
         <string>%.2f</string>

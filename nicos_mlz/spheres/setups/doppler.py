@@ -40,8 +40,8 @@ devices = dict(
         unit = 'm/s',
         customrange = (0.1, 4.7),
         mapping = {
-            'Standby': (0,    0),  # values for this are arbitrary
-            0.0:       (0,    0),
+            'Standby': (0,   25),
+            0.0:       (0,   25),
             0.3:       (0.3, 25),
             0.5:       (0.5, 30),
             0.7:       (0.7, 35),
@@ -56,7 +56,7 @@ devices = dict(
             4.4:       (4.4, 75),
             4.7:       (4.7, 75),
         },
-        fallback = 'undefinded',
+        fallback = 'custom',
         pollinterval = 5,
         margins = dict(speed=0.01,
                        amplitude=0.1)

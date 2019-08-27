@@ -78,8 +78,13 @@
  <customwidgets>
   <customwidget>
    <class>ValueLabel</class>
-   <extends>QLabel</extends>
+   <extends>SqueezedLabel</extends>
    <header>nicos.guisupport.display</header>
+  </customwidget>
+  <customwidget>
+   <class>SqueezedLabel</class>
+   <extends>QLabel</extends>
+   <header>nicos.guisupport.squeezedlbl</header>
   </customwidget>
  </customwidgets>
  <resources/>

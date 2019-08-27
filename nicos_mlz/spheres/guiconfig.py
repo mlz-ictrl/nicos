@@ -10,7 +10,7 @@ main_window = tabbed(
                           modules=['nicos_mlz.spheres.gui.cmdlets']),
                     panel('nicos.clients.gui.panels.status.ScriptStatusPanel',
                           eta=True),
-                )
+                ),
             ),
             tabbed(
                 ('All output',

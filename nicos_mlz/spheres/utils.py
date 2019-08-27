@@ -24,7 +24,7 @@
 """NICOS utility functions for SPHERES"""
 
 from nicos import session
-from nicos.core import SIMULATION, ModeError, UsageError
+from nicos.core import SIMULATION, ConfigurationError, ModeError, UsageError
 from nicos.core.status import BUSY, OK
 from nicos.utils import parseDuration as pd
 
@@ -43,8 +43,10 @@ def canStartSisScan(measuremode):
 
     doppler = getDoppler()
     sis = getSisImageDevice()
-    if not sis or not doppler:
-        return False
+    if not sis:
+        raise ConfigurationError('No sis detector found.')
+    elif not doppler:
+        raise ConfigurationError('No doppler found')
 
     status = doppler.status()[0]
     if status == BUSY:
@@ -67,16 +69,6 @@ def canStartSisScan(measuremode):
 
     # doppler is OK, and measure modes match.
     return True
-
-
-def notifyOverhang(time, interval):
-    """Warn about additional measurement time"""
-    overhang = time % interval
-
-    if overhang:
-        session.log.warning('Measurement will take an additional %ds '
-                            'because the total measurement time has to be a'
-                            'multiple of %ds.', interval - overhang, interval)
 
 
 def waitForAcq():
