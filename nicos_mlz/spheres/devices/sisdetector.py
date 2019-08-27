@@ -359,6 +359,9 @@ class SISChannel(ImageChannel):
         self._last_edata = None
         self._last_cdata = None
 
+    def setDummyDoppler(self, speed):
+        self._dev.dummy_doppvel = speed
+
 
 class SISDetector(Detector):
     """

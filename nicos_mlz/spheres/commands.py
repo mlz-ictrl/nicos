@@ -183,12 +183,6 @@ def changeDopplerSpeed(target):
 
     doppler = getDoppler()
 
-    # for simulation mode only
-    if target == 0:
-        dummytarget = 0
-    else:
-        dummytarget = doppler.mapping[target][0]
-    getSisImageDevice()._dev.dummy_doppvel = dummytarget
     if waitForAcq():
         maw(doppler, target)
     else:

@@ -27,12 +27,15 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos import session
-from nicos.core import SIMULATION, UsageError, dictwith, status
+from nicos.core import SIMULATION, UsageError, dictwith, status, \
+    oneofdict_or, floatrange
 from nicos.core.params import Attach, Param
 from nicos.devices.generic.sequence import SeqCall, SeqDev, SequencerMixin
+from nicos.commands.basic import sleep
 from nicos.devices.generic.switcher import MultiSwitcher
 from nicos.devices.tango import NamedDigitalOutput, VectorInput
 from nicos.protocols.daemon import STATUS_INBREAK
+from nicos.pycompat import number_types
 
 ELASTIC =   'elastic'
 INELASTIC = 'inelastic'
@@ -49,6 +52,9 @@ class AcqDoppler(VectorInput):
 
         return speed, ampl
 
+    def changeDummySpeed(self, target):
+        self._dev.dummy_doppvel = target
+
 
 class Doppler(SequencerMixin, MultiSwitcher):
     """Device to change the dopplerspeed.
@@ -62,7 +68,9 @@ class Doppler(SequencerMixin, MultiSwitcher):
                          default=dict(speed=.0, amplitude=.0), settable=True),
         'maxacqdelay': Param('maximum time to wait for the detector to adjust '
                              'when a measurement is started in seconds',
-                             int, default=50, settable=True)
+                             int, default=50, settable=True),
+        'customrange': Param('min and max for custom values',
+                             tuple, mandatory=True)
     }
 
     attached_devices = {
@@ -72,10 +80,42 @@ class Doppler(SequencerMixin, MultiSwitcher):
                          AcqDoppler),
     }
 
+    def doInit(self, mode):
+        MultiSwitcher.doInit(self, mode)
+
+        self._sm_values = sorted([x for x in self.mapping
+                                  if isinstance(x, number_types)])[1:]
+
+        named_vals = {k: v[0] for k, v in self.mapping.items()}
+
+        self.valuetype = oneofdict_or(named_vals,
+                                      floatrange(0,
+                                                 self._sm_values[-1]))
+
     def doRead(self, maxage=0):
         if self._attached_switch.read() == 'off':
             return 0
         return self._mapReadValue(self._readRaw(maxage))
+
+    def doStart(self, target):
+        # value is out of range
+        if target not in self.mapping and not self.inRange(target):
+            raise UsageError('Values have to be within %.2f and %.2f.' %
+                             (self.customrange[0], self.customrange[-1]))
+
+        # if acq runs in dummy mode this will change the speed accordingly
+        # otherwise this will be ignored in entangle
+        self._attached_acq.changeDummySpeed(target)
+
+        # a custom value has been requested
+        if target not in self.mapping:
+            self.log.warning('Moving doppler to a speed which is not in the '
+                             'configured setup (but within range).')
+
+        for entry in self._sm_values:
+            if target <= entry:
+                self._startRaw((target, self.mapping[entry][1]))
+                return
 
     def _startRaw(self, target):
         if self._mode != SIMULATION \
@@ -89,23 +129,35 @@ class Doppler(SequencerMixin, MultiSwitcher):
                 self._seq_thread.join(0)
             self._seq_thread = None
 
-        cur = self._attached_acq.status()
-        if cur == (status.BUSY, 'counting'):
-            self.log.warning('Doppler speed can not be changed while '
-                             'SIS is counting.')
+        if not self.waitForAcq(10):
             return
 
         seq = list()
         # to change the doppler speed it has to be stopped first
         seq.append(SeqDev(self._attached_switch, 'off'))
-        seq.append(SeqCall(session.delay, 3))
+        seq.append(SeqCall(session.delay, 0.5))
         if target[0] != 0:
             seq.append(SeqCall(MultiSwitcher._startRaw, self, target))
             seq.append(SeqDev(self._attached_switch, 'on'))
 
         seq.append(SeqCall(self.waitForSync, target))
-
         self._startSequence(seq)
+
+    def acqIsCounting(self):
+        return self._attached_acq.status() == (status.BUSY, 'counting')
+
+    def waitForAcq(self, retries):
+        if not self.acqIsCounting():
+            return True
+
+        while retries:
+            sleep(0.5)
+            retries -= 1
+            if not self.acqIsCounting():
+                return True
+        self.log.warning('Doppler speed can not be changed while '
+                         'SIS is counting.')
+        return False
 
     def waitForSync(self, target):
         if session.mode == SIMULATION:
@@ -130,9 +182,11 @@ class Doppler(SequencerMixin, MultiSwitcher):
         return target - self.margins[name] < value < target + self.margins[name]
 
     def doStatus(self, maxage=0):
-        if self._seq_is_running():
-            return SequencerMixin.doStatus(self, maxage)
+        # when the sequence is running only it's status is of interest
+        if self._seq_status[0] != status.OK:
+            return self._seq_status
 
+        # otherwise the actual doppler status is relevant
         acq_speed, acq_ampl = self._attached_acq.read()
         speed, ampl = self._readRaw()
 
@@ -146,5 +200,24 @@ class Doppler(SequencerMixin, MultiSwitcher):
         elif not self.withinMargins(acq_ampl, ampl, AMPLITUDE):
             return (status.WARN, 'detector observes an amplitude differing '
                                  'from the doppleramplitude')
+        elif round(speed, 2) not in self._sm_values \
+                and self.inRange(speed):
+            return status.OK, 'Doppler runs at custom speed'
 
         return MultiSwitcher.doStatus(self, maxage)
+
+    def isAllowed(self, pos):
+        if self.inRange(pos):
+            return True, ''
+        else:
+            return MultiSwitcher.isAllowed(self, pos)
+
+    def inRange(self, speed):
+        return self.customrange[0] < speed < self.customrange[-1]
+
+    def _mapReadValue(self, pos):
+        value = MultiSwitcher._mapReadValue(self, pos)
+        if value == self.fallback and self.inRange(pos[0]):
+            value = pos[0]
+
+        return value

@@ -34,12 +34,14 @@ devices = dict(
         description = 'Switcher to control the doppler.\n'
                       '"Stop" does not stop doppler movement.\n'
                       'To Stop doppler movement select "Standby" or "0.0"\n'
-                      'from the dropdown and click move.',
+                      'from the dropdown and click move.\n'
+                      'Only set custom values if you know what you are doing!',
         moveables = ['doppler_speed', 'doppler_amplitude'],
         switch = 'doppler_switch',
         acq = 'acqdoppler',
         precision = [0.0001, 0],
         unit = 'm/s',
+        customrange = (0.1, 4.7),
         mapping = {
             'Standby': (0,    0),  # values for this are arbitrary
             0.0:       (0,    0),
