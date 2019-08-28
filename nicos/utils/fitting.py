@@ -25,8 +25,8 @@
 
 from __future__ import absolute_import, division, print_function
 
-from numpy import array, asarray, cos, diagonal, exp, inf, isinf, isscalar, \
-    linspace, log, mean, pi, piecewise, power, sqrt
+from numpy import array, asarray, cos, diagonal, exp, full_like, inf, isinf, \
+    isscalar, linspace, log, mean, pi, piecewise, power, sqrt
 
 from nicos.core import ProgrammingError
 from nicos.pycompat import add_metaclass
@@ -223,7 +223,10 @@ class Fit(object):
                                    # default of 1000 can be too restrictive,
                                    # especially with automatic initial guess
                                    maxfev=5000)
-            parerrors = sqrt(abs(diagonal(pcov)))
+            if isinf(pcov).all():
+                parerrors = full_like(popt, 0)
+            else:
+                parerrors = sqrt(abs(diagonal(pcov)))
         except (RuntimeError, ValueError, TypeError) as e:
             return self.result(xn, yn, dyn, None, None, msg=str(e))
         return self.result(xn, yn, dyn, popt, parerrors)
