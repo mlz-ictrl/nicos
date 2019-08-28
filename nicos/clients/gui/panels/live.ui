@@ -155,7 +155,7 @@
     <string>Keep ratio</string>
    </property>
    <property name="toolTip">
-    <string>&amp;Keep aspect ratio of selection rectangle</string>
+    <string>Keep aspect ratio of selection rectangle</string>
    </property>
   </action>
   <action name="actionOpen">
