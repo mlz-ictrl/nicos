@@ -404,7 +404,7 @@ class ComboWidget(QComboBox):
 
 class OneofdictOrWidget(QWidget):
 
-    dataChanged = pyqtSignal()
+    valueModified = pyqtSignal()
     valueChosen = pyqtSignal(object)
 
     def __init__(self, parent, inner, selector, buttons):
@@ -414,10 +414,10 @@ class OneofdictOrWidget(QWidget):
 
         layout = self._layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        inner.dataChanged.connect(self.dataChanged)
+        inner.valueModified.connect(self.valueModified)
         inner.valueChosen.connect(self.valueChosen)
         if not buttons:
-            selector.dataChanged.connect(self.on_selector_dataChanged)
+            selector.valueModified.connect(self.on_selector_valueModified)
             inner.setVisible(selector.getValue() is Ellipsis)
         else:
             selector.valueChosen.connect(self.valueChosen)
@@ -425,10 +425,10 @@ class OneofdictOrWidget(QWidget):
         layout.addWidget(inner)
         self.setLayout(layout)
 
-    def on_selector_dataChanged(self):
+    def on_selector_valueModified(self):
         val = self._selector.getValue()
         self._inner.setVisible(val is Ellipsis)
-        self.dataChanged.emit()
+        self.valueModified.emit()
 
     def getValue(self):
         val = self._selector.getValue()
