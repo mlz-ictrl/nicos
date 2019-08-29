@@ -81,6 +81,9 @@
    <property name="text">
     <string>&amp;Print...</string>
    </property>
+   <property name="toolTip">
+    <string>Print current plot</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
    </property>

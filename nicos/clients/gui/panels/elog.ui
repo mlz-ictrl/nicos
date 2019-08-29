@@ -105,7 +105,7 @@
     <string>Print</string>
    </property>
    <property name="toolTip">
-    <string>Print</string>
+    <string>Print the whole logbook</string>
    </property>
   </action>
  </widget>
