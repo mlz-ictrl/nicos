@@ -1,4 +1,4 @@
-description = 'JCNS humidity cell'
+description = 'Humidity generator for SANS humidity cell'
 
 group = 'plugplay'
 

@@ -1,4 +1,4 @@
-description = 'JCNS CCR box with LakeShore LS336 controller'
+description = 'DNS cryostat with LakeShore LS336 controller'
 
 group = 'plugplay'
 

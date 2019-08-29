@@ -1,4 +1,4 @@
-description = 'JCNS gas pressure cell T1001'
+description = 'Gas high pressure cell T1001'
 
 group = 'plugplay'
 

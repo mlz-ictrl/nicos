@@ -1,4 +1,4 @@
-description = 'JCNS 2.2T electromagnet'
+description = 'Bruker 2.2T electromagnet'
 
 group = 'plugplay'
 

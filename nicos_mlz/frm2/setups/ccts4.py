@@ -1,4 +1,4 @@
-description = 'JCNS CCR box with LakeShore LS336 controller'
+description = 'CCR with sapphire windows, with LS336 controller'
 
 group = 'plugplay'
 
