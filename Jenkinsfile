@@ -266,7 +266,7 @@ addopts = --junit-xml=pytest-${pyver}.xml
   --cov
   --cov-config=.coveragerc
   --cov-report=html:cov-$pyver
-  --cov-report=xml:cobertura-$pyver.xml
+  --cov-report=xml:cobertura-${pyver}.xml
   --cov-report=term
 """ : "")
     sh """
@@ -295,7 +295,7 @@ addopts = --junit-xml=pytest-${pyver}.xml
                       artifacts: "pytest-${pyver}.xml"])
     if (withcov) {
         archiveArtifacts([allowEmptyArchive: true,
-                          artifacts: "cobertura-$pyver.xml"])
+                          artifacts: "cobertura-${pyver}.xml"])
         publishHTML([allowMissing: true,
                      alwaysLinkToLastBuild: false,
                      keepAll: true,
