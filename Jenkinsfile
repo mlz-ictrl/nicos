@@ -270,7 +270,7 @@ addopts = --junit-xml=pytest-${pyver}.xml
   --cov-report=term
 """ : "")
     sh """
-     [-f pytest.ini] || echo "[pytest]" > pytest.ini
+     [ -f pytest.ini ] || echo "[pytest]" > pytest.ini
     cat pytest_ini.add >> pytest.ini"""
 
 
