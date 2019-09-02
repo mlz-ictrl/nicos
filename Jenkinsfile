@@ -398,10 +398,11 @@ try {
         stage(name: 'Python2 tests')  {
             ws {
                 checkoutSource()
-                docker.image('localhost:5000/kafka').withRun() { kafka ->
+                def kafkaversion="2.12-2.3.0"
+                docker.image("localhost:5000/kafka:${kafkaversion}").withRun() { kafka ->
                     sleep(time:10, unit: 'SECONDS')  // needed to allow kafka to start
-                    sh "docker exec ${kafka.id} /opt/kafka_2.11-0.11.0.1/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1"
-                    sh "docker exec ${kafka.id} /opt/kafka_2.11-0.11.0.1/bin/kafka-topics.sh --create --topic test-flatbuffers-history --zookeeper localhost --partitions 1 --replication-factor 1"
+                    sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1"
+                    sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers-history --zookeeper localhost --partitions 1 --replication-factor 1"
                     u14.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092  --link ${kafka.id}:kafka") {
                         runTests( '$NICOSVENV', 'python2', GERRIT_EVENT_TYPE == 'change-merged')
                     } // image.inside
@@ -423,9 +424,15 @@ try {
         stage(name: 'Python3 tests') {
             ws {
                 checkoutSource()
-                u16tango9.inside('-v /home/git:/home/git') {
-                    runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
-                } // image.inside
+                def kafkaversion="2.12-2.3.0"
+                docker.image("localhost:5000/kafka:${kafkaversion}").withRun() { kafka ->
+                    sleep(time:10, unit: 'SECONDS')  // needed to allow kafka to start
+                    sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1"
+                    sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers-history --zookeeper localhost --partitions 1 --replication-factor 1"
+                        u16tango9.inside('-v /home/git:/home/git') {
+                        runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
+                    } // image.inside
+                } // image.WithRun
             } // ws
         } //stage
     }, test_docs: {
