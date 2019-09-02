@@ -93,6 +93,7 @@ class LiveDataPanel(Panel):
         self._livewidgets = {}  # livewidgets for rois: roi_key -> widget
         self._fileopen_filter = None
         self.widget = None
+        self.menu = None
 
         self.statusBar = QStatusBar(self, sizeGripEnabled=False)
         policy = self.statusBar.sizePolicy()
@@ -240,17 +241,19 @@ class LiveDataPanel(Panel):
         settings.setValue('geometry', self.saveGeometry())
 
     def getMenus(self):
-        self.menu = menu = QMenu('&Live data', self)
-        menu.addAction(self.actionOpen)
-        menu.addAction(self.actionPrint)
-        menu.addSeparator()
-        menu.addAction(self.actionKeepRatio)
-        menu.addAction(self.actionUnzoom)
-        menu.addAction(self.actionLogScale)
-        menu.addAction(self.actionColormap)
-        menu.addAction(self.actionMarkCenter)
-        menu.addAction(self.actionROI)
-        return [menu]
+        if not self.menu:
+            menu = QMenu('&Live data', self)
+            menu.addAction(self.actionOpen)
+            menu.addAction(self.actionPrint)
+            menu.addSeparator()
+            menu.addAction(self.actionKeepRatio)
+            menu.addAction(self.actionUnzoom)
+            menu.addAction(self.actionLogScale)
+            menu.addAction(self.actionColormap)
+            menu.addAction(self.actionMarkCenter)
+            menu.addAction(self.actionROI)
+            self.menu = menu
+        return [self.menu]
 
     def _get_all_widgets(self):
         yield self.widget
