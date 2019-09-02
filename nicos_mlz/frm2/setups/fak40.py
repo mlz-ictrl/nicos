@@ -1,17 +1,18 @@
 description = 'FRM II FAK40 information (cooling water system)'
 
 group = 'lowlevel'
-nethost = 'tacodb.taco.frm2'
+tango_base = 'tango://ictrlfs.ictrl.frm2:10000/frm2/'
+
 
 devices = dict(
-    FAK40_Cap = device('nicos.devices.taco.AnalogInput',
-        tacodevice = '//%s/frm2/fak40/capacity' % (nethost,),
+    FAK40_Cap = device('nicos.devices.tango.AnalogInput',
+        tangodevice = tango_base +'fak40/CF001',
         description = 'The capacity of the cooling water system',
         pollinterval = 60,
         maxage = 120,
     ),
-    FAK40_Press = device('nicos.devices.taco.AnalogInput',
-        tacodevice = '//%s/frm2/fak40/pressure' % (nethost,),
+    FAK40_Press = device('nicos.devices.tango.AnalogInput',
+        tangodevice = tango_base +'fak40/CP001',
         description = 'The pressure inside the cooling water system',
         pollinterval = 60,
         maxage = 120,
