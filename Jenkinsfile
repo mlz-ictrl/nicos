@@ -429,7 +429,7 @@ try {
                     sleep(time:10, unit: 'SECONDS')  // needed to allow kafka to start
                     sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1"
                     sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers-history --zookeeper localhost --partitions 1 --replication-factor 1"
-                        u16tango9.inside('-v /home/git:/home/git') {
+                        u16tango9.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 --link ${kafka.id}:kafka") {
                         runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
                     } // image.inside
                 } // image.WithRun
