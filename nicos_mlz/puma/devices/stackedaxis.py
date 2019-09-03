@@ -34,7 +34,7 @@ class StackedAxis(HasLimits, HasPrecision, Moveable):
     """Device were two axes stacked.
 
     Both axes can be moved individually but the result of position and target
-    is the sum of both position.  On of the axes (at the moment always the
+    is the sum of both position.  One of the axes (at the moment always the
     ``top`` axis) is preferred in use since it is cheaper (in time) to move it.
 
     ``HasPrecision`` is needed for the TAS monochromator device.
