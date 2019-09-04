@@ -4,28 +4,30 @@ group = 'optional'
 
 excludes = ['sbl']
 
+tango_base = "tango://antareshw.antares.frm2.tum.de:10000/antares/"
+
 devices = dict(
-    sbl_l = device('nicos.devices.taco.Motor',
+    sbl_l = device('nicos.devices.tango.Motor',
         description = 'Beam Limiter Left Blade',
-        tacodevice = 'antares/copley/m06',
+        tangodevice = tango_base + 'copley/m06',
         lowlevel = True,
         abslimits = (-250, 250),
     ),
-    sbl_r = device('nicos.devices.taco.Motor',
+    sbl_r = device('nicos.devices.tango.Motor',
         description = 'Beam Limiter Right Blade',
-        tacodevice = 'antares/copley/m07',
+        tangodevice = tango_base + 'copley/m07',
         lowlevel = True,
         abslimits = (-250, 250),
     ),
-    sbl_b = device('nicos.devices.taco.Motor',
+    sbl_b = device('nicos.devices.tango.Motor',
         description = 'Beam Limiter Bottom Blade',
-        tacodevice = 'antares/copley/m08',
+        tangodevice = tango_base + 'copley/m08',
         lowlevel = True,
         abslimits = (-250, 250),
     ),
-    sbl_t = device('nicos.devices.taco.Motor',
+    sbl_t = device('nicos.devices.tango.Motor',
         description = 'Beam Limiter Top Blade',
-        tacodevice = 'antares/copley/m09',
+        tangodevice = tango_base + 'copley/m09',
         lowlevel = True,
         abslimits = (-250, 250),
     ),

@@ -2,10 +2,12 @@ description = 'Motor for FOV camera translation in large detector box'
 
 group = 'optional'
 
+tango_base = "tango://antareshw.antares.frm2.tum.de:10000/antares/"
+
 devices = dict(
-    ccdtx = device('nicos.devices.taco.Motor',
+    ccdtx = device('nicos.devices.tango.Motor',
         description = 'Camera Translation X',
-        tacodevice = 'antares/copley/m07',
+        tangodevice = tango_base + 'copley/m07',
         abslimits = (-9999, 9999),
         userlimits = (-0, 693),
     ),
