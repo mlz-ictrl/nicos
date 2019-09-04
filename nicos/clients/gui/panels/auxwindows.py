@@ -78,6 +78,10 @@ class AuxiliaryWindow(SetupDepWindowMixin, QMainWindow):
 
         SetupDepWindowMixin.__init__(self, self.client)
 
+    def addPanel(self, panel, always=True):
+        if always or panel not in self.panels:
+            self.panels.append(panel)
+
     def on_keyChange(self, key, value, time, expired):
         if key == 'session/mastersetup' and self.setupSpec:
             if not checkSetupSpec(self.setupSpec, value, log=self.log):
@@ -168,6 +172,10 @@ class AuxiliarySubWindow(QMainWindow):
             layout.addWidget(it)
             central.setLayout(layout)
             self.setCentralWidget(central)
+
+    def addPanel(self, panel, always=True):
+        if always or panel not in self.panels:
+            self.panels.append(panel)
 
     def getPanel(self, panelName):
         for panelobj in self.panels:

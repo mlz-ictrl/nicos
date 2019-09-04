@@ -218,6 +218,10 @@ class MainWindow(DlgUtils, QMainWindow):
         # create initial state
         self.setStatus('disconnected')
 
+    def addPanel(self, panel, always=True):
+        if always or panel not in self.panels:
+            self.panels.append(panel)
+
     def createWindowContent(self):
         self.sgroup = SettingGroup('MainWindow')
         with self.sgroup as settings:

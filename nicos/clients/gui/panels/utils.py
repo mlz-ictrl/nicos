@@ -45,9 +45,8 @@ def createPanel(item, window, menuwindow, topwindow, log):
         return None
     log.debug('creating panel: %s', item.clsname)
     p = cls(menuwindow, window.client, item.options or {})
-    window.panels.append(p)
-    if p not in topwindow.panels:
-        topwindow.panels.append(p)
+    window.addPanel(p)
+    topwindow.addPanel(p, False)
 
     for toolbar in p.getToolbars():
         # this helps for serializing window state
@@ -56,6 +55,7 @@ def createPanel(item, window, menuwindow, topwindow, log):
             menuwindow.insertToolBar(menuwindow.toolBarWindows, toolbar)
         else:
             menuwindow.addToolBar(toolbar)
+        toolbar.setVisible(False)
     for menu in p.getMenus():
         if hasattr(menuwindow, 'menuWindows'):
             p.actions.update((menuwindow.menuBar().insertMenu(

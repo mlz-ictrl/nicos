@@ -54,8 +54,8 @@ class SetupDepWindowMixin(object):
 class PanelDialog(SetupDepWindowMixin, QDialog):
     def __init__(self, parent, client, panelcfg, title, **options):
         from nicos.clients.gui.panels.utils import createWindowItem
-        self.panels = []
         QDialog.__init__(self, parent)
+        self.panels = []
         self.mainwindow = parent.mainwindow
         self.log = NicosLogger('PanelDialog')
         self.log.parent = self.mainwindow.log
@@ -75,6 +75,10 @@ class PanelDialog(SetupDepWindowMixin, QDialog):
         self.setLayout(hbox)
         self.setWindowTitle(title)
         SetupDepWindowMixin.__init__(self, self.client)
+
+    def addPanel(self, panel, always=True):
+        if always or panel not in self.panels:
+            self.panels.append(panel)
 
 
 class SetupDepPanelMixin(QObject):
