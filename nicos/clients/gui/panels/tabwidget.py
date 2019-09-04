@@ -159,7 +159,8 @@ class LeftTabBar(TearOffTabBar):
 
     def tabSizeHint(self, index):
         fm = self.fontMetrics()
-        tabSize = fm.boundingRect(self.tabText(index)).size() + QSize(20, 10)
+        tabSize = fm.boundingRect(
+            self.tabText(index) or 'Ag').size() + QSize(20, 10)
         return tabSize
 
 
