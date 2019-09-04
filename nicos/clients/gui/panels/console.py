@@ -189,7 +189,7 @@ class ConsolePanel(Panel):
                 self.commandInput.setText(url.path())
                 self.commandInput.setFocus()
         elif scheme == 'edit':
-            if not self.mainwindow.editor_wintype:
+            if self.mainwindow.editor_wintype == -1:
                 return
             win = self.mainwindow.createWindow(self.mainwindow.editor_wintype)
             panel = win.getPanel('User editor')

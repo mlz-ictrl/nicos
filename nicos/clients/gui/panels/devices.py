@@ -726,7 +726,7 @@ class DevicesPanel(Panel):
             self._exec_reqid = self.client.run(command)
 
     def plot_history(self, dev):
-        if self.mainwindow.history_wintype:
+        if self.mainwindow.history_wintype != -1:
             win = self.mainwindow.createWindow(self.mainwindow.history_wintype)
             if win:
                 panel = win.getPanel('History viewer')
