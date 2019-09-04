@@ -428,6 +428,8 @@ class TearOffTabWidget(QTabWidget):
         self.tabIdx[index] = self.TabWidgetStorage(index, widget, label)
         if not detached:
             index = self.addTab(widget, label)
+            if not label or label.isspace():
+                self.setTabEnabled(index, False)
             for i in self.tabIdx.values():  # search for it in the list of tabs
                 if i.widget == widget:
                     i.setDetached(None)
