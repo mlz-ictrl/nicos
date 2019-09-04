@@ -365,3 +365,24 @@ class DebugHandler(logging.Handler):
             msg = self.format(record)
             self.mainwindow.debugConsole.addLogMsg('#' * 80)
             self.mainwindow.debugConsole.addLogMsg(msg)
+
+
+def activatePanelActions(window, panel):
+    for menu in panel.getMenus():
+        action = window.menuBar().addMenu(menu)
+        action.setVisible(True)
+        panel.actions.update((action,))
+    for toolbar in panel.getToolbars():
+        # this helps for serializing window state
+        toolbar.setObjectName(toolbar.windowTitle())
+        window.addToolBar(toolbar)
+        toolbar.setVisible(True)
+
+
+def deactivatePanelActions(window, panel):
+    for action in panel.actions:
+        window.menuBar().removeAction(action)
+    panel.actions.clear()
+    for toolbar in panel.getToolbars():
+        if not getattr(toolbar, 'permanent', False):
+            toolbar.setVisible(False)

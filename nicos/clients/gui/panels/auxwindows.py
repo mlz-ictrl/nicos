@@ -28,8 +28,8 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.panels.base import Panel, SetupDepWindowMixin
-from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings, \
-    loadUi, loadUserStyle
+from nicos.clients.gui.utils import SettingGroup, activatePanelActions, \
+    deactivatePanelActions, loadBasicWindowSettings, loadUi, loadUserStyle
 from nicos.guisupport.qt import QColorDialog, QFontDialog, QMainWindow, \
     QSplitter, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
 from nicos.utils import checkSetupSpec
@@ -81,6 +81,8 @@ class AuxiliaryWindow(SetupDepWindowMixin, QMainWindow):
     def addPanel(self, panel, always=True):
         if always or panel not in self.panels:
             self.panels.append(panel)
+            panel.showPanel.connect(self.showPanelSlot)
+            panel.hidePanel.connect(self.hidePanelSlot)
 
     def on_keyChange(self, key, value, time, expired):
         if key == 'session/mastersetup' and self.setupSpec:
@@ -137,12 +139,21 @@ class AuxiliaryWindow(SetupDepWindowMixin, QMainWindow):
             pnl.setCustomStyle(self.user_font, color)
         self.user_color = color
 
+    @pyqtSlot(QWidget)
+    def showPanelSlot(self, panel):
+        self.log.debug('showPanelSlot: %r', panel.panelName)
+        activatePanelActions(self, panel)
+
+    @pyqtSlot(QWidget)
+    def hidePanelSlot(self, panel):
+        self.log.debug('hidePanelSlot: %r', panel.panelName)
+        deactivatePanelActions(self, panel)
+
 
 class AuxiliarySubWindow(QMainWindow):
     def __init__(self, item, window, menuwindow, parent):
         from nicos.clients.gui.panels.utils import createWindowItem
         QMainWindow.__init__(self, parent)
-        # self.mainwindow = parent
         self.user_color = window.user_color
         self.mainwindow = window.mainwindow
         self.log = NicosLogger('AuxiliarySubWindow')
