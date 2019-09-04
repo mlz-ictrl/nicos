@@ -220,8 +220,9 @@ class DevicesPanel(Panel):
         self.devmenu.addAction(self.actionFix)
         self.devmenu.addAction(self.actionRelease)
         self.devmenu.addSeparator()
-        self.devmenu.addAction(self.actionPlotHistory)
-        self.devmenu.addSeparator()
+        if self.mainwindow.history_wintype != -1:
+            self.devmenu.addAction(self.actionPlotHistory)
+            self.devmenu.addSeparator()
         self.devmenu.addAction(self.actionShutDown)
         self.devmenu.addAction(self.actionHelp)
 
@@ -229,8 +230,9 @@ class DevicesPanel(Panel):
         self.devmenu_ro.addAction(self.actionMove)
         self.devmenu_ro.addAction(self.actionReset)
         self.devmenu_ro.addSeparator()
-        self.devmenu_ro.addAction(self.actionPlotHistory)
-        self.devmenu_ro.addSeparator()
+        if self.mainwindow.history_wintype != -1:
+            self.devmenu_ro.addAction(self.actionPlotHistory)
+            self.devmenu_ro.addSeparator()
         self.devmenu_ro.addAction(self.actionShutDown)
         self.devmenu_ro.addAction(self.actionHelp)
 
