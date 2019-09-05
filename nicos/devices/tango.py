@@ -260,8 +260,8 @@ class PyTangoDevice(HasCommunication):
         """For devices with a unit attribute."""
         attrInfo = self._dev.attribute_query('value')
         # prefer configured unit if nothing is set on the Tango device
-        if attrInfo.unit == 'No unit' and 'unit' in self._config:
-            return self._config['unit']
+        if attrInfo.unit == 'No unit':
+            return self._config.get('unit', '')
         return attrInfo.unit
 
     def _createPyTangoDevice(self, address):  # pylint: disable=E0202
