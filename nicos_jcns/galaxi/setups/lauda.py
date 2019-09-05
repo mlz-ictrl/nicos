@@ -2,11 +2,11 @@ description = 'Lauda temperature controller with external sensor'
 
 group = 'optional'
 
-includes = ['alias_T']
-
 tango_base = 'tango://phys.galaxi.kfa-juelich.de:10000/galaxi/'
 
 devices = dict(
+    T = device('nicos.devices.generic.DeviceAlias'),
+    Ts = device('nicos.devices.generic.DeviceAlias'),
     T_lauda_intern = device('nicos.devices.tango.TemperatureController',
         description = 'Lauda regulated to internal (bath) sensor',
         tangodevice = tango_base + 'lauda/controller_int',
@@ -29,3 +29,7 @@ alias_config = {
     'T':  {'T_lauda_intern': 100, 'T_lauda_extern': 110},
     'Ts': {'T_lauda_intern': 100, 'T_lauda_extern': 110},
 }
+
+startupcode = '''
+AddEnvironment(T, Ts)
+'''
