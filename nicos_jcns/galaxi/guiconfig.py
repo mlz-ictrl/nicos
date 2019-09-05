@@ -31,6 +31,7 @@ main_window = tabbed(
             tool('Scan Generator', 'nicos.clients.gui.tools.scan.ScanTool')
         ]),
     )),
+    ('Live data', panel('nicos.clients.gui.panels.live.LiveDataPanel')),
     ('Scan Plotting', panel('nicos.clients.gui.panels.scans.ScansPanel')),
     ('Device Plotting', panel(
         'nicos.clients.gui.panels.history.HistoryPanel'
@@ -41,6 +42,7 @@ main_window = tabbed(
 windows = []
 
 tools = [
+    cmdtool('Server control (Marche)', 'marche-gui'),
     tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),
     tool(
         'Neutron cross-sections',

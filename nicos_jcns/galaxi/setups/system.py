@@ -7,7 +7,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'galaxi',
     experiment = 'Exp',
-    datasinks = ['conssink', 'daemonsink', 'filesink'],
+    datasinks = ['conssink', 'daemonsink', 'filesink', 'liveviewsink'],
     notifiers = ['email'],
 )
 
@@ -49,6 +49,9 @@ devices = dict(
             '%(session.experiment.sample.filename)s_'
             '%(session.experiment.lastscan)s.dat'
         ],
+    ),
+    liveviewsink = device('nicos.devices.datasinks.LiveViewSink',
+        description = 'Device showing live data during measurements.',
     ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
