@@ -278,7 +278,8 @@ class Plot(object):
                     pass
         c = self.axes.getCurves()
         self.axes.setWindow(c.xmin, c.xmax, c.ymin, c.ymax)
-        os.unlink(self.tempfile)
+        if os.path.isfile(self.tempfile):
+            os.unlink(self.tempfile)
         gr.beginprint(self.tempfile)
         gr.setwsviewport(0, self.width * 0.0022, 0, self.height * 0.0022)
         try:
