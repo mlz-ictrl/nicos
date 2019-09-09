@@ -144,6 +144,7 @@ class gui_config(object):
         for i, winconfig in enumerate(self.windows):
             if self._has_panel(winconfig, panel_classes):
                 return i
+        return None
 
 
 def prepareGuiNamespace():

@@ -220,7 +220,7 @@ class DevicesPanel(Panel):
         self.devmenu.addAction(self.actionFix)
         self.devmenu.addAction(self.actionRelease)
         self.devmenu.addSeparator()
-        if self.mainwindow.history_wintype != -1:
+        if self.mainwindow.history_wintype is not None:
             self.devmenu.addAction(self.actionPlotHistory)
             self.devmenu.addSeparator()
         self.devmenu.addAction(self.actionShutDown)
@@ -230,7 +230,7 @@ class DevicesPanel(Panel):
         self.devmenu_ro.addAction(self.actionMove)
         self.devmenu_ro.addAction(self.actionReset)
         self.devmenu_ro.addSeparator()
-        if self.mainwindow.history_wintype != -1:
+        if self.mainwindow.history_wintype is not None:
             self.devmenu_ro.addAction(self.actionPlotHistory)
             self.devmenu_ro.addSeparator()
         self.devmenu_ro.addAction(self.actionShutDown)
@@ -728,7 +728,7 @@ class DevicesPanel(Panel):
             self._exec_reqid = self.client.run(command)
 
     def plot_history(self, dev):
-        if self.mainwindow.history_wintype != -1:
+        if self.mainwindow.history_wintype is not None:
             win = self.mainwindow.createWindow(self.mainwindow.history_wintype)
             if win:
                 panel = win.getPanel('History viewer')
