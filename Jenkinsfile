@@ -335,7 +335,7 @@ def runDocTest() {
 // ************* Start main script ***/
 timestamps {
 
-node('master') {
+node('dockerhost') {
     stage(name: 'checkout code: ' + GERRIT_PROJECT) {
         checkoutSource()
     }
@@ -343,7 +343,7 @@ node('master') {
     stage(name: 'prepare') {
         withCredentials([string(credentialsId: 'RMAPIKEY', variable: 'RMAPIKEY'),
                          string(credentialsId: 'RMSYSKEY', variable: 'RMSYSKEY')]) {
-            docker.image('localhost:5000/nicos-jenkins:xenial').inside(){
+            docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:xenial').inside(){
                 sh  '''\
 #!/bin/bash
 export PYTHONIOENCODING=utf-8
@@ -353,9 +353,9 @@ export PYTHONIOENCODING=utf-8
         } // credentials
     } // stage
 
-u16 = docker.image('localhost:5000/nicos-jenkins:xenial')
-u16tango9 = docker.image('localhost:5000/nicos-jenkins:xenialtango9')
-u14 = docker.image('localhost:5000/nicos-jenkins:trusty')
+u16 = docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:xenial')
+u16tango9 = docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:xenialtango9')
+u14 = docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:trusty')
 
 try {
     parallel pylint: {
@@ -394,7 +394,7 @@ try {
             ws {
                 checkoutSource()
                 def kafkaversion="2.12-2.3.0"
-                docker.image("localhost:5000/kafka:${kafkaversion}").withRun() { kafka ->
+                docker.image("jenkinsng.admin.frm2:5000/kafka:${kafkaversion}").withRun() { kafka ->
                     sleep(time:10, unit: 'SECONDS')  // needed to allow kafka to start
                     sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1"
                     sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers-history --zookeeper localhost --partitions 1 --replication-factor 1"
@@ -409,7 +409,7 @@ try {
             if (GERRIT_EVENT_TYPE == 'change-merged') {
                 ws {
                     checkoutSource()
-                    docker.image('localhost:5000/nicos-jenkins:centos6').inside('-v /home/git:/home/git') {
+                    docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:centos6').inside('-v /home/git:/home/git') {
                         runTests('$NICOSVENV', 'python2-centos', false, true)
                     } // image.inside
                 } // ws
@@ -420,7 +420,7 @@ try {
             ws {
                 checkoutSource()
                 def kafkaversion="2.12-2.3.0"
-                docker.image("localhost:5000/kafka:${kafkaversion}").withRun() { kafka ->
+                docker.image("jenkinsng.admin.frm2:5000/kafka:${kafkaversion}").withRun() { kafka ->
                     sleep(time:10, unit: 'SECONDS')  // needed to allow kafka to start
                     sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1"
                     sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers-history --zookeeper localhost --partitions 1 --replication-factor 1"
@@ -432,7 +432,7 @@ try {
         } //stage
     }, test_docs: {
         stage(name: 'Test docs') {
-            docker.image('localhost:5000/nicos-jenkins:nicosdocs').inside(){
+            docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:nicosdocs').inside(){
                 runDocTest()
             }  // image.inside
         } // stage
