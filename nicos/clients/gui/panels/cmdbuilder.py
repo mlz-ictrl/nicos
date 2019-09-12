@@ -30,8 +30,8 @@ from __future__ import absolute_import, division, print_function
 from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, modePrompt
-from nicos.guisupport.qt import QAction, QApplication, QKeyEvent, QMenu, Qt, \
-    pyqtSlot
+from nicos.guisupport.qt import QAction, QApplication, QKeyEvent, QMenu, \
+    QToolButton, Qt, pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.utils import importString
 
@@ -82,6 +82,17 @@ class CommandPanel(Panel):
             action.triggered.connect(callback)
             self.mapping.setdefault(cmdlet.category, []).append(action)
 
+        for category in all_categories[::-1]:
+            if category not in self.mapping:
+                continue
+            toolbtn = QToolButton(self)
+            toolbtn.setText(category)
+            toolbtn.setPopupMode(QToolButton.InstantPopup)
+            menu = QMenu(self)
+            menu.addActions(self.mapping[category])
+            toolbtn.setMenu(menu)
+            self.btnLayout.insertWidget(1, toolbtn)
+
     def postInit(self):
         self.console = self.window.getPanel('Console')
         if self.console:
@@ -108,14 +119,7 @@ class CommandPanel(Panel):
         setBackgroundColor(self.commandInput, back)
 
     def getMenus(self):
-        menus = []
-        for category in all_categories[::]:
-            if category not in self.mapping:
-                continue
-            menu = QMenu('&' + category + ' commands', self)
-            menu.addActions(self.mapping[category])
-            menus.append(menu)
-        return menus
+        return []
 
     def completeInput(self, fullstring, lastword):
         try:
@@ -150,7 +154,6 @@ class CommandPanel(Panel):
         inst.buttons.upBtn.setVisible(False)
         inst.buttons.downBtn.setVisible(False)
         inst.cmdletRemove.connect(self.clearCmdlet)
-        inst.line.setVisible(False)
         self.frame.layout().insertWidget(0, inst)
         self.current_cmdlet = inst
         inst.valueModified.connect(self.updateCommand)
