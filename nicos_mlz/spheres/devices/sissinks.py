@@ -472,25 +472,25 @@ class PreviewSinkHandler(special.LiveViewSinkHandler):
         return [self.abscissa]
 
 
-class AFileSink(ImageSink):
-    handlerclass = AYamlFileSinkHandler
-
+class SisSink(ImageSink):
     parameters = {
         'filename': Param('Latest filename',
                           type=str)
     }
 
 
-class UFileSink(ImageSink):
+class AFileSink(SisSink):
+    handlerclass = AYamlFileSinkHandler
+
+
+class UFileSink(SisSink):
     handlerclass = UYamlFileSinkHandler
 
     parameters = {
         'envcontroller':    Param('Environment temperature controller',
-                                  type = str),
+                                  type=str),
         'setpointdev':      Param('Device for the setpoint',
-                                  type = str),
-        'filename':         Param('Latest filename',
-                                  type=str)
+                                  type=str),
     }
 
 
