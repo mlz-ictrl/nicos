@@ -197,6 +197,11 @@ class Monitor(BaseMonitor):
         if self._geometry == 'fullscreen':
             master.showFullScreen()
             master._wantFullScreen = True
+            if hasattr(QApplication, 'screens'):  # not in Qt4
+                # In some Qt5 versions, showFullScreen is buggy and doesn't
+                # actually resize the window (but hides decoration etc).
+                # So, explicitly set the geometry of the first screen.
+                master.setGeometry(QApplication.screens()[0].geometry())
             QCursor.setPos(master.geometry().bottomRight())
         elif isinstance(self._geometry, tuple):
             w, h, x, y = self._geometry  # pylint: disable=W0633
