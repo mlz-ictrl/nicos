@@ -50,7 +50,7 @@ class Axis(CanReference, AbstractAxis):
     }
 
     parameter_overrides = {
-        'precision': Override(mandatory=True, type=float),
+        'precision': Override(mandatory=True,),
         # these are not mandatory for the axis: the motor should have them
         # defined anyway, and by default they are correct for the axis as well
         'abslimits': Override(mandatory=False, volatile=True),
