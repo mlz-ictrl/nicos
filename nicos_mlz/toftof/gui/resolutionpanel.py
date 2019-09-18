@@ -262,6 +262,6 @@ class ResolutionPanel(NicosWidget, Panel):
         self.dE_min.setText('%.4f' % ra.dE_min)
         self.dE_el.setText('%.4f' % ra.dE_el)
 
-        self.plot1.setData(-1. * ra.dE, ra.q_low, ra.q_high)
+        self.plot1.setData(ra.dE, ra.q_low, ra.q_high)
         self.plot2.setData(ra.lambdas, 1e3 * ra.dE_res)
         self.plot3.setData(-1. * ra.dE, 1e3 * ra.dE_in)
