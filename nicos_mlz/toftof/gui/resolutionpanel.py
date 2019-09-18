@@ -22,7 +22,8 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
+from __future__ import absolute_import, division, print_function, \
+    unicode_literals
 
 from contextlib import contextmanager
 
@@ -47,6 +48,12 @@ COLOR_BLACK = GRCOLORS['black']
 COLOR_RED = GRCOLORS['red']
 COLOR_GREEN = GRCOLORS['green']
 COLOR_BLUE = GRCOLORS['blue']
+
+ANGSTROM = u'\u212b'
+DELTA = u'\u0394'
+LAMBDA = u'\u03bb'
+MICRO = u'\xb5'
+MINUSONE = u'\u207b\xb9'
 
 
 @contextmanager
@@ -120,8 +127,8 @@ class PlotWidget(QWidget):
 class DynamicRangePlot(PlotWidget):
 
     def __init__(self, parent):
-        PlotWidget.__init__(self, 'Dynamic Range', 'Energy (meV)', '|Q|', 2,
-                            parent=parent)
+        PlotWidget.__init__(self, 'Dynamic Range', DELTA + 'E (meV)',
+                            '|Q| ' + ANGSTROM + MINUSONE, 2, parent=parent)
         self.plot.curve.legend = ''
         self.plot.curve2.legend = ''
 
@@ -129,8 +136,9 @@ class DynamicRangePlot(PlotWidget):
 class ElasticResolutionPlot(PlotWidget):
 
     def __init__(self, parent):
-        PlotWidget.__init__(self, 'Elastic Resolution', 'Lambda (Å)',
-                            'dE (µeV)', 1, parent=parent)
+        PlotWidget.__init__(self, 'Elastic Resolution',
+                            LAMBDA + '(' + ANGSTROM + ')',
+                            'dE (' + MICRO + 'eV)', 1, parent=parent)
         self.plot.curve.legend = ''
         self.plot.logscale(True)
 
@@ -138,8 +146,8 @@ class ElasticResolutionPlot(PlotWidget):
 class ResolutionPlot(PlotWidget):
 
     def __init__(self, parent):
-        PlotWidget.__init__(self, 'Resolution', 'Energy (meV)', 'dE (µeV)', 1,
-                            parent=parent)
+        PlotWidget.__init__(self, 'Resolution', 'Energy (meV)',
+                            'dE (' + MICRO + 'eV)', 1, parent=parent)
         self.plot.curve.legend = ''
         self.plot.logscale(True)
 
