@@ -471,6 +471,6 @@ def chopper_resolution(chopper2_pos, D):
     # denominator and numerator should be increased by half of Detectordepth
     # Detectordepth_h = 65 / .5  # [40,65]
     # numerator = d_MCo_h  # + Detectordepth_h
-    numerator = d_MCo  # + Detectordepth_h
+    numerator = d_MCo_h  # + Detectordepth_h
     denominator = D - d_MCo_h  # + Detectordepth_h
-    return round(numerator / denominator * 100, 2)
+    return round(numerator / denominator * 100, 3)

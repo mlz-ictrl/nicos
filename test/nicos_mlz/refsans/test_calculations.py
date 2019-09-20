@@ -83,11 +83,11 @@ class TestBasicCalculations(object):
 
     def test_chopper_resolution(self):
         for chopper2_pos, D, expected in [
-            (6, 21.455, 11.48),
-            (5, 21.455, 6.23),
-            (4, 21.455, 3.08),
-            (6, 14.38, 17.63),
-            (5, 14.38, 9.44),
-            (4, 14.38, 4.63),
+            (6, 21.455, 5.742),
+            (5, 21.455, 3.114),
+            (4, 21.455, 1.541),
+            (6, 14.38, 8.816),
+            (5, 14.38, 4.719),
+            (4, 14.38, 2.316),
         ]:
             assert chopper_resolution(chopper2_pos, D) == expected

@@ -77,6 +77,7 @@ Instrument-specific code was contributed by:
 * Mark Könnecke <Mark.Koennecke@psi.ch>
 * Wiebke Lohstroh <wiebke.lohstroh@frm2.tum.de>
 * Avishek Maity <Avishek.Maity@frm2.tum.de>
+* Gaetano Mangiapia <gaetano.mangiapia@hzg.de>
 * Rifai Muslih <rifai@batan.go.id>
 * Thomas Müller <t.mueller@fz-juelich.de>
 * Dominic Oram <dominic.oram@stfc.ac.uk>
