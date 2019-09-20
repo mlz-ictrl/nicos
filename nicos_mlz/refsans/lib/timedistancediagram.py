@@ -140,9 +140,9 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
         ip = i * per * 1000
         # disk1: black line
         if i == -1:
-            plot.hlines(0, ip, ip + trailing_edge_MC, lw=5, label='disk 1')
+            plot.hlines(0, ip, ip + trailing_edge_MC, lw=3, label='disk 1')
         else:
-            plot.hlines(0, ip, ip + trailing_edge_MC, lw=5)
+            plot.hlines(0, ip, ip + trailing_edge_MC, lw=3)
         # disk2: blue line
         if i == -1:
             plot.hlines(d_MCo, times[1] - trailing_edge_SC2 + ip,
@@ -153,14 +153,14 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
         # disk3: green line
         if i == -1:
             plot.hlines(d_SCc, times[2] + ip, times[2] + trailing_edge_SC + ip,
-                        'g', lw=3, label='disk 3 and 5')
+                        'g', lw=3, label='disks 3 and 5')
         else:
             plot.hlines(d_SCc, times[2] + ip, times[2] + trailing_edge_SC + ip,
                         'g', lw=3)
         # disk4: red line
         if i == -1:
             plot.hlines(d_SCo, times[3] - trailing_edge_SC + ip, times[3] + ip,
-                        'r', lw=3, label='disk 4 and 6')
+                        'r', lw=3, label='disks 4 and 6')
         else:
             plot.hlines(d_SCo, times[3] - trailing_edge_SC + ip, times[3] + ip,
                         'r', lw=3)
