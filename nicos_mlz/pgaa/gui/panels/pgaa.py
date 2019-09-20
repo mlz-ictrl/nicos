@@ -22,6 +22,7 @@
 #   Johannes Schwarz <johannes.schwarz@frm2.tum.de>
 #
 # *****************************************************************************
+
 """NICOS GUI PGAA panel components."""
 
 from __future__ import absolute_import, division, print_function
@@ -34,9 +35,9 @@ from uuid import uuid1
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QAbstractItemView, QGridLayout, QHeaderView, \
-    QObject, Qt, QTableWidget, QTableWidgetItem, QWidget, pyqtSignal, \
-    pyqtSlot
+from nicos.guisupport.qt import QT_VER, QAbstractItemView, QGridLayout, \
+    QHeaderView, QObject, Qt, QTableWidget, QTableWidgetItem, QWidget, \
+    pyqtSignal, pyqtSlot
 from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC, \
     STATUS_RUNNING, STATUS_STOPPING
 
@@ -174,7 +175,7 @@ class TableWidget(QTableWidget):
         # self.setDropIndicatorShown(True)
         self.verticalHeader().hide()
         hdr = self.horizontalHeader()
-        if hasattr(hdr, 'setResizeMode'):  # Qt4
+        if QT_VER == 4:
             hdr.setResizeMode(QHeaderView.Interactive)
         else:
             hdr.setSectionResizeMode(QHeaderView.Interactive)

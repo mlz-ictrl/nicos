@@ -33,7 +33,7 @@ from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
 from nicos.core import Param
 from nicos.guisupport.display import PictureDisplay, ValueDisplay, \
     lightColorScheme
-from nicos.guisupport.qt import QApplication, QColor, QCursor, QFont, \
+from nicos.guisupport.qt import QT_VER, QApplication, QColor, QCursor, QFont, \
     QFontMetrics, QFrame, QHBoxLayout, QIcon, QLabel, QMainWindow, QPalette, \
     QSizePolicy, Qt, QVBoxLayout, pyqtSignal, uic
 from nicos.guisupport.utils import scaledFont
@@ -197,7 +197,7 @@ class Monitor(BaseMonitor):
         if self._geometry == 'fullscreen':
             master.showFullScreen()
             master._wantFullScreen = True
-            if hasattr(QApplication, 'screens'):  # not in Qt4
+            if QT_VER == 5:
                 # In some Qt5 versions, showFullScreen is buggy and doesn't
                 # actually resize the window (but hides decoration etc).
                 # So, explicitly set the geometry of the first screen.

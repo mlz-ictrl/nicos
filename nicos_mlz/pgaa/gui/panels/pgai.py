@@ -21,11 +21,11 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
+
 """NICOS GUI PGAI panel components."""
 
 from __future__ import absolute_import, division, print_function
 
-import os
 import sys
 from os import path
 
@@ -45,7 +45,7 @@ from OpenGL.GLUT.fonts import GLUT_STROKE_MONO_ROMAN
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QDialogButtonBox, QDoubleSpinBox, \
+from nicos.guisupport.qt import QT_VER, QDialogButtonBox, QDoubleSpinBox, \
     QFileDialog, QGridLayout, QMessageBox, QScrollBar, QStyledItemDelegate, \
     Qt, QTableWidget, QTableWidgetItem, QWidget, pyqtSignal, pyqtSlot
 
@@ -53,7 +53,7 @@ from nicos_mlz.pgaa.gui.panels.collision import cuboid_values, \
     cylinder_values, sphere_values
 
 try:
-    if os.environ.get('NICOS_QT') == '5':
+    if QT_VER == 5:
         from PyQt5.QtOpenGL import QGLWidget
     else:
         from PyQt4.QtOpenGL import QGLWidget

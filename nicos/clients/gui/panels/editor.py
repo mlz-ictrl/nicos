@@ -40,10 +40,10 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.tools import createToolMenu
 from nicos.clients.gui.utils import loadUi, showToolText
 from nicos.clients.gui.widgets.qscintillacompat import QScintillaCompatible
-from nicos.guisupport.qt import QAction, QActionGroup, QByteArray, QColor, \
-    QDialog, QFileDialog, QFileSystemModel, QFileSystemWatcher, QFont, \
-    QFontMetrics, QHBoxLayout, QHeaderView, QInputDialog, QMenu, QMessageBox, \
-    QPen, QPrintDialog, QPrinter, QsciLexerPython, QsciPrinter, \
+from nicos.guisupport.qt import QT_VER, QAction, QActionGroup, QByteArray, \
+    QColor, QDialog, QFileDialog, QFileSystemModel, QFileSystemWatcher, \
+    QFont, QFontMetrics, QHBoxLayout, QHeaderView, QInputDialog, QMenu, \
+    QMessageBox, QPen, QPrintDialog, QPrinter, QsciLexerPython, QsciPrinter, \
     QsciScintilla, Qt, QTabWidget, QToolBar, QTreeWidgetItem, pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.pycompat import iteritems
@@ -154,7 +154,7 @@ class EditorPanel(Panel):
 
         self.simOutStack.setCurrentIndex(0)
         hdr = self.simRanges.header()
-        if hasattr(hdr, 'setResizeMode'):  # Qt4
+        if QT_VER == 4:
             hdr.setResizeMode(QHeaderView.ResizeToContents)
         else:
             hdr.setSectionResizeMode(QHeaderView.ResizeToContents)

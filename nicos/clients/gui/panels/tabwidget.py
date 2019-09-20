@@ -28,10 +28,10 @@ from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.panels.auxwindows import AuxiliarySubWindow, Panel
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
-from nicos.guisupport.qt import QApplication, QByteArray, QCursor, QDrag, \
-    QEvent, QMainWindow, QMimeData, QMouseEvent, QPixmap, QPoint, QSize, \
-    QStyle, QStyleOptionTab, QStylePainter, Qt, QTabBar, QTabWidget, QWidget, \
-    pyqtSignal, pyqtSlot
+from nicos.guisupport.qt import QT_VER, QApplication, QByteArray, QCursor, \
+    QDrag, QEvent, QMainWindow, QMimeData, QMouseEvent, QPixmap, QPoint, \
+    QSize, QStyle, QStyleOptionTab, QStylePainter, Qt, QTabBar, QTabWidget, \
+    QWidget, pyqtSignal, pyqtSlot
 
 
 def findTab(tab, w):
@@ -95,7 +95,7 @@ class TearOffTabBar(QTabBar):
             mimedata.setData('action', 'application/tab-detach')
             drag.setMimeData(mimedata)
 
-            if hasattr(QPixmap, 'grabWidget'):  # Qt4
+            if QT_VER == 4:
                 pixmap = QPixmap.grabWidget(self.parentWidget().currentWidget())
             else:
                 pixmap = self.parentWidget().currentWidget().grab()

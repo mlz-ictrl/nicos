@@ -144,6 +144,7 @@ else:
         def getSaveFileName(*args, **kwds):
             return orig_QFileDialog.getSaveFileNameAndFilter(*args, **kwds)
 
+QT_VER = int(QT_VERSION_STR.split('.')[0])
 
 if 'linux' in sys.platform:
     import ctypes
