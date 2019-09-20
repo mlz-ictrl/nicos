@@ -297,9 +297,14 @@ class SISChannel(ImageChannel):
         times = rawdata[rawdatasize // 2:].reshape(amount, xvalsize,
                                                    self.detamount)
 
-        for i, xval in enumerate(xvals):
+        # to filter out the superfluous zero arrays in the elastic scan
+        # we only iterate over the amount of unique xvals. The arrays not yet
+        # 'triggered' all have the corresponding xval of 0, same as the first
+        # array. Thus every array corresponding to the 2nd+ 0 xval will not be
+        # added.
+        for i in range(len(set(xvals))):
             # first insert the xvalue
-            block = [float(xval)]
+            block = [float(xvals[i])]
             # then add the i-th count array from each of the count blocks
             for h in range(amount):
                 block.append(counts[h, i, :])
