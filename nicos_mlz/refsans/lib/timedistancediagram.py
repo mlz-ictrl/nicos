@@ -34,7 +34,7 @@ from nicos_mlz.refsans.lib.calculations import SC1_Pos, chopper_pos, \
 
 def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
                         SC2_full_open=240, D=22.8, n_per=2, title_prefix='',
-                        plot=None):
+                        plot=None, Actual_D=None):
     """Draw a time-distance diagram for the chopper.
 
     :param speed: the running speed  (rounds per min)
@@ -45,6 +45,7 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
     :param n_per: the number of periods to display (int)
     :param title_prefix: ???
     :param plot: matplotlib plot object
+    :param Actual_D: actual disk1 - detector distance (m)
     """
     plot.clear()
     # if d_MCo == d_SCo:
@@ -58,34 +59,36 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
     # distance from disk1 to the closing disk for the SC1 (m)
     d_SCc = chopper_pos[SC1_Pos]
 
-    per = 60. / speed if speed else 1e10
-    freq = 1. / per
+    per = 60. / speed if speed else 1e10  # in s
+    freq = 1. / per  # in Hz
 
+    resolution = (d_MCo / 2) / (D - d_MCo / 2)
     resolution = chopper_resolution(disk2_pos, D)
 
     angles = np.array(angles, dtype=float)
-    trailing_edge_MC = (0 + 240) / (360 * freq)
-    trailing_edge_SC = (0 + 240) / (360 * freq)
-    trailing_edge_SC2 = (360 - SC2_full_open) / (360 * freq)
+    trailing_edge_MC = 1000 * (0 + 240) / (360 * freq)  # in mHz
+    trailing_edge_SC = 1000 * (0 + 240) / (360 * freq)  # in mHz
+    trailing_edge_SC2 = 1000 * (360 - SC2_full_open) / (360 * freq)  # in mHz
     # print(trailing_edge_SC2)
 
+    # if SC2 is not present limit the angles to 4 values
     if np.all(angles[-2:] == [None, None]):
         angles = angles[:-2]
 
-    times = angles / (360 * freq)
+    times = angles * 1000. / (360 * freq)  # in ms
 
     # period limits
     for i in range(n_per + 1):
-        plot.vlines(i * per, 0, D, 'b', ':', lw=2)
+        plot.vlines(i * per * 1000, 0, D, 'b', ':', lw=2)  # in ms
 
     # beams
-    t = np.linspace(-times[2], n_per * per)
+    t = np.linspace(-times[2], n_per * per * 1000)  # in ms
 
     # wl_0 first
     # a hack to describe infinitely fast neutrons
     tof = np.array([times[0], times[3]])
     if tof[1] == 0:
-        tof[1] = 1e-9
+        tof[1] = 1e-6
     pos = np.array([0, d_SCc])
 
     # f0 = p.polyfit(tof, pos, 1) flake8 assigned but never used
@@ -95,7 +98,7 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
     tof = np.array([times[0], times[2]])
     # a hack to describe infinitelly fast neutrons
     if tof[1] == 0:
-        tof[1] = 1e-9
+        tof[1] = 1e-6
     pos = np.array([0, d_SCc])
     # f = p.polyfit(tof, pos, 1) flake8 assigned but never used
     # beam1 = p.polyval(f, t) flake8 assigned but never used
@@ -108,12 +111,12 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
         tof = np.array([times[0], times[3]])
         pos = np.array([0, d_SCc])
     if tof[1] == 0:
-        tof[1] = 1e-9
+        tof[1] = 1e-6
     f1 = np.polyfit(tof, pos, 1)
     beam2 = np.polyval(f1, t)
     # f1 = fit_lin(tof, pos)
     # beam2 = f1[0] * t +f1[1]
-    detection = [1e3 * (D - f1[1]) / f1[0]]
+    detection = [(D - f1[1]) / f1[0]]
 
     # wl_max
     if SC2_mode is not None:
@@ -123,18 +126,18 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
         tof = np.array([times[1], times[2]])
         pos = np.array([d_MCo, d_SCo])
     if tof[1] == 0:
-        tof[1] = 1e-9
+        tof[1] = 1e-6
     f2 = np.polyfit(tof, pos, 1)
     beam3 = np.polyval(f2, t)
     # f2 = fit_lin(tof, pos)
     # beam3 = f2[0] * t +f2[1]
 
-    detection.append(1e3 * (D - f2[1]) / f2[0])
+    detection.append((D - f2[1]) / f2[0])
 
     detection = np.array(detection)
 
     for i in range(-1, n_per + 1):
-        ip = i * per
+        ip = i * per * 1000
         # disk1: black line
         plot.hlines(0, ip, ip + trailing_edge_MC, lw=5)
         # disk2: blue line
@@ -165,7 +168,7 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
         plot.plot(t + ip, beam2, 'b')
         plot.plot(t + ip, beam3, 'r')
 
-    plot.set_xlim(0, (n_per + .2) * per)
+    plot.set_xlim(0, (n_per + .2) * per * 1000)
     plot.set_ylim(0, D * 1.1)
 
     detect_st = 'First n.: '
@@ -183,5 +186,5 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
         title_prefix, angles.round(2), speed, detect_st, resolution)
 
     plot.set_title(title, fontsize='x-small')
-    plot.set_xlabel('Time since start signal (s)')
+    plot.set_xlabel('Time since start signal (ms)')
     plot.set_ylabel('Distance from chopper 1 (m)')
