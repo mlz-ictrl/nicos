@@ -139,16 +139,31 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
     for i in range(-1, n_per + 1):
         ip = i * per * 1000
         # disk1: black line
-        plot.hlines(0, ip, ip + trailing_edge_MC, lw=5)
+        if i == -1:
+            plot.hlines(0, ip, ip + trailing_edge_MC, lw=5, label='disk 1')
+        else:
+            plot.hlines(0, ip, ip + trailing_edge_MC, lw=5)
         # disk2: blue line
-        plot.hlines(d_MCo, times[1] - trailing_edge_SC2 + ip, times[1] + ip,
-                    'b', lw=3)
+        if i == -1:
+            plot.hlines(d_MCo, times[1] - trailing_edge_SC2 + ip,
+                        times[1] + ip, 'b', lw=3, label='disk 2')
+        else:
+            plot.hlines(d_MCo, times[1] - trailing_edge_SC2 + ip,
+                        times[1] + ip, 'b', lw=3)
         # disk3: green line
-        plot.hlines(d_SCc, times[2] + ip, times[2] + trailing_edge_SC + ip,
-                    'g', lw=3)
+        if i == -1:
+            plot.hlines(d_SCc, times[2] + ip, times[2] + trailing_edge_SC + ip,
+                        'g', lw=3, label='disk 3 and 5')
+        else:
+            plot.hlines(d_SCc, times[2] + ip, times[2] + trailing_edge_SC + ip,
+                        'g', lw=3)
         # disk4: red line
-        plot.hlines(d_SCo, times[3] - trailing_edge_SC + ip, times[3] + ip,
-                    'r', lw=3)
+        if i == -1:
+            plot.hlines(d_SCo, times[3] - trailing_edge_SC + ip, times[3] + ip,
+                        'r', lw=3, label='disk 4 and 6')
+        else:
+            plot.hlines(d_SCo, times[3] - trailing_edge_SC + ip, times[3] + ip,
+                        'r', lw=3)
         try:
             # disk5: green line
             plot.hlines(d_SC2 + 0.05, times[4] + ip,
@@ -160,8 +175,19 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
             # means we have no SC2!
             pass
 
-        # detector
-        plot.hlines(D, *plot.get_xlim(), colors='#FFFF00', lw=4)
+        # detector (from chopper_config)
+        if i == -1:
+            plot.hlines(D, *plot.get_xlim(), colors='#FFFF00', lw=4,
+                        label='detector set position')
+        else:
+            plot.hlines(D, *plot.get_xlim(), colors='#FFFF00', lw=4)
+        # detector (actual position)
+        if Actual_D is not None:
+            if i == -1:
+                plot.hlines(Actual_D, *plot.get_xlim(), colors='#FF7F39', lw=4,
+                            label='detector actual position')
+            else:
+                plot.hlines(Actual_D, *plot.get_xlim(), colors='#FF7F39')
 
         # plot.plot(t + ip, beam0, 'g')
         # plot.plot(t + ip, beam1, 'g')
@@ -188,3 +214,4 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
     plot.set_title(title, fontsize='x-small')
     plot.set_xlabel('Time since start signal (ms)')
     plot.set_ylabel('Distance from chopper 1 (m)')
+    plot.legend()
