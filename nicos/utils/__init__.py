@@ -103,7 +103,7 @@ class lazy_property(object):
 
     def __get__(self, obj, obj_class):
         if obj is None:
-            return obj
+            return self
         obj.__dict__[self.__name__] = self._func(obj)
         return obj.__dict__[self.__name__]
 
