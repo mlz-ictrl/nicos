@@ -32,6 +32,4 @@ excluded_device_classes = [
     'nicos.core.device.Readable',
     'nicos.core.device.Moveable',
     'nicos.core.device.Measurable',
-    'nicos.devices.vendor.simplecomm.SimpleCommReadable',
-    'nicos.devices.vendor.simplecomm.SimpleCommMoveable'
 ]

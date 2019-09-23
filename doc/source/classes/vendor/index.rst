@@ -17,4 +17,3 @@ present a standard interface to NICOS described :ref:`here <taco>`.
    frm2
    astrium
    lima
-   simplecomm
