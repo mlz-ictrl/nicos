@@ -130,7 +130,7 @@ class gui_config(object):
         elif isinstance(config, panel):
             return config.clsname in panel_classes
         elif isinstance(config, tabbed):
-            return any(self._has_panel(child, panel_classes)
+            return any(self._has_panel(child[1], panel_classes)
                        for child in config.children)
         elif isinstance(config, docked):
             if self._has_panel(config[0], panel_classes):
