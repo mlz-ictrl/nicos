@@ -429,8 +429,8 @@ class FlatfileCacheDatabase(CacheDatabase):
         for newcat in newcats:
             with self._cat_lock:
                 if newcat not in self._cat:
-                    self._cat[newcat] = [self._create_fd(newcat),
-                                         threading.Lock(), {}]
+                    # the first item, fd, is created on demand below
+                    self._cat[newcat] = [None, threading.Lock(), {}]
                 fd, lock, db = self._cat[newcat]
             update = True
             with lock:
