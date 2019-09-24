@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the MLZ
+# Copyright (c) 2009-2019 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Georg Brandl <g.brandl@fz-juelich.de>
+#
+# *****************************************************************************
+
+from __future__ import absolute_import, division, print_function
+
+import argparse
+import os
+import re
+from os import path
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Rename files in a flatfile cache database.')
+    parser.add_argument(dest='root', help='Root of cache file hierarchy')
+    parser.add_argument(dest='search', help='Regex pattern to search within '
+                        'file and directory names')
+    parser.add_argument(dest='replace', help='Replacement for the pattern')
+    parser.add_argument('-f', '--do-it', dest='doit', action='store_true',
+                        help='Actually rename things', default=False)
+
+    args = parser.parse_args()
+
+    search = re.compile(args.search)
+
+    def do_rename(base, name):
+        new_name = search.sub(args.replace, name)
+        if new_name != name:
+            old_path = path.join(base, name)
+            new_path = path.join(base, new_name)
+            print('%s "%s" -> "%s"' %
+                  ("Renaming" if args.doit else "Would rename",
+                   old_path, new_path))
+            if args.doit:
+                os.rename(old_path, new_path)
+        return new_name
+
+    for base, dirs, files in os.walk(args.root):
+        new_dirs = []
+        for dirname in dirs:
+            new_dirs.append(do_rename(base, dirname))
+        dirs[:] = new_dirs
+
+        for filename in files:
+            do_rename(base, filename)
+
+
+if __name__ == '__main__':
+    main()
