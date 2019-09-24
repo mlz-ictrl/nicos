@@ -36,6 +36,7 @@ import numpy
 import quickyaml
 
 from nicos import session
+from nicos.core import INTERMEDIATE
 from nicos.core.data.dataset import PointDataset, ScanDataset
 from nicos.core.params import Param
 from nicos.devices.datasinks import special
@@ -64,6 +65,8 @@ class SisYamlFileSinkHandlerBase(YAMLBaseFileSinkHandler):
     TIMEDATA = 2      # elastic
     ENERGYDATA = 2    # inelastic
     CHOPPERDATA = 3   # inelastic
+
+    savefile = 'basic'
 
     def setScanDataSet(self):
         stack = session.data._stack
@@ -94,6 +97,9 @@ class SisYamlFileSinkHandlerBase(YAMLBaseFileSinkHandler):
 
         fp.truncate()
         self.sink._setROParam('filename', os.path.basename(fp.name))
+
+        if self.params['reason'] == INTERMEDIATE:
+            self.log.info('Saved %s file to %s', self.savefile, fp.filepath)
 
     def buildFileContents(self, image):
         self.contents = []
@@ -126,6 +132,8 @@ class AYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
     '''
     Filesinkhandler which writes the raw SIS data.
     '''
+
+    savefile = 'raw'
 
     # export format:
     # elastic:
@@ -243,6 +251,8 @@ class UYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
     '''
     Filesinkhandler that writes processed SIS data.
     '''
+
+    savefile = 'user'
 
     def __init__(self, sink, dataset, detector):
         SisYamlFileSinkHandlerBase.__init__(self, sink, dataset, detector)

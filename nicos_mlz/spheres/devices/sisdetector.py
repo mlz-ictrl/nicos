@@ -402,7 +402,7 @@ class SISDetector(Detector):
                                 {self.name: self.readResults(INTERMEDIATE)})
 
     def duringMeasureHook(self, elapsed):
-        if self._saveIntermediate:
+        if self._saveIntermediateFlag:
             self._saveIntermediate()
             self._saveIntermediateFlag = False
 
