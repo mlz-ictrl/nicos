@@ -464,7 +464,8 @@ class ChopperDisc2(ChopperDisc2Base, ChopperDisc):
     # to the 0 position, but the writing of 0 raises an error.
 
     parameter_overrides = {
-        'pos': Override(type=intrange(0, 5)),
+        'pos': Override(type=intrange(0, 5), volatile=True, settable=True,
+                        fmtstr='%d', unit=''),
     }
 
     def doWritePos(self, target):

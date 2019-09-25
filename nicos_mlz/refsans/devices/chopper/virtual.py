@@ -76,7 +76,8 @@ class ChopperDisc1(ChopperDisc):
 class ChopperDisc2(ChopperDisc2Base, ChopperDisc):
     """Chopper disc 2 device."""
     parameter_overrides = {
-        'pos': Override(type=intrange(0, 5), volatile=True, settable=True),
+        'pos': Override(type=intrange(0, 5), volatile=True, settable=True,
+                        fmtstr='%d', unit=''),
     }
 
 
