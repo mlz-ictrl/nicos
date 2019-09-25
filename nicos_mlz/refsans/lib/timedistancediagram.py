@@ -214,4 +214,4 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
     plot.set_title(title, fontsize='x-small')
     plot.set_xlabel('Time since start signal (ms)')
     plot.set_ylabel('Distance from chopper 1 (m)')
-    plot.legend()
+    plot.legend(loc='upper center', ncol=6, borderaxespad=0.)
