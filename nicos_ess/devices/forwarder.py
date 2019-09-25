@@ -162,16 +162,17 @@ class EpicsKafkaForwarder(ProducesKafkaMessages, KafkaStatusHandler):
 
             self._issued[pv] = (topic, schema)
 
-            converter = {
-                'topic': topic,
-                'schema': schema
-            }
-            stream = {
-                'converter': converter,
-                'channel_provider_type': 'ca',
-                'channel': pv
-            }
-            streams.append(stream)
+            for broker in self.brokers:
+                converter = {
+                    'topic': '%s/%s' % (broker, topic),
+                    'schema': schema
+                }
+                stream = {
+                    'converter': converter,
+                    'channel_provider_type': 'ca',
+                    'channel': pv
+                }
+                streams.append(stream)
 
         cmd = {
             'cmd': 'add',
