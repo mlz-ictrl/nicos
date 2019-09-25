@@ -4,6 +4,6 @@ group = 'special'
 devices = dict(
     Logbook = device('nicos.services.elog.Logbook',
         prefix = 'logbook/',
-        cache = 'refsanssw.refsans.frm2'
+        cache = 'refsansctrl01.refsans.frm2.tum.de'
     ),
 )
