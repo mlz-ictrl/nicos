@@ -35,7 +35,7 @@ echo
 echo "==== CUSTOM dependencies ======"
 allcustreq=`find . -mindepth 2 -maxdepth 4 -name requirements\*.txt`
 for custreq in $allcustreq ; do
-   pip install -r $custreq 2>&1 >> pip-custom-$venv-$pbranch.log
+   pip install --upgrade --upgrade-strategy eager -r $custreq 2>&1 >> pip-custom-$venv-$pbranch.log
 done
 cat pip-custom-$venv-$pbranch.log
 echo "=========="
