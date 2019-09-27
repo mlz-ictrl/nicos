@@ -220,6 +220,24 @@ devices = dict(
         description = 'Instrument shutter',
         states = ['open', 'closed']
     ),
+    Lms = device('nicos.devices.generic.ManualMove',
+        description = 'Distance monochromator to sample',
+        abslimits = (600, 1500),
+        default = 1000,
+        unit = 'mm',
+    ),
+    Lsa = device('nicos.devices.generic.ManualMove',
+        description = 'Distance sample to analyzer',
+        abslimits = (500, 1000),
+        default = 580,
+        unit = 'mm',
+    ),
+    Lad = device('nicos.devices.generic.ManualMove',
+        description = 'Distance analyzer to detector',
+        abslimits = (400, 600),
+        default = 400,
+        unit = 'mm',
+    ),
 )
 
 alias_config = {
