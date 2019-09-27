@@ -408,9 +408,14 @@ def test_moveOutOfWay(tmpdir, maxbackup):
     ['2.0', 2.0],
     ['1h:0.005s', 3600.005],
     [timedelta(hours=2), 7200],
+    ['-20s', -20],
+    ['+30m', 1800],
+    ['-2500', -2500],
+    [-50, -50],
+    [-2.71828, -2.71828],
 ])
 def test_parse_duration(inp, expected):
-    assert parseDuration(inp) == expected
+    assert parseDuration(inp, allownegative=True) == expected
 
 
 @pytest.mark.parametrize('inp', [
@@ -418,6 +423,10 @@ def test_parse_duration(inp, expected):
     '1d::3m',
     '1d:3m jad',
     '42secop',
+    '-2m',
+    -50,
+    '-3.1415',
+    '+-5d',
 ])
 def test_parse_duration_parse_errors(inp):
     assert raises(ValueError, parseDuration, inp)

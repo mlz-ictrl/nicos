@@ -1574,71 +1574,89 @@ def squeeze(shape, n=0):
 
 
 DURATION_RE = re.compile(r'''
-    ((?P<days>[0-9]+(\.[0-9]*)?)d(ays?)?   # days as 'xd'
+    ((?P<days>[0-9]+(\.[0-9]*)?)d(ays?)?   # days as 'xd[ays]'
     \ *:?\ *)?                             # split with '', ' ' and/or ':'
-    ((?P<hours>[0-9]+(\.[0-9]*)?)hr?       # hours as 'xh'
+    ((?P<hours>[0-9]+(\.[0-9]*)?)hr?       # hours as 'xh[r]'
     \ *:?\ *)?                             # split with '', ' ' and/or ':'
-    ((?P<minutes>[0-9]+(\.[0-9]*)?)m(in)?  # minutes as 'xm'
+    ((?P<minutes>[0-9]+(\.[0-9]*)?)m(in)?  # minutes as 'xm[in]'
     \ *:?\ *)?                             # split with '', ' ' and/or ':'
-    ((?P<seconds>[0-9]+(\.[0-9]*)?)s(ec)?  # seconds as 'xs'
+    ((?P<seconds>[0-9]+(\.[0-9]*)?)s(ec)?  # seconds as 'xs[ec]'
     )?$                                    # ensure whole string matches
-''', re.X)
+    ''', re.X)
 
 DURATION_HINT = 'Provide value as %s or %s.' % (
     "<number>",
-    "[<number>d][:][<number>h][:][<number>m][:][<number>s]",
+    "[-+][<number>d[ays]][:][<number>h[r]][:][<number>m[in]][:][<number>s[ec]]",
 )
 
 
-def parseDuration(inputvalue):
+def parseDuration(inputvalue, allownegative=False):
     """Convert a string into seconds.
     The string can be provided in denominations of days (d), hours (h),
     minutes (m) and seconds (s) or combinations of these.
 
+    - If "allownegative" is set, prepending "-" will return the negative value;
+      "+" will be ignored either way.
     - Each denomination can be omitted.
     - Each present value has to be named.
     - The present values have to be sorted in descending size (d h m s)
     - The values can be divided by spaces and/or ':' or written en block.
 
-    If inputvalue is an int or float, it is assumed it is already in seconds and
-    returned as is.
+    If inputvalue is an int or float, it is assumed it is already in seconds
+    and returned as is.
     If the input is a timedelta instance, total_seconds is returned.
 
-    Raises a ValueError if the input cannot get parsed (this is typically
-    an error in user input).
+    Raises a ValueError if the input cannot or should not get parsed
+    (this is typically an error in user input).
     Raises a TypeError if an unhandled input type is passed.
     """
 
     # time has already been provided as seconds
     if isinstance(inputvalue, (int, float)):
+        if not allownegative and inputvalue < 0:
+            raise ValueError('Negative numbers are not allowed here.')
         return inputvalue
-    if isinstance(inputvalue, (timedelta)):
+    if isinstance(inputvalue, timedelta):
         return inputvalue.total_seconds()
     elif not isinstance(inputvalue, string_types):
         raise TypeError('Wrong input data type')
 
-    inputvalue = inputvalue.strip()
+    invalue = inputvalue.strip()
+
+    negative = False
+    if invalue.startswith('-'):
+        if not allownegative:
+            raise ValueError('Negative numbers are not allowed here.')
+        negative = True
+        invalue = invalue.lstrip('-')
+    elif invalue.startswith('+'):
+        invalue = invalue.lstrip('+')
+
 
     try:
-        return float(inputvalue)
+        val = float(invalue)
     except ValueError:
-        pass
+        m = DURATION_RE.match(invalue)
 
-    m = DURATION_RE.match(inputvalue)
+        if not m:
+            raise ValueError('"%s" can not be parsed. ' % inputvalue
+                             + DURATION_HINT)
 
-    if not m:
-        raise ValueError('"%s" can not be parsed. ' % inputvalue
-                         + DURATION_HINT)
+        groupdict = m.groupdict()
+        timedict = {}
+        for key, value in groupdict.items():
+            if key not in ['days', 'hours', 'minutes', 'seconds']:
+                continue
+            if value is not None:
+                timedict[key] = float(value)
+            else:
+                timedict[key] = 0
+        val = timedelta(**timedict).total_seconds()
 
-    timedict = m.groupdict()
-
-    for key, value in timedict.items():
-        if value is not None:
-            timedict[key] = float(value)
-        else:
-            timedict[key] = 0
-
-    return timedelta(**timedict).total_seconds()
+    if negative:
+        return -val
+    else:
+        return val
 
 
 def formatArgs(obj, strip_self=False):
