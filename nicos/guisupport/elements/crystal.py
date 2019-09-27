@@ -21,6 +21,25 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-"""Classes to display the REFSANS instrument."""
+"""Classes to display the TAS instruments."""
 
 from __future__ import absolute_import, division, print_function
+
+from nicos.guisupport.qt import QColor, QGraphicsLineItem, QPen
+
+from .table import TableBase
+
+
+class Crystal(TableBase):
+    """Display a crystal on a table."""
+
+    _pencolor = None
+
+    def __init__(self, x, y, size=10, parent=None, scene=None):
+        TableBase.__init__(self, x, y, size, parent, scene)
+        sz = size / 2
+        self._crystal = QGraphicsLineItem(-sz, 0, sz, 0, self)
+        if not self._pencolor:
+            self._pencolor = QColor('black')
+        self._crystal.setPen(QPen(self._pencolor, 3))
+        self._crystal.setZValue(100)

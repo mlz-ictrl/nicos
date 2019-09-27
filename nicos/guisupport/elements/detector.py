@@ -21,6 +21,20 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-"""Classes to display the REFSANS instrument."""
+"""Classes to display the TAS instruments."""
 
 from __future__ import absolute_import, division, print_function
+
+from nicos.guisupport.qt import QColor
+
+from .table import TableBase
+
+
+class Detector(TableBase):
+
+    _color = QColor('grey')
+
+    def __init__(self, size, radius, parent=None, scene=None):
+        TableBase.__init__(self, 0, 0, size, parent, scene)
+        self.setPos(-radius, -size)
+        self.setTransformOriginPoint(radius, 0)

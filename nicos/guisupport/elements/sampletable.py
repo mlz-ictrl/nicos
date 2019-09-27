@@ -21,6 +21,24 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-"""Classes to display the REFSANS instrument."""
+"""Classes to display the TAS instruments."""
 
 from __future__ import absolute_import, division, print_function
+
+from nicos.guisupport.qt import QColor
+
+from .halo import Halo
+from .sample import Sample
+from .table import TableBase
+
+
+class SampleTable(TableBase):
+    """Class to display the sample table including sample and help lines."""
+
+    _color = QColor('#66ff66')
+
+    def __init__(self, x, y, size=20, parent=None, scene=None):
+        TableBase.__init__(self, x, y, size, parent, scene)
+        self._halowidth = max(size / 10, 10)
+        self._halo = Halo(x, y, size, self._halowidth, self, scene)
+        self._sample = Sample(0, 0, size, self, scene)

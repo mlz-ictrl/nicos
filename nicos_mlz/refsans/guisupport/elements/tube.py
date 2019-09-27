@@ -26,10 +26,9 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.core import status
+from nicos.guisupport.elements import statuscolor
 from nicos.guisupport.qt import QBrush, QGraphicsPathItem, QPainterPath, \
     QPen, QPointF, QRectF, QTransform
-
-from nicos_mlz.refsans.guisupport.elements import statuscolor
 
 
 class Tube(QGraphicsPathItem):

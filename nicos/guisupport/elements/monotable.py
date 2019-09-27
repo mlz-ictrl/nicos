@@ -21,6 +21,27 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-"""Classes to display the REFSANS instrument."""
+"""Classes to display the TAS instruments."""
 
 from __future__ import absolute_import, division, print_function
+
+from nicos.guisupport.qt import QColor
+
+from .crystal import Crystal
+from .halo import Halo
+from .table import TableBase
+
+
+class MonoTable(TableBase):
+    """Class to display the monochromator including shielding and crystal."""
+
+    _color = QColor('#6666ff')
+
+    def __init__(self, x, y, size=40, parent=None, scene=None):
+        TableBase.__init__(self, x, y, size, parent, scene)
+        self._halowidth = max(size / 10, 10)
+        self._halo = Halo(x, y, size, self._halowidth, self, scene)
+        self._crystal = Crystal(0, 0, size / 2, self, scene)
+
+    def rect(self):
+        return self._halo.rect()

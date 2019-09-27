@@ -21,6 +21,19 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-"""Classes to display the REFSANS instrument."""
 
 from __future__ import absolute_import, division, print_function
+
+from nicos.core import status
+from nicos.guisupport.qt import QColor, Qt
+
+statuscolor = {
+    status.BUSY: QColor('yellow'),
+    status.ERROR: QColor('#FF3333'),
+    status.WARN: QColor('#FF9900'),
+    status.NOTREACHED: QColor('#FF3333'),
+    status.DISABLED: QColor('white'),
+    status.OK: Qt.transparent,  # make it completely transparent
+}
+
+__all__ = ('statuscolor')

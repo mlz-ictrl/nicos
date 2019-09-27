@@ -21,53 +21,33 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-"""Classes to display the REFSANS instrument."""
+"""Classes to display the TAS instruments."""
 
 from __future__ import absolute_import, division, print_function
 
 from nicos.core import status
-from nicos.guisupport.elements import statuscolor
-from nicos.guisupport.qt import QBrush, QColor, QGraphicsRectItem, QPen, \
-    QRectF, QSizeF, QTransform
+from nicos.guisupport.elements.colors import statuscolor
+from nicos.guisupport.qt import QBrush, QGraphicsEllipseItem, QPen, QPoint, \
+    QRectF, QSizeF
 
 
-class DetectorHalo(QGraphicsRectItem):
+class Halo(QGraphicsEllipseItem):
+    """Base class to display the halos of the tables."""
 
-    def __init__(self, width, parent=None, scene=None):
-        w = width + 2
-        if parent and isinstance(parent, QGraphicsRectItem):
-            rect = parent.rect()
-            size = rect.size()
-            size += QSizeF(w, w)
-            rect.setSize(size)
-        else:
-            rect = QRectF()
-        QGraphicsRectItem.__init__(self, rect, parent)
-        transform = QTransform()
-        transform.translate(-w / 2, -w / 2)
-        self.setTransform(transform)
+    def __init__(self, x, y, size=60, width=10, parent=None, scene=None):
+        self._width = width
+        s = size + width / 2
+        QGraphicsEllipseItem.__init__(self, QRectF(-QPoint(s, s),
+                                      QSizeF(2 * s, 2 * s)), parent)
         self.setBrush(QBrush(statuscolor[status.OK]))
-        self.setPen(QPen(statuscolor[status.OK], width))
-
-    def setState(self, state):
-        pen = self.pen()
-        pen.setColor(statuscolor[state])
-        self.setPen(pen)
-        self.update()
-
-
-class Detector(QGraphicsRectItem):
-
-    def __init__(self, parent=None, scene=None):
-        QGraphicsRectItem.__init__(self, 0, 0, 10, 45, parent)
-        transform = QTransform()
-        transform.translate(0, 5)
-        self.setTransform(transform)
-        self.setBrush(QBrush(QColor('#00FF00')))
         if not parent and scene:
             scene.addItem(self)
-        self._halo = DetectorHalo(5, self, scene)
+        self.setPos(x, y)
+        self.setState(status.OK)
 
     def setState(self, state):
-        self._halo.setState(state)
+        self.setPen(QPen(statuscolor[state], self._width))
         self.update()
+
+    def setTranslation(self, x, y):
+        pass

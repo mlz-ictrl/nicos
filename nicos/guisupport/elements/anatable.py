@@ -21,6 +21,18 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-"""Classes to display the REFSANS instrument."""
+"""Classes to display the TAS instruments."""
 
 from __future__ import absolute_import, division, print_function
+
+from nicos.guisupport.qt import QColor
+
+from .monotable import MonoTable
+
+
+class AnaTable(MonoTable):
+    """Class to display the analyzer including shielding and crystal."""
+
+    def __init__(self, x, y, size=30, parent=None, scene=None):
+        self._color = QColor('lightblue')
+        MonoTable.__init__(self, x, y, size, parent, scene)

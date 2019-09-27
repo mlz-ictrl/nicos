@@ -21,6 +21,21 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-"""Classes to display the REFSANS instrument."""
+"""Classes to display the TAS instruments."""
 
 from __future__ import absolute_import, division, print_function
+
+from nicos.guisupport.qt import QBrush, QColor, QPen, Qt
+
+from .table import TableBase
+
+
+class TableTarget(TableBase):
+    """Class to display the target of any of the tables."""
+
+    def __init__(self, x, y, size=50, parent=None, scene=None):
+        TableBase.__init__(self, x, y, size, parent, scene)
+        self.setBrush(QBrush())
+        pen = QPen(QColor('black'))
+        pen.setStyle(Qt.DashLine)
+        self.setPen(pen)

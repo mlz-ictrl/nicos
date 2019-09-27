@@ -21,6 +21,34 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-"""Classes to display the REFSANS instrument."""
+"""Classes to display the TAS instruments."""
 
 from __future__ import absolute_import, division, print_function
+
+from nicos.guisupport.qt import QBrush, QColor, QGraphicsLineItem, \
+    QGraphicsRectItem, QPen, QPointF, QRectF
+
+from .table import TableBase
+
+
+class Sample(TableBase):
+    """Display a sample on a table."""
+
+    _pencolor = None
+
+    def __init__(self, x, y, size=20, parent=None, scene=None):
+        if parent:
+            self._color = parent._color
+        TableBase.__init__(self, x, y, size, parent, scene)
+        if not self._pencolor:
+            self._pencolor = QColor('#666666')
+        self._pen = QPen(self._pencolor, 1)
+        self._pen.setBrush(QBrush(self._pencolor))
+        sz = size / 3
+        self._polygon = QGraphicsRectItem(
+            QRectF(-QPointF(sz, sz), QPointF(sz, sz)), self)
+        self._polygon.setBrush(QBrush(self._pencolor))
+        self._l1 = QGraphicsLineItem(-size, 0, size, 0, self)
+        self._l1.setPen(self._pen)
+        self._l2 = QGraphicsLineItem(0, -size, 0, size, self)
+        self._l2.setPen(self._pen)

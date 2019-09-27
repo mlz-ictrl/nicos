@@ -21,6 +21,20 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-"""Classes to display the REFSANS instrument."""
 
 from __future__ import absolute_import, division, print_function
+
+from .anatable import AnaTable
+from .beam import Beam
+from .colors import statuscolor
+from .crystal import Crystal
+from .detector import Detector
+from .dettable import DetTable
+from .monotable import MonoTable
+from .sample import Sample
+from .sampletable import SampleTable
+from .table import TableBase
+from .tabletarget import TableTarget
+
+__all__ = ('AnaTable', 'Beam', 'Crystal', 'Detector', 'DetTable', 'MonoTable',
+           'Sample', 'SampleTable', 'TableBase', 'TableTarget')

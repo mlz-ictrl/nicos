@@ -21,6 +21,41 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-"""Classes to display the REFSANS instrument."""
+"""Classes to display the TAS instruments."""
 
 from __future__ import absolute_import, division, print_function
+
+from nicos.guisupport.qt import QBrush, QColor, QGraphicsEllipseItem, \
+    QGraphicsItemGroup, QPoint, QPointF, QRectF, QSizeF
+
+
+class TableBase(QGraphicsEllipseItem):
+    """Base class to display the tables of a TAS instrument."""
+
+    _color = None
+    _halo = None
+
+    def __init__(self, x, y, size=40, parent=None, scene=None):
+        self._origin = QPoint(x, y)
+        self._size = size
+        self._radius = size / 2
+        if not self._color:
+            self._color = QColor('white')
+        QGraphicsEllipseItem.__init__(self, QRectF(-QPoint(size, size),
+                                      QSizeF(2 * size, 2 * size)), parent)
+        if not parent and scene:
+            scene.addItem(self)
+        self.setPos(x, y)
+        self.setBrush(QBrush(self._color))
+
+    def setState(self, state):
+        if self._halo:
+            self._halo.setState(state)
+        self.update()
+
+    def setPos(self, x, y=None):
+        point = x if isinstance(x, QPointF) else QPointF(x, y)
+        QGraphicsItemGroup.setPos(self, point)
+
+    def setTranslation(self, x, y):
+        pass
