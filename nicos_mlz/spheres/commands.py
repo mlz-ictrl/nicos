@@ -26,38 +26,9 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.commands import parallel_safe, usercommand
-from nicos.commands.device import maw
+from nicos.commands import usercommand
 from nicos.core import UsageError
-from nicos.utils import parseDuration as pd
-
-from nicos_mlz.spheres.devices.doppler import INELASTIC
-from nicos_mlz.spheres.utils import getDoppler, getSisImageDevice, \
-    getTemperatureController, parseDuration, waitForAcq
-
-
-@usercommand
-def changeDopplerSpeed(target):
-    """Change the doppler speed to the specified speed.
-    Only the predefined values in the doppler setup are allowed."""
-
-    doppler = getDoppler()
-
-    if waitForAcq():
-        maw(doppler, target)
-    else:
-        raise UsageError('Detector is busy. Therefore the doppler speed can '
-                         'not be changed.')
-
-
-@usercommand
-def setStick(value):
-    """Adjust the Hardware to use the selected stick"""
-
-    if value not in ('ht', 'lt'):
-        raise UsageError('Value must be either "ht" for the high temperature'
-                         ' or "lt" for the low temperature stick.')
-    getTemperatureController().SetActiveStick(value)
+from nicos_mlz.spheres.utils import getTemperatureController, parseDuration
 
 
 @usercommand
@@ -131,27 +102,3 @@ def stoptemperature():
     controller.ramp = 0
     controller.move(controller.read())
     controller.ramp = old_ramp
-
-
-@parallel_safe
-@usercommand
-def showDetectorSettings():
-    """Print the current detector settings.
-    Prints the currently set measure mode and parameters.
-    """
-    image = getSisImageDevice()
-    if not image:
-        return
-
-    mode = image.getMode()
-
-    if mode == INELASTIC:
-        print('SIS detector is measuring inelastic.',
-              'Counttime per file: %s'
-              % pd(image.inelasticinterval))
-    else:
-        params = image.elasticparams
-        print('The SIS detector is measuring elastic.',
-              'Lines per file: %d' % params[0],
-              'Counttime per line: %s' % pd(params[1]),
-              'Counttime per file: %s' % pd(params[0]*params[1]))

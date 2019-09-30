@@ -1,3 +1,30 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the MLZ
+# Copyright (c) 2009-2019 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Stefan Rainow <s.rainow@fz-juelich.de>
+#
+# *****************************************************************************
+
+"""Scan related commands for SPHERES"""
+
+from __future__ import absolute_import, division, print_function
 
 from time import time
 
@@ -141,7 +168,6 @@ def shortenScan(time):
 @parallel_safe
 @usercommand
 def stopScan():
-    # TODO: implement a stop scan on the scan level
     if(isinstance(session._currentscan, VariableTimeScan)):
         session._currentscan.stopScan()
 
@@ -217,3 +243,29 @@ def save():
     this file is reached."""
 
     getSisDetector().saveIntermediate()
+
+
+@parallel_safe
+@usercommand
+def showDetectorSettings():
+    """Print the current detector settings.
+    Prints the currently set measure mode and parameters.
+    """
+    image = getSisImageDevice()
+    if not image:
+        return
+
+    mode = image.getMode()
+
+    if mode == INELASTIC:
+        print('SIS detector is measuring inelastic.',
+              'Counttime per file: %s'
+              % parseDuration(image.inelasticinterval, 'detector settings'))
+    else:
+        params = image.elasticparams
+        print('The SIS detector is measuring elastic.',
+              'Lines per file: %d' % params[0],
+              'Counttime per line: %s' % parseDuration(params[1],
+                                                       'detector settings'),
+              'Counttime per file: %s' % parseDuration(params[0]*params[1],
+                                                       'detector settings'))

@@ -74,9 +74,6 @@ class SEController(tango.TemperatureController):
         else:
             return tango.TemperatureController._combinedStatus(self, maxage)
 
-    def SetActiveStick(self, value):
-        self._dev.SetActiveStick(value)
-
     def stopPressure(self):
         self._dev.StopPressureRegulation()
 
