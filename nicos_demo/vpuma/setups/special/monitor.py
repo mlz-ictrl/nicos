@@ -79,10 +79,17 @@ _tasblock = Block('Triple-axis', [
                   )
             ),
     ],
-    # setups='puma',
+    setups='tas',
 )
 
-
+_multiblock = Block('', [
+        BlockRow(
+            Field(widget='nicos_mlz.puma.gui.multiwidget.MultiAnalyzerWidget',
+                  width=40, heigth=30),
+        ),
+    ],
+    setups='not tas',
+)
 
 _shutterblock = Block('Shutter / Filters', [
     BlockRow(Field(name='sapphire filter', dev='sapphire'),
@@ -108,7 +115,7 @@ _collimationblock = Block('Collimation', [
     ],
 )
 
-_leftcolumn = Column(_tasblock, _detectorblock, _reactor)
+_leftcolumn = Column(_tasblock, _multiblock, _detectorblock, _reactor)
 _middlecolumn = Column(_axisblock, _sampletable, _slits)
 _rightcolumn = Column(_shutterblock,_collimationblock,
     Block('Temperature (LakeShore)', [
