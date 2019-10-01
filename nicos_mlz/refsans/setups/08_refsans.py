@@ -25,6 +25,7 @@ includes = [
     'pumpstand',
     'qmesydaq',
     'reactor',
+    'resolution',
     'safedetectorsystem',
     'detector',
     'safetysystem',
