@@ -5,7 +5,7 @@ group = 'basic'
 excludes = ['antares_l', 'antares_s']
 includes = [
     'basic', 'sbl',
-    'detector_zwo01', 'detector_zwo02', 'detector_zwo03', 'detector_zwo04'
+    'detector_zwo01', 'detector_zwo02', 'detector_zwo03', 'detector_zwo04',
     'shutters', 'multitomo',
 ]
 
