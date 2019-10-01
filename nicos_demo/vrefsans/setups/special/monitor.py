@@ -50,6 +50,16 @@ _refcolumn = Column(
     ),
 )
 
+_picture = Column(
+    Block('Detector view', [
+        BlockRow(
+            Field(widget='nicos_mlz.refsans.gui.monitorwidgets.RefsansWidget',
+                  tubeangle='tube_angle', pivot='det_pivot', detpos='det_table',),
+            ),
+        ],
+   ),
+)
+
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
         title = 'NICOS status monitor',
@@ -64,6 +74,7 @@ devices = dict(
             Row(_expcolumn),
             Row(_nokcolumn, _refcolumn),
             Row(_flippercolumn),
+            Row(_picture),
         ],
     ),
 )

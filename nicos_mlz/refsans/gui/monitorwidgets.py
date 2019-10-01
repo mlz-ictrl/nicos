@@ -23,8 +23,6 @@
 #
 # *****************************************************************************
 
-# from math import sin, cos, pi
-
 from __future__ import absolute_import, division, print_function
 
 from nicos.core.status import OK
@@ -33,6 +31,7 @@ from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, QPointF, \
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.utils import readonlylist
 
+from nicos_mlz.refsans.gui.refsansview import RefsansView
 from nicos_mlz.refsans.gui.timedistancewidget import TimeDistanceWidget
 from nicos_mlz.sans1.gui.monitorwidgets import CollimatorTable
 
@@ -267,3 +266,43 @@ class TimeDistance(NicosWidget, TimeDistanceWidget):
                     self._disk2_pos = int(value)
             self.plot(self._speed, self._phases, self.props['periods'],
                       self._disk2_pos, self.props['D'])
+
+
+class RefsansWidget(NicosWidget, RefsansView):
+
+    tubeangle = PropDef('tubeangle', str, '',
+                        'Inclination of the tube')
+    pivot = PropDef('pivot', str, '',
+                    'Mounting point of the tube (pivot)')
+    detpos = PropDef('detpos', str, '',
+                     'Detector position inside tube')
+
+    def __init__(self, parent):
+        RefsansView.__init__(self, parent=parent)
+        NicosWidget.__init__(self)
+
+        self._keymap = {}
+        self._statuskeymap = {}
+        self._targetkeymap = {}
+
+    def registerKeys(self):
+        for dev in ['tubeangle', 'pivot', 'detpos']:
+            devname = self.props.get(dev)
+            if devname:
+                k = self._source.register(self, devname + '/value')
+                self._keymap[k] = dev
+                k = self._source.register(self, devname + '/status')
+                self._statuskeymap[k] = dev
+                k = self._source.register(self, devname + '/target')
+                self._targetkeymap[k] = dev
+
+    def on_keyChange(self, key, value, time, expired):
+        if key in self._keymap and not expired:
+            self.values[self._keymap[key]] = value
+            self.update()
+        elif key in self._statuskeymap and not expired:
+            self.status[self._statuskeymap[key]] = value[0]
+            self.update()
+        elif key in self._targetkeymap and not expired:
+            self.targets[self._targetkeymap[key]] = value
+            self.update()
