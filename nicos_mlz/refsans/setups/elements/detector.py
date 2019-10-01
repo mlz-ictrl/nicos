@@ -2,7 +2,6 @@ description = 'all values for detector positon'
 
 group = 'lowlevel'
 
-nethost = 'refsanssrv.refsans.frm2'
 tango_base = 'tango://refsansctrl02.refsans.frm2.tum.de:10000/'
 
 devices = dict(

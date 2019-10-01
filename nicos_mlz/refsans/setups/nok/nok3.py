@@ -6,7 +6,6 @@ includes = ['nok_ref', 'nokbus1']
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
 
-nethost = 'refsanssrv.refsans.frm2'
 tango_host = 'tango://refsanshw:10000/test/'
 
 devices = dict(

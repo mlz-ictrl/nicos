@@ -5,7 +5,6 @@ group = 'lowlevel'
 lprecision = 0.01
 tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
 
-nethost = 'refsanssrv.refsans.frm2'
 devices = dict(
     b3 = device('nicos_mlz.refsans.devices.slits.DoubleSlitSequence',
         description = 'b3 and h3 inside Samplechamber. towards TOFTOF is plus',
