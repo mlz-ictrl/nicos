@@ -99,6 +99,8 @@ class EditorPanel(Panel):
       special commands or scripts.  The tools can generate code to insert
       into the editor window.  The access to these tools will be given via a
       special menu ``Editor tools``.
+    * ``show_browser`` (default True) -- Toggle the default visibility of
+      the Script Browser widget.
     """
 
     panelName = 'User editor'
@@ -171,6 +173,8 @@ class EditorPanel(Panel):
         self.fileTree.header().hideSection(3)
         self.fileTree.header().hide()
         self.fileTree.setRootIndex(idx)
+        if not options.get('show_browser', True):
+            self.scriptsPane.hide()
         self.actionShowScripts = self.scriptsPane.toggleViewAction()
         self.actionShowScripts.setText('Show Script Browser')
 
