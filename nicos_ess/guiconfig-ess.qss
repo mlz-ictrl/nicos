@@ -1,0 +1,523 @@
+/*
+Dark Blue    #14148c -> #2c3e50
+Blue         #03cffc -> #3498db
+*/
+
+
+/* Shades (darker)
+#2c3e50
+#273748
+#233140
+#1e2b38
+#1a2530
+#161f28
+#111820
+#0d1218
+#080c10
+#040608
+#000000
+*/
+
+/* Tints (lighter)
+#2c3e50
+#415161
+#566472
+#6b7784
+#808b96
+#959ea7
+#aab1b9
+#bfc5ca
+#d4d8dc
+#e9ebed
+#ffffff
+*/
+
+/* see https://www.color-hex.com/color/2c3e50 */
+
+QWidget {
+    font-size: 14px;
+}
+
+.MainWindow,
+QMenuBar {
+/* background-color: qlineargradient(x1:.1, y1:0, x2:0.2, stop:0 #2c3e50, stop:1
+#3498db); */
+background-color: #2c3e50;
+color: white;
+}
+
+
+MainWindow > QSplitter::hover {
+background: transparent;
+}
+
+/* ----- QMessageBox ------------------------------------------------ */
+
+QMessageBox QLabel {
+color: white;
+}
+
+/* ----- QMenuBar -- OK ------------------------------------------------ */
+
+QMenuBar::item:selected {
+    background-color: white;
+    color: #2c3e50 ;
+}
+QMenuBar::item:pressed {
+    background: white ;
+    color:black;
+}
+
+
+
+/* ----- QMenu -------------------------------------------------- */
+
+QMenu {
+  color: #2c3e50;
+  margin: 0px;
+}
+
+QMenu::item:disabled {
+    color:#959ea7;
+}
+
+/* -------------------- QToolBar -------------------- */
+
+QToolBar {
+    background-color: transparent;
+    color: white;
+    border: none;
+    min-height: 22px;
+}
+
+QToolBar > QToolButton,
+QToolBar > QComboBox,
+QToolBar > QLabel,
+QToolBar > QCheckBox
+ {
+  color: white;
+  border-radius: 5px;
+  min-height: 22px;
+  background: transparent;
+}
+
+QToolBar > QToolButton::disabled,
+ QToolBar > QComboBox::disabled,
+ QToolBar > QCheckBox::disabled
+ {
+  color: grey;
+  border-radius: 5px;
+  background: lightgrey;
+  min-height: 22px;
+}
+
+QToolBar > QToolButton::hover,
+ QToolBar > QComboBox::hover
+ {
+  color: white;
+  border: 1px solid white;
+  border-radius: 5px;
+  min-height: 22px;
+}
+
+QToolBar > QToolButton::pressed {
+  color: #2c3e50;
+  border: 1px inset white;
+  border-radius: 5px;
+  background: white;
+  min-height: 22px;
+}
+
+
+/* Background color of popup-list. */
+QToolBar > QComboBox QListView {
+    background-color: white;
+    border: 1px solid grey;
+}
+
+QToolBar > QComboBox::item {
+  color: #2c3e50;
+}
+QToolBar > QComboBox::item:alternate {
+background: white;
+}
+QToolBar > QComboBox::item:selected {
+    border: 1px solid transparent;
+    background: #3498db;
+}
+QToolBar > QComboBox::indicator{
+    background-color:transparent;
+    selection-background-color:transparent;
+    color:transparent;
+    selection-color:transparent;
+    width: 0px;
+}
+
+/* -------------------- QTabWidget -------------------- */
+
+
+QTabWidget {
+  border: 0px;
+}
+
+QTabWidget QMainWindow {
+    background: white;
+}
+
+
+/* -------------------- Panel -------------------- */
+
+
+Panel QToolBar {
+    background: #bfc5ca;
+}
+
+Panel QToolButton::menu-button {
+  background: transparent;
+}
+
+
+Panel QToolBar > QToolButton,
+Panel QToolBar > QComboBox,
+Panel QToolBar > QLabel,
+Panel QToolBar > QCheckBox {
+  color: #2c3e50;
+  border-width: 0px;
+  border-radius: 5px;
+  min-height: 22px;
+  background: #bfc5ca;
+}
+
+Panel QToolBar > QToolButton::hover,
+Panel QToolBar > QComboBox::hover,
+Panel QToolBar > QLabel::hover,
+Panel QToolBar > QCheckBox::hover {
+  border-width: 0px;
+  background: #d4d8dc;
+  color: #2c3e50;
+}
+
+Panel QToolBar > QToolButton::pressed,
+Panel QToolBar > QCheckBox::pressed {
+  background: white;
+  color: #2c3e50;
+}
+
+Panel QToolBar > QToolButton::disabled,
+Panel QToolBar > QComboBox::disabled,
+Panel QToolBar > QCheckBox::disabled {
+  background: transparent;
+  color: #959ea7;
+}
+
+Panel QToolBar > QToolButton::checked {
+  border-radius: 5px;
+  background: #3498db;
+  color: white;
+}
+
+Panel QToolBar > QToolButton::checked::hover {
+  background: #89c3ea;
+  color: white;
+}
+
+Panel QToolBar > QToolButton::checked::pressed {
+  background: white;
+  color: #3498db;
+}
+
+Panel QToolBar > QComboBox QAbstractItemView {
+  background-color: #19232D;
+  border-radius: 5px;
+  border: 1px solid #32414B;
+  selection-color: #148CD2;
+  selection-background-color: #32414B;
+}
+
+Panel QToolBar > QComboBox::indicator:alternate {
+  background: #19232D;
+}
+
+Panel QToolBar > QWidget > QCheckBox:hover {
+  min-height: 22px;
+  background: #d4d8dc;
+}
+
+Panel QToolBar > QComboBox::item {
+  color: #2c3e50;
+  background : white;
+  min-width: 500px;
+}
+Panel QToolBar > QComboBox QAbstractItemView {
+  min-width: 150px;
+}
+
+Panel QToolBar > QComboBox{
+  width: 120px;
+}
+Panel QToolBar > QComboBox::drop-down {
+  subcontrol-origin: border;
+  subcontrol-position: center right;
+  border-top-right-radius: 5px; /* same radius as the QComboBox */
+  border-bottom-right-radius: 5px;
+  image: url('resources/icons/down-arrow.png') 1;
+}
+
+Panel QToolBar > QMenu,
+Panel QToolBar > QCheckBox {
+  border-radius: 5px;
+}
+
+/* QTabBar::tab  ------------------------------------------------
+
+https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qtabwidget-and-qtabbar
+
+--------------------------------------------------------------------------- */
+QTabBar::tab {
+  /* !selected and disabled ----------------------------------------- */
+  /* selected ------------------------------------------------------- */
+}
+
+QTabBar::tab:left {
+  color: white;
+  background-color: #32414B;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 2px;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  min-height: 5px;
+}
+
+QTabBar::tab:left:disabled {
+    border: transparent;
+    background: transparent;
+}
+
+QTabBar::tab:left:!selected:!disabled {
+  background: #bfc5ca;
+}
+
+QTabBar::tab:left:selected {
+  background-color: white;
+  border-right: 0px solid #1464A0;
+}
+
+QTabBar::tab:left:!selected:hover {
+  background-color: #dbdee1;
+}
+
+
+QTabBar::tab:top {
+  background-color: #2c3e50;
+  color: #e9ebed;
+  margin-left: 2px;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  min-width: 90px;
+  min-height:24px;
+  border-bottom: 3px solid #273748;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+QTabBar::tab:top:disabled {
+    border: transparent;
+    background: transparent;
+}
+
+QTabBar::tab:top:selected {
+  background-color: #3498db;
+  color: #F0F0F0;
+  border-bottom: 3px solid #5cace2;
+}
+
+QTabBar::tab:top:!selected:hover {
+  background-color: #6b7784;
+  border-color: #2c3e50;
+  padding: 0px;
+}
+
+
+/* -------------------- QScrollArea ------------------------ */
+
+QScrollArea QWidget {
+background: white;
+}
+
+/* -------------------- QSplitter ------------------------ */
+
+QSplitter {
+  /* border: 1px solid white; */
+  background-color: white;
+  spacing: 0px;
+  padding: 0px;
+  margin: 0px;
+}
+
+QSplitter::separator {
+  spacing: 0px;
+  padding: 1px;
+  margin: 0px;
+}
+QSplitter::handle:horizontal{
+  image: url(:/splitterv);
+}
+
+QSplitter::handle:vertical{
+  image: url(:/splitterh);
+} 
+
+/* --------- QCheckBox ----------------------- */
+
+QCheckBox {
+    color: #2c3e50;
+}
+
+QCheckBox:focus {
+  border: none;
+}
+
+
+QTabWidget QWidget,
+QTabWidget QLabel
+{
+  color: #2c3e50;
+}
+
+QTreeView,
+QListView,
+QTableView,
+QColumnView {
+  color: #2c3e50;
+  border: 1px solid #bfc5ca;
+  gridline-color: #32414B;
+  border-radius: 5px;
+}
+
+QListWidget,
+QTextBrowser,
+QLineEdit {
+  background-color: white;
+  color: #2c3e50;
+  border: 1px solid #bfc5ca;
+  border-radius: 5px;
+}
+
+QTreeView::item {
+color:#2c3e50;
+}
+
+QTreeView::item:!selected:hover,
+QListView::item:!selected:hover {
+  outline: 0;
+  color: white;
+  background-color: #2c3e50;
+}
+
+QHeaderView {
+  color: #2c3e50;
+  background-color: #bfc5ca;
+  border: 0px transparent #32414B;
+  padding: 0px;
+  margin: 0px;
+  border-radius: 5px;
+}
+
+
+
+
+/* -------------------- QPushButton ------------------------ */
+
+QPushButton {
+  background-color: white;
+  border: 1px solid darkgrey;
+  color: #2c3e50;
+  border-radius: 5px;
+  padding: 5px;
+  outline: none;
+}
+
+
+QPushButton:disabled {
+  color: #bfc5ca;
+  border-color:#bfc5ca;
+}
+
+QPushButton:!checked:hover {
+  border: 1px solid #e9ebed;
+  background-color: #e9ebed;
+}
+QPushButton:!checked:pressed {
+  border: 1px solid #d4d8dc;
+  background-color: #d4d8dc;
+}
+
+QPushButton:checked {
+  background-color: #3498db;
+  color: white;
+  border: 0px solid #3498db;
+}
+
+QPushButton:checked:hover {
+  border: 0px;
+  background-color: #89c3ea;
+}
+
+QPushButton:checked:pressed {
+  border: 1px solid #3498db;
+  color: #3498db;
+  background-color: white;
+}
+
+/* -------------------- QDialog ------------------------ */
+/* At the end, so that it overrides QTab*/
+
+QDialog, 
+QMessageBox > QLabel {
+  background-color: #bfc5ca;
+  color: #2c3e50;
+}
+
+/* ----------------------------------------- */
+
+CommandLineEdit {
+font-size: 20;
+min-height: 22px;
+border: 2px solid #3498db;
+border-radius: 5px;
+}
+
+Panel[panel='ExpPanel'] QLineEdit,
+Panel[panel='ExpPanel'] QPlainTextEdit {
+border: 1px solid #2c3e50;
+border-radius: 5px;
+}
+
+Panel[panel='ExpPanel'] QLineEdit::focus,
+Panel[panel='ExpPanel'] QPlainTextEdit::focus {
+border: 1px solid #3498db;
+}
+
+/* ">" because I want a border for the QFrame, but not the Line(s). */
+Panel[panel='ExpPanel'] > .QFrame {
+border: 0px solid grey;
+border-radius: 5px;
+}
+Panel[panel='FinishPanel'] > .QFrame {
+border: 0px solid grey;
+border-radius: 5px;
+}
+Panel[panel='SetupsPanel'] {
+margin-left: 5px;
+margin-right: 5px;
+margin-bottom: 5px;
+border: 0px solid grey;
+border-radius: 5px;
+}
