@@ -46,6 +46,8 @@ from nicos.utils import parseConnectionString
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
     NicosLogger, initLoggers
 
+from nicos_ess.gui.mainwindow import MainWindow as MainWindowESS
+
 log = None
 
 
@@ -57,8 +59,8 @@ def parseargs():
                         action='store_true', help='run in view-only mode')
     parser.add_argument('-t', '--use-tunnel', dest='tunnel', default='',
                         action='store', help='use a ssh tunnel to connect. '
-                        'TUNNEL is a string with the following form:'
-                        ' [user_name@]host.')
+                                             'TUNNEL is a string with the following form:'
+                                             ' [user_name@]host.')
     parser.add_argument('connect', nargs='?', default=None,
                         help='''A connection string with the following form:
 
@@ -82,8 +84,10 @@ def main(argv):
 
     # set up logging for unhandled exceptions in Qt callbacks
     def log_unhandled(*exc_info):
-        traceback.print_exception(*exc_info)  # pylint: disable=no-value-for-parameter
+        traceback.print_exception(
+            *exc_info)  # pylint: disable=no-value-for-parameter
         log.exception('unhandled exception in QT callback', exc_info=exc_info)
+
     sys.excepthook = log_unhandled
 
     app = QApplication(argv, organizationName='nicos', applicationName='gui')
@@ -98,9 +102,9 @@ def main(argv):
         # If "demo" is detected automatically, let the user choose their
         # instrument configuration.
         need_dialog = config.instrument is None or \
-            (config.setup_package == 'nicos_demo' and
-             config.instrument == 'demo' and
-             'INSTRUMENT' not in os.environ)
+                      (config.setup_package == 'nicos_demo' and
+                       config.instrument == 'demo' and
+                       'INSTRUMENT' not in os.environ)
         if need_dialog:
             opts.configfile = InstrSelectDialog.select(
                 'Your instrument could not be automatically detected.')
@@ -131,7 +135,10 @@ def main(argv):
                 log.warning('Error setting user style sheet from %s',
                             stylefile, exc=1)
 
-    mainwindow = MainWindow(log, gui_conf, opts.viewonly, opts.tunnel)
+    if 'ess_gui' in gui_conf.options and gui_conf.options['ess_gui']:
+        mainwindow = MainWindowESS(log, gui_conf, opts.viewonly, opts.tunnel)
+    else:
+        mainwindow = MainWindow(log, gui_conf, opts.viewonly, opts.tunnel)
     log.addHandler(DebugHandler(mainwindow))
 
     if opts.connect:

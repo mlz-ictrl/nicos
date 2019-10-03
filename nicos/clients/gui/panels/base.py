@@ -31,8 +31,8 @@ from time import time as currenttime
 
 from nicos.clients.gui.config import panel
 from nicos.clients.gui.utils import DlgUtils, SettingGroup
-from nicos.guisupport.qt import QDialog, QHBoxLayout, QObject, QPalette, \
-    QWidget, pyqtSignal
+from nicos.guisupport.qt import QDialog, QHBoxLayout, QObject, QPainter, \
+    QPalette, QStyle, QStyleOption, QWidget, pyqtSignal
 from nicos.utils import checkSetupSpec
 from nicos.utils.loggers import NicosLogger
 
@@ -75,6 +75,7 @@ class PanelDialog(SetupDepWindowMixin, QDialog):
         self.setLayout(hbox)
         self.setWindowTitle(title)
         SetupDepWindowMixin.__init__(self, self.client)
+        self.setProperty('type', 'PanelDialog')
 
     def addPanel(self, panel, always=True):
         if always or panel not in self.panels:
@@ -128,6 +129,8 @@ class Panel(DlgUtils, QWidget, SetupDepPanelMixin):
         self.sgroup = SettingGroup(self.panelName)
         with self.sgroup as settings:
             self.loadSettings(settings)
+        self.setProperty('type', 'Panel')
+        self.setProperty('panel', self.__class__.__name__)
 
     def closeWindow(self):
         """Try to close the window containing this panel.
@@ -184,3 +187,9 @@ class Panel(DlgUtils, QWidget, SetupDepPanelMixin):
 
     def updateStatus(self, status, exception=False):
         pass
+
+    def paintEvent(self, event):
+        opt = QStyleOption()
+        opt.initFrom(self)
+        painter = QPainter(self)
+        self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)

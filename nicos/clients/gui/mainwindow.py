@@ -45,9 +45,8 @@ from nicos.clients.gui.dialogs.watchdog import WatchdogDialog
 from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
 from nicos.clients.gui.tools import createToolMenu, startStartupTools
-from nicos.clients.gui.utils import DlgUtils, SettingGroup, \
-    dialogFromUi, loadBasicWindowSettings, loadUi, loadUserStyle, \
-    splitTunnelString
+from nicos.clients.gui.utils import DlgUtils, SettingGroup, dialogFromUi, \
+    loadBasicWindowSettings, loadUi, loadUserStyle, splitTunnelString
 from nicos.core.utils import ADMIN
 from nicos.guisupport.qt import PYQT_VERSION_STR, QT_VERSION_STR, QAction, \
     QApplication, QColorDialog, QDialog, QFontDialog, QIcon, QLabel, \
@@ -90,14 +89,16 @@ class ToolAction(QAction):
 
 
 class MainWindow(DlgUtils, QMainWindow):
-
+    name = 'MainWindow'
     # Emitted when a panel generates code that an editor panel should add.
     codeGenerated = pyqtSignal(object)
+
+    ui = 'main.ui'
 
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         QMainWindow.__init__(self)
         DlgUtils.__init__(self, 'NICOS')
-        loadUi(self, 'main.ui')
+        loadUi(self, self.ui)
 
         # set app icon in multiple sizes
         icon = QIcon()

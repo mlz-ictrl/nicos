@@ -199,7 +199,8 @@ class ScriptStatusPanel(Panel):
         bar.addAction(self.actionContinue)
         bar.addAction(self.actionStop2)
         bar.addAction(self.actionEmergencyStop)
-        self.mainwindow.addToolBar(bar)
+        self.bar = bar
+        # self.mainwindow.addToolBar(bar)
 
         menu = QMenu('&Script control', self)
         menu.addAction(self.actionBreak)
@@ -238,7 +239,7 @@ class ScriptStatusPanel(Panel):
             setBackgroundColor(widget, back)
 
     def getToolbars(self):
-        return []
+        return [self.bar]
 
     def getMenus(self):
         return []

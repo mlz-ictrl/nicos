@@ -66,7 +66,6 @@ command_re = re.compile(r'>>> \[([^ ]+) .*?\]  (.*?)\n')
 script_re = re.compile(r'>>> \[([^ ]+) .*?\] -{20} ?(.*?)\n')
 update_re = re.compile(r'UPDATE (?:\(.*?\) )?\[([^ ]+) .*?\] -{20} ?(.*?)\n')
 
-
 # time formatter
 
 def format_time_full(timeval):
@@ -87,6 +86,7 @@ class MessageView(QTextBrowser):
         self.setFullTimestamps(False)
         self._background_image = None
         self._background_image_area = None
+        self.text_curson_position = QTextCursor.End
 
     def setFullTimestamps(self, on):
         if on:
@@ -216,7 +216,7 @@ class MessageView(QTextBrowser):
 
     def addText(self, text, fmt=None):
         textcursor = self.textCursor()
-        textcursor.movePosition(QTextCursor.End)
+        textcursor.movePosition(self.text_curson_position)
         textcursor.setCharFormat(fmt or std)
         textcursor.insertText(from_maybe_utf8(text))
 
@@ -237,7 +237,7 @@ class MessageView(QTextBrowser):
 
     def addMessages(self, messages):
         textcursor = self.textCursor()
-        textcursor.movePosition(QTextCursor.End)
+        textcursor.movePosition(self.text_curson_position)
         formatter = self.formatMessage
         for message in messages:
             text, fmt = formatter(message, actions=False)
@@ -304,6 +304,12 @@ class MessageView(QTextBrowser):
             # repaint viewport on scoll to preserve the background image.
             # Using 'update' to let qt optimize the process (speed/flickering)
             self.viewport().update()
+
+    def enableReverseScrolling(self, value):
+        if value:
+            self.text_curson_position = QTextCursor.Start
+        else:
+            self.text_curson_position = QTextCursor.End
 
     def resizeEvent(self, ev):
         # recalculate the background area only if necessary
