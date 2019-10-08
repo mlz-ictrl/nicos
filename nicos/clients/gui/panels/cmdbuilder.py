@@ -49,10 +49,11 @@ class CommandPanel(Panel):
     """
 
     panelName = 'Command'
+    ui = 'panels/cmdbuilder.ui'
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'panels/cmdbuilder.ui')
+        loadUi(self, self.ui)
 
         self.window = parent
         self.mapping = {}
