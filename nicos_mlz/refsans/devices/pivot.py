@@ -24,8 +24,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.core import Param, floatrange
-from nicos.core.device import requires
+from nicos.core import Override, Param, floatrange
 from nicos.core.utils import ADMIN
 from nicos.devices.generic import ManualSwitch
 
@@ -41,6 +40,9 @@ class PivotPoint(ManualSwitch):
                         unit='mm'),
     }
 
-    @requires(level=ADMIN)
+    parameter_overrides = {
+        'requires': Override(default={'level': ADMIN}, settable=False),
+    }
+
     def doStart(self, target):
         ManualSwitch.doStart(self, target)
