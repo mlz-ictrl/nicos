@@ -215,10 +215,10 @@ class TimeDistance(NicosWidget, TimeDistanceWidget):
     chopper6 = PropDef('chopper6', str, 'chopper6', 'Chopper 6 device')
 
     disc2_pos = PropDef('disc2_pos', str, 'disc2_pos',
-                       'Position of disc2 translation')
+                        'Position of disc2 translation')
 
     periods = PropDef('periods', int, 2,
-                     'Number of periods to display')
+                      'Number of periods to display')
     D = PropDef('D', float, 22.8, 'Beamline length')
 
     def __init__(self, parent, designMode=False):
@@ -259,11 +259,11 @@ class TimeDistance(NicosWidget, TimeDistanceWidget):
                     self._disk2_pos = int(value)
             elif param == 'phase':
                 if devname.startswith('chopper'):
-                    if not value is None:
+                    if value is not None:
                         index = int(devname[-1]) - 1
                         self._phases[index] = float(value)
             elif param == 'pos' and devname == 'chopper2':
-                if not value is None:
+                if value is not None:
                     self._disk2_pos = int(value)
             self.plot(self._speed, self._phases, self.props['periods'],
                       self._disk2_pos, self.props['D'])
