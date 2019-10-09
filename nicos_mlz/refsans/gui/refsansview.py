@@ -92,11 +92,13 @@ class RefsansView(QGraphicsView):
         QGraphicsView.resizeEvent(self, rsevent)
 
     def update(self):
+        self._tube.setState(self.status['tubeangle'])
         self._tube.setRotation(-self.values['tubeangle'])
         p = (self.values['pivot'] - 9) * self.pivotdist
         self._pivot.setX(p)
         self._tube.setX(p)
         self._yoke.setX(p)
+        self._det.setState(self.status['detpos'])
         # 1 / 20 is the scaling of the tube length
         self._det.setX(self.values['detpos'] / 20)
         QGraphicsView.update(self)

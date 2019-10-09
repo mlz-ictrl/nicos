@@ -25,7 +25,36 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.guisupport.qt import QBrush, QColor, QGraphicsRectItem, QTransform
+from nicos.core import status
+from nicos.guisupport.qt import QBrush, QColor, QGraphicsRectItem, QPen, \
+    QRectF, QSizeF, QTransform
+
+from nicos_mlz.refsans.guisupport.elements import statuscolor
+
+
+class DetectorHalo(QGraphicsRectItem):
+
+    def __init__(self, width, parent=None, scene=None):
+        w = width + 2
+        if parent and isinstance(parent, QGraphicsRectItem):
+            rect = parent.rect()
+            size = rect.size()
+            size += QSizeF(w, w)
+            rect.setSize(size)
+        else:
+            rect = QRectF()
+        QGraphicsRectItem.__init__(self, rect, parent)
+        transform = QTransform()
+        transform.translate(-w / 2, -w / 2)
+        self.setTransform(transform)
+        self.setBrush(QBrush(statuscolor[status.OK]))
+        self.setPen(QPen(statuscolor[status.OK], width))
+
+    def setState(self, state):
+        pen = self.pen()
+        pen.setColor(statuscolor[state])
+        self.setPen(pen)
+        self.update()
 
 
 class Detector(QGraphicsRectItem):
@@ -38,3 +67,8 @@ class Detector(QGraphicsRectItem):
         self.setBrush(QBrush(QColor('#00FF00')))
         if not parent and scene:
             scene.addItem(self)
+        self._halo = DetectorHalo(5, self, scene)
+
+    def setState(self, state):
+        self._halo.setState(state)
+        self.update()

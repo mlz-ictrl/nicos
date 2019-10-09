@@ -25,11 +25,16 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.guisupport.qt import QGraphicsPathItem, QPainterPath, QPointF, \
-    QRectF, QTransform
+from nicos.core import status
+from nicos.guisupport.qt import QBrush, QGraphicsPathItem, QPainterPath, \
+    QPen, QPointF, QRectF, QTransform
+
+from nicos_mlz.refsans.guisupport.elements import statuscolor
 
 
 class Tube(QGraphicsPathItem):
+
+    _halo = None
 
     def __init__(self, parent=None, scene=None):
         QGraphicsPathItem.__init__(self, parent)
@@ -40,9 +45,53 @@ class Tube(QGraphicsPathItem):
         self.setTransformOriginPoint(QPointF(0, 50))
         if not parent and scene:
             scene.addItem(self)
+        self._halo = TubeHalo(10, self, scene)
+        self.setState(status.OK)
+
+    def setState(self, state):
+        if self._halo:
+            self._halo.setState(state)
+        self.update()
 
     def shape(self):
         path = QPainterPath()
         path.addRect(QRectF(0, 0, 600, 50))
-        path.addRect(QRectF(-10, 20, 10, 10))
+        rect = QRectF(0, 0, 10, 10)
+        rect.translate(-10, 20)
+        path.addRect(rect)
         return path
+
+    def boundingRect(self):
+        r = QGraphicsPathItem.boundingRect(self)
+        if self._halo:
+            r = r.united(self._halo.boundingRect())
+        # this scaling has to be done due the rotation of the tube
+        # TODO: find a better solution
+        r.setSize(r.size() * 1.1)
+        return r
+
+
+class TubeHalo(QGraphicsPathItem):
+
+    def __init__(self, width=10, parent=None, scene=None):
+        QGraphicsPathItem.__init__(self, parent)
+        self._width = width
+        self.setPath(self.shape())
+        if not parent and scene:
+            scene.addItem(self)
+        self.setBrush(QBrush(statuscolor[status.OK]))
+        self.setPen(QPen(statuscolor[status.OK], width))
+
+    def shape(self):
+        path = QPainterPath()
+        w = self._width + 2
+        r = QRectF(0, 0, 600 + w, 50 + w)
+        r.translate(-w / 2, -w / 2)
+        path.addRect(r)
+        return path
+
+    def setState(self, state):
+        pen = self.pen()
+        pen.setColor(statuscolor[state])
+        self.setPen(pen)
+        self.update()
