@@ -4,10 +4,10 @@ description = 'Setup for the sample environment.'
 group = 'optional'
 
 tangohost = 'phys.spheres.frm2'
-tango_sample = 'tango://%s:10000/spheres/sample/' % tangohost
+tango_sample = 'tango://%s:10000/spheres/cct6/' % tangohost
 
 devices = dict(
-    c_temperature = device('nicos_mlz.spheres.devices.sample.SEController',
+    cct6_c_temperature = device('nicos_mlz.spheres.devices.sample.SEController',
         description = 'Temperaturecontroller',
         tangodevice = tango_sample + 'controller',
         samplecontroller = 'T_sample',
@@ -16,7 +16,7 @@ devices = dict(
         maxage = 5,
         precision = 0.1
     ),
-    T_sample = device('nicos.devices.tango.TemperatureController',
+    cct6_T_sample = device('nicos.devices.tango.TemperatureController',
         description = 'Sample temperature regulation',
         tangodevice = tango_sample + 'samplecontroller',
         pollinterval = 2,
@@ -26,7 +26,7 @@ devices = dict(
         lowlevel = True,
         unit = 'K'
     ),
-    T_tube = device('nicos.devices.tango.TemperatureController',
+    cct6_T_tube = device('nicos.devices.tango.TemperatureController',
         description = 'Tube temperature regulation',
         tangodevice = tango_sample + 'tubecontroller',
         pollinterval = 2,
@@ -36,7 +36,7 @@ devices = dict(
         lowlevel = True,
         unit = 'K',
     ),
-    v_flood = device('nicos.devices.tango.NamedDigitalInput',
+    cct6_v_flood = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Valve to flood the sample environment '
         'with exchangegas',
         tangodevice = tango_sample + 'floodvalve',
@@ -46,7 +46,7 @@ devices = dict(
         pollinterval = 2,
         unit = '',
     ),
-    v_vacuum = device('nicos.devices.tango.NamedDigitalInput',
+    cct6_v_vacuum = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Valve to evacuate the sample environment',
         tangodevice = tango_sample + 'vacuumvalve',
         mapping = {'closed': 0,
@@ -55,7 +55,7 @@ devices = dict(
         pollinterval = 2,
         unit = ''
     ),
-    h_sample = device('nicos.devices.tango.NamedDigitalOutput',
+    cct6_h_sample = device('nicos.devices.tango.NamedDigitalOutput',
         description = 'Heater of the sample',
         tangodevice = tango_sample + 'sampleheater',
         mapping = {'off': 0,
@@ -66,7 +66,7 @@ devices = dict(
         pollinterval = 2,
         unit = ''
     ),
-    h_tube = device('nicos.devices.tango.NamedDigitalOutput',
+    cct6_h_tube = device('nicos.devices.tango.NamedDigitalOutput',
         description = 'Heater of the tube',
         tangodevice = tango_sample + 'tubeheater',
         mapping = {'off': 0,
@@ -77,7 +77,7 @@ devices = dict(
         pollinterval = 2,
         unit = ''
     ),
-    c_pressure = device('nicos_mlz.spheres.devices.sample.PressureController',
+    cct6_c_pressure = device('nicos_mlz.spheres.devices.sample.PressureController',
         description = 'Sample temperature controller',
         tangodevice = tango_sample + 'pressure',
         controller = tango_sample + 'controller',
@@ -86,7 +86,7 @@ devices = dict(
         precision = 0.1,
         unit = 'mbar'
     ),
-    setpoint = device('nicos.devices.generic.paramdev.ReadonlyParamDevice',
+    cct6_setpoint = device('nicos.devices.generic.paramdev.ReadonlyParamDevice',
         description = 'Device to display the setpoint parameter of the '
         'temperature controller',
         device = 'c_temperature',

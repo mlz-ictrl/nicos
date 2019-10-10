@@ -2,7 +2,7 @@
 
 description = 'SIS detector setup'
 
-includes = ['shutter', 'sample', 'doppler']
+includes = ['shutter', 'cct6', 'doppler']
 
 sysconfig = dict(datasinks = ['sisasink', 'sisusink', 'sislive'])
 
