@@ -54,6 +54,8 @@ class config(object):
     setup_subdirs = None  # setup groups to be used like 'panda,frm2'
     pid_path = 'pid'
     logging_path = 'log'
+    systemd_props = ''  # additional systemd Service properties
+    systemd_network_timeout = 10  # timeout for finding a hostname in systemd
 
     simple_mode = False
     sandbox_simulation = False

@@ -61,6 +61,13 @@ Building and installing
   e.g. ``/usr/local/bin``.  Check if the init script works with
   ``/etc/init.d/nicos-system start``.
 
+* If you want to integrate with systemd instead of classical init scripts,
+  create a symlink to ``$PREFIX/etc/nicos-late-generator`` in
+  ``/lib/systemd/scripts`` and symlinks to
+  ``$PREFIX/etc/nicos-late-generator.service`` and ``$PREFIX/etc/nicos.target``
+  in ``/lib/systemd/system``.  Then, run ``systemctl enable
+  nicos-late-generator.service``.  See :ref:`sys-startup`.
+
 * Commit code changes and push to gerrit (or use ``git format-patch
   origin/master`` or ``origin/release-X.Y`` and commit/push the patches on a
   machine where you have your public key).  Instruct instrument people to always

@@ -35,6 +35,11 @@ from nicos.core.sessions import Session
 from nicos.pycompat import exec_
 from nicos.utils import daemonize, removePidfile, setuser, writePidfile
 
+try:
+    import systemd.daemon
+except ImportError:
+    systemd = None
+
 
 class NoninteractiveSession(Session):
     """
@@ -56,7 +61,9 @@ class NoninteractiveSession(Session):
     @classmethod
     def run(cls, appname, maindevname=None, setupname=None, pidfile=True,
             daemon=False, start_args=None):
-        if daemon:
+        if daemon == 'systemd':
+            systemd.daemon.notify("STATUS=initializing session")
+        elif daemon:
             daemonize()
         else:
             setuser()
@@ -94,8 +101,15 @@ class NoninteractiveSession(Session):
                 print('Fatal error while initializing:', err, file=sys.stderr)
             return 1
 
+        if daemon == 'systemd':
+            systemd.daemon.notify("STATUS=starting main device")
+
         start_args = start_args or ()
         maindev.start(*start_args)
+
+        if daemon == 'systemd':
+            systemd.daemon.notify("READY=1\nSTATUS=running")
+
         maindev.wait()
 
         session.shutdown()

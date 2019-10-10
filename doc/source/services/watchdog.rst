@@ -14,7 +14,7 @@ Invocation
 ----------
 
 The watchdog is invoked by the ``nicos-watchdog`` script.  It should normally be
-started by the :ref:`init script <initscript>`.
+started by the :ref:`system startup integration <sys-startup>`.
 
 The watchdog expects a setup file with a device named ``Watchdog``.
 

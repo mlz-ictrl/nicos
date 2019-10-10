@@ -1,0 +1,15 @@
+# Note: This is not a systemd generator, since those run at the very
+# beginning of bootup before anything is started.  But for evaluating
+# the NICOS config we may need a known hostname.
+
+[Unit]
+Description=Generate and start NICOS units
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/lib/systemd/scripts/nicos-late-generator
+
+[Install]
+WantedBy=multi-user.target

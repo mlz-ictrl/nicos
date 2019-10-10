@@ -17,3 +17,4 @@ PyTango>=9.0.0;python_version>='3.0'
 Pillow>=4.0.0
 python-creole>=1.3.0
 pamela>=0.3.0
+systemd-python>=230

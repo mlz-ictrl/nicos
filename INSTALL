@@ -6,21 +6,25 @@ Requirements
 If not mentioned otherwise, Python packages are available from PyPI
 (https://pypi.python.org/pypi).
 
-* NICOS specific Python packages (available from http://forge.frm2.tum.de/simple)
+* NICOS specific Python packages (available from http://forge.frm2.tum.de/simple):
 
   - nicos-pyctl
   - nicos-quickyaml
 
-* Required Python packages
+* Required Python packages:
 
   - numpy
   - pyzmq version >= 2
   - rsa
   - six
 
-* For the provided SysV compatible init script
+* For the provided SysV compatible init script and nicos-demo:
 
   - psutil version >= 0.4 (recommended >= 2.0)
+
+* For running on Linux under systemd:
+
+  - python-systemd
 
 * For hardware access (optional):
 
@@ -102,7 +106,7 @@ Ubuntu
 
 * Basic system::
 
-     apt-get install python python-{dev,zmq,numpy,scipy,psutil,rsa,six} gnuplot
+     apt-get install python python-{dev,zmq,numpy,scipy,psutil,rsa,six,systemd} gnuplot
 
 * Optional components::
 

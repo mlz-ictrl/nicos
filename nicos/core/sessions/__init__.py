@@ -170,6 +170,7 @@ class Session(object):
         self._notifiers = None
 
         # set up logging interface
+        self._daemon_mode = daemonized
         self._initLogging(console=not daemonized)
 
         # set up initial namespace

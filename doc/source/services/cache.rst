@@ -18,7 +18,7 @@ Invocation
 ----------
 
 The cache is invoked by the ``nicos-cache`` script.  It should normally be
-started by the :ref:`init script <initscript>`.
+started by the :ref:`system startup integration <sys-startup>`.
 
 The cache expects a setup file with a device named ``Server``.
 

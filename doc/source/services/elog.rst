@@ -17,7 +17,7 @@ Invocation
 ----------
 
 The elog is invoked by the ``nicos-elog`` script.  It should normally be started
-by the :ref:`init script <initscript>`.
+by the :ref:`system startup integration <sys-startup>`.
 
 The elog expects a setup file named ``elog.py`` with a device named ``Logbook``.
 

@@ -1,0 +1,163 @@
+#!/usr/bin/env python
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the MLZ
+# Copyright (c) 2009-2019 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Georg Brandl <g.brandl@fz-juelich.de>
+#
+# *****************************************************************************
+
+"""Reads nicos.conf and generates systemd unit files for each active
+service.
+
+All units are then added as dependencies to nicos.target.
+"""
+
+from __future__ import print_function
+
+import os
+import socket
+import sys
+import time
+from os import path
+
+UNITDIR = '/run/systemd/system'
+
+TEMPLATE = '''\
+[Unit]
+Description=NICOS %(name)s service
+SourcePath=%(root)s/nicos.conf
+PartOf=nicos.target
+%(depends)s
+
+[Service]
+Type=notify
+ExecStart=%(root)s/bin/nicos-%(proc)s -D%(instopt)s
+Restart=on-abnormal
+RestartSec=30
+User=%(user)s
+Group=%(group)s
+UMask=%(umask)s
+ProtectSystem=full
+%(props)s
+'''
+
+_DEFAULT = path.join(os.sep, 'etc', 'default', 'nicos-system')
+nicos_root = path.dirname(path.dirname(path.realpath(__file__)))
+sys.path.insert(0, nicos_root)
+
+
+def printerr(*args, **kwargs):
+    kwargs.pop('file', None)
+    print(*args, file=sys.stderr, **kwargs)
+    sys.stderr.flush()
+
+
+if path.isfile(_DEFAULT) and 'INSTRUMENT' not in os.environ:
+    try:
+        with open(_DEFAULT, 'r') as fd:
+            for line in fd:
+                if not line.startswith('#'):
+                    (key, sep, value) = line.partition('=')
+                    if sep:
+                        key = key.replace('export', '').strip()
+                        os.environ[key] = value.rstrip()
+    except IOError as e:
+        printerr('  ERROR:', e)
+        printerr('WARNING: Ignoring defaults in %s.' % _DEFAULT)
+
+# We need to read the nicos.conf file, so let nicos do that.
+from nicos import config  # isort:skip
+
+config.apply()
+
+
+def wait_for_hostname():
+    hostname = 'localhost'
+    last_err = 'no error'
+    timeout = time.time() + float(config.systemd_network_timeout)
+    while time.time() < timeout:
+        try:
+            hostname = socket.getfqdn().split('.')[0]
+        except socket.error as err:
+            last_err = err
+        if hostname != 'localhost':
+            return hostname
+        time.sleep(0.5)
+    printerr('Could not figure out host name (%s). Continuing with '
+             'nonspecific services.' % last_err)
+    return ''
+
+
+def get_configured_services(hostname):
+    host_spec_services = 'services_%s' % hostname
+    if hostname and hasattr(config, host_spec_services):
+        services = getattr(config, host_spec_services)
+    else:
+        services = config.services
+    if services.lower().strip() in ['', 'none']:
+        services = []
+    else:
+        services = [svc.strip() for svc in services.split(',')]
+    return services
+
+
+def main():
+    hostname = wait_for_hostname()
+    services = get_configured_services(hostname)
+    wants_dir = path.join(UNITDIR, 'nicos.target.wants')
+    if not path.isdir(wants_dir):
+        os.mkdir(wants_dir)
+    printerr('Generating unit files for services: %s' % services)
+
+    for name in services:
+        unitfile = path.join(UNITDIR, 'nicos-' + name + '.service')
+        try:
+            procname, instname = name.split('-')
+        except ValueError:
+            procname, instname = name, None
+        depends = ''
+        if procname != 'cache' and 'cache' in services:
+            depends = 'After=nicos-cache.service\nRequires=nicos-cache.service'
+        with open(unitfile, 'w') as fp:
+            fp.write(TEMPLATE % {
+                'name': name,
+                'root': config.nicos_root,
+                'proc': procname,
+                'instopt': ' -S ' + instname if instname else '',
+                'depends': depends,
+                'user': config.user or 'root',
+                'group': config.group or 'root',
+                'umask': config.umask or '002',
+                'props': config.systemd_props,
+            })
+        symlink = path.join(wants_dir, path.basename(unitfile))
+        if not path.islink(symlink):
+            os.symlink(unitfile, symlink)
+
+    # if it was successful, start the newly created units
+    os.system('systemctl daemon-reload')
+    os.system('systemctl start nicos.target')
+
+
+try:
+    main()
+except BaseException as e:
+    printerr('ERROR:', e.__class__.__name__, '-', e)
+    sys.exit(1)

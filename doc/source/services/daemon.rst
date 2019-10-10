@@ -16,7 +16,7 @@ Invocation
 ----------
 
 The daemon is invoked by the ``nicos-daemon`` script.  It should normally be
-started by the :ref:`init script <initscript>`.
+started by the :ref:`system startup integration <sys-startup>`.
 
 The daemon expects a setup file with a device named ``Daemon``.
 

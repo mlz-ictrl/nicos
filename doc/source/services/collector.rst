@@ -9,8 +9,8 @@ The collector service enables cache update forwarding.
 Invocation
 ----------
 
-The collector is invoked by the ``nicos-collector`` script.  It should normally be
-started by the :ref:`init script <initscript>`.
+The collector is invoked by the ``nicos-collector`` script.  It should normally
+be started by the :ref:`system startup integration <sys-startup>`.
 
 The collector expects a setup file with a device named ``Collector``.
 

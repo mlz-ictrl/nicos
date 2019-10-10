@@ -1,0 +1,7 @@
+[Unit]
+Description=NICOS services
+Requires=network-online.target
+After=network-online.target
+
+[Install]
+WantedBy=multi-user.target

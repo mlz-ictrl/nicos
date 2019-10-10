@@ -42,20 +42,30 @@ Section ``[nicos]``
     are running, by default ``pid/`` in the installation root will be used.
 
   * ``services`` -- a comma-separated list of NICOS daemons to start and stop
-    with the provided :ref:`init script <initscript>`. If ``none`` is specified,
-    no services will be started. This is useful as a fallback and for getting
-    nicos up and running.
+    with the :ref:`system startup <sys-startup>`.  If ``none`` is specified, no
+    services will be started. This is useful as a fallback and for getting nicos
+    up and running.
 
   * ``services_<hostname>`` -- a comma-separated list of NICOS daemons to start
-    and stop with the provided :ref:`init script <initscript>` running on host
-    <hostname> (short name as output by `hostname -s`). If the script is executed
-    on a host for which there is no such entry, the entry ``services`` is used as
-    a fallback.
+    and stop with the :ref:`system startup <sys-startup>` running on host
+    <hostname> (short name as output by `hostname -s`). If the script is
+    executed on a host for which there is no such entry, the entry ``services``
+    is used as a fallback.
 
   * ``sandbox_simulation`` -- if set to "true" or "1", NICOS simulation
     processes will be sandboxed (they have no write access to the filesystem,
     and no network access).  This requires a Linux system with kernel >= 2.6.32.
     Default is off.
+
+  * ``systemd_props`` -- used by the NICOS systemd integration.  Can be set
+    to a string with entries for the generated ``nicos-xxx.service`` files
+    in the ``Service`` section.  For example, ``LimitRSS=2G`` to limit the
+    available memory for the process.
+
+  * ``systemd_network_timeout`` -- used by the NICOS systemd integration.  Can
+    be set to a time (in seconds) to wait for the hostname of the system to be
+    set, when deciding which host-specific services to start.  Default is 10
+    seconds.
 
 
 Section ``[environment]``

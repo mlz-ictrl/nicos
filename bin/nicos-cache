@@ -36,6 +36,8 @@ from nicos.core.sessions.simple import NoninteractiveSession
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--daemon', dest='daemon', action='store_true',
                     help='daemonize the cache process')
+parser.add_argument('-D', '--systemd', dest='daemon', action='store_const',
+                    const='systemd', help='run in systemd service mode')
 parser.add_argument('-S', '--setup', action='store', dest='setupname',
                     default='cache',
                     help="name of the setup, default is 'cache'")
