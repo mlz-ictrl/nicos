@@ -26,14 +26,14 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.commands import usercommand, parallel_safe
+from nicos.commands import parallel_safe, usercommand
 from nicos.commands.device import maw
 from nicos.core import UsageError
 from nicos.utils import parseDuration as pd
 
 from nicos_mlz.spheres.devices.doppler import INELASTIC
-from nicos_mlz.spheres.utils import getTemperatureController, parseDuration, \
-    getSisImageDevice, getDoppler, waitForAcq
+from nicos_mlz.spheres.utils import getDoppler, getSisImageDevice, \
+    getTemperatureController, parseDuration, waitForAcq
 
 
 @usercommand

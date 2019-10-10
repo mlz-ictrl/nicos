@@ -27,11 +27,11 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos import session
-from nicos.core import SIMULATION, UsageError, dictwith, status, \
-    oneofdict_or, floatrange
+from nicos.commands.basic import sleep
+from nicos.core import SIMULATION, UsageError, dictwith, floatrange, \
+    oneofdict_or, status
 from nicos.core.params import Attach, Param
 from nicos.devices.generic.sequence import SeqCall, SeqDev, SequencerMixin
-from nicos.commands.basic import sleep
 from nicos.devices.generic.switcher import MultiSwitcher
 from nicos.devices.tango import NamedDigitalOutput, VectorInput
 from nicos.protocols.daemon import STATUS_INBREAK

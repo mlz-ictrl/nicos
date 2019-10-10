@@ -27,10 +27,11 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos import session
-from nicos.core import UsageError, SIMULATION, ModeError
+from nicos.core import SIMULATION, ModeError, UsageError
 from nicos.core.status import BUSY, OK
 from nicos.utils import parseDuration as pd
-from nicos_mlz.spheres.devices.doppler import Doppler, INELASTIC, ELASTIC
+
+from nicos_mlz.spheres.devices.doppler import ELASTIC, INELASTIC, Doppler
 from nicos_mlz.spheres.devices.sample import SEController
 from nicos_mlz.spheres.devices.sisdetector import SISDetector
 

@@ -2,13 +2,14 @@
 from time import time
 
 from nicos import session
-from nicos.commands import usercommand, parallel_safe
-from nicos.commands.scan import _infostr, _handleScanArgs
+from nicos.commands import parallel_safe, usercommand
+from nicos.commands.scan import _handleScanArgs, _infostr
 from nicos.core import SIMULATION
-from nicos.core.scan import SweepScan, StopScan
+from nicos.core.scan import StopScan, SweepScan
+
 from nicos_mlz.spheres.devices.doppler import INELASTIC
-from nicos_mlz.spheres.utils import parseDuration, getSisImageDevice, \
-    canStartSisScan, getSisDetector
+from nicos_mlz.spheres.utils import canStartSisScan, getSisDetector, \
+    getSisImageDevice, parseDuration
 
 VALIDTARGETS = ['eta', 'acq']
 
