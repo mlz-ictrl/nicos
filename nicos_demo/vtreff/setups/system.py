@@ -30,7 +30,7 @@ devices = dict(
         description = 'The current used sample',
         lowlevel = True,
     ),
-    Sample = device('nicos_mlz.treff.devices.MirrorSample',
+    Sample = device('nicos_demo.vtreff.devices.MirrorSample',
         description = 'The current used mirror sample',
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',

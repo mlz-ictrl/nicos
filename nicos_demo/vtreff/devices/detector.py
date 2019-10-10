@@ -75,20 +75,28 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         return self._buf
 
     def doPrepare(self):
-
+        sample = self._attached_sample
         params = []
         params.append('s1_width=%s' % self._attached_s1.width.read(0))
         params.append('s1_height=%s' % self._attached_s1.height.read(0))
         params.append('s2_width=%s' % self._attached_s2.width.read(0))
         params.append('s2_height=%s' % self._attached_s2.height.read(0))
         params.append('sample_x=%s' % self._attached_sample_x.read(0))
-        params.append('sample_y=%s' % self._attached_sample_y.read(0))
+        sample_y = self._attached_sample_y
+        params.append('sample_y=%s' % (sample_y.read(0) + sample_y.offset +
+                                       sample._misalignments['sample_y']))
         params.append('sample_z=%s' % self._attached_sample_z.read(0))
         params.append('beamstop_pos=%s' % self._attached_beamstop.read(0))
-        params.append('omega=%s' % self._attached_omega.read(0))
-        params.append('chi=%s' % self._attached_chi.read(0))
+        omega = self._attached_omega
+        params.append('omega=%s' % (
+            omega.read(0) + omega.offset + sample._misalignments['omega']))
+        chi = self._attached_chi
+        params.append('chi=%s' % (
+            chi.read(0) + chi.offset + sample._misalignments['chi']))
         params.append('phi=%s' % self._attached_phi.read(0))
-        params.append('detarm=%s' % self._attached_detarm.read(0))
+        detarm = self._attached_detarm
+        params.append('detarm=%s' % (
+            detarm.read(0) + detarm.offset + sample._misalignments['detarm']))
         params.append('mirror_length=%s' % self._attached_sample.length)
         params.append('mirror_thickness=%s' % self._attached_sample.thickness)
         params.append('mirror_height=%s' % self._attached_sample.height)
