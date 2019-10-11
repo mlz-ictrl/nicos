@@ -26,7 +26,7 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.core import status
-from nicos.guisupport.qt import QColor
+from nicos.guisupport.qt import QColor, Qt
 
 statuscolor = {
     status.BUSY: QColor('yellow'),
@@ -34,5 +34,5 @@ statuscolor = {
     status.WARN: QColor('#FF9900'),
     status.NOTREACHED: QColor('#FF3333'),
     status.DISABLED: QColor('white'),
-    status.OK: QColor(0, 0, 0, 0),  # make it completely transparent
+    status.OK: Qt.transparent,  # make it completely transparent
 }
