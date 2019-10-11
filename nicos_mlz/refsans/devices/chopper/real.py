@@ -29,7 +29,7 @@ from __future__ import absolute_import, division, print_function
 from nicos import session
 from nicos.core import ADMIN, Moveable, Override, Param, intrange, requires, \
     status
-from nicos.core.errors import ConfigurationError, NicosError, PositionError
+from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import DeviceMixinBase, HasOffset
 from nicos.core.params import Attach
 from nicos.devices.abstract import Motor
@@ -174,24 +174,24 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         self.log.info('you should be MP!')
 
     def doReference(self, *args):
-        self.log.info('chopper reference')
-        for dev in self._choppers:
-            try:
-                dev.move(0)
-                session.delay(.5)
-            except PositionError:
-                # choppers are in inactive state
-                pass
-            except NicosError as e:
-                self.log.info('%s', e)
-        for dev in self._choppers:
-            try:
-                dev.wait()
-            except PositionError:
-                # choppers are in inactive state
-                pass
-            except NicosError as e:
-                self.log.info('%s', e)
+        self.log.info('chopper reference QAD')
+        # for dev in self._choppers:
+        #     try:
+        #         dev.move(0)
+        #         session.delay(.5)
+        #     except PositionError:
+        #         # choppers are in inactive state
+        #         pass
+        #     except NicosError as e:
+        #         self.log.info('%s', e)
+        # for dev in self._choppers:
+        #     try:
+        #         dev.wait()
+        #     except PositionError:
+        #         # choppers are in inactive state
+        #         pass
+        #     except NicosError as e:
+        #         self.log.info('%s', e)
         self.log.info('check for pending E-Stop')
 
         fatal = self.fatal  # avoid unneeded hardware access
@@ -273,7 +273,7 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
         return res
 
     def doReadCondition(self):
-        res = int(self._read_controller('#%s?'))
+        res = int(self._read_controller('#%s?'), 16)
         self.log.debug('condition: %d', res)
         line = []
         All = False
