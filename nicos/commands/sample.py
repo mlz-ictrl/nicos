@@ -64,6 +64,8 @@ def NewSample(name, **parameters):
     is valid:
 
     >>> NewSample('Cr', lattice=[2.88, 2.88, 2.88], angles=[90, 90, 90])
+
+    see also: `SetSample`, `SelectSample`, `ClearSamples`, `ListSamples`
     """
     parameters['name'] = name
     session.experiment.sample.new(parameters)
@@ -80,6 +82,8 @@ def SetSample(number, name, **parameters):
 
     If several samples need to be specified, several calls to SetSample are
     required.
+
+    see also: `NewSample`, `SelectSample`, `ClearSamples`, `ListSamples`
     """
     parameters['name'] = name
     session.experiment.sample.set(number, parameters)
@@ -96,6 +100,8 @@ def SelectSample(number_or_name):
 
     >>> SelectSample(3)  # select sample with number 3
     >>> SelectSample('Sample2')  # select sample with name 'Sample2'
+
+    see also: `NewSample`, `SetSample`, `ClearSamples`, `ListSamples`
     """
     session.experiment.sample.select(number_or_name)
 
@@ -107,6 +113,8 @@ def ClearSamples():
     Example:
 
     >>> ClearSamples()
+
+    see also: `NewSample`, `SetSample`, `SelectSample`, `ListSamples`
     """
     session.experiment.sample.clear()
 
@@ -118,6 +126,8 @@ def ListSamples():
     Example:
 
     >>> ListSamples()
+
+    see also: `NewSample`, `SetSample`, `SelectSample`, `ClearSamples`
     """
     rows = []
     all_cols = set()
