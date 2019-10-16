@@ -839,6 +839,8 @@ def SetMailReceivers(*emails):
     Example:
 
     >>> SetMailReceivers('user@example.com', 'responsible@frm2.tum.de')
+
+    see also: `ListMailReceivers`
     """
     ok = False
     for notifier in session.notifiers:
@@ -860,6 +862,8 @@ def ListMailReceivers():
     Example:
 
     >>> ListMailReceivers()
+
+    see also: `SetMailReceivers`
     """
     session.log.info('Email addresses for notifications:')
     items = []
@@ -900,6 +904,8 @@ def SetDataReceivers(*emails):
     Example:
 
     >>> SetDataReceivers('pi@example.com', 'user@example.com')
+
+    see also: `ListDataReceivers`
     """
     exp = session.experiment
     if not exp.mailserver or not exp.mailsender:
@@ -927,6 +933,8 @@ def ListDataReceivers():
     Example:
 
     >>> ListDataReceivers()
+
+    see also: `SetDataReceivers`
     """
     session.log.info('Email addresses the data will be sent to:')
     propinfo = dict(session.experiment.propinfo)
