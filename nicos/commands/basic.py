@@ -305,7 +305,7 @@ def ListSetups(listall=False):
     printTable(('name', 'loaded', 'description', 'devices'), items, session.log.info)
 
 
-@usercommand
+@hiddenusercommand
 @parallel_safe
 def _Restart():
     """Restart the NICOS process.  Use with caution."""
