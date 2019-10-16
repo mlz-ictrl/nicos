@@ -355,6 +355,8 @@ def CreateDevice(*devnames):
 
     CreateDevice can also be used to make lowlevel devices accessible in the
     user namespace.
+
+    see also: `CreateAllDevices`, `RemoveDevice`
     """
     for devname in devnames:
         session.createDevice(devname, explicit=True)
@@ -371,6 +373,8 @@ def RemoveDevice(*devnames):
 
     >>> RemoveDevice(stx)         # destroy "stx" device
     >>> RemoveDevice(stx, sty)    # destroy two devices by name
+
+    see also: `CreateDevice`, `CreateAllDevices`
     """
     if not devnames:
         raise UsageError('At least one device is required')
@@ -394,6 +398,8 @@ def CreateAllDevices(**kwargs):
     created, unless you set the lowlevel flag like:
 
     >>> CreateAllDevices(lowlevel=True)
+
+    see also: `CreateDevice`, `RemoveDevice`
     """
     lowlevel = kwargs.get('lowlevel', False)
     if lowlevel and not session.checkUserLevel(ADMIN):
