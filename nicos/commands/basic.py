@@ -188,6 +188,8 @@ def NewSetup(*setupnames):
     >>> NewSetup()
 
     You can use `ListSetups()` to find out which setups are available.
+
+    see also: `AddSetup`, `RemoveSetup`, `ListSetups`
     """
     current_mode = session.mode
     # reload current setups if none given
@@ -228,6 +230,8 @@ def AddSetup(*setupnames):
     will load the "gaussmeter" setup in addition to the current setups.
 
     You can use `ListSetups()` to find out which setups are available.
+
+    see also: `NewSetup`, `RemoveSetup`, `ListSetups`
     """
     if not setupnames:
         ListSetups()
@@ -252,6 +256,8 @@ def RemoveSetup(*setupnames):
     >>> RemoveSetup('gaussmeter')
 
     will re-load all current setups except for "gaussmeter".
+
+    see also: `NewSetup`, `AddSetup`, `ListSetups`
     """
     current = session.explicit_setups[:]
     original = current[:]
@@ -287,6 +293,8 @@ def ListSetups(listall=False):
     To list also low-level and simulation setups:
 
     >>> ListSetups(True)
+
+    see also: `NewSetup`, `AddSetup`, `RemoveSetup`
     """
     session.log.info('Available setups:')
     items = []
