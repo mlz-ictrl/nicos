@@ -6,6 +6,7 @@ servername = 'VME'
 
 nameservice = 'stressictrl.stressi.frm2'
 
+excludes = ['motorbox02']
 includes = ['aliases']
 
 devices = dict(
