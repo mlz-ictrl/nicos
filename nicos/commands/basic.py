@@ -432,6 +432,8 @@ def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
 
     When configured, proposal information will be automatically filled in from
     the proposal database.
+
+    see also: `FinishExperiment`
     """
     if session.mode == SIMULATION:
         return
@@ -444,6 +446,8 @@ def FinishExperiment(*args, **kwargs):
     """Finish the current experiment.
 
     Which parameters are accepted depends on the individual instrument.
+
+    see also: `NewExperiment`
     """
     if session.mode == SIMULATION:
         return
