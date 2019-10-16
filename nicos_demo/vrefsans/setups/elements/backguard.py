@@ -22,7 +22,7 @@ devices = dict(
         lowlevel = True,
     ),
     backguard_2 = device('nicos.devices.generic.Axis',
-        description = 'Backguard axis TOFTOF. Use this to adjus TOFTOF-side',
+        description = 'Backguard axis TOFTOF. Use this to adjust TOFTOF-side',
         motor = device('nicos.devices.generic.VirtualMotor',
             abslimits = (-0.5, 61.0),
             speed = 1,

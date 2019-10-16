@@ -28,7 +28,7 @@ devices = dict(
         unit = 'mm',
     ),
     backguard_2 = device('nicos.devices.generic.Axis',
-        description = 'Backguard axis TOFTOF. Use this to adjus TOFTOF-side',
+        description = 'Backguard axis TOFTOF. Use this to adjust TOFTOF-side',
         motor = 'backguard_2_m',
         precision = 0.01,
         lowlevel = not adjust,
