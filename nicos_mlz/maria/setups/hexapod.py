@@ -1,49 +1,27 @@
 # -*- coding: utf-8 -*-
 
-description = "Hexapod control"
-group = "optional"
+description = 'Hexapod control'
+group = 'optional'
 
-tango_base = "tango://phys.maria.frm2:10000/maria/"
+excludes = []
 
-hexapod_workspaces = [
-    # (workspace_id, workspace_definition_list)
-    #
-    # workspace_definition_list:
-    # [xn, xp, yn, yp, zn, zp, rzn, rzp, ryn, ryp, rxn, rxp,
-    #  tx, ty, tz, rz, ry, rx]
-    (
-        10, [
-            -75., 75., -45., 45., -100., 100., -190., 120., -5., 5., -5., 5.,
-            0., 0., 0., 0., 0., 0.
-        ]
-    ),
-    # (
-    #     11, [ ]
-    # ),
-]
+tango_base = 'tango://phys.maria.frm2:10000/maria/'
+hexapod = tango_base + 'hexapod/h_'
 
 devices = dict(
-    hexapod = device("nicos_mlz.jcns.devices.ohe.HexapodSpecial",
-        description = "Hexapod special / configuration device",
-        tangodevice = tango_base + "hexapodspecial/1",
-        workspaces = hexapod_workspaces,
-        lowlevel = True,
-    ),
-    omega = device("nicos_mlz.jcns.devices.motor.InvertableMotor",
-        description = "Hexapod base rotation table",
-        tangodevice = tango_base + "hexapodbase/dt",
-        unit = "deg",
+   detarm = device('nicos.devices.tango.Motor',
+        description = 'Hexapod detector arm',
+        tangodevice = hexapod + 'detarm',
+        unit = 'deg',
         precision = 0.005,
-        fmtstr = "%.3f",
-        invert = True,
+        fmtstr = '%.3f',
     ),
-    detarm = device("nicos_mlz.jcns.devices.motor.InvertableMotor",
-        description = "Hexapod detector arm rotation",
-        tangodevice = tango_base + "hexapodbase/da",
-        unit = "deg",
+    omega = device('nicos.devices.tango.Motor',
+        description = 'Hexapod rotation table',
+        tangodevice = hexapod + 'omega',
+        unit = 'deg',
         precision = 0.005,
-        fmtstr = "%.3f",
-        invert = True,
+        fmtstr = '%.3f',
     ),
     t2t = device("nicos_mlz.jcns.devices.motor.MasterSlaveMotor",
         description = "2 theta axis moving detarm = 2 * omega",
@@ -51,46 +29,46 @@ devices = dict(
         slave = "detarm",
         scale = 2.,
     ),
-    rx = device("nicos.devices.tango.Motor",
-        description = "Hexapod rotation around X",
-        tangodevice = tango_base + "hexapodbase/rx",
-        unit = "deg",
+    rx = device('nicos.devices.tango.Motor',
+        description = 'Hexapod rotation around X',
+        tangodevice = hexapod + 'rx',
+        unit = 'deg',
         precision = 0.001,
-        fmtstr = "%.3f",
+        fmtstr = '%.3f',
     ),
-    ry = device("nicos.devices.tango.Motor",
-        description = "Hexapod rotation around Y",
-        tangodevice = tango_base + "hexapodbase/ry",
-        unit = "deg",
+    ry = device('nicos.devices.tango.Motor',
+        description = 'Hexapod rotation around Y',
+        tangodevice = hexapod + 'ry',
+        unit = 'deg',
         precision = 0.001,
-        fmtstr = "%.3f",
+        fmtstr = '%.3f',
     ),
-    rz = device("nicos.devices.tango.Motor",
-        description = "Hexapod rotation around Z",
-        tangodevice = tango_base + "hexapodbase/rz",
-        unit = "deg",
+    rz = device('nicos.devices.tango.Motor',
+        description = 'Hexapod rotation around Z',
+        tangodevice = hexapod + 'rz',
+        unit = 'deg',
         precision = 0.001,
-        fmtstr = "%.3f",
+        fmtstr = '%.3f',
     ),
-    tx = device("nicos.devices.tango.Motor",
-        description = "Hexapod translation in X",
-        tangodevice = tango_base + "hexapodbase/tx",
-        unit = "mm",
+    tx = device('nicos.devices.tango.Motor',
+        description = 'Hexapod translation in X',
+        tangodevice = hexapod + 'tx',
+        unit = 'mm',
         precision = 0.01,
-        fmtstr = "%.2f",
+        fmtstr = '%.2f',
     ),
-    ty = device("nicos.devices.tango.Motor",
-        description = "Hexapod translation in Y",
-        tangodevice = tango_base + "hexapodbase/ty",
-        unit = "mm",
+    ty = device('nicos.devices.tango.Motor',
+        description = 'Hexapod translation in Y',
+        tangodevice = hexapod + 'ty',
+        unit = 'mm',
         precision = 0.01,
-        fmtstr = "%.2f",
+        fmtstr = '%.2f',
     ),
-    tz = device("nicos.devices.tango.Motor",
-        description = "Hexapod translation in Z",
-        tangodevice = tango_base + "hexapodbase/tz",
-        unit = "mm",
+    tz = device('nicos.devices.tango.Motor',
+        description = 'Hexapod translation in Z',
+        tangodevice = hexapod + 'tz',
+        unit = 'mm',
         precision = 0.01,
-        fmtstr = "%.2f",
+        fmtstr = '%.2f',
     ),
 )
