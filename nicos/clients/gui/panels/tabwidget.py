@@ -93,7 +93,7 @@ class TearOffTabBar(QTabBar):
 
             drag = QDrag(self)
             mimedata = QMimeData()
-            mimedata.setData('action', 'application/tab-detach')
+            mimedata.setData('action', b'application/tab-detach')
             drag.setMimeData(mimedata)
 
             if QT_VER == 4:
