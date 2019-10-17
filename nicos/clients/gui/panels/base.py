@@ -114,8 +114,6 @@ class Panel(DlgUtils, QWidget, SetupDepPanelMixin):
     panelName = ''
 
     setWidgetVisible = SetupDepPanelMixin.setWidgetVisible
-    showPanel = pyqtSignal(QWidget, name='showPanel')
-    hidePanel = pyqtSignal(QWidget, name='hidePanel')
 
     def __init__(self, parent, client, options):
         QWidget.__init__(self, parent)
@@ -130,7 +128,6 @@ class Panel(DlgUtils, QWidget, SetupDepPanelMixin):
         self.sgroup = SettingGroup(self.panelName)
         with self.sgroup as settings:
             self.loadSettings(settings)
-        self.export_actions = options.get('export_actions', True)
 
     def closeWindow(self):
         """Try to close the window containing this panel.
@@ -187,13 +184,3 @@ class Panel(DlgUtils, QWidget, SetupDepPanelMixin):
 
     def updateStatus(self, status, exception=False):
         pass
-
-    def showEvent(self, ev):
-        self.log.debug('showEvent')
-        QWidget.showEvent(self, ev)
-        self.showPanel.emit(self)
-
-    def hideEvent(self, ev):
-        self.log.debug('hideEvent')
-        QWidget.hideEvent(self, ev)
-        self.hidePanel.emit(self)

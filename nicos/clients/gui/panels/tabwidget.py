@@ -26,9 +26,8 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.clients.gui.panels.auxwindows import AuxiliarySubWindow
-from nicos.clients.gui.utils import SettingGroup, activatePanelActions, \
-    deactivatePanelActions, loadBasicWindowSettings
+from nicos.clients.gui.panels.auxwindows import AuxiliarySubWindow, Panel
+from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
 from nicos.guisupport.qt import QT_VER, QApplication, QByteArray, QCursor, \
     QDrag, QEvent, QMainWindow, QMimeData, QMouseEvent, QPixmap, QPoint, \
     QSize, QStyle, QStyleOptionTab, QStylePainter, Qt, QTabBar, QTabWidget, \
@@ -193,8 +192,10 @@ class TearOffTabWidget(QTabWidget):
         if tb_pos == 'left':
             self.setTabPosition(QTabWidget.West)
         self.setMovable(False)
+        self.previousTabIdx = 0
         tabBar.tabDetached.connect(self.detachTab)
         tabBar.tabMoved.connect(self.moveTab)
+        self.currentChanged[int].connect(self.tabChangedTab)
         self.tabIdx = {}
         # don't draw a frame around the tab contents
         self.setStyleSheet('QTabWidget:tab:disabled{width:0;height:0;'
@@ -237,11 +238,24 @@ class TearOffTabWidget(QTabWidget):
         self.tabIdx[index] = self.TabWidgetStorage(index, self.widget(index),
                                                    self.tabText(index))
 
+    def _setPanelToolbars(self, panel, visible):
+        for tb in panel.getToolbars():
+            tb.setVisible(visible)
+
+    def _setPanelMenus(self, panel, visible):
+        for m in panel.getMenus():
+            m.menuAction().setVisible(visible)
+
     @pyqtSlot(QWidget, bool)
     def setWidgetVisibleSlot(self, widget, visible):
         w = self._findFirstWindow(widget)  # get widget which is related to tab
         for i in self.tabIdx.values():     # search for it in the list of tabs
             if i.widget == w:              # found
+                if isinstance(widget, Panel):
+                    if not visible or (visible and self.currentWidget() ==
+                                       widget):
+                        self._setPanelToolbars(widget, visible)
+                        self._setPanelMenus(widget, visible)
                 if visible:
                     if not i.visible:
                         newIndex = -1
@@ -268,13 +282,7 @@ class TearOffTabWidget(QTabWidget):
         return panel
 
     def detachTab(self, index, point):
-        widget = self.widget(index)
-        if widget:
-            for p in widget.panels:
-                p.hidePanel.emit(p)
-                if p.receivers(p.showPanel):
-                    p.showPanel.disconnect()
-
+        # print '({0}, {1})'.format(point.x(), point.y())
         detachWindow = DetachedWindow(self.tabText(index).replace('&', ''),
                                       self.parentWidget())
         w = self.widget(index)
@@ -282,6 +290,8 @@ class TearOffTabWidget(QTabWidget):
             if i.widget == w:
                 detachWindow.tabIdx = self.tabIdx[i.index].index
                 break
+
+        detachWindow.closed.connect(self.attachTab)
 
         tearOffWidget = self.widget(index)
         panel = self._getPanel(tearOffWidget)
@@ -293,20 +303,42 @@ class TearOffTabWidget(QTabWidget):
         if self.count() < 0:
             self.setCurrentIndex(0)
 
-        for p in widget.panels:
-            detachWindow.addPanel(p, False)
-            # TODO: There is an initialization problem
-            if not p.receivers(p.showPanel):
-                p.showPanel.connect(detachWindow.showPanelSlot)
+        self._moveMenuTools(tearOffWidget)
+        self._moveActions(tearOffWidget, detachWindow)
 
         detachWindow.setWidget(tearOffWidget)
         detachWindow.resize(tearOffWidget.size())
         detachWindow.move(point)
         detachWindow.show()
-        detachWindow.closed.connect(self.attachTab)
+
+    def _moveMenuTools(self, widget):
+        for p in widget.panels:
+            if hasattr(p, 'menuToolsActions'):
+                topLevelWindow = self.topLevelWidget(p)
+
+                if hasattr(topLevelWindow, 'menuTools'):
+                    for action in p.menuToolsActions:
+                        topLevelWindow.menuTools.removeAction(action)
+
+    def _moveActions(self, widget, window):
+        for p in widget.panels:
+            for action in p.actions:
+                action.setVisible(False)
+
+            for menu in p.getMenus():
+                action = window.menuBar().addMenu(menu)
+                action.setVisible(True)
+
+            for toolbar in p.getToolbars():
+                toolbar.hide()
+                topLevelWindow = self.topLevelWidget(p)
+                topLevelWindow.removeToolBar(toolbar)
+
+                window.addToolBar(toolbar)
+                toolbar.show()
 
     def attachTab(self, detachWindow):
-        detachWindow.closed.disconnect(self.attachTab)
+        detachWindow.closed.connect(self.attachTab)
         detachWindow.saveSettings(False)
         tearOffWidget = detachWindow.centralWidget()
         panel = self._getPanel(tearOffWidget)
@@ -316,12 +348,18 @@ class TearOffTabWidget(QTabWidget):
         if not isinstance(panel, QTabWidget):
             panel.setWidgetVisible.connect(self.setWidgetVisibleSlot)
 
-        topLevelWindow = self.topLevelWidget(self)
+#       self._moveMenuTools(tearOffWidget)
+
         for p in tearOffWidget.panels:
-            topLevelWindow.addPanel(p, False)
-            p.showPanel.connect(topLevelWindow.showPanelSlot)
+            if hasattr(p, 'menuToolsActions'):
+                topLevelWindow = self.topLevelWidget(self)
+
+                if hasattr(topLevelWindow, 'menuTools'):
+                    for action in p.menuToolsActions:
+                        topLevelWindow.menuTools.removeAction(action)
 
         newIndex = -1
+
         for i in range(self.tabBar().count()):
             w = self.widget(i)
             for j in self.tabIdx.values():
@@ -339,7 +377,48 @@ class TearOffTabWidget(QTabWidget):
                                   detachWindow.windowTitle())
         if newIndex != -1:
             self.setCurrentIndex(newIndex)
-        detachWindow.deleteLater()
+
+    def tabChangedTab(self, index):
+        for i in range(self.count()):
+            for p in self.widget(i).panels:
+                for toolbar in p.getToolbars():
+                    self.menuwindow.removeToolBar(toolbar)
+                for action in p.actions:
+                    action.setVisible(False)
+
+        if self.previousTabIdx < self.count():
+            if self.widget(self.previousTabIdx):
+                for p in self.widget(self.previousTabIdx).panels:
+                    if hasattr(p, 'menuToolsActions'):
+                        topLevelWindow = self.topLevelWidget(p)
+
+                        if hasattr(topLevelWindow, 'menuTools'):
+                            for action in p.menuToolsActions:
+                                topLevelWindow.menuTools.removeAction(action)
+
+        if self.widget(index):
+            for p in self.widget(index).panels:
+                p.getMenus()
+
+                if hasattr(p, 'menuToolsActions'):
+                    topLevelWindow = self.topLevelWidget(p)
+
+                    if hasattr(topLevelWindow, 'menuTools'):
+                        for action in p.menuToolsActions:
+                            topLevelWindow.menuTools.addAction(action)
+
+                for toolbar in p.getToolbars():
+                    if hasattr(self.menuwindow, 'toolBarWindows'):
+                        self.menuwindow.insertToolBar(
+                            self.menuwindow.toolBarWindows, toolbar)
+                    else:
+                        self.menuwindow.addToolBar(toolbar)
+                    toolbar.show()
+
+                for menu in p.actions:
+                    menu.setVisible(True)
+
+        self.previousTabIdx = index
 
     def addPanel(self, widget, label):
         sgroup = SettingGroup(label)
@@ -355,6 +434,8 @@ class TearOffTabWidget(QTabWidget):
                 if i.widget == widget:
                     i.setDetached(None)
         else:
+            # self.tabDetached.emit(
+            #           self.tabAt(self._dragStartPos), QCursor.pos())
             detachWindow = DetachedWindow(label.replace('&', ''),
                                           self.parentWidget())
             detachWindow.tabIdx = index
@@ -364,12 +445,13 @@ class TearOffTabWidget(QTabWidget):
 
             panel = self._getPanel(widget)
             if not isinstance(panel, QTabWidget):
-                detachWindow.addPanel(panel, False)
-                panel.showPanel.connect(detachWindow.showPanelSlot)
                 panel.setWidgetVisible.disconnect(self.setWidgetVisibleSlot)
                 panel.setWidgetVisible.connect(
                     detachWindow.setWidgetVisibleSlot)
             widget.setParent(detachWindow)
+
+            self._moveMenuTools(widget)
+            self._moveActions(widget, detachWindow)
 
             detachWindow.setWidget(widget)
             detachWindow.destroyed.connect(detachWindow.deleteLater)
@@ -380,8 +462,7 @@ class TearOffTabWidget(QTabWidget):
 
     def topLevelWidget(self, w):
         widget = w
-        while not isinstance(widget, QMainWindow) or \
-           isinstance(widget, AuxiliarySubWindow):
+        while True:
             parent = widget.parent()
             if not parent:
                 break
@@ -392,8 +473,6 @@ class TearOffTabWidget(QTabWidget):
 class DetachedWindow(QMainWindow):
 
     closed = pyqtSignal(object)
-
-    panels = []
 
     def __init__(self, title, parent):
         self.tabIdx = -1
@@ -431,20 +510,6 @@ class DetachedWindow(QMainWindow):
             settings.setValue('detached', detached)
             settings.setValue('geometry', self.saveGeometry())
             settings.setValue('windowstate', self.saveState())
-
-    def addPanel(self, panel, always=True):
-        if always or panel not in self.panels:
-            self.panels.append(panel)
-            panel.showPanel.connect(self.showPanelSlot)
-            panel.hidePanel.connect(self.hidePanelSlot)
-
-    @pyqtSlot(QWidget)
-    def showPanelSlot(self, panel):
-        activatePanelActions(self, panel)
-
-    @pyqtSlot(QWidget)
-    def hidePanelSlot(self, panel):
-        deactivatePanelActions(self, panel)
 
 
 def firstWindow(w):

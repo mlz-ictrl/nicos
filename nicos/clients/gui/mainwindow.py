@@ -34,6 +34,7 @@ from time import strftime, time as currenttime
 from nicos import nicos_version
 from nicos.clients.base import ConnectionData
 from nicos.clients.gui.client import NicosGuiClient
+from nicos.clients.gui.config import tabbed
 from nicos.clients.gui.data import DataHandler
 from nicos.clients.gui.dialogs.auth import ConnectionDialog
 from nicos.clients.gui.dialogs.debug import DebugConsole
@@ -45,13 +46,13 @@ from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
 from nicos.clients.gui.tools import createToolMenu, startStartupTools
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, \
-    activatePanelActions, deactivatePanelActions, dialogFromUi, \
-    loadBasicWindowSettings, loadUi, loadUserStyle, splitTunnelString
+    dialogFromUi, loadBasicWindowSettings, loadUi, loadUserStyle, \
+    splitTunnelString
 from nicos.core.utils import ADMIN
 from nicos.guisupport.qt import PYQT_VERSION_STR, QT_VERSION_STR, QAction, \
     QApplication, QColorDialog, QDialog, QFontDialog, QIcon, QLabel, \
     QMainWindow, QMenu, QMessageBox, QPixmap, QSize, QSystemTrayIcon, Qt, \
-    QTimer, QWebView, QWidget, pyqtSignal, pyqtSlot
+    QTimer, QWebView, pyqtSignal, pyqtSlot
 from nicos.protocols.daemon import BREAK_NOW, STATUS_IDLE, STATUS_IDLEEXC, \
     STATUS_INBREAK
 from nicos.pycompat import iteritems, listvalues, text_type
@@ -221,8 +222,6 @@ class MainWindow(DlgUtils, QMainWindow):
     def addPanel(self, panel, always=True):
         if always or panel not in self.panels:
             self.panels.append(panel)
-            panel.showPanel.connect(self.showPanelSlot)
-            panel.hidePanel.connect(self.hidePanelSlot)
 
     def createWindowContent(self):
         self.sgroup = SettingGroup('MainWindow')
@@ -269,6 +268,8 @@ class MainWindow(DlgUtils, QMainWindow):
             self.toolBarWindows.show()
 
         createToolMenu(self, self.gui_conf.tools, self.menuTools)
+        if isinstance(self.gui_conf.main_window, tabbed) and widget:
+            widget.tabChangedTab(0)
 
     def createWindow(self, wtype):
         # for the history_wintype or editor_wintype
@@ -761,13 +762,3 @@ class MainWindow(DlgUtils, QMainWindow):
         for panel in self.panels:
             panel.setCustomStyle(self.user_font, color)
         self.user_color = color
-
-    @pyqtSlot(QWidget)
-    def showPanelSlot(self, panel):
-        self.log.debug('showPanelSlot: %r', panel.panelName)
-        activatePanelActions(self, panel)
-
-    @pyqtSlot(QWidget)
-    def hidePanelSlot(self, panel):
-        self.log.debug('hidePanelSlot: %r', panel.panelName)
-        deactivatePanelActions(self, panel)

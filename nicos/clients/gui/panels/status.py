@@ -139,7 +139,7 @@ class ScriptStatusPanel(Panel):
         loadUi(self, 'panels/status.ui')
 
         self.stopcounting = False
-        self.menu = None
+        self.menus = None
         self.bar = None
         self.queueFrame.hide()
         self.statusLabel.hide()
@@ -180,12 +180,12 @@ class ScriptStatusPanel(Panel):
         bar.setObjectName(bar.windowTitle())
         # unfortunately it is not wise to put a menu in its own dropdown menu,
         # so we have to duplicate the actionBreak and actionStop...
-        dropdown1 = QMenu('')
+        dropdown1 = QMenu('', self)
         dropdown1.addAction(self.actionBreak)
         dropdown1.addAction(self.actionBreakCount)
         dropdown1.addAction(self.actionFinishEarly)
         self.actionBreak2.setMenu(dropdown1)
-        dropdown2 = QMenu('')
+        dropdown2 = QMenu('', self)
         dropdown2.addAction(self.actionStop)
         dropdown2.addAction(self.actionFinish)
         dropdown2.addAction(self.actionFinishEarlyAndStop)
@@ -194,10 +194,9 @@ class ScriptStatusPanel(Panel):
         bar.addAction(self.actionContinue)
         bar.addAction(self.actionStop2)
         bar.addAction(self.actionEmergencyStop)
-        self.bar = bar
-        self.bar.permanent = True
+        self.mainwindow.addToolBar(bar)
 
-        menu = QMenu('&Script control')
+        menu = QMenu('&Script control', self)
         menu.addAction(self.actionBreak)
         menu.addAction(self.actionBreakCount)
         menu.addAction(self.actionContinue)
@@ -208,8 +207,8 @@ class ScriptStatusPanel(Panel):
         menu.addAction(self.actionFinishEarlyAndStop)
         menu.addSeparator()
         menu.addAction(self.actionEmergencyStop)
-        self.menu = menu
-        self.menu.permanent = True
+        self.mainwindow.menuBar().insertMenu(
+            self.mainwindow.menuWindows.menuAction(), menu)
 
         self.activeGroup = QActionGroup(self)
         self.activeGroup.addAction(self.actionBreak)
@@ -232,10 +231,10 @@ class ScriptStatusPanel(Panel):
             setBackgroundColor(widget, back)
 
     def getToolbars(self):
-        return [self.bar]
+        return []
 
     def getMenus(self):
-        return [self.menu]
+        return []
 
     def updateStatus(self, status, exception=False):
         isconnected = status != 'disconnected'

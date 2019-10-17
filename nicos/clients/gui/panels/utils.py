@@ -47,6 +47,23 @@ def createPanel(item, window, menuwindow, topwindow, log):
     p = cls(menuwindow, window.client, item.options or {})
     window.addPanel(p)
     topwindow.addPanel(p, False)
+
+    for toolbar in p.getToolbars():
+        # this helps for serializing window state
+        toolbar.setObjectName(toolbar.windowTitle())
+        if hasattr(menuwindow, 'toolBarWindows'):
+            menuwindow.insertToolBar(menuwindow.toolBarWindows, toolbar)
+        else:
+            menuwindow.addToolBar(toolbar)
+        toolbar.setVisible(False)
+    for menu in p.getMenus():
+        if hasattr(menuwindow, 'menuWindows'):
+            p.actions.update((menuwindow.menuBar().insertMenu(
+                              menuwindow.menuWindows.menuAction(),
+                              menu),))
+        else:
+            p.actions.update((menuwindow.menuBar().addMenu(menu),))
+
     p.setCustomStyle(window.user_font, window.user_color)
     if window.client.isconnected and hasattr(p, 'on_client_connected'):
         p.on_client_connected()
