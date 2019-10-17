@@ -186,7 +186,7 @@ class TearOffTabWidget(QTabWidget):
 
     def __init__(self, item, window, menuwindow, parent=None):
         QTabWidget.__init__(self, parent)
-        self.menuwindow = window
+        self.menuwindow = menuwindow
         tb_pos = item.options.get('position', 'top')
         tabBar = LeftTabBar(self) if tb_pos == 'left' else TearOffTabBar(self)
         self.setTabBar(tabBar)
