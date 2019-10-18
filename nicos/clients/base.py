@@ -27,6 +27,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import errno
 import hashlib
 import socket
 import threading
@@ -196,7 +197,7 @@ class NicosClient(object):
             try:
                 event, data = self.transport.recv_event()
             except Exception as err:
-                if isinstance(err, IOError) and err.errno == socket.EINTR:
+                if isinstance(err, IOError) and err.errno == errno.EINTR:
                     continue
                 if not self.disconnecting:
                     self.log_func('Error getting event: %s' % err)
