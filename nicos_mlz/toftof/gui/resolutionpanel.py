@@ -193,7 +193,7 @@ class ResolutionPanel(NicosWidget, Panel):
 
             valid = QDoubleValidator()
 
-            for f in (self.E_neutron, self.Q0_min, self.Q0_max, self.dE_min,
+            for f in (self.E_neutron, self.Q0_min, self.Q0_max, self.dE_max,
                       self.dE_el):
                 f.setValidator(valid)
                 f.setReadOnly(True)
@@ -267,9 +267,9 @@ class ResolutionPanel(NicosWidget, Panel):
         self.E_neutron.setText('%.4f' % ra.E0)
         self.Q0_min.setText('%.4f' % ra.q_low_0)
         self.Q0_max.setText('%.4f' % ra.q_high_0)
-        self.dE_min.setText('%.4f' % ra.dE_min)
+        self.dE_max.setText('%.4f' % -ra.dE_min)
         self.dE_el.setText('%.4f' % ra.dE_el)
 
-        self.plot1.setData(ra.dE, ra.q_low, ra.q_high)
+        self.plot1.setData(-ra.dE, ra.q_low, ra.q_high)
         self.plot2.setData(ra.lambdas, 1e3 * ra.dE_res)
         self.plot3.setData(-1. * ra.dE, 1e3 * ra.dE_in)
