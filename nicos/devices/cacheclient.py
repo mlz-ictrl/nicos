@@ -27,6 +27,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import errno
 import select
 import socket
 import threading
@@ -253,7 +254,7 @@ class BaseCacheClient(Device):
                         res = select.select([self._socket], writelist, [],
                                             self._selecttimeout)
                     except EnvironmentError as e:
-                        if e.errno == socket.EINTR:
+                        if e.errno == errno.EINTR:
                             continue
                         raise
                     except TypeError:
