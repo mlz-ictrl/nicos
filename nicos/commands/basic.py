@@ -421,7 +421,7 @@ def CreateAllDevices(**kwargs):
 
 
 @usercommand
-@helparglist('proposal, title, localcontact, ...')
+@helparglist('proposal, [title, localcontact, user, ...]')
 def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
     """Start a new experiment with the given proposal number and title.
 
@@ -455,7 +455,7 @@ def FinishExperiment(*args, **kwargs):
 
 
 @hiddenusercommand
-@helparglist('name, email[, affiliation]')
+@helparglist('name, [email, affiliation]')
 def AddUser(name, email=None, affiliation=None):
     """Add a new user to the experiment.
 
