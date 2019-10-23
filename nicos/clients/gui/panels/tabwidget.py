@@ -132,15 +132,6 @@ class TearOffTabBar(QTabBar):
         event.acceptProposedAction()
         QTabBar.dropEvent(self, event)
 
-    # def dragMoveEvent(self, event):
-    #     mimedata = event.mimeData()
-    #     formats = mimedata.formats()
-    #     if 'action' in formats and \
-    #         mimedata.data('action') == 'application/tab-detach':
-    #         self._dragMovedPos = event.pos()
-    #         event.acceptProposedAction()
-    #     QTabBar.dragMoveEvent(self, event)
-
 
 class LeftTabBar(TearOffTabBar):
 
@@ -282,7 +273,6 @@ class TearOffTabWidget(QTabWidget):
         return panel
 
     def detachTab(self, index, point):
-        # print '({0}, {1})'.format(point.x(), point.y())
         detachWindow = DetachedWindow(self.tabText(index).replace('&', ''),
                                       self.parentWidget())
         w = self.widget(index)
@@ -347,8 +337,6 @@ class TearOffTabWidget(QTabWidget):
         tearOffWidget.setParent(self)
         if not isinstance(panel, QTabWidget):
             panel.setWidgetVisible.connect(self.setWidgetVisibleSlot)
-
-#       self._moveMenuTools(tearOffWidget)
 
         for p in tearOffWidget.panels:
             if hasattr(p, 'menuToolsActions'):
@@ -434,8 +422,6 @@ class TearOffTabWidget(QTabWidget):
                 if i.widget == widget:
                     i.setDetached(None)
         else:
-            # self.tabDetached.emit(
-            #           self.tabAt(self._dragStartPos), QCursor.pos())
             detachWindow = DetachedWindow(label.replace('&', ''),
                                           self.parentWidget())
             detachWindow.tabIdx = index

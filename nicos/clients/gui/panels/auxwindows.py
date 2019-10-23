@@ -142,7 +142,6 @@ class AuxiliarySubWindow(QMainWindow):
     def __init__(self, item, window, menuwindow, parent):
         from nicos.clients.gui.panels.utils import createWindowItem
         QMainWindow.__init__(self, parent)
-        # self.mainwindow = parent
         self.user_color = window.user_color
         self.mainwindow = window.mainwindow
         self.log = NicosLogger('AuxiliarySubWindow')
