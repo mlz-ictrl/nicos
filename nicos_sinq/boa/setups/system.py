@@ -14,6 +14,7 @@ modules = [
     'nicos_sinq.commands.hmcommands', 'nicos_sinq.commands.epicscommands'
 ]
 
+includes = ['table2', 'table3', 'table4', 'table5', 'table6']
 devices = dict(
     BOA = device('nicos.devices.instrument.Instrument',
         description = 'instrument object',
