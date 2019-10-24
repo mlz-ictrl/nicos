@@ -17,7 +17,7 @@ devices = dict(
     Sample = device('nicos.devices.experiment.Sample',
         description = 'Default Sample',
     ),
-    Exp = device('nicos.devices.experiment.Experiment',
+    Exp = device('nicos_inl.nrs.devices.experiment.ImagingExperiment',
         description = 'North radiography station experiment',
         dataroot = '/data/',
         sample = 'Sample',
