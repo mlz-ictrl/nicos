@@ -271,7 +271,7 @@ class Experiment(Device):
         # check for defines service 'proposal'
         if proposal == self.serviceexp:
             return 'service'
-        # all proposals starting with the define prefix are user-type,
+        # all proposals starting with the defined prefix are user-type,
         # all others are service
         if self.propprefix:
             if proposal.startswith(self.propprefix):
