@@ -83,7 +83,7 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="label_4">
+       <widget class="QLabel" name="propLabel">
         <property name="text">
          <string>Enter a proposal number:</string>
         </property>
