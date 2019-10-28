@@ -6,7 +6,7 @@ devices = dict(
     beamstop = device('nicos.devices.generic.Axis',
         description = 'Beamstop position',
         motor = device('nicos.devices.generic.VirtualMotor',
-            abslimits = (-0.1, 44.8586),
+            abslimits = (-44.8586, 0.1),
             unit = 'mm',
             speed = 1,
         ),

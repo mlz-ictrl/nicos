@@ -32,6 +32,12 @@ devices = dict(
     ),
     Sample = device('nicos_demo.vtreff.devices.MirrorSample',
         description = 'The current used mirror sample',
+        alignerrors = {
+            'sample_y': 2,
+            'omega': 0.01,
+            'detarm': 0.1,
+            'chi': 0.5,
+        },
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'Experiment object',
