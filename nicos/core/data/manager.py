@@ -373,6 +373,11 @@ class DataManager(object):
                     exc = TypeError('error expanding data file name: %s, check '
                                     'filename template %r!' % (err, nametmpl))
                 continue
+            except ValueError as err:
+                if not exc:
+                    exc = ValueError('error expanding data file name: %s, check '
+                                     'filename template %r!' % (err, nametmpl))
+                continue
             filenames.append(filename)
         if exc and not filenames:
             # pylint: disable=raising-bad-type
