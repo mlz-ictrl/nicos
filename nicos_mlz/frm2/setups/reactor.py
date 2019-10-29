@@ -2,7 +2,7 @@ description = 'FRM II reactor status devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://ictrlfs.ictrl.frm2:10000/frm2/'
+tango_base = 'tango://ictrlfs.ictrl.frm2:10000/mlz/'
 
 devices = dict(
     ReactorPower = device('nicos.devices.tango.AnalogInput',

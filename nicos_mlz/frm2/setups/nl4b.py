@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 includes = ['guidehall']
 
-tango_base = 'tango://ictrlfs.ictrl.frm2:10000/frm2/'
+tango_base = 'tango://ictrlfs.ictrl.frm2:10000/mlz/'
 
 devices = dict(
     NL4b = device('nicos.devices.tango.NamedDigitalInput',
