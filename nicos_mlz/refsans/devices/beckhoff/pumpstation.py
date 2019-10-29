@@ -158,38 +158,38 @@ class PumpstandIO(PyTangoDevice, Readable):
         (6, 'Motorschutzschalter Pumpe 2'),
         (7, 'Motorschutzschalter Pumpe 3'),
         # (8, 'Motorschutzschalter Pumpe 4'),
-        (9, 'Leistungsschütz Pumpe 1 schaltet nicht'),
-        (10, 'Leistungsschütz Pumpe 2 schaltet nicht'),
+        (9, 'relais Pumpe 1 schaltet nicht'),
+        (10, 'relais Pumpe 2 schaltet nicht'),
         (11, 'Pumpe 3 meldet Fehlerstatus (Kashiyama)'),
-        # (12, 'Leistungsschütz Pumpe 4 schaltet nicht'),
+        # (12, 'relais Pumpe 4 schaltet nicht'),
         (20, 'Ventil 2a Ansteuerung oder Signalkabel defekt'),
         (21, 'Ventil 4a Ansteuerung oder Signalkabel defekt'),
     )
     _HW_Alarms_CB = (
-        (13, 'Sensor- oder Kabelfehler Messröhre CB'),
+        (13, 'Sensor- oder Kabelfehler Messtuebe CB'),
         (17, 'Timeout bei pumpen von CB'),
     )
     _HW_Alarms_SR = (
-        (14, 'Sensor- oder Kabelfehler Messröhre SR'),
+        (14, 'Sensor- oder Kabelfehler Messtube SR'),
         (16, 'Timeout bei pumpen von SR'),
     )
     _HW_Alarms_SFK = (
-        (15, 'Sensor- oder Kabelfehler Messröhre SFK'),
+        (15, 'Sensor- oder Kabelfehler Messtube SFK'),
         (22, 'Timeout bei pumpen von SFK'),
     )
     _HW_Outputs = (
-        (0, 'Pumpe 1 aktiviert (Wäkolbenpumpe Ruvac)'),
+        (0, 'Pumpe 1 aktiviert (rootspump Ruvac)'),
         (1, 'Pumpe 3 aktiviert (derzeit nicht verbaut)'),
         (2, 'Pumpe 2 aktiviert (Kashiyama)'),
-        # (3, 'Pumpe 4 aktiviert (Wäkolbenpumpe Feinvakuum)'),
-        # (4, 'Ventil 1 aktiviert (Belüftung)'),
+        # (3, 'Pumpe 4 aktiviert (rootspump Feinvakuum)'),
+        # (4, 'Ventil 1 aktiviert (Venting)'),
         (5, 'Ventil 2 aktiviert (CB--Pumpe)'),
         (6, 'Ventil 3 aktiviert (SR--Pumpe)'),
-        (7, 'Ventil 4 aktiviert (CB--Belüftung)'),
-        (8, 'Ventil 5 aktiviert (SR--Belüftung)'),
-        (9, 'Lüfter an Pumpe 1 aktiviert'),
+        (7, 'Ventil 4 aktiviert (CB--Venting)'),
+        (8, 'Ventil 5 aktiviert (SR--Venting)'),
+        (9, 'Fan an Pumpe 1 aktiviert'),
         (10, 'Ventil 2a aktiviert (SFK--Pumpe)'),
-        (11, 'Ventil 4a aktiviert (SFK--Belüftung)'),
+        (11, 'Ventil 4a aktiviert (SFK--Venting)'),
     )
     _HW_Status = (
         (1, 'CB: may pump'),
@@ -288,19 +288,58 @@ class PumpstandIO(PyTangoDevice, Readable):
     @usermethod
     def diag(self):
         """Display all available diagnostic information."""
-        sb = self._attached_iodev._HW_readStatusByte()
+        sb = self._HW_readStatusByte()
         for idx, msg in sorted(self._HW_Status):
             if sb & (1 << idx):
-                self.log.debug('Status %d: %s', idx, msg)
-        diags = self._attached_iodev._HW_read_outputs()
+                self.log.info('Status %d: %s', idx, msg)
+        diags = self._HW_read_outputs()
         for idx, msg in sorted(self._HW_Outputs):
             if diags & (1 << idx):
-                self.log.debug('Output %d: %s', idx, msg)
-        alarms = self._attached_iodev._HW_readAlarms()
+                self.log.info('Output %d: %s', idx, msg)
+        alarms = self._HW_readAlarms()
         for idx, msg in sorted(self._HW_Alarms + self._HW_Alarms_CB +
                                self._HW_Alarms_SR + self._HW_Alarms_SFK):
             if alarms & (1 << idx):
                 self.log.warning('Alarm %d: %s', idx, msg)
+
+    def devel(self, tag):
+        """Display all available diagnostic information.
+        new version to handle stuff"""
+        sb = self._HW_readStatusByte()
+        stlist = []
+        for idx, msg in sorted(self._HW_Status):
+            if sb & (1 << idx):
+                self.log.info('Status %d: %s', idx, msg)
+                if tag in msg:
+                    stlist.append(msg)
+        diags = self._HW_read_outputs()
+        outputList = []
+        for idx, msg in sorted(self._HW_Outputs):
+            if diags & (1 << idx):
+                self.log.info('Output %d: %s', idx, msg)
+                if tag in msg:
+                    outputList.append(msg)
+        alarms = self._HW_readAlarms()
+        for idx, msg in sorted(self._HW_Alarms + self._HW_Alarms_CB +
+                               self._HW_Alarms_SR + self._HW_Alarms_SFK):
+            if alarms & (1 << idx):
+                self.log.warning('Alarm %d: %s', idx, msg)
+        self.log.info('stlist >%s<', str(stlist))
+        self.log.info('outputList >%s<', str(outputList))
+        ss = str(stlist)+str(outputList)
+        self.log.info('tag >%s<', tag)
+        #engaged waiting
+        if 'Venting' in ss:
+            res = 'venting'
+        elif 'pumping' in ss:
+            res = 'engaged'
+        elif 'may pump' in ss and 'may vent' in ss:
+            res = 'off'
+        else:
+            res = 'else'
+        self.log.info('%s res >%s<', tag, res)
+        self.log.info('%s res >%s<', tag, res)
+        self.log.info('%s res >%s<', tag, res)
 
 
 class PumpstandPressure(Readable):
@@ -354,7 +393,7 @@ class PumpstandPressure(Readable):
         alarms = self._attached_iodev._HW_readAlarms()
         alarmbit = self._HW_Alarmbit[self.chamber]
         if alarms & (1 << alarmbit):
-            return status.ERROR, 'Sensor- oder Kabelfehler Messröhre'
+            return status.ERROR, 'Sensor- oder Kabelfehler Messtube'
         return status.OK, ''
 
 
