@@ -31,7 +31,8 @@ from nicos.commands import usercommand
 from nicos.commands.device import maw, move
 from nicos.commands.measure import count
 
-__all__ = ['tcount', 'freqmes']
+__all__ = ['tcount', 'freqmes', 'setfg', 'tcalc']
+
 
 @usercommand
 def tcount(time_to_measure):
@@ -70,10 +71,10 @@ def tcount(time_to_measure):
 
 @usercommand
 def freqmes(assumed_freq, number_of_counts):
-    """Triggers and measures the current tisane frequency
+    """Triggers and measures the current tisane frequency.
 
-    by averaging over `number_of_counts` measurements.
-    Also prints average and standard deviation.
+    Average over `number_of_counts` measurements and print average and standard
+    deviation.
 
     Needs to have a (rough) estimation of the frequency beforehand.
 
@@ -81,7 +82,7 @@ def freqmes(assumed_freq, number_of_counts):
     """
     import numpy
     valuedev = session.getDevice('tisane_fc')
-    # erwartete frequenz setzen
+    # set expected frequency
     valuedev._dev.expectedFreq = assumed_freq
 
     armdev = session.getDevice('tisane_fc_trigger')
@@ -91,8 +92,8 @@ def freqmes(assumed_freq, number_of_counts):
 
     value_list = []
     wrong_list = []
-    obere_grenze = assumed_freq*1.1
-    untere_grenze = assumed_freq*0.9
+    obere_grenze = assumed_freq * 1.1
+    untere_grenze = assumed_freq * 0.9
 
     print('Berechnung über %i Messpunkte' % number_of_counts)
 
@@ -113,7 +114,7 @@ def freqmes(assumed_freq, number_of_counts):
     print("Anzahl aller Messpunkte     = %i" % number_of_counts)
     print("Anzahl korrekter Messpunkte = %i" % len(value_list))
     print("Mittelwert [Hz]             = %f" % mean_value)
-    print("Mittelwert [rpm]            = %f" % (mean_value*60))
+    print("Mittelwert [rpm]            = %f" % (mean_value * 60))
     print("Standardabweichung          = %f" % std_value)
     print("Verworfene Werte: %s" % wrong_list)
 
@@ -121,7 +122,8 @@ def freqmes(assumed_freq, number_of_counts):
 
 
 @usercommand
-def setfg(freq_sample, amplitude_sample, offset_sample, shape_sample, freq_detector):
+def setfg(freq_sample, amplitude_sample, offset_sample, shape_sample,
+          freq_detector):
     """Set several values of the multi frequency generator at once
 
     and switch to burst mode.
@@ -141,26 +143,20 @@ def setfg(freq_sample, amplitude_sample, offset_sample, shape_sample, freq_detec
     tisane_relais = session.getDevice('tisane_relais')
     maw(tisane_relais, 0)
 
-
-    # template = ':SOUR1:FUNC:SHAP SQU;:SOUR1:FREQ 116.621036;:SOUR1:VOLT 2.4;:SOUR1:VOLT:UNIT ' \
-    #            'VPP;:SOUR1:VOLT:OFFS 1.3;:SOUR1:FUNCtion:SQU:DCYCle 50;:SOUR1:AM:STATe ' \
-    #            'OFF;:SOUR1:SWEep:STATe OFF;:SOUR1:BURSt:MODE TRIG;:OUTP1:LOAD 50;:OUTP1:POL ' \
-    #            'NORM;:TRIG1:SOUR EXT;:SOUR1:BURSt:NCYCles 9.9E37;:SOUR2:FUNC:SHAP ' \
-    #            'SQU;:SOUR2:FREQ 116.621036;:SOUR2:VOLT 5;:SOUR2:VOLT:UNIT VPP;:SOUR2:VOLT:OFFS ' \
-    #            '1.3;:SOUR2:FUNCtion:SQU:DCYCle 50;:SOUR2:AM:STATe OFF;:SOUR2:SWEep:STATe ' \
-    #            'OFF;:SOUR2:BURSt:MODE TRIG;:OUTP2:LOAD 50;:OUTP2:POL NORM;:TRIG2:SOUR ' \
-    #            'EXT;:SOUR2:BURSt:NCYCles 9.9E37;:SOUR1:BURSt:STATe ON;:SOUR2:BURSt:STATe ' \
-    #            'ON;:OUTP1 ON;:OUTP2 ON;'
-    template = ':SOUR1:FUNC:SHAP {0};:SOUR1:FREQ {1};:SOUR1:VOLT {2};:SOUR1:VOLT:UNIT VPP;' \
-               ':SOUR1:VOLT:OFFS {3};:SOUR1:FUNCtion:SQU:DCYCle 50;:SOUR1:AM:STATe OFF;' \
-               ':SOUR1:SWEep:STATe OFF;:SOUR1:BURSt:MODE TRIG;:OUTP1:LOAD 50;:OUTP1:POL NORM;' \
-               ':TRIG1:SOUR EXT;:SOUR1:BURSt:NCYCles 9.9E37;:SOUR2:FUNC:SHAP SQU;' \
-               ':SOUR2:FREQ {4};:SOUR2:VOLT 5;:SOUR2:VOLT:UNIT VPP;:SOUR2:VOLT:OFFS 1.3;' \
-               ':SOUR2:FUNCtion:SQU:DCYCle 50;:SOUR2:AM:STATe OFF;:SOUR2:SWEep:STATe OFF;' \
-               ':SOUR2:BURSt:MODE TRIG;:OUTP2:LOAD 50;:OUTP2:POL NORM;:TRIG2:SOUR EXT;' \
-               ':SOUR2:BURSt:NCYCles 9.9E37;:SOUR1:BURSt:STATe ON;:SOUR2:BURSt:STATe ON;' \
-               ':OUTP1 ON;:OUTP2 ON;'.format(shape_sample, freq_sample, amplitude_sample,
-                                             offset_sample, freq_detector)
+    template = ':SOUR1:FUNC:SHAP {0};:SOUR1:FREQ {1};:SOUR1:VOLT {2};' \
+               ':SOUR1:VOLT:UNIT VPP;:SOUR1:VOLT:OFFS {3};' \
+               ':SOUR1:FUNCtion:SQU:DCYCle 50;:SOUR1:AM:STATe OFF;' \
+               ':SOUR1:SWEep:STATe OFF;:SOUR1:BURSt:MODE TRIG;' \
+               ':OUTP1:LOAD 50;:OUTP1:POL NORM;:TRIG1:SOUR EXT;' \
+               ':SOUR1:BURSt:NCYCles 9.9E37;:SOUR2:FUNC:SHAP SQU;' \
+               ':SOUR2:FREQ {4};:SOUR2:VOLT 5;:SOUR2:VOLT:UNIT VPP;' \
+               ':SOUR2:VOLT:OFFS 1.3;:SOUR2:FUNCtion:SQU:DCYCle 50;' \
+               ':SOUR2:AM:STATe OFF;:SOUR2:SWEep:STATe OFF;' \
+               ':SOUR2:BURSt:MODE TRIG;:OUTP2:LOAD 50;:OUTP2:POL NORM;' \
+               ':TRIG2:SOUR EXT;:SOUR2:BURSt:NCYCles 9.9E37;' \
+               ':SOUR1:BURSt:STATe ON;:SOUR2:BURSt:STATe ON;:OUTP1 ON;' \
+               ':OUTP2 ON;'.format(shape_sample, freq_sample, amplitude_sample,
+                                   offset_sample, freq_detector)
     strings = dict(multifg.strings)
     strings['arm'] = template
     multifg.strings = strings
@@ -185,7 +181,7 @@ def tcalc(sd, cs, chop_speed, wav_mean, wav_spread):
     T_s = T_c * sd / (sd + cs)
 
     # sample frequency
-    F_s = 1/T_s
+    F_s = 1 / T_s
 
     # calculate the detector repetition tiem using the TISANE equation
     T_d = T_s * (sd + cs) / cs
@@ -208,10 +204,12 @@ def tcalc(sd, cs, chop_speed, wav_mean, wav_spread):
     # transmission function of the selector is assumed to be gaussian
     trans_selector = []
     for i in wav:
-        trans_selector.append(math.exp(-0.5 * ((i - wav_mean)**2) - ((0.5 * wav_mean * 0.01 * wav_spread)**2)))
+        trans_selector.append(math.exp(-0.5 * ((i - wav_mean)**2) -
+                              ((0.5 * wav_mean * 0.01 * wav_spread)**2)))
 
     # define a cutoff for the slowest and the fastest neutrons
-    # use two sigma for an assumption of the maximal and mininmal test_doppler_wavelength_0
+    # use two sigma for an assumption of the maximal and mininmal
+    # test_doppler_wavelength_0
     wav_min = wav_mean * (1 - 0.01 * wav_spread)
     wav_max = wav_mean * (1 + 0.01 * wav_spread)
 
@@ -219,15 +217,16 @@ def tcalc(sd, cs, chop_speed, wav_mean, wav_spread):
     speed_max = 6.262e-34 / (1.674e-27 * wav_min * 1e-10)
 
     # calculate the frame overlap
-    frame_overlap_detector = ((cs + sd) / speed_min - (cs + sd) / speed_max) / T_c
+    frame_overlap_detector = ((cs + sd) / speed_min - (cs + sd) /
+                              speed_max) / T_c
     frame_overlap_sample = (cs / speed_min - cs / speed_max) / T_c
 
     print("Chopper speed             = %f [Hz]" % chop_speed)
-    print("Chopper opening frequency = %f [rpm]" % (chop_speed*60))
+    print("Chopper opening frequency = %f [rpm]" % (chop_speed * 60))
     print("Chopper numbers           = %f" % chop_num)
     print("SD                        = %f [m]" % sd)
     print("Sample frequency          = %.6f [Hz]" % F_s)
-    print("Sample time               = %f [mu s]" % (T_s*1000000))
+    print("Sample time               = %f [mu s]" % (T_s * 1000000))
     print("Detector frequency        = %.6f [Hz]" % F_d)
     print("Frame overlap sample      = %f" % frame_overlap_sample)
     print("Frame overlap detector    = %f" % frame_overlap_detector)
