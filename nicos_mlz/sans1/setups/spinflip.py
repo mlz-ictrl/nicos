@@ -2,7 +2,7 @@ description = 'Spin Flipper'
 
 group = 'optional'
 
-modules = ['nicos_mlz.sans1.spinflipper_commands']
+modules = ['nicos_mlz.sans1.commands.spinflipper']
 
 tango_base = 'tango://spinflip.sans1.frm2:10000/box/'
 tango_base_truerms = 'tango://sans1hw.sans1.frm2:10000/sans1/'

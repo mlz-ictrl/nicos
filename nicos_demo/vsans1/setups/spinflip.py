@@ -2,7 +2,7 @@ description = 'Spin Flipper'
 
 group = 'optional'
 
-modules = ['nicos_mlz.sans1.spinflipper_commands']
+modules = ['nicos_mlz.sans1.commands.spinflipper']
 
 devices = dict(
     # AG1016 amplifier
