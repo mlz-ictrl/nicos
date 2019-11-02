@@ -697,7 +697,8 @@ class SXTalSamplePanel(GenericSamplePanel):
 
     def __init__(self, parent, client, options):
         GenericSamplePanel.__init__(self, parent, client, options)
-        params = client.eval('Sample.cell.cellparams()', None)
+        params = client.eval('session.experiment.sample.cell.cellparams()',
+                             None)
         if params:
             lattice = params[:3]
             angles = params[3:6]
