@@ -797,7 +797,7 @@ class TableWidget(QTableWidget):
                  allow_enter=False):
         self._rows, self._cols = curvalue.shape
         self.validator = validator
-        QTableWidget.__init__(self, self._rows, self._cols, self)
+        QTableWidget.__init__(self, self._rows, self._cols, parent)
         for i in range(self._rows):
             for j in range(self._cols):
                 self.setItem(i, j, QTableWidgetItem(fmtstr % curvalue[i, j]))
