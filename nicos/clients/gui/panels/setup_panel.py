@@ -666,13 +666,13 @@ class GenericSamplePanel(Panel):
         return [self.samplenameEdit]
 
     def applyChanges(self):
-        code = ''
+        params = []
         for edit in self.getEditBoxes():
             if edit.param == 'samplename':
-                code += 'NewSample(%r)\n' % edit.getValue()
+                params.insert(0, '%r' % edit.getValue())
             else:
-                code += 'Sample.%s = %r\n' % (edit.param, edit.getValue())
-
+                params.append('%s=%r' % (edit.param, edit.getValue()))
+        code = 'NewSample(%s)\n' % ', '.join(params)
         self.client.run(code.rstrip())
         self.showInfo('Sample parameters changed.')
 
