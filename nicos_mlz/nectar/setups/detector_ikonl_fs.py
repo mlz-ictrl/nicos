@@ -56,7 +56,7 @@ devices = dict(
         lowlevel = True,
     ),
     fov    = device('nicos.devices.generic.Axis',
-        description = 'Camera traslation x (field of view)',
+        description = 'Camera translation x (field of view)',
         pollinterval = 5,
         maxage = 12,
         fmtstr = '%.2f',
