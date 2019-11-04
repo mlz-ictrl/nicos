@@ -7,7 +7,7 @@ devices = dict(
     email = device('nicos.devices.notifiers.Mailer',
         sender = 'nectar@frm2.tum.de',
         copies = [
-            ('malgorzata.makowska@frm2.tum.de', 'all'),
+            ('adrian.losko@frm2.tum.de', 'all'),
             ('thomas.buecherl@tum.de', 'all'),
             ('michael.schulz@frm2.tum.de', 'important'),
         ],
@@ -17,7 +17,7 @@ devices = dict(
     warning = device('nicos.devices.notifiers.Mailer',
         sender = 'nectar@frm2.tum.de',
         copies = [
-            ('malgorzata.makowska@frm2.tum.de', 'all'),
+            ('adrian.losko@frm2.tum.de', 'all'),
             ('thomas.buecherl@tum.de', 'all'),
             ('michael.schulz@frm2.tum.de', 'important'),
         ],

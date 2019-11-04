@@ -35,7 +35,7 @@ devices = dict(
         description = 'NECTAR instrument',
         instrument = 'NECTAR',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-45',
-        responsible = 'Malgorzata Makowska <malgorzata.makowska@frm2.tum.de>',
+        responsible = 'Adrian Losko <adrian.losko@frm2.tum.de>',
         operators = [u'Technische Universität München (TUM)'],
         website = 'http://www.mlz-garching.de/nectar',
     ),
