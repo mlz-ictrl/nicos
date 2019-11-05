@@ -10,12 +10,32 @@ includes = ['absorber', 'jcns_io', 'jcns_mot', 'pindiodes']
 
 tango_base = 'tango://phys.galaxi.kfa-juelich.de:10000/galaxi/'
 
-sysconfig = dict(datasinks = ['mythensink', 'pilatus_tiffsink'])
+sysconfig = dict(datasinks = ['mythen_imagesink', 'pilatus_tiffsink'])
 
 # default x-ray and threshold energy for all detectors
 energy = dict(xray = 9.243, threshold = 8.0)
 
 devices = dict(
+    mythen_image = device('nicos_jcns.galaxi.devices.mythen_det.ImageChannel',
+        description = 'Image channel of the DECTRIS Mythen detector.',
+        tangodevice = tango_base + 'mythen_det/image_channel',
+    ),
+    mythen_timer = device('nicos.devices.tango.TimerChannel',
+        description = 'Image channel of the DECTRIS Mythen detector.',
+        tangodevice = tango_base + 'mythen_det/timer_channel',
+    ),
+    mythen = device('nicos.devices.generic.Detector',
+        description = 'DECTRIS Mythen detector at the GALAXI diffractometer.',
+        images = ['mythen_image'],
+        timers = ['mythen_timer'],
+    ),
+    mythen_imagesink = device('nicos_jcns.galaxi.devices.mythen_det.ImageSink',
+        filenametemplate = [
+            '%(Exp.users)s_%(session.experiment.sample.filename)s_'
+            '%(scancounter)s.%(pointnumber)s.mythen'
+        ],
+        detectors = ['mythen'],
+    ),
     pilatus_config = device('nicos_jcns.devices.pilatus_det.Configuration',
         description = 'Configuration channel of the DECTRIS Pilatus 1M '
         'detector.',
@@ -53,28 +73,6 @@ devices = dict(
         images = ['pilatus_image'],
         timers = ['pilatus_timer'],
         others = ['pilatus_config'],
-    ),
-    mythen_timer = device('nicos_jcns.galaxi.devices.mythen.MythenTimer',
-        description = 'Timer',
-        tangodevice = tango_base + 'Mythen/1',
-        lowlevel = True,
-    ),
-    mythen_image = device('nicos_jcns.galaxi.devices.mythen.MythenImage',
-        description = 'GALAXI Mythen detector data',
-        tangodevice = tango_base + 'Mythen/1',
-    ),
-    mythen = device('nicos_jcns.galaxi.devices.mythen.MythenDetector',
-        description = 'GALAXI Mythen detector',
-        timers = ['mythen_timer'],
-        images = ['mythen_image'],
-        monitors = [],
-    ),
-    mythensink = device('nicos_jcns.galaxi.devices.mythendatasink.MythenImageSink',
-        filenametemplate = [
-            '%(Exp.users)s_%(session.experiment.sample.'
-            'filename)s_%(scancounter)s.%(pointnumber)s.mydat'
-        ],
-        detectors = ['mythen']
     ),
 )
 

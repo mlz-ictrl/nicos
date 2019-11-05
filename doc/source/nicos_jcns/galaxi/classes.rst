@@ -11,10 +11,8 @@ Absorber
 Detectors
 ---------
 
-.. automodule:: nicos_jcns.galaxi.devices.mythen
-.. autoclass:: MythenDetector()
-.. autoclass:: MythenTimer()
-.. autoclass:: MythenImage()
+.. automodule:: nicos_jcns.galaxi.devices.mythen_det
+.. autoclass:: ImageChannel()
 
 .. automodule:: nicos_jcns.galaxi.devices.pindiode
 .. autoclass:: SingleDetectors()
@@ -22,5 +20,5 @@ Detectors
 File formats
 ------------
 
-.. automodule:: nicos_jcns.galaxi.devices.mythendatasink
-.. autoclass:: MythenImageSink()
+.. automodule:: nicos_jcns.galaxi.devices.mythen_det
+.. autoclass:: ImageSink()
