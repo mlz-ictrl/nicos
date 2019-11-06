@@ -37,7 +37,7 @@ def get_git_version(abbrev=4, cwd=None):
         p = Popen(['git', 'describe', '--abbrev=%d' % abbrev],
                   cwd=cwd or config.nicos_root, stdout=PIPE, stderr=PIPE)
         stdout, _stderr = p.communicate()
-        return from_utf8(stdout.strip())
+        return from_utf8(stdout.strip()).strip('v')
     except Exception:
         return None
 
