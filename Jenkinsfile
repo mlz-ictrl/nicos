@@ -7,7 +7,7 @@ properties([
                               daysToKeepStr: '',
                               numToKeepStr: '50')),
     parameters([
-        string(defaultValue: 'frm2/nicos/nicos-core',
+        string(defaultValue: 'frm2/nicos/nicos',
                description: '', name: 'GERRIT_PROJECT'),
         string(defaultValue: 'refs/heads/master',
                description: '', name: 'GERRIT_BRANCH'),
@@ -32,7 +32,7 @@ change-merged''',
                                  commitMessageParameterMode: 'PLAIN',
                                  customUrl: '',
                                  gerritProjects: [
-                                     [pattern: 'frm2/nicos/nicos-core',
+                                     [pattern: 'frm2/nicos/nicos',
                                       compareType: 'PLAIN',
                                       disableStrictForbiddenFileVerification: false,
                                       branches: [[compareType: 'PLAIN', pattern: 'master'],
