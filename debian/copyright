@@ -1,5 +1,5 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: nicos-core
+Upstream-Name: nicos
 Source: http://forge.frm2.tum.de/cgit/cgit.cgi/frm2/nicos/nicos.git/
 
 Files: *
