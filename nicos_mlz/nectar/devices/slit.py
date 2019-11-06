@@ -22,8 +22,19 @@
 #
 # *****************************************************************************
 
-"""NECTAR specific devices."""
+"""NECTAR specific slit used as beamstop too"""
 
 from __future__ import absolute_import, division, print_function
 
-from .slit import BeamLimiter
+from nicos.devices.generic.slit import Slit
+
+
+class BeamLimiter(Slit):
+    """Normal 4 blade slit with option to use it as a beam stop.
+
+    The beam stop function is used by setting the openings to negative values,
+    to achieve the maximum overlap of all 4 blades.
+    """
+
+    def _isAllowedSlitOpening(self, positions):
+        return True, ''

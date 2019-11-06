@@ -31,7 +31,7 @@ devices = dict(
         unit = 'mm',
         speed = 10,
     ),
-    nbl = device('nicos.devices.generic.Slit',
+    nbl = device('nicos_mlz.nectar.devices.BeamLimiter',
         description = 'NECTAR Beam Limiter',
         left = 'nbl_l',
         right = 'nbl_r',

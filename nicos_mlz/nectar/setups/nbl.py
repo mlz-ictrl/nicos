@@ -33,7 +33,7 @@ devices = dict(
         abslimits = (-0, 545),
         userlimits = (-0, 545),
     ),
-    nbl = device('nicos.devices.generic.Slit',
+    nbl = device('nicos_mlz.nectar.devices.BeamLimiter',
         description = 'NECTAR Beam Limiter',
         left = 'nbl_l',
         right = 'nbl_r',
