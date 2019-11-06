@@ -55,8 +55,17 @@ USER = 10
 ADMIN = 20
 ACCESS_LEVELS = {GUEST: 'guest', USER: 'user', ADMIN: 'admin'}
 
+_User = namedtuple('User', ('name', 'level', 'data'))
 
-User = namedtuple('User', 'name, level')
+
+class User(_User):
+    """Named tuple for NICOS users that provides a default value for the
+    ``data`` field.
+    """
+
+    def __new__(cls, name, level, data=None):
+        return _User.__new__(cls, name, level, {} if data is None else data)
+
 
 system_user = User('system', ADMIN)
 watchdog_user = User('watchdog', ADMIN)

@@ -124,6 +124,8 @@ def test_passwd_user(session, ListAuth):
     assert ListAuth.authenticate('guest', 'somepw') == User('guest', GUEST)
     assert raises(AuthenticationError, ListAuth.authenticate, 'user', 'nouser')
     assert raises(AuthenticationError, ListAuth.authenticate, 'joedoe', '')
+    assert User('user', USER).data == {}
+    assert User('guest', GUEST).data == {}
 
 
 test_passwd_user.passwd = [('guest', '', 'guest'),
@@ -137,6 +139,8 @@ def test_any_user(session, ListAuth):
     assert ListAuth.authenticate('joedoe', '') == User('joedoe', GUEST)
     assert ListAuth.authenticate('joedoe', '') != User('joedoe', USER)
     assert raises(AuthenticationError, ListAuth.authenticate, 'user', 'user_')
+    assert User('user', USER).data == {}
+    assert User('guest', GUEST).data == {}
 
 
 test_any_user.passwd = [('guest', '', 'guest'),
@@ -147,6 +151,7 @@ test_any_user.passwd = [('guest', '', 'guest'),
 
 def test_empty_user(session, ListAuth):
     assert ListAuth.authenticate('joedoe', 'passwd') == User('joedoe', USER)
+    assert User('joedoe', USER).data == {}
 
 
 test_empty_user.passwd = [('admin', 'admin', 'admin'),
@@ -182,6 +187,8 @@ def test_keystore_auth(session, KeystoreAuth):
     assert KeystoreAuth.authenticate('joedoe', 'userpass') == User('joedoe', USER)
     assert raises(AuthenticationError, KeystoreAuth.authenticate, 'user', 'user_')
     assert raises(AuthenticationError, KeystoreAuth.authenticate, 'admin', 'user_')
+    assert User('admin', ADMIN).data == {}
+    assert User('joedoe', USER).data == {}
 
 
 test_keystore_auth.creds = [('admin', 'admin'),
