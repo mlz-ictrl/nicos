@@ -87,6 +87,17 @@ _column1 = Column(
         ],
         setups='ccm2a',
     ),
+    Block('12T Magnet', [
+        BlockRow(Field(name='Field', dev='B_ccm12v'),
+                 Field(name='Current', dev='I_ccm12v_supply')),
+        BlockRow(Field(name='T Stick', dev='T_ccm12v_stick'),
+                 Field(name='T VTI', dev='T_ccm12v_vti'),
+                 Field(name='T NV', dev='T_ccm12v_nv')),
+        BlockRow(Field(name='LHe', dev='ccm12v_LHe'),
+                 Field(name='T magnet', dev='ccm12v_Tmag')),
+        ],
+        setups='ccm12v',
+    ),
     Block('3He cell', [
         BlockRow(Field(name='Polarization', dev='pol', width=7),
                  Field(name='Guide field', dev='He_GF')),
