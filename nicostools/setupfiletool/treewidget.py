@@ -60,7 +60,7 @@ class TreeWidget(TreeWidgetContextMenu):
             self.takeTopLevelItem(0)
 
         # list of topLevelItems representing the directories in
-        # */nicos-core/custom: for example instruments, ...
+        # nicos_*: for example instruments, ...
         self.topLevelItems = []
         for directory in setupcontroller.setup_directories:
             self.topLevelItems.append(

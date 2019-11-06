@@ -35,7 +35,7 @@ class ItemTypes(object):
 
 
 def getNicosDir():
-    # this file should be in */nicos-core/tools/setupfiletool/utilities
+    # this file should be in nicostools/setupfiletool/utilities
     return(path.abspath(path.join(path.dirname(__file__), '..', '..', '..')))
 
 

@@ -42,7 +42,7 @@ class SetupWidget(QWidget):
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'setupwidget.ui'), self)
 
-        # keys taken from */nicos-core/nicos_demo/skeleton/setups/system.py
+        # keys taken from nicos_demo/skeleton/setups/system.py
         self.sysconfigKeys = ['cache',
                               'instrument',
                               'experiment',

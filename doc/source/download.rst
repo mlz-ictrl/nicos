@@ -25,7 +25,7 @@ Git repository
 
 The current development code can be obtained from our Git repository::
 
-    git clone git://forge.frm2.tum.de/home/repos/git/frm2/nicos/nicos-core.git
+    git clone https://forge.frm2.tum.de/review/frm2/nicos/nicos
 
 For people don't having a git command or not familiar in using Git the sources
 of the latest development version can be obtained here: |sourcelink|.
