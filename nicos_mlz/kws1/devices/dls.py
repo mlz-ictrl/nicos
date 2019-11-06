@@ -32,7 +32,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import ArrayDesc, Attach, Measurable, Moveable, Override, \
-    Param, oneof
+    Param, Readable, dictof, oneof, tupleof
 from nicos.core.constants import FINAL, INTERMEDIATE, POINT
 from nicos.core.data import DataSinkHandler
 from nicos.core.status import BUSY, OK
@@ -43,13 +43,21 @@ MODES = ['cross_auto1', 'cross_auto2', 'auto1_auto2', 'cross_cross']
 
 
 class DLSCard(ImageChannel):
+    attached_devices = {
+        'wheels': Attach('The filter wheel positions', Readable,
+                         multiple=True, optional=True),
+    }
 
     parameters = {
-        'angle': Param('Scattering angle of the detector',
-                       type=float, mandatory=True, settable=True),
+        'angles': Param('Scattering angles of the detector',
+                        type=tupleof(float, float), mandatory=True,
+                        settable=True),
         'mode':   Param('Measure mode', type=oneof(*MODES),
                         default='cross_cross', settable=True),
     }
+
+    def _get_filters(self):
+        return ' '.join('%d' % wh.read() for wh in self._attached_wheels)
 
     def setMode(self):
         self._dev.readoutMode = self.mode
@@ -67,9 +75,10 @@ class DLSCard(ImageChannel):
 
 class DLSDetector(Measurable):
     attached_devices = {
-        'cards':   Attach('DLS cards', DLSCard, multiple=True),
-        'shutter': Attach('Shutter to open before measuring', Moveable),
-        'limiter': Attach('The filter wheel adjuster', Moveable),
+        'cards':    Attach('DLS cards', DLSCard, multiple=True),
+        'shutter':  Attach('Shutter to open before measuring', Moveable),
+        'limiters': Attach('The filter wheel adjusters', Moveable, multiple=True),
+        'lasersel': Attach('The laser wavelength selector', Readable, optional=True),
     }
 
     parameters = {
@@ -77,19 +86,26 @@ class DLSDetector(Measurable):
                            unit='s', settable=True),
         'intensity': Param('Intensity to aim for when adjusting filter wheels.',
                            default=100, unit='kHz', settable=True),
+        'wavelengthmap': Param('Laser wavelength depending on selector',
+                               unit='nm', type=dictof(str, float)),
         # these should be sample properties instead...
         'viscosity': Param('Sample viscosity', unit='cp', settable=True),
         'refrindex': Param('Sample refractive index', settable=True),
-        # this should come from an attached laser switcher
-        'wavelength': Param('Laser wavelength', unit='nm', settable=True),
     }
 
     def doInit(self, mode):
-        self._adjusting = False
+        self._adjusting = -1
         self._measuring = False
         self._nfinished = 1
         self._nstarted = 1
         self._ntotal = 1
+
+    def _get_wavelength(self):
+        if self._attached_lasersel:
+            return self.wavelengthmap.get(
+                self._attached_lasersel.read(), -1)
+        else:
+            return self.wavelengthmap.get('', -1)
 
     def doRead(self, maxage=0):
         return []
@@ -126,11 +142,11 @@ class DLSDetector(Measurable):
 
     def doStart(self):
         self._attached_shutter.start(1)
-        self._adjusting = True
+        self._adjusting = 0
         self._nfinished = 0
         self._nstarted = 0
         self._measuring = True
-        self._attached_limiter.start(self.intensity)
+        self._attached_limiters[0].start(self.intensity)
 
     def doFinish(self):
         self.doStop()
@@ -143,16 +159,23 @@ class DLSDetector(Measurable):
             except Exception:
                 pass
         self._attached_shutter.start(0)
-        self._attached_limiter.maw(0)   # close wheels
+        for limiter in self._attached_limiters:
+            limiter.maw(0)   # close wheels
 
     def duringMeasureHook(self, elapsed):
         retval = None
-        if self._adjusting:
-            if self._attached_limiter.status(0)[0] == BUSY:
+        if self._adjusting > -1:
+            adj_lim = self._attached_limiters[self._adjusting]
+            if adj_lim.status(0)[0] == BUSY:
                 return
-            self.log.info('reached wheel adjustment: %.1f cps',
-                          self._attached_limiter.read(0))
-            self._adjusting = False
+            self.log.info('reached %s adjustment: %.1f kHz', adj_lim,
+                          adj_lim.read(0))
+            if self._adjusting == len(self._attached_limiters) - 1:
+                self._adjusting = -1
+            else:
+                self._adjusting += 1
+                self._attached_limiters[self._adjusting].start(self.intensity)
+                return
         # start new measurements when needed
         if all(c.status(0)[0] != BUSY for c in self._attached_cards):
             if self._nstarted > self._nfinished:
@@ -190,7 +213,9 @@ Temperature [K] :	%(temperature)14.5f
 Viscosity [cp]  :	%(viscosity)14.5f
 Refractive Index:	%(refrindex)14.5f
 Wavelength [nm] :	%(wavelength)14.5f
-Angle [°]       :	%(angle)14.5f
+Angle [°]       :	%(angle1)14.5f
+Angle2 [°]      :	%(angle2)14.5f
+Filters         :       %(filters)14s
 Duration [s]    :	%(duration)14d
 FloatDur [ms]   :	%(floatdur)14d
 Stop TP [ms]    :	  16777216
@@ -223,8 +248,10 @@ class DLSFileSinkHandler(DataSinkHandler):
                 temperature = self._meta.get(('Ts', 'value'), (-1,))[0],
                 viscosity = self.detector.viscosity,
                 refrindex = self.detector.refrindex,
-                wavelength = self.detector.wavelength,
-                angle = card.angle,
+                wavelength = self.detector._get_wavelength(),
+                angle1 = card.angles[0],
+                angle2 = card.angles[1],
+                filters = card._get_filters(),
                 duration = int(self.detector.duration),
                 floatdur = int(self.detector.duration * 1000),
                 modes = card.mode,
