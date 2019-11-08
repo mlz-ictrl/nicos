@@ -2,22 +2,18 @@ description = 'sample table rotations'
 
 group = 'lowlevel'
 
-servername = 'VMESPODI'
-
-nameservice = 'spodisrv.spodi.frm2'
+tango_base = 'tango://motorbox01.spodi.frm2.tum.de:10000/box/'
 
 devices = dict(
     tths = device('nicos.devices.generic.Axis',
         description = 'HWB TTHS',
-        motor = device('nicos.devices.vendor.caress.EKFMotor',
+        motor = device('nicos.devices.tango.Motor',
             fmtstr = '%.3f',
-            unit = 'deg',
-            coderoffset = 1044.04,
-            abslimits = (-1.5, 60),
-            nameserver = '%s' % nameservice,
-            objname = '%s' % servername,
-            config = 'TTHS 114 11 0x00f1c000 1 8192 16000'
-                     ' 200 2 25 50 1 1 1 3000 1 10 10 0 0',
+            tangodevice = tango_base + 'tths/motor',
+        ),
+        coder = device('nicos.devices.tango.Sensor',
+            fmtstr = '%.3f',
+            tangodevice = tango_base + 'tths/motor',
         ),
         precision = 0.005,
         maxtries = 10,
@@ -25,15 +21,13 @@ devices = dict(
     ),
     omgs = device('nicos.devices.generic.Axis',
         description = 'HWB OMGS',
-        motor = device('nicos.devices.vendor.caress.EKFMotor',
+        motor = device('nicos.devices.tango.Motor',
             fmtstr = '%.2f',
-            unit = 'deg',
-            coderoffset = 2735.92,
-            abslimits = (-730, 730),
-            nameserver = '%s' % nameservice,
-            objname = '%s' % servername,
-            config = 'OMGS 114 11 0x00f1c000 2 4096 8000 '
-                     '200 2 24 50 1 0 1 3000 1 10 10 0 1000',
+            tangodevice = tango_base + 'omgs/motor',
+        ),
+        coder = device('nicos.devices.tango.Sensor',
+            fmtstr = '%.2f',
+            tangodevice = tango_base + 'omgs/enc',
         ),
         precision = 0.005,
     ),

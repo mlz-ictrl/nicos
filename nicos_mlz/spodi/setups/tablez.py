@@ -2,20 +2,12 @@ description = 'sample tranlation Z'
 
 group = 'optional'
 
-servername = 'VMESPODI'
-
-nameservice = 'spodisrv.spodi.frm2'
+tango_base = 'tango://motorbox01.spodi.frm2.tum.de:10000/box/'
 
 devices = dict(
-    zs = device('nicos.devices.vendor.caress.EKFMotor',
-        description = 'HWB ZS',
+    zs = device('nicos.devices.tango.Motor',
+        description = 'Sample table translation z (ZS)',
         fmtstr = '%.2f',
-        unit = 'mm',
-        coderoffset = 0,
-        abslimits = (-20, 20),
-        nameserver = '%s' % nameservice,
-        objname = '%s' % servername,
-        config = 'ZS 115 11 0x00f1e000 3 5000 1000 100 1 0 50 '
-                 '-1 0 1 4000 1 10 10 0 500',
+        tangodevice = tango_base + 'zs/motor',
     ),
 )
