@@ -2,7 +2,7 @@ include AUTHORS
 include LICENSE
 include Makefile
 include pylintrc
-include README
+include README.md
 include nicos/RELEASE-VERSION
 
 recursive-include etc *
