@@ -82,7 +82,7 @@ devices = {
         tangodevice = tango_base + 'itc2/vti_pressure',
     ),
     '%s_Tmag' % setupname: device('nicos.devices.tango.Sensor',
-        description = 'temperature of magnet coils',
+        description = 'temperature of top magnet coil',
         tangodevice = tango_base + 'ips/temp',
     ),
     '%s_pdewar' % setupname: device('nicos.devices.tango.TemperatureController',
