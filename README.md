@@ -5,6 +5,10 @@ The project homepage is at:
 
 https://nicos-controls.org
 
+Documentation:
+
+https://forge.frm2.tum.de/nicos/doc/nicos-master/documentation/
+
 
 The primary repository is at:
 
@@ -19,17 +23,18 @@ The bugtracker is here:
 
 https://forge.frm2.tum.de/redmine/projects/nicos
 
+
 Requirements
 ------------
 
-See the INSTALL file.
+See the `INSTALL` file.
 
 
-Starting points
----------------
+Demo
+----
 
-Start a basic system and experiment:
+Install the requirements, then run this to start a basic system and experiment:
 
-  $ bin/nicos-demo
-
-Documentation: for release packages look in doc/build/html.
+```
+$ bin/nicos-demo
+```
