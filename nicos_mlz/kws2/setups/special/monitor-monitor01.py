@@ -104,14 +104,32 @@ _daq = make_blocks('Data acquisition', 'daq', [
 
 _peltier = Block('Peltier/Julabo', [
     BlockRow('T_peltier', 'T_julabo')
-], setups='peltier')
+], setups='peltier and not peltier_2')
+
+_peltier_2 = Block('Peltier/Julabo', [
+    BlockRow('T_peltier', 'T_peltier_2', 'T_julabo')
+], setups='peltier_2')
 
 _peltierplot = Block('', [
     BlockRow(Field(plot='TT', dev='T_peltier', width=40, height=25, plotwindow=2*3600),
              Field(plot='TT', dev='T_julabo'),
              Field(plot='TT', key='T_peltier/setpoint'),
              Field(plot='TT', key='T_julabo/setpoint')),
-], setups='peltier')
+], setups='peltier and not peltier_2')
+
+_peltierplot_2 = Block('', [
+    BlockRow(Field(plot='TTP2', dev='T_peltier', width=40, height=25, plotwindow=2*3600),
+             Field(plot='TTP2', dev='T_peltier_2', width=40, height=25, plotwindow=2*3600),
+             Field(plot='TTP2', dev='T_julabo'),
+             Field(plot='TTP2', key='T_peltier/setpoint'),
+             Field(plot='TTP2', key='T_peltier_2/setpoint'),
+             Field(plot='TTP2', key='T_julabo/setpoint')),
+], setups='peltier_2')
+
+_hg1 = Block('Humidity cell', [
+    BlockRow('hg1_humidity', 'T_hg1_cell'),
+    BlockRow('hg1_flowrate', 'T_hg1_heater'),
+], setups='hg1')
 
 _julaboet = Block('Julabo/Eurotherm', [
     BlockRow('T_julabo', 'T_et')
@@ -160,7 +178,8 @@ _layout = [
     Row(Column(_experiment)),
     Row(Column(*(_selector + _chopper + _polarizer + _lenses + _daq)),
         Column(*(_shutter + _collimation + _detector + _sample + _sample_withrot)),
-        Column(_peltier, _peltierplot, _et, _etplot, _julabo, _julaboplot,
+        Column(_peltier, _peltierplot, _peltier_2, _peltierplot_2,
+               _et, _etplot, _julabo, _julaboplot, _hg1,
                _julaboet, _julaboetplot, _ccr, _ccrplot)),
 ]
 

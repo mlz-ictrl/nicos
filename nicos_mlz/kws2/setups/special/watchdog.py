@@ -72,6 +72,7 @@ watchlist = [
          message = 'Chopper off, but not in parking position',
          gracetime = 10,
          type = 'default',
+         setup = 'chopper',
     ),
 ]
 

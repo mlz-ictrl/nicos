@@ -25,7 +25,7 @@ devices = dict(
         timeout = 300,
     ),
     nl3a_shutter = device('nicos.devices.tango.NamedDigitalInput',
-        description = 'Neutron guide 3a shutter status',
+        description = 'NL3a shutter status',
         mapping = {'closed': 0,
                    'open': 1},
         tangodevice = tango_base_mlz + 'shutter/nl3a',

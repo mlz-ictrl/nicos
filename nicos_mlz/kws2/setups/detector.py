@@ -58,7 +58,7 @@ devices = dict(
         description = 'beamstop translation X',
         tangodevice = tango_base + 'fzjs7/beamstop_x',
         unit = 'mm',
-        precision = 0.01,
+        precision = 0.1,
         fmtstr = '%.1f',
     ),
     beamstop_y = device('nicos.devices.tango.Motor',
