@@ -48,7 +48,7 @@ devices = dict(
     ),
 )
 
-for (epname, epicsid) in eps:
+for (epname, epicsid) in eps: # + [('ep09x', 'GE-D7561E-EP')]:
     devices[epname + '_T'] = device('nicos.devices.epics.EpicsReadable',
         description = epname + ' FPGA temperature',
         readpv = epicsid + ':FpgaTemperature',
@@ -79,6 +79,26 @@ for (epname, epicsid) in eps:
         abslimits = (0, 1600),
         warnlimits = (1520, 1540),
     )
+    devices[epname + '_HV_SP'] = device('nicos.devices.epics.EpicsReadable',
+        description = epname + ' HV setting',
+        readpv = epicsid + ':HighVoltage_W',
+        lowlevel = True,
+        unit = 'V',
+        pollinterval = 10,
+        fmtstr = '%.0f',
+    )
+
+devices['ep10_P'] = device('nicos.devices.tango.AnalogInput',
+                           tangodevice = tango_base + 'ep10/power',
+                           description = 'ep10 delivered PoE power',
+                           lowlevel = True,)
+devices['ep10_cts'] = device('nicos_mlz.kws1.devices.gedet.HVEpicsArrayReadable',
+                             readpv = 'GE-D72EA6-EP:TubeCounts',
+                             lowlevel = True,)
+devices['ep07_cts'] = device('nicos_mlz.kws1.devices.gedet.HVEpicsArrayReadable',
+                             readpv = 'GE-D72F9D-EP:TubeCounts',
+                             lowlevel = True,)
+
 
 for ti in range(1, 3):
     devices['ps%d_V' % ti] = device('nicos_mlz.kws1.devices.gedet.GEPowerSupply',

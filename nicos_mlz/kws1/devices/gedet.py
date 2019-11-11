@@ -33,7 +33,7 @@ import PyTango
 from nicos import session
 from nicos.core import Attach, Moveable, NicosTimeoutError, Override, Param, \
     dictof, status, tupleof
-from nicos.devices.epics import EpicsAnalogMoveable
+from nicos.devices.epics import EpicsAnalogMoveable, EpicsReadable
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
 from nicos.devices.generic.switcher import Switcher
 from nicos.devices.tango import PowerSupply
@@ -188,3 +188,8 @@ class HVEpicsAnalogMoveable(EpicsAnalogMoveable):
         if code == status.UNKNOWN:
             code, text = status.OK, ''
         return code, text
+
+
+class HVEpicsArrayReadable(EpicsReadable):
+    def doRead(self, maxage=0):
+        return self._get_pv('readpv')[:8].tolist()
