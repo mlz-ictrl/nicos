@@ -5,7 +5,7 @@ group = 'lowlevel'
 display_order = 5
 
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
-tango_base_frm2 = 'tango://ictrlfs.ictrl.frm2:10000/frm2/'
+tango_base_mlz = 'tango://ictrlfs.ictrl.frm2:10000/mlz/'
 
 devices = dict(
     # currently not enabled:
@@ -17,7 +17,7 @@ devices = dict(
     # ),
     nl3a_shutter = device('nicos.devices.tango.NamedDigitalInput',
         description = 'NL3a shutter status',
-        tangodevice = tango_base_frm2 + 'shutter/nl3a',
+        tangodevice = tango_base_mlz + 'shutter/nl3a',
         mapping = {'closed': 0,
                    'open': 1},
         pollinterval = 60,
@@ -25,7 +25,7 @@ devices = dict(
     ),
     sixfold_shutter = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Sixfold shutter status',
-        tangodevice = tango_base_frm2 + 'shutter/sixfold',
+        tangodevice = tango_base_mlz + 'shutter/sixfold',
         mapping = {'closed': 0,
                    'open': 1},
         pollinterval = 60,
