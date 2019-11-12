@@ -20,6 +20,8 @@ devices = dict(
         config = 'TEPOS 500 TensilePos.ControllableDevice',
         absdev = False,
         abslimits = (0, 70),
+        # SPODI limits
+        # abslimits = (-10, 55),
         unit = 'mm',
         fmtstr = '%.3f',
     ),
