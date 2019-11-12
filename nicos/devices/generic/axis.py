@@ -171,6 +171,9 @@ class Axis(CanReference, AbstractAxis):
             self.stop()
             waitForCompletion(self, ignore_errors=True)
 
+        self._startPositioningThread(target)
+
+    def _startPositioningThread(self, target):
         if self._posthread:
             if self._posthread.is_alive():
                 self._posthread.join()
