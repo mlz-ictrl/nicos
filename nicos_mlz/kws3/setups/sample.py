@@ -99,6 +99,7 @@ devices = dict(
         right = 'sam10_ap_x_right',
         bottom = 'sam10_ap_y_lower',
         top = 'sam10_ap_y_upper',
+        parallel_ref = True,
     ),
     sam01_x = device('nicos.devices.tango.Motor',
         description = 'sample 2nd x-table in vacuum chamber',
@@ -154,6 +155,7 @@ devices = dict(
         right = 'sam01_ap_x_right',
         bottom = 'sam01_ap_y_lower',
         top = 'sam01_ap_y_upper',
+        parallel_ref = True,
     ),
 )
 
