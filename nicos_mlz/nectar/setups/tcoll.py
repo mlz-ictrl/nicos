@@ -15,7 +15,7 @@ devices = dict(
         unit = 'deg',
         lowlevel = True,
     ),
-    drum = device('nicos.devices.generic.Axis',
+    drum = device('nicos_mlz.nectar.devices.ThermalCollimatorAxis',
         motor = 'drum_m',
         # coder = 'drum_c',  # coder not working for multiturns (Resolver)
         precision = 0.05,

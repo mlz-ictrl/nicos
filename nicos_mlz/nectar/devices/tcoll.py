@@ -22,9 +22,18 @@
 #
 # *****************************************************************************
 
-"""NECTAR specific devices."""
+"""Devices related to the thermal collimation."""
 
 from __future__ import absolute_import, division, print_function
 
-from .slit import BeamLimiter
-from .tcoll import ThermalCollimatorAxis
+from nicos.devices.generic.axis import Axis
+
+
+class ThermalCollimatorAxis(Axis):
+
+    def _preMoveAction(self):
+        if self._target < self.read(0):
+            self.motor.reference()
+
+    def _getWaiters(self):
+        return [self.motor]

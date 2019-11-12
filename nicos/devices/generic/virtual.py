@@ -86,7 +86,7 @@ class VirtualMotor(HasOffset, CanDisable, Motor):
             self._thread.join()
         if self.speed != 0:
             self._thread = createThread('virtual motor %s' % self,
-                                        self.__moving, (pos,))
+                                        self.__moving, (pos, ))
         else:
             self.log.debug('moving to %s', pos)
             self._setROParam('curvalue', pos)
