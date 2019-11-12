@@ -513,7 +513,11 @@ class TestNotifier(Mailer):
 
 class TestReferenceMotor(CanReference, VirtualMotor):
 
+    _ref_error = None
+
     def doReference(self):
+        if self._ref_error:
+            raise self._ref_error  # pylint: disable=raising-bad-type
         # Enforce a change in current position
         self.curvalue = 0
 

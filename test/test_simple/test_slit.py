@@ -25,7 +25,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.core import InvalidValueError, LimitError, status
+from nicos.core import InvalidValueError, LimitError, MoveError, status
 from nicos.devices.generic.slit import Slit
 
 from test.utils import raises
@@ -176,8 +176,23 @@ def test_slit_subaxes(session):
 
 def test_slit_reference(session, log):
     slit = session.getDevice('slit')
-    with log.assert_warns('m_left cannot be referenced'):
+    slit.opmode = '4blades'
+    slit.maw([10, 10, 10, 10])
+    with log.assert_warns('m_top cannot be referenced'):
         slit.reference()
+    # left and right should be referenced
+    assert slit.read(0) == [0, 0, 10, 10]
+
+    # this one references in parallel
+    slit3 = session.getDevice('slit3')
+    slit3.opmode = '4blades'
+    slit3.maw([10, 10, 10, 10])
+    slit3.reference()
+    assert slit3.read(0) == [0, 0, 10, 10]
+
+    slit3.left._ref_error = InvalidValueError('invalid')
+    with log.assert_errors('invalid'):
+        assert raises(MoveError, slit3.reference)
 
 
 def test_slit_fmtstr(session):

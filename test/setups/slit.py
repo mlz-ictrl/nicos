@@ -27,11 +27,11 @@ name = 'test slit'
 includes = ['stdsystem']
 
 devices = dict(
-    m_left = device('nicos.devices.generic.VirtualMotor',
+    m_left = device('test.utils.TestReferenceMotor',
         unit = 'mm',
         abslimits = (-10, 20),
     ),
-    m_right = device('nicos.devices.generic.VirtualMotor',
+    m_right = device('test.utils.TestReferenceMotor',
         unit = 'mm',
         abslimits = (-20, 10),
     ),
@@ -62,5 +62,6 @@ devices = dict(
         bottom = 'm_bottom',
         top = 'm_top',
         opmode = 'centered',
+        parallel_ref = True,
     ),
 )

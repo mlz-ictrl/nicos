@@ -40,7 +40,7 @@ from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, MoveError, NicosError, NicosTimeoutError, \
     PositionError
 from nicos.pycompat import listitems, reraise, to_ascii_escaped
-from nicos.utils import formatDuration
+from nicos.utils import formatDuration, createThread
 
 # Exceptions at which a scan point is measured anyway.
 CONTINUE_EXCEPTIONS = (PositionError, MoveError, NicosTimeoutError)
@@ -310,6 +310,48 @@ def waitForCompletion(dev, delay=0.3, ignore_errors=False):
         if ignore_errors:
             return
         raise
+
+
+def multiReference(dev, subdevs, parallel=False):
+    """Run a reference drive of *subdevs* (belonging to the main *dev*).
+
+    If *parallel* is true, use one thread per device.
+    """
+    from nicos.devices.abstract import CanReference
+
+    if not parallel:
+        for subdev in subdevs:
+            if isinstance(subdev, CanReference):
+                dev.log.info('referencing %s...', subdev)
+                subdev.reference()
+            else:
+                dev.log.warning('%s cannot be referenced', subdev)
+        return
+
+    def threaded_ref(i, d):
+        try:
+            d.reference()
+        except Exception:
+            d.log.error('while referencing', exc=1)
+            errored[i] = True
+
+    threads = []
+    errored = [False] * len(subdevs)
+
+    for (i, subdev) in enumerate(subdevs):
+        if isinstance(subdev, CanReference):
+            dev.log.info('referencing %s...', subdev)
+            threads.append(createThread('reference %s' % subdev,
+                                        threaded_ref, (i, subdev)))
+        else:
+            dev.log.warning('%s cannot be referenced', subdev)
+
+    for thread in threads:
+        thread.join()
+    if any(errored):
+        raise MoveError(dev, 'referencing failed for ' +
+                        ', '.join(str(subdev) for (subdev, err)
+                                  in zip(subdevs, errored) if err))
 
 
 def formatStatus(st):

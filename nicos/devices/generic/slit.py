@@ -30,7 +30,7 @@ from nicos import session
 from nicos.core import Attach, AutoDevice, HasPrecision, InvalidValueError, \
     Moveable, Override, Param, Value, dictof, multiReset, multiStatus, \
     multiWait, oneof, tupleof
-from nicos.core.utils import devIter
+from nicos.core.utils import devIter, multiReference
 from nicos.devices.abstract import CanReference
 
 
@@ -97,6 +97,9 @@ class Slit(CanReference, Moveable):
                                 'centered': '%.2f x %.2f',
                                 'offcentered': '(%.2f, %.2f) %.2f x %.2f',
                             }),
+        'parallel_ref': Param('Set to True if the blades\' reference drive '
+                              'can be done in parallel.', type=bool,
+                              default=False),
     }
 
     parameter_overrides = {
@@ -220,12 +223,7 @@ class Slit(CanReference, Moveable):
         multiWait(self._axes)
 
     def doReference(self):
-        for ax in self._axes:
-            if isinstance(ax, CanReference):
-                self.log.info('referencing %s...', ax)
-                ax.reference()
-            else:
-                self.log.warning('%s cannot be referenced', ax)
+        multiReference(self, self._axes, self.parallel_ref)
 
     def _doReadPositions(self, maxage):
         cl, cr, cb, ct = [d.read(maxage) for d in self._axes]
@@ -380,6 +378,12 @@ class TwoAxisSlit(CanReference, Moveable):
         'vertical':   Attach('Vertical slit', HasPrecision),
     }
 
+    parameters = {
+        'parallel_ref': Param('Set to True if the blades\' reference drive '
+                              'can be done in parallel.', type=bool,
+                              default=False),
+    }
+
     parameter_overrides = {
         'fmtstr': Override(default='%.2f %.2f'),
         'unit': Override(mandatory=False),
@@ -420,12 +424,7 @@ class TwoAxisSlit(CanReference, Moveable):
             ax.wait()
 
     def doReference(self):
-        for ax in self._slits:
-            if isinstance(ax, CanReference):
-                self.log.info('referencing %s...', ax)
-                ax.reference()
-            else:
-                self.log.warning('%s cannot be referenced', ax)
+        multiReference(self, self._slits, self.parallel_ref)
 
     def doRead(self, maxage=0):
         return [d.read(maxage) for d in self._slits]
