@@ -125,6 +125,7 @@ def test_passwd_user(session, ListAuth):
     assert raises(AuthenticationError, ListAuth.authenticate, 'user', 'nouser')
     assert raises(AuthenticationError, ListAuth.authenticate, 'joedoe', '')
 
+
 test_passwd_user.passwd = [('guest', '', 'guest'),
                            ('user', 'user', 'user'),
                            ('admin', 'admin', 'admin')]
@@ -137,6 +138,7 @@ def test_any_user(session, ListAuth):
     assert ListAuth.authenticate('joedoe', '') != User('joedoe', USER)
     assert raises(AuthenticationError, ListAuth.authenticate, 'user', 'user_')
 
+
 test_any_user.passwd = [('guest', '', 'guest'),
                         ('', '', 'admin'),
                         ('user', 'user', 'user'),
@@ -145,6 +147,7 @@ test_any_user.passwd = [('guest', '', 'guest'),
 
 def test_empty_user(session, ListAuth):
     assert ListAuth.authenticate('joedoe', 'passwd') == User('joedoe', USER)
+
 
 test_empty_user.passwd = [('admin', 'admin', 'admin'),
                           ('', 'passwd', 'admin')]
@@ -158,10 +161,9 @@ def KeystoreAuth(request):
         nicoskeystore.setCredential(user, cred, domain='test_nicos_user')
     try:
         auth = KeyringAuthenticator('authenticator',
-                                     access=[('admin', 'admin'),
-                                             ('joedoe', 'user')],
-                                     userdomain='test_nicos_user',
-                                     )
+                                    access=[('admin', 'admin'),
+                                            ('joedoe', 'user')],
+                                    userdomain='test_nicos_user')
     except NicosError:
         pytest.skip('Keystore is not available')
     yield auth
@@ -181,9 +183,9 @@ def test_keystore_auth(session, KeystoreAuth):
     assert raises(AuthenticationError, KeystoreAuth.authenticate, 'user', 'user_')
     assert raises(AuthenticationError, KeystoreAuth.authenticate, 'admin', 'user_')
 
+
 test_keystore_auth.creds = [('admin', 'admin'),
-                            ('joedoe', 'userpass')
-                           ]
+                            ('joedoe', 'userpass')]
 
 
 @pytest.mark.skipif(nicoskeystore is None,
@@ -191,5 +193,6 @@ test_keystore_auth.creds = [('admin', 'admin'),
 def test_keystore_auth_nokeys(session, KeystoreAuth):
     assert raises(AuthenticationError, KeystoreAuth.authenticate, 'user', 'user_')
     assert raises(AuthenticationError, KeystoreAuth.authenticate, 'user', '')
+
 
 test_keystore_auth_nokeys.creds = []
