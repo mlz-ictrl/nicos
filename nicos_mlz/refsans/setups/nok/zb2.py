@@ -5,7 +5,6 @@ group = 'lowlevel'
 includes = ['nok_ref', 'nokbus1']
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
-
 tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base']
 optic_values = configdata('cf_optic.optic_values')
@@ -23,7 +22,7 @@ devices = dict(
         masks = {
             'slit':     -2,
             'point':   -2,
-            'gisans':    -122.0,
+            'gisans':    -122.0 * optic_values['gisans_scale'],
         },
     ),
     zb2_motor = device(code_base + 'ipc.NOKMotorIPC',

@@ -4,10 +4,9 @@ group = 'lowlevel'
 
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
-
+optic_values = configdata('cf_optic.optic_values')
 tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base']
-optic_values = configdata('cf_optic.optic_values')
 
 index = 4
 
@@ -40,7 +39,7 @@ devices = dict(
         masks = {
             'slit': 0,
             'point': 0,
-            'gisans': -110,
+            'gisans': -110 * optic_values['gisans_scale'],
         },
         unit = 'mm',
     ),

@@ -5,6 +5,7 @@ group = 'lowlevel'
 includes = ['nok_ref', 'nokbus4']
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
+optic_values = configdata('cf_optic.optic_values')
 
 tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base']
@@ -27,7 +28,7 @@ devices = dict(
         masks = {
             'slit':   -1.725,
             'point':  -2.325,
-            'gisans': -40.915,
+            'gisans': -40.915 * optic_values['gisans_scale'],
         },
         lowlevel = True,
         unit = 'mm',

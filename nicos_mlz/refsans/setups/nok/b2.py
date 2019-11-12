@@ -43,7 +43,7 @@ devices = dict(
         masks = {
             'slit':   0.0,
             'point':  -0.233,
-            'gisans': -85, #  206.4,
+            'gisans': -85 * optic_values['gisans_scale'], #  206.4,
         },
         unit = 'mm',
         lowlevel = True,

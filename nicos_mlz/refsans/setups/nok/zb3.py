@@ -5,10 +5,9 @@ group = 'lowlevel'
 includes = ['nok_ref', 'nokbus3']
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
-
+optic_values = configdata('cf_optic.optic_values')
 tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base']
-optic_values = configdata('cf_optic.optic_values')
 
 devices = dict(
     zb3 = device(code_base + 'slits.DoubleSlit',
@@ -28,7 +27,7 @@ devices = dict(
         masks = {
             'slit': -0.3,
             'point': 0,
-            'gisans': -110,
+            'gisans': -110 * optic_values['gisans_scale'],
         },
         unit = 'mm',
         lowlevel = True,
