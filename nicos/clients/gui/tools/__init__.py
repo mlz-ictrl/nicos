@@ -24,7 +24,7 @@
 
 """NICOS GUI tools."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.config import cmdtool, menu, tool
 from nicos.guisupport.qt import QAction, Qt, QTimer

@@ -24,7 +24,7 @@
 
 """SINQ specific NICOS package."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import socket
 from os import path

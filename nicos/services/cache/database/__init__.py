@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.services.cache.database.base import CacheDatabase
 from nicos.services.cache.database.flatfile import FlatfileCacheDatabase

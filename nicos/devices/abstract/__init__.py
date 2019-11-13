@@ -24,7 +24,7 @@
 
 """Definition of abstract base device classes."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.core import SLAVE, ConfigurationError, DeviceMixinBase, HasLimits, \
     HasMapping, HasOffset, HasPrecision, InvalidValueError, ModeError, \

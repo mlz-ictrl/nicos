@@ -24,7 +24,7 @@
 
 """Data handling APIs."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.core.data.dataset import BaseDataset, BlockDataset, PointDataset, \
     ScanData, ScanDataset, SubscanDataset

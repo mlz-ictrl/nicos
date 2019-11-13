@@ -21,4 +21,3 @@
 #   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
-from __future__ import absolute_import

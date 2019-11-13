@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ---------------------------------------------------------------------------------------------
 # Copyright (c) 2011-2014, Ryan Galloway (ryan@rsgalloway.com)
 #
@@ -42,7 +41,7 @@
 # ---------------------------------------------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------------------------------------------
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import sys
 

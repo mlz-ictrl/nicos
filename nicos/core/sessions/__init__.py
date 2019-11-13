@@ -30,7 +30,7 @@ the NICOS runtime.
 Only for internal usage by functions and methods.
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import copy
 import inspect

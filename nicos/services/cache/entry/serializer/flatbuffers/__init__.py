@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.services.cache.entry.serializer import CacheEntrySerializer
 from nicos.services.cache.entry.serializer.flatbuffers.ns10 import decode as ns10decode, \

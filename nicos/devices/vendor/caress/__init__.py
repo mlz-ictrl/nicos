@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.devices.vendor.caress.base import Driveable
 from nicos.devices.vendor.caress.motor import EKFMotor, Motor, MuxMotor

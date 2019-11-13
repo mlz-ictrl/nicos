@@ -21,4 +21,3 @@
 #   Matt Clarke <matt.clarke@esss.se>
 #
 # *****************************************************************************
-from __future__ import absolute_import

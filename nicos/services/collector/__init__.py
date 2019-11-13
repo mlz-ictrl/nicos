@@ -21,9 +21,10 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
+
 """The NICOS cache collector daemon."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import re
 

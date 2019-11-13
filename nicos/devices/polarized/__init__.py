@@ -24,6 +24,6 @@
 
 """Generic device classes for polarized neutron scattering."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 from nicos.devices.polarized.flipper import KFlipper, MezeiFlipper
