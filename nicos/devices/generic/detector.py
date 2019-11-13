@@ -314,6 +314,7 @@ class ImageChannelMixin(DeviceMixinBase):
 
     parameter_overrides = {
         'unit':         Override(default='cts'),
+        'fmtstr':       Override(default='%d'),
         'preselection': Override(type=int),
     }
 

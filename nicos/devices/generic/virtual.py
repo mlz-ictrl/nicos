@@ -327,7 +327,8 @@ class VirtualCounter(VirtualChannel):
     }
 
     parameter_overrides = {
-        'unit': Override(default='cts'),
+        'unit':   Override(default='cts'),
+        'fmtstr': Override(default='%d'),
     }
 
     def doInit(self, mode):
