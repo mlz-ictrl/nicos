@@ -26,14 +26,12 @@
 
 from __future__ import absolute_import, division
 
-from nicos.utils import findResource, formatDuration
-
-from nicos.guisupport.qt import QAbstractSpinBox, \
-    QColor, Qt, QWidget, pyqtSignal
+from nicos.clients.gui.utils import loadUi
+from nicos.guisupport.qt import QAbstractSpinBox, QColor, Qt, QWidget, \
+    pyqtSignal
 from nicos.guisupport.typedvalue import DeviceParamEdit
 from nicos.guisupport.utils import DoubleValidator, setBackgroundColor
-
-from nicos.clients.gui.utils import loadUi
+from nicos.utils import findResource, formatDuration
 
 invalid = QColor('#ffcccc')
 

@@ -26,11 +26,9 @@
 
 from __future__ import absolute_import
 
-from nicos.utils import createSubprocess, importString
-
-from nicos.guisupport.qt import QAction, Qt, QTimer
-
 from nicos.clients.gui.config import cmdtool, menu, tool
+from nicos.guisupport.qt import QAction, Qt, QTimer
+from nicos.utils import createSubprocess, importString
 
 
 def runTool(window, tconfig):

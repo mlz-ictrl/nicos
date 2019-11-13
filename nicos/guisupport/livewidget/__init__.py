@@ -36,7 +36,7 @@ from gr.pygr import Coords2D, Plot as OrigPlot, PlotAxes, Point, \
     RegionOfInterest
 from gr.pygr.base import GRMeta, GRVisibility
 
-from nicos.guisupport.plots import MaskedPlotCurve, GRCOLORS
+from nicos.guisupport.plots import GRCOLORS, MaskedPlotCurve
 from nicos.guisupport.qt import QHBoxLayout, QWidget, pyqtSignal
 from nicos.guisupport.qtgr import InteractiveGRWidget
 

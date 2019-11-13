@@ -26,4 +26,5 @@
 from __future__ import absolute_import
 
 import nicos.devices.sxtal.goniometer.base
+
 __all__ = []

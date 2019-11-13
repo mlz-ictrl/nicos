@@ -25,9 +25,7 @@
 from __future__ import absolute_import
 
 from nicos.services.cache.entry.serializer import CacheEntrySerializer
-from nicos.services.cache.entry.serializer.flatbuffers.ns10 import \
-    decode as ns10decode
-from nicos.services.cache.entry.serializer.flatbuffers.ns10 import \
+from nicos.services.cache.entry.serializer.flatbuffers.ns10 import decode as ns10decode, \
     encode as ns10encode
 
 

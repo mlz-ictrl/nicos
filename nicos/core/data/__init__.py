@@ -26,7 +26,7 @@
 
 from __future__ import absolute_import
 
-from nicos.core.data.dataset import BaseDataset, BlockDataset, \
-    PointDataset, ScanData, ScanDataset, SubscanDataset
+from nicos.core.data.dataset import BaseDataset, BlockDataset, PointDataset, \
+    ScanData, ScanDataset, SubscanDataset
 from nicos.core.data.manager import DataManager
 from nicos.core.data.sink import DataFile, DataSink, DataSinkHandler, GzipFile

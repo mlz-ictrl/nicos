@@ -29,6 +29,6 @@ from __future__ import absolute_import
 from nicos.devices.tas.cell import Cell, TASSample
 from nicos.devices.tas.ecradle import EulerianCradle
 from nicos.devices.tas.mono import Monochromator
-from nicos.devices.tas.spectro import TAS, Energy, \
-    QModulus, TASIndex, Wavelength, Wavevector
+from nicos.devices.tas.spectro import TAS, Energy, QModulus, TASIndex, \
+    Wavelength, Wavevector
 from nicos.devices.tas.vgonio import VirtualGonio

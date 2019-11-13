@@ -26,14 +26,12 @@
 
 from __future__ import absolute_import
 
+from nicos.core import SLAVE, ConfigurationError, DeviceMixinBase, HasLimits, \
+    HasMapping, HasOffset, HasPrecision, InvalidValueError, ModeError, \
+    Moveable, Override, Param, PositionError, ProgrammingError, Readable, \
+    oneof, status, usermethod
 from nicos.pycompat import iteritems
-
 from nicos.utils import num_sort
-
-from nicos.core import SLAVE, ConfigurationError, DeviceMixinBase, \
-    HasLimits, HasMapping, HasOffset, HasPrecision, InvalidValueError, \
-    ModeError, Moveable, Override, Param, PositionError, \
-    ProgrammingError, Readable, oneof, status, usermethod
 
 
 class Coder(HasPrecision, Readable):

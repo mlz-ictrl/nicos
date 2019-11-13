@@ -29,14 +29,12 @@ from __future__ import absolute_import
 import subprocess
 from time import time as currenttime
 
-from nicos.pycompat import text_type
-
-from nicos.utils import createSubprocess, createThread
-from nicos.utils.emails import sendMail
-
 from nicos import session
 from nicos.core import ADMIN, AccessError, Device, Override, Param, \
     floatrange, listof, mailaddress, oneof, tupleof, usermethod
+from nicos.pycompat import text_type
+from nicos.utils import createSubprocess, createThread
+from nicos.utils.emails import sendMail
 
 
 class Notifier(Device):

@@ -29,12 +29,12 @@ from __future__ import absolute_import
 from nicos.devices.taco.axis import Axis, HoveringAxis
 from nicos.devices.taco.coder import Coder
 from nicos.devices.taco.core import TacoDevice
-from nicos.devices.taco.detector import FRMChannel, \
-    FRMCounterChannel, FRMTimerChannel
+from nicos.devices.taco.detector import FRMChannel, FRMCounterChannel, \
+    FRMTimerChannel
 from nicos.devices.taco.io import AnalogInput, AnalogOutput, \
-    BitsDigitalOutput, DigitalInput, DigitalOutput, \
-    MultiDigitalOutput, NamedDigitalInput, NamedDigitalOutput, \
-    PartialDigitalInput, PartialDigitalOutput
+    BitsDigitalOutput, DigitalInput, DigitalOutput, MultiDigitalOutput, \
+    NamedDigitalInput, NamedDigitalOutput, PartialDigitalInput, \
+    PartialDigitalOutput
 from nicos.devices.taco.motor import Motor
 from nicos.devices.taco.power import CurrentSupply, Supply, VoltageSupply
 from nicos.devices.taco.temperature import TemperatureController, \

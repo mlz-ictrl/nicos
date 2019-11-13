@@ -27,17 +27,15 @@ from __future__ import absolute_import
 
 import re
 
-from nicos.utils import createThread
-from nicos.utils.queues import SizedQueue, queue
-
 from nicos.core import Attach, Override, Param
 from nicos.core.device import Device
 from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import DeviceMixinBase
-from nicos.core.params import listof, oneof, dictof
-from nicos.protocols.cache import OP_TELL, OP_TELLOLD
-
+from nicos.core.params import dictof, listof, oneof
 from nicos.devices.cacheclient import BaseCacheClient
+from nicos.protocols.cache import OP_TELL, OP_TELLOLD
+from nicos.utils import createThread
+from nicos.utils.queues import SizedQueue, queue
 
 try:
     import requests

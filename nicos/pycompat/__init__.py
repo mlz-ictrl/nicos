@@ -24,22 +24,19 @@
 
 """Python 2/3 compatibility."""
 
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
-import inspect
 import threading
 
-import six
-
 # For consistency import everything from "six" here.
-from six import BytesIO, PY2, StringIO, add_metaclass, \
-    binary_type, exec_, integer_types, iteritems, iterkeys, \
-    itervalues, reraise, string_types, text_type
+from six import PY2, BytesIO, StringIO, add_metaclass, binary_type, exec_, \
+    integer_types, iteritems, iterkeys, itervalues, reraise, string_types, \
+    text_type
 # Pylint cannot handle submodules created by "six".  Import them here to
 # ignore the Pylint errors only once.
 # pylint: disable=import-error, redefined-builtin
-from six.moves import builtins, configparser, cPickle, \
-    input, queue, reduce, socketserver, urllib, xrange, zip_longest
+from six.moves import builtins, configparser, cPickle, input, queue, reduce, \
+    socketserver, urllib, xrange, zip_longest
 
 # functionality in addition to what "six" provides
 

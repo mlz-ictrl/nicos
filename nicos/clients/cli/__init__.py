@@ -50,12 +50,12 @@ from html2text import HTML2Text
 from nicos.clients.base import ConnectionData, NicosClient
 from nicos.clients.cli.txtplot import txtplot
 from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
-from nicos.protocols.daemon import BREAK_AFTER_LINE, \
-    BREAK_AFTER_STEP, STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK
+from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \
+    STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK
 from nicos.protocols.daemon.classic import DEFAULT_PORT
 from nicos.pycompat import configparser, iteritems, to_encoding
-from nicos.utils import colorize, formatDuration, \
-    formatEndtime, parseConnectionString, terminalSize
+from nicos.utils import colorize, formatDuration, formatEndtime, \
+    parseConnectionString, terminalSize
 from nicos.utils.loggers import ACTION, INPUT
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',

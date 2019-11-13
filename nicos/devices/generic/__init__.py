@@ -28,14 +28,13 @@ from __future__ import absolute_import
 
 # backwards compatibility for config files
 from nicos.core.device import DeviceAlias, NoDevice
-
 from nicos.devices.generic.axis import Axis
 from nicos.devices.generic.cache import CacheReader, CacheWriter
 from nicos.devices.generic.detector import ActiveChannel, \
-    CounterChannelMixin, Detector, DetectorForecast, \
-    GatedDetector, ImageChannelMixin, PassiveChannel, \
-    PostprocessPassiveChannel, RateChannel, RateRectROIChannel, \
-    RectROIChannel, ScanningDetector, TimerChannelMixin
+    CounterChannelMixin, Detector, DetectorForecast, GatedDetector, \
+    ImageChannelMixin, PassiveChannel, PostprocessPassiveChannel, \
+    RateChannel, RateRectROIChannel, RectROIChannel, ScanningDetector, \
+    TimerChannelMixin
 from nicos.devices.generic.magnet import BipolarSwitchingMagnet, \
     CalibratedMagnet
 from nicos.devices.generic.manual import ManualMove, ManualSwitch
@@ -44,8 +43,8 @@ from nicos.devices.generic.paramdev import ParamDevice, ReadonlyParamDevice
 from nicos.devices.generic.pulse import Pulse
 from nicos.devices.generic.sequence import BaseSequencer, LockedDevice
 from nicos.devices.generic.slit import Slit, TwoAxisSlit
-from nicos.devices.generic.switcher import MultiSwitcher, \
-    ReadonlySwitcher, Switcher
+from nicos.devices.generic.switcher import MultiSwitcher, ReadonlySwitcher, \
+    Switcher
 from nicos.devices.generic.system import FreeSpace
 from nicos.devices.generic.virtual import VirtualCoder, VirtualCounter, \
     VirtualImage, VirtualMotor, VirtualRealTemperature, \

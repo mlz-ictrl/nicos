@@ -31,16 +31,14 @@ import threading
 import time
 import traceback
 
-from nicos.pycompat import listitems
-
-from nicos.utils import createThread, importString, parseHostPort
-
 from nicos import config, nicos_version
 from nicos.core import Attach, ConfigurationError, Device, Param, host, listof
 from nicos.core.utils import system_user
 from nicos.protocols.daemon.classic import DEFAULT_PORT
+from nicos.pycompat import listitems
 from nicos.services.daemon.auth import Authenticator
 from nicos.services.daemon.script import ExecutionController
+from nicos.utils import createThread, importString, parseHostPort
 
 
 class NicosDaemon(Device):
