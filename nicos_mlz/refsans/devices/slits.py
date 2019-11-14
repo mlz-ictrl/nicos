@@ -27,9 +27,10 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.core import SIMULATION, Attach, AutoDevice, Moveable, Override, \
-    Param, dictof, dictwith, floatrange, oneof, status, tupleof
+    Param, Value, dictof, dictwith, floatrange, oneof, status, tupleof
 from nicos.core.errors import MoveError
 from nicos.core.mixins import HasOffset
+from nicos.core.utils import devIter
 from nicos.devices.generic.sequence import SeqDev, SequencerMixin
 from nicos.utils import lazy_property
 
@@ -216,6 +217,15 @@ class DoubleSlit(PseudoNOK, Moveable):
 
     def doReadNok_End(self):
         return self._attached_slit_s.nok_end
+
+    def doPoll(self, n, maxage):
+        # also poll sub-AutoDevices we created
+        for dev in devIter(self.__dict__, baseclass=AutoDevice):
+            dev.poll(n, maxage)
+
+    def valueInfo(self):
+        return Value('%s.height' % self, unit=self.unit, fmtstr='%.2f'), \
+               Value('%s.center' % self, unit=self.unit, fmtstr='%.2f')
 
 
 class DoubleSlitSequence(SequencerMixin, DoubleSlit):
