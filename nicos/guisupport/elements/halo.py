@@ -48,6 +48,3 @@ class Halo(QGraphicsEllipseItem):
     def setState(self, state):
         self.setPen(QPen(statuscolor[state], self._width))
         self.update()
-
-    def setTranslation(self, x, y):
-        pass

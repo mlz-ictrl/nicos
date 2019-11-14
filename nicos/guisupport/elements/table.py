@@ -56,6 +56,3 @@ class TableBase(QGraphicsEllipseItem):
     def setPos(self, x, y=None):
         point = x if isinstance(x, QPointF) else QPointF(x, y)
         QGraphicsItemGroup.setPos(self, point)
-
-    def setTranslation(self, x, y):
-        pass
