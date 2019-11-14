@@ -138,13 +138,13 @@ they return a converter.
 
        Param(..., type=oneofdict_or(dict(refpos=12.34, e=2.718), floatrange(0, 100))
 
-.. function:: setof(element_converter)
+.. function:: setof(values)
 
-   Create a converter that accepts only sets with element types given by the
-   *element_converter*.  Examples::
+   Create a converter that accepts only sequences with the elements given in
+   *values*.  Examples::
 
-       Param(..., type=setof(int))
-       Param(..., type=setof(tacodev))
+       Param(..., type=setof(1, 2, 5))
+       Param(..., type=setof('guest', 'user', 'admin'))
 
 .. function:: host(defaulthost='', defaultport=None)
 
