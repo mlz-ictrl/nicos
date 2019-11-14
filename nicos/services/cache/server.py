@@ -315,7 +315,7 @@ class CacheUDPWorker(CacheWorker):
         # split data into chunks which are less than maxsize
         while data:
             # find rightmost \n within first maxsize bytes
-            p = data[:maxsize].rfind('\n')
+            p = data[:maxsize].rfind(b'\n')
             if p == -1:
                 # line too long. cross your fingers and split SOMEWHERE
                 p = maxsize - 1
