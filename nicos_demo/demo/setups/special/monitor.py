@@ -60,6 +60,14 @@ _tasblock = Block('Triple-axis', [
     setups='tas',
 )
 
+_slitblock = Block('Sample Slit', [
+    BlockRow(Field(dev='ss', name='Sample slit')),
+    BlockRow(Field(dev='ss.height', name='Height'),
+             Field(dev='ss.width', name='Width')),
+    ],
+    setups='tas',
+)
+
 _tempblock = Block('Temperature', [
     BlockRow(Field(gui='nicos_demo/demo/gui/cryo.ui')),
     # BlockRow(Field(dev='T'), Field(key='t/setpoint', name='Setpoint')),
@@ -119,7 +127,7 @@ _sansblock = Block('SANS', [
 
 _rightcolumn = Column(_axisblock, _tempblock,)
 
-_leftcolumn = Column(_tasblock, _sansblock,)
+_leftcolumn = Column(_tasblock, _slitblock, _sansblock,)
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
