@@ -43,5 +43,6 @@ devices = dict(
         coordinates = 'opposite',
         pollinterval = 5,
         maxage = 10,
+        parallel_ref = True,
     ),
 )
