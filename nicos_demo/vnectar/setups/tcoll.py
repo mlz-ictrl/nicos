@@ -28,5 +28,6 @@ devices = dict(
             '3': 180,
             '4': 270,
         },
+        fallback = '-',
     ),
 )
