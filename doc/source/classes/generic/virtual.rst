@@ -9,6 +9,7 @@ testing purposes.
 .. module:: nicos.devices.generic.virtual
 
 .. autoclass:: VirtualMotor()
+.. autoclass:: VirtualReferenceMotor()
 .. autoclass:: VirtualCoder()
 
 .. autoclass:: VirtualTimer()

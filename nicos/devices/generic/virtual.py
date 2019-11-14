@@ -42,9 +42,10 @@ from nicos.core import MASTER, POLLER, SIMULATION, ArrayDesc, Attach, \
     SubscanMeasurable, Value, floatrange, intrange, listof, none_or, oneof, \
     status, tupleof
 from nicos.core.scan import Scan
-from nicos.devices.abstract import Coder, Motor
+from nicos.devices.abstract import CanReference, Coder, Motor
 from nicos.devices.generic.detector import ActiveChannel, ImageChannelMixin, \
     PassiveChannel
+from nicos.pycompat import string_types
 from nicos.utils import clamp, createThread
 from nicos.utils.timer import Timer
 
@@ -150,6 +151,38 @@ class VirtualMotor(HasOffset, CanDisable, Motor):
         else:
             if self.curstatus[0] == status.DISABLED:
                 self.curstatus = (status.OK, 'idle')
+
+
+class VirtualReferenceMotor(CanReference, VirtualMotor):
+    """Virtual motor device with reference capability."""
+
+    parameters = {
+        'refpos': Param('Reference position if given',
+                        type=float, settable=False, default=0.0, unit='main'),
+        'refswitch': Param('Type of the reference switch',
+                           type=oneof('high', 'low', 'ref', None),
+                           default=None, settable=False),
+    }
+
+    def doReference(self, *args):
+        # if self.status(0)[0] == status.BUSY:
+        #   raise NicosError(self, 'cannot reference if device is moving.')
+        refswitch = args[0] if args and isinstance(args[0], string_types) \
+            else self.refswitch
+        self.log.debug('reference: %s', refswitch)
+        if refswitch == 'high':
+            pos = self.absmax
+        elif refswitch == 'low':
+            pos = self.absmin
+        elif refswitch == 'ref':
+            pos = self.refpos
+        else:
+            self.log.warning('Reference switch %r is not allowed.', refswitch)
+            return
+        self.maw(pos)
+        self.setPosition(self.refpos)
+        self._setROParam('target', self.refpos)
+        self.log.debug('%r %r', self.refpos, self.target)
 
 
 class VirtualCoder(HasOffset, Coder):

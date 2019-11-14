@@ -49,4 +49,5 @@ from nicos.devices.generic.switcher import MultiSwitcher, \
 from nicos.devices.generic.system import FreeSpace
 from nicos.devices.generic.virtual import VirtualCoder, VirtualCounter, \
     VirtualImage, VirtualMotor, VirtualRealTemperature, \
-    VirtualScanningDetector, VirtualTemperature, VirtualTimer
+    VirtualReferenceMotor, VirtualScanningDetector, VirtualTemperature, \
+    VirtualTimer
