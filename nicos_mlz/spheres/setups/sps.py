@@ -2,7 +2,7 @@
 
 description = 'sps devices'
 
-group = 'optional'
+group = 'lowlevel'
 
 tangohost = 'phys.spheres.frm2'
 profibus_base = 'tango://%s:10000/spheres/profibus/sps_' % tangohost

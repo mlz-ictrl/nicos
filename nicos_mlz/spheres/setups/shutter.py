@@ -2,12 +2,12 @@
 
 description = 'setup for the shutter'
 
-group = 'optional'
+group = 'lowlevel'
 
 includes = ['sps']
 
 tangohost = 'phys.spheres.frm2'
-shutter = 'tango://%s:10000/spheres/shutter/' % tangohost
+shutter = 'tango://%s:10000/spheres/profibus/' % tangohost
 
 devices = dict(
     shutter = device('nicos_mlz.spheres.devices.shutter.ShutterCluster',

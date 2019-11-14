@@ -49,3 +49,5 @@ devices = dict(
         tacodevice = qm + 'timer'
     ),
 )
+
+startupcode = 'SetDetectors(sis, mesy)'

@@ -2,6 +2,8 @@
 
 description = 'SIS detector setup'
 
+group = 'lowlevel'
+
 includes = ['shutter', 'cct6', 'doppler']
 
 sysconfig = dict(datasinks = ['sisasink', 'sisusink', 'sislive'])

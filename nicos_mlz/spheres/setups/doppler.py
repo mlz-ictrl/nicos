@@ -2,7 +2,7 @@
 
 description = 'doppler control devices'
 
-group = 'optional'
+group = 'lowlevel'
 
 tangohost = 'phys.spheres.frm2'
 doppler = 'tango://%s:10000/spheres/doppler/' % tangohost
