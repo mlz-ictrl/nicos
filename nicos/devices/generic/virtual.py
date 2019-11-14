@@ -390,6 +390,9 @@ class VirtualTemperature(VirtualMotor):
 
 
 class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
+    """A virtual temperature regulation device with a realistic simulation
+    of a sample in a cryostat, with a PID-controlled heater.
+    """
 
     parameters = {
         'jitter':    Param('Jitter of the read-out value', default=0,
@@ -779,6 +782,9 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
 
 
 class VirtualScanningDetector(SubscanMeasurable):
+    """A virtual detector whose data acquisition consists of scanning a
+    moveable device, and taking data points with another detector.
+    """
 
     attached_devices = {
         'scandev':  Attach('Current device to scan', Moveable),
