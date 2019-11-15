@@ -40,7 +40,7 @@ from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, MoveError, NicosError, NicosTimeoutError, \
     PositionError
 from nicos.pycompat import listitems, reraise, to_ascii_escaped
-from nicos.utils import formatDuration, createThread
+from nicos.utils import createThread, formatDuration
 
 # Exceptions at which a scan point is measured anyway.
 CONTINUE_EXCEPTIONS = (PositionError, MoveError, NicosTimeoutError)
