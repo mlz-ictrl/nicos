@@ -26,8 +26,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-from os import path
-
 import numpy as np
 from gr.pygr import ErrorBar
 
@@ -38,8 +36,7 @@ from nicos.guisupport.livewidget import LiveWidget1D
 from nicos.guisupport.plots import GRCOLORS, GRMARKS
 from nicos.guisupport.qt import QSize, QSizePolicy, QWidget
 from nicos.protocols.cache import cache_load
-
-my_uipath = path.dirname(__file__)
+from nicos.utils import findResource
 
 COLOR_BLUE = GRCOLORS['blue']
 
@@ -74,7 +71,7 @@ class FoilWidget(QWidget):
 
     def __init__(self, name='unknown', parent=None, **kwds):
         QWidget.__init__(self, parent)
-        loadUi(self, 'mieze_display_foil.ui', my_uipath)
+        loadUi(self, findResource('nicos_mlz/reseda/gui/mieze_display_foil.ui'))
         # set name
         self.name = name
         self.groupBox.setTitle(name)
@@ -146,7 +143,7 @@ class MiezePanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'mieze_display.ui', my_uipath)
+        loadUi(self, findResource('nicos_mlz/reseda/gui/mieze_display.ui'))
         self.mywidgets = []
         self.foils = options.get('foils', [7, 6, 5, 0, 1, 2])
         self.columns = options.get('columns', 3)

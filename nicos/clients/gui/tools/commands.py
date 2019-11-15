@@ -52,7 +52,7 @@ class CommandsTool(QDialog):
 
     def __init__(self, parent, client, **settings):
         QDialog.__init__(self, parent)
-        loadUi(self, 'commands.ui', 'tools')
+        loadUi(self, 'tools/commands.ui')
 
         self.closeBtn.clicked.connect(self.close)
 

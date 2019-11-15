@@ -29,10 +29,9 @@ from __future__ import absolute_import, division, print_function
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import DetEnvPanel, ExpPanel, \
     GenericSamplePanel, SetupsPanel
-from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.core.utils import ADMIN
-from nicos.guisupport.qt import QDialog, QMessageBox, QPushButton, QTimer, \
-    pyqtSlot
+from nicos.guisupport.qt import QMessageBox, QPushButton, QTimer, pyqtSlot
 from nicos.guisupport.widget import NicosWidget
 
 
@@ -72,7 +71,7 @@ class ExpInfoPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'expinfo.ui', 'panels')
+        loadUi(self, 'panels/expinfo.ui')
         for ch in self.findChildren(NicosWidget):
             ch.setClient(client)
         client.setup.connect(self.on_client_setup)
@@ -162,8 +161,7 @@ class ExpInfoPanel(Panel):
 
     @pyqtSlot()
     def on_remarkBtn_clicked(self):
-        dlg = QDialog(self)
-        loadUi(dlg, 'expinfo_remark.ui', 'panels')
+        dlg = dialogFromUi(self, 'panels/expinfo_remark.ui')
 
         def callback():
             self.showInfo('The remark will be added to the logbook as a '

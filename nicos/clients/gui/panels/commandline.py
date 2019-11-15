@@ -38,7 +38,7 @@ class CommandLinePanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'commandline.ui', 'panels')
+        loadUi(self, 'panels/commandline.ui')
 
         self.commandInput.history = self.cmdhistory
         self.commandInput.completion_callback = self.completeInput

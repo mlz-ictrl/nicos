@@ -38,7 +38,7 @@ class SettingsDialog(DlgUtils, QDialog):
     def __init__(self, main):
         QDialog.__init__(self, main)
         DlgUtils.__init__(self, 'Settings')
-        loadUi(self, 'settings.ui', 'dialogs')
+        loadUi(self, 'dialogs/settings.ui')
         self.main = main
         self.sgroup = main.sgroup
 
@@ -106,7 +106,7 @@ class SettingsDialog(DlgUtils, QDialog):
 
     @pyqtSlot()
     def on_settingAdd_clicked(self):
-        dlg = dialogFromUi(self, 'settings_conn.ui', 'dialogs')
+        dlg = dialogFromUi(self, 'dialogs/settings_conn.ui')
         if dlg.exec_() != QDialog.Accepted:
             return
         if not dlg.name.text():
@@ -134,7 +134,7 @@ class SettingsDialog(DlgUtils, QDialog):
         if item is None:
             return
         cdata = self.connpresets[item.data(32)]
-        dlg = dialogFromUi(self, 'settings_conn.ui', 'dialogs')
+        dlg = dialogFromUi(self, 'dialogs/settings_conn.ui')
         dlg.name.setText(item.data(32))
         dlg.name.setEnabled(False)
         dlg.host.setText(cdata.host)

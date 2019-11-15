@@ -43,7 +43,7 @@ class WebsiteTool(QDialog):
 
     def __init__(self, parent, client, **settings):
         QDialog.__init__(self, parent)
-        loadUi(self, 'website.ui', 'tools')
+        loadUi(self, 'tools/website.ui')
         self.webView = QWebView(self)
         self.layout().addWidget(self.webView)
 

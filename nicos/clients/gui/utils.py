@@ -63,13 +63,13 @@ def splitTunnelString(tunnel):
 uipath = path.dirname(__file__)
 
 
-def loadUi(widget, uiname, subdir=''):
-    uic.loadUi(path.join(uipath, subdir, uiname), widget)
+def loadUi(widget, uiname):
+    uic.loadUi(path.join(uipath, uiname), widget)
 
 
-def dialogFromUi(parent, uiname, subdir=''):
+def dialogFromUi(parent, uiname):
     dlg = QDialog(parent)
-    loadUi(dlg, uiname, subdir)
+    loadUi(dlg, uiname)
     return dlg
 
 

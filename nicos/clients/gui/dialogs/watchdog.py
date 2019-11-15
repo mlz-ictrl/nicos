@@ -36,7 +36,7 @@ from nicos.guisupport.qt import QDialog, QDialogButtonBox, QFrame, \
 class WatchdogDialog(QDialog):
     def __init__(self, main):
         QDialog.__init__(self, main)
-        loadUi(self, 'watchdog.ui', 'dialogs')
+        loadUi(self, 'dialogs/watchdog.ui')
 
         self.frame = QFrame(self)
         self.scrollArea.setWidget(self.frame)
@@ -55,7 +55,7 @@ class WatchdogDialog(QDialog):
 
     def addEvent(self, data):
         w = QWidget(self.frame)
-        loadUi(w, 'watchdog_item.ui', 'dialogs')
+        loadUi(w, 'dialogs/watchdog_item.ui')
         self.frame.layout().insertWidget(self.frame.layout().count()-1, w)
         if data[0] == 'warning':
             w.datelabel.setText('Watchdog alert - %s' %

@@ -65,8 +65,8 @@ class Cmdlet(QWidget):
     def __init__(self, parent, client, uifile):
         self.client = client
         QWidget.__init__(self, parent)
-        loadUi(self, uifile, 'cmdlets')
-        loadUi(self.buttons, 'buttons.ui', 'cmdlets')
+        loadUi(self, uifile)
+        loadUi(self.buttons, 'cmdlets/buttons.ui')
         self.buttons.upBtn.clicked.connect(self.cmdletUp)
         self.buttons.downBtn.clicked.connect(self.cmdletDown)
         self.buttons.delBtn.clicked.connect(self.cmdletRemove)
@@ -151,7 +151,7 @@ class Move(Cmdlet):
     category = 'Device'
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'move.ui')
+        Cmdlet.__init__(self, parent, client, 'cmdlets/move.ui')
         self.multiList.entryAdded.connect(self.on_entryAdded)
         self.multiList.uifile = findResource('nicos/clients/gui/cmdlets/move_one.ui')
         self.waitBox.stateChanged.connect(self.changed)
@@ -202,7 +202,7 @@ class Count(Cmdlet):
     category = 'Scan'
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'count.ui')
+        Cmdlet.__init__(self, parent, client, 'cmdlets/count.ui')
         self.seconds.valueChanged.connect(self.changed)
 
     def getValues(self):
@@ -224,10 +224,10 @@ class Count(Cmdlet):
 class CommonScan(Cmdlet):
 
     cmdname = ''
-    uiname = ''
+    uiName = ''
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, self.uiname)
+        Cmdlet.__init__(self, parent, client, self.uiName)
         self.device.addItems(self._getDeviceList())
         self.on_device_change(self.device.currentText())
         self.device.currentIndexChanged[str].connect(self.on_device_change)
@@ -299,7 +299,7 @@ class Scan(CommonScan):
     name = 'Scan'
     category = 'Scan'
     cmdname = 'scan'
-    uiname = 'scan.ui'
+    uiName = 'cmdlets/scan.ui'
 
     def on_range_change(self, *args):
         try:
@@ -327,7 +327,7 @@ class CScan(CommonScan):
     name = 'Centered Scan'
     category = 'Scan'
     cmdname = 'cscan'
-    uiname = 'cscan.ui'
+    uiName = 'cmdlets/cscan.ui'
 
     def on_range_change(self, *args):
         numpoints = self.numpoints.value()
@@ -360,7 +360,7 @@ class TimeScan(Cmdlet):
     category = 'Scan'
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'timescan.ui')
+        Cmdlet.__init__(self, parent, client, 'cmdlets/timescan.ui')
         self.seconds.valueChanged.connect(self.changed)
 
     def on_infBox_toggled(self, on):
@@ -397,7 +397,7 @@ class ContScan(Cmdlet):
     category = 'Scan'
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'contscan.ui')
+        Cmdlet.__init__(self, parent, client, 'cmdlets/contscan.ui')
         self.device.addItems(self._getDeviceList('hasattr(d, "speed")'))
         self.on_device_change(self.device.currentText())
         self.device.currentIndexChanged[str].connect(self.on_device_change)
@@ -475,7 +475,7 @@ class Sleep(Cmdlet):
     category = 'Other'
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'sleep.ui')
+        Cmdlet.__init__(self, parent, client, 'cmdlets/sleep.ui')
         self.seconds.valueChanged.connect(self.changed)
 
     def getValues(self):
@@ -500,7 +500,7 @@ class Configure(Cmdlet):
     category = 'Device'
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'configure.ui')
+        Cmdlet.__init__(self, parent, client, 'cmdlets/configure.ui')
         self.paraminfo = {}
         self.paramvalues = {}
         self.target = DeviceParamEdit(self)
@@ -558,7 +558,7 @@ class NewSample(Cmdlet):
     category = 'Other'
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'sample.ui')
+        Cmdlet.__init__(self, parent, client, 'cmdlets/sample.ui')
         self.samplename.textChanged.connect(self.changed)
 
     def getValues(self):

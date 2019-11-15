@@ -44,7 +44,7 @@ class LogViewerPanel(Panel):
 
         self._logPath = 'log'
 
-        loadUi(self, 'logviewer.ui', 'panels')
+        loadUi(self, 'panels/logviewer.ui')
 
         # initialize date/time range to display logs from yesterday
         # (same time) to now

@@ -40,6 +40,7 @@ from nicos.guisupport.qt import QT_VER, QAbstractItemView, QGridLayout, \
     pyqtSignal, pyqtSlot
 from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC, \
     STATUS_RUNNING, STATUS_STOPPING
+from nicos.utils import findResource
 
 from .scripthandler import TemplateScriptHandler
 from .widgets import AttCell, BeamCell, CellItem, CondCell, DetectorCell, \
@@ -74,7 +75,7 @@ class PGAAPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'pgaaposition.ui', my_uipath)
+        loadUi(self, findResource('nicos_mlz/pgaa/gui/panels/pgaaposition.ui'))
 
         self.motorslide = DevSlider(client, 'sc', 1, 16, parent=self)
         self.motorslide.setParent(self.MotorGroup)

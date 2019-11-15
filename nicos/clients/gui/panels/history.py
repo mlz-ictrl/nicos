@@ -200,7 +200,7 @@ class NewViewDialog(DlgUtils, QDialog):
     def __init__(self, parent, info=None, client=None):
         QDialog.__init__(self, parent)
         DlgUtils.__init__(self, 'History viewer')
-        loadUi(self, 'history_new.ui', 'panels')
+        loadUi(self, 'panels/history_new.ui')
         self.client = client
 
         self.fromdate.setDateTime(QDateTime.currentDateTime())
@@ -449,7 +449,7 @@ class BaseHistoryWindow(object):
     presetdict = None
 
     def __init__(self):
-        loadUi(self, 'history.ui', 'panels')
+        loadUi(self, 'panels/history.ui')
 
         self.user_color = Qt.white
         self.user_font = QFont('Monospace')
@@ -1125,7 +1125,7 @@ class HistoryPanel(BaseHistoryWindow, Panel):
 
     @pyqtSlot()
     def on_actionAttachElog_triggered(self):
-        newdlg = dialogFromUi(self, 'plot_attach.ui', 'panels')
+        newdlg = dialogFromUi(self, 'panels/plot_attach.ui')
         suffix = self.currentPlot.SAVE_EXT
         newdlg.filename.setText(
             safeName('history_%s' % self.currentPlot.view.name + suffix))
@@ -1241,7 +1241,7 @@ class StandaloneHistoryApp(CacheClient):
 class SettingsDialog(QDialog):
     def __init__(self, parent):
         QDialog.__init__(self, parent)
-        loadUi(self, 'history_settings.ui', 'panels')
+        loadUi(self, 'panels/history_settings.ui')
         settings = CompatSettings()
         self._caches = settings.value('cachehosts') or []
         prefix = settings.value('keyprefix', 'nicos/')

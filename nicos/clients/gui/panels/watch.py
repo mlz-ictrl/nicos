@@ -44,7 +44,7 @@ class WatchPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'watch.ui', 'panels')
+        loadUi(self, 'panels/watch.ui')
 
         self.watch_items = {}
         client.watch.connect(self.on_client_watch)

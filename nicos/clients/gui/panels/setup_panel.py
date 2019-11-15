@@ -63,7 +63,7 @@ class ExpPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'setup_exp.ui', 'panels')
+        loadUi(self, 'panels/setup_exp.ui')
         self.propdbInfo.setVisible(False)
         self._orig_proposal = None
         self._new_exp_panel = None
@@ -331,7 +331,7 @@ class SetupsPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'setup_setups.ui', 'panels')
+        loadUi(self, 'panels/setup_setups.ui')
 
         self.errorLabel.hide()
         self.aliasGroup.hide()
@@ -559,7 +559,7 @@ class DetEnvPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'setup_detenv.ui', 'panels')
+        loadUi(self, 'panels/setup_detenv.ui')
 
         if client.isconnected:
             self.on_client_connected()
@@ -643,11 +643,11 @@ class GenericSamplePanel(Panel):
     """Provides a panel to input the name of the current used sample."""
 
     panelName = 'Sample setup'
-    uiName = 'setup_sample.ui'
+    uiName = 'panels/setup_sample.ui'
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, self.uiName, 'panels')
+        loadUi(self, self.uiName)
         for ch in self.findChildren(NicosWidget):
             ch.setClient(self.client)
         if self.client.viewonly:
@@ -682,7 +682,7 @@ class TasSamplePanel(GenericSamplePanel):
     """Provides a set of input parameters for a sample used in a TAS setup."""
 
     panelName = 'TAS sample setup'
-    uiName = 'setup_tassample.ui'
+    uiName = 'panels/setup_tassample.ui'
 
     def getEditBoxes(self):
         return [self.samplenameEdit, self.latticeEdit, self.anglesEdit,
@@ -694,7 +694,7 @@ class SXTalSamplePanel(GenericSamplePanel):
     """Provides a set of input parameters for a single crystal sample."""
 
     panelName = 'Single-crystal sample setup'
-    uiName = 'setup_sxtalsample.ui'
+    uiName = 'panels/setup_sxtalsample.ui'
 
     def __init__(self, parent, client, options):
         GenericSamplePanel.__init__(self, parent, client, options)

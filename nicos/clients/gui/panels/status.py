@@ -136,7 +136,7 @@ class ScriptStatusPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'status.ui', 'panels')
+        loadUi(self, 'panels/status.ui')
 
         self.stopcounting = False
         self.menu = None

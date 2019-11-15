@@ -34,9 +34,10 @@ from nicos.utils import findResource
 class DNSScan(Cmdlet):
     name = ''
     category = ''
+    uiName = ''
 
     def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, self.uiname)
+        Cmdlet.__init__(self, parent, client, self.uiName)
         for spin in [self.bankpositions, self.lowest_2theta, self.MonpMin,
                      self.SF, self.NSF]:
             spin.valueChanged.connect(self.changed)
@@ -242,7 +243,7 @@ class DNSScan(Cmdlet):
 class PowderScan(DNSScan):
     name = 'Powder Scan'
     category = 'DNS'
-    uiname = findResource('nicos_mlz/dns/gui/cmdlets/powder_scan.ui')
+    uiName = findResource('nicos_mlz/dns/gui/cmdlets/powder_scan.ui')
 
     def __init__(self, parent, client):
         DNSScan.__init__(self, parent, client)
@@ -287,7 +288,7 @@ class PowderScan(DNSScan):
 class SingleCrystalScan(DNSScan):
     name = 'Single Crystal'
     category = 'DNS'
-    uiname = findResource('nicos_mlz/dns/gui/cmdlets/sc_scan.ui')
+    uiName = findResource('nicos_mlz/dns/gui/cmdlets/sc_scan.ui')
 
     def __init__(self, parent, client):
         DNSScan. __init__(self, parent, client)

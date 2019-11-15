@@ -34,7 +34,7 @@ from nicos.guisupport.utils import waitCursor
 class SearchDialog(QDialog):
     def __init__(self, parent, editor, has_scintilla):
         QDialog.__init__(self, parent)
-        loadUi(self, 'search.ui', 'panels')
+        loadUi(self, 'panels/search.ui')
 
         self.editor = editor
         self.found = False

@@ -48,7 +48,7 @@ class ELogPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'elog.ui', 'panels')
+        loadUi(self, 'panels/elog.ui')
         self.preview = QWebView(self)
         self.frame.layout().addWidget(self.preview)
 
@@ -244,7 +244,7 @@ class ELogPanel(Panel):
 
     @pyqtSlot()
     def on_actionAddComment_triggered(self):
-        dlg = dialogFromUi(self, 'elog_comment.ui', 'panels')
+        dlg = dialogFromUi(self, 'panels/elog_comment.ui')
         dlg.helpFrame.setVisible(False)
         dlg.creoleLabel.linkActivated.connect(
             lambda link: dlg.helpFrame.setVisible(True))
@@ -258,7 +258,7 @@ class ELogPanel(Panel):
 
     @pyqtSlot()
     def on_actionAttachFile_triggered(self):
-        dlg = dialogFromUi(self, 'elog_attach.ui', 'panels')
+        dlg = dialogFromUi(self, 'panels/elog_attach.ui')
 
         def on_fileSelect_clicked():
             self.selectInputFile(dlg.fileName, 'Choose a file to attach')

@@ -26,7 +26,6 @@ from __future__ import absolute_import, division, print_function
 
 from contextlib import contextmanager
 from math import asin, atan, cos, degrees, pi, radians, sin, sqrt, tan
-from os import path
 
 from numpy import arange, array, sign
 
@@ -40,10 +39,9 @@ from nicos.guisupport.qt import QApplication, QCursor, QDoubleValidator, \
     QLabel, QMessageBox, QSize, QSizePolicy, Qt, QVBoxLayout, QWidget, \
     pyqtSlot
 from nicos.guisupport.widget import NicosWidget
+from nicos.utils import findResource
 
 from nicos_mlz.puma.lib.pa import PA
-
-my_uipath = path.dirname(path.realpath(__file__))
 
 COLOR_BLACK = GRCOLORS['black']
 COLOR_RED = GRCOLORS['red']
@@ -164,7 +162,7 @@ class PolarisationPanel(NicosWidget, Panel):
 
     def initUi(self):
         with wait_cursor():
-            loadUi(self, 'polarisation.ui', my_uipath)
+            loadUi(self, findResource('nicos_mlz/puma/gui/polarisation.ui'))
 
         valid = QDoubleValidator()
 

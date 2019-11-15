@@ -40,7 +40,7 @@ class DownTimeTool(DlgUtils, QDialog):
     def __init__(self, parent, client, **configs):
         QDialog.__init__(self, parent)
         DlgUtils.__init__(self, self.toolName)
-        loadUi(self, 'downtime.ui', 'tools')
+        loadUi(self, 'tools/downtime.ui')
         self.sendBtn = self.buttonBox.addButton('&Send',
                                                 QDialogButtonBox.AcceptRole)
         self.sendBtn.setIcon(QIcon(':/mail'))

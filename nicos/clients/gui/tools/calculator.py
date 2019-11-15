@@ -66,7 +66,7 @@ class CalculatorTool(QDialog):
 
     def __init__(self, parent, client, **settings):
         QDialog.__init__(self, parent)
-        loadUi(self, 'calculator.ui', 'tools')
+        loadUi(self, 'tools/calculator.ui')
 
         self.closeBtn.clicked.connect(self.doclose)
 

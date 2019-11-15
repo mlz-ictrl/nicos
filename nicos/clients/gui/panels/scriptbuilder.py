@@ -49,7 +49,7 @@ class CommandsPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'scriptbuilder.ui', 'panels')
+        loadUi(self, 'panels/scriptbuilder.ui')
 
         self.window = parent
         self.runBtn.setVisible(False)

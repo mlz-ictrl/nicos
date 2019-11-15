@@ -107,7 +107,7 @@ class EditorPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'editor.ui', 'panels')
+        loadUi(self, 'panels/editor.ui')
 
         self.window = parent
         self.custom_font = None

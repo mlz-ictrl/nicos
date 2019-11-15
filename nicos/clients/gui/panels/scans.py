@@ -98,7 +98,7 @@ class ScansPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'scans.ui', 'panels')
+        loadUi(self, 'panels/scans.ui')
         ArbitraryFitter.arby_functions.update(options.get('fit_functions', {}))
 
         self.statusBar = QStatusBar(self, sizeGripEnabled=False)
@@ -557,7 +557,7 @@ class ScansPanel(Panel):
 
     @pyqtSlot()
     def on_actionAttachElog_triggered(self):
-        newdlg = dialogFromUi(self, 'plot_attach.ui', 'panels')
+        newdlg = dialogFromUi(self, 'panels/plot_attach.ui')
         suffix = self.currentPlot.SAVE_EXT
         newdlg.filename.setText(
             safeName('data_%s' % self.currentPlot.dataset.name + suffix))
@@ -797,7 +797,7 @@ class ScansPanel(Panel):
     @pyqtSlot()
     def on_actionCombine_triggered(self):
         current = self.currentPlot.dataset.uid
-        dlg = dialogFromUi(self, 'dataops.ui', 'panels')
+        dlg = dialogFromUi(self, 'panels/dataops.ui')
         for i in range(self.datasetList.count()):
             item = self.datasetList.item(i)
             newitem = QListWidgetItem(item.text(), dlg.otherList)

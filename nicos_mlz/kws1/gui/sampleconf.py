@@ -31,7 +31,7 @@ import math
 import time
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.guisupport import typedvalue
 from nicos.guisupport.qt import QDialog, QDialogButtonBox, QFileDialog, \
     QFrame, QLineEdit, QListWidgetItem, QMenu, QMessageBox, QRadioButton, \
@@ -159,8 +159,8 @@ class ConfigEditDialog(QDialog):
         devlist = [item for item in devlist
                    if item.startswith(('sam_', 'hexapod_'))
                    or '_sam_' in item]
-        dlg = QDialog(self)
-        loadUi(dlg, findResource('nicos_mlz/kws1/gui/sampleconf_adddev.ui'))
+        dlg = dialogFromUi(self, findResource(
+            'nicos_mlz/kws1/gui/sampleconf_adddev.ui'))
         dlg.widget = None
 
         def callback(index):
@@ -192,8 +192,8 @@ class ConfigEditDialog(QDialog):
         return rv
 
     def on_readDevsBtn_clicked(self):
-        dlg = QDialog(self)
-        loadUi(dlg, findResource('nicos_mlz/kws1/gui/sampleconf_readpos.ui'))
+        dlg = dialogFromUi(self, findResource(
+            'nicos_mlz/kws1/gui/sampleconf_readpos.ui'))
         if self.instrument == 'kws1':
             dlg.kws3Box.hide()
         elif self.instrument == 'kws2':
@@ -235,7 +235,6 @@ class ConfigEditDialog(QDialog):
 
 class KWSSamplePanel(Panel):
     panelName = 'KWS sample setup'
-    uiName = 'sampleconf.ui'
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
@@ -304,8 +303,8 @@ class KWSSamplePanel(Panel):
                         if revbox:
                             revbox.hide()
 
-        dlg = QDialog(self)
-        loadUi(dlg, findResource('nicos_mlz/kws1/gui/sampleconf_gen.ui'))
+        dlg = dialogFromUi(self, findResource(
+            'nicos_mlz/kws1/gui/sampleconf_gen.ui'))
         dlg.ax1Box.setValidator(DoubleValidator(self))
         dlg.ax2Box.setValidator(DoubleValidator(self))
         dlg.readBtn.clicked.connect(read_axes)

@@ -80,7 +80,7 @@ class HelpWindow(QMainWindow):
 
     def __init__(self, parent, client):
         QMainWindow.__init__(self, parent)
-        loadUi(self, 'helpwin.ui', 'dialogs')
+        loadUi(self, 'dialogs/helpwin.ui')
         self.history = []
         self.webView = QWebView(self)
         self.webView.setPage(HelpPage(client, self.history, self.webView))

@@ -41,7 +41,6 @@ except ImportError:
         redminelib = None
 
 
-
 TRACKER_URL = 'https://forge.frm2.tum.de/redmine'
 TICKET_URL = 'https://forge.frm2.tum.de/redmine/issues/%d'
 PROJECT_ID = 'NICOS'
@@ -54,7 +53,7 @@ class BugreportTool(DlgUtils, QDialog):
     def __init__(self, parent, client, **kwds):
         QDialog.__init__(self, parent)
         DlgUtils.__init__(self, self.toolName)
-        loadUi(self, 'bugreport.ui', 'tools')
+        loadUi(self, 'tools/bugreport.ui')
 
         settings = CompatSettings('nicos', 'secrets')
         settings.beginGroup('Redmine')

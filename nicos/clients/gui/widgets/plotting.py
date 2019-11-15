@@ -312,7 +312,7 @@ class ArbyFitDialog(QDialog):
 
     def __init__(self, parent):
         QDialog.__init__(self, parent)
-        loadUi(self, 'fit_arby.ui', 'panels')
+        loadUi(self, 'panels/fit_arby.ui')
         self.presets = DlgPresets('fit_arby',
                                   [(self.function, ''), (self.fitparams, ''),
                                    (self.xfrom, ''), (self.xto, '')])
@@ -611,7 +611,7 @@ class NicosPlot(DlgUtils):
         if not visible_curves:
             return
         if len(visible_curves) > 1:
-            dlg = dialogFromUi(self, 'selector.ui', 'panels')
+            dlg = dialogFromUi(self, 'panels/selector.ui')
             dlg.setWindowTitle('Select curve to fit')
             dlg.label.setText('Select a curve:')
             for _, descr in visible_curves:
@@ -672,7 +672,7 @@ class NicosPlot(DlgUtils):
     def modifyData(self):
         visible_curves = self.visibleCurves()
         # get input from the user: which curves should be modified how
-        dlg = dialogFromUi(self, 'modify.ui', 'panels')
+        dlg = dialogFromUi(self, 'panels/modify.ui')
 
         def checkAll():
             for i in range(dlg.list.count()):

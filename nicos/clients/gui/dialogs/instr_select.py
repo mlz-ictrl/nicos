@@ -39,7 +39,7 @@ class InstrSelectDialog(QDialog):
 
     def __init__(self, reason, parent=None):
         QDialog.__init__(self, parent)
-        loadUi(self, 'instr_select.ui', 'dialogs')
+        loadUi(self, 'dialogs/instr_select.ui')
         icon = QIcon(':/appicon-16')
         if reason:
             self.reasonLbl.setText(reason)

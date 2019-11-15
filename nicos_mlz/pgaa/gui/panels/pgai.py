@@ -27,7 +27,6 @@
 from __future__ import absolute_import, division, print_function
 
 import sys
-from os import path
 
 import numpy as np
 from OpenGL.GL import GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, \
@@ -48,6 +47,7 @@ from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QT_VER, QDialogButtonBox, QDoubleSpinBox, \
     QFileDialog, QGridLayout, QMessageBox, QScrollBar, QStyledItemDelegate, \
     Qt, QTableWidget, QTableWidgetItem, QWidget, pyqtSignal, pyqtSlot
+from nicos.utils import findResource
 
 from nicos_mlz.pgaa.gui.panels.collision import cuboid_values, \
     cylinder_values, sphere_values
@@ -59,8 +59,6 @@ try:
         from PyQt4.QtOpenGL import QGLWidget
 except ImportError:
     QGLWidget = QWidget
-
-my_uipath = path.dirname(__file__)
 
 
 class GLWidget(QGLWidget):
@@ -413,7 +411,7 @@ class PGAIPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'pgai.ui', my_uipath)
+        loadUi(self, findResource('nicos_mlz/pgaa/gui/panels/pgai.ui'))
         w = self.widget.widget
         self.pointAdded.connect(w.pointAdded)
         self.pointTable.cellActivated.connect(w.positionActivated)

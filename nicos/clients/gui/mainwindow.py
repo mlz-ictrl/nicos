@@ -45,8 +45,8 @@ from nicos.clients.gui.panels import AuxiliaryWindow, createWindowItem
 from nicos.clients.gui.panels.console import ConsolePanel
 from nicos.clients.gui.tools import createToolMenu, startStartupTools
 from nicos.clients.gui.utils import DlgUtils, SettingGroup, \
-    activatePanelActions, deactivatePanelActions, loadBasicWindowSettings, \
-    loadUi, loadUserStyle, splitTunnelString
+    activatePanelActions, deactivatePanelActions, dialogFromUi, \
+    loadBasicWindowSettings, loadUi, loadUserStyle, splitTunnelString
 from nicos.core.utils import ADMIN
 from nicos.guisupport.qt import PYQT_VERSION_STR, QT_VERSION_STR, QAction, \
     QApplication, QColorDialog, QDialog, QFontDialog, QIcon, QLabel, \
@@ -669,8 +669,7 @@ class MainWindow(DlgUtils, QMainWindow):
             dinfo['server_host'] = self.client.host
         else:
             dinfo = {}
-        dlg = QDialog(self)
-        loadUi(dlg, 'about.ui', 'dialogs')
+        dlg = dialogFromUi(self, 'dialogs/about.ui')
         dlg.clientVersion.setText(nicos_version)
         dlg.pyVersion.setText('%s/%s/%s' % (sys.version.split()[0],
                                             QT_VERSION_STR,

@@ -27,13 +27,11 @@
 from __future__ import absolute_import, division, print_function
 
 import time
-from os import path
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import ScriptExecQuestion, loadUi
 from nicos.guisupport.qt import QColor, QMessageBox
-
-my_uipath = path.dirname(__file__)
+from nicos.utils import findResource
 
 
 class TomographyPanel(Panel):
@@ -41,7 +39,7 @@ class TomographyPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'tomography.ui', my_uipath)
+        loadUi(self, findResource('nicos_mlz/pgaa/gui/panels/tomography.ui'))
 
         self.current_status = None
         self.run_color = QColor('#ffdddd')

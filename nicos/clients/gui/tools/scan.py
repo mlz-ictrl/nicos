@@ -59,7 +59,7 @@ class ScanTool(QDialog):
 
     def __init__(self, parent, client, **settings):
         QDialog.__init__(self, parent)
-        loadUi(self, 'scan.ui', 'tools')
+        loadUi(self, 'tools/scan.ui')
 
         self.scanButtonGroup = QButtonGroup()
         self.scanButtonGroup.addButton(self.scanSingle)

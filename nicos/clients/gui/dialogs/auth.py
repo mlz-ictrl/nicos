@@ -73,7 +73,7 @@ class ConnectionDialog(QDialog):
 
     def __init__(self, parent, connpresets, lastpreset, lastdata, tunnel=''):
         QDialog.__init__(self, parent)
-        loadUi(self, 'auth.ui', 'dialogs')
+        loadUi(self, 'dialogs/auth.ui')
         self.connpresets = connpresets
         if isinstance(lastpreset, QPyNullVariant):
             lastpreset = None

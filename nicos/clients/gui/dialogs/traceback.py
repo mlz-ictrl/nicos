@@ -36,7 +36,7 @@ class TracebackDialog(QDialog):
 
     def __init__(self, parent, view, tb):
         QDialog.__init__(self, parent)
-        loadUi(self, 'traceback.ui', 'dialogs')
+        loadUi(self, 'dialogs/traceback.ui')
         self.tb = tb
         self.view = view
         self.client = parent.client

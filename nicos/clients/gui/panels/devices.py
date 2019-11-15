@@ -201,7 +201,7 @@ class DevicesPanel(Panel):
     def __init__(self, parent, client, options):
         DevicesPanel._createIcons()
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'devices.ui', 'panels')
+        loadUi(self, 'panels/devices.ui')
         self.useicons = bool(options.get('icons', True))
         self.param_display = {}
         param_display = options.get('param_display', {})
@@ -743,7 +743,7 @@ class ControlDialog(QDialog):
 
     def __init__(self, parent, devname, devinfo, devitem, log, expert):
         QDialog.__init__(self, parent)
-        loadUi(self, 'devices_one.ui', 'panels')
+        loadUi(self, 'panels/devices_one.ui')
         self.log = log
 
         self.device_panel = parent
@@ -963,8 +963,7 @@ class ControlDialog(QDialog):
 
     @pyqtSlot()
     def on_actionSetLimits_triggered(self):
-        dlg = QDialog(self)
-        loadUi(dlg, 'devices_limits.ui', 'panels')
+        dlg = dialogFromUi(self, 'panels/devices_limits.ui')
         dlg.descLabel.setText('Adjust user limits of %s:' % self.devname)
         dlg.limitMin.setText(self.limitMin.text())
         dlg.limitMax.setText(self.limitMax.text())
@@ -999,8 +998,7 @@ class ControlDialog(QDialog):
 
     @pyqtSlot()
     def on_actionAdjustOffset_triggered(self):
-        dlg = QDialog(self)
-        loadUi(dlg, 'devices_adjust.ui', 'panels')
+        dlg = dialogFromUi(self, 'panels/devices_adjust.ui')
         dlg.descLabel.setText('Adjust offset of %s:' % self.devname)
         dlg.oldValue.setText(self.valuelabel.text())
         target = DeviceValueEdit(dlg, dev=self.devname)
@@ -1066,7 +1064,7 @@ class ControlDialog(QDialog):
         mainunit = self.paramvalues.get('unit', 'main')
         punit = (self.paraminfo[pname]['unit'] or '').replace('main', mainunit)
 
-        dlg = dialogFromUi(self, 'devices_param.ui', 'panels')
+        dlg = dialogFromUi(self, 'panels/devices_param.ui')
         dlg.target = DeviceParamEdit(self, dev=self.devname, param=pname)
         dlg.target.setClient(self.client)
         dlg.paramName.setText('Parameter: %s.%s' % (self.devname, pname))

@@ -95,7 +95,7 @@ class SANSPanel(Panel):
     def execScript(self, script):
         action = 'queue'
         if self.current_status != 'idle':
-            qwindow = dialogFromUi(self, 'question.ui', 'panels')
+            qwindow = dialogFromUi(self, 'panels/question.ui')
             qwindow.questionText.setText('A script is currently running.  What'
                                          ' do you want to do?')
             icon = qwindow.style().standardIcon

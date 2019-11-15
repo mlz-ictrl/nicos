@@ -81,7 +81,7 @@ class LiveDataPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'live.ui', 'panels')
+        loadUi(self, 'panels/live.ui')
 
         self._allowed_tags = set()
         self._last_tag = None
