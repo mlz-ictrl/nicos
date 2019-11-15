@@ -133,25 +133,27 @@ class Field(object):
             dev = desc.pop('dev')
             if 'name' not in desc:
                 desc['name'] = dev
-            desc['key'] =       dev + '/value'
+            dev, indices, _scale, _offset = extractKeyAndIndex(
+                dev, False, normalize=lambda s: s.lower())
+            if indices:
+                desc['item'] = indices
+            desc['key'] = dev + '/value'
             desc['statuskey'] = dev + '/status'
-            desc['fixedkey'] =  dev + '/fixed'
+            desc['fixedkey'] = dev + '/fixed'
             if 'unit' not in desc:
                 desc['unitkey'] = dev + '/unit'
             if 'format' not in desc:
                 desc['formatkey'] = dev + '/fmtstr'
-        for kn in ('key', 'statuskey', 'fixedkey', 'unitkey', 'formatkey'):
-            if kn in desc:
-                desc[kn] = (prefix + desc[kn]).replace('.', '/').lower()
-        if 'name' not in desc and 'key' in desc:
-            desc['name'] = desc['key']
-        # if key contains a list definition extract the items and remove it
-        # from the key
-        if 'key' in desc:
-            _dev, valueindex, _scale, _offset = extractKeyAndIndex(desc['key'], False)
-            if valueindex:
-                self.item = valueindex
-                desc['key'] = _dev
+        elif 'key' in desc:
+            key, indices, _scale, _offset = extractKeyAndIndex(desc['key'], False)
+            if indices:
+                desc['item'] = indices
+            desc['key'] = key
+            for kn in ('statuskey', 'fixedkey', 'unitkey', 'formatkey'):
+                if kn in desc:
+                    desc[kn] = (prefix + desc[kn]).lower().replace('.', '/')
+            if 'name' not in desc:
+                desc['name'] = desc['key']
         self.__dict__.update(desc)
 
     def updateKeymap(self, keymap):

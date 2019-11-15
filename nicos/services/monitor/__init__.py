@@ -209,7 +209,8 @@ class Monitor(BaseCacheClient):
                           else ', no master active'))
 
     def register(self, widget, key):
-        key = self._prefix + key.lower().replace('.', '/')
+        """API used by NicosListener widgets to register keys for callback."""
+        key = self._prefix + key.lower()
         self._keymap.setdefault(key, []).append(widget)
         return key
 

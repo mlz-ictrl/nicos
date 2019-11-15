@@ -1468,21 +1468,23 @@ keyexpr_re = re.compile(r'(?P<dev_or_key>[a-zA-Z_0-9./]+)'
                         r'(?P<offset>[+-][0-9.]+(?:[eE][+-]?[0-9]+)?)?$')
 
 
-def extractKeyAndIndex(spec, append_value=True):
+def extractKeyAndIndex(spec, append_value=True,
+                       normalize=lambda s: s.lower().replace('.', '/')):
     """Extract a key and possibly subindex from a cache key specification
     given by the user.  This takes into account the following changes:
 
-    * '/' can be replaced by '.'
-    * If it is not in the form 'dev/key', '/value' is automatically appended.
+    * '.' is replaced by '/' if *normalize* is not redefined.
+    * If it is not in the form 'dev/key', '/value' is automatically appended
+      if *append_value* is not false.
     * Subitems can be specified: ``dev.keys[10], det.rates[0][1]``.
     * A scale factor can be added with ``*X``.
     * An offset can be added with ``+X`` or ``-X``.
     """
     match = keyexpr_re.match(spec.replace(' ', ''))
     if not match:
-        return spec.lower().replace('.', '/'), (), 1.0, 0
+        return normalize(spec), (), 1.0, 0
     groups = match.groupdict()
-    key = groups['dev_or_key'].lower().replace('.', '/')
+    key = normalize(groups['dev_or_key'])
     if '/' not in key and append_value:
         key += '/value'
     indices = groups['indices']

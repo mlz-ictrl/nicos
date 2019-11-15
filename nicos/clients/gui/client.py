@@ -66,7 +66,8 @@ class NicosGuiClient(NicosClient, QObject):
     # key-notify registry
 
     def register(self, widget, key):
-        key = key.lower().replace('.', '/')
+        """API used by NicosListener widgets to register keys for callback."""
+        key = key.lower()
         # use weakrefs so that we don't keep the widgets alive
         self._reg_keys.setdefault(key, []).append(ref(widget))
         return key

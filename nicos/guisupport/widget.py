@@ -65,7 +65,8 @@ class NicosListener(object):
              'isdevice': isdevice})
 
     def registerDevice(self, dev, unit='', fmtstr=''):
-        dev, valueindex, _scale, _offset = extractKeyAndIndex(dev, False)
+        dev, valueindex, _scale, _offset = extractKeyAndIndex(
+            dev, False, normalize=lambda s: s.lower())
         self.devinfo[dev] = self._newDevinfo(valueindex, unit, fmtstr, True)
         self._devmap[self._source.register(self, dev + '/value')] = dev
         self._devmap[self._source.register(self, dev + '/status')] = dev
