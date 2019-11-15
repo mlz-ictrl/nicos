@@ -3,7 +3,7 @@ description = 'STRESS-SPEC setup with Huber Eulerian cradle'
 group = 'basic'
 
 includes = [
-    'aliases_chiphi', 'system', 'mux', 'monochromator', 'detector',
+    'system', 'mux', 'monochromator', 'detector',
     'sampletable', 'primaryslit', 'slits', 'reactor'
 ]
 
@@ -13,42 +13,40 @@ sysconfig = dict(
     datasinks = ['caresssink'],
 )
 
-servername = 'VME'
-
-nameservice = 'stressictrl.stressi.frm2'
+tango_base = 'tango://motorbox06.stressi.frm2.tum.de:10000/box/'
 
 devices = dict(
-    chis_eh = device('nicos.devices.vendor.caress.EKFMotor',
-        description = 'HWB CHIS',
+    chis_m = device('nicos.devices.tango.Motor',
+        tangodevice = tango_base + 'channel1/motor',
         fmtstr = '%.2f',
-        unit = 'deg',
-        coderoffset = -1114.738,
-        abslimits = (-5, 100),
-        nameserver = '%s' % nameservice,
-        objname = '%s' % servername,
-        config = 'CHIS 114 11 0x00f1e000 3 -4095 8000 800 2 24 50 1 '
-                 '0 1 5000 1 10 0 0 0',
         lowlevel = True,
     ),
-    phis_eh = device('nicos.devices.vendor.caress.EKFMotor',
-        description = 'HWB PHIS',
+    chis_c = device('nicos.devices.tango.Sensor',
+        tangodevice = tango_base + 'channel1/coder',
         fmtstr = '%.2f',
-        unit = 'deg',
-        coderoffset = 7380.467,
-        abslimits = (-720, 720),
-        userlimits = (-700, 700),
-        nameserver = '%s' % nameservice,
-        objname = '%s' % servername,
-        # TODO Check the right settings
-        # config = 'PHIS 114 11 0x00f1c000 2 2048 2040 204 2 24 50 1 0'
-        #          ' 1 5000 1 10 0 0 0',
-        config = 'PHIS 114 11 0x00f1f000 3 2048 2040 204 2 24 50 1 0'
-                 ' 1 5000 1 10 0 0 0',
         lowlevel = True,
+    ),
+    chis = device('nicos.devices.generic.Axis',
+        description = 'Eulerian Huber CHIS',
+        motor = 'chis_m',
+        coder = 'chis_c',
+        precision = 0.01,
+    ),
+    phis_m = device('nicos.devices.tango.Motor',
+        tangodevice = tango_base + 'channel2/motor',
+        fmtstr = '%.2f',
+        userlimits = (-700, 700),
+        lowlevel = True,
+    ),
+    phis_c = device('nicos.devices.tango.Sensor',
+        tangodevice = tango_base + 'channel2/coder',
+        fmtstr = '%.2f',
+        lowlevel = True,
+    ),
+    phis = device('nicos.devices.generic.Axis',
+        description = 'Eulerian Huber PHIS',
+        motor = 'phis_m',
+        coder = 'phis_c',
+        precision = 0.01,
     ),
 )
-
-alias_config = {
-    'chis': {'chis_eh': 200,},
-    'phis': {'phis_eh': 200,},
-}

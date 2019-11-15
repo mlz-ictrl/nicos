@@ -1,32 +1,40 @@
-description = 'Primary slit CARESS HWB Devices'
+description = 'Primary slit devices'
 
 group = 'lowlevel'
 
-servername = 'VME'
-
-nameservice = 'stressictrl.stressi.frm2'
+tango_base = 'tango://motorbox03.stressi.frm2.tum.de:10000/box/'
 
 devices = dict(
-    pst = device('nicos.devices.vendor.caress.EKFMotor',
-        description = 'HWB PST',
+    pst_m = device('nicos.devices.tango.Motor',
+        tangodevice = tango_base + 'channel1/motor',
         fmtstr = '%.2f',
-        unit = 'mm',
-        coderoffset = -2056.44,
-        abslimits = (-15, 15),
-        nameserver = '%s' % nameservice,
-        objname = '%s' % servername,
-        config = 'PST 114 11 0x00f1f000 2 2044 500 50 2 24 50 -1 0 1 '
-                 '3000 1 10 0 0 0',
+        lowlevel = True,
     ),
-    psz = device('nicos.devices.vendor.caress.EKFMotor',
-        description = 'HWB PSZ',
+    pst_c = device('nicos.devices.tango.Sensor',
+        tangodevice = tango_base + 'channel1/coder',
         fmtstr = '%.2f',
-        unit = 'mm',
-        coderoffset = -8077.49,
-        abslimits = (-15, 15),
-        nameserver = '%s' % nameservice,
-        objname = '%s' % servername,
-        config = 'PSZ 114 11 0x00f1f000 1 2044 500 50 2 24 50 -1 0 1 '
-                 '3000 1 10 0 0 0',
+        lowlevel = True,
+    ),
+    pst = device('nicos.devices.generic.Axis',
+        description = 'Primary slit translation (PST)',
+        motor = 'pst_m',
+        coder = 'pst_c',
+        precision = 0.01,
+    ),
+    psz_m = device('nicos.devices.tango.Motor',
+        tangodevice = tango_base + 'channel2/motor',
+        fmtstr = '%.2f',
+        lowlevel = True,
+    ),
+    psz_c = device('nicos.devices.tango.Sensor',
+        tangodevice = tango_base + 'channel2/coder',
+        fmtstr = '%.2f',
+        lowlevel = True,
+    ),
+    psz = device('nicos.devices.generic.Axis',
+        description = 'Primary slit Z translation (PSZ)',
+        motor = 'psz_m',
+        coder = 'psz_c',
+        precision = 0.01,
     ),
 )

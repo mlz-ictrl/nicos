@@ -1,9 +1,9 @@
-description = 'STRESS-SPEC setup with Tensile rigg Eulerian cradle'
+description = 'STRESS-SPEC setup with Tensile rig Eulerian cradle'
 
 group = 'basic'
 
 includes = [
-    'aliases_chiphi', 'system', 'mux', 'monochromator', 'detector',
+    'system', 'mux', 'monochromator', 'detector',
     'sampletable', 'primaryslit', 'slits', 'reactor'
 ]
 
@@ -13,43 +13,33 @@ sysconfig = dict(
     datasinks = ['caresssink'],
 )
 
-servername = 'VME'
-
-nameservice = 'stressictrl.stressi.frm2'
+tango_base = 'tango://motorbox06.stressi.frm2.tum.de:10000/box/'
 
 devices = dict(
-    chis_t = device('nicos.devices.vendor.caress.EKFMotor',
-        description = 'Tensile CHIS',
+    chis_m = device('nicos.devices.tango.Motor',
         fmtstr = '%.2f',
-        unit = 'deg',
-        coderoffset = 0,
-        abslimits = (85, 185),
-        nameserver = '%s' % nameservice,
-        objname = '%s' % servername,
-        # config = 'CHIS 115 11 0x00f1e000 3 350 500 50 1 0 0 0 0 '
-        #          '1 5000 1 10 0 0 0',
-        config = 'CHIS 114 11 0x00f1e000 3 143 500 50 2 24 50 -1 0'
-                 ' 1 5000 1 10 0 0 0',
+        tangodevice = tango_base + 'channel5/motor',
         lowlevel = True,
     ),
-    phis_t = device('nicos.devices.vendor.caress.EKFMotor',
-        description = 'Tensile PHIS',
+    chis_c = device('nicos.devices.tango.Sensor',
+        tangodevice = tango_base + 'channel5/coder',
         fmtstr = '%.2f',
-        unit = 'deg',
-        coderoffset = 0,
-        abslimits = (-720, 720),
-        nameserver = '%s' % nameservice,
-        objname = '%s' % servername,
-        # TODO: check which is the correct setup
-        config = 'PHIS 115 11 0x00f1f000 3 30 80 8 1 0 0 0 0 1 '
-                 '5000 1 10 0 0 0',
-        # config = 'PHIS 115 11 0x00f1d000 4 30 20 2 1 0 0 0 0 1 '
-        #          '5000 1 10 0 0 0',
         lowlevel = True,
+    ),
+    chis = device('nicos.devices.generic.Axis',
+        description = 'Tensile CHIS',
+        motor = 'chis_m',
+        coder = 'chis_c',
+        precision = 0.01,
+    ),
+    phis_m = device('nicos.devices.tango.Motor',
+        tangodevice = tango_base + 'channel6/motor',
+        fmtstr = '%.2f',
+        lowlevel = True,
+    ),
+    phis = device('nicos.devices.generic.Axis',
+        description = 'Tensile PHIS',
+        motor = 'phis_m',
+        precision = 0.01,
     ),
 )
-
-alias_config = {
-    'chis': {'chis_t': 200,},
-    'phis': {'phis_t': 200,},
-}

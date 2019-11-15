@@ -3,7 +3,7 @@ description = 'STRESS-SPEC setup with robot'
 group = 'basic'
 
 includes = [
-    'aliases', 'aliases_chiphi', 'system', 'mux', 'monochromator', 'detector',
+    'system', 'mux', 'monochromator', 'detector',
     'primaryslit', 'slits', 'reactor'
 ]
 
@@ -20,7 +20,16 @@ nameservice = 'stressictrl.stressi.frm2'
 caresspath = '/opt/caress'
 toolpath = '/opt/caress'
 
+
 devices = dict(
+    tths = device('nicos.devices.generic.DeviceAlias'),
+    omgs = device('nicos.devices.generic.DeviceAlias'),
+    xt = device('nicos.devices.generic.DeviceAlias'),
+    yt = device('nicos.devices.generic.DeviceAlias'),
+    zt = device('nicos.devices.generic.DeviceAlias'),
+    chis = device('nicos.devices.generic.DeviceAlias'),
+    phis = device('nicos.devices.generic.DeviceAlias'),
+
     dummyO = device('nicos.devices.vendor.caress.EKFMotor',
         description = 'OMGS feedback device for the robot',
         fmtstr = '%.2f',
