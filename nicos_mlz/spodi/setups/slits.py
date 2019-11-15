@@ -96,5 +96,6 @@ devices = dict(
         top = 'slits_u',
         coordinates = 'opposite',
         opmode = 'centered',
+        parallel_ref = True,
     ),
 )
