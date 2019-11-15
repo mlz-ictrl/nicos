@@ -182,7 +182,6 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
         self.maw(pos)
         self.setPosition(self.refpos)
         self._setROParam('target', self.refpos)
-        self.log.debug('%r %r', self.refpos, self.target)
 
 
 class VirtualCoder(HasOffset, Coder):
