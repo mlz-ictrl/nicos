@@ -9,7 +9,7 @@ devices = dict(
         lowlevel = True,
         userlimits = (0., 242.),
     ),
-    frr = device('nicos.devices.generic.Axis',
+    frr = device('nicos_mlz.nectar.devices.FocusRing',
         description = 'Focus rotation ring',
         precision = 0.01,
         motor = 'frr_m',

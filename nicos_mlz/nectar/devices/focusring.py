@@ -22,10 +22,32 @@
 #
 # *****************************************************************************
 
-"""NECTAR specific devices."""
+"""Devices related to the camera focussing."""
 
 from __future__ import absolute_import, division, print_function
 
-from .focusring import FocusRing
-from .slit import BeamLimiter
-from .tcoll import ThermalCollimatorAxis
+from nicos.devices.generic import Axis
+
+
+class FocusRing(Axis):
+
+    def doReference(self):
+        """Do a reference drive.
+
+        Since the motor has no limit switches the motor has to move to the
+        lowest position. It will stop due to the mechanical movement limitation
+        and this position will be set to 'absmin'.
+        """
+        if self._hascoder:
+            self.log.error('This is an encoded axis, no need to reference')
+            return
+        motor = self._attached_motor
+        _userlimits = motor.userlimits  # store user limits
+        # The use of _setROParam suppresses output to inform users about
+        # changing of the user limits
+        motor._setROParam('userlimits', motor.abslimits)  # open limits
+        try:
+            motor.setPosition(motor.absmax)
+            motor.maw(motor.absmin)
+        finally:
+            motor._setROParam('userlimits', _userlimits)  # restore user limits
