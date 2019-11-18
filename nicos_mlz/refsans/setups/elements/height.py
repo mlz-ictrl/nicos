@@ -5,9 +5,10 @@ group = 'lowlevel'
 instrument_values = configdata('instrument.values')
 
 tango_base = instrument_values['tango_base']
+code_base = instrument_values['code_base'] + 'tristate.TriState'
 
 devices = dict(
-    height = device('nicos_mlz.refsans.devices.tristate.TriState',
+    height = device(code_base,
         description = 'Sample surface position.',
         unit = 'mm',
         port = 'height_port',

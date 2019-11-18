@@ -5,11 +5,12 @@ group = 'lowlevel'
 instrument_values = configdata('instrument.values')
 
 tango_base = instrument_values['tango_base']
+code_base = instrument_values['code_base']
 
 adjust = True
 
 devices = dict(
-    backguard = device('nicos_mlz.refsans.devices.skew_motor.SkewMotor',
+    backguard = device(code_base + 'skew_motor.SkewMotor',
         description = description + ' adjust in Expertmode',
         motor_1 = 'backguard_1',
         motor_2 = 'backguard_2',
