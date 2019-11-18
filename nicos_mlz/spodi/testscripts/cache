@@ -1,4 +1,4 @@
 nicos/wav/value=1.7
 nicos/wav/userlimits=(1.0,2.6)
-nicos/tths/abslimits=(-1.5,60)
-nicos/tths/userlimits=(-1.5,60)
+nicos/tths_motor/abslimits=(-1.5,60)
+nicos/tths_motor/userlimits=(-1.5,60)
