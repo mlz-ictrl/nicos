@@ -1,6 +1,6 @@
 # pylint: skip-file
 
-# test: needs = CARESS
+# test: needs = nicos.devices.vendor.caress.CARESS
 # test: subdirs = frm2
 # test: subdirs = spodi
 # test: setups = spodi
