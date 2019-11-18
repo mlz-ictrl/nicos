@@ -3,6 +3,7 @@ description = 'FOV linear axis for the medium box (190 x 190)'
 group = 'optional'
 
 excludes = ['fov_100x100', 'fov_300x300']
+includes = ['frr']
 
 devices = dict(
     fov_190_mot = device('nicos.devices.generic.VirtualMotor',
