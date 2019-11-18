@@ -4,19 +4,21 @@ group = 'lowlevel'
 
 instrument_values = configdata('instrument.values')
 tango_base = instrument_values['tango_base']
+code_base = instrument_values['code_base']
+optic_values = configdata('cf_optic.optic_values')
 
 devices = dict(
     #
     ## smccorvusserver b2 exports
     #
-    b2 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
+    b2 = device(code_base + 'slits.DoubleSlit',
         description = 'b2 at sample pos',
         fmtstr = 'opening: %.3f mm, zpos: %.3f mm',
         unit = '',
         slit_r = 'b2r',
         slit_s = 'b2s',
     ),
-    b2r = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+    b2r = device(code_base + 'slits.SingleSlit',
         # length: 13.0 mm
         description = 'b2 slit, reactor side; 220 full access, 74 for upper srcews',
         motor = 'b2_r',
@@ -31,7 +33,7 @@ devices = dict(
         lowlevel = True,
         unit = 'mm',
     ),
-    b2s = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+    b2s = device(code_base + 'slits.SingleSlit',
         # length: 13.0 mm
         description = 'b2 slit, sample side; -291 full access, -182 low row',
         motor = 'b2_s',

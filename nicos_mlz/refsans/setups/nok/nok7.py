@@ -8,9 +8,10 @@ showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
 
 tango_base = instrument_values['tango_base']
+code_base = instrument_values['code_base']
 
 devices = dict(
-    nok7 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
+    nok7 = device(code_base + 'nok_support.DoubleMotorNOK',
         # length: 1190.0 mm
         description = 'NOK7',
         fmtstr = '%.2f, %.2f',
@@ -40,7 +41,7 @@ devices = dict(
         unit = 'mm',
         lowlevel = True,
     ),
-    nok7r_motor = device('nicos_mlz.refsans.devices.ipc.NOKMotorIPC',
+    nok7r_motor = device(code_base + 'ipc.NOKMotorIPC',
         description = 'IPC controlled Motor of NOK7, reactor side',
         abslimits = (-89.475, 116.1),
         bus = 'nokbus3',
@@ -56,7 +57,7 @@ devices = dict(
         lowlevel = showcase_values['hide_poti'],
     ),
 
-    nok7r_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+    nok7r_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'nok7r_motor',
          analog = 'nok7r_obs',
@@ -64,7 +65,7 @@ devices = dict(
          unit = 'mm'
     ),
 
-    nok7r_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
+    nok7r_obs = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for NOK7, reactor side',
         reference = 'nok_refc1',
         measure = 'nok7r_poti',
@@ -74,7 +75,7 @@ devices = dict(
         lowlevel = showcase_values['hide_poti'],
     ),
 
-    nok7r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
+    nok7r_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK7, reactor side',
         tangodevice = tango_base + 'test/wb_c/1_0',
         scale = -1,  # mounted from top
@@ -91,7 +92,7 @@ devices = dict(
         unit = 'mm',
         lowlevel = True,
     ),
-    nok7s_motor = device('nicos_mlz.refsans.devices.ipc.NOKMotorIPC',
+    nok7s_motor = device(code_base + 'ipc.NOKMotorIPC',
         description = 'IPC controlled Motor of NOK7, sample side',
         abslimits = (-96.94, 125.56),
         bus = 'nokbus3',
@@ -107,7 +108,7 @@ devices = dict(
         lowlevel = showcase_values['hide_poti'],
     ),
 
-    nok7s_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+    nok7s_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'nok7s_motor',
          analog = 'nok7s_obs',
@@ -115,7 +116,7 @@ devices = dict(
          unit = 'mm'
     ),
 
-    nok7s_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
+    nok7s_obs = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for NOK7, sample side',
         reference = 'nok_refc1',
         measure = 'nok7s_poti',
@@ -125,7 +126,7 @@ devices = dict(
         lowlevel = showcase_values['hide_poti'],
     ),
 
-    nok7s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
+    nok7s_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK7, sample side',
         tangodevice = tango_base + 'test/wb_c/1_5',
         scale = -1,  # mounted from top

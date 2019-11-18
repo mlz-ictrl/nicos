@@ -5,6 +5,7 @@ group = 'lowlevel'
 instrument_values = configdata('instrument.values')
 
 tango_base = instrument_values['tango_base']
+code_base = instrument_values['code_base']
 
 devices = dict(
     shutter_m = device('nicos.devices.tango.Motor',
@@ -14,7 +15,7 @@ devices = dict(
         precision = 0.5,
         lowlevel = True,
     ),
-    shutter = device('nicos_mlz.refsans.devices.shutter.Shutter',
+    shutter = device(code_base + 'shutter.Shutter',
         description = 'Instrument shutter',
         moveable = 'shutter_m',
         precision = 0.5,

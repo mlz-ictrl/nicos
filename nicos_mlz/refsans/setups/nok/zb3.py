@@ -7,16 +7,18 @@ instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 
 tango_base = instrument_values['tango_base']
+code_base = instrument_values['code_base']
+optic_values = configdata('cf_optic.optic_values')
 
 devices = dict(
-    zb3 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
+    zb3 = device(code_base + 'slits.DoubleSlit',
         description = 'ZB3 slit',
         slit_r = 'zb3r',
         slit_s = 'zb3s',
         fmtstr = 'open: %.3f, zpos: %.3f',
         unit = 'mm',
     ),
-    zb3r = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+    zb3r = device(code_base + 'slits.SingleSlit',
         # length: 13.0 mm
         description = 'ZB3 slit, reactor side',
         motor = 'zb3r_m',
@@ -31,7 +33,7 @@ devices = dict(
         unit = 'mm',
         lowlevel = True,
     ),
-    zb3s = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+    zb3s = device(code_base + 'slits.SingleSlit',
         # length: 13.0 mm
         description = 'ZB3 slit, sample side',
         motor = 'zb3s_m',
@@ -46,7 +48,7 @@ devices = dict(
         unit = 'mm',
         lowlevel = True,
     ),
-    zb3r_m = device('nicos_mlz.refsans.devices.ipc.NOKMotorIPC',
+    zb3r_m = device(code_base + 'ipc.NOKMotorIPC',
         description = 'IPC controlled Motor of ZB3, reactor side',
         abslimits = (-221.0, 95.0),
         bus = 'nokbus3',
@@ -61,7 +63,7 @@ devices = dict(
         zerosteps = int(677.125 * 800),
         lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
     ),
-    zb3s_m = device('nicos_mlz.refsans.devices.ipc.NOKMotorIPC',
+    zb3s_m = device(code_base + 'ipc.NOKMotorIPC',
         description = 'IPC controlled Motor of ZB3, sample side',
         abslimits = (-106.0, 113.562),
         bus = 'nokbus3',
@@ -76,14 +78,14 @@ devices = dict(
         zerosteps = int(644.562 * 800),
         lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
     ),
-    zb3r_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+    zb3r_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'zb3r_m',
          analog = 'zb3r_obs',
          lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),
-    zb3r_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
+    zb3r_obs = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for ZB3, reactor side',
         reference = 'nok_refc1',
         measure = 'zb3r_poti',
@@ -92,20 +94,20 @@ devices = dict(
         length = 500.0,
         lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
     ),
-    zb3r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
+    zb3r_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
         description = 'Poti for ZB3, reactor side',
         tangodevice = tango_base + 'test/wb_c/1_2',
         scale = -1,  # mounted from top
         lowlevel = True,
     ),
-    zb3s_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+    zb3s_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'zb3s_m',
          analog = 'zb3s_obs',
          lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),
-    zb3s_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
+    zb3s_obs = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for ZB3, sample side',
         reference = 'nok_refc1',
         measure = 'zb3s_poti',
@@ -114,7 +116,7 @@ devices = dict(
         length = 500.0,
         lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
     ),
-    zb3s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
+    zb3s_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
         description = 'Poti for ZB3, sample side',
         tangodevice = tango_base + 'test/wb_c/1_3',
         scale = 1,   # mounted from bottom

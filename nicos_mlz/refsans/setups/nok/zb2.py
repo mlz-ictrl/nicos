@@ -7,9 +7,11 @@ instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 
 tango_base = instrument_values['tango_base']
+code_base = instrument_values['code_base']
+optic_values = configdata('cf_optic.optic_values')
 
 devices = dict(
-    zb2 = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+    zb2 = device(code_base + 'slits.SingleSlit',
         # length: 6.0,
         description = 'zb2 single Slit at nok6 before nok7',
         unit = 'mm',
@@ -24,7 +26,7 @@ devices = dict(
             'gisans':    -122.0,
         },
     ),
-    zb2_motor = device('nicos_mlz.refsans.devices.ipc.NOKMotorIPC',
+    zb2_motor = device(code_base + 'ipc.NOKMotorIPC',
         description = 'IPC controlled Motor of ZB2',
         abslimits = (-215.69, 93.0),
         bus = 'nokbus1',
@@ -39,7 +41,7 @@ devices = dict(
         zerosteps = int(681.95 * 800),
         lowlevel = showcase_values['hide_poti'],
     ),
-    zb2_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
+    zb2_obs = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for ZB2',
         reference = 'nok_refb2',
         measure = 'zb2_poti',
@@ -48,14 +50,14 @@ devices = dict(
         length = 500.0,
         lowlevel = showcase_values['hide_poti'],
     ),
-    zb2_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+    zb2_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'zb2_motor',
          analog = 'zb2_obs',
          lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),
-    zb2_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
+    zb2_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
         description = 'Poti for ZB2',
         tangodevice = tango_base + 'test/wb_b/2_3',
         scale = -1,  # mounted from top

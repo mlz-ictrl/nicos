@@ -5,6 +5,7 @@ group = 'optional'
 instrument_values = configdata('instrument.values')
 
 tango_base = instrument_values['tango_base']
+code_base = instrument_values['code_base'] + 'syringepump.'
 
 devices = dict(
     pump0_diameter = device('nicos.devices.tango.AnalogOutput',
@@ -15,7 +16,7 @@ devices = dict(
         description = 'Infusion rate for first pump',
         tangodevice = tango_base + 'refsans/syringe/pump0rate',
     ),
-    pump0_run = device('nicos_mlz.refsans.devices.syringepump.PumpAnalogOutput',
+    pump0_run = device(code_base + 'PumpAnalogOutput',
         description = 'Move to volume to infuse (positive) or withdraw (negative)',
         tangodevice = tango_base + 'refsans/syringe/pump0infuse',
         precision = 0.0001,
@@ -29,7 +30,7 @@ devices = dict(
         description = 'Infusion rate for second pump',
         tangodevice = tango_base + 'refsans/syringe/pump1rate',
     ),
-    pump1_run = device('nicos_mlz.refsans.devices.syringepump.PumpAnalogOutput',
+    pump1_run = device(code_base + 'PumpAnalogOutput',
         description = 'Move to volume to infuse (positive) or withdraw (negative)',
         tangodevice = tango_base + 'refsans/syringe/pump1infuse',
         precision = 0.0001,

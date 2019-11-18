@@ -5,9 +5,10 @@ group = 'lowlevel'
 lprecision = 0.01
 instrument_values = configdata('instrument.values')
 tango_base = instrument_values['tango_base']
+code_base = instrument_values['code_base']
 
 devices = dict(
-    b3 = device('nicos_mlz.refsans.devices.slits.DoubleSlitSequence',
+    b3 = device(code_base + 'slits.DoubleSlitSequence',
         description = 'b3 and h3 inside Samplechamber. towards TOFTOF is plus',
         fmtstr = '%.3f, %.3f',
         unit = 'mm',
@@ -15,7 +16,7 @@ devices = dict(
         slit_s = 'b3s',
         # nok_motor = [-1, -1],
     ),
-    b3r = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+    b3r = device(code_base + 'slits.SingleSlit',
        description = 'b3 slit, reactor side',
        lowlevel = True,
        motor = 'b3_rm',
@@ -28,7 +29,7 @@ devices = dict(
        },
        unit = 'mm',
     ),
-    b3s = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+    b3s = device(code_base + 'slits.SingleSlit',
        description = 'b3 slit, sample side',
        lowlevel = True,
        motor = 'b3_sm',
@@ -41,7 +42,7 @@ devices = dict(
        },
        unit = 'mm',
     ),
-    b3_rm = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M0x',
+    b3_rm = device(code_base + 'beckhoff.nok.BeckhoffMotorCab1M0x',
         description = 'tbd',
         tangodevice = tango_base + 'refsans/b3/modbus',
         address = 0x3214+3*10, # decimal 12820
@@ -51,7 +52,7 @@ devices = dict(
         ruler = -200.0,
         lowlevel = True,
     ),
-    b3_sm = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M0x',
+    b3_sm = device(code_base + 'beckhoff.nok.BeckhoffMotorCab1M0x',
         description = 'tbd',
         tangodevice = tango_base + 'refsans/b3/modbus',
         address = 0x3214+2*10, # decimal 12820
@@ -61,7 +62,7 @@ devices = dict(
         ruler = 0.0,
         lowlevel = True,
     ),
-    h3 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
+    h3 = device(code_base + 'slits.DoubleSlit',
         description = 'h3 together with b3',
         fmtstr = 'open: %.3f, xpos: %.3f',
         maxheight = 80,
@@ -69,7 +70,7 @@ devices = dict(
         slit_r = 'h3r',
         slit_s = 'h3s',
     ),
-    h3r = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+    h3r = device(code_base + 'slits.SingleSlit',
         description = 'h3 blade TOFTOF',
         motor = 'h3_r',
         masks = {
@@ -80,7 +81,7 @@ devices = dict(
         lowlevel = True,
         unit = 'mm',
     ),
-    h3s = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+    h3s = device(code_base + 'slits.SingleSlit',
         description = 'h3 blade KWS',
         motor = 'h3_s',
         masks = {
@@ -107,7 +108,7 @@ devices = dict(
         precision = 0.03,
         lowlevel = True,
     ),
-    h3_rm = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M0x',
+    h3_rm = device(code_base + 'beckhoff.nok.BeckhoffMotorCab1M0x',
         description = 'tbd',
         tangodevice = tango_base + 'refsans/b3/modbus',
         address = 0x3214+0*10, # decimal 12820
@@ -118,7 +119,7 @@ devices = dict(
         ruler = -200.0,
         lowlevel = True,
     ),
-    h3_sm = device('nicos_mlz.refsans.devices.beckhoff.nok.BeckhoffMotorCab1M0x',
+    h3_sm = device(code_base + 'beckhoff.nok.BeckhoffMotorCab1M0x',
         description = 'tbd',
         tangodevice = tango_base + 'refsans/b3/modbus',
         address = 0x3214+1*10, # decimal 12820

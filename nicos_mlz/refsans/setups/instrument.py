@@ -22,7 +22,13 @@ values = {
     'pc_hw': pc_hw,
     'pc_hw_real1': '%sctrl02' % instrument_name,
     'pc_hw_real2': '',
-    'pc_ctrl': '%sctrl' % instrument_name,
+    'pc_ctrl': '%sctrl.%s.%s.%s.%s' % (
+          instrument_name,
+          instrument_name,
+          geografical_place,
+          master,
+          tdl,
+          ),
     'pc_ctrl_real1': '%sctrl01' % instrument_name,
     'pc_ctrl_real2': '',
     'tango_base': 'tango://%s.%s.%s.%s.%s:%d/' % (
