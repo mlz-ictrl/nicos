@@ -179,9 +179,16 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
         else:
             self.log.warning('Reference switch %r is not allowed.', refswitch)
             return
-        self.maw(pos)
-        self.setPosition(self.refpos)
-        self._setROParam('target', self.refpos)
+        _userlimits = self.userlimits  # save user  limits
+        # The use of _setROParam suppresses output to inform about change of
+        # limits
+        self._setROParam('userlimits', self.abslimits)  # open limits
+        try:
+            self.maw(pos)
+            self.setPosition(self.refpos)
+            self._setROParam('target', self.refpos)
+        finally:
+            self._setROParam('userlimits', _userlimits)  # restore user limits
 
 
 class VirtualCoder(HasOffset, Coder):
