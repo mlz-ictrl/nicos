@@ -3,6 +3,7 @@ description = 'FOV linear axis for the small box (100 x 100)'
 group = 'optional'
 
 excludes = ['fov_190x190', 'fov_300x300']
+includes = ['frr']
 
 tango_base = 'tango://phytron01.nectar.frm2:10000/'
 
