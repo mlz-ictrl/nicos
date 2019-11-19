@@ -26,10 +26,22 @@
 
 from __future__ import absolute_import, division, print_function
 
+from nicos.core.params import Param, dictof, limits
 from nicos.devices.generic import Axis
 
 
 class FocusRing(Axis):
+
+    parameters = {
+        'lenses': Param('Defintion of userlimits for each of the lenses.',
+                        type=dictof(str, limits), settable=False,
+                        mandatory=True, userparam=False),
+        'lens': Param('Currently used lens',
+                      type=str, userparam=True, settable=True, default=''),
+    }
+
+    def doPreInit(self):
+        pass
 
     def doReference(self):
         """Do a reference drive.
@@ -51,3 +63,10 @@ class FocusRing(Axis):
             motor.maw(motor.absmin)
         finally:
             motor._setROParam('userlimits', _userlimits)  # restore user limits
+
+    def doWriteLens(self, value):
+        if value not in self.lenses:
+            raise ValueError('Lens is not defined. Possible lenses are: %s' %
+                             ', '.join(["'%s'" % x
+                                        for x in list(self.lenses.keys())]))
+        self.userlimits = self.lenses[value]

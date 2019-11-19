@@ -13,5 +13,11 @@ devices = dict(
         description = 'Focus rotation ring',
         precision = 0.01,
         motor = 'frr_m',
+        lenses = {
+            '85mm': (0, 300),
+            '100mm': (0, 360),
+            '135mm': (0, 270),
+            '200mm': (0, 240),
+        }
     ),
 )
