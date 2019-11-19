@@ -68,9 +68,7 @@ def RangeListByStep(start, end=None, inc=None):
         raise UsageError('Start/end points and increment are inconsistent')
 
     res = numpy.arange(start, end + inc, inc)
-    if inc > 0 and end - res[-1] < (0.001 * inc):
-        res[-1] = end
-    elif inc < 0 and end - res[-1] > (0.001 * inc):
+    if abs(end - res[-1]) > (0.001 * abs(inc)):
         res[-1] = end
     return res.tolist()
 
