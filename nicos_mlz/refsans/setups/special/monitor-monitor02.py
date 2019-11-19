@@ -1,6 +1,6 @@
 # coding: utf-8
 
-description = 'Optic Collimation and Slits Monitor'
+description = 'Optic Collimation and Slits Monitor #02'
 group = 'special'
 
 layout_width = 10
@@ -129,6 +129,7 @@ _ChopperBurg = Column(
     Block('Vertical Shifts for Optic Elements in the Chopper System', [
         BlockRow(Field(name=u'nok2\u1d63',  dev='nok2r_axis', width=layout_width, unit='(mm)'),
                  Field(name=u'nok2\u209b',  dev='nok2r_axis', width=layout_width, unit='(mm)'),
+                 Field(name=u'nok2\u209b',  dev='nok2r_axis', width=layout_width, unit='(mm)'),
                  Field(name=u'nok3\u1d63',  dev='nok3r_axis', width=layout_width, unit='(mm)'),
                  Field(name=u'nok3\u209b',  dev='nok3r_axis', width=layout_width, unit='(mm)'),
                  Field(name=u'nok4\u1d63',  dev='nok4r_axis', width=layout_width, unit='(mm)'),
@@ -188,7 +189,10 @@ _apertures_slits = Column(
     Block('Apertures for movable slits', [
         BlockRow(
                 Field(name=u'b\u2081',     dev='b1_open', width=layout_width, unit='(mm)'),
-                Field(name=u'zb\u2083',    dev='zb3_open', width=layout_width, unit='(mm)'),
+                Field(name=u'zb\u2083',    dev='zb3_height', width=layout_width, unit='(mm)'),
+                Field(name=u'zb\u2083',    key='zb3/height', width=layout_width, unit='(mm)'),
+                Field(name=u'zb\u2083',    key='zb3_height', width=layout_width, unit='(mm)'),
+                Field(name=u'zb\u2083',    dev='zb3_center', width=layout_width, unit='(mm)'),
                 Field(name=u'bs\u2081',    dev='bs1_open', width=layout_width, unit='(mm)'),
                 Field(name=u'b\u2082',     dev='b2_open', width=layout_width, unit='(mm)'),
                 Field(name=u'h\u2082',     dev='h2_open', width=layout_width, unit='(mm)'),

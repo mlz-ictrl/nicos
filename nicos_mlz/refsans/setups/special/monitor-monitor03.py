@@ -1,6 +1,6 @@
 # coding: utf-8
 
-description = 'Scattering Geometry, Experiment and Detector Monitor'
+description = 'Scattering Geometry, Experiment and Detector Monitor #03'
 group = 'special'
 
 _NLHcol = Column(
@@ -22,7 +22,8 @@ _Instrcol = Column(
             Field(name=u'\u0263 Shutter', dev='shutter_gamma', width=12),
             ),
         BlockRow(
-            Field(name='FAK40', dev='fak40', width=8),
+            Field(name='FAK40 Cap', dev='FAK40_Cap', width=8),
+            Field(name='FAK40 Press', dev='FAK40_Press', width=8),
             Field(name=u'T\u1d62\u2099', dev='t_memograph_in', width=12, unit=u'(\u2103)'),
             Field(name=u'T\u2092\u1d64\u209c', dev='t_memograph_out', width=12, unit=u'(\u2103)'),
             Field(name='Cooling Power', dev='cooling_memograph', width=12, unit='(kW)'),
@@ -35,7 +36,7 @@ _experimentcol = Column(
     Block('Experiment', [
         BlockRow(
             Field(name='Proposal', key='exp/proposal', width=7),
-            Field(name='User name', key='exp/username',    width=60, istext=True, maxlen=60),
+            Field(name='User(s)', key='exp/users',    width=60, istext=True, maxlen=60),
             ),
         BlockRow(
             Field(name='Proposal title',    key='exp/title',    width=80, istext=True, maxlen=80),
@@ -100,26 +101,26 @@ _topgonio = Column(
     ),
 )
 
-_tempcol = Column(
-    Block('Thermostats Status', [
-        BlockRow(
-            Field(name='Julabo', dev='temp_julabo', width=14, unit=u'(\u2103)'),
-            Field(name='Cryostat', dev='temp_cryo', width=14, unit='(K)'),
-            )
-        ],
-    ),
-)
+#_tempcol = Column(
+#    Block('Thermostats Status', [
+#        BlockRow(
+#            Field(name='Julabo', dev='temp_julabo', width=14, unit=u'(\u2103)'),
+#            Field(name='Cryostat', dev='temp_cryo', width=14, unit='(K)'),
+#            )
+#        ],
+#    ),
+#)
 
-_flipper = Column(
-    Block('Spin Flipper', [
-        BlockRow(
-            Field(dev='frequency', width=7, unit='(kHz)'),
-            Field(dev='current', width=7, unit='(A)'),
-            Field(dev='flipper', name='Flipping_State', width=7),
-            ),
-        ],
-    ),
-)
+#_flipper = Column(
+#    Block('Spin Flipper', [
+#        BlockRow(
+#            Field(dev='frequency', width=7, unit='(kHz)'),
+#            Field(dev='current', width=7, unit='(A)'),
+#            Field(dev='flipper', name='Flipping_State', width=7),
+#            ),
+#        ],
+#    ),
+#)
 
 _justierung = Column(
     Block('Aligment Devices Status', [
@@ -155,17 +156,31 @@ _monitor = Column(
         BlockRow(
             Field(name='Monitor 1', key='mon1', width=10),
             Field(name='Monitor 2', dev='mon2', width=10),
+            Field(name='Monitor Number', dev='prim_monitor_typ', width=10),
+            ),
+        BlockRow(
+            Field(name='Monitor-Last Slit Distance', dev='prim_monitor_x', width=10, format = '%.0f', unit='(mm)'),
             ),
         ],
     ),
 )
 
 
+_dettube = Column(
+    Block(' Detector Tube Status', [
+        BlockRow(
+            Field(widget='nicos_mlz.refsans.gui.monitorwidgets.RefsansWidget', width=50, height=40,
+                  pivot='det_pivot', detpos='det_table', tubeangle='tube_angle'),
+            ),
+        ],
+    ),
+)
+
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
         title = description,
         loglevel = 'info',
-        cache = 'refsansctrl.refsans.frm2.tum.de',
+        cache = 'refsansctrl01.refsans.frm2',
         prefix = 'nicos/',
         font = 'Luxi Sans',
         valuefont = 'Consolas',
@@ -174,9 +189,10 @@ devices = dict(
         layout = [
             Row(_NLHcol, _Instrcol),
             Row(_experimentcol, _probenort),
-            Row(_tempcol, _flipper),
+            #Row(_tempcol, _flipper),
             Row(_biggonio, _topgonio, _justierung),
-            Row(_detector, _monitor)
+            Row(_detector, _monitor),
+            Row(_dettube)
         ],
     ),
 )
