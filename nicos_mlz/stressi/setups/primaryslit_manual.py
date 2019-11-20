@@ -2,7 +2,7 @@ description = 'Primary slit manual adjustment'
 
 group = 'optional'
 
-excludes = ['primaryslit_huber']
+excludes = ['primaryslit_huber', 'primarycoll']
 
 devices = dict(
     psw = device('nicos.devices.generic.ManualMove',

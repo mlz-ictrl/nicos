@@ -2,7 +2,7 @@ description = 'Primary slit Huber automatic'
 
 group = 'optional'
 
-excludes = ['primaryslit_manual']
+excludes = ['primaryslit_manual', 'primarycoll']
 
 tango_base = 'tango://motorbox03.stressi.frm2.tum.de:10000/box/'
 
