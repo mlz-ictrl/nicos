@@ -36,6 +36,7 @@ from nicos.core import ArrayDesc, Override, Param, Value, intrange, listof, \
 from nicos.core.data import GzipFile
 from nicos.devices.datasinks.raw import SingleRawImageSink
 from nicos.devices.tango import ImageChannel
+from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.utils.fitting import curve_fit
 
 
@@ -263,7 +264,7 @@ class CascadeDetector(ImageChannel):
             rpopt, rperr, _ = fit_a_sin_fixed_freq(x, foil_roi)
             payload.append([tpopt, tperr, foil_tot.tolist(),
                             rpopt, rperr, foil_roi.tolist()])
-        self._cache.put(self.name, '_foildata', payload, flag='#')
+        self._cache.put(self.name, '_foildata', payload, flag=FLAG_NO_STORE)
         return data
 
 
