@@ -40,9 +40,6 @@ from nicos_mlz.toftof.devices.datasinks.nxfile import NexusFile
 # NXlog, NXnote, NXpositioner, NXsource,
 
 
-
-
-
 def string_(value):
     if not value:
         value = ' '
