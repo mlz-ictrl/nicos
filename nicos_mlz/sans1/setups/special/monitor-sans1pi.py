@@ -45,6 +45,7 @@ _chop_phase = Column(
         BlockRow(
                  Field(name='1', dev='chopper_ch1_phase', unit='deg', format='%.2f'),
                  Field(name='2', dev='chopper_ch2_phase', unit='deg', format='%.2f'),
+                 Field(name='water', dev='chopper_waterflow', width=8, format = '%.2'),
                 ),
         ],
         setups='chopper_phase',

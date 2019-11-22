@@ -697,6 +697,18 @@ _tisane_counts = Column(
     ),
 )
 
+_chop_phase = Column(
+    Block('Phase Positions', [
+        BlockRow(
+                 Field(name='1', dev='chopper_ch1_phase', unit='deg', format='%.2f'),
+                 Field(name='2', dev='chopper_ch2_phase', unit='deg', format='%.2f'),
+                 Field(name='water', dev='chopper_waterflow', width=8, format = '%.2'),
+                ),
+        ],
+        setups='chopper_phase',
+    ),
+)
+
 _live = Column(
     Block('Live image of Detector', [
         BlockRow(
@@ -770,7 +782,7 @@ devices = dict(
             Row(_expcolumn),
             Row(_sans1general, _table2, _table1, _sans1det),
             Row(_ubahncolumn, _meteocolumn, _pressurecolumn, _p_filter),
-            Row(_selcolumn, _col_slit, _atpolcolumn, _sanscolumn),
+            Row(_selcolumn, _chop_phase, _col_slit, _atpolcolumn, _sanscolumn),
             Row(_ccmsans, _ccmsans_temperature,
                 _ccm2a, _ccm2a_temperature,
                 _spinflipper, _ccrs, _cryos, _sc1, _sc2,

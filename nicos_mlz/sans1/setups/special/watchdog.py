@@ -94,6 +94,12 @@ watchlist = [
          gracetime = 5,
          action = 'move(chopper_ch1_parkingpos, 16.2)'
     ),
+    dict(condition = 'selector_rpm_value > 30000',
+         message = 'selector rpm above 30000.\nPlease check Selector hardware!!!',
+         #type = 'critical',
+         type = None,
+         gracetime = 30,
+    ),
 ]
 
 
