@@ -4,12 +4,9 @@ group = 'lowlevel'
 
 nethost = 'sans1srv.sans1.frm2'
 
+tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1/'
+
 devices = dict(
-    # selector_speed = device('nicos.devices.taco.Axis',
-    #     tacodevice = '//%s/sans1/table/z-2a' % (nethost, ),
-    #     fmtstr = '%.2f',
-    #     abslimits = (-10, 10),
-    # ),
     selector_ng_ax = device('nicos.devices.generic.Axis',
         description = 'selector neutron guide axis',
         motor = 'selector_ng_mot',
@@ -23,9 +20,9 @@ devices = dict(
         lowlevel = True,
         requires = dict(level='admin'),
     ),
-    selector_ng_mot = device('nicos.devices.taco.motor.Motor',
+    selector_ng_mot = device('nicos.devices.tango.Motor',
         description = 'selector neutron guide motor',
-        tacodevice = '//%s/sel/z/motor' % (nethost, ),
+        tangodevice = tango_base + 'selector/z_mot',
         fmtstr = '%.2f',
         #abslimits = (-140, 140), old
         abslimits = (-140, 142.5), #new
@@ -33,9 +30,9 @@ devices = dict(
         lowlevel = True,
         requires = dict(level='admin'),
     ),
-    selector_ng_enc = device('nicos.devices.taco.coder.Coder',
+    selector_ng_enc = device('nicos.devices.tango.Sensor',
         description = 'selector neutron guide encoder',
-        tacodevice = '//%s/sel/z/enc' % (nethost, ),
+        tangodevice = tango_base + 'selector/z_enc',
         fmtstr = '%.2f',
         lowlevel = True,
     ),
@@ -57,26 +54,23 @@ devices = dict(
         obs = [],
         precision = 0.05,
         fmtstr = '%.2f',
-        #refpos = -11.17,
-        abslimits = (-7.5+2.27, 7.5+2.27),
+        abslimits = (-7.5, 7.5),
         maxage = 120,
         pollinterval = 15,
-        #offset = 1, old
-        #offset = 1.72, #new
-        offset = 2.27, #new
+        offset = 0,
         requires = dict(level='admin'),
     ),
-    selector_tilt_mot = device('nicos.devices.taco.motor.Motor',
+    selector_tilt_mot = device('nicos.devices.tango.Motor',
         description = 'selector tilt motor',
-        tacodevice = '//%s/sel/tilt/motor' % (nethost, ),
+        tangodevice = tango_base + 'selector/tilt_mot',
         fmtstr = '%.2f',
         abslimits = (-10, 10),
         lowlevel = True,
         requires = dict(level='admin'),
     ),
-    selector_tilt_enc = device('nicos.devices.taco.coder.Coder',
+    selector_tilt_enc = device('nicos.devices.tango.Sensor',
         description = 'selector tilt encoder',
-        tacodevice = '//%s/sel/tilt/enc' % (nethost, ),
+        tangodevice = tango_base + 'selector/tilt_enc',
         fmtstr = '%.2f',
         lowlevel = True,
     ),
