@@ -901,35 +901,44 @@ def daemonize():
 def setuser(recover=True):
     """Do not daemonize, but at least set the current user and group correctly
     to the configured values if started as root.
+
+    Users and groups can be either numeric or strings.
+    If no group is supplied, the primary group of the user is used.
+
     """
     if os.name != 'posix' or os.geteuid() != 0:
         return
     # running as root is not good...
-    if config.user is None or config.group is None:
+    if not config.user:
         raise RuntimeError('please provide valid entries for user and '
                            'group in nicos.conf if running as root')
+
     # switch user
     group = config.group
-    userentry = None
-    if config.user and pwd is not None:
-        userentry = pwd.getpwnam(config.user)
-    if group and grp is not None and userentry:
-        gid = grp.getgrnam(group).gr_gid
-        if recover:
-            os.setegid(gid)
-        else:
-            os.setgid(gid)
-        # initialize the group access list with all of the groups the
-        # configured user is a member plus gid
-        os.initgroups(userentry.pw_name, gid)
-    if userentry and pwd is not None:
-        uid = userentry.pw_uid
-        if recover:
-            os.seteuid(uid)
-        else:
-            os.setuid(uid)
-        if 'HOME' in os.environ:
-            os.environ['HOME'] = pwd.getpwuid(uid).pw_dir
+    user = config.user
+    if pwd is None:
+        raise RuntimeError('pwd and/or grp modules not available')
+
+    userentry = pwd.getpwuid(int(user)) if user.isdigit() else pwd.getpwnam(user)
+    if group:
+        grentry = grp.getgrgid(group) if group.isdigit() else grp.getgrnam(group)
+        gid = grentry.gr_gid
+    else:
+        gid = userentry.pw_gid
+    uid = userentry.pw_uid
+    if recover:
+        os.setegid(gid)
+    else:
+        os.setgid(gid)
+    # initialize the group access list with all of the groups the
+    # configured user is a member plus gid
+    os.initgroups(userentry.pw_name, gid)
+    if recover:
+        os.seteuid(uid)
+    else:
+        os.setuid(uid)
+    if 'HOME' in os.environ:
+        os.environ['HOME'] = pwd.getpwuid(uid).pw_dir
     if config.umask is not None and hasattr(os, 'umask'):
         os.umask(int(config.umask, 8))
 
