@@ -26,7 +26,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.core import HasPrecision, Override
+from nicos.core import HasPrecision, Override, status
 from nicos.devices.generic.manual import ManualMove
 
 
@@ -36,3 +36,6 @@ class Standin(HasPrecision, ManualMove):
         'abslimits': Override(mandatory=False),
         'unit':      Override(mandatory=False),
     }
+
+    def doStatus(self, maxage=0):
+        return status.WARN, 'virtual'
