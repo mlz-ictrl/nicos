@@ -63,6 +63,8 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
             self._resolution = tuple(self._dev.detectorSize)
         else:
             self._resolution = (128, 128, 1)
+        shape = (self._resolution[1], self._resolution[0])
+        self.arraydesc = ArrayDesc('data', shape, np.uint32)
 
     def _configure(self, tofsettings):
         value = self.mode
