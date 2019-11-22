@@ -34,5 +34,13 @@ devices = dict(
         fmtstr = '%.2f',
         comdelay = 30,
         maxage = 35,
-    )
+    ),
+    chopper_waterflow = device('nicos.devices.tango.AnalogInput',
+        description = 'Chopper water flow',
+        tangodevice = '%s/flowrate' % tango_base,
+        unit = 'l/min',
+        fmtstr = '%.3f',
+        comdelay = 30,
+        maxage = 35,
+    ),
 )
