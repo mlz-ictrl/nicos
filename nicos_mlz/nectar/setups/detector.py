@@ -7,7 +7,6 @@ group = 'optional'
 includes = ['filesavers']
 
 tango_base = 'tango://nectarccd02.nectar.frm2:10000/nectar/'
-nethost = 'nectarsrv.nectar.frm2'  # taco
 
 devices = dict(
     timer = device('nicos.devices.vendor.lima.LimaCCDTimer',
@@ -44,42 +43,6 @@ devices = dict(
         unit = 'degC',
         precision = 3,
         fmtstr = '%.0f',
-    ),
-    fov_mot = device('nicos.devices.taco.Motor',
-        description = 'Camera translation x (field of view)',
-        tacodevice = '//%s/nectar/cam/fov' % nethost,
-        abslimits = (0.0001, 900),
-        comtries = 3,
-        lowlevel = True,
-    ),
-    fov = device('nicos.devices.generic.Axis',
-        description = 'Camera translation x (field of view)',
-        pollinterval = 5,
-        maxage = 12,
-        fmtstr = '%.2f',
-        userlimits = (0, 900),
-        precision = 0.1,
-        # prefersetup = True,
-        motor = 'fov_mot',
-        coder = 'fov_mot',
-        obs = [],
-    ),
-    focus_mot = device('nicos.devices.taco.Motor',
-        description = 'Camera lens roation axis (focus)',
-        tacodevice = '//%s/nectar/cam/focus' % nethost,
-        abslimits = (-100, 100),
-        comtries = 3,
-        lowlevel = True,
-    ),
-    focus = device('nicos.devices.generic.Axis',
-        description = 'Camera lens roation axis (focus)',
-        pollinterval = 5,
-        maxage = 12,
-        fmtstr = '%.2f',
-        precision = 0.1,
-        motor = 'focus_mot',
-        coder = 'focus_mot',
-        obs = [],
     ),
 )
 
