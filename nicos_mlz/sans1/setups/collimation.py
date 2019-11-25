@@ -587,6 +587,15 @@ devices = dict(
         unit = 'mm',
         lowlevel = True,
     ),
+#-------------------------------------------------------------------------------
+    col_3_c_test = device('nicos.devices.tango.Sensor',
+        description = 'Collimotor 3 coder test device',
+        # IP-adresse: 172.25.49.114
+        tangodevice='%s/coll/3m_test/plc_encoder1'% (tangohost,),
+        unit = 'mm',
+        lowlevel = True,
+    ),
+#-------------------------------------------------------------------------------
     col_2 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
         description = 'Collimotor 2',
         mapping = dict(ng=1, col=117, free1=234, free2=351),
