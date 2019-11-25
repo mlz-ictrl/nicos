@@ -557,7 +557,7 @@ devices = dict(
     col_3_a = device('nicos.devices.generic.Axis',
         description = 'Collimotor 3',
         motor = 'col_3_m',
-        coder = 'col_3_c',
+        coder = 'col_3_m',
         dragerror = 17,
         precision = 0.05,
         lowlevel = True,
@@ -573,7 +573,7 @@ devices = dict(
         unit = 'mm',
         refpos = -9.35,
         abslimits = (-400, 600),
-        autozero = None, # no auto referencing with an axis !!!
+        autozero = 100, # auto referencing with an axis !!!
         precision = 0.0025,
         lowlevel = True,
     ),
