@@ -547,7 +547,7 @@ devices = dict(
     col_3 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
         description = 'Collimotor 3',
         mapping = dict(ng=1.010, col=117, free1=234, free2=351),
-        moveable = 'col_3_m', # without motor referencing
+        moveable = 'col_3_a',
         blockingmove = False,
         pollinterval = 15,
         maxage = 60,
@@ -557,7 +557,7 @@ devices = dict(
     col_3_a = device('nicos.devices.generic.Axis',
         description = 'Collimotor 3',
         motor = 'col_3_m',
-        coder = 'col_3_m',
+        coder = 'col_3_c',
         dragerror = 17,
         precision = 0.05,
         lowlevel = True,
@@ -573,7 +573,7 @@ devices = dict(
         unit = 'mm',
         refpos = -9.35,
         abslimits = (-400, 600),
-        autozero = 100, # auto referencing with an axis !!!
+        autozero = None, # no auto referencing with an axis !!!
         precision = 0.0025,
         lowlevel = True,
     ),
@@ -587,15 +587,6 @@ devices = dict(
         unit = 'mm',
         lowlevel = True,
     ),
-#-------------------------------------------------------------------------------
-    col_3_c_test = device('nicos.devices.tango.Sensor',
-        description = 'Collimotor 3 coder test device',
-        # IP-adresse: 172.25.49.114
-        tangodevice='%s/coll/3m_test/plc_encoder1'% (tangohost,),
-        unit = 'mm',
-        lowlevel = True,
-    ),
-#-------------------------------------------------------------------------------
     col_2 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
         description = 'Collimotor 2',
         mapping = dict(ng=1, col=117, free1=234, free2=351),
