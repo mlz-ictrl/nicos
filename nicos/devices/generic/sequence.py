@@ -378,16 +378,16 @@ class SequencerMixin(DeviceMixinBase):
                         # if this raises, abort the sequence...
                         self.log.warning('action %d (%r) failed',
                                          i + 1, action, exc=1)
-                        code = self._runFailed(i, action, sys.exc_info())
-                        self.log.debug('_runFailed returned %r', code)
-                        if code:
+                        nretries = self._runFailed(i, action, sys.exc_info())
+                        self.log.debug('_runFailed returned %r', nretries)
+                        if nretries:
                             try:
-                                action.retry(code)
+                                action.retry(nretries)
                             except Exception as e:
                                 self.log.debug('action.retry failed with '
                                                '%r', e)
-                                ret = self._retryFailed(i, action,
-                                                        code, sys.exc_info())
+                                ret = self._retryFailed(i, action, nretries,
+                                                        sys.exc_info())
                                 self.log.debug('_retryFailed returned %r', ret)
 
                 # wait until all actions are finished
@@ -542,7 +542,7 @@ class SequencerMixin(DeviceMixinBase):
         """
         reraise(*exc_info)
 
-    def _retryFailed(self, step, action, code, exc_info):
+    def _retryFailed(self, step, action, nretries, exc_info):
         """Called whenever an actions retry failed.
 
         This may raise an Exception to end the sequence or return

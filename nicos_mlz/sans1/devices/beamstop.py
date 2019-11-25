@@ -287,7 +287,7 @@ class BeamStop(SequencerMixin, Moveable):
     def _waitFailed(self, step, action, exc_info):
         return True  # ignore error + retry
 
-    def _retryFailed(self, step, action, exc_info):
+    def _retryFailed(self, step, action, nretries, exc_info):
         self._seq_stopflag = True
         self._setROParam('fixed', 'Error during sequence (step %r), needs '
                                   'manual fixing!' % step)
