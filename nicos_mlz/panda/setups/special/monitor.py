@@ -426,16 +426,6 @@ wm5vplots = Block('JVM 5', [
     setups='wm5v',
 )
 
-magnet14t5 = Block('14.5T Magnet', [
-    BlockRow(
-        Field(dev='b15t', name='b15t', unit='T'),
-        Field(key='b15t/target', name='Target', unit='T'),
-        Field(key='b15t/ramp', name='Ramp', unit='T/min'),
-    ),
-    ],
-    setups='15T',
-)
-
 kelvinox = Block('Kelvinox', [
     BlockRow(Field(dev='mc')),
     BlockRow(Field(key='mc/setpoint', name='Setpoint', unit='K')),
@@ -472,7 +462,7 @@ memograph = Block('Water Flow', [
 
 column1 = Column(filters, primary, sample, analyzer) + Column(magnet55)
 column2 = Column(collimation, detector, bambus) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, miramagnet, wm5v, magnet14t5, vti)
+          Column(lakeshore, miramagnet, wm5v, vti)
 
 column3 = Column(magnet55supp, wm5vsupp, kelvinox, foki, memograph, cam) + \
           Column(*cryosupps) + Column(*ccrsupps)

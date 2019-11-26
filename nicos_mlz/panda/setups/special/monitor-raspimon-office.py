@@ -414,16 +414,6 @@ vtiplot = Block('Needle Valve', [
     setups='variox',
 )
 
-magnet14t5 = Block('14.5T Magnet', [
-    BlockRow(
-        Field(dev='b15t', name='b15t', unit='T'),
-        Field(key='b15t/target', name='Target', unit='T'),
-        Field(key='b15t/ramp', name='Ramp', unit='T/min'),
-    ),
-    ],
-    setups='15T',
-)
-
 kelvinox = Block('Kelvinox', [
     BlockRow(Field(dev='mc')),
     BlockRow(Field(key='mc/setpoint',name='Setpoint',unit='K')),
@@ -461,7 +451,7 @@ column1 = Column(filters, primary, sample, analyzer) + \
           Column(ccm55vsupp, wm5vsupp, kelvinox)
 
 column2 = Column(detector, bambus) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, miramagnet, wm5v, ccm55v, magnet14t5, vti) + \
+          Column(lakeshore, miramagnet, wm5v, ccm55v, vti) + \
           Column(foki, memograph)
 
 column3 = Column(*cryosupps) + Column(*ccrsupps) + \

@@ -348,16 +348,6 @@ vti = Block('VTI', [
     setups='variox',
 )
 
-magnet14t5 = Block('14.5T Magnet', [
-    BlockRow(
-        Field(dev='b15t', name='b15t', unit='T'),
-        Field(key='b15t/target', name='Target', unit='T'),
-        Field(key='b15t/ramp', name='Ramp', unit='T/min'),
-    ),
-    ],
-    setups='15T',
-)
-
 kelvinox = Block('Kelvinox', [
     BlockRow(Field(dev='mc')),
     BlockRow(Field(key='mc/setpoint',name='Setpoint',unit='K')),
@@ -405,7 +395,7 @@ tas = Block('TAS', [
 )
 
 column2 = Column(collimation, detector) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, ccm55v, wm5v, magnet14t5, vti)
+          Column(lakeshore, ccm55v, wm5v, vti)
 
 column3 = Column(tas) + Column(ccm55vsupp, wm5vsupp, kelvinox, foki,  memograph) + \
           Column(*cryosupps) + Column(*ccrsupps)
