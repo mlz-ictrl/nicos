@@ -31,7 +31,8 @@ import re
 from time import sleep, strftime, time as currenttime
 
 from nicos import session
-from nicos.core import Override, Param, none_or, oneof
+from nicos.core import ConfigurationError, Override, Param, none_or, oneof
+from nicos.core.sessions.setups import SetupBlock
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.protocols.cache import OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
     OP_WILDCARD, cache_load
@@ -254,3 +255,20 @@ class Monitor(BaseCacheClient):
         # self.log.debug('new warnings: %s', warnings)
         self._currwarnings = warnings
         self.switchWarnPanel(bool(warnings))
+
+    def _resolve_block(self, block):
+        # exchange SetupBlock objects by their definition, or raise
+        # a ConfigurationError if it doesn't exist.
+        if not isinstance(block, SetupBlock):
+            return block
+        setup, bname = block._setupname, block._blockname
+        setupinfo = session.getSetupInfo()
+        if setup not in setupinfo:
+            raise ConfigurationError(self, 'Setup "%s" required by '
+                                     'SetupBlock() does not exist' % setup)
+        blocks = setupinfo[setup]['monitor_blocks']
+        if bname not in blocks:
+            raise ConfigurationError(self, 'Setup "%s" does not define a  '
+                                     'monitor block called "%s"' %
+                                     (setup, bname))
+        return blocks[bname]

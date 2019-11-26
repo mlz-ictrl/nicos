@@ -35,6 +35,7 @@ except the :ref:`description <setup-description>` entry:
 * :ref:`startupcode <setup-startupcode>`
 * :ref:`display_order <setup-display_order>`
 * :ref:`alias_config <setup-alias_config>`
+* :ref:`monitor_blocks <setup-monitor_blocks>`
 * :ref:`extended <setup-extended>`
 
 .. _setup-description:
@@ -278,6 +279,32 @@ except the :ref:`description <setup-description>` entry:
 
    If more than one choice is offered by a setupfile, they should have different
    priorities (with the less common/sensible option getting a smaller number).
+
+.. _setup-monitor_blocks:
+
+``monitor_blocks``
+   A dictionary of "monitor blocks", i.e. status monitor ``Block()``
+   declarations (see :ref:`monitor-elements`) that you want to predefine
+   for this setup.
+
+   In a status monitor setup, you can then use these predefined blocks using
+   ``setup_block("setupname")`` or ``setup_block("setupname", "blockname")``.
+   The *blockname* is the key into this dictionary, and if not given, is
+   ``"default"``.
+
+   Blocks defined like this should normally have the ``setups`` parameter
+   set to ``setupname``, so that the block is only shown when the setup is
+   loaded.
+
+   Example, in a setup "cryo1"::
+
+      monitor_blocks = {
+          'default': Block('Cryostat 1', [
+                         BlockRow('T_cryo1', 'T_cryo1_sample'),
+                         BlockRow('p_cryo1')
+                     ], setups=setupname)
+      }
+      '''
 
 .. _setup-startupcode:
 

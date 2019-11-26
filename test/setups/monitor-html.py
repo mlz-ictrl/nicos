@@ -45,16 +45,7 @@ _column1 = Column(
 )
 
 _column2 = Column(
-    Block('Instrument', [
-        BlockRow('t_mth', 't_mtt'),
-        BlockRow('t_ath', 't_att'),
-        BlockRow(Field(dev='t_phi', width=4),
-                 Field(dev='t_psi', width=4)),
-        BlockRow(Field(dev='t_mono', width=4),
-                 Field(dev='t_ana', name='Mono slit 2 (ms2)', width=20, istext=True)),
-        ],
-        setups='stdsystem',
-    ),
+    SetupBlock('stdsystem', 'instrument'),
     Block('Specials', [
         BlockRow(Field(picture='/some/pic.png')),
         BlockRow(Field(plot='plot', dev='t_mtt', plotwindow=3600)),

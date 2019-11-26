@@ -35,3 +35,12 @@ extended = dict(
 startupcode = """
 AddEnvironment(T, Ts)
 """
+
+monitor_blocks = {
+    'default': Block('Temperature', [
+        BlockRow(Field(gui='nicos_demo/demo/gui/cryo.ui')),
+        # BlockRow(Field(dev='T'), Field(key='t/setpoint', name='Setpoint')),
+        # BlockRow(Field(dev='T', plot='T', plotwindow=300, width=50),
+        #          Field(key='t/setpoint', name='SetP', plot='T', plotwindow=300))
+    ], setups=setupname),
+}

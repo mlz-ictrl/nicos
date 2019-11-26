@@ -353,6 +353,7 @@ class Monitor(BaseMonitor):
             for column in superrow:
                 columnlayout = QVBoxLayout(spacing=0.8*blheight)
                 for block in column:
+                    block = self._resolve_block(block)
                     blocklayout_outer = QHBoxLayout()
                     blocklayout_outer.addStretch()
                     blocklayout = QVBoxLayout()

@@ -28,6 +28,8 @@ _axisblock = Block('Axes', [
                    # NICOS master instance for this block to be displayed
 )
 
+_tempblock = SetupBlock('cryo')  # this block is loaded from the "cryo" setup
+
 _detectorblock = Block('Detector', [
     BlockRow(Field(name='timer', dev='timer'),
              Field(name='ctr1',  dev='ctr1'),
@@ -66,15 +68,6 @@ _slitblock = Block('Sample Slit', [
              Field(dev='ss.width', name='Width')),
     ],
     setups='tas',
-)
-
-_tempblock = Block('Temperature', [
-    BlockRow(Field(gui='nicos_demo/demo/gui/cryo.ui')),
-    # BlockRow(Field(dev='T'), Field(key='t/setpoint', name='Setpoint')),
-    # BlockRow(Field(dev='T', plot='T', plotwindow=300, width=50),
-    #          Field(key='t/setpoint', name='SetP', plot='T', plotwindow=300))
-    ],
-    setups='cryo',
 )
 
 _sansblock = Block('SANS', [
@@ -125,9 +118,9 @@ _sansblock = Block('SANS', [
     setups='sans',
 )
 
-_rightcolumn = Column(_axisblock, _tempblock,)
+_rightcolumn = Column(_axisblock, _tempblock)
 
-_leftcolumn = Column(_tasblock, _slitblock, _sansblock,)
+_leftcolumn = Column(_tasblock, _slitblock, _sansblock)
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',

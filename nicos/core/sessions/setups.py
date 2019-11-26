@@ -26,8 +26,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-from os import path
-
 from nicos.core.params import nicosdev_re
 from nicos.pycompat import exec_, iteritems, listitems
 from nicos.utils import Device
@@ -39,7 +37,6 @@ SETUP_GROUPS = {
 
 
 class MonitorElement(object):
-
     pass
 
 
@@ -62,7 +59,6 @@ class HasChildren(object):
 
 
 class Row(HasChildren, MonitorElement):
-
     pass
 
 
@@ -124,6 +120,15 @@ class Field(MonitorElement):
         return 'Field<%r>' % self._options
 
 
+class SetupBlock(MonitorElement):
+    def __init__(self, setupname, blockname='default'):
+        self._setupname = setupname
+        self._blockname = blockname
+
+    def __repr__(self):
+        return 'SetupBlock<%s:%s>' % (self._setupname, self._blockname)
+
+
 def readSetups(paths, logger):
     """Read all setups on the given paths."""
     infodict = {}
@@ -145,24 +150,20 @@ def readSetups(paths, logger):
 def prepareNamespace(setupname, filepath, all_setups):
     """Return a namespace prepared for reading setup "setupname"."""
     # set of all files consulted via configdata()
-    cd_files = set()
+    dep_files = set()
     # device() is a helper function to make configuration prettier
     ns = {
         'device': lambda cls, **params: Device((cls, params)),
-        'configdata': make_configdata(filepath, all_setups, cd_files),
+        'configdata': make_configdata(filepath, all_setups, dep_files),
         'setupname': setupname,
-        '_configdata_files': cd_files,
+        '_dep_files': dep_files,
+        'Row': Row, 'Column': Column, 'BlockRow': Row,
+        'Block': Block, 'Field': Field, 'SetupBlock': SetupBlock,
     }
-    if path.basename(setupname).startswith('monitor'):
-        ns['Row'] = Row
-        ns['Column'] = Column
-        ns['BlockRow'] = Row
-        ns['Block'] = Block
-        ns['Field'] = Field
     return ns
 
 
-def make_configdata(filepath, all_setups, cd_files):
+def make_configdata(filepath, all_setups, dep_files):
     """Create a configdata() function for use in setups."""
     def configdata(name):
         from nicos.core.errors import ConfigurationError
@@ -178,7 +179,7 @@ def make_configdata(filepath, all_setups, cd_files):
         ns = {}
         with open(fullname) as fp:
             exec_(fp.read(), ns)
-        cd_files.add(fullname)
+        dep_files.add(fullname)
         try:
             return ns[element]
         except KeyError:
@@ -264,7 +265,8 @@ def readSetup(infodict, modname, filepath, all_setups, logger):
         'startupcode': ns.get('startupcode', ''),
         'display_order': ns.get('display_order', 50),
         'extended': ns.get('extended', {}),
-        'filenames': [filepath] + list(ns.get('_configdata_files', ())),
+        'filenames': [filepath] + list(ns.get('_dep_files', ())),
+        'monitor_blocks': ns.get('monitor_blocks', {}),
     }
     if info['group'] not in SETUP_GROUPS:
         logger.warning('Setup %s has an invalid group (valid groups '
@@ -291,6 +293,7 @@ def readSetup(infodict, modname, filepath, all_setups, logger):
                                           oldinfo['display_order'])
         oldinfo['extended'].update(info['extended'])
         oldinfo['filenames'].extend(info['filenames'])
+        oldinfo['monitor_blocks'].update(info['monitor_blocks'])
         logger.debug('%r setup partially merged with version '
                      'from parent directory', modname)
     else:

@@ -438,6 +438,7 @@ class Monitor(BaseMonitor):
             for column in superrow:
                 self += u'  <table class="column"><tr><td>'
                 for block in column:
+                    block = self._resolve_block(block)
                     blk = Block(block._options)
                     blk += u'<div class="block">'
                     blk += (u'<div class="blockhead">%s</div>' %
