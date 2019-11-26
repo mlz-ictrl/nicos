@@ -171,8 +171,8 @@ _ccm3aplot = Block('', [
 
 
 _magnet = Block('Electromagnet', [
-    BlockRow(Field(name='Current', dev='I_jem1')),
-], setups='jem1')
+    BlockRow(Field(name='Current', dev='I_em1')),
+], setups='em1')
 
 _layout = [
     Row(Column(_experiment)),

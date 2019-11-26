@@ -32,7 +32,7 @@ main_window = tabbed(
             ('Peltier 6',           (6,  1, 'sam_trans_x', 36.56, 'sam_trans_y', 0)),
             ('Peltier 8',           (8,  1, 'sam_trans_x', 36.56, 'sam_trans_y', 0)),
             ('Red oven 4',          (4,  1, 'sam_trans_x', 40,    'sam_trans_y', 0)),
-            ('Magnet',              (5,  1, 'jem1_sam_trans', 23, None, 0)),
+            ('Magnet',              (5,  1, 'em1_sam_trans', 23,  None, 0)),
                                      ]))),
         ('NICOS devices',
             panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True, dockpos='right')),

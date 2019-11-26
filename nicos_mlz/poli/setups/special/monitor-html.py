@@ -203,76 +203,76 @@ for i in range(10, 22 + 1):
         )
     )
 
-variox1 = Block('Variox', [
+var1 = Block('Variox', [
     BlockRow(
-        Field(dev='T_variox1', name='Regulation', max=38),
-        Field(dev='T_variox1_sample', name='Sample', max=38),
-        Field(dev='T_variox1_vti', name='VTI',max=7),
+        Field(dev='T_var1', name='Regulation', max=38),
+        Field(dev='T_var1_sample', name='Sample', max=38),
+        Field(dev='T_var1_vti', name='VTI',max=7),
     ),
     BlockRow(
-        Field(key='T_variox1/setpoint', name='Setpoint'),
-        Field(key='T_variox1/p', name='P', width=7),
-        Field(key='T_variox1/i', name='I', width=7),
-        Field(key='T_variox1/d', name='D', width=7),
+        Field(key='T_var1/setpoint', name='Setpoint'),
+        Field(key='T_var1/p', name='P', width=7),
+        Field(key='T_var1/i', name='I', width=7),
+        Field(key='T_var1/d', name='D', width=7),
     ),
     ],
-    setups='variox1',
+    setups='var1',
 )
 
-variox1supp1 = Block('Variox - cryoliquids', [
+var1supp1 = Block('Variox - cryoliquids', [
     BlockRow(
-        Field(dev='variox1_lhe_fill', name='LHe', width=10),
-        Field(dev='variox1_ln2_fill', name='LN2', width=10),
+        Field(dev='var1_lhe_fill', name='LHe', width=10),
+        Field(dev='var1_ln2_fill', name='LN2', width=10),
     ),
     ],
-    setups='variox1'
+    setups='var1'
 )
-variox1supp2 = Block('Variox - pressures', [
+var1supp2 = Block('Variox - pressures', [
     BlockRow(
-        Field(dev='variox1_nv', name='N.V.', width=10),
-        Field(dev='variox1_p', name='p reg.', width=10),
+        Field(dev='var1_nv', name='N.V.', width=10),
+        Field(dev='var1_p', name='p reg.', width=10),
     ),
     BlockRow(
-        Field(key='variox1_p/status', name='Status', item=1, maxlen=6),
+        Field(key='var1_p/status', name='Status', item=1, maxlen=6),
     ),
     BlockRow(
-        Field(key='variox1_p/setpoint', name='p (sp)'),
-        Field(key='variox1_p/p', name='P', width=6),
-        Field(key='variox1_p/i', name='I', width=6),
-        Field(key='variox1_p/d', name='D', width=6),
+        Field(key='var1_p/setpoint', name='p (sp)'),
+        Field(key='var1_p/p', name='P', width=6),
+        Field(key='var1_p/i', name='I', width=6),
+        Field(key='var1_p/d', name='D', width=6),
     ),
     BlockRow(
-        Field(dev='variox1_piso', name='p (iso)', width=7, unit=''),
-        Field(dev='variox1_ppump', name='p (pump)', width=7, unit=''),
-        Field(dev='variox1_psample', name='p (sample)', width=6, unit=''),
-    ),
-    ],
-    setups='variox1',
-)
-
-kelvinox1 = Block('Kelvinox', [
-    BlockRow(
-        Field(dev='T_kelvinox1_mix', name='T (mix)'),
-        Field(dev='T_kelvinox1_pot', name='T (pot)'),
-        Field(dev='T_kelvinox1_sorb', name='T (sorb)')
+        Field(dev='var1_piso', name='p (iso)', width=7, unit=''),
+        Field(dev='var1_ppump', name='p (pump)', width=7, unit=''),
+        Field(dev='var1_psample', name='p (sample)', width=6, unit=''),
     ),
     ],
-    setups='kelvinox1',
+    setups='var1',
 )
 
-jvm2 = Block('8T Magnet', [
+di1 = Block('Kelvinox', [
+    BlockRow(
+        Field(dev='T_di1_mix', name='T (mix)'),
+        Field(dev='T_di1_pot', name='T (pot)'),
+        Field(dev='T_di1_sorb', name='T (sorb)')
+    ),
+    ],
+    setups='di1',
+)
+
+ccm8v = Block('8T Magnet', [
     BlockRow(
         Field(dev='B'),
         Field(dev='T'),
         Field(dev='Ts'),
     ),
     ],
-    setups='jvm2',
+    setups='ccm8v',
 )
 
-column2 = Column(shutters, collimation, jvm2) + Column(*cryos) + Column(*ccrs) + \
-          Column(variox1, kelvinox1)
-column3 = Column(variox1supp1, variox1supp2) + \
+column2 = Column(shutters, collimation, ccm8v) + Column(*cryos) + Column(*ccrs) + \
+          Column(var1, di1)
+column3 = Column(var1supp1, var1supp2) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(*cryoplots) + Column(*ccrplots)

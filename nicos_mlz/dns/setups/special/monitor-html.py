@@ -51,16 +51,16 @@ _secondcolumn = Column(
 
 _thirdcolumn = Column(
 
-    Block('Cryostat (jlc3)', [
-        BlockRow(Field(name='Temp. setpoint', key='T_jlc3_tube/setpoint',
-                       unitkey='T_jlc3_tube/unit', format='%.2f'),
-                 Field(name='Temp. at tube', dev='T_jlc3_tube')),
-        BlockRow(Field(name='Temp. at sample stick', dev='T_jlc3_stick')),
-        BlockRow(Field(name='P', key='T_jlc3_tube/p'), Field(name='I', key='T_jlc3_tube/i'),
-                 Field(name='D', key='T_jlc3_tube/d')),
-        BlockRow(Field(name='He pressure', dev='p_jlc3', unit='mbar')),
+    Block('Cryostat (cct3)', [
+        BlockRow(Field(name='Temp. setpoint', key='T_cct3_tube/setpoint',
+                       unitkey='T_cct3_tube/unit', format='%.2f'),
+                 Field(name='Temp. at tube', dev='T_cct3_tube')),
+        BlockRow(Field(name='Temp. at sample stick', dev='T_cct3_stick')),
+        BlockRow(Field(name='P', key='T_cct3_tube/p'), Field(name='I', key='T_cct3_tube/i'),
+                 Field(name='D', key='T_cct3_tube/d')),
+        BlockRow(Field(name='He pressure', dev='p_cct3', unit='mbar')),
         ],
-        setups='jlc3',
+        setups='cct3',
     ),
     Block('3He insert (cci3he2)', [
         BlockRow(Field(name='Setpoint', key='T_cci3he2/setpoint', unitkey='T_cci3he2/unit', format='%.2f'),
@@ -122,13 +122,13 @@ _thirdcolumn = Column(
 
 _plotcolumn = Column(
     Block('Temperature plots', [
-        BlockRow(Field(dev='T_jlc3_tube', plot='T',
+        BlockRow(Field(dev='T_cct3_tube', plot='T',
                        plotwindow=12*3600, plotinterval=20, width=100, height=40),
                  Field(dev='Ts', plot='T')),
         BlockRow(Field(dev='Ts', plot='Ts',
                        plotwindow=12*3600, plotinterval=20, width=100, height=40)),
         ],
-        setups='jlc3',
+        setups='cct3',
     ),
     Block('Selector plot', [
         BlockRow(Field(dev='selector_speed', plot='Sel',

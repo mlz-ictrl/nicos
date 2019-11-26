@@ -259,7 +259,7 @@ for i in range(10, 22 + 1):
     )
 
 # for setup magnet frm2-setup
-magnet55 = Block('5.5T Magnet', [
+ccm55v = Block('5.5T Magnet', [
     BlockRow(
         Field(dev='B_ccm55v'),
         Field(key='B_ccm55v/target', name='Target', fmtstr='%.2f'),
@@ -268,18 +268,18 @@ magnet55 = Block('5.5T Magnet', [
     setups='ccm55v',
 )
 
-# for setup magnet jcns jvm1
-magnet5 = Block('5T Magnet', [
+# for setup magnet jcns 5T
+wm5v = Block('5T Magnet', [
     BlockRow(
-        Field(dev='I_vm5'),
-        Field(key='I_vm5/target', name='Target', fmtstr='%.2f'),
+        Field(dev='I_wm5v'),
+        Field(key='I_wm5v/target', name='Target', fmtstr='%.2f'),
     ),
     ],
-    setups='jvm1',
+    setups='wm5v',
 )
 
 
-magnet55supp = Block('Magnet', [
+ccm55vsupp = Block('Magnet', [
     BlockRow(
         Field(dev='sth_ccm55v',name='sth'),
     ),
@@ -305,25 +305,25 @@ magnet55supp = Block('Magnet', [
     setups='ccm55v',
 )
 
-magnet5supp = Block('Magnet', [
+wm5vsupp = Block('Magnet', [
     BlockRow(
-        Field(dev='T_vm5_sample', name='Ts'),
-        Field(dev='T_vm5_vti', name='T'),
-        Field(key='T_vm5_sample/setpoint',name='Setpoint',min=1,max=200),
-        Field(key='T_vm5_sample/heater',name='Heater (%)'),
+        Field(dev='T_wm5v_sample', name='Ts'),
+        Field(dev='T_wm5v_vti', name='T'),
+        Field(key='T_wm5v_sample/setpoint',name='Setpoint',min=1,max=200),
+        Field(key='T_wm5v_sample/heater',name='Heater (%)'),
     ),
     BlockRow(
-        Field(dev='vm5_lhe', name='He level'),
-        Field(dev='T_vm5_magnet', name='T (coils)'),
-        Field(dev='vm5_nv_manual', name='NV'),
+        Field(dev='wm5v_lhe', name='He level'),
+        Field(dev='T_wm5v_magnet', name='T (coils)'),
+        Field(dev='wm5v_nv_manual', name='NV'),
     ),
     BlockRow(
-        Field(dev='vm5_piso', name='p(iso)'),
-        Field(dev='vm5_psample', name='p(sample)'),
-        Field(dev='vm5_pvti', name='p(vti)'),
+        Field(dev='wm5v_piso', name='p(iso)'),
+        Field(dev='wm5v_psample', name='p(sample)'),
+        Field(dev='wm5v_pvti', name='p(vti)'),
     ),
     ],
-    setups='jvm1',
+    setups='wm5v',
 )
 
 
@@ -405,9 +405,9 @@ tas = Block('TAS', [
 )
 
 column2 = Column(collimation, detector) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, magnet55, magnet5, magnet14t5, vti)
+          Column(lakeshore, ccm55v, wm5v, magnet14t5, vti)
 
-column3 = Column(tas) + Column(magnet55supp, magnet5supp, kelvinox, foki,  memograph) + \
+column3 = Column(tas) + Column(ccm55vsupp, wm5vsupp, kelvinox, foki,  memograph) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(lakeshoreplot) + Column(*cryoplots) + Column(*ccrplots)

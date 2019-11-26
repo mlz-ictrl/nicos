@@ -38,7 +38,7 @@ watchlist = [
         message = 'Cooling of JVM is not enough!!! Ts > 1.9K.',
         gracetime = 20,
         type = 'default',
-        setup = 'jvm1',
+        setup = 'wm5v',
     ),
     # dict(condition = 'sgy_fixedby != None and abs(sgy_target - sgy_value) > 0.1',
     #      message = 'SGY moved without reason, trying to fix automatically!',

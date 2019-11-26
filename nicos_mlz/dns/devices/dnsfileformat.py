@@ -145,9 +145,9 @@ class DNSFileSinkHandler(SingleFileSinkHandler):
         tsample, ttube, tset = float('NaN'), float('NaN'), float('NaN')
         if 'Ts' in session.devices:
             tsample = readdev('Ts')
-        if 'T_jlc3_tube' in session.devices:
-            ttube = readdev('T_jlc3_tube')
-            tset = float(session.getDevice('T_jlc3_tube').setpoint)
+        if 'T_cct3_tube' in session.devices:
+            ttube = readdev('T_cct3_tube')
+            tset = float(session.getDevice('T_cct3_tube').setpoint)
 
         w("# Temperatures/Lakeshore      T\n")
         w("#  T1                         %6.3f K\n" % ttube)

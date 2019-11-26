@@ -54,16 +54,16 @@ _thirdcolumn = Column(
         setups='astrium',
     ),
 
-    Block('Cryostat (jlc3)', [
-        BlockRow(Field(name='Temp. setpoint', key='T_jlc3_tube/setpoint',
-                       unitkey='T_jlc3_tube/unit', format='%.2f'),
-                 Field(name='Temp. at tube', dev='T_jlc3_tube')),
-        BlockRow(Field(name='Temp. at sample stick', dev='T_jlc3_stick')),
-        BlockRow(Field(name='P', key='T_jlc3_tube/p'), Field(name='I', key='T_jlc3_tube/i'),
-                 Field(name='D', key='T_jlc3_tube/d')),
-        BlockRow(Field(name='He pressure', dev='T_jlc3_C', unit='mbar')),
+    Block('Cryostat (cct3)', [
+        BlockRow(Field(name='Temp. setpoint', key='T_cct3_tube/setpoint',
+                       unitkey='T_cct3_tube/unit', format='%.2f'),
+                 Field(name='Temp. at tube', dev='T_cct3_tube')),
+        BlockRow(Field(name='Temp. at sample stick', dev='T_cct3_stick')),
+        BlockRow(Field(name='P', key='T_cct3_tube/p'), Field(name='I', key='T_cct3_tube/i'),
+                 Field(name='D', key='T_cct3_tube/d')),
+        BlockRow(Field(name='He pressure', dev='T_cct3_C', unit='mbar')),
         ],
-        setups='jlc3',
+        setups='cct3',
     ),
 )
 

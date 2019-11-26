@@ -294,16 +294,16 @@ miramagnet = Block('MIRA Magnet', [
 )
 
 # for setup magnet frm2-setup
-magnet75 = Block('7T Magnet', [
+ccm55v = Block('7T Magnet', [
     BlockRow(
-        Field(dev='B_m7T5'),
-        Field(key='b_m7t5/target', name='Target', fmtstr='%.2f'),
+        Field(dev='B_ccm55v'),
+        Field(key='b_ccm55v/target', name='Target', fmtstr='%.2f'),
     ),
     ],
-    setups='magnet75',
+    setups='ccm55v',
 )
 
-magnet75supp = Block('Magnet', [
+ccm55vsupp = Block('Magnet', [
     BlockRow(
         Field(dev='sth_B7T5_Taco_motor',name='motor'),
         Field(dev='sth_B7T5_Taco_coder',name='coder'),
@@ -311,74 +311,74 @@ magnet75supp = Block('Magnet', [
     # Maximum temperatures for field operation above 6.6 T (80A) taken from the
     # manual
     BlockRow(
-        Field(dev='m7T5_T1', max=4.3),
-        Field(dev='m7T5_T2', max=4.3),
+        Field(dev='ccm55v_T1', max=4.3),
+        Field(dev='ccm55v_T2', max=4.3),
     ),
     BlockRow(
-        Field(dev='m7T5_T3', max=5.1),
-        Field(dev='m7T5_T4', max=4.7),
+        Field(dev='ccm55v_T3', max=5.1),
+        Field(dev='ccm55v_T4', max=4.7),
     ),
     BlockRow(
-        Field(dev='m7T5_T5'),
-        Field(dev='m7T5_T6'),
+        Field(dev='ccm55v_T5'),
+        Field(dev='ccm55v_T6'),
     ),
     BlockRow(
-        Field(dev='m7T5_T7'),
-        Field(dev='m7T5_T8', max=4.3),
+        Field(dev='ccm55v_T7'),
+        Field(dev='ccm55v_T8', max=4.3),
     ),
     ],
-    setups='magnet75',
+    setups='ccm55v',
 )
 
-# for setup magnet jcns jvm1
-magnet5 = Block('5T Magnet', [
+# for setup magnet jcns 5T
+wm5v = Block('5T Magnet', [
     BlockRow(
-        Field(dev='I_vm5'),
-        Field(key='I_vm5/target', name='Target', fmtstr='%.2f'),
+        Field(dev='I_wm5v'),
+        Field(key='I_wm5v/target', name='Target', fmtstr='%.2f'),
     ),
     ],
-    setups='jvm1',
+    setups='wm5v',
 )
-magnet5supp = Block('Magnet', [
+wm5vsupp = Block('Magnet', [
     BlockRow(
-        Field(dev='T_vm5_sample', name='Ts'),
-        Field(dev='T_vm5_vti', name='T'),
-        Field(key='T_vm5_sample/setpoint',name='Setpoint',min=1,max=200),
-        Field(key='T_vm5_sample/heateroutput',name='Heater'),
+        Field(dev='T_wm5v_sample', name='Ts'),
+        Field(dev='T_wm5v_vti', name='T'),
+        Field(key='T_wm5v_sample/setpoint',name='Setpoint',min=1,max=200),
+        Field(key='T_wm5v_sample/heateroutput',name='Heater'),
     ),
     BlockRow(
-        Field(dev='vm5_lhe', name='He level'),
-        Field(dev='T_vm5_magnet', name='T (coils)'),
-        Field(dev='vm5_nv_manual', name='NV'),
+        Field(dev='wm5v_lhe', name='He level'),
+        Field(dev='T_wm5v_magnet', name='T (coils)'),
+        Field(dev='wm5v_nv_manual', name='NV'),
     ),
     BlockRow(
-        Field(dev='vm5_piso', name='p(iso)'),
-        Field(dev='vm5_psample', name='p(sample)'),
-        Field(dev='vm5_pvti', name='p(vti)'),
+        Field(dev='wm5v_piso', name='p(iso)'),
+        Field(dev='wm5v_psample', name='p(sample)'),
+        Field(dev='wm5v_pvti', name='p(vti)'),
     ),
     ],
-    setups='jvm1',
+    setups='wm5v',
 )
 
-jvmplots = Block('JVM 5', [
+wm5vplots = Block('JVM 5', [
     BlockRow(
-        Field(dev='vm5_pvti', plot='p',
+        Field(dev='wm5v_pvti', plot='p',
             plotwindow=3600, width=45, height=25),
-        Field(dev='vm5_nv_manual', plot='p',
+        Field(dev='wm5v_nv_manual', plot='p',
             plotwindow=3600, width=45, height=25),
         ),
     BlockRow(
-        Field(dev='T_vm5_vti', plot='Tmag',
+        Field(dev='T_wm5v_vti', plot='Tmag',
             plotwindow=12*3600, width=45, height=25),
-        Field(dev='T_vm5_sample', plot='Tmag',
+        Field(dev='T_wm5v_sample', plot='Tmag',
             plotwindow=12*3600, width=45, height=25),
         ),
     BlockRow(
-        Field(dev='vm5_lhe', plot='lhe',
+        Field(dev='wm5v_lhe', plot='lhe',
             plotwindow=12*3600, width=45, height=20),
         ),
     ],
-    setups='jvm1',
+    setups='wm5v',
 )
 
 
@@ -459,14 +459,14 @@ memograph = Block('Water Flow', [
 )
 
 column1 = Column(filters, primary, sample, analyzer) + \
-          Column(magnet75supp, magnet5supp, kelvinox)
+          Column(ccm55vsupp, wm5vsupp, kelvinox)
 
 column2 = Column(detector, bambus) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, miramagnet, magnet5, magnet75, magnet14t5, vti) + \
+          Column(lakeshore, miramagnet, wm5v, ccm55v, magnet14t5, vti) + \
           Column(foki, memograph)
 
 column3 = Column(*cryosupps) + Column(*ccrsupps) + \
-          Column(jvmplots) + \
+          Column(wm5vplots) + \
           Column(*cryoplots) + Column(*ccrplots) + \
           Column(lakeshoreplot)
 

@@ -342,34 +342,34 @@ magnet55supp = Block('Magnet', [
     setups='ccm55v',
 )
 
-# for setup magnet jcns jvm1
-magnet5 = Block('5T Magnet', [
+# for setup magnet jcns
+wm5v = Block('5T Magnet', [
     BlockRow(
-        Field(dev='I_vm5'),
-        Field(key='I_vm5/target', name='Target', fmtstr='%.2f'),
+        Field(dev='I_wm5v'),
+        Field(key='I_wm5v/target', name='Target', fmtstr='%.2f'),
     ),
     ],
-    setups='jvm1',
+    setups='wm5v',
 )
 
-magnet5supp = Block('Magnet', [
+wm5vsupp = Block('Magnet', [
     BlockRow(
-        Field(dev='T_vm5_sample', name='Ts'),
-        Field(dev='T_vm5_vti', name='T'),
-        Field(key='T_vm5_sample/setpoint', name='Setpoint', min=1, max=200),
+        Field(dev='T_wm5v_sample', name='Ts'),
+        Field(dev='T_wm5v_vti', name='T'),
+        Field(key='T_wm5v_sample/setpoint', name='Setpoint', min=1, max=200),
     ),
     BlockRow(
-        Field(dev='vm5_lhe', name='He level'),
-        Field(dev='T_vm5_magnet', name='T (coils)'),
-        Field(dev='vm5_nv_manual', name='NV'),
+        Field(dev='wm5v_lhe', name='He level'),
+        Field(dev='T_wm5v_magnet', name='T (coils)'),
+        Field(dev='wm5v_nv_manual', name='NV'),
     ),
     BlockRow(
-        Field(dev='vm5_piso', name='p(iso)'),
-        Field(dev='vm5_psample', name='p(sa.)', fontsize = 12),
-        Field(dev='vm5_pvti', name='p(vti)'),
+        Field(dev='wm5v_piso', name='p(iso)'),
+        Field(dev='wm5v_psample', name='p(sa.)', fontsize = 12),
+        Field(dev='wm5v_pvti', name='p(vti)'),
     ),
     ],
-    setups='jvm1',
+    setups='wm5v',
 )
 
 vti = Block('VTI', [
@@ -405,25 +405,25 @@ vtiplot = Block('Needle Valve', [
     setups='variox',
 )
 
-jvmplots = Block('JVM 5', [
+wm5vplots = Block('JVM 5', [
     BlockRow(
-        Field(dev='vm5_pvti', plot='p',
+        Field(dev='wm5v_pvti', plot='p',
             plotwindow=3600, width=30, height=20),
-        Field(dev='vm5_nv_manual', plot='p',
+        Field(dev='wm5v_nv_manual', plot='p',
             plotwindow=3600, width=30, height=20),
         ),
     BlockRow(
-        Field(dev='T_vm5_vti', plot='Tmag',
+        Field(dev='T_wm5v_vti', plot='Tmag',
             plotwindow=12*3600, width=30, height=20),
-        Field(dev='T_vm5_sample', plot='Tmag',
+        Field(dev='T_wm5v_sample', plot='Tmag',
             plotwindow=12*3600, width=30, height=20),
         ),
     BlockRow(
-        Field(dev='vm5_lhe', plot='lhe',
+        Field(dev='wm5v_lhe', plot='lhe',
             plotwindow=12*3600, width=30, height=20),
         ),
     ],
-    setups='jvm1',
+    setups='wm5v',
 )
 
 magnet14t5 = Block('14.5T Magnet', [
@@ -472,13 +472,13 @@ memograph = Block('Water Flow', [
 
 column1 = Column(filters, primary, sample, analyzer) + Column(magnet55)
 column2 = Column(collimation, detector, bambus) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, miramagnet, magnet5, magnet14t5, vti)
+          Column(lakeshore, miramagnet, wm5v, magnet14t5, vti)
 
-column3 = Column(magnet55supp, magnet5supp, kelvinox, foki, memograph, cam) + \
+column3 = Column(magnet55supp, wm5vsupp, kelvinox, foki, memograph, cam) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(*cryoplots) + Column(*ccrplots) + \
-          Column(jvmplots) + Column(vtiplot) + \
+          Column(wm5vplots) + Column(vtiplot) + \
           Column(lakeshoreplot)
 
 devices = dict(

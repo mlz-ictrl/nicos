@@ -60,7 +60,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         temp['environment'] = self._devpar('T', 'description')
         # TODO: replace by true mean once we keep track with the new data API
         temp['setpoint']['mean'] = self._devpar('T', 'setpoint')
-        temp['T1']['mean'] = self._readdev('T_jlc3_tube')
+        temp['T1']['mean'] = self._readdev('T_cct3_tube')
         temp['T2']['mean'] = self._readdev('Ts')
 
         orient = meas['sample']['orientation']
