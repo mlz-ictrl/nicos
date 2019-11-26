@@ -99,7 +99,7 @@ The :mod:`nicos.utils` contains a collection of general use utility functions:
 
 .. autofunction:: importString
 
-.. autofunction:: make_load_config
+.. autofunction:: make_configdata
 
 .. autofunction:: moveOutOfWay
 

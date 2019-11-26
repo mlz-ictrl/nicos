@@ -22,9 +22,7 @@
 #
 # *****************************************************************************
 
-"""
-Setup file handling.
-"""
+"""Setup file handling."""
 
 from __future__ import absolute_import, division, print_function
 
@@ -32,7 +30,7 @@ from os import path
 
 from nicos.core.params import nicosdev_re
 from nicos.pycompat import exec_, iteritems, listitems
-from nicos.utils import Device, make_load_config
+from nicos.utils import Device
 from nicos.utils.files import iterSetups
 
 SETUP_GROUPS = set([
@@ -151,7 +149,7 @@ def prepareNamespace(setupname, filepath, all_setups):
     # device() is a helper function to make configuration prettier
     ns = {
         'device': lambda cls, **params: Device((cls, params)),
-        'configdata': make_load_config(filepath, all_setups, cd_files),
+        'configdata': make_configdata(filepath, all_setups, cd_files),
         'setupname': setupname,
         '_configdata_files': cd_files,
     }
@@ -162,6 +160,31 @@ def prepareNamespace(setupname, filepath, all_setups):
         ns['Block'] = Block
         ns['Field'] = Field
     return ns
+
+
+def make_configdata(filepath, all_setups, cd_files):
+    """Create a configdata() function for use in setups."""
+    def configdata(name):
+        from nicos.core.errors import ConfigurationError
+        try:
+            setupname, element = name.split('.')
+        except ValueError:
+            raise ConfigurationError('configdata() argument must be in the '
+                                     'form \'module.valuename\'')
+        if setupname not in all_setups:
+            raise ConfigurationError('config setup "%s" not found' % setupname)
+        else:
+            fullname = all_setups[setupname]
+        ns = {}
+        with open(fullname) as fp:
+            exec_(fp.read(), ns)
+        cd_files.add(fullname)
+        try:
+            return ns[element]
+        except KeyError:
+            raise ConfigurationError('value named %s not found in config '
+                                     'setup "%s"' % (element, setupname))
+    return configdata
 
 
 def fixup_stacked_devices(logger, devdict):

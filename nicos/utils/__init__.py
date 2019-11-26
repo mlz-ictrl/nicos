@@ -1376,31 +1376,6 @@ def timedRetryOnExcept(max_retries=1, timeout=1, ex=None, actionOnFail=None):
     return outer
 
 
-def make_load_config(filepath, all_setups, cd_files):
-    """Create a load_config function for use in setups."""
-    def load_config(name):
-        from nicos.core.errors import ConfigurationError
-        try:
-            setupname, element = name.split('.')
-        except ValueError:
-            raise ConfigurationError('configdata() argument must be in the '
-                                     'form \'module.valuename\'')
-        if setupname not in all_setups:
-            raise ConfigurationError('config setup "%s" not found' % setupname)
-        else:
-            fullname = all_setups[setupname]
-        ns = {}
-        with open(fullname) as fp:
-            exec_(fp.read(), ns)
-        cd_files.add(fullname)
-        try:
-            return ns[element]
-        except KeyError:
-            raise ConfigurationError('value named %s not found in config '
-                                     'setup "%s"' % (element, setupname))
-    return load_config
-
-
 def tabulated(widths, iterable, maxwidth=20):
     """Return strings from iterable spaced as columns with given widths.
 
