@@ -34,7 +34,7 @@ from nicos.core.params import Attach, Param
 from nicos.devices.tango import NamedDigitalInput, NamedDigitalOutput
 
 
-class ShutterCluster( HasTimeout, NamedDigitalOutput):
+class ShutterCluster(HasTimeout, NamedDigitalOutput):
     '''
     Combines the state of different shutters to one overall state.
     Always displays closed if the instrument shutter is closed.
@@ -57,7 +57,7 @@ class ShutterCluster( HasTimeout, NamedDigitalOutput):
     parameters = {
         'statusmapping':
             Param('Mapping for the status',
-                   type=dict),
+                  type=dict),
         'attachedmapping':
             Param('Mapping for the upstream shutters',
                   type=dict),
@@ -67,8 +67,7 @@ class ShutterCluster( HasTimeout, NamedDigitalOutput):
         NamedDigitalOutput.doInit(self, mode)
 
         # just in case the statusmapping is reversed in the setup
-        self._statusmapping = dict((v, k)
-                                   for (k, v) in self.statusmapping.items())
+        self._statusmapping = {v: k for (k, v) in self.statusmapping.items()}
         self._statusmapping.update(self.statusmapping)
 
         # 'constant' for comparison if all the shutters are open

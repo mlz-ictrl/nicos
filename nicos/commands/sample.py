@@ -135,7 +135,7 @@ def ListSamples():
     for info in session.experiment.sample.samples.values():
         all_cols.update(info)
     all_cols.discard('name')
-    index = dict((key, i) for (i, key) in enumerate(sorted(all_cols), start=2))
+    index = {key: i for (i, key) in enumerate(sorted(all_cols), start=2)}
     index['name'] = 1
     for number, info in iteritems(session.experiment.sample.samples):
         rows.append([str(number), info['name']] + [''] * len(all_cols))
@@ -284,8 +284,8 @@ def activation(formula=None, instrument=None,
 
 
 def _extract_powder_data(num, dataset):
-    values = dict(('%s_%s' % dev_key, val)
-                  for (dev_key, (val, _, _, _)) in iteritems(dataset.metainfo))
+    values = {'%s_%s' % dev_key: val
+              for (dev_key, (val, _, _, _)) in iteritems(dataset.metainfo)}
     try:
         ki_name = session.instrument._attached_mono.name
         tt_name = session.instrument._attached_phi.name

@@ -45,9 +45,8 @@ except ImportError:
     readline = None
 
 
-
-BUILTIN_EXCEPTIONS = set(name for name in dir(builtins)
-                         if name.endswith(('Error', 'Warning')))
+BUILTIN_EXCEPTIONS = {name for name in dir(builtins)
+                      if name.endswith(('Error', 'Warning'))}
 
 EXECUTIONMODES = [MASTER, SLAVE, SIMULATION, MAINTENANCE]
 
@@ -111,28 +110,28 @@ class NicosCompleter(object):
     warrant inheriting from that class.
     """
 
-    attr_hidden = set(['attached_devices', 'parameters', 'hardware_access',
-                       'temporary', 'log', 'valuetype', 'mro'])
-    global_hidden = set(['basestring', 'buffer', 'bytearray', 'bytes',
-                         'callable', 'classmethod', 'coerce', 'cmp', 'compile',
-                         'delattr', 'eval', 'execfile', 'filter', 'frozenset',
-                         'getattr', 'globals', 'hasattr', 'hash', 'id',
-                         'input', 'intern', 'isinstance', 'issubclass', 'iter',
-                         'locals', 'long', 'map', 'memoryview', 'property',
-                         'raw_input', 'reduce', 'reload', 'setattr', 'slice',
-                         'staticmethod', 'super', 'unichr', 'unicode', 'type',
-                         'vars', 'xrange']) | BUILTIN_EXCEPTIONS
-    hidden_keyword = set(['assert', 'class', 'del', 'exec', 'yield'])
-    special_device = set(['move', 'drive', 'maw', 'switch', 'wait', 'read',
-                          'status', 'stop', 'reset', 'set', 'get', 'fix',
-                          'release', 'adjust', 'version', 'history', 'limits',
-                          'resetlimits', 'ListParams', 'ListMethods',
-                          'scan', 'cscan', 'contscan'])
-    special_readable = set(['read', 'status', 'reset', 'history'])
-    special_moveable = set(['move', 'drive', 'maw', 'switch', 'wait', 'stop',
-                            'fix', 'release', 'adjust', 'limits',
-                            'resetlimits', 'scan', 'cscan', 'contscan'])
-    special_setups = set(['NewSetup', 'AddSetup', 'RemoveSetup'])
+    attr_hidden = {'attached_devices', 'parameters', 'hardware_access',
+                   'temporary', 'log', 'valuetype', 'mro'}
+    global_hidden = {'basestring', 'buffer', 'bytearray', 'bytes',
+                     'callable', 'classmethod', 'coerce', 'cmp', 'compile',
+                     'delattr', 'eval', 'execfile', 'filter', 'frozenset',
+                     'getattr', 'globals', 'hasattr', 'hash', 'id',
+                     'input', 'intern', 'isinstance', 'issubclass', 'iter',
+                     'locals', 'long', 'map', 'memoryview', 'property',
+                     'raw_input', 'reduce', 'reload', 'setattr', 'slice',
+                     'staticmethod', 'super', 'unichr', 'unicode', 'type',
+                     'vars', 'xrange'} | BUILTIN_EXCEPTIONS
+    hidden_keyword = {'assert', 'class', 'del', 'exec', 'yield'}
+    special_device = {'move', 'drive', 'maw', 'switch', 'wait', 'read',
+                      'status', 'stop', 'reset', 'set', 'get', 'fix',
+                      'release', 'adjust', 'version', 'history', 'limits',
+                      'resetlimits', 'ListParams', 'ListMethods',
+                      'scan', 'cscan', 'contscan'}
+    special_readable = {'read', 'status', 'reset', 'history'}
+    special_moveable = {'move', 'drive', 'maw', 'switch', 'wait', 'stop',
+                        'fix', 'release', 'adjust', 'limits',
+                        'resetlimits', 'scan', 'cscan', 'contscan'}
+    special_setups = {'NewSetup', 'AddSetup', 'RemoveSetup'}
 
     def __init__(self, namespace):
         self.namespace = namespace
@@ -327,8 +326,8 @@ def guessCorrectCommand(source, attribute=False):
             return
 
         # compile a list of existing commands
-        allowed_keys = set([x for x in session._exported_names
-                            if hasattr(session.namespace[x], 'is_usercommand')])
+        allowed_keys = {x for x in session._exported_names
+                        if hasattr(session.namespace[x], 'is_usercommand')}
         allowed_keys.update(__builtins__)
         allowed_keys -= NicosCompleter.global_hidden
         allowed_keys.update(session.namespace)

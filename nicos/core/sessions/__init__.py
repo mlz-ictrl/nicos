@@ -228,7 +228,7 @@ class Session(object):
                 cache.put(self, 'custompath', config.setup_package_path)
                 cache.put(self, 'nicosversion', nicos_version)
                 cache.put(self, 'customversion', get_custom_version())
-                if set(self.explicit_setups) - set(['system', 'startup']):
+                if set(self.explicit_setups) - {'system', 'startup'}:
                     cache.put(self, 'mastersetup', list(self.loaded_setups))
                     cache.put(self, 'mastersetupexplicit',
                               list(self.explicit_setups))
@@ -307,7 +307,7 @@ class Session(object):
                 dev.alias = db[aliaskey]
         # cache keys are always lowercase, while device names can be mixed,
         # so we build a map once to get fast lookup
-        lowerdevs = dict((d.name.lower(), d) for d in itervalues(self.devices))
+        lowerdevs = {d.name.lower(): d for d in itervalues(self.devices)}
         umethods_to_call = []
         for key, value in iteritems(db):
             if key.count('/') != 1:

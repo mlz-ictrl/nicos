@@ -73,7 +73,7 @@ class SpsSwitch(EpicsDeviceEss, MappedMoveable):
     }
 
     def _get_pv_parameters(self):
-        return set(['readpv', 'commandpv'])
+        return {'readpv', 'commandpv'}
 
     def doStatus(self, maxage=0):
         epics_status = EpicsDeviceEss.doStatus(self, maxage)

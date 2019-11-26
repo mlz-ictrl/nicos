@@ -57,7 +57,7 @@ class VirtualTasDetector(Measurable):
         self._pause_time = 0
 
     def presetInfo(self):
-        return set(['info', 't', 'mon'])
+        return {'info', 't', 'mon'}
 
     def valueInfo(self):
         return Value('t', unit='s', type='time', fmtstr='%.3f'), \

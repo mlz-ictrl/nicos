@@ -140,8 +140,8 @@ class DSPec(PyTangoDevice, Measurable):
         pass
 
     def presetInfo(self):
-        return set(['info', 'Filename',
-                    'TrueTime', 'LiveTime', 'ClockTime', 'counts'])
+        return {'info', 'Filename',
+                'TrueTime', 'LiveTime', 'ClockTime', 'counts'}
 
     def doSetPreset(self, **preset):
         self._clear()

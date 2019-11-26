@@ -784,8 +784,8 @@ class DictOfWidget(ItemsWidget):
         return (keywidget, QLabel('=>', self), valwidget)
 
     def getValue(self):
-        return dict((w._widgets[0].getValue(),
-                     w._widgets[2].getValue()) for w in self.items)
+        return {w._widgets[0].getValue(): w._widgets[2].getValue()
+                for w in self.items}
 
 
 class TableWidget(QTableWidget):

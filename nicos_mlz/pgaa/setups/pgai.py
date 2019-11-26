@@ -19,15 +19,15 @@ includes = [
 
 devices = dict(
     mcasink = device('nicos_mlz.pgaa.devices.MCASink',
-        settypes = set(['point']),
+        settypes = {'point'},
         detectors = ['_60p', 'LEGe'],
     ),
     chnsink = device('nicos_mlz.pgaa.devices.CHNSink',
-        settypes = set(['point']),
+        settypes = {'point'},
         detectors = ['_60p', 'LEGe'],
     ),
     csvsink = device('nicos_mlz.pgaa.devices.CSVDataSink',
-        settypes = set(['point']),
+        settypes = {'point'},
     ),
 )
 

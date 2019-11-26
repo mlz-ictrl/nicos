@@ -88,10 +88,10 @@ DAEMON_COMMANDS = {
     'rearrange':      0x66,
 }
 
-ACTIVE_COMMANDS = set((
+ACTIVE_COMMANDS = {
     'start', 'queue', 'unqueue', 'rearrange', 'update',
     'break', 'continue', 'stop', 'finish', 'exec',  # 'emergency' is allowed
-))
+}
 
 # daemon event specification
 

@@ -198,7 +198,7 @@ class DataHandler(QObject):
         dataset.datanorm = {}
         xnameunits = [name_unit(name, unit) for name, unit
                       in zip(dataset.xnames, dataset.xunits)]
-        dataset.datax = dict((key, []) for key in xnameunits)
+        dataset.datax = {key: [] for key in xnameunits}
         for i, (name, info) in enumerate(zip(dataset.xnames, dataset.xvalueinfo)):
             if info.type != 'other':
                 continue

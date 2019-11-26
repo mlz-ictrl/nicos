@@ -297,7 +297,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
 
     parameter_overrides = {
         'precision': Override(type=floatrange(0, 100)),
-        'masks': Override(type=dictwith(**dict((name, float) for name in MODES)),
+        'masks': Override(type=dictwith(**{name: float for name in MODES}),
                           unit='', mandatory=True),
     }
 

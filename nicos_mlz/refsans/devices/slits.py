@@ -65,8 +65,7 @@ class SingleSlit(PseudoNOK, HasOffset, Moveable):
     }
 
     parameter_overrides = {
-        'masks': Override(type=dictwith(**dict((name, float)
-                                               for name in MODES)),
+        'masks': Override(type=dictwith(**{name: float for name in MODES}),
                           unit='', mandatory=True),
     }
 

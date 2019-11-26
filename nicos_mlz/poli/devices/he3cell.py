@@ -84,13 +84,13 @@ class HePolSink(DataSink):
     }
 
     parameters = {
-        'monitors':     Param('Names of the two monitor devices to calculate '
-                              'the transmission ratio', type=tupleof(str, str),
-                              mandatory=True),
+        'monitors': Param('Names of the two monitor devices to calculate '
+                          'the transmission ratio', type=tupleof(str, str),
+                          mandatory=True),
     }
 
     parameter_overrides = {
-        'settypes':     Override(default=set((SCAN, SUBSCAN)))
+        'settypes': Override(default={SCAN, SUBSCAN})
     }
 
     handlerclass = HePolSinkHandler

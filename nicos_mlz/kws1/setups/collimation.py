@@ -13,10 +13,8 @@ tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 devices = dict(
     collimation = device('nicos_mlz.kws1.devices.collimation.Collimation',
         description = 'high-level collimation device',
-        mapping = dict(
-            (k, (v['guides'], v['ap_x'], v['ap_y']))
-            for (k, v) in presets.items()
-        ),
+        mapping = {k: (v['guides'], v['ap_x'], v['ap_y'])
+                   for (k, v) in presets.items()},
         guides = 'coll_guides',
         slitpos = [2, 4, 8, 14, 20],
         slits = [

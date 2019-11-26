@@ -268,8 +268,7 @@ class HistogramConfBank(HistogramConfElement):
         bank.
         """
         # Collect all the arrays that occur in axis
-        return set([ax._attached_array for ax in self.axes
-                    if ax._attached_array])
+        return {ax._attached_array for ax in self.axes if ax._attached_array}
 
     @property
     def axes(self):

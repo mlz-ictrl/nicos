@@ -36,7 +36,7 @@ from nicos.guisupport.qt import QLabel, QPixmap, QSize, Qt, QWidget
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.pycompat import string_types
 
-ledColors = set(["blue", "green", "red", "yellow", "orange", "gray"])
+ledColors = {"blue", "green", "red", "yellow", "orange", "gray"}
 
 
 class BaseLed(QLabel, NicosWidget):

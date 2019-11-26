@@ -386,8 +386,8 @@ class MainWindow(DlgUtils, QMainWindow):
 
     def saveSettings(self, settings):
         settings.setValue('autoconnect', self.client.isconnected)
-        settings.setValue('connpresets_new', dict((k, v.serialize()) for (k, v)
-                                                  in self.connpresets.items()))
+        settings.setValue('connpresets_new', {k: v.serialize() for (k, v)
+                                              in self.connpresets.items()})
         settings.setValue('lastpreset', self.lastpreset)
         settings.setValue('font', self.user_font)
         settings.setValue('color', self.user_color)

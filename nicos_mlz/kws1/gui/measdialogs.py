@@ -404,7 +404,7 @@ class DevicesWidget(QWidget):
     def getDef(self):
         if self._edit:
             self._stopEdit()
-        return [dict((dev, element) for (dev, element) in zip(self.devs, row))
+        return [{dev: element for (dev, element) in zip(self.devs, row)}
                 for row in self._rows]
 
     def addRow(self, elements=None):
@@ -492,7 +492,7 @@ class DevicesWidget(QWidget):
 
 # Devices that should not appear in the list of additional devices to move,
 # because they are already covered by the detector/collimation/... dialog.
-DEV_BLACKLIST = set((
+DEV_BLACKLIST = {
     'ap_sam',
     'attenuator',
     'beamstop',
@@ -551,7 +551,7 @@ DEV_BLACKLIST = set((
     'sel_speed',
     'shutter',
     'sixfold_shutter',
-))
+}
 
 
 class DevicesDialog(QDialog):

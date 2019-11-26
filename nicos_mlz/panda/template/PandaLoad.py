@@ -465,7 +465,7 @@ def NicosLoad(prefix, filenum=-1, **kwargs):
         if vu.find(' ') == -1:
             return pythify(vu), ''   # no space -> one value, no unit
         #~ if sum(map(lambda x: 1 if x.isspace() else 0, vu)) == 1: # exactly 1 space -> easy
-        if sum((1 if x.isspace() else 0 for x in vu)) == 1: # exactly 1 space -> easy
+        if sum(1 if x.isspace() else 0 for x in vu) == 1: # exactly 1 space -> easy
             v, u = vu.split(' ')
             if u in valid_units:
                 return pythify(v), u

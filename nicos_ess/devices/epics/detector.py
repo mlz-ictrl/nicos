@@ -67,7 +67,7 @@ class EpicsActiveChannel(EpicsReadableEss, ActiveChannel):
 
     def _get_pv_parameters(self):
         readable_params = EpicsReadableEss._get_pv_parameters(self)
-        return readable_params | set(['presetpv'])
+        return readable_params | {'presetpv'}
 
     def doReadPreselection(self):
         return self._get_pv('presetpv')
@@ -127,7 +127,7 @@ class EpicsDetector(EpicsDeviceEss, Detector):
         Detector.doPreinit(self, mode)
 
     def _get_pv_parameters(self):
-        pvs = set(['startpv'])
+        pvs = {'startpv'}
 
         if self.pausepv:
             pvs.add('pausepv')

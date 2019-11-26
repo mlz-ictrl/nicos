@@ -216,7 +216,7 @@ class RateChannel(PostprocessPassiveChannel):
                     cts = arr.sum()
                     result.append(cts)
                     result.append((cts - self._cts_seconds[i]) / (
-                                            seconds - self._cts_seconds[-1]))
+                        seconds - self._cts_seconds[-1]))
                     self._cts_seconds[i] = cts
             self._cts_seconds[-1] = seconds
             return result
@@ -626,10 +626,10 @@ class Detector(Measurable):
                          for v in self.valueInfo())
 
     def presetInfo(self):
-        return set(['info']) | set(self._presetkeys)
+        return {'info'} | set(self._presetkeys)
 
     def doEstimateTime(self, elapsed):
-        eta = set(master.estimateTime(elapsed) for master in self._masters)
+        eta = {master.estimateTime(elapsed) for master in self._masters}
         eta.discard(None)
         if eta:
             # first master stops, so take min
@@ -681,8 +681,8 @@ class DetectorForecast(Readable):
 
     def doRead(self, maxage=0):
         # read all values of all counters and store them by device
-        counter_values = dict((ch, ch.read(maxage)[0])
-                              for ch in self._attached_det._channels)
+        counter_values = {ch: ch.read(maxage)[0]
+                          for ch in self._attached_det._channels}
         # go through the master channels and determine the one
         # closest to the preselection
         fraction_complete = 0

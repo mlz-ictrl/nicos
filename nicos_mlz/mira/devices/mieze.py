@@ -131,7 +131,7 @@ class MiezeMaster(Moveable):
         for setting in self.curtable:
             all_values.update(key for key in setting if not key.startswith('_'))
         all_values = sorted(all_values)
-        valueidx = dict((val, idx) for idx, val in enumerate(all_values))
+        valueidx = {val: idx for idx, val in enumerate(all_values)}
         for idx, setting in enumerate(self.curtable):
             values = ['---'] * len(all_values)
             for devname, devvalue in setting.items():

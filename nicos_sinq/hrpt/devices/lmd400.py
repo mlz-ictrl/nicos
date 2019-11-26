@@ -50,7 +50,7 @@ class LMD400(EpicsDevice, Device):
                         default=[0, 0, 0, 0, 0, 0, 0, 0, 0, ], userparam=True,
                         settable=False)}
 
-    pv_parameters = set(('alarm', 'values'))
+    pv_parameters = {'alarm', 'values'}
 
     def _get_pv_name(self, pvparam):
         prefix = getattr(self, 'basepv')

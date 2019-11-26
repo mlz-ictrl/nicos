@@ -141,5 +141,5 @@ class DSPec(GatedDetector):
         GatedDetector.doSetPreset(self, **preset)
 
     def presetInfo(self):
-        return set(['info', 'Filename',
-                    'TrueTime', 'LiveTime', 'ClockTime', 'counts'])
+        return {'info', 'Filename',
+                'TrueTime', 'LiveTime', 'ClockTime', 'counts'}

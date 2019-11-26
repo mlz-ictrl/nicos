@@ -284,7 +284,7 @@ class Detector(MeasureSequencer):
         return self._arraydesc,
 
     def presetInfo(self):
-        return set(['resosteps']) | self._attached_detector.presetInfo()
+        return {'resosteps'} | self._attached_detector.presetInfo()
 
     def duringMeasureHook(self, elapsed):
         if self.liveinterval is not None:

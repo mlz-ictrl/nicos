@@ -1218,8 +1218,8 @@ class StandaloneHistoryApp(CacheClient):
     def getDeviceParams(self, devname):
         ldevname = devname.lower()
         index = len(ldevname) + 1
-        return dict((key[index:], value) for (key, value) in self.query_db('')
-                    if key.startswith(ldevname + '/'))
+        return {key[index:]: value for (key, value) in self.query_db('')
+                if key.startswith(ldevname + '/')}
 
     def getDeviceParamInfo(self, _):
         return {}  # we can't deliver this info from the cache alone

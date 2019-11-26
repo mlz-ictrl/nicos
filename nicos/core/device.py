@@ -52,7 +52,7 @@ from nicos.pycompat import add_metaclass, integer_types, iteritems, \
     listitems, number_types, reraise, string_types
 from nicos.utils import getVersions, loggers, parseDateString
 
-ALLOWED_CATEGORIES = set(v[0] for v in INFO_CATEGORIES)
+ALLOWED_CATEGORIES = {v[0] for v in INFO_CATEGORIES}
 
 
 def requires(**access):
@@ -309,7 +309,7 @@ class Device(object):
                              default='info', settable=True, preinit=True),
     }
 
-    _ownparams = set(['name'])
+    _ownparams = {'name'}
 
     # A dictionary mapping parameter names to Override objects that override
     # specific properties of parameters found in base classes.
@@ -345,8 +345,7 @@ class Device(object):
 
         self._name = name
         # _config: device configuration (all parameter names lower-case)
-        self._config = dict((name.lower(), value)
-                            for (name, value) in config.items())
+        self._config = {name.lower(): value for (name, value) in config.items()}
         # _params: parameter values from config
         self._params = {'name': name}
         # _infoparams: cached list of parameters to get on info()
@@ -375,10 +374,10 @@ class Device(object):
                                  exc=1)
             reraise(t, v, tb)
 
-    attribute_whitelist = set((
+    attribute_whitelist = {
         'valuetype',  # for all devices
         'arraydesc',  # for image producers
-    ))
+    }
 
     def __setattr__(self, name, value):
         # disallow modification of any public attributes that are not
@@ -1700,7 +1699,7 @@ class Moveable(Waitable):
         if hasattr(self, 'doIsAtTarget'):
             return self.doIsAtTarget(pos)
         elif (isinstance(pos, (string_types, integer_types)) and
-                      self.target is not None):
+              self.target is not None):
             return self.target == pos
         return True
 
@@ -2208,7 +2207,7 @@ class DeviceAlias(Device):
     }
 
     _ownattrs = ['_obj', '_mode', '_cache', 'alias']
-    _ownparams = set(['alias', 'name', 'devclass', 'lowlevel'])
+    _ownparams = {'alias', 'name', 'devclass', 'lowlevel'}
     _initialized = False
 
     __display__ = True
@@ -2414,6 +2413,7 @@ def make_method(name):
     def method(self, *args, **kw):
         return getattr(self._obj, name)(*args, **kw)
     return method
+
 
 for name in [
         '__abs__', '__add__', '__and__', '__call__', '__cmp__', '__coerce__',

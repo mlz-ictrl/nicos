@@ -38,5 +38,4 @@ ERROR = 240
 UNKNOWN = 999
 
 # dictionary mapping all status constants to their names
-statuses = dict((v, k.lower()) for (k, v) in globals().items()
-                if isinstance(v, int))
+statuses = {v: k.lower() for (k, v) in globals().items() if isinstance(v, int)}

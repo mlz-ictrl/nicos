@@ -78,7 +78,7 @@ class AsymDetector(MeasureSequencer):
 
         pinfo = set(self._attached_detector.presetInfo())
         self._presetinfo = pinfo | \
-            set(p + '_up' for p in pinfo) | set(p + '_dn' for p in pinfo)
+            {p + '_up' for p in pinfo} | {p + '_dn' for p in pinfo}
 
         self._results = [0.0, 0.0, 0.0] + self._attached_detector.read() + \
             self._attached_detector.read()

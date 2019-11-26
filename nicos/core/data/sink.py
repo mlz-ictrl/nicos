@@ -291,7 +291,7 @@ class DataSink(Device):
         if self.settypes and dataset.settype not in self.settypes:
             return False
         if self.detectors and \
-           not (set(d.name for d in dataset.detectors) & set(self.detectors)):
+           not ({d.name for d in dataset.detectors} & set(self.detectors)):
             return False
         return True
 
@@ -306,7 +306,7 @@ class DataSink(Device):
                                       'on %s' % self.__class__)
         # pylint: disable=not-callable
         if dataset.settype == POINT:
-            dets = set(d.name for d in dataset.detectors)
+            dets = {d.name for d in dataset.detectors}
             if self.detectors:
                 dets &= set(self.detectors)
             return [self.handlerclass(self, dataset, session.getDevice(det))

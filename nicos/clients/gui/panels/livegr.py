@@ -257,7 +257,7 @@ class LiveDataPanel(Panel):
 
     def _get_all_widgets(self):
         yield self.widget
-        for w in  itervalues(self._livewidgets):
+        for w in itervalues(self._livewidgets):
             yield w
 
     def getToolbars(self):
@@ -587,8 +587,8 @@ class LiveDataPanel(Panel):
     @pyqtSlot()
     def on_actionOpen_triggered(self):
         """Open image file using registered reader classes."""
-        ftypes = dict((ffilter, ftype)
-                      for ftype, ffilter in ReaderRegistry.filefilters())
+        ftypes = {ffilter: ftype
+                  for ftype, ffilter in ReaderRegistry.filefilters()}
         fdialog = FileFilterDialog(self, "Open data files", "",
                                    ";;".join(ftypes.keys()))
         if self._fileopen_filter:

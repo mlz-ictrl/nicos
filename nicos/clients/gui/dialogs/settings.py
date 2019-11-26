@@ -73,8 +73,8 @@ class SettingsDialog(DlgUtils, QDialog):
         self.main.allowoutputlinewrap = self.allowOutputLineWrap.isChecked()
         with self.sgroup as settings:
             settings.setValue(
-                'connpresets_new', dict((k, v.serialize()) for (k, v)
-                                        in self.connpresets.items()))
+                'connpresets_new', {k: v.serialize() for (k, v)
+                                    in self.connpresets.items()})
             settings.setValue('instrument', self.main.instrument)
             settings.setValue('confirmexit', self.main.confirmexit)
             settings.setValue('warnwhenadmin', self.main.warnwhenadmin)

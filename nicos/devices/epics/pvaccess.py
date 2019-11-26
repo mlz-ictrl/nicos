@@ -328,7 +328,7 @@ class EpicsReadable(EpicsDevice, Readable):
                         type=pvname, mandatory=True, preinit=True),
     }
 
-    pv_parameters = set(('readpv',))
+    pv_parameters = {'readpv'}
 
     pv_cache_relations = {
         'readpv': 'value',
@@ -383,7 +383,7 @@ class EpicsMoveable(EpicsDevice, Moveable):
         'target': Override(volatile=True),
     }
 
-    pv_parameters = set(('readpv', 'writepv'))
+    pv_parameters = {'readpv', 'writepv'}
 
     pv_cache_relations = {
         'readpv': 'value',
@@ -397,7 +397,7 @@ class EpicsMoveable(EpicsDevice, Moveable):
         the mandatory pv_parameters.
         """
         if self.targetpv:
-            return self.pv_parameters | set(('targetpv',))
+            return self.pv_parameters | {'targetpv'}
 
         return self.pv_parameters
 

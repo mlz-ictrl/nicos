@@ -623,7 +623,7 @@ class dictwith(object):
 
     def __call__(self, val=None):
         if val is None:
-            return dict((k, conv()) for k, conv in iteritems(self.convs))
+            return {k: conv() for k, conv in iteritems(self.convs)}
         if not isinstance(val, dict):
             raise ValueError('value needs to be a dict')
         vkeys = set(val)

@@ -69,7 +69,7 @@ class SkewMotor(Motor):
         m1, m2 = self._read_motors()
         self.log.debug('%.3f, %.3f, %.3f, %.3f', m1, m2, (m1 + self.skew / 2.),
                        (m2 - self.skew / 2.))
-        return abs((m1 - m2 + self.skew)) <= self.precision
+        return abs(m1 - m2 + self.skew) <= self.precision
 
     def doStart(self, target):
         self._attached_motor_1.move(target - self.skew / 2.)

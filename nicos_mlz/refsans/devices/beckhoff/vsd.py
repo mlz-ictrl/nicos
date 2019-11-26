@@ -289,7 +289,7 @@ class DigitalValue(Readable):
     }
 
     def doInit(self, mode):
-        self._revmapping = dict(((v, k) for k, v in self.mapping.items()))
+        self._revmapping = {v: k for k, v in self.mapping.items()}
 
     def doRead(self, maxage=0):
         ofs, bit = self._attached_iodev._HW_DigitalChannels[self.channel]

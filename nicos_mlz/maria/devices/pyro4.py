@@ -103,7 +103,7 @@ class NamedDigitalOutput(DigitalOutput):
     }
 
     def doInit(self, mode):
-        self._reverse = dict((v, k) for (k, v) in self.mapping.items())
+        self._reverse = {v: k for (k, v) in self.mapping.items()}
         # oneofdict: allows both types of values (string/int), but normalizes
         # them into the string form
         self.valuetype = oneofdict(self._reverse)

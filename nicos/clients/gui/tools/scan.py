@@ -54,6 +54,7 @@ def fmt_time(seconds):
     else:
         return '%d h %d min' % (seconds // 3600, (seconds % 3600) // 60)
 
+
 class ScanTool(QDialog):
     addCode = pyqtSignal(str)
 
@@ -289,7 +290,7 @@ class ScanTool(QDialog):
                 ('t', self.timeInput, tofloat),
                 ('m', self.monitorInput, toint),
             ]
-            d = dict((name, func(ctl.text())) for (name, ctl, func) in params)
+            d = {name: func(ctl.text()) for (name, ctl, func) in params}
 
             if self.qscanSingle.isChecked():
                 cmdname = 'qscan'

@@ -33,9 +33,9 @@ from nicos.pycompat import exec_, iteritems, listitems
 from nicos.utils import Device
 from nicos.utils.files import iterSetups
 
-SETUP_GROUPS = set([
+SETUP_GROUPS = {
     'basic', 'optional', 'plugplay', 'lowlevel', 'special', 'configdata'
-])
+}
 
 
 class MonitorElement(object):

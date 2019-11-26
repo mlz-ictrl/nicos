@@ -146,7 +146,7 @@ def centerpeak(*args, **kwargs):
     stepsizes = {}
     preset = {}
     fit = 'center_of_mass'
-    allowed_fit = set(['center_of_mass', 'gauss'])
+    allowed_fit = {'center_of_mass', 'gauss'}
     continuous = False
     convergence = 0.5
     for devname in args:
@@ -192,7 +192,7 @@ def centerpeak(*args, **kwargs):
             nsteps[dev] = defsteps
 
     # main loop
-    lastround = dict((dev, dev.read()) for dev in devices)
+    lastround = {dev: dev.read() for dev in devices}
     for i in range(nrounds):
         session.log.info('Round %d of %d', i + 1, nrounds)
         session.log.info('*' * 100)

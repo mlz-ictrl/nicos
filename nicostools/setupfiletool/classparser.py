@@ -92,7 +92,7 @@ def getDeviceClasses(instrumentPrefix):
         for _class in classesOfModule:
             if issubclass(_class[1], _Class_device) and\
                     _class[1] not in classes:
-                classes.append((_class[1]))
+                classes.append(_class[1])
 
     classes = [_class for _class in sorted(classes)
                if str(_class)[14:-2] not in excluded_device_classes]
