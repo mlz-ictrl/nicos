@@ -36,7 +36,7 @@ from six import PY2, BytesIO, StringIO, add_metaclass, binary_type, exec_, \
 # ignore the Pylint errors only once.
 # pylint: disable=import-error, redefined-builtin
 from six.moves import builtins, configparser, cPickle, input, queue, reduce, \
-    socketserver, urllib, xrange, zip_longest
+    socketserver, urllib, xrange, zip, zip_longest
 
 # functionality in addition to what "six" provides
 

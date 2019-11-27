@@ -43,7 +43,7 @@ from nicos.core.status import BUSY, OK
 from nicos.devices.abstract import CanReference, MappedMoveable
 from nicos.pycompat import builtins, iteritems, itervalues, number_types, \
     string_types
-from nicos.utils import createThread, parseDateString, printTable
+from nicos.utils import createThread, parseDateString, printTable, tupelize
 from nicos.utils.timer import Timer
 
 __all__ = [
@@ -56,17 +56,12 @@ __all__ = [
 
 
 def _devposlist(dev_pos_list, cls):
-    devlist = []
-    poslist = []
     if not dev_pos_list:
         raise UsageError('at least one device and position must be given')
     if len(dev_pos_list) % 2 != 0:
         raise UsageError('a position must be given for every device')
-    for i in range(len(dev_pos_list)):
-        if i % 2 == 0:
-            devlist.append(session.getDevice(dev_pos_list[i], cls))
-            poslist.append(dev_pos_list[i+1])
-    return zip(devlist, poslist)
+    return [(session.getDevice(dev, cls), pos) for (dev, pos) in
+            tupelize(dev_pos_list)]
 
 
 def _basemove(dev_pos_list, waithook=None, poshook=None):

@@ -42,7 +42,7 @@ from nicos.utils import Repeater, bitDescription, checkSetupSpec, chunks, \
     formatExtendedFrame, formatExtendedStack, formatExtendedTraceback, \
     lazy_property, moveOutOfWay, num_sort, parseConnectionString, \
     parseDuration, readonlydict, readonlylist, safeWriteFile, squeeze, \
-    tcpSocket, timedRetryOnExcept
+    tcpSocket, timedRetryOnExcept, tupelize
 from nicos.utils.timer import Timer
 
 from test.utils import raises
@@ -459,3 +459,11 @@ def test_safeWriteFile(tmpdir, maxbackup, content):
         assert len(open(fn1).readlines()) == len(content)
     else:
         assert len(open(fn1).read()) == len(content)
+
+
+def test_tupelize():
+    ilist = ['a', 1, 'b', 2, 'c', 3]
+    assert list(tupelize(ilist)) == [('a', 1), ('b', 2), ('c', 3)]
+    assert list(tupelize(ilist[:3])) == [('a', 1)]
+    assert list(tupelize(ilist, 3)) == [('a', 1, 'b'), (2, 'c', 3)]
+    assert list(tupelize(ilist[:4], 3)) == [('a', 1, 'b')]

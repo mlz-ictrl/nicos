@@ -55,7 +55,7 @@ from time import localtime, mktime, sleep, strftime, strptime, \
 from nicos import config, get_custom_version, nicos_version
 # pylint: disable=redefined-builtin
 from nicos.pycompat import PY2, iteritems, string_types, text_type, \
-    xrange as range
+    xrange as range, zip
 
 try:
     import pwd
@@ -1680,3 +1680,14 @@ def getNumArgs(obj):
     return sum(1 for p in sig.parameters.values()
                if p.kind == inspect.Parameter.POSITIONAL_ONLY or
                p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD)
+
+
+def tupelize(iterable, n=2):
+    """Convert an iterable into a pairwise tuple iterable.
+
+    s -> (s0,s1), (s2,s3), (s4, s5), ...  for n=2
+    s -> (s0, s1, s2), (s2, s3, s4), ...  for n=3
+
+    Leftover elements at the end are ignored.
+    """
+    return zip(*(iter(iterable),) * n)
