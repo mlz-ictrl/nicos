@@ -89,9 +89,11 @@ Device commands
 .. autofunction:: status
 
 .. autofunction:: move
+.. autofunction:: rmove
 .. autofunction:: wait
 .. autofunction:: waitfor
 .. autofunction:: maw
+.. autofunction:: rmaw
 .. autofunction:: stop
 .. autofunction:: reset
 .. autofunction:: info

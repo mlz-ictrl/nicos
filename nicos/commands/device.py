@@ -40,7 +40,7 @@ from nicos.core import INFO_CATEGORIES, SIMULATION, AccessError, CanDisable, \
 from nicos.core.spm import AnyDev, Bare, Dev, DevParam, Multi, String, \
     spmsyntax
 from nicos.core.status import BUSY, OK
-from nicos.devices.abstract import CanReference
+from nicos.devices.abstract import CanReference, MappedMoveable
 from nicos.pycompat import builtins, iteritems, itervalues, number_types, \
     string_types
 from nicos.utils import createThread, parseDateString, printTable
@@ -69,15 +69,18 @@ def _devposlist(dev_pos_list, cls):
     return zip(devlist, poslist)
 
 
-def _basemove(dev_pos_list, waithook=None):
+def _basemove(dev_pos_list, waithook=None, poshook=None):
     """Core move function.
 
     Options:
 
     *waithook*: a waiting function that gets the list of started devices
+    *poshook*: gets device and requested pos, returns modified position
     """
     devs = []
     for dev, pos in _devposlist(dev_pos_list, Moveable):
+        if poshook:
+            pos = poshook(dev, pos)
         dev.log.info('moving to %s', dev.format(pos, unit=True))
         dev.move(pos)
         devs.append(dev)
@@ -90,6 +93,27 @@ def _wait_hook(devs):
     values = multiWait(devs)
     for dev in devs:
         dev.log.info('at %20s %s', dev.format(values[dev]), dev.unit)
+
+
+def _rmove_poshook(dev, delta):
+    """Pos hook for relative motions"""
+    if dev.doStatus(0)[0] == BUSY:
+        raise UsageError('Device %r is busy' % dev)
+    if isinstance(dev, MappedMoveable):
+        raise UsageError('Relative motion on mapped device %s is undefined' %
+                         dev)
+    curpos = dev.read(0)
+    # if the target is reached (within precision), use it as the base for
+    # the relative movement to avoid accumulating small errors
+    curpos = dev.target if dev.isAtTarget(curpos) else curpos
+    if isinstance(curpos, string_types):
+        raise UsageError('Device %s cannot be used with relative movement' %
+                         dev)
+    try:
+        return curpos + delta
+    except Exception:
+        raise UsageError('Device %s cannot be used with relative movement or '
+                         'wrong delta type %r' % (dev, delta))
 
 
 @usercommand
@@ -129,6 +153,28 @@ def move(*dev_pos_list):
     _basemove(dev_pos_list)
 
 
+@usercommand
+@helparglist('dev, pos, ...')
+@spmsyntax(Multi(Dev(Moveable), Bare))
+def rmove(*dev_pos_list):
+    """Move one or more devices by a relative amount.
+
+    The new target position is calculated from the device's current target
+    position (if known and reached), or the current actual position.
+
+    This command will return immediately without waiting for the movement to
+    finish.  For "rmove and wait", see `rmaw()`.
+
+    Examples:
+
+    >>> rmove(dev1, 10)    # start dev1 moving 10 units in the `+` direction
+    >>> rmove(dev1, 10, dev2, -3)    # start both dev1 and dev2
+
+    For further help see also `move()`.
+    """
+    _basemove(dev_pos_list, poshook=_rmove_poshook)
+
+
 @hiddenusercommand
 @helparglist('dev, pos, ...')
 @spmsyntax(Multi(Dev(Moveable), Bare))
@@ -144,7 +190,7 @@ def drive(*dev_pos_list):
 def maw(*dev_pos_list):
     """Move one or more devices to a new position and wait for them.
 
-    The command is a combination of the `move()` and `wait()` command.  After
+    The command is a combination of the `move()` and `wait()` commands.  After
     starting the movement of the device(s) the command waits until motion of
     the device(s) is completed.
 
@@ -168,6 +214,32 @@ def maw(*dev_pos_list):
         movement.
     """
     _basemove(dev_pos_list, waithook=_wait_hook)
+
+
+@usercommand
+@helparglist('dev, delta, ...')
+@spmsyntax(Multi(Dev(Moveable), Bare))
+def rmaw(*dev_pos_list):
+    """Move one or more devices by relative amounts and wait for them.
+
+    The command is a combination of the `rmove()` and `wait()` commands.  After
+    starting the movement of the device(s) the command waits until motion of
+    the device(s) is completed. Example:
+
+    >>> rmaw(dev1, 10)  # move dev1 10 units in the `+` direction and wait
+
+    This is the shorter version of the following commands:
+
+    >>> rmove(dev1, 10)
+    >>> wait(dev1)
+
+    The command can also be used with multiple devices.  Examples:
+
+    >>> rmaw(dev1, 10, dev2, -3)    # move two devices in parallel and wait
+
+    For further help see also `maw()`.
+    """
+    _basemove(dev_pos_list, poshook=_rmove_poshook, waithook=_wait_hook)
 
 
 @hiddenusercommand

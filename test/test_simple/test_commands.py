@@ -44,8 +44,8 @@ from nicos.commands.basic import AddSetup, AddUser, ClearCache, \
 from nicos.commands.device import set  # pylint: disable=redefined-builtin
 from nicos.commands.device import ListDevices, ListMethods, ListParams, \
     adjust, disable, drive, enable, finish, fix, get, getall, history, info, \
-    limits, maw, move, read, reference, release, reset, resetlimits, setall, \
-    status, stop, switch, unfix, version, wait, waitfor
+    limits, maw, move, read, reference, release, reset, resetlimits, rmaw, \
+    rmove, setall, status, stop, switch, unfix, version, wait, waitfor
 from nicos.commands.measure import count
 from nicos.commands.output import printdebug, printerror, printexception, \
     printinfo, printwarning
@@ -258,12 +258,52 @@ class TestDevice(object):
         assert raises(UsageError, move)
         assert raises(UsageError, move, motor, 1, motor)
 
+    def test_rmove(self, session, log):
+        """Check rmove() command."""
+        axis = session.getDevice('prec_axis')
+        axis.maw(1)
+        rmove(axis, 1)
+        axis.wait()
+        assert axis.read(0) == 2
+
+        # ensure that the target is used when within precision
+        axis.motor.maw(1.9)
+        rmove(axis, -1)
+        axis.wait()
+        assert axis.read(0) == 1
+
+        # ensure that the target is *not* used when out of precision
+        axis.motor.maw(2)
+        rmove(axis, -1)
+        axis.wait()
+        assert axis.read(0) == 1
+
+        # ensure that switchers or similar devices can't use relative moves
+        sw = session.getDevice('sw')
+        assert raises(UsageError, rmove, sw, 3)
+
+        # ensure that "strange" deltas result in UsageError
+        assert raises(UsageError, rmove, axis, '7')
+        assert raises(UsageError, rmove, axis, None)
+
     def test_maw(self, session, log):
         """Check maw() command."""
         motor = session.getDevice('motor')
         for pos in (min(motor.userlimits), 0, max(motor.userlimits)):
             maw(motor, pos)
             assert motor.curvalue == pos
+
+    def test_rmaw(self, session, log):
+        """Check rmaw() command."""
+        motor = session.getDevice('motor')
+        mmin, mmax = motor.userlimits
+        axis = session.getDevice('nolimit_axis')
+        amin, amax = axis.userlimits
+        for dm, da in ((mmin, amax), (mmax, amin)):
+            maw(motor, 0, axis, 0)
+            rmaw(motor, dm, axis, da / 2.)
+            assert motor.curvalue == dm
+            assert axis.motor.curvalue == pytest.approx(da / 2.)
 
     def test_drive_and_switch(self, session, log):
         """Check drive() and switch() aliases."""
