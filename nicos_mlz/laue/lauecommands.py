@@ -31,7 +31,6 @@ import numpy as np
 
 from nicos import session
 from nicos.commands import usercommand
-from nicos.commands.device import maw, move
 from nicos.devices.sxtal.goniometer.base import PositionFactory
 from nicos.devices.sxtal.goniometer.posutils import Xrot, Yrot, Zrot
 
@@ -60,21 +59,3 @@ def calcEsmeraldaRots(xrot, yrot, zrot):
     newmat = np.dot(ma, rotmat)
     npos = cpos.asG().With(matrix=newmat)
     return npos.asK()
-
-
-@usercommand
-def rmove(dev, delta):
-    """Relative move.
-
-    Move *dev* to current position plus *delta*.
-    """
-    move(dev, dev() + delta)
-
-
-@usercommand
-def rmaw(dev, delta):
-    """Relative move and wait.
-
-    Move *dev* to current position plus *delta*, and wait until arrived.
-    """
-    maw(dev, dev() + delta)
