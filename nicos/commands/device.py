@@ -69,6 +69,29 @@ def _devposlist(dev_pos_list, cls):
     return zip(devlist, poslist)
 
 
+def _basemove(dev_pos_list, waithook=None):
+    """Core move function.
+
+    Options:
+
+    *waithook*: a waiting function that gets the list of started devices
+    """
+    devs = []
+    for dev, pos in _devposlist(dev_pos_list, Moveable):
+        dev.log.info('moving to %s', dev.format(pos, unit=True))
+        dev.move(pos)
+        devs.append(dev)
+    if waithook:
+        waithook(devs)
+
+
+def _wait_hook(devs):
+    """Default wait hook"""
+    values = multiWait(devs)
+    for dev in devs:
+        dev.log.info('at %20s %s', dev.format(values[dev]), dev.unit)
+
+
 @usercommand
 @helparglist('dev1, pos1, ...')
 @spmsyntax(Multi(Dev(Moveable), Bare))
@@ -103,9 +126,7 @@ def move(*dev_pos_list):
 
     >>> maw(dev1, 10, dev2, -3)   # move devices in parallel and wait for both
     """
-    for dev, pos in _devposlist(dev_pos_list, Moveable):
-        dev.log.info('moving to %s', dev.format(pos, unit=True))
-        dev.move(pos)
+    _basemove(dev_pos_list)
 
 
 @hiddenusercommand
@@ -114,7 +135,7 @@ def move(*dev_pos_list):
 @parallel_safe
 def drive(*dev_pos_list):
     """Move one or more devices to a new position.  Same as `move()`."""
-    return move(*dev_pos_list)
+    move(*dev_pos_list)
 
 
 @usercommand
@@ -146,14 +167,7 @@ def maw(*dev_pos_list):
         The command will wait until **all** devices have finished their
         movement.
     """
-    devs = []
-    for dev, pos in _devposlist(dev_pos_list, Moveable):
-        dev.log.info('moving to %s', dev.format(pos, unit=True))
-        dev.move(pos)
-        devs.append(dev)
-    values = multiWait(devs)
-    for dev in devs:
-        dev.log.info('at %20s %s', dev.format(values[dev]), dev.unit)
+    _basemove(dev_pos_list, waithook=_wait_hook)
 
 
 @hiddenusercommand
@@ -419,7 +433,6 @@ def stop(*devlist):
         session.delay(Device._base_loop_delay)
     if stop_all:
         session.log.info('all devices stopped')
-    return
 
 
 @usercommand
