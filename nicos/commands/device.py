@@ -27,6 +27,7 @@
 from __future__ import absolute_import, division, print_function
 
 import ast
+import sys
 import time
 
 from nicos import __version__ as nicos_revision, nicos_version, session
@@ -37,12 +38,13 @@ from nicos.core import INFO_CATEGORIES, SIMULATION, AccessError, CanDisable, \
     Device, DeviceMixinBase, HasLimits, HasOffset, Measurable, Moveable, \
     NicosTimeoutError, Readable, UsageError, Waitable, formatStatus, \
     multiWait
+from nicos.core.errors import NicosError
 from nicos.core.spm import AnyDev, Bare, Dev, DevParam, Multi, String, \
     spmsyntax
 from nicos.core.status import BUSY, OK
 from nicos.devices.abstract import CanReference, MappedMoveable
 from nicos.pycompat import builtins, iteritems, itervalues, number_types, \
-    string_types
+    reraise, string_types
 from nicos.utils import createThread, parseDateString, printTable, tupelize
 from nicos.utils.timer import Timer
 
@@ -72,12 +74,28 @@ def _basemove(dev_pos_list, waithook=None, poshook=None):
     *waithook*: a waiting function that gets the list of started devices
     *poshook*: gets device and requested pos, returns modified position
     """
-    devs = []
+    movelist = []
+    errors = []
+
     for dev, pos in _devposlist(dev_pos_list, Moveable):
-        if poshook:
-            pos = poshook(dev, pos)
+        try:
+            if poshook:
+                pos = poshook(dev, pos)
+            pos = dev._check_start(pos)
+            if pos is not Ellipsis:
+                movelist.append((dev, pos))
+        except (NicosError, ValueError, TypeError):
+            errors.append((dev, sys.exc_info()))
+
+    if errors:
+        for (dev, exc_info) in errors[:-1]:
+            dev.log.error(exc_info=exc_info)
+        reraise(*errors[-1][1])
+
+    devs = []
+    for (dev, pos) in movelist:
         dev.log.info('moving to %s', dev.format(pos, unit=True))
-        dev.move(pos)
+        dev._start_unchecked(pos)
         devs.append(dev)
     if waithook:
         waithook(devs)

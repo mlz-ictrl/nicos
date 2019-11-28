@@ -293,6 +293,18 @@ class TestDevice(object):
             maw(motor, pos)
             assert motor.curvalue == pos
 
+    def test_maw_errorhandling(self, session, log):
+        motor = session.getDevice('motor')
+        la = session.getDevice('limit_axis')
+        maw(motor, 0, la, 0)
+        log.clear()
+        with log.assert_no_msg_matches('moving to'):
+            assert raises(LimitError, maw, motor, 2, la, 100000)
+        with log.assert_msg_matches(['motor.*moving to', 'limit_axis.*moving to']):
+            maw(motor, 2, la, 0.5)
+            assert motor.curvalue == 2
+            assert la._attached_motor.curvalue == 0.5
+
     def test_rmaw(self, session, log):
         """Check rmaw() command."""
         motor = session.getDevice('motor')

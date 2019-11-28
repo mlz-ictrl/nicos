@@ -1549,6 +1549,16 @@ class Moveable(Waitable):
            This method must be implemented and actually move the device to the
            new position.
         """
+        pos = self._check_start(pos)
+        if pos is not Ellipsis:
+            self._start_unchecked(pos)
+
+    def _check_start(self, pos):
+        """Do all checks if we can move to the given pos.
+
+        Returns new, potentially type-converted pos, or Ellipsis if move
+        should not be started.
+        """
         if self._mode == SLAVE:
             raise ModeError(self, 'start not possible in slave mode')
         if self.fixed:
@@ -1558,11 +1568,11 @@ class Moveable(Waitable):
                 if abs(self.read() - pos) <= getattr(self, 'precision', 0):
                     self.log.debug('device fixed; start() allowed since '
                                    'already at desired position %s', pos)
-                    return
+                    return Ellipsis
             except Exception:
                 pass
             self.log.warning('device fixed, not moving: %s', self.fixed)
-            return
+            return Ellipsis
         if self.requires:
             try:
                 session.checkAccess(self.requires)
@@ -1577,6 +1587,10 @@ class Moveable(Waitable):
         if not ok:
             raise LimitError(self, 'moving to %s is not allowed: %s' %
                              (self.format(pos, unit=True), why))
+        return pos
+
+    def _start_unchecked(self, pos):
+        """Start movement, assuming that _check_start has been done."""
         if isinstance(self, HasTimeout):
             self.resetTimeout(pos)
         if self._sim_intercept:
