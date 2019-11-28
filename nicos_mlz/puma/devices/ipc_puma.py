@@ -63,7 +63,7 @@ class Coder(IPCCoder):
                       mandatory=True, default=[0., 1.]),
     }
 
-    fit = np.polynomial.Polynomial([0., 1.])  # identity conversion
+    _fit = np.polynomial.Polynomial([0., 1.])  # identity conversion
 
     parameter_overrides = {
         'confbyte': Override(settable=False),
@@ -75,11 +75,11 @@ class Coder(IPCCoder):
         return
 
     def doUpdatePoly(self, poly):
-        self.fit = np.polynomial.Polynomial(poly)
+        self._fit = np.polynomial.Polynomial(poly)
 
     def _fromsteps(self, value):
         self.log.debug('uncorrected value: %f', value)
-        result = self.fit(value)
+        result = self._fit(value)
         self.log.debug('final result: %f', result)
         return result
 
