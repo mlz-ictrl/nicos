@@ -107,8 +107,8 @@ class FoilWidget(QWidget):
                                for x in fitcurve.x])
         datacurve.x = np.arange(0, 16, 1)
         datacurve.y = np.array(counts)
-        dy = map(np.sqrt, datacurve.y)
-        datacurve.errorBar1 = ErrorBar(datacurve.x, datacurve.y, dy,
+        datacurve.errorBar1 = ErrorBar(datacurve.x, datacurve.y,
+                                       np.sqrt(datacurve.y),
                                        markercolor=datacurve.markercolor)
         datacurve.linetype = None
         self.plotwidget.reset()
