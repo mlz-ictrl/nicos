@@ -148,7 +148,7 @@ class MiezePanel(Panel):
         self.foils = options.get('foils', [7, 6, 5, 0, 1, 2])
         self.columns = options.get('columns', 3)
         self.rows = options.get('rows', 2)
-        for foil, x, y in zip(self.foils, self.rows * range(self.columns),
+        for foil, x, y in zip(self.foils, self.rows * list(range(self.columns)),
                               sum([self.columns * [i] for i in
                                    range(self.rows)], [])):
             foilwidget = FoilWidget(name='Foil %d' % foil, parent=self)
