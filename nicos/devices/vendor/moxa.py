@@ -33,7 +33,8 @@ class MoxaCommunicator(HasCommunication):
     """
 
     parameters = {
-        'hostport': Param('Host and port of Moxa device', type=host()),
+        'hostport': Param('Host and port of Moxa device',
+                          type=host(defaultport=4001)),
         'timeout': Param('The timeout for the communication', type=float,
                          settable=True, default=1.0),
         'terminator': Param('Command terminator', type=str, default='\r\n',
