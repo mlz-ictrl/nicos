@@ -52,6 +52,7 @@ devices = dict(
         speed = 2,
         fmtstr = '%.1f',
         unit = 'V',
+        curvalue = 3100,
     ),
     hv2 = device('nicos.devices.generic.VirtualMotor',
         description = 'HV power supply 2',
@@ -60,5 +61,6 @@ devices = dict(
         speed = 2,
         fmtstr = '%.1f',
         unit = 'V',
+        curvalue = -2400,
     ),
 )

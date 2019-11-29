@@ -8,6 +8,7 @@ devices = dict(
         fmtstr = '%.2f',
         unit = 'deg',
         abslimits = (20, 130),
+        curvalue = 90,
         speed = 1,
     ),
     omgs = device('nicos.devices.generic.VirtualMotor',
