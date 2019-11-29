@@ -417,7 +417,7 @@ def NicosLoad(prefix, filenum=-1, **kwargs):
     to load datafiles /data/exp/p1234_00032000.dat and normalize all datapoints on
     mon1 to a monitor rate of 1e5
     Result is an object with attributes which are named after
-    the colums of the scan and which can be used directly for plotting/fitting/....
+    the columns of the scan and which can be used directly for plotting/fitting/....
     '''
     if filenum != -1:
         # if we got more than one filenum, iterate and return a set of scans
@@ -635,7 +635,7 @@ def NicosLoad(prefix, filenum=-1, **kwargs):
         for k, v in kwargs.items():  # ignore other kwargs....
             if k in data.detcols:
                 if normcol != None:
-                    print('Can not normalize to more than one detector colum! Found %s+%s at least!' % (normcol, k))
+                    print('Can not normalize to more than one detector column! Found %s+%s at least!' % (normcol, k))
                     print('Skipping normalisation !')
                     return data
                 else:
