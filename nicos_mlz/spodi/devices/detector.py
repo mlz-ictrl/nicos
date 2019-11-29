@@ -47,8 +47,8 @@ class Detector(MeasureSequencer):
 
     The detector data (image) will be stored in an accumulated image array:
 
-        The first colums of each step will be stored in a sequence, the second
-        colums will follow, and so on.
+        The first columns of each step will be stored in a sequence, the second
+        columns will follow, and so on.
 
         At the end the image will be a refined picture of a single histogram.
     """
