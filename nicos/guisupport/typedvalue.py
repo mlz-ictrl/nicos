@@ -109,15 +109,13 @@ class DeviceValueEdit(NicosWidget, QWidget):
                                           devname, None)
             unit = params.get('unit', '') if self.props['showUnit'] else ''
             fmtstr = params.get('fmtstr', '%s')
-            # pylint: disable=unused-variable
-            target = params.get('target', valuetype())
             if curvalue is None:
-                curvalue = self._client.getDeviceParam(devname, 'target')
+                curvalue = params.get('target')
             if curvalue is None and valuetype is not None:
                 curvalue = valuetype()
         else:
             valuetype = str
-            curvalue = target = valuetype()
+            curvalue = ''
             fmtstr = '%s'
             unit = ''
             valueinfo = None
