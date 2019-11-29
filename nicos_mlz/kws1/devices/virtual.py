@@ -27,10 +27,13 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.core import HasPrecision, Override, status
-from nicos.devices.generic.manual import ManualMove
+from nicos.devices.generic.manual import ManualMove, ManualSwitch
 
 
 class Standin(HasPrecision, ManualMove):
+    """Override to always return a warning state, and not require
+    parameters that are already set in the non-virtual setup.
+    """
 
     parameter_overrides = {
         'abslimits': Override(mandatory=False),
@@ -39,3 +42,13 @@ class Standin(HasPrecision, ManualMove):
 
     def doStatus(self, maxage=0):
         return status.WARN, 'virtual'
+
+
+class StandinSwitch(ManualSwitch):
+    """Override to always return a warning state."""
+
+    def doStatus(self, maxage=0):
+        sc, _ = ManualSwitch.doStatus(self, maxage)
+        if sc == status.OK:
+            sc = status.WARN
+        return sc, 'virtual'

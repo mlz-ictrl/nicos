@@ -24,7 +24,7 @@ devices = dict(
         fallback = 'inbetween',
         precision = 25,
     ),
-    gedet_power = device('nicos.devices.generic.ManualSwitch',
+    gedet_power = device('nicos_mlz.kws1.devices.virtual.StandinSwitch',
         description = 'switches the GE detector 54V power supply',
         states = ['off', 'on'],
     ),

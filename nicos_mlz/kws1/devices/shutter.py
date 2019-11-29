@@ -29,22 +29,11 @@ from __future__ import absolute_import, division, print_function
 from nicos import session
 from nicos.core import Attach, HasTimeout, Moveable, Override, Param, \
     Readable, oneof, status
-from nicos.devices.generic import ManualSwitch
 
 READ_CLOSED = 1
 READ_OPEN = 2
 WRITE_CLOSED = 1
 WRITE_OPEN = 7
-
-
-class VirtualShutter(ManualSwitch):
-    """Override to always return a warning state."""
-
-    def doStatus(self, maxage=0):
-        sc, _ = ManualSwitch.doStatus(self, maxage)
-        if sc == status.OK:
-            sc = status.WARN
-        return sc, 'virtual'
 
 
 class Shutter(HasTimeout, Moveable):

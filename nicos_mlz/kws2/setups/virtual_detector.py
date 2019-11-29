@@ -37,7 +37,7 @@ devices = dict(
         psdtoppos = 0.0,
         detbackpos = 20.0,
     ),
-    attenuator = device('nicos.devices.generic.ManualSwitch',
+    attenuator = device('nicos_mlz.kws1.devices.virtual.StandinSwitch',
         description = 'beam attenuator (S21)',
         states = ['out', 'in'],
     ),
