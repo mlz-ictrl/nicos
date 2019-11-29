@@ -39,6 +39,13 @@ devices = dict(
         type = 'monitor',
         readpv = pvprefix + '.S5',
     ),
+    countval = device('nicos_ess.devices.epics.detector'
+                  '.EpicsCounterPassiveChannel',
+        epicstimeout = 3.0,
+        description = 'Actual counts in single detector',
+        type = 'monitor',
+        readpv = pvprefix + '.S1',
+    ),
     el737 = device('nicos_sinq.devices.detector.SinqDetector',
         epicstimeout = 3.0,
         description = 'EL737 counter box that counts neutrons and manages '
