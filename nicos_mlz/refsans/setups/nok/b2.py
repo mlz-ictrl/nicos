@@ -76,5 +76,5 @@ devices = dict(
 )
 
 alias_config = {
-    'last_aperture': {'b2.height': 200},
+    'last_aperture': {'b2.height': 100},
 }
