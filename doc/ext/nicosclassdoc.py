@@ -209,7 +209,8 @@ class NicosClassDocumenter(ClassDocumenter):
                                    self.object.__module__] = {
             'docname': self.env.docname,
             'name': self.object.__name__,
-            'module': self.env.ref_context['py:module'],
+            'module': self.env.ref_context.get('py:module',
+                                               self.object.__module__),
             'blurb': docstr.split('\n\n')[0],
         }
 
