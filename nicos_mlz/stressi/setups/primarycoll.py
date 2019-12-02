@@ -9,6 +9,7 @@ tango_base = 'tango://motorbox05.stressi.frm2.tum.de:10000/box/'
 devices = dict(
     coll_vert_m = device('nicos.devices.tango.Motor',
         tangodevice = tango_base + 'channel5/motor',
+        speed = 0.5,
         fmtstr = '%.2f',
         lowlevel = True,
     ),
@@ -20,6 +21,7 @@ devices = dict(
     ),
     coll_hor_m = device('nicos.devices.tango.Motor',
         tangodevice = tango_base + 'channel6/motor',
+        speed = 0.5,
         fmtstr = '%.2f',
         lowlevel = True,
     ),
@@ -31,6 +33,7 @@ devices = dict(
     ),
     coll_rot_m = device('nicos.devices.tango.Motor',
         tangodevice = tango_base + 'channel7/motor',
+        speed = 0.015,
         fmtstr = '%.2f',
         lowlevel = True,
     ),

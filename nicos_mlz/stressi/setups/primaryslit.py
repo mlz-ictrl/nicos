@@ -40,6 +40,7 @@ devices = dict(
     psx_m = device('nicos.devices.tango.Motor',
         tangodevice = tango_base + 'channel5/motor',
         fmtstr = '%.2f',
+        speed = 2,
         lowlevel = True,
     ),
     psx = device('nicos.devices.generic.Axis',

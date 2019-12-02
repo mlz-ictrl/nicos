@@ -20,6 +20,7 @@ tango_base = 'tango://motorbox05.stressi.frm2.tum.de:10000/box/'
 devices = dict(
     xe_m = device('nicos.devices.tango.Motor',
         tangodevice = tango_base + 'channel1/motor',
+        speed = 1,
         fmtstr = '%.2f',
         lowlevel = True,
     ),
@@ -31,6 +32,7 @@ devices = dict(
     ),
     ye_m = device('nicos.devices.tango.Motor',
         tangodevice = tango_base + 'channel2/motor',
+        speed = 1,
         fmtstr = '%.2f',
         lowlevel = True,
     ),
@@ -42,6 +44,7 @@ devices = dict(
     ),
     ze_m = device('nicos.devices.tango.Motor',
         tangodevice = tango_base + 'channel3/motor',
+        speed = 1,
         fmtstr = '%.2f',
         lowlevel = True,
     ),
