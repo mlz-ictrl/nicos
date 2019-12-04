@@ -43,23 +43,37 @@ class ShutterCluster(HasTimeout, NamedDigitalOutput):
     Status messages are set in the setup.
     '''
 
-    CLOSED = 'close'
+    CLOSED = 'closed'
     UPSTREAMCLOSED = 'upstream closed'
+    DOORCOPEN = 'closed but door open'
+    CHAINOPEN = 'closed but chain open'
     CLOSEDSTATES = [CLOSED, UPSTREAMCLOSED]
 
     attached_devices = {
         'upstream':
-            Attach('Upstreamshutters',
+            Attach('upstreamshutters',
                    NamedDigitalInput,
                    multiple=True),
+        'chains':
+            Attach('housingchains',
+                   NamedDigitalInput,
+                   multiple=True),
+        'door':
+            Attach('door', NamedDigitalInput)
     }
 
     parameters = {
-        'statusmapping':
-            Param('Mapping for the status',
+        'mapping':
+            Param('Mapping for the shutter values',
+                  type=dict),
+        'chainstatemapping':
+            Param('Mapping for the chain status',
+                  type=dict),
+        'shutterstatemapping':
+            Param('Mapping for the shutter status',
                   type=dict),
         'attachedmapping':
-            Param('Mapping for the upstream shutters',
+            Param('Mapping for incoming values of the attached devices',
                   type=dict),
     }
 
@@ -67,8 +81,13 @@ class ShutterCluster(HasTimeout, NamedDigitalOutput):
         NamedDigitalOutput.doInit(self, mode)
 
         # just in case the statusmapping is reversed in the setup
-        self._statusmapping = {v: k for (k, v) in self.statusmapping.items()}
-        self._statusmapping.update(self.statusmapping)
+        self._shuttermapping = dict((v, k)
+                                    for (k, v) in self.shutterstatemapping.items())
+        self._shuttermapping.update(self.shutterstatemapping)
+
+        self._chainmapping = dict((v, k)
+                                  for (k, v) in self.chainstatemapping.items())
+        self._chainmapping.update(self.chainstatemapping)
 
         # 'constant' for comparison if all the shutters are open
         self._allUpstreamOpen = 2**len(self._attached_upstream)-1
@@ -80,7 +99,14 @@ class ShutterCluster(HasTimeout, NamedDigitalOutput):
 
         instrumentstate = self._dev.value
 
-        return (upstreamstate, instrumentstate)
+        return upstreamstate, instrumentstate
+
+    def getCurrentChainState(self):
+        chainstate = 0
+        for i, chain in enumerate(self._attached_chains):
+            chainstate += self.attachedmapping[chain.read()] << i
+
+        return chainstate
 
     def doRead(self, maxage=0):
         upstream, instrument = self.getCurrentShutterState()
@@ -95,14 +121,19 @@ class ShutterCluster(HasTimeout, NamedDigitalOutput):
 
     def doStatus(self, maxage=0):
         upstream, instrument = self.getCurrentShutterState()
+        chains = self.getCurrentChainState()
 
         if instrument and upstream == self._allUpstreamOpen:
             return status.OK, ''
         elif not instrument:
-            return status.OK, 'shutter closed'
+            if self._attached_door.read() != 'closed':
+                return status.WARN, 'door open'
+            elif not chains:
+                return status.OK, 'shutter closed'
+            return status.WARN, self._chainmapping[chains]
 
-        return (status.WARN, self._statusmapping[upstream])
+        return status.WARN, self._shuttermapping[upstream]
 
     def doReset(self):
         NamedDigitalOutput.doReset(self)
-        self.move('close')
+        self.move('closed')
