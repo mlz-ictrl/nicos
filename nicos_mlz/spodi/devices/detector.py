@@ -133,8 +133,7 @@ class Detector(MeasureSequencer):
             self._time_preset = preset.get('t', 0)
             self._mon_preset = preset.get('mon1', preset.get('mon2', 0))
             if 'resosteps' in preset:
-                self.resosteps = int(preset['resosteps'])
-                preset.pop('resosteps')
+                self.resosteps = int(preset.pop('resosteps'))
         self._attached_detector.doSetPreset(**preset)
 
     def _read_value(self):
