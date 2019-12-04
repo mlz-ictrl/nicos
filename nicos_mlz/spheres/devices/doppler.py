@@ -70,7 +70,7 @@ class Doppler(SequencerMixin, MultiSwitcher):
                              'when a measurement is started in seconds',
                              int, default=50, settable=True),
         'customrange': Param('min and max for custom values',
-                             tuple, mandatory=True)
+                             tuple, settable=False, volatile=True)
     }
 
     attached_devices = {
@@ -221,3 +221,6 @@ class Doppler(SequencerMixin, MultiSwitcher):
             value = pos[0]
 
         return value
+
+    def doReadCustomrange(self):
+        return self._attached_moveables[0].userlimits
