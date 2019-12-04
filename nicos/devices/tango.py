@@ -215,14 +215,10 @@ class PyTangoDevice(HasCommunication):
             self._dev = HardwareStub(self)
 
     def doStatus(self, maxage=0):
-        # Query status code and string
-        tangoState = self._dev.State()
-        tangoStatus = self._dev.Status()
-
-        # Map status
-        nicosState = self.tango_status_mapping.get(tangoState, status.UNKNOWN)
-
-        return (nicosState, tangoStatus)
+        # Map Tango state to NICOS status
+        nicosState = self.tango_status_mapping.get(self._dev.State(),
+                                                   status.UNKNOWN)
+        return (nicosState, self._dev.Status())
 
     def _hw_wait(self):
         """Wait until hardware status is not BUSY."""
