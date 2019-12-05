@@ -28,15 +28,19 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import shutil
-import subprocess
 from os import path
+from signal import SIGTERM, SIGUSR2
+from subprocess import PIPE
 
 import numpy as np
 
+from nicos import session
 from nicos.core import ArrayDesc, Attach, Param, Readable, Value, intrange, \
     status, tupleof
+from nicos.core.constants import LIVE
+from nicos.core.errors import HardwareError
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel, Slit
-from nicos.utils import createThread
+from nicos.utils import createSubprocess, createThread
 
 from nicos_mlz.treff.devices import MirrorSample
 
@@ -45,12 +49,21 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
 
     _mythread = None
 
+    _process = None
+
     parameters = {
         'size': Param('Detector size in pixels (x, y)',
                       settable=False,
                       type=tupleof(intrange(1, 1024), intrange(1, 1024)),
                       default=(256, 256),
                       ),
+        'mcstasprog': Param('Name of the McStas simulation executable',
+                            type=str, default='treff_fast', settable=False),
+        'mcstasdir': Param('Directory where McStas stores results',
+                           type=str, default='singlecount', settable=False),
+        'mcstasfile': Param('Name of the McStas data file',
+                            type=str, default='PSD_TREFF_total.psd',
+                            settable=False),
     }
 
     attached_devices = {
@@ -72,6 +85,11 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         self._workdir = os.getcwd()
 
     def doReadArray(self, quality):
+        self.log.debug('quality: %s', quality)
+        if quality == LIVE:
+            self._send_signal(SIGUSR2)
+        self._readpsd(
+            path.join(self._workdir, self.mcstasdir), quality == LIVE)
         return self._buf
 
     def doPrepare(self):
@@ -125,41 +143,57 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
             return status.BUSY, 'busy'
         return status.OK, 'idle'
 
+    def doFinish(self):
+        self.log.debug('finish')
+        self._send_signal(SIGTERM)
+
+    def _send_signal(self, sig):
+        if self._process:
+            self._process.send_signal(sig)
+            # Give external process time to write all data to disc(file)
+            session.delay(0.1)
+
     def _run(self):
+        """Run McStas simulation executable.
+
+        The current settings of the instrument parameters will be transferred
+        to it.
         """
-        runs treff_fast with current settings of the instrument parameters
-        """
-        mcstasdir = 'singlecount'
         os.chdir(self._workdir)
         try:
-            shutil.rmtree(mcstasdir)
+            shutil.rmtree(self.mcstasdir)
         except (IOError, OSError):
             self.log.info('could not remove old data')
-        command = 'treff_fast -n 100000 -d %s %s' % (
-            mcstasdir, self._mcstas_params)
+        command = '%s -n 1e8 -d %s %s' % (
+            self.mcstasprog, self.mcstasdir, self._mcstas_params)
         self.log.debug('run %s', command)
         try:
-            retcode = subprocess.call(command, shell=True)
-            if retcode < 0:
-                self.log.error("McStas was terminated by signal: %d", -retcode)
+            self._process = createSubprocess(command.split(), stdout=PIPE,
+                                             stderr=PIPE)
+            out, err = self._process.communicate()
+            if out:
+                for line in out.split(b'\n'):
+                    self.log.debug('McStas output: %s', line)
+            if err:
+                self.log.warning('McStas found some problems: %s', err)
         except OSError as e:
             self.log.error('Execution failed: %s', e)
-        self._readpsd(path.join(self._workdir, mcstasdir))
-        self.readresult = [self._buf.sum()]
         os.chdir(self._workdir)
+        self._process = None
 
-    def _readpsd(self, somedir):
+    def _readpsd(self, somedir, ignore_error=False):
         try:
-            with open(path.join(somedir, 'PSD_TREFF_total.psd'), 'r') as f:
-                i = 0
-                while True:
-                    line = f.readline()
-                    if not line:
-                        return
+            with open(path.join(somedir, self.mcstasfile), 'r') as f:
+                lines = f.readlines()[-(self.size[1] + 1):]
+            if lines[0].startswith('# Events'):
+                for i, line in enumerate(lines[1:]):
                     items = line.strip('\n').strip(' ').split(' ')
-                    if items and items[0] != '#' and i < 256:
-                        self._buf[i] = list(map(float, items))
-                        i += 1
+                    if items and items[0] != '#' and i < self.size[1]:
+                        self._buf[i] = list(map(int, items))
+            else:
+                raise HardwareError('Did not found start line: %s' % lines[0])
         except IOError:
-            self.log.error('Could not read result file')
+            if not ignore_error:
+                self.log.error('Could not read result file')
         self._buf = np.around(self._buf)
+        self.readresult = [self._buf.sum()]

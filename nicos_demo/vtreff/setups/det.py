@@ -81,7 +81,7 @@ devices = dict(
             ('roi_pol', 'detimg'),
             ('full', 'detimg', 'timer')
         ],
-        liveinterval = 1.,
+        liveinterval = .5,
     ),
 )
 
