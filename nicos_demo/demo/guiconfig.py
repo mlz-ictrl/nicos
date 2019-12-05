@@ -19,20 +19,6 @@ main_window = docked(
           setups='sans',
          ),
         ),
-        ('SampleChanger',
-         panel('nicos_mlz.sans1.gui.samplechanger.SamplechangerSetupPanel',
-               image='nicos_mlz/sans1/gui/sampleChanger11.png',
-               positions=11, setups='sans and sc1'),
-        ),
-        ('SampleChanger',
-         panel('nicos_mlz.sans1.gui.samplechanger.SamplechangerSetupPanel',
-               image='nicos_mlz/sans1/gui/sampleChanger22.png',
-               positions=22, setups='sans and sc2'),
-        ),
-        ('PiBox',
-         panel('nicos.clients.gui.panels.generic.GenericPanel',
-               uifile='nicos_demo/demo/gui/piface.ui', setups='pibox01',)
-        ),
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel',
@@ -74,26 +60,6 @@ main_window = docked(
 )
 
 windows = [
-    window('Setup', 'setup',
-        tabbed(
-            ('Experiment',
-             panel('nicos.clients.gui.panels.setup_panel.ExpPanel')),
-            ('Setups',
-             panel('nicos.clients.gui.panels.setup_panel.SetupsPanel')),
-            ('Detectors/Environment',
-             panel('nicos.clients.gui.panels.setup_panel.DetEnvPanel')),
-            ('Samples',
-                panel('nicos_mlz.sans1.gui.samplechanger.SamplechangerSetupPanel',
-                      image='nicos_mlz/sans1/gui/sampleChanger22.png',
-                      positions=22, setups='sans and sc2')
-            ),
-            ('Samples',
-                panel('nicos_mlz.sans1.gui.samplechanger.SamplechangerSetupPanel',
-                      image='nicos_mlz/sans1/gui/sampleChanger11.png',
-                      positions=11, setups='sans and sc1')
-            ),
-        ),
-    ),
     window('Editor', 'editor',
         vsplit(
             panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
@@ -106,14 +72,14 @@ windows = [
            panel('nicos.clients.gui.panels.scans.ScansPanel')),
     window('History', 'find',
            panel('nicos.clients.gui.panels.history.HistoryPanel')),
+    window('Live data', 'live',
+           panel('nicos.clients.gui.panels.live.LiveDataPanel')),
     window('Logbook', 'table',
            panel('nicos.clients.gui.panels.elog.ELogPanel')),
     window('Log files', 'table',
            panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
     window('Errors', 'errors',
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
-    window('Live data', 'live',
-           panel('nicos.clients.gui.panels.live.LiveDataPanel')),
 ]
 
 tools = [
