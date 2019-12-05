@@ -3,15 +3,14 @@
 main_window = docked(
     vsplit(
         panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-        # panel('nicos.clients.gui.panels.watch.WatchPanel'),
         panel('nicos.clients.gui.panels.console.ConsolePanel'),
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
-           dockpos='right',)
+           dockpos='right'),
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',)
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
     ),
 )
 
@@ -22,6 +21,8 @@ windows = [
            panel('nicos.clients.gui.panels.scans.ScansPanel')),
     window('History', 'find',
            panel('nicos.clients.gui.panels.history.HistoryPanel')),
+    window('Live data', 'live',
+           panel('nicos.clients.gui.panels.live.LiveDataPanel')),
     window('Logbook', 'table',
            panel('nicos.clients.gui.panels.elog.ELogPanel')),
     window('Log files', 'table',

@@ -7,24 +7,29 @@ Please suggest additions if needed!
 Preparations
 ------------
 
-* Clone the NICOS git repository.  Check out either ``master`` (if the
-  instrument should reflect the development version) or ``release-X.Y`` (if it
-  should be based on a released version).  Create a working branch with ``git
-  checkout -b work-X.Y`` to record local changes independent of the upstream
-  branch.
+* Clone the :ref:`NICOS git repository <clone-git>`.  Check out either
+  ``master`` (if the instrument should reflect the development version) or
+  ``release-X.Y`` (if it should be based on a released version).  Create a
+  working branch with ``git checkout -b work-X.Y`` to record local changes
+  independent of the upstream branch.
 
 * Install all pre-requisites (see :doc:`install`).
 
-* Check if ``bin/nicos-demo`` works.  On X-less machines, use ``bin/nicos-demo
-  -MT``.  If something fails here, you might have missed a dependency.
+* Check if ``bin/nicos-demo`` works.  On machines without a GUI running, use
+  ``bin/nicos-demo -MT``.  If something fails here, you might have missed a
+  dependency.
 
-* For good measure, run ``make test`` and make sure any failures are reported.
+* If you want to be thorough, run ``make test`` and make sure any failures are
+  reported.
 
 Setting up the new instrument customization
 -------------------------------------------
 
 * Copy the ``nicos_demo/skeleton`` directory to the new custom package,
-  ``nicos_<facility>/<instrument>``.
+  ``nicos_<facility>/<instrument>``.  (The ``nicos_`` prefix is important.)
+
+* If the facility is new, make sure that ``nicos_<facility>`` is a Python
+  package by creating an empty ``__init__.py`` there.
 
 * Adapt the ``nicos_<facility>/<instrument>/nicos.conf`` file.  It has comments
   for values that might need to be changed.

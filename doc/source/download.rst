@@ -20,6 +20,8 @@ Using pip NICOS can be installed::
 where ``http://forge.frm2.tum.de/simple/`` is a FRM II local pip repository.
 
 
+.. _clone-git:
+
 Git repository
 """"""""""""""
 
