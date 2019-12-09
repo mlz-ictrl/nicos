@@ -39,8 +39,6 @@ from nicos.utils import bitDescription
 
 from nicos_mlz.refsans.params import motoraddress
 
-Numeric_Parameter = True
-
 
 class SingleMotorOfADoubleMotorNOK(DeviceMixinBase):
     """
@@ -323,7 +321,7 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
                       volatile=True,),
         'motortemp': Param('Motor temperature',
                            type=float, settable=False, userparam=True,
-                           volatile=True, unit='degC'),
+                           volatile=True, unit='degC', fmtstr='%.1f'),
         'minvalue': Param('abs minimum',
                           type=float, settable=False, userparam=True,
                           volatile=True, unit='main'),
@@ -373,7 +371,7 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
     # only to be used manually at the moment
     def _HW_readParameter(self, index):
         if index not in self.HW_readable_Params:
-            raise UsageError('Reading not possible for parameter index %d' %
+            raise UsageError('Reading not possible for parameter index %s' %
                              index)
 
         index = self.HW_readable_Params.get(index, index)
@@ -397,7 +395,7 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
     @requires(level='admin')
     def _HW_writeParameter(self, index, value, store2eeprom=False):
         if index not in self.HW_writeable_Params:
-            raise UsageError('Writing not possible for parameter index %d' %
+            raise UsageError('Writing not possible for parameter index %s' %
                              index)
 
         index = self.HW_writeable_Params.get(index, index)
@@ -504,10 +502,7 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
 
     def doReadMotortemp(self):
         # in degC
-        if Numeric_Parameter:
-            return self._HW_readParameter_index('motorTemp')
-        else:
-            return self._HW_readParameter('motorTemp')
+        return self._HW_readParameter('motorTemp')
 
     def doReadMaxvalue(self):
         return self._steps2phys(self._HW_readParameter('maxValue'))
@@ -528,8 +523,6 @@ class BeckhoffMotorCab1(BeckhoffMotorBase):
         self.HW_readable_Params.update(dict(encoderRawValue=60))
 
     def doReadEncoderrawvalue(self):
-        if Numeric_Parameter:
-            return self._HW_readParameter_index('encoderRawValue')
         return self._HW_readParameter('encoderRawValue')
 
     def _HW_readParameter_index(self, index):
@@ -583,9 +576,10 @@ class BeckhoffMotorCab1(BeckhoffMotorBase):
 class BeckhoffMotorCab1M0x(BeckhoffMotorCab1):
     parameter_overrides = {
         # see docu: speed <= 8mm/s
-        'vmax': Override(settable=True, type=floatrange(0, 8)),
+        'vmax': Override(settable=True, type=floatrange(0, 800)),
     }
 
+    @requires(level='admin')
     def doWriteVMax(self, value):
         self._HW_writeParameter('vMax', self._phys2speed(value))
 
@@ -692,7 +686,7 @@ class BeckhoffCoderDetector(BeckhoffCoderBase):
 class BeckhoffMotorHSlit(BeckhoffMotorBase):
     parameter_overrides = {
         # see docu: speed = 0.1..8mm/s
-        'vmax': Override(settable=True, type=floatrange(0.1, 8), default=0.1),
+        'vmax': Override(settable=True, type=floatrange(-8), default=0.1),
         'slope': Override(default=1000),
     }
 
