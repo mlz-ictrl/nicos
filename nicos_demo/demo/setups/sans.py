@@ -204,6 +204,7 @@ devices = dict(
         timers = ['det1_timer'],
         monitors = ['det1_mon1', 'det1_mon2'],
         images = ['det1_img'],
+        liveinterval = 1,
     ),
     det_HV = device('nicos.devices.generic.VirtualMotor',
         description = 'high voltage at the detector',
