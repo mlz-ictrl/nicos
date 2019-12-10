@@ -40,6 +40,7 @@ devices = dict(
     image = device('nicos_mlz.toftof.devices.virtual.VirtualImage',
         pollinterval = 86400,
         datafile = 'nicos_mlz/toftof/data/test/data.npz',
+        background = 0,
     ),
     det = device('nicos_mlz.toftof.devices.detector.Detector',
         timers = ['timer'],

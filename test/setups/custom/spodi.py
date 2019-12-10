@@ -49,6 +49,7 @@ devices = dict(
     spodi_image = device('nicos_mlz.spodi.devices.virtual.VirtualImage',
         pollinterval = None,
         sizes = (80, 256),
+        background = 0,
     ),
     basedet = device('nicos.devices.generic.Detector',
         description = 'Classical detector with single channels',

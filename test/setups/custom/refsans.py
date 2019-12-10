@@ -428,6 +428,7 @@ devices = dict(
     image = device('nicos.devices.generic.VirtualImage',
         fmtstr = '%d',
         sizes = (256, 256),
+        background = 0,
     ),
     det = device('nicos.devices.generic.Detector',
         timers = ['timer'],

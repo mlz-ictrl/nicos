@@ -696,8 +696,9 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
         'sizes': Param('Detector size in pixels (x, y)',
                        settable=False,
                        type=tupleof(intrange(1, 1024), intrange(1, 1024)),
-                       default=(128, 128),
-                       ),
+                       default=(128, 128)),
+        'background': Param('Background level, use 0 to switch off',
+                            settable=True, type=int, default=10),
     }
 
     attached_devices = {
@@ -778,12 +779,14 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
                              np.linspace(-(yl // 2), (yl // 2) - 1, yl))
         beam = (t * 100 * np.exp(-xx**2/50) * np.exp(-yy**2/50)).astype(int)
         sigma2 = coll == '10m' and 200 or (coll == '15m' and 150 or 100)
-        beam += (t * 30 * np.exp(-(xx-dst)**2/sigma2) * np.exp(-yy**2/sigma2) +
-                 t * 30 * np.exp(-(xx+dst)**2/sigma2) * np.exp(-yy**2/sigma2) +
-                 t * 20 * np.exp(-xx**2/sigma2) * np.exp(-(yy-dst)**2/sigma2) +
-                 t * 20 * np.exp(-xx**2/sigma2) *
-                 np.exp(-(yy+dst)**2/sigma2)).astype(int)
-        return np.random.poisson(np.ascontiguousarray(beam.T))
+        beam += (
+            t * 30 * np.exp(-(xx-dst)**2/sigma2) * np.exp(-yy**2/sigma2) +
+            t * 30 * np.exp(-(xx+dst)**2/sigma2) * np.exp(-yy**2/sigma2) +
+            t * 20 * np.exp(-xx**2/sigma2) * np.exp(-(yy-dst)**2/sigma2) +
+            t * 20 * np.exp(-xx**2/sigma2) * np.exp(-(yy+dst)**2/sigma2)
+        ).astype(int)
+        return np.random.poisson(np.ascontiguousarray(beam.T +
+                                                      self.background))
 
     def doEstimateTime(self, elapsed):
         return self._timer.remaining_time()

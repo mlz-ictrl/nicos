@@ -50,6 +50,7 @@ devices = dict(
     ),
     img = device('nicos.devices.generic.VirtualImage',
         lowlevel = True,
+        background = 0,
     ),
     det = device('nicos.devices.generic.Detector',
         timers = ['timer'],
