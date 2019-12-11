@@ -50,14 +50,15 @@ class DBusNotifier(Notifier):
         dbus_interface = QtDBus.QDBusInterface(
             'org.freedesktop.Notifications',
             '/org/freedesktop/Notifications',
+            'org.freedesktop.Notifications',
         )
         dbus_interface.call('Notify',
                             'NICOS',                  # app_name
                             QVariant(QVariant.UInt),  # replaces_id
-                            'dialog-error',           # app_icon
+                            'dialog-warning',         # app_icon
                             subject,                  # summary
                             body,                     # body
-                            [],                       # actions
+                            QVariant(QVariant.StringList),  # actions
                             {},                       # hints
                             10000,                    # timeout (in ms)
                             )
