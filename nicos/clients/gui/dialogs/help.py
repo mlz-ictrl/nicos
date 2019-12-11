@@ -70,6 +70,8 @@ class HelpPage(QWebPage):
                                  frame.scrollPosition()))
             el = frame.findFirstElement(url.toString())
             frame.setScrollPosition(el.geometry().topLeft())
+        elif url.toString().startswith('data:text/html'):
+            return True
         else:
             target = url.toString()
             self.client.eval('session.showHelp(%r)' % target)
