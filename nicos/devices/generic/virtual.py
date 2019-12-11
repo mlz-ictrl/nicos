@@ -192,6 +192,8 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
 class VirtualCoder(HasOffset, Coder):
     """A virtual coder that just returns the value of a motor, with offset."""
 
+    hardware_access = False
+
     attached_devices = {
         'motor': Attach('Motor to read out to get coder value', Readable,
                         optional=True)
