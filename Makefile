@@ -2,6 +2,9 @@
 	guirc check setupcheck test testall test-coverage lint \
 	changelint manualrelease release help
 
+PODMAN_OR_DOCKER = $(shell which podman || which docker || \
+                     echo podman_or_docker 2>/dev/null)
+
 SHELL=/bin/bash
 
 RCC4 = pyrcc4
@@ -15,6 +18,10 @@ nicos/guisupport/gui_rc_qt5.py: resources/nicos-gui.qrc
 	-$(RCC5) -o $@ $<
 
 guirc: nicos/guisupport/gui_rc_qt4.py nicos/guisupport/gui_rc_qt5.py
+
+pod-demo:
+	$(PODMAN_OR_DOCKER) run -u `id -u` -v `pwd`:/nicos -p 1301:1301 \
+	--rm -it quay.io/cfelder/nicos:latest
 
 clean:
 	rm -rf build
@@ -102,6 +109,7 @@ help:
 	@echo "  install-venv    - install into a Python virtual environment"
 	@echo
 	@echo "Development targets:"
+	@echo "  pod-demo        - start nicos-demo pod using podman or docker"
 	@echo "  clean-demo      - clean up files created by nicos-demo"
 	@echo "  setupcheck      - run setup checks"
 	@echo "  test            - run test suite"
