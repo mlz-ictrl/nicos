@@ -45,6 +45,8 @@ main_window = docked(
 )
 
 windows = [
+    window('Live data', 'live',
+           panel('nicos.clients.gui.panels.live.LiveDataPanel')),
     window('Editor', 'editor',
            panel('nicos.clients.gui.panels.editor.EditorPanel')),
     window('Scans', 'plotter',
