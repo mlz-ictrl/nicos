@@ -198,7 +198,7 @@ class VirtualCoder(HasOffset, Coder):
     }
 
     parameter_overrides = {
-        'unit': Override(mandatory=False),
+        'unit': Override(mandatory=False, volatile=True),
     }
 
     def doRead(self, maxage=0):
