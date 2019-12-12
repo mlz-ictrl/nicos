@@ -6,5 +6,5 @@ excludes = ['fov_100x100', 'fov_190x190']
 includes = ['fov', 'frr']
 
 startupcode = """
-fov.userlimits = (275, 950)
+fov.userlimits = (220, 950)
 """
