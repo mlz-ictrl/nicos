@@ -43,6 +43,7 @@ from nicos.devices.datasinks import special
 from nicos.devices.datasinks.image import ImageSink
 
 from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
+from nicos_mlz.spheres.utils import getSisDetector
 
 timesteptime = 2e-5  # =20µs
 
@@ -98,7 +99,9 @@ class SisYamlFileSinkHandlerBase(YAMLBaseFileSinkHandler):
         fp.truncate()
         self.sink._setROParam('filename', os.path.basename(fp.name))
 
-        if self.params['reason'] == INTERMEDIATE:
+        # print info for the users if save has been triggered.
+        if self.params['reason'] == INTERMEDIATE \
+                and getSisDetector()._saveIntermediateFlag:
             self.log.info('Saved %s file to %s', self.savefile, fp.filepath)
 
     def buildFileContents(self, image):

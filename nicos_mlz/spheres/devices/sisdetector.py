@@ -405,6 +405,7 @@ class SISDetector(Detector):
         if self._saveIntermediateFlag:
             self._saveIntermediate()
             self._saveIntermediateFlag = False
+        return Detector.duringMeasureHook(self, elapsed)
 
     def getSisImageDevice(self):
         return self._adevs['images'][0]
