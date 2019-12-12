@@ -6,7 +6,7 @@ group = 'optional'
 
 includes = ['shutters','filesavers']
 
-tango_base = 'tango://172.25.28.134:10000/antares/'
+tango_base = 'tango://neo.nectar.frm2.tum.de:10000/antares/'
 
 devices = dict(
     timer_neo = device('nicos.devices.vendor.lima.LimaCCDTimer',
@@ -22,7 +22,7 @@ devices = dict(
         maxage = 9,
         flip = (False, True),
         rotation = 90,
-        openfastshutter = False,
+        openfastshutter = True,
         readoutrate = 280,
     ),
     temp_neo = device('nicos.devices.vendor.lima.Andor3TemperatureController',
