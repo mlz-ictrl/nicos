@@ -34,7 +34,9 @@ main_window = tabbed(
     ('Logbook', panel('nicos.clients.gui.panels.elog.ELogPanel')),
 )
 
-windows = []
+windows = [
+    window('Live data', 'live', panel('nicos.clients.gui.panels.live.LiveDataPanel')),
+]
 
 tools = [
     tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
