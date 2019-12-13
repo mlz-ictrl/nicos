@@ -134,6 +134,11 @@ class ScriptStatusPanel(Panel):
 
     panelName = 'Script status'
 
+    SHOW_ETA_STATES =[
+        'running',
+        'paused'
+    ]
+
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
         loadUi(self, 'panels/status.ui')
@@ -221,6 +226,8 @@ class ScriptStatusPanel(Panel):
         self.activeGroup.addAction(self.actionFinishEarly)
         self.activeGroup.addAction(self.actionFinishEarlyAndStop)
 
+        self._status = 'idle'
+
     def setViewOnly(self, viewonly):
         self.activeGroup.setEnabled(not viewonly)
 
@@ -237,6 +244,8 @@ class ScriptStatusPanel(Panel):
         return []
 
     def updateStatus(self, status, exception=False):
+        self._status = status
+
         isconnected = status != 'disconnected'
         self.actionBreak.setEnabled(isconnected and status != 'idle')
         self.actionBreak2.setEnabled(isconnected and status != 'idle')
@@ -316,7 +325,7 @@ class ScriptStatusPanel(Panel):
             self.script_queue.remove(reqid)
 
     def on_client_eta(self, data):
-        if not self.showETA:
+        if not self.showETA or self._status not in self.SHOW_ETA_STATES:
             return
 
         state, eta = data
