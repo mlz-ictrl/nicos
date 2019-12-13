@@ -23,7 +23,7 @@ devices = dict(
             'gisans':    -122.0,
         },
     ),
-    zb2_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
+    zb2_motor = device('nicos_mlz.refsans.devices.ipc.NOKMotorIPC',
         description = 'IPC controlled Motor of ZB2',
         abslimits = (-215.69, 93.0),
         bus = 'nokbus1',

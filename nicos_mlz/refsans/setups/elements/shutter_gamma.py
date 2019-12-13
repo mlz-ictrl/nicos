@@ -31,7 +31,7 @@ devices = dict(
     ),
 
     # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
-    nok1_motor = device('nicos_mlz.refsans.devices.nok_support.NOKMotorIPC',
+    nok1_motor = device('nicos_mlz.refsans.devices.ipc.NOKMotorIPC',
         description = 'IPC controlled Motor of NOK1',
         abslimits = (-56.119, 1.381),
         userlimits = (-56.119, 1.381),

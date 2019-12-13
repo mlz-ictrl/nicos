@@ -25,22 +25,21 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos import session
-from nicos.core import SIMULATION, ConfigurationError, HasPrecision, \
-    Moveable, MoveError, Readable, dictwith, status
+from nicos.core import ConfigurationError, HasPrecision, Moveable, MoveError, \
+    Readable, dictwith, status
 from nicos.core.errors import HardwareError
-from nicos.core.params import Attach, Override, Param, floatrange, intrange, \
-    limits, none_or, nonemptylistof, oneof, tupleof
+from nicos.core.params import Attach, Override, Param, floatrange, limits, \
+    none_or, nonemptylistof, oneof, tupleof
 from nicos.core.utils import multiReset
 from nicos.devices.abstract import CanReference, Coder
 from nicos.devices.generic import Axis
 from nicos.devices.generic.sequence import SeqDev, SeqMethod, SequenceItem, \
     SequencerMixin
 from nicos.devices.tango import Sensor
-from nicos.devices.vendor.ipc import Motor as IPCMotor
 from nicos.utils import clamp, lazy_property
 
 from nicos_mlz.refsans.devices.mixins import PseudoNOK
+
 
 MODES = ['ng', 'rc', 'vc', 'fc']
 
@@ -154,56 +153,6 @@ class NOKPosition(Coder):
         self.log.debug('final result: %f', result)
 
         return result
-
-
-# heavily based upon old nicm_nok.py, backlash is handled by an axis nowadays
-class NOKMotorIPC(CanReference, IPCMotor):
-    """Basically a IPCMotor with referencing."""
-
-    parameters = {
-        'refpos': Param('Reference position in phys. units',
-                        unit='main', type=none_or(float), mandatory=True),
-    }
-
-    parameter_overrides = {
-        'zerosteps': Override(default=500000, mandatory=False),
-        'unit': Override(default='mm', mandatory=False),
-        'backlash': Override(type=floatrange(0.0, 0.0)),  # only 0 is allowed!
-        'speed': Override(default=10),
-        'accel': Override(default=10),
-        'slope': Override(default=2000),
-        'confbyte': Override(default=48),
-        'divider': Override(type=intrange(-1, 7)),
-    }
-
-    def doInit(self, mode):
-        if mode != SIMULATION:
-            self._attached_bus.ping(self.addr)
-            if self._hwtype == 'single':
-                if self.confbyte != self.doReadConfbyte():
-                    self.doWriteConfbyte(self.confbyte)
-                    self.log.warning('Confbyte mismatch between setup and card'
-                                     ', overriding card value to 0x%02x',
-                                     self.confbyte)
-            # make sure that the card has the right "last steps"
-            # This should not applied at REFSANS, since it disturbs the running
-            # TACO server settings
-            # if self.steps != self.doReadSteps():
-            #     self.doWriteSteps(self.steps)
-            #     self.log.warning('Resetting stepper position to last known '
-            #                      'good value %d', self.steps)
-            self._type = 'stepper motor, ' + self._hwtype
-        else:
-            self._type = 'simulated stepper'
-
-    def doReference(self):
-        bus = self._attached_bus
-        bus.send(self.addr, 34)  # always go forward (positive)
-        bus.send(self.addr, 47, self.speed, 3)  # reference with normal speed
-        # may need to sleep a little here....
-        session.delay(0.1)
-        self.wait()
-        self.doSetPosition(self.refpos)
 
 
 #
