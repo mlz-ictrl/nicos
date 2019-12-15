@@ -139,19 +139,6 @@ possible with the device:
 
    .. automethod:: history
 
-   These are compatibility methods from the old NICOS system.  Parameter access
-   is now done via a property for every parameter.
-
-   .. method:: getPar(name)
-
-      .. deprecated:: 2.10
-         Use ``dev.name`` instead.
-
-   .. method:: setPar(name, value)
-
-      .. deprecated:: 2.10
-         Use ``dev.name = value`` instead.
-
    .. rubric:: Parameter access
 
    For every parameter of a device class, a Python property is created on the

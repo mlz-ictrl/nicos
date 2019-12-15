@@ -248,11 +248,6 @@ def test_params(session):
     assert 'doUpdateParam2' in methods_called
     # nonexisting parameters
     assert raises(NicosError, setattr, dev2, 'param3', 1)
-    # test legacy getPar/setPar API
-    dev2.setPar('param2', 7)
-    assert dev2.getPar('param2') == 8
-    assert raises(UsageError, dev2.setPar, 'param3', 1)
-    assert raises(UsageError, dev2.getPar, 'param3')
     # test parameter value when in cache, but default value updated
     session.cache.put(dev2, 'param1', 50)
     session.createDevice('dev2_1', recreate=True)

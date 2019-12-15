@@ -45,8 +45,8 @@ from nicos.core.mixins import DeviceMixinMeta, HasLimits, HasOffset, \
 from nicos.core.params import INFO_CATEGORIES, Attach, Override, Param, \
     Value, anytype, dictof, floatrange, listof, nicosdev, none_or, oneof, \
     tupleof
-from nicos.core.utils import deprecated, formatStatus, multiStatus, \
-    multiStop, multiWait, statusString, usermethod
+from nicos.core.utils import formatStatus, multiStatus, multiStop, multiWait, \
+    statusString, usermethod
 from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.pycompat import add_metaclass, integer_types, iteritems, \
     listitems, number_types, reraise, string_types
@@ -414,22 +414,6 @@ class Device(object):
     def __reduce__(self):
         # Used for pickling the device e.g. when sending between daemon and GUI
         return (str, (self._name,))
-
-    @deprecated(since='2.10', comment='Please use "dev.name" instead.')
-    def getPar(self, name):
-        """Get a parameter of the device."""
-        if name.lower() not in self.parameters:
-            raise UsageError(self, 'device has no parameter %s, use '
-                             'ListParams(%s) to show all' % (name, self))
-        return getattr(self, name.lower())
-
-    @deprecated(since='2.10', comment='Please use "dev.name = value" instead.')
-    def setPar(self, name, value):
-        """Set a parameter of the device to a new value."""
-        if name.lower() not in self.parameters:
-            raise UsageError(self, 'device has no parameter %s, use '
-                             'ListParams(%s) to show all' % (name, self))
-        setattr(self, name.lower(), value)
 
     def doReadName(self):
         return self._name
