@@ -2,22 +2,27 @@ description = 'setup for the execution daemon'
 group = 'special'
 
 devices = dict(
-    # fixed list of users:
-    # first entry is the user name, second the hashed password, third the user level
-    # (of course, for real passwords you don't calculate the hash here :)
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         hashing = 'md5',
         passwd = [
             ('guest', '', 'guest'),
-            ('user', 'ee11cbb19052e40b07aac0ca060c23ee', 'user'),
-            ('jcns', 'bddb0acb705429fc46713aec4613b2cb', 'admin'),
-            ('admin', '21232f297a57a5a743894a0e4a801fc3', 'admin'),
+            ('jcns', '51b8e46e7a54e8033f0d7a3393305cdb', 'admin'),
         ],
+    ),
+    LDAPAuth = device('nicos_jcns.devices.ldap.Authenticator',
+        uri = 'ldap://iffldap.iff.kfa-juelich.de',
+        userbasedn = 'ou=People,dc=iff,dc=kfa-juelich,dc=de',
+        groupbasedn = 'ou=Groups,dc=iff,dc=kfa-juelich,dc=de',
+        grouproles = {
+            'ictrl': 'admin',
+            'jcns-1': 'user',
+            'jcns-2': 'user',
+        },
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         description = 'Daemon, executing commands and scripts',
         server = '',
-        authenticators = ['Auth'],
+        authenticators = ['Auth', 'LDAPAuth'],
         loglevel = 'debug',
     ),
 )
