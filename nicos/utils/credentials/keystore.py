@@ -54,7 +54,7 @@ class NicosKeyRing(EncryptedKeyring):
     '''Keyring that allows easy setting of storage location
     '''
 
-    def __init__(self, storepath=None):
+    def __init__(self, storepath=""):
         self.storepath = os.path.expanduser(storepath)
 
     @properties.NonDataProperty
