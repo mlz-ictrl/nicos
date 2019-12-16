@@ -34,7 +34,7 @@ session_setup = 'monitor-html'
 class HtmlTestMonitor(Monitor):
 
     def mainLoop(self):
-        self._rendered_content = ''.join(map(str, self._content))
+        self._rendered_content = u''.join(ct.getHTML() for ct in self._content)
 
 
 class MockOptions(object):

@@ -54,7 +54,7 @@ from time import localtime, mktime, sleep, strftime, strptime, \
 # session dependent nicos utilities should be implemented in nicos.core.utils
 from nicos import config, get_custom_version, nicos_version
 # pylint: disable=redefined-builtin
-from nicos.pycompat import PY2, exec_, iteritems, string_types, text_type, \
+from nicos.pycompat import PY2, iteritems, string_types, text_type, \
     xrange as range
 
 try:
@@ -657,7 +657,7 @@ def moveOutOfWay(filepath, maxbackups=10):
 
 
 def safeWriteFile(filepath, content, mode='w', maxbackups=10):
-    """(almost) atomic writing of a file
+    """(Almost) atomic writing of a file.
 
     The content is first written to a temporary file and then swapped in while
     keeping a backup file.
