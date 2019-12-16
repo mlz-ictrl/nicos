@@ -137,13 +137,13 @@ class Field(object):
                 dev, False, normalize=lambda s: s.lower())
             if indices:
                 desc['item'] = indices
-            desc['key'] = dev + '/value'
-            desc['statuskey'] = dev + '/status'
-            desc['fixedkey'] = dev + '/fixed'
+            desc['key'] = prefix + dev + '/value'
+            desc['statuskey'] = prefix + dev + '/status'
+            desc['fixedkey'] =  prefix + dev + '/fixed'
             if 'unit' not in desc:
-                desc['unitkey'] = dev + '/unit'
+                desc['unitkey'] = prefix + dev + '/unit'
             if 'format' not in desc:
-                desc['formatkey'] = dev + '/fmtstr'
+                desc['formatkey'] = prefix + dev + '/fmtstr'
         elif 'key' in desc:
             key, indices, _scale, _offset = extractKeyAndIndex(desc['key'], False)
             if indices:
