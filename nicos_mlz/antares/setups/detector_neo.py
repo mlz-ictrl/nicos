@@ -40,6 +40,16 @@ devices = dict(
         images = ['neo'],
         timers = ['timer_neo'],
     ),
+    sharpness = device('nicos_mlz.antares.devices.detector.Sharpness',
+        description = 'Sharpness signal from the detector image'
+    ),
+    det_sharp = device('nicos.devices.generic.Detector',
+        description = 'The Andor Neo sCMOS camera detector with sharpness signal',
+        images = ['neo'],
+        timers = ['timer_neo'],
+        counters = ['sharpness'],
+        postprocess = [('sharpness', 'neo')],
+    ),
     socket_neo = device('nicos.devices.tango.NamedDigitalOutput',
         description = 'Powersocket 01 (Neo Camera attached)',
         tangodevice = 'tango://antareshw.antares.frm2:10000/antares/'
