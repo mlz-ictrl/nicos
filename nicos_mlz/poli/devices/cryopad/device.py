@@ -197,7 +197,7 @@ class CryopadPol(Moveable):
 
 
 class CryopadFlip(Switcher):
-    """Controls the nutator current used as a flipper."""
+    """Controls the nutator currently used as a flipper."""
 
     def doInit(self, mode):
         Switcher.doInit(self, mode)

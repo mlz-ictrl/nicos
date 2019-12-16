@@ -26,7 +26,7 @@ devices = dict(
         website = 'http://www.mlz-garching.de/spheres',
     ),
     Sample = device('nicos.devices.sample.Sample',
-        description = 'The current used sample',
+        description = 'The currently used sample',
     ),
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',

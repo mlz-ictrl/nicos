@@ -30,7 +30,7 @@ devices = dict(
         ],
     ),
     Sample = device('nicos.devices.sample.Sample',
-        description = 'The current used sample',
+        description = 'The currently used sample',
     ),
 
     Exp = device('nicos_mlz.devices.experiment.Experiment',

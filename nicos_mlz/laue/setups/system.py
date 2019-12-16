@@ -22,7 +22,7 @@ devices = dict(
         operators = [u'Technische Universität München (TUM)'],
     ),
     Sample = device('nicos.devices.sample.Sample',
-        description = 'The current used sample',
+        description = 'The currently used sample',
     ),
 
     Exp = device('nicos.devices.experiment.Experiment',

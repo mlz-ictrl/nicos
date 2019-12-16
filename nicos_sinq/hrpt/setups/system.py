@@ -23,7 +23,7 @@ devices = dict(
                ),
 
     Sample=device('nicos_sinq.devices.powdersample.PowderSample',
-                  description='The current used sample',
+                  description='The currently used sample',
                   ),
 
     Exp=device('nicos_sinq.devices.experiment.SinqExperiment',

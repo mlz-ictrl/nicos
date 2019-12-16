@@ -22,7 +22,7 @@ devices = dict(
         sample = 'Sample',
     ),
     Sample = device('nicos.devices.sample.Sample',
-        description = 'The current used sample',
+        description = 'The currently used sample',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),

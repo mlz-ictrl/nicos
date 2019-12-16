@@ -27,11 +27,11 @@ devices = dict(
         ],
     ),
     StandardSample = device('nicos.devices.sample.Sample',
-        description = 'The current used sample',
+        description = 'The currently used sample',
         lowlevel = True,
     ),
     Sample = device('nicos_demo.vtreff.devices.MirrorSample',
-        description = 'The current used mirror sample',
+        description = 'The currently used mirror sample',
         alignerrors = {
             'sample_y': 2,
             'omega': 0.01,

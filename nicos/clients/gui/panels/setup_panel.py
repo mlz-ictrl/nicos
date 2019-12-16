@@ -640,7 +640,7 @@ sample environment is placed.''')
 
 
 class GenericSamplePanel(Panel):
-    """Provides a panel to input the name of the current used sample."""
+    """Provides a panel to input the name of the currently used sample."""
 
     panelName = 'Sample setup'
     uiName = 'panels/setup_sample.ui'

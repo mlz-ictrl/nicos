@@ -29,7 +29,7 @@ devices = dict(
         responsible = 'R. Esponsible <r.esponsible@example.host>',
     ),
     Sample = device('nicos.devices.sample.Sample',
-        description = 'The current used sample',
+        description = 'The currently used sample',
     ),
 
     # Configure dataroot here (usually /data).
