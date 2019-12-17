@@ -9,7 +9,6 @@ devices = dict(
         copies = [
             ('e.vezhlev@fz-juelich.de', 'all'),
             ('peter.link@frm2.tum.de', 'all'),
-            ('stefan.mattauch@fz-juelich.de', 'important'),
             ('c.felder@fz-juelich.de', 'important'),
         ],
         subject = '[NICOS] TREFF',
