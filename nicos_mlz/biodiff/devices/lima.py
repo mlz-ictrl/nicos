@@ -24,9 +24,14 @@
 
 from __future__ import absolute_import, division, print_function
 
+from nicos.core import CommunicationError
 from nicos.core.constants import FINAL, SLAVE
 from nicos.core.params import Value
 from nicos.devices.vendor.lima.andor2 import Andor2LimaCCD as BaseAndor2LimaCCD
+
+
+class PyDs_PythonError(CommunicationError):
+    """Error occured in lima library, e.g. no frame(s) available."""
 
 
 # TODO: Remove code duplication and fix MRO issues when inheriting
@@ -38,7 +43,10 @@ class Andor2LimaCCD(BaseAndor2LimaCCD):
     def doInit(self, mode):
         BaseAndor2LimaCCD.doInit(self, mode)
         if mode != SLAVE:
-            self.readArray(FINAL)  # update readresult at startup
+            try:
+                self.readArray(FINAL)  # update readresult at startup
+            except PyDs_PythonError as e:  # no frame(s) available yet
+                self.log.debug(e)
 
     def doReadArray(self, quality):
         narray = BaseAndor2LimaCCD.doReadArray(self, quality)
@@ -48,3 +56,9 @@ class Andor2LimaCCD(BaseAndor2LimaCCD):
     def valueInfo(self):
         return Value(name=self.name, type='counter', fmtstr='%d',
                      errors='sqrt', unit='cts'),
+
+    def _com_raise(self, err, info):
+        reason = self._tango_exc_reason(err)
+        if reason == "PyDs_PythonError":
+            raise PyDs_PythonError(self, self._tango_exc_desc(err))
+        BaseAndor2LimaCCD._com_raise(self, err, info)
