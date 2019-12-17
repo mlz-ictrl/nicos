@@ -90,7 +90,7 @@ class NoninteractiveSession(Session):
                 signal.signal(signal.SIGUSR1, reload_handler)
                 signal.signal(signal.SIGUSR2, status_handler)
 
-            if pidfile:
+            if pidfile and daemon != 'systemd':
                 writePidfile(appname)
 
             session._beforeStart(maindev)
@@ -113,7 +113,8 @@ class NoninteractiveSession(Session):
         maindev.wait()
 
         session.shutdown()
-        removePidfile(appname)
+        if pidfile and daemon != 'systemd':
+            removePidfile(appname)
 
 
 class SingleDeviceSession(NoninteractiveSession):
