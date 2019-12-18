@@ -2,23 +2,25 @@ description = 'Radialcollimator CARESS HWB xDevices'
 
 group = 'optional'
 
-servername = 'VME'
-
-nameservice = 'stressictrl.stressi.frm2'
+tango_base = 'tango://motorbox03.stressi.frm2.tum.de:10000/box/'
 
 devices = dict(
-    mot1 = device('nicos.devices.vendor.caress.EKFMotor',
+    rcdet_m = device('nicos.devices.tango.Motor',
+        tangodevice = tango_base + 'channel7/motor',
+        fmtstr = '%.3f',
+	lowlevel = True,
+    ),
+    rcdet_c = device('nicos.devices.tango.Sensor',
+        tangodevice = tango_base + 'channel7/coder',
+        fmtstr = '%.3f',
+        lowlevel = True,
+    ),
+    rcdet = device('nicos.devices.generic.Axis',
         description = 'RadColli=ZE',
         fmtstr = '%.3f',
-        unit = 'deg',
-        coderoffset = 8.393,
-        abslimits = (-8, 8),
-        nameserver = '%s' % nameservice,
-        objname = '%s' % servername,
-        # config = 'MOT1 115 11 0x00f1d000 4 4050 1000 100 1 0 0 0 0 1 '
-        #          '5000 1 10 0 0 0',
-        config = 'MOT1 114 11 0x00f1d000 4 4096 500 50 2 24 50 1 0 1 '
-                 '3000 1 10 0 0 0',
+        motor = 'rcdet_m',
+        coder = 'rcdet_c',
+        precision = 0.01,
     ),
     rad_fwhm = device('nicos.devices.generic.ManualMove',
         description = 'FWHM Radialcollimator',
