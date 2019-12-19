@@ -10,13 +10,20 @@ devices = dict(
                     # the hashing maybe 'md5' or 'sha1'
                     hashing = 'md5',
                     passwd = [('guest', '', 'guest'),
-                              ('user', 'ee11cbb19052e40b07aac0ca060c23ee', 'user'),
-                              ('admin', '741caa4ef1301afb85b1be7f8feabf1f', 'admin'),
                              ],
                    ),
+    LDAPAuth = device('nicos.services.daemon.auth.ldap.Authenticator',
+        uri = 'ldap://phaidra.admin.frm2',
+        userbasedn = 'ou=People,dc=frm2,dc=de',
+        groupbasedn = 'ou=Group,dc=frm2,dc=de',
+        grouproles = {
+            'stressi': 'admin',
+            'ictrl': 'admin',
+        }
+    ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-                    server = '',
-                    authenticators = ['Auth'], # and/or 'UserDB'
-                    loglevel = 'info',
-                   ),
+        server = '',
+        authenticators = ['LDAPAuth', 'Auth'], # and/or 'UserDB'
+        loglevel = 'info',
+    ),
 )
