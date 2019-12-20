@@ -31,8 +31,8 @@ from __future__ import absolute_import, division, print_function
 from collections import namedtuple
 
 from nicos import session
-from nicos.core import FINAL, INTERMEDIATE, INTERRUPTED, LIVE, NicosError, \
-    Param, UsageError, oneof, status
+from nicos.core import FINAL, INTERMEDIATE, LIVE, NicosError, Param, \
+    UsageError, oneof, status
 from nicos.core.constants import SIMULATION
 from nicos.core.params import Attach, Value, listof
 from nicos.devices.generic.detector import Detector
@@ -209,17 +209,12 @@ class SISChannel(ImageChannel):
         self._hw_wait()
 
     def doReadArray(self, quality):
-        self.readresult = [sum(self._dev.value)]
         mode = self.getMode()
 
         if quality == LIVE:
             return [self._readLiveData()]
-        elif quality == INTERMEDIATE:
-            self._reason = 'intermediate'
-        elif quality == FINAL:
-            self._reason = 'final'
-        elif quality == INTERRUPTED:
-            self._reason = 'interrupted'
+        else:
+            self._reason = quality
 
         if mode == ELASTIC:
             return self._readElastic()
@@ -266,8 +261,16 @@ class SISChannel(ImageChannel):
         edata = self._readData(ENERGY)
         cdata = self._readData(CHOPPER)
 
-        self._incrementCounts(edata, cdata)
-        return (live, params, self._last_edata, self._last_cdata)
+        if self.incremental:
+            if self._reason == FINAL:
+                self._processCounts(edata, cdata)
+                edata = self._last_edata
+                cdata = self._last_cdata
+            else:
+                self._mergeCounts(edata, self._last_edata)
+                self._mergeCounts(cdata, self._last_cdata)
+
+        return live, params, edata, cdata
 
     def _readData(self, target):
         '''Read the requested data from the hardware and generate the according
@@ -290,8 +293,9 @@ class SISChannel(ImageChannel):
         rawdatasize = len(rawdata)
 
         data = []
-
-        amount = rawdatasize // (xvalsize*self.detamount*2)
+        amount = rawdatasize // (xvalsize * self.detamount * 2)
+        if target in [ENERGY, TIME]:
+            self.readresult = [sum(rawdata[:rawdatasize // 2])]
         counts = rawdata[:rawdatasize // 2].reshape(amount, xvalsize,
                                                     self.detamount)
         times = rawdata[rawdatasize // 2:].reshape(amount, xvalsize,
@@ -327,6 +331,8 @@ class SISChannel(ImageChannel):
         Increments the first array, entry by entry with the corresponding
         entries from the second array.
         """
+        if not increment:
+            return
 
         for i, entry in enumerate(total):
             for j, arr in enumerate(entry):
@@ -334,12 +340,12 @@ class SISChannel(ImageChannel):
                     continue
                 arr.__iadd__(increment[i][j])
 
-    def _incrementCounts(self, edata, cdata):
+    def _processCounts(self, edata, cdata):
         """
-        Increment accumulated data by the given data
+        Set data arrays to the right values for further processing.
         """
 
-        if self._last_edata is None or not self.incremental:
+        if self._last_edata is None:
             self._last_edata = edata
             self._last_cdata = cdata
             return
