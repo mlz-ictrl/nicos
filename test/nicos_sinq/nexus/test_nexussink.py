@@ -42,6 +42,8 @@ from nicos_sinq.nexus.elements import ConstDataset, DetectorDataset, \
 
 from test.nicos_sinq.nexus.TestTemplateProvider import setTemplate
 
+year = time.strftime('%Y')
+
 session_setup = 'sinq_nexussink'
 
 
@@ -59,9 +61,8 @@ class TestNexusSink(object):
         exp._setROParam('dataroot', dataroot)
         exp.new(1234, user='testuser', localcontact=exp.localcontact)
         exp.sample.new({'name': 'GurkenOxid'})
-        year = time.strftime('%Y')
         assert path.abspath(exp.datapath) == path.abspath(
-            path.join(config.nicos_root, self.datadir, str(year), 'p1234',
+            path.join(config.nicos_root, self.datadir, year, 'p1234',
                       'data'))
         session.experiment.setEnvironment([])
 
@@ -83,8 +84,8 @@ class TestNexusSink(object):
 
         count(t=0.1)
 
-        fin = h5py.File(session.experiment.datapath + '/test2019n000043.hdf',
-                        'r')
+        fin = h5py.File(path.join(session.experiment.datapath,
+                                  'test%sn000043.hdf' % year), 'r')
         att = fin.attrs['instrument']
         assert (att == b'test')
 
@@ -108,8 +109,8 @@ class TestNexusSink(object):
         setTemplate(template)
         count(t=.1)
 
-        fin = h5py.File(session.experiment.datapath + '/test2019n000043.hdf',
-                        'r')
+        fin = h5py.File(path.join(session.experiment.datapath,
+                                  'test%sn000043.hdf' % year), 'r')
         ds = fin['entry/name']
         assert (ds[0] == b'GurkenTitle')
 
@@ -132,8 +133,8 @@ class TestNexusSink(object):
 
         count(t=.1)
 
-        fin = h5py.File(session.experiment.datapath + '/test2019n000043.hdf',
-                        'r')
+        fin = h5py.File(path.join(session.experiment.datapath,
+                                  'test%sn000043.hdf' % year), 'r')
         g = fin['entry']
         assert (g.attrs['title'] == b'GurkenTitle')
         assert (g.attrs['units'] == b'mm')
@@ -156,8 +157,8 @@ class TestNexusSink(object):
         sry = session.getDevice('sry')
         scan(sry, 0, 1, 5, t=0.001)
 
-        fin = h5py.File(session.experiment.datapath + '/test2019n000043.hdf',
-                        'r')
+        fin = h5py.File(path.join(session.experiment.datapath,
+                                  'test%sn000043.hdf' % year), 'r')
 
         ds = fin['entry/sry']
         assert (len(ds) == 5)
@@ -194,8 +195,8 @@ class TestNexusSink(object):
         session.experiment.setDetectors(['det', ])
         count(t=.1)
 
-        fin = h5py.File(session.experiment.datapath + '/test2019n000043.hdf',
-                        'r')
+        fin = h5py.File(path.join(session.experiment.datapath,
+                                  'test%sn000043.hdf' % year), 'r')
         ds = fin['data/time']
         ds = fin['data/mon']
         ds = fin['data/counts']
@@ -213,8 +214,8 @@ class TestNexusSink(object):
         setTemplate(template)
         count(t=.1)
 
-        fin = h5py.File(session.experiment.datapath + '/test2019n000043.hdf',
-                        'r')
+        fin = h5py.File(path.join(session.experiment.datapath,
+                                  'test%sn000043.hdf' % year), 'r')
         ds = fin['entry/sry']
         assert (ds[0] == 77.7)
 

@@ -71,7 +71,8 @@ def setup_module(session):
 
 def test_sinqascii(session):
     # check contents of ASCII scan data file
-    scanfile = path.join(session.experiment.datapath, 'test2019n000043.dat')
+    scanfile = path.join(session.experiment.datapath,
+                         'test%sn000043.dat' % year)
     assert path.isfile(scanfile)
     contents = readFile(scanfile)
     assert (contents[0] == '**** SINQASCII TEST TEMPLATE ****')
