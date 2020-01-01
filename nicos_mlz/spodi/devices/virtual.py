@@ -29,13 +29,12 @@ from __future__ import absolute_import, division, print_function
 import math
 import time
 
+import dataparser as DataParser
 import numpy as np
 
 from nicos.core import Override, Param
 from nicos.devices.generic.virtual import VirtualImage as BaseImage
 from nicos.utils import findResource
-
-import dataparser as DataParser
 
 
 class VirtualImage(BaseImage):
