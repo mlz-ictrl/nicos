@@ -40,7 +40,6 @@ from nicos.utils import clamp, lazy_property
 
 from nicos_mlz.refsans.devices.mixins import PseudoNOK
 
-
 MODES = ['ng', 'rc', 'vc', 'fc']
 
 
