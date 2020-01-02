@@ -10,3 +10,4 @@ psutil>=2.0
 python-redmine>=2.0.0
 html2text>=3.200.3
 six>=1.10.0
+lttb>=0.2.2

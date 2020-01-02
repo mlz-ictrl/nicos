@@ -34,8 +34,8 @@ import operator
 from time import time as currenttime
 
 import numpy as np
+from lttb import lttb
 
-from nicos._vendor import lttb
 from nicos.pycompat import iteritems, number_types, string_types
 
 
@@ -246,7 +246,8 @@ class TimeSeries(object):
             # keep array around the size of maxsize
             if arrsize >= self.maxsize:
                 # don't add more points, make existing ones more sparse
-                new_data = lttb.downsample(self.data[:real_n],
+                data = self.data[:real_n]
+                new_data = lttb.downsample(data[data[:, 0].argsort()],
                                            n_out=arrsize // 2)
                 n = self.n = self.real_n = new_data.shape[0]
                 # can resize in place here

@@ -17,6 +17,7 @@ If not mentioned otherwise, Python packages are available from PyPI
   - pyzmq version >= 2
   - rsa
   - six
+  - lttb version >= 0.2.2
 
 * For the provided SysV compatible init script and nicos-demo:
 
