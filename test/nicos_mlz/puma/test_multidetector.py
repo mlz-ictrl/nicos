@@ -53,8 +53,6 @@ class TestMultiDetector(object):
 
         med.stop()
         med.reset()
-        med.reference()
-        med.wait()
 
     def test_internal_functions(self, session):
         """Test class internal functions."""
