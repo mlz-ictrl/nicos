@@ -286,13 +286,22 @@ class BiodiffDetector(Detector):
                                    default=True),
     }
 
+    # guard against multiple prepare calls here:
+    # * `RScan.preparePoint` has been extended to call `prepare` in oder to
+    #   prepare detectors for exposure before moving any devices.
+    # * `nicos.core.acquire.acquire` internally calls `prepare` again which
+    #   must be ignored.
+    _prepared = False
+
     def doPrepare(self):
-        # close shutter
-        if self.ctrl_photoshutter:
-            self._attached_photoshutter.maw(CLOSED)
-        if self.ctrl_gammashutter:
-            self._attached_gammashutter.maw(CLOSED)
-        Detector.doPrepare(self)
+        if not self._prepared:
+            # close shutter
+            if self.ctrl_photoshutter:
+                self._attached_photoshutter.maw(CLOSED)
+            if self.ctrl_gammashutter:
+                self._attached_gammashutter.maw(CLOSED)
+            Detector.doPrepare(self)
+        self._prepared = True
 
     def doStart(self):
         # open shutter
@@ -301,6 +310,7 @@ class BiodiffDetector(Detector):
         if self.ctrl_photoshutter:
             self._attached_photoshutter.maw(OPEN)
         Detector.doStart(self)
+        self._prepared = False
 
     def _check_shutter(self):
         if (self.ctrl_photoshutter and
@@ -328,6 +338,7 @@ class BiodiffDetector(Detector):
             self._attached_photoshutter.maw(CLOSED)
         if self.ctrl_gammashutter:
             self._attached_gammashutter.maw(CLOSED)
+        self._prepared = False
 
     def doStop(self):
         Detector.doStop(self)
@@ -336,3 +347,4 @@ class BiodiffDetector(Detector):
             self._attached_photoshutter.maw(CLOSED)
         if self.ctrl_gammashutter:
             self._attached_gammashutter.maw(CLOSED)
+        self._prepared = False
