@@ -1,8 +1,7 @@
 description = 'minimal NICOS startup setup'
 group = 'lowlevel'
 
-sysconfig = dict(
-    cache = 'refsansctrl.refsans.frm2.tum.de',
-)
-
-# STARTUP NEVER INCLUDES ANYTHING !!!
+# The startup setup is loaded first thing on NICOS session startup.  It should
+# usually stay empty.  In particular, it should not include any other setups
+# without good reason, so that on startup the previous master setups are loaded
+# automatically.
