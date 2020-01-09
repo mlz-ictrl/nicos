@@ -2,6 +2,10 @@ description = 'NOK Devices for REFSANS, main file including all'
 
 group = 'lowlevel'
 
+instrument_values = configdata('instrument.values')
+
+code_base = instrument_values['code_base'] + 'optic.Optic'
+
 includes = [
     'b1',
     'b2',
@@ -28,7 +32,7 @@ includes = [
 ]
 
 devices = dict(
-    optic = device('nicos_mlz.refsans.devices.optic.Optic',
+    optic = device(code_base,
         description = 'Beam optic',
         b1 = 'b1',
         b2 = 'b2',
