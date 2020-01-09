@@ -1,6 +1,80 @@
 Changelog
 =========
 
+Release 3.6.0
+-------------
+
+* Core
+
+  - In data acquisition, detector prepare() is now called after setPreset().
+
+  - The command-line client can now display subsecond timestamps.
+
+  - Experiments can now force single count()s to produce a scan dataset
+    with one point.
+
+  - A device parameter can now be defined as "internal", which means that it is
+    managed exclusively by the device's code, and not accepted in setup files.
+
+  - Non-Readable devices now also have an "active in dry-run" flag.
+
+  - The new parameter validator "oneofdict_or" allows naming some special
+    device values while also supporting unnamed values inbetween.
+
+  - The collector daemon can now map device keys when forwarding between caches.
+
+  - Added a Lorentzian fitter for use in the GUI and fit commands.
+
+  - Daemon user authenticators can now add metadata to the returned User
+    objects.
+
+* GUI
+
+  - The display of the executed script now includes line numbers.
+
+  - The device panel shows more actions for non-moveable devices, such as
+    reset and enable/disable.
+
+  - A new panel is available for low-level access to PLC devices following
+    the PILS specification.
+
+  - The Qt monitor now supports scale/offset specifiers for plotted values.
+
+  - The standalone history application now also supports saved presets,
+    restoring views, and listing the available keys for display, and it allows
+    choosing the cache server to use.
+
+  - Tabs in a tab bar guiconfig element can now be displayed on the left side.
+
+* Devices
+
+  - Added a debugging data sink.
+
+  - Added a Tango MotorAxis device.
+
+  - Added a device to receive instructions from a barcode reader.
+
+  - Slit devices can now reference their axes in parallel.
+
+* Commands
+
+  - Added "abort()" which stops a script from within the script,
+    which is more intuitive than raising an exception.
+
+* Tools
+
+  - Added systemd integration with a unit that generates and starts units for
+    each configured NICOS service, similar to the init script.
+
+  - Added a tool to generate password hashes for the daemon setup.
+
+  - Added a tool to rename devices in a flatfile cache database.
+
+* Development
+
+  - Many more fixes for Python 3 and Qt 5.
+
+
 Release 3.5.0
 -------------
 
@@ -37,7 +111,7 @@ Release 3.5.0
 * Watchdog
 
   - Conditions learned the full setup dependency syntax like the status monitor
-    fields and groups
+    fields and groups.
 
 * Tests
 
