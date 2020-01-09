@@ -8,6 +8,13 @@ tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base']
 
 devices = dict(
+    primary_beam = device('nicos.devices.generic.ManualMove',
+        description = 'Number of primary beam measurement for analysis',
+        abslimits = (0, 100000000),
+        default = 0,
+        fmtstr = 'Nr %d',
+        unit = '',
+    ),
     det_drift = device('nicos.devices.generic.ManualSwitch',
         description = 'depth of detector drift1=40mm drift2=65mm',
         states = ['off','drift1', 'drift2'],
