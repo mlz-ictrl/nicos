@@ -178,6 +178,7 @@ _dettube = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
+        showwatchdog = False,
         title = description,
         loglevel = 'info',
         cache = 'refsansctrl01.refsans.frm2',

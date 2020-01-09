@@ -204,6 +204,7 @@ _apertures_slits = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
+        showwatchdog = False,
         title = description,
         loglevel = 'info',
         cache = 'refsansctrl.refsans.frm2.tum.de',
