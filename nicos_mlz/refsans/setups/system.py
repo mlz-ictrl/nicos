@@ -14,15 +14,12 @@ sysconfig = dict(
 modules = ['nicos.commands.standard', 'nicos_mlz.refsans.commands']
 includes = ['notifiers']
 
-# SYSTEM NEVER INCLUDES OTHER SETUPS !!!
-
 devices = dict(
     REFSANS = device('nicos.devices.instrument.Instrument',
         description = 'Container storing Instrument properties',
         instrument = 'REFSANS',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-31',
         responsible = 'Dr. Jean-Francois Moulin <jean-francois.moulin@hzg.de>',
-        # responsible = 'Matthias Pomm <matthias.pomm@hzg.de>',
         operators = ['German Engineering Materials Science Centre (GEMS)'],
         website = 'http://www.mlz-garching.de/refsans',
     ),
@@ -41,11 +38,8 @@ devices = dict(
     conssink = device('nicos.devices.datasinks.ConsoleScanSink',
         description = 'Device outputting logmessages to the console',
     ),
-    daemonsink = device('nicos.devices.datasinks.DaemonSink',
-        description = 'The daemon Device, coordinating all the heavy lifting',
-    ),
-    configsink = device('nicos_mlz.refsans.devices.datasinks.ConfigObjDatafileSink',
-    ),
+    daemonsink = device('nicos.devices.datasinks.DaemonSink'),
+    configsink = device('nicos_mlz.refsans.devices.datasinks.ConfigObjDatafileSink'),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         minfree = 5,
