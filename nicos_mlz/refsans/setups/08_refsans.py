@@ -3,9 +3,9 @@ description = 'REFSANS basic setup no sense yet'
 group = 'basic'
 
 includes = [
-    #'autocollimator',
-    #'b3h3',
-    #'backguard',
+    # 'autocollimator',
+    # 'b3h3',
+    # 'backguard',
     'beamstop',
     'chamber',
     'chopper',
@@ -13,10 +13,10 @@ includes = [
     'detector',
     'fak40',
     'gonio',
-    #'gonio_top',
+    # 'gonio_top',
     'guidehall',
     'h2',
-    #'height',
+    # 'height',
     'memograph',
     'nl2b',
     'optic_elements',
@@ -30,11 +30,8 @@ includes = [
     'detector',
     'safetysystem',
     'sample',
-    #'samplechanger',
+    # 'samplechanger',
     'shutter',
     'shutter_gamma',
     'vsd',
 ]
-
-startupcode = '''
-'''

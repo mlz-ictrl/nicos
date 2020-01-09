@@ -34,6 +34,3 @@ includes = [
     'shutter_gamma',
     'vsd',
 ]
-
-startupcode = '''
-'''
