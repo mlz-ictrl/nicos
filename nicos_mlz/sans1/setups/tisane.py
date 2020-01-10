@@ -2,7 +2,7 @@ description = 'tisane setup for SANS1'
 
 group = 'basic'
 
-modules = ['nicos_mlz.sans1.commands']
+modules = ['nicos_mlz.sans1.commands.tisane']
 
 includes = ['collimation', 'detector', 'sample_table_1', 'det1',
             'pressure', 'selector_tower', 'memograph',
