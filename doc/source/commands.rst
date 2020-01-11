@@ -128,6 +128,7 @@ Measuring commands
 .. autofunction:: AddEnvironment
 .. autofunction:: ListDetectors
 .. autofunction:: ListEnvironment
+.. autofunction:: ListDatasinks
 .. autofunction:: avg
 .. autofunction:: minmax
 

@@ -31,12 +31,13 @@ from nicos.core.acquire import Average, CountResult, MinMax, acquire, \
     read_environment, stop_acquire_thread
 from nicos.core.device import Measurable, SubscanMeasurable
 from nicos.core.errors import NicosError, UsageError
-from nicos.utils import createThread, number_types
+from nicos.utils import createThread, number_types, printTable
 
 __all__ = [
     'count', 'live', 'preset',
     'SetDetectors', 'AddDetector', 'ListDetectors',
     'SetEnvironment', 'AddEnvironment', 'ListEnvironment',
+    'ListDatasinks',
     'avg', 'minmax',
 ]
 
@@ -283,6 +284,22 @@ def ListEnvironment():
                          ', '.join(session.experiment.envlist))
     else:
         session.log.info('at the moment no standard environment is set.')
+
+
+@usercommand
+@parallel_safe
+def ListDatasinks():
+    """List the standard data sinks."""
+    if session.datasinks:
+        session.log.info('Currently used data sinks are:')
+        items = [
+            (ds.name, ', '.join(ds.settypes), ', '.join(ds.detectors))
+            for ds in session.datasinks
+        ]
+        printTable(('name', 'used for', 'active for detectors'),
+                    items, session.log.info)
+    else:
+        session.log.info('At the moment no data sinks are set.')
 
 
 @usercommand
