@@ -139,7 +139,7 @@ class Field(object):
                 desc['item'] = indices
             desc['key'] = prefix + dev + '/value'
             desc['statuskey'] = prefix + dev + '/status'
-            desc['fixedkey'] =  prefix + dev + '/fixed'
+            desc['fixedkey'] = prefix + dev + '/fixed'
             if 'unit' not in desc:
                 desc['unitkey'] = prefix + dev + '/unit'
             if 'format' not in desc:
@@ -148,12 +148,12 @@ class Field(object):
             key, indices, _scale, _offset = extractKeyAndIndex(desc['key'], False)
             if indices:
                 desc['item'] = indices
-            desc['key'] = key
+            if 'name' not in desc:
+                desc['name'] = desc['key']
+            desc['key'] = prefix + key
             for kn in ('statuskey', 'fixedkey', 'unitkey', 'formatkey'):
                 if kn in desc:
                     desc[kn] = (prefix + desc[kn]).lower().replace('.', '/')
-            if 'name' not in desc:
-                desc['name'] = desc['key']
         self.__dict__.update(desc)
 
     def updateKeymap(self, keymap):
