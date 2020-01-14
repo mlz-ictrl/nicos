@@ -1,6 +1,14 @@
 # coding: utf-8
 
-description = 'Chopper Monitor'
+# created by Martin Haese, Tel FRM 10763
+# last version by Gaetano Mangiapia, Tel 54839 on Jan 09th 2020
+
+# to call it
+# ssh -X refsans@refsansctrl01 oder 02
+# cd /refsanscontrol/src/nicos-core
+# INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_chopper
+
+description = 'Chopper [Monitor 01]'
 group = 'special'
 
 # Legend for _chconfigcol
@@ -13,46 +21,40 @@ group = 'special'
 # gear   = Speed Factor
 # status = Error Status
 
-_chopperpar = Column(
+_chconfigcol = Column(
     Block(' Chopper Configuration ', [ # This block contains the parameters set thorugh chopper_config
         BlockRow(
             Field(name=u'\u03bb\u2098\u1d62\u2099', key='chopper/wlmin', width=14, format = '%.1f', unit=u'(\u212b)'),
             Field(name=u'\u03bb\u2098\u2090\u2093', key='chopper/wlmax', width=14, format = '%.1f', unit=u'(\u212b)'),
-            Field(name='Disk 2 Position', key='chopper/resolution', width=14, unit='(1 - 6)'), # it is not the resolution by itsself. It is the disk 2 position set in chopper_config
-            Field(name='Disk 1 - Detector Distance', key='chopper/dist', width=14, format = '%.3f', unit='(m)'),
+            Field(name='disk 2 position', key='chopper/resolution', width=14, unit='(1 - 6)'), # it is not the resolution by itsself. It is the disk 2 position set in chopper_config
+            Field(name='disk 1 - detector distance', key='chopper/dist', width=14, format = '%.3f', unit='(m)'),
             Field(name='gap', key='chopper/gap', width=10, format = '%.2f',),
             ),
         BlockRow(
-            Field(name='Disk 2 Phase', key='chopper2/phase', width=10, format = '%.2f', unit='(deg)'),
-            Field(name='Disk 3 Phase', key='chopper3/phase', width=10, format = '%.2f', unit='(deg)'),
-            Field(name='Disk 4 Phase', key='chopper4/phase', width=10, format = '%.2f', unit='(deg)'),
-            Field(name='Disk 5 Phase', key='chopper5/phase', width=10, format = '%.2f', unit='(deg)'),
-            Field(name='Disk 6 Phase', key='chopper6/phase', width=10, format = '%.2f', unit='(deg)'),
-         ),
+            Field(name='angular speed', key='chopper/speed', width=10, format = '%.1f', unit='(deg)'),
+            Field(name='disk 2 phase', key='chopper2/phase', width=10, format = '%.2f', unit='(deg)'),
+            Field(name='disk 3 phase', key='chopper3/phase', width=10, format = '%.2f', unit='(deg)'),
+            Field(name='disk 4 phase', key='chopper4/phase', width=10, format = '%.2f', unit='(deg)'),
+            Field(name='disk 5 phase', key='chopper5/phase', width=10, format = '%.2f', unit='(deg)'),
+            Field(name='disk 6 phase', key='chopper6/phase', width=10, format = '%.2f', unit='(deg)'),
+            ),
         ],
     ),
     Block(' Chopper Settings ', [ # This block contains the actual parameters set for the chopper system
          BlockRow(
-            #Field(name='Angular Speed', dev='chopper_speed', width=10, format = '%.1f', unit='(rpm)'),
-            Field(name='Angular Speed', dev='cpt1', width=10, format = '%.1f', unit='(rpm)'),
-            Field(name='Disk 2 Mode', key='chopper/mode', width=20),
-            Field(name='Disk 2 Position', dev='chopper2_pos', width=10, unit='(1 - 5)'),
-            Field(name='Disc1 - Detector Distance', dev='real_flight_path', width=14, format = '%.3f', unit='(m)'), # it is not the flight path. I don't know why somebody called it real_flight_path
-            Field(name=u'Resolution \u0394\u03bb/\u03bb ', dev='resolution', width=14, format = '%.2f', unit='(%)'),
-            Field(name='Start Delay', key='chopper/delay', width=10, format = '%.2f', unit='(deg)'),
-            #Field(name='Fatal', key='chopper/fatal', width=10),
+            Field(name='disk 2 mode', key='chopper/mode', width=20),
+            Field(name='disk 2 position', dev='chopper2_pos', width=10, unit='(1 - 5)'),
+            Field(name='disc1 - detector distance', dev='real_flight_path', width=14, format = '%.3f', unit='(m)'), # it is not the flight path. I don't know why somebody called it real_flight_path
+            Field(name=u'resolution \u0394\u03bb/\u03bb ', dev='resolution', width=14, format = '%.2f', unit='(%)'),
+            Field(name='start delay', key='chopper/delay', width=10, format = '%.2f', unit='(deg)'),
             ),
          BlockRow(
-            #Field(name='disk 2 Phase', key='chopper2/phase', width=10, format = '%.2f', unit='(deg)'),
-            #Field(name='disk 3 Phase', key='chopper3/phase', width=10, format = '%.2f', unit='(deg)'),
-            #Field(name='disk 4 Phase', key='chopper4/phase', width=10, format = '%.2f', unit='(deg)'),
-            #Field(name='disk 5 Phase', key='chopper5/phase', width=10, format = '%.2f', unit='(deg)'),
-            #Field(name='disk 6 Phase', key='chopper6/phase', width=10, format = '%.2f', unit='(deg)'),
-            Field(name='Disk 2 Phase', dev='cpt2', width=10, format = '%.2f', unit='(deg)'),
-            Field(name='Disk 3 Phase', dev='cpt3', width=10, format = '%.2f', unit='(deg)'),
-            Field(name='Disk 4 Phase', dev='cpt4', width=10, format = '%.2f', unit='(deg)'),
-            Field(name='Disk 5 Phase', dev='cpt5', width=10, format = '%.2f', unit='(deg)'),
-            Field(name='Disk 6 Phase', dev='cpt6', width=10, format = '%.2f', unit='(deg)'),
+            Field(name='angular speed', dev='chopper_speed', width=10, format = '%.1f', unit='(rpm)'),
+            Field(name='Disk 2 phase', dev='cpt2', width=10, format = '%.2f', unit='(deg)'),
+            Field(name='Disk 3 phase', dev='cpt3', width=10, format = '%.2f', unit='(deg)'),
+            Field(name='Disk 4 phase', dev='cpt4', width=10, format = '%.2f', unit='(deg)'),
+            Field(name='Disk 5 phase', dev='cpt5', width=10, format = '%.2f', unit='(deg)'),
+            Field(name='Disk 6 phase', dev='cpt6', width=10, format = '%.2f', unit='(deg)'),
          )
         ],
     ),
@@ -72,9 +74,17 @@ _tididiagcol = Column(
     ),
 )
 
+# Legend for the chopper discs
+# speed  = Revolutions per minute
+# angle  = Angle
+# phase  = Disk Phases
+# gear   = Speed Factor
+# status = Error Status
+
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
+        showwatchdog = False,
         title = description,
         loglevel = 'info',
         cache = 'refsansctrl.refsans.frm2.tum.de',
@@ -84,7 +94,7 @@ devices = dict(
         fontsize = 12,
         padding = 5,
         layout = [
-            Row(_chopperpar),
+            Row(_chconfigcol),
             Row(_tididiagcol)
         ],
     ),

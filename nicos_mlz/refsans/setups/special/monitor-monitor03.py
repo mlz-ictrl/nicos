@@ -1,14 +1,22 @@
 # coding: utf-8
 
-description = 'Scattering Geometry, Experiment and Detector Monitor #03'
+# created by Martin Haese, Tel FRM 10763
+# last version by Gaetano Mangiapia, Tel 54839 on Jan 09th 2020
+
+# to call it
+# ssh -X refsans@refsansctrl01 oder 02
+# cd /refsanscontrol/src/nicos-core
+# INSTRUMENT=nicos_mlz.refsans bin/nicos-monitor -S monitor_chopper
+
+description = 'Scattering Geometry, Experiment and Detector [Monitor 03]'
 group = 'special'
 
 _NLHcol = Column(
     Block('FRM-II and Guide Hall Information', [
         BlockRow(
-            Field(name='Reactor Power', dev='ReactorPower', width=12, unit='(MW)'),
-            Field(name='6-fold Shutter', dev='Sixfold', width=12),
-            Field(name='Crane Position', dev='Crane', width=12, unit='(m)'),
+            Field(name='reactor power', dev='ReactorPower', width=10, format = '%.1f', unit='(MW)'),
+            Field(name='6-fold shutter', dev='Sixfold', width=10),
+            Field(name='crane position', dev='Crane', width=10, format = '%.1f', unit='(m)'),
             )
         ],
     ),
@@ -17,16 +25,16 @@ _NLHcol = Column(
 _Instrcol = Column(
     Block('Instrument Status', [
         BlockRow(
-            Field(name='NL2b Guide', dev='NL2b', width=12),
-            Field(name='Shutter', dev='shutter', width=12),
-            Field(name=u'\u0263 Shutter', dev='shutter_gamma', width=12),
+            Field(name='NL2b Guide', dev='NL2b', width=10),
+            Field(name='shutter', dev='shutter', width=10),
+            Field(name=u'\u0263 shutter', dev='shutter_gamma', width=10),
             ),
         BlockRow(
-            Field(name='FAK40 Cap', dev='FAK40_Cap', width=8),
-            Field(name='FAK40 Press', dev='FAK40_Press', width=8),
-            Field(name=u'T\u1d62\u2099', dev='t_memograph_in', width=12, unit=u'(\u2103)'),
-            Field(name=u'T\u2092\u1d64\u209c', dev='t_memograph_out', width=12, unit=u'(\u2103)'),
-            Field(name='Cooling Power', dev='cooling_memograph', width=12, unit='(kW)'),
+            Field(name='FAK40 capacity', dev='FAK40_Cap', width=10, format = '%.1f', unit='(l)' ),
+            Field(name='FAK40 pressure', dev='FAK40_Press', width=10, format = '%.3f', unit='(bar)'),
+            Field(name=u'T\u1d62\u2099', dev='t_memograph_in', width=10, format = '%.1f', unit=u'(\u2103)'),
+            Field(name=u'T\u2092\u1d64\u209c', dev='t_memograph_out', format = '%.1f', width=10, unit=u'(\u2103)'),
+            Field(name='cooling power', dev='cooling_memograph', format = '%.1f', width=10, unit='(kW)'),
             )
         ],
     ),
@@ -35,15 +43,15 @@ _Instrcol = Column(
 _experimentcol = Column(
     Block('Experiment', [
         BlockRow(
-            Field(name='Proposal', key='exp/proposal', width=7),
-            Field(name='User(s)', key='exp/users',    width=60, istext=True, maxlen=60),
+            Field(name='proposal', key='exp/proposal', width=7),
+            Field(name='user(s)', key='exp/users',    width=60, istext=True, maxlen=60),
             ),
         BlockRow(
-            Field(name='Proposal title',    key='exp/title',    width=80, istext=True, maxlen=80),
+            Field(name='proposal title',    key='exp/title',    width=80, istext=True, maxlen=80),
             ),
         BlockRow(
-            Field(name='Current Runnumber', key='exp/lastpoint'),
-            Field(name='Counting Time', dev='timer', unit='(s)'),
+            Field(name='current runnumber', key='exp/lastpoint'),
+            Field(name='counting time', dev='timer', unit='(s)'),
             )
         ],
     ),
@@ -54,18 +62,18 @@ _experimentcol = Column(
 _probenort = Column(
     Block('Sample Information', [
         BlockRow(
-            Field(name='Sample Name', key='sample/samplename', width=70,istext=True, maxlen=70),
+            Field(name='sample name', key='sample/samplename', width=70,istext=True, maxlen=70),
             ),
         BlockRow(
-            Field(name='Sample Width', key='sample/width', width=10, unit='(mm)'),
-            Field(name='Sample Length', key='sample/length', width=10, unit='(mm)'),
-            Field(name='Sample-Last Slit Distance', dev='d_last_slit_sample', width=10, format = '%.0f', unit='(mm)'),
+            Field(name='sample width', key='sample/width', width=10, format = '%.0f', unit='(mm)'),
+            Field(name='sample length', key='sample/length', width=10, format = '%.0f', unit='(mm)'),
+            Field(name='sample-last slit distance', dev='d_last_slit_sample', width=10, format = '%.0f', unit='(mm)'),
             ),
         BlockRow(
-            Field(name='First Slit',  key='primary_aperture/alias', width=10, istext=True, maxlen=3),
-            Field(name='Last Slit',  key='last_aperture/alias', width=10, istext=True, maxlen=2),
-            Field(name='Samplechanger', dev='samplechanger', width=10, unit='(mm)'),
-            Field(name='Backguard',     dev='backguard', width=10, unit='(mm)'),
+            Field(name='first slit',  key='primary_aperture/alias', width=10, istext=True, maxlen=3),
+            Field(name='last slit',  key='last_aperture/alias', width=10, istext=True, maxlen=2),
+            Field(name='samplechanger', dev='samplechanger', width=10, format = '%.1f', unit='(mm)'),
+            Field(name='backguard',     dev='backguard', width=10, format = '%.1f', unit='(mm)'),
             ),
         ],
     ),
@@ -76,13 +84,13 @@ _probenort = Column(
 _biggonio = Column(
     Block('Goniometer Status', [
         BlockRow(
-            Field(name=u'Angle \u03b8', dev='gonio_theta', width=7, format = '%.3f', unit='(deg)'),
-            Field(name=u'Angle \u03c6', dev='gonio_phi', width=7, format = '%.3f', unit='(deg)'),
-            Field(name=u'Angle \u03c9', dev='gonio_omega', width=7, format = '%.3f', unit='(deg)'),
+            Field(name=u'angle \u03b8', dev='gonio_theta', width=7, format = '%.3f', unit='(deg)'),
+            Field(name=u'angle \u03c6', dev='gonio_phi', width=7, format = '%.3f', unit='(deg)'),
+            Field(name=u'angle \u03c9', dev='gonio_omega', width=7, format = '%.3f', unit='(deg)'),
             ),
         BlockRow(
-            Field(name='z Pos', dev='gonio_z', width=7, format = '%.3f', unit='(mm)'),
-            Field(name='y Pos', dev='gonio_y', width=7, format = '%.3f', unit='(mm)'),
+            Field(name='vertical position', dev='gonio_z', width=7, format = '%.1f', unit='(mm)'),
+            Field(name='lateral position', dev='gonio_y', width=7, format = '%.1f', unit='(mm)'),
             )
         ],
     ),
@@ -91,11 +99,11 @@ _biggonio = Column(
 _topgonio = Column(
     Block('Top Goniometer Status', [
         BlockRow(
-            Field(name=u'Angle \u03b8', dev='gonio_top_theta', width=7, format = '%.3f', unit='(deg)'),
-            Field(name=u'Angle \u03c6', dev='gonio_top_phi', width=7, format = '%.3f', unit='(deg)'),
+            Field(name=u'angle \u03b8', dev='gonio_top_theta', width=7, format = '%.3f', unit='(deg)'),
+            Field(name=u'angle \u03c6', dev='gonio_top_phi', width=7, format = '%.3f', unit='(deg)'),
             ),
         BlockRow(
-            Field(name='z Pos', dev='gonio_top_z', width=7, unit='(mm)'),
+            Field(name='vertical position', dev='gonio_top_z', width=7, format = '%.1f', unit='(mm)'),
             )
         ],
     ),
@@ -125,11 +133,11 @@ _topgonio = Column(
 _justierung = Column(
     Block('Aligment Devices Status', [
         BlockRow(
-            Field(name=u'Autocoll. Angle \u03b8', dev='autocollimator_theta', width=7, format = '%.3f', unit='(deg)'),
-            Field(name=u'Autocoll. Angle \u03c6', dev='autocollimator_phi', width=7, format = '%.3f', unit='(deg)'),
+            Field(name=u'autocollimator angle \u03b8', dev='autocollimator_theta', width=7, format = '%.3f', unit='(deg)'),
+            Field(name=u'autocollimator angle \u03c6', dev='autocollimator_phi', width=7, format = '%.3f', unit='(deg)'),
             ),
         BlockRow(
-            Field(name='Altimeter', dev='height', width=7, unit='mm'),
+            Field(name='altimeter', dev='height', width=7, unit='(mm)'),
             ),
         ],
     ),
@@ -138,13 +146,14 @@ _justierung = Column(
 _detector = Column(
     Block('Detector Information', [
         BlockRow(
-            Field(name='Table', dev='det_table', width=10, format = '%.0f', unit='(mm)'),
-            Field(name='Yoke', dev='det_yoke', width=10, format = '%.0f', unit='(mm)'),
-            Field(name='Pivot', dev='det_pivot', width=10),
+            Field(name='table', dev='det_table', width=10, format = '%.0f', unit='(mm)'),
+            Field(name='yoke', dev='det_yoke', width=10, format = '%.0f', unit='(mm)'),
+            Field(name='pivot', dev='det_pivot', width=10),
             ),
         BlockRow(
-            Field(name='Counting Rate', dev='detector_count_rate', width=10, unit='(Hz)'),
-            Field(name='Integral counts', dev='image', width=15),
+            Field(name='counting rate', dev='detector_count_rate', width=10, format = '%.1f', unit='(Hz)'),
+            Field(name='integral counts', dev='image', format = '%.0f', width=10),
+            Field(name='safe detector system', dev='sds', width=10, format = '%.1f', unit='(Hz)'),
             ),
         ],
     ),
@@ -154,12 +163,12 @@ _detector = Column(
 _monitor = Column(
     Block('Monitor Information', [
         BlockRow(
-            Field(name='Monitor 1', key='mon1', width=10),
-            Field(name='Monitor 2', dev='mon2', width=10),
-            Field(name='Monitor Number', dev='prim_monitor_typ', width=10),
+            Field(name='monitor 1', key='mon1', width=10),
+            Field(name='monitor 2', dev='mon2', width=10),
+            Field(name='monitor number', dev='prim_monitor_typ', width=10),
             ),
         BlockRow(
-            Field(name='Monitor-Last Slit Distance', dev='prim_monitor_x', width=10, format = '%.0f', unit='(mm)'),
+            Field(name='monitor-last slit distance', dev='prim_monitor_x', width=10, format = '%.0f', unit='(mm)'),
             ),
         ],
     ),
@@ -178,6 +187,7 @@ _dettube = Column(
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
+        showwatchdog = False,
         title = description,
         loglevel = 'info',
         cache = 'refsansctrl01.refsans.frm2',

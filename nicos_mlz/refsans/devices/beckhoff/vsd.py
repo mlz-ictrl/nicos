@@ -29,7 +29,7 @@ from __future__ import absolute_import, division, print_function
 import struct
 
 from nicos.core import SIMULATION, Attach, Override, Param, Readable, dictof, \
-    oneof, status, usermethod
+    oneof, requires, status, usermethod
 from nicos.devices.tango import PyTangoDevice
 
 
@@ -92,6 +92,18 @@ class VSDIO(PyTangoDevice, Readable):
         self.log.debug('_writeU32(%d, %d)', addr, value)
         value = struct.unpack('<2H', struct.pack('=I', value))
         self._dev.WriteOutputWords(tuple([self.address + addr]) + value)
+
+    @requires(level='admin')
+    def _load_factory(self):
+        #QAD should be
+        # pwd([0xFFFF,2])
+        # write('kommando',[0xFFFF,2])
+        #see Nicos old
+        self._dev.WriteOutputWords((12338,25759,245))
+        self._dev.WriteOutputWords((12340,65535,2))
+        ACK = self._dev.ReadOutputWord(12363)
+        NAK = self._dev.ReadOutputWord(12364)
+        self.log.info('_load_factory %d %d', ACK, NAK)
 
     # mapping of user selectable channel name to BYTE_OFFSET, scaling and unit
     _HW_AnalogChannels = dict(

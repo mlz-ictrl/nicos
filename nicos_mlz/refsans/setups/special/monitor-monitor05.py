@@ -1,6 +1,6 @@
 # coding: utf-8
 
-description = 'all analog encoder to take care of'
+description = 'Facility Managing (05)'
 group = 'special'
 
 _shgacol = Column(
@@ -121,18 +121,89 @@ _bs1col = Column(
 
 _refcolumn = Column(
     Block('References', [
-        BlockRow( Field(dev='nok_refa1', name='ref_A1'),
-                  Field(dev='nok_refb1', name='ref_B1'),
-                  Field(dev='nok_refc1', name='ref_C1'),),
-        BlockRow( Field(dev='nok_refa2', name='ref_A2'),
-                  Field(dev='nok_refb2', name='ref_B2'),
-                  Field(dev='nok_refc2', name='ref_C2'),),
+        BlockRow(Field(dev='nok_refa1', name='ref_A1'),),
+        BlockRow(Field(dev='nok_refa2', name='ref_A2'),),
+        BlockRow(Field(dev='nok_refb1', name='ref_B1'),),
+        BlockRow(Field(dev='nok_refb2', name='ref_B2'),),
+        BlockRow(Field(dev='nok_refc1', name='ref_C1'),),
+        BlockRow(Field(dev='nok_refc2', name='ref_C2'),),
+        ],
+    ),
+)
+_memograph = Column(
+    Block('memograph', [
+        BlockRow(Field(name='flow_in', dev='flow_memograph_in'),
+                 Field(name='flow_out', dev='flow_memograph_out'),
+                 Field(name='diff', dev='leak_memograph'),),
+        BlockRow(Field(name='t_in', dev='t_memograph_in'),
+                 Field(name='t_out', dev='t_memograph_out'),
+                 Field(name='power', dev='cooling_memograph'),),
+        BlockRow(Field(name='p_in', dev='p_memograph_in'),
+                 Field(name='p_out', dev='p_memograph_out'),),
         ],
     ),
 )
 
+_pumpstand = Column(
+    Block('pumpstand', [
+        BlockRow(Field(name='CB', dev='pressure_CB'),
+                 Field(name='SFK', dev='pressure_SFK'),
+                 Field(name='SR', dev='pressure_SR'),),
+        BlockRow(Field(name='CB', dev='pump_CB'),
+                 Field(name='SFK', dev='pump_SFK'),
+                 Field(name='SR', dev='pump_SR'),),
+        BlockRow(Field(name='CB', dev='chamber_CB'),
+                 Field(name='SFK', dev='chamber_SFK'),
+                 Field(name='SR', dev='chamber_SR'),),
+        ],
+    ),
+)
+
+_chopper = Column(
+    Block('chopper', [
+        BlockRow(Field(name='Fatal', key='chopper/fatal', width=10),),
+        BlockRow(Field(name='conditon 1', key='chopper_speed/condition', width=10),),
+        BlockRow(Field(name='conditon 2', key='chopper2/condition', width=10),),
+        BlockRow(Field(name='conditon 3', key='chopper3/condition', width=10),),
+        BlockRow(Field(name='conditon 4', key='chopper4/condition', width=10),),
+        BlockRow(Field(name='conditon 5', key='chopper5/condition', width=10),),
+        BlockRow(Field(name='conditon 6', key='chopper6/condition', width=10),),
+        ],
+    ),
+)
+_memograph = Column(
+    Block('memograph', [
+        BlockRow( Field(name='flow_in', dev='flow_memograph_in'),
+                  Field(name='flow_out', dev='flow_memograph_out'),
+                  Field(name='diff', dev='leak_memograph'),),
+        BlockRow( Field(name='t_in', dev='t_memograph_in'),
+                  Field(name='t_out', dev='t_memograph_out'),
+                  Field(name='power', dev='cooling_memograph'),),
+        BlockRow( Field(name='p_in', dev='p_memograph_in'),
+                  Field(name='p_out', dev='p_memograph_out'),),
+        ],
+    ),
+)
+
+_pumpstand = Column(
+    Block('pumpstand', [
+        BlockRow( Field(name='CB', dev='pressure_CB'),
+                  Field(name='SFK', dev='pressure_SFK'),
+                  Field(name='SR', dev='pressure_SR'),),
+        BlockRow( Field(name='CB', dev='pump_CB'),
+                  Field(name='SFK', dev='pump_SFK'),
+                  Field(name='SR', dev='pump_SR'),),
+        BlockRow( Field(name='CB', dev='chamber_CB'),
+                  Field(name='SFK', dev='chamber_SFK'),
+                  Field(name='SR', dev='chamber_SR'),),
+        ],
+    ),
+)
+
+
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
+        showwatchdog = False,
         title = description,
         loglevel = 'info',
         cache = 'refsansctrl.refsans.frm2.tum.de',
@@ -154,7 +225,10 @@ devices = dict(
                 _nok9col,
                 ),
             Row(
-                _refcolumn
+                _refcolumn,
+                _pumpstand,
+                _memograph,
+                _chopper,
                 ),
         ],
     ),

@@ -3,13 +3,15 @@ description = "neutronguide"
 group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus1']
+instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
 
-tango_host = 'tango://refsanshw:10000/test/'
+tango_base = instrument_values['tango_base']
+code_base = instrument_values['code_base']
 
 devices = dict(
-    nok2 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
+    nok2 = device(code_base + 'nok_support.DoubleMotorNOK',
         # length: 300.0 mm
         description = 'NOK2',
         fmtstr = '%.2f, %.2f',
@@ -29,6 +31,13 @@ devices = dict(
             'fc': optic_values['ng'],
         },
     ),
+    # nok2r_b = device(code_base + 'nok_support.BrotherMotorNOK',
+    #     both = 'nok2',
+    #     motor = 'nok2r_motor',
+    #     brother = 'nok2s_motor',
+    #     anlenc = 'nok2r_obs',
+    #     unit = '',
+    # ),
     nok2r_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK2, reactor side',
         motor = 'nok2r_motor',
@@ -39,7 +48,7 @@ devices = dict(
         unit = 'mm',
         lowlevel = True,
     ),
-    nok2r_motor = device('nicos_mlz.refsans.devices.ipc.NOKMotorIPC',
+    nok2r_motor = device(code_base + 'ipc.NOKMotorIPC',
         description = 'IPC controlled Motor of NOK2, reactor side',
         abslimits = (-22.36, 10.88),
         bus = 'nokbus1',
@@ -54,7 +63,7 @@ devices = dict(
         zerosteps = int(254.36 * 2000),
         lowlevel = showcase_values['hide_poti'],
     ),
-    nok2r_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
+    nok2r_obs = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for NOK2, reactor side',
         reference = 'nok_refa1',
         measure = 'nok2r_poti',
@@ -63,13 +72,13 @@ devices = dict(
         length = 250.0,
         lowlevel = showcase_values['hide_poti'],
     ),
-    nok2r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
+    nok2r_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK2, reactor side',
-        tangodevice = tango_host + 'wb_a/1_1',
+        tangodevice = tango_base + 'test/wb_a/1_1',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),
-    nok2r_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+    nok2r_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'nok2r_motor',
          analog = 'nok2r_obs',
@@ -86,7 +95,7 @@ devices = dict(
          unit = 'mm',
          lowlevel = True,
     ),
-    nok2s_motor = device('nicos_mlz.refsans.devices.ipc.NOKMotorIPC',
+    nok2s_motor = device(code_base + 'ipc.NOKMotorIPC',
          description = 'IPC controlled Motor of NOK2, sample side',
          abslimits = (-21.61, 6.885),
          bus = 'nokbus1',
@@ -101,7 +110,7 @@ devices = dict(
          zerosteps = int(268.11 * 2000),
          lowlevel = showcase_values['hide_poti'],
     ),
-    nok2s_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
+    nok2s_obs = device(code_base + 'nok_support.NOKPosition',
          description = 'Position sensing for NOK2, sample side',
          reference = 'nok_refa1',
          measure = 'nok2s_poti',
@@ -110,14 +119,14 @@ devices = dict(
          length = 250.0,
          lowlevel = showcase_values['hide_poti'],
     ),
-    nok2s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
+    nok2s_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
          description = 'Poti for NOK2, sample side',
-         tangodevice = tango_host + 'wb_a/1_2',
+         tangodevice = tango_base + 'test/wb_a/1_2',
          scale = 1,   # mounted from bottom
          lowlevel = True,
     ),
 
-    nok2s_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+    nok2s_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'nok2s_motor',
          analog = 'nok2s_obs',

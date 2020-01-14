@@ -3,19 +3,22 @@ description = "DoubleSlit [slit k1] between nok8 and nok9"
 group = 'lowlevel'
 
 includes = ['nok_ref', 'nokbus4']
+instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
+optic_values = configdata('cf_optic.optic_values')
 
-tango_host = 'tango://refsanshw:10000/test/'
+tango_base = instrument_values['tango_base']
+code_base = instrument_values['code_base']
 
 devices = dict(
-    bs1 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
+    bs1 = device(code_base + 'slits.DoubleSlit',
         description = 'BS1 double between nok8 and nok9',
         fmtstr = 'open: %.3f, zpos: %.3f',
         unit = 'mm',
         slit_r = 'bs1r',
         slit_s = 'bs1s',
     ),
-    bs1r = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+    bs1r = device(code_base + 'slits.SingleSlit',
         # length: 6.0 mm
         description = 'bs1 slit, reactor side',
         motor = 'bs1r_axis',
@@ -25,12 +28,12 @@ devices = dict(
         masks = {
             'slit':   -1.725,
             'point':  -2.325,
-            'gisans': -40.915,
+            'gisans': -40.915 * optic_values['gisans_scale'],
         },
         lowlevel = True,
         unit = 'mm',
     ),
-    bs1s = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+    bs1s = device(code_base + 'slits.SingleSlit',
         # length: 6.0 mm
         description = 'bs1 slit, sample side',
         motor = 'bs1s_axis',
@@ -54,7 +57,7 @@ devices = dict(
         unit = 'mm',
         lowlevel = True,
     ),
-    bs1r_motor = device('nicos_mlz.refsans.devices.ipc.NOKMotorIPC',
+    bs1r_motor = device(code_base + 'ipc.NOKMotorIPC',
         description = 'IPC controlled Motor of BS1, reactor side',
         abslimits = (-178.0, 10.0),
         bus = 'nokbus4',
@@ -69,14 +72,14 @@ devices = dict(
         zerosteps = int(791.825 * 800),
         lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
     ),
-    bs1r_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+    bs1r_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'bs1r_motor',
          analog = 'bs1r_obs',
          lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),
-    bs1r_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
+    bs1r_obs = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for BS1, reactor side',
         reference = 'nok_refc2',
         measure = 'bs1r_poti',
@@ -85,9 +88,9 @@ devices = dict(
         length = 250.0,
         lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
     ),
-    bs1r_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
+    bs1r_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
         description = 'Poti for BS1, reactor side',
-        tangodevice = tango_host + 'wb_c/2_1',
+        tangodevice = tango_base + 'test/wb_c/2_1',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),
@@ -100,7 +103,7 @@ devices = dict(
         unit = 'mm',
         lowlevel = True,
     ),
-    bs1s_motor = device('nicos_mlz.refsans.devices.ipc.NOKMotorIPC',
+    bs1s_motor = device(code_base + 'ipc.NOKMotorIPC',
         description = 'IPC controlled Motor of BS1, sample side',
         abslimits = (-177.002, 139.998),
         bus = 'nokbus4',
@@ -115,14 +118,14 @@ devices = dict(
         zerosteps = int(660.44 * 800),
         lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
     ),
-    bs1s_acc = device('nicos_mlz.refsans.devices.nok_support.MotorEncoderDifference',
+    bs1s_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'bs1s_motor',
          analog = 'bs1s_obs',
          lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),
-    bs1s_obs = device('nicos_mlz.refsans.devices.nok_support.NOKPosition',
+    bs1s_obs = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for BS1, sample side',
         reference = 'nok_refc2',
         measure = 'bs1s_poti',
@@ -131,9 +134,9 @@ devices = dict(
         length = 500.0,
         lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
     ),
-    bs1s_poti = device('nicos_mlz.refsans.devices.nok_support.NOKMonitoredVoltage',
+    bs1s_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
         description = 'Poti for BS1, sample side',
-        tangodevice = tango_host + 'wb_c/2_5',
+        tangodevice = tango_base + 'test/wb_c/2_5',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),

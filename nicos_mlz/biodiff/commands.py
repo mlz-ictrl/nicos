@@ -35,7 +35,9 @@ from nicos.core.spm import Bare, Dev, spmsyntax
 from nicos.core.utils import waitForCompletion
 from nicos.devices.abstract import Motor as NicosMotor
 
+from nicos_mlz.biodiff.devices.detector import BiodiffDetector
 from nicos_mlz.biodiff.devices.motor import MicrostepMotor
+from nicos_mlz.jcns.devices.shutter import OPEN
 
 
 def underlying_motor(devices):
@@ -62,6 +64,24 @@ class RScan(Scan):
             # do not use software based micro stepping
             devices = underlying_motor(devices)
         return Scan.moveDevices(self, devices, positions, wait)
+
+    def preparePoint(self, num, xvalues):
+        if num > 0:  # skip starting point, because of range scan (0..1, ...)
+            Scan.preparePoint(self, num, xvalues)
+            # Open Shutters before movement of scan devices (e.g. motor).
+            # Just for RScan because movement and counting should be done
+            # simultaneous.
+            where = []
+            for det in self._detlist:
+                if isinstance(det, BiodiffDetector):
+                    det.prepare()
+                    if det.ctrl_gammashutter:
+                        where.append((det._attached_gammashutter, OPEN))
+                    if det.ctrl_photoshutter:
+                        where.append((det._attached_photoshutter, OPEN))
+            if where:
+                where = zip(*where)
+                self.moveDevices(where[0], where[1])
 
     def handleError(self, what, err):
         # consider all movement errors fatal

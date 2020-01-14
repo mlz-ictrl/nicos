@@ -3,6 +3,10 @@ description = 'devices for fast detector using comtec p7888 for REFSANS'
 # to be included by refsans?
 group = 'lowlevel'
 
+instrument_values = configdata('instrument.values')
+
+code_base = instrument_values['code_base'] + 'detector.'
+
 nethost = 'refsanssrv.refsans.frm2'
 tacodev = '//%s/test/fast' % nethost
 
@@ -13,7 +17,6 @@ sysconfig = dict(
 
 devices = dict(
     fastctr_a = device('nicos.devices.taco.detector.FRMCounterChannel',
-    # fastctr_a = device('nicos_mlz.refsans.devices.detector.ComtecCounter',
         description = "Channel A of Comtep P7888 Fast Counter",
         tacodevice = '%s/rate_a' % tacodev,
         type = 'counter',
@@ -21,7 +24,6 @@ devices = dict(
         # lowlevel = True,
     ),
     fastctr_b = device('nicos.devices.taco.detector.FRMCounterChannel',
-    # fastctr_b = device('nicos_mlz.refsans.devices.detector.ComtecCounter',
         description = "Channel B of Comtep P7888 Fast Counter",
         tacodevice = '%s/rate_b' % tacodev,
         type = 'counter',
@@ -29,7 +31,6 @@ devices = dict(
         # lowlevel = True,
     ),
     fastctr_c = device('nicos.devices.taco.detector.FRMCounterChannel',
-    # fastctr_c = device('nicos_mlz.refsans.devices.detector.ComtecCounter',
         description = "Channel C of Comtep P7888 Fast Counter",
         tacodevice = '%s/rate_c' % tacodev,
         type = 'counter',
@@ -37,7 +38,6 @@ devices = dict(
         # lowlevel = True,
     ),
     fastctr_d = device('nicos.devices.taco.detector.FRMCounterChannel',
-    # fastctr_d = device('nicos_mlz.refsans.devices.detector.ComtecCounter',
         description = "Channel D of Comtep P7888 Fast Counter",
         tacodevice = '%s/rate_d' % tacodev,
         type = 'counter',
@@ -45,7 +45,6 @@ devices = dict(
         # lowlevel = True,
     ),
     fastctr_e = device('nicos.devices.taco.detector.FRMCounterChannel',
-    # fastctr_e = device('nicos_mlz.refsans.devices.detector.ComtecCounter',
         description = "Channel E of Comtep P7888 Fast Counter",
         tacodevice = '%s/rate_e' % tacodev,
         type = 'counter',
@@ -53,7 +52,6 @@ devices = dict(
         # lowlevel = True,
     ),
     fastctr_f = device('nicos.devices.taco.detector.FRMCounterChannel',
-    # fastctr_f = device('nicos_mlz.refsans.devices.detector.ComtecCounter',
         description = "Channel F of Comtep P7888 Fast Counter",
         tacodevice = '%s/rate_f' % tacodev,
         type = 'counter',
@@ -61,7 +59,6 @@ devices = dict(
         # lowlevel = True,
     ),
     fastctr_g = device('nicos.devices.taco.detector.FRMCounterChannel',
-    # fastctr_g = device('nicos_mlz.refsans.devices.detector.ComtecCounter',
         description = "Channel G of Comtep P7888 Fast Counter",
         tacodevice = '%s/rate_g' % tacodev,
         type = 'counter',
@@ -69,14 +66,13 @@ devices = dict(
         # lowlevel = True,
     ),
     fastctr_h = device('nicos.devices.taco.detector.FRMCounterChannel',
-    # fastctr_h = device('nicos_mlz.refsans.devices.detector.ComtecCounter',
         description = "Channel H of Comtep P7888 Fast Counter",
         tacodevice = '%s/rate_h' % tacodev,
         type = 'counter',
         mode = 'normal',
         # lowlevel = True,
     ),
-    comtec_sink = device('nicos_mlz.refsans.devices.detector.ComtecHeaderSink',
+    comtec_sink = device(code_base + 'ComtecHeaderSink',
         description = 'Copies image data and saves header',
         detector = 'comtec_timer',
         fast_basepaths = ['/home/refsans-mca','/home/refsans-mcb'],
@@ -88,11 +84,11 @@ devices = dict(
             '_%(pointcounter)s_%(pointnumber)s.raw'
         ],
     ),
-    comtec_timer = device('nicos_mlz.refsans.devices.detector.ComtecTimer',
+    comtec_timer = device(code_base + 'ComtecTimer',
         description = 'Comtec P7888 Fast System: Timer channel',
         tacodevice = '%s/detector' % tacodev,
     ),
-    comtec_filename = device('nicos_mlz.refsans.devices.detector.ComtecFilename',
+    comtec_filename = device(code_base + 'ComtecFilename',
         description = 'Comtec P7888 Fast System: filename',
         tacodevice = '%s/detector' % tacodev,
         lowlevel = True,

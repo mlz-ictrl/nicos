@@ -2,20 +2,23 @@ description = 'at samplecamper [slit k1]'
 
 group = 'lowlevel'
 
-tango_host = 'tango://refsanshw.refsans.frm2.tum.de:10000/test/'
+instrument_values = configdata('instrument.values')
+tango_base = instrument_values['tango_base']
+code_base = instrument_values['code_base']
+optic_values = configdata('cf_optic.optic_values')
 
 devices = dict(
     #
     ## smccorvusserver b2 exports
     #
-    b2 = device('nicos_mlz.refsans.devices.slits.DoubleSlit',
+    b2 = device(code_base + 'slits.DoubleSlit',
         description = 'b2 at sample pos',
         fmtstr = 'opening: %.3f mm, zpos: %.3f mm',
         unit = '',
         slit_r = 'b2r',
         slit_s = 'b2s',
     ),
-    b2r = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+    b2r = device(code_base + 'slits.SingleSlit',
         # length: 13.0 mm
         description = 'b2 slit, reactor side; 220 full access, 74 for upper srcews',
         motor = 'b2_r',
@@ -30,7 +33,7 @@ devices = dict(
         lowlevel = True,
         unit = 'mm',
     ),
-    b2s = device('nicos_mlz.refsans.devices.slits.SingleSlit',
+    b2s = device(code_base + 'slits.SingleSlit',
         # length: 13.0 mm
         description = 'b2 slit, sample side; -291 full access, -182 low row',
         motor = 'b2_s',
@@ -40,7 +43,7 @@ devices = dict(
         masks = {
             'slit':   0.0,
             'point':  -0.233,
-            'gisans': -85, #  206.4,
+            'gisans': -85 * optic_values['gisans_scale'], #  206.4,
         },
         unit = 'mm',
         lowlevel = True,
@@ -63,13 +66,13 @@ devices = dict(
     ),
     smccorvus_b2mr = device('nicos.devices.tango.Motor',
         description = 'Device test/smccorvus/b2mr of Server smccorvusserver b2',
-        tangodevice = tango_host + 'smccorvus/b2mr',
+        tangodevice = tango_base + 'test/smccorvus/b2mr',
         abslimits = (-1294, 1222),
         lowlevel = True,
     ),
     smccorvus_b2ms = device('nicos.devices.tango.Motor',
         description = 'Device test/smccorvus/b2ms of Server smccorvusserver b2',
-        tangodevice = tango_host + 'smccorvus/b2ms',
+        tangodevice = tango_base + 'test/smccorvus/b2ms',
         abslimits = (-2960, 2130),
         lowlevel = True,
     ),

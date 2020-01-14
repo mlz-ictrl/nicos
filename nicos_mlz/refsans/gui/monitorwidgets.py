@@ -220,12 +220,15 @@ class TimeDistance(NicosWidget, TimeDistanceWidget):
                       'Number of periods to display')
     D = PropDef('D', float, 22.8, 'Beamline length')
 
+    fp = PropDef('flightpath', str, 'real_flight_path', 'Flight path device')
+
     def __init__(self, parent, designMode=False):
         TimeDistanceWidget.__init__(self, parent)
         NicosWidget.__init__(self)
         self._speed = 0
         self._phases = [0] * 6
         self._disk2_pos = 5
+        self._fp = 0
 
     def registerKeys(self):
         # chopperspeed, chopper phases,a
@@ -244,6 +247,10 @@ class TimeDistance(NicosWidget, TimeDistanceWidget):
         if devname:
             self._source.register(self, devname + '/pos')
 
+        devname = self.props.get('fp')
+        if devname:
+            self._source.register(self, devname + '/value')
+
     def on_keyChange(self, key, value, time, expired):
         _, dev, param = key.split('/')
         devs = [key for key, d in self.props.items() if d == dev]
@@ -256,6 +263,8 @@ class TimeDistance(NicosWidget, TimeDistanceWidget):
                     self._speed = int(value)
                 elif devname == 'disc2_pos':
                     self._disk2_pos = int(value)
+                elif devname == 'fp':
+                    self._fp = int(value)
             elif param == 'phase':
                 if devname.startswith('chopper'):
                     if value is not None:
@@ -265,7 +274,7 @@ class TimeDistance(NicosWidget, TimeDistanceWidget):
                 if value is not None:
                     self._disk2_pos = int(value)
             self.plot(self._speed, self._phases, self.props['periods'],
-                      self._disk2_pos, self.props['D'])
+                      self._disk2_pos, self.props['D'], self._fp)
 
 
 class RefsansWidget(NicosWidget, RefsansView):

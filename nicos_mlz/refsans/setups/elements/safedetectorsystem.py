@@ -2,12 +2,14 @@ description = 'Safety detector system'
 
 group = 'lowlevel'
 
-all_lowlevel = False  # or True
+instrument_values = configdata('instrument.values')
+
+code_base = instrument_values['code_base']
 
 devices = dict(
-    sds = device('nicos_mlz.refsans.devices.gkssjson.SdsRatemeter',
+    sds = device(code_base + 'gkssjson.SdsRatemeter',
         description = description,
-        lowlevel = all_lowlevel,
+        lowlevel = False,
         # valuekey = 'time',
         valuekey = 'mon_alarm',
         unit = 'cps',

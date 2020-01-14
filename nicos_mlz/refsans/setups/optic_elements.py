@@ -2,6 +2,10 @@ description = 'NOK Devices for REFSANS, main file including all'
 
 group = 'lowlevel'
 
+instrument_values = configdata('instrument.values')
+
+code_base = instrument_values['code_base'] + 'optic.Optic'
+
 includes = [
     'b1',
     'b2',
@@ -28,7 +32,7 @@ includes = [
 ]
 
 devices = dict(
-    optic = device('nicos_mlz.refsans.devices.optic.Optic',
+    optic = device(code_base,
         description = 'Beam optic',
         b1 = 'b1',
         b2 = 'b2',
@@ -158,7 +162,7 @@ devices = dict(
         },
         masks = {
             'debug'               :{'nok2':'ng','nok3':'debug','nok4':'debug','b1': 'debug','nok5a': 'debug','zb0': 'debug','nok5b': 'debug','zb1': 'debug','nok6': 'debug','zb2': 'debug','nok7': 'debug','zb3': 'debug','nok8': 'debug','bs1': 'debug','nok9': 'debug','b2': 'debug','b3': 'debug'},
-            'gisans'              :{'nok2':'ng','nok3':   'ng','nok4':   'rc','b1':'gisans','nok5a':    'fc','zb0':'gisans','nok5b':    'fc','zb1':'gisans','nok6':    'fc','zb2':'gisans','nok7':    'fc','zb3':'gisans','nok8':    'fc','bs1':'gisans','nok9':    'fc','b2':'gisans','b3':'gisans'},
+            'gisans'              :{'nok2':'ng','nok3':   'ng','nok4':   'rc','b1':'gisans','nok5a':    'fc','zb0':'gisans','nok5b':    'fc','zb1':'gisans','nok6':    'fc','zb2':'gisans','nok7':    'fc','zb3':'gisans','nok8':    'fc','bs1':'gisans','nok9':    'fc','b2':'gisans','b3':  'slit'},
             'point'               :{'nok2':'ng','nok3':   'rc','nok4':   'ng','b1':  'slit','nok5a':    'fc','zb0':  'slit','nok5b':    'fc','zb1':  'slit','nok6':    'fc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
             'fc:nok5a'            :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'fc','zb0':  'slit','nok5b':    'fc','zb1':  'slit','nok6':    'fc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
             'fc:nok5b'            :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'ng','zb0':  'slit','nok5b':    'fc','zb1':  'slit','nok6':    'fc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},

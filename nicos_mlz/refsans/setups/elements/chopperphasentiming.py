@@ -5,11 +5,14 @@ group = 'lowlevel'
 window_delay = 120
 
 all_lowlevel = False  # or True
-dev_class = 'nicos_mlz.refsans.devices.gkssjson.CPTReadout'
-URL = 'http://cpt.refsans.frm2/json-visual'
+
+instrument_values = configdata('instrument.values')
+
+URL = (instrument_values['url_base'] % 'cpt') + 'json-visual'
+code_base = instrument_values['code_base']  + 'gkssjson.CPTReadout'
 
 devices = dict(
-    cpt0 = device(dev_class,
+    cpt0 = device(code_base,
         description = 'Disc 1 light barrier ' + description + ' Phase of Disk1!',
         url = URL,
         valuekey = 'chopper_act',
@@ -19,7 +22,7 @@ devices = dict(
         unit = 'deg',
         lowlevel = True,
     ),
-    cpt1 = device(dev_class,
+    cpt1 = device(code_base,
         description = 'Disc 1 light barrier ' + description,
         url = URL,
         valuekey = 'chopper_act',
@@ -28,7 +31,7 @@ devices = dict(
         # offset = 0,
         unit = 'rpm',
     ),
-    cpt2 = device(dev_class,
+    cpt2 = device(code_base,
          description = 'Disc 2 light barrier ' + description,
          url = URL,
          valuekey = 'chopper_act',
@@ -37,7 +40,7 @@ devices = dict(
          offset = 28.44 + window_delay,
          unit = 'deg',
      ),
-    cpt3 = device(dev_class,
+    cpt3 = device(code_base,
         description = 'Disc 3 light barrier ' + description,
         url = URL,
         valuekey = 'chopper_act',
@@ -46,7 +49,7 @@ devices = dict(
         offset = 70.30 + window_delay,
         unit = 'deg',
     ),
-    cpt4 = device(dev_class,
+    cpt4 = device(code_base,
         description = 'Disc 4 light barrier ' + description,
         url = URL,
         valuekey = 'chopper_act',
@@ -55,7 +58,7 @@ devices = dict(
         offset = 75.66 + window_delay,
         unit = 'deg',
     ),
-    cpt5 = device(dev_class,
+    cpt5 = device(code_base,
         description = 'Disc 5 index ' + description,
         url = URL,
         valuekey = 'chopper_act',
@@ -64,7 +67,7 @@ devices = dict(
         offset = 266.60 + window_delay,
         unit = 'deg',
     ),
-    cpt6 = device(dev_class,
+    cpt6 = device(code_base,
         description = 'Disc 6 index ' + description,
         url = URL,
         valuekey = 'chopper_act',

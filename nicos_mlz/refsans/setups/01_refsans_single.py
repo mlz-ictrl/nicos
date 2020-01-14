@@ -29,11 +29,8 @@ includes = [
     'safedetectorsystem',
     'safetysystem',
     'sample',
-    #'samplechanger',
+    # 'samplechanger',
     'shutter',
     'shutter_gamma',
     'vsd',
 ]
-
-startupcode = '''
-'''

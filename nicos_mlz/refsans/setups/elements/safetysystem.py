@@ -2,7 +2,10 @@ description = 'shs SicherHeitsSystem'
 
 group = 'lowlevel'
 
-tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
+instrument_values = configdata('instrument.values')
+
+tango_base = instrument_values['tango_base']
+code_base = instrument_values['code_base'] + 'safetysystem.'
 
 # 'Shutter':                              (0, 0),  # 0x0000
 # 'Ampeltest_inv':                        (3, 0),  # 0x0001
@@ -50,12 +53,12 @@ tango_base = 'tango://refsanshw.refsans.frm2.tum.de:10000/'
 # 'gruen_inv':                            (18, 12),  # 0x0800
 
 devices = dict(
-    safetysystem = device('nicos_mlz.refsans.devices.safetysystem.Shs',
+    safetysystem = device(code_base + 'Shs',
         description = 'io device for Pilz',
         tangodevice = tango_base + 'safetysystem/io/modbus',
         lowlevel = True,
     ),
-    techOK = device('nicos_mlz.refsans.devices.safetysystem.Group',
+    techOK = device(code_base + 'Group',
         description = ' ',
         shs = 'safetysystem',
         bitlist = ['Chopper_Drehzahl', 'Drucksensor_CB', 'Drucksensor_SFK',
@@ -63,14 +66,14 @@ devices = dict(
         okmask = 0b1111,
         lowlevel = False,
     ),
-    place = device('nicos_mlz.refsans.devices.safetysystem.Group',
+    place = device(code_base + 'Group',
         description = ' ',
         shs = 'safetysystem',
         bitlist = ['Probenort_Geraeumt_inv', 'Streurohr_Geraeumt_inv'],
         okmask = 0b00,
         lowlevel = False,
     ),
-    doors = device('nicos_mlz.refsans.devices.safetysystem.Group',
+    doors = device(code_base + 'Group',
         description = ' ',
         shs = 'safetysystem',
         bitlist = ['Tuer_PO_auf', 'Tuer_PO_zu', 'Verbindungstuer',
@@ -78,14 +81,14 @@ devices = dict(
         okmask = 0b01101,
         lowlevel = False,
     ),
-    signal = device('nicos_mlz.refsans.devices.safetysystem.Group',
+    signal = device(code_base + 'Group',
         description = '',
         shs = 'safetysystem',
         bitlist = ['gruen_inv', 'gelb_inv', 'rot_inv'],
         okmask = 0b000,
         lowlevel = True,
     ),
-    service = device('nicos_mlz.refsans.devices.safetysystem.Group',
+    service = device(code_base + 'Group',
         description = ' ',
         shs = 'safetysystem',
         bitlist = ['Hupentest_inv', 'Schluesselschalter_Wartung_inv',
@@ -94,7 +97,7 @@ devices = dict(
         okmask = 0b000000,
         lowlevel = False,
     ),
-    PO_save = device('nicos_mlz.refsans.devices.safetysystem.Group',
+    PO_save = device(code_base + 'Group',
         description = ' ',
         shs = 'safetysystem',
         bitlist = ['Probenort_Geraeumt_inv', 'Tuer_PO_auf', 'Tuer_PO_zu',
@@ -102,7 +105,7 @@ devices = dict(
         okmask = 0b1010,
         lowlevel = False,
     ),
-    SR_save = device('nicos_mlz.refsans.devices.safetysystem.Group',
+    SR_save = device(code_base + 'Group',
         description = ' ',
         shs = 'safetysystem',
         bitlist = ['Streurohr_Geraeumt_inv', 'Tuer_SR_auf', 'Tuer_SR_zu',
@@ -110,7 +113,7 @@ devices = dict(
         okmask = 0b1010,
         lowlevel = False,
     ),
-    supervisor = device('nicos_mlz.refsans.devices.safetysystem.Group',
+    supervisor = device(code_base + 'Group',
         description = ' ',
         shs = 'safetysystem',
         bitlist = ['6-fach-Shutter_auf', '6-fach-Shutter_zu',
@@ -119,7 +122,7 @@ devices = dict(
         okmask = 0b100101,
         lowlevel = False,
     ),
-    user = device('nicos_mlz.refsans.devices.safetysystem.Group',
+    user = device(code_base + 'Group',
         description = ' ',
         shs = 'safetysystem',
         bitlist = ['externer_User_Kontakt_A', 'externer_User_Kontakt_B'],

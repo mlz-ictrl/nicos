@@ -3,7 +3,9 @@ description = 'qmesydaq devices for REFSANS'
 # to be included by refsans ?
 group = 'lowlevel'
 
-nethost = 'refsanssrv.refsans.frm2'
+instrument_values = configdata('instrument.values')
+
+nethost = instrument_values['nethost']
 tacodev = '//%s/test/qmesydaq' % nethost
 
 sysconfig = dict(

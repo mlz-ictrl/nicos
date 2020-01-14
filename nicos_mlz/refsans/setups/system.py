@@ -3,8 +3,13 @@ description = 'system setup'
 
 group = 'lowlevel'
 
+instrument_values = configdata('instrument.values')
+
+code_base = instrument_values['code_base']
+pc_ctrl = instrument_values['pc_ctrl']
+
 sysconfig = dict(
-    cache = 'refsansctrl.refsans.frm2.tum.de',
+    cache = pc_ctrl,
     instrument = 'REFSANS',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'configsink'],
@@ -14,19 +19,16 @@ sysconfig = dict(
 modules = ['nicos.commands.standard', 'nicos_mlz.refsans.commands']
 includes = ['notifiers']
 
-# SYSTEM NEVER INCLUDES OTHER SETUPS !!!
-
 devices = dict(
     REFSANS = device('nicos.devices.instrument.Instrument',
         description = 'Container storing Instrument properties',
         instrument = 'REFSANS',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-31',
         responsible = 'Dr. Jean-Francois Moulin <jean-francois.moulin@hzg.de>',
-        # responsible = 'Matthias Pomm <matthias.pomm@hzg.de>',
         operators = ['German Engineering Materials Science Centre (GEMS)'],
         website = 'http://www.mlz-garching.de/refsans',
     ),
-    Sample = device('nicos_mlz.refsans.devices.sample.Sample',
+    Sample = device(code_base + 'sample.Sample',
         description = 'Container storing Sample properties',
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',
@@ -41,11 +43,8 @@ devices = dict(
     conssink = device('nicos.devices.datasinks.ConsoleScanSink',
         description = 'Device outputting logmessages to the console',
     ),
-    daemonsink = device('nicos.devices.datasinks.DaemonSink',
-        description = 'The daemon Device, coordinating all the heavy lifting',
-    ),
-    configsink = device('nicos_mlz.refsans.devices.datasinks.ConfigObjDatafileSink',
-    ),
+    daemonsink = device('nicos.devices.datasinks.DaemonSink'),
+    configsink = device(code_base + 'datasinks.ConfigObjDatafileSink'),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         minfree = 5,

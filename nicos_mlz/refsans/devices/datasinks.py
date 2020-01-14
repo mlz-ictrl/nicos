@@ -46,7 +46,6 @@ element_part = [
     'p_memograph_in',
     'p_memograph_out',
     'REFSANS', 'Crane', 'det', 'Sixfold', 'ReactorPower', 'Exp', 'image',
-    'sds',
     # 'shutter',
     # 'shutter_gamma',
     't_memograph_in',
@@ -65,11 +64,11 @@ element_part = [
     'wegbox_C_2ref',
 ]
 chopper = [
-    'chopper2/pos',
+    'chopper2_pos',
     'chopper',
     'chopper/mode',
-    'chopper/resolution',
-    'chopper/speed',
+    #'chopper/resolution',
+    'chopper_speed',
     'chopper/wlmin',
     'chopper/wlmax',
     'chopper/gap',
@@ -88,7 +87,11 @@ Gonio = [
     'height',
     'autocollimator_phi',
     'autocollimator_theta',
-    'last_slit',
+    'backguard',
+    'backguard_1',
+    'backguard_1_m',
+    'backguard_2',
+    'backguard_2_m',
     'samplechanger',
     'Sample/length',
     'Sample/width',
@@ -98,9 +101,18 @@ NOKs = [
     'nok5a', 'nok5b', 'nok6', 'nok7', 'nok8', 'nok9',
 ]
 NOKs_label = ['', '_mode']
+NOKs_PlanB_label = ['r_motor', 's_motor', 'r_obs', 's_obs']
 
-Slits = ['b1', 'zb0', 'zb1', 'zb2', 'zb3', 'bs1', 'b2', 'h2', 'b3']
+aperture = [
+    'primary_aperture',
+    'last_aperture',
+]
+
+Slits = ['b1', 'zb0', 'zb1', 'zb2', 'zb3', 'bs1', 'b2', 'b3']
 Slits_label = ['', '_mode']
+Slits_PlanB_label = ['r_m', 's_m', 'r_obs', 's_obs', '_obs',
+                     '_motor', 'r_motor', 's_motor']
+
 simple_slit = ['sc2', 'disc3', 'disc4']
 
 lateral = ['h2']
@@ -112,23 +124,39 @@ det_pos = [
     'det_pivot',
     'det_table',
     'det_yoke',
+    'det_drift',
     'beamstop_height',
     'beamstop_center',
     'beamstop_asym',
 ]
 
 optic = ['optic']
-optic_label = ['', '_mode']
+optic_label = ['', '.mode']
 
 monitor = ['prim_monitor']
 monitor_label = ['_typ', '_x', '_z']
 
 Miscellaneous = [
+    'sds',
     'shutter',
     'shutter_gamma',
     'pressure_SR',
     'pressure_SFK',
     'pressure_CB',
+    'chamber_CB',
+    'chamber_SFK',
+    'chamber_SR',
+]
+
+safetysystem = [
+    'doors',
+    'place',
+    'PO_save',
+    'service',
+    'SR_save',
+    'supervisor',
+    'techOK',
+    'user',
 ]
 
 VSD = [
@@ -201,6 +229,10 @@ VSD = [
     'Water4Temp',
     'Water5Flow',
     'Water5Temp',
+    'X16Voltage1',
+    'X16Voltage2',
+    'X16Voltage3',
+    'X16Voltage4',
 ]
 
 cpt = ['cpt', 6]
@@ -211,7 +243,9 @@ element_part += chopper
 element_part += simple_slit
 element_part += Gonio
 element_part += VSD
+element_part += safetysystem
 element_part += det_pos
+element_part += aperture
 element_part += monitor
 element_part += Miscellaneous
 
@@ -219,7 +253,7 @@ for l in optic:
     for label in optic_label:
         element_part.append(l + label)
 for l in NOKs:
-    for label in NOKs_label:
+    for label in NOKs_label + NOKs_PlanB_label:
         element_part.append(l + label)
 for l in monitor:
     for label in monitor_label:
@@ -233,7 +267,7 @@ for l in simple_lateral:
         element_part.append(l + label)
 
 for l in Slits:
-    for label in Slits_label:
+    for label in Slits_label + Slits_PlanB_label:
         element_part.append(l + label)
 for i in range(cpt[1]):
     element_part.append(cpt[0] + '%d' % (i + 1))
@@ -287,13 +321,16 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             self._data['Detector Parameters'] = self._dict()
             self._data['Chopper'] = self._dict()
             self._data['NOKs'] = self._dict()
+            self._data['PlanB'] = self._dict()
             self._data['Slits'] = self._dict()
             self._data['Lateral'] = self._dict()
             self._data['Sample'] = self._dict()
             self._data['Detector'] = self._dict()
+            self._data['aperture'] = self._dict()
             self._data['Monitor'] = self._dict()
             self._data['Miscellaneous'] = self._dict()
             self._data['vsd'] = self._dict()
+            self._data['safetysystem'] = self._dict()
             self._data['optic'] = self._dict()
             self._data['cpt'] = self._dict()
             self._data['analog_encoder'] = self._dict()
@@ -322,6 +359,10 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
     def _write_noks(self, metainfo):
         self._write_label_ext(metainfo, 'NOKs', NOKs, NOKs_label)
 
+    def _write_PlanB(self, metainfo):
+        self._write_label_ext(metainfo, 'PlanB', NOKs, NOKs_PlanB_label)
+        self._write_label_ext(metainfo, 'PlanB', Slits, Slits_PlanB_label)
+
     def _write_slits(self, metainfo):
         self._write_label_ext(metainfo, 'Slits', Slits, Slits_label)
         self._write_label_ext(metainfo, 'Slits', simple_slit, [''])
@@ -347,6 +388,11 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         for dev in VSD:
             if (dev, 'value') in metainfo:
                 self._data['vsd'][dev] = metainfo[dev, 'value'][0]
+
+    def _write_safetysystem(self, metainfo):
+        for dev in safetysystem:
+            if (dev, 'value') in metainfo:
+                self._data['safetysystem'][dev] = metainfo[dev, 'value'][0]
 
     def _write_optic(self, metainfo):
         self._write_label_ext(metainfo, 'optic', optic, optic_label)
@@ -377,6 +423,13 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         for dev in det_pos:
             if (dev, 'value') in metainfo:
                 self._data['Detector'][dev] = metainfo[dev, 'value'][0]
+
+    def _write_aperture(self, metainfo):
+        for dev in aperture:
+            for key in ['value', 'status']:
+                if (dev, key) in metainfo:
+                    self._data['aperture']['%s_%s' % (dev, key)] = \
+                        metainfo[dev, key][0]
 
     def _write_monitor(self, metainfo):
         self._write_label_ext(metainfo, 'Monitor', monitor, monitor_label)
@@ -414,11 +467,6 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         self._data['Extra'] = extra
 
     def putMetainfo(self, metainfo):
-        self.log.debug('ADD META INFO %r', metainfo)
-        keys = list(metainfo.keys())
-        tmp = keys[0]
-        self.log.debug('tmp type %s, value %s', type(tmp), tmp)
-
         if self._data:
             self._write_meas_info(metainfo)
             self._write_meas_comment(metainfo)
@@ -428,19 +476,21 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             self._write_monitor(metainfo)
             self._write_optic(metainfo)
             self._write_noks(metainfo)
+            self._write_PlanB(metainfo)
+            self._write_aperture(metainfo)
             self._write_slits(metainfo)
             self._write_lateral(metainfo)
             self._write_sample(metainfo)
             self._write_misc(metainfo)
             self._write_vsd(metainfo)
+            self._write_safetysystem(metainfo)
             self._write_cpt(metainfo)
             self._write_analog_encoder(metainfo)
 
         elements = []
-        for tup in keys:
-            if tup[0] not in elements and \
-               tup[0] not in element_part:
-                elements.append(tup[0])
+        for dev, _key in metainfo:
+            if dev not in elements + element_part:
+                elements.append(dev)
         if elements:
             self.log.debug('EXTRA %s', str(elements))
 

@@ -29,7 +29,7 @@ from __future__ import absolute_import, division, print_function
 from nicos import session
 from nicos.core import ADMIN, Moveable, Override, Param, intrange, requires, \
     status
-from nicos.core.errors import ConfigurationError, NicosError, PositionError
+from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import DeviceMixinBase, HasOffset
 from nicos.core.params import Attach
 from nicos.devices.abstract import Motor
@@ -100,7 +100,7 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         if res == 0:
             return 'ok'
         # else:
-        #    self.log.debug('Fatal = %d' % res)
+        #    self.log.debug('Fatal = %d', res)
         msg = []
         if res & 1:
             msg.append('Invalid command ID')
@@ -140,8 +140,18 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
             msg.append('h1FFFF extra Errors')
         return ', '.join(msg)
 
+    def _hot_off(self):
+        self.log.warn('chopper is shut down because of hot cores!')
+        self._shut_down()
+
+    def _shut_down(self):
+        self._attached_comm.writeLine('$$$')
+        session.delay(2.5)
+
     def _commute(self):
-        self.log.debug('CMD commute')
+        self.log.info('commute: see in speed history: burst for 3min, '
+                      'a break of 20sec, an a peak, final break of 2min '
+                      'total ca 6min')
         self._attached_comm.writeLine('m4070=5')
         session.delay(0.5)
         self.log.debug('DEVELOPING just wait!')
@@ -159,28 +169,36 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         self.log.info('_position: %.2f for disc %d', angle, disc)
         angle = int(round(angle * 100))
         line = 'm4073=%d m4074=0 m4075=%d m4076=0 m4070=7' % (disc, angle)
-        self.log.info('line %s' % line)
+        self.log.info('line %s', line)
         self._attached_comm.writeLine(line)
         self.log.info('you should be MP!')
 
     def doReference(self, *args):
-        self.log.info('chopper reference')
-        for dev in self._choppers:
-            try:
-                dev.maw(0)
-            except PositionError:
-                # choppers are in inactive state
-                pass
-            except NicosError as e:
-                self.log.info('%s', e)
+        self.log.info('chopper reference QAD')
+        # for dev in self._choppers:
+        #     try:
+        #         dev.move(0)
+        #         session.delay(.5)
+        #     except PositionError:
+        #         # choppers are in inactive state
+        #         pass
+        #     except NicosError as e:
+        #         self.log.info('%s', e)
+        # for dev in self._choppers:
+        #     try:
+        #         dev.wait()
+        #     except PositionError:
+        #         # choppers are in inactive state
+        #         pass
+        #     except NicosError as e:
+        #         self.log.info('%s', e)
         self.log.info('check for pending E-Stop')
 
         fatal = self.fatal  # avoid unneeded hardware access
         if fatal and fatal != 'ok':
             self.log.info('chopper fatal: %s', fatal)
         self.log.info('three BUCKs')
-        self._attached_comm.writeLine('$$$')
-        session.delay(2.5)
+        self._shut_down()
 
         fatal = self.fatal
         if fatal and fatal != 'ok':
@@ -191,18 +209,17 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         self.log.info('Disk2_Pos 1')
         self._attached_chopper2._attached_translation.maw(1)
 
-        self.log.info('commute: see in speed history: burst for 3min, '
-                      'a break of 20sec, an a peak, final break of 2min '
-                      'total ca 6min')
         self._commute()
         self.wait()
 
-        z_ero = 10
-        self.log.info('setting all phases to %d', z_ero)
-        for dev in self._choppers[1:]:
-            dev.phase = z_ero
+        self._set_all_phases(10)
         self.log.info('reset done')
         self.log.warning('CHECK chopper.delay value! (%.2f)', self.delay)
+
+    def _set_all_phases(self, target=10):
+        self.log.info('setting all phases to %d', target)
+        for dev in self._choppers[1:]:
+            dev.phase = target
 
 
 class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
@@ -211,6 +228,9 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
         'condition': Param('Internal condition',
                            type=str, settable=False, volatile=True,
                            userparam=True),
+        'speedup': Param('Acceleration of the rotation speed',
+                         type=intrange(0, 50), userparam=False,
+                         settable=False, default=50),
     }
 
     parameter_overrides = {
@@ -220,12 +240,22 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
     }
 
     def doStart(self, target):
+        if self.speedup:
+            self._attached_comm.write('m4062=%d', self.speedup)
+            session.delay(.4)  # .1 is too short; .2 does not work correctly
+            self.log.info('speed up >%s<',
+                          self._attached_comm.communicate('m4062'))
         self.log.info('set speed %d', target)
         if self.chopper != 1 or self.gear != 0:
             self.log.warning('changed chopper:%d gear:%d edge:%s',
                              self.chopper, self.gear, self.edge)
         self._write_controller(
             'm4073=%d m4074=%.0f m4075=0 m4076=0 m4070=7', round(target))
+        if self.speedup:
+            self._attached_comm.write('m4062=25')
+            session.delay(.4)
+            self.log.info('speed down >%s<',
+                          self._attached_comm.communicate('m4062'))
 
     def doRead(self, maxage=0):
         return self._current_speed()
@@ -243,7 +273,7 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
         return res
 
     def doReadCondition(self):
-        res = int(self._read_controller('#%s?'))
+        res = int(self._read_controller('#%s?'), 16)
         self.log.debug('condition: %d', res)
         line = []
         All = False
@@ -400,7 +430,7 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
 
     def doStatus(self, maxage=0):
         if hasattr(self, 'chopper'):
-            self.log.debug('doStatus chopperdisc %d' % self.chopper)
+            self.log.debug('doStatus chopperdisc %d', self.chopper)
         else:
             self.log.debug('doStatus chopperdisc no number')
         if self.doIsAtTarget(self.doRead(0)) or self.chopper != 1:

@@ -2,18 +2,21 @@ description = 'autocollimator, water subtracted, vendor Trioptic'
 
 group = 'lowlevel'
 
-all_lowlevel = False  # or True
+all_lowlevel = False
 
-tango_host = 'tango://refsanshw.refsans.frm2:10000/test/triangle/io'
+instrument_values = configdata('instrument.values')
+
+tango_host = instrument_values['tango_base'] + 'test/triangle/io'
+code_base = instrument_values['code_base'] + 'triangle.'
 
 devices = dict(
-    autocollimator = device('nicos_mlz.refsans.devices.triangle.TriangleMaster',
+    autocollimator = device(code_base + 'TriangleMaster',
         description = description,
         tangodevice = tango_host,
-        lowlevel = True,  # all_lowlevel,
+        lowlevel = True,
         unit = '',
     ),
-    autocollimator_theta = device('nicos_mlz.refsans.devices.triangle.TriangleAngle',
+    autocollimator_theta = device(code_base + 'TriangleAngle',
         description = description + ', autocollimator Y on PC',
         lowlevel = all_lowlevel,
         index = 0,
@@ -21,7 +24,7 @@ devices = dict(
         scale = 1,
         unit = 'deg',
     ),
-    autocollimator_phi = device('nicos_mlz.refsans.devices.triangle.TriangleAngle',
+    autocollimator_phi = device(code_base + 'TriangleAngle',
         description = description + ', autocollimator X on PC',
         lowlevel = all_lowlevel,
         index = 1,
