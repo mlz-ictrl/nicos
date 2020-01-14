@@ -255,7 +255,7 @@ def showDetectorSettings():
     if not image:
         return
 
-    mode = image.getMode()
+    mode = image.measuremode
 
     if mode == INELASTIC:
         print('SIS detector is measuring inelastic.',

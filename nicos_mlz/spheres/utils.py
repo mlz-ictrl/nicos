@@ -59,7 +59,7 @@ def canStartSisScan(measuremode):
         raise ModeError('Scan can not be started. '
                         'Doppler is not synchronized.')
 
-    sismode = sis.getMode()
+    sismode = sis.measuremode
     if measuremode != sismode:
         if sismode == INELASTIC:
             raise ModeError('Detector is measuring in inelastic mode. '

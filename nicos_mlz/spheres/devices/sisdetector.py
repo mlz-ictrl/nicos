@@ -127,7 +127,10 @@ class SISChannel(ImageChannel):
         'backzerorange':     Param('Range of the pst zero passes for the last'
                                    'chopstatisticlen pst revolutions',
                                    type=listof(float),
-                                   volatile=True)
+                                   volatile=True),
+        'measuremode':       Param('Mode in which the detector is measuring',
+                                   type=oneof(ELASTIC, INELASTIC, SIMULATION),
+                                   volatile=True),
     }
 
     def __init__(self, name, **config):
@@ -141,11 +144,6 @@ class SISChannel(ImageChannel):
     def clearAccumulated(self):
         self._last_edata = None
         self._last_cdata = None
-
-    def getMode(self):
-        if session.sessiontype == SIMULATION:
-            return
-        return self._dev.GetMeasureMode()
 
     def doReadElasticparams(self):
         return [self._dev.tscan_interval,
@@ -197,6 +195,11 @@ class SISChannel(ImageChannel):
     def doReadBackzerorange(self):
         return [self._dev.backgr_zero_min, self._dev.backgr_zero_max]
 
+    def doReadMeasuremode(self):
+        if session.sessiontype == SIMULATION:
+            return SIMULATION
+        return self._dev.GetMeasureMode()
+
     def setTscanAmount(self, amount):
         if session.sessiontype == SIMULATION:
             return
@@ -209,7 +212,10 @@ class SISChannel(ImageChannel):
         self._hw_wait()
 
     def doReadArray(self, quality):
-        mode = self.getMode()
+        mode = self.measuremode
+
+        if mode == SIMULATION:
+            return []
 
         if quality == LIVE:
             return [self._readLiveData()]
@@ -230,7 +236,7 @@ class SISChannel(ImageChannel):
         return Value(name=TOTAL, type="counter", fmtstr="%d", unit="cts"),
 
     def _readLiveData(self):
-        if self.getMode() == INELASTIC:
+        if self.measuremode == INELASTIC:
             if self._last_edata is not None:
                 if self.incremental:
                     live = self._readData(ENERGY)
