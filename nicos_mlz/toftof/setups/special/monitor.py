@@ -98,6 +98,12 @@ _ccrblock = Block('Sample environment', [
     setups='ccr17',
 )
 
+_julabo01block = Block('Sample environment', [
+    BlockRow(Field(name='Julabo', dev='T_julabo01'),)
+    ],
+    setups='julabo01',
+)
+
 _htfblock = Block('Sample environment', [
     BlockRow(Field(name='Sample', dev='T_htf01'),
              Field(name='Vacuum', dev='htf01_p'),
@@ -195,6 +201,7 @@ _col2 = Column(
     _ngblock,
     _temperatureblock,
     _ccrblock,
+    _julabo01block,
     _htfblock,
     _biofurnaceblock,
     _pressureblock,
