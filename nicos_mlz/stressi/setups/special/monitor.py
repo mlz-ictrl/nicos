@@ -69,7 +69,7 @@ _measurement = Column(
     setups = 'secondaryslit or vstressi',
     ),
     Block('Radial collimator', [
-        BlockRow(Field(dev='mot1'),
+        BlockRow(Field(dev='rcdet'),
                  Field(dev='rad_fwhm'),),
     ],
     setups = 'radial',
