@@ -40,14 +40,21 @@ devices = dict(
                  minfree=5,
                  ),
 
-    KafkaForwarder=device(
-        'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
+    KafkaForwarderCommand=device(
+        'nicos_ess.devices.forwarder.EpicsKafkaForwarderControl',
         description="Configures commands to forward-epics-to-kafka",
-        cmdtopic="DMC_forwarderCommands",
-        statustopic="DMC_forwarderStatus",
+        cmdtopic='DMC_forwarderCommands',
         instpvtopic="DMC_metadata",
         instpvschema='f142',
         brokers=configdata('config.KAFKA_BROKERS'),
+    ),
+
+    KafkaForwarder=device(
+        'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
+        description="Monitors and controls forward-epics-to-kafka",
+        statustopic="DMC_forwarderStatus",
+        brokers=configdata('config.KAFKA_BROKERS'),
+        forwarder_control='KafkaForwarderCommand'
     ),
 
     HistogramDataSink=device(

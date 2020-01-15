@@ -63,14 +63,21 @@ devices = dict(
                        mapping={'SPIN DOWN': False,
                                 'SPIN UP': True}),
 
-    KafkaForwarder=device(
-        'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
+    KafkaForwarderCommand=device(
+        'nicos_ess.devices.forwarder.EpicsKafkaForwarderControl',
         description="Configures commands to forward-epics-to-kafka",
         cmdtopic=configdata('config.FORWARDER_CMD_TOPIC'),
-        statustopic=configdata('config.FORWARDER_STATUS_TOPIC'),
         instpvtopic="AMOR_metadata",
         instpvschema='f142',
         brokers=configdata('config.KAFKA_BROKERS'),
+    ),
+
+    KafkaForwarder=device(
+        'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
+        description="Monitors and controls forward-epics-to-kafka",
+        statustopic=configdata('config.FORWARDER_STATUS_TOPIC'),
+        brokers=configdata('config.KAFKA_BROKERS'),
+        forwarder_control='KafkaForwarderCommand'
     ),
 
     conssink=device('nicos.devices.datasinks.ConsoleScanSink'),
