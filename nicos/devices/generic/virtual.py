@@ -79,12 +79,13 @@ class VirtualMotor(HasOffset, CanDisable, Motor):
     def doStart(self, pos):
         if self.curstatus[0] == status.DISABLED:
             raise MoveError(self, 'cannot move, motor is disabled')
-        self._setROParam('curstatus', (status.BUSY, 'virtual moving'))
         pos = float(pos) + self.offset
         if self._thread:
+            self._setROParam('curstatus', (status.BUSY, 'waiting for stop'))
             self._stop = True
             self._thread.join()
         if self.speed != 0:
+            self._setROParam('curstatus', (status.BUSY, 'virtual moving'))
             self._thread = createThread('virtual motor %s' % self,
                                         self.__moving, (pos, ))
         else:
