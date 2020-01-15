@@ -200,6 +200,11 @@ class PyTangoDevice(HasCommunication):
         PyTango.DevState.MOVING: status.BUSY,
     }
 
+    # Since each DeviceProxy leaks a few Python objects, we can't just
+    # drop them when the device fails to initialize, and create another one.
+    # It is also not required since they reconnect automatically.
+    proxy_cache = {}
+
     def doPreinit(self, mode):
         # Wrap PyTango client creation (so even for the ctor, logging and
         # exception mapping is enabled).
@@ -266,7 +271,10 @@ class PyTangoDevice(HasCommunication):
         attribute operations with logging and exception mapping.
         """
         check_tango_host_connection(self.tangodevice, self.tangotimeout)
-        device = PyTango.DeviceProxy(address)
+        proxy_key = (self._name, address)
+        if proxy_key not in PyTangoDevice.proxy_cache:
+            PyTangoDevice.proxy_cache[proxy_key] = PyTango.DeviceProxy(address)
+        device = PyTangoDevice.proxy_cache[proxy_key]
         device.set_timeout_millis(int(self.tangotimeout * 1000))
         # detect not running and not exported devices early, because that
         # otherwise would lead to attribute errors later
