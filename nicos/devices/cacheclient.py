@@ -540,6 +540,14 @@ class CacheClient(BaseCacheClient):
             return
         key = key[len(self._prefix):]
         time = time and float(time)
+
+        # ignore outdated 'updates'
+        db_time = self._db.get(key, (0, 0))[1]
+        if db_time > time:
+            self.log.debug('ignoring outdated update for %s: %gs too old', key,
+                           db_time - time)
+            return
+
         self._propagate((time, key, op, value))
         # self.log.debug('got %s=%s', key, value)
         if not value or op == OP_TELLOLD:
