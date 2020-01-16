@@ -1,59 +1,62 @@
 # -*- coding: utf-8 -*-
 
-description = 'Hexapod control'
+description = 'Hexapod control via TCP/IP'
 group = 'optional'
 display_order = 70
 
+excludes = ['hexapod_inixlib']
+
 tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
+hexapod = tango_base + 'hexapod/h_'
 
 devices = dict(
     hexapod_dt = device('nicos.devices.tango.Motor',
         description = 'Hexapod rotation table',
-        tangodevice = tango_base + 'hexapodbase/dt',
+        tangodevice = hexapod + 'omega',
         unit = 'deg',
         precision = 0.01,
         fmtstr = '%.2f',
     ),
     hexapod_rx = device('nicos.devices.tango.Motor',
         description = 'Hexapod rotation around X',
-        tangodevice = tango_base + 'hexapodbase/rx',
+        tangodevice = hexapod + 'rx',
         unit = 'deg',
         precision = 0.01,
         fmtstr = '%.2f',
     ),
     hexapod_ry = device('nicos.devices.tango.Motor',
         description = 'Hexapod rotation around Y',
-        tangodevice = tango_base + 'hexapodbase/ry',
+        tangodevice = hexapod + 'ry',
         unit = 'deg',
         precision = 0.01,
         fmtstr = '%.2f',
     ),
     hexapod_rz = device('nicos.devices.tango.Motor',
         description = 'Hexapod rotation around Z',
-        tangodevice = tango_base + 'hexapodbase/rz',
+        tangodevice = hexapod + 'rz',
         unit = 'deg',
         precision = 0.01,
         fmtstr = '%.2f',
     ),
     hexapod_tx = device('nicos.devices.tango.Motor',
         description = 'Hexapod translation in X',
-        tangodevice = tango_base + 'hexapodbase/tx',
+        tangodevice = hexapod + 'tx',
         unit = 'mm',
         precision = 0.1,
         fmtstr = '%.1f',
     ),
     hexapod_ty = device('nicos.devices.tango.Motor',
         description = 'Hexapod translation in Y',
-        tangodevice = tango_base + 'hexapodbase/ty',
+        tangodevice = hexapod + 'ty',
         unit = 'mm',
         precision = 0.1,
         fmtstr = '%.1f',
     ),
     hexapod_tz = device('nicos.devices.tango.Motor',
         description = 'Hexapod translation in Z',
-        tangodevice = tango_base + 'hexapodbase/tz',
+        tangodevice = hexapod + 'tz',
         unit = 'mm',
         precision = 0.1,
-        fmtstr = '%.2f',
+        fmtstr = '%.1f',
     ),
 )
