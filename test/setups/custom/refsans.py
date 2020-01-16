@@ -404,7 +404,7 @@ devices = dict(
         pivot = 'det_pivot',
     ),
     resolution = device('nicos_mlz.refsans.devices.resolution.Resolution',
-        chopper2 = 'chopper2',
+        chopper = 'chopper',
         flightpath = 'real_flight_path',
     ),
     gonio_theta = device('nicos.devices.generic.Axis',
