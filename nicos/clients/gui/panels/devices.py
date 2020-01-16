@@ -1008,6 +1008,7 @@ class ControlDialog(QDialog):
         target = DeviceValueEdit(dlg, dev=self.devname)
         target.setClient(self.client)
         dlg.targetLayout.addWidget(target)
+        target.setFocus()
         res = dlg.exec_()
         if res != QDialog.Accepted:
             return None
@@ -1026,8 +1027,12 @@ class ControlDialog(QDialog):
         val = self._get_new_value('Set hardware position',
                                   'Set hardware position of %s:' % self.devname)
         if val is not None:
-            self.device_panel.exec_command(
-                '%s.setPosition(%r)' % (self.devrepr, val))
+            if self.devrepr != self.devname:
+                cmd = 'CreateDevice(%s); %s.setPosition(%r)' % \
+                      (self.devrepr, self.devname, val)
+            else:
+                cmd = '%s.setPosition(%r)' % (self.devname, val)
+            self.device_panel.exec_command(cmd)
 
     @pyqtSlot()
     def on_actionReference_triggered(self):
