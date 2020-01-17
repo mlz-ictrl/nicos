@@ -325,6 +325,7 @@ class Monitor(BaseMonitor):
     parameters = {
         'filename': Param('Filename for HTML output', type=str, mandatory=True),
         'interval': Param('Interval for writing file', default=5),
+        'noexpired': Param('If true, show expired values as "n/a"', type=bool)
     }
 
     def mainLoop(self):
@@ -362,6 +363,7 @@ class Monitor(BaseMonitor):
             ff = self.font,
             ffm = self.valuefont or self.font,
             intv = self.interval,
+            # pylint: disable=deprecated-method
             title = escape_html(self.title),
             icon = nicos_icon,
         )
@@ -394,6 +396,7 @@ class Monitor(BaseMonitor):
                     blk.add(p)
                 field._plotcurve = p.addcurve(field.name)
             elif field.picture:
+                # pylint: disable=deprecated-method
                 pic = Picture(field.picture, field.width, field.height,
                               escape_html(field.name))
                 blk.add(pic)
@@ -401,6 +404,7 @@ class Monitor(BaseMonitor):
                 # deactivate plots
                 field.plot = None
                 # create name label
+                # pylint: disable=deprecated-method
                 flabel = field._namelabel = Label('name', field.width,
                                                   escape_html(field.name))
                 blk.add(flabel)
@@ -420,6 +424,7 @@ class Monitor(BaseMonitor):
                 for block in column:
                     blk = Block(block._options)
                     blk.add('<div class="block">')
+                    # pylint: disable=deprecated-method
                     blk.add('<div class="blockhead">%s</div>' %
                             escape_html(block._title))
                     blk.add('\n    <table class="blocktable">')
@@ -483,7 +488,8 @@ class Monitor(BaseMonitor):
                 field._namelabel.back = self._bgcolor
             if expired:
                 field._valuelabel.back = self._gray
-                fvalue = 'n/a'
+                if self.noexpired:
+                    fvalue = 'n/a'
             else:
                 field._valuelabel.back = self._black
             if fvalue is None:
@@ -526,11 +532,13 @@ class Monitor(BaseMonitor):
                 self.signalKeyChange(field, field.key, field.value, 0, False)
 
     def _labelunittext(self, text, unit, fixed):
+        # pylint: disable=deprecated-method
         return escape_html(text) + ' <span class="unit">%s</span><span ' \
             'class="fixed">%s</span> ' % (escape_html(unit), fixed)
 
     def switchWarnPanel(self, on):
         if on:
+            # pylint: disable=deprecated-method
             self._warnlabel.text = escape_html(self._currwarnings)
         else:
             self._warnlabel.text = ''
