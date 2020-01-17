@@ -94,10 +94,13 @@ class ExpPanel(Panel):
             self.sampleName.setText(decodeAny(values[4]))
             self.errorAbortBox.setChecked(values[5] == 'abort')
         receiverinfo = self.client.eval(
-            '_listReceivers("nicos.devices.notifiers.Mailer")', {})
+            '__import__("nicos").commands.basic._listReceivers('
+            '"nicos.devices.notifiers.Mailer")', {})
         emails = []
         for data in itervalues(receiverinfo):
-            emails.extend(addr for (addr, what) in data if what == 'receiver')
+            for (addr, what) in data:
+                if what == 'receiver' and addr not in emails:
+                    emails.append(addr)
         self._orig_email = emails
         self.notifEmails.setPlainText(decodeAny('\n'.join(self._orig_email)))
         propinfo = self.client.eval('session.experiment.propinfo', {})
