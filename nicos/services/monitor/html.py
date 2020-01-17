@@ -338,6 +338,7 @@ class Monitor(BaseMonitor):
     parameters = {
         'filename': Param('Filename for HTML output', type=str, mandatory=True),
         'interval': Param('Interval for writing file', default=5),
+        'noexpired': Param('If true, show expired values as "n/a"', type=bool)
     }
 
     def mainLoop(self):
@@ -502,7 +503,8 @@ class Monitor(BaseMonitor):
                 field._namelabel.back = self._bgcolor
             if expired:
                 field._valuelabel.back = self._gray
-                fvalue = 'n/a'
+                if self.noexpired:
+                    fvalue = 'n/a'
             else:
                 field._valuelabel.back = self._black
             if fvalue is None:
