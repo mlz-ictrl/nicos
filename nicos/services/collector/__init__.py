@@ -36,7 +36,7 @@ from nicos.core.params import dictof, listof, oneof
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD
 from nicos.utils import createThread
-from nicos.utils.queues import SizedQueue, queue
+from nicos.pycompat import queue
 
 try:
     import requests
@@ -174,7 +174,7 @@ class WebhookForwarder(ForwarderBase, Device):
         if self._prefix:
             self._prefix += '/'
         self._initFilters()
-        self._queue = SizedQueue(1000000)
+        self._queue = queue.Queue(1000)
         self._processor = createThread('webhookprocessor', self._processQueue)
 
     def _putChange(self, time, ttl, key, value):
