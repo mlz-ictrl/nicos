@@ -341,7 +341,7 @@ def center(dev, center, step, numpoints, *args, **kwargs):
 
     Examples:
 
-    >>> center(omega, 5, 0.1, 10)  # scan and use a Gauss fit
+    >>> center(omega, 5, 0.1, 10)  # scan and use a Gauss fit, move to center
     >>> center(omega, 5, 0.1, 10, fit='sigmoid')  # use different fit function
     """
     minvalue, newcenter, maxvalue = _scanFC(dev, center, step, numpoints,
