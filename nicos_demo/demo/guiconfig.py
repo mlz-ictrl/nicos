@@ -80,6 +80,8 @@ windows = [
            panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
     window('Errors', 'errors',
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+    window('Watchdog', 'errors',
+           panel('nicos.clients.gui.panels.watchdog.WatchdogPanel')),
 ]
 
 tools = [

@@ -37,7 +37,8 @@ from nicos import config, session
 from nicos.core import Override, Param, anytype, dictof, listof, status
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.devices.notifiers import Mailer, Notifier
-from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
+from nicos.protocols.cache import OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
+    cache_dump, cache_load
 from nicos.pycompat import iteritems, itervalues, to_utf8
 from nicos.services.watchdog.conditions import DelayedTrigger, Expression, \
     Precondition
@@ -71,6 +72,14 @@ class Entry(object):
 
     def __repr__(self):
         return repr(self.condition)
+
+    def serialize(self):
+        res = {attr: getattr(self, attr) for attr in
+               ('id', 'setup', 'condition', 'gracetime', 'message',
+                'scriptaction', 'action', 'type', 'precondition',
+                'precondtime', 'okmessage', 'okaction')}
+        res['enabled'] = self.cond_obj.enabled
+        return res
 
 
 class Watchdog(BaseCacheClient):
@@ -212,6 +221,8 @@ class Watchdog(BaseCacheClient):
         finally:
             self._process_updates = True
         self.storeSysInfo('watchdog')
+        self._queue.put('watchdog/%s\n' % OP_SUBSCRIBE)
+        self._publish_config()
 
     def _wait_data(self):
         t = currenttime()
@@ -220,6 +231,11 @@ class Watchdog(BaseCacheClient):
                 self._check_state(entry, t)
 
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
+        if key.startswith('watchdog/'):
+            self._handle_control_msg(key, cache_load(value), time,
+                                     op != OP_TELL)
+            return
+
         key = key[len(self._prefix):].replace('/', '_').lower()
 
         # do we need the key for conditions?
@@ -237,6 +253,32 @@ class Watchdog(BaseCacheClient):
             self._process_key(time, key, value)
 
     # internal watchdog API
+
+    def _handle_control_msg(self, key, value, time, expired):
+        if key == 'watchdog/enable':
+            time = currenttime()
+            for (eid, enabled) in value[1]:
+                entry = self._entries.get(eid)
+                if entry:
+                    entry.cond_obj.enabled = enabled
+                    entry.cond_obj.update(time, self._keydict)
+                    self._check_state(entry, time)
+            self.log.info('updated enabled conditions by user request')
+        elif key == 'watchdog/reset':
+            # reset all condition enables to their initial state
+            # (e.g. due to NewExperiment)
+            for entry in itervalues(self._entries):
+                if entry.enabled != entry.cond_obj.enabled:
+                    entry.cond_obj.enabled = entry.enabled
+                    entry.cond_obj.update(time, self._keydict)
+                    self._check_state(entry, time)
+            self.log.info('enable status of all conditions reset')
+        self._publish_config()
+
+    def _publish_config(self):
+        # publish current condition info in the cache
+        self._put_message('configured', None,
+                          [c.serialize() for c in itervalues(self._entries)])
 
     def _process_key(self, time, key, value):
         # check setups?

@@ -297,7 +297,13 @@ Nicos includes a comprehensive set of Panels for most general use cases:
 .. autoclass:: nicos.clients.gui.panels.watch.WatchPanel()
 
 .. figure:: watchpanel.png
-     :alt: console panel
+     :alt: watch panel
+     :align: center
+
+.. autoclass:: nicos.clients.gui.panels.watchdog.WatchdogPanel()
+
+.. figure:: watchdogpanel.png
+     :alt: watchdog panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.generic.GenericPanel()

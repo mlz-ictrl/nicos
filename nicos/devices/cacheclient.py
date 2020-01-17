@@ -656,6 +656,15 @@ class CacheClient(BaseCacheClient):
                     default)
         return (None, None, default)  # shouldn't happen
 
+    def get_raw(self, key, default=None):
+        """Get a value from the cache server by full name."""
+        tosend = '%s%s\n' % (key, OP_ASK)
+        for msgmatch in self._single_request(tosend):
+            value = msgmatch.group('value')
+            if value:
+                return cache_load(value)
+        return default
+
     def put(self, dev, key, value, time=None, ttl=None, flag=''):
         """Put a value for a given device and subkey.
 

@@ -127,7 +127,9 @@ specification can have these keys:
 
 **enabled**
    A boolean value; if false, the condition is prevented from triggering when
-   the watchdog starts.  Defaults to True.
+   the watchdog starts.  Defaults to True.  Since users can activate conditions
+   at runtime from the GUI, this setting is useful to provide predefined
+   conditions that are not generally needed, but useful in special circumstances.
 
 **gracetime**
    The time, in seconds, which the watchdog waits after a condition becomes true

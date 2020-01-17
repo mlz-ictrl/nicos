@@ -1526,6 +1526,9 @@ class Session(object):
                 del self.namespace[name]
         # but need to put back the default imports
         self.initNamespace()
+        # let the watchdog know about it
+        if self.cache:
+            self.cache.put_raw('watchdog/reset', [currenttime()])
 
     def storeSysInfo(self):
         if self.cache:
