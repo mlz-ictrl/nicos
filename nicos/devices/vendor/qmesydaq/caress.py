@@ -283,6 +283,8 @@ class Image(QMesydaqCaressDevice, QMesyDAQImage):
     def doReadArray(self, quality):
         # read data via CARESS and transform it
         res = self._caress_guard(self._readblock)
+        if not res:
+            return None
         # first 3 values are sizes of dimensions
         # evaluate shape return correctly reshaped numpy array
         if (res[1], res[2]) in [(1, 1), (0, 1), (1, 0), (0, 0)]:  # 1D array
@@ -290,20 +292,19 @@ class Image(QMesydaqCaressDevice, QMesyDAQImage):
             data = numpy.fromiter(res[3:], '<u4', res[0])
             self.readresult = [data.sum()]
             return data
-        elif res[2] in [0, 1]:  # 2D array
+        if res[2] in [0, 1]:  # 2D array
             self.arraydesc = ArrayDesc('data', shape=(res[0], res[1]),
                                        dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0] * res[1])
             self.readresult = [data.sum()]
             return data.reshape((res[0], res[1]), order='C' if not
                                 self.transpose else 'F')
-        else:  # 3D array
-            self.arraydesc = ArrayDesc('data', shape=(res[0], res[1], res[2]),
-                                       dtype='<u4')
-            data = numpy.fromiter(res[3:], '<u4', res[0] * res[1] * res[3])
-            self.readresult = [data.sum()]
-            return data.reshape((res[0], res[1], res[2]), order='C')
-        return None
+        # 3D array
+        self.arraydesc = ArrayDesc('data', shape=(res[0], res[1], res[2]),
+                                   dtype='<u4')
+        data = numpy.fromiter(res[3:], '<u4', res[0] * res[1] * res[3])
+        self.readresult = [data.sum()]
+        return data.reshape((res[0], res[1], res[2]), order='C')
 
     def _set_option(self, text):
         self.log.debug('set_option: %s', text)
