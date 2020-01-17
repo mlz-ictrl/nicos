@@ -727,6 +727,7 @@ class CanDisable(DeviceMixinBase):
         if self._sim_intercept:
             return
         self.doEnable(on)
+        self.poll()
 
     @usermethod
     def enable(self):
