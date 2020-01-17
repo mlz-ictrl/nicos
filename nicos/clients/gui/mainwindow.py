@@ -584,7 +584,8 @@ class MainWindow(DlgUtils, QMainWindow):
         if self.watchdogWindow is None:
             self.watchdogWindow = WatchdogDialog(self)
         self.watchdogWindow.addEvent(data)
-        self.watchdogWindow.show()
+        if data[0] != 'resolved':
+            self.watchdogWindow.show()
 
     def on_client_prompt(self, data):
         if self.promptWindow:

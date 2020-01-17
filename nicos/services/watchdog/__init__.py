@@ -284,16 +284,16 @@ class Watchdog(BaseCacheClient):
             self._update_pausecount_str()
             warning_desc += ' -- counting paused'
         elif entry.scriptaction:
-            self._put_message('scriptaction', (entry.scriptaction,
-                                               entry.message))
+            self._put_message('scriptaction', entry, (entry.scriptaction,
+                                                      entry.message))
         if entry.type:
             for notifier in self._notifiers[entry.type]:
                 notifier.send('New warning from NICOS', warning_desc)
-        self._put_message('warning', entry.message)
+        self._put_message('warning', entry, entry.message)
         self._warnings[entry.id] = (True, warning_desc)
         self._update_warnings_str()
         if entry.action:
-            self._put_message('action', entry.action)
+            self._put_message('action', entry, entry.action)
             self._spawn_action(entry.action)
 
     def _emit_expired_warning(self, entry):
@@ -306,7 +306,7 @@ class Watchdog(BaseCacheClient):
         if entry.type:
             for notifier in self._notifiers[entry.type]:
                 notifier.send('New warning from NICOS', warning_desc)
-        self._put_message('warning', warning_desc)
+        self._put_message('warning', entry, warning_desc)
         self._warnings[entry.id] = (False, warning_desc)
         self._update_warnings_str()
 
@@ -320,6 +320,7 @@ class Watchdog(BaseCacheClient):
         self._update_warnings_str()
 
         if was_real_warning:
+            self._put_message('resolved', entry, '')
             if entry.okmessage and entry.type:
                 msg = strftime('%Y-%m-%d %H:%M -- ')
                 msg += '%s\n\nWarning was: %s' % (entry.okmessage,
@@ -327,14 +328,14 @@ class Watchdog(BaseCacheClient):
                 for notifier in self._notifiers[entry.type]:
                     notifier.send('NICOS warning resolved', msg)
             if entry.okaction:
-                self._put_message('action', entry.okaction)
+                self._put_message('action', entry, entry.okaction)
                 self._spawn_action(entry.okaction)
 
     # internal helper methods
 
-    def _put_message(self, msgtype, message, timestamp=True):
-        if timestamp:
-            message = [currenttime(), message]
+    def _put_message(self, msgtype, entry, message):
+        if entry is not None:
+            message = [currenttime(), message, entry.id]
         self._queue.put('watchdog/%s%s%s\n' % (msgtype, OP_TELL,
                                                cache_dump(message)))
 
@@ -346,14 +347,12 @@ class Watchdog(BaseCacheClient):
                 notifier._setROParam('receivers', emails)
 
     def _update_warnings_str(self):
-        self._put_message('warnings',
-                          '\n'.join(v[1] for v in self._warnings.values()),
-                          timestamp=False)
+        self._put_message('warnings', None,
+                          '\n'.join(v[1] for v in self._warnings.values()))
 
     def _update_pausecount_str(self):
-        self._put_message('pausecount',
-                          ', '.join(self._pausecount.values()),
-                          timestamp=False)
+        self._put_message('pausecount', None,
+                          ', '.join(self._pausecount.values()))
 
     def _spawn_action(self, action):
         self.log.warning('will execute action %r', action)

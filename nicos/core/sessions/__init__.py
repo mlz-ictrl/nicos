@@ -1224,16 +1224,18 @@ class Session(object):
 
     def _watchdogHandler(self, key, value, time, expired=False):
         """Handle a watchdog event."""
-        # value[0] is a timestamp, value[1] a string
-        if key.endswith(('/warning', '/action')):
-            self.watchdogEvent(key.rsplit('/')[-1], value[0], value[1])
+        if key.endswith(('/warning', '/resolved', '/action')):
+            # value[0] is a timestamp, value[1] a string, value[2] the
+            # watchdog entry ID
+            self.watchdogEvent(key.rsplit('/')[-1], *value)
         elif key.endswith('/pausecount'):
+            # value is just a string
             if self.experiment and self.mode == MASTER:
                 self.experiment.pausecount = value
                 if value:
                     self.countloop_request = ('pause', value)
 
-    def watchdogEvent(self, event, time, data):
+    def watchdogEvent(self, event, time, data, entry_id):
         if event == 'warning':
             self.log.warning('WATCHDOG ALERT: %s', data)
         elif event == 'action':

@@ -216,11 +216,11 @@ class DaemonSession(NoninteractiveSession):
         # handle other cases
         NoninteractiveSession._watchdogHandler(self, key, value, time, expired)
 
-    def watchdogEvent(self, event, time, data):
+    def watchdogEvent(self, event, time, data, entry_id):
         """Handle a watchdog alarm event."""
         if event == 'warning':
             self.log.warning('WATCHDOG ALERT: %s', data)
-        self.emitfunc('watchdog', (event, time, data))
+        self.emitfunc('watchdog', (event, time, data, entry_id))
 
     def abortScript(self):
         raise ControlStop('', '', 'abort()')
