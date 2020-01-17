@@ -9,6 +9,6 @@ devices = dict(
     Collector = device('nicos.services.collector.Collector',
         cache = 'kompassctrl.kompass.frm2',
         forwarders = ['GlobalCache'],
-        keyfilters = ['stt.*'],
+        keyfilters = ['stt.*', 'mtt.*'],
     ),
 )

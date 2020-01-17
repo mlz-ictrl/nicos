@@ -107,11 +107,13 @@ class SScan(Cmdlet):
         return all(valid)
 
     def generate(self, mode):
+        values = self.getValues()
         if mode == "simple":
             return "sscan %(dev)s %(scanstart)s %(scanstep)s %(scanend)s " \
-                   "%(counttime)s" % self.getValues()
+                   "%(counttime)s" % values
+        values['dev'] = self._getDeviceRepr(values['dev'])
         return "sscan(%(dev)s, %(scanstart)s, %(scanstep)s, %(scanend)s, " \
-               "%(counttime)s)" % self.getValues()
+               "%(counttime)s)" % values
 
 
 class KScan(Cmdlet):
@@ -185,11 +187,13 @@ class KScan(Cmdlet):
         return all(valid)
 
     def generate(self, mode):
+        values = self.getValues()
         if mode == 'simple':
             return 'kscan %(dev)s %(scanstart)s %(scanstep)s %(scanpoints)s ' \
-                   '%(devspeed)s' % self.getValues()
+                   '%(devspeed)s' % values
+        values['dev'] = self._getDeviceRepr(values['dev'])
         return 'kscan(%(dev)s, %(scanstart)s, %(scanstep)s, %(scanpoints)s, ' \
-               '%(devspeed)s)' % self.getValues()
+               '%(devspeed)s)' % values
 
 
 register(KScan)

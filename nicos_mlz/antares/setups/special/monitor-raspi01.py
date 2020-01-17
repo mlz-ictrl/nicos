@@ -49,7 +49,7 @@ _detectorikonlcolumn = Column(
         ),
     BlockRow(
         Field(name='Status', key='ikonl/status[1]', width=25),
-        Field(dev='ikonlTemp'),
+        Field(name='Temp', dev='temp_ikonl'),
         Field(name='hsspeed', key='ikonl.hsspeed', width=4),
         Field(name='vsspeed', key='ikonl.vsspeed', width=4),
         Field(name='pgain', key='ikonl.pgain', width=4),

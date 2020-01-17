@@ -857,7 +857,11 @@ class ControlDialog(QDialog):
             menu.addAction(self.actionAdjustOffset)
         if 'nicos.devices.abstract.CanReference' in classes:
             menu.addAction(self.actionReference)
+        if 'nicos.devices.abstract.Coder' in classes:
+            menu.addAction(self.actionSetPosition)
         if 'nicos.core.device.Moveable' in classes:
+            if not menu.isEmpty():
+                menu.addSeparator()
             menu.addAction(self.actionFix)
             menu.addAction(self.actionRelease)
         if 'nicos.core.mixins.CanDisable' in classes:
@@ -996,19 +1000,39 @@ class ControlDialog(QDialog):
         self.device_panel.exec_command('set(%s, "userlimits", %s)' %
                                        (self.devrepr, newlimits))
 
-    @pyqtSlot()
-    def on_actionAdjustOffset_triggered(self):
-        dlg = dialogFromUi(self, 'panels/devices_adjust.ui')
-        dlg.descLabel.setText('Adjust offset of %s:' % self.devname)
+    def _get_new_value(self, window_title, desc):
+        dlg = dialogFromUi(self, 'panels/devices_newpos.ui')
+        dlg.setWindowTitle(window_title)
+        dlg.descLabel.setText(desc)
         dlg.oldValue.setText(self.valuelabel.text())
         target = DeviceValueEdit(dlg, dev=self.devname)
         target.setClient(self.client)
         dlg.targetLayout.addWidget(target)
+        target.setFocus()
         res = dlg.exec_()
         if res != QDialog.Accepted:
-            return
-        self.device_panel.exec_command(
-            'adjust(%s, %r)' % (self.devrepr, target.getValue()))
+            return None
+        return target.getValue()
+
+    @pyqtSlot()
+    def on_actionAdjustOffset_triggered(self):
+        val = self._get_new_value('Adjust NICOS offset',
+                                  'Adjust NICOS offset of %s:' % self.devname)
+        if val is not None:
+            self.device_panel.exec_command(
+                'adjust(%s, %r)' % (self.devrepr, val))
+
+    @pyqtSlot()
+    def on_actionSetPosition_triggered(self):
+        val = self._get_new_value('Set hardware position',
+                                  'Set hardware position of %s:' % self.devname)
+        if val is not None:
+            if self.devrepr != self.devname:
+                cmd = 'CreateDevice(%s); %s.setPosition(%r)' % \
+                      (self.devrepr, self.devname, val)
+            else:
+                cmd = '%s.setPosition(%r)' % (self.devname, val)
+            self.device_panel.exec_command(cmd)
 
     @pyqtSlot()
     def on_actionReference_triggered(self):

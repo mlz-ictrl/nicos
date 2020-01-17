@@ -36,7 +36,7 @@ from nicos.core.params import dictof, listof, oneof
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD
 from nicos.utils import createThread
-from nicos.utils.queues import SizedQueue, queue
+from nicos.pycompat import queue
 
 try:
     import requests
@@ -93,7 +93,7 @@ class ForwarderBase(CacheKeyFilter, DeviceMixinBase):
     def _startWorker(self):
         pass
 
-    def _putChange(self, time, key, value):
+    def _putChange(self, time, ttl, key, value):
         pass
 
 
@@ -115,13 +115,14 @@ class CacheForwarder(ForwarderBase, BaseCacheClient):
     def _startWorker(self):
         self._worker.start()
 
-    def _putChange(self, time, key, value):
+    def _putChange(self, time, ttl, key, value):
         if not self._checkKey(key):
             return
         if value is None:
             msg = '%s@%s%s%s\n' % (time, self._prefix, key, OP_TELLOLD)
         else:
-            msg = '%s@%s%s%s%s\n' % (time, self._prefix, key, OP_TELL, value)
+            msg = '%s%s@%s%s%s%s\n' % (time, ttl,
+                                       self._prefix, key, OP_TELL, value)
         self._queue.put(msg)
 
     def _handle_msg(self, _time, _ttlop, _ttl, _tsop, _key, _op, _value):
@@ -138,7 +139,7 @@ class MappingCacheForwarder(CacheForwarder):
                      mandatory=True),
     }
 
-    def _putChange(self, time, key, value):
+    def _putChange(self, time, ttl, key, value):
         if not self._checkKey(key):
             return
         dev, slash, sub = key.partition('/')
@@ -147,8 +148,8 @@ class MappingCacheForwarder(CacheForwarder):
             msg = '%s@%s%s%s\n' % (time, self._prefix, dev + slash + sub,
                                    OP_TELLOLD)
         else:
-            msg = '%s@%s%s%s%s\n' % (time, self._prefix, dev + slash + sub,
-                                     OP_TELL, value)
+            msg = '%s%s@%s%s%s%s\n' % (time, ttl, self._prefix,
+                                       dev + slash + sub, OP_TELL, value)
         self._queue.put(msg)
 
 
@@ -173,13 +174,13 @@ class WebhookForwarder(ForwarderBase, Device):
         if self._prefix:
             self._prefix += '/'
         self._initFilters()
-        self._queue= SizedQueue(1000000)
+        self._queue = queue.Queue(1000)
         self._processor = createThread('webhookprocessor', self._processQueue)
 
-    def _putChange(self, time, key, value):
+    def _putChange(self, time, ttl, key, value):
         if not self._checkKey(key):
             return
-        pdict = dict(time=time, key=self._prefix + key, value=value)
+        pdict = dict(time=time, ttl=ttl, key=self._prefix + key, value=value)
         retry = 2
         while retry:
             try:
@@ -241,5 +242,6 @@ class Collector(CacheKeyFilter, BaseCacheClient):
             value = value or None
         elif op == OP_TELLOLD:
             value = None
+        ttl = '+' + ttl if ttlop == '+' else ''
         for service in self._attached_forwarders:
-            service._putChange(time, key, value)
+            service._putChange(time, ttl, key, value)

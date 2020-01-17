@@ -33,8 +33,7 @@ _translationColumn = Column(
     ),
 )
 
-_detectorblock = Column(
-    Block('Detector', [
+_detectorikonlblock = Block('Detector', [
         BlockRow(
             Field(name='Last Image', key='exp/lastpoint'),
         ),
@@ -53,8 +52,33 @@ _detectorblock = Column(
             Field(name='pgain', key='ccd.pgain', width=4),
         ),
         ],
-        setups='detector*',
-    ),
+        setups='detector_ikonl*',
+)
+
+_detectorneoblock = Block('Detector', [
+        BlockRow(
+            Field(name='Last Image', key='exp/lastpoint'),
+        ),
+        BlockRow(
+            Field(dev='temp_neo'), Field(name='CCD status', key='neo/status[1]', width=15),
+        ),
+        BlockRow(
+            Field(name='bin', key='neo.bin'),
+            Field(name='flip (H,V)', key='neo.flip'),
+            Field(name='rotation', key='neo.rotation'),
+        ),
+        BlockRow(
+            Field(name='roi', key='neo.roi'),
+            Field(name='elshuttermode', key='neo.elshuttermode', width=6),
+            Field(name='readoutrate MHz', key='neo.readoutrate', width=4),
+        ),
+        ],
+        setups='detector_neo',
+)
+
+_detectorColumn = Column(
+    _detectorikonlblock,
+    _detectorneoblock,
 )
 
 _ubahnColumn = Column(
@@ -78,6 +102,6 @@ devices = dict(
         valuefont = 'Consolas',
         padding = 0,
         layout = [[_expcolumn],
-                  [_translationColumn, _detectorblock, _ubahnColumn]],
+                  [_translationColumn, _detectorColumn, _ubahnColumn]],
     ),
 )

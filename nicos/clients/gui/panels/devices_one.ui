@@ -349,6 +349,14 @@
     <string>Disable/switch off the device</string>
    </property>
   </action>
+  <action name="actionSetPosition">
+   <property name="text">
+    <string>Set hardware position...</string>
+   </property>
+   <property name="toolTip">
+    <string>&quot;Rename&quot; the current hardware position to a different value</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

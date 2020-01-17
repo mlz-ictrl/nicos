@@ -2,13 +2,13 @@ description = 'setup for the NICOS watchdog'
 group = 'special'
 
 watchlist = [
-    dict(condition = 'det_kwscounting and '
-                     'ep10_HV_value < ep10_HV_target - 10',
-         message = 'EP 10 HV too low!',
-         okmessage = 'EP 10 HV back to normal',
-         gracetime = 1,
-         type = 'default',
-    ),
+#    dict(condition = 'det_kwscounting and '
+#                     'ep10_HV_value < ep10_HV_target - 10',
+#         message = 'EP 10 HV too low!',
+#         okmessage = 'EP 10 HV back to normal',
+#         gracetime = 1,
+#         type = 'default',
+#    ),
     dict(condition = 'det_kwscounting and '
                      'abs(selector_speed_value - selector_speed_target) > '
                      'selector_speed_precision',
@@ -67,6 +67,7 @@ watchlist = [
          message = 'Chopper off, but not in parking position',
          gracetime = 10,
          type = 'default',
+         setup = 'chopper',
     ),
     dict(condition = 'det_kwscounting and abs(b_ccm3a_value - b_ccm3a_readback_value) > 0.2',
          message = '3T magnet readback and setpoint differ by >0.2 T, count paused',

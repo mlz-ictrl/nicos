@@ -87,17 +87,22 @@ for (epname, epicsid) in eps: # + [('ep09x', 'GE-D7561E-EP')]:
         pollinterval = 10,
         fmtstr = '%.0f',
     )
+    devices[epname + '_cts'] = device('nicos_mlz.kws1.devices.gedet.HVEpicsArrayReadable',
+        description = epname + ' tube counts',
+        readpv = epicsid + ':TubeCounts',
+        lowlevel = True,
+    )
 
-devices['ep10_P'] = device('nicos.devices.tango.AnalogInput',
-                           tangodevice = tango_base + 'ep10/power',
-                           description = 'ep10 delivered PoE power',
-                           lowlevel = True,)
-devices['ep10_cts'] = device('nicos_mlz.kws1.devices.gedet.HVEpicsArrayReadable',
-                             readpv = 'GE-D72EA6-EP:TubeCounts',
-                             lowlevel = True,)
-devices['ep07_cts'] = device('nicos_mlz.kws1.devices.gedet.HVEpicsArrayReadable',
-                             readpv = 'GE-D72F9D-EP:TubeCounts',
-                             lowlevel = True,)
+#devices['ep10_P'] = device('nicos.devices.tango.AnalogInput',
+#                           tangodevice = tango_base + 'ep10/power',
+#                           description = 'ep10 delivered PoE power',
+#                           lowlevel = True,)
+#devices['ep10_cts'] = device('nicos_mlz.kws1.devices.gedet.HVEpicsArrayReadable',
+#                             readpv = 'GE-D72EA6-EP:TubeCounts',
+#                             lowlevel = True,)
+#devices['ep07_cts'] = device('nicos_mlz.kws1.devices.gedet.HVEpicsArrayReadable',
+#                             readpv = 'GE-D72F9D-EP:TubeCounts',
+#                             lowlevel = True,)
 
 
 for ti in range(1, 3):

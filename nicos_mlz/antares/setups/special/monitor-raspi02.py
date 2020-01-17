@@ -112,7 +112,7 @@ _temperatureblock = Block('Cryo Temperature', [
 )
 
 _garfieldblock = Block('Garfield Magnet', [
-        BlockRow(Field(dev='B_amagnet', name='B'), Field(dev='amagnet_connection', name='Mode') ),
+        BlockRow(Field(dev='B_amagnet', name='B'), Field(dev='amagnet_symmetry', name='Mode') ),
     ],
     setups='amagnet',
 )

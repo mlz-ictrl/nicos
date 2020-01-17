@@ -57,6 +57,7 @@ class CommandPanel(Panel):
         self.window = parent
         self.mapping = {}
         self.current_cmdlet = None
+        self.expertmode = self.mainwindow.expertmode
 
         # collect values of all cmdlets that have been added
         # so that the common fields carry over to the next cmdlet
@@ -121,6 +122,9 @@ class CommandPanel(Panel):
     def getMenus(self):
         return []
 
+    def setExpertMode(self, expert):
+        self.expertmode = expert
+
     def completeInput(self, fullstring, lastword):
         try:
             return self.client.ask('complete', fullstring, lastword,
@@ -149,7 +153,7 @@ class CommandPanel(Panel):
     def selectCmdlet(self, cmdlet):
         if self.current_cmdlet:
             self.clearCmdlet()
-        inst = cmdlet(self.frame, self.client)
+        inst = cmdlet(self, self.client)
         inst.setValues(self.value_collection)
         inst.buttons.upBtn.setVisible(False)
         inst.buttons.downBtn.setVisible(False)

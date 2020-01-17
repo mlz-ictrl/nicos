@@ -9,13 +9,13 @@ group = 'configdata'
 
 DETECTOR_PRESETS = {
     '5A': {
-        '1.5m':      dict(z=1.5,  x=36,  y=428.4),
+        '1.5m':      dict(z=1.5,  x=50,  y=428.4),
         '2m':        dict(z=2.3,  x=36,  y=428.4),
         '4m':        dict(z=4,    x=36,  y=427.8),
-        '8m':        dict(z=8,    x=36,  y=427),
+        '8m':        dict(z=8,    x=45,  y=427),
         '14m':       dict(z=14,   x=35,  y=426),
         '17.5m LENSES': dict(z=17.5, x=35,  y=421.5),
-        '20m':       dict(z=19.9, x=35,  y=419.5),
+        '20m':       dict(z=20, x=55,  y=419.5),
 #        '6m Hum':    dict(z=6,    x=-1.0,  y=7.0),
         '8m Tr':     dict(z=8,    x=36,  y=290),
         '4m Tr':     dict(z=4,    x=36,  y=290),

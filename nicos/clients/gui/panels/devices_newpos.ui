@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Adjust offset</string>
+   <string>new position</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="1">
@@ -47,7 +47,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Adjust offset of dev:</string>
+      <string>dev:</string>
      </property>
     </widget>
    </item>

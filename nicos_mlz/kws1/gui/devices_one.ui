@@ -38,7 +38,7 @@
         <string>Add a row of setpoints</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../resources/nicos-gui.qrc">
+        <iconset resource="../../../resources/nicos-gui.qrc">
          <normaloff>:/add</normaloff>:/add</iconset>
        </property>
        <property name="iconSize">
@@ -55,7 +55,7 @@
         <string>Remove a row of setpoints</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../resources/nicos-gui.qrc">
+        <iconset resource="../../../resources/nicos-gui.qrc">
          <normaloff>:/remove</normaloff>:/remove</iconset>
        </property>
        <property name="iconSize">
@@ -88,7 +88,7 @@
         <string>Move current row up</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../resources/nicos-gui.qrc">
+        <iconset resource="../../../resources/nicos-gui.qrc">
          <normaloff>:/up</normaloff>:/up</iconset>
        </property>
        <property name="iconSize">
@@ -105,7 +105,7 @@
         <string>Move current row down</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../resources/nicos-gui.qrc">
+        <iconset resource="../../../resources/nicos-gui.qrc">
          <normaloff>:/down</normaloff>:/down</iconset>
        </property>
        <property name="iconSize">
@@ -135,7 +135,7 @@
         <string>Clear all rows and remove devices</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../resources/nicos-gui.qrc">
+        <iconset resource="../../../resources/nicos-gui.qrc">
          <normaloff>:/emergency</normaloff>:/emergency</iconset>
        </property>
        <property name="iconSize">
@@ -151,7 +151,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../../../resources/nicos-gui.qrc"/>
+  <include location="../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections/>
 </ui>
