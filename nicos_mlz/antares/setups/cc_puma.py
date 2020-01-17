@@ -3,23 +3,27 @@ group = 'optional'
 
 includes = ['alias_T']
 
+tango_base = 'tango://antareshw.antares.frm2.tum.de:10000/antares/ls340/'
+
 devices = dict(
-    T_cc = device('nicos.devices.taco.TemperatureController',
+    T_cc = device('nicos.devices.tango.TemperatureController',
         description = 'CC PUMA temperature regulation',
-        tacodevice = '//antaressrv/antares/ls340/control',
-        pollinterval = 1,
-        maxage = 6,
-        abslimits = (0, 300),
-    ),
-    T_cc_A = device('nicos.devices.taco.TemperatureSensor',
-        description = 'CC sensor A',
-        tacodevice = '//antaressrv/antares/ls340/sensa',
+        tangodevice = tango_base + 'control',
+        unit = 'K',
         pollinterval = 1,
         maxage = 6,
     ),
-    T_cc_B = device('nicos.devices.taco.TemperatureSensor',
+    T_cc_A = device('nicos.devices.tango.Sensor',
+        description = 'CC sensor A', 
+        tangodevice = tango_base + 'sensa',
+        unit = 'K', 
+        pollinterval = 1, 
+        maxage = 6,
+    ),
+    T_cc_B = device('nicos.devices.tango.Sensor',
         description = 'CC sensor B',
-        tacodevice = '//antaressrv/antares/ls340/sensb',
+        tangodevice = tango_base + 'sensb',
+        unit = 'K', 
         pollinterval = 1,
         maxage = 6,
    ),
