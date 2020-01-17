@@ -197,7 +197,7 @@ _apertures_slits = Column(
                 Field(name=u'zb\u2083',    dev='zb3.height', width=layout_width, unit='(mm)'),
                 Field(name=u'bs\u2081',    dev='bs1.height', width=layout_width, unit='(mm)'),
                 Field(name=u'b\u2082',     dev='b2.height', width=layout_width, unit='(mm)'),
-                Field(name=u'h\u2082',     dev='h2.width', width=layout_width, unit='(mm)'),
+                Field(name=u'h\u2082',     dev='h2_width', width=layout_width, unit='(mm)'),
                 Field(name=u'b\u2083',     dev='b3.height', width=layout_width, unit='(mm)'),
                 Field(name=u'h\u2083',     dev='h3.height', width=layout_width, unit='(mm)'),
                 ),

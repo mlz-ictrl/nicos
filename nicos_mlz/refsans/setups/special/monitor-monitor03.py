@@ -65,8 +65,8 @@ _probenort = Column(
             Field(name='sample name', key='sample/samplename', width=70,istext=True, maxlen=70),
             ),
         BlockRow(
-            Field(name='sample width', key='sample/width', width=10, format = '%.0f', unit='(mm)'),
-            Field(name='sample length', key='sample/length', width=10, format = '%.0f', unit='(mm)'),
+            Field(name='sample width', key='Sample/width', width=10, format = '%.0f', unit='(mm)'),
+            Field(name='sample length', key='Sample/length', width=10, format = '%.0f', unit='(mm)'),
             Field(name='sample-last slit distance', dev='d_last_slit_sample', width=10, format = '%.0f', unit='(mm)'),
             ),
         BlockRow(
