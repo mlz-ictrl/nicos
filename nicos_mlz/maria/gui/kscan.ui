@@ -264,7 +264,7 @@
   <tabstop>step</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../../resources/nicos-gui.qrc"/>
+  <include location="../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections/>
 </ui>

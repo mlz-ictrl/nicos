@@ -29,7 +29,7 @@
          <string>Add new setting to the table</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../../resources/nicos-gui.qrc">
+         <iconset resource="../../../resources/nicos-gui.qrc">
           <normaloff>:/add</normaloff>:/add</iconset>
         </property>
         <property name="iconSize">
@@ -51,7 +51,7 @@
         <string>Remove setting from the table</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../resources/nicos-gui.qrc">
+        <iconset resource="../../../resources/nicos-gui.qrc">
          <normaloff>:/remove</normaloff>:/remove</iconset>
        </property>
        <property name="iconSize">
@@ -84,7 +84,7 @@
         <string>Move setting up in the table</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../resources/nicos-gui.qrc">
+        <iconset resource="../../../resources/nicos-gui.qrc">
          <normaloff>:/up</normaloff>:/up</iconset>
        </property>
        <property name="iconSize">
@@ -101,7 +101,7 @@
         <string>Move setting down in the table</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../resources/nicos-gui.qrc">
+        <iconset resource="../../../resources/nicos-gui.qrc">
          <normaloff>:/down</normaloff>:/down</iconset>
        </property>
        <property name="iconSize">
@@ -131,7 +131,7 @@
         <string>Clear</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../resources/nicos-gui.qrc">
+        <iconset resource="../../../resources/nicos-gui.qrc">
          <normaloff>:/emergency</normaloff>:/emergency</iconset>
        </property>
        <property name="iconSize">
@@ -193,7 +193,7 @@
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../../resources/nicos-gui.qrc"/>
+  <include location="../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections>
   <connection>

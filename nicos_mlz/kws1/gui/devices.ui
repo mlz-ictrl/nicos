@@ -50,7 +50,7 @@
           <string>Add a setpoint table for selected devices</string>
          </property>
          <property name="icon">
-          <iconset resource="../../../../resources/nicos-gui.qrc">
+          <iconset resource="../../../resources/nicos-gui.qrc">
            <normaloff>:/add</normaloff>:/add</iconset>
          </property>
          <property name="iconSize">
@@ -130,7 +130,7 @@
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../../resources/nicos-gui.qrc"/>
+  <include location="../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections>
   <connection>

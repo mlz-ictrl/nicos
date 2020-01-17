@@ -14,7 +14,7 @@
    <string>Protocol generator</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../../resources/nicos-gui.qrc">
+   <iconset resource="../../../resources/nicos-gui.qrc">
     <normaloff>:/paste</normaloff>:/paste</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -33,7 +33,7 @@
          <string>Generate</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../../resources/nicos-gui.qrc">
+         <iconset resource="../../../resources/nicos-gui.qrc">
           <normaloff>:/down</normaloff>:/down</iconset>
         </property>
         <property name="iconSize">
@@ -158,7 +158,7 @@
            <string>Print</string>
           </property>
           <property name="icon">
-           <iconset resource="../../../../resources/nicos-gui.qrc">
+           <iconset resource="../../../resources/nicos-gui.qrc">
             <normaloff>:/print</normaloff>:/print</iconset>
           </property>
           <property name="iconSize">
@@ -205,7 +205,7 @@
            <string>Save</string>
           </property>
           <property name="icon">
-           <iconset resource="../../../../resources/nicos-gui.qrc">
+           <iconset resource="../../../resources/nicos-gui.qrc">
             <normaloff>:/save</normaloff>:/save</iconset>
           </property>
           <property name="iconSize">
@@ -249,7 +249,7 @@
   </layout>
   <action name="actionBack">
    <property name="icon">
-    <iconset resource="../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/previous</normaloff>:/previous</iconset>
    </property>
    <property name="text">
@@ -258,7 +258,7 @@
   </action>
   <action name="actionForward">
    <property name="icon">
-    <iconset resource="../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/next</normaloff>:/next</iconset>
    </property>
    <property name="text">
@@ -267,7 +267,7 @@
   </action>
   <action name="actionRefresh">
    <property name="icon">
-    <iconset resource="../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/refresh</normaloff>:/refresh</iconset>
    </property>
    <property name="text">
@@ -308,7 +308,7 @@
   </action>
   <action name="actionPrint">
    <property name="icon">
-    <iconset resource="../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/print</normaloff>:/print</iconset>
    </property>
    <property name="text">
@@ -327,7 +327,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../../resources/nicos-gui.qrc"/>
+  <include location="../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections/>
 </ui>

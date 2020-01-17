@@ -55,7 +55,7 @@
          <string>Create new</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../../resources/nicos-gui.qrc">
+         <iconset resource="../../../resources/nicos-gui.qrc">
           <normaloff>:/new</normaloff>:/new</iconset>
         </property>
        </widget>
@@ -88,7 +88,7 @@
          <string>Retrieve current</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../../resources/nicos-gui.qrc">
+         <iconset resource="../../../resources/nicos-gui.qrc">
           <normaloff>:/up</normaloff>:/up</iconset>
         </property>
        </widget>
@@ -121,7 +121,7 @@
          <string>Load from file...</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../../resources/nicos-gui.qrc">
+         <iconset resource="../../../resources/nicos-gui.qrc">
           <normaloff>:/open</normaloff>:/open</iconset>
         </property>
        </widget>
@@ -284,7 +284,7 @@
   </action>
   <action name="actionGenerate">
    <property name="icon">
-    <iconset resource="../../../../resources/nicos-gui.qrc">
+    <iconset resource="../../../resources/nicos-gui.qrc">
      <normaloff>:/table</normaloff>:/table</iconset>
    </property>
    <property name="text">
@@ -293,7 +293,7 @@
   </action>
  </widget>
  <resources>
-  <include location="../../../../resources/nicos-gui.qrc"/>
+  <include location="../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections/>
 </ui>
