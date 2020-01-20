@@ -444,8 +444,9 @@ class HasTimeout(DeviceMixinBase):
         """
         if self.timeout is None:
             return False
-        if self._timeoutTime is not None:
-            remaining = self._timeoutTime - currenttime()
+        timeoutTime = self._timeoutTime
+        if timeoutTime is not None:
+            remaining = timeoutTime - currenttime()
             if remaining > 0:
                 self.log.debug("%.2f s left before timeout", remaining)
             else:
