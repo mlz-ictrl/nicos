@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Release 3.7.0
+-------------
+
+* GUI
+
+  - Qt 5 is now preferred if installed, and Qt 4 can be forced by setting
+    "NICOS_QT=4" in the environment.
+
+
 Release 3.6.0
 -------------
 

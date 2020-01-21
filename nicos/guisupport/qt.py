@@ -24,8 +24,8 @@
 
 """Qt 4/5 compatibility layer.
 
-At the moment, only Qt 4 is fully tested.  Therefore, to use Qt 5, the
-environment variable NICOS_QT=5 has to be set to select this version.
+Qt 5 is preferred since NICOS 3.7.  Therefore, to use Qt 4, the
+environment variable NICOS_QT=4 has to be set to select this version.
 """
 
 # pylint: disable=wildcard-import, unused-import, unused-wildcard-import
@@ -40,7 +40,17 @@ from __future__ import absolute_import, division, print_function
 import os
 import sys
 
-if os.environ.get('NICOS_QT') == '5':
+use_qt5 = True
+if os.environ.get('NICOS_QT') == '4':
+    use_qt5 = False
+else:
+    try:
+        import PyQt5.QtCore
+    except (RuntimeError, ImportError):
+        use_qt5 = False
+
+
+if use_qt5:
     from PyQt5.QtGui import *
     from PyQt5.QtWidgets import *
     from PyQt5.QtCore import QObject
@@ -143,6 +153,7 @@ else:
         @staticmethod
         def getSaveFileName(*args, **kwds):
             return orig_QFileDialog.getSaveFileNameAndFilter(*args, **kwds)
+
 
 QT_VER = int(QT_VERSION_STR.split('.')[0])
 
