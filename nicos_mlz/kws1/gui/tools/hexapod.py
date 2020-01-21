@@ -18,12 +18,13 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Michael Wagener <m.wagener@fz-juelich.de>
 #   Georg Brandl <g.brandl@fz-juelich.de>
+#   Alexander Steffens <a.steffens@fz-juelich.de>
+#   Michael Wagener <m.wagener@fz-juelich.de>
 #
 # *****************************************************************************
 
-"""Direct manual control of KWS-1 Hexapod via Tango special device."""
+"""Direct manual control of KWS-1 Hexapod via Tango controller device."""
 
 from __future__ import absolute_import, division, print_function
 
@@ -33,14 +34,14 @@ from nicos.clients.gui.utils import DlgUtils, loadUi
 from nicos.guisupport.qt import QMainWindow, QTimer, pyqtSlot
 from nicos.utils import findResource
 
-TANGO_DEV_BASE = 'tango://phys.kws1.frm2:10000/kws1/hexapod'
-AXES = ['tx', 'ty', 'tz', 'rz', 'ry', 'rx', 'dt']
+TANGO_DEV_BASE = 'tango://phys.kws1.frm2:10000/kws1/hexapod/h_'
+AXES = ['tx', 'ty', 'tz', 'rz', 'ry', 'rx', 'omega']
 
 
 class HexapodTool(DlgUtils, QMainWindow):
     toolName = 'HexapodTool'
 
-    def __init__(self, parent, client, **kwds):
+    def __init__(self, parent, _client, **_kwds):
         QMainWindow.__init__(self, parent)
         DlgUtils.__init__(self, 'Hexapod')
 
@@ -57,77 +58,64 @@ class HexapodTool(DlgUtils, QMainWindow):
         self.axeslist = []
 
         try:
-            self.special = PyTango.DeviceProxy(TANGO_DEV_BASE + 'special/1')
-            # make sure the server is running and
+            self._controller = PyTango.DeviceProxy(
+                TANGO_DEV_BASE + 'controller')
+            # make sure the server is running and create remaining proxies
             try:
-                self.special.GlobalState()
+                self._controller.State()
             except AttributeError:
                 raise Exception('server appears to be not running')
             for axis in AXES:
-                self.axes[axis] = PyTango.DeviceProxy(TANGO_DEV_BASE + 'base/' + axis)
+                self.axes[axis] = PyTango.DeviceProxy(TANGO_DEV_BASE + axis)
                 self.axeslist.append(self.axes[axis])
         except Exception as err:
-            self.showError('Could not connect to Tango server: %s' % err)
+            self.showError('could not connect to tango server: %s' % err)
             self.deleteLater()
             return
 
         self.on_cbsWorkspace_activated(0)
         self.on_cbsFrame_activated(self.cbsFrame.currentText())
 
-        self.inpVelTrans.setValue(self.query_attr(self.axes['tx'], 'speed'))
+        tx_speed = self.query_attr(self.axes['tx'], 'speed')
+        self.inpVelTrans.setValue(tx_speed)
         self.lblVelTrans.setText(self.inpVelTrans.text())
         self.inpVelRot.setValue(self.query_attr(self.axes['rx'], 'speed'))
         self.lblVelRot.setText(self.inpVelRot.text())
-        self.inpVelDT.setValue(self.query_attr(self.axes['dt'], 'speed'))
-        self.lblVelDT.setText(self.inpVelDT.text())
+        self.inpVelOmega.setValue(self.query_attr(self.axes['omega'], 'speed'))
+        self.lblVelOmega.setText(self.inpVelOmega.text())
 
-        self.inpRampUp.setValue(self.query_attr(self.axes['tx'], 'accel'))
+        # ramp time = speed / acceleration
+        self.inpRampUp.setValue(
+            tx_speed / self.query_attr(self.axes['tx'], 'accel'))
         self.lblRampUp.setText(self.inpRampUp.text())
-        self.inpRampDown.setValue(self.query_attr(self.axes['tx'], 'decel'))
+        self.inpRampDown.setValue(
+            tx_speed / self.query_attr(self.axes['tx'], 'decel'))
         self.lblRampDown.setText(self.inpRampDown.text())
 
         self.updTimer = QTimer()
         self.updTimer.timeout.connect(self.updateTimer)
         self.updTimer.start(1000)
 
-    def exec_cmd(self, dev, cmd, *args):
+    def exec_cmd(self, dev, cmd, args=None):
         try:
-            return getattr(dev, cmd)(*args)
+            return dev.command_inout(cmd, args)
         except Exception as err:
-            # try once to switch device On
-            try:
-                dev.On()
-                return getattr(dev, cmd)(*args)
-            except Exception as err:
-                self.showError('Could not execute %s on hexapod:\n%s' %
-                               (cmd, err))
-                raise
+            self.showError('could not execute %s on hexapod:\n%s' % (cmd, err))
+            raise
 
     def query_attr(self, dev, attr):
         try:
             return getattr(dev, attr)
         except Exception as err:
-            # try once to switch device On
-            try:
-                dev.On()
-                return getattr(dev, attr)
-            except Exception as err:
-                self.showError('Could not query %s on hexapod:\n%s' %
-                               (attr, err))
-                raise
+            self.showError('could not query %s on hexapod:\n%s' % (attr, err))
+            raise
 
     def set_attr(self, dev, attr, value):
         try:
             setattr(dev, attr, value)
         except Exception as err:
-            # try once to switch device On
-            try:
-                dev.On()
-                setattr(dev, attr, value)
-            except Exception as err:
-                self.showError('Could not set %s on hexapod:\n%s' %
-                               (attr, err))
-                raise
+            self.showError('could not set %s on hexapod:\n%s' % (attr, err))
+            raise
 
     @pyqtSlot()
     def on_butExit_clicked(self):
@@ -139,71 +127,51 @@ class HexapodTool(DlgUtils, QMainWindow):
 
     @pyqtSlot()
     def on_butStart_clicked(self):
-        for client, widget in zip(self.axeslist, [
-                self.inpNewTX, self.inpNewTY, self.inpNewTZ,
-                self.inpNewRZ, self.inpNewRY, self.inpNewRX, self.inpNewDT]):
-            self.set_attr(client, 'value', widget.value())
+        self.exec_cmd(self._controller, 'StartSynchronousMovement', [
+            self.inpNewTX.value(), self.inpNewTY.value(),
+            self.inpNewTZ.value(), self.inpNewRZ.value(),
+            self.inpNewRY.value(), self.inpNewRX.value(),
+            self.inpNewOmega.value(), 0.0,  # detector arm dummy value
+        ])
         self.butStart.setEnabled(False)
 
     @pyqtSlot()
     def on_butStop_clicked(self):
-        for axis in self.axeslist:
-            try:
-                self.exec_cmd(axis, 'Stop')
-            except Exception:
-                pass
+        try:
+            self.exec_cmd(self._controller, 'Stop')
+        except Exception as err:
+            self.showInfo('exception raised after executing stop on hexapod:\n'
+                          '%s' % err)
 
     def updateTimer(self):
-        msg = self.exec_cmd(self.axes['tx'], 'Status')
-        # [ 0] = Hexamove::CheckCommunicationToMaster (0=ok)
-        # [ 1] = Hexamove::GetEnableStatus (1=enabled)
-        # [ 2] = Hexamove::GetEStopStatus (0=no EStop)
-        # [ 3] = Drehtisch::GetIsDrehtishActive (1=active)
-        # [ 4] = Drehtisch::GetIsDrehtischInstalled (NEW)
-        # [ 5] = Drehtisch::GetIsDrehtischReferenzRunOk (NEW)
-        flags = self.exec_cmd(self.special, 'GlobalState')
-
-        msg += ('<br><font color=darkblue>Master: Comm=%s, Enable=%s, '
-                'EStop=%s<br>DT: active=%s, installed=%s' % (
-                    'ok' if flags[0] == 0 else 'FAIL',
-                    'ena' if flags[1] == 1 else 'DIS',
-                    'no' if flags[2] == 0 else 'ESTOP',
-                    'ok' if flags[3] == 1 else 'DIS',
-                    'yes' if flags[4] == 1 else 'NO'))
-        if flags[5] != 328193:  # ER_INCO_VAR_NOT_FOUND
-            msg += ', RefRun=%s' % ('ok' if flags[5] == 1 else 'NO')
+        msg = '<font color=darkblue>' + self.exec_cmd(self._controller,
+                                                      'Status')
+        if 'not referenced' in self.exec_cmd(self.axes['omega'], 'Status'):
+            msg += ' (omega not referenced)'
         msg += '</font>'
-
-        self.recursive = True
-        try:
-            self.actionInstall.setChecked(flags[4])
-            self.actionEnable.setChecked(flags[3])
-        finally:
-            self.recursive = False
-
         self.lblStatus.setText(msg)
 
         pos = [self.query_attr(axis, 'value') for axis in self.axeslist]
         for value, widget in zip(pos, [
-                self.lblCurTX, self.lblCurTY, self.lblCurTZ,
-                self.lblCurRZ, self.lblCurRY, self.lblCurRX, self.lblCurDT]):
+                self.lblCurTX, self.lblCurTY, self.lblCurTZ, self.lblCurRZ,
+                self.lblCurRY, self.lblCurRX, self.lblCurOmega]):
             widget.setText('%8.3f' % value)
 
     @pyqtSlot(str)
     def on_cbsFrame_activated(self, text):
-        frame = text.split()[0]
-        values = self.query_attr(self.special, 'frame' + frame)
+        frame = text.split()[0].upper()
+        values = self.query_attr(self._controller, 'frame' + frame)
         for value, widget in zip(values, [
                 self.inpFrameTX, self.inpFrameTY, self.inpFrameTZ,
                 self.inpFrameRZ, self.inpFrameRY, self.inpFrameRX]):
             widget.setValue(value)
         self.butSetFrame.setEnabled(False)
 
-    def on_inpFrameXX_valueChanged(self, value):
+    def on_inpFrameXX_valueChanged(self, _value):
         if self.cbsFrame.currentIndex() <= 3:
             self.butSetFrame.setEnabled(True)
 
-    def on_inpWsXX_valueChanged(self, value):
+    def on_inpWsXX_valueChanged(self, _value):
         if not self.recursive:
             self.butSetWorkspace.setEnabled(True)
 
@@ -211,9 +179,11 @@ class HexapodTool(DlgUtils, QMainWindow):
     def on_butSetWorkspace_clicked(self):
         self.recursive = True
         try:
-            workspaces = self.query_attr(self.special, 'workspaces')
             index = self.cbsWorkspace.currentIndex()
-            workspaces[index] = [
+            group, index = ('juelich', index - 1) if index else ('hexamove', 0)
+            workspaces = self.query_attr(self._controller,
+                                         group + 'workspaceDefinitions')
+            workspaces = [[i] + (ws if i != index else [
                 self.inpWsTXmin.value(), self.inpWsTXmax.value(),
                 self.inpWsTYmin.value(), self.inpWsTYmax.value(),
                 self.inpWsTZmin.value(), self.inpWsTZmax.value(),
@@ -223,8 +193,9 @@ class HexapodTool(DlgUtils, QMainWindow):
                 self.inpWsTXref.value(), self.inpWsTYref.value(),
                 self.inpWsTZref.value(), self.inpWsRZref.value(),
                 self.inpWsRYref.value(), self.inpWsRXref.value(),
-            ]
-            self.set_attr(self.special, 'workspaces', workspaces)
+            ]) for i, ws in enumerate(workspaces)]
+            self._controller.set_property(
+                {'init{}workspaces'.format(group): workspaces})
         finally:
             self.recursive = False
 
@@ -232,17 +203,25 @@ class HexapodTool(DlgUtils, QMainWindow):
         if self.recursive:
             return
         index = self.cbsWorkspace.currentIndex()
-        wsenabled = self.query_attr(self.special, 'workspacesEnabled')
-        wsenabled[index] = int(checked)
-        self.set_attr(self.special, 'workspacesEnabled', wsenabled)
+        group, index = ('juelich', index - 1) if index else ('hexamove', 0)
+        self.exec_cmd(
+            self._controller,
+            ('Enable' if checked else 'Disable') + group + 'Workspace',
+            index,
+        )
 
     @pyqtSlot(int)
     def on_cbsWorkspace_activated(self, index):
+        group, index = ('juelich', index - 1) if index else ('hexamove', 0)
+        workspace = enabled = []
         for _ in range(5):
-            workspace = self.query_attr(self.special, 'workspaces')[index]
-            enabled = self.query_attr(self.special, 'workspacesEnabled')[index]
+            workspace = self.query_attr(
+                self._controller, group + 'WorkspaceDefinitions')[index]
+            enabled = self.query_attr(
+                self._controller, group + 'WorkspaceStatus')[index]
             # check reference frame values; if they are out of range then
             # do a few retries (the library sometimes returns dummy values)
+            # TODO: check if this is still necessary with the new protocol
             reftx, refty, reftz, refrz, refry, refrx = workspace[-6:]
             if (-50 <= reftx <= +50) and (-50 <= refty <= +50) and \
                (-50 <= reftz <= 510) and (-5 <= refrx <= +5) and \
@@ -268,70 +247,52 @@ class HexapodTool(DlgUtils, QMainWindow):
         self.butSetWorkspace.setEnabled(False)
 
     def on_togBirne_toggled(self, checked):
-        if checked:
-            self.set_attr(self.special, 'manualControl', True)
-            self.grpFrames.setEnabled(False)
-            self.grpNewPos.setEnabled(False)
-            self.grpWorkspaces.setEnabled(False)
-        else:
-            self.set_attr(self.special, 'manualControl', False)
-            self.grpFrames.setEnabled(True)
-            self.grpNewPos.setEnabled(True)
-            self.grpWorkspaces.setEnabled(True)
+        self.set_attr(self._controller, 'manualControl', checked)
+        self.grpFrames.setEnabled(not checked)
+        self.grpNewPos.setEnabled(not checked)
+        self.grpWorkspaces.setEnabled(not checked)
 
     @pyqtSlot()
-    def on_butReEnableSystem_clicked(self):
-        self.exec_cmd(self.special, 'EnableSystem')
+    def on_butResetSystem_clicked(self):
+        self.exec_cmd(self._controller, 'Reset')
 
     @pyqtSlot()
     def on_butCopyCurrent_clicked(self):
         for inwidget, labelwidget in zip([
                 self.inpNewTX, self.inpNewTY, self.inpNewTZ,
                 self.inpNewRZ, self.inpNewRY, self.inpNewRX,
-                self.inpNewDT], [
+                self.inpNewOmega], [
                     self.lblCurTX, self.lblCurTY, self.lblCurTZ,
                     self.lblCurRZ, self.lblCurRY, self.lblCurRX,
-                    self.lblCurDT]):
+                    self.lblCurOmega]):
             inwidget.setValue(float(labelwidget.text().replace(',', '.')))
 
     @pyqtSlot()
     def on_actionReference_drive_triggered(self):
-        self.exec_cmd(self.axes['dt'], 'Reference')
-
-    def on_actionInstall_toggled(self, flag):
-        if self.recursive:
-            return
-        # =0: Drehtisch Installed = false
-        # =1: Drehtisch Installed = true
-        # =2: Drehtisch Active = false
-        # =3: Drehtisch Active = true
-        self.exec_cmd(self.special, 'EnableTable', 1 if flag else 0)
-
-    def on_actionEnable_toggled(self, flag):
-        if self.recursive:
-            return
-        self.exec_cmd(self.special, 'EnableTable', 3 if flag else 2)
+        self.exec_cmd(self.axes['omega'], 'Reference')
 
     @pyqtSlot()
     def on_actionSet_Zero_triggered(self):
-        self.exec_cmd(self.axes['dt'], 'Reset')
-        self.exec_cmd(self.axes['dt'], 'Adjust', 0)
+        self.exec_cmd(self.axes['omega'], 'Adjust', 0)
 
-    def on_inpVelXX_valueChanged(self, v):
+    def on_inpVelXX_valueChanged(self, _v):
         self.butSaveVel.setEnabled(True)
 
     @pyqtSlot()
     def on_butSaveVel_clicked(self):
         self.set_attr(self.axes['tx'], 'speed', self.inpVelTrans.value())
         self.set_attr(self.axes['rx'], 'speed', self.inpVelRot.value())
-        self.set_attr(self.axes['dt'], 'speed', self.inpVelDT.value())
-        self.set_attr(self.axes['tx'], 'accel', self.inpRampUp.value())
-        self.set_attr(self.axes['tx'], 'decel', self.inpRampDown.value())
+        self.set_attr(self.axes['omega'], 'speed', self.inpVelOmega.value())
+        # acceleration = speed / ramp time
+        self.set_attr(self.axes['tx'], 'accel',
+                      self.inpVelTrans.value() / self.inpRampUp.value())
+        self.set_attr(self.axes['tx'], 'decel',
+                      self.inpVelTrans.value() / self.inpRampDown.value())
         self.butSaveVel.setEnabled(False)
 
         self.lblVelTrans.setText(self.inpVelTrans.text())
         self.lblVelRot.setText(self.inpVelRot.text())
-        self.lblVelDT.setText(self.inpVelDT.text())
+        self.lblVelOmega.setText(self.inpVelOmega.text())
         self.lblRampUp.setText(self.inpRampUp.text())
         self.lblRampDown.setText(self.inpRampDown.text())
 
@@ -407,7 +368,7 @@ class HexapodTool(DlgUtils, QMainWindow):
     def on_inpWsRZref_valueChanged(self, v):
         self.on_inpWsXX_valueChanged(v)
 
-    def on_inpNewDT_valueChanged(self, v):
+    def on_inpNewOmega_valueChanged(self, v):
         self.on_inpNewXX_valueChanged(v)
 
     def on_inpNewRZ_valueChanged(self, v):
@@ -437,7 +398,7 @@ class HexapodTool(DlgUtils, QMainWindow):
     def on_inpVelTrans_valueChanged(self, v):
         self.on_inpVelXX_valueChanged(v)
 
-    def on_inpVelDT_valueChanged(self, v):
+    def on_inpVelOmega_valueChanged(self, v):
         self.on_inpVelXX_valueChanged(v)
 
     def on_inpVelRot_valueChanged(self, v):
