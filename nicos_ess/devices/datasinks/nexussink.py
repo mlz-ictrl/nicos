@@ -145,17 +145,11 @@ class NexusFileWriterStatus(KafkaStatusHandler):
                 self._on_fail(jobid, dset, msg)
 
     def new_messages_callback(self, messages):
-        # Overridden method
-        # Super method calls this whenever new messages appear on topic
-        # Here, additionally check for timeouts in issued or stopped datasets
         self._check_timeouts()
         KafkaStatusHandler.new_messages_callback(self, messages)
 
     def _status_update_callback(self, messages):
-        # This method is called whenever a new status messages appear on
-        # the status topic.
         # *messages* is a dict of timestamp and message in JSON format
-
         # Loop and read all the new interesting messages
         for _, message in sorted(iteritems(messages)):
             # Find a valid message

@@ -45,15 +45,18 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
         'statustopic': Param('Kafka topic where status messages are written',
                              type=str, settable=False, preinit=True,
                              mandatory=True, userparam=False),
-        'statusinterval': Param('Expected time (secs) interval for the status '
-                                'message updates',
-                                type=int, default=20, settable=True,
-                                userparam=False),
+        'timeoutinterval': Param('Time to wait (secs) before communication is '
+                                 'considered lost',
+                                 type=int, default=5, settable=True,
+                                 userparam=False),
         'curstatus': Param('Store the current device status',
                            internal=True, type=tupleof(int, str),
-                           settable=True, ),
+                           settable=True),
         'nextupdate': Param('Time when the next message is expected', type=int,
-                            internal=True, settable=True)
+                            internal=True, settable=True),
+        'statusinterval': Param('Expected time (secs) interval for the status '
+                                'message updates', type=int, default=2,
+                                settable=True, internal=True),
     }
 
     parameter_overrides = {
@@ -65,12 +68,13 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
         if session.sessiontype != POLLER:
             self.subscribe(self.statustopic)
 
-        # Initialize the next update time
-        self._setROParam('nextupdate', currenttime() + self.statusinterval)
+        # Be pessimistic and assume the process is down, if the process
+        # is up then the status will be remedied quickly.
+        self._setROParam('nextupdate', currenttime())
 
-        # Rewrite the status on each startup
         if self._mode == MASTER:
-            self._setROParam('curstatus', (status.OK, 'Updating status..'))
+            self._setROParam('curstatus',
+                             (status.WARN, 'Trying to connect...'))
 
     def doRead(self, maxage=0):
         return ''
@@ -84,10 +88,10 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
             try:
                 js = json.loads(msg)
                 json_messages[timestamp] = js
-                field = 'next_message_eta_ms'
-                interval = (js[field] / 1000 if field in js else
-                            self.statusinterval)
-                next_update = currenttime() + interval
+                if 'next_message_eta_ms' in js:
+                    self._setROParam('statusinterval',
+                                     js['next_message_eta_ms'] // 1000)
+                next_update = currenttime() + self.statusinterval
                 if next_update > self.nextupdate:
                     self._setROParam('nextupdate', next_update)
             except Exception:
@@ -96,17 +100,15 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
         if json_messages:
             self._status_update_callback(json_messages)
 
+    def no_messages_callback(self):
         # Check if the process is still running
         if self._mode == MASTER and not self.is_process_running():
-            self._setROParam('curstatus', (status.ERROR, 'Process down!'))
+            self._setROParam('curstatus', (status.ERROR, 'Disconnected'))
 
     def is_process_running(self):
-        # Wait for some time to ensure that the message is written
-        message_flush_buffer = 10
-        now = currenttime()
-        if self.nextupdate + message_flush_buffer < now:
+        # Allow some leeway in case of message lag.
+        if currenttime() > self.nextupdate + self.timeoutinterval:
             return False
-
         return True
 
     def _status_update_callback(self, messages):
