@@ -606,6 +606,10 @@ def appendscan(numpoints=5, stepsize=None):
     #   appendscan(-3)
     if dslist[-1].cont_direction == direction:
         scan = dslist[-1]
+        # to continue an appendscan in the negative direction, which has
+        # the points reversed, we need to reverse the direction again
+        if scan.cont_direction == -1:
+            numpoints = -numpoints
     else:
         scan = dslist[i]
 

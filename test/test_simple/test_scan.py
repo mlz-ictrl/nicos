@@ -333,22 +333,35 @@ def test_manualscan(session):
     assert isinstance(count_result[0], CountResult)
 
 
-def test_specialscans(session):
+def test_checkoffset(session):
     m = session.getDevice('motor')
     det = session.getDevice('det')
 
     checkoffset(m, 10, 0.05, 3, det, m=10, t=0.)
 
-    dataset = session.data._last_scans[-1]
-    uid = dataset.uid
 
-    appendscan(5)
-    dataset = session.data._last_scans[-1]
-    assert dataset.continuation == [uid]
-    uid2 = dataset.uid
-    appendscan(-5)
-    dataset = session.data._last_scans[-1]
-    assert dataset.continuation == [uid2, uid]
+def test_appendscan(session):
+    m1 = session.getDevice('motor')
+    det = session.getDevice('det')
+
+    scan(m1, 0, 1, 3, det, t=0.)
+    dataset1 = session.data._last_scans[-1]
+    assert dataset1.startpositions == [[0], [1], [2]]
+
+    appendscan(3)
+    dataset2 = session.data._last_scans[-1]
+    assert dataset2.continuation == [dataset1.uid]
+    assert dataset2.startpositions == [[3], [4], [5]]
+
+    appendscan(-3)
+    dataset3 = session.data._last_scans[-1]
+    assert dataset3.continuation == [dataset2.uid, dataset1.uid]
+    assert dataset3.startpositions == [[-1], [-2], [-3]]
+
+    appendscan(-3)
+    dataset4 = session.data._last_scans[-1]
+    assert dataset4.continuation == [dataset3.uid, dataset2.uid, dataset1.uid]
+    assert dataset4.startpositions == [[-4], [-5], [-6]]
 
 
 def test_twodscan(session):
