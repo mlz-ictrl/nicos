@@ -26,6 +26,8 @@
 
 from __future__ import absolute_import, division, print_function
 
+from numpy import ndarray
+
 from nicos import session
 from nicos.commands import helparglist, usercommand
 from nicos.core import Device, Measurable, Moveable, NicosError, Readable, \
@@ -574,12 +576,16 @@ def appendscan(numpoints=5, stepsize=None):
     5/5  2.25
     ==== ====
 
-    .. note::
-       The *stepsize* is only used if the device has a single value as parameter
-       not a list.
-
     The scan data will be plotted into the same live plot, if possible, but
     will be saved into a separate data file.
+
+    Scans with multiple devices are supported:
+
+    >>> scan([x, y], [0, 1], [0.1, 0.2], 10)
+    >>> appendscan(3, [0.05, 0.1])  # append 5 points with new stepsizes
+
+    If the original scan was made over multiple devices, the *stepsize* must
+    be a list with the same number of elements.
     """
     if numpoints == 0:
         raise UsageError('number of points must be either positive or '
@@ -613,35 +619,57 @@ def appendscan(numpoints=5, stepsize=None):
     else:
         scan = dslist[i]
 
-    if len(scan.devices) != 1:
-        raise NicosError('can only append to scan with one device')
-    npos = len(scan.subsets)
-    if npos < 2:
+    n_devs = len(scan.devices)
+    n_steps = len(scan.subsets)
+    if n_steps < 2:
         raise NicosError('cannot append to scan with no positions')
-    pos1 = scan.startpositions[0][0]
-    # start at the real end position...
-    pos2 = scan.startpositions[len(scan.subsets) - 1][0]
-    if isinstance(pos1, tuple):
-        stepsizes = tuple((b - a) / (npos - 1) for (a, b) in zip(pos1, pos2))
-        if numpoints > 0:
-            positions = [[tuple(b + j*s for (b, s) in zip(pos2, stepsizes))]
-                         for j in range(1, numpoints+1)]
-        else:
-            positions = [[tuple(a - j*s for (a, s) in zip(pos1, stepsizes))]
-                         for j in range(1, -numpoints+1)]
-        numpoints = abs(numpoints)
-    elif isinstance(pos1, (int, float)):
-        if stepsize is None:
-            stepsize = (pos2 - pos1) / (npos - 1)
-        if numpoints > 0:
-            startpos = pos2 + stepsize
-        else:
-            stepsize = -stepsize
-            startpos = pos1 + stepsize
-        numpoints = abs(numpoints)
-        positions = [[startpos + j*stepsize] for j in range(numpoints)]
+
+    if stepsize is not None:
+        if isinstance(stepsize, number_types):
+            stepsize = [stepsize]
+        if n_devs != len(stepsize):
+            raise NicosError('the stepsize must have %d elements' % n_devs)
     else:
-        raise NicosError('cannot append to this scan')
+        stepsize = [None] * n_devs
+
+    # create the new list of positions
+    positions = [[None] * n_devs for _ in range(abs(numpoints))]
+
+    # for each device involved in the scan
+    for i in range(n_devs):
+        # determine step size by first and last position
+        pos1 = scan.startpositions[0][i]
+        pos2 = scan.startpositions[n_steps - 1][i]
+
+        if isinstance(pos1, (tuple, ndarray)):
+            stepsizes = tuple((b - a) / (n_steps - 1)
+                              for (a, b) in zip(pos1, pos2))
+            if numpoints > 0:
+                for j in range(1, numpoints+1):
+                    positions[j-1][i] = tuple(b + j*s for (b, s)
+                                              in zip(pos2, stepsizes))
+            else:
+                for j in range(1, -numpoints+1):
+                    positions[j-1][i] = tuple(a - j*s for (a, s)
+                                              in zip(pos1, stepsizes))
+
+        elif isinstance(pos1, number_types):
+            if stepsize[i] is None:
+                stepsize[i] = (pos2 - pos1) / (n_steps - 1)
+            if numpoints > 0:
+                startpos = pos2 + stepsize[i]
+            else:
+                stepsize[i] = -stepsize[i]
+                startpos = pos1 + stepsize[i]
+            for j in range(abs(numpoints)):
+                positions[j][i] = startpos + j*stepsize[i]
+
+        else:
+            # we can't produce new values for this device
+            raise NicosError('cannot append to this scan; some devices '
+                             'have nonnumeric values')
+
+    numpoints = abs(numpoints)
     s = Scan(scan.devices, positions, [], None, None, scan.detectors,
              scan.environment, scan.preset, '%d more steps of last scan' %
              numpoints)

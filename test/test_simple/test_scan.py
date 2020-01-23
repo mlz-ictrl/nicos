@@ -342,16 +342,17 @@ def test_checkoffset(session):
 
 def test_appendscan(session):
     m1 = session.getDevice('motor')
+    m2 = session.getDevice('motor2')
     det = session.getDevice('det')
 
     scan(m1, 0, 1, 3, det, t=0.)
     dataset1 = session.data._last_scans[-1]
     assert dataset1.startpositions == [[0], [1], [2]]
 
-    appendscan(3)
+    appendscan(3, 2)
     dataset2 = session.data._last_scans[-1]
     assert dataset2.continuation == [dataset1.uid]
-    assert dataset2.startpositions == [[3], [4], [5]]
+    assert dataset2.startpositions == [[4], [6], [8]]
 
     appendscan(-3)
     dataset3 = session.data._last_scans[-1]
@@ -362,6 +363,16 @@ def test_appendscan(session):
     dataset4 = session.data._last_scans[-1]
     assert dataset4.continuation == [dataset3.uid, dataset2.uid, dataset1.uid]
     assert dataset4.startpositions == [[-4], [-5], [-6]]
+
+    scan([m2, m1], [0, 10], [1, 2], 3, det, t=0.)
+
+    appendscan(3)
+    dataset5 = session.data._last_scans[-1]
+    assert dataset5.startpositions == [[3, 16], [4, 18], [5, 20]]
+
+    appendscan(3, [0, 1])
+    dataset5 = session.data._last_scans[-1]
+    assert dataset5.startpositions == [[5, 21], [5, 22], [5, 23]]
 
 
 def test_twodscan(session):
