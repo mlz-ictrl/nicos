@@ -53,7 +53,7 @@ If not mentioned otherwise, Python packages are available from PyPI
 
 * For the GUI and status monitor:
 
-  - PyQt4 or PyQt5 (not installable with pip)
+  - PyQt5 (PyQt4 is still supported but deprecated)
   - gr (optional, for plots, see: http://gr-framework.org/c.html#linux-packages)
   - QScintilla-python (optional, for the script editor component)
     (not installable with pip)
@@ -73,6 +73,7 @@ If not mentioned otherwise, Python packages are available from PyPI
   - sphinx (for generating doc)
 
 * Under Windows:
+
   - pyreadline (optional, for the console to work)
   - colorama (optional, for colored console output)
 
@@ -80,7 +81,7 @@ Detailed version requirements can always be found in the requirements.txt
 file in the root of the source tree.
 
 If not supplied by the distribution (see below), most dependencies (except
-GR, PyQt, sip) can be installed from the Python package repository::
+GR) can be installed from the Python package repository::
 
   pip install -r requirements.txt
 
@@ -101,25 +102,29 @@ Packages to install for common distributions
 GR runtime packages are available at:
 https://software.opensuse.org/download.html?project=science:gr-framework&package=gr
 
-Ubuntu
-^^^^^^
+Debian/Ubuntu
+^^^^^^^^^^^^^
+
+You might have to use ``deb [trusted=yes]`` for the GR repository as the GPG signing
+is currently broken.
 
 * Basic system::
 
-     apt-get install python python-{dev,zmq,numpy,scipy,psutil,rsa,six,systemd} gnuplot
+     apt-get install python-{dev,zmq,numpy,scipy,psutil,rsa,six,systemd} gnuplot
 
 * Optional components::
 
-     apt-get install python-{mysql.connector,docutils,serial,matplotlib,pyfits,lxml}
-     apt-get install python-{ldap3,mysql.connector,crypto,keyring,keyrings.alt,astropy}
+     apt-get install python-{mysql.connector,docutils,serial,matplotlib,astropy}
+     apt-get install python-{lxml,ldap3,crypto,keyring,keyrings.alt}
 
 * GUI and status monitor::
 
-     apt-get install python-{qt4,qscintilla2,gr}
+     apt-get install python-{pyqt5,pyqt5.qsci,gr}
 
 * Development and documentation build::
 
-     apt-get install python-{sip-dev,qt4-dev,pytest,pytest-cov,mock,coverage,sphinx}
+     apt-get install python-{sip-dev,pytest,pytest-cov,mock,coverage,sphinx}
+     apt-get install pyqt5-{dev,dev-tools}
 
 * For the old live data widget you have to install some development packages::
 
