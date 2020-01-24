@@ -464,11 +464,13 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
     def end(self):
         if self.dataset.settype == POINT:
             return
-        history = self._data['measurement']['history']
-        history['stopped'] = time.strftime(TIMEFMT)
-        self._dump()
-        self._file.flush()
-        self._file.close()
+        if self._data:
+            history = self._data['measurement']['history']
+            history['stopped'] = time.strftime(TIMEFMT)
+            self._dump()
+        if self._file:
+            self._file.flush()
+            self._file.close()
         self._file = None
         self._data = None
 

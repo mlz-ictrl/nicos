@@ -92,20 +92,24 @@ class RawImageSinkHandler(NicosMetaWriterMixin, DataSinkHandler):
         self._logfile = session.data.createDataFile(
             self.dataset, self._logtemplate, self._subdir)
 
-    def _writeHeader(self, fp, metainfo):
-        fp.seek(0)
-        self.writeMetaInformation(fp)
-        fp.flush()
+    def _writeHeader(self):
+        if self._headerfile is None:
+            return
+        self._headerfile.seek(0)
+        self.writeMetaInformation(self._headerfile)
+        self._headerfile.flush()
 
-    def _writeLogs(self, fp, stats):
-        fp.seek(0)
-        wrapper = TextIOWrapper(fp)
+    def _writeLogs(self):
+        if self._logfile is None:
+            return
+        self._logfile.seek(0)
+        wrapper = TextIOWrapper(self._logfile)
         wrapper.write('%-15s\tmean\tstdev\tmin\tmax\n' % '# dev')
         for dev in self.dataset.valuestats:
             wrapper.write('%-15s\t%.3f\t%.3f\t%.3f\t%.3f\n' %
                           ((dev,) + self.dataset.valuestats[dev]))
         wrapper.detach()
-        fp.flush()
+        self._logfile.flush()
 
     def _writeData(self, fp, data):
         fp.seek(0)
@@ -122,18 +126,18 @@ class RawImageSinkHandler(NicosMetaWriterMixin, DataSinkHandler):
             data = result[1][0]
             if data is not None:
                 self._writeData(self._datafile, data)
-                self._writeHeader(self._headerfile, self.dataset.metainfo)
+                self._writeHeader()
                 session.notifyDataFile('raw', self.dataset.uid,
                                        self.detector.name,
                                        self._datafile.filepath)
 
     def putMetainfo(self, metainfo):
-        self._writeHeader(self._headerfile, self.dataset.metainfo)
+        self._writeHeader()
 
     def end(self):
-        self._writeLogs(self._logfile, self.dataset.valuestats)
+        self._writeLogs()
         if self.update_headerinfo:
-            self._writeHeader(self._headerfile, self.dataset.metainfo)
+            self._writeHeader()
         if self._datafile:
             self._datafile.close()
         if self._headerfile:

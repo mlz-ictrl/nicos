@@ -234,7 +234,8 @@ class TofNeXuSHandler(TofSinkHandler):
 
     def end(self):
         # self.log.info('%s' % self._tof._entry.nxroot.tree)
-        self._save()
+        if self._filename:
+            self._save()
         self._tof = None
 
 
