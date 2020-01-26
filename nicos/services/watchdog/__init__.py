@@ -27,6 +27,7 @@
 from __future__ import absolute_import, division, print_function
 
 import hashlib
+import os
 import sys
 from collections import OrderedDict
 from os import path
@@ -40,7 +41,8 @@ from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_dump, cache_load
 from nicos.pycompat import iteritems, itervalues, to_utf8
 from nicos.services.watchdog.conditions import DelayedTrigger, Expression, \
     Precondition
-from nicos.utils import LCDict, createSubprocess
+from nicos.utils import LCDict, createSubprocess, createThread, \
+    watchFileContent
 
 
 class Entry(object):
@@ -181,6 +183,16 @@ class Watchdog(BaseCacheClient):
                 self.log.warning('duplicate condition detected: %r - %r',
                                  entry, self._entries[entry.id])
             self._entries[entry.id] = entry
+
+        # start a thread checking for modification of the setup file
+        createThread('refresh checker', self._checker)
+
+    def _checker(self):
+        setupname = session.explicit_setups[0]
+        fn = session._setup_info[setupname]['filenames']
+        watchFileContent(fn, self.log)
+        self.log.info('setup file changed; restarting watchdog process')
+        os.execv(sys.executable, [sys.executable] + sys.argv)
 
     # cache client API
 
