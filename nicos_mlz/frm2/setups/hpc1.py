@@ -10,6 +10,7 @@ devices = {
         tangodevice = tango_base + 'eurotherm/control',
         fmtstr = '%.1f',
         unit = 'bar',
+        precision = 5,
     ),
 }
 
