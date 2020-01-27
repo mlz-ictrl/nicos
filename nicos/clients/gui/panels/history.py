@@ -769,6 +769,8 @@ class BaseHistoryWindow(object):
         (vtime, key, op, value) = data
         if key not in self.keyviews:
             return
+        if not value:
+            return
         value = cache_load(value)
         for view in self.keyviews[key]:
             view.newValue(vtime, key, op, value)
