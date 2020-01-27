@@ -106,7 +106,6 @@ class TAS(Instrument, Moveable):
                                       fmtstr='%.3f', index=3, lowlevel=True,
                                       tas=self)
         self._last_calpos = None
-        self._waiters = []
 
         if self.scatteringsense[0] != self._attached_mono.scatteringsense:
             self.log.warning('%s.scatteringsense is not the same as '
@@ -123,8 +122,14 @@ class TAS(Instrument, Moveable):
                 self.__dict__[name].shutdown()
 
     def _getWaiters(self):
-        return [self._attached_mono, self._attached_ana,
-                self._attached_phi, self._attached_psi, self._attached_alpha]
+        if self.scanmode == 'DIFF':
+            res = [self._attached_mono, self._attached_phi, self._attached_psi]
+        else:
+            res = [self._attached_mono, self._attached_ana,
+                   self._attached_phi, self._attached_psi]
+        if self._attached_alpha is not None:
+            res.append(self._attached_alpha)
+        return res
 
     def _thz(self, ny):
         if self.energytransferunit == 'meV':
@@ -192,11 +197,6 @@ class TAS(Instrument, Moveable):
         if self.scanmode != 'DIFF':
             self.log.debug('moving ana to %s', angles[1])
             ana.start(from_k(angles[1], ana.unit))
-        self._waiters = [mono, phi, psi]
-        if alpha is not None:
-            self._waiters.append(alpha)
-        if self.scanmode != 'DIFF':
-            self._waiters.append(ana)
         # spurion check
         if self.spurioncheck and self._mode == SIMULATION:
             self._spurionCheck(pos)
