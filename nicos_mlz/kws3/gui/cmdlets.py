@@ -26,8 +26,9 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.clients.gui.cmdlets import register
-from nicos.utils import num_sort
+from nicos.clients.gui.cmdlets import Cmdlet, register
+from nicos.guisupport.qt import QListWidgetItem, Qt
+from nicos.utils import findResource, num_sort
 
 from nicos_mlz.kws1.gui.cmdlets import MeasureTable as KWS1MeasureTable
 from nicos_mlz.kws1.gui.measdialogs import MeasDef as KWS1MeasDef
@@ -92,3 +93,34 @@ class MeasureTable(KWS1MeasureTable):
 
 
 register(MeasureTable)
+
+
+class RestoreState(Cmdlet):
+
+    name = 'Device state as script'
+    category = 'Other'
+
+    def __init__(self, parent, client):
+        Cmdlet.__init__(self, parent, client,
+                        findResource('nicos_mlz/kws3/gui/restore.ui'))
+        for devname in self._getDeviceList():
+            item = QListWidgetItem(devname, self.devList)
+            item.setCheckState(Qt.Unchecked)
+        # self.devList.
+
+    def generate(self, mode):
+        entries = []
+        for i in range(self.devList.count()):
+            if self.devList.item(i).checkState() == Qt.Checked:
+                dev = self.devList.item(i).text()
+                value = self.client.getDeviceValue(dev)
+                if value is not None:
+                    entries.append((self._getDeviceRepr(dev), value))
+        if mode == 'simple':
+            return 'maw ' + ''.join(' %s %r' % e for e in entries)
+        else:
+            return 'maw(\n' + \
+                ''.join('    %s, %r,\n' % e for e in entries) + ')'
+
+
+register(RestoreState)
