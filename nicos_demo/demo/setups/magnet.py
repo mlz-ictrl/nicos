@@ -29,3 +29,12 @@ devices = dict(
 alias_config = {
     'B': {'B_magnet': 100, 'B_virt': 0},
 }
+
+watch_conditions = [
+    dict(condition = 'b_virt_value < 0.01',
+         type = 'critical',
+         precondition = 'b_virt_value > 0.01 and b_virt_status[0] == OK',
+         precondtime = 10,
+         message = 'Magnet quenched',
+         gracetime = 0),
+]

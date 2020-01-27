@@ -32,6 +32,14 @@ extended = dict(
     representative = 'T',
 )
 
+watch_conditions = [
+    dict(condition = 't_value > 300',
+         message = 'Temperature too high (exceeds 300 K)',
+         type = 'critical',
+         gracetime = 5,
+         action = 'maw(T, 290)'),
+]
+
 startupcode = """
 AddEnvironment(T, Ts)
 """

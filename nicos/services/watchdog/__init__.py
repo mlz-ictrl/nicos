@@ -39,7 +39,7 @@ from nicos.devices.cacheclient import BaseCacheClient
 from nicos.devices.notifiers import Mailer, Notifier
 from nicos.protocols.cache import OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
     cache_dump, cache_load
-from nicos.pycompat import iteritems, itervalues, to_utf8
+from nicos.pycompat import iteritems, itervalues, listvalues, to_utf8
 from nicos.services.watchdog.conditions import DelayedTrigger, Expression, \
     Precondition
 from nicos.utils import LCDict, createSubprocess, createThread, \
@@ -63,6 +63,7 @@ class Entry(object):
     okmessage = ''
     okaction = ''
 
+    from_setup = None
     cond_obj = None
 
     def __init__(self, values):
@@ -135,63 +136,9 @@ class Watchdog(BaseCacheClient):
                 notiflist.append(dev)
                 self._all_notifiers.append(dev)
 
-        # process watchlist entries
-        for entryd in self.watch:
-            # some values cannot have defaults
-            entryd = dict(entryd)  # convert back from readonlydict
-
-            # sanity-check the input
-            if not entryd.get('condition'):
-                self.log.warning('entry %s missing "condition" key', entryd)
-                continue
-            if not entryd.get('message'):
-                self.log.warning('entry %s missing "message" key', entryd)
-                continue
-            if entryd.get('scriptaction') not in (None, 'pausecount', 'stop',
-                                                  'immediatestop'):
-                self.log.warning('entry %s scriptaction is invalid, needs '
-                                 "to be one of 'pausecount', 'stop' or "
-                                 "'immediatestop'", entryd)
-                entryd.pop('scriptaction')
-
-            entry = Entry(entryd)
-
-            if entry.id in self._entries:
-                self.log.error('duplicate entry %r, ignoring' % entry)
-                continue
-
-            if entry.type and entry.type not in self._notifiers:
-                self.log.error('condition %r type is not valid, must be '
-                               'one of %r', entry,
-                               ', '.join(map(repr, self._notifiers)))
-                continue
-
-            try:
-                cond = Expression(self.log, entry.condition, entry.setup)
-                if entry.gracetime:
-                    cond = DelayedTrigger(self.log, cond, entry.gracetime)
-                if entry.precondition:
-                    precond = Expression(self.log, entry.precondition,
-                                         entry.setup)
-                    if entry.precondtime:
-                        precond = DelayedTrigger(self.log, precond,
-                                                 entry.precondtime)
-                    cond = Precondition(self.log, precond, cond)
-                if not entry.enabled:
-                    cond.enabled = False
-
-            except Exception:
-                self.log.error('could not construct condition for entry %r, '
-                               'ignoring', entry.__dict__)
-                continue
-
-            entry.cond_obj = cond
-            for key in cond.interesting_keys():
-                self._keymap.setdefault(key, set()).add(entry)
-            if entry.id in self._entries:
-                self.log.warning('duplicate condition detected: %r - %r',
-                                 entry, self._entries[entry.id])
-            self._entries[entry.id] = entry
+        # process entries in the default watchlist
+        for entry_dict in self.watch:
+            self._add_entry(entry_dict, 'watchdog')
 
         # start a thread checking for modification of the setup file
         createThread('refresh checker', self._checker)
@@ -202,6 +149,73 @@ class Watchdog(BaseCacheClient):
         watchFileContent(fn, self.log)
         self.log.info('setup file changed; restarting watchdog process')
         os.execv(sys.executable, [sys.executable] + sys.argv)
+
+    def _add_entry(self, entryd, source):
+        entryd = dict(entryd)  # convert back from readonlydict
+        logprefix = 'entry %s from setup %r' % (entryd, source)
+
+        # sanity-check the input
+        if not entryd.get('condition'):
+            self.log.warning('%s: missing "condition" key', logprefix)
+            return
+        if not entryd.get('message'):
+            self.log.warning('%s: missing "message" key', logprefix)
+            return
+        if entryd.get('scriptaction') not in (None, 'pausecount', 'stop',
+                                              'immediatestop'):
+            self.log.warning('%s: scriptaction is invalid, needs '
+                             "to be one of 'pausecount', 'stop' or "
+                             "'immediatestop'", logprefix)
+            entryd.pop('scriptaction')
+
+        entry = Entry(entryd)
+        entry.from_setup = source
+
+        if entry.id in self._entries:
+            self.log.error('%s: duplicate entry, ignoring', logprefix)
+            return
+
+        if entry.type and entry.type not in self._notifiers:
+            log_msg = ('%s: the condition type %r is not valid, must be '
+                       'one of %r' %
+                       (logprefix, entry.type,
+                        ', '.join(map(repr, self._notifiers))))
+            if 'default' in self._notifiers:
+                self.log.warning(log_msg + '; using default')
+                entry.type = 'default'
+            else:
+                self.log.warning(log_msg + '; ignoring notifiers')
+                entry.type = ''
+
+        try:
+            cond = Expression(self.log, entry.condition, entry.setup)
+            if entry.gracetime:
+                cond = DelayedTrigger(self.log, cond, entry.gracetime)
+            if entry.precondition:
+                precond = Expression(self.log, entry.precondition,
+                                     entry.setup)
+                if entry.precondtime:
+                    precond = DelayedTrigger(self.log, precond,
+                                             entry.precondtime)
+                cond = Precondition(self.log, precond, cond)
+            if not entry.enabled:
+                cond.enabled = False
+            entry.cond_obj = cond
+
+        except Exception:
+            self.log.error('%s: could not construct condition, ignoring '
+                           'this condition', logprefix)
+            return
+
+        for key in cond.interesting_keys():
+            self._keymap.setdefault(key, set()).add(entry)
+        self._entries[entry.id] = entry
+
+    def _remove_entry(self, eid):
+        entry = self._entries.pop(eid, None)
+        if entry:
+            for key in entry.cond_obj.interesting_keys():
+                self._keymap[key].discard(entry)
 
     # cache client API
 
@@ -283,13 +297,7 @@ class Watchdog(BaseCacheClient):
     def _process_key(self, time, key, value):
         # check setups?
         if key == 'session_mastersetup' and value:
-            self._setups = set(value)
-            # trigger an update of all conditions
-            for entry in itervalues(self._entries):
-                entry.cond_obj.new_setups(self._setups)
-                entry.cond_obj.update(time, self._keydict)
-                self._check_state(entry, time)
-            self.log.info('new setups list: %s', ', '.join(self._setups))
+            self._setups_updated(time, set(value))
             return
         # update notification targets?
         if key == self._mailreceiverkey and value:
@@ -298,6 +306,30 @@ class Watchdog(BaseCacheClient):
         for entry in self._keymap.get(key, ()):
             entry.cond_obj.update(time, self._keydict)
             self._check_state(entry, time)
+
+    def _setups_updated(self, time, new_setups):
+        prev_setups, self._setups = self._setups, new_setups
+        # check if we need to remove some conditions
+        for entry in listvalues(self._entries):
+            if entry.from_setup != 'watchdog':
+                if entry.from_setup not in self._setups:
+                    self._remove_entry(entry.id)
+        # check if we need to add some conditions
+        session.readSetups()  # refresh setup info
+        for new_setup in self._setups - prev_setups:
+            info = session._setup_info.get(new_setup)
+            if info and info['watch_conditions']:
+                self.log.info('adding conditions from setup %s', new_setup)
+                for entry_dict in info['watch_conditions']:
+                    self._add_entry(entry_dict, new_setup)
+        # trigger an update of all conditions
+        for entry in itervalues(self._entries):
+            entry.cond_obj.new_setups(self._setups)
+            entry.cond_obj.update(time, self._keydict)
+            self._check_state(entry, time)
+        # update everyone els
+        self._publish_config()
+        self.log.info('new setups list: %s', ', '.join(self._setups))
 
     def _check_state(self, entry, time):
         """Check if the state of this entry changed and we need to

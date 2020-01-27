@@ -71,6 +71,7 @@ class WatchdogPanel(Panel):
             self.on_client_connected()
         client.connected.connect(self.on_client_connected)
         client.experiment.connect(self.on_client_experiment)
+        client.setup.connect(self.on_client_setup)
 
     def saveSettings(self, settings):
         settings.setValue('preconf_headers',
@@ -87,6 +88,9 @@ class WatchdogPanel(Panel):
         self._update()
 
     def on_client_experiment(self):
+        self._update()
+
+    def on_client_setup(self):
         self._update()
 
     def _update(self):

@@ -36,6 +36,7 @@ except the :ref:`description <setup-description>` entry:
 * :ref:`display_order <setup-display_order>`
 * :ref:`alias_config <setup-alias_config>`
 * :ref:`monitor_blocks <setup-monitor_blocks>`
+* :ref:`watch_conditions <setup-watch_conditions>`
 * :ref:`extended <setup-extended>`
 
 .. _setup-description:
@@ -305,6 +306,24 @@ except the :ref:`description <setup-description>` entry:
                      ], setups=setupname)
       }
       '''
+
+.. _setup-watch_conditions:
+
+``watch_conditions``
+   A list of watch conditions that should be used by the watchdog service
+   if this setup is loaded.
+
+   The format of these conditions is explained in :ref:`watch-conditions`.
+
+   Example::
+
+      watch_conditions = [
+          dict(condition = 't_value > 300',
+               message = 'Temperature too high (exceeds 300 K)',
+               type = 'critical',
+               gracetime = 10,
+              ),
+      ]
 
 .. _setup-startupcode:
 
