@@ -498,7 +498,8 @@ class Changer(BaseSequencer):
                       else 'disabled, you need to set enable_word to the '
                       'correct value')
         self.log.info('Inhibit_relay is %s', self._attached_inhibitrelay.read())
-        liftposnames = {'1': 'Monotable loading',
+        liftposnames = {'0': 'unknown, error in switches',
+                        '1': 'Monotable loading',
                         '2': 'Park position',
                         '3': 'Bottom storage',
                         '4': 'Upper storage'}
