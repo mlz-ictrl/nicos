@@ -399,7 +399,7 @@ class DevicesWidget(QWidget):
         # do not close the whole dialog when pressing Enter in an input box
         if event.key() == Qt.Key_Return:
             return
-        return QDialog.keyPressEvent(self, event)
+        return QWidget.keyPressEvent(self, event)
 
     def getDef(self):
         if self._edit:
