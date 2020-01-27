@@ -73,8 +73,8 @@ class Axis(CanReference, AbstractAxis):
 
     def doInit(self, mode):
         if self._attached_coder is None:
-            self.log.debug('Using the motor as coder too as no coder was '
-                           'specified in the setup file.')
+            self.log.debug('using the motor as coder too as no coder was '
+                           'specified in the setup file')
         # Check that motor and coder have the same unit
         elif self._attached_coder.unit != self._attached_motor.unit:
             raise ConfigurationError(self, 'different units for motor and '

@@ -300,17 +300,17 @@ class PyTangoDevice(HasCommunication):
 
             # handle different types for better debug output
             if category == 'cmd':
-                self.log.debug('[PyTango] command: %s%r', args[0], args[1:])
+                self.log.debug('[Tango] command: %s%r', args[0], args[1:])
             elif category == 'attr_read':
-                self.log.debug('[PyTango] read attribute: %s', args[0])
+                self.log.debug('[Tango] read attribute: %s', args[0])
             elif category == 'attr_write':
-                self.log.debug('[PyTango] write attribute: %s => %r',
+                self.log.debug('[Tango] write attribute: %s => %r',
                                args[0], args[1:])
             elif category == 'attr_query':
-                self.log.debug('[PyTango] query attribute properties: %s',
+                self.log.debug('[Tango] query attribute properties: %s',
                                args[0])
             elif category == 'constructor':
-                self.log.debug('[PyTango] device creation: %s', args[0])
+                self.log.debug('[Tango] device creation: %s', args[0])
                 try:
                     result = func(*args, **kwds)
                     return self._com_return(result, info)
@@ -318,10 +318,10 @@ class PyTangoDevice(HasCommunication):
                     self._com_raise(err, info)
 
             elif category == 'internal':
-                self.log.debug('[PyTango integration] internal: %s%r',
+                self.log.debug('[Tango integration] internal: %s%r',
                                func.__name__, args)
             else:
-                self.log.debug('[PyTango] call: %s%r', func.__name__, args)
+                self.log.debug('[Tango] call: %s%r', func.__name__, args)
 
             return self._com_retry(info, func, *args, **kwds)
 
@@ -368,7 +368,7 @@ class PyTangoDevice(HasCommunication):
         exclass = REASON_MAPPING.get(
             reason, EXC_MAPPING.get(type(err), NicosError))
         fulldesc = self._tango_exc_desc(err)
-        self.log.debug('PyTango error: %s', fulldesc)
+        self.log.debug('[Tango] error: %s', fulldesc)
         raise exclass(self, fulldesc)
 
 

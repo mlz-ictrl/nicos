@@ -170,7 +170,7 @@ class DataManager(object):
 
         Finally dispatches corresponding sink handlers.
         """
-        self.log.debug('Created new dataset %s', dataset)
+        self.log.debug('created new dataset %s', dataset)
         if not skip_handlers:
             for sink in session.datasinks:
                 if sink.isActive(dataset):
@@ -198,7 +198,7 @@ class DataManager(object):
         """Finish up the dataset."""
         if dataset.finished is None:
             dataset.finished = currenttime()
-        self.log.debug('Finishing up %s', dataset)
+        self.log.debug('finishing up %s', dataset)
         dataset.dispatch('end')
         if self._stack:
             self._stack[-1].dispatch('addSubset', dataset)

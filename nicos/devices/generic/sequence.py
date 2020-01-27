@@ -338,7 +338,7 @@ class SequencerMixin(DeviceMixinBase):
             for i, step in enumerate(sequence):
                 self.log.debug(' - step %d:', i + 1)
                 for action in step:
-                    self.log.debug('   - Action: %r', action)
+                    self.log.debug('   - action: %r', action)
 
         self._set_seq_status(status.BUSY, '')
 
@@ -365,13 +365,13 @@ class SequencerMixin(DeviceMixinBase):
     def _sequence(self, sequence):
         """The Sequence 'interpreter', stepping through the sequence."""
         try:
-            self.log.debug('Performing Sequence of %d steps', len(sequence))
+            self.log.debug('performing sequence of %d steps', len(sequence))
             for i, step in enumerate(sequence):
                 self._set_seq_status(status.BUSY, 'action %d: ' %
                                      (i + 1) + '; '.join(map(repr, step)))
                 # start all actions by calling run and if that fails, retry
                 for action in step:
-                    self.log.debug(' - Action: %r', action)
+                    self.log.debug(' - action: %r', action)
                     try:
                         action.run()
                     except Exception as e:
@@ -411,7 +411,7 @@ class SequencerMixin(DeviceMixinBase):
                                 if action.isCompleted():
                                     waiters.remove(action)
                     if self._seq_stopflag:
-                        self.log.debug('Stopflag caught!')
+                        self.log.debug('stopflag caught!')
                         self._seq_was_stopped = True
                         for dev in waiters:
                             dev.stop()
@@ -452,7 +452,7 @@ class SequencerMixin(DeviceMixinBase):
                     break
 
             if not self._seq_stopflag:
-                self.log.debug('Sequence finished')
+                self.log.debug('sequence finished')
                 self._set_seq_status(status.OK, 'idle')
 
         except NicosError as e:

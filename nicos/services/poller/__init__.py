@@ -151,7 +151,7 @@ class Poller(Device):
                     try:
                         # if the timeout is reached, this raises Queue.Empty
                         event = queue.get(True, maxwait)
-                        self.log.debug('%-10s: Event %s', dev, event)
+                        self.log.debug('%-10s: event %s', dev, event)
 
                         # handle events....
                         # use pass to trigger a poll or continue to just fetch the next event

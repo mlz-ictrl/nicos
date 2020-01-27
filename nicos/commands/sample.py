@@ -522,7 +522,7 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
         out.extend(restxt)
         session.log.debug('')
         session.log.debug('-' * 80)
-        session.log.debug('Result from run with j=%d (RMS = %g):', j, rms)
+        session.log.debug('result from run with j=%d (RMS = %g):', j, rms)
         for line in out:
             session.log.debug(line)
 

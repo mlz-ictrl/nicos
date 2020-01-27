@@ -93,8 +93,8 @@ class Driveable(HasLimits, HasPrecision, CARESSDevice, Moveable):
                                                   111, 112, 114, 115, 123, 124,
                                                   125, 126]
 
-        self.log.debug('Readable module: %r', is_readable)
-        self.log.debug('Driveable module: %r', is_drivable)
+        self.log.debug('readable module: %r', is_readable)
+        self.log.debug('driveable module: %r', is_drivable)
         if not (is_drivable or is_readable):
             raise ConfigurationError(self, 'Object is not a moveable module')
 
@@ -127,7 +127,7 @@ class Driveable(HasLimits, HasPrecision, CARESSDevice, Moveable):
         return CARESSDevice.doStatus(self, maxage)
 
     def _stop(self, stopmode=KEEP_ACTION):
-        self.log.debug('Stop: StopMode : %d', stopmode)
+        self.log.debug('stop: StopMode : %d', stopmode)
         if hasattr(self._caressObject, 'stop_module'):
             result = self._caress_guard(self._caressObject.stop_module, stopmode,
                                         self.cid)

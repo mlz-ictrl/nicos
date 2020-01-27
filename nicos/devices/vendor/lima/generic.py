@@ -388,7 +388,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         return roi
 
     def _unrotateRoi(self, roi, rotation):
-        self.log.debug('UNrotate roi %r by %r', roi, rotation)
+        self.log.debug('*un*rotate roi %r by %r', roi, rotation)
         w, h = self._width_height[0] - 1, self._width_height[1] - 1
 
         # transformation matrix for no rotation
@@ -421,7 +421,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         return result
 
     def _rotateRoi(self, roi, rotation):
-        self.log.debug('Rotate roi %r from %r', roi, rotation)
+        self.log.debug('rotate roi %r from %r', roi, rotation)
         w, h = self._width_height[0] - 1, self._width_height[1] - 1
 
         # transformation matrix for no rotation
@@ -454,7 +454,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
         return result
 
     def _flipRoi(self, roi, rotation, flip):
-        self.log.debug('Flip roi %r by %r', roi, flip)
+        self.log.debug('flip roi %r by %r', roi, flip)
         w, h = self._width_height
 
         if rotation in [90, 270]:

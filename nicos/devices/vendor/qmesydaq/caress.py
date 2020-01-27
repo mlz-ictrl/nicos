@@ -51,12 +51,12 @@ class QMesydaqCaressDevice(CARESSDevice):
                 raise ConfigurationError(self, 'Must be configured as '
                                          '"CORBA_device" (ID=500)')
             _config = ' '.join(self.config.split()[3:])
-            self.log.debug('Reduced config: %s', _config)
+            self.log.debug('reduced config: %s', _config)
             res = self._caressObject.init_module(INIT_NORMAL, cid, _config)
-            self.log.debug('Init module (Connect): %r', res)
+            self.log.debug('init module (Connect): %r', res)
             if res not in [(0, ON_LINE), (CARESS.OK, ON_LINE)]:
                 res = self._caressObject.init_module(INIT_REINIT, cid, _config)
-                self.log.debug('Init module (Re-Init): %r', res)
+                self.log.debug('init module (Re-Init): %r', res)
                 if res not in[(0, ON_LINE), (CARESS.OK, ON_LINE)]:
                     self.log.error('Init module (Re-Init): %r (%d, %s)',
                                    res, cid, _config)
@@ -75,7 +75,7 @@ class QMesydaqCaressDevice(CARESSDevice):
             is_counting = \
                 self._caress_guard(self._caressObject.is_counting_module,
                                    self.cid)
-        self.log.debug('Counting module: %r', is_counting)
+        self.log.debug('counting module: %r', is_counting)
         if not is_counting:
             raise ConfigurationError(self, 'Object is not a measurable module')
 
@@ -156,7 +156,7 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
             result, loaded = self._caress_guard(self._caressObject.load_module,
                                                 kind, self.cid,
                                                 CARESS.Value(l=preset))
-            self.log.debug('Preset module: %r, %r', result, loaded)
+            self.log.debug('preset module: %r, %r', result, loaded)
         else:
             params = []
             params.append(CORBA.Any(CORBA._tc_long, self.cid))
@@ -167,7 +167,7 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
             params.append(CORBA.Any(CORBA._tc_long, 0))  # no next module
             result, loaded = self._caress_guard(
                 self._caressObject.load_module_orb, kind, params, 0)
-            self.log.debug('Preset module: %r %r', result, loaded)
+            self.log.debug('preset module: %r %r', result, loaded)
         if result not in [0, CARESS.OK]:
             raise NicosError(self, 'Could not preset module')
 

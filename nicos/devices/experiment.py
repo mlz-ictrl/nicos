@@ -670,8 +670,8 @@ class Experiment(Device):
                     stats = {}
                 stats.update(propinfo)
                 # start separate thread for zipping and disabling old proposal
-                self.log.debug('Start separate thread for zipping and '
-                               'disabling proposal.')
+                self.log.debug('starting separate thread for zipping and '
+                               'disabling proposal')
                 if self.isProposalFinishThreadAlive(self.proposal):
                     self.log.error(
                         'Proposal %s is already finishing. Please report '
@@ -905,8 +905,7 @@ class Experiment(Device):
         if self.managerights and proptype == 'user':
             disableDirectory(proposalpath, logger=self.log,
                              **self.managerights)
-            self.log.debug('disabled directory %s'
-                           % proposalpath)
+            self.log.debug('disabled directory %s', proposalpath)
 
     def _setMode(self, mode):
         if self.elog:

@@ -89,7 +89,7 @@ class AuxiliaryWindow(SetupDepWindowMixin, QMainWindow):
 
     def setSetups(self, setupSpec):
         self.setupSpec = setupSpec
-        self.log.debug('Setups are: %r', self.setupSpec)
+        self.log.debug('setups are: %r', self.setupSpec)
 
     def getPanel(self, panelName):
         for panelobj in self.panels:

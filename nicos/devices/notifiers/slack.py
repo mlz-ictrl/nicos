@@ -65,7 +65,7 @@ class Slacker(Notifier):
         message = escape_html('*%s*\n\n```%s```' % (subject, body), False)
 
         for entry in self._getAllRecipients(important):
-            self.log.debug('Send slack message to %s' % entry)
+            self.log.debug('sending slack message to %s' % entry)
             try:
                 reply = self._slack.api_call('chat.postMessage', channel=entry,
                                              text=message)

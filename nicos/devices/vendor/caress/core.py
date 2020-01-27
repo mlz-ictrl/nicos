@@ -159,7 +159,7 @@ class CARESSDevice(HasCommunication):
             while not self.cid:
                 session.delay(0.5)
             return self.cid
-        self.log.debug('Get CARESS device ID: %r', device)
+        self.log.debug('get CARESS device ID: %r', device)
         answer = createSubprocess('cd %s && %s/dump_u1 -n %s' %
                                   (self.caresspath, self.toolpath, device, ),
                                   shell=True,
@@ -174,7 +174,7 @@ class CARESSDevice(HasCommunication):
             res = CARESSDevice._caress_maps[device]
         else:
             res = int(answer.split('=')[1])
-        self.log.debug('Get CARESS device ID: %r', res)
+        self.log.debug('get CARESS device ID: %r', res)
         return res
 
     def _is_corba_device(self):
@@ -268,7 +268,7 @@ class CARESSDevice(HasCommunication):
                                                          _config)
             else:
                 res = self._caressObject.init_module(INIT_NORMAL, cid, _config)
-            self.log.debug('Init module (Connect): %r', res)
+            self.log.debug('init module (Connect): %r', res)
             if res[0] not in (0, CARESS.OK) or res[1] == OFF_LINE:
                 raise NicosError(self, 'Could not initialize module! (%r) %d' %
                                  ((res,), self._device_kind()))

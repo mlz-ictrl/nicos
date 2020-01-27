@@ -168,7 +168,7 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
         # This method is responsible to communicate and update all the
         # topics that should be updated. Subclasses can (re)implement it
         # if there are messages to be produced to other topics
-        self.log.debug('Writing: %s -> %s', key, entry.value)
+        self.log.debug('writing: %s -> %s', key, entry.value)
 
         # For the log-compacted topic key deletion happens when None is
         # passed as the value for the key
@@ -268,7 +268,7 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
         KafkaCacheDatabase.doShutdown(self)
 
     def ask_hist(self, key, fromtime, totime):
-        self.log.debug('Hist for %s in (%s, %s)' % (key, fromtime, totime))
+        self.log.debug('hist for %s in (%s, %s)' % (key, fromtime, totime))
         buffer_time = 10
 
         # Get the assignment
@@ -309,7 +309,7 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
         # Return at least the last value, if none match the range
         if not found_some and key in self._db:
             entry = self._db[key][-1]
-            self.log.debug("Not found in provided range, fetching current.")
+            self.log.debug("not found in provided range, fetching current")
             yield ('%r@%s=%s\n' % (entry.time, key, entry.value))
 
     def _update_topic(self, key, entry):
