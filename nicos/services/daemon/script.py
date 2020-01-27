@@ -186,7 +186,7 @@ class ScriptRequest(Request):
         self.setSimstate('pending')
         if self.blocks:
             self.runtimes = [0] * len(self.blocks)
-        else: # if the script was started on the commandline
+        else:  # if the script was started on the commandline
             self.runtimes = [0]
         self.eta = -1
 
@@ -619,6 +619,7 @@ class ExecutionController(Controller):
             # check if currently executed script needs update
             if reqid == self.current_script.reqid or reqid is None:
                 self.current_script.update(newcode, reason, self, user)
+                self.log.info('running script updated by %s', user.name)
                 if session.cache and self.autosim:
                     self.simulate_request(self.current_script, quiet=True)
                     self.current_script.setSimstate('running')
@@ -626,6 +627,7 @@ class ExecutionController(Controller):
 
             # update queued script with newuser and code
             qop.update(reqid, newcode, user)
+            self.log.info('queued script %s updated by %s', reqid, user.name)
             self.eventfunc('updated', qop.get_item(reqid).serialize())
 
     def start_script_thread(self, *args):
@@ -654,13 +656,16 @@ class ExecutionController(Controller):
                 request = self.queue.get()
                 self.thread_data.user = request.user
 
-                self.log.info('processing request %s', request.reqid)
                 if isinstance(request, EmergencyStopRequest):
+                    self.log.info('executing estop request from %s',
+                                  request.user.name)
                     self.execute_estop(request.user.name)
                     continue
                 elif not isinstance(request, ScriptRequest):
                     self.log.error('unknown request: %s', request)
                     continue
+                self.log.info('processing script %s by %s',
+                              request.reqid, request.user.name)
                 self.reqid_work = request.reqid
                 if session.cache and self.autosim:
                     self.simulate_request(request, quiet=True)
