@@ -14,6 +14,7 @@ devices = dict(
         tangodevice = tango_base + 'count/timer',
         fmtstr = '%.0f',
         extmask = 1 << 3,
+        exttimeout = 1800,
     ),
     mon1 = device('nicos.devices.tango.CounterChannel',
         description = 'Monitor 1 (before selector)',
