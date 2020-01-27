@@ -219,17 +219,24 @@ class LiveDataPanel(Panel):
         self.menuColormap = QMenu(self)
         self.actionsColormap = QActionGroup(self)
         activeMap = self.widget.getColormap()
+        activeCaption = None
         for name, value in iteritems(COLORMAPS):
             caption = name.title()
             action = self.menuColormap.addAction(caption)
+            action.setData(caption)
             action.setCheckable(True)
             if activeMap == value:
                 action.setChecked(True)
-                self.actionColormap.setText(caption)
+                # update toolButton text later otherwise this may fail
+                # depending on the setup and qt versions in use
+                activeCaption = caption
             self.actionsColormap.addAction(action)
             action.triggered.connect(self.on_colormap_triggered)
         self.actionColormap.setMenu(self.menuColormap)
         self.widgetLayout.addWidget(self.widget)
+        if activeCaption:
+            self.toolbar.widgetForAction(self.actionColormap).setText(
+                activeCaption)
         detectors = self.client.eval('session.experiment.detectors', [])
         self._register_rois(detectors)
 
@@ -283,10 +290,11 @@ class LiveDataPanel(Panel):
 
     def on_colormap_triggered(self):
         action = self.actionsColormap.checkedAction()
+        name = action.data()
         for widget in self._get_all_widgets():
-            widget.setColormap(COLORMAPS[action.text().upper()])
-        name = action.text()
-        self.actionColormap.setText(name[0] + name[1:].lower())
+            widget.setColormap(COLORMAPS[name.upper()])
+        self.toolbar.widgetForAction(
+            self.actionColormap).setText(name.title())
 
     def _getLiveWidget(self, roi):
         return self._livewidgets.get(roi + '/roi', None)
@@ -347,6 +355,7 @@ class LiveDataPanel(Panel):
                     self.log.debug('register roi: %s', roi)
                     # create roi menu
                     action = self.menuROI.addAction(roi)
+                    action.setData(roi)
                     action.setCheckable(True)
                     self.actionsROI.addAction(action)
                     action.triggered.connect(self.on_roi_triggered)
@@ -359,7 +368,7 @@ class LiveDataPanel(Panel):
 
     def on_roi_triggered(self):
         action = self.sender()
-        roi = action.text()
+        roi = action.data()
         if action.isChecked():
             self.showRoiWindow(roi)
         else:
@@ -377,7 +386,7 @@ class LiveDataPanel(Panel):
             if key:
                 roi = key.rsplit('/', 1)[0]
                 for action in self.actionsROI.actions():
-                    if action.text() == roi:
+                    if action.data() == roi:
                         action.setChecked(False)
                         self.log.debug('uncheck roi: %s', roi)
 

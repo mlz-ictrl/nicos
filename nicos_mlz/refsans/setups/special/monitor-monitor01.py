@@ -31,7 +31,7 @@ _chconfigcol = Column(
             Field(name='gap', key='chopper/gap', width=10, format = '%.2f',),
             ),
         BlockRow(
-            Field(name='angular speed', key='chopper/speed', width=10, format = '%.1f', unit='(deg)'),
+            Field(name='angular speed', key='chopper/speed', width=10, format = '%.1f', unit='(rpm)'),
             Field(name='disk 2 phase', key='chopper2/phase', width=10, format = '%.2f', unit='(deg)'),
             Field(name='disk 3 phase', key='chopper3/phase', width=10, format = '%.2f', unit='(deg)'),
             Field(name='disk 4 phase', key='chopper4/phase', width=10, format = '%.2f', unit='(deg)'),

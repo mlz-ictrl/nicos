@@ -402,7 +402,7 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
         self.log.debug('writeParameter %d:0x%04x', index, value)
 
         if store2eeprom:
-            if self._HW_ReadStatusWord() & (1 << 6) == 0:
+            if self._HW_readStatusWord() & (1 << 6) == 0:
                 # target reached not set -> problem
                 raise UsageError(self, 'Param acces no possible until target '
                                  'reached')

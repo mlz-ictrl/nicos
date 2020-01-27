@@ -49,11 +49,23 @@ from nicos.guisupport.qtgr import GUIConnector, InteractiveGRWidget, \
     LegendEvent, MouseEvent, ROIEvent
 from nicos.guisupport.utils import scaledFont
 # pylint: disable=redefined-builtin
-from nicos.pycompat import exec_, string_types
+from nicos.pycompat import exec_, string_types, number_types
 from nicos.utils import safeName
 from nicos.utils.fitting import CosineFit, ExponentialFit, Fit, FitError, \
     FitResult, GaussFit, LinearFit, LorentzFit, PearsonVIIFit, \
     PseudoVoigtFit, SigmoidFit, TcFit
+
+
+def cleanArray(arr):
+    """Clean an array or list from unsupported objects for plotting.
+
+    Objects are replaced by None, which is then converted to NaN.
+    """
+    try:
+        return np.asarray(arr, float)
+    except ValueError:
+        return np.array([x if isinstance(x, number_types) else None
+                         for x in arr], float)
 
 
 def prepareData(x, y, dy, norm):
@@ -64,19 +76,16 @@ def prepareData(x, y, dy, norm):
     Returns x, y and dy arrays, where dy can also be None.
     """
     # make arrays
-    x = np.asarray(x)
-    # replace complex data types (strings...) by numbers
-    if not x.dtype.isbuiltin:
-        x = np.zeros(x.shape)
-    y = np.asarray(y, float)
-    dy = np.asarray(dy, float)
+    x = cleanArray(x)
+    y = cleanArray(y)
+    dy = cleanArray(dy)
     # normalize
     if norm is not None:
         norm = np.asarray(norm, float)
         y /= norm
         dy /= norm
     # remove infinity/NaN
-    indices = np.isfinite(y)
+    indices = np.isfinite(y) & np.isfinite(x)
     x = x[indices]
     y = y[indices]
     if not y.size:
@@ -1313,8 +1322,8 @@ class DataSetPlot(NicosGrPlot):
             x, y, dy = prepareData(curve.datax[xname], curve.datay,
                                    curve.datady, norm)
         except ValueError:
-            # TODO: string column, should ignore it completely...
-            x, y, dy = np.array([0]), np.array([0]), np.array([0])
+            # empty column, should be ignored
+            x, y, dy = np.array([0]), np.array([0]), None
         y = numpy.ma.masked_equal(y, 0)
         if dy is not None:
             errbar = ErrorBar(x, y, dy, markercolor=plotcurve.markercolor)

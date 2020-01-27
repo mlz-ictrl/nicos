@@ -52,7 +52,7 @@ def _tomo(title, angles, moveables, imgsperangle, *detlist, **preset):
         moveables = (moveables,)
     moveables = tuple(moveables)
 
-    session.log.debug('Used angles: %r', angles)
+    session.log.debug('used angles: %r', angles)
 
     with manualscan(*(moveables + detlist), _title=title) as scan:
         for angle in angles:

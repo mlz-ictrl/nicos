@@ -8,8 +8,8 @@ devices = dict(
     scintillatortx = device('nicos.devices.tango.Motor',
         description = 'Translation of scintillator box in X direction',
         tangodevice = tango_base + 'fzjs7/FOV',
-        abslimits = (0, 200),
-        userlimits = (0, 200),
+        abslimits = (-150, 250),
+        userlimits = (-150, 250),
         precision = 0.01,
     ),
 )

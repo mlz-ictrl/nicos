@@ -146,7 +146,7 @@ class Scan(object):
             self._xindex += subvals
         else:
             self._xindex = 0
-        session.log.debug('Using field %d as primary x-axis for plotting',
+        session.log.debug('using field %d as primary x-axis for plotting',
                           self._xindex)
 
     @contextmanager
@@ -627,7 +627,7 @@ class ContinuousScan(Scan):
             while device.status(0)[0] == status.BUSY:
                 session.breakpoint(2)
                 sleeptime = max(0, looptime + self._timedelta - currenttime())
-                session.log.debug('Sleep time: %f', sleeptime)
+                session.log.debug('sleep time: %f', sleeptime)
                 with self.pointScope(point + 1):
                     session.delay(sleeptime)
                     looptime = currenttime()

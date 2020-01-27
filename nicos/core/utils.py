@@ -273,7 +273,7 @@ def multiWait(devices):
             reraise(*final_exc)
     finally:
         session.endActionScope()
-        session.log.debug('multWait: finished')
+        session.log.debug('multiWait: finished')
     return values
 
 

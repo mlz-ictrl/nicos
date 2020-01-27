@@ -99,7 +99,7 @@ For Ubuntu::
 Packages to install for common distributions
 --------------------------------------------
 
-GR runtime packages are available at:
+GR runtime packages (`gr` and `python-gr`) are available in the repositories linked at:
 https://software.opensuse.org/download.html?project=science:gr-framework&package=gr
 
 Debian/Ubuntu

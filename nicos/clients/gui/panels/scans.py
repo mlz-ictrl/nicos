@@ -608,6 +608,7 @@ class ScansPanel(Panel):
                 continue
             done.add(name)
             action = self.x_menu.addAction(name)
+            action.setData(name)
             action.setCheckable(True)
             if name == self.currentPlot.current_xname:
                 action.setChecked(True)
@@ -616,8 +617,7 @@ class ScansPanel(Panel):
     @pyqtSlot()
     def on_x_action_triggered(self, text=None):
         if text is None:
-            sender = self.sender()
-            text = sender.text()
+            text = self.sender().data()
         self.actionXAxis.setText('X axis: %s' % text)
         self.currentPlot.current_xname = text
         self.currentPlot.updateDisplay()
@@ -633,6 +633,7 @@ class ScansPanel(Panel):
             return
         for curve in self.currentPlot.dataset.curves:
             action = self.y_menu.addAction(curve.full_description)
+            action.setData(curve.full_description)
             action.setCheckable(True)
             if not curve.hidden:
                 action.setChecked(True)
@@ -641,8 +642,7 @@ class ScansPanel(Panel):
     @pyqtSlot()
     def on_y_action_triggered(self, text=None):
         if text is None:
-            sender = self.sender()
-            text = sender.text()
+            text = self.sender().data()
         if not self.currentPlot:
             return
         for curve in self.currentPlot.dataset.curves:
@@ -675,10 +675,12 @@ class ScansPanel(Panel):
         self.norm_menu.clear()
         if self.currentPlot:
             none_action = self.norm_menu.addAction('None')
+            none_action.setData('None')
             none_action.setCheckable(True)
             none_action.setChecked(True)
             none_action.triggered.connect(self.on_norm_action_triggered)
             max_action = self.norm_menu.addAction('Maximum')
+            max_action.setData('Maximum')
             max_action.setCheckable(True)
             if self.currentPlot.normalized == 'Maximum':
                 max_action.setChecked(True)
@@ -686,6 +688,7 @@ class ScansPanel(Panel):
             max_action.triggered.connect(self.on_norm_action_triggered)
             for _, name in self.currentPlot.dataset.normindices:
                 action = self.norm_menu.addAction(name)
+                action.setData(name)
                 action.setCheckable(True)
                 if name == self.currentPlot.normalized:
                     action.setChecked(True)
@@ -695,8 +698,7 @@ class ScansPanel(Panel):
     @pyqtSlot()
     def on_norm_action_triggered(self, text=None):
         if text is None:
-            sender = self.sender()
-            text = sender.text()
+            text = self.sender().data()
         if text == 'None':
             self.currentPlot.normalized = None
             self.actionNormalized.setChecked(False)

@@ -204,11 +204,9 @@ qscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'qscan(Q, dQ, ')
 qcscan.__doc__ += ADDSCANHELP2.replace('scan(dev, ', 'qcscan(Q, dQ, ')
 
 
-class Q(ndarray):
+class _Q(ndarray):
     def __repr__(self):
         return str(self)
-
-_Q = Q
 
 
 @usercommand

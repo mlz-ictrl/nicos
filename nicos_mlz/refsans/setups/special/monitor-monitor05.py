@@ -171,35 +171,6 @@ _chopper = Column(
         ],
     ),
 )
-_memograph = Column(
-    Block('memograph', [
-        BlockRow( Field(name='flow_in', dev='flow_memograph_in'),
-                  Field(name='flow_out', dev='flow_memograph_out'),
-                  Field(name='diff', dev='leak_memograph'),),
-        BlockRow( Field(name='t_in', dev='t_memograph_in'),
-                  Field(name='t_out', dev='t_memograph_out'),
-                  Field(name='power', dev='cooling_memograph'),),
-        BlockRow( Field(name='p_in', dev='p_memograph_in'),
-                  Field(name='p_out', dev='p_memograph_out'),),
-        ],
-    ),
-)
-
-_pumpstand = Column(
-    Block('pumpstand', [
-        BlockRow( Field(name='CB', dev='pressure_CB'),
-                  Field(name='SFK', dev='pressure_SFK'),
-                  Field(name='SR', dev='pressure_SR'),),
-        BlockRow( Field(name='CB', dev='pump_CB'),
-                  Field(name='SFK', dev='pump_SFK'),
-                  Field(name='SR', dev='pump_SR'),),
-        BlockRow( Field(name='CB', dev='chamber_CB'),
-                  Field(name='SFK', dev='chamber_SFK'),
-                  Field(name='SR', dev='chamber_SR'),),
-        ],
-    ),
-)
-
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',

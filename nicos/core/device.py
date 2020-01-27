@@ -1964,7 +1964,9 @@ class Measurable(Waitable):
                 time = self._sim_preset['t']
             else:
                 time = 0
-            session.clock.wait(self._sim_started + time)
+            if self._sim_started is not None:
+                session.clock.wait(self._sim_started + time)
+                self._sim_started = None
             return
         self.doFinish()
 

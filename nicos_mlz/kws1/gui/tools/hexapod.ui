@@ -252,7 +252,7 @@
           </widget>
          </item>
          <item row="3" column="5">
-          <widget class="QLabel" name="lblCurDT">
+          <widget class="QLabel" name="lblCurOmega">
            <property name="minimumSize">
             <size>
              <width>80</width>
@@ -542,7 +542,7 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item row="3" column="5">
-          <widget class="QDoubleSpinBox" name="inpNewDT">
+          <widget class="QDoubleSpinBox" name="inpNewOmega">
            <property name="decimals">
             <number>3</number>
            </property>
@@ -655,7 +655,7 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QDoubleSpinBox" name="inpVelDT"/>
+          <widget class="QDoubleSpinBox" name="inpVelOmega"/>
          </item>
          <item row="5" column="0">
           <widget class="QLabel" name="label_83">
@@ -685,7 +685,7 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item row="2" column="2">
-          <widget class="QLabel" name="lblVelDT">
+          <widget class="QLabel" name="lblVelOmega">
            <property name="text">
             <string>TextLabel</string>
            </property>
@@ -767,7 +767,7 @@ p, li { white-space: pre-wrap; }
            </item>
            <item>
             <property name="text">
-             <string>FJ - Readonly</string>
+             <string>J - Readonly</string>
             </property>
            </item>
            <item>
@@ -1817,9 +1817,9 @@ p, li { white-space: pre-wrap; }
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="butReEnableSystem">
+         <widget class="QPushButton" name="butResetSystem">
           <property name="text">
-           <string>(Re-) Enable System</string>
+           <string>Reset System</string>
           </property>
          </widget>
         </item>
@@ -1892,8 +1892,6 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="actionReference_drive"/>
     <addaction name="separator"/>
-    <addaction name="actionInstall"/>
-    <addaction name="actionEnable"/>
     <addaction name="actionSet_Zero"/>
    </widget>
    <addaction name="menuRotation_table"/>
@@ -1903,41 +1901,9 @@ p, li { white-space: pre-wrap; }
     <string>Reference drive</string>
    </property>
   </action>
-  <action name="actionInstall">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Install</string>
-   </property>
-  </action>
-  <action name="actionEnable">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Enable</string>
-   </property>
-  </action>
   <action name="actionSet_Zero">
    <property name="text">
     <string>Set Zero</string>
-   </property>
-  </action>
-  <action name="actionReset_Offset">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Reset Offset</string>
-   </property>
-  </action>
-  <action name="actionSet_Offset">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Set Offset ...</string>
    </property>
   </action>
  </widget>

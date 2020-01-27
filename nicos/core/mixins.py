@@ -450,7 +450,7 @@ class HasTimeout(DeviceMixinBase):
             if remaining > 0:
                 self.log.debug("%.2f s left before timeout", remaining)
             else:
-                self.log.debug("Timeout since %.2f s", -remaining)
+                self.log.debug("timeout since %.2f s", -remaining)
             return remaining < 0
         return False
 

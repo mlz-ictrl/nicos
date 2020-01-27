@@ -1,7 +1,7 @@
 # coding: utf-8
 
 # created by Martin Haese, Tel FRM 10763
-# last version by Gaetano Mangiapia, Tel 54839 on Jan 09th 2020
+# last version by Gaetano Mangiapia, Tel 54839 on Jan 10th 2020
 
 # to call it
 # ssh -X refsans@refsansctrl01 oder 02
@@ -30,14 +30,14 @@ _julabo_plot = Column(
             Field(widget='nicos.guisupport.plots.TrendPlot',
                 width=60, height=30, plotwindow=1800,
                 devices=['julabo_temp/target','julabo_ext', 'julabo_int'],
-                names=['T set 30min','T int 30min', 'T ext 30 min'],
+                names=['T set 30min','T ext 30min', 'T int 30 min'],
                 legend=True,
                 ),
 
             Field(widget='nicos.guisupport.plots.TrendPlot',
                 width=60, height=30, plotwindow=12*3600,
                 devices=['julabo_temp/target','julabo_ext', 'julabo_int'],
-                names=['T set 12h','T int 12h', 'T ext 12h'],
+                names=['T set 12h','T ext 12h', 'T int 12h'],
                 legend=True,
                 ),
             ),
@@ -60,9 +60,9 @@ _nima = Column(
 
 
 _ubahn = Column(
-    Block('U-Bahn', [
+    Block(u'U6 Subway to Klinikum Gro\u00dfhadern', [
         BlockRow(
-                 Field(name='Next train in', dev='Ubahn', istext=True, unit = '(min)'),
+                 Field(name='Next trips in', dev='Ubahn', istext=True, unit = '(min)'),
                 ),
         ],
     ),
@@ -99,7 +99,7 @@ devices = dict(
             Row(_tempcol ),
             Row(_julabo_plot),
             Row(_nima),
-            #Row(_ubahn),
+            Row(_ubahn),
         ],
     ),
 )
