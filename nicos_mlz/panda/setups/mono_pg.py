@@ -2,7 +2,7 @@ description = 'PANDA PG-monochromator'
 
 group = 'lowlevel'
 
-includes = ['monofoci', 'monoturm', 'panda_s7']
+includes = ['monofoci', 'monoturm', 'panda_mtt']
 
 excludes = ['mono_si', 'mono_cu', 'mono_heusler']
 
@@ -124,3 +124,7 @@ else:
     printerror('WRONG MONO ON TABLE FOR SETUP mono_pg !!!')
 del session
 '''
+
+extended = dict(
+    poller_cache_reader = ['mtt'],
+)

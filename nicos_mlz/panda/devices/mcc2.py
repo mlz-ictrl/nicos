@@ -327,7 +327,7 @@ class MCC2Motor(MCC2core, NicosMotor):
         These settings will be displayed.
         """
         if self.linear:
-            const = 0.05
+            const = 0.05 # SHOULD BE 0.04!
         else:
             const = 0.1
         xi = const * float(self.comm('XP40R'))
@@ -349,39 +349,39 @@ class MCC2Motor(MCC2core, NicosMotor):
 
     def doReadIdlecurrent(self):
         if self.linear:
-            return 0.05 * float(self.comm('XP40R'))
+            return 0.05 * float(self.comm('XP40R')) # SHOULD BE 0.04
         else:
             return 0.1 * float(self.comm('XP40R'))
 
     def doWriteIdlecurrent(self, value):
         if self.linear:
-            self.comm('XP40S%d' % max(0, min(25, round(value / 0.05))))
+            self.comm('XP40S%d' % max(0, min(25, round(value / 0.05)))) # SHOULD BE 0.04
         else:
             self.comm('XP40S%d' % max(0, min(25, round(value / 0.1))))
         return self.doReadIdlecurrent()
 
     def doReadMovecurrent(self):
         if self.linear:
-            return 0.05 * float(self.comm('XP41R'))
+            return 0.05 * float(self.comm('XP41R')) # SHOULD BE 0.04
         else:
             return 0.1 * float(self.comm('XP41R'))
 
     def doWriteMovecurrent(self, value):
         if self.linear:
-            self.comm('XP41S%d' % max(0, min(25, round(value / 0.05))))
+            self.comm('XP41S%d' % max(0, min(25, round(value / 0.05)))) # SHOULD BE 0.04
         else:
             self.comm('XP41S%d' % max(0, min(25, round(value / 0.1))))
         return self.doReadMovecurrent()
 
     def doReadRampcurrent(self):
         if self.linear:
-            return 0.05 * float(self.comm('XP42R'))
+            return 0.05 * float(self.comm('XP42R')) # SHOULD BE 0.04
         else:
             return 0.1 * float(self.comm('XP42R'))
 
     def doWriteRampcurrent(self, value):
         if self.linear:
-            self.comm('XP42S%d' % max(0, min(25, round(value / 0.05))))
+            self.comm('XP42S%d' % max(0, min(25, round(value / 0.05)))) # SHOULD BE 0.04
         else:
             self.comm('XP42S%d' % max(0, min(25, round(value / 0.1))))
         return self.doReadRampcurrent()

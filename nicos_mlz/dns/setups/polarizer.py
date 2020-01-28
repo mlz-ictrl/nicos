@@ -7,8 +7,8 @@ tango_base = 'tango://phys.dns.frm2:10000/dns/'
 
 # mapping at 4.74A 'pol_trans_x', 'pol_trans_y', 'pol_rot'
 POLARIZER_POSITIONS = {
-    'in':  [3 , 0, -2.0],
-    'out': [3, 100, -2.0],
+    'in':  [5 , 0, -1.9],
+    'out': [5, 100, -1.9],
 }
 
 ## mapping at 5.7A 'pol_trans_x', 'pol_trans_y', 'pol_rot'

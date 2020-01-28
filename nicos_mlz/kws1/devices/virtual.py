@@ -44,6 +44,13 @@ class Standin(HasPrecision, ManualMove):
         return status.WARN, 'virtual'
 
 
+class NonvirtualStandin(HasPrecision, ManualMove):
+    parameter_overrides = {
+        'abslimits': Override(mandatory=False),
+        'unit':      Override(mandatory=False),
+    }
+
+
 class StandinSwitch(ManualSwitch):
     """Override to always return a warning state."""
 

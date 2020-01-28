@@ -225,12 +225,10 @@ class Axis(CanReference, AbstractAxis):
                 self._attached_motor).read(maxage) - self.offset
 
     def doPoll(self, i, maxage):
+        self._attached_motor.poll(i, maxage)
         if self._hascoder:
-            devs = [self._attached_coder, self._attached_motor] + \
-                self._attached_obs
-        else:
-            devs = [self._attached_motor] + self._attached_obs
-        for dev in devs:
+            self._attached_coder.poll(i, maxage)
+        for dev in self._attached_obs:
             dev.poll(i, maxage)
 
     def _getReading(self):
@@ -503,8 +501,9 @@ class Axis(CanReference, AbstractAxis):
             sleep(self.loopdelay)
             # poll accurate current values and status of child devices so that
             # we can use read() and status() subsequently
-            _status, pos = self.poll()
+            # always poll motor first!
             mstatus, mstatusinfo = self._attached_motor.status(0)
+            _status, pos = self.poll()
             if mstatus != status.BUSY:
                 # motor stopped; check why
                 if self._stoprequest == 1:

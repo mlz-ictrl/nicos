@@ -31,7 +31,7 @@ from __future__ import absolute_import, division, print_function
 
 from time import time as currenttime
 
-from nicos.core import MASTER, Param, status
+from nicos.core import MASTER, Param, status, MoveError
 from nicos.devices.tango import TimerChannel
 
 
@@ -72,9 +72,7 @@ class FPGATimerChannel(TimerChannel):
             if self._dev.value > 0:
                 return (status.OK, '')
             elif currenttime() > self.extwait + self.exttimeout:
-                self.log.error('timeout waiting for external start')
-                return (status.NOTREACHED,
-                        'timed out waiting for external start')
+                raise MoveError(self, 'timeout waiting for external start')
             return (status.BUSY, 'waiting for external start')
         else:
             return (status.OK, '')

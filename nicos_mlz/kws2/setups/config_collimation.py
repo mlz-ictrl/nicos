@@ -2,7 +2,7 @@ description = 'presets for the collimation guides and apertures'
 group = 'configdata'
 
 COLLIMATION_PRESETS = {
-    '4m (45x45)':  dict(guides=4,  ap_x=45, ap_y=45),
+    '4m (30x30)':  dict(guides=4,  ap_x=30, ap_y=30),
    #'4m (30x30)':  dict(guides=4,  ap_x=30, ap_y=30),
    # '4m GISANS (30x5)':  dict(guides=4,  ap_x=30, ap_y=5),
    #'8m (45x45)':  dict(guides=8,  ap_x=45, ap_y=45),

@@ -40,6 +40,8 @@ from nicos_mlz.devices.qmesydaqsinks import QMesyDAQSink
 
 class CopySinkHandler(DataSinkHandler):
 
+    _target = None
+
     def prepare(self):
         session.data.assignCounter(self.dataset)
         self._datafile = session.data.createDataFile(
@@ -49,6 +51,8 @@ class CopySinkHandler(DataSinkHandler):
         self._datafile.close()
 
     def end(self):
+        if self._target is None:  # prepare() not called
+            return
         image = self.detector._attached_images[0]
         if not hasattr(image, '_taco_guard'):
             return

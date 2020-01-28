@@ -18,15 +18,6 @@ group = 'special'
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
-#    dict(condition = 't_value > 100',
-#         message = 'Temperature too high',
-#         type = 'critical',
-#         action = 'maw(T, 0)',
-#        ),
-#    dict(condition = 'phi_value > 100 and mono_value > 1.5',
-#         message = 'phi angle too high for current mono setting',
-#         gracetime = 5,
-#        ),
     dict(condition = '( fugwatch_value == "on" and'
                      '  abs(t_setpoint - ts_value) > 1.5 )',
          type = 'default',
@@ -35,16 +26,34 @@ watchlist = [
          setup = 'highvoltage',
          action = 'maw(fug, 0)',
         ),
+    dict(condition = 'ccm8v_lhe_value < 30',
+         type = 'se',
+         setup = 'ccm8v',
+         message = '8T Magnet: He level below 30%',
+        ),
 ]
 
 includes = ['notifiers']
 
 notifiers = {
     'default': ['email'],
-    'critical': ['email', 'smser'],
+    'se': ['email', 'email_se'],
 }
 
 devices = dict(
+    email_se = device('nicos.devices.notifiers.Mailer',
+        sender = 'poli@frm2.tum.de',
+        copies = [
+            ('al.weber@fz-juelich.de', 'all'),
+            ('d.vujevic@fz-juelich.de', 'all'),
+            ('h.korb@fz-juelich.de', 'all'),
+            ('v.rubanskyi@fz-juelich.de', 'all'),
+        ],
+        subject = 'POLI SE',
+        mailserver = 'mailhost.frm2.tum.de',
+        private = True,
+    ),
+
     Watchdog = device('nicos.services.watchdog.Watchdog',
         cache = 'localhost:14869',
         notifiers = notifiers,

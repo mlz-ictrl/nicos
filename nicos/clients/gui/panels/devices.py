@@ -36,7 +36,7 @@ from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
 from nicos.guisupport.qt import QBrush, QByteArray, QColor, QComboBox, \
     QCursor, QDialog, QDialogButtonBox, QFont, QIcon, QInputDialog, QMenu, \
     QMessageBox, QPalette, QPushButton, QRegExp, Qt, QTreeWidgetItem, \
-    pyqtSignal, pyqtSlot
+    pyqtSignal, pyqtSlot, sip
 from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
 from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
 from nicos.pycompat import iteritems, itervalues, srepr, string_types
@@ -315,6 +315,11 @@ class DevicesPanel(Panel):
 
         for devname in devlist:
             self._create_device_item(devname)
+
+        # close all control dialogs for now nonexisting devices
+        for ldevname in list(self._control_dialogs):
+            if ldevname not in self._devitems:
+                self._control_dialogs[ldevname].close()
 
         # add all toplevel items to the tree, sorted
         for cat in self._catitems:
@@ -763,6 +768,15 @@ class ControlDialog(QDialog):
 
     def _reinit(self):
         classes = self.devinfo.classes
+
+        if sip.isdeleted(self.devitem):
+            # The item we're controlling has been removed from the list (e.g.
+            # due to client reconnect), get it again.
+            self.devitem = self.device_panel._devitems.get(self.devname.lower())
+            # No such device anymore...
+            if self.devitem is None:
+                self.close()
+                return
 
         self.deviceName.setText('Device: %s' % self.devname)
         self.setWindowTitle('Control %s' % self.devname)

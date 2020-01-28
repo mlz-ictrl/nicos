@@ -2,7 +2,7 @@ description = 'PANDA Heusler-analyzer'
 
 group = 'lowlevel'
 
-includes = ['monofoci', 'monoturm', 'panda_s7']
+includes = ['monofoci', 'monoturm', 'panda_mtt']
 
 extended = dict(dynamic_loaded = True)
 

@@ -319,5 +319,9 @@ class Device(MeasElement):
         return self._widget
 
     def _updateValue(self):
-        self.value = self._widget.getValue()
-        self.changed.emit(self.value)
+        try:
+            self.value = self._widget.getValue()
+        except Exception:
+            pass
+        else:
+            self.changed.emit(self.value)

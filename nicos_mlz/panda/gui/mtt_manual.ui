@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>470</width>
+    <height>473</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item row="5" column="2">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>-&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="3" colspan="2">
+    <widget class="DeviceValueEdit" name="mttEdit" native="true">
+     <property name="dev" stdset="0">
+      <string>mtt_raw</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="7">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Magnet:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Klinke CW:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Klinke CCW:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="6">
+    <widget class="QToolButton" name="mbStop">
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../resources/nicos-gui.qrc">
+       <normaloff>:/emergency</normaloff>:/emergency</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="6">
+    <widget class="QToolButton" name="mttStop">
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../resources/nicos-gui.qrc">
+       <normaloff>:/emergency</normaloff>:/emergency</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="2" colspan="5">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QToolButton" name="magOn">
+       <property name="text">
+        <string>on</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>10</width>
+         <height>2</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="magOff">
+       <property name="text">
+        <string>off</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>2</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="8" column="2" colspan="5">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QToolButton" name="cwOn">
+       <property name="text">
+        <string>on</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>10</width>
+         <height>2</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="cwOff">
+       <property name="text">
+        <string>off</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_6">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>2</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Manual mode:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="ValueLed" name="valueLed_2">
+     <property name="dev" stdset="0">
+      <string>mb_arm_magnet</string>
+     </property>
+     <property name="goal" stdset="0">
+      <string>&quot;on&quot;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="ValueLed" name="valueLed">
+     <property name="dev" stdset="0">
+      <string>opmode</string>
+     </property>
+     <property name="goal" stdset="0">
+      <string>&quot;manual mode&quot;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="7">
+    <widget class="QLabel" name="label">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Pandora manual control</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="ValueLed" name="valueLed_3">
+     <property name="dev" stdset="0">
+      <string>klinke_ccw</string>
+     </property>
+     <property name="goal" stdset="0">
+      <string>&quot;on&quot;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="ValueLed" name="valueLed_4">
+     <property name="dev" stdset="0">
+      <string>klinke_cw</string>
+     </property>
+     <property name="goal" stdset="0">
+      <string>&quot;on&quot;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>-&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="2" colspan="5">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QToolButton" name="ccwOn">
+       <property name="text">
+        <string>on</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>10</width>
+         <height>2</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="ccwOff">
+       <property name="text">
+        <string>off</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>2</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="2" colspan="5">
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QToolButton" name="modeOn">
+       <property name="text">
+        <string>on</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_8">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>10</width>
+         <height>2</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="modeOff">
+       <property name="text">
+        <string>off</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_7">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>2</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="5" column="3" colspan="2">
+    <widget class="DeviceValueEdit" name="mbEdit" native="true">
+     <property name="dev" stdset="0">
+      <string>mb_arm_raw</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="5">
+    <widget class="QToolButton" name="mttReset">
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../resources/nicos-gui.qrc">
+       <normaloff>:/undo</normaloff>:/undo</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="5">
+    <widget class="QToolButton" name="mbReset">
+     <property name="text">
+      <string>...</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../resources/nicos-gui.qrc">
+       <normaloff>:/undo</normaloff>:/undo</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="ValueDisplay" name="valueDisplay" native="true">
+     <property name="dev" stdset="0">
+      <string>mtt_raw</string>
+     </property>
+     <property name="name" stdset="0">
+      <string>mtt_raw:</string>
+     </property>
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="ValueDisplay" name="valueDisplay_2" native="true">
+     <property name="dev" stdset="0">
+      <string>mb_arm_raw</string>
+     </property>
+     <property name="name" stdset="0">
+      <string>mb_arm_raw:</string>
+     </property>
+     <property name="horizontal" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="7">
+    <widget class="QWidget" name="graphicsWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="margin">
+       <number>0</number>
+      </property>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ValueDisplay</class>
+   <extends>QWidget</extends>
+   <header>nicos.guisupport.display</header>
+  </customwidget>
+  <customwidget>
+   <class>ValueLed</class>
+   <extends>QLabel</extends>
+   <header>nicos.guisupport.led</header>
+  </customwidget>
+  <customwidget>
+   <class>DeviceValueEdit</class>
+   <extends>QWidget</extends>
+   <header>nicos.guisupport.typedvalue</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../../resources/nicos-gui.qrc"/>
+ </resources>
+ <connections/>
+</ui>

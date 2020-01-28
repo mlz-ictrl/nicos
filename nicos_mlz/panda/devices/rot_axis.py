@@ -203,10 +203,14 @@ class RotAxis(RefAxis):
     _wrapped = False
 
     parameters = {
-        'wraparound': Param('Axis wraps around above this value',
-                            type=float, default=360.),
+        'wraparound':   Param('Axis wraps around above this value',
+                              type=float, default=360.),
         'wrapwaittime': Param('Time to wait after wraparound', unit='s',
                               settable=True, type=float, default=0.),
+        'switchspan':   Param('Size of value range where switch is active',
+                              unit='main', settable=True, default=100),
+        'leaveswitchstep': Param('Stepsize when leaving switch', unit='main',
+                                 settable=True, default=3),
     }
 
     def doStart(self, target):
@@ -260,91 +264,68 @@ class RotAxis(RefAxis):
                                'maintenance mode!')
             return
 
+        # helper for DRY: check for ANY Refswitch
+        def refsw(motor):
+            st = motor.doStatus()[1].lower()
+            return 'limit switch' in st
+
         try:
-            # helper for DRY: check for ANY Refswitch
-            def refsw(motor):
-                return motor.doStatus()[1].lower().find('limit switch') > -1
-
-            # helper: wait until the motor HW is no longer busy
-            def wait_for_motor(m):
-                while m.doStatus()[0] == status.BUSY:
-                    session.delay(m._base_loop_delay)
-                m.poll()
-
             self.stop()  # make sure the axis code does not interfere
             self._referencing = True
             m = self._attached_motor
             oldspeed = m.speed
 
-            # figure out the final position (=current position or gotopos
-            # ,if gotopos is given)
+            # figure out the final position (=current position or gotopos,
+            # if gotopos is given)
             oldpos = self.doRead() if gotopos is None else gotopos
 
-            # Step 1a) change logical position to above self.wraparound
-            while m.doRead() < self.wraparound:
-                m.setPosition(m.doRead() + self.wraparound)
-                m.poll()
+            # Step 1a) change logical position to below self.wraparound
+            curpos = m.doRead(0)
+            while curpos > 0:
+                curpos -= self.wraparound
+            m.setPosition(curpos)
+            m.poll()
 
-            # Step 1b) Try to hit the refswitch by turning backwards in a fast
-            # way
-            self.log.info('Referencing: FAST Mode: find refswitch')
-            try:
-                m.doStart(m.doRead() - self.wraparound)
-            except NicosError:
-                # if refswitch is already active, doStart gives an exception
-                pass
-            # wait until a) refswitch fires or b) we did a complete turn
-            wait_for_motor(m)
             if not refsw(m):
-                self.log.warning('Referencing: No refswitch active after stop, '
-                                 'but continuing anyway...')
+                # Step 1b) Try to hit the refswitch going active
+                self.log.info('Referencing: FAST mode: find refswitch')
+                tries = int(self.wraparound/10 + 1)
+                while not refsw(m) and tries > 0:
+                    m.maw(m.doRead() + 10)
+                    tries -= 1
+                if tries == 0:
+                    self.log.error('Referencing: switch not found after '
+                                   '%.1f %s, exiting!', self.wraparound, self.unit)
+                    self.doStart(oldpos)
+                    return
 
-            # Step 2) Try find a position without refswitch active, but close
-            # to it.
-            tries = self.wraparound/10+1
-            self.log.info('Referencing: FAST Mode: looking for inactive '
-                          'refswitch')
-            while refsw(m) and tries > 0:
-                self.log.debug('Another %d 10 %s slots left to try',
-                               tries, self.unit)
-                # This should never fail unless something is broken
-                m.doStart(m.doRead() + 10)
-                wait_for_motor(m)
-                tries -= 1
-            if tries == 0:
-                self.log.error('Referencing: RefSwitch still active after '
-                               '%.1f %s, exiting!', self.wraparound, self.unit)
-                self.doStart(oldpos)
-                return
+                # Step 2) Go quickly some distance.
+                self.log.info('Referencing: FAST mode: skip some distance')
+                self.maw(m.doRead() + self.switchspan)
 
-            # Step 3) Now SLOWLY crowl onto the refswitch
+            # Step 3) Now SLOWLY crawl off the refswitch
             if self.refspeed:
                 m.speed = self.refspeed
-            tries = 7
-            self.log.info('Referencing: SLOW Mode: find refswitch')
-            while not(refsw(m)) and tries > 0:
-                self.log.debug('Another %d 3 %s slots left to try',
-                               tries, self.unit)
-                try:
-                    m.doStart(m.doRead() - 3)
-                except NicosError:
-                    # if refswitch is already active, doStart gives an
-                    # exception
-                    pass
-                wait_for_motor(m)
+            tries = int(360/self.leaveswitchstep)
+            self.log.info('Referencing: SLOW mode: find refswitch end')
+            while refsw(m) and tries > 0:
+                self.log.debug('at %f: another %d %f %s slots left to try',
+                               m.doRead(),
+                               tries, self.leaveswitchstep, self.unit)
+                m.maw(m.doRead() + self.leaveswitchstep)
                 tries -= 1
             m.stop()
             m.speed = oldspeed
             if tries == 0:
-                self.log.error('Referencing: RefSwitch still not active after '
-                               '%.1f %s, exiting!', self.wraparound, self.unit)
+                self.log.error('Referencing: refswitch still active after '
+                               '%.1f %s, exiting!', 360, self.unit)
                 self.doStart(oldpos)
                 return
 
             # Step 4) We are _at_ refswitch, motor stopped
             # => we are at refpos, communicate this to the motor
             self.poll()
-            self.log.info('Found Refswitch at %.1f, should have been at %.1f, '
+            self.log.info('Found refswitch at %.1f, should have been at %.1f, '
                           'lost %.2f %s',
                           m.doRead() % self.wraparound, self.refpos,
                           abs(m.doRead() % self.wraparound - self.refpos),
