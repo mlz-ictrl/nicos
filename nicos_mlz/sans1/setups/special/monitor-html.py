@@ -650,8 +650,20 @@ _cryos = Column(*tuple(cryos))
 _julabo = Column(
     Block('Julabo', [
         BlockRow(
-            Field(name='Intern', dev='T_julabo_intern'),
-            Field(name='Extern', dev='T_julabo_extern'),
+            Field(name='T Intern', dev='T_julabo_intern',
+                   format='%.2f', unit='C', width=14),
+        Field(name='Target Intern', key='T_julabo_intern/target',
+                   format='%.2f', unit='C', width=14),
+            Field(name='Setpoint Intern', key='T_julabo_intern/setpoint',
+                   format='%.2f', unit='C', width=14),
+        ),
+        BlockRow(
+            Field(name='T Extern', dev='T_julabo_extern',
+                   format='%.2f', unit='C', width=14),
+            Field(name='Target Extern', key='T_julabo_extern/target',
+                   format='%.2f', unit='C', width=14),
+            Field(name='Setpoint Extern', key='T_julabo_extern/setpoint',
+                   format='%.2f', unit='C', width=14),
         ),
         ],
         setups='julabo',
@@ -661,19 +673,87 @@ _julabo = Column(
 _julabo_plot = Column(
     Block('Julabo plot', [
         BlockRow(
-                 Field(plot='julabo 30min', name='T intern 30min',
-                       dev='T_julabo_intern', width=60, height=40,
+                 Field(plot='julabo 30min', name='Ts dil 30min',
+                       dev='Ts_dil', width=60, height=40,
                        plotwindow=1800),
-                 Field(plot='julabo 30min', name='T extern 30min',
-                       dev='T_julabo_extern'),
-                 Field(plot='julabo 12h', name='T intern 12h',
-                       dev='T_julabo_intern', width=60, height=40,
+                 Field(plot='julabo 30min', name='Ts dil 30min',
+                       dev='Ts_dil'),
+                 Field(plot='julabo 12h', name='Ts dil 12h',
+                       dev='Ts_dil', width=60, height=40,
                        plotwindow=12*3600),
-                 Field(plot='julabo 12h', name='T extern 12h',
-                       dev='T_julabo_extern'),
+                 Field(plot='julabo 12h', name='Ts dil 12h',
+                       dev='Ts_dil'),
         ),
         ],
         setups='julabo',
+    ),
+)
+
+_dilato = Column(
+    Block('Dilatometer', [
+        BlockRow(
+             Field(name='Temperature', dev='Ts_dil',
+                   format='%.2f', unit='C', width=14),
+             Field(name='Set Temp', dev='dil_set_temp',
+                   format='%.2f', unit='C', width=14),
+             ),
+        BlockRow(
+             Field(name='Length change', dev='dil_dl',
+                   format='%.2f', unit='um', width=14),
+             Field(name='Force', dev='dil_force',
+                   format='%.2f', unit='N', width=14),
+             ),
+        BlockRow(
+             Field(name='Power', dev='dil_power',
+                   format='%.2f', unit='%', width=14),
+             Field(name='Time', dev='dil_time',
+                   format='%.2f', unit='s', width=14),
+        ),
+        ],
+    setups='dilato',
+    ),
+)
+
+_dilato_plot = Column(
+    Block('Dilatometer plot temperature', [
+        BlockRow(
+                 Field(plot='30 min dil', name='30 min', dev='Ts_dil',
+                       width=60, height=40, plotwindow=1800),
+                 Field(plot='30 min dil', name='setpoint', dev='dil_set_temp',
+                       width=60, height=40, plotwindow=1800),
+                 Field(plot='12 h dil', name='12 h', dev='Ts_dil',
+                       width=60, height=40, plotwindow=12*3600),
+                 Field(plot='12 h dil', name='setpoint', dev='dil_set_temp',
+                       width=60, height=40, plotwindow=12*3600),
+        ),
+        ],
+        setups='dilato',
+    ),
+)
+
+_dilato_plot2 = Column(
+    Block('Dilatometer plot length change', [
+        BlockRow(
+                 Field(plot='30 min dil2', name='30 min', dev='dil_dl',
+                       width=60, height=40, plotwindow=1800),
+                 Field(plot='12 h dil2', name='12 h', dev='dil_dl',
+                       width=60, height=40, plotwindow=12*3600),
+        ),
+        ],
+        setups='dilato',
+    ),
+)
+
+_dilato_plot3 = Column(
+    Block('Dilatometer plot force', [
+        BlockRow(
+                 Field(plot='30 min dil3', name='30 min', dev='dil_force',
+                       width=60, height=40, plotwindow=1800),
+                 Field(plot='12 h dil3', name='12 h', dev='dil_force',
+                       width=60, height=40, plotwindow=12*3600),
+        ),
+        ],
+        setups='dilato',
     ),
 )
 
@@ -788,10 +868,12 @@ devices = dict(
                 _spinflipper, _ccrs, _cryos, _sc1, _sc2,
                 _sc_t, _ccmsanssc, _miramagnet, _amagnet,
                 _htf03, _htf01, _irf01, _irf10, _newports, _julabo,
-                _tisane_counts, _tisane_fc, _helios01, _wuts),
+                _tisane_counts, _tisane_fc, _helios01, _wuts, _dilato),
             Row(_ccmsans_plot, _ccm2a_plot, _ccr19_plot,
                 _htf03_plot, _irf01_plot, _irf10_plot, _htf01_plot, _julabo_plot,
-                _miramagnet_plot),
+                _miramagnet_plot, _dilato_plot),
+            Row(_dilato_plot2),
+            Row(_dilato_plot3),
             Row(_live),
         ],
     ),

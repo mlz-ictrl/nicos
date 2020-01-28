@@ -345,6 +345,86 @@ _ccmsans_plot = Block('SANS-1 5T Magnet plot', [
     setups='ccmsans',
 )
 
+_dilato = Block('Dilatometer', [
+    BlockRow(
+             Field(name='Temperature', dev='Ts_dil',
+                   format='%.2f', unit='C', width=16),
+             Field(name='Set Temp', dev='dil_set_temp',
+                   format='%.2f', unit='C', width=16),
+             ),
+    BlockRow(
+             Field(name='Length change', dev='dil_dl',
+                   format='%.2f', unit='um', width=16),
+             Field(name='Force', dev='dil_force',
+                   format='%.2f', unit='N', width=16),
+             ),
+    BlockRow(
+             Field(name='Power', dev='dil_power',
+                   format='%.2f', unit='%', width=16),
+             Field(name='Time', dev='dil_time',
+                   format='%.2f', unit='s', width=16),
+             ),
+    ],
+    setups='dilato',
+)
+
+_dilato_plot = Block('Dilatometer plot temperature', [
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=35, height=20, plotwindow=1800,
+              devices=['Ts_dil', 'dil_set_temp'],
+              names=['30min', 'Setpoint'],
+              legend=True,
+              ),
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=35, height=20, plotwindow=12*3600,
+              devices=['Ts_dil', 'dil_set_temp'],
+              names=['12h', 'Setpoint'],
+              legend=True,
+              ),
+        ),
+    ],
+    setups='dilato',
+)
+
+_dilato_plot2 = Block('Dilatometer plot length change', [
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=35, height=20, plotwindow=1800,
+              devices=['dil_dl'],
+              names=['30min'],
+              legend=True,
+              ),
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=35, height=20, plotwindow=12*3600,
+              devices=['dil_dl'],
+              names=['12h'],
+              legend=True,
+              ),
+        ),
+    ],
+    setups='dilato',
+)
+
+_dilato_plot3 = Block('Dilatometer plot force', [
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=35, height=20, plotwindow=1800,
+              devices=['dil_force'],
+              names=['30min'],
+              legend=True,
+              ),
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=35, height=20, plotwindow=12*3600,
+              devices=['dil_force'],
+              names=['12h'],
+              legend=True,
+              ),
+        ),
+    ],
+    setups='dilato',
+)
+
 _miramagnet = Block('MIRA 0.5T Magnet', [
     BlockRow(Field(name='Field', dev='B_miramagnet', width=12),
              Field(name='Target', key='B_miramagnet/target', width=12),
@@ -735,13 +815,18 @@ devices = dict(
                 Column(_htf01, _htf03, _irf01, _irf10, _ccm2a,
                        _ccmsans, _ccmsans_temperature,
                        _miramagnet, _amagnet,
-                       _sans1julabo),
+                       _sans1julabo, _dilato),
                 Column(_htf01_plot, _htf03_plot,
                        _irf01_plot, _irf10_plot,
-                       _spinflipper, _julabo_plot),
+                       _spinflipper, _julabo_plot,
+                       _dilato_plot),
                 Column(*ccrs) + Column(_birmag),
                 Column(*cryos),
                 Column(*wuts),
+            ),
+            Row(
+                Column(_dilato_plot2),
+                Column(_dilato_plot3),
             ),
             Row(
                 Column(_ccmsans_plot, _miramagnet_plot,
