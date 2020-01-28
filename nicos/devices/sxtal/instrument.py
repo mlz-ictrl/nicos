@@ -77,7 +77,6 @@ class SXTalBase(Instrument, Moveable):
         self.__dict__['l'] = SXTalIndex('l', unit='rlu', fmtstr='%.3f',
                                         index=2, lowlevel=True, sxtal=self)
         self._last_calpos = None
-        self._waiters = []
 
     def doShutdown(self):
         for name in ['h', 'k', 'l']:
@@ -181,11 +180,9 @@ class SXTalBase(Instrument, Moveable):
 
     def doStart(self, hkl):
         poslist = self._extractPos(self._calcPos(hkl))
-        self._waiters = []
         for (devname, devvalue) in poslist:
             dev = self._adevs[devname]
             dev.start(devvalue)
-            self._waiters.append(dev)
         # store the min and max values of h,k,l, and E for simulation
         self._sim_setValue(hkl)
 

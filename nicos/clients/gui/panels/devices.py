@@ -713,8 +713,9 @@ class DevicesPanel(Panel):
         return dlg
 
     def _control_dialog_closed(self, ldevname):
-        dlg = self._control_dialogs.pop(ldevname)
-        dlg.deleteLater()
+        dlg = self._control_dialogs.pop(ldevname, None)
+        if dlg:
+            dlg.deleteLater()
 
     # API shared with ControlDialog
 

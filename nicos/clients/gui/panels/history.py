@@ -769,6 +769,8 @@ class BaseHistoryWindow(object):
         (vtime, key, op, value) = data
         if key not in self.keyviews:
             return
+        if not value:
+            return
         value = cache_load(value)
         for view in self.keyviews[key]:
             view.newValue(vtime, key, op, value)
@@ -1090,9 +1092,13 @@ class HistoryPanel(BaseHistoryWindow, Panel):
         self.statusBar.setSizeGripEnabled(False)
         self.layout().addWidget(self.statusBar)
 
+        self._disconnected_since = 0
+
         self.splitter.setSizes([20, 80])
         self.splitter.restoreState(self.splitterstate)
         self.client.cache.connect(self.newvalue_callback)
+        self.client.disconnected.connect(self.on_client_disconnected)
+        self.client.connected.connect(self.on_client_connected)
 
     def setCustomStyle(self, font, back):
         self.user_font = font
@@ -1122,6 +1128,22 @@ class HistoryPanel(BaseHistoryWindow, Panel):
     def gethistory_callback(self, key, fromtime, totime):
         return self.client.ask('gethistory', key, str(fromtime), str(totime),
                                default=[])
+
+    def on_client_disconnected(self):
+        self._disconnected_since = currenttime()
+
+    def on_client_connected(self):
+        # If the client was disconnected for longer than a few seconds, refresh
+        # all open plots to avoid mysterious "flatlines" for that period.
+        if currenttime() - self._disconnected_since < 5:
+            return
+        old_views, self.viewStack = self.viewStack, []
+        for view in old_views:
+            info = view.dlginfo
+            row = self.clearView(view)
+            new_view = self._createViewFromDialog(info, row)
+            if new_view.plot.HAS_AUTOSCALE:
+                self._autoscale(True, False)
 
     @pyqtSlot()
     def on_actionAttachElog_triggered(self):

@@ -628,10 +628,10 @@ class TemperatureController(HasWindowTimeout, RampActuator):
     def doPoll(self, n, maxage):
         if self.ramp:
             self._pollParam('setpoint', 1)
-            self._pollParam('heateroutput', 1)
+        if n % 5 == 0:
+            self._pollParam('heateroutput', 5)
         if n % 30 == 0:
             self._pollParam('setpoint', 30)
-            self._pollParam('heateroutput', 30)
             self._pollParam('p')
             self._pollParam('i')
             self._pollParam('d')
