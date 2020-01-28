@@ -100,6 +100,12 @@ watchlist = [
          type = None,
          gracetime = 30,
     ),
+    dict(condition = 'chopper_waterflow_value < 3',
+         message = 'Low Waterflow for chopper!!!\nCheck filter and pressure knob!',
+         #type = 'critical',
+         type = None,
+         gracetime = 30,
+    ),
 ]
 
 
