@@ -44,8 +44,7 @@ from nicos.protocols.daemon import BREAK_NOW, DAEMON_COMMANDS, SIM_STATES, \
 from nicos.services.daemon.auth import AuthenticationError
 from nicos.services.daemon.script import RequestError, ScriptError, \
     ScriptRequest
-from nicos.services.daemon.utils import LoggerWrapper
-from nicos.utils.queues import SizedQueue
+from nicos.services.daemon.utils import LoggerWrapper, SizedQueue
 
 command_wrappers = {}
 

@@ -27,6 +27,7 @@
 import ast
 import linecache
 import logging
+import queue
 import re
 import sys
 import time
@@ -254,3 +255,26 @@ class ScriptQueue:
             if item.reqid == key:
                 return item
         raise IndexError
+
+
+# -- Size-limited queue (for event senders) ------------------------------------
+
+class SizedQueue(queue.Queue):
+    """A Queue that limits the total size of event messages"""
+    def _init(self, maxsize):
+        assert maxsize > 0
+        self.nbytes = 0
+        queue.Queue._init(self, maxsize)
+
+    def _qsize(self):
+        return self.nbytes
+
+    def _put(self, item):
+        # size of the queue item should never be zero, so add one
+        self.nbytes += len(item[1]) + 1
+        self.queue.append(item)
+
+    def _get(self):
+        item = self.queue.popleft()
+        self.nbytes -= len(item[1]) + 1
+        return item
