@@ -45,7 +45,7 @@ class ShutterCluster(HasTimeout, NamedDigitalOutput):
 
     CLOSED = 'closed'
     UPSTREAMCLOSED = 'upstream closed'
-    DOORCOPEN = 'closed but door open'
+    DOOROPEN = 'closed but door open'
     CHAINOPEN = 'closed but chain open'
     CLOSEDSTATES = [CLOSED, UPSTREAMCLOSED]
 
@@ -123,10 +123,11 @@ class ShutterCluster(HasTimeout, NamedDigitalOutput):
         upstream, instrument = self.getCurrentShutterState()
         chains = self.getCurrentChainState()
 
-        if instrument and upstream == self._allUpstreamOpen:
-            return status.OK, ''
-        elif not instrument:
-            if self._attached_door.read() != 'closed':
+        if instrument:
+            if upstream == self._allUpstreamOpen:
+                return status.OK, ''
+        else:
+            if self._attached_door.read() != 'yes':
                 return status.WARN, 'door open'
             elif not chains:
                 return status.OK, 'shutter closed'

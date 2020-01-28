@@ -423,7 +423,7 @@ class UYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
                 row.append(self._cache.get(self.sink.envcontroller, 'value',
                                            mintime=histo.tval))
                 # env.setp (1)
-                row.append(self._cache.get(self.sink.setpointdev, 'value',
+                row.append(self._cache.get(self.sink.envcontroller, 'setpoint',
                                            mintime=histo.tval))
                 # direct timesteps (1)
                 row.append(int(sum(histo.t_open) / len(histo.t_open)))
@@ -432,8 +432,7 @@ class UYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
                 # elastic timesteps (1)
                 row.append(int(sum(histo.t_refl) / len(histo.t_refl)))
                 # elastic counts (16)
-                counts = [int(value) for value in histo.c_refl]
-                row += counts
+                row += [int(value) for value in histo.c_refl]
 
                 histogram.append(self._flowlist(row))
 

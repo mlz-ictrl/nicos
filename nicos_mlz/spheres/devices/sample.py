@@ -28,6 +28,8 @@ Devices to control the sample environment at SPHERES
 
 from __future__ import absolute_import, division, print_function
 
+from time import time as currenttime
+
 from nicos import session
 from nicos.core import SIMULATION, oneof
 from nicos.core.params import Attach, Param, tangodev
@@ -49,11 +51,13 @@ class SEController(tango.TemperatureController):
     }
 
     parameters = {
-        'tubeoffset': Param('Keep tube this many degrees below the setpoint.',
-                            volatile=True, settable=True),
+        'tubeoffset':  Param('Keep tube this many degrees below the setpoint.',
+                             volatile=True, settable=True),
         'samplestick': Param('Sample stick currently in use',
                              type=oneof('lt', 'ht'),
-                             volatile=True, settable=True)
+                             volatile=True, settable=True),
+        'devtarget':   Param('Target of the underlying tango device',
+                             volatile=True)
     }
 
     def rushTemperature(self, temperature):
@@ -64,7 +68,6 @@ class SEController(tango.TemperatureController):
             return
 
         self._dev.RushTemperature(temperature)
-        self._setROParam('target', temperature)
 
     def _combinedStatus(self, maxage=0):
         state = tango.TemperatureController.doStatus(self, maxage)
@@ -88,6 +91,37 @@ class SEController(tango.TemperatureController):
 
     def doWriteSamplestick(self, value):
         self._dev.sample_stick = value
+
+    def doReadDevtarget(self):
+        if not self._dev:
+            return None
+        return self._dev.target
+
+    def isAtTarget(self, val):
+        ct = currenttime()
+        self._cacheCB('value', val, ct)
+        if self.devtarget is None:
+            return True
+
+        # check subset of _history which is in window
+        # also check if there is at least one value before window
+        # to know we have enough datapoints
+        hist = self._history[:]
+        window_start = ct - self.window
+        hist_in_window = [v for (t, v) in hist if t >= window_start]
+        stable = all(abs(v - self.devtarget) <= self.precision
+                     for v in hist_in_window)
+        if 0 < len(hist_in_window) < len(hist) and stable:  # pylint: disable=len-as-condition
+            if hasattr(self, 'doIsAtTarget'):
+                return self.doIsAtTarget(val)
+            return True
+        return False
+
+    def doIsAtTarget(self, pos):
+        target = self.devtarget
+        if target is None:
+            return True
+        return abs(target - pos) <= self.precision
 
 
 class PressureController(tango.TemperatureController):

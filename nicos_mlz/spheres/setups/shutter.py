@@ -32,13 +32,13 @@ devices = dict(
             0b110: 'closed: 6-fold',
         },
         chainstatemapping = {
-            0b110: 'chain1 open',
-            0b101: 'chain2 open',
-            0b100: 'open chains: 1 and 2',
-            0b011: 'chain_stairs open',
-            0b010: 'open chains: 1 and stairs ',
-            0b001: 'open chains: 2 and stairs',
-            0b000: 'all chains open',
+            0b001: 'chain1 open',
+            0b010: 'chain2 open',
+            0b011: 'open chains: 1 and 2',
+            0b100: 'chain_stairs open',
+            0b101: 'open chains: 1 and stairs ',
+            0b110: 'open chains: 2 and stairs',
+            0b111: 'all chains open',
         }
     ),
 )

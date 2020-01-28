@@ -89,8 +89,8 @@ devices = dict(
     cct6_setpoint = device('nicos.devices.generic.paramdev.ReadonlyParamDevice',
         description = 'Device to display the setpoint parameter of the '
         'temperature controller',
-        device = 'c_temperature',
-        parameter = 'target',
+        device = 'cct6_c_temperature',
+        parameter = 'devtarget',
         unit = 'K'
     ),
 )
