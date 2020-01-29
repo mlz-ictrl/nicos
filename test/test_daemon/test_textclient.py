@@ -32,6 +32,7 @@ import mock
 
 from nicos.clients.cli import NicosCmdClient, main as cli_main
 from nicos.protocols.daemon import STATUS_IDLE, STATUS_RUNNING
+from nicos.utils import nocolor
 
 from test.utils import daemon_addr
 
@@ -176,4 +177,5 @@ def test_textclient(daemon):
     CmdClient.interact = dialog(CmdClient.test_output,
                                 CmdClient.test_signals)
     with mock.patch('nicos.clients.cli.NicosCmdClient', CmdClient):
+        nocolor()
         cli_main(['', 'guest:guest@' + daemon_addr])
