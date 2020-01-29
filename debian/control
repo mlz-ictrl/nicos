@@ -19,6 +19,7 @@ Depends: python (>= 2.7),
  python-psutil (>= 0.4),
  python-rsa,
  python-six,
+ python-lttb,
  nicos-pyctl,
  nicos-quickyaml
 Description: NICOS core system
