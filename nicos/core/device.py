@@ -1310,12 +1310,13 @@ class Waitable(Readable):
     def _getWaiters(self):
         """Return a list (or adev-style dict) of all waiter adevs.
 
-        "Waiter" adevs are the subdevices whose status must become leave BUSY
-        when waiting on self.
+        "Waiter" adevs are the subdevices whose status must leave BUSY when
+        waiting on self.
 
         By default, this includes *all* adevs (of which the non-waitables are
-        removed), but can be overridden to remove some waitable devices as well,
-        in case they are only used read-only.
+        removed), but can be overridden to remove some waitable devices as
+        well, in case they are not important to determine the status of this
+        device.
         """
         return self._adevs
 
