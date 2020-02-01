@@ -32,7 +32,7 @@ import PyTango
 
 from nicos import session
 from nicos.core import Attach, Moveable, NicosTimeoutError, Override, Param, \
-    dictof, status, tupleof
+    dictof, status, tupleof, usermethod
 from nicos.devices.epics import EpicsAnalogMoveable, EpicsReadable
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
 from nicos.devices.generic.switcher import Switcher
@@ -72,14 +72,18 @@ class HVSwitcher(Switcher):
     def doStart(self, target):
         # on start, also set all configured parameters
         if target == 'on' and self.read() != 'on':
-            import epics
-            for epicsid, pvs in iteritems(self.pv_values):
-                for pvname, pvvalue in pvs:
-                    fullpvname = '%s:%s_W' % (epicsid, pvname)
-                    self.log.debug('setting %s = %s' % (fullpvname, pvvalue))
-                    epics.caput(fullpvname, pvvalue)
-            session.delay(2)
+            self.transferSettings()
         Switcher.doStart(self, target)
+
+    @usermethod
+    def transferSettings(self):
+        import epics
+        for epicsid, pvs in iteritems(self.pv_values):
+            for pvname, pvvalue in pvs:
+                fullpvname = '%s:%s_W' % (epicsid, pvname)
+                self.log.debug('setting %s = %s' % (fullpvname, pvvalue))
+                epics.caput(fullpvname, pvvalue)
+        session.delay(2)
 
 
 class MultiHV(BaseSequencer):
