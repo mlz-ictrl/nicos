@@ -26,7 +26,8 @@
 """NICOS GUI single cmdlet command input."""
 
 from os import path
-from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
+from nicos.clients.gui.cmdlets import get_priority_sorted_categories, \
+    get_priority_sorted_cmdlets
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, modePrompt
 from nicos.guisupport.qt import QAction, QApplication, QKeyEvent, QMenu, Qt, \
@@ -78,7 +79,7 @@ class CommandPanel(Panel):
         for module in modules:
             importString(module)  # should register cmdlets
 
-        for cmdlet in all_cmdlets:
+        for cmdlet in get_priority_sorted_cmdlets():
             action = QAction(cmdlet.name, self)
 
             def callback(on, cmdlet=cmdlet):
@@ -86,7 +87,7 @@ class CommandPanel(Panel):
             action.triggered.connect(callback)
             self.mapping.setdefault(cmdlet.category, []).append(action)
 
-        for category in all_categories[::-1]:
+        for category in get_priority_sorted_categories()[::-1]:
             if category not in self.mapping:
                 continue
             toolbtn = QToolButton(self)

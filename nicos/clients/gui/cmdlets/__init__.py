@@ -623,20 +623,100 @@ class NewSample(Cmdlet):
         return 'NewSample(%(samplename)r)' % self.getValues()
 
 
-all_cmdlets = []
-all_categories = []
+all_cmdlets = {}
+all_categories = {}
 
 
-def register(cmdlet):
-    # allow overriding cmdlets with subclasses
-    for i, old in enumerate(all_cmdlets):
-        if issubclass(cmdlet, old):
-            all_cmdlets[i] = cmdlet
-            break
-    else:
-        all_cmdlets.append(cmdlet)
-    if cmdlet.category not in all_categories:
-        all_categories.append(cmdlet.category)
+def register(cmdlet, priority=None, cat_priority=None):
+    """Register cmdlets to the pool of commandlets.
+
+    * ``priority`` (default None) -- the lower this is the further up in the
+    category the cmdlet will be listed. Within the same priority the cmdlets
+    are kept in insertion order. If a cmdlet of a subclass is registered the
+    old cmdlet is overridden, if it has the same priority. If the priority
+    differs it is moved to the end of the new priority.
+    Default priority is treated as the priority of the parent class or 100 if
+    there is no parent class registered yet.
+
+    * ``cat_priority`` (default None) -- register_category will be called with
+    this value.
+    """
+
+    # search for commandlet or a parent class
+    for prio, cmdlets in all_cmdlets.items():
+        for i, old in enumerate(cmdlets):
+            if issubclass(cmdlet, old):
+                # replace if priority is the same
+                if prio == priority or priority is None:
+                    all_cmdlets[priority][i] = cmdlet
+                    register_category(cmdlet.category, cat_priority)
+                    return
+                # remove to add to the right priority later
+                cmdlets.pop(i)
+
+    if priority is None:
+        priority = 100
+
+    # actually register the commandlet
+    all_cmdlets.setdefault(priority, []).append(cmdlet)
+    register_category(cmdlet.category, cat_priority)
+
+
+def deregister(cmdlet):
+    for entry in all_cmdlets.values():
+        if cmdlet in entry:
+            entry.remove(cmdlet)
+            return
+
+
+def register_category(category, priority=None):
+    """Register the category in the pool of cmdlet categories.
+
+    * ``priority`` (default None) -- the lower this is the further to the left
+    the category will be listed in the script- and cmdbuilder. Within one
+    priority the insertion order is kept. If the category already exists in a
+    different priority it is moved to the end of the new priority.
+    Defaults to 100 if omitted and the category does not exist yet.
+    """
+
+    # check if the category already exists
+    for prio, categories in all_categories.items():
+        for i, old in enumerate(categories):
+            if category == old:
+                # already in the right priority
+                if prio == priority or priority is None:
+                    return
+                # remove to add to the right priority later
+                categories.pop(i)
+                break
+
+    if priority is None:
+        priority = 100
+
+    # actually register the category
+    all_categories.setdefault(priority, []).append(category)
+
+
+def get_priority_sorted_cmdlets():
+    """Get a list of cmdlets which is ordered by priority and insertion order.
+    This list is not sorted by categories.
+    """
+    cmdlets = []
+
+    for key in sorted(all_cmdlets.keys()):
+        cmdlets += all_cmdlets[key]
+
+    return cmdlets
+
+
+def get_priority_sorted_categories():
+    """Get a list of all categories sorted by priority and insertion order."""
+    categories = []
+
+    for key in sorted(all_categories.keys()):
+        categories += all_categories[key]
+
+    return categories
 
 
 for cmdlet in [Move, Count, Scan, CScan, TimeScan, ContScan,
