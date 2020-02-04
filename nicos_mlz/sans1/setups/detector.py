@@ -129,8 +129,7 @@ devices = dict(
         fmtstr = '%.1f',
         lowlevel = True,
     ),
-#    det1_z = device('nicos.devices.generic.LockedDevice',
-    det1_z = device('nicos_mlz.sans1.devices.hv.LockedDevice',
+    det1_z = device('nicos_mlz.sans1.devices.detector.DetectorTranslation',
         description =
         'detector 1 z position interlocked with high voltage supply',
         device = 'det1_z_ax',
@@ -141,7 +140,6 @@ devices = dict(
         fmtstr = '%.0f',
         maxage = 120,
         pollinterval = 15,
-        precision = 0.1,
     ),
     # det1_z_ax = device('nicos.devices.taco.Axis',
     #     description = 'detector 1 z axis',
