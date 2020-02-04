@@ -157,6 +157,12 @@ _tableblock = Block('Sample table', [
     ]
 )
 
+_samplerotationblock = Block('Sample rotation', [
+    BlockRow(Field(dev='sth')),
+    ],
+    setups='newport1*',
+)
+
 _slitblock = Block('Sample slit', [
     BlockRow(Field(dev='slit', istext=True, width=24, name='Slit'))
     ],
@@ -193,6 +199,7 @@ _col2 = Column(
     _biofurnaceblock,
     _pressureblock,
     _magnetblock,
+    _samplerotationblock,
 )
 
 _col3 = Column(
