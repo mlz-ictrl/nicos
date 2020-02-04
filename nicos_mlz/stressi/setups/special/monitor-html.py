@@ -58,7 +58,8 @@ _measurement = Column(
         BlockRow(Field(dev='pst'),
                  Field(dev='psz'),
                  Field(dev='psw'),
-                 Field(dev='psh'),),
+                 Field(dev='psh'),
+                 Field(dev='psx'),)
     ],
     setups = 'primaryslit*',
     ),
