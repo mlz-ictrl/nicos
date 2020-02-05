@@ -3,7 +3,7 @@ description = 'STRESS-SPEC setup with Huber Eulerian cradle'
 group = 'basic'
 
 includes = [
-    'system', 'mux', 'monochromator', 'detector',
+    'system', 'monochromator', 'detector',
     'sampletable', 'primaryslit', 'slits', 'reactor'
 ]
 

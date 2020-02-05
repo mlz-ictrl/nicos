@@ -3,7 +3,7 @@ description = 'STRESS-SPEC setup with robot'
 group = 'basic'
 
 includes = [
-    'system', 'mux', 'monochromator', 'detector',
+    'system', 'monochromator', 'detector',
     'primaryslit', 'slits', 'reactor'
 ]
 
