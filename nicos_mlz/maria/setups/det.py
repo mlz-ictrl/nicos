@@ -33,7 +33,7 @@ devices = dict(
     LiveViewSink = device("nicos.devices.datasinks.LiveViewSink",
         description = "Sends image data to LiveViewWidget",
     ),
-    detimg = device("nicos_mlz.jcns.devices.detector.ImageChannel",
+    detimg = device("nicos.devices.tango.ImageChannel",
         description = "Denex detector image",
         tangodevice = tango_base + "fastcomtec/detector",
         fmtstr="%d cts",

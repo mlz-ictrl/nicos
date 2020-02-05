@@ -28,7 +28,7 @@ devices = dict(
             countbasename + ".gz",
         ],
     ),
-    detimg = device("nicos_mlz.jcns.devices.detector.ImageChannel",
+    detimg = device("nicos.devices.tango.ImageChannel",
         description = "Denex detector image",
         tangodevice = tango_base + "/denex/det",
         size = (32, 32),

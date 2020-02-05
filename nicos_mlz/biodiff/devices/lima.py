@@ -35,7 +35,7 @@ class PyDs_PythonError(CommunicationError):
 
 
 # TODO: Remove code duplication and fix MRO issues when inheriting
-#       from `nicos_mlz.jcns.devices.detector.ImageChannel` and
+#       from `nicos.devices.tango.ImageChannel` and
 #       `BaseAndor2LimaCCD` which both inherit from `ImageChannelMixin`
 class Andor2LimaCCD(BaseAndor2LimaCCD):
     """Andor SDK2 based camera which returns sum of all counts."""

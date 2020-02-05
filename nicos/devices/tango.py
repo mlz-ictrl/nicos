@@ -44,6 +44,7 @@ from nicos.core import SIMULATION, ArrayDesc, CanDisable, CommunicationError, \
     HasPrecision, HasTimeout, InvalidValueError, Moveable, NicosError, \
     Override, Param, ProgrammingError, Readable, Value, dictof, floatrange, \
     intrange, listof, nonemptylistof, oneof, oneofdict, status, tangodev
+from nicos.core.constants import FINAL, SLAVE
 from nicos.core.mixins import HasOffset, HasWindowTimeout
 from nicos.devices.abstract import CanReference, Coder, Motor as NicosMotor
 from nicos.devices.generic.detector import ActiveChannel, \
@@ -922,7 +923,7 @@ class CounterChannel(CounterChannelMixin, DetectorChannel):
         return self._dev.value
 
 
-class ImageChannel(ImageChannelMixin, DetectorChannel):
+class BaseImageChannel(ImageChannelMixin, DetectorChannel):
     """
     Detector channel for delivering images.
     """
@@ -981,7 +982,25 @@ class ImageChannel(ImageChannelMixin, DetectorChannel):
         return self._dev.value.reshape(self.arraydesc.shape)
 
 
-class TOFChannel(ImageChannel):
+class ImageChannel(BaseImageChannel):
+    """Image channel that automatically returns the sum of all counts."""
+
+    def doInit(self, mode):
+        BaseImageChannel.doInit(self, mode)
+        if mode != SLAVE:
+            self.readArray(FINAL)  # update readresult at startup
+
+    def doReadArray(self, quality):
+        narray = BaseImageChannel.doReadArray(self, quality)
+        self.readresult = [narray.sum()]
+        return narray
+
+    def valueInfo(self):
+        return Value(name=self.name, type='counter', fmtstr='%d',
+                     errors='sqrt', unit='cts'),
+
+
+class TOFChannel(BaseImageChannel):
     """
     Image channel with Time-of-flight related attributes.
     """
