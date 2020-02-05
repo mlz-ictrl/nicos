@@ -108,8 +108,10 @@ def test_functions():
     assert formatDuration(4) == '4 seconds'
     assert formatDuration(154, precise=False) == '3 min'
     assert formatDuration(154, precise=True) == '2 min, 34 sec'
+    assert formatDuration(7199) == '2 h, 0 min'
     assert formatDuration(3700) == '1 h, 2 min'
     assert formatDuration(24 * 3600 + 7240, precise=False) == '1 day, 2 h'
+    assert formatDuration(48 * 3600 - 1) == '2 days, 0 h'
 
     assert bitDescription(0x5,
                           (0, 'a'),
