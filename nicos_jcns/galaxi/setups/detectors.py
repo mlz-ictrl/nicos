@@ -55,7 +55,7 @@ devices = dict(
         detectors = ['pilatus'],
         filenametemplate = [
             '%(session.experiment.users)s_'
-            '%(session.experiment.sample.samplename)s_'
+            '%(session.experiment.sample.filename)s_'
             '%(scancounter)s.%(pointnumber)s.tif',
         ],
     ),

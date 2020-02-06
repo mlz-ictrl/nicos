@@ -218,6 +218,6 @@ class DNSFileSink(ImageSink):
                                               '%(proposal)s'
                                               '%(pointcounter)010d'
                                               '%(session.experiment.sample.'
-                                              'samplename)s.d_dat'],
+                                              'filename)s.d_dat'],
                                      ),
     }

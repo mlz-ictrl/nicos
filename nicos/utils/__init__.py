@@ -235,10 +235,19 @@ def formatDuration(secs, precise=True):
         else:
             est = '%s min' % int(secs / 60. + 0.5)
     elif secs < 86400:
-        est = '%s h, %s min' % (int(secs / 3600.), int((secs % 3600) / 60. + 0.5))
+        hrs = int(secs / 3600.)
+        mins = int((secs % 3600) / 60. + 0.5)
+        if mins == 60:
+            hrs += 1
+            mins = 0
+        est = '%s h, %s min' % (hrs, mins)
     else:
-        est = '%s day%s, %s h' % (_s(secs // 86400) +
-                                  (int((secs % 86400) / 3600. + 0.5),))
+        days = int(secs / 86400.)
+        hrs = int((secs % 86400) / 3600. + 0.5)
+        if hrs == 24:
+            days += 1
+            hrs = 0
+        est = '%s day%s, %s h' % (_s(days) + (hrs,))
     return est
 
 
