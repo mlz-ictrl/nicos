@@ -51,6 +51,8 @@ windows = [
            panel('nicos.clients.gui.panels.scans.ScansPanel')),
     window('History', 'find',
            panel('nicos.clients.gui.panels.history.HistoryPanel')),
+    window('Live data', 'live',
+           panel('nicos.clients.gui.panels.live.LiveDataPanel')),
     window('Logbook', 'table',
            panel('nicos.clients.gui.panels.elog.ELogPanel')),
     window('Log files', 'table',

@@ -16,7 +16,6 @@ devices = dict(
     # ),
     LiveViewSink = device('nicos.devices.datasinks.LiveViewSink',
         description = 'Sends image data to LiveViewWidget',
-        filenametemplate=[],
     ),
     mon1 = device('nicos.devices.generic.VirtualCounter',
         description = 'QMesyDAQ Counter0',
