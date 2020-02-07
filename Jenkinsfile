@@ -47,7 +47,7 @@ builders = pipeline_builder.createBuilders { container ->
       pip install --user -r ${project}/requirements.txt
       pip install --user -r ${project}/requirements-dev.txt
       pip install --user -r ${project}/requirements-gui.txt
-      pip install --user pyepics pillow kafka-python flatbuffers
+      pip install --user pyepics pillow kafka-python flatbuffers pvapy PyQt5-sip PyQt5 h5py
     """
   } // stage
 
@@ -56,6 +56,7 @@ builders = pipeline_builder.createBuilders { container ->
     container.sh """
       ${python} --version
       cd ${project}
+      export NICOS_QT=5
       ${python} -m pytest --junitxml=${test_output}
     """
     container.copyFrom("${project}/${test_output}", ".")
