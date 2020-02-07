@@ -27,16 +27,16 @@ import time
 import kafka
 import numpy as np
 
-from nicos.core import ArrayDesc, Override, Param, Value, floatrange, oneof, \
-    status, tupleof
-
+from nicos.core import ArrayDesc, Override, Param, Value, status, tupleof, \
+    oneof, floatrange
 from nicos.core.constants import LIVE
 from nicos.core.device import Measurable
-
+from nicos.pycompat import iteritems
 import nicos_ess.devices.fbschemas.hs00.ArrayDouble as ArrayDouble
 import nicos_ess.devices.fbschemas.hs00.EventHistogram as EventHistogram
 from nicos_ess.devices.fbschemas.hs00.Array import Array
 from nicos_ess.devices.kafka.consumer import KafkaSubscriber
+from nicos_ess.devices.kafka.status_handler import KafkaStatusHandler
 
 
 def get_schema(buf):
@@ -141,12 +141,12 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         'source': Param('The number of bins to histogram into', type=str,
                         default='', userparam=True, settable=True,
                         ),
-        'curstatus': Param('Store the current device status',
+        'curstatus': Param('Store the current device status', internal=True,
                            type=tupleof(int, str), default=(status.OK, ''),
-                           settable=True, internal=True,
+                           settable=True,
                            ),
-        'unique_id': Param('Store the current identifier', type=str,
-                           default='', settable=True, internal=True,
+        'unique_id': Param('Store the current identifier', internal=True,
+                           type=str, default='', settable=True,
                            ),
         'liveinterval': Param('Interval to read out live images',
                               type=floatrange(0), default=1, unit='s',
@@ -271,3 +271,41 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
 
     def arrayInfo(self):
         return ArrayDesc('data', shape=(self.num_bins,), dtype=np.float64),
+
+
+class JustBinItStatus(KafkaStatusHandler):
+    parameters = {
+        'statustopic': Param('Kafka topic where status messages are written',
+                             type=str, settable=False, preinit=True,
+                             mandatory=True, userparam=False),
+        'statusinterval': Param('Expected time (secs) interval for the status '
+                                'message updates',
+                                type=int, default=5, settable=True,
+                                userparam=False, internal=True),
+        'curstatus': Param('Store the current device status',
+                           internal=True, type=tupleof(int, str),
+                           settable=True, ),
+        'nextupdate': Param('Time when the next message is expected', type=int,
+                            internal=True, settable=True)
+    }
+
+    def doPreinit(self, mode):
+        super(JustBinItStatus, self).doPreinit(mode)
+
+    def new_messages_callback(self, messages):
+        json_messages = {}
+        for timestamp, msg in iteritems(messages):
+            try:
+                js = json.loads(msg)
+                json_messages[timestamp] = js
+                self._setROParam('statusinterval',
+                                 js['message_interval'] // 1000)
+                next_update = time.time() + self.statusinterval
+                if next_update > self.nextupdate:
+                    self._setROParam('nextupdate', next_update)
+            except Exception:
+                self.log.warning('Could not decode message from status topic.')
+
+        if json_messages:
+            self._setROParam('curstatus', (status.OK, 'Connected'))
+            self._status_update_callback(json_messages)
