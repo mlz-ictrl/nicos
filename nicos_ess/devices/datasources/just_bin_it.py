@@ -135,6 +135,9 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         'det_width': Param('The width in pixels of the detector', type=int,
                            default=10, userparam=True, settable=True
                            ),
+        'det_height': Param('The height in pixels of the detector', type=int,
+                           default=10, userparam=True, settable=True
+                           ),
         'num_bins': Param('The number of bins to histogram into', type=int,
                           default=50, userparam=True, settable=True,
                           ),
@@ -223,6 +226,7 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
                     'det_range': list(self.det_range),
                     'num_bins': self.num_bins,
                     'width': self.det_width,
+                    'height': self.det_height,
                     'topic': self.hist_topic,
                     'source': self.source,
                     'id': identifier,
