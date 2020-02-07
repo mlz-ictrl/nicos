@@ -91,21 +91,33 @@ class KafkaSubscriber(DeviceMixinBase):
     def _get_new_messages(self):
         while not self._stoprequest:
             sleep(self._long_loop_delay)
-            assignment = self._consumer.assignment()
+
             messages = {}
-            end = self._consumer.end_offsets(list(assignment))
-            for p in assignment:
-                while self._consumer.position(p) < end[p]:
-                    msg = next(self._consumer)
-                    messages[msg.timestamp] = msg.value
+            data = self._consumer.poll(5)
+            for records in data.values():
+                for record in records:
+                    messages[record.timestamp] = record.value
 
             if messages:
                 self.new_messages_callback(messages)
+            else:
+                self.no_messages_callback()
 
     def new_messages_callback(self, messages):
-        """This method is called whenever a new messages appear on
-        the topic. The subclasses should define this method if
-        a callback is required when new messages appear.
+        """Called whenever a new message appear on the topic.
+
+        Subclasses should override this method if they want to process the
+        messages.
+
         :param messages: dict of timestamp and raw message
         """
         pass
+
+    def no_messages_callback(self):
+        """Called when no new messages appear on the topic.
+
+        Subclasses should override this method if they want to do something
+        when there are no messages.
+        """
+        pass
+
