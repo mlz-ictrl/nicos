@@ -6,11 +6,10 @@ sysconfig = dict(
     cache='localhost',
     instrument=None,
     experiment='Exp',
-    datasinks=['conssink', 'filesink', 'daemonsink', 'jbi_liveview',
-               'NexusDataSink'],
+    datasinks=['conssink', 'filesink', 'daemonsink', 'jbi_liveview'],
 )
 
-modules = ['nicos.commands.standard', 'nicos_ess.commands.epics']
+modules = ['nicos.commands.standard', 'nicos_ess.commands.epics', 'nicos_ess.v20.commands.filewriter']
 
 devices = dict(
     Skeleton=device('nicos.devices.instrument.Instrument',
@@ -20,7 +19,7 @@ devices = dict(
                     ),
 
     Sample=device('nicos.devices.sample.Sample',
-                  description='The currently used sample',
+                  description='The current used sample',
                   ),
 
     Exp=device('nicos.devices.experiment.Experiment',
@@ -47,7 +46,7 @@ devices = dict(
                  ),
 
     det=device('nicos_ess.devices.datasources.just_bin_it.JustBinItDetector',
-               description="The just-bin-it histogrammer", hist_topic="nicos1",
+               description="The just-bin-it histogrammer", hist_topic="just-bin-it",
                data_topic="LOQ_events", brokers=["172.30.242.20:9092"],
                unit="evts", command_topic="hist_commands"),
 
@@ -61,7 +60,8 @@ devices = dict(
         cmdtopic="UTGARD_writerCommand",
         status_provider='NexusFileWriter',
         templatesmodule='nicos_ess.essiip.nexus.nexus_templates',
-        templatename='essiip_default'
+	templatename='essiip_default',
+	start_fw_file='/opt/nexus_templates/gareth.json'
     ),
 
     NexusFileWriter=device(
@@ -70,7 +70,15 @@ devices = dict(
         brokers=["172.30.242.20:9092"],
         statustopic="UTGARD_writerStatus",
     ),
-
+    KafkaForwarder=device(
+        'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
+        description="Configures commands to forward-epics-to-kafka",
+        cmdtopic="UTGARD_forwarderConfig",
+        statustopic="UTGARD_forwarderStatus",
+        instpvtopic="",
+        instpvschema='f142',
+        brokers=["172.30.242.20:9092"],
+    ),
 )
 
 startupcode = "SetDetectors(det)"
