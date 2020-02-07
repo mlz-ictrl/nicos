@@ -7,10 +7,7 @@ project = "nicos"
 python = "python3.6"
 
 container_build_nodes = [
-//  'centos7': ContainerBuildNode.getDefaultContainerBuildNode('centos7'),
   'centos7-release': ContainerBuildNode.getDefaultContainerBuildNode('centos7'),
-//  'debian9': ContainerBuildNode.getDefaultContainerBuildNode('debian9'),
-//  'ubuntu1804': ContainerBuildNode.getDefaultContainerBuildNode('ubuntu1804')
 ]
 
 
@@ -44,10 +41,13 @@ builders = pipeline_builder.createBuilders { container ->
 
   pipeline_builder.stage("${container.key}: Dependencies") {
     def conan_remote = "ess-dmsc-local"
+    // If we all install all of NICOS requirements then we hit some problems.
+    // As a workaround we are more stricit on what is installed.
     container.sh """
       pip install --user -r ${project}/requirements.txt
       pip install --user -r ${project}/requirements-dev.txt
       pip install --user -r ${project}/requirements-gui.txt
+      pip install --user pyepics pillow kafka-python flatbuffers
     """
   } // stage
 
