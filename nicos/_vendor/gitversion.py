@@ -71,7 +71,7 @@ def get_nicos_version(abbrev=4):
     elif release_version:
         return release_version
     else:
-        raise ValueError('Cannot find a version number!')
+        return 'Cannot find a version number!'
 
 
 if __name__ == "__main__":
