@@ -58,9 +58,7 @@ class NexusFileWriterStatus(KafkaStatusHandler):
     """ Device to read the file writing status from the kafka status
     topic. All new messages appearing on the status topic are read
     from a thread and the status is updated accordingly.
-
     In the context of file writing, dataset goes through following life-cycle:
-
     ISSUED: The job has been issued to the file writer (notified from sink)
     START: File writer has started writing the file (notified from FileWriter)
     (may be) FAIL: File writer failed to write (notified from FileWriter)
@@ -72,6 +70,10 @@ class NexusFileWriterStatus(KafkaStatusHandler):
     parameters = {
         'timeout': Param('Maximum waiting time for a job to start/close (sec)',
                          type=int, default=90),
+        'statusinterval': Param('Expected time (secs) interval for the status '
+                                'message updates',
+                                type=int, default=5, settable=True,
+                                userparam=False, internal=True),
     }
 
     def doInit(self, mode):
@@ -144,46 +146,36 @@ class NexusFileWriterStatus(KafkaStatusHandler):
                 self._on_fail(jobid, dset, msg)
 
     def new_messages_callback(self, messages):
-        self._check_timeouts()
-        KafkaStatusHandler.new_messages_callback(self, messages)
+        json_messages = {}
+        for timestamp, msg in iteritems(messages):
+            try:
+                js = json.loads(msg)
+                json_messages[timestamp] = js
+                if 'next_message_eta_ms' in js:
+                    self._setROParam('statusinterval',
+                                     js['next_message_eta_ms'] // 1000)
+                next_update = time.time() + self.statusinterval
+                if next_update > self.nextupdate:
+                    self._setROParam('nextupdate', next_update)
+            except Exception:
+                self.log.warning('Could not decode message from status topic.')
+
+        if json_messages:
+            self._status_update_callback(json_messages)
 
     def _status_update_callback(self, messages):
-        # *messages* is a dict of timestamp and message in JSON format
         # Loop and read all the new interesting messages
+        running_jobs = []
         for _, message in sorted(iteritems(messages)):
-            # Find a valid message
-            msgkeys = ['type', 'job_id', 'code']
-            if not set(msgkeys).issubset(set(message.keys())) \
-                    or message['type'] != 'filewriter_event' \
-                    or message['job_id'] not in self._tracked_datasets:
-                continue
-
-            jobid = message['job_id']
-            dataset = self._tracked_datasets[jobid]
-            jobstate = message['code'].upper()
-            jobmsg = message.get('message', '')
-
-            if jobstate == 'START':
-                self._on_start(jobid, dataset)
-            elif jobstate == 'FAIL':
-                self._on_fail(jobid, dataset, jobmsg)
-            elif jobstate == 'ERROR':
-                self._on_error(jobid, dataset, jobmsg)
-            elif jobstate == 'CLOSE':
-                self._on_close(jobid, dataset)
-
-        # Update the status
-        writing = []
-        for jobid in self._started:
-            if jobid in self._tracked_datasets:
-                writing.append('#%d' % self._tracked_datasets[jobid].counter)
-
-        if writing:
-            stat = status.BUSY, 'Writing %s' % ', '.join(writing)
-            # Finally set the status in cache for it to appear on GUI
-            self._setROParam('curstatus', stat)
-        else:
-            self._setROParam('curstatus', (status.OK, 'Listening...'))
+            if "files" in message:
+                if len(message["files"]) == 0:
+                    self._setROParam('curstatus', (status.OK, 'Listening...'))
+                else:
+                    for k in message["files"].keys():
+                        running_jobs.append(k)
+                    msg = ", #".join(sorted(running_jobs))
+                    stat = status.BUSY, "Writing: #" + msg
+                    self._setROParam('curstatus', stat)
 
 
 class NexusFileWriterSinkHandler(DataSinkHandler):
@@ -306,12 +298,10 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
     time, brokers and the nexus structure. The details are provided
     in the github repository of the FileWriter:
     https://github.com/ess-dmsc/kafka-to-nexus
-
     Topic on which the FileWriter accepts the commands is given by the
     parameter *cmdtopic*. The module containing various nexus templates
     is provided using the parameter *templatesmodule*. A default template
     can be chosen from these nexus templates using the parameter *templatename*
-
     Rules for the template:
     * Groups should be represented as: <group_name>:<NX_class> in the keys
     * NX_class should be one of the standard NeXus groups
@@ -320,7 +310,6 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
     * Attribute value can either be numerical or instance of class NXattribute
     * Detector event streams are marked using the class EventStream
     * Device values that are to be streamed are marked with DeviceStream
-
     Example template:
     template = {
         "entry1:NXentry": {

@@ -118,3 +118,4 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
         :param messages: dict of timestamp and message in JSON format
         """
         pass
+

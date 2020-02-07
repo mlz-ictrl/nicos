@@ -104,9 +104,20 @@ class KafkaSubscriber(DeviceMixinBase):
                 self.no_messages_callback()
 
     def new_messages_callback(self, messages):
-        """This method is called whenever a new messages appear on
-        the topic. The subclasses should define this method if
-        a callback is required when new messages appear.
+        """Called whenever a new message appear on the topic.
+
+        Subclasses should override this method if they want to process the
+        messages.
+
         :param messages: dict of timestamp and raw message
         """
         pass
+
+    def no_messages_callback(self):
+        """Called when no new messages appear on the topic.
+
+        Subclasses should override this method if they want to do something
+        when there are no messages.
+        """
+        pass
+
