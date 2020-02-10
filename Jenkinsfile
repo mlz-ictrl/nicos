@@ -60,8 +60,7 @@ builders = pipeline_builder.createBuilders { container ->
       ${python} -m pytest --junitxml=${test_output}
     """
     container.copyFrom("${project}/${test_output}", ".")
-    xunit thresholds: [failed(unstableThreshold: '2')], tools: [JUnit(deleteOutputFiles: true, failIfNotNew: true, pattern: '*.xml', skipNoTestFiles: false, stopProcessingIfError: true)]
-
+    xunit thresholds: [failed(unstableThreshold: '2')], tools: [JUnit(deleteOutputFiles: true, pattern: '*.xml', skipNoTestFiles: false, stopProcessingIfError: true)]
   } // stage
 
 }  // createBuilders
