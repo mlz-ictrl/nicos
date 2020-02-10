@@ -47,7 +47,7 @@ builders = pipeline_builder.createBuilders { container ->
       pip install --user -r ${project}/requirements.txt
       pip install --user -r ${project}/requirements-dev.txt
       pip install --user -r ${project}/requirements-gui.txt
-      pip install --user pyepics pillow kafka-python flatbuffers pvapy PyQt5-sip PyQt5 h5py PyYAMLgit
+      pip install --user pyepics pillow kafka-python flatbuffers pvapy PyQt5-sip PyQt5 h5py PyYAML
     """
   } // stage
 
@@ -60,8 +60,9 @@ builders = pipeline_builder.createBuilders { container ->
       ${python} -m pytest --junitxml=${test_output}
     """
     container.copyFrom("${project}/${test_output}", ".")
-    junit "${test_output}"
-    xunit thresholds: [failed(unstableThreshold: '2')], tools: []
+    step([$class: 'XUnitBuilder',
+    thresholds: [[$class: 'FailedThreshold', unstableThreshold: '2']],
+    tools: [[$class: 'JUnitType', pattern: "${test_output}"]]])
 
   } // stage
 
