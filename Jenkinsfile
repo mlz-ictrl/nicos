@@ -41,6 +41,11 @@ builders = pipeline_builder.createBuilders { container ->
 
   pipeline_builder.stage("${container.key}: Dependencies") {
     def conan_remote = "ess-dmsc-local"
+    if (env.BRANCH_NAME == 'master') {
+      container.sh """
+        git checkout ess_master
+      """
+    }
     // If we all install all of NICOS requirements then we hit some problems.
     // As a workaround we are more stricit on what is installed.
     container.sh """
