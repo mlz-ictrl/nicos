@@ -61,6 +61,7 @@ builders = pipeline_builder.createBuilders { container ->
     """
     container.copyFrom("${project}/${test_output}", ".")
     junit "${test_output}"
+    xunit thresholds: [failed(unstableThreshold: '2')], tools: []
 
   } // stage
 
