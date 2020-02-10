@@ -82,12 +82,13 @@ class TestSinks(object):
         caressfile = path.join(session.experiment.datapath, 'm200000043.dat')
         assert path.isfile(caressfile)
 
-    @pytest.mark.skip(reason="Fails on ESS Jenkins")
+    @pytest.mark.skipif(not (quickyaml or yaml),
+                        reason='QuickYAML/PyYAML libraries missing')
     def test_yaml_file_exist(self, session):
         yamlfile = path.join(session.experiment.datapath, 'm200000043.yaml')
         assert path.isfile(yamlfile)
 
-    @pytest.mark.skip(reason="Fails on ESS Jenkins")
+    @pytest.mark.skipif(not yaml, reason='PyYAML library missing')
     def test_yaml_file_content(self, session):
         yamlfile = path.join(session.experiment.datapath, 'm200000043.yaml')
 
