@@ -9,7 +9,7 @@ sysconfig = dict(
     datasinks=['conssink', 'filesink', 'daemonsink', 'jbi_liveview'],
 )
 
-modules = ['nicos.commands.standard', 'nicos_ess.commands.epics', 'nicos_ess.v20.commands.filewriter']
+modules = ['nicos.commands.standard', 'nicos_ess.commands.epics', 'nicos_ess.essiip.commands.filewriter']
 
 devices = dict(
     Skeleton=device('nicos.devices.instrument.Instrument',
