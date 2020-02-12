@@ -14,6 +14,8 @@ devices = dict(
         warnlimits = (11000, 22000),
         abslimits = (0, 26000),
         precision = 10,
+        lowlevel = True,
+        requires = {'level': 'admin'}
     ),
     selector_lambda = device('nicos.devices.vendor.astrium.SelectorLambda',
         description = 'Selector wavelength control',
@@ -24,6 +26,7 @@ devices = dict(
         length = 0.25,
         beamcenter = 0.115,
         maxspeed = 28300,
+        requires = {'level': 'admin'}
     ),
     selector_rtemp = device('nicos.devices.tango.AnalogInput',
         description = 'Temperature of the selector rotor',
