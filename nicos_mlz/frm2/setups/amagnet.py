@@ -5,7 +5,6 @@ group = 'plugplay'
 includes = ['alias_B']
 
 tango_base = 'tango://%s:10000/box/' % setupname
-tango_base = 'tango://amagnet.antares.frm2:10000/box/'
 
 devices = dict(
     # monitoring devices
