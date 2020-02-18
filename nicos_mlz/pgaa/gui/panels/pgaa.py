@@ -342,7 +342,7 @@ class Row(QWidget):
         # ('started': StartCell),
         # ('stopped': StartCell),
     ])
-    column_order = par2cell.keys()
+    column_order = list(par2cell.keys())
 
     def __init__(self, parent=None, data=None):
         QWidget.__init__(self, parent=parent)
@@ -443,7 +443,7 @@ class Measurement(BasicScriptHandler, Row):
 
     def get_script(self):
         script = self.basic_script
-        for key in self.data.iterkeys():
+        for key in self.data:
             script = script.replace(
                 '__%s__' % key.replace('/', '_').replace(' ', '_'),
                 '%s' % self.data[key])
@@ -486,8 +486,8 @@ class QueuedMeasurement(Measurement):
         script_text = request['script']
         self._client = client
         Measurement.__init__(self, parent=parent, init_script=script_text)
-        atAfterCell = self.widgets[self.par2cell.keys().index('at/after')]
-        condCell = self.widgets[self.par2cell.keys().index('stop by')]
+        atAfterCell = self.widgets[self.column_order.index('at/after')]
+        condCell = self.widgets[self.column_order.index('stop by')]
         condCell.setValue(self.data['stop_by'])
         atAfterCell.condCellChanged(self.data['stop_by'])
         atAfterCell.setValue(self.data['at_after'])
@@ -520,7 +520,7 @@ class QueuedMeasurement(Measurement):
             return
         new_data = self.extract_data(newreq['script'])
         self.data.update(new_data)
-        for key in new_data.iterkeys():
+        for key in new_data:
             k = key
             if k == 'at_after':
                 k = 'at/after'
@@ -548,7 +548,7 @@ class Log(Row):
         # ('Code': StatusCell),
         # ('Comment': StatusCell),
     ])
-    column_order = par2cell.keys()
+    column_order = list(par2cell.keys())
 
     def __init__(self, data, controller, parent=None):
         self.stop_cond_cells = {}
