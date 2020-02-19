@@ -439,6 +439,8 @@ class Measurement(BasicScriptHandler, Row):
                     self.data['at_after'] = it.value(item.value())
             self.data['stop_by'] = item.value()
         else:
+            if info == 'at/after':
+                info = 'at_after'
             self.data[info] = item.value()
 
     def get_script(self):
