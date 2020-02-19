@@ -3,12 +3,7 @@ description = 'STRESS-SPEC setup with Huber Eulerian cradle plus small xyz table
 group = 'basic'
 
 includes = [
-    'system', 'eulerian_huber', 'mux', 'monochromator', 'detector',
-    'sampletable', 'primaryslit', 'slits', 'reactor'
-]
-
-excludes = [
-    'eulerian_newport', 'eulerian_tensile', 'robot', 'primaryslit_huber'
+    'eulerian_huber',
 ]
 
 sysconfig = dict(

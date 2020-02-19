@@ -3,11 +3,9 @@ description = 'STRESS-SPEC setup with sample table'
 group = 'basic'
 
 includes = [
-    'system', 'mux', 'sampletable', 'monochromator', 'detector', 'primaryslit',
-    'slits', 'reactor'
+    'standard',
+    'sampletable',
 ]
-
-excludes = ['robot']
 
 sysconfig = dict(
     datasinks = ['caresssink'],

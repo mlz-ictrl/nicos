@@ -2,7 +2,11 @@ description = 'Perform shape of sample scanning'
 
 group = 'basic'
 
-includes = ['sampletable', 'sick', 'system']
+includes = [
+    'standard',
+    'sampletable',
+    'sick',
+]
 
 sysconfig = dict(
     datasinks = ['contoursink'],

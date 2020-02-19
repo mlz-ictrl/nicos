@@ -3,13 +3,10 @@ description = 'STRESS-SPEC setup with robot'
 group = 'basic'
 
 includes = [
-    'system', 'mux', 'monochromator', 'detector',
-    'primaryslit', 'slits', 'reactor'
+    'standard',
 ]
 
-excludes = ['stressi']
-
-modules = ['nicos.commands.standard', 'nicos_mlz.stressi.commands']
+modules = ['nicos_mlz.stressi.commands']
 
 sysconfig = dict(
     datasinks = ['caresssink'],

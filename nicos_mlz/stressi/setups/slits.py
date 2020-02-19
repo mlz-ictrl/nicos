@@ -1,28 +1,10 @@
-description = 'Primary slit CARESS HWB Devices'
+description = 'Primary slit devices'
 
 group = 'lowlevel'
 
-# servername = 'VME'
-# nameservice = 'stressictrl.stressi.frm2'
 tango_base = 'tango://motorbox01.stressi.frm2.tum.de:10000/box/'
 
-includes = ['mux']
-
 devices = dict(
-    # slitm_w = device('nicos.devices.vendor.caress.MuxMotor',
-    #     description = 'HWB SLITM_W',
-    #     fmtstr = '%.2f',
-    #     unit = 'mm',
-    #     coderoffset = 0,
-    #     abslimits = (0, 100),
-    #     nameserver = '%s' % nameservice,
-    #     objname = '%s' % servername,
-    #     config = 'SLITM_W 39 3 1 10 100.0 20 80',
-    #     lowlevel = True,
-    #     pollinterval = 60,
-    #     maxage = 90,
-    #     mux = 'mux',
-    # ),
     slitm_w_m = device('nicos.devices.tango.Motor',
         tangodevice = tango_base + 'channel5/motor',
         fmtstr = '%.2f',
@@ -34,20 +16,6 @@ devices = dict(
         precision = 0.1,
         lowlevel = True,
     ),
-    # slitm_h = device('nicos.devices.vendor.caress.MuxMotor',
-    #     description = 'HWB SLITM_H',
-    #     fmtstr = '%.2f',
-    #     unit = 'mm',
-    #     coderoffset = 0,
-    #     abslimits = (0, 155),
-    #     nameserver = '%s' % nameservice,
-    #     objname = '%s' % servername,
-    #     config = 'SLITM_H 39 3 1 11 100.0 20 80',
-    #     lowlevel = True,
-    #     pollinterval = 60,
-    #     maxage = 90,
-    #     mux = 'mux',
-    # ),
     slitm_h_m = device('nicos.devices.tango.Motor',
         tangodevice = tango_base + 'channel6/motor',
         fmtstr = '%.2f',
@@ -66,19 +34,6 @@ devices = dict(
         pollinterval = 60,
         maxage = 90,
     ),
-    # slite = device('nicos.devices.vendor.caress.MuxMotor',
-    #     description = 'HWB SLITE',
-    #     fmtstr = '%.2f',
-    #     unit = 'mm',
-    #     coderoffset = 0,
-    #     abslimits = (0, 70),
-    #     nameserver = '%s' % nameservice,
-    #     objname = '%s' % servername,
-    #     config = 'SLITM_E 39 3 1 12 100.0 20 80',
-    #     pollinterval = 60,
-    #     maxage = 90,
-    #     mux = 'mux',
-    # ),
     slitm_e_m = device('nicos.devices.tango.Motor',
         tangodevice = tango_base + 'channel7/motor',
         fmtstr = '%.2f',

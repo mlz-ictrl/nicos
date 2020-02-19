@@ -73,7 +73,7 @@ devices = {
         tangodevice = tango_base + 'ips/current',
     ),
     '%s_vti_regulation' % setupname: device('nicos.devices.tango.NamedDigitalOutput',
-        description = 'heater setting for VTI',
+        description = 'automatic regulation type for VTI temperature control',
         tangodevice = tango_base + 'itc2/vti_regulation',
         mapping = dict(none = 0, heater = 1, valve = 2, both = 3),
     ),
