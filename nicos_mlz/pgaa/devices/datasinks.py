@@ -24,9 +24,10 @@
 
 """PGAA specific data sink(s)."""
 
-import csv
 from array import array
+from csv import DictWriter
 from datetime import datetime
+from io import FileIO, TextIOWrapper
 from os import path
 
 from nicos import session
@@ -35,7 +36,7 @@ from nicos.core.constants import FINAL, POINT
 from nicos.core.data.sink import DataSinkHandler
 from nicos.core.errors import NicosError
 from nicos.devices.datasinks import FileSink
-from nicos.utils import File
+from nicos.utils import enableDisableFileItem
 
 __all__ = ('MCASink', 'CHNSink', 'CSVDataSink')
 
@@ -134,30 +135,31 @@ class MCASinkHandler(PGAASinkHandler):
     def _write_file(self, addinfo, livetime, truetime, spectrum, ecalslope,
                     ecalintercept):
         tb_time = array('i', [int(self.dataset.started)])
-        tb_fill = array('h', [0, 0, 0])
+        tb_fill = array('h', [0, 0, 0])  # millitm, timezone, dstflag
         timeb = [tb_time, tb_fill]
 
         # Type elap:
         el_time = array('i', [int(livetime * 100), int(truetime * 100)])
-        el_fill_1 = array('i', [0])
-        el_fill_2 = array('d', [0])
+        el_fill_1 = array('i', [0])  # sweeps
+        el_fill_2 = array('d', [0])  # comp
         elap = [el_time, el_fill_1, el_fill_2]
 
         # Type xcal:
         ec_fill_1 = array('f', [0, ecalslope, ecalintercept])
         # !! exchange sinkinfo with preset when scan command is used
-        unit = array('c', '{:<5}'.format(''))
-        ec_fill_2 = array('c', '\t\t\t')
+        unit = array('b', '{:<5}'.format('').encode())  # empty unit
+        ec_fill_2 = array('b', '\t\t\t'.encode())  # unittype, cformat, corder
         xcal = [ec_fill_1, unit, ec_fill_2]
 
         # Type mcahead:
-        mc_fill = array('h', [0, 1, 0])
-        mc_fill2 = array('i', [0])
+        mc_fill = array('h', [0, 1, 0])  # readtype, mca number, readregion
+        mc_fill2 = array('i', [0])  # tag no
 
-        spectr_name = array('c', '{:<26}'.format(addinfo.get('Name', '')[:26]))
-        mc_fill3 = array('h', [0])
-        filler = array('h', [0 for _i in range(19)])
-        nchans = array('h', [16384])
+        spectr_name = array(
+            'b', '{:<26}'.format(addinfo.get('Name', '')[:26]).encode())
+        mc_fill3 = array('h', [0])  # acq mode
+        filler = array('h', [0 for _i in range(19)])  # filler
+        nchans = array('h', [16384])  # number of channels
         filedata = [mc_fill, mc_fill2, spectr_name, mc_fill3]
         filedata.extend(timeb)
         filedata.extend(elap)
@@ -185,18 +187,20 @@ class CHNSinkHandler(PGAASinkHandler):
         mustbe = array('h', [-1])
         detnumber = array('h', [1 if addinfo['Prefix'] == 'P' else 3])
         segmentnumber = array('h', [0])
-        seconds = array('c', '{:2}'.format(datetime.fromtimestamp(
-            int(self.dataset.started)).strftime('%S')))
-        self.log.debug('started: {:2}'.format(datetime.fromtimestamp(
-            int(self.dataset.started)).strftime('%S')))
+        s = '{:2}'.format(
+            datetime.fromtimestamp(int(self.dataset.started)).strftime('%S'))
+        seconds = array('b', s.encode())
+        self.log.debug('started: %s', s)
         truetime = array('i', [int(truetime * 50)])
         livetime = array('i', [int(livetime * 50)])
-        startdate = array('c', '{:8}'.format(datetime.fromtimestamp(
-            int(self.dataset.started)).strftime('%d%b%y1')))
-        self.log.debug('started: {:8}'.format(datetime.fromtimestamp(
-            int(self.dataset.started)).strftime('%d%b%y1')))
-        starttime = array('c', '{:4}'.format(datetime.fromtimestamp(
-            int(self.dataset.started)).strftime('%H%M')))
+        s = '{:8}'.format(
+            datetime.fromtimestamp(int(self.dataset.started)).strftime(
+                '%d%b%y1'))
+        startdate = array('b', s.encode())
+        s = '{:4}'.format(
+            datetime.fromtimestamp(int(self.dataset.started)).strftime('%H%M'))
+        starttime = array('b', s.encode())
+
         channeloffset = array('h', [0])
         numchannels = array('h', [16384])
         filedata = [mustbe, detnumber, segmentnumber, seconds, truetime,
@@ -215,12 +219,12 @@ class CHNSinkHandler(PGAASinkHandler):
         peakshapecalzero = array('f', [1.0])
         peakshapecalslope = array('f', [0.0])
         peakshapecalquadr = array('f', [0.0])
-        reserved = array('c', '{:228}'.format(''))
-        detdesclen = array('c', '{:1}'.format('1'))
-        detdesc = array('c', '{:63}'.format('d'))
-        sampledesclen = array('c', '{:1}'.format('1'))
-        sampledesc = array('c', '{:63}'.format('s'))
-        res2 = array('c', '{:128}'.format(''))
+        reserved = array('b', '{:228}'.format('').encode())
+        detdesclen = array('b', '{:1}'.format('1').encode())
+        detdesc = array('b', '{:63}'.format('d').encode())
+        sampledesclen = array('b', '{:1}'.format('1').encode())
+        sampledesc = array('b', '{:63}'.format('s').encode())
+        res2 = array('b', '{:128}'.format('').encode())
 
         filedata += [mustbes, res1, ecalzero, ecalslope, ecalquadr,
                      peakshapecalzero, peakshapecalslope, peakshapecalquadr,
@@ -262,13 +266,21 @@ class CHNSink(PGAASink):
     handlerclass = CHNSinkHandler
 
 
-class CSVDataFile(File):
+class CSVDataFile(TextIOWrapper):
     """Represents a csv data file."""
 
-    def __init__(self, shortpath, filepath):
+    def __init__(self, shortpath, filepath, filemode=None, logger=None):
+        TextIOWrapper.__init__(self, FileIO(filepath, 'a'))
         self.shortpath = shortpath
         self.filepath = filepath
-        File.__init__(self, filepath, 'a')
+        self._log = logger
+        self._filemode = filemode
+
+    def close(self):
+        TextIOWrapper.close(self)
+        if self._filemode is not None:
+            enableDisableFileItem(self.filepath, self._filemode,
+                                  logger=self._log)
 
 
 class CSVSinkHandler(DataSinkHandler):
@@ -328,19 +340,19 @@ class CSVSinkHandler(DataSinkHandler):
         if 'Comment' not in addinfo:
             addinfo['Comment'] = self.dataset.preset.get('info', '')
 
-        fname = path.basename(self.dataset.filenames[0])
-        addinfo['Filename'] = fname[1:fname.rfind(path.extsep)]
-
-        self.dataset.preset['FILENAME'] = addinfo['Filename']
-
         with self.manager.createDataFile(self.dataset, self._template,
                                          self.sink.subdir,
                                          fileclass=CSVDataFile) as fp:
-            self.log.debug('appending csv file: %s', fp.name)
+            fname = path.basename(self.dataset.filenames[0])
+            addinfo['Filename'] = fname[1:fname.rfind(path.extsep)]
+            self.dataset.preset['FILENAME'] = addinfo['Filename']
+
             fieldnames = ('Filename', 'Attenuator', 'ElCol', 'Beam', 'started',
                           'cond', 'value', 'stopped', 'Detectors', 'Pressure')
-            writer = csv.DictWriter(fp, fieldnames=fieldnames,
-                                    extrasaction='ignore')
+            writer = DictWriter(fp, fieldnames=fieldnames,
+                                extrasaction='ignore')
+            if not fp.tell():
+                writer.writeheader()
             writer.writerow(addinfo)
 
         # add some members to the datase to fake the point dataset as a scan
