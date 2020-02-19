@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2018 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -31,6 +31,8 @@ from operator import itemgetter
 from string import ascii_lowercase  # pylint: disable=W0402
 
 import pytest
+
+pytest.importorskip('kafka')
 
 from nicos.core import status
 from nicos.pycompat import from_utf8

@@ -33,6 +33,8 @@ import time
 import numpy
 import pytest
 
+pytest.importorskip('kafka')
+
 from nicos_ess.devices.fbschemas.hs00 import Array, EventHistogram
 from nicos_ess.devices.kafka.area_detector import \
     HistogramFlatbuffersDeserializer

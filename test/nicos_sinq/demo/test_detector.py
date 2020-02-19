@@ -32,6 +32,9 @@ import time
 
 import numpy
 import pytest
+
+pytest.importorskip('kafka')
+
 from epics import PV
 
 from nicos.core import CommunicationError, status
