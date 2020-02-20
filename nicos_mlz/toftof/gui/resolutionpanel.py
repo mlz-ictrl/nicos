@@ -247,11 +247,12 @@ class ResolutionPanel(NicosWidget, Panel):
     @pyqtSlot('QAbstractButton *')
     def createScript(self, button):
         if self.buttonBox.standardButton(button) == QDialogButtonBox.Apply:
-            s = ['maw(chWL, %.2f)' % self.waveLength.value()]
+            maw = ['chWL, %.2f' % self.waveLength.value()]
+            maw.append('chRatio, %d' % self.ratio.value())
+            maw.append('chSpeed, %d' % self.speed.value())
+            s = ['maw(%s)' % ', '.join(maw)]
             if self.client.user_level == ADMIN:
                 s.append('maw(chST, %d)' % self.slits.currentIndex())
-            s.append('maw(chRatio, %d)' % self.ratio.value())
-            s.append('maw(chSpeed, %d)' % self.speed.value())
             script = '\n'.join(s)
             # print(script)
             self.client.run(script, noqueue=False)
