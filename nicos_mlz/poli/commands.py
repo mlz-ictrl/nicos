@@ -223,7 +223,7 @@ def centerpeak(*args, **kwargs):
                 fit_center, fit_ampl, _fit_fwhm, fit_bkgd = params
                 if math.isnan(fit_center) or \
                    not (minvalue <= fit_center <= maxvalue) or \
-                   fit_ampl < fit_bkgd:
+                   fit_ampl < 0.5 * fit_bkgd:
                     maw(dev, center)
                     session.log.error('Gaussian peak too small, or center '
                                       'outside scanning area')
