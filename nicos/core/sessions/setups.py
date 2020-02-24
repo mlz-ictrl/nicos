@@ -68,15 +68,15 @@ class Column(HasChildren, MonitorElement):
         if isinstance(other, tuple):
             return Column(*(self._children + other))
         elif isinstance(other, Column):
-            Column(*(self._children + other._children))
-        return self
+            return Column(*(self._children + other._children))
+        return NotImplemented
 
     def __radd__(self, other):
         if isinstance(other, tuple):
             return Column(*(other + self._children))
         elif isinstance(other, Column):
             return Column(*(other._children + self._children))
-        return self
+        return NotImplemented
 
 
 class Block(HasChildren, MonitorElement):
