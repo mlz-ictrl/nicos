@@ -86,8 +86,8 @@ class ResiExperiment(Experiment):
                 cycle, _started = queryCycle()
                 kwds['cycle'] = cycle
             except Exception:
-                self.log.error('cannot query reactor cycle, please give a '
-                               '"cycle" keyword to this function')
+                self.log.warning('cannot query reactor cycle, please give a '
+                                 '"cycle" keyword to this function')
         self.cycle = kwds['cycle']
 
         # checks are done, set the new experiment

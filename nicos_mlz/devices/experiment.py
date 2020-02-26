@@ -67,11 +67,11 @@ class Experiment(BaseExperiment):
                     cycle, _started = queryCycle()
                     kwds['cycle'] = cycle
                 except Exception:
-                    self.log.error('cannot query reactor cycle', exc=1)
+                    self.log.warning('cannot query reactor cycle', exc=1)
                     kwds['cycle'] = 'unknown_cycle'
             else:
-                self.log.error('cannot query reactor cycle, please give a '
-                               '"cycle" keyword to this function')
+                self.log.warning('cannot query reactor cycle, please give a '
+                                 '"cycle" keyword to this function')
                 kwds['cycle'] = 'unknown_cycle'
         self.cycle = kwds['cycle']
         if self.proptype == 'user':
