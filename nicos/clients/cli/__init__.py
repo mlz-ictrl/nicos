@@ -42,7 +42,7 @@ import time
 from collections import OrderedDict
 from logging import DEBUG, ERROR, FATAL, INFO, WARNING
 from os import path
-from time import localtime, strftime
+from time import localtime, strftime, time as currenttime
 from uuid import uuid1
 
 from html2text import HTML2Text
@@ -51,7 +51,7 @@ from nicos.clients.base import ConnectionData, NicosClient
 from nicos.clients.cli.txtplot import txtplot
 from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \
-    STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK
+    SIM_STATES, STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK
 from nicos.protocols.daemon.classic import DEFAULT_PORT
 from nicos.pycompat import configparser, iteritems, to_encoding
 from nicos.utils import colorize, formatDuration, formatEndtime, \
@@ -149,6 +149,8 @@ class NicosCmdClient(NicosClient):
         self.simuuid = ''
         # whether we display timestamps with subsecond precision
         self.subsec_ts = False
+        # current ETA information
+        self.cur_eta = ''
 
         # set up readline
         for line in DEFAULT_BINDINGS.splitlines():
@@ -307,6 +309,7 @@ class NicosCmdClient(NicosClient):
                             (self.host, self.port, self.conndata.user))
         self.signal('processing', {'script': state['script'], 'reqid': '0'})
         self.signal('status', state['status'])
+        self.signal('eta', state['eta'])
         self.current_mode = state['mode']
         self.scriptpath = self.eval('session.experiment.scriptpath', '.')
         self.instrument = self.eval('session.instrument.instrument',
@@ -350,6 +353,17 @@ class NicosCmdClient(NicosClient):
         htmlconv = HTML2Text()
         htmlconv.ignore_links = True
         self.put(htmlconv.handle(html))
+
+    def handle_eta(self, data):
+        """Handles the "eta" signal."""
+        state, eta = data
+
+        if state in (SIM_STATES['pending'], SIM_STATES['running']):
+            self.cur_eta = '<calculation in progress>'
+        elif state == SIM_STATES['failed']:
+            self.cur_eta = '<calculation failed>'
+        elif state == SIM_STATES['success'] and eta > currenttime():
+            self.cur_eta = formatEndtime(eta - currenttime())
 
     def put_message(self, msg, sim=False):
         """Handles the "message" signal."""
@@ -499,6 +513,8 @@ class NicosCmdClient(NicosClient):
                 elif data[0] == 'removed':
                     self.put_client('sample environment removed: unload '
                                     'setup %r to clear devices' % data[1])
+            elif name == 'eta':
+                self.handle_eta(data)
             elif name == 'broken':
                 self.put_error(data)
                 self.reconnect_count = self.RECONNECT_TRIES
@@ -629,6 +645,8 @@ class NicosCmdClient(NicosClient):
                 else:
                     self.put('     ' + line)
             self.put_client('End of script.')
+            if self.cur_eta:
+                self.put_client('Estimated finishing time: ' + self.cur_eta)
         else:
             self.put_client('No script is running.')
 
