@@ -300,6 +300,12 @@ class HelpGenerator(object):
             devname = target[4:]
             obj = session.devices[devname]
             return self.gen_devhelp(obj)
+        elif target in session.devices:
+            obj = session.devices[target]
+            return self.gen_devhelp(obj)
+        elif target in session.namespace:
+            obj = session.namespace[target]
+            return self.gen_funchelp(obj)
         else:
             raise ValueError
 

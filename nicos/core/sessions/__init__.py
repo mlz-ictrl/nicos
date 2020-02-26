@@ -964,6 +964,11 @@ class Session(object):
         Can be overwritten in a derived session to provide other means of
         displaying help.
         """
+        if isinstance(obj, string_types):
+            if obj in self.devices:
+                return self.showHelp(self.devices[obj])
+            elif obj in self.namespace:
+                return self.showHelp(self.namespace[obj])
         if obj is None:
             from nicos.commands.basic import ListCommands
             ListCommands()
