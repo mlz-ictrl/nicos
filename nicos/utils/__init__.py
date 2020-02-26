@@ -720,10 +720,10 @@ def ensureDirectory(dirname, enableDirMode=DEFAULT_DIR_MODE, **kwargs):
 def enableDisableFileItem(filepath, mode, owner=None, group=None, logger=None):
     """Set mode and maybe change uid/gid of a filesystem item."""
     if (owner or group) and pwd and hasattr(os, 'chown') and hasattr(os, 'stat'):
-        stats = os.stat(filepath)  # only change the requested parts
-        owner = owner or stats.st_uid
-        group = group or stats.st_gid
         try:
+            stats = os.stat(filepath)  # only change the requested parts
+            owner = owner or stats.st_uid
+            group = group or stats.st_gid
             if isinstance(owner, string_types):
                 owner = pwd.getpwnam(owner)[2]
             if isinstance(group, string_types):
