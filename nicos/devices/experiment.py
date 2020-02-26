@@ -812,7 +812,7 @@ class Experiment(Device):
     def _zip(self, pzip, proposalpath):
         """Zip all files in `proposalpath` folder into `pzip` (.zip) file."""
         self.log.info('zipping experiment data, please wait...')
-        zipname = zipFiles(pzip, proposalpath)
+        zipname = zipFiles(pzip, proposalpath, logger=self.log)
         self.log.info('zipping done: stored as %s', zipname)
         return zipname
 
