@@ -106,7 +106,7 @@ class BaseCacheClient(Device):
         self.log.debug('connecting to %s', self.cache)
         try:
             self._socket = tcpSocket(self.cache, DEFAULT_CACHE_PORT,
-                                     timeout=5)
+                                     timeout=5, keepalive=10)
         except Exception as err:
             self._disconnect('unable to connect to %s: %s' %
                              (self.cache, err))

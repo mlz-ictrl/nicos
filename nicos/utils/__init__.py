@@ -373,13 +373,16 @@ def parseHostPort(host, defaultport, missingportok=False):
     return host, port
 
 
-def tcpSocket(host, defaultport, timeout=None):
+def tcpSocket(host, defaultport, timeout=None, keepalive=None):
     """Helper for opening a TCP client socket to a remote server.
 
     Specify 'host[:port]' or a (host, port) tuple for the mandatory argument.
     If the port specification is missing, the value of the defaultport is used.
     If timeout is set to a number, the timout of the connection is set to this
     number, else the socket stays in blocking mode.
+
+    If *keepalive* is given, enable TCP keepalive and set the keepalive
+    interval to that amount of seconds.
     """
     host, port = parseHostPort(host, defaultport)
 
@@ -393,6 +396,11 @@ def tcpSocket(host, defaultport, timeout=None):
     except socket.error:
         closeSocket(s)
         raise
+    if keepalive:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+        s.setsockopt(socket.SOL_TCP, socket.TCP_KEEPINTVL, keepalive)
+        s.setsockopt(socket.SOL_TCP, socket.TCP_KEEPIDLE, keepalive)
+        s.setsockopt(socket.SOL_TCP, socket.TCP_KEEPCNT, 3)
     return s
 
 
