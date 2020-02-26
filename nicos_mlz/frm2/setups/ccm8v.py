@@ -110,6 +110,23 @@ devices = {
         description = 'liquid nitrogen level',
         tangodevice = tango_base + 'itc/nitrogen_level',
     ),
+    '%s_gas_switch' % setupname : device('nicos.devices.tango.NamedDigitalOutput',
+        description = 'Switch for the gas valve',
+        tangodevice = tango_base + 'leybold/gas',
+        mapping = {'on': 1, 'off': 0},
+    ),
+    '%s_vacuum_switch' % setupname : device('nicos.devices.tango.NamedDigitalOutput',
+        description = 'Switch for the vacuum valve',
+        tangodevice = tango_base + 'leybold/vacuum',
+        mapping = {'on': 1, 'off': 0},
+    ),
+    '%s_psample' % setupname : device('nicos.devices.tango.AnalogInput',
+        description = 'Pressure in sample space',
+        tangodevice = tango_base + 'leybold/sensor',
+        fmtstr = '%.3g',
+        unit = 'mbar',
+    ),
+
 }
 
 alias_config = {
