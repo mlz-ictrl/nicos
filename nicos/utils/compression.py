@@ -64,8 +64,9 @@ def zipFiles(zipfilename, rootdir, logger=None):
                         # - EACCES means the user created a file with wrong
                         #   permissions (NICOS doesn't do that)
                         # - ENOENT means a dangling symlink
-                        logger.warning('could not add %s to zip: %s',
-                                       path.join(xroot, fn), err)
+                        if logger:
+                            logger.warning('could not add %s to zip: %s',
+                                           path.join(xroot, fn), err)
                     else:
                         remove_zip = True
                         raise
