@@ -256,7 +256,7 @@ class ExpPanel(Panel):
                 args['user'] = users
             code = 'NewExperiment(%s)' % ', '.join('%s=%r' % i
                                                    for i in args.items())
-            if self.client.run(code, noqueue=False) is None:
+            if self.client.run(code, noqueue=True) is None:
                 self.showError('Could not start new experiment, a script is '
                                'still running.')
                 return
