@@ -245,6 +245,8 @@ class ExpPanel(Panel):
                            'FinishExperiment first!')
             return
 
+        script_running = self.mainwindow.current_status != 'idle'
+
         # do some work
         if prop and prop != self._orig_proposal_info[0]:
             args = {'proposal': prop}
@@ -293,6 +295,10 @@ class ExpPanel(Panel):
 
         # tell user about everything we did
         if done:
+            if script_running:
+                done.append('')
+                done.append('The changes have been queued since a script '
+                            'is currently running.')
             self.showInfo('\n'.join(done))
         self._update_proposal_info()
 
