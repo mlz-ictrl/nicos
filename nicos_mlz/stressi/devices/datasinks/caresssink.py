@@ -73,11 +73,17 @@ class CaressScanfileSinkHandler(DataSinkHandler):
     _scan_type = 'SGEN1'
 
     def _file_tell(self):
-        return self._file.tell()
+        return self._file.tell() if self._file else 0
 
     def _file_write(self, buf):
-        self._file.write(buf)
+        if self._file:
+            self._file.write(buf)
         self._buffer += buf
+
+    def _file_close(self):
+        if self._file:
+            self._file.close()
+            self._file = None
 
     def _flush(self):
         # self._file.write(self._buffer)
@@ -470,14 +476,13 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             self._scan_type = 'SGEN1'
         else:
             self._scan_type = 'SGEN1'
-        if self._file:
-            self._write_string('DAT', self._file.filepath)
-            self._write_integer(self.dataset.counter, 'NUMOR')
-            if self._scan_type == 'SGEN2':
-                exptype = ['M2', 'A2', 'ADET', 'ALLMOTS', 'TRANS']
-            else:
-                exptype = ['M2', 'A2', 'ADET', 'ALLMOTS', 'MOT1', 'TRANS']
-            self._write_exptype(exptype)
+        self._write_string('DAT', self._file.filepath if self._file else '')
+        self._write_integer(self.dataset.counter, 'NUMOR')
+        if self._scan_type == 'SGEN2':
+            exptype = ['M2', 'A2', 'ADET', 'ALLMOTS', 'TRANS']
+        else:
+            exptype = ['M2', 'A2', 'ADET', 'ALLMOTS', 'MOT1', 'TRANS']
+        self._write_exptype(exptype)
         self._detvalues = None
 
     def putMetainfo(self, metainfo):
@@ -676,8 +681,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         buf += b'\x00' * t
         self._file_write(buf)
         self._flush()
-        self._file.close()
-        self._file = None
+        self._file_close()
         self._scan_file = False
         self._detvalues = None
 
