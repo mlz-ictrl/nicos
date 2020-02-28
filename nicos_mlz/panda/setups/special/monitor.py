@@ -167,6 +167,22 @@ lakeshore = Block('LakeShore', [
     setups='lakeshore',
 )
 
+lakeshore_hts = Block('LakeShore HTS', [
+    BlockRow(
+        Field(dev='t_ls_hts', name='Regul.'),
+        Field(dev='t_ls_hts_a', name='Sensor A'),
+        Field(dev='t_ls_hts_d', name='Sensor D'),
+    ),
+    BlockRow(
+        Field(key='t_ls_hts/setpoint', name='Setpoint'),
+        Field(key='t_ls_hts/p', name='P', width=5),
+        Field(key='t_ls_hts/i', name='I', width=5),
+        Field(key='t_ls_hts/d', name='D', width=5),
+    ),
+    ],
+    setups='lakeshore_hts',
+)
+
 lakeshoreplot = Block('LakeShore', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
@@ -426,6 +442,31 @@ wm5vplots = Block('JVM 5', [
     setups='wm5v',
 )
 
+ccm12v = Block('12T Magnet', [
+    BlockRow(
+        Field(dev='B_ccm12v'),
+        Field(key='B_ccm12v/target', name='Target', fmtstr='%.2f'),
+    ),
+    BlockRow(
+        Field(dev='T_ccm12v_vti', name='VTI'),
+        Field(dev='T_ccm12v_stick', name='Stick'),
+    ),
+    ],
+    setups='ccm12v',
+)
+
+ccm12vplots = Block('12T Magnet', [
+    BlockRow(
+        Field(dev='T_ccm12v_vti', plot='Tccm12v',
+            plotwindow=12*3600, width=30, height=20),
+        Field(dev='T_ccm12v_stick', plot='Tccm12v',
+            plotwindow=12*3600, width=30, height=20),
+        ),
+    ],
+    setups='ccm12v',
+)
+
+
 kelvinox = Block('Kelvinox', [
     BlockRow(Field(dev='mc')),
     BlockRow(Field(key='mc/setpoint', name='Setpoint', unit='K')),
@@ -461,14 +502,14 @@ memograph = Block('Water Flow', [
 )
 
 column1 = Column(filters, primary, sample, analyzer) + Column(magnet55)
-column2 = Column(collimation, detector, bambus) + Column(*cryos) + Column(*ccrs) + \
+column2 = Column(collimation, detector, bambus, lakeshore_hts, ccm12v) + Column(*cryos) + Column(*ccrs) + \
           Column(lakeshore, miramagnet, wm5v, vti)
 
 column3 = Column(magnet55supp, wm5vsupp, kelvinox, foki, memograph, cam) + \
           Column(*cryosupps) + Column(*ccrsupps)
 
 column4 = Column(*cryoplots) + Column(*ccrplots) + \
-          Column(wm5vplots) + Column(vtiplot) + \
+          Column(wm5vplots) + Column(ccm12vplots) + Column(vtiplot) + \
           Column(lakeshoreplot)
 
 devices = dict(
@@ -477,9 +518,9 @@ devices = dict(
         loglevel = 'info',
         cache = 'phys.panda.frm2',
         prefix = 'nicos/',
-        font = 'Droid Sans',
+        font = 'Liberation Sans',
         fontsize = 16,
-        valuefont = 'Droid Sans Mono',
+        valuefont = 'Fira Code',
         layout = [Row(expcolumn),
                   Row(column1, column2, column3, column4)],
     )

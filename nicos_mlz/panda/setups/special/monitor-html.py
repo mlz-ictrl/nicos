@@ -129,6 +129,22 @@ lakeshore = Block('LakeShore', [
     setups='lakeshore',
 )
 
+lakeshore_hts = Block('LakeShore HTS', [
+    BlockRow(
+        Field(dev='t_ls_hts', name='Regul.'),
+        Field(dev='t_ls_hts_a', name='Sensor A'),
+        Field(dev='t_ls_hts_d', name='Sensor D'),
+    ),
+    BlockRow(
+        Field(key='t_ls_hts/setpoint', name='Setpoint'),
+        Field(key='t_ls_hts/p', name='P', width=5),
+        Field(key='t_ls_hts/i', name='I', width=5),
+        Field(key='t_ls_hts/d', name='D', width=5),
+    ),
+    ],
+    setups='lakeshore_hts',
+)
+
 lakeshoreplot = Block('LakeShore', [
     BlockRow(
         Field(dev='T', plot='T',
@@ -348,6 +364,31 @@ vti = Block('VTI', [
     setups='variox',
 )
 
+ccm12v = Block('12T Magnet', [
+    BlockRow(
+        Field(dev='B_ccm12v'),
+        Field(key='B_ccm12v/target', name='Target', fmtstr='%.2f'),
+    ),
+    BlockRow(
+        Field(dev='T_ccm12v_vti', name='VTI'),
+        Field(dev='T_ccm12v_stick', name='Stick'),
+    ),
+    ],
+    setups='ccm12v',
+)
+
+ccm12vplots = Block('12T Magnet', [
+    BlockRow(
+        Field(dev='T_ccm12v_vti', plot='Tccm12v',
+            plotwindow=12*3600, width=30, height=20),
+        Field(dev='T_ccm12v_stick', plot='Tccm12v',
+            plotwindow=12*3600, width=30, height=20),
+        ),
+    ],
+    setups='ccm12v',
+)
+
+
 kelvinox = Block('Kelvinox', [
     BlockRow(Field(dev='mc')),
     BlockRow(Field(key='mc/setpoint',name='Setpoint',unit='K')),
@@ -394,8 +435,8 @@ tas = Block('TAS', [
         ],
 )
 
-column2 = Column(collimation, detector) + Column(*cryos) + Column(*ccrs) + \
-          Column(lakeshore, ccm55v, wm5v, vti)
+column2 = Column(collimation, detector, ccm12v) + Column(*cryos) + Column(*ccrs) + \
+          Column(lakeshore, lakeshore_hts, ccm55v, wm5v, vti)
 
 column3 = Column(tas) + Column(ccm55vsupp, wm5vsupp, kelvinox, foki,  memograph) + \
           Column(*cryosupps) + Column(*ccrsupps)
