@@ -3,7 +3,7 @@ description = 'Detector test table setup'
 
 group = 'basic'
 excludes = ['det']
-includes = ['treff']
+includes = ['treff', 'counter']
 
 sysconfig = dict(
     datasinks = ['LiveViewSink', 'NPFileSink'],
@@ -54,9 +54,10 @@ devices = dict(
     ),
     det_mca = device('nicos.devices.generic.Detector',
         description = 'detector device with CAEN MCA',
-        timers = ['det_mca_timer'],
+        timers = ['timer', 'det_mca_timer'],
         counters = ['det_mca_roi'],
         images = ['det_mca_spectrum'],
+        monitors = ["mon0", "mon1"],
         postprocess = [
             ('det_mca_roi', 'det_mca_spectrum'),
         ],
