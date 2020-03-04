@@ -400,7 +400,142 @@ class SetTemperature(Cmdlet):
         return '{}(T, {})'.format(values['command'], values['temperature'])
 
 
+class SlitScan(Cmdlet):
+    name = 'Slit Scan'
+    category = 'DNS'
+    slits = ['y_lower', 'y_upper', 'x_left', 'x_right']
+
+    def __init__(self, parent, client):
+        Cmdlet.__init__(self, parent, client,
+                        findResource('nicos_mlz/dns/gui/cmdlets/slit_scan.ui'))
+        for box in self.slits + ['open_at_begin']:
+            getattr(self, 'cB_' + box).stateChanged.connect(self.changed)
+        for rb in ['RB_sample', 'RB_polarizer']:
+            getattr(self, rb).toggled.connect(self._slitTypeChanged)
+        for dsb in self.slits:
+            for field in ['from', 'stepsize', 'number_of_steps']:
+                dsb_obj = getattr(self, 'dSB_{}_{}'.format(dsb, field))
+                dsb_obj.valueChanged.connect(self._calcEnd)
+        self._slitTypeChanged()
+
+    def _calcEnd(self):
+        values = self.getValues()
+        for label in self.slits:
+            end = (values[label + '_from']
+                   + values[label + '_stepsize']
+                   * (values[label + '_number_of_steps']  - 1))
+            getattr(self, 'lE_{}_to'.format(label)).setText(str(end))
+        self.changed()
+
+    def getValues(self):
+        if self.RB_sample.isChecked():
+            slittype = 'ap_sam'
+        else:
+            slittype = 'pol'
+        values = {}
+        for slit in self.slits:
+            values[slit] = getattr(self, 'cB_{}'.format(slit)).isChecked()
+            for field in ['from', 'stepsize', 'number_of_steps']:
+                value = getattr(self, 'dSB_{}_{}'.format(slit, field)).value()
+                values['{}_{}'.format(slit, field)] = value
+
+        values['time'] = self.dSB_time.value()
+        values['slittype'] = slittype
+        values['open_begin'] = self.cB_open_at_begin.isChecked()
+        return values
+
+    def _getSlitLimits(self, slittype, slit):
+        fixed_limits = {
+            'ap_sam_y_lower': [-30, 15],  # lower, upper
+            'ap_sam_y_upper': [-15, 30],
+            'ap_sam_x_left': [-15, 10],
+            'ap_sam_x_right': [-10, 15],
+            'pol_y_lower': [-60, 40],
+            'pol_y_upper': [-40, 60],
+            'pol_x_left': [-60, 40],
+            'pol_x_right': [-40, 60],
+        }
+        full_slit_name = "{}_{}".format(slittype, slit)
+        limits = self.client.getDeviceParam(full_slit_name, 'userlimits')
+        if limits is None:  # not connected
+            limits = fixed_limits[full_slit_name]
+        limits = list(limits)
+        if slit in ['x_left', 'y_lower']:
+            opening = min(limits)
+        else:
+            opening = max(limits)
+        limits.append(opening)
+        return limits
+
+    def _slitTypeChanged(self):
+        values = self.getValues()
+        slittype = values['slittype']
+        sizes = {'ap_sam_y_lower': [20, 2],  # number of points, stepsize
+                 'ap_sam_y_upper': [20, -2],
+                 'ap_sam_x_left': [10, 2],
+                 'ap_sam_x_right': [10, -2],
+                 'pol_y_lower': [25, 3],
+                 'pol_y_upper': [25, -3],
+                 'pol_x_left': [25, 3],
+                 'pol_x_right': [25, -3],
+                 }
+        for slit in self.slits:
+            limits = self._getSlitLimits(slittype, slit)
+            full_slit_name = '{}_{}'.format(slittype, slit)
+            dsb_obj = getattr(self, 'dSB_{}_from'.format(slit))
+            dsb_obj.setMinimum(limits[0])
+            dsb_obj.setMaximum(limits[1])
+            dsb_obj.setValue(limits[2])
+            dsb_obj = getattr(self, 'dSB_{}_stepsize'.format(slit))
+            dsb_obj.setValue(sizes[full_slit_name][1])
+            dsb_obj = getattr(self, 'dSB_{}_number_of_steps'.format(slit))
+            dsb_obj.setValue(sizes[full_slit_name][0])
+        self.changed()
+
+    def _getMaxSlits(self, slittype):
+        limits = {}
+        for slit in self.slits:
+            limits[slit] = self._getSlitLimits(slittype, slit)
+        y_max = limits['y_upper'][2] - limits['y_lower'][2]
+        y_center = limits['y_lower'][2] + y_max/2.0
+        x_max = limits['x_right'][2] - limits['x_left'][2]
+        x_center = limits['x_left'][2] + x_max/2.0
+        return [x_center, y_center, x_max, y_max]
+
+    def generate(self, mode):
+        values = self.getValues()
+        slittype = values['slittype']
+        cmds = ["maw(expshutter, 'open')"]
+        x_center, y_center, x_max, y_max = self._getMaxSlits(slittype)
+        if values['open_begin']:
+            full_name = 'sample_slit' if slittype == 'ap_sam' else 'pol_slit'
+            cmds.append('maw({}, ({}, {}, {}, {}))'.format(
+                full_name, x_center, y_center, x_max, y_max))
+        for slit in self.slits:
+            if values[slit]:
+                limits = self._getSlitLimits(slittype, slit)
+                cmds.append('scan({}_{}, {:g}, {:g}, {:g}, {:g})'.format(
+                    slittype, slit, values[slit + '_from'],
+                    values[slit + '_stepsize'],
+                    values[slit + '_number_of_steps'], values['time']))
+                cmds.append('maw({}_{}, {})'.format(slittype, slit, limits[2]))
+        return '\n'.join(cmds)
+
+    def isValid(self):
+        values = self.getValues()
+        slittype = values['slittype']
+        valid = 1
+        for slit in self.slits:
+            limits = self._getSlitLimits(slittype, slit)
+            slit_obj = getattr(self, 'lE_{}_to'.format(slit))
+            valid *= self.markValid(slit_obj,
+                                    limits[0] <= float(slit_obj.text())
+                                    <= limits[1])
+        return valid
+
+
 register(Shutter)
 register(SetTemperature)
 register(PowderScan)
 register(SingleCrystalScan)
+register(SlitScan)
