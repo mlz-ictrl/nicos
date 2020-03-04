@@ -49,7 +49,14 @@ class DataProxy(object):
         return np.array(tuple(chain(*self.lists)), *typ)
 
     def __len__(self):
-        return len(tuple(chain(*self.lists)))
+        return sum(len(l) for l in self.lists)
+
+    def __getitem__(self, j):
+        for l in self.lists:
+            if j < len(l):
+                return l[j]
+            j -= len(l)
+        raise IndexError
 
 
 class Curve(object):
