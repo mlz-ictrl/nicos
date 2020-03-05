@@ -79,13 +79,12 @@ class MCU200Motor(Motor):
         self._send_command('M', '14=0')
         self._send_command('M', '14=1')
 
-    def doIsAtTarget(self, pos):
+    def doIsAtTarget(self, pos, target):
         return (int(self._send_command('P', '00')) == 0
-                and HasPrecision.doIsAtTarget(self, pos))
+                and HasPrecision.doIsAtTarget(self, pos, target))
 
     def doFinish(self):
-        pos = self.read(0)
-        if not self.isAtTarget(pos):
+        if not self.isAtTarget():
             if self.isInRetry():
                 self.log.error('Moving to 0 during retry did not work. '
                                'Resetting retry status, continuing.')

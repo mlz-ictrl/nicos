@@ -66,11 +66,18 @@ class SkewMotor(HasOffset, SkewRead, Motor):
                       type=float, default=0., settable=True, unit='main'),
     }
 
-    def doIsAtTarget(self, pos):
-        if self.target is None:
+    def _read_motors(self, maxage=0):
+        return self._attached_motor_1.read(maxage), \
+            self._attached_motor_2.read(maxage)
+
+    def doRead(self, maxage=0):
+        return sum(self._read_motors(maxage)) / 2.
+
+    def doIsAtTarget(self, pos, target):
+        if target is None:
             return True
-        if not self._attached_motor_1.isAtTarget(pos - self.skew / 2.) or \
-           not self._attached_motor_2.isAtTarget(pos + self.skew / 2.):
+        if (not self._attached_motor_1.isAtTarget(target=pos - self.skew / 2.)
+           or not self._attached_motor_2.isAtTarget(target=pos + self.skew / 2.)):
             return False
         m1, m2 = self._read_motors()
         self.log.debug('%.3f, %.3f, %.3f, %.3f', m1, m2, (m1 + self.skew / 2.),

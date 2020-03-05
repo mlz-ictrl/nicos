@@ -320,10 +320,10 @@ class HasPrecision(DeviceMixinBase):
                            settable=True, category='precisions'),
     }
 
-    def doIsAtTarget(self, pos):
-        if self.target is None:
+    def doIsAtTarget(self, pos, target):
+        if target is None:
             return True  # avoid bootstrapping problems
-        return abs(self.target - pos) <= self.precision
+        return abs(target - pos) <= self.precision
 
 
 class HasMapping(DeviceMixinBase):
@@ -591,10 +591,15 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
         res.append(('', res[-1][1] + self.window))
         return res
 
-    def isAtTarget(self, val):
+    def isAtTarget(self, pos=None, target=None):
+        if target is None:
+            target = self.target
+        if pos is None:
+            pos = self.read(0)
+
         ct = currenttime()
-        self._cacheCB('value', val, ct)
-        if self.target is None:
+        self._cacheCB('value', pos, ct)
+        if target is None:
             return True
 
         # check subset of _history which is in window
@@ -603,11 +608,11 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
         hist = self._history[:]
         window_start = ct - self.window
         hist_in_window = [v for (t, v) in hist if t >= window_start]
-        stable = all(abs(v - self.target) <= self.precision
+        stable = all(abs(v - target) <= self.precision
                      for v in hist_in_window)
         if 0 < len(hist_in_window) < len(hist) and stable:  # pylint: disable=len-as-condition
             if hasattr(self, 'doIsAtTarget'):
-                return self.doIsAtTarget(val)
+                return self.doIsAtTarget(pos, target)
             return True
         return False
 

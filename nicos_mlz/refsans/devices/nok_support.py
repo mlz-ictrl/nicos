@@ -274,10 +274,9 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         # no problems detected, so it should be safe to go there....
         return True, ''
 
-    def doIsAtTarget(self, targets):
+    def doIsAtTarget(self, pos, targets):
         traveldists = [target - (akt + ofs)
-                       for target, akt, ofs in zip(targets, self.read(0),
-                                                   self.offsets)]
+                       for target, akt, ofs in zip(targets, pos, self.offsets)]
         self.log.debug('doIsAtTarget', targets, 'traveldists', traveldists)
         return max(abs(v) for v in traveldists) <= self.precision
 
@@ -303,7 +302,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
             raise MoveError(self, 'Cannot start device, it is still moving!')
 
         # check precision, only move if needed!
-        if self.isAtTarget(targets):
+        if self.isAtTarget(target=targets):
             return
 
         devices = self._devices

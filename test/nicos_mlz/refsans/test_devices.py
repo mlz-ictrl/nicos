@@ -93,12 +93,15 @@ def test_skewmotor(session):
     assert bg.precision == 0.1
     assert bg.read(0) == 0
     bg.maw(1)
-    assert bg.read(0) == 1
-    assert bg._attached_motor_1.read(0) == 0
-    assert bg._attached_motor_2.read(0) == 2
-    assert bg._attached_motor_1.isAtTarget(0)
-    assert bg._attached_motor_2.isAtTarget(2)
-    assert bg.isAtTarget(1)
+    bgpos = bg.read(0)
+    m1pos = bg._attached_motor_1.read(0)
+    m2pos = bg._attached_motor_2.read(0)
+    assert bgpos == 1
+    assert m1pos == 0
+    assert m2pos == 2
+    assert bg._attached_motor_1.isAtTarget(m1pos, 0)
+    assert bg._attached_motor_2.isAtTarget(m2pos, 2)
+    assert bg.isAtTarget(bgpos, 1)
 
 
 def test_focuspoint(session):

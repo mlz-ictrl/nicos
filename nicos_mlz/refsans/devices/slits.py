@@ -195,15 +195,6 @@ class DoubleSlit(PseudoNOK, Moveable):
             return False, '; '.join(why)
         return True, ''
 
-    # def doIsAtTarget(self, targets):
-    #     # check precision, only move if needed!
-    #     self.log.debug('DoubleSlit doIsAtTarget %s', targets)
-    #     targets = self.rechnen_motor(targets, False, 'doIsAtTarget')
-    #     self.log.debug('%s', targets)
-    #     traveldists = [target - dev.doRead(0)
-    #                    for target, dev in zip(targets, self._devices)]
-    #     return max(abs(v) for v in traveldists) <= self.precision
-
     def doStop(self):
         for dev in self._adevs.values():
             dev.stop()

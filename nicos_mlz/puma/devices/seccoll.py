@@ -200,7 +200,7 @@ class PumaSecCollLift(HasTimeout, BlockingSequencer):
 
     def _generateSequence(self, target):
         seq = []
-        if not self.isAtTarget(self.doRead(0)):
+        if not self.isAtTarget():
             # The limited space at some positions requires a folding of the
             # instrument
             st_target = 60. if self.angle > -85. else 109.
@@ -292,7 +292,7 @@ class PumaSecCollPair(HasTimeout, BlockingSequencer):
 
     def _generateSequence(self, target):
         seq = []
-        if not self.isAtTarget(self.read(0)):
+        if not self.isAtTarget():
             # self.reset()
             # session.delay(2)
             # switch on hardware
@@ -370,7 +370,7 @@ class PumaSecondaryCollimator(HasTimeout, BlockingSequencer):
 
     def _generateSequence(self, target):
         seq = []
-        if not self.isAtTarget(self.read(0)):
+        if not self.isAtTarget():
             position = None
             for i, val in enumerate(self._switchlist[0]):
                 if target == val:

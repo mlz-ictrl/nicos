@@ -219,7 +219,8 @@ class AmorControlPanel(GenericPanel):
 
         # Check which motors to move
         expr = ', '.join([
-            n + '.isAtTarget(%r)' % v for n, v in zip(dev_to_widget, targets)])
+            n + '.isAtTarget(target=%r)' % v for n, v in zip(dev_to_widget,
+                                                             targets)])
         on_targ = self.client.eval(expr, None)
         if on_targ is None:
             self.showError('Cannot check the status! Cannot move!')

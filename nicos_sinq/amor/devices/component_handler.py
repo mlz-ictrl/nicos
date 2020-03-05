@@ -149,7 +149,7 @@ class DistancesHandler(BaseSequencer):
             return status.BUSY, 'Measuring'
         return status.OK, ''
 
-    def doIsAtTarget(self, pos):
+    def doIsAtTarget(self, pos, target):
         return True
 
     def _update_component(self, component, printValues=False):

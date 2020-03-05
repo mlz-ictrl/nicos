@@ -245,7 +245,8 @@ class PumaCoupledAxis(HasPrecision, HasLimits, Moveable):
         # This may appear in the test and fresh setup systems
         if None in (self.tt.target, self.th.target):
             return False
-        return self.tt.isAtTarget(pos[0]) and self.th.isAtTarget(pos[1])
+        return (self.tt.isAtTarget(target=pos[0])
+                and self.th.isAtTarget(target=pos[1]))
 
     def _checkZero(self, tt, th):
         """Check if the two axes are within the allowed limit."""

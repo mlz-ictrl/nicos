@@ -34,8 +34,7 @@ class PumpAnalogOutput(HasPrecision, AnalogOutput):
     """
 
     def doFinish(self):
-        pos = self.read(0)
-        if not self.isAtTarget(pos):
+        if not self.isAtTarget():
             raise MoveError(self, 'did not arrive at requested volume, '
                             'check end switches!')
         return False  # don't check again

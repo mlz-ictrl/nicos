@@ -74,7 +74,7 @@ class Sample(Moveable):
     def doStart(self, target):
         self.select(target)
 
-    def doIsAtTarget(self, pos):
+    def doIsAtTarget(self, pos, target):
         # never warn about self.target mismatch
         return True
 

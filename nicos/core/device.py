@@ -1673,8 +1673,10 @@ class Moveable(Waitable):
                              self.format(self.target, unit=True),
                              self.format(pos, unit=True))
 
-    def isAtTarget(self, pos):
-        """Check if the device has arrived at its target.
+    def isAtTarget(self, pos=None, target=None):
+        """Check if the device has arrived at the given target.
+        If target is omitted it defaults to the device's currently set target.
+        If pos is omitted the device checks against its current read value.
 
         The method calls :meth:`doIsAtTarget` if present.  Otherwise, it checks
         for equality if the value is of string or integer type, and returns
@@ -1695,11 +1697,16 @@ class Moveable(Waitable):
         For devices with float values, inherit from :class:`HasPrecision`,
         which already comes with an implementation of :meth:`doIsAtTarget`.
         """
+        if target is None:
+            target = self.target
+        if pos is None:
+            pos = self.read(0)
+
         if hasattr(self, 'doIsAtTarget'):
-            return self.doIsAtTarget(pos)
+            return self.doIsAtTarget(pos, target)
         elif (isinstance(pos, (string_types, integer_types)) and
-              self.target is not None):
-            return self.target == pos
+              target is not None):
+            return target == pos
         return True
 
     def _hw_wait(self):

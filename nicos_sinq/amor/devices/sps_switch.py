@@ -88,7 +88,7 @@ class SpsSwitch(EpicsDeviceEss, MappedMoveable):
                                  % self._inverse_mapping[self.lasttarget])
         return status.OK, ''
 
-    def doIsAtTarget(self, pos):
+    def doIsAtTarget(self, pos, target):
         # Don't check if it reached the target
         return True
 

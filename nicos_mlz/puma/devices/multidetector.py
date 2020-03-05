@@ -189,7 +189,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
                         d1.maw(0)
             self.log.debug('%r', [d.read(0) for d in self._rotguide0])
         for d in self._rotguide0:
-            if not d.isAtTarget(0):
+            if not d.isAtTarget(target=0):
                 d.maw(0)
 
         # remove all remaining move commands on cards due to touching any limit
@@ -259,7 +259,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
         It takes account into the different origins of the analyzer blades.
         """
         # check if requested positions already reached within precision
-        if self.isAtTarget(target):
+        if self.isAtTarget(target=target):
             self.log.debug('device already at position, nothing to do!')
             return []
 
@@ -442,7 +442,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
                                                             dev.unit))
         self.log.debug('%s', '\n'.join(out))
 
-    def doIsAtTarget(self, target):
+    def doIsAtTarget(self, pos, target):
         self._printPos()
         return self._checkPositionReached(target, 'raw')
 

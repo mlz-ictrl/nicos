@@ -223,6 +223,7 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
         It takes account into the different origins of the analyzer blades.
         """
         # check if requested positions already reached within precision
+        # TODO: use isAtTarget(target=target) Ticket #4213
         if self.isAtTarget(target):
             self.log.debug('device already at position, nothing to do!')
             return []
@@ -418,8 +419,9 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
                 self.log.debug('xx%2d rotation: nothing to do', i + 1)
         return mv
 
-    def doIsAtTarget(self, target):
+    def doIsAtTarget(self, pos, target):
         self._printPos()
-        mvt = self._checkPositionReachedTrans(target)
-        mvr = self._checkPositionReachedRot(target)
+        # TODO: actually use target not pos. Ticket #4213
+        mvt = self._checkPositionReachedTrans(pos)
+        mvr = self._checkPositionReachedRot(pos)
         return not mvt and not mvr
