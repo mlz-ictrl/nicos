@@ -30,7 +30,7 @@ import datetime
 from kafka import KafkaProducer, KafkaConsumer, TopicPartition
 
 
-FW_CONFIG_FILE = "/home/nicos/ymir_filewriter_config.json"
+FW_CONFIG_FILE = "filewriter_config.json"
 JOB_ID = "62075348-cfe5-11e9-9141-c8f75089fb03"
 BROKER = "172.30.242.20:9092"
 COMMAND_TOPIC = "UTGARD_writerCommand"
