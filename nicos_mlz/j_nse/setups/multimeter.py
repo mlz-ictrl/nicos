@@ -13,14 +13,4 @@ devices = dict(
         pollinterval = 10,
         maxage = 25,
     ),
-
-    datalog_events = device('nicos.devices.tango.DigitalInput',
-        description = 'number of logged events on datalogger PLC',
-        tangodevice = tango_base + 'datalogger/plc_numevents',
-    ),
-
-    datalog_last = device('nicos_mlz.j_nse.devices.datalogger.LastEvent',
-        description = 'time of last event',
-        tangodevice = tango_base + 'datalogger/plc_lastevent',
-    ),
 )
