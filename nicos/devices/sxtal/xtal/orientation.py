@@ -223,6 +223,6 @@ class orient(object):
             raise ComputationError('Optimization failed: %s' % errmsg)
 
         p.update(popt)
-        p.update_errors(pcov[i, i] for i in range(len(popt)))
+        p.update_errors(np.sqrt(pcov[i, i]) for i in range(len(popt)))
         p.chi2 = sum(np.power(residuals(popt), 2)) / nfree
         return get_new_cell(p), p
