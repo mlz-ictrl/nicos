@@ -298,35 +298,48 @@ class DataManager(object):
         """
         if dataset.counter != 0:
             return
-
-        exp = session.experiment
-        if not path.isfile(path.join(exp.dataroot, exp.counterfile)):
-            session.log.warning('creating new empty file counter file at %s',
-                                path.join(exp.dataroot, exp.counterfile))
         if session.mode == SIMULATION:
             raise ProgrammingError('assignCounter should not be called in '
                                    'simulation mode')
 
-        # Keep track of which files we have already updated, since the proposal
-        # and the sample specific counter might be the same file.
-        seen = set()
-        for directory, attr in [(exp.dataroot, 'counter'),
-                                (exp.proposalpath, 'propcounter'),
-                                (exp.samplepath, 'samplecounter')]:
-            counterpath = path.normpath(path.join(directory, exp.counterfile))
-            nextnum = readFileCounter(counterpath, dataset.countertype) + 1
-            if counterpath not in seen:
-                updateFileCounter(counterpath, dataset.countertype, nextnum)
-                seen.add(counterpath)
-            else:
-                nextnum -= 1
-            setattr(dataset, attr, nextnum)
+        new_counters = self.incrementCounters(dataset.countertype)
+        for (attr, value) in new_counters:
+            setattr(dataset, attr, value)
 
         # push special counters into parameters for display
         if dataset.settype == SCAN:
             session.experiment._setROParam('lastscan', dataset.counter)
         elif dataset.settype == POINT:
             session.experiment._setROParam('lastpoint', dataset.counter)
+
+    def incrementCounters(self, countertype):
+        """Increment the counters for the given *countertype*.
+
+        This should update the counter files accordingly.
+
+        Returns a list of (counterattribute, value) tuples to set on the
+        dataset.
+        """
+        exp = session.experiment
+        if not path.isfile(path.join(exp.dataroot, exp.counterfile)):
+            session.log.warning('creating new empty file counter file at %s',
+                                path.join(exp.dataroot, exp.counterfile))
+        # Keep track of which files we have already updated, since the proposal
+        # and the sample specific counter might be the same file.
+        seen = set()
+        result = []
+        for directory, attr in [(exp.dataroot, 'counter'),
+                                (exp.proposalpath, 'propcounter'),
+                                (exp.samplepath, 'samplecounter')]:
+            counterpath = path.normpath(path.join(directory, exp.counterfile))
+            nextnum = readFileCounter(counterpath, countertype) + 1
+            if counterpath not in seen:
+                updateFileCounter(counterpath, countertype, nextnum)
+                seen.add(counterpath)
+            else:
+                nextnum -= 1
+            result.append((attr, nextnum))
+        return result
 
     def getCounters(self):
         """Return a dictionary with the current values of all relevant file
