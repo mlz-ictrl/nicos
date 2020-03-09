@@ -43,6 +43,7 @@ from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
     Device, Measurable, NicosError, Param, Readable, UsageError, anytype, \
     dictof, listof, mailaddress, none_or, oneof, usermethod
 from nicos.core.acquire import DevStatistics
+from nicos.core.data import DataManager
 from nicos.core.params import expanded_path, nonemptystring, subdir
 from nicos.devices.sample import Sample
 from nicos.pycompat import from_maybe_utf8, listitems, string_types
@@ -173,7 +174,18 @@ class Experiment(Device):
         'sample': Attach('The device object representing the sample', Sample),
     }
 
+    # Selects which class is used for `self.data`, the data manager.
+    # Can be overridden in subclasses, but should always be a subclass of the
+    # core DataManager.
+    datamanager_class = DataManager
+
     _proposal_thds = {}  # mapping of proposal => FinishExperiment thread
+
+    def doPreinit(self, mode):
+        self.__dict__['data'] = self.datamanager_class()
+
+    def doShutdown(self):
+        self.data.reset()
 
     #
     # hooks: may be overriden in derived classes to enhance functionality

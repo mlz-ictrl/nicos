@@ -324,7 +324,6 @@ class TestCacheDatabase(FlatfileCacheDatabase):
 
 class TestSession(Session):
     autocreate_devices = False
-    has_datamanager = True
     cache_class = TestCacheClient
 
     def __init__(self, appname, daemonized=False):

@@ -137,7 +137,6 @@ class SimulationSession(Session):
     """
 
     sessiontype = SIMULATION
-    has_datamanager = True
 
     def begin_setup(self):
         self.log_sender.level = logging.ERROR  # log only errors before code starts

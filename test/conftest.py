@@ -80,7 +80,6 @@ def session(request):
         nicos_session.setSPMode(True)
     yield nicos_session
     nicos_session.setSPMode(False)
-    nicos_session.data.reset()
     nicos_session.shutdown()
 
 

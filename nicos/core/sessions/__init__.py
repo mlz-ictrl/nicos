@@ -46,7 +46,7 @@ import numpy
 from nicos import config, get_custom_version, nicos_version
 from nicos.core.acquire import stop_acquire_thread
 from nicos.core.constants import MAIN
-from nicos.core.data import DataManager, DataSink
+from nicos.core.data import DataSink
 from nicos.core.device import Device, DeviceAlias, DeviceMeta
 from nicos.core.errors import AccessError, CacheError, ConfigurationError, \
     ModeError, NicosError, UsageError
@@ -88,7 +88,6 @@ class Session(object):
     name = 'session'
     cache_class = CacheClient
     sessiontype = MAIN
-    has_datamanager = False
 
     def __str__(self):
         # used for cache operations
@@ -159,8 +158,6 @@ class Session(object):
 
         # cache connection
         self.cache = None
-        # data manager
-        self.data = DataManager() if self.has_datamanager else None
         # acquire thread, needed for live()
         self._thd_acquire = None
         # sysconfig devices
@@ -191,6 +188,11 @@ class Session(object):
     def mode(self):
         """The current :term:`execution mode` of the session."""
         return self._mode
+
+    @property
+    def data(self):
+        """Compatibility alias for self.experiment.data."""
+        return self.experiment.data
 
     def setMode(self, mode):
         """Set a new mode for the session.
@@ -763,6 +765,7 @@ class Session(object):
         # shutdown according to device dependencies
         devs = listvalues(self.devices)
         already_shutdown = set()
+
         # outer loop: as long as there are devices...
         while devs:
             deadlock = True
@@ -788,8 +791,6 @@ class Session(object):
                 raise NicosError('Deadlock detected! Session.unloadSetup '
                                  "failed on these devices: '%s'" % devs)
 
-        if self.data is not None:
-            self.data.reset()
         self.deviceCallback('destroy', list(already_shutdown))
         self.setupCallback([], [])
         self.devices.clear()
