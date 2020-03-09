@@ -34,6 +34,8 @@ import pytest
 from nicos.core import ADMIN, GUEST, USER, NicosError, User
 from nicos.services.daemon.auth import AuthenticationError
 from nicos.services.daemon.auth.list import Authenticator as ListAuthenticator
+from nicos.services.daemon.auth.oauth2 import \
+    Authenticator as OAuthAuthenticator
 from nicos.services.daemon.auth.params import UserLevelAuthEntry, \
     UserPassLevelAuthEntry
 
@@ -98,6 +100,18 @@ class TestUserLevelAuthEntry:
     ], ids=str)
     def test_wrong_auth_entry(self, inp):
         assert raises(ValueError, UserLevelAuthEntry, inp)
+
+
+@pytest.fixture(scope='function')
+def OAuthAuth(request):
+    Auth = OAuthAuthenticator('authenicator',
+                              tokenurl='https://unit.test/',
+                              clientid='')
+    yield Auth
+
+
+def test_oauth_errors(session, OAuthAuth):
+    assert raises(AuthenticationError, OAuthAuth.authenticate, 'user', '')
 
 
 @pytest.fixture(scope='function')
