@@ -48,6 +48,24 @@ class vsplit(tuple):
         self.options = self[1]
 
 
+class vbox(tuple):
+    def __new__(cls, *children, **options):
+        return tuple.__new__(cls, (children, options))
+
+    def __init__(self, *args, **kw):  # pylint: disable=super-init-not-called
+        self.children = self[0]
+        self.options = self[1]
+
+
+class hbox(tuple):
+    def __new__(cls, *children, **options):
+        return tuple.__new__(cls, (children, options))
+
+    def __init__(self, *args, **kw):  # pylint: disable=super-init-not-called
+        self.children = self[0]
+        self.options = self[1]
+
+
 class tabbed(tuple):
     def __new__(cls, *children, **options):
         return tuple.__new__(cls, (children, options))
@@ -123,7 +141,7 @@ class gui_config(object):
         """Return True if the config contains a panel with the given class."""
         if isinstance(config, window):
             return self._has_panel(config.contents, panel_classes)
-        elif isinstance(config, (hsplit, vsplit)):
+        elif isinstance(config, (hsplit, vsplit, hbox, vbox)):
             for child in config.children:
                 if self._has_panel(child, panel_classes):
                     return True
@@ -159,6 +177,8 @@ def prepareGuiNamespace():
     ns['docked'] = docked
     ns['tabbed'] = tabbed
     ns['options'] = {}
+    ns['hbox'] = hbox
+    ns['vbox'] = vbox
     return ns
 
 

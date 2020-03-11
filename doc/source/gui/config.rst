@@ -114,6 +114,26 @@ The functions to combine several panels are:
      display of the panels, see :ref:`gui-config-setup`
 
 
+.. function:: hbox(*confs, **options)
+
+   Creates a layout of panel configurations arranged in QHBoxLayout.
+
+   Options:
+
+   * The ``setups`` option gives the possibility to define a setup depending
+     display of the panels, see :ref:`gui-config-setup`
+
+
+.. function:: vbox(*confs, **options)
+
+   Creates a layout of panel configurations arranged in QVBoxLayout.
+
+   Options:
+
+   * The ``setups`` option gives the possibility to define a setup depending
+     display of the panels, see :ref:`gui-config-setup`
+
+
 .. _gui-config-setup:
 
 Setup dependent configuration
