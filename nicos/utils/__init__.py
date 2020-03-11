@@ -398,9 +398,12 @@ def tcpSocket(host, defaultport, timeout=None, keepalive=None):
         raise
     if keepalive:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-        s.setsockopt(socket.SOL_TCP, socket.TCP_KEEPINTVL, keepalive)
-        s.setsockopt(socket.SOL_TCP, socket.TCP_KEEPIDLE, keepalive)
-        s.setsockopt(socket.SOL_TCP, socket.TCP_KEEPCNT, 3)
+        if hasattr(socket, 'TCP_KEEPCNT'):
+            s.setsockopt(socket.SOL_TCP, socket.TCP_KEEPCNT, 3)
+        if hasattr(socket, 'TCP_KEEPINTVL'):
+            s.setsockopt(socket.SOL_TCP, socket.TCP_KEEPINTVL, keepalive)
+        if hasattr(socket, 'TCP_KEEPIDLE'):
+            s.setsockopt(socket.SOL_TCP, socket.TCP_KEEPIDLE, keepalive)
     return s
 
 
