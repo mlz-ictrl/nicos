@@ -43,8 +43,8 @@ from nicos.core.mixins import AutoDevice, CanDisable, DeviceMixinBase, \
 from nicos.core.params import INFO_CATEGORIES, ArrayDesc, Attach, Override, \
     Param, Value, absolute_path, anytype, dictof, dictwith, floatrange, host, \
     intrange, limits, listof, mailaddress, nicosdev, none_or, nonemptylistof, \
-    oneof, oneofdict, oneofdict_or, pvname, relative_path, setof, subdir, \
-    tacodev, tangodev, tupleof, vec3
+    nonemptystring, oneof, oneofdict, oneofdict_or, pvname, relative_path, \
+    setof, subdir, tacodev, tangodev, tupleof, vec3
 from nicos.core.scan import Scan
 from nicos.core.utils import ACCESS_LEVELS, ADMIN, GUEST, USER, User, \
     formatStatus, multiReset, multiStatus, multiStop, multiWait, system_user, \
