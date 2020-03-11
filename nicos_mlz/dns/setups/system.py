@@ -33,7 +33,6 @@ devices = dict(
             group = 'iff',
         ),
         sample = 'Sample',
-        propprefix = 'p',
         serviceexp = 'service',
         sendmail = False,
     ),

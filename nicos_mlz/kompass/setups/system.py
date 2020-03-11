@@ -35,7 +35,6 @@ devices = dict(
         dataroot = '/data',
         sample = 'Sample',
         serviceexp = 'service',
-        propprefix = '',
         sendmail = True,
         mailsender = 'kompass@frm2.tum.de',
         managerights = dict(

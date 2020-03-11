@@ -41,7 +41,6 @@ devices = dict(
         sendmail = True,
         serviceexp = 'p0',
         sample = 'Sample',
-        propprefix = 'p',
         mailsender = 'stressi@frm2.tum.de',
         elog = True,
         managerights = dict(

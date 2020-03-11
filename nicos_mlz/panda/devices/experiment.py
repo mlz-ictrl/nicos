@@ -34,7 +34,6 @@ from nicos_mlz.devices.experiment import Experiment
 
 class PandaExperiment(Experiment):
     parameter_overrides = {
-        'propprefix':    Override(default='p'),
         'templates':     Override(default='exp/template'),
         'servicescript': Override(default='start_service.py'),
     }
