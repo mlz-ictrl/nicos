@@ -72,7 +72,7 @@ def test_scan(session, log):
     try:
         # plain scan, with some extras: infostring, firstmove
         scan(m, 0, 1, 5, 0.005, 'test scan', manual=1)
-        dataset = dataman._last_scans[-1]
+        dataset = dataman.getLastScans()[-1]
         assert [v.name for v in dataset.devvalueinfo] == ['motor']
         assert [v.unit for v in dataset.devvalueinfo] == ['mm']
         assert dataset.devvaluelists == [[float(i)] for i in range(5)]
@@ -90,12 +90,12 @@ def test_scan(session, log):
 
         # scan with second basic syntax
         scan(m, [0, 4, 5], 0.)
-        dataset = dataman._last_scans[-1]
+        dataset = dataman.getLastScans()[-1]
         assert dataset.devvaluelists == [[float(i)] for i in [0, 4, 5]]
 
         # scan with multiple devices
         scan([m, m2], [0, 0], [1, 2], 3, t=0.)
-        dataset = dataman._last_scans[-1]
+        dataset = dataman.getLastScans()[-1]
         assert dataset.devvaluelists == [[float(i), float(i*2)] for i in [0, 1, 2]]
 
         # same with tuple arguments
@@ -103,12 +103,12 @@ def test_scan(session, log):
 
         # scan with multiple devices and second basic syntax
         scan([m, m2], [[0, 0, 1], [4, 2, 1]], t=0.)
-        dataset = dataman._last_scans[-1]
+        dataset = dataman.getLastScans()[-1]
         assert dataset.devvaluelists == [[0., 4.], [0., 2.], [1., 1.]]
 
         # scan with different environment
         scan(m, [0, 1], c)
-        dataset = dataman._last_scans[-1]
+        dataset = dataman.getLastScans()[-1]
         assert dataset.devvaluelists == [[0.], [1.]]
         assert dataset.envvaluelists == [[0.], [1.]]
         assert dataset.devvalueinfo[0].name == 'motor'
@@ -135,7 +135,7 @@ def test_scan2(session):
 
         # scan with different detectors
         scan(m, [0, 1], det, m=1, t=0.)
-        dataset = dataman._last_scans[-1]
+        dataset = dataman.getLastScans()[-1]
         assert dataset.devvaluelists == [[0.], [1.]]
         # 2 points, 5 detector channels
         assert len(dataset.detvaluelists) == 2
@@ -145,7 +145,7 @@ def test_scan2(session):
 
         # scan with multistep
         scan(m, [0, 1], det, manual=[3, 4], t=0.)
-        dataset = dataman._last_scans[-1]
+        dataset = dataman.getLastScans()[-1]
         assert dataset.devvaluelists == [[0., 3.], [0., 4.],
                                          [1., 3.], [1., 4.]]
 
@@ -164,16 +164,16 @@ def test_scan_plotindex(session):
     session.experiment.setDetectors([session.getDevice('det')])
     # first device is moving
     scan([m, m2], [0, 0], [2, 0], 2, t=0)
-    assert dataman._last_scans[-1].xindex == 0
+    assert dataman.getLastScans()[-1].xindex == 0
     # second device is moving
     scan([m, m2], [0, 0], [0, 2], 2, t=0)
-    assert dataman._last_scans[-1].xindex == 1
+    assert dataman.getLastScans()[-1].xindex == 1
     # second device is moving, with multistep (issue #4030, #4031)
     scan([m, m2], [0, 0], [0, 2], 2, t=0., manual=[1, 2])
-    assert dataman._last_scans[-1].xindex == 1
+    assert dataman.getLastScans()[-1].xindex == 1
     # degenerate case only multistep moving, with multistep (issue #4030, #4031)
     scan([m, m2], [0, 0], [0, 0], 2, t=0., manual=[1, 2])
-    assert dataman._last_scans[-1].xindex == 0
+    assert dataman.getLastScans()[-1].xindex == 0
 
 
 def test_scan_usageerrors(session):
@@ -214,20 +214,20 @@ def test_scan_errorhandling(session, log):
     dataman = session.experiment.data
     # no errors, works fine
     scan(t, [0, 1, 2])
-    dataset = dataman._last_scans[-1]
+    dataset = dataman.getLastScans()[-1]
     assert dataset.devvaluelists == [[0], [1], [2]]
 
     with log.allow_errors():
         # limit error: skips the data points
         scan(t, [-10, 0, 10, 3])
-        dataset = dataman._last_scans[-1]
+        dataset = dataman.getLastScans()[-1]
         assert dataset.devvaluelists == [[0], [3]]
 
         # communication error during move: also skips the data points
         t._value = 0
         t._start_exception = CommunicationError()
         scan(t, [0, 1, 2, 3])
-        dataset = dataman._last_scans[-1]
+        dataset = dataman.getLastScans()[-1]
         assert dataset.devvaluelists == [[0]]  # tdev.move only raises when target != 0
 
         # position error during move: ignored
@@ -235,18 +235,18 @@ def test_scan_errorhandling(session, log):
         t._read_exception = None
         t._start_exception = PositionError()
         scan(t, [0, 1, 2, 3])
-        dataset = dataman._last_scans[-1]
+        dataset = dataman.getLastScans()[-1]
         assert dataset.devvaluelists == [[0], [None], [None], [None]]
 
         # position error during readout: ignored
         t._read_exception = PositionError()
         t._start_exception = None
         scan(t, [0, 1, 2, 3])
-        dataset = dataman._last_scans[-1]
+        dataset = dataman.getLastScans()[-1]
         assert dataset.devvaluelists == [[None], [None], [None], [None]]
         # also as an environment device
         scan(m, [0, 1], t)
-        dataset = dataman._last_scans[-1]
+        dataset = dataman.getLastScans()[-1]
         assert dataset.devvaluelists == [[0.], [1.]]
         assert dataset.envvaluelists == [[None], [None]]
 
@@ -259,7 +259,7 @@ def test_cscan(session):
     m = session.getDevice('motor')
     cscan(m, 0, 1, 2)
     dataman = session.experiment.data
-    dataset = dataman._last_scans[-1]
+    dataset = dataman.getLastScans()[-1]
     assert dataset.devvaluelists == [[-2.], [-1.], [0.], [1.], [2.]]
 
 
@@ -268,13 +268,13 @@ def test_sweeps(session):
     m.maw(1)
     timescan(5, m)
     dataman = session.experiment.data
-    dataset = dataman._last_scans[-1]
+    dataset = dataman.getLastScans()[-1]
     assert len(dataset.devvaluelists) == 5
     assert dataset.envvaluelists[0][0] < 1
     assert dataset.envvaluelists[0][1] == 1.0
 
     sweep(m, 1, 5)
-    dataset = dataman._last_scans[-1]
+    dataset = dataman.getLastScans()[-1]
     assert dataset.envvaluelists[-1][0] == 5
 
 
@@ -290,7 +290,7 @@ def test_contscan(session):
         session.experiment.detlist = []
     assert m.speed == 0  # reset to old value
     dataman = session.experiment.data
-    dataset = dataman._last_scans[-1]
+    dataset = dataman.getLastScans()[-1]
     assert dataset.devvaluelists
     assert all(0 <= res[0] <= 2 for res in dataset.devvaluelists)
     # no speed parameter
@@ -330,7 +330,7 @@ def test_manualscan(session):
     finally:
         SetEnvironment()
     dataman = session.experiment.data
-    dataset = dataman._last_scans[-1]
+    dataset = dataman.getLastScans()[-1]
     assert dataset.info.startswith('manscan')
     # note: here, the env devices given in the command come first
     assert dataset.envvaluelists == [[0., 0., 0.], [0., 0., 0.],
@@ -355,32 +355,32 @@ def test_appendscan(session):
 
     scan(m1, 0, 1, 3, det, t=0.)
     dataman = session.experiment.data
-    dataset1 = dataman._last_scans[-1]
+    dataset1 = dataman.getLastScans()[-1]
     assert dataset1.startpositions == [[0], [1], [2]]
 
     appendscan(3, 2)
-    dataset2 = dataman._last_scans[-1]
+    dataset2 = dataman.getLastScans()[-1]
     assert dataset2.continuation == [dataset1.uid]
     assert dataset2.startpositions == [[4], [6], [8]]
 
     appendscan(-3)
-    dataset3 = dataman._last_scans[-1]
+    dataset3 = dataman.getLastScans()[-1]
     assert dataset3.continuation == [dataset2.uid, dataset1.uid]
     assert dataset3.startpositions == [[-1], [-2], [-3]]
 
     appendscan(-3)
-    dataset4 = dataman._last_scans[-1]
+    dataset4 = dataman.getLastScans()[-1]
     assert dataset4.continuation == [dataset3.uid, dataset2.uid, dataset1.uid]
     assert dataset4.startpositions == [[-4], [-5], [-6]]
 
     scan([m2, m1], [0, 10], [1, 2], 3, det, t=0.)
 
     appendscan(3)
-    dataset5 = dataman._last_scans[-1]
+    dataset5 = dataman.getLastScans()[-1]
     assert dataset5.startpositions == [[3, 16], [4, 18], [5, 20]]
 
     appendscan(3, [0, 1])
-    dataset5 = dataman._last_scans[-1]
+    dataset5 = dataman.getLastScans()[-1]
     assert dataset5.startpositions == [[5, 21], [5, 22], [5, 23]]
 
 
@@ -389,7 +389,7 @@ def test_twodscan(session):
     m2 = session.getDevice('motor2')
     twodscan(m, 0, 1, 2, m2, 0, 1, 2, '2d')
     dataman = session.experiment.data
-    dataset = dataman._last_scans[-1]
+    dataset = dataman.getLastScans()[-1]
     assert dataset.info.startswith('2d')
     assert dataset.subsets[0].devvaluelist == [0.]
     assert dataset.subsets[0].envvaluelist == [1.]

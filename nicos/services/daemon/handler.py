@@ -685,15 +685,15 @@ class ConnectionHandler(object):
         """
         if index == '*':
             try:
-                self.send_ok_reply([ScanData(s)
-                                    for s in session.experiment.data._last_scans])
+                self.send_ok_reply([ScanData(s) for s in
+                                    session.experiment.data.getLastScans()])
             # session.experiment may be None or a stub
             except (AttributeError, ConfigurationError):
                 self.send_ok_reply(None)
         else:
             index = int(index)
             try:
-                dataset = ScanData(session.experiment.data._last_scans[index])
+                dataset = ScanData(session.experiment.data.getLastScans()[index])
                 self.send_ok_reply(dataset)
             except (IndexError, AttributeError, ConfigurationError):
                 self.send_ok_reply(None)

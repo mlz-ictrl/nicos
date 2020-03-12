@@ -88,7 +88,7 @@ def test_empty_manager(session):
     assert dataman._current is None
     # check for empty scan cache
     dataman.reset_all()
-    assert dataman._last_scans == []
+    assert dataman.getLastScans() == []
 
 
 def test_temp_point(session):
@@ -137,7 +137,7 @@ def test_force_scandata(session):
     try:
         count(1)
         # ensure that a scan dataset was produced
-        ds = dataman._last_scans[-1]
+        ds = dataman.getLastScans()[-1]
         assert ds.npoints == 1
         assert session.experiment.lastscan == ds.counter
     finally:

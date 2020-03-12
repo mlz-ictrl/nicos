@@ -48,7 +48,7 @@ __all__ = [
 
 
 def _getData(columns=None, dataset=None):
-    dslist = session.experiment.data._last_scans
+    dslist = session.experiment.data.getLastScans()
     if dataset is None:
         if not dslist:
             raise NicosError('no latest dataset has been stored')

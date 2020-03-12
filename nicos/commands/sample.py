@@ -430,7 +430,7 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
         if not scans:
             raise UsageError('please give either scans or peaks argument')
 
-        for dataset in session.experiment.data._last_scans:
+        for dataset in session.experiment.data.getLastScans():
             num = dataset.counter
             if num not in scans:
                 continue

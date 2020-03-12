@@ -50,7 +50,7 @@ def test_scan_gen_elog(session):
     try:
         # plain scan, with some extras: infostring, firstmove
         scan(m, 0, 1, 5, 0., 'test scan', manual=1)
-        dataset = ScanData(session.experiment.data._last_scans[-1])
+        dataset = ScanData(session.experiment.data.getLastScans()[-1])
         genplot.plotDataset(dataset, path.join(runtime_root, 'testplt'), 'svg')
     finally:
         session.experiment.detlist = []

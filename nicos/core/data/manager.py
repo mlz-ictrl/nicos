@@ -78,6 +78,10 @@ class DataManager(object):
         self.reset()
         self._last_scans = []
 
+    def getLastScans(self):
+        """Return the cached list of scan datasets."""
+        return self._last_scans
+
     #
     # Adding and finishing up datasets
     #
