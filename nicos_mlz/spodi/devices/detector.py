@@ -120,7 +120,7 @@ class Detector(MeasureSequencer):
             (self.resosteps - 1) * self._step_size
         self.log.debug('det._startpos: %r', self._startpos)
         self._setROParam('rates', [0., 0., 0.])
-        session.data.updateMetainfo()
+        session.experiment.data.updateMetainfo()
 
         self._last_live = 0
         self._step = 0

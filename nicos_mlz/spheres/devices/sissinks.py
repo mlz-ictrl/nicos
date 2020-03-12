@@ -70,7 +70,7 @@ class SisYamlFileSinkHandlerBase(YAMLBaseFileSinkHandler):
     savefile = 'basic'
 
     def setScanDataSet(self):
-        stack = session.data._stack
+        stack = self.manager._stack
         if len(stack) >= 2 and isinstance(stack[-2], ScanDataset):
             self.scands = stack[-2]
         else:

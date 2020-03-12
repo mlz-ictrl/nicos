@@ -198,7 +198,7 @@ def test_scanning_detector(session):
     scandet = session.getDevice('scandet')
 
     count(scandet, t=0)
-    dataset = session.data._last_scans[-1]
+    dataset = session.experiment.data._last_scans[-1]
 
     # check correct length of executed scan
     assert len(scandet.positions) == dataset.npoints

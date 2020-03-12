@@ -175,7 +175,7 @@ class Scan(object):
             session.endActionScope()
 
     def beginScan(self):
-        self.dataset = session.data.beginScan(
+        self.dataset = session.experiment.data.beginScan(
             subscan=self._subscan,
             devices=self._devices,
             environment=self._envlist,
@@ -199,7 +199,7 @@ class Scan(object):
         session.breakpoint(2)
 
     def endScan(self):
-        session.data.finishScan()
+        session.experiment.data.finishScan()
         try:
             from nicos.core.data import ScanData
             session.elogEvent('scanend', ScanData(self.dataset))
@@ -350,6 +350,7 @@ class Scan(object):
         acquire(point, preset, iscompletefunc=self.acquireCompleted)
 
     def _inner_run(self):
+        dataman = session.experiment.data
         # move all devices to starting position before starting scan
         try:
             self.prepareScan(self._startpositions[0])
@@ -385,13 +386,13 @@ class Scan(object):
                     try:
                         # measure...
                         # XXX(dataapi): is target= needed?
-                        point = session.data.beginPoint(target=position)
-                        session.data.putValues(waitresults)
+                        point = dataman.beginPoint(target=position)
+                        dataman.putValues(waitresults)
                         self.readEnvironment()
                         try:
                             self.acquire(point, self._preset)
                         finally:
-                            session.data.finishPoint()
+                            dataman.finishPoint()
                     except NicosError as err:
                         self.handleError('count', err)
                     except SkipPoint:
@@ -601,6 +602,7 @@ class ContinuousScan(Scan):
         except (StopScan, SkipPoint, LimitError):
             return
 
+        dataman = session.experiment.data
         self.beginScan()
 
         device = self._devices[0]
@@ -636,16 +638,15 @@ class ContinuousScan(Scan):
                                        det.readArrays(INTERMEDIATE))
                             for det in detlist}
                     actualpos = [0.5 * (devpos + new_devpos)]
-                    session.data.beginTemporaryPoint()
+                    dataman.beginTemporaryPoint()
                     if point == 0:
-                        session.data.updateMetainfo()
-                    session.data.putValues({device.name: (None, actualpos)})
+                        dataman.updateMetainfo()
+                    dataman.putValues({device.name: (None, actualpos)})
                     self.readEnvironment()
                     # TODO: if the data sink needs it ?
-                    # session.data.updateMetainfo()
-                    session.data.putResults(FINAL,
-                                            self._calculate_diff(last, read))
-                    session.data.finishPoint()
+                    # dataman.updateMetainfo()
+                    dataman.putResults(FINAL, self._calculate_diff(last, read))
+                    dataman.finishPoint()
                     last = read
                     devpos = new_devpos
                     for det in detlist:
@@ -712,18 +713,19 @@ class ManualScan(Scan):
             return results
 
     def _step_inner(self, preset):
+        dataman = session.experiment.data
         preset = preset or self._preset
         self._curpoint += 1
         self.preparePoint(self._curpoint, [])
         try:
-            point = session.data.beginPoint()
+            point = dataman.beginPoint()
             actualpos = self.readPosition()
-            session.data.putValues(actualpos)
+            dataman.putValues(actualpos)
             try:
                 acquire(point, preset)
             finally:
                 self.readEnvironment()
-                session.data.finishPoint()
+                dataman.finishPoint()
         except SkipPoint:
             pass
         finally:

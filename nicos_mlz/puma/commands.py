@@ -110,7 +110,7 @@ class MultiADScan(Scan):
                                Value('rg', unit='deg', fmtstr='%.2f'))
         self._parlist = parlist
         self._point = None
-        self._data = session.data
+        self._data = session.experiment.data
 
     def beginScan(self):
         # Copy of the data.manager.beginScan with s/ScanDataset/ADScanDataset/
@@ -297,7 +297,7 @@ class TimeADScan(SweepScan):
                 strvalue = '%.2f' % value
                 newinfo['%s%d' % (name, i + 1), 'value'] = (value, strvalue,
                                                             unit, 'general')
-        session.data.putMetainfo(newinfo)
+        session.experiment.data.putMetainfo(newinfo)
 
 
 @usercommand

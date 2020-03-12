@@ -100,6 +100,8 @@ def acquire(point, preset, iscompletefunc=None):
     delay = (session.instrument and session.instrument.countloopdelay or 0.025
              if session.mode != SIMULATION else 0.0)
 
+    dataman = session.experiment.data
+
     session.beginActionScope('Counting')
     if session.countloop_request:
         _wait_for_continuation(delay, only_pause=True)
@@ -111,7 +113,7 @@ def acquire(point, preset, iscompletefunc=None):
     for det in point.detectors:
         waitForCompletion(det)
 
-    session.data.updateMetainfo()
+    dataman.updateMetainfo()
     point.started = currenttime()
     try:
         for det in point.detectors:
@@ -136,7 +138,7 @@ def acquire(point, preset, iscompletefunc=None):
                     except Exception:
                         det.log.exception('error reading measurement data')
                         res = None
-                    session.data.putResults(quality, {det.name: res})
+                    dataman.putResults(quality, {det.name: res})
                 if quality == FINAL:
                     detset.discard(det)
             if not detset:
@@ -177,7 +179,7 @@ def acquire(point, preset, iscompletefunc=None):
                 det.log.exception('error reading measurement data')
                 res = None
             try:
-                session.data.putResults(INTERRUPTED, {det.name: res})
+                dataman.putResults(INTERRUPTED, {det.name: res})
             except Exception:
                 det.log.exception('error saving measurement data')
         reraise(*exc_info)
@@ -203,14 +205,14 @@ def read_environment(envlist):
             dev.log.warning('error reading for scan data', exc=err)
             val = [None] * len(dev.valueInfo())
         values[dev.name] = (currenttime(), val)
-    session.data.putValues(values)
+    session.experiment.data.putValues(values)
 
 
 def stop_acquire_thread():
     """Stops an live() count if in progress."""
     if session._thd_acquire and session._thd_acquire.is_alive():
         session.log.info('live() counting in progress, stopping detectors.')
-        for det in session.data._current.detectors:
+        for det in session.experiment.data._current.detectors:
             session.log.debug("stop detector: %s", det)
             det.stop()
         session.log.debug("joining acquire thread")

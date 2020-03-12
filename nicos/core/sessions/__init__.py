@@ -189,11 +189,6 @@ class Session(object):
         """The current :term:`execution mode` of the session."""
         return self._mode
 
-    @property
-    def data(self):
-        """Compatibility alias for self.experiment.data."""
-        return self.experiment.data
-
     def setMode(self, mode):
         """Set a new mode for the session.
 

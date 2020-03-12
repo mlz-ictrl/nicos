@@ -54,8 +54,10 @@ def inner_count(detectors, preset, temporary=False, threaded=False):
     # stop previous inner_count / acquisition thread if available
     stop_acquire_thread()
 
+    dataman = session.experiment.data
+
     if session.experiment.forcescandata:
-        session.data.beginScan(
+        dataman.beginScan(
             info=preset.get('info', 'count(%s)' %
                             ', '.join('%s=%s' % kv for kv in preset.items())),
             npoints=1,
@@ -68,18 +70,18 @@ def inner_count(detectors, preset, temporary=False, threaded=False):
                 environment=session.experiment.sampleenv,
                 preset=preset)
     if temporary:
-        point = session.data.beginTemporaryPoint(**args)
+        point = dataman.beginTemporaryPoint(**args)
     else:
-        point = session.data.beginPoint(**args)
+        point = dataman.beginPoint(**args)
     read_environment(session.experiment.sampleenv)
 
     def _acquire_func():
         try:
             acquire(point, preset)
         finally:
-            session.data.finishPoint()
+            dataman.finishPoint()
             if session.experiment.forcescandata:
-                session.data.finishScan()
+                dataman.finishScan()
 
     if threaded:
         session._thd_acquire = createThread("acquire", _acquire_func)
@@ -240,7 +242,7 @@ def ListDetectors():
     """List the standard detectors."""
     if session.experiment.detlist:
         session.log.info('standard detectors are: %s',
-                             ', '.join(session.experiment.detlist))
+                         ', '.join(session.experiment.detlist))
     else:
         session.log.info('at the moment no standard detectors are set.')
 

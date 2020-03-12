@@ -410,8 +410,8 @@ class SISDetector(Detector):
         self._saveIntermediateFlag = True
 
     def _saveIntermediate(self):
-        session.data.putResults(INTERMEDIATE,
-                                {self.name: self.readResults(INTERMEDIATE)})
+        session.experiment.data.putResults(
+            INTERMEDIATE, {self.name: self.readResults(INTERMEDIATE)})
 
     def duringMeasureHook(self, elapsed):
         if self._saveIntermediateFlag:

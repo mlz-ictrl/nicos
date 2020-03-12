@@ -32,7 +32,6 @@ import numpy as np
 from Detector import Detector
 from IO import Counter
 
-from nicos import session
 from nicos.core import INFO_CATEGORIES, LIVE, SIMULATION, Attach, Override, \
     Param, Value, listof, oneof
 from nicos.core.constants import POINT, SCAN
@@ -43,11 +42,6 @@ from nicos.devices.generic.detector import ActiveChannel, \
 from nicos.devices.taco.detector import BaseChannel as TacoBaseChannel
 from nicos.pycompat import iteritems
 from nicos.utils import syncFile
-
-# import shutil
-
-
-
 
 
 class ComtecCounter(CounterChannelMixin, TacoBaseChannel, PassiveChannel):
@@ -177,16 +171,17 @@ class ComtecFilename(TacoBaseChannel, PassiveChannel):
 
 class ComtecHeaderSinkHandler(DataSinkHandler):
     _file = None
+
     def prepare(self):
         # obtain filenames /prefixes
         # the first entry is normally used as the datafile.
         # we use it for the prefix of the det.
         # the other entries are normally 'just' the hardlinks to the datafile
         # we use the first for the filename and the others for the links.
-        session.data.assignCounter(self.dataset)
+        self.manager.assignCounter(self.dataset)
         self.log.warning('tmpl:' + repr(self.sink.filenametemplate))  # XXX: remove
         self.log.warning('subdir:' + repr(self.sink.subdir))  # XXX: remove
-        self.prefix, allfilepaths = session.data.getFilenames(
+        self.prefix, allfilepaths = self.manager.getFilenames(
             self.dataset, self.sink.filenametemplate, self.sink.subdir)
         self.log.warning('allpaths:' + repr(self.allfilepaths))  # XXX: remove
         self.linkpaths = allfilepaths[1:]
@@ -208,7 +203,7 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
             if not self.linkpaths:  # XXX: remove
                 self.log.warning('no linkpaths set, NOT saving header')
                 return
-            self._file = session.data.createDataFile(
+            self._file = self.manager.createDataFile(
                 self.dataset, [self.linkpaths[0] + self.prefix + '.header'],
                 self.sink.subdir)
             self.writeHeader(self._file, self.dataset.metainfo, image)
@@ -262,7 +257,7 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
 
         # link files
         # self.linkpaths enthält den zieldateinamen und die linknamen als eine liste
-        # session.data.linkFiles(self.linkpaths[0], self.linkpaths[1:])
+        # self.manager.linkFiles(self.linkpaths[0], self.linkpaths[1:])
 
 
 COMTEC_TEMPLATES = [
@@ -282,7 +277,7 @@ class ComtecHeaderSink(ImageSink):
 
     parameters = {
         'fast_basepaths': Param('Mount point(s) of the fast data storage',
-                               type=listof(str), default=['/'], settable=False),
+                                type=listof(str), default=['/'], settable=False),
     }
 
     parameter_overrides = {  # \A_username_JJJJ_MM\username_JJJJ_MM-xxx-A1-yyy.lst

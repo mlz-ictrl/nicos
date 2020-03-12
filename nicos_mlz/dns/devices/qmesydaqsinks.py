@@ -28,7 +28,6 @@ from __future__ import absolute_import, division, print_function
 
 from os import path
 
-from nicos import session
 from nicos.core import Attach, DataSinkHandler, Device, Override
 from nicos.core.constants import POINT
 from nicos.devices.datasinks import FileSink
@@ -43,8 +42,8 @@ def countdown(fn):
 
 class HistogramSinkHandler(DataSinkHandler):
     def prepare(self):
-        session.data.assignCounter(self.dataset)
-        filepaths = session.data.getFilenames(self.dataset,
+        self.manager.assignCounter(self.dataset)
+        filepaths = self.manager.getFilenames(self.dataset,
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
         qmname = countdown(filepaths[0])
@@ -54,8 +53,8 @@ class HistogramSinkHandler(DataSinkHandler):
 
 class ListmodeSinkHandler(DataSinkHandler):
     def prepare(self):
-        session.data.assignCounter(self.dataset)
-        filepaths = session.data.getFilenames(self.dataset,
+        self.manager.assignCounter(self.dataset)
+        filepaths = self.manager.getFilenames(self.dataset,
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
         qmname = countdown(filepaths[0])

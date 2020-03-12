@@ -51,13 +51,14 @@ def generate_dataset(session):
     assert len(data) == len(xpoints)
     tdev = session.getDevice('tdev')
     det = session.getDevice('det')
-    session.data.beginScan(devices=[tdev], detectors=[det])
+    dataman = session.experiment.data
+    dataman.beginScan(devices=[tdev], detectors=[det])
     for (x, y) in zip(xpoints, data):
-        session.data.beginPoint()
-        session.data.putValues({'tdev': (None, x)})
-        session.data.putResults(FINAL, {'det': ([0, 0, y, y*2], [])})
-        session.data.finishPoint()
-    session.data.finishScan()
+        dataman.beginPoint()
+        dataman.putValues({'tdev': (None, x)})
+        dataman.putResults(FINAL, {'det': ([0, 0, y, y*2], [])})
+        dataman.finishPoint()
+    dataman.finishScan()
 
 
 class TestAnalyzers(object):

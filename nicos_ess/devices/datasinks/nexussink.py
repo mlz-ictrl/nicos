@@ -29,7 +29,6 @@ import json
 import os
 import time
 
-from nicos import session
 from nicos.core import Attach, Override, Param, dictof, status, tupleof
 from nicos.core.constants import POINT
 from nicos.core.data import DataSinkHandler
@@ -201,16 +200,16 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
 
     def prepare(self):
         # Assign the counter
-        session.data.assignCounter(self.dataset)
+        self.manager.assignCounter(self.dataset)
 
         # Generate the filenames, only if not set
         if not self.dataset.filepaths:
-            session.data.getFilenames(self.dataset, self.sink.filenametemplate,
+            self.manager.getFilenames(self.dataset, self.sink.filenametemplate,
                                       self.sink.subdir)
 
         # Update meta information of devices, only if not present
         if not self.dataset.metainfo:
-            session.data.updateMetainfo()
+            self.manager.updateMetainfo()
 
     def begin(self):
         self.template = copy_nexus_template(self.sink.template)

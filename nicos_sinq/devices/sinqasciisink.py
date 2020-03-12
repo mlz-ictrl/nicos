@@ -47,8 +47,8 @@ class SINQAsciiSinkHandler(DataSinkHandler):
     scanvalues = {}
 
     def prepare(self):
-        session.data.assignCounter(self.dataset)
-        session.data.getFilenames(self.dataset, self.sink.filenametemplate,
+        self.manager.assignCounter(self.dataset)
+        self.manager.getFilenames(self.dataset, self.sink.filenametemplate,
                                   self.sink.subdir)
 
     def _findValue(self, dev, par):

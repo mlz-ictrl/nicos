@@ -29,7 +29,6 @@ from time import localtime, strftime, time as currenttime
 import h5py
 import numpy
 
-from nicos import session
 from nicos.core import DataSinkHandler, Override, Param
 from nicos.core.constants import SCAN, SUBSCAN
 from nicos.core.data.sink import DataFileBase
@@ -87,8 +86,8 @@ class ResedaHDF5SinkHandler(DataSinkHandler):
         elif self.dataset.settype == SCAN:
             self.log.debug('New scan dataset recognized, creating new file')
 
-            session.data.assignCounter(self.dataset)
-            self.sink._current_scan_file = session.data.createDataFile(
+            self.manager.assignCounter(self.dataset)
+            self.sink._current_scan_file = self.manager.createDataFile(
                 self.dataset, self.sink.filenametemplate, self.sink.subdir,
                 fileclass=ResedaHDF5DataFile)
             self.current_file.subscan_group_tmpl = self.sink.subscangrouptmpl

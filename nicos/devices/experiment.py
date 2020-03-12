@@ -577,7 +577,7 @@ class Experiment(Device):
             except Exception:
                 notifier.log.warning('could not clear notifier info', exc=1)
         try:
-            session.data.reset_all()
+            session.experiment.data.reset_all()
         except Exception:
             self.log.warning('could not clear data manager info', exc=1)
 

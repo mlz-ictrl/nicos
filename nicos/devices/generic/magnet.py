@@ -167,7 +167,7 @@ class CalibratedMagnet(HasLimits, Moveable):
 
         >>> B_mira.calibrate(Bf, 351)
         """
-        scans = session.data._last_scans
+        scans = session.experiment.data._last_scans
         self.log.info('determining calibration from scans, please wait...')
         Is = []
         Bs = []

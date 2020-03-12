@@ -89,6 +89,7 @@ def RewriteHistory(fromtime, totime=None):
     >>> RewriteHistory(1510827000, 3)
     >>> RewriteHistory('2012-05-08', 1)
     """
+    dataman = session.experiment.data
     for sink in session.datasinks:
         if isinstance(sink, NexusFileWriterSink):
             key = 'lastsinked'
@@ -108,9 +109,9 @@ def RewriteHistory(fromtime, totime=None):
                     continue
                 session.log.info('Reissued dataset: %s collected during '
                                  '(%s, %s)', counter, started, finished)
-                session.data.beginPoint(detectors=session.experiment.detectors,
-                                        metainfo=metainfo,
-                                        counter=counter,
-                                        started=started,
-                                        finished=finished)
-                session.data.finishPoint()
+                dataman.beginPoint(detectors=session.experiment.detectors,
+                                   metainfo=metainfo,
+                                   counter=counter,
+                                   started=started,
+                                   finished=finished)
+                dataman.finishPoint()

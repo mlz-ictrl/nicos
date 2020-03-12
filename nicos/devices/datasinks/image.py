@@ -91,8 +91,8 @@ class SingleFileSinkHandler(DataSinkHandler):
 
     def _createFile(self, **kwargs):
         if self._file is None:
-            session.data.assignCounter(self.dataset)
-            self._file = session.data.createDataFile(self.dataset,
+            self.manager.assignCounter(self.dataset)
+            self._file = self.manager.createDataFile(self.dataset,
                                                      self.sink.filenametemplate,
                                                      self.sink.subdir,
                                                      fileclass=self.fileclass,

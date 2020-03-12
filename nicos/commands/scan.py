@@ -591,7 +591,7 @@ def appendscan(numpoints=5, stepsize=None):
         raise UsageError('number of points must be either positive or '
                          'negative')
     direction = numpoints / abs(numpoints)
-    dslist = session.data._last_scans
+    dslist = session.experiment.data._last_scans
     if not dslist:
         raise NicosError('no last scan saved')
     contuids = []

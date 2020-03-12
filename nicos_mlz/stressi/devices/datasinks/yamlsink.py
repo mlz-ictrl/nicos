@@ -261,8 +261,8 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         if self._data is None:
             self._data = self._dict()
             self._scan_type = 'SGEN1'
-        self._number = session.data.assignCounter(self.dataset)
-        fp = session.data.createDataFile(self.dataset, self._template[0])
+        self._number = self.manager.assignCounter(self.dataset)
+        fp = self.manager.createDataFile(self.dataset, self._template[0])
         self._fname = fp.shortpath
         self._filepath = fp.filepath
         if not quickyaml:

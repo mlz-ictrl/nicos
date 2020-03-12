@@ -48,10 +48,11 @@ __all__ = [
 
 
 def _getData(columns=None, dataset=None):
+    dslist = session.experiment.data._last_scans
     if dataset is None:
-        if not session.data._last_scans:
+        if not dslist:
             raise NicosError('no latest dataset has been stored')
-        dataset = session.data._last_scans[-1]
+        dataset = dslist[-1]
 
     # append data from previous scans if this is a continuation
     i = -1
@@ -59,7 +60,7 @@ def _getData(columns=None, dataset=None):
     yresults = dataset.detvaluelists
     while dataset.continuation:
         i -= 1
-        dataset = session.data._last_scans[i]
+        dataset = dslist[i]
         xresults = dataset.devvaluelists + xresults
         yresults = dataset.detvaluelists + yresults
 
@@ -216,6 +217,7 @@ def poly(n, *columns):
     """
     return fit(PolyFit, *columns, n=n)
 
+
 poly.__doc__ += COLHELP.replace('func(', 'poly(2, ')
 
 
@@ -247,6 +249,7 @@ def gauss(*columns):
             # now work with fitted peak center
     """
     return fit(GaussFit, *columns)
+
 
 gauss.__doc__ += COLHELP.replace('func(', 'gauss(')
 

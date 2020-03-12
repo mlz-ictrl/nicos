@@ -11,7 +11,7 @@ def start_filewriter():
     if session.mode == SIMULATION:
         session.log.info('=> dry run: starting file writing')
     else:
-        point = session.data.beginPoint()
+        point = session.experiment.data.beginPoint()
         sink = session.getDevice('NexusDataSink')
         point.handlers = [sink.handlerclass(sink, point, None)]
         point.dispatch('prepare')
@@ -26,4 +26,4 @@ def stop_filewriter():
     if session.mode == SIMULATION:
         session.log.info('=> dry run: stopping file writing')
     else:
-        session.data.finishPoint()
+        session.experiment.data.finishPoint()

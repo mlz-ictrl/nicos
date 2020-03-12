@@ -148,7 +148,7 @@ class TestSinks(object):
         assert contents[-1].startswith('### End of NICOS data file')
 
         # check counter attributes
-        scan = session.data._last_scans[-1]
+        scan = session.experiment.data._last_scans[-1]
         assert scan.counter == 43
         assert scan.propcounter == 1
         assert scan.samplecounter == 1

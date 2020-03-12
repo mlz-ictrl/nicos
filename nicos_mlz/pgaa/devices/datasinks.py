@@ -62,14 +62,14 @@ class PGAASinkHandler(DataSinkHandler):
         self._template = sink.filenametemplate
 
     def prepare(self):
-        session.data.assignCounter(self.dataset)
+        self.manager.assignCounter(self.dataset)
         # save the counters since the counters are lost in 'end' but needed for
         # filename creation
-        self._counters = session.data.getCounters()
+        self._counters = self.manager.getCounters()
 
     def _createFile(self, ext, **kwargs):
         templates = [t + '%s%s' % (path.extsep, ext) for t in self._template]
-        _file = session.data.createDataFile(
+        _file = self.manager.createDataFile(
             self.dataset, templates, self.sink.subdir,
             additionalinfo=kwargs)
         return _file
@@ -292,10 +292,10 @@ class CSVSinkHandler(DataSinkHandler):
         self._template = sink.filenametemplate
 
     def prepare(self):
-        session.data.assignCounter(self.dataset)
+        self.manager.assignCounter(self.dataset)
         # save the counters since the counters are lost in 'end' but needed for
         # filename creation
-        self._counters = session.data.getCounters()
+        self._counters = self.manager.getCounters()
 
     def _value(self, dev):
         return self.dataset.metainfo[dev, 'value'][0]
@@ -335,7 +335,7 @@ class CSVSinkHandler(DataSinkHandler):
 
         self.dataset.preset['FILENAME'] = addinfo['Filename']
 
-        with session.data.createDataFile(self.dataset, self._template,
+        with self.manager.createDataFile(self.dataset, self._template,
                                          self.sink.subdir,
                                          fileclass=CSVDataFile) as fp:
             self.log.debug('appending csv file: %s', fp.name)

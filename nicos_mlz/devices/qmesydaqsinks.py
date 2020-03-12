@@ -26,7 +26,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos import session
 from nicos.core import Attach, DataSinkHandler, Override
 from nicos.devices.datasinks.image import ImageSink
 from nicos.devices.vendor.qmesydaq import Image
@@ -35,8 +34,8 @@ from nicos.devices.vendor.qmesydaq import Image
 class HistogramSinkHandler(DataSinkHandler):
 
     def prepare(self):
-        session.data.assignCounter(self.dataset)
-        filepaths = session.data.getFilenames(self.dataset,
+        self.manager.assignCounter(self.dataset)
+        filepaths = self.manager.getFilenames(self.dataset,
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
         if self.sink._attached_image:
@@ -46,8 +45,8 @@ class HistogramSinkHandler(DataSinkHandler):
 class ListmodeSinkHandler(DataSinkHandler):
 
     def prepare(self):
-        session.data.assignCounter(self.dataset)
-        filepaths = session.data.getFilenames(self.dataset,
+        self.manager.assignCounter(self.dataset)
+        filepaths = self.manager.getFilenames(self.dataset,
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
         if self.sink._attached_image:

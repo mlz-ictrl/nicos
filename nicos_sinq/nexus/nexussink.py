@@ -80,11 +80,11 @@ class NexusSinkHandler(DataSinkHandler):
             if isinstance(self.startdataset, PointDataset):
                 self.dataset.countertype = 'scan'
             # Assign the counter
-            session.data.assignCounter(self.dataset)
+            self.manager.assignCounter(self.dataset)
 
             # Generate the filenames, only if not set
             if not self.dataset.filepaths:
-                session.data.getFilenames(self.dataset,
+                self.manager.getFilenames(self.dataset,
                                           self.sink.filenametemplate,
                                           self.sink.subdir)
 
@@ -103,7 +103,7 @@ class NexusSinkHandler(DataSinkHandler):
 
             # Update meta information of devices, only if not present
             if not self.dataset.metainfo:
-                session.data.updateMetainfo()
+                self.manager.updateMetainfo()
 
             self.createStructure()
 

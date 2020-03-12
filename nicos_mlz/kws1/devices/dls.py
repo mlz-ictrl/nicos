@@ -30,7 +30,6 @@ import time
 
 import numpy as np
 
-from nicos import session
 from nicos.core import ArrayDesc, Attach, Measurable, Moveable, Override, \
     Param, Readable, dictof, oneof, tupleof
 from nicos.core.constants import FINAL, INTERMEDIATE, POINT
@@ -261,7 +260,7 @@ class DLSFileSinkHandler(DataSinkHandler):
                 mean3 = 0,
             )
 
-            fd = session.data.createDataFile(
+            fd = self.manager.createDataFile(
                 self.dataset,
                 self.sink.filenametemplate,
                 self.sink.subdir,
@@ -273,7 +272,7 @@ class DLSFileSinkHandler(DataSinkHandler):
             fd.close()
 
     def prepare(self):
-        session.data.assignCounter(self.dataset)
+        self.manager.assignCounter(self.dataset)
         self._counter = 0
 
     def putMetainfo(self, metainfo):

@@ -31,7 +31,6 @@ from __future__ import absolute_import, division, print_function
 import shutil
 from os import path
 
-from nicos import session
 from nicos.core import DataSinkHandler, Override, Param
 from nicos.core.params import absolute_path
 
@@ -43,8 +42,8 @@ class CopySinkHandler(DataSinkHandler):
     _target = None
 
     def prepare(self):
-        session.data.assignCounter(self.dataset)
-        self._datafile = session.data.createDataFile(
+        self.manager.assignCounter(self.dataset)
+        self._datafile = self.manager.createDataFile(
             self.dataset, self.sink.filenametemplate, self.sink.subdir,
             nomeasdata=True)
         self._target = self._datafile.name

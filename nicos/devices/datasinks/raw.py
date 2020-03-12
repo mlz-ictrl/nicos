@@ -84,12 +84,12 @@ class RawImageSinkHandler(NicosMetaWriterMixin, DataSinkHandler):
         self._arraydesc = arrayinfo[0]
 
     def prepare(self):
-        session.data.assignCounter(self.dataset)
-        self._datafile = session.data.createDataFile(
+        self.manager.assignCounter(self.dataset)
+        self._datafile = self.manager.createDataFile(
             self.dataset, self._template, self._subdir)
-        self._headerfile = session.data.createDataFile(
+        self._headerfile = self.manager.createDataFile(
             self.dataset, self._headertemplate, self._subdir)
-        self._logfile = session.data.createDataFile(
+        self._logfile = self.manager.createDataFile(
             self.dataset, self._logtemplate, self._subdir)
 
     def _writeHeader(self, fp, metainfo):

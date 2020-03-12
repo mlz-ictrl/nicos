@@ -44,8 +44,8 @@ class TofNeXuSHandler(TofSinkHandler):
         TofSinkHandler.__init__(self, sink, dataset, detector)
 
     def prepare(self):
-        session.data.assignCounter(self.dataset)
-        _, filenames = session.data.getFilenames(self.dataset, self._template,
+        self.manager.assignCounter(self.dataset)
+        _, filenames = self.manager.getFilenames(self.dataset, self._template,
                                                  self._subdir)
         self._filename = filenames[0]
         self._tof = NXtofsingle('detector', name=string_('Scan'))

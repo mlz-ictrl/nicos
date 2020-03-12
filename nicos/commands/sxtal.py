@@ -59,7 +59,7 @@ class HKLScan(Scan):
                  if v.type == 'counter'][0]
         vals = [x[index] for x in subscan.detvaluelists]
         if vals:
-            session.data.putResults(FINAL, {'intensity': [max(vals)]})
+            session.experiment.data.putResults(FINAL, {'intensity': [max(vals)]})
 
 
 @usercommand

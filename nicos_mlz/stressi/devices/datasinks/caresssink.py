@@ -452,14 +452,14 @@ class CaressScanfileSinkHandler(DataSinkHandler):
 
     def prepare(self):
         self.log.debug('prepare: %r', self.dataset.settype)
-        session.data.assignCounter(self.dataset)
+        self.manager.assignCounter(self.dataset)
         _file = None
         if self.dataset.settype == SCAN:
-            _file = session.data.createDataFile(self.dataset,
+            _file = self.manager.createDataFile(self.dataset,
                                                 self._template[0])
             self._scan_file = True
 #       elif not self._scan_file:
-#           _file = session.data.createDataFile(self.dataset,
+#           _file = self.manager.createDataFile(self.dataset,
 #                                               self._template[0])
         if _file:
             self._file = _file

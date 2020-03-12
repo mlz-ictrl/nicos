@@ -412,9 +412,9 @@ class TIFFImageSinkHandler(DataSinkHandler):
     """
 
     def prepare(self):
-        session.data.assignCounter(self.dataset)
+        self.manager.assignCounter(self.dataset)
         for det in self.sink.get_pilatus_detectors():
-            filename, filepaths = session.data.getFilenames(
+            filename, filepaths = self.manager.getFilenames(
                 self.dataset, self.sink.filenametemplate, self.sink.subdir)
             # imagedir = <year>/<proposal>/<subdir>
             det.imagedir = '/'.join(filepaths[0].split(

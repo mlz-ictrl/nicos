@@ -43,9 +43,8 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
     filetype = "MLZ.MARIA.2.0-beta1"
 
     def _write_instr_data(self, meas, image):
-        manager = session.data  # get datamanager
         # get corresponding scan dataset with scan info if available
-        stack = manager._stack
+        stack = self.manager._stack
         if len(stack) >= 2 and isinstance(stack[-2], ScanDataset):
             scands = stack[-2]
             meas["info"] = scands.info

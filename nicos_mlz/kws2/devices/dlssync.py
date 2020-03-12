@@ -59,7 +59,7 @@ class DLSSync(PyTangoDevice, Measurable):
                 if tdev.alias:
                     sampletemp = tdev.read() or 0
             sampleno = session.getDevice('Sample').samplenumber
-            counters = session.data.getCounters()
+            counters = session.experiment.data.getCounters()
             dlsstring = '%s,%d,%d,%d,%f,%d,%d' % (
                 session.experiment.proposal,
                 counters.get('pointcounter', 0),

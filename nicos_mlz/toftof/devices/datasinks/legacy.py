@@ -46,10 +46,10 @@ class TofImageSinkHandler(TofSinkHandler):
         self._logtemplate = self._template[0].replace('.raw', '.log')
 
     def prepare(self):
-        session.data.assignCounter(self.dataset)
-        self._datafile = session.data.createDataFile(
+        self.manager.assignCounter(self.dataset)
+        self._datafile = self.manager.createDataFile(
             self.dataset, self._template, self._subdir)
-        self._logfile = session.data.createDataFile(
+        self._logfile = self.manager.createDataFile(
             self.dataset, self._logtemplate, self._subdir, nomeasdata=True)
 
     def begin(self):
@@ -165,7 +165,7 @@ class TofImageSinkHandler(TofSinkHandler):
 
     def writeData(self, fp, info, data):
         lines = []
-        f = session.data.createDataFile(self.dataset,
+        f = self.manager.createDataFile(self.dataset,
                                         [self._template[0] + '.new'],
                                         self._subdir, nomeasdata=True)
         self._writeHeader(f, self.dataset.metainfo)

@@ -84,6 +84,7 @@ class DataSinkHandler(object):
         self.sink = sink
         self.dataset = dataset
         self.detector = detector
+        self.manager = session.experiment.data
 
     def prepare(self):
         """Prepare writing this dataset.
@@ -233,7 +234,6 @@ class NicosMetaWriterMixin(object):
             wrapper.write('\n%r' % self._arraydesc)
         wrapper.write('\n')
         wrapper.detach()
-
 
 
 class DataSink(Device):

@@ -132,8 +132,8 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
         self._template = sink.filenametemplate
 
     def prepare(self):
-        session.data.assignCounter(self.dataset)
-        fp = session.data.createDataFile(self.dataset, self._template,
+        self.manager.assignCounter(self.dataset)
+        fp = self.manager.createDataFile(self.dataset, self._template,
                                          self.sink.subdir)
         self._fname = fp.shortpath
         self._filepath = fp.filepath
