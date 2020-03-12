@@ -18,11 +18,11 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Georg Brandl <g.brandl@fz-juelich.de>
 #
 # *****************************************************************************
 
-"""NICOS device class test suite."""
+"""NICOS tests for energy conversion functions."""
 
 
 from __future__ import absolute_import, division, print_function
@@ -33,7 +33,7 @@ from nicos.devices.tas.mono import from_k, to_k
 
 from test.utils import approx, raises
 
-# input for to/from k tests (input, unit , output)
+# input for to/from k tests (input, unit, output)
 # note: specifiy enough precision here for backwards calculation
 in_fromk = [(1, 'A', 6.28319),
             (1, 'meV', 2.072123),
