@@ -841,11 +841,16 @@ def SetMailReceivers(*emails):
 
     see also: `ListMailReceivers`
     """
+    emails = list(emails)
     ok = False
+    exp = session.experiment
+    propinfo = dict(exp.propinfo)
+    propinfo['notif_emails'] = emails
+    exp._setROParam('propinfo', propinfo)
     for notifier in session.notifiers:
         if isinstance(notifier, Mailer) and not notifier.private:
             ok = True
-            notifier.receivers = list(emails)
+            notifier.receivers = emails
     if not ok:
         session.log.warning('general email notification is not configured '
                             'in this setup')
@@ -912,7 +917,7 @@ def SetDataReceivers(*emails):
                             'configured in this setup')
     else:
         propinfo = dict(exp.propinfo)
-        propinfo['user_email'] = list(emails)
+        propinfo['data_emails'] = list(emails)
         exp._setROParam('propinfo', propinfo)
         if emails:
             session.log.info('data retrieval email will be sent to %s',
@@ -938,7 +943,7 @@ def ListDataReceivers():
     session.log.info('Email addresses the data will be sent to:')
     propinfo = dict(session.experiment.propinfo)
     items = set()
-    for addr in propinfo.get('user_email', ()):
+    for addr in propinfo.get('data_emails', ()):
         items.add((addr,))
     printTable(('email address', ), sorted(items), session.log.info)
 

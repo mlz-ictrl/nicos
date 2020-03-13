@@ -39,9 +39,9 @@ class Experiment(BaseExperiment):
         if self.proptype == 'service':
             upd = {
                 'title': 'Maintenance',
-                'user': session.instrument.responsible,
-                'localcontact': session.instrument.responsible,
-                'sample': 'Unknown',
+                'users': [{'name': session.instrument.responsible}],
+                'localcontacts': [{'name': session.instrument.responsible}],
+                'default_sample': 'Unknown',
             }
             kwds.update(upd)
             return kwds

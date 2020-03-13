@@ -63,7 +63,7 @@ def test_experiment(session, cleanup):
 
     # setup test scenario
     exp._setROParam('dataroot', path.join(runtime_root, 'data'))
-    exp.proposal = 'service'
+    exp._setROParam('proposal', 'service')
     exp._setROParam('proptype', 'service')
     # if there is no exp.new, we need to adjust proposalpath ourselfs!
     exp.proposalpath = exp.proposalpath_of(exp.proposal)
@@ -115,7 +115,7 @@ def test_experiment(session, cleanup):
     # check that templating works
     assert path.isfile(datapath('p999', 'scripts', 'start_p999.py'))
     run('start_p999.py')
-    assert exp.remark == 'proposal p999 started by you; sample is unknown'
+    assert exp.remark == 'proposal p999 started now; sample is unknown'
 
     # try a small scan; check for data file written
     scan(session.getDevice('axis'), 0, 1, 5, 0.01, 'Meßzeit')
@@ -148,14 +148,13 @@ def test_experiment(session, cleanup):
 
     assert exp.users == 'A User'
     exp.addUser('Another User', 'another.user@experiment.com')
-    assert exp.users == 'A User, Another User <another.user@experiment.com>'
+    assert exp.users == 'A User, Another User'
     exp.addUser('Athird User', 'athird.user@experiment.com',
                 'An Institute, Anywhere street, 12345 Anywhere')
-    assert exp.users == 'A User, Another User <another.user@experiment.com>, '\
-                        'Athird User <athird.user@experiment.com> ' \
-                        '(An Institute, Anywhere street, 12345 Anywhere)'
+    assert exp.users == 'A User, Another User, Athird User '\
+        '(An Institute, Anywhere street, 12345 Anywhere)'
 
-    exp.users = 'Jülich'
+    exp.update(users=[{'name': 'Jülich'}])
 
     exp.scripts = ['Test ümlauts']
     assert exp.scripts == ['Test ümlauts']

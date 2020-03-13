@@ -45,7 +45,6 @@ devices = dict(
         zipdata = True,
         serviceexp = 'service',
         lowlevel = False,
-        localcontact = 'M. Aintainer <m.aintainer@frm2.tum.de>',
     ),
     motor = device('nicos.devices.generic.VirtualMotor',
         unit = 'deg',
