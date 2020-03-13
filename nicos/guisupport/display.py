@@ -39,7 +39,7 @@ from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.utils import setBackgroundColor, setBothColors, \
     setForegroundColor
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.utils import findResource
+from nicos.utils import findResource, formatDuration
 
 defaultColorScheme = {
     'fore': {
@@ -172,6 +172,18 @@ class ValueLabel(SqueezedLabel):
         else:
             setForegroundColor(self, QColor('black'))
             self.setText(self._callback(value, strvalue))
+
+
+class TimeValueLabel(ValueLabel):
+    designer_description = 'Value Label which displays a time in a human ' \
+                           'readable format'
+
+    def __init__(self, parent, designMode=False, **kwds):
+        ValueLabel.__init__(self, parent, designMode, **kwds)
+        self.setFormatCallback(self.formatDuration)
+
+    def formatDuration(self, value, strvalue):
+        return formatDuration(value, precise=False)
 
 
 class ValueDisplay(NicosWidget, QWidget):
