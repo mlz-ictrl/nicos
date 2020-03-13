@@ -75,8 +75,9 @@ class EpicsDeviceEss(EpicsDevice):
             forwarder = session.getDevice('KafkaForwarder')
             if forwarder is not None:
                 forwarder.add(pv_details)
-        except ConfigurationError:
-            pass
+        except ConfigurationError as error:
+            session.log.error("Couldn't add device to KafkaForwarder: %s",
+                              error)
 
 
 class EpicsReadableEss(EpicsDeviceEss, EpicsReadable):
