@@ -30,7 +30,7 @@ from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.core import Override, Param
-from nicos.core.errors import ConfigurationError
+from nicos.core.errors import NicosError
 from nicos.devices.epics import EpicsAnalogMoveable, EpicsDevice, \
     EpicsDigitalMoveable, EpicsMoveable, EpicsReadable, EpicsStringReadable, \
     EpicsWindowTimeoutDevice
@@ -75,8 +75,8 @@ class EpicsDeviceEss(EpicsDevice):
             forwarder = session.getDevice('KafkaForwarder')
             if forwarder is not None:
                 forwarder.add(pv_details)
-        except ConfigurationError:
-            pass
+        except NicosError as error:
+            session.log.error("Couldn't add device to KafkaForwarder: %s", error)
 
 
 class EpicsReadableEss(EpicsDeviceEss, EpicsReadable):
