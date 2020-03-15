@@ -143,7 +143,7 @@ def describe_dev_error(exc):
             fulldesc = 'connection to Tango server failed, is the server ' \
                 'running?'
     elif reason == 'API_CantConnectToDevice':
-        m = re.search(r'connect to device ([\w/]+)', fulldesc)
+        m = re.search(r'connect to device ([\w/-]+)', fulldesc)
         if m:
             fulldesc = 'connection to Tango device %s failed, is the server ' \
                 'running?' % m.group(1)
