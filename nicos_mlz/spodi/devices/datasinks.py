@@ -28,6 +28,7 @@ from __future__ import absolute_import, division, print_function
 
 from time import strftime, time as currenttime
 
+import dataparser as DataParser
 import numpy as np
 
 from nicos.core import Override, Param
@@ -37,8 +38,6 @@ from nicos.devices.datasinks.special import LiveViewSink as BaseLiveViewSink, \
     LiveViewSinkHandler as BaseLiveViewSinkHandler
 from nicos.pycompat import iteritems, to_utf8
 from nicos.utils import findResource
-
-import dataparser as DataParser
 
 
 class CaressHistogramHandler(SingleFileSinkHandler):
