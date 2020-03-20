@@ -90,12 +90,14 @@ class HasSwitchPv(DeviceMixinBase):
     """
 
     parameters = {
-        'switchstates': Param('Map of boolean switch states to underlying type',
-                              type=dictwith(on=anytype, off=anytype),
-                              userparam=False),
-        'switchpvs': Param('Read and write pv for switching device on and off.',
-                           type=dictwith(read=pvname, write=pvname),
-                           userparam=False)
+        'switchstates':
+            Param('Map of boolean switch states to underlying type',
+                  type=dictwith(on=anytype, off=anytype),
+                  userparam=False),
+        'switchpvs':
+            Param('Read and write pv for switching device on and off.',
+                  type=dictwith(read=pvname, write=pvname),
+                  userparam=False)
     }
 
     def _get_pv_parameters(self):
@@ -186,6 +188,7 @@ class EpicsCommandReply(EpicsDeviceEss, Device):
 
         return pvs
 
+    @usermethod
     def execute(self, command):
         """
         Issue and execute the provided command
