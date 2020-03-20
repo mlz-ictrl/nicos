@@ -23,10 +23,10 @@
 # *****************************************************************************
 
 from __future__ import absolute_import, division, print_function
-
+from streaming_data_types.nicos_cache_ns10 import deserialise_ns10, \
+    serialise_ns10
+from nicos.services.cache.entry import CacheEntry
 from nicos.services.cache.entry.serializer import CacheEntrySerializer
-from nicos.services.cache.entry.serializer.flatbuffers.ns10 import decode as ns10decode, \
-    encode as ns10encode
 
 
 class FlatbuffersCacheEntrySerializer(CacheEntrySerializer):
@@ -40,15 +40,23 @@ class FlatbuffersCacheEntrySerializer(CacheEntrySerializer):
     """
 
     def encode(self, key, entry, schema='ns10', **params):
-        if schema == 'ns10':
-            return ns10encode(key, entry)
-        else:
-            self.log.error('Cannot encode with schema %s', schema)
+        try:
+            ttl = entry.ttl if entry.ttl else 0
+            return serialise_ns10(key, entry.value, entry.time, ttl,
+                                  entry.expired)
+        except Exception as error:
+            self.log.error('Cannot encode ns10 cache entry: %s', error)
 
     def decode(self, buf):
-        identifier = buf[4:8].decode('utf-8')
-        if identifier == 'ns10':
-            return ns10decode(buf)
-        else:
-            self.log.error('Incorrect file identifier found: %s', identifier)
+        try:
+            ns_entry = deserialise_ns10(buf)
+            key = ns_entry.key if ns_entry.key.strip() else None
+            ttl = ns_entry.ttl if ns_entry.ttl != 0 else None
+            value = ns_entry.value if ns_entry.value else None
+
+            entry = CacheEntry(ns_entry.time_stamp, ttl, value)
+            entry.expired = ns_entry.expired
+            return key, entry
+        except Exception as error:
+            self.log.error('Could not decode ns10 cache entry: %s', error)
             return None, None
