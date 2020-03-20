@@ -53,9 +53,9 @@ class SinqDetector(EpicsScalerRecord):
 
     def _presetiter(self):
         for name in self.monitor_preset_names:
-            yield name, self._attached_monitorpreset
+            yield name, self._attached_monitorpreset, 'monitor'
         for name in self.time_preset_names:
-            yield name, self._attached_timepreset
+            yield name, self._attached_timepreset, 'time'
 
     def _getMasters(self):
         self._channels = uniq(self._channels + [self._attached_monitorpreset,
@@ -104,7 +104,8 @@ class SinqDetector(EpicsScalerRecord):
         unit = ''
         for d in self._masters:
             for k in self._presetkeys:
-                if self._presetkeys[k] and self._presetkeys[k].name == d.name:
+                if self._presetkeys[k] and\
+                        self._presetkeys[k][0].name == d.name:
                     preselection = d.preselection
                     if preselection != 0:
                         value = preselection
