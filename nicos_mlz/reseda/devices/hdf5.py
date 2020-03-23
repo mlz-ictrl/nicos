@@ -124,9 +124,10 @@ class ResedaHDF5SinkHandler(DataSinkHandler):
 
     def end(self):
         if self.dataset.settype == SCAN:
-            self.log.debug('Finished scan dataset recognized, closing file')
-            self.sink._current_scan_file.close()
-            self.sink._current_scan_file = None
+            if self.current_file:
+                self.log.debug('Finished scan dataset recognized, closing file')
+                self.current_file.close()
+                self.current_file = None
 
     def _addMetadata(self, metadata, hdf5dataset):
         hdf5dataset.attrs['begintime'] = strftime('%Y-%m-%d %H:%M:%S',
