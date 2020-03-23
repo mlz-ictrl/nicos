@@ -35,7 +35,7 @@ from nicos.devices.tas import TAS
 class PUMA(TAS):
     """PUMA specific TAS device.
 
-    Derived fromt the PANDA specific one ...
+    Derived from the PANDA specific one ...
     """
 
     def _getCollimation(self):
