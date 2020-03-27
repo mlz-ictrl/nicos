@@ -208,7 +208,7 @@ class SingleMotorNOK(PseudoNOK, Axis):
 
     parameters = {
         'nok_motor': Param('Position of the motor for this nok', type=float,
-                           settable=False, unit='mm'),
+                           settable=False, unit='mm', category='general'),
     }
 
 
@@ -228,11 +228,11 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
 
     parameters = {
         'mode': Param('Beam mode',
-                      type=oneof(*MODES),
-                      settable=True, userparam=True, default='ng'),
+                      type=oneof(*MODES), settable=True, userparam=True,
+                      default='ng', category='experiment'),
         'nok_motor': Param('Position of the motor for this NOK',
                            type=tupleof(float, float), settable=False,
-                           unit='mm'),
+                           unit='mm', category='general'),
         'inclinationlimits': Param('Allowed range for the positional '
                                    'difference',
                                    type=limits, mandatory=True),
@@ -240,7 +240,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
                           type=float, default=0., unit='main'),
         'offsets': Param('Offsets of NOK-Motors (reactor side, sample side)',
                          type=tupleof(float, float), default=(0., 0.),
-                         settable=False, unit='main'),
+                         settable=False, unit='main', category='offsets'),
     }
 
     parameter_overrides = {

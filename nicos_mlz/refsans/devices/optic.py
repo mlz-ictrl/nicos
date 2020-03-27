@@ -50,8 +50,7 @@ class Optic(Moveable):
                                  'neutronguide',
                                  'vc:nok5a_fc:nok5b',
                                  ),
-                      settable=True,
-                      userparam=True),
+                      settable=True, userparam=True, category='experiment'),
         # 'polarisation': Param('Polarisation',
         #                       type=oneof('up', 'down', 'standby', 'off'),
         #                       settable=True,
@@ -59,11 +58,9 @@ class Optic(Moveable):
         #                       default='off'),
         'setting': Param('Maps positon to attached devices positions for '
                          'bending beam',
-                         type=dict,
-                         mandatory=True),
+                         type=dict, mandatory=True),
         'masks': Param('Maps mask to attached devices positions',
-                       type=dict,
-                       mandatory=True),
+                       type=dict, mandatory=True),
     }
 
     parameter_overrides = {

@@ -54,14 +54,14 @@ class SingleSlit(PseudoNOK, HasOffset, Moveable):
 
     parameters = {
         'mode': Param('Beam mode',
-                      type=oneof(*MODES),
-                      settable=True, userparam=True, default='slit'),
+                      type=oneof(*MODES), settable=True, userparam=True,
+                      default='slit', category='general'),
         '_offsets': Param('List of offsets per mode position',
                           settable=False, internal=True,
                           type=dictof(str, float), default={}),
         'opmode': Param('Mode of operation for the slit',
                         type=oneof(CENTERED), userparam=True, settable=True,
-                        default=CENTERED),
+                        default=CENTERED, category='experiment'),
     }
 
     parameter_overrides = {
@@ -112,14 +112,14 @@ class DoubleSlit(PseudoNOK, Moveable):
 
     parameters = {
         'mode': Param('Modus of Beam',
-                      type=oneof(*MODES),
-                      settable=True, userparam=True, default='slit'),
+                      type=oneof(*MODES), settable=True, userparam=True,
+                      default='slit', category='experiment'),
         'maxheight': Param('Max opening of the slit',
                            type=floatrange(0), settable=False, default=12.),
         'opmode': Param('Mode of operation for the slit',
                         type=oneof(CENTERED),  # '2blades' is possible
-                        userparam=True, settable=True,
-                        default=CENTERED),
+                        userparam=True, settable=True, default=CENTERED,
+                        category='experiment'),
     }
 
     parameter_overrides = {
@@ -286,7 +286,7 @@ class SingleSlitAxis(AutoDevice, Moveable):
         'index': Param('Which index of the super slit is used for this device',
                        type=int, userparam=False),
         'opmode': Param('Mode of the super slit to be used for this device',
-                        type=str, userparam=False),
+                        type=str, userparam=False, category='experiment'),
     }
 
     @lazy_property
