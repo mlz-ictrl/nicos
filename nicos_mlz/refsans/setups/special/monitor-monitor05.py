@@ -98,8 +98,8 @@ _zb2col = Column(
 )
 _zb3col = Column(
     Block('zb3', [
-        BlockRow(Field(name='position', dev='zb3r_m', width=8),
-                 Field(name='position', dev='zb3s_m', width=8),),
+        BlockRow(Field(name='position', dev='zb3r_motor', width=8),
+                 Field(name='position', dev='zb3s_motor', width=8),),
         BlockRow(Field(name='poti_pos', dev='zb3r_obs', width=8),
                  Field(name='poti_pos', dev='zb3s_obs', width=8)),
         BlockRow(Field(name='accuracy', dev='zb3r_acc', width=8),

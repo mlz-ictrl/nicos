@@ -88,10 +88,10 @@ Gonio = [
     'autocollimator_phi',
     'autocollimator_theta',
     'backguard',
-    'backguard_1',
-    'backguard_1_m',
-    'backguard_2',
-    'backguard_2_m',
+    'backguard1',
+    'backguard1_motor',
+    'backguard2',
+    'backguard2_motor',
     'samplechanger',
     'Sample/length',
     'Sample/width',
@@ -110,7 +110,7 @@ aperture = [
 
 Slits = ['b1', 'zb0', 'zb1', 'zb2', 'zb3', 'bs1', 'b2', 'b3']
 Slits_label = ['', '_mode']
-Slits_PlanB_label = ['r_m', 's_m', 'r_obs', 's_obs', '_obs',
+Slits_PlanB_label = ['r_motor', 's_motor', 'r_obs', 's_obs', '_obs',
                      '_motor', 'r_motor', 's_motor']
 
 simple_slit = ['sc2', 'disc3', 'disc4']
