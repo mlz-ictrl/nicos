@@ -331,6 +331,12 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
         'firmware': Param('firmware version',
                           type=str, settable=False, userparam=True,
                           volatile=True),
+        'maxtemp': Param('Maximum motor temperature',
+                         type=floatrange(0), settable=False, userparam=True,
+                         default=40.),
+        'waittime': Param('Time to cool down',
+                          type=floatrange(0), settable=False, userparam=True,
+                          default=20.),
     }
 
     #
@@ -462,12 +468,28 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
                 return
         raise NicosTimeoutError('HW still BUSY after 100s')
 
+    def _HW_wait_while_HOT(self):
+        sd = 6.5
+        anz = int(round(self.waittime * 60 / sd))
+        # Pech bei 2.session
+        for a in range(anz):
+            temp = self.motortemp
+            if temp < self.maxtemp:  # wait if temp>33 until temp<26
+                self.log.debug('%d Celsius continue', temp)
+                return True
+            self.log.info('%d Celsius Timeout in: %.1f min', temp,
+                          (anz - a) * sd / 60)
+            session.delay(sd)
+        raise NicosTimeoutError(
+            'HW still HOT after {0:d} min'.format(self.waittime))
+
     #
     # Nicos methods
     #
 
     def doStart(self, target):
         self._HW_wait_while_BUSY()
+        self._HW_wait_while_HOT()
         # now just go where commanded....
         self._writeDestination(self._phys2steps(target))
         self._HW_start()
@@ -526,7 +548,6 @@ class BeckhoffMotorCab1(BeckhoffMotorBase):
         return self._HW_readParameter('encoderRawValue')
 
     def _HW_readParameter_index(self, index):
-        ###
         LDebug = True
         if index not in self.HW_readable_Params:
             raise UsageError('Reading not possible for parameter index %d' %
