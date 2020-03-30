@@ -40,7 +40,7 @@ devices = dict(
         zerosteps = int(681.95 * 800),
         lowlevel = showcase_values['hide_poti'],
     ),
-    zb2_obs = device(code_base + 'nok_support.NOKPosition',
+    zb2_analog = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for ZB2',
         reference = 'nok_refb2',
         measure = 'zb2_poti',
@@ -52,7 +52,7 @@ devices = dict(
     zb2_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'zb2_motor',
-         analog = 'zb2_obs',
+         analog = 'zb2_analog',
          lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),

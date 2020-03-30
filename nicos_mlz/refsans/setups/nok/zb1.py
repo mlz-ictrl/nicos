@@ -50,7 +50,7 @@ devices = dict(
         abslimits = (-1000, 1000),
         lowlevel = showcase_values['hide_temp'],
     ),
-    # zb1_obs = device(code_base + 'beckhoff.nok.BeckhoffPoti',
+    # zb1_analog = device(code_base + 'beckhoff.nok.BeckhoffPoti',
     #     description = 'Poti for ZB1 no ref',
     #     tangodevice = tango_base + 'optic/io/modbus',
     #     address = 0x3020+index*10, # word address
@@ -61,7 +61,7 @@ devices = dict(
     # zb1_acc = device(code_base + 'nok_support.MotorEncoderDifference',
     #      description = 'calc error Motor and poti',
     #      motor = 'zb1_motor',
-    #      analog = 'zb1_obs',
+    #      analog = 'zb1_analog',
     #      lowlevel = True or showcase_values['hide_acc'],
     #      unit = 'mm'
     # ),

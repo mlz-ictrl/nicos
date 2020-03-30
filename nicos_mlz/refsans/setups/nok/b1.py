@@ -75,7 +75,7 @@ devices = dict(
         ruler = 233.155, #abs enc! 60.0,
         lowlevel = True,
     ),
-    # b1_rm_obs = device(code_base + 'beckhoff.nok.BeckhoffPoti',
+    # b1_rm_analog = device(code_base + 'beckhoff.nok.BeckhoffPoti',
     #     description = 'Poti for B1 Reactor no ref',
     #     tangodevice = tango_base + 'optic/io/modbus',
     #     address = 0x3020+index_r*10, # word adress
@@ -87,7 +87,7 @@ devices = dict(
     # b1_rm_acc = device(code_base + 'nok_support.MotorEncoderDifference',
     #     description = 'calc error Motor and poti',
     #     motor = 'b1_rm',
-    #     analog = 'b1_rm_obs',
+    #     analog = 'b1_rm_analog',
     #     lowlevel = True or showcase_values['hide_acc'],
     #     unit = 'mm'
     # ),
@@ -101,7 +101,7 @@ devices = dict(
         ruler = 140.388, #abs enc! -50.0,
         lowlevel = True,
     ),
-    # b1_sm_obs = device(code_base + 'beckhoff.nok.BeckhoffPoti',
+    # b1_sm_analog = device(code_base + 'beckhoff.nok.BeckhoffPoti',
     #     description = 'Poti for B1 Sample no ref',
     #     tangodevice = tango_base + 'optic/io/modbus',
     #     address = 0x3020+index_s*10, # word adress
@@ -113,7 +113,7 @@ devices = dict(
     # b1_sm_acc = device(code_base + 'nok_support.MotorEncoderDifference',
     #     description = 'calc error Motor and poti',
     #     motor = 'b1_sm',
-    #     analog = 'b1_sm_obs',
+    #     analog = 'b1_sm_analog',
     #     lowlevel = True or showcase_values['hide_acc'],
     #     unit = 'mm'
     # ),

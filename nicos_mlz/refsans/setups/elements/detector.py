@@ -49,7 +49,7 @@ devices = dict(
         precision = 10,
         lowlevel = True,
     ),
-    table_z_obs = device(code_base + 'beckhoff.nok.BeckhoffCoderDetector',
+    table_z_analog = device(code_base + 'beckhoff.nok.BeckhoffCoderDetector',
         description = 'Coder of detector table inside scatteringtube',
         tangodevice = tango_base + 'det_table/io/modbus',
         address = 0x3020 + 1 * 10,  # word address
@@ -60,7 +60,7 @@ devices = dict(
     det_table_a = device('nicos.devices.generic.Axis',
         description = 'detector table inside scatteringtube. absmin is for beamstop',
         motor = 'table_z_motor',
-        obs = ['table_z_obs'],
+        obs = ['table_z_analog'],
         precision = 1,
         dragerror = 15.,
         lowlevel = True,

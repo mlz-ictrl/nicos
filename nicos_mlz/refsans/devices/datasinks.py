@@ -101,7 +101,7 @@ NOKs = [
     'nok5a', 'nok5b', 'nok6', 'nok7', 'nok8', 'nok9',
 ]
 NOKs_label = ['', '_mode']
-NOKs_PlanB_label = ['r_motor', 's_motor', 'r_obs', 's_obs']
+NOKs_PlanB_label = ['r_motor', 's_motor', 'r_analog', 's_analog']
 
 aperture = [
     'primary_aperture',
@@ -110,7 +110,7 @@ aperture = [
 
 Slits = ['b1', 'zb0', 'zb1', 'zb2', 'zb3', 'bs1', 'b2', 'b3']
 Slits_label = ['', '_mode']
-Slits_PlanB_label = ['r_motor', 's_motor', 'r_obs', 's_obs', '_obs',
+Slits_PlanB_label = ['r_motor', 's_motor', 'r_analog', 's_analog', '_analog',
                      '_motor', 'r_motor', 's_motor']
 
 simple_slit = ['sc2', 'disc3', 'disc4']

@@ -23,7 +23,7 @@ devices = dict(
         # length: 90.0 mm
         description = 'shutter_gamma NOK1',
         motor = 'nok1_motor',
-        # obs = ['nok1_obs'],
+        # obs = ['nok1_analog'],
         nok_start = 198.0,
         nok_end = 288.0,
         nok_gap = 1.0,
@@ -51,7 +51,7 @@ devices = dict(
     ),
 
     # generated from global/inf/poti_tracing.inf
-    nok1_obs = device(code_base + 'NOKPosition',
+    nok1_analog = device(code_base + 'NOKPosition',
         description = 'Position sensing for NOK1',
         reference = 'nok_refa1',
         measure = 'nok1_poti',
@@ -72,7 +72,7 @@ devices = dict(
     nok1_acc = device(code_base + 'MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'nok1_motor',
-         analog = 'nok1_obs',
+         analog = 'nok1_analog',
          lowlevel = showcase_values['hide_poti'],
          unit = 'mm'
     ),
