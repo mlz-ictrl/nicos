@@ -278,7 +278,7 @@ devices = dict(
         discs = ['chopper2', 'chopper3', 'chopper4', 'chopper5', 'chopper6'],
         speed = 0,
         jitter = 0,
-        lowlevel = True,
+        # lowlevel = True,
     ),
     chopper2 = device('nicos_mlz.refsans.devices.chopper.virtual.ChopperDisc2',
         chopper = 2,

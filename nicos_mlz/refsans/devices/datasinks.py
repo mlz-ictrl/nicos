@@ -435,12 +435,17 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         self._write_label_ext(metainfo, 'Monitor', monitor, monitor_label)
 
     def _write_chopper(self, metainfo):
+        # label = 'chopper_resolution'
+        # self._data['Chopper'][label] = metainfo['chopper2_pos', 'value'][0]
+        self._data['Chopper']['chopper_rpm'] = metainfo['chopper_speed', 'value'][0]
         for devname in chopper:
             if (devname, 'value') in metainfo:
+                # self.log.debug('1. %s %s', devname, metainfo[devname, 'value'][0])
                 self._data['Chopper'][devname] = metainfo[devname, 'value'][0]
             else:
                 key = tuple(devname.split('/'))
                 if key in metainfo:
+                    # self.log.debug('2. %s %s', key, metainfo[key][0])
                     self._data['Chopper']['%s_%s' % key] = metainfo[key][0]
                 else:
                     self.log.warning('missing %s', devname)
