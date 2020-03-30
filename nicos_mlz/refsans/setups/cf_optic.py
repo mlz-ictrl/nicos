@@ -8,7 +8,7 @@ optic_values = {
     'ng':   0.0,
     'rc':  22.5 * scale,
     'vc':  37.5 * scale,
-    'fc':  50.0 * scale,  # in previous times: 52.5
+    'fc':  52.0 * scale,
 
     'gisans_scale': scale,
 
