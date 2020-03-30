@@ -29,7 +29,7 @@ includes = [
     'safedetectorsystem',
     'detector',
     'safetysystem',
-    'sample',
+    'd_last_slit_sample',
     # 'samplechanger',
     'shutter',
     'shutter_gamma',
