@@ -45,7 +45,7 @@ devices = dict(
         address = 0x3020 + 0 * 10,  # word address
         slope = 100,
         unit = 'mm',
-        abslimits = (1000, 11025),  # because of Beamstop
+        abslimits = (1000, 10984.0137),  # because of Beamstop
         precision = 10,
         lowlevel = True,
     ),
