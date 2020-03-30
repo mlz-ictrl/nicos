@@ -36,7 +36,7 @@ d_SC2 = 10.61
 # SC1_Pos is the distance from disk 1 to SC1 which is now fixed at pos 6
 SC1_Pos = 6
 # horizontal distance from first chopper disc (position) to pivot point 0 in mm
-pre_sample_path = 10755
+pre_sample_path = 11028
 
 # die Dicke des Detektors D900 ist bei Drift1 40mm und bei Drift2 65mm
 # refsanssrv\docu\Instrument\Detektor+Elektronik\
