@@ -62,7 +62,7 @@ class BeckhoffCoderBase(PyTangoDevice, Coder):
                          settable=False, userparam=False),
         'ruler': Param('z-position of encoder in beam',
                        type=float, default=0.0, mandatory=False,
-                       settable=False, userparam=True),
+                       settable=False, userparam=False),
         'slope': Param('Slope of the Motor in FULL steps per physical '
                        'unit', type=float, default=10000.,
                        unit='steps/main', userparam=False,
