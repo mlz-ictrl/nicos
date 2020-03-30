@@ -2,7 +2,7 @@ description = 'Chopper phase timing, readout for light barrier and coder index'
 
 group = 'lowlevel'
 
-window_delay = 120
+window_delay = -120
 
 all_lowlevel = False  # or True
 
