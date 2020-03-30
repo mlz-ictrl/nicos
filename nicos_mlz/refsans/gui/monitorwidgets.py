@@ -65,7 +65,7 @@ class VRefsans(NicosWidget, QWidget):
     designer_description = 'Display of the REFSANS NOK configuration'
 
     nok0dev = PropDef('nok0dev', str, '', 'NOK 0 device')
-    nok1dev = PropDef('nok1dev', str, '', 'NOK 1 device')
+    shutter_gammadev = PropDef('shutter_gammadev', str, '', 'NOK 1 device')
     nok2dev = PropDef('nok2dev', str, '', 'NOK 2 device')
     nok3dev = PropDef('nok3dev', str, '', 'NOK 3 device')
     nok4dev = PropDef('nok4dev', str, '', 'NOK 4 device')
@@ -84,7 +84,7 @@ class VRefsans(NicosWidget, QWidget):
         # default values (used when no such devices are configured)
         self.values = {
             'nok0': 0,
-            'nok1': 0,
+            'shutter_gamma': 0,
             'nok2': (0, 0),
             'nok3': (0, 0),
             'nok4': (0, 0),
@@ -97,7 +97,7 @@ class VRefsans(NicosWidget, QWidget):
         self.targets = self.values.copy()
         self.status = {
             'nok0': OK,
-            'nok1': OK,
+            'shutter_gamma': OK,
             'nok2': OK,
             'nok3': OK,
             'nok4': OK,
@@ -115,7 +115,7 @@ class VRefsans(NicosWidget, QWidget):
         self._fulllength = sum(self._length)
 
     def registerKeys(self):
-        for dev in ['nok0', 'nok1', 'nok2', 'nok3', 'nok4', 'nok5a', 'nok5b',
+        for dev in ['nok0', 'shutter_gamma', 'nok2', 'nok3', 'nok4', 'nok5a', 'nok5b',
                     'nok6', 'nok7', 'nok8']:
             devname = str(self.props[dev + 'dev'])
             if devname:
@@ -165,7 +165,7 @@ class VRefsans(NicosWidget, QWidget):
         # determine positions
         beam = QPolygonF([QPointF(4, 5)])
         i = 0
-        for k in ['nok0', 'nok1', 'nok2', 'nok3', 'nok4', 'nok5a', 'nok5b',
+        for k in ['nok0', 'shutter_gamma', 'nok2', 'nok3', 'nok4', 'nok5a', 'nok5b',
                   'nok6', 'nok7', 'nok8']:
             v = self.values[k]
             if isinstance(v, (tuple, readonlylist)):

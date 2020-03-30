@@ -8,7 +8,7 @@ code_base = instrument_values['code_base']
 
 devices = dict(
     nok_refa1 = device(code_base + 'nok_support.NOKMonitoredVoltage',
-        description = 'Reference for nok1, nok2r, nok2s, nok3r, nok3s',
+        description = 'Reference for shutter_gamma, nok2r, nok2s, nok3r, nok3s',
         tangodevice = tango_base + 'test/wb_a/1_6',
         reflimits = (17.0, 18.0, 19.8),
         scale = 2,

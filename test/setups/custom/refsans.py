@@ -36,7 +36,7 @@ devices = dict(
         instrument = 'REFSANS',
         responsible = 'Joe Doe <joe@doe.org>',
     ),
-    nok1 = device('nicos_mlz.refsans.devices.nok_support.SingleMotorNOK',
+    shutter_gamma = device('nicos_mlz.refsans.devices.nok_support.SingleMotorNOK',
         motor = device('nicos.devices.generic.VirtualMotor',
             unit = 'mm',
             abslimits = (-56.119, 1.381),

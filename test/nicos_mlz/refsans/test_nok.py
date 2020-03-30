@@ -49,7 +49,7 @@ def test_nok(session):
 
 
 def test_single_nok(session):
-    nok1 = session.getDevice('nok1')
+    nok1 = session.getDevice('shutter_gamma')
     assert nok1.read(0) == 0
 
     nok1.maw(1)

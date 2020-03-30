@@ -5,9 +5,9 @@ group = 'special'
 
 _shgacol = Column(
     Block('gamma', [
-        BlockRow(Field(name='position', dev='nok1_motor', width=8)),
-        BlockRow(Field(name='poti_pos', dev='nok1_analog', width=8)),
-        BlockRow(Field(name='accuracy', dev='nok1_acc', width=8)),
+        BlockRow(Field(name='position', dev='shutter_gamma_motor', width=8)),
+        BlockRow(Field(name='poti_pos', dev='shutter_gamma_analog', width=8)),
+        BlockRow(Field(name='accuracy', dev='shutter_gamma_acc', width=8)),
         ],
     ),
 )

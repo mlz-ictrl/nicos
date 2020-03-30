@@ -47,7 +47,8 @@ def prepare(session, dataroot):
 
     session.experiment.setDetectors(['det'])
 
-    for dev in ['nok1', 'nok2', 'zb0', 'shutter', 'vacuum_CB', 'table', 'tube',
+    for dev in ['shutter_gamma', 'nok2', 'zb0', 'shutter', 'vacuum_CB',
+                'table', 'tube',
                 # 'h2.center', 'h2.height',
                 'det_pivot', 'top_phi', 'chopper',
                 'gonio_theta', 'User2Voltage', 'det', 'det_pivot', 'zb3',

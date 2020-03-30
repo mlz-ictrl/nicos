@@ -16,7 +16,7 @@ _expcolumn = Column(
 )
 
 # NOK's
-_noklist = 'nok1 nok2 nok3 nok4 nok5a zb0 nok5b zb1 nok6 zb2 nok7 zb3 nok8 bs1 nok9'.split()
+_noklist = 'shutter_gamma nok2 nok3 nok4 nok5a zb0 nok5b zb1 nok6 zb2 nok7 zb3 nok8 bs1 nok9'.split()
 _nok_array = []
 for i in range(4):
     if _noklist:

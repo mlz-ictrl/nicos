@@ -97,7 +97,7 @@ Gonio = [
     'Sample/width',
 ]
 NOKs = [
-    'nok1', 'nok2', 'nok3', 'nok4',
+    'shutter_gamma', 'nok2', 'nok3', 'nok4',
     'nok5a', 'nok5b', 'nok6', 'nok7', 'nok8', 'nok9',
 ]
 NOKs_label = ['', '_mode']

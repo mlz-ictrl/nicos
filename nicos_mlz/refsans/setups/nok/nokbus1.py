@@ -8,7 +8,7 @@ tango_base = instrument_values['tango_base']
 
 # data from instrument.inf
 # used for:
-# - nok1 (addr 0x31)
+# - shutter_gamma (addr 0x31)
 # - nok2 (addr 0x32, 0x33)
 # - nok3 (addr 0x34, 0x35)
 # - nok4 reactor side (addr 0x36)
