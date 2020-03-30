@@ -241,7 +241,7 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
 
     def doStart(self, target):
         if self.speedup:
-            self._attached_comm.write('m4062=%d', self.speedup)
+            self._attached_comm.write('m4062=%d' % self.speedup)
             session.delay(.4)  # .1 is too short; .2 does not work correctly
             self.log.info('speed up >%s<',
                           self._attached_comm.communicate('m4062'))
