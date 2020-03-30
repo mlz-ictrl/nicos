@@ -1,6 +1,6 @@
 description = 'Sample surface position measurement'
 
-group = 'lowlevel'
+group = 'optional'
 
 # includes = ['gonio']
 
