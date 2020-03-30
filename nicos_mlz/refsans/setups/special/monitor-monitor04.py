@@ -20,7 +20,7 @@ _tempcol = Column(
             #Field(name='Cryostat', dev='temp_cryo', width=14, unit='(K)'),
             )
         ],
-    setups = 'julabo',
+        setups = 'julabo',
     ),
 )
 
@@ -42,22 +42,38 @@ _julabo_plot = Column(
                 ),
             ),
         ],
-    setups = 'julabo',
+        setups = 'julabo',
+    ),
+)
+
+_syringepumps = Column(
+    Block('Syringe Pumps Status', [
+        BlockRow(
+            Field(name='[Pump 0] syringe diameter', dev='pump0_diameter', width=10,  format = '%.2f', unit='(mm)'),
+            Field(name='[Pump 0] injection/withdraw flux', dev='pump0_rate', width=10,  format = '%.2f', unit='(ml/min)'),
+            Field(name='[Pump 0] volume injected/withdrawn', dev='pump0_run', width=10,  format = '%.2f', unit='(ml)'),
+            ),
+        BlockRow(
+            Field(name='[Pump 1] syringe diameter', dev='pump1_diameter', width=10,  format = '%.2f', unit='(mm)'),
+            Field(name='[Pump 1] injection/withdraw flux', dev='pump1_rate', width=10,  format = '%.2f', unit='(ml/min)'),
+            Field(name='[Pump 1] volume injected/withdrawn', dev='pump1_run', width=10,  format = '%.2f', unit='(ml)'),
+            ),
+        ],
+        setups = 'syringepump',
     ),
 )
 
 _nima = Column(
     Block('Langmuir Trough Status', [
         BlockRow(
-            Field(name='area surface', device='nima_area', width=10,  format = '%.1f', unit=u'(cm\u00b2)'),
-            Field(name='pressure', device='nima_pressure', width=10,  format = '%.2f', unit='(mN/m)'),
-            Field(name='barrier speed', device='nima_speed', width=10,  format = '%.2f', unit='(mm/s)'),
+            Field(name='area surface', dev='nima_area', width=10,  format = '%.1f', unit=u'(cm\u00b2)'),
+            Field(name='pressure', dev='nima_pressure', width=10,  format = '%.2f', unit='(mN/m)'),
+            Field(name='barrier speed', dev='nima_speed', width=10,  format = '%.2f', unit='(mm/s)'),
             )
         ],
-    setups = 'nima',
+        setups = 'nima',
     ),
 )
-
 
 _ubahn = Column(
     Block(u'U6 Subway to Klinikum Gro\u00dfhadern', [
@@ -80,10 +96,6 @@ _ubahn = Column(
 #)
 
 
-
-
-
-
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
         showwatchdog = False,
@@ -98,6 +110,7 @@ devices = dict(
         layout = [
             Row(_tempcol ),
             Row(_julabo_plot),
+            Row(_syringepumps),
             Row(_nima),
             Row(_ubahn),
         ],

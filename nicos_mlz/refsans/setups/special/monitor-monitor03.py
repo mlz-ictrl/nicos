@@ -103,7 +103,7 @@ _topgonio = Column(
             Field(name=u'angle \u03c6', dev='gonio_top_phi', width=7, format = '%.3f', unit='(deg)'),
             ),
         BlockRow(
-            Field(name='vertical position', dev='gonio_top_z', width=7, format = '%.1f', unit='(mm)'),
+            Field(name='vertical position', dev='gonio_top_z', width=7, format = '%.3f', unit='(mm)'),
             )
         ],
     ),
