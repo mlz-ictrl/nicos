@@ -123,8 +123,8 @@ def test_focuspoint(session):
 def test_resolution(session):
     rfp = session.getDevice('real_flight_path')
     res = session.getDevice('resolution')
-    assert rfp.read(0) == 10.88
-    assert res.read(0) == 6.333
+    assert rfp.read(0) == 11.153
+    assert res.read(0) == 6.168
 
 
 class TestDevices(object):
