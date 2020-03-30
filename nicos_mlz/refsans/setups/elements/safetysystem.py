@@ -119,7 +119,7 @@ devices = dict(
         bitlist = ['6-fach-Shutter_auf', '6-fach-Shutter_zu',
                    'Schnellschluss-Shutter_auf', 'Schnellschluss-Shutter_zu',
                    'Verbindung_zu_Warte_iO', 'Freigabe_von_Warte_fuer_ESShutter'],
-        okmask = 0b100101,
+        okmask = 0b110101,
         lowlevel = False,
     ),
     user = device(code_base + 'Group',
