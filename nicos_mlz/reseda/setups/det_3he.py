@@ -16,7 +16,6 @@ devices = dict(
         maxage = 2,
         pollinterval = 0.5,
     ),
-
     det = device('nicos.devices.generic.Detector',
         description = 'FRM II multichannel counter card',
         timers = ['timer'],

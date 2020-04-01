@@ -432,7 +432,6 @@ devices = dict(
     ),
     det = device('nicos.devices.generic.Detector',
         timers = ['timer'],
-        counters = [],
         monitors = ['mon1'],
         images = ['image'],
     ),

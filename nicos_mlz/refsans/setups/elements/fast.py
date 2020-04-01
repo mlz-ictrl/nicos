@@ -96,7 +96,6 @@ devices = dict(
     comtec = device('nicos.devices.generic.Detector',
         description = "detector, joining all channels",
         timers = ['comtec_timer'],
-        images = [],
         # counters = ['fastctr_%c'%c for c in 'abcdefgh'],
         # others = ['comtec_filename'],
     ),

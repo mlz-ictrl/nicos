@@ -43,7 +43,6 @@ devices = dict(
     cam = device('nicos.devices.generic.Detector',
         description = 'NeutronOptics camera',
         timers = ['camtimer'],
-        monitors = [],
         counters = [
             'ctr1', 'ctr2', 'ctr3', 'ctr4', 'ctr5', 'ctr6', 'ctr7', 'ctr8'
         ],

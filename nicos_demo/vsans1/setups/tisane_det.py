@@ -14,7 +14,6 @@ devices = dict(
     tisane_det1 = device('nicos_mlz.sans1.devices.detector.GatedDetector',
         description = 'QMesyDAQ Image type Detector1',
         timers = ['det1_timer'],
-        counters = [],
         monitors = ['det1_mon1', 'det1_mon2', 'tisane_det_pulses'],
         images = ['det1_image'],
         # gates = ['tisane_fg2_det', 'tisane_fg1_sample'],

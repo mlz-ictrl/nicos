@@ -46,7 +46,6 @@ devices = dict(
     det = device('nicos_mlz.toftof.devices.detector.Detector',
         timers = ['timer'],
         monitors = ['monitor'],
-        counters = [],
         images = ['image'],
         rc = 'rc',
         chopper = 'ch',

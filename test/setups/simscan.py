@@ -63,7 +63,6 @@ devices = dict(
     ),
     det = device('nicos.devices.generic.Detector',
         timers = ['timer'],
-        monitors = [],
         counters = ['ctr1'],
         maxage = 3,
         pollinterval = 0.5,

@@ -14,7 +14,6 @@ devices = dict(
     sans_det1 = device('nicos_mlz.sans1.devices.detector.Detector',
         description = 'QMesyDAQ Image type Detector1',
         timers = ['det1_timer'],
-        counters = [],
         monitors = ['det1_mon1', 'det1_mon2'],
         images = ['det1_image'],
         liveinterval = 30.0,
