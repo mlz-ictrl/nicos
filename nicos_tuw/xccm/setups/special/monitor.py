@@ -16,19 +16,17 @@ _expcolumn = Column(
 
 _axisblock = Block('Axes', [
     BlockRow(
-        Field(gui='nicos/clients/gui/panels/tasaxes.ui')
+        # Field(gui='nicos/clients/gui/panels/tasaxes.ui'),
+        Field(name='sgx', dev='sgx'),
     ),
-    # BlockRow('mth', 'mtt'),
-    # BlockRow('psi', 'phi'),
-    # BlockRow('ath', 'att'),
     ],
 )
 
 _detectorblock = Block('Detector', [
     BlockRow(
-        Field(name='timer', dev='timer'),
-        Field(name='ctr1',  dev='ctr1'),
-        Field(name='ctr2',  dev='ctr2'),
+        Field(name='timer', dev='det_timers1'),
+        # Field(name='ctr1',  dev='ctr1'),
+        # Field(name='ctr2',  dev='ctr2'),
     ),
     ],
     setups='detector',
@@ -63,7 +61,7 @@ _tasblock = Block('Triple-axis', [
 
 _rightcolumn = Column(_axisblock)
 
-_leftcolumn = Column(_tasblock)
+_leftcolumn = Column(_detectorblock, _tasblock)
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
