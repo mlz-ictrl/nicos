@@ -14,7 +14,7 @@ devices = dict(
         lowlevel = True,
     ),
     L = device('nicos.devices.generic.ManualMove',
-        description = 'Detector position',
+        description = 'Distance of detector from the pinhole',
         abslimits = (5000, 18000),
         unit = 'mm',
         fmtstr = '%.1f',
@@ -45,6 +45,6 @@ devices = dict(
     L_sample = device('nicos.devices.generic.manual.ManualMove',
         description = 'Distance of sample from the pinhole',
         unit = 'mm',
-        abslimits = (0,99999999),
+        abslimits = (0, 99999999),
     ),
 )
