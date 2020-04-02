@@ -305,7 +305,6 @@ except the :ref:`description <setup-description>` entry:
                          BlockRow('p_cryo1')
                      ], setups=setupname)
       }
-      '''
 
 .. _setup-watch_conditions:
 
