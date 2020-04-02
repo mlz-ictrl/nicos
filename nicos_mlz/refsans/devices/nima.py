@@ -22,6 +22,7 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
 
 from nicos.core import Moveable, Readable, status
 from nicos.core.mixins import HasLimits
