@@ -12,7 +12,6 @@ devices = dict(
                       'brake and control are off, this will kill the system '
                       '2019-05-29 photo',
         tangodevice = tango_base + 'optic/sc2/motor',
-        abslimits = (-150, 150),
         refpos = -7.2946,
     ),
 )

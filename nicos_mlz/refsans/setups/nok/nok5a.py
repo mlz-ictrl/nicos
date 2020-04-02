@@ -80,7 +80,7 @@ devices = dict(
         inclinationlimits = (-9.99, 9.99),
         motor_r = 'nok5a_r',
         motor_s = 'nok5a_s',
-        backlash = -2,
+        backlash = 0.0,
         masks = {
             'ng': optic_values['ng'],
             'rc': optic_values['ng'],

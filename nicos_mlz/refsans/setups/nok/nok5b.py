@@ -80,7 +80,7 @@ devices = dict(
         motor_r = 'nok5b_r',
         motor_s = 'nok5b_s',
         nok_motor = [4403.00, 5623.00],
-        backlash = -2,
+        backlash = 0.0,
         masks = {
             'ng': optic_values['ng'],
             'rc': optic_values['ng'],

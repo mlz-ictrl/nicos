@@ -10,7 +10,6 @@ devices = dict(
     gonio_top_theta = device('nicos.devices.tango.Motor',
         description = 'Top Theta axis motor',
         tangodevice = tango_base + 'sample/phy_mo2/top_theta_m',
-        abslimits = (-9.5, 10.5),
     ),
     gonio_top_z = device('nicos.devices.generic.Axis',
         description = 'Top Z axis with offset',

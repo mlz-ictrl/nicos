@@ -59,7 +59,7 @@ devices = dict(
     ),
     bs1r_motor = device(code_base + 'ipc.NOKMotorIPC',
         description = 'IPC controlled Motor of BS1, reactor side',
-        abslimits = (-178.0, 10.0),
+        abslimits = (-178.0, 11.8),
         bus = 'nokbus4',
         addr = 0x67,
         slope = 800.0,
