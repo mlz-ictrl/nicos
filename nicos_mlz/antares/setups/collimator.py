@@ -14,7 +14,7 @@ devices = dict(
         lowlevel = True,
     ),
     L = device('nicos.devices.generic.ManualMove',
-        description = 'Distance ... ',
+        description = 'Detector position',
         abslimits = (5000, 18000),
         unit = 'mm',
         fmtstr = '%.1f',
