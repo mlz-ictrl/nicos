@@ -18,6 +18,7 @@ devices = dict(
         mapping = dict(open = 1, closed = 2),
         fallback = '<undefined>',
         precision = 0,
+        unit = '',
     ),
     shutter2_io = device('nicos.devices.tango.DigitalOutput',
         description = 'Tango device for Shutter 2',
@@ -30,6 +31,7 @@ devices = dict(
         mapping = dict(open = 1, closed = 2),
         fallback = '<undefined>',
         precision = 0,
+        unit = '',
     ),
     fastshutter_io = device('nicos.devices.tango.DigitalOutput',
         description = 'Tango device for Fast shutter',
@@ -44,5 +46,6 @@ devices = dict(
         mapping = dict(open = 1, closed = 2),
         fallback = '<undefined>',
         precision = 0,
+        unit = '',
     ),
 )

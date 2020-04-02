@@ -10,5 +10,6 @@ devices = dict(
         description = 'light in ANTARES bunker',
         tangodevice = tango_base + 'fzjdp_digital/LichtBunker',
         mapping = dict(on = 1, off = 0),
+        unit = '',
     ),
 )
