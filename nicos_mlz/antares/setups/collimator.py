@@ -42,4 +42,9 @@ devices = dict(
         unit = 'mm',
         precision = 0,
     ),
+    L_sample = device('nicos.devices.generic.manual.ManualMove',
+        description = 'Distance of sample from the pinhole',
+        unit = 'mm',
+        abslimits = (0,99999999),
+    ),
 )
