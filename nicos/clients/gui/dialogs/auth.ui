@@ -363,6 +363,9 @@
  </widget>
  <tabstops>
   <tabstop>presetOrAddr</tabstop>
+  <tabstop>remoteHost</tabstop>
+  <tabstop>remoteUser</tabstop>
+  <tabstop>remotePassword</tabstop>
   <tabstop>userName</tabstop>
   <tabstop>password</tabstop>
   <tabstop>newPresetName</tabstop>
