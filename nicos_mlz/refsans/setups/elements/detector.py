@@ -46,6 +46,8 @@ devices = dict(
         unit = 'mm',
         abslimits = (1000, 10984.0137),  # because of Beamstop
         precision = 10,
+        maxtemp = 40,
+        waittime = 40,
         lowlevel = True,
     ),
     table_z_analog = device(code_base + 'beckhoff.nok.BeckhoffCoderDetector',
