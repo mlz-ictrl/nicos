@@ -2,68 +2,30 @@ description = 'NOK5b using Beckhoff controllers'
 
 group = 'lowlevel'
 
-includes = ['zz_absoluts']
+
 
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
-
 tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base']
-
-excludes = ['nok5b_old']
 
 index_r = 5
 index_s = 6
 
-devices = dict(
-    # nok5br_temp = device(code_base + 'beckhoff.nok.BeckhoffTemp',
-    #     description = 'Temperatur for nok5b_r Motor',
-    #     tangodevice = tango_base + 'optic/io/modbus',
-    #     address = 0x3020+index_r*10, # word address
-    #     abslimits = (-1000, 1000),
-    #     lowlevel = showcase_values['hide_temp'],
-    # ),
-    # nok5bs_temp = device(code_base + 'beckhoff.nok.BeckhoffTemp',
-    #     description = 'Temperatur for nok5b_s Motor',
-    #     tangodevice = tango_base + 'optic/io/modbus',
-    #     address = 0x3020+index_s*10, # word address
-    #     abslimits = (-1000, 1000),
-    #     lowlevel = showcase_values['hide_temp'],
-    # ),
-    # nok5br_axis = device('nicos.devices.generic.Axis',
-    #     description = 'Axis of NOK5b, reactor side',
-    #     motor = 'nok5b_r',
-    #     offset = 0.0,
-    #     backlash = 0,
-    #     precision = 0.02,
-    #     maxtries = 3,
-    #     unit = 'mm',
-    #     lowlevel = True,
-    # ),
-    # nok5bs_axis = device('nicos.devices.generic.Axis',
-    #     description = 'Axis of NOK5b, sample side',
-    #     motor = 'nok5b_s',
-    #     offset = 0.0,
-    #     backlash = 0,
-    #     precision = 0.02,
-    #     maxtries = 3,
-    #     unit = 'mm',
-    #     lowlevel = True,
-    # ),
-    nok5b = device(code_base + 'nok_support.DoubleMotorNOK',
-        # length: 1719.20 mm
-        description = 'NOK5b',
-        fmtstr = '%.2f, %.2f',
+devices = {
+    '%s' % setupname : device(code_base + 'beckhoff.nok.DoubleMotorBeckhoffNOK',
+        description = '%s layer optic' % setupname,
+        tangodevice = tango_base + 'optic/io/modbus',
+        ruler = [266.947, 300.101], #abs enc! 53.8985,
         nok_start = 4153.50,
         nok_end = 5872.70,
         nok_gap = 1.0,
-        offsets = (0.0, 0.0),
-        inclinationlimits = (-14.99, 14.99),
-        motor_r = 'nok5br_motor',
-        motor_s = 'nok5bs_motor',
         nok_motor = [4403.00, 5623.00],
-        backlash = 0.0,
+        addresses = [0x3020+index_r*10, 0x3020+index_s*10],
+        unit = 'mm, mm',
+        fmtstr = '%.2f, %.2f',
+        inclinationlimits = (-14.99, 14.99),
         masks = {
             'ng': optic_values['ng'],
             'rc': optic_values['ng'],
@@ -71,4 +33,4 @@ devices = dict(
             'fc': optic_values['fc'],
         },
     ),
-)
+}

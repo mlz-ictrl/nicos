@@ -384,64 +384,6 @@ class DoubleMotorNOKIPC(DoubleMotorNOK):
         self._startSequence(sequence)
 
 
-class DoubleMotorNOKBeckhoff(DoubleMotorNOK):
-
-    def doReference(self):
-        """Reference the NOK.
-
-        Just set the do_reference bit and wait for completion
-        """
-        if self._seq_is_running():
-            raise MoveError(self, 'Cannot reference device, it is still '
-                            'moving!')
-
-        # according to docu it is sufficient to set the ref bit of one of the
-        # coupled motors
-        for dev in self._devices:
-            dev._HW_reference()
-
-        for dev in self._devices:
-            dev.wait()
-
-    def doStart(self, targets):
-        """Generate and start a sequence if none is running.
-
-        The sequence is optimised for negative backlash.
-        It will first move both motors to the lowest value of
-        (target + backlash, current_position) and then
-        to the final target.
-        So, inbetween, the NOK should be parallel to the beam.
-        MP 12.12.2017 09:16:05
-        """
-        if self._seq_is_running():
-            raise MoveError(self, 'Cannot start device, it is still moving!')
-
-        # check precision, only move if needed!
-        traveldists = [target - dev.read(0) - ofs
-                       for target, dev, ofs in zip(targets, self._devices,
-                                                   self.offsets)]
-        if max(abs(v) for v in traveldists) <= self.precision:
-            return
-
-        devices = self._devices
-
-        # XXX: backlash correction and repositioning later
-
-        # build a moving sequence
-        sequence = []
-
-        # now go to target
-        sequence.append([SeqDev(d, t + ofs, stoppable=True)
-                         for d, t, ofs in zip(devices, targets, self.offsets)])
-
-        # now go to target again
-        sequence.append([SeqDev(d, t + ofs, stoppable=True)
-                         for d, t, ofs in zip(devices, targets, self.offsets)])
-
-        self.log.debug('Seq: %r', sequence)
-        self._startSequence(sequence)
-
-
 class MotorEncoderDifference(Readable):
 
     attached_devices = {

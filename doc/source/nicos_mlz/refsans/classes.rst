@@ -27,10 +27,13 @@
 .. autoclass:: BeckhoffMotorCab1()
 .. autoclass:: BeckhoffMotorCab1M0x()
 .. autoclass:: BeckhoffMotorCab1M13()
-.. autoclass:: BeckhoffMotorCab1M1x()
 .. autoclass:: BeckhoffMotorDetector()
 .. autoclass:: BeckhoffCoderDetector()
 .. autoclass:: BeckhoffMotorHSlit()
+.. autoclass:: DoubleMotorBeckhoff()
+.. autoclass:: DoubleMotorBeckhoffNOK()
+.. autoclass:: SingleSideRead()
+.. autoclass:: SingleMotorOfADoubleNOK()
 
 .. automodule:: nicos_mlz.refsans.devices.beckhoff.pumpstation
 .. autoclass:: PumpstandIO()
