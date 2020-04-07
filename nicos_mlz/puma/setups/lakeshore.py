@@ -4,7 +4,7 @@ group = 'optional'
 
 includes = ['alias_T']
 
-tango_base = 'tango://puma5tmp.puma.frm2.tum.de:10000/puma/ls340/'
+tango_base = 'tango://puma5.puma.frm2.tum.de:10000/puma/ls340/'
 
 devices = dict(
     T_ls340 = device('nicos.devices.tango.TemperatureController',
