@@ -199,7 +199,6 @@ devices = dict(
         requires = dict(level = 'admin'),
         precision = 0.2,
         motor = 'det1_omegamot',
-        coder = 'det1_omegamot',
     ),
     det1_omegamot = device('nicos.devices.tango.Motor',
         description = 'detector 1 omega motor',
