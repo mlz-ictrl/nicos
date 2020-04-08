@@ -9,7 +9,8 @@ sysconfig = dict(
     datasinks=['conssink', 'filesink', 'daemonsink', 'jbi_liveview'],
 )
 
-modules = ['nicos.commands.standard', 'nicos_ess.commands.epics', 'nicos_ess.essiip.commands.filewriter']
+modules = ['nicos.commands.standard', 'nicos_ess.commands.epics',
+           'nicos_ess.essiip.commands.filewriter']
 
 devices = dict(
     Skeleton=device('nicos.devices.instrument.Instrument',
@@ -46,7 +47,8 @@ devices = dict(
                  ),
 
     det=device('nicos_ess.devices.datasources.just_bin_it.JustBinItDetector',
-               description="The just-bin-it histogrammer", hist_topic="just-bin-it",
+               description="The just-bin-it histogrammer",
+               hist_topic="just-bin-it",
                data_topic="LOQ_events", brokers=["172.30.242.20:9092"],
                unit="evts", command_topic="hist_commands"),
 
@@ -60,8 +62,8 @@ devices = dict(
         cmdtopic="UTGARD_writerCommand",
         status_provider='NexusFileWriter',
         templatesmodule='nicos_ess.essiip.nexus.nexus_templates',
-	templatename='essiip_default',
-	start_fw_file='/opt/nexus_templates/gareth.json'
+        templatename='ymir_default',
+        start_fw_file='/opt/nexus_templates/gareth.json'
     ),
 
     NexusFileWriter=device(
