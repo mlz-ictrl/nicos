@@ -18,7 +18,6 @@ devices = {
         fmtstr = '%.3f',
         precision = 0.01,
         unit = 'deg',
-        obs = [],
         dragerror = 3,
         maxtries = 5,
         loopdelay = 0.3,
