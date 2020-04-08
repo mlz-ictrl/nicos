@@ -15,7 +15,6 @@ devices = {
     'sth_%s_ax' % setupname: device('nicos.devices.generic.Axis',
         description = 'sample rotation motor, with backlash correction',
         motor = 'sth_%s' % setupname,
-        coder = 'sth_%s' % setupname,
         fmtstr = '%.3f',
         abslimits = (-360, 360),
         precision = 0.002,
