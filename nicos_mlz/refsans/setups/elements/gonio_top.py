@@ -14,7 +14,6 @@ devices = dict(
     gonio_top_z = device('nicos.devices.generic.Axis',
         description = 'Top Z axis with offset',
         motor = 'gonio_top_z_motor',
-        coder = 'gonio_top_z_motor',
         precision = 0.01,
         offset = 0.0,
     ),
