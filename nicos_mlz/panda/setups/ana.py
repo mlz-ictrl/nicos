@@ -235,7 +235,6 @@ devices = dict(
     afh_pg = device('nicos_mlz.panda.devices.rot_axis.RotAxis',
         description = 'horizontal focus of PG analyser',
         motor = 'afh_step',
-        # coder = 'afh_step',
         dragerror = 5,
         coder = 'afh_enc',
         abslimits = (-179, 179),

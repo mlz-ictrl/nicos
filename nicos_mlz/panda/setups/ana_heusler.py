@@ -45,7 +45,6 @@ devices = dict(
     afh_heusler = device('nicos_mlz.panda.devices.rot_axis.RotAxis',
         description = 'horizontal focus of heusler ana',
         motor = 'afh_heusler_step',
-        coder = 'afh_heusler_step',
         dragerror = 5,
         abslimits = (-179, 179),
         precision = 1,
