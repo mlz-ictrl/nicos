@@ -95,7 +95,6 @@ devices = dict(
     mag = device('nicos.devices.generic.Axis',
         description = 'monochromator magazin moving axis',
         motor = 'st_mag',
-        coder = 'st_mag',
         precision = 0.05,
         offset = 0,
         maxtries = 10,
