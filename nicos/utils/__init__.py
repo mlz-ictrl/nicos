@@ -553,7 +553,7 @@ def terminalSize():
 
 def parseConnectionString(s, defport):
     """Parse a string in the format 'user:pass@host:port"."""
-    res = re.match(r"(?:(\w+)(?::([^@]*))?@)?([\w.-]+)(?::(\d+))?", s)
+    res = re.match(r"(?:([^:]+)(?::([^@]*))?@)?([\w.-]+)(?::(\d+))?$", s)
     if res is None:
         return None
     return {
