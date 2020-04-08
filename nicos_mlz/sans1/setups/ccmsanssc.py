@@ -30,7 +30,6 @@ devices = dict(
         abslimits = (0, 600),
         motor = 'ccmsanssc_motor',
         coder = 'ccmsanssc_coder',
-        obs = [],
         startdelay = 1,
         stopdelay = 1,
         switch = 'ccmsanssc_switch',
