@@ -3,7 +3,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache='localhost',
+    cache='nicos-cache',
     instrument=None,
     experiment='Exp',
     datasinks=['conssink', 'filesink', 'daemonsink', 'jbi_liveview'],
