@@ -32,7 +32,6 @@ from .datasinks import PolarizationFileSink
 from .deflector import Deflector
 from .filter import PumaFilter
 from .focus import FocusAxis
-from .ipc_puma import Coder, Motor, Motor1, ReferenceMotor
 from .maglock import MagLock
 from .mchanger import Mchanger
 from .mtt import MttAxis

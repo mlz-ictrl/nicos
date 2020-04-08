@@ -17,7 +17,7 @@
 .. automodule:: nicos_mlz.puma.devices.focus
 .. autoclass:: FocusAxis()
 
-.. automodule:: nicos_mlz.puma.devices.ipc_puma
+.. automodule:: nicos_mlz.puma.devices.ipc
 .. autoclass:: Coder()
 .. autoclass:: Motor()
 .. autoclass:: Motor1()

@@ -90,7 +90,7 @@ devices = dict(
         maxtries = 10,
     ),
     # test motors for focus
-    st_mfh = device('nicos_mlz.puma.devices.Motor',
+    st_mfh = device('nicos_mlz.puma.devices.ipc.Motor',
         description = 'Test motor for mfh',
         bus = 'motorbus7',
         addr = 74,
@@ -110,7 +110,7 @@ devices = dict(
         unit = 'deg',
         lowlevel = False,
     ),
-    st_mfv = device('nicos_mlz.puma.devices.Motor',
+    st_mfv = device('nicos_mlz.puma.devices.ipc.Motor',
         description = 'Test motor for mfv',
         bus = 'motorbus7',
         addr = 75,

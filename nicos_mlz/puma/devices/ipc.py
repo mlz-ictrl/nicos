@@ -55,7 +55,10 @@ STATUS = 134
 
 
 class Coder(IPCCoder):
-    """Same as vendor.ipc.Coder but don't write the config byte."""
+    """Same as vendor.ipc.Coder but don't write the config byte.
+
+    The read value will be fitted to a polynomial.
+    """
 
     parameters = {
         'poly': Param('Polynomial coefficients in ascending order',
@@ -108,7 +111,7 @@ class Motor(IPCMotor):
 
 
 class Motor1(Motor):
-    """Same as ipc_puma.Motor but doesn't care about limit swtches."""
+    """Same as puma.ipc.Motor but doesn't care about limit swtches."""
 
     def doStatus(self, maxage=0):
         state = self._attached_bus.get(self.addr, STATUS)
@@ -460,7 +463,7 @@ class ReferenceMotor(CanReference, Motor1):
                 self._start(stop)
                 self.log.debug('finished at %f', self.read(0))
                 if self._stoprequest:
-                    raise NicosError(self, 'drive to reference stopped by user')
+                    raise NicosError(self, 'reference drive stopped by user')
 
     def _move_away_from_reference(self, refswitch, refdirection):
         self.log.debug('%s limit switch active', refswitch)
@@ -488,8 +491,8 @@ class ReferenceMotor(CanReference, Motor1):
             if self._stoprequest:
                 raise NicosError(self, 'move until reference stopped by user')
             if self.isTimedOut():
-                raise NicosTimeoutError(self, 'timeout occured during reference '
-                                   'drive')
+                raise NicosTimeoutError(self, 'timeout occured during '
+                                        ' reference drive')
         self._setrefcounter(False)
         # avoid message 'target not reached' in status message
         self._setROParam('target', self.doRead(0))
