@@ -443,17 +443,14 @@ def NewExperiment(proposal, title='', localcontact='', user='', **parameters):
 
 
 @usercommand
-@helparglist('...')
-def FinishExperiment(*args, **kwargs):
+def FinishExperiment():
     """Finish the current experiment.
-
-    Which parameters are accepted depends on the individual instrument.
 
     see also: `NewExperiment`
     """
     if session.mode == SIMULATION:
         return
-    session.experiment.finish(*args, **kwargs)
+    session.experiment.finish()
 
 
 @hiddenusercommand

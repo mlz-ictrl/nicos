@@ -1,5 +1,5 @@
 # dont forget to use the following line after the current experiment to send the data to the users
-#~ FinishExperiment('{{email:USER@MAILHOST#comma separated string of email-adresses}}')
+# FinishExperiment()
 # This script is for Proposal {{proposal#proposalnumber}}
 
 # Samplename is set in NewExperiment from the Proposaldb
