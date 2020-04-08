@@ -33,7 +33,6 @@ devices = dict(
     det_yoke = device('nicos.devices.generic.Axis',
         description = 'yoke height, refmove only in expertmode!',
         motor = 'det_yoke_motor',
-        obs = [],
         precision = 0.05,
         dragerror = 10.,
         fmtstr = '%.0f',
