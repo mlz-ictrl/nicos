@@ -176,7 +176,7 @@ class Detector(MeasureSequencer):
             self._array_data[self._step::self.resosteps] = imgret
         return [self._array_data]
 
-    def _generateSequence(self, *args, **kwargs):
+    def _generateSequence(self):
         seq = []
         if self._tths:
             self._startpos = self._tths

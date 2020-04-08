@@ -116,7 +116,7 @@ class MultiHV(BaseSequencer):
     def doInit(self, mode):
         self.valuetype = tupleof(*(int,) * len(self._attached_ephvs))
 
-    def _generateSequence(self, target):  # pylint: disable=arguments-differ
+    def _generateSequence(self, target):
         seq = []
         current = [int(dev.read(0)) for dev in self._attached_ephvs]
 

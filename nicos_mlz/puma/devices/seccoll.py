@@ -198,7 +198,7 @@ class PumaSecCollLift(HasTimeout, BlockingSequencer):
             return max(status.BUSY, _status[0]), _status[1]
         return _status
 
-    def _generateSequence(self, position):
+    def _generateSequence(self, target):
         seq = []
         if not self.isAtTarget(self.doRead(0)):
             # The limited space at some positions requires a folding of the
@@ -217,7 +217,7 @@ class PumaSecCollLift(HasTimeout, BlockingSequencer):
             # change!
             tt_pos = self.angle - self._attached_tt.offset
             seq.append(SeqDev(self._attached_tt, tt_pos, stoppable=True))
-            seq.append(SeqDev(self._attached_block, position))
+            seq.append(SeqDev(self._attached_block, target))
             seq.append(SeqSleep(2))
         return seq
 

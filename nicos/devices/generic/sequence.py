@@ -496,22 +496,6 @@ class SequencerMixin(DeviceMixinBase):
     # Hooks
     #
 
-    def _generateSequence(self, *args, **kwargs):
-        """Return the target-specific sequence as a list of steps.
-
-        Each step is a SequenceItem or a tuple thereof.
-        SequenceItems (also called actions) are "executed" one after another in
-        a "lock-step fashion" while the actions grouped together in a tuple are
-        tried to execute in parallel.
-
-        The actual action performed depends on the implementation of the
-        `SequenceItem`.
-
-        Default is to raise an `NotImplementedError`
-        """
-        raise NotImplementedError('put a proper _generateSequence '
-                                  'implementation here!')
-
     def _stopAction(self, nr):
         """Called whenever a running sequence is 'stopped'.
 
@@ -607,6 +591,22 @@ class BaseSequencer(SequencerMixin, Moveable):
                                       'running (at %s)!' % self._seq_status[1])
         self._startSequence(self._generateSequence(target))
 
+    def _generateSequence(self, target):
+        """Return the target-specific sequence as a list of steps.
+
+        Each step is a SequenceItem or a tuple thereof.
+        SequenceItems (also called actions) are "executed" one after another in
+        a "lock-step fashion" while the actions grouped together in a tuple are
+        tried to execute in parallel.
+
+        The actual action performed depends on the implementation of the
+        `SequenceItem`.
+
+        Default is to raise an `NotImplementedError`
+        """
+        raise NotImplementedError('put a proper _generateSequence '
+                                  'implementation here!')
+
 
 class LockedDevice(BaseSequencer):
     """A "locked" device, where each movement of the underlying device must be
@@ -639,7 +639,7 @@ class LockedDevice(BaseSequencer):
                            default=None, type=none_or(anytype)),
     }
 
-    def _generateSequence(self, target, *args, **kwargs):
+    def _generateSequence(self, target):
         device = self._attached_device
         lock = self._attached_lock
         seq = []
@@ -723,3 +723,19 @@ class MeasureSequencer(SequencerMixin, Measurable):
 
         """
         self._startSequence(self._generateSequence())
+
+    def _generateSequence(self):
+        """Return the device-specific sequence as a list of steps.
+
+        Each step is a SequenceItem or a tuple thereof.
+        SequenceItems (also called actions) are "executed" one after another in
+        a "lock-step fashion" while the actions grouped together in a tuple are
+        tried to execute in parallel.
+
+        The actual action performed depends on the implementation of the
+        `SequenceItem`.
+
+        Default is to raise an `NotImplementedError`
+        """
+        raise NotImplementedError('put a proper _generateSequence '
+                                  'implementation here!')

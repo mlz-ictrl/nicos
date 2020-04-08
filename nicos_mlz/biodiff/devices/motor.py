@@ -131,7 +131,7 @@ maxspeed: %.4f
     def doRead(self, maxage=0):
         return self._attached_motor.read(maxage)
 
-    def _generateSequence(self, target, *args, **kwargs):
+    def _generateSequence(self, target):
         pos = self.read(0)
         s = self.microstep if (target - pos) >= 0 else -self.microstep
         n = int((target - pos) / s)

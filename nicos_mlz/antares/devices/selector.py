@@ -45,7 +45,7 @@ class SelectorTilt(HasLimits, BaseSequencer):
                               mandatory=True, type=int, unit='rpm'),
     }
 
-    def _generateSequence(self, target, *args, **kwargs):
+    def _generateSequence(self, target):
         seq = []
         if self._attached_selector.read(0) > self.maxtiltspeed:
             seq.insert(0, SeqDev(self._attached_selector, self.maxtiltspeed,

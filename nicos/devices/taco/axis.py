@@ -215,7 +215,7 @@ class HoveringAxis(SequencerMixin, Axis):
 
     hardware_access = True
 
-    def _generateSequence(self, target):  # pylint: disable=W0221
+    def _generateSequence(self, target):
         return [
             SeqDev(self._attached_switch, self.switchvalues[1]),
             SeqSleep(self.startdelay),
