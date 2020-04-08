@@ -22,7 +22,6 @@ devices = dict(
         abslimits = (-120, 120),
         motor = 'mo_stt',
         coder = 'co_stt',
-        obs = [],
         startdelay = 1,
         stopdelay = 2,
         switch = 'air_sample_ana',
