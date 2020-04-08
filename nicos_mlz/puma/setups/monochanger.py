@@ -96,7 +96,6 @@ devices = dict(
         description = 'monochromator magazin moving axis',
         motor = 'st_mag',
         coder = 'st_mag',
-        obs = [],
         precision = 0.05,
         offset = 0,
         maxtries = 10,

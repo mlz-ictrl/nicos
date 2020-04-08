@@ -25,7 +25,6 @@ devices = dict(
         description = 'Slit before detector',
         motor = 'st_dslit',
         coder = 'co_dslit',
-        obs = [],
         precision = 0.05,
         offset = 0,
         maxtries = 10,
