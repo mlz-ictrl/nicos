@@ -4,11 +4,11 @@ group = 'special'
 sysconfig = dict(
     # use only 'localhost' if the cache is really running on the same machine,
     # otherwise use the official computer name
-    cache = 'localhost'
+    cache='nicos-cache'
 )
 
 devices = dict(
-    Poller = device('nicos.services.poller.Poller',
+    Poller=device('nicos.services.poller.Poller',
                     alwayspoll = [], # setups that should be polled regardless if loaded
                     neverpoll = [],  # setups that should not be polled even if loaded
                     blacklist = [],  # DEVICES that should never be polled
