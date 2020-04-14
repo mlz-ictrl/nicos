@@ -505,7 +505,7 @@ _ccm2a = Column(
              Field(name='Field', dev='B_ccm2a', width=12),
             ),
         BlockRow(
-             Field(name='Target', key='B_ccms2a/target', width=12),
+             Field(name='Target', key='B_ccm2a/target', width=12),
              Field(name='Readback', dev='B_ccm2a_readback', width=12),
             ),
         ],
@@ -673,19 +673,44 @@ _julabo = Column(
 _julabo_plot = Column(
     Block('Julabo plot', [
         BlockRow(
-                 Field(plot='julabo 30min', name='Ts dil 30min',
-                       dev='Ts_dil', width=60, height=40,
+                 Field(plot='julabo 30min', name='T Julabo intern',
+                       dev='T_julabo_intern', width=60, height=40,
                        plotwindow=1800),
-                 Field(plot='julabo 30min', name='Ts dil 30min',
-                       dev='Ts_dil'),
-                 Field(plot='julabo 12h', name='Ts dil 12h',
-                       dev='Ts_dil', width=60, height=40,
+                 Field(plot='julabo 30min', name='T Julabo extern',
+                       dev='T_julabo_extern'),
+                 Field(plot='julabo 12h', name='T Julabo intern',
+                       dev='T_julabo_intern', width=60, height=40,
                        plotwindow=12*3600),
-                 Field(plot='julabo 12h', name='Ts dil 12h',
-                       dev='Ts_dil'),
+                 Field(plot='julabo 12h', name='T Julabo extern',
+                       dev='T_julabo_extern'),
         ),
         ],
         setups='julabo',
+    ),
+)
+
+_pressure_box = Column(
+    Block('Pressure', [
+        BlockRow(
+            Field(name='Pressure', dev='pressure_box'),
+        ),
+        ],
+        setups='pressure_box',
+    ),
+)
+
+_pressure_box_plot = Column(
+    Block('Pressure plot', [
+        BlockRow(
+                 Field(plot='pressure box 30min', name='Pressure 30min',
+                       dev='pressure_box', width=60, height=40,
+                       plotwindow=1800),
+                 Field(plot='pressure box 12h', name='Pressure 12h',
+                       dev='pressure_box', width=60, height=40,
+                       plotwindow=12*3600),
+        ),
+        ],
+        setups='pressure_box',
     ),
 )
 
@@ -868,10 +893,11 @@ devices = dict(
                 _spinflipper, _ccrs, _cryos, _sc1, _sc2,
                 _sc_t, _ccmsanssc, _miramagnet, _amagnet,
                 _htf03, _htf01, _irf01, _irf10, _newports, _julabo,
-                _tisane_counts, _tisane_fc, _helios01, _wuts, _dilato),
+                _tisane_counts, _tisane_fc, _helios01, _wuts, _dilato,
+                _pressure_box),
             Row(_ccmsans_plot, _ccm2a_plot, _ccr19_plot,
                 _htf03_plot, _irf01_plot, _irf10_plot, _htf01_plot, _julabo_plot,
-                _miramagnet_plot, _dilato_plot),
+                _miramagnet_plot, _dilato_plot, _pressure_box_plot),
             Row(_dilato_plot2),
             Row(_dilato_plot3),
             Row(_live),

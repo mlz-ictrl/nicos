@@ -61,7 +61,7 @@ _ccm2a = Block('CCM2a Magnet', [
              Field(name='Field', dev='B_ccm2a', width=12),
             ),
     BlockRow(
-             Field(name='Target', key='b_ccmsans/target', width=12),
+             Field(name='Target', key='B_ccm2a/target', width=12),
              Field(name='Readback', dev='B_ccm2a_readback', width=12),
             ),
     BlockRow(
@@ -715,6 +715,32 @@ _dilato_plot3 = Block('Dilatometer plot force', [
     setups='dilato',
 )
 
+_pressure_box = Block('Pressure', [
+    BlockRow(Field(name='Pressure', dev='pressure_box', width=12),
+             ),
+    ],
+    setups='pressure_box',
+)
+
+_pressure_box_plot = Block('Pressure plot', [
+    BlockRow(
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=60, height=15, plotwindow=1800,
+              devices=['pressure_box'],
+              names=['30min'],
+              legend=True,
+              ),
+        Field(widget='nicos.guisupport.plots.TrendPlot',
+              width=60, height=15, plotwindow=12*3600,
+              devices=['pressure_box'],
+              names=['12h'],
+              legend=True,
+              ),
+    ),
+    ],
+    setups='pressure_box',
+)
+
 _fg1 = Block('FG 1 - Sample', [
     BlockRow(
              Field(name='On/Off', dev='tisane_fg1', width=12),
@@ -816,11 +842,11 @@ devices = dict(
                 Column(_htf01, _htf03, _irf01, _irf10, _ccm2a,
                        _ccmsans, _ccmsans_temperature,
                        _miramagnet, _amagnet,
-                       _sans1julabo, _dilato),
+                       _sans1julabo, _dilato, _pressure_box),
                 Column(_htf01_plot, _htf03_plot,
                        _irf01_plot, _irf10_plot,
                        _spinflipper, _julabo_plot,
-                       _dilato_plot),
+                       _dilato_plot, _pressure_box_plot),
                 Column(*ccrs) + Column(_birmag),
                 Column(*cryos),
                 Column(*wuts),

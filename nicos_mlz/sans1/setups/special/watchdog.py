@@ -35,8 +35,8 @@ watchlist = [
          type = None,
          gracetime = 120,
     ),
-    dict(condition = 'ccmsans_T2_value > 5',
-         message = 'Magnet Ch Stage 2 > 5 K, check for possible quench of magnet!',
+    dict(condition = 'ccmsans_T5_value > 4.5',
+         message = 'Magnet T5 > 4.5 K, check for possible quench of magnet!',
          #type = 'critical',
          type = None,
          setup = 'ccmsans',
@@ -84,7 +84,7 @@ watchlist = [
          type = None,
          setup = 'not tisane',
          gracetime = 5,
-         action = 'move(chopper_ch2_parkingpos, 4.8)'
+         action = 'move(chopper_ch2_parkingpos, 4.8)',
     ),
     dict(condition = 'chopper_ch1_phase_value < 16.1 or chopper_ch1_phase_value > 16.3',
          message = 'Chopper 1 lost parking phase position!',
@@ -92,7 +92,7 @@ watchlist = [
          type = None,
          setup = 'not tisane',
          gracetime = 5,
-         action = 'move(chopper_ch1_parkingpos, 16.2)'
+         action = 'move(chopper_ch1_parkingpos, 16.2)',
     ),
     dict(condition = 'selector_rpm_value > 30000',
          message = 'selector rpm above 30000.\nPlease check Selector hardware!!!',
