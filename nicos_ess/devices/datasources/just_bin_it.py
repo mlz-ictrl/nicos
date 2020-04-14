@@ -135,6 +135,9 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         'det_width': Param('The width in pixels of the detector', type=int,
                            default=10, userparam=True, settable=True
                            ),
+        'det_height': Param('The height in pixels of the detector', type=int,
+                           default=10, userparam=True, settable=True
+                           ),
         'num_bins': Param('The number of bins to histogram into', type=int,
                           default=50, userparam=True, settable=True,
                           ),
@@ -152,6 +155,8 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
                               type=floatrange(0), default=1, unit='s',
                               settable=True,
                               ),
+        'slave_mode': Param('Histogramming start/stop solely by NICOS',
+                            type=bool, default=False),
     }
 
     parameter_overrides = {
@@ -185,6 +190,9 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         self._hist_data = hist['data']
         self._hist_edges = hist['dims'][0]['edges']
 
+    def no_messages_callback(self):
+        pass
+
     def doStart(self):
         self.curstatus = status.BUSY, 'Requesting start...'
         self._last_live = -(self.liveinterval or 0)
@@ -192,7 +200,13 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         # Generate a unique-ish id
         self.unique_id = 'nicos-{}'.format(int(time.time()))
         self.log.debug('set unique id = %s', self.unique_id)
-        config = self._create_config(self._count_secs, self.unique_id)
+
+        if self.slave_mode:
+            interval = 7*24*60*60 # 7 days: NICOS starts and stops HM
+        else:
+            interval = self._count_secs
+
+        config = self._create_config(interval, self.unique_id)
 
         # Ask just-bin-it to start counting
         self.log.info(
@@ -223,6 +237,7 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
                     'det_range': list(self.det_range),
                     'num_bins': self.num_bins,
                     'width': self.det_width,
+                    'height': self.det_height,
                     'topic': self.hist_topic,
                     'source': self.source,
                     'id': identifier,
@@ -254,8 +269,7 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         self._count_secs = t
 
     def doStop(self):
-        # Treat like a finish
-        self._stop_processing()
+        self._send(self.command_topic, b'{"cmd": "stop"}')
 
     def doStatus(self, maxage=0):
         return self.curstatus
@@ -267,7 +281,13 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         return None
 
     def valueInfo(self):
-        return Value(self.name, unit=self.unit),
+        return Value(self.name, unit=self.unit), ''
 
     def arrayInfo(self):
-        return ArrayDesc('data', shape=(self.num_bins,), dtype=np.float64),
+        return ArrayDesc('data', shape=(self.num_bins,), dtype=np.float64), ''
+
+    def doInfo(self):
+        ret = []
+        for desc in self.arrayInfo():
+            ret.append(('desc_' + desc.name, desc.__dict__, '', '', 'general'))
+        return ret

@@ -72,7 +72,7 @@ class ImageKafkaDataSinkHandler(DataSinkHandler):
         if quality not in [INTERMEDIATE, FINAL]:
             return
 
-        timestamp = long(currenttime() * 1E9)
+        timestamp = currenttime() * 1E9
         _, arrays = results[self.detector.name]
         for desc, array in zip(self.detector.arrayInfo(), arrays):
             self._sendArray(timestamp, desc, array)
