@@ -61,7 +61,7 @@ _ccm2a = Block('CCM2a Magnet', [
              Field(name='Field', dev='B_ccm2a', width=12),
             ),
     BlockRow(
-             Field(name='Target', key='b_ccmsans/target', width=12),
+             Field(name='Target', key='B_ccm2a/target', width=12),
              Field(name='Readback', dev='B_ccm2a_readback', width=12),
             ),
     BlockRow(
