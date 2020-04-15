@@ -338,6 +338,9 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         self.log.debug('Seq: %r', sequence)
         self._startSequence(sequence)
 
+    def doReset(self):
+        multiReset(self._motors)
+
 
 class DoubleMotorNOKIPC(DoubleMotorNOK):
 
