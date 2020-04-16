@@ -62,7 +62,7 @@ class ReadName(Base):
         res = res.split(';')
         self.log.debug(res)
 
-        self.curstatus = res[res.index('status') + 1]
+        self._setROParam('curstatus', res[res.index('status') + 1])
         self.log.debug(self.curstatus)
 
         label = self.name[5:]
