@@ -27,12 +27,15 @@ from nicos.clients.gui.panels.history import \
 from nicos.guisupport.qt import QActionGroup, QCheckBox, QComboBox, QFrame, \
     QHBoxLayout, QToolBar, QWidgetAction
 
+from nicos_ess.gui.panels import get_icon
+
 
 class HistoryPanel(DefaultHistoryPanel):
 
     def __init__(self, parent, client, options):
         DefaultHistoryPanel.__init__(self, parent, client, options)
         self.layout().setMenuBar(self.setPanelToolbar())
+        self.set_icons()
 
     def setPanelToolbar(self):
         bar = QToolBar('History viewer')
@@ -93,6 +96,14 @@ class HistoryPanel(DefaultHistoryPanel):
         self.bar = bar
         self.actionFitLinear.trigger()
         return bar
+
+    def set_icons(self):
+        self.actionNew.setIcon(get_icon('add_circle_outline-24px.svg'))
+        self.actionEditView.setIcon(get_icon('edit-24px.svg'))
+        self.actionSavePlot.setIcon(get_icon('save-24px.svg'))
+        self.actionPrint.setIcon(get_icon('print-24px.svg'))
+        self.actionUnzoom.setIcon(get_icon('zoom_out-24px.svg'))
+        self.actionSaveData.setIcon(get_icon('archive-24px.svg'))
 
     def getToolbars(self):
         return []

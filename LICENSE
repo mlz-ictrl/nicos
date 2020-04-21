@@ -17,6 +17,11 @@ LICENSE INFO for NICOS
   the Creative Commons Attribution 4.0 License.
   See: <http://creativecommons.org/licenses/by/4.0/>
 
+* The images under resources/material/icons are from
+  https://material.io/resources/icons/ and distributed under
+  the Apache license version 2.0.
+  See: <https://www.apache.org/licenses/LICENSE-2.0.txt>
+
 * All the rest of the NICOS sources is distributed under the GNU
   General Public License version 2, as reproduced below.
 

@@ -49,7 +49,7 @@ class RunningScriptPanel(Panel):
         Panel.__init__(self, parent, client, options)
         loadUi(self, self.ui)
 
-        pxr = decolor_logo(QPixmap("resources/nicos-logo-high.png"), Qt.white)
+        pxr = decolor_logo(QPixmap("resources/nicos-logo-high.svg"), Qt.white)
         self.nicosLabel.setPixmap(pxr)
 
         self.runningCmdLabel.setIndent(10)
@@ -61,7 +61,7 @@ class RunningScriptPanel(Panel):
         instrument = os.getenv('INSTRUMENT')
         if instrument:
             instrument = instrument.split('.')[-1]
-            logo = decolor_logo(QPixmap('resources/%s-logo.png' % instrument),
+            logo = decolor_logo(QPixmap('resources/%s-logo.svg' % instrument),
                                 Qt.white)
             if logo.isNull():
                 self.instrumentLabel.setText(instrument.upper())

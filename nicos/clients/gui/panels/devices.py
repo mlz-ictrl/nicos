@@ -199,6 +199,10 @@ class DevicesPanel(Panel):
                 UNKNOWN: QIcon(':/leds/status_unknown'),
             }
 
+    @property
+    def groupIcon(self):
+        return QIcon(':/setup')
+
     def __init__(self, parent, client, options):
         DevicesPanel._createIcons()
         Panel.__init__(self, parent, client, options)
@@ -404,7 +408,7 @@ class DevicesPanel(Panel):
             f = catitem.font(0)
             f.setBold(True)
             catitem.setFont(0, f)
-            catitem.setIcon(0, QIcon(':/setup'))
+            catitem.setIcon(0, self.groupIcon)
             self._catitems[cat] = catitem
             if add_cat:
                 self.tree.addTopLevelItem(catitem)

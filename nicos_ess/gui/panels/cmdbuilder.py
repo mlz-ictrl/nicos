@@ -31,6 +31,7 @@ from nicos.clients.gui.panels.cmdbuilder import \
 from nicos.guisupport.qt import pyqtSlot
 
 from nicos_ess.gui import uipath
+from nicos_ess.gui.panels import get_icon
 
 
 class CommandPanel(DefaultCommandPanel):
@@ -44,12 +45,20 @@ class CommandPanel(DefaultCommandPanel):
 
     def __init__(self, parent, client, options):
         DefaultCommandPanel.__init__(self, parent, client, options)
+        self.set_icons()
+
+    def set_icons(self):
+        self.cmdBtn.setIcon(get_icon('add-24px.svg'))
+        self.simBtn.setIcon(get_icon('play_arrow_outline-24px.svg'))
+        self.runBtn.setIcon(get_icon('play_arrow-24px.svg'))
         self.frame.hide()
 
     def toggle_frame(self):
         self.frame_visible = not self.frame_visible
         self.frame.setVisible(self.frame_visible)
         self.cmdBtn.setText('Hide Cmd' if self.frame_visible else 'New Cmd')
+        self.cmdBtn.setIcon(get_icon('remove-24px.svg' if self.frame_visible
+                                     else 'add-24px.svg'))
 
     @pyqtSlot()
     def on_cmdBtn_clicked(self):

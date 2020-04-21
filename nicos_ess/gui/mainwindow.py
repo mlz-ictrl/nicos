@@ -30,11 +30,11 @@ from __future__ import absolute_import, division, print_function
 import os
 
 from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow
-from nicos.guisupport.qt import QAction, QApplication, QFileDialog, \
-    QKeySequence, QLabel, QMenu, QPixmap, QPoint, QSizePolicy, Qt, QWidget, \
-    pyqtSlot
+from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
+    QMenu, QPixmap, QPoint, QSizePolicy, Qt, QWidget, pyqtSlot
 
 from nicos_ess.gui import uipath
+from nicos_ess.gui.panels import get_icon
 
 
 def decolor_logo(pixmap, color):
@@ -65,6 +65,8 @@ class MainWindow(DefaultMainWindow):
         self.addLogo()
         self.addInstrument()
         self.addExperiment()
+        self.set_icons()
+        self.stylefile = gui_conf.stylefile
 
         # Cheesburger menu
         dropdown = QMenu('')
@@ -77,14 +79,23 @@ class MainWindow(DefaultMainWindow):
         self.actionUser.setMenu(dropdown)
         self.actionUser.setIconVisibleInMenu(True)
         self.dropdown = dropdown
-        reload_action = QAction("Reload QSS", self,
-                                triggered=self.reloadQSS,
-                                shortcut=QKeySequence.Refresh)
-        select_action = QAction("Select QSS", self, triggered=self.selectQSS)
-        dropdown.addAction(reload_action)
-        dropdown.addAction(select_action)
+        # reload_action = QAction("Reload skin", self, triggered=self.reloadQSS,
+        #                         shortcut=QKeySequence.Refresh)
+        # select_action = QAction("Select skin", self, triggered=self.selectQSS)
+        # dropdown.addAction(reload_action)
+        # dropdown.addAction(select_action)
 
     # addStatusBar(self)
+
+    def set_icons(self):
+        self.actionUser.setIcon(
+            get_icon('settings_applications-24px.svg'))
+        self.actionEmergencyStop.setIcon(get_icon('emergency_stop-24px.svg'))
+        self.actionConnect.setIcon(get_icon('power-24px.svg'))
+        self.actionExit.setIcon(get_icon('exit_to_app-24px.svg'))
+        self.actionViewOnly.setIcon(get_icon('lock-24px.svg'))
+        self.actionPreferences.setIcon(get_icon('tune-24px.svg'))
+        self.actionExpert.setIcon(get_icon('fingerprint-24px.svg'))
 
     def addLogo(self):
         logoLabel = QLabel()
@@ -94,7 +105,7 @@ class MainWindow(DefaultMainWindow):
         self.toolBarMain.insertWidget(self.toolBarMain.actions()[0], logoLabel)
 
         nicosLabel = QLabel()
-        pxr = decolor_logo(QPixmap("resources/nicos-logo-high.png"), Qt.white)
+        pxr = decolor_logo(QPixmap("resources/nicos-logo-high.svg"), Qt.white)
         nicosLabel.setPixmap(pxr.scaledToHeight(self.toolBarMain.height(),
                                                 Qt.SmoothTransformation))
         self.toolBarMain.insertWidget(self.toolBarMain.actions()[1],
@@ -113,7 +124,7 @@ class MainWindow(DefaultMainWindow):
         instrument = os.getenv('INSTRUMENT')
         if instrument:
             instrument = instrument.split('.')[-1]
-            logo = decolor_logo(QPixmap('resources/%s-logo.png' % instrument),
+            logo = decolor_logo(QPixmap('resources/%s-logo.svg' % instrument),
                                 Qt.white)
             if logo.isNull():
                 instrumentLabel.setText(instrument.upper())
@@ -137,14 +148,15 @@ class MainWindow(DefaultMainWindow):
             experimentLabel.setText(experiment)
 
     def reloadQSS(self):
-        self.setQSS('nicos_demo/demo/guiconfig-ess.qss')
+        self.setQSS(self.stylefile)
 
     def selectQSS(self):
         stylefile = QFileDialog.getOpenFileName(self,
                                                 filter="Qt Stylesheet Files ("
                                                 "*.qss)")[0]
         if stylefile:
-            self.setQSS(stylefile)
+            self.stylefile = stylefile
+            self.setQSS(self.stylefile)
 
     def setQSS(self, stylefile):
         with open(stylefile, 'r') as fd:
@@ -152,6 +164,16 @@ class MainWindow(DefaultMainWindow):
                 QApplication.instance().setStyleSheet(fd.read())
             except Exception as e:
                 print(e)
+
+    def on_client_connected(self):
+        DefaultMainWindow.on_client_connected(self)
+        self.actionConnect.setIcon(
+            QIcon("resources/material/icons/power_off-24px.svg"))
+
+    def on_client_disconnected(self):
+        DefaultMainWindow.on_client_disconnected(self)
+        self.actionConnect.setIcon(
+            QIcon("resources/material/icons/power-24px.svg"))
 
     @pyqtSlot()
     def on_actionUser_triggered(self):
