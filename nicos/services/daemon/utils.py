@@ -26,6 +26,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import sys
 import ast
 import linecache
 import logging
@@ -115,7 +116,11 @@ def splitBlocks(text):
     assert isinstance(mod, ast.Module)
     # construct an individual compilable unit for each block
     for toplevel in mod.body:
-        new_mod = ast.Module()
+        # See https://bugs.python.org/issue35894
+        if sys.version_info >= (3, 8):
+            new_mod = ast.Module(type_ignores=[])
+        else:
+            new_mod = ast.Module()
         new_mod.body = [toplevel]
         # do not change the name (2nd parameter); the controller
         # depends on that
