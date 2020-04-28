@@ -110,3 +110,10 @@ class KafkaSubscriber(DeviceMixinBase):
         :param messages: dict of timestamp and raw message
         """
         pass
+
+    def no_messages_callback(self):
+        """This method is called if no messages are on the topic.
+        Subclasses should define this method if they are interested
+        in this.
+        """
+        pass
