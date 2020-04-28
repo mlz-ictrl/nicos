@@ -30,6 +30,9 @@ from __future__ import absolute_import, division, print_function
 import argparse
 import logging
 import os
+# Work around a crash on Py3/Bionic when readline is imported later in
+# a callback from unpickling server data.
+import readline  # pylint: disable=unused-import
 import sys
 import traceback
 from os import path
