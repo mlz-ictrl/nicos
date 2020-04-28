@@ -26,11 +26,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-from cgi import escape
-
 from nicos.clients.gui.utils import CompatSettings, DlgUtils, loadUi
 from nicos.guisupport.qt import QCheckBox, QDesktopServices, QDialog, \
     QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QUrl
+from nicos.pycompat import escape_html
 
 try:
     import redminelib  # pylint: disable=import-error
@@ -182,7 +181,7 @@ class BugreportTool(DlgUtils, QDialog):
                     reproduction, add_log):
 
         def wrap(text):
-            return escape(text).replace('\n\n', '</p><p>'). \
+            return escape_html(text).replace('\n\n', '</p><p>'). \
                 replace('\n', '<br/>')
 
         full_desc = '<p>' + wrap(description) + '</p>'
@@ -191,10 +190,10 @@ class BugreportTool(DlgUtils, QDialog):
                          '<p>' + wrap(reproduction) + '</p>'
         if self.traceback:
             full_desc += '\n\n<p><b>Traceback:</b></p>\n' + \
-                         '<pre>' + escape(self.traceback) + '</pre>'
+                         '<pre>' + escape_html(self.traceback) + '</pre>'
         if add_log and self.log_excerpt:
             full_desc += '\n\n<p><b>Log excerpt:</b></p>\n' + \
-                         '<pre>' + escape(self.log_excerpt) + '</pre>'
+                         '<pre>' + escape_html(self.log_excerpt) + '</pre>'
 
         rm = redminelib.Redmine(TRACKER_URL, key=self.apikey)
         issue = rm.issue.new()

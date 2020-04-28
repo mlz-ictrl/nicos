@@ -27,11 +27,11 @@
 from __future__ import absolute_import, division, print_function
 
 import os.path
-from cgi import escape
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QDateTime, pyqtSlot
+from nicos.pycompat import escape_html
 
 
 class LogViewerPanel(Panel):
@@ -51,7 +51,6 @@ class LogViewerPanel(Panel):
         self.dateTimeEditFrom.setDateTime(
             QDateTime.currentDateTime().addDays(-1))
         self.dateTimeEditTo.setDateTime(QDateTime.currentDateTime())
-
 
     def on_client_connected(self):
         # determine log path via daemon
@@ -196,5 +195,5 @@ class LogViewerPanel(Panel):
     def _colorizeLevel(self, line, level):
         style = self.STYLES.get(level, '')
         if style:
-            return '<span style="%s">%s</span>' % (style, escape(line))
-        return escape(line)
+            return '<span style="%s">%s</span>' % (style, escape_html(line))
+        return escape_html(line)
