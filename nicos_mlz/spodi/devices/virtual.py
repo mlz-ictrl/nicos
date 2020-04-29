@@ -97,16 +97,13 @@ class VirtualImage(BaseImage):
         return t * np.random.poisson(data)
 
     def _run(self):
-        try:
-            while not self._stopflag:
-                elapsed = self._timer.elapsed_time()
-                self.log.debug('update image: elapsed = %.1f', elapsed)
-                array = self._generate(self._base_loop_delay)
-                self._buf = self._buf + array
-                self.readresult = [self._buf.sum().astype('<u4')]
-                time.sleep(self._base_loop_delay)
-        finally:
-            self._remaining = None
+        while not self._stopflag:
+            elapsed = self._timer.elapsed_time()
+            self.log.debug('update image: elapsed = %.1f', elapsed)
+            array = self._generate(self._base_loop_delay)
+            self._buf = self._buf + array
+            self.readresult = [self._buf.sum().astype('<u4')]
+            time.sleep(self._base_loop_delay)
 
     def doReadArray(self, _quality):
         return self._buf.astype('<u4')
