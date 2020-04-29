@@ -263,7 +263,7 @@ class TearOffTabWidget(QTabWidget):
         panel = widget
         if isinstance(widget, QMainWindow):  # check for main window type
             panel = widget.centralWidget()
-            if panel.layout():               # check for layout
+            if panel and panel.layout():  # check for layout
                 panel = panel.layout().itemAt(0).widget()
         return panel
 
@@ -327,10 +327,10 @@ class TearOffTabWidget(QTabWidget):
         detachWindow.saveSettings(False)
         tearOffWidget = detachWindow.centralWidget()
         panel = self._getPanel(tearOffWidget)
-        if not isinstance(panel, QTabWidget):
+        if panel and not isinstance(panel, QTabWidget):
             panel.setWidgetVisible.disconnect(detachWindow.setWidgetVisibleSlot)
         tearOffWidget.setParent(self)
-        if not isinstance(panel, QTabWidget):
+        if panel and not isinstance(panel, QTabWidget):
             panel.setWidgetVisible.connect(self.setWidgetVisibleSlot)
 
         for p in tearOffWidget.panels:
@@ -425,7 +425,7 @@ class TearOffTabWidget(QTabWidget):
             detachWindow.closed.connect(self.attachTab)
 
             panel = self._getPanel(widget)
-            if not isinstance(panel, QTabWidget):
+            if panel and not isinstance(panel, QTabWidget):
                 panel.setWidgetVisible.disconnect(self.setWidgetVisibleSlot)
                 panel.setWidgetVisible.connect(
                     detachWindow.setWidgetVisibleSlot)
