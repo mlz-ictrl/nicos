@@ -11,7 +11,7 @@ tango_base = "tango://%s:10000/box/lakeshore/" % setupname
 devices = {
     'T_%s' % setupname: device('nicos.devices.tango.TemperatureController',
         description = 'The control device of the mixing chamber',
-	tangodevice = tango_base + 'control',
+        tangodevice = tango_base + 'control',
         abslimits = (0, 300),
         unit = 'K',
         fmtstr = '%.3f',
