@@ -137,14 +137,16 @@ class TestMultiAnalyzer(object):
         with open(os.path.join(dirname, 'man_test.txt')) as f:
             for s in f.readlines():
                 # convert stringified list to list avoiding use of 'eval'
-                v = [float(x) for x in s.translate(maketrans('][,', '   ')).split()]
+                v = [float(x) for x in s.translate(
+                     maketrans('][,', '   ')).split()]
                 assert man.isAllowed(v)[0]
 
         # read bad targets from file
         with open(os.path.join(dirname, 'man_test_fail.txt')) as f:
             for s in f.readlines():
                 # convert stringified list to list avoiding use of 'eval'
-                v = [float(x) for x in s.translate(maketrans('][,', '   ')).split()]
+                v = [float(x) for x in s.translate(
+                     maketrans('][,', '   ')).split()]
                 assert not man.isAllowed(v)[0]
 
     def test_movement(self, session):

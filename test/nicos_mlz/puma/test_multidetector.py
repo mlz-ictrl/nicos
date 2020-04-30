@@ -94,14 +94,16 @@ class TestMultiDetector(object):
         with open(os.path.join(dirname, 'med_test.txt')) as f:
             for s in f.readlines():
                 # convert stringified list to list avoiding use of 'eval'
-                v = [float(x) for x in s.translate(maketrans('][,', '   ')).split()]
+                v = [float(x) for x in s.translate(
+                     maketrans('][,', '   ')).split()]
                 assert med.isAllowed(v)[0]
 
         # read bad targets from file
         with open(os.path.join(dirname, 'med_test_fail.txt')) as f:
             for s in f.readlines():
                 # convert stringified list to list avoiding use of 'eval'
-                v = [float(x) for x in s.translate(maketrans('][,', '   ')).split()]
+                v = [float(x) for x in s.translate(
+                     maketrans('][,', '   ')).split()]
                 assert not med.isAllowed(v)[0]
 
     def test_reference(self, session):
