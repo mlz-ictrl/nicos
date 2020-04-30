@@ -206,8 +206,8 @@ _column3 = Column(
     ),
     Block('Cryostat', [
         BlockRow(
-            Field(name='Tube' , dev='T_ccr_d', unit='K'),
-            Field(name='Stick', dev='T_ccr_b', unit='K'),
+            Field(name='Tube' , dev='T_ccr_sample_tube', unit='K'),
+            Field(name='Stick', dev='T_ccr_sample_stick_b', unit='K'),
             Field(name='Pressure', dev='P_ccr', unit='mbar')),
         ],
         setups='ccr'
