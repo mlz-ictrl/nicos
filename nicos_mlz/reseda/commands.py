@@ -144,3 +144,17 @@ def freqscan(device, start, step, numsteps):
             maw(device, start + step*i)
             session.delay(0.2)
             count(1)
+
+
+@usercommand
+def img():
+    "Setting the Cascade Detector to image mode"
+
+    session.getDevice('psd_channel').mode = 'image'
+
+
+@usercommand
+def tof():
+    "Settting the Cascade Detector to tof mode"
+
+    session.getDevice('psd_channel').mode = 'tof'
