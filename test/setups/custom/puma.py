@@ -91,4 +91,8 @@ devices = dict(
         unit = 'deg',
         precision = .1,
     ),
+    rd6_cad = device('nicos_mlz.puma.devices.StackedAxis',
+        bottom = 'cad',
+        top = 'rd6',
+    ),
 )
