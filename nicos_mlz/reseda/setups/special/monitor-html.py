@@ -4,10 +4,10 @@ group = 'special'
 _expcolumn = Column(
     Block('Experiment', [
         BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
-                 Field(name='Title',    key='exp/title',    width=30,
-                       istext=True, maxlen=15),
-                 Field(name='Sample',   key='sample/samplename', width=20,
-                       istext=True, maxlen=15),
+                 # Field(name='Title',    key='exp/title',    width=30,
+                 #       istext=True, maxlen=15),
+                 # Field(name='Sample',   key='sample/samplename', width=20,
+                 #       istext=True, maxlen=15),
                  Field(name='Last file', key='exp/lastscan'),
                  Field(name='EchoTime', dev='echotime', unit='ns', width=15),
                  Field(name='Wavelength', dev='selector_lambda', unit='A')),
