@@ -30,14 +30,9 @@ import os
 
 import pytest
 
+from nicos.pycompat import maketrans
+
 from test.utils import approx
-
-try:
-    from string import maketrans  # pylint: disable=deprecated-module
-except ImportError:
-    maketrans = str.maketrans
-
-
 
 session_setup = 'multidetector'
 

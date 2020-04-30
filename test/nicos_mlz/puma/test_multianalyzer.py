@@ -32,11 +32,7 @@ import pytest
 
 from nicos.core import status
 from nicos.core.errors import InvalidValueError, LimitError
-
-try:
-    from string import maketrans  # pylint: disable=deprecated-module
-except ImportError:
-    maketrans = str.maketrans
+from nicos.pycompat import maketrans
 
 session_setup = 'multianalyzer'
 
