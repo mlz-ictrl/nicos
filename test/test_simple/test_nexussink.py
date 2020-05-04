@@ -27,6 +27,7 @@ import re
 import time
 from os import path
 
+import numpy as np
 import pytest
 
 pytest.importorskip('h5py')
@@ -39,10 +40,13 @@ from nicos.commands.measure import count
 from nicos.commands.scan import scan
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceAttribute, DeviceDataset, EndTime, ImageDataset, NXAttribute, \
-    NXLink, NXScanLink, StartTime
+    NXExternalLink, NXLink, NXScanLink, StartTime
 from nicos.utils import updateFileCounter
 
 from test.nexus.TestTemplateProvider import setTemplate
+
+# from test.utils import raises
+
 
 year = time.strftime('%Y')
 
@@ -263,3 +267,47 @@ class TestNexusSink:
                     ts, '%Y-%m-%d %H:%M:%S.%f').timestamp()
 
             assert (times['end_time'] - times['start_time']) >= 0.1
+
+    def test_External_link(self, session):
+        exp = session.experiment
+
+        fname = path.join(exp.datapath, 'external_test.h5')
+        with h5py.File(fname, 'w') as tst:
+            entry = tst.create_group('entry')
+            entry.attrs['NXclass'] = np.string_('NXGroup')
+            ex = entry.create_dataset('external', (1,), dtype='f4')
+            ex[0] = 47
+
+        template = {
+            'test': NXExternalLink(fname, '/entry/external')
+        }
+        exp.setDetectors(['det', ])
+        self.setScanCounter(session, 52)
+        setTemplate(template)
+        count(t=.1)
+
+        with h5py.File(path.join(session.experiment.datapath,
+                                 'test%sn000053.hdf' % year), 'r') as fin:
+            ds = fin['test']
+            assert ds[0] == 47
+
+    def test_External_link_failure(self, session, log):
+        exp = session.experiment
+
+        fname = path.join(exp.datapath, 'external_turd.h5')
+
+        template = {
+            'test': NXExternalLink(fname, '/entry/external')
+        }
+        exp.setDetectors(['det', ])
+        self.setScanCounter(session, 55)
+        setTemplate(template)
+        #
+        # with log.assert_warns(regex='.*Failed to create external link.*',
+        #                      count=1):
+        #    assert raises(Exception, count, 't=1')
+        count(t=.1)
+        for warn in log._warnings:
+            if warn.find('Failed to create external link') > 0:
+                return
+        assert False

@@ -220,6 +220,7 @@ class NexusSinkHandler(DataSinkHandler):
                 linkpath = self.find_scan_link(h5obj, self.template)
                 if linkpath is not None:
                     self.make_scan_links(h5obj, self.template, linkpath)
+                self.test_external_links(h5obj, self.template)
             try:
                 self.h5file.close()
                 self.h5file = None

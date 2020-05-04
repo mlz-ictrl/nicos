@@ -23,6 +23,7 @@
 import time
 from datetime import datetime
 
+import h5py
 import numpy as np
 
 from nicos import session
@@ -102,6 +103,9 @@ class NexusElementBase:
 
     def scanlink(self, name, sinkhandler, h5parent, linkroot):
         pass
+
+    def test_written(self, name, h5obj):
+        """Mainly for the external link and test if it has been written."""
 
 
 class NXAttribute(NexusElementBase):
@@ -695,3 +699,33 @@ class CalcData(NexusElementBase):
     def _calcData(self, dataset):
         raise NotImplementedError('Derived class must implement '
                                   '_calcData(dset)')
+
+
+class NXExternalLink(NexusElementBase):
+    """This element creates an external link into another file."""
+    def __init__(self, filename, objpath):
+        self.filename = filename
+        self.objpath = objpath
+        NexusElementBase.__init__(self)
+
+    def create(self, name, h5parent, sinkhandler):
+        self._link_created = False
+
+    def update(self, name, h5parent, sinkhandler, values):
+        if not self._link_created:
+            try:
+                h5parent[name] = h5py.ExternalLink(self.filename, self.objpath)
+                self._link_created = True
+            except Exception as e:
+                session.log.warning('Failed to create external link: %s', e)
+                # Ignore and retry: the external file may not yet exist
+
+    def test_written(self, name, h5obj):
+        if not self._link_created:
+            session.log.warning('Failed to create external link into %s, '
+                                'path %s', self.filename, self.objpath)
+        try:
+            h5obj[name]
+        except KeyError:
+            session.log.warning('Failed to create external link into %s, '
+                                'path %s', self.filename, self.objpath)

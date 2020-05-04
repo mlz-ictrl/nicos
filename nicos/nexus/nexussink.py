@@ -264,16 +264,26 @@ class NexusSinkHandler(DataSinkHandler):
             elif isinstance(val, NexusElementBase):
                 val.scanlink(key, self, h5obj, linkpath)
 
+    def test_external_links(self, h5obj, template):
+        for key, val in template.items():
+            if isinstance(val, dict):
+                nxname = key.split(':')[0]
+                childobj = h5obj[nxname]
+                self.test_external_links(childobj, val)
+            else:
+                if isinstance(val, NexusElementBase):
+                    val.test_written(key, h5obj)
+
     def end(self):
         """
             There is a trick here: The NexusSink sets the dataset only on
-            initialisation. And NICOS tries to make a new SinkHandler for the
-            ScanDataset and then for each PointDaset. The result is that I get
-            the NexusSinkHandler.end() doubly called with  last PointDataset.
-            However, I keep the startdatset.  And the NICOS engine sets the
-            startdaset.finished from None to a timestamp when it is done. I use
-            this to detect the end. If the NICOS engine in some stage changes
-            on this one, this code will break.
+            initialisation.  And NICOS tries to make a new SinkHandler for the
+            ScanDataset and then for each PointDataset.  The result is that I
+            get the NexusSinkHandler.end() doubly called with the last
+            PointDataset.  However, I keep the startdataset.  And the NICOS
+            engine sets the startdataset.finished from None to a timestamp
+            when it is done.  I use this to detect the end. If the NICOS
+            engine in some stage change on this one, this code will break.
         """
         if self.startdataset.finished is not None:
             # if self.startdataset.settype == SCAN:
@@ -282,6 +292,7 @@ class NexusSinkHandler(DataSinkHandler):
                 linkpath = self.find_scan_link(h5obj, self.template)
                 if linkpath is not None:
                     self.make_scan_links(h5obj, self.template, linkpath)
+                self.test_external_links(h5obj, self.template)
             self._filename = None
             self.sink.end()
             self.startdataset = None
