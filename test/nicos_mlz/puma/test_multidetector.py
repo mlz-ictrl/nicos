@@ -26,11 +26,10 @@
 
 from __future__ import absolute_import, division, print_function
 
+import ast
 import os
 
 import pytest
-
-from nicos.pycompat import maketrans
 
 from test.utils import approx
 
@@ -89,16 +88,14 @@ class TestMultiDetector(object):
         with open(os.path.join(dirname, 'med_test.txt')) as f:
             for s in f.readlines():
                 # convert stringified list to list avoiding use of 'eval'
-                v = [float(x) for x in s.translate(
-                     maketrans('][,', '   ')).split()]
+                v = ast.literal_eval(s)
                 assert med.isAllowed(v)[0]
 
         # read bad targets from file
         with open(os.path.join(dirname, 'med_test_fail.txt')) as f:
             for s in f.readlines():
                 # convert stringified list to list avoiding use of 'eval'
-                v = [float(x) for x in s.translate(
-                     maketrans('][,', '   ')).split()]
+                v = ast.literal_eval(s)
                 assert not med.isAllowed(v)[0]
 
     def test_reference(self, session):

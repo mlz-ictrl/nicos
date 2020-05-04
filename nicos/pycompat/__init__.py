@@ -162,12 +162,6 @@ else:
     from io import TextIOWrapper
 
 
-if PY2:
-    from string import maketrans  # pylint: disable=deprecated-module
-else:
-    maketrans = str.maketrans
-
-
 try:
     # numpy 1.14+ compat
     import numpy
@@ -183,5 +177,5 @@ __all__ = [
     'string_types', 'integer_types', 'text_type', 'binary_type',
     'number_types',
     'iteritems', 'itervalues', 'iterkeys', 'listitems', 'listvalues',
-    'get_thread_id', 'escape_html', 'b64encode', 'b64decode', 'maketrans',
+    'get_thread_id', 'escape_html', 'b64encode', 'b64decode',
 ]
