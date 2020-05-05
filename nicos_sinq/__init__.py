@@ -18,6 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
+#   Mark Koennecke <mark.koennecke@psi.ch>
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
@@ -26,8 +27,11 @@
 
 from __future__ import absolute_import, division, print_function
 
+import logging
 import socket
 from os import path
+
+from nicos.pycompat import urllib
 
 
 def determine_instrument(setup_package_path):
@@ -40,3 +44,25 @@ def determine_instrument(setup_package_path):
         # ... but only if a subdir exists for it
         if path.isdir(path.join(setup_package_path, domain)):
             return domain.replace('/', '.')
+
+
+class MongoLogHandler(logging.Handler):
+    pass
+
+
+def get_log_handlers(config):
+    """
+    :param values: configuration dictionary
+    :return: [MongoLogHandler, ] if 'mongo_logger' is in options,  else []
+    """
+    from nicos.core import ConfigurationError
+
+    handlers = []
+    if hasattr(config, 'mongo_logger'):
+        url = urllib.parse.urlparse(config.mongo_logger)
+        if not url.netloc:
+            raise ConfigurationError('mongo_logger: invalid url')
+        mongo_handler = MongoLogHandler()
+        mongo_handler.setLevel(logging.WARNING)
+        handlers.append(mongo_handler)
+    return handlers

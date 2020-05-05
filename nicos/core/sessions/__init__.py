@@ -66,7 +66,7 @@ from nicos.pycompat import builtins, exec_, iteritems, itervalues, \
 from nicos.utils import fixupScript, formatArgs, formatDocstring, \
     formatScriptError, which
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
-    NicosLogger, initLoggers
+    NicosLogger, get_facility_log_handlers, initLoggers
 
 
 class Session(object):
@@ -1267,6 +1267,10 @@ class Session(object):
                     self.log.addHandler(NicosLogfileHandler(log_path, prefix))
             except (IOError, OSError) as err:
                 self.log.error('cannot open log file: %s', err)
+
+        # add the facility-specific log handlers, if implemented and configured
+        for handler in get_facility_log_handlers(config):
+            self.log.addHandler(handler)
 
     def getLogger(self, name):
         """Return a new NICOS logger for the specified device name."""
