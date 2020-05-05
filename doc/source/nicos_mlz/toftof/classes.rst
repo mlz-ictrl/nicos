@@ -37,7 +37,6 @@ Neutron Guide/Collimation
 .. automodule:: nicos_mlz.toftof.devices.neutronguide
 
 .. autoclass:: Switcher()
-.. autoclass:: Motor()
 
 Safety System
 -------------
