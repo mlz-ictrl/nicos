@@ -21,7 +21,8 @@
 #   Matt Clarke <matt.clarke@esss.se>
 #
 # *****************************************************************************
-from nicos.core import ArrayDesc, Override, Param, Value, status, tupleof, oneof
+from nicos import session
+from nicos.core import ArrayDesc, Override, Param, Value, status, tupleof
 from nicos.core.constants import LIVE
 from nicos.core.device import Measurable
 from nicos.devices.epics import pvget
@@ -48,15 +49,13 @@ class LaserDetector(Measurable):
         self.curstatus = status.OK, ""
 
     def doStart(self):
-        import time
         max_pow = 0
         results = []
         for _ in range(5):
-             time.sleep(0.1)
-             val = pvget(self.pv_name)
-             max_pow = max(val, max_pow)
-             results.append(val)
-        # self.answer = max_pow
+            session.delay(0.1)
+            val = pvget(self.pv_name)
+            max_pow = max(val, max_pow)
+            results.append(val)
         self.answer = sum(results) / len(results)
 
     def doRead(self, maxage=0):
