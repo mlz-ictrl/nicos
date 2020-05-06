@@ -102,6 +102,7 @@ class KafkaSubscriber(DeviceMixinBase):
                 self.new_messages_callback(messages)
             else:
                 self.no_messages_callback()
+        self.log.debug("KafkaSubscriber thread finished")
 
     def new_messages_callback(self, messages):
         """This method is called whenever a new messages appear on
@@ -109,11 +110,9 @@ class KafkaSubscriber(DeviceMixinBase):
         a callback is required when new messages appear.
         :param messages: dict of timestamp and raw message
         """
-        pass
 
     def no_messages_callback(self):
         """This method is called if no messages are on the topic.
         Subclasses should define this method if they are interested
         in this.
         """
-        pass
