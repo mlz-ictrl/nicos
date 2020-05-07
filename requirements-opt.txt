@@ -1,5 +1,4 @@
 --extra-index-url https://forge.frm2.tum.de/simple
-mysql-connector-python-rf>=2.2.2
 pyserial>=2.5
 astropy>=2.0,<3.0
 pyepics>=3.2.4
