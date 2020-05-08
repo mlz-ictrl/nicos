@@ -1,32 +1,48 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 # Sample debian/rules that uses debhelper.
-# This file was originally written by Joey Hess and Craig Small.
-# As a special exception, when this file is copied by dh-make into a
-# dh-make output file, you may use that output file without restriction.
-# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+include /usr/share/dpkg/default.mk
+# include /usr/share/cdbs/1/class/python-distutils.mk
+
+export DEB_VERSION_UPSTREAM
 
 # Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
+export DH_VERBOSE=1
 
-DEBPYTHON_DEFAULT=2.7
-DEBPYTHON_SUPPORTED=2.7
+export DEBPYTHON_DEFAULT=3.6
+export DEBPYTHON_SUPPORTED=3.6,3.7
 
-export DEBPYTHON_DEFAULT DEBPYTHON_SUPPORTED
+# export DEBPYTHON_DEFAULT DEBPYTHON_SUPPORTED
+
+export PYBUILD_NAME=nicos
+export PYBUILD_DISABLE=test
+
+# override_dh_auto_install:
+# 	dh_auto_install
+
+override_dh_installinit:
+	dh_installinit --noscripts
+
+override_dh_installsystemd:
+	dh_installsystemd -p nicos-services --restart-after-upgrade nicos-late-generator.service nicos.target
 
 override_dh_install:
 	mkdir -p etc/init.d
-	ln -s /usr/local/nicos/etc/nicos-system etc/init.d/nicos-system
-	rm debian/tmp/usr/local/nicos/nicos.conf
-	dh_install --list-missing
+	# ln -s usr/local/nicos/etc/nicos-system etc/init.d/nicos-system
+	rm -rf debian/tmp
+	mv debian/python3-nicos debian/tmp
+	# rm debian/tmp/usr/local/nicos/nicos.conf
+	dh_install --exclude=__pycache__
 
-override_dh_auto_install:
-	dh_auto_install --buildsystem=python_distutils -- --prefix=/usr/local/nicos
+# override_dh_auto_install:
+# 	dh_auto_install # --buildsystem=pybuild -- --prefix=/usr/local/nicos
 
-override_dh_installinit:
-	dh_installinit --onlyscripts
+# override_dh_auto_build:
+# 	dh_auto_build
+	# PYTHONPATH=. python3 -m sphinx -N -bman doc/ build/man
 
-override_dh_usrlocal:
+# override_dh_usrlocal:
 
 %:
-	dh $@ --with python2 --buildsystem=python_distutils
+	dh $@ --with python3,sphinxdoc --buildsystem=pybuild

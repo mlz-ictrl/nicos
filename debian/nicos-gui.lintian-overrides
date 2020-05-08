@@ -1,0 +1,4 @@
+nicos-gui: debian-changelog-line-too-long
+nicos-gui: image-file-in-usr-lib
+nicos-gui: binary-without-manpage usr/bin/nicos-gui
+nicos-gui: binary-without-manpage usr/bin/nicos-history

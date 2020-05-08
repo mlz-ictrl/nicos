@@ -1,0 +1,5 @@
+nicos-instruments: debian-changelog-line-too-long
+nicos-instruments: image-file-in-usr-lib
+nicos-instruments: python-script-but-no-python-dep
+nicos-instruments: package-contains-documentation-outside-usr-share-doc
+nicos-instruments: extra-license-file
