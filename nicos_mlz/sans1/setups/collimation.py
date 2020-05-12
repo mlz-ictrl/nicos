@@ -547,7 +547,7 @@ devices = dict(
     col_3 = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
         description = 'Collimotor 3',
         mapping = dict(ng=1.010, col=117, free1=234, free2=351),
-        moveable = 'col_3_a',
+        moveable = 'col_3_m',
         blockingmove = False,
         pollinterval = 15,
         maxage = 60,
@@ -557,7 +557,7 @@ devices = dict(
     col_3_a = device('nicos.devices.generic.Axis',
         description = 'Collimotor 3',
         motor = 'col_3_m',
-        coder = 'col_3_m',
+        # coder = 'col_3_m',
         dragerror = 17,
         precision = 0.05,
         lowlevel = True,
@@ -577,16 +577,16 @@ devices = dict(
         precision = 0.0025,
         lowlevel = True,
     ),
-    col_3_c = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
-        description = 'Collimotor 3 coder',
-        # IP-adresse: 172.25.49.114
-        tangodevice='%s/coll/col-4m/modbus'% (tangohost,),
-        address = 0x40c8,  # docu page 20
-        slope = 1000000, # resolution = nm, we want mm
-        zeropos = 18.6575767247, # unspecified in docu page 19
-        unit = 'mm',
-        lowlevel = True,
-    ),
+#    col_3_c = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
+#        description = 'Collimotor 3 coder',
+#        # IP-adresse: 172.25.49.114
+#        tangodevice='%s/coll/col-4m/modbus'% (tangohost,),
+#        address = 0x40c8,  # docu page 20
+#        slope = 1000000, # resolution = nm, we want mm
+#        zeropos = 18.6575767247, # unspecified in docu page 19
+#        unit = 'mm',
+#        lowlevel = True,
+#    ),
 #-------------------------------------------------------------------------------
     col_3_c_test = device('nicos.devices.tango.Sensor',
         description = 'Collimotor 3 coder test device',

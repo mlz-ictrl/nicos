@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
+#   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
 
@@ -28,10 +29,29 @@ import os
 import time
 from os import path
 
+from nicos import session
 from nicos.core import Override
+from nicos.core.data import DataManager
 from nicos.devices.experiment import Experiment
 from nicos.pycompat import string_types
 from nicos.utils import readFile, writeFile
+
+
+class SinqDataManager(DataManager):
+    """
+    A SINQ special DataManager which handles the SINQ file
+    numbering scheme
+    """
+
+    def incrementCounters(self, countertype):
+        result = []
+        exp = session.experiment
+        if countertype == 'scan':
+            val = exp.sicscounter
+            exp.updateSicsCounterFile(val+1)
+            result.append((countertype, val))
+            result.append(('counter', val))
+        return result
 
 
 class SinqExperiment(Experiment):
@@ -45,6 +65,8 @@ class SinqExperiment(Experiment):
         'zipdata': Override(default=False),
     }
 
+    datamanager_class = SinqDataManager
+
     def proposalpath_of(self, proposal):
         if self.proposalpath:
             return self.proposalpath
@@ -54,7 +76,11 @@ class SinqExperiment(Experiment):
 
     @property
     def datapath(self):
-        return path.join(self.dataroot, 'data', time.strftime('%Y'))
+        if self.proposal:
+            prop = self.proposal.replace(' ', '')
+        else:
+            prop = 'unknown_proposal'
+        return path.join(self.dataroot, 'data', time.strftime('%Y'), prop)
 
     def getProposalType(self, proposal):
         proposalstr = proposal
@@ -73,7 +99,8 @@ class SinqExperiment(Experiment):
 
     @property
     def sicscounterfile(self):
-        return path.join(self.datapath, 'DataNumber')
+        return path.join(self.dataroot, 'data', time.strftime('%Y'),
+                         'DataNumber')
 
     def updateSicsCounterFile(self, value):
         """Update the counter file."""

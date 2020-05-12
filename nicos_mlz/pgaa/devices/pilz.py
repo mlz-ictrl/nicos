@@ -26,57 +26,56 @@
 
 from __future__ import absolute_import, division, print_function
 
-import IO
-
 from nicos import session
-from nicos.core import SIMULATION, Param, status, tacodev
+from nicos.core import SIMULATION, Param, status, tangodev
 from nicos.core.mixins import HasTimeout
-from nicos.devices.taco.io import NamedDigitalOutput
+from nicos.devices.tango import NamedDigitalOutput
+from nicos.utils import HardwareStub
 
 
 class Switch(HasTimeout, NamedDigitalOutput):
     """The Pilz box is connected via the Modbus TCP protocol.
 
-    Unfortunately the bit for controlling the attenuators and
-    shutter are distributed in a wide range over the input and output region
-    of the Modbus interface. The Beckhoff TACO server deals with the bits
-    and so we have some different devices.
+    Unfortunately the bit for controlling the attenuators and shutter are
+    distributed in a wide range over the input and output region of the Modbus
+    interface.
+
+    The TANGO server deals with the bits and so we have some different devices.
     """
 
     parameters = {
         'remote': Param('Device to enable the remote control',
-                        type=tacodev, mandatory=True, preinit=True),
+                        type=tangodev, mandatory=True, preinit=True),
         'readback': Param('Device to read back the reached value',
-                          type=tacodev, mandatory=True, preinit=True),
+                          type=tangodev, mandatory=True, preinit=True),
         'error': Param('Device to indicate an error during the move of the '
                        'switch',
-                       type=tacodev, mandatory=True, preinit=True),
+                       type=tangodev, mandatory=True, preinit=True),
     }
 
     def doInit(self, mode):
         NamedDigitalOutput.doInit(self, mode)
+        # Don't create PyTango device in simulation mode
         if mode != SIMULATION:
-            self._remote = self._create_client(devname=self.remote,
-                                               class_=IO.DigitalOutput,
-                                               resetok=True, timeout=None)
-            self._readback = self._create_client(devname=self.readback,
-                                                 class_=IO.DigitalInput,
-                                                 resetok=True, timeout=None)
-            self._error = self._create_client(devname=self.error,
-                                              class_=IO.DigitalInput,
-                                              resetok=True, timeout=None)
+            self._remote = self._createPyTangoDevice(devname=self.remote)
+            self._readback = self._createPyTangoDevice(devname=self.readback)
+            self._error = self._createPyTangoDevice(devname=self.error)
             self._sleeptime = 0.1
+        else:
+            self._remote = HardwareStub(self)
+            self._readback = HardwareStub(self)
+            self._error = HardwareStub(self)
 
     def _writeValue(self, value):
-        self._taco_guard(self._dev.write, value)
+        self._dev.value = value
         session.delay(self._sleeptime)
 
     def _enableRemote(self):
-        self._taco_guard(self._remote.write, 1)
+        self._remote.value = 1
         session.delay(self._sleeptime)
 
     def _disableRemote(self):
-        self._taco_guard(self._remote.write, 0)
+        self._remote.value = 0
         session.delay(self._sleeptime)
 
     def doStart(self, target):
@@ -87,7 +86,7 @@ class Switch(HasTimeout, NamedDigitalOutput):
         The switch is configured to write a bit, hold it some time and reset it
         """
         value = self.mapping.get(target, target)
-        if value == self._taco_guard(self._readback.read):
+        if value == self._readback.value:
             return
         self._enableRemote()
         try:
@@ -96,19 +95,18 @@ class Switch(HasTimeout, NamedDigitalOutput):
             self._disableRemote()
 
     def doRead(self, maxage=0):
-        value = self._taco_guard(self._readback.read)
+        value = self._readback.value
         return self._reverse.get(value, value)
 
     def doStatus(self, maxage=0):
-        if self._taco_guard(self._error.read) == 0:
+        if self._error.value == 0:
             return status.OK, 'idle'
-        else:
-            return status.ERROR, 'target not reached'
+        return status.ERROR, 'target not reached'
 
 
 class Attenuator(Switch):
     """The attentuator switch must write always a '1' to change the value."""
 
     def _writeValue(self, value):
-        self._taco_guard(self._dev.write, 1)
+        self._dev.value = 1
         session.delay(self._sleeptime)

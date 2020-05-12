@@ -183,6 +183,7 @@ class DevicesPanel(Panel):
     """
 
     panelName = 'Devices'
+    ui = 'panels/devices.ui'
 
     @classmethod
     def _createIcons(cls):
@@ -201,7 +202,7 @@ class DevicesPanel(Panel):
     def __init__(self, parent, client, options):
         DevicesPanel._createIcons()
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'panels/devices.ui')
+        loadUi(self, self.ui)
         self.useicons = bool(options.get('icons', True))
         self.param_display = {}
         param_display = options.get('param_display', {})

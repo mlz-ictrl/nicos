@@ -78,13 +78,6 @@ class ConnectionDialog(QDialog):
         if isinstance(lastpreset, QPyNullVariant):
             lastpreset = None
 
-        self.viaFrame.setHidden(not tunnel)
-        if tunnel:
-            host, username, password = splitTunnelString(tunnel)
-            self.remoteHost.setText(host)
-            self.remoteUserName.setText(username)
-            self.remotePassword.setText(password)
-
         pal = self.quickList.palette()
         pal.setColor(QPalette.Window, pal.color(QPalette.Base))
         self.quickList.setPalette(pal)
@@ -118,6 +111,20 @@ class ConnectionDialog(QDialog):
             self.viewonly.setChecked(lastdata.viewonly)
         self.userName.setText(lastdata.user)
         self.password.setFocus()
+
+        self.viaFrame.setHidden(not tunnel)
+        if tunnel:
+            host, username, password = splitTunnelString(tunnel)
+            self.remotePassword.setText(password)
+            if not password:
+                self.remotePassword.setFocus()
+            self.remoteUserName.setText(username)
+            if not username:
+                self.remoteUserName.setFocus()
+            self.remoteHost.setText(host)
+            if not host:
+                self.remoteHost.setFocus()
+
         self.presetFrame.hide()
         self.resize(QSize(self.width(), self.minimumSize().height()))
 

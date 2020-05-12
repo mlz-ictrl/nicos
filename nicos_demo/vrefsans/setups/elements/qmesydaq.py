@@ -44,7 +44,6 @@ devices = dict(
     det = device('nicos.devices.generic.Detector',
         description = 'QMesyDAQ Image type Detector1',
         timers = ['timer'],
-        counters = [],
         monitors = ['mon1', 'mon2'],
         images = ['image'],
     ),

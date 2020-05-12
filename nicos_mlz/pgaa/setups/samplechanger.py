@@ -4,18 +4,17 @@ group = 'lowlevel'
 
 excludes = ['sampletable']
 
-nethost = 'pgaasrv.pgaa.frm2'
 tango_base = 'tango://pgaahw.pgaa.frm2:10000/pgaa/'
 
 devices = dict(
-    sensort = device('nicos.devices.taco.io.DigitalInput',
+    sensort = device('nicos.devices.tango.DigitalInput',
         description = 'sensor at the top of tube',
-        tacodevice = '//pgaasrv.pgaa.frm2/pgaa/sample/tube_sensor_top',
+        tangodevice = tango_base + 'sample/tube_sensor_top',
         lowlevel = True
     ),
-    sensorl = device('nicos.devices.taco.io.DigitalInput',
+    sensorl = device('nicos.devices.tango.DigitalInput',
         description = 'sensor at the bottom of tube',
-        tacodevice = '//pgaasrv.pgaa.frm2/pgaa/sample/tube_sensor_low',
+        tangodevice = tango_base + 'sample/tube_sensor_low',
         lowlevel = True
     ),
     usb485 = device('nicos_mlz.panda.devices.mcc2.TangoSerial',
@@ -41,9 +40,9 @@ devices = dict(
         accel = 0.2,
         lowlevel = True,
     ),
-    pushactuator = device('nicos.devices.taco.NamedDigitalOutput',
+    pushactuator = device('nicos.devices.tango.NamedDigitalOutput',
         description = 'Push device actuator',
-        tacodevice = '//pgaasrv.pgaa.frm2/pgaa/sample/tube_press',
+        tangodevice = tango_base + 'sample/tube_press',
         mapping = {'down': 1,
                    'up': 0},
         lowlevel = True,

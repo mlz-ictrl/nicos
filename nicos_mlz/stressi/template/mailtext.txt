@@ -1,4 +1,4 @@
-Dear user,
+Dear user(s),
 
 please find attached a file containing your data and script files, as well as the
 electronic logbook from your recent experiment {{proposal}} (from {{from_date}}

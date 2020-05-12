@@ -88,20 +88,20 @@ Gonio = [
     'autocollimator_phi',
     'autocollimator_theta',
     'backguard',
-    'backguard_1',
-    'backguard_1_m',
-    'backguard_2',
-    'backguard_2_m',
+    'backguard1',
+    'backguard1_motor',
+    'backguard2',
+    'backguard2_motor',
     'samplechanger',
     'Sample/length',
     'Sample/width',
 ]
 NOKs = [
-    'nok1', 'nok2', 'nok3', 'nok4',
+    'shutter_gamma', 'nok2', 'nok3', 'nok4',
     'nok5a', 'nok5b', 'nok6', 'nok7', 'nok8', 'nok9',
 ]
 NOKs_label = ['', '_mode']
-NOKs_PlanB_label = ['r_motor', 's_motor', 'r_obs', 's_obs']
+NOKs_PlanB_label = ['r_motor', 's_motor', 'r_analog', 's_analog']
 
 aperture = [
     'primary_aperture',
@@ -110,7 +110,7 @@ aperture = [
 
 Slits = ['b1', 'zb0', 'zb1', 'zb2', 'zb3', 'bs1', 'b2', 'b3']
 Slits_label = ['', '_mode']
-Slits_PlanB_label = ['r_m', 's_m', 'r_obs', 's_obs', '_obs',
+Slits_PlanB_label = ['r_motor', 's_motor', 'r_analog', 's_analog', '_analog',
                      '_motor', 'r_motor', 's_motor']
 
 simple_slit = ['sc2', 'disc3', 'disc4']
@@ -435,12 +435,17 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
         self._write_label_ext(metainfo, 'Monitor', monitor, monitor_label)
 
     def _write_chopper(self, metainfo):
+        # label = 'chopper_resolution'
+        # self._data['Chopper'][label] = metainfo['chopper2_pos', 'value'][0]
+        self._data['Chopper']['chopper_rpm'] = metainfo['chopper_speed', 'value'][0]
         for devname in chopper:
             if (devname, 'value') in metainfo:
+                # self.log.debug('1. %s %s', devname, metainfo[devname, 'value'][0])
                 self._data['Chopper'][devname] = metainfo[devname, 'value'][0]
             else:
                 key = tuple(devname.split('/'))
                 if key in metainfo:
+                    # self.log.debug('2. %s %s', key, metainfo[key][0])
                     self._data['Chopper']['%s_%s' % key] = metainfo[key][0]
                 else:
                     self.log.warning('missing %s', devname)

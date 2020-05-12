@@ -98,7 +98,7 @@ class DoubleMonochromator(HasLimits, IsController, BaseSequencer):
         with self._allowed():
             self._attached_mtx.maw(trans)
 
-    def _generateSequence(self, target, *args, **kwargs):
+    def _generateSequence(self, target):
         theta, trans = self._calcMonoPosition(target)
 
         seq = []

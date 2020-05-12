@@ -17,7 +17,6 @@ excludes = ['tas', 'defcal', 'polarization']
 #         description = 'Puma detector QMesydaq device (11 counters)',
 #         timers = ['timer'],
 #         monitors = ['mon1'],
-#         counters = [],  # ['channels'],
 #         images = ['image'],
 #         maxage = 86400,
 #         pollinterval = None,

@@ -29,7 +29,7 @@ from time import sleep
 import kafka
 
 from nicos.core import DeviceMixinBase, Param, host, listof
-from nicos.core.errors import NicosError
+from nicos.core.errors import ConfigurationError
 from nicos.utils import createThread
 
 
@@ -74,12 +74,12 @@ class KafkaSubscriber(DeviceMixinBase):
 
         topics = self._consumer.topics()
         if topic not in topics:
-            raise NicosError('Provided topic %s does not exist' % topic)
+            raise ConfigurationError('Provided topic %s does not exist' % topic)
 
         # Assign the partitions
         partitions = self._consumer.partitions_for_topic(topic)
         if not partitions:
-            raise NicosError('Cannot query partitions for %s' % topic)
+            raise ConfigurationError('Cannot query partitions for %s' % topic)
 
         self._consumer.assign([kafka.TopicPartition(topic, p)
                                for p in partitions])
@@ -114,10 +114,8 @@ class KafkaSubscriber(DeviceMixinBase):
         pass
 
     def no_messages_callback(self):
-        """Called when no new messages appear on the topic.
-
-        Subclasses should override this method if they want to do something
-        when there are no messages.
+        """This method is called if no messages are on the topic.
+        Subclasses should define this method if they are interested
+        in this.
         """
         pass
-

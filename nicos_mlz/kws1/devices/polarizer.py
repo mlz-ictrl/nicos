@@ -61,7 +61,7 @@ class PolSwitcher(SequencerMixin, MultiSwitcher):
             self._mot_yh = self._attached_moveables
         self.valuetype = oneof(*sorted(self.mapping, key=num_sort))
 
-    def _generateSequence(self, target):  # pylint: disable=arguments-differ
+    def _generateSequence(self, target):
         seq = []
         targets = self.mapping[target]
         rot_target, xv_target, xh_target, yv_target, yh_target = targets

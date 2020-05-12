@@ -5,7 +5,7 @@ group = 'lowlevel'
 includes = ['motorbus6']
 
 devices = dict(
-    st_p1 = device('nicos_mlz.puma.devices.ReferenceMotor',
+    st_p1 = device('nicos_mlz.puma.devices.ipc.ReferenceMotor',
         description = 'motor polarisation collimator',
         bus = 'motorbus6',
         addr = 83,
@@ -20,7 +20,7 @@ devices = dict(
         refstep = 2000,
         parkpos = 0,
     ),
-    st_p2 = device('nicos_mlz.puma.devices.ReferenceMotor',
+    st_p2 = device('nicos_mlz.puma.devices.ipc.ReferenceMotor',
         description = 'motor deflector 1',
         bus = 'motorbus6',
         addr = 85,
@@ -36,7 +36,7 @@ devices = dict(
         zerosteps = 500000,
         lowlevel = True,
     ),
-    st_p3 = device('nicos_mlz.puma.devices.ReferenceMotor',
+    st_p3 = device('nicos_mlz.puma.devices.ipc.ReferenceMotor',
         description = 'motor deflector 2',
         bus = 'motorbus6',
         addr = 86,

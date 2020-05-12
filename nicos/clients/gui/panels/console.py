@@ -60,10 +60,11 @@ class ConsolePanel(Panel):
     """
 
     panelName = 'Console'
+    ui = 'panels/console.ui'
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'panels/console.ui')
+        loadUi(self, self.ui)
 
         self.commandInput.scrollWidget = self.outView
         self.grepPanel.hide()

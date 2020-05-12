@@ -38,7 +38,6 @@ devices = dict(
     det_yoke = device('nicos.devices.generic.Axis',
         description = 'tube height',
         motor = 'tube_m',
-        obs = [],
         precision = 0.05,
         dragerror = 10.,
     ),

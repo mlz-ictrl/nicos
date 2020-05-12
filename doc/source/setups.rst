@@ -289,9 +289,9 @@ except the :ref:`description <setup-description>` entry:
    for this setup.
 
    In a status monitor setup, you can then use these predefined blocks using
-   ``setup_block("setupname")`` or ``setup_block("setupname", "blockname")``.
+   ``SetupBlock('setupname')`` or ``SetupBlock('setupname', 'blockname')``.
    The *blockname* is the key into this dictionary, and if not given, is
-   ``"default"``.
+   ``'default'``.
 
    Blocks defined like this should normally have the ``setups`` parameter
    set to ``setupname``, so that the block is only shown when the setup is
@@ -305,7 +305,6 @@ except the :ref:`description <setup-description>` entry:
                          BlockRow('p_cryo1')
                      ], setups=setupname)
       }
-      '''
 
 .. _setup-watch_conditions:
 

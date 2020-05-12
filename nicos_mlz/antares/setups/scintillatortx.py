@@ -1,4 +1,4 @@
-description = 'High Resolution Detector Box'
+description = 'Scintillator translation for Hi-Res detector box'
 
 group = 'optional'
 

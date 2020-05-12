@@ -26,7 +26,6 @@ devices = dict(
         description = 'The TOFTOF detector device',
         timers = ['timer'],
         monitors = ['monitor'],
-        counters = [],
         images = ['image'],
         rc = 'rc',
         chopper = 'ch',

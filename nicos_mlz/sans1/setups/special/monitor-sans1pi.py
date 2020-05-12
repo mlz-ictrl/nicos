@@ -43,8 +43,8 @@ _selcolumn = Column(
 _chop_phase = Column(
     Block('Phase Positions', [
         BlockRow(
-                 Field(name='1', dev='chopper_ch1_phase', unit='deg', format='%.2f'),
-                 Field(name='2', dev='chopper_ch2_phase', unit='deg', format='%.2f'),
+                 Field(name='1', dev='chopper_ch1_parkingpos', unit='deg', format='%.2f'),
+                 Field(name='2', dev='chopper_ch2_parkingpos', unit='deg', format='%.2f'),
                  Field(name='water', dev='chopper_waterflow', width=8, format = '%.2'),
                 ),
         ],

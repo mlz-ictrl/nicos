@@ -26,17 +26,13 @@
 
 from __future__ import absolute_import, division, print_function
 
+import ast
 import os
 
 import pytest
 
 from nicos.core import status
 from nicos.core.errors import InvalidValueError, LimitError
-
-try:
-    from string import maketrans  # pylint: disable=deprecated-module
-except ImportError:
-    maketrans = str.maketrans
 
 session_setup = 'multianalyzer'
 
@@ -137,14 +133,14 @@ class TestMultiAnalyzer(object):
         with open(os.path.join(dirname, 'man_test.txt')) as f:
             for s in f.readlines():
                 # convert stringified list to list avoiding use of 'eval'
-                v = [float(x) for x in s.translate(maketrans('][,', '   ')).split()]
+                v = ast.literal_eval(s)
                 assert man.isAllowed(v)[0]
 
         # read bad targets from file
         with open(os.path.join(dirname, 'man_test_fail.txt')) as f:
             for s in f.readlines():
                 # convert stringified list to list avoiding use of 'eval'
-                v = [float(x) for x in s.translate(maketrans('][,', '   ')).split()]
+                v = ast.literal_eval(s)
                 assert not man.isAllowed(v)[0]
 
     def test_movement(self, session):

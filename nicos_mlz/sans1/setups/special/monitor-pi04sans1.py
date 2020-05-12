@@ -76,6 +76,15 @@ _expcolumn = Column(
     ),
 )
 
+_pressure_box = Column(
+    Block('Pressure', [
+        BlockRow(Field(name='Pressure', dev='pressure_box', width=9),
+            )
+        ],
+        setups='pressure_box',
+    ),
+)
+
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
         description = 'Status monitor',
@@ -89,7 +98,7 @@ devices = dict(
         prefix = 'nicos/',
         valuefont = 'Consolas',
         layout = [
-            Row(_configuration),
+            Row(_configuration, _pressure_box),
             Row(_sans1det),
             Row(_pressure, _expcolumn),
         ],

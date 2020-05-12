@@ -26,11 +26,9 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.core import NicosError, Override, Param, intrange
-from nicos.core.params import Attach
+from nicos.core import Override
 from nicos.devices.abstract import CanReference
 from nicos.devices.generic import Switcher as GenericSwitcher
-from nicos.devices.taco import DigitalInput, Motor as TacoMotor
 
 
 class Switcher(GenericSwitcher):
@@ -44,8 +42,8 @@ class Switcher(GenericSwitcher):
     """
 
     parameter_overrides = {
-        'precision':    Override(default=0.1, mandatory=False),
-        'fallback':     Override(default='Unknown', mandatory=False),
+        'precision': Override(default=0.1, mandatory=False),
+        'fallback': Override(default='Unknown', mandatory=False),
         'blockingmove': Override(default='False', mandatory=False),
     }
 
@@ -60,59 +58,3 @@ class Switcher(GenericSwitcher):
         self._attached_moveable.start(target)
         if self.blockingmove:
             self._attached_moveable.wait()
-
-
-class Motor(TacoMotor):
-    """
-    These devices move the neutron guide blades of the focussing neutron
-    guide via the connected piezo motor. Since there is no encoder mounted
-    and the positioning is very strongly depending on the bending force of
-    the glass blade each positioning must be start with a referencing task.
-    The reference task moves the motor in a position that the 'limit switch'
-    is activated, followed by stepwise move backwards until the 'limit switch'
-    is deactivated.
-    The used controller has no input for a limit switch.
-    """
-
-    parameters = {
-        'refspeed': Param('Reference speed',
-                          type=float, default=500, settable=False,),
-        'refpos':   Param('Reference position',
-                          type=float, default=0, settable=False,),
-        'refstep': Param('Number of steps to move to reference position',
-                         type=intrange(1, 100), default=10, settable=False,),
-    }
-
-    attached_devices = {
-        'limitsw': Attach('Lower limit switch device', DigitalInput),
-    }
-
-    def doStart(self, target):
-        self.doReference()
-        TacoMotor.doStart(self, target)
-
-    def _stepping_until(self, start, step, switch):
-        self.log.debug('Set position: %d', start)
-        self.doSetPosition(start)
-        while self._attached_limitsw.read(0) == switch:
-            start += step
-            TacoMotor.doStart(self, start)
-        self.wait()
-
-    def doReference(self):
-        # first set the position to the max position
-        # move in steps to the min position until the limit switch is reached
-        # move in steps until the limit switch is left
-        # set the position to 0
-        if self._attached_limitsw.read(0) == 1:
-            self._stepping_until(self.absmax, -100, 1)
-        try:
-            speed = self.speed
-            self.speed = self.refspeed
-            self._stepping_until(self.absmin, self.refstep, 0)
-            self.doSetPosition(self.refpos)
-            self.log.info('Referenced to: %.2f', self.refpos)
-        except NicosError as err:
-            self.log.debug('exception in referencing: %s', err)
-        finally:
-            self.speed = speed

@@ -28,7 +28,7 @@ import json
 import random
 import time
 from operator import itemgetter
-from string import ascii_lowercase  # pylint: disable=W0402
+from string import ascii_lowercase
 
 import pytest
 

@@ -389,6 +389,8 @@ additional-builtins=device,
     Field,
     vsplit,
     hsplit,
+    vbox,
+    hbox,
     window,panel,
     tool,
     cmdtool,
@@ -446,7 +448,7 @@ allow-wildcard-with-all=yes
 analyse-fallback-blocks=no
 
 # Deprecated modules which should not be used, separated by a comma
-deprecated-modules=regsub,string,TERMIOS,Bastion,rexec
+deprecated-modules=regsub,TERMIOS,Bastion,rexec
 
 # Create a graph of external dependencies in the given file (report RP0402 must
 # not be disabled)

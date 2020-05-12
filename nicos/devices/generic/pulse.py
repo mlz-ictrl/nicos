@@ -88,7 +88,7 @@ class Pulse(BaseSequencer):
         # sequence is done.
         return pos == self.offvalue
 
-    def _generateSequence(self, target):  # pylint: disable=W0221
+    def _generateSequence(self, target):
         seq = []
         if target == self.onvalue:
             seq.append(SeqDev(self._attached_moveable, self.onvalue))

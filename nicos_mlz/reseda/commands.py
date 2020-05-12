@@ -1,4 +1,4 @@
-#  -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
@@ -29,7 +29,7 @@ from __future__ import absolute_import, division, print_function
 import scipy.constants as co
 
 from nicos import session
-from nicos.commands import usercommand
+from nicos.commands import helparglist, usercommand
 from nicos.commands.device import maw, move, stop, wait
 from nicos.commands.measure import count
 from nicos.commands.scan import manualscan
@@ -37,6 +37,7 @@ from nicos.commands.scan import manualscan
 __all__ = ['zero', 'setecho', 'set_cascade', 'pol', 'miezescan', 'miezetau']
 
 
+@helparglist('wavelength, deltaFreq, distance')
 @usercommand
 def miezetau(wavelength, deltaFreq, distance):
     """Calculate MIEZE time.
@@ -78,6 +79,7 @@ def set_flipper_off():
         stop(regulator)
 
 
+@helparglist('time')
 @usercommand
 def setecho(time):
     """Wrap setting of an echotime."""
@@ -103,6 +105,7 @@ def set_cascade():
     move(fg_burst, 'trigger')
 
 
+@helparglist('echolist, counttime')
 @usercommand
 def miezescan(echolist, counttime):
     """Iterate over a list of echotimes -> measure one S(Q,t) curve
@@ -118,12 +121,14 @@ def miezescan(echolist, counttime):
             count(counttime)
 
 
+@helparglist('up, down')
 @usercommand
 def pol(up, down):
     """Calculate contrast or polarisation."""
     return (up - down) / (up + down)
 
 
+@helparglist('device, start, step, numsteps')
 @usercommand
 def freqscan(device, start, step, numsteps):
     """Special scan for finding a resonance.
@@ -139,3 +144,17 @@ def freqscan(device, start, step, numsteps):
             maw(device, start + step*i)
             session.delay(0.2)
             count(1)
+
+
+@usercommand
+def img():
+    "Setting the Cascade Detector to image mode"
+
+    session.getDevice('psd_channel').mode = 'image'
+
+
+@usercommand
+def tof():
+    "Settting the Cascade Detector to tof mode"
+
+    session.getDevice('psd_channel').mode = 'tof'

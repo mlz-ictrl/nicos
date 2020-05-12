@@ -59,7 +59,7 @@ _detectorblock = Block('Detector', [
     BlockRow(Field(name='det1', dev='det1'),
              Field(name='det2', dev='det2'),
              Field(name='det3', dev='det3'),
-             Field(name='hvdetector', dev='hv1detector')
+             Field(name='hvdetector', dev='hv2detector')
             ),
     ],
 )

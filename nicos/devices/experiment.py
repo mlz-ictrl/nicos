@@ -629,7 +629,7 @@ class Experiment(Device):
         self._createCustomProposalSymlink()
 
     @usermethod
-    def finish(self, *args, **kwds):
+    def finish(self):
         """Called by `.FinishExperiment`. Returns the `FinishExperiment`
         Thread if applicable otherwise `None`.
 
@@ -653,7 +653,7 @@ class Experiment(Device):
         # zip up the experiment data if wanted
         if self.proptype == 'user':
             try:
-                self._generateExpReport(**kwds)
+                self._generateExpReport()
             except Exception:
                 self.log.warning('could not generate experimental report',
                                  exc=1)
@@ -664,14 +664,7 @@ class Experiment(Device):
                 pzip = None
                 receivers = None
                 if self.sendmail:
-                    if args:
-                        receivers = args
-                    else:
-                        receivers = self.propinfo.get('user_email', receivers)
-                    receivers = kwds.get('receivers', kwds.get('email',
-                                                               receivers))
-                    if isinstance(receivers, string_types):  # convert to list
-                        receivers = [receivers]
+                    receivers = self.propinfo.get('user_email', [])
                 if self.zipdata or self.sendmail:
                     pzip = path.join(self.proposalpath, '..', self.proposal +
                                      '.zip')
@@ -1010,7 +1003,7 @@ class Experiment(Device):
         d.update(self.propinfo)
         return d
 
-    def _generateExpReport(self, **kwds):
+    def _generateExpReport(self):
         if self._mode == SIMULATION:
             return  # dont touch fs if in simulation!
         if not self.reporttemplate:
@@ -1062,7 +1055,6 @@ class Experiment(Device):
         # collect info
         stats = self._statistics()
         stats.update(self.propinfo)
-        stats.update(kwds)
         # encode all text that may be Unicode into RTF \u escapes
         for key in stats:
             if isinstance(stats[key], string_types):

@@ -131,7 +131,6 @@ devices = dict(
         description = 'detector translation along the beam on Franke table',
         motor = 'mo_dtx',
         coder = 'co_dtx',
-        obs = [],
         fmtstr = '%.1f',
         precision = 0.1,
     ),

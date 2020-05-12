@@ -118,15 +118,17 @@ def test_functions():
                           (1, 'b', 'c'),
                           (2, 'd', 'e')) == 'a, c, d'
 
-    assert parseConnectionString('user:pass@host:1301', 1302) == \
-        {'user': 'user', 'password': 'pass', 'host': 'host', 'port': 1301}
-    assert parseConnectionString('user:@host:1301', 1302) == \
-        {'user': 'user', 'password': '', 'host': 'host', 'port': 1301}
+    assert parseConnectionString('u-ser@user.de:pass@host:1301', 1302) == \
+        {'user': 'u-ser@user.de', 'password': 'pass', 'host': 'host',
+         'port': 1301}
+    assert parseConnectionString('user:@host', 1302) == \
+        {'user': 'user', 'password': '', 'host': 'host', 'port': 1302}
     assert parseConnectionString('user@host:1301', 1302) == \
         {'user': 'user', 'password': None, 'host': 'host', 'port': 1301}
     assert parseConnectionString('user@ho-st:1301', 1302) == \
         {'user': 'user', 'password': None, 'host': 'ho-st', 'port': 1301}
     assert parseConnectionString('', 1302) is None
+    assert parseConnectionString('host?', 1302) is None
 
     # pylint: disable=range-builtin-not-iterating
     assert [tuple(x) for x in chunks(range(10), 3)] == \

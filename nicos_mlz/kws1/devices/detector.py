@@ -190,7 +190,7 @@ class DetectorZAxis(HasLimits, BaseSequencer):
     def doReadAbslimits(self):
         return self._attached_motor.abslimits
 
-    def _generateSequence(self, target):  # pylint: disable=W0221
+    def _generateSequence(self, target):
         seq = []
         if self._attached_hv.read(0) != 'off':
             seq.append(SeqDev(self._attached_hv, 'off'))

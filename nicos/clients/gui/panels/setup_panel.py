@@ -60,10 +60,11 @@ class ExpPanel(Panel):
     """
 
     panelName = 'Experiment setup'
+    ui = 'panels/setup_exp.ui'
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'panels/setup_exp.ui')
+        loadUi(self, self.ui)
         self.propdbInfo.setVisible(False)
         self._orig_proposal = None
         self._new_exp_panel = None

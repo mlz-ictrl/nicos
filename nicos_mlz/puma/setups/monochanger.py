@@ -25,7 +25,7 @@ devices = dict(
         lowlevel = True,
         confbyte = 52,
     ),
-    co_lift = device('nicos_mlz.puma.devices.ipc_puma.Coder',
+    co_lift = device('nicos_mlz.puma.devices.ipc.Coder',
         description = 'Potentiometer coder of the monochromator' \
         ' lift',
         bus = 'motorbus1',
@@ -95,8 +95,6 @@ devices = dict(
     mag = device('nicos.devices.generic.Axis',
         description = 'monochromator magazin moving axis',
         motor = 'st_mag',
-        coder = 'st_mag',
-        obs = [],
         precision = 0.05,
         offset = 0,
         maxtries = 10,

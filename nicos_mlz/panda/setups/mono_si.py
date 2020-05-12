@@ -63,7 +63,6 @@ devices = dict(
         description = 'horizontal focus of Si monochromator',
         motor = 'mfh_si_step',
         coder = 'mfh_si_enc',
-        obs = [],
         precision = 0.01,
         backlash = -0.2,
         refpos = 1.4,

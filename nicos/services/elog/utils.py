@@ -27,9 +27,9 @@
 from __future__ import absolute_import, division, print_function
 
 import time
-from cgi import escape
 from logging import DEBUG, ERROR, FATAL, INFO, WARNING
 
+from nicos.pycompat import escape_html
 from nicos.utils.loggers import ACTION, INPUT
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -57,7 +57,7 @@ def formatMessage(message):
     elif levelno <= INFO:
         text = name + message[3]
     elif levelno == INPUT:
-        return '<span class="input">' + escape(message[3]) + '</span>'
+        return '<span class="input">' + escape_html(message[3]) + '</span>'
     elif levelno <= WARNING:
         text = levels[levelno] + ': ' + name + message[3]
         cls = 'warn'
@@ -65,7 +65,7 @@ def formatMessage(message):
         text = '%s [%s] %s%s' % (levels[levelno], formatTime(message[1]),
                                  name, message[3])
         cls = 'err'
-    return '<span class="%s">%s</span>' % (cls, escape(text))
+    return '<span class="%s">%s</span>' % (cls, escape_html(text))
 
 
 def formatMessagePlain(message):

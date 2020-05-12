@@ -172,7 +172,7 @@ class Sans1HV(BaseSequencer):
         'unit':       Override(default='V', mandatory=False, settable=False),
     }
 
-    def _generateSequence(self, target, *args, **kwargs):
+    def _generateSequence(self, target):
         hvdev = self._attached_supply
         disdev = self._attached_discharger
         seq = [SeqMethod(hvdev, 'stop'), SeqMethod(hvdev, 'wait')]

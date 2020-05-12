@@ -146,7 +146,7 @@ class AsymDetector(MeasureSequencer):
                 dA = sqrt((1 - A)**2 * (U / TU) + (1 + A)**2 * (D / TD)) / (U + D)
                 self._results[:3] = [U / D, A, dA]
 
-    def _generateSequence(self, *args, **kwds):
+    def _generateSequence(self):
         seq = []
         for phase in (0, 1):
             seq.append(SeqCall(self._attached_flipper.start, self.flipvalues[phase]))

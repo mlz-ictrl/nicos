@@ -139,7 +139,7 @@ class EKFMotor(SequencerMixin, Motor):
             tmp[12] = '%d' % self.stopdelay
             self._setROParam('config', ' '.join(tmp))
 
-    def _generateSequence(self, target):  # pylint: disable=W0221
+    def _generateSequence(self, target):
         return [SeqCall(Motor.doStart, self, target),
                 SeqCall(self._hw_wait),
                 SeqSleep(self.stopdelay),

@@ -517,7 +517,8 @@ class SetupChecker(object):
             'nicos.clients.gui.panels.liveqwt.LiveDataPanel',
         ]
         # recursively check a panel spec
-        if isinstance(spec, (guicfg.hsplit, guicfg.vsplit)):
+        if isinstance(spec, (guicfg.hsplit, guicfg.vsplit, guicfg.hbox,
+                             guicfg.vbox)):
             for child in spec.children:
                 self.check_guiconfig_panel_spec(child, context)
         elif isinstance(spec, guicfg.tabbed):

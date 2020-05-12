@@ -259,8 +259,8 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
     def doInit(self, mode):
         for dev in self._devices:
             if hasattr(dev, 'backlash') and dev.backlash != 0:
-                raise ConfigurationError(self, 'Attached Device %s should not '
-                                         'have a non-zero backlash!' % dev)
+                self.log.warning('Attached Device %s should not have a '
+                                 'non-zero backlash!', dev)
 
     def doRead(self, maxage=0):
         return [dev.read(maxage) - ofs - self.masks[self.mode]
@@ -337,6 +337,9 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
 
         self.log.debug('Seq: %r', sequence)
         self._startSequence(sequence)
+
+    def doReset(self):
+        multiReset(self._motors)
 
 
 class DoubleMotorNOKIPC(DoubleMotorNOK):

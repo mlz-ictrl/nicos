@@ -27,8 +27,11 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.clients.gui.config import docked, hsplit, panel, tabbed, vsplit
+from nicos.clients.gui.config import docked, hbox, hsplit, panel, tabbed, \
+    vbox, vsplit
 from nicos.clients.gui.panels import Panel
+from nicos.clients.gui.panels.boxed import Boxed, HorizontalBoxed, \
+    VerticalBoxed
 from nicos.clients.gui.panels.splitter import HorizontalSplitter, \
     VerticalSplitter
 from nicos.clients.gui.panels.tabwidget import TearOffTabWidget
@@ -40,8 +43,7 @@ def createPanel(item, window, menuwindow, topwindow, log):
     try:
         cls = importString(item.clsname)
     except Exception:
-        log.exception('Could not import class %s to create panel',
-                      item.clsname)
+        log.exception('Could not import class %s to create panel', item.clsname)
         return None
     log.debug('creating panel: %s', item.clsname)
     p = cls(menuwindow, window.client, item.options or {})
@@ -58,9 +60,9 @@ def createPanel(item, window, menuwindow, topwindow, log):
         toolbar.setVisible(False)
     for menu in p.getMenus():
         if hasattr(menuwindow, 'menuWindows'):
-            p.actions.update((menuwindow.menuBar().insertMenu(
-                              menuwindow.menuWindows.menuAction(),
-                              menu),))
+            p.actions.update((
+            menuwindow.menuBar().insertMenu(menuwindow.menuWindows.menuAction(),
+                menu),))
         else:
             p.actions.update((menuwindow.menuBar().addMenu(menu),))
 
@@ -79,9 +81,8 @@ def createHorizontalSplitter(item, window, menuwindow, topwindow, log):
 
 
 def createDockedWidget(item, window, menuwindow, topwindow, log):
-    dockPosMap = {'left':   Qt.LeftDockWidgetArea,
-                  'right':  Qt.RightDockWidgetArea,
-                  'top':    Qt.TopDockWidgetArea,
+    dockPosMap = {'left': Qt.LeftDockWidgetArea,
+                  'right': Qt.RightDockWidgetArea, 'top': Qt.TopDockWidgetArea,
                   'bottom': Qt.BottomDockWidgetArea}
 
     mainitem, dockitems = item
@@ -89,8 +90,8 @@ def createDockedWidget(item, window, menuwindow, topwindow, log):
     for title, ditem in dockitems:
         dw = QDockWidget(title, window)
         # prevent closing the dock widget
-        dw.setFeatures(QDockWidget.DockWidgetMovable |
-                       QDockWidget.DockWidgetFloatable)
+        dw.setFeatures(
+            QDockWidget.DockWidgetMovable | QDockWidget.DockWidgetFloatable)
         # make the dock title bold
         dw.setStyleSheet('QDockWidget { font-weight: bold; }')
         dw.setObjectName(title)
@@ -112,8 +113,15 @@ def createTabWidget(item, window, menuwindow, topwindow, log):
     return TearOffTabWidget(item, window, menuwindow)
 
 
-def createWindowItem(item, window, menuwindow, topwindow, log):
+def createVerticalBoxed(item, window, menuwindow, topwindow, log):
+    return VerticalBoxed(item, window, menuwindow, topwindow)
 
+
+def createHorizontalBoxed(item, window, menuwindow, topwindow, log):
+    return HorizontalBoxed(item, window, menuwindow, topwindow)
+
+
+def createWindowItem(item, window, menuwindow, topwindow, log):
     if isinstance(item, panel):
         return createPanel(item, window, menuwindow, topwindow, log)
     elif isinstance(item, hsplit):
@@ -125,6 +133,10 @@ def createWindowItem(item, window, menuwindow, topwindow, log):
         return createTabWidget(item, window, menuwindow, topwindow, log)
     elif isinstance(item, docked):
         return createDockedWidget(item, window, menuwindow, topwindow, log)
+    elif isinstance(item, vbox):
+        return createVerticalBoxed(item, window, menuwindow, topwindow, log)
+    elif isinstance(item, hbox):
+        return createHorizontalBoxed(item, window, menuwindow, topwindow, log)
 
 
 def showPanel(panel):
@@ -140,7 +152,7 @@ def showPanel(panel):
             # tab widget: select tab (it is wrapped in a QStackedWidget)
             index = parent.indexOf(parents[-2])
             parent.setCurrentIndex(index)
-        elif isinstance(parent, QSplitter):
+        elif isinstance(parent, (QSplitter, Boxed)):
             # splitter: make sure the widget is not collapsed
             index = parent.indexOf(widget)
             sizes = parent.sizes()

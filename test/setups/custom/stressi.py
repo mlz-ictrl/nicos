@@ -155,7 +155,6 @@ devices = dict(
     adet = device('nicos.devices.generic.Detector',
         timers = ['tim1'],
         monitors = ['mon1'],
-        counters = [],
         images = ['strimage'],
         maxage = 3,
         pollinterval = 0.5,

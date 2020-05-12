@@ -4,25 +4,33 @@ group = 'optional'
 
 includes = ['alias_T']
 
-nethost = 'pumasrv.puma.frm2'
+tango_base = 'tango://puma5.puma.frm2.tum.de:10000/puma/ls340/'
 
 devices = dict(
-    T_ls340 = device('nicos.devices.taco.TemperatureController',
+    T_ls340 = device('nicos.devices.tango.TemperatureController',
         description = 'Temperature Control with a LS340',
-        tacodevice = '//%s/puma/ls340/control' % nethost,
+        tangodevice = tango_base + 'control',
         maxage = 11,
         pollinterval = 5,
         abslimits = (0, 550),
+        p = 20,
+        i = 10,
+        d = 0,
+        # maxpower = 50
+        # resistance = 25
+        timeout = 600,
+        precision = 1.0,
+        window = 60,
     ),
-    T_ls340_A = device('nicos.devices.taco.TemperatureSensor',
+    T_ls340_A = device('nicos.devices.tango.Sensor',
         description = 'LS340 Sensor A (Cold head)',
-        tacodevice = '//%s/puma/ls340/sensora' % nethost,
+        tangodevice = tango_base + 'sensora',
         maxage = 11,
         pollinterval = 5,
     ),
-    T_ls340_B = device('nicos.devices.taco.TemperatureSensor',
+    T_ls340_B = device('nicos.devices.tango.Sensor',
         description = 'LS340 Sensor B (sample)',
-        tacodevice = '//%s/puma/ls340/sensorB' % nethost,
+        tangodevice = tango_base + 'sensorb',
         maxage = 11,
         pollinterval = 5,
     ),

@@ -28,7 +28,6 @@ NICOS value display widget.
 
 from __future__ import absolute_import, division, print_function
 
-from cgi import escape
 from os.path import getmtime, isfile
 from time import time as currenttime
 
@@ -41,7 +40,7 @@ from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.utils import setBackgroundColor, setBothColors, \
     setForegroundColor
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.pycompat import from_maybe_utf8, text_type
+from nicos.pycompat import escape_html, from_maybe_utf8, text_type
 from nicos.utils import findResource
 
 defaultColorScheme = {
@@ -370,9 +369,9 @@ class ValueDisplay(NicosWidget, QWidget):
     def update_namelabel(self):
         name = self.props['name'] or self.props['dev'] or self.props['key']
         self.namelabel.setText(
-            escape(text_type(name)) +
+            escape_html(text_type(name)) +
             ' <font color="#888888">%s</font><font color="#0000ff">%s</font> '
-            % (escape(self.props['unit'].strip()), self._isfixed))
+            % (escape_html(self.props['unit'].strip()), self._isfixed))
 
     def _label_entered(self, widget, event, from_mouse=True):
         infotext = '%s = %s' % (self.props['name'] or self.props['dev']

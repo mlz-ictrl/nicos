@@ -16,7 +16,6 @@ devices = dict(
         precision = 0.01,
         motor = 'sc_t_ymot',
         coder = 'sc_t_yenc',
-        obs = [],
     ),
     sc_t_ymot = device('nicos.devices.tango.Motor',
         description = 'Sample Changer 1/2/t Axis motor',

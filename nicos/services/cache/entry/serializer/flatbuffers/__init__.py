@@ -23,15 +23,16 @@
 # *****************************************************************************
 
 from __future__ import absolute_import, division, print_function
-from streaming_data_types.nicos_cache_ns10 import deserialise_ns10, \
-    serialise_ns10
+
 from nicos.services.cache.entry import CacheEntry
 from nicos.services.cache.entry.serializer import CacheEntrySerializer
+
+from streaming_data_types.nicos_cache_ns10 import deserialise_ns10, \
+    serialise_ns10
 
 
 class FlatbuffersCacheEntrySerializer(CacheEntrySerializer):
     """Serializes entries using flatbuffers
-
     Serialization is done using flatbuffers generated helper class within an
     auto-generated schema-specific submodule. The serialized output is a byte
     array which is converted to bytes for storing the data. The `encode` method
@@ -50,7 +51,7 @@ class FlatbuffersCacheEntrySerializer(CacheEntrySerializer):
     def decode(self, buf):
         try:
             ns_entry = deserialise_ns10(buf)
-            key = ns_entry.key if ns_entry.key.strip() else None
+            key = ns_entry.key if ns_entry.key else None
             ttl = ns_entry.ttl if ns_entry.ttl != 0 else None
             value = ns_entry.value if ns_entry.value else None
 

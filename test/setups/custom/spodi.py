@@ -55,7 +55,6 @@ devices = dict(
         description = 'Classical detector with single channels',
         timers = ['tim1'],
         monitors = ['mon1'],
-        counters = [],
         images = ['spodi_image'],
         maxage = 86400,
         pollinterval = None,
