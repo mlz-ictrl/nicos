@@ -1,4 +1,4 @@
-description = 'All motion stages in the ESSIIP-lab.'
+description = 'Stray motion stage(s) at Utgård/YMIR.'
 
 devices = dict(
     m1=device('nicos_ess.devices.epics.motor.EpicsMotor',

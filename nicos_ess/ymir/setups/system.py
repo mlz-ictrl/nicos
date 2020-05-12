@@ -6,8 +6,7 @@ sysconfig = dict(
     cache='localhost',
     instrument=None,
     experiment='Exp',
-    datasinks=['conssink', 'filesink', 'daemonsink', 'jbi_liveview',
-               'NexusDataSink'],
+    datasinks=['conssink', 'filesink', 'daemonsink', 'jbi_liveview', ],
 )
 
 modules = ['nicos.commands.standard', 'nicos_ess.commands.epics']
@@ -16,7 +15,7 @@ devices = dict(
     Skeleton=device('nicos.devices.instrument.Instrument',
                     description='instrument object',
                     instrument='ymir',
-                    responsible='M. Wedel <michael.wedel@esss.se>',
+                    responsible='M. Clarke <matt.clarke@ess.eu>',
                     ),
 
     Sample=device('nicos.devices.sample.Sample',
@@ -47,18 +46,17 @@ devices = dict(
                  ),
 
     det=device('nicos_ess.devices.datasources.just_bin_it.JustBinItDetector',
-               description="The just-bin-it histogrammer", hist_topic="nicos1",
-               data_topic="LOQ_events", brokers=["172.30.242.20:9092"],
-               unit="evts", command_topic="hist_commands"),
+               description='The just-bin-it histogrammer', hist_topic='nicos1',
+               data_topic='event_data', brokers=['172.30.242.20:9092'],
+               unit='evts', command_topic='hist_commands'),
 
-    jbi_liveview=device('nicos.devices.datasinks.LiveViewSink',
-                        ),
+    jbi_liveview=device('nicos.devices.datasinks.LiveViewSink', ),
 
     NexusDataSink=device(
         'nicos_ess.devices.datasinks.nexussink.NexusFileWriterSink',
-        description="Sink for NeXus file writer (kafka-to-nexus)",
-        brokers=["172.30.242.20:9092"],
-        cmdtopic="UTGARD_writerCommand",
+        description='Sink for NeXus file writer (kafka-to-nexus)',
+        brokers=['172.30.242.20:9092'],
+        cmdtopic='UTGARD_writerCommand',
         status_provider='NexusFileWriter',
         templatesmodule='nicos_ess.ymir.nexus.nexus_templates',
         templatename='ymir_default'
@@ -66,11 +64,13 @@ devices = dict(
 
     NexusFileWriter=device(
         'nicos_ess.devices.datasinks.nexussink.NexusFileWriterStatus',
-        description="Status for nexus file writing",
-        brokers=["172.30.242.20:9092"],
-        statustopic="UTGARD_writerStatus",
+        description='Status for nexus file writing',
+        brokers=['172.30.242.20:9092'],
+        statustopic='UTGARD_writerStatus',
     ),
 
 )
 
-startupcode = "SetDetectors(det)"
+startupcode = '''
+SetDetectors(det)
+'''
