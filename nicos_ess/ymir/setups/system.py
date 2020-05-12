@@ -15,7 +15,7 @@ modules = ['nicos.commands.standard', 'nicos_ess.commands.epics']
 devices = dict(
     Skeleton=device('nicos.devices.instrument.Instrument',
                     description='instrument object',
-                    instrument='essiip',
+                    instrument='ymir',
                     responsible='M. Wedel <michael.wedel@esss.se>',
                     ),
 
@@ -60,8 +60,8 @@ devices = dict(
         brokers=["172.30.242.20:9092"],
         cmdtopic="UTGARD_writerCommand",
         status_provider='NexusFileWriter',
-        templatesmodule='nicos_ess.essiip.nexus.nexus_templates',
-        templatename='essiip_default'
+        templatesmodule='nicos_ess.ymir.nexus.nexus_templates',
+        templatename='ymir_default'
     ),
 
     NexusFileWriter=device(

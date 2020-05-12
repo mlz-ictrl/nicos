@@ -3,7 +3,7 @@ description = 'Julabo F25 at Utgard Lab.'
 pv_root = 'SES-FLUC:WTctrl-JULABO-001:'
 
 devices = dict(
-    T_julabo = device('nicos_ess.essiip.devices.epics_julabo_controller.EpicsJulaboController',
+    T_julabo = device('nicos_ess.ymir.devices.epics_julabo_controller.EpicsJulaboController',
         description = 'Julabo F25',
         readpv = '{}TEMP'.format(pv_root),
         writepv = '{}TEMP:SP1'.format(pv_root),

@@ -20,7 +20,7 @@ To verify that the PVs can be accessed use a different terminal:
 Now this device is accessible in NICOS:
 
     $ cd $NICOS_CORE_DIRECTORY
-    $ INSTRUMENT=essiip ./bin/nicos-demo -MEW
+    $ INSTRUMENT=ymir ./bin/nicos-demo -MEW
 
 Load the `lewis_motor`-setup. If the EPICS environment
 is setup correctly and `pvaPy` is available (as `pvaccess.so`), that should work.
