@@ -1,4 +1,4 @@
-description = "The mini-chopper."
+description = "The mini-chopper for YMIR"
 
 pv_root = "LabS-VIP:Chop-Drv-0101:"
 
@@ -16,4 +16,3 @@ devices = dict(
         readpv="{}Chop_Stat".format(pv_root),
     ),
 )
-

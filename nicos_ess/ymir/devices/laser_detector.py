@@ -21,7 +21,8 @@
 #   Matt Clarke <matt.clarke@esss.se>
 #
 # *****************************************************************************
-from nicos.core import ArrayDesc, Override, Param, Value, status, tupleof, oneof
+from nicos import session
+from nicos.core import Param, Value, status, tupleof
 from nicos.core.constants import LIVE
 from nicos.core.device import Measurable
 from nicos.devices.epics import pvget
@@ -30,17 +31,17 @@ from nicos.devices.epics import pvget
 class LaserDetector(Measurable):
     parameters = {
         'pv_name': Param('Store the current identifier',
-                           internal=False, type=str,
-                           default="SES-SCAN:LSR-001:AnalogInput",
-                           settable=True),
+                         internal=False, type=str,
+                         default="SES-SCAN:LSR-001:AnalogInput",
+                         settable=True),
         'curstatus': Param('Store the current device status',
                            internal=True, type=tupleof(int, str),
                            default=(status.OK, ""),
                            settable=True),
         'answer': Param('Store the current device status',
-                           internal=True, type=float,
-                           default=0,
-                           settable=True),
+                        internal=True, type=float,
+                        default=0,
+                        settable=True),
     }
 
     def doPrepare(self):
@@ -48,15 +49,13 @@ class LaserDetector(Measurable):
         self.curstatus = status.OK, ""
 
     def doStart(self):
-        import time
         max_pow = 0
         results = []
         for _ in range(5):
-             time.sleep(0.1)
-             val = pvget(self.pv_name)
-             max_pow = max(val, max_pow)
-             results.append(val)
-        # self.answer = max_pow
+            session.delay(0.1)
+            val = pvget(self.pv_name)
+            max_pow = max(val, max_pow)
+            results.append(val)
         self.answer = sum(results) / len(results)
 
     def doRead(self, maxage=0):
@@ -83,4 +82,3 @@ class LaserDetector(Measurable):
 
     def valueInfo(self):
         return Value(self.name, unit=self.unit),
-
