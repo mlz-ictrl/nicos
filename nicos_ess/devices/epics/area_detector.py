@@ -28,13 +28,30 @@ This module implements the EPICS area detector integration.
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.core import Param, multiStatus, pvname, status
+import numpy as np
+
+from nicos.core import LIVE, ArrayDesc, Param, Value, multiStatus, pvname, \
+    status
 from nicos.core.device import Device
+from nicos.devices.generic import ImageChannelMixin
 
 from nicos_ess.devices.epics.base import EpicsDevice
 from nicos_ess.devices.epics.detector import EpicsDetector, \
-    EpicsTimerPassiveChannel
+    EpicsPassiveChannel, EpicsTimerPassiveChannel
 from nicos_ess.devices.epics.status import ADKafkaStatus
+
+data_type_t = {
+    'Int8': np.int8,
+    'UInt8': np.uint8,
+    'Int16': np.int16,
+    'UInt16': np.uint16,
+    'Int32': np.int32,
+    'UInt32': np.uint32,
+    'Int64': np.int64,
+    'UInt64': np.uint64,
+    'Float32': np.float32,
+    'Float64': np.float64
+}
 
 
 class EpicsAreaDetectorTimerPassiveChannel(EpicsTimerPassiveChannel):
@@ -43,7 +60,7 @@ class EpicsAreaDetectorTimerPassiveChannel(EpicsTimerPassiveChannel):
     'TimeRemaining_RBV' PV.
     """
 
-    def doTime(self):
+    def doTime(self, preset):
         return self._get_pv('readpv')
 
 
@@ -114,6 +131,12 @@ class EpicsAreaDetector(EpicsDetector):
 
         return self._mapped_state[state], state
 
+    def arrayInfo(self):
+        return [ch.arraydesc for ch in self._attached_images]
+
+    def duringMeasureHook(self, elapsed):
+        return LIVE
+
 
 class ADKafkaPlugin(EpicsDevice, Device):
     """
@@ -126,8 +149,7 @@ class ADKafkaPlugin(EpicsDevice, Device):
         'topicpv': Param('PV with the Kafka topic', type=pvname,
                          mandatory=True),
         'statuspv': Param('PV with the status of the Kafka connection',
-                          type=pvname or None, mandatory=False, default=
-                          None),
+                          type=pvname or None, mandatory=False, default=None),
         'msgpv': Param('PV with further message from Kafka',
                        type=pvname or None, mandatory=False, default=None),
     }
@@ -226,3 +248,87 @@ class ADKafkaPlugin(EpicsDevice, Device):
             return ''
 
         return self._get_pv('msgpv', as_string=True)
+
+
+class ADImageChannel(ImageChannelMixin, EpicsPassiveChannel):
+    """
+    Detector channel for delivering images from Epics AreaDetector.
+    """
+    parameters = {
+        'pvprefix': Param('Prefix of the record PV.', type=pvname,
+                          mandatory=True, settable=False, userparam=False),
+        'rawdatapv': Param('Name of the image record PV.', type=pvname,
+                           mandatory=True, settable=False, userparam=False),
+    }
+
+    camera_channel_fields = {
+        'size_x': 'SizeX_RBV',
+        'size_y': 'SizeY_RBV',
+        'bin_x': 'BinX_RBV',
+        'bin_y': 'BinY_RBV',
+        'min_x': 'MinX_RBV',
+        'min_y': 'MinY_RBV',
+        'data_type': 'DataType_RBV'
+    }
+
+    def doInit(self, mode):
+        EpicsPassiveChannel.doInit(self, mode)
+        self.doPrepare()
+
+    def doPrepare(self):
+        shape = self._get_pv('size_x'), self._get_pv('size_y')
+        data_type = data_type_t[self._get_pv('data_type', as_string=True)]
+        self.arraydesc = ArrayDesc('data', shape=shape, dtype=data_type)
+
+    def _get_pv_parameters(self):
+        """
+        Implementation of inherited method to automatically account for fields
+        present in area detector image record.
+
+        :return: List of PV aliases.
+        """
+        pvs = set(self.camera_channel_fields.keys())
+        pvs.add('readpv')
+        pvs.add('rawdatapv')
+        return pvs
+
+    def _get_pv_name(self, pvparam):
+        """
+        Implementation of inherited method that translates between PV aliases
+        and actual PV names. Automatically adds a prefix to the PV name
+        according to the pvprefix parameter, if necessary.
+
+        :param pvparam: PV alias.
+        :return: Actual PV name.
+        """
+        prefix = getattr(self, 'pvprefix')
+        field = self.camera_channel_fields.get(pvparam)
+
+        if field is not None:
+            return ':'.join((prefix, field))
+
+        return getattr(self, pvparam)
+
+    def doReadSize(self):
+        return list(self._shape)
+
+    def doReadBinning(self):
+        return [self._get_pv('bin_x'), self._get_pv('bin_y')]
+
+    def doReadZeropoint(self):
+        return [self._get_pv('min_x'), self._get_pv('min_y')]
+
+    def doReadArray(self, quality):
+        data = self._get_pv('rawdatapv')
+        return data.reshape(self.arraydesc.shape)
+
+    def valueInfo(self):
+        return (Value(self.name, unit=''), )
+
+    def doStatus(self, maxage=0):
+        general_epics_status, _ = self._get_mapped_epics_status()
+
+        if general_epics_status == status.ERROR:
+            return status.ERROR, 'Unknown problem in record'
+
+        return status.OK, ''
