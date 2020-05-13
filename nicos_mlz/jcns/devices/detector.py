@@ -24,30 +24,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.core.constants import FINAL, INTERRUPTED, SLAVE
+from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.core.device import Measurable
 from nicos.core.params import Attach, Value
-from nicos.devices.tango import ImageChannel as BaseImageChannel
-
-
-class ImageChannel(BaseImageChannel):
-    """Subclass of the Tango image channel that automatically returns the
-    sum of all counts as a scalar value.
-    """
-
-    def doInit(self, mode):
-        BaseImageChannel.doInit(self, mode)
-        if mode != SLAVE:
-            self.readArray(FINAL)  # update readresult at startup
-
-    def doReadArray(self, quality):
-        narray = BaseImageChannel.doReadArray(self, quality)
-        self.readresult = [narray.sum()]
-        return narray
-
-    def valueInfo(self):
-        return Value(name=self.name, type='counter', fmtstr='%d',
-                     errors='sqrt', unit='cts'),
+from nicos.devices.tango import BaseImageChannel
 
 
 class RateImageChannel(BaseImageChannel):

@@ -29,11 +29,11 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
-from nicos.core import ArrayDesc, Override, Param, Value, intrange, listof, \
-    oneof, tupleof, ConfigurationError, SIMULATION
+from nicos.core import SIMULATION, ArrayDesc, ConfigurationError, Override, \
+    Param, Value, intrange, listof, oneof, tupleof
 from nicos.core.data import GzipFile
 from nicos.devices.datasinks.raw import SingleRawImageSink
-from nicos.devices.tango import ImageChannel
+from nicos.devices.tango import BaseImageChannel
 from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.utils.fitting import curve_fit
 
@@ -86,7 +86,7 @@ def fit_a_sin_fixed_freq(x, y):
         return popt, perr, 'Error during fit: %s' % e
 
 
-class CascadeDetector(ImageChannel):
+class CascadeDetector(BaseImageChannel):
     """Detector channel for the CASCADE-MIEZE detector.
 
     Controls the detector via a connection to a Tango server.
@@ -140,7 +140,7 @@ class CascadeDetector(ImageChannel):
     _perfoil = 16
 
     def doPreinit(self, mode):
-        ImageChannel.doPreinit(self, mode)
+        BaseImageChannel.doPreinit(self, mode)
         if mode != SIMULATION:
             if self._getProperty('compact_readout') != 'True':
                 raise ConfigurationError(self, 'server must be set to '

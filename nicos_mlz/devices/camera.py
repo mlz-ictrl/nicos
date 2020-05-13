@@ -26,10 +26,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.devices.tango import ImageChannel
+from nicos.devices.tango import BaseImageChannel
 
 
-class CameraImage(ImageChannel):
+class CameraImage(BaseImageChannel):
     """Tango ImageChannel subclass that waits for the channel's status
     (for CCD readout) before reading the image.
     """
@@ -37,4 +37,4 @@ class CameraImage(ImageChannel):
     def doReadArray(self, quality):
         # need to wait for readout of the CCD
         self._hw_wait()
-        return ImageChannel.doReadArray(self, quality)
+        return BaseImageChannel.doReadArray(self, quality)

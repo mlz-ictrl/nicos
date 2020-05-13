@@ -36,7 +36,7 @@ from nicos.core import FINAL, INTERMEDIATE, LIVE, NicosError, Param, \
 from nicos.core.constants import SIMULATION
 from nicos.core.params import Attach, Value, listof
 from nicos.devices.generic.detector import Detector
-from nicos.devices.tango import ImageChannel, NamedDigitalOutput
+from nicos.devices.tango import BaseImageChannel, NamedDigitalOutput
 
 from nicos_mlz.spheres.devices.doppler import ELASTIC, INELASTIC
 
@@ -70,7 +70,7 @@ ChopperHisto = namedtuple('ChopperHisto', 'angle '
                                           't_refl t_open')
 
 
-class SISChannel(ImageChannel):
+class SISChannel(BaseImageChannel):
     """
     Spheres SIS ImageChannel
     """
@@ -134,7 +134,7 @@ class SISChannel(ImageChannel):
     }
 
     def __init__(self, name, **config):
-        ImageChannel.__init__(self, name, **config)
+        BaseImageChannel.__init__(self, name, **config)
 
         self._block = []
         self._reason = ''
