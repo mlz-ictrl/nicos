@@ -6,7 +6,7 @@ main_window = docked(
               stopcounting=True),
         # panel('nicos.clients.gui.panels.watch.WatchPanel'),
         panel('nicos.clients.gui.panels.console.ConsolePanel',
-              watermark='nicos_ess/cspec/gui/logo-watermark.png'),
+              watermark='nicos_ess/gui/logo-watermark.png'),
     ),
     ('NICOS devices',
      panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
