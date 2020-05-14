@@ -38,7 +38,7 @@ from nicos import session
 from nicos.commands import helparglist, hiddenusercommand, parallel_safe, \
     usercommand
 from nicos.core import ADMIN, MAINTENANCE, MASTER, SIMULATION, Device, \
-    ModeError, NicosError, Readable, UsageError, requires
+    ModeError, NicosError, Readable, UsageError
 from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
     SetupName, String, spmsyntax
@@ -490,7 +490,6 @@ def Remark(remark):
 
 @usercommand
 @spmsyntax(Oneof(*EXECUTIONMODES))
-@requires(level='admin')
 def SetMode(mode):
     """Set the execution mode.
 
@@ -532,6 +531,10 @@ def SetMode(mode):
         mode = SIMULATION
     elif mode == 'maint':
         mode = MAINTENANCE
+    if mode == MAINTENANCE:
+        # switching to maintenance mode is dangerous since two parallel
+        # sessions can execute active commands
+        session.checkAccess({'level': ADMIN})
     try:
         session.setMode(mode)
     except ModeError:
