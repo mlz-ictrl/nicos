@@ -33,14 +33,6 @@ import traceback
 
 from nicos.protocols.daemon import STATUS_INBREAK, STATUS_RUNNING
 
-__all__ = ['LINENO_ALL', 'LINENO_TOPLEVEL', 'LINENO_NAME',
-           'Controller', 'ControlStop']
-
-
-
-# import logic here - please do not change this order:
-#    1) try the in-package version (for inplace builds)
-#    2) try version from platform specific directory (no package prefix)
 try:
     from nicospyctl.pyctl import ControlStop, Controller as _Controller
 except ImportError:
@@ -49,6 +41,9 @@ except ImportError:
     class _Controller(object):
         def __init__(self, *args, **kwds):
             raise ImportError('Please install the nicos-pyctl package.')
+
+__all__ = ['LINENO_ALL', 'LINENO_TOPLEVEL', 'LINENO_NAME',
+           'Controller', 'ControlStop']
 
 # defines from the C module
 LINENO_ALL      = 0   # trace all line numbers
