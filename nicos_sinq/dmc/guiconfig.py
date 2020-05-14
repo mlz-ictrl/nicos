@@ -27,17 +27,10 @@
 main_window = tabbed(
     ('Instrument', docked(
         vsplit(
-            hsplit(
-                vsplit(
-                    panel(
-                        'nicos.clients.gui.panels.commandline.CommandLinePanel'),
-                    panel('nicos.clients.gui.panels.status.ScriptStatusPanel'),
-                ),
-            ),
-            tabbed(
+             tabbed(
                 ('All output',
                  panel('nicos.clients.gui.panels.console.ConsolePanel',
-                       hasinput=False, hasmenu=False,
+                       hasinput=True, hasmenu=True,
                        watermark='nicos_sinq/watermark.png')),
                 ('Errors/Warnings',
                  panel('nicos.clients.gui.panels.errors.ErrorPanel')),
@@ -70,7 +63,9 @@ windows = [
            panel('nicos.clients.gui.panels.scans.ScansPanel')),
     window('Logbook', 'table',
            panel('nicos.clients.gui.panels.elog.ELogPanel')),
-]
+    window('LiveData', 'livedata',
+           panel('nicos.clients.gui.panels.livegr.LiveDataPanel')),
+    ]
 
 tools = [
     tool('Emergency stop button',
