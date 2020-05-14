@@ -43,12 +43,13 @@ from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
     SetupName, String, spmsyntax
 from nicos.devices.notifiers import Mailer
-from nicos.pycompat import builtins, exec_, iteritems, string_types
+from nicos.pycompat import PY2, builtins, exec_, iteritems, string_types
 from nicos.utils import fixupScript, formatArgs, formatDuration, printTable, \
     reexecProcess, resolveClasses
 from nicos.utils.timer import Timer
 
-CO_DIVISION = 0x2000
+# compile flag to activate new division (remove after dropping py2)
+CO_DIVISION = 0x2000 if PY2 else 0
 
 
 __all__ = [

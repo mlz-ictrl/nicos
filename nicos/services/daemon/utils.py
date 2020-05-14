@@ -35,14 +35,14 @@ import time
 from threading import Event, Lock
 
 from nicos import session
-from nicos.pycompat import text_type
+from nicos.pycompat import PY2, text_type
 from nicos.utils import fixupScript
 from nicos.utils.loggers import ACTION, recordToMessage
 
 TIMESTAMP_FMT = '%Y-%m-%d %H:%M:%S'
 
-# compile flag to activate new division
-CO_DIVISION = 0x2000
+# compile flag to activate new division (remove after dropping py2)
+CO_DIVISION = 0x2000 if PY2 else 0
 
 # -- General utilities --------------------------------------------------------
 
