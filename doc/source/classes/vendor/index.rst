@@ -11,8 +11,6 @@ present a standard interface to NICOS described :ref:`here <taco>`.
 
    caress
    ipc
-   toni
-   iseg
    qmesydaq
    frm2
    astrium
