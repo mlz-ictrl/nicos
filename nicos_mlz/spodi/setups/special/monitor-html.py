@@ -38,7 +38,12 @@ _frm = Column(
     ),
     Block('SPODI', [
         BlockRow(Field(name='O2', dev='o2_nguide'),
-                 Field(name='O2 part', dev='o2part_nguide'),),
+                 Field(name='O2 part', dev='o2part_nguide'),
+                 ),
+        BlockRow(Field(name='p1 N-Guide', dev='p1_nguide'),
+                 Field(name='p2 N-Guide', dev='p2_nguide'),
+                 Field(name='p3 N-Guide', dev='p3_nguide'),
+                 ),
     ],
     ),
 )
