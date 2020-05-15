@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the MLZ
+# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#
+# *****************************************************************************
+
+"""Fixes cache entries made by python2 and containing long ints"""
+
+from __future__ import absolute_import, division, print_function
+
+import os
+import re
+import sys
+
+
+# long int match
+LIM = re.compile(b'([0-9]+)L')
+
+fixes = {b'-':b'-'}
+
+
+def fix_file(fn, make_backups=False, dryrun=True, verbose=False):
+    """checks if a file needs to fixed and fixes it if needed
+
+    if no fix is needed (or the file can not be read) return False,
+    else True
+    """
+    try:
+        with open(fn, 'rb') as f:
+            data = f.read()
+    except IOError as e:
+        print('[%r] %s' % (fn, e), file=sys.stderr)
+        return False
+
+    if not LIM.search(data):
+        return False
+
+    if verbose:
+        print(fn)
+
+    # found a match -> make a backup + fix it
+    if make_backups:
+        with open(fn + '.bak', 'wb') as f:
+            f.write(data)
+
+    # correct entries
+    result = []
+    formatv2 = False
+    for idx, l in enumerate(data.splitlines()):
+        if l.startswith(b'# NICOS cache store file v2'):
+            formatv2 = True
+            result.append(l)
+            continue
+
+        # decompose line to get value
+        if formatv2:
+            key, ts, marker, value = l.split(b'\t',3)
+        else:
+            key, ts, value = l.split(b'\t',2)
+
+        if value in fixes:
+            value = fixes[value]
+        else:
+            try:
+                eval(value, dict(cache_unpickle=lambda x:x, inf=0))
+                # remembering values which need no fix save the cost of eval
+                fixes[value] = value
+            except SyntaxError:
+                if verbose:
+                    print('- %s' % value.decode('latin-1'))
+                fixed_value = LIM.sub(b'\\1',value)
+                # sanity check: recheck value
+                try:
+                    eval(fixed_value, dict(cache_unpickle=lambda x:x, inf=0))
+                    if verbose:
+                        print('+ %s' % fixed_value.decode('latin-1'))
+                    fixes[value] = fixed_value
+                    value = fixed_value
+                except SyntaxError:
+                    print('[%r:%d] SyntaxError: Cannot convert value automatically' % (fn, idx), file=sys.stderr)
+                    print('[%r:%d] %r\n' % (fn, idx, l), file=sys.stderr)
+                    return False
+
+        if formatv2:
+            result.append(b'\t'.join((key, ts, marker, value)))
+        else:
+            result.append(b'\t'.join((key, ts, value)))
+    if not dryrun:
+        with open(fn, 'wb') as f:
+            f.write(b'\n'.join(result))
+            f.write(b'\n')
+    return True
+
+verbose = False
+make_backups = False
+dryrun = True
+cache_root = '.'
+
+for arg in sys.argv:
+    if arg in ('-h','--help','help'):
+        print('usage: fix-long-ints [option] [cache_root]')
+        print('Options are:')
+        print('-h --help       : this usage information.')
+        print('--apply-the-fix : change the files, create backups first')
+        print('-v              : be verbose, i.e. list all files needing the fix/which were fixed')
+        print('all other options given are ignored.')
+        print('if no options are given, do a dry run without changing files.')
+        print('')
+        print('cache_root defaults to CWD, if not given')
+        sys.exit(1)
+    if arg == '--apply-the-fix':
+        make_backups = True
+        dryrun = False
+    if arg == '-v':
+        verbose = True
+
+if sys.argv[-1][0] != '-':
+    cache_root = sys.argv[-1]
+
+# search for files at CURRENT DIRECTORY and below
+datafiles = set()
+for root, dirs, files in os.walk(cache_root):
+    if '.git' in root:
+        continue
+    for fn in files:
+        if fn.endswith('.bak'):
+            continue
+        full_fn = os.path.join(root, fn)
+        if fix_file(full_fn, make_backups=make_backups, dryrun=dryrun, verbose=verbose):
+            datafiles.add(full_fn)
+
+if datafiles:
+    if dryrun:
+        print('%d files would be changed' % len(datafiles))
+    else:
+        print('%d files were changed' % len(datafiles))
+    if make_backups:
+        print('Wrote backups for changed file(s), please check '
+          'and remove them if not needed.')
+        print('The find command is left as an exercise to the caller.')
