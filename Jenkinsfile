@@ -366,7 +366,7 @@ try {
         } // stage
     }, pylint3: {
         stage(name: 'pylint-py3') {
-        when ( false ) {
+        when ( true ) {
                 ws {
                     checkoutSource()
                     u16tango9.inside('-v /home/git:/home/git') {
