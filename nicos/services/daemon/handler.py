@@ -227,6 +227,9 @@ class ConnectionHandler(object):
             user_level = self.user.level,
         ))
 
+        # make the user known to controller.current_user()
+        self.controller.thread_data.user = self.user
+
         # start main command loop
         while 1:
             command, data = self.recv_command()
