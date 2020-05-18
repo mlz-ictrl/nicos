@@ -27,6 +27,10 @@ Unreleased changes
   - Added new core commands "rmove()" and "rmaw()" for relative movement
     of devices.
 
+* Devices
+
+  - Optional Slack notifier is not longer Python 2 compatible.
+
 
 Release 3.6.0
 -------------
