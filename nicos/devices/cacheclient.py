@@ -694,6 +694,23 @@ class CacheClient(BaseCacheClient):
                 if key == 'value' and session.experiment:
                     session.experiment.data.cacheCallback(rdbkey, value, time)
 
+    def delete(self, dev, key, time=None):
+        """Delete a given device's subkey."""
+        if time is None:
+            time = currenttime()
+        dbkey = ('%s/%s' % (dev, key)).lower()
+        with self._dblock:
+            self._db.pop(dbkey, None)
+        msg = '%r@%s%s%s' % (time, self._prefix, dbkey, OP_TELL)
+        self._queue.put(msg)
+        self._propagate((time, dbkey, OP_TELL, ''))
+        if str(dev).lower() in self._rewrites:
+            for newprefix in self._rewrites[str(dev).lower()]:
+                rdbkey = ('%s/%s' % (newprefix, key)).lower()
+                with self._dblock:
+                    self._db.pop(rdbkey, None)
+                self._propagate((time, rdbkey, OP_TELL, ''))
+
     def put_raw(self, key, value, time=None, ttl=None, flag=''):
         """Put a key given by full name.
 
