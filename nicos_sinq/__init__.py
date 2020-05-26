@@ -27,11 +27,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-import logging
 import socket
 from os import path
 
-from nicos.pycompat import urllib
+from nicos_sinq.devices.loggers.mongo import create_mongo_handler
 
 
 def determine_instrument(setup_package_path):
@@ -46,23 +45,14 @@ def determine_instrument(setup_package_path):
             return domain.replace('/', '.')
 
 
-class MongoLogHandler(logging.Handler):
-    pass
-
-
 def get_log_handlers(config):
     """
-    :param values: configuration dictionary
-    :return: [MongoLogHandler, ] if 'mongo_logger' is in options,  else []
+    :param config: configuration dictionary
+    :return: a list containing one or both of:
+        - KafkaLoggingHandler if 'kafka_logger' in options
+        - GELFTCPHandler if 'graylog' in options
+        or [] if none is present
     """
-    from nicos.core import ConfigurationError
 
-    handlers = []
-    if hasattr(config, 'mongo_logger'):
-        url = urllib.parse.urlparse(config.mongo_logger)
-        if not url.netloc:
-            raise ConfigurationError('mongo_logger: invalid url')
-        mongo_handler = MongoLogHandler()
-        mongo_handler.setLevel(logging.WARNING)
-        handlers.append(mongo_handler)
-    return handlers
+    handler = create_mongo_handler(config)
+    return [handler] if handler else []

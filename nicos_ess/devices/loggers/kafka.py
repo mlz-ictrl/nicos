@@ -18,31 +18,30 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
-"""ESS specific NICOS package."""
+"""Kafka log handler"""
 
-from nicos_ess.devices.loggers import create_graylog_handler, \
-    create_kafka_logging_handler
+import logging
 
-
-def determine_instrument(setup_package_path):
-    # TODO adapt to ESS systems
-    return 'ymir'
+from nicos.core import ConfigurationError
+from nicos.pycompat import urllib
 
 
-def get_log_handlers(config):
-    """
-    :param config: configuration dictionary
-    :return: a list containing one or both of:
-        - KafkaLoggingHandler if 'kafka_logger' in options
-        - GELFTCPHandler if 'graylog' in options
-        or [] if none is present
-    """
-    handlers = [create_graylog_handler(config),
-                create_kafka_logging_handler(config)]
+def create_kafka_logging_handler(config):
+    try:
+        from kafka_logger.handlers import KafkaLoggingHandler
 
-    return [h for h in handlers if h is not None]
+        if hasattr(config, 'kafka_logger'):
+            url = urllib.parse.urlparse(config.kafka_logger)
+            if not url.netloc or not url.path[1:]:
+                raise ConfigurationError('kafka_logger: invalid url')
+            kafka_handler = KafkaLoggingHandler(url.netloc, url.path[1:],
+                                                security_protocol='PLAINTEXT', )
+            kafka_handler.setLevel(logging.WARNING)
+            return kafka_handler
+
+    except ImportError:
+        return
