@@ -58,6 +58,8 @@ class BaseCacheClient(Device):
     }
 
     remote_callbacks = True
+    _worker = None
+    _startup_done = None
 
     def doInit(self, mode):
         # Should the worker connect or disconnect?
@@ -469,6 +471,7 @@ class BaseCacheClient(Device):
 class CacheClient(BaseCacheClient):
 
     temporary = True
+    _dblock = None
 
     def doInit(self, mode):
         BaseCacheClient.doInit(self, mode)
@@ -486,9 +489,11 @@ class CacheClient(BaseCacheClient):
     def doShutdown(self):
         BaseCacheClient.doShutdown(self)
         # make sure the interface is still usable but has no values to return
-        with self._dblock:
-            self._db.clear()
-        self._startup_done.set()
+        if self._dblock:
+            with self._dblock:
+                self._db.clear()
+        if self._startup_done:
+            self._startup_done.set()
 
     def is_connected(self):
         return self._connected
