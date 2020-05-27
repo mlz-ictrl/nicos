@@ -28,6 +28,7 @@
 from __future__ import absolute_import, division, print_function
 
 import functools
+import json
 import operator
 import os
 import sys
@@ -625,13 +626,28 @@ class BaseHistoryWindow(object):
 
     def loadSettings(self, settings):
         self.splitterstate = settings.value('splitter', '', QByteArray)
-        presetval = settings.value('presets')
-        self.presetdict = presetval if presetval is not None else {}
+        self.presetdict = {}
+        # read new format if present
+        settings.beginGroup('presets_new')
+        for key in settings.childKeys():
+            self.presetdict[key] = json.loads(settings.value(key))
+        settings.endGroup()
+        # convert old format
+        try:
+            presetval = settings.value('presets')
+            if presetval:
+                for (name, value) in presetval.items():
+                    if not isinstance(value, bytes):
+                        value = value.encode('latin1')
+                    self.presetdict[name] = pickle.loads(value)
+        except Exception:
+            pass
+        settings.remove('presets')
         self.last_views = []
-        settings.beginGroup('views')
+        settings.beginGroup('views_new')
         for key in settings.childKeys():
             try:
-                info = pickle.loads(bytes(settings.value(key, '', QByteArray)))
+                info = json.loads(settings.value(key))
                 self.last_views.append((key, info))
             except Exception:
                 pass
@@ -639,11 +655,13 @@ class BaseHistoryWindow(object):
 
     def saveSettings(self, settings):
         settings.setValue('splitter', self.splitter.saveState())
-        settings.setValue('presets', self.presetdict)
-        settings.beginGroup('views')
-        settings.remove('')
+        settings.beginGroup('presets_new')
+        for (key, info) in self.presetdict.items():
+            settings.setValue(key, json.dumps(info))
+        settings.endGroup()
+        settings.beginGroup('views_new')
         for view in self.views:
-            settings.setValue(view.name, pickle.dumps(view.dlginfo))
+            settings.setValue(view.name, json.dumps(view.dlginfo))
         settings.endGroup()
 
     def openViews(self, views):
@@ -683,7 +701,7 @@ class BaseHistoryWindow(object):
             for preset, info in iteritems(self.presetdict):
                 paction = QAction(preset, self)
                 pdelaction = QAction(preset, self)
-                info = pickle.loads(str(info))
+                info = info.copy()
 
                 def launchpreset(on, info=info):
                     self._createViewFromDialog(info)
@@ -708,7 +726,7 @@ class BaseHistoryWindow(object):
 
     def _add_preset(self, name, info):
         if name:
-            self.presetdict[name] = pickle.dumps(info)
+            self.presetdict[name] = info.copy()
             self._refresh_presets()
 
     def _autoscale(self, x=None, y=None):
