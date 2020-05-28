@@ -22,17 +22,13 @@
 #
 # *****************************************************************************
 
-"""Support classes for the CCR TACO boxes"""
+"""Support classes for the CCR ControlBoxes"""
 
 from __future__ import absolute_import, division, print_function
 
-import IO
-
-from nicos import session
 from nicos.core import SIMULATION, Attach, ConfigurationError, HasLimits, \
     InvalidValueError, Moveable, Override, Param, ProgrammingError, \
-    floatrange, limits, oneof, status, tacodev
-from nicos.devices.taco.io import NamedDigitalOutput
+    floatrange, limits, oneof
 from nicos.devices.tango import AnalogInput
 from nicos.utils import clamp
 
@@ -245,88 +241,6 @@ class CCRControl(HasLimits, Moveable):
         else:
             raise ProgrammingError(self, 'unknown mode %r, don\'t know how to '
                                    'handle it!' % self.regulationmode)
-
-
-# following class is only used for old CCR's.
-# after an update of all CCR-Boxes it can be removed.
-# This is planned around end of 2015, beginning of 2016
-class CompressorSwitch(NamedDigitalOutput):
-    """ The CCR box has two separate switches to switch the compressor 'on' and
-    'off'.
-
-    The access is realized via two TACO devices, the current state is
-    given by a third device.
-
-    The 'on' device is the inherited TACO device.
-    """
-    parameters = {
-        'offdev':  Param('Device to switch the compressor off',
-                         type=tacodev, mandatory=True, preinit=True),
-        'readback': Param('Device to read back the compressor state indicator',
-                          type=tacodev, mandatory=True, preinit=True),
-        'statusdev': Param('Device to read out the compressor state',
-                           type=tacodev, mandatory=True, preinit=True),
-        'sleeptime': Param('Time to wait after switching',
-                           type=float, default=0.1),
-    }
-
-    def doInit(self, mode):
-        NamedDigitalOutput.doInit(self, mode)
-        if mode != SIMULATION:
-            self._off = self._create_client(
-                self.offdev, IO.DigitalOutput, resetok=True, timeout=None)
-            self._readback = self._create_client(
-                self.readback, IO.DigitalInput, resetok=True, timeout=None)
-            self._status = self._create_client(
-                self.statusdev, IO.DigitalInput, resetok=True, timeout=None)
-
-    def doStart(self, target):
-        value = self.mapping.get(target, target)
-        if value == self._read():
-            return
-        if value == 1:
-            self._taco_guard(self._dev.write, 1)
-        else:
-            self._taco_guard(self._off.write, 1)
-        session.delay(self.sleeptime)
-
-    def _read(self):
-        return self._taco_guard(self._readback.read)
-
-    def doRead(self, maxage=0):
-        value = self._read()
-        return self._reverse.get(value, value)
-
-    def doStatus(self, maxage=0):
-        target = self.mapping.get(self.target, self.target)
-        if target == self._read():
-            if target == 1:
-                return status.OK, 'idle, on'
-        val = ~self._taco_guard(self._status.read) & 0x1FF
-        if (val == 0x1FF):
-            return status.ERROR, 'Offline (not connected)'
-        elif (val & 1) == 1:
-            return status.ERROR, 'Oil missing'
-        elif (val & 4) == 4:
-            return status.ERROR, 'Motor temperature too high'
-        elif val == 8:
-            return status.OK, 'idle, bypass open'
-        elif (val & 0x10) == 0x10:
-            return status.ERROR, 'Power failure'
-        elif (val & 0x80) == 0x80:
-            return status.ERROR, 'Gas temperature too high'
-        elif (val & 0x100) == 0x100:
-            return status.ERROR, 'Gas return pressure too high'
-        elif (val & 2) == 2:
-            if (val & 0x20) == 0x20:
-                return status.ERROR, 'Water inlet temperature is too high'
-            elif (val & 0x40) == 0x40:
-                return status.ERROR, 'Water outlet temperature is too low' \
-                    ' (flow is too low)'
-            return status.OK, 'idle, off'
-        else:
-            return status.UNKNOWN, 'UNKNOWN'
-        return status.ERROR, 'target not reached'
 
 
 # This class is used to access the pressure regulation limits
