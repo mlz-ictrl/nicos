@@ -1250,7 +1250,7 @@ class Session(object):
         self.log = NicosLogger('nicos')
         self.log.setLevel(logging.INFO)
         self.log.parent = None
-        if console:
+        if console and sys.stdout:
             self.log.addHandler(ColoredConsoleHandler())
         self._master_handler = None
         if logfile:
