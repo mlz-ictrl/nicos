@@ -34,6 +34,7 @@ import numpy
 import pytest
 
 pytest.importorskip('kafka')
+pytest.importorskip('graypy')
 
 from epics import PV
 

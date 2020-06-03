@@ -26,6 +26,9 @@
 from logging import Handler
 
 import pytest
+
+pytest.importorskip('kafka.errors')
+
 from kafka.errors import NoBrokersAvailable
 from mock import patch
 
