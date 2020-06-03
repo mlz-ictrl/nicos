@@ -1,0 +1,261 @@
+DEFINE INSTRUMENT TREFF(
+    int order=1,
+    s1_width=0.2,
+    s1_height=20,
+    s2_width=0.2,
+    s2_height=20,
+    beamstop_pos=-20,
+    omega=0,
+    detarm=0,
+    sample_x=0,
+    sample_y = 0,
+    sample_z =0,
+    chi = 0,
+    phi = 0,
+// sample:
+    mirror_thickness = 8,
+    mirror_length = 200,
+    mirror_height=32,
+    mirror_m = 2,
+    mirror_alfa = 4.25,
+    mirror_wav = 0.02,
+    string rflfile = 0)
+
+/* fast version using just the reflectometer part; P. Link; SEP 2019
+ * input parameters :
+ *      order use PG002 or PG004 [1]
+ *      s1,s2: settings for the primary collimation slits
+ *      befilter, polarizer, analyzer, beamstop: [1] for in use
+ *      om,detarm: angles (deg) of the sample rotation and scattering angle
+ *      s_x, s_y, s_z: sample table translation
+ *      chi, phi: asmple table tilt stages
+ */
+
+
+DECLARE
+%{
+ double MINLam,MAXLam, LLmin, LLmax, Lam, dLam;
+ double d_value;
+ double thetaM;
+ double thetaS;
+ double offset_y,offset_chi,offset_omega;
+%}
+
+
+INITIALIZE
+%{
+  if (order==1) {
+      d_value = 3.355;
+      }
+  else {
+      d_value = 1.677;}
+  Lam = 2* d_value * sin( 45.0*DEG2RAD);
+  dLam = Lam * 0.02;
+  MINLam = Lam - dLam;
+  MAXLam = Lam + dLam;
+  LLmin = MINLam;
+  LLmax = MAXLam;
+  thetaS=omega;
+  // educational offsets for sample alignment
+  offset_y = 0.0;
+  offset_omega = 0.0;
+  offset_chi = 0;
+
+
+
+%}
+TRACE
+/************************************************/
+COMPONENT a1 = Progress_bar()
+  AT (0, 0, 0) ABSOLUTE
+
+/* @ s1 position */
+COMPONENT PRIMBEAM = Source_gen (
+    xwidth = s1_width/1000,
+    yheight = s1_height/1000,
+    dist = 1.739,
+    focus_xw = s2_width/1000,
+    focus_yh = s2_height/1000,
+    I1 = 2e11,
+    lambda0 = Lam,
+    dlambda = dLam)
+  AT (0, 0, 0) RELATIVE a1
+
+/* manually adapted to give 1500 cts/sec in roi1 */
+
+/*
+COMPONENT LAM_treff = L_monitor(
+    xmin=-0.1,
+    xmax=0.1,
+    ymin=-0.1,
+    ymax=0.1,
+    nL=20,
+    filename="LAM_treff.L",
+    Lmin=MINLam,
+    Lmax=MAXLam)
+  AT (0, 0, 0.0001) RELATIVE PREVIOUS
+  ROTATED (0, 0, 0) RELATIVE PREVIOUS
+
+COMPONENT PSD_treff_s1 = PSD_monitor(
+    xwidth=s1_width/500,
+    yheight=0.080,
+    nx=20,
+    ny=80,
+    filename="PSD_treff_s1.psd",
+    restore_neutron=1)
+  AT (0, 0, 0.0001) RELATIVE PREVIOUS
+  ROTATED (0, 0, 0) RELATIVE PREVIOUS
+*/
+// spin flipper
+
+// He monitor
+
+// slit 2
+COMPONENT TREFF_S2 = Slit(
+    xwidth=s2_width/1000,
+    yheight=s2_height/1000)
+  AT (0, 0, 1.7390) RELATIVE a1
+  ROTATED (0, 0, 0) RELATIVE a1
+/*
+COMPONENT PSD_treff_primary = PSD_monitor(
+    xwidth=s2_width/500,
+    yheight=0.080,
+    nx=20,
+    ny=80,
+    filename="PSD_treff_primary.psd",
+    restore_neutron=1)
+  AT (0, 0, 0.0001) RELATIVE PREVIOUS
+  ROTATED (0, 0, 0) RELATIVE PREVIOUS
+*/
+// sample position
+COMPONENT a_sample = Arm()     // sample position relativ mono2
+  AT (0, sample_z/1e3, 2.154) RELATIVE a1
+  ROTATED (0, 0, 0) RELATIVE a1
+
+
+COMPONENT a_sample_T = Arm()        // theta angle of sample
+  AT (0, 0, 0) RELATIVE a_sample
+  ROTATED (0, omega, 0) RELATIVE a_sample
+
+COMPONENT a_sample_2T = Arm()        // 2theta angle of mono1
+  AT (0, 0, 0)  RELATIVE a_sample
+  ROTATED (0, detarm, 0) RELATIVE a_sample
+
+/******************************************************************************/
+/* place here any sample component                                            */
+/******************************************************************************/
+COMPONENT a_sampletable = Arm()
+  AT ((sample_y-offset_y)/1e3, 0, sample_x/1e3) RELATIVE a_sample_T
+  ROTATED (phi, offset_omega, chi-offset_chi) RELATIVE a_sample_T
+
+/*
+SPLIT 10 COMPONENT testglas = Mirror(
+    yheight=0.05,
+    xwidth=0.200,
+    m=mirror_m,
+    R0=0.99,
+    Qc=0.02174,
+    alpha=mirror_alfa,
+    W=0.001)
+  AT (0, -0.025, -0.1) RELATIVE a_sampletable
+  ROTATED (0, -90 ,0)  RELATIVE a_sampletable
+
+COMPONENT substrat = Absorber(
+    xmin = -0.1,
+    xmax = 0.1,
+    ymin = -0.025,
+    ymax = 0.025,
+    zmin = 0.0,
+    zmax = 0.01)
+  AT (0, 0, 0) RELATIVE a_sampletable
+  ROTATED (0, -90, 0)  RELATIVE a_sampletable
+
+*/
+/* does not compile:
+Component monolayer = Multilayer_Sample(
+    xwidth=mirror_height/1000,
+    zlength=mirror_length/1000,
+    nlayer=1,
+    sldPar={0.0, 2.0e-6, 0.0e-6},
+    dPar={20.0},
+    sigmaPar={5.0, 5.0})
+  AT (0, 0, -mirror_length/2000) RELATIVE a_sampletable
+  ROTATED (0, 0, -90)  RELATIVE a_sampletable
+*/
+
+// reflect="Ni80.rfl"
+COMPONENT testglas = Mirror_wavy(
+    reflect=rflfile,
+    xwidth=mirror_thickness/1e3,
+    yheight=mirror_height/1e3,
+    zlength=mirror_length/1e3,
+    m=mirror_m,R0=0.99,
+    Qc=0.02174,
+    alpha=mirror_alfa,W=0.001,
+    wavy_z=mirror_wav,
+    wavy_y=mirror_wav)
+  AT (-mirror_thickness/2000, 0, -mirror_length/2000) RELATIVE a_sampletable
+  ROTATED (0,0,0)  RELATIVE a_sampletable
+
+
+/******************************************************************************/
+// entrance to detector housing
+
+COMPONENT TREFF_Slit3a = Slit(
+    xmin=-0.0315,
+    xmax=0.0475,
+    ymin=-0.05,
+    ymax=0.05)
+  AT (0, 0, 0.3180) RELATIVE a_sample_2T
+  ROTATED (0, 0, 0) RELATIVE a_sample_2T
+
+COMPONENT TREFF_Slit3b = Slit(
+    radius=0.0475)
+  AT (0, 0, 0.3181) RELATIVE a_sample_2T
+  ROTATED (0, 0, 0) RELATIVE a_sample_2T
+
+/* beamstop */
+COMPONENT TREFF_Beamstop = Absorber(
+    xmin = -0.05,
+    xmax = 0,
+    ymin = -0.05,
+    ymax = 0.05,
+    zmin = 0.0,
+    zmax = 0.003)
+  AT (beamstop_pos/1e3,0,0.4181) RELATIVE a_sample_2T
+  ROTATED (0,0,0) RELATIVE a_sample_2T
+
+// 2D detector
+// diameter 80mm  256 x 256 pixel
+COMPONENT TREFF_Slit4 = Slit(
+    radius=0.04)  // scintillator has 80mm diameter
+  AT (0,0,1.9200) RELATIVE a_sample_2T
+  ROTATED (0,0,0) RELATIVE a_sample_2T
+
+COMPONENT PSD_TREFF_total = PSD_monitor(
+    xmin=-0.04,
+    xmax=0.04,
+    ymin=-0.04,
+    ymax=0.04,
+    nx=256,
+    ny=256,
+    filename="PSD_TREFF_total.psd")
+  AT (0, 0, 0.0001) RELATIVE PREVIOUS
+  ROTATED (0, 0, 0) RELATIVE PREVIOUS
+
+// typical width of roi is 12 pixel i.e. 3.75 mm
+// typical height of roi is 140 pixel i.e. 45 mm
+/*
+COMPONENT PSD_TREFF_roi1 = PSD_monitor(
+    xmin=-0.001875,
+    xmax=0.001875,
+    ymin=-0.0225,
+    ymax=0.0225,
+    nx=12,
+    ny=140,
+    filename="PSD_TREFF_roi1.psd")
+  AT (0, 0, 0.0001) RELATIVE PREVIOUS
+  ROTATED (0, 0, 0) RELATIVE PREVIOUS
+*/
+
+END
