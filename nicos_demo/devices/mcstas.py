@@ -33,13 +33,13 @@ from os import path
 from signal import SIGTERM, SIGUSR2
 from subprocess import PIPE
 
-from psutil import Popen, AccessDenied, NoSuchProcess
 import numpy as np
+from psutil import AccessDenied, NoSuchProcess, Popen
 
 from nicos import session
 from nicos.core import ArrayDesc, Param, Value, floatrange, intrange, status, \
     tupleof
-from nicos.core.constants import LIVE, FINAL
+from nicos.core.constants import FINAL, LIVE
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel
 from nicos.utils import createThread
 
