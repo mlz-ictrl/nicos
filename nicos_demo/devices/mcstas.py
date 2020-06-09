@@ -19,10 +19,11 @@
 #
 # Module authors:
 #   Jens Krüger <jens.krueger@frm2.tum.de>
+#   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
 
-"""detector based on McSTAS simulation."""
+"""detector based on McStas simulation."""
 
 from __future__ import absolute_import, division, print_function
 
@@ -32,19 +33,17 @@ from os import path
 from signal import SIGTERM, SIGUSR2
 from subprocess import PIPE
 
+from psutil import Popen, AccessDenied, NoSuchProcess
 import numpy as np
 
 from nicos import session
-from nicos.core import ArrayDesc, Param, Value, floatrange, intrange, status, \
-    tupleof
-from nicos.core.constants import LIVE
-from nicos.core.errors import HardwareError
+from nicos.core import ArrayDesc, Param, Value, intrange, status, tupleof
+from nicos.core.constants import LIVE, FINAL
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel
-from nicos.utils import createSubprocess, createThread
+from nicos.utils import createThread
 
 
 class McStasImage(ImageChannelMixin, PassiveChannel):
-    """Image channel based on McSTAS simulation."""
 
     _mythread = None
 
@@ -62,8 +61,8 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
                            type=str, default='singlecount', settable=False),
         'mcstasfile': Param('Name of the McStas data file',
                             type=str, settable=False),
-        'writedelay': Param('Time to wait after initiating result writing',
-                            settable=False, type=floatrange(0.1), default=0.1),
+        'mcsiminfo': Param('Name for the McStas Siminfo file', settable=False,
+                           type=str, default='mccode.sim'),
     }
 
     def doInit(self, mode):
@@ -74,8 +73,14 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         self.log.debug('quality: %s', quality)
         if quality == LIVE:
             self._send_signal(SIGUSR2)
-        self._readpsd(
-            path.join(self._workdir, self.mcstasdir), quality == LIVE)
+        elif quality == FINAL:
+            if self._mythread and self._mythread.is_alive():
+                self._mythread.join(1.)
+                if self._mythread.is_alive():
+                    self.log.exception("Couldn't join readout thread.")
+                else:
+                    self._mythread = None
+        self._readpsd(quality == LIVE)
         return self._buf
 
     def _prepare_params(self):
@@ -92,7 +97,7 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         self._mcstas_params = ' '.join(self._prepare_params())
         self.log.debug('McStas parameters: %s', self._mcstas_params)
         self._buf = np.zeros(self.size[::-1])
-        self.readresult = [self._buf.sum()]
+        self.readresult = [0]
 
     def valueInfo(self):
         return (Value(self.name + '.sum', unit='cts', type='counter',
@@ -111,10 +116,24 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         self._send_signal(SIGTERM)
 
     def _send_signal(self, sig):
-        if self._process:
+        if self._process and self._process.is_running():
             self._process.send_signal(sig)
-            # Give external process time to write all data to disc(file)
-            session.delay(self.writedelay)
+            # wait for mcstas releasing fds
+            datafile =  path.join(self._workdir, self.mcstasdir,
+                                  self.mcstasfile)
+            siminfo = path.join(self._workdir, self.mcstasdir, self.mcsiminfo)
+            try:
+                while self._process and self._process.is_running():
+                    fnames = [f.path for f in self._process.open_files()]
+                    if siminfo not in fnames and datafile not in fnames:
+                        break
+                    session.delay(.01)
+            except (AccessDenied, NoSuchProcess):
+                self.log.debug(
+                    'McStas process already terminated in _send_signal(%r)',
+                    sig)
+            self.log.debug('McStas process has written file on signal (%r)',
+                           sig)
 
     def _run(self):
         """Run McStas simulation executable.
@@ -122,7 +141,6 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         The current settings of the instrument parameters will be transferred
         to it.
         """
-        os.chdir(self._workdir)
         try:
             shutil.rmtree(self.mcstasdir)
         except (IOError, OSError):
@@ -131,32 +149,36 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
             self.mcstasprog, self.mcstasdir, self._mcstas_params)
         self.log.debug('run %s', command)
         try:
-            self._process = createSubprocess(command.split(), stdout=PIPE,
-                                             stderr=PIPE)
+            self._process = Popen(command.split(), stdout=PIPE, stderr=PIPE,
+                                  cwd=self._workdir)
             out, err = self._process.communicate()
             if out:
-                for line in out.split(b'\n'):
-                    self.log.debug('McStas output: %s', line)
+                self.log.debug('McStas output:')
+                for line in out.splitlines():
+                    self.log.debug('[McStas] %s', line)
             if err:
-                self.log.warning('McStas found some problems: %s', err)
+                self.log.warning('McStas found some problems:')
+                for line in err.splitlines():
+                    self.log.warning('[McStas] %s', line)
         except OSError as e:
             self.log.error('Execution failed: %s', e)
-        os.chdir(self._workdir)
+        self._process.wait()
         self._process = None
 
-    def _readpsd(self, somedir, ignore_error=False):
+    def _readpsd(self, ignore_error=False):
         try:
-            with open(path.join(somedir, self.mcstasfile), 'r') as f:
+            with open(path.join(self._workdir, self.mcstasdir, self.mcstasfile),
+                      'r') as f:
                 lines = f.readlines()[-(self.size[1] + 1):]
             if lines[0].startswith('# Events'):
                 for i, line in enumerate(lines[1:]):
                     items = line.strip('\n').strip(' ').split(' ')
                     if items and items[0] != '#' and i < self.size[1]:
                         self._buf[i] = list(map(int, items))
-            else:
-                raise HardwareError('Did not found start line: %s' % lines[0])
+            elif not ignore_error:
+                raise IOError('Did not find start line: %s' % lines[0])
         except IOError:
             if not ignore_error:
-                self.log.error('Could not read result file')
+                self.log.exception('Could not read result file')
         self._buf = np.around(self._buf)
         self.readresult = [self._buf.sum()]
