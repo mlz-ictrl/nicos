@@ -169,16 +169,12 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         try:
             with open(path.join(self._workdir, self.mcstasdir, self.mcstasfile),
                       'r') as f:
-                lines = f.readlines()[-(self.size[1] + 1):]
-            if lines[0].startswith('# Events'):
-                for i, line in enumerate(lines[1:]):
-                    items = line.strip('\n').strip(' ').split(' ')
-                    if items and items[0] != '#' and i < self.size[1]:
-                        self._buf[i] = list(map(int, items))
+                lines = f.readlines()[-(self.size[0] + 1):]
+            if lines[0].startswith('# Events') and self.mcstasfile in lines[0]:
+                self._buf = np.loadtxt(lines[1:], dtype=np.uint32)
+                self.readresult = [self._buf.sum()]
             elif not ignore_error:
                 raise IOError('Did not find start line: %s' % lines[0])
         except IOError:
             if not ignore_error:
                 self.log.exception('Could not read result file')
-        self._buf = np.around(self._buf)
-        self.readresult = [self._buf.sum()]
