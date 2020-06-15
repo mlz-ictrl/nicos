@@ -57,7 +57,7 @@ class DownTimeTool(DlgUtils, QDialog):
         self.sgroup = SettingGroup(self.toolName)
 
         self._sender = configs.get('sender', 'anonymous@frm2.tum.de')
-        self._receiver = configs.get('receiver', 'f.carsughi@fz-juelich.de')
+        self._receiver = configs.get('receiver', 'useroffice@mlz-garching.de')
         self._mailserver = configs.get('mailserver', '') or \
             self._getDeviceComponent('experiment', 'mailserver', 'smtp.frm2.tum.de')
         self._instrument = configs.get('instrument', '') or \
