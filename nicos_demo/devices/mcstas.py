@@ -37,13 +37,15 @@ from psutil import Popen, AccessDenied, NoSuchProcess
 import numpy as np
 
 from nicos import session
-from nicos.core import ArrayDesc, Param, Value, intrange, status, tupleof
+from nicos.core import ArrayDesc, Param, Value, floatrange, intrange, status, \
+    tupleof
 from nicos.core.constants import LIVE, FINAL
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel
 from nicos.utils import createThread
 
 
 class McStasImage(ImageChannelMixin, PassiveChannel):
+    """Image channel based on McStas simulation."""
 
     _mythread = None
 
@@ -63,6 +65,8 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
                             type=str, settable=False),
         'mcsiminfo': Param('Name for the McStas Siminfo file', settable=False,
                            type=str, default='mccode.sim'),
+        'ci': Param('Constant ci applied to simulated intensity I',
+                    settable=False, type=floatrange(0.), default=1e3)
     }
 
     def doInit(self, mode):
@@ -169,9 +173,11 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         try:
             with open(path.join(self._workdir, self.mcstasdir, self.mcstasfile),
                       'r') as f:
-                lines = f.readlines()[-(self.size[0] + 1):]
-            if lines[0].startswith('# Events') and self.mcstasfile in lines[0]:
-                self._buf = np.loadtxt(lines[1:], dtype=np.uint32)
+                lines = f.readlines()[-3 * (self.size[0] + 1):]
+            if lines[0].startswith('# Data') and self.mcstasfile in lines[0]:
+                self._buf = (np.loadtxt(lines[1:self.size[0] + 1],
+                                        dtype=np.float32) * self.ci).astype(
+                    np.uint32)
                 self.readresult = [self._buf.sum()]
             elif not ignore_error:
                 raise IOError('Did not find start line: %s' % lines[0])
