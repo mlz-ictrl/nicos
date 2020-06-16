@@ -57,11 +57,17 @@ def _getData(columns=None, dataset=None):
     # append data from previous scans if this is a continuation
     i = -1
     xresults = dataset.devvaluelists
+    if not dataset.devices:
+        # Can happen with manualscan
+        xresults = dataset.envvaluelists
     yresults = dataset.detvaluelists
     while dataset.continuation:
         i -= 1
         dataset = dslist[i]
-        xresults = dataset.devvaluelists + xresults
+        if dataset.devices:
+            xresults = dataset.devvaluelists + xresults
+        else:
+            xresults = dataset.envvaluelists + xresults
         yresults = dataset.detvaluelists + yresults
 
     # xcol/ycol are 1-indexed here
@@ -98,7 +104,13 @@ def _getData(columns=None, dataset=None):
     xcol -= 1
     ycol -= 1
 
-    names = [dataset.devvalueinfo[xcol].name, dataset.detvalueinfo[ycol].name]
+    # Another fix to account for manualscan
+    if dataset.devvalueinfo:
+        names = [dataset.devvalueinfo[xcol].name,
+                 dataset.detvalueinfo[ycol].name]
+    else:
+        names = [dataset.envvalueinfo[xcol].name,
+                 dataset.detvalueinfo[ycol].name]
 
     try:
         xs = np.array([p[xcol] for p in xresults])
@@ -200,7 +212,8 @@ def fit(fitclass, *columns, **kwargs):
     for par, err, descr in zip(res._pars[1], res._pars[2], descrs):
         vals.append((descr, '%.5g' % par, '+/- %.5g' % err,
                      '+/- {:.1%}'.format(err / par) if par else '-'))
-    printTable(('parameter', 'value', 'error', 'rel. error'), vals, session.log.info)
+    printTable(('parameter', 'value', 'error', 'rel. error'),
+               vals, session.log.info)
     return CommandLineFitResult((tuple(res._pars[1]), tuple(res._pars[2])))
 
 
@@ -376,8 +389,9 @@ def checkoffset(dev, center, step, numpoints, *args, **kwargs):
     Examples:
 
     >>> checkoffset(omega, 5, 0.1, 10)  # scan and use a Gauss fit
-    >>> checkoffset(omega, 5, 0.1, 10, fit='sigmoid')  # use different fit function
-    """
+    # scan and use different fit function
+     >>> checkoffset(omega, 5, 0.1, 10, fit='sigmoid')
+   """
     minvalue, newcenter, maxvalue = _scanFC(dev, center, step, numpoints,
                                             'offset check',
                                             *args, **kwargs)
