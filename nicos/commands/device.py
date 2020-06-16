@@ -53,7 +53,7 @@ __all__ = [
     'reset', 'set', 'get', 'getall', 'setall', 'info', 'fix', 'release',
     'unfix', 'adjust', 'version', 'history', 'limits', 'resetlimits',
     'reference', 'ListParams', 'ListMethods', 'ListDevices', 'waitfor',
-    'enable', 'disable',
+    'enable', 'disable', 'rmove', 'rmaw',
 ]
 
 
@@ -684,7 +684,8 @@ def info(*devlist):
             continue
         session.log.info(catinfo)
         session.log.info('=' * len(catinfo))
-        printTable(None, sorted(bycategory[catname]), session.log.info, minlen=8)
+        printTable(None, sorted(bycategory[catname]), session.log.info,
+                   minlen=8)
         session.log.info()
 
 
@@ -817,9 +818,11 @@ def version(*devlist):
             dev = session.getDevice(dev, Device)
             versions = dev.version()
             dev.log.info('relevant versions for this device:')
-            printTable(('module/component', 'version'), versions, session.log.info)
+            printTable(('module/component', 'version'), versions,
+                       session.log.info)
     else:
-        session.log.info('NICOS version: %s (rev %s)', nicos_version, nicos_revision)
+        session.log.info('NICOS version: %s (rev %s)', nicos_version,
+                         nicos_revision)
 
 
 @usercommand
@@ -915,17 +918,21 @@ def limits(*devlist):
             continue
         dev.log.info('limits for this device:')
         if isinstance(dev, HasOffset):
-            session.log.info('       absolute limits (physical): %8s --- %8s %s',
-                             dev.format(dev.absmin), dev.format(dev.absmax),
-                             dev.unit)
-            session.log.info('   user limits (including offset): %8s --- %8s %s',
-                             dev.format(dev.usermin), dev.format(dev.usermax),
-                             dev.unit)
-            session.log.info('                current offset: %8s %s',
-                             dev.format(dev.offset), dev.unit)
-            session.log.info('        => user limits (physical): %8s --- %8s %s',
-                             dev.format(dev.usermin + dev.offset),
-                             dev.format(dev.usermax + dev.offset), dev.unit)
+            session.log.info(
+                '       absolute limits (physical): %8s --- %8s %s',
+                dev.format(dev.absmin), dev.format(dev.absmax),
+                dev.unit)
+            session.log.info(
+                '   user limits (including offset): %8s --- %8s %s',
+                dev.format(dev.usermin), dev.format(dev.usermax),
+                dev.unit)
+            session.log.info(
+                '                current offset: %8s %s',
+                dev.format(dev.offset), dev.unit)
+            session.log.info(
+                '        => user limits (physical): %8s --- %8s %s',
+                dev.format(dev.usermin + dev.offset),
+                dev.format(dev.usermax + dev.offset), dev.unit)
         else:
             session.log.info('   absolute limits: %8s --- %8s %s',
                              dev.format(dev.absmin), dev.format(dev.absmax),
@@ -1069,7 +1076,8 @@ def ListMethods(dev):
                 _list(base)
     _list(dev.__class__)
     dev.log.info('Device methods:')
-    printTable(('method', 'from class', 'description'), items, session.log.info)
+    printTable(('method', 'from class', 'description'), items,
+               session.log.info)
 
 
 @usercommand
