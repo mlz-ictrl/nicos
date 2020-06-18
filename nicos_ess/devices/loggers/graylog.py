@@ -27,7 +27,6 @@
 import logging
 import traceback
 
-from nicos.core import ConfigurationError
 from nicos.pycompat import urllib
 
 try:
@@ -55,6 +54,8 @@ except ImportError:
 
 
 def create_graylog_handler(config):
+    from nicos.core import ConfigurationError
+
     if ESSGELFTCPHandler is None:
         return
     if hasattr(config, 'graylog'):

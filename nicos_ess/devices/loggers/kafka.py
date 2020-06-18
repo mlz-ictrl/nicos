@@ -26,11 +26,12 @@
 
 import logging
 
-from nicos.core import ConfigurationError
 from nicos.pycompat import urllib
 
 
 def create_kafka_logging_handler(config):
+    from nicos.core import ConfigurationError
+
     try:
         from kafka_logger.handlers import KafkaLoggingHandler
 
