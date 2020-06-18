@@ -307,7 +307,7 @@ addopts = --junit-xml=pytest-${pyver}.xml
 def runDocTest() {
     verifyresult.put('doc', 0)
     try {
-        refreshVenv()
+        refreshVenv([venv:'$NICOS3VENV'])
         sh './ciscripts/run_doctest.sh'
         archiveArtifacts([allowEmptyArchive: true,
                           artifacts: 'doc/build/latex/NICOS.*'])
@@ -343,7 +343,7 @@ node('dockerhost') {
     stage(name: 'prepare') {
         withCredentials([string(credentialsId: 'RMAPIKEY', variable: 'RMAPIKEY'),
                          string(credentialsId: 'RMSYSKEY', variable: 'RMSYSKEY')]) {
-            docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:xenial').inside(){
+            docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:bionic').inside(){
                 sh  '''\
 #!/bin/bash
 export PYTHONIOENCODING=utf-8
@@ -353,14 +353,12 @@ export PYTHONIOENCODING=utf-8
         } // credentials
     } // stage
 
-u16 = docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:xenial')
-u16tango9 = docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:xenialtango9')
-u14 = docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:trusty')
+u18 = docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:bionic')
 
 try {
     parallel pylint: {
         stage(name: 'pylint-py2') {
-            u16.inside('-v /home/git:/home/git') {
+            u18.inside('-v /home/git:/home/git') {
                     runPylint('py2', '$NICOSVENV')
             }
         } // stage
@@ -369,7 +367,7 @@ try {
         when ( true ) {
                 ws {
                     checkoutSource()
-                    u16tango9.inside('-v /home/git:/home/git') {
+                    u18.inside('-v /home/git:/home/git') {
                         runPylint('py3', '$NICOS3VENV')
                     }
                 } //ws
@@ -377,13 +375,13 @@ try {
         } // stage
     }, isort: {
         stage(name: 'isort') {
-            u16.inside('-v /home/git:/home/git') {
+            u18.inside('-v /home/git:/home/git') {
                     runIsort()
             }
         } //stage
     }, setup_check: {
         stage(name: 'Nicos Setup check') {
-            u16.inside('-v /home/git:/home/git') {
+            u18.inside('-v /home/git:/home/git') {
                     timeout(5) {
                         runSetupcheck()
                     }
@@ -398,7 +396,7 @@ try {
                     sleep(time:10, unit: 'SECONDS')  // needed to allow kafka to start
                     sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1"
                     sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers-history --zookeeper localhost --partitions 1 --replication-factor 1"
-                    u14.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092  --link ${kafka.id}:kafka") {
+                    u18.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092  --link ${kafka.id}:kafka") {
                         runTests( '$NICOSVENV', 'python2', GERRIT_EVENT_TYPE == 'change-merged')
                     } // image.inside
                 } // image.WithRun
@@ -424,7 +422,7 @@ try {
                     sleep(time:10, unit: 'SECONDS')  // needed to allow kafka to start
                     sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1"
                     sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers-history --zookeeper localhost --partitions 1 --replication-factor 1"
-                        u16tango9.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 --link ${kafka.id}:kafka") {
+                        u18.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 --link ${kafka.id}:kafka") {
                         runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
                     } // image.inside
                 } // image.WithRun
