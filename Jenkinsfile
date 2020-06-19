@@ -307,7 +307,7 @@ addopts = --junit-xml=pytest-${pyver}.xml
 def runDocTest() {
     verifyresult.put('doc', 0)
     try {
-        refreshVenv([venv:'$NICOS3VENV'])
+        refreshVenv('','$NICOS3VENV')
         sh './ciscripts/run_doctest.sh'
         archiveArtifacts([allowEmptyArchive: true,
                           artifacts: 'doc/build/latex/NICOS.*'])
