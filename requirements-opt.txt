@@ -1,6 +1,7 @@
 --extra-index-url https://forge.frm2.tum.de/simple
 pyserial>=2.5
-astropy>=2.0,<3.0
+astropy>=4;python_version>='3.6'
+astropy>=2.0,<3.0;python_version<'3.0'
 pyepics>=3.2.4
 nicos-quickyaml>=1.1.0
 docutils>=0.12
