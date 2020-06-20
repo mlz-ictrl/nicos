@@ -16,7 +16,7 @@ devices = dict(
         tangodevice = tango_base + 'detector/limaccd',
     ),
     det = device('nicos.devices.generic.Detector',
-        description = 'The Andor Neo sCMOS camera detector',
+        description = 'The Andor Neo sCMOS camera detector image',
         images = ['ccd'],
         timers = ['timer'],
     ),
@@ -46,6 +46,16 @@ devices = dict(
         unit = 'degC',
         precision = 3,
         fmtstr = '%.0f',
+    ),
+    sharpness = device('nicos_mlz.antares.devices.detector.Sharpness',
+        description = 'Sharpness signal from the detector image'
+    ),
+    det_sharp = device('nicos.devices.generic.Detector',
+        description = 'The Andor Ikon L camera detector with sharpness signal',
+        images = ['ccd'],
+        timers = ['timer'],
+        counters = ['sharpness'],
+        postprocess = [('sharpness', 'ccd')],
     ),
 )
 
