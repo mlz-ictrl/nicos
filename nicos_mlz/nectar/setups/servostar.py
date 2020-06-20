@@ -1,30 +1,30 @@
 description = 'Sample manipulation stage using servostar controller'
 group = 'optional'
 
-nethost = 'nectarsrv.nectar.frm2'
+tango_base = 'tango://nectarhw.nectar.frm2.tum.de:10000/nectar'
 
 devices = dict(
-    stx = device('nicos_mlz.antares.devices.servostar.ServoStarMotor',
+    stx = device('nicos.devices.tango.Motor',
         description = 'Sample Translation X',
-        tacodevice = '//%s/nectar/mani/x' % nethost,
+        tangodevice = tango_base + '/mani/x',
         pollinterval = 5,
         maxage = 12,
         userlimits = (0, 1010),
         abslimits = (0, 1010),
         comtries = 5,
     ),
-    sty = device('nicos_mlz.antares.devices.servostar.ServoStarMotor',
+    sty = device('nicos.devices.tango.Motor',
         description = 'Sample Translation Y',
-        tacodevice = '//%s/nectar/mani/y' % nethost,
+        tangodevice = tango_base + '/mani/y',
         pollinterval = 5,
         maxage = 12,
         userlimits = (0, 580),
         abslimits = (0, 580),
         comtries = 5,
     ),
-    sry = device('nicos_mlz.antares.devices.servostar.ServoStarMotor',
+    sry = device('nicos.devices.tango.Motor',
         description = 'Sample Rotation around Y',
-        tacodevice = '//%s/nectar/mani/phi' % nethost,
+        tangodevice = tango_base + '/mani/phi',
         pollinterval = 5,
         maxage = 12,
         userlimits = (0, 360),
