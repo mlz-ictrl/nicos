@@ -70,7 +70,8 @@ class Scan(object):
         if not detlist:
             session.log.warning('scanning without detector, use SetDetectors()'
                                 ' to select which detector(s) you want to use')
-        # check preset names for validity (XXX duplication with count() command!)
+        # check preset names for validity
+        # (XXX duplication with count() command!)
         elif preset:
             names = set(preset)
             for det in detlist:
@@ -86,7 +87,8 @@ class Scan(object):
         else:
             allenvlist = session.experiment.sampleenv
             if envlist is not None:
-                allenvlist.extend(dev for dev in envlist if dev not in allenvlist)
+                allenvlist.extend(dev for dev in envlist
+                                  if dev not in allenvlist)
         self._firstmoves = firstmoves
         # convert multistep to device positions
         self._mscount = 1
@@ -204,7 +206,8 @@ class Scan(object):
             from nicos.core.data import ScanData
             session.elogEvent('scanend', ScanData(self.dataset))
         except Exception:
-            session.log.debug('could not add scan to electronic logbook', exc=1)
+            session.log.debug('could not add scan to electronic logbook',
+                              exc=1)
         session.breakpoint(1)
 
     def handleError(self, what, err):
@@ -682,7 +685,8 @@ class ManualScan(Scan):
         envlist.extend(dev for dev in session.experiment.sampleenv
                        if dev not in envlist)
         Scan.__init__(self, [], Repeater([]), Repeater([]), firstmoves,
-                      None, detlist, envlist, preset, scaninfo, subscan, xindex)
+                      None, detlist, envlist, preset, scaninfo,
+                      subscan, xindex)
         self._envlist = envlist
         self._multistep = multistep
         if multistep:
@@ -715,10 +719,12 @@ class ManualScan(Scan):
     def _step_inner(self, preset):
         dataman = session.experiment.data
         preset = preset or self._preset
+        self.dataset.preset = preset
         self._curpoint += 1
         self.preparePoint(self._curpoint, [])
         try:
             point = dataman.beginPoint()
+            point.preset = preset
             actualpos = self.readPosition()
             dataman.putValues(actualpos)
             try:

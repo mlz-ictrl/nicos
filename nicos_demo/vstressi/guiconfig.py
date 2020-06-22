@@ -38,11 +38,6 @@ windows = [
 
 tools = [
     tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
-# If not at the FRM II facility you have to change this reporting address
-         receiver='f.carsughi@fz-juelich.de',
-# If you are not at the FRM II facility you have to change your mail server
-         mailserver='smtp.frm2.tum.de',
-# Please change the sender address to a valid, instrument specific address
          sender='stressi@frm2.tum.de',
         ),
     tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),

@@ -11,7 +11,6 @@
 
 .. automodule:: nicos_mlz.devices.ccr
 .. autoclass:: CCRControl()
-.. autoclass:: CompressorSwitch()
 .. autoclass:: PLCLimits()
 
 .. automodule:: nicos_mlz.devices.amagnet

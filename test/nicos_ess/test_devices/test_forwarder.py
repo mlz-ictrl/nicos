@@ -33,6 +33,7 @@ from string import ascii_lowercase
 import pytest
 
 pytest.importorskip('kafka')
+pytest.importorskip('graypy')
 
 from nicos.core import status
 from nicos.pycompat import from_utf8

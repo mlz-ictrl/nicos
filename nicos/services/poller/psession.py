@@ -79,6 +79,12 @@ class PollerSession(NoninteractiveSession):
     cache_class = PollerCacheClient
     sessiontype = POLLER
 
+    @classmethod
+    def _notify_systemd(cls, appname, msg):
+        # can only notify systemd from the main poller process
+        if appname == 'poller':
+            NoninteractiveSession._notify_systemd(appname, msg)
+
     # pylint: disable=W0102
     def getDevice(self, dev, cls=None, source=None,
                   replace_classes=[(DeviceAlias, PollerCacheReader, {})]):

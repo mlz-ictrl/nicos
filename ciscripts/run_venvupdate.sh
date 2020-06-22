@@ -12,11 +12,6 @@ if [ -f /etc/system-release-cpe ] ; then
 fi
 
 
-echo "==== Developer dependencies ======"
-pip install -r requirements-dev.txt 2>&1  > pip-dev-$venv-$pbranch.log
-cat pip-dev-$venv-$pbranch.log
-echo
-
 echo "==== NICOS core dependencies ======"
 pip install -r requirements.txt 2>&1 > pip-core-$venv-$pbranch.log
 cat pip-core-$venv-$pbranch.log
@@ -39,3 +34,10 @@ for custreq in $allcustreq ; do
 done
 cat pip-custom-$venv-$pbranch.log
 echo "=========="
+
+echo "==== Developer dependencies ======"
+# install this last to override pytest from astropy which is too old
+pip install -r requirements-dev.txt 2>&1  > pip-dev-$venv-$pbranch.log
+cat pip-dev-$venv-$pbranch.log
+echo
+

@@ -34,6 +34,7 @@ import numpy
 import pytest
 
 pytest.importorskip('kafka')
+pytest.importorskip('graypy')
 
 from nicos_ess.devices.fbschemas.hs00 import Array, EventHistogram
 from nicos_ess.devices.kafka.area_detector import \

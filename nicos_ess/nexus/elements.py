@@ -118,8 +118,8 @@ class NXDataset(NexusElementBase):
             if isinstance(self.value, list) and self.value:
                 if isinstance(self.value[0], int):
                     self.dtype = "int32"
-                elif isinstance(self.value[0], long):
-                    self.dtype = "int64"
+                    if self.value[0].bit_length > 32:
+                        self.dtype = "int64"
                 elif isinstance(self.value[0], float):
                     self.dtype = "double"
                 elif isinstance(self.value[0], string_types):
@@ -272,6 +272,57 @@ class KafkaStream(NexusElementBase):
 
             stream_dict["attributes"] = attr_dict
         return [stream_dict]
+
+
+class CacheStream(DeviceValuePlaceholder, KafkaStream):
+    """Streams NICOS cache data"""
+
+    def __init__(self, device, dtype, separate_log=False,
+                 parameter='value', **attr):
+        KafkaStream.__init__(self, **attr)
+        DeviceValuePlaceholder.__init__(self, device, parameter)
+        self.set('type', dtype)
+        self.set('writer_module', 'ns10')
+        self.separate_log = separate_log
+
+    def structure(self, name, metainfo):
+        try:
+            nx = session.getDevice('NexusDataSink')
+        except ConfigurationError:
+            session.log.warning("NexusDataSink not found!! Can't track device "
+                                "%s..", self.device)
+            return
+        self.set('broker', nx.brokers[0])
+        self.set('topic', nx.cachetopic)
+        key = 'nicos/' + self.device + '/' + self.parameter
+        self.set('source', key)
+
+        # Add the attributes
+        self.stream_attrs["nicos_name"] = NXAttribute(self.device)
+        self.stream_attrs["nicos_param"] = NXAttribute(self.parameter)
+        self.stream_attrs["source_name"] = NXAttribute(key)
+
+        info = self.fetch_info(metainfo)
+        if info:
+            self.stream_attrs["units"] = NXAttribute(info[2])
+
+        if self.separate_log:
+            self.store_latest_into(name)
+            gname = name + '_log'
+        else:
+            gname = name
+
+        group_dict = NXGroup('NXlog').structure(gname, metainfo)[0]
+        stream_dicts = KafkaStream.structure(self, name, metainfo)
+        group_dict["children"] += stream_dicts
+
+        struct = [group_dict]
+
+        if self.separate_log:
+            link = NXLink(gname + '/' + name).structure(name, metainfo)
+            struct += link
+
+        return struct
 
 
 class DeviceStream(DeviceValuePlaceholder, KafkaStream):

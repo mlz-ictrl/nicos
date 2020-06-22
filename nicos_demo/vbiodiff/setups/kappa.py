@@ -1,0 +1,40 @@
+# -*- coding: utf-8 -*-
+
+description = 'Mini-kappa axes setup'
+group = 'lowlevel'
+
+devices = dict(
+    kappa_minikappa = device('nicos.devices.generic.VirtualMotor',
+        description = 'Mini-kappa kappa axis',
+        abslimits = (-360, 390),
+        speed = 10,
+        unit = 'deg',
+        precision = 0.01,
+    ),
+    phi_minikappa = device('nicos.devices.generic.VirtualMotor',
+        description = 'Mini-kappa phi axis',
+        abslimits = (-10, 390),
+        speed = 10,
+        unit = 'deg',
+        precision = 0.01,
+    ),
+    omega_minikappa = device('nicos.devices.generic.VirtualMotor',
+        description = 'Mini-kappa omega axis',
+        abslimits = (-800, 800),
+        speed = 10,
+        unit = 'deg',
+        precision = 0.01,
+    ),
+    omega_minikappa_m = device('nicos_mlz.biodiff.devices.motor.MicrostepMotor',
+        description = 'Mini-kappa omega axis (micro)',
+        motor = 'omega_minikappa',
+        abslimits = (-390, 390),
+        precision = 0.001,
+    ),
+    omega_minikappa_cod = device('nicos.devices.generic.VirtualCoder',
+        description = 'Mini-kappa omega encoder (23 bit)',
+        motor = 'omega_minikappa',
+        fmtstr = '%.3f',
+        unit = 'deg',
+    ),
+)

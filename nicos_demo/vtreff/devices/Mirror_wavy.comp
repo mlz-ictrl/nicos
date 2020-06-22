@@ -1,0 +1,175 @@
+/*******************************************************************************
+*
+* McStas, neutron ray-tracing package
+*         Copyright 1997-2002, All rights reserved
+*         Risoe National Laboratory, Roskilde, Denmark
+*         Institut Laue Langevin, Grenoble, France
+*
+* Component: Mirror_wavy
+*
+* %I
+* Written by: Peter Link, using parts of Guide_wavy and Mirror
+* Origin: FRM II
+*
+* Mirror on absorbing substrate with gaussian waviness.
+* used for educational purpose
+*
+* %D
+* Models a typical supermirror sample centered on the Z axis. The front face lies
+* in the X-Y plane.
+* For details on the geometry calculation see the description in the McStas
+* reference manual.
+*
+* Example: m=2 Qc=0.0218 (nat. Ni) W=1/300 alpha=4.38 R0=0.995 (given by Daniel Clemens, PSI)
+*
+* %BUGS
+* This component does not work with gravitation on.
+*
+* %P
+* INPUT PARAMETERS:
+*
+* xwidth:  [m]         Width
+* yheight: [m]         Height
+* zlength: [m]         Length
+* R0:      [1]         Low-angle reflectivity
+* Qc:      [AA-1]      Critical scattering vector
+* alpha:   [AA]        Slope of reflectivity
+* m:       [1]         m-value of material. Zero means completely absorbing.
+* W:       [AA-1]      Width of supermirror cut-off for all mirrors
+*
+* wavy_z:  [deg]       Waviness in the z-(flight-)direction
+* wavy_y:  [deg]       Waviness in the transverse direction
+*
+* %E
+******************************************************************************/
+
+DEFINE COMPONENT Mirror_wavy
+DEFINITION PARAMETERS ()
+SETTING PARAMETERS (string reflect=0, zlength,yheight,xwidth,
+  R0=0.995, Qc=0.0218, alpha=0, m=0, W=0,
+  wavy_z=0, wavy_y=0)
+OUTPUT PARAMETERS (whalf, hhalf, eta_z, eta_y)
+/* Neutron parameters: (x,y,z,vx,vy,vz,t,sx,sy,sz,p) */
+SHARE
+%{
+%include "read_table-lib"
+%include "ref-lib"
+%}
+
+DECLARE
+%{
+double whalf,hhalf, lwhalf, lhhalf, norm_nv, norm_nh, f_h, f_v, eta_z, eta_y;
+t_Table pTable;
+%}
+
+INITIALIZE
+%{
+  if (reflect && strlen(reflect) && strcmp(reflect,"NULL") && strcmp(reflect,"0")) {
+      if (Table_Read(&pTable, reflect, 1) <= 0) /* read 1st block data from file into pTable */
+      exit(fprintf(stderr,"Mirror: %s: can not read file %s\n", NAME_CURRENT_COMP, reflect));
+      }
+  whalf = 0.5*xwidth, hhalf = 0.5*yheight;  // convert from mm to m
+  // lwhalf = l*whalf, lhhalf = l*hhalf;
+  norm_nv = zlength;
+  norm_nh = zlength;
+  eta_z = wavy_z/(sqrt(8*log(2)));   /* Convert from FWHM to Gaussian sigma */
+  eta_y = wavy_y/(sqrt(8*log(2)));
+
+  if (mcgravitation) fprintf(stderr,"WARNING: Guide_wavy: %s: "
+    "This component produces wrong results with gravitation !\n"
+    "Use Guide_gravity.\n",
+    NAME_CURRENT_COMP);
+%}
+
+TRACE
+%{
+  double dt,t_min,t_tmp,t0,t1;                     /* Intersection times. */
+  double av,ah,bv,bh,cv1,cv2,ch1,ch2,d;         /* Intermediate values */
+  double vdotn;
+  double d_y, d_z;                             /* Random angles */
+  int i;                                        /* Which mirror hit? */
+  double q;                                     /* Q [1/AA] of reflection */
+  double xp,yp,zp;
+  double dvx, dvy, dvz;                         /* Velocity change */
+  double vlen2,nlen2, norm_n2;                  /* Vector lengths squared */
+  double nperp,pz,nxy;                          /* for dot products */
+  double R;                                     /* Reflectivity */
+  char intersect = 0;
+
+  /* Propagate neutron to mirror front face */
+  PROP_Z0;
+  /* Scatter here to ensure that fully transmitted neutrons will not be
+     absorbed in a GROUP construction, e.g. all neutrons - even the
+     later absorbed ones are scattered at the guide entry. */
+  SCATTER;
+  // absorb if it hits the front face
+  if ((x >= -whalf) && (x <= whalf) && (y >= -hhalf) && (y <= hhalf))
+    ABSORB;
+
+  if ((x> whalf) && (vx <0)){
+    // min. condition to have a reflexion
+    /* Compute the dot product of v and n for the mirror */
+    vdotn = zlength*vx;         /* Right vertical */
+    /* Compute the dot products of (O - r) and n as c1+c2 and c1-c2 */
+    // cv1 = -whalf*zlength; cv2 = x*zlength;
+    /* Compute intersection time */
+    dt = (whalf-x)/vx; // time to hit mirror plane
+    yp = y+ vy * dt;
+    zp = z+ vz * dt;
+    intersect = (yp >= -yheight/2.0 && yp <= yheight/2.0 && zp >= 0 && zp <= zlength );
+    if(intersect) {   // it definitely hits the mirror
+      PROP_DT(dt);
+      /******** handle waviness ********* */
+      d_z=DEG2RAD*eta_z*randnorm();
+      d_y=DEG2RAD*eta_y*randnorm();
+      /* Now the normal vector is rotated to 1st order in waviness the rotation matrix for
+      the vertical mirror is:
+      {  1     d_y      d_z      }
+      { -d_y     1        0      }
+      {  d_z     0        1      }
+      the vertical normal vector is  { l,  0,  0 }
+      giving the rotated normal vector  { l,  - l d_y,  l d_z }
+      */
+      norm_n2 = zlength*zlength * (1 + d_y*d_y + d_z*d_z);
+      // Square of length of n vector
+      vdotn = vx*(zlength)+ vy*(zlength*d_y)+ vz*(zlength*d_z);
+      q = 2 * V2Q * fabs(vdotn) / sqrt(norm_n2);
+      dvx = -2 * zlength * vdotn / norm_n2;
+      dvy = -2 * zlength * d_y * vdotn / norm_n2;
+      dvz = -2 * zlength * d_z * vdotn / norm_n2;
+
+      /* Now compute reflectivity. */
+      if (reflect && strlen(reflect) && strcmp(reflect,"NULL") && strcmp(reflect,"0"))
+        TableReflecFunc(q, &pTable, &R);
+      else {
+        double par[] = {R0, Qc, alpha, m, W};
+        StdReflecFunc(q, par, &R);}
+
+
+
+      // double par[] = {R0, Qc, alpha, m, W};
+      // StdReflecFunc(q, par, &R);
+      if (R <= 0) ABSORB;
+      p *= R;
+      vx += dvx;
+      vy += dvy;
+      vz += dvz;
+      SCATTER;
+      }
+    if (!intersect){   // lets look if something else may happen
+      if (box_intersect(&t0, &t1, x,y,z, vx,vy,vz,xwidth,yheight,zlength)) {
+       PROP_DT((t1+t0)/2);
+       SCATTER;
+       ABSORB;}
+       }
+    }
+%}
+
+MCDISPLAY
+%{
+  box(0,0,zlength/2.0, xwidth, yheight, zlength);
+  rectangle("yz", xwidth/2.1, 0, zlength/2.0, zlength, yheight);
+%}
+
+END
+

@@ -53,6 +53,10 @@ class NoninteractiveSession(Session):
         pass
 
     @classmethod
+    def _notify_systemd(cls, appname, msg):
+        systemd.daemon.notify(msg)
+
+    @classmethod
     def _get_maindev(cls, appname, maindevname, setupname):
         session.loadSetup(setupname or appname, allow_special=True,
                           raise_failed=True, autoload_system=False)
@@ -62,7 +66,7 @@ class NoninteractiveSession(Session):
     def run(cls, appname, maindevname=None, setupname=None, pidfile=True,
             daemon=False, start_args=None):
         if daemon == 'systemd':
-            systemd.daemon.notify("STATUS=initializing session")
+            cls._notify_systemd(appname, "STATUS=initializing session")
         elif daemon:
             daemonize()
         else:
@@ -102,13 +106,13 @@ class NoninteractiveSession(Session):
             return 1
 
         if daemon == 'systemd':
-            systemd.daemon.notify("STATUS=starting main device")
+            cls._notify_systemd(appname, "STATUS=starting main device")
 
         start_args = start_args or ()
         maindev.start(*start_args)
 
         if daemon == 'systemd':
-            systemd.daemon.notify("READY=1\nSTATUS=running")
+            cls._notify_systemd(appname, "READY=1\nSTATUS=running")
 
         maindev.wait()
 

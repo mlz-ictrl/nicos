@@ -78,8 +78,6 @@ tools = [
     tool('Report NICOS bug or request enhancement',
          'nicos.clients.gui.tools.bugreport.BugreportTool'),
     tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
-         receiver='f.carsughi@fz-juelich.de',
-         mailserver='smtp.frm2.tum.de',
          sender='kws1@frm2.tum.de'),
     # unfortunately doesn't work in the QWebView
     #tool('Webcam', 'nicos.clients.gui.tools.website.WebsiteTool',

@@ -18,6 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
+#   Mark Koennecke <mark.koennecke@psi.ch>
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
@@ -28,6 +29,8 @@ from __future__ import absolute_import, division, print_function
 
 import socket
 from os import path
+
+from nicos_sinq.devices.loggers.mongo import create_mongo_handler
 
 
 def determine_instrument(setup_package_path):
@@ -40,3 +43,16 @@ def determine_instrument(setup_package_path):
         # ... but only if a subdir exists for it
         if path.isdir(path.join(setup_package_path, domain)):
             return domain.replace('/', '.')
+
+
+def get_log_handlers(config):
+    """
+    :param config: configuration dictionary
+    :return: a list containing one or both of:
+        - KafkaLoggingHandler if 'kafka_logger' in options
+        - GELFTCPHandler if 'graylog' in options
+        or [] if none is present
+    """
+
+    handler = create_mongo_handler(config)
+    return [handler] if handler else []

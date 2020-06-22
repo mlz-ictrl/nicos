@@ -1,3 +1,5 @@
-kafka-python
-flatbuffers
+kafka-python>=1.4.6
+flatbuffers>=1.12
 ess-streaming-data-types==0.4.1
+graypy
+kafka-logging-handler

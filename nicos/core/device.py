@@ -924,6 +924,37 @@ class Device(object):
         except CacheLockError:
             raise CommunicationError(self, 'device locked by other instance')
 
+    def _pollParam(self, name, with_ttl=0):
+        """Read a parameter from the hardware and put its value into the cache.
+
+        This is intendend to be used from :meth:`doPoll` methods, so that they
+        don't have to implement parameter polling themselves.  For readable
+        devices, if *with_ttl* is > 0, the cached value gets the TTL of the
+        device value, determined by :attr:`maxage`, multiplied by *with_ttl*.
+        """
+        value = getattr(self, 'doRead' + name.title())()
+        if with_ttl:
+            self._cache.put(self, name, value, currenttime(),
+                            getattr(self, 'maxage', 0) * with_ttl)
+        else:
+            self._cache.put(self, name, value)
+
+    def pollParams(self, volatile_only=True, blocking=False, with_ttl=0,
+                   param_list=None):
+        """Poll all parameters (normally only volatile ones)."""
+        if param_list is None:
+            param_list = list(self.parameters)
+        param_list = [param for param in param_list if
+                      self.parameters[param].volatile or
+                      (not volatile_only and
+                       hasattr(self, 'doRead' + param.title()))]
+        if blocking:
+            for param in param_list:
+                self._pollParam(param, with_ttl)
+        else:
+            self._cache.put_raw('poller/%s/pollparams' % self.name, param_list,
+                                flag=FLAG_NO_STORE)
+
 
 class Readable(Device):
     """
@@ -1173,36 +1204,6 @@ class Readable(Device):
         # self._cache.invalidate(self, 'value')
         # self._cache.invalidate(self, 'status')
         return self.status(maxage), self.read(maxage)
-
-    def _pollParam(self, name, with_ttl=0):
-        """Read a parameter value from the hardware and put its value into the
-        cache.  This is intendend to be used from :meth:`doPoll` methods, so
-        that they don't have to implement parameter polling themselves.  If
-        *with_ttl* is > 0, the cached value gets the TTL of the device value,
-        determined by :attr:`maxage`, multiplied by *with_ttl*.
-        """
-        value = getattr(self, 'doRead' + name.title())()
-        if with_ttl:
-            self._cache.put(self, name, value, currenttime(),
-                            (self.maxage or 0) * with_ttl)
-        else:
-            self._cache.put(self, name, value)
-
-    def pollParams(self, volatile_only=True, blocking=False, with_ttl=0,
-                   param_list=None):
-        """Poll all parameters (normally only volatile ones)."""
-        if param_list is None:
-            param_list = list(self.parameters)
-        param_list = [param for param in param_list if
-                      self.parameters[param].volatile or
-                      (not volatile_only and
-                       hasattr(self, 'doRead' + param.title()))]
-        if blocking:
-            for param in param_list:
-                self._pollParam(param, with_ttl)
-        else:
-            self._cache.put_raw('poller/%s/pollparams' % self.name, param_list,
-                                flag=FLAG_NO_STORE)
 
     @usermethod
     def reset(self):

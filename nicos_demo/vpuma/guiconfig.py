@@ -64,8 +64,6 @@ windows = [
 
 tools = [
     tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
-         receiver='f.carsughi@fz-juelich.de',
-         mailserver='smtp.frm2.tum.de',
          sender='puma@frm2.tum.de',
     ),
     tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),

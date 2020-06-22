@@ -10,7 +10,7 @@ includes = [
     'sampletable',
     'shutter',
     'slits',
-    # 'guidehall',
-    # 'nl5',
-    # 'reactor',
+    'guidehall',
+    'nl5',
+    'reactor',
 ]

@@ -1,0 +1,218 @@
+DEFINE INSTRUMENT
+NL1_020307_SDsource(Lam=2.68,dLam=0.05,cell_a=80.0, cell_b=80.0, cell_c=80.0, SLIT_S1=5, SLIT_S2=3, omega=0.0, REP=1000)
+
+/* A template BioDIff simulation for McStas. A. Ostermann; June 2017 
+ * input parameters : 
+ *                     Lam: central wavelength
+ *                    dLam: +/- delta lambda
+ *                   FREQ : frequency of selector
+ * Comments: 
+ * building : 
+ * execute  : 
+ *
+ * Monochromator reflectivity for 4.770A = 0.86
+ *                                2.385A = 0.70
+ *                                1.590A = 0.60
+ * SLIT_SEL_01: Slit (quadratisch) before selector in (mm)
+ * SLIT_SEL_02: Slit (quadratisch) after selector in (mm)
+ * SLIT_S1: first sample slit (mm, diameter)   NOT ACTIVE AT THE MOMENT
+ * SLIT_S1: second sample slit (mm, diameter)  NOT ACTIVE AT THE MOMENT
+ *         
+ */ 
+
+
+DECLARE
+%{
+ double MINLam;
+ double MAXLam;
+ double LLmin;
+ double LLmax;
+ double theta;
+ double M_slit_01_x;
+ double M_slit_01_y;
+ double M_slit_02_x;
+ double M_slit_02_y;
+ double dist_MS, dist;
+ double selFreq;
+ double Mzwidth, Myheight, MOSM, refM;
+ double MASKE_B1, SLIT_VD1, SLIT_VD2, SLIT_SD1, SLIT_SD2;
+
+%}
+INITIALIZE
+%{
+ MINLam = Lam - dLam;
+ MAXLam = Lam + dLam;
+ LLmin = MINLam;
+ LLmax = MAXLam;
+ Mzwidth = 0.075;
+ Myheight = 0.025;
+ MOSM = 30;
+ refM = 0.748;
+ theta = asin(Lam/(2.0*3.355))*RAD2DEG;
+ selFreq = 3956.06/(Lam*(360/(19.7))*0.250); 
+ MASKE_B1 = 0.020;
+ SLIT_VD1 = 0.032;
+ SLIT_VD2 = 0.0059;
+ SLIT_SD1 = 0.004;
+ SLIT_SD2 = 0.004;
+ dist = 1.450;
+ dist_MS = dist - 1.450;
+
+/*****************************************************/
+/*****************************************************/
+
+/* Print some values to standard out for checking */
+ printf("Simulation : on %s\n",getenv("HOSTNAME"));
+ printf("Lambda                         = %f\n", Lam);
+ printf("Lambda delta (+/-)             = %f\n", dLam);
+ printf("Lambda min                     = %f\n", MINLam);
+ printf("Lambda max                     = %f\n", MAXLam);
+ printf("2Theta                         = %f\n", (2*theta));
+%}
+TRACE
+
+
+/*********************************  Cold source  *****************************************/
+
+COMPONENT a1 = Arm()
+  AT (0,0,0) ABSOLUTE
+/* center of cold source */
+
+
+COMPONENT ColdSource = Source_gen(
+   radius = 0.015,
+   focus_aw = 1.5, focus_ah = 1.5,
+   lambda0 = Lam, dlambda = dLam)
+  AT (0,0,0.176)  RELATIVE a1
+  ROTATED (0,0,0) RELATIVE a1
+
+
+
+COMPONENT Arm_dist = Arm()
+  AT (0,0,0.001)   RELATIVE ColdSource
+  ROTATED (0,0,0)  RELATIVE ColdSource
+
+
+
+/*
+COMPONENT PSD_before_NIP_slit = PSD_monitor(xmin=-0.025, xmax=0.025, ymin=-0.025, ymax=0.025,
+                                            nx=50, ny=50, filename="PSD_before_NIP_slit.psd")
+  AT (0,0,0.0001) RELATIVE Arm_dist
+  ROTATED (0,0,0) RELATIVE Arm_dist
+*/
+
+
+
+
+
+/********************************* NIP slits ********************************************/
+COMPONENT Arm_NIP_slits = Arm()
+  AT (0,0,0.0150) RELATIVE Arm_dist
+  ROTATED (0,0,0) RELATIVE Arm_dist
+
+
+COMPONENT NIP_slit_01  = Slit(radius=SLIT_VD1/2)
+  AT (0,0,0.0001) RELATIVE Arm_NIP_slits
+  ROTATED (0,0,0) RELATIVE Arm_NIP_slits
+COMPONENT NIP_slit_01b = Slit(radius=SLIT_VD2/2)
+  AT (0,0,0.0530) RELATIVE Arm_NIP_slits
+  ROTATED (0,0,0) RELATIVE Arm_NIP_slits
+
+
+
+COMPONENT NIP_slit_02  = Slit(radius=SLIT_SD1/2)
+  AT (0,0,0.1350) RELATIVE Arm_NIP_slits
+  ROTATED (0,0,0) RELATIVE Arm_NIP_slits
+COMPONENT NIP_slit_02b = Slit(radius=SLIT_SD1/2)
+  AT (0,0,0.1870) RELATIVE Arm_NIP_slits
+  ROTATED (0,0,0) RELATIVE Arm_NIP_slits
+
+
+
+COMPONENT NIP_slit_03  = Slit(radius=SLIT_SD2/2)
+  AT (0,0,0.1871) RELATIVE Arm_NIP_slits
+  ROTATED (0,0,0) RELATIVE Arm_NIP_slits
+COMPONENT NIP_slit_03b = Slit(radius=SLIT_SD2/2)
+  AT (0,0,0.2390) RELATIVE Arm_NIP_slits
+  ROTATED (0,0,0) RELATIVE Arm_NIP_slits
+
+
+
+COMPONENT Arm_Kolli_end = Arm()
+  AT (0,0,0.2640) RELATIVE Arm_NIP_slits
+  ROTATED (0,0,0) RELATIVE Arm_NIP_slits
+
+
+
+COMPONENT sample_slit_01  = Slit(radius=SLIT_S1/2000)
+  AT (0,0,0.418)  RELATIVE Arm_dist
+  ROTATED (0,0,0) RELATIVE Arm_dist
+COMPONENT sample_slit_01b = Slit(radius=SLIT_S2/2000)
+  AT (0,0,0.500)  RELATIVE Arm_dist
+  ROTATED (0,0,0) RELATIVE Arm_dist
+
+
+/*
+COMPONENT PSD_after_kolli = PSD_monitor(xmin=-0.003, xmax=0.003, ymin=-0.003, ymax=0.003,
+                                        nx=50, ny=50, filename="PSD_after_kolli.psd")
+  AT (0,0,0.0001) RELATIVE sample_slit_01b
+  ROTATED (0,0,0) RELATIVE sample_slit_01b
+*/
+
+/*
+COMPONENT Hdiv_after_kolli = Monitor_nD(xmin=-0.035, xmax=0.035,
+                                            ymin=-0.035, ymax=0.035,
+                                            filename="hdiv_after_kolli.dat",
+                                            options= "hdiv bins=75 limits[-1.0 1.0]")
+  AT (0,0,0.0002) RELATIVE sample_slit_01b
+  ROTATED (0,0,0) RELATIVE sample_slit_01b
+
+COMPONENT Vdiv_after_kolli = Monitor_nD(xmin=-0.035, xmax=0.035,
+                                            ymin=-0.035, ymax=0.035,
+                                            filename="vdiv_after_kolli.dat",
+                                            options= "vdiv bins=75 limits[-1.0 1.0]")
+  AT (0,0,0.0003) RELATIVE sample_slit_01b
+  ROTATED (0,0,0) RELATIVE sample_slit_01b
+*/
+
+
+
+COMPONENT Arm_SAM_pos = Arm()
+  AT (0,0,0.5100) RELATIVE Arm_dist
+  ROTATED (0,0,0) RELATIVE Arm_dist
+
+
+SPLIT REP COMPONENT sample = Single_crystal(
+    xwidth = 0.002, yheight = 0.003, zdepth = 0.002,
+    mosaic = 6, order=1,
+    ax = cell_a, ay = 0, az = 0,
+    bx = 0, by = cell_b, bz = 0,
+    cx = 0, cy = 0, cz = cell_c,
+    aa=90.0, bb=90.0, cc=90.0,
+    p_transmit = 0.1,
+    reflections = "myoglobin_2_4A.hkl")
+  AT (0,0,0)                  RELATIVE Arm_SAM_pos
+  ROTATED (0,(omega-12.5),0)   RELATIVE Arm_SAM_pos
+
+/*
+COMPONENT PSD_after_xtal = PSD_monitor(xmin=-0.003, xmax=0.003, ymin=-0.003, ymax=0.003,
+                                        nx=50, ny=50, filename="PSD_after_xtal.psd")
+  AT (0,0,0.04)   RELATIVE Arm_SAM_pos
+  ROTATED (0,0,0) RELATIVE Arm_SAM_pos
+*/
+
+
+COMPONENT Beamstopper = Beamstop(radius=0.010)
+  AT (0,0,0.09)    RELATIVE Arm_SAM_pos
+  ROTATED (0,0,0)  RELATIVE Arm_SAM_pos
+
+
+
+COMPONENT NIP = Monitor_nD(yheight=0.225, xwidth=0.4, filename="PSD_BIODIFF_total.psd",
+                           options = "banana, theta limits=[-45, 45] bins=625, y, bins=450")
+  AT (0,0,0.00001)  RELATIVE Arm_SAM_pos
+  ROTATED (0,0,0)   RELATIVE Arm_SAM_pos
+
+
+
+END

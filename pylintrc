@@ -131,6 +131,7 @@ disable=useless-object-inheritance
         ,inconsistent-return-statements # unhelpful
         ,assignment-from-no-return  # too many numpy spurions
         ,useless-object-inheritance  # not good for mixed py2/py3 code
+	,import-outside-toplevel  # used for cyclic dependencies
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

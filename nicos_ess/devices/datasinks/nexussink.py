@@ -24,6 +24,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import copy
 import datetime
 import json
 import os
@@ -39,19 +40,6 @@ from nicos.pycompat import iteritems
 from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
 from nicos_ess.devices.kafka.status_handler import KafkaStatusHandler
 from nicos_ess.nexus.converter import NexusTemplateConverter
-
-
-def copy_nexus_template(template):
-    """ Implement a specialized version of copy. The dict structure is deep
-    copied while the placeholders are a shallow copy of the original """
-    if isinstance(template, dict):
-        return {k: copy_nexus_template(v) for k, v in
-                template.items()}
-    elif isinstance(template, list):
-        return [copy_nexus_template(elem) for elem in
-                template]
-    else:
-        return template
 
 
 class NexusFileWriterStatus(KafkaStatusHandler):
@@ -212,11 +200,13 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
             self.manager.updateMetainfo()
 
     def begin(self):
-        self.template = copy_nexus_template(self.sink.template)
+        # A deep copy is ABSOLUTELY required here!
+        self.template = copy.deepcopy(self.sink.template)
         self._remove_optional_components()
 
         # Get the start time
-        self.iso8601_time = datetime.datetime.utcnow().isoformat().split(".")[0]
+        self.iso8601_time = \
+            datetime.datetime.utcnow().isoformat().split(".")[0]
         if not self.dataset.started:
             self.dataset.started = time.time()
 
@@ -227,7 +217,6 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
         metainfo = self.dataset.metainfo
         # Put the start time in the metainfo
         if ('dataset', 'starttime') not in metainfo:
-
             metainfo[('dataset', 'starttime')] = (starttime_str, starttime_str,
                                                   '', 'general')
 
@@ -239,8 +228,10 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
             try:
                 with open(self.sink.start_fw_file, "r") as f:
                     command_str = f.read()
-                command_str = command_str.replace("STARTTIME", str(starttime))
-                command_str = command_str.replace("8601TIME", self.iso8601_time)
+                command_str = command_str.replace("STARTTIME",
+                                                  str(starttime))
+                command_str = command_str.replace("8601TIME",
+                                                  self.iso8601_time)
                 command_str = command_str.replace("TITLE", self.sink.title)
                 command = json.loads(command_str)
             except Exception as err:
@@ -249,7 +240,7 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
                         err))
         else:
             # Generate the command within NICOS
-            structure = self._converter.convert(self.sink.template,
+            structure = self._converter.convert(self.template,
                                                 self.dataset.metainfo)
 
             command = {
@@ -260,7 +251,8 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
 
         # Set the values that can be different between runs
         command["file_attributes"] = {
-            "file_name": "/data/kafka-to-nexus/nicos" + os.path.basename(self.dataset.filepaths[0])
+            "file_name": "/data/kafka-to-nexus/nicos"
+                         + os.path.basename(self.dataset.filepaths[0])
         }
         command["job_id"] = str(self.dataset.uid)
         command["broker"] = ','.join(self.sink.brokers)
@@ -274,7 +266,7 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
 
         self.log.info('Started file writing at: %s (%s)',
                       starttime_str, starttime)
-        self.sink.send(self.sink.cmdtopic, json.dumps(command))
+        self.sink.send(self.sink.cmdtopic, json.dumps(command).encode())
 
         # Tell the sink that this dataset has started
         self.sink.dataset_started(self.dataset)
@@ -293,7 +285,7 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
             }
 
             self.log.info('Stopped file writing at: %s', stoptime)
-            self.sink.send(self.sink.cmdtopic, json.dumps(command))
+            self.sink.send(self.sink.cmdtopic, json.dumps(command).encode())
 
         # Tell the sink that this dataset has ended
         self.sink.dataset_ended(self.dataset, self.rewriting)
@@ -357,6 +349,7 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
                                type=str, default=None),
         'title': Param('Title to set in NeXus file', type=str,
                        settable=True, userparam=True, default=""),
+        'cachetopic': Param('Kafka topic for cache messages', type=str),
     }
 
     parameter_overrides = {

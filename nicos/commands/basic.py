@@ -38,17 +38,18 @@ from nicos import session
 from nicos.commands import helparglist, hiddenusercommand, parallel_safe, \
     usercommand
 from nicos.core import ADMIN, MAINTENANCE, MASTER, SIMULATION, Device, \
-    ModeError, NicosError, Readable, UsageError, requires
+    ModeError, NicosError, Readable, UsageError
 from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
     SetupName, String, spmsyntax
 from nicos.devices.notifiers import Mailer
-from nicos.pycompat import builtins, exec_, iteritems, string_types
+from nicos.pycompat import PY2, builtins, exec_, iteritems, string_types
 from nicos.utils import fixupScript, formatArgs, formatDuration, printTable, \
     reexecProcess, resolveClasses
 from nicos.utils.timer import Timer
 
-CO_DIVISION = 0x2000
+# compile flag to activate new division (remove after dropping py2)
+CO_DIVISION = 0x2000 if PY2 else 0
 
 
 __all__ = [
@@ -490,7 +491,6 @@ def Remark(remark):
 
 @usercommand
 @spmsyntax(Oneof(*EXECUTIONMODES))
-@requires(level='admin')
 def SetMode(mode):
     """Set the execution mode.
 
@@ -532,6 +532,10 @@ def SetMode(mode):
         mode = SIMULATION
     elif mode == 'maint':
         mode = MAINTENANCE
+    if mode == MAINTENANCE:
+        # switching to maintenance mode is dangerous since two parallel
+        # sessions can execute active commands
+        session.checkAccess({'level': ADMIN})
     try:
         session.setMode(mode)
     except ModeError:

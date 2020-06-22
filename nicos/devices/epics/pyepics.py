@@ -52,6 +52,7 @@ if not isinstance(threading.currentThread(), threading._MainThread):
 # it is called once at import time, before epics objects can be created.
 try:
     epics.ca.clear_cache()
+    epics.ca.initialize_libca()
 except epics.ca.ChannelAccessException as err:
     # python 2.x
     if hasattr(err, 'message'):
@@ -416,7 +417,6 @@ class EpicsWindowTimeoutDevice(HasWindowTimeout, EpicsAnalogMoveable):
     """
     Analog moveable with window timeout.
     """
-    pass
 
 
 class EpicsDigitalMoveable(EpicsMoveable):

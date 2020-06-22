@@ -66,7 +66,7 @@ from nicos.pycompat import builtins, exec_, iteritems, itervalues, \
 from nicos.utils import fixupScript, formatArgs, formatDocstring, \
     formatScriptError, which
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
-    NicosLogger, initLoggers
+    NicosLogger, get_facility_log_handlers, initLoggers
 
 
 class Session(object):
@@ -108,6 +108,10 @@ class Session(object):
         self.explicit_devices = set()
         # contains the configuration for all configured devices
         self.configured_devices = {}
+        # dict[dynamic device name] of setup name (see getSetupInfo())
+        self.dynamic_devices = {}
+        # cache for getSyncDb
+        self.simulation_db = None
         # contains the name of all loaded modules with user commands
         self.user_modules = set()
         # contains all loaded setups
@@ -276,6 +280,22 @@ class Session(object):
     def spMode(self):
         return self._spmode
 
+    def getSyncDb(self):
+        """get cache values for simulation
+
+        may be called while loading setups
+        cache the result, as it may be called several times
+        """
+        if self.simulation_db is None:
+            client = SyncCacheClient('Syncer',
+                                     cache=self.current_sysconfig['cache'],
+                                     prefix='nicos/', lowlevel=True)
+            try:
+                self.simulation_db = client.get_values()
+            finally:
+                client.doShutdown()
+        return self.simulation_db
+
     def simulationSync(self, db=None):
         """Synchronize device values and parameters from current cached values.
         """
@@ -284,13 +304,7 @@ class Session(object):
         if not self.current_sysconfig.get('cache'):
             raise NicosError('no cache is configured')
         if db is None:
-            client = SyncCacheClient('Syncer',
-                                     cache=self.current_sysconfig['cache'],
-                                     prefix='nicos/', lowlevel=True)
-            try:
-                db = client.get_values()
-            finally:
-                client.doShutdown()
+            db = self.getSyncDb()
         self._simulationSync_applyValues(db)
 
     def _simulationSync_applyValues(self, db):
@@ -298,6 +312,7 @@ class Session(object):
         if setups is not None and set(setups) != set(self.explicit_setups):
             self.unloadSetup()
             self.loadSetup(setups)
+        self.simulation_db = None  # clear cache for getSyncDb
         # set alias parameter first, needed to set parameters on alias devices
         for devname, dev in iteritems(self.devices):
             aliaskey = '%s/alias' % devname.lower()
@@ -454,7 +469,18 @@ class Session(object):
         If a setup file could not be read or parsed, the value for that key is
         ``None``.
         """
-        return self._setup_info.copy()
+        result = self._setup_info.copy()
+        # include also dynamically created devices
+        dyninfo = {}  # keep track of setups with dynamically created devices
+        # be careful: copy each modified dict
+        for devname, setupname in self.dynamic_devices.items():
+            devcfg = self.configured_devices.get(devname)
+            if devcfg:
+                if setupname not in dyninfo:
+                    info = result[setupname] = result[setupname].copy()
+                    dyninfo[setupname] = info['devices'] = info['devices'].copy()
+                dyninfo[setupname][devname] = devcfg
+        return result
 
     def readSetups(self):
         """Refresh the session's setup info."""
@@ -791,6 +817,7 @@ class Session(object):
         self.devices.clear()
         self.device_case_map.clear()
         self.configured_devices.clear()
+        self.dynamic_devices.clear()
         self.explicit_devices.clear()
         for name in list(self._exported_names):
             self.unexport(name, warn=False)
@@ -1250,7 +1277,7 @@ class Session(object):
         self.log = NicosLogger('nicos')
         self.log.setLevel(logging.INFO)
         self.log.parent = None
-        if console:
+        if console and sys.stdout:
             self.log.addHandler(ColoredConsoleHandler())
         self._master_handler = None
         if logfile:
@@ -1267,6 +1294,10 @@ class Session(object):
                     self.log.addHandler(NicosLogfileHandler(log_path, prefix))
             except (IOError, OSError) as err:
                 self.log.error('cannot open log file: %s', err)
+
+        # add the facility-specific log handlers, if implemented and configured
+        for handler in get_facility_log_handlers(config):
+            self.log.addHandler(handler)
 
     def getLogger(self, name):
         """Return a new NICOS logger for the specified device name."""

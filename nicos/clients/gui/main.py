@@ -49,8 +49,6 @@ from nicos.utils import parseConnectionString
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
     NicosLogger, initLoggers
 
-from nicos_ess.gui.mainwindow import MainWindow as MainWindowESS
-
 log = None
 
 
@@ -139,6 +137,7 @@ def main(argv):
                             stylefile, exc=1)
 
     if 'ess_gui' in gui_conf.options and gui_conf.options['ess_gui']:
+        from nicos_ess.gui.mainwindow import MainWindow as MainWindowESS
         mainwindow = MainWindowESS(log, gui_conf, opts.viewonly, opts.tunnel)
     else:
         mainwindow = MainWindow(log, gui_conf, opts.viewonly, opts.tunnel)
