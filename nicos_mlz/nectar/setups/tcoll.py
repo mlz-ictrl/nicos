@@ -12,6 +12,7 @@ devices = dict(
     drum_m = device('nicos.devices.tango.Motor',
         tangodevice = tango_base + 'box/phytron7/mot',
         abslimits = (-10, 370),
+        precision = 0.05,
         unit = 'deg',
         lowlevel = True,
     ),

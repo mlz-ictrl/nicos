@@ -228,6 +228,10 @@ class SetupsPanel(DefaultSetupsPanel):
             self.buttonBox.addButton(self._reload_btn,
                                      QDialogButtonBox.ResetRole)
 
+    def setViewOnly(self, value):
+        for button in self.buttonBox.buttons():
+            button.setEnabled(not value)
+
 
 class FinishPanel(Panel):
     """Provides a panel to finish the experiment.
@@ -249,16 +253,21 @@ class FinishPanel(Panel):
         # Additional dialog panels to pop up after FinishExperiment().
         self._finish_exp_panel = options.get('finish_exp_panel')
 
+        self.finishButton.setEnabled(False)
+
         client.connected.connect(self.on_client_connected)
+        client.disconnected.connect(self.on_client_disconnected)
         client.setup.connect(self.on_client_connected)
 
     def on_client_connected(self):
-        # check for new or finish
-        self.finishBox.setVisible(True)
-        if self.client.viewonly:
-            self.finishButton.setVisible(False)
-        else:
-            self.finishButton.setVisible(True)
+        if not self.client.viewonly:
+            self.finishButton.setEnabled(True)
+
+    def on_client_disconnected(self):
+        self.finishButton.setEnabled(False)
+
+    def setViewOnly(self, value):
+        self.finishButton.setEnabled(self.client.isconnected and not value)
 
     @pyqtSlot()
     def on_finishButton_clicked(self):

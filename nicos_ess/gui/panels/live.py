@@ -25,12 +25,15 @@
 from nicos.clients.gui.panels.live import LiveDataPanel as DefaultLiveDataPanel
 from nicos.guisupport.qt import QToolBar
 
+from nicos_ess.gui.panels import get_icon
+
 
 class LiveDataPanel(DefaultLiveDataPanel):
     def __init__(self, parent, client, options):
         DefaultLiveDataPanel.__init__(self, parent, client, options)
         self.toolbar = self.createPanelToolbar()
         self.layout().setMenuBar(self.toolbar)
+        self.set_icons()
 
     def createPanelToolbar(self):
         toolbar = QToolBar('Live data')
@@ -45,6 +48,12 @@ class LiveDataPanel(DefaultLiveDataPanel):
         toolbar.addAction(self.actionMarkCenter)
         toolbar.addAction(self.actionROI)
         return toolbar
+
+    def set_icons(self):
+        self.actionPrint.setIcon(get_icon('print-24px.svg'))
+        self.actionPDF.setIcon(get_icon('save-24px.svg'))
+        self.actionUnzoom.setIcon(get_icon('zoom_out-24px.svg'))
+        self.actionOpen.setIcon(get_icon('folder_open-24px.svg'))
 
     def getToolbars(self):
         return []

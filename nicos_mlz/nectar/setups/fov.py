@@ -25,5 +25,6 @@ devices = dict(
         fmtstr = '%.2f',
         motor = 'fov_mot',
         coder = 'fov_enc',
+        backlash = -1,
     ),
 )

@@ -117,20 +117,27 @@ def main(argv):
 
     with open(opts.configfile, 'rb') as fp:
         configcode = fp.read()
-
     gui_conf = processGuiConfig(configcode)
+    gui_conf.stylefile = ''
 
-    stylefiles = [
-        path.join(userpath, 'style-%s.qss' % sys.platform),
+    instrumentpath = path.join('/', *os.path.abspath(opts.configfile).split(
+        '/')[:-1])
+    for f in os.listdir(instrumentpath):
+        if f.endswith(".qss"):
+            gui_conf.stylefile = path.join(instrumentpath, f)
+            break
+
+    stylefiles = [path.join(userpath, 'style-%s.qss' % sys.platform),
         path.join(userpath, 'style.qss'),
         path.splitext(opts.configfile)[0] + '-%s.qss' % sys.platform,
-        path.splitext(opts.configfile)[0] + '.qss',
-    ]
-    for stylefile in stylefiles:
+        path.splitext(opts.configfile)[0] + '.qss', ]
+
+    for stylefile in [gui_conf.stylefile] or stylefiles:
         if path.isfile(stylefile):
             try:
                 with open(stylefile, 'r') as fd:
                     app.setStyleSheet(fd.read())
+                gui_conf.stylefile = stylefile
                 break
             except Exception:
                 log.warning('Error setting user style sheet from %s',

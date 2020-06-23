@@ -18,7 +18,7 @@ main_window = docked(
         ),
         ('  ', panel('nicos_ess.gui.panels.empty.EmptyPanel')),
         ('Instrument interaction',
-         hbox(
+         hsplit(
              vbox(
                  panel(
                      'nicos_ess.gui.panels.cmdbuilder.CommandPanel',
@@ -27,8 +27,7 @@ main_window = docked(
                  tabbed(
                      ('Output',
                       panel('nicos_ess.gui.panels.console.ConsolePanel',
-                            hasinput=False,
-                            reverse_scrolling=True)),
+                            hasinput=False)),
                      ('Scan Plot',
                       panel('nicos_ess.gui.panels.scans.ScansPanel')),
                      ('Detector Image',
@@ -58,10 +57,19 @@ main_window = docked(
                       tools=None),
             ), # vsplit
         ),
+        ('Detector Image', panel('nicos_ess.gui.panels.live.LiveDataPanel')),
         (
             'History',
             panel('nicos_ess.gui.panels.history.HistoryPanel'),
         ),
+        ('Logs',
+            tabbed(
+                ('Errors', panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+                ('Log files', panel(
+                    'nicos.clients.gui.panels.logviewer.LogViewerPanel')),
+            ),
+         ),
+
 
         ('  ', panel('nicos_ess.gui.panels.empty.EmptyPanel')),
 

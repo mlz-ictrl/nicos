@@ -27,6 +27,8 @@ from nicos.clients.gui.panels.scans import ScansPanel as DefaultScansPanel
 from nicos.guisupport.qt import QActionGroup, QCheckBox, QComboBox, QFrame, \
     QHBoxLayout, QToolBar, QWidgetAction
 
+from nicos_ess.gui.panels import get_icon
+
 
 class ScansPanel(DefaultScansPanel):
     def __init__(self, parent, client, options):
@@ -34,6 +36,13 @@ class ScansPanel(DefaultScansPanel):
         self.bars = self.createPanelToolbar()
         for index, bar in enumerate(self.bars):
             self.layout().insertWidget(index, bar)
+        self.set_icons()
+
+    def set_icons(self):
+        self.actionPrint.setIcon(get_icon('print-24px.svg'))
+        self.actionSavePlot.setIcon(get_icon('save-24px.svg'))
+        self.actionUnzoom.setIcon(get_icon('zoom_out-24px.svg'))
+        self.actionClose.setIcon(get_icon('zoom_out-24px.svg'))
 
     def createPanelToolbar(self):
         bar = QToolBar('Scans')
