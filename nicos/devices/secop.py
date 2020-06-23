@@ -27,20 +27,21 @@
 This module contains a SecNode device, which represent connections to a SECoP
 server, and the base classes SecopDevice, SecopReadable and SecopMoveable.
 
-A SecNodeDevice is connected to a SecNode by assigning the uri value, this can
-be done at any time. With auto_create == True, all devices are created automatically
-after connections, and they are altered on reconnection.
+A SecNodeDevice is connected to a SecNode by assigning the uri value, this
+can be done at any time. With auto_create == True, all devices are created
+automatically after connections, and they are altered on reconnection.
 
-For a setup for permanent use, with auto_create == False (the default), the devices
-are to be created with the class SecopDevice, SecopReadable or SecopMoveable, and the
-following parameters:
-secnode: the secnode device name
-secop_module: the name of the remotely connected SECoP module
-params_cfg (optional): a dict {<parameter name>: <cfg dict>}
-   if given, only the parameters mentioned as keys are exported.
-   The cfg dict may be empty for using the automatically generated attributes:
-   description, type, settable, unit and fmtstr.
-   Attributes given in the cfg dict may overwrite above attributes.
+For a setup for permanent use, with auto_create == False (the default), the
+devices are to be created with the class SecopDevice, SecopReadable or
+SecopMoveable, and the following parameters:
+
+- secnode: the secnode device name
+- secop_module: the name of the remotely connected SECoP module
+- params_cfg (optional): a dict {<parameter name>: <cfg dict>}
+  if given, only the parameters mentioned as keys are exported.
+  The cfg dict may be empty for using the automatically generated attributes:
+  description, type, settable, unit and fmtstr.
+  Attributes given in the cfg dict may overwrite above attributes.
 """
 
 import re
@@ -50,8 +51,8 @@ from math import floor, log10
 from threading import Event
 
 from nicos import session
-from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, Override, \
-    Param, status, usermethod
+from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, NicosError, \
+    Override, Param, status, usermethod
 from nicos.core.device import DeviceMeta, Moveable, Readable
 from nicos.core.errors import ConfigurationError
 from nicos.core.params import anytype, dictwith, floatrange, intrange, \
@@ -85,18 +86,21 @@ def clean_identifier(anystring):
 def get_validator_dict():
     """convert SECoP datatype into NICOS validator
 
-    returns the python code of an equivalent NICOS validator for the SECoP datatype
+    returns the python code of an equivalent NICOS validator for the
+    SECoP datatype
     """
     # use leading underscore to avoid conflicts with built-ins
 
-    def _double(min=None, max=None, **kwds):  # pylint: disable=redefined-builtin
+    # pylint: disable=redefined-builtin
+    def _double(min=None, max=None, **kwds):
         if max is None:
             if min is None:
                 return float
             return floatrange(min)
         return floatrange("float('-inf')" if min is None else min, max)
 
-    def _int(min=None, max=None, **kwds):  # pylint: disable=redefined-builtin
+    # pylint: disable=redefined-builtin
+    def _int(min=None, max=None, **kwds):
         # be tolerant with missing min / max here
         if max is None:
             if min is None:
@@ -117,10 +121,12 @@ def get_validator_dict():
 
     def _enum(members, **kwds):
         # do not use oneof here, as in general numbers are relevant for the
-        # specs use ordered dict here: indicates that the given order would be
-        # preferred for a GUI
-        # TODO: nicos.guisupport.typedvalue should be modified to keep the order for combo box
-        return oneofdict(OrderedDict(sorted(((v, k) for k, v in members.items()))))
+        # specs use ordered dict here: indicates that the given order would
+        # be preferred for a GUI
+        # TODO: nicos.guisupport.typedvalue should be modified to keep the
+        #       order for combo box
+        return oneofdict(OrderedDict(sorted(((v, k)
+                                             for k, v in members.items()))))
 
     def _array(members, minlen=0, **kwds):
         # ignore maxlen and minlen > 1
@@ -132,11 +138,9 @@ def get_validator_dict():
 
     def _struct(members, **kwds):
         # ignore 'optional' property
-        return dictwith(**{n: get_validator(**m) for n, m in members})
+        return dictwith(**{n: get_validator(**m) for n, m in members.items()})
 
-    def _command(argument=None, result=None, **kwds):
-        # not yet implemented
-        return None
+    # command is treated separately
 
     # return dict of functions with stripped keys
     return {key[1:]: func for key, func in locals().items()}
@@ -149,12 +153,20 @@ def get_validator(type, **kwds):  # pylint: disable=redefined-builtin
     return DATATYPE_TO_VALIDATOR[type](**kwds)
 
 
+def type_name(typ):
+    try:
+        return typ.__name__
+    except AttributeError:
+        return typ.__class__.__name__
+
+
 def get_aliases(dev):
     """get devices aliased to on dev
 
     return a list containing for each alias a tuple (device, required class).
     """
-    # check that the new class fits the required classes on devices self is attached to
+    # check that the new class fits the required classes on devices self
+    # is attached to
     result = []
     for alias in session.devices.values():
         if isinstance(alias, DeviceAlias) and alias.alias == dev.name:
@@ -184,8 +196,8 @@ class SecNodeDevice(Readable):
     """
 
     parameters = {
-        'prefix':      Param("Prefix for the generated devices\n\n'$' will be "
-                             "replaced by the equipment id",
+        'prefix':      Param("Prefix for the generated devices\n\n"
+                             "'$' will be replaced by the equipment id",
                              type=str, default='$_', settable=True),
         'uri':         Param('tcp://<host>:<port>', type=str, settable=True),
         'auto_create': Param('Flag for automatic creation of devices',
@@ -245,7 +257,8 @@ class SecNodeDevice(Readable):
 
     def doWriteUri(self, value):
         """change uri and reconnect"""
-        self._setROParam('uri', value)  # make sure uri is set before reconnect
+        # make sure uri is set before reconnect
+        self._setROParam('uri', value)
         if self.uri:
             self._connect()
         else:
@@ -288,7 +301,9 @@ class SecNodeDevice(Readable):
         self._secnode = None
 
     def descriptiveDataChange(self, module, description):
-        """called when descriptive data changed after an automatic reconnection"""
+        """called when descriptive data changed
+
+        after an automatic reconnection"""
         self.log.warning('node description changed')
         self.createDevices()
 
@@ -301,7 +316,8 @@ class SecNodeDevice(Readable):
         """called when the state of the connection changes
 
         'online' is True when connected or reconnecting, False when
-        disconnected or connecting 'state' is the connection state as a string
+                 disconnected or connecting
+        'state' is the connection state as a string
         """
         if online and state == 'connected':
             self._set_status(status.OK, 'connected')
@@ -333,9 +349,11 @@ class SecNodeDevice(Readable):
         if prefix is None:
             self.log.error('secnode is not connected')
             return
-        items = [(prefix + m, m,
-                  mod_desc.get('properties', {}).get('description', '').split('\n')[0])
-                 for m, mod_desc in self._secnode.modules.items()]
+        items = [
+            (prefix + m, m,
+             mod_desc.get(
+                 'properties', {}).get('description', '').split('\n')[0])
+            for m, mod_desc in self._secnode.modules.items()]
         printTable(['foreseen device name', 'SECoP module', 'description'],
                    items, self.log.info)
 
@@ -346,10 +364,13 @@ class SecNodeDevice(Readable):
         self._devices[device.name] = device
         module = device.secop_module
         if module not in self._secnode.modules:
-            raise ConfigurationError('no module %r found on this SEC node' % module)
+            raise ConfigurationError('no module %r found on this SEC node'
+                                     % module)
         for parameter in self._secnode.modules[module]['parameters']:
-            updatefunc = getattr(device, '_update_' + parameter, device._update)
-            self._secnode.register_callback((module, parameter), updateEvent=updatefunc)
+            updatefunc = getattr(device, '_update_' + parameter,
+                                 device._update)
+            self._secnode.register_callback((module, parameter),
+                                            updateEvent=updatefunc)
             try:
                 data = self._secnode.cache[module, parameter]
                 if data:
@@ -371,8 +392,10 @@ class SecNodeDevice(Readable):
         except KeyError:  # do not complain again about missing module
             return
         for parameter in moddesc['parameters']:
-            updatefunc = getattr(device, '_update_' + parameter, device._update)
-            self._secnode.unregister_callback((module, parameter), updateEvent=updatefunc)
+            updatefunc = getattr(device, '_update_' + parameter,
+                                 device._update)
+            self._secnode.unregister_callback((module, parameter),
+                                              updateEvent=updatefunc)
 
     def createDevices(self):
         """create drivers and devices
@@ -387,6 +410,7 @@ class SecNodeDevice(Readable):
         setup_info = {}
         for module, mod_desc in modules.items():
             params_cfg = {}
+            commands_cfg = {}
             module_properties = mod_desc.get('properties', None)
             for ifclass in (module_properties.get('interface_classes', []) or
                             module_properties.get('interface_class', [])):
@@ -410,8 +434,9 @@ class SecNodeDevice(Readable):
                     fmtstr = getattr(datatype, 'fmtstr', '%g')
                     unit = getattr(datatype, 'unit', '')
                 elif isinstance(datatype, ScaledInteger):
-                    fmtstr = getattr(datatype, 'fmtstr',
-                                     '%%%df' % max(0, -floor(log10(props['scale']))))
+                    fmtstr = getattr(
+                        datatype, 'fmtstr',
+                        '%%%df' % max(0, -floor(log10(props['scale']))))
                     unit = getattr(datatype, 'unit', '')
                 if unit:
                     pargs['unit'] = unit
@@ -433,14 +458,29 @@ class SecNodeDevice(Readable):
                 if fmtstr is not None and fmtstr != '%g':
                     pargs['fmtstr'] = fmtstr
                 params_cfg[pname] = pargs
+            for cname, props in mod_desc['commands'].items():
+                cmddict = props['datatype'].export_datatype()
+                argtype = cmddict.get('argument')
+                if argtype:
+                    argtype = get_validator(**argtype)
+                resulttype = cmddict.get('result')
+                if resulttype:
+                    resulttype = get_validator(**resulttype)
+                commands_cfg[cname] = dict(
+                    cmddict.get('argument', {}),  # additional info on argument
+                    argtype=argtype, resulttype=resulttype,
+                    description=props['description'])
             if clsname != 'SecopDevice':
                 kwds.setdefault('unit', '')  # unit is mandatory on Readables
             desc = dict(secnode=self.name,
-                        description=mod_desc.get('properties', {}).get('description', ''),
+                        description=mod_desc.get('properties', {}).get(
+                            'description', ''),
                         secop_module=module,
                         params_cfg=params_cfg,
+                        commands_cfg=commands_cfg,
                         **kwds)
-            setup_info[prefix + module] = ('nicos.devices.secop.%s' % clsname, desc)
+            setup_info[prefix + module] = (
+                'nicos.devices.secop.%s' % clsname, desc)
         if not setup_info:
             self.log.info('creating devices for %s skipped', self.name)
             return
@@ -467,6 +507,7 @@ class SecNodeDevice(Readable):
 
         # find setup of this secnode
         result = session.getSetupInfo()
+        setupname = None  # only to avoid undefined-loop-variable later
         for setupname in session.loaded_setups:
             info = result.get(setupname, None)
             if info and self.name in info['devices']:
@@ -478,8 +519,9 @@ class SecNodeDevice(Readable):
             prevdevices.discard(devname)
             dev = session.devices.get(devname, None)
             if dev:
-                if not isinstance(dev, SecopDevice) or (dev._attached_secnode and
-                                                        dev._attached_secnode != self):
+                if not isinstance(dev, SecopDevice) or (
+                        dev._attached_secnode and
+                        dev._attached_secnode != self):
                     self.log.error('device %s already exists', devname)
                     continue
                 base = dev.__class__.__bases__[0]
@@ -489,7 +531,7 @@ class SecNodeDevice(Readable):
                 prevcfg = None
             if prevcfg != devcfg:
                 session.configured_devices[devname] = devcfg
-                session.dynamic_devices[devname] = setupname  # pylint: disable=undefined-loop-variable
+                session.dynamic_devices[devname] = setupname
                 if dev is None:
                     # add new device
                     session.createDevice(devname, recreate=True, explicit=True)
@@ -499,17 +541,18 @@ class SecNodeDevice(Readable):
                     if dev._attached_secnode:
                         dev._attached_secnode.unregisterDevice(dev)
                     session.configured_devices[devname] = devcfg
-                    session.dynamic_devices[devname] = setupname  # pylint: disable=undefined-loop-variable
+                    session.dynamic_devices[devname] = setupname
                     try:
                         dev.replaceClass(devcfg[1])
                         dev.setAlive(self)
                     except ConfigurationError:
                         # above failed because an alias or attaching device
-                        # requires a specific class make old device defunct and
-                        # replace by a new device
+                        # requires a specific class.
+                        # make old device defunct and replace by a new device
                         session.destroyDevice(dev)
                         session.dynamic_devices.pop(devname, None)
-                        session.createDevice(devname, recreate=True, explicit=True)
+                        session.createDevice(devname, recreate=True,
+                                             explicit=True)
                         prevdevices.discard(devname)
                         dev = session.devices[devname]
                 if not isinstance(dev, SecopReadable):
@@ -543,7 +586,8 @@ class SecopDevice(Readable):
                               userparam=False),
     }
     parameter_overrides = {
-        # do not force to give unit in setup file (take from SECoP description)
+        # do not force to give unit in setup file
+        # (take from SECoP description)
         'unit': Override(default='', mandatory=False),
     }
     _status = (SecopStatus.ERROR, 'disconnected')
@@ -564,22 +608,29 @@ class SecopDevice(Readable):
         for accessing the assigned SECoP module
         """
         secnodedev = session.getDevice(config['secnode'])
-        # make a copy, as we will modify later
         params_override = config.pop('params_cfg', None)
+        commands_override = config.pop('commands_cfg', None)
         setup_info = secnodedev.get_setup_info()
         if name in setup_info:
             devcfg = dict(setup_info[name][1])
-            params_cfg = devcfg.pop('params_cfg')
+            params_cfg = dict(devcfg.pop('params_cfg'))
+            commands_cfg = dict(devcfg.pop('commands_cfg'))
         else:
-            devcfg, params_cfg = {}, {}
+            devcfg, params_cfg, commands_cfg = {}, {}, {}
         if params_override is not None:
-            params_cfg = dict(params_cfg)
-            for pname, pold in list(params_cfg.items()):
+            for pname, pdict in list(params_cfg.items()):
                 pnew = params_override.get(pname)
                 if pnew is not None:
-                    params_cfg[pname] = dict(pold, **pnew)
+                    params_cfg[pname] = dict(pdict, **pnew)
                 elif pname not in cls.parameters:
                     params_cfg.pop(pname)  # remove parameters not mentioned
+        if commands_override is not None:
+            for cname, cmddict in list(commands_cfg.items()):
+                cnew = commands_override.get(cname)
+                if cnew is not None:
+                    commands_cfg[cname] = dict(cmddict, **cnew)
+                else:
+                    commands_cfg.pop(cname)  # remove commands not mentioned
         devcfg.update(config)
 
         parameters = {}
@@ -592,9 +643,11 @@ class SecopDevice(Readable):
             attrs['_maintype'] = staticmethod(config.pop('maintype'))
         for pname, kwargs in params_cfg.items():
             typ = kwargs['type']
-            if 'fmtstr' not in kwargs and (typ is float or isinstance(typ, floatrange)):
+            if 'fmtstr' not in kwargs and (typ is float or
+                                           isinstance(typ, floatrange)):
                 # the fmtstr default differs in SECoP and NICOS
-                kwargs = dict(kwargs, fmtstr='%g')  # copy kwargs as it may be read only
+                # copy kwargs as it may be read only
+                kwargs = dict(kwargs, fmtstr='%g')
             parameters[pname] = Param(volatile=True, **kwargs)
 
             def do_read(self, maxage=None, pname=pname, validator=typ):
@@ -608,9 +661,65 @@ class SecopDevice(Readable):
 
                 attrs['doWrite%s' % pname.title()] = do_write
 
+        for cname, cmddict in commands_cfg.items():
+
+            def makecmd(cname, argtype, optional=(), members=(), **kwds):
+                if isinstance(argtype, tupleof):
+                    # treat tuple elements as separate arguments
+                    help_arglist = ', '.join('<%s>' % type_name(t)
+                                             for t in argtype.types)
+
+                    def cmd(self, *args):
+                        return self._call(cname, args)
+
+                elif isinstance(argtype, dictwith):
+                    # treat SECoP struct as keyworded arguments
+                    # varargs will be treated in the order from the dictwith
+                    # original order is kept only in Py >= 3.6
+                    # however, it will correspond to the order in help_arglist
+                    keys = list(argtype.convs.keys())
+                    # do not take argtype.keys here (set is not ordered)
+                    # optional keys must appear at the end
+                    for key in optional:
+                        keys.remove(key)
+                    help_arglist = ', '.join(keys + ['%s=None' % k
+                                                     for k in optional])
+                    keys.extend(optional)
+
+                    def cmd(self, *args, **kwds):
+                        if len(args) > len(keys):
+                            raise ValueError('too many arguments')
+                        for arg, key in zip(args, keys):
+                            if key in kwds:
+                                raise ValueError(
+                                    'got multiple values for argument %r'
+                                    % key)
+                            kwds[key] = arg
+                        return self._call(cname, kwds)
+
+                else:
+                    help_arglist = '<%s>' % type_name(argtype) if argtype \
+                                   else ''
+
+                    def cmd(self, argument):
+                        return self._call(cname, argument)
+
+                cmd.help_arglist = help_arglist
+                cmd.__doc__ = cmddict['description']
+                cmd.__name__ = cname
+                return cmd
+
+            old = getattr(cls, cname, None)
+            if old is None:
+                attrs[cname] = usermethod(makecmd(cname, **cmddict))
+            elif cname != 'stop':
+                # stop is handled separately, do not complain
+                session.log.warning(
+                    'skip command %s, as it would overwrite %r', cname, old)
+
         classname = cls.__name__ + '_' + name
-        # create a new class extending SecopDevice, apply DeviceMeta in order to
-        # include the added parameters
+        # create a new class extending SecopDevice, apply DeviceMeta in order
+        # to include the added parameters
         newclass = DeviceMeta.__new__(DeviceMeta, classname, (cls,), attrs)
         newclass._modified_config = devcfg  # store temporarily for __init__
         return newclass
@@ -618,7 +727,8 @@ class SecopDevice(Readable):
     def __new__(cls, name, **config):
         """called when an instance of the class is created but before __init__
 
-        instead of returning a SecopDevice, we create an object of an extended class here
+        instead of returning a SecopDevice, we create an object of an extended
+        class here
         """
         newclass = cls.makeDevClass(name, **config)
         return Readable.__new__(newclass)
@@ -646,13 +756,16 @@ class SecopDevice(Readable):
             raise ConfigurationError('device class mismatch')
         for dev, cls in get_aliases(self):
             if issubclass(newclass, cls):
-                self.log.warning('redirect alias %s to %s', dev.name, self.name)
+                self.log.warning('redirect alias %s to %s',
+                                 dev.name, self.name)
             else:
                 self.log.error('release alias %s from %s', dev.name, self.name)
                 dev.alias = ''
         self.__class__ = newclass
-        # as we do not go through self.__init__ again, we have to update self._config
-        self._config = dict((name.lower(), value) for (name, value) in config.items())
+        # as we do not go through self.__init__ again,
+        # we have to update self._config
+        self._config = dict((name.lower(), value)
+                            for (name, value) in config.items())
         for aname in self.attached_devices:
             self._config.pop(aname, None)
 
@@ -669,23 +782,27 @@ class SecopDevice(Readable):
             # ignore timestamp for now
             self._setROParam(parameter, value)
         except Exception:
-            self.log.exception('can not set %s:%s to %r', module, parameter, value)
+            self.log.exception('can not set %s:%s to %r',
+                               module, parameter, value)
 
     def _raise_defunct(self):
         if session.devices.get(self.name) == self:
-            raise DefunctDevice('SECoP device %s no longer available' % self.name)
-        raise DefunctDevice('refers to a replaced defunct SECoP device %s' % self.name)
+            raise DefunctDevice('SECoP device %s no longer available'
+                                % self.name)
+        raise DefunctDevice('refers to a replaced defunct SECoP device %s'
+                            % self.name)
 
     def _read(self, param, maxage, validator):
         try:
             secnode = self._attached_secnode._secnode
         except AttributeError:
             self._raise_defunct()
-        value, timestamp, _ = secnode.cache[self.secop_module, param]
+        value, timestamp, readerror = secnode.cache[self.secop_module, param]
+        if readerror:
+            raise NicosError(str(readerror))
         if maxage is not None and time.time() > (timestamp or 0) + maxage:
             value = secnode.getParameter(self.secop_module, param)[0]
-        if value is not None:
-            value = validator(value)
+        value = validator(value)
         return value
 
     def _write(self, param, value, validator):
@@ -696,6 +813,10 @@ class SecopDevice(Readable):
             return value
         except AttributeError:
             self._raise_defunct()
+
+    def _call(self, cname, argument=None):
+        return self._attached_secnode._secnode.execCommand(
+            self.secop_module, cname, argument)[0]
 
     def setDefunct(self):
         if self._defunct:
@@ -773,7 +894,8 @@ class SecopMoveable(SecopReadable, Moveable):
     def doStop(self):
         if self.status(0)[0] == status.BUSY:
             try:
-                self._attached_secnode._secnode.execCommand(self.secop_module, 'stop')
+                self._attached_secnode._secnode.execCommand(
+                    self.secop_module, 'stop')
             except Exception as e:
                 self.log.error('error while stopping: %s', e)
                 self.updateSecopStatus((200, 'error while stopping'))

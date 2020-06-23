@@ -74,7 +74,10 @@ class DeviceMixinMeta(type):
             value = getattr(newtype, aname)
             if not isinstance(value, (types.FunctionType, types.MethodType)):
                 continue
-            args = formatArgs(value, strip_self=True)
+            if hasattr(value, 'help_arglist'):
+                args = '(%s)' % value.help_arglist
+            else:
+                args = formatArgs(value, strip_self=True)
             if value.__doc__:
                 docline = value.__doc__.strip().splitlines()[0]
             else:
