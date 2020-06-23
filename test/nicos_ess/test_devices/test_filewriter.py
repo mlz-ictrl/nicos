@@ -42,86 +42,106 @@ pytest.importorskip('graypy')
 try:
     from unittest import mock, TestCase
 except ImportError:
-    pytestmark = pytest.mark.skip("all tests still WIP")
+    pytestmark = pytest.mark.skip('all tests still WIP')
 
 session_setup = 'ess_filewriter'
 
-start_acknowledge_message = {"code": "START",
-                             "job_id": "8bacf956-02a3-11e9-af16-64006a47d649",
-                             "message": "Start job",
-                             "service_id":
-                                 "kafka-to-nexus--host:SERVERNAME--pid:16055",
-                             "timestamp": 1551360732952,
-                             "type": "filewriter_event"}
+start_acknowledge_message = {
+    'code': 'START',
+    'job_id': '8bacf956-02a3-11e9-af16-64006a47d649',
+    'message': 'Start job',
+    'service_id': 'kafka-to-nexus--host:SERVERNAME--pid:16055',
+    'timestamp': 1551360732952,
+    'type': 'filewriter_event',
+}
 
-close_message = {"code": "CLOSE",
-                 "job_id": "8bacf956-02a3-11e9-af16-64006a47d649",
-                 "message": "File closed",
-                 "service_id": "kafka-to-nexus--host:SERVERNAME--pid:10307",
-                 "timestamp": 1551344628813, "type": "filewriter_event"}
+close_message = {
+    'code': 'CLOSE',
+    'job_id': '8bacf956-02a3-11e9-af16-64006a47d649',
+    'message': 'File closed',
+    'service_id': 'kafka-to-nexus--host:SERVERNAME--pid:10307',
+    'timestamp': 1551344628813,
+    'type': 'filewriter_event',
+}
 
-error_message = {"code": "ERROR",
-                 "job_id": "8bacf956-02a3-11e9-af16-64006a47d649",
-                 "message": "Configuration Error",
-                 "service_id": "kafka-to-nexus--host:SERVERNAME--pid:10307",
-                 "timestamp": 1551344628813, "type": "filewriter_event"}
+error_message = {
+    'code': 'ERROR',
+    'job_id': '8bacf956-02a3-11e9-af16-64006a47d649',
+    'message': 'Configuration Error',
+    'service_id': 'kafka-to-nexus--host:SERVERNAME--pid:10307',
+    'timestamp': 1551344628813,
+    'type': 'filewriter_event',
+}
 
-fail_message = {"code": "FAIL",
-                "job_id": "8bacf956-02a3-11e9-af16-64006a47d649",
-                "message": "Unexpected std::exception while handling "
-                           "command:{\n  "
-                           "\"cmd\": \"FileWriter_new\",\n  \"broker\": "
-                           "\"127.0.0.1:9092\",\n  \"job_id\": "
-                           "\"8bacf956-02a3-11e9-af16-64006a47d649\","
-                           "\n  \"file_attributes\": {\n    \"file_name\": "
-                           "\"test.nxs\"\n "
-                           " },\n  \"nexus_structure\": {\n      "
-                           "\"children\": [\n        "
-                           "  {\n            \"type\": \"group\",\n           "
-                           " \"name\": "
-                           "\"my_test_group\",\n            \"children\": [\n "
-                           "            "
-                           " {\n                \"type\": \"stream\",\n       "
-                           "         "
-                           "\"stream\": {\n                  \"dtype\": "
-                           "\"double\","
-                           "\n                  \"writer_module\": \"f142\","
-                           "\n            "
-                           "      \"source\": \"my_test_pv\",\n               "
-                           "   "
-                           "\"topic\": \"LOQ_sampleEnv\"\n                }\n "
-                           "            "
-                           " }\n            ],\n            \"attributes\": ["
-                           "\n           "
-                           "   {\n                \"name\": \"units\",\n      "
-                           "          "
-                           "\"values\": \"ms\"\n              }\n            "
-                           "]\n          "
-                           "}\n        ]\n      }\n}\n\nError in "
-                           "CommandHandler::tryToHandle\n  Failed to "
-                           "initializeHDF: can "
-                           "not initialize hdf file /data_files/test.nxs\n    "
-                           "can not "
-                           "initialize hdf file "
-                           "/Users/user/Code/Repos/DMSC/kafka-to-nexus"
-                           "/cmake-build"
-                           "-debug/bin/test.nxs\n      The file "
-                           "\"/Users/user/Code/Repos/DMSC/kafka-to"
-                           "-nexus/cmake"
-                           "-build-debug/bin/test.nxs\" exists already.",
-                "service_id": "kafka-to-nexus--host:SERVERNAME--pid:10307",
-                "timestamp": 1551344628813, "type": "filewriter_event"}
+fail_message = {
+    "code": "FAIL",
+    "job_id": "8bacf956-02a3-11e9-af16-64006a47d649",
+    "message": "Unexpected std::exception while handling "
+    "command:{\n  "
+    '"cmd": "FileWriter_new",\n  "broker": '
+    '"127.0.0.1:9092",\n  "job_id": '
+    '"8bacf956-02a3-11e9-af16-64006a47d649",'
+    '\n  "file_attributes": {\n    "file_name": '
+    '"test.nxs"\n '
+    ' },\n  "nexus_structure": {\n      '
+    '"children": [\n        '
+    '  {\n            "type": "group",\n           '
+    ' "name": '
+    '"my_test_group",\n            "children": [\n '
+    "            "
+    ' {\n                "type": "stream",\n       '
+    "         "
+    '"stream": {\n                  "dtype": '
+    '"double",'
+    '\n                  "writer_module": "f142",'
+    "\n            "
+    '      "source": "my_test_pv",\n               '
+    "   "
+    '"topic": "LOQ_sampleEnv"\n                }\n '
+    "            "
+    ' }\n            ],\n            "attributes": ['
+    "\n           "
+    '   {\n                "name": "units",\n      '
+    "          "
+    '"values": "ms"\n              }\n            '
+    "]\n          "
+    "}\n        ]\n      }\n}\n\nError in "
+    "CommandHandler::tryToHandle\n  Failed to "
+    "initializeHDF: can "
+    "not initialize hdf file /data_files/test.nxs\n    "
+    "can not "
+    "initialize hdf file "
+    "/Users/user/Code/Repos/DMSC/kafka-to-nexus"
+    "/cmake-build"
+    "-debug/bin/test.nxs\n      The file "
+    '"/Users/user/Code/Repos/DMSC/kafka-to'
+    "-nexus/cmake"
+    '-build-debug/bin/test.nxs" exists already.',
+    "service_id": "kafka-to-nexus--host:SERVERNAME--pid:10307",
+    "timestamp": 1551344628813,
+    "type": "filewriter_event",
+}
 
 
 def create_status_json(message, job_id='1234abcd', code=''):
-    return {'type': 'filewriter_event', 'job_id': job_id, 'code': code,
-            'message': message}
+    return {
+        'type': 'filewriter_event',
+        'job_id': job_id,
+        'code': code,
+        'message': message,
+    }
 
 
 def create_x5f2_buffer(status_json, update_interval=5000):
-    status_message = serialise_x5f2("Filewriter", "version", "abcd-1234",
-                                    gethostname(), getpid(), update_interval,
-                                    json.dumps(status_json), )
+    status_message = serialise_x5f2(
+        'Filewriter',
+        'version',
+        'abcd-1234',
+        gethostname(),
+        getpid(),
+        update_interval,
+        json.dumps(status_json),
+    )
     return status_message
 
 
@@ -130,7 +150,6 @@ def create_f142_buffer(value, source_name='mypv'):
 
 
 class TestStatus(TestCase):
-
     def create_patch(self, name):
         patcher = mock.patch(name)
         thing = patcher.start()
@@ -158,9 +177,12 @@ class TestStatus(TestCase):
 
     def test_json_status_is_processed(self):
         message_json = {'a': 1}
-        with mock.patch.object(NexusFileWriterStatus,
-                               '_status_update_callback') as mock_method:
-            self.device.new_messages_callback({12345: json.dumps(message_json)})
+        with mock.patch.object(
+            NexusFileWriterStatus, '_status_update_callback'
+        ) as mock_method:
+            self.device.new_messages_callback(
+                {12345: json.dumps(message_json)}
+            )
             mock_method.assert_called_once()
             messages = mock_method.call_args[0]
             assert messages == ({12345: message_json},)
@@ -168,10 +190,12 @@ class TestStatus(TestCase):
     def test_x5f2_status_is_processed(self):
         message_json = {'a': 1}
         update_interval = 1111
-        message_fb = create_x5f2_buffer(message_json,
-                                        update_interval=update_interval)
-        with mock.patch.object(NexusFileWriterStatus,
-                               '_status_update_callback') as mock_method:
+        message_fb = create_x5f2_buffer(
+            message_json, update_interval=update_interval
+        )
+        with mock.patch.object(
+            NexusFileWriterStatus, '_status_update_callback'
+        ) as mock_method:
             self.device.new_messages_callback({12345: message_fb})
             mock_method.assert_called_once()
             messages = mock_method.call_args[0]
@@ -182,37 +206,46 @@ class TestStatus(TestCase):
 
     def test_not_x5f2_status_is_not_processed(self):
         message_fb = create_f142_buffer(123.4)
-        with mock.patch.object(NexusFileWriterStatus,
-                               '_status_update_callback') as mock_method:
+        with mock.patch.object(
+            NexusFileWriterStatus, '_status_update_callback'
+        ) as mock_method:
             self.device.new_messages_callback({12345: message_fb})
             assert mock_method.call_args is None
 
-    @pytest.mark.skip(reason="functionality removed from filewriter, will be "
-                             "restored in the future")
+    @pytest.mark.skip(
+        reason='functionality removed from filewriter, will be '
+        'restored in the future'
+    )
     def test_json_start_message(self):
         jobid = '1234-abcd'
         message_json = dict(start_acknowledge_message)
         message_json['job_id'] = jobid
 
-        with mock.patch.object(NexusFileWriterStatus,
-                               '_on_start') as mock_method:
+        with mock.patch.object(
+            NexusFileWriterStatus, '_on_start'
+        ) as mock_method:
             self.device._tracked_datasets[jobid] = BaseDataset()
-            self.device.new_messages_callback({12345: json.dumps(message_json)})
+            self.device.new_messages_callback(
+                {12345: json.dumps(message_json)}
+            )
             mock_method.assert_called_once()
 
         self.device.new_messages_callback({12345: json.dumps(message_json)})
         assert len(self.device._started) == 1 and jobid in self.device._started
 
-    @pytest.mark.skip(reason="functionality removed from filewriter, will be "
-                             "restored in the future")
+    @pytest.mark.skip(
+        reason='functionality removed from filewriter, will be '
+        'restored in the future'
+    )
     def test_flatbuffer_start_message(self):
         jobid = '1235-abcd'
         message_json = dict(start_acknowledge_message)
         message_json['job_id'] = jobid
         message_serialised = create_x5f2_buffer(message_json)
 
-        with mock.patch.object(NexusFileWriterStatus,
-                               '_on_start') as mock_method:
+        with mock.patch.object(
+            NexusFileWriterStatus, '_on_start'
+        ) as mock_method:
             self.device._tracked_datasets[jobid] = BaseDataset()
             self.device.new_messages_callback({12345: message_serialised})
             mock_method.assert_called_once()
@@ -220,17 +253,22 @@ class TestStatus(TestCase):
         self.device.new_messages_callback({12345: message_serialised})
         assert len(self.device._started) == 1 and jobid in self.device._started
 
-    @pytest.mark.skip(reason="functionality removed from filewriter, will be "
-                             "restored in the future")
+    @pytest.mark.skip(
+        reason='functionality removed from filewriter, will be '
+        'restored in the future'
+    )
     def test_json_close_message(self):
         jobid = '1234-abcd'
         message_json = dict(close_message)
         message_json['job_id'] = jobid
 
-        with mock.patch.object(NexusFileWriterStatus,
-                               '_on_close') as mock_method:
+        with mock.patch.object(
+            NexusFileWriterStatus, '_on_close'
+        ) as mock_method:
             self.device._tracked_datasets[jobid] = BaseDataset()
-            self.device.new_messages_callback({12345: json.dumps(message_json)})
+            self.device.new_messages_callback(
+                {12345: json.dumps(message_json)}
+            )
             mock_method.assert_called_once()
 
         self.device._tracked_datasets[jobid] = BaseDataset()
