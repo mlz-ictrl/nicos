@@ -62,10 +62,16 @@ class NexusElementBase(object):
     def append(self, name, h5parent, sinkhandler, subset):
         self.np = self.np + 1
 
+    def resize_dataset(self, dset):
+        idx = self.np + 1
+        if len(dset) < idx:
+            dset.resize((idx,))
+
     def testAppend(self, sinkhandler):
-        self.doAppend = bool(hasattr(sinkhandler.startdataset,
-                                     'npoints') and
-                             sinkhandler.startdataset.npoints > 1)
+        self.doAppend = bool((hasattr(sinkhandler.startdataset,
+                                      'npoints') and
+                             sinkhandler.startdataset.npoints > 1) or
+                             hasattr(session, '_manualscan'))
         self.np = 0
 
     def determineType(self):
@@ -114,6 +120,7 @@ class ConstDataset(NexusElementBase):
     def __init__(self, value, dtype, **attrs):
         self.value = value
         self.dtype = dtype
+        self.attrs = {}
         for key, val in iteritems(attrs):
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
@@ -202,6 +209,7 @@ class DeviceDataset(NexusElementBase):
                 (self.device, self.parameter)]
             dset = h5parent[name]
             if self.dtype != 'string':
+                self.resize_dataset(dset)
                 dset[self.np] = self.value[0]
         else:
             # This data missing is normal
@@ -216,8 +224,7 @@ class DeviceDataset(NexusElementBase):
             if dev.name == self.device:
                 value = dev.read()
                 if self.doAppend:
-                    idx = self.np + 1
-                    dset.resize((idx,))
+                    self.resize_dataset(dset)
                     dset[self.np] = value
 
     def scanlink(self, name, sinkhandler, h5parent, linkroot):
@@ -266,12 +273,12 @@ class DetectorDataset(NexusElementBase):
             dset[0] = np.string_(mode)
         elif self.nicosname == 'preset':
             mp = sinkhandler.startdataset.preset.values()
+            self.resize_dataset(dset)
             dset[0] = list(mp)[0]
         else:
             try:
                 val = sinkhandler.dataset.values[self.nicosname]
-                idx = self.np + 1
-                dset.resize((idx,))
+                self.resize_dataset(dset)
                 dset[self.np] = val
             except Exception:
                 # This is normal: the dataset called with
@@ -295,8 +302,7 @@ class DetectorDataset(NexusElementBase):
             try:
                 val = sinkhandler.dataset.values[self.nicosname]
                 if self.doAppend:
-                    idx = self.np + 1
-                    dset.resize((idx,))
+                    self.resize_dataset(dset)
                 dset[self.np] = val
             except Exception:
                 session.log.warning('failed to find result for %s',
