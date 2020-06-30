@@ -1,9 +1,12 @@
 main_window = docked(
     tabbed(
         (
+            "Experiment",
+            vsplit(panel("nicos_ess.loki.gui.setup_panel.ExpPanel")),  # vsplit
+        ),
+        (
             "Setup",
             tabbed(
-                ("Experiment", panel("nicos_ess.gui.panels.setup_panel.ExpPanel")),
                 ("Instrument", panel("nicos_ess.gui.panels.setup_panel.SetupsPanel")),
             ),
         ),
@@ -57,8 +60,7 @@ main_window = docked(
                     "nicos.clients.gui.panels.scriptbuilder.CommandsPanel",
                     modules=["nicos_mlz.kws2.gui.cmdlets"],
                 ),
-                panel('nicos_ess.gui.panels.editor.EditorPanel',
-                      tools=None),
+                panel("nicos_ess.gui.panels.editor.EditorPanel", tools=None),
             ),
         ),
         ("Detector Image", panel("nicos_ess.gui.panels.live.LiveDataPanel")),
