@@ -57,12 +57,8 @@ main_window = docked(
                     "nicos.clients.gui.panels.scriptbuilder.CommandsPanel",
                     modules=["nicos_mlz.kws2.gui.cmdlets"],
                 ),
-                panel(
-                    "nicos.clients.gui.panels.editor.EditorPanel",
-                    tools=[
-                        tool("Scan Generator", "nicos.clients.gui.tools.scan.ScanTool")
-                    ],
-                ),
+                panel('nicos_ess.gui.panels.editor.EditorPanel',
+                      tools=None),
             ),
         ),
         ("Detector Image", panel("nicos_ess.gui.panels.live.LiveDataPanel")),
