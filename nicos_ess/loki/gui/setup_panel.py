@@ -142,7 +142,7 @@ class ExpPanel(Panel):
         title = self.expTitle.text().encode('utf-8')
         users = self.users.text().encode('utf-8')
         try:
-            local = mailaddress(self.localContact.text().encode('utf-8'))
+            local = mailaddress(self.localContact.text())
         except ValueError:
             QMessageBox.critical(self, 'Error', 'The local contact entry is '
                                  'not  a valid email address')
@@ -280,7 +280,7 @@ class ExpPanel(Panel):
             self.client.run('SetDataReceivers(%s)' %
                             ', '.join(map(repr, dataEmails)))
             done.append('New data mail receivers set.')
-        if errorbehavior != self._orig_proposal_info[5]:
+        if errorbehavior != self._orig_proposal_info[4]:
             self.client.run('SetErrorAbort(%s)' % (errorbehavior == 'abort'))
             done.append('New error behavior set.')
 
