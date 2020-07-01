@@ -26,12 +26,12 @@ from __future__ import absolute_import, division, print_function
 
 import numpy
 
-from nicos.core import Attach, Override, Value, status
+from nicos.core import Attach, Override, Param, Value, dictof, status
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel
 from nicos.pycompat import iteritems
 
-from nicos_ess.devices.datasinks.imagesink.histogramdesc import HistogramDesc, \
-    HistogramDimDesc
+from nicos_ess.devices.datasinks.imagesink.histogramdesc \
+    import HistogramDesc, HistogramDimDesc
 from nicos_sinq.devices.sinqhm.configurator import HistogramConfBank
 from nicos_sinq.devices.sinqhm.connector import HttpConnector
 
@@ -78,15 +78,13 @@ class HistogramImageChannel(ImageChannelMixin, PassiveChannel):
         """
         return 0
 
-    @property
     def endid(self):
         """ The end id of the data to be fetched from the bank.
         By default uses the full banks capacity, but can be
         overridden in case a smaller range is required
         """
-        return numpy.prod(self.shape)
+        return numpy.prod(self.shape())
 
-    @property
     def shape(self):
         """ Shape of the data fetched. By default uses the
         shape of the bank, but the subclasses can override
@@ -118,7 +116,7 @@ class HistogramImageChannel(ImageChannelMixin, PassiveChannel):
 
         # Read the raw bytes from the server
         params = (('bank', self.bank.bankid), ('start', self.startid),
-                  ('end', self.endid))
+                  ('end', self.endid()))
         req = self.connector.get('readhmdata.egi', params)
         data = numpy.frombuffer(req.content, dt)
         # Set the result and return data
@@ -127,6 +125,40 @@ class HistogramImageChannel(ImageChannelMixin, PassiveChannel):
 
     def doStatus(self, maxage=0):
         return self.connector.status(maxage)
+
+
+class ReshapeHistogramImageChannel(HistogramImageChannel):
+    """
+    An image channel which can reshape the data. This is sometimes necessary.
+    """
+
+    parameters = {
+        'dimensions': Param('Desired shape of the data',
+                            type=dictof(str, int),
+                            ),
+    }
+
+    _shape = None
+    _HM_dim_desc = None
+
+    def doInit(self):
+        self._shape = tuple(self.dimensions.values())
+        res = []
+        for name, dim in self.dimensions.items():
+            res.append(HistogramDimDesc(dim, name, ''))
+        self._HM_dim_desc = res
+
+    def doReadArray(self, quality):
+        data = HistogramImageChannel.doReadArray(self, quality)
+        if len(data) >= numpy.prod(self.shape()):
+            return data.reshape(self.shape())
+        return data
+
+    def shape(self):
+        return self._shape
+
+    def _dimDesc(self):
+        return self._HM_dim_desc
 
 
 class HistogramMemoryChannel(PassiveChannel):
