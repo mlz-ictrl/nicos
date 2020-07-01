@@ -14,7 +14,7 @@ PYFILESCHANGED=$(python - <<EOF
 import sys
 if sys.version_info[0] == 2:
     for fn in "$PYFILESCHANGED".split():
-        if "nicos_ess/" not in fn:
+        if "nicos_ess/" not in fn and "nicos_sinq/" not in fn:
             print(fn)
 else:
     print("$PYFILESCHANGED")
