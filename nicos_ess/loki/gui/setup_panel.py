@@ -139,19 +139,19 @@ class ExpPanel(Panel):
 
     def _getProposalInput(self):
         prop = self.proposalNum.text()
-        title = self.expTitle.text().encode('utf-8')
-        users = self.users.text().encode('utf-8')
+        title = self.expTitle.text()
+        users = self.users.text()
         try:
             local = mailaddress(self.localContact.text())
         except ValueError:
             QMessageBox.critical(self, 'Error', 'The local contact entry is '
                                  'not  a valid email address')
             raise ConfigurationError('')
-        emails = self.notifEmails.toPlainText().encode('utf-8').strip()
+        emails = self.notifEmails.toPlainText().strip()
         emails = emails.split(b'\n') if emails else []
         if local and local not in emails:
             emails.append(local)
-        dataEmails = self.dataEmails.toPlainText().encode('utf-8').strip()
+        dataEmails = self.dataEmails.toPlainText().strip()
         dataEmails = dataEmails.split(b'\n') if dataEmails else []
         errorbehavior = 'abort' if self.errorAbortBox.isChecked() else 'report'
         return prop, title, users, local, emails, dataEmails, errorbehavior
@@ -280,7 +280,7 @@ class ExpPanel(Panel):
             self.client.run('SetDataReceivers(%s)' %
                             ', '.join(map(repr, dataEmails)))
             done.append('New data mail receivers set.')
-        if errorbehavior != self._orig_proposal_info[4]:
+        if errorbehavior != self._orig_proposal_info[5]:
             self.client.run('SetErrorAbort(%s)' % (errorbehavior == 'abort'))
             done.append('New error behavior set.')
 
