@@ -112,10 +112,8 @@ class ExpPanel(Panel):
         self._update_proposal_info()
         # check for new or finish
         if self.client.eval('session.experiment.mustFinish', False):
-            self.finishBox.setVisible(True)
             self.newBox.setVisible(False)
         else:
-            self.finishBox.setVisible(False)
             self.newBox.setVisible(True)
             self.proposalNum.setText('')  # do not offer "service"
         # check for capability to ask proposal database
@@ -148,11 +146,11 @@ class ExpPanel(Panel):
                                  'not  a valid email address')
             raise ConfigurationError('')
         emails = self.notifEmails.toPlainText().strip()
-        emails = emails.split(b'\n') if emails else []
+        emails = emails.split('\n') if emails else []
         if local and local not in emails:
             emails.append(local)
         dataEmails = self.dataEmails.toPlainText().strip()
-        dataEmails = dataEmails.split(b'\n') if dataEmails else []
+        dataEmails = dataEmails.split('\n') if dataEmails else []
         errorbehavior = 'abort' if self.errorAbortBox.isChecked() else 'report'
         return prop, title, users, local, emails, dataEmails, errorbehavior
 
