@@ -384,16 +384,14 @@ class UYamlFileSinkHandler(SisYamlFileSinkHandlerBase):
                 # energy (1)
                 row = [histo.energy]
                 # pseudomonitor timesteps (1)
-                row.append(int(sum(histo.t_open_l + histo.t_open_r) /
-                               ((len(histo.t_open_l) +
-                                 len(histo.t_open_r)) / 2)))
+                row.append(int(sum(histo.t_open_l) / len(histo.t_open_l)) +
+                           int(sum(histo.t_open_r) / len(histo.t_open_r)))
                 # pseudomonitor counts (1)
                 row.append(int(sum(histo.c_open_l[dets[0]:dets[1]] +
                                    histo.c_open_r[dets[0]:dets[1]])))
                 # time steps (1)
-                row.append(int(sum(histo.t_refl_r + histo.t_refl_l) /
-                               ((len(histo.t_refl_r) +
-                                 len(histo.t_refl_l)) / 2)))
+                row.append(int(sum(histo.t_refl_l) / len(histo.t_refl_l)) +
+                           int(sum(histo.t_refl_r) / len(histo.t_refl_r)))
                 # counts (16)
                 row += [int(histo.c_refl_r[x] + histo.c_refl_l[x])
                         for x in range(self.DETAMOUNT)]

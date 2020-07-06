@@ -57,14 +57,14 @@ TOTALSIZE =   1
 EnergyHisto = namedtuple('EnergyHisto', 'energy '
                                         'c_refl_l c_refl_r '
                                         'c_open_l c_open_r '
-                                        't_refl_l t_refl_r '
-                                        't_open_l t_open_r')
+                                        't_open_l t_open_r '
+                                        't_refl_l t_refl_r')
 TimeHisto = namedtuple('TimeHisto', 'tval '
                                     'c_refl c_open '
-                                    't_refl t_open')
+                                    't_open t_refl')
 ChopperHisto = namedtuple('ChopperHisto', 'angle '
                                           'c_refl c_open '
-                                          't_refl t_open')
+                                          't_open t_refl')
 
 
 class SISChannel(ImageChannel):
