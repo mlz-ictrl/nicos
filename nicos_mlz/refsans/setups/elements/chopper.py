@@ -8,7 +8,7 @@ tango_host = instrument_values['tango_base'] + 'test/chopper/io'
 code_base_chopper = instrument_values['code_base'] + 'chopper.real.'
 code_base_analog = instrument_values['code_base'] + 'analogencoder.AnalogEncoder'
 
-includes = ['shutter', 'vsd', 'chopperphasentiming']
+includes = ['shutter', 'vsd']
 
 devices = dict(
     chopper_io = device('nicos.devices.tango.StringIO',
