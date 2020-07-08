@@ -37,7 +37,7 @@ from nicos_mlz.devices.sample import Sample as MLZSample
 DUMMY_SAMPLE_ID = 218  # 498
 # TODO: check if IDs are the same in the actual sample DB
 MEASUREMENT_ACTION_ID = {
-    'fourcircle': 32,
+    # 'fourcircle': 32,  # fourcircle not supported yet
     'galaxi': 25,
 }
 NICOS_USER_ID = 45
@@ -54,7 +54,7 @@ class Sample(MLZSample):
         new_id = DUMMY_SAMPLE_ID
         # check whether given ID belongs to a sample by trying to add a
         # measurement entry to the sample database
-        if value is not None and 'ldap_id' in session.getExecutingUser().data:
+        if value is not None:
             bot = session.experiment.sampledb_botname
             r = post(
                 session.experiment.sampledb_url + 'objects/',

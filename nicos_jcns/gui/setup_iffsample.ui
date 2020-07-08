@@ -68,7 +68,7 @@
         <string>Sample</string>
        </property>
        <property name="param" stdset="0">
-        <string>sampleid</string>
+        <string>id</string>
        </property>
       </widget>
      </item>
