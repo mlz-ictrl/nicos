@@ -94,7 +94,7 @@ devices = dict(
     # note: these four will only be created if their prerequisite modules
     # are installed (and they are present in *sinklist*) because device auto
     # creation is off for test sessions
-    fitssink = device('nicos.devices.datasinks.FITSImageSink'),
+    fitssink = device('nicos.devices.datasinks.FITSImageSink', filemode=0o444),
     tiffsink = device('nicos.devices.datasinks.TIFFImageSink'),
     yamlsink = device('nicos_mlz.dns.devices.yamlformat.YAMLFileSink',
         filenametemplate = ['%(pointcounter)08d.yaml'],
