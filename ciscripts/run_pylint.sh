@@ -13,8 +13,13 @@ PYFILESCHANGED=$(~/tools2/bin/changedfiles --py)
 PYFILESCHANGED=$(python - <<EOF
 import sys
 if sys.version_info[0] == 2:
+    py3only = [
+        "nicos_ess/",
+        "nicos_sinq/",
+        "nicos/devices/notifiers/slack.py",
+    ]
     for fn in "$PYFILESCHANGED".split():
-        if "nicos_ess/" not in fn and "nicos_sinq/" not in fn:
+        if all(p not in fn for p in py3only):
             print(fn)
 else:
     print("$PYFILESCHANGED")
