@@ -103,5 +103,6 @@ devices = dict(
         padding = 0,
         layout = [[_expcolumn],
                   [_translationColumn, _detectorColumn, _ubahnColumn]],
+        noexpired = True,
     ),
 )

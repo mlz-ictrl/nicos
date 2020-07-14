@@ -455,5 +455,6 @@ devices = dict(
         layout = [[_expcolumn], [_detectorikonlcolumn], [_detectorneocolumn],
                   [_detectorzwo01column],[_live],
                   [_leftcolumn, _rightcolumn]],
+        noexpired = True,
     ),
 )

@@ -27,5 +27,6 @@ devices = dict(
         padding = 3,
         layout = _layout,
         filename = '/WebServer/jcnswww.jcns.frm2/httpdocs/monitor/test.html',
+        noexpired = True,
     ),
 )

@@ -176,5 +176,6 @@ devices = dict(
             Row(_magnet, _e,),
             Row(_sc, _newport),
         ],
+        noexpired = True,
     ),
 )
