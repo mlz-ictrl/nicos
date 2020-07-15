@@ -290,6 +290,7 @@ devices = dict(
         fontsize = 17,
         layout = [[_expcolumn],
                   [column1, column2, column3],
-                  [column4]]
+                  [column4]],
+        noexpired = True,
     ),
 )

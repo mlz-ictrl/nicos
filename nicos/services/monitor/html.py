@@ -383,6 +383,7 @@ class Monitor(BaseMonitor):
             ff = self.font,
             ffm = self.valuefont or self.font,
             intv = self.interval,
+            # pylint: disable=deprecated-method
             title = escape_html(self.title),
             icon = nicos_icon,
         )
@@ -415,6 +416,7 @@ class Monitor(BaseMonitor):
                     blk += p
                 field._plotcurve = p.addcurve(field.name)
             elif field.picture:
+                # pylint: disable=deprecated-method
                 pic = Picture(field.picture, field.width, field.height,
                               escape_html(field.name))
                 blk += pic
@@ -422,6 +424,7 @@ class Monitor(BaseMonitor):
                 # deactivate plots
                 field.plot = None
                 # create name label
+                # pylint: disable=deprecated-method
                 flabel = field._namelabel = Label('name', field.width,
                                                   escape_html(field.name))
                 blk += flabel
@@ -442,6 +445,7 @@ class Monitor(BaseMonitor):
                     block = self._resolve_block(block)
                     blk = Block(block._options)
                     blk += u'<div class="block">'
+                    # pylint: disable=deprecated-method
                     blk += (u'<div class="blockhead">%s</div>' %
                             escape_html(block._title))
                     blk += u'\n    <table class="blocktable">'
@@ -549,11 +553,13 @@ class Monitor(BaseMonitor):
                 self.signalKeyChange(field, field.key, field.value, 0, False)
 
     def _labelunittext(self, text, unit, fixed):
-        return escape_html(text) + u' <span class="unit">%s</span><span ' \
+        # pylint: disable=deprecated-method
+        return escape_html(text) + ' <span class="unit">%s</span><span ' \
             'class="fixed">%s</span> ' % (escape_html(unit), fixed)
 
     def switchWarnPanel(self, on):
         if on:
+            # pylint: disable=deprecated-method
             self._warnlabel.text = escape_html(self._currwarnings)
         else:
             self._warnlabel.text = ''

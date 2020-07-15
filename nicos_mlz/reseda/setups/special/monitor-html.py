@@ -249,5 +249,6 @@ devices = dict(
         valuefont = 'Consolas',
         fontsize = 17,
         layout = [[_expcolumn], [_column1, _column2, _column3]],
+        noexpired = True,
     ),
 )

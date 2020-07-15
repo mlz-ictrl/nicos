@@ -117,6 +117,7 @@ devices = dict(
                 col2,
             ],
             [BlockRow(lauecryo)],
-        ]
+        ],
+        noexpired = True,
     ),
 )

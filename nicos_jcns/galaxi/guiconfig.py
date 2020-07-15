@@ -37,7 +37,10 @@ main_window = tabbed(
             tool('Scan Generator', 'nicos.clients.gui.tools.scan.ScanTool')
         ]),
     )),
-    ('Live data', panel('nicos.clients.gui.panels.live.LiveDataPanel')),
+    ('Live data', panel(
+        'nicos.clients.gui.panels.live.LiveDataPanel', instrument='galaxi',
+        detectors=['mythen'],
+    )),
     ('Scan Plotting', panel('nicos.clients.gui.panels.scans.ScansPanel')),
     ('Device Plotting', panel(
         'nicos.clients.gui.panels.history.HistoryPanel'

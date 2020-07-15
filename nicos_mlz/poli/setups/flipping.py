@@ -2,13 +2,13 @@ description = 'Flipping ratio detector and flipper alias'
 
 group = 'optional'
 
-includes = ['detector']
+includes = ['detector', 'mezei_flipper']
 
 devices = dict(
     adet = device('nicos_mlz.poli.devices.detector.AsymDetector',
         description = 'detector that automatically counts up and down states',
         detector = 'det',
-        flipper = 'pcflipper',  # was 'nutator2c'
+        flipper = 'mezeiflipper',
         flipvalues = ('on', 'off'),
         counter = 'ctr1',
     ),
