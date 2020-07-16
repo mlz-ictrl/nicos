@@ -79,6 +79,7 @@ class TestNexusSink(object):
             'entry:NXentry': {},
         }
         setTemplate(template)
+        session.experiment.setDetectors(['det', ])
         self.setScanCounter(session, 44)
 
         count(t=0.1)
@@ -105,6 +106,7 @@ class TestNexusSink(object):
         }
         session.experiment.title = 'GurkenTitle'
         maw(session.getDevice('sry'), 23.7)
+        session.experiment.setDetectors(['det', ])
         setTemplate(template)
         self.setScanCounter(session, 46)
         count(t=.1)
@@ -131,6 +133,7 @@ class TestNexusSink(object):
         session.experiment.title = 'GurkenTitle'
         setTemplate(template)
         self.setScanCounter(session, 47)
+        session.experiment.setDetectors(['det', ])
 
         count(t=.1)
 
@@ -213,6 +216,7 @@ class TestNexusSink(object):
         }
 
         maw(session.getDevice('sry'), 77.7)
+        session.experiment.setDetectors(['det', ])
 
         setTemplate(template)
         self.setScanCounter(session, 50)
