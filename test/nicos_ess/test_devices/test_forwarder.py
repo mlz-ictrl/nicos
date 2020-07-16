@@ -24,19 +24,15 @@
 
 from __future__ import absolute_import, division, print_function
 
-import json
 import random
 import time
-from operator import itemgetter
 from string import ascii_lowercase
 
 import pytest
-
-pytest.importorskip('kafka')
-pytest.importorskip('graypy')
+from streaming_data_types.forwarder_config_update_rf5k import UpdateType, \
+    deserialise_rf5k
 
 from nicos.core import status
-from nicos.pycompat import from_utf8
 
 from nicos_ess.devices.forwarder import EpicsKafkaForwarder as DefaultEpicsKafkaForwarder, \
     EpicsKafkaForwarderControl as DefaultEpicsKafkaForwarderControl
@@ -46,7 +42,10 @@ try:
 except ImportError:
     import mock
 
-session_setup = 'ess_forwarder'
+pytest.importorskip("kafka")
+pytest.importorskip("graypy")
+
+session_setup = "ess_forwarder"
 
 
 class EpicsKafkaForwarderControl(DefaultEpicsKafkaForwarderControl):
@@ -65,74 +64,83 @@ class EpicsKafkaForwarder(DefaultEpicsKafkaForwarder):
         pass
 
 
-def create_stream(pv, broker='localhost:9092', topic='TEST_metadata',
-                  schema='f142'):
-    return {'channel_name': pv, 'converters': [{'broker': broker,
-                                                'topic': topic,
-                                                'schema': schema}]}
+def create_stream(
+    pv, broker="localhost:9092", topic="TEST_metadata", schema="f142"
+):
+    return {
+        "channel_name": pv,
+        "converters": [{"broker": broker, "topic": topic, "schema": schema}],
+    }
 
 
 def random_string(length):
     letters = ascii_lowercase
-    return ''.join(random.choice(letters) for _ in range(length))
+    return "".join(random.choice(letters) for _ in range(length))
 
 
 def create_random_messages(num_messages, num_pvs=10):
     start = int(1000 * time.time())
     pvs = [random_string(4) for _ in range(num_pvs)]
-    streams = {'streams': [create_stream(pv) for pv in pvs]}
+    streams = {"streams": [create_stream(pv) for pv in pvs]}
     times = [start + random.randint(0, 1000) for _ in range(num_messages)]
     return {t: streams for t in times}
 
 
 def create_issued_from_messages(messages):
-    streams = messages[sorted(list(messages.keys()))[-1]]['streams']
+    streams = messages[sorted(list(messages.keys()))[-1]]["streams"]
     issued = {}
     for stream in streams:
-        converter = stream['converters'][0]
-        issued[stream['channel_name']] = converter['topic'], converter[
-            'schema']
+        converter = stream["converters"][0]
+        issued[stream["channel_name"]] = (
+            converter["topic"],
+            converter["schema"],
+        )
     return issued
 
 
 def create_pv_details_from_messages(messages):
-    streams = messages[sorted(list(messages.keys()))[-1]]['streams']
+    streams = messages[sorted(list(messages.keys()))[-1]]["streams"]
     pv_details = {}
     for stream in streams:
-        converter = stream['converters'][0]
-        pv_details[stream['channel_name']] = (converter['topic'],
-                                              converter['schema'])
+        converter = stream["converters"][0]
+        pv_details[stream["channel_name"]] = (
+            converter["topic"],
+            converter["schema"],
+        )
     return pv_details
 
 
 def create_command_from_messages(messages):
-    streams = messages[sorted(list(messages.keys()))[-1]]['streams']
-    command = {'cmd': 'add', 'streams': []}
+    streams = messages[sorted(list(messages.keys()))[-1]]["streams"]
+    command = {"cmd": "add", "streams": []}
 
     def get_stream_entry(ch, conv):
-        return {"converter":
-                    {"topic": "%s/%s" % (conv['broker'], conv['topic']),
-                     "schema": conv['schema']},
-                "channel_provider_type": "ca", "channel": ch}
+        return {
+            "converter": {
+                "topic": f"{conv['broker']}/{conv['topic']}",
+                "schema": conv["schema"],
+            },
+            "channel_provider_type": "ca",
+            "channel": ch,
+        }
 
     for stream in streams:
-        converter = stream['converters'][0]
-        channel = stream['channel_name']
-        command['streams'].append(get_stream_entry(channel, converter))
+        converter = stream["converters"][0]
+        channel = stream["channel_name"]
+        command["streams"].append(get_stream_entry(channel, converter))
     return command
 
 
 class TestEpicsKafkaForwarderMonitor(object):
-
     @pytest.fixture(autouse=True)
     def prepare(self, session):
         self.session = session
-        self.monitor = self.session.getDevice('KafkaForwarder')
+        self.monitor = self.session.getDevice("KafkaForwarder")
 
     @pytest.fixture(autouse=True)
     def finalize(self, request):
         def fin():
-            self.monitor.curstatus = (0, '')
+            self.monitor.curstatus = (0, "")
             self.monitor._forwarded = {}
 
         request.addfinalizer(fin)
@@ -144,24 +152,27 @@ class TestEpicsKafkaForwarderMonitor(object):
 
     def test_status_update_callback_doesn_t_change_if_no_messages(self):
         original = self.monitor.curstatus
-        for st in [original,
-                   (status.OK, 'Forwarding..'),
-                   (status.ERROR, 'None forwarded!'),
-                   (status.WARN, 'Not forwarded: %d/%d' % (1, 10))]:
+        for st in [
+            original,
+            (status.OK, "Forwarding.."),
+            (status.ERROR, "None forwarded!"),
+            (status.WARN, "Not forwarded: 1/10"),
+        ]:
             self.set_and_test_status(st)
             self.monitor.curstatus = original
 
     def test_update_forwarded_pvs(self):
         messages = create_random_messages(10)
         self.monitor._status_update_callback(messages)
-        assert self.monitor.forwarded == set(create_issued_from_messages(
-            messages).keys())
+        assert self.monitor.forwarded == set(
+            create_issued_from_messages(messages).keys()
+        )
 
     def test_update_forwarded_pvs_set_forwarding_status(self):
-        assert self.monitor.curstatus == (0, '')
+        assert self.monitor.curstatus == (0, "")
         messages = create_random_messages(10)
         self.monitor._status_update_callback(messages)
-        assert self.monitor.curstatus == (status.OK, 'Forwarding..')
+        assert self.monitor.curstatus == (status.OK, "Forwarding..")
 
     def test_inactive_methods_don_t_fail(self):
         try:
@@ -178,15 +189,14 @@ class TestEpicsKafkaForwarderMonitor(object):
         self.monitor._status_update_callback(messages)
 
         assert not self.monitor.forwarded
-        assert self.monitor.curstatus == (status.OK, 'idle')
+        assert self.monitor.curstatus == (status.OK, "idle")
 
 
 class TestEpicsKafkaForwarderControl(object):
-
     @pytest.fixture(autouse=True)
     def prepare(self, session):
         self.session = session
-        self.device = self.session.getDevice('KafkaForwarderCommand')
+        self.device = self.session.getDevice("KafkaForwarderCommand")
 
     @pytest.fixture(autouse=True)
     def finalize(self, request):
@@ -198,7 +208,7 @@ class TestEpicsKafkaForwarderControl(object):
         request.addfinalizer(fin)
 
     def test_initial_status(self):
-        assert self.device.doStatus() == (status.OK, 'None issued')
+        assert self.device.doStatus() == (status.OK, "None issued")
 
     def test_empty_status_update_nothrows_if_no_issued(self):
         try:
@@ -208,7 +218,7 @@ class TestEpicsKafkaForwarderControl(object):
             assert False, str(e)
 
     def test_empty_status_update_throws_if_issued(self):
-        self.device._issued = {'pv': ()}
+        self.device._issued = {"pv": ()}
         with pytest.raises(KeyError):
             assert self.device.status_update(dict())
 
@@ -218,7 +228,7 @@ class TestEpicsKafkaForwarderControl(object):
         self.device.status_update(message)
         assert not self.device._notforwarding
         assert not self.device._issued
-        assert self.device.doStatus() == (status.OK, 'None issued')
+        assert self.device.doStatus() == (status.OK, "None issued")
 
     def test_status_message_all_forwarded_gives_forwarding(self):
         messages = create_random_messages(1)
@@ -228,10 +238,10 @@ class TestEpicsKafkaForwarderControl(object):
 
         assert not self.device._notforwarding
         assert self.device._issued
-        assert self.device.doStatus() == (status.OK, 'Forwarding..')
+        assert self.device.doStatus() == (status.OK, "Forwarding..")
 
     def test_status_message_some_not_forwarded_gives_warning(self):
-        extra_key = '1234'
+        extra_key = "1234"
         messages = create_random_messages(1)
 
         self.device._issued = create_issued_from_messages(messages)
@@ -239,70 +249,65 @@ class TestEpicsKafkaForwarderControl(object):
         self.device.status_update(list(messages.values())[0])
 
         assert self.device._notforwarding == {extra_key}
-        message = 'Not forwarded: %d/%d' % (1, len(self.device._issued))
+        message = f"Not forwarded: 1/{len(self.device._issued)}"
         assert self.device.doStatus() == (status.WARN, message)
 
     def test_add_pvs(self):
         messages = create_random_messages(1, num_pvs=5)
         pv_details = create_pv_details_from_messages(messages)
-        expected_command = create_command_from_messages(messages)
 
-        with mock.patch.object(EpicsKafkaForwarderControl,
-                               'send') as mock_send:
+        with mock.patch.object(
+            EpicsKafkaForwarderControl, "send"
+        ) as mock_send:
             self.device.add(pv_details)
 
         call_topic, call_command = mock_send.call_args[0]
         assert call_topic == self.device.cmdtopic
 
-        if isinstance(call_command, bytes):
-            call_command = json.loads(from_utf8(call_command))
-        if isinstance(call_command, str):
-            call_command = json.loads(call_command)
-        call_entries = sorted(call_command['streams'],
-                              key=itemgetter('channel'))
-        expected_entries = sorted(expected_command['streams'],
-                                  key=itemgetter('channel'))
-        assert call_entries == expected_entries
-        assert self.device._issued == pv_details
+        entry = deserialise_rf5k(call_command)
+        assert entry.config_change == UpdateType.UpdateType.ADD
+        topics = set()
+        for stream in entry.streams:
+            assert stream.schema == "f142"
+            assert stream.topic == "TEST_metadata"
+            topics.add(stream.channel)
+        assert topics == set(pv_details.keys())
 
     def test_reissue(self):
         messages = create_random_messages(1, num_pvs=5)
         self.device._issued = create_issued_from_messages(messages)
         pv_details = create_pv_details_from_messages(messages)
-        expected_command = create_command_from_messages(messages)
 
-        with mock.patch.object(EpicsKafkaForwarderControl,
-                               'send') as mock_send:
+        with mock.patch.object(
+            EpicsKafkaForwarderControl, "send"
+        ) as mock_send:
             self.device.reissue()
 
         call_topic, call_command = mock_send.call_args[0]
 
         assert call_topic == self.device.cmdtopic
 
-        if isinstance(call_command, bytes):
-            call_command = json.loads(from_utf8(call_command))
-        if isinstance(call_command, str):
-            call_command = json.loads(call_command)
-        call_entries = sorted(call_command['streams'],
-                              key=itemgetter('channel'))
-        expected_entries = sorted(expected_command['streams'],
-                                  key=itemgetter('channel'))
-        assert call_entries == expected_entries
-        assert self.device._issued == pv_details
+        entry = deserialise_rf5k(call_command)
+        assert entry.config_change == UpdateType.UpdateType.ADD
+        topics = set()
+        for stream in entry.streams:
+            assert stream.schema == "f142"
+            assert stream.topic == "TEST_metadata"
+            topics.add(stream.channel)
+        assert topics == set(pv_details.keys())
 
 
 class TestEpicsForwarderMonitorAndControlIntegration(object):
-
     @pytest.fixture(autouse=True)
     def prepare(self, session):
         self.session = session
-        self.monitor = self.session.getDevice('KafkaForwarderIntegration')
-        self.control = self.session.getDevice('KafkaForwarderCommand')
+        self.monitor = self.session.getDevice("KafkaForwarderIntegration")
+        self.control = self.session.getDevice("KafkaForwarderCommand")
 
     @pytest.fixture(autouse=True)
     def finalize(self, request):
         def fin():
-            self.monitor.curstatus = (0, '')
+            self.monitor.curstatus = (0, "")
             self.monitor._forwarded = {}
             self.control._issued = {}
             self.control._notforwarding = {}
@@ -318,7 +323,7 @@ class TestEpicsForwarderMonitorAndControlIntegration(object):
             assert False, str(e)
 
     def test_empty_status_update_throws_if_issued(self):
-        self.control._issued = {'pv': ()}
+        self.control._issued = {"pv": ()}
         try:
             self.monitor._status_update_callback(dict())
             assert True
@@ -331,8 +336,8 @@ class TestEpicsForwarderMonitorAndControlIntegration(object):
 
         assert not self.control._notforwarding
         assert not self.control._issued
-        assert self.control.doStatus() == (status.OK, 'None issued')
-        assert self.monitor.curstatus == (status.OK, 'None issued')
+        assert self.control.doStatus() == (status.OK, "None issued")
+        assert self.monitor.curstatus == (status.OK, "None issued")
 
     def test_status_message_all_forwarded_gives_forwarding(self):
         messages = create_random_messages(10, num_pvs=5)
@@ -342,11 +347,11 @@ class TestEpicsForwarderMonitorAndControlIntegration(object):
 
         assert not self.control._notforwarding
         assert self.control._issued
-        assert self.control.doStatus() == (status.OK, 'Forwarding..')
-        assert self.monitor.curstatus == (status.OK, 'Forwarding..')
+        assert self.control.doStatus() == (status.OK, "Forwarding..")
+        assert self.monitor.curstatus == (status.OK, "Forwarding..")
 
     def test_status_message_some_not_forwarded_gives_warning(self):
-        extra_key = '1234'
+        extra_key = "1234"
         messages = create_random_messages(10, num_pvs=5)
 
         self.control._issued = create_issued_from_messages(messages)
@@ -354,56 +359,50 @@ class TestEpicsForwarderMonitorAndControlIntegration(object):
         self.monitor._status_update_callback(messages)
 
         assert self.control._notforwarding == {extra_key}
-        message = 'Not forwarded: %d/%d' % (1, len(self.control._issued))
+        message = "Not forwarded: %d/%d" % (1, len(self.control._issued))
         assert self.control.doStatus() == (status.WARN, message)
         assert self.monitor.curstatus == (status.WARN, message)
 
     def test_add_pvs(self):
         messages = create_random_messages(10, num_pvs=5)
         pv_details = create_pv_details_from_messages(messages)
-        expected_command = create_command_from_messages(messages)
 
-        with mock.patch.object(EpicsKafkaForwarderControl,
-                               'send') as mock_send:
+        with mock.patch.object(
+            EpicsKafkaForwarderControl, "send"
+        ) as mock_send:
             self.monitor.add(pv_details)
 
         call_topic, call_command = mock_send.call_args[0]
         assert call_topic == self.control.cmdtopic
 
-        if isinstance(call_command, bytes):
-            call_command = json.loads(from_utf8(call_command))
-        if isinstance(call_command, str):
-            call_command = json.loads(call_command)
-
-        call_entries = sorted(call_command['streams'],
-                              key=itemgetter('channel'))
-        expected_entries = sorted(expected_command['streams'],
-                                  key=itemgetter('channel'))
-        assert call_entries == expected_entries
-        assert self.control._issued == pv_details
+        entry = deserialise_rf5k(call_command)
+        assert entry.config_change == UpdateType.UpdateType.ADD
+        topics = set()
+        for stream in entry.streams:
+            assert stream.schema == "f142"
+            assert stream.topic == "TEST_metadata"
+            topics.add(stream.channel)
+        assert topics == set(pv_details.keys())
 
     def test_reissue(self):
         messages = create_random_messages(10, num_pvs=5)
         self.control._issued = create_issued_from_messages(messages)
         pv_details = create_pv_details_from_messages(messages)
-        expected_command = create_command_from_messages(messages)
 
-        with mock.patch.object(EpicsKafkaForwarderControl,
-                               'send') as mock_send:
+        with mock.patch.object(
+            EpicsKafkaForwarderControl, "send"
+        ) as mock_send:
             self.control.reissue()
 
         call_topic, call_command = mock_send.call_args[0]
 
         assert call_topic == self.control.cmdtopic
 
-        if isinstance(call_command, bytes):
-            call_command = json.loads(from_utf8(call_command))
-        if isinstance(call_command, str):
-            call_command = json.loads(call_command)
-
-        call_entries = sorted(call_command['streams'],
-                              key=itemgetter('channel'))
-        expected_entries = sorted(expected_command['streams'],
-                                  key=itemgetter('channel'))
-        assert call_entries == expected_entries
-        assert self.control._issued == pv_details
+        entry = deserialise_rf5k(call_command)
+        assert entry.config_change == UpdateType.UpdateType.ADD
+        topics = set()
+        for stream in entry.streams:
+            assert stream.schema == "f142"
+            assert stream.topic == "TEST_metadata"
+            topics.add(stream.channel)
+        assert topics == set(pv_details.keys())
