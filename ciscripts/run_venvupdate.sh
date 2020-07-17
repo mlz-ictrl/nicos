@@ -1,6 +1,8 @@
-#! /bin/bash
-venvfull=$1
-pbranch=$2
+#!/bin/bash
+set -e
+
+venvfull="$1"
+pbranch="${2-default}"
 venv=${venvfull##*/}
 . $venvfull/bin/activate
 echo
