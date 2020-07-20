@@ -5,6 +5,7 @@ group = 'basic'
 includes = [
     'detector', 'chopper', 'vacuum', 'voltage', 'table', 'slit', 'collimator',
     'rc', 'reactor',
+    'nl2a',
 ]
 
 startupcode = '''
