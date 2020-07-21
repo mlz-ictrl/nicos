@@ -50,7 +50,7 @@ from math import floor, log10
 from threading import Event
 
 from nicos import session
-from nicos.core import MASTER, SIMULATION, Attach, DeviceAlias, Override, \
+from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, Override, \
     Param, status, usermethod
 from nicos.core.device import DeviceMeta, Moveable, Readable
 from nicos.core.errors import ConfigurationError
@@ -207,18 +207,18 @@ class SecNodeDevice(Readable):
         self._devices = {}
 
     def doInit(self, mode):
-        if mode == MASTER:
-            if self.uri:
-                try:
-                    self._connect()
-                except Exception:
-                    pass
-        elif mode == SIMULATION:
+        if mode == SIMULATION:
             setup_info = self.get_setup_info()
             if self.auto_create:
                 self.makeDynamicDevices(setup_info)
             else:
                 self._setROParam('setup_info', setup_info)
+        elif session.sessiontype != POLLER:
+            if self.uri:
+                try:
+                    self._connect()
+                except Exception:
+                    pass
 
     def get_setup_info(self):
         if self._mode == SIMULATION:
