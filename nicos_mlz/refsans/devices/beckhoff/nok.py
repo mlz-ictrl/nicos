@@ -307,7 +307,7 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
         (0b0000000010100000, status.BUSY),
         (0b0011111000011011, status.WARN),
     )
-    HW_readable_Params = dict(refPos=2, vMax=3, motorTemp=41,
+    HW_readable_Params = dict(refPos=2, vMax=3, motorTemp=41, potentiometer=60,
                               maxValue=120, minValue=121, firmwareVersion=253)
     HW_writeable_Params = dict(vMax=3)
 
@@ -321,6 +321,13 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
         'motortemp': Param('Motor temperature',
                            type=float, settable=False, userparam=True,
                            volatile=True, unit='degC', fmtstr='%.1f'),
+        'potentiometer': Param('Motor potentiometer calibrated value',
+                               type=float, settable=False, userparam=True,
+                               volatile=True, unit='mm', fmtstr='%f'),
+        'poly': Param('Polynomial coefficients in ascending order for '
+                      'potentiometer calibration',
+                      type=nonemptylistof(float), settable=False,
+                      mandatory=False, default=[1.]),
         'minvalue': Param('abs minimum',
                           type=float, settable=False, userparam=True,
                           volatile=True, unit='main'),
@@ -524,6 +531,13 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
     def doReadMotortemp(self):
         # in degC
         return self._HW_readParameter('motorTemp')
+
+    def doReadPotentiometer(self):
+        value = self._HW_readParameter('potentiometer')
+        self.log.debug('potentiometer raw value: %f', value)
+        result = sum([ai * (value ** i) for i, ai in enumerate(self.poly)])
+        self.log.debug('final result: %f', result)
+        return result
 
     def doReadMaxvalue(self):
         return self._steps2phys(self._HW_readParameter('maxValue'))
