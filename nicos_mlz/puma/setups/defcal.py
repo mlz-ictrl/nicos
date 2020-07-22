@@ -12,8 +12,6 @@ sysconfig = dict(
     datasinks = ['polsink',]
 )
 
-nethost = 'pumasrv.puma.frm2'
-
 devices = dict(
     peak1 = device("nicos.devices.generic.RectROIChannel",
         description = "Peak 1",
