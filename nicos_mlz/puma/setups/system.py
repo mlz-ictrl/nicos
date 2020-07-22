@@ -33,7 +33,7 @@ devices = dict(
         description = 'Experiment of PUMA',
         sample = 'Sample',
         dataroot = '/data',
-        propdb = '/pumacontrol2/propdb',
+        propdb = '/pumacontrol/propdb',
         managerights = dict(
             enableDirMode = 0o775,
             enableFileMode = 0o664,
@@ -66,7 +66,7 @@ devices = dict(
     ),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free space on the log drive',
-        path = '/pumacontrol2/log',
+        path = '/pumacontrol/log',
         lowlevel = True,
         warnlimits = (0.5, None),
     ),
