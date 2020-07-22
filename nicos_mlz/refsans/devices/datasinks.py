@@ -124,6 +124,7 @@ det_pos = [
     'det_pivot',
     'det_table',
     'det_yoke',
+    'det_yoke_enc',
     'det_drift',
     'beamstop_height',
     'beamstop_center',
@@ -235,7 +236,8 @@ VSD = [
     'X16Voltage4',
 ]
 
-cpt = ['cpt', 6]
+cpt = ['cpt', 6 + 1]
+cptoptic = ['cptoptic', 4]
 
 analog_encoder = '_acc'
 
@@ -270,7 +272,9 @@ for l in Slits:
     for label in Slits_label + Slits_PlanB_label:
         element_part.append(l + label)
 for i in range(cpt[1]):
-    element_part.append(cpt[0] + '%d' % (i + 1))
+    element_part.append('%s%d' % (cpt[0], i))
+for i in range(cptoptic[1]):
+    element_part.append('%s%d' % (cptoptic[0], i + 1))
 
 try:
     import configobj
@@ -399,7 +403,13 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
 
     def _write_cpt(self, metainfo):
         for i in range(cpt[1]):
-            dev = cpt[0] + '%d' % (i + 1)
+            dev = '%s%d' % (cpt[0], i)
+            try:  # SB hack for setup cpt not loaded
+                self._data['cpt'][dev] = metainfo[dev, 'value'][0]
+            except KeyError:
+                pass
+        for i in range(cptoptic[1]):
+            dev = '%s%d' % (cptoptic[0], (i + 1))
             try:  # SB hack for setup cpt not loaded
                 self._data['cpt'][dev] = metainfo[dev, 'value'][0]
             except KeyError:
