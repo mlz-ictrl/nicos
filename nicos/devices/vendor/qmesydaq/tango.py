@@ -24,7 +24,10 @@
 
 """Detector devices for QMesyDAQ type detectors (TANGO)."""
 
-from nicos.core.params import Param, oneof
+import numpy
+
+from nicos.core.constants import SIMULATION
+from nicos.core.params import Param, Value, listof, oneof
 from nicos.devices.tango import ImageChannel as BaseImageChannel
 from nicos.devices.vendor.qmesydaq import Image as QMesyDAQImage
 
@@ -68,3 +71,54 @@ class ImageChannel(QMesyDAQImage, BaseImageChannel):
 
     def doReadCalibrationfile(self):
         return self._getProperty('calibrationfile')
+
+
+class MultiCounter(BaseImageChannel):
+    """Channel for QMesyDAQ that allows to access selected channels in a
+    multi-channel setup.
+    """
+
+    parameters = {
+        'channels': Param('Tuple of active channels (1 based)', settable=True,
+                          type=listof(int)),
+    }
+
+    def doRead(self, maxage=0):
+        if self._mode == SIMULATION:
+            res = [0] * (max(self.channels) + 3)
+        else:
+            # read data via Tango and transform it
+            val = self._dev.value
+            res = val.tolist() if isinstance(val, numpy.ndarray) else val
+        expected = 3 + max(self.channels or [0])
+        # first 3 values are sizes of dimensions
+        if len(res) >= expected:
+            data = res[3:]
+            # ch is 1 based, data is 0 based
+            total = sum([data[ch - 1] for ch in self.channels])
+        else:
+            self.log.warning('not enough data returned, check config! '
+                             '(got %d elements, expected >=%d)',
+                             len(res), expected)
+            data = None
+            total = 0
+        resultlist = [total]
+        if data is not None:
+            for ch in self.channels:
+                # ch is 1 based, data is 0 based
+                resultlist.append(data[ch - 1])
+        return resultlist
+
+    def valueInfo(self):
+        resultlist = [Value('ch.sum', unit='cts', errors='sqrt',
+                            type='counter', fmtstr='%d')]
+        for ch in self.channels:
+            resultlist.append(Value('ch%d' % ch, unit='cts', errors='sqrt',
+                                    type='counter', fmtstr='%d'))
+        return tuple(resultlist)
+
+    def doReadIsmaster(self):
+        return False
+
+    def doReadFmtstr(self):
+        return ', '.join(['sum %d'] + ['ch%d %%d' % ch for ch in self.channels])
