@@ -619,12 +619,6 @@ class BeckhoffPoti(BeckhoffMotorCab1):
         return result
 
 
-class BeckhoffTemp(BeckhoffMotorCab1):
-
-    def doRead(self, maxage=0):
-        return self.doReadMotorTemp()
-
-
 class BeckhoffMotorCab1M13(BeckhoffMotorCab1):
 
     parameter_overrides = {
