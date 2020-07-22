@@ -9,7 +9,7 @@ includes = ['alias_T']
 tango_base = 'tango://%s:10000/box/' % setupname
 plc_tango_base = tango_base + 'plc/_'
 
-# This box is equipped with the pressure regulation!
+# This box is equipped with the 1K heatswitch
 devices = {
     'T_%s' % setupname : device('nicos_mlz.devices.ccr.CCRControl',
         description = 'The main temperature control device of the CCR',
@@ -25,10 +25,10 @@ devices = {
         unit = 'K',
         fmtstr = '%.3f',
     ),
-    'T_%s_stick_range' % setupname : device('nicos.devices.tango.AnalogOutput',
+    'T_%s_stick_range' % setupname : device('nicos.devices.tango.NamedDigitalOutput',
         description = 'Heaterrange of the sample (stick) regulation',
         tangodevice = tango_base + 'stick/range2',
-        abslimits = (0, 3),
+        mapping = dict(off=0, low=1, medium=2, high=3),
     ),
     'T_%s_tube' % setupname : device('nicos.devices.tango.TemperatureController',
         description = 'The control device of the tube',
@@ -38,10 +38,10 @@ devices = {
         unit = 'K',
         fmtstr = '%.3f',
     ),
-    'T_%s_tube_range' % setupname : device('nicos.devices.tango.AnalogOutput',
+    'T_%s_tube_range' % setupname : device('nicos.devices.tango.NamedDigitalOutput',
         description = 'Heaterrange of the tube regulation',
         tangodevice = tango_base + 'tube/range1',
-        abslimits = (0, 3),
+        mapping = dict(off=0, low=1, medium=2, high=3),
     ),
     'T_%s_A' % setupname : device('nicos.devices.tango.Sensor',
         description = '(optional) Sample temperature',

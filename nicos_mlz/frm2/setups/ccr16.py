@@ -4,10 +4,11 @@ group = 'plugplay'
 
 includes = ['alias_T']
 
-plc_tango_base = 'tango://%s:10000/box/plc/_' % setupname
+# setupname is set by nicos before loading this file
+# setupname = filename - '.py' extension
 tango_base = 'tango://%s:10000/box/' % setupname
+plc_tango_base = tango_base + 'plc/_'
 
-# This box is equipped with the pressure regulation!
 devices = {
     'T_%s' % setupname : device('nicos_mlz.devices.ccr.CCRControl',
         description = 'The main temperature control device of the CCR',
@@ -23,6 +24,11 @@ devices = {
         unit = 'K',
         fmtstr = '%.3f',
     ),
+    'T_%s_stick_range' % setupname : device('nicos.devices.tango.NamedDigitalOutput',
+        description = 'Heaterrange of the sample (stick) regulation',
+        tangodevice = tango_base + 'stick/range2',
+        mapping = dict(off=0, low=1, medium=2, high=3),
+    ),
     'T_%s_tube' % setupname : device('nicos.devices.tango.TemperatureController',
         description = 'The control device of the tube',
         tangodevice = tango_base + 'tube/control1',
@@ -31,19 +37,10 @@ devices = {
         unit = 'K',
         fmtstr = '%.3f',
     ),
-    'T_%s_stick_range' % setupname : device('nicos.devices.tango.NamedDigitalOutput',
-        description = 'Heater range',
-        tangodevice = tango_base + 'stick/range2',
-        warnlimits = ('high', 'medium'),
-        mapping = {'off': 0, 'low': 1, 'medium': 2, 'high': 3},
-        unit = '',
-    ),
     'T_%s_tube_range' % setupname : device('nicos.devices.tango.NamedDigitalOutput',
-        description = 'Heater range',
+        description = 'Heaterrange of the tube regulation',
         tangodevice = tango_base + 'tube/range1',
-        warnlimits = ('high', 'medium'),
-        mapping = {'off': 0, 'low': 1, 'medium': 2, 'high': 3},
-        unit = '',
+        mapping = dict(off=0, low=1, medium=2, high=3),
     ),
     'T_%s_A' % setupname : device('nicos.devices.tango.Sensor',
         description = '(optional) Sample temperature',
@@ -65,8 +62,7 @@ devices = {
         fmtstr = '%.3f',
     ),
     'T_%s_D' % setupname : device('nicos.devices.tango.Sensor',
-        description = '(regulation) Temperature at '
-        'thermal coupling to the tube',
+        description = '(regulation) Temperature at thermal coupling to the tube',
         tangodevice = tango_base + 'tube/sensord',
         warnlimits = (0, 300),
         unit = 'K',
