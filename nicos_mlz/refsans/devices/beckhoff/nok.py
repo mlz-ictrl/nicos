@@ -44,7 +44,6 @@ class SingleMotorOfADoubleMotorNOK(DeviceMixinBase):
     """
     empty class marking a Motor as beeing useable by a (DoubleMotorNok)
     """
-    pass
 
 
 class BeckhoffCoderBase(PyTangoDevice, Coder):
