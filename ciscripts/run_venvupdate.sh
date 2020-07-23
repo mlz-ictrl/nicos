@@ -10,6 +10,7 @@ echo
 if [ -f /etc/system-release-cpe ] ; then
     if grep -qsi centos  /etc/system-release-cpe; then
         sed -i -e "s/PyTango>=8.1.7,<9.0.0;python_version<'3.0'/PyTango>=9;python_version<'3.0'/" requirements-opt.txt
+        sed -i -e "/^systemd-python.*/d" requirements-opt.txt
     fi
 fi
 
