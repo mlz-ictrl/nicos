@@ -257,13 +257,11 @@ class BeckhoffCoderBase(PyTangoDevice, Coder):
 
         msg = bitDescription(statval, *self.HW_Statusbits)
         # check for errors first, then warnings, busy and Ok
-        if errval & 0xff:
-            msg = '%s, %s' % (bitDescription(errval & 0xff,
-                                             *self.HW_Errorbits), msg)
         if errval:
-            errnum = errval >> 8
+            errnum = errval
             return status.ERROR, 'ERROR %d: %s, %s' % (
-                errnum, self.HW_Errors.get(errnum, 'Unknown Error'), msg)
+                errnum, self.HW_Errors.get(errnum,
+                'Unknown Error {0:d}'.format(errnum)), msg)
 
         for mask, stat in self.HW_Status_map:
             if statval & mask:
