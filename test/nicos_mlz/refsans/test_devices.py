@@ -123,6 +123,9 @@ def test_focuspoint(session):
 def test_resolution(session):
     rfp = session.getDevice('real_flight_path')
     res = session.getDevice('resolution')
+    chopper = session.getDevice('chopper')
+    chopper.maw({'D': 22.8, 'chopper2_pos': 5, 'gap': 0.1,
+                 'wlmax': 21.0, 'wlmin': 3.0})
     assert rfp.read(0) == 11.153
     assert res.read(0) == 6.168
 
