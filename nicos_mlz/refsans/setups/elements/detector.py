@@ -87,7 +87,7 @@ devices = dict(
         unit = 'mm',
         lowlevel = False,
     ),
-    det_table_motor = device(code_base + 'beckhoff.nok.BeckhoffMotorDetector',
+    det_table_raw = device(code_base + 'beckhoff.nok.BeckhoffMotorDetector',
         description = 'table inside scatteringtube',
         tangodevice = tango_base + 'det_table/io/modbus',
         address = 0x3020 + 0 * 10,  # word address
@@ -100,6 +100,14 @@ devices = dict(
         maxtemp = 40,
         waittime = 40,
         lowlevel = True,
+    ),
+    det_table_motor = device(code_base + 'analogencoder.AnalogMove',
+        description = 'correcting error',
+        device = 'det_table_raw',
+        unit = 'mm',
+        # 2020-08-04 09:46:46 Begin GM
+        poly = [27.92, 0.98341],
+        lowlevel = False,
     ),
     det_table_poti = device(code_base + 'beckhoff.nok.BeckhoffCoderDetector',
         description = 'Coder of detector table inside scatteringtube',
