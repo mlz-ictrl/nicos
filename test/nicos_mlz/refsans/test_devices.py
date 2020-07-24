@@ -140,11 +140,15 @@ class TestDevices(object):
     def test_analog_encoder(self, session):
         dev = session.getDevice('acoder')
         raw = session.getDevice('rawcoder')
+        identity = session.getDevice('identitycoder')
         assert dev.read(0) == 1
+        assert identity.read(0) == raw.read(0)
         raw.maw(1)
         assert dev.read(0) == 3
+        assert identity.read(0) == raw.read(0)
         raw.maw(-1)
         assert dev.read(0) == -1
+        assert identity.read(0) == raw.read(0)
 
 
 class TestChopper(object):

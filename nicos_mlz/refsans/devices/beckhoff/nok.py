@@ -32,11 +32,11 @@ from nicos import session
 from nicos.core import SIMULATION, CommunicationError, DeviceMixinBase, \
     MoveError, NicosTimeoutError, Override, Param, UsageError, floatrange, \
     requires, status
-from nicos.core.params import nonemptylistof
 from nicos.devices.abstract import CanReference, Coder, Motor
 from nicos.devices.tango import PyTangoDevice
 from nicos.utils import bitDescription
 
+from nicos_mlz.refsans.devices.mixins import PolynomFit
 from nicos_mlz.refsans.params import motoraddress
 
 
@@ -260,8 +260,8 @@ class BeckhoffCoderBase(PyTangoDevice, Coder):
         if errval:
             errnum = errval
             return status.ERROR, 'ERROR %d: %s, %s' % (
-                errnum, self.HW_Errors.get(errnum,
-                'Unknown Error {0:d}'.format(errnum)), msg)
+                errnum, self.HW_Errors.get(
+                    errnum, 'Unknown Error {0:d}'.format(errnum)), msg)
 
         for mask, stat in self.HW_Status_map:
             if statval & mask:
@@ -285,7 +285,7 @@ class BeckhoffCoderBase(PyTangoDevice, Coder):
         pass
 
 
-class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
+class BeckhoffMotorBase(PolynomFit, CanReference, BeckhoffCoderBase, Motor):
     """
     Device object for a digital output device via a Beckhoff modbus interface.
     Minimum Parameter Implementation.
@@ -322,10 +322,6 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
         'potentiometer': Param('Motor potentiometer calibrated value',
                                type=float, settable=False, userparam=True,
                                volatile=True, unit='mm', fmtstr='%f'),
-        'poly': Param('Polynomial coefficients in ascending order for '
-                      'potentiometer calibration',
-                      type=nonemptylistof(float), settable=False,
-                      mandatory=False, default=[1.]),
         'minvalue': Param('abs minimum',
                           type=float, settable=False, userparam=True,
                           volatile=True, unit='main'),
@@ -530,11 +526,7 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
         return self._HW_readParameter('motorTemp')
 
     def doReadPotentiometer(self):
-        value = self._HW_readParameter('potentiometer')
-        self.log.debug('potentiometer raw value: %f', value)
-        result = sum([ai * (value ** i) for i, ai in enumerate(self.poly)])
-        self.log.debug('final result: %f', result)
-        return result
+        return self._fit(self._HW_readParameter('potentiometer'))
 
     def doReadMaxvalue(self):
         return self._steps2phys(self._HW_readParameter('maxValue'))
@@ -616,18 +608,9 @@ class BeckhoffMotorCab1M0x(BeckhoffMotorCab1):
 
 
 class BeckhoffPoti(BeckhoffMotorCab1):
-    parameters = {
-        'poly': Param('Polynomial coefficients in ascending order',
-                      type=nonemptylistof(float), settable=False,
-                      mandatory=True, default=[0, 1]),
-    }
 
     def doRead(self, maxage=0):
-        value = self.doReadEncoderrawvalue()
-        result = 0.
-        for i, ai in enumerate(self.poly):
-            result += ai * (value ** i)
-        return result
+        return self._fit(self.encoderrawvalue)
 
 
 class BeckhoffMotorCab1M13(BeckhoffMotorCab1):

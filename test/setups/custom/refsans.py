@@ -445,4 +445,8 @@ devices = dict(
         poly = [1, 2],
         unit = 'mm',
     ),
+    identitycoder = device('nicos_mlz.refsans.devices.analogencoder.AnalogEncoder',
+        device = 'rawcoder',
+        unit = 'mm',
+    ),
 )
