@@ -60,7 +60,7 @@ def test_scan(session, log):
     mm = session.getDevice('manual')
     mm.move(0)
 
-    # check that scans are impossible in slave mode
+    # check that scans are impossible in subordinate mode
     session.setMode(SLAVE)
     assert raises(ModeError, scan, m, [0, 1, 2, 10])
     session.setMode(MASTER)

@@ -74,7 +74,7 @@ class AuxiliaryWindow(SetupDepWindowMixin, QMainWindow):
 
         setups = config[1].get('setups', '')
         self.setSetups(setups)
-        self.client.register(self, 'session/mastersetup')
+        self.client.register(self, 'session/mainsetup')
 
         SetupDepWindowMixin.__init__(self, self.client)
 
@@ -83,7 +83,7 @@ class AuxiliaryWindow(SetupDepWindowMixin, QMainWindow):
             self.panels.append(panel)
 
     def on_keyChange(self, key, value, time, expired):
-        if key == 'session/mastersetup' and self.setupSpec:
+        if key == 'session/mainsetup' and self.setupSpec:
             if not checkSetupSpec(self.setupSpec, value, log=self.log):
                 self.close()
 

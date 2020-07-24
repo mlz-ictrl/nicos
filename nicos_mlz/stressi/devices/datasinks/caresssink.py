@@ -407,7 +407,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._write_string('DATE', time.strftime('%d-%b-%Y'))
         self._write_string('TIME', time.strftime('%H:%M:%S'))
 
-    def _write_defdata(self, dev, master):
+    def _write_defdata(self, dev, main):
         if isinstance(dev, str):
             devnames = [dev.upper()]
         elif isinstance(dev, (list, tuple)):
@@ -416,26 +416,26 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             devnames = [dev.name.upper()]
         self._defdata('SETVALUES(%s)' % ' '.join(['STEP'] + devnames))
         if self._scan_type == 'SGEN2':
-            mastervalues = 'SL1(TTHS ADET '
+            mainvalues = 'SL1(TTHS ADET '
             if ('chis', 'value') in self.dataset.metainfo:
                 self.log.debug('%r', self.dataset.metainfo[('chis', 'value')])
                 v, _, _, _ = self.dataset.metainfo[('chis', 'value')]
                 if v is not None:
-                    mastervalues += 'CHIS '
-            mastervalues += '%s TIM1 MON)' % ' '.join(devnames)
+                    mainvalues += 'CHIS '
+            mainvalues += '%s TIM1 MON)' % ' '.join(devnames)
         else:
-            mastervalues = 'MM1(%s)SL1(TTHS ADET MON' % master
+            mainvalues = 'MM1(%s)SL1(TTHS ADET MON' % main
             for d in self.dataset.detvalueinfo:
                 if d.name not in ['adet', 'tim1', 'mon'] and \
                    not d.name.endswith('.sum'):
-                    mastervalues += ' %s' % d.name.upper()
+                    mainvalues += ' %s' % d.name.upper()
             for d in self.dataset.environment:
                 if hasattr(d, 'name') and \
                    d.name != 'etime' and \
                    not d.name.endswith(':elapsedtime'):
-                    mastervalues += ' %s' % d.name.upper()
-            mastervalues += ')'
-        self._defdata('MASTER1VALUES(%s)' % mastervalues)
+                    mainvalues += ' %s' % d.name.upper()
+            mainvalues += ')'
+        self._defdata('MASTER1VALUES(%s)' % mainvalues)
 
     def _write_status(self, valuelist=None):
         # print 'STATUS: %r' % valuelist
@@ -513,17 +513,17 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             self._write_timeouts(bycategory['general'])
 
         d = OrderedDict()
-        master = None
+        main = None
         if self._scan_type != 'SGEN2':
             if 'presets' in bycategory:
                 for device, key, value in bycategory['presets']:
                     # self.log.info('%s.%s = %r', device, key, value)
                     if device == 'adet' and key == 'preset':
                         if point.metainfo[device, 'mode'][1] == 'time':
-                            master = 'TIM1'
+                            main = 'TIM1'
                         else:
-                            master = 'MON'
-                        d[master] = value
+                            main = 'MON'
+                        d[main] = value
                         self._write_mm1(d)
                         break
 
@@ -537,7 +537,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             d['TIM1'] = 0
         d['MON'] = 0
         if self._scan_type != 'SGEN2':
-            # Add environment devices to the SL1 (slaves)
+            # Add environment devices to the SL1 (subordinates)
             for dev in point.environment:
                 if hasattr(dev, 'name') and \
                    dev.name != 'etime' and \
@@ -572,9 +572,9 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         if 'experiment' in bycategory:
             self._write_comment(bycategory['experiment'])
         if point.devvalueinfo:
-            self._write_defdata(point.devvalueinfo, master)
+            self._write_defdata(point.devvalueinfo, main)
         else:
-            self._write_defdata('TIM', master)
+            self._write_defdata('TIM', main)
         self._flush()
 
     def putValues(self, value):

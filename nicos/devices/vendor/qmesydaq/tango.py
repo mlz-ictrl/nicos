@@ -117,7 +117,7 @@ class MultiCounter(BaseImageChannel):
                                     type='counter', fmtstr='%d'))
         return tuple(resultlist)
 
-    def doReadIsmaster(self):
+    def doReadIsmain(self):
         return False
 
     def doReadFmtstr(self):

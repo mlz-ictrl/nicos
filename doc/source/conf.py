@@ -66,8 +66,8 @@ source_suffix = '.rst'
 #
 source_encoding = 'utf-8-sig'
 
-# The master toctree document.
-master_doc = 'index'
+# The main toctree document.
+main_doc = 'index'
 
 # General information about the project.
 project = u'NICOS'
@@ -361,7 +361,7 @@ latex_logo = '_static/nicos-logo.eps'
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'nicos', u'NICOS Documentation',
+    (main_doc, 'nicos', u'NICOS Documentation',
      [author], 1)
 ]
 
@@ -376,7 +376,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'NICOS', u'NICOS Documentation',
+    (main_doc, 'NICOS', u'NICOS Documentation',
      author, 'NICOS', 'One line description of project.',
      'Miscellaneous'),
 ]

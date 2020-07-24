@@ -135,7 +135,7 @@ instrument["pre_sample_slit1:NXaperture"] = {
     }
 }
 
-instrument["slave_chopper:NXchopper"] = {
+instrument["subordinate_chopper:NXchopper"] = {
     "chopper_phase": DeviceDataset('ch2', 'phase', dtype='float'),
     "rotation_speed": DeviceDataset('ch2', 'speed', dtype='float'),
     "distance": NXDataset(DistancesPlaceholder('chopper', _dv),

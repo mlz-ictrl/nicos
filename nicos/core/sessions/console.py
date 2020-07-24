@@ -206,8 +206,8 @@ class ConsoleSession(Session):
                                        '-->' if self._spmode else '>>>')
         sys.ps2 = base + ' %s  ... ' % (' ' * len(expsetups))
         self._pscolor = dict(
-            slave='brown',
-            master='darkblue',
+            subordinate='brown',
+            main='darkblue',
             maintenance='darkred',
             simulation='turquoise'
         )[self._mode]
@@ -291,7 +291,7 @@ class ConsoleSession(Session):
         session._stoplevel = 0
         session._in_sigint = False
 
-        # Load the initial setup and handle becoming master.
+        # Load the initial setup and handle becoming main.
         session.handleInitialSetup(setup, simulate and SIMULATION or SLAVE)
 
         # Fire up an interactive console.

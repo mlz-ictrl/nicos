@@ -139,7 +139,7 @@ class Session(object):
         self._exported_names = set()
         # action stack for status line
         self._actionStack = []
-        # execution mode; initially always slave
+        # execution mode; initially always subordinate
         self._mode = SLAVE
         # simulation clock
         self.clock = SimClock()
@@ -197,7 +197,7 @@ class Session(object):
         """Set a new mode for the session.
 
         This raises `.ModeError` if the new mode cannot be switched to at the
-        moment (for example, if switching to master mode, but another master is
+        moment (for example, if switching to main mode, but another main is
         already active).
         """
         mode = mode.lower()
@@ -212,46 +212,46 @@ class Session(object):
             raise ModeError('switching from %s mode is not supported' %
                             oldmode)
         if mode == MASTER:
-            # switching from slave to master
+            # switching from subordinate to main
             if not cache:
-                self.log.info('no cache present, switching to master anyway')
-                # raise ModeError('no cache present, cannot get master lock')
+                self.log.info('no cache present, switching to main anyway')
+                # raise ModeError('no cache present, cannot get main lock')
             else:
-                self.log.info('checking master status...')
+                self.log.info('checking main status...')
                 try:
-                    cache.lock('master', cache._mastertimeout)
+                    cache.lock('main', cache._maintimeout)
                 except CacheLockError as err:
-                    raise ModeError('another master is already active: %s' %
+                    raise ModeError('another main is already active: %s' %
                                     sessionInfo(err.locked_by))
                 else:
-                    cache._ismaster = True
+                    cache._ismain = True
                 # put version info into cache
                 cache.put(self, 'nicosroot', config.nicos_root)
                 cache.put(self, 'custompath', config.setup_package_path)
                 cache.put(self, 'nicosversion', nicos_version)
                 cache.put(self, 'customversion', get_custom_version())
                 if set(self.explicit_setups) - {'system', 'startup'}:
-                    cache.put(self, 'mastersetup', list(self.loaded_setups))
-                    cache.put(self, 'mastersetupexplicit',
+                    cache.put(self, 'mainsetup', list(self.loaded_setups))
+                    cache.put(self, 'mainsetupexplicit',
                               list(self.explicit_setups))
                     self.elogEvent('setup', list(self.explicit_setups))
         else:
-            # switching from master (or slave) to slave or to maintenance
-            if cache and cache._ismaster:
-                cache._ismaster = False
+            # switching from main (or subordinate) to subordinate or to maintenance
+            if cache and cache._ismain:
+                cache._ismain = False
                 try:
-                    cache._unlock_master()
+                    cache._unlock_main()
                 except CacheError:
-                    self.log.warning('could not release master lock')
+                    self.log.warning('could not release main lock')
             elif mode == MAINTENANCE:
-                self.log.warning('Switching from slave to maintenance mode: '
+                self.log.warning('Switching from subordinate to maintenance mode: '
                                  "I'll trust that you know what you're doing!")
         # stop previous inner_count / acquisition thread if available
         stop_acquire_thread()
 
         self._mode = mode
-        if self._master_handler:
-            self._master_handler.enable(mode == MASTER)
+        if self._main_handler:
+            self._main_handler.enable(mode == MASTER)
         # switch mode, taking care to switch "higher level" devices before
         # "lower level" (because higher level devices may need attached devices
         # still working in order to read out their last value)
@@ -308,7 +308,7 @@ class Session(object):
         self._simulationSync_applyValues(db)
 
     def _simulationSync_applyValues(self, db):
-        setups = db.get('session/mastersetupexplicit')
+        setups = db.get('session/mainsetupexplicit')
         if setups is not None and set(setups) != set(self.explicit_setups):
             self.unloadSetup()
             self.loadSetup(setups)
@@ -766,9 +766,9 @@ class Session(object):
             self.explicit_setups.append(setupname)
 
         if self.mode == MASTER and self.cache:
-            self.cache._ismaster = True
-            self.cache.put(self, 'mastersetup', list(self.loaded_setups))
-            self.cache.put(self, 'mastersetupexplicit',
+            self.cache._ismain = True
+            self.cache.put(self, 'mainsetup', list(self.loaded_setups))
+            self.cache.put(self, 'mainsetupexplicit',
                            list(self.explicit_setups))
             self.elogEvent('setup', list(self.explicit_setups))
 
@@ -839,13 +839,13 @@ class Session(object):
         self._log_handlers = []
 
     def shutdown(self):
-        """Shut down the session: unload the setup and give up master mode."""
+        """Shut down the session: unload the setup and give up main mode."""
         if self._mode == MASTER and self.cache:
-            self.cache._ismaster = False
+            self.cache._ismain = False
             try:
-                self.cache._unlock_master()
+                self.cache._unlock_main()
             except CacheError:
-                self.log.warning('could not release master lock', exc=1)
+                self.log.warning('could not release main lock', exc=1)
         self.unloadSetup()
 
     def export(self, name, obj):
@@ -904,7 +904,7 @@ class Session(object):
                                  'actually exist', aliasname)
 
     def handleInitialSetup(self, setup, mode=SLAVE):
-        """Determine which setup to load, and try to become master.
+        """Determine which setup to load, and try to become main.
 
         Called by sessions during startup.
         """
@@ -918,22 +918,22 @@ class Session(object):
         if mode == MAINTENANCE:
             self.setMode(MAINTENANCE)
         elif mode == SLAVE:
-            # Try to become master if the setup didn't already switch modes.
+            # Try to become main if the setup didn't already switch modes.
             try:
                 self.setMode(MASTER)
             except ModeError:
-                self.log.info('could not enter master mode; remaining slave',
+                self.log.info('could not enter main mode; remaining subordinate',
                               exc=True)
             except Exception:
-                self.log.warning('could not enter master mode', exc=True)
+                self.log.warning('could not enter main mode', exc=True)
             if setup not in ('startup', ['startup']) or not self.cache:
                 return
-            # If we became master, the user didn't select a specific startup
-            # setup and a previous master setup was configured, re-use that.
-            setups = self.cache.get(self, 'mastersetupexplicit')
+            # If we became main, the user didn't select a specific startup
+            # setup and a previous main setup was configured, re-use that.
+            setups = self.cache.get(self, 'mainsetupexplicit')
             if not setups or setups == ['startup']:
                 return
-            self.log.info("loading previously used master setups: '%s'",
+            self.log.info("loading previously used main setups: '%s'",
                           ', '.join(setups))
             self.unloadSetup()
             self.startMultiCreate()
@@ -1279,17 +1279,17 @@ class Session(object):
         self.log.parent = None
         if console and sys.stdout:
             self.log.addHandler(ColoredConsoleHandler())
-        self._master_handler = None
+        self._main_handler = None
         if logfile:
             try:
                 log_path = path.join(config.nicos_root, config.logging_path)
                 if prefix == 'nicos':
                     self.log.addHandler(NicosLogfileHandler(
                         log_path, 'nicos', str(os.getpid())))
-                    # handler for master session only
-                    self._master_handler = NicosLogfileHandler(log_path)
-                    self._master_handler.disabled = True
-                    self.log.addHandler(self._master_handler)
+                    # handler for main session only
+                    self._main_handler = NicosLogfileHandler(log_path)
+                    self._main_handler.disabled = True
+                    self.log.addHandler(self._main_handler)
                 else:
                     self.log.addHandler(NicosLogfileHandler(log_path, prefix))
             except (IOError, OSError) as err:

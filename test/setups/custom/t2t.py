@@ -35,10 +35,10 @@ devices = dict(
         abslimits = (-360, 360),
         unit = 'deg',
     ),
-    t2t = device('nicos_mlz.jcns.devices.motor.MasterSlaveMotor',
+    t2t = device('nicos_mlz.jcns.devices.motor.MainSubordinateMotor',
         description = '2 theta axis moving detarm = 2 * omega',
-        master = 'omega',
-        slave = 'detarm',
+        main = 'omega',
+        subordinate = 'detarm',
         scale = 2.,
     ),
 )

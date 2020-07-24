@@ -73,8 +73,8 @@ class Monitor(BaseCacheClient):
                            'background)', type=oneof('dark', 'light')),
         'showwatchdog':  Param('Whether to show watchdog warnings', type=bool,
                                default=True),
-        'expectmaster':  Param('Whether a message should indicate that no '
-                               'NICOS master is active', type=bool,
+        'expectmain':  Param('Whether a message should indicate that no '
+                               'NICOS main is active', type=bool,
                                default=True),
     }
 
@@ -143,8 +143,8 @@ class Monitor(BaseCacheClient):
         self._onlyfields = []
         # remembers loaded setups
         self._setups = set()
-        # master active?
-        self._masteractive = False
+        # main active?
+        self._mainactive = False
         # currently shown warnings
         self._currwarnings = ''
 
@@ -206,8 +206,8 @@ class Monitor(BaseCacheClient):
         # update current time
         self.updateTitle('%s (%s)%s' %
                          (self.title, strftime('%d.%m.%Y %H:%M:%S'),
-                          '' if self._masteractive or (not self.expectmaster)
-                          else ', no master active'))
+                          '' if self._mainactive or (not self.expectmain)
+                          else ', no main active'))
 
     def register(self, widget, key):
         """API used by NicosListener widgets to register keys for callback."""
@@ -234,10 +234,10 @@ class Monitor(BaseCacheClient):
 
         # self.log.debug('processing %s', [time, ttl, key, op, value])
 
-        if key == self._prefix + 'session/master':
-            self._masteractive = value and op != OP_TELLOLD
+        if key == self._prefix + 'session/main':
+            self._mainactive = value and op != OP_TELLOLD
 
-        if key == self._prefix + 'session/mastersetup':
+        if key == self._prefix + 'session/mainsetup':
             self._setups = set(value)
             # reconfigure displayed blocks
             self.reconfigureBoxes()

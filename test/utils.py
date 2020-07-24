@@ -302,7 +302,7 @@ class TestCacheClient(CacheClient):
         CacheClient._connect_action(self)
 
     def lock(self, key, ttl=None, unlock=False, sessionid=None):
-        # Do not try to get/release the master lock in the test session.
+        # Do not try to get/release the main lock in the test session.
         # We have too many setup changes with/without cache to do that
         # correctly all the time.
         #
@@ -345,7 +345,7 @@ class TestSession(Session):
         self.log.setLevel(DEBUG)
         self.testhandler = TestLogHandler()
         self.log.addHandler(self.testhandler)
-        self._master_handler = None
+        self._main_handler = None
 
     def runsource(self, source, filename='<input>', symbol='single'):
         code = self.commandHandler(source,

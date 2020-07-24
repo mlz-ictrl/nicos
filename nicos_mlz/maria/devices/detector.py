@@ -84,9 +84,9 @@ class MariaDetector(Detector):
             if name in self._presetkeys and self._presetkeys[name] and \
                     name.startswith("live"):
                 dev = self._presetkeys[name]
-                dev.ismaster = True
+                dev.ismain = True
                 dev.islive = True
         self.log.debug("   presets: %s", preset)
         self.log.debug("presetkeys: %s", self._presetkeys)
-        self.log.debug("   masters: %s", self._masters)
-        self.log.debug("    slaves: %s", self._slaves)
+        self.log.debug("   mains: %s", self._mains)
+        self.log.debug("    subordinates: %s", self._subordinates)

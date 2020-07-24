@@ -52,7 +52,7 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
     #    raise ValueError('Disk2 and 3 collide !')
     # ++ Param hack todo ###
 
-    # distance from disk1 to the opening disk for the master (d2) (m)
+    # distance from disk1 to the opening disk for the main (d2) (m)
     d_MCo = chopper_pos[disk2_pos]
     # distance from disk1 to the opening disk for the SC1 (m)
     d_SCo = chopper_pos[SC1_Pos]

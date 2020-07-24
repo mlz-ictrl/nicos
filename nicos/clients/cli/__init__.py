@@ -323,7 +323,7 @@ class NicosCmdClient(NicosClient):
                  'paused': 'red',
                  'disconnected': 'darkgray'}
     modemap   = {MASTER: '',
-                 SLAVE:  'slave,',
+                 SLAVE:  'subordinate,',
                  SIMULATION: 'simmode,',
                  MAINTENANCE: 'maintenance,'}
 

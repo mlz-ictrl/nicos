@@ -38,7 +38,7 @@ from nicos.devices.tango import StringIO
 from nicos_mlz.refsans.devices.chopper.base import ChopperDisc as ChopperDiscBase, \
     ChopperDisc2 as ChopperDisc2Base, \
     ChopperDiscTranslation as ChopperDiscTranslationBase, \
-    ChopperMaster as ChopperMasterBase
+    ChopperMain as ChopperMainBase
 
 
 class ChopperBase(DeviceMixinBase):
@@ -75,7 +75,7 @@ class ChopperBase(DeviceMixinBase):
         self._attached_comm.writeLine(what)
 
 
-class ChopperMaster(ChopperBase, ChopperMasterBase):
+class ChopperMain(ChopperBase, ChopperMainBase):
 
     parameters = {
         'fatal': Param('Emergency off: Frontswitch and Backplane',
@@ -107,9 +107,9 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
         if res & 2:
             msg.append('Invalid axis ID')
         if res & 4:
-            msg.append('Invalid master speed')
+            msg.append('Invalid main speed')
         if res & 8:
-            msg.append('Invalid slave speed')
+            msg.append('Invalid subordinate speed')
         if res & 0x10:
             msg.append('Invalid position')
         if res & 0x20:

@@ -4,7 +4,7 @@ group = 'configdata'
 
 instrument_name = 'refsans'
 facility = 'mlz'
-master = 'tum'
+main = 'tum'
 tdl = 'de'
 Softwaresytem = 'nicos'
 geografical_place = 'frm2'
@@ -26,7 +26,7 @@ values = {
           instrument_name,
           instrument_name,
           geografical_place,
-          master,
+          main,
           tdl,
           ),
     'pc_ctrl_real1': '%sctrl01' % instrument_name,
@@ -35,7 +35,7 @@ values = {
           pc_hw,
           instrument_name,
           geografical_place,
-          master,
+          main,
           tdl,
           tango_port,
           ),

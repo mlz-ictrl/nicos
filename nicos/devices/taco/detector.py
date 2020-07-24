@@ -74,12 +74,12 @@ class BaseChannel(TacoDevice):
         self.doStop()
         self._taco_guard(self._dev.setPreselection, value)
 
-    def doReadIsmaster(self):
-        return self._taco_guard(self._dev.isMaster)
+    def doReadIsmain(self):
+        return self._taco_guard(self._dev.isMain)
 
-    def doWriteIsmaster(self, value):
+    def doWriteIsmain(self, value):
         self.doStop()
-        self._taco_guard(self._dev.enableMaster, value)
+        self._taco_guard(self._dev.enableMain, value)
 
 
 class FRMChannel(BaseChannel, ActiveChannel):
@@ -113,14 +113,14 @@ class FRMChannel(BaseChannel, ActiveChannel):
                  'preselection': IOCommon.MODE_PRESELECTION}
         self._taco_guard(self._dev.setMode, modes[value])
 
-    def doWriteIsmaster(self, value):
+    def doWriteIsmain(self, value):
         if self.mode == 'ratemeter':
             if value:
-                raise UsageError(self, 'ratemeter channel cannot be master')
+                raise UsageError(self, 'ratemeter channel cannot be main')
             return
         self.doStop()
         self.mode = 'preselection' if value else 'normal'
-        self._taco_guard(self._dev.enableMaster, value)
+        self._taco_guard(self._dev.enableMain, value)
 
 
 class FRMTimerChannel(TimerChannelMixin, FRMChannel):

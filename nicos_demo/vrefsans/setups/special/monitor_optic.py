@@ -173,7 +173,7 @@ _nok4col = Column(
 )
 
 _sc1col = Column(
-    Block('SC1', [  # slave chopper 1
+    Block('SC1', [  # subordinate chopper 1
         BlockRow(Field(name='disk 3', dev='chopper_disk3_zposition', width=8)),
         BlockRow(Field(name='disk 4', dev='chopper_disk4_zposition', width=8)),
         ],
@@ -295,7 +295,7 @@ _nok9col = Column(
 )
 
 _sc2col = Column(
-    Block('SC2', [  # slave chopper 2
+    Block('SC2', [  # subordinate chopper 2
         BlockRow(Field(name='disk 5', dev='chopper_disk5_zposition', width=8)),
         BlockRow(Field(name='disk 6', dev='chopper_disk6_zposition', width=8)),
         ],

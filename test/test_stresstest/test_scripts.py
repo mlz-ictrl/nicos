@@ -60,13 +60,13 @@ class ScriptSessionTest(ScriptSession):
             if prefix == 'nicos':
                 self.log.addHandler(loggers.NicosLogfileHandler(
                     log_path, 'nicos', str(os.getpid())))
-                # handler for master session only
-                self._master_handler = loggers.NicosLogfileHandler(log_path)
-                self._master_handler.disabled = True
-                self.log.addHandler(self._master_handler)
+                # handler for main session only
+                self._main_handler = loggers.NicosLogfileHandler(log_path)
+                self._main_handler.disabled = True
+                self.log.addHandler(self._main_handler)
             else:
                 self.log.addHandler(loggers.NicosLogfileHandler(log_path, prefix))
-                self._master_handler = None
+                self._main_handler = None
         except (IOError, OSError) as err:
             self.log.error('cannot open log file: %s', err)
 

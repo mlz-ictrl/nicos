@@ -64,7 +64,7 @@ def requires(**access):
     * ``'level'``: gives the minimum required user access level and can
       have the values ``GUEST``, ``USER`` or ``ADMIN`` as defined in the
       :mod:`nicos.core.utils` module.
-    * ``'mode'``: gives the required exection mode ("master", "slave",
+    * ``'mode'``: gives the required exection mode ("main", "subordinate",
       "maintenance", "simulation").
     * ``'passcode'``: only usable in the interactive console: gives a
       passcode that the user has to type back.
@@ -210,7 +210,7 @@ class DeviceMeta(DeviceMixinMeta):
                                               % err)
                     if self._mode == SLAVE:
                         raise ModeError('setting parameter %s not possible in '
-                                        'slave mode' % param)
+                                        'subordinate mode' % param)
                     elif self._mode == SIMULATION:
                         if wmethod and not self._sim_intercept:
                             rv = wmethod(self, value)
@@ -890,7 +890,7 @@ class Device(object):
     def _cachelock_acquire(self, timeout=3):
         """Acquire an exclusive lock for using this device from the cache.  This
         can be used if read access to the device needs to be locked (write
-        access is locked anyway, since only one NICOS session can be the master
+        access is locked anyway, since only one NICOS session can be the main
         session at a time).
         """
         if not self._cache:
@@ -1209,7 +1209,7 @@ class Readable(Device):
     def reset(self):
         """Reset the device hardware.  Returns the new status afterwards.
 
-        This operation is forbidden in slave mode, and a no-op for hardware
+        This operation is forbidden in subordinate mode, and a no-op for hardware
         devices in simulation mode.
 
         .. method:: doReset()
@@ -1217,7 +1217,7 @@ class Readable(Device):
            This method is called if implemented.  Otherwise, this is a no-op.
         """
         if self._mode == SLAVE:
-            raise ModeError('reset not possible in slave mode')
+            raise ModeError('reset not possible in subordinate mode')
         elif self._sim_intercept:
             return status.OK, ''
         if isinstance(self, HasTimeout):
@@ -1541,7 +1541,7 @@ class Moveable(Waitable):
         The validity of the given *pos* is checked by calling :meth:`isAllowed`
         before :meth:`doStart` is called.
 
-        This operation is forbidden in slave mode.  In simulation mode, it sets
+        This operation is forbidden in subordinate mode.  In simulation mode, it sets
         an internal variable to the given position for hardware devices instead
         of calling :meth:`doStart`.
 
@@ -1561,7 +1561,7 @@ class Moveable(Waitable):
         should not be started.
         """
         if self._mode == SLAVE:
-            raise ModeError(self, 'start not possible in slave mode')
+            raise ModeError(self, 'start not possible in subordinate mode')
         if self.fixed:
             # try to determine if we are already there
             try:
@@ -1721,7 +1721,7 @@ class Moveable(Waitable):
     def stop(self):
         """Stop any movement of the device.
 
-        This operation is forbidden in slave mode, and a no-op for hardware
+        This operation is forbidden in subordinate mode, and a no-op for hardware
         devices in simulation mode.
 
         .. method:: doStop()
@@ -1733,7 +1733,7 @@ class Moveable(Waitable):
         The `stop` method will return the device status after stopping.
         """
         if self._mode == SLAVE:
-            raise ModeError(self, 'stop not possible in slave mode')
+            raise ModeError(self, 'stop not possible in subordinate mode')
         elif self._sim_intercept:
             return
         if self.fixed:
@@ -1882,14 +1882,14 @@ class Measurable(Waitable):
         preset.  If a preset is given, `doSetPreset` is called with that preset
         first.
 
-        This operation is forbidden in slave mode.
+        This operation is forbidden in subordinate mode.
 
         .. method:: doStart()
 
            This method must be present and is called to start the measurement.
         """
         if self._mode == SLAVE:
-            raise ModeError(self, 'start not possible in slave mode')
+            raise ModeError(self, 'start not possible in subordinate mode')
         elif self._sim_intercept:
             self._sim_started = session.clock.time
             if preset:
@@ -1924,7 +1924,7 @@ class Measurable(Waitable):
         """Pause the measurement, if possible.
 
         Return True if paused successfully.  This operation is forbidden in
-        slave mode.
+        subordinate mode.
 
         .. method:: doPause()
 
@@ -1932,7 +1932,7 @@ class Measurable(Waitable):
            ``False`` is returned to indicate that pausing is not possible.
         """
         if self._mode == SLAVE:
-            raise ModeError(self, 'pause not possible in slave mode')
+            raise ModeError(self, 'pause not possible in subordinate mode')
         elif self._sim_intercept:
             return True
         if hasattr(self, 'doPause'):
@@ -1943,14 +1943,14 @@ class Measurable(Waitable):
     def resume(self):
         """Resume paused measurement.
 
-        This operation is forbidden in slave mode.
+        This operation is forbidden in subordinate mode.
 
         .. method:: doResume()
 
            If present, this is called to resume the measurement.
         """
         if self._mode == SLAVE:
-            raise ModeError(self, 'resume not possible in slave mode')
+            raise ModeError(self, 'resume not possible in subordinate mode')
         elif self._sim_intercept:
             return
         if hasattr(self, 'doResume'):
@@ -1961,7 +1961,7 @@ class Measurable(Waitable):
         """Finish the measurement now.  This should do nothing if the
         measurement was already finished.
 
-        This operation is forbidden in slave mode.
+        This operation is forbidden in subordinate mode.
 
         Called by `.count` for all detectors at the end of a counting.  If
         *exception* is true, the counting was stopped due to an exception.
@@ -1972,7 +1972,7 @@ class Measurable(Waitable):
            measurement.
         """
         if self._mode == SLAVE:
-            raise ModeError(self, 'finish not possible in slave mode')
+            raise ModeError(self, 'finish not possible in subordinate mode')
         elif self._sim_intercept:
             if hasattr(self, 'doTime'):
                 time = self.doTime(self._sim_preset)
@@ -1990,7 +1990,7 @@ class Measurable(Waitable):
     def stop(self):
         """Stop (abort) the measurement now.
 
-        This operation is forbidden in slave mode.
+        This operation is forbidden in subordinate mode.
 
         Called by `.count` if an exception occurs, or if the user calls the
         `stop()` command (possibly by using the immediate stop button).
@@ -2001,7 +2001,7 @@ class Measurable(Waitable):
            measurement.
         """
         if self._mode == SLAVE:
-            raise ModeError(self, 'stop not possible in slave mode')
+            raise ModeError(self, 'stop not possible in subordinate mode')
         elif self._sim_intercept:
             return
         return self.doStop()
@@ -2141,7 +2141,7 @@ class SubscanMeasurable(Measurable):
 
     def start(self, **preset):
         if self._mode == SLAVE:
-            raise ModeError(self, 'start not possible in slave mode')
+            raise ModeError(self, 'start not possible in subordinate mode')
         if preset:
             self.doSetPreset(**preset)
         # XXX start subscan measurable
@@ -2319,7 +2319,7 @@ class DeviceAlias(Device):
                                  'nothing', new_target)
                 new_target = ''
         # now make the new choice of alias permanent, including in the cache
-        # (which we must do with _setROParam since we might not be master yet)
+        # (which we must do with _setROParam since we might not be main yet)
         self.doUpdateAlias(new_target, recursive=True)
         Device._setROParam(self, 'alias', new_target)
 

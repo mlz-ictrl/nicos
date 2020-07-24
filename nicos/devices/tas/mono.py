@@ -272,7 +272,7 @@ class Monochromator(HasLimits, HasPrecision, BaseMonochromator):
             # this is the initial update
             return
         if self._mode not in (MASTER, SIMULATION):
-            # change limits only from the master copy, or in simulation mode
+            # change limits only from the main copy, or in simulation mode
             return
         new_absmin = from_k(to_k(self.abslimits[0], self.unit), value)
         new_absmax = from_k(to_k(self.abslimits[1], self.unit), value)

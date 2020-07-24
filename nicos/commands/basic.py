@@ -214,7 +214,7 @@ def NewSetup(*setupnames):
         session.unloadSetup()
         session.loadSetup('startup')
     if current_mode == MASTER:
-        # need to refresh master status
+        # need to refresh main status
         session.setMode(MASTER)
 
 
@@ -494,12 +494,12 @@ def Remark(remark):
 def SetMode(mode):
     """Set the execution mode.
 
-    Valid modes are 'master', 'slave', 'simulation' and 'maintenance'.
+    Valid modes are 'main', 'subordinate', 'simulation' and 'maintenance'.
 
-    * 'master' mode is for normal operation.  Only one copy of the instrument
-      software can be in master mode at the same time.
+    * 'main' mode is for normal operation.  Only one copy of the instrument
+      software can be in main mode at the same time.
 
-    * 'slave' mode is for secondary copies of the software.  They can only read
+    * 'subordinate' mode is for secondary copies of the software.  They can only read
       the instrument status, but not move devices or set parameters.
 
     * 'simulation' mode is for complete simulation of the instrument.  When
@@ -509,7 +509,7 @@ def SetMode(mode):
 
       'simulation' does a non-physical emulation by running all the instrument
       specific code with virtualized devices.  Any problems which would appear
-      runnig the same commands in 'master' mode (with ideal hardware) can be
+      runnig the same commands in 'main' mode (with ideal hardware) can be
       spotted by the user, such as devices moving out of limits, failing
       calculations, or invalid parameters.
 
@@ -524,9 +524,9 @@ def SetMode(mode):
 
     Example:
 
-    >>> SetMode('slave')    # e.g. to let another master take over
+    >>> SetMode('subordinate')    # e.g. to let another main take over
     ...
-    >>> SetMode('master')   # switch back to master in this copy
+    >>> SetMode('main')   # switch back to main in this copy
     """
     if mode == 'sim':
         mode = SIMULATION
@@ -565,7 +565,7 @@ def SetSimpleMode(enable):
 
 @usercommand
 def sync():
-    """Synchronize dry-run/simulation copy with master copy.
+    """Synchronize dry-run/simulation copy with main copy.
 
     This will fetch the current setups and state of the actual instrument and
     apply it to the simulated devices in the current NICOS instance.  New
@@ -777,7 +777,7 @@ def sim(what, *devices, **kwargs):
 
     Dry run mode does a non-physical emulation by running all the instrument
     specific code with virtualized devices.  Any problems which would appear
-    runnig the same commands in 'master' mode (with ideal hardware) can be
+    runnig the same commands in 'main' mode (with ideal hardware) can be
     spotted by the user, such as devices moving out of limits, failing
     calculations, or invalid parameters.
 

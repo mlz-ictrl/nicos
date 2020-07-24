@@ -61,7 +61,7 @@ class PixelmanUDPChannel(ActiveChannel):
     }
 
     parameter_overrides = {
-        'ismaster': Override(default=True, settable=True)
+        'ismain': Override(default=True, settable=True)
     }
 
     def valueInfo(self):

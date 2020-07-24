@@ -57,7 +57,7 @@ startupcode = '''
 from nicos.core import SIMULATION
 if not Exp.proposal and Exp._mode != SIMULATION:
     try:
-        SetMode('master')
+        SetMode('main')
     except Exception:
         pass
     else:

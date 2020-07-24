@@ -172,14 +172,14 @@ class Monitor(BaseMonitor):
         'noexpired': Param('If true, show expired values as "n/a"', type=bool)
     }
 
-    _master = None
+    _main = None
 
     def mainLoop(self):
         self._qtapp.exec_()
 
     def closeGui(self):
-        if self._master:
-            self._master.close()
+        if self._main:
+            self._main.close()
 
     def _class_import(self, clsname):
         modname, member = clsname.rsplit('.', 1)
@@ -195,20 +195,20 @@ class Monitor(BaseMonitor):
 
         self._qtapp = QApplication(['qtapp'], organizationName='nicos',
                                    applicationName='gui')
-        self._master = master = MonitorWindow()
+        self._main = main = MonitorWindow()
 
         if self._geometry == 'fullscreen':
-            master.showFullScreen()
-            master._wantFullScreen = True
+            main.showFullScreen()
+            main._wantFullScreen = True
             if QT_VER == 5:
                 # In some Qt5 versions, showFullScreen is buggy and doesn't
                 # actually resize the window (but hides decoration etc).
                 # So, explicitly set the geometry of the first screen.
-                master.setGeometry(QApplication.screens()[0].geometry())
-            QCursor.setPos(master.geometry().bottomRight())
+                main.setGeometry(QApplication.screens()[0].geometry())
+            QCursor.setPos(main.geometry().bottomRight())
         elif isinstance(self._geometry, tuple):
             w, h, x, y = self._geometry  # pylint: disable=W0633
-            master.setGeometry(x, y, w, h)
+            main.setGeometry(x, y, w, h)
 
         # colors used for the display of watchdog warnings, not for the
         # individual value displays
@@ -217,8 +217,8 @@ class Monitor(BaseMonitor):
         self._red = QColor('red')
         self._gray = QColor('gray')
 
-        master.setWindowTitle(self.title)
-        self._bgcolor = master.palette().color(QPalette.Window)
+        main.setWindowTitle(self.title)
+        self._bgcolor = main.palette().color(QPalette.Window)
 
         timefont  = QFont(self.font, self._timefontsize)
         blockfont = QFont(self.font, self._fontsizebig)
@@ -234,24 +234,24 @@ class Monitor(BaseMonitor):
         # split window into to panels/frames below each other:
         # one displays time, the other is divided further to display blocks.
         # first the timeframe:
-        masterframe = QFrame(master)
-        masterlayout = QVBoxLayout()
+        mainframe = QFrame(main)
+        mainlayout = QVBoxLayout()
         if self.title:
             self._titlelabel = QLabel(
-                '', master, font=timefont, autoFillBackground=True,
+                '', main, font=timefont, autoFillBackground=True,
                 alignment=Qt.AlignHCenter)
             pal = self._titlelabel.palette()
             pal.setColor(QPalette.WindowText, self._gray)
             self._titlelabel.setPalette(pal)
             self._titlelabel.setSizePolicy(QSizePolicy.Preferred,
                                            QSizePolicy.Fixed)
-            self._master.updateTitle.connect(self._titlelabel.setText)
-            masterlayout.addWidget(self._titlelabel)
-            masterlayout.addSpacing(0.2 * tiheight)
+            self._main.updateTitle.connect(self._titlelabel.setText)
+            mainlayout.addWidget(self._titlelabel)
+            mainlayout.addSpacing(0.2 * tiheight)
         else:
             self._titlelabel = None
 
-        self._warnpanel = QFrame(master)
+        self._warnpanel = QFrame(main)
         self._warnpanel.setVisible(False)
 
         warningslayout = QVBoxLayout()
@@ -261,10 +261,10 @@ class Monitor(BaseMonitor):
         self._warnlabel = QLabel('', self._warnpanel, font=blockfont)
         warningslayout.addWidget(self._warnlabel)
         self._warnpanel.setLayout(warningslayout)
-        masterlayout.addWidget(self._warnpanel)
-        master.switchWarnPanel.connect(self._switch_warnpanel)
+        mainlayout.addWidget(self._warnpanel)
+        main.switchWarnPanel.connect(self._switch_warnpanel)
 
-        displayframe = QFrame(master)
+        displayframe = QFrame(main)
         self._plots = {}
 
         colorScheme = lightColorScheme if self.colors == 'light' else None
@@ -397,28 +397,28 @@ class Monitor(BaseMonitor):
         for plot in self._plots.values():
             plot.setSource(self)
 
-        masterlayout.addWidget(displayframe)
+        mainlayout.addWidget(displayframe)
 
-        masterframe.setLayout(masterlayout)
-        master.setCentralWidget(masterframe)
+        mainframe.setLayout(mainlayout)
+        main.setCentralWidget(mainframe)
 
         # initialize status bar
         self._statuslabel = QLabel(font=stbarfont)
-        master.statusBar().addWidget(self._statuslabel)
+        main.statusBar().addWidget(self._statuslabel)
         self._statustimer = None
-        master.show()
+        main.show()
 
     def signalKeyChange(self, obj, *args):
-        self._master.keyChange.emit(obj, args)
+        self._main.keyChange.emit(obj, args)
 
     def newWidgetInfo(self, info):
         self._statuslabel.setText(info)
 
     def updateTitle(self, title):
-        self._master.updateTitle.emit(title)
+        self._main.updateTitle.emit(title)
 
     def switchWarnPanel(self, on):
-        self._master.switchWarnPanel.emit(on)
+        self._main.switchWarnPanel.emit(on)
 
     def _switch_warnpanel(self, on):
         if on:
@@ -429,7 +429,7 @@ class Monitor(BaseMonitor):
                 self._titlelabel.setPalette(pal)
             self._warnlabel.setText(self._currwarnings)
             self._warnpanel.setVisible(True)
-            self._master.update()
+            self._main.update()
         else:
             self._warnpanel.setVisible(False)
             if self._titlelabel:
@@ -439,7 +439,7 @@ class Monitor(BaseMonitor):
                 self._titlelabel.setPalette(pal)
             # resize to minimum
             self.reconfigureBoxes()
-            # self._master.update()
+            # self._main.update()
 
     def reconfigureBoxes(self):
         emitdict = {}
@@ -455,4 +455,4 @@ class Monitor(BaseMonitor):
         for field in fields:
             emitdict[None, field] = checkSetupSpec(field.setups, self._setups,
                                                    log=self.log)
-        self._master.reconfigure.emit(emitdict)
+        self._main.reconfigure.emit(emitdict)

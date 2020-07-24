@@ -118,7 +118,7 @@ class Watchdog(BaseCacheClient):
         # (mangled) key to update mail receivers
         self._mailreceiverkey = self.mailreceiverkey.replace('/', '_').lower()
         # mapping cache keys to entries that check this key
-        self._keymap = {'session_mastersetup': set()}
+        self._keymap = {'session_mainsetup': set()}
         if self._mailreceiverkey:
             self._keymap[self._mailreceiverkey] = set()
         # current warnings: mapping entry ids to the string description
@@ -296,7 +296,7 @@ class Watchdog(BaseCacheClient):
 
     def _process_key(self, time, key, value):
         # check setups?
-        if key == 'session_mastersetup' and value:
+        if key == 'session_mainsetup' and value:
             self._setups_updated(time, set(value))
             return
         # update notification targets?
@@ -417,7 +417,7 @@ class Watchdog(BaseCacheClient):
         self.log.info('updating any Mailer receivers to %s', emails)
         for notifier in self._all_notifiers:
             if isinstance(notifier, Mailer):
-                # we're in slave mode, so _setROParam is necessary to set params
+                # we're in subordinate mode, so _setROParam is necessary to set params
                 notifier._setROParam('receivers', emails)
 
     def _update_warnings_str(self):

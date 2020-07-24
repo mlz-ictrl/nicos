@@ -146,7 +146,7 @@ class ScriptSession(Session):
                 print('Fatal error while initializing:', err, file=sys.stderr)
             return 1
 
-        # Load the initial setup and handle becoming master.
+        # Load the initial setup and handle becoming main.
         session.handleInitialSetup(setup, mode)
 
         # Execute the script code and shut down.

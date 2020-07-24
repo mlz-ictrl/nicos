@@ -35,9 +35,9 @@ def test_maria_t2t(session):
     t2t = session.getDevice("t2t")
 
     target = 2
-    slavepos = t2t.scale * target
+    subordinatepos = t2t.scale * target
     t2t.maw(target)
-    assert t2t.read(0) == [target, slavepos]
+    assert t2t.read(0) == [target, subordinatepos]
     assert omega.read(0) == target
-    assert detarm.read(0) == slavepos
+    assert detarm.read(0) == subordinatepos
     assert t2t.isAtTarget(target)

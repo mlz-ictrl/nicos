@@ -118,7 +118,7 @@ def showToolText(toolbar, action):
 
 
 def modePrompt(mode):
-    return {SLAVE:       'slave >>',
+    return {SLAVE:       'subordinate >>',
             SIMULATION:  'SIM >>',
             MAINTENANCE: 'maint >>',
             MASTER:      '>>'}[mode]

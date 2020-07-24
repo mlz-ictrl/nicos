@@ -74,7 +74,7 @@ class TsDauChannelBase(LewisControlClientDevice):
 
 class TsDauTimeChannel(TsDauChannelBase, TimerChannelMixin, ActiveChannel):
     parameter_overrides = {
-        'ismaster': Override(default=True),
+        'ismain': Override(default=True),
         'preselection': Override(type=int)
     }
 

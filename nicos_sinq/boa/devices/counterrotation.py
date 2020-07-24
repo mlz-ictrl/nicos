@@ -41,11 +41,11 @@ from nicos.core.utils import multiStop
 
 class CounterRotatingMotor(Moveable):
     attached_devices = {
-        'master': Attach('Master Motor', Moveable),
-        'slave': Attach('Slave Motor', Moveable)}
+        'main': Attach('Main Motor', Moveable),
+        'subordinate': Attach('Subordinate Motor', Moveable)}
 
     parameters = {
-        'slave_offset': Param('offset of master against slave',
+        'subordinate_offset': Param('offset of main against subordinate',
                               type=float,
                               settable=True,
                               userparam=False,
@@ -59,8 +59,8 @@ class CounterRotatingMotor(Moveable):
                             internal=True), }
 
     def doInit(self, mode):
-        self._offset = self._attached_master.read(0)\
-                       - self._attached_slave.read(0) - 2. * self.old_target
+        self._offset = self._attached_main.read(0)\
+                       - self._attached_subordinate.read(0) - 2. * self.old_target
 
     def _calcNewPos(self, pos):
         """"
@@ -70,33 +70,33 @@ class CounterRotatingMotor(Moveable):
          moving the motors go into the offset and are corrected by the
          instrument use rby moving motors individually.
         """
-        master_pos = self._attached_master.read(0)
-        slave_pos = self._attached_slave.read(0)
-        self.slave_offset = master_pos - slave_pos - 2. * self.old_target
+        main_pos = self._attached_main.read(0)
+        subordinate_pos = self._attached_subordinate.read(0)
+        self.subordinate_offset = main_pos - subordinate_pos - 2. * self.old_target
         diff = pos - self.old_target
-        master_pos = master_pos + diff
-        slave_pos = slave_pos - diff
-        return master_pos, slave_pos
+        main_pos = main_pos + diff
+        subordinate_pos = subordinate_pos - diff
+        return main_pos, subordinate_pos
 
     def doIsAllowed(self, pos):
-        master_pos, slave_pos = self._calcNewPos(pos)
-        ok, why = self._attached_master.isAllowed(master_pos)
+        main_pos, subordinate_pos = self._calcNewPos(pos)
+        ok, why = self._attached_main.isAllowed(main_pos)
         if not ok:
-            return False, '%d violates limit of master motor: %s' % (pos, why)
-        ok, why = self._attached_slave.isAllowed(slave_pos)
+            return False, '%d violates limit of main motor: %s' % (pos, why)
+        ok, why = self._attached_subordinate.isAllowed(subordinate_pos)
         if not ok:
-            return False, '%d violates limit of slave motor: %s' % (pos, why)
+            return False, '%d violates limit of subordinate motor: %s' % (pos, why)
         return True, ''
 
     def doStart(self, pos):
-        master_pos, slave_pos = self._calcNewPos(pos)
-        self._attached_master.start(master_pos)
-        self._attached_slave.start(slave_pos)
+        main_pos, subordinate_pos = self._calcNewPos(pos)
+        self._attached_main.start(main_pos)
+        self._attached_subordinate.start(subordinate_pos)
         self.old_target = pos
 
     def doRead(self, maxage=0):
-        return ((self._attached_master.read(0)
-                 - self.slave_offset) - self._attached_slave.read(0)) / 2.
+        return ((self._attached_main.read(0)
+                 - self.subordinate_offset) - self._attached_subordinate.read(0)) / 2.
 
     def doStop(self):
         multiStop(self._adevs)

@@ -52,15 +52,15 @@ POLL_MIN_WAIT = 0.1         # minimum amount of time between two calls to poll()
 class Poller(Device):
 
     parameters = {
-        'autosetup':  Param('True if all master setups should always be polled',
+        'autosetup':  Param('True if all main setups should always be polled',
                             type=bool, default=True),
-        'poll':       Param('Setups that should be polled if in master setup '
+        'poll':       Param('Setups that should be polled if in main setup '
                             '(only used if autosetup is false)',
                             type=listof(str)),
         'alwayspoll': Param('Setups whose devices should always be polled',
                             type=listof(str), mandatory=True),
         'neverpoll':  Param('Setups that should never be polled, even if in '
-                            'master setup', type=listof(str)),
+                            'main setup', type=listof(str)),
         'blacklist':  Param('Devices that should never be polled',
                             type=listof(str)),
     }
@@ -303,7 +303,7 @@ class Poller(Device):
     def start(self, setup=None):
         self._setup = setup
         if setup is None:
-            return self._start_master()
+            return self._start_main()
         self.log.info('%s poller starting', setup)
 
         if setup == '[dummy]':
@@ -361,8 +361,8 @@ class Poller(Device):
     def wait(self):
         if self._setup is None:
             if os.name == 'nt':
-                return self._wait_master_nt()
-            return self._wait_master()
+                return self._wait_main_nt()
+            return self._wait_main()
         while not self._stoprequest:
             sleep(1)
         for worker in itervalues(self._workers):
@@ -370,7 +370,7 @@ class Poller(Device):
 
     def quit(self, signum=None):
         if self._setup is None:
-            return self._quit_master(signum)
+            return self._quit_main(signum)
         if self._stoprequest:
             return  # already quitting
         self.log.info('poller quitting on signal %s...', signum)
@@ -413,10 +413,10 @@ class Poller(Device):
                 self.log.info('%s: %s', name,
                               ''.join(traceback.format_stack(frame)))
 
-    def _start_master(self):
-        # the poller consists of two types of processes: one master process
+    def _start_main(self):
+        # the poller consists of two types of processes: one main process
         # that spawns and waits for the children (and restarts them in case
-        # of unintended termination, e.g. by segfault); and N slave processes
+        # of unintended termination, e.g. by segfault); and N subordinate processes
         # (one for each setup loaded) that do the actual polling
 
         self._childpids = {}
@@ -428,7 +428,7 @@ class Poller(Device):
         # wait for the cache connection (which might not yet be available if the
         # cache server has been started directly before the poller): the poller
         # is not useful if there is no cache connection, and if we connect later
-        # we miss the mastersetups
+        # we miss the mainsetups
         if not self._cache.is_connected():
             self.log.info('waiting until cache is connected')
             while not self._cache.is_connected():
@@ -437,35 +437,35 @@ class Poller(Device):
                 sleep(0.2)
 
         # by default, the polled devices always reflects the loaded setups
-        # in the current NICOS master, but it can be configured to only
+        # in the current NICOS main, but it can be configured to only
         # poll specific setups if loaded, or always:
         #
-        # * self.poll: poll if loaded by master
+        # * self.poll: poll if loaded by main
         # * self.alwayspoll: always poll
         # * self.neverpoll: never poll, even if loaded
         #
-        mastersetups = set(self._cache.get(session, 'mastersetup') or [])
+        mainsetups = set(self._cache.get(session, 'mainsetup') or [])
         if self.autosetup:
-            self._setups = mastersetups
+            self._setups = mainsetups
         else:
-            self._setups = mastersetups & set(self.poll)
+            self._setups = mainsetups & set(self.poll)
         self._setups.difference_update(self.neverpoll)
         self._setups.update(self.alwayspoll)
 
         if not self._setups:
-            # if no pollers are running, this would terminate the _wait_master
+            # if no pollers are running, this would terminate the _wait_main
             # loop instantly, so wait here until there are some setups
             self._setups.add('[dummy]')
 
         for setup in self._setups:
             self._start_child(setup)
 
-        # listen for changes in master setups if we depend on them
+        # listen for changes in main setups if we depend on them
         if self.autosetup or self.poll:
-            self._cache.addCallback(session, 'mastersetup', self._reconfigure)
+            self._cache.addCallback(session, 'mainsetup', self._reconfigure)
 
     def _reconfigure(self, key, value, time):
-        self.log.info('reconfiguring for new master setups %s', value)
+        self.log.info('reconfiguring for new main setups %s', value)
         session.readSetups()
         old_setups = self._setups
 
@@ -497,7 +497,7 @@ class Poller(Device):
         self._childpids[process.pid] = setup
         session.log.info('started %s poller, PID %s', setup, process.pid)
 
-    def _wait_master(self):
+    def _wait_main(self):
         # wait for children to terminate; restart them if necessary
         while True:
             try:
@@ -523,8 +523,8 @@ class Poller(Device):
                                      setup, whyExited(ret))
         session.log.info('all pollers terminated')
 
-    def _wait_master_nt(self):
-        # this is the same as _wait_master, but with active polling instead
+    def _wait_main_nt(self):
+        # this is the same as _wait_main, but with active polling instead
         # of using os.wait(), which does not exist on Windows
         while True:
             sleep(0.5)
@@ -546,7 +546,7 @@ class Poller(Device):
                                          setup, ret)
         session.log.info('all pollers terminated')
 
-    def _quit_master(self, signum=None):
+    def _quit_main(self, signum=None):
         self._stoprequest = True
         self.log.info('quitting on signal %s...', signum)
         for pid in self._childpids:

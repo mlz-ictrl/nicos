@@ -105,7 +105,7 @@ class AmorTofArray(HistogramConfTofArray):
         # Get the chopper speed, phase
         chspeed = 0
         for ch in self._attached_chopper._attached_choppers:
-            if ch.isMaster:
+            if ch.isMain:
                 chspeed = ch.speed
 
         if chspeed == 0:
@@ -228,7 +228,7 @@ class AmorHMConfigurator(ConfiguratorBase):
     }
 
     def _isChopperActive(self):
-        return self._attached_chopper._master.speed > 0
+        return self._attached_chopper._main.speed > 0
 
     def doReadMask(self):
         return "0x00f00000" if self._isChopperActive() else "0x00000000"

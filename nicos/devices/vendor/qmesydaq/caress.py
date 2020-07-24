@@ -97,7 +97,7 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
     def doStart(self):
         self._reset()
 
-        if not self.ismaster:
+        if not self.ismain:
             self._load_preset(LOADSLAVE)
             # self._start(0)
         else:
@@ -131,7 +131,7 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
         if hasattr(self._caressObject, 'stop_module'):
             result = self._caress_guard(self._caressObject.stop_module, kind,
                                         self.cid)
-        elif self.ismaster:
+        elif self.ismain:
             result = \
                 self._caress_guard(self._caressObject.stop_acquisition_orb,
                                    kind)

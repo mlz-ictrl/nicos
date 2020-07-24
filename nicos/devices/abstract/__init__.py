@@ -41,7 +41,7 @@ class Coder(HasPrecision, Readable):
     def setPosition(self, pos):
         """Set the current position of the controller to the target.
 
-        This operation is forbidden in slave mode, and does the right thing
+        This operation is forbidden in subordinate mode, and does the right thing
         virtually in simulation mode.
 
         .. method:: doSetPosition(pos)
@@ -50,7 +50,7 @@ class Coder(HasPrecision, Readable):
         """
         if self._mode == SLAVE:
             raise ModeError(self, 'setting new position not possible in '
-                            'slave mode')
+                            'subordinate mode')
         elif self._sim_intercept:
             self._sim_setValue(pos)
             return
@@ -114,7 +114,7 @@ class CanReference(DeviceMixinBase):
     def reference(self, *args):
         """Do a reference drive of the axis."""
         if self._mode == SLAVE:
-            raise ModeError(self, 'referencing not possible in slave mode')
+            raise ModeError(self, 'referencing not possible in subordinate mode')
         elif self._sim_intercept:
             return
         elif hasattr(self, 'fixed') and self.fixed:

@@ -27,7 +27,7 @@ _axisblock = Block('Axes angles', [
              'afpg'),
     ],
     # setups='puma',  # this is the name of a setup that must be loaded in the
-                      # NICOS master instance for this block to be displayed
+                      # NICOS main instance for this block to be displayed
 )
 
 _sampletable = Block('Sampletable', [

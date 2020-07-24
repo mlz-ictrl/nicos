@@ -292,7 +292,7 @@ class VirtualTimer(VirtualChannel):
         finish_at = time.time() + self.preselection - self.curvalue
         try:
             while not self._stopflag:
-                if self.ismaster and time.time() >= finish_at:
+                if self.ismain and time.time() >= finish_at:
                     self.curvalue = self.preselection
                     break
                 time.sleep(self._base_loop_delay)
@@ -301,7 +301,7 @@ class VirtualTimer(VirtualChannel):
             self.curstatus = (status.OK, 'idle')
 
     def doSimulate(self, preset):
-        if self.ismaster:
+        if self.ismain:
             return [self.preselection]
         return [random.randint(0, 1000)]
 
@@ -309,7 +309,7 @@ class VirtualTimer(VirtualChannel):
         return Value(self.name, unit='s', type='time', fmtstr='%.3f'),
 
     def doTime(self, preset):
-        return self.preselection if self.ismaster else 0
+        return self.preselection if self.ismain else 0
 
 
 class VirtualCounter(VirtualChannel):
@@ -350,7 +350,7 @@ class VirtualCounter(VirtualChannel):
                        self.preselection, self.countrate)
         try:
             while not self._stopflag:
-                if self.ismaster and self.curvalue >= self.preselection:
+                if self.ismain and self.curvalue >= self.preselection:
                     self.curvalue = self.preselection
                     break
                 time.sleep(self._base_loop_delay)
@@ -360,7 +360,7 @@ class VirtualCounter(VirtualChannel):
             self.curstatus = (status.OK, 'idle')
 
     def doSimulate(self, preset):
-        if self.ismaster:
+        if self.ismain:
             return [self.preselection]
         return [random.randint(0, self.countrate)]
 

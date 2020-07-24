@@ -65,7 +65,7 @@ def test_counterrot1(session):
     assert rc.read() == -5.
 
     # Simulate a restart
-    rbu.slave_offset = 1.
+    rbu.subordinate_offset = 1.
     rbu.maw(7.)
     session.destroyDevice('rbu')
     rbu = session.getDevice('rbu')

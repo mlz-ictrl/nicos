@@ -72,18 +72,18 @@ class InvertableMotor(HasOffset, TangoMotor):
                                                              self.offset))
 
 
-class MasterSlaveMotor(Moveable):
-    """Combined master slave motor with possibility to apply a scale to the
-    slave motor."""
+class MainSubordinateMotor(Moveable):
+    """Combined main subordinate motor with possibility to apply a scale to the
+    subordinate motor."""
 
     attached_devices = {
-        "master": Attach("Master motor controlling the movement", Moveable),
-        "slave": Attach("Slave motor following master motor movement",
+        "main": Attach("Main motor controlling the movement", Moveable),
+        "subordinate": Attach("Subordinate motor following main motor movement",
                         Moveable),
     }
 
     parameters = {
-        "scale": Param("Factor applied to master target position as slave "
+        "scale": Param("Factor applied to main target position as subordinate "
                        "position", type=float, default=1),
     }
 
@@ -92,21 +92,21 @@ class MasterSlaveMotor(Moveable):
         "fmtstr": Override(default="%.3f %.3f"),
     }
 
-    def _slavePos(self, pos):
+    def _subordinatePos(self, pos):
         return self.scale * pos
 
     def doRead(self, maxage=0):
-        return [self._attached_master.read(maxage),
-                self._attached_slave.read(maxage)]
+        return [self._attached_main.read(maxage),
+                self._attached_subordinate.read(maxage)]
 
     def doStart(self, pos):
-        self._attached_master.move(pos)
-        self._attached_slave.move(self._slavePos(pos))
+        self._attached_main.move(pos)
+        self._attached_subordinate.move(self._subordinatePos(pos))
 
     def doIsAllowed(self, pos):
         faultmsgs = []
         messages = []
-        for dev in [self._attached_master, self._attached_slave]:
+        for dev in [self._attached_main, self._attached_subordinate]:
             allowed, msg = dev.isAllowed(pos)
             msg = dev.name + ': ' + msg
             messages += [msg]
@@ -117,10 +117,10 @@ class MasterSlaveMotor(Moveable):
         return True, ', '.join(messages)
 
     def doReadUnit(self):
-        return self._attached_master.unit
+        return self._attached_main.unit
 
     def valueInfo(self):
-        return Value(self._attached_master.name, unit=self.unit,
-                     fmtstr=self._attached_master.fmtstr), \
-               Value(self._attached_slave.name, unit=self.unit,
-                     fmtstr=self._attached_slave.fmtstr)
+        return Value(self._attached_main.name, unit=self.unit,
+                     fmtstr=self._attached_main.fmtstr), \
+               Value(self._attached_subordinate.name, unit=self.unit,
+                     fmtstr=self._attached_subordinate.fmtstr)

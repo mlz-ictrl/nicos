@@ -59,6 +59,6 @@ devices = dict(
         fontsize = 14,
         padding = 3,
         layout = layout,
-        expectmaster = False,
+        expectmain = False,
     ),
 )

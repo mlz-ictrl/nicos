@@ -63,7 +63,7 @@ class Scan(object):
                  firstmoves=None, multistep=None, detlist=None, envlist=None,
                  preset=None, scaninfo=None, subscan=False, xindex=None):
         if session.mode == SLAVE:
-            raise ModeError('cannot scan in slave mode')
+            raise ModeError('cannot scan in subordinate mode')
         self.dataset = None
         if not detlist:
             detlist = session.experiment.detectors

@@ -25,7 +25,7 @@ _axisblock = Block('Axes', [
     # BlockRow('ath', 'att'),
     ],
     setups='tas',  # this is the name of a setup that must be loaded in the
-                   # NICOS master instance for this block to be displayed
+                   # NICOS main instance for this block to be displayed
 )
 
 _tempblock = SetupBlock('cryo')  # this block is loaded from the "cryo" setup

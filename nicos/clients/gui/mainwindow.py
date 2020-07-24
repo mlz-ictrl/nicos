@@ -81,10 +81,10 @@ class ToolAction(QAction):
         setups = options.get('setups', '')
         self.setupSpec = setups
         if self.setupSpec:
-            client.register(self, 'session/mastersetup')
+            client.register(self, 'session/mainsetup')
 
     def on_keyChange(self, key, value, time, expired):
-        if key == 'session/mastersetup' and self.setupSpec:
+        if key == 'session/mainsetup' and self.setupSpec:
             self.setVisible(checkSetupSpec(self.setupSpec, value))
 
 

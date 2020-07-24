@@ -57,7 +57,7 @@ class PassiveChannel(Measurable):
     """
 
     parameters = {
-        'ismaster':      Param('If this channel is an active master',
+        'ismain':      Param('If this channel is an active main',
                                type=bool, settable=True),
         'presetaliases': Param('Aliases for setting a preset for the first '
                                'scalar on this channel',
@@ -99,7 +99,7 @@ class PassiveChannel(Measurable):
         This can be ignored by passive channels since soft presets are checked
         explicitly.
         """
-        self.ismaster = True
+        self.ismain = True
 
     def presetReached(self, name, value, maxage):
         """Return true if the soft preset for *name* has reached the given
@@ -169,7 +169,7 @@ class ActiveChannel(PassiveChannel):
         return self.status(maxage)[0] == status.OK
 
     def doEstimateTime(self, elapsed):
-        if not self.ismaster or self.doStatus()[0] != status.BUSY:
+        if not self.ismain or self.doStatus()[0] != status.BUSY:
             return None
         if self.is_timer:
             return self.preselection - elapsed
@@ -318,12 +318,12 @@ class TimerChannelMixin(DeviceMixinBase):
                      fmtstr=self.fmtstr),
 
     def doTime(self, preset):
-        if self.ismaster:
+        if self.ismain:
             return self.preselection
         return 0
 
     def doSimulate(self, preset):
-        if self.ismaster:
+        if self.ismain:
             return [self.preselection]
         return [0.0]
 
@@ -349,7 +349,7 @@ class CounterChannelMixin(DeviceMixinBase):
                      type=self.type, fmtstr=self.fmtstr),
 
     def doSimulate(self, preset):
-        if self.ismaster:
+        if self.ismain:
             return [int(self.preselection)]
         return [0]
 
@@ -419,9 +419,9 @@ class Detector(Measurable):
     `ActiveChannel` is able to stop by itself, usually implemented in hardware,
     so that the preset is reached exactly, or overshot by very little.
 
-    In the detector, channels with a preset are called "masters", while
-    channels without are called "slaves".  Which channels are masters and
-    slaves can change with every count cycle.
+    In the detector, channels with a preset are called "mains", while
+    channels without are called "subordinates".  Which channels are mains and
+    subordinates can change with every count cycle.
     """
 
     attached_devices = {
@@ -456,7 +456,7 @@ class Detector(Measurable):
     }
 
     hardware_access = False
-    multi_master = True
+    multi_main = True
 
     _last_live = 0
     _last_save = 0
@@ -465,8 +465,8 @@ class Detector(Measurable):
     _user_comment = ''
 
     def doInit(self, _mode):
-        self._masters = []
-        self._slaves = []
+        self._mains = []
+        self._subordinates = []
         self._channel_presets = {}
         self._postprocess = []
         self._postpassives = []
@@ -527,18 +527,18 @@ class Detector(Measurable):
                               self._attached_counters + self._attached_images +
                               self._attached_others)
         self._presetkeys = presetkeys
-        self._getMasters()
+        self._getMains()
 
-    def _getMasters(self):
-        """Internal method to collect all masters."""
-        masters = []
-        slaves = []
+    def _getMains(self):
+        """Internal method to collect all mains."""
+        mains = []
+        subordinates = []
         for ch in self._channels:
-            if ch.ismaster:
-                masters.append(ch)
+            if ch.ismain:
+                mains.append(ch)
             else:
-                slaves.append(ch)
-        self._masters, self._slaves = masters, slaves
+                subordinates.append(ch)
+        self._mains, self._subordinates = mains, subordinates
 
     def _getPreset(self, preset):
         """Returns previous preset if no preset has been set."""
@@ -555,33 +555,33 @@ class Detector(Measurable):
         if not preset:
             # keep old settings
             return
-        for master in self._masters:
-            master.ismaster = False
+        for main in self._mains:
+            main.ismain = False
         self._channel_presets = {}
         for (name, value) in iteritems(preset):
             if name in self._presetkeys and name != 'live':
                 dev = self._presetkeys[name][0]
                 dev.setChannelPreset(name, value)
                 self._channel_presets.setdefault(dev, []).append((name, value))
-        self._getMasters()
-        if set(self._masters) != set(self._channel_presets):
-            if not self._masters:
-                self.log.warning('no master configured, detector may not stop')
+        self._getMains()
+        if set(self._mains) != set(self._channel_presets):
+            if not self._mains:
+                self.log.warning('no main configured, detector may not stop')
             else:
-                self.log.warning('master setting for devices %s ignored by '
+                self.log.warning('main setting for devices %s ignored by '
                                  'detector',
                                  ', '.join(set(self._channel_presets) -
-                                           set(self._masters)))
+                                           set(self._mains)))
         self.log.debug("   presets: %s", preset)
         self.log.debug("presetkeys: %s", self._presetkeys)
-        self.log.debug("   masters: %s", self._masters)
-        self.log.debug("    slaves: %s", self._slaves)
+        self.log.debug("   mains: %s", self._mains)
+        self.log.debug("    subordinates: %s", self._subordinates)
 
     def doPrepare(self):
-        for slave in self._slaves:
-            slave.prepare()
-        for master in self._masters:
-            master.prepare()
+        for subordinate in self._subordinates:
+            subordinate.prepare()
+        for main in self._mains:
+            main.prepare()
 
     def doStart(self):
         # setting this to -interval, instead of 0, will send some live data at
@@ -589,10 +589,10 @@ class Detector(Measurable):
         self._last_live = -(self.liveinterval or 0)
         self._last_save = 0
         self._last_save_index = 0
-        for slave in self._slaves:
-            slave.start()
-        for master in self._masters:
-            master.start()
+        for subordinate in self._subordinates:
+            subordinate.start()
+        for main in self._mains:
+            main.start()
 
     def doTime(self, preset):
         self.doSetPreset(**preset)  # okay in simmode
@@ -600,29 +600,29 @@ class Detector(Measurable):
 
     def doPause(self):
         success = True
-        for slave in self._slaves:
-            success &= slave.pause()
-        for master in self._masters:
-            success &= master.pause()
+        for subordinate in self._subordinates:
+            success &= subordinate.pause()
+        for main in self._mains:
+            success &= main.pause()
         return success
 
     def doResume(self):
-        for slave in self._slaves:
-            slave.resume()
-        for master in self._masters:
-            master.resume()
+        for subordinate in self._subordinates:
+            subordinate.resume()
+        for main in self._mains:
+            main.resume()
 
     def doFinish(self):
-        for master in self._masters:
-            master.finish()
-        for slave in self._slaves:
-            slave.finish()
+        for main in self._mains:
+            main.finish()
+        for subordinate in self._subordinates:
+            subordinate.finish()
 
     def doStop(self):
-        for master in self._masters:
-            master.stop()
-        for slave in self._slaves:
-            slave.stop()
+        for main in self._mains:
+            main.stop()
+        for subordinate in self._subordinates:
+            subordinate.stop()
 
     def doRead(self, maxage=0):
         ret = []
@@ -665,9 +665,9 @@ class Detector(Measurable):
         st, text = multiStatus(self._getWaiters(), maxage)
         if st == status.ERROR:
             return st, text
-        for master in self._masters:
-            for (name, value) in self._channel_presets.get(master, ()):
-                if master.presetReached(name, value, maxage):
+        for main in self._mains:
+            for (name, value) in self._channel_presets.get(main, ()):
+                if main.presetReached(name, value, maxage):
                     return status.OK, text
         return st, text
 
@@ -692,10 +692,10 @@ class Detector(Measurable):
         return {'info'} | set(self._presetkeys)
 
     def doEstimateTime(self, elapsed):
-        eta = {master.estimateTime(elapsed) for master in self._masters}
+        eta = {main.estimateTime(elapsed) for main in self._mains}
         eta.discard(None)
         if eta:
-            # first master stops, so take min
+            # first main stops, so take min
             return min(eta)
         return None
 
@@ -742,16 +742,16 @@ class DetectorForecast(Readable):
         # read all values of all counters and store them by device
         counter_values = {ch: ch.read(maxage)[0]
                           for ch in self._attached_det._channels}
-        # go through the master channels and determine the one
+        # go through the main channels and determine the one
         # closest to the preselection
         fraction_complete = 0
-        for m in self._attached_det._masters:
+        for m in self._attached_det._mains:
             p = float(m.preselection)
             if p > 0:
                 fraction_complete = max(fraction_complete,
                                         counter_values[m] / p)
         if fraction_complete == 0:
-            # no master or all zero?  just return the current values
+            # no main or all zero?  just return the current values
             fraction_complete = 1.0
         # scale all counter values by that fraction
         return [counter_values[ch] / fraction_complete

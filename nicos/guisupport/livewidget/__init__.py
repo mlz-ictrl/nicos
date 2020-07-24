@@ -243,14 +243,14 @@ class LiveWidgetBase(QWidget):
         self._rescale()
         self.gr.update()
 
-    def zoom(self, master, dpercent, p0):
-        if self.plot == master:
+    def zoom(self, main, dpercent, p0):
+        if self.plot == main:
             w, h = self.width(), self.height()
             self.plot.zoom(dpercent, p0, w, h)
             self.rescale()
 
-    def select(self, master, p0, p1):
-        if self.plot == master:
+    def select(self, main, p0, p1):
+        if self.plot == main:
             w, h = self.width(), self.height()
             self.plot.select(p0, p1, w, h)
             self.rescale()

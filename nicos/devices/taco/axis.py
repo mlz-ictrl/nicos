@@ -87,12 +87,12 @@ class Axis(CanReference, TacoDevice, AbstractAxis):
     def setPosition(self, pos):
         """Sets the current position of the axis to the target.
 
-        This operation is forbidden in slave mode, and does the right thing
+        This operation is forbidden in subordinate mode, and does the right thing
         virtually in simulation mode.
         """
         if self._mode == SLAVE:
             raise ModeError(self, 'setting new position not possible in '
-                            'slave mode')
+                            'subordinate mode')
         elif self._sim_intercept:
             self._sim_setValue(pos)
             return

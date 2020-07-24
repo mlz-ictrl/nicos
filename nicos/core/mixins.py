@@ -719,7 +719,7 @@ class CanDisable(DeviceMixinBase):
     def _enable(self, on):
         what = 'enable' if on else 'disable'
         if self._mode == SLAVE:
-            raise ModeError(self, '%s not possible in slave mode' % what)
+            raise ModeError(self, '%s not possible in subordinate mode' % what)
         if getattr(self, 'requires', None):
             try:
                 session.checkAccess(self.requires)
@@ -732,7 +732,7 @@ class CanDisable(DeviceMixinBase):
 
     @usermethod
     def enable(self):
-        """Enable this device.  This operation is forbidden in slave mode.
+        """Enable this device.  This operation is forbidden in subordinate mode.
 
         .. method:: doEnable(on)
 
@@ -743,7 +743,7 @@ class CanDisable(DeviceMixinBase):
 
     @usermethod
     def disable(self):
-        """Disable this device.  This operation is forbidden in slave mode."""
+        """Disable this device.  This operation is forbidden in subordinate mode."""
         self._enable(False)
 
 

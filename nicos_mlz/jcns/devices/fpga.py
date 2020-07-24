@@ -26,7 +26,7 @@
 
 This module provides classes for controlling the ZEA-2 FPGA Counter Card using
 their own interface. The current implementation does _not_ support multiple
-masters, e.g. counting on time and count rate.
+mains, e.g. counting on time and count rate.
 
 """
 
@@ -40,8 +40,8 @@ from nicos.devices.generic import ActiveChannel, CounterChannelMixin, \
     TimerChannelMixin
 from nicos.devices.tango import PyTangoDevice
 
-# XXX: implement doReadIsmaster to determine which channel is actually the
-# current master.
+# XXX: implement doReadIsmain to determine which channel is actually the
+# current main.
 
 
 class FPGAChannelBase(PyTangoDevice, ActiveChannel):
@@ -65,7 +65,7 @@ class FPGAChannelBase(PyTangoDevice, ActiveChannel):
         raise NotImplementedError
 
     def doStart(self):
-        if self.ismaster:
+        if self.ismain:
             self._dev.DevFPGACountReset()
             # preselection has to be set here and not in doWritePreset
             # because `DevFPGACountReset()` resets all values.

@@ -8,7 +8,7 @@ _interfaceboxtop = Block('Interface Box (top)', [
         ),
     ],
 #
-# Only used if a master has this setup loaded, if missed it will be used
+# Only used if a main has this setup loaded, if missed it will be used
 # unconditionally
 #
 #   setups='tube_environment',

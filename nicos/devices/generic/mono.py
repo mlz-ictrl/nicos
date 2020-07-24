@@ -124,7 +124,7 @@ class Monochromator(Moveable):
             # this is the initial update
             return
         if self._mode not in (MASTER, SIMULATION):
-            # change limits only from the master copy, or in simulation mode
+            # change limits only from the main copy, or in simulation mode
             return
         if 'target' in self._params and self.target and self.target != 'unknown':
             # this should be still within the limits

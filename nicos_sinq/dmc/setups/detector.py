@@ -112,13 +112,13 @@ devices = dict(
         det_range = [0, 12000],
         det_width = 200,
         det_height = 60,
-        slave_mode = True,
+        subordinate_mode = True,
         brokers = configdata('config.KAFKA_BROKERS'),
     ),
     dmcdet = device('nicos_sinq.devices.detector.ControlDetector',
         description = 'DMC detector coordination',
         trigger = 'el737',
-        slave_detectors = 'jubit'
+        subordinate_detectors = 'jubit'
     )
 )
 startupcode = '''

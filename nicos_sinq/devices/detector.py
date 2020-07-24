@@ -58,10 +58,10 @@ class SinqDetector(EpicsScalerRecord):
         for name in self.time_preset_names:
             yield name, self._attached_timepreset, 'time'
 
-    def _getMasters(self):
+    def _getMains(self):
         self._channels = uniq(self._channels + [self._attached_monitorpreset,
                                                 self._attached_timepreset])
-        EpicsScalerRecord._getMasters(self)
+        EpicsScalerRecord._getMains(self)
 
     def doSetPreset(self, **preset):
         # The counter box can set one time and count preset. If the time
@@ -103,7 +103,7 @@ class SinqDetector(EpicsScalerRecord):
         mode = ''
         value = 0
         unit = ''
-        for d in self._masters:
+        for d in self._mains:
             for k in self._presetkeys:
                 if self._presetkeys[k] and\
                         self._presetkeys[k][0].name == d.name:
@@ -126,49 +126,49 @@ class SinqDetector(EpicsScalerRecord):
 class ControlDetector(Detector):
     """
     This is a base class for classes which wish to coordinate multiple
-    detectors. The model is that there are multiple slave detectors (like
+    detectors. The model is that there are multiple subordinate detectors (like
     Histogram Memories) and one trigger detector which when started,
     actually starts data acquisition on the assembly. This implementation
     passes most Detector methods through to all participating detectors.
     start() and doIsCompleted() are implemented in such a way that it does
     the right thing for the SINQ combination of el737 counter box as
-    trigger and HM slaves.
+    trigger and HM subordinates.
     """
 
     attached_devices = {'trigger':
                         Attach('Detector which triggers data acquisition',
                                Detector),
-                        'slave_detectors': Attach('Slave detectors',
+                        'subordinate_detectors': Attach('Subordinate detectors',
                                                   Measurable,
                                                   multiple=True,
                                                   optional=True),
                         }
-    _slaves_stopped = False
+    _subordinates_stopped = False
 
     def doSetPreset(self, **preset):
-        for det in self._attached_slave_detectors:
+        for det in self._attached_subordinate_detectors:
             det.setPreset(**preset)
         self._attached_trigger.setPreset(**preset)
 
     def doPrepare(self):
-        for det in self._attached_slave_detectors:
+        for det in self._attached_subordinate_detectors:
             det.prepare()
         self._attached_trigger.prepare()
 
     def doStart(self):
-        for det in self._attached_slave_detectors:
+        for det in self._attached_subordinate_detectors:
             det.start()
         self._attached_trigger.start()
-        self._slaves_stopped = False
+        self._subordinates_stopped = False
 
     def doIsCompleted(self):
         if self._attached_trigger.isCompleted():
-            if not self._slaves_stopped:
-                for det in self._attached_slave_detectors:
+            if not self._subordinates_stopped:
+                for det in self._attached_subordinate_detectors:
                     det.stop()
-                    self._slaves_stopped = True
+                    self._subordinates_stopped = True
                     return False
-            for det in self._attached_slave_detectors:
+            for det in self._attached_subordinate_detectors:
                 if not det.isCompleted():
                     return False
             return True
@@ -176,13 +176,13 @@ class ControlDetector(Detector):
             return False
 
     def doFinish(self):
-        for det in self._attached_slave_detectors:
+        for det in self._attached_subordinate_detectors:
             det.finish()
         self._attached_trigger.finish()
 
     def readResults(self, quality):
         data, arrays = self._attached_trigger.readResults(quality)
-        for det in self._attached_slave_detectors:
+        for det in self._attached_subordinate_detectors:
             d1, ar2 = det.readResults(quality)
             data = data + d1
             arrays = arrays + ar2
@@ -190,31 +190,31 @@ class ControlDetector(Detector):
 
     def doPause(self):
         self._attached_trigger.pause()
-        for det in self._attached_slave_detectors:
+        for det in self._attached_subordinate_detectors:
             det.pause()
 
     def doResume(self):
-        for det in self._attached_slave_detectors:
+        for det in self._attached_subordinate_detectors:
             det.resume()
         self._attached_trigger.resume()
 
     def doStop(self):
         self._attached_trigger.stop()
-        for det in self._attached_slave_detectors:
+        for det in self._attached_subordinate_detectors:
             det.stop()
 
     def duringMeasurementHook(self, elapsed):
         res = self._attached_trigger.duringMeasurementHook(elapsed)
         if res:
             return res
-        for det in self._attached_slave_detectors:
+        for det in self._attached_subordinate_detectors:
             res = det.duringMeasurementHook(elapsed)
             if res:
                 return res
 
     def doInfo(self):
         res = self._attached_trigger.doInfo()
-        for det in self._attached_slave_detectors:
+        for det in self._attached_subordinate_detectors:
             res = res + det.doInfo()
         return res
 
@@ -225,24 +225,24 @@ class ControlDetector(Detector):
         if not self._attached_trigger:
             self.doInit('')
         res = self._attached_trigger.valueInfo()
-        for det in self._attached_slave_detectors:
+        for det in self._attached_subordinate_detectors:
             res = res + det.valueInfo()
         return res
 
     def arrayInfo(self):
         res = self._attached_trigger.arrayInfo()
-        for det in self._attached_slave_detectors:
+        for det in self._attached_subordinate_detectors:
             res = res + det.arrayInfo()
         return res
 
     def doRead(self, maxage=0):
         res = self._attached_trigger.doRead(maxage)
-        for det in self._attached_slave_detectors:
+        for det in self._attached_subordinate_detectors:
             res = res + det.doRead(maxage)
         return res
 
     def doReadArrays(self):
         res = self._attached_trigger.doReadArrays()
-        for det in self._attached_slave_detectors:
+        for det in self._attached_subordinate_detectors:
             res = res + det.doReadArrays()
         return res

@@ -188,7 +188,7 @@ class SimulationSession(Session):
             session.loadSetup(setups, allow_startupcode=False)
 
             # Synchronize setups and cache values.
-            session.log.info('synchronizing to master session')
+            session.log.info('synchronizing to main session')
             session.simulationSync(db)
 
             # Set session to always abort on errors.

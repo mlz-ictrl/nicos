@@ -418,7 +418,7 @@ class Experiment(Device):
             session.elogEvent('directory', (self.proposalpath,
                                             instname, self.proposal))
             self._eloghandler = ELogHandler()
-            # only enable in master mode, see below
+            # only enable in main mode, see below
             self._eloghandler.disabled = session.mode != MASTER
             session.addLogHandler(self._eloghandler)
         if not self.templates:

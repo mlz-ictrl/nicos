@@ -48,12 +48,12 @@ class BaseChannel(TacoBaseChannel):
     def doResume(self):
         self._taco_guard(self._dev.start)
 
-    def doWriteIsmaster(self, value):
+    def doWriteIsmain(self, value):
         self._taco_guard(self._dev.stop)
         self._taco_guard(self._dev.setMode,
                          IOCommon.MODE_PRESELECTION if value
                          else IOCommon.MODE_NORMAL)
-        self._taco_guard(self._dev.enableMaster, value)
+        self._taco_guard(self._dev.enableMain, value)
         # workaround for buggy QMesyDAQ
         if not value:
             self._taco_guard(self._dev.setPreselection, 0)
@@ -120,7 +120,7 @@ class MultiCounter(BaseChannel, PassiveChannel):
                                     type='counter', fmtstr='%d'))
         return tuple(resultlist)
 
-    def doReadIsmaster(self):
+    def doReadIsmain(self):
         return False
 
     def doReadFmtstr(self):
@@ -179,7 +179,7 @@ class Image(BaseChannel, QMesyDAQImage):
             data = np.flip(data, axis)
         return data
 
-    def doReadIsmaster(self):
+    def doReadIsmain(self):
         return False
 
     def doWriteListmode(self, value):

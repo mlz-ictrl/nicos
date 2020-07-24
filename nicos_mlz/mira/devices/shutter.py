@@ -75,7 +75,7 @@ class Shutter(PyTangoDevice, Readable):
     def close(self):
         """Closes instrument shutter."""
         if self._mode == SLAVE:
-            raise ModeError(self, 'closing shutter not allowed in slave mode')
+            raise ModeError(self, 'closing shutter not allowed in subordinate mode')
         elif self._sim_intercept:
             return
         self._dev.WriteOutputBit([self.switchoffset, 1])

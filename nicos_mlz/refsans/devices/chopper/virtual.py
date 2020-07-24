@@ -61,7 +61,7 @@ class ChopperDisc(ChopperDiscBase, VirtualMotor):
 class ChopperDisc1(ChopperDisc):
 
     attached_devices = {
-        'discs': Attach('slave choppers', ChopperDisc, multiple=5),
+        'discs': Attach('subordinate choppers', ChopperDisc, multiple=5),
     }
 
     def doStart(self, target):

@@ -39,12 +39,12 @@ from nicos.utils.loggers import NicosLogger
 
 class SetupDepWindowMixin(object):
     def __init__(self, client):
-        if 'session/mastersetup' not in client._reg_keys:
+        if 'session/mainsetup' not in client._reg_keys:
             return
-        values = client.ask('getcachekeys', 'session/mastersetup',
+        values = client.ask('getcachekeys', 'session/mainsetup',
                             quiet=True, default=[])
         for key, value in values:
-            if key == 'session/mastersetup':
+            if key == 'session/mainsetup':
                 currtime = currenttime()
                 for widget in client._reg_keys[key]:
                     if widget():
@@ -97,7 +97,7 @@ class SetupDepPanelMixin(QObject):
     def __init__(self, client, options):
         setups = options.get('setups', '')
         self.setSetups(setups)
-        client.register(self, 'session/mastersetup')
+        client.register(self, 'session/mainsetup')
 
     def setSetups(self, setupSpec):
         self.setupSpec = setupSpec
@@ -105,7 +105,7 @@ class SetupDepPanelMixin(QObject):
         checkSetupSpec(self.setupSpec, '', log=self.log)
 
     def on_keyChange(self, key, value, time, expired):
-        if key == 'session/mastersetup' and self.setupSpec:
+        if key == 'session/mainsetup' and self.setupSpec:
             if hasattr(self, 'setWidgetVisible'):
                 enabled = checkSetupSpec(self.setupSpec, value, log=self.log)
                 self.setWidgetVisible.emit(self, enabled)

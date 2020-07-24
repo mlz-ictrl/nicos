@@ -479,10 +479,10 @@ class CacheClient(BaseCacheClient):
         self._dblock = threading.Lock()
         self._callbacks = {}
 
-        # the execution master lock needs to be refreshed every now and then
-        self._ismaster = False
-        self._master_expires = 0.
-        self._mastertimeout = 5.
+        # the execution main lock needs to be refreshed every now and then
+        self._ismain = False
+        self._main_expires = 0.
+        self._maintimeout = 5.
 
         self._worker.start()
 
@@ -510,23 +510,23 @@ class CacheClient(BaseCacheClient):
                             self._prefix + oldprefix + '\n')
 
     def _wait_data(self):
-        if self._ismaster:
+        if self._ismain:
             time = currenttime()
-            if time > self._master_expires:
-                self._master_expires = time + self._mastertimeout - 1
+            if time > self._main_expires:
+                self._main_expires = time + self._maintimeout - 1
                 try:
-                    self.lock('master', self._mastertimeout)
+                    self.lock('main', self._maintimeout)
                 except Exception:
                     # ignore this, may be caused by the cache server being
                     # unavailable
                     pass
                 else:
-                    self.put('session', 'master', session.sessionid,
-                             ttl=self._mastertimeout)
+                    self.put('session', 'main', session.sessionid,
+                             ttl=self._maintimeout)
 
-    def _unlock_master(self):
-        self.unlock('master')
-        self.put('session', 'master', '')
+    def _unlock_main(self):
+        self.unlock('main')
+        self.put('session', 'main', '')
 
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         if op not in (OP_TELL, OP_TELLOLD):

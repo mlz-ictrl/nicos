@@ -52,7 +52,7 @@ class Logbook(BaseCacheClient):
         BaseCacheClient.doInit(self, mode)
         # this is run in the main thread
         self._handler = Handler(self.log, self.plotformat)
-        # the execution master lock needs to be refreshed every now and then
+        # the execution main lock needs to be refreshed every now and then
         self._islocked = False
         self._lock_expires = 0.
         self._locktimeout = 5.

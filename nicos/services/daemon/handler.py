@@ -542,7 +542,7 @@ class ConnectionHandler(object):
            requests
               current request queue (list of serialized requests)
            mode
-              current mode of the session as a string ('master', 'slave', ...)
+              current mode of the session as a string ('main', 'subordinate', ...)
            setups
               tuple of (current loaded setups, explicitly loaded setups)
            devices

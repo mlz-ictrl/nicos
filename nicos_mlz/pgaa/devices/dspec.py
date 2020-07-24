@@ -136,7 +136,7 @@ class DSPec(PyTangoDevice, Measurable):
         # reset preset values
         self._clear()
 
-    def doReadIsmaster(self):
+    def doReadIsmain(self):
         pass
 
     def presetInfo(self):

@@ -43,8 +43,8 @@ class EpicsChopperSpeed(EpicsWindowTimeoutDeviceEss):
 class EpicsChopperDisc(EpicsDeviceEss, Readable):
     """Class that represents one of the chopper disc in the
     chopper system. The chopper disk can be either MASTER
-    or a SLAVE. In case it is master, one should be able to
-    set the speed and in case it is a slave, the ratio and
+    or a SLAVE. In case it is main, one should be able to
+    set the speed and in case it is a subordinate, the ratio and
     phase values can be set for the disc.
 
     Other parameters such as water flow, temperature, vacuum,
@@ -60,7 +60,7 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
                        settable=True, volatile=True, userparam=False),
         'phase': Param('Phase of the chopper disc', type=int,
                        settable=True, volatile=True, userparam=False),
-        'ratio': Param('Frequency ratio of the chopper disc to master',
+        'ratio': Param('Frequency ratio of the chopper disc to main',
                        type=int, settable=True, volatile=True,
                        userparam=False),
     }
@@ -74,11 +74,11 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
     }
 
     attached_devices = {
-        'speed': Attach('Device to set the speed if master',
+        'speed': Attach('Device to set the speed if main',
                         EpicsWindowTimeoutDeviceEss, optional=True),
-        'phase': Attach('Device to set the phase if slave',
+        'phase': Attach('Device to set the phase if subordinate',
                         EpicsWindowTimeoutDeviceEss, optional=True),
-        'ratio': Attach('Device to set the speed ratio if slave',
+        'ratio': Attach('Device to set the speed ratio if subordinate',
                         EpicsDigitalMoveableEss, optional=True),
     }
 
@@ -117,8 +117,8 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
 
     def _displayed_props(self):
         # Just display the speed and phase in read, rest are in info
-        if self.isMaster:
-            # Phase is not relevant for master
+        if self.isMain:
+            # Phase is not relevant for main
             return ['speed']
         return ['speed', 'phase']
 
@@ -152,10 +152,10 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
                 and self._attached_phase.status(maxage)[0] == status.BUSY):
             return status.BUSY, 'Phase moving to target'
 
-        return status.OK, 'Master' if self.isMaster else 'Slave'
+        return status.OK, 'Main' if self.isMain else 'Subordinate'
 
     @property
-    def isMaster(self):
+    def isMain(self):
         return self._get_pv('state') == 0
 
     def doReadSpeed(self):
@@ -163,11 +163,11 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
 
     def doWriteSpeed(self, value):
         if self._attached_speed:
-            if self.isMaster:
+            if self.isMain:
                 self._attached_speed.start(value)
             else:
                 raise UsageError(
-                    'A slave cannot set speed. Please ask my master')
+                    'A subordinate cannot set speed. Please ask my main')
         else:
             raise ConfigurationError('No device attached to set the speed')
 
@@ -176,11 +176,11 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
 
     def doWritePhase(self, value):
         if self._attached_phase:
-            if not self.isMaster:
+            if not self.isMain:
                 self._attached_phase.start(value)
             else:
                 raise UsageError(
-                    'I am a master, ask my slave to set its phase')
+                    'I am a main, ask my subordinate to set its phase')
         else:
             raise ConfigurationError('No device attached to set the phase')
 
@@ -189,11 +189,11 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
 
     def doWriteRatio(self, value):
         if self._attached_ratio:
-            if not self.isMaster:
+            if not self.isMain:
                 self._attached_ratio.start(value)
             else:
                 raise UsageError(
-                    'I am a master, ask my slave to set its ratio')
+                    'I am a main, ask my subordinate to set its ratio')
         else:
             raise ConfigurationError('No device attached to set the ratio')
 
@@ -202,8 +202,8 @@ class EpicsAstriumChopper(HasPrecision, Readable):
     """Main class to control Astrium Chopper in SINQ instruments. A list
     of attached choppers provide the chopper discs in the system.
 
-    Speed for the whole system can be change using master speed
-    value slave speed ratios. The phases for each slave can also
+    Speed for the whole system can be change using main speed
+    value subordinate speed ratios. The phases for each subordinate can also
     be changed.
     """
 
@@ -220,21 +220,21 @@ class EpicsAstriumChopper(HasPrecision, Readable):
         'warnlimits': Override(userparam=False)
     }
 
-    _master = None
+    _main = None
 
     def doInit(self, mode):
         if len(self._attached_choppers) == 1:
-            self._master = self._attached_choppers[0]
+            self._main = self._attached_choppers[0]
             return
 
         for ch in self._attached_choppers:
-            if ch.isMaster:
-                self._master = ch
+            if ch.isMain:
+                self._main = ch
                 return
 
-        if not self._master:
+        if not self._main:
             raise ConfigurationError(
-                'Did not find any master! Check the EPICS PV State.')
+                'Did not find any main! Check the EPICS PV State.')
 
     def doRead(self, maxage=0):
         return ''
@@ -251,65 +251,65 @@ class EpicsAstriumChopper(HasPrecision, Readable):
         if errors:
             return status.ERROR, ', '.join(errors)
 
-        # Check if phase for any slaves is being set
+        # Check if phase for any subordinates is being set
         busy = []
         for ch in self._attached_choppers:
             st = ch.status()
-            if ch is self._master:
+            if ch is self._main:
                 if st[0] == status.BUSY:
-                    # If the master slave is busy, that means the speed
+                    # If the main subordinate is busy, that means the speed
                     # is still moving to target
                     busy.append('Moving to target speed')
-            elif (abs(ch.ratio * ch.speed - self._master.speed) >
+            elif (abs(ch.ratio * ch.speed - self._main.speed) >
                   self.precision):
-                # If a slave speed ratio does not match with the master,
-                # this would imply the speed of slave is being changed
+                # If a subordinate speed ratio does not match with the main,
+                # this would imply the speed of subordinate is being changed
                 busy.append('Setting the correct speed of %s' % ch.name)
             elif st[0] == status.BUSY:
-                # If the actual status of a slave is busy, this would
-                # mean that the phase is changing for that slave
+                # If the actual status of a subordinate is busy, this would
+                # mean that the phase is changing for that subordinate
                 busy.append('Setting the phase of %s' % ch.name)
 
         if busy:
             return status.BUSY, ', '.join(busy)
 
-        return status.OK, 'Spinning' if self._master.speed > 0 else 'Idle'
+        return status.OK, 'Spinning' if self._main.speed > 0 else 'Idle'
 
     @requires(level=ADMIN)
-    def master_speed(self, speed):
-        """Change the speed of the master chopper
-        :param speed: new speed of the master. In case there are slaves, the
+    def main_speed(self, speed):
+        """Change the speed of the main chopper
+        :param speed: new speed of the main. In case there are subordinates, the
                       speed can be adjusted using the ratio variable
         """
-        self._master.speed = speed
+        self._main.speed = speed
 
     @requires(level=ADMIN)
     def ch_phase(self, ch_name, phase):
-        """Change the phase of given slave disc
-        :param ch_name: name of the slave chopper disc
+        """Change the phase of given subordinate disc
+        :param ch_name: name of the subordinate chopper disc
         :param phase: new phase value
         """
-        if ch_name == self._master.name:
-            raise UsageError("Can't set the phase for master")
+        if ch_name == self._main.name:
+            raise UsageError("Can't set the phase for main")
 
         ch = [x for x in self._attached_choppers if x.name == ch_name]
         if not ch:
-            raise UsageError("Didn't find the slave: %s" % ch_name)
+            raise UsageError("Didn't find the subordinate: %s" % ch_name)
 
         ch[0].phase = phase
 
     @requires(level=ADMIN)
     def ch_ratio(self, ch_name, ratio):
-        """Change the speed ratio to master of the given slave
-        :param ch_name: name of the slave chopper disc
+        """Change the speed ratio to main of the given subordinate
+        :param ch_name: name of the subordinate chopper disc
         :param ratio: new ratio value
         """
-        if ch_name == self._master.name:
-            raise UsageError("Can't set the ratio for master")
+        if ch_name == self._main.name:
+            raise UsageError("Can't set the ratio for main")
 
         ch = [x for x in self._attached_choppers if x.name == ch_name]
         if not ch:
-            raise UsageError("Didn't find the slave: %s" % ch_name)
+            raise UsageError("Didn't find the subordinate: %s" % ch_name)
 
         ch[0].ratio = ratio
 
@@ -317,4 +317,4 @@ class EpicsAstriumChopper(HasPrecision, Readable):
     def maintain_speed(self):
         """Stops changing the speed of the chopper disks
         """
-        self.master_speed(self._master.speed)
+        self.main_speed(self._main.speed)

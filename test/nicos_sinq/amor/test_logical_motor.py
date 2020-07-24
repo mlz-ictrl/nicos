@@ -185,7 +185,7 @@ class TestLogicalMotor(object):
         assert raises(LimitError, motor, hlm + 0.1)
         assert motor.target == approx(motor.read())
 
-        # Test that even below limits, if slave motors can't move
+        # Test that even below limits, if subordinate motors can't move
         # error is produced
         assert raises(ErrorLogged, motor, llm + 0.1)
         assert motor.target == approx(motor.read())
@@ -215,10 +215,10 @@ class TestLogicalMotor(object):
         # Turn off the analyzer component
         self.distances.__dict__['analyser'] = 'NOT ACTIVE'
 
-        # The slave positions at ath = 0.0 should be same as when ath = 0.1
+        # The subordinate positions at ath = 0.0 should be same as when ath = 0.1
         self.m2t.maw(0.1)
         self.s2t.maw(0.1)
         self.ath.maw(0.1)
-        for slavename, target in test_targets[(0.100, 0.100, 0.000)]:
-            slave = session.getDevice(slavename)
-            assert slave.read() == approx(target, abs=1e-2)
+        for subordinatename, target in test_targets[(0.100, 0.100, 0.000)]:
+            subordinate = session.getDevice(subordinatename)
+            assert subordinate.read() == approx(target, abs=1e-2)
