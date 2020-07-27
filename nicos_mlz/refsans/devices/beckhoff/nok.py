@@ -33,6 +33,7 @@ from nicos.core import SIMULATION, CommunicationError, DeviceMixinBase, \
     MoveError, NicosTimeoutError, Override, Param, UsageError, floatrange, \
     requires, status
 from nicos.devices.abstract import CanReference, Coder, Motor
+from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
 from nicos.devices.tango import PyTangoDevice
 from nicos.utils import bitDescription
 
@@ -285,13 +286,16 @@ class BeckhoffCoderBase(PyTangoDevice, Coder):
         pass
 
 
-class BeckhoffMotorBase(PolynomFit, CanReference, BeckhoffCoderBase, Motor):
+class BeckhoffMotorBase(PolynomFit, CanReference, BaseSequencer,
+                        BeckhoffCoderBase, Motor):
     """
     Device object for a digital output device via a Beckhoff modbus interface.
     Minimum Parameter Implementation.
     Relevant Parameters need to be configured in the setupfile or in the
     Beckhoff PLC.
     """
+
+    hardware_access = True
 
     # invert bit 13 (referenced) to NOT REFERENCED
     # invert bit 8 (ready) to NOT READY
@@ -450,11 +454,12 @@ class BeckhoffMotorBase(PolynomFit, CanReference, BeckhoffCoderBase, Motor):
                                      'got a NACK' % index)
         return self._readReturn()
 
-    def _HW_wait_while_BUSY(self):
+    def _HW_wait_while_BUSY(self, timeout=100):
         # XXX timeout?
         # XXX rework !
-        for _ in range(1000):
-            session.delay(0.1)
+        delay = 0.1
+        while timeout > 0:
+            session.delay(delay)
             statval = self._readStatusWord()
             # if motor moving==0 and target ready==1 -> Ok
             if (statval & 0b10100000 == 0) and \
@@ -465,7 +470,8 @@ class BeckhoffMotorBase(PolynomFit, CanReference, BeckhoffCoderBase, Motor):
             if statval & (7 << 10):
                 session.delay(0.5)
                 return
-        raise NicosTimeoutError('HW still BUSY after 100s')
+            timeout -= delay
+        raise NicosTimeoutError('HW still BUSY after %d s' % timeout)
 
     def _HW_wait_while_HOT(self):
         sd = 6.5
@@ -482,24 +488,32 @@ class BeckhoffMotorBase(PolynomFit, CanReference, BeckhoffCoderBase, Motor):
         raise NicosTimeoutError(
             'HW still HOT after {0:d} min'.format(self.waittime))
 
+    def _check_start_status(self):
+        if hasattr(self, '_HW_readStatusWord'):
+            stat = self._HW_readStatusWord()
+            if stat & (1 << 10):
+                raise MoveError('Limit switch hit by HW')
+            if stat & (1 << 11):
+                raise MoveError('stop issued')
+            if stat & (1 << 12):
+                raise MoveError('Target ignored by HW')
+
     #
     # Nicos methods
     #
 
-    def doStart(self, target):
-        self._HW_wait_while_BUSY()
-        self._HW_wait_while_HOT()
-        # now just go where commanded....
-        self._writeDestination(self._phys2steps(target))
-        self._HW_start()
-        session.delay(0.1)
-        if hasattr(self, '_HW_readStatusWord'):
-            if self._HW_readStatusWord() & (1 << 10):
-                raise MoveError('Limit switch hit by HW')
-            if self._HW_readStatusWord() & (1 << 11):
-                raise MoveError('stop issued')
-            if self._HW_readStatusWord() & (1 << 12):
-                raise MoveError('Target ignored by HW')
+    def _generateSequence(self, target):
+        seq = []
+        seq.append(SeqMethod(self, '_HW_wait_while_BUSY'))
+        seq.append(SeqMethod(self, '_HW_wait_while_HOT'))
+        seq.append(SeqMethod(self, '_writeDestination',
+                   self._phys2steps(target)))
+        seq.append(SeqMethod(self, '_HW_start'))
+        seq.append(SeqSleep(0.1))
+        seq.append(SeqMethod(self, '_check_start_status'))
+        seq.append(SeqMethod(self, '_HW_wait_while_BUSY'))
+        self.log.debug('Seq generated')
+        return seq
 
     @requires(level='admin')
     def doReference(self):
@@ -508,9 +522,11 @@ class BeckhoffMotorBase(PolynomFit, CanReference, BeckhoffCoderBase, Motor):
 
     def doStop(self):
         self._HW_stop()
+        BaseSequencer.doStop(self)
 
     def doReset(self):
         self._HW_ACK_Error()
+        BaseSequencer.doReset(self)
 
     def doReadFirmware(self):
         return 'V%.1f' % (0.1 * self._HW_readParameter('firmwareVersion'))
