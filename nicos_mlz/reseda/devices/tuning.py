@@ -123,9 +123,10 @@ class EchoTime(Moveable):
                 break
         else:
             raise InvalidValueError('Given echo time not supported by current '
-                                    'tunewave table (%s/%s)'
+                                    'tunewave table (%s/%s) within %s'
                                     % (getattr(session.experiment, 'measurementmode', 'mieze'),
-                                       self._attached_wavelength.read()))
+                                       self._attached_wavelength.read(),
+                                       self.wavelengthtolerance))
 
         # stop stopfirst devices
         for devname in self.stopfirst:
