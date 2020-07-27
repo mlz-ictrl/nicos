@@ -20,7 +20,8 @@ devices = dict(
         dependencies = ['cbox%s_%s' % (pack, component)
             for pack in packs
             for component in cbox_components] +
-            ['psd_chop_freq', 'psd_timebin_freq'] +
+            ['psd_chop_freq', 'psd_timebin_freq', 'psd_chop_amp', 'psd_timebin_amp'] +
+            ['dct5', 'dct6'] +
             ['hrf1', 'hrf2', 'hsf1', 'hsf2', 'sf1', 'sf2'],
         zerofirst = {
             'cbox1_fg_amp': 0.01,

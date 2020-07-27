@@ -19,7 +19,7 @@ devices = dict(
     ),
     ath = device('nicos.devices.generic.Axis',
         description = 'analyzer theta angle',
-        coder = 'co_ath',
+        coder = 'mo_ath',
         motor = 'mo_ath',
         precision = 0.005,
     ),

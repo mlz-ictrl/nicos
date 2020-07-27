@@ -2,6 +2,7 @@ description = 'sample table'
 group = 'lowlevel'
 
 includes = ['alias_sth']
+excludes = ['sample_ext']
 
 tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
