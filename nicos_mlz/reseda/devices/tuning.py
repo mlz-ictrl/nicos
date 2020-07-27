@@ -232,8 +232,7 @@ class EchoTime(Moveable):
 
     def _fuzzy_match(self, value, setpoint, precision):
         """General fuzzy matching of values (used for float comparisons)."""
-        return (value >= (setpoint - precision)
-                and value <= (setpoint + precision))
+        return (setpoint - precision) <= value <= (setpoint + precision)
 
     def _validate_table(self, table):
         """Validates the structure of a single tunewave table and and all the
