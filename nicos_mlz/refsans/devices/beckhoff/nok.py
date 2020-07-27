@@ -389,16 +389,15 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
 
         for i in range(10):
             self._writeUpperControlWord((index << 8) | 4)
-            for ii in range(1):
-                session.delay(0.15)
-                stat = self._readStatusWord()
-                if stat & (0x8000) != 0:
-                    if i > 0 or ii > 0:
-                        self.log.info('readParameter %d %d', i + 1, ii + 1)
-                    return self._readReturn()
-                if stat & (0x4000) != 0:
-                    raise UsageError(self, 'NACK ReadPar command not '
-                                     'recognized by HW, please retry later...')
+            session.delay(0.15)
+            stat = self._readStatusWord()
+            if (stat & 0x8000) != 0:
+                if i > 0:
+                    self.log.info('readParameter %d', i + 1)
+                return self._readReturn()
+            if (stat & 0x4000) != 0:
+                raise UsageError(self, 'NACK ReadPar command not recognized '
+                                 'by HW, please retry later...')
         raise UsageError(self, 'ReadPar command not recognized by HW, please '
                          'retry later ...')
 
