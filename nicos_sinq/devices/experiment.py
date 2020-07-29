@@ -30,7 +30,7 @@ import time
 from os import path
 
 from nicos import session
-from nicos.core import Override
+from nicos.core import Override, Param, absolute_path
 from nicos.core.data import DataManager
 from nicos.devices.experiment import Experiment
 from nicos.pycompat import string_types
@@ -65,6 +65,10 @@ class SinqExperiment(Experiment):
         'zipdata': Override(default=False),
     }
 
+    parameters = {
+        'scriptpath': Param('Path to script files',
+                            type=absolute_path, settable=True)
+    }
     datamanager_class = SinqDataManager
 
     def proposalpath_of(self, proposal):
@@ -125,3 +129,10 @@ class SinqExperiment(Experiment):
 
         # the counter is not yet in the file
         return 0
+
+    def doWriteScriptpath(self, scriptpath):
+        if not os.path.isdir(scriptpath):
+            raise ValueError('%s is not a directory' % scriptpath)
+        if not os.access(scriptpath, os.R_OK | os.W_OK | os.X_OK):
+            raise ValueError('Cannot access scriptpath %s' % scriptpath)
+        # param set in device.py
