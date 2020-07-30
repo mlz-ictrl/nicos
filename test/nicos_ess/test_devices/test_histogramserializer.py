@@ -33,16 +33,17 @@ import time
 import numpy
 import pytest
 
-pytest.importorskip('kafka')
-pytest.importorskip('graypy')
-
 from nicos_ess.devices.fbschemas.hs00 import Array, EventHistogram
 from nicos_ess.devices.kafka.area_detector import \
     HistogramFlatbuffersDeserializer
 
-from .utils import create_hs00
+from test.nicos_ess.test_devices.utils import create_hs00
 
-session_setup = "epics_ad_sim_detector"
+pytest.importorskip('kafka')
+pytest.importorskip('graypy')
+
+
+session_setup = "ess_area_detector"
 
 
 class TestHistogramDeserializer(object):

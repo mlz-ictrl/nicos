@@ -28,4 +28,7 @@ devices = dict(
         motorpv = 'IOC:m1',
         abslimits=(-110, 110),
     ),
+    motor2=device('test.nicos_ess.test_devices.test_epics_motor'
+                  '.DerivedEpicsMotor',
+                  unit='mm', motorpv='IOC:m2', abslimits=(-120, 120), ),
 )
