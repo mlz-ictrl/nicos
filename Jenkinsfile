@@ -62,28 +62,7 @@ this.pipissues = []
 def checkoutSource() {
     echo(GERRIT_PROJECT)
     deleteDir()
-    checkout(
-        changelog: true, poll: false,
-        scm: [$class: 'GitSCM',
-              branches: [[name: "$GERRIT_BRANCH"]],
-              doGenerateSubmoduleConfigurations: false, submoduleCfg: [],
-              userRemoteConfigs: [
-                  [refspec: GERRIT_REFSPEC,
-                   // use local mirror via git
-                   url: 'file:///home/git/' + GERRIT_PROJECT
-                   // use gerrit directly
-                   //credentialsId: 'jenkinsforge',
-                   //url: 'ssh://forge.frm2.tum.de:29418/' + GERRIT_PROJECT,
-                  ]
-              ],
-              extensions: [
-                  [$class: 'CleanCheckout'],
-                  [$class: 'LocalBranch', localBranch: 'check'],
-                  [$class: 'hudson.plugins.git.extensions.impl.BuildChooserSetting',
-                   buildChooser: [$class: "com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTriggerBuildChooser"]],
-              ]
-            ]
-        )
+    gerrit_checkout()
     sh '''git describe'''
     sh '''#!/bin/bash
 if [[ ! -d ciscripts ]] ;  then
@@ -224,7 +203,7 @@ def runSetupcheck() {
         }
     }
     catch (all) {
-        // temporay set to 0 
+        // temporay set to 0
         // until livewidget and CARESS problems are solved on bionic images
         verifyresult.put('sc', 0)
     }
