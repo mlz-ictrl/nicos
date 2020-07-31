@@ -64,11 +64,6 @@ def checkoutSource() {
     deleteDir()
     gerrit_checkout()
     sh '''git describe'''
-    sh '''#!/bin/bash
-if [[ ! -d ciscripts ]] ;  then
-    echo "Rebasing change to get ciscripts: If this fails, rebase manually!"
-    git rebase -f -v origin/$GERRIT_BRANCH
-fi'''
 }
 
 def publishGerrit(name, value) {
@@ -83,7 +78,7 @@ def publishGerrit(name, value) {
 }
 
 
-def refreshVenv(info="" , venv='$NICOSVENV', checkupdates=false) {
+def refreshVenv(info="" , venv='$NICOS3VENV', checkupdates=false) {
     sh("./ciscripts/run_venvupdate.sh $venv $info")
 
     if (info?.trim()) {
@@ -106,7 +101,7 @@ def refreshVenv(info="" , venv='$NICOSVENV', checkupdates=false) {
     }
 }
 
-def runPylint(info='', venv='$NICOSVENV') {
+def runPylint(info='', venv='$NICOS3VENV') {
     def idtag = "pylint-$info".toString()
     verifyresult.put(idtag, 0)
     try {
@@ -335,58 +330,40 @@ export PYTHONIOENCODING=utf-8
     } // stage
 
 u18 = docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:bionic')
+c8 = docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:centos8')
 
 try {
     parallel pylint: {
-        stage(name: 'pylint-py2') {
-            u18.inside('-v /home/git:/home/git') {
-                    runPylint('py2', '$NICOSVENV')
-            }
-        } // stage
-    }, pylint3: {
-        stage(name: 'pylint-py3') {
-        when ( true ) {
-                ws {
-                    checkoutSource()
-                    u18.inside('-v /home/git:/home/git') {
-                        runPylint('py3', '$NICOS3VENV')
-                    }
-                } //ws
-            }
+        stage(name: 'pylint') {
+            ws {
+                checkoutSource()
+                u18.inside('-v /home/git:/home/git') {
+                    runPylint('py3')
+                }
+            } //ws
         } // stage
     }, isort: {
         stage(name: 'isort') {
             u18.inside('-v /home/git:/home/git') {
-                    runIsort()
+                runIsort()
             }
         } //stage
     }, setup_check: {
         stage(name: 'Nicos Setup check') {
             u18.inside('-v /home/git:/home/git') {
-                    timeout(5) {
-                        runSetupcheck()
-                    }
+                timeout(5) {
+                    runSetupcheck()
+                }
             }
         } //stage
-    }, test_python2: {
-        stage(name: 'Python2 tests')  {
+    }, test_python3centos: {
+        stage(name: 'Python3 CentOS tests') {
             ws {
                 checkoutSource()
-                u18.inside("-v /home/git:/home/git") {
-                    runTests( '$NICOSVENV', 'python2', GERRIT_EVENT_TYPE == 'change-merged')
+                c8.inside('-v /home/git:/home/git') {
+                    runTests('$NICOS3VENV', 'python3-centos', false, true)
                 } // image.inside
             } // ws
-        } // stage
-    }, test_python2centos: {
-        stage(name: 'Python2(centos) tests') {
-            if (GERRIT_EVENT_TYPE == 'change-merged') {
-                ws {
-                    checkoutSource()
-                    docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:centos6').inside('-v /home/git:/home/git') {
-                        runTests('$NICOSVENV', 'python2-centos', false, true)
-                    } // image.inside
-                } // ws
-            } // if
         } // stage
     }, test_python3: {
         stage(name: 'Python3 tests') {

@@ -1,5 +1,5 @@
 #! /bin/bash
-. $NICOSVENV/bin/activate
+. $NICOS3VENV/bin/activate
 echo $PATH
 set +e
 
