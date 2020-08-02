@@ -69,8 +69,8 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
                                type=floatrange(0, None), unit='AA',
                                category='general', default=3.354),
         'raildistance': Param('Distance between the rails of the crystals',
-                              type=floatrange(0, None), default = 20,
-                              unit = 'mm', category='general'),
+                              type=floatrange(0, None), default=20,
+                              unit='mm', category='general'),
     }
 
     parameter_overrides = {
