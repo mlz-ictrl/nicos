@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Unreleased changes
-------------------
+Release 3.7.0
+-------------
 
 * Core
 
@@ -17,15 +17,46 @@ Unreleased changes
     example, measuring until a certain number of counts in a region of interest
     is reached.
 
+  - The "lttb" module has been unbundled and is now an external requirement.
+
 * GUI
 
   - Qt 5 is now preferred if installed, and Qt 4 can be forced by setting
     "NICOS_QT=4" in the environment.
 
+  - A new panel has been added that allows run-time reconfiguration of which
+    watchdog conditions should be enabled.  Resolved warnings are now shown as
+    such in the notification window.
+
 * Commands
 
   - Added new core commands "rmove()" and "rmaw()" for relative movement
     of devices.
+
+  - The "help()" command can now be called with a string that represents
+    a command or device and will show the correct info.
+
+  - "appendscan()" now works for scans over multiple devices.
+
+* Devices
+
+  - Support for accessing SECoP (Sample Environment Control Protocol) nodes as
+    NICOS devices has been added.
+
+  - QMesyDAQ devices with Tango interface have been added.
+
+  - Optional Slack notifier is not longer Python 2 compatible.
+
+* Watchdog
+
+  - The watchdog daemon has been rewritten.  Conditions can now be defined in
+    individual setups, together with the devices they relate to.
+
+* Status Monitor
+
+  - Status monitor "block" elements can now be defined in individual setups,
+    together with the devices they relate to.  This makes the creation of
+    status displays for common sample environments much easier.
 
 
 Release 3.6.0

@@ -53,7 +53,7 @@ class IsegNHQChannel(EpicsAnalogMoveableEss):
     }
 
     parameter_overrides = {
-        # This device uses its own PVs internally, see pv_map.
+        # This device uses its own PVs internally, see _get_record_fields().
         'readpv': Override(mandatory=False, userparam=False, settable=False),
         'writepv': Override(mandatory=False, userparam=False, settable=False),
         'targetpv': Override(mandatory=False, userparam=False, settable=False),
@@ -67,30 +67,32 @@ class IsegNHQChannel(EpicsAnalogMoveableEss):
     }
 
     # PVs used, channel is substituted in based on given parameter value.
-    pv_map = {
-        'readpv': 'Volt{}_rbv',
-        'writepv': 'SetVolt{}',
-        'targetpv': 'SetVolt{}_rbv',
-        'startpv': 'StartVolt{}',
+    def _get_record_fields(self):
+        pv_map = {
+            'readpv': 'Volt{}_rbv',
+            'writepv': 'SetVolt{}',
+            'targetpv': 'SetVolt{}_rbv',
+            'startpv': 'StartVolt{}',
 
-        'vmax': 'VMax',
-        'error': 'Error',
+            'vmax': 'VMax',
+            'error': 'Error',
 
-        'setramp': 'RampSpeed{}',
-        'getramp': 'RampSpeed{}_rbv',
-        'getcurr': 'Curr{}_rbv',
-        'settrip': 'CurrTrip{}',
-        'gettrip': 'CurrTrip{}_rbv',
+            'setramp': 'RampSpeed{}',
+            'getramp': 'RampSpeed{}_rbv',
+            'getcurr': 'Curr{}_rbv',
+            'settrip': 'CurrTrip{}',
+            'gettrip': 'CurrTrip{}_rbv',
 
-        'status': 'Status{}_rbv',
-        'modstat': 'ModStatus{}_rbv'
-    }
+            'status': 'Status{}_rbv',
+            'modstat': 'ModStatus{}_rbv'
+        }
+        return pv_map
 
     def _get_pv_parameters(self):
-        return set(self.pv_map.keys())
+        return set(self._record_fields)
 
     def _get_pv_name(self, pvparam):
-        return self.pvprefix + self.pv_map[pvparam].format(self.channel)
+        return self.pvprefix + self._record_fields[pvparam].format(self.channel)
 
     def doInit(self, mode):
         self._started = False

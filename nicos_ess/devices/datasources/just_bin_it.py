@@ -26,84 +26,14 @@ import time
 
 import kafka
 import numpy as np
+from streaming_data_types.histogram_hs00 import deserialise_hs00
 
 from nicos.core import ArrayDesc, Override, Param, Value, floatrange, oneof, \
     status, tupleof
 
 from nicos.core.constants import LIVE
 from nicos.core.device import Measurable
-
-import nicos_ess.devices.fbschemas.hs00.ArrayDouble as ArrayDouble
-import nicos_ess.devices.fbschemas.hs00.EventHistogram as EventHistogram
-from nicos_ess.devices.fbschemas.hs00.Array import Array
 from nicos_ess.devices.kafka.consumer import KafkaSubscriber
-
-
-def get_schema(buf):
-    """
-    Extract the schema code embedded in the buffer
-
-    :param buf: The raw buffer of the FlatBuffers message.
-    :return: The schema name
-    """
-    return buf[4:8].decode('utf-8')
-
-
-def deserialise_hs00(buf):
-    """
-    Convert flatbuffer into a histogram.
-
-    :param buf:
-    :return: dict of histogram information
-    """
-    # Check schema is correct
-    schema = get_schema(buf)
-    if schema != 'hs00':
-        raise Exception(
-            'Incorrect schema: expected hs00 but got {}'.format(schema))
-
-    event_hist = EventHistogram.EventHistogram.GetRootAsEventHistogram(buf, 0)
-
-    dims = []
-    for i in range(event_hist.DimMetadataLength()):
-        bins_fb = event_hist.DimMetadata(i).BinBoundaries()
-
-        # Get bins
-        temp = ArrayDouble.ArrayDouble()
-        temp.Init(bins_fb.Bytes, bins_fb.Pos)
-        bins = temp.ValueAsNumpy()
-
-        # Get type
-        if event_hist.DimMetadata(i).BinBoundariesType() == Array.ArrayDouble:
-            bin_type = np.float64
-        else:
-            raise TypeError('Type of the bin boundaries is incorrect')
-
-        hist_info = {
-            'length': event_hist.DimMetadata(i).Length(),
-            'edges': bins,
-            'type': bin_type,
-        }
-        dims.append(hist_info)
-
-    # Get the data
-    if event_hist.DataType() != Array.ArrayDouble:
-        raise TypeError('Type of the data array is incorrect')
-
-    data_fb = event_hist.Data()
-    temp = ArrayDouble.ArrayDouble()
-    temp.Init(data_fb.Bytes, data_fb.Pos)
-    data = temp.ValueAsNumpy()
-    shape = event_hist.CurrentShapeAsNumpy().tolist()
-
-    hist = {
-        'source': event_hist.Source().decode('utf-8'),
-        'shape': shape,
-        'dims': dims,
-        'data': data.reshape(shape),
-        'info': event_hist.Info().decode('utf-8') if event_hist.Info() else '',
-    }
-    return hist
 
 
 class JustBinItDetector(KafkaSubscriber, Measurable):
@@ -117,6 +47,10 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
                             mandatory=True,
                             ),
         'command_topic': Param('The topic to send just-bin-it commands to',
+                               type=str, userparam=False, settable=False,
+                               mandatory=True,
+                               ),
+        'response_topic': Param('The topic where just-bin-it responses appear',
                                type=str, userparam=False, settable=False,
                                mandatory=True,
                                ),
@@ -136,8 +70,8 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
                            default=10, userparam=True, settable=True
                            ),
         'det_height': Param('The height in pixels of the detector', type=int,
-                           default=10, userparam=True, settable=True
-                           ),
+                            default=10, userparam=True, settable=True
+                            ),
         'num_bins': Param('The number of bins to histogram into', type=int,
                           default=50, userparam=True, settable=True,
                           ),
@@ -155,8 +89,10 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
                               type=floatrange(0), default=1, unit='s',
                               settable=True,
                               ),
-        'slave_mode': Param('Histogramming start/stop solely by NICOS',
-                            type=bool, default=False),
+        'ack_timeout': Param('How long to wait for timeout on acknowledgement',
+                             type=int, default=5, unit='s',
+                             userparam=False, settable=False,
+                             ),
     }
 
     parameter_overrides = {
@@ -164,34 +100,49 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
     }
 
     _last_live = 0
+    _presets = {}
+
+    def doPreinit(self, mode):
+        self._command_sender = kafka.KafkaProducer(
+            bootstrap_servers=self.brokers)
+        # Set up the data consumer
+        KafkaSubscriber.doPreinit(self, None)
+        # Set up the response message consumer
+        self._response_consumer = kafka.KafkaConsumer(
+            bootstrap_servers=self.brokers)
+        self._response_topic = kafka.TopicPartition(self.response_topic, 0)
+        self._response_consumer.assign([self._response_topic])
+        self._response_consumer.seek_to_end()
+        self.log.debug('Response topic consumer initial position = %s',
+                       self._response_consumer.position(self._response_topic))
 
     def doPrepare(self):
         self.curstatus = status.BUSY, 'Preparing'
-        self._producer = kafka.KafkaProducer(bootstrap_servers=self.brokers)
-
-        # Set up the consumer
-        KafkaSubscriber.doPreinit(self, None)
         self.subscribe(self.hist_topic)
         self.curstatus = status.OK, ''
 
     def new_messages_callback(self, messages):
-        # Only care about most recent message
-        key = list(messages.keys())[-1]
-        hist = deserialise_hs00(messages[key])
+        # Only care about most recent message, keys are timestamps.
+        most_recent_ts = max(messages.keys())
+
+        hist = deserialise_hs00(messages[most_recent_ts])
         info = json.loads(hist['info'])
         self.log.debug('received unique id = {}'.format(info['id']))
         if info['id'] != self.unique_id:
             return
         if info['state'] in ['COUNTING', 'INITIALISED']:
             self.curstatus = status.BUSY, 'Counting'
-        else:
+        elif info['state'] == 'ERROR':
+            error_msg = info[
+                'error_message'] if 'error_message' in info else 'unknown error'
+            self.curstatus = status.ERROR, error_msg
+        elif info['state'] == 'FINISHED':
+            self._halt_consumer_thread()
+            self._consumer.unsubscribe()
             self.curstatus = status.OK, ''
 
         self._hist_data = hist['data']
-        self._hist_edges = hist['dims'][0]['edges']
-
-    def no_messages_callback(self):
-        pass
+        self._hist_edges = hist['dim_metadata'][0]['bin_boundaries']
 
     def doStart(self):
         self.curstatus = status.BUSY, 'Requesting start...'
@@ -201,21 +152,55 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         self.unique_id = 'nicos-{}'.format(int(time.time()))
         self.log.debug('set unique id = %s', self.unique_id)
 
-        if self.slave_mode:
-            interval = 7*24*60*60 # 7 days: NICOS starts and stops HM
+        count_interval = self._presets.get('t', None)
+        config = self._create_config(count_interval, self.unique_id)
+
+        if count_interval:
+            self.log.info(
+                'Requesting just-bin-it to start counting for %s seconds',
+                count_interval)
         else:
-            interval = self._count_secs
+            self.log.info('Requesting just-bin-it to start counting')
 
-        config = self._create_config(interval, self.unique_id)
+        self._send_command(self.command_topic,
+                           json.dumps(config).encode('utf-8'))
 
-        # Ask just-bin-it to start counting
-        self.log.info(
-            'Starting counting for %s seconds', self._count_secs)
-        self._send(self.command_topic, json.dumps(config).encode('utf-8'))
+        # Wait for acknowledgement of the command being received
+        self._check_for_ack()
 
-    def _send(self, topic, message):
-        self._producer.send(topic, message)
-        self._producer.flush()
+    def _check_for_ack(self):
+        timeout = int(time.time()) + self.ack_timeout
+        acknowledged = False
+        while not acknowledged:
+            messages = self._response_consumer.poll(timeout_ms=50)
+            responses = messages.get(self._response_topic, [])
+            for records in responses:
+                msg = json.loads(records.value)
+                if 'msg_id' in msg and msg['msg_id'] == self.unique_id:
+                    self._handle_message(msg)
+                    acknowledged = True
+                    break
+            # Check for timeout
+            if not acknowledged and int(time.time()) > timeout:
+                self._stop_histogramming()
+                err_msg = 'Count aborted as no acknowledgement received from ' \
+                          'just-bin-it'
+                self.curstatus = status.ERROR, err_msg
+                break
+
+    def _handle_message(self, msg):
+        if 'response' in msg and msg['response'] == 'ACK':
+            self.log.info(
+                'Counting request acknowledged by just-bin-it')
+        elif 'response' in msg and msg['response'] == 'ERR':
+            self.log.error('just-bin-it could not start counting: %s',
+                           msg['message'])
+        else:
+            self.log.error('Unknown response message received from just-bin-it')
+
+    def _send_command(self, topic, message):
+        self._command_sender.send(topic, message)
+        self._command_sender.flush()
 
     def _create_config(self, interval, identifier):
         if self.hist_type == '2-D TOF':
@@ -225,11 +210,11 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         else:
             hist_type = 'hist1d'
 
-        return {
+        config_base = {
             'cmd': 'config',
+            'msg_id': identifier,
             'data_brokers': self.brokers,
             'data_topics': [self.data_topic],
-            'interval': interval,
             'histograms': [
                 {
                     'type': hist_type,
@@ -245,6 +230,13 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
             ],
         }
 
+        if interval:
+            config_base['interval'] = interval
+        else:
+            # If no interval then start open-ended count
+            config_base['start'] = int(time.time()) * 1000
+        return config_base
+
     def doRead(self, maxage=0):
         return [self._hist_data.sum()]
 
@@ -252,24 +244,30 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         return self._hist_data
 
     def doFinish(self):
-        self._stop_processing()
+        self._stop_histogramming()
 
-    def _stop_processing(self):
+    def _stop_histogramming(self):
+        self._send_command(self.command_topic, b'{"cmd": "stop"}')
+
+    def _halt_consumer_thread(self, join=False):
         if self._updater_thread is not None:
             self._stoprequest = True
-            if self._updater_thread.is_alive():
+            if join and self._updater_thread.is_alive():
                 self._updater_thread.join()
-            self._consumer.close()
-        self.curstatus = status.OK, ''
 
-    def doSetPreset(self, t, **preset):
+    def doShutdown(self):
+        self._halt_consumer_thread(join=True)
+        self._consumer.close()
+        self._response_consumer.close()
+
+    def doSetPreset(self, **presets):
         self.curstatus = status.BUSY, 'Preparing'
         self._hist_data = np.array([])
         self._hist_edges = np.array([])
-        self._count_secs = t
+        self._presets = presets
 
     def doStop(self):
-        self._send(self.command_topic, b'{"cmd": "stop"}')
+        self._stop_histogramming()
 
     def doStatus(self, maxage=0):
         return self.curstatus
@@ -281,13 +279,7 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         return None
 
     def valueInfo(self):
-        return Value(self.name, unit=self.unit), ''
+        return (Value(self.name, unit=self.unit),)
 
     def arrayInfo(self):
-        return ArrayDesc('data', shape=(self.num_bins,), dtype=np.float64), ''
-
-    def doInfo(self):
-        ret = []
-        for desc in self.arrayInfo():
-            ret.append(('desc_' + desc.name, desc.__dict__, '', '', 'general'))
-        return ret
+        return (ArrayDesc('data', shape=(self.num_bins,), dtype=np.float64),)

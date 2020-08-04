@@ -34,8 +34,8 @@ devices = dict(
         managerights = dict(
             enableDirMode = 0o775,
             enableFileMode = 0o664,
-            disableDirMode = 0o775,
-            disableFileMode = 0o664,
+            disableDirMode = 0o555,
+            disableFileMode = 0o444,
         ),
     ),
     ANTARES = device('nicos.devices.instrument.Instrument',

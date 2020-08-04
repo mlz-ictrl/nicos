@@ -123,9 +123,10 @@ class EchoTime(Moveable):
                 break
         else:
             raise InvalidValueError('Given echo time not supported by current '
-                                    'tunewave table (%s/%s)'
+                                    'tunewave table (%s/%s) within %s'
                                     % (getattr(session.experiment, 'measurementmode', 'mieze'),
-                                       self._attached_wavelength.read()))
+                                       self._attached_wavelength.read(),
+                                       self.wavelengthtolerance))
 
         # stop stopfirst devices
         for devname in self.stopfirst:
@@ -232,8 +233,7 @@ class EchoTime(Moveable):
 
     def _fuzzy_match(self, value, setpoint, precision):
         """General fuzzy matching of values (used for float comparisons)."""
-        return (value >= (setpoint - precision)
-                and value <= (setpoint + precision))
+        return (setpoint - precision) <= value <= (setpoint + precision)
 
     def _validate_table(self, table):
         """Validates the structure of a single tunewave table and and all the

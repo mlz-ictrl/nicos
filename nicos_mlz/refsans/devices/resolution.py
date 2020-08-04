@@ -34,8 +34,13 @@ from nicos_mlz.refsans.lib.calculations import chopper_resolution, \
 
 
 class Resolution(Readable):
+    """Calculate the wavelength resolution of the whole instrument.
+
+    The chopper controller device is used to detect the real and virtual position
+    of the second disc (chopper2).
+    """
     attached_devices = {
-        'chopper2': Attach('chopper2 device', Readable),
+        'chopper': Attach('chopper controller device', Readable),
         'flightpath': Attach('Read the real flightpath', Readable),
     }
 
@@ -44,7 +49,7 @@ class Resolution(Readable):
     }
 
     def doRead(self, maxage=0):
-        return chopper_resolution(self._attached_chopper2.pos,
+        return chopper_resolution(self._attached_chopper.target['chopper2_pos'],
                                   self._attached_flightpath.read(maxage))
 
     def doReadUnit(self):

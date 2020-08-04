@@ -29,7 +29,7 @@ from nicos.core import ConfigurationError, HasPrecision, Moveable, MoveError, \
     Readable, dictwith, status
 from nicos.core.errors import HardwareError
 from nicos.core.params import Attach, Override, Param, floatrange, limits, \
-    none_or, nonemptylistof, oneof, tupleof
+    none_or, oneof, tupleof
 from nicos.core.utils import multiReset
 from nicos.devices.abstract import CanReference, Coder
 from nicos.devices.generic import Axis
@@ -38,7 +38,7 @@ from nicos.devices.generic.sequence import SeqDev, SeqMethod, SequenceItem, \
 from nicos.devices.tango import Sensor
 from nicos.utils import clamp, lazy_property
 
-from nicos_mlz.refsans.devices.mixins import PseudoNOK
+from nicos_mlz.refsans.devices.mixins import PolynomFit, PseudoNOK
 
 MODES = ['ng', 'rc', 'vc', 'fc']
 
@@ -93,7 +93,7 @@ class NOKMonitoredVoltage(Sensor):
             return status.ERROR, repr(err)
 
 
-class NOKPosition(Coder):
+class NOKPosition(PolynomFit, Coder):
     """Device to read the current Position of a NOK.
 
     The Position is determined by a ratiometric measurement between two
@@ -109,9 +109,6 @@ class NOKPosition(Coder):
     }
 
     parameters = {
-        'poly': Param('Polynomial coefficients in ascending order',
-                      type=nonemptylistof(float), settable=True,
-                      mandatory=True, default=0.),
         'length': Param('Length... ????',
                         type=float, mandatory=False),
         # fun stuff, not really needed....
@@ -141,17 +138,8 @@ class NOKPosition(Coder):
         ref = self._attached_reference.read(maxage)
 
         self.log.debug('Poti vs. Reference value: %f / %f', poti, ref)
-
         # apply simple scaling
-        value = poti / ref
-
-        self.log.debug('uncorrected value: %f', value)
-        result = 0.
-        for i, ai in enumerate(self.poly):
-            result += ai * (value ** i)
-        self.log.debug('final result: %f', result)
-
-        return result
+        return self._fit(poti / ref)
 
 
 #
@@ -462,9 +450,15 @@ class MotorEncoderDifference(Readable):
         'analog': Attach('analog encoder maybe poti', Readable),
     }
 
+    parameters = {
+        'absolute': Param('Value is absolute or signed.', type=bool,
+                          settable=True, default=True),
+    }
+
     def doRead(self, maxage=0):
-        return abs(self._attached_analog.read(maxage) -
-                   self._attached_motor.read(maxage))
+        dif = self._attached_analog.read(maxage) - \
+            self._attached_motor.read(maxage)
+        return abs(dif) if self.absolute else dif
 
     def doStatus(self, maxage=0):
         return status.OK, ''

@@ -18,7 +18,7 @@ includes = [
     # 'h2',
     # 'height',
     # 'memograph',
-    # 'nl2b',
+    'nl2b',
     'optic_elements',
     # 'poti_ref',
     # 'prim_monitor',

@@ -10,9 +10,9 @@ devices = dict(
         ],
     ),
     LDAPAuth = device('nicos_jcns.devices.ldap.Authenticator',
-        uri = 'ldap://iffldap.iff.kfa-juelich.de',
-        userbasedn = 'ou=People,dc=iff,dc=kfa-juelich,dc=de',
-        groupbasedn = 'ou=Groups,dc=iff,dc=kfa-juelich,dc=de',
+        uri = 'ldaps://iffldap.iff.kfa-juelich.de',
+        userbasedn = 'cn=users,cn=accounts,dc=iff,dc=kfa-juelich,dc=de',
+        groupbasedn = 'cn=groups,cn=accounts,dc=iff,dc=kfa-juelich,dc=de',
         grouproles = {
             'ictrl': 'admin',
             'jcns-1': 'user',

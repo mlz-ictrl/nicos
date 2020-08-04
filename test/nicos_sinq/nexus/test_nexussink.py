@@ -48,7 +48,6 @@ session_setup = 'sinq_nexussink'
 
 
 class TestNexusSink(object):
-
     datadir = 'testdata2'
 
     @pytest.fixture(scope='class', autouse=True)
@@ -66,12 +65,11 @@ class TestNexusSink(object):
                       'data'))
         session.experiment.setEnvironment([])
 
-    @pytest.fixture(scope='function', autouse=True)
-    def setScanCounter(self, session):
+    def setScanCounter(self, session, no):
         dataroot = path.join(config.nicos_root, self.datadir)
         counter = path.join(dataroot, session.experiment.counterfile)
         open(counter, 'w').close()
-        updateFileCounter(counter, 'scan', 42)
+        updateFileCounter(counter, 'scan', no)
         # print('SetCounter')
         updateFileCounter(counter, 'point', 167)
 
@@ -81,11 +79,13 @@ class TestNexusSink(object):
             'entry:NXentry': {},
         }
         setTemplate(template)
+        session.experiment.setDetectors(['det', ])
+        self.setScanCounter(session, 44)
 
         count(t=0.1)
 
         fin = h5py.File(path.join(session.experiment.datapath,
-                                  'test%sn000043.hdf' % year), 'r')
+                                  'test%sn000045.hdf' % year), 'r')
         att = fin.attrs['instrument']
         assert (att == b'test')
 
@@ -106,11 +106,13 @@ class TestNexusSink(object):
         }
         session.experiment.title = 'GurkenTitle'
         maw(session.getDevice('sry'), 23.7)
+        session.experiment.setDetectors(['det', ])
         setTemplate(template)
+        self.setScanCounter(session, 46)
         count(t=.1)
 
         fin = h5py.File(path.join(session.experiment.datapath,
-                                  'test%sn000043.hdf' % year), 'r')
+                                  'test%sn000047.hdf' % year), 'r')
         ds = fin['entry/name']
         assert (ds[0] == b'GurkenTitle')
 
@@ -125,16 +127,18 @@ class TestNexusSink(object):
     def test_Attributes(self, session):
         template = {
             'entry:NXentry': {'title': DeviceAttribute('Exp', 'title'),
-            'units': NXAttribute('mm', 'string'),},
+                              'units': NXAttribute('mm', 'string'), }
         }
 
         session.experiment.title = 'GurkenTitle'
         setTemplate(template)
+        self.setScanCounter(session, 47)
+        session.experiment.setDetectors(['det', ])
 
         count(t=.1)
 
         fin = h5py.File(path.join(session.experiment.datapath,
-                                  'test%sn000043.hdf' % year), 'r')
+                                  'test%sn000048.hdf' % year), 'r')
         g = fin['entry']
         assert (g.attrs['title'] == b'GurkenTitle')
         assert (g.attrs['units'] == b'mm')
@@ -149,16 +153,17 @@ class TestNexusSink(object):
                                        signal=NXAttribute(1, 'int32')),
                 'sry': DeviceDataset('sry'),
             },
-            'data:NXdata': {'None': NXScanLink(),},
+            'data:NXdata': {'None': NXScanLink(), }
         }
 
         setTemplate(template)
+        self.setScanCounter(session, 48)
         session.experiment.setDetectors(['det', ])
         sry = session.getDevice('sry')
         scan(sry, 0, 1, 5, t=0.001)
 
         fin = h5py.File(path.join(session.experiment.datapath,
-                                  'test%sn000043.hdf' % year), 'r')
+                                  'test%sn000049.hdf' % year), 'r')
 
         ds = fin['entry/sry']
         assert (len(ds) == 5)
@@ -192,11 +197,12 @@ class TestNexusSink(object):
         }
 
         setTemplate(template)
+        self.setScanCounter(session, 49)
         session.experiment.setDetectors(['det', ])
         count(t=.1)
 
         fin = h5py.File(path.join(session.experiment.datapath,
-                                  'test%sn000043.hdf' % year), 'r')
+                                  'test%sn000050.hdf' % year), 'r')
         ds = fin['data/time']
         ds = fin['data/mon']
         ds = fin['data/counts']
@@ -210,12 +216,14 @@ class TestNexusSink(object):
         }
 
         maw(session.getDevice('sry'), 77.7)
+        session.experiment.setDetectors(['det', ])
 
         setTemplate(template)
+        self.setScanCounter(session, 50)
         count(t=.1)
 
         fin = h5py.File(path.join(session.experiment.datapath,
-                                  'test%sn000043.hdf' % year), 'r')
+                                  'test%sn000051.hdf' % year), 'r')
         ds = fin['entry/sry']
         assert (ds[0] == 77.7)
 

@@ -12,7 +12,7 @@ sysconfig = dict(
     cache = pc_ctrl,
     instrument = 'REFSANS',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'configsink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'configsink', 'livesink'],
     notifiers = ['email', 'smser'],
 )
 
@@ -45,6 +45,7 @@ devices = dict(
     ),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
     configsink = device(code_base + 'datasinks.ConfigObjDatafileSink'),
+    livesink = device('nicos.devices.datasinks.LiveViewSink'),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         minfree = 5,

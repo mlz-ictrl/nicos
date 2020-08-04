@@ -9,7 +9,6 @@ includes = [
     'voltage',
     'safety',
     'reactor',
-    'guidehall',
     'nl2a',
     'table',
     'slit',

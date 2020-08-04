@@ -7,11 +7,11 @@ includes = ['pumabase', 'seccoll', 'collimation', 'ios', 'hv', 'notifiers',
 
 excludes = ['tas', 'defcal', 'polarization']
 
-nethost = 'pumasrv.puma.frm2'
+tango_base = 'tango://mesydaq.puma.frm2.tum.de:10000/qm/qmesydaq/'
 
 devices = dict(
-    channels = device('nicos.devices.vendor.qmesydaq.taco.MultiCounter',
-        tacodevice = '//%s/puma/qmesydaq/det' % nethost,
+    channels = device('nicos.devices.vendor.qmesydaq.tango.MultiCounter',
+        tangodevice = tango_base + 'image',
         lowlevel = True,
         channels = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
     ),

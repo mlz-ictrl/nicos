@@ -42,5 +42,6 @@ devices = dict(
         expectmaster = False,
         filename = '/WebServer/jcnswww.jcns.frm2/httpdocs/monitor/jcnsmon01'
                    '.html',
+        noexpired = True,
     ),
 )

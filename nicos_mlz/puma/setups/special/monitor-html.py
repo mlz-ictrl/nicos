@@ -143,5 +143,6 @@ devices = dict(
         layout = [Row(_expcolumn),
                   Row(_leftcolumn, _middlecolumn, _rightcolumn)
                  ],
+        noexpired = True,
     ),
 )

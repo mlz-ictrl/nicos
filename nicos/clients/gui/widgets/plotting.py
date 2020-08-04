@@ -45,7 +45,7 @@ from nicos.guisupport.plots import DATEFMT, TIMEFMT, MaskedPlotCurve, \
     NicosPlotAxes, NicosTimePlotAxes
 from nicos.guisupport.qt import QAction, QApplication, QCursor, QDialog, \
     QFileDialog, QFont, QListWidgetItem, QMenu, QPoint, Qt
-from nicos.guisupport.qtgr import GUIConnector, InteractiveGRWidget, \
+from nicos.guisupport.qtgr import InteractiveGRWidget, \
     LegendEvent, MouseEvent, ROIEvent
 from nicos.guisupport.utils import scaledFont
 # pylint: disable=redefined-builtin
@@ -747,12 +747,11 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         self._plot.title = self.titleString()
         self.addPlot(self._plot)
 
-        guiConn = GUIConnector(self)
-        guiConn.connect(LegendEvent.ROI_CLICKED, self.on_legendItemClicked,
-                        LegendEvent)
-        guiConn.connect(ROIEvent.ROI_CLICKED, self.on_roiItemClicked, ROIEvent)
-        guiConn.connect(MouseEvent.MOUSE_PRESS, self.on_fitPicker_selected)
-        guiConn.connect(MouseEvent.MOUSE_MOVE, self.on_mouseMove)
+        self.cbm.addHandler(LegendEvent.ROI_CLICKED, self.on_legendItemClicked,
+                            LegendEvent)
+        self.cbm.addHandler(ROIEvent.ROI_CLICKED, self.on_roiItemClicked, ROIEvent)
+        self.cbm.addHandler(MouseEvent.MOUSE_PRESS, self.on_fitPicker_selected)
+        self.cbm.addHandler(MouseEvent.MOUSE_MOVE, self.on_mouseMove)
         self.logXinDomain.connect(self.on_logXinDomain)
         self.logYinDomain.connect(self.on_logYinDomain)
         self.setLegend(True)

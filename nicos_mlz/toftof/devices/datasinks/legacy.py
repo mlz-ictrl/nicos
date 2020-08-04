@@ -194,10 +194,10 @@ class TofImageSinkHandler(TofSinkHandler):
 
         tempfound = False
         for dev in session.experiment.sampleenv:
+            _mean, _std, _min, _max = self.dataset.valuestats[dev.name]
             if dev.name.startswith('T'):
                 if not tempfound:
                     tempfound = True
-                    _mean, _std, _min, _max = self.dataset.valuestats[dev.name]
                     _ct = dev.read()
                     if dev.unit == 'degC':
                         _ct += 273.15
@@ -213,13 +213,11 @@ class TofImageSinkHandler(TofSinkHandler):
                                   'stddev: %.4f K, min: %.4f K, max: %.4f K',
                                   _ct, _mean, _std, _min, _max)
             elif dev.name == 'B':
-                _mean, _std, _min, _max = self.dataset.valuestats[dev.name]
                 lines.append('AverageMagneticfield: %.4f %s' %
                              (_mean, dev.unit))
                 lines.append('StandardDeviationOfMagneticfield: %.4f %s' %
                              (_std, dev.unit))
             elif dev.name == 'P':
-                _mean, _std, _min, _max = self.dataset.valuestats[dev.name]
                 lines.append('AveragePressure: %.4f %s' % (_mean, dev.unit))
                 lines.append('StandardDeviationOfPressure: %.4f %s' %
                              (_std, dev.unit))

@@ -8,7 +8,7 @@ devices = dict(
     resolution = device('nicos_mlz.refsans.devices.resolution.Resolution',
         description = description,
         lowlevel = False,
-        chopper2 = 'chopper2',
+        chopper = 'chopper',
         flightpath = 'real_flight_path',
     ),
 )

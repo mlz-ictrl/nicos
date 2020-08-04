@@ -19,12 +19,14 @@
 #
 # Module authors:
 #   Alexander Lenz <alexander.lenz@frm2.tum.de>
+#   Petr Cermak <cermak@mag.mff.cuni.cz>
 #
 # *****************************************************************************
 
 from __future__ import absolute_import, division, print_function
 
-import slackclient
+from slack import WebClient as slackwebclient
+from slack.errors import SlackApiError
 
 from nicos.core import ConfigurationError, Override, Param
 from nicos.devices.notifiers import Notifier
@@ -53,27 +55,25 @@ class Slacker(Notifier):
     }
 
     def doInit(self, mode):
-        if slackclient is None:
-            raise ConfigurationError('slackclient package is missing')
-
         token = nicoskeystore.getCredential(self.keystoretoken)
         if not token:
             raise ConfigurationError('Slack API token missing in keyring')
-        self._slack = slackclient.SlackClient(token)
+        self._slack = slackwebclient(token)
 
     def send(self, subject, body, what=None, short=None, important=True):
+        # pylint false positive for escape_html which is imported
+        # from html not cgi (deprectaed)
+        # pylint: disable=deprecated-method
         message = escape_html('*%s*\n\n```%s```' % (subject, body), False)
 
         for entry in self._getAllRecipients(important):
-            self.log.debug('sending slack message to %s' % entry)
+            self.log.debug(f'sending slack message to {entry}')
             try:
-                reply = self._slack.api_call('chat.postMessage', channel=entry,
+                response = self._slack.chat_postMessage(channel=entry,
                                              text=message)
-                if reply['ok']:
+                if response['ok']:
                     continue
-                error = reply['error']
-            except Exception as e:
-                error = str(e)
+            except SlackApiError as e:
+                error = e.response['error']
 
-            self.log.warning('Could not send slack message to %s: %s' %
-                             (entry, error))
+            self.log.warning(f'Could not send slack message to {entry}: {error}')

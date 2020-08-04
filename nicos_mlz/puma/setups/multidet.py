@@ -8,8 +8,6 @@ group = 'lowlevel'
 
 modules = ['nicos_mlz.puma.commands']
 
-nethost = 'pumasrv.puma.frm2'
-
 inner_slope = 4061.72
 outer_slope = 4709.53
 rd_refswitch = 'high'

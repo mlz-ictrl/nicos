@@ -55,7 +55,7 @@ class FakeEpicsMotor(EpicsMotor): # pylint: disable=too-many-ancestors
     }
 
     def doPreinit(self, mode):
-        pass
+        self._record_fields = self._get_record_fields()
 
     def doInit(self, mode):
         pass
@@ -80,6 +80,12 @@ class FakeEpicsMotor(EpicsMotor): # pylint: disable=too-many-ancestors
     def _get_pv(self, pvparam, as_string=False):
         return self.values[pvparam]
 
+
+class DerivedEpicsMotor(FakeEpicsMotor):
+    def _get_record_fields(self):
+        record_fields = FakeEpicsMotor._get_record_fields(self)
+        record_fields.update({'extra_field': 'XTR'})
+        return record_fields
 
 class TestEpicsMotor(object):
     motor = None
@@ -158,3 +164,19 @@ class TestEpicsMotor(object):
         # Check new limits
         assert (low + new_offset,
                 high + new_offset) == self.motor.userlimits
+
+
+
+class TestDerivedEpicsMotor(object):
+
+    @pytest.fixture(autouse=True)
+    def prepare(self, session):
+        self.session = session
+        self.motor1 = self.session.getDevice('motor1')
+        self.motor2 = self.session.getDevice('motor2')
+
+    def test_record_fields(self):
+        motor1_fields = self.motor1._record_fields
+        motor2_fields = self.motor2._record_fields
+        difference = set(motor2_fields) ^ set(motor1_fields)
+        assert difference
