@@ -143,6 +143,7 @@ class QuieckHandler(DataSinkHandler):
                 # something
                 pass
             self._startdataset = None
+            self.sink.end()
 
 
 class QuieckSink(DataSink):
@@ -151,6 +152,10 @@ class QuieckSink(DataSink):
     when a file is closed. At SINQ, there is a separate Java server which
     listens to these messages and initiates the synchronisation of data
     files from the local disk to backuped network storage.
+
+    NICOS created a datasink for every intermediate dataset. This class
+    contains logic that in a scan, a handler is created only for the
+    first datset received.
     """
 
     parameters = {
@@ -160,3 +165,14 @@ class QuieckSink(DataSink):
                       default='127.0.0.1'), }
 
     handlerclass = QuieckHandler
+    _handlerObj = None
+
+    def createHandlers(self, dataset):
+        if not self._handlerObj:
+            self._handlerObj = self.handlerclass(self, dataset, None)
+        else:
+            self._handlerObj.dataset = dataset
+        return [self._handlerObj]
+
+    def end(self):
+        self._handlerObj = None
