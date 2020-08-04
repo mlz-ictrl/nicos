@@ -186,6 +186,7 @@ class Monitor(BaseMonitor):
         mod = __import__(modname, None, None, [member])
         return getattr(mod, member)
 
+    # pylint: disable=too-many-statements
     def initGui(self):
         def log_unhandled(*exc_info):
             traceback.print_exception(*exc_info)  # pylint: disable=no-value-for-parameter

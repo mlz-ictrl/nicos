@@ -371,7 +371,7 @@ class Row(QWidget):
 
     def __getitem__(self, index):
         # returns widget
-        if index < len(self.widgets) and index >= 0:
+        if 0 <= index < len(self.widgets):
             return self.widgets[index]
         raise IndexError
 
@@ -802,7 +802,7 @@ class LogSource(QObject):
             info['started'] = dataset.started
             info['stopped'] = dataset.finished
             info['Detectors'] = '[%s]' % ','.join(
-                [d for d in dataset.detectors])
+                d for d in dataset.detectors)
             info['Pressure'] = '%.3f mbar' % dataset.metainfo[
                 'chamber_pressure', 'value'][0]
             info['Filename'] = info.pop('FILENAME')

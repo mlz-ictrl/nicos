@@ -505,8 +505,7 @@ def firstWindow(w):
         if not parent:
             widget = None
             break
-        else:
-            widget = parent
-            if widget.isWindow():
-                break
+        widget = parent
+        if widget.isWindow():
+            break
     return widget

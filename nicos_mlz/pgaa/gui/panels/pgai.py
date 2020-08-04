@@ -135,7 +135,7 @@ class GLWidget(QGLWidget):
             glColor3fv(color)
             glPushMatrix()
             offs = np.array([p[0], p[2], p[1]]) / 35. + self.offsets
-            glTranslatef(*offs.tolist())
+            glTranslatef(offs[0], offs[1], offs[2])
             glutSolidCube(size)
             glPopMatrix()
 
