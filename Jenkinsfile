@@ -330,7 +330,7 @@ export PYTHONIOENCODING=utf-8
     } // stage
 
 u18 = docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:bionic')
-c8 = docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:centos8')
+//c8 = docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:centos8')
 
 try {
     parallel pylint: {
@@ -356,7 +356,7 @@ try {
                 }
             }
         } //stage
-    }, test_python3centos: {
+    }, /*test_python3centos: {
         stage(name: 'Python3 CentOS tests') {
             ws {
                 checkoutSource()
@@ -365,7 +365,7 @@ try {
                 } // image.inside
             } // ws
         } // stage
-    }, test_python3: {
+    },*/ test_python3: {
         stage(name: 'Python3 tests') {
             ws {
                 checkoutSource()
