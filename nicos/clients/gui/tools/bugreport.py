@@ -28,9 +28,9 @@ from __future__ import absolute_import, division, print_function
 
 import html
 
-from nicos.clients.gui.utils import CompatSettings, DlgUtils, loadUi
+from nicos.clients.gui.utils import DlgUtils, loadUi
 from nicos.guisupport.qt import QCheckBox, QDesktopServices, QDialog, \
-    QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QUrl
+    QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QSettings, QUrl
 
 try:
     import redminelib  # pylint: disable=import-error
@@ -55,7 +55,7 @@ class BugreportTool(DlgUtils, QDialog):
         DlgUtils.__init__(self, self.toolName)
         loadUi(self, 'tools/bugreport.ui')
 
-        settings = CompatSettings('nicos', 'secrets')
+        settings = QSettings('nicos', 'secrets')
         settings.beginGroup('Redmine')
         self.instrument = settings.value('instrument', '')
         self.apikey = settings.value('apikey')
@@ -129,7 +129,7 @@ class BugreportTool(DlgUtils, QDialog):
                 return False
             self.showInfo('Login successful.  Your API key has been stored '
                           'for further reports.')
-            settings = CompatSettings('nicos', 'secrets')
+            settings = QSettings('nicos', 'secrets')
             settings.beginGroup('Redmine')
             if noinstrBox.isChecked():
                 self.instrument = 'none'

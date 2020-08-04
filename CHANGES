@@ -8,6 +8,10 @@ Unreleased changes
 
   - NICOS now requires Python 3.6 to run.
 
+* GUI
+
+  - The GUI now requires PyQt 5.
+
 
 Release 3.7.0
 -------------

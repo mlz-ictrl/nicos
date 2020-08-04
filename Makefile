@@ -7,17 +7,13 @@ PODMAN_OR_DOCKER = $(shell which podman || which docker || \
 
 SHELL=/bin/bash
 
-RCC4 = pyrcc4
 RCC5 = pyrcc5
 PYTHON = /usr/bin/env python
-
-nicos/guisupport/gui_rc_qt4.py: resources/nicos-gui.qrc
-	-$(RCC4) -py3 -o $@ $<
 
 nicos/guisupport/gui_rc_qt5.py: resources/nicos-gui.qrc
 	-$(RCC5) -o $@ $<
 
-guirc: nicos/guisupport/gui_rc_qt4.py nicos/guisupport/gui_rc_qt5.py
+guirc: nicos/guisupport/gui_rc_qt5.py
 
 pod-demo:
 	$(PODMAN_OR_DOCKER) run -u `id -u` -v `pwd`:/nicos -p 1301:1301 \

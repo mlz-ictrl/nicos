@@ -54,7 +54,7 @@ If not mentioned otherwise, Python packages are available from PyPI
 
 * For the GUI and status monitor:
 
-  - PyQt5 (PyQt4 is still supported but deprecated)
+  - PyQt5
   - gr (optional, for plots, see: http://gr-framework.org/c.html#linux-packages)
   - QScintilla-python (optional, for the script editor component)
     (not installable with pip)
@@ -126,7 +126,3 @@ is currently broken.
 
      apt-get install python-{sip-dev,pytest,pytest-cov,mock,coverage,sphinx}
      apt-get install pyqt5-{dev,dev-tools}
-
-* For the old live data widget you have to install some development packages::
-
-     apt-get install libqwt5-qt4-dev libtiff5-dev libcfitsio3-dev

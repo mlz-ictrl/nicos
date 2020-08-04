@@ -32,11 +32,10 @@ import socket
 from os import path
 
 from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
-from nicos.guisupport.qt import PYQT_VERSION, QApplication, QByteArray, \
+from nicos.guisupport.qt import QApplication, QByteArray, \
     QColor, QDateTime, QDialog, QFileDialog, QFont, QLabel, QMessageBox, \
     QProgressDialog, QPushButton, QSettings, QSize, QStyle, Qt, QTextEdit, \
     QToolButton, QVBoxLayout, QWidget, uic
-from nicos.pycompat import string_types
 
 
 def getXDisplay():
@@ -193,29 +192,12 @@ class DlgUtils(object):
         qd.show()
 
 
-# for compatibility with PyQt < 4.8.3
-if PYQT_VERSION < 0x040803:
-    class CompatSettings(QSettings):
-        def value(self, name, default, type=None):  # pylint: disable=redefined-builtin
-            value = QSettings.value(self, name, default)
-            if type is bool:
-                value = value not in (False, 'false')
-            elif type is QByteArray:
-                if isinstance(value, string_types):
-                    value = QByteArray(value)
-            elif type is not None:
-                value = type(value)
-            return value
-else:
-    CompatSettings = QSettings
-
-
 class SettingGroup(object):
     global_group = ''
 
     def __init__(self, name):
         self.name = name
-        self.settings = CompatSettings()
+        self.settings = QSettings()
 
     def __enter__(self):
         if self.global_group:
@@ -263,7 +245,7 @@ class DlgPresets(object):
     def __init__(self, group, ctls):
         self.group = group
         self.ctls = ctls
-        self.settings = CompatSettings()
+        self.settings = QSettings()
 
     def load(self):
         self.settings.beginGroup(self.group)

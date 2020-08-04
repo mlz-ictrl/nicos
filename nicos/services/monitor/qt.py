@@ -33,7 +33,7 @@ from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
 from nicos.core import Param
 from nicos.guisupport.display import PictureDisplay, ValueDisplay, \
     lightColorScheme
-from nicos.guisupport.qt import QT_VER, QApplication, QColor, QCursor, QFont, \
+from nicos.guisupport.qt import QApplication, QColor, QCursor, QFont, \
     QFontMetrics, QFrame, QHBoxLayout, QIcon, QLabel, QMainWindow, QPalette, \
     QSizePolicy, Qt, QVBoxLayout, pyqtSignal, uic
 from nicos.guisupport.utils import scaledFont
@@ -101,10 +101,7 @@ class MonitorWindow(QMainWindow):
             # screen window is actually made larger than the full screen
             self.resize(self.sizeHint())
             if self._wantFullScreen:
-                if QT_VER == 5:
-                    self.setGeometry(QApplication.screens()[0].geometry())
-                else:
-                    self.showFullScreen()
+                self.setGeometry(QApplication.screens()[0].geometry())
         return QMainWindow.event(self, event)
 
     def do_reconfigure(self, emitdict):
@@ -201,11 +198,10 @@ class Monitor(BaseMonitor):
         if self._geometry == 'fullscreen':
             master.showFullScreen()
             master._wantFullScreen = True
-            if QT_VER == 5:
-                # In some Qt5 versions, showFullScreen is buggy and doesn't
-                # actually resize the window (but hides decoration etc).
-                # So, explicitly set the geometry of the first screen.
-                master.setGeometry(QApplication.screens()[0].geometry())
+            # In some Qt5 versions, showFullScreen is buggy and doesn't
+            # actually resize the window (but hides decoration etc).
+            # So, explicitly set the geometry of the first screen.
+            master.setGeometry(QApplication.screens()[0].geometry())
             QCursor.setPos(master.geometry().bottomRight())
         elif isinstance(self._geometry, tuple):
             w, h, x, y = self._geometry  # pylint: disable=W0633

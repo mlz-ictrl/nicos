@@ -40,7 +40,7 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.tools import createToolMenu
 from nicos.clients.gui.utils import loadUi, showToolText
 from nicos.clients.gui.widgets.qscintillacompat import QScintillaCompatible
-from nicos.guisupport.qt import QT_VER, QAction, QActionGroup, QByteArray, \
+from nicos.guisupport.qt import QAction, QActionGroup, QByteArray, \
     QColor, QDialog, QFileDialog, QFileSystemModel, QFileSystemWatcher, \
     QFont, QFontMetrics, QHBoxLayout, QHeaderView, QInputDialog, QMenu, \
     QMessageBox, QPen, QPrintDialog, QPrinter, QsciLexerPython, QsciPrinter, \
@@ -156,10 +156,7 @@ class EditorPanel(Panel):
 
         self.simOutStack.setCurrentIndex(0)
         hdr = self.simRanges.header()
-        if QT_VER == 4:
-            hdr.setResizeMode(QHeaderView.ResizeToContents)
-        else:
-            hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
+        hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
         self.simPane.hide()
 
         self.splitter.restoreState(self.splitterstate)

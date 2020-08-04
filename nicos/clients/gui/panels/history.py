@@ -36,7 +36,7 @@ from collections import OrderedDict
 from time import localtime, mktime, time as currenttime
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import CompatSettings, DlgUtils, dialogFromUi, \
+from nicos.clients.gui.utils import DlgUtils, dialogFromUi, \
     enumerateWithProgress, loadUi
 from nicos.clients.gui.widgets.plotting import ArbitraryFitter, CosineFitter, \
     ExponentialFitter, GaussFitter, LinearFitter, LorentzFitter, \
@@ -47,7 +47,7 @@ from nicos.guisupport.qt import QAction, QActionGroup, QApplication, QBrush, \
     QByteArray, QCheckBox, QColor, QComboBox, QCompleter, QDateTime, QDialog, \
     QFont, QFrame, QHBoxLayout, QListWidgetItem, QMainWindow, QMenu, \
     QMessageBox, QObject, QSizePolicy, QStatusBar, QStyledItemDelegate, Qt, \
-    QTimer, QToolBar, QWidgetAction, pyqtSignal, pyqtSlot
+    QTimer, QToolBar, QWidgetAction, pyqtSignal, pyqtSlot, QSettings
 from nicos.guisupport.timeseries import TimeSeries
 from nicos.guisupport.trees import BaseDeviceParamTree
 from nicos.guisupport.utils import scaledFont
@@ -1193,7 +1193,7 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
         self.client = app  # used by the NewViewDialog
 
         # this is done in Panel.__init__ for the panel version
-        self.settings = CompatSettings()
+        self.settings = QSettings()
         self.loadSettings(self.settings)
 
         BaseHistoryWindow.__init__(self)
@@ -1282,14 +1282,14 @@ class SettingsDialog(QDialog):
     def __init__(self, parent):
         QDialog.__init__(self, parent)
         loadUi(self, 'panels/history_settings.ui')
-        settings = CompatSettings()
+        settings = QSettings()
         self._caches = settings.value('cachehosts') or []
         prefix = settings.value('keyprefix', 'nicos/')
         self.cacheBox.addItems(self._caches)
         self.prefixEdit.setText(prefix)
 
     def accept(self):
-        settings = CompatSettings()
+        settings = QSettings()
         cache = self.cacheBox.currentText()
         if cache in self._caches:
             self._caches.remove(cache)

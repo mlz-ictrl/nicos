@@ -10,12 +10,6 @@ extension-pkg-whitelist=numpy,
     OpenGL.GLU,
     OpenGL.GLUT,
     OpenGL.GLUT.fonts,
-    PyQt4.QtCore,
-    PyQt4.QtGui,
-    PyQt4.QtWebKit,
-    PyQt4.QtDesigner,
-    PyQt4.Qsci,
-    PyQt4.Qwt5,
     PyQt5,
     nicospyctl.pyctl,
     nicoslivewidget,
@@ -34,8 +28,6 @@ ignore-patterns=
 # pygtk.require().
 init-hook= "
  import numpy
- try: import PyQt4.QtGui,PyQt4.QtCore
- except ImportError: pass
  from nicos.utils.stubs import generate_stubs
  generate_stubs()"
 

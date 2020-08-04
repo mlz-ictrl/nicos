@@ -25,19 +25,12 @@
 from __future__ import absolute_import, division, print_function
 
 # pylint:disable=no-name-in-module
-from matplotlib.backends.qt_compat import is_pyqt5
 from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import FigureCanvas
 
 from nicos.guisupport.qt import QVBoxLayout, QWidget
 
 from nicos_mlz.refsans.lib.timedistancediagram import timedistancediagram
-
-if is_pyqt5():
-    # pylint:disable=no-name-in-module
-    from matplotlib.backends.backend_qt5agg import FigureCanvas
-else:
-    # pylint:disable=no-name-in-module
-    from matplotlib.backends.backend_qt4agg import FigureCanvas
 
 
 class TimeDistanceWidget(QWidget):

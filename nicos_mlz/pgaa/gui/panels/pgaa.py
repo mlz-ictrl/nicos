@@ -35,7 +35,7 @@ from uuid import uuid1
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QT_VER, QAbstractItemView, QGridLayout, \
+from nicos.guisupport.qt import QAbstractItemView, QGridLayout, \
     QHeaderView, QObject, Qt, QTableWidget, QTableWidgetItem, QWidget, \
     pyqtSignal, pyqtSlot
 from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC, \
@@ -176,10 +176,7 @@ class TableWidget(QTableWidget):
         # self.setDropIndicatorShown(True)
         self.verticalHeader().hide()
         hdr = self.horizontalHeader()
-        if QT_VER == 4:
-            hdr.setResizeMode(QHeaderView.Interactive)
-        else:
-            hdr.setSectionResizeMode(QHeaderView.Interactive)
+        hdr.setSectionResizeMode(QHeaderView.Interactive)
         # self.setDropIndicatorShown(True)
 
         self.source = source
