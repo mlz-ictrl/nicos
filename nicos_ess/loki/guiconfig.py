@@ -58,7 +58,7 @@ main_window = docked(
             vsplit(
                 panel(
                     "nicos.clients.gui.panels.scriptbuilder.CommandsPanel",
-                    modules=["nicos_mlz.kws2.gui.cmdlets"],
+                    modules=["nicos_ess.loki.gui.cmdlets"],
                 ),
                 panel("nicos_ess.gui.panels.editor.EditorPanel", tools=None),
             ),
