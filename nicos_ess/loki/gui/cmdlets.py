@@ -32,7 +32,7 @@ from nicos.guisupport.qt import QDialog, QIcon, QMessageBox, QSize, \
 from nicos.pycompat import srepr
 from nicos.utils import findResource, formatDuration
 
-from nicos_mlz.kws1.gui.measdialogs import LOOPS, DetsetDialog, \
+from nicos_ess.loki.gui.measdialogs import LOOPS, DetsetDialog, \
     DevicesDialog, MeasDef, RtConfigDialog, SampleDialog
 
 
