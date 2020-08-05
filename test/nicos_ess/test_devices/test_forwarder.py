@@ -29,6 +29,9 @@ import time
 from string import ascii_lowercase
 
 import pytest
+
+pytest.importorskip('streaming_data_types')
+
 from streaming_data_types.forwarder_config_update_rf5k import UpdateType, \
     deserialise_rf5k
 
