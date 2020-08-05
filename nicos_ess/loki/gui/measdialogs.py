@@ -36,9 +36,9 @@ from nicos.guisupport.qt import QDialog, QFileDialog, QFrame, QLabel, \
 from nicos.guisupport.utils import DoubleValidator
 from nicos.utils import findResource, formatDuration
 
-from nicos_mlz.kws1.gui.measelement import Chopper, Collimation, Detector, \
+from nicos_ess.loki.gui.measelement import Chopper, Collimation, Detector, \
     Device, Lenses, MeasTime, Polarizer, Sample, Selector
-from nicos_mlz.kws1.gui.sampleconf import parse_sampleconf
+from nicos_ess.loki.gui.sampleconf import parse_sampleconf
 
 SAMPLES = 'samples'
 DETSETS = 'instrument configuration'

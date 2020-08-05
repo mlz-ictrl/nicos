@@ -213,7 +213,7 @@ class MeasureTable(Cmdlet):
                 if k == 'lenses' and not has_lenses:
                     continue
                 items.append('%s=%-*s' % (k, maxlen[k], srepr(v.getValue())))
-            out.append('kwscount(' + ', '.join(items) + ')')
+            out.append('loki_count(' + ', '.join(items) + ')')
         return '\n'.join(out)
 
 
