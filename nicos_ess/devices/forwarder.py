@@ -191,6 +191,8 @@ class EpicsKafkaForwarderControl(ProducesKafkaMessages, Device):
                 )
                 for pv, (topic, schema) in pv_details.items()
             ]
+            self._issued.update({pv: (topic, schema) for pv, (topic, schema) in pv_details.items()})
+            # update issued
         except KeyError as e:
             self.log.warning(e)
             return
@@ -245,16 +247,15 @@ class EpicsKafkaForwarder(KafkaStatusHandler):
         Updates the list of the PVs currently forwarded according to the
         `forward-epics-to-kafka`. If forwarder_control is present compares
         with the PVs issued.
-        :param messages: A dictionary of {timestamp, streams}, where streams is
-        an array in the form:
-        [ {'channel_name': pv, 'converters': [{'broker': broker, 'topic':
-        topic, 'schema': schema_id}, {...} ], ...]
+        :param messages: A dictionary of {timestamp, StatusMessage},
+        where StatusMessage is the named tuple defined in schema x5f2
+        (https://github.com/ess-dmsc/streaming-data-types)
         """
 
         def get_latest_message(message_list):
             gen = (
                 msg
-                for key, msg in sorted(message_list.items(), reverse=True)
+                for _, msg in sorted(message_list.items(), reverse=True)
                 if "streams" in msg
             )
             return next(gen, None)
@@ -263,9 +264,9 @@ class EpicsKafkaForwarder(KafkaStatusHandler):
         if not message:
             return
 
-        self._forwarded = {
-            stream["channel_name"] for stream in message["streams"]
-        }
+        self._set_next_update(message)
+        self._forwarded = {stream['channel_name'] for stream in message[
+            'streams']}
 
         if self._attached_forwarder_control:
             self._attached_forwarder_control.status_update(message)

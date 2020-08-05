@@ -23,28 +23,9 @@
 # *****************************************************************************
 
 devices = dict(
-    KafkaForwarderCommand = device('nicos_ess.devices.forwarder.EpicsKafkaForwarderControl',
-        description = "Configures commands to forward-epics-to-kafka",
-        cmdtopic = 'TEST_forwarderCommands',
-        instpvtopic = "TEST_metadata",
-        instpvschema = 'f142',
-        brokers = [
-            'localhost:9092',
-        ],
-    ),
-    KafkaForwarder = device('nicos_ess.devices.forwarder.EpicsKafkaForwarder',
-        description = "Monitors and controls forward-epics-to-kafka",
-        statustopic = "TEST_forwarderStatus",
-        brokers = [
-            'localhost:9092',
-        ],
-    ),
-    KafkaForwarderIntegration = device('nicos_ess.devices.forwarder.EpicsKafkaForwarder',
-        description = "Monitors and controls forward-epics-to-kafka",
-        statustopic = "TEST_forwarderStatus",
-        brokers = [
-            'localhost:9092',
-        ],
-        forwarder_control = "KafkaForwarderCommand"
+    KafkaFileWriter = device('nicos_ess.devices.datasinks.nexussink.NexusFileWriterStatus',
+        description = "Status for nexus file writing",
+        brokers = ["192.168.1.80:9092"],
+        statustopic = "TEST_writerStatus",
     ),
 )

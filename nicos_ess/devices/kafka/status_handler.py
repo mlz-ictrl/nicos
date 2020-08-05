@@ -27,6 +27,8 @@ from __future__ import absolute_import, division, print_function
 import json
 from time import time as currenttime
 
+from streaming_data_types.status_x5f2 import deserialise_x5f2
+
 from nicos import session
 from nicos.core import MASTER, POLLER, Override, Param, Readable, status, \
     tupleof
@@ -46,22 +48,17 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
                              type=str, settable=False, preinit=True,
                              mandatory=True, userparam=False),
         'timeoutinterval': Param('Time to wait (secs) before communication is '
-                                 'considered lost',
-                                 type=int, default=5, settable=True,
-                                 userparam=False),
-        'curstatus': Param('Store the current device status',
-                           internal=True, type=tupleof(int, str),
-                           settable=True),
+                                 'considered lost', type=int, default=5,
+                                 settable=True, userparam=False),
+        'curstatus': Param('Store the current device status', internal=True,
+                           type=tupleof(int, str), settable=True),
         'nextupdate': Param('Time when the next message is expected', type=int,
                             internal=True, settable=True),
         'statusinterval': Param('Expected time (secs) interval for the status '
                                 'message updates', type=int, default=2,
-                                settable=True, internal=True),
-    }
+                                settable=True, internal=True), }
 
-    parameter_overrides = {
-        'unit': Override(mandatory=False, userparam=False),
-    }
+    parameter_overrides = {'unit': Override(mandatory=False, userparam=False), }
 
     def doPreinit(self, mode):
         KafkaSubscriber.doPreinit(self, mode)
@@ -73,8 +70,7 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
         self._setROParam('nextupdate', currenttime())
 
         if self._mode == MASTER:
-            self._setROParam('curstatus',
-                             (status.WARN, 'Trying to connect...'))
+            self._setROParam('curstatus', (status.WARN, 'Trying to connect...'))
 
     def doRead(self, maxage=0):
         return ''
@@ -86,16 +82,17 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
         json_messages = {}
         for timestamp, msg in iteritems(messages):
             try:
-                js = json.loads(msg)
+                if isinstance(msg, str):
+                    # handle "old style" messages
+                    js = json.loads(msg)
+                else:
+                    message = deserialise_x5f2(msg)
+                    js = json.loads(message.status_json)
+                    js['update_interval'] = message.update_interval
                 json_messages[timestamp] = js
-                if 'next_message_eta_ms' in js:
-                    self._setROParam('statusinterval',
-                                     js['next_message_eta_ms'] // 1000)
-                next_update = currenttime() + self.statusinterval
-                if next_update > self.nextupdate:
-                    self._setROParam('nextupdate', next_update)
-            except Exception:
-                self.log.warning('Could not decode message from status topic.')
+            except Exception as e:
+                self.log.warning('Could not decode message from status topic: '
+                                 '%r' % e)
 
         if json_messages:
             self._status_update_callback(json_messages)
@@ -117,4 +114,11 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
         a callback is required when new status messages appear.
         :param messages: dict of timestamp and message in JSON format
         """
-        pass
+
+    def _set_next_update(self, message):
+        if 'update_interval' in message:
+            self._setROParam('statusinterval',
+                             message['update_interval'] // 1000)
+            next_update = currenttime() + self.statusinterval
+            if next_update > self.nextupdate:
+                self._setROParam('nextupdate', next_update)
