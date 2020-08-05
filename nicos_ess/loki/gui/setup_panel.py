@@ -124,10 +124,8 @@ class ExpPanel(Panel):
             self.queryDBButton.setVisible(False)
             self.propLabel.setText('Enter a proposal number or name:')
         if self.client.viewonly:
-            self.finishButton.setVisible(False)
             self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
         else:
-            self.finishButton.setVisible(True)
             self.buttonBox.setStandardButtons(QDialogButtonBox.Apply |
                                               QDialogButtonBox.Close)
 
@@ -153,16 +151,6 @@ class ExpPanel(Panel):
         dataEmails = dataEmails.split('\n') if dataEmails else []
         errorbehavior = 'abort' if self.errorAbortBox.isChecked() else 'report'
         return prop, title, users, local, emails, dataEmails, errorbehavior
-
-    @pyqtSlot()
-    def on_finishButton_clicked(self):
-        if self._finish_exp_panel:
-            dlg = PanelDialog(self, self.client, self._finish_exp_panel,
-                              'Finish experiment')
-            dlg.exec_()
-        if self.client.run('FinishExperiment()', noqueue=True) is None:
-            self.showError('Could not finish experiment, a script '
-                           'is still running.')
 
     @pyqtSlot()
     def on_queryDBButton_clicked(self):

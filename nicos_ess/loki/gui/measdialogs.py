@@ -98,7 +98,7 @@ class MeasDef(object):
         result = []
         for dicts in itertools.product(*dict_lists):
             entry = OrderedDict()
-            for d in sorted(dicts, key=lambda d: d.values()[0].ORDER):
+            for d in sorted(dicts, key=lambda d: list(d.values())[0].ORDER):
                 entry.update(d)
             result.append(entry)
         # post-process sample measurement time factor
