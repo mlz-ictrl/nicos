@@ -33,6 +33,7 @@ from os import path
 
 from nicos.clients.gui import config as guicfg
 from nicos.clients.gui.config import prepareGuiNamespace
+from nicos.core.device import DeviceAlias
 from nicos.core.errors import ConfigurationError
 from nicos.core.params import nicosdev_re
 from nicos.core.sessions.setups import SETUP_GROUPS, fixup_stacked_devices, \
@@ -271,8 +272,8 @@ class SetupChecker(object):
                 "%s: class %r has no 'parameters'", devname, cls.__name__
             )
         else:
-            if not config.get('lowlevel', cls.parameters['lowlevel'].default) and \
-               cls.__name__ != 'DeviceAlias':
+            if not (config.get('lowlevel', cls.parameters['lowlevel'].default)
+                    or issubclass(cls, DeviceAlias)):
                 if not config.get('description') and not is_special:
                     self.log.warning(
                         '%s: device has no description', devname,
