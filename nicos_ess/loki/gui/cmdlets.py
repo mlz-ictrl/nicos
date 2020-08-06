@@ -34,6 +34,7 @@ from nicos.utils import findResource, formatDuration
 
 from nicos_ess.loki.gui.measdialogs import LOOPS, DetsetDialog, \
     DevicesDialog, MeasDef, RtConfigDialog, SampleDialog
+from nicos_ess.loki.gui.measelement import Sample, Device
 
 
 class MeasureTable(Cmdlet):
@@ -173,47 +174,27 @@ class MeasureTable(Cmdlet):
 
     def generate(self, mode):
         out = []
-        if self.measdef.samplefile is not None:
-            out.append('run(%s)' % srepr(self.measdef.samplefile))
-            out.append('')
-        if self.rtBox.isChecked():
-            out.append('SetupRealtime(%d, %d, %f, %s)' % (
-                self.rt_settings['channels'],
-                self.rt_settings['interval'] * (10 **
-                {0: 0, 1: 3, 2: 6}[self.rt_settings['intervalunit']]),
-                self.rt_settings['progq'],
-                srepr(self.rt_settings['trigger']),
-            ))
-        else:
-            out.append('SetupNormal()')
         table = self.measdef.getTable()
-        # detect if we use a non-default value for these, and generate the
-        # keywords only for these cases
-        has_lenses = False
-        has_chopper = False
-        has_polarizer = False
-        maxlen = {}
-        for entry in table:
-            for (k, v) in entry.items():
-                vrepr = srepr(v.getValue())
-                maxlen[k] = max(maxlen.get(k, 0), len(vrepr))
-                if k == 'chopper' and v.getValue() != 'off':
-                    has_chopper = True
-                elif k == 'polarizer' and v.getValue() != 'out':
-                    has_polarizer = True
-                elif k == 'lenses' and v.getValue() != 'out-out-out':
-                    has_lenses = True
         for entry in table:
             items = []
+            sample = None
+            devices_args = []
             for (k, v) in entry.items():
-                if k == 'chopper' and not has_chopper:
-                    continue
-                if k == 'polarizer' and not has_polarizer:
-                    continue
-                if k == 'lenses' and not has_lenses:
-                    continue
-                items.append('%s=%-*s' % (k, maxlen[k], srepr(v.getValue())))
-            out.append('loki_count(' + ', '.join(items) + ')')
+                if isinstance(v, Sample):
+                    sample = v.getValue()
+                elif isinstance(v, Device):
+                    devices_args.append(k)
+                    devices_args.append(srepr(v.getValue()))
+
+            items.append(f"\n##### Measurement {len(out) + 1}")
+            if sample:
+                items.append(f'set_sample("{sample}")')
+            if devices_args:
+                args = ", ".join(devices_args)
+                items.append(f"maw({args})")
+
+            items.append("# Some sort of count command goes here!")
+            out.append('\n'.join(items))
         return '\n'.join(out)
 
 
