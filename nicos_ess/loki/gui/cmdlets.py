@@ -178,22 +178,24 @@ class MeasureTable(Cmdlet):
         for entry in table:
             items = []
             sample = None
+            count_time = 0
             devices_args = []
             for (k, v) in entry.items():
                 if isinstance(v, Sample):
                     sample = v.getValue()
+                    count_time = v.extra[1]
                 elif isinstance(v, Device):
                     devices_args.append(k)
                     devices_args.append(srepr(v.getValue()))
 
             items.append(f"\n##### Measurement {len(out) + 1}")
             if sample:
-                items.append(f'set_sample("{sample}")')
+                items.append(f'# set_sample("{sample}")')
             if devices_args:
                 args = ", ".join(devices_args)
                 items.append(f"maw({args})")
 
-            items.append("# Some sort of count command goes here!")
+            items.append(f"# loki_count(t={count_time})")
             out.append('\n'.join(items))
         return '\n'.join(out)
 
