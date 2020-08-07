@@ -79,6 +79,7 @@ class DataSinkHandler(BaseDataSinkHandler):
             json={
                 'action_id': MEASUREMENT_ACTION_ID[
                     session.instrument.name.lower()],
+                # TODO: implement instrument specific 'data'?
                 'data': {
                     'name': {
                         'text': '{}-{:d}'.format(

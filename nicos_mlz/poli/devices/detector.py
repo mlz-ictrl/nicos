@@ -31,7 +31,8 @@ from math import sqrt
 from nicos.core import Attach, ConfigurationError, Moveable, Param, Value, \
     anytype, tupleof
 from nicos.devices.generic.detector import Detector as GenericDetector
-from nicos.devices.generic.sequence import MeasureSequencer, SeqCall, SeqWait
+from nicos.devices.generic.sequence import MeasureSequencer, SeqCall, SeqDev, \
+    SeqWait
 
 
 class AsymDetector(MeasureSequencer):
@@ -132,27 +133,33 @@ class AsymDetector(MeasureSequencer):
             self._results[3:3 + self._nvalues] = self._attached_detector.read()
         else:
             self._results[3 + self._nvalues:] = self._attached_detector.read()
-            TU = self._results[3]
-            TD = self._results[3 + self._nvalues]
-            if TU == 0 or TD == 0:
-                U = D = 0
-            else:
-                U = float(self._results[3 + self._vindex]) / TU
-                D = float(self._results[3 + self._nvalues + self._vindex]) / TD
-            if D == 0:
-                self._results[:3] = [0.0, 0.0, 0.0]
-            else:
-                A = (U - D) / (U + D)
-                dA = sqrt((1 - A)**2 * (U / TU) + (1 + A)**2 * (D / TD)) / (U + D)
-                self._results[:3] = [U / D, A, dA]
+
+    def _evaluateResults(self):
+        TU = self._results[3]
+        TD = self._results[3 + self._nvalues]
+        if TU == 0 or TD == 0:
+            U = D = 0
+        else:
+            U = float(self._results[3 + self._vindex]) / TU
+            D = float(self._results[3 + self._nvalues + self._vindex]) / TD
+        if D == 0:
+            self._results[:3] = [0.0, 0.0, 0.0]
+        else:
+            A = (U - D) / (U + D)
+            dA = sqrt((1 - A)**2 * (U / TU) + (1 + A)**2 * (D / TD)) / (U + D)
+            self._results[:3] = [U / D, A, dA]
 
     def _generateSequence(self):
         seq = []
-        for phase in (0, 1):
-            seq.append(SeqCall(self._attached_flipper.start, self.flipvalues[phase]))
+        order = (0, 1) if self._attached_flipper.read() == self.flipvalues[0] \
+                else (1, 0)
+        for i, phase in enumerate(order):
+            if i:
+                seq.append(SeqDev(self._attached_flipper, self.flipvalues[phase]))
             seq.append(SeqCall(self._startDet, phase))
             seq.append(SeqWait(self._attached_detector))
             seq.append(SeqCall(self._readDet, phase))
+        seq.append(SeqCall(self._evaluateResults))
         return seq
 
     def doPause(self):

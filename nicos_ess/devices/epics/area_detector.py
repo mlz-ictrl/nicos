@@ -35,7 +35,7 @@ from nicos.core import LIVE, ArrayDesc, Param, Value, multiStatus, pvname, \
 from nicos.core.device import Device
 from nicos.devices.generic import ImageChannelMixin
 
-from nicos_ess.devices.epics.base import EpicsDevice
+from nicos_ess.devices.epics.base import EpicsDeviceEss
 from nicos_ess.devices.epics.detector import EpicsDetector, \
     EpicsPassiveChannel, EpicsTimerPassiveChannel
 from nicos_ess.devices.epics.status import ADKafkaStatus
@@ -138,7 +138,7 @@ class EpicsAreaDetector(EpicsDetector):
         return LIVE
 
 
-class ADKafkaPlugin(EpicsDevice, Device):
+class ADKafkaPlugin(EpicsDeviceEss, Device):
     """
     Device that allows to configure the EPICS ADPluginKafka
     """
@@ -154,17 +154,6 @@ class ADKafkaPlugin(EpicsDevice, Device):
                        type=pvname or None, mandatory=False, default=None),
     }
 
-    kafka_plugin_fields = {
-        # 'max_queue_size': 'KafkaMaxQueueSize',
-        # 'max_queue_size_rbv': 'KafkaMaxQueueSize_RBV',
-        # 'unsent_packets': 'UnsentPackets_RBV',
-        # 'max_msg_size': 'KafkaMaxMessageSize_RBV',
-        # 'stats_interval': 'KafkaStatsIntervalTime',
-        # 'stats_interval_rbv': 'KafkaStatsIntervalTime_RBV',
-        # 'dropped': 'DroppedArrays_RBV',
-        # 'unsent': 'UnsentPackets_RBV',
-    }
-
     def _get_pv_parameters(self):
         """
         Implementation of inherited method to automatically account for fields
@@ -177,7 +166,7 @@ class ADKafkaPlugin(EpicsDevice, Device):
             pvs.append('statuspv')
         if self.msgpv:
             pvs.append('msgpv')
-        pvs += set(self.kafka_plugin_fields.keys())
+        pvs += set(self._record_fields)
 
         return pvs
 
@@ -191,7 +180,7 @@ class ADKafkaPlugin(EpicsDevice, Device):
         :return: Actual PV name.
         """
         prefix = getattr(self, 'kafkapv')
-        field = self.kafka_plugin_fields.get(pvparam)
+        field = self._record_fields.get(pvparam)
 
         if field is not None:
             return ':'.join((prefix, field))
@@ -261,15 +250,17 @@ class ADImageChannel(ImageChannelMixin, EpicsPassiveChannel):
                            mandatory=True, settable=False, userparam=False),
     }
 
-    camera_channel_fields = {
-        'size_x': 'SizeX_RBV',
-        'size_y': 'SizeY_RBV',
-        'bin_x': 'BinX_RBV',
-        'bin_y': 'BinY_RBV',
-        'min_x': 'MinX_RBV',
-        'min_y': 'MinY_RBV',
-        'data_type': 'DataType_RBV'
-    }
+    def _get_record_fields(self):
+        camera_channel_fields = {
+            'size_x': 'SizeX_RBV',
+            'size_y': 'SizeY_RBV',
+            'bin_x': 'BinX_RBV',
+            'bin_y': 'BinY_RBV',
+            'min_x': 'MinX_RBV',
+            'min_y': 'MinY_RBV',
+            'data_type': 'DataType_RBV'
+        }
+        return camera_channel_fields
 
     def doInit(self, mode):
         EpicsPassiveChannel.doInit(self, mode)
@@ -287,7 +278,7 @@ class ADImageChannel(ImageChannelMixin, EpicsPassiveChannel):
 
         :return: List of PV aliases.
         """
-        pvs = set(self.camera_channel_fields.keys())
+        pvs = set(self._record_fields.keys())
         pvs.add('readpv')
         pvs.add('rawdatapv')
         return pvs
@@ -302,7 +293,7 @@ class ADImageChannel(ImageChannelMixin, EpicsPassiveChannel):
         :return: Actual PV name.
         """
         prefix = getattr(self, 'pvprefix')
-        field = self.camera_channel_fields.get(pvparam)
+        field = self._record_fields.get(pvparam)
 
         if field is not None:
             return ':'.join((prefix, field))

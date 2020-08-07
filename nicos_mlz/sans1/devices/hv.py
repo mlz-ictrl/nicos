@@ -31,10 +31,11 @@ from time import localtime, strftime, time as currenttime
 
 import PyTango
 
-from nicos.core import Attach, InvalidValueError, Moveable, Override, Param, \
-    PositionError, Readable, listof, status, tupleof
-from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod, \
-    SeqParam, SeqSleep
+from nicos.core import Attach, HasPrecision, InvalidValueError, Moveable, \
+    Override, Param, PositionError, Readable, listof, status, tupleof
+from nicos.devices.generic.sequence import BaseSequencer, \
+    LockedDevice as NicosLockedDevice, SeqDev, SeqMethod, SeqParam, \
+    SeqSleep
 from nicos.devices.generic.switcher import Switcher
 from nicos.devices.tango import Motor as TangoMotor, PowerSupply
 from nicos.pycompat import iteritems
@@ -291,6 +292,13 @@ class Sans1HVOffDuration(Readable):
 #    _TACO_STATUS_MAPPING = TacoMotor._TACO_STATUS_MAPPING.copy()
 #    _TACO_STATUS_MAPPING[TACOStates.TRIPPED] = (status.WARN, 'move inhibit')
 
+
 class Sans1ZMotor(TangoMotor):
     tango_status_mapping = TangoMotor.tango_status_mapping.copy()
     tango_status_mapping[PyTango.DevState.FAULT] = status.WARN
+
+
+class LockedDevice(HasPrecision, NicosLockedDevice):
+    def doStart(self, pos):
+        if abs(self.read(0) - pos) >= self.precision:
+            NicosLockedDevice.doStart(self, pos)

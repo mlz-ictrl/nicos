@@ -109,18 +109,18 @@ class TofNeXuSHandler(TofSinkHandler):
                                                        if info[0] else 0.))
             tempfound = False
             for dev in session.experiment.sampleenv:
+                _mean, _std, _min, _max = self.dataset.valuestats[dev.name]
                 if dev.name.startswith('T') or dev.name == 'bio':
                     if tempfound:
                         continue
                     tempfound = True
-                    _mean, _std, _min, _max = self.dataset.valuestats[dev.name]
                     _ct = dev.read()
                     if dev.unit == 'degC':
                         _ct += 273.15
                         _mean += 273.15
                         _min += 273.15
                         _max += 273.15
-                    self.log.info('Sample: current: %.4f K, average: %.4f K, '
+                    self.log.info('T: current: %.4f K, average: %.4f K, '
                                   'stddev: %.4f K, min: %.4f K, max: %.4f K',
                                   _ct, _mean, _std, _min, _max)
                     self._tof.write_sample_temperature('%.4f K' % _mean,
@@ -128,16 +128,14 @@ class TofNeXuSHandler(TofSinkHandler):
                                                        '%.4f K' % _min,
                                                        '%.4f K' % _max)
                 elif dev.name == 'B':
-                    _mean, _std, _min, _max = self.dataset.valuestats[dev.name]
                     unit = dev.unit
-                    self.log.info('Sample: current: %.4f %s, average: %.4f %s',
-                                  (_mean, unit, _std, unit))
+                    self.log.info('B: current: %.4f %s, average: %.4f %s',
+                                  _mean, unit, _std, unit)
                     self._tof.write_sample_magfield('%.4f %s' % (_mean, unit),
                                                     '%.4f %s' % (_std, unit))
                 elif dev.name == 'P':
-                    self.log.info('Sample: current: %.4f %s, average: %.4f %s',
-                                  (_mean, unit, _std, unit))
-                    _mean, _std, _min, _max = self.dataset.valuestats[dev.name]
+                    self.log.info('P: current: %.4f %s, ' 'average: %.4f %s',
+                                  _mean, unit, _std, unit)
                     self._tof.write_sample_pressure('%.4f %s' % (_mean, unit),
                                                     '%.4f %s' % (_std, unit))
             self._save()

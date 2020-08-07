@@ -108,7 +108,7 @@ class DimetixLaser(CanDisable, HasOffset, Readable, StringIO):
 
     def doReadVersion(self):
         ret = self._communicate('sv')
-        return '%d-%d' % (self._integer(ret[4:9]), self._integer(ret[9:]))
+        return '%d-%d' % (self._integer(ret[1:5]), self._integer(ret[5:]))
 
     def doReadSignalstrength(self):
         return self._integer(self._communicate('m+0'))

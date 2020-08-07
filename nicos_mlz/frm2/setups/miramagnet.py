@@ -8,9 +8,10 @@ tango_base = 'tango://%s:10000/box/' % setupname
 devices = dict(
     I_miramagnet = device('nicos.devices.tango.RampActuator',
         description = 'MIRA Helmholtz magnet current',
-        tangodevice = tango_base + 'beckhoff/plc_i',
+        tangodevice = tango_base + 'plc/_i',
         abslimits = (-250, 250),
         fmtstr = '%.1f',
+        unit = 'A',
     ),
     B_miramagnet = device('nicos.devices.generic.CalibratedMagnet',
         currentsource = 'I_miramagnet',
@@ -21,7 +22,7 @@ devices = dict(
     ),
     miramagnet_pol = device('nicos.devices.tango.DigitalInput',
         description = 'Polarity of magnet current',
-        tangodevice = tango_base + 'beckhoff/plc_polarity',
+        tangodevice = tango_base + 'plc/_polarity',
         fmtstr = '%+d',
     ),
 )
@@ -29,7 +30,7 @@ devices = dict(
 for i in range(1, 5):
     dev = device('nicos.devices.tango.AnalogInput',
         description = 'Temperature %d of the miramagnet coils' % i,
-        tangodevice = tango_base + 'beckhoff/plc_t%d' % i,
+        tangodevice = tango_base + 'plc/_t%d' % i,
         fmtstr = '%d',
         warnlimits = (0, 60),
         unit = 'degC',

@@ -43,7 +43,7 @@ from nicos.guisupport.livewidget import DATATYPES, IntegralLiveWidget, \
     LiveWidget, LiveWidget1D
 from nicos.guisupport.qt import QActionGroup, QByteArray, QListWidgetItem, \
     QMenu, QPoint, QSizePolicy, QStatusBar, Qt, QToolBar, pyqtSlot
-from nicos.guisupport.qtgr import GUIConnector, MouseEvent
+from nicos.guisupport.qtgr import MouseEvent
 from nicos.protocols.cache import cache_load
 from nicos.pycompat import iteritems, itervalues, string_types
 from nicos.utils import BoundedOrderedDict, ReaderRegistry
@@ -213,8 +213,8 @@ class LiveDataPanel(Panel):
         # apply current settings
         self.widget.setCenterMark(self.actionMarkCenter.isChecked())
         self.widget.logscale(self.actionLogScale.isChecked())
-        guiConn = GUIConnector(self.widget.gr)
-        guiConn.connect(MouseEvent.MOUSE_MOVE, self.on_mousemove_gr)
+        self.widget.gr.cbm.addHandler(MouseEvent.MOUSE_MOVE,
+                                      self.on_mousemove_gr)
 
         self.menuColormap = QMenu(self)
         self.actionsColormap = QActionGroup(self)

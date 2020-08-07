@@ -28,19 +28,15 @@ Support code for any encoder with analog signal, like poti laser distance etc
 from __future__ import absolute_import, division, print_function
 
 from nicos.core import Readable
-from nicos.core.params import Attach, Param, nonemptylistof
+from nicos.core.params import Attach
+
+from nicos_mlz.refsans.devices.mixins import PolynomFit
 
 
-class AnalogEncoder(Readable):
+class AnalogEncoder(PolynomFit, Readable):
 
     attached_devices = {
         'device': Attach('Sensing device (poti etc)', Readable),
-    }
-
-    parameters = {
-        'poly': Param('Polynomial coefficients in ascending order',
-                      type=nonemptylistof(float), settable=False,
-                      mandatory=False, default=[1.]),
     }
 
     def doRead(self, maxage=0):
@@ -49,12 +45,4 @@ class AnalogEncoder(Readable):
         A correcting polynom of at least first order is used.
         Result is then offset + mul * <previously calculated value>
         """
-        value = self._attached_device.read(maxage)
-
-        self.log.debug('uncorrected value: %f', value)
-        result = 0.
-        for i, ai in enumerate(self.poly):
-            result += ai * (value ** i)
-        self.log.debug('final result: %f', result)
-
-        return result
+        return self._fit(self._attached_device.read(maxage))

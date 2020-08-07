@@ -58,3 +58,22 @@ class TwoThetaArray(NexusElementBase):
         for i in range(self.length):
             dset[i] = start + i * self.step
         self.createAttributes(dset, sinkhandler)
+
+
+class FixedArray(NexusElementBase):
+    def __init__(self, start, step, length, **attrs):
+        self._start = start
+        self._step = step
+        self._len = length
+        self.attrs = {}
+        for key, val in iteritems(attrs):
+            if not isinstance(val, NXAttribute):
+                val = NXAttribute(val, 'string')
+                self.attrs[key] = val
+        NexusElementBase.__init__(self)
+
+    def create(self, name, h5parent, sinkhandler):
+        dset = h5parent.create_dataset(name, (self._len,), 'float32')
+        for i in range(self._len):
+            dset[i] = self._start + i * self._step
+        self.createAttributes(dset, sinkhandler)

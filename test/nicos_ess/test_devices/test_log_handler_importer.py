@@ -162,6 +162,6 @@ class TestNoHandlers(object):
                         setup_package='nicos_demo')
         assert get_facility_log_handlers(config) == []
 
-    def test_no_loggers_created_if_options_is_empy(self):
+    def test_no_loggers_created_if_options_is_empty(self):
         config = Config(setup_package='nicos_ess')
         assert get_facility_log_handlers(config) == []

@@ -139,5 +139,6 @@ devices = dict(
         layout = [Row(_expcolumn),
                   Row(_sampletable, _measurement, _eulerian),
                   Row(_image)],
+        noexpired = True,
     ),
 )

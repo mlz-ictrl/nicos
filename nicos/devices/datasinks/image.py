@@ -109,11 +109,9 @@ class SingleFileSinkHandler(DataSinkHandler):
         Note that *image* is None if defer_file_creation is false, because in
         that case `writeHeader` is called before the image data is available.
         """
-        pass
 
     def writeData(self, fp, image):
         """Write the image data part of the file (second part)."""
-        pass
 
     def _putResult(self, quality, result):
         image = result[1][0]

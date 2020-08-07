@@ -29,7 +29,6 @@ from nicos.core import Override, Param, pvname, status
 from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import CanDisable, HasOffset
 from nicos.devices.abstract import CanReference, Motor
-
 from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 
 
@@ -51,15 +50,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
     doStatus uses it for some of the status messages.
     """
     parameters = {
-        'motorpv': Param('Name of the motor record PV.',
-                         type=pvname, mandatory=True, settable=False,
-                         userparam=False),
-        'errormsgpv': Param('Optional PV with error message.',
-                            type=pvname, mandatory=False, settable=False,
-                            userparam=False),
-        'errorbitpv': Param('Optional PV with error bit.',
-                            type=pvname, mandatory=False, settable=False,
-                            userparam=False),
+        'motorpv': Param('Name of the motor record PV.', type=pvname,
+                         mandatory=True, settable=False, userparam=False),
+        'errormsgpv': Param('Optional PV with error message.', type=pvname,
+                            mandatory=False, settable=False, userparam=False),
+        'errorbitpv': Param('Optional PV with error bit.', type=pvname,
+                            mandatory=False, settable=False, userparam=False),
         'reseterrorpv': Param('Optional PV with error reset switch.',
                               type=pvname, mandatory=False, settable=False,
                               userparam=False),
@@ -78,26 +74,27 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
 
     # Fields of the motor record for which an interaction via Channel Access
     # is required.
-    motor_record_fields = {
-        'readpv': 'RBV',
-        'writepv': 'VAL',
-        'stop': 'STOP',
-        'donemoving': 'DMOV',
-        'moving': 'MOVN',
-        'miss': 'MISS',
-        'homeforward': 'HOMF',
-        'homereverse': 'HOMR',
-        'speed': 'VELO',
-        'offset': 'OFF',
-        'highlimit': 'HLM',
-        'lowlimit': 'LLM',
-        'softlimit': 'LVIO',
-        'lowlimitswitch': 'LLS',
-        'highlimitswitch': 'HLS',
-        'enable': 'CNEN',
-        'set': 'SET',
-        'foff': 'FOFF',
-    }
+    def _get_record_fields(self):
+        return {
+            'readpv': 'RBV',
+            'writepv': 'VAL',
+            'stop': 'STOP',
+            'donemoving': 'DMOV',
+            'moving': 'MOVN',
+            'miss': 'MISS',
+            'homeforward': 'HOMF',
+            'homereverse': 'HOMR',
+            'speed': 'VELO',
+            'offset': 'OFF',
+            'highlimit': 'HLM',
+            'lowlimit': 'LLM',
+            'softlimit': 'LVIO',
+            'lowlimitswitch': 'LLS',
+            'highlimitswitch': 'HLS',
+            'enable': 'CNEN',
+            'set': 'SET',
+            'foff': 'FOFF',
+        }
 
     def _get_pv_parameters(self):
         """
@@ -106,7 +103,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
 
         :return: List of PV aliases.
         """
-        pvs = set(self.motor_record_fields.keys())
+        pvs = set(self._record_fields)
 
         if self.errormsgpv:
             pvs.add('errormsgpv')
@@ -129,7 +126,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         :return: Actual PV name.
         """
         motor_record_prefix = getattr(self, 'motorpv')
-        motor_field = self.motor_record_fields.get(pvparam)
+        motor_field = self._record_fields.get(pvparam)
 
         if motor_field is not None:
             return '.'.join((motor_record_prefix, motor_field))
@@ -165,8 +162,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
             self.abslimits  # pylint: disable=pointless-statement
 
             # Adjust user limits
-            self.userlimits = (self.userlimits[0] + diff,
-                               self.userlimits[1] + diff)
+            self.userlimits = (
+            self.userlimits[0] + diff, self.userlimits[1] + diff)
 
             self.log.info('The new user limits are: ' + str(self.userlimits))
 
@@ -212,8 +209,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
 
         miss = self._get_pv('miss')
         if miss != 0:
-            return (status.NOTREACHED, message
-                    or 'Did not reach target position.')
+            return (
+            status.NOTREACHED, message or 'Did not reach target position.')
 
         high_limitswitch = self._get_pv('highlimitswitch')
         if high_limitswitch != 0:

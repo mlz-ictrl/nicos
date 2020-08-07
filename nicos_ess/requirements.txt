@@ -1,5 +1,8 @@
 kafka-python>=1.4.6
 flatbuffers>=1.12
-ess-streaming-data-types==0.4.1
+ess-streaming-data-types>=0.9.0
 graypy
 kafka-logging-handler
+PyQt5==5.14.2
+PyQt5-sip==12.8
+PyQtWebEngine==5.14.0

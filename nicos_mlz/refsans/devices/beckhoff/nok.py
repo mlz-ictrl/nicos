@@ -32,11 +32,12 @@ from nicos import session
 from nicos.core import SIMULATION, CommunicationError, DeviceMixinBase, \
     MoveError, NicosTimeoutError, Override, Param, UsageError, floatrange, \
     requires, status
-from nicos.core.params import nonemptylistof
 from nicos.devices.abstract import CanReference, Coder, Motor
+from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
 from nicos.devices.tango import PyTangoDevice
 from nicos.utils import bitDescription
 
+from nicos_mlz.refsans.devices.mixins import PolynomFit
 from nicos_mlz.refsans.params import motoraddress
 
 
@@ -44,7 +45,6 @@ class SingleMotorOfADoubleMotorNOK(DeviceMixinBase):
     """
     empty class marking a Motor as beeing useable by a (DoubleMotorNok)
     """
-    pass
 
 
 class BeckhoffCoderBase(PyTangoDevice, Coder):
@@ -258,13 +258,11 @@ class BeckhoffCoderBase(PyTangoDevice, Coder):
 
         msg = bitDescription(statval, *self.HW_Statusbits)
         # check for errors first, then warnings, busy and Ok
-        if errval & 0xff:
-            msg = '%s, %s' % (bitDescription(errval & 0xff,
-                                             *self.HW_Errorbits), msg)
         if errval:
-            errnum = errval >> 8
+            errnum = errval
             return status.ERROR, 'ERROR %d: %s, %s' % (
-                errnum, self.HW_Errors.get(errnum, 'Unknown Error'), msg)
+                errnum, self.HW_Errors.get(
+                    errnum, 'Unknown Error {0:d}'.format(errnum)), msg)
 
         for mask, stat in self.HW_Status_map:
             if statval & mask:
@@ -288,13 +286,16 @@ class BeckhoffCoderBase(PyTangoDevice, Coder):
         pass
 
 
-class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
+class BeckhoffMotorBase(PolynomFit, CanReference, BaseSequencer,
+                        BeckhoffCoderBase, Motor):
     """
     Device object for a digital output device via a Beckhoff modbus interface.
     Minimum Parameter Implementation.
     Relevant Parameters need to be configured in the setupfile or in the
     Beckhoff PLC.
     """
+
+    hardware_access = True
 
     # invert bit 13 (referenced) to NOT REFERENCED
     # invert bit 8 (ready) to NOT READY
@@ -308,7 +309,7 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
         (0b0000000010100000, status.BUSY),
         (0b0011111000011011, status.WARN),
     )
-    HW_readable_Params = dict(refPos=2, vMax=3, motorTemp=41,
+    HW_readable_Params = dict(refPos=2, vMax=3, motorTemp=41, potentiometer=60,
                               maxValue=120, minValue=121, firmwareVersion=253)
     HW_writeable_Params = dict(vMax=3)
 
@@ -322,6 +323,9 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
         'motortemp': Param('Motor temperature',
                            type=float, settable=False, userparam=True,
                            volatile=True, unit='degC', fmtstr='%.1f'),
+        'potentiometer': Param('Motor potentiometer calibrated value',
+                               type=float, settable=False, userparam=True,
+                               volatile=True, unit='mm', fmtstr='%f'),
         'minvalue': Param('abs minimum',
                           type=float, settable=False, userparam=True,
                           volatile=True, unit='main'),
@@ -385,16 +389,15 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
 
         for i in range(10):
             self._writeUpperControlWord((index << 8) | 4)
-            for ii in range(1):
-                session.delay(0.15)
-                stat = self._readStatusWord()
-                if stat & (0x8000) != 0:
-                    if i > 0 or ii > 0:
-                        self.log.info('readParameter %d %d', i + 1, ii + 1)
-                    return self._readReturn()
-                if stat & (0x4000) != 0:
-                    raise UsageError(self, 'NACK ReadPar command not '
-                                     'recognized by HW, please retry later...')
+            session.delay(0.15)
+            stat = self._readStatusWord()
+            if (stat & 0x8000) != 0:
+                if i > 0:
+                    self.log.info('readParameter %d', i + 1)
+                return self._readReturn()
+            if (stat & 0x4000) != 0:
+                raise UsageError(self, 'NACK ReadPar command not recognized '
+                                 'by HW, please retry later...')
         raise UsageError(self, 'ReadPar command not recognized by HW, please '
                          'retry later ...')
 
@@ -451,11 +454,12 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
                                      'got a NACK' % index)
         return self._readReturn()
 
-    def _HW_wait_while_BUSY(self):
+    def _HW_wait_while_BUSY(self, timeout=100):
         # XXX timeout?
         # XXX rework !
-        for _ in range(1000):
-            session.delay(0.1)
+        delay = 0.1
+        while timeout > 0:
+            session.delay(delay)
             statval = self._readStatusWord()
             # if motor moving==0 and target ready==1 -> Ok
             if (statval & 0b10100000 == 0) and \
@@ -466,7 +470,8 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
             if statval & (7 << 10):
                 session.delay(0.5)
                 return
-        raise NicosTimeoutError('HW still BUSY after 100s')
+            timeout -= delay
+        raise NicosTimeoutError('HW still BUSY after %d s' % timeout)
 
     def _HW_wait_while_HOT(self):
         sd = 6.5
@@ -483,24 +488,32 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
         raise NicosTimeoutError(
             'HW still HOT after {0:d} min'.format(self.waittime))
 
+    def _check_start_status(self):
+        if hasattr(self, '_HW_readStatusWord'):
+            stat = self._HW_readStatusWord()
+            if stat & (1 << 10):
+                raise MoveError('Limit switch hit by HW')
+            if stat & (1 << 11):
+                raise MoveError('stop issued')
+            if stat & (1 << 12):
+                raise MoveError('Target ignored by HW')
+
     #
     # Nicos methods
     #
 
-    def doStart(self, target):
-        self._HW_wait_while_BUSY()
-        self._HW_wait_while_HOT()
-        # now just go where commanded....
-        self._writeDestination(self._phys2steps(target))
-        self._HW_start()
-        session.delay(0.1)
-        if hasattr(self, '_HW_readStatusWord'):
-            if self._HW_readStatusWord() & (1 << 10):
-                raise MoveError('Limit switch hit by HW')
-            if self._HW_readStatusWord() & (1 << 11):
-                raise MoveError('stop issued')
-            if self._HW_readStatusWord() & (1 << 12):
-                raise MoveError('Target ignored by HW')
+    def _generateSequence(self, target):
+        seq = []
+        seq.append(SeqMethod(self, '_HW_wait_while_BUSY'))
+        seq.append(SeqMethod(self, '_HW_wait_while_HOT'))
+        seq.append(SeqMethod(self, '_writeDestination',
+                   self._phys2steps(target)))
+        seq.append(SeqMethod(self, '_HW_start'))
+        seq.append(SeqSleep(0.1))
+        seq.append(SeqMethod(self, '_check_start_status'))
+        seq.append(SeqMethod(self, '_HW_wait_while_BUSY'))
+        self.log.debug('Seq generated')
+        return seq
 
     @requires(level='admin')
     def doReference(self):
@@ -509,9 +522,11 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
 
     def doStop(self):
         self._HW_stop()
+        BaseSequencer.doStop(self)
 
     def doReset(self):
         self._HW_ACK_Error()
+        BaseSequencer.doReset(self)
 
     def doReadFirmware(self):
         return 'V%.1f' % (0.1 * self._HW_readParameter('firmwareVersion'))
@@ -525,6 +540,9 @@ class BeckhoffMotorBase(CanReference, BeckhoffCoderBase, Motor):
     def doReadMotortemp(self):
         # in degC
         return self._HW_readParameter('motorTemp')
+
+    def doReadPotentiometer(self):
+        return self._fit(self._HW_readParameter('potentiometer'))
 
     def doReadMaxvalue(self):
         return self._steps2phys(self._HW_readParameter('maxValue'))
@@ -606,24 +624,9 @@ class BeckhoffMotorCab1M0x(BeckhoffMotorCab1):
 
 
 class BeckhoffPoti(BeckhoffMotorCab1):
-    parameters = {
-        'poly': Param('Polynomial coefficients in ascending order',
-                      type=nonemptylistof(float), settable=False,
-                      mandatory=True, default=[0, 1]),
-    }
 
     def doRead(self, maxage=0):
-        value = self.doReadEncoderrawvalue()
-        result = 0.
-        for i, ai in enumerate(self.poly):
-            result += ai * (value ** i)
-        return result
-
-
-class BeckhoffTemp(BeckhoffMotorCab1):
-
-    def doRead(self, maxage=0):
-        return self.doReadMotorTemp()
+        return self._fit(self.encoderrawvalue)
 
 
 class BeckhoffMotorCab1M13(BeckhoffMotorCab1):

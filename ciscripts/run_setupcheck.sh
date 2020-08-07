@@ -1,5 +1,5 @@
 #! /bin/bash
-. $NICOSVENV/bin/activate
+. $NICOS3VENV/bin/activate
 
 tools/check-setups -o setupcheck.log -s nicos_*/*/setups nicos_*/*/guiconfig*.py || ((res++)) || /bin/true
 # */

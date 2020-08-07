@@ -28,6 +28,8 @@ This module contains ESS specific Base classes for EPICS.
 
 from __future__ import absolute_import, division, print_function
 
+from kafka.errors import KafkaError
+
 from nicos import session
 from nicos.core import Override, Param
 from nicos.core.errors import ConfigurationError
@@ -56,7 +58,11 @@ class EpicsDeviceEss(EpicsDevice):
         'epicstimeout': Override(userparam=False)
     }
 
+    def _get_record_fields(self):
+        return {}
+
     def doPreinit(self, mode):
+        self._record_fields = self._get_record_fields()
         EpicsDevice.doPreinit(self, mode)
 
         pv_details = {}
@@ -73,8 +79,13 @@ class EpicsDeviceEss(EpicsDevice):
         # Get the forwarded topic and schema for the PV
         try:
             forwarder = session.getDevice('KafkaForwarder')
-            if forwarder is not None:
-                forwarder.add(pv_details)
+        except ConfigurationError:
+            return
+        except KafkaError as ke:
+            session.log.error('KafkaForwarder badly configured: %s', ke)
+            return
+        try:
+            forwarder.add(pv_details)
         except ConfigurationError as error:
             session.log.error("Couldn't add device to KafkaForwarder: %s",
                               error)
@@ -90,12 +101,20 @@ class EpicsReadableEss(EpicsDeviceEss, EpicsReadable):
         'warnlimits': Override(userparam=False)
     }
 
+    def doPreinit(self, mode):
+        EpicsDeviceEss.doPreinit(self, mode)
+        EpicsReadable.doPreinit(self, mode)
+
 
 class EpicsStringReadableEss(EpicsDeviceEss, EpicsStringReadable):
 
     parameter_overrides = {
         'readpv': Override(userparam=False)
     }
+
+    def doPreinit(self, mode):
+        EpicsDeviceEss.doPreinit(self, mode)
+        EpicsStringReadable.doPreinit(self, mode)
 
 
 class EpicsMoveableEss(EpicsDeviceEss, EpicsMoveable):
@@ -110,6 +129,10 @@ class EpicsMoveableEss(EpicsDeviceEss, EpicsMoveable):
         'warnlimits': Override(userparam=False)
     }
 
+    def doPreinit(self, mode):
+        EpicsDeviceEss.doPreinit(self, mode)
+        EpicsMoveable.doPreinit(self, mode)
+
 
 class EpicsAnalogMoveableEss(EpicsDeviceEss, EpicsAnalogMoveable):
 
@@ -122,6 +145,10 @@ class EpicsAnalogMoveableEss(EpicsDeviceEss, EpicsAnalogMoveable):
         'pollinterval': Override(userparam=False),
         'warnlimits': Override(userparam=False)
     }
+
+    def doPreinit(self, mode):
+        EpicsDeviceEss.doPreinit(self, mode)
+        EpicsAnalogMoveable.doPreinit(self, mode)
 
 
 class EpicsDigitalMoveableEss(EpicsDeviceEss, EpicsDigitalMoveable):
@@ -136,6 +163,10 @@ class EpicsDigitalMoveableEss(EpicsDeviceEss, EpicsDigitalMoveable):
         'warnlimits': Override(userparam=False)
     }
 
+    def doPreinit(self, mode):
+        EpicsDeviceEss.doPreinit(self, mode)
+        EpicsDigitalMoveable.doPreinit(self, mode)
+
 
 class EpicsWindowTimeoutDeviceEss(EpicsDeviceEss, EpicsWindowTimeoutDevice):
 
@@ -148,3 +179,7 @@ class EpicsWindowTimeoutDeviceEss(EpicsDeviceEss, EpicsWindowTimeoutDevice):
         'pollinterval': Override(userparam=False),
         'warnlimits': Override(userparam=False)
     }
+
+    def doPreinit(self, mode):
+        EpicsDeviceEss.doPreinit(self, mode)
+        EpicsWindowTimeoutDevice.doPreinit(self, mode)

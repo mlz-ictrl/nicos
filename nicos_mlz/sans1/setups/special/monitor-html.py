@@ -902,5 +902,6 @@ devices = dict(
             Row(_dilato_plot3),
             Row(_live),
         ],
+        noexpired = True,
     ),
 )

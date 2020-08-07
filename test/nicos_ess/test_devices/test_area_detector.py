@@ -29,13 +29,11 @@ Tests for EPICS area detector
 from __future__ import absolute_import, division, print_function
 
 import time
+import unittest
+from unittest.mock import patch
 
 import numpy
 import pytest
-
-pytest.importorskip('kafka')
-pytest.importorskip('graypy')
-
 from epics import PV
 
 from nicos.core import CommunicationError, status
@@ -43,9 +41,13 @@ from nicos.core.constants import LIVE
 
 from nicos_ess.devices.epics.status import ADKafkaStatus
 
-from .utils import create_hs00
+from test.nicos_ess.test_devices.utils import create_hs00
 
-session_setup = "epics_ad_sim_detector"
+pytest.importorskip('kafka')
+pytest.importorskip('graypy')
+
+
+session_setup = "ess_area_detector"
 
 
 class TestEpicsAreaDetector(object):
@@ -513,3 +515,23 @@ class TestEpicsAreaDetectorWithKafkaPlugin(object):
                                        source='test_histo')
         self.image_channel.new_messages_callback(messages)
         assert (raw[max(timestamps)] == self.detector.readArrays(LIVE)).all()
+
+
+class TestEpicsAreaDetector1(unittest.TestCase):
+
+    def create_patch(self, name):
+        patcher = patch(name)
+        thing = patcher.start()
+        self.addCleanup(patcher.stop)
+        return thing
+
+    @pytest.fixture(autouse=True)
+    def initialize_devices(self, session):
+        self.session = session
+        self.mock = self.create_patch('epics.pv.PV')
+        self.detector = session.getDevice('areadetector_base')
+        self.adkafka_plugin = session.getDevice('kafka_plugin')
+
+    def test_record_fields(self):
+        assert hasattr(self.detector, '_record_fields')
+        assert hasattr(self.adkafka_plugin, '_record_fields')

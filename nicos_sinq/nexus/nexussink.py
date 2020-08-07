@@ -77,6 +77,7 @@ class NexusSinkHandler(DataSinkHandler):
     def prepare(self):
         if self.startdataset is None:
             self.startdataset = self.dataset
+            self.h5file = None
             if isinstance(self.startdataset, PointDataset):
                 self.dataset.countertype = 'scan'
             # Assign the counter
@@ -89,7 +90,7 @@ class NexusSinkHandler(DataSinkHandler):
                                           self.sink.subdir)
 
     def begin(self):
-        if self.dataset.settype == POINT and self.dataset.number <= 1:
+        if self.dataset.settype == POINT and not self.h5file:
             self.template = copy_nexus_template(self.sink.loadTemplate())
 
             self.h5file = h5py.File(self.startdataset.filepaths[0], 'w')
@@ -166,8 +167,9 @@ class NexusSinkHandler(DataSinkHandler):
 
     def putValues(self, values):
         h5obj = self.h5file['/']
-        self.updateValues(self.template, h5obj, values)
-        self.h5file.flush()
+        if values:
+            self.updateValues(self.template, h5obj, values)
+            self.h5file.flush()
 
     def resultValues(self, dictdata, h5obj, results):
         for key, val in iteritems(dictdata):
@@ -237,6 +239,7 @@ class NexusSinkHandler(DataSinkHandler):
                     self.make_scan_links(h5obj, self.template, linkpath)
             try:
                 self.h5file.close()
+                self.h5file = None
             except Exception:
                 # This can happen, especially with missing devices. But the
                 # resulting

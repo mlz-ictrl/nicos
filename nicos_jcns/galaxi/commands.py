@@ -33,8 +33,11 @@ from os import path
 
 from nicos import session
 from nicos.commands import basic, device, helparglist, measure, usercommand
+from nicos.core.constants import SCAN
 
-from nicos_jcns.devices.pilatus_det import Detector as PilatusDetector
+from nicos_jcns.devices.pilatus_det import Detector as PilatusDetector, \
+    TIFFImageSink as PilatusSink
+from nicos_jcns.galaxi.devices.mythen_det import ImageSink as MythenSink
 
 
 @usercommand
@@ -84,15 +87,23 @@ def count(n, *detlist, **presets):
     point of the manual scan.
     """
     filename = presets.pop('filename', 'tmpcount.tif')
-    presets['temporary'] = True
-    for _ in range(n):
-        for det in session.experiment.detectors:
-            if isinstance(det, PilatusDetector):
-                det.imagedir = path.join(str(datetime.now().year),
-                                         session.experiment.proposal)
-                det.nextfilename = filename
-        measure.count(*detlist, **presets)
-        session.breakpoint(2)  # allow daemon to stop here
+    galaxi_sinks = {sink: sink.settypes for sink in session.datasinks
+                    if isinstance(sink, (MythenSink, PilatusSink))}
+    try:
+        for sink in galaxi_sinks:
+            # deactivate during count
+            sink._setROParam('settypes', [SCAN])
+        for _ in range(n):
+            for det in session.experiment.detectors:
+                if isinstance(det, PilatusDetector):
+                    det.imagedir = path.join(str(datetime.now().year),
+                                             session.experiment.proposal)
+                    det.nextfilename = filename
+            measure.count(*detlist, **presets)
+            session.breakpoint(2)  # allow daemon to stop here
+    finally:
+        for sink, settypes in galaxi_sinks.items():
+            sink._setROParam('settypes', settypes)
 
 
 @usercommand

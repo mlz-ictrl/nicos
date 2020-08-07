@@ -23,6 +23,17 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 
 watchlist = [
+    dict(
+        condition = 'reactorpower_value < 19.0 or sixfold_value == "closed" or'
+                    ' nl2b_value == "closed"',
+        precondition = 'sixfold_value == "open" and '
+                       'nl2b_value == "open" and '
+                       'reactorpower_value > 19.8',
+        precondtime = 120,
+        gracetime = 120,
+        message = 'Reactor power falling or Sixfold or NL2b closed',
+        type = 'critical',
+    ),
 ]
 
 # The Watchdog device has two lists of notifiers, one for priority 1 ('default')

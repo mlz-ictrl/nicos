@@ -153,5 +153,6 @@ devices = dict(
             Row(_firstcolumn, _secondcolumn, _thirdcolumn),
             Row(_plotcolumn),
         ],
+        noexpired = True,
     ),
 )

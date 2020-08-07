@@ -13,5 +13,6 @@ optic_values = {
     'gisans_scale': scale,
 
     # parameter
-    'precision': 0.05,
+    'precision_ipcsms': 0.01,
+    'precision_beckhoff': 0.05,
 }

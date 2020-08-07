@@ -33,7 +33,7 @@ from os import path
 import numpy as np
 
 from nicos.core.errors import ConfigurationError, ProgrammingError
-from nicos.pycompat import iteritems, string_types, text_type
+from nicos.pycompat import PY2, iteritems, string_types, text_type
 from nicos.utils import parseHostPort, readonlydict, readonlylist
 
 INFO_CATEGORIES = [
@@ -514,17 +514,27 @@ def fixup_conv(conv):
     return conv
 
 
-def string(s=None):
-    """a string"""
-    if s is None:
-        return ''
-    try:
+if PY2:
+    def string(s=None):
+        """a string"""
+        if s is None:
+            return ''
+        try:
+            return str(s)
+        except UnicodeError:
+            # on Python 2, this converts Unicode to our preferred encoding
+            if isinstance(s, text_type):
+                return s.encode('utf-8')
+            raise
+else:
+    def string(s=None):
+        """a string"""
+        if s is None:
+            return ''
+        if isinstance(s, bytes):
+            # str(s) would result in the string "b'...'"
+            return s.decode('utf-8')
         return str(s)
-    except UnicodeError:
-        # on Python 2, this converts Unicode to our preferred encoding
-        if isinstance(s, text_type):
-            return s.encode('utf-8')
-        raise
 
 
 class listof(object):
@@ -561,7 +571,7 @@ def nonemptystring(s=Ellipsis):
     if s is Ellipsis:
         # used for setting the internal default if no default is given
         return None
-    if not (s and isinstance(s, string_types) ):
+    if not (s and isinstance(s, string_types)):
         raise ValueError('must be a non-empty string!')
     return s
 
@@ -776,7 +786,7 @@ def nicosdev(val=None):
     """a valid NICOS device name"""
     if not val:
         return ''
-    val = str(val)
+    val = string(val)
     if not nicosdev_re.match(val):
         raise ValueError('%r is not a valid NICOS device name' % val)
     return val
@@ -789,7 +799,7 @@ def tacodev(val=None):
     """a valid taco device"""
     if val in ('', None):
         return ''
-    val = str(val)
+    val = string(val)
     if not tacodev_re.match(val):
         raise ValueError('%r is not a valid Taco device name' % val)
     return val
@@ -807,7 +817,7 @@ def tangodev(val=None):
     """a valid tango device"""
     if val in ('', None):
         return ''
-    val = str(val)
+    val = string(val)
     if not val.startswith('tango://'):
         raise ValueError('%r should start with "tango://"' % val)
     if not tangodev_re.match(val):
@@ -824,7 +834,7 @@ def pvname(val=None):
     if val in ('', None):
         return ''
 
-    val = str(val)
+    val = string(val)
     if not pvname_re.match(val):
         raise ValueError('%r is not a valid PV name' % val)
     return val
@@ -844,7 +854,9 @@ def mailaddress(val=None):
     """a valid mail address"""
     if val in ('', None):
         return ''
-    val = text_type(val)
+    val = string(val)
+    if PY2:
+        val = val.decode('utf-8')
     parts = val.split('@')
     parts[-1] = parts[-1].encode('idna').decode('ascii')
     val = '@'.join(parts)
@@ -858,7 +870,7 @@ def mailaddress(val=None):
 
 def absolute_path(val=path.sep):
     """an absolute file path"""
-    val = str(val)
+    val = string(val)
     if path.isabs(val):
         return val
     raise ValueError('%r is not a valid absolute path (should start with %r)' %
@@ -867,7 +879,7 @@ def absolute_path(val=path.sep):
 
 def relative_path(val=''):
     """a relative path, may not use ../../.. tricks"""
-    val = path.normpath(str(val))
+    val = path.normpath(string(val))
     if path.isabs(val):
         raise ValueError('%r is not a valid relative path (should NOT start '
                          'with %r)' % (val, path.sep))
@@ -884,7 +896,7 @@ def expanded_path(val=''):
 
 def subdir(val=''):
     """a relative subdir (a string NOT containing any path.sep)"""
-    val = str(val)
+    val = string(val)
     for sep in [path.sep, '\\', '/']:
         if sep in val:
             raise ValueError('%r is not a valid subdirectory (contains a %r)' %
@@ -915,7 +927,7 @@ def ipv4(val='0.0.0.0'):
     """a IP v4 address"""
     if val in ('', None):
         return ''
-    val = str(val)
+    val = string(val)
     res = ipv4_re.match(val)
     if not res or res.group() != res.string:
         raise ValueError('%r is not a valid IPv4 address' % val)
