@@ -33,7 +33,7 @@ from os import path
 import numpy as np
 
 from nicos.core.errors import ConfigurationError, ProgrammingError
-from nicos.pycompat import PY2, iteritems, string_types, text_type
+from nicos.pycompat import iteritems, string_types
 from nicos.utils import parseHostPort, readonlydict, readonlylist
 
 INFO_CATEGORIES = [
@@ -156,7 +156,7 @@ class Param(object):
                                    "exclusively.")
 
         if userparam is None:  # implicit settings
-            self.userparam = False if self.internal else True
+            self.userparam = not self.internal
         else:
             self.userparam = userparam
 
@@ -506,35 +506,22 @@ def convdoc(conv):
 def fixup_conv(conv):
     """Fix-up a single converter type.
 
-    Currently this converts "str" to "string" which is a version that supports
-    Unicode strings by encoding to str on Python 2.
+    This changes `str` to `string`, a converter that decodes bytes instead of
+    converting them using `repr`.
     """
     if conv is str:
         return string
     return conv
 
 
-if PY2:
-    def string(s=None):
-        """a string"""
-        if s is None:
-            return ''
-        try:
-            return str(s)
-        except UnicodeError:
-            # on Python 2, this converts Unicode to our preferred encoding
-            if isinstance(s, text_type):
-                return s.encode('utf-8')
-            raise
-else:
-    def string(s=None):
-        """a string"""
-        if s is None:
-            return ''
-        if isinstance(s, bytes):
-            # str(s) would result in the string "b'...'"
-            return s.decode('utf-8')
-        return str(s)
+def string(s=None):
+    """a string"""
+    if s is None:
+        return ''
+    if isinstance(s, bytes):
+        # str(s) would result in the string "b'...'"
+        return s.decode('utf-8')
+    return str(s)
 
 
 class listof(object):
@@ -855,8 +842,6 @@ def mailaddress(val=None):
     if val in ('', None):
         return ''
     val = string(val)
-    if PY2:
-        val = val.decode('utf-8')
     parts = val.split('@')
     parts[-1] = parts[-1].encode('idna').decode('ascii')
     val = '@'.join(parts)

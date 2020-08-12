@@ -26,23 +26,21 @@
 
 from __future__ import absolute_import, division, print_function
 
-import sys
 import ast
 import linecache
 import logging
 import re
+import sys
 import time
 from threading import Event, Lock
 
 from nicos import session
-from nicos.pycompat import PY2, text_type
+from nicos.pycompat import text_type
 from nicos.utils import fixupScript
 from nicos.utils.loggers import ACTION, recordToMessage
 
 TIMESTAMP_FMT = '%Y-%m-%d %H:%M:%S'
 
-# compile flag to activate new division (remove after dropping py2)
-CO_DIVISION = 0x2000 if PY2 else 0
 
 # -- General utilities --------------------------------------------------------
 
@@ -79,7 +77,7 @@ def parseScript(script, name=None, format=None, compilecode=True):
         def compiler(src):
             if not isinstance(src, text_type):
                 src = src.decode('utf-8')
-            return compile(src + '\n', '<script>', 'single', CO_DIVISION)
+            return compile(src + '\n', '<script>', 'single')
     else:
         compiler = lambda src: src
     if '\n' not in script:
@@ -124,7 +122,7 @@ def splitBlocks(text):
         new_mod.body = [toplevel]
         # do not change the name (2nd parameter); the controller
         # depends on that
-        codelist.append(compile(new_mod, '<script>', 'exec', CO_DIVISION))
+        codelist.append(compile(new_mod, '<script>', 'exec'))
     return codelist, mod.body
 
 

@@ -31,20 +31,20 @@ import errno
 import hashlib
 import socket
 import threading
+from base64 import b64decode, b64encode
 from time import time as currenttime
 
 from nicos.clients.proto.classic import ClientTransport
 from nicos.protocols.daemon import ACTIVE_COMMANDS, ProtocolError
 from nicos.protocols.daemon.classic import COMPATIBLE_PROTO_VERSIONS, \
     PROTO_VERSION
-from nicos.pycompat import PY2, b64decode, b64encode, to_utf8
+from nicos.pycompat import to_utf8
 from nicos.utils import createThread
 
 try:
     import rsa  # pylint: disable=import-error
 except ImportError:
     rsa = None
-
 
 
 BUFSIZE = 8192
@@ -153,7 +153,7 @@ class NicosClient(object):
                 encodedkey = banner.get('rsakey', None)
                 if encodedkey is None:
                     raise ProtocolError('rsa requested, but rsakey missing in banner')
-                if not PY2 and not isinstance(encodedkey, bytes):
+                if not isinstance(encodedkey, bytes):
                     encodedkey = bytes(encodedkey, 'utf-8')
                 pubkey = rsa.PublicKey.load_pkcs1(b64decode(encodedkey))
                 password = rsa.encrypt(to_utf8(password), pubkey)
@@ -295,8 +295,7 @@ class NicosClient(object):
                 if not success:
                     if not kwds.get('noerror', False):
                         raise ErrorResponse(data)
-                    else:
-                        return kwds.get('default')
+                    return kwds.get('default')
                 return data
         except (Exception, KeyboardInterrupt) as err:
             self.handle_error(err)

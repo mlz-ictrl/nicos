@@ -43,14 +43,10 @@ from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
     SetupName, String, spmsyntax
 from nicos.devices.notifiers import Mailer
-from nicos.pycompat import PY2, builtins, exec_, iteritems, string_types
+from nicos.pycompat import builtins, exec_, iteritems, string_types
 from nicos.utils import fixupScript, formatArgs, formatDuration, printTable, \
     reexecProcess, resolveClasses
 from nicos.utils.timer import Timer
-
-# compile flag to activate new division (remove after dropping py2)
-CO_DIVISION = 0x2000 if PY2 else 0
-
 
 __all__ = [
     'help', 'dir', 'ListCommands', 'sleep',
@@ -704,7 +700,7 @@ def _RunScript(filename, statdevices, debug=False):
                              filename)
 
         def compiler(src):
-            return compile(src + '\n', fn, 'exec', CO_DIVISION)
+            return compile(src + '\n', fn, 'exec')
         compiled = session.scriptHandler(code, fn, compiler)
         with _ScriptScope(path.basename(fn), code):
             try:

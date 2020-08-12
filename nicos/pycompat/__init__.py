@@ -22,14 +22,15 @@
 #
 # *****************************************************************************
 
-"""Python 2/3 compatibility."""
+"""Python compatibility."""
 
 from __future__ import absolute_import, division, print_function
 
 import threading
+from io import BufferedWriter, FileIO, TextIOWrapper
 
 # For consistency import everything from "six" here.
-from six import PY2, BytesIO, StringIO, add_metaclass, binary_type, exec_, \
+from six import BytesIO, StringIO, add_metaclass, binary_type, exec_, \
     integer_types, iteritems, iterkeys, itervalues, reraise, string_types, \
     text_type
 # Pylint cannot handle submodules created by "six".  Import them here to
@@ -50,116 +51,62 @@ try:
 except ImportError:
     from cgi import escape as escape_html
 
-# base64 encode/decode
-try:
-    from base64 import encodebytes as b64encode  # pylint: disable=import-error
-    from base64 import decodebytes as b64decode  # pylint: disable=import-error
-except ImportError:
-    from base64 import encodestring as b64encode
-    from base64 import decodestring as b64decode
-
 # missing dict helpers to get a list of items/values
+def listitems(d):
+    return list(d.items())
 
-if PY2:
-    listitems = dict.items
-    listvalues = dict.values
-else:
-    def listitems(d):
-        return list(d.items())
-    def listvalues(d):
-        return list(d.values())
+
+def listvalues(d):
+    return list(d.values())
+
 
 # the class is renamed in addition to the module
-
-if PY2:
-    ConfigParser = configparser.SafeConfigParser
-else:
-    ConfigParser = configparser.ConfigParser
+ConfigParser = configparser.ConfigParser
 
 # all builtin number types (useful for isinstance checks)
 
 number_types = integer_types + (float,)
 
+
+# create file like class for py3
+class File(BufferedWriter):
+    def __init__(self, filepath, openmode):
+        self._raw = FileIO(filepath, openmode)
+        BufferedWriter.__init__(self, self._raw)
+
+
 # missing str/bytes helpers
+# on Py3, UTF-8 is the default encoding already
+to_utf8 = str.encode
+to_encoding = str.encode
+from_utf8 = bytes.decode
+from_encoding = bytes.decode
 
-if PY2:
-    # pylint: disable=unicode-builtin
-    # use standard file and buffer for Py2
-    File = file
-    memory_buffer = buffer
 
-    # encode str/unicode (Py2) or str (Py3) to bytes, using UTF-8
-    def to_utf8(s):
-        if isinstance(s, str):
-            return s
-        return s.encode('utf-8')  # will complain for any other type
-    # encode str/unicode (Py2) or str (Py3) to bytes, using selected encoding
-    def to_encoding(s, encoding, errors='strict'):
-        if isinstance(s, str):
-            return s
-        return s.encode(encoding, errors)
-    def from_utf8(s):
-        if isinstance(s, unicode):
-            return s
-        return s.decode('utf-8')
-    from_maybe_utf8 = from_utf8
-    def from_encoding(s, encoding, errors='strict'):
-        if isinstance(s, unicode):
-            return s
-        return s.decode(encoding, errors)
-    def srepr(u):
-        """repr() without 'u' prefix for Unicode strings."""
-        if isinstance(u, unicode):
-            return repr(u.encode('unicode-escape'))
-        return repr(u)
-    def to_ascii_escaped(s):
-        """Encode to ASCII with any non-printables backslash-escaped."""
-        if isinstance(s, str):
-            s = s.decode('ascii', 'ignore')
-        return s.encode('unicode-escape')
-    to_ascii_string = to_ascii_escaped
-    # on Py2, io.TextIOWrapper exists but only accepts Unicode objects
-    class TextIOWrapper(object):
-        def __init__(self, fp):
-            self.fp = fp
-        def write(self, s):
-            if isinstance(s, unicode):
-                s = s.encode('utf-8')
-            self.fp.write(s)
-        def detach(self):
-            pass
-        def __getattr__(self, att):
-            return getattr(self.fp, att)
-else:
-    from io import FileIO, BufferedWriter
-    # create file like class for py3
-    class File(BufferedWriter):
-        def __init__(self, filepath, openmode):
-            self._raw = FileIO(filepath, openmode)
-            BufferedWriter.__init__(self, self._raw)
+def from_maybe_utf8(s):
+    if isinstance(s, str):
+        return s
+    return s.decode()
 
-    # on Py3, UTF-8 is the default encoding already
-    to_utf8 = str.encode
-    to_encoding = str.encode
-    from_utf8 = bytes.decode
-    from_encoding = bytes.decode
-    def from_maybe_utf8(s):
-        if isinstance(s, str):
-            return s
-        return s.decode()
-    srepr = repr
-    def memory_buffer(obj):
-        # For numpy arrays, memoryview() keeps info about the element size and
-        # shape, so that len() gives unexpected results compared to buffer().
-        # Casting to a pure byte view gets rid of that.
-        return memoryview(obj).cast('B')
-    def to_ascii_escaped(s):
-        if isinstance(s, bytes):
-            s = s.decode('ascii', 'ignore')
-        return s.encode('unicode-escape')
-    def to_ascii_string(s):
-        return s.encode('unicode-escape').decode('ascii')
-    from io import TextIOWrapper
+
+srepr = repr
+
+
+def memory_buffer(obj):
+    # For numpy arrays, memoryview() keeps info about the element size and
+    # shape, so that len() gives unexpected results compared to buffer().
+    # Casting to a pure byte view gets rid of that.
+    return memoryview(obj).cast('B')
+
+
+def to_ascii_escaped(s):
+    if isinstance(s, bytes):
+        s = s.decode('ascii', 'ignore')
+    return s.encode('unicode-escape')
+
+
+def to_ascii_string(s):
+    return s.encode('unicode-escape').decode('ascii')
 
 
 try:
@@ -177,5 +124,5 @@ __all__ = [
     'string_types', 'integer_types', 'text_type', 'binary_type',
     'number_types',
     'iteritems', 'itervalues', 'iterkeys', 'listitems', 'listvalues',
-    'get_thread_id', 'escape_html', 'b64encode', 'b64decode',
+    'get_thread_id', 'escape_html',
 ]

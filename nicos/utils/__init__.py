@@ -54,7 +54,7 @@ from time import localtime, mktime, sleep, strftime, strptime, \
 # session dependent nicos utilities should be implemented in nicos.core.utils
 from nicos import config, get_custom_version, nicos_version
 # pylint: disable=redefined-builtin
-from nicos.pycompat import PY2, iteritems, string_types, text_type, \
+from nicos.pycompat import iteritems, string_types, text_type, \
     xrange as range, zip
 
 try:
@@ -1627,7 +1627,6 @@ def parseDuration(inputvalue, allownegative=False):
     elif invalue.startswith('+'):
         invalue = invalue.lstrip('+')
 
-
     try:
         val = float(invalue)
     except ValueError:
@@ -1660,12 +1659,6 @@ def formatArgs(obj, strip_self=False):
 
     If *strip_self* is true, strip the "self" argument if present.
     """
-    if PY2:
-        argspec = inspect.getargspec(obj)
-        if strip_self and argspec[0] and argspec[0][0] == 'self':
-            del argspec[0][0]
-        return inspect.formatargspec(*argspec)
-
     sig = inspect.signature(obj)
     if strip_self and 'self' in sig.parameters:
         sig = sig.replace(parameters=[p for p in sig.parameters.values()
@@ -1675,10 +1668,6 @@ def formatArgs(obj, strip_self=False):
 
 def getNumArgs(obj):
     """Return the number of "normal" arguments a callable object takes."""
-    if PY2:
-        argspec = inspect.getargspec(obj)
-        return len(argspec[0])
-
     sig = inspect.signature(obj)
     return sum(1 for p in sig.parameters.values()
                if p.kind == inspect.Parameter.POSITIONAL_ONLY or
