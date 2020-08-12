@@ -64,11 +64,6 @@ class CommandPanel(DefaultCommandPanel):
     def on_cmdBtn_clicked(self):
         self.toggle_frame()
 
-    @pyqtSlot()
-    def on_runBtn_clicked(self):
-        DefaultCommandPanel.on_runBtn_clicked(self)
-        self.commandInput.clear()
-
     def on_commandInput_execRequested(self, script, action):
         DefaultCommandPanel.on_commandInput_execRequested(self, script, action)
         self.commandInput.clear()
