@@ -235,8 +235,8 @@ class ConfigEditDialog(QDialog):
         self.frm.apHBox.setText('%.2f' % rv[3])
 
 
-class KWSSamplePanel(Panel):
-    panelName = 'KWS sample setup'
+class LokiSamplePanel(Panel):
+    panelName = 'LoKI sample setup'
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
@@ -262,7 +262,7 @@ class KWSSamplePanel(Panel):
         self.dirty = False
         self.filename = None
         self.holder_info = options.get('holder_info', [])
-        self.instrument = options.get('instrument', 'kws1')
+        self.instrument = options.get('instrument', 'loki')
 
     @pyqtSlot()
     def on_actionEmpty_triggered(self):

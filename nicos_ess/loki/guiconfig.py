@@ -12,7 +12,7 @@ main_window = docked(
         ),
         (
             "Samples",
-            vsplit(panel("nicos_ess.loki.gui.sampleconf.KWSSamplePanel")),  # vsplit
+            vsplit(panel("nicos_ess.loki.gui.sampleconf.LokiSamplePanel")),  # vsplit
         ),
         ("  ", panel("nicos_ess.gui.panels.empty.EmptyPanel")),
         (
