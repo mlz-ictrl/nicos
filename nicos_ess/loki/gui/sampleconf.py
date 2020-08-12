@@ -119,7 +119,8 @@ class ConfigEditDialog(QDialog):
         name = self.frm.nameBox.text()
         if name in [config['name'] for config in self.configs]:
             QMessageBox.warning(self, 'Error', 'This sample name is already '
-                                'used, please use a different one.')
+                                               'used, please use a different '
+                                               'one.')
             self.frm.nameBox.setFocus()
             return
         for box in [self.frm.offsetBox, self.frm.thickBox, self.frm.factorBox,
@@ -127,20 +128,21 @@ class ConfigEditDialog(QDialog):
                     self.frm.apHBox]:
             if not box.text():
                 QMessageBox.warning(self, 'Error', 'Please enter valid values '
-                                    'for all input fields.')
+                                                   'for all input fields.')
                 return
         for i in range(self.frm.posTbl.rowCount()):
             devname = self.frm.posTbl.item(i, 0).text()
             devpos = self.frm.posTbl.item(i, 1).text()
             if not devname or devname.startswith('<'):
                 QMessageBox.warning(self, 'Error', '%r is not a valid device '
-                                    'name.' % devname)
+                                                   'name.' % devname)
                 return
             try:
                 devpos = float(devpos)
             except ValueError:
                 QMessageBox.warning(self, 'Error', '%r is not a valid position'
-                                    ' for device %r.' % (devpos, devname))
+                                                   ' for device %r.' % (
+                                    devpos, devname))
                 return
         self.accept()
 
@@ -170,6 +172,7 @@ class ConfigEditDialog(QDialog):
             dlg.widget = typedvalue.DeviceValueEdit(dlg, dev=devname)
             dlg.widget.setClient(self.client)
             dlg.valueFrame.layout().insertWidget(0, dlg.widget)
+
         dlg.devBox.currentIndexChanged.connect(callback)
         dlg.devBox.addItems(devlist)
         if not dlg.exec_():
@@ -286,8 +289,8 @@ class KWSSamplePanel(Panel):
                 dlg._info = dlg.sender()._info
                 ax1, ax2 = dlg._info[2], dlg._info[4]
                 for ax, lbl, box, revbox in [
-                        (ax1, dlg.ax1Lbl, dlg.ax1Box, dlg.ax1RevBox),
-                        (ax2, dlg.ax2Lbl, dlg.ax2Box, None)
+                    (ax1, dlg.ax1Lbl, dlg.ax1Box, dlg.ax1RevBox),
+                    (ax2, dlg.ax2Lbl, dlg.ax2Box, None)
                 ]:
                     if ax:
                         lbl.setText(ax)
@@ -338,13 +341,13 @@ class KWSSamplePanel(Panel):
                 if ax2:
                     position[ax2] = round(sax2 + i * dax2, 1)
                 config = dict(
-                    name = str(n),
-                    comment = '',
-                    detoffset = -335.0,
-                    thickness = 1.0,
-                    timefactor = 1.0,
-                    aperture = (0, 0, 10, 10),
-                    position = position,
+                    name=str(n),
+                    comment='',
+                    detoffset=-335.0,
+                    thickness=1.0,
+                    timefactor=1.0,
+                    aperture=(0, 0, 10, 10),
+                    position=position,
                 )
                 self.configs.append(config)
         firstitem = None
@@ -410,7 +413,8 @@ class KWSSamplePanel(Panel):
         if self.dirty:
             initialdir = self.client.eval('session.experiment.scriptpath', '')
             fn = QFileDialog.getSaveFileName(self, 'Save sample file',
-                                             initialdir, 'Sample files (*.py)')[0]
+                                             initialdir, 'Sample files (*.py)')[
+                0]
             if not fn:
                 return False
             if not fn.endswith('.py'):
@@ -537,7 +541,7 @@ class KWSSamplePanel(Panel):
         self._copy_key('timefactor')
 
     def _generate(self, filename):
-        script = ['# KWS sample file for NICOS\n',
+        script = ['# LoKI sample file for NICOS\n',
                   '# Written: %s\n\n' % time.asctime(),
                   'ClearSamples()\n']
         for (i, config) in enumerate(self.configs, start=1):
