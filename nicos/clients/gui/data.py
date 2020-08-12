@@ -130,7 +130,7 @@ class DataHandler(QObject):
         QApplication.processEvents()
         datasets = self.client.ask('getdataset', '*', default=[])
         self.bulk_adding = True
-        for dataset in datasets:
+        for dataset in (datasets or []):
             try:
                 self.on_client_dataset(dataset)
             except Exception:
