@@ -507,29 +507,6 @@ class KWSSamplePanel(Panel):
         for config in self.configs:
             config[key] = template
 
-    @pyqtSlot()
-    def on_actionCopyAperture_triggered(self):
-        self._copy_key('aperture')
-
-    @pyqtSlot()
-    def on_actionCopyDetOffset_triggered(self):
-        self._copy_key('detoffset')
-
-    @pyqtSlot()
-    def on_actionCopyThickness_triggered(self):
-        self._copy_key('thickness')
-
-    @pyqtSlot()
-    def on_actionCopyTimeFactor_triggered(self):
-        self._copy_key('timefactor')
-
-    @pyqtSlot()
-    def on_actionCopyAll_triggered(self):
-        self._copy_key('aperture')
-        self._copy_key('detoffset')
-        self._copy_key('thickness')
-        self._copy_key('timefactor')
-
     def _generate(self, filename):
         script = ['# KWS sample file for NICOS\n',
                   '# Written: %s\n\n' % time.asctime(),
