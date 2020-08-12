@@ -30,6 +30,9 @@ from socket import gethostname
 from time import time as currenttime
 
 import pytest
+
+pytest.importorskip('streaming_data_types')
+
 from streaming_data_types.logdata_f142 import serialise_f142
 from streaming_data_types.status_x5f2 import serialise_x5f2
 
