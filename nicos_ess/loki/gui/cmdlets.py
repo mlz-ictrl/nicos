@@ -190,7 +190,7 @@ class MeasureTable(Cmdlet):
 
             items.append(f"\n##### Measurement {len(out) + 1}")
             if sample:
-                items.append(f'# set_sample("{sample}")')
+                items.append(f'# SelectSample("{sample}")')
             if devices_args:
                 args = ", ".join(devices_args)
                 items.append(f"maw({args})")
