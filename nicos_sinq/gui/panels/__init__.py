@@ -21,7 +21,3 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
-
-from os import path
-
-uipath = path.dirname(__file__)
