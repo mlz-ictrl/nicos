@@ -242,13 +242,7 @@ class KWSSamplePanel(Panel):
         self.frame.setLayout(QVBoxLayout())
 
         menu = QMenu(self)
-        menu.addAction(self.actionCopyAperture)
-        menu.addAction(self.actionCopyDetOffset)
-        menu.addAction(self.actionCopyThickness)
-        menu.addAction(self.actionCopyTimeFactor)
         menu.addSeparator()
-        menu.addAction(self.actionCopyAll)
-        self.copyBtn.setMenu(menu)
 
         menu = QMenu(self)
         menu.addAction(self.actionEmpty)
