@@ -54,7 +54,7 @@ from nicos.guisupport.qt import PYQT_VERSION_STR, QT_VERSION_STR, QAction, \
     QTimer, QWebView, pyqtSignal, pyqtSlot
 from nicos.protocols.daemon import BREAK_NOW, STATUS_IDLE, STATUS_IDLEEXC, \
     STATUS_INBREAK
-from nicos.pycompat import iteritems, listvalues, text_type
+from nicos.pycompat import iteritems, listvalues
 from nicos.utils import checkSetupSpec, importString
 
 try:
@@ -368,11 +368,11 @@ class MainWindow(DlgUtils, QMainWindow):
 
     def loadAuxWindows(self, settings):
         open_wintypes = settings.value('auxwindows') or []
-        if isinstance(open_wintypes, text_type):
+        if isinstance(open_wintypes, str):
             open_wintypes = [int(w) for w in open_wintypes.split(',')]
 
         for wtype in open_wintypes:
-            if isinstance(wtype, text_type):
+            if isinstance(wtype, str):
                 wtype = int(wtype)
             self.createWindow(wtype)
 

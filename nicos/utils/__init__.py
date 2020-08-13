@@ -53,7 +53,7 @@ from time import localtime, mktime, sleep, strftime, strptime, \
 # do **not** import nicos.session here
 # session dependent nicos utilities should be implemented in nicos.core.utils
 from nicos import config, get_custom_version, nicos_version
-from nicos.pycompat import iteritems, string_types, text_type
+from nicos.pycompat import iteritems, string_types
 
 try:
     import pwd
@@ -1288,7 +1288,7 @@ def syncFile(fileObj):
 
 def decodeAny(string):
     """Try to decode the string from UTF-8 or latin9 encoding."""
-    if isinstance(string, text_type):
+    if isinstance(string, str):
         return string
     try:
         return string.decode('utf-8')

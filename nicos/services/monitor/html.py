@@ -42,7 +42,7 @@ from lttb import lttb
 from nicos.core import Param
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, WARN
-from nicos.pycompat import from_utf8, string_types, text_type, to_utf8
+from nicos.pycompat import from_utf8, string_types, to_utf8
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.services.monitor.icon import nicos_icon
 from nicos.utils import checkSetupSpec, extractKeyAndIndex, safeWriteFile
@@ -165,8 +165,7 @@ class Field(object):
                 keymap.setdefault(key, []).append(self)
 
 
-class Static(text_type):
-
+class Static(str):
     def getHTML(self):
         return self
 

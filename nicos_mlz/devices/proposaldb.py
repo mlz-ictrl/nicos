@@ -33,7 +33,7 @@ from os import path
 
 from nicos import session
 from nicos.core import USER, ConfigurationError, InvalidValueError, User
-from nicos.pycompat import from_maybe_utf8, text_type, to_utf8
+from nicos.pycompat import from_maybe_utf8, to_utf8
 from nicos.services.daemon.auth import AuthenticationError, \
     Authenticator as BaseAuthenticator
 from nicos.utils import readFile
@@ -169,7 +169,7 @@ def queryProposal(pnumber, instrument=None):
             info[key] = value
     # convert all values to utf-8
     for k in info:
-        info[k] = text_type(info[k]).encode('utf-8')
+        info[k] = str(info[k]).encode('utf-8')
     return info.pop('instrument', 'None'), info
 
 

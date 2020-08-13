@@ -35,7 +35,7 @@ from logging import DEBUG, ERROR, INFO, WARNING, Formatter, Handler, Logger, \
 from os import path
 
 from nicos import session
-from nicos.pycompat import binary_type, from_maybe_utf8, text_type
+from nicos.pycompat import binary_type, from_maybe_utf8
 from nicos.utils import colorize, formatExtendedTraceback
 
 LOGFMT = '%(asctime)s : %(levelname)-7s : %(name)s: %(message)s'
@@ -90,13 +90,13 @@ class NicosLogger(Logger):
             if isinstance(msg, binary_type):
                 msg = from_maybe_utf8(msg)
             else:
-                msg = text_type(msg)
+                msg = str(msg)
             args = msgs[1:]
         if extramsgs:
             if msg:
                 msg += ' '
             msg += ' '.join(from_maybe_utf8(msg) if isinstance(msg, binary_type)
-                            else text_type(msg) for msg in extramsgs)
+                            else str(msg) for msg in extramsgs)
         return msg, args, exc_info
 
     def error(self, *msgs, **kwds):

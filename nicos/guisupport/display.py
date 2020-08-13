@@ -41,7 +41,7 @@ from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.utils import setBackgroundColor, setBothColors, \
     setForegroundColor
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.pycompat import from_maybe_utf8, text_type
+from nicos.pycompat import from_maybe_utf8
 from nicos.utils import findResource
 
 defaultColorScheme = {
@@ -370,7 +370,7 @@ class ValueDisplay(NicosWidget, QWidget):
     def update_namelabel(self):
         name = self.props['name'] or self.props['dev'] or self.props['key']
         self.namelabel.setText(
-            html.escape(text_type(name)) +
+            html.escape(str(name)) +
             ' <font color="#888888">%s</font><font color="#0000ff">%s</font> '
             % (html.escape(self.props['unit'].strip()), self._isfixed))
 

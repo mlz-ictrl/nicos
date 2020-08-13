@@ -32,7 +32,6 @@ from time import time as currenttime
 from nicos import session
 from nicos.core import ADMIN, AccessError, Device, Override, Param, \
     floatrange, listof, mailaddress, oneof, tupleof, usermethod
-from nicos.pycompat import text_type
 from nicos.utils import createSubprocess, createThread
 from nicos.utils.emails import sendMail
 
@@ -66,7 +65,6 @@ class Notifier(Device):
                             settable=True),
         'subject':    Param('Subject prefix', type=str, default='NICOS'),
     }
-
 
     parameter_overrides = {
         'lowlevel': Override(default=True, mandatory=False),
@@ -206,7 +204,7 @@ class SMSer(Notifier):
 
     def _transcode(self, string):
         """Re-encode UTF-8 string into SMS encoding (GSM 03.38)."""
-        if not isinstance(string, text_type):
+        if not isinstance(string, str):
             string = string.decode('utf-8')
         return ''.join(GSM0338_MAP.get(c, '') for c in string)
 
