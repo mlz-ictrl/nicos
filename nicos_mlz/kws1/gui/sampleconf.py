@@ -27,6 +27,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import builtins
 import math
 import time
 
@@ -37,7 +38,7 @@ from nicos.guisupport.qt import QDialog, QDialogButtonBox, QFileDialog, \
     QFrame, QLineEdit, QListWidgetItem, QMenu, QMessageBox, QRadioButton, \
     QTableWidgetItem, QVBoxLayout, pyqtSlot
 from nicos.guisupport.utils import DoubleValidator
-from nicos.pycompat import builtins, exec_, iteritems
+from nicos.pycompat import exec_, iteritems
 from nicos.utils import findResource
 
 SAMPLE_KEYS = ['aperture', 'position', 'timefactor',

@@ -26,6 +26,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import builtins
 import keyword
 import os
 import re
@@ -37,7 +38,7 @@ from nicos import session
 from nicos.core.constants import MAINTENANCE, MASTER, SIMULATION, SLAVE
 from nicos.core.device import Device, DeviceAlias
 from nicos.core.errors import UsageError
-from nicos.pycompat import builtins, iteritems
+from nicos.pycompat import iteritems
 
 try:
     import readline

@@ -26,6 +26,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import builtins
 import sys
 import threading
 
@@ -34,7 +35,7 @@ from nicos.core.sessions.simple import NoninteractiveSession
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.devices.cacheclient import DaemonCacheClient
 from nicos.protocols.daemon import BREAK_AFTER_STEP
-from nicos.pycompat import builtins, exec_, string_types
+from nicos.pycompat import exec_, string_types
 from nicos.services.daemon.htmlhelp import HelpGenerator
 from nicos.services.daemon.pyctl import ControlStop
 from nicos.utils.loggers import INFO

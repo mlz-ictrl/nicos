@@ -27,6 +27,7 @@
 from __future__ import absolute_import, division, print_function
 
 import ast
+import builtins
 import sys
 import time
 
@@ -43,7 +44,7 @@ from nicos.core.spm import AnyDev, Bare, Dev, DevParam, Multi, String, \
     spmsyntax
 from nicos.core.status import BUSY, OK
 from nicos.devices.abstract import CanReference, MappedMoveable
-from nicos.pycompat import builtins, iteritems, itervalues, number_types, \
+from nicos.pycompat import iteritems, itervalues, number_types, \
     reraise, string_types
 from nicos.utils import createThread, parseDateString, printTable, tupelize
 from nicos.utils.timer import Timer

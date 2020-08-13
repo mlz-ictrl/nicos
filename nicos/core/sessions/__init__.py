@@ -32,6 +32,7 @@ Only for internal usage by functions and methods.
 
 from __future__ import absolute_import, division, print_function
 
+import builtins
 import copy
 import inspect
 import logging
@@ -61,7 +62,7 @@ from nicos.devices.cacheclient import CacheClient, CacheLockError, \
 from nicos.devices.instrument import Instrument
 from nicos.devices.notifiers import Notifier
 from nicos.protocols.cache import FLAG_NO_STORE
-from nicos.pycompat import builtins, exec_, iteritems, itervalues, \
+from nicos.pycompat import exec_, iteritems, itervalues, \
     listvalues, string_types
 from nicos.utils import fixupScript, formatArgs, formatDocstring, \
     formatScriptError, which

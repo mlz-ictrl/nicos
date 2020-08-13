@@ -26,6 +26,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import builtins
 import io
 import os
 import sys
@@ -43,7 +44,7 @@ from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
     SetupName, String, spmsyntax
 from nicos.devices.notifiers import Mailer
-from nicos.pycompat import builtins, exec_, iteritems, string_types
+from nicos.pycompat import exec_, iteritems, string_types
 from nicos.utils import fixupScript, formatArgs, formatDuration, printTable, \
     reexecProcess, resolveClasses
 from nicos.utils.timer import Timer

@@ -32,10 +32,6 @@ from io import BufferedWriter, FileIO, TextIOWrapper
 from six import BytesIO, StringIO, add_metaclass, binary_type, exec_, \
     integer_types, iteritems, iterkeys, itervalues, reraise, string_types, \
     text_type
-# Pylint cannot handle submodules created by "six".  Import them here to
-# ignore the Pylint errors only once.
-# pylint: disable=import-error, redefined-builtin
-from six.moves import builtins
 
 # functionality in addition to what "six" provides
 
@@ -103,7 +99,6 @@ except Exception:
 
 
 __all__ = [
-    'builtins',
     'reraise', 'exec_', 'add_metaclass', 'BytesIO', 'StringIO',
     'string_types', 'integer_types', 'text_type', 'binary_type',
     'number_types',
