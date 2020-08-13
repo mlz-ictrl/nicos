@@ -27,6 +27,7 @@
 from __future__ import absolute_import, division, print_function
 
 import functools
+import html
 import operator
 import os
 import tempfile
@@ -41,8 +42,7 @@ from lttb import lttb
 from nicos.core import Param
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, WARN
-from nicos.pycompat import escape_html, from_utf8, string_types, text_type, \
-    to_utf8
+from nicos.pycompat import from_utf8, string_types, text_type, to_utf8
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.services.monitor.icon import nicos_icon
 from nicos.utils import checkSetupSpec, extractKeyAndIndex, safeWriteFile
@@ -383,8 +383,7 @@ class Monitor(BaseMonitor):
             ff = self.font,
             ffm = self.valuefont or self.font,
             intv = self.interval,
-            # pylint: disable=deprecated-method
-            title = escape_html(self.title),
+            title = html.escape(self.title),
             icon = nicos_icon,
         )
 
@@ -416,17 +415,15 @@ class Monitor(BaseMonitor):
                     blk += p
                 field._plotcurve = p.addcurve(field.name)
             elif field.picture:
-                # pylint: disable=deprecated-method
                 pic = Picture(field.picture, field.width, field.height,
-                              escape_html(field.name))
+                              html.escape(field.name))
                 blk += pic
             else:
                 # deactivate plots
                 field.plot = None
                 # create name label
-                # pylint: disable=deprecated-method
                 flabel = field._namelabel = Label('name', field.width,
-                                                  escape_html(field.name))
+                                                  html.escape(field.name))
                 blk += flabel
                 blk += u'</td></tr><tr><td>'
                 # create value label
@@ -445,9 +442,8 @@ class Monitor(BaseMonitor):
                     block = self._resolve_block(block)
                     blk = Block(block._options)
                     blk += u'<div class="block">'
-                    # pylint: disable=deprecated-method
                     blk += (u'<div class="blockhead">%s</div>' %
-                            escape_html(block._title))
+                            html.escape(block._title))
                     blk += u'\n    <table class="blocktable">'
                     for row in block:
                         if row is None:
@@ -553,14 +549,12 @@ class Monitor(BaseMonitor):
                 self.signalKeyChange(field, field.key, field.value, 0, False)
 
     def _labelunittext(self, text, unit, fixed):
-        # pylint: disable=deprecated-method
-        return escape_html(text) + ' <span class="unit">%s</span><span ' \
-            'class="fixed">%s</span> ' % (escape_html(unit), fixed)
+        return html.escape(text) + ' <span class="unit">%s</span><span ' \
+            'class="fixed">%s</span> ' % (html.escape(unit), fixed)
 
     def switchWarnPanel(self, on):
         if on:
-            # pylint: disable=deprecated-method
-            self._warnlabel.text = escape_html(self._currwarnings)
+            self._warnlabel.text = html.escape(self._currwarnings)
         else:
             self._warnlabel.text = ''
 

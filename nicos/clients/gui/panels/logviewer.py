@@ -26,12 +26,12 @@
 
 from __future__ import absolute_import, division, print_function
 
+import html
 import os.path
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QDateTime, pyqtSlot
-from nicos.pycompat import escape_html
 
 
 class LogViewerPanel(Panel):
@@ -195,5 +195,5 @@ class LogViewerPanel(Panel):
     def _colorizeLevel(self, line, level):
         style = self.STYLES.get(level, '')
         if style:
-            return '<span style="%s">%s</span>' % (style, escape_html(line))
-        return escape_html(line)
+            return '<span style="%s">%s</span>' % (style, html.escape(line))
+        return html.escape(line)

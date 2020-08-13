@@ -46,11 +46,6 @@ try:
 except AttributeError:
     get_thread_id = threading.get_ident
 
-try:
-    from html import escape as escape_html  # pylint: disable=import-error
-except ImportError:
-    from cgi import escape as escape_html
-
 # missing dict helpers to get a list of items/values
 def listitems(d):
     return list(d.items())
@@ -121,5 +116,5 @@ __all__ = [
     'string_types', 'integer_types', 'text_type', 'binary_type',
     'number_types',
     'iteritems', 'itervalues', 'iterkeys', 'listitems', 'listvalues',
-    'get_thread_id', 'escape_html',
+    'get_thread_id',
 ]

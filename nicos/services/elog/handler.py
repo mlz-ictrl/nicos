@@ -26,13 +26,14 @@
 
 from __future__ import absolute_import, division, print_function
 
+import html
 import io
 from logging import ERROR
 from os import path, unlink
 from shutil import copyfile
 from time import localtime, strftime
 
-from nicos.pycompat import escape_html, from_utf8, to_utf8
+from nicos.pycompat import from_utf8, to_utf8
 from nicos.services.elog.genplot import plotDataset
 from nicos.services.elog.utils import formatMessage, formatMessagePlain, \
     pretty1, pretty2
@@ -274,7 +275,7 @@ class HtmlWriter(object):
         html += ('<li class="toc"><a href="content.html#%s" '
                  'target="content"%s>%s</a></li>\n' % (
                      target, cls and ' class="%s"' % cls or '',
-                     escape_html(text)))
+                     html.escape(text)))
         self.emit_toc(html)
         self.toc_level = level
 
@@ -332,10 +333,10 @@ class Handler(object):
         proposal, title = data
         targetid = self.out.new_id()
         if title:
-            text = 'Experiment %s: %s' % (escape_html(proposal),
-                                          escape_html(title))
+            text = 'Experiment %s: %s' % (html.escape(proposal),
+                                          html.escape(title))
         else:
-            text = 'Experiment %s' % escape_html(proposal)
+            text = 'Experiment %s' % html.escape(proposal)
         self.out.timestamp(time)
         self.out.newstate('plain', '', '',
                           '<h1 id="%s">%s</h1>\n' % (targetid, text))
@@ -345,7 +346,7 @@ class Handler(object):
         self.out.timestamp(time)
         self.out.newstate('plain', '', '',
                           '<p class="setup">New setup: %s</p>\n' %
-                          escape_html(', '.join(setupnames)))
+                          html.escape(', '.join(setupnames)))
 
     def handle_entry(self, time, data):
         self.out.timestamp(time)
@@ -355,7 +356,7 @@ class Handler(object):
             data = emitter.emit()
             headers = emitter.headers
         else:
-            data, headers = escape_html(data), []
+            data, headers = html.escape(data), []
         self.out.newstate('entry', '', '', data)
         for level, text, targetid in headers:
             self.out.toc_entry(level, text, targetid)
@@ -365,13 +366,13 @@ class Handler(object):
         self.out.timestamp(time)
         self.out.newstate('plain', '', '',
                           '<h3 id="%s" class="remark">%s</h3>\n' %
-                          (targetid, escape_html(remark)))
-        self.out.toc_entry(2, escape_html(remark), targetid)
+                          (targetid, html.escape(remark)))
+        self.out.toc_entry(2, html.escape(remark), targetid)
 
     def handle_scriptbegin(self, time, data):
         self.out.timestamp(time)
         targetid = self.out.new_id()
-        text = 'Script started: %s' % escape_html(data)
+        text = 'Script started: %s' % html.escape(data)
         # self.out.toc_entry(2, text, targetid)
         self.out.newstate('plain', '', '',
                           '<p id="%s" class="scriptbegin">%s</p>\n' %
@@ -380,7 +381,7 @@ class Handler(object):
     def handle_scriptend(self, time, data):
         self.out.timestamp(time)
         targetid = self.out.new_id()
-        text = 'Script finished: %s' % escape_html(data)
+        text = 'Script finished: %s' % html.escape(data)
         # self.out.toc_entry(2, text, targetid)
         self.out.newstate('plain', '', '',
                           '<p id="%s" class="scriptend">%s</p>\n' %
@@ -388,7 +389,7 @@ class Handler(object):
 
     def handle_sample(self, time, data):
         self.out.timestamp(time)
-        text = 'New sample: %s' % escape_html(data)
+        text = 'New sample: %s' % html.escape(data)
         targetid = self.out.new_id()
         self.out.toc_entry(2, text, targetid, 'sample')
         self.out.newstate('plain', '', '',
@@ -397,7 +398,7 @@ class Handler(object):
 
     def handle_detectors(self, time, dlist):
         self.out.timestamp(time)
-        text = 'New standard detectors: %s' % escape_html(', '.join(dlist))
+        text = 'New standard detectors: %s' % html.escape(', '.join(dlist))
         targetid = self.out.new_id()
         self.out.toc_entry(2, text, targetid, 'detectors')
         self.out.newstate('plain', '', '',
@@ -406,7 +407,7 @@ class Handler(object):
 
     def handle_environment(self, time, dlist):
         self.out.timestamp(time)
-        text = 'New standard environment: %s' % escape_html(', '.join(dlist))
+        text = 'New standard environment: %s' % html.escape(', '.join(dlist))
         targetid = self.out.new_id()
         self.out.toc_entry(2, text, targetid, 'environment')
         self.out.newstate('plain', '', '',
@@ -418,7 +419,7 @@ class Handler(object):
         dev, old, new = data
         self.out.newstate('plain', '', '',
                           '<p class="offset"><b>Adjustment:</b> ' +
-                          escape_html('Offset of %s changed from %s to %s' %
+                          html.escape('Offset of %s changed from %s to %s' %
                                       (dev, old, new))
                           + '</p>\n')
 
@@ -439,8 +440,8 @@ class Handler(object):
             # want to keep a restrictive file mode set by the daemon
             copyfile(fpath, fullname)
             unlink(fpath)
-            links.append('<a href="%s">%s</a>' % (name, escape_html(oname)))
-        text = '<b>%s:</b> %s' % (escape_html(description) or 'Attachment',
+            links.append('<a href="%s">%s</a>' % (name, html.escape(oname)))
+        text = '<b>%s:</b> %s' % (html.escape(description) or 'Attachment',
                                   ' '.join(links))
         self.out.timestamp(time)
         self.out.newstate('plain', '', '', '<p class="attach">%s</p>\n' % text)
@@ -499,10 +500,10 @@ class Handler(object):
                 first = path.splitext(path.basename(dataset.yresults[0][i]))[0]
                 last = path.splitext(path.basename(dataset.yresults[-1][i]))[0]
                 if first == last:
-                    html.append('<td>%s</td>' % escape_html(first))
+                    html.append('<td>%s</td>' % html.escape(first))
                 else:
                     html.append('<td>%s - %s</td>' %
-                                (escape_html(first), escape_html(last)))
+                                (html.escape(first), html.escape(last)))
         else:
             html.extend(['<td></td>'] * (len(dataset.xnames) + len(ycindex)))
         # plot link
@@ -528,7 +529,7 @@ class Handler(object):
             html.append('<td>...</td>')
         html.append('</tr>')
         headers = ''.join('<th width="%d%%">%s</th>' %
-                          (100//len(headers), escape_html(h)) for h in headers)
+                          (100//len(headers), html.escape(h)) for h in headers)
         self.out.newstate('scan-' + names,
                           '<table class="scan"><tr class="head">' + headers
                           + '</tr>', '</table>\n', ''.join(html))
