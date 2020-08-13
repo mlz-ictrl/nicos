@@ -39,7 +39,7 @@ from nicos.devices.cacheclient import BaseCacheClient
 from nicos.devices.notifiers import Mailer, Notifier
 from nicos.protocols.cache import OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
     cache_dump, cache_load
-from nicos.pycompat import iteritems, itervalues, to_utf8
+from nicos.pycompat import iteritems, to_utf8
 from nicos.services.watchdog.conditions import DelayedTrigger, Expression, \
     Precondition
 from nicos.utils import LCDict, createSubprocess, createThread, \
@@ -240,7 +240,7 @@ class Watchdog(BaseCacheClient):
 
     def _wait_data(self):
         t = currenttime()
-        for entry in itervalues(self._entries):
+        for entry in self._entries.values():
             if entry.cond_obj.tick(t) or entry.cond_obj.is_expired(t):
                 self._check_state(entry, t)
 
@@ -281,7 +281,7 @@ class Watchdog(BaseCacheClient):
         elif key == 'watchdog/reset':
             # reset all condition enables to their initial state
             # (e.g. due to NewExperiment)
-            for entry in itervalues(self._entries):
+            for entry in self._entries.values():
                 if entry.enabled != entry.cond_obj.enabled:
                     entry.cond_obj.enabled = entry.enabled
                     entry.cond_obj.update(time, self._keydict)
@@ -292,7 +292,7 @@ class Watchdog(BaseCacheClient):
     def _publish_config(self):
         # publish current condition info in the cache
         self._put_message('configured', None,
-                          [c.serialize() for c in itervalues(self._entries)])
+                          [c.serialize() for c in self._entries.values()])
 
     def _process_key(self, time, key, value):
         # check setups?
@@ -323,7 +323,7 @@ class Watchdog(BaseCacheClient):
                 for entry_dict in info['watch_conditions']:
                     self._add_entry(entry_dict, new_setup)
         # trigger an update of all conditions
-        for entry in itervalues(self._entries):
+        for entry in self._entries.values():
             entry.cond_obj.new_setups(self._setups)
             entry.cond_obj.update(time, self._keydict)
             self._check_state(entry, time)

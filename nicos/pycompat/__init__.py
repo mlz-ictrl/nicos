@@ -29,7 +29,7 @@ from __future__ import absolute_import, division, print_function
 from io import BufferedWriter, FileIO
 
 # For consistency import everything from "six" here.
-from six import iteritems, itervalues
+from six import iteritems
 
 # all builtin number types (useful for isinstance checks)
 
@@ -84,5 +84,5 @@ except Exception:
 
 __all__ = [
     'number_types',
-    'iteritems', 'itervalues',
+    'iteritems',
 ]

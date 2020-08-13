@@ -45,7 +45,7 @@ from nicos.guisupport.qt import QActionGroup, QByteArray, QListWidgetItem, \
     QMenu, QPoint, QSizePolicy, QStatusBar, Qt, QToolBar, pyqtSlot
 from nicos.guisupport.qtgr import MouseEvent
 from nicos.protocols.cache import cache_load
-from nicos.pycompat import iteritems, itervalues
+from nicos.pycompat import iteritems
 from nicos.utils import BoundedOrderedDict, ReaderRegistry
 
 COLORMAPS = OrderedDict(GR_COLORMAPS)
@@ -264,7 +264,7 @@ class LiveDataPanel(Panel):
 
     def _get_all_widgets(self):
         yield self.widget
-        for w in itervalues(self._livewidgets):
+        for w in self._livewidgets.values():
             yield w
 
     def getToolbars(self):

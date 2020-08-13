@@ -44,7 +44,7 @@ from nicos.core.spm import AnyDev, Bare, Dev, DevParam, Multi, String, \
     spmsyntax
 from nicos.core.status import BUSY, OK
 from nicos.devices.abstract import CanReference, MappedMoveable
-from nicos.pycompat import iteritems, itervalues, number_types
+from nicos.pycompat import iteritems, number_types
 from nicos.utils import createThread, parseDateString, printTable, tupelize
 from nicos.utils.timer import Timer
 
@@ -648,7 +648,7 @@ def setall(param, value):
 
     set the offset for all devices to zero.
     """
-    for dev in itervalues(session.devices):
+    for dev in session.devices.values():
         if param not in dev.parameters:
             continue
         prevalue = getattr(dev, param)
@@ -672,7 +672,7 @@ def info(*devlist):
     >>> info(Sample)     # show information relevant to the Sample object
     """
     if not devlist:
-        devlist = [dev for dev in itervalues(session.devices)
+        devlist = [dev for dev in session.devices.values()
                    if not dev.lowlevel]
     bycategory = {}
     for dev in devlist:

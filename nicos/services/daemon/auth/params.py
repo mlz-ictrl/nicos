@@ -28,11 +28,10 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.core import ACCESS_LEVELS
-from nicos.pycompat import itervalues
 
 
 def _access_level_list():
-    return ', '.join(repr(l) for l in itervalues(ACCESS_LEVELS))
+    return ', '.join(repr(l) for l in ACCESS_LEVELS.values())
 
 
 def UserPassLevelAuthEntry(val=None):

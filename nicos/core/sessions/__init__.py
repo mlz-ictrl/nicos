@@ -62,7 +62,7 @@ from nicos.devices.cacheclient import CacheClient, CacheLockError, \
 from nicos.devices.instrument import Instrument
 from nicos.devices.notifiers import Notifier
 from nicos.protocols.cache import FLAG_NO_STORE
-from nicos.pycompat import iteritems, itervalues
+from nicos.pycompat import iteritems
 from nicos.utils import fixupScript, formatArgs, formatDocstring, \
     formatScriptError, which
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
@@ -320,7 +320,7 @@ class Session(object):
                 dev.alias = db[aliaskey]
         # cache keys are always lowercase, while device names can be mixed,
         # so we build a map once to get fast lookup
-        lowerdevs = {d.name.lower(): d for d in itervalues(self.devices)}
+        lowerdevs = {d.name.lower(): d for d in self.devices.values()}
         umethods_to_call = []
         for key, value in iteritems(db):
             if key.count('/') != 1:
@@ -697,7 +697,7 @@ class Session(object):
                 # make sure we process all initial keys
                 self.cache.waitForStartup(1)
                 # update cached cache device on all existing devices
-                for dev in itervalues(self.devices):
+                for dev in self.devices.values():
                     dev._cache = dev._getCache()
 
         self.storeSysInfo()

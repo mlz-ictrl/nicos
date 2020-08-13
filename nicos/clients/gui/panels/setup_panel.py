@@ -36,7 +36,7 @@ from nicos.guisupport.qt import QComboBox, QDialog, QDialogButtonBox, QFrame, \
     QHBoxLayout, QLabel, QListWidgetItem, QMessageBox, QPushButton, Qt, \
     pyqtSlot
 from nicos.guisupport.widget import NicosWidget
-from nicos.pycompat import iteritems, itervalues
+from nicos.pycompat import iteritems
 from nicos.utils import decodeAny
 
 
@@ -98,7 +98,7 @@ class ExpPanel(Panel):
             '__import__("nicos").commands.basic._listReceivers('
             '"nicos.devices.notifiers.Mailer")', {})
         emails = []
-        for data in itervalues(receiverinfo):
+        for data in receiverinfo.values():
             for (addr, what) in data:
                 if what == 'receiver' and addr not in emails:
                     emails.append(addr)

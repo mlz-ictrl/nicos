@@ -39,7 +39,7 @@ from nicos.guisupport.qt import QBrush, QByteArray, QColor, QComboBox, \
     pyqtSignal, pyqtSlot, sip
 from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
 from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
-from nicos.pycompat import iteritems, itervalues
+from nicos.pycompat import iteritems
 from nicos.utils import AttrDict
 
 foregroundBrush = {
@@ -330,7 +330,7 @@ class DevicesPanel(Panel):
         for cat in self._catitems:
             self.tree.addTopLevelItem(self._catitems[cat])
             self._catitems[cat].setExpanded(True)
-        for devitem in itervalues(self._devitems):
+        for devitem in self._devitems.values():
             devitem.setExpanded(True)
         self.tree.sortItems(0, Qt.AscendingOrder)
         self._update_view()

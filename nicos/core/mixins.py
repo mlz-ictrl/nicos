@@ -38,7 +38,6 @@ from nicos.core.errors import AccessError, CommunicationError, \
 from nicos.core.params import Override, Param, anytype, dictof, floatrange, \
     intrange, limits, none_or, nonemptylistof, string, tupleof
 from nicos.core.utils import statusString, usermethod
-from nicos.pycompat import itervalues
 from nicos.utils import formatArgs, lazy_property
 
 
@@ -51,11 +50,11 @@ class DeviceMixinMeta(type):
     def __new__(mcs, name, bases, attrs):
         # set source class for parameters
         if 'parameters' in attrs:
-            for pinfo in itervalues(attrs['parameters']):
+            for pinfo in attrs['parameters'].values():
                 pinfo.classname = attrs['__module__'] + '.' + name
         for base in bases:
             if hasattr(base, 'parameters'):
-                for pinfo in itervalues(base.parameters):
+                for pinfo in base.parameters.values():
                     if pinfo.classname is None:
                         pinfo.classname = base.__module__ + '.' + base.__name__
         newtype = type.__new__(mcs, name, bases, attrs)

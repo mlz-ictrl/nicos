@@ -32,7 +32,7 @@ from os import path
 from nicos import session
 from nicos.commands import usercommand
 from nicos.commands.output import printerror, printinfo
-from nicos.pycompat import iteritems, itervalues
+from nicos.pycompat import iteritems
 
 __all__ = ['ExportTuning', 'ImportTuning']
 
@@ -59,7 +59,7 @@ def ExportTuning(mode, wavelength, filename='tuning'):
                    ', '.join(map(str, tables)))
 
     # build list of devices
-    it = itervalues(table)
+    it = iter(table.values())
     devices = sorted(it.next())
     for otherdevs in it:
         devices.extend(set(otherdevs) - set(devices))

@@ -137,7 +137,7 @@ class OnlineMonitor(Readable):
     def doStatus(self, maxage=None):
         state = status.OK
         text = []
-        for devlist in self._adevs.itervalues():
+        for devlist in self._adevs.values():
             if not isinstance(devlist, (list, tuple)):
                 devlist = [devlist]
             for dev in devlist:

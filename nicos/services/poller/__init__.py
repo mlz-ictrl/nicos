@@ -40,7 +40,7 @@ from nicos import config, session
 from nicos.core import ConfigurationError, Device, DeviceAlias, Param, \
     Readable, listof, status
 from nicos.devices.generic.cache import CacheReader
-from nicos.pycompat import iteritems, itervalues
+from nicos.pycompat import iteritems
 from nicos.utils import createSubprocess, createThread, loggers, \
     watchFileContent, whyExited
 from nicos.utils.files import findSetup
@@ -366,7 +366,7 @@ class Poller(Device):
             return self._wait_master()
         while not self._stoprequest:
             sleep(1)
-        for worker in itervalues(self._workers):
+        for worker in self._workers.values():
             worker.join()
 
     def quit(self, signum=None):
@@ -376,9 +376,9 @@ class Poller(Device):
             return  # already quitting
         self.log.info('poller quitting on signal %s...', signum)
         self._stoprequest = True
-        for worker in itervalues(self._workers):
+        for worker in self._workers.values():
             worker.work_queue.put('quit', False)  # wake up to quit
-        for worker in itervalues(self._workers):
+        for worker in self._workers.values():
             worker.join()
         self.log.info('poller finished')
 
@@ -397,7 +397,7 @@ class Poller(Device):
         self.log.info('got SIGUSR2')
         if self._setup is not None:
             info = []
-            for worker in itervalues(self._workers):
+            for worker in self._workers.values():
                 wname = worker.getName()
                 if worker.is_alive():
                     info.append('%s: alive' % wname)

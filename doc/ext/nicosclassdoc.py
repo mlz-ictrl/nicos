@@ -46,7 +46,7 @@ from sphinx.util.docstrings import prepare_docstring
 from nicos.core import Device
 from nicos.core.mixins import DeviceMixinBase
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.pycompat import iteritems, itervalues
+from nicos.pycompat import iteritems
 from nicos.utils import formatArgs
 
 logger = logging.getLogger(__name__)
@@ -371,7 +371,7 @@ def resolve_devindex(app, doctree, fromdocname):
         body = nodes.tbody('')
         group.append(body)
 
-        for entry in sorted(itervalues(env.nicos_all_devices),
+        for entry in sorted(env.nicos_all_devices.values(),
                             key=lambda v: v['name']):
             if not entry['module'].startswith('nicos.devices.'):
                 continue
