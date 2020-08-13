@@ -204,8 +204,7 @@ from ast import Add, BinOp, Call, Dict, List, Name, Num, Set, Str, Sub, \
     Tuple, UnaryOp, USub, parse
 from base64 import b64decode, b64encode
 
-from nicos.pycompat import binary_type, from_utf8, \
-    iteritems, number_types
+from nicos.pycompat import from_utf8, iteritems, number_types
 from nicos.utils import readonlydict, readonlylist
 
 try:
@@ -271,7 +270,7 @@ line_pattern = re.compile(br'([^\r\n]*)\r?\n')
 
 # PyON -- "Python object notation"
 
-repr_types = number_types + (str, binary_type)
+repr_types = number_types + (str, bytes)
 
 
 def cache_dump(obj):
