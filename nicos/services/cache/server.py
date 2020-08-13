@@ -37,6 +37,7 @@ line protocol.
 
 from __future__ import absolute_import, division, print_function
 
+import queue
 import select
 import socket
 import threading
@@ -48,7 +49,7 @@ from nicos.core import Attach, Device, Param, host
 from nicos.protocols.cache import BUFSIZE, CYCLETIME, DEFAULT_CACHE_PORT, \
     OP_ASK, OP_LOCK, OP_REWRITE, OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
     OP_UNSUBSCRIBE, OP_WILDCARD, line_pattern, msg_pattern
-from nicos.pycompat import from_utf8, listitems, listvalues, queue, to_utf8
+from nicos.pycompat import from_utf8, listitems, listvalues, to_utf8
 # pylint: disable=W0611
 from nicos.services.cache.database import CacheDatabase, \
     FlatfileCacheDatabase, MemoryCacheDatabase, \

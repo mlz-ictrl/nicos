@@ -28,6 +28,7 @@ from __future__ import absolute_import, division, print_function
 
 import errno
 import os
+import queue
 import signal
 import sys
 import threading
@@ -39,7 +40,7 @@ from nicos import config, session
 from nicos.core import ConfigurationError, Device, DeviceAlias, Param, \
     Readable, listof, status
 from nicos.devices.generic.cache import CacheReader
-from nicos.pycompat import iteritems, itervalues, listitems, queue as Queue
+from nicos.pycompat import iteritems, itervalues, listitems
 from nicos.utils import createSubprocess, createThread, loggers, \
     watchFileContent, whyExited
 from nicos.utils.files import findSetup
@@ -75,47 +76,47 @@ class Poller(Device):
         # a poller session
         self.log.setLevel(loggers.loglevels[value])
 
-    def _worker_thread(self, devname, queue):
+    def _worker_thread(self, devname, work_queue):
 
         def reconfigure_dev_target(key, value, time, oldvalues={}):  # pylint: disable=W0102
             if value is not None:
-                queue.put('dev_target', False)
+                work_queue.put('dev_target', False)
                 oldvalues[key] = value
 
         def reconfigure_dev_status(key, value, time, oldvalues={}):  # pylint: disable=W0102
             if value[0] != oldvalues.get(key):
                 if value[0] == status.BUSY:  # just went busy, wasn't before!
-                    queue.put('dev_busy', False)
+                    work_queue.put('dev_busy', False)
                 else:
-                    queue.put('dev_normal', False)
+                    work_queue.put('dev_normal', False)
                 oldvalues[key] = value[0]  # only store status code!
 
         def reconfigure_adev_value(key, value, time, oldvalues={}):  # pylint: disable=W0102
             if value != oldvalues.get(key):
-                queue.put('adev_value', False)
+                work_queue.put('adev_value', False)
                 oldvalues[key] = value
 
         def reconfigure_adev_target(key, value, time, oldvalues={}):  # pylint: disable=W0102
             if value != oldvalues.get(key):
-                queue.put('adev_target', False)
+                work_queue.put('adev_target', False)
                 oldvalues[key] = value
 
         def reconfigure_adev_status(key, value, time, oldvalues={}):  # pylint: disable=W0102
             if value[0] != oldvalues.get(key):
                 if value[0] == status.BUSY:  # just went busy, wasn't before!
-                    queue.put('adev_busy', False)
+                    work_queue.put('adev_busy', False)
                 else:
-                    queue.put('adev_normal', False)
+                    work_queue.put('adev_normal', False)
                 oldvalues[key] = value[0]  # only store status code!
 
         def reconfigure_param(key, value, time):
-            queue.put('param', False)
+            work_queue.put('param', False)
 
         def poll_loop(dev):
             """
             Polling a device and react to updates received via cache
 
-            The wait between pollings is controlled by an Queue, so that
+            The wait between pollings is controlled by a Queue, so that
             events from other threads (e.g. quit or cache updates) can
             trigger a wakeup.
 
@@ -149,8 +150,8 @@ class Poller(Device):
                 if maxwait > 0:
                     # wait for event
                     try:
-                        # if the timeout is reached, this raises Queue.Empty
-                        event = queue.get(True, maxwait)
+                        # if the timeout is reached, this raises queue.Empty
+                        event = work_queue.get(True, maxwait)
                         self.log.debug('%-10s: event %s', dev, event)
 
                         # handle events....
@@ -195,7 +196,7 @@ class Poller(Device):
                                 dev.log.warning('error polling parameter %s',
                                                 event[10:], exc=True)
 
-                    except Queue.Empty:
+                    except queue.Empty:
                         pass  # just poll if timed out
                 else:
                     self.log.debug('%-10s: ignoring events for one round', dev)
@@ -241,7 +242,7 @@ class Poller(Device):
 
                     for name, info in iteritems(dev.parameters):
                         if info.volatile:
-                            queue.put('pollparam:%s' % name)
+                            work_queue.put('pollparam:%s' % name)
 
                 if not registered:
                     if not isinstance(dev, Readable):
@@ -287,8 +288,8 @@ class Poller(Device):
                     errstate[1] = min(2 * errstate[1], 600)
                 # sleep up to wait time
                 try:
-                    queue.get(True, errstate[1])  # may return earlier
-                except Queue.Empty:
+                    work_queue.get(True, errstate[1])  # may return earlier
+                except queue.Empty:
                     pass
         # end of while not self._stoprequest
     # end of _worker_thread
@@ -298,7 +299,7 @@ class Poller(Device):
         if dev in self._workers:
             worker = self._workers[dev]
             for param in value:
-                worker.queue.put('pollparam:%s' % param)
+                worker.work_queue.put('pollparam:%s' % param)
 
     def start(self, setup=None):
         self._setup = setup
@@ -325,11 +326,11 @@ class Poller(Device):
                                      'not retrying this device', devname, exc=True)
                     continue
                 self.log.debug('starting thread for %s', devname)
-                queue = Queue.Queue()
+                work_queue = queue.Queue()
                 worker = createThread('%s poller' % devname,
                                       self._worker_thread,
-                                      args=(devname, queue))
-                worker.queue = queue
+                                      args=(devname, work_queue))
+                worker.work_queue = work_queue
                 self._workers[devname.lower()] = worker
                 # start staggered to not poll all devs at once....
                 # use just a small delay, exact value does not matter
@@ -376,7 +377,7 @@ class Poller(Device):
         self.log.info('poller quitting on signal %s...', signum)
         self._stoprequest = True
         for worker in itervalues(self._workers):
-            worker.queue.put('quit', False)  # wake up to quit
+            worker.work_queue.put('quit', False)  # wake up to quit
         for worker in itervalues(self._workers):
             worker.join()
         self.log.info('poller finished')

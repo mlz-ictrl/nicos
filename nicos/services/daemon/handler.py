@@ -31,6 +31,7 @@ from __future__ import absolute_import, division, print_function
 
 import base64
 import os
+import queue
 import socket
 import tempfile
 
@@ -42,7 +43,7 @@ from nicos.core.data import ScanData
 from nicos.protocols.daemon import BREAK_NOW, DAEMON_COMMANDS, SIM_STATES, \
     STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK, STATUS_RUNNING, \
     STATUS_STOPPING, CloseConnection
-from nicos.pycompat import queue, string_types
+from nicos.pycompat import string_types
 from nicos.services.daemon.auth import AuthenticationError
 from nicos.services.daemon.script import RequestError, ScriptError, \
     ScriptRequest

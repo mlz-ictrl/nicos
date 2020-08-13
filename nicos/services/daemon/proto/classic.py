@@ -26,6 +26,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import queue
 import socket
 import threading
 import time
@@ -36,7 +37,7 @@ from nicos.protocols.daemon import DAEMON_EVENTS, CloseConnection, \
     ServerTransport as BaseServerTransport
 from nicos.protocols.daemon.classic import ACK, ENQ, LENGTH, NAK, \
     PROTO_VERSION, READ_BUFSIZE, STX, code2command, event2code
-from nicos.pycompat import queue, socketserver
+from nicos.pycompat import socketserver
 from nicos.services.daemon.handler import ConnectionHandler
 from nicos.utils import closeSocket, createThread
 

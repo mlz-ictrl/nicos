@@ -26,6 +26,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import queue
 import socket
 import threading
 
@@ -34,7 +35,7 @@ import zmq
 from nicos.protocols.daemon import DAEMON_EVENTS, CloseConnection, \
     ProtocolError, Server as BaseServer, \
     ServerTransport as BaseServerTransport
-from nicos.pycompat import from_utf8, queue, to_utf8
+from nicos.pycompat import from_utf8, to_utf8
 from nicos.services.daemon.handler import ConnectionHandler
 from nicos.utils import createThread
 from nicos.utils.messaging import nicos_zmq_ctx
