@@ -8,7 +8,6 @@ omniORB.updateModule("CARESS")
 
 # ** 1. Stub files contributing to this module
 import nicos.devices.vendor.caress.corbadevice_idl
-# import corbadevice_idl
 
 # ** 2. Sub-modules
 
