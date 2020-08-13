@@ -204,7 +204,7 @@ from ast import Add, BinOp, Call, Dict, List, Name, Num, Set, Str, Sub, \
     Tuple, UnaryOp, USub, parse
 from base64 import b64decode, b64encode
 
-from nicos.pycompat import from_utf8, iteritems, number_types
+from nicos.pycompat import from_utf8, number_types
 from nicos.utils import readonlydict, readonlylist
 
 try:
@@ -291,7 +291,7 @@ def cache_dump(obj):
         res.append(')')
     elif isinstance(obj, dict):
         res.append('{')
-        for key, value in iteritems(obj):
+        for key, value in obj.items():
             res.append(cache_dump(key))
             res.append(':')
             res.append(cache_dump(value))

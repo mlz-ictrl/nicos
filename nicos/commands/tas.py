@@ -44,7 +44,7 @@ from nicos.devices.tas.rescalc import resmat
 from nicos.devices.tas.spectro import TAS, THZ2MEV
 from nicos.devices.tas.spurions import alu_hkl, check_acc_bragg, \
     check_ho_spurions, check_powderrays, copper_hkl
-from nicos.pycompat import iteritems, number_types
+from nicos.pycompat import number_types
 
 __all__ = [
     'qscan', 'qcscan', 'Q', 'calpos', 'pos', 'rp',
@@ -81,7 +81,7 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
             envlist.append(arg)
         else:
             raise UsageError('unsupported qscan argument: %r' % arg)
-    for key, value in iteritems(kwargs):
+    for key, value in kwargs.items():
         if key == 'h' or key == 'H':
             Q[0] = value
         elif key == 'k' or key == 'K':

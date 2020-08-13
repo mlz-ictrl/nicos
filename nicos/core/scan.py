@@ -42,7 +42,7 @@ from nicos.core.errors import LimitError, ModeError, NicosError
 from nicos.core.mixins import HasLimits
 from nicos.core.params import Value
 from nicos.core.utils import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, multiWait
-from nicos.pycompat import iteritems, number_types
+from nicos.pycompat import number_types
 from nicos.utils import Repeater
 
 
@@ -283,7 +283,7 @@ class Scan(object):
 
         try:
             # remember the read values so they can be used for the data point
-            for (dev, value) in iteritems(multiWait(waitdevs)):
+            for (dev, value) in multiWait(waitdevs).items():
                 # (None, value): None identifies the 'main' value
                 waitresults[dev.name] = (None, value)
         except NicosError as err:
@@ -589,7 +589,7 @@ class ContinuousScan(Scan):
 
     def _calculate_diff(self, last, current):
         res = {}
-        for (detname, (vals, images)) in iteritems(current):
+        for (detname, (vals, images)) in current.items():
             values = [val - last[detname][0][i]
                       if isinstance(val, number_types) else val
                       for i, val in enumerate(vals)]

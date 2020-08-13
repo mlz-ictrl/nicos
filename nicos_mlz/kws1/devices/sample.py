@@ -29,7 +29,6 @@ from __future__ import absolute_import, division, print_function
 from nicos import session
 from nicos.core import ConfigurationError, Param, anytype, dictof, multiWait, \
     tupleof
-from nicos.pycompat import iteritems
 
 from nicos_mlz.devices.sample import Sample
 
@@ -87,7 +86,7 @@ class KWSSample(Sample):
             ap.opmode = 'offcentered'  # to be sure
             ap.move(self.aperture)
             waitdevs.append(ap)
-        for devname, devpos in iteritems(self.position):
+        for devname, devpos in self.position.items():
             dev = session.getDevice(devname)
             dev.move(devpos)
             waitdevs.append(dev)

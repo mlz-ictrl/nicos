@@ -27,7 +27,6 @@ import numpy as np
 
 from nicos import session
 from nicos.core import FINAL, INTERMEDIATE, INTERRUPTED
-from nicos.pycompat import iteritems
 
 
 class NexusElementBase(object):
@@ -93,7 +92,7 @@ class NexusElementBase(object):
     def createAttributes(self, h5obj, sinkhandler):
         if not hasattr(self, 'attrs'):
             return
-        for key, val in iteritems(self.attrs):
+        for key, val in self.attrs.items():
             if isinstance(val, str):
                 val = NXAttribute(val, 'string')
             val.create(key, h5obj, sinkhandler)
@@ -121,7 +120,7 @@ class ConstDataset(NexusElementBase):
         self.value = value
         self.dtype = dtype
         self.attrs = {}
-        for key, val in iteritems(attrs):
+        for key, val in attrs.items():
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
             self.attrs[key] = val
@@ -168,7 +167,7 @@ class DeviceDataset(NexusElementBase):
         self.defaultval = defaultval
         self.attrs = {}
         self.doAppend = False
-        for key, val in iteritems(attr):
+        for key, val in attr.items():
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
             self.attrs[key] = val
@@ -244,7 +243,7 @@ class DetectorDataset(NexusElementBase):
         if self.dtype == 'string':
             self.dtype = 'S30'
         self.attrs = {}
-        for key, val in iteritems(attr):
+        for key, val in attr.items():
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
             self.attrs[key] = val
@@ -318,7 +317,7 @@ class ImageDataset(NexusElementBase):
         self.doAppend = False
         self.np = 0
         self.valid = True
-        for key, val in iteritems(attrs):
+        for key, val in attrs.items():
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
             self.attrs[key] = val

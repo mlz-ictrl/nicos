@@ -29,7 +29,6 @@ from __future__ import absolute_import, division, print_function
 from nicos.core import Param, dictof, none_or, oneof, tangodev, tupleof
 from nicos.devices.generic.paramdev import ParamDevice
 from nicos.devices.tango import TemperatureController
-from nicos.pycompat import iteritems
 
 # out-dev, (in-dev, min-out, max-out, init-pid) if software-regulated
 entry = tupleof(tangodev, none_or(tupleof(tangodev, float, float, float, float, float)))
@@ -51,7 +50,7 @@ class FlexRegulator(TemperatureController):
         props = self._dev.GetProperties()
         indev = props[props.index('indev') + 1]
         outdev = props[props.index('outdev') + 1]
-        for (cfgname, config) in iteritems(self.configs):
+        for (cfgname, config) in self.configs.items():
             if config[0] == outdev:
                 if config[1] is None:
                     if indev == self.dummy:

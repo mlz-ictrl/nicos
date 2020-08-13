@@ -44,7 +44,7 @@ from nicos.core.spm import AnyDev, Bare, Dev, DevParam, Multi, String, \
     spmsyntax
 from nicos.core.status import BUSY, OK
 from nicos.devices.abstract import CanReference, MappedMoveable
-from nicos.pycompat import iteritems, number_types
+from nicos.pycompat import number_types
 from nicos.utils import createThread, parseDateString, printTable, tupelize
 from nicos.utils.timer import Timer
 
@@ -623,7 +623,7 @@ def getall(*names):
     lists the offset for all devices with an "offset" parameter.
     """
     items = []
-    for name, dev in sorted(iteritems(session.devices),
+    for name, dev in sorted(session.devices.items(),
                             key=lambda nd: nd[0].lower()):
         pvalues = []
         for param in names:
@@ -1028,7 +1028,7 @@ def ListParams(dev):
                       'Aliased device, parameters of that device follow'))
         dev = aliasdev
     devunit = getattr(dev, 'unit', '')
-    for name, info in sorted(iteritems(dev.parameters)):
+    for name, info in sorted(dev.parameters.items()):
         if not info.userparam:
             continue
         try:
@@ -1068,7 +1068,7 @@ def ListMethods(dev):
         if cls in listed:
             return
         listed.add(cls)
-        for name, (args, doc, mcls, is_user) in sorted(iteritems(cls.methods)):
+        for name, (args, doc, mcls, is_user) in sorted(cls.methods.items()):
             if cls is mcls and is_user:
                 items.append((dev.name + '.' + name + args, cls.__name__, doc))
         for base in cls.__bases__:

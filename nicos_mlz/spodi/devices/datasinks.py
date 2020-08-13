@@ -36,7 +36,7 @@ from nicos.core.constants import POINT
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.devices.datasinks.special import LiveViewSink as BaseLiveViewSink, \
     LiveViewSinkHandler as BaseLiveViewSinkHandler
-from nicos.pycompat import iteritems, to_utf8
+from nicos.pycompat import to_utf8
 from nicos.utils import findResource
 
 
@@ -55,7 +55,7 @@ class CaressHistogramHandler(SingleFileSinkHandler):
         _metainfo = self.dataset.metainfo
         bycategory = {}
         detectors = self.sink.detectors
-        for (dev, key), (_, v, _, cat) in iteritems(_metainfo):
+        for (dev, key), (_, v, _, cat) in _metainfo.items():
             if dev in detectors + ['UBahn', 'Space', 'tths'] and \
                cat == 'general':
                 continue

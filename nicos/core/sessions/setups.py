@@ -27,7 +27,6 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.core.params import nicosdev_re
-from nicos.pycompat import iteritems
 from nicos.utils import Device
 from nicos.utils.files import iterSetups
 
@@ -136,7 +135,7 @@ def readSetups(paths, logger):
     for (setupname, filename) in all_setups.items():
         readSetup(infodict, setupname, filename, all_setups, logger)
     # check if all includes exist
-    for name, info in iteritems(infodict):
+    for name, info in infodict.items():
         if info is None:
             continue  # erroneous setup
         for include in info['includes']:

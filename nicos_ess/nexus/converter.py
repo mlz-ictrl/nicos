@@ -26,7 +26,6 @@ from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.core.errors import NicosError
-from nicos.pycompat import iteritems
 
 from nicos_ess.nexus import DeviceStream
 from nicos_ess.nexus.elements import KafkaStream, NXAttribute, NXDataset, \
@@ -78,7 +77,7 @@ class NexusTemplateConverter(object):
 
         if isinstance(value, dict):
             # Populate rest of the elements
-            for key, val in iteritems(value):
+            for key, val in value.items():
                 if isinstance(val, dict):
                     # This is another group
                     child_nxname, child_value = self._populate(key, val)

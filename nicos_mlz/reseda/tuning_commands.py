@@ -32,7 +32,6 @@ from os import path
 from nicos import session
 from nicos.commands import usercommand
 from nicos.commands.output import printerror, printinfo
-from nicos.pycompat import iteritems
 
 __all__ = ['ExportTuning', 'ImportTuning']
 
@@ -73,7 +72,7 @@ def ExportTuning(mode, wavelength, filename='tuning'):
     with open(filename, 'w') as fp:
         writer = csv.writer(fp)
         writer.writerow(['echotime'] + devices)
-        for (etime, devs) in iteritems(table):
+        for (etime, devs) in table.items():
             writer.writerow([repr(etime)] + [repr(devs.get(d)) for d in devices])
     printinfo('Done.')
 

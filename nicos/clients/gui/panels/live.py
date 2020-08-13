@@ -45,7 +45,6 @@ from nicos.guisupport.qt import QActionGroup, QByteArray, QListWidgetItem, \
     QMenu, QPoint, QSizePolicy, QStatusBar, Qt, QToolBar, pyqtSlot
 from nicos.guisupport.qtgr import MouseEvent
 from nicos.protocols.cache import cache_load
-from nicos.pycompat import iteritems
 from nicos.utils import BoundedOrderedDict, ReaderRegistry
 
 COLORMAPS = OrderedDict(GR_COLORMAPS)
@@ -220,7 +219,7 @@ class LiveDataPanel(Panel):
         self.actionsColormap = QActionGroup(self)
         activeMap = self.widget.getColormap()
         activeCaption = None
-        for name, value in iteritems(COLORMAPS):
+        for name, value in COLORMAPS.items():
             caption = name.title()
             action = self.menuColormap.addAction(caption)
             action.setData(caption)
@@ -310,7 +309,7 @@ class LiveDataPanel(Panel):
             widget.setCenterMark(self.actionMarkCenter.isChecked())
             widget.logscale(self.actionLogScale.isChecked())
             widget.gr.setAdjustSelection(False)  # don't use adjust on ROIs
-            for name, roi in iteritems(self.rois):
+            for name, roi in self.rois.items():
                 widget.setROI(name, roi)
             width = max(region.x) - min(region.x)
             height = max(region.y) - min(region.y)
@@ -378,7 +377,7 @@ class LiveDataPanel(Panel):
         widget = self.sender()
         if widget:
             key = None
-            for key, w in iteritems(self._livewidgets):
+            for key, w in self._livewidgets.items():
                 if w == widget:
                     self.log.debug('delete roi: %s', key)
                     del self._livewidgets[key]

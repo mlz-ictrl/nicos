@@ -53,7 +53,7 @@ from nicos.guisupport.timeseries import TimeSeries
 from nicos.guisupport.trees import BaseDeviceParamTree
 from nicos.guisupport.utils import scaledFont
 from nicos.protocols.cache import cache_load
-from nicos.pycompat import iteritems, number_types
+from nicos.pycompat import number_types
 from nicos.utils import extractKeyAndIndex, parseDuration, safeName
 
 
@@ -361,7 +361,7 @@ class NewViewDialog(DlgUtils, QDialog):
         else:
             self.deviceTreeSel.pop(key, None)
         self.devices.setText(', '.join((k + v) for (k, v)
-                                       in iteritems(self.deviceTreeSel)))
+                                       in self.deviceTreeSel.items()))
 
     def showSimpleHelp(self):
         self.showInfo('Please enter a time interval with units like this:\n\n'
@@ -698,7 +698,7 @@ class BaseHistoryWindow(object):
         pmenu.clear()
         delmenu = QMenu('Delete', self)
         try:
-            for preset, info in iteritems(self.presetdict):
+            for preset, info in self.presetdict.items():
                 paction = QAction(preset, self)
                 pdelaction = QAction(preset, self)
                 info = info.copy()

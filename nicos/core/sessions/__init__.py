@@ -62,7 +62,6 @@ from nicos.devices.cacheclient import CacheClient, CacheLockError, \
 from nicos.devices.instrument import Instrument
 from nicos.devices.notifiers import Notifier
 from nicos.protocols.cache import FLAG_NO_STORE
-from nicos.pycompat import iteritems
 from nicos.utils import fixupScript, formatArgs, formatDocstring, \
     formatScriptError, which
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
@@ -314,7 +313,7 @@ class Session(object):
             self.loadSetup(setups)
         self.simulation_db = None  # clear cache for getSyncDb
         # set alias parameter first, needed to set parameters on alias devices
-        for devname, dev in iteritems(self.devices):
+        for devname, dev in self.devices.items():
             aliaskey = '%s/alias' % devname.lower()
             if isinstance(dev, DeviceAlias) and aliaskey in db:
                 dev.alias = db[aliaskey]
@@ -322,7 +321,7 @@ class Session(object):
         # so we build a map once to get fast lookup
         lowerdevs = {d.name.lower(): d for d in self.devices.values()}
         umethods_to_call = []
-        for key, value in iteritems(db):
+        for key, value in db.items():
             if key.count('/') != 1:
                 continue
             dev, param = key.split('/')
@@ -588,7 +587,7 @@ class Session(object):
             except Exception as err:
                 self.log.error("Exception importing '%s': %s", modname, err)
                 return
-            for name, command in iteritems(mod.__dict__):
+            for name, command in mod.__dict__.items():
                 if getattr(command, 'is_usercommand', False):
                     if name.startswith('_') and command.__name__ != name:
                         # it's a usercommand, but imported under a different
@@ -599,7 +598,7 @@ class Session(object):
                     self.export(name, command)
 
         def merge_sysconfig(old, new):
-            for key, value in iteritems(new):
+            for key, value in new.items():
                 if key == 'datasinks':
                     if not isinstance(value, list):
                         raise ConfigurationError("sysconfig entry '%s' must be"
@@ -651,7 +650,7 @@ class Session(object):
             self.configured_devices.update(info['devices'])
 
             merge_sysconfig(sysconfig, info['sysconfig'])
-            devlist.update(iteritems(info['devices']))
+            devlist.update(info['devices'].items())
             startupcode.append(info['startupcode'])
 
             for aliasname, targets in info['alias_config'].items():
@@ -707,7 +706,7 @@ class Session(object):
             autocreate_devices = self.autocreate_devices
         if autocreate_devices:
             self.log.debug('autocreating devices...')
-            for devname, (_, devconfig) in sorted(iteritems(devlist)):
+            for devname, (_, devconfig) in sorted(devlist.items()):
                 try:
                     lowlevel = devconfig.get('lowlevel', False)
                     self.createDevice(devname, explicit=not lowlevel)
@@ -878,7 +877,7 @@ class Session(object):
 
     def applyAliasConfig(self, new_config, prev_config):
         """Apply the desired aliases from self.alias_config."""
-        for aliasname, targets in iteritems(new_config):
+        for aliasname, targets in new_config.items():
             if aliasname not in self.devices:
                 # complain about this; setups should make sure that the device
                 # exists when configuring it
@@ -1127,7 +1126,7 @@ class Session(object):
             raise self._failed_devices[devname]
         if devname not in self.configured_devices:
             found_in = []
-            for sname, info in iteritems(self._setup_info):
+            for sname, info in self._setup_info.items():
                 if info is None:
                     continue
                 if devname in info['devices']:

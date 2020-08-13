@@ -37,7 +37,7 @@ from nicos.core.device import Device
 from nicos.core.errors import ProgrammingError
 from nicos.core.params import INFO_CATEGORIES, Override, Param, listof, setof
 from nicos.core.status import statuses
-from nicos.pycompat import File, iteritems
+from nicos.pycompat import File
 
 
 class DataFileBase(object):
@@ -174,7 +174,7 @@ class NicosMetaWriterMixin(object):
     def _collectMetaInformation(self, update_headerinfo=None):
         bycategory = {}
         metainfo = self.dataset.metainfo
-        for (device, key), (_, val, unit, category) in iteritems(metainfo):
+        for (device, key), (_, val, unit, category) in metainfo.items():
             if category:
                 bycategory.setdefault(category, []).append(
                     ('%s_%s' % (device, key), (val + ' ' + unit).strip()))

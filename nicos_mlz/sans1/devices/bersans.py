@@ -33,7 +33,7 @@ from nicos import session
 from nicos.core import Override, Param, Readable, status
 from nicos.core.utils import DeviceValueDict
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-from nicos.pycompat import iteritems, to_ascii_escaped, to_utf8
+from nicos.pycompat import to_ascii_escaped, to_utf8
 
 # not a good solution: BerSANS keys are fixed, but devicenames
 # (and their existence) is instrument specific...
@@ -343,7 +343,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
         # also ignore some keys :(
         ignore = ('det1_lastlistfile', 'det1_lasthistfile')
         for (dev, param), (value, strvalue, _unit, _category) in \
-                iteritems(self.dataset.metainfo):
+                self.dataset.metainfo.items():
             devname_key = '%s_%s' % (dev, param)
             if devname_key in ignore:
                 continue

@@ -54,7 +54,6 @@ from nicos.guisupport.qt import PYQT_VERSION_STR, QT_VERSION_STR, QAction, \
     QTimer, QWebView, pyqtSignal, pyqtSlot
 from nicos.protocols.daemon import BREAK_NOW, STATUS_IDLE, STATUS_IDLEEXC, \
     STATUS_INBREAK
-from nicos.pycompat import iteritems
 from nicos.utils import checkSetupSpec, importString
 
 try:
@@ -345,11 +344,11 @@ class MainWindow(DlgUtils, QMainWindow):
 
         self.connpresets = {}
         # new setting key, with dictionary values
-        for (k, v) in iteritems(settings.value('connpresets_new', {})):
+        for (k, v) in settings.value('connpresets_new', {}).items():
             self.connpresets[k] = ConnectionData(**v)
         # if it was empty, try old setting key with list values
         if not self.connpresets:
-            for (k, v) in iteritems(settings.value('connpresets', {})):
+            for (k, v) in settings.value('connpresets', {}).items():
                 self.connpresets[k] = ConnectionData(
                     host=v[0], port=int(v[1]), user=v[2], password=None)
         self.lastpreset = settings.value('lastpreset', '')

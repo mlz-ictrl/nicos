@@ -33,7 +33,6 @@ from os import path
 import numpy as np
 
 from nicos.core.errors import ConfigurationError, ProgrammingError
-from nicos.pycompat import iteritems
 from nicos.utils import parseHostPort, readonlydict, readonlylist
 
 INFO_CATEGORIES = [
@@ -605,7 +604,7 @@ class dictof(object):
         if not isinstance(val, dict):
             raise ValueError('value needs to be a dict')
         ret = {}
-        for k, v in iteritems(val):
+        for k, v in val.items():
             ret[self.keyconv(k)] = self.valconv(v)
         return readonlydict(ret)
 
@@ -616,11 +615,11 @@ class dictwith(object):
         self.__doc__ = 'a dict with the following keys: ' + \
             ', '.join('%s: %s' % (k, convdoc(c)) for k, c in convs.items())
         self.keys = set(convs)
-        self.convs = {k: fixup_conv(conv) for (k, conv) in iteritems(convs)}
+        self.convs = {k: fixup_conv(conv) for (k, conv) in convs.items()}
 
     def __call__(self, val=None):
         if val is None:
-            return {k: conv() for k, conv in iteritems(self.convs)}
+            return {k: conv() for k, conv in self.convs.items()}
         if not isinstance(val, dict):
             raise ValueError('value needs to be a dict')
         vkeys = set(val)
@@ -748,7 +747,7 @@ class oneofdict_or(object):
         self.conv = fixup_conv(validator)
         self.__doc__ = 'one of ' + ', '.join(map(repr, named_vals)) + \
             ', or ' + self.conv.__doc__
-        self.named_vals = {k: self.conv(v) for (k, v) in iteritems(named_vals)}
+        self.named_vals = {k: self.conv(v) for (k, v) in named_vals.items()}
 
     def __call__(self, val=None):
         return self.conv(self.named_vals.get(val, val))

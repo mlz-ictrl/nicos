@@ -44,7 +44,6 @@ from nicos.core.errors import NicosError
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.core.utils import User
-from nicos.pycompat import iteritems
 from nicos.services.daemon.script import parseScript
 from nicos.utils import createSubprocess
 from nicos.utils.loggers import ACTION, SimDebugHandler, recordToMessage
@@ -85,7 +84,7 @@ class SimLogSender(logging.Handler):
         from nicos.core.device import DeviceAlias
         # Collect information on timing and range of all devices
         self.starttime = self.session.clock.time
-        for devname, dev in iteritems(self.session.devices):
+        for devname, dev in self.session.devices.items():
             if isinstance(dev, DeviceAlias):
                 self.aliases.append(devname)
             elif isinstance(dev, Readable):

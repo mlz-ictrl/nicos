@@ -38,7 +38,6 @@ from nicos.guisupport.qt import QDialog, QDialogButtonBox, QFileDialog, \
     QFrame, QLineEdit, QListWidgetItem, QMenu, QMessageBox, QRadioButton, \
     QTableWidgetItem, QVBoxLayout, pyqtSlot
 from nicos.guisupport.utils import DoubleValidator
-from nicos.pycompat import iteritems
 from nicos.utils import findResource
 
 SAMPLE_KEYS = ['aperture', 'position', 'timefactor',
@@ -56,7 +55,7 @@ def configToFrame(frame, config):
     frame.apYBox.setText(str(config['aperture'][1]))
     frame.apWBox.setText(str(config['aperture'][2]))
     frame.apHBox.setText(str(config['aperture'][3]))
-    for i, (devname, position) in enumerate(iteritems(config['position'])):
+    for i, (devname, position) in enumerate(config['position'].items()):
         frame.posTbl.setItem(i, 0, QTableWidgetItem(devname))
         frame.posTbl.setItem(i, 1, QTableWidgetItem(str(position)))
     frame.posTbl.resizeRowsToContents()

@@ -221,8 +221,7 @@ def _testlaue(sym):
 
 
 def _test():
-    from nicos.pycompat import iteritems
-    for t, vals in iteritems(valid):
+    for t, vals in valid.items():
         for hkl in vals:
             # this def is necessary to get uniq descriptions in the
             # test output.
@@ -230,7 +229,7 @@ def _test():
                 _testbravais(t, mode, hkl)
             tf1.description = 'Bravais allowed %s %s' % (t, hkl)
             yield tf1, t, True, hkl
-    for t, vals in iteritems(invalid):
+    for t, vals in invalid.items():
         for hkl in vals:
             # this def is necessary to get uniq descriptions in the
             # test output.

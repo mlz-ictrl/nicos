@@ -40,7 +40,6 @@ from nicos.devices.datasinks import ImageSink
 from nicos.devices.generic.detector import ActiveChannel, \
     CounterChannelMixin, PassiveChannel, TimerChannelMixin
 from nicos.devices.taco.detector import BaseChannel as TacoBaseChannel
-from nicos.pycompat import iteritems
 from nicos.utils import syncFile
 
 
@@ -214,7 +213,7 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
         fp.write('\n### NICOS Raw File Header V2.0\n')
         fp.write('# detector prefix is %r' % self.prefix)
         bycategory = {}
-        for (device, key), (_, val, unit, category) in iteritems(metainfo):
+        for (device, key), (_, val, unit, category) in metainfo.items():
             if category:
                 bycategory.setdefault(category, []).append(
                     ('%s_%s' % (device.name, key), (val + ' ' + unit).strip()))

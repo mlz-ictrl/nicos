@@ -37,7 +37,6 @@ from nicos.devices.epics import EpicsAnalogMoveable, EpicsReadable
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
 from nicos.devices.generic.switcher import Switcher
 from nicos.devices.tango import PowerSupply
-from nicos.pycompat import iteritems
 
 
 class HVSwitcher(Switcher):
@@ -56,7 +55,7 @@ class HVSwitcher(Switcher):
 
     def _mapReadValue(self, pos):
         prec = self.precision
-        for name, value in iteritems(self.mapping):
+        for name, value in self.mapping.items():
             if prec:
                 if all(abs(p - v) <= prec for (p, v) in zip(pos, value)):
                     return name
@@ -78,7 +77,7 @@ class HVSwitcher(Switcher):
     @usermethod
     def transferSettings(self):
         import epics
-        for epicsid, pvs in iteritems(self.pv_values):
+        for epicsid, pvs in self.pv_values.items():
             for pvname, pvvalue in pvs:
                 fullpvname = '%s:%s_W' % (epicsid, pvname)
                 self.log.debug('setting %s = %s' % (fullpvname, pvvalue))

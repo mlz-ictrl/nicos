@@ -33,7 +33,6 @@ from nicos import session
 from nicos.core import MASTER, POLLER, Override, Param, Readable, status, \
     tupleof
 from nicos.core.constants import SIMULATION
-from nicos.pycompat import iteritems
 
 from nicos_ess.devices.kafka.consumer import KafkaSubscriber
 
@@ -87,7 +86,7 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
 
     def new_messages_callback(self, messages):
         json_messages = {}
-        for timestamp, msg in iteritems(messages):
+        for timestamp, msg in messages.items():
             try:
                 if isinstance(msg, str):
                     # handle "old style" messages

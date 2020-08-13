@@ -42,7 +42,7 @@ from nicos.core.device import Moveable
 from nicos.core.errors import PositionError
 from nicos.core.utils import multiStatus
 from nicos.devices.abstract import Motor
-from nicos.pycompat import iteritems, number_types
+from nicos.pycompat import number_types
 
 from nicos_ess.devices.epics.motor import EpicsMotor
 from nicos_sinq.amor.devices.component_handler import DistancesHandler
@@ -161,7 +161,7 @@ class AmorLogicalMotorHandler(Moveable):
         devs = {dev: self._get_dev(dev) for dev in self.status_devs
                 if self._get_dev(dev)}
         st_devs = multiStatus(devs, 0)
-        devs = [n for n, d in iteritems(devs) if d.status()[0] == st_devs[0]]
+        devs = [n for n, d in devs.items() if d.status()[0] == st_devs[0]]
 
         if st_devs[0] in self.status_to_msg:
             msg = self.status_to_msg[st_devs[0]]

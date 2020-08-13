@@ -33,7 +33,6 @@ from nicos.guisupport.qt import QMessageBox, QRegExp, QRegExpValidator, \
     pyqtSlot
 from nicos.guisupport.typedvalue import MissingWidget
 from nicos.guisupport.widget import NicosWidget
-from nicos.pycompat import iteritems
 
 
 class AmorControlPanel(GenericPanel):
@@ -95,7 +94,7 @@ class AmorControlPanel(GenericPanel):
         widgets_dict.update(self.slit_widgets)
         widgets_dict.update(self.magnet_widgets)
 
-        for n, w in iteritems(widgets_dict):
+        for n, w in widgets_dict.items():
             currval = self.client.getDeviceParam(n, 'value')
             w._reinit(currval)
 
@@ -205,8 +204,9 @@ class AmorControlPanel(GenericPanel):
 
     def _devsMoveButton(self, dic, cmd='move', issue_separate=False):
         dev_to_widget = {
-            n: w for n, w in iteritems(dic) if not isinstance(w._inner,
-                                                              MissingWidget)}
+            n: w for n, w in dic.items()
+            if not isinstance(w._inner, MissingWidget)
+        }
         targets = []
         try:
             targets = [edit.getValue() for edit in dev_to_widget.values()]
@@ -237,8 +237,8 @@ class AmorControlPanel(GenericPanel):
 
         if issue_separate:
             code = '\n'.join(
-                ('%s(%s, %r)' % (cmd, n, v) for n, v in iteritems(move)))
+                ('%s(%s, %r)' % (cmd, n, v) for n, v in move.items()))
         else:
             code = '%s(%s)' % (cmd, ', '.join(
-                ('%s, %r' % (n, v) for n, v in iteritems(move))))
+                ('%s, %r' % (n, v) for n, v in move.items())))
         self.exec_command(code)

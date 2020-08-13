@@ -26,7 +26,6 @@ from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.core import ConfigurationError, NicosError
-from nicos.pycompat import iteritems
 
 from nicos_ess.nexus.placeholder import DeviceValuePlaceholder, PlaceholderBase
 
@@ -82,7 +81,7 @@ class NXDataset(NexusElementBase):
         self.value = value
         self.dtype = dtype
         self.attrs = {}
-        for key, val in iteritems(attr):
+        for key, val in attr.items():
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val)
             self.attrs[key] = val
@@ -146,7 +145,7 @@ class NXDataset(NexusElementBase):
         # Add the attributes if present
         if self.attrs:
             attr_dict = {}
-            for attr_name, attr in iteritems(self.attrs):
+            for attr_name, attr in self.attrs.items():
                 # It is important to check if the type is of NXAttribute
                 # Subclasses can directly change the self.attrs dict
                 if isinstance(attr, NXAttribute):
@@ -182,7 +181,7 @@ class NXGroup(NexusElementBase):
 
         # Add the children
         if self.children:
-            for ename, entry in iteritems(self.children):
+            for ename, entry in self.children.items():
                 if isinstance(entry, NexusElementBase):
                     for child_dict in entry.structure(ename, metainfo):
                         if child_dict:
@@ -193,7 +192,7 @@ class NXGroup(NexusElementBase):
         # Add the attributes
         if self.attrs:
             attr_dict = {}
-            for attr_name, attr in iteritems(self.attrs):
+            for attr_name, attr in self.attrs.items():
                 # It is important to check if the type is of NXAttribute
                 # Subclasses can directly change the self.attrs dict
                 if isinstance(attr, NXAttribute):
@@ -238,7 +237,7 @@ class KafkaStream(NexusElementBase):
             self.stream[key] = None
 
         self.stream_attrs = {}
-        for key, val in iteritems(attr):
+        for key, val in attr.items():
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val)
             self.stream_attrs[key] = val
@@ -258,13 +257,13 @@ class KafkaStream(NexusElementBase):
     def structure(self, name, metainfo):
         stream_dict = {
             "type": "stream",
-            "stream": {k: v for k, v in iteritems(self.stream) if v}
+            "stream": {k: v for k, v in self.stream.items() if v}
         }
 
         # Add the attributes
         if self.stream_attrs:
             attr_dict = {}
-            for attr_name, attr in iteritems(self.stream_attrs):
+            for attr_name, attr in self.stream_attrs.items():
                 if isinstance(attr, NXAttribute):
                     for attr_structure in attr.structure(attr_name, metainfo):
                         if attr_structure:

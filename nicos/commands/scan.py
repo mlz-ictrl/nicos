@@ -36,7 +36,7 @@ from nicos.core.constants import SUBSCAN
 from nicos.core.scan import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, \
     ContinuousScan, ManualScan, Scan, StopScan, SweepScan
 from nicos.core.spm import Bare, Dev, spmsyntax
-from nicos.pycompat import iteritems, number_types
+from nicos.pycompat import number_types
 
 __all__ = [
     'scan', 'cscan', 'timescan', 'sweep', 'twodscan', 'contscan',
@@ -102,7 +102,7 @@ def _handleScanArgs(args, kwargs, scaninfo):
             envlist.append(arg)
         else:
             raise UsageError('unsupported scan argument: %r' % arg)
-    for key, value in iteritems(kwargs):
+    for key, value in kwargs.items():
         if key in session.devices and isinstance(session.devices[key],
                                                  Moveable):
             # Here, don't replace 'list' by '(list, tuple)'

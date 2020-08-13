@@ -36,7 +36,7 @@ from time import time as currenttime
 import numpy as np
 from lttb import lttb
 
-from nicos.pycompat import iteritems, number_types
+from nicos.pycompat import number_types
 
 
 def buildTickDistAndSubTicks(mintime, maxtime, minticks=3):
@@ -213,7 +213,7 @@ class TimeSeries(object):
         if self.string_mapping:
             self.info = ', '.join(
                 '%g=%s' % (v * self.scale + self.offset, k) for (k, v) in
-                sorted(iteritems(self.string_mapping), key=lambda x: x[1]))
+                sorted(self.string_mapping.items(), key=lambda x: x[1]))
 
     def synthesize_value(self):
         if not self.n:
@@ -229,7 +229,7 @@ class TimeSeries(object):
                 value = self.string_mapping.setdefault(value, len(self.string_mapping))
                 self.info = ', '.join(
                     '%g=%s' % (v * self.scale + self.offset, k) for (k, v) in
-                    sorted(iteritems(self.string_mapping), key=lambda x: x[1]))
+                    sorted(self.string_mapping.items(), key=lambda x: x[1]))
             else:
                 return
         elif use_scale:

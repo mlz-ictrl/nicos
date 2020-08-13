@@ -32,7 +32,6 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QByteArray, QDialogButtonBox, \
     QHeaderView, Qt, QTreeWidgetItem
-from nicos.pycompat import iteritems
 
 
 class WatchdogPanel(Panel):
@@ -125,7 +124,7 @@ class WatchdogPanel(Panel):
         role = self.buttonBox.buttonRole(button)
         if role == QDialogButtonBox.ApplyRole:
             updates = []
-            for (eid, enabled) in iteritems(self._preconf_enable):
+            for (eid, enabled) in self._preconf_enable.items():
                 if enabled != self._preconf_entries[eid]['enabled']:
                     updates.append((eid, enabled))
 

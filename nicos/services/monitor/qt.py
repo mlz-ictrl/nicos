@@ -38,7 +38,6 @@ from nicos.guisupport.qt import QApplication, QColor, QCursor, QFont, \
     QSizePolicy, Qt, QVBoxLayout, pyqtSignal, uic
 from nicos.guisupport.utils import scaledFont
 from nicos.guisupport.widget import NicosWidget
-from nicos.pycompat import iteritems
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.utils import checkSetupSpec, findResource
 
@@ -106,7 +105,7 @@ class MonitorWindow(QMainWindow):
 
     def do_reconfigure(self, emitdict):
         self._reconfiguring = True
-        for (layout, item), enabled in iteritems(emitdict):
+        for (layout, item), enabled in emitdict.items():
             if layout is None:
                 item.setVisible(enabled)
             else:

@@ -30,7 +30,6 @@ from time import time as currenttime
 
 from nicos.core import Param, intrange
 from nicos.protocols.cache import FLAG_NO_STORE, OP_TELL, OP_TELLOLD
-from nicos.pycompat import iteritems
 from nicos.services.cache.database.base import CacheDatabase
 from nicos.services.cache.entry import CacheEntry
 
@@ -71,7 +70,7 @@ class MemoryCacheDatabase(CacheDatabase):
         ret = set()
         with self._db_lock:
             # look for matching keys
-            for dbkey, entries in iteritems(self._db):
+            for dbkey, entries in self._db.items():
                 if key not in dbkey:
                     continue
                 lastent = entries[-1]

@@ -34,7 +34,6 @@ from nicos.core import INFO_CATEGORIES, ConfigurationError, DataSink, \
     DataSinkHandler, Override, Param
 from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.devices.datasinks import FileSink
-from nicos.pycompat import iteritems
 from nicos.utils import tabulated
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
@@ -154,7 +153,7 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
                             ('info', ds.info)]:
             self._write_comment('%25s : %s' % (name, value))
         bycategory = {}
-        for (devname, key), (_, val, unit, category) in iteritems(ds.metainfo):
+        for (devname, key), (_, val, unit, category) in ds.metainfo.items():
             if category:
                 bycategory.setdefault(category, []).append(
                     ('%s_%s' % (devname, key), (val + ' ' + unit).strip()))

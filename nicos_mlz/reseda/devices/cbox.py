@@ -32,7 +32,6 @@ import numpy
 
 from nicos.core import Attach, Moveable, Param, Readable, tupleof
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod
-from nicos.pycompat import iteritems
 
 
 class CBoxResonanceFrequency(BaseSequencer):
@@ -219,7 +218,7 @@ class CBoxResonanceFrequency(BaseSequencer):
                     for c2bits in range(32):
                         args = (c1bits, c2bits, c3bits, c1c2serial)
                         caps[self._calcSerialCapacity(*args)] = args
-        odict = OrderedDict(sorted(iteritems(caps)))
+        odict = OrderedDict(sorted(caps.items()))
         return odict
 
     def _calcNecessaryCapacity(self, frequency):

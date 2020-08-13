@@ -38,7 +38,6 @@ from nicos import session
 from nicos.core.constants import MAINTENANCE, MASTER, SIMULATION, SLAVE
 from nicos.core.device import Device, DeviceAlias
 from nicos.core.errors import UsageError
-from nicos.pycompat import iteritems
 
 try:
     import readline
@@ -220,7 +219,7 @@ class NicosCompleter(object):
                         k.startswith(text) and
                         isinstance(session.devices[k], cls)]
             elif command in self.special_setups:
-                all_setups = [name for (name, info) in iteritems(session._setup_info)
+                all_setups = [name for (name, info) in session._setup_info.items()
                               if info and info['group'] in ('basic',
                                                             'optional',
                                                             'plugplay',

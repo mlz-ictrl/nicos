@@ -45,7 +45,7 @@ from nicos.core.scan import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, Scan
 from nicos.core.spm import Bare, spmsyntax
 from nicos.devices.sxtal.instrument import SXTalBase
 from nicos.devices.sxtal.xtal.orientation import orient
-from nicos.pycompat import iteritems, number_types
+from nicos.pycompat import number_types
 from nicos.utils import createSubprocess, printTable
 
 __all__ = [
@@ -394,7 +394,7 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
             envlist.append(arg)
         else:
             raise UsageError('unsupported qscan argument: %r' % arg)
-    for key, value in iteritems(kwargs):
+    for key, value in kwargs.items():
         if key == 'h' or key == 'H':
             Q[0] = value
         elif key == 'k' or key == 'K':

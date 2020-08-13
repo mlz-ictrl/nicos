@@ -39,7 +39,7 @@ from nicos.devices.cacheclient import BaseCacheClient
 from nicos.devices.notifiers import Mailer, Notifier
 from nicos.protocols.cache import OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
     cache_dump, cache_load
-from nicos.pycompat import iteritems, to_utf8
+from nicos.pycompat import to_utf8
 from nicos.services.watchdog.conditions import DelayedTrigger, Expression, \
     Precondition
 from nicos.utils import LCDict, createSubprocess, createThread, \
@@ -129,7 +129,7 @@ class Watchdog(BaseCacheClient):
         # create all notifier devices
         self._all_notifiers = []
         self._notifiers = {'': []}
-        for key, devnames in iteritems(self.notifiers):
+        for key, devnames in self.notifiers.items():
             self._notifiers[key] = notiflist = []
             for devname in devnames:
                 dev = session.getDevice(devname, Notifier)

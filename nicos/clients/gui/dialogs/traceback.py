@@ -29,7 +29,6 @@ from __future__ import absolute_import, division, print_function
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QClipboard, QDialog, \
     QDialogButtonBox, QFont, QPushButton, QTreeWidgetItem, pyqtSlot
-from nicos.pycompat import iteritems
 
 
 class TracebackDialog(QDialog):
@@ -82,7 +81,7 @@ class TracebackDialog(QDialog):
             item = QTreeWidgetItem(self.tree, [line])
             item.setFirstColumnSpanned(True)
             item.setFont(0, boldfont)
-            for var, value in iteritems(bindings):
+            for var, value in bindings.items():
                 QTreeWidgetItem(item, ['', var, value])
 
     @pyqtSlot()

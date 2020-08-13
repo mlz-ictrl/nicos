@@ -38,7 +38,7 @@ from nicos.core.constants import FINAL, POINT, SCAN, SUBSCAN
 from nicos.core.data import DataSinkHandler
 from nicos.core.errors import ConfigurationError
 from nicos.devices.datasinks import FileSink
-from nicos.pycompat import iteritems, to_utf8
+from nicos.pycompat import to_utf8
 
 __version__ = '0.0.1'
 
@@ -167,7 +167,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
 
     def _remove_none_values(self, d):
         nonelist = []
-        for k, v in iteritems(d):
+        for k, v in d.items():
             if v is None:
                 self.log.warning('Found %r value for %r', v, k)
                 nonelist += [k]
@@ -494,7 +494,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
     def _write_header(self, point):
         self.log.debug('_write_header: %r', point.settype)
         bycategory = {}
-        for (dev, key), (v, _, _, cat) in iteritems(point.metainfo):
+        for (dev, key), (v, _, _, cat) in point.metainfo.items():
             if dev == 'adet':
                 pass
             if cat:

@@ -38,7 +38,6 @@ from nicos.core.data.dataset import BlockDataset, PointDataset, ScanDataset, \
 from nicos.core.data.sink import DataFile
 from nicos.core.errors import ProgrammingError
 from nicos.core.utils import DeviceValueDict
-from nicos.pycompat import iteritems
 from nicos.utils import DEFAULT_FILE_MODE, lazy_property, readFileCounter, \
     updateFileCounter
 
@@ -261,7 +260,7 @@ class DataManager(object):
         Relevant devices are (currently) those that are not lowlevel.
         """
         devices = [dev for (_, dev) in
-                   sorted(iteritems(session.devices),
+                   sorted(session.devices.items(),
                           key=lambda name_dev: name_dev[0].lower())]
         newinfo = {}
         for device in devices:

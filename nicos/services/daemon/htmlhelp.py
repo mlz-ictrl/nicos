@@ -35,7 +35,6 @@ from io import StringIO
 
 from nicos import session
 from nicos.core import Device, DeviceAlias
-from nicos.pycompat import iteritems
 from nicos.utils import formatArgs, formatDocstring
 
 try:
@@ -157,7 +156,7 @@ class HelpGenerator(object):
                    '<th>From setup</th><th>Description</th></tr>')
         setupinfo = session.getSetupInfo()
         devsetups = {}
-        for sname, info in iteritems(setupinfo):
+        for sname, info in setupinfo.items():
             if info is None:
                 continue
             for devname in info['devices']:
@@ -183,7 +182,7 @@ class HelpGenerator(object):
 
         def listsetups(group):
             setups = []
-            for setupname, info in sorted(iteritems(session.getSetupInfo())):
+            for setupname, info in sorted(session.getSetupInfo().items()):
                 if info is None or info['group'] != group:
                     continue
                 setups.append('<tr><td><tt>%s</tt></td><td>%s</td>'
@@ -247,7 +246,7 @@ class HelpGenerator(object):
                    '<th>Unit</th><th>Settable?</th><th>Value type</th>'
                    '<th>Description</th></tr>')
         devunit = getattr(dev, 'unit', '')
-        for name, info in sorted(iteritems(dev.parameters)):
+        for name, info in sorted(dev.parameters.items()):
             if not info.userparam:
                 continue
             try:
@@ -278,7 +277,7 @@ class HelpGenerator(object):
             if cls in listed:
                 return
             listed.add(cls)
-            for name, (args, doc, fromtype, is_usermethod) in sorted(iteritems(cls.methods)):
+            for name, (args, doc, fromtype, is_usermethod) in sorted(cls.methods.items()):
                 if is_usermethod and fromtype is cls:
                     ret.append('<tr><td><tt>%s</tt></td><td>%s</td><td>%s</td></tr>' %
                                (html.escape(dev.name + '.' + name + args),

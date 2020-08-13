@@ -46,7 +46,6 @@ from nicos.guisupport.qt import QAction, QActionGroup, QByteArray, \
     QMessageBox, QPen, QPrintDialog, QPrinter, QsciLexerPython, QsciPrinter, \
     QsciScintilla, Qt, QTabWidget, QToolBar, QTreeWidgetItem, pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
-from nicos.pycompat import iteritems
 from nicos.utils import formatDuration, formatEndtime
 
 has_scintilla = QsciScintilla is not None
@@ -472,7 +471,7 @@ class EditorPanel(Panel):
             self.simFinished.setText(formatEndtime(timing))
 
         # device ranges
-        for devname, (_dval, dmin, dmax, aliases) in iteritems(devinfo):
+        for devname, (_dval, dmin, dmax, aliases) in devinfo.items():
             if dmin is not None:
                 aliascol = 'aliases: ' + ', '.join(aliases) if aliases else ''
                 item = QTreeWidgetItem([devname, dmin, '-', dmax, '', aliascol])
@@ -612,7 +611,7 @@ class EditorPanel(Panel):
         if self.saving:
             return
         editor = watcher = None
-        for editor, watcher in iteritems(self.watchers):
+        for editor, watcher in self.watchers.items():
             if watcher is self.sender():
                 break
         else:

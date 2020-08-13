@@ -39,7 +39,6 @@ from nicos.guisupport.qt import QBrush, QByteArray, QColor, QComboBox, \
     pyqtSignal, pyqtSlot, sip
 from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
 from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
-from nicos.pycompat import iteritems
 from nicos.utils import AttrDict
 
 foregroundBrush = {
@@ -367,7 +366,7 @@ class DevicesPanel(Panel):
             self.log.warning('session.getSetupInfo() returned None instead '
                              'of {}')
             return
-        for setupname, info in iteritems(self._setupinfo):
+        for setupname, info in self._setupinfo.items():
             if info is None:
                 continue
             if setupname not in loaded_setups:
@@ -430,7 +429,7 @@ class DevicesPanel(Panel):
         self._devinfo[ldevname] = DevInfo(devname)
 
         # let the cache handler process all properties
-        for key, value in iteritems(params):
+        for key, value in params.items():
             self.on_client_cache((0, ldevname + '/' + key, OP_TELL,
                                   cache_dump(value)))
 
@@ -801,7 +800,7 @@ class ControlDialog(QDialog):
         # put parameter values in the list widget
         self.paramItems.clear()
         self.paramList.clear()
-        for key, value in sorted(iteritems(params)):
+        for key, value in sorted(params.items()):
             if self.paraminfo.get(key):
                 # normally, show only userparams, except in expert mode
                 is_userparam = self.paraminfo[key]['userparam']

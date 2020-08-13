@@ -51,7 +51,6 @@ from itertools import chain, cycle, islice
 
 from nicos.core.device import Device
 from nicos.core.errors import SPMError
-from nicos.pycompat import iteritems
 
 id_re = re.compile('[a-zA-Z_][a-zA-Z0-9_]*$')
 string1_re = re.compile(r"'(\\\\|\\'|[^'])*'")
@@ -224,7 +223,7 @@ class SetupName(Token):
         return arg
 
     def complete(self, text, session, argsofar):
-        all_setups = [name for (name, info) in iteritems(session._setup_info)
+        all_setups = [name for (name, info) in session._setup_info.items()
                       if info and info['group'] in ('basic', 'optional',
                                                     'plugplay', '')]
         if self.what == 'all':
@@ -284,7 +283,7 @@ class SPMHandler(object):
             command = tokens[0]
             if len(tokens) == 1:
                 # complete command
-                return select([n for (n, o) in iteritems(self.session.namespace)
+                return select([n for (n, o) in self.session.namespace.items()
                                if hasattr(o, 'is_usercommand') or
                                isinstance(o, Device)], word)
             cmdobj = self.session.namespace.get(command)

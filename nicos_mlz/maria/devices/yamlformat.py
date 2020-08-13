@@ -33,7 +33,6 @@ from nicos.core import NicosError, Override
 from nicos.core.data.dataset import ScanDataset
 from nicos.core.device import Readable
 from nicos.devices.datasinks.image import ImageSink
-from nicos.pycompat import iteritems
 
 from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
 
@@ -76,7 +75,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
             devices.pop(info.name, None)
 
         # log all remaining nicos devices
-        for name, dev in iteritems(devices):
+        for name, dev in devices.items():
             if isinstance(dev, Readable):
                 entry = self._dict()
                 try:

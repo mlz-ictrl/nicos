@@ -36,7 +36,6 @@ from nicos.guisupport.qt import QComboBox, QDialog, QDialogButtonBox, QFrame, \
     QHBoxLayout, QLabel, QListWidgetItem, QMessageBox, QPushButton, Qt, \
     pyqtSlot
 from nicos.guisupport.widget import NicosWidget
-from nicos.pycompat import iteritems
 from nicos.utils import decodeAny
 
 
@@ -458,7 +457,7 @@ class SetupsPanel(Panel):
     def showSetupInfo(self, setup):
         info = self._setupinfo[str(setup)]
         devs = []
-        for devname, devconfig in iteritems(info['devices']):
+        for devname, devconfig in info['devices'].items():
             if not devconfig[1].get('lowlevel'):
                 devs.append(devname)
         devs = ', '.join(sorted(devs))

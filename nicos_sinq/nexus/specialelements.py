@@ -28,7 +28,6 @@
 # *****************************************************************************
 
 from nicos import session
-from nicos.pycompat import iteritems
 
 from nicos_sinq.nexus.elements import NexusElementBase, NXAttribute
 
@@ -39,7 +38,7 @@ class TwoThetaArray(NexusElementBase):
         self.step = step
         self.length = length
         self.attrs = {}
-        for key, val in iteritems(attrs):
+        for key, val in attrs.items():
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
                 self.attrs[key] = val
@@ -66,7 +65,7 @@ class FixedArray(NexusElementBase):
         self._step = step
         self._len = length
         self.attrs = {}
-        for key, val in iteritems(attrs):
+        for key, val in attrs.items():
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
                 self.attrs[key] = val

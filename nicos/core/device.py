@@ -48,7 +48,7 @@ from nicos.core.params import INFO_CATEGORIES, Attach, Override, Param, \
 from nicos.core.utils import formatStatus, multiStatus, multiStop, multiWait, \
     statusString, usermethod
 from nicos.protocols.cache import FLAG_NO_STORE
-from nicos.pycompat import iteritems, number_types
+from nicos.pycompat import number_types
 from nicos.utils import getVersions, loggers, parseDateString
 
 ALLOWED_CATEGORIES = {v[0] for v in INFO_CATEGORIES}
@@ -140,7 +140,7 @@ class DeviceMeta(DeviceMixinMeta):
                     Attach(entry[1], _devclass, multiple=_multiple)
 
         # create parameter properties
-        for param, info in iteritems(newtype.parameters):
+        for param, info in newtype.parameters.items():
             # parameter names are always lowercased (enforce this)
             if param != param.lower():
                 raise ProgrammingError('%r device: parameter name %r is not '
@@ -428,7 +428,7 @@ class Device(metaclass=DeviceMeta):
 
     def _attachDevices(self):
         """Validate and create attached devices."""
-        for aname, entry in sorted(iteritems(self.attached_devices)):
+        for aname, entry in sorted(self.attached_devices.items()):
             if not isinstance(entry, Attach):
                 raise ProgrammingError(self, 'attached device entry for %r is '
                                        'invalid; the value should be a '
@@ -606,7 +606,7 @@ class Device(metaclass=DeviceMeta):
         notfromcache = []
         later = []
 
-        for param, paraminfo in iteritems(self.parameters):
+        for param, paraminfo in self.parameters.items():
             if paraminfo.preinit:
                 _init_param(param, paraminfo)
             else:

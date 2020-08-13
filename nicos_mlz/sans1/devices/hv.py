@@ -38,7 +38,6 @@ from nicos.devices.generic.sequence import BaseSequencer, \
     SeqSleep
 from nicos.devices.generic.switcher import Switcher
 from nicos.devices.tango import Motor as TangoMotor, PowerSupply
-from nicos.pycompat import iteritems
 
 
 class VoltageSwitcher(Switcher):
@@ -53,7 +52,7 @@ class VoltageSwitcher(Switcher):
 
     def _mapReadValue(self, pos):
         """Override default inverse mapping to allow a deviation <= precision"""
-        for name, values in iteritems(self.mapping):
+        for name, values in self.mapping.items():
             value, prec = values
             if pos == value:
                 return name

@@ -28,7 +28,6 @@ import numpy as np
 from lxml import etree
 
 from nicos.core import Attach, Device, Override, Param, listof, oneof
-from nicos.pycompat import iteritems
 
 from nicos_sinq.devices.sinqhm.connector import HttpConnector
 
@@ -242,7 +241,7 @@ class HistogramConfAxis(HistogramConfElement):
 
     def getXml(self):
         elem = etree.Element('axis')
-        for attr, val in iteritems(self.getXmlAttrs()):
+        for attr, val in self.getXmlAttrs().items():
             elem.set(attr, str(val))
         return elem
 

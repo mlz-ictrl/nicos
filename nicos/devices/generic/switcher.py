@@ -32,7 +32,6 @@ from nicos.core import ConfigurationError, InvalidValueError, Moveable, \
     listof, multiReset, multiStatus, multiStop, multiWait, none_or, status
 from nicos.core.params import Attach
 from nicos.devices.abstract import MappedMoveable, MappedReadable
-from nicos.pycompat import iteritems
 from nicos.utils import lazy_property
 
 
@@ -89,7 +88,7 @@ class Switcher(MappedMoveable):
         deviation <= precision.
         """
         prec = self.precision
-        for name, value in iteritems(self.mapping):
+        for name, value in self.mapping.items():
             if prec:
                 if abs(pos - value) <= prec:
                     return name
@@ -155,7 +154,7 @@ class ReadonlySwitcher(MappedReadable):
 
     def _mapReadValue(self, pos):
         prec = self.precision
-        for name, value in iteritems(self.mapping):
+        for name, value in self.mapping.items():
             if prec:
                 if abs(pos - value) <= prec:
                     return name
@@ -280,7 +279,7 @@ class MultiSwitcher(MappedMoveable):
             precisions = self.precision
             if len(precisions) == 1:
                 precisions = [precisions[0]] * len(self.devices)
-        for name, values in iteritems(self.mapping):
+        for name, values in self.mapping.items():
             if hasprec:
                 for p, v, prec in zip(pos, values, precisions):
                     if prec:

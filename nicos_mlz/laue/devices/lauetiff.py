@@ -33,7 +33,6 @@ import numpy
 from nicos.core import NicosError
 from nicos.core.params import Override
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-from nicos.pycompat import iteritems
 
 try:
     from PIL import PILLOW_VERSION  # pylint: disable=no-name-in-module
@@ -92,7 +91,7 @@ class TiffLaueImageSinkHandler(SingleFileSinkHandler):
         ifd = ImageFileDirectory_v2()  # pylint: disable=E1120
         ifd[TAGMAP['startx'][0]] = 1
         ifd[TAGMAP['starty'][0]] = 1
-        for (dev, attr), attrVal in iteritems(imageinfo):
+        for (dev, attr), attrVal in imageinfo.items():
             key = '%s/%s' % (dev, attr)
             if key in TAGMAP:
                 tag = TAGMAP[key][0]

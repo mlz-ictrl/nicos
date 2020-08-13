@@ -40,7 +40,6 @@ from nicos import config, session
 from nicos.core import ConfigurationError, Device, DeviceAlias, Param, \
     Readable, listof, status
 from nicos.devices.generic.cache import CacheReader
-from nicos.pycompat import iteritems
 from nicos.utils import createSubprocess, createThread, loggers, \
     watchFileContent, whyExited
 from nicos.utils.files import findSetup
@@ -240,7 +239,7 @@ class Poller(Device):
                     with self._creation_lock:
                         dev = session.getDevice(devname)
 
-                    for name, info in iteritems(dev.parameters):
+                    for name, info in dev.parameters.items():
                         if info.volatile:
                             work_queue.put('pollparam:%s' % name)
 

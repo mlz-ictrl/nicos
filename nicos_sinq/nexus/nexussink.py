@@ -34,7 +34,6 @@ from nicos.core.data.dataset import PointDataset, ScanDataset
 from nicos.core.errors import NicosError
 from nicos.core.params import Param
 from nicos.devices.datasinks import FileSink
-from nicos.pycompat import iteritems
 
 from nicos_sinq.nexus.elements import NexusElementBase, NXAttribute, \
     NXScanLink, NXTime
@@ -114,7 +113,7 @@ class NexusSinkHandler(DataSinkHandler):
         self.h5file.flush()
 
     def create(self, dictdata, h5obj):
-        for key, val in iteritems(dictdata):
+        for key, val in dictdata.items():
             if isinstance(val, str):
                 val = NXAttribute(val, 'string')
                 val.create(key, h5obj, self)
@@ -135,7 +134,7 @@ class NexusSinkHandler(DataSinkHandler):
 
     def updateValues(self, dictdata, h5obj, values):
         if isinstance(self.dataset, PointDataset):
-            for key, val in iteritems(dictdata):
+            for key, val in dictdata.items():
                 if isinstance(val, dict):
                     nxname = key.split(':')[0]
                     childh5obj = h5obj[nxname]
@@ -149,7 +148,7 @@ class NexusSinkHandler(DataSinkHandler):
                     session.log.warning('Cannot identify and  update %s', key)
 
     def append(self, dictdata, h5obj, subset):
-        for key, val in iteritems(dictdata):
+        for key, val in dictdata.items():
             if isinstance(val, dict):
                 nxname = key.split(':', 1)[0]
                 childh5obj = h5obj[nxname]
@@ -172,7 +171,7 @@ class NexusSinkHandler(DataSinkHandler):
             self.h5file.flush()
 
     def resultValues(self, dictdata, h5obj, results):
-        for key, val in iteritems(dictdata):
+        for key, val in dictdata.items():
             if isinstance(val, dict):
                 nxname = key.split(':')[0]
                 childh5obj = h5obj[nxname]
@@ -197,7 +196,7 @@ class NexusSinkHandler(DataSinkHandler):
             self.h5file.flush()
 
     def find_scan_link(self, h5obj, template):
-        for key, val in iteritems(template):
+        for key, val in template.items():
             if isinstance(val, dict):
                 nxname = key.split(':', 1)[0]
                 childobj = h5obj[nxname]
@@ -209,7 +208,7 @@ class NexusSinkHandler(DataSinkHandler):
         return None
 
     def make_scan_links(self, h5obj, template, linkpath):
-        for key, val in iteritems(template):
+        for key, val in template.items():
             if isinstance(val, dict):
                 nxname = key.split(':')[0]
                 childobj = h5obj[nxname]

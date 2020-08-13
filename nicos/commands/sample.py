@@ -38,7 +38,6 @@ from nicos.commands import helparglist, parallel_safe, usercommand
 from nicos.commands.analyze import CommandLineFitResult
 from nicos.core import ConfigurationError, UsageError
 from nicos.devices.tas.spacegroups import can_reflect, get_spacegroup
-from nicos.pycompat import iteritems
 from nicos.utils import printTable
 from nicos.utils.fitting import Fit, GaussFit
 
@@ -137,7 +136,7 @@ def ListSamples():
     all_cols.discard('name')
     index = {key: i for (i, key) in enumerate(sorted(all_cols), start=2)}
     index['name'] = 1
-    for number, info in iteritems(session.experiment.sample.samples):
+    for number, info in session.experiment.sample.samples.items():
         rows.append([str(number), info['name']] + [''] * len(all_cols))
         for key in info:
             rows[-1][index[key]] = str(info[key])
@@ -285,7 +284,7 @@ def activation(formula=None, instrument=None,
 
 def _extract_powder_data(num, dataset):
     values = {'%s_%s' % dev_key: val
-              for (dev_key, (val, _, _, _)) in iteritems(dataset.metainfo)}
+              for (dev_key, (val, _, _, _)) in dataset.metainfo.items()}
     try:
         ki_name = session.instrument._attached_mono.name
         tt_name = session.instrument._attached_phi.name

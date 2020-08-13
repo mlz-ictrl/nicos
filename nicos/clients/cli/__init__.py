@@ -54,7 +54,7 @@ from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \
     SIM_STATES, STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK
 from nicos.protocols.daemon.classic import DEFAULT_PORT
-from nicos.pycompat import iteritems, to_encoding
+from nicos.pycompat import to_encoding
 from nicos.utils import colorize, formatDuration, formatEndtime, \
     parseConnectionString, terminalSize
 from nicos.utils.loggers import ACTION, INPUT
@@ -490,7 +490,7 @@ class NicosCmdClient(NicosClient):
                                      formatEndtime(timing)))
                     if devinfo:
                         dnwidth = max(map(len, devinfo))
-                        sorteditems = sorted(iteritems(devinfo),
+                        sorteditems = sorted(devinfo.items(),
                                              key=lambda x: x[0].lower())
                         for devname, (_, dmin, dmax, aliases) in sorteditems:
                             aliascol = 'aliases: ' + ', '.join(aliases) if aliases else ''
@@ -652,7 +652,7 @@ class NicosCmdClient(NicosClient):
             self.put_client('No script is running.')
 
     def _iter_pending(self):
-        for reqid, script in iteritems(self.pending_requests):
+        for reqid, script in self.pending_requests.items():
             if 'name' in script and script['name']:
                 short = script['name']
             elif 'script' in script:

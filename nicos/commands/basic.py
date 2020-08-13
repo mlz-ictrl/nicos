@@ -44,7 +44,6 @@ from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
     SetupName, String, spmsyntax
 from nicos.devices.notifiers import Mailer
-from nicos.pycompat import iteritems
 from nicos.utils import fixupScript, formatArgs, formatDuration, printTable, \
     reexecProcess, resolveClasses
 from nicos.utils.timer import Timer
@@ -296,7 +295,7 @@ def ListSetups(listall=False):
     """
     session.log.info('Available setups:')
     items = []
-    for name, info in iteritems(session.getSetupInfo()):
+    for name, info in session.getSetupInfo().items():
         if info is None:
             items.append((name, '', '<could not be read, check syntax>', ''))
             continue
@@ -409,7 +408,7 @@ def CreateAllDevices(**kwargs):
 
     session.startMultiCreate()
     try:
-        for devname, (_, devconfig) in iteritems(session.configured_devices):
+        for devname, (_, devconfig) in session.configured_devices.items():
             if devconfig.get('lowlevel', False) and not lowlevel:
                 continue
             try:
@@ -867,7 +866,7 @@ def ListMailReceivers():
     """
     session.log.info('Email addresses for notifications:')
     items = []
-    for notifier, recipients in iteritems(_listReceivers(Mailer)):
+    for notifier, recipients in _listReceivers(Mailer).items():
         for rec in recipients:
             items.append((notifier,) + rec)
     printTable(('mailer', 'email address', 'info'), sorted(items),

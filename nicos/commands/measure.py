@@ -33,7 +33,7 @@ from nicos.core.acquire import Average, CountResult, MinMax, acquire, \
     read_environment, stop_acquire_thread
 from nicos.core.device import Measurable, SubscanMeasurable
 from nicos.core.errors import NicosError, UsageError
-from nicos.pycompat import iteritems, number_types
+from nicos.pycompat import number_types
 from nicos.utils import createThread
 
 __all__ = [
@@ -200,7 +200,7 @@ def preset(**preset):
         names.difference_update(det.presetInfo())
         det.setPreset(**preset)
     session.log.info('new preset: %s',
-                     ', '.join('%s=%s' % item for item in iteritems(preset)))
+                     ', '.join('%s=%s' % item for item in preset.items()))
     if names:
         session.log.warning('these preset keys were not recognized by any of '
                             'the detectors: %s -- detectors are %s',

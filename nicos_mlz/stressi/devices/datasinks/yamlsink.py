@@ -36,7 +36,7 @@ from nicos.core import Override, Param, listof
 from nicos.core.constants import FINAL, POINT, SCAN, SUBSCAN
 from nicos.devices.datasinks.scan import TIMEFMT, AsciiScanfileSink, \
     AsciiScanfileSinkHandler
-from nicos.pycompat import iteritems, to_utf8
+from nicos.pycompat import to_utf8
 from nicos.utils import AutoDefaultODict
 
 try:
@@ -365,7 +365,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
 
     def _fill_header(self):
         bycategory = {}
-        for (dev, key), (_v, v, _, cat) in iteritems(self.dataset.metainfo):
+        for (dev, key), (_v, v, _, cat) in self.dataset.metainfo.items():
             if cat:
                 if key == 'operators':  # don't use the formatted list
                     bycategory.setdefault(cat, []).append((dev, key, _v))

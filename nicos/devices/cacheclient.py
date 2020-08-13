@@ -40,7 +40,7 @@ from nicos.protocols.cache import BUFSIZE, CYCLETIME, DEFAULT_CACHE_PORT, \
     END_MARKER, OP_ASK, OP_LOCK, OP_LOCK_LOCK, OP_LOCK_UNLOCK, OP_REWRITE, \
     OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, OP_UNSUBSCRIBE, OP_WILDCARD, \
     SYNC_MARKER, cache_dump, cache_load, line_pattern, msg_pattern
-from nicos.pycompat import from_utf8, iteritems, to_utf8
+from nicos.pycompat import from_utf8, to_utf8
 from nicos.utils import closeSocket, createThread, getSysInfo, tcpSocket
 
 
@@ -504,7 +504,7 @@ class CacheClient(BaseCacheClient):
         # get all current values from the cache
         BaseCacheClient._connect_action(self)
         # tell the server all our rewrites
-        for newprefix, oldprefix in iteritems(self._inv_rewrites):
+        for newprefix, oldprefix in self._inv_rewrites.items():
             self._queue.put(self._prefix + newprefix + OP_REWRITE +
                             self._prefix + oldprefix + '\n')
 
@@ -638,7 +638,7 @@ class CacheClient(BaseCacheClient):
 
     def get_values(self):
         with self._dblock:
-            return {key: value for (key, (value, _)) in iteritems(self._db)}
+            return {key: value for (key, (value, _)) in self._db.items()}
 
     def get_explicit(self, dev, key, default=None):
         """Get a value from the cache server, bypassing the local cache.  This

@@ -53,7 +53,6 @@ from time import localtime, mktime, sleep, strftime, strptime, \
 # do **not** import nicos.session here
 # session dependent nicos utilities should be implemented in nicos.core.utils
 from nicos import config, get_custom_version, nicos_version
-from nicos.pycompat import iteritems
 
 try:
     import pwd
@@ -131,7 +130,7 @@ class readonlydict(dict):
         update = _no
 
     def __getnewargs__(self):
-        return (dict(iteritems(self)),)
+        return (dict(self.items()),)
 
     def __reduce__(self):
         return dict.__reduce__(self)
@@ -1090,7 +1089,7 @@ def whyExited(status):
 
 def formatExtendedFrame(frame):
     ret = []
-    for key, value in iteritems(frame.f_locals):
+    for key, value in frame.f_locals.items():
         if key in ('credentials', 'password'):
             continue
         try:
@@ -1444,7 +1443,7 @@ class ReaderRegistry(object):
     @classmethod
     def filefilters(cls):
         return [(ftype, ffilter) for ftype, (_cls, ffilter) in
-                iteritems(cls.readers)]
+                cls.readers.items()]
 
 
 class FitterRegistry(object):

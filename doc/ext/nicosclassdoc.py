@@ -46,7 +46,6 @@ from sphinx.util.docstrings import prepare_docstring
 from nicos.core import Device
 from nicos.core.mixins import DeviceMixinBase
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.pycompat import iteritems
 from nicos.utils import formatArgs
 
 logger = logging.getLogger(__name__)
@@ -398,7 +397,7 @@ def purge_devindex(app, env, docname):
     if not hasattr(env, 'nicos_all_devices'):
         return
     env.nicos_all_devices = dict(
-        (k, e) for (k, e) in iteritems(env.nicos_all_devices)
+        (k, e) for (k, e) in env.nicos_all_devices.items()
         if e['docname'] != docname)
 
 

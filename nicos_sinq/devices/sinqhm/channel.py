@@ -28,7 +28,6 @@ import numpy
 
 from nicos.core import Attach, Override, Param, Value, dictof, status
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel
-from nicos.pycompat import iteritems
 
 from nicos_ess.devices.datasinks.imagesink.histogramdesc import \
     HistogramDesc, HistogramDimDesc
@@ -240,6 +239,6 @@ class HistogramMemoryChannel(PassiveChannel):
 
     def doInfo(self):
         ret = []
-        for item, val in iteritems(self._text_info()):
+        for item, val in self._text_info().items():
             ret.append((item, val, '%s' % val, '', 'general'))
         return ret
