@@ -32,7 +32,6 @@ import sys
 from nicos import session
 from nicos.core.constants import SLAVE
 from nicos.core.sessions import Session
-from nicos.pycompat import exec_
 from nicos.utils import daemonize, removePidfile, setuser, writePidfile
 
 try:
@@ -150,5 +149,5 @@ class ScriptSession(Session):
         session.handleInitialSetup(setup, mode)
 
         # Execute the script code and shut down.
-        exec_(code, session.namespace)
+        exec(code, session.namespace)
         session.shutdown()

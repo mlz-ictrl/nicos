@@ -38,7 +38,7 @@ from nicos.guisupport.qt import QDialog, QDialogButtonBox, QFileDialog, \
     QFrame, QLineEdit, QListWidgetItem, QMenu, QMessageBox, QRadioButton, \
     QTableWidgetItem, QVBoxLayout, pyqtSlot
 from nicos.guisupport.utils import DoubleValidator
-from nicos.pycompat import exec_, iteritems
+from nicos.pycompat import iteritems
 from nicos.utils import findResource
 
 SAMPLE_KEYS = ['aperture', 'position', 'timefactor',
@@ -581,7 +581,7 @@ def parse_sampleconf(filename):
           'ClearSamples': mocksample.reset,
           'SetSample': mocksample.define}
     with open(filename, 'r') as fp:
-        exec_(fp, ns)
+        exec(fp, ns)
     # The script needs to call this, if it doesn't it is not a sample file.
     if not mocksample.reset_called:
         raise ValueError('the script never calls ClearSamples()')

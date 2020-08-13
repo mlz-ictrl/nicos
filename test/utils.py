@@ -51,7 +51,7 @@ from nicos.devices.abstract import CanReference
 from nicos.devices.cacheclient import CacheClient
 from nicos.devices.generic import VirtualMotor
 from nicos.devices.notifiers import Mailer
-from nicos.pycompat import exec_, reraise
+from nicos.pycompat import reraise
 from nicos.services.cache.database import FlatfileCacheDatabase
 from nicos.utils import closeSocket, createSubprocess, tcpSocket
 from nicos.utils.loggers import ACTION, NicosLogger
@@ -352,7 +352,7 @@ class TestSession(Session):
                                    lambda src: compile(src, filename, symbol))
         if code is None:
             return
-        exec_(code, self.namespace)
+        exec(code, self.namespace)
 
     def delay(self, _secs):
         # TODO: this sleep shouldn't be necessary

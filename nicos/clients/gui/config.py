@@ -27,7 +27,6 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.utils import SettingGroup
-from nicos.pycompat import exec_
 
 
 class hsplit(tuple):
@@ -184,7 +183,7 @@ def prepareGuiNamespace():
 
 def processGuiConfig(configcode):
     ns = prepareGuiNamespace()
-    exec_(configcode, ns)
+    exec(configcode, ns)
     gui_conf = gui_config(ns['main_window'], ns.get('windows', []),
                           ns.get('tools', []), ns.get('name', 'NICOS'),
                           ns.get('options', {}))

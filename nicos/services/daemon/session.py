@@ -35,7 +35,6 @@ from nicos.core.sessions.simple import NoninteractiveSession
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.devices.cacheclient import DaemonCacheClient
 from nicos.protocols.daemon import BREAK_AFTER_STEP
-from nicos.pycompat import exec_
 from nicos.services.daemon.htmlhelp import HelpGenerator
 from nicos.services.daemon.pyctl import ControlStop
 from nicos.utils.loggers import INFO
@@ -134,7 +133,7 @@ class DaemonSession(NoninteractiveSession):
         self.emitfunc('datacurve', (title, xvalues, yvalues))
 
     def breakpoint(self, level):
-        exec_(self._bpcode[level])
+        exec(self._bpcode[level])
 
     def pause(self, prompt):
         self.log.info('pause from script...')

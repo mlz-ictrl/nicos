@@ -57,7 +57,6 @@ from nicos.commands import helparglist, usercommand
 from nicos.commands.device import _basemove, _wait_hook
 from nicos.commands.output import printinfo
 from nicos.core import UsageError
-from nicos.pycompat import exec_
 from nicos.services.daemon.utils import parseScript
 
 
@@ -157,5 +156,5 @@ def tableexe(csvfile):
                 if com:
                     code, _ = parseScript(com)
                     for c in code:
-                        exec_(c, session.namespace)
+                        exec(c, session.namespace)
             session.breakpoint(2)

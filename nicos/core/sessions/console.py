@@ -37,7 +37,6 @@ from nicos.core.constants import MASTER, SIMULATION, SLAVE
 from nicos.core.errors import AccessError
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import NicosCompleter
-from nicos.pycompat import exec_
 from nicos.utils import colorcode, formatExtendedStack
 from nicos.utils.loggers import INFO, INPUT
 
@@ -148,7 +147,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         """
         session.scriptEvent('start', ('', source))
         try:
-            exec_(codeobj, self.globals)
+            exec(codeobj, self.globals)
         except NicosInteractiveStop:
             pass
         except KeyboardInterrupt:

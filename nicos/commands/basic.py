@@ -44,7 +44,7 @@ from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
     SetupName, String, spmsyntax
 from nicos.devices.notifiers import Mailer
-from nicos.pycompat import exec_, iteritems
+from nicos.pycompat import iteritems
 from nicos.utils import fixupScript, formatArgs, formatDuration, printTable, \
     reexecProcess, resolveClasses
 from nicos.utils.timer import Timer
@@ -705,7 +705,7 @@ def _RunScript(filename, statdevices, debug=False):
         compiled = session.scriptHandler(code, fn, compiler)
         with _ScriptScope(path.basename(fn), code):
             try:
-                exec_(compiled, session.namespace)
+                exec(compiled, session.namespace)
             except Exception:
                 if debug:
                     traceback.print_exc()
@@ -731,7 +731,7 @@ def _RunCode(code, debug=False):
         starttime = session.clock.time
     code = fixupScript(code)
     try:
-        exec_(code, session.namespace)
+        exec(code, session.namespace)
     except Exception:
         if debug:
             traceback.print_exc()

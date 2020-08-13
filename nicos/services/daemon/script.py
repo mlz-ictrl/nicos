@@ -43,7 +43,6 @@ from nicos.core.utils import system_user
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_NOW, SIM_STATES, \
     STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK, STATUS_RUNNING, \
     STATUS_STOPPING
-from nicos.pycompat import exec_
 from nicos.services.daemon.debugger import Rpdb
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.utils import ScriptQueue, formatScript, \
@@ -449,7 +448,7 @@ class ExecutionController(Controller):
         self.last_handler = weakref.ref(handler)
         try:
             for block in temp_request.code:
-                exec_(block, self.namespace)
+                exec(block, self.namespace)
         finally:
             self.last_handler = None
 

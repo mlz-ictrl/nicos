@@ -27,7 +27,7 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.core.params import nicosdev_re
-from nicos.pycompat import exec_, iteritems, listitems
+from nicos.pycompat import iteritems, listitems
 from nicos.utils import Device
 from nicos.utils.files import iterSetups
 
@@ -178,7 +178,7 @@ def make_configdata(filepath, all_setups, dep_files):
             fullname = all_setups[setupname]
         ns = {}
         with open(fullname) as fp:
-            exec_(fp.read(), ns)
+            exec(fp.read(), ns)
         dep_files.add(fullname)
         try:
             return ns[element]
@@ -241,7 +241,7 @@ def readSetup(infodict, modname, filepath, all_setups, logger):
         return
     ns = prepareNamespace(modname, filepath, all_setups)
     try:
-        exec_(code, ns)
+        exec(code, ns)
     except Exception as err:
         logger.exception('An error occurred while processing '
                          'setup %r: %s', filepath, err)

@@ -62,7 +62,7 @@ from nicos.devices.cacheclient import CacheClient, CacheLockError, \
 from nicos.devices.instrument import Instrument
 from nicos.devices.notifiers import Notifier
 from nicos.protocols.cache import FLAG_NO_STORE
-from nicos.pycompat import exec_, iteritems, itervalues, listvalues
+from nicos.pycompat import iteritems, itervalues, listvalues
 from nicos.utils import fixupScript, formatArgs, formatDocstring, \
     formatScriptError, which
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
@@ -749,7 +749,7 @@ class Session(object):
                     try:
                         self.log.debug('executing startup code: %r', code)
                         # no local_namespace here
-                        exec_(code, self.namespace)
+                        exec(code, self.namespace)
                     except Exception:
                         self.log.exception('error running startup code, '
                                            'ignoring')

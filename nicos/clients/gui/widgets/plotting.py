@@ -48,8 +48,7 @@ from nicos.guisupport.qt import QAction, QApplication, QCursor, QDialog, \
 from nicos.guisupport.qtgr import InteractiveGRWidget, \
     LegendEvent, MouseEvent, ROIEvent
 from nicos.guisupport.utils import scaledFont
-# pylint: disable=redefined-builtin
-from nicos.pycompat import exec_, number_types
+from nicos.pycompat import number_types
 from nicos.utils import safeName
 from nicos.utils.fitting import CosineFit, ExponentialFit, Fit, FitError, \
     FitResult, GaussFit, LinearFit, LorentzFit, PearsonVIIFit, \
@@ -390,7 +389,7 @@ class ArbitraryFitter(Fitter):
         fcnstr, params, values, xmin, xmax = dlg.getFunction()
 
         ns = {}
-        exec_('from numpy import *', ns)
+        exec('from numpy import *', ns)
         try:
             model = eval('lambda x, %s: %s' % (', '.join(params), fcnstr), ns)
         except SyntaxError as e:

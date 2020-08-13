@@ -33,7 +33,6 @@ import pytest
 
 from nicos.core import *  # pylint: disable=unused-wildcard-import,wildcard-import
 from nicos.core.sessions.simple import ScriptSession
-from nicos.pycompat import exec_
 from nicos.utils import loggers
 
 from test.utils import module_root, raises, runtime_root
@@ -97,7 +96,7 @@ def session(request):
 def run_script_session(session, setup, code):
     session.handleInitialSetup(setup)
     try:
-        exec_(code, session.namespace)
+        exec(code, session.namespace)
     finally:
         session.shutdown()
 

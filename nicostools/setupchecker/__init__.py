@@ -38,7 +38,6 @@ from nicos.core.errors import ConfigurationError
 from nicos.core.params import nicosdev_re
 from nicos.core.sessions.setups import SETUP_GROUPS, fixup_stacked_devices, \
     prepareNamespace
-from nicos.pycompat import exec_
 from nicos.utils import checkSetupSpec, importString
 from nicos.utils.files import findSetupRoots, iterSetups
 from nicos.utils.loggers import StreamHandler
@@ -318,7 +317,7 @@ class SetupChecker(object):
         try:
             with open(self.filename) as fp:
                 self.code = fp.read()
-            exec_(self.code, self.ns)
+            exec(self.code, self.ns)
             self.ast = ast.parse(self.code)
         except SyntaxError as e:
             msg = 'SyntaxError:\t%s' % e.msg

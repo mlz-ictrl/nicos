@@ -44,7 +44,7 @@ from nicos.core.errors import NicosError
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.core.utils import User
-from nicos.pycompat import exec_, iteritems
+from nicos.pycompat import iteritems
 from nicos.services.daemon.script import parseScript
 from nicos.utils import createSubprocess
 from nicos.utils.loggers import ACTION, SimDebugHandler, recordToMessage
@@ -208,7 +208,7 @@ class SimulationSession(Session):
             last_clock = session.clock.time
             code, _ = parseScript(code)
             for i, c in enumerate(code):
-                exec_(c, session.namespace)
+                exec(c, session.namespace)
                 time = session.clock.time - last_clock
                 last_clock = session.clock.time
                 session.log_sender.send_block_result(i, time)

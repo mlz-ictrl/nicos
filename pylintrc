@@ -86,6 +86,7 @@ disable=useless-object-inheritance
         ,duplicate-code
         ,multiple-statements
         ,eval-used
+        ,exec-used
         ,interface-not-implemented
         ,too-many-lines
         ,invalid-name
