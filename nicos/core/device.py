@@ -48,7 +48,7 @@ from nicos.core.params import INFO_CATEGORIES, Attach, Override, Param, \
 from nicos.core.utils import formatStatus, multiStatus, multiStop, multiWait, \
     statusString, usermethod
 from nicos.protocols.cache import FLAG_NO_STORE
-from nicos.pycompat import integer_types, iteritems, \
+from nicos.pycompat import iteritems, \
     listitems, number_types, reraise, string_types
 from nicos.utils import getVersions, loggers, parseDateString
 
@@ -1704,7 +1704,7 @@ class Moveable(Waitable):
 
         if hasattr(self, 'doIsAtTarget'):
             return self.doIsAtTarget(pos, target)
-        elif (isinstance(pos, (string_types, integer_types)) and
+        elif (isinstance(pos, (string_types, int)) and
               target is not None):
             return target == pos
         return True

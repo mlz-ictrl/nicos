@@ -53,7 +53,7 @@ from nicos.guisupport.timeseries import TimeSeries
 from nicos.guisupport.trees import BaseDeviceParamTree
 from nicos.guisupport.utils import scaledFont
 from nicos.protocols.cache import cache_load
-from nicos.pycompat import integer_types, iteritems, number_types
+from nicos.pycompat import iteritems, number_types
 from nicos.utils import extractKeyAndIndex, parseDuration, safeName
 
 
@@ -875,7 +875,7 @@ class BaseHistoryWindow(object):
                 mappings[key] = m = {}
                 i = 0
                 for k, v in sorted(devmapping.items()):
-                    if isinstance(v, integer_types):
+                    if isinstance(v, int):
                         m[k] = v
                     else:
                         m[k] = i

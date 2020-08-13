@@ -38,7 +38,7 @@ from nicos.core.errors import ConfigurationError
 from nicos.core.params import nicosdev_re
 from nicos.core.sessions.setups import SETUP_GROUPS, fixup_stacked_devices, \
     prepareNamespace
-from nicos.pycompat import exec_, integer_types, string_types
+from nicos.pycompat import exec_, string_types
 from nicos.utils import checkSetupSpec, importString
 from nicos.utils.files import findSetupRoots, iterSetups
 from nicos.utils.loggers import StreamHandler
@@ -449,7 +449,7 @@ class SetupChecker(object):
                 for target, prio in entrydict.items():
                     if not (
                         isinstance(target, string_types)
-                        and isinstance(prio, integer_types)
+                        and isinstance(prio, int)
                         and not (isinstance(prio, bool))
                     ):
                         self.log_error(
@@ -470,7 +470,7 @@ class SetupChecker(object):
 
         # check for validity of display_order
         display_order = self.ns.get('display_order', 50)
-        if not isinstance(display_order, integer_types) or \
+        if not isinstance(display_order, int) or \
            not 0 <= display_order <= 100:
             self.log_error(
                 'display_order should be an integer between '

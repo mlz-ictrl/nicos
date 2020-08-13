@@ -30,7 +30,7 @@ from io import BufferedWriter, FileIO
 
 # For consistency import everything from "six" here.
 from six import binary_type, exec_, \
-    integer_types, iteritems, iterkeys, itervalues, reraise, string_types, \
+    iteritems, iterkeys, itervalues, reraise, string_types, \
     text_type
 
 # functionality in addition to what "six" provides
@@ -46,7 +46,7 @@ def listvalues(d):
 
 # all builtin number types (useful for isinstance checks)
 
-number_types = integer_types + (float,)
+number_types = (int, float)
 
 
 # create file like class for py3
@@ -100,7 +100,7 @@ except Exception:
 
 __all__ = [
     'reraise', 'exec_',
-    'string_types', 'integer_types', 'text_type', 'binary_type',
+    'string_types', 'text_type', 'binary_type',
     'number_types',
     'iteritems', 'itervalues', 'iterkeys', 'listitems', 'listvalues',
 ]

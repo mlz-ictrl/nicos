@@ -32,7 +32,6 @@ from itertools import chain
 from nicos import session
 from nicos.core import Moveable, NicosError, Override, Param, Value, anytype, \
     dictof, listof, usermethod
-from nicos.pycompat import integer_types
 from nicos.utils import printTable
 
 
@@ -68,7 +67,7 @@ class MiezeMaster(Moveable):
         if not self.tuning:
             raise NicosError(self, 'no tuning selected, use %s.usetuning(name)'
                              ' to select a tuning table' % self)
-        if not isinstance(target, integer_types):
+        if not isinstance(target, int):
             for idx, setting in enumerate(self.curtable):
                 if setting['_name_'] == target:
                     target = idx

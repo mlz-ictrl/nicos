@@ -33,7 +33,7 @@ from os import path
 
 from nicos import session
 from nicos.core import USER, ConfigurationError, InvalidValueError, User
-from nicos.pycompat import from_maybe_utf8, integer_types, text_type, to_utf8
+from nicos.pycompat import from_maybe_utf8, text_type, to_utf8
 from nicos.services.daemon.auth import AuthenticationError, \
     Authenticator as BaseAuthenticator
 from nicos.utils import readFile
@@ -101,7 +101,7 @@ def queryProposal(pnumber, instrument=None):
     """Query the FRM II proposal database for information about the given
     proposal number.
     """
-    if not isinstance(pnumber, integer_types):
+    if not isinstance(pnumber, int):
         raise InvalidValueError('proposal number must be an integer')
     # check still needed?
     if session.instrument is None:
