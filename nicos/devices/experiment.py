@@ -1235,7 +1235,7 @@ class ImagingExperiment(Experiment):
         self._setROParam('lastdarkimage', '')
         self._setROParam('lastopenbeamimage', '')
 
-    def new(self, *args, **kwargs):
+    def new(self, *args, **kwargs):  # pylint: disable=signature-differs
         Experiment.new(self, *args, **kwargs)
         self._clearImgPaths()
 

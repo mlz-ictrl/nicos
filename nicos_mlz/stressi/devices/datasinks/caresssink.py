@@ -490,7 +490,6 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         for dev, key in metainfo:
             self.log.debug('put meta info: %s.%s = %r',
                            dev, key, metainfo[dev, key][0])
-        return
 
     def _write_header(self, point):
         self.log.debug('_write_header: %r', point.settype)

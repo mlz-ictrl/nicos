@@ -75,7 +75,6 @@ class Coder(IPCCoder):
     def doWriteConfbyte(self, byte):
         self.log.warning('Config byte can\'t be changed like this.')
         # self._attached_bus.send(self.addr, 154, byte, 3)
-        return
 
     def doUpdatePoly(self, poly):
         self._fit = np.polynomial.Polynomial(poly)
@@ -102,12 +101,10 @@ class Motor(IPCMotor):
         #     raise InvalidValueError(self, 'confbyte not supported by card')
         # self.log.info('parameter change not permanent, use _store() method '
         #               'to write to EEPROM')
-        return
 
     def doWriteSteps(self, value):
         self.log.debug('not setting new steps value: %s', value)
         # self._attached_bus.send(self.addr, SET_CURR_POS, value, 6)
-        return
 
 
 class Motor1(Motor):

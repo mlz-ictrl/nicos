@@ -799,7 +799,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
             self._axes.setXtickCallback(self.xtickCallBack)
             self._plot.offsetXLabel = -.08
 
-        scale = self.yaxisScale()
+        scale = self.yaxisScale()  # pylint: disable=assignment-from-none
         if scale:
             axes = self._plot.getAxes(0)
             curwin = axes.getWindow()
@@ -997,7 +997,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         return True
 
     @property
-    def plot(self):
+    def plot(self):  # pylint: disable=invalid-overridden-method
         """Get current gr.pygr.Plot object."""
         return self._plot
 

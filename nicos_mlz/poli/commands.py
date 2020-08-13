@@ -832,7 +832,7 @@ n                                ! extended output
     IndexPeaks._last_result = (new_cell.rmat.T, (dgamma, dnu), listname, peaks)
     session.log.info('Using (%.4g %.4g %.4g) and (%.4g %.4g %.4g) to calculate'
                      ' UB matrix:', *(tuple(hkl1) + tuple(hkl2)))
-    for row in new_cell.rmat.T:
+    for row in new_cell.rmat.T:  # pylint: disable=not-an-iterable
         session.log.info(' %8.4f %8.4f %8.4f', *row)
     session.log.info('')
     session.log.info('Fit quality χ²: %8.4f', chi2)
@@ -1156,7 +1156,7 @@ def RefineMatrix(listname='default', **kwds):
 
     session.log.info('')
     session.log.info('New UB matrix:')
-    for row in new_cell.rmat.T:
+    for row in new_cell.rmat.T:  # pylint: disable=not-an-iterable
         session.log.info(' %8.4f %8.4f %8.4f', *row)
 
     session.log.info('')
