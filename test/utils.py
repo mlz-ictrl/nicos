@@ -51,7 +51,6 @@ from nicos.devices.abstract import CanReference
 from nicos.devices.cacheclient import CacheClient
 from nicos.devices.generic import VirtualMotor
 from nicos.devices.notifiers import Mailer
-from nicos.pycompat import reraise
 from nicos.services.cache.database import FlatfileCacheDatabase
 from nicos.utils import closeSocket, createSubprocess, tcpSocket
 from nicos.utils.loggers import ACTION, NicosLogger
@@ -557,15 +556,14 @@ def startSubprocess(filename, *args, **kwds):
     if 'wait_cb' in kwds:
         try:
             kwds['wait_cb']()
-        except Exception:
-            caught = sys.exc_info()
+        except Exception as err:
             sys.stderr.write('%s failed]' % proc.pid)
             try:
                 proc.kill()
             except Exception:
                 pass
             proc.wait()
-            reraise(*caught)
+            raise err
     sys.stderr.write('%s ok]\n' % proc.pid)
     return proc
 

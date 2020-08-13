@@ -48,7 +48,7 @@ from nicos.core.params import INFO_CATEGORIES, Attach, Override, Param, \
 from nicos.core.utils import formatStatus, multiStatus, multiStop, multiWait, \
     statusString, usermethod
 from nicos.protocols.cache import FLAG_NO_STORE
-from nicos.pycompat import iteritems, listitems, number_types, reraise
+from nicos.pycompat import iteritems, listitems, number_types
 from nicos.utils import getVersions, loggers, parseDateString
 
 ALLOWED_CATEGORIES = {v[0] for v in INFO_CATEGORIES}
@@ -364,13 +364,13 @@ class Device(metaclass=DeviceMeta):
             # initialize device
             self.init()
         except:  # really *all* exceptions # pylint: disable=W0702
-            t, v, tb = sys.exc_info()
+            err = sys.exc_info()[1]
             try:
                 self.shutdown()
             except Exception:
                 self.log.warning('could not shutdown after creation failed',
                                  exc=1)
-            reraise(t, v, tb)
+            raise err
 
     attribute_whitelist = {
         'valuetype',  # for all devices
@@ -833,7 +833,7 @@ class Device(metaclass=DeviceMeta):
            should perform cleanup, for example closing connections to hardware.
         """
         self.log.debug('shutting down device')
-        caughtExc = None
+        caught_exc = None
         if self._mode != SIMULATION:
             # do not execute shutdown actions when simulating
 
@@ -846,8 +846,8 @@ class Device(metaclass=DeviceMeta):
             if hasattr(self, 'doShutdown'):
                 try:
                     self.doShutdown()
-                except Exception:
-                    caughtExc = sys.exc_info()
+                except Exception as err:
+                    caught_exc = err
 
         for adev in self._adevs.values():
             if isinstance(adev, list):
@@ -861,8 +861,8 @@ class Device(metaclass=DeviceMeta):
         session.device_case_map.pop(self._name.lower(), None)
         session.explicit_devices.discard(self._name)
         # re-raise the doShutdown error
-        if caughtExc is not None:
-            reraise(*caughtExc)
+        if caught_exc is not None:
+            raise caught_exc
 
     @usermethod
     def version(self):

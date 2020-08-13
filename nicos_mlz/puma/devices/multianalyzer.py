@@ -25,7 +25,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-import sys
 from contextlib import contextmanager
 
 from numpy import sign
@@ -38,7 +37,6 @@ from nicos.core.errors import MoveError, PositionError
 from nicos.core.utils import filterExceptions, multiWait
 from nicos.devices.abstract import CanReference
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod
-from nicos.pycompat import reraise
 
 
 class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
@@ -308,9 +306,9 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
             for dev in devlist[:]:
                 try:
                     done = dev.doStatus(0)[0]
-                except Exception:
+                except Exception as exc:
                     dev.log.exception('while waiting')
-                    final_exc = filterExceptions(sys.exc_info(), final_exc)
+                    final_exc = filterExceptions(exc, final_exc)
                     # remove this device from the waiters - we might still
                     # have its subdevices in the list so that _hw_wait()
                     # should not return until everything is either OK or
@@ -329,7 +327,7 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
             if devlist:
                 session.delay(self._base_loop_delay)
         if final_exc:
-            reraise(*final_exc)
+            raise final_exc
 
     def _reference(self, devlist):
         if self.stoprequest == 0:

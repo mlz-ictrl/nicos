@@ -27,7 +27,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-import sys
 from time import time as currenttime
 
 from nicos import session
@@ -35,7 +34,6 @@ from nicos.core.constants import FINAL, INTERRUPTED, SIMULATION
 from nicos.core.errors import NicosError
 from nicos.core.params import Value
 from nicos.core.utils import waitForCompletion
-from nicos.pycompat import reraise
 
 
 def _wait_for_continuation(delay, only_pause=False):
@@ -160,10 +158,9 @@ def acquire(point, preset, iscompletefunc=None):
                 for det in detset:
                     det.stop()
             session.delay(delay)
-    except BaseException as e:
-        exc_info = sys.exc_info()
+    except BaseException as err:
         point.finished = currenttime()
-        if e.__class__.__name__ != 'ControlStop':
+        if err.__class__.__name__ != 'ControlStop':
             session.log.warning('Exception during count, trying to save data',
                                 exc=True)
         for det in detset:
@@ -182,7 +179,7 @@ def acquire(point, preset, iscompletefunc=None):
                 dataman.putResults(INTERRUPTED, {det.name: res})
             except Exception:
                 det.log.exception('error saving measurement data')
-        reraise(*exc_info)
+        raise err
     finally:
         point.finished = currenttime()
         session.endActionScope()

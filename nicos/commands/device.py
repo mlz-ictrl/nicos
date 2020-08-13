@@ -44,7 +44,7 @@ from nicos.core.spm import AnyDev, Bare, Dev, DevParam, Multi, String, \
     spmsyntax
 from nicos.core.status import BUSY, OK
 from nicos.devices.abstract import CanReference, MappedMoveable
-from nicos.pycompat import iteritems, itervalues, number_types, reraise
+from nicos.pycompat import iteritems, itervalues, number_types
 from nicos.utils import createThread, parseDateString, printTable, tupelize
 from nicos.utils.timer import Timer
 
@@ -90,7 +90,7 @@ def _basemove(dev_pos_list, waithook=None, poshook=None):
     if errors:
         for (dev, exc_info) in errors[:-1]:
             dev.log.error(exc_info=exc_info)
-        reraise(*errors[-1][1])
+        raise errors[-1][1][1]
 
     devs = []
     for (dev, pos) in movelist:

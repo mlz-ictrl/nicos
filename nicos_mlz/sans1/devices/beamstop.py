@@ -36,7 +36,7 @@ from nicos.devices.generic import Axis
 from nicos.devices.generic.sequence import SeqCall, SeqDev as NicosSeqDev, \
     SequencerMixin
 from nicos.devices.tango import Sensor
-from nicos.pycompat import iteritems, reraise
+from nicos.pycompat import iteritems
 
 
 class FunnySensor(Sensor):
@@ -292,4 +292,4 @@ class BeamStop(SequencerMixin, Moveable):
         self._setROParam('fixed', 'Error during sequence (step %r), needs '
                                   'manual fixing!' % step)
         self._setROParam('fixedby', ('admin', 20))
-        reraise(*exc_info)
+        raise exc_info[1]

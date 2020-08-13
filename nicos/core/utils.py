@@ -28,7 +28,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-import sys
 from collections import namedtuple
 from functools import wraps
 from time import localtime, time as currenttime
@@ -39,7 +38,7 @@ from nicos.core.constants import SIMULATION
 from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, MoveError, NicosError, NicosTimeoutError, \
     PositionError
-from nicos.pycompat import listitems, reraise, to_ascii_escaped
+from nicos.pycompat import listitems, to_ascii_escaped
 from nicos.utils import createThread, formatDuration
 
 # Exceptions at which a scan point is measured anyway.
@@ -230,8 +229,8 @@ def multiWait(devices):
                     done = dev.isCompleted()
                     if done:
                         dev.finish()
-                except Exception:
-                    final_exc = filterExceptions(sys.exc_info(), final_exc)
+                except Exception as exc:
+                    final_exc = filterExceptions(exc, final_exc)
                     # remove this device from the waiters - we might still have
                     # its subdevices in the list so that multiWait() should not
                     # return until everything is either OK or ERROR
@@ -270,7 +269,7 @@ def multiWait(devices):
                 session.delay(delay)
                 eta_update += delay
         if final_exc:
-            reraise(*final_exc)
+            raise final_exc
     finally:
         session.endActionScope()
         session.log.debug('multiWait: finished')
@@ -280,11 +279,11 @@ def multiWait(devices):
 def filterExceptions(curr, prev):
     if not prev:
         return curr
-    if (isinstance(prev[1], CONTINUE_EXCEPTIONS) and
-       not isinstance(curr[1], CONTINUE_EXCEPTIONS)):
+    if (isinstance(prev, CONTINUE_EXCEPTIONS) and
+       not isinstance(curr, CONTINUE_EXCEPTIONS)):
         return curr
-    if (isinstance(prev[1], SKIP_EXCEPTIONS) and
-       not isinstance(curr[1], SKIP_EXCEPTIONS + CONTINUE_EXCEPTIONS)):
+    if (isinstance(prev, SKIP_EXCEPTIONS) and
+       not isinstance(curr, SKIP_EXCEPTIONS + CONTINUE_EXCEPTIONS)):
         return curr
     return prev
 
@@ -389,11 +388,11 @@ def _multiMethod(baseclass, method, devices):
         try:
             # method has to be provided by baseclass!
             getattr(dev, method)()
-        except Exception:
+        except Exception as exc:
             dev.log.exception('during %s()', method)
-            final_exc = filterExceptions(sys.exc_info(), final_exc)
+            final_exc = filterExceptions(exc, final_exc)
     if final_exc:
-        reraise(*final_exc)
+        raise final_exc
 
 
 def multiStop(devices):
@@ -432,9 +431,6 @@ class DeviceValue(namedtuple('DeviceValue',
 
     def __int__(self):
         return int(self.raw)
-
-    def __long__(self):
-        return long(self.raw)
 
     def __float__(self):
         return float(self.raw)

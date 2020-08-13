@@ -42,7 +42,7 @@ from nicos.core.errors import LimitError, ModeError, NicosError
 from nicos.core.mixins import HasLimits
 from nicos.core.params import Value
 from nicos.core.utils import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, multiWait
-from nicos.pycompat import iteritems, number_types, reraise
+from nicos.pycompat import iteritems, number_types
 from nicos.utils import Repeater
 
 
@@ -381,12 +381,12 @@ class Scan(object):
                     except SkipPoint:
                         continue
                     except:  # pylint: disable=bare-except
-                        exc_info = sys.exc_info()
+                        err = sys.exc_info()[1]
                         try:
                             self.finishPoint()
                         except Exception:
                             session.log.exception('could not finish point')
-                        reraise(*exc_info)
+                        raise err
                     try:
                         # measure...
                         # XXX(dataapi): is target= needed?
