@@ -76,10 +76,10 @@ class ConsoleScanSinkHandler(DataSinkHandler):
         else:
             session.log.info()
             for filename in ds.filenames:
-                session.log.info(self._indent + 'Filename: ' + filename)
-        session.log.info(self._indent + tabulated(self._colwidths, names))
-        session.log.info(self._indent + tabulated(self._colwidths, units))
-        session.log.info(self._indent + '-' * self._rulerlen)
+                session.log.info('%sFilename: %s', self._indent, filename)
+        session.log.info('%s%s', self._indent, tabulated(self._colwidths, names))
+        session.log.info('%s%s', self._indent, tabulated(self._colwidths, units))
+        session.log.info('%s%s', self._indent, '-' * self._rulerlen)
 
     def addSubset(self, point):
         if point.settype != POINT:
@@ -97,7 +97,7 @@ class ConsoleScanSinkHandler(DataSinkHandler):
                 [safe_format(info.fmtstr, val) for (info, val) in
                  zip(ds.detvalueinfo, point.detvaluelist)] +
                 point.filenames)
-        session.log.info(self._indent + tabulated(self._colwidths, cols))
+        session.log.info('%s%s', self._indent, tabulated(self._colwidths, cols))
 
     def end(self):
         if self.dataset.settype != SUBSCAN:

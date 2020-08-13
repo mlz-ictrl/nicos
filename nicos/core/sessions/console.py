@@ -187,7 +187,7 @@ class ConsoleSession(Session):
         if value is not None and getattr(value, '__display__', True):
             self.log.log(INFO, repr(value))
 
-    def loadSetup(self, *args, **kwds):
+    def loadSetup(self, *args, **kwds):  # pylint: disable=signature-differs
         Session.loadSetup(self, *args, **kwds)
         self.resetPrompt()
 

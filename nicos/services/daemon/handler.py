@@ -171,7 +171,7 @@ class ConnectionHandler(object):
 
         authenticators = self.daemon.get_authenticators()
         pubkey, privkey = rsa.newkeys(512)
-        pubkeyStr = base64.encodestring(pubkey.save_pkcs1())
+        pubkeyStr = base64.encodebytes(pubkey.save_pkcs1())
         bannerhashing = 'rsa,plain'
 
         # announce version, authentication modality and serializer
@@ -199,7 +199,7 @@ class ConnectionHandler(object):
         password = credentials[0]['passwd']
         if password[0:4] == 'RSA:':
             password = password[4:]
-            password = rsa.decrypt(base64.decodestring(password.encode()),
+            password = rsa.decrypt(base64.decodebytes(password.encode()),
                                    privkey)
 
         # check login data according to configured authentication

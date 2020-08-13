@@ -21,8 +21,8 @@
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
-"""Simulation session with support for ZeroMQ messaging."""
 
+"""Simulation session with support for ZeroMQ messaging."""
 
 from __future__ import absolute_import, division, print_function
 
@@ -249,14 +249,14 @@ class SimulationSupervisor(Thread):
 
     def __init__(self, sandbox, uuid, code, setups, user, emitter,
                  more_args=None, quiet=False):
-        Thread.__init__(self, target=self._target,
+        Thread.__init__(self, target=self._run,
                         name='SimulationSupervisor',
                         args=(sandbox, uuid, code, setups, user, emitter,
                               more_args or [], quiet))
         # "daemonize this thread" attribute, not referring to the NICOS daemon.
         self.daemon = True
 
-    def _target(self, sandbox, uuid, code, setups, user, emitter, args, quiet):
+    def _run(self, sandbox, uuid, code, setups, user, emitter, args, quiet):
         socket = nicos_zmq_ctx.socket(zmq.DEALER)
         poller = zmq.Poller()
         poller.register(socket, zmq.POLLIN)

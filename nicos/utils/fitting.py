@@ -283,7 +283,6 @@ class PredefinedFit(Fit):
 
     def process_result(self, res):
         """Can set res.label_{x,y} as well as a res.label_contents list."""
-        pass
 
 
 class LinearFit(PredefinedFit):
