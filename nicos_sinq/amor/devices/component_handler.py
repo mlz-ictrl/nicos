@@ -30,8 +30,7 @@ from nicos.core.device import Moveable, Readable
 from nicos.core.errors import ConfigurationError
 from nicos.devices.generic.sequence import BaseSequencer, SeqCall, SeqDev, \
     SeqSleep
-from nicos.pycompat import number_types
-from nicos.utils import printTable
+from nicos.utils import number_types, printTable
 
 from nicos_sinq.amor.devices.sps_switch import SpsSwitch
 

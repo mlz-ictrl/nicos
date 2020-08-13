@@ -36,7 +36,7 @@ from time import time as currenttime
 import numpy as np
 from lttb import lttb
 
-from nicos.pycompat import number_types
+from nicos.utils import number_types
 
 
 def buildTickDistAndSubTicks(mintime, maxtime, minticks=3):

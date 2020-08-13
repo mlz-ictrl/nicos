@@ -26,9 +26,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-# all builtin number types (useful for isinstance checks)
-number_types = (int, float)
-
 
 # missing str/bytes helpers
 # on Py3, UTF-8 is the default encoding already
@@ -60,8 +57,3 @@ try:
     numpy.set_printoptions(sign=' ')
 except Exception:
     pass
-
-
-__all__ = [
-    'number_types',
-]

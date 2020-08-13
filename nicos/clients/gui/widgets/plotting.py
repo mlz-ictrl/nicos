@@ -48,8 +48,7 @@ from nicos.guisupport.qt import QAction, QApplication, QCursor, QDialog, \
 from nicos.guisupport.qtgr import InteractiveGRWidget, \
     LegendEvent, MouseEvent, ROIEvent
 from nicos.guisupport.utils import scaledFont
-from nicos.pycompat import number_types
-from nicos.utils import safeName
+from nicos.utils import number_types, safeName
 from nicos.utils.fitting import CosineFit, ExponentialFit, Fit, FitError, \
     FitResult, GaussFit, LinearFit, LorentzFit, PearsonVIIFit, \
     PseudoVoigtFit, SigmoidFit, TcFit

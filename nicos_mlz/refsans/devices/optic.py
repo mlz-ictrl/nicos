@@ -28,7 +28,7 @@ from __future__ import absolute_import, division, print_function
 
 from nicos.core import Moveable, Override, Param, floatrange, oneof
 from nicos.core.params import Attach
-from nicos.pycompat import number_types
+from nicos.utils import number_types
 
 
 class Optic(Moveable):

@@ -29,7 +29,7 @@ from nicos.core import Attach, IsController, Moveable, Override, status
 from nicos.core.errors import LimitError
 from nicos.core.mixins import HasLimits
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
-from nicos.pycompat import number_types
+from nicos.utils import number_types
 
 
 class SeqSampleMotor(SeqDev):

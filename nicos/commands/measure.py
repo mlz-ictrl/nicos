@@ -33,8 +33,7 @@ from nicos.core.acquire import Average, CountResult, MinMax, acquire, \
     read_environment, stop_acquire_thread
 from nicos.core.device import Measurable, SubscanMeasurable
 from nicos.core.errors import NicosError, UsageError
-from nicos.pycompat import number_types
-from nicos.utils import createThread
+from nicos.utils import createThread, number_types
 
 __all__ = [
     'count', 'live', 'preset',

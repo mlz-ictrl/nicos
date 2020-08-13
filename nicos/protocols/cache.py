@@ -204,8 +204,8 @@ from ast import Add, BinOp, Call, Dict, List, Name, Num, Set, Str, Sub, \
     Tuple, UnaryOp, USub, parse
 from base64 import b64decode, b64encode
 
-from nicos.pycompat import from_utf8, number_types
-from nicos.utils import readonlydict, readonlylist
+from nicos.pycompat import from_utf8
+from nicos.utils import number_types, readonlydict, readonlylist
 
 try:
     from ast import NameConstant  # pylint: disable=no-name-in-module

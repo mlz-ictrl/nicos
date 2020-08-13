@@ -44,7 +44,7 @@ from nicos.devices.tas.rescalc import resmat
 from nicos.devices.tas.spectro import TAS, THZ2MEV
 from nicos.devices.tas.spurions import alu_hkl, check_acc_bragg, \
     check_ho_spurions, check_powderrays, copper_hkl
-from nicos.pycompat import number_types
+from nicos.utils import number_types
 
 __all__ = [
     'qscan', 'qcscan', 'Q', 'calpos', 'pos', 'rp',

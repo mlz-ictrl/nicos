@@ -36,7 +36,7 @@ from nicos.core.constants import SUBSCAN
 from nicos.core.scan import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, \
     ContinuousScan, ManualScan, Scan, StopScan, SweepScan
 from nicos.core.spm import Bare, Dev, spmsyntax
-from nicos.pycompat import number_types
+from nicos.utils import number_types
 
 __all__ = [
     'scan', 'cscan', 'timescan', 'sweep', 'twodscan', 'contscan',

@@ -53,8 +53,8 @@ from nicos.guisupport.timeseries import TimeSeries
 from nicos.guisupport.trees import BaseDeviceParamTree
 from nicos.guisupport.utils import scaledFont
 from nicos.protocols.cache import cache_load
-from nicos.pycompat import number_types
-from nicos.utils import extractKeyAndIndex, parseDuration, safeName
+from nicos.utils import extractKeyAndIndex, number_types, parseDuration, \
+    safeName
 
 
 class NoEditDelegate(QStyledItemDelegate):

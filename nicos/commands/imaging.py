@@ -36,7 +36,7 @@ from nicos.commands.utility import floatrange
 from nicos.core.device import Measurable, Moveable
 from nicos.core.errors import NicosError
 from nicos.core.scan import SkipPoint
-from nicos.pycompat import number_types
+from nicos.utils import number_types
 
 __all__ = ['tomo', 'grtomo']
 

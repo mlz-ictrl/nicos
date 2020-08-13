@@ -42,7 +42,7 @@ from nicos.core.device import Moveable
 from nicos.core.errors import PositionError
 from nicos.core.utils import multiStatus
 from nicos.devices.abstract import Motor
-from nicos.pycompat import number_types
+from nicos.utils import number_types
 
 from nicos_ess.devices.epics.motor import EpicsMotor
 from nicos_sinq.amor.devices.component_handler import DistancesHandler

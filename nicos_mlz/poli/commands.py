@@ -45,8 +45,7 @@ from nicos.core.scan import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, Scan
 from nicos.core.spm import Bare, spmsyntax
 from nicos.devices.sxtal.instrument import SXTalBase
 from nicos.devices.sxtal.xtal.orientation import orient
-from nicos.pycompat import number_types
-from nicos.utils import createSubprocess, printTable
+from nicos.utils import createSubprocess, number_types, printTable
 
 __all__ = [
     'lubricate_liftingctr',

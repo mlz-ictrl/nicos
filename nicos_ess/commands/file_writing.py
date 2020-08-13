@@ -28,8 +28,7 @@ from time import time as currenttime
 
 from nicos import session
 from nicos.commands import helparglist, usercommand
-from nicos.pycompat import number_types
-from nicos.utils import parseDateString
+from nicos.utils import number_types, parseDateString
 
 from nicos_ess.devices.datasinks.nexussink import NexusFileWriterSink
 

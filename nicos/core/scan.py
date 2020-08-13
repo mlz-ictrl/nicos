@@ -42,8 +42,7 @@ from nicos.core.errors import LimitError, ModeError, NicosError
 from nicos.core.mixins import HasLimits
 from nicos.core.params import Value
 from nicos.core.utils import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, multiWait
-from nicos.pycompat import number_types
-from nicos.utils import Repeater
+from nicos.utils import Repeater, number_types
 
 
 class SkipPoint(Exception):

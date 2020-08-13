@@ -35,7 +35,7 @@ from nicos.devices.generic.sequence import SeqCall, SeqDev, SequencerMixin
 from nicos.devices.generic.switcher import MultiSwitcher
 from nicos.devices.tango import NamedDigitalOutput, VectorInput
 from nicos.protocols.daemon import STATUS_INBREAK
-from nicos.pycompat import number_types
+from nicos.utils import number_types
 
 ELASTIC =   'elastic'
 INELASTIC = 'inelastic'

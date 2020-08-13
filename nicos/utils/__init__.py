@@ -62,6 +62,10 @@ except ImportError:
     pwd = grp = None
 
 
+# all builtin number types (useful for isinstance checks)
+number_types = (int, float)
+
+
 class AttrDict(dict):
     """Dictionary whose items can be set with attribute access."""
     def __getattr__(self, key):

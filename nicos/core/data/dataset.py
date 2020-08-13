@@ -34,8 +34,7 @@ from uuid import uuid4
 from nicos.core.acquire import DevStatistics
 from nicos.core.constants import BLOCK, POINT, SCAN, SUBSCAN, UNKNOWN
 from nicos.core.errors import ProgrammingError
-from nicos.pycompat import number_types
-from nicos.utils import lazy_property
+from nicos.utils import lazy_property, number_types
 
 SETTYPES = (POINT, SCAN, SUBSCAN, BLOCK)
 

@@ -44,8 +44,8 @@ from nicos.core.spm import AnyDev, Bare, Dev, DevParam, Multi, String, \
     spmsyntax
 from nicos.core.status import BUSY, OK
 from nicos.devices.abstract import CanReference, MappedMoveable
-from nicos.pycompat import number_types
-from nicos.utils import createThread, parseDateString, printTable, tupelize
+from nicos.utils import createThread, number_types, parseDateString, \
+    printTable, tupelize
 from nicos.utils.timer import Timer
 
 __all__ = [
