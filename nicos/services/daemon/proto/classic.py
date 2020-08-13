@@ -36,7 +36,7 @@ from nicos.protocols.daemon import DAEMON_EVENTS, CloseConnection, \
     ServerTransport as BaseServerTransport
 from nicos.protocols.daemon.classic import ACK, ENQ, LENGTH, NAK, \
     PROTO_VERSION, READ_BUFSIZE, STX, code2command, event2code
-from nicos.pycompat import get_thread_id, queue, socketserver
+from nicos.pycompat import queue, socketserver
 from nicos.services.daemon.handler import ConnectionHandler
 from nicos.utils import closeSocket, createThread
 
@@ -158,12 +158,12 @@ class Server(BaseServer, socketserver.TCPServer):
             self.pending_clients[host, client_id] = handler
             self.handler_ident += 1
             handler.setIdent(self.handler_ident)
-            self.handlers[get_thread_id()] = handler
+            self.handlers[threading.get_ident()] = handler
 
     def unregister_handler(self, ident):
         """Remove a handler from the handlers dictionary."""
         with self.handler_ident_lock:
-            del self.handlers[get_thread_id()]
+            del self.handlers[threading.get_ident()]
 
 
 class ServerTransport(ConnectionHandler, BaseServerTransport,

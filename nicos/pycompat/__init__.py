@@ -26,7 +26,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-import threading
 from io import BufferedWriter, FileIO, TextIOWrapper
 
 # For consistency import everything from "six" here.
@@ -40,11 +39,6 @@ from six.moves import builtins, cPickle, input, queue, reduce, \
     socketserver, urllib, xrange, zip, zip_longest
 
 # functionality in addition to what "six" provides
-
-try:
-    get_thread_id = threading._get_ident
-except AttributeError:
-    get_thread_id = threading.get_ident
 
 # missing dict helpers to get a list of items/values
 def listitems(d):
@@ -116,5 +110,4 @@ __all__ = [
     'string_types', 'integer_types', 'text_type', 'binary_type',
     'number_types',
     'iteritems', 'itervalues', 'iterkeys', 'listitems', 'listvalues',
-    'get_thread_id',
 ]
