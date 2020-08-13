@@ -58,10 +58,10 @@ class NexusFileWriterStatus(KafkaStatusHandler):
     """
 
     parameters = {
-        "timeout": Param(
-            "Maximum waiting time for a job to start/close (sec)",
+        'timeout': Param(
+            'Maximum waiting time for a job to start/close (sec)',
             type=int,
-            default=90,
+            default=30,
         ),
     }
 
@@ -70,11 +70,12 @@ class NexusFileWriterStatus(KafkaStatusHandler):
         self._issued = []
         self._started = []
         self._stopped = []
+        self._job_in_progress = ''
 
     def _on_issue(self, jobid, dataset):
         # Called when a dataset started and job was issued to the file writer
         if not self.is_process_running():
-            self.log.error("File Writer is down. Data will not be written!!")
+            self.log.error('File Writer is down. Data will not be written!!')
             return
         self._tracked_datasets[jobid] = dataset
         self._issued.append(jobid)
@@ -85,16 +86,14 @@ class NexusFileWriterStatus(KafkaStatusHandler):
             self._issued.remove(jobid)
         self._started.append(jobid)
 
-    def _on_error(self, jobid, dataset, message=""):
+    def _on_error(self, jobid, dataset, message=''):
         # Called when an error appears in writing the dataset
-        msg = "Unexpected error while writing #%d" % dataset.counter
-        if message:
-            msg += " - " + message
-        self.log.error(msg)
+        self.log.error('Unexpected error while writing %d %s', dataset.counter,
+                       ' - ' + message if message else message)
 
-    def _on_fail(self, jobid, dataset, message=""):
+    def _on_fail(self, jobid, dataset, message=''):
         # Called when the writing failed
-        self.log.error("Failed to write #%d - %s", dataset.counter, message)
+        self.log.error('Failed to write #%d - %s', dataset.counter, message)
         if jobid in self._tracked_datasets:
             self._tracked_datasets.pop(jobid)
         if jobid in self._issued:
@@ -120,23 +119,35 @@ class NexusFileWriterStatus(KafkaStatusHandler):
 
     def _check_timeouts(self):
         # Check if timeout occurred for issued or stopped datasets
-        for jobid in self._issued:
-            dset = self._tracked_datasets.get(jobid)
-            now = time.time()
-            if dset and now > dset.started + self.timeout:
-                msg = "Timeout while waiting for file writer to start writing"
-                self._on_fail(jobid, dset, msg)
+        if self._job_in_progress in self._issued:
+            self._issued.remove(self._job_in_progress)
+        else:
+            for jobid in self._issued:
+                dset = self._tracked_datasets.get(jobid)
+                now = time.time()
+                if dset and now > dset.started + self.timeout:
+                    msg = 'Timeout while waiting for file writer to start ' \
+                          'writing'
+                    self._on_fail(jobid, dset, msg)
 
-        for jobid in self._stopped:
-            dset = self._tracked_datasets.get(jobid)
-            now = time.time()
-            if dset and now > dset.finished + self.timeout:
-                msg = "Timeout while waiting for file writer to close the file"
-                self._on_fail(jobid, dset, msg)
+        if not self._job_in_progress and self._stopped:
+            self._stopped.clear()
+        else:
+            for jobid in self._stopped:
+                dset = self._tracked_datasets.get(jobid)
+                now = time.time()
+                if dset and now > dset.finished + self.timeout:
+                    msg = 'Timeout while waiting for file writer to close ' \
+                          'the file'
+                    self._on_fail(jobid, dset, msg)
 
     def new_messages_callback(self, messages):
         self._check_timeouts()
         KafkaStatusHandler.new_messages_callback(self, messages)
+
+    def no_messages_callback(self):
+        self._check_timeouts()
+        KafkaStatusHandler.no_messages_callback(self)
 
     def _status_update_callback(self, messages):
         """
@@ -156,7 +167,7 @@ class NexusFileWriterStatus(KafkaStatusHandler):
             gen = (
                 msg
                 for _, msg in message_list_sorted
-                if "file_being_written" in msg
+                if 'file_being_written' in msg
             )
             return next(gen, None)
 
@@ -165,13 +176,14 @@ class NexusFileWriterStatus(KafkaStatusHandler):
             return
 
         self._set_next_update(message)
-        file_name = message.get("file_being_written", "")
+        self._job_in_progress = message.get('job_id', '')
+        file_name = message.get('file_being_written', '')
         if file_name:
             self._setROParam(
-                "curstatus", (status.BUSY, "Writing %s" % file_name)
+                'curstatus', (status.BUSY, 'Writing %s' % file_name)
             )
             return
-        self._setROParam("curstatus", (status.OK, "Idle"))
+        self._setROParam('curstatus', (status.OK, 'Idle'))
 
 
 class NexusFileWriterSinkHandler(DataSinkHandler):
@@ -325,15 +337,15 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
     }
 
     parameter_overrides = {
-        "settypes": Override(default=[POINT]),
-        "filenametemplate": Override(
-            default=["%(proposal)s_%(pointcounter)08d.hdf"]
+        'settypes': Override(default=[POINT]),
+        'filenametemplate': Override(
+            default=['%(proposal)s_%(pointcounter)08d.hdf']
         ),
     }
 
     attached_devices = {
-        "status_provider": Attach(
-            "Device that provides file writing status",
+        'status_provider': Attach(
+            'Device that provides file writing status',
             NexusFileWriterStatus,
             optional=True,
         ),
@@ -347,7 +359,7 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
         self._templates = __import__(
             self.templatesmodule, fromlist=[self.templatename]
         )
-        self.log.info("Finished importing nexus_templates")
+        self.log.info('Finished importing nexus_templates')
         self.set_template(self.templatename)
 
     def set_template(self, val):
@@ -359,14 +371,14 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
         """
         if not hasattr(self._templates, val):
             raise NicosError(
-                "Template %s not found in module %s"
+                'Template %s not found in module %s'
                 % (val, self.templatesmodule)
             )
 
         self.template = getattr(self._templates, val)
 
         if self.templatename != val:
-            self._setROParam("templatename", val)
+            self._setROParam('templatename', val)
 
     @property
     def status_provider(self):
