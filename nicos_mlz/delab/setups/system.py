@@ -11,7 +11,7 @@ sysconfig = dict(
     datasinks = ['conssink', 'filesink', 'dmnsink'],
 )
 
-modules = ['nicos.commands.standard', 'nicos.commands.taco']
+modules = ['nicos.commands.standard']
 
 includes = ['notifiers']
 
