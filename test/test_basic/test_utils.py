@@ -28,6 +28,7 @@
 from __future__ import absolute_import, division, print_function
 
 import os
+import pickle
 import socket
 import sys
 import time
@@ -36,7 +37,6 @@ from datetime import timedelta
 import pytest
 
 from nicos.core.errors import NicosError
-from nicos.pycompat import cPickle as pickle
 from nicos.utils import Repeater, bitDescription, checkSetupSpec, chunks, \
     closeSocket, comparestrings, extractKeyAndIndex, formatDuration, \
     formatExtendedFrame, formatExtendedStack, formatExtendedTraceback, \

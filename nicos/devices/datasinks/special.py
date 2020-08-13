@@ -26,6 +26,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import pickle
 from os import path
 from time import time as currenttime
 
@@ -36,7 +37,7 @@ from nicos.core import DataSink, DataSinkHandler, Override
 from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.core.data import ScanData
 from nicos.devices.datasinks.image import ImageSink
-from nicos.pycompat import cPickle as pickle, memory_buffer
+from nicos.pycompat import memory_buffer
 
 
 class DaemonSinkHandler(DataSinkHandler):

@@ -198,12 +198,13 @@ Works only with the "set a key" operator.  This flag makes no sense otherwise.
 
 from __future__ import absolute_import, division, print_function
 
+import pickle
 import re
 from ast import Add, BinOp, Call, Dict, List, Name, Num, Set, Str, Sub, \
     Tuple, UnaryOp, USub, parse
 from base64 import b64decode, b64encode
 
-from nicos.pycompat import binary_type, cPickle as pickle, from_utf8, \
+from nicos.pycompat import binary_type, from_utf8, \
     iteritems, number_types, text_type
 from nicos.utils import readonlydict, readonlylist
 

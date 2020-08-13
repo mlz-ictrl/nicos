@@ -24,9 +24,9 @@
 
 from __future__ import absolute_import, division, print_function
 
-import pytest
+import pickle
 
-from nicos.pycompat import cPickle as pickle
+import pytest
 
 from nicos_mlz.resi.devices import residevice
 

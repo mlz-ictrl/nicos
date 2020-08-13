@@ -28,11 +28,11 @@
 from __future__ import absolute_import, division, print_function
 
 import json
+import pickle
 import struct
 
 from nicos.protocols.daemon import DAEMON_COMMANDS, DAEMON_EVENTS, \
     Serializer as BaseSerializer
-from nicos.pycompat import cPickle as pickle
 
 # default port for the daemon
 

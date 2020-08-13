@@ -28,6 +28,7 @@ from __future__ import absolute_import, division, print_function
 
 import logging
 import os
+import pickle
 import sys
 import tempfile
 import time
@@ -43,7 +44,7 @@ from nicos.core.errors import NicosError
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.core.utils import User
-from nicos.pycompat import cPickle as pickle, exec_, iteritems
+from nicos.pycompat import exec_, iteritems
 from nicos.services.daemon.script import parseScript
 from nicos.utils import createSubprocess
 from nicos.utils.loggers import ACTION, SimDebugHandler, recordToMessage

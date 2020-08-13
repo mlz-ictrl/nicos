@@ -31,6 +31,7 @@ import functools
 import json
 import operator
 import os
+import pickle
 import sys
 from collections import OrderedDict
 from time import localtime, mktime, time as currenttime
@@ -52,8 +53,7 @@ from nicos.guisupport.timeseries import TimeSeries
 from nicos.guisupport.trees import BaseDeviceParamTree
 from nicos.guisupport.utils import scaledFont
 from nicos.protocols.cache import cache_load
-from nicos.pycompat import cPickle as pickle, integer_types, iteritems, \
-    number_types
+from nicos.pycompat import integer_types, iteritems, number_types
 from nicos.utils import extractKeyAndIndex, parseDuration, safeName
 
 
