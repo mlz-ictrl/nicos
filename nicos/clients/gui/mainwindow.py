@@ -54,7 +54,7 @@ from nicos.guisupport.qt import PYQT_VERSION_STR, QT_VERSION_STR, QAction, \
     QTimer, QWebView, pyqtSignal, pyqtSlot
 from nicos.protocols.daemon import BREAK_NOW, STATUS_IDLE, STATUS_IDLEEXC, \
     STATUS_INBREAK
-from nicos.pycompat import iteritems, listvalues
+from nicos.pycompat import iteritems
 from nicos.utils import checkSetupSpec, importString
 
 try:
@@ -413,7 +413,7 @@ class MainWindow(DlgUtils, QMainWindow):
             with panel.sgroup as settings:
                 panel.saveSettings(settings)
 
-        for window in listvalues(self.windows):
+        for window in list(self.windows.values()):
             if not window.close():
                 event.ignore()
                 return

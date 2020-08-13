@@ -31,17 +31,6 @@ from io import BufferedWriter, FileIO
 # For consistency import everything from "six" here.
 from six import iteritems, itervalues
 
-# functionality in addition to what "six" provides
-
-# missing dict helpers to get a list of items/values
-def listitems(d):
-    return list(d.items())
-
-
-def listvalues(d):
-    return list(d.values())
-
-
 # all builtin number types (useful for isinstance checks)
 
 number_types = (int, float)
@@ -95,5 +84,5 @@ except Exception:
 
 __all__ = [
     'number_types',
-    'iteritems', 'itervalues', 'listitems', 'listvalues',
+    'iteritems', 'itervalues',
 ]

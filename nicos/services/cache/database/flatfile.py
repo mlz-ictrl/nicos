@@ -34,7 +34,7 @@ from time import localtime, mktime, sleep, time as currenttime
 from nicos import config
 from nicos.core import Param, oneof
 from nicos.protocols.cache import FLAG_NO_STORE, OP_TELL, OP_TELLOLD
-from nicos.pycompat import iteritems, listitems
+from nicos.pycompat import iteritems
 from nicos.services.cache.database.base import CacheDatabase
 from nicos.services.cache.entry import CacheEntry
 from nicos.utils import allDays, createThread, ensureDirectory
@@ -292,7 +292,7 @@ class FlatfileCacheDatabase(CacheDatabase):
     def ask_wc(self, key, ts, time, ttl):
         ret = set()
         # look for matching keys
-        for cat, (_, lock, db) in listitems(self._cat):
+        for cat, (_, lock, db) in list(self._cat.items()):
             prefix = cat + '/' if cat != 'nocat' else ''
             with lock:
                 for subkey, entry in iteritems(db):

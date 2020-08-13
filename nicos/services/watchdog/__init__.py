@@ -39,7 +39,7 @@ from nicos.devices.cacheclient import BaseCacheClient
 from nicos.devices.notifiers import Mailer, Notifier
 from nicos.protocols.cache import OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
     cache_dump, cache_load
-from nicos.pycompat import iteritems, itervalues, listvalues, to_utf8
+from nicos.pycompat import iteritems, itervalues, to_utf8
 from nicos.services.watchdog.conditions import DelayedTrigger, Expression, \
     Precondition
 from nicos.utils import LCDict, createSubprocess, createThread, \
@@ -310,7 +310,7 @@ class Watchdog(BaseCacheClient):
     def _setups_updated(self, time, new_setups):
         prev_setups, self._setups = self._setups, new_setups
         # check if we need to remove some conditions
-        for entry in listvalues(self._entries):
+        for entry in list(self._entries.values()):
             if entry.from_setup != 'watchdog':
                 if entry.from_setup not in self._setups:
                     self._remove_entry(entry.id)

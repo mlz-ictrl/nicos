@@ -36,7 +36,6 @@ from sphinx.util.docstrings import prepare_docstring
 from sphinx.util.nodes import nested_parse_with_titles
 
 from nicos.core.sessions.setups import readSetup
-from nicos.pycompat import listvalues
 from nicos.utils.files import findSetupRoots, iterSetups
 
 EXCLUDE_PARAMS = set(['description', 'passwd', 'target'])
@@ -162,7 +161,7 @@ class SetupDirective(Directive):
             # logging will be done by readSetup
             return None
 
-        info = listvalues(setups)[0]
+        info = list(setups.values())[0]
         info['uniqueid'] = uniqueId
         info['setupname'] = self._setupName
         info['shortsetuppath'] = self._shortSetupPath

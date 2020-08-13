@@ -30,7 +30,6 @@ from nicos import session
 from nicos.commands import usercommand
 from nicos.commands.measure import count
 from nicos.core import Moveable, UsageError, multiWait
-from nicos.pycompat import listitems
 
 from nicos_mlz.kws1.commands import _fixupSampleenv
 
@@ -100,7 +99,7 @@ def kwscount(**arguments):
     # move devices
     waiters = []
     # the order is important!
-    devs = listitems(arguments)
+    devs = list(arguments.items())
     devs.sort(key=sort_key)
     # add moved devices to sampleenv
     _fixupSampleenv(devs)

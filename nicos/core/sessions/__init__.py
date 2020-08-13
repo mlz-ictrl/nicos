@@ -62,7 +62,7 @@ from nicos.devices.cacheclient import CacheClient, CacheLockError, \
 from nicos.devices.instrument import Instrument
 from nicos.devices.notifiers import Notifier
 from nicos.protocols.cache import FLAG_NO_STORE
-from nicos.pycompat import iteritems, itervalues, listvalues
+from nicos.pycompat import iteritems, itervalues
 from nicos.utils import fixupScript, formatArgs, formatDocstring, \
     formatScriptError, which
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
@@ -255,7 +255,7 @@ class Session(object):
         # switch mode, taking care to switch "higher level" devices before
         # "lower level" (because higher level devices may need attached devices
         # still working in order to read out their last value)
-        devs = listvalues(self.devices)
+        devs = list(self.devices.values())
         switched = set()
         while devs:
             for dev in devs[:]:
@@ -784,7 +784,7 @@ class Session(object):
         This shuts down all created devices and clears the NICOS namespace.
         """
         # shutdown according to device dependencies
-        devs = listvalues(self.devices)
+        devs = list(self.devices.values())
         already_shutdown = set()
 
         # outer loop: as long as there are devices...

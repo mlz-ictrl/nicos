@@ -46,7 +46,7 @@ from nicos.core.acquire import DevStatistics
 from nicos.core.data import DataManager
 from nicos.core.params import expanded_path, nonemptystring, subdir
 from nicos.devices.sample import Sample
-from nicos.pycompat import from_maybe_utf8, listitems
+from nicos.pycompat import from_maybe_utf8
 from nicos.utils import DEFAULT_FILE_MODE, createThread, disableDirectory, \
     enableDirectory, ensureDirectory, expandTemplate, grp, lazy_property, \
     printTable, pwd
@@ -478,7 +478,7 @@ class Experiment(Device):
         ``FinishExperiment``.
 
         """
-        for iproposal, thd in listitems(self._proposal_thds):
+        for iproposal, thd in list(self._proposal_thds.items()):
             if not thd.is_alive():
                 del self._proposal_thds[iproposal]
                 self.log.debug('delete reference on closed thread for '

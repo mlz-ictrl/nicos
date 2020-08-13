@@ -35,7 +35,6 @@ from nicos import config, nicos_version
 from nicos.core import Attach, ConfigurationError, Device, Param, host, listof
 from nicos.core.utils import system_user
 from nicos.protocols.daemon.classic import DEFAULT_PORT
-from nicos.pycompat import listitems
 from nicos.services.daemon.auth import Authenticator
 from nicos.services.daemon.script import ExecutionController
 from nicos.utils import createThread, importString, parseHostPort
@@ -139,7 +138,7 @@ class NicosDaemon(Device):
     def statusinfo(self):
         self.log.info('got SIGUSR2 - current stacktraces for each thread:')
         active = threading._active
-        for tid, frame in listitems(sys._current_frames()):
+        for tid, frame in list(sys._current_frames().items()):
             if tid in active:
                 name = active[tid].getName()
             else:

@@ -48,7 +48,7 @@ from nicos.core.params import INFO_CATEGORIES, Attach, Override, Param, \
 from nicos.core.utils import formatStatus, multiStatus, multiStop, multiWait, \
     statusString, usermethod
 from nicos.protocols.cache import FLAG_NO_STORE
-from nicos.pycompat import iteritems, listitems, number_types
+from nicos.pycompat import iteritems, number_types
 from nicos.utils import getVersions, loggers, parseDateString
 
 ALLOWED_CATEGORIES = {v[0] for v in INFO_CATEGORIES}
@@ -125,7 +125,7 @@ class DeviceMeta(DeviceMixinMeta):
 
         # to debug MRO problems you could use this line
         # print 'MRO:', newtype, newtype.mro()
-        for adevname, entry in listitems(newtype.attached_devices):
+        for adevname, entry in list(newtype.attached_devices.items()):
             # adev names are always lowercased
             if adevname != adevname.lower():
                 raise ProgrammingError('%r device: attached device name %r is '

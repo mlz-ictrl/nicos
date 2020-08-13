@@ -40,7 +40,7 @@ from nicos import config, session
 from nicos.core import ConfigurationError, Device, DeviceAlias, Param, \
     Readable, listof, status
 from nicos.devices.generic.cache import CacheReader
-from nicos.pycompat import iteritems, itervalues, listitems
+from nicos.pycompat import iteritems, itervalues
 from nicos.utils import createSubprocess, createThread, loggers, \
     watchFileContent, whyExited
 from nicos.utils.files import findSetup
@@ -406,7 +406,7 @@ class Poller(Device):
             self.log.info(', '.join(info))
             self.log.info('current stacktraces for each thread:')
             active = threading._active
-            for tid, frame in listitems(sys._current_frames()):
+            for tid, frame in list(sys._current_frames().items()):
                 if tid in active:
                     name = active[tid].getName()
                 else:
@@ -531,7 +531,7 @@ class Poller(Device):
             sleep(0.5)
             if not self._children:
                 break
-            for setup, ch in listitems(self._children):
+            for setup, ch in list(self._children.items()):
                 ret = ch.poll()
                 if ret is not None:
                     # a process exited; restart if necessary

@@ -27,7 +27,7 @@
 from __future__ import absolute_import, division, print_function
 
 from nicos.core.params import nicosdev_re
-from nicos.pycompat import iteritems, listitems
+from nicos.pycompat import iteritems
 from nicos.utils import Device
 from nicos.utils.files import iterSetups
 
@@ -212,9 +212,9 @@ def fixup_stacked_devices(logger, devdict):
     while patched:
         patched = False
         # iter over all devices
-        for devname, dev in listitems(devdict):
+        for devname, dev in list(devdict.items()):
             # iter over all key=value pairs for dict
-            for subname, config in listitems(dev[1]):
+            for subname, config in list(dev[1].items()):
                 if isinstance(config, Device):  # need to fixup!
                     newname = add_new_dev(devname, subname, config)
                     dev[1][subname] = newname
@@ -285,7 +285,7 @@ def readSetup(infodict, modname, filepath, all_setups, logger):
         oldinfo['modules'].extend(info['modules'])
         oldinfo['devices'].update(info['devices'])
         # remove devices overridden by "None" entries completely
-        for devname, value in listitems(oldinfo['devices']):
+        for devname, value in list(oldinfo['devices'].items()):
             if value is None:
                 del oldinfo['devices'][devname]
         oldinfo['startupcode'] += '\n' + info['startupcode']

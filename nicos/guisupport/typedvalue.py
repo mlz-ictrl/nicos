@@ -40,7 +40,7 @@ from nicos.guisupport.qt import QCheckBox, QComboBox, QFormLayout, QFrame, \
 from nicos.guisupport.utils import DoubleValidator
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.protocols.cache import cache_dump, cache_load
-from nicos.pycompat import iteritems, listvalues
+from nicos.pycompat import iteritems
 
 
 class DeviceValueEdit(NicosWidget, QWidget):
@@ -190,6 +190,7 @@ class DeviceParamEdit(DeviceValueEdit):
         self._inner.valueModified.connect(self.valueModified)
 
 
+# pylint: disable=comparison-with-callable
 def create(parent, typ, curvalue, fmtstr='', unit='',
            allow_buttons=False, allow_enter=True, client=None, valinfo=None):
     # make sure the type is correct
@@ -210,8 +211,8 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
         return ComboWidget(parent, typ.vals, curvalue)
     elif isinstance(typ, params.oneofdict):
         if allow_buttons and len(typ.vals) <= 3:
-            return ButtonWidget(parent, listvalues(typ.vals))
-        return ComboWidget(parent, listvalues(typ.vals), curvalue)
+            return ButtonWidget(parent, list(typ.vals.values()))
+        return ComboWidget(parent, list(typ.vals.values()), curvalue)
     elif isinstance(typ, params.oneofdict_or):
         inner = create(parent, typ.conv, curvalue, fmtstr, unit,
                        allow_buttons, allow_enter, client, valinfo)

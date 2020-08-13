@@ -34,7 +34,6 @@ from nicos.core import MASTER, SIMULATION, Attach, HasLimits, HasPrecision, \
     oneof, status
 from nicos.devices.generic.mono import ANG2MEV, THZ2MEV, \
     Monochromator as BaseMonochromator, from_k, to_k
-from nicos.pycompat import listvalues
 
 
 def wavevector(dvalue, order, theta):
@@ -122,7 +121,7 @@ class Monochromator(HasLimits, HasPrecision, BaseMonochromator):
         self._axisprecision *= 1.25
 
     def doReset(self):
-        multiReset(listvalues(self._adevs))
+        multiReset(list(self._adevs.values()))
         self._focwarnings = 3
 
     def _calc_angles(self, k):

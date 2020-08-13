@@ -49,7 +49,7 @@ from nicos.core import Attach, Device, Param, host
 from nicos.protocols.cache import BUFSIZE, CYCLETIME, DEFAULT_CACHE_PORT, \
     OP_ASK, OP_LOCK, OP_REWRITE, OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
     OP_UNSUBSCRIBE, OP_WILDCARD, line_pattern, msg_pattern
-from nicos.pycompat import from_utf8, listitems, listvalues, to_utf8
+from nicos.pycompat import from_utf8, to_utf8
 # pylint: disable=W0611
 from nicos.services.cache.database import CacheDatabase, \
     FlatfileCacheDatabase, MemoryCacheDatabase, \
@@ -412,7 +412,7 @@ class CacheServer(Device):
         while not self._stoprequest:
             # loop through connections, first to remove dead ones,
             # secondly to try to reconnect
-            for addr, client in listitems(self._connected):
+            for addr, client in list(self._connected.items()):
                 if not client.is_active():  # dead or stopped
                     self.log.info('client connection %s closed', addr)
                     client.closedown()
@@ -464,12 +464,12 @@ class CacheServer(Device):
         self._stoprequest = True
         # without locking, the _connected list may not have all clients yet....
         with self._connectionLock:
-            for client in listvalues(self._connected):
+            for client in list(self._connected.values()):
                 self.log.info('closing client %s', client)
                 if client.is_active():
                     client.closedown()
         with self._connectionLock:
-            for client in listvalues(self._connected):
+            for client in list(self._connected.values()):
                 self.log.info('waiting for %s', client)
                 client.closedown()  # make sure, the connection closes down
                 client.join()

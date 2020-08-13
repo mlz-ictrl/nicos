@@ -37,7 +37,7 @@ from nicos.core.device import Device
 from nicos.core.errors import ProgrammingError
 from nicos.core.params import INFO_CATEGORIES, Override, Param, listof, setof
 from nicos.core.status import statuses
-from nicos.pycompat import File, iteritems, listitems
+from nicos.pycompat import File, iteritems
 
 
 class DataFileBase(object):
@@ -188,7 +188,7 @@ class NicosMetaWriterMixin(object):
             # note2: as we may be called during counting, some devices
             #        may be busy: this may irritate users :(
             bycategory['result'] = results = []
-            for devname, val in listitems(self.dataset.values):
+            for devname, val in list(self.dataset.values.items()):
                 device = session.getDevice(devname)
                 if (devname, 'value') in metainfo:
                     # re-use the category
@@ -196,7 +196,7 @@ class NicosMetaWriterMixin(object):
                 else:
                     unit = device.unit
                     category = 'result'
-                bycategory.setdefault(category,[]).append(
+                bycategory.setdefault(category, []).append(
                     ('%s_value' % devname, (str(val) + ' ' + unit).strip()))
                 # refresh status as well
                 stat = device.status()

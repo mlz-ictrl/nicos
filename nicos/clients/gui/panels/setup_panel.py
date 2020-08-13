@@ -36,7 +36,7 @@ from nicos.guisupport.qt import QComboBox, QDialog, QDialogButtonBox, QFrame, \
     QHBoxLayout, QLabel, QListWidgetItem, QMessageBox, QPushButton, Qt, \
     pyqtSlot
 from nicos.guisupport.widget import NicosWidget
-from nicos.pycompat import iteritems, itervalues, listitems
+from nicos.pycompat import iteritems, itervalues
 from nicos.utils import decodeAny
 
 
@@ -530,7 +530,7 @@ class SetupsPanel(Panel):
                     self, aliasname, selections,
                     preselect and self._prev_aliases.get(aliasname))
                 layout.addWidget(wid)
-        for name, wid in listitems(self._aliasWidgets):
+        for name, wid in list(self._aliasWidgets.items()):
             if name not in alias_config:
                 layout.takeAt(layout.indexOf(wid)).widget().deleteLater()
                 del self._aliasWidgets[name]

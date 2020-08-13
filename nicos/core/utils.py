@@ -38,7 +38,7 @@ from nicos.core.constants import SIMULATION
 from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, MoveError, NicosError, NicosTimeoutError, \
     PositionError
-from nicos.pycompat import listitems, to_ascii_escaped
+from nicos.pycompat import to_ascii_escaped
 from nicos.utils import createThread, formatDuration
 
 # Exceptions at which a scan point is measured anyway.
@@ -123,7 +123,7 @@ def devIter(devices, baseclass=None, onlydevs=True, allwaiters=False):
         baseclass = Device
     # convert dict to list of name:dev tuples
     if isinstance(devices, dict):
-        devices = listitems(devices)
+        devices = list(devices.items())
     else:
         # we iterate twice: make sure to convert generators
         # to a list first
