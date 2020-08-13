@@ -44,8 +44,7 @@ from nicos.core.spm import AnyDev, Bare, Dev, DevParam, Multi, String, \
     spmsyntax
 from nicos.core.status import BUSY, OK
 from nicos.devices.abstract import CanReference, MappedMoveable
-from nicos.pycompat import iteritems, itervalues, number_types, \
-    reraise, string_types
+from nicos.pycompat import iteritems, itervalues, number_types, reraise
 from nicos.utils import createThread, parseDateString, printTable, tupelize
 from nicos.utils.timer import Timer
 
@@ -120,7 +119,7 @@ def _rmove_poshook(dev, delta):
     # if the target is reached (within precision), use it as the base for
     # the relative movement to avoid accumulating small errors
     curpos = dev.target if dev.isAtTarget(curpos) else curpos
-    if isinstance(curpos, string_types):
+    if isinstance(curpos, str):
         raise UsageError('Device %s cannot be used with relative movement' %
                          dev)
     try:
@@ -856,7 +855,7 @@ def history(dev, key='value', fromtime=None, totime=None):
     >>> history(mth, 'speed', '2012-05-04', '2012-05-08')  # between two days
     """
     # support calling history(dev, -3600)
-    if isinstance(key, string_types):
+    if isinstance(key, str):
         try:
             key = parseDateString(key)
         except ValueError:

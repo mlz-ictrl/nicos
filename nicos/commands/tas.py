@@ -44,7 +44,7 @@ from nicos.devices.tas.rescalc import resmat
 from nicos.devices.tas.spectro import TAS, THZ2MEV
 from nicos.devices.tas.spurions import alu_hkl, check_acc_bragg, \
     check_ho_spurions, check_powderrays, copper_hkl
-from nicos.pycompat import iteritems, number_types, string_types
+from nicos.pycompat import iteritems, number_types
 
 __all__ = [
     'qscan', 'qcscan', 'Q', 'calpos', 'pos', 'rp',
@@ -69,7 +69,7 @@ def _getQ(v, name):
 def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
     preset, detlist, envlist, move, multistep = {}, [], None, [], []
     for arg in args:
-        if isinstance(arg, string_types):
+        if isinstance(arg, str):
             scaninfo = arg + ' - ' + scaninfo
         elif isinstance(arg, number_types):
             preset['t'] = arg

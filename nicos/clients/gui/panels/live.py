@@ -45,7 +45,7 @@ from nicos.guisupport.qt import QActionGroup, QByteArray, QListWidgetItem, \
     QMenu, QPoint, QSizePolicy, QStatusBar, Qt, QToolBar, pyqtSlot
 from nicos.guisupport.qtgr import MouseEvent
 from nicos.protocols.cache import cache_load
-from nicos.pycompat import iteritems, itervalues, string_types
+from nicos.pycompat import iteritems, itervalues
 from nicos.utils import BoundedOrderedDict, ReaderRegistry
 
 COLORMAPS = OrderedDict(GR_COLORMAPS)
@@ -426,7 +426,7 @@ class LiveDataPanel(Panel):
     def on_client_liveparams(self, params):
         tag, uid, det, fname, dtype, nx, ny, nz, runtime = params
         # TODO: remove compatibility code
-        if isinstance(fname, string_types):
+        if isinstance(fname, str):
             fname, nx, ny, nz = [fname], [nx], [ny], [nz]
 
         if self._allowed_detectors and det not in self._allowed_detectors:

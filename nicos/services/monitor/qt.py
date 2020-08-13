@@ -38,7 +38,7 @@ from nicos.guisupport.qt import QApplication, QColor, QCursor, QFont, \
     QSizePolicy, Qt, QVBoxLayout, pyqtSignal, uic
 from nicos.guisupport.utils import scaledFont
 from nicos.guisupport.widget import NicosWidget
-from nicos.pycompat import iteritems, string_types
+from nicos.pycompat import iteritems
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.utils import checkSetupSpec, findResource
 
@@ -283,7 +283,7 @@ class Monitor(BaseMonitor):
                     widget.widgetInfo.connect(self.newWidgetInfo)
                 return widget
 
-            if isinstance(field, string_types):
+            if isinstance(field, str):
                 field = {'dev': field}
             if 'min' in field:
                 field['min'] = repr(field['min'])

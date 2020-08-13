@@ -41,7 +41,6 @@ from nicos.core.errors import NicosError, NicosTimeoutError, UsageError
 from nicos.core.mixins import HasOffset
 from nicos.devices.abstract import CanReference
 from nicos.devices.vendor.ipc import Coder as IPCCoder, Motor as IPCMotor
-from nicos.pycompat import string_types
 from nicos.utils import createThread
 
 DIR_POS = 34
@@ -251,8 +250,7 @@ class ReferenceMotor(CanReference, Motor1):
         return Motor1.doStatus(self, maxage)
 
     def doReference(self, *args):
-        refswitch = args[0] if args and isinstance(args[0], string_types) \
-            else None
+        refswitch = args[0] if args and isinstance(args[0], str) else None
         if self.doStatus()[0] == status.BUSY:
             self.stop()
             self.wait()

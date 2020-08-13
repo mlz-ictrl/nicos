@@ -33,7 +33,7 @@ from os import path
 import numpy as np
 
 from nicos.core.errors import ConfigurationError, ProgrammingError
-from nicos.pycompat import iteritems, string_types
+from nicos.pycompat import iteritems
 from nicos.utils import parseHostPort, readonlydict, readonlylist
 
 INFO_CATEGORIES = [
@@ -558,7 +558,7 @@ def nonemptystring(s=Ellipsis):
     if s is Ellipsis:
         # used for setting the internal default if no default is given
         return None
-    if not (s and isinstance(s, string_types)):
+    if not (s and isinstance(s, str)):
         raise ValueError('must be a non-empty string!')
     return s
 
@@ -954,7 +954,7 @@ class host(object):
             else:
                 raise ValueError('A None host is not allowed '
                                  'without defaulthost')
-        if not isinstance(val, string_types + (tuple, list)):
+        if not isinstance(val, (str, tuple, list)):
             raise ValueError('must be a string or tuple/list (host, port)!')
         if not val:
             return self._addDefaults('')

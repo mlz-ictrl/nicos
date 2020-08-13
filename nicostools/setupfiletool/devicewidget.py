@@ -30,7 +30,7 @@ from os import path
 from nicos.guisupport.qt import QMessageBox, QSpacerItem, QWidget, \
     pyqtSignal, uic
 from nicos.guisupport.typedvalue import create
-from nicos.pycompat import iteritems, string_types
+from nicos.pycompat import iteritems
 
 from . import classparser
 from .deviceparam import DeviceParam
@@ -133,7 +133,7 @@ class DeviceWidget(QWidget):
         try:
             typ = self.myClass.parameters[param].type
         except (AttributeError, KeyError):
-            if isinstance(value, string_types):
+            if isinstance(value, str):
                 isUnkownValue = False
             else:
                 isUnkownValue = True

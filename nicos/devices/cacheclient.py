@@ -40,8 +40,7 @@ from nicos.protocols.cache import BUFSIZE, CYCLETIME, DEFAULT_CACHE_PORT, \
     END_MARKER, OP_ASK, OP_LOCK, OP_LOCK_LOCK, OP_LOCK_UNLOCK, OP_REWRITE, \
     OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, OP_UNSUBSCRIBE, OP_WILDCARD, \
     SYNC_MARKER, cache_dump, cache_load, line_pattern, msg_pattern
-from nicos.pycompat import from_utf8, iteritems, string_types, \
-    to_utf8
+from nicos.pycompat import from_utf8, iteritems, to_utf8
 from nicos.utils import closeSocket, createThread, getSysInfo, tcpSocket
 
 
@@ -800,7 +799,7 @@ class CacheClient(BaseCacheClient):
 
     def query_db(self, query, tries=3):
         with self._dblock:
-            if isinstance(query, string_types):
+            if isinstance(query, str):
                 return [(k, self._db[k][0]) for k in self._db if k.startswith(query)]
             else:
                 query = set(query)

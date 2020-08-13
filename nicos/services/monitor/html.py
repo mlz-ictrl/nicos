@@ -42,7 +42,7 @@ from lttb import lttb
 from nicos.core import Param
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, WARN
-from nicos.pycompat import from_utf8, string_types, to_utf8
+from nicos.pycompat import from_utf8, to_utf8
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.services.monitor.icon import nicos_icon
 from nicos.utils import checkSetupSpec, extractKeyAndIndex, safeWriteFile
@@ -126,7 +126,7 @@ class Field(object):
     enabled = True   # if the field is currently shown
 
     def __init__(self, prefix, desc):
-        if isinstance(desc, string_types):
+        if isinstance(desc, str):
             desc = {'dev': desc}
         else:
             desc = desc._options
@@ -179,7 +179,7 @@ class Block(object):
 
     def __iadd__(self, content):
         """Easily adds content to the block using ``+=``."""
-        if isinstance(content, string_types):
+        if isinstance(content, str):
             self._content.append(Static(content))
         else:
             self._content.append(content)
@@ -358,7 +358,7 @@ class Monitor(BaseMonitor):
         pass
 
     def __iadd__(self, content):
-        if isinstance(content, string_types):
+        if isinstance(content, str):
             self._content.append(Static(content))
         else:
             self._content.append(content)

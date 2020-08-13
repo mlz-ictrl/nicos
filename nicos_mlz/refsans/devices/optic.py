@@ -28,7 +28,7 @@ from __future__ import absolute_import, division, print_function
 
 from nicos.core import Moveable, Override, Param, floatrange, oneof
 from nicos.core.params import Attach
-from nicos.pycompat import number_types, string_types
+from nicos.pycompat import number_types
 
 
 class Optic(Moveable):
@@ -104,7 +104,7 @@ class Optic(Moveable):
 
     def doIsAllowed(self, target):
         self.log.debug('doIsAllowed')
-        if isinstance(target, string_types):
+        if isinstance(target, str):
             try:
                 oneof('horizontal',
                       '12mrad_b3_12.000',
@@ -159,4 +159,4 @@ class Optic(Moveable):
                 self.log.warning(line)
 
     def doReadUnit(self):
-        return '' if isinstance(self.target, string_types) else 'mrad'
+        return '' if isinstance(self.target, str) else 'mrad'

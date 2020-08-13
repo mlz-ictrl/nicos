@@ -35,7 +35,7 @@ from io import StringIO
 
 from nicos import session
 from nicos.core import Device, DeviceAlias
-from nicos.pycompat import iteritems, string_types
+from nicos.pycompat import iteritems
 from nicos.utils import formatArgs, formatDocstring
 
 try:
@@ -329,7 +329,7 @@ class HelpGenerator(object):
     def generate(self, obj):
         if obj is None:
             obj = 'index'
-        if isinstance(obj, string_types) and obj not in self._specialtopics:
+        if isinstance(obj, str) and obj not in self._specialtopics:
             return obj, self.header + self.gen_helptarget(obj) + self.footer
         elif isinstance(obj, Device):
             return 'dev:%s' % obj, \

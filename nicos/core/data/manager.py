@@ -38,7 +38,7 @@ from nicos.core.data.dataset import BlockDataset, PointDataset, ScanDataset, \
 from nicos.core.data.sink import DataFile
 from nicos.core.errors import ProgrammingError
 from nicos.core.utils import DeviceValueDict
-from nicos.pycompat import iteritems, string_types
+from nicos.pycompat import iteritems
 from nicos.utils import DEFAULT_FILE_MODE, lazy_property, readFileCounter, \
     updateFileCounter
 
@@ -369,7 +369,7 @@ class DataManager(object):
         A dictionary of supplementary template values can be provided using
         the `additionalinfo` keyword argument.
         """
-        if isinstance(nametemplates, string_types):
+        if isinstance(nametemplates, str):
             nametemplates = [nametemplates]
         exc = None  # stores first exception if any
         # translate entries

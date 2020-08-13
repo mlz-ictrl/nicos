@@ -45,7 +45,6 @@ from nicos.core.scan import Scan
 from nicos.devices.abstract import CanReference, Coder, Motor
 from nicos.devices.generic.detector import ActiveChannel, ImageChannelMixin, \
     PassiveChannel
-from nicos.pycompat import string_types
 from nicos.utils import clamp, createThread
 from nicos.utils.timer import Timer
 
@@ -168,7 +167,7 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
     def doReference(self, *args):
         # if self.status(0)[0] == status.BUSY:
         #   raise NicosError(self, 'cannot reference if device is moving.')
-        refswitch = args[0] if args and isinstance(args[0], string_types) \
+        refswitch = args[0] if args and isinstance(args[0], str) \
             else self.refswitch
         self.log.debug('reference: %s', refswitch)
         if refswitch == 'high':

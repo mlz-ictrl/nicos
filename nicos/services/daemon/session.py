@@ -35,7 +35,7 @@ from nicos.core.sessions.simple import NoninteractiveSession
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.devices.cacheclient import DaemonCacheClient
 from nicos.protocols.daemon import BREAK_AFTER_STEP
-from nicos.pycompat import exec_, string_types
+from nicos.pycompat import exec_
 from nicos.services.daemon.htmlhelp import HelpGenerator
 from nicos.services.daemon.pyctl import ControlStop
 from nicos.utils.loggers import INFO
@@ -121,7 +121,7 @@ class DaemonSession(NoninteractiveSession):
             self.emitfunc('livedata', buf)
 
     def notifyDataFile(self, tag, uid, detector, filename_or_filenames):
-        if isinstance(filename_or_filenames, string_types):
+        if isinstance(filename_or_filenames, str):
             filenames = [filename_or_filenames]
         else:
             filenames = filename_or_filenames
@@ -146,7 +146,7 @@ class DaemonSession(NoninteractiveSession):
         if 'level' in required:
             script = self.daemon_device.current_script()
             rlevel = required['level']
-            if isinstance(rlevel, string_types):
+            if isinstance(rlevel, str):
                 for k, v in ACCESS_LEVELS.items():
                     if v == rlevel:
                         rlevel = k
@@ -174,7 +174,7 @@ class DaemonSession(NoninteractiveSession):
         except Exception:
             self.log.warning('Could not generate the help for %r', obj, exc=1)
             return
-        if not isinstance(obj, string_types):
+        if not isinstance(obj, str):
             self.log.info('Showing help in the calling client...')
         self.emitfunc_private('showhelp', data)
 

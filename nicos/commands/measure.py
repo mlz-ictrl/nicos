@@ -33,7 +33,7 @@ from nicos.core.acquire import Average, CountResult, MinMax, acquire, \
     read_environment, stop_acquire_thread
 from nicos.core.device import Measurable, SubscanMeasurable
 from nicos.core.errors import NicosError, UsageError
-from nicos.pycompat import iteritems, number_types, string_types
+from nicos.pycompat import iteritems, number_types
 from nicos.utils import createThread
 
 __all__ = [
@@ -107,7 +107,7 @@ def _count(*detlist, **preset):
         if isinstance(det, number_types):
             preset['t'] = det
             continue
-        elif isinstance(det, string_types):
+        elif isinstance(det, str):
             preset['info'] = det  # XXX
             continue
         if not isinstance(det, Measurable):

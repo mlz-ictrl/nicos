@@ -46,7 +46,7 @@ from nicos.core.acquire import DevStatistics
 from nicos.core.data import DataManager
 from nicos.core.params import expanded_path, nonemptystring, subdir
 from nicos.devices.sample import Sample
-from nicos.pycompat import from_maybe_utf8, listitems, string_types
+from nicos.pycompat import from_maybe_utf8, listitems
 from nicos.utils import DEFAULT_FILE_MODE, createThread, disableDirectory, \
     enableDirectory, ensureDirectory, expandTemplate, grp, lazy_property, \
     printTable, pwd
@@ -436,7 +436,7 @@ class Experiment(Device):
                                 ('enableGroup', grp.getgrnam),
                                 ('disableGroup', grp.getgrnam)]:
                 value = mrinfo.get(key)
-                if isinstance(value, string_types):
+                if isinstance(value, str):
                     try:
                         lookup(value)
                     except Exception as e:
@@ -1057,7 +1057,7 @@ class Experiment(Device):
         stats.update(self.propinfo)
         # encode all text that may be Unicode into RTF \u escapes
         for key in stats:
-            if isinstance(stats[key], string_types):
+            if isinstance(stats[key], str):
                 stats[key] = from_maybe_utf8(stats[key]).encode('rtfunicode')
 
         # template data

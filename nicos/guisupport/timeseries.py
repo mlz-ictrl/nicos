@@ -36,7 +36,7 @@ from time import time as currenttime
 import numpy as np
 from lttb import lttb
 
-from nicos.pycompat import iteritems, number_types, string_types
+from nicos.pycompat import iteritems, number_types
 
 
 def buildTickDistAndSubTicks(mintime, maxtime, minticks=3):
@@ -175,7 +175,7 @@ class TimeSeries(object):
             delta = vtime - ltime
             if not isinstance(value, number_types):
                 # if it's a string, create a new unique integer value for the string
-                if isinstance(value, string_types):
+                if isinstance(value, str):
                     value = self.string_mapping.setdefault(value, len(self.string_mapping))
                 # other values we can't use
                 else:
@@ -225,7 +225,7 @@ class TimeSeries(object):
 
     def add_value(self, vtime, value, real=True, use_scale=True):
         if not isinstance(value, number_types):
-            if isinstance(value, string_types):
+            if isinstance(value, str):
                 value = self.string_mapping.setdefault(value, len(self.string_mapping))
                 self.info = ', '.join(
                     '%g=%s' % (v * self.scale + self.offset, k) for (k, v) in

@@ -31,7 +31,6 @@ from nicos.core import Attach, Moveable, Override, Param, intrange, none_or, \
 from nicos.core.errors import UsageError
 from nicos.devices.abstract import CanReference
 from nicos.devices.generic import VirtualMotor
-from nicos.pycompat import string_types
 
 
 class VirtualReferenceMotor(CanReference, VirtualMotor):
@@ -49,8 +48,7 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
     }
 
     def doReference(self, *args):
-        refswitch = args[0] if args and isinstance(args[0], string_types) \
-            else None
+        refswitch = args[0] if args and isinstance(args[0], str) else None
         self.log.debug('reference: %s', refswitch)
         self._setrefcounter()
         if self.refpos is not None:

@@ -2,8 +2,6 @@ from __future__ import absolute_import, division, print_function
 
 import ast
 
-from six import string_types
-
 
 class TemplateScriptHandler(ast.NodeVisitor):
 
@@ -147,7 +145,7 @@ class TemplateScriptHandler(ast.NodeVisitor):
         return [self._value(e) for e in node.elts]
 
     def _is_key(self, s):
-        if isinstance(s, string_types):
+        if isinstance(s, str):
             return s.startswith(self.kmark) and s.endswith(self.kmark)
         return False
 

@@ -44,7 +44,7 @@ from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
     SetupName, String, spmsyntax
 from nicos.devices.notifiers import Mailer
-from nicos.pycompat import exec_, iteritems, string_types
+from nicos.pycompat import exec_, iteritems
 from nicos.utils import fixupScript, formatArgs, formatDuration, printTable, \
     reexecProcess, resolveClasses
 from nicos.utils.timer import Timer
@@ -357,7 +357,7 @@ def CreateDevice(*devnames):
     see also: `CreateAllDevices`, `RemoveDevice`
     """
     for devname in devnames:
-        if not isinstance(devname, string_types):
+        if not isinstance(devname, str):
             raise UsageError('CreateDevice() arguments must be strings')
         session.createDevice(devname, explicit=True)
 

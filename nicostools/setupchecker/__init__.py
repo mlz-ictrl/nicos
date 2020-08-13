@@ -38,7 +38,7 @@ from nicos.core.errors import ConfigurationError
 from nicos.core.params import nicosdev_re
 from nicos.core.sessions.setups import SETUP_GROUPS, fixup_stacked_devices, \
     prepareNamespace
-from nicos.pycompat import exec_, string_types
+from nicos.pycompat import exec_
 from nicos.utils import checkSetupSpec, importString
 from nicos.utils.files import findSetupRoots, iterSetups
 from nicos.utils.loggers import StreamHandler
@@ -403,7 +403,7 @@ class SetupChecker(object):
 
         # check for types of recognized variables
         for (vname, vtype) in [
-            ('description', string_types),
+            ('description', str),
             # group is already checked against a fixed list
             ('sysconfig', dict),
             ('includes', list),
@@ -436,10 +436,8 @@ class SetupChecker(object):
         aliascfg = self.ns.get('alias_config', {})
         if isinstance(aliascfg, dict):  # else we complained above already
             for aliasname, entrydict in aliascfg.items():
-                if not (
-                    isinstance(aliasname, string_types)
-                    and isinstance(entrydict, dict)
-                ):
+                if not (isinstance(aliasname, str)
+                        and isinstance(entrydict, dict)):
                     self.log_error(
                         'alias_config entries should map alias '
                         'device names to a dictionary',
@@ -447,11 +445,9 @@ class SetupChecker(object):
                     )
                     continue
                 for target, prio in entrydict.items():
-                    if not (
-                        isinstance(target, string_types)
-                        and isinstance(prio, int)
-                        and not (isinstance(prio, bool))
-                    ):
+                    if not (isinstance(target, str)
+                            and isinstance(prio, int)
+                            and not (isinstance(prio, bool))):
                         self.log_error(
                             'alias_config entries should map device '
                             'names to integer priorities',

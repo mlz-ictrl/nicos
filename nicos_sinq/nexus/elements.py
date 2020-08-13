@@ -27,7 +27,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core import FINAL, INTERMEDIATE, INTERRUPTED
-from nicos.pycompat import iteritems, string_types
+from nicos.pycompat import iteritems
 
 
 class NexusElementBase(object):
@@ -84,10 +84,10 @@ class NexusElementBase(object):
                         self.dtype = "int64"
                 elif isinstance(self.value[0], float):
                     self.dtype = "double"
-                elif isinstance(self.value[0], string_types):
+                elif isinstance(self.value[0], str):
                     self.dtype = "string"
 
-            if isinstance(self.value, string_types):
+            if isinstance(self.value, str):
                 self.dtype = 'string'
 
     def createAttributes(self, h5obj, sinkhandler):

@@ -38,7 +38,7 @@ from nicos.core.constants import FINAL, POINT, SCAN, SUBSCAN
 from nicos.core.data import DataSinkHandler
 from nicos.core.errors import ConfigurationError
 from nicos.devices.datasinks import FileSink
-from nicos.pycompat import iteritems, string_types, to_utf8
+from nicos.pycompat import iteritems, to_utf8
 
 __version__ = '0.0.1'
 
@@ -200,7 +200,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         for k, v in d.items():
             if isinstance(v, numbers.Number):
                 self._write_float(v)
-            elif isinstance(v, string_types) and (v in self.sink.mapping):
+            elif isinstance(v, str) and (v in self.sink.mapping):
                 self.log.debug('%s = %r -> %r', k, v, self.sink.mapping[v])
                 self._write_float(self.sink.mapping[v])
             else:  # some values are not convertable into a number: lists, ...

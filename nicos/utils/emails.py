@@ -34,12 +34,8 @@ from email.utils import formatdate
 from os import path
 
 from nicos.core.params import mailaddress
-from nicos.pycompat import string_types
 
 # do not call this file email.py !
-
-
-
 
 
 def sendMail(mailserver, receiverlist, mailsender, topic, body,
@@ -58,7 +54,7 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
     """
     # try to check parameters
     errors = []
-    if isinstance(receiverlist, string_types):
+    if isinstance(receiverlist, str):
         receiverlist = receiverlist.replace(',', ' ').split()
     try:
         mailaddress(mailsender)

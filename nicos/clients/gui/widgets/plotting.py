@@ -49,7 +49,7 @@ from nicos.guisupport.qtgr import InteractiveGRWidget, \
     LegendEvent, MouseEvent, ROIEvent
 from nicos.guisupport.utils import scaledFont
 # pylint: disable=redefined-builtin
-from nicos.pycompat import exec_, string_types, number_types
+from nicos.pycompat import exec_, number_types
 from nicos.utils import safeName
 from nicos.utils.fitting import CosineFit, ExponentialFit, Fit, FitError, \
     FitResult, GaussFit, LinearFit, LorentzFit, PearsonVIIFit, \
@@ -906,9 +906,9 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
                     res = event.roi.reference
                     text = '\n'.join(
                         (n + '\t' if n else '\t') +
-                        (v + '\t' if isinstance(v, string_types)
+                        (v + '\t' if isinstance(v, str)
                          else '%g\t' % v) +
-                        (dv if isinstance(dv, string_types)
+                        (dv if isinstance(dv, str)
                          else '%g' % dv)
                         for (n, v, dv) in res.label_contents)
                     QApplication.clipboard().setText(text)
@@ -1053,8 +1053,8 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
 
         text = '\n'.join(
             (n + ': ' if n else '') +
-            (v if isinstance(v, string_types) else '%g' % v) +
-            (dv if isinstance(dv, string_types) else ' +/- %g' % dv)
+            (v if isinstance(v, str) else '%g' % v) +
+            (dv if isinstance(dv, str) else ' +/- %g' % dv)
             for (n, v, dv) in res.label_contents)
         grtext = Text(res.label_x, res.label_y, text, self._axes, .012,
                       hideviewport=False)

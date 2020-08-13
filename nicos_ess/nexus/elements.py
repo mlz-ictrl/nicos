@@ -26,7 +26,7 @@ from __future__ import absolute_import, division, print_function
 
 from nicos import session
 from nicos.core import ConfigurationError, NicosError
-from nicos.pycompat import iteritems, string_types
+from nicos.pycompat import iteritems
 
 from nicos_ess.nexus.placeholder import DeviceValuePlaceholder, PlaceholderBase
 
@@ -122,10 +122,10 @@ class NXDataset(NexusElementBase):
                         self.dtype = "int64"
                 elif isinstance(self.value[0], float):
                     self.dtype = "double"
-                elif isinstance(self.value[0], string_types):
+                elif isinstance(self.value[0], str):
                     self.dtype = "string"
 
-            if isinstance(self.value, string_types):
+            if isinstance(self.value, str):
                 self.dtype = 'string'
 
         # Add the 'dtype' if specified

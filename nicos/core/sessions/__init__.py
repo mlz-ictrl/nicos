@@ -62,8 +62,7 @@ from nicos.devices.cacheclient import CacheClient, CacheLockError, \
 from nicos.devices.instrument import Instrument
 from nicos.devices.notifiers import Notifier
 from nicos.protocols.cache import FLAG_NO_STORE
-from nicos.pycompat import exec_, iteritems, itervalues, \
-    listvalues, string_types
+from nicos.pycompat import exec_, iteritems, itervalues, listvalues
 from nicos.utils import fixupScript, formatArgs, formatDocstring, \
     formatScriptError, which
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
@@ -553,7 +552,7 @@ class Session(object):
         if not self._setup_info:
             self.readSetups()
 
-        if isinstance(setupnames, string_types):
+        if isinstance(setupnames, str):
             setupnames = [setupnames]
         else:
             setupnames = list(setupnames)
@@ -988,7 +987,7 @@ class Session(object):
         Can be overwritten in a derived session to provide other means of
         displaying help.
         """
-        if isinstance(obj, string_types):
+        if isinstance(obj, str):
             if obj in self.devices:
                 return self.showHelp(self.devices[obj])
             elif obj in self.namespace:
@@ -1061,7 +1060,7 @@ class Session(object):
         *replace_classes* can be used to replace configured device classes.
         If given, it is a tuple of ``(old_class, new_class, new_devconfig)``.
         """
-        if isinstance(dev, string_types):
+        if isinstance(dev, str):
             if dev in self.devices:
                 dev = self.devices[dev]
             elif dev in self.configured_devices:

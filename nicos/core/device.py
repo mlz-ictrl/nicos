@@ -48,8 +48,7 @@ from nicos.core.params import INFO_CATEGORIES, Attach, Override, Param, \
 from nicos.core.utils import formatStatus, multiStatus, multiStop, multiWait, \
     statusString, usermethod
 from nicos.protocols.cache import FLAG_NO_STORE
-from nicos.pycompat import iteritems, \
-    listitems, number_types, reraise, string_types
+from nicos.pycompat import iteritems, listitems, number_types, reraise
 from nicos.utils import getVersions, loggers, parseDateString
 
 ALLOWED_CATEGORIES = {v[0] for v in INFO_CATEGORIES}
@@ -778,13 +777,13 @@ class Device(metaclass=DeviceMeta):
         else:
             if fromtime is None:
                 fromtime = -1
-            if isinstance(fromtime, string_types):
+            if isinstance(fromtime, str):
                 fromtime = parseDateString(fromtime)
             elif fromtime < 0:
                 fromtime = currenttime() + fromtime * 3600
             if totime is None:
                 totime = currenttime()
-            elif isinstance(totime, string_types):
+            elif isinstance(totime, str):
                 totime = parseDateString(totime, enddate=True)
             elif totime < 0:
                 totime = currenttime() + totime * 3600
@@ -1704,7 +1703,7 @@ class Moveable(Waitable):
 
         if hasattr(self, 'doIsAtTarget'):
             return self.doIsAtTarget(pos, target)
-        elif (isinstance(pos, (string_types, int)) and
+        elif (isinstance(pos, (str, int)) and
               target is not None):
             return target == pos
         return True

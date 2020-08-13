@@ -53,7 +53,7 @@ from time import localtime, mktime, sleep, strftime, strptime, \
 # do **not** import nicos.session here
 # session dependent nicos utilities should be implemented in nicos.core.utils
 from nicos import config, get_custom_version, nicos_version
-from nicos.pycompat import iteritems, string_types
+from nicos.pycompat import iteritems
 
 try:
     import pwd
@@ -607,7 +607,7 @@ def resolveClasses(classes):
     """
     if not isinstance(classes, (list, tuple)):
         classes = [classes]
-    return tuple(importString(cls) if isinstance(cls, string_types) else cls
+    return tuple(importString(cls) if isinstance(cls, str) else cls
                  for cls in classes)
 
 
@@ -733,9 +733,9 @@ def enableDisableFileItem(filepath, mode, owner=None, group=None, logger=None):
             stats = os.stat(filepath)  # only change the requested parts
             owner = owner or stats.st_uid
             group = group or stats.st_gid
-            if isinstance(owner, string_types):
+            if isinstance(owner, str):
                 owner = pwd.getpwnam(owner)[2]
-            if isinstance(group, string_types):
+            if isinstance(group, str):
                 group = grp.getgrnam(group)[2]
             os.chown(filepath, owner, group)
         except (OSError, KeyError) as e:
@@ -1416,7 +1416,7 @@ def num_sort(x, inf=float('inf')):
     """A sort key function to sort strings by a numeric prefix, then
     lexically.
     """
-    if not isinstance(x, string_types):
+    if not isinstance(x, str):
         return (0, x)
     m = re.match(r'[\d.-]+', x)
     try:
@@ -1611,7 +1611,7 @@ def parseDuration(inputvalue, allownegative=False):
         return inputvalue
     if isinstance(inputvalue, timedelta):
         return inputvalue.total_seconds()
-    elif not isinstance(inputvalue, string_types):
+    elif not isinstance(inputvalue, str):
         raise TypeError('Wrong input data type')
 
     invalue = inputvalue.strip()

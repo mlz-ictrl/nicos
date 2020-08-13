@@ -29,7 +29,6 @@ import ast
 from nicos.guisupport.led import ClickableOutputLed
 from nicos.guisupport.qt import Qt
 from nicos.guisupport.widget import PropDef
-from nicos.pycompat import string_types
 
 
 class PushButton(ClickableOutputLed):
@@ -74,7 +73,7 @@ class SinglePushButton(PushButton):
         PushButton.propertyUpdated(self, pname, value)
 
         if pname == 'toState':
-            if isinstance(value, string_types):
+            if isinstance(value, str):
                 self._stateTo = value
             else:
                 self._stateTo = ast.literal_eval(value) if value else 1

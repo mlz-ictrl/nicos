@@ -51,7 +51,7 @@ from nicos.devices.abstract import CanReference
 from nicos.devices.cacheclient import CacheClient
 from nicos.devices.generic import VirtualMotor
 from nicos.devices.notifiers import Mailer
-from nicos.pycompat import exec_, reraise, string_types
+from nicos.pycompat import exec_, reraise
 from nicos.services.cache.database import FlatfileCacheDatabase
 from nicos.utils import closeSocket, createSubprocess, tcpSocket
 from nicos.utils.loggers import ACTION, NicosLogger
@@ -359,7 +359,7 @@ class TestSession(Session):
         sleep(0.0001)
 
     def _string_to_level(self, level):
-        if isinstance(level, string_types):
+        if isinstance(level, str):
             for k, v in ACCESS_LEVELS.items():
                 if v == level:
                     return k

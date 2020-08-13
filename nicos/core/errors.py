@@ -26,8 +26,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.pycompat import string_types
-
 
 class NicosError(Exception):
     """The basic exception class for exceptions raised by NICOS.
@@ -54,7 +52,7 @@ class NicosError(Exception):
         if nargs:
             if args[0] is None:
                 del args[0]
-            elif not isinstance(args[0], string_types):
+            elif not isinstance(args[0], str):
                 self.device = args[0]
                 prefix = '[%s] ' % args[0].name
                 if nargs > 1 and args[1].startswith(prefix):

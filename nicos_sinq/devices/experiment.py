@@ -33,7 +33,6 @@ from nicos import session
 from nicos.core import Override, Param, absolute_path
 from nicos.core.data import DataManager
 from nicos.devices.experiment import Experiment
-from nicos.pycompat import string_types
 from nicos.utils import readFile, writeFile
 
 
@@ -88,7 +87,7 @@ class SinqExperiment(Experiment):
 
     def getProposalType(self, proposal):
         proposalstr = proposal
-        if not isinstance(proposalstr, string_types):
+        if not isinstance(proposalstr, str):
             proposalstr = str(proposal)
 
         year = time.strftime('%Y')

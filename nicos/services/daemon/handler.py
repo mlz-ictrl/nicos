@@ -43,7 +43,6 @@ from nicos.core.data import ScanData
 from nicos.protocols.daemon import BREAK_NOW, DAEMON_COMMANDS, SIM_STATES, \
     STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK, STATUS_RUNNING, \
     STATUS_STOPPING, CloseConnection
-from nicos.pycompat import string_types
 from nicos.services.daemon.auth import AuthenticationError
 from nicos.services.daemon.script import RequestError, ScriptError, \
     ScriptRequest
@@ -643,7 +642,7 @@ class ConnectionHandler(object):
                                   vallist.__class__.__name__)
             return
         for val in vallist:
-            if not isinstance(val, string_types):
+            if not isinstance(val, str):
                 self.send_error_reply('wrong type for add_values item: %s' %
                                       val.__class__.__name__)
                 return
@@ -664,7 +663,7 @@ class ConnectionHandler(object):
                                   vallist.__class__.__name__)
             return
         for val in vallist:
-            if not isinstance(val, string_types):
+            if not isinstance(val, str):
                 self.send_error_reply('wrong type for del_values item: %s' %
                                       val.__class__.__name__)
                 return

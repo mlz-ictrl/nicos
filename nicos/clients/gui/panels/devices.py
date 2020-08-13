@@ -39,7 +39,7 @@ from nicos.guisupport.qt import QBrush, QByteArray, QColor, QComboBox, \
     pyqtSignal, pyqtSlot, sip
 from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
 from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
-from nicos.pycompat import iteritems, itervalues, srepr, string_types
+from nicos.pycompat import iteritems, itervalues, srepr
 from nicos.utils import AttrDict
 
 foregroundBrush = {
@@ -211,7 +211,7 @@ class DevicesPanel(Panel):
         self.param_display = {}
         param_display = options.get('param_display', {})
         for (key, value) in param_display.items():
-            value = [value] if isinstance(value, string_types) else list(value)
+            value = [value] if isinstance(value, str) else list(value)
             self.param_display[key.lower()] = value
 
         self.tree.header().restoreState(self._headerstate)

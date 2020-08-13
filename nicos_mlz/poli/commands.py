@@ -45,7 +45,7 @@ from nicos.core.scan import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, Scan
 from nicos.core.spm import Bare, spmsyntax
 from nicos.devices.sxtal.instrument import SXTalBase
 from nicos.devices.sxtal.xtal.orientation import orient
-from nicos.pycompat import iteritems, number_types, string_types
+from nicos.pycompat import iteritems, number_types
 from nicos.utils import createSubprocess, printTable
 
 __all__ = [
@@ -382,7 +382,7 @@ def _getQ(v, name):
 def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
     preset, detlist, envlist, move, multistep = {}, [], None, [], []
     for arg in args:
-        if isinstance(arg, string_types):
+        if isinstance(arg, str):
             scaninfo = arg + ' - ' + scaninfo
         elif isinstance(arg, number_types):
             preset['t'] = arg
@@ -616,7 +616,7 @@ def _add_to_pos_list(pos, intensity, args):
     listname = 'default'
     sigma = hkl = None
     for arg in args:
-        if isinstance(arg, string_types):
+        if isinstance(arg, str):
             listname = arg
         elif isinstance(arg, number_types):
             sigma = arg
@@ -736,7 +736,7 @@ def IndexPeaks(max_deviation=0.2, listname='default'):
     If you want to manually run Indexus, you can use the generated input files
     as a template.
     """
-    if isinstance(max_deviation, string_types):
+    if isinstance(max_deviation, str):
         listname = max_deviation
         max_deviation = 0.2
     sample = session.experiment.sample

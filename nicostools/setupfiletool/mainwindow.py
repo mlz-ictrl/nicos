@@ -34,7 +34,7 @@ from os import path
 from nicos import config
 from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
     QMainWindow, QMessageBox, Qt, QTreeWidgetItem, uic
-from nicos.pycompat import iteritems, string_types
+from nicos.pycompat import iteritems
 
 from . import classparser, setupcontroller
 from ..utils import format_setup_text
@@ -420,7 +420,7 @@ class MainWindow(QMainWindow):
             for _, params in iteritems(info.parameters):
                 # skip class as it has already been added
                 if not params.param == 'Class':
-                    if isinstance(params.getValue(), string_types):
+                    if isinstance(params.getValue(), str):
                         prepend = indent * ' ' + str(params.param) + ' = '
                         if params.isUnknownValue:
                             param = str(params.getValue()) + ',\n'
