@@ -39,7 +39,7 @@ from nicos.guisupport.qt import QBrush, QByteArray, QColor, QComboBox, \
     pyqtSignal, pyqtSlot, sip
 from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
 from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
-from nicos.pycompat import iteritems, itervalues, srepr
+from nicos.pycompat import iteritems, itervalues
 from nicos.utils import AttrDict
 
 foregroundBrush = {
@@ -646,13 +646,13 @@ class DevicesPanel(Panel):
         if self._menu_dev:
             if self.askQuestion('This will unload the device until the setup '
                                 'is loaded again. Proceed?'):
-                self.exec_command('RemoveDevice(%s)' % srepr(self._menu_dev),
+                self.exec_command('RemoveDevice(%r)' % self._menu_dev,
                                   ask_queue=False)
 
     @pyqtSlot()
     def on_actionReset_triggered(self):
         if self._menu_dev:
-            self.exec_command('reset(%s)' % srepr(self._menu_dev))
+            self.exec_command('reset(%r)' % self._menu_dev)
 
     @pyqtSlot()
     def on_actionFix_triggered(self):
@@ -662,18 +662,17 @@ class DevicesPanel(Panel):
                 'Please enter the reason for fixing %s:' % self._menu_dev)
             if not ok:
                 return
-            self.exec_command('fix(%s, %r)' % (srepr(self._menu_dev), reason))
+            self.exec_command('fix(%r, %r)' % (self._menu_dev, reason))
 
     @pyqtSlot()
     def on_actionRelease_triggered(self):
         if self._menu_dev:
-            self.exec_command('release(%s)' % srepr(self._menu_dev))
+            self.exec_command('release(%r)' % self._menu_dev)
 
     @pyqtSlot()
     def on_actionStop_triggered(self):
         if self._menu_dev:
-            self.exec_command('stop(%s)' % srepr(self._menu_dev),
-                              immediate=True)
+            self.exec_command('stop(%r)' % self._menu_dev, immediate=True)
 
     @pyqtSlot()
     def on_actionMove_triggered(self):
@@ -823,7 +822,7 @@ class ControlDialog(QDialog):
 
         # check how to refer to the device in commands: if it is lowlevel,
         # we need to use quotes
-        self.devrepr = srepr(self.devname) if params.get('lowlevel', True) \
+        self.devrepr = repr(self.devname) if params.get('lowlevel', True) \
             else self.devname
 
         # show "Set alias" group box if it is an alias device
@@ -927,8 +926,8 @@ class ControlDialog(QDialog):
             self.target.setClient(self.client)
 
             def btn_callback(target):
-                self.device_panel.exec_command('move(%s, %s)' %
-                                               (self.devrepr, srepr(target)))
+                self.device_panel.exec_command('move(%s, %r)' %
+                                               (self.devrepr, target))
             self.target.valueChosen.connect(btn_callback)
             self.targetFrame.layout().takeAt(1).widget().deleteLater()
             self.targetFrame.layout().insertWidget(1, self.target)
@@ -939,7 +938,7 @@ class ControlDialog(QDialog):
                 except ValueError:
                     return
                 self.device_panel.exec_command(
-                    'move(%s, %s)' % (self.devrepr, srepr(target)))
+                    'move(%s, %r)' % (self.devrepr, target))
 
             if self.target.getValue() is not Ellipsis:  # (button widget)
                 self.moveBtn = self.moveBtns.addButton(
@@ -1082,8 +1081,8 @@ class ControlDialog(QDialog):
     @pyqtSlot()
     def on_setAliasBtn_clicked(self):
         self.device_panel.exec_command(
-            'set(%s, "alias", %s)' %
-            (self.devrepr, srepr(self.aliasTarget.currentText())))
+            'set(%s, "alias", %r)' %
+            (self.devrepr, self.aliasTarget.currentText()))
 
     def closeEvent(self, event):
         event.accept()
@@ -1133,7 +1132,7 @@ class ControlDialog(QDialog):
                 '%s.%s = %r' % (self.devname, pname, new_value))
         else:
             self.device_panel.exec_command(
-                'set(%s, %s, %r)' % (self.devrepr, srepr(pname), new_value))
+                'set(%s, %r, %r)' % (self.devrepr, pname, new_value))
 
     def on_historyBtn_clicked(self):
         self.device_panel.plot_history(self.devname)

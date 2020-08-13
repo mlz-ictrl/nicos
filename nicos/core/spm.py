@@ -51,7 +51,7 @@ from itertools import chain, cycle, islice
 
 from nicos.core.device import Device
 from nicos.core.errors import SPMError
-from nicos.pycompat import iteritems, srepr
+from nicos.pycompat import iteritems
 
 id_re = re.compile('[a-zA-Z_][a-zA-Z0-9_]*$')
 string1_re = re.compile(r"'(\\\\|\\'|[^'])*'")
@@ -73,7 +73,7 @@ def spmsyntax(*arguments, **options):
 class bare(str):
     """String that repr()s as itself without quotes."""
     def __repr__(self):
-        return self
+        return str(self)
 
 
 class NoParse(Exception):
@@ -354,8 +354,8 @@ class SPMHandler(object):
         try:
             commands = self.tokenize(command)
         except NoParse as err:
-            return self.error('could not parse starting at %s, expected %s' %
-                              (srepr(err.token), err.expected))
+            return self.error('could not parse starting at %r, expected %s' %
+                              (err.token, err.expected))
         code = []
         for tokens in commands:
             if not tokens:
@@ -368,8 +368,7 @@ class SPMHandler(object):
             elif isinstance(cmdobj, Device):
                 code.append(self.handle_device(cmdobj, tokens[1:]))
             else:
-                return self.error('no such command or device: %s' %
-                                  srepr(command))
+                return self.error('no such command or device: %r' % command)
         return '; '.join(code)
 
     def tokenize(self, command, partial=False):
@@ -465,28 +464,28 @@ class SPMHandler(object):
             try:
                 parg = element.handle(args[0], self.session)
             except NoParse as err:
-                return self.error('invalid argument at %s, expected %s' %
-                                  (srepr(err.token), err.expected))
+                return self.error('invalid argument at %r, expected %s' %
+                                  (err.token, err.expected))
             cmdargs.append(parg)
             args = args[1:]
             nargs += 1
         # now come options
         cmdopts = {}
         if len(args) % 2:
-            return self.error('too many arguments at %s, expected end of '
-                              'command' % srepr(args[-1]))
+            return self.error('too many arguments at %r, expected end of '
+                              'command' % args[-1])
         while args:
             opt, val = args[:2]
             args = args[2:]
             if not id_re.match(opt):
-                return self.error('invalid syntax at %s, expected option name'
-                                  % srepr(opt))
+                return self.error('invalid syntax at %r, expected option name'
+                                  % opt)
             if opt in options:
                 try:
                     val = options[opt].handle(val, self.session)
                 except NoParse as err:
-                    return self.error('invalid argument at %s, expected %s' %
-                                      (srepr(err.token), err.expected))
+                    return self.error('invalid argument at %r, expected %s' %
+                                      (err.token, err.expected))
             else:
                 val = bare(val)
             cmdopts[opt] = val

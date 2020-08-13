@@ -68,9 +68,6 @@ def from_maybe_utf8(s):
     return s.decode()
 
 
-srepr = repr
-
-
 def memory_buffer(obj):
     # For numpy arrays, memoryview() keeps info about the element size and
     # shape, so that len() gives unexpected results compared to buffer().
