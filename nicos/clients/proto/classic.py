@@ -34,8 +34,7 @@ from nicos.protocols.daemon import DAEMON_EVENTS, \
     ClientTransport as BaseClientTransport, ProtocolError
 from nicos.protocols.daemon.classic import ACK, ENQ, LENGTH, NAK, \
     READ_BUFSIZE, SERIALIZERS, STX, code2event, command2code
-from nicos.pycompat import memory_buffer
-from nicos.utils import closeSocket, tcpSocket
+from nicos.utils import byteBuffer, closeSocket, tcpSocket
 
 
 class ClientTransport(BaseClientTransport):
@@ -137,5 +136,5 @@ class ClientTransport(BaseClientTransport):
         if DAEMON_EVENTS[event][0]:
             data = self.serializer.deserialize_event(buf.tostring(), event)
         else:
-            data = event, memory_buffer(buf)
+            data = event, byteBuffer(buf)
         return data

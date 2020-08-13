@@ -37,7 +37,7 @@ from nicos.core import DataSink, DataSinkHandler, Override
 from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.core.data import ScanData
 from nicos.devices.datasinks.image import ImageSink
-from nicos.pycompat import memory_buffer
+from nicos.utils import byteBuffer
 
 
 class DaemonSinkHandler(DataSinkHandler):
@@ -123,7 +123,7 @@ class LiveViewSinkHandler(DataSinkHandler):
             else:
                 filename = self.sink.filenametemplate[0] % self.dataset.counter
 
-            buf = memory_buffer(np.ascontiguousarray(data.astype('<u4')))
+            buf = byteBuffer(np.ascontiguousarray(data.astype('<u4')))
             nx.append(resX)
             ny.append(resY)
             nz.append(resZ)

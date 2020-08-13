@@ -1680,3 +1680,11 @@ def tupelize(iterable, n=2):
     Leftover elements at the end are ignored.
     """
     return zip(*(iter(iterable),) * n)
+
+
+def byteBuffer(obj):
+    """Return a byte-based memory view of *obj*."""
+    # For numpy arrays, memoryview() keeps info about the element size and
+    # shape, so that len() gives unexpected results compared to buffer().
+    # Casting to a pure byte view gets rid of that.
+    return memoryview(obj).cast('B')

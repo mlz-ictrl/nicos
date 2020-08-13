@@ -164,12 +164,12 @@ def test_live_events(client):
     client.run_and_wait('''\
 import numpy
 from nicos import session
-from nicos.pycompat import memory_buffer
+from nicos.utils import byteBuffer
 arr = numpy.array([[1, 2], [3, 4]], dtype='<u1')
 session.updateLiveData(
     'Live', 'uid', 'detname',
     ['file.name'], '<u1', [2], [2], [1], 12345,
-    [memory_buffer(arr)])
+    [byteBuffer(arr)])
 ''', 'live.py')
     for name, data, _exc in client.iter_signals(idx, timeout=10.0):
         if name == 'liveparams':

@@ -116,7 +116,7 @@ class DaemonSession(NoninteractiveSession):
                        time, data):
         self.emitfunc('liveparams', (tag, uid, detector, filename, dtype,
                                      nx, ny, nt, time))
-        for buf in data:  # data is a list of ``memory_buffer``
+        for buf in data:  # data is a list of memory buffers
             self.emitfunc('livedata', buf)
 
     def notifyDataFile(self, tag, uid, detector, filename_or_filenames):
