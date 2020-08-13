@@ -514,9 +514,6 @@ class SetupChecker(object):
         return self.good
 
     def check_guiconfig_panel_spec(self, spec, context='main window'):
-        qt5_incompatibles = [
-            'nicos.clients.gui.panels.liveqwt.LiveDataPanel',
-        ]
         # recursively check a panel spec
         if isinstance(spec, (guicfg.hsplit, guicfg.vsplit, guicfg.hbox,
                              guicfg.vbox)):
@@ -536,10 +533,6 @@ class SetupChecker(object):
                 else:
                     self.check_guiconfig_panel_spec(child[1], context)
         elif isinstance(spec, guicfg.panel):
-            if os.environ.get('NICOS_QT', 4) == '5' and \
-               spec.clsname in qt5_incompatibles:
-                self.log.warning('%r is not compatible with QT5', spec.clsname)
-                return
             try:
                 cls = importString(spec.clsname)
             except Exception as err:

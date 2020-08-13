@@ -64,7 +64,7 @@ windows = [
     window('Logbook', 'table',
            panel('nicos.clients.gui.panels.elog.ELogPanel')),
     window('LiveData', 'livedata',
-           panel('nicos.clients.gui.panels.livegr.LiveDataPanel')),
+           panel('nicos.clients.gui.panels.live.LiveDataPanel')),
     ]
 
 tools = [

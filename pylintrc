@@ -12,7 +12,6 @@ extension-pkg-whitelist=numpy,
     OpenGL.GLUT.fonts,
     PyQt5,
     nicospyctl.pyctl,
-    nicoslivewidget,
     quickyaml,
     lxml.etree
 

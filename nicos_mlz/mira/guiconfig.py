@@ -35,7 +35,7 @@ windows = [
                  tools=[tool('Scan', 'nicos.clients.gui.tools.scan.ScanTool')]))),
     window('Live data', 'live', panel('nicos_mlz.mira.gui.live.LiveDataPanel')),
     window('Camera', 'live',
-           panel('nicos.clients.gui.panels.liveqwt.LiveDataPanel',
+           panel('nicos.clients.gui.panels.live.LiveDataPanel',
                  instrument='poli')),
     window('Scans', 'plotter',
            panel('nicos.clients.gui.panels.scans.ScansPanel')),

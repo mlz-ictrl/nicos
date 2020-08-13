@@ -21,7 +21,7 @@ windows = [
     window('Logbook', 'table', panel('nicos.clients.gui.panels.elog.ELogPanel')),
     window('Log files', 'table', panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
     window('Errors', 'errors', panel('nicos.clients.gui.panels.errors.ErrorPanel')),
-    window('Live data', 'live',panel('nicos.clients.gui.panels.liveqwt.LiveDataPanel',
+    window('Live data', 'live',panel('nicos.clients.gui.panels.live.LiveDataPanel',
                                      cachesize = 40,
                                      showcached = True,
                                      instrument = 'laue',
