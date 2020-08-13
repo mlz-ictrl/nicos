@@ -48,7 +48,7 @@ from nicos.core.params import INFO_CATEGORIES, Attach, Override, Param, \
 from nicos.core.utils import formatStatus, multiStatus, multiStop, multiWait, \
     statusString, usermethod
 from nicos.protocols.cache import FLAG_NO_STORE
-from nicos.pycompat import add_metaclass, integer_types, iteritems, \
+from nicos.pycompat import integer_types, iteritems, \
     listitems, number_types, reraise, string_types
 from nicos.utils import getVersions, loggers, parseDateString
 
@@ -269,8 +269,7 @@ class DeviceMeta(DeviceMixinMeta):
         return newtype
 
 
-@add_metaclass(DeviceMeta)
-class Device(object):
+class Device(metaclass=DeviceMeta):
     """
     An object that has a list of parameters that are read from the configuration
     and have default values.
@@ -2156,8 +2155,7 @@ class SubscanMeasurable(Measurable):
 
 # Use the DeviceMixinMeta metaclass here to provide the instancecheck
 # Not derived from DeviceMixinBase as this class is not a mixin.
-@add_metaclass(DeviceMixinMeta)
-class NoDevice(object):
+class NoDevice(metaclass=DeviceMixinMeta):
     """A class that represents "no device" attached to a :class:`DeviceAlias`."""
 
     __mergedattrs__ = []  # needed by the metaclass

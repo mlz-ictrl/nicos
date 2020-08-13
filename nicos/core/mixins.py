@@ -38,7 +38,7 @@ from nicos.core.errors import AccessError, CommunicationError, \
 from nicos.core.params import Override, Param, anytype, dictof, floatrange, \
     intrange, limits, none_or, nonemptylistof, string, tupleof
 from nicos.core.utils import statusString, usermethod
-from nicos.pycompat import add_metaclass, itervalues
+from nicos.pycompat import itervalues
 from nicos.utils import formatArgs, lazy_property
 
 
@@ -98,8 +98,7 @@ class DeviceMixinMeta(type):
         return issubclass(inst.__class__, cls)
 
 
-@add_metaclass(DeviceMixinMeta)
-class DeviceMixinBase(object):
+class DeviceMixinBase(metaclass=DeviceMixinMeta):
     """
     Base class for all NICOS device mixin classes not derived from `Device`.
 

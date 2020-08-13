@@ -29,7 +29,6 @@ from numpy import array, asarray, cos, diagonal, exp, full_like, inf, isinf, \
     isscalar, linspace, log, mean, pi, piecewise, power, sqrt
 
 from nicos.core import ProgrammingError
-from nicos.pycompat import add_metaclass
 from nicos.utils import FitterRegistry, getNumArgs
 from nicos.utils.analyze import estimateFWHM
 
@@ -133,8 +132,7 @@ class FitterMeta(type):
         return new_class
 
 
-@add_metaclass(FitterMeta)
-class Fit(object):
+class Fit(metaclass=FitterMeta):
     """Fit base class
 
     Derived classes may set the following class properties:
