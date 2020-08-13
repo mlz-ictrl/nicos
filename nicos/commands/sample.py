@@ -28,6 +28,7 @@
 from __future__ import absolute_import, division, print_function
 
 import json
+import urllib
 from copy import deepcopy
 
 from numpy import arcsin, degrees, pi, radians, sin, sqrt
@@ -37,8 +38,7 @@ from nicos.commands import helparglist, parallel_safe, usercommand
 from nicos.commands.analyze import CommandLineFitResult
 from nicos.core import ConfigurationError, UsageError
 from nicos.devices.tas.spacegroups import can_reflect, get_spacegroup
-# pylint: disable=redefined-builtin
-from nicos.pycompat import iteritems, urllib
+from nicos.pycompat import iteritems
 from nicos.utils import printTable
 from nicos.utils.fitting import Fit, GaussFit
 

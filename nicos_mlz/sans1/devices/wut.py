@@ -29,13 +29,10 @@ w&t box shows pressore before and after the filter at the instrument.
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.core import CommunicationError, ConfigurationError, NicosError, \
-    Override, Param, Readable, status
+import urllib
 
-try:
-    from urllib2 import urlopen
-except ImportError:
-    urlopen = None
+from nicos.core import CommunicationError, ConfigurationError, \
+    Override, Param, Readable, status
 
 
 class WutValue(Readable):
@@ -54,12 +51,9 @@ class WutValue(Readable):
     }
 
     def _getRaw(self):
-        if urlopen is None:
-            raise NicosError(self, 'cannot parse web page, urllib2 is not '
-                             'installed on this system')
         url = 'http://%s/Single%s' % (self.hostname, self.port)
         try:
-            response = urlopen(url)
+            response = urllib.request.urlopen(url)
             html = response.read()
             return html
         except ConfigurationError:  # pass through error raised above
@@ -92,14 +86,11 @@ class WutDiff(Readable):
     }
 
     def _getRaw(self):
-        if urlopen is None:
-            raise NicosError(self, 'cannot parse web page, urllib2 is not '
-                             'installed on this system')
         url1 = 'http://%s/Single1' % (self.hostname)
         url2 = 'http://%s/Single2' % (self.hostname)
         try:
-            response1 = urlopen(url1)
-            response2 = urlopen(url2)
+            response1 = urllib.request.urlopen(url1)
+            response2 = urllib.request.urlopen(url2)
             html = [response1.read(), response2.read()]
             return html
         except ConfigurationError:  # pass through error raised above

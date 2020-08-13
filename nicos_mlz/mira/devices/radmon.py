@@ -25,9 +25,9 @@
 from __future__ import absolute_import, division, print_function
 
 import subprocess
+import urllib
 
 from nicos.core import NicosError, Readable, status
-from nicos.pycompat import urllib
 from nicos.utils import createSubprocess
 
 

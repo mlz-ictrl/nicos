@@ -56,7 +56,7 @@ def mock_open_Au(url):
 
 
 def test_activation_wronginput(log):
-    with mock.patch('nicos.pycompat.urllib.request.urlopen', new=mock_open_H2):
+    with mock.patch('urllib.request.urlopen', new=mock_open_H2):
         assert raises(UsageError, activation)  # session has no formula up to now
         assert raises(UsageError, activation, formula='H2O')
         assert raises(UsageError, activation, formula='H2O', flux=1e7)
@@ -65,12 +65,12 @@ def test_activation_wronginput(log):
 
 
 def test_activation_function():
-    with mock.patch('nicos.pycompat.urllib.request.urlopen', new=mock_open_H2):
+    with mock.patch('urllib.request.urlopen', new=mock_open_H2):
         data = activation(formula='H2', flux=20, mass=1, getdata=True)
         assert data['curr'] == 'Manual'
         assert data['flux']['fluence'] == 20
         assert data['result']['activation'] is None
-    with mock.patch('nicos.pycompat.urllib.request.urlopen', new=mock_open_Au):
+    with mock.patch('urllib.request.urlopen', new=mock_open_Au):
         data = activation(formula='Au', flux=1e7, mass=1, getdata=True)
         assert data['result']['activation'] is not None
 

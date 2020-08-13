@@ -26,13 +26,13 @@
 
 from __future__ import absolute_import, division, print_function
 
+import urllib
 from datetime import datetime
 
 from nicos import config, get_custom_version, nicos_version
 from nicos.core import Override, Param, none_or
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD, cache_load
-from nicos.pycompat import urllib
 from nicos.utils import getfqdn
 from nicos.utils.credentials.keystore import nicoskeystore
 
@@ -42,7 +42,6 @@ try:
 except ImportError:
     # fallback
     import json
-
 
 
 TIME_FMT = '%Y-%m-%d %H:%M:%S'

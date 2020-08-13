@@ -25,8 +25,7 @@
 """Kafka log handler"""
 
 import logging
-
-from nicos.pycompat import urllib
+import urllib
 
 
 def create_kafka_logging_handler(config):

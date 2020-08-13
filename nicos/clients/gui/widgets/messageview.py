@@ -27,13 +27,14 @@
 from __future__ import absolute_import, division, print_function
 
 import re
+import urllib
 from logging import DEBUG, ERROR, FATAL, INFO, WARNING
 from time import localtime, strftime
 
 from nicos.guisupport.qt import QBrush, QColor, QFont, QMainWindow, QPainter, \
     QPixmap, QRect, QRegExp, QSize, Qt, QTextBrowser, QTextCharFormat, \
     QTextCursor, QTextEdit
-from nicos.pycompat import from_maybe_utf8, to_utf8, urllib
+from nicos.pycompat import from_maybe_utf8, to_utf8
 from nicos.utils.loggers import ACTION, INPUT
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',

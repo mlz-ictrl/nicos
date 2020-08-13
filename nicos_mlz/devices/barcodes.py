@@ -28,12 +28,12 @@ from __future__ import absolute_import, division, print_function
 
 import re
 import time
+import urllib
 
 from nicos import session
 from nicos.core import SIMULATION, Param, dictof
 from nicos.core.utils import USER, User
 from nicos.devices.tango import StringIO
-from nicos.pycompat import urllib
 from nicos.services.daemon.script import RequestError, ScriptRequest
 from nicos.utils import createThread
 
