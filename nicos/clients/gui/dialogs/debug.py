@@ -32,8 +32,7 @@ import sys
 from nicos.guisupport.qt import QCoreApplication, QFont, QMainWindow, \
     QPlainTextEdit, QSplitter, Qt, QTextCursor, QTextOption, pyqtSignal
 from nicos.protocols.daemon import DAEMON_EVENTS
-# pylint: disable=redefined-builtin
-from nicos.pycompat import exec_, xrange as range
+from nicos.pycompat import exec_
 
 # prevent importing the traceback.py from this package
 traceback = __import__('traceback')

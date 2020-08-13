@@ -44,9 +44,7 @@ from nicos.devices.tas.rescalc import resmat
 from nicos.devices.tas.spectro import TAS, THZ2MEV
 from nicos.devices.tas.spurions import alu_hkl, check_acc_bragg, \
     check_ho_spurions, check_powderrays, copper_hkl
-# pylint: disable=redefined-builtin
-from nicos.pycompat import iteritems, number_types, string_types, \
-    xrange as range
+from nicos.pycompat import iteritems, number_types, string_types
 
 __all__ = [
     'qscan', 'qcscan', 'Q', 'calpos', 'pos', 'rp',

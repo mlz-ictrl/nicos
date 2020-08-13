@@ -35,8 +35,7 @@ from nicos.commands import helparglist, usercommand
 from nicos.commands.device import maw
 from nicos.commands.scan import cscan
 from nicos.core import NicosError, UsageError
-# pylint: disable=redefined-builtin
-from nicos.pycompat import string_types, xrange as range
+from nicos.pycompat import string_types
 from nicos.utils import FitterRegistry, printTable
 from nicos.utils.analyze import estimateFWHM
 from nicos.utils.fitting import Fit, GaussFit, PolyFit, SigmoidFit

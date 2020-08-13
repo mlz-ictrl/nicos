@@ -35,8 +35,7 @@ from nicos.guisupport.qt import QBrush, QColor, QDateTime, QDialog, QEvent, \
     QGraphicsTextItem, QGraphicsView, QMenu, QPainter, QPen, Qt, \
     QTableWidgetItem, QTextEdit, pyqtSignal, pyqtSlot
 from nicos.guisupport.typedvalue import DeviceValueEdit
-# pylint: disable=redefined-builtin
-from nicos.pycompat import iteritems, xrange
+from nicos.pycompat import iteritems
 from nicos.utils import findResource
 
 
@@ -774,7 +773,7 @@ class TunewaveTablePanel(Panel):
         """Get the full table data of the current table in the correct storage
         format."""
         result = {}
-        for i in xrange(self.tableWidget.rowCount()):
+        for i in range(self.tableWidget.rowCount()):
             row = self._get_row_data(i)
             echotime = row['echotime']
             del row['echotime']

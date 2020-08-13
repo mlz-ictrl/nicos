@@ -35,7 +35,6 @@ from os import path
 from time import sleep
 
 import psutil
-from six.moves import input
 
 thisfile = path.realpath(__file__)
 bin_path = path.normpath(path.dirname(thisfile))

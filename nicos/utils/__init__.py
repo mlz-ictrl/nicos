@@ -53,9 +53,7 @@ from time import localtime, mktime, sleep, strftime, strptime, \
 # do **not** import nicos.session here
 # session dependent nicos utilities should be implemented in nicos.core.utils
 from nicos import config, get_custom_version, nicos_version
-# pylint: disable=redefined-builtin
-from nicos.pycompat import iteritems, string_types, text_type, \
-    xrange as range, zip
+from nicos.pycompat import iteritems, string_types, text_type
 
 try:
     import pwd

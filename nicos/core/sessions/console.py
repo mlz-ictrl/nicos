@@ -37,7 +37,7 @@ from nicos.core.constants import MASTER, SIMULATION, SLAVE
 from nicos.core.errors import AccessError
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import NicosCompleter
-from nicos.pycompat import exec_, input as input_func
+from nicos.pycompat import exec_
 from nicos.utils import colorcode, formatExtendedStack
 from nicos.utils.loggers import INFO, INPUT
 
@@ -45,7 +45,6 @@ try:
     import readline
 except ImportError:  # on Windows (without pyreadline)
     readline = None
-
 
 
 DEFAULT_BINDINGS = '''\
@@ -128,7 +127,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         sys.stdout.write(colorcode(self.session._pscolor))
         self.session._prompting = True
         try:
-            inp = input_func(prompt)
+            inp = input(prompt)
         except KeyboardInterrupt:
             if prompt == sys.ps1:
                 # do not stop immediately on continuation lines; here the user
@@ -258,7 +257,7 @@ class ConsoleSession(Session):
             self.log.info('<L> stop after current scan')
             self.log.info('<S> immediate stop')
             try:
-                reply = input_func('---> ')
+                reply = input('---> ')
             except RuntimeError:
                 # when already in readline(), this will be raised
                 reply = 'S'
@@ -308,8 +307,8 @@ class ConsoleSession(Session):
         # respond to level= keyword
         if 'passcode' in required:
             code = required['passcode']
-            if input_func('Please enter "%s" to proceed, or press Enter to '
-                          'cancel: ' % code) != code:
+            if input('Please enter "%s" to proceed, or press Enter to '
+                     'cancel: ' % code) != code:
                 raise AccessError('passcode not correct')
         return Session.checkAccess(self, required)
 

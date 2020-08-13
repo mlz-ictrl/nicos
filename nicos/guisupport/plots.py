@@ -29,6 +29,7 @@ NICOS value plot widget.
 from __future__ import absolute_import, division, print_function
 
 import functools
+import itertools
 import operator
 from time import localtime, strftime, time as currenttime
 
@@ -54,7 +55,6 @@ from nicos.guisupport.qtgr import InteractiveGRWidget, \
     LegendEvent, MouseEvent
 from nicos.guisupport.timeseries import TimeSeries, buildTickDistAndSubTicks
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.pycompat import zip_longest
 from nicos.utils import extractKeyAndIndex
 
 DATEFMT = '%Y-%m-%d'
@@ -365,7 +365,8 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
         self.ctimers[curve].timeout.connect(update)
 
     def registerKeys(self):
-        for key, name in zip_longest(self.props['devices'], self.props['names']):
+        for key, name in itertools.zip_longest(self.props['devices'],
+                                               self.props['names']):
             if name is None:
                 name = key
             key, index, scale, offset = extractKeyAndIndex(key)
