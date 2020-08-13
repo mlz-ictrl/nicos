@@ -26,6 +26,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+from io import TextIOWrapper
 from time import localtime, strftime
 
 from nicos import session
@@ -33,7 +34,7 @@ from nicos.core import INFO_CATEGORIES, ConfigurationError, DataSink, \
     DataSinkHandler, Override, Param
 from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.devices.datasinks import FileSink
-from nicos.pycompat import TextIOWrapper, iteritems
+from nicos.pycompat import iteritems
 from nicos.utils import tabulated
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'

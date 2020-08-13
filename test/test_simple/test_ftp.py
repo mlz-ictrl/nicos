@@ -30,10 +30,10 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import tempfile
+from io import BytesIO, StringIO
 
 import pytest
 
-from nicos.pycompat import BytesIO, StringIO
 from nicos.utils import createThread, ftp
 
 try:
@@ -64,7 +64,7 @@ class NamedBytesIO(BytesIO):
 class NamedStringIO(StringIO):
     def __init__(self, name):
         self.name = name
-        StringIO.__init__(self)  # pylint: disable=non-parent-init-called
+        StringIO.__init__(self)
 
     def close(self):
         self.finalcontent = self.getvalue()
@@ -151,6 +151,7 @@ def upload(session):
     os.write(fd, TEST_CONTENT.encode('utf8'))
     yield t
     os.unlink(t)
+
 
 @pytest.mark.skipif(ThreadedFTPServer is object,
                     reason='pyftpdlib package not installed')

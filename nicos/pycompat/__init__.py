@@ -26,10 +26,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-from io import BufferedWriter, FileIO, TextIOWrapper
+from io import BufferedWriter, FileIO
 
 # For consistency import everything from "six" here.
-from six import BytesIO, StringIO, binary_type, exec_, \
+from six import binary_type, exec_, \
     integer_types, iteritems, iterkeys, itervalues, reraise, string_types, \
     text_type
 
@@ -99,7 +99,7 @@ except Exception:
 
 
 __all__ = [
-    'reraise', 'exec_', 'BytesIO', 'StringIO',
+    'reraise', 'exec_',
     'string_types', 'integer_types', 'text_type', 'binary_type',
     'number_types',
     'iteritems', 'itervalues', 'iterkeys', 'listitems', 'listvalues',

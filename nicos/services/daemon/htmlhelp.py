@@ -31,10 +31,11 @@ import inspect
 import pydoc
 import sys
 import threading
+from io import StringIO
 
 from nicos import session
 from nicos.core import Device, DeviceAlias
-from nicos.pycompat import StringIO, iteritems, string_types
+from nicos.pycompat import iteritems, string_types
 from nicos.utils import formatArgs, formatDocstring
 
 try:

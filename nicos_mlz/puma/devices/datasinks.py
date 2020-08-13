@@ -26,10 +26,12 @@
 
 from __future__ import absolute_import, division, print_function
 
+from io import TextIOWrapper
+
 from nicos.core import INFO_CATEGORIES, Override, Param
 from nicos.core.errors import ConfigurationError
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-from nicos.pycompat import TextIOWrapper, iteritems
+from nicos.pycompat import iteritems
 
 
 class PolarizationFileSinkHandler(SingleFileSinkHandler):

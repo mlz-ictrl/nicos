@@ -27,6 +27,7 @@ from __future__ import absolute_import, division, print_function
 
 import re
 import time
+from io import TextIOWrapper
 
 import numpy as np
 
@@ -35,7 +36,7 @@ from nicos.core import Override, Param, listof
 from nicos.core.constants import FINAL, POINT, SCAN, SUBSCAN
 from nicos.devices.datasinks.scan import TIMEFMT, AsciiScanfileSink, \
     AsciiScanfileSinkHandler
-from nicos.pycompat import TextIOWrapper, iteritems, to_utf8
+from nicos.pycompat import iteritems, to_utf8
 from nicos.utils import AutoDefaultODict
 
 try:

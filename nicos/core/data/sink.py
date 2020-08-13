@@ -27,6 +27,7 @@
 from __future__ import absolute_import, division, print_function
 
 from gzip import GzipFile as StdGzipFile
+from io import TextIOWrapper
 from os import path
 
 from nicos import session
@@ -36,7 +37,7 @@ from nicos.core.device import Device
 from nicos.core.errors import ProgrammingError
 from nicos.core.params import INFO_CATEGORIES, Override, Param, listof, setof
 from nicos.core.status import statuses
-from nicos.pycompat import File, TextIOWrapper, iteritems, listitems
+from nicos.pycompat import File, iteritems, listitems
 
 
 class DataFileBase(object):
