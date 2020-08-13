@@ -65,14 +65,15 @@ class Scan(object):
         if session.mode == SLAVE:
             raise ModeError('cannot scan in slave mode')
         self.dataset = None
-        if not detlist:
+        if detlist is None:
             detlist = session.experiment.detectors
-        if not detlist:
-            session.log.warning('scanning without detector, use SetDetectors()'
-                                ' to select which detector(s) you want to use')
+            if not detlist:
+                session.log.warning('scanning without detector, '
+                                    'use SetDetectors() to select which '
+                                    'detector(s) you want to use')
         # check preset names for validity
         # (XXX duplication with count() command!)
-        elif preset:
+        if detlist and preset:
             names = set(preset)
             for det in detlist:
                 names.difference_update(det.presetInfo())
