@@ -32,9 +32,8 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import re
+from configparser import ConfigParser
 from os import path
-
-from nicos.pycompat import ConfigParser
 
 SETUPNAME_RE = re.compile(r'[-\w]+$')
 

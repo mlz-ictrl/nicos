@@ -31,10 +31,9 @@ from __future__ import absolute_import, division, print_function
 import glob
 import os
 import sys
+from configparser import ConfigParser
 from os import path
 from re import compile as regexcompile, escape as regexescape
-
-from nicos.pycompat import ConfigParser
 
 
 class config(object):

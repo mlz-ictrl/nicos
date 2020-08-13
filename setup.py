@@ -24,6 +24,7 @@
 
 import glob
 import os
+from configparser import ConfigParser
 # pylint: disable=no-name-in-module,import-error
 from distutils.dir_util import mkpath
 from os import path
@@ -32,7 +33,6 @@ from setuptools import setup
 from setuptools.command.install import install as stinstall
 
 from nicos import nicos_version
-from nicos.pycompat import ConfigParser
 
 root_packages = ['nicos'] + [d for d in glob.glob('nicos_*') if path.isdir(d)]
 

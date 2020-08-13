@@ -26,6 +26,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import configparser
 import ctypes
 import ctypes.util
 import errno
@@ -53,7 +54,7 @@ from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \
     SIM_STATES, STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK
 from nicos.protocols.daemon.classic import DEFAULT_PORT
-from nicos.pycompat import configparser, iteritems, to_encoding
+from nicos.pycompat import iteritems, to_encoding
 from nicos.utils import colorize, formatDuration, formatEndtime, \
     parseConnectionString, terminalSize
 from nicos.utils.loggers import ACTION, INPUT

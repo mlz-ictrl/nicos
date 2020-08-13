@@ -29,6 +29,7 @@ instrument setups.
 from __future__ import absolute_import, division, print_function
 
 import os
+from configparser import ConfigParser
 from logging import ERROR, LogRecord
 from os import path
 from uuid import uuid1
@@ -38,7 +39,6 @@ import pytest
 from nicos import session
 from nicos.core.sessions.simulation import SimulationSupervisor
 from nicos.core.utils import system_user
-from nicos.pycompat import ConfigParser
 
 from test.utils import module_root
 

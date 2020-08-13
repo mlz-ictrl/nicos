@@ -36,7 +36,7 @@ from six import BytesIO, StringIO, add_metaclass, binary_type, exec_, \
 # Pylint cannot handle submodules created by "six".  Import them here to
 # ignore the Pylint errors only once.
 # pylint: disable=import-error, redefined-builtin
-from six.moves import builtins, configparser, cPickle, input, queue, reduce, \
+from six.moves import builtins, cPickle, input, queue, reduce, \
     socketserver, urllib, xrange, zip, zip_longest
 
 # functionality in addition to what "six" provides
@@ -59,9 +59,6 @@ def listitems(d):
 def listvalues(d):
     return list(d.values())
 
-
-# the class is renamed in addition to the module
-ConfigParser = configparser.ConfigParser
 
 # all builtin number types (useful for isinstance checks)
 
@@ -119,7 +116,7 @@ except Exception:
 
 __all__ = [
     'builtins', 'cPickle', 'socketserver', 'input',
-    'queue', 'xrange', 'configparser', 'urllib',
+    'queue', 'xrange', 'urllib',
     'reraise', 'exec_', 'add_metaclass', 'BytesIO', 'StringIO',
     'string_types', 'integer_types', 'text_type', 'binary_type',
     'number_types',

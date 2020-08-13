@@ -43,11 +43,7 @@ bin_path = path.normpath(path.dirname(thisfile))
 dev_null = open(os.devnull, 'wb')
 background_processes = []
 
-try:
-    from configparser import NoOptionError, NoSectionError, ConfigParser
-except ImportError:
-    from ConfigParser import NoOptionError, NoSectionError, \
-        SafeConfigParser as ConfigParser
+from configparser import NoOptionError, NoSectionError, ConfigParser
 
 
 def echo(s):
