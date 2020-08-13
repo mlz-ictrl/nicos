@@ -44,6 +44,7 @@ from contextlib import contextmanager
 from datetime import timedelta
 from functools import wraps
 from itertools import chain, islice
+from io import BufferedWriter, FileIO
 from os import path
 from stat import S_IRGRP, S_IROTH, S_IRUSR, S_IRWXU, S_IWUSR, S_IXGRP, \
     S_IXOTH, S_IXUSR
@@ -1688,3 +1689,11 @@ def byteBuffer(obj):
     # shape, so that len() gives unexpected results compared to buffer().
     # Casting to a pure byte view gets rid of that.
     return memoryview(obj).cast('B')
+
+
+class File(BufferedWriter):
+    """File-like class for easy inheritance and customization by data sinks."""
+
+    def __init__(self, filepath, openmode):
+        self._raw = FileIO(filepath, openmode)
+        BufferedWriter.__init__(self, self._raw)

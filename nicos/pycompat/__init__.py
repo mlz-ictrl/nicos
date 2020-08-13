@@ -26,17 +26,8 @@
 
 from __future__ import absolute_import, division, print_function
 
-from io import BufferedWriter, FileIO
-
 # all builtin number types (useful for isinstance checks)
 number_types = (int, float)
-
-
-# create file like class for py3
-class File(BufferedWriter):
-    def __init__(self, filepath, openmode):
-        self._raw = FileIO(filepath, openmode)
-        BufferedWriter.__init__(self, self._raw)
 
 
 # missing str/bytes helpers

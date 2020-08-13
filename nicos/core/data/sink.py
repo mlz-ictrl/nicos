@@ -37,7 +37,7 @@ from nicos.core.device import Device
 from nicos.core.errors import ProgrammingError
 from nicos.core.params import INFO_CATEGORIES, Override, Param, listof, setof
 from nicos.core.status import statuses
-from nicos.pycompat import File
+from nicos.utils import File
 
 
 class DataFileBase(object):

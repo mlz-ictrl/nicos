@@ -37,7 +37,7 @@ from nicos.core.constants import FINAL, POINT
 from nicos.core.data.sink import DataSinkHandler
 from nicos.core.errors import NicosError
 from nicos.devices.datasinks import FileSink
-from nicos.pycompat import File
+from nicos.utils import File
 
 __all__ = ('MCASink', 'CHNSink', 'CSVDataSink')
 
