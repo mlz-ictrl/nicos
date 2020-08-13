@@ -113,15 +113,13 @@ class NicosCompleter(object):
 
     attr_hidden = {'attached_devices', 'parameters', 'hardware_access',
                    'temporary', 'log', 'valuetype', 'mro'}
-    global_hidden = {'basestring', 'buffer', 'bytearray', 'bytes',
-                     'callable', 'classmethod', 'coerce', 'cmp', 'compile',
-                     'delattr', 'eval', 'execfile', 'filter', 'frozenset',
-                     'getattr', 'globals', 'hasattr', 'hash', 'id',
-                     'input', 'intern', 'isinstance', 'issubclass', 'iter',
-                     'locals', 'long', 'map', 'memoryview', 'property',
-                     'raw_input', 'reduce', 'reload', 'setattr', 'slice',
-                     'staticmethod', 'super', 'unichr', 'unicode', 'type',
-                     'vars', 'xrange'} | BUILTIN_EXCEPTIONS
+    global_hidden = {'ascii', 'breakpoint', 'bytearray', 'bytes', 'callable',
+                     'classmethod', 'compile', 'delattr', 'eval', 'exec',
+                     'filter', 'format', 'frozenset', 'getattr', 'globals',
+                     'hasattr', 'hash', 'id', 'input', 'isinstance',
+                     'issubclass', 'iter', 'locals', 'map', 'memoryview',
+                     'next', 'object', 'property', 'setattr', 'slice',
+                     'staticmethod', 'super', 'type'} | BUILTIN_EXCEPTIONS
     hidden_keyword = {'assert', 'class', 'del', 'exec', 'yield'}
     special_device = {'move', 'drive', 'maw', 'switch', 'wait', 'read',
                       'status', 'stop', 'reset', 'set', 'get', 'fix',
