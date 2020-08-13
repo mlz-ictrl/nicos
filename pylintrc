@@ -114,6 +114,9 @@ disable=useless-object-inheritance
         ,arguments-differ # too many occurences left
         ,consider-using-ternary # not critical, can be done later
         ,no-else-return # not critical, can be done later
+        ,no-else-raise  # ditto
+        ,no-else-continue
+        ,no-else-break
         ,invalid-unary-operand-type
         ,arguments-differ # it is unclear if this helpful for us.
         ,inconsistent-return-statements # unhelpful
@@ -121,6 +124,7 @@ disable=useless-object-inheritance
         ,useless-object-inheritance  # not good for mixed py2/py3 code
         ,import-outside-toplevel  # used for cyclic dependencies
         ,trailing-comma-tuple
+        ,consider-using-in  # stylistic choice
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
