@@ -1,7 +1,7 @@
 # pylint: skip-file
 
-# test: setups = antares_s, detector_neo
-# test: setupcode = SetDetectors(det_neo)
+# test: setups = detbox_blackbox
+# test: setupcode = SetDetectors(det_ikonl)
 
 # take openbeam
 
@@ -12,7 +12,7 @@ for i in range(2):
 
 maw(sty_huber, 0)
 
-tomo(10, 'sry_huber', t=1)
+tomo(10, sry_huber, t=1)
 
 printinfo('Tomo Finished!')
 
