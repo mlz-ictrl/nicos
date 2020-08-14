@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import Param, Value, Override, tupleof
+from nicos.core import Override, Param, Value, tupleof
 from nicos.devices.generic.detector import PostprocessPassiveChannel
 from nicos.devices.tango import ImageChannel
 
