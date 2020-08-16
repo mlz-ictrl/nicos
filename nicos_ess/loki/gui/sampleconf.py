@@ -451,10 +451,36 @@ class KWSSamplePanel(Panel):
         layout.addWidget(frm)
         frm.offsetBox.returnPressed.connect(lambda: self.set_offset(index,
                                             frm.offsetBox.displayText()))
+        frm.apXBox.returnPressed.connect(lambda: self.set_aperture(index,
+                                         frm.apXBox.displayText(), 0))
+        frm.apYBox.returnPressed.connect(lambda: self.set_aperture(index,
+                                         frm.apYBox.displayText(), 1))
+        frm.apWBox.returnPressed.connect(lambda: self.set_aperture(index,
+                                         frm.apWBox.displayText(), 2))
+        frm.apHBox.returnPressed.connect(lambda: self.set_aperture(index,
+                                         frm.apHBox.displayText(), 3))
 
     def set_offset(self, i, val):
         self.dirty = True
         self.configs[i]['detoffset'] = val
+        item = self.list.item(i)
+        self.on_list_itemClicked(item)
+
+    def set_aperture(self, i, val, key):
+        self.dirty = True
+        # The following implementation is required as "aperture" has been
+        # implemented as a tuple rather then a simple list.
+        x = self.configs[i]['aperture'][0]
+        y = self.configs[i]['aperture'][1]
+        w = self.configs[i]['aperture'][2]
+        h = self.configs[i]['aperture'][3]
+        aperture_switch = {
+            0: (x + float(val), y, w, h),
+            1: (x, y + float(val), w, h),
+            2: (x, y, w + float(val), h),
+            3: (x, y, w, h + float(val))
+        }
+        self.configs[i]['aperture'] = aperture_switch.get(key)
         item = self.list.item(i)
         self.on_list_itemClicked(item)
 
