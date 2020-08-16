@@ -459,6 +459,10 @@ class KWSSamplePanel(Panel):
                                          frm.apWBox.displayText(), 2))
         frm.apHBox.returnPressed.connect(lambda: self.set_aperture(index,
                                          frm.apHBox.displayText(), 3))
+        # Re-validate the values
+        for box in [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
+                    frm.apHBox]:
+            box.setValidator(DoubleValidator(self))
 
     def set_offset(self, i, val):
         self.dirty = True
