@@ -446,9 +446,17 @@ class KWSSamplePanel(Panel):
         frm.posTbl.setEnabled(False)
         for box in frm.findChildren(QLineEdit):
             # box.setReadOnly(True)
-            box.setEnabled(False)
+            box.setEnabled(True)
         layout = self.frame.layout()
         layout.addWidget(frm)
+        frm.offsetBox.returnPressed.connect(lambda: self.set_offset(index,
+                                            frm.offsetBox.displayText()))
+
+    def set_offset(self, i, val):
+        self.dirty = True
+        self.configs[i]['detoffset'] = val
+        item = self.list.item(i)
+        self.on_list_itemClicked(item)
 
     def on_list_itemDoubleClicked(self, item):
         self.on_editBtn_clicked()
