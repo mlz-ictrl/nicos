@@ -332,13 +332,13 @@ class KWSSamplePanel(Panel):
                 if ax2:
                     position[ax2] = round(sax2 + i * dax2, 1)
                 config = dict(
-                    name = str(n),
-                    comment = '',
-                    detoffset = -335.0,
-                    thickness = 1.0,
-                    timefactor = 1.0,
-                    aperture = (0, 0, 10, 10),
-                    position = position,
+                    name=str(n),
+                    comment='',
+                    detoffset=-335.0,
+                    thickness=1.0,
+                    timefactor=1.0,
+                    aperture=(0, 0, 10, 10),
+                    position=position,
                 )
                 self.configs.append(config)
         firstitem = None
@@ -428,7 +428,7 @@ class KWSSamplePanel(Panel):
         if item:
             item.widget().deleteLater()
 
-    def on_list_currentItemChanged(self, item, previous):
+    def on_list_currentItemChanged(self, item):
         self.on_list_itemClicked(item)
 
     def on_list_itemClicked(self, item):
@@ -495,7 +495,7 @@ class KWSSamplePanel(Panel):
         item = self.list.item(i)
         self.on_list_itemClicked(item)
 
-    def on_list_itemDoubleClicked(self, item):
+    def on_list_itemDoubleClicked(self):
         self.on_editBtn_clicked()
 
     @pyqtSlot()
