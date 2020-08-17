@@ -441,7 +441,7 @@ class KWSSamplePanel(Panel):
         self._clearDisplay()
         index = self.list.row(item)
         frm = QFrame(self)
-        loadUi(frm, findResource('nicos_ess/loki/gui/sampleconf_offap.ui'))
+        loadUi(frm, findResource('nicos_ess/loki/gui/sampleconf_summary.ui'))
         frm.whatLbl.setText('Sample configuration')
         configToFrame(frm, self.configs[index])
         frm.addDevBtn.setVisible(False)
