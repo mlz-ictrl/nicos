@@ -494,6 +494,7 @@ class KWSSamplePanel(Panel):
         }
         self.configs[i]['aperture'] = aperture_switch.get(key)
         item = self.list.item(i)
+        self._copy_key('aperture')
         self.on_list_itemClicked(item)
 
     def on_list_itemDoubleClicked(self):
