@@ -442,13 +442,19 @@ class KWSSamplePanel(Panel):
         frm.delDevBtn.setVisible(False)
         frm.readApBtn.setVisible(False)
         frm.readDevsBtn.setVisible(False)
-        # frm.posTbl.setEditTriggers(QTableWidget.NoEditTriggers)
         frm.posTbl.setEnabled(False)
+        relevant_list = [frm.offset, frm.apXBox, frm.apYBox, frm.apWBox,
+                         frm.apHBox]
         for box in frm.findChildren(QLineEdit):
-            # box.setReadOnly(True)
-            box.setEnabled(True)
+            if box in relevant_list:
+                box.setEnabled(True)
+            else:
+                box.setEnabled(False)
         layout = self.frame.layout()
         layout.addWidget(frm)
+
+        # Enable users the change the offset and aperture values at will
+        # without the need of opening any dialog window.
         frm.offsetBox.returnPressed.connect(lambda: self.set_offset(index,
                                             frm.offsetBox.displayText()))
         frm.apXBox.returnPressed.connect(lambda: self.set_aperture(index,
@@ -459,6 +465,7 @@ class KWSSamplePanel(Panel):
                                          frm.apWBox.displayText(), 2))
         frm.apHBox.returnPressed.connect(lambda: self.set_aperture(index,
                                          frm.apHBox.displayText(), 3))
+
         # Re-validate the values
         for box in [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
                     frm.apHBox]:
