@@ -493,10 +493,10 @@ class KWSSamplePanel(Panel):
         w = self.configs[i]['aperture'][2]
         h = self.configs[i]['aperture'][3]
         aperture_switch = {
-            0: (x + float(val), y, w, h),
-            1: (x, y + float(val), w, h),
-            2: (x, y, w + float(val), h),
-            3: (x, y, w, h + float(val))
+            0: (float(val), y, w, h),
+            1: (x, float(val), w, h),
+            2: (x, y, float(val), h),
+            3: (x, y, w, float(val))
         }
         self.configs[i]['aperture'] = aperture_switch.get(key)
         item = self.list.item(i)
