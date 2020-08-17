@@ -108,7 +108,7 @@ class ConfigEditDialog(QDialog):
                     self.frm.apXBox, self.frm.apYBox, self.frm.apWBox,
                     self.frm.apHBox]:
             box.setValidator(DoubleValidator(self))
-        # List of properties that are going to be enabled on place for edit,
+        # List of properties that are going to be enabled in-place for edit,
         # thus should not be visible here.
         relevant_list = [self.frm.offsetBox, self.frm.apXBox, self.frm.apYBox,
                          self.frm.apWBox, self.frm.apHBox, self.frm.readApBtn]
