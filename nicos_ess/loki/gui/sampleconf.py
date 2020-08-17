@@ -443,7 +443,7 @@ class KWSSamplePanel(Panel):
         frm.readApBtn.setVisible(False)
         frm.readDevsBtn.setVisible(False)
         frm.posTbl.setEnabled(False)
-        relevant_list = [frm.offset, frm.apXBox, frm.apYBox, frm.apWBox,
+        relevant_list = [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
                          frm.apHBox]
         for box in frm.findChildren(QLineEdit):
             if box in relevant_list:
