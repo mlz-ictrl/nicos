@@ -475,6 +475,7 @@ class KWSSamplePanel(Panel):
         self.dirty = True
         self.configs[i]['detoffset'] = val
         item = self.list.item(i)
+        self._copy_key('detoffset')
         self.on_list_itemClicked(item)
 
     def set_aperture(self, i, val, key):
