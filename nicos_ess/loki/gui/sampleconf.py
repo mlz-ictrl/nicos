@@ -108,6 +108,12 @@ class ConfigEditDialog(QDialog):
                     self.frm.apXBox, self.frm.apYBox, self.frm.apWBox,
                     self.frm.apHBox]:
             box.setValidator(DoubleValidator(self))
+        # List of properties that are going to be enabled on place for edit,
+        # thus should not be visible here.
+        relevant_list = [self.frm.offsetBox, self.frm.apXBox, self.frm.apYBox,
+                         self.frm.apWBox, self.frm.apHBox, self.frm.readApBtn]
+        for box in relevant_list:
+            box.setVisible(False)
         if config is not None:
             configToFrame(self.frm, config)
 
@@ -435,12 +441,12 @@ class KWSSamplePanel(Panel):
         self._clearDisplay()
         index = self.list.row(item)
         frm = QFrame(self)
-        loadUi(frm, findResource('nicos_ess/loki/gui/sampleconf_one.ui'))
+        loadUi(frm, findResource('nicos_ess/loki/gui/sampleconf_offap.ui'))
         frm.whatLbl.setText('Sample configuration')
         configToFrame(frm, self.configs[index])
         frm.addDevBtn.setVisible(False)
         frm.delDevBtn.setVisible(False)
-        frm.readApBtn.setVisible(False)
+        frm.readApBtn.setVisible(True)
         frm.readDevsBtn.setVisible(False)
         frm.posTbl.setEnabled(False)
         relevant_list = [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
