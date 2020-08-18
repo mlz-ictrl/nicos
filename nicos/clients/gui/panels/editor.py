@@ -184,7 +184,10 @@ class EditorPanel(Panel):
         client.simresult.connect(self.on_client_simresult)
         if client.isconnected:
             self.on_client_connected()
+        else:
+            self.on_client_disconnected()
         client.connected.connect(self.on_client_connected)
+        client.disconnected.connect(self.on_client_disconnected)
         client.setup.connect(self.on_client_connected)
         client.cache.connect(self.on_client_cache)
         client.experiment.connect(self.on_client_experiment)
@@ -309,12 +312,19 @@ class EditorPanel(Panel):
         for action in [
             self.actionSave, self.actionSaveAs, self.actionReload,
             self.actionPrint, self.actionUndo, self.actionRedo, self.actionCut,
-            self.actionCopy, self.actionPaste, self.actionFind, self.actionRun,
-            self.actionSimulate, self.actionUpdate
+            self.actionCopy, self.actionPaste, self.actionFind,
         ]:
             action.setEnabled(on)
+        self.enableExecuteActions(self.client.isconnected)
         for action in [self.actionComment]:
             action.setEnabled(on and has_scintilla)
+
+    def enableExecuteActions(self, on):
+        for action in [
+            self.actionRun, self.actionSimulate, self.actionGet,
+            self.actionUpdate
+        ]:
+            action.setEnabled(self.client.isconnected)
 
     def on_codeGenerated(self, code):
         if self.currentEditor:
@@ -423,7 +433,11 @@ class EditorPanel(Panel):
         return editor
 
     def on_client_connected(self):
+        self.enableExecuteActions(True)
         self._set_scriptdir()
+
+    def on_client_disconnected(self):
+        self.enableExecuteActions(False)
 
     def _set_scriptdir(self):
         initialdir = self.client.eval('session.experiment.scriptpath', '')
