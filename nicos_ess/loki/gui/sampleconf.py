@@ -461,16 +461,16 @@ class KWSSamplePanel(Panel):
 
         # Enable users the change the offset and aperture values at will
         # without the need of opening any dialog window.
-        frm.offsetBox.returnPressed.connect(lambda: self.set_offset(index,
-                                            frm.offsetBox.displayText()))
-        frm.apXBox.returnPressed.connect(lambda: self.set_aperture(index,
-                                         frm.apXBox.displayText(), 0))
-        frm.apYBox.returnPressed.connect(lambda: self.set_aperture(index,
-                                         frm.apYBox.displayText(), 1))
-        frm.apWBox.returnPressed.connect(lambda: self.set_aperture(index,
-                                         frm.apWBox.displayText(), 2))
-        frm.apHBox.returnPressed.connect(lambda: self.set_aperture(index,
-                                         frm.apHBox.displayText(), 3))
+        frm.offsetBox.editingFinished.connect(lambda: self.set_offset(index,
+                                              frm.offsetBox.displayText()))
+        frm.apXBox.editingFinished.connect(lambda: self.set_aperture(index,
+                                           frm.apXBox.displayText(), 0))
+        frm.apYBox.editingFinished.connect(lambda: self.set_aperture(index,
+                                           frm.apYBox.displayText(), 1))
+        frm.apWBox.editingFinished.connect(lambda: self.set_aperture(index,
+                                           frm.apWBox.displayText(), 2))
+        frm.apHBox.editingFinished.connect(lambda: self.set_aperture(index,
+                                           frm.apHBox.displayText(), 3))
 
         # Re-validate the values
         for box in [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
