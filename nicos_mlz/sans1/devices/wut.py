@@ -55,7 +55,7 @@ class WutValue(Readable):
         try:
             response = urllib.request.urlopen(url)
             html = response.read()
-            return html
+            return str(html)
         except ConfigurationError:  # pass through error raised above
             raise
         except Exception as err:
@@ -91,7 +91,7 @@ class WutDiff(Readable):
         try:
             response1 = urllib.request.urlopen(url1)
             response2 = urllib.request.urlopen(url2)
-            html = [response1.read(), response2.read()]
+            html = [str(response1.read()), str(response2.read())]
             return html
         except ConfigurationError:  # pass through error raised above
             raise
