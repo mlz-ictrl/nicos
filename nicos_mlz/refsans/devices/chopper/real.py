@@ -84,7 +84,6 @@ class ChopperMaster(ChopperBase, ChopperMasterBase):
     }
 
     parameter_overrides = {
-        'delay': Override(volatile=True),
         'resolution': Override(type=intrange(0, 6)),
     }
 

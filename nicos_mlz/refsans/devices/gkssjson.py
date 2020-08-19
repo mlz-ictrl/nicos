@@ -94,15 +94,14 @@ class CPTReadout(HasOffset, JsonBase):
         data = self._read_controller([self.valuekey, 'start_act'])
         self.log.debug('res: %r', data)
         self.log.debug('channel %d', channel)
-        if channel == 0:
+        if channel == -1:
             self.log.debug('calc speed')
             res = 3e9 / data['start_act']  # speed
             res -= self.offset  # should be Zero
-        elif channel == -1:
+        elif channel == 90:
             self.log.debug('calc phase in respect to Disk 1 of Disc 1')
             self.log.debug('offset %.2f', self.offset)
-            res = -360.0 * data[self.valuekey][0] / data['start_act']
-            res -= self.offset
+            res = -360.0 * data[self.valuekey][6] / data['start_act']
             res = self._kreis(res)
         else:
             self.log.debug('calc phase in respect to Disk 1')
@@ -133,12 +132,12 @@ class CPTReadout(HasOffset, JsonBase):
 
 
 class SdsRatemeter(JsonBase):
-    """Read the count rates for the different input channels of the SDS."""
+    """Read count rates for the different input channels of the SDS."""
 
     parameters = {
         'channel': Param('Channel to be rated',
                          type=oneof('a', 'x', 'y'), default='a',
-                         settable=False)
+                         settable=False),
     }
 
     parameter_overrides = {
@@ -160,7 +159,7 @@ class SdsRatemeter(JsonBase):
 
     def doRead(self, maxage=0):
         res = self._read_controller(['mon_counts_cps_%s' % self.channel])
-        res = int(res.values()[0])
+        res = int(list(res.values())[0])  # Pyth3 res.popitem()[1]
         ret = int(res / 2.46)
         self.log.info('system %dfoo countrate %dcps', res, ret)
         return ret
