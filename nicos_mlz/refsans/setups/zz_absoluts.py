@@ -118,7 +118,7 @@ devices = dict(
     ),
     nok4s_motor = device(code_base + 'ipc.NOKMotorIPC',
         description = 'IPC controlled Motor of NOK4, sample side',
-        abslimits = (-21.3025, 41.1975),
+        abslimits = (-21.3025, 25.19),  # 2020-04-25 22:31:49 abslimits = (-21.3025, 41.1975),
         bus = 'nokbus4',
         addr = 0x64,
         slope = 2000.0,
