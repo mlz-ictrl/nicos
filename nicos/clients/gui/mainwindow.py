@@ -457,6 +457,7 @@ class MainWindow(DlgUtils, QMainWindow):
         self.actionConnect.setChecked(isconnected)
         if isconnected:
             self.actionConnect.setText('Disconnect')
+            self.actionConnect.setChecked(False)
         else:
             self.actionConnect.setText('Connect to server...')
             self.setTitlebar(False)
