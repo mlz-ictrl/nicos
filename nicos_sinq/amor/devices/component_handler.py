@@ -71,7 +71,7 @@ class DistancesHandler(BaseSequencer):
         'rawdistances': Param('Calculated distances of components',
                               type=dictof(str, float), userparam=False,
                               settable=True),
-        'order': Param('Order of componenets for display/mesaurment',
+        'order': Param('Order of components for display/measurement',
                        type=listof(str), userparam=False)
     }
 
