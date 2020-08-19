@@ -2,7 +2,8 @@ description = "neutronguide, leadblock"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'nokbus1']
+includes = ['nok_ref', 'zz_absoluts']
+
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 
@@ -29,24 +30,6 @@ devices = dict(
         nok_gap = 1.0,
         backlash = -2,   # is this configured somewhere?
         precision = 0.05,
-        lowlevel = True,
-    ),
-
-    # generated from global/inf/resources.inf, geometrie.inf, optic.inf and taco *.res files
-    shutter_gamma_motor = device('nicos_mlz.refsans.devices.ipc.NOKMotorIPC',
-        description = 'IPC controlled Motor of shutter_gamma',
-        abslimits = (-56.119, 1.381),
-        userlimits = (-56.119, 1.381),
-        bus = 'nokbus1',     # from ipcsms_*.res
-        addr = 0x31,     # from resources.inf
-        slope = 2000.0,  # FULL steps per physical unit
-        speed = 10,
-        accel = 10,
-        confbyte = 48,
-        ramptype = 2,
-        microstep = 1,
-        refpos = -14.729,    # from ipcsms_*.res
-        zerosteps = int(264.619 * 2000),     # offset * slope
         lowlevel = True,
     ),
 
