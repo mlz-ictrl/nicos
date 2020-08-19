@@ -28,7 +28,7 @@ from time import time as currenttime
 
 from nicos.core import FINAL, INTERMEDIATE, DataSink, DataSinkHandler, \
     Override, Param, dictof, tupleof
-from nicos.core.constants import POINT
+from nicos.core.constants import POINT, SIMULATION
 
 from nicos_ess.devices.datasinks.imagesink.serializer import \
     HistogramFlatbuffersSerializer
@@ -110,5 +110,7 @@ class ImageKafkaDataSink(ProducesKafkaMessages, DataSink):
     serializer = HistogramFlatbuffersSerializer()
 
     def doInit(self, mode):
+        if mode == SIMULATION:
+            return
         # Increase the maximum message size that the producer can send
         self._setProducerConfig(max_request_size=self.maximagesize)

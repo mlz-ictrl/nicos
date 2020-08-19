@@ -32,6 +32,7 @@ from streaming_data_types.status_x5f2 import deserialise_x5f2
 from nicos import session
 from nicos.core import MASTER, POLLER, Override, Param, Readable, status, \
     tupleof
+from nicos.core.constants import SIMULATION
 from nicos.pycompat import iteritems
 
 from nicos_ess.devices.kafka.consumer import KafkaSubscriber
@@ -66,7 +67,7 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
 
     def doPreinit(self, mode):
         KafkaSubscriber.doPreinit(self, mode)
-        if session.sessiontype != POLLER:
+        if session.sessiontype != POLLER and mode != SIMULATION:
             self.subscribe(self.statustopic)
 
         # Be pessimistic and assume the process is down, if the process
