@@ -3,6 +3,7 @@ description = 'all values for detector positon'
 group = 'lowlevel'
 
 instrument_values = configdata('instrument.values')
+showcase_values = configdata('cf_showcase.showcase_values')
 
 tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base']
@@ -65,7 +66,7 @@ devices = dict(
         waittime = 40,
         lowlevel = True,
     ),
-    det_table_analog = device(code_base + 'beckhoff.nok.BeckhoffCoderDetector',
+    det_table_poti = device(code_base + 'beckhoff.nok.BeckhoffCoderDetector',
         description = 'Coder of detector table inside scatteringtube',
         tangodevice = tango_base + 'det_table/io/modbus',
         address = 0x3020 + 1 * 10,  # word address
