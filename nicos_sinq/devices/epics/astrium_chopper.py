@@ -29,6 +29,7 @@ from collections import OrderedDict
 
 from nicos.core import ADMIN, Attach, ConfigurationError, HasPrecision, \
     Override, Param, Readable, UsageError, pvname, requires, status
+from nicos.core.constants import SIMULATION
 
 from nicos_ess.devices.epics.base import EpicsDeviceEss, \
     EpicsDigitalMoveableEss, EpicsWindowTimeoutDeviceEss
@@ -225,6 +226,9 @@ class EpicsAstriumChopper(HasPrecision, Readable):
     def doInit(self, mode):
         if len(self._attached_choppers) == 1:
             self._master = self._attached_choppers[0]
+            return
+
+        if mode == SIMULATION:
             return
 
         for ch in self._attached_choppers:
