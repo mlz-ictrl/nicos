@@ -193,7 +193,7 @@ class DistancesHandler(BaseSequencer):
 
     def _components(self):
         # Return the ordered list of components
-        components = self.components.keys() + self.fixedcomponents.keys()
+        components = list(self.components) + list(self.fixedcomponents)
 
         # Add the missing components in the order dict
         ordered = self.order
