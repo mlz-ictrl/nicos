@@ -58,6 +58,7 @@
 .. autoclass:: ChopperDiscTranslation()
 
 .. automodule:: nicos_mlz.refsans.devices.skew_motor
+.. autoclass:: SkewRead()
 .. autoclass:: SkewMotor()
 
 .. automodule:: nicos_mlz.refsans.devices.analogencoder
