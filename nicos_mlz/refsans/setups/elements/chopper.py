@@ -27,7 +27,6 @@ devices = dict(
         chopper6 = 'chopper6',
         shutter = 'shutter',
         comm = 'chopper_io',
-        cpt = 'cpt_delay',
     ),
     chopper_speed = device(code_base_chopper + 'ChopperDisc',
         description = 'chopper speed; reguler 100rpm/min Nothalt 400rpm/min',
