@@ -27,6 +27,7 @@ from __future__ import absolute_import, division, print_function
 import requests
 
 from nicos.core import Override, Param, Readable, oneof, status, tupleof
+from nicos.core.constants import SIMULATION
 from nicos.core.errors import CommunicationError
 from nicos.core.mixins import HasCommunication
 
@@ -63,8 +64,9 @@ class HttpConnector(HasCommunication, Readable):
 
     def doInit(self, mode):
         # Check if the base url is available
-        self._com_retry(None, requests.get, self.baseurl,
-                        headers=self._get_auth())
+        if mode != SIMULATION:
+            self._com_retry(None, requests.get, self.baseurl,
+                            headers=self._get_auth())
 
     def _get_auth(self):
         return {"Authorization": "Basic %s" % self.base64auth}
