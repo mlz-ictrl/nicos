@@ -177,7 +177,8 @@ class ConfigEditDialog(QDialog):
         dlg.devBox.addItems(devlist)
         if not dlg.exec_():
             return
-        self._addRow(dlg.devBox.currentText(), str(dlg.widget.getValue()))
+        if dlg.widget is not None:
+            self._addRow(dlg.devBox.currentText(), str(dlg.widget.getValue()))
 
     def on_delDevBtn_clicked(self):
         srow = self.frm.posTbl.currentRow()
