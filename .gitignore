@@ -52,5 +52,10 @@ mprofile_*.dat
 *.prof
 *.lprof
 
+#Mac
+.DS_Store
+
+#PyCharm
+.idea
 
 __pycache__

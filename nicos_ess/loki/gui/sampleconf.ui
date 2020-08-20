@@ -217,13 +217,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="copyBtn">
-          <property name="text">
-           <string>Copy from this to all samples</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <spacer name="horizontalSpacer_3">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>

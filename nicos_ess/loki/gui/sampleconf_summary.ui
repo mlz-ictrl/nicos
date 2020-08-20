@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>604</width>
+    <width>608</width>
     <height>531</height>
    </rect>
   </property>
@@ -28,100 +28,16 @@
    </property>
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="8" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QLineEdit" name="offsetBox">
-         <property name="maximumSize">
-          <size>
-           <width>200</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>0.0</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>Meas. time factor:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="nameBox"/>
-     </item>
-     <item row="5" column="0" colspan="2">
-      <widget class="Line" name="line_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
-       <item>
-        <widget class="QLineEdit" name="factorBox">
-         <property name="maximumSize">
-          <size>
-           <width>200</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>1.0</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_16">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_5">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Sample name:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1">
+     <item row="9" column="1">
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>Pos X:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
         <widget class="QLineEdit" name="apXBox">
          <property name="minimumSize">
           <size>
@@ -140,7 +56,14 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="2">
+       <item row="0" column="3">
+        <widget class="QLabel" name="label_13">
+         <property name="text">
+          <string>Pos Y:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="4">
         <widget class="QLineEdit" name="apYBox">
          <property name="minimumSize">
           <size>
@@ -160,6 +83,13 @@
         </widget>
        </item>
        <item row="1" column="0">
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>Width:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
         <widget class="QLineEdit" name="apWBox">
          <property name="minimumSize">
           <size>
@@ -178,7 +108,14 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="2">
+       <item row="1" column="3">
+        <widget class="QLabel" name="label_15">
+         <property name="text">
+          <string>Height:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
         <widget class="QLineEdit" name="apHBox">
          <property name="minimumSize">
           <size>
@@ -197,7 +134,7 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
+       <item row="0" column="2">
         <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -213,14 +150,14 @@
          </property>
         </spacer>
        </item>
-       <item row="0" column="4">
+       <item row="0" column="6">
         <widget class="QPushButton" name="readApBtn">
          <property name="text">
           <string>Read current</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="3">
+       <item row="0" column="5">
         <spacer name="horizontalSpacer_3">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -236,7 +173,7 @@
          </property>
         </spacer>
        </item>
-       <item row="1" column="3" colspan="2">
+       <item row="1" column="5" colspan="2">
         <spacer name="horizontalSpacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -251,8 +188,29 @@
        </item>
       </layout>
      </item>
-     <item row="7" column="0">
+     <item row="7" column="0" colspan="2">
+      <widget class="Line" name="line_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Detector offset:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="0">
       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>Aperture:</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">
@@ -270,29 +228,6 @@
         </spacer>
        </item>
       </layout>
-     </item>
-     <item row="0" column="0" colspan="2">
-      <widget class="QLabel" name="whatLbl">
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Edit sample configuration</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="commentBox"/>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>Comment:</string>
-       </property>
-      </widget>
      </item>
      <item row="6" column="1">
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -336,6 +271,36 @@
         </layout>
        </item>
       </layout>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="commentBox"/>
+     </item>
+     <item row="10" column="0" colspan="2">
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Comment:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" colspan="2">
+      <widget class="QLabel" name="whatLbl">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Edit sample configuration</string>
+       </property>
+      </widget>
      </item>
      <item row="6" column="0">
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -405,6 +370,117 @@
        </item>
       </layout>
      </item>
+     <item row="3" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QLineEdit" name="factorBox">
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>1.0</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_16">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item row="5" column="0" colspan="2">
+      <widget class="Line" name="line_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Sample name:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Meas. time factor:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="nameBox"/>
+     </item>
+     <item row="11" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QLineEdit" name="offsetBox">
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>0.0</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_10">
+         <property name="text">
+          <string>mm</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="whatLbl_2">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Instrument Configuration</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>
@@ -418,11 +494,9 @@
   <tabstop>readDevsBtn</tabstop>
   <tabstop>apXBox</tabstop>
   <tabstop>apYBox</tabstop>
-  <tabstop>readApBtn</tabstop>
   <tabstop>apWBox</tabstop>
   <tabstop>apHBox</tabstop>
   <tabstop>offsetBox</tabstop>
-  <tabstop>factorBox</tabstop>
   <tabstop>thickBox</tabstop>
  </tabstops>
  <resources/>
