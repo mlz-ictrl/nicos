@@ -67,6 +67,9 @@
 .. automodule:: nicos_mlz.refsans.devices.sample
 .. autoclass:: Sample()
 
+.. automodule:: nicos_mlz.refsans.devices.det_yoke_enc
+.. autoclass:: BasePos()
+
 Data Sinks
 ----------
 
