@@ -1,6 +1,6 @@
 description = 'Refsans 4 analog 1 GPIO on Raspberry'
 
-group = 'plugplay'
+group = 'optional'
 
 tango_base = 'tango://%s:10000/test/ads/' % setupname
 
