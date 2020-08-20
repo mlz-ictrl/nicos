@@ -15,6 +15,7 @@ devices = dict(
         motor_1 = 'backguard1',
         motor_2 = 'backguard2',
         abslimits = (-30.0, 30.0),
+        offset = 0,
         unit = 'mm',
     ),
     backguard1 = device('nicos.devices.generic.Axis',
