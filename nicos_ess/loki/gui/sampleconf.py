@@ -461,16 +461,16 @@ class KWSSamplePanel(Panel):
 
         # Enable users the change the offset and aperture values at will
         # without the need of opening any dialog window.
-        frm.offsetBox.editingFinished.connect(lambda: self.set_offset(index,
-                                              frm.offsetBox.displayText()))
-        frm.apXBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                           frm.apXBox.displayText(), 0))
-        frm.apYBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                           frm.apYBox.displayText(), 1))
-        frm.apWBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                           frm.apWBox.displayText(), 2))
-        frm.apHBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                           frm.apHBox.displayText(), 3))
+        frm.offsetBox.textChanged.connect(lambda: self.set_offset(index,
+                                          frm.offsetBox.displayText()))
+        frm.apXBox.textChanged.connect(lambda: self.set_aperture(index,
+                                       frm.apXBox.displayText(), 0))
+        frm.apYBox.textChanged.connect(lambda: self.set_aperture(index,
+                                       frm.apYBox.displayText(), 1))
+        frm.apWBox.textChanged.connect(lambda: self.set_aperture(index,
+                                       frm.apWBox.displayText(), 2))
+        frm.apHBox.textChanged.connect(lambda: self.set_aperture(index,
+                                       frm.apHBox.displayText(), 3))
 
         # Re-validate the values
         for box in [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
@@ -480,9 +480,7 @@ class KWSSamplePanel(Panel):
     def set_offset(self, i, val):
         self.dirty = True
         self.configs[i]['detoffset'] = val
-        item = self.list.item(i)
         self._copy_key('detoffset')
-        self.on_list_itemClicked(item)
 
     def set_aperture(self, i, val, key):
         self.dirty = True
@@ -500,9 +498,7 @@ class KWSSamplePanel(Panel):
             3: (x, y, w, value)
         }
         self.configs[i]['aperture'] = aperture_switch[key]
-        item = self.list.item(i)
         self._copy_key('aperture')
-        self.on_list_itemClicked(item)
 
     def on_list_itemDoubleClicked(self):
         self.on_editBtn_clicked()
