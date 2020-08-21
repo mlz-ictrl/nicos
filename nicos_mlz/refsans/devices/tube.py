@@ -86,8 +86,8 @@ class DetAngle(HasLimits, Moveable):
                            type=floatrange(0), mandatory=False, default=50,
                            unit='mm'),
         'detheight': Param('Height of the detector',
-                           type=floatrange(0), mandatory=False, default=533.715,
-                           unit='mm'),
+                           type=floatrange(0), mandatory=False,
+                           default=533.715, unit='mm'),
         # calculated from:
         #   the beamheight - pivot.height - (256 - 160) * 2.093 mm
         # Beam height at 0 deg is in pixel 160 counted from top pixel (256)
