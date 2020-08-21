@@ -90,7 +90,8 @@ class DetAngle(HasLimits, Moveable):
         'detheight': Param('Height of the detector',
                            type=floatrange(0), mandatory=False, default=533.715,
                            unit='mm'),
-        # calculated from the beamheight - pivot.height - (256 - 160) * 2.093 mm
+        # calculated from:
+        #   the beamheight - pivot.height - (256 - 160) * 2.093 mm
         # Beam height at 0 deg is in pixel 160 counted from top pixel (256)
         # times pixel size (2.093 mm)
         'detoffset': Param('Offset from virtual tube base to lower edge of '
@@ -138,10 +139,12 @@ class DetAngle(HasLimits, Moveable):
     def _alpha(self, beta):
         beta = radians(beta)
         # calculate the detector center position in respect to sample
-        x = self._xoffset + self._tpos * cos(beta) - self._detcenter * sin(beta)
+        x = self._xoffset + self._tpos * cos(beta) - self._detcenter * \
+            sin(beta)
 
         # calculate the height of the detector center in respect to the ground
-        y = self._tpos * sin(beta) + self._detcenter * cos(beta) - self._yoffset
+        y = self._tpos * sin(beta) + self._detcenter * cos(beta) - \
+            self._yoffset
         return degrees(atan2(y, x))
 
     def doStart(self, target):

@@ -29,8 +29,8 @@ from __future__ import absolute_import, division, print_function
 from nicos.core.params import Attach, Override, Param, intrange
 from nicos.devices.generic.virtual import VirtualMotor
 
-from nicos_mlz.refsans.devices.chopper.base import ChopperDisc as ChopperDiscBase, \
-    ChopperDisc2 as ChopperDisc2Base, \
+from nicos_mlz.refsans.devices.chopper.base import \
+    ChopperDisc as ChopperDiscBase, ChopperDisc2 as ChopperDisc2Base, \
     ChopperDiscTranslation as ChopperDiscTranslationBase
 
 

@@ -95,12 +95,12 @@ class VSDIO(PyTangoDevice, Readable):
 
     @requires(level='admin')
     def _load_factory(self):
-        #QAD should be
+        # QAD should be
         # pwd([0xFFFF,2])
         # write('kommando',[0xFFFF,2])
-        #see Nicos old
-        self._dev.WriteOutputWords((12338,25759,245))
-        self._dev.WriteOutputWords((12340,65535,2))
+        # see Nicos old
+        self._dev.WriteOutputWords((12338, 25759, 245))
+        self._dev.WriteOutputWords((12340, 65535, 2))
         ACK = self._dev.ReadOutputWord(12363)
         NAK = self._dev.ReadOutputWord(12364)
         self.log.info('_load_factory %d %d', ACK, NAK)

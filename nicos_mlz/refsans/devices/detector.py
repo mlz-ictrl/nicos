@@ -29,8 +29,8 @@ from __future__ import absolute_import, division, print_function
 import os
 
 import numpy as np
-from Detector import Detector
-from IO import Counter
+from Detector import Detector  # pylint: disable=import-error
+from IO import Counter  # pylint: disable=import-error
 
 from nicos.core import INFO_CATEGORIES, LIVE, SIMULATION, Attach, Override, \
     Param, Value, listof, oneof
@@ -179,13 +179,13 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
         # the other entries are normally 'just' the hardlinks to the datafile
         # we use the first for the filename and the others for the links.
         self.manager.assignCounter(self.dataset)
-        self.log.warning('tmpl:' + repr(self.sink.filenametemplate))  # XXX: remove
-        self.log.warning('subdir:' + repr(self.sink.subdir))  # XXX: remove
+        self.log.warning('tmpl:' + repr(self.sink.filenametemplate))  # XXX: rm
+        self.log.warning('subdir:' + repr(self.sink.subdir))  # XXX: rm
         self.prefix, allfilepaths = self.manager.getFilenames(
             self.dataset, self.sink.filenametemplate, self.sink.subdir)
-        self.log.warning('allpaths:' + repr(self.allfilepaths))  # XXX: remove
+        self.log.warning('allpaths:' + repr(self.allfilepaths))  # XXX: rm
         self.linkpaths = allfilepaths[1:]
-        self.log.warning('linkpaths:' + repr(self.linkpaths))  # XXX: remove
+        self.log.warning('linkpaths:' + repr(self.linkpaths))  # XXX: rm
         # set prefix on tacodevice
         self.sink._attached_detector.prefix = self.prefix
         self._arraydesc = self.detector.arrayInfo()[0]
@@ -200,7 +200,7 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
                 return
             image = result[1][0]
             self.log.debug("results: %r", results)
-            if not self.linkpaths:  # XXX: remove
+            if not self.linkpaths:  # XXX: rm
                 self.log.warning('no linkpaths set, NOT saving header')
                 return
             self._file = self.manager.createDataFile(
@@ -256,7 +256,8 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
                         # XXX: break?
 
         # link files
-        # self.linkpaths enthält den zieldateinamen und die linknamen als eine liste
+        # self.linkpaths constains the target file name and the names of the
+        # links as a list
         # self.manager.linkFiles(self.linkpaths[0], self.linkpaths[1:])
 
 
@@ -277,10 +278,11 @@ class ComtecHeaderSink(ImageSink):
 
     parameters = {
         'fast_basepaths': Param('Mount point(s) of the fast data storage',
-                                type=listof(str), default=['/'], settable=False),
+                                type=listof(str), default=['/'],
+                                settable=False),
     }
 
-    parameter_overrides = {  # \A_username_JJJJ_MM\username_JJJJ_MM-xxx-A1-yyy.lst
+    parameter_overrides = {
         'settypes': Override(default=[POINT, SCAN]),
         'filenametemplate': Override(mandatory=False, settable=False,
                                      userparam=False,

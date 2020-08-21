@@ -245,7 +245,8 @@ class PumpstandIO(PyTangoDevice, Readable):
                 return
             elif nack and not ack:
                 raise NicosError('Command rejected by Beckhoff')
-        raise NicosTimeoutError('Command not recognized by Beckhoff within 1s!')
+        raise NicosTimeoutError('Command not recognized by Beckhoff '
+                                'within 1s!')
 
     def _HW_readACK(self):
         return self._readU16(37)
