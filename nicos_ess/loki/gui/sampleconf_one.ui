@@ -215,6 +215,9 @@
        </item>
        <item row="0" column="4">
         <widget class="QPushButton" name="readApBtn">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
          <property name="text">
           <string>Read current</string>
          </property>
@@ -280,7 +283,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Edit sample configuration</string>
+        <string>Edit sample configurationm</string>
        </property>
       </widget>
      </item>
@@ -314,13 +317,22 @@
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QPushButton" name="addDevBtn">
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="text">
             <string>Add device</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="delDevBtn">
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="text">
             <string>Remove device</string>
            </property>
@@ -328,6 +340,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="readDevsBtn">
+           <property name="focusPolicy">
+            <enum>Qt::StrongFocus</enum>
+           </property>
            <property name="text">
             <string>Read current positions</string>
            </property>
@@ -412,6 +427,8 @@
  <tabstops>
   <tabstop>nameBox</tabstop>
   <tabstop>commentBox</tabstop>
+  <tabstop>factorBox</tabstop>
+  <tabstop>thickBox</tabstop>
   <tabstop>posTbl</tabstop>
   <tabstop>addDevBtn</tabstop>
   <tabstop>delDevBtn</tabstop>
@@ -422,8 +439,6 @@
   <tabstop>apWBox</tabstop>
   <tabstop>apHBox</tabstop>
   <tabstop>offsetBox</tabstop>
-  <tabstop>factorBox</tabstop>
-  <tabstop>thickBox</tabstop>
  </tabstops>
  <resources/>
  <connections/>
