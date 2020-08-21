@@ -267,7 +267,7 @@ class LokiSamplePanel(Panel):
 
     @pyqtSlot()
     def on_actionEmpty_triggered(self):
-        self.fileGroup.setEnabled(False)
+        self.handle_btn_grp()
         self.sampleGroup.setEnabled(True)
         self.dirty = True
 
@@ -359,7 +359,7 @@ class LokiSamplePanel(Panel):
         self.list.setCurrentItem(firstitem)
         self.on_list_itemClicked(firstitem)
 
-        self.fileGroup.setEnabled(False)
+        self.handle_btn_grp()
         self.sampleGroup.setEnabled(True)
         self.dirty = True
 
@@ -379,7 +379,7 @@ class LokiSamplePanel(Panel):
             self.list.setCurrentItem(newitem)
             self.on_list_itemClicked(newitem)
 
-        self.fileGroup.setEnabled(False)
+        self.handle_btn_grp()
         self.sampleGroup.setEnabled(True)
 
     @pyqtSlot()
@@ -395,7 +395,7 @@ class LokiSamplePanel(Panel):
             self.showError('Could not read file: %s\n\n'
                            'Are you sure this is a sample file?' % err)
         else:
-            self.fileGroup.setEnabled(False)
+            self.handle_btn_grp()
             self.sampleGroup.setEnabled(True)
             newitem = None
             for config in self.configs:
@@ -577,6 +577,15 @@ class LokiSamplePanel(Panel):
             with open(filename, 'w') as fp:
                 fp.writelines(script)
         return ''.join(script)
+
+    def handle_btn_grp(self):
+        """
+        An auxiliary function to prevent code repetition while handling the
+        individual elements of `fileGroup`.
+        """
+        for button in [self.createBtn, self.retrieveBtn, self.openFileBtn]:
+            button.setEnabled(False)
+        self.saveButton.setEnabled(True)
 
 
 class MockSample(object):
