@@ -34,19 +34,19 @@ from nicos.devices.abstract import Motor
 class SkewRead(Readable):
     """Device having two axes and an inclination.
 
-    The position is the mid between the motor_1 and motor_2 device.
+    The position is the mid between the one and two device.
     """
 
     attached_devices = {
-        'motor_1': Attach('moving motor, 1', Readable),
-        'motor_2': Attach('moving motor, 2', Readable),
+        'one': Attach('readable device 1', Readable),
+        'two': Attach('readable device 2', Readable),
     }
 
-    def _read_motors(self, maxage=0):
+    def _read_devices(self, maxage=0):
         return [d.read(maxage) for d in self._adevs.values()]
 
     def doRead(self, maxage=0):
-        return sum(self._read_motors(maxage)) / 2.
+        return sum(self._read_devices(maxage)) / 2.
 
 
 class SkewMotor(HasOffset, SkewRead, Motor):
@@ -54,36 +54,35 @@ class SkewMotor(HasOffset, SkewRead, Motor):
 
     Both axis have a fixed inclination given by the ``skew`` parameter.  The
     position of the devices is given for the middle between both axis.  The
-    ``motor_1`` device has always the smaller position value than the
-    ``motor_2`` device.
+    ``one`` device has always the smaller position value than the
+    ``two`` device.
 
-    pos(motor_1) + skew / 2 == pos == pos(motor_2) - skew / 2.
+    pos(one) + skew / 2 == pos == pos(two) - skew / 2.
     """
 
     parameters = {
-        'skew': Param('Skewness of hardware, difference between both motor_1 '
-                      'and motor_2',
+        'skew': Param('Skewness of hardware, difference between "one" and '
+                      '"two"',
                       type=float, default=0., settable=True, unit='main'),
     }
 
-    def _read_motors(self, maxage=0):
-        return self._attached_motor_1.read(maxage), \
-            self._attached_motor_2.read(maxage)
+    def _read_devices(self, maxage=0):
+        return self._attached_one.read(maxage), self._attached_two.read(maxage)
 
     def doRead(self, maxage=0):
-        return sum(self._read_motors(maxage)) / 2.
+        return sum(self._read_devices(maxage)) / 2.
 
     def doIsAtTarget(self, pos, target):
         if target is None:
             return True
-        if (not self._attached_motor_1.isAtTarget(target=pos - self.skew / 2.)
-           or not self._attached_motor_2.isAtTarget(target=pos + self.skew / 2.)):
-            return False
-        m1, m2 = self._read_motors()
+        m1, m2 = self._read_devices()
         self.log.debug('%.3f, %.3f, %.3f, %.3f', m1, m2, (m1 + self.skew / 2.),
                        (m2 - self.skew / 2.))
+        if (not self._attached_one.isAtTarget(m1, pos - self.skew / 2.)
+           or not self._attached_two.isAtTarget(m2, pos + self.skew / 2.)):
+            return False
         return abs(m1 - m2 + self.skew) <= self.precision
 
     def doStart(self, target):
-        self._attached_motor_1.move(target - self.skew / 2.)
-        self._attached_motor_2.move(target + self.skew / 2.)
+        self._attached_one.move(target - self.skew / 2.)
+        self._attached_two.move(target + self.skew / 2.)
