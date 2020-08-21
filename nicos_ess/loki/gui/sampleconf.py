@@ -421,8 +421,8 @@ class LokiSamplePanel(Panel):
         if self.dirty:
             initialdir = self.client.eval('session.experiment.scriptpath', '')
             fn = QFileDialog.getSaveFileName(self, 'Save sample file',
-                                             initialdir, 'Sample files (*.py)')[
-                0]
+                                             initialdir,
+                                             'Sample files (*.py)')[0]
             if not fn:
                 return False
             if not fn.endswith('.py'):
