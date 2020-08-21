@@ -21,7 +21,8 @@ pod-demo:
 
 clean:
 	rm -rf build
-	find . -name '*.pyc' -exec rm -f {} \;
+	find . -name '__pycache__' -exec rm -rf {} \;
+	rm -rf test/root/
 
 clean-demo: clean
 	-rm -rf data/cache/*
