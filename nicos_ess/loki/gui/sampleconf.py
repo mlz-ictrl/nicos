@@ -23,7 +23,7 @@
 #
 # *****************************************************************************
 
-"""KWS sample configuration dialog."""
+"""LoKI sample configuration dialog."""
 
 from __future__ import absolute_import, division, print_function
 
@@ -82,6 +82,14 @@ def configFromFrame(frame):
     }
 
 
+ConfigEditDialog_QSS = """
+/* give dialog buttons a border when tabbing through them */
+QPushButton:focus {
+    border: 3px solid #6d93c9;
+}
+"""
+
+
 class ConfigEditDialog(QDialog):
 
     def __init__(self, parent, client, instrument, configs, config=None):
@@ -116,6 +124,9 @@ class ConfigEditDialog(QDialog):
             box.setVisible(False)
         if config is not None:
             configToFrame(self.frm, config)
+
+        # Apply local customisations to the stylesheet
+        self.setStyleSheet(ConfigEditDialog_QSS);
 
     def maybeAccept(self):
         if not self.frm.nameBox.text():
