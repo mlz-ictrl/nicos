@@ -279,7 +279,6 @@ class LokiSamplePanel(Panel):
     @pyqtSlot()
     def on_actionEmpty_triggered(self):
         self.sampleGroup.setEnabled(True)
-        self.dirty = True
 
     @pyqtSlot()
     def on_actionGenerate_triggered(self):
@@ -389,6 +388,7 @@ class LokiSamplePanel(Panel):
             self.on_list_itemClicked(newitem)
 
         self.sampleGroup.setEnabled(True)
+        self.dirty = True
 
     @pyqtSlot()
     def on_openFileBtn_clicked(self):
@@ -435,10 +435,10 @@ class LokiSamplePanel(Panel):
             if not fn.endswith('.py'):
                 fn += '.py'
             self.filename = fn
-        try:
-            self._save_script(self.filename, self._generate_script())
-        except Exception as err:
-            self.showError('Could not write file: %s' % err)
+            try:
+                self._save_script(self.filename, self._generate_script())
+            except Exception as err:
+                self.showError('Could not write file: %s' % err)
 
     def on_applyButton_rejected(self):
         self.closeWindow()
