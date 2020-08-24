@@ -263,9 +263,6 @@ class LokiSamplePanel(Panel):
         self.frame.setLayout(QVBoxLayout())
 
         menu = QMenu(self)
-        menu.addSeparator()
-
-        menu = QMenu(self)
         menu.addAction(self.actionEmpty)
         menu.addAction(self.actionGenerate)
         self.createBtn.setMenu(menu)
