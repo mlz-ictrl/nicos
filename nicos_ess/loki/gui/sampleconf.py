@@ -278,7 +278,6 @@ class LokiSamplePanel(Panel):
 
     @pyqtSlot()
     def on_actionEmpty_triggered(self):
-        self._handle_btn_grp()
         self.sampleGroup.setEnabled(True)
         self.dirty = True
 
@@ -370,7 +369,6 @@ class LokiSamplePanel(Panel):
         self.list.setCurrentItem(firstitem)
         self.on_list_itemClicked(firstitem)
 
-        self._handle_btn_grp()
         self.sampleGroup.setEnabled(True)
         self.dirty = True
 
@@ -390,7 +388,6 @@ class LokiSamplePanel(Panel):
             self.list.setCurrentItem(newitem)
             self.on_list_itemClicked(newitem)
 
-        self._handle_btn_grp()
         self.sampleGroup.setEnabled(True)
 
     @pyqtSlot()
@@ -406,7 +403,6 @@ class LokiSamplePanel(Panel):
             self.showError('Could not read file: %s\n\n'
                            'Are you sure this is a sample file?' % err)
         else:
-            self._handle_btn_grp()
             self.sampleGroup.setEnabled(True)
             newitem = None
             for config in self.configs:
@@ -423,7 +419,7 @@ class LokiSamplePanel(Panel):
             return
         do_apply = role == QDialogButtonBox.ApplyRole
         if self.dirty and do_apply:
-            script = self._generate()
+            script = self._generate_script()
             self.client.run(script)
             self.showInfo('Sample info has been transferred to the daemon.')
         self.closeWindow()
@@ -440,7 +436,7 @@ class LokiSamplePanel(Panel):
                 fn += '.py'
             self.filename = fn
         try:
-            self._generate(self.filename, save=True)
+            self._save_script(self.filename, self._generate_script())
         except Exception as err:
             self.showError('Could not write file: %s' % err)
 
@@ -575,7 +571,7 @@ class LokiSamplePanel(Panel):
         for config in self.configs:
             config[key] = template
 
-    def _generate(self, filename=None, save=False):
+    def _generate_script(self):
         script = ['# LoKI sample file for NICOS\n',
                   '# Written: %s\n\n' % time.asctime(),
                   'ClearSamples()\n']
@@ -586,19 +582,12 @@ class LokiSamplePanel(Panel):
                 script.append(', ')
             del script[-1]  # remove last comma
             script.append(')\n')
-        if filename is not None and save:
-            with open(filename, 'w') as fp:
-                fp.writelines(script)
         return ''.join(script)
 
-    def _handle_btn_grp(self):
-        """
-        An auxiliary function to prevent code repetition while handling the
-        individual elements of `fileGroup`.
-        """
-        for button in [self.createBtn, self.retrieveBtn, self.openFileBtn]:
-            button.setEnabled(False)
-        self.saveButton.setEnabled(True)
+    @staticmethod
+    def _save_script(filename, script):
+        with open(filename, 'w') as fp:
+            fp.writelines(script)
 
 
 class MockSample(object):
