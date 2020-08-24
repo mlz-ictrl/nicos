@@ -23,7 +23,7 @@
 #
 # *****************************************************************************
 
-"""KWS sample configuration dialog."""
+"""LoKI sample configuration dialog."""
 
 from __future__ import absolute_import, division, print_function
 
@@ -82,6 +82,14 @@ def configFromFrame(frame):
     }
 
 
+ConfigEditDialog_QSS = """
+/* give dialog buttons a border when tabbing through them */
+QPushButton:focus {
+    border: 3px solid #6d93c9;
+}
+"""
+
+
 class ConfigEditDialog(QDialog):
 
     def __init__(self, parent, client, instrument, configs, config=None):
@@ -108,8 +116,17 @@ class ConfigEditDialog(QDialog):
                     self.frm.apXBox, self.frm.apYBox, self.frm.apWBox,
                     self.frm.apHBox]:
             box.setValidator(DoubleValidator(self))
+        # List of properties that are going to be enabled in-place for edit,
+        # thus should not be visible here.
+        relevant_list = [self.frm.offsetBox, self.frm.apXBox, self.frm.apYBox,
+                         self.frm.apWBox, self.frm.apHBox, self.frm.readApBtn]
+        for box in relevant_list:
+            box.setVisible(False)
         if config is not None:
             configToFrame(self.frm, config)
+
+        # Apply local customisations to the stylesheet
+        self.setStyleSheet(ConfigEditDialog_QSS);
 
     def maybeAccept(self):
         if not self.frm.nameBox.text():
@@ -177,7 +194,8 @@ class ConfigEditDialog(QDialog):
         dlg.devBox.addItems(devlist)
         if not dlg.exec_():
             return
-        self._addRow(dlg.devBox.currentText(), str(dlg.widget.getValue()))
+        if dlg.widget is not None:
+            self._addRow(dlg.devBox.currentText(), str(dlg.widget.getValue()))
 
     def on_delDevBtn_clicked(self):
         srow = self.frm.posTbl.currentRow()
@@ -245,13 +263,7 @@ class LokiSamplePanel(Panel):
         self.frame.setLayout(QVBoxLayout())
 
         menu = QMenu(self)
-        menu.addAction(self.actionCopyAperture)
-        menu.addAction(self.actionCopyDetOffset)
-        menu.addAction(self.actionCopyThickness)
-        menu.addAction(self.actionCopyTimeFactor)
         menu.addSeparator()
-        menu.addAction(self.actionCopyAll)
-        self.copyBtn.setMenu(menu)
 
         menu = QMenu(self)
         menu.addAction(self.actionEmpty)
@@ -438,29 +450,73 @@ class LokiSamplePanel(Panel):
         if item:
             item.widget().deleteLater()
 
-    def on_list_currentItemChanged(self, item, previous):
+    def on_list_currentItemChanged(self, item):
         self.on_list_itemClicked(item)
 
     def on_list_itemClicked(self, item):
         self._clearDisplay()
         index = self.list.row(item)
         frm = QFrame(self)
-        loadUi(frm, findResource('nicos_ess/loki/gui/sampleconf_one.ui'))
+        loadUi(frm, findResource('nicos_ess/loki/gui/sampleconf_summary.ui'))
         frm.whatLbl.setText('Sample configuration')
         configToFrame(frm, self.configs[index])
         frm.addDevBtn.setVisible(False)
         frm.delDevBtn.setVisible(False)
-        frm.readApBtn.setVisible(False)
+        frm.readApBtn.setVisible(True)
         frm.readDevsBtn.setVisible(False)
-        # frm.posTbl.setEditTriggers(QTableWidget.NoEditTriggers)
         frm.posTbl.setEnabled(False)
+        relevant_list = [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
+                         frm.apHBox]
         for box in frm.findChildren(QLineEdit):
-            # box.setReadOnly(True)
-            box.setEnabled(False)
+            if box in relevant_list:
+                box.setEnabled(True)
+            else:
+                box.setEnabled(False)
         layout = self.frame.layout()
         layout.addWidget(frm)
 
-    def on_list_itemDoubleClicked(self, item):
+        # Enable users the change the offset and aperture values at will
+        # without the need of opening any dialog window.
+        frm.offsetBox.textChanged.connect(lambda: self.set_offset(index,
+                                          frm.offsetBox.displayText()))
+        frm.apXBox.textChanged.connect(lambda: self.set_aperture(index,
+                                       frm.apXBox.displayText(), 0))
+        frm.apYBox.textChanged.connect(lambda: self.set_aperture(index,
+                                       frm.apYBox.displayText(), 1))
+        frm.apWBox.textChanged.connect(lambda: self.set_aperture(index,
+                                       frm.apWBox.displayText(), 2))
+        frm.apHBox.textChanged.connect(lambda: self.set_aperture(index,
+                                       frm.apHBox.displayText(), 3))
+
+        # Re-validate the values
+        for box in [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
+                    frm.apHBox]:
+            box.setValidator(DoubleValidator(self))
+
+    def set_offset(self, i, val):
+        self.dirty = True
+        self.configs[i]['detoffset'] = val
+        self._copy_key('detoffset')
+
+    def set_aperture(self, i, val, key):
+        self.dirty = True
+        # The following implementation is required as "aperture" has been
+        # implemented as a tuple rather then a simple list.
+        x = self.configs[i]['aperture'][0]
+        y = self.configs[i]['aperture'][1]
+        w = self.configs[i]['aperture'][2]
+        h = self.configs[i]['aperture'][3]
+        value = float(val)
+        aperture_switch = {
+            0: (value, y, w, h),
+            1: (x, value, w, h),
+            2: (x, y, value, h),
+            3: (x, y, w, value)
+        }
+        self.configs[i]['aperture'] = aperture_switch[key]
+        self._copy_key('aperture')
+
+    def on_list_itemDoubleClicked(self):
         self.on_editBtn_clicked()
 
     @pyqtSlot()
@@ -516,29 +572,6 @@ class LokiSamplePanel(Panel):
         template = self.configs[index][key]
         for config in self.configs:
             config[key] = template
-
-    @pyqtSlot()
-    def on_actionCopyAperture_triggered(self):
-        self._copy_key('aperture')
-
-    @pyqtSlot()
-    def on_actionCopyDetOffset_triggered(self):
-        self._copy_key('detoffset')
-
-    @pyqtSlot()
-    def on_actionCopyThickness_triggered(self):
-        self._copy_key('thickness')
-
-    @pyqtSlot()
-    def on_actionCopyTimeFactor_triggered(self):
-        self._copy_key('timefactor')
-
-    @pyqtSlot()
-    def on_actionCopyAll_triggered(self):
-        self._copy_key('aperture')
-        self._copy_key('detoffset')
-        self._copy_key('thickness')
-        self._copy_key('timefactor')
 
     def _generate(self, filename):
         script = ['# LoKI sample file for NICOS\n',
