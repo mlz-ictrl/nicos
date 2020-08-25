@@ -277,7 +277,7 @@ class LokiSamplePanel(Panel):
 
     @pyqtSlot()
     def on_actionEmpty_triggered(self):
-        self.list.clear()
+        self._clear_samples()
         self._clearDisplay()
         self.sampleGroup.setEnabled(True)
 
@@ -371,6 +371,10 @@ class LokiSamplePanel(Panel):
 
         self.sampleGroup.setEnabled(True)
         self.dirty = True
+
+    def _clear_samples(self):
+        self.list.clear()
+        self.configs.clear()
 
     @pyqtSlot()
     def on_retrieveBtn_clicked(self):
