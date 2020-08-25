@@ -437,9 +437,6 @@ class LokiSamplePanel(Panel):
         except Exception as err:
             self.showError('Could not write file: %s' % err)
 
-    def on_applyButton_rejected(self):
-        self.closeWindow()
-
     def _clearDisplay(self):
         item = self.frame.layout().takeAt(0)
         if item:
