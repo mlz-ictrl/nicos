@@ -381,16 +381,18 @@ class LokiSamplePanel(Panel):
         # convert readonlydict to normal dict
         for config in self.configs:
             config['position'] = dict(config['position'].items())
-        newitem = None
+        # Clear the current contents
+        self.list.clear()
+        last_item = None
         for config in self.configs:
-            newitem = QListWidgetItem(config['name'], self.list)
+            last_item = QListWidgetItem(config['name'], self.list)
         # select the last item
-        if newitem:
-            self.list.setCurrentItem(newitem)
-            self.on_list_itemClicked(newitem)
+        if last_item:
+            self.list.setCurrentItem(last_item)
+            self.on_list_itemClicked(last_item)
 
         self.sampleGroup.setEnabled(True)
-        self.dirty = True
+        self.dirty = False
 
     @pyqtSlot()
     def on_openFileBtn_clicked(self):
@@ -415,35 +417,29 @@ class LokiSamplePanel(Panel):
             self.on_list_itemClicked(newitem)
             self.filename = fn
 
-    def on_applyButton_clicked(self, button):
-        role = self.applyButton.buttonRole(button)
-        if role == QDialogButtonBox.RejectRole:
-            return
-        do_apply = role == QDialogButtonBox.ApplyRole
-        if self.dirty and do_apply:
+    @pyqtSlot()
+    def on_applyBtn_clicked(self):
+        if self.dirty:
             script = self._generate_script()
             self.client.run(script)
             self.showInfo('Sample info has been transferred to the daemon.')
-        self.closeWindow()
+        self.dirty = False
 
-    def on_saveButton_clicked(self):
-        if self.dirty:
-            initialdir = self.client.eval('session.experiment.scriptpath', '')
-            fn = QFileDialog.getSaveFileName(self, 'Save sample file',
-                                             initialdir,
-                                             'Sample files (*.py)')[0]
-            if not fn:
-                return False
-            if not fn.endswith('.py'):
-                fn += '.py'
-            self.filename = fn
-            try:
-                self._save_script(self.filename, self._generate_script())
-            except Exception as err:
-                self.showError('Could not write file: %s' % err)
-
-    def on_applyButton_rejected(self):
-        self.closeWindow()
+    @pyqtSlot()
+    def on_saveBtn_clicked(self):
+        initialdir = self.client.eval('session.experiment.scriptpath', '')
+        fn = QFileDialog.getSaveFileName(self, 'Save sample file',
+                                         initialdir,
+                                         'Sample files (*.py)')[0]
+        if not fn:
+            return False
+        if not fn.endswith('.py'):
+            fn += '.py'
+        self.filename = fn
+        try:
+            self._save_script(self.filename, self._generate_script())
+        except Exception as err:
+            self.showError('Could not write file: %s' % err)
 
     def _clearDisplay(self):
         item = self.frame.layout().takeAt(0)
