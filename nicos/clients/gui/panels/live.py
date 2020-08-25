@@ -35,7 +35,7 @@ from gr import COLORMAPS as GR_COLORMAPS
 
 from nicos.clients.gui.dialogs.filesystem import FileFilterDialog
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import enumerateWithProgress, loadUi
+from nicos.clients.gui.utils import enumerateWithProgress, loadUi, uipath
 from nicos.core.constants import FILE, LIVE
 from nicos.core.errors import NicosError
 from nicos.guisupport.livewidget import AXES, DATATYPES, IntegralLiveWidget, \
@@ -133,9 +133,11 @@ class LiveDataPanel(Panel):
 
     panelName = 'Live data view'
 
+    ui = f'{uipath}/panels/live.ui'
+
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'panels/live.ui')
+        loadUi(self, self.ui)
 
         self._allowed_tags = set()
         self._allowed_detectors = set()
