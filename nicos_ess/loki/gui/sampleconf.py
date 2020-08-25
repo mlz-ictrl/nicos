@@ -413,32 +413,29 @@ class LokiSamplePanel(Panel):
             self.on_list_itemClicked(newitem)
             self.filename = fn
 
-    def on_applyButton_clicked(self, button):
-        role = self.applyButton.buttonRole(button)
-        if role == QDialogButtonBox.RejectRole:
-            return
-        do_apply = role == QDialogButtonBox.ApplyRole
-        if self.dirty and do_apply:
+    @pyqtSlot()
+    def on_applyBtn_clicked(self):
+        if self.dirty:
             script = self._generate_script()
             self.client.run(script)
             self.showInfo('Sample info has been transferred to the daemon.')
         self.closeWindow()
 
-    def on_saveButton_clicked(self):
-        if self.dirty:
-            initialdir = self.client.eval('session.experiment.scriptpath', '')
-            fn = QFileDialog.getSaveFileName(self, 'Save sample file',
-                                             initialdir,
-                                             'Sample files (*.py)')[0]
-            if not fn:
-                return False
-            if not fn.endswith('.py'):
-                fn += '.py'
-            self.filename = fn
-            try:
-                self._save_script(self.filename, self._generate_script())
-            except Exception as err:
-                self.showError('Could not write file: %s' % err)
+    @pyqtSlot()
+    def on_saveBtn_clicked(self):
+        initialdir = self.client.eval('session.experiment.scriptpath', '')
+        fn = QFileDialog.getSaveFileName(self, 'Save sample file',
+                                         initialdir,
+                                         'Sample files (*.py)')[0]
+        if not fn:
+            return False
+        if not fn.endswith('.py'):
+            fn += '.py'
+        self.filename = fn
+        try:
+            self._save_script(self.filename, self._generate_script())
+        except Exception as err:
+            self.showError('Could not write file: %s' % err)
 
     def on_applyButton_rejected(self):
         self.closeWindow()
