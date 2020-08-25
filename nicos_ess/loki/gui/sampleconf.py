@@ -316,6 +316,11 @@ class LokiSamplePanel(Panel):
                         if revbox:
                             revbox.hide()
 
+        if not self.holder_info:
+            self.showError('Cannot auto-generate sample list as no sample '
+                           'changers are defined')
+            return
+
         dlg = dialogFromUi(self, findResource(
             'nicos_ess/loki/gui/sampleconf_gen.ui'))
         dlg.ax1Box.setValidator(DoubleValidator(self))
