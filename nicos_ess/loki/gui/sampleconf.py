@@ -426,9 +426,9 @@ class LokiSamplePanel(Panel):
 
     @pyqtSlot()
     def on_saveBtn_clicked(self):
-        initialdir = self.client.eval('session.experiment.scriptpath', '')
+        initial_dir = self.client.eval('session.experiment.scriptpath', '')
         filename = QFileDialog.getSaveFileName(self, 'Save sample file',
-                                         initialdir,
+                                         initial_dir,
                                          'Sample files (*.py)')[0]
         if not filename:
             return False
