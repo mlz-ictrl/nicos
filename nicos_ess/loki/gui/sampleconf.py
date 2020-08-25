@@ -272,7 +272,6 @@ class LokiSamplePanel(Panel):
 
         self.configs = []
         self.dirty = False
-        self.filename = None
         self.holder_info = options.get('holder_info', [])
         self.instrument = options.get('instrument', 'loki')
 
@@ -396,12 +395,12 @@ class LokiSamplePanel(Panel):
     @pyqtSlot()
     def on_openFileBtn_clicked(self):
         initialdir = self.client.eval('session.experiment.scriptpath', '')
-        fn = QFileDialog.getOpenFileName(self, 'Open sample file', initialdir,
+        filename = QFileDialog.getOpenFileName(self, 'Open sample file', initialdir,
                                          'Sample files (*.py)')[0]
-        if not fn:
+        if not filename:
             return
         try:
-            self.configs = parse_sampleconf(fn)
+            self.configs = parse_sampleconf(filename)
         except Exception as err:
             self.showError('Could not read file: %s\n\n'
                            'Are you sure this is a sample file?' % err)
@@ -415,7 +414,6 @@ class LokiSamplePanel(Panel):
             if newitem:
                 self.list.setCurrentItem(newitem)
             self.on_list_itemClicked(newitem)
-            self.filename = fn
             self.dirty = True
 
     @pyqtSlot()
@@ -429,16 +427,15 @@ class LokiSamplePanel(Panel):
     @pyqtSlot()
     def on_saveBtn_clicked(self):
         initialdir = self.client.eval('session.experiment.scriptpath', '')
-        fn = QFileDialog.getSaveFileName(self, 'Save sample file',
+        filename = QFileDialog.getSaveFileName(self, 'Save sample file',
                                          initialdir,
                                          'Sample files (*.py)')[0]
-        if not fn:
+        if not filename:
             return False
-        if not fn.endswith('.py'):
-            fn += '.py'
-        self.filename = fn
+        if not filename.endswith('.py'):
+            filename += '.py'
         try:
-            self._save_script(self.filename, self._generate_script())
+            self._save_script(filename, self._generate_script())
         except Exception as err:
             self.showError('Could not write file: %s' % err)
 
