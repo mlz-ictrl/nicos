@@ -342,6 +342,8 @@ class LokiSamplePanel(Panel):
         if dlg.ax1RevBox.isChecked():
             dax1 = -dax1
 
+        self._clear_samples()
+
         n = 0
         for i in range(levels):
             for j in range(rows):
@@ -361,13 +363,14 @@ class LokiSamplePanel(Panel):
                     position=position,
                 )
                 self.configs.append(config)
-        firstitem = None
+
+        first_item = None
         for config in self.configs:
-            newitem = QListWidgetItem(config['name'], self.list)
-            firstitem = firstitem or newitem
+            new_item = QListWidgetItem(config['name'], self.list)
+            first_item = first_item or new_item
         # select the first item
-        self.list.setCurrentItem(firstitem)
-        self.on_list_itemClicked(firstitem)
+        self.list.setCurrentItem(first_item)
+        self.on_list_itemClicked(first_item)
 
         self.sampleGroup.setEnabled(True)
         self.dirty = True
