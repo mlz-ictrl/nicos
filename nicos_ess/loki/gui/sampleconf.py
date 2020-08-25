@@ -334,7 +334,7 @@ class LokiSamplePanel(Panel):
             if row == nrows:
                 row = 0
                 col += 1
-        if not dlg.exec_():
+        if dlg.exec_() != QDialog.Accepted:
             return
         rows, levels, ax1, dax1, ax2, dax2 = dlg._info
         sax1 = float(dlg.ax1Box.text()) if ax1 else 0
