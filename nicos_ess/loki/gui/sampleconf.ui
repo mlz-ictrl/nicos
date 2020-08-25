@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>693</width>
-    <height>559</height>
+    <width>771</width>
+    <height>580</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -142,6 +142,16 @@
         </property>
        </spacer>
       </item>
+      <item>
+       <widget class="QDialogButtonBox" name="saveButton">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="standardButtons">
+         <set>QDialogButtonBox::Save</set>
+        </property>
+       </widget>
+      </item>
      </layout>
      <zorder>openFileBtn</zorder>
      <zorder>createBtn</zorder>
@@ -151,6 +161,7 @@
      <zorder>retrieveBtn</zorder>
      <zorder>horizontalSpacer</zorder>
      <zorder>horizontalSpacer_5</zorder>
+     <zorder>saveButton</zorder>
     </widget>
    </item>
    <item>
@@ -235,12 +246,15 @@
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
+    <widget class="QDialogButtonBox" name="applyButton">
+     <property name="layoutDirection">
+      <enum>Qt::RightToLeft</enum>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
+      <set>QDialogButtonBox::Apply</set>
      </property>
     </widget>
    </item>
