@@ -416,6 +416,7 @@ class LokiSamplePanel(Panel):
                 self.list.setCurrentItem(newitem)
             self.on_list_itemClicked(newitem)
             self.filename = fn
+            self.dirty = True
 
     @pyqtSlot()
     def on_applyBtn_clicked(self):
