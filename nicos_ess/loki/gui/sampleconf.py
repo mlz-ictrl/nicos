@@ -406,6 +406,7 @@ class LokiSamplePanel(Panel):
             self.showError('Could not read file: %s\n\n'
                            'Are you sure this is a sample file?' % err)
         else:
+            self.list.clear()
             self.sampleGroup.setEnabled(True)
             newitem = None
             for config in self.configs:
@@ -613,7 +614,8 @@ def parse_sampleconf(filename):
           'ClearSamples': mocksample.reset,
           'SetSample': mocksample.define}
     with open(filename, 'r') as fp:
-        exec_(fp, ns)
+        for line in fp.readlines():
+            exec(line, ns)
     # The script needs to call this, if it doesn't it is not a sample file.
     if not mocksample.reset_called:
         raise ValueError('the script never calls ClearSamples()')
