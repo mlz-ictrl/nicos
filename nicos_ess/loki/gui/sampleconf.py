@@ -388,7 +388,7 @@ class LokiSamplePanel(Panel):
             self.on_list_itemClicked(newitem)
 
         self.sampleGroup.setEnabled(True)
-        self.dirty = True
+        self.dirty = False
 
     @pyqtSlot()
     def on_openFileBtn_clicked(self):
@@ -419,7 +419,7 @@ class LokiSamplePanel(Panel):
             script = self._generate_script()
             self.client.run(script)
             self.showInfo('Sample info has been transferred to the daemon.')
-        self.closeWindow()
+        self.dirty = False
 
     @pyqtSlot()
     def on_saveBtn_clicked(self):
