@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>771</width>
+    <width>933</width>
     <height>580</height>
    </rect>
   </property>
@@ -33,11 +33,11 @@
          <enum>Qt::Horizontal</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Expanding</enum>
+         <enum>QSizePolicy::Minimum</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>60</width>
+          <width>10</width>
           <height>20</height>
          </size>
         </property>
@@ -118,7 +118,7 @@
          </size>
         </property>
         <property name="text">
-         <string>Load from file...</string>
+         <string>Import from file...</string>
         </property>
         <property name="icon">
          <iconset resource="../../../resources/nicos-gui.qrc">
@@ -132,23 +132,30 @@
          <enum>Qt::Horizontal</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::Expanding</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>20</width>
+          <width>10</width>
           <height>20</height>
          </size>
         </property>
        </spacer>
       </item>
       <item>
-       <widget class="QDialogButtonBox" name="saveButton">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+       <widget class="QPushButton" name="saveButton">
+        <property name="minimumSize">
+         <size>
+          <width>140</width>
+          <height>30</height>
+         </size>
         </property>
-        <property name="standardButtons">
-         <set>QDialogButtonBox::Save</set>
+        <property name="text">
+         <string>Export to file...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../resources/nicos-gui.qrc">
+          <normaloff>:/save</normaloff>:/save</iconset>
         </property>
        </widget>
       </item>
@@ -245,16 +252,10 @@
      </layout>
     </widget>
    </item>
-   <item>
-    <widget class="QDialogButtonBox" name="applyButton">
-     <property name="layoutDirection">
-      <enum>Qt::RightToLeft</enum>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Apply</set>
+   <item alignment="Qt::AlignRight">
+    <widget class="QPushButton" name="applyBtn">
+     <property name="text">
+      <string>Apply changes</string>
      </property>
     </widget>
    </item>
