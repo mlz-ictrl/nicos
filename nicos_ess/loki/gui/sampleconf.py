@@ -278,6 +278,8 @@ class LokiSamplePanel(Panel):
 
     @pyqtSlot()
     def on_actionEmpty_triggered(self):
+        self.list.clear()
+        self._clearDisplay()
         self.sampleGroup.setEnabled(True)
 
     @pyqtSlot()
@@ -379,7 +381,6 @@ class LokiSamplePanel(Panel):
         # convert readonlydict to normal dict
         for config in self.configs:
             config['position'] = dict(config['position'].items())
-        # Clear the current contents
         self.list.clear()
         last_item = None
         for config in self.configs:
