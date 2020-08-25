@@ -379,13 +379,15 @@ class LokiSamplePanel(Panel):
         # convert readonlydict to normal dict
         for config in self.configs:
             config['position'] = dict(config['position'].items())
-        newitem = None
+        # Clear the current contents
+        self.list.clear()
+        last_item = None
         for config in self.configs:
-            newitem = QListWidgetItem(config['name'], self.list)
+            last_item = QListWidgetItem(config['name'], self.list)
         # select the last item
-        if newitem:
-            self.list.setCurrentItem(newitem)
-            self.on_list_itemClicked(newitem)
+        if last_item:
+            self.list.setCurrentItem(last_item)
+            self.on_list_itemClicked(last_item)
 
         self.sampleGroup.setEnabled(True)
         self.dirty = False
