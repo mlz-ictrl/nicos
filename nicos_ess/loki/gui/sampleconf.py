@@ -457,6 +457,7 @@ class LokiSamplePanel(Panel):
         frm.addDevBtn.setVisible(False)
         frm.delDevBtn.setVisible(False)
         frm.readApBtn.setVisible(True)
+        frm.readApBtn.clicked.connect(self.on_readApBtn_clicked)
         frm.readDevsBtn.setVisible(False)
         frm.posTbl.setEnabled(False)
         relevant_list = [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
@@ -557,6 +558,9 @@ class LokiSamplePanel(Panel):
             self.on_list_itemClicked(self.list.item(self.list.currentRow()))
         else:
             self._clearDisplay()
+
+    def on_readApBtn_clicked(self):
+        QMessageBox.warning(self, 'Error', 'Not implemented yet!')
 
     def _copy_key(self, key):
         index = self.list.currentRow()
