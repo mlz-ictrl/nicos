@@ -126,7 +126,7 @@ class ConfigEditDialog(QDialog):
             configToFrame(self.frm, config)
 
         # Apply local customisations to the stylesheet
-        self.setStyleSheet(ConfigEditDialog_QSS);
+        self.setStyleSheet(ConfigEditDialog_QSS)
 
     def maybeAccept(self):
         if not self.frm.nameBox.text():
@@ -263,9 +263,6 @@ class LokiSamplePanel(Panel):
         self.frame.setLayout(QVBoxLayout())
 
         menu = QMenu(self)
-        menu.addSeparator()
-
-        menu = QMenu(self)
         menu.addAction(self.actionEmpty)
         menu.addAction(self.actionGenerate)
         self.createBtn.setMenu(menu)
@@ -274,6 +271,29 @@ class LokiSamplePanel(Panel):
         self.dirty = False
         self.holder_info = options.get('holder_info', [])
         self.instrument = options.get('instrument', 'loki')
+
+        self.initialise_connection_status_listeners()
+
+    def initialise_connection_status_listeners(self):
+        if self.client.isconnected:
+            self.on_client_connected()
+        else:
+            self.on_client_disconnected()
+        self.client.connected.connect(self.on_client_connected)
+        self.client.disconnected.connect(self.on_client_disconnected)
+
+    def on_client_connected(self):
+        self.toggle_controls_availability()
+
+    def on_client_disconnected(self):
+        self.toggle_controls_availability()
+
+    def toggle_controls_availability(self):
+        for control in [
+            self.createBtn, self.retrieveBtn, self.openFileBtn, self.buttonBox,
+            self.newBtn, self.editBtn, self.delBtn, self.frame
+        ]:
+            control.setEnabled(self.client.isconnected)
 
     @pyqtSlot()
     def on_actionEmpty_triggered(self):
