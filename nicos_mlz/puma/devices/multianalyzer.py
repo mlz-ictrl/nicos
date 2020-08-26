@@ -155,15 +155,16 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
                     if r:
                         ll, hl = self._rotlimits(dt)
                         if not ll <= r <= hl:
-                            self.log.info('(%s): %s, %s, %s', target, ll, r, hl)
+                            self.log.info('(%s): %s, %s, %s', target, ll, r,
+                                          hl)
                             self.log.info('%r, %r; %r', trans, rot, tdelta)
                             return False, 'neighbour distance: %.3f; cannot ' \
                                 'move translation to : %.3f!' % (dt, target)
                 # elif -13 < dc < 0 and dt < 0:
                 #     # self.log.info('It is critical')
                 #     if (r is not None and r < -23.33) or rot[1] < -23.33:
-                #         return False, 'Path %s to %s is not free. One of the '\
-                #             'mirrors would hit another one. (%s, %s)' % (
+                #         return False, 'Path %s to %s is not free. One of ' \
+                #             'the mirrors would hit another one. (%s, %s)' % (
                 #                 trans[1], target, r, rot[1])
             else:
                 # Passing another translation device
