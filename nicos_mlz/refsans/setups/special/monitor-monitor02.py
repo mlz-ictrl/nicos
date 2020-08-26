@@ -153,11 +153,11 @@ _ChopperBurg = Column(
 _SFKammer = Column(
     Block('Vertical Shifts for Optic Elements in the Neutron Guide System', [
         BlockRow(
-                 Field(name=u'nok5a\u1d63', dev='nok5ar_motor', width=layout_width, unit='(mm)'),
-                 Field(name=u'nok5a\u209b', dev='nok5as_motor', width=layout_width, unit='(mm)'),
+                 Field(name=u'nok5a\u1d63', dev='nok5a.reactor', width=layout_width, unit='(mm)'),
+                 Field(name=u'nok5a\u209b', dev='nok5a.sample', width=layout_width, unit='(mm)'),
                  Field(name=u'zb\u2080',    dev='zb0_motor', width=layout_width, unit='(mm)'),
-                 Field(name=u'nok5b\u1d63', dev='nok5br_motor', width=layout_width, unit='(mm)'),
-                 Field(name=u'nok5b\u209b', dev='nok5bs_motor', width=layout_width, unit='(mm)'),
+                 Field(name=u'nok5b\u1d63', dev='nok5b.reactor', width=layout_width, unit='(mm)'),
+                 Field(name=u'nok5b\u209b', dev='nok5b.sample', width=layout_width, unit='(mm)'),
                  Field(name=u'zb\u2081',    dev='zb1_motor', width=layout_width, unit='(mm)'),
                  Field(name=u'nok6\u1d63',  dev='nok6r_motor', width=layout_width, unit='(mm)'),
                  Field(name=u'nok6\u209b',  dev='nok6s_motor', width=layout_width, unit='(mm)'),
