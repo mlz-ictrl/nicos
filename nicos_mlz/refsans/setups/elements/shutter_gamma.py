@@ -8,7 +8,7 @@ instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 
 tango_base = instrument_values['tango_base']
-code_base = instrument_values['code_base'] + 'nok_support.'
+code_base = instrument_values['code_base']
 
 devices = dict(
     shutter_gamma = device('nicos.devices.generic.Switcher',
@@ -20,7 +20,7 @@ devices = dict(
         fallback = 'offline',
         unit = '',
     ),
-    shutter_gamma_switcher = device(code_base + 'SingleMotorNOK',
+    shutter_gamma_switcher = device(code_base + 'nok_support.SingleMotorNOK',
         # length: 90.0 mm
         description = 'shutter_gamma',
         motor = 'shutter_gamma_motor',
@@ -32,9 +32,8 @@ devices = dict(
         precision = 0.05,
         lowlevel = True,
     ),
-
     # generated from global/inf/poti_tracing.inf
-    shutter_gamma_analog = device(code_base + 'NOKPosition',
+    shutter_gamma_analog = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for shutter_gamma',
         reference = 'nok_refa1',
         measure = 'shutter_gamma_poti',
@@ -43,16 +42,14 @@ devices = dict(
         length = 250.0,
         lowlevel = True,
     ),
-
     # generated from global/inf/poti_tracing.inf
-    shutter_gamma_poti = device(code_base + 'NOKMonitoredVoltage',
+    shutter_gamma_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
         description = 'Poti for shutter_gamma',
         tangodevice = tango_base + 'test/wb_a/1_0',
         scale = 1,   # mounted from bottom
         lowlevel = True,
     ),
-
-    shutter_gamma_acc = device(code_base + 'MotorEncoderDifference',
+    shutter_gamma_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'shutter_gamma_motor',
          analog = 'shutter_gamma_analog',
