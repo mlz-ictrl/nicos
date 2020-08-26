@@ -290,8 +290,9 @@ class LokiSamplePanel(Panel):
 
     def toggle_controls_availability(self):
         for control in [
-            self.createBtn, self.retrieveBtn, self.openFileBtn, self.buttonBox,
-            self.newBtn, self.editBtn, self.delBtn, self.frame
+            self.createBtn, self.retrieveBtn, self.openFileBtn, self.applyBtn,
+            self.saveBtn, self.newBtn, self.editBtn, self.delBtn, self.frame,
+            self.list
         ]:
             control.setEnabled(self.client.isconnected)
 
