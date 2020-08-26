@@ -285,17 +285,6 @@ class LokiSamplePanel(Panel):
 
     @pyqtSlot()
     def on_actionGenerate_triggered(self):
-        def read_axes():
-            ax1, ax2 = dlg._info[2], dlg._info[4]
-            for (ax, box) in [(ax1, dlg.ax1Box), (ax2, dlg.ax2Box)]:
-                if not ax:
-                    continue
-                x = self.client.eval('%s.read()' % ax, None)
-                if x is None:
-                    QMessageBox.warning(dlg, 'Error',
-                                        'Could not read %s.' % ax)
-                    return
-                box.setText('%.1f' % x)
 
         def btn_toggled(checked):
             if checked:
@@ -327,7 +316,7 @@ class LokiSamplePanel(Panel):
             'nicos_ess/loki/gui/sampleconf_gen.ui'))
         dlg.ax1Box.setValidator(DoubleValidator(self))
         dlg.ax2Box.setValidator(DoubleValidator(self))
-        dlg.readBtn.clicked.connect(read_axes)
+        dlg.readBtn.clicked.connect(lambda: self._read_axes(dlg))
         n_rows = int(math.ceil(len(self.holder_info) / 2.0))
         row, col = 0, 0
         for name, info in self.holder_info:
@@ -343,6 +332,33 @@ class LokiSamplePanel(Panel):
                 col += 1
         if dlg.exec_() != QDialog.Accepted:
             return
+
+        self._generate_configs(dlg)
+
+        first_item = None
+        for config in self.configs:
+            new_item = QListWidgetItem(config['name'], self.list)
+            first_item = first_item or new_item
+        # select the first item
+        self.list.setCurrentItem(first_item)
+        self.on_list_itemClicked(first_item)
+
+        self.sampleGroup.setEnabled(True)
+        self.dirty = True
+
+    def _read_axes(self, dlg):
+        ax1, ax2 = dlg._info[2], dlg._info[4]
+        for (ax, box) in [(ax1, dlg.ax1Box), (ax2, dlg.ax2Box)]:
+            if not ax:
+                continue
+            x = self.client.eval('%s.read()' % ax, None)
+            if x is None:
+                QMessageBox.warning(dlg, 'Error',
+                                    'Could not read %s.' % ax)
+                return
+            box.setText('%.1f' % x)
+
+    def _generate_configs(self, dlg):
         rows, levels, ax1, dax1, ax2, dax2 = dlg._info
         sax1 = float(dlg.ax1Box.text()) if ax1 else 0
         sax2 = float(dlg.ax2Box.text()) if ax2 else 0
@@ -350,7 +366,6 @@ class LokiSamplePanel(Panel):
             dax1 = -dax1
 
         self._clear_samples()
-
         n = 0
         for i in range(levels):
             for j in range(rows):
@@ -371,17 +386,6 @@ class LokiSamplePanel(Panel):
                 )
                 self.configs.append(config)
 
-        first_item = None
-        for config in self.configs:
-            new_item = QListWidgetItem(config['name'], self.list)
-            first_item = first_item or new_item
-        # select the first item
-        self.list.setCurrentItem(first_item)
-        self.on_list_itemClicked(first_item)
-
-        self.sampleGroup.setEnabled(True)
-        self.dirty = True
-
     def _clear_samples(self):
         self.list.clear()
         self.configs.clear()
@@ -391,7 +395,7 @@ class LokiSamplePanel(Panel):
         sampleconf = self.client.eval('Exp.sample.samples', [])
         sampleconf = sorted(sampleconf.items())
         self.configs = [dict(c[1]) for c in sampleconf if 'thickness' in c[1]]
-        # convert readonlydict to normal dict
+        # convert read-only dict to normal dict
         for config in self.configs:
             config['position'] = dict(config['position'].items())
         self.list.clear()
