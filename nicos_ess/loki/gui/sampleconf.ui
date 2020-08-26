@@ -152,7 +152,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="saveButton">
+       <widget class="QPushButton" name="saveBtn">
         <property name="minimumSize">
          <size>
           <width>140</width>
@@ -180,7 +180,7 @@
      <zorder>retrieveBtn</zorder>
      <zorder>horizontalSpacer</zorder>
      <zorder>horizontalSpacer_5</zorder>
-     <zorder>saveButton</zorder>
+     <zorder>saveBtn</zorder>
     </widget>
    </item>
    <item>
