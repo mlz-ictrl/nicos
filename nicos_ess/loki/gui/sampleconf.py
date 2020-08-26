@@ -274,12 +274,13 @@ class LokiSamplePanel(Panel):
 
         self.configs = []
         self.dirty = False
-        self.filename = None
         self.holder_info = options.get('holder_info', [])
         self.instrument = options.get('instrument', 'loki')
 
     @pyqtSlot()
     def on_actionEmpty_triggered(self):
+        self._clear_samples()
+        self._clearDisplay()
         self.sampleGroup.setEnabled(True)
 
     @pyqtSlot()
@@ -317,6 +318,11 @@ class LokiSamplePanel(Panel):
                         if revbox:
                             revbox.hide()
 
+        if not self.holder_info:
+            self.showError('Cannot auto-generate sample list as no sample '
+                           'changers are defined')
+            return
+
         dlg = dialogFromUi(self, findResource(
             'nicos_ess/loki/gui/sampleconf_gen.ui'))
         dlg.ax1Box.setValidator(DoubleValidator(self))
@@ -335,13 +341,15 @@ class LokiSamplePanel(Panel):
             if row == nrows:
                 row = 0
                 col += 1
-        if not dlg.exec_():
+        if dlg.exec_() != QDialog.Accepted:
             return
         rows, levels, ax1, dax1, ax2, dax2 = dlg._info
         sax1 = float(dlg.ax1Box.text()) if ax1 else 0
         sax2 = float(dlg.ax2Box.text()) if ax2 else 0
         if dlg.ax1RevBox.isChecked():
             dax1 = -dax1
+
+        self._clear_samples()
 
         n = 0
         for i in range(levels):
@@ -362,16 +370,21 @@ class LokiSamplePanel(Panel):
                     position=position,
                 )
                 self.configs.append(config)
-        firstitem = None
+
+        first_item = None
         for config in self.configs:
-            newitem = QListWidgetItem(config['name'], self.list)
-            firstitem = firstitem or newitem
+            new_item = QListWidgetItem(config['name'], self.list)
+            first_item = first_item or new_item
         # select the first item
-        self.list.setCurrentItem(firstitem)
-        self.on_list_itemClicked(firstitem)
+        self.list.setCurrentItem(first_item)
+        self.on_list_itemClicked(first_item)
 
         self.sampleGroup.setEnabled(True)
         self.dirty = True
+
+    def _clear_samples(self):
+        self.list.clear()
+        self.configs.clear()
 
     @pyqtSlot()
     def on_retrieveBtn_clicked(self):
@@ -381,7 +394,6 @@ class LokiSamplePanel(Panel):
         # convert readonlydict to normal dict
         for config in self.configs:
             config['position'] = dict(config['position'].items())
-        # Clear the current contents
         self.list.clear()
         last_item = None
         for config in self.configs:
@@ -397,16 +409,17 @@ class LokiSamplePanel(Panel):
     @pyqtSlot()
     def on_openFileBtn_clicked(self):
         initialdir = self.client.eval('session.experiment.scriptpath', '')
-        fn = QFileDialog.getOpenFileName(self, 'Open sample file', initialdir,
+        filename = QFileDialog.getOpenFileName(self, 'Open sample file', initialdir,
                                          'Sample files (*.py)')[0]
-        if not fn:
+        if not filename:
             return
         try:
-            self.configs = parse_sampleconf(fn)
+            self.configs = parse_sampleconf(filename)
         except Exception as err:
             self.showError('Could not read file: %s\n\n'
                            'Are you sure this is a sample file?' % err)
         else:
+            self.list.clear()
             self.sampleGroup.setEnabled(True)
             newitem = None
             for config in self.configs:
@@ -415,7 +428,7 @@ class LokiSamplePanel(Panel):
             if newitem:
                 self.list.setCurrentItem(newitem)
             self.on_list_itemClicked(newitem)
-            self.filename = fn
+            self.dirty = True
 
     @pyqtSlot()
     def on_applyBtn_clicked(self):
@@ -427,17 +440,16 @@ class LokiSamplePanel(Panel):
 
     @pyqtSlot()
     def on_saveBtn_clicked(self):
-        initialdir = self.client.eval('session.experiment.scriptpath', '')
-        fn = QFileDialog.getSaveFileName(self, 'Save sample file',
-                                         initialdir,
+        initial_dir = self.client.eval('session.experiment.scriptpath', '')
+        filename = QFileDialog.getSaveFileName(self, 'Save sample file',
+                                         initial_dir,
                                          'Sample files (*.py)')[0]
-        if not fn:
+        if not filename:
             return False
-        if not fn.endswith('.py'):
-            fn += '.py'
-        self.filename = fn
+        if not filename.endswith('.py'):
+            filename += '.py'
         try:
-            self._save_script(self.filename, self._generate_script())
+            self._save_script(filename, self._generate_script())
         except Exception as err:
             self.showError('Could not write file: %s' % err)
 
@@ -614,7 +626,8 @@ def parse_sampleconf(filename):
           'ClearSamples': mocksample.reset,
           'SetSample': mocksample.define}
     with open(filename, 'r') as fp:
-        exec_(fp, ns)
+        for line in fp.readlines():
+            exec(line, ns)
     # The script needs to call this, if it doesn't it is not a sample file.
     if not mocksample.reset_called:
         raise ValueError('the script never calls ClearSamples()')
