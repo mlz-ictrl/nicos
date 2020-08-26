@@ -471,15 +471,15 @@ class LokiSamplePanel(Panel):
 
         # Enable users the change the offset and aperture values at will
         # without the need of opening any dialog window.
-        frm.offsetBox.textChanged.connect(lambda: self.set_offset(index,
+        frm.offsetBox.editingFinished.connect(lambda: self.set_offset(index,
                                           frm.offsetBox.displayText()))
-        frm.apXBox.textChanged.connect(lambda: self.set_aperture(index,
+        frm.apXBox.editingFinished.connect(lambda: self.set_aperture(index,
                                        frm.apXBox.displayText(), 0))
-        frm.apYBox.textChanged.connect(lambda: self.set_aperture(index,
+        frm.apYBox.editingFinished.connect(lambda: self.set_aperture(index,
                                        frm.apYBox.displayText(), 1))
-        frm.apWBox.textChanged.connect(lambda: self.set_aperture(index,
+        frm.apWBox.editingFinished.connect(lambda: self.set_aperture(index,
                                        frm.apWBox.displayText(), 2))
-        frm.apHBox.textChanged.connect(lambda: self.set_aperture(index,
+        frm.apHBox.editingFinished.connect(lambda: self.set_aperture(index,
                                        frm.apHBox.displayText(), 3))
 
         # Re-validate the values
