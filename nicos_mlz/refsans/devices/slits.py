@@ -240,7 +240,12 @@ class DoubleSlitSequence(SequencerMixin, DoubleSlit):
         self._startSequence(self._generateSequence(target))
 
     def doStatus(self, maxage=0):
+        self.log.debug('DoubleSlitSequence status')
         st = SequencerMixin.doStatus(self, maxage)
+        if st[0] != status.OK:
+            return st
+        st = DoubleSlit.doStatus(self, maxage=maxage)
+        self.log.debug('DoubleSlitSequence status %s', st)
         if st[0] == status.OK:
             return st[0], self.name  # display device name
         return st
@@ -315,7 +320,7 @@ class DoubleSlitSequence(SequencerMixin, DoubleSlit):
         return sequence
 
     def _adjustment_offset(self):
-        return int(self._attached_adjustment.read(0)) - 110
+        return int(self._attached_adjustment.read(0)[:-2]) - 110
 
     def doRead(self, maxage=0):
         pos = DoubleSlit.doRead(self, maxage=maxage)
