@@ -152,6 +152,9 @@
        </item>
        <item row="0" column="6">
         <widget class="QPushButton" name="readApBtn">
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
          <property name="text">
           <string>Read current</string>
          </property>

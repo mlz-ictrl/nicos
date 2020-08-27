@@ -290,8 +290,9 @@ class LokiSamplePanel(Panel):
 
     def toggle_controls_availability(self):
         for control in [
-            self.createBtn, self.retrieveBtn, self.openFileBtn, self.buttonBox,
-            self.newBtn, self.editBtn, self.delBtn, self.frame
+            self.createBtn, self.retrieveBtn, self.openFileBtn, self.applyBtn,
+            self.saveBtn, self.newBtn, self.editBtn, self.delBtn, self.frame,
+            self.list
         ]:
             control.setEnabled(self.client.isconnected)
 
@@ -489,6 +490,7 @@ class LokiSamplePanel(Panel):
         frm.addDevBtn.setVisible(False)
         frm.delDevBtn.setVisible(False)
         frm.readApBtn.setVisible(True)
+        frm.readApBtn.clicked.connect(self.on_readApBtn_clicked)
         frm.readDevsBtn.setVisible(False)
         frm.posTbl.setEnabled(False)
         relevant_list = [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
@@ -501,18 +503,16 @@ class LokiSamplePanel(Panel):
         layout = self.frame.layout()
         layout.addWidget(frm)
 
-        # Enable users the change the offset and aperture values at will
-        # without the need of opening any dialog window.
-        frm.offsetBox.textChanged.connect(lambda: self.set_offset(index,
-                                          frm.offsetBox.displayText()))
-        frm.apXBox.textChanged.connect(lambda: self.set_aperture(index,
-                                       frm.apXBox.displayText(), 0))
-        frm.apYBox.textChanged.connect(lambda: self.set_aperture(index,
-                                       frm.apYBox.displayText(), 1))
-        frm.apWBox.textChanged.connect(lambda: self.set_aperture(index,
-                                       frm.apWBox.displayText(), 2))
-        frm.apHBox.textChanged.connect(lambda: self.set_aperture(index,
-                                       frm.apHBox.displayText(), 3))
+        frm.offsetBox.editingFinished.connect(lambda: self.set_offset(index,
+                                              frm.offsetBox.displayText()))
+        frm.apXBox.editingFinished.connect(lambda: self.set_aperture(index,
+                                           frm.apXBox.displayText(), 0))
+        frm.apYBox.editingFinished.connect(lambda: self.set_aperture(index,
+                                           frm.apYBox.displayText(), 1))
+        frm.apWBox.editingFinished.connect(lambda: self.set_aperture(index,
+                                           frm.apWBox.displayText(), 2))
+        frm.apHBox.editingFinished.connect(lambda: self.set_aperture(index,
+                                           frm.apHBox.displayText(), 3))
 
         # Re-validate the values
         for box in [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
@@ -589,6 +589,9 @@ class LokiSamplePanel(Panel):
             self.on_list_itemClicked(self.list.item(self.list.currentRow()))
         else:
             self._clearDisplay()
+
+    def on_readApBtn_clicked(self):
+        QMessageBox.warning(self, 'Error', 'Not implemented yet!')
 
     def _copy_key(self, key):
         index = self.list.currentRow()
