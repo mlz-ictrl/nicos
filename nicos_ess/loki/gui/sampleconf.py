@@ -40,8 +40,9 @@ from nicos.guisupport.utils import DoubleValidator
 from nicos.pycompat import builtins, exec_, iteritems
 from nicos.utils import findResource
 
-SAMPLE_KEYS = ['aperture', 'position', 'timefactor',
-               'thickness', 'detoffset', 'comment']
+
+SAMPLE_KEYS = ('aperture', 'position', 'timefactor',
+               'thickness', 'detoffset', 'comment')
 
 
 def configToFrame(frame, config):
@@ -55,8 +56,8 @@ def configToFrame(frame, config):
     frame.apYBox.setText(str(config['aperture'][1]))
     frame.apWBox.setText(str(config['aperture'][2]))
     frame.apHBox.setText(str(config['aperture'][3]))
-    for i, (devname, position) in enumerate(iteritems(config['position'])):
-        frame.posTbl.setItem(i, 0, QTableWidgetItem(devname))
+    for i, (dev_name, position) in enumerate(iteritems(config['position'])):
+        frame.posTbl.setItem(i, 0, QTableWidgetItem(dev_name))
         frame.posTbl.setItem(i, 1, QTableWidgetItem(str(position)))
     frame.posTbl.resizeRowsToContents()
     frame.posTbl.resizeColumnsToContents()
@@ -65,9 +66,9 @@ def configToFrame(frame, config):
 def configFromFrame(frame):
     position = {}
     for i in range(frame.posTbl.rowCount()):
-        devname = frame.posTbl.item(i, 0).text()
-        devpos = float(frame.posTbl.item(i, 1).text())
-        position[devname] = devpos
+        dev_name = frame.posTbl.item(i, 0).text()
+        dev_pos = float(frame.posTbl.item(i, 1).text())
+        position[dev_name] = dev_pos
     return {
         'name': frame.nameBox.text(),
         'comment': frame.commentBox.text(),
@@ -148,18 +149,18 @@ class ConfigEditDialog(QDialog):
                                                    'for all input fields.')
                 return
         for i in range(self.frm.posTbl.rowCount()):
-            devname = self.frm.posTbl.item(i, 0).text()
-            devpos = self.frm.posTbl.item(i, 1).text()
-            if not devname or devname.startswith('<'):
+            dev_name = self.frm.posTbl.item(i, 0).text()
+            dev_pos = self.frm.posTbl.item(i, 1).text()
+            if not dev_name or dev_name.startswith('<'):
                 QMessageBox.warning(self, 'Error', '%r is not a valid device '
-                                                   'name.' % devname)
+                                                   'name.' % dev_name)
                 return
             try:
-                devpos = float(devpos)
+                dev_pos = float(dev_pos)
             except ValueError:
                 QMessageBox.warning(self, 'Error', '%r is not a valid position'
                                                    ' for device %r.' % (
-                                    devpos, devname))
+                                    dev_pos, dev_name))
                 return
         self.accept()
 
@@ -172,36 +173,36 @@ class ConfigEditDialog(QDialog):
         self.frm.posTbl.resizeRowsToContents()
 
     def on_addDevBtn_clicked(self):
-        devlist = self.client.getDeviceList(
+        dev_list = self.client.getDeviceList(
             'nicos.core.device.Moveable', only_explicit=False)
         # Only get the sample changer related motors
-        devlist = [item for item in devlist
-                   if item.startswith('sc_') and 'motor' in item]
+        dev_list = [item for item in dev_list
+                    if item.startswith('sc_') and 'motor' in item]
         dlg = dialogFromUi(self, findResource(
             'nicos_ess/loki/gui/sampleconf_adddev.ui'))
         dlg.widget = None
 
         def callback(index):
-            devname = devlist[index]
+            dev_name = dev_list[index]
             if dlg.widget:
                 dlg.widget.deleteLater()
                 dlg.valueFrame.layout().takeAt(0)
-            dlg.widget = typedvalue.DeviceValueEdit(dlg, dev=devname)
+            dlg.widget = typedvalue.DeviceValueEdit(dlg, dev=dev_name)
             dlg.widget.setClient(self.client)
             dlg.valueFrame.layout().insertWidget(0, dlg.widget)
 
         dlg.devBox.currentIndexChanged.connect(callback)
-        dlg.devBox.addItems(devlist)
+        dlg.devBox.addItems(dev_list)
         if not dlg.exec_():
             return
         if dlg.widget is not None:
             self._addRow(dlg.devBox.currentText(), str(dlg.widget.getValue()))
 
     def on_delDevBtn_clicked(self):
-        srow = self.frm.posTbl.currentRow()
-        if srow < 0:
+        sample_row = self.frm.posTbl.currentRow()
+        if sample_row < 0:
             return
-        self.frm.posTbl.removeRow(srow)
+        self.frm.posTbl.removeRow(sample_row)
 
     def _readDev(self, name):
         rv = self.client.eval('%s.format(%s.read())' % (name, name), None)
@@ -347,7 +348,7 @@ class LokiSamplePanel(Panel):
         dlg.ax1Box.setValidator(DoubleValidator(self))
         dlg.ax2Box.setValidator(DoubleValidator(self))
         dlg.readBtn.clicked.connect(read_axes)
-        nrows = int(math.ceil(len(self.holder_info) / 2.0))
+        n_rows = int(math.ceil(len(self.holder_info) / 2.0))
         row, col = 0, 0
         for name, info in self.holder_info:
             btn = QRadioButton(name, dlg)
@@ -357,11 +358,26 @@ class LokiSamplePanel(Panel):
             if (row, col) == (0, 0):
                 btn.setChecked(True)
             row += 1
-            if row == nrows:
+            if row == n_rows:
                 row = 0
                 col += 1
         if dlg.exec_() != QDialog.Accepted:
             return
+
+        self._generate_configs(dlg)
+
+        first_item = None
+        for config in self.configs:
+            new_item = QListWidgetItem(config['name'], self.list)
+            first_item = first_item or new_item
+        # select the first item
+        self.list.setCurrentItem(first_item)
+        self.on_list_itemClicked(first_item)
+
+        self.sampleGroup.setEnabled(True)
+        self.dirty = True
+
+    def _generate_configs(self, dlg):
         rows, levels, ax1, dax1, ax2, dax2 = dlg._info
         sax1 = float(dlg.ax1Box.text()) if ax1 else 0
         sax2 = float(dlg.ax2Box.text()) if ax2 else 0
@@ -369,7 +385,6 @@ class LokiSamplePanel(Panel):
             dax1 = -dax1
 
         self._clear_samples()
-
         n = 0
         for i in range(levels):
             for j in range(rows):
@@ -390,17 +405,6 @@ class LokiSamplePanel(Panel):
                 )
                 self.configs.append(config)
 
-        first_item = None
-        for config in self.configs:
-            new_item = QListWidgetItem(config['name'], self.list)
-            first_item = first_item or new_item
-        # select the first item
-        self.list.setCurrentItem(first_item)
-        self.on_list_itemClicked(first_item)
-
-        self.sampleGroup.setEnabled(True)
-        self.dirty = True
-
     def _clear_samples(self):
         self.list.clear()
         self.configs.clear()
@@ -410,7 +414,7 @@ class LokiSamplePanel(Panel):
         sampleconf = self.client.eval('Exp.sample.samples', [])
         sampleconf = sorted(sampleconf.items())
         self.configs = [dict(c[1]) for c in sampleconf if 'thickness' in c[1]]
-        # convert readonlydict to normal dict
+        # convert read-only dict to normal dict
         for config in self.configs:
             config['position'] = dict(config['position'].items())
         self.list.clear()
@@ -427,9 +431,10 @@ class LokiSamplePanel(Panel):
 
     @pyqtSlot()
     def on_openFileBtn_clicked(self):
-        initialdir = self.client.eval('session.experiment.scriptpath', '')
-        filename = QFileDialog.getOpenFileName(self, 'Open sample file', initialdir,
-                                         'Sample files (*.py)')[0]
+        initial_dir = self.client.eval('session.experiment.scriptpath', '')
+        filename = QFileDialog.getOpenFileName(self, 'Open sample file',
+                                               initial_dir,
+                                               'Sample files (*.py)')[0]
         if not filename:
             return
         try:
@@ -440,13 +445,13 @@ class LokiSamplePanel(Panel):
         else:
             self.list.clear()
             self.sampleGroup.setEnabled(True)
-            newitem = None
+            new_item = None
             for config in self.configs:
-                newitem = QListWidgetItem(config['name'], self.list)
+                new_item = QListWidgetItem(config['name'], self.list)
             # select the last item
-            if newitem:
-                self.list.setCurrentItem(newitem)
-            self.on_list_itemClicked(newitem)
+            if new_item:
+                self.list.setCurrentItem(new_item)
+            self.on_list_itemClicked(new_item)
             self.dirty = True
 
     @pyqtSlot()
@@ -555,9 +560,9 @@ class LokiSamplePanel(Panel):
         config = configFromFrame(dlg.frm)
         dlg.frm.whatLbl.setText('New sample configuration')
         self.configs.append(config)
-        newitem = QListWidgetItem(config['name'], self.list)
-        self.list.setCurrentItem(newitem)
-        self.on_list_itemClicked(newitem)
+        new_item = QListWidgetItem(config['name'], self.list)
+        self.list.setCurrentItem(new_item)
+        self.on_list_itemClicked(new_item)
 
     @pyqtSlot()
     def on_editBtn_clicked(self):
@@ -573,9 +578,9 @@ class LokiSamplePanel(Panel):
         self.dirty = True
         config = configFromFrame(dlg.frm)
         self.configs[index] = config
-        listitem = self.list.item(index)
-        listitem.setText(config['name'])
-        self.on_list_itemClicked(listitem)
+        list_item = self.list.item(index)
+        list_item.setText(config['name'])
+        self.on_list_itemClicked(list_item)
 
     @pyqtSlot()
     def on_delBtn_clicked(self):
@@ -642,14 +647,14 @@ def parse_sampleconf(filename):
     builtin_ns = vars(builtins).copy()
     for name in ('__import__', 'open', 'exec', 'execfile'):
         builtin_ns.pop(name, None)
-    mocksample = MockSample()
+    mock_sample = MockSample()
     ns = {'__builtins__': builtin_ns,
-          'ClearSamples': mocksample.reset,
-          'SetSample': mocksample.define}
+          'ClearSamples': mock_sample.reset,
+          'SetSample': mock_sample.define}
     with open(filename, 'r') as fp:
         for line in fp.readlines():
             exec(line, ns)
     # The script needs to call this, if it doesn't it is not a sample file.
-    if not mocksample.reset_called:
+    if not mock_sample.reset_called:
         raise ValueError('the script never calls ClearSamples()')
-    return mocksample.configs
+    return mock_sample.configs
