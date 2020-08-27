@@ -503,18 +503,16 @@ class LokiSamplePanel(Panel):
         layout = self.frame.layout()
         layout.addWidget(frm)
 
-        # Enable users the change the offset and aperture values at will
-        # without the need of opening any dialog window.
         frm.offsetBox.editingFinished.connect(lambda: self.set_offset(index,
-                                          frm.offsetBox.displayText()))
+                                              frm.offsetBox.displayText()))
         frm.apXBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                       frm.apXBox.displayText(), 0))
+                                           frm.apXBox.displayText(), 0))
         frm.apYBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                       frm.apYBox.displayText(), 1))
+                                           frm.apYBox.displayText(), 1))
         frm.apWBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                       frm.apWBox.displayText(), 2))
+                                           frm.apWBox.displayText(), 2))
         frm.apHBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                       frm.apHBox.displayText(), 3))
+                                           frm.apHBox.displayText(), 3))
 
         # Re-validate the values
         for box in [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
