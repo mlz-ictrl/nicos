@@ -67,11 +67,11 @@ class FocusPoint(HasLimits, Moveable):
         table = self._attached_table.read()
         focus = self._calculation()
         precision = 0
-        if hasattr(self._attached_table, '_attached_device'):
+        if hasattr(self._attached_table, '_attached_motor'):
+            precision = self._attached_table._attached_motor.precision
+        elif hasattr(self._attached_table, '_attached_device'):
             precision = self._attached_table._attached_device.precision
         elif hasattr(self._attached_table, 'precision'):
             precision = self._attached_table.precision
-        else:
-            precision = 0
         text = 'focus' if abs(table - focus) <= precision else state[1]
         return status.OK, text
