@@ -199,10 +199,10 @@ class ConfigEditDialog(QDialog):
             self._addRow(dlg.devBox.currentText(), str(dlg.widget.getValue()))
 
     def on_delDevBtn_clicked(self):
-        s_row = self.frm.posTbl.currentRow()
-        if s_row < 0:
+        sample_row = self.frm.posTbl.currentRow()
+        if sample_row < 0:
             return
-        self.frm.posTbl.removeRow(s_row)
+        self.frm.posTbl.removeRow(sample_row)
 
     def _readDev(self, name):
         rv = self.client.eval('%s.format(%s.read())' % (name, name), None)
