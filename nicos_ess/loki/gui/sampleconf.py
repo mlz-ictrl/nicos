@@ -41,9 +41,8 @@ from nicos.pycompat import builtins, exec_, iteritems
 from nicos.utils import findResource
 
 
-def sample_keys():
-    return ('aperture', 'position', 'timefactor',
-            'thickness', 'detoffset', 'comment')
+SAMPLE_KEYS = ('aperture', 'position', 'timefactor',
+               'thickness', 'detoffset', 'comment')
 
 
 def configToFrame(frame, config):
@@ -615,7 +614,7 @@ class LokiSamplePanel(Panel):
                   'ClearSamples()\n']
         for (i, config) in enumerate(self.configs, start=1):
             script.append('SetSample(%d, %r, ' % (i, config['name']))
-            for key in sample_keys():
+            for key in SAMPLE_KEYS:
                 script.append('%s=%r' % (key, config[key]))
                 script.append(', ')
             del script[-1]  # remove last comma
@@ -639,7 +638,7 @@ class MockSample(object):
 
     def define(self, _num, name, **entry):
         entry['name'] = name
-        for key in sample_keys():
+        for key in SAMPLE_KEYS:
             if key not in entry:
                 raise ValueError('missing key %r in sample entry' % key)
         self.configs.append(entry)
