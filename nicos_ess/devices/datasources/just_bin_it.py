@@ -30,9 +30,9 @@ from streaming_data_types.histogram_hs00 import deserialise_hs00
 
 from nicos.core import ArrayDesc, Override, Param, Value, floatrange, oneof, \
     status, tupleof
-
 from nicos.core.constants import LIVE
 from nicos.core.device import Measurable
+
 from nicos_ess.devices.kafka.consumer import KafkaSubscriber
 
 
