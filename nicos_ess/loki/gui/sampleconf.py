@@ -305,6 +305,17 @@ class LokiSamplePanel(Panel):
 
     @pyqtSlot()
     def on_actionGenerate_triggered(self):
+        def read_axes():
+            ax1, ax2 = dlg._info[2], dlg._info[4]
+            for (ax, box) in [(ax1, dlg.ax1Box), (ax2, dlg.ax2Box)]:
+                if not ax:
+                    continue
+                x = self.client.eval('%s.read()' % ax, None)
+                if x is None:
+                    QMessageBox.warning(dlg, 'Error',
+                                        'Could not read %s.' % ax)
+                    return
+                box.setText('%.1f' % x)
 
         def btn_toggled(checked):
             if checked:
@@ -336,7 +347,7 @@ class LokiSamplePanel(Panel):
             'nicos_ess/loki/gui/sampleconf_gen.ui'))
         dlg.ax1Box.setValidator(DoubleValidator(self))
         dlg.ax2Box.setValidator(DoubleValidator(self))
-        dlg.readBtn.clicked.connect(lambda: self._read_axes(dlg))
+        dlg.readBtn.clicked.connect(read_axes)
         n_rows = int(math.ceil(len(self.holder_info) / 2.0))
         row, col = 0, 0
         for name, info in self.holder_info:
@@ -365,18 +376,6 @@ class LokiSamplePanel(Panel):
 
         self.sampleGroup.setEnabled(True)
         self.dirty = True
-
-    def _read_axes(self, dlg):
-        ax1, ax2 = dlg._info[2], dlg._info[4]
-        for (ax, box) in [(ax1, dlg.ax1Box), (ax2, dlg.ax2Box)]:
-            if not ax:
-                continue
-            x = self.client.eval('%s.read()' % ax, None)
-            if x is None:
-                QMessageBox.warning(dlg, 'Error',
-                                    'Could not read %s.' % ax)
-                return
-            box.setText('%.1f' % x)
 
     def _generate_configs(self, dlg):
         rows, levels, ax1, dax1, ax2, dax2 = dlg._info
