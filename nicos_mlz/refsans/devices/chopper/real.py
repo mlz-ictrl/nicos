@@ -432,7 +432,7 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
             self.log.debug('doStatus chopperdisc %d', self.chopper)
         else:
             self.log.debug('doStatus chopperdisc no number')
-        if self.doIsAtTarget(self.doRead(0)) or self.chopper != 1:
+        if self.doIsAtTarget(self.doRead(0), self.target) or self.chopper != 1:
             mode = self.mode
             if mode == 0:
                 return status.ERROR, 'inactive'
@@ -468,7 +468,7 @@ class ChopperDisc(ChopperBase, ChopperDiscBase, Moveable):
                 raise self.errorstates[st[0]](self, st[1])
             return True
 
-        return self.mode == 5 or self.doIsAtTarget(self.doRead(0))
+        return self.mode == 5 or self.doIsAtTarget(self.doRead(0), self.target)
 
     def doFinish(self):
         if self.chopper == 1:
