@@ -42,7 +42,7 @@ class ProtocolPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, findResource('nicos_ess/loki/gui/protocol.ui'))
+        loadUi(self, findResource('nicos_ess/loki/gui/ui_files/protocol.ui'))
 
         self.firstEdit.setShadowText('default: all')
         self.lastEdit.setShadowText('default: all')

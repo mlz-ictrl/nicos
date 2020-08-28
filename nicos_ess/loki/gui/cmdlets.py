@@ -45,7 +45,7 @@ class MeasureTable(Cmdlet):
     meas_def_class = MeasDef
 
     def __init__(self, parent, client):
-        uipath = findResource('nicos_ess/loki/gui/table.ui')
+        uipath = findResource('nicos_ess/loki/gui/ui_files/table.ui')
         Cmdlet.__init__(self, parent, client, uipath)
         self.measdef = self.meas_def_class(rtmode=False)
         self.rt_settings = RtConfigDialog.DEFAULT_SETTINGS.copy()

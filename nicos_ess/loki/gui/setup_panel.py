@@ -63,7 +63,7 @@ class ExpPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, findResource('nicos_ess/loki/gui/setup_exp.ui'))
+        loadUi(self, findResource('nicos_ess/loki/gui/ui_files/setup_exp.ui'))
         self.propdbInfo.setVisible(False)
         self._orig_proposal = None
         self._new_exp_panel = None

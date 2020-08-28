@@ -118,7 +118,7 @@ class SampleDialog(DlgUtils, QDialog):
         self.client = client
         DlgUtils.__init__(self, 'Sample selection')
         QDialog.__init__(self, parent)
-        loadUi(self, findResource('nicos_ess/loki/gui/samples.ui'))
+        loadUi(self, findResource('nicos_ess/loki/gui/ui_files/samples.ui'))
 
         self._init_samplefile = False
         self.samplefile = measdef.samplefile
@@ -230,7 +230,7 @@ class DetsetDialog(QDialog):
         self.measdef = measdef
         self.client = client
         QDialog.__init__(self, parent)
-        loadUi(self, findResource('nicos_ess/loki/gui/detsets.ui'))
+        loadUi(self, findResource('nicos_ess/loki/gui/ui_files/detsets.ui'))
         self.table.setColumnCount(len(measdef.getElements()))
 
         # apply current settings
@@ -388,7 +388,7 @@ class DevicesWidget(QWidget):
         self.client = client
         self.devs = devs
         QWidget.__init__(self, parent)
-        loadUi(self, findResource('nicos_ess/loki/gui/devices_one.ui'))
+        loadUi(self, findResource('nicos_ess/loki/gui/ui_files/devices_one.ui'))
 
         self.table.setColumnCount(len(devs))
         self.table.setHorizontalHeaderLabels(devs)
@@ -560,7 +560,7 @@ class DevicesDialog(QDialog):
         self.measdef = measdef
         self.client = client
         QDialog.__init__(self, parent)
-        loadUi(self, findResource('nicos_ess/loki/gui/devices.ui'))
+        loadUi(self, findResource('nicos_ess/loki/gui/ui_files/devices.ui'))
 
         self.frame = QFrame(self)
         self.scrollArea.setWidget(self.frame)
@@ -621,7 +621,7 @@ class RtConfigDialog(QDialog):
 
     def __init__(self, parent):
         QDialog.__init__(self, parent)
-        loadUi(self, findResource('nicos_ess/loki/gui/rtconfig.ui'))
+        loadUi(self, findResource('nicos_ess/loki/gui/ui_files/rtconfig.ui'))
         self.progBox.setValidator(DoubleValidator(self))
         self.chanBox.valueChanged.connect(self._update_time)
         self.intervalBox.valueChanged.connect(self._update_time)

@@ -48,7 +48,7 @@ class InstrumentConfigTool(DlgUtils, QMainWindow):
     def __init__(self, parent, client, **settings):
         QMainWindow.__init__(self, parent)
         DlgUtils.__init__(self, 'Instrument config')
-        loadUi(self, findResource('nicos_ess/loki/gui/instrconfig.ui'))
+        loadUi(self, findResource('nicos_ess/loki/gui/ui_files/instrconfig.ui'))
         self.setWindowTitle('Reconfigure Instrument')
         self.client = client
         self.client.connected.connect(self.on_client_connected)
