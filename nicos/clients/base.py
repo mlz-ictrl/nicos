@@ -34,17 +34,14 @@ import threading
 from base64 import b64decode, b64encode
 from time import time as currenttime
 
+import rsa
+
 from nicos.clients.proto.classic import ClientTransport
 from nicos.protocols.daemon import ACTIVE_COMMANDS, ProtocolError
 from nicos.protocols.daemon.classic import COMPATIBLE_PROTO_VERSIONS, \
     PROTO_VERSION
 from nicos.pycompat import to_utf8
 from nicos.utils import createThread
-
-try:
-    import rsa  # pylint: disable=import-error
-except ImportError:
-    rsa = None
 
 
 BUFSIZE = 8192
