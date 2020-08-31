@@ -82,7 +82,7 @@ class MemographValue(Readable):
 
     def doReadUnit(self):
         return self._getRaw().split()[1].encode('utf-8').decode('utf-8').\
-            replace(u'°', 'deg')
+            replace('°', 'deg')
 
     def doRead(self, maxage=0):
         return float(self._getRaw().split()[0].replace(',', '.'))

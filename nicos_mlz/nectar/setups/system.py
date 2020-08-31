@@ -36,7 +36,7 @@ devices = dict(
         instrument = 'NECTAR',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-45',
         responsible = 'Adrian Losko <adrian.losko@frm2.tum.de>',
-        operators = [u'Technische Universität München (TUM)'],
+        operators = ['Technische Universität München (TUM)'],
         website = 'http://www.mlz-garching.de/nectar',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',

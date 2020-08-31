@@ -49,11 +49,11 @@ COLOR_RED = GRCOLORS['red']
 COLOR_GREEN = GRCOLORS['green']
 COLOR_BLUE = GRCOLORS['blue']
 
-ANGSTROM = u'\u212b'
-DELTA = u'\u0394'
-LAMBDA = u'\u03bb'
-MICRO = u'\xb5'
-MINUSONE = u'\u207b\xb9'
+ANGSTROM = '\u212b'
+DELTA = '\u0394'
+LAMBDA = '\u03bb'
+MICRO = '\xb5'
+MINUSONE = '\u207b\xb9'
 
 
 @contextmanager

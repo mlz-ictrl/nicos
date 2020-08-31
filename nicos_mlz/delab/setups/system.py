@@ -31,7 +31,7 @@ devices = dict(
         description = 'instrument object',
         instrument = 'DEL',
         responsible = 'Karl Zeitelhack <karl.zeitelhack@frm2.tum.de>',
-        operators = [u'Technische Universität München (TUM)'],
+        operators = ['Technische Universität München (TUM)'],
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
         semicolon = False,

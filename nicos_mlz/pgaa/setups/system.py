@@ -24,7 +24,7 @@ devices = dict(
                       'facility',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-46',
         responsible = 'Dr. Zsolt Revay <zsolt.revay@frm2.tum.de>',
-        operators = [u'Universität zu Köln'],
+        operators = ['Universität zu Köln'],
         website = 'http://www.mlz-garching.de/pgaa',
         instrument = 'pgaa',
     ),

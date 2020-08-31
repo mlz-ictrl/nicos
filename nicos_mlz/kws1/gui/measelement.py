@@ -191,7 +191,7 @@ class Chopper(MeasElement):
 
     CACHE_KEY = 'chopper/resolutions'
     SORT_KEY = lambda self, x: num_sort(x)
-    LABEL = u'TOF dλ/λ'
+    LABEL = 'TOF dλ/λ'
 
     def createWidget(self, parent, client):
         resos = client.getDeviceParam(*self.CACHE_KEY.split('/'))

@@ -34,7 +34,7 @@ devices = dict(
         instrument = 'MIRA',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-21',
         responsible = 'Robert Georgii <robert.georgii@frm2.tum.de>',
-        operators = [u'Technische Universität München (TUM)'],
+        operators = ['Technische Universität München (TUM)'],
         website = 'http://www.mlz-garching.de/mira',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',

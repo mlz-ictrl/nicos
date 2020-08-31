@@ -605,9 +605,9 @@ def PosListShow(listname='default'):
             '' if calcpos is None else '%.3f' % R2D(calcpos.nu),
         ))
     printTable(('pos#',
-                u'γ', u'ω', u'ν', u'I', u'σ(I)',
+                'γ', 'ω', 'ν', 'I', 'σ(I)',
                 'h', 'k', 'l',
-                u'γ_calc', u'ω_calc', u'ν_calc'),
+                'γ_calc', 'ω_calc', 'ν_calc'),
                items, session.log.info, rjust=True)
 
 
@@ -818,7 +818,7 @@ n                                ! extended output
                     peaks.append([float(ix) for ix in cols[:3]])
                     table.append([str(i)] + cols)
                 break
-    printTable(('pos#', 'h', 'k', 'l', u'γ', u'ω', u'ν', u'I', u'σ(I)'),
+    printTable(('pos#', 'h', 'k', 'l', 'γ', 'ω', 'ν', 'I', 'σ(I)'),
                table, session.log.info, rjust=True)
 
     # calculate UB matrix from "best combination" of two peaks
@@ -1130,28 +1130,28 @@ def RefineMatrix(listname='default', **kwds):
 
     session.log.info('')
     session.log.info('Cell parameters:')
-    session.log.info(u'Initial:    a = %8.4f   b = %8.4f   c = %8.4f   '
-                     u'α = %7.3f   β = %7.3f   γ = %7.3f',
+    session.log.info('Initial:    a = %8.4f   b = %8.4f   c = %8.4f   '
+                     'α = %7.3f   β = %7.3f   γ = %7.3f',
                      *sample.cell.cellparams())
-    session.log.info(u'Final:      a = %8.4f   b = %8.4f   c = %8.4f   '
-                     u'α = %7.3f   β = %7.3f   γ = %7.3f',
+    session.log.info('Final:      a = %8.4f   b = %8.4f   c = %8.4f   '
+                     'α = %7.3f   β = %7.3f   γ = %7.3f',
                      p.a, p.b, p.c, p.alpha, p.beta, p.gamma)
-    session.log.info(u'Errors: +/-     %8.4f       %8.4f       %8.4f   '
-                     u'    %7.3f       %7.3f       %7.3f',
+    session.log.info('Errors: +/-     %8.4f       %8.4f       %8.4f   '
+                     '    %7.3f       %7.3f       %7.3f',
                      p.errors['a'], p.errors['b'], p.errors['c'],
                      p.errors['alpha'], p.errors['beta'], p.errors['gamma'])
 
     session.log.info('')
-    session.log.info(u'Initial:    λ = %8.4f   Δγ = %7.3f   Δν = %7.3f',
+    session.log.info('Initial:    λ = %8.4f   Δγ = %7.3f   Δν = %7.3f',
                      init_lambda, *init_offsets)
-    session.log.info(u'Final:      λ = %8.4f   Δγ = %7.3f   Δν = %7.3f',
+    session.log.info('Final:      λ = %8.4f   Δγ = %7.3f   Δν = %7.3f',
                      p.wavelength, p.delta_gamma, p.delta_nu)
-    session.log.info(u'Errors: +/-     %8.4f        %7.3f        %7.3f',
+    session.log.info('Errors: +/-     %8.4f        %7.3f        %7.3f',
                      p.errors['wavelength'], p.errors['delta_gamma'],
                      p.errors['delta_nu'])
 
     session.log.info('')
-    session.log.info(u'Reduced χ² (χ²/NDF): %8.4f', p.chi2)
+    session.log.info('Reduced χ² (χ²/NDF): %8.4f', p.chi2)
 
     session.log.info('')
     session.log.info('New UB matrix:')

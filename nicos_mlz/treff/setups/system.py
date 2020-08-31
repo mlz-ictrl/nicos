@@ -22,8 +22,8 @@ devices = dict(
         responsible = 'Egor Vehzlev <e.vehzlev@fz-juelich.de>',
         website = 'http://www.mlz-garching.de',
         operators = [
-            u'Jülich Centre for Neutron Science (JCNS)',
-            u'Technische Universität München (TUM)',
+            'Jülich Centre for Neutron Science (JCNS)',
+            'Technische Universität München (TUM)',
         ],
     ),
     Sample = device('nicos.devices.sample.Sample',

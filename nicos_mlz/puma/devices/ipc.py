@@ -24,7 +24,7 @@
 #
 # *****************************************************************************
 
-u"""PUMA specific modifications to NICOS's module for IPC.
+"""PUMA specific modifications to NICOS's module for IPC.
 
 (Institut für Physikalische Chemie, Göttingen) hardware classes.
 """

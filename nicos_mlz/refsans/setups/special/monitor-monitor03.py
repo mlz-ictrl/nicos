@@ -27,13 +27,13 @@ _Instrcol = Column(
         BlockRow(
             Field(name='NL2b Guide', dev='NL2b', width=10),
             Field(name='shutter', dev='shutter', width=10),
-            Field(name=u'\u0263 shutter', dev='shutter_gamma', width=10),
+            Field(name='\u0263 shutter', dev='shutter_gamma', width=10),
             ),
         BlockRow(
             Field(name='FAK40 capacity', dev='FAK40_Cap', width=10, format = '%.1f', unit='(l)' ),
             Field(name='FAK40 pressure', dev='FAK40_Press', width=10, format = '%.3f', unit='(bar)'),
-            Field(name=u'T\u1d62\u2099', dev='t_memograph_in', width=10, format = '%.1f', unit=u'(\u2103)'),
-            Field(name=u'T\u2092\u1d64\u209c', dev='t_memograph_out', format = '%.1f', width=10, unit=u'(\u2103)'),
+            Field(name='T\u1d62\u2099', dev='t_memograph_in', width=10, format = '%.1f', unit=u'(\u2103)'),
+            Field(name='T\u2092\u1d64\u209c', dev='t_memograph_out', format = '%.1f', width=10, unit=u'(\u2103)'),
             Field(name='cooling power', dev='cooling_memograph', format = '%.1f', width=10, unit='(kW)'),
             )
         ],
@@ -84,9 +84,9 @@ _probenort = Column(
 _biggonio = Column(
     Block('Goniometer Status', [
         BlockRow(
-            Field(name=u'angle \u03b8', dev='gonio_theta', width=7, format = '%.3f', unit='(deg)'),
-            Field(name=u'angle \u03c6', dev='gonio_phi', width=7, format = '%.3f', unit='(deg)'),
-            Field(name=u'angle \u03c9', dev='gonio_omega', width=7, format = '%.3f', unit='(deg)'),
+            Field(name='angle \u03b8', dev='gonio_theta', width=7, format = '%.3f', unit='(deg)'),
+            Field(name='angle \u03c6', dev='gonio_phi', width=7, format = '%.3f', unit='(deg)'),
+            Field(name='angle \u03c9', dev='gonio_omega', width=7, format = '%.3f', unit='(deg)'),
             ),
         BlockRow(
             Field(name='vertical position', dev='gonio_z', width=7, format = '%.1f', unit='(mm)'),
@@ -99,8 +99,8 @@ _biggonio = Column(
 _topgonio = Column(
     Block('Top Goniometer Status', [
         BlockRow(
-            Field(name=u'angle \u03b8', dev='gonio_top_theta', width=7, format = '%.3f', unit='(deg)'),
-            Field(name=u'angle \u03c6', dev='gonio_top_phi', width=7, format = '%.3f', unit='(deg)'),
+            Field(name='angle \u03b8', dev='gonio_top_theta', width=7, format = '%.3f', unit='(deg)'),
+            Field(name='angle \u03c6', dev='gonio_top_phi', width=7, format = '%.3f', unit='(deg)'),
             ),
         BlockRow(
             Field(name='vertical position', dev='gonio_top_z', width=7, format = '%.3f', unit='(mm)'),
@@ -112,7 +112,7 @@ _topgonio = Column(
 #_tempcol = Column(
 #    Block('Thermostats Status', [
 #        BlockRow(
-#            Field(name='Julabo', dev='temp_julabo', width=14, unit=u'(\u2103)'),
+#            Field(name='Julabo', dev='temp_julabo', width=14, unit='(\u2103)'),
 #            Field(name='Cryostat', dev='temp_cryo', width=14, unit='(K)'),
 #            )
 #        ],
@@ -133,8 +133,8 @@ _topgonio = Column(
 _justierung = Column(
     Block('Aligment Devices Status', [
         BlockRow(
-            Field(name=u'autocollimator angle \u03b8', dev='autocollimator_theta', width=7, format = '%.3f', unit='(deg)'),
-            Field(name=u'autocollimator angle \u03c6', dev='autocollimator_phi', width=7, format = '%.3f', unit='(deg)'),
+            Field(name='autocollimator angle \u03b8', dev='autocollimator_theta', width=7, format = '%.3f', unit='(deg)'),
+            Field(name='autocollimator angle \u03c6', dev='autocollimator_phi', width=7, format = '%.3f', unit='(deg)'),
             ),
         BlockRow(
             Field(name='altimeter', dev='height', width=7, unit='(mm)'),

@@ -139,15 +139,15 @@ class Tube2(NicosWidget, QWidget):
             shift_status = self._curstatus[1]
             shift_str = self._curstr[1]
             if shift_val > 0:
-                shift_str += u' ↓'
+                shift_str += ' ↓'
             elif shift_val < 0:
-                shift_str += u' ↑'
+                shift_str += ' ↑'
             # Not used at the moment, prepared for later use
             tilt_val = self._curval[2]
             tilt_status = self._curstatus[2]
             tilt_str = self._curstr[2]
             if tilt_str.endswith('deg'):
-                tilt_str = tilt_str[:-3]+u'°'
+                tilt_str = tilt_str[:-3] + '°'
 
             stat = max(pos_status, shift_status, tilt_status)
             painter.setBrush(statusbrush[stat])

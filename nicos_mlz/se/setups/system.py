@@ -18,7 +18,7 @@ devices = dict(
         description = 'instrument object',
         responsible = 'juergen.peters@frm2.tum.de',
         instrument = 'SE',
-        operators = [u'Technische Universität München (TUM)'],
+        operators = ['Technische Universität München (TUM)'],
         website = 'http://www.mlz-garching.de/se',
     ),
     Sample = device('nicos.devices.sample.Sample',
