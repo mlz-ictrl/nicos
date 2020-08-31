@@ -40,6 +40,7 @@ import os
 import stat
 import sys
 from os import path
+from shutil import which
 from time import sleep, time as currenttime
 
 import numpy
@@ -63,7 +64,7 @@ from nicos.devices.instrument import Instrument
 from nicos.devices.notifiers import Notifier
 from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.utils import fixupScript, formatArgs, formatDocstring, \
-    formatScriptError, which
+    formatScriptError
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
     NicosLogger, get_facility_log_handlers, initLoggers
 
