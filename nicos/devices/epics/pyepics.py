@@ -54,11 +54,7 @@ try:
     epics.ca.clear_cache()
     epics.ca.initialize_libca()
 except epics.ca.ChannelAccessException as err:
-    # python 2.x
-    if hasattr(err, 'message'):
-        msg = err.message  # pylint: disable=exception-message-attribute
-    # python 3.x
-    elif hasattr(err, 'args'):
+    if hasattr(err, 'args'):
         msg = err.args[0]
     else:
         msg = 'error in epics channel access setup'

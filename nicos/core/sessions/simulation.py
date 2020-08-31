@@ -31,7 +31,6 @@ import os
 import pickle
 import sys
 import tempfile
-import time
 from os import path
 from threading import Thread
 from time import sleep
@@ -333,16 +332,10 @@ class SimulationSupervisor(Thread):
                 break
         # wait for the process, but only for 5 seconds after the result
         # has arrived
-        wait_start = time.time()
         try:
-            # Python 3.x has a timeout argument for poll()...
-            while time.time() < wait_start + 5:
-                if proc.poll() is not None:
-                    break
-            else:
-                raise Exception('did not terminate within 5 seconds')
-        except Exception:
-            session.log.exception('Error waiting for dry run process')
+            proc.wait(5)
+        except TimeoutError:
+            raise Exception('did not terminate within 5 seconds')
         if sandbox:
             try:
                 os.rmdir(rootdir)

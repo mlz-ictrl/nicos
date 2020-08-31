@@ -174,8 +174,6 @@ class TestLogHandler(StreamHandler):
         self._messages.append(msg)
         try:
             self.stream.write(msg)
-        except UnicodeEncodeError:
-            self.stream.write(msg.encode('utf-8'))
         except ValueError:
             # Closed pytest capture stream, ignore.
             return

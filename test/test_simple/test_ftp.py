@@ -114,23 +114,12 @@ class MyTestFS(AbstractedFS):
         self.cmd_channel.ds.mkdirpath = path
 
 
-class MyDummyAuthorizer(DummyAuthorizer):
-    def get_home_dir(self, username):
-        "Work-around a annoying warning on py2"
-        home = DummyAuthorizer.get_home_dir(self, username)
-        try:
-            home = home.decode('utf8')
-        except Exception:
-            pass
-        return home
-
-
 @pytest.fixture(scope='function')
 def ftpserver():
     """Provide a ftp server with virtual files"""
     handler = FTPTestHandler
     handler.abstracted_fs = MyTestFS
-    authorizer = MyDummyAuthorizer()
+    authorizer = DummyAuthorizer()
     home = os.curdir
     authorizer.add_user('user', '12345', home, perm='elrmwM')
     handler.authorizer = authorizer

@@ -229,10 +229,7 @@ class StreamHandler(Handler):
     def emit(self, record, fs='%s\n'):
         try:
             msg = self.format(record)
-            try:
-                self.stream.write(fs % msg)
-            except UnicodeEncodeError:
-                self.stream.write(fs % msg.encode('utf-8'))
+            self.stream.write(fs % msg)
             self.flush()
         except Exception:
             self.handleError(record)
@@ -347,10 +344,7 @@ class ColoredConsoleHandler(StreamHandler):
 
     def emit(self, record):
         msg = self.format(record)
-        try:
-            self.stream.write(msg)
-        except UnicodeEncodeError:
-            self.stream.write(msg.encode('utf-8'))
+        self.stream.write(msg)
         self.stream.flush()
 
 

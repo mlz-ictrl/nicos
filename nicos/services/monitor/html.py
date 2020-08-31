@@ -51,7 +51,7 @@ try:
     from gr import pygr
     import gr
 
-    # required for import order on Py3
+    # required for import order
     import nicos.clients.gui.widgets.plotting  # pylint: disable=unused-import
     from nicos.guisupport.plots import NicosTimePlotAxes
 except ImportError:

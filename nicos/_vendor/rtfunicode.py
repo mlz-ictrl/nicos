@@ -8,31 +8,19 @@ from __future__ import absolute_import, division, print_function
 
 import codecs
 import re
-import sys
 
 # Encode everything < 0x20, the \, { and } characters and everything > 0x7f
 _charescape = '([\x00-\x1f\\\\{}\x80-\uffff])'
 
-if sys.version_info[0] < 3:
-    # Python 2
-    _charescape = re.compile(_charescape.decode('raw_unicode_escape'))
+_charescape = re.compile(_charescape)
 
-    # We can use % interpolation (faster).
-    def _replace(match):
-        cp = ord(match.group(1))
-        # Convert codepoint into a signed integer, insert into escape sequence
-        return '\\u%s?' % (cp > 32767 and cp - 65536 or cp)
 
-else:
-    # Python 3
-    _charescape = re.compile(_charescape)
-
-    # This triggers a pyflakes warnings (redefinition), please ignore.
-    # Use a `.format()` string formatter.
-    def _replace(match):
-        cp = ord(match.group(1))
-        # Convert codepoint into a signed integer, insert into escape sequence
-        return '\\u{0}?'.format(cp > 32767 and cp - 65536 or cp)
+# This triggers a pyflakes warnings (redefinition), please ignore.
+# Use a `.format()` string formatter.
+def _replace(match):
+    cp = ord(match.group(1))
+    # Convert codepoint into a signed integer, insert into escape sequence
+    return '\\u{0}?'.format(cp > 32767 and cp - 65536 or cp)
 
 
 def _rtfunicode_encode(text, errors):
@@ -45,13 +33,10 @@ class Codec(codecs.Codec):
     def encode(self, input, errors='strict'):
         return _rtfunicode_encode(input, errors), len(input)
 
-try:
-    class IncrementalEncoder(codecs.IncrementalEncoder):
-        def encode(self, input, final=False):
-            return _rtfunicode_encode(input, self.errors)
-except AttributeError:
-    # Python 2.4, ignore
-    pass
+
+class IncrementalEncoder(codecs.IncrementalEncoder):
+    def encode(self, input, final=False):
+        return _rtfunicode_encode(input, self.errors)
 
 
 class StreamWriter(Codec, codecs.StreamWriter):
@@ -60,16 +45,13 @@ class StreamWriter(Codec, codecs.StreamWriter):
 
 def rtfunicode(name):
     if name == 'rtfunicode':
-        try:
-            return codecs.CodecInfo(
-                name='rtfunicode',
-                encode=Codec().encode,
-                decode=Codec().decode,  # raises NotImplementedError
-                incrementalencoder=IncrementalEncoder,
-                streamwriter=StreamWriter,
-            )
-        except AttributeError:
-            # Python 2.4
-            return (Codec().encode, Codec().decode, StreamWriter, None)
+        return codecs.CodecInfo(
+            name='rtfunicode',
+            encode=Codec().encode,
+            decode=Codec().decode,  # raises NotImplementedError
+            incrementalencoder=IncrementalEncoder,
+            streamwriter=StreamWriter,
+        )
+
 
 codecs.register(rtfunicode)

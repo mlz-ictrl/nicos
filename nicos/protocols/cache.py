@@ -200,24 +200,12 @@ from __future__ import absolute_import, division, print_function
 
 import pickle
 import re
-from ast import Add, BinOp, Call, Dict, List, Name, Num, Set, Str, Sub, \
-    Tuple, UnaryOp, USub, parse
+from ast import Add, BinOp, Bytes, Call, Dict, List, Name, NameConstant, Num, \
+    Set, Str, Sub, Tuple, UnaryOp, USub, parse
 from base64 import b64decode, b64encode
 
 from nicos.pycompat import from_utf8
 from nicos.utils import number_types, readonlydict, readonlylist
-
-try:
-    from ast import NameConstant  # pylint: disable=no-name-in-module
-except ImportError:
-    class NameConstant(object):
-        pass
-
-try:
-    from ast import Bytes  # pylint: disable=no-name-in-module
-except ImportError:
-    class Bytes(object):
-        pass
 
 
 DEFAULT_CACHE_PORT = 14869

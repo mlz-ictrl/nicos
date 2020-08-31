@@ -212,7 +212,7 @@ class ConnectionHandler:
                     self.user = auth.authenticate(login, password)
                     break
                 except AuthenticationError as err:
-                    auth_err = err  # Py3 clears "err" after the except block
+                    auth_err = err  # "err" is cleared after the except block
                     continue
             else:  # no "break": all authenticators failed
                 self.log.error('authentication failed: %s', auth_err)
