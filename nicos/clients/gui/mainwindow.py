@@ -83,7 +83,7 @@ class ToolAction(QAction):
         if self.setupSpec:
             client.register(self, 'session/mastersetup')
 
-    def on_keyChange(self, key, value):
+    def on_keyChange(self, key, value, time, expired):
         if key == 'session/mastersetup' and self.setupSpec:
             self.setVisible(checkSetupSpec(self.setupSpec, value))
 
@@ -260,7 +260,7 @@ class MainWindow(DlgUtils, QMainWindow):
             self.toolBarWindows.addAction(action)
             self.menuWindows.addAction(action)
 
-            def window_callback(i=i):
+            def window_callback(on, i=i):
                 self.createWindow(i)
             action.triggered[bool].connect(window_callback)
         if not self.gui_conf.windows:
@@ -457,7 +457,6 @@ class MainWindow(DlgUtils, QMainWindow):
         self.actionConnect.setChecked(isconnected)
         if isconnected:
             self.actionConnect.setText('Disconnect')
-            self.actionConnect.setChecked(False)
         else:
             self.actionConnect.setText('Connect to server...')
             self.setTitlebar(False)
@@ -567,8 +566,7 @@ class MainWindow(DlgUtils, QMainWindow):
             func(*data[1:])
         except Exception:
             self.log.exception('Error during clientexec:\n%s',
-                               '\n'.join(traceback.
-                                         format_tb(sys.exc_info()[2])))
+                               '\n'.join(traceback.format_tb(sys.exc_info()[2])))
 
     def on_client_plugplay(self, data):
         windowkey = data[0:2]  # (mode, setupname)
