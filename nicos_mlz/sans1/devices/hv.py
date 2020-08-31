@@ -102,7 +102,7 @@ class VoltageSupply(PowerSupply):
             # start() would clear timeoutActionCalled Flag
             self.start(self.target)
 
-    def doStart(self, target):  # pylint: disable=W0221
+    def doStart(self, target):
         self._stopflag = False
         PowerSupply.doStart(self, target)
 

@@ -693,9 +693,9 @@ class ExecutionController(Controller):
                         # that are queued after that should be executed, so
                         # we don't block requests here
                         session.log.info('Script stopped by %s', err.args[2])
-                except BdbQuit as err:  # pylint: disable=E0701
+                except BdbQuit as err:  # pylint: disable=bad-except-order
                     session.log.error('Script stopped through debugger')
-                except Exception as err:  # pylint: disable=E0701
+                except Exception as err:  # pylint: disable=bad-except-order
                     # the topmost two frames are still in the
                     # daemon, so don't display them to the user
                     # perhaps also send an error notification

@@ -76,13 +76,14 @@ class Poller(Device):
         self.log.setLevel(loggers.loglevels[value])
 
     def _worker_thread(self, devname, work_queue):
+        # pylint: disable=dangerous-default-value
 
-        def reconfigure_dev_target(key, value, time, oldvalues={}):  # pylint: disable=W0102
+        def reconfigure_dev_target(key, value, time, oldvalues={}):
             if value is not None:
                 work_queue.put('dev_target', False)
                 oldvalues[key] = value
 
-        def reconfigure_dev_status(key, value, time, oldvalues={}):  # pylint: disable=W0102
+        def reconfigure_dev_status(key, value, time, oldvalues={}):
             if value[0] != oldvalues.get(key):
                 if value[0] == status.BUSY:  # just went busy, wasn't before!
                     work_queue.put('dev_busy', False)
@@ -90,17 +91,17 @@ class Poller(Device):
                     work_queue.put('dev_normal', False)
                 oldvalues[key] = value[0]  # only store status code!
 
-        def reconfigure_adev_value(key, value, time, oldvalues={}):  # pylint: disable=W0102
+        def reconfigure_adev_value(key, value, time, oldvalues={}):
             if value != oldvalues.get(key):
                 work_queue.put('adev_value', False)
                 oldvalues[key] = value
 
-        def reconfigure_adev_target(key, value, time, oldvalues={}):  # pylint: disable=W0102
+        def reconfigure_adev_target(key, value, time, oldvalues={}):
             if value != oldvalues.get(key):
                 work_queue.put('adev_target', False)
                 oldvalues[key] = value
 
-        def reconfigure_adev_status(key, value, time, oldvalues={}):  # pylint: disable=W0102
+        def reconfigure_adev_status(key, value, time, oldvalues={}):
             if value[0] != oldvalues.get(key):
                 if value[0] == status.BUSY:  # just went busy, wasn't before!
                     work_queue.put('adev_busy', False)

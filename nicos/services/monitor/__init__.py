@@ -109,7 +109,7 @@ class Monitor(BaseCacheClient):
 
     _keys_expired = False  # whether on disconnect all keys have been expired
 
-    def start(self, options):  # pylint: disable=W0221
+    def start(self, options):
         self.log.info('monitor starting up, creating main window')
 
         self._fontsize = options.fontsize or self.fontsize
@@ -175,7 +175,7 @@ class Monitor(BaseCacheClient):
         self._worker.join()
         self.log.info('done')
 
-    def quit(self, *ignored, **kwds):
+    def quit(self, *ignored, **kwds):  # pylint: disable=signature-differs
         self.closeGui()
         self._stoprequest = True
 

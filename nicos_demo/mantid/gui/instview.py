@@ -33,8 +33,8 @@ from nicos.guisupport.qt import QHBoxLayout, QWidget
 from nicos.guisupport.widget import NicosWidget
 
 try:
-    import mantid.simpleapi as simpleapi  # pylint: disable=import-error
-    import mantidqtpython as mpy  # pylint: disable=import-error
+    import mantid.simpleapi as simpleapi
+    import mantidqtpython as mpy
 except ImportError:
     simpleapi = None
     mpy = None

@@ -323,7 +323,7 @@ def _Restart():
     import signal
 
     @atexit.register
-    def restart_nicos():  # pylint: disable=W0612
+    def restart_nicos():  # pylint: disable=unused-variable
         reexecProcess()
     os.kill(os.getpid(), signal.SIGTERM)
 
@@ -817,10 +817,10 @@ def notify(*args):
     """
     if len(args) == 1:
         # use first line of text as subject
-        text, = args  # pylint: disable=unbalanced-tuple-unpacking
+        text, = args
         session.notify(text.splitlines()[0], text, important=False)
     elif len(args) == 2:
-        subject, text = args  # pylint: disable=unbalanced-tuple-unpacking
+        subject, text = args
         session.notify(subject, text, important=False)
     else:
         raise UsageError("Usage: notify('text') or notify('subject', 'text')")

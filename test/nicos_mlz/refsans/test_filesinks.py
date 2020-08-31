@@ -33,7 +33,7 @@ import pytest
 from nicos.commands.measure import count
 
 try:
-    import configobj  # pylint: disable=unused-import
+    import configobj
 except ImportError:
     configobj = None
 

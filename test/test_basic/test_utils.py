@@ -130,7 +130,6 @@ def test_functions():
     assert parseConnectionString('', 1302) is None
     assert parseConnectionString('host?', 1302) is None
 
-    # pylint: disable=range-builtin-not-iterating
     assert [tuple(x) for x in chunks(range(10), 3)] == \
         [(0, 1, 2), (3, 4, 5), (6, 7, 8), (9,)]
 

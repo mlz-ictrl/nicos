@@ -35,8 +35,8 @@ from nicos.core.params import Override
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 
 try:
-    from PIL import PILLOW_VERSION  # pylint: disable=no-name-in-module
-    from distutils.version import LooseVersion  # pylint: disable=no-name-in-module
+    from PIL import PILLOW_VERSION
+    from distutils.version import LooseVersion
     if LooseVersion(PILLOW_VERSION) < LooseVersion('3.99.0'):
         raise ImportError
     from PIL import Image
@@ -88,7 +88,7 @@ class TiffLaueImageSinkHandler(SingleFileSinkHandler):
         ifile.save(fp, 'TIFF', tiffinfo=self._buildHeader(self.metainfo))
 
     def _buildHeader(self, imageinfo):
-        ifd = ImageFileDirectory_v2()  # pylint: disable=E1120
+        ifd = ImageFileDirectory_v2()
         ifd[TAGMAP['startx'][0]] = 1
         ifd[TAGMAP['starty'][0]] = 1
         for (dev, attr), attrVal in imageinfo.items():

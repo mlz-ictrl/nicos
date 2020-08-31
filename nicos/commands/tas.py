@@ -210,7 +210,7 @@ class _Q(ndarray):
 @usercommand
 @helparglist('[h, k, l, E]')
 @parallel_safe
-def Q(*args, **kwds):  # pylint: disable=E0102
+def Q(*args, **kwds):
     """A Q-E vector object that can be used for calculations.
 
     Use as follows:

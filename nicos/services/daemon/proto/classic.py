@@ -95,7 +95,6 @@ class Server(BaseServer, socketserver.TCPServer):
                 self.handle_error(request, client_address)
                 self.close_request(request)
 
-    # pylint: disable=W0221
     def process_request(self, request, client_address, client_id):
         """Process a "request", that is, a client connection."""
         # mostly copied from ThreadingMixIn but without the import,

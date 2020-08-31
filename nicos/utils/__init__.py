@@ -147,7 +147,7 @@ class BoundedOrderedDict(OrderedDict):
         OrderedDict.__init__(self, *args, **kwds)
         self._checklen()
 
-    def __setitem__(self, key, value):  # pylint: disable=signature-differs
+    def __setitem__(self, key, value):
         OrderedDict.__setitem__(self, key, value)
         self._checklen()
 
@@ -1064,7 +1064,7 @@ def nocolor():
 if os.name == 'nt':
     try:
         # colorama provides ANSI-colored console output support under Windows
-        import colorama  # pylint: disable=import-error
+        import colorama
     except ImportError:
         nocolor()
     else:
@@ -1149,7 +1149,7 @@ def formatException(cut=0, exc_info=None):
     if exc_info is None:
         typ, val, tb = sys.exc_info()
     else:
-        typ, val, tb = exc_info  # pylint: disable=W0633
+        typ, val, tb = exc_info
     res = ['Traceback (most recent call last):\n']
     tbres = traceback.format_tb(tb, sys.maxsize)
     res += tbres[cut:]

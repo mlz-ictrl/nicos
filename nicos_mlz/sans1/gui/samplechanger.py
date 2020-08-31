@@ -103,7 +103,6 @@ class CustomButtonPanel(Panel):
                 handler = getattr(self, 'on_buttonBox_%s_clicked' % btn_name,
                                   None)
                 if not handler:
-                    # pylint: disable=function-redefined
                     def handler(self=self, n=btn_name):
                         self.showError('on_buttonBox_%s_clicked not '
                                        'implemented!' % n)

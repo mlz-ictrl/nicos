@@ -33,7 +33,7 @@ URL = ('http://www.mvg-live.de/ims/dfiStaticAnzeige.svc?'
        'haltestelle=%s')
 
 try:
-    from lxml.html import parse  # pylint: disable=import-error
+    from lxml.html import parse
 except ImportError:
     parse = None
 

@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# this one is temporary until build machines have Qt5 installed:
-# pylint: disable=import-error
-
 # Resource object code
 #
 # Created by: The Resource Compiler for PyQt5 (Qt v5.7.1)

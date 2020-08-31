@@ -53,7 +53,7 @@ class NicosPluginBase(QPyDesignerCustomWidgetPlugin):
 
     def createWidget(self, parent):
         try:
-            # pylint: disable=E1102
+            # pylint: disable=not-callable
             return self.widget_class(parent, designMode=True)
         except Exception as e:
             name = self.widget_class.__name__

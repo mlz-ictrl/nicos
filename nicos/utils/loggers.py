@@ -232,7 +232,7 @@ class StreamHandler(Handler):
         finally:
             self.release()
 
-    def emit(self, record, fs='%s\n'):  # pylint: disable=W0221
+    def emit(self, record, fs='%s\n'):
         try:
             msg = self.format(record)
             try:
@@ -292,7 +292,7 @@ class NicosLogfileHandler(StreamHandler):
     def filter(self, record):
         return not self.disabled
 
-    def emit(self, record):  # pylint: disable=W0221
+    def emit(self, record):
         if record.levelno == ACTION:
             # do not write ACTIONs to logfiles, they're only informative
             return
@@ -351,7 +351,7 @@ class ColoredConsoleHandler(StreamHandler):
         self.setFormatter(NicosConsoleFormatter(
             datefmt=DATEFMT, colorize=colorize))
 
-    def emit(self, record):  # pylint: disable=W0221
+    def emit(self, record):
         msg = self.format(record)
         try:
             self.stream.write(msg)

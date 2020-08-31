@@ -37,7 +37,7 @@ from nicos.guisupport.qt import QByteArray, QDialog, QDoubleSpinBox, \
 from nicos.utils import findResource
 
 try:
-    from nicoscascadewidget import CascadeWidget, TmpImage  # pylint: disable=import-error
+    from nicoscascadewidget import CascadeWidget, TmpImage
 except ImportError:
     CascadeWidget = TmpImage = None
 

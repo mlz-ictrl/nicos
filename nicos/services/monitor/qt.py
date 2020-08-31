@@ -185,7 +185,7 @@ class Monitor(BaseMonitor):
     # pylint: disable=too-many-statements
     def initGui(self):
         def log_unhandled(*exc_info):
-            traceback.print_exception(*exc_info)  # pylint: disable=no-value-for-parameter
+            traceback.print_exception(*exc_info)
             self.log.exception('unhandled exception in QT callback',
                                exc_info=exc_info)
         sys.excepthook = log_unhandled
@@ -203,7 +203,7 @@ class Monitor(BaseMonitor):
             master.setGeometry(QApplication.screens()[0].geometry())
             QCursor.setPos(master.geometry().bottomRight())
         elif isinstance(self._geometry, tuple):
-            w, h, x, y = self._geometry  # pylint: disable=W0633
+            w, h, x, y = self._geometry
             master.setGeometry(x, y, w, h)
 
         # colors used for the display of watchdog warnings, not for the

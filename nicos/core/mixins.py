@@ -86,7 +86,7 @@ class DeviceMixinMeta(type):
 
         return newtype
 
-    def __instancecheck__(cls, inst):  # pylint: disable=C0203
+    def __instancecheck__(cls, inst):
         from nicos.core.device import DeviceAlias, NoDevice  # isort:skip
         if inst.__class__ == DeviceAlias and inst._initialized:
             if isinstance(inst._obj, NoDevice):
@@ -609,7 +609,7 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
         hist_in_window = [v for (t, v) in hist if t >= window_start]
         stable = all(abs(v - target) <= self.precision
                      for v in hist_in_window)
-        if 0 < len(hist_in_window) < len(hist) and stable:  # pylint: disable=len-as-condition
+        if 0 < len(hist_in_window) < len(hist) and stable:
             if hasattr(self, 'doIsAtTarget'):
                 return self.doIsAtTarget(pos, target)
             return True

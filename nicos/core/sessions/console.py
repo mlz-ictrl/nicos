@@ -122,7 +122,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
 
         return False
 
-    def raw_input(self, prompt=''):  # pylint: disable=E0202
+    def raw_input(self, prompt=''):
         sys.stdout.write(colorcode(self.session._pscolor))
         self.session._prompting = True
         try:

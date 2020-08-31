@@ -436,7 +436,7 @@ def powderfit(powder, scans=None, peaks=None, ki=None, dmono=3.355,
             res = _extract_powder_data(num, dataset)
             session.log.debug('powder_data from %d: %s', num, res)
             if res:
-                ki, peaks = res  # pylint: disable=W0633
+                ki, peaks = res
                 data.setdefault(ki, []).extend([None, p, dp, '#%d ' % num]
                                                for (p, dp) in peaks)
         if not data:

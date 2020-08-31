@@ -396,7 +396,6 @@ class DataManager(object):
                 continue
             filenames.append(filename)
         if exc and not filenames:
-            # pylint: disable=raising-bad-type
             raise exc
         return filenames
 

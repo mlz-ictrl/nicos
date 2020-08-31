@@ -40,7 +40,7 @@ from test.utils import approx, raises
 session_setup = 'tas'
 
 
-# pylint: disable=C0301
+# pylint: disable=line-too-long
 
 H2_RESPONSE = {u'pdfurl': u'https://webapps.frm2.tum.de/intranet/activation/activation.pdf/', u'curr': u'Manual', u'shield': u'1', u'url': u'https://www.frm2.tum.de/intranet/activation//', u'instruments': [u'BIODIFF', u'HEIDI', u'MIRA', u'MIRA2', u'POLI', u'RESI', u'SPODI', u'STRESSPEC', u'KWS1', u'KWS2', u'KWS3', u'MARIA', u'NREX', u'REFSANS', u'SANS1', u'DNS', u'JNSE', u'PANDA', u'PUMA', u'RESEDA', u'SPHERES', u'TOFTOF', u'TRISP', u'ANTARES@L/D=800', u'NECTAR', u'PGAA', u'MEPHISTO'], u'showinput': True, u'sampleid': u'', u'ecode': u'unknown instrument', u'formula': u'H2', u'flux': {u'fast_ratio': 0.0, u'Cd_ratio': 0.0, u'fluence': 20.0}, u'proposalid': u'', u'tunit': u'h', u'result': {u'comp': [[u'H', 2]], u'activation': None, u'mass': 2.01588, u'weightperc': [[u'H', 1.0]], u'decay': None}, u'error': None, u'mass': u'1', u'pversion': u'2.19', u'exposure': u'24'}
 

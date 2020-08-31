@@ -778,7 +778,6 @@ class CacheClient(BaseCacheClient):
         with self._dblock:
             self._db.pop(dbkey, None)
 
-    # pylint: disable=W0221
     def history(self, dev, key, fromtime, totime):
         """History query: opens a separate connection since it is otherwise not
         possible to determine which response lines belong to it.

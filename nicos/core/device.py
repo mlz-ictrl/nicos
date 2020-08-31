@@ -1901,7 +1901,7 @@ class Measurable(Waitable):
             self.doSetPreset(**preset)
         self.doStart()
 
-    def __call__(self, pos=None):  # pylint: disable=W0221
+    def __call__(self, pos=None):
         """Allow dev(), but not dev(pos)."""
         if pos is None:
             return self.read()

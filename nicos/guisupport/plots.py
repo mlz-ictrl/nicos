@@ -197,7 +197,7 @@ class NicosTimePlotAxes(NicosPlotAxes):
     def doAutoScale(self, curvechanged=None):
         vc = self.getVisibleCurves() or self.getCurves()
         win = NicosPlotAxes.doAutoScale(self, curvechanged)
-        xmin, xmax, ymin, ymax = win  # pylint: disable=unpacking-non-sequence
+        xmin, xmax, ymin, ymax = win
         if self.slidingwindow and self.autoscale & PlotAxes.SCALE_X and \
            (vc.xmax - xmin) > self.slidingwindow:
             xmin = vc.xmax - self.slidingwindow
@@ -237,7 +237,6 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
     width = PropDef('width', int, 30, 'Width of the plot widget in units '
                     'of app font character width.')
 
-    # pylint: disable=W0231
     def __init__(self, parent, designMode=False):
         self.ncurves = 0
         self.ctimers = {}

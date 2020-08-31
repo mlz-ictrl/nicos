@@ -305,7 +305,7 @@ class MainWindow(DlgUtils, QMainWindow):
     def initDataReaders(self):
         try:
             # just import to register all default readers
-            # pylint: disable=unused-import, unused-variable
+            # pylint: disable=unused-import
             import nicos.devices.datasinks
         except ImportError:
             pass

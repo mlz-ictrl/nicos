@@ -394,29 +394,31 @@ class TestDevice(HasLimits, Moveable):
         self._stop_exception = None
         self._iscompleted_exception = None
 
+    # pylint: disable=raising-bad-type
+
     def doRead(self, maxage=0):
         if self._read_exception is not None:
-            raise self._read_exception  # pylint: disable=raising-bad-type
+            raise self._read_exception
         return self._value
 
     def doStart(self, target):
         if self._start_exception is not None and target != 0:
-            raise self._start_exception  # pylint: disable=raising-bad-type
+            raise self._start_exception
         self._value = target
 
     def doStatus(self, maxage=0):
         if self._status_exception is not None:
-            raise self._status_exception  # pylint: disable=raising-bad-type
+            raise self._status_exception
         return status.OK, 'fine'
 
     def isCompleted(self):
         if self._iscompleted_exception is not None:
-            raise self._iscompleted_exception  # pylint: disable=raising-bad-type
+            raise self._iscompleted_exception
         return Moveable.isCompleted(self)
 
     def doStop(self):
         if self._stop_exception is not None:
-            raise self._stop_exception  # pylint: disable=raising-bad-type
+            raise self._stop_exception
 
 
 class TestController(IsController, Moveable):

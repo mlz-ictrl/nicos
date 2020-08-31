@@ -70,8 +70,8 @@ class KappaGon(IsController, Moveable):
     def isAdevTargetAllowed(self, adev, adevtarget):
         if adev == self._adevs['phi']:
             return True, 'Position allowed'  # phi can move freely
-# for better visual indent
-# pylint: disable=bad-indentation
+        # for better visual indent
+        # pylint: disable=bad-indentation
         if adev == self._adevs['kappa']:
             if (-45 < self._adevs['omega'].target < 135 or
                 135 < self._adevs['omega'].target < 255):

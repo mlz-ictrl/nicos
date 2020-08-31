@@ -324,10 +324,10 @@ class NicosClient(object):
         """
         result = self.ask('eval', expr, bool(stringify), quiet=True,
                           default=default)
-        if isinstance(result, Exception):
+        if isinstance(result, BaseException):
             if default is not Ellipsis:
                 return default
-            raise result  # pylint: disable=E0702
+            raise result  # pylint: disable=raising-bad-type
         return result
 
     # high-level functionality

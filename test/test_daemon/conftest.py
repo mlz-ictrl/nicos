@@ -72,7 +72,7 @@ class TestClient(NicosClient):
         self._disconnecting = False
         NicosClient.__init__(self, print)
 
-    def signal(self, name, data=None, exc=None):  # pylint: disable=W0221
+    def signal(self, name, data=None, exc=None):
         if name == 'error':
             raise AssertionError('client error: %s (%s)' % (data, exc))
         if name == 'disconnected' and not self._disconnecting:

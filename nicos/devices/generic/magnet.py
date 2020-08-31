@@ -244,7 +244,6 @@ class BipolarSwitchingMagnet(BaseSequencer, CalibratedMagnet):
         raise NotImplementedError('please use a proper derived class and '
                                   'implement this there!')
 
-    # pylint: disable=W0221
     def _generateSequence(self, value):
         sequence = []
         currentsource = self._attached_currentsource

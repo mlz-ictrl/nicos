@@ -1113,7 +1113,7 @@ class Experiment(Device):
                 dlist.append(det)
         self.detlist = dlist
         # try to create them right now
-        self.detectors  # pylint: disable=W0104
+        self.detectors  # pylint: disable=pointless-statement
         session.elogEvent('detectors', dlist)
 
     def doUpdateDetlist(self, detectors):
@@ -1162,7 +1162,7 @@ class Experiment(Device):
                 dlist.append(dev)
         self.envlist = dlist
         # try to create them right now
-        self.sampleenv  # pylint: disable=W0104
+        self.sampleenv  # pylint: disable=pointless-statement
         session.elogEvent('environment', dlist)
 
     def doUpdateEnvlist(self, devices):

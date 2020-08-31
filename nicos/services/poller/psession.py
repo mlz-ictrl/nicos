@@ -85,7 +85,7 @@ class PollerSession(NoninteractiveSession):
         if appname == 'poller':
             NoninteractiveSession._notify_systemd(appname, msg)
 
-    # pylint: disable=W0102
+    # pylint: disable=dangerous-default-value
     def getDevice(self, dev, cls=None, source=None,
                   replace_classes=[(DeviceAlias, PollerCacheReader, {})]):
         """Override device creation for the poller.

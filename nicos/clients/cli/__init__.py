@@ -405,7 +405,6 @@ class NicosCmdClient(NicosClient):
             newtext = '(sim) ' + newtext
         self.put(newtext)
 
-    # pylint: disable=W0221
     def signal(self, name, data=None, exc=None):
         """Handles any kind of signal/event sent by the daemon."""
         try:
@@ -416,7 +415,7 @@ class NicosCmdClient(NicosClient):
                 else:
                     self.put_message(data)
             elif name == 'status':
-                status, line = data  # pylint:disable=W0633
+                status, line = data
                 if status == STATUS_IDLE or status == STATUS_IDLEEXC:
                     new_status = 'idle'
                     self.stop_pending = False
@@ -480,7 +479,7 @@ class NicosCmdClient(NicosClient):
                         self.put_message(data, sim=True)
             elif name == 'simresult':
                 if data and data[2] in [self.simuuid, '0']:
-                    timing, devinfo, _ = data  # pylint: disable=W0633
+                    timing, devinfo, _ = data
                     if timing < 0:
                         self.put_client('Dry run resulted in an error.')
                         return

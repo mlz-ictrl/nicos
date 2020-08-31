@@ -72,7 +72,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, **kw):
     # Remove full_output from kw, otherwise we're passing it in twice.
     return_full = kw.pop('full_output', False)
     res = leastsq(func, p0, args=args, full_output=1, **kw)
-    (popt, pcov, infodict, errmsg, ier) = res  # pylint: disable=unbalanced-tuple-unpacking
+    (popt, pcov, infodict, errmsg, ier) = res
 
     if ier not in [1, 2, 3, 4]:
         msg = "Optimal parameters not found: " + errmsg
@@ -213,7 +213,6 @@ class Fit(metaclass=FitterMeta):
                                    msg='while guessing parameters: %s' % e)
 
         try:
-            # pylint: disable=unbalanced-tuple-unpacking
             popt, pcov = curve_fit(self.model, xn, yn, self.parstart, dyn,
                                    # default of 1000 can be too restrictive,
                                    # especially with automatic initial guess

@@ -771,7 +771,6 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
         coll = (self._attached_collimation.read() if self._attached_collimation
                 else '15m')
         xl, yl = self.sizes
-        # pylint: disable=unbalanced-tuple-unpacking
         xx, yy = np.meshgrid(np.linspace(-(xl // 2), (xl // 2) - 1, xl),
                              np.linspace(-(yl // 2), (yl // 2) - 1, yl))
         beam = (t * 100 * np.exp(-xx**2/50) * np.exp(-yy**2/50)).astype(int)

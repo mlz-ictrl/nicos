@@ -535,7 +535,7 @@ class listof(object):
         val = val if val is not None else []
         if not isinstance(val, (list, tuple)):
             raise ValueError('value needs to be a list')
-        return readonlylist(map(self.conv, val))  # pylint: disable=map-builtin-not-iterating
+        return readonlylist(map(self.conv, val))
 
 
 class nonemptylistof(object):
@@ -549,7 +549,7 @@ class nonemptylistof(object):
             return readonlylist([self.conv()])
         if not isinstance(val, (list, tuple)) or len(val) < 1:
             raise ValueError('value needs to be a nonempty list')
-        return readonlylist(map(self.conv, val))  # pylint: disable=map-builtin-not-iterating
+        return readonlylist(map(self.conv, val))
 
 
 def nonemptystring(s=Ellipsis):

@@ -36,7 +36,7 @@ session_setup = 'toftof'
 exp_dataroot = 'toftofdata'
 
 try:
-    import nxs  # pylint: disable=unused-import
+    import nxs
 except ImportError:
     nxs = None
 

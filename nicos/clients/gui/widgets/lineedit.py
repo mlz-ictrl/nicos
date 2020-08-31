@@ -66,7 +66,7 @@ class HistoryLineEdit(QLineEdit):
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Tab:
             fullstring = self.text()
             lastword = wordsplit_re.split(fullstring)[-1]
-            # pylint: disable=E1121
+            # pylint: disable=too-many-function-args
             matches = self.completion_callback(fullstring, lastword)
             if matches is None:
                 return True

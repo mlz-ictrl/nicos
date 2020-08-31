@@ -83,7 +83,7 @@ class QScintillaCompatible(QPlainTextEdit):
                                  self.fontMetrics().height(), Qt.AlignRight,
                                  number)
 
-            block = block.next()  # pylint: disable=next-method-called
+            block = block.next()
             top = bottom
             bottom = top + int(self.blockBoundingRect(block).height())
             blockNumber += 1

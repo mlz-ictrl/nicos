@@ -58,7 +58,6 @@ def getPositions():
     return pos
 
 
-# pylint: disable=dict-keys-not-iterating
 def test_positions(session):
     for p in getPositions():
         for type1 in typelist:

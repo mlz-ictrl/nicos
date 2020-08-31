@@ -40,7 +40,7 @@ class FakeStdin(queue.Queue):
         return self.get()
 
 
-class Rpdb(Pdb):  # pylint: disable=too-many-public-methods
+class Rpdb(Pdb):
     """Minimally modified Pdb to work with remote input."""
 
     # use self.stdin.read(), not readline
@@ -59,7 +59,7 @@ class Rpdb(Pdb):  # pylint: disable=too-many-public-methods
         # get input lines from our fake input stream
         self.stdin = FakeStdin()
 
-    def set_trace(self, frame, limitframe):  # pylint: disable=W0221
+    def set_trace(self, frame, limitframe):
         # Overridden to not set the trace function in frames below "limitframe"
         if frame is None:
             frame = sys._getframe().f_back

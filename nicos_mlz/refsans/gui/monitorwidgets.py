@@ -169,7 +169,7 @@ class VRefsans(NicosWidget, QWidget):
                   'nok6', 'nok7', 'nok8']:
             v = self.values[k]
             if isinstance(v, (tuple, readonlylist)):
-                x, y = v  # pylint: disable=W0633
+                x, y = v
             elif isinstance(v, int):
                 x, y = 0, v
             else:

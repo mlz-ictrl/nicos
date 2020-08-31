@@ -33,7 +33,7 @@ from nicos.guisupport.qt import QCheckBox, QDesktopServices, QDialog, \
     QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QSettings, QUrl
 
 try:
-    import redminelib  # pylint: disable=import-error
+    import redminelib
 except ImportError:
     try:
         import redmine as redminelib

@@ -59,12 +59,10 @@ from nicos.core.params import anytype, dictwith, floatrange, intrange, \
     listof, nonemptylistof, nonemptystring, oneofdict, string, tupleof
 from nicos.utils import printTable
 
-# TODO: Secop supports only py3 !!! Pylint is running with py2 on Jenkins
-import secop.modules  # pylint: disable=import-error
-from secop.client import SecopClient  # pylint: disable=import-error
-# pylint: disable=import-error
+# pylint: disable=import-error,no-name-in-module
+import secop.modules
+from secop.client import SecopClient
 from secop.datatypes import FloatRange, ScaledInteger
-# pylint: disable=import-error
 from secop.errors import CommunicationFailedError
 
 SecopStatus = secop.modules.Drivable.Status
@@ -602,7 +600,7 @@ class SecopDevice(Readable):
         classname = cls.__name__ + '_' + name
         # create a new class extending SecopDevice, apply DeviceMeta in order to
         # include the added parameters
-        newclass = DeviceMeta.__new__(DeviceMeta, classname, (cls,), attrs)  # pylint: disable=too-many-function-args
+        newclass = DeviceMeta.__new__(DeviceMeta, classname, (cls,), attrs)
         newclass._modified_config = devcfg  # store temporarily for __init__
         return newclass
 

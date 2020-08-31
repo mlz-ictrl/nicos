@@ -39,7 +39,7 @@ from nicos.services.daemon.auth import AuthenticationError, \
 from nicos.utils import readFile
 
 try:
-    import mysql.connector as DB  # pylint: disable=import-error
+    import mysql.connector as DB
 except ImportError:
     try:
         import MySQLdb as DB

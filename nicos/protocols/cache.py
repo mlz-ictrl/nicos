@@ -320,7 +320,6 @@ _safe_names = {'None': None, 'True': True, 'False': False,
 
 def ast_eval(node):
     # copied from Python 2.7 ast.py, but added support for float inf/-inf/nan
-    #  pylint: disable=map-builtin-not-iterating
     def _convert(node):
         if isinstance(node, (Str, Bytes)):
             return node.s

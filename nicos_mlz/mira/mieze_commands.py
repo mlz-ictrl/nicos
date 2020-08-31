@@ -109,7 +109,7 @@ class MiezeManualScan(ManualScan):
 
 
 class _MiezeManualScan(_ManualScan):
-    def __init__(self, settings, args, kwargs):  # pylint: disable=W0231
+    def __init__(self, settings, args, kwargs):  # pylint: disable=super-init-not-called
         scanstr = _infostr('mmanualscan', (settings,) + args, kwargs)
         preset, scaninfo, detlist, envlist, move, multistep = \
             _handleScanArgs(args, kwargs, scanstr)

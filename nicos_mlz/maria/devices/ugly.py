@@ -61,11 +61,9 @@ class StringIO(BaseStringIO):
     @property
     def availablechars(self):
         if self._dev:
-            # pylint: disable=too-many-function-args
             return BaseStringIO.availablechars.__get__(self)
 
     @property
     def availablelines(self):
         if self._dev:
-            # pylint: disable=too-many-function-args
             return BaseStringIO.availablelines.__get__(self)

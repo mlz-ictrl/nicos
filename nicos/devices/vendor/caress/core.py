@@ -40,8 +40,8 @@ try:
     from omniORB import CORBA
     import CosNaming
 
-    from . import CARESS  # pylint: disable=import-error,no-name-in-module
-    from . import _GlobalIDL  # pylint: disable=import-error,no-name-in-module,unused-import
+    from . import CARESS
+    from . import _GlobalIDL  # pylint: disable=unused-import
     import omniORB
 
     sys.modules['CARESS'] = sys.modules['nicos.devices.vendor.caress.CARESS']

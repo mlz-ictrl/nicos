@@ -229,7 +229,6 @@ class TestNexusTemplate(object):
 
         return True, ''
 
-    #  pylint: disable=dict-keys-not-iterating
     @pytest.mark.parametrize("element", elements.keys())
     def test_element_provides_correct_json(self, element):
         """ Test that elements provide correct JSON structures

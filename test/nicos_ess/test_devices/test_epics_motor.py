@@ -35,7 +35,7 @@ from nicos_ess.devices.epics.motor import EpicsMotor
 session_setup = 'ess_motors'
 
 
-class FakeEpicsMotor(EpicsMotor): # pylint: disable=too-many-ancestors
+class FakeEpicsMotor(EpicsMotor):
     """
     Epics motor with fake getting and setting of PVs.
     """
