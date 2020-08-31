@@ -82,7 +82,7 @@ def raises(exc, *args, **kwds):
     return True
 
 
-class approx(object):
+class approx:
     """
     Ported from py.test v3.0, can use pytest.approx from then on.
     """

@@ -69,7 +69,7 @@ from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
     NicosLogger, get_facility_log_handlers, initLoggers
 
 
-class Session(object):
+class Session:
     """The Session class provides all low-level routines needed for NICOS
     operations and keeps the global state: devices, configuration, loggers.
 

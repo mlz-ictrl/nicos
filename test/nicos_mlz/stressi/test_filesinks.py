@@ -76,7 +76,7 @@ def prepare(session, dataroot):
     yield
 
 
-class TestSinks(object):
+class TestSinks:
 
     def test_caress_sink(self, session):
         caressfile = path.join(session.experiment.datapath, 'm200000043.dat')

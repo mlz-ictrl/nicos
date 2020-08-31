@@ -102,7 +102,7 @@ def test_mtt_axis(session, log):
     #     assert raises(MoveError, ax.maw, (ax.polypos - 1))
 
 
-class TestCad(object):
+class TestCad:
     """Test class for the PUMA coupled axis device."""
 
     @pytest.fixture(scope='function', autouse=True)

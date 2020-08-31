@@ -30,7 +30,7 @@ from nicos.services.watchdog.conditions import DelayedTrigger, Expression, \
     Precondition
 
 
-class DummyLog(object):
+class DummyLog:
     def __init__(self):
         self.warnings = []
 

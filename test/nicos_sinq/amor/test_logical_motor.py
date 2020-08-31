@@ -117,7 +117,7 @@ test_targets = {
 
 
 @pytest.mark.skipif('--sinq' not in sys.argv, reason='Only valid for SINQ')
-class TestLogicalMotor(object):
+class TestLogicalMotor:
     m2t = None
     s2t = None
     ath = None

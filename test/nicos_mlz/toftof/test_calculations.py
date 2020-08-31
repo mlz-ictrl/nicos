@@ -35,7 +35,7 @@ from nicos_mlz.toftof.devices.calculations import Eres1, ResolutionAnalysis, \
 from test.utils import approx
 
 
-class TestBasicCalculations(object):
+class TestBasicCalculations:
 
     @pytest.fixture(scope='function', autouse=True)
     def prepare(self):

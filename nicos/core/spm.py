@@ -82,7 +82,7 @@ class NoParse(Exception):
         self.expected = expected
 
 
-class Token(object):
+class Token:
     desc = 'token'
 
     def handle(self, arg, session):
@@ -253,12 +253,12 @@ class DeviceName(Token):
 DeviceName = DeviceName()
 
 
-class Multi(object):
+class Multi:
     def __init__(self, *types):
         self.types = types
 
 
-class SPMHandler(object):
+class SPMHandler:
     """The main handler for SPM commands."""
 
     def __init__(self, session):

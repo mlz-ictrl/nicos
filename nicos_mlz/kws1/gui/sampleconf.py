@@ -554,7 +554,7 @@ class KWSSamplePanel(Panel):
         return ''.join(script)
 
 
-class MockSample(object):
+class MockSample:
     def __init__(self):
         self.reset_called = False
         self.configs = []

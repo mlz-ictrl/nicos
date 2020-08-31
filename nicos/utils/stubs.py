@@ -33,7 +33,7 @@ import sys
 import types
 
 
-class NICOSTACOStub(object):
+class NICOSTACOStub:
     pass
 
 

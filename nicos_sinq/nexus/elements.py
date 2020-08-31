@@ -29,7 +29,7 @@ from nicos import session
 from nicos.core import FINAL, INTERMEDIATE, INTERRUPTED
 
 
-class NexusElementBase(object):
+class NexusElementBase:
     dtype = None
     """
         Interface class to define NeXus elements. All NeXus elements ought

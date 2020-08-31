@@ -65,7 +65,7 @@ def pylab_key_handler(event):
         pylab.close()
 
 
-class SpaceMap(object):
+class SpaceMap:
 
     def __init__(self, resmat, tasinfo, E=0, ki=None, kf=None, scan=None, **kwds):
         self.resmat = resmat

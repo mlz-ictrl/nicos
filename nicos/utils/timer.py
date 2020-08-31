@@ -34,7 +34,7 @@ import time
 #
 # XXX: do we need locking? (multithreads?)
 
-class Timer(object):
+class Timer:
     """Flexible Timer class."""
 
     _started = 0

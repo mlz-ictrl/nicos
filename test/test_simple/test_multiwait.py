@@ -38,7 +38,7 @@ from test.utils import raises
 session_setup = 'multiwait'
 
 
-class TestMultiWait(object):
+class TestMultiWait:
 
     @pytest.fixture()
     def devices(self, session):

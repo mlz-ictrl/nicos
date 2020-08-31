@@ -153,7 +153,7 @@ converted = {
 }
 
 
-class TestNexusTemplate(object):
+class TestNexusTemplate:
     """ Tests to check if the NeXus templates are converted correctly
     """
 

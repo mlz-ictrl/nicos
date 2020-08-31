@@ -107,7 +107,7 @@ def buildTimeTicks(mintime, maxtime, minticks=3):
     return minor, medium, major
 
 
-class TimeSeries(object):
+class TimeSeries:
     """
     Represents a plot curve that shows a time series for a value.
     """

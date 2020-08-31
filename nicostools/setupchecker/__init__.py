@@ -76,7 +76,7 @@ class Logger(logging.Logger):
         logging.Logger.handle(self, record)
 
 
-class SetupChecker(object):
+class SetupChecker:
     all_setups_cache = {}
 
     def __init__(self, filename, devs_seen, setup_info):
@@ -588,7 +588,7 @@ class SetupChecker(object):
         checkSetupSpec(setupspec, '', log=self.log)
 
 
-class SetupValidator(object):
+class SetupValidator:
     def __init__(self):
         self.devs_seen = {}
         self.setup_info = {}

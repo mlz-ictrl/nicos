@@ -199,7 +199,7 @@ def create_or_open(filename, prolog=b''):
     return fd
 
 
-class HtmlWriter(object):
+class HtmlWriter:
     def __init__(self):
         self.fd = None
         self.curstate = None
@@ -284,7 +284,7 @@ class HtmlWriter(object):
         return 'id%s-%s' % (id(self), self.curid)
 
 
-class TextWriter(object):
+class TextWriter:
     def __init__(self):
         self.fd = None
 
@@ -303,7 +303,7 @@ class TextWriter(object):
             self.fd.flush()
 
 
-class Handler(object):
+class Handler:
     def __init__(self, log, plotformat):
         self.log = log
         self.plotformat = plotformat

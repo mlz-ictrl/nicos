@@ -45,7 +45,7 @@ from .utils import is_at_target, unit_value
 session_setup = 'sinq_amor_movable'
 
 
-class TestEpicsMotor(object):
+class TestEpicsMotor:
     device = None
 
     asyn_dev_slot_mapping = {

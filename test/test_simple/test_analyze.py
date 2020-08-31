@@ -61,7 +61,7 @@ def generate_dataset(session):
     dataman.finishScan()
 
 
-class TestAnalyzers(object):
+class TestAnalyzers:
 
     def test_fwhm(self, session):
         result = fwhm(1, 3)

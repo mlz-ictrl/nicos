@@ -35,11 +35,11 @@ SETUP_GROUPS = {
 }
 
 
-class MonitorElement(object):
+class MonitorElement:
     pass
 
 
-class HasChildren(object):
+class HasChildren:
 
     def __init__(self, *children):
         self._children = children

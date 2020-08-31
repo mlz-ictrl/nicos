@@ -55,7 +55,7 @@ class RequestError(Exception):
     """Exception raised if a request cannot be queued."""
 
 
-class Request(object):
+class Request:
     """
     Abstract Request class.
 

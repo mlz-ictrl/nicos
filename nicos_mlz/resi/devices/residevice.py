@@ -53,7 +53,7 @@ except ImportError as e:
     position = None
 
 
-class ResiPositionProxy(object):
+class ResiPositionProxy:
     """
     proxy class to make  position objects really picklable
 

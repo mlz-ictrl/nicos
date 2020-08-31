@@ -68,7 +68,7 @@ def test_nok_inclination_failed(session):
     assert raises(ConfigurationError, session.getDevice, 'nok_inc_failed')
 
 
-class TestSingleSlit(object):
+class TestSingleSlit:
 
     @pytest.fixture(scope='function', autouse=True)
     def prepare(self, session):
@@ -131,7 +131,7 @@ class TestSingleSlit(object):
         assert (d._offsets['slit'], d._offsets['gisans']) == (-0.5, -1.)
 
 
-class TestDoubleSlit(object):
+class TestDoubleSlit:
 
     @pytest.fixture(scope='function', autouse=True)
     def prepare(self, session):

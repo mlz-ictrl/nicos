@@ -97,7 +97,7 @@ stop_queue = (object(), '')
 no_msg = object()
 
 
-class ConnectionHandler(object):
+class ConnectionHandler:
     """Protocol-unaware connection handler.
 
     This is used as a mixin base class for ServerTransport subclasses to

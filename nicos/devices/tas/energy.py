@@ -35,7 +35,8 @@ UNITS = {'A':   'lambda',
          'meV': 'meV',
          'THz': 'THz'}
 
-class Energy(object):
+
+class Energy:
     """Energy class."""
 
     def __init__(self, value, unit=None):

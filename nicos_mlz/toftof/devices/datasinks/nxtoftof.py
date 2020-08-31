@@ -54,7 +54,7 @@ def string_attr(value):
     return a
 
 
-class NXtofsingle(object):
+class NXtofsingle:
 
     def __init__(self, exptitle, *items, **opts):
         self._entry = NXentry(*items, **opts)

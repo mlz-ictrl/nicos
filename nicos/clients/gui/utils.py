@@ -123,7 +123,7 @@ def modePrompt(mode):
             MASTER:      '>>'}[mode]
 
 
-class DlgUtils(object):
+class DlgUtils:
     def __init__(self, title):
         self._dlgutils_title = title
 
@@ -192,7 +192,7 @@ class DlgUtils(object):
         qd.show()
 
 
-class SettingGroup(object):
+class SettingGroup:
     global_group = ''
 
     def __init__(self, name):
@@ -239,7 +239,7 @@ class ScriptExecQuestion(QMessageBox):
         return QMessageBox.Cancel     # Cancel
 
 
-class DlgPresets(object):
+class DlgPresets:
     """Save dialog presets for Qt dialogs."""
 
     def __init__(self, group, ctls):

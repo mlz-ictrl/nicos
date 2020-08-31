@@ -52,7 +52,7 @@ class StopScan(Exception):
     """Custom exception class to stop the rest of the scan."""
 
 
-class Scan(object):
+class Scan:
     """
     Represents a general scan over some devices with specified detectors.
     """

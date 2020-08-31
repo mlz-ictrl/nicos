@@ -218,7 +218,7 @@ def stop_acquire_thread():
         session.log.debug("acquire thread terminated.")
 
 
-class DevStatistics(object):
+class DevStatistics:
     """Object to use in the environment list to get not only a single device
     value, but statistics such as average, minimum or maximum over the time of
     counting during a scan point.

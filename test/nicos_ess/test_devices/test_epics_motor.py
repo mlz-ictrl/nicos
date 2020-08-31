@@ -87,7 +87,7 @@ class DerivedEpicsMotor(FakeEpicsMotor):
         record_fields.update({'extra_field': 'XTR'})
         return record_fields
 
-class TestEpicsMotor(object):
+class TestEpicsMotor:
     motor = None
 
     @pytest.fixture(autouse=True)
@@ -167,7 +167,7 @@ class TestEpicsMotor(object):
 
 
 
-class TestDerivedEpicsMotor(object):
+class TestDerivedEpicsMotor:
 
     @pytest.fixture(autouse=True)
     def prepare(self, session):

@@ -37,7 +37,7 @@ from nicos.utils import checkSetupSpec
 from nicos.utils.loggers import NicosLogger
 
 
-class SetupDepWindowMixin(object):
+class SetupDepWindowMixin:
     def __init__(self, client):
         if 'session/mastersetup' not in client._reg_keys:
             return

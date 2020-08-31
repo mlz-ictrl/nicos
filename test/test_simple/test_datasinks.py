@@ -97,7 +97,7 @@ def setup_module(session):
     yield
 
 
-class TestSinks(object):
+class TestSinks:
 
     def test_sink_class(self, session):
         scansink = session.getDevice('testsink1')

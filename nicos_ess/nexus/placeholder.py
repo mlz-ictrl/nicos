@@ -24,7 +24,7 @@
 from __future__ import absolute_import, division, print_function
 
 
-class PlaceholderBase(object):
+class PlaceholderBase:
     """ Base class for a placeholder in NeXus template. Children should
     implement the method *fetch_info* which returns the info of the value
     in the form of a tuple consisting of the following qunatities:

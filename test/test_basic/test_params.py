@@ -49,7 +49,7 @@ def test_param_class():
 
 
 def test_attach_class():
-    class MyClass(object):
+    class MyClass:
         pass
     # test __init__()
     assert raises(ProgrammingError, Attach, 'desc.', MyClass, optional=3)

@@ -47,7 +47,7 @@ from test.nicos_ess.test_devices.utils import create_hs00
 session_setup = "ess_area_detector"
 
 
-class TestHistogramDeserializer(object):
+class TestHistogramDeserializer:
     """
     Test for operation of Flatbuffer hs00 deserializer
     """

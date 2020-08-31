@@ -58,7 +58,7 @@ from nicos.utils import closeSocket, createThread, getSysInfo, loggers, \
     parseHostPort
 
 
-class CacheWorker(object):
+class CacheWorker:
     """Worker thread class for the cache server.
 
     One worker starts two threads: one for receiving data from the connection,

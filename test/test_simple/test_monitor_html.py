@@ -37,7 +37,7 @@ class HtmlTestMonitor(Monitor):
         self._rendered_content = ''.join(ct.getHTML() for ct in self._content)
 
 
-class MockOptions(object):
+class MockOptions:
     fontsize = 12
     padding = 0
     geometry = 'fullscreen'

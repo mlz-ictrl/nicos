@@ -30,7 +30,7 @@ from nicos.core import ConfigurationError, NicosError
 from nicos_ess.nexus.placeholder import DeviceValuePlaceholder, PlaceholderBase
 
 
-class NexusElementBase(object):
+class NexusElementBase:
     """ Interface class to define nexus elements. All NeXus elements define
     a method which represents the dict of this element.
     """

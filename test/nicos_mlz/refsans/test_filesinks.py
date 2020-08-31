@@ -62,7 +62,7 @@ def prepare(session, dataroot):
     yield
 
 
-class TestSinks(object):
+class TestSinks:
 
     @pytest.mark.skipif(configobj is None, reason='configobj library missing')
     def test_config_sink(self, session):

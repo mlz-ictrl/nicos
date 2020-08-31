@@ -90,7 +90,7 @@ def init(logger):
         setup_directories[setup_directory] = setups
 
 
-class Setup(object):
+class Setup:
     def __init__(self, abspath, log):
         info = {}
         setup_roots = findSetupRoots(abspath)
@@ -126,7 +126,7 @@ class Setup(object):
                                         )
 
 
-class Device(object):
+class Device:
     def __init__(self, name, classString='', parameters=None):
         if parameters is None:
             parameters = {}

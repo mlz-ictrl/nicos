@@ -84,7 +84,7 @@ class NicosNamespace(dict):
         dict.__delitem__(self, name)
 
 
-class SimClock(object):
+class SimClock:
     """Simulation clock."""
 
     def __init__(self):
@@ -101,7 +101,7 @@ class SimClock(object):
         self.time += sec
 
 
-class NicosCompleter(object):
+class NicosCompleter:
     """
     This is a custom version of rlcompleter.Completer that doesn't show private
     attributes when completing attribute access.
@@ -258,7 +258,7 @@ class NicosCompleter(object):
             return self.global_matches(text, line)
 
 
-class LoggingStdout(object):
+class LoggingStdout:
     """
     Standard output stream replacement that tees output to a logger.
     """
@@ -379,7 +379,7 @@ def guessCorrectCommand(source, attribute=False):
         pass
 
 
-class AttributeRaiser(object):
+class AttributeRaiser:
     """Class that raises an exception on attribute access."""
 
     def __init__(self, excls, exmsg):

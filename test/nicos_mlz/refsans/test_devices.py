@@ -133,7 +133,7 @@ def test_resolution(session):
     assert res.read(0) == 6.168
 
 
-class TestDevices(object):
+class TestDevices:
     """Test class for the 'simple' REFSANS devices."""
 
     @pytest.fixture(scope='function', autouse=True)
@@ -154,7 +154,7 @@ class TestDevices(object):
         assert identity.read(0) == raw.read(0)
 
 
-class TestChopper(object):
+class TestChopper:
     """Test class for the REFSANS chopper device."""
 
     @pytest.fixture(scope='function', autouse=True)

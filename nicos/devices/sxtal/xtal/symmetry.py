@@ -36,7 +36,7 @@ lor = np.logical_or
 lxor = np.logical_xor
 
 
-class Bravais(object):
+class Bravais:
 
     conditions = {
         'C': lambda h, k, l: (lnot((h + k) % 2)),
@@ -63,7 +63,7 @@ symbols = ('1', '-1', '2/m', '4/mmm', '6/mmm', '4/m', '6/m',
            'm3m', 'm3')
 
 
-class Laue(object):
+class Laue:
     def __init__(self, laue):
         self.laue = laue
 
@@ -169,7 +169,7 @@ class Laue(object):
         return lor(h, True)
 
 
-class SpaceGroup(object):
+class SpaceGroup:
     def __init__(self, spgr):
         self.spgr = get_spacegroup(spgr)
 

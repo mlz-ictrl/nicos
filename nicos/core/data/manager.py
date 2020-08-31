@@ -42,7 +42,7 @@ from nicos.utils import DEFAULT_FILE_MODE, lazy_property, readFileCounter, \
     updateFileCounter
 
 
-class DataManager(object):
+class DataManager:
     """Singleton device class that manages incoming data.
 
     It takes all data that is produced by detectors, as well as device values

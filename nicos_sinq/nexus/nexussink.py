@@ -39,7 +39,7 @@ from nicos_sinq.nexus.elements import NexusElementBase, NXAttribute, \
     NXScanLink, NXTime
 
 
-class NexusTemplateProvider(object):
+class NexusTemplateProvider:
     """
         A base class which provides the NeXus template for the
         NexusSinkHandler.

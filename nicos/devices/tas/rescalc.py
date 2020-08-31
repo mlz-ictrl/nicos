@@ -40,7 +40,7 @@ from numpy.linalg import det, eig, inv, norm
 from numpy.random import randn
 
 
-class unitcell(object):
+class unitcell:
     """
     Class which models a crystallographic unit cell from given lattice
     parameters and angles.  Further it provides functions to make basic
@@ -274,7 +274,7 @@ MEV2AA2 = 0.48259642  # hbar**2/(2 * m_n)
 MIN2RAD = 1 / 60. * pi / 180.
 
 
-class resmat(object):
+class resmat:
     """Class which calculates the resolution matrix, and the renormalisation
     volume R0 for a given triple axis parameter set which describes a specific
     setup at a specific instrument by using the Popovici method (REF).

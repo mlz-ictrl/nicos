@@ -54,7 +54,7 @@ class finish_property(lazy_property):
         return result
 
 
-class BaseDataset(object):
+class BaseDataset:
     """Base class for scan and point datasets."""
 
     settype = UNKNOWN
@@ -324,7 +324,7 @@ class BlockDataset(BaseDataset):
         BaseDataset.__init__(self, **kwds)
 
 
-class ScanData(object):
+class ScanData:
     """Simplified object containing scan data for serialized transfer to the
     GUI/ELog.
     """

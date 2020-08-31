@@ -37,7 +37,7 @@ from nicos.protocols.daemon import DAEMON_EVENTS
 traceback = __import__('traceback')
 
 
-class StdoutProxy(object):
+class StdoutProxy:
     def __init__(self, write_func):
         self.write_func = write_func
         self.skip = False

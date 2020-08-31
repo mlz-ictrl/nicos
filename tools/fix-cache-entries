@@ -96,7 +96,7 @@ def fix_pollinterval_and_maxage(pollinterval=float, maxage=float):
 
 # Framwork
 
-class CClient(object):
+class CClient:
     """Very crude and basic cache client"""
     msg_pattern = re.compile(r'''
     ^ (?:

@@ -44,7 +44,7 @@ class StopSequence(Exception):
     """Custom exception class to stop a sequence."""
 
 
-class SequenceItem(object):
+class SequenceItem:
     """Base class for actions of a sequence.
 
     All methods do their Job or raise an NicosError (or a derived Exception)

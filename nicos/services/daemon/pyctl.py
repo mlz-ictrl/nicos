@@ -38,7 +38,7 @@ try:
 except ImportError:
     ControlStop = BaseException
 
-    class _Controller(object):
+    class _Controller:
         def __init__(self, *args, **kwds):
             raise ImportError('Please install the nicos-pyctl package.')
 

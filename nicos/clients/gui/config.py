@@ -128,7 +128,7 @@ class menu(tuple):
         self.items = self[1]
 
 
-class gui_config(object):
+class gui_config:
     def __init__(self, main_window, windows, tools, name, options):
         self.main_window = main_window
         self.windows = windows

@@ -91,7 +91,7 @@ table { font-family: inherit; font-size: 100%%; }
 '''
 
 
-class Field(object):
+class Field:
     # what to display
     key = ''         # main key (displayed value)
     item = -1        # item to display of value, -1 means whole value
@@ -170,7 +170,7 @@ class Static(str):
         return self
 
 
-class Block(object):
+class Block:
     def __init__(self, config):
         self.enabled = True
         self._content = []
@@ -191,7 +191,7 @@ class Block(object):
         return ''
 
 
-class Label(object):
+class Label:
     def __init__(self, cls='label', width=0, text='&nbsp;',
                  fore='inherit', back='inherit'):
         self.cls = cls
@@ -213,7 +213,7 @@ DATEFMT = '%Y-%m-%d'
 TIMEFMT = '%H:%M:%S'
 
 
-class Plot(object):
+class Plot:
 
     # if the field should be displayed
     enabled = True
@@ -309,7 +309,7 @@ class Plot(object):
                     self.width, self.height))
 
 
-class Picture(object):
+class Picture:
 
     # if the field should be displayed
     enabled = True

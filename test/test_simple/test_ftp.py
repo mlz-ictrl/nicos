@@ -71,7 +71,7 @@ class NamedStringIO(StringIO):
         return StringIO.close(self)
 
 
-class DataStorage(object):
+class DataStorage:
     used_username = None
     ofilename = None
     omode = None

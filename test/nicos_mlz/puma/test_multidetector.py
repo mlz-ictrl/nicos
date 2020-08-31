@@ -36,7 +36,7 @@ from test.utils import approx
 session_setup = 'multidetector'
 
 
-class TestMultiDetector(object):
+class TestMultiDetector:
     """Test class for the PUMA multidetector arranging device."""
 
     @pytest.fixture(scope='function', autouse=True)

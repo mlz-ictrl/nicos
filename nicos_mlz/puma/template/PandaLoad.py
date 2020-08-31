@@ -268,7 +268,7 @@ def shortlist(l):
         i = i + 1
     return ', '.join(r)
 
-class Mapping(object):
+class Mapping:
     ''' handles all necessary stuff for mappings '''
     #DONT USE! It#s not working (yet)
     fit = None
@@ -657,7 +657,7 @@ def NicosLoad(prefix, filenum=-1, **kwargs):
 
 # this only works for old format !
 def PandaLoad(filename):
-    class PandaScan(object):
+    class PandaScan:
         import re
         header = {}
         _filename = None

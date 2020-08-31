@@ -136,7 +136,7 @@ def updateLinecache(name, script):
 
 # -- Logging utilities --------------------------------------------------------
 
-class LoggerWrapper(object):
+class LoggerWrapper:
     """
     Adds more information to logging records.  Similar to LoggerAdapter,
     which is new in Python 2.5.
@@ -182,7 +182,7 @@ class DaemonLogHandler(logging.Handler):
 
 # -- Script queue -------------------------------------------------------------
 
-class QueueOperator(object):
+class QueueOperator:
     """Operations on the queue that must be done while the lock is held."""
 
     def __init__(self, queue):
@@ -204,7 +204,7 @@ class QueueOperator(object):
         self.queue[reqid].user = user
 
 
-class ScriptQueue(object):
+class ScriptQueue:
     """Specialized queue for scripts that can be re-sorted and updated."""
 
     def __init__(self):

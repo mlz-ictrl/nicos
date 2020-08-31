@@ -444,7 +444,7 @@ class NewViewDialog(DlgUtils, QDialog):
         )
 
 
-class BaseHistoryWindow(object):
+class BaseHistoryWindow:
 
     client = None
     presetdict = None

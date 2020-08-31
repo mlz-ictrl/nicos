@@ -46,7 +46,7 @@ except ImportError:
 
 
 
-class HistogramFlatbuffersSerializer(object):
+class HistogramFlatbuffersSerializer:
     """
     Encode the histogram using the flatbuffers schema hs00
     """

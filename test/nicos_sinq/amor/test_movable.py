@@ -39,7 +39,7 @@ except ImportError:
 session_setup = 'sinq_amor_movable'
 
 @pytest.mark.skipif(HasSwitchPv is None, reason='epics not importable')
-class TestMovable(object):
+class TestMovable:
     device = None  # Holds the current device object under test
 
     @pytest.fixture(autouse=True)

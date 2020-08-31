@@ -53,7 +53,7 @@ LOOPS = [
 SAMPLE_NUM = 32
 
 
-class MeasDef(object):
+class MeasDef:
     def __init__(self, rtmode, loops=None):
         self.rtmode = rtmode
         self.loops = loops or LOOPS[:]

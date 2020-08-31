@@ -45,7 +45,7 @@ if sys.version_info[:2] < (3, 6):
 
 # Create the nicos session object here to allow the import of submodules.
 # The real class is set later.
-class Session(object):
+class Session:
     log = getLogger('Nicos early logger')
 
 

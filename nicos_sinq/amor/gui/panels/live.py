@@ -30,7 +30,7 @@ from nicos.guisupport.livewidget import IntegralLiveWidget as BaseIntegralLiveWi
     LiveWidget1D as BaseLiveWidget1D, Plot
 
 
-class ProvidesTitleSetter(object):
+class ProvidesTitleSetter:
     """Provides function to set the the title of the plot
     """
 

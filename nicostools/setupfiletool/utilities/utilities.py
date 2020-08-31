@@ -27,7 +27,7 @@ from __future__ import absolute_import, division, print_function
 from os import path
 
 
-class ItemTypes(object):
+class ItemTypes:
     # used to distinguish QTreeWidgetItems
     Directory = 1200
     Setup = 1300

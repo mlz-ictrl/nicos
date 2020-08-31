@@ -56,7 +56,7 @@ except ImportError:
 session_setup = 'empty'
 
 
-class TestUserPassLevelAuthEntry(object):
+class TestUserPassLevelAuthEntry:
 
     @pytest.mark.parametrize("inp, outp", [
         [['user', 'passwd', 'user'], ('user', 'passwd', USER)],
@@ -81,7 +81,7 @@ class TestUserPassLevelAuthEntry(object):
         assert raises(ValueError, UserPassLevelAuthEntry, inp)
 
 
-class TestUserLevelAuthEntry(object):
+class TestUserLevelAuthEntry:
 
     @pytest.mark.parametrize("inp, outp", [
         [['user', 'user'], ('user', USER)],

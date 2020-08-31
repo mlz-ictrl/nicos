@@ -604,7 +604,7 @@ def ClearCache(*devnames):
         session.log.info('cleared cached information for %s', devname)
 
 
-class _Scope(object):
+class _Scope:
     def __init__(self, name):
         self.name = name
 
@@ -650,7 +650,7 @@ def _scriptfilename(filename):
     return fn + '.py'
 
 
-class _ScriptScope(object):
+class _ScriptScope:
     def __init__(self, filename, code):
         self.filename = filename
         self.code = code
@@ -951,7 +951,7 @@ def _trace():
         session.log.info('No previous traceback.')
 
 
-class timer(object):
+class timer:
     is_userobject = True
 
     def __enter__(self):

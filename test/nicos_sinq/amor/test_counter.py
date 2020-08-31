@@ -37,7 +37,7 @@ from nicos.core import status
 session_setup = "sinq_amor_counter"
 
 
-class TestCounter(object):
+class TestCounter:
     """
     Tests for the operations of EL737 counter box in SINQ
     """

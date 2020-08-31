@@ -251,7 +251,7 @@ def Energy(wavelength):
     return 1000. * (hbar * k0) ** 2 / (2 * mn * e)
 
 
-class ResolutionAnalysis(object):
+class ResolutionAnalysis:
 
     def __init__(self, chSpeed, chWL, chRatio, chST):
         self.speed = chSpeed

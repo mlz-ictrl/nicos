@@ -33,7 +33,7 @@ from nicos_ess.nexus.elements import KafkaStream, NXAttribute, NXDataset, \
 from nicos_ess.nexus.placeholder import DeviceValuePlaceholder
 
 
-class NexusTemplateConverter(object):
+class NexusTemplateConverter:
     """Converts the provided nexus template. Creates and populates the entry
     groups from nexus template and then creates and returns the nexus
     structure from those entry groups.

@@ -85,7 +85,7 @@ def lower(s):
     return s.lower()
 
 
-class HelpGenerator(object):
+class HelpGenerator:
 
     def __init__(self):
         self.header = ('<html><head><style type="text/css">%s</style>'

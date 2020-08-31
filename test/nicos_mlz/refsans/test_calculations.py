@@ -32,7 +32,7 @@ from nicos_mlz.refsans.lib.calculations import chopper_config, \
 from test.utils import approx
 
 
-class TestBasicCalculations(object):
+class TestBasicCalculations:
 
     def test_chopper_config(self):
 

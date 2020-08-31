@@ -436,7 +436,7 @@ class DeviceValue(namedtuple('DeviceValue',
         return float(self.raw)
 
 
-class DeviceValueDict(object):
+class DeviceValueDict:
     """Convenience class to be used for templating device values/params.
 
     Constructor works like a dict, so you can specify any mappings there.

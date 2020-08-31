@@ -31,7 +31,7 @@ from nicos.core import ArrayDesc
 from nicos.core.errors import ConfigurationError
 
 
-class HistogramDimDesc(object):
+class HistogramDimDesc:
     """Class to describe metadata one dimension in histogram
     """
 

@@ -80,7 +80,7 @@ def prepare(session, dataroot):
     yield
 
 
-class TestSinks(object):
+class TestSinks:
 
     @pytest.mark.skipif(nxs is None, reason='NeXuS library missing')
     def test_toftof_sink(self, session):

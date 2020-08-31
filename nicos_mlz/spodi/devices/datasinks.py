@@ -147,7 +147,7 @@ class CaressHistogram(ImageSink):
         return len(arraydesc.shape) == 2
 
 
-class Straight(object):
+class Straight:
     """Data 'straightener' mixin."""
 
     corrData = None

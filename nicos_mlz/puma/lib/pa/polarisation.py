@@ -34,7 +34,7 @@ from .gauss import gaussian
 from .xa import xA
 
 
-class PA(object):
+class PA:
 
     kf = 2.662  # wavevector of scattered neutrons / A-1
     da = 3.354  # netplane distance of analyser / A

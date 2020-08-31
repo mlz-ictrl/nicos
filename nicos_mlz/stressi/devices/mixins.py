@@ -32,7 +32,7 @@ from nicos.core import Attach, Moveable, Override, Param, Readable
 from nicos.core.mixins import DeviceMixinBase
 
 
-class Formula(object):
+class Formula:
     """This object handles a formula and the calculation.
 
     The variable of the function must be named 'x' and all other parameters

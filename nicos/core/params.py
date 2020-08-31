@@ -49,7 +49,7 @@ INFO_CATEGORIES = [
 ]
 
 
-class Param(object):
+class Param:
     """This class defines the properties of a device parameter.
 
     The `.Device.parameters` attribute contains a mapping of parameter names to
@@ -202,7 +202,7 @@ class Param(object):
         return txt
 
 
-class Override(object):
+class Override:
     """This class defines the overridden properties of a base class parameter.
 
     The `.Device.parameter_overrides` attribute contains a mapping of parameter
@@ -233,7 +233,7 @@ class Override(object):
         return newinfo
 
 
-class Attach(object):
+class Attach:
     """Specifies required properties of the attached dev(s) of an device class.
 
     The `.Device.attached_devices` attribute contains a mapping of internal
@@ -399,7 +399,7 @@ class Attach(object):
         return s + ')'
 
 
-class Value(object):
+class Value:
     """This class defines the properties of the "value" read from `.Readable`
     and `.Measurable` classes.  Their ``.valueInfo()`` method must return a tuple
     of instances of this class.
@@ -454,7 +454,7 @@ class Value(object):
         return Value(self.name, self.type, self.errors, self.unit, self.fmtstr)
 
 
-class ArrayDesc(object):
+class ArrayDesc:
     """Defines the properties of an array detector result.
 
     An array type consists of these attributes:
@@ -523,7 +523,7 @@ def string(s=None):
     return str(s)
 
 
-class listof(object):
+class listof:
 
     def __init__(self, conv):
         self.__doc__ = 'a list of %s' % convdoc(conv)
@@ -538,7 +538,7 @@ class listof(object):
         return readonlylist(map(self.conv, val))
 
 
-class nonemptylistof(object):
+class nonemptylistof:
 
     def __init__(self, conv):
         self.__doc__ = 'a non-empty list of %s' % convdoc(conv)
@@ -562,7 +562,7 @@ def nonemptystring(s=Ellipsis):
     return s
 
 
-class tupleof(object):
+class tupleof:
 
     def __init__(self, *types):
         if not types:
@@ -591,7 +591,7 @@ def limits(val=None):
     return (ll, ul)
 
 
-class dictof(object):
+class dictof:
 
     def __init__(self, keyconv, valconv):
         self.__doc__ = 'a dict of %s keys and %s values' % \
@@ -609,7 +609,7 @@ class dictof(object):
         return readonlydict(ret)
 
 
-class dictwith(object):
+class dictwith:
 
     def __init__(self, **convs):
         self.__doc__ = 'a dict with the following keys: ' + \
@@ -636,7 +636,7 @@ class dictwith(object):
         return readonlydict(ret)
 
 
-class intrange(object):
+class intrange:
 
     def __init__(self, fr, to):
         if isinstance(fr, bool) or isinstance(to, bool):
@@ -663,7 +663,7 @@ class intrange(object):
         return val
 
 
-class floatrange(object):
+class floatrange:
 
     def __init__(self, fr, to=None):
         fr = float(fr)
@@ -692,7 +692,7 @@ class floatrange(object):
         return val
 
 
-class setof(object):
+class setof:
 
     def __init__(self, *vals):
         self.__doc__ = 'a (sub)set of ' + ', '.join(map(repr, vals))
@@ -708,7 +708,7 @@ class setof(object):
         return val
 
 
-class oneof(object):
+class oneof:
 
     def __init__(self, *vals):
         self.__doc__ = 'one of ' + ', '.join(map(repr, vals))
@@ -725,7 +725,7 @@ class oneof(object):
         return val
 
 
-class oneofdict(object):
+class oneofdict:
 
     def __init__(self, vals):
         self.__doc__ = 'one of ' + ', '.join(map(repr, vals.values()))
@@ -742,7 +742,7 @@ class oneofdict(object):
         return val
 
 
-class oneofdict_or(object):
+class oneofdict_or:
     def __init__(self, named_vals, validator):
         self.conv = fixup_conv(validator)
         self.__doc__ = 'one of ' + ', '.join(map(repr, named_vals)) + \
@@ -753,7 +753,7 @@ class oneofdict_or(object):
         return self.conv(self.named_vals.get(val, val))
 
 
-class none_or(object):
+class none_or:
 
     def __init__(self, conv):
         self.__doc__ = 'None or %s' % convdoc(conv)
@@ -918,7 +918,7 @@ def ipv4(val='0.0.0.0'):
     return val
 
 
-class host(object):
+class host:
     """Validator for a host[:port] value.
 
     Optionally, defaulthost and/or defaultport can be specified.

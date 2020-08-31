@@ -62,7 +62,7 @@ from test.utils import ErrorLogged, raises
 session_setup = 'test_commands'
 
 
-class TestBasic(object):
+class TestBasic:
 
     def test_output_commands(self, session, log):
         with log.assert_msg_matches(r'printdebugtest1 printdebugtest2'):
@@ -220,7 +220,7 @@ def test_sample_commands(session, log):
     assert exp.sample.samples == {}
 
 
-class TestDevice(object):
+class TestDevice:
 
     @pytest.fixture(scope='function', autouse=True)
     def prepare(self, session):

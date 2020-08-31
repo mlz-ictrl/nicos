@@ -46,7 +46,7 @@ from nicos.utils import LCDict, createSubprocess, createThread, \
     watchFileContent
 
 
-class Entry(object):
+class Entry:
     """Represents a single watchdog configuration entry."""
 
     id = None

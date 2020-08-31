@@ -46,7 +46,7 @@ from test.utils import module_root
 session_setup = None
 
 
-class Request(object):
+class Request:
 
     def __init__(self, uuid, code):
         self.user = None
@@ -71,7 +71,7 @@ class Request(object):
         pass
 
 
-class Emitter(object):
+class Emitter:
     def __init__(self, uuid, script):
         self.request = Request(uuid, script)
         self.messages = []

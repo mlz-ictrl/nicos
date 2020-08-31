@@ -47,7 +47,7 @@ year = time.strftime('%Y')
 session_setup = 'sinq_nexussink'
 
 
-class TestNexusSink(object):
+class TestNexusSink:
     datadir = 'testdata2'
 
     @pytest.fixture(scope='class', autouse=True)

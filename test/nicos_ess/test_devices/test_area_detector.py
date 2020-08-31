@@ -53,7 +53,7 @@ pytest.importorskip('graypy')
 session_setup = "ess_area_detector"
 
 
-class TestEpicsAreaDetector(object):
+class TestEpicsAreaDetector:
     """
     Tests for the operations EPICS areaDetector
     """
@@ -152,7 +152,7 @@ class TestEpicsAreaDetector(object):
         assert abs(pv.get() - (self.time_preset - elapsed)) < .1
 
 
-class TestKafkaPlugin(object):
+class TestKafkaPlugin:
     """
     Tests for the operations of KafkaPlugin
     """
@@ -271,7 +271,7 @@ class TestKafkaPlugin(object):
 
 
 
-class TestKafkaAreaDetectorConsumer(object):
+class TestKafkaAreaDetectorConsumer:
     """
     Test operation of areaDetector messages consumer.
     Interaction with Kafka Plugin and Flatbuffers hs00 deserializer is required
@@ -384,7 +384,7 @@ class TestKafkaAreaDetectorConsumer(object):
         assert (raw[max(timestamps)] == data).all()
 
 
-class TestEpicsAreaDetectorWithKafkaPlugin(object):
+class TestEpicsAreaDetectorWithKafkaPlugin:
     """
     Tests for the operations of EPICS areaDetector with configured PluginKafka.
     In practice, make sure that information propagates correctly from

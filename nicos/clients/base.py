@@ -51,7 +51,7 @@ class ErrorResponse(Exception):
     pass
 
 
-class ConnectionData(object):
+class ConnectionData:
     def __init__(self, host, port, user, password, viewonly=False):
         self.host = host
         self.port = port
@@ -67,7 +67,7 @@ class ConnectionData(object):
         return vars(self)
 
 
-class NicosClient(object):
+class NicosClient:
     RECONNECT_TRIES = 25
     RECONNECT_TRIES_LONG = 5
     RECONNECT_INTERVAL_SHORT = 500  # in ms

@@ -37,7 +37,7 @@ from nicos.core.errors import InvalidValueError, LimitError
 session_setup = 'multianalyzer'
 
 
-class TestMultiAnalyzer(object):
+class TestMultiAnalyzer:
     """Multi analyzer test class."""
 
     @pytest.fixture(scope='function', autouse=True)

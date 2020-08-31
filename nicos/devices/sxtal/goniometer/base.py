@@ -82,7 +82,7 @@ def PositionFactory(ptype, **kwds):
         raise TypeError("unknown ptype specified in PositionFactory()")
 
 
-class PositionBase(object):
+class PositionBase:
     def __init__(self):
         self.log = session.log
 

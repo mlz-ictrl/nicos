@@ -40,7 +40,7 @@ from nicos.core.status import statuses
 from nicos.utils import File
 
 
-class DataFileBase(object):
+class DataFileBase:
     """Base class for Nicos data files."""
 
     def __init__(self, shortpath, filepath):
@@ -66,7 +66,7 @@ class GzipFile(DataFileBase, StdGzipFile):
         StdGzipFile.__init__(self, filepath, 'wb')
 
 
-class DataSinkHandler(object):
+class DataSinkHandler:
     """Handles sink operations for a single dataset, and in the case of point
     datasets, a single detector.
 
@@ -167,7 +167,7 @@ class DataSinkHandler(object):
         """
 
 
-class NicosMetaWriterMixin(object):
+class NicosMetaWriterMixin:
 
     update_headerinfo = False
 

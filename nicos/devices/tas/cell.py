@@ -44,7 +44,7 @@ R2D = 180 / pi
 K = 1.9958584
 
 
-class CellBase(object):
+class CellBase:
     """Unit cell operations without NICOS interface."""
 
     # Caution: _angles_rec is in radians, _angles is in degrees!

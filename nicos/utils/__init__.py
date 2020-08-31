@@ -96,7 +96,7 @@ class LCDict(dict):
         return dict.__delitem__(self, key.lower())
 
 
-class lazy_property(object):
+class lazy_property:
     """A property that calculates its value only once."""
     def __init__(self, func):
         self._func = func
@@ -173,7 +173,7 @@ class AutoDefaultODict(OrderedDict):
         return val
 
 
-class Repeater(object):
+class Repeater:
     def __init__(self, obj):
         self.object = obj
         self._stop = False
@@ -196,7 +196,7 @@ class Repeater(object):
         self._stop = True
 
 
-class HardwareStub(object):
+class HardwareStub:
     """An object that denies all attribute access, used to prevent accidental
     hardware access in simulation mode.
     """
@@ -1372,7 +1372,7 @@ def num_sort(x, inf=float('inf')):
         return (inf, x)
 
 
-class ReaderRegistry(object):
+class ReaderRegistry:
     readers = dict()
 
     @classmethod
@@ -1394,7 +1394,7 @@ class ReaderRegistry(object):
                 cls.readers.items()]
 
 
-class FitterRegistry(object):
+class FitterRegistry:
     fitters = dict()
 
     @classmethod

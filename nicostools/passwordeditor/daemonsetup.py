@@ -28,7 +28,7 @@ from __future__ import absolute_import, division, print_function
 import redbaron
 
 
-class DaemonSetup(object):
+class DaemonSetup:
     """Class to handle the daemon setup file."""
 
     def __init__(self, filename):

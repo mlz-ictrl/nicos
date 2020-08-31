@@ -51,7 +51,7 @@ from test.utils import raises
 def test_lazy_property():
     asked = []
 
-    class P(object):
+    class P:
         @lazy_property
         def prop(self):
             asked.append('x')

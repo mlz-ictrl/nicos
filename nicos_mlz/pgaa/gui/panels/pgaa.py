@@ -50,7 +50,7 @@ from .widgets import AttCell, BeamCell, CellItem, CondCell, DetectorCell, \
 my_uipath = path.dirname(__file__)
 
 
-class BasicScriptHandler(object):
+class BasicScriptHandler:
 
     def __init__(self):
         try:

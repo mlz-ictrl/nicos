@@ -98,7 +98,7 @@ def prepareData(x, y, dy, norm):
     return x, y, dy
 
 
-class Fitter(object):
+class Fitter:
     title = 'unknown fit'
     picks = []
 

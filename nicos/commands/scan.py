@@ -479,7 +479,7 @@ def contscan(dev, start, end, speed=None, timedelta=None, *args, **kwargs):
     scan.run()
 
 
-class _ManualScan(object):
+class _ManualScan:
     def __init__(self, args, kwargs):
         title = kwargs.pop('_title', 'manualscan')
         scanstr = _infostr(title, args, kwargs)

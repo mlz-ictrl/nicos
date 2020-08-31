@@ -153,7 +153,7 @@ def SXTalCellType(val=None):
     raise ValueError('wrong cell specification')
 
 
-class SXTalCell(object):
+class SXTalCell:
 
     @classmethod
     def fromabc(cls, a, b=None, c=None, alpha=90.0, beta=90.0, gamma=90.0,

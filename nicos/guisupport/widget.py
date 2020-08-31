@@ -39,7 +39,7 @@ from nicos.protocols.daemon import DAEMON_EVENTS
 from nicos.utils import AttrDict, extractKeyAndIndex, lazy_property
 
 
-class NicosListener(object):
+class NicosListener:
     """Base mixin class for an object that can receive cache events."""
 
     def setSource(self, source):

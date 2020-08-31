@@ -41,7 +41,7 @@ class DataError(Exception):
     pass
 
 
-class DataProxy(object):
+class DataProxy:
     def __init__(self, lists):
         self.lists = list(lists)
 
@@ -59,7 +59,7 @@ class DataProxy(object):
         raise IndexError
 
 
-class Curve(object):
+class Curve:
     description = ''
     source = ''  # source dataset if curves from different sets are combined
     yindex = -1

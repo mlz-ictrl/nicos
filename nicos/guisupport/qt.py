@@ -71,7 +71,7 @@ except (ImportError, RuntimeError):
 
 import nicos.guisupport.gui_rc_qt5
 
-class QPyNullVariant(object):
+class QPyNullVariant:
     pass
 
 propertyMetaclass = type(QObject)

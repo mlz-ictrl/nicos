@@ -39,7 +39,7 @@ from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \
 from nicos.utils import formatEndtime
 
 
-class ScriptQueue(object):
+class ScriptQueue:
     def __init__(self, frame, view):
         self._id2item = {}  # mapping from request ID to list widget item
         self._frame = frame

@@ -48,7 +48,7 @@ except ImportError:
 
 
 
-class ProposalDB(object):
+class ProposalDB:
     def __init__(self):
         try:
             if not session.experiment or not session.experiment.propdb:

@@ -29,7 +29,7 @@ import re
 from nicos.core import ConfigurationError, DeviceMixinBase, NicosError, Param
 
 
-class OptionalLimaFunctionality(object):
+class OptionalLimaFunctionality:
     def __init__(self, dev, hwdev):
         self._dev = dev
         self._hwdev = hwdev

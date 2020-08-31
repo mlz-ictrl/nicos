@@ -103,7 +103,7 @@ class ADKafkaImageDetector(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
         return ()
 
 
-class HistogramFlatbuffersDeserializer(object):
+class HistogramFlatbuffersDeserializer:
     """
     Decode the histogram using the flatbuffers schema hs00
     """

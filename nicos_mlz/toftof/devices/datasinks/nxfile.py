@@ -51,7 +51,7 @@ import nxs
 __all__ = ('NexusFile',)
 
 
-class NexusFile(object):
+class NexusFile:
     """Structure-based interface to write a NeXus API compatible file.
 
     Since the NeXus API library may only read HDF5 files with fixed length of

@@ -36,7 +36,7 @@ from os import path
 from re import compile as regexcompile, escape as regexescape
 
 
-class config(object):
+class config:
     """Singleton for settings potentially overwritten later."""
 
     _applied = False  # make only one call to apply

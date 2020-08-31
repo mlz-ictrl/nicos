@@ -154,7 +154,7 @@ class LeftTabBar(TearOffTabBar):
 
 class TearOffTabWidget(QTabWidget):
 
-    class TabWidgetStorage(object):
+    class TabWidgetStorage:
 
         def __init__(self, index, widget, title, visible=True):
             self.index = index
