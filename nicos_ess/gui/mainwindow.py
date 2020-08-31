@@ -68,7 +68,7 @@ class MainWindow(DefaultMainWindow):
         self.addInstrument()
         self.addExperiment()
         self.set_icons()
-        self.style_file = gui_conf.style_file
+        self.style_file = gui_conf.stylefile
 
         # Cheeseburger menu
         dropdown = QMenu('')
