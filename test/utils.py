@@ -104,7 +104,7 @@ class approx(object):
         if sys.version_info[0] == 2:
             return '{0} +- {1}'.format(self.expected, vetted_tolerance)
         else:
-            return u'{0} \u00b1 {1}'.format(self.expected, vetted_tolerance)
+            return '{0} \u00b1 {1}'.format(self.expected, vetted_tolerance)
 
     def __eq__(self, actual):
         if actual == self.expected:

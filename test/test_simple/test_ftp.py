@@ -105,9 +105,9 @@ class MyTestFS(AbstractedFS):
 
     def chdir(self, path):
         "Path changes are virtual"
-        if path == self.cmd_channel.ds.mkdirpath or path == u'/':
+        if path == self.cmd_channel.ds.mkdirpath or path == '/':
             self.cmd_channel.ds.chdirpath = path
-        return u'/'
+        return '/'
 
     def mkdir(self, path):
         "Do not create dirs"
@@ -141,7 +141,7 @@ def ftpserver():
     server.close_all()
 
 
-TEST_CONTENT = u'A test\n'
+TEST_CONTENT = 'A test\n'
 
 
 @pytest.fixture(scope='function')
