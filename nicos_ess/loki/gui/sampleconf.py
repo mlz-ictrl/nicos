@@ -101,7 +101,8 @@ class ConfigEditDialog(QDialog):
         self.setWindowTitle('Sample configuration')
         layout = QVBoxLayout()
         self.frm = QFrame(self)
-        loadUi(self.frm, findResource('nicos_ess/loki/gui/sampleconf_one.ui'))
+        loadUi(self.frm, findResource(
+            'nicos_ess/loki/gui/ui_files/sampleconf_one.ui'))
         self.frm.addDevBtn.clicked.connect(self.on_addDevBtn_clicked)
         self.frm.delDevBtn.clicked.connect(self.on_delDevBtn_clicked)
         self.frm.readDevsBtn.clicked.connect(self.on_readDevsBtn_clicked)
@@ -179,7 +180,7 @@ class ConfigEditDialog(QDialog):
         dev_list = [item for item in dev_list
                     if item.startswith('sc_') and 'motor' in item]
         dlg = dialogFromUi(self, findResource(
-            'nicos_ess/loki/gui/sampleconf_adddev.ui'))
+            'nicos_ess/loki/gui/ui_files/sampleconf_adddev.ui'))
         dlg.widget = None
 
         def callback(index):
@@ -214,7 +215,7 @@ class ConfigEditDialog(QDialog):
 
     def on_readDevsBtn_clicked(self):
         dlg = dialogFromUi(self, findResource(
-            'nicos_ess/loki/gui/sampleconf_readpos.ui'))
+            'nicos_ess/loki/gui/ui_files/sampleconf_readpos.ui'))
         if self.instrument == 'kws1':
             dlg.kws3Box.hide()
         elif self.instrument == 'kws2':
@@ -259,7 +260,7 @@ class LokiSamplePanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, findResource('nicos_ess/loki/gui/sampleconf.ui'))
+        loadUi(self, findResource('nicos_ess/loki/gui/ui_files/sampleconf.ui'))
         self.sampleGroup.setEnabled(False)
         self.frame.setLayout(QVBoxLayout())
 
@@ -344,7 +345,7 @@ class LokiSamplePanel(Panel):
             return
 
         dlg = dialogFromUi(self, findResource(
-            'nicos_ess/loki/gui/sampleconf_gen.ui'))
+            'nicos_ess/loki/gui/ui_files/sampleconf_gen.ui'))
         dlg.ax1Box.setValidator(DoubleValidator(self))
         dlg.ax2Box.setValidator(DoubleValidator(self))
         dlg.readBtn.clicked.connect(read_axes)
@@ -489,7 +490,8 @@ class LokiSamplePanel(Panel):
         self._clearDisplay()
         index = self.list.row(item)
         frm = QFrame(self)
-        loadUi(frm, findResource('nicos_ess/loki/gui/sampleconf_summary.ui'))
+        loadUi(frm, findResource(
+            'nicos_ess/loki/gui/ui_files/sampleconf_summary.ui'))
         frm.whatLbl.setText('Sample configuration')
         configToFrame(frm, self.configs[index])
         frm.addDevBtn.setVisible(False)
