@@ -23,7 +23,7 @@
 #
 # *****************************************************************************
 
-u"""IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
+"""IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
 from __future__ import absolute_import, division, print_function
 
@@ -31,9 +31,9 @@ import select
 import socket
 from threading import RLock
 
-from IO import StringIO
+from IO import StringIO  # pylint: disable=import-error
 from RS485Client import RS485Client  # pylint: disable=import-error
-from TACOClient import TACOError
+from TACOClient import TACOError  # pylint: disable=import-error
 
 from nicos import session
 from nicos.core import SIMULATION, Attach, CommunicationError, Device, \

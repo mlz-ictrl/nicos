@@ -85,7 +85,7 @@ class CalculatorTool(QDialog):
                 path.join(path.dirname(__file__), 'calculator_images',
                           'miezefml.png')))
 
-            self.mztimeTable.setHeaderLabels(['Setting', u'MIEZE time τ'])
+            self.mztimeTable.setHeaderLabels(['Setting', 'MIEZE time τ'])
             for setting in self._miezesettings:
                 self.mztimeTable.addTopLevelItem(QTreeWidgetItem([setting, '']))
 

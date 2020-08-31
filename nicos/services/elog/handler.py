@@ -43,7 +43,7 @@ try:
 except ImportError:
     creole = None
 
-FRAMESET = u'''\
+FRAMESET = '''\
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -228,7 +228,7 @@ class HtmlWriter(object):
         self.fd_toc = create_or_open(path.join(directory, 'toc.html'),
                                      PROLOG_TOC)
 
-    def emit(self, html, suffix=u''):
+    def emit(self, html, suffix=''):
         html = to_utf8(html)
         suffix = to_utf8(suffix)
         if self.fd:

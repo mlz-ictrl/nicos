@@ -108,11 +108,11 @@ class NicosClassDocumenter(ClassDocumenter):
 
         # add inheritance info, if wanted
         if not self.doc_as_attr:
-            self.add_line(u'', '<autodoc>')
+            self.add_line('', '<autodoc>')
             if self.object.__bases__:
                 bases = [b.__module__ == '__builtin__' and
-                         u':class:`%s`' % b.__name__ or
-                         u':class:`~%s.%s`' % (b.__module__, b.__name__)
+                         ':class:`%s`' % b.__name__ or
+                         ':class:`~%s.%s`' % (b.__module__, b.__name__)
                          for b in self.object.__bases__ if b is not object]
                 if bases:
                     self.add_line('   Bases: %s' % ', '.join(bases),

@@ -58,7 +58,7 @@ except ImportError:
     pygr = None
 
 
-HEAD = u'''\
+HEAD = '''\
 <html>
 <head>
 <meta charset="utf-8"/>
@@ -187,8 +187,8 @@ class Block(object):
 
     def getHTML(self):
         if self.enabled and self._content:
-            return u''.join(c.getHTML() for c in self._content)
-        return u''
+            return ''.join(c.getHTML() for c in self._content)
+        return ''
 
 
 class Label(object):
@@ -203,8 +203,8 @@ class Label(object):
 
     def getHTML(self):
         if not self.enabled:
-            return u''
-        return (u'<div class="%s" style="color: %s; min-width: %sex; '
+            return ''
+        return ('<div class="%s" style="color: %s; min-width: %sex; '
                 'background-color: %s">%s</div>' %
                 (self.cls, self.fore, self.width, self.back, self.text))
 
@@ -277,7 +277,7 @@ class Plot(object):
         if not self.enabled:
             return ''
         if not self.data or not self.curves:
-            return u'<span>No data or curves found</span>'
+            return '<span>No data or curves found</span>'
         with self.lock:
             for i, (d, c) in enumerate(zip(self.data, self.curves)):
                 try:
@@ -303,7 +303,7 @@ class Plot(object):
             gr.clearws()
         with open(self.tempfile, 'rb') as fp:
             imgbytes = fp.read()
-        return (u'<img src="data:image/svg+xml;base64,%s" '
+        return ('<img src="data:image/svg+xml;base64,%s" '
                 'style="width: %sex; height: %sex">' % (
                     from_utf8(b2a_base64(imgbytes)),
                     self.width, self.height))
@@ -321,12 +321,12 @@ class Picture(object):
         self.name = name
 
     def getHTML(self):
-        s = u''
+        s = ''
         if not self.enabled:
             return s
         if self.name:
-            s += u'<div class="label">%s</div><br>' % self.name
-        s += u'<img src="%s" style="width: %sex; height: %sex">' % (
+            s += '<div class="label">%s</div><br>' % self.name
+        s += '<img src="%s" style="width: %sex; height: %sex">' % (
             self.filepath, self.width, self.height)
         return s
 
@@ -344,7 +344,7 @@ class Monitor(BaseMonitor):
         while not self._stoprequest:
             try:
                 if self._content:
-                    content = u''.join(ct.getHTML() for ct in self._content)
+                    content = ''.join(ct.getHTML() for ct in self._content)
                     safeWriteFile(self.filename, to_utf8(content), mode='wb',
                                   maxbackups=0)
             except Exception:
@@ -388,13 +388,13 @@ class Monitor(BaseMonitor):
 
         self += HEAD % headprops
 
-        self += u'<table class="layout"><tr><td><div class="time">'
+        self += '<table class="layout"><tr><td><div class="time">'
         self._timelabel = Label('timelabel')
         self += self._timelabel
-        self += u'</div><div>'
+        self += '</div><div>'
         self._warnlabel = Label('warnings', back='red', text='')
         self += self._warnlabel
-        self += u'</div></td></tr>\n'
+        self += '</div></td></tr>\n'
 
         self._plots = {}
 
@@ -424,7 +424,7 @@ class Monitor(BaseMonitor):
                 flabel = field._namelabel = Label('name', field.width,
                                                   html.escape(field.name))
                 blk += flabel
-                blk += u'</td></tr><tr><td>'
+                blk += '</td></tr><tr><td>'
                 # create value label
                 cls = 'value'
                 if field.istext:
@@ -434,39 +434,39 @@ class Monitor(BaseMonitor):
             return field
 
         for superrow in self.layout:
-            self += u'<tr><td class="center">\n'
+            self += '<tr><td class="center">\n'
             for column in superrow:
-                self += u'  <table class="column"><tr><td>'
+                self += '  <table class="column"><tr><td>'
                 for block in column:
                     block = self._resolve_block(block)
                     blk = Block(block._options)
-                    blk += u'<div class="block">'
-                    blk += (u'<div class="blockhead">%s</div>' %
+                    blk += '<div class="block">'
+                    blk += ('<div class="blockhead">%s</div>' %
                             html.escape(block._title))
-                    blk += u'\n    <table class="blocktable">'
+                    blk += '\n    <table class="blocktable">'
                     for row in block:
                         if row is None:
-                            blk += u'<tr></tr>'
+                            blk += '<tr></tr>'
                         else:
-                            blk += u'<tr><td class="center">'
+                            blk += '<tr><td class="center">'
                             for field in row:
-                                blk += u'\n      <table class="field"><tr><td>'
+                                blk += '\n      <table class="field"><tr><td>'
                                 f = _create_field(blk, field)
                                 if f and f.setups:
                                     if blk.setups:
                                         blk._onlyfields.append(f)
                                     else:
                                         self._onlyfields.append(f)
-                                blk += u'</td></tr></table> '
-                            blk += u'\n    </td></tr>'
-                    blk += u'</table>\n  </div>'
+                                blk += '</td></tr></table> '
+                            blk += '\n    </td></tr>'
+                    blk += '</table>\n  </div>'
                     self += blk
                     if blk.setups:
                         self._onlyblocks.append(blk)
-                self += u'</td></tr></table>\n'
-            self += u'</td></tr>'
-        self += u'</table>\n'
-        self += u'</body></html>\n'
+                self += '</td></tr></table>\n'
+            self += '</td></tr>'
+        self += '</table>\n'
+        self += '</body></html>\n'
 
     def updateTitle(self, text):
         self._timelabel.text = text
