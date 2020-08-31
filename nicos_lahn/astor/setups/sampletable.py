@@ -26,7 +26,7 @@ devices = dict(
     z = device('nicos.devices.generic.Axis',
         description = 'z translation',
         motor = device('nicos.devices.generic.VirtualMotor',
-            abslimits = (0, 400),
+            abslimits = (0, 250),
             unit = 'mm',
             speed = 1,
         ),
