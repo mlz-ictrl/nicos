@@ -395,8 +395,5 @@ class AttributeRaiser(object):
     def __delattr__(self, key):
         raise self.excls(self.exmsg)
 
-    # pylint: disable=nonzero-method
-    def __nonzero__(self):
+    def __bool__(self):
         return False
-
-    __bool__ = __nonzero__

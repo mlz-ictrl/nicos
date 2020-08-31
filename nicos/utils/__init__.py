@@ -181,13 +181,10 @@ class Repeater(object):
     def __iter__(self):
         return self
 
-    # pylint: disable=next-method-defined
-    def next(self):
+    def __next__(self):
         if self._stop:
             raise StopIteration
         return self.object
-
-    __next__ = next  # Python 3
 
     def __len__(self):
         return 0

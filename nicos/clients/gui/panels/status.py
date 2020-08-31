@@ -94,11 +94,8 @@ class ScriptQueue(object):
         self._view.clear()
         self._id2item.clear()
 
-    # pylint: disable=nonzero-method
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self._id2item)
-
-    __bool__ = __nonzero__
 
 
 class LineDelegate(QStyledItemDelegate):
