@@ -70,7 +70,7 @@ class SqueezedLabel(QLabel, NicosWidget):
             else:
                 new_lines.append(line)
         if squeezed:
-            QLabel.setText(self, '\n'.join(map(str, new_lines)))
+            QLabel.setText(self, '\n'.join(new_lines))
             self.setToolTip(self._fulltext)
         else:
             QLabel.setText(self, self._fulltext)

@@ -35,7 +35,6 @@ from logging import DEBUG, ERROR, INFO, WARNING, Formatter, Handler, Logger, \
 from os import path
 
 from nicos import session
-from nicos.pycompat import from_maybe_utf8
 from nicos.utils import colorize, formatExtendedTraceback
 
 LOGFMT = '%(asctime)s : %(levelname)-7s : %(name)s: %(message)s'
@@ -86,17 +85,12 @@ class NicosLogger(Logger):
             msg = ''
             args = ()
         else:
-            msg = msgs[0]
-            if isinstance(msg, bytes):
-                msg = from_maybe_utf8(msg)
-            else:
-                msg = str(msg)
+            msg = str(msgs[0])
             args = msgs[1:]
         if extramsgs:
             if msg:
                 msg += ' '
-            msg += ' '.join(from_maybe_utf8(msg) if isinstance(msg, bytes)
-                            else str(msg) for msg in extramsgs)
+            msg += ' '.join(map(str, extramsgs))
         return msg, args, exc_info
 
     def error(self, *msgs, **kwds):
@@ -420,7 +414,7 @@ def get_facility_log_handlers(config):
     """
     try:
         setup_package_mod = __import__(config.setup_package)
-    except ImportError as _:
+    except ImportError:
         raise RuntimeError('Setup package %r does not exist.' %
                            config.setup_package)
 

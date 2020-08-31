@@ -204,8 +204,6 @@ class SMSer(Notifier):
 
     def _transcode(self, string):
         """Re-encode UTF-8 string into SMS encoding (GSM 03.38)."""
-        if not isinstance(string, str):
-            string = string.decode('utf-8')
         return ''.join(GSM0338_MAP.get(c, '') for c in string)
 
     def send(self, subject, body, what=None, short=None, important=True):
