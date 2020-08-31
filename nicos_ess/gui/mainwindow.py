@@ -180,7 +180,6 @@ class MainWindow(DefaultMainWindow):
         self.actionConnect.setChecked(is_connected)
         if is_connected:
             self.actionConnect.setText('Disconnect')
-            self.actionConnect.setChecked(False)
         else:
             self.actionConnect.setText('Connect to server...')
             self.setTitlebar(False)
