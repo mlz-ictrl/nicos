@@ -244,7 +244,7 @@ class CClient:
                 print(dev, end= '\r',)
             for fix in fixes:
                 # ask fix about required keys and types
-                argspec = inspect.getargspec(fix)
+                argspec = inspect.getfullargspec(fix)
                 keys = argspec.args
                 types = argspec.defaults
                 if len(keys) != len(types):

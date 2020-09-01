@@ -404,8 +404,7 @@ class DevicesWidget(QWidget):
     def getDef(self):
         if self._edit:
             self._stopEdit()
-        return [{dev: element for (dev, element) in zip(self.devs, row)}
-                for row in self._rows]
+        return [dict(zip(self.devs, row)) for row in self._rows]
 
     def addRow(self, elements=None):
         if self._edit:

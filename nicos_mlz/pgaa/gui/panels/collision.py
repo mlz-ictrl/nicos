@@ -21,6 +21,7 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
+
 """NICOS GUI PGAI collision calculations."""
 
 from __future__ import absolute_import, division, print_function
@@ -144,8 +145,8 @@ class Cuboid:
 class Cube(Cuboid):
     """Cube class."""
 
-    def __init__(self, x, y, length):
-        Cuboid.__init__(self, x, y, length, length, length)
+    def __init__(self, x, y, z, length):
+        Cuboid.__init__(self, x, y, z, length, length, length)
 
 
 def circle_values(r, cl=3, space=2):

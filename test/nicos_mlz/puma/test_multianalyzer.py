@@ -154,7 +154,7 @@ class TestMultiAnalyzer:
 
         man.maw([0] * 11 + [-i * 0.1 for i in range(11)])
         man.maw([0] * 22)
-        man.maw([i for i in range(11)] + [-i * 0.1 for i in range(11)])
+        man.maw(list(range(11)) + [-i * 0.1 for i in range(11)])
 
     def test_reset(self, session):
         """Check reset and reference of device."""

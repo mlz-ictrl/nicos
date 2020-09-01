@@ -94,7 +94,7 @@ class SetupDepPanelMixin(QObject):
     setupSpec = ()
     setWidgetVisible = pyqtSignal(QWidget, bool, name='setWidgetVisible')
 
-    def __init__(self, client, options):
+    def __init__(self, client, options):  # pylint: disable=super-init-not-called
         setups = options.get('setups', '')
         self.setSetups(setups)
         client.register(self, 'session/mastersetup')
@@ -180,7 +180,6 @@ class Panel(DlgUtils, QWidget, SetupDepPanelMixin):
 
         If the panel has a title widget, it should hide it in this method.
         """
-        pass
 
     def requestClose(self):
         return True

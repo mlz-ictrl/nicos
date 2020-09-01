@@ -30,7 +30,7 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import time
-from fractions import gcd
+from math import gcd
 
 from numpy import arctan2, array, cos, cross, delete, linspace, mat, sin, sqrt
 

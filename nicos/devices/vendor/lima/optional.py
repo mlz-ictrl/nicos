@@ -62,7 +62,7 @@ class LimaCooler(DeviceMixinBase):
     }
 
     def doReadCooleron(self):
-        return True if self._dev.cooler == 'ON' else False
+        return self._dev.cooler == 'ON'
 
     def doWriteCooleron(self, value):
         self._dev.cooler = 'ON' if value else 'OFF'
