@@ -27,7 +27,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-import sys
 from contextlib import contextmanager
 from time import time as currenttime
 
@@ -379,8 +378,7 @@ class Scan(object):
                                              self._endpositions[i], wait=False)
                     except SkipPoint:
                         continue
-                    except:  # pylint: disable=bare-except
-                        err = sys.exc_info()[1]
+                    except BaseException as err:
                         try:
                             self.finishPoint()
                         except Exception:

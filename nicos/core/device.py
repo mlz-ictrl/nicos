@@ -28,7 +28,6 @@ from __future__ import absolute_import, division, print_function
 
 import inspect
 import re
-import sys
 from time import time as currenttime
 
 import numpy
@@ -362,8 +361,7 @@ class Device(metaclass=DeviceMeta):
         try:
             # initialize device
             self.init()
-        except:  # really *all* exceptions # pylint: disable=W0702
-            err = sys.exc_info()[1]
+        except BaseException as err:
             try:
                 self.shutdown()
             except Exception:

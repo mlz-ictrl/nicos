@@ -195,7 +195,7 @@ class NicosCmdClient(NicosClient):
                     continue
                 librl.rl_callback_handler_remove()
                 raise
-            except:
+            except BaseException:
                 librl.rl_callback_handler_remove()
                 raise
             if sys.stdin in res:

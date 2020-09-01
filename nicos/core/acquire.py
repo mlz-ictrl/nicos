@@ -116,7 +116,7 @@ def acquire(point, preset, iscompletefunc=None):
     try:
         for det in point.detectors:
             det.start()
-    except:
+    except BaseException:
         session.endActionScope()
         raise
     session.delay(delay)

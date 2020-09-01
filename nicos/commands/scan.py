@@ -493,7 +493,7 @@ class _ManualScan(object):
         try:
             self.scan.manualBegin()
             return self.scan
-        except:  # yes, all exceptions
+        except BaseException:
             session._manualscan = None
             raise
 

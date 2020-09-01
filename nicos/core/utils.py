@@ -299,7 +299,7 @@ def waitForState(dev, state, delay=0.3, ignore_errors=False):
             if st == state:
                 break
             session.delay(delay)
-    except:
+    except BaseException:
         if ignore_errors:
             return
         raise

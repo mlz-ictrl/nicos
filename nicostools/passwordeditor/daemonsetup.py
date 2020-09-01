@@ -105,7 +105,7 @@ class DaemonSetup(object):
                 # check if is it a hashlib call
                 if redbaron.RedBaron(pwhash):
                     fmtstr = '(%r, %s, %r)'
-            except:  # pylint: disable=bare-except
+            except Exception:
                 pass
             pwentry = fmtstr % (user, pwhash, role)
             self.passwd.value.append(pwentry)

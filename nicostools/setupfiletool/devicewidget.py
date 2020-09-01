@@ -148,7 +148,7 @@ class DeviceWidget(QWidget):
         try:
             newParam.labelParam.setToolTip(
                 self.myClass.parameters[param].description)
-        except:  # pylint: disable=bare-except
+        except Exception:
             newParam.labelParam.setToolTip('No info found.')
         try:
             mandatory = self.myClass.parameters[param].mandatory

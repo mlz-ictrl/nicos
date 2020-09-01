@@ -193,7 +193,7 @@ class SimulationSession(Session):
 
             # Set session to always abort on errors.
             session.experiment.errorbehavior = 'abort'
-        except:  # really *all* exceptions -- pylint: disable=W0702
+        except BaseException:
             session.log.exception('Exception in dry run setup')
             session.log_sender.finish()
             session.shutdown()
@@ -213,7 +213,7 @@ class SimulationSession(Session):
                 session.log_sender.send_block_result(i, time)
         except Abort:
             session.log.info('Dry run finished by abort()')
-        except:  # pylint: disable=W0702
+        except BaseException:
             session.log.exception('Exception in dry run')
             exception = True
         else:
