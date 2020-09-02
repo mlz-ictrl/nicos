@@ -166,7 +166,7 @@ setup(
     version = nicos_version,
     license = 'GPL',
     author = 'Georg Brandl',
-    author_email = 'georg.brandl@frm2.tum.de',
+    author_email = 'g.brandl@fz-juelich.de',
     maintainer = 'Jens Krüger',
     maintainer_email = 'jens.krueger@frm2.tum.de',
     description = 'The Networked Instrument Control System',
