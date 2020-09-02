@@ -28,8 +28,8 @@ from time import time as currenttime
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QByteArray, QDialogButtonBox, \
-    QHeaderView, Qt, QTreeWidgetItem
+from nicos.guisupport.qt import QByteArray, QDialogButtonBox, QHeaderView, \
+    Qt, QTreeWidgetItem
 
 
 class WatchdogPanel(Panel):

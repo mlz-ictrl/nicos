@@ -27,8 +27,8 @@
 """
 import numpy
 
-from nicos.clients.gui.panels.live import IntegralLiveWidget, \
-    LiveDataPanel, LiveWidget1D
+from nicos.clients.gui.panels.live import IntegralLiveWidget, LiveDataPanel, \
+    LiveWidget1D
 
 
 class LivePowderWidget(LiveWidget1D):

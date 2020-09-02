@@ -24,8 +24,8 @@
 
 import json
 
-from streaming_data_types.fbschemas.forwarder_config_update_rf5k import \
-    Protocol, UpdateType
+from streaming_data_types.fbschemas.forwarder_config_update_rf5k import Protocol, \
+    UpdateType
 from streaming_data_types.forwarder_config_update_rf5k import StreamInfo, \
     serialise_rf5k
 

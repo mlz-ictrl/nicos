@@ -205,7 +205,6 @@ from base64 import b64decode, b64encode
 from nicos.pycompat import from_utf8
 from nicos.utils import number_types, readonlydict, readonlylist
 
-
 DEFAULT_CACHE_PORT = 14869
 
 OP_TELL = '='

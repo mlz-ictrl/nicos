@@ -49,8 +49,7 @@ from gr import MARKERTYPE_ASTERISK, MARKERTYPE_BOWTIE, MARKERTYPE_CIRCLE, \
 from gr.pygr import Plot, PlotAxes, PlotCurve
 
 from nicos.guisupport.qt import QHBoxLayout, QSize, QTimer, QWidget, pyqtSignal
-from nicos.guisupport.qtgr import InteractiveGRWidget, \
-    LegendEvent, MouseEvent
+from nicos.guisupport.qtgr import InteractiveGRWidget, LegendEvent, MouseEvent
 from nicos.guisupport.timeseries import TimeSeries, buildTickDistAndSubTicks
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.utils import extractKeyAndIndex

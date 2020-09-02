@@ -45,8 +45,9 @@ from nicos.devices.cacheclient import CacheClient
 from nicos.guisupport.qt import QAction, QActionGroup, QApplication, QBrush, \
     QByteArray, QCheckBox, QColor, QComboBox, QCompleter, QDateTime, QDialog, \
     QFont, QFrame, QHBoxLayout, QListWidgetItem, QMainWindow, QMenu, \
-    QMessageBox, QObject, QSizePolicy, QStatusBar, QStyledItemDelegate, Qt, \
-    QTimer, QToolBar, QWidgetAction, pyqtSignal, pyqtSlot, QSettings
+    QMessageBox, QObject, QSettings, QSizePolicy, QStatusBar, \
+    QStyledItemDelegate, Qt, QTimer, QToolBar, QWidgetAction, pyqtSignal, \
+    pyqtSlot
 from nicos.guisupport.timeseries import TimeSeries
 from nicos.guisupport.trees import BaseDeviceParamTree
 from nicos.guisupport.utils import scaledFont

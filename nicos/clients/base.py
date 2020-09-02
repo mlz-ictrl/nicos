@@ -41,7 +41,6 @@ from nicos.protocols.daemon.classic import COMPATIBLE_PROTO_VERSIONS, \
 from nicos.pycompat import to_utf8
 from nicos.utils import createThread
 
-
 BUFSIZE = 8192
 
 

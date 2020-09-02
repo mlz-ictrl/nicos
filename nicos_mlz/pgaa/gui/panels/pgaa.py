@@ -33,9 +33,9 @@ from uuid import uuid1
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QAbstractItemView, QGridLayout, \
-    QHeaderView, QObject, Qt, QTableWidget, QTableWidgetItem, QWidget, \
-    pyqtSignal, pyqtSlot
+from nicos.guisupport.qt import QAbstractItemView, QGridLayout, QHeaderView, \
+    QObject, Qt, QTableWidget, QTableWidgetItem, QWidget, pyqtSignal, \
+    pyqtSlot
 from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC, \
     STATUS_RUNNING, STATUS_STOPPING
 from nicos.utils import findResource

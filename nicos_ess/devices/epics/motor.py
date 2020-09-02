@@ -27,6 +27,7 @@ from nicos.core import Override, Param, pvname, status
 from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import CanDisable, HasOffset
 from nicos.devices.abstract import CanReference, Motor
+
 from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 
 

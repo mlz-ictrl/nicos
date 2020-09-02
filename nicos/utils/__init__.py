@@ -41,8 +41,8 @@ from collections import OrderedDict
 from contextlib import contextmanager
 from datetime import timedelta
 from functools import wraps
-from itertools import chain, islice
 from io import BufferedWriter, FileIO
+from itertools import chain, islice
 from os import path
 from stat import S_IRGRP, S_IROTH, S_IRUSR, S_IRWXU, S_IWUSR, S_IXGRP, \
     S_IXOTH, S_IXUSR

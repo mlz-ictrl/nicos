@@ -32,8 +32,7 @@ import PyTango
 from nicos.core import Attach, HasPrecision, InvalidValueError, Moveable, \
     Override, Param, PositionError, Readable, listof, status, tupleof
 from nicos.devices.generic.sequence import BaseSequencer, \
-    LockedDevice as NicosLockedDevice, SeqDev, SeqMethod, SeqParam, \
-    SeqSleep
+    LockedDevice as NicosLockedDevice, SeqDev, SeqMethod, SeqParam, SeqSleep
 from nicos.devices.generic.switcher import Switcher
 from nicos.devices.tango import Motor as TangoMotor, PowerSupply
 

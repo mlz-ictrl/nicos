@@ -22,11 +22,11 @@
 #
 # *****************************************************************************
 
-from math import sin, cos, radians
+from math import cos, radians, sin
 
 from nicos.clients.gui.panels.generic import GenericPanel
-from nicos.guisupport.qt import pyqtSlot, QBrush, QColor, QPainter, QPen, \
-    QWidget, Qt
+from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, Qt, QWidget, \
+    pyqtSlot
 from nicos.guisupport.widget import NicosWidget
 from nicos.protocols.cache import cache_load
 

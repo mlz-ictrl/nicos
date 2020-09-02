@@ -50,8 +50,8 @@ from math import floor, log10
 from threading import Event
 
 from nicos import session
-from nicos.core import MASTER, SIMULATION, Attach, DeviceAlias, Override, Param, \
-    status, usermethod
+from nicos.core import MASTER, SIMULATION, Attach, DeviceAlias, Override, \
+    Param, status, usermethod
 from nicos.core.device import DeviceMeta, Moveable, Readable
 from nicos.core.errors import ConfigurationError
 from nicos.core.params import anytype, dictwith, floatrange, intrange, \

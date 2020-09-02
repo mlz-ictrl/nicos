@@ -32,8 +32,8 @@ import numpy
 from nicos import session
 from nicos.core import INTERMEDIATE, LIVE, Attach, DeviceMixinBase, \
     Measurable, Moveable, Override, Param, Readable, SubscanMeasurable, \
-    UsageError, Value, anytype, listof, multiStatus, none_or, oneof, \
-    status, tupleof
+    UsageError, Value, anytype, listof, multiStatus, none_or, oneof, status, \
+    tupleof
 from nicos.core.constants import FINAL
 from nicos.core.errors import ConfigurationError
 from nicos.core.scan import Scan

@@ -23,8 +23,8 @@
 # *****************************************************************************
 
 # pylint:disable=no-name-in-module
-from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvas
+from matplotlib.figure import Figure
 
 from nicos.guisupport.qt import QVBoxLayout, QWidget
 

@@ -27,6 +27,7 @@ from datetime import datetime
 
 import numpy as np
 import pytz
+
 # pylint: disable=no-name-in-module
 from nexusformat.nexus import NeXusError, NXattr, NXdata, NXdetector, \
     NXdisk_chopper, NXentry, NXfield, NXinstrument, NXmonitor, NXroot, \

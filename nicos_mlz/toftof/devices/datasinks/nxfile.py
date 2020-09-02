@@ -39,10 +39,10 @@
 import os
 
 import numpy as np
-from nexusformat.nexus import NeXusError, NXfield, NXlink
-from nexusformat.nexus.tree import is_text
 
 import nxs
+from nexusformat.nexus import NeXusError, NXfield, NXlink
+from nexusformat.nexus.tree import is_text
 
 # import h5py as h5
 

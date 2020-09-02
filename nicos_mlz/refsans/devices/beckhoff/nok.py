@@ -28,8 +28,8 @@ import struct
 
 from nicos import session
 from nicos.core import SIMULATION, Attach, AutoDevice, CommunicationError, \
-    Moveable, MoveError, Readable, NicosTimeoutError, Override, Param, \
-    UsageError, floatrange, dictwith, limits, requires, status
+    Moveable, MoveError, NicosTimeoutError, Override, Param, Readable, \
+    UsageError, dictwith, floatrange, limits, requires, status
 from nicos.core.params import oneof, tupleof
 from nicos.devices.abstract import CanReference, Coder, Motor
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep

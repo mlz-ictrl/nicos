@@ -43,8 +43,8 @@ from nicos.guisupport.plots import DATEFMT, TIMEFMT, MaskedPlotCurve, \
     NicosPlotAxes, NicosTimePlotAxes
 from nicos.guisupport.qt import QAction, QApplication, QCursor, QDialog, \
     QFileDialog, QFont, QListWidgetItem, QMenu, QPoint, Qt
-from nicos.guisupport.qtgr import InteractiveGRWidget, \
-    LegendEvent, MouseEvent, ROIEvent
+from nicos.guisupport.qtgr import InteractiveGRWidget, LegendEvent, \
+    MouseEvent, ROIEvent
 from nicos.guisupport.utils import scaledFont
 from nicos.utils import number_types, safeName
 from nicos.utils.fitting import CosineFit, ExponentialFit, Fit, FitError, \

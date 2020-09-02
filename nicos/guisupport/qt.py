@@ -30,13 +30,15 @@
 import os
 import sys
 
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QObject
-from PyQt5.QtCore import *
-from PyQt5.QtPrintSupport import *
-from PyQt5.QtDesigner import *
 from PyQt5 import uic
+from PyQt5.QtCore import *
+from PyQt5.QtCore import QObject
+from PyQt5.QtDesigner import *
+from PyQt5.QtGui import *
+from PyQt5.QtPrintSupport import *
+from PyQt5.QtWidgets import *
+
+import nicos.guisupport.gui_rc_qt5
 
 try:
     from PyQt5 import sip
@@ -67,7 +69,6 @@ try:
 except (ImportError, RuntimeError):
     QsciScintilla = QsciLexerPython = QsciPrinter = None
 
-import nicos.guisupport.gui_rc_qt5
 
 class QPyNullVariant:
     pass

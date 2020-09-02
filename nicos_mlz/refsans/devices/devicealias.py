@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-"""Base device classes for usage in NICOS."""
-
 from nicos.core.device import DeviceAlias
 
 

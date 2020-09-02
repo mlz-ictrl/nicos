@@ -30,10 +30,10 @@ import socket
 from os import path
 
 from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
-from nicos.guisupport.qt import QApplication, QByteArray, \
-    QColor, QDateTime, QDialog, QFileDialog, QFont, QLabel, QMessageBox, \
-    QProgressDialog, QPushButton, QSettings, QSize, QStyle, Qt, QTextEdit, \
-    QToolButton, QVBoxLayout, QWidget, uic
+from nicos.guisupport.qt import QApplication, QByteArray, QColor, QDateTime, \
+    QDialog, QFileDialog, QFont, QLabel, QMessageBox, QProgressDialog, \
+    QPushButton, QSettings, QSize, QStyle, Qt, QTextEdit, QToolButton, \
+    QVBoxLayout, QWidget, uic
 
 
 def getXDisplay():
