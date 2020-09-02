@@ -198,9 +198,7 @@ def runSetupcheck() {
         }
     }
     catch (all) {
-        // temporay set to 0
-        // until livewidget and CARESS problems are solved on bionic images
-        verifyresult.put('sc', 0)
+        verifyresult.put('sc', -1)
     }
     echo "setupcheck: result=" + verifyresult['sc']
     publishGerrit('setupcheck',verifyresult['sc'])
