@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Classes to display the PUMA multi detector devices."""
 
-from __future__ import absolute_import, division, print_function
-
 from .crystaltable import CrystalTable
 from .detbox import DetectorBox
 from .dettable import DetectorGuide, DetectorTable

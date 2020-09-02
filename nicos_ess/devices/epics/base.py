@@ -26,8 +26,6 @@
 This module contains ESS specific Base classes for EPICS.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from kafka.errors import KafkaError
 
 from nicos import session

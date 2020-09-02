@@ -24,8 +24,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import ldap3  # pylint: disable=import-error
 
 from nicos.core import ACCESS_LEVELS, Param, User, dictof, oneof

@@ -24,8 +24,6 @@
 
 """NICOS GUI user editor window."""
 
-from __future__ import absolute_import, division, print_function
-
 import io
 import sys
 import time

@@ -21,8 +21,6 @@
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
 #
 # *****************************************************************************
-from __future__ import absolute_import, division, print_function
-
 
 class PlaceholderBase:
     """ Base class for a placeholder in NeXus template. Children should

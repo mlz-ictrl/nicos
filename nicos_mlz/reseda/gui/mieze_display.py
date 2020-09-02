@@ -24,8 +24,6 @@
 
 """Classes to display Mieze data from Cascade detector."""
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 from gr.pygr import ErrorBar
 

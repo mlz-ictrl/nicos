@@ -31,8 +31,6 @@ of a motor. The real, hardware,  position of a  motor is
 hpos = sign*(val +zero)
 """
 
-from __future__ import absolute_import, division, print_function
-
 import pytest
 
 from nicos.core import status

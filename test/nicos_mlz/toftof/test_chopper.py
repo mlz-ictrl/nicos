@@ -24,8 +24,6 @@
 
 """SPODI specific chopper tests."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import status
 
 from test.utils import approx

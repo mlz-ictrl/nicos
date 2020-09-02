@@ -25,8 +25,6 @@
 """Show next U-Bahn departures from Garching-Forschungszentrum (or any stop)
 in the MVG network."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import NicosError, Override, Param, Readable, status
 
 URL = ('http://www.mvg-live.de/ims/dfiStaticAnzeige.svc?'

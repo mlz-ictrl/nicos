@@ -24,8 +24,6 @@
 
 """Integration of Dynamic Light Scattering setup."""
 
-from __future__ import absolute_import, division, print_function
-
 import time
 
 import numpy as np

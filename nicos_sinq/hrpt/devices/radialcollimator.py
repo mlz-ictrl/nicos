@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.core import Param, oneof, pvname, status
 from nicos.core.errors import ConfigurationError

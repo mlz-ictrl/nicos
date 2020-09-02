@@ -24,8 +24,6 @@
 
 """Module for RESEDA specific commands."""
 
-from __future__ import absolute_import, division, print_function
-
 import scipy.constants as co
 
 from nicos import session

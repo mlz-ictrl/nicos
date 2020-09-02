@@ -24,8 +24,6 @@
 
 """KWS-3 flexible temperature controller."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Param, dictof, none_or, oneof, tangodev, tupleof
 from nicos.devices.generic.paramdev import ParamDevice
 from nicos.devices.tango import TemperatureController

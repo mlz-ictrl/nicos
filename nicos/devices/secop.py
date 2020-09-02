@@ -43,8 +43,6 @@ params_cfg (optional): a dict {<parameter name>: <cfg dict>}
    Attributes given in the cfg dict may overwrite above attributes.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import re
 import time
 from collections import OrderedDict

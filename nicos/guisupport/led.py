@@ -26,8 +26,6 @@
 NICOS GUI LED class.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import ast
 
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \

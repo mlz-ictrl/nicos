@@ -24,8 +24,6 @@
 
 """Generate quick overview plots of scans, using Gnuplot."""
 
-from __future__ import absolute_import, division, print_function
-
 import subprocess
 
 from nicos.pycompat import to_utf8

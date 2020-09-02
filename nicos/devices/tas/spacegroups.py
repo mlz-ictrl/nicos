@@ -28,8 +28,6 @@ Crystallographic space-group symmetry information.
 Extracted from PowderCell's PCWSPGR.DAT file.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import NicosError
 
 

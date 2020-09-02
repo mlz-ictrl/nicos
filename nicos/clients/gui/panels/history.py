@@ -25,8 +25,6 @@
 
 """NICOS GUI history log window."""
 
-from __future__ import absolute_import, division, print_function
-
 import functools
 import json
 import operator

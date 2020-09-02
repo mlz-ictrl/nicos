@@ -26,8 +26,6 @@
 Tests for EPICS area detector
 """
 
-from __future__ import absolute_import, division, print_function
-
 import time
 import unittest
 from unittest.mock import patch

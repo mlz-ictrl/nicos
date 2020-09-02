@@ -24,8 +24,6 @@
 
 """'Instrument reconfiguration' tool for KWS instruments."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.utils import DlgUtils, loadUi
 from nicos.guisupport.qt import QButtonGroup, QLabel, QMainWindow, QRadioButton
 from nicos.utils import findResource

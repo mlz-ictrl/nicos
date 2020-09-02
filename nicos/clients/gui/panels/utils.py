@@ -25,8 +25,6 @@
 
 """Support for "auxiliary" windows containing panels."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.config import docked, hbox, hsplit, panel, tabbed, \
     vbox, vsplit
 from nicos.clients.gui.panels import Panel

@@ -25,8 +25,6 @@
 
 """NICOS Sample related usercommands"""
 
-from __future__ import absolute_import, division, print_function
-
 import json
 import urllib
 from copy import deepcopy

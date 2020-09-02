@@ -24,8 +24,6 @@
 
 """NICOS parameter utilities tests."""
 
-from __future__ import absolute_import, division, print_function
-
 from numpy import array
 
 from nicos.core.errors import ConfigurationError, ProgrammingError

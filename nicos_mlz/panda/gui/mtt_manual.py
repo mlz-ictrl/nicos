@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from math import sin, cos, radians
 
 from nicos.clients.gui.panels.generic import GenericPanel

@@ -24,8 +24,6 @@
 
 """Base device classes for usage in NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 import inspect
 import re
 from time import time as currenttime

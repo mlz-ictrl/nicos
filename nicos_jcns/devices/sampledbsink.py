@@ -25,8 +25,6 @@
 
 """IFF sample database sink and its handler."""
 
-from __future__ import absolute_import, division, print_function
-
 from base64 import b64encode
 from os import path
 from re import compile as re_compile

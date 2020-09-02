@@ -24,8 +24,6 @@
 
 """VTREFF detector image based on McSTAS simulation."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Attach, Override, Readable
 from nicos.devices.generic import Slit
 

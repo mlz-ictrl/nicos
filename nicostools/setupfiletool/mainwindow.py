@@ -25,8 +25,6 @@
 
 # icons: https://launchpad.net/elementaryicons
 
-from __future__ import absolute_import, division, print_function
-
 import inspect
 import logging
 from os import path

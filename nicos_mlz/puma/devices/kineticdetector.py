@@ -24,8 +24,6 @@
 
 """Special devices for kinetic measurements."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.constants import POINT
 from nicos.core.params import Attach, Override
 from nicos.devices.datasinks.file import FileSink

@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Class for the sample changer."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Attach, IsController, Moveable, Override, status
 from nicos.core.errors import LimitError
 from nicos.core.mixins import HasLimits

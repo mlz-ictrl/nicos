@@ -24,8 +24,6 @@
 
 """Setup file handling."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.params import nicosdev_re
 from nicos.utils import Device
 from nicos.utils.files import iterSetups

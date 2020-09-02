@@ -24,8 +24,6 @@
 
 """Bersans file format saver, exclusively used at SANS1"""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 from time import localtime, strftime, time as currenttime
 

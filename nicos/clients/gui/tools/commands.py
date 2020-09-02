@@ -24,8 +24,6 @@
 
 """Graphical maintenance command runner."""
 
-from __future__ import absolute_import, division, print_function
-
 import subprocess
 import time
 from os import path

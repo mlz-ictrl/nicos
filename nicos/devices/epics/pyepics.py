@@ -25,8 +25,6 @@
 """
 This module contains some classes for NICOS - EPICS integration.
 """
-from __future__ import absolute_import, division, print_function
-
 import threading
 from time import time as currenttime
 

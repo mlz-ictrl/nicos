@@ -24,8 +24,6 @@
 
 """Module for data analyzing user commands."""
 
-from __future__ import absolute_import, division, print_function
-
 from math import sqrt
 
 import numpy as np

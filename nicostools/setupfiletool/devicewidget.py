@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Classes to handle the devices."""
 
-from __future__ import absolute_import, division, print_function
-
 from os import path
 
 from nicos.guisupport.qt import QMessageBox, QSpacerItem, QWidget, \

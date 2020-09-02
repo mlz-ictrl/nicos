@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function
-
 from nicos_ess.nexus import DeviceAttribute, DeviceDataset, NXDataset, NXLink
 from nicos_sinq.amor.nexus.placeholder import UserEmailPlaceholder
 

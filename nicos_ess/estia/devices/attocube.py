@@ -28,8 +28,6 @@ This module contains the NICOS integration of the Attocube IDS 3010
 interferometer.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from time import time as currenttime
 
 import requests

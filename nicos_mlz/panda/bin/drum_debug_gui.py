@@ -25,8 +25,6 @@
 
 """Q'n'D, hacked together GUI for debugging PANDA's Monochanger"""
 
-from __future__ import absolute_import, division, print_function
-
 import sys
 from struct import pack, unpack
 

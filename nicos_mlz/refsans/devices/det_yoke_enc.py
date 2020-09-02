@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Readable, status
 from nicos.core.params import Attach, Param, intrange
 from nicos.devices.tango import StringIO

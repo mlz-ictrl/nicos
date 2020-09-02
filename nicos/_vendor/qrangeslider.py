@@ -41,8 +41,6 @@
 # ---------------------------------------------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function
-
 import sys
 
 from nicos.guisupport.qt import QApplication, QColor, QFont, QGridLayout, \

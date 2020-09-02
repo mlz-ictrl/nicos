@@ -24,8 +24,6 @@
 
 """Virtual devices for testing."""
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from nicos.core import Override, Param, intrange

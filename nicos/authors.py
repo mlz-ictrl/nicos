@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 authors_list = '''\
 NICOS is written and maintained by:
 

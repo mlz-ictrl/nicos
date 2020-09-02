@@ -26,8 +26,6 @@
 Devices to control the sample environment at SPHERES
 """
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.core import SIMULATION, oneof
 from nicos.core.params import Attach, Param, tangodev

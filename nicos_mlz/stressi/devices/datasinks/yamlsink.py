@@ -23,8 +23,6 @@
 # *****************************************************************************
 """YAML data sink classes for STRESS-SPEC."""
 
-from __future__ import absolute_import, division, print_function
-
 import re
 import time
 from io import TextIOWrapper

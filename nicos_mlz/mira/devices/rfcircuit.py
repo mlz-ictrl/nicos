@@ -24,8 +24,6 @@
 
 """Agilent wave generator classes."""
 
-from __future__ import absolute_import, division, print_function
-
 from time import sleep
 
 from nicos.core import MASTER, Attach, HasLimits, Moveable, Override, Param, \

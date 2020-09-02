@@ -25,8 +25,6 @@
 
 """NICOS tests for some utility modules."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import pickle
 import socket

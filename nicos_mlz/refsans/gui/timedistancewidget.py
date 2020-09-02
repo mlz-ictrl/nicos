@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 # pylint:disable=no-name-in-module
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvas

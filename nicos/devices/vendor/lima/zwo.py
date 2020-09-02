@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Special classes for ZWO cameras."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import HasLimits, HasPrecision, Moveable, status
 from nicos.devices.tango import PyTangoDevice
 

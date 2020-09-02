@@ -24,8 +24,6 @@
 
 """NICOS data handlers test suite."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import pickle
 import time

@@ -23,8 +23,6 @@
 # *****************************************************************************
 """PGAA panel specific widgets."""
 
-from __future__ import absolute_import, division, print_function
-
 import time
 from collections import OrderedDict
 from os import path

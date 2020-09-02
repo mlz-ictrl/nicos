@@ -25,8 +25,6 @@
 
 """KWS sample configuration dialog."""
 
-from __future__ import absolute_import, division, print_function
-
 import builtins
 import math
 import time

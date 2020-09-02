@@ -25,8 +25,6 @@
 
 """NICOS GUI scan plot window."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 from math import sqrt
 

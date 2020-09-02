@@ -32,8 +32,6 @@
 * build an index of all devices
 """
 
-from __future__ import absolute_import, division, print_function
-
 from docutils import nodes
 from docutils.parsers.rst import Directive
 from sphinx import addnodes

@@ -24,8 +24,6 @@
 
 """Utilities for sending E-Mails."""
 
-from __future__ import absolute_import, division, print_function
-
 import smtplib
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart

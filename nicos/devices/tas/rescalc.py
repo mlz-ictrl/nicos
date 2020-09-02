@@ -31,8 +31,6 @@ neutrons.instruments.tas.tasres from the neutrons Python package, compiled by
 Marc Janoschek.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from numpy import absolute, arange, arccos, arcsin, arctan2, array, \
     concatenate, cos, cross, degrees, delete, diag, dot, exp, matrix, pi, \
     radians, real, reshape, sin, sqrt, tan, zeros

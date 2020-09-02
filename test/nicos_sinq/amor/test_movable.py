@@ -24,8 +24,6 @@
 
 """Module to test movable devices at SINQ."""
 
-from __future__ import absolute_import, division, print_function
-
 import pytest
 
 from .utils import is_at_target, unit_value

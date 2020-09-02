@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Devices with an inclination."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Readable
 from nicos.core.mixins import HasOffset
 from nicos.core.params import Attach, Param

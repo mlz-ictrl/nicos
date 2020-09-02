@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from gzip import GzipFile as StdGzipFile
 
 import numpy

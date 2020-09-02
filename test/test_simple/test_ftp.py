@@ -26,8 +26,6 @@
 
 """Tests for the ftp upload module."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import tempfile
 from io import BytesIO, StringIO

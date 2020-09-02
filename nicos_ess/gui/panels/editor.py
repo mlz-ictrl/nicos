@@ -24,8 +24,6 @@
 
 """NICOS GUI user editor window."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.panels.editor import EditorPanel as DefaultEditorPanel
 from nicos.clients.gui.utils import showToolText
 from nicos.guisupport.qt import QToolBar

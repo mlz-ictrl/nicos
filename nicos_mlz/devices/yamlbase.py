@@ -24,8 +24,6 @@
 
 """Base classes for YAML based datasinks."""
 
-from __future__ import absolute_import, division, print_function
-
 from datetime import datetime
 from time import time as currenttime
 

@@ -24,8 +24,6 @@
 
 """Doppler device for SPHERES"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.commands.basic import sleep
 from nicos.core import SIMULATION, UsageError, dictwith, floatrange, \

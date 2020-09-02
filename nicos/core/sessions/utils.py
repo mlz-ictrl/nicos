@@ -24,8 +24,6 @@
 
 """Utilities for the session classes."""
 
-from __future__ import absolute_import, division, print_function
-
 import builtins
 import keyword
 import os

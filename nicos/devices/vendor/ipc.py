@@ -25,8 +25,6 @@
 
 """IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
-from __future__ import absolute_import, division, print_function
-
 import select
 import socket
 from threading import RLock

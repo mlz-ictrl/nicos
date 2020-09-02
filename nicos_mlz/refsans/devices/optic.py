@@ -24,8 +24,6 @@
 # *****************************************************************************
 """REFSANS neutron guide system class."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Moveable, Override, Param, floatrange, oneof
 from nicos.core.params import Attach
 from nicos.utils import number_types

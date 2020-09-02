@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 # ensure base is loaded before all subclasses
 import nicos.devices.sxtal.goniometer.base
 

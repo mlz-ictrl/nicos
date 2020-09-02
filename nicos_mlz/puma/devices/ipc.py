@@ -29,8 +29,6 @@
 (Institut für Physikalische Chemie, Göttingen) hardware classes.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from nicos import session

@@ -24,8 +24,6 @@
 
 """Module for basic user commands."""
 
-from __future__ import absolute_import, division, print_function
-
 import builtins
 import io
 import os

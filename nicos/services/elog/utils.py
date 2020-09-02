@@ -24,8 +24,6 @@
 
 """Utilities for the electronic logbook daemon."""
 
-from __future__ import absolute_import, division, print_function
-
 import html
 import time
 from logging import DEBUG, ERROR, FATAL, INFO, WARNING

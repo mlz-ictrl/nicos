@@ -24,8 +24,6 @@
 
 """Special device for Julabo temperature controllers."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.devices.tango import TemperatureController as BaseController
 
 

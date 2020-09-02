@@ -24,8 +24,6 @@
 # *****************************************************************************
 """REFSANS SDS (safe detector system) devices."""
 
-from __future__ import absolute_import, division, print_function
-
 import requests
 
 from nicos.core import Override, Param, Readable, intrange, oneof, status

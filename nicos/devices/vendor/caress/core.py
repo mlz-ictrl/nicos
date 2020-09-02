@@ -24,8 +24,6 @@
 
 """Devices via the CARESS device service."""
 
-from __future__ import absolute_import, division, print_function
-
 import subprocess
 import sys
 

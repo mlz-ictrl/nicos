@@ -24,8 +24,6 @@
 
 """Refsans specific devices for 'alphaf'."""
 
-from __future__ import absolute_import, division, print_function
-
 from math import atan2, cos, degrees, radians, sin, tan
 
 import numpy as np

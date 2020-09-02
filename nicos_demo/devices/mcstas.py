@@ -25,8 +25,6 @@
 
 """detector based on McStas simulation."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import shutil
 from os import path

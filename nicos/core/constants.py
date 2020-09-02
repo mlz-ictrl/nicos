@@ -25,8 +25,6 @@
 
 """NICOS core constants."""
 
-from __future__ import absolute_import, division, print_function
-
 # session modes
 MASTER = 'master'
 SLAVE = 'slave'

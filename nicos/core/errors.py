@@ -24,8 +24,6 @@
 
 """Exception classes for usage in NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 
 class NicosError(Exception):
     """The basic exception class for exceptions raised by NICOS.

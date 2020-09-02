@@ -25,8 +25,6 @@
 
 """Module to test polarisation routines."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos_mlz.puma.lib.pa.deflector import ddefl, rdefl
 from nicos_mlz.puma.lib.pa.gauss import gaussian
 

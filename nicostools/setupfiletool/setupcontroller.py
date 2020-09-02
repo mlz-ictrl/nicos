@@ -28,8 +28,6 @@ A Setup object represents a setup file.
 Setups are distinguishable by their absolute path.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import os
 from copy import copy
 from os import path

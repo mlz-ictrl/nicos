@@ -24,8 +24,6 @@
 
 """Mantid Instrument View Panel."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 
 from nicos.clients.gui.panels import Panel

@@ -23,8 +23,6 @@
 # **************************************************************************
 """Support Code for REFSANS's NOK's."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import AutoDevice, ConfigurationError, HasPrecision, Moveable,\
     MoveError, Readable, dictwith, status
 from nicos.core.errors import HardwareError

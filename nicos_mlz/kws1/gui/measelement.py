@@ -24,8 +24,6 @@
 
 """Helpers for commandlets for KWS(-1)."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.guisupport import typedvalue
 from nicos.guisupport.qt import QCheckBox, QComboBox, QHBoxLayout, QLineEdit, \
     QObject, QSpinBox, QWidget, pyqtSignal

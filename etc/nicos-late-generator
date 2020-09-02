@@ -29,8 +29,6 @@ service.
 All units are then added as dependencies to nicos.target.
 """
 
-from __future__ import print_function
-
 import os
 import socket
 import sys

@@ -25,8 +25,6 @@
 
 """TOFTOF chopper and resolution calculations."""
 
-from __future__ import absolute_import, division, print_function
-
 from math import cos, pi, radians, sqrt
 
 import numpy as np

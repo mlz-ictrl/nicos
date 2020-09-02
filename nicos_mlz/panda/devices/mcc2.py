@@ -25,8 +25,6 @@
 
 """PANDA MCC2 Interface for foci control and support for mono-changer"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import SIMULATION, Attach, CommunicationError, Device, \
     HardwareError, MoveError, Param, Readable, floatrange, intrange, oneof, \
     oneofdict, status, usermethod

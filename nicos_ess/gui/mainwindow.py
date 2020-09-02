@@ -25,8 +25,6 @@
 
 """NICOS GUI main window."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 
 from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow

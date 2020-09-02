@@ -24,8 +24,6 @@
 
 """NICOS GUI virtual console panel component."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.panels.console import \
     ConsolePanel as DefaultConsolePanel
 from nicos.clients.gui.utils import enumerateWithProgress

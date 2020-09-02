@@ -24,8 +24,6 @@
 
 """CARESS histogram file format."""
 
-from __future__ import absolute_import, division, print_function
-
 from time import strftime, time as currenttime
 
 import dataparser as DataParser

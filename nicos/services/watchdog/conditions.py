@@ -24,8 +24,6 @@
 
 """Condition objects for the NICOS watchdog."""
 
-from __future__ import absolute_import, division, print_function
-
 import ast
 
 from nicos.utils import checkSetupSpec

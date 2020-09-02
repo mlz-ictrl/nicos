@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Widget to display the setups and devices in the tree."""
 
-from __future__ import absolute_import, division, print_function
-
 from copy import deepcopy
 from os import path
 

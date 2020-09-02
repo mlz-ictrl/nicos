@@ -24,8 +24,6 @@
 
 """Device class for PUMA PG filter."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.core import Attach, Moveable, NicosError, Readable, oneof, status
 

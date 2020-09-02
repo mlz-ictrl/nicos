@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import json
 
 from streaming_data_types.fbschemas.forwarder_config_update_rf5k import \

@@ -21,8 +21,6 @@
 #   Andreas Schulz <andreas.schulz@frm2.tum.de>
 #
 # *****************************************************************************
-from __future__ import absolute_import, division, print_function
-
 
 class User:
     def __init__(self, userName, password, userLevel):

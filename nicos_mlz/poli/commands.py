@@ -24,8 +24,6 @@
 
 """Module with specific commands for POLI."""
 
-from __future__ import absolute_import, division, print_function
-
 import csv
 import math
 import subprocess

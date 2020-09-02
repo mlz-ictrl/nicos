@@ -25,8 +25,6 @@
 
 """Base class for instrument monitors."""
 
-from __future__ import absolute_import, division, print_function
-
 import re
 from time import sleep, strftime, time as currenttime
 

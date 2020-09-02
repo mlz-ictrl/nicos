@@ -24,8 +24,6 @@
 
 """Implementation of the daemon protocol over ZMQ."""
 
-from __future__ import absolute_import, division, print_function
-
 import queue
 import socket
 import threading

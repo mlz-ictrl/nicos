@@ -24,8 +24,6 @@
 
 """NICOS data manager test suite."""
 
-from __future__ import absolute_import, division, print_function
-
 from contextlib import contextmanager
 
 from nicos.commands.measure import count

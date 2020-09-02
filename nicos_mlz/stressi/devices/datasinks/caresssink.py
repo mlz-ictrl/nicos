@@ -23,8 +23,6 @@
 # *****************************************************************************
 """The STRESSI specific CARESS data writing module."""
 
-from __future__ import absolute_import, division, print_function
-
 import numbers
 import time
 from collections import OrderedDict, namedtuple

@@ -25,8 +25,6 @@
 
 """NICOS cache clients."""
 
-from __future__ import absolute_import, division, print_function
-
 import errno
 import queue
 import select

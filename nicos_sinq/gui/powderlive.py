@@ -25,8 +25,6 @@
   A live view which shows a powder diagram with the correct two_theta and a
   title.
 """
-from __future__ import absolute_import, division, print_function
-
 import numpy
 
 from nicos.clients.gui.panels.live import IntegralLiveWidget, \

@@ -24,8 +24,6 @@
 
 """Symmetry-related classes."""
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from nicos.devices.tas.spacegroups import can_reflect, get_spacegroup

@@ -24,8 +24,6 @@
 
 """Special detector devices for the SANS1"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.mixins import DeviceMixinBase
 from nicos.core.params import Param, floatrange, tupleof
 from nicos.devices.generic import Detector as GenericDetector, \

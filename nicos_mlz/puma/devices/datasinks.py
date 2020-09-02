@@ -24,8 +24,6 @@
 
 """File data sink classes for PUMA."""
 
-from __future__ import absolute_import, division, print_function
-
 from io import TextIOWrapper
 
 from nicos.core import INFO_CATEGORIES, Override, Param

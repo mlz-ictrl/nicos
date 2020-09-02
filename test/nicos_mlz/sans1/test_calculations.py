@@ -23,8 +23,6 @@
 # *****************************************************************************
 """SANS-1 calculation specific tests."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos_mlz.sans1.lib.calculations import qrange
 
 from test.utils import approx

@@ -24,8 +24,6 @@
 
 """NICOS GUI config helpers."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.utils import SettingGroup
 
 

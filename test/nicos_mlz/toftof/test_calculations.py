@@ -24,8 +24,6 @@
 
 """TOFTOF chopper calculation tests."""
 
-from __future__ import absolute_import, division, print_function
-
 import pytest
 
 from nicos_mlz.toftof.devices.calculations import Eres1, ResolutionAnalysis, \

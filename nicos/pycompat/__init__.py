@@ -24,8 +24,6 @@
 
 """Python compatibility."""
 
-from __future__ import absolute_import, division, print_function
-
 
 # missing str/bytes helpers
 # on Py3, UTF-8 is the default encoding already

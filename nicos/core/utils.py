@@ -26,8 +26,6 @@
 
 """NICOS core utility functions."""
 
-from __future__ import absolute_import, division, print_function
-
 from collections import namedtuple
 from functools import wraps
 from time import localtime, time as currenttime

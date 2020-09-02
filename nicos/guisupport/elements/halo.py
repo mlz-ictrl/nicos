@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Classes to display the TAS instruments."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import status
 from nicos.guisupport.elements.colors import statuscolor
 from nicos.guisupport.qt import QBrush, QGraphicsEllipseItem, QPen, QPoint, \

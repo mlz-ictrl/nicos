@@ -24,8 +24,6 @@
 
 """Class for controlling the POLI shutter."""
 
-from __future__ import absolute_import, division, print_function
-
 import time
 
 from nicos.core import Attach, HasTimeout, Moveable, MoveError, Override, \

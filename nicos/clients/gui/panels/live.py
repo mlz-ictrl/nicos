@@ -25,8 +25,6 @@
 
 """NICOS livewidget with GR."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 from collections import OrderedDict
 from os import path

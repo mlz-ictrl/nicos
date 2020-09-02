@@ -25,8 +25,6 @@
 
 """NICOS GUI electronic logbook window."""
 
-from __future__ import absolute_import, division, print_function
-
 import html
 from os import path
 

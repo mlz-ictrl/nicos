@@ -24,8 +24,6 @@
 
 """NICOS GUI watchdog reconfiguration panel."""
 
-from __future__ import absolute_import, division, print_function
-
 from time import time as currenttime
 
 from nicos.clients.gui.panels import Panel

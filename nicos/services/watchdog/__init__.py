@@ -24,8 +24,6 @@
 
 """The NICOS watchdog daemon."""
 
-from __future__ import absolute_import, division, print_function
-
 import hashlib
 import os
 import sys

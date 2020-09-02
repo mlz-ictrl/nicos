@@ -24,8 +24,6 @@
 
 """Meta classes and Mixins for usage in NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 import threading
 import types
 from time import time as currenttime

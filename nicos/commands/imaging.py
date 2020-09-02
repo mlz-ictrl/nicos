@@ -23,8 +23,6 @@
 # *****************************************************************************
 
 """Imaging commands."""
-from __future__ import absolute_import, division, print_function
-
 import math
 
 from nicos import session

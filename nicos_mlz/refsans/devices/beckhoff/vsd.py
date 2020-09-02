@@ -24,8 +24,6 @@
 
 """Devices for the Refsans VSD."""
 
-from __future__ import absolute_import, division, print_function
-
 import struct
 
 from nicos.core import SIMULATION, Attach, Override, Param, Readable, dictof, \

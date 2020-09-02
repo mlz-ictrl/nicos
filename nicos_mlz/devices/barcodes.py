@@ -24,8 +24,6 @@
 
 """Device to receive and interpret barcode input at instruments."""
 
-from __future__ import absolute_import, division, print_function
-
 import re
 import time
 import urllib

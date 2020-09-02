@@ -24,8 +24,6 @@
 
 """Slit devices in AMOR"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import HasPrecision, Override, status
 from nicos.core.utils import multiStatus
 from nicos.devices.generic.slit import SlitAxis

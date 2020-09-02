@@ -24,8 +24,6 @@
 
 """NICOS GUI experiment setup window."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.guisupport.qt import QFileDialog, QDialog
 from nicos_ess.gui.panels.setup_panel import ExpPanel as EssExpPanel
 from nicos_sinq.gui import uipath

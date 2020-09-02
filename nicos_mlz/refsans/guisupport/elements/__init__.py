@@ -22,5 +22,3 @@
 #
 # *****************************************************************************
 """Classes to display the REFSANS instrument."""
-
-from __future__ import absolute_import, division, print_function

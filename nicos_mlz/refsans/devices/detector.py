@@ -24,8 +24,6 @@
 
 """Special device for Refsans Fast Detector (Comtec p7888)"""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 
 import numpy as np

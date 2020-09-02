@@ -25,8 +25,6 @@
 
 """New acquisition commands (scan and count)."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.commands import helparglist, parallel_safe, usercommand
 from nicos.core.acquire import Average, CountResult, MinMax, acquire, \

@@ -24,8 +24,6 @@
 
 """The NICOS version info pushing daemon."""
 
-from __future__ import absolute_import, division, print_function
-
 import urllib
 from datetime import datetime
 

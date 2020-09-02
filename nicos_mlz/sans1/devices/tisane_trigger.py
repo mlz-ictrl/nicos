@@ -27,8 +27,6 @@
 w&t box creates trigger signal for tisane fg1 burst mode.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import urllib
 
 from nicos.core import CommunicationError, ConfigurationError, Moveable, \

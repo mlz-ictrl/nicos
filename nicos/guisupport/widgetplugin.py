@@ -24,8 +24,6 @@
 
 """Qt designer plugin for NICOS UI widgets."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 
 from nicos.guisupport.qt import QIcon, QPyDesignerCustomWidgetPlugin

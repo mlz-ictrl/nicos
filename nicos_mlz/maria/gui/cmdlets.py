@@ -25,8 +25,6 @@
 
 """NICOS GUI cmdlets for MARIA."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.cmdlets import Cmdlet, isFloat, register
 from nicos.guisupport.utils import DoubleValidator
 from nicos.utils import findResource, formatDuration

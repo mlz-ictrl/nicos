@@ -24,8 +24,6 @@
 
 """MARIA specific 2 theta unit tests."""
 
-from __future__ import absolute_import, division, print_function
-
 session_setup = "t2t"
 
 

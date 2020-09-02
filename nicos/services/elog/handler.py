@@ -24,8 +24,6 @@
 
 """The NICOS electronic logbook."""
 
-from __future__ import absolute_import, division, print_function
-
 import html
 import io
 from logging import ERROR

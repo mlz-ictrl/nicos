@@ -24,8 +24,6 @@
 
 """Data sink classes (new API) for NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 from io import TextIOWrapper
 from time import localtime, strftime
 

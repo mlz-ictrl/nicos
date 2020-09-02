@@ -26,8 +26,6 @@
 Utilities for serializing a hs00 flatbuffer
 """
 
-from __future__ import absolute_import, division, print_function
-
 import time
 
 import flatbuffers

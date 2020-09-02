@@ -24,8 +24,6 @@
 
 """NICOS pulse device test suite."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import ConfigurationError, waitForCompletion
 from nicos.devices.generic.manual import ManualSwitch
 

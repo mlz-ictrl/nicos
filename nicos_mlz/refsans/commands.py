@@ -24,8 +24,6 @@
 
 """Special commands only useable at REFSANS"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.commands import helparglist, parallel_safe, usercommand
 from nicos.commands.device import move
 

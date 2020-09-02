@@ -25,8 +25,6 @@
 """Special widgets for the SANS1 statusmonitor."""
 
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
     WARN
 from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, QSize, Qt, \

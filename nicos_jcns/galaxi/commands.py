@@ -26,8 +26,6 @@
 
 """Module for GALAXI specific commands."""
 
-from __future__ import absolute_import, division, print_function
-
 from datetime import datetime
 from os import path
 

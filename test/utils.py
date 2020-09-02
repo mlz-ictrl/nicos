@@ -23,8 +23,6 @@
 # *****************************************************************************
 """NICOS test suite utilities."""
 
-from __future__ import absolute_import, division, print_function
-
 import contextlib
 import math
 import os

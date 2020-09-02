@@ -24,8 +24,6 @@
 
 """TAS specific display widgets."""
 
-from __future__ import absolute_import, division, print_function
-
 from math import cos, pi, sin
 
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, WARN

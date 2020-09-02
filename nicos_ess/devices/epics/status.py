@@ -26,8 +26,6 @@
 Status code definitions for EPICS ESS devices
 """
 
-from __future__ import absolute_import, division, print_function
-
 
 class ADKafkaStatus:
     CONNECTED = 0

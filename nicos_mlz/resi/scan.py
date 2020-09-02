@@ -27,8 +27,6 @@ Created on 06.06.2011
 
 @author: pedersen
 """
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.commands import usercommand
 #from nicos.core.scan import Scan, TimeScan, ContinuousScan, ManualScan

@@ -24,8 +24,6 @@
 
 """Detector switcher for KWS."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
     DeviceMixinBase, HasLimits, Moveable, MoveError, Override, Param, dictof, \
     dictwith, multiReset, multiStop, oneof, status

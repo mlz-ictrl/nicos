@@ -24,8 +24,6 @@
 
 """Session class used with the NICOS daemon."""
 
-from __future__ import absolute_import, division, print_function
-
 import builtins
 import sys
 import threading

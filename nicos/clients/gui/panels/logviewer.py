@@ -24,8 +24,6 @@
 
 """NICOS GUI log viewer panel with simple filter options."""
 
-from __future__ import absolute_import, division, print_function
-
 import html
 import os.path
 

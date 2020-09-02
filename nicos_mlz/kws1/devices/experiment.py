@@ -24,8 +24,6 @@
 
 """NICOS experiment class for KWS1/2."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import time
 from os import path

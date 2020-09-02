@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.pycompat import from_utf8
 
 session_setup = None

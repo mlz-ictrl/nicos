@@ -26,8 +26,6 @@
 
 """Tests for the cache."""
 
-from __future__ import absolute_import, division, print_function
-
 from time import sleep
 
 import pytest

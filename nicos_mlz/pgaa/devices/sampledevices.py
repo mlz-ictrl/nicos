@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Auxiliary classes for the sample changer."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import SIMULATION, Attach, Moveable, Override, Readable, \
     oneof, status
 

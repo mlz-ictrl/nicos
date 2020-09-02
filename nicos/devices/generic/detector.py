@@ -27,8 +27,6 @@
 
 """Generic detector and channel classes for NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 import numpy
 
 from nicos import session

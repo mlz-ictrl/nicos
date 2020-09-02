@@ -25,8 +25,6 @@
 
 """Scan classes, new API."""
 
-from __future__ import absolute_import, division, print_function
-
 from contextlib import contextmanager
 from time import time as currenttime
 

@@ -24,8 +24,6 @@
 
 """Virtual chopper devices for testing."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.params import Attach, Override, Param, intrange
 from nicos.devices.generic.virtual import VirtualMotor
 

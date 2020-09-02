@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 try:
     from genie_python.genie_startup import *  # pylint: disable=wildcard-import
 except ImportError:

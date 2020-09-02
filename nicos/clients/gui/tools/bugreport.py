@@ -24,8 +24,6 @@
 
 """Simplified interface to report a ticket to the NICOS Redmine tracker."""
 
-from __future__ import absolute_import, division, print_function
-
 import html
 
 from nicos.clients.gui.utils import DlgUtils, loadUi

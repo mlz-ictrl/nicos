@@ -24,8 +24,6 @@
 
 """Tests for alias_config and alias preferences."""
 
-from __future__ import absolute_import, division, print_function
-
 session_setup = 'alias_config1'
 session_load_kw = {'autocreate_devices': True}
 

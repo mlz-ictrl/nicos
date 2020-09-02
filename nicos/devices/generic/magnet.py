@@ -26,8 +26,6 @@
 Class for magnets powered by unipolar power supplies.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import math
 
 from scipy.optimize import fsolve

@@ -24,8 +24,6 @@
 
 """NICOS GUI single cmdlet command input."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.panels.cmdbuilder import \
     CommandPanel as DefaultCommandPanel
 from nicos.guisupport.qt import pyqtSlot

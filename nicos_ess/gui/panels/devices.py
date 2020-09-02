@@ -24,8 +24,6 @@
 
 """NICOS GUI panel with a list of all devices."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.panels.devices import \
     DevicesPanel as DefaultDevicesPanel
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \

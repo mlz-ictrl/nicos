@@ -24,8 +24,6 @@
 
 """NICOS tests for nicos.commands.analyze."""
 
-from __future__ import absolute_import, division, print_function
-
 import pytest
 
 from nicos.commands.analyze import center_of_mass, fwhm, gauss, poly, \

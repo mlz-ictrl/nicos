@@ -24,8 +24,6 @@
 
 """Implementation of the "classic" daemon protocol: pickling, plain sockets."""
 
-from __future__ import absolute_import, division, print_function
-
 import queue
 import socket
 import socketserver
