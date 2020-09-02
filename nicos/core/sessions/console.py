@@ -87,7 +87,6 @@ class NicosInteractiveConsole(code.InteractiveConsole):
                                        os.path.expanduser('~/.nicoshistory'))
         # once compiled, the interactive console uses this flag for all
         # subsequent statements it compiles
-        self.compile('from __future__ import division')
         if os.path.isfile(self.histfile):
             readline.read_history_file(self.histfile)
 
