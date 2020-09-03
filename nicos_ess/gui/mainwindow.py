@@ -32,8 +32,7 @@ import os
 from time import time as current_time
 
 from nicos.clients.gui.dialogs.auth import ConnectionDialog
-from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow, \
-    SSHTunnelForwarder
+from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow
 from nicos.clients.gui.utils import splitTunnelString
 from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
     QMenu, QPixmap, QPoint, QSizePolicy, Qt, QWidget, pyqtSlot
