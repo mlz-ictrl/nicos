@@ -1638,3 +1638,7 @@ class File(BufferedWriter):
     def __init__(self, filepath, openmode):
         self._raw = FileIO(filepath, openmode)
         BufferedWriter.__init__(self, self._raw)
+
+
+def toAscii(s):
+    return s.encode('unicode-escape').decode('ascii')

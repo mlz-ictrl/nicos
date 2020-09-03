@@ -36,8 +36,7 @@ from nicos.core.constants import SIMULATION
 from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, MoveError, NicosError, NicosTimeoutError, \
     PositionError
-from nicos.pycompat import to_ascii_escaped
-from nicos.utils import createThread, formatDuration
+from nicos.utils import createThread, formatDuration, toAscii
 
 # Exceptions at which a scan point is measured anyway.
 CONTINUE_EXCEPTIONS = (PositionError, MoveError, NicosTimeoutError)
@@ -560,7 +559,7 @@ class DeviceValueDict:
             session.log.warning("invalid key %r requested, returning %r",
                                 key, res, exc=1)
         if isinstance(res, bytes):
-            res = to_ascii_escaped(res)
+            res = toAscii(res.decode('latin1', 'ignore'))
         if isinstance(res, DeviceValue):
             return res
         if raw is None:

@@ -28,8 +28,6 @@ from nicos import session
 from nicos.core import Attach, Moveable, Param, PositionError, Readable, \
     anytype, dictof, multiWait, oneof
 
-# from nicos.pycompat import list
-
 
 class Mchanger(Moveable):
     """PUMA specific monochromator changer device."""

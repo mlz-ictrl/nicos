@@ -52,3 +52,11 @@ session = Session()
 
 def get_custom_version():
     return get_git_version(cwd=config.setup_package_path)
+
+
+try:
+    # numpy 1.14+ compat
+    import numpy
+    numpy.set_printoptions(sign=' ')
+except Exception:
+    pass

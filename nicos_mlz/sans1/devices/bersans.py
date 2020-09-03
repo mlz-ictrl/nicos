@@ -31,7 +31,7 @@ from nicos import session
 from nicos.core import Override, Param, Readable, status
 from nicos.core.utils import DeviceValueDict
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-from nicos.pycompat import to_ascii_escaped
+from nicos.utils import toAscii
 
 # not a good solution: BerSANS keys are fixed, but devicenames
 # (and their existence) is instrument specific...
@@ -348,7 +348,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
             metadata[devname_key] = value
             nicosheader.append('%s=%s' % (devname_key, strvalue))
 
-        nicosheader = b'\n'.join(sorted(map(to_ascii_escaped, nicosheader)))
+        nicosheader = '\n'.join(sorted(map(toAscii, nicosheader))).encode()
         self.log.debug('nicosheader starts with: %40s', nicosheader)
 
         # write Header
