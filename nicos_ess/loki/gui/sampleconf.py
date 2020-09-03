@@ -491,6 +491,8 @@ class LokiSamplePanel(Panel):
 
     def on_list_itemClicked(self, item):
         self._clearDisplay()
+        if not item:
+            return
         index = self.list.row(item)
         frm = QFrame(self)
         loadUi(frm, findResource(
