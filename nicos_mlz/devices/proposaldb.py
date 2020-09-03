@@ -31,7 +31,6 @@ from os import path
 
 from nicos import session
 from nicos.core import USER, ConfigurationError, InvalidValueError, User
-from nicos.pycompat import from_maybe_utf8, to_utf8
 from nicos.services.daemon.auth import AuthenticationError, \
     Authenticator as BaseAuthenticator
 from nicos.utils import readFile
@@ -192,8 +191,7 @@ class Authenticator(BaseAuthenticator):
     """
 
     def _hash(self, password):
-        password = to_utf8(from_maybe_utf8(password))
-        return hashlib.md5(password).hexdigest()
+        return hashlib.md5(password.encode()).hexdigest()
 
     def authenticate(self, username, password):
         try:

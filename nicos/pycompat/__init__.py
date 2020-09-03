@@ -24,10 +24,6 @@
 
 """Python compatibility."""
 
-
-# missing str/bytes helpers
-# on Py3, UTF-8 is the default encoding already
-to_utf8 = str.encode
 to_encoding = str.encode
 from_utf8 = bytes.decode
 from_encoding = bytes.decode

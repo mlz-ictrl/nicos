@@ -26,7 +26,6 @@
 
 import subprocess
 
-from nicos.pycompat import to_utf8
 from nicos.utils import createSubprocess
 
 
@@ -40,7 +39,7 @@ def plotDataset(dataset, fn, fmt):
                                  stderr=subprocess.STDOUT)
 
     def write(s):
-        gpProcess.stdin.write(to_utf8(s))
+        gpProcess.stdin.write(s.encode())
 
     write('set terminal %s size 600,400 dashed\n' % fmt)
     write('set xlabel "%s (%s)"\n' % (dataset.xnames[dataset.xindex],

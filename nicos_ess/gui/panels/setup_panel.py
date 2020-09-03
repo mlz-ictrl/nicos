@@ -30,16 +30,9 @@ from nicos.clients.gui.panels.setup_panel import ExpPanel as DefaultExpPanel, \
 from nicos.clients.gui.utils import loadUi
 from nicos.core import ConfigurationError, mailaddress
 from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, pyqtSlot
-from nicos.pycompat import to_utf8
 from nicos.utils import decodeAny
 
 from nicos_ess.gui import uipath
-
-
-def maybe_encode(s):
-    if isinstance(s, str):
-        return s
-    return to_utf8(s)
 
 
 class ExpPanel(DefaultExpPanel):
@@ -76,19 +69,19 @@ class ExpPanel(DefaultExpPanel):
 
     def _getProposalInput(self):
         prop = self.proposalNum.text()
-        title = maybe_encode(self.expTitle.text())
-        users = maybe_encode(self.users.text())
+        title = self.expTitle.text().encode()
+        users = self.users.text().encode()
         try:
-            local = mailaddress(maybe_encode(self.localContact.text()))
+            local = mailaddress(self.localContact.text().encode())
         except ValueError:
             QMessageBox.critical(self, 'Error', 'The local contact entry is '
                                  'not  a valid email address')
             raise ConfigurationError('')
-        emails = maybe_encode(self.notifEmails.toPlainText()).strip()
+        emails = self.notifEmails.toPlainText().strip().encode()
         emails = emails.split(b'\n') if emails else []
         if local and local not in emails:
             emails.append(local)
-        dataEmails = maybe_encode(self.dataEmails.toPlainText()).strip()
+        dataEmails = self.dataEmails.toPlainText().strip().encode()
         dataEmails = dataEmails.split(b'\n') if dataEmails else []
         errorbehavior = 'abort' if self.errorAbortBox.isChecked() else 'report'
         return prop, title, users, local, emails, dataEmails, errorbehavior
@@ -142,7 +135,7 @@ class ExpPanel(DefaultExpPanel):
             if local != self._orig_proposal_info[3]:
                 self.client.run('Exp.localcontact = %r' % local)
                 done.append('New local contact set.')
-        sample = maybe_encode(self.sampleName.text())
+        sample = self.sampleName.text().encode()
         if sample != self._orig_proposal_info[4]:
             self.client.run('NewSample(%r)' % sample)
             done.append('New sample name set.')
@@ -170,7 +163,7 @@ class ExpPanel(DefaultExpPanel):
                 _ = self._getProposalInput()
         except ConfigurationError:
             return
-        sample = maybe_encode(self.sampleName.text())
+        sample = self.sampleName.text().encode()
 
         # read all values from propdb
         try:

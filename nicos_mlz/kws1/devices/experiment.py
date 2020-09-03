@@ -28,7 +28,6 @@ import os
 import time
 from os import path
 
-from nicos.pycompat import to_utf8
 from nicos.utils import printTable
 
 from nicos_mlz.devices.experiment import Experiment
@@ -50,8 +49,8 @@ class KWSExperiment(Experiment):
         proto_path = path.join(self.proposalpath, 'protocol.txt')
         try:
             text = self._generate_protocol(with_ts=True)
-            with open(proto_path, 'wb') as fp:
-                fp.write(to_utf8(text))
+            with open(proto_path, 'w') as fp:
+                fp.write(text)
         except Exception:
             self.log.warning('Error during protocol generation', exc=1)
         else:

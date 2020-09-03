@@ -25,8 +25,6 @@
 
 import numpy
 
-from nicos.pycompat import to_utf8
-
 try:
     import flatbuffers
     from nicos_ess.devices.fbschemas.hs00 import ArrayUInt, ArrayFloat, \
@@ -165,5 +163,5 @@ class HistogramFlatbuffersSerializer:
 
         # Generate the output and replace the file_identifier
         buff = builder.Output()
-        buff[4:8] = to_utf8(self.file_identifier)
+        buff[4:8] = self.file_identifier.encode()
         return bytes(buff)

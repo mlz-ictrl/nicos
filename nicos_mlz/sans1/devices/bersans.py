@@ -31,7 +31,7 @@ from nicos import session
 from nicos.core import Override, Param, Readable, status
 from nicos.core.utils import DeviceValueDict
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-from nicos.pycompat import to_ascii_escaped, to_utf8
+from nicos.pycompat import to_ascii_escaped
 
 # not a good solution: BerSANS keys are fixed, but devicenames
 # (and their existence) is instrument specific...
@@ -358,7 +358,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
         for line in header.split('\n'):
             self.log.debug('testing header line: %r', line)
             self.log.debug(line % metadata)
-            fp.write(to_utf8(line % metadata))
+            fp.write((line % metadata).encode())
             fp.write(b'\n')
 
         # also append nicos header

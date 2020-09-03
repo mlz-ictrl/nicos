@@ -40,7 +40,7 @@ from lttb import lttb
 from nicos.core import Param
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, WARN
-from nicos.pycompat import from_utf8, to_utf8
+from nicos.pycompat import from_utf8
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.services.monitor.icon import nicos_icon
 from nicos.utils import checkSetupSpec, extractKeyAndIndex, safeWriteFile
@@ -343,7 +343,7 @@ class Monitor(BaseMonitor):
             try:
                 if self._content:
                     content = ''.join(ct.getHTML() for ct in self._content)
-                    safeWriteFile(self.filename, to_utf8(content), mode='wb',
+                    safeWriteFile(self.filename, content, mode='w',
                                   maxbackups=0)
             except Exception:
                 self.log.error('could not write status to %r', self.filename,

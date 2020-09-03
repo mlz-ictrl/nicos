@@ -32,7 +32,6 @@ from os import path
 import pytest
 
 from nicos.core import ADMIN, GUEST, USER, NicosError, User
-from nicos.pycompat import to_utf8
 from nicos.services.daemon.auth import AuthenticationError
 from nicos.services.daemon.auth.list import Authenticator as ListAuthenticator
 from nicos.services.daemon.auth.params import UserLevelAuthEntry, \
@@ -107,7 +106,7 @@ def ListAuth(request):
     for (user, pw, level) in request.function.passwd:
         # note: we currently allow empty password to match any password!
         # pylint: disable=compare-to-empty-string
-        hashed = hashlib.sha1(to_utf8(pw)).hexdigest() if pw != '' else pw
+        hashed = hashlib.sha1(pw.encode()).hexdigest() if pw != '' else pw
         passwds.append((user, hashed, level))
 
     Auth = ListAuthenticator('authenicator',

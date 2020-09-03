@@ -46,7 +46,7 @@ from nicos.core import Attach, Device, Param, host
 from nicos.protocols.cache import BUFSIZE, CYCLETIME, DEFAULT_CACHE_PORT, \
     OP_ASK, OP_LOCK, OP_REWRITE, OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
     OP_UNSUBSCRIBE, OP_WILDCARD, line_pattern, msg_pattern
-from nicos.pycompat import from_utf8, to_utf8
+from nicos.pycompat import from_utf8
 # pylint: disable=unused-import
 from nicos.services.cache.database import CacheDatabase, \
     FlatfileCacheDatabase, MemoryCacheDatabase, \
@@ -118,7 +118,7 @@ class CacheWorker:
                 return
             while True:
                 try:
-                    self.sock.sendall(to_utf8(data))
+                    self.sock.sendall(data.encode())
                 except socket.timeout:
                     self.log.warning('send timed out, shutting down')
                     self.closedown()
@@ -297,7 +297,7 @@ class CacheUDPWorker(CacheWorker):
         # any needed responses synchronously
         try:
             self._process_data(self.data,
-                               lambda reply: self._sendall(to_utf8(reply)))
+                               lambda reply: self._sendall(reply.encode()))
         except Exception as err:
             self.log.warning('error handling UDP data %r', self.data, exc=err)
         self.closedown()

@@ -37,7 +37,6 @@ from nicos.devices.cacheclient import BaseCacheClient
 from nicos.devices.notifiers import Mailer, Notifier
 from nicos.protocols.cache import OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
     cache_dump, cache_load
-from nicos.pycompat import to_utf8
 from nicos.services.watchdog.conditions import DelayedTrigger, Expression, \
     Precondition
 from nicos.utils import LCDict, createSubprocess, createThread, \
@@ -66,8 +65,8 @@ class Entry:
 
     def __init__(self, values):
         self.__dict__.update(values)
-        self.id = hashlib.md5(to_utf8(self.setup + self.condition +
-                                      self.precondition)).hexdigest()
+        self.id = hashlib.md5((self.setup + self.condition +
+                               self.precondition).encode()).hexdigest()
 
     def __repr__(self):
         return repr(self.condition)

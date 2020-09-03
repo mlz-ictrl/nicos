@@ -33,7 +33,7 @@ import zmq
 from nicos.protocols.daemon import DAEMON_EVENTS, CloseConnection, \
     ProtocolError, Server as BaseServer, \
     ServerTransport as BaseServerTransport
-from nicos.pycompat import from_utf8, to_utf8
+from nicos.pycompat import from_utf8
 from nicos.services.daemon.handler import ConnectionHandler
 from nicos.utils import createThread
 from nicos.utils.messaging import nicos_zmq_ctx
@@ -120,7 +120,7 @@ class Server(BaseServer):
         if DAEMON_EVENTS[event][0]:
             data = self.serializer.serialize_event(event, data)
         self.event_queue.put([handler.client_id if handler else b'ALL',
-                              to_utf8(event), data])
+                              event.encode(), data])
 
     def stop(self):
         self._stoprequest = True
@@ -185,6 +185,6 @@ class ServerTransport(ConnectionHandler, BaseServerTransport):
 
     def send_error_reply(self, reason):
         self.reply_sender.send_multipart(
-            [self.client_id, b'', b'error', b'', to_utf8(reason)])
+            [self.client_id, b'', b'error', b'', reason.encode()])
 
     # events are sent directly by the Server

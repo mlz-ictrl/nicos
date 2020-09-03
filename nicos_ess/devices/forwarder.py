@@ -30,7 +30,6 @@ from streaming_data_types.forwarder_config_update_rf5k import StreamInfo, \
     serialise_rf5k
 
 from nicos.core import Attach, Device, Param, oneof, status, usermethod
-from nicos.pycompat import to_utf8
 
 from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
 from nicos_ess.devices.kafka.status_handler import KafkaStatusHandler
@@ -153,7 +152,7 @@ class EpicsKafkaForwarderControl(ProducesKafkaMessages, Device):
 
         cmd = {'cmd': 'add', 'streams': streams}
 
-        self.send(self.cmdtopic, to_utf8(json.dumps(cmd)))
+        self.send(self.cmdtopic, json.dumps(cmd).encode())
 
     def add(self, pv_details):
         try:

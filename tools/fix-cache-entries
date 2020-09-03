@@ -32,10 +32,10 @@ from math import ceil
 from os import path
 
 try:
-    from nicos.pycompat import from_utf8, to_utf8
+    from nicos.pycompat import from_utf8
 except ImportError:
     sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
-    from nicos.pycompat import from_utf8, to_utf8
+    from nicos.pycompat import from_utf8
 
 
 # default cache server to use when no arguments are given
@@ -147,7 +147,7 @@ class CClient:
 
     def _comm(self, request):
         # always put a end-of-list marker
-        self._socket.sendall(to_utf8(request + '\n###?\n'))
+        self._socket.sendall((request + '\n###?\n').encode())
         data = ''
         reloop = False
         while True:

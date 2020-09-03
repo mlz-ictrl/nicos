@@ -31,7 +31,7 @@ import numpy as np
 
 from nicos import session
 from nicos.core.constants import LIVE
-from nicos.pycompat import from_maybe_utf8, to_utf8
+from nicos.pycompat import from_maybe_utf8
 
 from nicos_mlz.toftof.devices import calculations as calc
 from nicos_mlz.toftof.devices.datasinks.base import TofSink, TofSinkHandler
@@ -147,7 +147,7 @@ class TofImageSinkHandler(TofSinkHandler):
 
         fp.seek(0)
         for line in headlines:
-            fp.write(to_utf8('%s\n' % line))
+            fp.write(('%s\n' % line).encode())
         fp.flush()
 
     def _writeLogs(self):
@@ -160,7 +160,7 @@ class TofImageSinkHandler(TofSinkHandler):
                             ((dev,) + self.dataset.valuestats[dev]))
         self._logfile.seek(0)
         for line in loglines:
-            self._logfile.write(to_utf8('%s\n' % line))
+            self._logfile.write(('%s\n' % line).encode())
         self._logfile.flush()
 
     def writeData(self, fp, info, data):
@@ -241,7 +241,7 @@ class TofImageSinkHandler(TofSinkHandler):
         lines.append('%s' % ''.join(self.detector._detinfo).strip())
         lines.append('aData(%u,%u): ' % (data.shape[0], data.shape[1]))
         for line in lines:
-            f.write(to_utf8('%s\n' % line))
+            f.write(('%s\n' % line).encode())
         np.savetxt(f, data, '%d')
         f.close()
         self.log.debug('Rename from %s to %s', f.filepath, fp.filepath)

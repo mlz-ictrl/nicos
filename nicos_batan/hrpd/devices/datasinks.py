@@ -27,7 +27,6 @@
 from nicos.core import Override
 from nicos.core.constants import POINT
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-from nicos.pycompat import to_utf8
 
 
 class HrpdFileHandler(SingleFileSinkHandler):
@@ -53,7 +52,7 @@ class HrpdFileHandler(SingleFileSinkHandler):
         fp.write(b'position\tcounts\n')
         for i, v in enumerate(image):
             _pos = _start + i * _stepsize
-            fp.write(to_utf8('%.2f\t%d\n' % (_pos, v.sum())))
+            fp.write(('%.2f\t%d\n' % (_pos, v.sum())).encode())
 
         fp.flush()
 

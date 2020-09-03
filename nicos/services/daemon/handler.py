@@ -198,7 +198,7 @@ class ConnectionHandler:
         if password[0:4] == 'RSA:':
             password = password[4:]
             password = rsa.decrypt(base64.decodebytes(password.encode()),
-                                   privkey)
+                                   privkey).decode()
 
         # check login data according to configured authentication
         login = credentials[0]['login']

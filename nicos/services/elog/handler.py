@@ -31,7 +31,6 @@ from os import path, unlink
 from shutil import copyfile
 from time import localtime, strftime
 
-from nicos.pycompat import to_utf8
 from nicos.services.elog.genplot import plotDataset
 from nicos.services.elog.utils import formatMessage, formatMessagePlain, \
     pretty1, pretty2
@@ -217,8 +216,8 @@ PROLOG_TOC = b'''\
 def create_or_open(filename, prolog=b''):
     if not path.isfile(filename):
         io.open(filename, 'wb').close()
-    # we have to open in binary mode since we want to seek from the end,
-    # which the text wrapper doesn't support
+    # we have to open in binary mode since we want to do a nonzero seek from
+    # the end, which the text wrapper doesn't support
     fd = io.open(filename, 'r+b')
     fd.seek(0, 2)
     if fd.tell() == 0:
@@ -257,8 +256,8 @@ class HtmlWriter:
                                      PROLOG_TOC)
 
     def emit(self, html, suffix=''):
-        html = to_utf8(html)
-        suffix = to_utf8(suffix)
+        html = html.encode()
+        suffix = suffix.encode()
         if self.fd:
             self.fd.write(html)
             # write suffix now, but place file pointer so that it's overwritten
@@ -289,7 +288,7 @@ class HtmlWriter:
             self.curstate = None
 
     def emit_toc(self, html):
-        html = to_utf8(html)
+        html = html.encode()
         if self.fd_toc:
             self.fd_toc.write(html)
             self.fd_toc.flush()
@@ -327,7 +326,7 @@ class TextWriter:
 
     def message(self, message):
         if self.fd:
-            self.fd.write(to_utf8(formatMessagePlain(message)))
+            self.fd.write(formatMessagePlain(message).encode())
             self.fd.flush()
 
 

@@ -37,7 +37,6 @@ from nicos.clients.proto.classic import ClientTransport
 from nicos.protocols.daemon import ACTIVE_COMMANDS, ProtocolError
 from nicos.protocols.daemon.classic import COMPATIBLE_PROTO_VERSIONS, \
     PROTO_VERSION
-from nicos.pycompat import to_utf8
 from nicos.utils import createThread
 
 BUFSIZE = 8192
@@ -149,14 +148,14 @@ class NicosClient:
                 if not isinstance(encodedkey, bytes):
                     encodedkey = bytes(encodedkey, 'utf-8')
                 pubkey = rsa.PublicKey.load_pkcs1(b64decode(encodedkey))
-                password = rsa.encrypt(to_utf8(password), pubkey)
+                password = rsa.encrypt(password.encode(), pubkey)
                 password = 'RSA:' + b64encode(password).decode()
             else:
                 pw_hashing = pw_hashing[4:]
         if pw_hashing == 'sha1':
-            password = hashlib.sha1(to_utf8(password)).hexdigest()
+            password = hashlib.sha1(password.encode()).hexdigest()
         elif pw_hashing == 'md5':
-            password = hashlib.md5(to_utf8(password)).hexdigest()
+            password = hashlib.md5(password.encode()).hexdigest()
 
         credentials = {
             'login': conndata.user,

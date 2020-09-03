@@ -29,7 +29,6 @@ from kafka import KafkaConsumer, KafkaProducer, TopicPartition
 from nicos.core import Attach, Param, host, listof
 from nicos.core.errors import ConfigurationError
 from nicos.protocols.cache import FLAG_NO_STORE, OP_TELL, OP_TELLOLD
-from nicos.pycompat import to_utf8
 from nicos.services.cache.database.memory import MemoryCacheDatabase
 from nicos.services.cache.entry import CacheEntry
 from nicos.services.cache.entry.serializer import CacheEntrySerializer
@@ -178,7 +177,7 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
         self._producer.send(
             topic=self.currenttopic,
             value=value,
-            key=to_utf8(key),
+            key=key.encode(),
             timestamp_ms=int(entry.time * 1000))
 
         # clear all local buffers and produce pending messages

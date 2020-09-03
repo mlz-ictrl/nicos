@@ -24,7 +24,6 @@
 
 import subprocess
 
-from nicos.pycompat import to_utf8
 from nicos.utils import createSubprocess
 
 
@@ -52,9 +51,9 @@ def txtplot(x, y, xlab, ylab, xterm_mode=False):
             cmd.append('%s %s' % xy)
         cmd.append('e\n')
 
-        cmd = '\n'.join(cmd)
-        out = gnuplot.communicate(to_utf8(cmd))[0]
-        lines = [line for line in out.splitlines() if line]
+        cmd = '\n'.join(cmd).encode()
+        out = gnuplot.communicate(cmd)[0]
+        lines = [line for line in out.decode().splitlines() if line]
         if xterm_mode:
             lines += ['Plotting in xterm Tektronix window.',
                       '\x1b_If you can only see a lot of incomprehensible '

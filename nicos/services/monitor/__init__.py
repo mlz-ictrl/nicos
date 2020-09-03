@@ -34,7 +34,6 @@ from nicos.core.sessions.setups import SetupBlock
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.protocols.cache import OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
     OP_WILDCARD, cache_load
-from nicos.pycompat import to_utf8
 from nicos.utils import createThread, reexecProcess, watchFileContent
 
 
@@ -182,8 +181,8 @@ class Monitor(BaseCacheClient):
         BaseCacheClient._connect_action(self)
         if self.showwatchdog:
             # also ask for and subscribe to all watchdog events
-            self._socket.sendall(to_utf8('@watchdog/%s\n' % OP_WILDCARD))
-            self._socket.sendall(to_utf8('@watchdog/%s\n' % OP_SUBSCRIBE))
+            self._socket.sendall(('@watchdog/%s\n' % OP_WILDCARD).encode())
+            self._socket.sendall(('@watchdog/%s\n' % OP_SUBSCRIBE).encode())
 
         # use appname to distinguish between different instances
         self.storeSysInfo(session.appname)

@@ -36,7 +36,6 @@ from nicos.core.constants import FINAL, POINT, SCAN, SUBSCAN
 from nicos.core.data import DataSinkHandler
 from nicos.core.errors import ConfigurationError
 from nicos.devices.datasinks import FileSink
-from nicos.pycompat import to_utf8
 
 __version__ = '0.0.1'
 
@@ -88,7 +87,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._buffer = b''
 
     def _string(self, value):
-        value = to_utf8(value)
+        value = value.encode()
         buf = pack('B', CHARTYPE) + self._len(len(value)) + value.upper()
         self._file_write(buf)
 
@@ -111,7 +110,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
     def _write_string(self, key, data):
         self._defcmd(key)
         self._string(key)
-        data = to_utf8(data)
+        data = data.encode()
         buf = pack('BBB', 0x80, CHARTYPE, 0x81) + self._len(len(data)) + data
         self._file_write(buf)
 
@@ -148,7 +147,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         buf = b'\x80'
         sbuf = b''
         for item in l:
-            item = to_utf8(item)
+            item = item.encode()
             buf += pack('BBBB', 0x80, CHARTYPE, 0x81, len(item))
             sbuf += item
         buf += b'\x81\x01'

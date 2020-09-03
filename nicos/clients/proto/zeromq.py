@@ -26,7 +26,7 @@ import zmq
 
 from nicos.protocols.daemon import DAEMON_EVENTS, \
     ClientTransport as BaseClientTransport, ProtocolError
-from nicos.pycompat import from_utf8, to_utf8
+from nicos.pycompat import from_utf8
 
 
 class ClientTransport(BaseClientTransport):
@@ -59,7 +59,7 @@ class ClientTransport(BaseClientTransport):
 
     def send_command(self, cmdname, args):
         data = self.serializer.serialize_cmd(cmdname, args)
-        self.sock.send_multipart([to_utf8(cmdname), '', data])
+        self.sock.send_multipart([cmdname.encode(), b'', data])
 
     def get_reply(self):
         item = self.sock.recv_multipart()

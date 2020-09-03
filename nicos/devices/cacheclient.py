@@ -36,7 +36,7 @@ from nicos.protocols.cache import BUFSIZE, CYCLETIME, DEFAULT_CACHE_PORT, \
     END_MARKER, OP_ASK, OP_LOCK, OP_LOCK_LOCK, OP_LOCK_UNLOCK, OP_REWRITE, \
     OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, OP_UNSUBSCRIBE, OP_WILDCARD, \
     SYNC_MARKER, cache_dump, cache_load, line_pattern, msg_pattern
-from nicos.pycompat import from_utf8, to_utf8
+from nicos.pycompat import from_utf8
 from nicos.utils import closeSocket, createThread, getSysInfo, tcpSocket
 
 
@@ -147,21 +147,21 @@ class BaseCacheClient(Device):
         # (send a single request for a nonexisting key afterwards to
         # determine the end of data)
         msg = '@%s%s\n%s%s\n' % (self._prefix, OP_WILDCARD, END_MARKER, OP_ASK)
-        self._socket.sendall(to_utf8(msg))
+        self._socket.sendall(msg.encode())
 
         # read response
         data, n = b'', 0
-        sentinel = to_utf8(END_MARKER + OP_TELLOLD + '\n')
+        sentinel = (END_MARKER + OP_TELLOLD + '\n').encode()
         while not data.endswith(sentinel) and n < 1000:
             data += self._socket.recv(BUFSIZE)
             n += 1
 
         # send request for all updates
         msg = '@%s%s\n' % (self._prefix, OP_SUBSCRIBE)
-        self._socket.sendall(to_utf8(msg))
+        self._socket.sendall(msg.encode())
         for prefix in self._prefixcallbacks:
             msg = '@%s%s\n' % (prefix, OP_SUBSCRIBE)
-            self._socket.sendall(to_utf8(msg))
+            self._socket.sendall(msg.encode())
 
         self._process_data(data)
 
@@ -171,7 +171,7 @@ class BaseCacheClient(Device):
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         raise NotImplementedError('implement _handle_msg in subclasses')
 
-    def _process_data(self, data, sync_str=to_utf8(SYNC_MARKER + OP_TELLOLD),
+    def _process_data(self, data, sync_str=(SYNC_MARKER + OP_TELLOLD).encode(),
                       lmatch=line_pattern.match, mmatch=msg_pattern.match):
         # n = 0
         i = 0  # avoid making a string copy for every line
@@ -270,7 +270,7 @@ class BaseCacheClient(Device):
                         pass
                     # write data
                     try:
-                        self._socket.sendall(to_utf8(tosend))
+                        self._socket.sendall(tosend.encode())
                     except Exception:
                         self._disconnect('disconnect: send failed')
                         # report data as processed, but then re-queue it to send
@@ -306,7 +306,7 @@ class BaseCacheClient(Device):
             except queue.Empty:
                 pass
             try:
-                self._socket.sendall(to_utf8(tosend))
+                self._socket.sendall(tosend.encode())
             except Exception:
                 self.log.debug('exception while sending last batch of updates',
                                exc=1)
@@ -340,7 +340,7 @@ class BaseCacheClient(Device):
             try:
                 # write request
                 # self.log.debug("get_explicit: sending %r", tosend)
-                self._secsocket.sendall(to_utf8(tosend))
+                self._secsocket.sendall(tosend.encode())
 
                 # give 10 seconds time to get the whole reply
                 timeout = currenttime() + 10
@@ -455,7 +455,7 @@ class BaseCacheClient(Device):
             key, res = getSysInfo(service)
             msg = '%s@%s%s%s\n' % (currenttime(), key, OP_TELL,
                                    cache_dump(res))
-            self._socket.sendall(to_utf8(msg))
+            self._socket.sendall(msg.encode())
         except Exception:
             self.log.exception('storing sysinfo failed')
 
@@ -820,7 +820,7 @@ class SyncCacheClient(BaseCacheClient):
     def _connect_action(self):
         # like for BaseCacheClient, but without request for updates
         msg = '@%s%s\n###%s\n' % (self._prefix, OP_WILDCARD, OP_ASK)
-        self._socket.sendall(to_utf8(msg))
+        self._socket.sendall(msg.encode())
 
         # read response
         data, n = b'', 0

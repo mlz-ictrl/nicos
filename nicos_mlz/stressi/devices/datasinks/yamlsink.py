@@ -34,7 +34,6 @@ from nicos.core import Override, Param, listof
 from nicos.core.constants import FINAL, POINT, SCAN, SUBSCAN
 from nicos.devices.datasinks.scan import TIMEFMT, AsciiScanfileSink, \
     AsciiScanfileSinkHandler
-from nicos.pycompat import to_utf8
 from nicos.utils import AutoDefaultODict
 
 try:
@@ -94,8 +93,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         position['precision'] = precision
 
     def _fill_user(self, user, name, roles):
-        _user = re.split(r'(<)?(\w+(?:[\.-]\w+)+@\w+(?:\.\w+)+)(?(1)>)',
-                         to_utf8(name).decode())
+        _user = re.split(r'(<)?(\w+(?:[\.-]\w+)+@\w+(?:\.\w+)+)(?(1)>)', name)
         user['name'] = _user[0].strip()
         user['email'] = _user[2] if len(_user) > 2 else ''
         user['roles'] = roles
@@ -194,16 +192,16 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         for device, key, value in valuelist:
             if device not in ['demo', 'DEMO']:
                 if key in ['facility', 'website']:
-                    instrument[key] = to_utf8(value)
+                    instrument[key] = value.encode()
                 elif key == 'instrument':
                     instrument['name'] = value
                 elif key == 'operators':
                     instrument[key] = []
                     for operator in value:
-                        instrument[key].append(to_utf8(operator))
+                        instrument[key].append(operator.encode())
                 elif key == 'doi':
                     instrument['references'] = []
-                    instrument['references'].append(to_utf8(value))
+                    instrument['references'].append(value.encode())
 
     def _write_limits(self, valuelist):
         # self.log.info('Limits: %r', valuelist)
