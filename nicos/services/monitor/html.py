@@ -40,7 +40,6 @@ from lttb import lttb
 from nicos.core import Param
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, WARN
-from nicos.pycompat import from_utf8
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.services.monitor.icon import nicos_icon
 from nicos.utils import checkSetupSpec, extractKeyAndIndex, safeWriteFile
@@ -303,7 +302,7 @@ class Plot:
             imgbytes = fp.read()
         return ('<img src="data:image/svg+xml;base64,%s" '
                 'style="width: %sex; height: %sex">' % (
-                    from_utf8(b2a_base64(imgbytes)),
+                    b2a_base64(imgbytes).decode(),
                     self.width, self.height))
 
 

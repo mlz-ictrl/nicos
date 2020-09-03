@@ -202,7 +202,6 @@ from ast import Add, BinOp, Bytes, Call, Dict, List, Name, NameConstant, Num, \
     Set, Str, Sub, Tuple, UnaryOp, USub, parse
 from base64 import b64decode, b64encode
 
-from nicos.pycompat import from_utf8
 from nicos.utils import number_types, readonlydict, readonlylist
 
 DEFAULT_CACHE_PORT = 14869
@@ -293,11 +292,12 @@ def cache_dump(obj):
     else:
         try:
             resstr = 'cache_unpickle("' + \
-                     from_utf8(b64encode(pickle.dumps(obj, protocol=0))) + '")'
+                b64encode(pickle.dumps(obj, protocol=0)).decode() + '")'
             res.append(resstr)
         except Exception as err:
             raise ValueError('unserializable object: %r (%s)' % (obj, err))
     return ''.join(res)
+
 
 _safe_names = {'None': None, 'True': True, 'False': False,
                'inf': float('inf'), 'nan': float('nan')}

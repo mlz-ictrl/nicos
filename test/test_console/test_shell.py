@@ -22,15 +22,13 @@
 #
 # *****************************************************************************
 
-from nicos.pycompat import from_utf8
-
 session_setup = None
 
 
 def test_shell(console):
     console.stdin.write(b'NewSetup("axis")\n1/0\nread()\n')
     stdout, _ = console.communicate()
-    stdout = from_utf8(stdout).splitlines()
+    stdout = stdout.decode().splitlines()
 
     assert 'nicos: setups loaded: startup' in stdout
     assert 'nicos: setups loaded: axis' in stdout

@@ -33,7 +33,6 @@ import zmq
 from nicos.protocols.daemon import DAEMON_EVENTS, CloseConnection, \
     ProtocolError, Server as BaseServer, \
     ServerTransport as BaseServerTransport
-from nicos.pycompat import from_utf8
 from nicos.services.daemon.handler import ConnectionHandler
 from nicos.utils import createThread
 from nicos.utils.messaging import nicos_zmq_ctx
@@ -176,7 +175,7 @@ class ServerTransport(ConnectionHandler, BaseServerTransport):
             item = self.command_queue.get(timeout=3600.)
         except queue.Empty:
             raise CloseConnection
-        return self.serializer.deserialize_cmd(item[4], from_utf8(item[2]))
+        return self.serializer.deserialize_cmd(item[4], item[2].decode())
 
     def send_ok_reply(self, payload):
         self.reply_sender.send_multipart(

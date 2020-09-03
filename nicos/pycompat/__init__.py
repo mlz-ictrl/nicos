@@ -24,8 +24,6 @@
 
 """Python compatibility."""
 
-from_utf8 = bytes.decode
-
 
 def from_maybe_utf8(s):
     if isinstance(s, str):

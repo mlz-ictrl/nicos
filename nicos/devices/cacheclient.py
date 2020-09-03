@@ -36,7 +36,6 @@ from nicos.protocols.cache import BUFSIZE, CYCLETIME, DEFAULT_CACHE_PORT, \
     END_MARKER, OP_ASK, OP_LOCK, OP_LOCK_LOCK, OP_LOCK_UNLOCK, OP_REWRITE, \
     OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, OP_UNSUBSCRIBE, OP_WILDCARD, \
     SYNC_MARKER, cache_dump, cache_load, line_pattern, msg_pattern
-from nicos.pycompat import from_utf8
 from nicos.utils import closeSocket, createThread, getSysInfo, tcpSocket
 
 
@@ -183,7 +182,7 @@ class BaseCacheClient(Device):
                 self.log.debug('process data: received sync: %r', line)
                 self._synced = True
             else:
-                msgmatch = mmatch(from_utf8(line))
+                msgmatch = mmatch(line.decode())
                 # ignore invalid lines
                 if msgmatch:
                     # n += 1
@@ -371,7 +370,7 @@ class BaseCacheClient(Device):
         while match:
             line = match.group(1)
             i = match.end()
-            msgmatch = mmatch(from_utf8(line))
+            msgmatch = mmatch(line.decode())
             if not msgmatch:
                 # ignore invalid lines
                 continue
