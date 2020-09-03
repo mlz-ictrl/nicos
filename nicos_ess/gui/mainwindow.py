@@ -45,6 +45,7 @@ try:
     from sshtunnel import BaseSSHTunnelForwarderError, SSHTunnelForwarder
 except ImportError:
     SSHTunnelForwarder = None
+    BaseSSHTunnelForwarderError = None
 
 
 def decolor_logo(pixmap, color):
@@ -72,9 +73,9 @@ class MainWindow(DefaultMainWindow):
 
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         DefaultMainWindow.__init__(self, log, gui_conf, viewonly, tunnel)
-        self.addLogo()
-        self.addInstrument()
-        self.addExperiment()
+        self.add_logo()
+        self.add_instrument()
+        self.add_experiment()
         self.set_icons()
         self.style_file = gui_conf.stylefile
 
@@ -100,7 +101,7 @@ class MainWindow(DefaultMainWindow):
         self.actionPreferences.setIcon(get_icon('tune-24px.svg'))
         self.actionExpert.setIcon(get_icon('fingerprint-24px.svg'))
 
-    def addLogo(self):
+    def add_logo(self):
         logo_label = QLabel()
         pxr = decolor_logo(QPixmap("resources/logo-icon.png"), Qt.white)
         logo_label.setPixmap(pxr.scaledToHeight(self.toolBarMain.height(),
@@ -114,7 +115,7 @@ class MainWindow(DefaultMainWindow):
         self.toolBarMain.insertWidget(self.toolBarMain.actions()[1],
                                       nicos_label)
 
-    def addInstrument(self):
+    def add_instrument(self):
         text_label = QLabel('Instrument:')
         text_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         text_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -135,7 +136,7 @@ class MainWindow(DefaultMainWindow):
             instrument_label.setPixmap(logo.scaledToHeight(
                 self.toolBarMain.height(), Qt.SmoothTransformation))
 
-    def addExperiment(self):
+    def add_experiment(self):
         text_label = QLabel('Experiment:')
         text_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         text_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -160,7 +161,8 @@ class MainWindow(DefaultMainWindow):
             self.style_file = style_file
             self.setQSS(self.style_file)
 
-    def setQSS(self, style_file):
+    @staticmethod
+    def setQSS(style_file):
         with open(style_file, 'r') as fd:
             try:
                 QApplication.instance().setStyleSheet(fd.read())
@@ -229,16 +231,15 @@ class MainWindow(DefaultMainWindow):
                 self.tunnelServer = None
             return
 
-        ret = ConnectionDialog.getConnectionData(self, self.connpresets,
-                                                 self.lastpreset,
-                                                 self.conndata, self.tunnel)
-        new_name, new_data, save, tunnel = ret
+        new_name, new_data, save, tunnel = ConnectionDialog.\
+            getConnectionData(self, self.connpresets, self.lastpreset,
+                              self.conndata, self.tunnel)
 
         if new_data is None:
             return
         if save:
             self.lastpreset = save
-            self.connpresets[save] = new_data
+            self.conn_presets[save] = new_data
         else:
             self.lastpreset = new_name
         self.conndata = new_data
@@ -252,15 +253,6 @@ class MainWindow(DefaultMainWindow):
                     compression=True)
                 self.tunnelServer.start()
                 tunnel_port = self.tunnelServer.local_bind_port
-
-                # corresponding ssh command line (debug)
-                # print 'ssh -f %s -L %d:%s:%d -N' % (host, tunnel_port,
-                #                                     self.conndata.host,
-                #                                     self.conndata.port)
-
-                # store the established tunnel information host, user, and
-                # password for the next connection try to avoid typing password
-                # for every (re)connection via the GUI
                 self.tunnel = tunnel
                 self.conndata.host = 'localhost'
                 self.conndata.port = tunnel_port
