@@ -130,6 +130,10 @@ class ConfigEditDialog(QDialog):
         # Apply local customisations to the stylesheet
         self.setStyleSheet(ConfigEditDialog_QSS)
 
+        if not config:
+            self.frm.whatLbl.setText('New sample configuration')
+
+
     def maybeAccept(self):
         if not self.frm.nameBox.text():
             QMessageBox.warning(self, 'Error', 'Please enter a sample name.')
@@ -491,7 +495,7 @@ class LokiSamplePanel(Panel):
         frm = QFrame(self)
         loadUi(frm, findResource(
             'nicos_ess/loki/gui/ui_files/sampleconf_summary.ui'))
-        frm.whatLbl.setText('Sample configuration')
+        # frm.whatLbl.setText('Sample configuration')
         configToFrame(frm, self.configs[index])
         frm.addDevBtn.setVisible(False)
         frm.delDevBtn.setVisible(False)
@@ -559,7 +563,6 @@ class LokiSamplePanel(Panel):
             return
         self.dirty = True
         config = configFromFrame(dlg.frm)
-        dlg.frm.whatLbl.setText('New sample configuration')
         self.configs.append(config)
         new_item = QListWidgetItem(config['name'], self.list)
         self.list.setCurrentItem(new_item)
