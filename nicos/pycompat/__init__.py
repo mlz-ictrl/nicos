@@ -24,9 +24,7 @@
 
 """Python compatibility."""
 
-to_encoding = str.encode
 from_utf8 = bytes.decode
-from_encoding = bytes.decode
 
 
 def from_maybe_utf8(s):

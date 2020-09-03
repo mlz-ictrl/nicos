@@ -51,7 +51,6 @@ from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \
     SIM_STATES, STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK
 from nicos.protocols.daemon.classic import DEFAULT_PORT
-from nicos.pycompat import to_encoding
 from nicos.utils import colorize, formatDuration, formatEndtime, \
     parseConnectionString, terminalSize
 from nicos.utils.loggers import ACTION, INPUT
@@ -181,7 +180,7 @@ class NicosCmdClient(NicosClient):
         # pylint: disable=global-statement
         global readline_result
         term_encoding = sys.stdout.encoding or 'utf-8'
-        librl.rl_callback_handler_install(to_encoding(prompt, term_encoding),
+        librl.rl_callback_handler_install(prompt.encode(term_encoding),
                                           c_readline_finish_callback)
         readline_result = Ellipsis
         while readline_result is Ellipsis:
@@ -201,7 +200,7 @@ class NicosCmdClient(NicosClient):
                 os.read(self.wakeup_pipe_r, 1)
                 if not self.in_question:
                     # question has an alternate prompt that never changes
-                    librl.rl_set_prompt(to_encoding(self.prompt, term_encoding))
+                    librl.rl_set_prompt(self.prompt.encode(term_encoding))
                 librl.rl_forced_update_display()
         if readline_result:
             # add to history, but only if requested and not the same as the
