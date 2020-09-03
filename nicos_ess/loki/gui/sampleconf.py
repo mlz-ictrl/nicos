@@ -563,7 +563,6 @@ class LokiSamplePanel(Panel):
         self.configs.append(config)
         new_item = QListWidgetItem(config['name'], self.list)
         self.list.setCurrentItem(new_item)
-        self.on_list_itemClicked(new_item)
 
     @pyqtSlot()
     def on_editBtn_clicked(self):
