@@ -497,7 +497,6 @@ class LokiSamplePanel(Panel):
         frm = QFrame(self)
         loadUi(frm, findResource(
             'nicos_ess/loki/gui/ui_files/sampleconf_summary.ui'))
-        # frm.whatLbl.setText('Sample configuration')
         configToFrame(frm, self.configs[index])
         frm.addDevBtn.setVisible(False)
         frm.delDevBtn.setVisible(False)
