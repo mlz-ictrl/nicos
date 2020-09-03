@@ -133,7 +133,6 @@ class ConfigEditDialog(QDialog):
         if not config:
             self.frm.whatLbl.setText('New sample configuration')
 
-
     def maybeAccept(self):
         if not self.frm.nameBox.text():
             QMessageBox.warning(self, 'Error', 'Please enter a sample name.')
