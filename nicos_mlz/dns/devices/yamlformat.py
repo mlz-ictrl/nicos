@@ -51,7 +51,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         # TODO: one we have a better sample object
         # sample = meas['sample']['description']
         # sample['kind'] = 'Vanadium' etc.
-        # sample['unit_cell'] = from_maybe_utf8(expdev.sample.description)
+        # sample['unit_cell'] = expdev.sample.description
         # sample['spacegroup'] = 'not looked up'
 
         temp = meas['sample']['temperature']

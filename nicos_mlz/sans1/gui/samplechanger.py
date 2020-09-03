@@ -32,7 +32,6 @@ from nicos.clients.gui.panels.tabwidget import DetachedWindow
 from nicos.guisupport.qt import QAbstractButton, QAbstractItemView, \
     QDialogButtonBox, QEvent, QLabel, QLineEdit, QPixmap, QSize, QStyle, \
     QStyleOptionHeader, QStylePainter, Qt, QTableWidget, QVBoxLayout
-from nicos.pycompat import from_maybe_utf8
 from nicos.utils import findResource
 
 
@@ -188,7 +187,7 @@ class SamplechangerSetupPanel(CustomButtonPanel):
         if names is None:
             return
         for i in range(self._numSamples):
-            name = from_maybe_utf8(names.get(i + 1, {}).get('name', ''))
+            name = names.get(i + 1, {}).get('name', '')
             self._tableWidget.cellWidget(i, 0).setText(name)
 
     def _applyChanges(self):

@@ -31,7 +31,6 @@ from nicos.core import Override
 from nicos.core.data.dataset import ScanDataset
 from nicos.core.device import Readable
 from nicos.devices.datasinks.image import ImageSink
-from nicos.pycompat import from_maybe_utf8
 
 from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
 
@@ -50,7 +49,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
             meas["info"] = self.dataset.info
 
         sample = session.experiment.sample
-        meas["sample"]["comment"] = from_maybe_utf8(sample.comment)
+        meas["sample"]["comment"] = sample.comment
         meas["sample"]["timefactor"] = sample.timefactor
         meas["sample"]["thickness"] = sample.thickness
         meas["sample"]["detoffset"] = sample.detoffset

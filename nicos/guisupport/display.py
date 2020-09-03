@@ -39,7 +39,6 @@ from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.utils import setBackgroundColor, setBothColors, \
     setForegroundColor
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.pycompat import from_maybe_utf8
 from nicos.utils import findResource
 
 defaultColorScheme = {
@@ -148,7 +147,7 @@ class ValueLabel(SqueezedLabel):
         SqueezedLabel.__init__(self, parent, designMode, **kwds)
         if designMode:
             self.setText('(value display)')
-        self._callback = lambda value, strvalue: from_maybe_utf8(strvalue)
+        self._callback = lambda value, strvalue: strvalue
 
     def setFormatCallback(self, callback):
         self._callback = callback
@@ -324,10 +323,9 @@ class ValueDisplay(NicosWidget, QWidget):
         self._lastvalue = value
         self._lastchange = currenttime()
         if self.props['maxlen'] > -1:
-            self.valuelabel.setText(from_maybe_utf8(
-                strvalue[:self.props['maxlen']]))
+            self.valuelabel.setText(strvalue[:self.props['maxlen']])
         else:
-            self.valuelabel.setText(from_maybe_utf8(strvalue))
+            self.valuelabel.setText(strvalue)
         if self._expired:
             setBothColors(self.valuelabel, (self._colorscheme['fore'][UNKNOWN],
                                             self._colorscheme['expired']))

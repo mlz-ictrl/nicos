@@ -32,7 +32,6 @@ import quickyaml
 from nicos import session
 from nicos.core import NicosError
 from nicos.devices.datasinks.image import SingleFileSinkHandler
-from nicos.pycompat import from_maybe_utf8
 from nicos.utils import AutoDefaultODict
 
 
@@ -97,12 +96,12 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
         # TODO: use experiment number when we have it in NICOS
         exp['number'] = expdev.proposal
         exp['proposal'] = expdev.proposal
-        exp['title'] = from_maybe_utf8(expdev.title)
+        exp['title'] = expdev.title
         exp['authors'] = []
         authors = [
-            {'name': from_maybe_utf8(expdev.users),
+            {'name': expdev.users,
              'roles': ['principal_investigator']},
-            {'name':  from_maybe_utf8(expdev.localcontact),
+            {'name':  expdev.localcontact,
              'roles': ['local_contact']},
         ]
         for author in authors:
@@ -121,7 +120,7 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
         hist['stopped'] = nice_datetime(currenttime())
 
         sample = meas['sample']['description']
-        sample['name'] = from_maybe_utf8(expdev.sample.samplename)
+        sample['name'] = expdev.sample.samplename
 
         env = meas['sample']['environment'] = []
         stats = self.dataset.valuestats

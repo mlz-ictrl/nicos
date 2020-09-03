@@ -29,7 +29,6 @@ from time import localtime, strftime, time as currenttime
 
 from nicos import session
 from nicos.core.constants import LIVE
-from nicos.pycompat import from_maybe_utf8
 
 from nicos_mlz.toftof.devices import calculations as calc
 from nicos_mlz.toftof.devices.datasinks.base import TofSink, TofSinkHandler
@@ -159,13 +158,10 @@ class TofNeXuSHandler(TofSinkHandler):
             usercomment = metainfo['det', 'info'][1]
         else:
             usercomment = ''
-        self._tof.write_title(from_maybe_utf8(usercomment))
-        self._tof.write_experiment_title(
-            from_maybe_utf8(metainfo['Sample', 'samplename'][1]))
-        self._tof.write_proposal_title(
-            from_maybe_utf8(metainfo['Exp', 'title'][1]))
-        self._tof.write_proposal_number(
-            from_maybe_utf8(metainfo['Exp', 'proposal'][1]))
+        self._tof.write_title(usercomment)
+        self._tof.write_experiment_title(metainfo['Sample', 'samplename'][1])
+        self._tof.write_proposal_title(metainfo['Exp', 'title'][1])
+        self._tof.write_proposal_number(metainfo['Exp', 'proposal'][1])
 
         self._tof.write_mode('Total_Time'
                              if metainfo['det', 'mode'][1] == 'time'
@@ -190,9 +186,8 @@ class TofNeXuSHandler(TofSinkHandler):
             metainfo['gphi', 'value'][1:3] + metainfo['gcx', 'value'][1:3] +
             metainfo['gcy', 'value'][1:3]))
 
-        self._tof.write_local_contact(
-            from_maybe_utf8(metainfo['Exp', 'localcontact'][1]))
-        self._tof.write_user(from_maybe_utf8(metainfo['Exp', 'users'][1]))
+        self._tof.write_local_contact(metainfo['Exp', 'localcontact'][1])
+        self._tof.write_user(metainfo['Exp', 'users'][1])
 
         self._tof.write_chopper_vacuum(metainfo['vac0', 'value'][1],
                                        metainfo['vac1', 'value'][1],
@@ -225,8 +220,7 @@ class TofNeXuSHandler(TofSinkHandler):
             metainfo['det', 'timeinterval'][1])
         self._tof.write_monitor_input(metainfo['det', 'monitorchannel'][1])
         self._tof.write_detinfo(self.detector._detinfo[2:])
-        self._tof.write_sample_description(
-            from_maybe_utf8(metainfo['Sample', 'samplename'][1]))
+        self._tof.write_sample_description(metainfo['Sample', 'samplename'][1])
 
     def end(self):
         # self.log.info('%s' % self._tof._entry.nxroot.tree)

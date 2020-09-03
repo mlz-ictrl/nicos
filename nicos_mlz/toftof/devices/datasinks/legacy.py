@@ -31,7 +31,6 @@ import numpy as np
 
 from nicos import session
 from nicos.core.constants import LIVE
-from nicos.pycompat import from_maybe_utf8
 
 from nicos_mlz.toftof.devices import calculations as calc
 from nicos_mlz.toftof.devices.datasinks.base import TofSink, TofSinkHandler
@@ -63,17 +62,15 @@ class TofImageSinkHandler(TofSinkHandler):
             usercomment = header['det', 'info'][1]
         else:
             usercomment = ''
-        headlines.append('Title: %s' % from_maybe_utf8(usercomment))
+        headlines.append('Title: %s' % usercomment)
         headlines.append('ExperimentTitle: %s' %
-                         from_maybe_utf8(header['Sample', 'samplename'][1]))
-        headlines.append('ProposalTitle: %s' %
-                         from_maybe_utf8(header['Exp', 'title'][1]))
+                         header['Sample', 'samplename'][1])
+        headlines.append('ProposalTitle: %s' % header['Exp', 'title'][1])
         headlines.append('ProposalNr: %s' % header['Exp', 'proposal'][1])
 
-        headlines.append('ExperimentTeam: %s' %
-                         from_maybe_utf8(header['Exp', 'users'][1]))
+        headlines.append('ExperimentTeam: %s' % header['Exp', 'users'][1])
         headlines.append('LocalContact: %s' %
-                         from_maybe_utf8(header['Exp', 'localcontact'][1]))
+                         header['Exp', 'localcontact'][1])
         headlines.append('StartDate: %s' % strftime('%d.%m.%Y',
                                                     self._local_starttime))
         headlines.append('StartTime: %s' % strftime('%H:%M:%S',

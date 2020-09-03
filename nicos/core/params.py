@@ -517,7 +517,7 @@ def string(s=None):
         return ''
     if isinstance(s, bytes):
         # str(s) would result in the string "b'...'"
-        return s.decode('utf-8')
+        return s.decode()
     return str(s)
 
 

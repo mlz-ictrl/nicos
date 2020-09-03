@@ -25,12 +25,6 @@
 """Python compatibility."""
 
 
-def from_maybe_utf8(s):
-    if isinstance(s, str):
-        return s
-    return s.decode()
-
-
 def to_ascii_escaped(s):
     if isinstance(s, bytes):
         s = s.decode('ascii', 'ignore')

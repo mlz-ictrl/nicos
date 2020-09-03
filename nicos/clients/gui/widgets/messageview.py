@@ -32,7 +32,6 @@ from time import localtime, strftime
 from nicos.guisupport.qt import QBrush, QColor, QFont, QMainWindow, QPainter, \
     QPixmap, QRect, QRegExp, QSize, Qt, QTextBrowser, QTextCharFormat, \
     QTextCursor, QTextEdit
-from nicos.pycompat import from_maybe_utf8
 from nicos.utils.loggers import ACTION, INPUT
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -216,7 +215,7 @@ class MessageView(QTextBrowser):
         textcursor = self.textCursor()
         textcursor.movePosition(self.text_curson_position)
         textcursor.setCharFormat(fmt or std)
-        textcursor.insertText(from_maybe_utf8(text))
+        textcursor.insertText(text)
 
     def addMessage(self, message):
         bar = self.verticalScrollBar()

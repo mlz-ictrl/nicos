@@ -44,7 +44,6 @@ from nicos.core.acquire import DevStatistics
 from nicos.core.data import DataManager
 from nicos.core.params import expanded_path, nonemptystring, subdir
 from nicos.devices.sample import Sample
-from nicos.pycompat import from_maybe_utf8
 from nicos.utils import DEFAULT_FILE_MODE, createThread, disableDirectory, \
     enableDirectory, ensureDirectory, expandTemplate, grp, lazy_property, \
     printTable, pwd
@@ -1056,7 +1055,7 @@ class Experiment(Device):
         # encode all text that may be Unicode into RTF \u escapes
         for key in stats:
             if isinstance(stats[key], str):
-                stats[key] = from_maybe_utf8(stats[key]).encode('rtfunicode')
+                stats[key] = stats[key].encode('rtfunicode')
 
         # template data
         newcontent, _, _ = expandTemplate(data, stats)
