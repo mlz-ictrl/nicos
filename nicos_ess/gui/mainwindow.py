@@ -31,12 +31,20 @@ import os
 
 from time import time as current_time
 
-from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow
+from nicos.clients.gui.dialogs.auth import ConnectionDialog
+from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow, \
+    SSHTunnelForwarder
+from nicos.clients.gui.utils import splitTunnelString
 from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
     QMenu, QPixmap, QPoint, QSizePolicy, Qt, QWidget, pyqtSlot
 
 from nicos_ess.gui import uipath
 from nicos_ess.gui.panels import get_icon
+
+try:
+    from sshtunnel import BaseSSHTunnelForwarderError, SSHTunnelForwarder
+except ImportError:
+    SSHTunnelForwarder = None
 
 
 def decolor_logo(pixmap, color):
@@ -177,7 +185,6 @@ class MainWindow(DefaultMainWindow):
             self.client.last_action_at = 0
         self.current_status = status
         is_connected = status != 'disconnected'
-        self.actionConnect.setChecked(is_connected)
         if is_connected:
             self.actionConnect.setText('Disconnect')
         else:
@@ -211,6 +218,59 @@ class MainWindow(DefaultMainWindow):
         DefaultMainWindow.on_client_disconnected(self)
         self.actionConnect.setIcon(
             QIcon("resources/material/icons/power-24px.svg"))
+
+    @pyqtSlot(bool)
+    def on_actionConnect_triggered(self, on):
+        # connection or disconnection request?
+        if self.current_status == 'idle':
+            self.client.disconnect()
+            if self.tunnelServer:
+                self.tunnelServer.stop()
+                self.tunnelServer = None
+            return
+
+        ret = ConnectionDialog.getConnectionData(self, self.connpresets,
+                                                 self.lastpreset,
+                                                 self.conndata, self.tunnel)
+        new_name, new_data, save, tunnel = ret
+
+        if new_data is None:
+            return
+        if save:
+            self.lastpreset = save
+            self.connpresets[save] = new_data
+        else:
+            self.lastpreset = new_name
+        self.conndata = new_data
+        if tunnel:
+            try:
+                host, username, password = splitTunnelString(tunnel)
+                self.tunnelServer = SSHTunnelForwarder(
+                    host, ssh_username=username, ssh_password=password,
+                    remote_bind_address=(self.conndata.host,
+                                         self.conndata.port),
+                    compression=True)
+                self.tunnelServer.start()
+                tunnel_port = self.tunnelServer.local_bind_port
+
+                # corresponding ssh command line (debug)
+                # print 'ssh -f %s -L %d:%s:%d -N' % (host, tunnel_port,
+                #                                     self.conndata.host,
+                #                                     self.conndata.port)
+
+                # store the established tunnel information host, user, and
+                # password for the next connection try to avoid typing password
+                # for every (re)connection via the GUI
+                self.tunnel = tunnel
+                self.conndata.host = 'localhost'
+                self.conndata.port = tunnel_port
+            except ValueError as e:
+                self.showError(str(e))
+                self.tunnelServer = None
+            except BaseSSHTunnelForwarderError as e:
+                self.showError(str(e))
+                self.tunnelServer = None
+        self.client.connect(self.conndata)
 
     @pyqtSlot()
     def on_actionUser_triggered(self):
