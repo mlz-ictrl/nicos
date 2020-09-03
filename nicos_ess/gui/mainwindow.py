@@ -33,18 +33,11 @@ from time import time as current_time
 
 from nicos.clients.gui.dialogs.auth import ConnectionDialog
 from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow
-from nicos.clients.gui.utils import splitTunnelString
 from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
     QMenu, QPixmap, QPoint, QSizePolicy, Qt, QWidget, pyqtSlot
 
 from nicos_ess.gui import uipath
 from nicos_ess.gui.panels import get_icon
-
-try:
-    from sshtunnel import BaseSSHTunnelForwarderError, SSHTunnelForwarder
-except ImportError:
-    SSHTunnelForwarder = None
-    BaseSSHTunnelForwarderError = None
 
 
 def decolor_logo(pixmap, color):
@@ -242,25 +235,6 @@ class MainWindow(DefaultMainWindow):
         else:
             self.lastpreset = new_name
         self.conndata = new_data
-        if tunnel:
-            try:
-                host, username, password = splitTunnelString(tunnel)
-                self.tunnelServer = SSHTunnelForwarder(
-                    host, ssh_username=username, ssh_password=password,
-                    remote_bind_address=(self.conndata.host,
-                                         self.conndata.port),
-                    compression=True)
-                self.tunnelServer.start()
-                tunnel_port = self.tunnelServer.local_bind_port
-                self.tunnel = tunnel
-                self.conndata.host = 'localhost'
-                self.conndata.port = tunnel_port
-            except ValueError as e:
-                self.showError(str(e))
-                self.tunnelServer = None
-            except BaseSSHTunnelForwarderError as e:
-                self.showError(str(e))
-                self.tunnelServer = None
         self.client.connect(self.conndata)
 
     @pyqtSlot()
