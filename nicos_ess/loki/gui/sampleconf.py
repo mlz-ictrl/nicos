@@ -425,7 +425,6 @@ class LokiSamplePanel(Panel):
         # select the last item
         if last_item:
             self.list.setCurrentItem(last_item)
-            self.on_list_itemClicked(last_item)
 
         self.sampleGroup.setEnabled(True)
         self.dirty = False
