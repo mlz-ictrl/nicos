@@ -301,7 +301,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Edit sample configuration</string>
+        <string>Sample configuration</string>
        </property>
       </widget>
      </item>
