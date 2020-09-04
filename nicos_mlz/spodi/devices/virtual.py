@@ -62,7 +62,7 @@ class VirtualImage(BaseImage):
                                            self.sizes[1], self.sizes[0])
             self._rawdata = 0.1 * data[3]
             self._resosteps = data[1]
-        except (IOError, ValueError):
+        except (OSError, ValueError):
             self.log.warning('data file %s not present, returning empty array '
                              'from virtual SPODI image', self.datafile)
             self._rawdata = np.zeros(

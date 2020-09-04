@@ -118,7 +118,7 @@ class SinqExperiment(Experiment):
     def sicscounter(self):
         try:
             lines = readFile(self.sicscounterfile)
-        except IOError:
+        except OSError:
             self.updateSicsCounterFile(0)
             return 0
         if lines:

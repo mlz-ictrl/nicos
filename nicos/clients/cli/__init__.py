@@ -1021,7 +1021,7 @@ class NicosCmdClient(NicosClient):
         finally:
             try:
                 readline.write_history_file(self.histfile)
-            except IOError:
+            except OSError:
                 pass
 
     def main_with_command(self, command):

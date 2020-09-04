@@ -45,7 +45,7 @@ class AmorNexusUpdater(NexusFileWriterStatus):
         filename = dataset.filepaths[0]
         try:
             nxfile = h5py.File(filename, 'r+')
-        except (ValueError, IOError):
+        except (ValueError, OSError):
             self.log.error('Unable to edit file for dataset #%d!',
                            dataset.counter)
             return

@@ -55,7 +55,7 @@ class ProposalDB:
                 credentials = readFile(credpath)
             else:
                 credentials = readFile(session.experiment.propdb)
-        except IOError as e:
+        except OSError as e:
             raise ConfigurationError('Can\'t read credentials '
                                      'for propdb-access from file: %s' % e)
         credentials = credentials[0]

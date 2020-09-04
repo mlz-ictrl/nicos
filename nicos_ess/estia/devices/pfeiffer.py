@@ -55,7 +55,7 @@ class PfeifferTPG261(MoxaCommunicator, Readable):
         reply = sock.recv(3)
         if reply != '\x06\r\n':
             self._flush_tty(sock)
-            raise IOError('No ACK reply.')
+            raise OSError('No ACK reply.')
         # send ENQ signal
         sock.send('\x05\r\n')
 

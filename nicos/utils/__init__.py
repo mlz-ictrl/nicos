@@ -542,7 +542,7 @@ def terminalSize():
         h, w, _hp, _wp = struct.unpack(
             'HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ,
                                 struct.pack('HHHH', 0, 0, 0, 0)))
-    except IOError:
+    except OSError:
         return 80, 25
     return w, h
 
@@ -1135,7 +1135,7 @@ def readFileCounter(counterpath, key):
     """
     try:
         lines = readFile(counterpath)
-    except IOError:
+    except OSError:
         writeFile(counterpath, [])
         return 0
     for line in lines:
@@ -1207,7 +1207,7 @@ def watchFileContent(filenames, log, interval=1.0, sleep=sleep):
                     with open(filename, 'rb') as f:
                         result.append(f.read())
                     break
-                except IOError as err:
+                except OSError as err:
                     log.error('got exception checking for content of %r: %s',
                               filename, err)
                     sleep(localinterval)

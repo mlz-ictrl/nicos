@@ -614,7 +614,7 @@ def hasGnuplot():
         gpProcess.communicate(b'exit')
         if gpProcess.returncode:
             return False
-    except (IOError, ValueError):
+    except (OSError, ValueError):
         return False
     return True
 

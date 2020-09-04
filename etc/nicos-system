@@ -65,7 +65,7 @@ if path.isfile(_DEFAULT) and 'INSTRUMENT' not in os.environ:
                     if sep:
                         key = key.replace('export', '').strip()
                         os.environ[key] = value.rstrip()
-    except IOError as e:
+    except OSError as e:
         printerr('  ERROR:', e)
         printerr('WARNING: Ignoring defaults in %s.' % _DEFAULT)
 
@@ -131,7 +131,7 @@ def read_pidfile(name, wait=0):
         try:
             pid = open(pidpath, 'rb').read()
             pid = int(pid)
-        except (IOError, ValueError):
+        except (OSError, ValueError):
             if time.time() > begin + wait:
                 return
         else:

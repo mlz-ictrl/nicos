@@ -94,7 +94,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         code.InteractiveConsole.interact(self, banner)
         try:
             readline.write_history_file(self.histfile)
-        except IOError:
+        except OSError:
             pass
 
     def sigtermHandler(self, *args):

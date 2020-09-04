@@ -1290,7 +1290,7 @@ class Session:
                     self.log.addHandler(self._master_handler)
                 else:
                     self.log.addHandler(NicosLogfileHandler(log_path, prefix))
-            except (IOError, OSError) as err:
+            except OSError as err:
                 self.log.error('cannot open log file: %s', err)
 
         # add the facility-specific log handlers, if implemented and configured

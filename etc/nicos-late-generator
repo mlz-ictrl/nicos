@@ -75,7 +75,7 @@ if path.isfile(_DEFAULT) and 'INSTRUMENT' not in os.environ:
                     if sep:
                         key = key.replace('export', '').strip()
                         os.environ[key] = value.rstrip()
-    except IOError as e:
+    except OSError as e:
         printerr('  ERROR:', e)
         printerr('WARNING: Ignoring defaults in %s.' % _DEFAULT)
 

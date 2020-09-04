@@ -54,7 +54,7 @@ class BasicScriptHandler:
         try:
             with open(path.join(my_uipath, 'basic_script.py'), 'r') as f:
                 basic_script = f.read()
-        except IOError:
+        except OSError:
             basic_script = ''
         self.basic_script = basic_script
         self.handler = TemplateScriptHandler(basic_script)

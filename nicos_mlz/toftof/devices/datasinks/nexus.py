@@ -149,7 +149,7 @@ class TofNeXuSHandler(TofSinkHandler):
             self.log.warning('Error occured during NeXuS writing: %s', e)
             try:
                 os.remove(tmpfilename)
-            except IOError:
+            except OSError:
                 pass
 
     def putMetainfo(self, metainfo):

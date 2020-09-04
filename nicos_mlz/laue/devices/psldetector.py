@@ -64,7 +64,7 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
             try:
                 data = self._communicate('GetSize')
                 iwstr, ihstr = data.split(';')
-            except IOError:
+            except OSError:
                 self.log.warning('Error during init', exc=1)
                 iwstr, ihstr = '2000', '1598'
         self._setROParam('imagewidth', int(iwstr))

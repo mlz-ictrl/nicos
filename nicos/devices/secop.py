@@ -341,7 +341,7 @@ class SecNodeDevice(Readable):
 
     def registerDevice(self, device):
         if not self._secnode:
-            raise IOError('unconnected')
+            raise OSError('unconnected')
         self.log.debug('register %s on %s', device, self)
         self._devices[device.name] = device
         module = device.secop_module

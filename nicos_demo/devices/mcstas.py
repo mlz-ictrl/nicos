@@ -145,7 +145,7 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         """
         try:
             shutil.rmtree(self.mcstasdir)
-        except (IOError, OSError):
+        except OSError:
             self.log.info('could not remove old data')
         command = '%s -n 1e8 -d %s %s' % (
             self.mcstasprog, self.mcstasdir, self._mcstas_params)
@@ -178,7 +178,7 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
                     np.uint32)
                 self.readresult = [self._buf.sum()]
             elif not ignore_error:
-                raise IOError('Did not find start line: %s' % lines[0])
-        except IOError:
+                raise OSError('Did not find start line: %s' % lines[0])
+        except OSError:
             if not ignore_error:
                 self.log.exception('Could not read result file')

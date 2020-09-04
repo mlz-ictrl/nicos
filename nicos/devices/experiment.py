@@ -712,7 +712,7 @@ class Experiment(Device):
             if path.isfile(path.join(tmpldir, tmplname)):
                 with open(path.join(tmpldir, tmplname), 'r') as f:
                     return f.read()
-        raise IOError('no such template found')
+        raise OSError('no such template found')
 
     def iterTemplates(self, only_dot_template=True):
         """iterator of all templates (and their content)..."""
@@ -854,7 +854,7 @@ class Experiment(Device):
         self.log.debug('looking for template in %r', self.templatepath)
         try:
             mailbody = self.getTemplate(self.mailtemplate)
-        except IOError:
+        except OSError:
             self.log.warning('reading mail template %s failed',
                              self.mailtemplate, exc=1)
             mailbody = 'See data in attachment.'
@@ -1010,7 +1010,7 @@ class Experiment(Device):
         self.log.debug('looking for template in %r', self.templatepath)
         try:
             data = self.getTemplate(self.reporttemplate)
-        except IOError:
+        except OSError:
             self.log.warning('reading experimental report template %s failed, '
                              'please fetch a copy from the User Office',
                              self.reporttemplate)

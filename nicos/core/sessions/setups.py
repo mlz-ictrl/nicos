@@ -232,7 +232,7 @@ def readSetup(infodict, modname, filepath, all_setups, logger):
     try:
         with open(filepath, 'rb') as modfile:
             code = modfile.read()
-    except IOError as err:
+    except OSError as err:
         logger.exception('Could not read setup '
                          'module %r: %s', filepath, err)
         return

@@ -286,7 +286,7 @@ class TreeWidget(TreeWidgetContextMenu):
                 return None, None
             try:
                 open(abspath, 'w').close()
-            except IOError:
+            except OSError:
                 QMessageBox.warning(self, 'Error', 'Could not create new '
                                     'setup!')
                 return None, None

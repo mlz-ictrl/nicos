@@ -513,7 +513,7 @@ class PGAIPanel(Panel):
                     for line in f.readlines():
                         x, y, z = line.split(',')
                         self.addPoint(float(x), float(y), float(z))
-            except IOError:
+            except OSError:
                 self.fileName.setText('')
 
     def addPoint(self, x, y, z):
