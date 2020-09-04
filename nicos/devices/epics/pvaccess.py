@@ -478,7 +478,6 @@ class EpicsWindowTimeoutDevice(HasWindowTimeout, EpicsAnalogMoveable):
     """
     Analog moveable with window timeout.
     """
-    pass
 
 
 class EpicsDigitalMoveable(EpicsMoveable):

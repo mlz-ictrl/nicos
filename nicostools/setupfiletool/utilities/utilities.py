@@ -34,8 +34,8 @@ class ItemTypes:
 
 def getNicosDir():
     # this file should be in nicostools/setupfiletool/utilities
-    return(path.abspath(path.join(path.dirname(__file__), '..', '..', '..')))
+    return path.abspath(path.join(path.dirname(__file__), '..', '..', '..'))
 
 
 def getResDir():
-    return(path.join(getNicosDir(), 'tools', 'setupfiletool', 'res'))
+    return path.join(getNicosDir(), 'tools', 'setupfiletool', 'res')

@@ -203,11 +203,11 @@ class MTTManualPanel(GenericPanel):
 
     @pyqtSlot()
     def on_mttStop_clicked(self):
-        self._run_if_manual('stop("mtt_raw")', noqueue=True)
+        self._run_if_manual('stop("mtt_raw")')
 
     @pyqtSlot()
     def on_mbStop_clicked(self):
-        self._run_if_manual('stop("mb_arm_raw")', noqueue=True)
+        self._run_if_manual('stop("mb_arm_raw")')
 
     @pyqtSlot()
     def on_mttReset_clicked(self):

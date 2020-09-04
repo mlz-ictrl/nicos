@@ -109,7 +109,6 @@ class ResiExperiment(Experiment):
 
     def _handleTemplates(self, proposal, kwds):
         """hhm"""
-        pass
 
     def finish(self):
         pass

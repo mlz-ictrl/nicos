@@ -40,7 +40,6 @@ class EpicsPassiveChannel(EpicsReadableEss, PassiveChannel):
     These channels can read values directly via EPICS pvs:
     readpv -  Provide the value of the channel using this PV
     """
-    pass
 
 
 class EpicsActiveChannel(EpicsReadableEss, ActiveChannel):
@@ -79,7 +78,6 @@ class EpicsCounterPassiveChannel(CounterChannelMixin, EpicsPassiveChannel):
     Class that represents EPICS passive channels and provides integer count
     values
     """
-    pass
 
 
 class EpicsCounterActiveChannel(CounterChannelMixin, EpicsActiveChannel):
@@ -87,21 +85,18 @@ class EpicsCounterActiveChannel(CounterChannelMixin, EpicsActiveChannel):
     Class that represents EPICS active channels and provides integer count
     values
     """
-    pass
 
 
 class EpicsTimerPassiveChannel(TimerChannelMixin, EpicsPassiveChannel):
     """
     Class that represents EPICS passive channels and provides time
     """
-    pass
 
 
 class EpicsTimerActiveChannel(TimerChannelMixin, EpicsActiveChannel):
     """
     Class that represents EPICS active channels and provides time
     """
-    pass
 
 
 class EpicsDetector(EpicsDeviceEss, Detector):

@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+#  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
@@ -85,5 +85,5 @@ def count(*detlist, **preset):
 
     std_count(*detlist,**preset)
 
-    if racoll != None:
+    if racoll is not None:
         racoll.stopcheck()

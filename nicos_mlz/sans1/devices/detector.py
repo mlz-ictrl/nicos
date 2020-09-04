@@ -42,9 +42,7 @@ class DetectorMixin(DeviceMixinBase):
 
 class Detector(DetectorMixin, GenericDetector):
     """Standard detector including its size."""
-    pass
 
 
 class GatedDetector(DetectorMixin, GenericGatedDetector):
     """Standard gated detector including its size."""
-    pass

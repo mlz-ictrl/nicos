@@ -33,7 +33,7 @@ main_window = docked(
                      ('Detector Image',
                       panel('nicos_ess.gui.panels.live.LiveDataPanel')),
                      ('Script Status',
-                      panel('nicos_ess.gui.panels.status.ScriptStatusPanel', 
+                      panel('nicos_ess.gui.panels.status.ScriptStatusPanel',
                             eta=True)),
                  ),
 

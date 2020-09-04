@@ -386,7 +386,7 @@ class PumaSecondaryCollimator(HasTimeout, BlockingSequencer):
             # ask for changing the devices pair 1-3
             for i in range(3):
                 if self._pairs[i]:  # Ignore pair1 if not used
-                    if (position & (1 << i)):
+                    if position & (1 << i):
                         self.log.debug('switching to frame: %s',
                                        self._pairs[i])
                         seq.append(SeqDev(self._pairs[i], 'frame'))

@@ -38,8 +38,6 @@ from nicos_mlz.spheres.utils import canStartSisScan, getSisDetector, \
 
 VALIDTARGETS = ['eta', 'acq']
 
-lasttarget = [VALIDTARGETS[0]]
-
 
 class VariableTimeScan(SweepScan):
     def __init__(self, devices, startend, firstmoves=None,
@@ -54,8 +52,6 @@ class VariableTimeScan(SweepScan):
         self.remainingTime = totaltime
         if target in ['eta', 'acq']:
             self.target = target
-            global lasttarget
-            lasttarget = target
         else:
             session.log.warning('"%s", is not a valid target, must be one of '
                                 '%r, defaulting to "%s"', target,  VALIDTARGETS,
@@ -166,7 +162,7 @@ def shortenScan(time):
 @parallel_safe
 @usercommand
 def stopScan():
-    if(isinstance(session._currentscan, VariableTimeScan)):
+    if isinstance(session._currentscan, VariableTimeScan):
         session._currentscan.stopScan()
 
 

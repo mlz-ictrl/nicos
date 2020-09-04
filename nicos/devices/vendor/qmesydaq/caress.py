@@ -189,13 +189,9 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
 class Timer(TimerChannelMixin, Channel):
     """Timer for CARESS."""
 
-    pass
-
 
 class Counter(CounterChannelMixin, Channel):
     """Counter for CARESS."""
-
-    pass
 
 
 class Image(QMesydaqCaressDevice, QMesyDAQImage):

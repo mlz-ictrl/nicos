@@ -79,12 +79,12 @@ class KappaGon(IsController, Moveable):
                         return False, ' -10 < kappa < 10 for this omega position'
 
         if adev == self._adevs['omega']:
-            if (self._adevs['ttheta'].target - adevtarget < 45):
+            if self._adevs['ttheta'].target - adevtarget < 45:
                     return False, 'Omega too close to two-theta'
             else:
                     return True, 'Position OK'
         if adev == self._adevs['ttheta']:
-            if (adevtarget - self._adevs['omega'].target < 45):
+            if adevtarget - self._adevs['omega'].target < 45:
                     return False, 'Omega too close to two-theta'
             else:
                     return True, 'Position OK'

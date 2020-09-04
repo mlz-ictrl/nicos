@@ -444,7 +444,7 @@ class SetupChecker:
                 for target, prio in entrydict.items():
                     if not (isinstance(target, str)
                             and isinstance(prio, int)
-                            and not (isinstance(prio, bool))):
+                            and not isinstance(prio, bool)):
                         self.log_error(
                             'alias_config entries should map device '
                             'names to integer priorities',

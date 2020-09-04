@@ -3,21 +3,21 @@
 # A comma-separated list of package or module names from where C extensions may
 # be loaded. Extensions are loading into the active Python interpreter and may
 # run arbitrary code
-extension-pkg-whitelist=numpy,
-    scipy,
-    OpenGL,
-    OpenGL.GL,
-    OpenGL.GLU,
-    OpenGL.GLUT,
-    OpenGL.GLUT.fonts,
-    PyQt5,
-    nicospyctl.pyctl,
-    quickyaml,
-    lxml.etree
+extension-pkg-whitelist=numpy
+    ,scipy
+    ,OpenGL
+    ,OpenGL.GL
+    ,OpenGL.GLU
+    ,OpenGL.GLUT
+    ,OpenGL.GLUT.fonts
+    ,PyQt5
+    ,nicospyctl.pyctl
+    ,quickyaml
+    ,lxml.etree
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=_vendor,.git,pyctl.so,corbadevice_idl.py,pylintrc,fbschema
+ignore=_vendor,.git,gui_rc_qt5.py,corbadevice_idl.py,fbschemas
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
@@ -33,18 +33,17 @@ init-hook= "
 # Use multiple processes to speed up Pylint.
 jobs=1
 
+# Control the amount of potential inferred values when inferring a single
+# object. This can help the performance when dealing with large functions or
+# complex, nested conditions.
+limit-inference-results=10
+
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
-load-plugins=pylint.extensions.redefined_variable_type, # default in <1.7
-    pylint.extensions.bad_builtin,  # default in <1.7
-    pylint.extensions.emptystring, #  new in 1.7
-    #pylint.extensions.comparetozero, # new  in 1.7, do not use yet
+load-plugins=pylint.extensions.emptystring
 
 # Pickle collected data for later comparisons.
 persistent=yes
-
-# Specify a configuration file.
-#rcfile=
 
 # Allow loading of arbitrary C extensions. Extensions are imported into the
 # active Python interpreter and may run arbitrary code.
@@ -54,8 +53,8 @@ unsafe-load-any-extension=no
 [MESSAGES CONTROL]
 
 # Only show warnings with the listed confidence levels. Leave empty to show
-# all. Valid levels: HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED
-confidence=
+# all. Valid levels: HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED.
+confidence=HIGH, UNDEFINED
 
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifiers separated by comma (,) or put this
@@ -65,72 +64,53 @@ confidence=
 # you want to run only the similarities checker, you can use "--disable=all
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use"--disable=all --enable=classes
-# --disable=W"
-disable=access-member-before-definition
-        ,locally-enabled
-        ,no-member
-        ,maybe-no-member
-        ,unexpected-keyword-arg
-        ,protected-access
-        ,redefined-outer-name
-        ,broad-except
-        ,no-self-use
-        ,duplicate-code
-        ,bad-continuation
-        ,unused-argument
-        ,attribute-defined-outside-init
-        ,missing-docstring,abstract-method
-        ,no-init
-        ,reimported
-        ,duplicate-code
-        ,multiple-statements
-        ,eval-used
-        ,exec-used
-        ,interface-not-implemented
-        ,too-many-lines
-        ,invalid-name
-        ,fixme
-        ,locally-disabled
-        ,file-ignored
-        ,bad-open-mode
-        ,superfluous-parens
-        ,cell-var-from-loop
-        ,cyclic-import
-        ,bad-whitespace
-        ,star-args
-        ,global-statement
-        ### new in pylint 1.5
-        ,unsubscriptable-object
-        ,wrong-import-position
-        ,ungrouped-imports
-        ,wrong-import-order
-        ,redefined-variable-type
-        ,consider-using-enumerate
-        ,unneeded-not
-        # new in pylint1.7
-        ,not-context-manager # until https://github.com/PyCQA/pylint/issues/782 is fixed
-        ,bad-builtin # we keep that for now
-        ,arguments-differ # too many occurences left
-        ,consider-using-ternary # not critical, can be done later
-        ,no-else-return # not critical, can be done later
-        ,no-else-raise  # ditto
-        ,no-else-continue
-        ,no-else-break
-        ,invalid-unary-operand-type
-        ,arguments-differ # it is unclear if this helpful for us.
-        ,inconsistent-return-statements # unhelpful
-        ,assignment-from-no-return  # too many numpy spurions
-        ,useless-object-inheritance  # not good for mixed py2/py3 code
-        ,import-outside-toplevel  # used for cyclic dependencies
-        ,trailing-comma-tuple
-        ,consider-using-in  # stylistic choice
+# --disable=W".
+disable=fixme
+    ### inference warnings that are usually false positives
+    ,abstract-method
+    ,access-member-before-definition
+    ,cell-var-from-loop
+    ,duplicate-code
+    ,invalid-unary-operand-type
+    ,unsubscriptable-object
+    ### code practices we accept
+    ,arguments-differ
+    ,attribute-defined-outside-init
+    ,eval-used
+    ,exec-used
+    ,missing-docstring
+    ,no-self-use
+    ,protected-access
+    ,redefined-outer-name
+    ,unused-argument
+    ### imports are handled by isort
+    ,cyclic-import
+    ,import-outside-toplevel
+    ,ungrouped-imports
+    ,wrong-import-order
+    ,wrong-import-position
+    ### stylistic choices
+    ,bad-continuation
+    ,bad-whitespace
+    ,consider-using-enumerate
+    ,consider-using-in
+    ,consider-using-ternary
+    ,inconsistent-return-statements
+    ,invalid-name
+    ,multiple-statements
+    ,no-else-break
+    ,no-else-continue
+    ,no-else-raise
+    ,no-else-return
+    ,superfluous-parens
+    ,trailing-comma-tuple
+    ,unneeded-not
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once). See also the "--disable" option for examples.
-enable=absolute-import #py3
-       ,division  #py3
+enable=
 
 
 [REPORTS]
@@ -155,13 +135,19 @@ output-format=text
 reports=yes
 
 # Activate the evaluation score.
-score=yes
+score=no
 
 
 [REFACTORING]
 
 # Maximum number of nested blocks for function / method body
 max-nested-blocks=10
+
+# Complete name of functions that never returns. When checking for
+# inconsistent-return-statements if a never returning function is called then
+# it will be considered as an explicit return statement and no message will be
+# printed.
+never-returning-functions=sys.exit
 
 
 [FORMAT]
@@ -183,7 +169,7 @@ indent-string='    '
 max-line-length=132
 
 # Maximum number of lines in a module
-max-module-lines=2000
+max-module-lines=2500
 
 # List of optional constructs for which whitespace checking is disabled. `dict-
 # separator` is used to allow tabulation in dicts, etc.: {1  : 1,\n222: 2}.
@@ -208,6 +194,10 @@ notes=FIXME,XXX,TODO
 
 [LOGGING]
 
+# The type of string formatting that logging methods do. `old` means using %
+# formatting, `new` is for `{}` formatting.
+logging-format-style=old
+
 # Logging modules to check that the string format arguments are in logging
 # function parameter format
 logging-modules=logging,nicos.utils.loggers
@@ -215,14 +205,8 @@ logging-modules=logging,nicos.utils.loggers
 
 [BASIC]
 
-# Naming hint for argument names
-argument-name-hint=[a-z_][A-Za-z0-9_]{0,30}$
-
 # Regular expression matching correct argument names
 argument-rgx=[a-z_][A-Za-z0-9_]{0,30}$
-
-# Naming hint for attribute names
-attr-name-hint=[a-z_][A-Za-z0-9_]{0,30}$
 
 # Regular expression matching correct attribute names
 attr-rgx=[a-z_][A-Za-z0-9_]{0,30}$
@@ -230,20 +214,11 @@ attr-rgx=[a-z_][A-Za-z0-9_]{0,30}$
 # Bad variable names which should always be refused, separated by a comma
 bad-names=foo,baz,toto,tutu,tata
 
-# Naming hint for class attribute names
-class-attribute-name-hint=([A-Za-z_][A-Za-z0-9_]{0,30}|(__.*__))$
-
 # Regular expression matching correct class attribute names
 class-attribute-rgx=([A-Za-z_][A-Za-z0-9_]{0,30}|(__.*__))$
 
-# Naming hint for class names
-class-name-hint=[A-Z_][a-zA-Z0-9]+$
-
 # Regular expression matching correct class names
 class-rgx=([A-Za-z_])[a-zA-Z0-9_]+$
-
-# Naming hint for constant names
-const-name-hint=(([A-Z_][A-Z0-9_]*)|(__.*__))$
 
 # Regular expression matching correct constant names
 const-rgx=(([A-Za-z_][A-Za-z0-9_]*)|(__.*__))$
@@ -252,32 +227,24 @@ const-rgx=(([A-Za-z_][A-Za-z0-9_]*)|(__.*__))$
 # ones are exempt.
 docstring-min-length=-1
 
-# Naming hint for function names
-function-name-hint=[a-z_][A-Za-z0-9_]{1,30}$
-
 # Regular expression matching correct function names
 function-rgx=[A-Za-z_][A-Za-z0-9_]{1,30}$
 
 # Good variable names which should always be accepted, separated by a comma
 good-names=i,j,k,ex,Run,_,a,b,c,d,m,n,u,v,w,x,y,z,e,P,I,D,Q,E,B,A,T,Tc
 
-# Include a hint for the correct naming format with invalid-name
-include-naming-hint=yes
+# Good variable names regexes, separated by a comma. If names match any regex,
+# they will always be accepted
+good-names-rgxs=Q[a-z]*
 
-# Naming hint for inline iteration names
-inlinevar-name-hint=[A-Za-z_][A-Za-z0-9_]*$
+# Include a hint for the correct naming format with invalid-name
+include-naming-hint=no
 
 # Regular expression matching correct inline iteration names
 inlinevar-rgx=[A-Za-z_][A-Za-z0-9_]*$
 
-# Naming hint for method names
-method-name-hint=[A-Za-z_][a-z0-9_]{0,50}$
-
 # Regular expression matching correct method names
 method-rgx=[A-Za-z_][A-Za-z0-9_]{0,50}$
-
-# Naming hint for module names
-module-name-hint=[a-z_][a-z0-9_]*$
 
 # Regular expression matching correct module names
 module-rgx=(([a-z_][a-z0-9_]*)|(CARESS.*)|(_GlobalIDL.*))$
@@ -288,14 +255,11 @@ name-group=
 
 # Regular expression which should only match function or class names that do
 # not require a docstring.
-no-docstring-rgx=__.*__
+no-docstring-rgx=^_
 
 # List of decorators that produce properties, such as abc.abstractproperty. Add
 # to this list to register other decorators that produce valid properties.
 property-classes=abc.abstractproperty
-
-# Naming hint for variable names
-variable-name-hint=[A-Za-z_][a-z0-9_]{0,30}$
 
 # Regular expression matching correct variable names
 variable-rgx=[A-Za-z_][A-Za-z0-9_]{0,30}$
@@ -329,11 +293,15 @@ contextmanager-decorators=contextlib.contextmanager
 # List of members which are set dynamically and missed by pylint inference
 # system, and so shouldn't trigger E1101 when accessed. Python regular
 # expressions are accepted.
-generated-members=REQUEST,acl_users,aq_parent
+generated-members=
 
 # Tells whether missing members accessed in mixin class should be ignored. A
 # mixin class is detected if its name ends with "mixin" (case insensitive).
 ignore-mixin-members=yes
+
+# Tells whether to warn about missing members when the owner of the attribute
+# is inferred to be None.
+ignore-none=yes
 
 # This flag controls whether pylint should warn about no-member and similar
 # checks whenever an opaque object is returned when inferring. The inference
@@ -346,7 +314,7 @@ ignore-on-opaque-inference=yes
 # List of class names for which member attributes should not be checked (useful
 # for classes with dynamically set attributes). This supports the use of
 # qualified names.
-ignored-classes=SQLObject,CommandLineCell
+ignored-classes=optparse.Values,thread._local,_thread._local
 
 # List of module names for which member attributes should not be checked
 # (useful for modules/projects where namespaces are manipulated during runtime
@@ -366,31 +334,35 @@ missing-member-hint-distance=1
 # showing a hint for a missing member.
 missing-member-max-choices=1
 
+# List of decorators that change the signature of a decorated function.
+signature-mutators=
+
 
 [VARIABLES]
 
 # List of additional names supposed to be defined in builtins. Remember that
 # you should avoid to define new builtins when possible.
-additional-builtins=device,
-    setupname,
-    configdata,
-    Row,
-    Column,
-    BlockRow,
-    Block,
-    SetupBlock,
-    Field,
-    vsplit,
-    hsplit,
-    vbox,
-    hbox,
-    window,panel,
-    tool,
-    cmdtool,
-    docked,
-    tabbed,
-    setups,
-    menu
+additional-builtins=device
+    ,setupname
+    ,configdata
+    ,Row
+    ,Column
+    ,BlockRow
+    ,Block
+    ,SetupBlock
+    ,Field
+    ,vsplit
+    ,hsplit
+    ,vbox
+    ,hbox
+    ,window
+    ,panel
+    ,tool
+    ,cmdtool
+    ,docked
+    ,tabbed
+    ,setups
+    ,menu
 
 # Tells whether unused global variables should be treated as a violation.
 allow-global-unused-variables=yes
@@ -405,14 +377,14 @@ dummy-variables-rgx=_|dummy
 
 # Argument names that match this expression will be ignored. Default to name
 # with leading underscore
-ignored-argument-names=_.*
+ignored-argument-names=_.*|^ignored_|^unused_
 
 # Tells whether we should check for unused import in __init__ files.
 init-import=no
 
 # List of qualified module names which can have objects that can redefine
 # builtins.
-redefining-builtins-modules=six.moves,future.builtins
+redefining-builtins-modules=six.moves,future.builtins,builtins,io
 
 
 [SIMILARITIES]
@@ -432,6 +404,10 @@ min-similarity-lines=4
 
 [IMPORTS]
 
+# List of modules that can be imported at any level, not just the top level
+# one.
+allow-any-import-level=
+
 # Allow wildcard imports from modules that define __all__.
 allow-wildcard-with-all=yes
 
@@ -441,7 +417,7 @@ allow-wildcard-with-all=yes
 analyse-fallback-blocks=no
 
 # Deprecated modules which should not be used, separated by a comma
-deprecated-modules=regsub,TERMIOS,Bastion,rexec
+deprecated-modules=optparse,tkinter.tix
 
 # Create a graph of external dependencies in the given file (report RP0402 must
 # not be disabled)
@@ -461,6 +437,9 @@ known-standard-library=
 
 # Force import order to recognize a module as part of a third party library.
 known-third-party=enchant
+
+# Couples of modules and preferred modules, separated by a comma.
+preferred-modules=
 
 
 [DESIGN]
@@ -516,4 +495,4 @@ valid-metaclass-classmethod-first-arg=mcs
 
 # Exceptions that will emit a warning when being caught. Defaults to
 # "Exception"
-overgeneral-exceptions=Exception
+overgeneral-exceptions=

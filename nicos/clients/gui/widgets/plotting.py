@@ -823,11 +823,11 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
 
     def isLogScaling(self, idx=0):
         axes = self._plot.getAxes(idx)
-        return (axes.scale & gr.OPTION_Y_LOG if axes is not None else False)
+        return axes.scale & gr.OPTION_Y_LOG if axes is not None else False
 
     def isLogXScaling(self, idx=0):
         axes = self._plot.getAxes(idx)
-        return (axes.scale & gr.OPTION_X_LOG if axes is not None else False)
+        return axes.scale & gr.OPTION_X_LOG if axes is not None else False
 
     def setLogScale(self, on):
         self._plot.setLogY(on, rescale=True)

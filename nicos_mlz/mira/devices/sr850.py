@@ -87,7 +87,7 @@ class Amplifier(PyTangoDevice, Measurable):
         self._started = time()
 
     def doIsCompleted(self):
-        return (time() > self._started + self._delay)
+        return time() > self._started + self._delay
 
     def doInfo(self):
         # it is important that these values are correct in the metainfo!

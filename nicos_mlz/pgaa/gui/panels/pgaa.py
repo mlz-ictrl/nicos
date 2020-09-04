@@ -756,7 +756,7 @@ class QueueSource(QObject):
             elif not index == -1:
                 assert len(self.sequence) == self.viewer.rowCount()
                 old_ind = len(self.sequence) - 1
-                if not (old_ind == index):
+                if old_ind != index:
                     self.rearrange(old_ind, index)
                     self.viewer.selectRow(index)
             else:

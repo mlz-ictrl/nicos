@@ -206,7 +206,7 @@ class NicosCompleter:
         if '(' in line:
             command = line[:line.index('(')].lstrip()
             if command in self.special_device:
-                from nicos.core import Device, Readable, Moveable
+                from nicos.core import Readable, Moveable
                 if command in self.special_moveable:
                     cls = Moveable
                 elif command in self.special_readable:

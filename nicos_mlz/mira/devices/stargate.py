@@ -123,11 +123,11 @@ class Stargate(tango.DigitalOutput):
         for curidx in range(len(self.chevron_att_angles)):
             maxmin = self.chevron_att_angles[curidx]
 
-            if(len(maxmin) < 2):
+            if len(maxmin) < 2:
                 chevrons.append(0)
                 continue
 
-            if(att < maxmin[0] and att > maxmin[1]):
+            if maxmin[1] < att < maxmin[0]:
                 chevrons.append(1)
             else:
                 chevrons.append(0)

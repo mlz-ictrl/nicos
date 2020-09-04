@@ -302,13 +302,13 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
                             entry.value is not None):
                         self.log.info("%s -> %s" % (msgkey, entry))
                         found_some = True
-                        yield ('%r@%s=%s\n' % (entry.time, key, entry.value))
+                        yield '%r@%s=%s\n' % (entry.time, key, entry.value)
 
         # Return at least the last value, if none match the range
         if not found_some and key in self._db:
             entry = self._db[key][-1]
             self.log.debug("not found in provided range, fetching current")
-            yield ('%r@%s=%s\n' % (entry.time, key, entry.value))
+            yield '%r@%s=%s\n' % (entry.time, key, entry.value)
 
     def _update_topic(self, key, entry):
         KafkaCacheDatabase._update_topic(self, key, entry)

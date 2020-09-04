@@ -285,7 +285,7 @@ class TasWidget(NicosWidget, QWidget):
         alpha = athangle + sttangle
         # TODO if the angle is too small then it could be that the ath value
         # must be turned by 90 deg (PANDA: chair setup) ??
-        if attangle < 0 and alpha < attangle:
+        if alpha < attangle < 0:
             alpha += pi_2
         painter.drawLine(ax + 10 * cos(alpha), ay - 10 * sin(alpha),
                          ax - 10 * cos(alpha), ay + 10 * sin(alpha))

@@ -157,7 +157,7 @@ class Changer(BaseSequencer):
         #     raise UsageError(self, 'NotAus (Emergency stop) activated, '
         #                      'please check and retry!')
         # read all inputs and check for problems
-        if not(self._attached_magazine.read() in self.positions):
+        if self._attached_magazine.read() not in self.positions:
             raise HWError(self, 'Unknown Magazine-Position !')
         if self._attached_lift.read() != '2':
             raise HWError(self, 'Lift not at parking position!')
@@ -237,7 +237,7 @@ class Changer(BaseSequencer):
         if self._attached_magazineocc.status(0)[0] != status.OK:
             raise UsageError(self, 'Magazine occupancy switches are in warning state!')
         index = self.positions.index(slot)
-        if not((self._attached_magazineocc.read() >> index*2) & 1):
+        if not (self._attached_magazineocc.read() >> index*2) & 1:
             raise UsageError(self, 'Position %r is already occupied!' % slot)
 
     def CheckMagazinSlotUsed(self, slot):
@@ -447,10 +447,10 @@ class Changer(BaseSequencer):
     def change(self, old, whereto):
         ''' cool kurze Wechselroutine
         Der Knackpunkt ist in den Hilfsroutinen!'''
-        if not(old in self.monos + ['None']):
+        if old not in self.monos + ['None']:
             raise UsageError(self, '\'%s\' is illegal value for Mono, use one '
                              'of ' % old + ', '.join(self.monos + ['None']))
-        if not(whereto in self.monos + ['None']):
+        if whereto not in self.monos + ['None']:
             raise UsageError(self, '\'%s\' is illegal value for Mono, use one '
                              'of ' % whereto + ', '.join(self.monos + ['None'])
                              )

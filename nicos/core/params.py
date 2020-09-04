@@ -336,7 +336,7 @@ class Attach:
             # the boolean 'True' value
             if self.multiple is True:
                 return count > 0
-            return (count in multiple)
+            return count in multiple
 
         if configargs:
             if isinstance(configargs, (tuple, list)):

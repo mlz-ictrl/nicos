@@ -115,7 +115,7 @@ class NXtofsingle:
         t1 = datetime.strptime(etime, fmtin).replace(tzinfo=tzinfo)
         if duration is None:
             duration = (t1 - t0).total_seconds()
-        assert(duration >= 0)
+        assert duration >= 0
         self._entry.start_time = string_(t0.strftime(fmtout))
         self._entry.end_time = string_(t1.strftime(fmtout))
         self._entry.duration = NXfield(int(duration), dtype='int32',

@@ -106,9 +106,8 @@ class RScan(Scan):
         # the originating/microstepping motor are requested.
         copydevices = list(self._devices)
         self._devices = underlying_motor(self._devices)
-        ret = Scan.beginScan(self)
+        Scan.beginScan(self)
         self._devices = copydevices
-        return ret
 
 
 def _fixType(dev, args, mkpos):
