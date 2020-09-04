@@ -49,14 +49,12 @@ sys.path.insert(0, nicos_root)
 
 def printerr(*args, **kwargs):
     kwargs.pop('file', None)
-    print(*args, file=sys.stderr, **kwargs)
-    sys.stderr.flush()
+    print(*args, file=sys.stderr, flush=True, **kwargs)
 
 
 def printout(*args, **kwargs):
     kwargs.pop('file', None)
-    print(*args, file=sys.stdout, **kwargs)
-    sys.stdout.flush()
+    print(*args, file=sys.stdout, flush=True, **kwargs)
 
 
 if path.isfile(_DEFAULT) and 'INSTRUMENT' not in os.environ:
