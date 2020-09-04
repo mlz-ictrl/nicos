@@ -25,7 +25,6 @@
 """The NICOS electronic logbook."""
 
 import html
-import io
 from logging import ERROR
 from os import path, unlink
 from shutil import copyfile
@@ -215,10 +214,10 @@ PROLOG_TOC = b'''\
 
 def create_or_open(filename, prolog=b''):
     if not path.isfile(filename):
-        io.open(filename, 'wb').close()
+        open(filename, 'wb').close()
     # we have to open in binary mode since we want to do a nonzero seek from
     # the end, which the text wrapper doesn't support
-    fd = io.open(filename, 'r+b')
+    fd = open(filename, 'r+b')
     fd.seek(0, 2)
     if fd.tell() == 0:
         fd.write(prolog)
@@ -249,8 +248,8 @@ class HtmlWriter:
 
     def open(self, directory, instr, proposal):
         self.close()
-        io.open(path.join(directory, 'logbook.html'), 'w').write(
-            FRAMESET % (instr, proposal))
+        with open(path.join(directory, 'logbook.html'), 'w') as f:
+            f.write(FRAMESET % (instr, proposal))
         self.fd = create_or_open(path.join(directory, 'content.html'), PROLOG)
         self.fd_toc = create_or_open(path.join(directory, 'toc.html'),
                                      PROLOG_TOC)

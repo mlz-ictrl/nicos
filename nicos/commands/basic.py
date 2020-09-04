@@ -25,7 +25,6 @@
 """Module for basic user commands."""
 
 import builtins
-import io
 import os
 import sys
 import time
@@ -681,7 +680,7 @@ def _RunScript(filename, statdevices, debug=False):
             dev._sim_max = None
     session.log.info('running user script: %s', fn)
     try:
-        fp = io.open(fn, 'r', encoding='utf-8')
+        fp = open(fn, 'r')
     except Exception as e:
         if session.mode == SIMULATION:
             session.log.exception('Dry run: error opening script')
