@@ -301,8 +301,6 @@ class NicosClassDocumenter(ClassDocumenter):
             descr = info.description or ''
             if descr and not descr.endswith(('.', '!', '?')):
                 descr += '.'
-            if hasattr(descr, 'decode'):
-                descr = descr.decode('utf-8')
             if not info.mandatory:
                 descr += ' Default value: ``%r``.' % (info.default,)
             if info.unit:

@@ -162,8 +162,7 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         else:
             self.log.info('Requesting just-bin-it to start counting')
 
-        self._send_command(self.command_topic,
-                           json.dumps(config).encode('utf-8'))
+        self._send_command(self.command_topic, json.dumps(config).encode())
 
         # Wait for acknowledgement of the command being received
         self._check_for_ack()

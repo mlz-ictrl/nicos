@@ -123,8 +123,8 @@ def test_experiment(session, cleanup):
     nr = readFileCounter(datapath('..', 'counters'), 'scan')
     fn = datapath('p999', 'data', 'p999_%08d.dat' % nr)
     assert path.isfile(fn)
-    with open(fn, 'rb') as fp:
-        assert 'Meßzeit'.encode('utf-8') in fp.read()
+    with open(fn, 'r') as fp:
+        assert 'Meßzeit' in fp.read()
 
     # now, finish the experiment
     thd = exp.finish()

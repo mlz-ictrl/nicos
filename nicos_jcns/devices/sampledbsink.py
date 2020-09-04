@@ -171,7 +171,7 @@ class DataSinkHandler(BaseDataSinkHandler):
                     json={
                         'storage': 'local',
                         'original_file_name': self.dataset.filenames[0],
-                        'base64_content': b64encode(mf.read()).decode('utf8'),
+                        'base64_content': b64encode(mf.read()).decode(),
                     },
                 )
                 if r.status_code != POST_REQUEST_OK:

@@ -164,9 +164,6 @@ def queryProposal(pnumber, instrument=None):
         value = row[2]
         if value and key not in info:
             info[key] = value
-    # convert all values to utf-8
-    for k in info:
-        info[k] = str(info[k]).encode('utf-8')
     return info.pop('instrument', 'None'), info
 
 

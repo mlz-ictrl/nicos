@@ -72,8 +72,6 @@ def formatScript(script, prompt='>>>'):
 def parseScript(script, name=None, format=None, compilecode=True):
     if compilecode:
         def compiler(src):
-            if not isinstance(src, str):
-                src = src.decode('utf-8')
             return compile(src + '\n', '<script>', 'single')
     else:
         compiler = lambda src: src
@@ -105,8 +103,6 @@ def parseScript(script, name=None, format=None, compilecode=True):
 def splitBlocks(text):
     """Parse a script into multiple blocks."""
     codelist = []
-    if not isinstance(text, str):
-        text = text.decode('utf-8')
     mod = ast.parse(text + '\n', '<script>')
     assert isinstance(mod, ast.Module)
     # construct an individual compilable unit for each block

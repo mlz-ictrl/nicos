@@ -141,4 +141,4 @@ class HistogramFlatbuffersDeserializer:
             # dtype=ArrayDouble.ArrayDouble)
 
         value = numpy.reshape(value, histogram.CurrentShapeAsNumpy())
-        return value, histogram.Timestamp(), histogram.Source().decode('utf-8')
+        return value, histogram.Timestamp(), histogram.Source().decode()

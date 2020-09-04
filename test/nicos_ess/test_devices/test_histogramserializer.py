@@ -64,7 +64,7 @@ class TestHistogramDeserializer:
         buff = create_hs00(data=data, timestamp=ts, source=source)
         histogram = EventHistogram.EventHistogram.GetRootAsEventHistogram(
             buff, 0)
-        assert histogram.Source().decode('utf-8') == source
+        assert histogram.Source().decode() == source
         assert histogram.Timestamp() == ts
         assert histogram.DataType() == Array.Array.ArrayUInt
 

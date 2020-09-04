@@ -31,7 +31,7 @@ from os import path
 import numpy as np
 
 from nicos.core.errors import ConfigurationError, ProgrammingError
-from nicos.utils import parseHostPort, readonlydict, readonlylist
+from nicos.utils import decodeAny, parseHostPort, readonlydict, readonlylist
 
 INFO_CATEGORIES = [
     ('experiment', 'Experiment information'),
@@ -517,7 +517,7 @@ def string(s=None):
         return ''
     if isinstance(s, bytes):
         # str(s) would result in the string "b'...'"
-        return s.decode()
+        return decodeAny(s)
     return str(s)
 
 

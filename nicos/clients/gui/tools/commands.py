@@ -122,12 +122,12 @@ class AsyncCommandsTool(CommandsTool):
             if rl:
                 line = self.proc.stdout.readline()
                 while line:
-                    self.newText.emit(line)
+                    self.newText.emit(line.decode())
                     line = self.proc.stdout.readline()
 
     @pyqtSlot(str)
     def appendText(self, line):
-        self.outputBox.appendPlainText(line.strip('\n').decode())
+        self.outputBox.appendPlainText(line.strip('\n'))
         sb = self.outputBox.verticalScrollBar()
         sb.setValue(sb.maximum())
 

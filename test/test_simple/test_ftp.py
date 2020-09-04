@@ -135,7 +135,7 @@ TEST_CONTENT = 'A test\n'
 def upload(session):
     """Provide a file to use as upload"""
     fd, t = tempfile.mkstemp(suffix='.txt')
-    os.write(fd, TEST_CONTENT.encode('utf8'))
+    os.write(fd, TEST_CONTENT.encode())
     yield t
     os.unlink(t)
 
@@ -153,6 +153,6 @@ def test_ftp(session, ftpserver, upload):
     assert ds.ofilename
     assert ds.omode == 'wb'
     assert ds.iofile
-    assert ds.iofile.finalcontent.decode('utf8') == TEST_CONTENT
+    assert ds.iofile.finalcontent.decode() == TEST_CONTENT
     assert ds.mkdirpath
     assert ds.chdirpath
