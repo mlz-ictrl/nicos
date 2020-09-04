@@ -261,8 +261,7 @@ class LiveDataPanel(Panel):
 
     def _get_all_widgets(self):
         yield self.widget
-        for w in self._livewidgets.values():
-            yield w
+        yield from self._livewidgets.values()
 
     def getToolbars(self):
         return [self.toolbar]

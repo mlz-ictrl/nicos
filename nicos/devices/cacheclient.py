@@ -363,8 +363,7 @@ class BaseCacheClient(Device):
                 closeSocket(self._secsocket)
                 self._secsocket = None
                 if retry:
-                    for m in self._single_request(tosend, sentinel, retry - 1):
-                        yield m
+                    yield from self._single_request(tosend, sentinel, retry - 1)
                     return
                 raise
 

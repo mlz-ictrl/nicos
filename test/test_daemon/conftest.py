@@ -83,8 +83,7 @@ class TestClient(NicosClient):
         starttime = time.time()
         while True:
             endindex = len(self._signals)
-            for sig in self._signals[startindex:endindex]:
-                yield sig
+            yield from self._signals[startindex:endindex]
             startindex = endindex
             time.sleep(0.05)
             if time.time() > starttime + timeout:

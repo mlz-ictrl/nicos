@@ -72,8 +72,7 @@ def findNicosInstrumentSubDirs(parent, facility=''):
 
 def findAllNicosInstrumentDirs(root):
     for facility, full in findNicosFacilityDirs(root):
-        for res in findNicosInstrumentSubDirs(full, facility):
-            yield res
+        yield from findNicosInstrumentSubDirs(full, facility)
 
 
 def findInstrGuiConfigs(where):

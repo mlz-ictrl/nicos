@@ -136,17 +136,14 @@ def devIter(devices, baseclass=None, onlydevs=True, allwaiters=False):
             for subdev in dev:
                 if isinstance(subdev, baseclass):
                     if allwaiters:
-                        for subsubdev in devIter(subdev._getWaiters(),
-                                                 baseclass, onlydevs,
-                                                 allwaiters):
-                            yield subsubdev
+                        yield from devIter(subdev._getWaiters(), baseclass,
+                                           onlydevs, allwaiters)
                     yield subdev if onlydevs else (subdev.name, subdev)
         else:
             if isinstance(dev, baseclass):
                 if allwaiters:
-                    for subdev in devIter(dev._getWaiters(), baseclass,
-                                          onlydevs, allwaiters):
-                        yield subdev
+                    yield from devIter(dev._getWaiters(), baseclass,
+                                       onlydevs, allwaiters)
                 yield dev if onlydevs else (devname, dev)
 
 
@@ -522,8 +519,7 @@ class DeviceValueDict:
                             else:
                                 break
                         yield key
-                        for key in extra:
-                            yield key
+                        yield from extra
                 for sub in _keyiter(keys[1:]):
                     if sub.endswith(']'):
                         val = sub[1:-1]

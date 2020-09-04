@@ -66,8 +66,7 @@ class MariaDetector(Detector):
             if i == 0:
                 yield ("live", dev)
             yield ("live%d" % (i + 1), dev)
-        for itm in Detector._presetiter(self):
-            yield itm
+        yield from Detector._presetiter(self)
 
     def doSetPreset(self, **preset):
         Detector.doSetPreset(self, **preset)
