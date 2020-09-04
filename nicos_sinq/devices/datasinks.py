@@ -134,7 +134,7 @@ class QuieckHandler(DataSinkHandler):
             message = 'QUIECK/' + self._startdataset.filepaths[0]
             try:
                 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as socke:
-                    socke.sendto(bytes(message, 'utf-8'),
+                    socke.sendto(message.encode(),
                                  (self.sink.host, self.sink.port))
             except Exception:
                 # In no event shall the failure to send this message break

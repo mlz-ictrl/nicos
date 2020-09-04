@@ -30,7 +30,7 @@ import operator
 import os
 import tempfile
 import time
-from binascii import b2a_base64
+from base64 import b64encode
 from threading import RLock
 from time import sleep, time as currenttime
 
@@ -302,7 +302,7 @@ class Plot:
             imgbytes = fp.read()
         return ('<img src="data:image/svg+xml;base64,%s" '
                 'style="width: %sex; height: %sex">' % (
-                    b2a_base64(imgbytes).decode(),
+                    b64encode(imgbytes).decode(),
                     self.width, self.height))
 
 

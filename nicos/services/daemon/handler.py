@@ -27,11 +27,11 @@ The connection handler for the execution daemon, handling the protocol
 commands.
 """
 
-import base64
 import os
 import queue
 import socket
 import tempfile
+from base64 import b64decode, b64encode
 
 import rsa
 
@@ -169,7 +169,7 @@ class ConnectionHandler:
 
         authenticators = self.daemon.get_authenticators()
         pubkey, privkey = rsa.newkeys(512)
-        pubkeyStr = base64.encodebytes(pubkey.save_pkcs1())
+        pubkey_base64 = b64encode(pubkey.save_pkcs1())
         bannerhashing = 'rsa,plain'
 
         # announce version, authentication modality and serializer
@@ -179,7 +179,7 @@ class ConnectionHandler:
             nicos_root = config.nicos_root,
             custom_path = config.setup_package_path,
             pw_hashing = bannerhashing,
-            rsakey = pubkeyStr,
+            rsakey = pubkey_base64,
             protocol_version = self.get_version(),
             serializer = self.serializer.name,
         ))
@@ -196,9 +196,7 @@ class ConnectionHandler:
 
         password = credentials[0]['passwd']
         if password[0:4] == 'RSA:':
-            password = password[4:]
-            password = rsa.decrypt(base64.decodebytes(password.encode()),
-                                   privkey).decode()
+            password = rsa.decrypt(b64decode(password[4:]), privkey).decode()
 
         # check login data according to configured authentication
         login = credentials[0]['login']

@@ -145,8 +145,6 @@ class NicosClient:
                 encodedkey = banner.get('rsakey', None)
                 if encodedkey is None:
                     raise ProtocolError('rsa requested, but rsakey missing in banner')
-                if not isinstance(encodedkey, bytes):
-                    encodedkey = bytes(encodedkey, 'utf-8')
                 pubkey = rsa.PublicKey.load_pkcs1(b64decode(encodedkey))
                 password = rsa.encrypt(password.encode(), pubkey)
                 password = 'RSA:' + b64encode(password).decode()
