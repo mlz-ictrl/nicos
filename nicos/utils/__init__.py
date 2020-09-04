@@ -24,7 +24,6 @@
 
 """NICOS utilities independent from an active session."""
 
-import errno
 import fnmatch
 import inspect
 import linecache
@@ -390,7 +389,7 @@ def tcpSocket(host, defaultport, timeout=None, keepalive=None):
             s.settimeout(timeout)
     # connect
         s.connect((host, int(port)))
-    except socket.error:
+    except OSError:
         closeSocket(s)
         raise
     if keepalive:
@@ -410,11 +409,11 @@ def closeSocket(sock, socket=socket):
         return
     try:
         sock.shutdown(socket.SHUT_RDWR)
-    except socket.error:
+    except OSError:
         pass
     try:
         sock.close()
-    except socket.error:
+    except OSError:
         pass
 
 
@@ -702,19 +701,16 @@ def writePidfile(appname):
     pidpath = getPidfileName(appname)
     try:
         os.makedirs(path.dirname(pidpath))
-    except OSError as err:
-        if err.errno != errno.EEXIST:
-            raise
+    except FileExistsError:
+        pass
     writeFile(pidpath, [str(os.getpid())])
 
 
 def removePidfile(appname):
     try:
         os.unlink(getPidfileName(appname))
-    except OSError as err:
-        if err.errno == errno.ENOENT:
-            return
-        raise
+    except FileNotFoundError:
+        pass
 
 
 def ensureDirectory(dirname, enableDirMode=DEFAULT_DIR_MODE, **kwargs):

@@ -39,7 +39,7 @@ from nicos.guisupport.qt import QApplication, QByteArray, QColor, QDateTime, \
 def getXDisplay():
     try:
         lhost = socket.getfqdn(socket.gethostbyaddr(socket.gethostname())[0])
-    except socket.error:
+    except OSError:
         return ''
     else:
         return lhost + os.environ.get('DISPLAY', ':0')

@@ -22,7 +22,6 @@
 #
 # *****************************************************************************
 
-import socket
 import time
 
 import pytest
@@ -42,7 +41,7 @@ def daemon_wait_cb():
 
         try:
             s = tcpSocket(daemon_addr, 0)
-        except socket.error:
+        except OSError:
             time.sleep(0.02)
         else:
             s.close()

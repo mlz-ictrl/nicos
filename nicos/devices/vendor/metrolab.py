@@ -140,10 +140,8 @@ class THM1176(Measurable):
         self.log.info('Zeroing sensor, please wait a few seconds...')
         try:
             self._execute('CAL', wait=5)
-        except OSError as err:
-            if err.errno == 110:
-                return
-            raise
+        except TimeoutError:
+            pass
 
     def valueInfo(self):
         return Value('B', unit='uT'), \

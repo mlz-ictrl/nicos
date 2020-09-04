@@ -83,7 +83,7 @@ class Server(BaseServer, socketserver.TCPServer):
         # overwritten to support passing client_id to process_request
         try:
             request, client_address = self.get_request()
-        except socket.error:
+        except OSError:
             return
         client_id = self.verify_request(request, client_address)
         if client_id is not None:
@@ -238,11 +238,11 @@ class ServerTransport(ConnectionHandler, BaseServerTransport,
             try:
                 return self.serializer.deserialize_cmd(
                     buf, code2command[start[1:3]])
-            except Exception as err:
+            except Exception:
                 self.send_error_reply('invalid command or garbled data')
                 raise ProtocolError('recv_command: invalid command or '
                                     'garbled data')
-        except socket.error as err:
+        except OSError as err:
             raise ProtocolError('recv_command: connection broken (%s)' % err)
 
     def send_ok_reply(self, payload):
@@ -252,20 +252,20 @@ class ServerTransport(ConnectionHandler, BaseServerTransport,
             else:
                 try:
                     data = self.serializer.serialize_ok_reply(payload)
-                except Exception as err:
+                except Exception:
                     raise ProtocolError('send_ok_reply: could not serialize')
                 self.sock.sendall(STX + LENGTH.pack(len(data)) + data)
-        except socket.error as err:
+        except OSError as err:
             raise ProtocolError('send_ok_reply: connection broken (%s)' % err)
 
     def send_error_reply(self, reason):
         try:
             data = self.serializer.serialize_error_reply(reason)
-        except Exception as err:
+        except Exception:
             raise ProtocolError('send_error_reply: could not serialize')
         try:
             self.sock.sendall(NAK + LENGTH.pack(len(data)) + data)
-        except socket.error as err:
+        except OSError as err:
             raise ProtocolError('send_error_reply: connection broken (%s)' % err)
 
     def send_event(self, evtname, payload):

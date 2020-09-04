@@ -66,7 +66,7 @@ def parallel_safe(func):
 
 
 RERAISE_EXCEPTIONS = (
-    EnvironmentError,
+    OSError,
     MemoryError,
     SystemError,
 )

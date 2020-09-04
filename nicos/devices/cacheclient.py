@@ -25,10 +25,8 @@
 
 """NICOS cache clients."""
 
-import errno
 import queue
 import select
-import socket
 import threading
 from time import sleep, time as currenttime
 
@@ -252,10 +250,8 @@ class BaseCacheClient(Device):
                     try:
                         res = select.select([self._socket], writelist, [],
                                             self._selecttimeout)
-                    except EnvironmentError as e:
-                        if e.errno == errno.EINTR:
-                            continue
-                        raise
+                    except InterruptedError:
+                        continue
                     except TypeError:
                         # socket was None, let the outer loop handle that
                         res = ([], [], [])
@@ -353,12 +349,12 @@ class BaseCacheClient(Device):
                 while not data.endswith(sentinel):
                     newdata = self._secsocket.recv(BUFSIZE)  # blocking read
                     if not newdata:
-                        raise socket.error('cache closed connection')
+                        raise OSError('cache closed connection')
                     if currenttime() > timeout:
                         # do not just break, we need to reopen the socket
-                        raise socket.error('getting response took too long')
+                        raise OSError('getting response took too long')
                     data += newdata
-            except socket.error:
+            except OSError:
                 self.log.warning('error during cache query', exc=1)
                 closeSocket(self._secsocket)
                 self._secsocket = None

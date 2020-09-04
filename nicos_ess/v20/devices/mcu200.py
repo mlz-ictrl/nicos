@@ -126,7 +126,7 @@ class MCU200Motor(Motor):
                 return reply
             except TypeError:
                 return None
-        except socket.error:
+        except OSError:
             if retry is not None:
                 self.log.debug('Retry unsuccessful, raising error.')
                 raise CommunicationError('Communication error with device.')

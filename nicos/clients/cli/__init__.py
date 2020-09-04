@@ -27,7 +27,6 @@
 import configparser
 import ctypes
 import ctypes.util
-import errno
 import getpass
 import glob
 import os
@@ -188,9 +187,9 @@ class NicosCmdClient(NicosClient):
         while readline_result is Ellipsis:
             try:
                 res = select.select([sys.stdin, self.wakeup_pipe_r], [], [], 1)[0]
-            except select.error as e:
-                if e.args[0] == errno.EINTR:
-                    continue
+            except InterruptedError:
+                continue
+            except OSError:
                 librl.rl_callback_handler_remove()
                 raise
             except BaseException:

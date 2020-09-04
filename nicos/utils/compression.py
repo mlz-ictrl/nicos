@@ -24,7 +24,6 @@
 
 """Utilities for (de-)compressing files."""
 
-import errno
 import os
 import zipfile
 from os import path
@@ -55,19 +54,16 @@ def zipFiles(zipfilename, rootdir, logger=None):
                     continue  # ignore (potentially old data) zip files
                 try:
                     zf.write(path.join(root, fn), path.join(xroot, fn))
-                except Exception as err:
-                    # ignore some OS errors:
-                    if isinstance(err, OSError) and \
-                       err.errno in (errno.EACCES, errno.ENOENT):
-                        # - EACCES means the user created a file with wrong
-                        #   permissions (NICOS doesn't do that)
-                        # - ENOENT means a dangling symlink
-                        if logger:
-                            logger.warning('could not add %s to zip: %s',
-                                           path.join(xroot, fn), err)
-                    else:
-                        remove_zip = True
-                        raise
+                except (FileNotFoundError, PermissionError) as err:
+                    # - FileNotFoundError: a dangling symlink
+                    # - PermissionError: the user created a file with wrong
+                    #   permissions (NICOS doesn't do that)
+                    if logger:
+                        logger.warning('could not add %s to zip: %s',
+                                       path.join(xroot, fn), err)
+                except Exception:
+                    remove_zip = True
+                    raise
                 nfiles += 1
                 if nfiles % 500 == 0:
                     if logger:

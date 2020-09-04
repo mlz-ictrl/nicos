@@ -121,7 +121,7 @@ class PixelmanUDPChannel(ActiveChannel):
                     self.log.debug('Got data: ' + data)
 
                     return data == self.finished
-                except socket.error:
+                except OSError:
                     return False
 
         self.log.debug('Falling back to Cache...')

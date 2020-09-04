@@ -25,7 +25,6 @@
 
 """The base class for communication with the NICOS server."""
 
-import errno
 import hashlib
 import socket
 import threading
@@ -108,7 +107,7 @@ class NicosClient:
 
         try:
             self.transport.connect(conndata)
-        except socket.error as err:
+        except OSError as err:
             msg = err.args[1] if len(err.args) >= 2 else str(err)
             self.signal('failed', 'Server connection failed: %s.' % msg, err)
             return
@@ -190,9 +189,9 @@ class NicosClient:
         while 1:
             try:
                 event, data = self.transport.recv_event()
+            except InterruptedError:
+                continue
             except Exception as err:
-                if isinstance(err, IOError) and err.errno == errno.EINTR:
-                    continue
                 if not self.disconnecting:
                     self.log_func('Error getting event: %s' % err)
                     self.signal('broken', 'Server connection broken.')
@@ -227,7 +226,7 @@ class NicosClient:
                 msg = 'Communication error: %s.' % (err.args[0],)
             elif isinstance(err, socket.timeout):
                 msg = 'Connection to server timed out.'
-            elif isinstance(err, socket.error):
+            elif isinstance(err, OSError):
                 msg = 'Server connection broken: %s.' % (err.args[1],)
             # we cannot handle this without breaking connection, since
             # it generally means that the response is not yet received;

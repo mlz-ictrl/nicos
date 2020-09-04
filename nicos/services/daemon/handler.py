@@ -255,10 +255,10 @@ class ConnectionHandler:
                 # XXX move socket specific error handling to transport
                 self.log.error('send timeout in event sender')
                 break
-            except socket.error as err:
+            except OSError as err:
                 self.log.warning('connection broken in event sender: %s', err)
                 break
-            except Exception as err:
+            except Exception:
                 self.log.exception('exception in event sender; event: %s, '
                                    'data: %s', event, repr(data)[:1000])
         self.log.info('closing connections from event sender')

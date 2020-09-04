@@ -39,7 +39,6 @@ import queue
 import select
 import socket
 import threading
-from errno import EAGAIN
 from time import sleep, time as currenttime
 
 from nicos import config, session
@@ -123,10 +122,10 @@ class CacheWorker:
                 except socket.timeout:
                     self.log.warning('send timed out, shutting down')
                     self.closedown()
-                except socket.error as err:
-                    if err.args[0] == EAGAIN:
-                        sleep(CYCLETIME)
-                        continue
+                except BlockingIOError:
+                    sleep(CYCLETIME)
+                    continue
+                except OSError as err:
                     self.log.warning('other end closed, shutting down', exc=err)
                     self.closedown()
                 except Exception:
@@ -147,7 +146,7 @@ class CacheWorker:
                 # TypeError is raised when the connection gets closed and set to
                 # None and select finds no fileno()
                 return
-            except select.error as err:
+            except OSError as err:
                 self.log.warning('error in select', exc=err)
                 self.closedown()
                 return
@@ -156,11 +155,8 @@ class CacheWorker:
                 continue
             try:
                 newdata = self.sock.recv(BUFSIZE)
-            except socket.error as err:
-                if err.args[0] == EAGAIN:
-                    # if we receive an EAGAIN error, just continue
-                    continue
-                newdata = b''
+            except BlockingIOError:
+                continue
             except Exception:
                 newdata = b''
             if not newdata:

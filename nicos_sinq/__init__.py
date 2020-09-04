@@ -35,7 +35,7 @@ def determine_instrument(setup_package_path):
     """SINQ specific way to find the NICOS instrument from the host name."""
     try:
         domain = 'nicos_sinq/' + socket.getfqdn()
-    except (ValueError, IndexError, socket.error):
+    except (ValueError, IndexError, OSError):
         pass
     else:
         # ... but only if a subdir exists for it

@@ -411,7 +411,7 @@ class IPCModBusTCP(IPCModBusRS232):
                     response += data
                     if response[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
                         return response
-        except (socket.error, select.error) as err:
+        except OSError as err:
             if last_try:
                 raise CommunicationError(
                     self, 'tcp connection failed: %s' % err)

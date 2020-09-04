@@ -279,7 +279,7 @@ def makeSessionId():
     """Create a unique identifier for the current session."""
     try:
         hostname = socket.getfqdn()
-    except socket.error:
+    except OSError:
         hostname = 'localhost'
     pid = os.getpid()
     timestamp = int(time.time())

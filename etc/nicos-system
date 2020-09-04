@@ -32,7 +32,6 @@
 #
 # *****************************************************************************
 
-import errno
 import os
 import signal
 import socket
@@ -80,7 +79,7 @@ def get_config():
     hostname = ''
     try:
         hostname = socket.getfqdn().split('.')[0]
-    except socket.error as e:
+    except OSError as e:
         printerr('Could not figure out host name (%s).' % e)
         printerr('Continue with nonspecific services.')
 
@@ -242,11 +241,11 @@ def kill_daemon(name):
                 printout('KILL', end=' ')
                 try:
                     os.kill(pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass  # already terminated
                 except OSError as err:
-                    # ESRCH means: already terminated
-                    if err.errno != errno.ESRCH:
-                        printerr('FAILED to kill:', err)
-                        return False
+                    printerr('FAILED to kill:', err)
+                    return False
             elif current > begin + 1:
                 time.sleep(0.2)
             printout('.', end=' ')

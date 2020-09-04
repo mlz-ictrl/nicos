@@ -92,7 +92,7 @@ def wait_for_hostname():
     while time.time() < timeout:
         try:
             hostname = socket.getfqdn().split('.')[0]
-        except socket.error as err:
+        except OSError as err:
             last_err = err
         if hostname != 'localhost':
             return hostname

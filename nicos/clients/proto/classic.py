@@ -23,7 +23,6 @@
 #
 # *****************************************************************************
 
-import socket
 import uuid
 
 from nicos.protocols.daemon import DAEMON_EVENTS, \
@@ -53,7 +52,7 @@ class ClientTransport(BaseClientTransport):
         # connect to event port
         try:
             self.event_sock = tcpSocket(conndata.host, conndata.port)
-        except socket.error as err:
+        except OSError as err:
             msg = err.args[1]
             self.signal('failed', 'Event connection failed: %s.' % msg, err)
             return

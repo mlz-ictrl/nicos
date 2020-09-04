@@ -31,7 +31,6 @@ MLZ TANGO interface for the respective device classes.
 
 import os
 import re
-import socket
 
 import numpy
 import PyTango
@@ -166,7 +165,7 @@ def check_tango_host_connection(address, timeout=3.0):
     try:
         with tcpSocketContext(tango_host, 10000, timeout=timeout):
             pass
-    except socket.error as e:
+    except OSError as e:
         raise CommunicationError(str(e))
 
 

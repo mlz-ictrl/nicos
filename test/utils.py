@@ -29,7 +29,6 @@ import os
 import re
 import shutil
 import signal
-import socket
 import subprocess
 import sys
 import time
@@ -590,7 +589,7 @@ def startCache(hostport, setup='cache', wait=10):
             while time.time() < start + wait:
                 try:
                     s = tcpSocket(hostport, 0)
-                except socket.error:
+                except OSError:
                     time.sleep(0.02)
                 except Exception as e:
                     sys.stderr.write('%r' % e)

@@ -130,11 +130,11 @@ class CClient:
             return
         try:
             self._socket.shutdown(socket.SHUT_RDWR)
-        except socket.error:
+        except OSError:
             pass
         try:
             self._socket.close()
-        except socket.error:
+        except OSError:
             pass
         self._socket = None
 

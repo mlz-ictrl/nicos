@@ -24,7 +24,6 @@
 
 """Contains a process that polls devices automatically."""
 
-import errno
 import os
 import queue
 import signal
@@ -501,14 +500,12 @@ class Poller(Device):
         while True:
             try:
                 pid, ret = os.wait()
-            except OSError as err:
-                if err.errno == errno.EINTR:
-                    # raised when the signal handler is fired
-                    continue
-                elif err.errno == errno.ECHILD:
-                    # no further child processes found
-                    break
-                raise
+            except InterruptedError:
+                # raised when the signal handler is fired
+                continue
+            except ChildProcessError:
+                # no further child processes found
+                break
             else:
                 # a process exited; restart if necessary
                 setup = self._childpids.pop(pid)
@@ -551,11 +548,8 @@ class Poller(Device):
         for pid in self._childpids:
             try:
                 os.kill(pid, signal.SIGTERM)
-            except OSError as err:
-                if err.errno == errno.ESRCH:
-                    # process was already terminated
-                    continue
-                session.log.info('OSError during shutdown', exc=True)
+            except ProcessLookupError:
+                continue  # already terminated
             except Exception:
                 session.log.info('Exception during shutdown', exc=True)
 
