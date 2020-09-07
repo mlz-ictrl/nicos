@@ -369,11 +369,23 @@ try {
                 checkoutSource()
                 def kafkaversion="2.12-2.3.0"
                 docker.image("jenkinsng.admin.frm2:5000/kafka:${kafkaversion}").withRun() { kafka ->
-                    sleep(time:10, unit: 'SECONDS')  // needed to allow kafka to start
-                    sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1"
-                    sh "docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers-history --zookeeper localhost --partitions 1 --replication-factor 1"
-                        u18.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 --link ${kafka.id}:kafka") {
-                        runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
+                    def kafaksuccess=false;
+                    def tries = 0;
+                    while (kafaksuccess==false){
+                        sleep(time:5, unit: 'SECONDS')  // needed to allow kafka to start
+                        try {
+                        sh """
+                            docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1
+                            docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers-history --zookeeper localhost --partitions 1 --replication-factor 1
+                        """
+                        kafaksuccess=true;
+                        } catch(e) {
+                            tries++;
+                            if (tries> 5) { error('could not start kafka') }
+                        }
+                    }
+                    u18.inside("-v /home/git:/home/git -e KAFKA_URI=kafka:9092 --link ${kafka.id}:kafka") {
+                    runTests('$NICOS3VENV', 'python3', GERRIT_EVENT_TYPE == 'change-merged')
                     } // image.inside
                 } // image.WithRun
             } // ws
