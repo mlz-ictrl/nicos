@@ -31,15 +31,45 @@ from os import path, unlink
 from shutil import copyfile
 from time import localtime, strftime
 
-from nicos.pycompat import from_utf8, to_utf8
+from nicos.pycompat import to_utf8
 from nicos.services.elog.genplot import plotDataset
 from nicos.services.elog.utils import formatMessage, formatMessagePlain, \
     pretty1, pretty2
 
 try:
-    import creole
+    import markdown
 except ImportError:
-    creole = None
+    markdown = None
+else:
+    class CollectHeaders(markdown.Extension):
+        """Markdown extension that assigns proper IDs to headers, and maintains
+        a list of headers that can be added to the elog's table of contents.
+        """
+        def __init__(self, new_id_func):
+            markdown.Extension.__init__(self)
+            self.new_id = new_id_func
+            self.headers = []
+
+        def extendMarkdown(self, md):
+            md.registerExtension(self)
+            md.treeprocessors.register(CollectHeadersProcessor(self),
+                                       'collect-headers', 999)
+
+    class CollectHeadersProcessor(markdown.treeprocessors.Treeprocessor):
+        def __init__(self, ext):
+            markdown.treeprocessors.Treeprocessor.__init__(self)
+            self.ext = ext
+
+        def run(self, root):
+            for level in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6'):
+                for head in root.iter(level):
+                    head.attrib['id'] = self.ext.new_id()
+                    self.ext.headers.append((
+                        int(level[1:]),
+                        head.text,
+                        head.attrib['id'],
+                    ))
+
 
 FRAMESET = '''\
 <html>
@@ -348,11 +378,14 @@ class Handler:
 
     def handle_entry(self, time, data):
         self.out.timestamp(time)
-        if creole:
-            emitter = creole.HtmlEmitter(
-                creole.Parser(from_utf8(data)).parse(), self.out.new_id)
-            data = emitter.emit()
-            headers = emitter.headers
+        if markdown:
+            header_ext = CollectHeaders(self.out.new_id)
+            data = markdown.markdown(data, extensions=[
+                'markdown.extensions.tables',
+                'markdown.extensions.fenced_code',
+                header_ext,
+            ])
+            headers = header_ext.headers
         else:
             data, headers = html.escape(data), []
         self.out.newstate('entry', '', '', data)

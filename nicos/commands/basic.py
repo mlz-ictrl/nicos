@@ -968,7 +968,7 @@ timer = timer()
 def LogEntry(entry):
     """Make a free-form entry in the electronic logbook.
 
-    The entry will be processed as Creole markup.
+    The entry will be processed as Markdown markup.
 
     Note: on the command line, you can also call this function by entering a
     Python comment.  I.e., these two commands are equivalent at the command

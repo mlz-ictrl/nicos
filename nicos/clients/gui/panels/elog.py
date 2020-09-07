@@ -244,7 +244,7 @@ class ELogPanel(Panel):
     def on_actionAddComment_triggered(self):
         dlg = dialogFromUi(self, 'panels/elog_comment.ui')
         dlg.helpFrame.setVisible(False)
-        dlg.creoleLabel.linkActivated.connect(
+        dlg.mdLabel.linkActivated.connect(
             lambda link: dlg.helpFrame.setVisible(True))
         if dlg.exec_() != QDialog.Accepted:
             return
