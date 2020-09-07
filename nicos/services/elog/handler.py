@@ -265,16 +265,16 @@ class HtmlWriter:
             self.fd_toc.flush()
 
     def toc_entry(self, level, text, target, cls=None):
-        html = ''
+        htmlstr = ''
         if self.toc_level < level:
-            html += '<ul class="toc">' * (level - self.toc_level)
+            htmlstr += '<ul class="toc">' * (level - self.toc_level)
         elif self.toc_level > level:
-            html += '</ul>' * (self.toc_level - level) + '\n'
-        html += ('<li class="toc"><a href="content.html#%s" '
-                 'target="content"%s>%s</a></li>\n' % (
-                     target, cls and ' class="%s"' % cls or '',
-                     html.escape(text)))
-        self.emit_toc(html)
+            htmlstr += '</ul>' * (self.toc_level - level) + '\n'
+        htmlstr += ('<li class="toc"><a href="content.html#%s" '
+                    'target="content"%s>%s</a></li>\n' % (
+                        target, cls and ' class="%s"' % cls or '',
+                        html.escape(text)))
+        self.emit_toc(htmlstr)
         self.toc_level = level
 
     def new_id(self):
