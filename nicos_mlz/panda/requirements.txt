@@ -1,2 +1,2 @@
 # used in resplot and panda template code (PandaLoad)
-matplotlib
+matplotlib>=2.1,<3
