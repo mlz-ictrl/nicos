@@ -2,8 +2,7 @@ description = 'Slits'
 
 group = 'lowlevel'
 
-tango_base = 'tango://motorbox02.spodi.frm2.tum.de:10000/box/'
-tango_base2 = 'tango://motorbox03.spodi.frm2.tum.de:10000/box/'
+tango_base = 'tango://motorbox03.spodi.frm2.tum.de:10000/box/'
 
 devices = dict(
     # Monochromator slit
@@ -14,12 +13,12 @@ devices = dict(
         precision = 0.01,
     ),
     slitm_u_m = device('nicos.devices.tango.Motor',
-        tangodevice = tango_base2 + 'slitm_u/motor',
+        tangodevice = tango_base + 'slitm_u/motor',
         fmtstr = '%.2f',
         lowlevel = True,
     ),
     slitm_u_c = device('nicos.devices.tango.Sensor',
-        tangodevice = tango_base2 + 'slitm_u/coder',
+        tangodevice = tango_base + 'slitm_u/coder',
         fmtstr = '%.2f',
         lowlevel = True,
     ),
@@ -30,12 +29,12 @@ devices = dict(
         precision = 0.01,
     ),
     slitm_d_m = device('nicos.devices.tango.Motor',
-        tangodevice = tango_base2 + 'slitm_d/motor',
+        tangodevice = tango_base + 'slitm_d/motor',
         fmtstr = '%.2f',
         lowlevel = True,
     ),
     slitm_d_c = device('nicos.devices.tango.Sensor',
-        tangodevice = tango_base2 + 'slitm_d/coder',
+        tangodevice = tango_base + 'slitm_d/coder',
         fmtstr = '%.2f',
         lowlevel = True,
     ),
@@ -46,12 +45,12 @@ devices = dict(
         precision = 0.01,
     ),
     slitm_l_m = device('nicos.devices.tango.Motor',
-        tangodevice = tango_base2 + 'slitm_l/motor',
+        tangodevice = tango_base + 'slitm_l/motor',
         fmtstr = '%.2f',
         lowlevel = True,
     ),
     slitm_l_c = device('nicos.devices.tango.Sensor',
-        tangodevice = tango_base2 + 'slitm_l/coder',
+        tangodevice = tango_base + 'slitm_l/coder',
         fmtstr = '%.2f',
         lowlevel = True,
     ),
@@ -62,12 +61,12 @@ devices = dict(
         precision = 0.01,
     ),
     slitm_r_m = device('nicos.devices.tango.Motor',
-        tangodevice = tango_base2 + 'slitm_r/motor',
+        tangodevice = tango_base + 'slitm_r/motor',
         fmtstr = '%.2f',
         lowlevel = True,
     ),
     slitm_r_c = device('nicos.devices.tango.Sensor',
-        tangodevice = tango_base2 + 'slitm_r/coder',
+        tangodevice = tango_base + 'slitm_r/coder',
         fmtstr = '%.2f',
         lowlevel = True,
     ),
