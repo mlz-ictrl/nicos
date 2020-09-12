@@ -35,20 +35,31 @@ class SelectorLambda(NicosSelectorLambda):
     """
 
     parameters = {
-        'radius':     Param('Selector radius', mandatory=True, unit='m'),
+        'radius': Param('Selector radius', mandatory=True, unit='m'),
     }
 
     def sel(self, maxage):
-        '''Calculate wavelength in A from speed in rpm and tiltang in deg'''
+        """Calculate wavelength from speed and tilting angle.
+
+        The rotation speed is given in 'rpm', the tilting angle in 'deg', and
+        the wavelength in 'AA'.
+        """
         spd = self._attached_seldev.read(maxage)
         if spd:
-            return 6.5933900e2 * (self.twistangle + self.length/self.radius *
+            return 6.5933900e2 * (
+                self.twistangle + self.length / self.radius *
                 self._get_tilt(maxage)) / (spd * self.length)
         return -1
 
-    def sel_inv(self, lam,  maxage=0):
-        '''Calculate rotation speed in rpm from wavelength in A and tiltang in deg'''
-        return 6.5933900e2 * (self.twistangle + self.length/self.radius * self._get_tilt(maxage)) / (lam * self.length)
+    def sel_inv(self, lam, maxage=0):
+        """Calculate rotation speed from wavelength tilting angle.
+
+        The rotation speed is given in 'rpm', the tilting angle in 'deg', and
+        the wavelength in 'AA'.
+        """
+        return 6.5933900e2 * (
+            self.twistangle + self.length / self.radius *
+            self._get_tilt(maxage)) / (lam * self.length)
 
     def doRead(self, maxage=0):
         return self.sel(maxage)
