@@ -133,10 +133,11 @@ def SetDetectorEnergy(radiation=None, **value):
     wait = value.pop('wait', True)
     configured = []
     for det in session.experiment.detectors:
-        for ch in det._channels:
-            if hasattr(ch, 'setEnergy'):
-                configured.append(det)
-                ch.setEnergy(radiation, **value)
-                break  # maximum one channel per detector can set energy
+        if hasattr(det, '_channels'):
+            for ch in det._channels:
+                if hasattr(ch, 'setEnergy'):
+                    configured.append(det)
+                    ch.setEnergy(radiation, **value)
+                    break  # maximum one channel per detector can set energy
     if wait:
         device.wait(*configured)
