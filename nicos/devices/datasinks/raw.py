@@ -44,7 +44,7 @@ class SingleRawImageSinkHandler(NicosMetaWriterMixin, SingleFileSinkHandler):
 
     def writeHeader(self, fp, metainfo, image):
         fp.seek(0)
-        fp.write(np.asarray(image).tostring())
+        fp.write(np.asarray(image).tobytes())
         fp.write(b'\n')
         self.writeMetaInformation(fp)
         fp.flush()
@@ -111,7 +111,7 @@ class RawImageSinkHandler(NicosMetaWriterMixin, DataSinkHandler):
 
     def _writeData(self, fp, data):
         fp.seek(0)
-        fp.write(np.asarray(data).tostring())
+        fp.write(np.asarray(data).tobytes())
         fp.flush()
 
     def putResults(self, quality, results):
