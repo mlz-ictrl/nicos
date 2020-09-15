@@ -68,7 +68,7 @@ for i in _ccrnrs:
                 Field(key='t_ccr%d/d' % i, name='D', width=6),
             ),
             ],
-            setups='ccr%d and not cci3he*' % i,
+            setups='ccr%d and not cci3he0*' % i,
         )
     )
     ccrsupps.append(

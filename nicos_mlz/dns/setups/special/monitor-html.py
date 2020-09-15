@@ -62,16 +62,16 @@ _thirdcolumn = Column(
         ],
         setups='cct3',
     ),
-    Block('3He insert (cci3he2)', [
-        BlockRow(Field(name='Setpoint', key='T_cci3he2/setpoint', unitkey='T_cci3he2/unit', format='%.2f'),
+    Block('3He insert (cci3he02)', [
+        BlockRow(Field(name='Setpoint', key='T_cci3he02/setpoint', unitkey='T_cci3he02/unit', format='%.2f'),
                  Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
         BlockRow(Field(name='P', key='t/p', width=4), Field(name='I', key='t/i', width=4),
                  Field(name='D', key='t/d', width=4),
-                 Field(name='turbo', dev='cci3he2_p1'),
-                 Field(name='cycle', dev='cci3he2_p4'),
+                 Field(name='turbo', dev='cci3he02_pInlet'),
+                 Field(name='cycle', dev='cci3he02_pDump'),
                  ),
         ],
-        setups='cci3he2',
+        setups='cci3he02',
     ),
     Block('3He-4He insert (ccidu01)', [
         BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
@@ -95,27 +95,27 @@ _thirdcolumn = Column(
         ],
         setups='ccidu02',
     ),
-    Block('3He insert (cci3he1)', [
-        BlockRow(Field(name='Setpoint', key='T_cci3he1/setpoint', unitkey='T_cci3he1/unit', format='%.2f'),
+    Block('3He insert (cci3he01)', [
+        BlockRow(Field(name='Setpoint', key='T_cci3he01/setpoint', unitkey='T_cci3he01/unit', format='%.2f'),
                  Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
         BlockRow(Field(name='P', key='t/p', width=4), Field(name='I', key='t/i', width=4),
                  Field(name='D', key='t/d', width=4),
-                 Field(name='turbo', dev='cci3he1_p1'),
-                 Field(name='cycle', dev='cci3he1_p4'),
+                 Field(name='turbo', dev='cci3he01_pInlet'),
+                 Field(name='cycle', dev='cci3he01_pDump'),
                  ),
         ],
-        setups='cci3he1',
+        setups='cci3he01',
     ),
-    Block('3He insert (cci3he3)', [
+    Block('3He insert (cci3he03)', [
         BlockRow(Field(name='Setpoint', key='t/setpoint', unitkey='t/unit', format='%.2f'),
                  Field(name='T', dev='T'), Field(name='Ts', dev='Ts')),
         BlockRow(Field(name='P', key='t/p', width=4), Field(name='I', key='t/i', width=4),
                  Field(name='D', key='t/d', width=4),
-                 Field(name='turbo', dev='cci3he3_p1'),
-                 Field(name='cycle', dev='cci3he3_p4'),
+                 Field(name='turbo', dev='cci3he03_pInlet'),
+                 Field(name='cycle', dev='cci3he03_pDump'),
                  ),
         ],
-        setups='cci3he3',
+        setups='cci3he03',
     ),
 
 )

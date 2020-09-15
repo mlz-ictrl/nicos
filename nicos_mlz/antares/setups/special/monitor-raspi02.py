@@ -179,8 +179,8 @@ _cryomanipulatorblock = Block('Cryostat Manipulator', [
 cryos = []
 cryosupps = []
 cryoplots = []
-cryodict = dict(cci3he1='3He-insert', cci3he2='3He-insert', cci3he3='3He-insert',
-                cci3he4he1='Dilution-insert', cci3he4he2='Dilution-insert')
+cryodict = dict(cci3he01='3He-insert', cci3he02='3He-insert', cci3he03='3He-insert',
+                ccidu01='Dilution-insert', ccidu02='Dilution-insert')
 for cryo, name in cryodict.items():
     cryos.append(
         Block('%s %s' % (name, cryo.title()), [

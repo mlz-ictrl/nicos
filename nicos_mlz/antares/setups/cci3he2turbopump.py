@@ -1,12 +1,12 @@
 description = 'Turbo pump for 3He insert from FRM II Sample environment group'
 
-nethost = 'cci3he2'
+tango_base = "tango://cci3he02:10000/box/"
 
 devices = {
-    'cci3he2_turbopump':
-        device('nicos.devices.taco.DigitalOutput',
+    'cci3he02_turbopump':
+        device('nicos.devices.tango.DigitalOutput',
             description = 'The 3He turbo pump',
-            tacodevice = '//%s/box/module/vpump' % nethost,
+            tangodevice = tango_base + 'i7000/turbopump',
             pollinterval = 5,
             maxage = 6,
         ),

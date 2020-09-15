@@ -62,13 +62,13 @@ watchlist = [
     #      message = 'PROBLEM with heater - not heating - check PANDA',
     #      gracetime = 300,
     #      type = 'onlypetr',
-    #      setup = 'cci3he3',
+    #      setup = 'cci3he03',
     # ),
     # dict(condition = 'T_heaterpower > 0.002',
     #      message = 'PROBLEM with heater - heating too much - check PANDA',
     #      gracetime = 300,
     #      type = 'onlypetr',
-    #      setup = 'cci3he3',
+    #      setup = 'cci3he03',
     # ),
 ]
 
