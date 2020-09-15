@@ -152,12 +152,12 @@ _npblocks = []
 
 for i in _nps:
     _npblocks.append(    Block('Newport', [
-        BlockRow(Field(dev='sth_newport%02d' % i)),
+        BlockRow(Field(dev='sth_rsc%02d' % i)),
     ],
-    setups='newport%02d' % i,
+    setups='rsc%02d' % i,
     ),
 )
-_newport = Column(*_npblocks)
+_rsc = Column(*_npblocks)
 
 
 devices = dict(
@@ -179,7 +179,7 @@ devices = dict(
             Row(_cryosup),
             Row(_tension),
             Row(_magnet, _e,),
-            Row(_sc, _newport),
+            Row(_sc, _rsc),
         ],
         noexpired = True,
     ),

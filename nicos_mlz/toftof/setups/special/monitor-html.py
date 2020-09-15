@@ -167,7 +167,7 @@ _tableblock = Block('Sample table', [
 _samplerotationblock = Block('Sample rotation', [
     BlockRow(Field(dev='sth')),
     ],
-    setups='newport1*',
+    setups='rsc1*',
 )
 
 _slitblock = Block('Sample slit', [

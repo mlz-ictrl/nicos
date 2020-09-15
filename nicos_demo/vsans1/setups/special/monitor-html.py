@@ -579,17 +579,17 @@ _spinflipper = Column(
     ),
 )
 
-newports = []
+rscs = []
 for k in [1,2,3,4,5,10,11,12]:
-    newports.append(Block('NewPort%02d' % k, [
+    rscs.append(Block('NewPort%02d' % k, [
         BlockRow(
-            Field(name='Position', dev='sth_newport%02d' % k,
+            Field(name='Position', dev='sth_rsc%02d' % k,
                    unitkey='t/unit', width=12),
         ),
         ],
-        setups='newport%02d' % k,
+        setups='rsc%02d' % k,
     ))
-_newports = Column(*tuple(newports))
+_rscs = Column(*tuple(rscs))
 
 ccrs = []
 for i in range(10, 22 + 1):
@@ -754,7 +754,7 @@ devices = dict(
                 _ccm2a, _ccm2a_temperature,
                 _spinflipper, _ccrs, _cryos, _sc1, _sc2,
                 _sc_t, _ccmsanssc, _miramagnet, _amagnet,
-                _htf03, _htf01, _irf01, _irf10, _newports, _julabo,
+                _htf03, _htf01, _irf01, _irf10, _rscs, _julabo,
                 _tisane_counts, _tisane_fc, _helios01),
             Row(_ccmsans_plot, _ccm2a_plot, _ccr19_plot,
                 _htf03_plot, _irf01_plot, _irf10_plot, _htf01_plot, _julabo_plot,

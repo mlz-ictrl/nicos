@@ -19,9 +19,6 @@
 .. automodule:: nicos_mlz.devices.ccmsans
 .. autoclass:: AsymmetricMagnet()
 
-.. automodule:: nicos_mlz.devices.newport
-.. autoclass:: Motor()
-
 .. automodule:: nicos_mlz.devices.memograph
 .. autoclass:: MemographValue()
 

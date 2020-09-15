@@ -150,10 +150,10 @@ _column2 = Column(
         ],
         setups='euler',
     ),
-    Block('Sample rotation (newport03', [
-        BlockRow(Field(dev='sth_newport03')),
+    Block('Sample rotation (rsc03', [
+        BlockRow(Field(dev='sth_rsc03')),
         ],
-        setups='newport03',
+        setups='rsc03',
     ),
     Block('Cryostat (CCR5)', [
         BlockRow(Field(name='Setpoint', key='T_ccr5/setpoint', unitkey='T_ccr5/unit', format='%.2f'),

@@ -36,12 +36,12 @@ _servostarblock = Block('Servostar Large Sample Manipulator', [
     setups='servostar',
 )
 
-_newportblock = Block('Rotation Sample Stick', [
+_rscblock = Block('Rotation Sample Stick', [
     BlockRow(
-        Field(dev='sth_newport03'),
+        Field(dev='sth_rsc03'),
         ),
     ],
-    setups='newport03',
+    setups='rsc03',
 )
 
 _detectorikonlcolumn = Column(
@@ -410,7 +410,7 @@ _leftcolumn = Column(
     _shutterblock,
     _basicblock,
     _temperatureblock,
-    _newportblock,
+    _rscblock,
     _selectorblock,
     _filterwheelblock,
     _sockets1block,
