@@ -162,7 +162,7 @@ cryos = []
 cryosupps = []
 cryoplots = []
 cryodict = dict(cci3he1='3He-insert', cci3he2='3He-insert', cci3he3='3He-insert',
-                ccidu1='Dilution-insert', ccidu2='Dilution-insert')
+                ccidu01='Dilution-insert', ccidu02='Dilution-insert')
 for cryo, name in cryodict.items():
     cryos.append(
         Block('%s %s' % (name, cryo.title()), [
