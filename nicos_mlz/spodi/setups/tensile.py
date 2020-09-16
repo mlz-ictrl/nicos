@@ -2,7 +2,7 @@ description = 'Tensile machine (CORBA) setup'
 
 group = 'optional'
 
-nameservice = 'spodisrv.spodi.frm2'
+nameservice = 'spodictrl.spodi.frm2'
 
 devices = dict(
     tepos = device('nicos.devices.vendor.caress.Motor',
