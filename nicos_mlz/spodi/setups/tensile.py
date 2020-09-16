@@ -4,6 +4,8 @@ group = 'optional'
 
 nameservice = 'spodictrl.spodi.frm2'
 
+tango_base = 'tango://motorbox01.spodi.frm2.tum.de:10000/box/'
+
 devices = dict(
     tepos = device('nicos.devices.vendor.caress.Motor',
         description = 'HWB TEPOS',
@@ -55,16 +57,24 @@ devices = dict(
         config = 'TOMOM 500 TorsionMom.ControllableDevice',
         absdev = False,
     ),
-    chit = device('nicos.devices.vendor.caress.EKFMotor',
+    chit_m = device('nicos.devices.tango.Motor',
         description = 'HWB CHIT',
+        tangodevice = tango_base + 'chit/motor',
         fmtstr = '%.2f',
         unit = 'deg',
-        coderoffset = 0,
-        abslimits = (-180, 180),
-        nameserver = '%s' % nameservice,
-        objname = 'VMESPODI',
-        config = 'CHIT 115 11 0x00f1d000 1 22500 6000 50 1 0 0 '
-                 '1 0 1 3000 1 10 0 0 0',
-        absdev = False,
+        lowlevel = True,
+    ),
+    chit_c = device('nicos.devices.tango.Sensor',
+        description = 'HWB CHIT',
+        tangodevice = tango_base + 'chit/coder',
+        fmtstr = '%.2f',
+        unit = 'deg',
+        lowlevel = True,
+    ),
+    chit = device('nicos.devices.generic.Axis',
+        description = 'HWB CHIT',
+        motor = 'chit_m',
+        coder = 'chit_c',
+        precision = 0.05,
     ),
 )
