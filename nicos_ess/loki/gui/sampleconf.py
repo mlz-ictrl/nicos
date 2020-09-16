@@ -25,8 +25,7 @@
 
 """LoKI sample configuration dialog."""
 
-from __future__ import absolute_import, division, print_function
-
+import builtins
 import math
 import time
 
@@ -37,7 +36,6 @@ from nicos.guisupport.qt import QDialog, QDialogButtonBox, QFileDialog, \
     QFrame, QLineEdit, QListWidgetItem, QMenu, QMessageBox, QRadioButton, \
     QTableWidgetItem, QVBoxLayout, pyqtSlot
 from nicos.guisupport.utils import DoubleValidator
-from nicos.pycompat import builtins, exec_, iteritems
 from nicos.utils import findResource
 
 
@@ -56,7 +54,7 @@ def configToFrame(frame, config):
     frame.apYBox.setText(str(config['aperture'][1]))
     frame.apWBox.setText(str(config['aperture'][2]))
     frame.apHBox.setText(str(config['aperture'][3]))
-    for i, (dev_name, position) in enumerate(iteritems(config['position'])):
+    for i, (dev_name, position) in enumerate(config['position'].items()):
         frame.posTbl.setItem(i, 0, QTableWidgetItem(dev_name))
         frame.posTbl.setItem(i, 1, QTableWidgetItem(str(position)))
     frame.posTbl.resizeRowsToContents()
@@ -629,7 +627,7 @@ class LokiSamplePanel(Panel):
             fp.writelines(script)
 
 
-class MockSample(object):
+class MockSample:
     def __init__(self):
         self.reset_called = False
         self.configs = []

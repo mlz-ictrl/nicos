@@ -36,7 +36,6 @@ from nicos.guisupport.qt import QComboBox, QDialog, QDialogButtonBox, QFrame, \
     QHBoxLayout, QLabel, QListWidgetItem, QMessageBox, QPushButton, Qt, \
     pyqtSlot
 from nicos.guisupport.widget import NicosWidget
-from nicos.pycompat import iteritems, itervalues, listitems
 from nicos.utils import decodeAny, findResource
 
 
@@ -95,7 +94,7 @@ class ExpPanel(Panel):
             '__import__("nicos").commands.basic._listReceivers('
             '"nicos.devices.notifiers.Mailer")', {})
         emails = []
-        for data in itervalues(receiverinfo):
+        for data in receiverinfo.values():
             for (addr, what) in data:
                 if what == 'receiver' and addr not in emails:
                     emails.append(addr)
@@ -434,7 +433,7 @@ class SetupsPanel(Panel):
     def showSetupInfo(self, setup):
         info = self._setupinfo[str(setup)]
         devs = []
-        for devname, devconfig in iteritems(info['devices']):
+        for devname, devconfig in info['devices'].items():
             if not devconfig[1].get('lowlevel'):
                 devs.append(devname)
         devs = ', '.join(sorted(devs))
@@ -506,7 +505,7 @@ class SetupsPanel(Panel):
                     self, aliasname, selections,
                     preselect and self._prev_aliases.get(aliasname))
                 layout.addWidget(wid)
-        for name, wid in listitems(self._aliasWidgets):
+        for name, wid in list(self._aliasWidgets.items()):
             if name not in alias_config:
                 layout.takeAt(layout.indexOf(wid)).widget().deleteLater()
                 del self._aliasWidgets[name]

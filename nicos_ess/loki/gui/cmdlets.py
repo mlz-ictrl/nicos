@@ -22,14 +22,11 @@
 #
 # *****************************************************************************
 
-"""Commandlets for KWS(-1)."""
-
-from __future__ import absolute_import, division, print_function
+"""Commandlets for LoKI."""
 
 from nicos.clients.gui.cmdlets import Cmdlet, register
 from nicos.guisupport.qt import QDialog, QIcon, QMessageBox, QSize, \
     QTableWidgetItem, QToolButton, pyqtSlot
-from nicos.pycompat import srepr
 from nicos.utils import findResource, formatDuration
 
 from nicos_ess.loki.gui.measdialogs import LOOPS, DetsetDialog, \
@@ -186,7 +183,7 @@ class MeasureTable(Cmdlet):
                     count_time = v.extra[1]
                 elif isinstance(v, Device):
                     devices_args.append(k)
-                    devices_args.append(srepr(v.getValue()))
+                    devices_args.append(repr(v.getValue()))
 
             items.append(f"\n##### Measurement {len(out) + 1}")
             if sample:
