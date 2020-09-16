@@ -24,8 +24,6 @@
 
 """TACO power supply classes."""
 
-from __future__ import absolute_import, division, print_function
-
 import DEVERRORS
 # pylint: disable=import-error
 from PowerSupply import CurrentControl, VoltageControl

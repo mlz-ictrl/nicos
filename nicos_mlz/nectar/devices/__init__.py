@@ -24,8 +24,6 @@
 
 """NECTAR specific devices."""
 
-from __future__ import absolute_import, division, print_function
-
 from .focusring import FocusRing
 from .slit import BeamLimiter
 from .tcoll import ThermalCollimatorAxis

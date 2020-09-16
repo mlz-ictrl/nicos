@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Dialog for the setup file without the devices."""
 
-from __future__ import absolute_import, division, print_function
-
 from os import path
 
 from nicos.guisupport.qt import Qt, QTreeWidgetItem, QWidget, pyqtSignal, \

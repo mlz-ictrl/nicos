@@ -24,8 +24,6 @@
 
 """Devices for the SANS-1 collimation system."""
 
-from __future__ import absolute_import, division, print_function
-
 import time
 
 from numpy import int32, uint16, uint32

@@ -24,8 +24,6 @@
 
 """Tests for various APIs in nicos.guisupport."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.guisupport.qt import QValidator
 from nicos.guisupport.utils import DoubleValidator
 

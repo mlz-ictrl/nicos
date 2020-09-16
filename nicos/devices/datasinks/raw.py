@@ -24,9 +24,8 @@
 
 """Raw image formats."""
 
-from __future__ import absolute_import, division, print_function
-
 import re
+from io import TextIOWrapper
 from os import path
 
 import numpy as np
@@ -36,7 +35,6 @@ from nicos.core import LIVE, ConfigurationError, DataSinkHandler, Override
 from nicos.core.data.sink import NicosMetaWriterMixin
 from nicos.devices.datasinks.image import ImageFileReader, ImageSink, \
     SingleFileSinkHandler
-from nicos.pycompat import TextIOWrapper
 
 
 class SingleRawImageSinkHandler(NicosMetaWriterMixin, SingleFileSinkHandler):

@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.params import oneof
 from nicos.devices.polarized.flipper import MezeiFlipper
 

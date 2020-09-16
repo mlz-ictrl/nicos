@@ -60,7 +60,6 @@ devices = dict(
         status_provider='NexusFileWriter',
         templatesmodule='nicos_ess.v20.nexus.nexus_templates',
         templatename='essiip_default',
-        start_fw_file='/opt/nicos-core/nicos_ess/v20/V20_file_write_start.json',
     ),
 
     NexusFileWriter=device(

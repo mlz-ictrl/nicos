@@ -24,8 +24,6 @@
 
 """NICOS experiment class for KWS3."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos_mlz.kws1.devices.experiment import KWSExperiment
 
 

@@ -1,7 +1,7 @@
 # pylint: skip-file
 
 # test: subdirs = frm2
-# test: setups = 08_refsans, qmesydaq
+# test: setups = 07_refsans_full, qmesydaq
 # test: setupcode = SetDetectors(det)
 # test: needs = configobj
 

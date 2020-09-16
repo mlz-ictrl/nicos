@@ -24,18 +24,15 @@
 
 """NICOS-TACO base classes."""
 
-from __future__ import absolute_import, division, print_function
-
 import sys
 
-import TACOStates
-from TACOClient import TACOError
+import TACOStates  # pylint: disable=import-error
+from TACOClient import TACOError  # pylint: disable=import-error
 
 from nicos import session
 from nicos.core import SIMULATION, CommunicationError, HasCommunication, \
     InvalidValueError, LimitError, NicosError, Override, Param, \
     ProgrammingError, floatrange, status, tacodev
-from nicos.pycompat import reraise
 from nicos.utils import HardwareStub
 
 try:
@@ -423,7 +420,7 @@ class TacoDevice(HasCommunication):
         if addmsg is not None:
             msg = addmsg + ': ' + msg
         exc = cls(self, msg, tacoerr=err.errcode)
-        reraise(cls, exc, tb)
+        raise exc.with_traceback(tb)
 
     def _taco_reset(self, client, resetcall='deviceReset'):
         try:

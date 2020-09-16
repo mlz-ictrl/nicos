@@ -24,22 +24,18 @@
 
 """NICOS GUI debug console window."""
 
-from __future__ import absolute_import, division, print_function
-
 import codeop
 import sys
 
 from nicos.guisupport.qt import QCoreApplication, QFont, QMainWindow, \
     QPlainTextEdit, QSplitter, Qt, QTextCursor, QTextOption, pyqtSignal
 from nicos.protocols.daemon import DAEMON_EVENTS
-# pylint: disable=redefined-builtin
-from nicos.pycompat import exec_, xrange as range
 
 # prevent importing the traceback.py from this package
 traceback = __import__('traceback')
 
 
-class StdoutProxy(object):
+class StdoutProxy:
     def __init__(self, write_func):
         self.write_func = write_func
         self.skip = False
@@ -146,10 +142,10 @@ class ConsoleBox(QPlainTextEdit):
             command = self.getConstruct(command)
             if not command:
                 return
-            exec_(command, self.namespace)
+            exec(command, self.namespace)
         except SystemExit:
             self.closeConsole.emit()
-        except:  # pylint: disable=W0702
+        except BaseException:
             traceback_lines = traceback.format_exc().split('\n')
             # Remove traceback mentioning this file, and a linebreak
             for i in (2, 1, -1):

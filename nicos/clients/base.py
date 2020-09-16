@@ -25,27 +25,19 @@
 
 """The base class for communication with the NICOS server."""
 
-from __future__ import absolute_import, division, print_function
-
-import errno
 import hashlib
 import socket
 import threading
+from base64 import b64decode, b64encode
 from time import time as currenttime
+
+import rsa
 
 from nicos.clients.proto.classic import ClientTransport
 from nicos.protocols.daemon import ACTIVE_COMMANDS, ProtocolError
 from nicos.protocols.daemon.classic import COMPATIBLE_PROTO_VERSIONS, \
     PROTO_VERSION
-from nicos.pycompat import PY2, b64decode, b64encode, to_utf8
 from nicos.utils import createThread
-
-try:
-    import rsa  # pylint: disable=import-error
-except ImportError:
-    rsa = None
-
-
 
 BUFSIZE = 8192
 
@@ -54,7 +46,7 @@ class ErrorResponse(Exception):
     pass
 
 
-class ConnectionData(object):
+class ConnectionData:
     def __init__(self, host, port, user, password, viewonly=False):
         self.host = host
         self.port = port
@@ -70,7 +62,7 @@ class ConnectionData(object):
         return vars(self)
 
 
-class NicosClient(object):
+class NicosClient:
     RECONNECT_TRIES = 25
     RECONNECT_TRIES_LONG = 5
     RECONNECT_INTERVAL_SHORT = 500  # in ms
@@ -114,7 +106,7 @@ class NicosClient(object):
 
         try:
             self.transport.connect(conndata)
-        except socket.error as err:
+        except OSError as err:
             msg = err.args[1] if len(err.args) >= 2 else str(err)
             self.signal('failed', 'Server connection failed: %s.' % msg, err)
             return
@@ -153,17 +145,15 @@ class NicosClient(object):
                 encodedkey = banner.get('rsakey', None)
                 if encodedkey is None:
                     raise ProtocolError('rsa requested, but rsakey missing in banner')
-                if not PY2 and not isinstance(encodedkey, bytes):
-                    encodedkey = bytes(encodedkey, 'utf-8')
                 pubkey = rsa.PublicKey.load_pkcs1(b64decode(encodedkey))
-                password = rsa.encrypt(to_utf8(password), pubkey)
+                password = rsa.encrypt(password.encode(), pubkey)
                 password = 'RSA:' + b64encode(password).decode()
             else:
                 pw_hashing = pw_hashing[4:]
         if pw_hashing == 'sha1':
-            password = hashlib.sha1(to_utf8(password)).hexdigest()
+            password = hashlib.sha1(password.encode()).hexdigest()
         elif pw_hashing == 'md5':
-            password = hashlib.md5(to_utf8(password)).hexdigest()
+            password = hashlib.md5(password.encode()).hexdigest()
 
         credentials = {
             'login': conndata.user,
@@ -196,9 +186,9 @@ class NicosClient(object):
         while 1:
             try:
                 event, data = self.transport.recv_event()
+            except InterruptedError:
+                continue
             except Exception as err:
-                if isinstance(err, IOError) and err.errno == errno.EINTR:
-                    continue
                 if not self.disconnecting:
                     self.log_func('Error getting event: %s' % err)
                     self.signal('broken', 'Server connection broken.')
@@ -233,7 +223,7 @@ class NicosClient(object):
                 msg = 'Communication error: %s.' % (err.args[0],)
             elif isinstance(err, socket.timeout):
                 msg = 'Connection to server timed out.'
-            elif isinstance(err, socket.error):
+            elif isinstance(err, OSError):
                 msg = 'Server connection broken: %s.' % (err.args[1],)
             # we cannot handle this without breaking connection, since
             # it generally means that the response is not yet received;
@@ -295,8 +285,7 @@ class NicosClient(object):
                 if not success:
                     if not kwds.get('noerror', False):
                         raise ErrorResponse(data)
-                    else:
-                        return kwds.get('default')
+                    return kwds.get('default')
                 return data
         except (Exception, KeyboardInterrupt) as err:
             self.handle_error(err)
@@ -328,10 +317,10 @@ class NicosClient(object):
         """
         result = self.ask('eval', expr, bool(stringify), quiet=True,
                           default=default)
-        if isinstance(result, Exception):
+        if isinstance(result, BaseException):
             if default is not Ellipsis:
                 return default
-            raise result  # pylint: disable=E0702
+            raise result  # pylint: disable=raising-bad-type
         return result
 
     # high-level functionality

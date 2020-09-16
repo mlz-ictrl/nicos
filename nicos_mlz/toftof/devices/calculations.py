@@ -25,8 +25,6 @@
 
 """TOFTOF chopper and resolution calculations."""
 
-from __future__ import absolute_import, division, print_function
-
 from math import cos, pi, radians, sqrt
 
 import numpy as np
@@ -251,7 +249,7 @@ def Energy(wavelength):
     return 1000. * (hbar * k0) ** 2 / (2 * mn * e)
 
 
-class ResolutionAnalysis(object):
+class ResolutionAnalysis:
 
     def __init__(self, chSpeed, chWL, chRatio, chST):
         self.speed = chSpeed

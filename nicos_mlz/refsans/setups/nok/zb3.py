@@ -2,7 +2,8 @@ description = "DoubleSlit [slit k1] between nok6 and nok7"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'nokbus3']
+includes = ['nok_ref', 'zz_absoluts']
+
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
@@ -46,36 +47,6 @@ devices = dict(
         },
         unit = 'mm',
         lowlevel = True,
-    ),
-    zb3r_motor = device(code_base + 'ipc.NOKMotorIPC',
-        description = 'IPC controlled Motor of ZB3, reactor side',
-        abslimits = (-221.0, 95.0),
-        bus = 'nokbus3',
-        addr = 0x57,
-        slope = 800.0,
-        speed = 50,
-        accel = 50,
-        confbyte = 32,
-        ramptype = 2,
-        microstep = 1,
-        refpos = 72.774,
-        zerosteps = int(677.125 * 800),
-        lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
-    ),
-    zb3s_motor = device(code_base + 'ipc.NOKMotorIPC',
-        description = 'IPC controlled Motor of ZB3, sample side',
-        abslimits = (-106.0, 113.562),
-        bus = 'nokbus3',
-        addr = 0x58,
-        slope = 800.0,
-        speed = 50,
-        accel = 50,
-        confbyte = 32,
-        ramptype = 2,
-        microstep = 1,
-        refpos = 105.837,
-        zerosteps = int(644.562 * 800),
-        lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
     ),
     zb3r_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',

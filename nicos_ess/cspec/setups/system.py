@@ -26,7 +26,7 @@ devices = dict(
         responsible = 'P.P. Deen <pascale.deen@esss.se>',
         website = 'https://europeanspallationsource.se/instruments/cspec',
         operators = ['European Spallation Source (ESS)',
-                     u'Technische Universität München (TUM)',
+                     'Technische Universität München (TUM)',
         ]
     ),
     Sample = device('nicos.devices.sample.Sample',

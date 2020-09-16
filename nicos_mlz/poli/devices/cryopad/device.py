@@ -24,8 +24,6 @@
 
 """Cryopad related polarization devices."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Attach, Moveable, Override, Param, listof, \
     multiStatus, oneof, status, tupleof
 from nicos.devices.generic.switcher import Switcher

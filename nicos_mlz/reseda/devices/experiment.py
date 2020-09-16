@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Param, oneof
 
 from nicos_mlz.devices.experiment import Experiment as FRM2Experiment

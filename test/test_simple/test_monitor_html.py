@@ -24,8 +24,6 @@
 
 """Test the HTML monitor device."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.services.monitor.html import Monitor
 
 session_setup = 'monitor-html'
@@ -34,10 +32,10 @@ session_setup = 'monitor-html'
 class HtmlTestMonitor(Monitor):
 
     def mainLoop(self):
-        self._rendered_content = u''.join(ct.getHTML() for ct in self._content)
+        self._rendered_content = ''.join(ct.getHTML() for ct in self._content)
 
 
-class MockOptions(object):
+class MockOptions:
     fontsize = 12
     padding = 0
     geometry = 'fullscreen'

@@ -24,8 +24,6 @@
 
 """Data sink classes (new API) for NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 from time import asctime, localtime, strftime, time as currenttime
 
@@ -33,7 +31,6 @@ import numpy as np
 
 from nicos import session
 from nicos.core.constants import LIVE
-from nicos.pycompat import from_maybe_utf8, to_utf8
 
 from nicos_mlz.toftof.devices import calculations as calc
 from nicos_mlz.toftof.devices.datasinks.base import TofSink, TofSinkHandler
@@ -65,17 +62,15 @@ class TofImageSinkHandler(TofSinkHandler):
             usercomment = header['det', 'info'][1]
         else:
             usercomment = ''
-        headlines.append('Title: %s' % from_maybe_utf8(usercomment))
+        headlines.append('Title: %s' % usercomment)
         headlines.append('ExperimentTitle: %s' %
-                         from_maybe_utf8(header['Sample', 'samplename'][1]))
-        headlines.append('ProposalTitle: %s' %
-                         from_maybe_utf8(header['Exp', 'title'][1]))
+                         header['Sample', 'samplename'][1])
+        headlines.append('ProposalTitle: %s' % header['Exp', 'title'][1])
         headlines.append('ProposalNr: %s' % header['Exp', 'proposal'][1])
 
-        headlines.append('ExperimentTeam: %s' %
-                         from_maybe_utf8(header['Exp', 'users'][1]))
+        headlines.append('ExperimentTeam: %s' % header['Exp', 'users'][1])
         headlines.append('LocalContact: %s' %
-                         from_maybe_utf8(header['Exp', 'localcontact'][1]))
+                         header['Exp', 'localcontact'][1])
         headlines.append('StartDate: %s' % strftime('%d.%m.%Y',
                                                     self._local_starttime))
         headlines.append('StartTime: %s' % strftime('%H:%M:%S',
@@ -149,7 +144,7 @@ class TofImageSinkHandler(TofSinkHandler):
 
         fp.seek(0)
         for line in headlines:
-            fp.write(to_utf8('%s\n' % line))
+            fp.write(('%s\n' % line).encode())
         fp.flush()
 
     def _writeLogs(self):
@@ -162,7 +157,7 @@ class TofImageSinkHandler(TofSinkHandler):
                             ((dev,) + self.dataset.valuestats[dev]))
         self._logfile.seek(0)
         for line in loglines:
-            self._logfile.write(to_utf8('%s\n' % line))
+            self._logfile.write(('%s\n' % line).encode())
         self._logfile.flush()
 
     def writeData(self, fp, info, data):
@@ -243,7 +238,7 @@ class TofImageSinkHandler(TofSinkHandler):
         lines.append('%s' % ''.join(self.detector._detinfo).strip())
         lines.append('aData(%u,%u): ' % (data.shape[0], data.shape[1]))
         for line in lines:
-            f.write(to_utf8('%s\n' % line))
+            f.write(('%s\n' % line).encode())
         np.savetxt(f, data, '%d')
         f.close()
         self.log.debug('Rename from %s to %s', f.filepath, fp.filepath)

@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from os.path import relpath
 
 from nicos import session
@@ -42,9 +40,9 @@ def changeImgSinkSubdir(newsubdir):
             entry._setROParam('subdir', newsubdir)
 
 
-#pylint: disable=keyword-arg-before-vararg
 @usercommand
 @helparglist('shutter, [detectors], [presets]')
+# pylint: disable=keyword-arg-before-vararg
 def openbeamimage(shutter=None, *detlist, **preset):
     """Acquire an open beam image."""
     exp = session.experiment
@@ -74,9 +72,9 @@ def openbeamimage(shutter=None, *detlist, **preset):
             limadev.shuttermode = oldmode
 
 
-#pylint: disable=keyword-arg-before-vararg
 @usercommand
 @helparglist('shutter, [detectors], [presets]')
+# pylint: disable=keyword-arg-before-vararg
 def darkimage(shutter=None, *detlist, **preset):
     """Acquire a dark image."""
     exp = session.experiment

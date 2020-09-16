@@ -23,14 +23,12 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
-from nicos.clients.gui.panels.livegr import LiveDataPanel as BaseLiveDataPanel
+from nicos.clients.gui.panels.live import LiveDataPanel as BaseLiveDataPanel
 from nicos.guisupport.livewidget import IntegralLiveWidget as BaseIntegralLiveWidget, \
     LiveWidget1D as BaseLiveWidget1D, Plot
 
 
-class ProvidesTitleSetter(object):
+class ProvidesTitleSetter:
     """Provides function to set the the title of the plot
     """
 

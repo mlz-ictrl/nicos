@@ -24,8 +24,6 @@
 
 """Nuclear physics specific commands for POLI."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.commands import usercommand
 from nicos.commands.analyze import fit
 from nicos.utils.fitting import CosineFit

@@ -26,8 +26,6 @@
 Utility script for reformatting NICOS setup files via yapf
 (https://github.com/google/yapf).
 """
-from __future__ import absolute_import, division, print_function
-
 import re
 
 import yapf

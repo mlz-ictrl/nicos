@@ -22,16 +22,13 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import numpy
 
 from nicos.core import Attach, Override, Param, Value, dictof, status
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel
-from nicos.pycompat import iteritems
 
-from nicos_ess.devices.datasinks.imagesink.histogramdesc \
-    import HistogramDesc, HistogramDimDesc
+from nicos_ess.devices.datasinks.imagesink.histogramdesc import HistogramDesc, \
+    HistogramDimDesc
 from nicos_sinq.devices.sinqhm.configurator import HistogramConfBank
 from nicos_sinq.devices.sinqhm.connector import HttpConnector
 
@@ -141,7 +138,7 @@ class ReshapeHistogramImageChannel(HistogramImageChannel):
     _shape = None
     _HM_dim_desc = None
 
-    def doInit(self):
+    def doInit(self, mode):
         self._shape = tuple(self.dimensions.values())
         res = []
         for name, dim in self.dimensions.items():
@@ -240,6 +237,6 @@ class HistogramMemoryChannel(PassiveChannel):
 
     def doInfo(self):
         ret = []
-        for item, val in iteritems(self._text_info()):
+        for item, val in self._text_info().items():
             ret.append((item, val, '%s' % val, '', 'general'))
         return ret

@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2019 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -24,24 +24,14 @@
 
 """NICOS GUI experiment setup window."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import ExpPanel as DefaultExpPanel, \
     SetupsPanel as DefaultSetupsPanel
 from nicos.clients.gui.utils import loadUi
 from nicos.core import ConfigurationError, mailaddress
 from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, pyqtSlot
-from nicos.pycompat import to_utf8
-from nicos.utils import decodeAny
 
 from nicos_ess.gui import uipath
-
-
-def maybe_encode(s):
-    if isinstance(s, str):
-        return s
-    return to_utf8(s)
 
 
 class ExpPanel(DefaultExpPanel):
@@ -78,20 +68,20 @@ class ExpPanel(DefaultExpPanel):
 
     def _getProposalInput(self):
         prop = self.proposalNum.text()
-        title = maybe_encode(self.expTitle.text())
-        users = maybe_encode(self.users.text())
+        title = self.expTitle.text()
+        users = self.users.text()
         try:
-            local = mailaddress(maybe_encode(self.localContact.text()))
+            local = mailaddress(self.localContact.text())
         except ValueError:
             QMessageBox.critical(self, 'Error', 'The local contact entry is '
                                  'not  a valid email address')
             raise ConfigurationError('')
-        emails = maybe_encode(self.notifEmails.toPlainText()).strip()
-        emails = emails.split(b'\n') if emails else []
+        emails = self.notifEmails.toPlainText().strip()
+        emails = emails.split('\n') if emails else []
         if local and local not in emails:
             emails.append(local)
-        dataEmails = maybe_encode(self.dataEmails.toPlainText()).strip()
-        dataEmails = dataEmails.split(b'\n') if dataEmails else []
+        dataEmails = self.dataEmails.toPlainText().strip()
+        dataEmails = dataEmails.split('\n') if dataEmails else []
         errorbehavior = 'abort' if self.errorAbortBox.isChecked() else 'report'
         return prop, title, users, local, emails, dataEmails, errorbehavior
 
@@ -144,7 +134,7 @@ class ExpPanel(DefaultExpPanel):
             if local != self._orig_proposal_info[3]:
                 self.client.run('Exp.localcontact = %r' % local)
                 done.append('New local contact set.')
-        sample = maybe_encode(self.sampleName.text())
+        sample = self.sampleName.text()
         if sample != self._orig_proposal_info[4]:
             self.client.run('NewSample(%r)' % sample)
             done.append('New sample name set.')
@@ -172,7 +162,7 @@ class ExpPanel(DefaultExpPanel):
                 _ = self._getProposalInput()
         except ConfigurationError:
             return
-        sample = maybe_encode(self.sampleName.text())
+        sample = self.sampleName.text()
 
         # read all values from propdb
         try:
@@ -184,19 +174,14 @@ class ExpPanel(DefaultExpPanel):
                     self.showError('Proposal is not for this instrument, '
                                    'please check the proposal number!')
                 # now transfer it into gui
-                # XXX check: is the result bytes or str on Python 3?
-                self.expTitle.setText(decodeAny(result.get('title', title)))
-                self.users.setText(decodeAny(result.get('user', users)))
+                self.expTitle.setText(result.get('title', title))
+                self.users.setText(result.get('user', users))
                 # XXX: local contact must be email, but proposal db returns
                 # only a name
-                # self.localContact.setText(decodeAny(result.get('localcontact',
-                #                                                local)))
-                self.sampleName.setText(decodeAny(result.get('sample',
-                                                             sample)))
-                self.notifEmails.setPlainText(
-                    decodeAny(result.get('user_email', emails)))
-                self.dataEmails.setPlainText(
-                    '\n'.join(decodeAny(addr) for addr in dataEmails))
+                # self.localContact.setText(result.get('localcontact', local))
+                self.sampleName.setText(result.get('sample', sample))
+                self.notifEmails.setPlainText(result.get('user_email', emails))
+                self.dataEmails.setPlainText('\n'.join(dataEmails))
                 # check permissions:
                 failed = []
                 yes = 'yes'

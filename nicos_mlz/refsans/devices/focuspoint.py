@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Moveable, Readable, status
 from nicos.core.params import Attach, Param, floatrange
 
@@ -63,6 +61,7 @@ class FocusPoint(Moveable):
             return state
         table = self._attached_table.read()
         focus = self._calculation()
-        text = 'focus' if abs(table - focus) <= self._attached_table.precision\
+        text = 'focus' \
+            if abs(table - focus) <= self._attached_table.precision \
             else state[1]
         return status.OK, text

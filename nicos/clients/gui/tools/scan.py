@@ -24,8 +24,6 @@
 
 """Graphical interface to prepare scan commands."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.utils import DlgPresets, loadUi
 from nicos.guisupport.qt import QButtonGroup, QDialog, QIntValidator, \
     pyqtSignal
@@ -175,9 +173,9 @@ class ScanTool(QDialog):
 
     def set_qlabels(self, *args):
         if self.qscanCentered.isChecked() or self.qscanSingle.isChecked():
-            self.label_dh.setText(u'<b>∆h</b>')
-            self.label_dk.setText(u'<b>∆k</b>')
-            self.label_dl.setText(u'<b>∆l</b>')
+            self.label_dh.setText('<b>∆h</b>')
+            self.label_dk.setText('<b>∆k</b>')
+            self.label_dl.setText('<b>∆l</b>')
             self.deltahInput.setEnabled(True)
             self.deltakInput.setEnabled(True)
             self.deltalInput.setEnabled(True)
@@ -191,9 +189,9 @@ class ScanTool(QDialog):
             self.deltalInput.setEnabled(False)
             self.deltaqInput.setEnabled(True)
         elif self.qscanRandom.isChecked():
-            self.label_dh.setText(u'<b>u</b>')
-            self.label_dk.setText(u'<b>v</b>')
-            self.label_dl.setText(u'<b>w</b>')
+            self.label_dh.setText('<b>u</b>')
+            self.label_dk.setText('<b>v</b>')
+            self.label_dl.setText('<b>w</b>')
             self.deltahInput.setEnabled(True)
             self.deltakInput.setEnabled(True)
             self.deltalInput.setEnabled(True)
@@ -264,7 +262,7 @@ class ScanTool(QDialog):
             return 0
 
     def updateCommand(self, *args):
-        self.cmdResult.setText(u'<b>%s</b>' % self._getCommand())
+        self.cmdResult.setText('<b>%s</b>' % self._getCommand())
 
     def _getCommand(self):
         tab = self.tabWidget.currentIndex()

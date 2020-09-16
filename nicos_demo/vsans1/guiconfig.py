@@ -58,7 +58,7 @@ windows = [
     window('Errors', 'errors',
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
     window('Camera', 'live',
-           panel('nicos.clients.gui.panels.liveqwt.LiveDataPanel',
+           panel('nicos.clients.gui.panels.live.LiveDataPanel',
                  instrument='poli')),
 ]
 

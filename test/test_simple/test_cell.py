@@ -25,8 +25,6 @@
 
 """Tests for the cell.py HKL transformation routines."""
 
-from __future__ import absolute_import, division, print_function
-
 from numpy import array
 
 from test.utils import approx

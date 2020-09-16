@@ -26,8 +26,6 @@
 Tests for the counter type detectors in SINQ
 """
 
-from __future__ import absolute_import, division, print_function
-
 import time
 
 import pytest
@@ -37,7 +35,7 @@ from nicos.core import status
 session_setup = "sinq_amor_counter"
 
 
-class TestCounter(object):
+class TestCounter:
     """
     Tests for the operations of EL737 counter box in SINQ
     """

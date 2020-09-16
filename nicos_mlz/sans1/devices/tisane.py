@@ -25,8 +25,6 @@
 """Allow changing a few burst properties of the agilent funcgens used for tisane
 """
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Override, Param, floatrange, intrange, oneof
 from nicos.devices.tango import NamedDigitalOutput
 

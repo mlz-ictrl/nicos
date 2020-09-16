@@ -22,7 +22,7 @@ devices = dict(
         instrument = 'SPHERES',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-38',
         responsible = 'Michaela Zamponi <m.zamponi@fz-juelich.de>',
-        operators = [u'Jülich Centre for Neutron Science (JCNS)'],
+        operators = ['Jülich Centre for Neutron Science (JCNS)'],
         website = 'http://www.mlz-garching.de/spheres',
     ),
     Sample = device('nicos.devices.sample.Sample',

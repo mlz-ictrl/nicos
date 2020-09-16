@@ -24,8 +24,6 @@
 
 """Slit device for SPODI/STRESSI with multiplexed motors."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import SIMULATION, MoveError
 from nicos.devices.generic import Slit as GenericSlit, \
     TwoAxisSlit as GenericTwoAxisSlit

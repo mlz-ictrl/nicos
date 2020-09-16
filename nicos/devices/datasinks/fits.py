@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from collections import OrderedDict
 from time import localtime, strftime, time as currenttime
 
@@ -32,7 +30,7 @@ import numpy
 from nicos.core import NicosError
 from nicos.core.params import Override
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-from nicos.pycompat import iteritems, to_ascii_string
+from nicos.utils import toAscii
 
 try:
     import astropy.io.fits as pyfits
@@ -67,7 +65,7 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
         finished = currenttime()
         header = {}
 
-        for (dev, param), (_, strvalue, unit, _) in iteritems(info):
+        for (dev, param), (_, strvalue, unit, _) in info.items():
             header['%s/%s' % (dev, param)] = ('%s %s' % (strvalue,
                                                          unit)).strip()
 
@@ -79,7 +77,7 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
             ] + sorted(header.items())
         )
 
-        for key, value in iteritems(header):
+        for key, value in header.items():
             # The FITS standard defines max 8 characters for a header key.
             # To make longer keys possible, we use the HIERARCH keyword
             # here (67 chars max).
@@ -87,7 +85,7 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
             key = 'HIERARCH %s' % key
 
             # use only ascii characters and escapes if necessary.
-            value = to_ascii_string(str(value))
+            value = toAscii(str(value))
 
             # Determine maximum possible value length (key dependend).
             maxValLen = 63 - len(key)

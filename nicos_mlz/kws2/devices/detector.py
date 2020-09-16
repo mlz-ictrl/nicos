@@ -24,8 +24,6 @@
 
 """Detector switcher for KWS 2 with large/small detector selection."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
     HasOffset, Moveable, MoveError, Override, Param, dictof, dictwith, \
@@ -33,7 +31,6 @@ from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.generic.sequence import SeqCall, SeqDev, SequencerMixin
 from nicos.devices.tango import AnalogInput
-from nicos.pycompat import iteritems
 from nicos.utils import num_sort
 
 from nicos_mlz.kws1.devices.detector import DetectorPosSwitcherMixin, \
@@ -85,8 +82,8 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
 
     def doInit(self, mode):
         # check that an offset is defined for each z distance
-        for _selpos, selpresets in iteritems(self.presets):
-            for _pname, preset in iteritems(selpresets):
+        for _selpos, selpresets in self.presets.items():
+            for _pname, preset in selpresets.items():
                 if preset['z'] not in self.offsets:
                     raise ConfigurationError(
                         self, 'no detector offset found in configuration '
@@ -173,7 +170,7 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
         def eq(posname, val):
             return abs(pos[posname][0] - val) <= pos[posname][1]
 
-        for name, values in iteritems(self.mapping):
+        for name, values in self.mapping.items():
             if pos['attenuator'][0] != values[4]:
                 continue
             if values[3]:

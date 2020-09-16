@@ -26,8 +26,6 @@
 Custom container widgets.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.guisupport.qt import QHBoxLayout, QSizePolicy, QSpacerItem, \
     QToolButton, QVBoxLayout, QWidget, pyqtSignal, uic
 from nicos.guisupport.widget import NicosWidget, PropDef

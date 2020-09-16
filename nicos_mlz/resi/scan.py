@@ -27,14 +27,11 @@ Created on 06.06.2011
 
 @author: pedersen
 """
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.commands import usercommand
 #from nicos.core.scan import Scan, TimeScan, ContinuousScan, ManualScan
 #from nicos.core import Device, Measurable, Moveable, Readable
 from nicos.core import UsageError
-from nicos.pycompat import string_types
 
 from nicos_mlz.resi.devices import residevice
 
@@ -121,7 +118,7 @@ def Center(axis, *args, **kw):
         raise UsageError('This command only works with the resi device')
     if isinstance(axis, residevice.ResiVAxis):
         axis = axis.name
-    elif not isinstance(axis, string_types):
+    elif not isinstance(axis, str):
         raise UsageError('This command works only with RESI axes')
     dev._hardware.Center(axis=axis, *args, **kw)
 

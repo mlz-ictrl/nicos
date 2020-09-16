@@ -23,9 +23,6 @@
 # *****************************************************************************
 """PUMA multi analyser class."""
 
-from __future__ import absolute_import, division, print_function
-
-import sys
 from contextlib import contextmanager
 
 from numpy import sign
@@ -38,7 +35,6 @@ from nicos.core.errors import MoveError, PositionError
 from nicos.core.utils import filterExceptions, multiWait
 from nicos.devices.abstract import CanReference
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod
-from nicos.pycompat import reraise
 
 
 class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
@@ -69,8 +65,8 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
                                type=floatrange(0, None), unit='AA',
                                category='general', default=3.354),
         'raildistance': Param('Distance between the rails of the crystals',
-                              type=floatrange(0, None), default = 20,
-                              unit = 'mm', category='general'),
+                              type=floatrange(0, None), default=20,
+                              unit='mm', category='general'),
     }
 
     parameter_overrides = {
@@ -155,15 +151,16 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
                     if r:
                         ll, hl = self._rotlimits(dt)
                         if not ll <= r <= hl:
-                            self.log.info('(%s): %s, %s, %s', target, ll, r, hl)
+                            self.log.info('(%s): %s, %s, %s', target, ll, r,
+                                          hl)
                             self.log.info('%r, %r; %r', trans, rot, tdelta)
                             return False, 'neighbour distance: %.3f; cannot ' \
                                 'move translation to : %.3f!' % (dt, target)
                 # elif -13 < dc < 0 and dt < 0:
                 #     # self.log.info('It is critical')
                 #     if (r is not None and r < -23.33) or rot[1] < -23.33:
-                #         return False, 'Path %s to %s is not free. One of the '\
-                #             'mirrors would hit another one. (%s, %s)' % (
+                #         return False, 'Path %s to %s is not free. One of ' \
+                #             'the mirrors would hit another one. (%s, %s)' % (
                 #                 trans[1], target, r, rot[1])
             else:
                 # Passing another translation device
@@ -223,6 +220,7 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
         It takes account into the different origins of the analyzer blades.
         """
         # check if requested positions already reached within precision
+        # TODO: use isAtTarget(target=target) Ticket #4213
         if self.isAtTarget(target):
             self.log.debug('device already at position, nothing to do!')
             return []
@@ -306,9 +304,9 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
             for dev in devlist[:]:
                 try:
                     done = dev.doStatus(0)[0]
-                except Exception:
+                except Exception as exc:
                     dev.log.exception('while waiting')
-                    final_exc = filterExceptions(sys.exc_info(), final_exc)
+                    final_exc = filterExceptions(exc, final_exc)
                     # remove this device from the waiters - we might still
                     # have its subdevices in the list so that _hw_wait()
                     # should not return until everything is either OK or
@@ -327,7 +325,7 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
             if devlist:
                 session.delay(self._base_loop_delay)
         if final_exc:
-            reraise(*final_exc)
+            raise final_exc
 
     def _reference(self, devlist):
         if self.stoprequest == 0:
@@ -418,8 +416,9 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
                 self.log.debug('xx%2d rotation: nothing to do', i + 1)
         return mv
 
-    def doIsAtTarget(self, target):
+    def doIsAtTarget(self, pos, target):
         self._printPos()
-        mvt = self._checkPositionReachedTrans(target)
-        mvr = self._checkPositionReachedRot(target)
+        # TODO: actually use target not pos. Ticket #4213
+        mvt = self._checkPositionReachedTrans(pos)
+        mvr = self._checkPositionReachedRot(pos)
         return not mvt and not mvr

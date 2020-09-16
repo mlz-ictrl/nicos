@@ -24,17 +24,13 @@
 
 """PUMA multianalyzer coupled 'att' axis."""
 
-from __future__ import absolute_import, division, print_function
-
 import math
-import sys
 
 from nicos import session
 from nicos.core import Attach, HasLimits, HasPrecision, Moveable, Override, \
     Param, floatrange, status
 from nicos.core.errors import PositionError
 from nicos.core.utils import filterExceptions, multiReset, multiStatus
-from nicos.pycompat import reraise
 
 
 class PumaCoupledAxis(HasPrecision, HasLimits, Moveable):
@@ -173,9 +169,9 @@ class PumaCoupledAxis(HasPrecision, HasLimits, Moveable):
             for dev in devlist[:]:
                 try:
                     done = dev.doStatus(0)[0]
-                except Exception:
+                except Exception as exc:
                     dev.log.exception('while waiting')
-                    final_exc = filterExceptions(sys.exc_info(), final_exc)
+                    final_exc = filterExceptions(exc, final_exc)
                     # remove this device from the waiters - we might still
                     # have its subdevices in the list so that _hw_wait()
                     # should not return until everything is either OK or
@@ -194,7 +190,7 @@ class PumaCoupledAxis(HasPrecision, HasLimits, Moveable):
             if devlist:
                 session.delay(self._base_loop_delay)
         if final_exc:
-            reraise(*final_exc)
+            raise final_exc
 
     def doReset(self):
         """Reset individual axes, set angle between axes within one degree."""
@@ -245,7 +241,8 @@ class PumaCoupledAxis(HasPrecision, HasLimits, Moveable):
         # This may appear in the test and fresh setup systems
         if None in (self.tt.target, self.th.target):
             return False
-        return self.tt.isAtTarget(pos[0]) and self.th.isAtTarget(pos[1])
+        return (self.tt.isAtTarget(target=pos[0])
+                and self.th.isAtTarget(target=pos[1]))
 
     def _checkZero(self, tt, th):
         """Check if the two axes are within the allowed limit."""

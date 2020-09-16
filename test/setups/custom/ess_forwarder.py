@@ -23,30 +23,28 @@
 # *****************************************************************************
 
 devices = dict(
-    KafkaForwarderCommand=device(
-        'test.nicos_ess.test_devices.test_forwarder'
-        '.EpicsKafkaForwarderControl',
-        description="Configures commands to forward-epics-to-kafka",
-        cmdtopic='TEST_forwarderCommands',
-        instpvtopic="TEST_metadata",
-        instpvschema='f142',
-        brokers=['localhost:9092', ],
+    KafkaForwarderCommand = device('nicos_ess.devices.forwarder.EpicsKafkaForwarderControl',
+        description = "Configures commands to forward-epics-to-kafka",
+        cmdtopic = 'TEST_forwarderCommands',
+        instpvtopic = "TEST_metadata",
+        instpvschema = 'f142',
+        brokers = [
+            'localhost:9092',
+        ],
     ),
-
-    KafkaForwarder=device(
-        'test.nicos_ess.test_devices.test_forwarder'
-        '.EpicsKafkaForwarder',
-        description="Monitors and controls forward-epics-to-kafka",
-        statustopic="TEST_forwarderStatus",
-        brokers=['localhost:9092', ],
+    KafkaForwarder = device('nicos_ess.devices.forwarder.EpicsKafkaForwarder',
+        description = "Monitors and controls forward-epics-to-kafka",
+        statustopic = "TEST_forwarderStatus",
+        brokers = [
+            'localhost:9092',
+        ],
     ),
-
-    KafkaForwarderIntegration=device(
-        'test.nicos_ess.test_devices.test_forwarder'
-        '.EpicsKafkaForwarder',
-        description="Monitors and controls forward-epics-to-kafka",
-        statustopic="TEST_forwarderStatus",
-        brokers=['localhost:9092', ],
-        forwarder_control="KafkaForwarderCommand"
+    KafkaForwarderIntegration = device('nicos_ess.devices.forwarder.EpicsKafkaForwarder',
+        description = "Monitors and controls forward-epics-to-kafka",
+        statustopic = "TEST_forwarderStatus",
+        brokers = [
+            'localhost:9092',
+        ],
+        forwarder_control = "KafkaForwarderCommand"
     ),
 )

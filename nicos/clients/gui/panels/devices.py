@@ -24,8 +24,6 @@
 
 """NICOS GUI panel with a list of all devices."""
 
-from __future__ import absolute_import, division, print_function
-
 from logging import WARNING
 
 from nicos.clients.gui.dialogs.error import ErrorDialog
@@ -39,7 +37,6 @@ from nicos.guisupport.qt import QBrush, QByteArray, QColor, QComboBox, \
     pyqtSignal, pyqtSlot, sip
 from nicos.guisupport.typedvalue import DeviceParamEdit, DeviceValueEdit
 from nicos.protocols.cache import OP_TELL, cache_dump, cache_load
-from nicos.pycompat import iteritems, itervalues, srepr, string_types
 from nicos.utils import AttrDict
 
 foregroundBrush = {
@@ -211,7 +208,7 @@ class DevicesPanel(Panel):
         self.param_display = {}
         param_display = options.get('param_display', {})
         for (key, value) in param_display.items():
-            value = [value] if isinstance(value, string_types) else list(value)
+            value = [value] if isinstance(value, str) else list(value)
             self.param_display[key.lower()] = value
 
         self.tree.header().restoreState(self._headerstate)
@@ -330,7 +327,7 @@ class DevicesPanel(Panel):
         for cat in self._catitems:
             self.tree.addTopLevelItem(self._catitems[cat])
             self._catitems[cat].setExpanded(True)
-        for devitem in itervalues(self._devitems):
+        for devitem in self._devitems.values():
             devitem.setExpanded(True)
         self.tree.sortItems(0, Qt.AscendingOrder)
         self._update_view()
@@ -367,7 +364,7 @@ class DevicesPanel(Panel):
             self.log.warning('session.getSetupInfo() returned None instead '
                              'of {}')
             return
-        for setupname, info in iteritems(self._setupinfo):
+        for setupname, info in self._setupinfo.items():
             if info is None:
                 continue
             if setupname not in loaded_setups:
@@ -430,7 +427,7 @@ class DevicesPanel(Panel):
         self._devinfo[ldevname] = DevInfo(devname)
 
         # let the cache handler process all properties
-        for key, value in iteritems(params):
+        for key, value in params.items():
             self.on_client_cache((0, ldevname + '/' + key, OP_TELL,
                                   cache_dump(value)))
 
@@ -646,13 +643,13 @@ class DevicesPanel(Panel):
         if self._menu_dev:
             if self.askQuestion('This will unload the device until the setup '
                                 'is loaded again. Proceed?'):
-                self.exec_command('RemoveDevice(%s)' % srepr(self._menu_dev),
+                self.exec_command('RemoveDevice(%r)' % self._menu_dev,
                                   ask_queue=False)
 
     @pyqtSlot()
     def on_actionReset_triggered(self):
         if self._menu_dev:
-            self.exec_command('reset(%s)' % srepr(self._menu_dev))
+            self.exec_command('reset(%r)' % self._menu_dev)
 
     @pyqtSlot()
     def on_actionFix_triggered(self):
@@ -662,18 +659,17 @@ class DevicesPanel(Panel):
                 'Please enter the reason for fixing %s:' % self._menu_dev)
             if not ok:
                 return
-            self.exec_command('fix(%s, %r)' % (srepr(self._menu_dev), reason))
+            self.exec_command('fix(%r, %r)' % (self._menu_dev, reason))
 
     @pyqtSlot()
     def on_actionRelease_triggered(self):
         if self._menu_dev:
-            self.exec_command('release(%s)' % srepr(self._menu_dev))
+            self.exec_command('release(%r)' % self._menu_dev)
 
     @pyqtSlot()
     def on_actionStop_triggered(self):
         if self._menu_dev:
-            self.exec_command('stop(%s)' % srepr(self._menu_dev),
-                              immediate=True)
+            self.exec_command('stop(%r)' % self._menu_dev, immediate=True)
 
     @pyqtSlot()
     def on_actionMove_triggered(self):
@@ -802,7 +798,7 @@ class ControlDialog(QDialog):
         # put parameter values in the list widget
         self.paramItems.clear()
         self.paramList.clear()
-        for key, value in sorted(iteritems(params)):
+        for key, value in sorted(params.items()):
             if self.paraminfo.get(key):
                 # normally, show only userparams, except in expert mode
                 is_userparam = self.paraminfo[key]['userparam']
@@ -823,7 +819,7 @@ class ControlDialog(QDialog):
 
         # check how to refer to the device in commands: if it is lowlevel,
         # we need to use quotes
-        self.devrepr = srepr(self.devname) if params.get('lowlevel', True) \
+        self.devrepr = repr(self.devname) if params.get('lowlevel', True) \
             else self.devname
 
         # show "Set alias" group box if it is an alias device
@@ -927,8 +923,8 @@ class ControlDialog(QDialog):
             self.target.setClient(self.client)
 
             def btn_callback(target):
-                self.device_panel.exec_command('move(%s, %s)' %
-                                               (self.devrepr, srepr(target)))
+                self.device_panel.exec_command('move(%s, %r)' %
+                                               (self.devrepr, target))
             self.target.valueChosen.connect(btn_callback)
             self.targetFrame.layout().takeAt(1).widget().deleteLater()
             self.targetFrame.layout().insertWidget(1, self.target)
@@ -939,7 +935,7 @@ class ControlDialog(QDialog):
                 except ValueError:
                     return
                 self.device_panel.exec_command(
-                    'move(%s, %s)' % (self.devrepr, srepr(target)))
+                    'move(%s, %r)' % (self.devrepr, target))
 
             if self.target.getValue() is not Ellipsis:  # (button widget)
                 self.moveBtn = self.moveBtns.addButton(
@@ -1082,8 +1078,8 @@ class ControlDialog(QDialog):
     @pyqtSlot()
     def on_setAliasBtn_clicked(self):
         self.device_panel.exec_command(
-            'set(%s, "alias", %s)' %
-            (self.devrepr, srepr(self.aliasTarget.currentText())))
+            'set(%s, "alias", %r)' %
+            (self.devrepr, self.aliasTarget.currentText()))
 
     def closeEvent(self, event):
         event.accept()
@@ -1133,7 +1129,7 @@ class ControlDialog(QDialog):
                 '%s.%s = %r' % (self.devname, pname, new_value))
         else:
             self.device_panel.exec_command(
-                'set(%s, %s, %r)' % (self.devrepr, srepr(pname), new_value))
+                'set(%s, %r, %r)' % (self.devrepr, pname, new_value))
 
     def on_historyBtn_clicked(self):
         self.device_panel.plot_history(self.devname)

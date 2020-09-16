@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Classes to display the PUMA Multi analyzer."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.guisupport.qt import QGraphicsPathItem, QLineF, QPainter, \
     QPainterPath, QPointF, QPolygonF, QRectF, Qt
 

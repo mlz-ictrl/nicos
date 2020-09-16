@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Excludes and includes widgets."""
 
-from __future__ import absolute_import, division, print_function
-
 from os import path
 
 from nicos.guisupport.qt import QDialog, QListWidgetItem, uic

@@ -24,8 +24,6 @@
 
 """SPODI specific data sink tests."""
 
-from __future__ import absolute_import, division, print_function
-
 from os import path
 
 import pytest
@@ -35,7 +33,7 @@ from nicos.commands.measure import count
 session_setup = 'spodi'
 exp_dataroot = 'spodidata'
 
-class TestSinks(object):
+class TestSinks:
 
     @pytest.fixture(scope='class', autouse=True)
     def prepare(self, session, dataroot):

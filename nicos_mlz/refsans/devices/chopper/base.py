@@ -24,8 +24,6 @@
 # *****************************************************************************
 """Chopper related devices."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import HasLimits, HasPrecision, Moveable, Override, Param, \
     dictwith, floatrange, intrange, status
 from nicos.core.mixins import DeviceMixinBase, IsController
@@ -96,8 +94,9 @@ class ChopperMaster(CanReference, BaseSequencer):
                      type=floatrange(0, 100), settable=True, userparam=True,
                      unit='%', category='status'),
         'resolution': Param('Resolution ...',
-                            type=intrange(1, 6), settable=False, userparam=True,
-                            mandatory=False, volatile=True, category='status'),
+                            type=intrange(1, 6), settable=False,
+                            userparam=True, mandatory=False, volatile=True,
+                            category='status'),
         'speed': Param('Chopper1 speed ... ',
                        type=float, settable=False, userparam=True,
                        mandatory=False, volatile=True, category='status'),
@@ -167,7 +166,8 @@ class ChopperMaster(CanReference, BaseSequencer):
             'wlmin': self.wlmin,
             'wlmax': self.wlmax,
             'gap': self.gap,
-            'chopper2_pos': self._attached_chopper2.pos
+            'chopper2_pos':
+                self._attached_chopper2.pos
                 if self.mode == 'normal_mode' else 6,
         }
         return value

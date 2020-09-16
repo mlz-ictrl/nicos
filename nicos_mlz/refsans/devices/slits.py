@@ -24,13 +24,14 @@
 
 """Special devices for Refsans slits."""
 
-from __future__ import absolute_import, division, print_function
+import numpy as np
 
 from nicos.core import SIMULATION, Attach, AutoDevice, Moveable, Override, \
     Param, Value, dictof, dictwith, floatrange, oneof, status, tupleof
 from nicos.core.errors import MoveError
 from nicos.core.mixins import HasOffset
 from nicos.core.utils import devIter
+from nicos.devices.generic import ManualSwitch
 from nicos.devices.generic.sequence import SeqDev, SequencerMixin
 from nicos.utils import lazy_property
 
@@ -148,7 +149,7 @@ class DoubleSlit(PseudoNOK, Moveable):
         return st
 
     def doWriteMode(self, mode):
-        for d in self._adevs.values():
+        for d in self._motors:
             d.mode = mode
 
     def _calculate_slits(self, arg, direction):
@@ -192,15 +193,6 @@ class DoubleSlit(PseudoNOK, Moveable):
             return False, '; '.join(why)
         return True, ''
 
-    # def doIsAtTarget(self, targets):
-    #     # check precision, only move if needed!
-    #     self.log.debug('DoubleSlit doIsAtTarget %s', targets)
-    #     targets = self.rechnen_motor(targets, False, 'doIsAtTarget')
-    #     self.log.debug('%s', targets)
-    #     traveldists = [target - dev.doRead(0)
-    #                    for target, dev in zip(targets, self._devices)]
-    #     return max(abs(v) for v in traveldists) <= self.precision
-
     def doStop(self):
         for dev in self._adevs.values():
             dev.stop()
@@ -223,11 +215,15 @@ class DoubleSlit(PseudoNOK, Moveable):
             dev.poll(n, maxage)
 
     def valueInfo(self):
-        return Value('%s.height' % self, unit=self.unit, fmtstr='%.2f'), \
-               Value('%s.center' % self, unit=self.unit, fmtstr='%.2f')
+        return (Value('%s.height' % self, unit=self.unit, fmtstr='%.2f'),
+                Value('%s.center' % self, unit=self.unit, fmtstr='%.2f'))
 
 
 class DoubleSlitSequence(SequencerMixin, DoubleSlit):
+
+    attached_devices = {
+        'adjustment': Attach('positioning Frame of b3h3', ManualSwitch),
+    }
 
     def doStart(self, target):
         """Generate and start a sequence if non is running.
@@ -255,21 +251,76 @@ class DoubleSlitSequence(SequencerMixin, DoubleSlit):
         be sure not to cross the blades
         """
 
-        targets = self._calculate_slits(target, False)
-        if (target[1] - self.center.read(0)) < 0:
-            self.log.debug('DoubleSlitSequence Seq swap')
-            sequence = [
-                SeqDev(self._attached_slit_s, targets[1], stoppable=True),
-                SeqDev(self._attached_slit_r, targets[0], stoppable=True),
-            ]
+        self.log.debug('Frame %s %s', self._adjustment_offset(), target)
+
+        center = self.center.read(0)
+        dif = target[1] - center
+        self.log.debug('safe %s dif %.2f center %.2f', target, dif, center)
+        if True and False:
+            safe_seq = []
+            step = (target[0] + .5001) * np.sign(dif)
+            akt = center + step
+            while True:
+                if akt == target[1]:
+                    safe_seq.append([target[0], akt])
+                    break
+                if dif > 0:
+                    if akt > target[1]:
+                        safe_seq.append([target[0], target[1]])
+                        break
+                else:
+                    if akt < target[1]:
+                        safe_seq.append([target[0], target[1]])
+                        break
+                safe_seq.append([target[0], akt])
+                akt += step
+            sequence = []
+            for s in safe_seq:
+                targets = self._calculate_slits(s, False)
+                self.log.debug('seq  %s targets %s', s, targets)
+                if dif > 0:
+                    sequence += [
+                        SeqDev(self._attached_slit_s, targets[1],
+                               stoppable=True),
+                        SeqDev(self._attached_slit_r, targets[0],
+                               stoppable=True),
+                    ]
+                else:
+                    sequence += [
+                        SeqDev(self._attached_slit_r, targets[0],
+                               stoppable=True),
+                        SeqDev(self._attached_slit_s, targets[1],
+                               stoppable=True),
+                    ]
+            self.log.info('Seq len: %d', len(sequence))
         else:
-            self.log.debug('DoubleSlitSequence Seq org')
-            sequence = [
-                SeqDev(self._attached_slit_r, targets[0], stoppable=True),
-                SeqDev(self._attached_slit_s, targets[1], stoppable=True),
-            ]
-        self.log.debug('Seq_2: %r', sequence)
+            targets = self._calculate_slits(target, False)
+            if dif < 0:
+                self.log.info('DoubleSlitSequence Seq swap')
+                sequence = [
+                    SeqDev(self._attached_slit_s, targets[1],
+                           stoppable=True),
+                    SeqDev(self._attached_slit_r, targets[0],
+                           stoppable=True),
+                ]
+            else:
+                self.log.info('DoubleSlitSequence Seq org')
+                sequence = [
+                    SeqDev(self._attached_slit_r, targets[0],
+                           stoppable=True),
+                    SeqDev(self._attached_slit_s, targets[1],
+                           stoppable=True),
+                ]
+            self.log.debug('Seq_2: %r', sequence)
         return sequence
+
+    def _adjustment_offset(self):
+        return int(self._attached_adjustment.read(0)) - 110
+
+    def doRead(self, maxage=0):
+        pos = DoubleSlit.doRead(self, maxage=maxage)
+        self.log.debug('Frame %s %d', pos, self._adjustment_offset())
+        return pos
 
 
 class SingleSlitAxis(AutoDevice, Moveable):

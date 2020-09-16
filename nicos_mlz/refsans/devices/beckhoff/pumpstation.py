@@ -24,8 +24,6 @@
 
 """Devices for the Refsans NOK system."""
 
-from __future__ import absolute_import, division, print_function
-
 import struct
 
 from nicos import session
@@ -245,7 +243,8 @@ class PumpstandIO(PyTangoDevice, Readable):
                 return
             elif nack and not ack:
                 raise NicosError('Command rejected by Beckhoff')
-        raise NicosTimeoutError('Command not recognized by Beckhoff within 1s!')
+        raise NicosTimeoutError('Command not recognized by Beckhoff '
+                                'within 1s!')
 
     def _HW_readACK(self):
         return self._readU16(37)
@@ -304,19 +303,21 @@ class PumpstandIO(PyTangoDevice, Readable):
 
     def devel(self, tag):
         """Display all available diagnostic information.
-        new version to handle stuff"""
+
+        new version to handle stuff
+        """
         sb = self._HW_readStatusByte()
         stlist = []
         for idx, msg in sorted(self._HW_Status):
             if sb & (1 << idx):
-                self.log.info('Status %d: %s', idx, msg)
+                self.log.debug('Status %d: %s', idx, msg)
                 if tag in msg:
                     stlist.append(msg)
         diags = self._HW_read_outputs()
         outputList = []
         for idx, msg in sorted(self._HW_Outputs):
             if diags & (1 << idx):
-                self.log.info('Output %d: %s', idx, msg)
+                self.log.debug('Output %d: %s', idx, msg)
                 if tag in msg:
                     outputList.append(msg)
         alarms = self._HW_readAlarms()
@@ -324,11 +325,11 @@ class PumpstandIO(PyTangoDevice, Readable):
                                self._HW_Alarms_SR + self._HW_Alarms_SFK):
             if alarms & (1 << idx):
                 self.log.warning('Alarm %d: %s', idx, msg)
-        self.log.info('stlist >%s<', str(stlist))
-        self.log.info('outputList >%s<', str(outputList))
+        self.log.debug('stlist >%s<', str(stlist))
+        self.log.debug('outputList >%s<', str(outputList))
         ss = str(stlist)+str(outputList)
-        self.log.info('tag >%s<', tag)
-        #engaged waiting
+        self.log.debug('tag >%s<', tag)
+        # engaged waiting
         if 'Venting' in ss:
             res = 'venting'
         elif 'pumping' in ss:
@@ -337,9 +338,8 @@ class PumpstandIO(PyTangoDevice, Readable):
             res = 'off'
         else:
             res = 'else'
-        self.log.info('%s res >%s<', tag, res)
-        self.log.info('%s res >%s<', tag, res)
-        self.log.info('%s res >%s<', tag, res)
+        self.log.warning('%s res >%s<', tag, res)
+        return res
 
 
 class PumpstandPressure(Readable):

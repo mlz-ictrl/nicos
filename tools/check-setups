@@ -23,8 +23,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import argparse
 import logging
 import sys
@@ -86,7 +84,7 @@ def main():
     if opts.verbose:
         root_log.setLevel(logging.INFO)
     if opts.filename:
-        outfile = open(opts.filename, 'ab')
+        outfile = open(opts.filename, 'a')
         root_log.addHandler(FileHandler(outfile))
 
     ret = SetupValidator().walk(paths, opts.separate)

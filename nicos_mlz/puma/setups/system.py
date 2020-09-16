@@ -24,9 +24,9 @@ devices = dict(
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-36',
         website = 'http://www.mlz-garching.de/puma',
         operators = [
-            u'Technische Universität München (TUM)',
-            u'Institut für Physikalische Chemie, Georg-August-Universität '
-            u'Göttingen',
+            'Technische Universität München (TUM)',
+            'Institut für Physikalische Chemie, Georg-August-Universität '
+            'Göttingen',
         ],
     ),
     Exp = device('nicos_mlz.panda.devices.experiment.PandaExperiment',

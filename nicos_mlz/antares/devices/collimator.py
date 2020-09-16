@@ -24,8 +24,6 @@
 
 """Special device related to the L over d relation."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.device import Readable
 from nicos.core.errors import ConfigurationError
 from nicos.core.params import Attach

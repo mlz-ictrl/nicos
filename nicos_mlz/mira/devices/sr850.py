@@ -24,8 +24,6 @@
 
 """Class for Stanford Research SR850 lock-in amplifier."""
 
-from __future__ import absolute_import, division, print_function
-
 from math import atan2, degrees, hypot
 from time import time
 
@@ -89,7 +87,7 @@ class Amplifier(PyTangoDevice, Measurable):
         self._started = time()
 
     def doIsCompleted(self):
-        return (time() > self._started + self._delay)
+        return time() > self._started + self._delay
 
     def doInfo(self):
         # it is important that these values are correct in the metainfo!

@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.constants import SIMULATION
 from nicos.core.device import Device
 from nicos.core.errors import ConfigurationError

@@ -23,18 +23,12 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
-import socket
 import uuid
-
-import numpy as np
 
 from nicos.protocols.daemon import DAEMON_EVENTS, \
     ClientTransport as BaseClientTransport, ProtocolError
 from nicos.protocols.daemon.classic import ACK, ENQ, LENGTH, NAK, \
     READ_BUFSIZE, SERIALIZERS, STX, code2event, command2code
-from nicos.pycompat import memory_buffer
 from nicos.utils import closeSocket, tcpSocket
 
 
@@ -58,7 +52,7 @@ class ClientTransport(BaseClientTransport):
         # connect to event port
         try:
             self.event_sock = tcpSocket(conndata.host, conndata.port)
-        except socket.error as err:
+        except OSError as err:
             msg = err.args[1]
             self.signal('failed', 'Event connection failed: %s.' % msg, err)
             return
@@ -125,9 +119,10 @@ class ClientTransport(BaseClientTransport):
         got = 0
         # read into a pre-allocated buffer to avoid copying lots of data
         # around several times
-        buf = np.zeros(length, 'c')  # Py3: replace with bytearray+memoryview
+        buf = bytearray(length)
+        buf_view = memoryview(buf)
         while got < length:
-            read = self.event_sock.recv_into(buf[got:], length - got)
+            read = self.event_sock.recv_into(buf_view[got:], length - got)
             if not read:
                 raise ProtocolError('read: event connection broken')
             got += read
@@ -135,7 +130,7 @@ class ClientTransport(BaseClientTransport):
         event = code2event[start[1:3]]
         # serialized or raw event data?
         if DAEMON_EVENTS[event][0]:
-            data = self.serializer.deserialize_event(buf.tostring(), event)
+            data = self.serializer.deserialize_event(buf, event)
         else:
-            data = event, memory_buffer(buf)
+            data = event, buf_view
         return data

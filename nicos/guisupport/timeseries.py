@@ -27,8 +27,6 @@
 NICOS value plot widget.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import functools
 import operator
 from time import time as currenttime
@@ -36,7 +34,7 @@ from time import time as currenttime
 import numpy as np
 from lttb import lttb
 
-from nicos.pycompat import iteritems, number_types, string_types
+from nicos.utils import number_types
 
 
 def buildTickDistAndSubTicks(mintime, maxtime, minticks=3):
@@ -107,7 +105,7 @@ def buildTimeTicks(mintime, maxtime, minticks=3):
     return minor, medium, major
 
 
-class TimeSeries(object):
+class TimeSeries:
     """
     Represents a plot curve that shows a time series for a value.
     """
@@ -175,7 +173,7 @@ class TimeSeries(object):
             delta = vtime - ltime
             if not isinstance(value, number_types):
                 # if it's a string, create a new unique integer value for the string
-                if isinstance(value, string_types):
+                if isinstance(value, str):
                     value = self.string_mapping.setdefault(value, len(self.string_mapping))
                 # other values we can't use
                 else:
@@ -213,7 +211,7 @@ class TimeSeries(object):
         if self.string_mapping:
             self.info = ', '.join(
                 '%g=%s' % (v * self.scale + self.offset, k) for (k, v) in
-                sorted(iteritems(self.string_mapping), key=lambda x: x[1]))
+                sorted(self.string_mapping.items(), key=lambda x: x[1]))
 
     def synthesize_value(self):
         if not self.n:
@@ -225,11 +223,11 @@ class TimeSeries(object):
 
     def add_value(self, vtime, value, real=True, use_scale=True):
         if not isinstance(value, number_types):
-            if isinstance(value, string_types):
+            if isinstance(value, str):
                 value = self.string_mapping.setdefault(value, len(self.string_mapping))
                 self.info = ', '.join(
                     '%g=%s' % (v * self.scale + self.offset, k) for (k, v) in
-                    sorted(iteritems(self.string_mapping), key=lambda x: x[1]))
+                    sorted(self.string_mapping.items(), key=lambda x: x[1]))
             else:
                 return
         elif use_scale:

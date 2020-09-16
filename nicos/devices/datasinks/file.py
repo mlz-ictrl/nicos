@@ -24,8 +24,6 @@
 
 """Base file data sink class for NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.data import DataSink
 from nicos.core.params import Param, listof, subdir
 

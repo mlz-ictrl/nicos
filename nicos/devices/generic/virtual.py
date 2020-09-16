@@ -25,8 +25,6 @@
 
 """Virtual devices for testing."""
 
-from __future__ import absolute_import, division, print_function
-
 import random
 import threading
 import time
@@ -45,7 +43,6 @@ from nicos.core.scan import Scan
 from nicos.devices.abstract import CanReference, Coder, Motor
 from nicos.devices.generic.detector import ActiveChannel, ImageChannelMixin, \
     PassiveChannel
-from nicos.pycompat import string_types
 from nicos.utils import clamp, createThread
 from nicos.utils.timer import Timer
 
@@ -168,7 +165,7 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
     def doReference(self, *args):
         # if self.status(0)[0] == status.BUSY:
         #   raise NicosError(self, 'cannot reference if device is moving.')
-        refswitch = args[0] if args and isinstance(args[0], string_types) \
+        refswitch = args[0] if args and isinstance(args[0], str) \
             else self.refswitch
         self.log.debug('reference: %s', refswitch)
         if refswitch == 'high':
@@ -772,7 +769,6 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
         coll = (self._attached_collimation.read() if self._attached_collimation
                 else '15m')
         xl, yl = self.sizes
-        # pylint: disable=unbalanced-tuple-unpacking
         xx, yy = np.meshgrid(np.linspace(-(xl // 2), (xl // 2) - 1, xl),
                              np.linspace(-(yl // 2), (yl // 2) - 1, yl))
         beam = (t * 100 * np.exp(-xx**2/50) * np.exp(-yy**2/50)).astype(int)

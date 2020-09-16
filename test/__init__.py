@@ -24,8 +24,6 @@
 
 """NICOS test suite."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.device import Device
 from nicos.utils.stubs import generate_stubs
 

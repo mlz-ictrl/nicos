@@ -29,11 +29,8 @@ All NICOS - TANGO devices only support devices which fulfill the official
 MLZ TANGO interface for the respective device classes.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import re
-import socket
 
 import numpy
 import PyTango
@@ -168,7 +165,7 @@ def check_tango_host_connection(address, timeout=3.0):
     try:
         with tcpSocketContext(tango_host, 10000, timeout=timeout):
             pass
-    except socket.error as e:
+    except OSError as e:
         raise CommunicationError(str(e))
 
 
@@ -266,7 +263,7 @@ class PyTangoDevice(HasCommunication):
             return self._config.get('unit', '')
         return attrInfo.unit
 
-    def _createPyTangoDevice(self, address):  # pylint: disable=E0202
+    def _createPyTangoDevice(self, address):  # pylint: disable=method-hidden
         """
         Creates the PyTango DeviceProxy and wraps command execution and
         attribute operations with logging and exception mapping.
@@ -459,7 +456,6 @@ class WindowTimeoutAO(HasWindowTimeout, AnalogOutput):
     """
     AnalogOutput with window timeout.
     """
-    pass
 
 
 class Actuator(AnalogOutput, NicosMotor):

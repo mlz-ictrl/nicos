@@ -24,8 +24,6 @@
 
 """Scan related commands for SPHERES"""
 
-from __future__ import absolute_import, division, print_function
-
 from time import time
 
 from nicos import session
@@ -39,8 +37,6 @@ from nicos_mlz.spheres.utils import canStartSisScan, getSisDetector, \
     getSisImageDevice, parseDuration
 
 VALIDTARGETS = ['eta', 'acq']
-
-lasttarget = [VALIDTARGETS[0]]
 
 
 class VariableTimeScan(SweepScan):
@@ -56,8 +52,6 @@ class VariableTimeScan(SweepScan):
         self.remainingTime = totaltime
         if target in ['eta', 'acq']:
             self.target = target
-            global lasttarget
-            lasttarget = target
         else:
             session.log.warning('"%s", is not a valid target, must be one of '
                                 '%r, defaulting to "%s"', target,  VALIDTARGETS,
@@ -168,7 +162,7 @@ def shortenScan(time):
 @parallel_safe
 @usercommand
 def stopScan():
-    if(isinstance(session._currentscan, VariableTimeScan)):
+    if isinstance(session._currentscan, VariableTimeScan):
         session._currentscan.stopScan()
 
 

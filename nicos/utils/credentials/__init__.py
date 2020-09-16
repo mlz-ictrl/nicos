@@ -27,7 +27,7 @@ Utility classes to access and store credentials
 """
 
 
-class NicosKeyStore(object):
+class NicosKeyStore:
     '''Abstract base class for nicos key stores
     '''
 

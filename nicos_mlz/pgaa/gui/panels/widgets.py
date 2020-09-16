@@ -23,8 +23,6 @@
 # *****************************************************************************
 """PGAA panel specific widgets."""
 
-from __future__ import absolute_import, division, print_function
-
 import time
 from collections import OrderedDict
 from os import path
@@ -37,7 +35,6 @@ from nicos.guisupport.qt import QAbstractButton, QAbstractSpinBox, QCheckBox, \
     QPixmap, QSlider, QSpinBox, QStackedWidget, Qt, QToolTip, QWidget, \
     pyqtSignal, pyqtSlot
 from nicos.guisupport.widget import NicosListener, NicosWidget
-from nicos.pycompat import iteritems
 
 widgetpath = path.dirname(__file__)
 
@@ -425,7 +422,7 @@ class AttCell(CellItem):
         if not self.cb.isVisible():
             # Count back from 3 Attenuator Buttons to rel Flux
             att_vals = tuple(l.current for l in self.cled)
-            for key, values in iteritems(AttCell.Attenuators):
+            for key, values in AttCell.Attenuators.items():
                 if values == att_vals:
                     return key
         else:

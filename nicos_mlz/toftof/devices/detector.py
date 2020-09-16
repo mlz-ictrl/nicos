@@ -24,9 +24,6 @@
 
 """TOFTOF detector."""
 
-from __future__ import absolute_import, division, print_function
-
-import io
 from time import time as currenttime
 
 from nicos import session
@@ -235,7 +232,7 @@ class Detector(GenericDetector):
         return self._attached_images[0].numinputs
 
     def _import_detinfo(self):
-        with io.open(self.detinfofile, newline=None) as fp:
+        with open(self.detinfofile, newline=None) as fp:
             self._detinfo = list(fp)
 
         dmap = {}  # maps "Total" (ElNr) to 2theta

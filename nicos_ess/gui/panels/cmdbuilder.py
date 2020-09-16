@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2019 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -23,8 +23,6 @@
 # *****************************************************************************
 
 """NICOS GUI single cmdlet command input."""
-
-from __future__ import absolute_import, division, print_function
 
 from nicos.clients.gui.panels.cmdbuilder import \
     CommandPanel as DefaultCommandPanel
@@ -63,11 +61,6 @@ class CommandPanel(DefaultCommandPanel):
     @pyqtSlot()
     def on_cmdBtn_clicked(self):
         self.toggle_frame()
-
-    @pyqtSlot()
-    def on_runBtn_clicked(self):
-        DefaultCommandPanel.on_runBtn_clicked(self)
-        self.commandInput.clear()
 
     def on_commandInput_execRequested(self, script, action):
         DefaultCommandPanel.on_commandInput_execRequested(self, script, action)

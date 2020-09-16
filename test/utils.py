@@ -23,15 +23,12 @@
 # *****************************************************************************
 """NICOS test suite utilities."""
 
-from __future__ import absolute_import, division, print_function
-
 import contextlib
 import math
 import os
 import re
 import shutil
 import signal
-import socket
 import subprocess
 import sys
 import time
@@ -51,7 +48,6 @@ from nicos.devices.abstract import CanReference
 from nicos.devices.cacheclient import CacheClient
 from nicos.devices.generic import VirtualMotor
 from nicos.devices.notifiers import Mailer
-from nicos.pycompat import exec_, reraise, string_types
 from nicos.services.cache.database import FlatfileCacheDatabase
 from nicos.utils import closeSocket, createSubprocess, tcpSocket
 from nicos.utils.loggers import ACTION, NicosLogger
@@ -83,7 +79,7 @@ def raises(exc, *args, **kwds):
     return True
 
 
-class approx(object):
+class approx:
     """
     Ported from py.test v3.0, can use pytest.approx from then on.
     """
@@ -105,7 +101,7 @@ class approx(object):
         if sys.version_info[0] == 2:
             return '{0} +- {1}'.format(self.expected, vetted_tolerance)
         else:
-            return u'{0} \u00b1 {1}'.format(self.expected, vetted_tolerance)
+            return '{0} \u00b1 {1}'.format(self.expected, vetted_tolerance)
 
     def __eq__(self, actual):
         if actual == self.expected:
@@ -175,8 +171,6 @@ class TestLogHandler(StreamHandler):
         self._messages.append(msg)
         try:
             self.stream.write(msg)
-        except UnicodeEncodeError:
-            self.stream.write(msg.encode('utf-8'))
         except ValueError:
             # Closed pytest capture stream, ignore.
             return
@@ -352,14 +346,14 @@ class TestSession(Session):
                                    lambda src: compile(src, filename, symbol))
         if code is None:
             return
-        exec_(code, self.namespace)
+        exec(code, self.namespace)
 
     def delay(self, _secs):
         # TODO: this sleep shouldn't be necessary
         sleep(0.0001)
 
     def _string_to_level(self, level):
-        if isinstance(level, string_types):
+        if isinstance(level, str):
             for k, v in ACCESS_LEVELS.items():
                 if v == level:
                     return k
@@ -395,29 +389,31 @@ class TestDevice(HasLimits, Moveable):
         self._stop_exception = None
         self._iscompleted_exception = None
 
+    # pylint: disable=raising-bad-type
+
     def doRead(self, maxage=0):
         if self._read_exception is not None:
-            raise self._read_exception  # pylint: disable=raising-bad-type
+            raise self._read_exception
         return self._value
 
     def doStart(self, target):
         if self._start_exception is not None and target != 0:
-            raise self._start_exception  # pylint: disable=raising-bad-type
+            raise self._start_exception
         self._value = target
 
     def doStatus(self, maxage=0):
         if self._status_exception is not None:
-            raise self._status_exception  # pylint: disable=raising-bad-type
+            raise self._status_exception
         return status.OK, 'fine'
 
     def isCompleted(self):
         if self._iscompleted_exception is not None:
-            raise self._iscompleted_exception  # pylint: disable=raising-bad-type
+            raise self._iscompleted_exception
         return Moveable.isCompleted(self)
 
     def doStop(self):
         if self._stop_exception is not None:
-            raise self._stop_exception  # pylint: disable=raising-bad-type
+            raise self._stop_exception
 
 
 class TestController(IsController, Moveable):
@@ -557,15 +553,14 @@ def startSubprocess(filename, *args, **kwds):
     if 'wait_cb' in kwds:
         try:
             kwds['wait_cb']()
-        except Exception:
-            caught = sys.exc_info()
+        except Exception as err:
             sys.stderr.write('%s failed]' % proc.pid)
             try:
                 proc.kill()
             except Exception:
                 pass
             proc.wait()
-            reraise(*caught)
+            raise err
     sys.stderr.write('%s ok]\n' % proc.pid)
     return proc
 
@@ -594,7 +589,7 @@ def startCache(hostport, setup='cache', wait=10):
             while time.time() < start + wait:
                 try:
                     s = tcpSocket(hostport, 0)
-                except socket.error:
+                except OSError:
                     time.sleep(0.02)
                 except Exception as e:
                     sys.stderr.write('%r' % e)
@@ -619,7 +614,7 @@ def hasGnuplot():
         gpProcess.communicate(b'exit')
         if gpProcess.returncode:
             return False
-    except (IOError, ValueError):
+    except (OSError, ValueError):
         return False
     return True
 

@@ -24,8 +24,6 @@
 
 """AMOR specific commands and routines"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.commands import helparglist, usercommand
 from nicos.commands.scan import ADDSCANHELP0, ADDSCANHELP2, _handleScanArgs, \

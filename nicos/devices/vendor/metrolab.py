@@ -24,8 +24,6 @@
 
 """Class for Metrolab THM 1176 magnetic field probe."""
 
-from __future__ import absolute_import, division, print_function
-
 import fcntl
 import math
 import os
@@ -142,10 +140,8 @@ class THM1176(Measurable):
         self.log.info('Zeroing sensor, please wait a few seconds...')
         try:
             self._execute('CAL', wait=5)
-        except OSError as err:
-            if err.errno == 110:
-                return
-            raise
+        except TimeoutError:
+            pass
 
     def valueInfo(self):
         return Value('B', unit='uT'), \

@@ -24,8 +24,6 @@
 
 """CARESS histogram file format."""
 
-from __future__ import absolute_import, division, print_function
-
 from time import strftime, time as currenttime
 
 import dataparser as DataParser
@@ -36,7 +34,6 @@ from nicos.core.constants import POINT
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.devices.datasinks.special import LiveViewSink as BaseLiveViewSink, \
     LiveViewSinkHandler as BaseLiveViewSinkHandler
-from nicos.pycompat import iteritems, to_utf8
 from nicos.utils import findResource
 
 
@@ -55,7 +52,7 @@ class CaressHistogramHandler(SingleFileSinkHandler):
         _metainfo = self.dataset.metainfo
         bycategory = {}
         detectors = self.sink.detectors
-        for (dev, key), (_, v, _, cat) in iteritems(_metainfo):
+        for (dev, key), (_, v, _, cat) in _metainfo.items():
             if dev in detectors + ['UBahn', 'Space', 'tths'] and \
                cat == 'general':
                 continue
@@ -108,18 +105,18 @@ class CaressHistogramHandler(SingleFileSinkHandler):
 
         # write Header
         for line in header:
-            fp.write(to_utf8('%s\n' % line))
+            fp.write(('%s\n' % line).encode())
 
         for i, v in enumerate(image):
             _pos = _start + i * _stepsize
-            fp.write(to_utf8('%.2f\t%s\n' %
-                             (_pos, '\t'.join(['%d' % x for x in v]))))
+            fp.write(('%.2f\t%s\n' %
+                      (_pos, '\t'.join(['%d' % x for x in v]))).encode())
         fp.write(b'\n')
 
         fp.write(b'total sum\n')
         for i, v in enumerate(image):
             _pos = _start + i * _stepsize
-            fp.write(to_utf8('%.2f\t%d\n' % (_pos, v.sum())))
+            fp.write(('%.2f\t%d\n' % (_pos, v.sum())).encode())
 
         fp.flush()
 
@@ -147,7 +144,7 @@ class CaressHistogram(ImageSink):
         return len(arraydesc.shape) == 2
 
 
-class Straight(object):
+class Straight:
     """Data 'straightener' mixin."""
 
     corrData = None

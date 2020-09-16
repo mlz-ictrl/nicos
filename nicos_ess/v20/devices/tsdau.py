@@ -23,8 +23,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from lewis.core.control_client import ControlClient
 
 from nicos import session
@@ -128,8 +126,7 @@ class TsDauFilenameChannel(TsDauChannelBase, ActiveChannel):
 
 class TsDauDetector(Detector):
     def _presetiter(self):
-        for i in Detector._presetiter(self):
-            yield i
+        yield from Detector._presetiter(self)
 
         for dev in self._attached_others:
             if isinstance(dev, TsDauFilenameChannel):

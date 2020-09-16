@@ -24,15 +24,14 @@
 
 """Simplified interface to report a ticket to the NICOS Redmine tracker."""
 
-from __future__ import absolute_import, division, print_function
+import html
 
-from nicos.clients.gui.utils import CompatSettings, DlgUtils, loadUi
+from nicos.clients.gui.utils import DlgUtils, loadUi
 from nicos.guisupport.qt import QCheckBox, QDesktopServices, QDialog, \
-    QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QUrl
-from nicos.pycompat import escape_html
+    QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QSettings, QUrl
 
 try:
-    import redminelib  # pylint: disable=import-error
+    import redminelib
 except ImportError:
     try:
         import redmine as redminelib
@@ -54,7 +53,7 @@ class BugreportTool(DlgUtils, QDialog):
         DlgUtils.__init__(self, self.toolName)
         loadUi(self, 'tools/bugreport.ui')
 
-        settings = CompatSettings('nicos', 'secrets')
+        settings = QSettings('nicos', 'secrets')
         settings.beginGroup('Redmine')
         self.instrument = settings.value('instrument', '')
         self.apikey = settings.value('apikey')
@@ -128,7 +127,7 @@ class BugreportTool(DlgUtils, QDialog):
                 return False
             self.showInfo('Login successful.  Your API key has been stored '
                           'for further reports.')
-            settings = CompatSettings('nicos', 'secrets')
+            settings = QSettings('nicos', 'secrets')
             settings.beginGroup('Redmine')
             if noinstrBox.isChecked():
                 self.instrument = 'none'
@@ -181,7 +180,7 @@ class BugreportTool(DlgUtils, QDialog):
                     reproduction, add_log):
 
         def wrap(text):
-            return escape_html(text).replace('\n\n', '</p><p>'). \
+            return html.escape(text).replace('\n\n', '</p><p>'). \
                 replace('\n', '<br/>')
 
         full_desc = '<p>' + wrap(description) + '</p>'
@@ -190,10 +189,10 @@ class BugreportTool(DlgUtils, QDialog):
                          '<p>' + wrap(reproduction) + '</p>'
         if self.traceback:
             full_desc += '\n\n<p><b>Traceback:</b></p>\n' + \
-                         '<pre>' + escape_html(self.traceback) + '</pre>'
+                         '<pre>' + html.escape(self.traceback) + '</pre>'
         if add_log and self.log_excerpt:
             full_desc += '\n\n<p><b>Log excerpt:</b></p>\n' + \
-                         '<pre>' + escape_html(self.log_excerpt) + '</pre>'
+                         '<pre>' + html.escape(self.log_excerpt) + '</pre>'
 
         rm = redminelib.Redmine(TRACKER_URL, key=self.apikey)
         issue = rm.issue.new()

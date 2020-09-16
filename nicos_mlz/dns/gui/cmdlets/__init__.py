@@ -25,8 +25,6 @@
 
 """NICOS GUI cmdlets for DNS."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.cmdlets import Cmdlet, register
 from nicos.utils import findResource
 

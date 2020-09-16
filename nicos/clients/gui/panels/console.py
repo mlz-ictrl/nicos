@@ -24,9 +24,6 @@
 
 """NICOS GUI virtual console panel component."""
 
-from __future__ import absolute_import, division, print_function
-
-import io
 import sys
 from os import path
 
@@ -216,7 +213,7 @@ class ConsolePanel(Panel):
             return
         try:
             fn = fn.encode(sys.getfilesystemencoding())
-            with io.open(fn, 'w', encoding='utf-8') as f:
+            with open(fn, 'w') as f:
                 f.write(self.outView.getOutputString())
         except Exception as err:
             QMessageBox.warning(self, 'Error', 'Writing file failed: %s' % err)

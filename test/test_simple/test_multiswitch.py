@@ -24,8 +24,6 @@
 
 """NICOS generic devices test suite."""
 
-from __future__ import absolute_import, division, print_function
-
 import mock
 
 from nicos.core import ConfigurationError, InvalidValueError, LimitError, \

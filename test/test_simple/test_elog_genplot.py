@@ -24,8 +24,6 @@
 
 """NICOS tests for nicos.commands.scan and nicos.core.scan modules."""
 
-from __future__ import absolute_import, division, print_function
-
 from os import path
 
 import pytest

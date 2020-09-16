@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Classes to display the PUMA multi detector devices."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.guisupport.elements import Detector
 from nicos.guisupport.elements.halo import Halo
 from nicos.guisupport.qt import QColor, QGraphicsPathItem, QPainterPath, \

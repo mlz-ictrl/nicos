@@ -24,8 +24,6 @@
 
 """Class for Keysight Technologies 34461A TrueVolt."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import SIMULATION, CommunicationError, Measurable, Override, \
     status
 from nicos.devices.tango import PyTangoDevice

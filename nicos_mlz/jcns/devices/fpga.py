@@ -30,8 +30,6 @@ masters, e.g. counting on time and count rate.
 
 """
 
-from __future__ import absolute_import, division, print_function
-
 from time import time as currenttime
 
 from nicos.core import MASTER, Override, Param, Readable, UsageError, Value, \

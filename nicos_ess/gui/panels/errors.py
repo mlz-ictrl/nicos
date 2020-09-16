@@ -24,8 +24,6 @@
 
 """NICOS GUI error and warning window."""
 
-from __future__ import absolute_import, division, print_function
-
 from logging import WARNING
 
 from nicos.clients.gui.panels.errors import ErrorPanel as DefaultErrorPanel

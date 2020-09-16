@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from math import exp, log
 
 _4_log_2 = -4 * log(2)

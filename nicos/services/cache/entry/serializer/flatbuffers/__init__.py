@@ -22,13 +22,11 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
+from streaming_data_types.nicos_cache_ns10 import deserialise_ns10, \
+    serialise_ns10
 
 from nicos.services.cache.entry import CacheEntry
 from nicos.services.cache.entry.serializer import CacheEntrySerializer
-
-from streaming_data_types.nicos_cache_ns10 import deserialise_ns10, \
-    serialise_ns10
 
 
 class FlatbuffersCacheEntrySerializer(CacheEntrySerializer):

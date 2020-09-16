@@ -26,12 +26,11 @@
 This module contains ESS specific Base classes for EPICS.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from kafka.errors import KafkaError
 
 from nicos import session
 from nicos.core import Override, Param
+from nicos.core.constants import SIMULATION
 from nicos.core.errors import ConfigurationError
 from nicos.devices.epics import EpicsAnalogMoveable, EpicsDevice, \
     EpicsDigitalMoveable, EpicsMoveable, EpicsReadable, EpicsStringReadable, \
@@ -84,11 +83,12 @@ class EpicsDeviceEss(EpicsDevice):
         except KafkaError as ke:
             session.log.error('KafkaForwarder badly configured: %s', ke)
             return
-        try:
-            forwarder.add(pv_details)
-        except ConfigurationError as error:
-            session.log.error("Couldn't add device to KafkaForwarder: %s",
-                              error)
+        if mode != SIMULATION:
+            try:
+                forwarder.add(pv_details)
+            except ConfigurationError as error:
+                session.log.error("Couldn't add device to KafkaForwarder: %s",
+                                  error)
 
 
 class EpicsReadableEss(EpicsDeviceEss, EpicsReadable):

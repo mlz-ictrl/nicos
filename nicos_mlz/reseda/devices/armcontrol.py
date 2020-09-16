@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Controller to avoid arm collisions."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.device import Device, Moveable
 from nicos.core.mixins import IsController
 from nicos.core.params import Attach, Override, Param, floatrange

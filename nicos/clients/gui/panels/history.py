@@ -25,18 +25,17 @@
 
 """NICOS GUI history log window."""
 
-from __future__ import absolute_import, division, print_function
-
 import functools
 import json
 import operator
 import os
+import pickle
 import sys
 from collections import OrderedDict
 from time import localtime, mktime, time as currenttime
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import CompatSettings, DlgUtils, dialogFromUi, \
+from nicos.clients.gui.utils import DlgUtils, dialogFromUi, \
     enumerateWithProgress, loadUi
 from nicos.clients.gui.widgets.plotting import ArbitraryFitter, CosineFitter, \
     ExponentialFitter, GaussFitter, LinearFitter, LorentzFitter, \
@@ -46,15 +45,15 @@ from nicos.devices.cacheclient import CacheClient
 from nicos.guisupport.qt import QAction, QActionGroup, QApplication, QBrush, \
     QByteArray, QCheckBox, QColor, QComboBox, QCompleter, QDateTime, QDialog, \
     QFont, QFrame, QHBoxLayout, QListWidgetItem, QMainWindow, QMenu, \
-    QMessageBox, QObject, QSizePolicy, QStatusBar, QStyledItemDelegate, Qt, \
-    QTimer, QToolBar, QWidgetAction, pyqtSignal, pyqtSlot
+    QMessageBox, QObject, QSettings, QSizePolicy, QStatusBar, \
+    QStyledItemDelegate, Qt, QTimer, QToolBar, QWidgetAction, pyqtSignal, \
+    pyqtSlot
 from nicos.guisupport.timeseries import TimeSeries
 from nicos.guisupport.trees import BaseDeviceParamTree
 from nicos.guisupport.utils import scaledFont
 from nicos.protocols.cache import cache_load
-from nicos.pycompat import cPickle as pickle, integer_types, iteritems, \
-    number_types
-from nicos.utils import extractKeyAndIndex, parseDuration, safeName
+from nicos.utils import extractKeyAndIndex, number_types, parseDuration, \
+    safeName
 
 
 class NoEditDelegate(QStyledItemDelegate):
@@ -361,7 +360,7 @@ class NewViewDialog(DlgUtils, QDialog):
         else:
             self.deviceTreeSel.pop(key, None)
         self.devices.setText(', '.join((k + v) for (k, v)
-                                       in iteritems(self.deviceTreeSel)))
+                                       in self.deviceTreeSel.items()))
 
     def showSimpleHelp(self):
         self.showInfo('Please enter a time interval with units like this:\n\n'
@@ -444,7 +443,7 @@ class NewViewDialog(DlgUtils, QDialog):
         )
 
 
-class BaseHistoryWindow(object):
+class BaseHistoryWindow:
 
     client = None
     presetdict = None
@@ -698,7 +697,7 @@ class BaseHistoryWindow(object):
         pmenu.clear()
         delmenu = QMenu('Delete', self)
         try:
-            for preset, info in iteritems(self.presetdict):
+            for preset, info in self.presetdict.items():
                 paction = QAction(preset, self)
                 pdelaction = QAction(preset, self)
                 info = info.copy()
@@ -875,7 +874,7 @@ class BaseHistoryWindow(object):
                 mappings[key] = m = {}
                 i = 0
                 for k, v in sorted(devmapping.items()):
-                    if isinstance(v, integer_types):
+                    if isinstance(v, int):
                         m[k] = v
                     else:
                         m[k] = i
@@ -1193,7 +1192,7 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
         self.client = app  # used by the NewViewDialog
 
         # this is done in Panel.__init__ for the panel version
-        self.settings = CompatSettings()
+        self.settings = QSettings()
         self.loadSettings(self.settings)
 
         BaseHistoryWindow.__init__(self)
@@ -1282,14 +1281,14 @@ class SettingsDialog(QDialog):
     def __init__(self, parent):
         QDialog.__init__(self, parent)
         loadUi(self, 'panels/history_settings.ui')
-        settings = CompatSettings()
+        settings = QSettings()
         self._caches = settings.value('cachehosts') or []
         prefix = settings.value('keyprefix', 'nicos/')
         self.cacheBox.addItems(self._caches)
         self.prefixEdit.setText(prefix)
 
     def accept(self):
-        settings = CompatSettings()
+        settings = QSettings()
         cache = self.cacheBox.currentText()
         if cache in self._caches:
             self._caches.remove(cache)

@@ -26,8 +26,6 @@
 Base class for NICOS UI widgets.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import functools
 import operator
 from copy import copy
@@ -36,11 +34,10 @@ from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import OK
 from nicos.guisupport.qt import QFont, QFontMetrics, pyqtProperty
 from nicos.protocols.daemon import DAEMON_EVENTS
-from nicos.pycompat import iteritems
 from nicos.utils import AttrDict, extractKeyAndIndex, lazy_property
 
 
-class NicosListener(object):
+class NicosListener:
     """Base mixin class for an object that can receive cache events."""
 
     def setSource(self, source):
@@ -252,7 +249,7 @@ class NicosWidget(NicosListener):
         return {}
 
     def __init__(self):
-        for prop, pdef in iteritems(self.properties):
+        for prop, pdef in self.properties.items():
             if prop not in self.props:
                 if callable(pdef.default):
                     self.props[prop] = PropDef.convert(pdef.default(self))

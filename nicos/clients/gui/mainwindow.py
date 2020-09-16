@@ -25,8 +25,6 @@
 
 """NICOS GUI main window."""
 
-from __future__ import absolute_import, division, print_function
-
 import sys
 import traceback
 from time import strftime, time as currenttime
@@ -54,7 +52,6 @@ from nicos.guisupport.qt import PYQT_VERSION_STR, QT_VERSION_STR, QAction, \
     QTimer, QWebView, pyqtSignal, pyqtSlot
 from nicos.protocols.daemon import BREAK_NOW, STATUS_IDLE, STATUS_IDLEEXC, \
     STATUS_INBREAK
-from nicos.pycompat import iteritems, listvalues, text_type
 from nicos.utils import checkSetupSpec, importString
 
 try:
@@ -306,7 +303,7 @@ class MainWindow(DlgUtils, QMainWindow):
     def initDataReaders(self):
         try:
             # just import to register all default readers
-            # pylint: disable=unused-import, unused-variable
+            # pylint: disable=unused-import
             import nicos.devices.datasinks
         except ImportError:
             pass
@@ -345,11 +342,11 @@ class MainWindow(DlgUtils, QMainWindow):
 
         self.connpresets = {}
         # new setting key, with dictionary values
-        for (k, v) in iteritems(settings.value('connpresets_new', {})):
+        for (k, v) in settings.value('connpresets_new', {}).items():
             self.connpresets[k] = ConnectionData(**v)
         # if it was empty, try old setting key with list values
         if not self.connpresets:
-            for (k, v) in iteritems(settings.value('connpresets', {})):
+            for (k, v) in settings.value('connpresets', {}).items():
                 self.connpresets[k] = ConnectionData(
                     host=v[0], port=int(v[1]), user=v[2], password=None)
         self.lastpreset = settings.value('lastpreset', '')
@@ -368,11 +365,11 @@ class MainWindow(DlgUtils, QMainWindow):
 
     def loadAuxWindows(self, settings):
         open_wintypes = settings.value('auxwindows') or []
-        if isinstance(open_wintypes, text_type):
+        if isinstance(open_wintypes, str):
             open_wintypes = [int(w) for w in open_wintypes.split(',')]
 
         for wtype in open_wintypes:
-            if isinstance(wtype, text_type):
+            if isinstance(wtype, str):
                 wtype = int(wtype)
             self.createWindow(wtype)
 
@@ -413,7 +410,7 @@ class MainWindow(DlgUtils, QMainWindow):
             with panel.sgroup as settings:
                 panel.saveSettings(settings)
 
-        for window in listvalues(self.windows):
+        for window in list(self.windows.values()):
             if not window.close():
                 event.ignore()
                 return

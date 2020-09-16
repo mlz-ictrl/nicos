@@ -24,8 +24,6 @@
 
 """NICOS cache tests."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 from time import sleep
 
@@ -40,8 +38,7 @@ session_setup = 'cachestress'
 
 
 def all_setups():
-    for setup in ['cache_db', 'cache_mem', 'cache_mem_hist']:
-        yield setup
+    yield from ['cache_db', 'cache_mem', 'cache_mem_hist']
 
     if os.environ.get('KAFKA_URI', None):
         yield 'cache_kafka'

@@ -24,8 +24,6 @@
 
 """NICOS GUI script status panel component."""
 
-from __future__ import absolute_import, division, print_function
-
 from time import time
 
 from nicos.clients.gui.panels import Panel
@@ -39,7 +37,7 @@ from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \
 from nicos.utils import formatEndtime
 
 
-class ScriptQueue(object):
+class ScriptQueue:
     def __init__(self, frame, view):
         self._id2item = {}  # mapping from request ID to list widget item
         self._frame = frame
@@ -94,11 +92,8 @@ class ScriptQueue(object):
         self._view.clear()
         self._id2item.clear()
 
-    # pylint: disable=nonzero-method
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self._id2item)
-
-    __bool__ = __nonzero__
 
 
 class LineDelegate(QStyledItemDelegate):

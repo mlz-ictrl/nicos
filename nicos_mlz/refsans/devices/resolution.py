@@ -24,8 +24,6 @@
 
 """Devices to display some instrument values in status monitor."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Override, Readable
 from nicos.core.params import Attach
 
@@ -36,8 +34,8 @@ from nicos_mlz.refsans.lib.calculations import chopper_resolution, \
 class Resolution(Readable):
     """Calculate the wavelength resolution of the whole instrument.
 
-    The chopper controller device is used to detect the real and virtual position
-    of the second disc (chopper2).
+    The chopper controller device is used to detect the real and virtual
+    position of the second disc (chopper2).
     """
     attached_devices = {
         'chopper': Attach('chopper controller device', Readable),
@@ -49,8 +47,9 @@ class Resolution(Readable):
     }
 
     def doRead(self, maxage=0):
-        return chopper_resolution(self._attached_chopper.target['chopper2_pos'],
-                                  self._attached_flightpath.read(maxage))
+        return chopper_resolution(
+            self._attached_chopper.target['chopper2_pos'],
+            self._attached_flightpath.read(maxage))
 
     def doReadUnit(self):
         return '%'

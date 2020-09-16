@@ -24,8 +24,6 @@
 
 """Doppler device for SPHERES"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.commands.basic import sleep
 from nicos.core import SIMULATION, UsageError, dictwith, floatrange, \
@@ -35,7 +33,7 @@ from nicos.devices.generic.sequence import SeqCall, SeqDev, SequencerMixin
 from nicos.devices.generic.switcher import MultiSwitcher
 from nicos.devices.tango import NamedDigitalOutput, VectorInput
 from nicos.protocols.daemon import STATUS_INBREAK
-from nicos.pycompat import number_types
+from nicos.utils import number_types
 
 ELASTIC =   'elastic'
 INELASTIC = 'inelastic'

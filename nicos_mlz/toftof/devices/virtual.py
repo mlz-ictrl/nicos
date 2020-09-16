@@ -24,8 +24,6 @@
 
 """Virtual devices for testing."""
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from nicos.core import Override, Param, intrange
@@ -81,7 +79,7 @@ class VirtualImage(BaseImage):
             self.log.warning('%r', self._rawdata.shape)
             # eliminate monitor entries
             self._rawdata[956] = np.zeros(self._rawdata.shape[1])
-        except IOError:
+        except OSError:
             self.log.warning('data file %s not present, returning empty array '
                              'from virtual TOF image', self.datafile)
             self._rawdata = np.zeros(self.sizes[0] *

@@ -24,8 +24,6 @@
 
 """Qt version of instrument monitor."""
 
-from __future__ import absolute_import, division, print_function
-
 import sys
 import traceback
 
@@ -33,12 +31,11 @@ from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
 from nicos.core import Param
 from nicos.guisupport.display import PictureDisplay, ValueDisplay, \
     lightColorScheme
-from nicos.guisupport.qt import QT_VER, QApplication, QColor, QCursor, QFont, \
+from nicos.guisupport.qt import QApplication, QColor, QCursor, QFont, \
     QFontMetrics, QFrame, QHBoxLayout, QIcon, QLabel, QMainWindow, QPalette, \
     QSizePolicy, Qt, QVBoxLayout, pyqtSignal, uic
 from nicos.guisupport.utils import scaledFont
 from nicos.guisupport.widget import NicosWidget
-from nicos.pycompat import iteritems, string_types
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.utils import checkSetupSpec, findResource
 
@@ -101,15 +98,12 @@ class MonitorWindow(QMainWindow):
             # screen window is actually made larger than the full screen
             self.resize(self.sizeHint())
             if self._wantFullScreen:
-                if QT_VER == 5:
-                    self.setGeometry(QApplication.screens()[0].geometry())
-                else:
-                    self.showFullScreen()
+                self.setGeometry(QApplication.screens()[0].geometry())
         return QMainWindow.event(self, event)
 
     def do_reconfigure(self, emitdict):
         self._reconfiguring = True
-        for (layout, item), enabled in iteritems(emitdict):
+        for (layout, item), enabled in emitdict.items():
             if layout is None:
                 item.setVisible(enabled)
             else:
@@ -186,9 +180,10 @@ class Monitor(BaseMonitor):
         mod = __import__(modname, None, None, [member])
         return getattr(mod, member)
 
+    # pylint: disable=too-many-statements
     def initGui(self):
         def log_unhandled(*exc_info):
-            traceback.print_exception(*exc_info)  # pylint: disable=no-value-for-parameter
+            traceback.print_exception(*exc_info)
             self.log.exception('unhandled exception in QT callback',
                                exc_info=exc_info)
         sys.excepthook = log_unhandled
@@ -200,14 +195,13 @@ class Monitor(BaseMonitor):
         if self._geometry == 'fullscreen':
             master.showFullScreen()
             master._wantFullScreen = True
-            if QT_VER == 5:
-                # In some Qt5 versions, showFullScreen is buggy and doesn't
-                # actually resize the window (but hides decoration etc).
-                # So, explicitly set the geometry of the first screen.
-                master.setGeometry(QApplication.screens()[0].geometry())
+            # In some Qt5 versions, showFullScreen is buggy and doesn't
+            # actually resize the window (but hides decoration etc).
+            # So, explicitly set the geometry of the first screen.
+            master.setGeometry(QApplication.screens()[0].geometry())
             QCursor.setPos(master.geometry().bottomRight())
         elif isinstance(self._geometry, tuple):
-            w, h, x, y = self._geometry  # pylint: disable=W0633
+            w, h, x, y = self._geometry
             master.setGeometry(x, y, w, h)
 
         # colors used for the display of watchdog warnings, not for the
@@ -286,7 +280,7 @@ class Monitor(BaseMonitor):
                     widget.widgetInfo.connect(self.newWidgetInfo)
                 return widget
 
-            if isinstance(field, string_types):
+            if isinstance(field, str):
                 field = {'dev': field}
             if 'min' in field:
                 field['min'] = repr(field['min'])

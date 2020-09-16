@@ -1,8 +1,24 @@
 description = 'Devices for the attenuator'
 
 devices = dict(
-    att = device('nicos.devices.generic.manual.ManualSwitch',
+    attpos = device('nicos_ess.devices.epics.motor.EpicsMotor',
+        epicstimeout = 3.0,
+        description = 'Attenuator motor',
+        motorpv = 'SQ:SANS:mcu1:attpos',
+        errormsgpv = 'SQ:SANS:mcu1:attpos' + '-MsgTxt',
+        precision = 0.1,
+    ),
+    att = device('nicos.devices.generic.switcher.Switcher',
         description = 'Attenuator choice',
-        states = [0, 1, 2, 3, 4, 5],
+        moveable = 'attpos',
+        mapping = {
+            '0': 0,
+            '1': 60,
+            '2': 120,
+            '3': 180,
+            '4': 240,
+            '5': 300
+        },
+        precision = 1,
     ),
 )

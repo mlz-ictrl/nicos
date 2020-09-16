@@ -25,7 +25,7 @@ devices = dict(
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-32',
         responsible = 'Dr. Andre Heinemann <Andre.Heinemann@hzg.de>',
         operators = ['German Engineering Materials Science Centre (GEMS)',
-                     u'Technische Universität München (TUM)',
+                     'Technische Universität München (TUM)',
                     ],
         website = 'http://www.mlz-garching.de/sans-1',
     ),

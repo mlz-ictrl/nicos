@@ -23,21 +23,11 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import argparse
 import inspect
 import re
 import socket
-import sys
 from math import ceil
-from os import path
-
-try:
-    from nicos.pycompat import from_utf8, to_utf8
-except ImportError:
-    sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
-    from nicos.pycompat import from_utf8, to_utf8
 
 
 # default cache server to use when no arguments are given
@@ -96,7 +86,7 @@ def fix_pollinterval_and_maxage(pollinterval=float, maxage=float):
 
 # Framwork
 
-class CClient(object):
+class CClient:
     """Very crude and basic cache client"""
     msg_pattern = re.compile(r'''
     ^ (?:
@@ -132,11 +122,11 @@ class CClient(object):
             return
         try:
             self._socket.shutdown(socket.SHUT_RDWR)
-        except socket.error:
+        except OSError:
             pass
         try:
             self._socket.close()
-        except socket.error:
+        except OSError:
             pass
         self._socket = None
 
@@ -149,12 +139,12 @@ class CClient(object):
 
     def _comm(self, request):
         # always put a end-of-list marker
-        self._socket.sendall(to_utf8(request + '\n###?\n'))
+        self._socket.sendall((request + '\n###?\n').encode())
         data = ''
         reloop = False
         while True:
             try:
-                newdata = from_utf8(self._socket.recv(1024))
+                newdata = self._socket.recv(1024).decode()
             except socket.timeout:
                 return
             if newdata:
@@ -244,7 +234,7 @@ class CClient(object):
                 print(dev, end= '\r',)
             for fix in fixes:
                 # ask fix about required keys and types
-                argspec = inspect.getargspec(fix)
+                argspec = inspect.getfullargspec(fix)
                 keys = argspec.args
                 types = argspec.defaults
                 if len(keys) != len(types):

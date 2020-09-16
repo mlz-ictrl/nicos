@@ -22,13 +22,11 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
-from math import sin, cos, radians
+from math import cos, radians, sin
 
 from nicos.clients.gui.panels.generic import GenericPanel
-from nicos.guisupport.qt import pyqtSlot, QBrush, QColor, QPainter, QPen, \
-    QWidget, Qt
+from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, Qt, QWidget, \
+    pyqtSlot
 from nicos.guisupport.widget import NicosWidget
 from nicos.protocols.cache import cache_load
 
@@ -205,11 +203,11 @@ class MTTManualPanel(GenericPanel):
 
     @pyqtSlot()
     def on_mttStop_clicked(self):
-        self._run_if_manual('stop("mtt_raw")', noqueue=True)
+        self._run_if_manual('stop("mtt_raw")')
 
     @pyqtSlot()
     def on_mbStop_clicked(self):
-        self._run_if_manual('stop("mb_arm_raw")', noqueue=True)
+        self._run_if_manual('stop("mb_arm_raw")')
 
     @pyqtSlot()
     def on_mttReset_clicked(self):

@@ -25,8 +25,7 @@
 
 """NICOS GUI electronic logbook window."""
 
-from __future__ import absolute_import, division, print_function
-
+import html
 from os import path
 
 from nicos.clients.gui.panels import Panel
@@ -35,7 +34,6 @@ from nicos.guisupport.qt import QActionGroup, QDesktopServices, QDialog, \
     QInputDialog, QLineEdit, QMainWindow, QMenu, QPrintDialog, QPrinter, \
     QPushButton, Qt, QTextDocument, QTextEdit, QTimer, QToolBar, QUrl, \
     QWebPage, QWebView, pyqtSlot
-from nicos.pycompat import escape_html
 
 if QWebView is None:
     raise ImportError('Qt webview component is not available')
@@ -174,7 +172,7 @@ class ELogPanel(Panel):
                 '<p><b>The logbook HTML file does not seem to exist.</b></p>'
                 '<p>Please check that the file is created and accessible on '
                 '<b>your local computer</b> at %s.  Then click '
-                '"refresh" above.' % escape_html(path.normpath(logfile)))
+                '"refresh" above.' % html.escape(path.normpath(logfile)))
 
     def on_page_unsupportedContent(self, reply):
         if reply.url().scheme() != 'file':
@@ -246,7 +244,7 @@ class ELogPanel(Panel):
     def on_actionAddComment_triggered(self):
         dlg = dialogFromUi(self, 'panels/elog_comment.ui')
         dlg.helpFrame.setVisible(False)
-        dlg.creoleLabel.linkActivated.connect(
+        dlg.mdLabel.linkActivated.connect(
             lambda link: dlg.helpFrame.setVisible(True))
         if dlg.exec_() != QDialog.Accepted:
             return

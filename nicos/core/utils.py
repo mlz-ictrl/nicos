@@ -26,9 +26,6 @@
 
 """NICOS core utility functions."""
 
-from __future__ import absolute_import, division, print_function
-
-import sys
 from collections import namedtuple
 from functools import wraps
 from time import localtime, time as currenttime
@@ -39,8 +36,7 @@ from nicos.core.constants import SIMULATION
 from nicos.core.errors import CommunicationError, ComputationError, \
     InvalidValueError, LimitError, MoveError, NicosError, NicosTimeoutError, \
     PositionError
-from nicos.pycompat import listitems, reraise, to_ascii_escaped
-from nicos.utils import createThread, formatDuration
+from nicos.utils import createThread, formatDuration, toAscii
 
 # Exceptions at which a scan point is measured anyway.
 CONTINUE_EXCEPTIONS = (PositionError, MoveError, NicosTimeoutError)
@@ -124,7 +120,7 @@ def devIter(devices, baseclass=None, onlydevs=True, allwaiters=False):
         baseclass = Device
     # convert dict to list of name:dev tuples
     if isinstance(devices, dict):
-        devices = listitems(devices)
+        devices = list(devices.items())
     else:
         # we iterate twice: make sure to convert generators
         # to a list first
@@ -139,17 +135,14 @@ def devIter(devices, baseclass=None, onlydevs=True, allwaiters=False):
             for subdev in dev:
                 if isinstance(subdev, baseclass):
                     if allwaiters:
-                        for subsubdev in devIter(subdev._getWaiters(),
-                                                 baseclass, onlydevs,
-                                                 allwaiters):
-                            yield subsubdev
+                        yield from devIter(subdev._getWaiters(), baseclass,
+                                           onlydevs, allwaiters)
                     yield subdev if onlydevs else (subdev.name, subdev)
         else:
             if isinstance(dev, baseclass):
                 if allwaiters:
-                    for subdev in devIter(dev._getWaiters(), baseclass,
-                                          onlydevs, allwaiters):
-                        yield subdev
+                    yield from devIter(dev._getWaiters(), baseclass,
+                                       onlydevs, allwaiters)
                 yield dev if onlydevs else (devname, dev)
 
 
@@ -230,8 +223,8 @@ def multiWait(devices):
                     done = dev.isCompleted()
                     if done:
                         dev.finish()
-                except Exception:
-                    final_exc = filterExceptions(sys.exc_info(), final_exc)
+                except Exception as exc:
+                    final_exc = filterExceptions(exc, final_exc)
                     # remove this device from the waiters - we might still have
                     # its subdevices in the list so that multiWait() should not
                     # return until everything is either OK or ERROR
@@ -270,7 +263,7 @@ def multiWait(devices):
                 session.delay(delay)
                 eta_update += delay
         if final_exc:
-            reraise(*final_exc)
+            raise final_exc
     finally:
         session.endActionScope()
         session.log.debug('multiWait: finished')
@@ -280,11 +273,11 @@ def multiWait(devices):
 def filterExceptions(curr, prev):
     if not prev:
         return curr
-    if (isinstance(prev[1], CONTINUE_EXCEPTIONS) and
-       not isinstance(curr[1], CONTINUE_EXCEPTIONS)):
+    if (isinstance(prev, CONTINUE_EXCEPTIONS) and
+       not isinstance(curr, CONTINUE_EXCEPTIONS)):
         return curr
-    if (isinstance(prev[1], SKIP_EXCEPTIONS) and
-       not isinstance(curr[1], SKIP_EXCEPTIONS + CONTINUE_EXCEPTIONS)):
+    if (isinstance(prev, SKIP_EXCEPTIONS) and
+       not isinstance(curr, SKIP_EXCEPTIONS + CONTINUE_EXCEPTIONS)):
         return curr
     return prev
 
@@ -300,7 +293,7 @@ def waitForState(dev, state, delay=0.3, ignore_errors=False):
             if st == state:
                 break
             session.delay(delay)
-    except:
+    except BaseException:
         if ignore_errors:
             return
         raise
@@ -389,11 +382,11 @@ def _multiMethod(baseclass, method, devices):
         try:
             # method has to be provided by baseclass!
             getattr(dev, method)()
-        except Exception:
+        except Exception as exc:
             dev.log.exception('during %s()', method)
-            final_exc = filterExceptions(sys.exc_info(), final_exc)
+            final_exc = filterExceptions(exc, final_exc)
     if final_exc:
-        reraise(*final_exc)
+        raise final_exc
 
 
 def multiStop(devices):
@@ -433,14 +426,11 @@ class DeviceValue(namedtuple('DeviceValue',
     def __int__(self):
         return int(self.raw)
 
-    def __long__(self):
-        return long(self.raw)
-
     def __float__(self):
         return float(self.raw)
 
 
-class DeviceValueDict(object):
+class DeviceValueDict:
     """Convenience class to be used for templating device values/params.
 
     Constructor works like a dict, so you can specify any mappings there.
@@ -528,8 +518,7 @@ class DeviceValueDict(object):
                             else:
                                 break
                         yield key
-                        for key in extra:
-                            yield key
+                        yield from extra
                 for sub in _keyiter(keys[1:]):
                     if sub.endswith(']'):
                         val = sub[1:-1]
@@ -570,7 +559,7 @@ class DeviceValueDict(object):
             session.log.warning("invalid key %r requested, returning %r",
                                 key, res, exc=1)
         if isinstance(res, bytes):
-            res = to_ascii_escaped(res)
+            res = toAscii(res.decode('latin1', 'ignore'))
         if isinstance(res, DeviceValue):
             return res
         if raw is None:

@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import HasPrecision, MoveError
 from nicos.devices.tango import AnalogOutput
 
@@ -34,8 +32,7 @@ class PumpAnalogOutput(HasPrecision, AnalogOutput):
     """
 
     def doFinish(self):
-        pos = self.read(0)
-        if not self.isAtTarget(pos):
+        if not self.isAtTarget():
             raise MoveError(self, 'did not arrive at requested volume, '
                             'check end switches!')
         return False  # don't check again

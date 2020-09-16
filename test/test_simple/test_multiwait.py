@@ -26,8 +26,6 @@
 Test for multiwait
 """
 
-from __future__ import absolute_import, division, print_function
-
 import pytest
 
 from nicos.core.errors import ComputationError, MoveError, NicosTimeoutError
@@ -38,7 +36,7 @@ from test.utils import raises
 session_setup = 'multiwait'
 
 
-class TestMultiWait(object):
+class TestMultiWait:
 
     @pytest.fixture()
     def devices(self, session):

@@ -24,8 +24,6 @@
 
 """MLZ specific NICOS package."""
 
-from __future__ import absolute_import, division, print_function
-
 import socket
 from os import path
 
@@ -36,7 +34,7 @@ def determine_instrument(setup_package_path):
         # Take the second part of the domain name (machine.instrument.frm2
         # or new-style machine.instrument.frm2.tum.de)
         domain = socket.getfqdn().split('.')[1].replace('-', '_')
-    except (ValueError, IndexError, socket.error):
+    except (ValueError, IndexError, OSError):
         pass
     else:
         # ... but only if a subdir exists for it

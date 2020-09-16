@@ -23,11 +23,7 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import numpy
-
-from nicos.pycompat import to_utf8
 
 try:
     import flatbuffers
@@ -46,7 +42,7 @@ except ImportError:
 
 
 
-class HistogramFlatbuffersSerializer(object):
+class HistogramFlatbuffersSerializer:
     """
     Encode the histogram using the flatbuffers schema hs00
     """
@@ -167,5 +163,5 @@ class HistogramFlatbuffersSerializer(object):
 
         # Generate the output and replace the file_identifier
         buff = builder.Output()
-        buff[4:8] = to_utf8(self.file_identifier)
+        buff[4:8] = self.file_identifier.encode()
         return bytes(buff)

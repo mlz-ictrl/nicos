@@ -24,8 +24,6 @@
 
 """NICOS experiment device with support of IFF sample database"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Attach, Param
 from nicos.devices.experiment import Experiment as BaseExperiment
 

@@ -24,8 +24,6 @@
 
 """Scan commands for NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 from numpy import ndarray
 
 from nicos import session
@@ -36,9 +34,7 @@ from nicos.core.constants import SUBSCAN
 from nicos.core.scan import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, \
     ContinuousScan, ManualScan, Scan, StopScan, SweepScan
 from nicos.core.spm import Bare, Dev, spmsyntax
-# pylint: disable=redefined-builtin
-from nicos.pycompat import iteritems, number_types, string_types, \
-    xrange as range
+from nicos.utils import number_types
 
 __all__ = [
     'scan', 'cscan', 'timescan', 'sweep', 'twodscan', 'contscan',
@@ -88,13 +84,15 @@ def _fixType(dev, args, mkpos):
 
 
 def _handleScanArgs(args, kwargs, scaninfo):
-    preset, detlist, envlist, move, multistep = {}, [], None, [], []
+    preset, detlist, envlist, move, multistep = {}, None, None, [], []
     for arg in args:
-        if isinstance(arg, string_types):
+        if isinstance(arg, str):
             scaninfo = arg + ' - ' + scaninfo
         elif isinstance(arg, number_types):
             preset['t'] = arg
         elif isinstance(arg, Measurable):
+            if detlist is None:
+                detlist = []
             detlist.append(arg)
         elif isinstance(arg, Readable):
             if envlist is None:
@@ -102,7 +100,7 @@ def _handleScanArgs(args, kwargs, scaninfo):
             envlist.append(arg)
         else:
             raise UsageError('unsupported scan argument: %r' % arg)
-    for key, value in iteritems(kwargs):
+    for key, value in kwargs.items():
         if key in session.devices and isinstance(session.devices[key],
                                                  Moveable):
             # Here, don't replace 'list' by '(list, tuple)'
@@ -114,7 +112,7 @@ def _handleScanArgs(args, kwargs, scaninfo):
                 multistep.append((session.devices[key], value))
             else:
                 move.append((session.devices[key], value))
-        elif key == 'info' and isinstance(value, string_types):
+        elif key == 'info' and isinstance(value, str):
             scaninfo = value + ' - ' + scaninfo
         else:
             preset[key] = value
@@ -132,8 +130,7 @@ def _infostr(fn, args, kwargs):
                 return '%.4g' % x
             return '%.4f' % x
         return repr(x)
-    argsrepr = ', '.join(devrepr(a) for a in args
-                         if not isinstance(a, string_types))
+    argsrepr = ', '.join(devrepr(a) for a in args if not isinstance(a, str))
     if kwargs:
         kwargsrepr = ', '.join('%s=%r' % kv for kv in kwargs.items())
         return '%s(%s, %s)' % (fn, argsrepr, kwargsrepr)
@@ -480,7 +477,7 @@ def contscan(dev, start, end, speed=None, timedelta=None, *args, **kwargs):
     scan.run()
 
 
-class _ManualScan(object):
+class _ManualScan:
     def __init__(self, args, kwargs):
         title = kwargs.pop('_title', 'manualscan')
         scanstr = _infostr(title, args, kwargs)
@@ -494,7 +491,7 @@ class _ManualScan(object):
         try:
             self.scan.manualBegin()
             return self.scan
-        except:  # yes, all exceptions
+        except BaseException:
             session._manualscan = None
             raise
 

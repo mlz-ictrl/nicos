@@ -24,8 +24,6 @@
 
 """SANS-1 specific device tests."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import status
 
 session_setup = 'sans1'

@@ -25,9 +25,6 @@
 
 """Scan classes, new API."""
 
-from __future__ import absolute_import, division, print_function
-
-import sys
 from contextlib import contextmanager
 from time import time as currenttime
 
@@ -42,8 +39,7 @@ from nicos.core.errors import LimitError, ModeError, NicosError
 from nicos.core.mixins import HasLimits
 from nicos.core.params import Value
 from nicos.core.utils import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, multiWait
-from nicos.pycompat import iteritems, number_types, reraise
-from nicos.utils import Repeater
+from nicos.utils import Repeater, number_types
 
 
 class SkipPoint(Exception):
@@ -54,7 +50,7 @@ class StopScan(Exception):
     """Custom exception class to stop the rest of the scan."""
 
 
-class Scan(object):
+class Scan:
     """
     Represents a general scan over some devices with specified detectors.
     """
@@ -65,14 +61,15 @@ class Scan(object):
         if session.mode == SLAVE:
             raise ModeError('cannot scan in slave mode')
         self.dataset = None
-        if not detlist:
+        if detlist is None:
             detlist = session.experiment.detectors
-        if not detlist:
-            session.log.warning('scanning without detector, use SetDetectors()'
-                                ' to select which detector(s) you want to use')
+            if not detlist:
+                session.log.warning('scanning without detector, '
+                                    'use SetDetectors() to select which '
+                                    'detector(s) you want to use')
         # check preset names for validity
         # (XXX duplication with count() command!)
-        elif preset:
+        if detlist and preset:
             names = set(preset)
             for det in detlist:
                 names.difference_update(det.presetInfo())
@@ -282,7 +279,7 @@ class Scan(object):
 
         try:
             # remember the read values so they can be used for the data point
-            for (dev, value) in iteritems(multiWait(waitdevs)):
+            for (dev, value) in multiWait(waitdevs).items():
                 # (None, value): None identifies the 'main' value
                 waitresults[dev.name] = (None, value)
         except NicosError as err:
@@ -379,13 +376,12 @@ class Scan(object):
                                              self._endpositions[i], wait=False)
                     except SkipPoint:
                         continue
-                    except:  # pylint: disable=bare-except
-                        exc_info = sys.exc_info()
+                    except BaseException as err:
                         try:
                             self.finishPoint()
                         except Exception:
                             session.log.exception('could not finish point')
-                        reraise(*exc_info)
+                        raise err
                     try:
                         # measure...
                         # XXX(dataapi): is target= needed?
@@ -588,7 +584,7 @@ class ContinuousScan(Scan):
 
     def _calculate_diff(self, last, current):
         res = {}
-        for (detname, (vals, images)) in iteritems(current):
+        for (detname, (vals, images)) in current.items():
             values = [val - last[detname][0][i]
                       if isinstance(val, number_types) else val
                       for i, val in enumerate(vals)]

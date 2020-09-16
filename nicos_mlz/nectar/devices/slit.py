@@ -24,8 +24,6 @@
 
 """NECTAR specific slit used as beamstop too"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.devices.generic.slit import Slit
 
 

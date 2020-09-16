@@ -25,8 +25,6 @@
 """Special devices for the WMI microwave generator."""
 
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Param, oneof
 from nicos.devices.tango import AnalogOutput
 

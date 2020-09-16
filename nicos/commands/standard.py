@@ -24,9 +24,7 @@
 
 """Package for importing all normally used NICOS commands."""
 
-#pylint: disable=unused-wildcard-import,redefined-builtin
-from __future__ import absolute_import, division, print_function
-
+# pylint: disable=unused-wildcard-import,redefined-builtin
 from nicos.commands.analyze import *
 from nicos.commands.basic import *
 from nicos.commands.device import *

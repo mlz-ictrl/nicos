@@ -2,7 +2,7 @@ description = "neutronguide sideMirror noMirror"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'nokbus3']
+includes = ['nok_ref', 'zz_absoluts']
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
@@ -35,26 +35,10 @@ devices = dict(
         motor = 'nok7r_motor',
         # obs = ['nok7r_analog'],
         backlash = -0.5,
-        precision = 0.0,
+        precision = optic_values['precision_ipcsms'],
         unit = 'mm',
         lowlevel = True,
     ),
-    nok7r_motor = device(code_base + 'ipc.NOKMotorIPC',
-        description = 'IPC controlled Motor of NOK7, reactor side',
-        abslimits = (-89.475, 116.1),
-        bus = 'nokbus3',
-        addr = 0x52,
-        slope = 800.0,
-        speed = 10,
-        accel = 10,
-        confbyte = 48,
-        ramptype = 2,
-        microstep = 1,
-        refpos = 62.4,
-        zerosteps = int(687.6 * 800),
-        lowlevel = showcase_values['hide_poti'],
-    ),
-
     nok7r_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'nok7r_motor',
@@ -62,7 +46,6 @@ devices = dict(
          lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),
-
     nok7r_analog = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for NOK7, reactor side',
         reference = 'nok_refc1',
@@ -72,39 +55,21 @@ devices = dict(
         length = 250.0,
         lowlevel = showcase_values['hide_poti'],
     ),
-
     nok7r_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK7, reactor side',
         tangodevice = tango_base + 'test/wb_c/1_0',
         scale = -1,  # mounted from top
         lowlevel = True,
     ),
-
     nok7s_axis = device('nicos.devices.generic.Axis',
         description = 'Axis of NOK7, sample side',
         motor = 'nok7s_motor',
         # obs = ['nok7s_analog'],
         backlash = -0.5,
-        precision = 0.0,
+        precision = optic_values['precision_ipcsms'],
         unit = 'mm',
         lowlevel = True,
     ),
-    nok7s_motor = device(code_base + 'ipc.NOKMotorIPC',
-        description = 'IPC controlled Motor of NOK7, sample side',
-        abslimits = (-96.94, 125.56),
-        bus = 'nokbus3',
-        addr = 0x53,
-        slope = 800.0,
-        speed = 10,
-        accel = 10,
-        confbyte = 48,
-        ramptype = 2,
-        microstep = 1,
-        refpos = 66.84,
-        zerosteps = int(683.19 * 800),
-        lowlevel = showcase_values['hide_poti'],
-    ),
-
     nok7s_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'nok7s_motor',
@@ -112,7 +77,6 @@ devices = dict(
          lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),
-
     nok7s_analog = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for NOK7, sample side',
         reference = 'nok_refc1',
@@ -122,7 +86,6 @@ devices = dict(
         length = 250.0,
         lowlevel = showcase_values['hide_poti'],
     ),
-
     nok7s_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
         description = 'Poti for NOK7, sample side',
         tangodevice = tango_base + 'test/wb_c/1_5',

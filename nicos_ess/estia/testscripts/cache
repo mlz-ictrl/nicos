@@ -1,0 +1,6 @@
+nicos/am1/abslimits=(-10, 10)
+nicos/am1/userlimits=(-10, 10)
+nicos/am2/abslimits=(-10, 10)
+nicos/am2/userlimits=(-10, 10)
+nicos/am3/abslimits=(-10, 10)
+nicos/am3/userlimits=(-10, 10)

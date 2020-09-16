@@ -24,14 +24,11 @@
 
 """NICOS GUI command input widgets."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QAbstractSpinBox, QColor, Qt, QWidget, \
     pyqtSignal
 from nicos.guisupport.typedvalue import DeviceParamEdit
 from nicos.guisupport.utils import DoubleValidator, setBackgroundColor
-from nicos.pycompat import srepr
 from nicos.utils import findResource, formatDuration
 
 invalid = QColor('#ffcccc')
@@ -110,7 +107,7 @@ class Cmdlet(QWidget):
         else ``'dev'`` in quotes.
         """
         if self.client.eval(devname, None) is None:
-            return srepr(devname)
+            return repr(devname)
         return devname
 
     def _setDevice(self, values):

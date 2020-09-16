@@ -24,9 +24,8 @@
 
 """Module for simple device-related user commands."""
 
-from __future__ import absolute_import, division, print_function
-
 import ast
+import builtins
 import sys
 import time
 
@@ -43,9 +42,8 @@ from nicos.core.spm import AnyDev, Bare, Dev, DevParam, Multi, String, \
     spmsyntax
 from nicos.core.status import BUSY, OK
 from nicos.devices.abstract import CanReference, MappedMoveable
-from nicos.pycompat import builtins, iteritems, itervalues, number_types, \
-    reraise, string_types
-from nicos.utils import createThread, parseDateString, printTable, tupelize
+from nicos.utils import createThread, number_types, parseDateString, \
+    printTable, tupelize
 from nicos.utils.timer import Timer
 
 __all__ = [
@@ -90,7 +88,7 @@ def _basemove(dev_pos_list, waithook=None, poshook=None):
     if errors:
         for (dev, exc_info) in errors[:-1]:
             dev.log.error(exc_info=exc_info)
-        reraise(*errors[-1][1])
+        raise errors[-1][1][1]
 
     devs = []
     for (dev, pos) in movelist:
@@ -119,7 +117,7 @@ def _rmove_poshook(dev, delta):
     # if the target is reached (within precision), use it as the base for
     # the relative movement to avoid accumulating small errors
     curpos = dev.target if dev.isAtTarget(curpos) else curpos
-    if isinstance(curpos, string_types):
+    if isinstance(curpos, str):
         raise UsageError('Device %s cannot be used with relative movement' %
                          dev)
     try:
@@ -623,7 +621,7 @@ def getall(*names):
     lists the offset for all devices with an "offset" parameter.
     """
     items = []
-    for name, dev in sorted(iteritems(session.devices),
+    for name, dev in sorted(session.devices.items(),
                             key=lambda nd: nd[0].lower()):
         pvalues = []
         for param in names:
@@ -648,7 +646,7 @@ def setall(param, value):
 
     set the offset for all devices to zero.
     """
-    for dev in itervalues(session.devices):
+    for dev in session.devices.values():
         if param not in dev.parameters:
             continue
         prevalue = getattr(dev, param)
@@ -672,7 +670,7 @@ def info(*devlist):
     >>> info(Sample)     # show information relevant to the Sample object
     """
     if not devlist:
-        devlist = [dev for dev in itervalues(session.devices)
+        devlist = [dev for dev in session.devices.values()
                    if not dev.lowlevel]
     bycategory = {}
     for dev in devlist:
@@ -855,7 +853,7 @@ def history(dev, key='value', fromtime=None, totime=None):
     >>> history(mth, 'speed', '2012-05-04', '2012-05-08')  # between two days
     """
     # support calling history(dev, -3600)
-    if isinstance(key, string_types):
+    if isinstance(key, str):
         try:
             key = parseDateString(key)
         except ValueError:
@@ -1028,7 +1026,7 @@ def ListParams(dev):
                       'Aliased device, parameters of that device follow'))
         dev = aliasdev
     devunit = getattr(dev, 'unit', '')
-    for name, info in sorted(iteritems(dev.parameters)):
+    for name, info in sorted(dev.parameters.items()):
         if not info.userparam:
             continue
         try:
@@ -1068,7 +1066,7 @@ def ListMethods(dev):
         if cls in listed:
             return
         listed.add(cls)
-        for name, (args, doc, mcls, is_user) in sorted(iteritems(cls.methods)):
+        for name, (args, doc, mcls, is_user) in sorted(cls.methods.items()):
             if cls is mcls and is_user:
                 items.append((dev.name + '.' + name + args, cls.__name__, doc))
         for base in cls.__bases__:

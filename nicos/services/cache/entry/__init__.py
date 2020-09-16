@@ -24,7 +24,7 @@
 # *****************************************************************************
 
 
-class CacheEntry(object):
+class CacheEntry:
     __slots__ = ('time', 'ttl', 'value', 'expired')
 
     def __init__(self, time, ttl, value):

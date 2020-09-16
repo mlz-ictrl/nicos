@@ -24,8 +24,6 @@
 
 """Helpers for commandlets for KWS(-1)."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.guisupport import typedvalue
 from nicos.guisupport.qt import QCheckBox, QComboBox, QHBoxLayout, QLineEdit, \
     QObject, QSpinBox, QWidget, pyqtSignal
@@ -191,7 +189,7 @@ class Chopper(MeasElement):
 
     CACHE_KEY = 'chopper/resolutions'
     SORT_KEY = lambda self, x: num_sort(x)
-    LABEL = u'TOF dλ/λ'
+    LABEL = 'TOF dλ/λ'
 
     def createWidget(self, parent, client):
         resos = client.getDeviceParam(*self.CACHE_KEY.split('/'))

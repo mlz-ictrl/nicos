@@ -24,8 +24,6 @@
 
 """Astrium selector device."""
 
-from __future__ import absolute_import, division, print_function
-
 from math import atan, pi, radians, tan
 
 from nicos.core import Attach, Moveable, Param, Readable, status

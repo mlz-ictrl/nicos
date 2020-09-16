@@ -24,8 +24,6 @@
 
 """Support classes for the CCR ControlBoxes"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import SIMULATION, Attach, ConfigurationError, HasLimits, \
     InvalidValueError, Moveable, Override, Param, ProgrammingError, \
     floatrange, limits, oneof

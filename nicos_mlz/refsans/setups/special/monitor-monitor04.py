@@ -14,9 +14,9 @@ group = 'special'
 _tempcol = Column(
     Block('Julabo Thermostat Status', [
         BlockRow(
-            Field(name='target temperature ', key='julabo_temp/target', width=10,  format = '%.2f', unit=u'(\u2103)'),
-            Field(name='internal bath temperature ', dev='julabo_int', width=10,  format = '%.2f', unit=u'(\u2103)'),
-            Field(name='external sensor temperature ', dev='julabo_ext', width=10,  format = '%.2f', unit=u'(\u2103)'),
+            Field(name='target temperature ', key='julabo_temp/target', width=10,  format = '%.2f', unit='(\u2103)'),
+            Field(name='internal bath temperature ', dev='julabo_int', width=10,  format = '%.2f', unit='(\u2103)'),
+            Field(name='external sensor temperature ', dev='julabo_ext', width=10,  format = '%.2f', unit='(\u2103)'),
             #Field(name='Cryostat', dev='temp_cryo', width=14, unit='(K)'),
             )
         ],
@@ -66,7 +66,7 @@ _syringepumps = Column(
 _nima = Column(
     Block('Langmuir Trough Status', [
         BlockRow(
-            Field(name='area surface', dev='nima_area', width=10,  format = '%.1f', unit=u'(cm\u00b2)'),
+            Field(name='area surface', dev='nima_area', width=10,  format = '%.1f', unit='(cm\u00b2)'),
             Field(name='pressure', dev='nima_pressure', width=10,  format = '%.2f', unit='(mN/m)'),
             Field(name='barrier speed', dev='nima_speed', width=10,  format = '%.2f', unit='(mm/s)'),
             )
@@ -76,7 +76,7 @@ _nima = Column(
 )
 
 _ubahn = Column(
-    Block(u'U6 Subway to Klinikum Gro\u00dfhadern', [
+    Block('U6 Subway to Klinikum Gro\u00dfhadern', [
         BlockRow(
                  Field(name='Next trips in', dev='Ubahn', istext=True, unit = '(min)'),
                 ),
@@ -101,7 +101,7 @@ devices = dict(
         showwatchdog = False,
         title = description,
         loglevel = 'info',
-        cache = 'refsansctrl01.refsans.frm2',
+        cache = 'refsansctrl.refsans.frm2',
         prefix = 'nicos/',
         font = 'Luxi Sans',
         valuefont = 'Consolas',

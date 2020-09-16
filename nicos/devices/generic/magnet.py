@@ -26,8 +26,6 @@
 Class for magnets powered by unipolar power supplies.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import math
 
 from scipy.optimize import fsolve
@@ -244,7 +242,6 @@ class BipolarSwitchingMagnet(BaseSequencer, CalibratedMagnet):
         raise NotImplementedError('please use a proper derived class and '
                                   'implement this there!')
 
-    # pylint: disable=W0221
     def _generateSequence(self, value):
         sequence = []
         currentsource = self._attached_currentsource

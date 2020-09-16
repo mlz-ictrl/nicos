@@ -25,16 +25,13 @@
 
 """New acquisition commands (scan and count)."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.commands import helparglist, parallel_safe, usercommand
 from nicos.core.acquire import Average, CountResult, MinMax, acquire, \
     read_environment, stop_acquire_thread
 from nicos.core.device import Measurable, SubscanMeasurable
 from nicos.core.errors import NicosError, UsageError
-from nicos.pycompat import iteritems, number_types, string_types
-from nicos.utils import createThread
+from nicos.utils import createThread, number_types
 
 __all__ = [
     'count', 'live', 'preset',
@@ -107,7 +104,7 @@ def _count(*detlist, **preset):
         if isinstance(det, number_types):
             preset['t'] = det
             continue
-        elif isinstance(det, string_types):
+        elif isinstance(det, str):
             preset['info'] = det  # XXX
             continue
         if not isinstance(det, Measurable):
@@ -200,7 +197,7 @@ def preset(**preset):
         names.difference_update(det.presetInfo())
         det.setPreset(**preset)
     session.log.info('new preset: %s',
-                     ', '.join('%s=%s' % item for item in iteritems(preset)))
+                     ', '.join('%s=%s' % item for item in preset.items()))
     if names:
         session.log.warning('these preset keys were not recognized by any of '
                             'the detectors: %s -- detectors are %s',

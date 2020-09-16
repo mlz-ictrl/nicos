@@ -24,7 +24,7 @@
 
 import glob
 import os
-# pylint: disable=no-name-in-module,import-error
+from configparser import ConfigParser
 from distutils.dir_util import mkpath
 from os import path
 
@@ -32,7 +32,6 @@ from setuptools import setup
 from setuptools.command.install import install as stinstall
 
 from nicos import nicos_version
-from nicos.pycompat import ConfigParser
 
 root_packages = ['nicos'] + [d for d in glob.glob('nicos_*') if path.isdir(d)]
 
@@ -167,7 +166,7 @@ setup(
     version = nicos_version,
     license = 'GPL',
     author = 'Georg Brandl',
-    author_email = 'georg.brandl@frm2.tum.de',
+    author_email = 'g.brandl@fz-juelich.de',
     maintainer = 'Jens Krüger',
     maintainer_email = 'jens.krueger@frm2.tum.de',
     description = 'The Networked Instrument Control System',
@@ -184,9 +183,11 @@ setup(
         'License :: OSI Approved :: GPL License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Human Machine Interfaces',
         'Topic :: Scientific/Engineering :: Physics',

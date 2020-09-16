@@ -24,8 +24,6 @@
 
 """TOFTOF neutron guide/collimator switcher device."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Override
 from nicos.devices.abstract import CanReference
 from nicos.devices.generic import Switcher as GenericSwitcher

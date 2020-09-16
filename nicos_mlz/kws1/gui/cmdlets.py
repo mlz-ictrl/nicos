@@ -24,12 +24,9 @@
 
 """Commandlets for KWS(-1)."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.cmdlets import Cmdlet, register
 from nicos.guisupport.qt import QDialog, QIcon, QMessageBox, QSize, \
     QTableWidgetItem, QToolButton, pyqtSlot
-from nicos.pycompat import srepr
 from nicos.utils import findResource, formatDuration
 
 from nicos_mlz.kws1.gui.measdialogs import LOOPS, DetsetDialog, \
@@ -174,15 +171,15 @@ class MeasureTable(Cmdlet):
     def generate(self, mode):
         out = []
         if self.measdef.samplefile is not None:
-            out.append('run(%s)' % srepr(self.measdef.samplefile))
+            out.append('run(%r)' % self.measdef.samplefile)
             out.append('')
         if self.rtBox.isChecked():
-            out.append('SetupRealtime(%d, %d, %f, %s)' % (
+            out.append('SetupRealtime(%d, %d, %f, %r)' % (
                 self.rt_settings['channels'],
                 self.rt_settings['interval'] * (10 **
                 {0: 0, 1: 3, 2: 6}[self.rt_settings['intervalunit']]),
                 self.rt_settings['progq'],
-                srepr(self.rt_settings['trigger']),
+                self.rt_settings['trigger'],
             ))
         else:
             out.append('SetupNormal()')
@@ -195,7 +192,7 @@ class MeasureTable(Cmdlet):
         maxlen = {}
         for entry in table:
             for (k, v) in entry.items():
-                vrepr = srepr(v.getValue())
+                vrepr = repr(v.getValue())
                 maxlen[k] = max(maxlen.get(k, 0), len(vrepr))
                 if k == 'chopper' and v.getValue() != 'off':
                     has_chopper = True
@@ -212,7 +209,7 @@ class MeasureTable(Cmdlet):
                     continue
                 if k == 'lenses' and not has_lenses:
                     continue
-                items.append('%s=%-*s' % (k, maxlen[k], srepr(v.getValue())))
+                items.append('%s=%-*r' % (k, maxlen[k], v.getValue()))
             out.append('kwscount(' + ', '.join(items) + ')')
         return '\n'.join(out)
 

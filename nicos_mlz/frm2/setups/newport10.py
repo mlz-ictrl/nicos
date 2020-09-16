@@ -7,8 +7,9 @@ includes = ['alias_sth']
 nethost = setupname
 
 devices = {
-    'sth_%s_m' % setupname: device('nicos_mlz.devices.newport.Motor',
-        tacodevice = '//%s/box/newportmc/motor' % (nethost,),
+    'sth_%s_m' % setupname: device('nicos.devices.tango.Motor',
+        tangodevice = 'tango://%s:10000/box/newport/motor1' % (nethost,),
+        refpos = 0.0,
         lowlevel = True,
     ),
     'sth_%s' % setupname: device('nicos.devices.generic.Axis',

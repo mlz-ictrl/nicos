@@ -39,7 +39,7 @@ devices = dict(
         facility = 'Forschungszentrum Juelich',
         responsible = 'Ulrich Ruecker <u.ruecker@fz-juelich.de>',
         doi = 'http://dx.doi.org/10.17815/jlsrf-2-109',
-        operators = [u'Jülich Centre for Neutron Science (JCNS)'],
+        operators = ['Jülich Centre for Neutron Science (JCNS)'],
     ),
     sampledbsink = device('nicos_jcns.devices.sampledbsink.DataSink',
         description = 'Device storing scan metadata in the IFF sample '

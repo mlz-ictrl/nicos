@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Classes to access to the DSpec detector."""
 
-from __future__ import absolute_import, division, print_function
-
 from time import time as currenttime
 
 import numpy as np

@@ -176,7 +176,7 @@ class CloseConnection(Exception):
     """Exception to be raised to close the connection gracefully."""
 
 
-class Server(object):
+class Server:
     """Represents a server, should create a transport for each client."""
 
     def __init__(self, daemon, address, serializer):
@@ -211,7 +211,7 @@ class Server(object):
         raise NotImplementedError
 
 
-class ServerTransport(object):
+class ServerTransport:
     """Represents the transport of data to one client, server side."""
 
     def close(self):
@@ -256,7 +256,7 @@ class ServerTransport(object):
         raise NotImplementedError
 
 
-class ClientTransport(object):
+class ClientTransport:
     """Represents the transport of data, client side."""
 
     def connect(self, conndata):
@@ -308,7 +308,7 @@ class ClientTransport(object):
         raise NotImplementedError
 
 
-class Serializer(object):
+class Serializer:
     """Represents a serialization format for commands and events."""
 
     name = 'undefined'

@@ -24,9 +24,8 @@
 
 """Base classes for NICOS data sinks."""
 
-from __future__ import absolute_import, division, print_function
-
 from gzip import GzipFile as StdGzipFile
+from io import TextIOWrapper
 from os import path
 
 from nicos import session
@@ -36,10 +35,10 @@ from nicos.core.device import Device
 from nicos.core.errors import ProgrammingError
 from nicos.core.params import INFO_CATEGORIES, Override, Param, listof, setof
 from nicos.core.status import statuses
-from nicos.pycompat import File, TextIOWrapper, iteritems, listitems
+from nicos.utils import File
 
 
-class DataFileBase(object):
+class DataFileBase:
     """Base class for Nicos data files."""
 
     def __init__(self, shortpath, filepath):
@@ -65,7 +64,7 @@ class GzipFile(DataFileBase, StdGzipFile):
         StdGzipFile.__init__(self, filepath, 'wb')
 
 
-class DataSinkHandler(object):
+class DataSinkHandler:
     """Handles sink operations for a single dataset, and in the case of point
     datasets, a single detector.
 
@@ -166,14 +165,14 @@ class DataSinkHandler(object):
         """
 
 
-class NicosMetaWriterMixin(object):
+class NicosMetaWriterMixin:
 
     update_headerinfo = False
 
     def _collectMetaInformation(self, update_headerinfo=None):
         bycategory = {}
         metainfo = self.dataset.metainfo
-        for (device, key), (_, val, unit, category) in iteritems(metainfo):
+        for (device, key), (_, val, unit, category) in metainfo.items():
             if category:
                 bycategory.setdefault(category, []).append(
                     ('%s_%s' % (device, key), (val + ' ' + unit).strip()))
@@ -187,7 +186,7 @@ class NicosMetaWriterMixin(object):
             # note2: as we may be called during counting, some devices
             #        may be busy: this may irritate users :(
             bycategory['result'] = results = []
-            for devname, val in listitems(self.dataset.values):
+            for devname, val in list(self.dataset.values.items()):
                 device = session.getDevice(devname)
                 if (devname, 'value') in metainfo:
                     # re-use the category
@@ -195,7 +194,7 @@ class NicosMetaWriterMixin(object):
                 else:
                     unit = device.unit
                     category = 'result'
-                bycategory.setdefault(category,[]).append(
+                bycategory.setdefault(category, []).append(
                     ('%s_value' % devname, (str(val) + ' ' + unit).strip()))
                 # refresh status as well
                 stat = device.status()

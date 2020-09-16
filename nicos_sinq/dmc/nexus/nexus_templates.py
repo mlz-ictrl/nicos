@@ -1,5 +1,5 @@
-from nicos_ess.nexus import DeviceAttribute, DeviceDataset, \
-    NXDataset, EventStream, NXLink
+from nicos_ess.nexus import DeviceAttribute, DeviceDataset, EventStream, \
+    NXDataset, NXLink
 from nicos_ess.nexus.elements import CacheStream
 from nicos_sinq.nexus.fwplaceholder import DevArrayPlaceholder
 

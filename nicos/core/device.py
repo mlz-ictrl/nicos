@@ -24,11 +24,8 @@
 
 """Base device classes for usage in NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 import inspect
 import re
-import sys
 from time import time as currenttime
 
 import numpy
@@ -48,9 +45,7 @@ from nicos.core.params import INFO_CATEGORIES, Attach, Override, Param, \
 from nicos.core.utils import formatStatus, multiStatus, multiStop, multiWait, \
     statusString, usermethod
 from nicos.protocols.cache import FLAG_NO_STORE
-from nicos.pycompat import add_metaclass, integer_types, iteritems, \
-    listitems, number_types, reraise, string_types
-from nicos.utils import getVersions, loggers, parseDateString
+from nicos.utils import getVersions, loggers, number_types, parseDateString
 
 ALLOWED_CATEGORIES = {v[0] for v in INFO_CATEGORIES}
 
@@ -126,7 +121,7 @@ class DeviceMeta(DeviceMixinMeta):
 
         # to debug MRO problems you could use this line
         # print 'MRO:', newtype, newtype.mro()
-        for adevname, entry in listitems(newtype.attached_devices):
+        for adevname, entry in list(newtype.attached_devices.items()):
             # adev names are always lowercased
             if adevname != adevname.lower():
                 raise ProgrammingError('%r device: attached device name %r is '
@@ -141,7 +136,7 @@ class DeviceMeta(DeviceMixinMeta):
                     Attach(entry[1], _devclass, multiple=_multiple)
 
         # create parameter properties
-        for param, info in iteritems(newtype.parameters):
+        for param, info in newtype.parameters.items():
             # parameter names are always lowercased (enforce this)
             if param != param.lower():
                 raise ProgrammingError('%r device: parameter name %r is not '
@@ -269,8 +264,7 @@ class DeviceMeta(DeviceMixinMeta):
         return newtype
 
 
-@add_metaclass(DeviceMeta)
-class Device(object):
+class Device(metaclass=DeviceMeta):
     """
     An object that has a list of parameters that are read from the configuration
     and have default values.
@@ -365,14 +359,13 @@ class Device(object):
         try:
             # initialize device
             self.init()
-        except:  # really *all* exceptions # pylint: disable=W0702
-            t, v, tb = sys.exc_info()
+        except BaseException as err:
             try:
                 self.shutdown()
             except Exception:
                 self.log.warning('could not shutdown after creation failed',
                                  exc=1)
-            reraise(t, v, tb)
+            raise err
 
     attribute_whitelist = {
         'valuetype',  # for all devices
@@ -430,7 +423,7 @@ class Device(object):
 
     def _attachDevices(self):
         """Validate and create attached devices."""
-        for aname, entry in sorted(iteritems(self.attached_devices)):
+        for aname, entry in sorted(self.attached_devices.items()):
             if not isinstance(entry, Attach):
                 raise ProgrammingError(self, 'attached device entry for %r is '
                                        'invalid; the value should be a '
@@ -608,7 +601,7 @@ class Device(object):
         notfromcache = []
         later = []
 
-        for param, paraminfo in iteritems(self.parameters):
+        for param, paraminfo in self.parameters.items():
             if paraminfo.preinit:
                 _init_param(param, paraminfo)
             else:
@@ -779,13 +772,13 @@ class Device(object):
         else:
             if fromtime is None:
                 fromtime = -1
-            if isinstance(fromtime, string_types):
+            if isinstance(fromtime, str):
                 fromtime = parseDateString(fromtime)
             elif fromtime < 0:
                 fromtime = currenttime() + fromtime * 3600
             if totime is None:
                 totime = currenttime()
-            elif isinstance(totime, string_types):
+            elif isinstance(totime, str):
                 totime = parseDateString(totime, enddate=True)
             elif totime < 0:
                 totime = currenttime() + totime * 3600
@@ -835,7 +828,7 @@ class Device(object):
            should perform cleanup, for example closing connections to hardware.
         """
         self.log.debug('shutting down device')
-        caughtExc = None
+        caught_exc = None
         if self._mode != SIMULATION:
             # do not execute shutdown actions when simulating
 
@@ -848,8 +841,8 @@ class Device(object):
             if hasattr(self, 'doShutdown'):
                 try:
                     self.doShutdown()
-                except Exception:
-                    caughtExc = sys.exc_info()
+                except Exception as err:
+                    caught_exc = err
 
         for adev in self._adevs.values():
             if isinstance(adev, list):
@@ -863,8 +856,8 @@ class Device(object):
         session.device_case_map.pop(self._name.lower(), None)
         session.explicit_devices.discard(self._name)
         # re-raise the doShutdown error
-        if caughtExc is not None:
-            reraise(*caughtExc)
+        if caught_exc is not None:
+            raise caught_exc
 
     @usermethod
     def version(self):
@@ -1674,8 +1667,10 @@ class Moveable(Waitable):
                              self.format(self.target, unit=True),
                              self.format(pos, unit=True))
 
-    def isAtTarget(self, pos):
-        """Check if the device has arrived at its target.
+    def isAtTarget(self, pos=None, target=None):
+        """Check if the device has arrived at the given target.
+        If target is omitted it defaults to the device's currently set target.
+        If pos is omitted the device checks against its current read value.
 
         The method calls :meth:`doIsAtTarget` if present.  Otherwise, it checks
         for equality if the value is of string or integer type, and returns
@@ -1696,11 +1691,16 @@ class Moveable(Waitable):
         For devices with float values, inherit from :class:`HasPrecision`,
         which already comes with an implementation of :meth:`doIsAtTarget`.
         """
+        if target is None:
+            target = self.target
+        if pos is None:
+            pos = self.read(0)
+
         if hasattr(self, 'doIsAtTarget'):
-            return self.doIsAtTarget(pos)
-        elif (isinstance(pos, (string_types, integer_types)) and
-              self.target is not None):
-            return self.target == pos
+            return self.doIsAtTarget(pos, target)
+        elif (isinstance(pos, (str, int)) and
+              target is not None):
+            return target == pos
         return True
 
     def _hw_wait(self):
@@ -1899,7 +1899,7 @@ class Measurable(Waitable):
             self.doSetPreset(**preset)
         self.doStart()
 
-    def __call__(self, pos=None):  # pylint: disable=W0221
+    def __call__(self, pos=None):
         """Allow dev(), but not dev(pos)."""
         if pos is None:
             return self.read()
@@ -2156,8 +2156,7 @@ class SubscanMeasurable(Measurable):
 
 # Use the DeviceMixinMeta metaclass here to provide the instancecheck
 # Not derived from DeviceMixinBase as this class is not a mixin.
-@add_metaclass(DeviceMixinMeta)
-class NoDevice(object):
+class NoDevice(metaclass=DeviceMixinMeta):
     """A class that represents "no device" attached to a :class:`DeviceAlias`."""
 
     __mergedattrs__ = []  # needed by the metaclass
@@ -2418,20 +2417,20 @@ def make_method(name):
 
 
 for name in [
-        '__abs__', '__add__', '__and__', '__call__', '__cmp__', '__coerce__',
-        '__contains__', '__delitem__', '__delslice__', '__div__', '__divmod__',
-        '__float__', '__floordiv__', '__ge__', '__getitem__',
-        '__getslice__', '__gt__', '__hash__', '__hex__', '__iadd__', '__iand__',
-        '__idiv__', '__idivmod__', '__ifloordiv__', '__ilshift__', '__imod__',
-        '__imul__', '__int__', '__invert__', '__ior__', '__ipow__', '__irshift__',
-        '__isub__', '__iter__', '__itruediv__', '__ixor__', '__le__', '__len__',
-        '__long__', '__lshift__', '__lt__', '__mod__', '__mul__',
-        '__neg__', '__oct__', '__or__', '__pos__', '__pow__', '__radd__',
-        '__rand__', '__rdiv__', '__rdivmod__', '__reduce__', '__reduce_ex__',
-        '__reversed__', '__rfloorfiv__', '__rlshift__', '__rmod__',
-        '__rmul__', '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__',
-        '__rtruediv__', '__rxor__', '__setitem__', '__setslice__', '__sub__',
-        '__truediv__', '__xor__', 'next',
+        '__abs__', '__add__', '__and__', '__bool__', '__call__',
+        '__contains__', '__delitem__', '__divmod__', '__float__',
+        '__floordiv__', '__ge__', '__getitem__', '__gt__', '__hash__',
+        '__iadd__', '__iand__', '__idivmod__', '__ifloordiv__', '__ilshift__',
+        '__imatmul__', '__imod__', '__imul__', '__index__', '__int__',
+        '__invert__', '__ior__', '__ipow__', '__irshift__', '__isub__',
+        '__iter__', '__itruediv__', '__ixor__', '__le__', '__len__',
+        '__lshift__', '__lt__', '__matmul__', '__mod__', '__mul__', '__neg__',
+        '__next__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__',
+        '__rdivmod__', '__reduce__', '__reduce_ex__', '__reversed__',
+        '__rfloorfiv__', '__rlshift__', '__rmatmul__', '__rmod__', '__rmul__',
+        '__ror__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__',
+        '__rtruediv__', '__rxor__', '__setitem__', '__sub__', '__truediv__',
+        '__xor__',
 ]:
     if hasattr(Device, name):
         setattr(DeviceAlias, name, make_method(name))

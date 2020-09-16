@@ -24,13 +24,11 @@
 
 """NICOS tests for the watchdog condition primitives."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.services.watchdog.conditions import DelayedTrigger, Expression, \
     Precondition
 
 
-class DummyLog(object):
+class DummyLog:
     def __init__(self):
         self.warnings = []
 

@@ -24,7 +24,5 @@
 
 """STRESSI specific data sinks."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos_mlz.stressi.devices.datasinks.caresssink import CaressScanfileSink
 from nicos_mlz.stressi.devices.datasinks.yamlsink import YamlDatafileSink

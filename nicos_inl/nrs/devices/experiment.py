@@ -24,8 +24,6 @@
 
 """NICOS INL NRS experiment classes."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Override
 from nicos.devices.experiment import ImagingExperiment as BaseImagingExperiment
 from nicos.utils import safeName

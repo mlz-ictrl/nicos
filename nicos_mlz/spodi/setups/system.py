@@ -25,8 +25,8 @@ devices = dict(
         responsible = 'Markus Hoelzel <markus.hoelzel@frm2.tum.de>',
         website = 'http://www.mlz-garching.de/spodi',
         operators = [
-            u'Technische Universität München (TUM)',
-            u'Karlsruher Institut für Technologie (KIT)',
+            'Technische Universität München (TUM)',
+            'Karlsruher Institut für Technologie (KIT)',
         ],
     ),
     Sample = device('nicos.devices.sample.Sample',

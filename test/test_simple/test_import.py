@@ -24,8 +24,6 @@
 
 """NICOS custom lib tests: import all custom modules at least once."""
 
-from __future__ import absolute_import, division, print_function
-
 import glob
 import os
 from os import path

@@ -22,14 +22,12 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import re
 
 from nicos.core import ConfigurationError, DeviceMixinBase, NicosError, Param
 
 
-class OptionalLimaFunctionality(object):
+class OptionalLimaFunctionality:
     def __init__(self, dev, hwdev):
         self._dev = dev
         self._hwdev = hwdev
@@ -62,7 +60,7 @@ class LimaCooler(DeviceMixinBase):
     }
 
     def doReadCooleron(self):
-        return True if self._dev.cooler == 'ON' else False
+        return self._dev.cooler == 'ON'
 
     def doWriteCooleron(self, value):
         self._dev.cooler = 'ON' if value else 'OFF'

@@ -24,8 +24,6 @@
 
 """NICOS device class test suite."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import sys
 import time
@@ -108,7 +106,7 @@ def test_experiment(session, cleanup):
     assert exp.title == 'etitle'
     assert exp.localcontact == 'me <m.e@me.net>'
     assert exp.users == 'you'
-    assert exp.remark == ''  #pylint: disable=compare-to-empty-string
+    assert exp.remark == ''  # pylint: disable=compare-to-empty-string
 
     # check that directories have been created
     assert path.isdir(datapath('p999'))
@@ -121,13 +119,13 @@ def test_experiment(session, cleanup):
     assert exp.remark == 'proposal p999 started by you; sample is unknown'
 
     # try a small scan; check for data file written
-    scan(session.getDevice('axis'), 0, 1, 5, 0.01, u'Meßzeit')
+    scan(session.getDevice('axis'), 0, 1, 5, 0.01, 'Meßzeit')
     assert path.isfile(datapath('..', 'counters'))
     nr = readFileCounter(datapath('..', 'counters'), 'scan')
     fn = datapath('p999', 'data', 'p999_%08d.dat' % nr)
     assert path.isfile(fn)
-    with open(fn, 'rb') as fp:
-        assert u'Meßzeit'.encode('utf-8') in fp.read()
+    with open(fn, 'r') as fp:
+        assert 'Meßzeit' in fp.read()
 
     # now, finish the experiment
     thd = exp.finish()
@@ -143,7 +141,7 @@ def test_experiment(session, cleanup):
     # switch back to proposal (should re-enable directory)
     exp.new('p999', localcontact=exp.localcontact)
     assert os.access(datapath('p999'), os.X_OK)
-    assert exp.users == ''  #pylint: disable=compare-to-empty-string
+    assert exp.users == ''  # pylint: disable=compare-to-empty-string
     # has the zip file been created?
     assert path.isfile(datapath('p999', 'p999.zip'))
 
@@ -159,10 +157,8 @@ def test_experiment(session, cleanup):
                         '(An Institute, Anywhere street, 12345 Anywhere)'
 
     exp.users = 'Jülich'
-    exp.users = u'Jülich'
 
     exp.scripts = ['Test ümlauts']
-    exp.scripts = [u'Test ümlauts']
     assert exp.scripts == ['Test ümlauts']
 
     # and back to service

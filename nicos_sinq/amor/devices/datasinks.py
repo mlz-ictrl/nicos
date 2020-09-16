@@ -22,15 +22,13 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from time import time as currenttime
 
 import numpy
 
 from nicos import session
 from nicos.core import FINAL, LIVE
-from nicos.pycompat import memory_buffer
+from nicos.utils import byteBuffer
 
 from nicos_ess.devices.datasinks.imagesink import ImageKafkaDataSink, \
     ImageKafkaDataSinkHandler
@@ -69,13 +67,13 @@ class ImageKafkaWithLiveViewDataSinkHandler(ImageKafkaDataSinkHandler):
                 ny.append(1)
                 nz.append(1)
                 tags.append(desc.name)
-                data.append(memory_buffer(array))
+                data.append(byteBuffer(array))
             elif len(desc.shape) == 2:
                 nx.append(desc.shape[1])
                 ny.append(desc.shape[0])
                 nz.append(1)
                 tags.append(desc.name)
-                data.append(memory_buffer(array))
+                data.append(byteBuffer(array))
             elif len(desc.shape) == 3:
                 # X-Axis summed up
                 arrayX = numpy.sum(array.reshape(desc.shape),
@@ -84,7 +82,7 @@ class ImageKafkaWithLiveViewDataSinkHandler(ImageKafkaDataSinkHandler):
                 ny.append(desc.shape[1])
                 nz.append(1)
                 tags.append('X-Integrated - Area Detector')
-                data.append(memory_buffer(arrayX))
+                data.append(byteBuffer(arrayX))
 
                 # TOF summed up
                 arrayT = numpy.sum(array.reshape(desc.shape),
@@ -93,7 +91,7 @@ class ImageKafkaWithLiveViewDataSinkHandler(ImageKafkaDataSinkHandler):
                 ny.append(desc.shape[0])
                 nz.append(1)
                 tags.append('TOF Integrated - Area Detector')
-                data.append(memory_buffer(arrayT))
+                data.append(byteBuffer(arrayT))
             else:
                 continue
 

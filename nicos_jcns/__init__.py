@@ -24,8 +24,6 @@
 
 """JCNS lab/infrastructure specific NICOS package."""
 
-from __future__ import absolute_import, division, print_function
-
 import socket
 from os import path
 
@@ -38,7 +36,7 @@ def determine_instrument(setup_package_path):
             domain = hostname[1]
         else:
             domain = hostname[0]
-    except (ValueError, IndexError, socket.error):
+    except (ValueError, IndexError, OSError):
         pass
     else:
         # ... but only if a subdir exists for it

@@ -25,9 +25,10 @@
 Support code for any encoder with analog signal, like poti laser distance etc
 """
 
-from __future__ import absolute_import, division, print_function
+import numpy as np
 
-from nicos.core import Readable
+from nicos.core import Moveable, Readable
+from nicos.core.errors import ConfigurationError
 from nicos.core.params import Attach
 
 from nicos_mlz.refsans.devices.mixins import PolynomFit
@@ -46,3 +47,20 @@ class AnalogEncoder(PolynomFit, Readable):
         Result is then offset + mul * <previously calculated value>
         """
         return self._fit(self._attached_device.read(maxage))
+
+
+class AnalogMove(AnalogEncoder, Moveable):
+    """does only work for polynomial order of 1
+    a reverse polynomial can only be done for a order of 1
+    """
+
+    def doStart(self, target):
+        self.log.debug('uncorrected value: %f', target)
+        result = (target - self.poly[0]) / self.poly[1]
+        self.log.debug('final result: %f', result)
+        return self._attached_device.move(result)
+
+    def doWritePoly(self, poly):
+        if len(poly) != 2:
+            raise ConfigurationError('Only a linear correction is allowed')
+        self._fitter = np.polynomial.Polynomial(poly)

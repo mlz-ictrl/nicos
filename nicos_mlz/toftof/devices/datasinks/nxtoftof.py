@@ -22,13 +22,12 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import re
 from datetime import datetime
 
 import numpy as np
 import pytz
+
 # pylint: disable=no-name-in-module
 from nexusformat.nexus import NeXusError, NXattr, NXdata, NXdetector, \
     NXdisk_chopper, NXentry, NXfield, NXinstrument, NXmonitor, NXroot, \
@@ -54,7 +53,7 @@ def string_attr(value):
     return a
 
 
-class NXtofsingle(object):
+class NXtofsingle:
 
     def __init__(self, exptitle, *items, **opts):
         self._entry = NXentry(*items, **opts)
@@ -64,7 +63,7 @@ class NXtofsingle(object):
         self._entry.user2 = NXuser(role=string_('experiment_team'))
         # TODO data will not written correctly !!!
         # look into NexusFile class, where the list of axes has to be written
-        self._entry.monitor = NXmonitor() # axes='channel_number')
+        self._entry.monitor = NXmonitor()  # axes='channel_number')
         self._entry.instrument = NXinstrument(platform=string_('Linux'))
         self._entry.instrument.name = string_('TOFTOF')
         self._entry.instrument.chopper = NXdisk_chopper()
@@ -100,7 +99,7 @@ class NXtofsingle(object):
         self._entry.proposal = string_(value)
 
     def write_proposal_number(self, value):
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             self._entry.proposal_number = string_(value)
         else:
             self._entry.proposal_number = NXfield(int(value), dtype='int32')
@@ -116,7 +115,7 @@ class NXtofsingle(object):
         t1 = datetime.strptime(etime, fmtin).replace(tzinfo=tzinfo)
         if duration is None:
             duration = (t1 - t0).total_seconds()
-        assert(duration >= 0)
+        assert duration >= 0
         self._entry.start_time = string_(t0.strftime(fmtout))
         self._entry.end_time = string_(t1.strftime(fmtout))
         self._entry.duration = NXfield(int(duration), dtype='int32',
@@ -403,7 +402,7 @@ class NXtofsingle(object):
         for i in range(nDet):
             data += block[self.eleTotal[i] - 1].tolist()
 
-        data = np.array(data, dtype='int32').reshape(nDet, 1, int(channels))
+        data = np.array(data, dtype='int32').reshape((nDet, 1, int(channels)))
         self._entry.data.data = NXfield(data, signal=1, dtype='int32',
                                         # compression='lzf',
                                         axes=string_attr('2theta:channel_number'),

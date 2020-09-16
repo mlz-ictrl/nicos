@@ -23,14 +23,13 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
+import html
 
 from slack import WebClient as slackwebclient
 from slack.errors import SlackApiError
 
 from nicos.core import ConfigurationError, Override, Param
 from nicos.devices.notifiers import Notifier
-from nicos.pycompat import escape_html
 from nicos.utils.credentials.keystore import nicoskeystore
 
 
@@ -61,16 +60,13 @@ class Slacker(Notifier):
         self._slack = slackwebclient(token)
 
     def send(self, subject, body, what=None, short=None, important=True):
-        # pylint false positive for escape_html which is imported
-        # from html not cgi (deprectaed)
-        # pylint: disable=deprecated-method
-        message = escape_html('*%s*\n\n```%s```' % (subject, body), False)
+        message = html.escape('*%s*\n\n```%s```' % (subject, body), False)
 
         for entry in self._getAllRecipients(important):
             self.log.debug(f'sending slack message to {entry}')
             try:
                 response = self._slack.chat_postMessage(channel=entry,
-                                             text=message)
+                                                        text=message)
                 if response['ok']:
                     continue
             except SlackApiError as e:

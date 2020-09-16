@@ -1,0 +1,48 @@
+description = 'sample table setup'
+
+group = 'lowlevel'
+
+excludes = ['goniometer']
+
+devices = dict(
+    x = device('nicos.devices.generic.Axis',
+        description = 'sample table x translation',
+        motor = device('nicos.devices.generic.VirtualMotor',
+            abslimits = (-150, 150),
+            unit = 'mm',
+            speed = 1,
+        ),
+        precision = 0.01,
+        fmtstr = '%.2f',
+    ),
+    y = device('nicos.devices.generic.Axis',
+        description = 'sample table y translation',
+        motor = device('nicos.devices.generic.VirtualMotor',
+            abslimits = (-150, 150),
+            unit = 'mm',
+            speed = 1,
+        ),
+        precision = 0.01,
+        fmtstr = '%.2f',
+    ),
+    z = device('nicos.devices.generic.Axis',
+        description = 'sample table z translation',
+        motor = device('nicos.devices.generic.VirtualMotor',
+            abslimits = (0, 250),
+            unit = 'mm',
+            speed = 1,
+        ),
+        precision = 0.01,
+        fmtstr = '%.2f',
+    ),
+    phi = device('nicos.devices.generic.Axis',
+        description = 'sample table phi rotation',
+        motor = device('nicos.devices.generic.VirtualMotor',
+            abslimits = (0, 360),
+            unit = 'deg',
+            speed = 1,
+        ),
+        precision = 0.01,
+        fmtstr = '%.2f',
+    ),
+)

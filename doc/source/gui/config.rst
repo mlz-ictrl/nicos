@@ -35,7 +35,7 @@ A small example configuration file looks like this:
        ),
        window('Scans', 'plotter', panel('nicos.clients.gui.panels.scans.ScansPanel')),
        window('Live data', 'live',
-              panel('nicos.clients.gui.panels.liveqwt.LiveDataPanel',
+              panel('nicos.clients.gui.panels.live.LiveDataPanel',
                     instrument = 'imaging'),
               setups='tomo'),
    ]

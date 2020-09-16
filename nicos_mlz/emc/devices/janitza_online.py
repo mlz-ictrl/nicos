@@ -24,8 +24,6 @@
 
 """Devices for Janitza power quality monitors"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Attach, Override, Param, Readable, listof, status
 from nicos.devices.tango import AnalogInput
 
@@ -137,7 +135,7 @@ class OnlineMonitor(Readable):
     def doStatus(self, maxage=None):
         state = status.OK
         text = []
-        for devlist in self._adevs.itervalues():
+        for devlist in self._adevs.values():
             if not isinstance(devlist, (list, tuple)):
                 devlist = [devlist]
             for dev in devlist:

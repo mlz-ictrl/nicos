@@ -27,8 +27,6 @@
 
 """NICOS Experiment devices."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import re
 import time
@@ -46,7 +44,6 @@ from nicos.core.acquire import DevStatistics
 from nicos.core.data import DataManager
 from nicos.core.params import expanded_path, nonemptystring, subdir
 from nicos.devices.sample import Sample
-from nicos.pycompat import from_maybe_utf8, listitems, string_types
 from nicos.utils import DEFAULT_FILE_MODE, createThread, disableDirectory, \
     enableDirectory, ensureDirectory, expandTemplate, grp, lazy_property, \
     printTable, pwd
@@ -436,7 +433,7 @@ class Experiment(Device):
                                 ('enableGroup', grp.getgrnam),
                                 ('disableGroup', grp.getgrnam)]:
                 value = mrinfo.get(key)
-                if isinstance(value, string_types):
+                if isinstance(value, str):
                     try:
                         lookup(value)
                     except Exception as e:
@@ -478,7 +475,7 @@ class Experiment(Device):
         ``FinishExperiment``.
 
         """
-        for iproposal, thd in listitems(self._proposal_thds):
+        for iproposal, thd in list(self._proposal_thds.items()):
             if not thd.is_alive():
                 del self._proposal_thds[iproposal]
                 self.log.debug('delete reference on closed thread for '
@@ -714,7 +711,7 @@ class Experiment(Device):
             if path.isfile(path.join(tmpldir, tmplname)):
                 with open(path.join(tmpldir, tmplname), 'r') as f:
                     return f.read()
-        raise IOError('no such template found')
+        raise OSError('no such template found')
 
     def iterTemplates(self, only_dot_template=True):
         """iterator of all templates (and their content)..."""
@@ -856,7 +853,7 @@ class Experiment(Device):
         self.log.debug('looking for template in %r', self.templatepath)
         try:
             mailbody = self.getTemplate(self.mailtemplate)
-        except IOError:
+        except OSError:
             self.log.warning('reading mail template %s failed',
                              self.mailtemplate, exc=1)
             mailbody = 'See data in attachment.'
@@ -1012,7 +1009,7 @@ class Experiment(Device):
         self.log.debug('looking for template in %r', self.templatepath)
         try:
             data = self.getTemplate(self.reporttemplate)
-        except IOError:
+        except OSError:
             self.log.warning('reading experimental report template %s failed, '
                              'please fetch a copy from the User Office',
                              self.reporttemplate)
@@ -1057,8 +1054,8 @@ class Experiment(Device):
         stats.update(self.propinfo)
         # encode all text that may be Unicode into RTF \u escapes
         for key in stats:
-            if isinstance(stats[key], string_types):
-                stats[key] = from_maybe_utf8(stats[key]).encode('rtfunicode')
+            if isinstance(stats[key], str):
+                stats[key] = stats[key].encode('rtfunicode')
 
         # template data
         newcontent, _, _ = expandTemplate(data, stats)
@@ -1113,7 +1110,7 @@ class Experiment(Device):
                 dlist.append(det)
         self.detlist = dlist
         # try to create them right now
-        self.detectors  # pylint: disable=W0104
+        self.detectors  # pylint: disable=pointless-statement
         session.elogEvent('detectors', dlist)
 
     def doUpdateDetlist(self, detectors):
@@ -1162,7 +1159,7 @@ class Experiment(Device):
                 dlist.append(dev)
         self.envlist = dlist
         # try to create them right now
-        self.sampleenv  # pylint: disable=W0104
+        self.sampleenv  # pylint: disable=pointless-statement
         session.elogEvent('environment', dlist)
 
     def doUpdateEnvlist(self, devices):
@@ -1235,7 +1232,7 @@ class ImagingExperiment(Experiment):
         self._setROParam('lastdarkimage', '')
         self._setROParam('lastopenbeamimage', '')
 
-    def new(self, *args, **kwargs):
+    def new(self, *args, **kwargs):  # pylint: disable=signature-differs
         Experiment.new(self, *args, **kwargs)
         self._clearImgPaths()
 

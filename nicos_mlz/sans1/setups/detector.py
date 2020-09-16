@@ -6,27 +6,28 @@ group = 'lowlevel'
 nethost = 'sans1srv.sans1.frm2'
 
 tangohost = 'tango://sans1hw.sans1.frm2:10000'
+detector_base = 'tango://mesydaq.sans1.frm2.tum.de:10000/qm/qmesydaq/'
 
 BS1_X_OFS = -475.055  # from entangle
 
 devices = dict(
-    det1_t_ist = device('nicos.devices.taco.FRMTimerChannel',
+    det1_t_ist = device('nicos.devices.tango.TimerChannel',
         description = 'measured time of detector 1',
-        tacodevice = '//%s/sans1/qmesydaq/timer' % (nethost,),
+        tangodevice = detector_base + 'timer',
         fmtstr = '%.0f',
         lowlevel = True,
         maxage = 120,
         pollinterval = 15,
     ),
-    # det1_t_ist = device('nicos.devices.taco.FRMTimerChannel',
-    #     tacodevice = '//%s/sans1/qmesydaq/det' % (nethost, ),
+    # det1_t_ist = device('nicos.devices.tango.TimerChannel',
+    #     tangodevice = detector_base + 'det',
     #     fmtstr = '%.1f',
     #     pollinterval = 1,
     #     maxage = 3,
     #     # lowlevel = True,
     # ),
-    # det1_t_soll = device('nicos.devices.taco.FRMTimerChannel',
-    #     tacodevice = '//%s/sans1/qmesydaq/timer' % (nethost, ),
+    # det1_t_soll = device('nicos.devices.tango.TimerChannel',
+    #     tangodevice = detector_base + 'timer',
     #     fmtstr = '%.1f',
     #     pollinterval = 5,
     #     maxage = 13,

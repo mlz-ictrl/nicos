@@ -22,13 +22,12 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from time import sleep
 
 import kafka
 
 from nicos.core import DeviceMixinBase, Param, host, listof
+from nicos.core.constants import SIMULATION
 from nicos.core.errors import ConfigurationError
 from nicos.utils import createThread
 
@@ -46,10 +45,13 @@ class KafkaSubscriber(DeviceMixinBase):
     }
 
     def doPreinit(self, mode):
-        self._consumer = kafka.KafkaConsumer(
-            bootstrap_servers=self.brokers,
-            auto_offset_reset='latest'  # start at latest offset
-        )
+        if mode != SIMULATION:
+            self._consumer = kafka.KafkaConsumer(
+                bootstrap_servers=self.brokers,
+                auto_offset_reset='latest'  # start at latest offset
+            )
+        else:
+            self._consumer = None
 
         # Settings for thread to fetch new message
         self._stoprequest = True
@@ -60,7 +62,8 @@ class KafkaSubscriber(DeviceMixinBase):
             self._stoprequest = True
             if self._updater_thread.is_alive():
                 self._updater_thread.join()
-            self._consumer.close()
+            if self._consumer:
+                self._consumer.close()
 
     @property
     def consumer(self):

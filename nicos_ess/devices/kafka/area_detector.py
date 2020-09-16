@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import kafka
 import numpy
 
@@ -103,7 +101,7 @@ class ADKafkaImageDetector(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
         return ()
 
 
-class HistogramFlatbuffersDeserializer(object):
+class HistogramFlatbuffersDeserializer:
     """
     Decode the histogram using the flatbuffers schema hs00
     """
@@ -143,4 +141,4 @@ class HistogramFlatbuffersDeserializer(object):
             # dtype=ArrayDouble.ArrayDouble)
 
         value = numpy.reshape(value, histogram.CurrentShapeAsNumpy())
-        return value, histogram.Timestamp(), histogram.Source().decode('utf-8')
+        return value, histogram.Timestamp(), histogram.Source().decode()

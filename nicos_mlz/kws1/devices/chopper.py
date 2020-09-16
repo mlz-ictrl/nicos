@@ -24,8 +24,6 @@
 
 """Class for KWS chopper control."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import MASTER, Attach, HasPrecision, Moveable, Override, \
     Param, PositionError, floatrange, intrange, listof, oneof, status, \
     tupleof
@@ -110,9 +108,9 @@ class ChopperParams(Moveable):
         opening = 90.0 - (p2 - p1)
         return (freq, opening)
 
-    def doIsAtTarget(self, pos):
+    def doIsAtTarget(self, pos, target):
         # take precision into account
-        tfreq, topen = self.target
+        tfreq, topen = target
         rfreq, ropen = pos
         return abs(tfreq - rfreq) < self._attached_freq1.precision and \
             abs(topen - ropen) < self._attached_phase1.precision

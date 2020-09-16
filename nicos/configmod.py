@@ -26,18 +26,15 @@
 Global configuration for the NICOS system.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import glob
 import os
 import sys
+from configparser import ConfigParser
 from os import path
 from re import compile as regexcompile, escape as regexescape
 
-from nicos.pycompat import ConfigParser
 
-
-class config(object):
+class config:
     """Singleton for settings potentially overwritten later."""
 
     _applied = False  # make only one call to apply
