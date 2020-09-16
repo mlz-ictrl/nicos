@@ -2,28 +2,28 @@ description = 'sample slit'
 
 group = 'lowlevel'
 
-nethost = 'toftofsrv.toftof.frm2'
+tango_base = 'tango://cpci2.toftof.frm2.tum.de:10000/toftof/hubermc/'
 
 devices = dict(
-    SampleSlitMotVB = device('nicos.devices.taco.motor.Motor',
+    SampleSlitMotVB = device('nicos.devices.tango.Motor',
         lowlevel = True,
-        tacodevice = '//%s/toftof/huber/ssbm' % nethost,
-        fmtstr = "%7.3f",
+        tangodevice = tango_base + 'ssbm',
+        fmtstr = '%7.3f',
     ),
-    SampleSlitMotVT = device('nicos.devices.taco.motor.Motor',
+    SampleSlitMotVT = device('nicos.devices.tango.Motor',
         lowlevel = True,
-        tacodevice = '//%s/toftof/huber/sstm' % nethost,
-        fmtstr = "%7.3f",
+        tangodevice = tango_base + 'sstm',
+        fmtstr = '%7.3f',
     ),
-    SampleSlitMotHL = device('nicos.devices.taco.motor.Motor',
+    SampleSlitMotHL = device('nicos.devices.tango.Motor',
         lowlevel = True,
-        tacodevice = '//%s/toftof/huber/sslm' % nethost,
-        fmtstr = "%7.3f",
+        tangodevice = tango_base + 'sslm',
+        fmtstr = '%7.3f',
     ),
-    SampleSlitMotHR = device('nicos.devices.taco.motor.Motor',
+    SampleSlitMotHR = device('nicos.devices.tango.Motor',
         lowlevel = True,
-        tacodevice = '//%s/toftof/huber/ssrm' % nethost,
-        fmtstr = "%7.3f",
+        tangodevice = tango_base + 'ssrm',
+        fmtstr = '%7.3f',
     ),
     slit = device('nicos.devices.generic.Slit',
         description = 'Sample entry slit',
