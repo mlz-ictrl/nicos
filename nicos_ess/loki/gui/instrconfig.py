@@ -87,7 +87,7 @@ class InstrumentConfigTool(DlgUtils, QMainWindow):
     def _update(self):
         try:
             configcode = self.client.eval(
-                '__import__("nicos_mlz").kws1._get_instr_config()')
+                '__import__("nicos_ess").loki._get_instr_config()')
             config = {'__builtins__': None}
             exec(configcode, config)
         except Exception:
@@ -120,7 +120,7 @@ class InstrumentConfigTool(DlgUtils, QMainWindow):
         code = TEMPLATE % info
         try:
             self.client.eval(
-                '__import__("nicos_mlz").kws1._apply_instr_config(%r)' % code)
+                '__import__("nicos_ess").loki._apply_instr_config(%r)' % code)
         except Exception:
             self.showError('Could not apply new config.')
             return
