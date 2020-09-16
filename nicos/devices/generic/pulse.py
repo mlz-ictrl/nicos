@@ -24,8 +24,6 @@
 
 """NICOS pulse device."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Attach, Moveable, Param, anytype, oneof
 from nicos.core.errors import ConfigurationError
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
@@ -83,7 +81,7 @@ class Pulse(BaseSequencer):
     def doRead(self, maxage=0):
         return self.onvalue if self._seq_is_running() else self.offvalue
 
-    def doIsAtTarget(self, pos):
+    def doIsAtTarget(self, pos, target):
         # Even if we were sent to onvalue, we will not arrive there after the
         # sequence is done.
         return pos == self.offvalue

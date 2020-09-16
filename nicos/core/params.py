@@ -24,8 +24,6 @@
 
 """Parameter definition helpers and typechecking combinators."""
 
-from __future__ import absolute_import, division, print_function
-
 import copy
 import re
 from os import path
@@ -33,8 +31,7 @@ from os import path
 import numpy as np
 
 from nicos.core.errors import ConfigurationError, ProgrammingError
-from nicos.pycompat import PY2, iteritems, string_types, text_type
-from nicos.utils import parseHostPort, readonlydict, readonlylist
+from nicos.utils import decodeAny, parseHostPort, readonlydict, readonlylist
 
 INFO_CATEGORIES = [
     ('experiment', 'Experiment information'),
@@ -50,7 +47,7 @@ INFO_CATEGORIES = [
 ]
 
 
-class Param(object):
+class Param:
     """This class defines the properties of a device parameter.
 
     The `.Device.parameters` attribute contains a mapping of parameter names to
@@ -156,7 +153,7 @@ class Param(object):
                                    "exclusively.")
 
         if userparam is None:  # implicit settings
-            self.userparam = False if self.internal else True
+            self.userparam = not self.internal
         else:
             self.userparam = userparam
 
@@ -203,7 +200,7 @@ class Param(object):
         return txt
 
 
-class Override(object):
+class Override:
     """This class defines the overridden properties of a base class parameter.
 
     The `.Device.parameter_overrides` attribute contains a mapping of parameter
@@ -234,7 +231,7 @@ class Override(object):
         return newinfo
 
 
-class Attach(object):
+class Attach:
     """Specifies required properties of the attached dev(s) of an device class.
 
     The `.Device.attached_devices` attribute contains a mapping of internal
@@ -339,7 +336,7 @@ class Attach(object):
             # the boolean 'True' value
             if self.multiple is True:
                 return count > 0
-            return (count in multiple)
+            return count in multiple
 
         if configargs:
             if isinstance(configargs, (tuple, list)):
@@ -400,7 +397,7 @@ class Attach(object):
         return s + ')'
 
 
-class Value(object):
+class Value:
     """This class defines the properties of the "value" read from `.Readable`
     and `.Measurable` classes.  Their ``.valueInfo()`` method must return a tuple
     of instances of this class.
@@ -455,7 +452,7 @@ class Value(object):
         return Value(self.name, self.type, self.errors, self.unit, self.fmtstr)
 
 
-class ArrayDesc(object):
+class ArrayDesc:
     """Defines the properties of an array detector result.
 
     An array type consists of these attributes:
@@ -506,38 +503,25 @@ def convdoc(conv):
 def fixup_conv(conv):
     """Fix-up a single converter type.
 
-    Currently this converts "str" to "string" which is a version that supports
-    Unicode strings by encoding to str on Python 2.
+    This changes `str` to `string`, a converter that decodes bytes instead of
+    converting them using `repr`.
     """
     if conv is str:
         return string
     return conv
 
 
-if PY2:
-    def string(s=None):
-        """a string"""
-        if s is None:
-            return ''
-        try:
-            return str(s)
-        except UnicodeError:
-            # on Python 2, this converts Unicode to our preferred encoding
-            if isinstance(s, text_type):
-                return s.encode('utf-8')
-            raise
-else:
-    def string(s=None):
-        """a string"""
-        if s is None:
-            return ''
-        if isinstance(s, bytes):
-            # str(s) would result in the string "b'...'"
-            return s.decode('utf-8')
-        return str(s)
+def string(s=None):
+    """a string"""
+    if s is None:
+        return ''
+    if isinstance(s, bytes):
+        # str(s) would result in the string "b'...'"
+        return decodeAny(s)
+    return str(s)
 
 
-class listof(object):
+class listof:
 
     def __init__(self, conv):
         self.__doc__ = 'a list of %s' % convdoc(conv)
@@ -549,10 +533,10 @@ class listof(object):
         val = val if val is not None else []
         if not isinstance(val, (list, tuple)):
             raise ValueError('value needs to be a list')
-        return readonlylist(map(self.conv, val))  # pylint: disable=map-builtin-not-iterating
+        return readonlylist(map(self.conv, val))
 
 
-class nonemptylistof(object):
+class nonemptylistof:
 
     def __init__(self, conv):
         self.__doc__ = 'a non-empty list of %s' % convdoc(conv)
@@ -563,7 +547,7 @@ class nonemptylistof(object):
             return readonlylist([self.conv()])
         if not isinstance(val, (list, tuple)) or len(val) < 1:
             raise ValueError('value needs to be a nonempty list')
-        return readonlylist(map(self.conv, val))  # pylint: disable=map-builtin-not-iterating
+        return readonlylist(map(self.conv, val))
 
 
 def nonemptystring(s=Ellipsis):
@@ -571,12 +555,12 @@ def nonemptystring(s=Ellipsis):
     if s is Ellipsis:
         # used for setting the internal default if no default is given
         return None
-    if not (s and isinstance(s, string_types)):
+    if not (s and isinstance(s, str)):
         raise ValueError('must be a non-empty string!')
     return s
 
 
-class tupleof(object):
+class tupleof:
 
     def __init__(self, *types):
         if not types:
@@ -605,7 +589,7 @@ def limits(val=None):
     return (ll, ul)
 
 
-class dictof(object):
+class dictof:
 
     def __init__(self, keyconv, valconv):
         self.__doc__ = 'a dict of %s keys and %s values' % \
@@ -618,22 +602,22 @@ class dictof(object):
         if not isinstance(val, dict):
             raise ValueError('value needs to be a dict')
         ret = {}
-        for k, v in iteritems(val):
+        for k, v in val.items():
             ret[self.keyconv(k)] = self.valconv(v)
         return readonlydict(ret)
 
 
-class dictwith(object):
+class dictwith:
 
     def __init__(self, **convs):
         self.__doc__ = 'a dict with the following keys: ' + \
             ', '.join('%s: %s' % (k, convdoc(c)) for k, c in convs.items())
         self.keys = set(convs)
-        self.convs = {k: fixup_conv(conv) for (k, conv) in iteritems(convs)}
+        self.convs = {k: fixup_conv(conv) for (k, conv) in convs.items()}
 
     def __call__(self, val=None):
         if val is None:
-            return {k: conv() for k, conv in iteritems(self.convs)}
+            return {k: conv() for k, conv in self.convs.items()}
         if not isinstance(val, dict):
             raise ValueError('value needs to be a dict')
         vkeys = set(val)
@@ -650,7 +634,7 @@ class dictwith(object):
         return readonlydict(ret)
 
 
-class intrange(object):
+class intrange:
 
     def __init__(self, fr, to):
         if isinstance(fr, bool) or isinstance(to, bool):
@@ -677,7 +661,7 @@ class intrange(object):
         return val
 
 
-class floatrange(object):
+class floatrange:
 
     def __init__(self, fr, to=None):
         fr = float(fr)
@@ -706,7 +690,7 @@ class floatrange(object):
         return val
 
 
-class setof(object):
+class setof:
 
     def __init__(self, *vals):
         self.__doc__ = 'a (sub)set of ' + ', '.join(map(repr, vals))
@@ -722,7 +706,7 @@ class setof(object):
         return val
 
 
-class oneof(object):
+class oneof:
 
     def __init__(self, *vals):
         self.__doc__ = 'one of ' + ', '.join(map(repr, vals))
@@ -739,7 +723,7 @@ class oneof(object):
         return val
 
 
-class oneofdict(object):
+class oneofdict:
 
     def __init__(self, vals):
         self.__doc__ = 'one of ' + ', '.join(map(repr, vals.values()))
@@ -756,18 +740,18 @@ class oneofdict(object):
         return val
 
 
-class oneofdict_or(object):
+class oneofdict_or:
     def __init__(self, named_vals, validator):
         self.conv = fixup_conv(validator)
         self.__doc__ = 'one of ' + ', '.join(map(repr, named_vals)) + \
             ', or ' + self.conv.__doc__
-        self.named_vals = {k: self.conv(v) for (k, v) in iteritems(named_vals)}
+        self.named_vals = {k: self.conv(v) for (k, v) in named_vals.items()}
 
     def __call__(self, val=None):
         return self.conv(self.named_vals.get(val, val))
 
 
-class none_or(object):
+class none_or:
 
     def __init__(self, conv):
         self.__doc__ = 'None or %s' % convdoc(conv)
@@ -855,8 +839,6 @@ def mailaddress(val=None):
     if val in ('', None):
         return ''
     val = string(val)
-    if PY2:
-        val = val.decode('utf-8')
     parts = val.split('@')
     parts[-1] = parts[-1].encode('idna').decode('ascii')
     val = '@'.join(parts)
@@ -934,7 +916,7 @@ def ipv4(val='0.0.0.0'):
     return val
 
 
-class host(object):
+class host:
     """Validator for a host[:port] value.
 
     Optionally, defaulthost and/or defaultport can be specified.
@@ -969,7 +951,7 @@ class host(object):
             else:
                 raise ValueError('A None host is not allowed '
                                  'without defaulthost')
-        if not isinstance(val, string_types + (tuple, list)):
+        if not isinstance(val, (str, tuple, list)):
             raise ValueError('must be a string or tuple/list (host, port)!')
         if not val:
             return self._addDefaults('')

@@ -22,22 +22,42 @@
 #   Artur Glavic <artur.glavic@psi.ch>
 #
 # *****************************************************************************
+
 """
 This module contains the NICOS integration of the Attocube IDS 3010
 interferometer.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from time import time as currenttime
 
-import jsonrpclib
+import requests
 from numpy import cos, pi
 
 from nicos import session
 from nicos.core import SIMULATION, Attach, Device, HasCommunication, \
     Measurable, Moveable, Override, Param, Readable, status
+from nicos.core.errors import CommunicationError
 from nicos.core.params import ipv4, oneof
+
+
+class JsonRpcClient:
+    def __init__(self, url):
+        self.url = url
+
+    def call(self, method, args):
+        payload = {
+            'method': method,
+            'params': list(args),
+            'jsonrpc': '2.0',
+            'id': 0,
+        }
+        try:
+            response = requests.post(self.url, json=payload).json()
+            if response['id'] != 0 or not response['jsonrpc']:
+                raise CommunicationError('invalid reply')
+            return response['result']
+        except Exception as err:
+            raise CommunicationError('RPC call error: %s' % err)
 
 
 class IDS3010Server(HasCommunication, Device):
@@ -51,15 +71,13 @@ class IDS3010Server(HasCommunication, Device):
 
     def doPreinit(self, mode):
         if mode != SIMULATION:
-            self._server = jsonrpclib.Server('http://%s:8080/api/json' %
-                                             self.ip)
+            self._client = JsonRpcClient('http://%s:8080/api/json' % self.ip)
             self.log.info('Server Initialized')
 
     def communicate(self, attribute, *args):
-        return self._com_retry('jconrpclib call', self._call, attribute, *args)
-
-    def _call(self, attribute, *args):
-        return self._server.__getattr__('com.attocube.ids.' + attribute)(*args)
+        return self._com_retry(
+            'jsonrpc call',
+            lambda: self._client.call('com.attocube.ids.' + attribute, args))
 
 
 class IDS3010Axis(Readable):

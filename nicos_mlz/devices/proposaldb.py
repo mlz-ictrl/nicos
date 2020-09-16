@@ -25,21 +25,18 @@
 """NICOS FRM II specific authentication and proposal DB utilities."""
 
 
-from __future__ import absolute_import, division, print_function
-
 import datetime
 import hashlib
 from os import path
 
 from nicos import session
 from nicos.core import USER, ConfigurationError, InvalidValueError, User
-from nicos.pycompat import from_maybe_utf8, integer_types, text_type, to_utf8
 from nicos.services.daemon.auth import AuthenticationError, \
     Authenticator as BaseAuthenticator
 from nicos.utils import readFile
 
 try:
-    import mysql.connector as DB  # pylint: disable=import-error
+    import mysql.connector as DB
 except ImportError:
     try:
         import MySQLdb as DB
@@ -48,7 +45,7 @@ except ImportError:
 
 
 
-class ProposalDB(object):
+class ProposalDB:
     def __init__(self):
         try:
             if not session.experiment or not session.experiment.propdb:
@@ -57,7 +54,7 @@ class ProposalDB(object):
                 credentials = readFile(credpath)
             else:
                 credentials = readFile(session.experiment.propdb)
-        except IOError as e:
+        except OSError as e:
             raise ConfigurationError('Can\'t read credentials '
                                      'for propdb-access from file: %s' % e)
         credentials = credentials[0]
@@ -101,7 +98,7 @@ def queryProposal(pnumber, instrument=None):
     """Query the FRM II proposal database for information about the given
     proposal number.
     """
-    if not isinstance(pnumber, integer_types):
+    if not isinstance(pnumber, int):
         raise InvalidValueError('proposal number must be an integer')
     # check still needed?
     if session.instrument is None:
@@ -167,9 +164,6 @@ def queryProposal(pnumber, instrument=None):
         value = row[2]
         if value and key not in info:
             info[key] = value
-    # convert all values to utf-8
-    for k in info:
-        info[k] = text_type(info[k]).encode('utf-8')
     return info.pop('instrument', 'None'), info
 
 
@@ -194,8 +188,7 @@ class Authenticator(BaseAuthenticator):
     """
 
     def _hash(self, password):
-        password = to_utf8(from_maybe_utf8(password))
-        return hashlib.md5(password).hexdigest()
+        return hashlib.md5(password.encode()).hexdigest()
 
     def authenticate(self, username, password):
         try:

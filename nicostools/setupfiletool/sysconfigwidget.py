@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.guisupport.qt import QMenu, QMessageBox, QTreeWidgetItem, pyqtSignal
 
 from .dialogs import NewValueDialog

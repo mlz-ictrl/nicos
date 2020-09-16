@@ -24,8 +24,6 @@
 
 """The NICOS electronic logbook."""
 
-from __future__ import absolute_import, division, print_function
-
 import sys
 from time import time as currenttime
 
@@ -33,7 +31,6 @@ from nicos.core import CacheLockError, Override, Param, oneof
 from nicos.core.sessions.utils import sessionInfo
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.protocols.cache import OP_ASK, OP_SUBSCRIBE, OP_TELL, cache_load
-from nicos.pycompat import to_utf8
 from nicos.services.elog.handler import Handler
 from nicos.utils import timedRetryOnExcept
 
@@ -75,7 +72,7 @@ class Logbook(BaseCacheClient):
 
         # request current directory for the handler to start up correctly
         self._socket.sendall(
-            to_utf8('logbook/directory%s\n###%s\n' % (OP_ASK, OP_ASK)))
+            ('logbook/directory%s\n###%s\n' % (OP_ASK, OP_ASK)).encode())
 
         # read response
         data, n = b'', 0
@@ -86,7 +83,7 @@ class Logbook(BaseCacheClient):
         self.storeSysInfo('elog')
 
         # send request for all relevant updates
-        self._socket.sendall(to_utf8('@logbook/%s\n' % OP_SUBSCRIBE))
+        self._socket.sendall(('@logbook/%s\n' % OP_SUBSCRIBE).encode())
 
         self._process_data(data)
 

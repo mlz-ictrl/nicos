@@ -24,8 +24,6 @@
 
 """NICOS sequence class test suite."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import time
 
@@ -109,7 +107,7 @@ def test_seqmethod(session):
     sm1.release()
 
 
-def test_seqsleep(session):  # pylint:disable=unused-argument
+def test_seqsleep(session):
     # Sleeping??
     sw = SeqSleep(0.1)
     assert repr(sw).startswith('0.1')

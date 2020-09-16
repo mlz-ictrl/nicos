@@ -24,8 +24,6 @@
 
 """CCR switch device classes."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Attach, Moveable, Override, oneofdict, status
 from nicos.devices.taco import DigitalInput, DigitalOutput
 

@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 # import qt wrapper to select correct qt version
 from .qt import Qt  # pylint: disable=unused-import
 

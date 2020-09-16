@@ -24,14 +24,13 @@
 
 """Instrument monitor that generates an HTML page."""
 
-from __future__ import absolute_import, division, print_function
-
 import functools
+import html
 import operator
 import os
 import tempfile
 import time
-from binascii import b2a_base64
+from base64 import b64encode
 from threading import RLock
 from time import sleep, time as currenttime
 
@@ -41,8 +40,6 @@ from lttb import lttb
 from nicos.core import Param
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, WARN
-from nicos.pycompat import escape_html, from_utf8, string_types, text_type, \
-    to_utf8
 from nicos.services.monitor import Monitor as BaseMonitor
 from nicos.services.monitor.icon import nicos_icon
 from nicos.utils import checkSetupSpec, extractKeyAndIndex, safeWriteFile
@@ -51,14 +48,14 @@ try:
     from gr import pygr
     import gr
 
-    # required for import order on Py3
+    # required for import order
     import nicos.clients.gui.widgets.plotting  # pylint: disable=unused-import
     from nicos.guisupport.plots import NicosTimePlotAxes
 except ImportError:
     pygr = None
 
 
-HEAD = u'''\
+HEAD = '''\
 <html>
 <head>
 <meta charset="utf-8"/>
@@ -91,7 +88,7 @@ table { font-family: inherit; font-size: 100%%; }
 '''
 
 
-class Field(object):
+class Field:
     # what to display
     key = ''         # main key (displayed value)
     item = -1        # item to display of value, -1 means whole value
@@ -126,7 +123,7 @@ class Field(object):
     enabled = True   # if the field is currently shown
 
     def __init__(self, prefix, desc):
-        if isinstance(desc, string_types):
+        if isinstance(desc, str):
             desc = {'dev': desc}
         else:
             desc = desc._options
@@ -165,13 +162,12 @@ class Field(object):
                 keymap.setdefault(key, []).append(self)
 
 
-class Static(text_type):
-
+class Static(str):
     def getHTML(self):
         return self
 
 
-class Block(object):
+class Block:
     def __init__(self, config):
         self.enabled = True
         self._content = []
@@ -180,7 +176,7 @@ class Block(object):
 
     def __iadd__(self, content):
         """Easily adds content to the block using ``+=``."""
-        if isinstance(content, string_types):
+        if isinstance(content, str):
             self._content.append(Static(content))
         else:
             self._content.append(content)
@@ -188,11 +184,11 @@ class Block(object):
 
     def getHTML(self):
         if self.enabled and self._content:
-            return u''.join(c.getHTML() for c in self._content)
-        return u''
+            return ''.join(c.getHTML() for c in self._content)
+        return ''
 
 
-class Label(object):
+class Label:
     def __init__(self, cls='label', width=0, text='&nbsp;',
                  fore='inherit', back='inherit'):
         self.cls = cls
@@ -204,8 +200,8 @@ class Label(object):
 
     def getHTML(self):
         if not self.enabled:
-            return u''
-        return (u'<div class="%s" style="color: %s; min-width: %sex; '
+            return ''
+        return ('<div class="%s" style="color: %s; min-width: %sex; '
                 'background-color: %s">%s</div>' %
                 (self.cls, self.fore, self.width, self.back, self.text))
 
@@ -214,7 +210,7 @@ DATEFMT = '%Y-%m-%d'
 TIMEFMT = '%H:%M:%S'
 
 
-class Plot(object):
+class Plot:
 
     # if the field should be displayed
     enabled = True
@@ -278,7 +274,7 @@ class Plot(object):
         if not self.enabled:
             return ''
         if not self.data or not self.curves:
-            return u'<span>No data or curves found</span>'
+            return '<span>No data or curves found</span>'
         with self.lock:
             for i, (d, c) in enumerate(zip(self.data, self.curves)):
                 try:
@@ -304,13 +300,13 @@ class Plot(object):
             gr.clearws()
         with open(self.tempfile, 'rb') as fp:
             imgbytes = fp.read()
-        return (u'<img src="data:image/svg+xml;base64,%s" '
+        return ('<img src="data:image/svg+xml;base64,%s" '
                 'style="width: %sex; height: %sex">' % (
-                    from_utf8(b2a_base64(imgbytes)),
+                    b64encode(imgbytes).decode(),
                     self.width, self.height))
 
 
-class Picture(object):
+class Picture:
 
     # if the field should be displayed
     enabled = True
@@ -322,12 +318,12 @@ class Picture(object):
         self.name = name
 
     def getHTML(self):
-        s = u''
+        s = ''
         if not self.enabled:
             return s
         if self.name:
-            s += u'<div class="label">%s</div><br>' % self.name
-        s += u'<img src="%s" style="width: %sex; height: %sex">' % (
+            s += '<div class="label">%s</div><br>' % self.name
+        s += '<img src="%s" style="width: %sex; height: %sex">' % (
             self.filepath, self.width, self.height)
         return s
 
@@ -345,8 +341,8 @@ class Monitor(BaseMonitor):
         while not self._stoprequest:
             try:
                 if self._content:
-                    content = u''.join(ct.getHTML() for ct in self._content)
-                    safeWriteFile(self.filename, to_utf8(content), mode='wb',
+                    content = ''.join(ct.getHTML() for ct in self._content)
+                    safeWriteFile(self.filename, content, mode='w',
                                   maxbackups=0)
             except Exception:
                 self.log.error('could not write status to %r', self.filename,
@@ -359,7 +355,7 @@ class Monitor(BaseMonitor):
         pass
 
     def __iadd__(self, content):
-        if isinstance(content, string_types):
+        if isinstance(content, str):
             self._content.append(Static(content))
         else:
             self._content.append(content)
@@ -383,20 +379,19 @@ class Monitor(BaseMonitor):
             ff = self.font,
             ffm = self.valuefont or self.font,
             intv = self.interval,
-            # pylint: disable=deprecated-method
-            title = escape_html(self.title),
+            title = html.escape(self.title),
             icon = nicos_icon,
         )
 
         self += HEAD % headprops
 
-        self += u'<table class="layout"><tr><td><div class="time">'
+        self += '<table class="layout"><tr><td><div class="time">'
         self._timelabel = Label('timelabel')
         self += self._timelabel
-        self += u'</div><div>'
+        self += '</div><div>'
         self._warnlabel = Label('warnings', back='red', text='')
         self += self._warnlabel
-        self += u'</div></td></tr>\n'
+        self += '</div></td></tr>\n'
 
         self._plots = {}
 
@@ -416,19 +411,17 @@ class Monitor(BaseMonitor):
                     blk += p
                 field._plotcurve = p.addcurve(field.name)
             elif field.picture:
-                # pylint: disable=deprecated-method
                 pic = Picture(field.picture, field.width, field.height,
-                              escape_html(field.name))
+                              html.escape(field.name))
                 blk += pic
             else:
                 # deactivate plots
                 field.plot = None
                 # create name label
-                # pylint: disable=deprecated-method
                 flabel = field._namelabel = Label('name', field.width,
-                                                  escape_html(field.name))
+                                                  html.escape(field.name))
                 blk += flabel
-                blk += u'</td></tr><tr><td>'
+                blk += '</td></tr><tr><td>'
                 # create value label
                 cls = 'value'
                 if field.istext:
@@ -438,40 +431,39 @@ class Monitor(BaseMonitor):
             return field
 
         for superrow in self.layout:
-            self += u'<tr><td class="center">\n'
+            self += '<tr><td class="center">\n'
             for column in superrow:
-                self += u'  <table class="column"><tr><td>'
+                self += '  <table class="column"><tr><td>'
                 for block in column:
                     block = self._resolve_block(block)
                     blk = Block(block._options)
-                    blk += u'<div class="block">'
-                    # pylint: disable=deprecated-method
-                    blk += (u'<div class="blockhead">%s</div>' %
-                            escape_html(block._title))
-                    blk += u'\n    <table class="blocktable">'
+                    blk += '<div class="block">'
+                    blk += ('<div class="blockhead">%s</div>' %
+                            html.escape(block._title))
+                    blk += '\n    <table class="blocktable">'
                     for row in block:
                         if row is None:
-                            blk += u'<tr></tr>'
+                            blk += '<tr></tr>'
                         else:
-                            blk += u'<tr><td class="center">'
+                            blk += '<tr><td class="center">'
                             for field in row:
-                                blk += u'\n      <table class="field"><tr><td>'
+                                blk += '\n      <table class="field"><tr><td>'
                                 f = _create_field(blk, field)
                                 if f and f.setups:
                                     if blk.setups:
                                         blk._onlyfields.append(f)
                                     else:
                                         self._onlyfields.append(f)
-                                blk += u'</td></tr></table> '
-                            blk += u'\n    </td></tr>'
-                    blk += u'</table>\n  </div>'
+                                blk += '</td></tr></table> '
+                            blk += '\n    </td></tr>'
+                    blk += '</table>\n  </div>'
                     self += blk
                     if blk.setups:
                         self._onlyblocks.append(blk)
-                self += u'</td></tr></table>\n'
-            self += u'</td></tr>'
-        self += u'</table>\n'
-        self += u'</body></html>\n'
+                self += '</td></tr></table>\n'
+            self += '</td></tr>'
+        self += '</table>\n'
+        self += '</body></html>\n'
 
     def updateTitle(self, text):
         self._timelabel.text = text
@@ -553,14 +545,12 @@ class Monitor(BaseMonitor):
                 self.signalKeyChange(field, field.key, field.value, 0, False)
 
     def _labelunittext(self, text, unit, fixed):
-        # pylint: disable=deprecated-method
-        return escape_html(text) + ' <span class="unit">%s</span><span ' \
-            'class="fixed">%s</span> ' % (escape_html(unit), fixed)
+        return html.escape(text) + ' <span class="unit">%s</span><span ' \
+            'class="fixed">%s</span> ' % (html.escape(unit), fixed)
 
     def switchWarnPanel(self, on):
         if on:
-            # pylint: disable=deprecated-method
-            self._warnlabel.text = escape_html(self._currwarnings)
+            self._warnlabel.text = html.escape(self._currwarnings)
         else:
             self._warnlabel.text = ''
 

@@ -5,8 +5,8 @@ group = 'optional'
 devices = dict(
     backguard = device('nicos_mlz.refsans.devices.skew_motor.SkewMotor',
         description = description + ' adjust in Expertmode',
-        motor_1 = 'backguard_1',
-        motor_2 = 'backguard_2',
+        one = 'backguard_1',
+        two = 'backguard_2',
         abslimits = (-60, 60),
         unit = 'mm',
     ),

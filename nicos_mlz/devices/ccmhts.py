@@ -24,8 +24,6 @@
 
 """Support classes for the HTS magnet"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Override
 from nicos.devices.tango import AnalogInput
 

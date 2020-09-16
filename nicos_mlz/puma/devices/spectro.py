@@ -26,8 +26,6 @@
 
 # !!! keep in sync with the nicos_mlz/puma/setups/lengths.py setup file !!!
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.devices.tas import TAS
 

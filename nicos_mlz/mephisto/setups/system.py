@@ -22,7 +22,7 @@ devices = dict(
         'neutrons',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-48',
         responsible = 'Dr. Jens Klenke <jens.klenke@frm2.tum.de>',
-        operators = [u'Technische Universität München (TUM)'],
+        operators = ['Technische Universität München (TUM)'],
         website = 'http://www.mlz-garching.de/mephisto',
     ),
     Exp = device('nicos.devices.experiment.Experiment',

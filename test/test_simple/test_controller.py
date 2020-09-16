@@ -26,8 +26,6 @@
 Test the IsController mixin.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import LimitError
 
 from test.utils import raises

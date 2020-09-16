@@ -434,15 +434,15 @@ _spinflipper = Block('Spin Flipper', [
     setups='spinflip',
 )
 
-newports = []
+rscs = []
 for k in [1,2,3,4,5,10,11,12]:
-    newports.append(Block('NewPort%02d' % k, [
+    rscs.append(Block('RSC%02d' % k, [
         BlockRow(
-            Field(name='Position', dev='sth_newport%02d' % k,
+            Field(name='Position', dev='sth_rsc%02d' % k,
                    unitkey='t/unit'),
         ),
         ],
-        setups='newport%02d' % k,
+        setups='rsc%02d' % k,
     ))
 
 ccrs = []
@@ -836,7 +836,7 @@ devices = dict(
             Row(_sans1reactor, _sans1general, _sans1crane),
             Row(
                 Column(_ccmsanssc),
-                Column(_sc1, _sc2, _sc_t, _st2, _st1, *newports),
+                Column(_sc1, _sc2, _sc_t, _st2, _st1, *rscs),
                 Column(_tisane_counts, _fg1, _helios01),
                 Column(_fc, _fg2),
                 Column(_htf01, _htf03, _irf01, _irf10, _ccm2a,

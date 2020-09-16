@@ -24,8 +24,6 @@
 
 """NICOS pulse device test suite."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import ConfigurationError, waitForCompletion
 from nicos.devices.generic.manual import ManualSwitch
 
@@ -64,7 +62,7 @@ def test_movement(session):
     pulse1.maw('up')
     assert sw.read(0) == 'down'
     assert sw._started_to == ['up', 'down']
-    assert pulse1.isAtTarget('down')
+    assert pulse1.isAtTarget(target='down')
 
     del sw._started_to[:]
     pulse1.maw('down')

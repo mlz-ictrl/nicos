@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from time import time as currenttime
 
 from nicos.core import Override, Param, pvname, status
@@ -88,7 +86,7 @@ class SpsSwitch(EpicsDeviceEss, MappedMoveable):
                                  % self._inverse_mapping[self.lasttarget])
         return status.OK, ''
 
-    def doIsAtTarget(self, pos):
+    def doIsAtTarget(self, pos, target):
         # Don't check if it reached the target
         return True
 

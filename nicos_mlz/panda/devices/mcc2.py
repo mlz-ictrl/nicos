@@ -25,14 +25,11 @@
 
 """PANDA MCC2 Interface for foci control and support for mono-changer"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import SIMULATION, Attach, CommunicationError, Device, \
     HardwareError, MoveError, Param, Readable, floatrange, intrange, oneof, \
     oneofdict, status, usermethod
 from nicos.devices.abstract import Coder as NicosCoder, Motor as NicosMotor
 from nicos.devices.tango import PyTangoDevice
-from nicos.pycompat import iteritems
 
 
 class TangoSerial(PyTangoDevice, Device):
@@ -88,7 +85,7 @@ class MCC2core(Device):
         """Pushes configured params from the setup files to the hardware"""
         self.log.warning('Sending configured parameters to HW')
         t = self._config
-        for k, v in iteritems(t):
+        for k, v in t.items():
             m = getattr(self, 'doWrite' + k.title(), None)
             if m:
                 self.log.debug('Setting %r to %r', k, v)

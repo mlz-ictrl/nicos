@@ -24,8 +24,6 @@
 
 """NICOS GUI data handler class."""
 
-from __future__ import absolute_import, division, print_function
-
 import copy
 import uuid
 from itertools import chain
@@ -41,7 +39,7 @@ class DataError(Exception):
     pass
 
 
-class DataProxy(object):
+class DataProxy:
     def __init__(self, lists):
         self.lists = list(lists)
 
@@ -59,7 +57,7 @@ class DataProxy(object):
         raise IndexError
 
 
-class Curve(object):
+class Curve:
     description = ''
     source = ''  # source dataset if curves from different sets are combined
     yindex = -1
@@ -130,7 +128,7 @@ class DataHandler(QObject):
         QApplication.processEvents()
         datasets = self.client.ask('getdataset', '*', default=[])
         self.bulk_adding = True
-        for dataset in datasets:
+        for dataset in (datasets or []):
             try:
                 self.on_client_dataset(dataset)
             except Exception:

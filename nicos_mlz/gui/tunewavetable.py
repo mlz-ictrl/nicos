@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from datetime import datetime
 from pprint import pformat
 
@@ -35,8 +33,6 @@ from nicos.guisupport.qt import QBrush, QColor, QDateTime, QDialog, QEvent, \
     QGraphicsTextItem, QGraphicsView, QMenu, QPainter, QPen, Qt, \
     QTableWidgetItem, QTextEdit, pyqtSignal, pyqtSlot
 from nicos.guisupport.typedvalue import DeviceValueEdit
-# pylint: disable=redefined-builtin
-from nicos.pycompat import iteritems, xrange
 from nicos.utils import findResource
 
 
@@ -374,7 +370,7 @@ class PreviewDialog(QDialog):
         """Add a row to the table and add/highlight differences."""
         echotime = row_data['echotime']
 
-        for header, value in iteritems(row_data):
+        for header, value in row_data.items():
             # Use a QTextEdit to be able to use HTML/CSS inside the content
             # (used for displaying the differences)
             widget = QTextEdit(str(value))
@@ -583,7 +579,7 @@ class TunewaveTablePanel(Panel):
         self.tableWidget.insertRow(row)
 
         # Fill the row with the given data (if any)
-        for param, value in iteritems(row_data):
+        for param, value in row_data.items():
             item = TunewaveTableItem(value)
             self.tableWidget.setItem(row, self._header_labels.index(param),
                                      item)
@@ -739,7 +735,7 @@ class TunewaveTablePanel(Panel):
         self.tableWidget.setRowCount(0)
 
         row = 0
-        for echotime, devices in iteritems(table):
+        for echotime, devices in table.items():
             # Create dict from readonly dict
             cols = dict(devices)
 
@@ -774,7 +770,7 @@ class TunewaveTablePanel(Panel):
         """Get the full table data of the current table in the correct storage
         format."""
         result = {}
-        for i in xrange(self.tableWidget.rowCount()):
+        for i in range(self.tableWidget.rowCount()):
             row = self._get_row_data(i)
             echotime = row['echotime']
             del row['echotime']

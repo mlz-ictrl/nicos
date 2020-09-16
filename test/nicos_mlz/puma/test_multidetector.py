@@ -24,8 +24,6 @@
 
 """Module to test PUMA specific modules."""
 
-from __future__ import absolute_import, division, print_function
-
 import ast
 import os
 
@@ -36,7 +34,7 @@ from test.utils import approx
 session_setup = 'multidetector'
 
 
-class TestMultiDetector(object):
+class TestMultiDetector:
     """Test class for the PUMA multidetector arranging device."""
 
     @pytest.fixture(scope='function', autouse=True)

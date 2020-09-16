@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Special TACO devices for PUMA."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.devices.taco.detector import FRMCounterChannel
 
 

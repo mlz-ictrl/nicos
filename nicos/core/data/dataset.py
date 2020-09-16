@@ -24,8 +24,6 @@
 
 """Dataset classes."""
 
-from __future__ import absolute_import, division, print_function
-
 from math import sqrt
 from threading import Lock
 from time import localtime, time as currenttime
@@ -34,8 +32,7 @@ from uuid import uuid4
 from nicos.core.acquire import DevStatistics
 from nicos.core.constants import BLOCK, POINT, SCAN, SUBSCAN, UNKNOWN
 from nicos.core.errors import ProgrammingError
-from nicos.pycompat import iteritems, number_types
-from nicos.utils import lazy_property
+from nicos.utils import lazy_property, number_types
 
 SETTYPES = (POINT, SCAN, SUBSCAN, BLOCK)
 
@@ -55,7 +52,7 @@ class finish_property(lazy_property):
         return result
 
 
-class BaseDataset(object):
+class BaseDataset:
     """Base class for scan and point datasets."""
 
     settype = UNKNOWN
@@ -174,7 +171,7 @@ class PointDataset(BaseDataset):
 
     def _addvalues(self, values):
         with self._statslock:
-            for devname, (timestamp, value) in iteritems(values):
+            for devname, (timestamp, value) in values.items():
                 self.values[devname] = value
                 if timestamp is None:
                     self.canonical_values[devname] = value
@@ -219,7 +216,7 @@ class PointDataset(BaseDataset):
         """Trim objects that are not required to be kept after finish()."""
         BaseDataset.trimResult(self)
         # remove arrays from memory in cached datasets
-        for (key, value) in iteritems(self.results):
+        for (key, value) in self.results.items():
             if value is not None:
                 self.results[key] = (value[0], [])
 
@@ -325,7 +322,7 @@ class BlockDataset(BaseDataset):
         BaseDataset.__init__(self, **kwds)
 
 
-class ScanData(object):
+class ScanData:
     """Simplified object containing scan data for serialized transfer to the
     GUI/ELog.
     """
@@ -387,7 +384,7 @@ class ScanData(object):
             self.headerinfo = {}
             if dataset.subsets:
                 for (devname, key), (_, val, unit, category) in \
-                        iteritems(dataset.metainfo):
+                        dataset.metainfo.items():
                     catlist = self.headerinfo.setdefault(category, [])
                     catlist.append((devname, key, (val + ' ' + unit).strip()))
 

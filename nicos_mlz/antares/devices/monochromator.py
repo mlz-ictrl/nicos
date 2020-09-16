@@ -24,14 +24,11 @@
 
 """Antares Monochromator"""
 
-from __future__ import absolute_import, division, print_function
-
 from math import asin, degrees, radians, sin, tan
 
 from nicos.core import Attach, HasLimits, Moveable, Override, Param, \
     PositionError, anytype, dictof, floatrange, none_or, oneof, status
 from nicos.core.utils import multiStatus
-from nicos.pycompat import listitems
 from nicos.utils import lazy_property
 
 
@@ -118,7 +115,7 @@ class Monochromator(HasLimits, Moveable):
             d.start(v)
 
     def doStatus(self, maxage=0):
-        st = multiStatus(listitems(self._adevs), maxage)
+        st = multiStatus(list(self._adevs.items()), maxage)
         if st[0] == status.OK:
             # check position
             try:

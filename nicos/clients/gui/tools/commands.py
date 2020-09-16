@@ -24,8 +24,6 @@
 
 """Graphical maintenance command runner."""
 
-from __future__ import absolute_import, division, print_function
-
 import subprocess
 import time
 from os import path
@@ -124,12 +122,12 @@ class AsyncCommandsTool(CommandsTool):
             if rl:
                 line = self.proc.stdout.readline()
                 while line:
-                    self.newText.emit(line)
+                    self.newText.emit(line.decode())
                     line = self.proc.stdout.readline()
 
     @pyqtSlot(str)
     def appendText(self, line):
-        self.outputBox.appendPlainText(line.strip('\n').decode())
+        self.outputBox.appendPlainText(line.strip('\n'))
         sb = self.outputBox.verticalScrollBar()
         sb.setValue(sb.maximum())
 

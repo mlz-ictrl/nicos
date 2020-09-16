@@ -24,8 +24,6 @@
 
 """NICOS tests for Simple Parameter Mode."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import SPMError
 
 from test.utils import raises

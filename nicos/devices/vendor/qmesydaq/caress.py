@@ -24,8 +24,6 @@
 
 """Devices via the CARESS device service."""
 
-from __future__ import absolute_import, division, print_function
-
 from os import path
 
 import numpy
@@ -191,13 +189,9 @@ class Channel(QMesydaqCaressDevice, ActiveChannel):
 class Timer(TimerChannelMixin, Channel):
     """Timer for CARESS."""
 
-    pass
-
 
 class Counter(CounterChannelMixin, Channel):
     """Counter for CARESS."""
-
-    pass
 
 
 class Image(QMesydaqCaressDevice, QMesyDAQImage):

@@ -22,7 +22,5 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos_ess.nexus.elements import DeviceAttribute, DeviceDataset, \
     DeviceStream, EventStream, NXAttribute, NXDataset, NXGroup, NXLink

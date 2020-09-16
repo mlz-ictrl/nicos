@@ -23,8 +23,6 @@
 # **************************************************************************
 """Support Code for REFSANS's NOK's."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.core import SIMULATION
 from nicos.core.params import Override, Param, floatrange, intrange, none_or

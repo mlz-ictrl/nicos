@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Classes to display the REFSANS instrument."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.guisupport.qt import QColor, QGraphicsPathItem, QPainterPath, \
     QPen, QPointF, QPolygonF
 

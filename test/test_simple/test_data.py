@@ -24,8 +24,6 @@
 
 """NICOS data manager test suite."""
 
-from __future__ import absolute_import, division, print_function
-
 from contextlib import contextmanager
 
 from nicos.commands.measure import count
@@ -100,7 +98,7 @@ def test_temp_point(session):
 
 def test_point_dataset(session):
     dataman = session.experiment.data
-    assert len(dataman._stack) == 0  # pylint: disable=len-as-condition
+    assert len(dataman._stack) == 0
     with dataset_scope(session, 'point'):
         ds = dataman._current
 

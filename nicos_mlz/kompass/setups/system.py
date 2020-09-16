@@ -23,8 +23,8 @@ devices = dict(
         # doi = 'http://dx.doi.org/10.17815/jlsrf-1-25',
         website = 'http://www.mlz-garching.de/kompass',
         operators = [
-            u'Technische Universität München (TUM)',
-            u'Universität zu Köln',
+            'Technische Universität München (TUM)',
+            'Universität zu Köln',
         ],
     ),
     Sample = device('nicos.devices.sample.Sample',

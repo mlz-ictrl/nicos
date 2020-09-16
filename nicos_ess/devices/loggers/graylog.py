@@ -26,8 +26,7 @@
 
 import logging
 import traceback
-
-from nicos.pycompat import urllib
+import urllib
 
 try:
     from graypy import GELFTCPHandler

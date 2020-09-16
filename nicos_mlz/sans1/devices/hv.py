@@ -25,8 +25,6 @@
 """Special device for Sans1 High Voltage supply"""
 
 
-from __future__ import absolute_import, division, print_function
-
 from time import localtime, strftime, time as currenttime
 
 import PyTango
@@ -34,11 +32,9 @@ import PyTango
 from nicos.core import Attach, HasPrecision, InvalidValueError, Moveable, \
     Override, Param, PositionError, Readable, listof, status, tupleof
 from nicos.devices.generic.sequence import BaseSequencer, \
-    LockedDevice as NicosLockedDevice, SeqDev, SeqMethod, SeqParam, \
-    SeqSleep
+    LockedDevice as NicosLockedDevice, SeqDev, SeqMethod, SeqParam, SeqSleep
 from nicos.devices.generic.switcher import Switcher
 from nicos.devices.tango import Motor as TangoMotor, PowerSupply
-from nicos.pycompat import iteritems
 
 
 class VoltageSwitcher(Switcher):
@@ -53,7 +49,7 @@ class VoltageSwitcher(Switcher):
 
     def _mapReadValue(self, pos):
         """Override default inverse mapping to allow a deviation <= precision"""
-        for name, values in iteritems(self.mapping):
+        for name, values in self.mapping.items():
             value, prec = values
             if pos == value:
                 return name
@@ -103,7 +99,7 @@ class VoltageSupply(PowerSupply):
             # start() would clear timeoutActionCalled Flag
             self.start(self.target)
 
-    def doStart(self, target):  # pylint: disable=W0221
+    def doStart(self, target):
         self._stopflag = False
         PowerSupply.doStart(self, target)
 

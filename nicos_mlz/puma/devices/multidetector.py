@@ -23,10 +23,7 @@
 # *****************************************************************************
 """PUMA multi detector class."""
 
-from __future__ import absolute_import, division, print_function
-
 import math
-import sys
 from itertools import tee
 
 import numpy as np
@@ -40,7 +37,6 @@ from nicos.core.mixins import HasTimeout
 from nicos.core.utils import filterExceptions
 from nicos.devices.abstract import CanReference
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod
-from nicos.pycompat import reraise
 
 
 class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
@@ -189,7 +185,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
                         d1.maw(0)
             self.log.debug('%r', [d.read(0) for d in self._rotguide0])
         for d in self._rotguide0:
-            if not d.isAtTarget(0):
+            if not d.isAtTarget(target=0):
                 d.maw(0)
 
         # remove all remaining move commands on cards due to touching any limit
@@ -259,7 +255,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
         It takes account into the different origins of the analyzer blades.
         """
         # check if requested positions already reached within precision
-        if self.isAtTarget(target):
+        if self.isAtTarget(target=target):
             self.log.debug('device already at position, nothing to do!')
             return []
 
@@ -390,9 +386,9 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
             for dev in devlist[:]:
                 try:
                     done = dev.doStatus(0)[0]
-                except Exception:
+                except Exception as exc:
                     dev.log.exception('while waiting')
-                    final_exc = filterExceptions(sys.exc_info(), final_exc)
+                    final_exc = filterExceptions(exc, final_exc)
                     # remove this device from the waiters - we might still
                     # have its subdevices in the list so that _hw_wait()
                     # should not return until everything is either OK or
@@ -411,7 +407,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
             if devlist:
                 session.delay(self._base_loop_delay)
         if final_exc:
-            reraise(*final_exc)
+            raise final_exc
 
     def _read_corr(self):
         """Read the physical unit of axis."""
@@ -442,7 +438,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
                                                             dev.unit))
         self.log.debug('%s', '\n'.join(out))
 
-    def doIsAtTarget(self, target):
+    def doIsAtTarget(self, pos, target):
         self._printPos()
         return self._checkPositionReached(target, 'raw')
 

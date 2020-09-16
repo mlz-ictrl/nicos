@@ -24,8 +24,6 @@
 
 """Module to test custom specific modules."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos_mlz.refsans.params import motoraddress
 
 from test.utils import raises

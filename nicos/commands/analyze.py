@@ -24,8 +24,6 @@
 
 """Module for data analyzing user commands."""
 
-from __future__ import absolute_import, division, print_function
-
 from math import sqrt
 
 import numpy as np
@@ -35,8 +33,6 @@ from nicos.commands import helparglist, usercommand
 from nicos.commands.device import maw
 from nicos.commands.scan import cscan
 from nicos.core import NicosError, UsageError
-# pylint: disable=redefined-builtin
-from nicos.pycompat import string_types, xrange as range
 from nicos.utils import FitterRegistry, printTable
 from nicos.utils.analyze import estimateFWHM
 from nicos.utils.fitting import Fit, GaussFit, PolyFit, SigmoidFit
@@ -82,13 +78,13 @@ def _getData(columns=None, dataset=None):
         raise UsageError('you can give none, one or two columns names or '
                          'numbers')
 
-    if isinstance(xcol, string_types):
+    if isinstance(xcol, str):
         try:
             xcol = [v.name for v in dataset.devvalueinfo].index(xcol) + 1
         except ValueError:
             raise NicosError('no such X column name: %r' % xcol)
 
-    if isinstance(ycol, string_types):
+    if isinstance(ycol, str):
         try:
             ycol = [v.name for v in dataset.detvalueinfo].index(ycol) + 1
         except ValueError:

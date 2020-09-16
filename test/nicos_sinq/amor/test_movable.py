@@ -24,8 +24,6 @@
 
 """Module to test movable devices at SINQ."""
 
-from __future__ import absolute_import, division, print_function
-
 import pytest
 
 from .utils import is_at_target, unit_value
@@ -39,7 +37,7 @@ except ImportError:
 session_setup = 'sinq_amor_movable'
 
 @pytest.mark.skipif(HasSwitchPv is None, reason='epics not importable')
-class TestMovable(object):
+class TestMovable:
     device = None  # Holds the current device object under test
 
     @pytest.fixture(autouse=True)

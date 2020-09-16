@@ -27,20 +27,17 @@
 
 """Generic detector and channel classes for NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 import numpy
 
 from nicos import session
 from nicos.core import INTERMEDIATE, LIVE, Attach, DeviceMixinBase, \
     Measurable, Moveable, Override, Param, Readable, SubscanMeasurable, \
-    UsageError, Value, anytype, listof, multiStatus, none_or, oneof, \
-    status, tupleof
+    UsageError, Value, anytype, listof, multiStatus, none_or, oneof, status, \
+    tupleof
 from nicos.core.constants import FINAL
 from nicos.core.errors import ConfigurationError
 from nicos.core.scan import Scan
 from nicos.core.utils import multiWait
-from nicos.pycompat import iteritems
 from nicos.utils import uniq
 
 
@@ -558,7 +555,7 @@ class Detector(Measurable):
         for master in self._masters:
             master.ismaster = False
         self._channel_presets = {}
-        for (name, value) in iteritems(preset):
+        for (name, value) in preset.items():
             if name in self._presetkeys and name != 'live':
                 dev = self._presetkeys[name][0]
                 dev.setChannelPreset(name, value)
@@ -705,7 +702,7 @@ class Detector(Measurable):
             ret.append(('usercomment', self._user_comment, self._user_comment,
                         '', 'general'))
         presets = []
-        for (_dev, devpresets) in iteritems(self._channel_presets):
+        for (_dev, devpresets) in self._channel_presets.items():
             for (key, value) in devpresets:
                 presets.append((self._presetkeys[key][1], value))
         if len(presets) > 1:

@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from .addmoduledialog import AddModuleDialog
 from .addparameterdialog import AddParameterDialog
 from .addsysconfigdialog import AddSysconfigDialog

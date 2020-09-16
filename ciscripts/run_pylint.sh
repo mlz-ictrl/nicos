@@ -9,23 +9,6 @@ set +e
 
 PYFILESCHANGED=$(~/tools2/bin/changedfiles --py)
 
-# filter out ESS code for the Py2 run
-PYFILESCHANGED=$(python - <<EOF
-import sys
-if sys.version_info[0] == 2:
-    py3only = [
-        "nicos_ess/",
-        "nicos_sinq/",
-        "nicos/devices/notifiers/slack.py",
-    ]
-    for fn in "$PYFILESCHANGED".split():
-        if all(p not in fn for p in py3only):
-            print(fn)
-else:
-    print("$PYFILESCHANGED")
-EOF
-)
-
 if [[ -n "$PYFILESCHANGED" ]] ; then
     set -o pipefail
     PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc $PYFILESCHANGED | tee pylint_all.txt

@@ -24,8 +24,6 @@
 
 """Special detector devices for the SANS1"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.mixins import DeviceMixinBase
 from nicos.core.params import Param, floatrange, tupleof
 from nicos.devices.generic import Detector as GenericDetector, \
@@ -44,9 +42,7 @@ class DetectorMixin(DeviceMixinBase):
 
 class Detector(DetectorMixin, GenericDetector):
     """Standard detector including its size."""
-    pass
 
 
 class GatedDetector(DetectorMixin, GenericGatedDetector):
     """Standard gated detector including its size."""
-    pass

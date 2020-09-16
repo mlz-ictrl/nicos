@@ -24,17 +24,14 @@
 
 """A text control to display logging messages of the daemon."""
 
-from __future__ import absolute_import, division, print_function
-
 import re
+import urllib
 from logging import DEBUG, ERROR, FATAL, INFO, WARNING
 from time import localtime, strftime
 
 from nicos.guisupport.qt import QBrush, QColor, QFont, QMainWindow, QPainter, \
     QPixmap, QRect, QRegExp, QSize, Qt, QTextBrowser, QTextCharFormat, \
     QTextCursor, QTextEdit
-# pylint: disable=redefined-builtin
-from nicos.pycompat import from_maybe_utf8, to_utf8, urllib, xrange as range
 from nicos.utils.loggers import ACTION, INPUT
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -161,7 +158,7 @@ class MessageView(QTextBrowser):
             if message[3].startswith('  > '):
                 fmt = QTextCharFormat(bold)
                 fmt.setAnchor(True)
-                command = to_utf8(message[3][4:].strip())
+                command = message[3][4:].strip()
                 fmt.setAnchorHref('exec:' + urllib.parse.quote(command))
                 return name + message[3], fmt
             text = name + message[3]
@@ -170,7 +167,7 @@ class MessageView(QTextBrowser):
             if m:
                 fmt = QTextCharFormat(bold)
                 fmt.setAnchor(True)
-                command = to_utf8(m.group(2))
+                command = m.group(2)
                 fmt.setAnchorHref('exec:' + urllib.parse.quote(command))
                 if m.group(1) != self._currentuser:
                     fmt.setForeground(QBrush(QColor('#0000C0')))
@@ -179,7 +176,7 @@ class MessageView(QTextBrowser):
             if m:
                 fmt = QTextCharFormat(bold)
                 if m.group(2):
-                    command = to_utf8(m.group(2))
+                    command = m.group(2)
                     fmt.setAnchor(True)
                     fmt.setAnchorHref('edit:' + urllib.parse.quote(command))
                 if m.group(1) != self._currentuser:
@@ -189,7 +186,7 @@ class MessageView(QTextBrowser):
             if m:
                 fmt = QTextCharFormat(bold)
                 if m.group(2):
-                    command = to_utf8(m.group(2))
+                    command = m.group(2)
                     fmt.setAnchor(True)
                     fmt.setAnchorHref('edit:' + urllib.parse.quote(command))
                 if m.group(1) != self._currentuser:
@@ -210,7 +207,7 @@ class MessageView(QTextBrowser):
             fmt = QTextCharFormat(fmt)
             # show traceback info on click
             fmt.setAnchor(True)
-            tbinfo = to_utf8(message[4])
+            tbinfo = message[4]
             fmt.setAnchorHref('trace:' + urllib.parse.quote(tbinfo))
         return text, fmt
 
@@ -218,7 +215,7 @@ class MessageView(QTextBrowser):
         textcursor = self.textCursor()
         textcursor.movePosition(self.text_curson_position)
         textcursor.setCharFormat(fmt or std)
-        textcursor.insertText(from_maybe_utf8(text))
+        textcursor.insertText(text)
 
     def addMessage(self, message):
         bar = self.verticalScrollBar()

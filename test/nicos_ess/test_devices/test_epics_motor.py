@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import pytest
 
 pytest.importorskip('graypy')
@@ -35,7 +33,7 @@ from nicos_ess.devices.epics.motor import EpicsMotor
 session_setup = 'ess_motors'
 
 
-class FakeEpicsMotor(EpicsMotor): # pylint: disable=too-many-ancestors
+class FakeEpicsMotor(EpicsMotor):
     """
     Epics motor with fake getting and setting of PVs.
     """
@@ -87,7 +85,7 @@ class DerivedEpicsMotor(FakeEpicsMotor):
         record_fields.update({'extra_field': 'XTR'})
         return record_fields
 
-class TestEpicsMotor(object):
+class TestEpicsMotor:
     motor = None
 
     @pytest.fixture(autouse=True)
@@ -167,7 +165,7 @@ class TestEpicsMotor(object):
 
 
 
-class TestDerivedEpicsMotor(object):
+class TestDerivedEpicsMotor:
 
     @pytest.fixture(autouse=True)
     def prepare(self, session):

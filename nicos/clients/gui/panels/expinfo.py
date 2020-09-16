@@ -24,8 +24,6 @@
 
 """NICOS GUI panel with most important experiment info."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import DetEnvPanel, ExpPanel, \
     GenericSamplePanel, SetupsPanel

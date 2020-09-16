@@ -7,14 +7,6 @@ venv=${venvfull##*/}
 . $venvfull/bin/activate
 echo
 
-if [ -f /etc/system-release-cpe ] ; then
-    if grep -qsi centos  /etc/system-release-cpe; then
-        sed -i -e "s/PyTango>=8.1.7,<9.0.0;python_version<'3.0'/PyTango>=9;python_version<'3.0'/" requirements-opt.txt
-        sed -i -e "/^systemd-python.*/d" requirements-opt.txt
-    fi
-fi
-
-
 echo "==== NICOS core dependencies ======"
 pip install -r requirements.txt 2>&1 > pip-core-$venv-$pbranch.log
 cat pip-core-$venv-$pbranch.log
@@ -31,23 +23,7 @@ cat pip-opt-$venv-$pbranch.log
 echo
 
 echo "==== CUSTOM dependencies ======"
-allcustreq=`find . -mindepth 2 -maxdepth 4 -name requirements\*.txt | xargs`
-# filter out ESS requirements for the Py2 run
-allcustreq=$(python - <<EOF
-import sys
-if sys.version_info[0] == 2:
-    py3only = [
-        "nicos_ess/",
-        "nicos_sinq/",
-    ]
-    for fn in "$allcustreq".split():
-        if all(p not in fn for p in py3only):
-            print(fn)
-else:
-    print("$allcustreq")
-EOF
-)
-
+allcustreq=$(find . -mindepth 2 -maxdepth 4 -name requirements\*.txt | xargs)
 for custreq in $allcustreq ; do
    pip install --upgrade --upgrade-strategy eager -r $custreq 2>&1 >> pip-custom-$venv-$pbranch.log
 done
@@ -59,4 +35,3 @@ echo "==== Developer dependencies ======"
 pip install -r requirements-dev.txt 2>&1  > pip-dev-$venv-$pbranch.log
 cat pip-dev-$venv-$pbranch.log
 echo
-

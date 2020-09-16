@@ -13,7 +13,7 @@ devices = dict(
         ),
         coder = device('nicos.devices.tango.Sensor',
             fmtstr = '%.3f',
-            tangodevice = tango_base + 'tths/motor',
+            tangodevice = tango_base + 'tths/coder',
         ),
         precision = 0.005,
         maxtries = 10,

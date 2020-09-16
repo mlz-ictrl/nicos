@@ -26,11 +26,8 @@
 A label that "squeezes" its text, inserting an ellipsis if necessary.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.guisupport.qt import QLabel, Qt
 from nicos.guisupport.widget import NicosWidget
-from nicos.pycompat import text_type
 
 
 class SqueezedLabel(QLabel, NicosWidget):
@@ -71,7 +68,7 @@ class SqueezedLabel(QLabel, NicosWidget):
             else:
                 new_lines.append(line)
         if squeezed:
-            QLabel.setText(self, '\n'.join(map(text_type, new_lines)))
+            QLabel.setText(self, '\n'.join(new_lines))
             self.setToolTip(self._fulltext)
         else:
             QLabel.setText(self, self._fulltext)

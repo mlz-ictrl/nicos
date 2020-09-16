@@ -25,8 +25,6 @@
 
 """NICOS GUI scan plot window."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 from math import sqrt
 
@@ -43,7 +41,6 @@ from nicos.guisupport.qt import QActionGroup, QByteArray, QCheckBox, \
     QListWidgetItem, QMenu, QPalette, QShortcut, QSizePolicy, QStatusBar, Qt, \
     QTableWidgetItem, QToolBar, QWidgetAction, pyqtSlot
 from nicos.guisupport.utils import scaledFont
-from nicos.pycompat import itervalues
 from nicos.utils import safeName
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
@@ -177,14 +174,14 @@ class ScansPanel(Panel):
         self.user_font = font
         self.user_color = back
 
-        for plot in itervalues(self.setplots):
+        for plot in self.setplots.values():
             plot.setBackgroundColor(back)
             plot.update()
 
         bold = QFont(font)
         bold.setBold(True)
         larger = scaledFont(font, 1.6)
-        for plot in itervalues(self.setplots):
+        for plot in self.setplots.values():
             plot.setFonts(font, bold, larger)
 
     def requestClose(self):

@@ -24,8 +24,6 @@
 
 """Demonstrates a custom panel to do simple measurements with GUI."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.guisupport.qt import QColor, QDialogButtonBox, QIcon, QPushButton, \

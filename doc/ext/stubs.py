@@ -26,8 +26,6 @@
 # generate stub TACO modules as needed to be able to import nicos.devices.taco
 # modules and document them
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.utils.stubs import generate_stubs
 
 

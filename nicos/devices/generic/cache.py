@@ -25,8 +25,6 @@
 
 """Cache reader/writer devices."""
 
-from __future__ import absolute_import, division, print_function
-
 from time import time as currenttime
 
 from nicos.core import CacheError, CommunicationError, HasLimits, \

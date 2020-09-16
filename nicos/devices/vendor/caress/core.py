@@ -24,8 +24,6 @@
 
 """Devices via the CARESS device service."""
 
-from __future__ import absolute_import, division, print_function
-
 import subprocess
 import sys
 
@@ -40,8 +38,8 @@ try:
     from omniORB import CORBA
     import CosNaming
 
-    from . import CARESS  # pylint: disable=import-error,no-name-in-module
-    from . import _GlobalIDL  # pylint: disable=import-error,no-name-in-module,unused-import
+    from . import CARESS
+    from . import _GlobalIDL  # pylint: disable=unused-import
     import omniORB
 
     sys.modules['CARESS'] = sys.modules['nicos.devices.vendor.caress.CARESS']
@@ -54,7 +52,6 @@ try:
     # omniORB.setClientConnectTimeout(0)
 except ImportError:
     omniORB = None
-
 
 
 CORBA_DEVICE = 500
@@ -173,7 +170,7 @@ class CARESSDevice(HasCommunication):
                     max(CARESSDevice._caress_maps.values())
             res = CARESSDevice._caress_maps[device]
         else:
-            res = int(answer.split('=')[1])
+            res = int(answer.decode().split('=')[1])
         self.log.debug('get CARESS device ID: %r', res)
         return res
 
@@ -206,7 +203,8 @@ class CARESSDevice(HasCommunication):
                 obj = _root_context.resolve([CosNaming.NameComponent(tmp[0],
                                                                      tmp[1])])
             except CosNaming.NamingContext.NotFound as ex:
-                raise ConfigurationError(self, 'Name not found: %s' % (ex,))
+                raise ConfigurationError(
+                    self, 'Name not found: %s' % (ex,)) from ex
             self._caressObject = obj._narrow(CARESS.CORBADevice)
         else:
             try:
@@ -216,7 +214,8 @@ class CARESSDevice(HasCommunication):
                                                'server.context/absdev.object' %
                                                (self.nameserver, self.objname))
             except CORBA.BAD_PARAM as ex:
-                raise ConfigurationError(self, 'Name not found: %s' % (ex,))
+                raise ConfigurationError(
+                    self, 'Name not found: %s' % (ex,)) from ex
 
         if CORBA.is_nil(self._caressObject):
             raise CommunicationError(self, 'Could not create a CARESS device')
@@ -279,22 +278,20 @@ class CARESSDevice(HasCommunication):
             #                    res, cid, self.config)
             if self._device_kind() == CORBA_DEVICE:
                 if self.absdev:
-                    res = self._caressObject \
-                        .char_loadblock_module_orb(0, cid, 1,
-                                                   len(self.loadblock), 16,
-                                                   self.loadblock)
+                    res = self._caressObject.char_loadblock_module_orb(
+                        0, cid, 1, len(self.loadblock), 16, self.loadblock)
                 else:
-                    val = CARESS.Value(ab=self.loadblock)
-                    res = self._caressObject \
-                        .loadblock_module(0, cid, 1,
-                                          len(self.loadblock), val)  # 16, val)
+                    val = CARESS.Value(ab=self.loadblock.encode())
+                    res = self._caressObject.loadblock_module(
+                        0, cid, 1, len(self.loadblock), val)  # 16, val)
             self._initialized = True
             if not self._is_corba_device():
                 CARESSDevice._used_counter += 1
 
         except CORBA.TRANSIENT as err:
-            raise CommunicationError(self, 'could not init CARESS module %r '
-                                     '(%d: %s)' % (err, cid, self.config))
+            raise CommunicationError(
+                self, 'could not init CARESS module %r (%d: %s)' % (
+                    err, cid, self.config)) from err
 
     def doInit(self, mode):
         if mode == SIMULATION:
@@ -340,9 +337,8 @@ class CARESSDevice(HasCommunication):
             # result = self._caressObject.read_module(0x80000000, self.cid)
             result, state, val = self._caressObject.read_module(0, self.cid)
             if result != CARESS.OK:
-                raise CommunicationError(self,
-                                         'Could not read the CARESS module: %d'
-                                         % self.cid)
+                raise CommunicationError(
+                    self, 'Could not read the CARESS module: %d' % self.cid)
             if hasattr(val, 'f'):
                 return (state, val.f)
             return (state, val.l,)
@@ -352,13 +348,12 @@ class CARESSDevice(HasCommunication):
             l, result = self._caressObject.read_module_orb(0, self.cid, _)
             self.log.debug('read_module: %d, %r', l, result)
             if l != 0:
-                raise CommunicationError(self,
-                                         'Could not read the CARESS module: %d'
-                                         % self.cid)
+                raise CommunicationError(
+                    self, 'Could not read the CARESS module: %d' % self.cid)
             if result[0].value() != self.cid:
-                raise CommunicationError(self,
-                                         'Answer from wrong module!: %d %r' %
-                                         (self.cid, result[0]))
+                raise CommunicationError(
+                    self, 'Answer from wrong module!: %d %r' % (
+                        self.cid, result[0]))
             state = result[1].value()
             if state == OFF_LINE:
                 raise NicosError(self, 'Module is off line!')
@@ -413,8 +408,9 @@ class CARESSDevice(HasCommunication):
                     return function(*args)
                 except (CORBA.COMM_FAILURE, CORBA.TRANSIENT) as err:
                     tries -= 1
-            raise CommunicationError(self, 'CARESS error: %s%r: %s' %
-                                     (function.__name__, args, err))
+            raise CommunicationError(
+                self, 'CARESS error: %s%r: %s' % (
+                    function.__name__, args, err)) from err
         finally:
             pass
 #           self._com_lock.release()

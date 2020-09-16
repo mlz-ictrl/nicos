@@ -65,7 +65,7 @@ devices = dict(
         # use only 'localhost' if the cache is really running on
         # the same machine, otherwise use the official computer
         # name
-        cache = 'refsansctrl.refsans.frm2.tum.de',
+        cache = 'localhost',
         notifiers = notifiers,
         mailreceiverkey = 'email/receivers',
         watch = watchlist,

@@ -27,11 +27,9 @@ This module provides classes for controlling the FZJ FPGA counter card using
 the Entangle server with MLZ interface.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from time import time as currenttime
 
-from nicos.core import MASTER, Param, status, MoveError
+from nicos.core import MASTER, MoveError, Param, status
 from nicos.devices.tango import TimerChannel
 
 

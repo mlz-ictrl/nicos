@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=NICOS control GUI
+Exec=nicos-gui
+Icon=nicos.png
+Type=Application
+Categories=Utility;Science;

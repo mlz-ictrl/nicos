@@ -22,12 +22,10 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from os import path
 
 
-class ItemTypes(object):
+class ItemTypes:
     # used to distinguish QTreeWidgetItems
     Directory = 1200
     Setup = 1300
@@ -36,8 +34,8 @@ class ItemTypes(object):
 
 def getNicosDir():
     # this file should be in nicostools/setupfiletool/utilities
-    return(path.abspath(path.join(path.dirname(__file__), '..', '..', '..')))
+    return path.abspath(path.join(path.dirname(__file__), '..', '..', '..'))
 
 
 def getResDir():
-    return(path.join(getNicosDir(), 'tools', 'setupfiletool', 'res'))
+    return path.join(getNicosDir(), 'tools', 'setupfiletool', 'res')

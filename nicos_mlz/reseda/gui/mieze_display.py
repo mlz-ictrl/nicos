@@ -24,8 +24,6 @@
 
 """Classes to display Mieze data from Cascade detector."""
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 from gr.pygr import ErrorBar
 
@@ -158,7 +156,9 @@ class MiezePanel(Panel):
         self.client.connected.connect(self.on_client_connected)
 
     def _init_data(self):
-        self._data = self.client.getCacheKey('psd_channel/_foildata')[1]
+        data = self.client.getCacheKey('psd_channel/_foildata')
+        if data:
+            self._data = data[1]
         self.do_update()
 
     def on_client_connected(self):

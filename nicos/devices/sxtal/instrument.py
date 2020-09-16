@@ -24,8 +24,6 @@
 
 """Base single crystal instrument (Euler geometry)."""
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from nicos import session
@@ -245,7 +243,7 @@ class EulerSXTal(SXTalBase):
                                chi=self._attached_chi.read(maxage),
                                phi=self._attached_phi.read(maxage))
 
-    def _createPos(self, ttheta, omega, chi, phi):  # pylint: disable=W0221
+    def _createPos(self, ttheta, omega, chi, phi):
         return PositionFactory('e', theta=ttheta/2., omega=omega, chi=chi,
                                phi=phi)
 
@@ -286,7 +284,7 @@ class LiftingSXTal(SXTalBase):
                                omega=self._attached_omega.read(maxage),
                                nu=self._attached_nu.read(maxage))
 
-    def _createPos(self, gamma, omega, nu):  # pylint: disable=W0221
+    def _createPos(self, gamma, omega, nu):
         return PositionFactory('l', gamma=gamma, omega=omega, nu=nu)
 
     def getScanWidthFor(self, hkl):

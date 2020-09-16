@@ -24,8 +24,6 @@
 # *****************************************************************************
 """Chopper related devices."""
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from nicos_mlz.refsans.lib.calculations import SC1_Pos, chopper_pos, \

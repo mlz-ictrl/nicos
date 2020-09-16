@@ -24,8 +24,6 @@
 
 """Implementation of TACO I/O devices."""
 
-from __future__ import absolute_import, division, print_function
-
 import IO
 
 from nicos.core import Attach, HasLimits, Moveable, NicosError, Override, \

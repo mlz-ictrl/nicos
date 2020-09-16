@@ -29,8 +29,6 @@ servos are too small and inaccurate to be used at the instrument,
 but are quite handy for shows
 """
 
-from __future__ import absolute_import, division, print_function
-
 import threading
 import time
 
@@ -109,7 +107,7 @@ class SerComIO(Device):
                 self._polls.append(device)
         else:
             self._polls = [device]
-            if (self._thread is None) or not(self._thread.is_alive()):
+            if (self._thread is None) or not self._thread.is_alive():
                 self._thread = createThread('servo poller', self._poller)
 
     def delPollDev(self, device):

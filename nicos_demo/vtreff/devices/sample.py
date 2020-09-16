@@ -24,8 +24,6 @@
 
 """VTREFF mirror sample device."""
 
-from __future__ import absolute_import, division, print_function
-
 import random
 
 from nicos.core import Param, dictof, floatrange

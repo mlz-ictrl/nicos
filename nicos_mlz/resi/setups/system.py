@@ -26,7 +26,7 @@ devices = dict(
         instrument = 'RESI',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-23',
         responsible = 'B. Pedersen <bjoern.pedersen@frm2.tum.de>',
-        operators = [u'Ludwig-Maximilians-Universität München (LMU)'],
+        operators = ['Ludwig-Maximilians-Universität München (LMU)'],
         website = 'http://www.mlz-garching.de/resi',
     ),
     Sample = device('nicos.devices.sample.Sample',

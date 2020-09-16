@@ -26,8 +26,6 @@
 
 """NICOS Sample device."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.core import InvalidValueError, Moveable, Override, Param, anytype, \
     dictof, none_or, oneof, status
@@ -74,7 +72,7 @@ class Sample(Moveable):
     def doStart(self, target):
         self.select(target)
 
-    def doIsAtTarget(self, pos):
+    def doIsAtTarget(self, pos, target):
         # never warn about self.target mismatch
         return True
 

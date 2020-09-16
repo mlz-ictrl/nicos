@@ -2,7 +2,7 @@ description = "neutronguide"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'nokbus1']
+includes = ['nok_ref', 'zz_absoluts']
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
@@ -51,24 +51,9 @@ devices = dict(
         motor = 'nok2r_motor',
         # obs = ['nok2r_analog'],
         backlash = -0.5,
-        precision = 0.0,
+        precision = optic_values['precision_ipcsms'],
         unit = 'mm',
         lowlevel = True,
-    ),
-    nok2r_motor = device(code_base + 'ipc.NOKMotorIPC',
-        description = 'IPC controlled Motor of NOK2, reactor side',
-        abslimits = (-22.36, 10.88),
-        bus = 'nokbus1',
-        addr = 0x32,
-        slope = 2000.0,
-        speed = 10,
-        accel = 10,
-        confbyte = 48,
-        ramptype = 2,
-        microstep = 1,
-        refpos = -4.42,
-        zerosteps = int(254.36 * 2000),
-        lowlevel = showcase_values['hide_poti'],
     ),
     nok2r_analog = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for NOK2, reactor side',
@@ -98,24 +83,9 @@ devices = dict(
          motor = 'nok2s_motor',
          # obs = ['nok2s_analog'],
          backlash = -0.5,
-         precision = 0.0,
+         precision = optic_values['precision_ipcsms'],
          unit = 'mm',
          lowlevel = True,
-    ),
-    nok2s_motor = device(code_base + 'ipc.NOKMotorIPC',
-         description = 'IPC controlled Motor of NOK2, sample side',
-         abslimits = (-21.61, 6.885),
-         bus = 'nokbus1',
-         addr = 0x33,
-         slope = 2000.0,
-         speed = 10,
-         accel = 10,
-         confbyte = 48,
-         ramptype = 2,
-         microstep = 1,
-         refpos = -18.19,
-         zerosteps = int(268.11 * 2000),
-         lowlevel = showcase_values['hide_poti'],
     ),
     nok2s_analog = device(code_base + 'nok_support.NOKPosition',
          description = 'Position sensing for NOK2, sample side',
@@ -132,7 +102,6 @@ devices = dict(
          scale = 1,   # mounted from bottom
          lowlevel = True,
     ),
-
     nok2s_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'nok2s_motor',

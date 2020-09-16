@@ -24,9 +24,8 @@
 
 """NICOS data handlers test suite."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
+import pickle
 import time
 from os import path
 
@@ -34,7 +33,6 @@ import pytest
 
 from nicos import config
 from nicos.commands.scan import scan
-from nicos.pycompat import cPickle as pickle
 from nicos.utils import readFile, updateFileCounter
 
 from test.utils import raises
@@ -97,7 +95,7 @@ def setup_module(session):
     yield
 
 
-class TestSinks(object):
+class TestSinks:
 
     def test_sink_class(self, session):
         scansink = session.getDevice('testsink1')

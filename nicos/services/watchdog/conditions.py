@@ -24,14 +24,12 @@
 
 """Condition objects for the NICOS watchdog."""
 
-from __future__ import absolute_import, division, print_function
-
 import ast
 
 from nicos.utils import checkSetupSpec
 
 
-class Condition(object):
+class Condition:
     """Represents the current state of a watchdog condition.
 
     An Entry has a single condition that is triggered or not.  Whenever its

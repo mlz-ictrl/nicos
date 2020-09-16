@@ -24,8 +24,8 @@ group = 'special'
 _chconfigcol = Column(
     Block(' Chopper Configuration ', [ # This block contains the parameters set thorugh chopper_config
         BlockRow(
-            Field(name=u'\u03bb\u2098\u1d62\u2099', key='chopper/wlmin', width=14, format = '%.1f', unit=u'(\u212b)'),
-            Field(name=u'\u03bb\u2098\u2090\u2093', key='chopper/wlmax', width=14, format = '%.1f', unit=u'(\u212b)'),
+            Field(name='\u03bb\u2098\u1d62\u2099', key='chopper/wlmin', width=14, format = '%.1f', unit='(\u212b)'),
+            Field(name='\u03bb\u2098\u2090\u2093', key='chopper/wlmax', width=14, format = '%.1f', unit='(\u212b)'),
             Field(name='disk 2 position', key='chopper/resolution', width=14, unit='(1 - 6)'), # it is not the resolution by itsself. It is the disk 2 position set in chopper_config
             Field(name='disk 1 - detector distance', key='chopper/dist', width=14, format = '%.3f', unit='(m)'),
             Field(name='gap', key='chopper/gap', width=10, format = '%.2f',),
@@ -45,7 +45,7 @@ _chconfigcol = Column(
             Field(name='disk 2 mode', key='chopper/mode', width=20),
             Field(name='disk 2 position', dev='chopper2_pos', width=10, unit='(1 - 5)'),
             Field(name='disc1 - detector distance', dev='real_flight_path', width=14, format = '%.3f', unit='(m)'), # it is not the flight path. I don't know why somebody called it real_flight_path
-            Field(name=u'resolution \u0394\u03bb/\u03bb ', dev='resolution', width=14, format = '%.2f', unit='(%)'),
+            Field(name='resolution \u0394\u03bb/\u03bb ', dev='resolution', width=14, format = '%.2f', unit='(%)'),
             Field(name='start delay', key='chopper/delay', width=10, format = '%.2f', unit='(deg)'),
             ),
          BlockRow(

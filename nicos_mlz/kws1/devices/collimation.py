@@ -24,8 +24,6 @@
 
 """Class for controlling the collimation."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Attach, ConfigurationError, HasLimits, HasTimeout, \
     Moveable, Override, Param, Readable, dictof, intrange, listof, oneof, \
     status, tupleof

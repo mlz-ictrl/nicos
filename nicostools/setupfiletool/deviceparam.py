@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Classes to handle the device parameters."""
 
-from __future__ import absolute_import, division, print_function
-
 from os import path
 
 from nicos.guisupport.qt import QWidget, pyqtSignal, uic

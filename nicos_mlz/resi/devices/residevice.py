@@ -28,8 +28,6 @@ Created on 30.05.2011
 @author: pedersen
 """
 
-from __future__ import absolute_import, division, print_function
-
 import math
 import sys
 
@@ -44,8 +42,8 @@ sys.path.append('/home/resi/pedersen/workspace/nonius_new/app')
 
 # imports from the nonius libs
 try:
-    from sc_scan_new import HuberScan  # pylint: disable=import-error
-    from goniometer import position    # pylint: disable=import-error
+    from sc_scan_new import HuberScan
+    from goniometer import position
 except ImportError as e:
     # at least make the module importable for setup checking
     session.log.info(e)
@@ -53,7 +51,7 @@ except ImportError as e:
     position = None
 
 
-class ResiPositionProxy(object):
+class ResiPositionProxy:
     """
     proxy class to make  position objects really picklable
 

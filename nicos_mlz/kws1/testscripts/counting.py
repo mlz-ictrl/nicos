@@ -1,12 +1,12 @@
 # pylint: skip-file
 
 ClearSamples()
-SetSample(1, u'Alu1',  aperture=(1.2, 5.4, 7.0, 7.0), position={u'sam_trans_x': 208.0, u'sam_trans_y': 202.5}, timefactor=1.0, thickness=1.0, detoffset=-315.0, comment=u'')
-SetSample(2, u'Alu2',  aperture=(1.2, 5.4, 7.0, 7.0), position={u'sam_trans_x': 235.0, u'sam_trans_y': 202.5}, timefactor=1.0, thickness=1.0, detoffset=-315.0, comment=u'')
-SetSample(3, u'Alu3',  aperture=(1.2, 5.4, 7.0, 7.0), position={u'sam_trans_x': 262.0, u'sam_trans_y': 202.5}, timefactor=1.0, thickness=1.0, detoffset=-315.0, comment=u'')
-SetSample(4, u'Alu10', aperture=(1.2, 5.4, 7.0, 7.0), position={u'sam_trans_x': 289.0, u'sam_trans_y': 202.5}, timefactor=1.0, thickness=1.0, detoffset=-315.0, comment=u'')
-SetSample(5, u'Alu11', aperture=(1.2, 5.4, 12.0, 12.0), position={u'sam_trans_x': 316.0, u'sam_trans_y': 202.5}, timefactor=1.0, thickness=1.0, detoffset=-315.0, comment=u'')
-SetSample(6, u'Alu19', aperture=(1.2, 5.4, 15.0, 15.0), position={u'sam_trans_x': 343.0, u'sam_trans_y': 202.5}, timefactor=1.0, thickness=1.0, detoffset=-315.0, comment=u'')
+SetSample(1, 'Alu1',  aperture=(1.2, 5.4, 7.0, 7.0), position={u'sam_trans_x': 208.0, u'sam_trans_y': 202.5}, timefactor=1.0, thickness=1.0, detoffset=-315.0, comment=u'')
+SetSample(2, 'Alu2',  aperture=(1.2, 5.4, 7.0, 7.0), position={u'sam_trans_x': 235.0, u'sam_trans_y': 202.5}, timefactor=1.0, thickness=1.0, detoffset=-315.0, comment=u'')
+SetSample(3, 'Alu3',  aperture=(1.2, 5.4, 7.0, 7.0), position={u'sam_trans_x': 262.0, u'sam_trans_y': 202.5}, timefactor=1.0, thickness=1.0, detoffset=-315.0, comment=u'')
+SetSample(4, 'Alu10', aperture=(1.2, 5.4, 7.0, 7.0), position={u'sam_trans_x': 289.0, u'sam_trans_y': 202.5}, timefactor=1.0, thickness=1.0, detoffset=-315.0, comment=u'')
+SetSample(5, 'Alu11', aperture=(1.2, 5.4, 12.0, 12.0), position={u'sam_trans_x': 316.0, u'sam_trans_y': 202.5}, timefactor=1.0, thickness=1.0, detoffset=-315.0, comment=u'')
+SetSample(6, 'Alu19', aperture=(1.2, 5.4, 15.0, 15.0), position={u'sam_trans_x': 343.0, u'sam_trans_y': 202.5}, timefactor=1.0, thickness=1.0, detoffset=-315.0, comment=u'')
 
 SetupNormal()
 notify('new test script started')

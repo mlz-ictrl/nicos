@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.devices.tango import StringIO as BaseStringIO
 
 
@@ -61,11 +59,9 @@ class StringIO(BaseStringIO):
     @property
     def availablechars(self):
         if self._dev:
-            # pylint: disable=too-many-function-args
             return BaseStringIO.availablechars.__get__(self)
 
     @property
     def availablelines(self):
         if self._dev:
-            # pylint: disable=too-many-function-args
             return BaseStringIO.availablelines.__get__(self)

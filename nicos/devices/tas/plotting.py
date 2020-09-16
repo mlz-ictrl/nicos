@@ -26,11 +26,9 @@
 Plotting tools for triple-axis spectrometers.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import time
-from fractions import gcd
+from math import gcd
 
 from numpy import arctan2, array, cos, cross, delete, linspace, mat, sin, sqrt
 
@@ -65,7 +63,7 @@ def pylab_key_handler(event):
         pylab.close()
 
 
-class SpaceMap(object):
+class SpaceMap:
 
     def __init__(self, resmat, tasinfo, E=0, ki=None, kf=None, scan=None, **kwds):
         self.resmat = resmat

@@ -24,14 +24,11 @@
 
 """Base Image data sink classes for NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.core import FINAL, INTERRUPTED, LIVE, Override
 from nicos.core.constants import POINT
 from nicos.core.data import DataFile, DataSink, DataSinkHandler
 from nicos.devices.datasinks import FileSink
-from nicos.pycompat import add_metaclass
 from nicos.utils import ReaderRegistry, syncFile
 
 
@@ -217,8 +214,7 @@ class ReaderMeta(type):
         return new_class
 
 
-@add_metaclass(ReaderMeta)
-class ImageFileReader(object):
+class ImageFileReader(metaclass=ReaderMeta):
     filetypes = []  # list of (filetype abbreviation, QFileDialog filter str)
 
     @classmethod

@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import socket
 from time import sleep
 
@@ -79,13 +77,12 @@ class MCU200Motor(Motor):
         self._send_command('M', '14=0')
         self._send_command('M', '14=1')
 
-    def doIsAtTarget(self, pos):
+    def doIsAtTarget(self, pos, target):
         return (int(self._send_command('P', '00')) == 0
-                and HasPrecision.doIsAtTarget(self, pos))
+                and HasPrecision.doIsAtTarget(self, pos, target))
 
     def doFinish(self):
-        pos = self.read(0)
-        if not self.isAtTarget(pos):
+        if not self.isAtTarget():
             if self.isInRetry():
                 self.log.error('Moving to 0 during retry did not work. '
                                'Resetting retry status, continuing.')
@@ -129,7 +126,7 @@ class MCU200Motor(Motor):
                 return reply
             except TypeError:
                 return None
-        except socket.error:
+        except OSError:
             if retry is not None:
                 self.log.debug('Retry unsuccessful, raising error.')
                 raise CommunicationError('Communication error with device.')

@@ -26,14 +26,11 @@
 
 """MARIA file format saver for the new YAML based format."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.core import Override
 from nicos.core.data.dataset import ScanDataset
 from nicos.core.device import Readable
 from nicos.devices.datasinks.image import ImageSink
-from nicos.pycompat import from_maybe_utf8, iteritems
 
 from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
 
@@ -52,7 +49,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
             meas["info"] = self.dataset.info
 
         sample = session.experiment.sample
-        meas["sample"]["comment"] = from_maybe_utf8(sample.comment)
+        meas["sample"]["comment"] = sample.comment
         meas["sample"]["timefactor"] = sample.timefactor
         meas["sample"]["thickness"] = sample.thickness
         meas["sample"]["detoffset"] = sample.detoffset
@@ -77,7 +74,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
             devices.pop(info.name, None)
 
         # log all remaining nicos devices
-        for name, dev in iteritems(devices):
+        for name, dev in devices.items():
             if isinstance(dev, Readable):
                 entry = self._dict()
                 state, status = dev.status()

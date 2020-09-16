@@ -24,9 +24,9 @@
 
 """Implementation of the "classic" daemon protocol: pickling, plain sockets."""
 
-from __future__ import absolute_import, division, print_function
-
+import queue
 import socket
+import socketserver
 import threading
 import time
 import weakref
@@ -36,7 +36,6 @@ from nicos.protocols.daemon import DAEMON_EVENTS, CloseConnection, \
     ServerTransport as BaseServerTransport
 from nicos.protocols.daemon.classic import ACK, ENQ, LENGTH, NAK, \
     PROTO_VERSION, READ_BUFSIZE, STX, code2command, event2code
-from nicos.pycompat import get_thread_id, queue, socketserver
 from nicos.services.daemon.handler import ConnectionHandler
 from nicos.utils import closeSocket, createThread
 
@@ -84,7 +83,7 @@ class Server(BaseServer, socketserver.TCPServer):
         # overwritten to support passing client_id to process_request
         try:
             request, client_address = self.get_request()
-        except socket.error:
+        except OSError:
             return
         client_id = self.verify_request(request, client_address)
         if client_id is not None:
@@ -94,7 +93,6 @@ class Server(BaseServer, socketserver.TCPServer):
                 self.handle_error(request, client_address)
                 self.close_request(request)
 
-    # pylint: disable=W0221
     def process_request(self, request, client_address, client_id):
         """Process a "request", that is, a client connection."""
         # mostly copied from ThreadingMixIn but without the import,
@@ -158,12 +156,12 @@ class Server(BaseServer, socketserver.TCPServer):
             self.pending_clients[host, client_id] = handler
             self.handler_ident += 1
             handler.setIdent(self.handler_ident)
-            self.handlers[get_thread_id()] = handler
+            self.handlers[threading.get_ident()] = handler
 
     def unregister_handler(self, ident):
         """Remove a handler from the handlers dictionary."""
         with self.handler_ident_lock:
-            del self.handlers[get_thread_id()]
+            del self.handlers[threading.get_ident()]
 
 
 class ServerTransport(ConnectionHandler, BaseServerTransport,
@@ -240,11 +238,11 @@ class ServerTransport(ConnectionHandler, BaseServerTransport,
             try:
                 return self.serializer.deserialize_cmd(
                     buf, code2command[start[1:3]])
-            except Exception as err:
+            except Exception:
                 self.send_error_reply('invalid command or garbled data')
                 raise ProtocolError('recv_command: invalid command or '
                                     'garbled data')
-        except socket.error as err:
+        except OSError as err:
             raise ProtocolError('recv_command: connection broken (%s)' % err)
 
     def send_ok_reply(self, payload):
@@ -254,20 +252,20 @@ class ServerTransport(ConnectionHandler, BaseServerTransport,
             else:
                 try:
                     data = self.serializer.serialize_ok_reply(payload)
-                except Exception as err:
+                except Exception:
                     raise ProtocolError('send_ok_reply: could not serialize')
                 self.sock.sendall(STX + LENGTH.pack(len(data)) + data)
-        except socket.error as err:
+        except OSError as err:
             raise ProtocolError('send_ok_reply: connection broken (%s)' % err)
 
     def send_error_reply(self, reason):
         try:
             data = self.serializer.serialize_error_reply(reason)
-        except Exception as err:
+        except Exception:
             raise ProtocolError('send_error_reply: could not serialize')
         try:
             self.sock.sendall(NAK + LENGTH.pack(len(data)) + data)
-        except socket.error as err:
+        except OSError as err:
             raise ProtocolError('send_error_reply: connection broken (%s)' % err)
 
     def send_event(self, evtname, payload):

@@ -4,16 +4,15 @@
 # It is adapted from bin/nicos-simulate to run correctly in the test
 # environment.
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import sys
+from shutil import which
+
 from test.utils import runtime_root, selfDestructAfter
 
 from nicos import config
 from nicos.core.sessions.simulation import SimulationSession
 from nicos.protocols.cache import cache_load
-from nicos.utils import which
 
 try:
     import coverage

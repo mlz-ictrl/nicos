@@ -25,8 +25,6 @@
 Base monochromator class
 """
 
-from __future__ import absolute_import, division, print_function
-
 from math import pi, sqrt
 
 from nicos.core import MASTER, SIMULATION, ComputationError, Moveable, \

@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from time import sleep, time as currenttime
 
 from kafka import KafkaConsumer, KafkaProducer, TopicPartition
@@ -31,7 +29,6 @@ from kafka import KafkaConsumer, KafkaProducer, TopicPartition
 from nicos.core import Attach, Param, host, listof
 from nicos.core.errors import ConfigurationError
 from nicos.protocols.cache import FLAG_NO_STORE, OP_TELL, OP_TELLOLD
-from nicos.pycompat import iteritems, to_utf8
 from nicos.services.cache.database.memory import MemoryCacheDatabase
 from nicos.services.cache.entry import CacheEntry
 from nicos.services.cache.entry.serializer import CacheEntrySerializer
@@ -149,7 +146,7 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
     def _clean(self):
         def cleanonce():
             with self._db_lock:
-                for key, entries in iteritems(self._db):
+                for key, entries in self._db.items():
                     entry = entries[-1]
                     if not entry.value or entry.expired:
                         continue
@@ -180,7 +177,7 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
         self._producer.send(
             topic=self.currenttopic,
             value=value,
-            key=to_utf8(key),
+            key=key.encode(),
             timestamp_ms=int(entry.time * 1000))
 
         # clear all local buffers and produce pending messages
@@ -287,7 +284,7 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
         found_some = False
         for partition in assignment:
             while self._history_consumer.position(partition) < end[partition]:
-                msg = next(self._history_consumer)
+                msg = next(self._history_consumer)  # pylint: disable=stop-iteration-return
                 time = msg.timestamp
 
                 # As the messages are not strictly arranged in the order of
@@ -304,13 +301,13 @@ class KafkaCacheDatabaseWithHistory(KafkaCacheDatabase):
                             entry.value is not None):
                         self.log.info("%s -> %s" % (msgkey, entry))
                         found_some = True
-                        yield ('%r@%s=%s\n' % (entry.time, key, entry.value))
+                        yield '%r@%s=%s\n' % (entry.time, key, entry.value)
 
         # Return at least the last value, if none match the range
         if not found_some and key in self._db:
             entry = self._db[key][-1]
             self.log.debug("not found in provided range, fetching current")
-            yield ('%r@%s=%s\n' % (entry.time, key, entry.value))
+            yield '%r@%s=%s\n' % (entry.time, key, entry.value)
 
     def _update_topic(self, key, entry):
         KafkaCacheDatabase._update_topic(self, key, entry)

@@ -24,15 +24,12 @@
 
 """Module for RESEDA tunewavetable specific commands."""
 
-from __future__ import absolute_import, division, print_function
-
 import csv
 from os import path
 
 from nicos import session
 from nicos.commands import usercommand
 from nicos.commands.output import printerror, printinfo
-from nicos.pycompat import iteritems, itervalues
 
 __all__ = ['ExportTuning', 'ImportTuning']
 
@@ -59,7 +56,7 @@ def ExportTuning(mode, wavelength, filename='tuning'):
                    ', '.join(map(str, tables)))
 
     # build list of devices
-    it = itervalues(table)
+    it = iter(table.values())
     devices = sorted(it.next())
     for otherdevs in it:
         devices.extend(set(otherdevs) - set(devices))
@@ -73,7 +70,7 @@ def ExportTuning(mode, wavelength, filename='tuning'):
     with open(filename, 'w') as fp:
         writer = csv.writer(fp)
         writer.writerow(['echotime'] + devices)
-        for (etime, devs) in iteritems(table):
+        for (etime, devs) in table.items():
             writer.writerow([repr(etime)] + [repr(devs.get(d)) for d in devices])
     printinfo('Done.')
 

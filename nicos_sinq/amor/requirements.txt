@@ -1,2 +1,2 @@
 kafka-python>=1.4.6
-git+https://github.com/google/flatbuffers.git#egg=flatbuffers&subdirectory=python
+flatbuffers>=1.12

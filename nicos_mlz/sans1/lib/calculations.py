@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Special calculations for SANS1"""
 
-from __future__ import absolute_import, division, print_function
-
 from math import atan2, pi, sin
 
 

@@ -11,7 +11,7 @@ devices = dict(
         description = 'Arm 0 (A) coil 1 temperature',
         tangodevice = '%s/iobox/plc_t_arm0acoil1' % tango_base,
         fmtstr = '%.1f',
-        unit = u'degC',
+        unit = 'degC',
         pollinterval = 10,
         maxage = 21,
 
@@ -20,7 +20,7 @@ devices = dict(
         description = 'Arm 0 (A) coil 2 temperature',
         tangodevice = '%s/iobox/plc_t_arm0acoil2' % tango_base,
         fmtstr = '%.1f',
-        unit = u'degC',
+        unit = 'degC',
         pollinterval = 10,
         maxage = 21,
     ),

@@ -24,8 +24,6 @@
 
 """Module to test custom specific modules."""
 
-from __future__ import absolute_import, division, print_function
-
 import pytest
 
 from nicos.core.errors import LimitError, PositionError  # , MoveError
@@ -102,7 +100,7 @@ def test_mtt_axis(session, log):
     #     assert raises(MoveError, ax.maw, (ax.polypos - 1))
 
 
-class TestCad(object):
+class TestCad:
     """Test class for the PUMA coupled axis device."""
 
     @pytest.fixture(scope='function', autouse=True)

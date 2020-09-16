@@ -28,6 +28,7 @@ from nicos.core import status
 from nicos.core.device import Readable
 from nicos.core.params import Attach
 from nicos.devices.tango import Motor
+
 from nicos_mlz.jcns.devices.motor import InvertableMotor
 
 

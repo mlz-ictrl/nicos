@@ -161,13 +161,20 @@ _pumpstand = Column(
 
 _chopper = Column(
     Block('chopper', [
-        BlockRow(Field(name='Fatal', key='chopper/fatal', width=10),),
-        BlockRow(Field(name='conditon 1', key='chopper_speed/condition', width=10),),
-        BlockRow(Field(name='conditon 2', key='chopper2/condition', width=10),),
-        BlockRow(Field(name='conditon 3', key='chopper3/condition', width=10),),
-        BlockRow(Field(name='conditon 4', key='chopper4/condition', width=10),),
-        BlockRow(Field(name='conditon 5', key='chopper5/condition', width=10),),
-        BlockRow(Field(name='conditon 6', key='chopper6/condition', width=10),),
+        BlockRow(Field(name='Fatal', key='chopper/fatal', width=10),
+                 Field(name='cpt0', dev='cpt0'),),
+        BlockRow(Field(name='conditon 1', key='chopper_speed/condition', width=10),
+                 Field(name='cpt1', dev='cpt1'),),
+        BlockRow(Field(name='conditon 2', key='chopper2/condition', width=10),
+                 Field(name='cpt2', dev='cpt2'),),
+        BlockRow(Field(name='conditon 3', key='chopper3/condition', width=10),
+                 Field(name='cpt3', dev='cpt3'),),
+        BlockRow(Field(name='conditon 4', key='chopper4/condition', width=10),
+                 Field(name='cpt4', dev='cpt4'),),
+        BlockRow(Field(name='conditon 5', key='chopper5/condition', width=10),
+                 Field(name='cpt5', dev='cpt5'),),
+        BlockRow(Field(name='conditon 6', key='chopper6/condition', width=10),
+                 Field(name='cpt6', dev='cpt6'),),
         ],
     ),
 )

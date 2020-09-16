@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from contextlib import contextmanager
 from math import asin, atan, cos, degrees, pi, radians, sin, sqrt, tan
 
@@ -400,7 +398,7 @@ class PolarisationPanel(NicosWidget, Panel):
     @pyqtSlot(bool)
     def on_buttonApply_clicked(self, checked):
         # values are readonlylists which can't modified
-        med = [v for v in self.client.getDeviceValue('med')]
+        med = list(self.client.getDeviceValue('med'))
         cad = self.client.getDeviceValue('cad')
 
         man = [125] * 11 + [0] * 11

@@ -24,8 +24,6 @@
 
 """Thread that executes user scripts."""
 
-from __future__ import absolute_import, division, print_function
-
 import ast
 import sys
 import time
@@ -43,7 +41,6 @@ from nicos.core.utils import system_user
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_NOW, SIM_STATES, \
     STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK, STATUS_RUNNING, \
     STATUS_STOPPING
-from nicos.pycompat import exec_
 from nicos.services.daemon.debugger import Rpdb
 from nicos.services.daemon.pyctl import Controller, ControlStop
 from nicos.services.daemon.utils import ScriptQueue, formatScript, \
@@ -56,7 +53,7 @@ class RequestError(Exception):
     """Exception raised if a request cannot be queued."""
 
 
-class Request(object):
+class Request:
     """
     Abstract Request class.
 
@@ -449,7 +446,7 @@ class ExecutionController(Controller):
         self.last_handler = weakref.ref(handler)
         try:
             for block in temp_request.code:
-                exec_(block, self.namespace)
+                exec(block, self.namespace)
         finally:
             self.last_handler = None
 
@@ -694,9 +691,9 @@ class ExecutionController(Controller):
                         # that are queued after that should be executed, so
                         # we don't block requests here
                         session.log.info('Script stopped by %s', err.args[2])
-                except BdbQuit as err:  # pylint: disable=E0701
+                except BdbQuit as err:  # pylint: disable=bad-except-order
                     session.log.error('Script stopped through debugger')
-                except Exception as err:  # pylint: disable=E0701
+                except Exception as err:  # pylint: disable=bad-except-order
                     # the topmost two frames are still in the
                     # daemon, so don't display them to the user
                     # perhaps also send an error notification

@@ -28,13 +28,10 @@ Utility routines for nicos file finding
 This modules contains helper functions to find e.g. setupfiles etc.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import re
+from configparser import ConfigParser
 from os import path
-
-from nicos.pycompat import ConfigParser
 
 SETUPNAME_RE = re.compile(r'[-\w]+$')
 
@@ -75,8 +72,7 @@ def findNicosInstrumentSubDirs(parent, facility=''):
 
 def findAllNicosInstrumentDirs(root):
     for facility, full in findNicosFacilityDirs(root):
-        for res in findNicosInstrumentSubDirs(full, facility):
-            yield res
+        yield from findNicosInstrumentSubDirs(full, facility)
 
 
 def findInstrGuiConfigs(where):

@@ -196,29 +196,13 @@ Works only with the "set a key" operator.  This flag makes no sense otherwise.
 
 """
 
-from __future__ import absolute_import, division, print_function
-
+import pickle
 import re
-from ast import Add, BinOp, Call, Dict, List, Name, Num, Set, Str, Sub, \
-    Tuple, UnaryOp, USub, parse
+from ast import Add, BinOp, Bytes, Call, Dict, List, Name, NameConstant, Num, \
+    Set, Str, Sub, Tuple, UnaryOp, USub, parse
 from base64 import b64decode, b64encode
 
-from nicos.pycompat import binary_type, cPickle as pickle, from_utf8, \
-    iteritems, number_types, text_type
-from nicos.utils import readonlydict, readonlylist
-
-try:
-    from ast import NameConstant  # pylint: disable=no-name-in-module
-except ImportError:
-    class NameConstant(object):
-        pass
-
-try:
-    from ast import Bytes  # pylint: disable=no-name-in-module
-except ImportError:
-    class Bytes(object):
-        pass
-
+from nicos.utils import number_types, readonlydict, readonlylist
 
 DEFAULT_CACHE_PORT = 14869
 
@@ -270,7 +254,7 @@ line_pattern = re.compile(br'([^\r\n]*)\r?\n')
 
 # PyON -- "Python object notation"
 
-repr_types = number_types + (text_type, binary_type)
+repr_types = number_types + (str, bytes)
 
 
 def cache_dump(obj):
@@ -291,7 +275,7 @@ def cache_dump(obj):
         res.append(')')
     elif isinstance(obj, dict):
         res.append('{')
-        for key, value in iteritems(obj):
+        for key, value in obj.items():
             res.append(cache_dump(key))
             res.append(':')
             res.append(cache_dump(value))
@@ -308,11 +292,12 @@ def cache_dump(obj):
     else:
         try:
             resstr = 'cache_unpickle("' + \
-                     from_utf8(b64encode(pickle.dumps(obj, protocol=0))) + '")'
+                b64encode(pickle.dumps(obj, protocol=0)).decode() + '")'
             res.append(resstr)
         except Exception as err:
             raise ValueError('unserializable object: %r (%s)' % (obj, err))
     return ''.join(res)
+
 
 _safe_names = {'None': None, 'True': True, 'False': False,
                'inf': float('inf'), 'nan': float('nan')}
@@ -320,7 +305,6 @@ _safe_names = {'None': None, 'True': True, 'False': False,
 
 def ast_eval(node):
     # copied from Python 2.7 ast.py, but added support for float inf/-inf/nan
-    #  pylint: disable=map-builtin-not-iterating
     def _convert(node):
         if isinstance(node, (Str, Bytes)):
             return node.s

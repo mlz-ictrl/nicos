@@ -26,12 +26,14 @@
 Tests for EPICS area detector
 """
 
-from __future__ import absolute_import, division, print_function
-
 import time
 
 import numpy
 import pytest
+
+pytest.importorskip('kafka')
+pytest.importorskip('graypy')
+pytest.importorskip('flatbuffers')
 
 from nicos_ess.devices.fbschemas.hs00 import Array, EventHistogram
 from nicos_ess.devices.kafka.area_detector import \
@@ -39,14 +41,11 @@ from nicos_ess.devices.kafka.area_detector import \
 
 from test.nicos_ess.test_devices.utils import create_hs00
 
-pytest.importorskip('kafka')
-pytest.importorskip('graypy')
-
 
 session_setup = "ess_area_detector"
 
 
-class TestHistogramDeserializer(object):
+class TestHistogramDeserializer:
     """
     Test for operation of Flatbuffer hs00 deserializer
     """
@@ -65,7 +64,7 @@ class TestHistogramDeserializer(object):
         buff = create_hs00(data=data, timestamp=ts, source=source)
         histogram = EventHistogram.EventHistogram.GetRootAsEventHistogram(
             buff, 0)
-        assert histogram.Source().decode('utf-8') == source
+        assert histogram.Source().decode() == source
         assert histogram.Timestamp() == ts
         assert histogram.DataType() == Array.Array.ArrayUInt
 

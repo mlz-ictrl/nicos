@@ -27,14 +27,11 @@
 positions.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.panels import AuxiliaryWindow, Panel
 from nicos.clients.gui.panels.tabwidget import DetachedWindow
 from nicos.guisupport.qt import QAbstractButton, QAbstractItemView, \
     QDialogButtonBox, QEvent, QLabel, QLineEdit, QPixmap, QSize, QStyle, \
     QStyleOptionHeader, QStylePainter, Qt, QTableWidget, QVBoxLayout
-from nicos.pycompat import from_maybe_utf8
 from nicos.utils import findResource
 
 
@@ -103,7 +100,6 @@ class CustomButtonPanel(Panel):
                 handler = getattr(self, 'on_buttonBox_%s_clicked' % btn_name,
                                   None)
                 if not handler:
-                    # pylint: disable=function-redefined
                     def handler(self=self, n=btn_name):
                         self.showError('on_buttonBox_%s_clicked not '
                                        'implemented!' % n)
@@ -191,7 +187,7 @@ class SamplechangerSetupPanel(CustomButtonPanel):
         if names is None:
             return
         for i in range(self._numSamples):
-            name = from_maybe_utf8(names.get(i + 1, {}).get('name', ''))
+            name = names.get(i + 1, {}).get('name', '')
             self._tableWidget.cellWidget(i, 0).setText(name)
 
     def _applyChanges(self):

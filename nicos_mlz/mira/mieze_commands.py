@@ -24,15 +24,12 @@
 
 """Commands for MIEZE operation."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.commands import usercommand
 from nicos.commands.scan import _fixType, _handleScanArgs, _infostr, \
     _ManualScan
 from nicos.core import UsageError
 from nicos.core.scan import ManualScan, Scan
-from nicos.pycompat import integer_types, string_types
 
 from nicos_mlz.mira.devices.mieze import MiezeMaster
 
@@ -51,7 +48,7 @@ class MiezeScan(Scan):
         if settings is not None:
             if settings == '*' or settings == -1:
                 settings = [sett['_name_'] for sett in miezedev.curtable]
-            elif isinstance(settings, string_types + integer_types):
+            elif isinstance(settings, (str, int)):
                 settings = [settings]
             self._nsettings = len(settings)
             new_devices = devices + [miezedev]
@@ -93,7 +90,7 @@ class MiezeManualScan(ManualScan):
             if settings == '*' or settings == -1:
                 self.settings = [sett['_name_']
                                  for sett in self.miezedev.curtable]
-            elif isinstance(settings, string_types + integer_types):
+            elif isinstance(settings, (str, int)):
                 self.settings = [settings]
             else:
                 self.settings = settings
@@ -110,7 +107,7 @@ class MiezeManualScan(ManualScan):
 
 
 class _MiezeManualScan(_ManualScan):
-    def __init__(self, settings, args, kwargs):  # pylint: disable=W0231
+    def __init__(self, settings, args, kwargs):  # pylint: disable=super-init-not-called
         scanstr = _infostr('mmanualscan', (settings,) + args, kwargs)
         preset, scaninfo, detlist, envlist, move, multistep = \
             _handleScanArgs(args, kwargs, scanstr)

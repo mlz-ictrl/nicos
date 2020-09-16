@@ -24,8 +24,6 @@
 
 """SPODI specific detector tests."""
 
-from __future__ import absolute_import, division, print_function
-
 import pytest
 
 from nicos.commands.measure import count
@@ -41,7 +39,7 @@ def adet(session):
     # Check correct detector configuration
     basedet = session.getDevice('basedet')
     assert len(basedet._attached_timers) == 1
-    assert len(basedet._attached_counters) == 0  #pylint: disable=len-as-condition
+    assert len(basedet._attached_counters) == 0
     assert len(basedet._attached_monitors) == 1
     assert len(basedet._attached_images) == 1
     adet = session.getDevice('adet')

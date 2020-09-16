@@ -126,10 +126,10 @@ class DoubleMonochromator(HasLimits, IsController, BaseSequencer):
             return True, ''
 
         if adev == self._attached_mtx:
-            test = self._checksafe()
-            if test:
+            try:
+                self._checksafe()
                 return True, 'Position Allowed'
-            else:
+            except NicosError:
                 return False, 'Monochromator blades not in a safe position'
         else:
             return True, 'Position Allowed'

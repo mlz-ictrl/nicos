@@ -24,8 +24,6 @@
 
 """Session class for console interface."""
 
-from __future__ import absolute_import, division, print_function
-
 import code
 import os
 import pdb
@@ -37,7 +35,6 @@ from nicos.core.constants import MASTER, SIMULATION, SLAVE
 from nicos.core.errors import AccessError
 from nicos.core.sessions import Session
 from nicos.core.sessions.utils import NicosCompleter
-from nicos.pycompat import exec_, input as input_func
 from nicos.utils import colorcode, formatExtendedStack
 from nicos.utils.loggers import INFO, INPUT
 
@@ -45,7 +42,6 @@ try:
     import readline
 except ImportError:  # on Windows (without pyreadline)
     readline = None
-
 
 
 DEFAULT_BINDINGS = '''\
@@ -89,7 +85,6 @@ class NicosInteractiveConsole(code.InteractiveConsole):
                                        os.path.expanduser('~/.nicoshistory'))
         # once compiled, the interactive console uses this flag for all
         # subsequent statements it compiles
-        self.compile('from __future__ import division')
         if os.path.isfile(self.histfile):
             readline.read_history_file(self.histfile)
 
@@ -99,7 +94,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         code.InteractiveConsole.interact(self, banner)
         try:
             readline.write_history_file(self.histfile)
-        except IOError:
+        except OSError:
             pass
 
     def sigtermHandler(self, *args):
@@ -124,11 +119,11 @@ class NicosInteractiveConsole(code.InteractiveConsole):
 
         return False
 
-    def raw_input(self, prompt=''):  # pylint: disable=E0202
+    def raw_input(self, prompt=''):
         sys.stdout.write(colorcode(self.session._pscolor))
         self.session._prompting = True
         try:
-            inp = input_func(prompt)
+            inp = input(prompt)
         except KeyboardInterrupt:
             if prompt == sys.ps1:
                 # do not stop immediately on continuation lines; here the user
@@ -149,7 +144,7 @@ class NicosInteractiveConsole(code.InteractiveConsole):
         """
         session.scriptEvent('start', ('', source))
         try:
-            exec_(codeobj, self.globals)
+            exec(codeobj, self.globals)
         except NicosInteractiveStop:
             pass
         except KeyboardInterrupt:
@@ -187,7 +182,7 @@ class ConsoleSession(Session):
         if value is not None and getattr(value, '__display__', True):
             self.log.log(INFO, repr(value))
 
-    def loadSetup(self, *args, **kwds):
+    def loadSetup(self, *args, **kwds):  # pylint: disable=signature-differs
         Session.loadSetup(self, *args, **kwds)
         self.resetPrompt()
 
@@ -258,7 +253,7 @@ class ConsoleSession(Session):
             self.log.info('<L> stop after current scan')
             self.log.info('<S> immediate stop')
             try:
-                reply = input_func('---> ')
+                reply = input('---> ')
             except RuntimeError:
                 # when already in readline(), this will be raised
                 reply = 'S'
@@ -308,8 +303,8 @@ class ConsoleSession(Session):
         # respond to level= keyword
         if 'passcode' in required:
             code = required['passcode']
-            if input_func('Please enter "%s" to proceed, or press Enter to '
-                          'cancel: ' % code) != code:
+            if input('Please enter "%s" to proceed, or press Enter to '
+                     'cancel: ' % code) != code:
                 raise AccessError('passcode not correct')
         return Session.checkAccess(self, required)
 

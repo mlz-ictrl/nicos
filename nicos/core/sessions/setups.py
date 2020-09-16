@@ -24,10 +24,7 @@
 
 """Setup file handling."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.params import nicosdev_re
-from nicos.pycompat import exec_, iteritems, listitems
 from nicos.utils import Device
 from nicos.utils.files import iterSetups
 
@@ -36,11 +33,11 @@ SETUP_GROUPS = {
 }
 
 
-class MonitorElement(object):
+class MonitorElement:
     pass
 
 
-class HasChildren(object):
+class HasChildren:
 
     def __init__(self, *children):
         self._children = children
@@ -136,7 +133,7 @@ def readSetups(paths, logger):
     for (setupname, filename) in all_setups.items():
         readSetup(infodict, setupname, filename, all_setups, logger)
     # check if all includes exist
-    for name, info in iteritems(infodict):
+    for name, info in infodict.items():
         if info is None:
             continue  # erroneous setup
         for include in info['includes']:
@@ -178,7 +175,7 @@ def make_configdata(filepath, all_setups, dep_files):
             fullname = all_setups[setupname]
         ns = {}
         with open(fullname) as fp:
-            exec_(fp.read(), ns)
+            exec(fp.read(), ns)
         dep_files.add(fullname)
         try:
             return ns[element]
@@ -212,9 +209,9 @@ def fixup_stacked_devices(logger, devdict):
     while patched:
         patched = False
         # iter over all devices
-        for devname, dev in listitems(devdict):
+        for devname, dev in list(devdict.items()):
             # iter over all key=value pairs for dict
-            for subname, config in listitems(dev[1]):
+            for subname, config in list(dev[1].items()):
                 if isinstance(config, Device):  # need to fixup!
                     newname = add_new_dev(devname, subname, config)
                     dev[1][subname] = newname
@@ -235,13 +232,13 @@ def readSetup(infodict, modname, filepath, all_setups, logger):
     try:
         with open(filepath, 'rb') as modfile:
             code = modfile.read()
-    except IOError as err:
+    except OSError as err:
         logger.exception('Could not read setup '
                          'module %r: %s', filepath, err)
         return
     ns = prepareNamespace(modname, filepath, all_setups)
     try:
-        exec_(code, ns)
+        exec(code, ns)
     except Exception as err:
         logger.exception('An error occurred while processing '
                          'setup %r: %s', filepath, err)
@@ -285,7 +282,7 @@ def readSetup(infodict, modname, filepath, all_setups, logger):
         oldinfo['modules'].extend(info['modules'])
         oldinfo['devices'].update(info['devices'])
         # remove devices overridden by "None" entries completely
-        for devname, value in listitems(oldinfo['devices']):
+        for devname, value in list(oldinfo['devices'].items()):
             if value is None:
                 del oldinfo['devices'][devname]
         oldinfo['startupcode'] += '\n' + info['startupcode']

@@ -18,59 +18,69 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #   Matthias Pomm    <matthias.pomm@hzg.de>
 #
 # *****************************************************************************
-"""Support Code 2 Motors: drive one, get one free: backguard left and right."""
+"""Devices with an inclination."""
 
-from __future__ import absolute_import, division, print_function
-
-from nicos.core import Moveable
-from nicos.core.params import Attach, Param, floatrange
+from nicos.core import Readable
+from nicos.core.mixins import HasOffset
+from nicos.core.params import Attach, Param
 from nicos.devices.abstract import Motor
 
 
-class SkewMotor(Motor):
+class SkewRead(Readable):
+    """Device having two axes and an inclination.
+
+    The position is the mid between the one and two device.
+    """
+
+    attached_devices = {
+        'one': Attach('readable device 1', Readable),
+        'two': Attach('readable device 2', Readable),
+    }
+
+    def _read_devices(self, maxage=0):
+        return [d.read(maxage) for d in self._adevs.values()]
+
+    def doRead(self, maxage=0):
+        return sum(self._read_devices(maxage)) / 2.
+
+
+class SkewMotor(HasOffset, SkewRead, Motor):
     """Device moving by using two axes and having a fixed inclination.
 
     Both axis have a fixed inclination given by the ``skew`` parameter.  The
     position of the devices is given for the middle between both axis.  The
-    ``motor_1`` device has always the smaller position value than the
-    ``motor_2`` device.
+    ``one`` device has always the smaller position value than the
+    ``two`` device.
 
-    pos(motor_1) + skew / 2 == pos == pos(motor_2) - skew / 2.
+    pos(one) + skew / 2 == pos == pos(two) - skew / 2.
     """
 
-    attached_devices = {
-        'motor_1': Attach('moving motor, 1', Moveable),
-        'motor_2': Attach('moving motor, 2', Moveable),
-    }
-
     parameters = {
-        'skew': Param('Skewness of hardware, difference between both motors',
-                      type=floatrange(0.), default=0.,
-                      settable=True, unit='main'),
+        'skew': Param('Skewness of hardware, difference between "one" and '
+                      '"two"',
+                      type=float, default=0., settable=True, unit='main'),
     }
 
-    def _read_motors(self, maxage=0):
-        return self._attached_motor_1.read(maxage), \
-            self._attached_motor_2.read(maxage)
+    def _read_devices(self, maxage=0):
+        return self._attached_one.read(maxage), self._attached_two.read(maxage)
 
     def doRead(self, maxage=0):
-        return sum(self._read_motors(maxage)) / 2.
+        return sum(self._read_devices(maxage)) / 2.
 
-    def doIsAtTarget(self, pos):
-        if self.target is None:
+    def doIsAtTarget(self, pos, target):
+        if target is None:
             return True
-        if not self._attached_motor_1.isAtTarget(pos - self.skew / 2.) or \
-           not self._attached_motor_2.isAtTarget(pos + self.skew / 2.):
-            return False
-        m1, m2 = self._read_motors()
+        m1, m2 = self._read_devices()
         self.log.debug('%.3f, %.3f, %.3f, %.3f', m1, m2, (m1 + self.skew / 2.),
                        (m2 - self.skew / 2.))
+        if (not self._attached_one.isAtTarget(m1, pos - self.skew / 2.)
+           or not self._attached_two.isAtTarget(m2, pos + self.skew / 2.)):
+            return False
         return abs(m1 - m2 + self.skew) <= self.precision
 
     def doStart(self, target):
-        self._attached_motor_1.move(target - self.skew / 2.)
-        self._attached_motor_2.move(target + self.skew / 2.)
+        self._attached_one.move(target - self.skew / 2.)
+        self._attached_two.move(target + self.skew / 2.)

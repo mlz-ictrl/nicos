@@ -24,8 +24,6 @@
 
 """Module for SANS-1 specific commands."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.commands import usercommand
 from nicos.commands.device import maw, move
@@ -100,7 +98,7 @@ def freqmes(assumed_freq, number_of_counts):
     for i in range(number_of_counts):
         print(i + 1)
         value = valuedev.read(0)
-        if value > untere_grenze and value < obere_grenze:
+        if untere_grenze < value < obere_grenze:
             value_list.append(value)
         else:
             wrong_list.append(value)

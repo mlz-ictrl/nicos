@@ -24,8 +24,6 @@
 
 """Refsans specific sample implementation."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.params import Param, floatrange
 from nicos.devices.sample import Sample as BaseSample
 

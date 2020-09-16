@@ -26,8 +26,6 @@
 NICOS Resi Experiment.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import os
 from os import path
 
@@ -111,7 +109,6 @@ class ResiExperiment(Experiment):
 
     def _handleTemplates(self, proposal, kwds):
         """hhm"""
-        pass
 
     def finish(self):
         pass

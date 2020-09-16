@@ -41,8 +41,6 @@
 # ---------------------------------------------------------------------------------------------
 # IMPORTS
 # ---------------------------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function
-
 import sys
 
 from nicos.guisupport.qt import QApplication, QColor, QFont, QGridLayout, \
@@ -104,7 +102,7 @@ def scale(val, src, dst):
     """
     return int(((val - src[0]) / float(src[1]-src[0])) * (dst[1]-dst[0]) + dst[0])
 
-class Ui_Form(object):
+class Ui_Form:
     """default range slider form"""
 
     def setupUi(self, Form):

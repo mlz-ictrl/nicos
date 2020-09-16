@@ -24,11 +24,9 @@
 
 """Command-line client for the NICOS daemon."""
 
-from __future__ import absolute_import, division, print_function
-
+import configparser
 import ctypes
 import ctypes.util
-import errno
 import getpass
 import glob
 import os
@@ -53,7 +51,6 @@ from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \
     SIM_STATES, STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK
 from nicos.protocols.daemon.classic import DEFAULT_PORT
-from nicos.pycompat import configparser, iteritems, to_encoding
 from nicos.utils import colorize, formatDuration, formatEndtime, \
     parseConnectionString, terminalSize
 from nicos.utils.loggers import ACTION, INPUT
@@ -183,18 +180,18 @@ class NicosCmdClient(NicosClient):
         # pylint: disable=global-statement
         global readline_result
         term_encoding = sys.stdout.encoding or 'utf-8'
-        librl.rl_callback_handler_install(to_encoding(prompt, term_encoding),
+        librl.rl_callback_handler_install(prompt.encode(term_encoding),
                                           c_readline_finish_callback)
         readline_result = Ellipsis
         while readline_result is Ellipsis:
             try:
                 res = select.select([sys.stdin, self.wakeup_pipe_r], [], [], 1)[0]
-            except select.error as e:
-                if e.args[0] == errno.EINTR:
-                    continue
+            except InterruptedError:
+                continue
+            except OSError:
                 librl.rl_callback_handler_remove()
                 raise
-            except:
+            except BaseException:
                 librl.rl_callback_handler_remove()
                 raise
             if sys.stdin in res:
@@ -203,7 +200,7 @@ class NicosCmdClient(NicosClient):
                 os.read(self.wakeup_pipe_r, 1)
                 if not self.in_question:
                     # question has an alternate prompt that never changes
-                    librl.rl_set_prompt(to_encoding(self.prompt, term_encoding))
+                    librl.rl_set_prompt(self.prompt.encode(term_encoding))
                 librl.rl_forced_update_display()
         if readline_result:
             # add to history, but only if requested and not the same as the
@@ -404,7 +401,6 @@ class NicosCmdClient(NicosClient):
             newtext = '(sim) ' + newtext
         self.put(newtext)
 
-    # pylint: disable=W0221
     def signal(self, name, data=None, exc=None):
         """Handles any kind of signal/event sent by the daemon."""
         try:
@@ -415,7 +411,7 @@ class NicosCmdClient(NicosClient):
                 else:
                     self.put_message(data)
             elif name == 'status':
-                status, line = data  # pylint:disable=W0633
+                status, line = data
                 if status == STATUS_IDLE or status == STATUS_IDLEEXC:
                     new_status = 'idle'
                     self.stop_pending = False
@@ -479,7 +475,7 @@ class NicosCmdClient(NicosClient):
                         self.put_message(data, sim=True)
             elif name == 'simresult':
                 if data and data[2] in [self.simuuid, '0']:
-                    timing, devinfo, _ = data  # pylint: disable=W0633
+                    timing, devinfo, _ = data
                     if timing < 0:
                         self.put_client('Dry run resulted in an error.')
                         return
@@ -489,7 +485,7 @@ class NicosCmdClient(NicosClient):
                                      formatEndtime(timing)))
                     if devinfo:
                         dnwidth = max(map(len, devinfo))
-                        sorteditems = sorted(iteritems(devinfo),
+                        sorteditems = sorted(devinfo.items(),
                                              key=lambda x: x[0].lower())
                         for devname, (_, dmin, dmax, aliases) in sorteditems:
                             aliascol = 'aliases: ' + ', '.join(aliases) if aliases else ''
@@ -651,7 +647,7 @@ class NicosCmdClient(NicosClient):
             self.put_client('No script is running.')
 
     def _iter_pending(self):
-        for reqid, script in iteritems(self.pending_requests):
+        for reqid, script in self.pending_requests.items():
             if 'name' in script and script['name']:
                 short = script['name']
             elif 'script' in script:
@@ -1024,7 +1020,7 @@ class NicosCmdClient(NicosClient):
         finally:
             try:
                 readline.write_history_file(self.histfile)
-            except IOError:
+            except OSError:
                 pass
 
     def main_with_command(self, command):

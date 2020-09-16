@@ -27,15 +27,10 @@
 w&t box shows pressore before and after the filter at the instrument.
 """
 
-from __future__ import absolute_import, division, print_function
+import urllib
 
-from nicos.core import CommunicationError, ConfigurationError, NicosError, \
+from nicos.core import Attach, CommunicationError, ConfigurationError, \
     Override, Param, Readable, status
-
-try:
-    from urllib2 import urlopen
-except ImportError:
-    urlopen = None
 
 
 class WutValue(Readable):
@@ -54,25 +49,28 @@ class WutValue(Readable):
     }
 
     def _getRaw(self):
-        if urlopen is None:
-            raise NicosError(self, 'cannot parse web page, urllib2 is not '
-                             'installed on this system')
         url = 'http://%s/Single%s' % (self.hostname, self.port)
         try:
-            response = urlopen(url)
+            response = urllib.request.urlopen(url)
             html = response.read()
-            return html
+            return str(html)
         except ConfigurationError:  # pass through error raised above
             raise
         except Exception as err:
             raise CommunicationError(self, 'wut-box not responding or '
                                      'changed format: %s' % err)
 
+    def _extractUnit(self, raw):
+        return raw.split(';')[-1].split(' ')[-1]
+
+    def _extractValue(self, raw):
+        return float(raw.split(';')[-1].split(' ')[0].replace(',', '.'))
+
     def doReadUnit(self):
-        return self._getRaw().split(';')[-1].split(' ')[-1]
+        return self._extractUnit(self._getRaw())
 
     def doRead(self, maxage=0):
-        return float(self._getRaw().split(';')[-1].split(' ')[0].replace(',', '.'))
+        return self._extractValue(self._getRaw())
 
     def doStatus(self, maxage=0):
         return status.OK, ''
@@ -80,9 +78,9 @@ class WutValue(Readable):
 
 class WutDiff(Readable):
 
-    parameters = {
-        'hostname':     Param('Host name of the wut site',
-                              type=str, mandatory=True),
+    attached_devices = {
+        'dev1': Attach('1st Device', Readable),
+        'dev2': Attach('2nd Device', Readable),
     }
 
     parameter_overrides = {
@@ -91,29 +89,12 @@ class WutDiff(Readable):
         'maxage':       Override(default=125),
     }
 
-    def _getRaw(self):
-        if urlopen is None:
-            raise NicosError(self, 'cannot parse web page, urllib2 is not '
-                             'installed on this system')
-        url1 = 'http://%s/Single1' % (self.hostname)
-        url2 = 'http://%s/Single2' % (self.hostname)
-        try:
-            response1 = urlopen(url1)
-            response2 = urlopen(url2)
-            html = [response1.read(), response2.read()]
-            return html
-        except ConfigurationError:  # pass through error raised above
-            raise
-        except Exception as err:
-            raise CommunicationError(self, 'wut-box not responding or '
-                                     'changed format: %s' % err)
-
     def doReadUnit(self):
-        return self._getRaw()[0].split(';')[-1].split(' ')[-1]
+        return self._attached_dev1.unit
 
     def doRead(self, maxage=0):
-        return (float(self._getRaw()[0].split(';')[-1].split(' ')[0].replace(',', '.'))-
-              float(self._getRaw()[1].split(';')[-1].split(' ')[0].replace(',', '.')))
+        return self._attached_dev1.doRead(maxage) - \
+            self._attached_dev2.doRead(maxage)
 
     def doStatus(self, maxage=0):
         return status.OK, ''

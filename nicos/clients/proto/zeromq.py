@@ -22,13 +22,10 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import zmq
 
 from nicos.protocols.daemon import DAEMON_EVENTS, \
     ClientTransport as BaseClientTransport, ProtocolError
-from nicos.pycompat import from_utf8, to_utf8
 
 
 class ClientTransport(BaseClientTransport):
@@ -61,7 +58,7 @@ class ClientTransport(BaseClientTransport):
 
     def send_command(self, cmdname, args):
         data = self.serializer.serialize_cmd(cmdname, args)
-        self.sock.send_multipart([to_utf8(cmdname), '', data])
+        self.sock.send_multipart([cmdname.encode(), b'', data])
 
     def get_reply(self):
         item = self.sock.recv_multipart()
@@ -73,7 +70,7 @@ class ClientTransport(BaseClientTransport):
         item = self.event_sock.recv_multipart()
         if len(item) < 3:
             raise ProtocolError('invalid frames received')
-        event = from_utf8(item[1])
+        event = item[1].decode()
         # serialized or raw event data?
         if DAEMON_EVENTS[event][0]:
             return self.serializer.deserialize_event(item[2], item[1])

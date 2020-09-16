@@ -24,8 +24,6 @@
 
 """NICOS generic devices test suite."""
 
-from __future__ import absolute_import, division, print_function
-
 import mock
 
 from nicos.commands.measure import count
@@ -37,7 +35,7 @@ from test.utils import approx, raises
 session_setup = 'generic'
 
 
-class TestManualVirtual(object):
+class TestManualVirtual:
 
     def test_virtual_motor(self, session):
         v = session.getDevice('v1')
@@ -85,7 +83,7 @@ class TestManualVirtual(object):
         assert raises(PositionError, m3.read, 0)
 
 
-class TestSwitcher(object):
+class TestSwitcher:
 
     def test_switcher(self, session):
         sw = session.getDevice('sw')

@@ -24,25 +24,21 @@
 
 """Utilities for the NICOS daemon."""
 
-from __future__ import absolute_import, division, print_function
-
-import sys
 import ast
 import linecache
 import logging
+import queue
 import re
+import sys
 import time
 from threading import Event, Lock
 
 from nicos import session
-from nicos.pycompat import PY2, text_type
 from nicos.utils import fixupScript
 from nicos.utils.loggers import ACTION, recordToMessage
 
 TIMESTAMP_FMT = '%Y-%m-%d %H:%M:%S'
 
-# compile flag to activate new division (remove after dropping py2)
-CO_DIVISION = 0x2000 if PY2 else 0
 
 # -- General utilities --------------------------------------------------------
 
@@ -77,9 +73,7 @@ def formatScript(script, prompt='>>>'):
 def parseScript(script, name=None, format=None, compilecode=True):
     if compilecode:
         def compiler(src):
-            if not isinstance(src, text_type):
-                src = src.decode('utf-8')
-            return compile(src + '\n', '<script>', 'single', CO_DIVISION)
+            return compile(src + '\n', '<script>', 'single')
     else:
         compiler = lambda src: src
     if '\n' not in script:
@@ -110,8 +104,6 @@ def parseScript(script, name=None, format=None, compilecode=True):
 def splitBlocks(text):
     """Parse a script into multiple blocks."""
     codelist = []
-    if not isinstance(text, text_type):
-        text = text.decode('utf-8')
     mod = ast.parse(text + '\n', '<script>')
     assert isinstance(mod, ast.Module)
     # construct an individual compilable unit for each block
@@ -124,7 +116,7 @@ def splitBlocks(text):
         new_mod.body = [toplevel]
         # do not change the name (2nd parameter); the controller
         # depends on that
-        codelist.append(compile(new_mod, '<script>', 'exec', CO_DIVISION))
+        codelist.append(compile(new_mod, '<script>', 'exec'))
     return codelist, mod.body
 
 
@@ -139,7 +131,7 @@ def updateLinecache(name, script):
 
 # -- Logging utilities --------------------------------------------------------
 
-class LoggerWrapper(object):
+class LoggerWrapper:
     """
     Adds more information to logging records.  Similar to LoggerAdapter,
     which is new in Python 2.5.
@@ -185,7 +177,7 @@ class DaemonLogHandler(logging.Handler):
 
 # -- Script queue -------------------------------------------------------------
 
-class QueueOperator(object):
+class QueueOperator:
     """Operations on the queue that must be done while the lock is held."""
 
     def __init__(self, queue):
@@ -207,7 +199,7 @@ class QueueOperator(object):
         self.queue[reqid].user = user
 
 
-class ScriptQueue(object):
+class ScriptQueue:
     """Specialized queue for scripts that can be re-sorted and updated."""
 
     def __init__(self):
@@ -263,3 +255,26 @@ class ScriptQueue(object):
             if item.reqid == key:
                 return item
         raise IndexError
+
+
+# -- Size-limited queue (for event senders) ------------------------------------
+
+class SizedQueue(queue.Queue):
+    """A Queue that limits the total size of event messages"""
+    def _init(self, maxsize):
+        assert maxsize > 0
+        self.nbytes = 0
+        queue.Queue._init(self, maxsize)
+
+    def _qsize(self):
+        return self.nbytes
+
+    def _put(self, item):
+        # size of the queue item should never be zero, so add one
+        self.nbytes += len(item[1]) + 1
+        self.queue.append(item)
+
+    def _get(self):
+        item = self.queue.popleft()
+        self.nbytes -= len(item[1]) + 1
+        return item

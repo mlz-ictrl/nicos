@@ -24,8 +24,6 @@
 
 """Bersans file format saver, exclusively used at SANS1"""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 from time import localtime, strftime, time as currenttime
 
@@ -33,7 +31,7 @@ from nicos import session
 from nicos.core import Override, Param, Readable, status
 from nicos.core.utils import DeviceValueDict
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-from nicos.pycompat import iteritems, to_ascii_escaped, to_utf8
+from nicos.utils import toAscii
 
 # not a good solution: BerSANS keys are fixed, but devicenames
 # (and their existence) is instrument specific...
@@ -343,14 +341,14 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
         # also ignore some keys :(
         ignore = ('det1_lastlistfile', 'det1_lasthistfile')
         for (dev, param), (value, strvalue, _unit, _category) in \
-                iteritems(self.dataset.metainfo):
+                self.dataset.metainfo.items():
             devname_key = '%s_%s' % (dev, param)
             if devname_key in ignore:
                 continue
             metadata[devname_key] = value
             nicosheader.append('%s=%s' % (devname_key, strvalue))
 
-        nicosheader = b'\n'.join(sorted(map(to_ascii_escaped, nicosheader)))
+        nicosheader = '\n'.join(sorted(map(toAscii, nicosheader))).encode()
         self.log.debug('nicosheader starts with: %40s', nicosheader)
 
         # write Header
@@ -360,7 +358,7 @@ class BerSANSImageSinkHandler(SingleFileSinkHandler):
         for line in header.split('\n'):
             self.log.debug('testing header line: %r', line)
             self.log.debug(line % metadata)
-            fp.write(to_utf8(line % metadata))
+            fp.write((line % metadata).encode())
             fp.write(b'\n')
 
         # also append nicos header

@@ -24,8 +24,6 @@
 
 """Module to test custom specific modules."""
 
-from __future__ import absolute_import, division, print_function
-
 import pytest
 
 from nicos.core import status
@@ -93,12 +91,15 @@ def test_skewmotor(session):
     assert bg.precision == 0.1
     assert bg.read(0) == 0
     bg.maw(1)
-    assert bg.read(0) == 1
-    assert bg._attached_motor_1.read(0) == 0
-    assert bg._attached_motor_2.read(0) == 2
-    assert bg._attached_motor_1.isAtTarget(0)
-    assert bg._attached_motor_2.isAtTarget(2)
-    assert bg.isAtTarget(1)
+    bgpos = bg.read(0)
+    m1pos = bg._attached_one.read(0)
+    m2pos = bg._attached_two.read(0)
+    assert bgpos == 1
+    assert m1pos == 0
+    assert m2pos == 2
+    assert bg._attached_one.isAtTarget(m1pos, 0)
+    assert bg._attached_two.isAtTarget(m2pos, 2)
+    assert bg.isAtTarget(bgpos, 1)
 
 
 def test_focuspoint(session):
@@ -130,7 +131,7 @@ def test_resolution(session):
     assert res.read(0) == 6.168
 
 
-class TestDevices(object):
+class TestDevices:
     """Test class for the 'simple' REFSANS devices."""
 
     @pytest.fixture(scope='function', autouse=True)
@@ -151,7 +152,7 @@ class TestDevices(object):
         assert identity.read(0) == raw.read(0)
 
 
-class TestChopper(object):
+class TestChopper:
     """Test class for the REFSANS chopper device."""
 
     @pytest.fixture(scope='function', autouse=True)

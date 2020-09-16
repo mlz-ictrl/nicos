@@ -23,17 +23,15 @@
 #
 # *****************************************************************************
 
-u"""IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
-
-from __future__ import absolute_import, division, print_function
+"""IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
 
 import select
 import socket
 from threading import RLock
 
-from IO import StringIO
+from IO import StringIO  # pylint: disable=import-error
 from RS485Client import RS485Client  # pylint: disable=import-error
-from TACOClient import TACOError
+from TACOClient import TACOError  # pylint: disable=import-error
 
 from nicos import session
 from nicos.core import SIMULATION, Attach, CommunicationError, Device, \
@@ -413,7 +411,7 @@ class IPCModBusTCP(IPCModBusRS232):
                     response += data
                     if response[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
                         return response
-        except (socket.error, select.error) as err:
+        except OSError as err:
             if last_try:
                 raise CommunicationError(
                     self, 'tcp connection failed: %s' % err)
@@ -459,7 +457,7 @@ class IPCModBusSerial(IPCModBusRS232):
                 response += data
                 if response and response[-1] in (EOT, DC1, DC2, DC3, ACK, NAK):
                     return response
-        except IOError as err:
+        except OSError as err:
             if last_try:
                 raise CommunicationError(self, 'serial line failed: %s' % err)
             # try reopening connection

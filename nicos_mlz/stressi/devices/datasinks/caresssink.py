@@ -23,8 +23,6 @@
 # *****************************************************************************
 """The STRESSI specific CARESS data writing module."""
 
-from __future__ import absolute_import, division, print_function
-
 import numbers
 import time
 from collections import OrderedDict, namedtuple
@@ -38,7 +36,6 @@ from nicos.core.constants import FINAL, POINT, SCAN, SUBSCAN
 from nicos.core.data import DataSinkHandler
 from nicos.core.errors import ConfigurationError
 from nicos.devices.datasinks import FileSink
-from nicos.pycompat import iteritems, string_types, to_utf8
 
 __version__ = '0.0.1'
 
@@ -90,7 +87,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._buffer = b''
 
     def _string(self, value):
-        value = to_utf8(value)
+        value = value.encode()
         buf = pack('B', CHARTYPE) + self._len(len(value)) + value.upper()
         self._file_write(buf)
 
@@ -113,7 +110,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
     def _write_string(self, key, data):
         self._defcmd(key)
         self._string(key)
-        data = to_utf8(data)
+        data = data.encode()
         buf = pack('BBB', 0x80, CHARTYPE, 0x81) + self._len(len(data)) + data
         self._file_write(buf)
 
@@ -150,7 +147,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         buf = b'\x80'
         sbuf = b''
         for item in l:
-            item = to_utf8(item)
+            item = item.encode()
             buf += pack('BBBB', 0x80, CHARTYPE, 0x81, len(item))
             sbuf += item
         buf += b'\x81\x01'
@@ -167,7 +164,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
 
     def _remove_none_values(self, d):
         nonelist = []
-        for k, v in iteritems(d):
+        for k, v in d.items():
             if v is None:
                 self.log.warning('Found %r value for %r', v, k)
                 nonelist += [k]
@@ -200,7 +197,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         for k, v in d.items():
             if isinstance(v, numbers.Number):
                 self._write_float(v)
-            elif isinstance(v, string_types) and (v in self.sink.mapping):
+            elif isinstance(v, str) and (v in self.sink.mapping):
                 self.log.debug('%s = %r -> %r', k, v, self.sink.mapping[v])
                 self._write_float(self.sink.mapping[v])
             else:  # some values are not convertable into a number: lists, ...
@@ -490,12 +487,11 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         for dev, key in metainfo:
             self.log.debug('put meta info: %s.%s = %r',
                            dev, key, metainfo[dev, key][0])
-        return
 
     def _write_header(self, point):
         self.log.debug('_write_header: %r', point.settype)
         bycategory = {}
-        for (dev, key), (v, _, _, cat) in iteritems(point.metainfo):
+        for (dev, key), (v, _, _, cat) in point.metainfo.items():
             if dev == 'adet':
                 pass
             if cat:

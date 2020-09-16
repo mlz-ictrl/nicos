@@ -2,6 +2,8 @@ description = 'Slit ZB1 using beckhoff controllers'
 
 group = 'lowlevel'
 
+include1 = ['zz_absoluts']
+
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
@@ -33,16 +35,6 @@ devices = dict(
     #     maxtries = 3,
     #     lowlevel = True,
     # ),
-    zb1_motor = device(code_base + 'beckhoff.nok.BeckhoffMotorCab1M13',
-        description = 'CAB1 controlled zb1 (M23), sample side',
-        tangodevice = tango_base + 'optic/io/modbus',
-        address = 0x3020+index*10, # word address
-        slope = 10000,
-        unit = 'mm',
-        ruler = 291.092, #abs enc! -54.080,
-        abslimits = (-178.9,  53.9),
-        lowlevel = True,
-    ),
     # zb1_temp = device(code_base + 'beckhoff.nok.BeckhoffTemp',
     #     description = 'Temperatur for ZB1 Motor',
     #     tangodevice = tango_base + 'optic/io/modbus',

@@ -24,8 +24,6 @@
 
 """TREFF mirror sample device."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Param
 from nicos.core.params import floatrange, none_or
 from nicos.devices.sample import Sample

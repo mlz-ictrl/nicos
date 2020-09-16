@@ -46,7 +46,7 @@ except ImportError:
     KafkaLoggingHandler = None
 
 
-class Config(object):
+class Config:
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             self.__setattr__(key, value)
@@ -54,7 +54,7 @@ class Config(object):
 
 @pytest.mark.skipif(ESSGELFTCPHandler is None,
                     reason="graypy module not installed")
-class TestGraylogHandler(object):
+class TestGraylogHandler:
     logging_type = ESSGELFTCPHandler
 
     def test_logger_inherit_from_handler(self):
@@ -74,7 +74,7 @@ class TestGraylogHandler(object):
 
 @pytest.mark.skipif(KafkaLoggingHandler is None,
                     reason="kafka-logging-handler module not installed")
-class TestKafkaHandler(object):
+class TestKafkaHandler:
     logger_type = KafkaLoggingHandler
 
     def test_logger_inherit_from_handler(self):
@@ -110,7 +110,7 @@ class TestKafkaHandler(object):
 
 @pytest.mark.skipif(MongoLogHandler is None,
                     reason="kafka-logging-handler module not installed")
-class TestMongoHandler(object):
+class TestMongoHandler:
     logger_type = MongoLogHandler
 
     def test_logger_inherit_from_handler(self):
@@ -138,7 +138,7 @@ class TestMongoHandler(object):
 @pytest.mark.skipif(KafkaLoggingHandler is None or ESSGELFTCPHandler is None,
                     reason="graypy and/or kafka-logging-handler module not "
                            "installed")
-class TestMultipleHandlers(object):
+class TestMultipleHandlers:
 
     @patch.object(KafkaLoggingHandler, '__init__', return_value=None)
     def test_import_ess_loggers(self, obj):
@@ -153,7 +153,7 @@ class TestMultipleHandlers(object):
                 isinstance(handler, ESSGELFTCPHandler)]
 
 
-class TestNoHandlers(object):
+class TestNoHandlers:
 
     def test_import_demo_loggers(self):
         config = Config(graylog='//localhost:12201',

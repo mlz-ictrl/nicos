@@ -24,12 +24,10 @@
 #
 # *****************************************************************************
 
-u"""PUMA specific modifications to NICOS's module for IPC.
+"""PUMA specific modifications to NICOS's module for IPC.
 
 (Institut für Physikalische Chemie, Göttingen) hardware classes.
 """
-
-from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
@@ -41,7 +39,6 @@ from nicos.core.errors import NicosError, NicosTimeoutError, UsageError
 from nicos.core.mixins import HasOffset
 from nicos.devices.abstract import CanReference
 from nicos.devices.vendor.ipc import Coder as IPCCoder, Motor as IPCMotor
-from nicos.pycompat import string_types
 from nicos.utils import createThread
 
 DIR_POS = 34
@@ -75,7 +72,6 @@ class Coder(IPCCoder):
     def doWriteConfbyte(self, byte):
         self.log.warning('Config byte can\'t be changed like this.')
         # self._attached_bus.send(self.addr, 154, byte, 3)
-        return
 
     def doUpdatePoly(self, poly):
         self._fit = np.polynomial.Polynomial(poly)
@@ -102,12 +98,10 @@ class Motor(IPCMotor):
         #     raise InvalidValueError(self, 'confbyte not supported by card')
         # self.log.info('parameter change not permanent, use _store() method '
         #               'to write to EEPROM')
-        return
 
     def doWriteSteps(self, value):
         self.log.debug('not setting new steps value: %s', value)
         # self._attached_bus.send(self.addr, SET_CURR_POS, value, 6)
-        return
 
 
 class Motor1(Motor):
@@ -254,8 +248,7 @@ class ReferenceMotor(CanReference, Motor1):
         return Motor1.doStatus(self, maxage)
 
     def doReference(self, *args):
-        refswitch = args[0] if args and isinstance(args[0], string_types) \
-            else None
+        refswitch = args[0] if args and isinstance(args[0], str) else None
         if self.doStatus()[0] == status.BUSY:
             self.stop()
             self.wait()

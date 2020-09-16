@@ -22,16 +22,13 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.core import Attach, Param, dictof, listof, status, usermethod
 from nicos.core.device import Moveable, Readable
 from nicos.core.errors import ConfigurationError
 from nicos.devices.generic.sequence import BaseSequencer, SeqCall, SeqDev, \
     SeqSleep
-from nicos.pycompat import number_types
-from nicos.utils import printTable
+from nicos.utils import number_types, printTable
 
 from nicos_sinq.amor.devices.sps_switch import SpsSwitch
 
@@ -71,7 +68,7 @@ class DistancesHandler(BaseSequencer):
         'rawdistances': Param('Calculated distances of components',
                               type=dictof(str, float), userparam=False,
                               settable=True),
-        'order': Param('Order of componenets for display/mesaurment',
+        'order': Param('Order of components for display/measurement',
                        type=listof(str), userparam=False)
     }
 
@@ -149,7 +146,7 @@ class DistancesHandler(BaseSequencer):
             return status.BUSY, 'Measuring'
         return status.OK, ''
 
-    def doIsAtTarget(self, pos):
+    def doIsAtTarget(self, pos, target):
         return True
 
     def _update_component(self, component, printValues=False):
@@ -193,7 +190,7 @@ class DistancesHandler(BaseSequencer):
 
     def _components(self):
         # Return the ordered list of components
-        components = self.components.keys() + self.fixedcomponents.keys()
+        components = list(self.components) + list(self.fixedcomponents)
 
         # Add the missing components in the order dict
         ordered = self.order

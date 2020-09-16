@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Widget to display the setups and devices in the tree."""
 
-from __future__ import absolute_import, division, print_function
-
 from copy import deepcopy
 from os import path
 
@@ -288,7 +286,7 @@ class TreeWidget(TreeWidgetContextMenu):
                 return None, None
             try:
                 open(abspath, 'w').close()
-            except IOError:
+            except OSError:
                 QMessageBox.warning(self, 'Error', 'Could not create new '
                                     'setup!')
                 return None, None
