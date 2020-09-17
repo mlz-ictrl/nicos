@@ -3,16 +3,16 @@ description = 'The PACE5000 in the ESSIIP-lab.'
 pv_root = 'SES-PREMP:Pctrl-PACE5000-01:'
 
 devices = dict(
-    pace_setpoint = device('nicos_ess.devices.epics.base.EpicsAnalogMoveableEss',
+    pace_setpoint = device('nicos.devices.epics.EpicsAnalogMoveable',
          description = 'The pressure set-point',
          readpv = '{}Setpoint_RBV'.format(pv_root),
          writepv = '{}Setpoint'.format(pv_root),
     ),
-    pace_pressure = device('nicos_ess.devices.epics.base.EpicsReadableEss',
+    pace_pressure = device('nicos.devices.epics.EpicsReadable',
          description = 'The current pressure',
          readpv = '{}Pressure_RBV'.format(pv_root),
     ),
-    pace_effort = device('nicos_ess.devices.epics.base.EpicsReadableEss',
+    pace_effort = device('nicos.devices.epics.EpicsReadable',
          description = 'The current effort',
          readpv = '{}Effort_RBV'.format(pv_root),
     ),
@@ -26,7 +26,7 @@ devices = dict(
                   'Vent complete': 2,
                  },
     ),
-    pace_slew = device('nicos_ess.devices.epics.base.EpicsAnalogMoveableEss',
+    pace_slew = device('nicos.devices.epics.EpicsAnalogMoveable',
          description = 'The current slew',
          readpv = '{}Slew_RBV'.format(pv_root),
          writepv = '{}Slew'.format(pv_root),
