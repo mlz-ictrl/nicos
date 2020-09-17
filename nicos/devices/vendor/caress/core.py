@@ -157,10 +157,11 @@ class CARESSDevice(HasCommunication):
                 session.delay(0.5)
             return self.cid
         self.log.debug('get CARESS device ID: %r', device)
-        answer = createSubprocess('cd %s && %s/dump_u1 -n %s' %
-                                  (self.caresspath, self.toolpath, device, ),
-                                  shell=True,
-                                  stdout=subprocess.PIPE).stdout.read()
+        answer = createSubprocess(
+            'cd %s && %s/dump_u1 -n %s' % (
+                self.caresspath, self.toolpath, device),
+            shell=True, stdout=subprocess.PIPE, universal_newlines=True,
+            ).communicate()[0]
         self._caress_name = device
         if answer in ('', None):
             if not CARESSDevice._caress_maps:
@@ -170,7 +171,7 @@ class CARESSDevice(HasCommunication):
                     max(CARESSDevice._caress_maps.values())
             res = CARESSDevice._caress_maps[device]
         else:
-            res = int(answer.decode().split('=')[1])
+            res = int(answer.split('=')[1])
         self.log.debug('get CARESS device ID: %r', res)
         return res
 
