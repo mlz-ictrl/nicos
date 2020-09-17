@@ -231,7 +231,7 @@ class MainWindow(DefaultMainWindow):
             return
         if save:
             self.lastpreset = save
-            self.conn_presets[save] = new_data
+            self.connpresets[save] = new_data
         else:
             self.lastpreset = new_name
         self.conndata = new_data
