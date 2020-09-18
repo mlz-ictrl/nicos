@@ -5,7 +5,7 @@ description = 'Andor IKON-L CCD camera'
 group = 'optional'
 
 includes = ['filesavers']
-excludes = ['detector', 'detector_ikonl']
+excludes = ['detector', 'detector_ikonl', 'detector_neo']
 
 tango_base = 'tango://nectarccd01.nectar.frm2:10000/nectar/'
 nethost = 'nectarsrv.nectar.frm2'  # taco
