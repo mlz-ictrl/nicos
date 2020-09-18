@@ -57,12 +57,12 @@ class JsonBase(Readable):
             self.log.info(line)
             self.log.info('url %s' % self.url)
             self.log.info('err %s' % e)
-            raise CommunicationError(self, 'HTTP Timeout failed')
+            raise CommunicationError(self, 'HTTP Timeout failed') from e
         except Exception as e:
             self.log.info(line)
             self.log.info('url %s' % self.url)
             self.log.info('err %s' % e)
-            raise ConfigurationError(self, 'HTTP request failed')
+            raise ConfigurationError(self, 'HTTP request failed') from e
         res = {}
         for key in keys:
             res[key] = data[key]
