@@ -1,8 +1,4 @@
-from __future__ import absolute_import, division, print_function
-
 import ast
-
-from six import string_types
 
 
 class TemplateScriptHandler(ast.NodeVisitor):
@@ -95,12 +91,6 @@ class TemplateScriptHandler(ast.NodeVisitor):
                         ret.append(k2.arg)
                     if self._is_key(self._value(k1.value)):
                         ret.append(self._value(k2.value))
-            if hasattr(node1, 'starargs'):  # only python2 has it
-                if node1.starargs or node2.starargs:
-                    if self._is_key(self._value(node1.starargs)):
-                        ret.append(self._value(node2.starargs))
-                    else:
-                        print('Call', node1.starargs, node2.starargs)
         elif isinstance(node1.func, ast.Attribute):
             # print('Call', node1.func.attr, node2.func.attr)
             if node1.func.attr == node2.func.attr:
@@ -147,7 +137,7 @@ class TemplateScriptHandler(ast.NodeVisitor):
         return [self._value(e) for e in node.elts]
 
     def _is_key(self, s):
-        if isinstance(s, string_types):
+        if isinstance(s, str):
             return s.startswith(self.kmark) and s.endswith(self.kmark)
         return False
 

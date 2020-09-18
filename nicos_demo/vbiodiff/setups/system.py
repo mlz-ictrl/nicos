@@ -50,8 +50,8 @@ devices = dict(
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-19',
         responsible = "Tobias Schrader <t.schrader@fz-juelich.de>",
         operators = [
-            u'Technische Universität München (TUM)',
-            u'Jülich Centre for Neutron Science (JCNS)',
+            'Technische Universität München (TUM)',
+            'Jülich Centre for Neutron Science (JCNS)',
         ],
         website = 'http://www.mlz-garching.de/biodiff',
     ),

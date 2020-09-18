@@ -26,9 +26,8 @@
 NICOS value plot widget.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import functools
+import itertools
 import operator
 from time import localtime, strftime, time as currenttime
 
@@ -50,11 +49,9 @@ from gr import MARKERTYPE_ASTERISK, MARKERTYPE_BOWTIE, MARKERTYPE_CIRCLE, \
 from gr.pygr import Plot, PlotAxes, PlotCurve
 
 from nicos.guisupport.qt import QHBoxLayout, QSize, QTimer, QWidget, pyqtSignal
-from nicos.guisupport.qtgr import InteractiveGRWidget, \
-    LegendEvent, MouseEvent
+from nicos.guisupport.qtgr import InteractiveGRWidget, LegendEvent, MouseEvent
 from nicos.guisupport.timeseries import TimeSeries, buildTickDistAndSubTicks
 from nicos.guisupport.widget import NicosWidget, PropDef
-from nicos.pycompat import zip_longest
 from nicos.utils import extractKeyAndIndex
 
 DATEFMT = '%Y-%m-%d'
@@ -197,7 +194,7 @@ class NicosTimePlotAxes(NicosPlotAxes):
     def doAutoScale(self, curvechanged=None):
         vc = self.getVisibleCurves() or self.getCurves()
         win = NicosPlotAxes.doAutoScale(self, curvechanged)
-        xmin, xmax, ymin, ymax = win  # pylint: disable=unpacking-non-sequence
+        xmin, xmax, ymin, ymax = win
         if self.slidingwindow and self.autoscale & PlotAxes.SCALE_X and \
            (vc.xmax - xmin) > self.slidingwindow:
             xmin = vc.xmax - self.slidingwindow
@@ -237,7 +234,6 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
     width = PropDef('width', int, 30, 'Width of the plot widget in units '
                     'of app font character width.')
 
-    # pylint: disable=W0231
     def __init__(self, parent, designMode=False):
         self.ncurves = 0
         self.ctimers = {}
@@ -365,7 +361,8 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
         self.ctimers[curve].timeout.connect(update)
 
     def registerKeys(self):
-        for key, name in zip_longest(self.props['devices'], self.props['names']):
+        for key, name in itertools.zip_longest(self.props['devices'],
+                                               self.props['names']):
             if name is None:
                 name = key
             key, index, scale, offset = extractKeyAndIndex(key)

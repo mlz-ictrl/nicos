@@ -24,8 +24,6 @@
 # *****************************************************************************
 """Classes to let devices oscillate."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, ConfigurationError, \
     Moveable, Override, Param, limits, oneof, status, tupleof

@@ -9,7 +9,7 @@ code_base = instrument_values['code_base']
 pc_ctrl = instrument_values['pc_ctrl']
 
 sysconfig = dict(
-    cache = pc_ctrl,
+    cache = 'localhost',
     instrument = 'REFSANS',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'configsink', 'livesink'],

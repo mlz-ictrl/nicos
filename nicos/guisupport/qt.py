@@ -22,137 +22,58 @@
 #
 # *****************************************************************************
 
-"""Qt 4/5 compatibility layer.
-
-Qt 5 is preferred since NICOS 3.7.  Therefore, to use Qt 4, the
-environment variable NICOS_QT=4 has to be set to select this version.
+"""Qt compatibility layer.
 """
 
 # pylint: disable=wildcard-import, unused-import, unused-wildcard-import
-# PyQt4.QtCore re-exports the original bin, hex and oct builtins
-# pylint: disable=redefined-builtin
-
-# this one is temporary until build machines have Qt5 installed:
-# pylint: disable=import-error
-
-from __future__ import absolute_import, division, print_function
 
 import os
 import sys
 
-use_qt5 = True
-if os.environ.get('NICOS_QT') == '4':
-    use_qt5 = False
-else:
-    try:
-        import PyQt5.QtCore
-    except (RuntimeError, ImportError):
-        use_qt5 = False
+from PyQt5 import uic
+from PyQt5.QtCore import *
+from PyQt5.QtCore import QObject
+from PyQt5.QtDesigner import *
+from PyQt5.QtGui import *
+from PyQt5.QtPrintSupport import *
+from PyQt5.QtWidgets import *
 
+import nicos.guisupport.gui_rc_qt5
 
-if use_qt5:
-    from PyQt5.QtGui import *
-    from PyQt5.QtWidgets import *
-    from PyQt5.QtCore import QObject
-    from PyQt5.QtCore import *
-    from PyQt5.QtPrintSupport import *
-    from PyQt5.QtDesigner import *
-    from PyQt5 import uic
-
-    try:
-        from PyQt5 import sip
-    except ImportError:
-        import sip
-
-    try:
-        from PyQt5 import QtWebEngineWidgets
-    except (ImportError, RuntimeError):
-        try:
-            from PyQt5 import QtWebKitWidgets
-        except (ImportError, RuntimeError):
-            QWebView = QWebPage = None
-        else:
-            QWebView = QtWebKitWidgets.QWebView
-            QWebPage = QtWebKitWidgets.QWebPage
-    else:
-        QWebView = QtWebEngineWidgets.QWebEngineView
-        QWebPage = QtWebEngineWidgets.QWebEnginePage
-
-    try:
-        from PyQt5 import QtDBus
-    except (ImportError, RuntimeError):
-        QtDBus = None
-
-    try:
-        from PyQt5.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter
-    except (ImportError, RuntimeError):
-        QsciScintilla = QsciLexerPython = QsciPrinter = None
-
-    import nicos.guisupport.gui_rc_qt5
-
-    class QPyNullVariant(object):
-        pass
-
-    propertyMetaclass = type(QObject)
-
-else:
+try:
+    from PyQt5 import sip
+except ImportError:
     import sip
-    sip.setapi('QString', 2)
-    sip.setapi('QVariant', 2)
 
-    from PyQt4.QtGui import *
-    from PyQt4.QtCore import pyqtWrapperType
-    from PyQt4.QtCore import *
-    from PyQt4.QtDesigner import *
-    from PyQt4 import uic
-
+try:
+    from PyQt5 import QtWebEngineWidgets
+except (ImportError, RuntimeError):
     try:
-        from PyQt4 import QtWebKit
+        from PyQt5 import QtWebKitWidgets
     except (ImportError, RuntimeError):
         QWebView = QWebPage = None
     else:
-        QWebView = QtWebKit.QWebView
-        QWebPage = QtWebKit.QWebPage
+        QWebView = QtWebKitWidgets.QWebView
+        QWebPage = QtWebKitWidgets.QWebPage
+else:
+    QWebView = QtWebEngineWidgets.QWebEngineView
+    QWebPage = QtWebEngineWidgets.QWebEnginePage
 
-    try:
-        from PyQt4 import QtDBus
-    except (ImportError, RuntimeError):
-        QtDBus = None
+try:
+    from PyQt5 import QtDBus
+except (ImportError, RuntimeError):
+    QtDBus = None
 
-    try:
-        from PyQt4.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter
-    except (ImportError, RuntimeError):
-        QsciScintilla = QsciLexerPython = QsciPrinter = None
+try:
+    from PyQt5.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter
+except (ImportError, RuntimeError):
+    QsciScintilla = QsciLexerPython = QsciPrinter = None
 
-    import nicos.guisupport.gui_rc_qt4
 
-    try:
-        from PyQt4.QtCore import QPyNullVariant  # pylint: disable=no-name-in-module
-    except ImportError:
-        class QPyNullVariant(object):
-            pass
+class QPyNullVariant:
+    pass
 
-    propertyMetaclass = pyqtWrapperType
-
-    # Compatibility fix: the QFileDialog methods in PyQt5 correspond
-    # to the ...AndFilter methods in PyQt4.
-
-    orig_QFileDialog = QFileDialog
-
-    # pylint: disable=function-redefined
-    class QFileDialog(orig_QFileDialog):
-
-        @staticmethod
-        def getOpenFileName(*args, **kwds):
-            return orig_QFileDialog.getOpenFileNameAndFilter(*args, **kwds)
-
-        @staticmethod
-        def getOpenFileNames(*args, **kwds):
-            return orig_QFileDialog.getOpenFileNamesAndFilter(*args, **kwds)
-
-        @staticmethod
-        def getSaveFileName(*args, **kwds):
-            return orig_QFileDialog.getSaveFileNameAndFilter(*args, **kwds)
+propertyMetaclass = type(QObject)
 
 
 QT_VER = int(QT_VERSION_STR.split('.')[0])

@@ -24,13 +24,10 @@
 
 """Definition of abstract base device classes."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import SLAVE, ConfigurationError, DeviceMixinBase, HasLimits, \
     HasMapping, HasOffset, HasPrecision, InvalidValueError, ModeError, \
     Moveable, Override, Param, PositionError, ProgrammingError, Readable, \
     oneof, status, usermethod
-from nicos.pycompat import iteritems
 from nicos.utils import num_sort
 
 
@@ -62,7 +59,7 @@ class Coder(HasPrecision, Readable):
         raise NotImplementedError('implement doSetPosition for concrete coders')
 
 
-class Motor(HasLimits, Coder, Moveable):  # pylint: disable=W0223
+class Motor(HasLimits, Coder, Moveable):
     """Base class for all motors.
 
     This class inherits from Coder since a Motor can be used instead of a true
@@ -153,7 +150,7 @@ class MappedReadable(HasMapping, Readable):
             raise ConfigurationError(self, 'Value of fallback parameter is '
                                      'not allowed to be in the mapping!')
         self._inverse_mapping = {}
-        for k, v in iteritems(self.mapping):
+        for k, v in self.mapping.items():
             self._inverse_mapping[v] = k
 
     def doStatus(self, maxage=0):

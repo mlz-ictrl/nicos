@@ -24,11 +24,9 @@
 # *****************************************************************************
 """REFSANS neutron guide system class."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Moveable, Override, Param, floatrange, oneof
 from nicos.core.params import Attach
-from nicos.pycompat import number_types, string_types
+from nicos.utils import number_types
 
 
 class Optic(Moveable):
@@ -39,6 +37,10 @@ class Optic(Moveable):
     parameters = {
         'mode': Param('mode of the beam',
                       type=oneof('debug',
+                                 '12mrad234',
+                                 '12mrad789',
+                                 '48mrad',
+                                 '54mrad',
                                  'fc:nok5a',
                                  'fc:nok5b',
                                  'fc:nok6',
@@ -49,15 +51,12 @@ class Optic(Moveable):
                                  'gisans789',
                                  'neutronguide',
                                  'point',
-                                 '12mrad789',
                                  'vc:nok5a',
                                  'vc:nok5a_fc:nok5b',
                                  'vc:nok5a_fc:nok6',
                                  'vc:nok5a_fc:nok7',
                                  'vc:nok5a_fc:nok8',
                                  'vc:nok5a_fc:nok9',
-                                 '48mrad',
-                                 '54mrad',
                                  ),
                       settable=True, userparam=True, category='experiment'),
         # 'polarisation': Param('Polarisation',
@@ -103,7 +102,7 @@ class Optic(Moveable):
 
     def doIsAllowed(self, target):
         self.log.debug('doIsAllowed')
-        if isinstance(target, string_types):
+        if isinstance(target, str):
             try:
                 oneof('horizontal',
                       '12mrad_b3_12.000',
@@ -158,4 +157,4 @@ class Optic(Moveable):
                 self.log.warning(line)
 
     def doReadUnit(self):
-        return '' if isinstance(self.target, string_types) else 'mrad'
+        return '' if isinstance(self.target, str) else 'mrad'

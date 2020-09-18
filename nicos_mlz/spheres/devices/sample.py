@@ -26,10 +26,6 @@
 Devices to control the sample environment at SPHERES
 """
 
-from __future__ import absolute_import, division, print_function
-
-from time import time as currenttime
-
 from nicos import session
 from nicos.core import SIMULATION, oneof
 from nicos.core.params import Attach, Param, tangodev
@@ -97,31 +93,13 @@ class SEController(tango.TemperatureController):
             return None
         return self._dev.target
 
-    def isAtTarget(self, val):
-        ct = currenttime()
-        self._cacheCB('value', val, ct)
-        if self.devtarget is None:
-            return True
-
-        # check subset of _history which is in window
-        # also check if there is at least one value before window
-        # to know we have enough datapoints
-        hist = self._history[:]
-        window_start = ct - self.window
-        hist_in_window = [v for (t, v) in hist if t >= window_start]
-        stable = all(abs(v - self.devtarget) <= self.precision
-                     for v in hist_in_window)
-        if 0 < len(hist_in_window) < len(hist) and stable:  # pylint: disable=len-as-condition
-            if hasattr(self, 'doIsAtTarget'):
-                return self.doIsAtTarget(val)
-            return True
-        return False
-
-    def doIsAtTarget(self, pos):
-        target = self.devtarget
+    def isAtTarget(self, pos=None, target=None):
         if target is None:
-            return True
-        return abs(target - pos) <= self.precision
+            if self.devtarget is None:
+                return True
+            target = self.devtarget
+
+        return TemperatureController.isAtTarget(self, target=target)
 
 
 class PressureController(tango.TemperatureController):

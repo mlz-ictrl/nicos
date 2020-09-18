@@ -24,8 +24,6 @@
 
 """Detector classes for XCCM instrument."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.device import Moveable
 from nicos.core.params import Attach
 from nicos.devices.generic.virtual import VirtualTimer

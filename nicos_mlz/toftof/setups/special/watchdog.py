@@ -29,17 +29,17 @@ watchlist = [
         message = 'Choppers are down! DO SOMETHING!',
     ),
     dict(
-        condition = 'flow_in_ch_cooling < 10',
+        condition = 'flow_in_ch_cooling_value < 10',
         message = 'Cooling water flow is less than 10 l/min',
         priority = 1,
     ),
     dict(
-        condition = 't_in_ch_cooling > 25',
+        condition = 't_in_ch_cooling_value > 25',
         message = 'Cooling water temperature greater than 25 C',
         priority = 2,
     ),
     dict(
-        condition = 'leak_ch_cooling > 3',
+        condition = 'leak_ch_cooling_value > 3',
         message = 'There is a leak in the chopper cooling system',
         priority = 2,
     ),

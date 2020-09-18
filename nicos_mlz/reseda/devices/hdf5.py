@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from time import localtime, strftime, time as currenttime
 
 import h5py
@@ -33,7 +31,7 @@ from nicos.core import DataSinkHandler, Override, Param
 from nicos.core.constants import SCAN, SUBSCAN
 from nicos.core.data.sink import DataFileBase
 from nicos.devices.datasinks import FileSink
-from nicos.pycompat import iteritems, to_ascii_string
+from nicos.utils import toAscii
 
 
 class ResedaHDF5DataFile(DataFileBase, h5py.File):
@@ -135,9 +133,9 @@ class ResedaHDF5SinkHandler(DataSinkHandler):
         hdf5dataset.attrs['endtime'] = strftime('%Y-%m-%d %H:%M:%S',
                             localtime(currenttime()))
 
-        for (dev, param), (_, strvalue, unit, _) in iteritems(metadata):
-            hdf5dataset.attrs['%s/%s' % (dev, param)] = to_ascii_string('%s %s'
-                                                    % (strvalue, unit)).strip()
+        for (dev, param), (_, strvalue, unit, _) in metadata.items():
+            hdf5dataset.attrs['%s/%s' % (dev, param)] = \
+                toAscii('%s %s' % (strvalue, unit)).strip()
 
 
 class ResedaHDF5Sink(FileSink):

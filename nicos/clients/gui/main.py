@@ -25,8 +25,6 @@
 
 """NICOS GUI application startup."""
 
-from __future__ import absolute_import, division, print_function
-
 import argparse
 import logging
 import os
@@ -85,8 +83,7 @@ def main(argv):
 
     # set up logging for unhandled exceptions in Qt callbacks
     def log_unhandled(*exc_info):
-        traceback.print_exception(
-            *exc_info)  # pylint: disable=no-value-for-parameter
+        traceback.print_exception(*exc_info)
         log.exception('unhandled exception in QT callback', exc_info=exc_info)
 
     sys.excepthook = log_unhandled

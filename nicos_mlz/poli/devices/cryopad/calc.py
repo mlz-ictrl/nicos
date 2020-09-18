@@ -29,8 +29,6 @@ NOTE: All angles are taken and returned in degrees.
 From IgorPro routines in Cryopad.c.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from numpy import arccos, arcsin, arctan2, cos, degrees, isnan, radians, sin, \
     sqrt
 

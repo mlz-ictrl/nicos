@@ -24,8 +24,6 @@
 
 """Generic device classes using hardware-specific attached devices."""
 
-from __future__ import absolute_import, division, print_function
-
 # backwards compatibility for config files
 from nicos.core.device import DeviceAlias, NoDevice
 from nicos.devices.generic.axis import Axis

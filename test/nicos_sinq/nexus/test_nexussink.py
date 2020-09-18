@@ -21,8 +21,6 @@
 #   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
-from __future__ import absolute_import, division, print_function
-
 import os
 import time
 from os import path
@@ -47,7 +45,7 @@ year = time.strftime('%Y')
 session_setup = 'sinq_nexussink'
 
 
-class TestNexusSink(object):
+class TestNexusSink:
     datadir = 'testdata2'
 
     @pytest.fixture(scope='class', autouse=True)

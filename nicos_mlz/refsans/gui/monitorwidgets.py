@@ -23,8 +23,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.status import OK
 from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, QPointF, \
     QPolygonF, QSize, Qt, QWidget
@@ -169,7 +167,7 @@ class VRefsans(NicosWidget, QWidget):
                   'nok6', 'nok7', 'nok8']:
             v = self.values[k]
             if isinstance(v, (tuple, readonlylist)):
-                x, y = v  # pylint: disable=W0633
+                x, y = v
             elif isinstance(v, int):
                 x, y = 0, v
             else:

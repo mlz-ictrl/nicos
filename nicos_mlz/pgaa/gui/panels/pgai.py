@@ -24,8 +24,6 @@
 
 """NICOS GUI PGAI panel components."""
 
-from __future__ import absolute_import, division, print_function
-
 import sys
 
 import numpy as np
@@ -44,7 +42,7 @@ from OpenGL.GLUT.fonts import GLUT_STROKE_MONO_ROMAN
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QT_VER, QDialogButtonBox, QDoubleSpinBox, \
+from nicos.guisupport.qt import QDialogButtonBox, QDoubleSpinBox, \
     QFileDialog, QGridLayout, QMessageBox, QScrollBar, QStyledItemDelegate, \
     Qt, QTableWidget, QTableWidgetItem, QWidget, pyqtSignal, pyqtSlot
 from nicos.utils import findResource
@@ -53,10 +51,7 @@ from nicos_mlz.pgaa.gui.panels.collision import cuboid_values, \
     cylinder_values, sphere_values
 
 try:
-    if QT_VER == 5:
-        from PyQt5.QtOpenGL import QGLWidget
-    else:
-        from PyQt4.QtOpenGL import QGLWidget
+    from PyQt5.QtOpenGL import QGLWidget
 except ImportError:
     QGLWidget = QWidget
 
@@ -135,7 +130,7 @@ class GLWidget(QGLWidget):
             glColor3fv(color)
             glPushMatrix()
             offs = np.array([p[0], p[2], p[1]]) / 35. + self.offsets
-            glTranslatef(*offs.tolist())
+            glTranslatef(offs[0], offs[1], offs[2])
             glutSolidCube(size)
             glPopMatrix()
 
@@ -518,7 +513,7 @@ class PGAIPanel(Panel):
                     for line in f.readlines():
                         x, y, z = line.split(',')
                         self.addPoint(float(x), float(y), float(z))
-            except IOError:
+            except OSError:
                 self.fileName.setText('')
 
     def addPoint(self, x, y, z):

@@ -24,8 +24,7 @@
 
 """The NICOS cache collector daemon."""
 
-from __future__ import absolute_import, division, print_function
-
+import queue
 import re
 
 from nicos.core import Attach, Override, Param
@@ -36,7 +35,6 @@ from nicos.core.params import dictof, listof, oneof
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.protocols.cache import OP_TELL, OP_TELLOLD
 from nicos.utils import createThread
-from nicos.pycompat import queue
 
 try:
     import requests

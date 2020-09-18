@@ -24,8 +24,6 @@
 
 """Logging utilities specific to NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import sys
 import time
@@ -35,7 +33,6 @@ from logging import DEBUG, ERROR, INFO, WARNING, Formatter, Handler, Logger, \
 from os import path
 
 from nicos import session
-from nicos.pycompat import binary_type, from_maybe_utf8, text_type
 from nicos.utils import colorize, formatExtendedTraceback
 
 LOGFMT = '%(asctime)s : %(levelname)-7s : %(name)s: %(message)s'
@@ -86,17 +83,12 @@ class NicosLogger(Logger):
             msg = ''
             args = ()
         else:
-            msg = msgs[0]
-            if isinstance(msg, binary_type):
-                msg = from_maybe_utf8(msg)
-            else:
-                msg = text_type(msg)
+            msg = str(msgs[0])
             args = msgs[1:]
         if extramsgs:
             if msg:
                 msg += ' '
-            msg += ' '.join(from_maybe_utf8(msg) if isinstance(msg, binary_type)
-                            else text_type(msg) for msg in extramsgs)
+            msg += ' '.join(map(str, extramsgs))
         return msg, args, exc_info
 
     def error(self, *msgs, **kwds):
@@ -232,13 +224,10 @@ class StreamHandler(Handler):
         finally:
             self.release()
 
-    def emit(self, record, fs='%s\n'):  # pylint: disable=W0221
+    def emit(self, record, fs='%s\n'):
         try:
             msg = self.format(record)
-            try:
-                self.stream.write(fs % msg)
-            except UnicodeEncodeError:
-                self.stream.write(fs % msg.encode('utf-8'))
+            self.stream.write(fs % msg)
             self.flush()
         except Exception:
             self.handleError(record)
@@ -292,7 +281,7 @@ class NicosLogfileHandler(StreamHandler):
     def filter(self, record):
         return not self.disabled
 
-    def emit(self, record):  # pylint: disable=W0221
+    def emit(self, record):
         if record.levelno == ACTION:
             # do not write ACTIONs to logfiles, they're only informative
             return
@@ -351,12 +340,9 @@ class ColoredConsoleHandler(StreamHandler):
         self.setFormatter(NicosConsoleFormatter(
             datefmt=DATEFMT, colorize=colorize))
 
-    def emit(self, record):  # pylint: disable=W0221
+    def emit(self, record):
         msg = self.format(record)
-        try:
-            self.stream.write(msg)
-        except UnicodeEncodeError:
-            self.stream.write(msg.encode('utf-8'))
+        self.stream.write(msg)
         self.stream.flush()
 
 
@@ -420,7 +406,7 @@ def get_facility_log_handlers(config):
     """
     try:
         setup_package_mod = __import__(config.setup_package)
-    except ImportError as _:
+    except ImportError:
         raise RuntimeError('Setup package %r does not exist.' %
                            config.setup_package)
 

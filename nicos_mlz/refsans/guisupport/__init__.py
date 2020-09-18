@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Classes to display the REFSANS instrument."""
 
-from __future__ import absolute_import, division, print_function
-
 from .elements.detector import Detector
 from .elements.tube import Tube
 from .elements.yoke import Yoke

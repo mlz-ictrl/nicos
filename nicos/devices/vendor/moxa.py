@@ -23,8 +23,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import HasCommunication, Param
 from nicos.core.params import host
 from nicos.utils import tcpSocketContext
@@ -47,14 +45,12 @@ class MoxaCommunicator(HasCommunication):
         should implement this method if something is to be executed after
         connecting to socket and before sending the command.
         """
-        pass
 
     def _command_post_send(self, sock):
         """This function is executed after sending the command. The subclasses
         should implement this method if for e.g. the reply is to be checked
         before returning the output.
         """
-        pass
 
     def _command_tty(self, cmd, has_output=True):
         # open TCP connection to Moxa terminal server and close after execution

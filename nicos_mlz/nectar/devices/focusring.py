@@ -24,8 +24,6 @@
 
 """Devices related to the camera focussing."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.params import Param, dictof, limits
 from nicos.devices.generic import Axis
 

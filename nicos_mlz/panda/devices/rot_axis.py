@@ -24,8 +24,6 @@
 
 """PANDA rotary axis for NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.core import MAINTENANCE, MASTER, SIMULATION, ConfigurationError, \
     NicosError, Param, none_or, status
@@ -63,7 +61,7 @@ class RefAxis(Axis):
 
         return Axis.doStart(self, target)  # handles offset as well
 
-    def doReference(self, gotopos=None):  # pylint: disable=W0221
+    def doReference(self, gotopos=None):
         """references this axis by finding the reference switch and then
         setting current position to refpos.
         1) Finding the refswitch by going backwards until the refswitch
@@ -153,7 +151,7 @@ class RefAxis(Axis):
             while not(refsw(m)) and tries > 0:
                 self.log.debug('Another %d slots left to try', tries)
                 try:
-                    m.doStart(m.doRead() - stepsize / 3.)  # pylint: disable=W0631
+                    m.doStart(m.doRead() - stepsize / 3.)
                 except NicosError:
                     # if refswitch is already active, doStart gives an
                     # exception
@@ -235,7 +233,7 @@ class RotAxis(RefAxis):
         if self._wrapped:
             session.delay(self.wrapwaittime)
 
-    def doReference(self, gotopos=None):  # pylint: disable=W0221
+    def doReference(self, gotopos=None):
         """references this axis by finding the reference switch and then
         setting current position to refpos.
         1) Finding the refswitch by going backwards until the refswitch

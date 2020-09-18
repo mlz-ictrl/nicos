@@ -54,8 +54,6 @@
 # suggestion for a nicm_conf.py entry
 
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from nicos.core import Attach, LimitError, Override, Param
@@ -110,7 +108,7 @@ class AlphaStorage(VirtualMotor):
         VirtualMotor.doStart(self, pos)
         if self._callback is not None:
             try:
-                self._callback()  # pylint: disable=E1102
+                self._callback()  # pylint: disable=not-callable
             except Exception as e:
                 self.log.error('Calling callback failed, %r', e, exc=1)
 

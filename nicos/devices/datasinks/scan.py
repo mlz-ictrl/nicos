@@ -24,8 +24,7 @@
 
 """Data sink classes (new API) for NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
+from io import TextIOWrapper
 from time import localtime, strftime
 
 from nicos import session
@@ -33,7 +32,6 @@ from nicos.core import INFO_CATEGORIES, ConfigurationError, DataSink, \
     DataSinkHandler, Override, Param
 from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.devices.datasinks import FileSink
-from nicos.pycompat import TextIOWrapper, iteritems
 from nicos.utils import tabulated
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
@@ -76,10 +74,10 @@ class ConsoleScanSinkHandler(DataSinkHandler):
         else:
             session.log.info()
             for filename in ds.filenames:
-                session.log.info(self._indent + 'Filename: ' + filename)
-        session.log.info(self._indent + tabulated(self._colwidths, names))
-        session.log.info(self._indent + tabulated(self._colwidths, units))
-        session.log.info(self._indent + '-' * self._rulerlen)
+                session.log.info('%sFilename: %s', self._indent, filename)
+        session.log.info('%s%s', self._indent, tabulated(self._colwidths, names))
+        session.log.info('%s%s', self._indent, tabulated(self._colwidths, units))
+        session.log.info('%s%s', self._indent, '-' * self._rulerlen)
 
     def addSubset(self, point):
         if point.settype != POINT:
@@ -97,7 +95,7 @@ class ConsoleScanSinkHandler(DataSinkHandler):
                 [safe_format(info.fmtstr, val) for (info, val) in
                  zip(ds.detvalueinfo, point.detvaluelist)] +
                 point.filenames)
-        session.log.info(self._indent + tabulated(self._colwidths, cols))
+        session.log.info('%s%s', self._indent, tabulated(self._colwidths, cols))
 
     def end(self):
         if self.dataset.settype != SUBSCAN:
@@ -153,7 +151,7 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
                             ('info', ds.info)]:
             self._write_comment('%25s : %s' % (name, value))
         bycategory = {}
-        for (devname, key), (_, val, unit, category) in iteritems(ds.metainfo):
+        for (devname, key), (_, val, unit, category) in ds.metainfo.items():
             if category:
                 bycategory.setdefault(category, []).append(
                     ('%s_%s' % (devname, key), (val + ' ' + unit).strip()))

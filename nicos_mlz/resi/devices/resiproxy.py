@@ -28,8 +28,6 @@ Created on 30.05.2011
 @author: pedersen
 """
 
-from __future__ import absolute_import, division, print_function
-
 import sys
 
 from nicos.utils.proxy import NicosProxy

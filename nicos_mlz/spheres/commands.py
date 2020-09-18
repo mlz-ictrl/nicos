@@ -24,8 +24,6 @@
 
 """Custom commands for SPHERES"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.commands import usercommand
 from nicos.core import UsageError
 

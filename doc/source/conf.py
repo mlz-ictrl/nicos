@@ -70,19 +70,19 @@ source_encoding = 'utf-8-sig'
 master_doc = 'index'
 
 # General information about the project.
-project = u'NICOS'
-author = u'NICOS authors and contributors'
-copyright = u'2009-2020, FRM II / ' + author  # pylint: disable=redefined-builtin
+project = 'NICOS'
+author = 'NICOS authors and contributors'
+copyright = '2009-2020, FRM II / ' + author  # pylint: disable=redefined-builtin
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-# version = u'2.9.0'
+# version = '2.9.0'
 version = nicos.nicos_version.split('-')[0]
 # The full version, including alpha/beta/rc tags.
-# release = u'2.9.0'
+# release = '2.9.0'
 release = nicos.nicos_version
 
 rst_epilog = '''
@@ -325,7 +325,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ('documentation', 'NICOS.tex', u'NICOS Documentation',
+    ('documentation', 'NICOS.tex', 'NICOS Documentation',
      author, 'manual', False),
 ]
 
@@ -361,7 +361,7 @@ latex_logo = '_static/nicos-logo.eps'
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'nicos', u'NICOS Documentation',
+    (master_doc, 'nicos', 'NICOS Documentation',
      [author], 1)
 ]
 
@@ -376,7 +376,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'NICOS', u'NICOS Documentation',
+    (master_doc, 'NICOS', 'NICOS Documentation',
      author, 'NICOS', 'One line description of project.',
      'Miscellaneous'),
 ]
@@ -398,7 +398,7 @@ texinfo_documents = [
 # texinfo_no_detailmenu = False
 
 pdf_documents = [
-    ('index', 'NICOS', u'NICOS Documentation', author,
+    ('index', 'NICOS', 'NICOS Documentation', author,
      'manual'),
 ]
 # A comma-separated list of custom stylesheets. Example:
@@ -429,8 +429,8 @@ pdf_inline_footnotes = True
 pdf_default_dpi = 300
 
 man_pages = [
-    ('index', 'nicos', u'NICOS Documentation',
-     [u'NICOS contributors'], 1)
+    ('index', 'nicos', 'NICOS Documentation',
+     ['NICOS contributors'], 1)
 ]
 
 # from the doc: Setting None is equivalent to giving the option

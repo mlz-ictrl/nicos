@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import CommunicationError
 from nicos.core.constants import FINAL, SLAVE
 from nicos.core.params import Value

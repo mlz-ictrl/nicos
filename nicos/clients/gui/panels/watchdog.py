@@ -24,15 +24,12 @@
 
 """NICOS GUI watchdog reconfiguration panel."""
 
-from __future__ import absolute_import, division, print_function
-
 from time import time as currenttime
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QT_VER, QByteArray, QDialogButtonBox, \
-    QHeaderView, Qt, QTreeWidgetItem
-from nicos.pycompat import iteritems
+from nicos.guisupport.qt import QByteArray, QDialogButtonBox, QHeaderView, \
+    Qt, QTreeWidgetItem
 
 
 class WatchdogPanel(Panel):
@@ -58,11 +55,7 @@ class WatchdogPanel(Panel):
                 'Grace time', 'Precondition', 'Precondition time',
                 'OK message', 'Script action', 'Warn action', 'OK action'
             ])
-
-            if QT_VER == 4:
-                tree.header().setResizeMode(QHeaderView.Interactive)
-            else:
-                tree.header().setSectionResizeMode(QHeaderView.Interactive)
+            tree.header().setSectionResizeMode(QHeaderView.Interactive)
 
         self.preconfTree.header().restoreState(self._preconf_headerstate)
         self.userTree.header().restoreState(self._user_headerstate)
@@ -129,7 +122,7 @@ class WatchdogPanel(Panel):
         role = self.buttonBox.buttonRole(button)
         if role == QDialogButtonBox.ApplyRole:
             updates = []
-            for (eid, enabled) in iteritems(self._preconf_enable):
+            for (eid, enabled) in self._preconf_enable.items():
                 if enabled != self._preconf_entries[eid]['enabled']:
                     updates.append((eid, enabled))
 

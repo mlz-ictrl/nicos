@@ -31,8 +31,6 @@ All angle move clockwise for positive values.
 to allow conversions, the kappa-angle alpha needs to be known
 '''
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from nicos.core import NicosError

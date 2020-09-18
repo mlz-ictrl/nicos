@@ -25,11 +25,8 @@
 
 """NICOS cache clients."""
 
-from __future__ import absolute_import, division, print_function
-
-import errno
+import queue
 import select
-import socket
 import threading
 from time import sleep, time as currenttime
 
@@ -39,9 +36,6 @@ from nicos.protocols.cache import BUFSIZE, CYCLETIME, DEFAULT_CACHE_PORT, \
     END_MARKER, OP_ASK, OP_LOCK, OP_LOCK_LOCK, OP_LOCK_UNLOCK, OP_REWRITE, \
     OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, OP_UNSUBSCRIBE, OP_WILDCARD, \
     SYNC_MARKER, cache_dump, cache_load, line_pattern, msg_pattern
-#pylint: disable=redefined-builtin
-from nicos.pycompat import from_utf8, iteritems, queue, string_types, \
-    to_utf8, xrange
 from nicos.utils import closeSocket, createThread, getSysInfo, tcpSocket
 
 
@@ -152,21 +146,21 @@ class BaseCacheClient(Device):
         # (send a single request for a nonexisting key afterwards to
         # determine the end of data)
         msg = '@%s%s\n%s%s\n' % (self._prefix, OP_WILDCARD, END_MARKER, OP_ASK)
-        self._socket.sendall(to_utf8(msg))
+        self._socket.sendall(msg.encode())
 
         # read response
         data, n = b'', 0
-        sentinel = to_utf8(END_MARKER + OP_TELLOLD + '\n')
+        sentinel = (END_MARKER + OP_TELLOLD + '\n').encode()
         while not data.endswith(sentinel) and n < 1000:
             data += self._socket.recv(BUFSIZE)
             n += 1
 
         # send request for all updates
         msg = '@%s%s\n' % (self._prefix, OP_SUBSCRIBE)
-        self._socket.sendall(to_utf8(msg))
+        self._socket.sendall(msg.encode())
         for prefix in self._prefixcallbacks:
             msg = '@%s%s\n' % (prefix, OP_SUBSCRIBE)
-            self._socket.sendall(to_utf8(msg))
+            self._socket.sendall(msg.encode())
 
         self._process_data(data)
 
@@ -176,7 +170,7 @@ class BaseCacheClient(Device):
     def _handle_msg(self, time, ttlop, ttl, tsop, key, op, value):
         raise NotImplementedError('implement _handle_msg in subclasses')
 
-    def _process_data(self, data, sync_str=to_utf8(SYNC_MARKER + OP_TELLOLD),
+    def _process_data(self, data, sync_str=(SYNC_MARKER + OP_TELLOLD).encode(),
                       lmatch=line_pattern.match, mmatch=msg_pattern.match):
         # n = 0
         i = 0  # avoid making a string copy for every line
@@ -188,7 +182,7 @@ class BaseCacheClient(Device):
                 self.log.debug('process data: received sync: %r', line)
                 self._synced = True
             else:
-                msgmatch = mmatch(from_utf8(line))
+                msgmatch = mmatch(line.decode())
                 # ignore invalid lines
                 if msgmatch:
                     # n += 1
@@ -255,10 +249,8 @@ class BaseCacheClient(Device):
                     try:
                         res = select.select([self._socket], writelist, [],
                                             self._selecttimeout)
-                    except EnvironmentError as e:
-                        if e.errno == errno.EINTR:
-                            continue
-                        raise
+                    except InterruptedError:
+                        continue
                     except TypeError:
                         # socket was None, let the outer loop handle that
                         res = ([], [], [])
@@ -270,14 +262,14 @@ class BaseCacheClient(Device):
                     itemcount = 0
                     try:
                         # bunch a few messages together, but not unlimited
-                        for _ in xrange(10):
+                        for _ in range(10):
                             tosend += self._queue.get(False)
                             itemcount += 1
                     except queue.Empty:
                         pass
                     # write data
                     try:
-                        self._socket.sendall(to_utf8(tosend))
+                        self._socket.sendall(tosend.encode())
                     except Exception:
                         self._disconnect('disconnect: send failed')
                         # report data as processed, but then re-queue it to send
@@ -313,7 +305,7 @@ class BaseCacheClient(Device):
             except queue.Empty:
                 pass
             try:
-                self._socket.sendall(to_utf8(tosend))
+                self._socket.sendall(tosend.encode())
             except Exception:
                 self.log.debug('exception while sending last batch of updates',
                                exc=1)
@@ -347,7 +339,7 @@ class BaseCacheClient(Device):
             try:
                 # write request
                 # self.log.debug("get_explicit: sending %r", tosend)
-                self._secsocket.sendall(to_utf8(tosend))
+                self._secsocket.sendall(tosend.encode())
 
                 # give 10 seconds time to get the whole reply
                 timeout = currenttime() + 10
@@ -356,18 +348,17 @@ class BaseCacheClient(Device):
                 while not data.endswith(sentinel):
                     newdata = self._secsocket.recv(BUFSIZE)  # blocking read
                     if not newdata:
-                        raise socket.error('cache closed connection')
+                        raise OSError('cache closed connection')
                     if currenttime() > timeout:
                         # do not just break, we need to reopen the socket
-                        raise socket.error('getting response took too long')
+                        raise OSError('getting response took too long')
                     data += newdata
-            except socket.error:
+            except OSError:
                 self.log.warning('error during cache query', exc=1)
                 closeSocket(self._secsocket)
                 self._secsocket = None
                 if retry:
-                    for m in self._single_request(tosend, sentinel, retry - 1):
-                        yield m
+                    yield from self._single_request(tosend, sentinel, retry - 1)
                     return
                 raise
 
@@ -379,7 +370,7 @@ class BaseCacheClient(Device):
         while match:
             line = match.group(1)
             i = match.end()
-            msgmatch = mmatch(from_utf8(line))
+            msgmatch = mmatch(line.decode())
             if not msgmatch:
                 # ignore invalid lines
                 continue
@@ -463,7 +454,7 @@ class BaseCacheClient(Device):
             key, res = getSysInfo(service)
             msg = '%s@%s%s%s\n' % (currenttime(), key, OP_TELL,
                                    cache_dump(res))
-            self._socket.sendall(to_utf8(msg))
+            self._socket.sendall(msg.encode())
         except Exception:
             self.log.exception('storing sysinfo failed')
 
@@ -505,7 +496,7 @@ class CacheClient(BaseCacheClient):
         # get all current values from the cache
         BaseCacheClient._connect_action(self)
         # tell the server all our rewrites
-        for newprefix, oldprefix in iteritems(self._inv_rewrites):
+        for newprefix, oldprefix in self._inv_rewrites.items():
             self._queue.put(self._prefix + newprefix + OP_REWRITE +
                             self._prefix + oldprefix + '\n')
 
@@ -639,7 +630,7 @@ class CacheClient(BaseCacheClient):
 
     def get_values(self):
         with self._dblock:
-            return {key: value for (key, (value, _)) in iteritems(self._db)}
+            return {key: value for (key, (value, _)) in self._db.items()}
 
     def get_explicit(self, dev, key, default=None):
         """Get a value from the cache server, bypassing the local cache.  This
@@ -702,6 +693,23 @@ class CacheClient(BaseCacheClient):
                 self._propagate((time, rdbkey, OP_TELL, dvalue))
                 if key == 'value' and session.experiment:
                     session.experiment.data.cacheCallback(rdbkey, value, time)
+
+    def delete(self, dev, key, time=None):
+        """Delete a given device's subkey."""
+        if time is None:
+            time = currenttime()
+        dbkey = ('%s/%s' % (dev, key)).lower()
+        with self._dblock:
+            self._db.pop(dbkey, None)
+        msg = '%r@%s%s%s' % (time, self._prefix, dbkey, OP_TELL)
+        self._queue.put(msg)
+        self._propagate((time, dbkey, OP_TELL, ''))
+        if str(dev).lower() in self._rewrites:
+            for newprefix in self._rewrites[str(dev).lower()]:
+                rdbkey = ('%s/%s' % (newprefix, key)).lower()
+                with self._dblock:
+                    self._db.pop(rdbkey, None)
+                self._propagate((time, rdbkey, OP_TELL, ''))
 
     def put_raw(self, key, value, time=None, ttl=None, flag=''):
         """Put a key given by full name.
@@ -779,7 +787,6 @@ class CacheClient(BaseCacheClient):
         with self._dblock:
             self._db.pop(dbkey, None)
 
-    # pylint: disable=W0221
     def history(self, dev, key, fromtime, totime):
         """History query: opens a separate connection since it is otherwise not
         possible to determine which response lines belong to it.
@@ -800,7 +807,7 @@ class CacheClient(BaseCacheClient):
 
     def query_db(self, query, tries=3):
         with self._dblock:
-            if isinstance(query, string_types):
+            if isinstance(query, str):
                 return [(k, self._db[k][0]) for k in self._db if k.startswith(query)]
             else:
                 query = set(query)
@@ -829,7 +836,7 @@ class SyncCacheClient(BaseCacheClient):
     def _connect_action(self):
         # like for BaseCacheClient, but without request for updates
         msg = '@%s%s\n###%s\n' % (self._prefix, OP_WILDCARD, OP_ASK)
-        self._socket.sendall(to_utf8(msg))
+        self._socket.sendall(msg.encode())
 
         # read response
         data, n = b'', 0

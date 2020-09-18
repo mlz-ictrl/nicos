@@ -25,8 +25,6 @@
 
 # icons: https://launchpad.net/elementaryicons
 
-from __future__ import absolute_import, division, print_function
-
 import inspect
 import logging
 from os import path
@@ -34,10 +32,9 @@ from os import path
 from nicos import config
 from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
     QMainWindow, QMessageBox, Qt, QTreeWidgetItem, uic
-from nicos.pycompat import iteritems, string_types
 
-from . import classparser, setupcontroller
 from ..utils import format_setup_text
+from . import classparser, setupcontroller
 from .devicewidget import DeviceWidget
 from .setupwidget import SetupWidget
 from .utilities.utilities import ItemTypes, getNicosDir, getResDir
@@ -110,7 +107,7 @@ class MainWindow(QMainWindow):
         self.setupWidgets[setup.abspath] = setupWidget
         # initialize device widgets dictionary for this setup
         self.deviceWidgets[setup.abspath] = {}
-        for deviceName, device in iteritems(setup.devices):
+        for deviceName, device in setup.devices.items():
             deviceWidget = DeviceWidget(setupWidget)
             deviceWidget.editedDevice.connect(self.editedSetupSlot)
             deviceWidget.loadDevice(device)
@@ -213,7 +210,7 @@ class MainWindow(QMainWindow):
         if setupItem.setup.abspath not in self.setupWidgets.keys():
             self.loadSetup(setupItem.setup, setupItem.parent().text(0))
         else:
-            for deviceName, device in iteritems(setupItem.setup.devices):
+            for deviceName, device in setupItem.setup.devices.items():
                 if deviceName == newDeviceName:
                     deviceWidget = DeviceWidget(self.setupWidgets[
                         setupItem.setup.abspath])
@@ -394,7 +391,7 @@ class MainWindow(QMainWindow):
         output = []
         if setupData.treeWidgetSysconfig.topLevelItemCount() > 0:
             output.append('sysconfig = dict(\n')
-            for key, value in iteritems(setupData.treeWidgetSysconfig.getData()):
+            for key, value in setupData.treeWidgetSysconfig.getData().items():
                 output.append('    ' + key + ' = ' + repr(value) + ',\n')
             output.append(')\n\n')
             return ''.join(output)
@@ -412,15 +409,15 @@ class MainWindow(QMainWindow):
             return ''
 
         output.append('devices = dict(\n')
-        for name, info in iteritems(self.deviceWidgets[setupItem.setup.abspath]):
+        for name, info in self.deviceWidgets[setupItem.setup.abspath].items():
             output.append('    ' + name + ' = device(')
             # class string must be first parameter. Also mustn't have a key.
             output.append(repr(info.parameters['Class'].getValue()) + ',\n')
             indent = len(name) + 14
-            for _, params in iteritems(info.parameters):
+            for _, params in info.parameters.items():
                 # skip class as it has already been added
                 if not params.param == 'Class':
-                    if isinstance(params.getValue(), string_types):
+                    if isinstance(params.getValue(), str):
                         prepend = indent * ' ' + str(params.param) + ' = '
                         if params.isUnknownValue:
                             param = str(params.getValue()) + ',\n'

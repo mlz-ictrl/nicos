@@ -24,8 +24,6 @@
 
 """TAS commands for NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 from numpy import ndarray
 
 from nicos import session
@@ -44,9 +42,7 @@ from nicos.devices.tas.rescalc import resmat
 from nicos.devices.tas.spectro import TAS, THZ2MEV
 from nicos.devices.tas.spurions import alu_hkl, check_acc_bragg, \
     check_ho_spurions, check_powderrays, copper_hkl
-# pylint: disable=redefined-builtin
-from nicos.pycompat import iteritems, number_types, string_types, \
-    xrange as range
+from nicos.utils import number_types
 
 __all__ = [
     'qscan', 'qcscan', 'Q', 'calpos', 'pos', 'rp',
@@ -71,7 +67,7 @@ def _getQ(v, name):
 def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
     preset, detlist, envlist, move, multistep = {}, [], None, [], []
     for arg in args:
-        if isinstance(arg, string_types):
+        if isinstance(arg, str):
             scaninfo = arg + ' - ' + scaninfo
         elif isinstance(arg, number_types):
             preset['t'] = arg
@@ -83,7 +79,7 @@ def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
             envlist.append(arg)
         else:
             raise UsageError('unsupported qscan argument: %r' % arg)
-    for key, value in iteritems(kwargs):
+    for key, value in kwargs.items():
         if key == 'h' or key == 'H':
             Q[0] = value
         elif key == 'k' or key == 'K':
@@ -212,7 +208,7 @@ class _Q(ndarray):
 @usercommand
 @helparglist('[h, k, l, E]')
 @parallel_safe
-def Q(*args, **kwds):  # pylint: disable=E0102
+def Q(*args, **kwds):
     """A Q-E vector object that can be used for calculations.
 
     Use as follows:

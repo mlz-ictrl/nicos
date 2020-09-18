@@ -24,8 +24,6 @@
 
 """NICOS device class test suite."""
 
-from __future__ import absolute_import, division, print_function
-
 import pytest
 
 from nicos.commands.basic import NewSetup
@@ -66,7 +64,7 @@ class Dev2(HasLimits, HasOffset, CanDisable, Moveable):
 
     def doInit(self, mode):
         if self.failinit:
-            1/0  # pylint: disable=W0104
+            raise ZeroDivisionError
         self._val = 0
         methods_called.add('doInit')
 
@@ -94,9 +92,13 @@ class Dev2(HasLimits, HasOffset, CanDisable, Moveable):
     def doFinish(self):
         methods_called.add('doFinish')
 
-    def isAtTarget(self, pos):
+    def isAtTarget(self, pos=None, target=None):
+        if target is None:
+            target = self.target
+        if pos is None:
+            pos = self.read(0)
         methods_called.add('isAtTarget')
-        return self.target == pos
+        return target == pos
 
     def doStatus(self, maxage=0):
         return status.OK, 'idle'

@@ -19,7 +19,7 @@ devices = dict(
         instrument = 'Laue',
         responsible = 'Dr. B. Pedersen <bjoern.pedersen@frm2.tum.de>',
         #  we do not have a dedicated responsible
-        operators = [u'Technische Universität München (TUM)'],
+        operators = ['Technische Universität München (TUM)'],
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',

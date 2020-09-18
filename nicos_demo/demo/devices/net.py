@@ -24,8 +24,6 @@
 
 """NICOS demo class displaying the network traffic"""
 
-from __future__ import absolute_import, division, print_function
-
 import time
 
 from nicos import session

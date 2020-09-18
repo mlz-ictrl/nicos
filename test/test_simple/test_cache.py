@@ -26,8 +26,6 @@
 
 """Tests for the cache."""
 
-from __future__ import absolute_import, division, print_function
-
 from time import sleep
 
 import pytest
@@ -41,7 +39,7 @@ from test.utils import cache_addr, raises
 session_setup = 'cachetests'
 
 
-class TestCache(object):
+class TestCache:
 
     def test_float_literals(self, session):
         cc = session.cache

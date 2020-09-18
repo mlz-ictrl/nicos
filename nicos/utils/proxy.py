@@ -24,10 +24,8 @@
 
 """A general nicos proxy superclass."""
 
-from __future__ import absolute_import, division, print_function
 
-
-class NicosProxy(object):
+class NicosProxy:
     """
     General proxy class to add special behaviour to classes.  See
     http://code.activestate.com/recipes/252151-generalized-delegates-and-proxies/

@@ -22,20 +22,19 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import copy
-import datetime
 import json
 import os
 import time
+
+from streaming_data_types.run_start_pl72 import serialise_pl72
+from streaming_data_types.run_stop_6s4t import serialise_6s4t
 
 from nicos.core import Attach, Override, Param, dictof, status, tupleof
 from nicos.core.constants import POINT
 from nicos.core.data import DataSinkHandler
 from nicos.core.errors import NicosError
 from nicos.devices.datasinks import FileSink
-from nicos.pycompat import iteritems
 
 from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
 from nicos_ess.devices.kafka.status_handler import KafkaStatusHandler
@@ -58,8 +57,11 @@ class NexusFileWriterStatus(KafkaStatusHandler):
     """
 
     parameters = {
-        'timeout': Param('Maximum waiting time for a job to start/close (sec)',
-                         type=int, default=90),
+        'timeout': Param(
+            'Maximum waiting time for a job to start/close (sec)',
+            type=int,
+            default=30,
+        ),
     }
 
     def doInit(self, mode):
@@ -67,6 +69,7 @@ class NexusFileWriterStatus(KafkaStatusHandler):
         self._issued = []
         self._started = []
         self._stopped = []
+        self._job_in_progress = ''
 
     def _on_issue(self, jobid, dataset):
         # Called when a dataset started and job was issued to the file writer
@@ -84,10 +87,8 @@ class NexusFileWriterStatus(KafkaStatusHandler):
 
     def _on_error(self, jobid, dataset, message=''):
         # Called when an error appears in writing the dataset
-        msg = "Unexpected error while writing #%d" % dataset.counter
-        if message:
-            msg += ' - ' + message
-        self.log.error(msg)
+        self.log.error('Unexpected error while writing %d %s', dataset.counter,
+                       ' - ' + message if message else message)
 
     def _on_fail(self, jobid, dataset, message=''):
         # Called when the writing failed
@@ -117,61 +118,71 @@ class NexusFileWriterStatus(KafkaStatusHandler):
 
     def _check_timeouts(self):
         # Check if timeout occurred for issued or stopped datasets
-        for jobid in self._issued:
-            dset = self._tracked_datasets.get(jobid)
-            now = time.time()
-            if dset and now > dset.started + self.timeout:
-                msg = "Timeout while waiting for file writer to start writing"
-                self._on_fail(jobid, dset, msg)
+        if self._job_in_progress in self._issued:
+            self._issued.remove(self._job_in_progress)
+        else:
+            for jobid in self._issued:
+                dset = self._tracked_datasets.get(jobid)
+                now = time.time()
+                if dset and now > dset.started + self.timeout:
+                    msg = 'Timeout while waiting for file writer to start ' \
+                          'writing'
+                    self._on_fail(jobid, dset, msg)
 
-        for jobid in self._stopped:
-            dset = self._tracked_datasets.get(jobid)
-            now = time.time()
-            if dset and now > dset.finished + self.timeout:
-                msg = "Timeout while waiting for file writer to close the file"
-                self._on_fail(jobid, dset, msg)
+        if not self._job_in_progress and self._stopped:
+            self._stopped.clear()
+        else:
+            for jobid in self._stopped:
+                dset = self._tracked_datasets.get(jobid)
+                now = time.time()
+                if dset and now > dset.finished + self.timeout:
+                    msg = 'Timeout while waiting for file writer to close ' \
+                          'the file'
+                    self._on_fail(jobid, dset, msg)
 
     def new_messages_callback(self, messages):
         self._check_timeouts()
         KafkaStatusHandler.new_messages_callback(self, messages)
 
+    def no_messages_callback(self):
+        self._check_timeouts()
+        KafkaStatusHandler.no_messages_callback(self)
+
     def _status_update_callback(self, messages):
-        # *messages* is a dict of timestamp and message in JSON format
-        # Loop and read all the new interesting messages
-        for _, message in sorted(iteritems(messages)):
-            # Find a valid message
-            msgkeys = ['type', 'job_id', 'code']
-            if not set(msgkeys).issubset(set(message.keys())) \
-                    or message['type'] != 'filewriter_event' \
-                    or message['job_id'] not in self._tracked_datasets:
-                continue
+        """
+        :param messages: dict of timestamp and JSON in the form
+        {
+            "file_being_written": "some_file.nxs",
+            "job_id": "1234",
+            "start_time": 1580460273162,
+            "stop_time": 0,
+            "update_interval": 2000
+        }
+        """
 
-            jobid = message['job_id']
-            dataset = self._tracked_datasets[jobid]
-            jobstate = message['code'].upper()
-            jobmsg = message.get('message', '')
+        def get_latest_message(message_list):
+            message_list_sorted = sorted(message_list.items(), reverse=True)
+            # makes sure that the message comes from the filewriter
+            gen = (
+                msg
+                for _, msg in message_list_sorted
+                if 'file_being_written' in msg
+            )
+            return next(gen, None)
 
-            if jobstate == 'START':
-                self._on_start(jobid, dataset)
-            elif jobstate == 'FAIL':
-                self._on_fail(jobid, dataset, jobmsg)
-            elif jobstate == 'ERROR':
-                self._on_error(jobid, dataset, jobmsg)
-            elif jobstate == 'CLOSE':
-                self._on_close(jobid, dataset)
+        message = get_latest_message(messages)
+        if not message:
+            return
 
-        # Update the status
-        writing = []
-        for jobid in self._started:
-            if jobid in self._tracked_datasets:
-                writing.append('#%d' % self._tracked_datasets[jobid].counter)
-
-        if writing:
-            stat = status.BUSY, 'Writing %s' % ', '.join(writing)
-            # Finally set the status in cache for it to appear on GUI
-            self._setROParam('curstatus', stat)
-        else:
-            self._setROParam('curstatus', (status.OK, 'Listening...'))
+        self._set_next_update(message)
+        self._job_in_progress = message.get('job_id', '')
+        file_name = message.get('file_being_written', '')
+        if file_name:
+            self._setROParam(
+                'curstatus', (status.BUSY, 'Writing %s' % file_name)
+            )
+            return
+        self._setROParam('curstatus', (status.OK, 'Idle'))
 
 
 class NexusFileWriterSinkHandler(DataSinkHandler):
@@ -192,8 +203,9 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
 
         # Generate the filenames, only if not set
         if not self.dataset.filepaths:
-            self.manager.getFilenames(self.dataset, self.sink.filenametemplate,
-                                      self.sink.subdir)
+            self.manager.getFilenames(
+                self.dataset, self.sink.filenametemplate, self.sink.subdir
+            )
 
         # Update meta information of devices, only if not present
         if not self.dataset.metainfo:
@@ -205,68 +217,43 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
         self._remove_optional_components()
 
         # Get the start time
-        self.iso8601_time = \
-            datetime.datetime.utcnow().isoformat().split(".")[0]
         if not self.dataset.started:
             self.dataset.started = time.time()
 
-        starttime = int(self.dataset.started * 1000)
-        starttime_str = time.strftime('%Y-%m-%d %H:%M:%S',
-                                      time.localtime(starttime / 1000))
+        start_time = int(self.dataset.started * 1000)
+        start_time_str = time.strftime('%Y-%m-%d %H:%M:%S',
+                                       time.localtime(self.dataset.started))
 
         metainfo = self.dataset.metainfo
         # Put the start time in the metainfo
         if ('dataset', 'starttime') not in metainfo:
-            metainfo[('dataset', 'starttime')] = (starttime_str, starttime_str,
+            metainfo[('dataset', 'starttime')] = (start_time_str,
+                                                  start_time_str,
                                                   '', 'general')
 
-        if self.sink.start_fw_file:
-            # Load the JSON file containing the command to send.
-            # This functionality is primarily for testing and debugging.
-            self.log.debug("Loading filewriter command from {}".format(
-                self.sink.start_fw_file))
-            try:
-                with open(self.sink.start_fw_file, "r") as f:
-                    command_str = f.read()
-                command_str = command_str.replace("STARTTIME",
-                                                  str(starttime))
-                command_str = command_str.replace("8601TIME",
-                                                  self.iso8601_time)
-                command_str = command_str.replace("TITLE", self.sink.title)
-                command = json.loads(command_str)
-            except Exception as err:
-                self.log.error(
-                    "Could not create filewriter command from file: {}".format(
-                        err))
-        else:
-            # Generate the command within NICOS
-            structure = self._converter.convert(self.template,
-                                                self.dataset.metainfo)
+        structure = self._converter.convert(self.template,
+                                            self.dataset.metainfo)
+        job_id = str(self.dataset.uid)
 
-            command = {
-                "cmd": "FileWriter_new",
-                "use_hdf_swmr": self.sink.useswmr,
-                "nexus_structure": structure,
-            }
+        filename = os.path.basename(self.dataset.filepaths[0])
+        if self.sink.file_output_dir:
+            filename = os.path.join(self.sink.file_output_dir, filename)
 
-        # Set the values that can be different between runs
-        command["file_attributes"] = {
-            "file_name": "/data/kafka-to-nexus/nicos"
-                         + os.path.basename(self.dataset.filepaths[0])
-        }
-        command["job_id"] = str(self.dataset.uid)
-        command["broker"] = ','.join(self.sink.brokers)
-        command["start_time"] = starttime
-
-        # Write the stoptime when already known
+        # Write the stop time if already known
+        stop_time = 0
         if self.dataset.finished:
-            stoptime = int(self.dataset.finished * 1000)
-            command["stop_time"] = stoptime
+            stop_time = int(self.dataset.finished * 1000)
             self.rewriting = True
 
-        self.log.info('Started file writing at: %s (%s)',
-                      starttime_str, starttime)
-        self.sink.send(self.sink.cmdtopic, json.dumps(command).encode())
+        start_message = serialise_pl72(job_id=job_id, filename=filename,
+                                       start_time=start_time,
+                                       stop_time=stop_time,
+                                       nexus_structure=json.dumps(structure),
+                                       broker=','.join(self.sink.brokers))
+
+        self.log.info('Started file writing at: %s (%s)', start_time_str,
+                      start_time)
+        self.sink.send(self.sink.cmdtopic, start_message)
 
         # Tell the sink that this dataset has started
         self.sink.dataset_started(self.dataset)
@@ -276,16 +263,13 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
         if not self.rewriting:
             if not self.dataset.finished:
                 self.dataset.finished = time.time()
-            stoptime = int(self.dataset.finished * 1000)
+            stop_time = int(self.dataset.finished * 1000)
 
-            command = {
-                "cmd": "FileWriter_stop",
-                "job_id": str(self.dataset.uid),
-                "stop_time": stoptime
-            }
+            stop_message = serialise_6s4t(job_id=str(self.dataset.uid),
+                                          stop_time=stop_time)
 
-            self.log.info('Stopped file writing at: %s', stoptime)
-            self.sink.send(self.sink.cmdtopic, json.dumps(command).encode())
+            self.log.info('Stopped file writing at: %s', stop_time)
+            self.sink.send(self.sink.cmdtopic, stop_message)
 
         # Tell the sink that this dataset has ended
         self.sink.dataset_ended(self.dataset, self.rewriting)
@@ -329,38 +313,41 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
         }
     }
     """
+
     parameters = {
         'cmdtopic': Param('Kafka topic where status commands are written',
-                          type=str, settable=False, preinit=True,
-                          mandatory=True),
+            type=str, settable=False, preinit=True, mandatory=True),
         'templatesmodule': Param(
             'Python module containing NeXus nexus_templates',
             type=str, mandatory=True),
         'templatename': Param('Template name from the nexus_templates module',
-                              type=str, mandatory=True),
+            type=str, mandatory=True),
         'lastsinked': Param(
             'Saves the counter, start and end time of sinks',
             type=tupleof(int, float, float, dictof(tuple, tuple)),
             settable=True, internal=True),
         'useswmr': Param('Use SWMR feature when writing HDF files', type=bool,
-                         settable=False, userparam=False, default=True),
-        'start_fw_file': Param('JSON file containing the command for starting '
-                               'the filewriter (for testing)',
-                               type=str, default=None),
+            settable=False, userparam=False, default=True),
+        'file_output_dir': Param('The directory where data files are written',
+            type=str, settable=False, default=None, userparam=False),
         'title': Param('Title to set in NeXus file', type=str,
-                       settable=True, userparam=True, default=""),
+            settable=True, userparam=True, default=''),
         'cachetopic': Param('Kafka topic for cache messages', type=str),
     }
 
     parameter_overrides = {
         'settypes': Override(default=[POINT]),
         'filenametemplate': Override(
-            default=['%(proposal)s_%(pointcounter)08d.hdf']),
+            default=['%(proposal)s_%(pointcounter)08d.hdf']
+        ),
     }
 
     attached_devices = {
-        'status_provider': Attach('Device that provides file writing status',
-                                  NexusFileWriterStatus, optional=True),
+        'status_provider': Attach(
+            'Device that provides file writing status',
+            NexusFileWriterStatus,
+            optional=True,
+        ),
     }
 
     handlerclass = NexusFileWriterSinkHandler
@@ -368,8 +355,9 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
 
     def doInit(self, mode):
         self.log.info(self.templatesmodule)
-        self._templates = __import__(self.templatesmodule,
-                                     fromlist=[self.templatename])
+        self._templates = __import__(
+            self.templatesmodule, fromlist=[self.templatename]
+        )
         self.log.info('Finished importing nexus_templates')
         self.set_template(self.templatename)
 
@@ -381,8 +369,10 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
         :param val: template name
         """
         if not hasattr(self._templates, val):
-            raise NicosError('Template %s not found in module %s'
-                             % (val, self.templatesmodule))
+            raise NicosError(
+                'Template %s not found in module %s'
+                % (val, self.templatesmodule)
+            )
 
         self.template = getattr(self._templates, val)
 
@@ -418,5 +408,9 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
 
         # If rewriting, the dataset was already written in the lastsinked
         if not rewriting:
-            self.lastsinked = (dataset.counter, dataset.started,
-                               dataset.finished, dataset.metainfo)
+            self.lastsinked = (
+                dataset.counter,
+                dataset.started,
+                dataset.finished,
+                dataset.metainfo,
+            )

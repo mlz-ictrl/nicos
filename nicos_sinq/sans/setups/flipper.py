@@ -1,0 +1,41 @@
+description = 'Devices for the HAMEG 8131 spin flipper'
+
+pvprefix = 'SQ:SANS:flip'
+
+devices = dict(
+    flip_freq = device('nicos_sinq.devices.epics.generic.WindowMoveable',
+        description = 'Set frequency',
+        readpv = pvprefix + ':FREQ_RBV',
+        writepv = pvprefix + ':FREQ',
+        abslimits = (100E-6, 15E06),
+        window = 5.,
+    ),
+    flip_amp = device('nicos_sinq.devices.epics.generic.WindowMoveable',
+        description = 'Set amplitude',
+        readpv = pvprefix + ':AMP_RBV',
+        writepv = pvprefix + ':AMP',
+        abslimits = (20E-3, 20.),
+        window = .2,
+    ),
+    flip_off = device('nicos_sinq.devices.epics.generic.WindowMoveable',
+        description = 'Set offset',
+        readpv = pvprefix + ':OFF_RBV',
+        writepv = pvprefix + ':OFF',
+        abslimits = (-5, 5),
+        window = .2,
+    ),
+    flip_port = device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
+        epicstimeout = 3.0,
+        description = 'Direct connection to spin flipper',
+        commandpv = pvprefix + '.AOUT',
+        replypv = pvprefix + '.AINP',
+    ),
+    flip = device('nicos_sinq.sans.devices.hameg8131.HAMEG8131',
+        description = 'Flipper control',
+        readpv = pvprefix + ':STATE_RBV',
+        writepv = pvprefix + ':STATE',
+        port = 'flip_port',
+        amp = 'flip_amp',
+        freq = 'flip_freq'
+    ),
+)

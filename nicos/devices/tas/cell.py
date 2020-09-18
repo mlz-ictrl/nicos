@@ -27,8 +27,6 @@
 coordinates.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from numpy import arccos, arcsin, arctan2, array, cos, cross, dot, identity, \
     pi, sign, sin, sqrt, zeros
 from numpy.linalg import inv, norm
@@ -44,7 +42,7 @@ R2D = 180 / pi
 K = 1.9958584
 
 
-class CellBase(object):
+class CellBase:
     """Unit cell operations without NICOS interface."""
 
     # Caution: _angles_rec is in radians, _angles is in degrees!

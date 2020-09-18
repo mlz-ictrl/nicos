@@ -18,7 +18,7 @@ devices = dict(
         description = 'instrument object',
         responsible = 'Alexander Weber <al.weber@fz-juelich.de>',
         instrument = 'SE',
-        operators = [u'Forschungszentrum Jülich, JCNS'],
+        operators = ['Forschungszentrum Jülich, JCNS'],
         website = 'http://www.mlz-garching.de/se',
     ),
     Sample = device('nicos.devices.sample.Sample',

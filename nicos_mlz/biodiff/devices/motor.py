@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import math
 import time
 
@@ -147,10 +145,9 @@ maxspeed: %.4f
 
     def _sequence(self, sequence):
         t = time.time()
-        res = BaseSequencer._sequence(self, sequence)
+        BaseSequencer._sequence(self, sequence)
         t = time.time() - t
         self.log.info("Movement finished, time elapsed %.4f.", t)
-        return res
 
     def doStop(self):
         if not self._seq_is_running():

@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Methods to parse setup files."""
 
-from __future__ import absolute_import, division, print_function
-
 import glob
 import inspect
 import os

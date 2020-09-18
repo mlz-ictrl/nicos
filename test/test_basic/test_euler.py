@@ -33,7 +33,7 @@ from test.utils import approx, raises
 session_setup = 'euler'
 
 
-class TestEulerian(object):
+class TestEulerian:
 
     @pytest.fixture()
     def eulerian(self, session):

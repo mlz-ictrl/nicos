@@ -26,8 +26,6 @@
 Supporting classes for FRM2 magnets, currently only Garfield (amagnet).
 """
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Attach, CanDisable, HasLimits, Moveable, Override, \
     Param, Readable, dictof, tupleof
 from nicos.devices.generic import CalibratedMagnet

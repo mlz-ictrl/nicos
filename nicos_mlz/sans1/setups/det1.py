@@ -3,7 +3,7 @@ description = 'qmesydaq devices for SANS1'
 # included by sans1
 group = 'lowlevel'
 
-nethost = 'sans1srv.sans1.frm2'
+tango_base = 'tango://mesydaq.sans1.frm2.tum.de:10000/qm/qmesydaq/'
 
 sysconfig = dict(
     datasinks = ['BerSANSFileSaver', 'LivePNGSink', 'LivePNGSinkLog',
@@ -60,34 +60,34 @@ devices = dict(
         path = '/data/qmesydaq/configs/pos_calibration_2016_07_13',
         filenametemplate = ['calib_%(pointcounter)07d.txt'],
     ),
-    det1_mon1 = device('nicos.devices.vendor.qmesydaq.taco.Counter',
+    det1_mon1 = device('nicos.devices.tango.CounterChannel',
         description = 'QMesyDAQ Counter0',
-        tacodevice = '//%s/sans1/qmesydaq/counter0' % nethost,
+        tangodevice = tango_base + 'counter0',
         type = 'monitor',
     ),
-    det1_mon2 = device('nicos.devices.vendor.qmesydaq.taco.Counter',
+    det1_mon2 = device('nicos.devices.tango.CounterChannel',
         description = 'QMesyDAQ Counter1',
-        tacodevice = '//%s/sans1/qmesydaq/counter1' % nethost,
+        tangodevice = tango_base + 'counter1',
         type = 'monitor',
     ),
-    det1_mon3 = device('nicos.devices.vendor.qmesydaq.taco.Counter',
+    det1_mon3 = device('nicos.devices.tango.CounterChannel',
         description = 'QMesyDAQ Counter2 (reference for tisane)',
-        tacodevice = '//%s/sans1/qmesydaq/counter2' % nethost,
+        tangodevice = tango_base + 'counter2',
         type = 'monitor',
     ),
-    det1_ev = device('nicos.devices.vendor.qmesydaq.taco.Counter',
+    det1_ev = device('nicos.devices.tango.CounterChannel',
         description = 'QMesyDAQ Events channel',
-        tacodevice = '//%s/sans1/qmesydaq/events' % nethost,
+        tangodevice = tango_base + 'events',
         type = 'counter',
     ),
-    det1_timer = device('nicos.devices.vendor.qmesydaq.taco.Timer',
+    det1_timer = device('nicos.devices.tango.TimerChannel',
         description = 'QMesyDAQ Timer',
-        tacodevice = '//%s/sans1/qmesydaq/timer' % nethost,
+        tangodevice = tango_base + 'timer',
     ),
-    det1_image = device('nicos.devices.vendor.qmesydaq.taco.Image',
+    det1_image = device('nicos.devices.tango.ImageChannel',
         description = 'QMesyDAQ Image',
-        tacodevice = '//%s/sans1/qmesydaq/det' % nethost,
-        flipaxes = [0],  # flip image up-down
+        tangodevice = tango_base + 'image',
+        # flipaxes = [0],  # flip image up-down
     ),
     # the combined detector device is in sans1.py or tisane.py
 )

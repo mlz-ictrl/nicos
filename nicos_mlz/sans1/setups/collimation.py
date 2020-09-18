@@ -72,7 +72,8 @@ devices = dict(
     ng_pol = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
         description = 'Neutronguide polariser',
         mapping = dict(ng=1.060, pol1=117, pol2=234, col=352.7),
-        moveable = 'ng_pol_a',
+        #moveable = 'ng_pol_a',
+        moveable = 'ng_pol_m',
         blockingmove = False,
         pollinterval = 15,
         maxage = 60,
@@ -97,7 +98,8 @@ devices = dict(
         unit = 'mm',
         refpos = -4.5,
         abslimits = (-400, 600),
-        autozero = None, # no auto referencing with an axis !!!
+        #autozero = None, # no auto referencing with an axis !!!
+        autozero = 100,
         precision = 0.0025,
         lowlevel = True,
     ),

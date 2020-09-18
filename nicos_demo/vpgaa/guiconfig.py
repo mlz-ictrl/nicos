@@ -52,7 +52,7 @@ windows = [
     window('Errors', 'errors',
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
     window('Live data', 'live',
-           panel('nicos.clients.gui.panels.liveqwt.LiveDataPanel',
+           panel('nicos.clients.gui.panels.live.LiveDataPanel',
                  instrument = 'imaging'), setups='tomo'),
     window('Live data', 'live',
            panel('nicos_mlz.pgaa.gui.panels.live.LiveDataPanel'),

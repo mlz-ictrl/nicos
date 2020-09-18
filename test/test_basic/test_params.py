@@ -24,8 +24,6 @@
 
 """NICOS parameter utilities tests."""
 
-from __future__ import absolute_import, division, print_function
-
 from numpy import array
 
 from nicos.core.errors import ConfigurationError, ProgrammingError
@@ -49,7 +47,7 @@ def test_param_class():
 
 
 def test_attach_class():
-    class MyClass(object):
+    class MyClass:
         pass
     # test __init__()
     assert raises(ProgrammingError, Attach, 'desc.', MyClass, optional=3)
@@ -330,12 +328,12 @@ def test_mailaddress():
     assert mailaddress('myaddress@domain.my') == 'myaddress@domain.my'
     assert mailaddress('myaddress+local@my.domain.my') == 'myaddress+local@my.domain.my'
     assert mailaddress('myaddress@my.domain123.my') == 'myaddress@my.domain123.my'
-    assert mailaddress(u'myaddress@my.dömäin.my') == 'myaddress@my.xn--dmin-moa0i.my'
-    assert mailaddress(u'myaddress@وزارة-الأتصالات.مصر') == \
+    assert mailaddress('myaddress@my.dömäin.my') == 'myaddress@my.xn--dmin-moa0i.my'
+    assert mailaddress('myaddress@وزارة-الأتصالات.مصر') == \
         'myaddress@xn----rmckbbajlc6dj7bxne2c.xn--wgbh1c'
-    assert mailaddress(u'M. Address <my.address@domain.my>') == 'M. Address <my.address@domain.my>'
-    assert mailaddress(u'M. Address <my.address@domain.my> ') == 'M. Address <my.address@domain.my> '
-    assert mailaddress(u'W. Lohstroh, G. Simeoni '
+    assert mailaddress('M. Address <my.address@domain.my>') == 'M. Address <my.address@domain.my>'
+    assert mailaddress('M. Address <my.address@domain.my> ') == 'M. Address <my.address@domain.my> '
+    assert mailaddress('W. Lohstroh, G. Simeoni '
                        '<wiebke.lohstroh+giovanna.simeoni@frm2.tum.de>') ==  \
                        'W. Lohstroh, G. Simeoni <wiebke.lohstroh+giovanna.simeoni@frm2.tum.de>'
     assert raises(ValueError, mailaddress, 'M. Address my.address@domain.my>')
@@ -346,7 +344,7 @@ def test_mailaddress():
     assert raises(ValueError, mailaddress, 'my@domain.123')
     assert raises(ValueError, mailaddress, 'my@domain@dummy.my')
     assert raises(ValueError, mailaddress, 'my@nonsens@dömain.my')
-    assert raises(ValueError, mailaddress, u'M. Address <my.address@domain.my>,')
+    assert raises(ValueError, mailaddress, 'M. Address <my.address@domain.my>,')
 
 
 def test_value_class():

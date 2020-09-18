@@ -24,9 +24,7 @@
 
 """Module for basic user commands."""
 
-from __future__ import absolute_import, division, print_function
-
-import io
+import builtins
 import os
 import sys
 import time
@@ -43,14 +41,9 @@ from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
     SetupName, String, spmsyntax
 from nicos.devices.notifiers import Mailer
-from nicos.pycompat import PY2, builtins, exec_, iteritems, string_types
 from nicos.utils import fixupScript, formatArgs, formatDuration, printTable, \
     reexecProcess, resolveClasses
 from nicos.utils.timer import Timer
-
-# compile flag to activate new division (remove after dropping py2)
-CO_DIVISION = 0x2000 if PY2 else 0
-
 
 __all__ = [
     'help', 'dir', 'ListCommands', 'sleep',
@@ -299,7 +292,7 @@ def ListSetups(listall=False):
     """
     session.log.info('Available setups:')
     items = []
-    for name, info in iteritems(session.getSetupInfo()):
+    for name, info in session.getSetupInfo().items():
         if info is None:
             items.append((name, '', '<could not be read, check syntax>', ''))
             continue
@@ -327,7 +320,7 @@ def _Restart():
     import signal
 
     @atexit.register
-    def restart_nicos():  # pylint: disable=W0612
+    def restart_nicos():  # pylint: disable=unused-variable
         reexecProcess()
     os.kill(os.getpid(), signal.SIGTERM)
 
@@ -360,7 +353,7 @@ def CreateDevice(*devnames):
     see also: `CreateAllDevices`, `RemoveDevice`
     """
     for devname in devnames:
-        if not isinstance(devname, string_types):
+        if not isinstance(devname, str):
             raise UsageError('CreateDevice() arguments must be strings')
         session.createDevice(devname, explicit=True)
 
@@ -412,7 +405,7 @@ def CreateAllDevices(**kwargs):
 
     session.startMultiCreate()
     try:
-        for devname, (_, devconfig) in iteritems(session.configured_devices):
+        for devname, (_, devconfig) in session.configured_devices.items():
             if devconfig.get('lowlevel', False) and not lowlevel:
                 continue
             try:
@@ -608,7 +601,7 @@ def ClearCache(*devnames):
         session.log.info('cleared cached information for %s', devname)
 
 
-class _Scope(object):
+class _Scope:
     def __init__(self, name):
         self.name = name
 
@@ -654,7 +647,7 @@ def _scriptfilename(filename):
     return fn + '.py'
 
 
-class _ScriptScope(object):
+class _ScriptScope:
     def __init__(self, filename, code):
         self.filename = filename
         self.code = code
@@ -687,7 +680,7 @@ def _RunScript(filename, statdevices, debug=False):
             dev._sim_max = None
     session.log.info('running user script: %s', fn)
     try:
-        fp = io.open(fn, 'r', encoding='utf-8')
+        fp = open(fn, 'r')
     except Exception as e:
         if session.mode == SIMULATION:
             session.log.exception('Dry run: error opening script')
@@ -704,11 +697,11 @@ def _RunScript(filename, statdevices, debug=False):
                              filename)
 
         def compiler(src):
-            return compile(src + '\n', fn, 'exec', CO_DIVISION)
+            return compile(src + '\n', fn, 'exec')
         compiled = session.scriptHandler(code, fn, compiler)
         with _ScriptScope(path.basename(fn), code):
             try:
-                exec_(compiled, session.namespace)
+                exec(compiled, session.namespace)
             except Exception:
                 if debug:
                     traceback.print_exc()
@@ -734,7 +727,7 @@ def _RunCode(code, debug=False):
         starttime = session.clock.time
     code = fixupScript(code)
     try:
-        exec_(code, session.namespace)
+        exec(code, session.namespace)
     except Exception:
         if debug:
             traceback.print_exc()
@@ -821,10 +814,10 @@ def notify(*args):
     """
     if len(args) == 1:
         # use first line of text as subject
-        text, = args  # pylint: disable=unbalanced-tuple-unpacking
+        text, = args
         session.notify(text.splitlines()[0], text, important=False)
     elif len(args) == 2:
-        subject, text = args  # pylint: disable=unbalanced-tuple-unpacking
+        subject, text = args
         session.notify(subject, text, important=False)
     else:
         raise UsageError("Usage: notify('text') or notify('subject', 'text')")
@@ -870,7 +863,7 @@ def ListMailReceivers():
     """
     session.log.info('Email addresses for notifications:')
     items = []
-    for notifier, recipients in iteritems(_listReceivers(Mailer)):
+    for notifier, recipients in _listReceivers(Mailer).items():
         for rec in recipients:
             items.append((notifier,) + rec)
     printTable(('mailer', 'email address', 'info'), sorted(items),
@@ -955,7 +948,7 @@ def _trace():
         session.log.info('No previous traceback.')
 
 
-class timer(object):
+class timer:
     is_userobject = True
 
     def __enter__(self):
@@ -974,7 +967,7 @@ timer = timer()
 def LogEntry(entry):
     """Make a free-form entry in the electronic logbook.
 
-    The entry will be processed as Creole markup.
+    The entry will be processed as Markdown markup.
 
     Note: on the command line, you can also call this function by entering a
     Python comment.  I.e., these two commands are equivalent at the command

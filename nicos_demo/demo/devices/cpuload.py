@@ -24,8 +24,6 @@
 
 """NICOS demo class displaying the CPU load"""
 
-from __future__ import absolute_import, division, print_function
-
 import psutil
 
 from nicos import session

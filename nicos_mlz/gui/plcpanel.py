@@ -24,8 +24,6 @@
 
 """Panel to control special parameters and functions of a MLZ-PLC device."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QListWidgetItem, QMessageBox, Qt, \

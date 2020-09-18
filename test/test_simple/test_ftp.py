@@ -26,14 +26,12 @@
 
 """Tests for the ftp upload module."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import tempfile
+from io import BytesIO, StringIO
 
 import pytest
 
-from nicos.pycompat import BytesIO, StringIO
 from nicos.utils import createThread, ftp
 
 try:
@@ -64,14 +62,14 @@ class NamedBytesIO(BytesIO):
 class NamedStringIO(StringIO):
     def __init__(self, name):
         self.name = name
-        StringIO.__init__(self)  # pylint: disable=non-parent-init-called
+        StringIO.__init__(self)
 
     def close(self):
         self.finalcontent = self.getvalue()
         return StringIO.close(self)
 
 
-class DataStorage(object):
+class DataStorage:
     used_username = None
     ofilename = None
     omode = None
@@ -105,24 +103,13 @@ class MyTestFS(AbstractedFS):
 
     def chdir(self, path):
         "Path changes are virtual"
-        if path == self.cmd_channel.ds.mkdirpath or path == u'/':
+        if path == self.cmd_channel.ds.mkdirpath or path == '/':
             self.cmd_channel.ds.chdirpath = path
-        return u'/'
+        return '/'
 
     def mkdir(self, path):
         "Do not create dirs"
         self.cmd_channel.ds.mkdirpath = path
-
-
-class MyDummyAuthorizer(DummyAuthorizer):
-    def get_home_dir(self, username):
-        "Work-around a annoying warning on py2"
-        home = DummyAuthorizer.get_home_dir(self, username)
-        try:
-            home = home.decode('utf8')
-        except Exception:
-            pass
-        return home
 
 
 @pytest.fixture(scope='function')
@@ -130,7 +117,7 @@ def ftpserver():
     """Provide a ftp server with virtual files"""
     handler = FTPTestHandler
     handler.abstracted_fs = MyTestFS
-    authorizer = MyDummyAuthorizer()
+    authorizer = DummyAuthorizer()
     home = os.curdir
     authorizer.add_user('user', '12345', home, perm='elrmwM')
     handler.authorizer = authorizer
@@ -141,16 +128,17 @@ def ftpserver():
     server.close_all()
 
 
-TEST_CONTENT = u'A test\n'
+TEST_CONTENT = 'A test\n'
 
 
 @pytest.fixture(scope='function')
 def upload(session):
     """Provide a file to use as upload"""
     fd, t = tempfile.mkstemp(suffix='.txt')
-    os.write(fd, TEST_CONTENT.encode('utf8'))
+    os.write(fd, TEST_CONTENT.encode())
     yield t
     os.unlink(t)
+
 
 @pytest.mark.skipif(ThreadedFTPServer is object,
                     reason='pyftpdlib package not installed')
@@ -165,6 +153,6 @@ def test_ftp(session, ftpserver, upload):
     assert ds.ofilename
     assert ds.omode == 'wb'
     assert ds.iofile
-    assert ds.iofile.finalcontent.decode('utf8') == TEST_CONTENT
+    assert ds.iofile.finalcontent.decode() == TEST_CONTENT
     assert ds.mkdirpath
     assert ds.chdirpath

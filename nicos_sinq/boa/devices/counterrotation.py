@@ -32,8 +32,6 @@ controller electronics. But the experience shows that doing this from the
 top level is good enough. It helps that the participating motors are of the
 same type and have the same speed."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Attach, Param
 from nicos.core.device import Moveable
 from nicos.core.utils import multiStop

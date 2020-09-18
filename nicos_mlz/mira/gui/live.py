@@ -24,8 +24,6 @@
 
 """NICOS live 2D data plot window/panel."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 from os import path
 
@@ -34,11 +32,10 @@ from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QByteArray, QDialog, QDoubleSpinBox, \
     QFileDialog, QLabel, QListWidgetItem, QMenu, QPrintDialog, QPrinter, \
     QSizePolicy, QStatusBar, Qt, QToolBar, pyqtSlot
-from nicos.pycompat import string_types
 from nicos.utils import findResource
 
 try:
-    from nicoscascadewidget import CascadeWidget, TmpImage  # pylint: disable=import-error
+    from nicoscascadewidget import CascadeWidget, TmpImage
 except ImportError:
     CascadeWidget = TmpImage = None
 
@@ -160,7 +157,7 @@ class LiveDataPanel(Panel):
     def on_client_liveparams(self, params):
         tag, _uid, _det, filename, dtype, nx, ny, nt, runtime = params
         # TODO: remove compatibility code
-        if not isinstance(filename, string_types):
+        if not isinstance(filename, str):
             filename, nx, ny, nt = filename[0], nx[0], ny[0], nt[0]
 
         if dtype == '<u4' and nx == 128 and ny == 128 and tag != 'MiraXML':

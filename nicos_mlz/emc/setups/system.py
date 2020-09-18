@@ -20,7 +20,7 @@ devices = dict(
         description = 'ElectroMagnetic Compatibility',
         instrument = 'EMC',
         responsible = 'F. Beule <f.beule@fz-juelich.de>',
-        operators = [u'Jülich Centre for Neutron Science (JCNS)'],
+        operators = ['Jülich Centre for Neutron Science (JCNS)'],
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',

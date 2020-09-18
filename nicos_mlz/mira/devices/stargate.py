@@ -40,8 +40,6 @@ bits of three consecutive 16-bit holding registers (offset_out).  Readback is
 done in three different holding registers with addresses n, n+2, n+4.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from time import time as currenttime
 
 from nicos.core import SIMULATION, Attach, InvalidValueError, Param, listof, \
@@ -125,11 +123,11 @@ class Stargate(tango.DigitalOutput):
         for curidx in range(len(self.chevron_att_angles)):
             maxmin = self.chevron_att_angles[curidx]
 
-            if(len(maxmin) < 2):
+            if len(maxmin) < 2:
                 chevrons.append(0)
                 continue
 
-            if(att < maxmin[0] and att > maxmin[1]):
+            if maxmin[1] < att < maxmin[0]:
                 chevrons.append(1)
             else:
                 chevrons.append(0)

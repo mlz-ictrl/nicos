@@ -24,8 +24,6 @@
 
 """REFSANS specific data sink tests."""
 
-from __future__ import absolute_import, division, print_function
-
 from os import path
 
 import pytest
@@ -33,7 +31,7 @@ import pytest
 from nicos.commands.measure import count
 
 try:
-    import configobj  # pylint: disable=unused-import
+    import configobj
 except ImportError:
     configobj = None
 
@@ -52,18 +50,21 @@ def prepare(session, dataroot):
                 # 'h2.center', 'h2.height',
                 'det_pivot', 'top_phi', 'chopper',
                 'gonio_theta', 'User2Voltage', 'det', 'det_pivot', 'zb3',
-                'zb3r_acc', 'zb3s_acc']:
+                'zb3r_acc', 'zb3s_acc', 'primary_aperture']:
         session.getDevice(dev)
+    zb3 = session.getDevice('zb3')
+    session.getDevice('primary_aperture').alias = zb3.height
+    session.getDevice('last_aperture').alias = zb3.height
     count(t=0.01)
 
     yield
 
 
-class TestSinks(object):
+class TestSinks:
 
     @pytest.mark.skipif(configobj is None, reason='configobj library missing')
     def test_config_sink(self, session):
         datafile = path.join(session.experiment.datapath, 'p1234_00000043.cfg')
         assert path.isfile(datafile)
         contents = configobj.ConfigObj(datafile)
-        assert len(contents['NOKs']) == 2
+        assert len(contents['NOKs']) == 1

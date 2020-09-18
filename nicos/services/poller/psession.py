@@ -24,8 +24,6 @@
 
 """Session class used with the NICOS poller."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import POLLER, Device, DeviceAlias, Override
 from nicos.core.sessions.simple import NoninteractiveSession
 from nicos.devices.cacheclient import CacheClient
@@ -85,7 +83,7 @@ class PollerSession(NoninteractiveSession):
         if appname == 'poller':
             NoninteractiveSession._notify_systemd(appname, msg)
 
-    # pylint: disable=W0102
+    # pylint: disable=dangerous-default-value
     def getDevice(self, dev, cls=None, source=None,
                   replace_classes=[(DeviceAlias, PollerCacheReader, {})]):
         """Override device creation for the poller.

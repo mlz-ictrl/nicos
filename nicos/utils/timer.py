@@ -24,8 +24,6 @@
 
 """Flexible Timers, thread free."""
 
-from __future__ import absolute_import, division, print_function
-
 import time
 
 # XXX
@@ -34,7 +32,7 @@ import time
 #
 # XXX: do we need locking? (multithreads?)
 
-class Timer(object):
+class Timer:
     """Flexible Timer class."""
 
     _started = 0

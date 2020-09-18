@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.device import Readable, Waitable
 from nicos.core.params import Attach
 from nicos.devices.tango import NamedDigitalOutput

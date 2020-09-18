@@ -24,13 +24,10 @@
 
 """KWS-3 sample position switcher."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.core import Attach, ConfigurationError, DeviceAlias, HasPrecision, \
     Moveable, NicosError, Override, Param, anytype, dictof, listof, oneof
 from nicos.devices.generic import Slit
-from nicos.pycompat import iteritems
 from nicos.utils import num_sort
 
 
@@ -59,7 +56,7 @@ class SamplePos(Moveable):
         self._waitdevs = []
         self._aliases = {}
         self._devpos = {}
-        for setting, values in iteritems(self.presets):
+        for setting, values in self.presets.items():
             values = dict(values)
             try:
                 self._aliases[setting] = (values.pop('active_ap'),
@@ -88,13 +85,13 @@ class SamplePos(Moveable):
             self._attached_active_y.alias,
         )
         setting = None
-        for setting, targets in iteritems(self._aliases):
+        for setting, targets in self._aliases.items():
             if targets == current_targets:
                 break
         else:
             return 'unknown'
         ok = True
-        for devname, devpos in iteritems(self._devpos[setting]):
+        for devname, devpos in self._devpos[setting].items():
             dev = session.getDevice(devname)
             devval = dev.read(maxage)
             if isinstance(dev, HasPrecision):
@@ -113,7 +110,7 @@ class SamplePos(Moveable):
         self._attached_active_x.alias = aliases[1]
         self._attached_active_y.alias = aliases[2]
         self._waitdevs = []
-        for dev, devpos in iteritems(self._devpos[target]):
+        for dev, devpos in self._devpos[target].items():
             dev = session.getDevice(dev)
             dev.move(devpos)
             self._waitdevs.append(dev)

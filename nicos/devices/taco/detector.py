@@ -25,8 +25,6 @@
 
 """Detector classes for NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 import IOCommon
 import TACOStates
 from IO import Counter, Timer

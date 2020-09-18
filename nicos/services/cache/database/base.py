@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import threading
 from time import time as currenttime
 
@@ -47,7 +45,6 @@ class CacheDatabase(Device):
 
     def initDatabase(self):
         """Initialize the database from persistent store, if present."""
-        pass
 
     def clearDatabase(self):
         """Clear the database also from persistent store, if present."""

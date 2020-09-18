@@ -24,9 +24,6 @@
 
 """NICOS GUI user editor window."""
 
-from __future__ import absolute_import, division, print_function
-
-import io
 import sys
 import time
 from logging import WARNING
@@ -40,13 +37,12 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.tools import createToolMenu
 from nicos.clients.gui.utils import loadUi, showToolText
 from nicos.clients.gui.widgets.qscintillacompat import QScintillaCompatible
-from nicos.guisupport.qt import QT_VER, QAction, QActionGroup, QByteArray, \
-    QColor, QDialog, QFileDialog, QFileSystemModel, QFileSystemWatcher, \
-    QFont, QFontMetrics, QHBoxLayout, QHeaderView, QInputDialog, QMenu, \
-    QMessageBox, QPen, QPrintDialog, QPrinter, QsciLexerPython, QsciPrinter, \
+from nicos.guisupport.qt import QAction, QActionGroup, QByteArray, QColor, \
+    QDialog, QFileDialog, QFileSystemModel, QFileSystemWatcher, QFont, \
+    QFontMetrics, QHBoxLayout, QHeaderView, QInputDialog, QMenu, QMessageBox, \
+    QPen, QPrintDialog, QPrinter, QsciLexerPython, QsciPrinter, \
     QsciScintilla, Qt, QTabWidget, QToolBar, QTreeWidgetItem, pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
-from nicos.pycompat import iteritems
 from nicos.utils import formatDuration, formatEndtime
 
 has_scintilla = QsciScintilla is not None
@@ -156,10 +152,7 @@ class EditorPanel(Panel):
 
         self.simOutStack.setCurrentIndex(0)
         hdr = self.simRanges.header()
-        if QT_VER == 4:
-            hdr.setResizeMode(QHeaderView.ResizeToContents)
-        else:
-            hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
+        hdr.setSectionResizeMode(QHeaderView.ResizeToContents)
         self.simPane.hide()
 
         self.splitter.restoreState(self.splitterstate)
@@ -187,7 +180,10 @@ class EditorPanel(Panel):
         client.simresult.connect(self.on_client_simresult)
         if client.isconnected:
             self.on_client_connected()
+        else:
+            self.on_client_disconnected()
         client.connected.connect(self.on_client_connected)
+        client.disconnected.connect(self.on_client_disconnected)
         client.setup.connect(self.on_client_connected)
         client.cache.connect(self.on_client_cache)
         client.experiment.connect(self.on_client_experiment)
@@ -312,12 +308,19 @@ class EditorPanel(Panel):
         for action in [
             self.actionSave, self.actionSaveAs, self.actionReload,
             self.actionPrint, self.actionUndo, self.actionRedo, self.actionCut,
-            self.actionCopy, self.actionPaste, self.actionFind, self.actionRun,
-            self.actionSimulate, self.actionUpdate
+            self.actionCopy, self.actionPaste, self.actionFind,
         ]:
             action.setEnabled(on)
+        self.enableExecuteActions(self.client.isconnected)
         for action in [self.actionComment]:
             action.setEnabled(on and has_scintilla)
+
+    def enableExecuteActions(self, on):
+        for action in [
+            self.actionRun, self.actionSimulate, self.actionGet,
+            self.actionUpdate
+        ]:
+            action.setEnabled(self.client.isconnected)
 
     def on_codeGenerated(self, code):
         if self.currentEditor:
@@ -426,7 +429,11 @@ class EditorPanel(Panel):
         return editor
 
     def on_client_connected(self):
+        self.enableExecuteActions(True)
         self._set_scriptdir()
+
+    def on_client_disconnected(self):
+        self.enableExecuteActions(False)
 
     def _set_scriptdir(self):
         initialdir = self.client.eval('session.experiment.scriptpath', '')
@@ -461,7 +468,7 @@ class EditorPanel(Panel):
             self.simFinished.setText(formatEndtime(timing))
 
         # device ranges
-        for devname, (_dval, dmin, dmax, aliases) in iteritems(devinfo):
+        for devname, (_dval, dmin, dmax, aliases) in devinfo.items():
             if dmin is not None:
                 aliascol = 'aliases: ' + ', '.join(aliases) if aliases else ''
                 item = QTreeWidgetItem([devname, dmin, '-', dmax, '', aliascol])
@@ -604,7 +611,7 @@ class EditorPanel(Panel):
         if self.saving:
             return
         editor = watcher = None
-        for editor, watcher in iteritems(self.watchers):
+        for editor, watcher in self.watchers.items():
             if watcher is self.sender():
                 break
         else:
@@ -620,7 +627,7 @@ class EditorPanel(Panel):
         else:
             # reload without asking
             try:
-                with io.open(self.filenames[editor], 'r', encoding='utf-8') as f:
+                with open(self.filenames[editor]) as f:
                     text = f.read()
             except Exception:
                 return
@@ -670,7 +677,7 @@ class EditorPanel(Panel):
         if not self.checkDirty(self.currentEditor):
             return
         try:
-            with io.open(fn, 'r', encoding='utf-8') as f:
+            with open(fn, 'r') as f:
                 text = f.read()
         except Exception as err:
             return self.showError('Opening file failed: %s' % err)
@@ -682,8 +689,7 @@ class EditorPanel(Panel):
 
     def openFile(self, fn, quiet=False):
         try:
-            with io.open(fn.encode(sys.getfilesystemencoding()), 'r',
-                         encoding='utf-8') as f:
+            with open(fn.encode(sys.getfilesystemencoding())) as f:
                 text = f.read()
         except Exception as err:
             if quiet:
@@ -746,7 +752,7 @@ class EditorPanel(Panel):
         try:
             self.saving = True
             try:
-                with io.open(self.filenames[editor], 'w', encoding='utf-8') as f:
+                with open(self.filenames[editor], 'w') as f:
                     f.write(editor.text())
             finally:
                 self.saving = False

@@ -27,13 +27,11 @@
   NICOS dependencies.
 '''
 
-from __future__ import absolute_import, division, print_function
-
 import socket
 import zlib
 
 
-class PSLdrv(object):
+class PSLdrv:
     def __init__(self, address='lauedet.laue.frm2', port=50000):
         self.address = address
         self.port = port

@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="creoleLabel">
+    <widget class="QLabel" name="mdLabel">
      <property name="font">
       <font>
        <weight>75</weight>
@@ -23,7 +23,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Add &amp;amp;comment, Creole formatted (&lt;a href=&quot;help&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;help&lt;/span&gt;&lt;/a&gt;):</string>
+      <string>Add &amp;amp;comment, Markdown formatted (&lt;a href=&quot;help&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;help&lt;/span&gt;&lt;/a&gt;):</string>
      </property>
      <property name="buddy">
       <cstring>freeFormText</cstring>
@@ -60,7 +60,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Creole markup overview</string>
+         <string>Markdown markup overview</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -70,17 +70,19 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>== Heading level 2
-=== Heading level 3
+         <string>## Heading level 2
+### Heading level 3
 
 * Bullet list
 * Bullet list
 
-# Enumerated list
-# Enumerated list
+1. Enumerated list
+2. Enumerated list
 
-**bold text**
-//italic text//</string>
+**bold**
+*italic*
+`code`
+</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -93,13 +95,15 @@
       <item row="1" column="1">
        <widget class="QLabel" name="label_8">
         <property name="text">
-         <string>|= table|= heading|
+          <string>
+| table  | heading  |
+| ------ | -------- |
 | table  | contents |
 | table  | contents |
 
 [[305]]  link to scan
 
-[[http://example.com][external link]]</string>
+[external link](http://example.com)</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

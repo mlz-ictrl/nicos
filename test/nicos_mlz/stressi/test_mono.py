@@ -24,8 +24,6 @@
 
 """STRESS-SPEC specific monochromator tests."""
 
-from __future__ import absolute_import, division, print_function
-
 import time
 
 import pytest

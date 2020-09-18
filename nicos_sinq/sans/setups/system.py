@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'SANS',
     experiment = 'Exp',
-    datasinks = ['conssink', 'dmnsink', 'livesink'],
+    datasinks = ['conssink', 'dmnsink', 'livesink', 'nxsink', 'quiecksink'],
 )
 
 modules = [
@@ -14,6 +14,7 @@ modules = [
     'nicos_sinq.commands.sics',
     'nicos_sinq.commands.hmcommands',
     'nicos_sinq.commands.epicscommands',
+    'nicos_sinq.commands.tableexe',
 ]
 
 devices = dict(
@@ -43,21 +44,16 @@ devices = dict(
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     dmnsink = device('nicos.devices.datasinks.DaemonSink'),
     livesink = device('nicos.devices.datasinks.LiveViewSink',
-        description = "Sink for forwarding live data to the GUI",
+        description = 'Sink for forwarding live data to the GUI',
+    ),
+    nxsink = device('nicos_sinq.sans.devices.sansnexussink.SANSNexusSink',
+        description = 'Sink for NeXus file writer',
+        filenametemplate = ['sans%(year)sn%(scancounter)06d.hdf'],
+        templatesmodule = 'nicos_sinq.sans.nexus.nexus_templates',
+        templateclass = 'SANSTemplateProvider',
+    ),
+    quiecksink = device('nicos_sinq.devices.datasinks.QuieckSink',
+        description = 'Sink for sending UDP datafile '
+        'notifications'
     ),
 )
-"""
-    nxsink=device('nicos_sinq.nexus.nexussink.NexusSink',
-           description="Sink for NeXus file writer",
-           filenametemplate=['sans%(year)sn%(scancounter)06d.hdf'],
-           templatesmodule='nicos_sinq.sans.nexus.nexus_templates',
-           templateclass='SANSTemplateProvider',
-           ),
-    nxsink=device('nicos_sinq.sans.devices.sansnexussink.SANSNexusSink',
-           description="Sink for NeXus file writer",
-           filenametemplate=['sans%(year)sn%(scancounter)06d.hdf'],
-           templatesmodule='nicos_sinq.sans.nexus.nexus_templates',
-           templateclass='SANSTemplateProvider',
-           ),
-
-"""

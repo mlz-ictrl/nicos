@@ -23,13 +23,10 @@
 # *****************************************************************************
 """Utilities for function fitting."""
 
-from __future__ import absolute_import, division, print_function
-
 from numpy import array, asarray, cos, diagonal, exp, full_like, inf, isinf, \
     isscalar, linspace, log, mean, pi, piecewise, power, sqrt
 
 from nicos.core import ProgrammingError
-from nicos.pycompat import add_metaclass
 from nicos.utils import FitterRegistry, getNumArgs
 from nicos.utils.analyze import estimateFWHM
 
@@ -73,7 +70,7 @@ def curve_fit(f, xdata, ydata, p0=None, sigma=None, **kw):
     # Remove full_output from kw, otherwise we're passing it in twice.
     return_full = kw.pop('full_output', False)
     res = leastsq(func, p0, args=args, full_output=1, **kw)
-    (popt, pcov, infodict, errmsg, ier) = res  # pylint: disable=unbalanced-tuple-unpacking
+    (popt, pcov, infodict, errmsg, ier) = res
 
     if ier not in [1, 2, 3, 4]:
         msg = "Optimal parameters not found: " + errmsg
@@ -97,7 +94,7 @@ except ImportError:
     pass
 
 
-class FitResult(object):
+class FitResult:
     def __init__(self, **kwds):
         self.__dict__.update(kwds)
 
@@ -108,11 +105,8 @@ class FitResult(object):
             self.chi2,
             ', '.join('%s = %8.3g' % v[:2] for v in zip(*self._pars)))
 
-    # pylint: disable=nonzero-method
-    def __nonzero__(self):
+    def __bool__(self):
         return not self._failed
-
-    __bool__ = __nonzero__
 
 
 class FitError(Exception):
@@ -133,8 +127,7 @@ class FitterMeta(type):
         return new_class
 
 
-@add_metaclass(FitterMeta)
-class Fit(object):
+class Fit(metaclass=FitterMeta):
     """Fit base class
 
     Derived classes may set the following class properties:
@@ -218,7 +211,6 @@ class Fit(object):
                                    msg='while guessing parameters: %s' % e)
 
         try:
-            # pylint: disable=unbalanced-tuple-unpacking
             popt, pcov = curve_fit(self.model, xn, yn, self.parstart, dyn,
                                    # default of 1000 can be too restrictive,
                                    # especially with automatic initial guess
@@ -283,7 +275,6 @@ class PredefinedFit(Fit):
 
     def process_result(self, res):
         """Can set res.label_{x,y} as well as a res.label_contents list."""
-        pass
 
 
 class LinearFit(PredefinedFit):

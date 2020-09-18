@@ -27,12 +27,11 @@ The connection handler for the execution daemon, handling the protocol
 commands.
 """
 
-from __future__ import absolute_import, division, print_function
-
-import base64
 import os
+import queue
 import socket
 import tempfile
+from base64 import b64decode, b64encode
 
 import rsa
 
@@ -42,12 +41,10 @@ from nicos.core.data import ScanData
 from nicos.protocols.daemon import BREAK_NOW, DAEMON_COMMANDS, SIM_STATES, \
     STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK, STATUS_RUNNING, \
     STATUS_STOPPING, CloseConnection
-from nicos.pycompat import queue, string_types
 from nicos.services.daemon.auth import AuthenticationError
 from nicos.services.daemon.script import RequestError, ScriptError, \
     ScriptRequest
-from nicos.services.daemon.utils import LoggerWrapper
-from nicos.utils.queues import SizedQueue
+from nicos.services.daemon.utils import LoggerWrapper, SizedQueue
 
 command_wrappers = {}
 
@@ -97,7 +94,7 @@ stop_queue = (object(), '')
 no_msg = object()
 
 
-class ConnectionHandler(object):
+class ConnectionHandler:
     """Protocol-unaware connection handler.
 
     This is used as a mixin base class for ServerTransport subclasses to
@@ -171,7 +168,7 @@ class ConnectionHandler(object):
 
         authenticators = self.daemon.get_authenticators()
         pubkey, privkey = rsa.newkeys(512)
-        pubkeyStr = base64.encodestring(pubkey.save_pkcs1())
+        pubkey_base64 = b64encode(pubkey.save_pkcs1())
         bannerhashing = 'rsa,plain'
 
         # announce version, authentication modality and serializer
@@ -181,7 +178,7 @@ class ConnectionHandler(object):
             nicos_root = config.nicos_root,
             custom_path = config.setup_package_path,
             pw_hashing = bannerhashing,
-            rsakey = pubkeyStr,
+            rsakey = pubkey_base64,
             protocol_version = self.get_version(),
             serializer = self.serializer.name,
         ))
@@ -198,9 +195,7 @@ class ConnectionHandler(object):
 
         password = credentials[0]['passwd']
         if password[0:4] == 'RSA:':
-            password = password[4:]
-            password = rsa.decrypt(base64.decodestring(password.encode()),
-                                   privkey)
+            password = rsa.decrypt(b64decode(password[4:]), privkey).decode()
 
         # check login data according to configured authentication
         login = credentials[0]['login']
@@ -212,7 +207,7 @@ class ConnectionHandler(object):
                     self.user = auth.authenticate(login, password)
                     break
                 except AuthenticationError as err:
-                    auth_err = err  # Py3 clears "err" after the except block
+                    auth_err = err  # "err" is cleared after the except block
                     continue
             else:  # no "break": all authenticators failed
                 self.log.error('authentication failed: %s', auth_err)
@@ -257,10 +252,10 @@ class ConnectionHandler(object):
                 # XXX move socket specific error handling to transport
                 self.log.error('send timeout in event sender')
                 break
-            except socket.error as err:
+            except OSError as err:
                 self.log.warning('connection broken in event sender: %s', err)
                 break
-            except Exception as err:
+            except Exception:
                 self.log.exception('exception in event sender; event: %s, '
                                    'data: %s', event, repr(data)[:1000])
         self.log.info('closing connections from event sender')
@@ -642,7 +637,7 @@ class ConnectionHandler(object):
                                   vallist.__class__.__name__)
             return
         for val in vallist:
-            if not isinstance(val, string_types):
+            if not isinstance(val, str):
                 self.send_error_reply('wrong type for add_values item: %s' %
                                       val.__class__.__name__)
                 return
@@ -663,7 +658,7 @@ class ConnectionHandler(object):
                                   vallist.__class__.__name__)
             return
         for val in vallist:
-            if not isinstance(val, string_types):
+            if not isinstance(val, str):
                 self.send_error_reply('wrong type for del_values item: %s' %
                                       val.__class__.__name__)
                 return

@@ -24,14 +24,12 @@
 
 """NICOS GUI enhanced TabWidget."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.panels.auxwindows import AuxiliarySubWindow, Panel
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings
-from nicos.guisupport.qt import QT_VER, QApplication, QByteArray, QCursor, \
-    QDrag, QEvent, QMainWindow, QMimeData, QMouseEvent, QPixmap, QPoint, \
-    QSize, QStyle, QStyleOptionTab, QStylePainter, Qt, QTabBar, QTabWidget, \
-    QWidget, pyqtSignal, pyqtSlot
+from nicos.guisupport.qt import QApplication, QByteArray, QCursor, QDrag, \
+    QEvent, QMainWindow, QMimeData, QMouseEvent, QPixmap, QPoint, QSize, \
+    QStyle, QStyleOptionTab, QStylePainter, Qt, QTabBar, QTabWidget, QWidget, \
+    pyqtSignal, pyqtSlot
 
 
 def findTab(tab, w):
@@ -95,10 +93,7 @@ class TearOffTabBar(QTabBar):
             mimedata.setData('action', b'application/tab-detach')
             drag.setMimeData(mimedata)
 
-            if QT_VER == 4:
-                pixmap = QPixmap.grabWidget(self.parentWidget().currentWidget())
-            else:
-                pixmap = self.parentWidget().currentWidget().grab()
+            pixmap = self.parentWidget().currentWidget().grab()
             pixmap = pixmap.scaled(640, 480, Qt.KeepAspectRatio)
             drag.setPixmap(pixmap)
             drag.setDragCursor(QPixmap(), Qt.LinkAction)
@@ -157,7 +152,7 @@ class LeftTabBar(TearOffTabBar):
 
 class TearOffTabWidget(QTabWidget):
 
-    class TabWidgetStorage(object):
+    class TabWidgetStorage:
 
         def __init__(self, index, widget, title, visible=True):
             self.index = index
@@ -268,7 +263,7 @@ class TearOffTabWidget(QTabWidget):
         panel = widget
         if isinstance(widget, QMainWindow):  # check for main window type
             panel = widget.centralWidget()
-            if panel.layout():               # check for layout
+            if panel and panel.layout():  # check for layout
                 panel = panel.layout().itemAt(0).widget()
         return panel
 
@@ -332,10 +327,10 @@ class TearOffTabWidget(QTabWidget):
         detachWindow.saveSettings(False)
         tearOffWidget = detachWindow.centralWidget()
         panel = self._getPanel(tearOffWidget)
-        if not isinstance(panel, QTabWidget):
+        if panel and not isinstance(panel, QTabWidget):
             panel.setWidgetVisible.disconnect(detachWindow.setWidgetVisibleSlot)
         tearOffWidget.setParent(self)
-        if not isinstance(panel, QTabWidget):
+        if panel and not isinstance(panel, QTabWidget):
             panel.setWidgetVisible.connect(self.setWidgetVisibleSlot)
 
         for p in tearOffWidget.panels:
@@ -430,7 +425,7 @@ class TearOffTabWidget(QTabWidget):
             detachWindow.closed.connect(self.attachTab)
 
             panel = self._getPanel(widget)
-            if not isinstance(panel, QTabWidget):
+            if panel and not isinstance(panel, QTabWidget):
                 panel.setWidgetVisible.disconnect(self.setWidgetVisibleSlot)
                 panel.setWidgetVisible.connect(
                     detachWindow.setWidgetVisibleSlot)
@@ -505,8 +500,7 @@ def firstWindow(w):
         if not parent:
             widget = None
             break
-        else:
-            widget = parent
-            if widget.isWindow():
-                break
+        widget = parent
+        if widget.isWindow():
+            break
     return widget

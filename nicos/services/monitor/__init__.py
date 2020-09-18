@@ -25,8 +25,6 @@
 
 """Base class for instrument monitors."""
 
-from __future__ import absolute_import, division, print_function
-
 import re
 from time import sleep, strftime, time as currenttime
 
@@ -36,7 +34,6 @@ from nicos.core.sessions.setups import SetupBlock
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.protocols.cache import OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
     OP_WILDCARD, cache_load
-from nicos.pycompat import to_utf8
 from nicos.utils import createThread, reexecProcess, watchFileContent
 
 
@@ -109,7 +106,7 @@ class Monitor(BaseCacheClient):
 
     _keys_expired = False  # whether on disconnect all keys have been expired
 
-    def start(self, options):  # pylint: disable=W0221
+    def start(self, options):
         self.log.info('monitor starting up, creating main window')
 
         self._fontsize = options.fontsize or self.fontsize
@@ -175,7 +172,7 @@ class Monitor(BaseCacheClient):
         self._worker.join()
         self.log.info('done')
 
-    def quit(self, *ignored, **kwds):
+    def quit(self, *ignored, **kwds):  # pylint: disable=signature-differs
         self.closeGui()
         self._stoprequest = True
 
@@ -184,8 +181,8 @@ class Monitor(BaseCacheClient):
         BaseCacheClient._connect_action(self)
         if self.showwatchdog:
             # also ask for and subscribe to all watchdog events
-            self._socket.sendall(to_utf8('@watchdog/%s\n' % OP_WILDCARD))
-            self._socket.sendall(to_utf8('@watchdog/%s\n' % OP_SUBSCRIBE))
+            self._socket.sendall(('@watchdog/%s\n' % OP_WILDCARD).encode())
+            self._socket.sendall(('@watchdog/%s\n' % OP_SUBSCRIBE).encode())
 
         # use appname to distinguish between different instances
         self.storeSysInfo(session.appname)

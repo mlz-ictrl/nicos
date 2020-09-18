@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 
-# this one is temporary until build machines have Qt5 installed:
-# pylint: disable=import-error
-
 # Resource object code
 #
 # Created by: The Resource Compiler for PyQt5 (Qt v5.7.1)
 #
 # WARNING! All changes made in this file will be lost!
-
-from __future__ import absolute_import, division, print_function
 
 from PyQt5 import QtCore
 

@@ -24,8 +24,6 @@
 
 """Package for triple-axis device classes."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.devices.tas.cell import Cell, TASSample
 from nicos.devices.tas.ecradle import EulerianCradle
 from nicos.devices.tas.mono import Monochromator

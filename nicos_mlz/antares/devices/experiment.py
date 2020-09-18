@@ -26,8 +26,6 @@
 
 """NICOS Antares Experiment."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 
 from nicos_mlz.devices.experiment import ImagingExperiment

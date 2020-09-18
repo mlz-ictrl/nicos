@@ -24,8 +24,6 @@
 
 """Calculation GUI tool."""
 
-from __future__ import absolute_import, division, print_function
-
 import math
 import re
 from os import path
@@ -33,7 +31,6 @@ from os import path
 from nicos.clients.gui.utils import DlgPresets, loadUi
 from nicos.guisupport.qt import QDialog, QPixmap, QTreeWidgetItem
 from nicos.guisupport.utils import DoubleValidator
-from nicos.pycompat import iteritems
 
 M_N = 1.6749274e-27
 H   = 6.6260696e-34
@@ -86,7 +83,7 @@ class CalculatorTool(QDialog):
                 path.join(path.dirname(__file__), 'calculator_images',
                           'miezefml.png')))
 
-            self.mztimeTable.setHeaderLabels(['Setting', u'MIEZE time τ'])
+            self.mztimeTable.setHeaderLabels(['Setting', 'MIEZE time τ'])
             for setting in self._miezesettings:
                 self.mztimeTable.addTopLevelItem(QTreeWidgetItem([setting, '']))
 
@@ -183,7 +180,7 @@ class CalculatorTool(QDialog):
         else:
             self.errorLabel.setText('')
             # now, fill the disabled text fields
-            for fld, conv in iteritems(needed):
+            for fld, conv in needed.items():
                 getattr(self, 'input'+fld).setText('%.3f' % (given[fld]/conv))
             if self.chkSampleDet.isChecked():
                 sd = tofloat(self.inputSampleDet)

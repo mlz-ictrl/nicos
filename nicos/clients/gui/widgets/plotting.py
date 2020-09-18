@@ -25,8 +25,6 @@
 # *****************************************************************************
 """NICOS GR plotting backend."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
 import tempfile
 import time
@@ -45,12 +43,10 @@ from nicos.guisupport.plots import DATEFMT, TIMEFMT, MaskedPlotCurve, \
     NicosPlotAxes, NicosTimePlotAxes
 from nicos.guisupport.qt import QAction, QApplication, QCursor, QDialog, \
     QFileDialog, QFont, QListWidgetItem, QMenu, QPoint, Qt
-from nicos.guisupport.qtgr import InteractiveGRWidget, \
-    LegendEvent, MouseEvent, ROIEvent
+from nicos.guisupport.qtgr import InteractiveGRWidget, LegendEvent, \
+    MouseEvent, ROIEvent
 from nicos.guisupport.utils import scaledFont
-# pylint: disable=redefined-builtin
-from nicos.pycompat import exec_, string_types, number_types
-from nicos.utils import safeName
+from nicos.utils import number_types, safeName
 from nicos.utils.fitting import CosineFit, ExponentialFit, Fit, FitError, \
     FitResult, GaussFit, LinearFit, LorentzFit, PearsonVIIFit, \
     PseudoVoigtFit, SigmoidFit, TcFit
@@ -100,7 +96,7 @@ def prepareData(x, y, dy, norm):
     return x, y, dy
 
 
-class Fitter(object):
+class Fitter:
     title = 'unknown fit'
     picks = []
 
@@ -390,7 +386,7 @@ class ArbitraryFitter(Fitter):
         fcnstr, params, values, xmin, xmax = dlg.getFunction()
 
         ns = {}
-        exec_('from numpy import *', ns)
+        exec('from numpy import *', ns)
         try:
             model = eval('lambda x, %s: %s' % (', '.join(params), fcnstr), ns)
         except SyntaxError as e:
@@ -799,7 +795,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
             self._axes.setXtickCallback(self.xtickCallBack)
             self._plot.offsetXLabel = -.08
 
-        scale = self.yaxisScale()
+        scale = self.yaxisScale()  # pylint: disable=assignment-from-none
         if scale:
             axes = self._plot.getAxes(0)
             curwin = axes.getWindow()
@@ -827,11 +823,11 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
 
     def isLogScaling(self, idx=0):
         axes = self._plot.getAxes(idx)
-        return (axes.scale & gr.OPTION_Y_LOG if axes is not None else False)
+        return axes.scale & gr.OPTION_Y_LOG if axes is not None else False
 
     def isLogXScaling(self, idx=0):
         axes = self._plot.getAxes(idx)
-        return (axes.scale & gr.OPTION_X_LOG if axes is not None else False)
+        return axes.scale & gr.OPTION_X_LOG if axes is not None else False
 
     def setLogScale(self, on):
         self._plot.setLogY(on, rescale=True)
@@ -906,9 +902,9 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
                     res = event.roi.reference
                     text = '\n'.join(
                         (n + '\t' if n else '\t') +
-                        (v + '\t' if isinstance(v, string_types)
+                        (v + '\t' if isinstance(v, str)
                          else '%g\t' % v) +
-                        (dv if isinstance(dv, string_types)
+                        (dv if isinstance(dv, str)
                          else '%g' % dv)
                         for (n, v, dv) in res.label_contents)
                     QApplication.clipboard().setText(text)
@@ -997,7 +993,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         return True
 
     @property
-    def plot(self):
+    def plot(self):  # pylint: disable=invalid-overridden-method
         """Get current gr.pygr.Plot object."""
         return self._plot
 
@@ -1053,8 +1049,8 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
 
         text = '\n'.join(
             (n + ': ' if n else '') +
-            (v if isinstance(v, string_types) else '%g' % v) +
-            (dv if isinstance(dv, string_types) else ' +/- %g' % dv)
+            (v if isinstance(v, str) else '%g' % v) +
+            (dv if isinstance(dv, str) else ' +/- %g' % dv)
             for (n, v, dv) in res.label_contents)
         grtext = Text(res.label_x, res.label_y, text, self._axes, .012,
                       hideviewport=False)

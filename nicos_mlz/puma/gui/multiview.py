@@ -23,8 +23,6 @@
 # *****************************************************************************
 """Classes to display the PUMA Multi analyzer."""
 
-from __future__ import absolute_import, division, print_function
-
 from math import radians, sin
 
 from nicos.core import status

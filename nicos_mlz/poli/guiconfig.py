@@ -42,7 +42,7 @@ main_window = tabbed(
 
 windows = [
     window('Camera', 'live',
-           panel('nicos.clients.gui.panels.liveqwt.LiveDataPanel',
+           panel('nicos.clients.gui.panels.live.LiveDataPanel',
                  instrument='poli')),
     window('PLC', 'table',
            panel('nicos_mlz.gui.plcpanel.PlcDeviceControlPanel')),

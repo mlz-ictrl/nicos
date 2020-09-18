@@ -28,8 +28,6 @@ This module contains a device for reading the Pfeiffer TPG 261
 vacuum gauge controller using a Moxa terminal server.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Override, Readable, status
 from nicos.devices.vendor.moxa import MoxaCommunicator
 
@@ -57,7 +55,7 @@ class PfeifferTPG261(MoxaCommunicator, Readable):
         reply = sock.recv(3)
         if reply != '\x06\r\n':
             self._flush_tty(sock)
-            raise IOError('No ACK reply.')
+            raise OSError('No ACK reply.')
         # send ENQ signal
         sock.send('\x05\r\n')
 

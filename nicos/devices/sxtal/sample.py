@@ -26,8 +26,6 @@
 Single crystal sample device
 """
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Param, dictof, floatrange, listof, oneof
 from nicos.devices.sample import Sample
 from nicos.devices.sxtal.xtal import symmetry

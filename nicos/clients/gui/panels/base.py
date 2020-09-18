@@ -25,8 +25,6 @@
 
 """Support for "auxiliary" windows containing panels."""
 
-from __future__ import absolute_import, division, print_function
-
 from time import time as currenttime
 
 from nicos.clients.gui.config import panel
@@ -37,7 +35,7 @@ from nicos.utils import checkSetupSpec
 from nicos.utils.loggers import NicosLogger
 
 
-class SetupDepWindowMixin(object):
+class SetupDepWindowMixin:
     def __init__(self, client):
         if 'session/mastersetup' not in client._reg_keys:
             return
@@ -94,7 +92,7 @@ class SetupDepPanelMixin(QObject):
     setupSpec = ()
     setWidgetVisible = pyqtSignal(QWidget, bool, name='setWidgetVisible')
 
-    def __init__(self, client, options):
+    def __init__(self, client, options):  # pylint: disable=super-init-not-called
         setups = options.get('setups', '')
         self.setSetups(setups)
         client.register(self, 'session/mastersetup')
@@ -180,7 +178,6 @@ class Panel(DlgUtils, QWidget, SetupDepPanelMixin):
 
         If the panel has a title widget, it should hide it in this method.
         """
-        pass
 
     def requestClose(self):
         return True

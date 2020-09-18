@@ -26,9 +26,9 @@
 instrument setups.
 """
 
-from __future__ import absolute_import, division, print_function
-
+import glob
 import os
+from configparser import ConfigParser
 from logging import ERROR, LogRecord
 from os import path
 from uuid import uuid1
@@ -38,14 +38,13 @@ import pytest
 from nicos import session
 from nicos.core.sessions.simulation import SimulationSupervisor
 from nicos.core.utils import system_user
-from nicos.pycompat import ConfigParser
 
 from test.utils import module_root
 
 session_setup = None
 
 
-class Request(object):
+class Request:
 
     def __init__(self, uuid, code):
         self.user = None
@@ -70,7 +69,7 @@ class Request(object):
         pass
 
 
-class Emitter(object):
+class Emitter:
     def __init__(self, uuid, script):
         self.request = Request(uuid, script)
         self.messages = []
@@ -95,38 +94,43 @@ class Emitter(object):
             self.result = msg
 
 
-custom_dir = path.join(module_root, 'nicos_mlz')
 custom_subdirs = {}
 
 
 def find_scripts():
-    for instr in sorted(os.listdir(custom_dir)):
-        testdir = path.join(custom_dir, instr, 'testscripts')
-        nicosconf = path.join(custom_dir, instr, 'nicos.conf')
-        if not path.isdir(testdir):
-            continue
-        custom_subdirs[instr] = []
-        cp = ConfigParser()
-        cp.read(nicosconf)
-        if cp.has_option('nicos', 'setup_subdirs'):
-            sbd = cp.get('nicos', 'setup_subdirs').split(',')
-            custom_subdirs[instr] = sbd
-        for testscript in sorted(os.listdir(testdir)):
-            # For now, only the "basic" scripts are run.
-            if testscript.endswith('basic.py'):
-                yield pytest.param(instr, testscript,
-                                   id="{}-{}".format(instr, testscript))
+    for custom_dir in [d for d in glob.glob(path.join(module_root, 'nicos_*'))
+                       if path.isdir(d) and d != 'nicos_demo']:
+        facility = path.basename(custom_dir)
+        for instr in sorted(os.listdir(custom_dir)):
+            testdir = path.join(custom_dir, instr, 'testscripts')
+            if not path.isdir(testdir):
+                continue
+            nicosconf = path.join(custom_dir, instr, 'nicos.conf')
+            full_instr = f'{facility}.{instr}'
+            custom_subdirs[full_instr] = []
+            cp = ConfigParser()
+            cp.read(nicosconf)
+            if cp.has_option('nicos', 'setup_subdirs'):
+                sbd = cp.get('nicos', 'setup_subdirs').split(',')
+                custom_subdirs[full_instr] = sbd
+            for testscript in sorted(os.listdir(testdir)):
+                # For now, only the "basic" scripts are run.
+                if testscript.endswith('basic.py'):
+                    yield pytest.param(
+                        facility, instr, testscript,
+                        id=f'{facility}-{instr}-{testscript}')
 
 
-@pytest.mark.parametrize('instr, script', find_scripts())
-def test_dryrun(session, instr, script):
+@pytest.mark.parametrize('facility, instr, script', find_scripts())
+def test_dryrun(session, facility, instr, script):
 
     setups = ['system']
     setupcode = []
     code = []
     needs_modules = []
     timing_condition = None
-    subdirs = custom_subdirs[instr]
+    subdirs = custom_subdirs[f'{facility}.{instr}']
+    custom_dir = path.join(module_root, facility)
     fullpath = path.join(custom_dir, instr, 'testscripts', script)
     cachepath = path.join(custom_dir, instr, 'testscripts', 'cache')
 

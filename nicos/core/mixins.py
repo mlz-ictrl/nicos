@@ -24,8 +24,6 @@
 
 """Meta classes and Mixins for usage in NICOS."""
 
-from __future__ import absolute_import, division, print_function
-
 import threading
 import types
 from time import time as currenttime
@@ -38,7 +36,6 @@ from nicos.core.errors import AccessError, CommunicationError, \
 from nicos.core.params import Override, Param, anytype, dictof, floatrange, \
     intrange, limits, none_or, nonemptylistof, string, tupleof
 from nicos.core.utils import statusString, usermethod
-from nicos.pycompat import add_metaclass, itervalues
 from nicos.utils import formatArgs, lazy_property
 
 
@@ -51,11 +48,11 @@ class DeviceMixinMeta(type):
     def __new__(mcs, name, bases, attrs):
         # set source class for parameters
         if 'parameters' in attrs:
-            for pinfo in itervalues(attrs['parameters']):
+            for pinfo in attrs['parameters'].values():
                 pinfo.classname = attrs['__module__'] + '.' + name
         for base in bases:
             if hasattr(base, 'parameters'):
-                for pinfo in itervalues(base.parameters):
+                for pinfo in base.parameters.values():
                     if pinfo.classname is None:
                         pinfo.classname = base.__module__ + '.' + base.__name__
         newtype = type.__new__(mcs, name, bases, attrs)
@@ -87,7 +84,7 @@ class DeviceMixinMeta(type):
 
         return newtype
 
-    def __instancecheck__(cls, inst):  # pylint: disable=C0203
+    def __instancecheck__(cls, inst):
         from nicos.core.device import DeviceAlias, NoDevice  # isort:skip
         if inst.__class__ == DeviceAlias and inst._initialized:
             if isinstance(inst._obj, NoDevice):
@@ -98,8 +95,7 @@ class DeviceMixinMeta(type):
         return issubclass(inst.__class__, cls)
 
 
-@add_metaclass(DeviceMixinMeta)
-class DeviceMixinBase(object):
+class DeviceMixinBase(metaclass=DeviceMixinMeta):
     """
     Base class for all NICOS device mixin classes not derived from `Device`.
 
@@ -321,10 +317,10 @@ class HasPrecision(DeviceMixinBase):
                            settable=True, category='precisions'),
     }
 
-    def doIsAtTarget(self, pos):
-        if self.target is None:
+    def doIsAtTarget(self, pos, target):
+        if target is None:
             return True  # avoid bootstrapping problems
-        return abs(self.target - pos) <= self.precision
+        return abs(target - pos) <= self.precision
 
 
 class HasMapping(DeviceMixinBase):
@@ -592,10 +588,15 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
         res.append(('', res[-1][1] + self.window))
         return res
 
-    def isAtTarget(self, val):
+    def isAtTarget(self, pos=None, target=None):
+        if target is None:
+            target = self.target
+        if pos is None:
+            pos = self.read(0)
+
         ct = currenttime()
-        self._cacheCB('value', val, ct)
-        if self.target is None:
+        self._cacheCB('value', pos, ct)
+        if target is None:
             return True
 
         # check subset of _history which is in window
@@ -604,11 +605,11 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
         hist = self._history[:]
         window_start = ct - self.window
         hist_in_window = [v for (t, v) in hist if t >= window_start]
-        stable = all(abs(v - self.target) <= self.precision
+        stable = all(abs(v - target) <= self.precision
                      for v in hist_in_window)
-        if 0 < len(hist_in_window) < len(hist) and stable:  # pylint: disable=len-as-condition
+        if 0 < len(hist_in_window) < len(hist) and stable:
             if hasattr(self, 'doIsAtTarget'):
-                return self.doIsAtTarget(val)
+                return self.doIsAtTarget(pos, target)
             return True
         return False
 

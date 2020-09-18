@@ -24,8 +24,6 @@
 
 """Symmetry-related classes."""
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from nicos.devices.tas.spacegroups import can_reflect, get_spacegroup
@@ -36,7 +34,7 @@ lor = np.logical_or
 lxor = np.logical_xor
 
 
-class Bravais(object):
+class Bravais:
 
     conditions = {
         'C': lambda h, k, l: (lnot((h + k) % 2)),
@@ -63,7 +61,7 @@ symbols = ('1', '-1', '2/m', '4/mmm', '6/mmm', '4/m', '6/m',
            'm3m', 'm3')
 
 
-class Laue(object):
+class Laue:
     def __init__(self, laue):
         self.laue = laue
 
@@ -169,7 +167,7 @@ class Laue(object):
         return lor(h, True)
 
 
-class SpaceGroup(object):
+class SpaceGroup:
     def __init__(self, spgr):
         self.spgr = get_spacegroup(spgr)
 
@@ -221,8 +219,7 @@ def _testlaue(sym):
 
 
 def _test():
-    from nicos.pycompat import iteritems
-    for t, vals in iteritems(valid):
+    for t, vals in valid.items():
         for hkl in vals:
             # this def is necessary to get uniq descriptions in the
             # test output.
@@ -230,7 +227,7 @@ def _test():
                 _testbravais(t, mode, hkl)
             tf1.description = 'Bravais allowed %s %s' % (t, hkl)
             yield tf1, t, True, hkl
-    for t, vals in iteritems(invalid):
+    for t, vals in invalid.items():
         for hkl in vals:
             # this def is necessary to get uniq descriptions in the
             # test output.

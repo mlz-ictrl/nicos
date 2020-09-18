@@ -25,9 +25,8 @@
 
 """NICOS tests for some utility modules."""
 
-from __future__ import absolute_import, division, print_function
-
 import os
+import pickle
 import socket
 import sys
 import time
@@ -36,7 +35,6 @@ from datetime import timedelta
 import pytest
 
 from nicos.core.errors import NicosError
-from nicos.pycompat import cPickle as pickle
 from nicos.utils import Repeater, bitDescription, checkSetupSpec, chunks, \
     closeSocket, comparestrings, extractKeyAndIndex, formatDuration, \
     formatExtendedFrame, formatExtendedStack, formatExtendedTraceback, \
@@ -51,7 +49,7 @@ from test.utils import raises
 def test_lazy_property():
     asked = []
 
-    class P(object):
+    class P:
         @lazy_property
         def prop(self):
             asked.append('x')
@@ -130,7 +128,6 @@ def test_functions():
     assert parseConnectionString('', 1302) is None
     assert parseConnectionString('host?', 1302) is None
 
-    # pylint: disable=range-builtin-not-iterating
     assert [tuple(x) for x in chunks(range(10), 3)] == \
         [(0, 1, 2), (3, 4, 5), (6, 7, 8), (9,)]
 

@@ -26,8 +26,6 @@
 Python interface to the _pyctl module, to control the execution of Python
 code via a C trace function.
 """
-from __future__ import absolute_import, division, print_function
-
 import threading
 import traceback
 
@@ -38,7 +36,7 @@ try:
 except ImportError:
     ControlStop = BaseException
 
-    class _Controller(object):
+    class _Controller:
         def __init__(self, *args, **kwds):
             raise ImportError('Please install the nicos-pyctl package.')
 
@@ -120,7 +118,6 @@ class Controller(_Controller):
     - lineno: current line number (in which frame, see lineno_behavior)
     """
 
-    # pylint: disable=W0231
     def __init__(self, break_only_in_toplevel=False,
                  break_only_in_filename=None, lineno_behavior=None):
         if lineno_behavior is None:

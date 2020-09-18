@@ -24,8 +24,6 @@
 
 """Beamstop handling for SANS1"""
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from nicos import session
@@ -36,7 +34,6 @@ from nicos.devices.generic import Axis
 from nicos.devices.generic.sequence import SeqCall, SeqDev as NicosSeqDev, \
     SequencerMixin
 from nicos.devices.tango import Sensor
-from nicos.pycompat import iteritems, reraise
 
 
 class FunnySensor(Sensor):
@@ -208,7 +205,7 @@ class BeamStop(SequencerMixin, Moveable):
                     return True, 'pure horizontal movement allowed'
             else:
                 # purely vertical movement if around a slot
-                for slot, (slotx, _shapesize) in iteritems(self.slots):
+                for slot, (slotx, _shapesize) in self.slots.items():
                     if abs(xpos - slotx) <= xprec:
                         # at slot 'slot' allow vertical movement
                         if abs(target[0] - xpos) <= xprec:
@@ -292,4 +289,4 @@ class BeamStop(SequencerMixin, Moveable):
         self._setROParam('fixed', 'Error during sequence (step %r), needs '
                                   'manual fixing!' % step)
         self._setROParam('fixedby', ('admin', 20))
-        reraise(*exc_info)
+        raise exc_info[1]

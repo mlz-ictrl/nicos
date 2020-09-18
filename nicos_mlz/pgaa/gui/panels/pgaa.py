@@ -25,8 +25,6 @@
 
 """NICOS GUI PGAA panel components."""
 
-from __future__ import absolute_import, division, print_function
-
 import re
 from collections import OrderedDict
 from datetime import datetime
@@ -35,9 +33,9 @@ from uuid import uuid1
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QT_VER, QAbstractItemView, QGridLayout, \
-    QHeaderView, QObject, Qt, QTableWidget, QTableWidgetItem, QWidget, \
-    pyqtSignal, pyqtSlot
+from nicos.guisupport.qt import QAbstractItemView, QGridLayout, QHeaderView, \
+    QObject, Qt, QTableWidget, QTableWidgetItem, QWidget, pyqtSignal, \
+    pyqtSlot
 from nicos.protocols.daemon import STATUS_IDLE, STATUS_IDLEEXC, \
     STATUS_RUNNING, STATUS_STOPPING
 from nicos.utils import findResource
@@ -50,13 +48,13 @@ from .widgets import AttCell, BeamCell, CellItem, CondCell, DetectorCell, \
 my_uipath = path.dirname(__file__)
 
 
-class BasicScriptHandler(object):
+class BasicScriptHandler:
 
     def __init__(self):
         try:
             with open(path.join(my_uipath, 'basic_script.py'), 'r') as f:
                 basic_script = f.read()
-        except IOError:
+        except OSError:
             basic_script = ''
         self.basic_script = basic_script
         self.handler = TemplateScriptHandler(basic_script)
@@ -176,10 +174,7 @@ class TableWidget(QTableWidget):
         # self.setDropIndicatorShown(True)
         self.verticalHeader().hide()
         hdr = self.horizontalHeader()
-        if QT_VER == 4:
-            hdr.setResizeMode(QHeaderView.Interactive)
-        else:
-            hdr.setSectionResizeMode(QHeaderView.Interactive)
+        hdr.setSectionResizeMode(QHeaderView.Interactive)
         # self.setDropIndicatorShown(True)
 
         self.source = source
@@ -371,7 +366,7 @@ class Row(QWidget):
 
     def __getitem__(self, index):
         # returns widget
-        if index < len(self.widgets) and index >= 0:
+        if 0 <= index < len(self.widgets):
             return self.widgets[index]
         raise IndexError
 
@@ -761,7 +756,7 @@ class QueueSource(QObject):
             elif not index == -1:
                 assert len(self.sequence) == self.viewer.rowCount()
                 old_ind = len(self.sequence) - 1
-                if not (old_ind == index):
+                if old_ind != index:
                     self.rearrange(old_ind, index)
                     self.viewer.selectRow(index)
             else:
@@ -802,7 +797,7 @@ class LogSource(QObject):
             info['started'] = dataset.started
             info['stopped'] = dataset.finished
             info['Detectors'] = '[%s]' % ','.join(
-                [d for d in dataset.detectors])
+                d for d in dataset.detectors)
             info['Pressure'] = '%.3f mbar' % dataset.metainfo[
                 'chamber_pressure', 'value'][0]
             info['Filename'] = info.pop('FILENAME')

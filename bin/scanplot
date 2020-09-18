@@ -25,8 +25,6 @@
 
 """Script to plot and fit NICOS data files."""
 
-from __future__ import absolute_import, division, print_function
-
 import sys
 from os import path
 
@@ -61,12 +59,12 @@ def getguess(xs, ys, func):
     overhalf = xs[ys > guess[1]/2.]
     guess[2] = abs((overhalf[0] - overhalf[-1]) / 1.8) or 0.1
 
-    if func == gausswlorentz:
+    if func is gausswlorentz:
         guess[5] = guess[3]     # background
         guess[3] = guess[2]     # gauss width
         guess[4] = 3*guess[2]   # lorentz width
         guess[2] = guess[1]/10  # lorentz amplitude
-    elif func == twogauss:
+    elif func is twogauss:
         guess[5] = guess[1]*0.9       # amplitude #2
         guess[4] = guess[0]+guess[2]  # center #2
         guess[0] = guess[0]-guess[2]  # center #1
@@ -176,6 +174,7 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
         try:
             ndf = len(xs) - len(guess)
             if dys is not None and dys.min() > 0:
+                # pylint: disable=unbalanced-tuple-unpacking
                 ps, pcov = curve_fit(ff, xs, ys, guess, dys)
                 chi2 = (((ys - ff(xs, *ps)) / dys)**2).sum() / ndf
             else:
@@ -199,7 +198,7 @@ def plotcurve(grpl, xs, ys, dys, cnum, legend, fitflag=False, ff=gauss):
                 fill = ' '
             print('%20s%12.4f\t%7.4f' % (ff.params[i].center(20, fill),
                                          ps[i], dps[i]))
-        if ff == gauss:
+        if ff is gauss:
             print('       area         %12.3f' % abs(ps[1] / sqrt(2 * pi) /
                                                      ps[2]))
 
@@ -250,7 +249,7 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
         try:
             f = open(fpath, 'r')
             break
-        except IOError:
+        except OSError:
             continue
     else:
         raise Exception('could not find file %s to plot' % filename)

@@ -24,8 +24,6 @@
 
 """Commandlets for KWS-2."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.clients.gui.cmdlets import register
 from nicos.guisupport.qt import QCheckBox
 

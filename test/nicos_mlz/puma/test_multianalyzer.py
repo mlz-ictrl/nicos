@@ -24,8 +24,6 @@
 
 """Module to test custom specific modules."""
 
-from __future__ import absolute_import, division, print_function
-
 import ast
 import os
 
@@ -37,7 +35,7 @@ from nicos.core.errors import InvalidValueError, LimitError
 session_setup = 'multianalyzer'
 
 
-class TestMultiAnalyzer(object):
+class TestMultiAnalyzer:
     """Multi analyzer test class."""
 
     @pytest.fixture(scope='function', autouse=True)
@@ -154,7 +152,7 @@ class TestMultiAnalyzer(object):
 
         man.maw([0] * 11 + [-i * 0.1 for i in range(11)])
         man.maw([0] * 22)
-        man.maw([i for i in range(11)] + [-i * 0.1 for i in range(11)])
+        man.maw(list(range(11)) + [-i * 0.1 for i in range(11)])
 
     def test_reset(self, session):
         """Check reset and reference of device."""

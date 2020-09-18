@@ -27,10 +27,13 @@
 .. autoclass:: BeckhoffMotorCab1()
 .. autoclass:: BeckhoffMotorCab1M0x()
 .. autoclass:: BeckhoffMotorCab1M13()
-.. autoclass:: BeckhoffMotorCab1M1x()
 .. autoclass:: BeckhoffMotorDetector()
 .. autoclass:: BeckhoffCoderDetector()
 .. autoclass:: BeckhoffMotorHSlit()
+.. autoclass:: DoubleMotorBeckhoff()
+.. autoclass:: DoubleMotorBeckhoffNOK()
+.. autoclass:: SingleSideRead()
+.. autoclass:: SingleMotorOfADoubleNOK()
 
 .. automodule:: nicos_mlz.refsans.devices.beckhoff.pumpstation
 .. autoclass:: PumpstandIO()
@@ -58,13 +61,18 @@
 .. autoclass:: ChopperDiscTranslation()
 
 .. automodule:: nicos_mlz.refsans.devices.skew_motor
+.. autoclass:: SkewRead()
 .. autoclass:: SkewMotor()
 
 .. automodule:: nicos_mlz.refsans.devices.analogencoder
 .. autoclass:: AnalogEncoder()
+.. autoclass:: AnalogMove()
 
 .. automodule:: nicos_mlz.refsans.devices.sample
 .. autoclass:: Sample()
+
+.. automodule:: nicos_mlz.refsans.devices.det_yoke_enc
+.. autoclass:: BasePos()
 
 Data Sinks
 ----------

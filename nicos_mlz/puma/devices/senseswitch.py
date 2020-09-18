@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import HasTimeout, Override
 from nicos.devices.generic import MultiSwitcher
 

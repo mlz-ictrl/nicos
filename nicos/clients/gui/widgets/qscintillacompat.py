@@ -24,8 +24,6 @@
 
 """NICOS GUI user editor qscintilla compat edit widget."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.guisupport.qt import QColor, QPainter, QPlainTextEdit, QRect, \
     QSize, Qt, QTextCursor, QTextDocument, QTextEdit, QTextFormat, QWidget
 
@@ -83,7 +81,7 @@ class QScintillaCompatible(QPlainTextEdit):
                                  self.fontMetrics().height(), Qt.AlignRight,
                                  number)
 
-            block = block.next()  # pylint: disable=next-method-called
+            block = block.next()
             top = bottom
             bottom = top + int(self.blockBoundingRect(block).height())
             blockNumber += 1

@@ -24,8 +24,6 @@
 
 """NICOS TOFTOF experiment class."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 
 from nicos_mlz.devices.experiment import Experiment as BaseExperiment

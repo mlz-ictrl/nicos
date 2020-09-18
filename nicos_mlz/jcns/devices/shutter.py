@@ -23,8 +23,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core.params import Param
 from nicos.devices.tango import NamedDigitalOutput
 

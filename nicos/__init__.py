@@ -26,8 +26,6 @@
 The nicos package contains all standard NICOS commands and devices.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import sys
 from logging import getLogger
 
@@ -38,16 +36,14 @@ from nicos.configmod import config
 from nicos._vendor.gitversion import get_git_version, get_nicos_version  # isort:skip
 __version__ = nicos_version = get_nicos_version()
 
-# Check for Python version 2.7+ or 3.3+.
-if sys.version_info[0] == 2 and sys.version_info[1] < 7:
-    raise ImportError('NICOS requires Python 2.7 or higher')
-elif sys.version_info[0] == 3 and sys.version_info[1] < 3:
-    raise ImportError('NICOS requires Python 3.3 or higher')
+# Check for Python version 3.6+.
+if sys.version_info[:2] < (3, 6):
+    raise ImportError('NICOS requires Python 3.6 or higher')
 
 
 # Create the nicos session object here to allow the import of submodules.
 # The real class is set later.
-class Session(object):
+class Session:
     log = getLogger('Nicos early logger')
 
 
@@ -56,3 +52,11 @@ session = Session()
 
 def get_custom_version():
     return get_git_version(cwd=config.setup_package_path)
+
+
+try:
+    # numpy 1.14+ compat
+    import numpy
+    numpy.set_printoptions(sign=' ')
+except Exception:
+    pass

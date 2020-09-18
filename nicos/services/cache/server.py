@@ -35,12 +35,10 @@ module `nicos.protocols.cache`.  It also contains the documentation of the used
 line protocol.
 """
 
-from __future__ import absolute_import, division, print_function
-
+import queue
 import select
 import socket
 import threading
-from errno import EAGAIN
 from time import sleep, time as currenttime
 
 from nicos import config, session
@@ -48,8 +46,7 @@ from nicos.core import Attach, Device, Param, host
 from nicos.protocols.cache import BUFSIZE, CYCLETIME, DEFAULT_CACHE_PORT, \
     OP_ASK, OP_LOCK, OP_REWRITE, OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
     OP_UNSUBSCRIBE, OP_WILDCARD, line_pattern, msg_pattern
-from nicos.pycompat import from_utf8, listitems, listvalues, queue, to_utf8
-# pylint: disable=W0611
+# pylint: disable=unused-import
 from nicos.services.cache.database import CacheDatabase, \
     FlatfileCacheDatabase, MemoryCacheDatabase, \
     MemoryCacheDatabaseWithHistory
@@ -57,7 +54,7 @@ from nicos.utils import closeSocket, createThread, getSysInfo, loggers, \
     parseHostPort
 
 
-class CacheWorker(object):
+class CacheWorker:
     """Worker thread class for the cache server.
 
     One worker starts two threads: one for receiving data from the connection,
@@ -120,14 +117,14 @@ class CacheWorker(object):
                 return
             while True:
                 try:
-                    self.sock.sendall(to_utf8(data))
+                    self.sock.sendall(data.encode())
                 except socket.timeout:
                     self.log.warning('send timed out, shutting down')
                     self.closedown()
-                except socket.error as err:
-                    if err.args[0] == EAGAIN:
-                        sleep(CYCLETIME)
-                        continue
+                except BlockingIOError:
+                    sleep(CYCLETIME)
+                    continue
+                except OSError as err:
                     self.log.warning('other end closed, shutting down', exc=err)
                     self.closedown()
                 except Exception:
@@ -148,7 +145,7 @@ class CacheWorker(object):
                 # TypeError is raised when the connection gets closed and set to
                 # None and select finds no fileno()
                 return
-            except select.error as err:
+            except OSError as err:
                 self.log.warning('error in select', exc=err)
                 self.closedown()
                 return
@@ -157,11 +154,8 @@ class CacheWorker(object):
                 continue
             try:
                 newdata = self.sock.recv(BUFSIZE)
-            except socket.error as err:
-                if err.args[0] == EAGAIN:
-                    # if we receive an EAGAIN error, just continue
-                    continue
-                newdata = b''
+            except BlockingIOError:
+                continue
             except Exception:
                 newdata = b''
             if not newdata:
@@ -182,7 +176,7 @@ class CacheWorker(object):
                 self.closedown()
                 return b''
             try:
-                ret = self._handle_line(from_utf8(line))
+                ret = self._handle_line(line.decode())
             except Exception as err:
                 self.log.warning('error handling line %r', line, exc=err)
             else:
@@ -302,7 +296,7 @@ class CacheUDPWorker(CacheWorker):
         # any needed responses synchronously
         try:
             self._process_data(self.data,
-                               lambda reply: self._sendall(to_utf8(reply)))
+                               lambda reply: self._sendall(reply.encode()))
         except Exception as err:
             self.log.warning('error handling UDP data %r', self.data, exc=err)
         self.closedown()
@@ -411,7 +405,7 @@ class CacheServer(Device):
         while not self._stoprequest:
             # loop through connections, first to remove dead ones,
             # secondly to try to reconnect
-            for addr, client in listitems(self._connected):
+            for addr, client in list(self._connected.items()):
                 if not client.is_active():  # dead or stopped
                     self.log.info('client connection %s closed', addr)
                     client.closedown()
@@ -463,12 +457,12 @@ class CacheServer(Device):
         self._stoprequest = True
         # without locking, the _connected list may not have all clients yet....
         with self._connectionLock:
-            for client in listvalues(self._connected):
+            for client in list(self._connected.values()):
                 self.log.info('closing client %s', client)
                 if client.is_active():
                     client.closedown()
         with self._connectionLock:
-            for client in listvalues(self._connected):
+            for client in list(self._connected.values()):
                 self.log.info('waiting for %s', client)
                 client.closedown()  # make sure, the connection closes down
                 client.join()

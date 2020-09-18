@@ -25,8 +25,6 @@
 """Module to implement generic sinq detector and ControlDetector
 """
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Attach, Measurable
 from nicos.devices.generic import Detector
 from nicos.utils import uniq

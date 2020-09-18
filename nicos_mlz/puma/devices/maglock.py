@@ -25,8 +25,6 @@
 
 """Magnetic Lock."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos import session
 from nicos.core import Attach, Moveable, NicosError, Param, Readable, listof, \
     oneof, status

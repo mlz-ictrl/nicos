@@ -26,8 +26,6 @@ Gmatrix
 
 store position as goniometer matrix
 '''
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from nicos.devices.sxtal.goniometer.base import PositionBase, PositionFactory

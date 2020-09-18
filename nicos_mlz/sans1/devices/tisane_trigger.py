@@ -27,15 +27,10 @@
 w&t box creates trigger signal for tisane fg1 burst mode.
 """
 
-from __future__ import absolute_import, division, print_function
+import urllib
 
 from nicos.core import CommunicationError, ConfigurationError, Moveable, \
-    NicosError, Override, Param, status
-
-try:
-    from urllib2 import urlopen
-except ImportError:
-    urlopen = None
+    Override, Param, status
 
 
 class WutValue(Moveable):
@@ -54,12 +49,9 @@ class WutValue(Moveable):
     }
 
     def _getRaw(self):
-        if urlopen is None:
-            raise NicosError(self, 'cannot parse web page, urllib2 is not '
-                             'installed on this system')
         url = 'http://%s/Single%s' % (self.hostname, self.port)
         try:
-            response = urlopen(url)
+            response = urllib.request.urlopen(url)
             html = response.read()
             return html
         except ConfigurationError:  # pass through error raised above
@@ -78,12 +70,9 @@ class WutValue(Moveable):
         return status.OK, ''
 
     def doStart(self, value):
-        if urlopen is None:
-            raise NicosError(self, 'cannot parse web page, urllib2 is not '
-                             'installed on this system')
         url = 'http://%s/outputaccess%s?PW=sans1&State=%s&' % (self.hostname, self.port, value)
         try:
-            response = urlopen(url, timeout=1)
+            response = urllib.request.urlopen(url, timeout=1)
             html = response.read()
             self.log.debug(html)
 

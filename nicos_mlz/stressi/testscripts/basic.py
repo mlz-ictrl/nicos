@@ -1,6 +1,5 @@
 # pylint: skip-file
 
-# test: needs = nicos.devices.vendor.caress.CARESS
 # test: subdirs = frm2
 # test: setups = stressi
 # test: setupcode = SetDetectors(adet)

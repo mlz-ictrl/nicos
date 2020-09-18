@@ -24,8 +24,6 @@
 
 """TOFTOF chopper calculation tests."""
 
-from __future__ import absolute_import, division, print_function
-
 import pytest
 
 from nicos_mlz.toftof.devices.calculations import Eres1, ResolutionAnalysis, \
@@ -35,7 +33,7 @@ from nicos_mlz.toftof.devices.calculations import Eres1, ResolutionAnalysis, \
 from test.utils import approx
 
 
-class TestBasicCalculations(object):
+class TestBasicCalculations:
 
     @pytest.fixture(scope='function', autouse=True)
     def prepare(self):

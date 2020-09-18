@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import ast
 import logging
 import os
@@ -33,11 +31,11 @@ from os import path
 
 from nicos.clients.gui import config as guicfg
 from nicos.clients.gui.config import prepareGuiNamespace
+from nicos.core.device import DeviceAlias
 from nicos.core.errors import ConfigurationError
 from nicos.core.params import nicosdev_re
 from nicos.core.sessions.setups import SETUP_GROUPS, fixup_stacked_devices, \
     prepareNamespace
-from nicos.pycompat import exec_, integer_types, string_types
 from nicos.utils import checkSetupSpec, importString
 from nicos.utils.files import findSetupRoots, iterSetups
 from nicos.utils.loggers import StreamHandler
@@ -76,7 +74,7 @@ class Logger(logging.Logger):
         logging.Logger.handle(self, record)
 
 
-class SetupChecker(object):
+class SetupChecker:
     all_setups_cache = {}
 
     def __init__(self, filename, devs_seen, setup_info):
@@ -271,8 +269,8 @@ class SetupChecker(object):
                 "%s: class %r has no 'parameters'", devname, cls.__name__
             )
         else:
-            if not config.get('lowlevel', cls.parameters['lowlevel'].default) and \
-               cls.__name__ != 'DeviceAlias':
+            if not (config.get('lowlevel', cls.parameters['lowlevel'].default)
+                    or issubclass(cls, DeviceAlias)):
                 if not config.get('description') and not is_special:
                     self.log.warning(
                         '%s: device has no description', devname,
@@ -317,7 +315,7 @@ class SetupChecker(object):
         try:
             with open(self.filename) as fp:
                 self.code = fp.read()
-            exec_(self.code, self.ns)
+            exec(self.code, self.ns)
             self.ast = ast.parse(self.code)
         except SyntaxError as e:
             msg = 'SyntaxError:\t%s' % e.msg
@@ -402,7 +400,7 @@ class SetupChecker(object):
 
         # check for types of recognized variables
         for (vname, vtype) in [
-            ('description', string_types),
+            ('description', str),
             # group is already checked against a fixed list
             ('sysconfig', dict),
             ('includes', list),
@@ -435,10 +433,8 @@ class SetupChecker(object):
         aliascfg = self.ns.get('alias_config', {})
         if isinstance(aliascfg, dict):  # else we complained above already
             for aliasname, entrydict in aliascfg.items():
-                if not (
-                    isinstance(aliasname, string_types)
-                    and isinstance(entrydict, dict)
-                ):
+                if not (isinstance(aliasname, str)
+                        and isinstance(entrydict, dict)):
                     self.log_error(
                         'alias_config entries should map alias '
                         'device names to a dictionary',
@@ -446,11 +442,9 @@ class SetupChecker(object):
                     )
                     continue
                 for target, prio in entrydict.items():
-                    if not (
-                        isinstance(target, string_types)
-                        and isinstance(prio, integer_types)
-                        and not (isinstance(prio, bool))
-                    ):
+                    if not (isinstance(target, str)
+                            and isinstance(prio, int)
+                            and not isinstance(prio, bool)):
                         self.log_error(
                             'alias_config entries should map device '
                             'names to integer priorities',
@@ -469,7 +463,7 @@ class SetupChecker(object):
 
         # check for validity of display_order
         display_order = self.ns.get('display_order', 50)
-        if not isinstance(display_order, integer_types) or \
+        if not isinstance(display_order, int) or \
            not 0 <= display_order <= 100:
             self.log_error(
                 'display_order should be an integer between '
@@ -513,9 +507,6 @@ class SetupChecker(object):
         return self.good
 
     def check_guiconfig_panel_spec(self, spec, context='main window'):
-        qt5_incompatibles = [
-            'nicos.clients.gui.panels.liveqwt.LiveDataPanel',
-        ]
         # recursively check a panel spec
         if isinstance(spec, (guicfg.hsplit, guicfg.vsplit, guicfg.hbox,
                              guicfg.vbox)):
@@ -535,10 +526,6 @@ class SetupChecker(object):
                 else:
                     self.check_guiconfig_panel_spec(child[1], context)
         elif isinstance(spec, guicfg.panel):
-            if os.environ.get('NICOS_QT', 4) == '5' and \
-               spec.clsname in qt5_incompatibles:
-                self.log.warning('%r is not compatible with QT5', spec.clsname)
-                return
             try:
                 cls = importString(spec.clsname)
             except Exception as err:
@@ -599,7 +586,7 @@ class SetupChecker(object):
         checkSetupSpec(setupspec, '', log=self.log)
 
 
-class SetupValidator(object):
+class SetupValidator:
     def __init__(self):
         self.devs_seen = {}
         self.setup_info = {}

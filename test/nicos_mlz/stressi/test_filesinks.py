@@ -24,8 +24,6 @@
 
 """STRESS-SPEC specific data sink tests."""
 
-from __future__ import absolute_import, division, print_function
-
 from os import path
 
 import pytest
@@ -76,7 +74,7 @@ def prepare(session, dataroot):
     yield
 
 
-class TestSinks(object):
+class TestSinks:
 
     def test_caress_sink(self, session):
         caressfile = path.join(session.experiment.datapath, 'm200000043.dat')

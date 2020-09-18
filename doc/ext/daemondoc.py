@@ -25,8 +25,6 @@
 
 """Directives to document daemon commands and events."""
 
-from __future__ import absolute_import, division, print_function
-
 from docutils.statemachine import ViewList
 from sphinx.domains.python import PyModulelevel
 from sphinx.util.docfields import Field

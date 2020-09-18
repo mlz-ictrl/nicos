@@ -24,8 +24,6 @@
 
 """KWS-1 file format saver with YAML."""
 
-from __future__ import absolute_import, division, print_function
-
 import quickyaml
 
 from nicos import session

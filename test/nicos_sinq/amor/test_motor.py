@@ -31,8 +31,6 @@ of a motor. The real, hardware,  position of a  motor is
 hpos = sign*(val +zero)
 """
 
-from __future__ import absolute_import, division, print_function
-
 import pytest
 
 from nicos.core import status
@@ -45,7 +43,7 @@ from .utils import is_at_target, unit_value
 session_setup = 'sinq_amor_movable'
 
 
-class TestEpicsMotor(object):
+class TestEpicsMotor:
     device = None
 
     asyn_dev_slot_mapping = {

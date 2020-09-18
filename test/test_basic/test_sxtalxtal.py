@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.devices.sxtal.xtal.sxtalcell import _test as sxtaltest
 from nicos.devices.sxtal.xtal.symmetry import _test as symtest
 

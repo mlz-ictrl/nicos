@@ -30,8 +30,6 @@ This module contains utility functions that are of general interest for user
 scripts, e.g different list generators and other helper functions.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import math
 
 import numpy

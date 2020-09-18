@@ -24,12 +24,9 @@
 
 """Slit devices in AMOR"""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import HasPrecision, Override, status
 from nicos.core.utils import multiStatus
 from nicos.devices.generic.slit import SlitAxis
-from nicos.pycompat import iteritems
 
 
 class SlitOpening(HasPrecision, SlitAxis):
@@ -80,7 +77,7 @@ class SlitOpening(HasPrecision, SlitAxis):
     def doStatus(self, maxage=0):
         # Check for error and warning in the dependent devices
         st_devs = multiStatus(self._adevs, maxage)
-        devs = [dname for dname, d in iteritems(self._adevs)
+        devs = [dname for dname, d in self._adevs.items()
                 if d.status()[0] == st_devs[0]]
 
         if st_devs[0] in self.status_to_msg:

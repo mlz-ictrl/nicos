@@ -24,8 +24,6 @@
 
 """SPODI specific chopper tests."""
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import status
 
 from test.utils import approx
@@ -73,7 +71,7 @@ def test_toftof_chopper(session):
 
     speeds = [6000, 3000, 4000, 4500, 4800, 5000, 5143, 5250, 4667, 4200]
 
-    for r, s in zip(range(1, 11), speeds):  # pylint: disable=range-builtin-not-iterating
+    for r, s in zip(range(1, 11), speeds):
         chRatio.maw(r)
         assert chRatio.read(0) == r
         assert chDS.read(0)[4] == approx(s, 1)

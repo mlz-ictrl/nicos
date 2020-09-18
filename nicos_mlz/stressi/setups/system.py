@@ -26,8 +26,8 @@ devices = dict(
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-25',
         website = 'http://www.mlz-garching.de/stress-spec',
         operators = [
-            u'Technische Universität München (TUM)',
-            u'Technische Universität Clausthal',
+            'Technische Universität München (TUM)',
+            'Technische Universität Clausthal',
             'German Engineering Materials Science Centre (GEMS)'
         ],
     ),

@@ -23,12 +23,10 @@
 # *****************************************************************************
 """Classes to handle the setup files."""
 
-from __future__ import absolute_import, division, print_function
-
 import redbaron
 
 
-class DaemonSetup(object):
+class DaemonSetup:
     """Class to handle the daemon setup file."""
 
     def __init__(self, filename):
@@ -105,7 +103,7 @@ class DaemonSetup(object):
                 # check if is it a hashlib call
                 if redbaron.RedBaron(pwhash):
                     fmtstr = '(%r, %s, %r)'
-            except:  # pylint: disable=bare-except
+            except Exception:
                 pass
             pwentry = fmtstr % (user, pwhash, role)
             self.passwd.value.append(pwentry)

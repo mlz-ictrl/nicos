@@ -25,8 +25,7 @@
 """MongoDB log handler"""
 
 import logging
-
-from nicos.pycompat import urllib
+import urllib
 
 
 class MongoLogHandler(logging.Handler):

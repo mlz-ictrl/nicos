@@ -25,8 +25,6 @@
 
 """Q'n'D, hacked together GUI for debugging PANDA's Monochanger"""
 
-from __future__ import absolute_import, division, print_function
-
 import sys
 from struct import pack, unpack
 
@@ -470,11 +468,10 @@ class MainWindow(QMainWindow):
             self._registers = [self.i + i for i in range(77)]
             self.i += 1
 
-    def timerEvent(self, event):  # pylint: disable=R0915
+    def timerEvent(self, event):
         self._sync()
         for w in self.widgets:
             w._update()
-        return
 
     def addWidget(self, which):
         which.setContentsMargins(10, 0, 0, 0)

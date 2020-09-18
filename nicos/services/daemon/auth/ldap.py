@@ -24,12 +24,9 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import ldap3  # pylint: disable=import-error
 
 from nicos.core import ACCESS_LEVELS, Param, User, dictof, oneof
-from nicos.pycompat import iteritems
 from nicos.services.daemon.auth import AuthenticationError, \
     Authenticator as BaseAuthenticator
 
@@ -85,7 +82,7 @@ class Authenticator(BaseAuthenticator):
 
     def doInit(self, mode):
         self._access_levels = {value: key
-                               for key, value in iteritems(ACCESS_LEVELS)}
+                               for key, value in ACCESS_LEVELS.items()}
 
     def authenticate(self, username, password):
         userdn = self._get_user_dn(username)

@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 from math import degrees, pi, radians, tan
 
 from numpy import arange, arcsin
@@ -34,7 +32,7 @@ from .gauss import gaussian
 from .xa import xA
 
 
-class PA(object):
+class PA:
 
     kf = 2.662  # wavevector of scattered neutrons / A-1
     da = 3.354  # netplane distance of analyser / A

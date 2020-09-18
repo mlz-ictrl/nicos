@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
 import logging
 import os
 import re
@@ -33,7 +31,6 @@ import pytest
 
 from nicos.core import *  # pylint: disable=unused-wildcard-import,wildcard-import
 from nicos.core.sessions.simple import ScriptSession
-from nicos.pycompat import exec_
 from nicos.utils import loggers
 
 from test.utils import module_root, raises, runtime_root
@@ -67,7 +64,7 @@ class ScriptSessionTest(ScriptSession):
             else:
                 self.log.addHandler(loggers.NicosLogfileHandler(log_path, prefix))
                 self._master_handler = None
-        except (IOError, OSError) as err:
+        except OSError as err:
             self.log.error('cannot open log file: %s', err)
 
     def shutdown(self):
@@ -97,7 +94,7 @@ def session(request):
 def run_script_session(session, setup, code):
     session.handleInitialSetup(setup)
     try:
-        exec_(code, session.namespace)
+        exec(code, session.namespace)
     finally:
         session.shutdown()
 

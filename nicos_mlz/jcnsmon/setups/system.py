@@ -20,7 +20,7 @@ devices = dict(
         description = 'JCNS monitoring infrastructure',
         instrument = 'JCNSmon',
         responsible = 'G. Brandl <g.brandl@fz-juelich.de>',
-        operators = [u'Jülich Centre for Neutron Science (JCNS)'],
+        operators = ['Jülich Centre for Neutron Science (JCNS)'],
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'No sample',

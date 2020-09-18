@@ -24,8 +24,6 @@
 
 """Module to test custom specific modules."""
 
-from __future__ import absolute_import, division, print_function
-
 session_setup = 'refsans'
 
 

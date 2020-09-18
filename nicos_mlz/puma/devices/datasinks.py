@@ -24,12 +24,11 @@
 
 """File data sink classes for PUMA."""
 
-from __future__ import absolute_import, division, print_function
+from io import TextIOWrapper
 
 from nicos.core import INFO_CATEGORIES, Override, Param
 from nicos.core.errors import ConfigurationError
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
-from nicos.pycompat import TextIOWrapper, iteritems
 
 
 class PolarizationFileSinkHandler(SingleFileSinkHandler):
@@ -45,7 +44,7 @@ class PolarizationFileSinkHandler(SingleFileSinkHandler):
         # XXX(dataapi): add a utility function to convert metainfo to old
         # by-category format
         bycategory = {}
-        for (device, key), (_, val, unit, category) in iteritems(metainfo):
+        for (device, key), (_, val, unit, category) in metainfo.items():
             if category:
                 bycategory.setdefault(category, []).append(
                     ('%s_%s' % (device, key), (val + ' ' + unit).strip()))

@@ -27,8 +27,6 @@
 The supported types are defined in `nicos.core.params`.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from nicos.core import anytype, params
@@ -40,7 +38,6 @@ from nicos.guisupport.qt import QCheckBox, QComboBox, QFormLayout, QFrame, \
 from nicos.guisupport.utils import DoubleValidator
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.protocols.cache import cache_dump, cache_load
-from nicos.pycompat import iteritems, listvalues
 
 
 class DeviceValueEdit(NicosWidget, QWidget):
@@ -190,6 +187,7 @@ class DeviceParamEdit(DeviceValueEdit):
         self._inner.valueModified.connect(self.valueModified)
 
 
+# pylint: disable=comparison-with-callable
 def create(parent, typ, curvalue, fmtstr='', unit='',
            allow_buttons=False, allow_enter=True, client=None, valinfo=None):
     # make sure the type is correct
@@ -210,8 +208,8 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
         return ComboWidget(parent, typ.vals, curvalue)
     elif isinstance(typ, params.oneofdict):
         if allow_buttons and len(typ.vals) <= 3:
-            return ButtonWidget(parent, listvalues(typ.vals))
-        return ComboWidget(parent, listvalues(typ.vals), curvalue)
+            return ButtonWidget(parent, list(typ.vals.values()))
+        return ComboWidget(parent, list(typ.vals.values()), curvalue)
     elif isinstance(typ, params.oneofdict_or):
         inner = create(parent, typ.conv, curvalue, fmtstr, unit,
                        allow_buttons, allow_enter, client, valinfo)
@@ -219,7 +217,7 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
             selector = ButtonWidget(parent, typ.named_vals)
             return OneofdictOrWidget(parent, inner, selector, buttons=True)
         else:
-            for (name, value) in iteritems(typ.named_vals):
+            for (name, value) in typ.named_vals.items():
                 if value == curvalue:
                     curvalue = name
                     break
@@ -760,7 +758,7 @@ class DictOfWidget(ItemsWidget):
         self.valtype = valtype
         self.client = client
 
-        for keyval in iteritems(curvalue):
+        for keyval in curvalue.items():
             self.insertItem(*self.createItem(keyval))
 
     def createItem(self, keyval=None):
@@ -768,7 +766,7 @@ class DictOfWidget(ItemsWidget):
             key = self.keytype()
             val = self.valtype()
         else:
-            key, val = keyval  # pylint: disable=W0633
+            key, val = keyval
         keywidget = create(self, self.keytype, key, client=self.client,
                            allow_enter=self.allow_enter)
         keywidget.valueModified.connect(self.valueModified)

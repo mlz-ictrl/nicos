@@ -32,9 +32,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
-import errno
 import os
 import signal
 import socket
@@ -51,14 +48,12 @@ sys.path.insert(0, nicos_root)
 
 def printerr(*args, **kwargs):
     kwargs.pop('file', None)
-    print(*args, file=sys.stderr, **kwargs)
-    sys.stderr.flush()
+    print(*args, file=sys.stderr, flush=True, **kwargs)
 
 
 def printout(*args, **kwargs):
     kwargs.pop('file', None)
-    print(*args, file=sys.stdout, **kwargs)
-    sys.stdout.flush()
+    print(*args, file=sys.stdout, flush=True, **kwargs)
 
 
 if path.isfile(_DEFAULT) and 'INSTRUMENT' not in os.environ:
@@ -70,7 +65,7 @@ if path.isfile(_DEFAULT) and 'INSTRUMENT' not in os.environ:
                     if sep:
                         key = key.replace('export', '').strip()
                         os.environ[key] = value.rstrip()
-    except IOError as e:
+    except OSError as e:
         printerr('  ERROR:', e)
         printerr('WARNING: Ignoring defaults in %s.' % _DEFAULT)
 
@@ -84,7 +79,7 @@ def get_config():
     hostname = ''
     try:
         hostname = socket.getfqdn().split('.')[0]
-    except socket.error as e:
+    except OSError as e:
         printerr('Could not figure out host name (%s).' % e)
         printerr('Continue with nonspecific services.')
 
@@ -136,7 +131,7 @@ def read_pidfile(name, wait=0):
         try:
             pid = open(pidpath, 'rb').read()
             pid = int(pid)
-        except (IOError, ValueError):
+        except (OSError, ValueError):
             if time.time() > begin + wait:
                 return
         else:
@@ -246,11 +241,11 @@ def kill_daemon(name):
                 printout('KILL', end=' ')
                 try:
                     os.kill(pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass  # already terminated
                 except OSError as err:
-                    # ESRCH means: already terminated
-                    if err.errno != errno.ESRCH:
-                        printerr('FAILED to kill:', err)
-                        return False
+                    printerr('FAILED to kill:', err)
+                    return False
             elif current > begin + 1:
                 time.sleep(0.2)
             printout('.', end=' ')

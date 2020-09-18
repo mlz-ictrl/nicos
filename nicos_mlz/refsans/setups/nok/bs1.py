@@ -2,7 +2,8 @@ description = "DoubleSlit [slit k1] between nok8 and nok9"
 
 group = 'lowlevel'
 
-includes = ['nok_ref', 'nokbus4']
+includes = ['nok_ref', 'zz_absoluts']
+
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
 optic_values = configdata('cf_optic.optic_values')
@@ -57,21 +58,6 @@ devices = dict(
         unit = 'mm',
         lowlevel = True,
     ),
-    bs1r_motor = device(code_base + 'ipc.NOKMotorIPC',
-        description = 'IPC controlled Motor of BS1, reactor side',
-        abslimits = (-178.0, 11.8),
-        bus = 'nokbus4',
-        addr = 0x67,
-        slope = 800.0,
-        speed = 50,
-        accel = 50,
-        confbyte = 32,
-        ramptype = 2,
-        microstep = 1,
-        refpos = -41.8,
-        zerosteps = int(791.825 * 800),
-        lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
-    ),
     bs1r_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'bs1r_motor',
@@ -104,21 +90,6 @@ devices = dict(
         precision = optic_values['precision_ipcsms'],
         unit = 'mm',
         lowlevel = True,
-    ),
-    bs1s_motor = device(code_base + 'ipc.NOKMotorIPC',
-        description = 'IPC controlled Motor of BS1, sample side',
-        abslimits = (-177.002, 139.998),
-        bus = 'nokbus4',
-        addr = 0x68,
-        slope = 800.0,
-        speed = 50,
-        accel = 50,
-        confbyte = 32,
-        ramptype = 2,
-        microstep = 1,
-        refpos = 89.529,
-        zerosteps = int(660.44 * 800),
-        lowlevel = showcase_values['hide_poti'] and showcase_values['NOreference'],
     ),
     bs1s_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',

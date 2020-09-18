@@ -25,8 +25,6 @@
 """NICOS tests for energy conversion functions."""
 
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import ComputationError, ProgrammingError
 from nicos.devices.tas import energy
 from nicos.devices.tas.mono import from_k, to_k

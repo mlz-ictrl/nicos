@@ -31,7 +31,7 @@ devices = dict(
         description = 'instrument object',
         instrument = 'helios',
         responsible = 'Peter Stein <peter.stein@frm2.tum.de>',
-        operators = [u'Technische Universität München (TUM)'],
+        operators = ['Technische Universität München (TUM)'],
     ),
     # filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
     #     semicolon = False,

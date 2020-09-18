@@ -23,8 +23,6 @@
 # *****************************************************************************
 
 """Imaging commands."""
-from __future__ import absolute_import, division, print_function
-
 import math
 
 from nicos import session
@@ -36,7 +34,7 @@ from nicos.commands.utility import floatrange
 from nicos.core.device import Measurable, Moveable
 from nicos.core.errors import NicosError
 from nicos.core.scan import SkipPoint
-from nicos.pycompat import integer_types
+from nicos.utils import number_types
 
 __all__ = ['tomo', 'grtomo']
 
@@ -113,7 +111,7 @@ def tomo(nangles, moveables=None, imgsperangle=1, ref_first=True, start=0,
     """
 
     angles = floatrange(0.0, 360.0, num=nangles)
-    if isinstance(start, (float, integer_types)) and start != 0:
+    if isinstance(start, number_types) and start != 0:
         if ref_first is False:  # explicit check for ref_first=False
             angles = sorted([180.] + angles)
         # remove unnecessary angles for continued tomography

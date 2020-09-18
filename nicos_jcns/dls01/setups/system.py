@@ -20,7 +20,7 @@ devices = dict(
         description = 'dynamic light scattering setup',
         instrument = 'DLS',
         responsible = 'T. Schrader <t.schrader@fz-juelich.de>',
-        operators = [u'Jülich Centre for Neutron Science (JCNS)'],
+        operators = ['Jülich Centre for Neutron Science (JCNS)'],
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'No sample',

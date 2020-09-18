@@ -22,9 +22,6 @@
 #
 # *****************************************************************************
 
-from __future__ import absolute_import, division, print_function
-
-import socket
 import time
 
 import pytest
@@ -44,7 +41,7 @@ def daemon_wait_cb():
 
         try:
             s = tcpSocket(daemon_addr, 0)
-        except socket.error:
+        except OSError:
             time.sleep(0.02)
         else:
             s.close()
@@ -72,7 +69,7 @@ class TestClient(NicosClient):
         self._disconnecting = False
         NicosClient.__init__(self, print)
 
-    def signal(self, name, data=None, exc=None):  # pylint: disable=W0221
+    def signal(self, name, data=None, exc=None):
         if name == 'error':
             raise AssertionError('client error: %s (%s)' % (data, exc))
         if name == 'disconnected' and not self._disconnecting:
@@ -85,8 +82,7 @@ class TestClient(NicosClient):
         starttime = time.time()
         while True:
             endindex = len(self._signals)
-            for sig in self._signals[startindex:endindex]:
-                yield sig
+            yield from self._signals[startindex:endindex]
             startindex = endindex
             time.sleep(0.05)
             if time.time() > starttime + timeout:

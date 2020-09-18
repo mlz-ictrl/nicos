@@ -36,22 +36,20 @@
 #
 # The full license is in the file COPYING.bsd, distributed with this software.
 
-from __future__ import absolute_import, division, print_function
-
 import os
 
 import numpy as np
-from nexusformat.nexus import NeXusError, NXfield, NXlink
-from nexusformat.nexus.tree import is_text
 
 import nxs
+from nexusformat.nexus import NeXusError, NXfield, NXlink
+from nexusformat.nexus.tree import is_text
 
 # import h5py as h5
 
 __all__ = ('NexusFile',)
 
 
-class NexusFile(object):
+class NexusFile:
     """Structure-based interface to write a NeXus API compatible file.
 
     Since the NeXus API library may only read HDF5 files with fixed length of

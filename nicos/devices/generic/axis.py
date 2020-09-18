@@ -26,8 +26,6 @@
 
 """NICOS axis classes."""
 
-from __future__ import absolute_import, division, print_function
-
 from time import sleep
 
 from nicos.core import Attach, ConfigurationError, HasOffset, MoveError, \
@@ -149,6 +147,7 @@ class Axis(CanReference, AbstractAxis):
         return umin - self.offset, umax - self.offset
 
     def doWriteUserlimits(self, limits):
+        # pylint: disable=assignment-from-none
         rval = AbstractAxis.doWriteUserlimits(self, limits)
         if rval:
             limits = rval
@@ -287,7 +286,7 @@ class Axis(CanReference, AbstractAxis):
         if self._errorstate:
             errorstate = self._errorstate
             self._errorstate = None
-            raise errorstate  # pylint: disable=E0702
+            raise errorstate  # pylint: disable=raising-bad-type
 
     def doTime(self, start, end):
         if hasattr(self._attached_motor, 'doTime'):
@@ -317,7 +316,7 @@ class Axis(CanReference, AbstractAxis):
             raise NicosError(self, 'axis is moving now, please issue a stop '
                              'command and try it again')
         if self._errorstate:
-            raise self._errorstate  # pylint: disable=E0702
+            raise self._errorstate  # pylint: disable=raising-bad-type
         del self._new_offset
         HasOffset.doWriteOffset(self, value)
 
@@ -404,7 +403,7 @@ class Axis(CanReference, AbstractAxis):
         """
         diff = abs(pos - target)
         prec = self.precision
-        if (prec > 0 and diff >= prec) or (prec == 0 and diff):
+        if (0 < prec <= diff) or (prec == 0 and diff):
             msg = 'precision error: difference %.4g, precision %.4g' % \
                   (diff, self.precision)
             if error:
@@ -415,7 +414,7 @@ class Axis(CanReference, AbstractAxis):
         maxdiff = self.dragerror
         for obs in self._attached_obs:
             diff = abs(target - (obs.read() - self.offset))
-            if maxdiff > 0 and diff > maxdiff:
+            if 0 < maxdiff < diff:
                 msg = 'precision error (%s): difference %.4g, maximum %.4g' % \
                       (obs, diff, maxdiff)
                 if error:

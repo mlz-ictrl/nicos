@@ -12,9 +12,10 @@ adjust = True
 devices = dict(
     backguard = device(code_base + 'skew_motor.SkewMotor',
         description = description + ' adjust in Expertmode',
-        motor_1 = 'backguard1',
-        motor_2 = 'backguard2',
+        one = 'backguard1',
+        two = 'backguard2',
         abslimits = (-30.0, 30.0),
+        offset = 0,
         unit = 'mm',
     ),
     backguard1 = device('nicos.devices.generic.Axis',

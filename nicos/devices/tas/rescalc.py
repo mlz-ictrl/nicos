@@ -31,8 +31,6 @@ neutrons.instruments.tas.tasres from the neutrons Python package, compiled by
 Marc Janoschek.
 """
 
-from __future__ import absolute_import, division, print_function
-
 from numpy import absolute, arange, arccos, arcsin, arctan2, array, \
     concatenate, cos, cross, degrees, delete, diag, dot, exp, matrix, pi, \
     radians, real, reshape, sin, sqrt, tan, zeros
@@ -40,7 +38,7 @@ from numpy.linalg import det, eig, inv, norm
 from numpy.random import randn
 
 
-class unitcell(object):
+class unitcell:
     """
     Class which models a crystallographic unit cell from given lattice
     parameters and angles.  Further it provides functions to make basic
@@ -274,7 +272,7 @@ MEV2AA2 = 0.48259642  # hbar**2/(2 * m_n)
 MIN2RAD = 1 / 60. * pi / 180.
 
 
-class resmat(object):
+class resmat:
     """Class which calculates the resolution matrix, and the renormalisation
     volume R0 for a given triple axis parameter set which describes a specific
     setup at a specific instrument by using the Popovici method (REF).
@@ -309,7 +307,7 @@ class resmat(object):
         self.calc_popovici()
         self.calc_STrafo()
 
-    def calc_popovici(self):  # pylint: disable=R0914,R0915
+    def calc_popovici(self):  # pylint: disable=too-many-locals,too-many-statements
         """Performs the actual calculation."""
         # reset errors before new calculation
         self.ERROR = None

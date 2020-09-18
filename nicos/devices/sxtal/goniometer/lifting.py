@@ -28,8 +28,6 @@ class for storing position using omega and lifting counter
 
 '''
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from nicos import session
