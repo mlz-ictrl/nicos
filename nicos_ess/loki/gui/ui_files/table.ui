@@ -114,7 +114,16 @@
         <enum>QFrame::Plain</enum>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_6">
-        <property name="margin">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
          <number>0</number>
         </property>
        </layout>
@@ -424,7 +433,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../../resources/nicos-gui.qrc"/>
+  <include location="../../../../resources/nicos-gui.qrc"/>
  </resources>
  <connections/>
 </ui>
