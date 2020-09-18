@@ -18,11 +18,14 @@ _expcolumn = Column(
 
 _huberblock = Block('HUBER Small Sample Manipulator', [
     BlockRow(
-        Field(dev='stx_huber'), Field(dev='sty_huber'), Field(dev='sry_huber'),
-        ),
+        Field(dev='stx_huber'),
+        Field(dev='sty_huber'),
+        Field(dev='sry_huber'),
+    ),
     BlockRow(
-        Field(dev='sgx_huber'), Field(dev='sgz_huber'),
-        ),
+        Field(dev='sgx_huber'),
+        Field(dev='sgz_huber'),
+    ),
     ],
     setups='huber',
 )
@@ -30,8 +33,10 @@ _huberblock = Block('HUBER Small Sample Manipulator', [
 
 _servostarblock = Block('Servostar Large Sample Manipulator', [
     BlockRow(
-        Field(dev='stx_servostar'), Field(dev='sty_servostar'), Field(dev='sry_servostar'),
-        ),
+        Field(dev='stx_servostar'),
+        Field(dev='sty_servostar'),
+        Field(dev='sry_servostar'),
+    ),
     ],
     setups='servostar',
 )
@@ -39,70 +44,70 @@ _servostarblock = Block('Servostar Large Sample Manipulator', [
 _rscblock = Block('Rotation Sample Stick', [
     BlockRow(
         Field(dev='sth_rsc03'),
-        ),
+    ),
     ],
     setups='rsc03',
 )
 
 _detectorikonlcolumn = Column(
     Block('Detector Andor IkonL', [
-    BlockRow(
-        Field(name='Last Image', key='exp/lastpoint', width=60),
+        BlockRow(
+            Field(name='Last Image', key='exp/lastpoint', width=60),
         ),
-    BlockRow(
-        Field(name='Status', key='ikonl/status[1]', width=25),
-        Field(name='Temp', dev='temp_ikonl'),
-        Field(name='hsspeed', key='ikonl.hsspeed', width=4),
-        Field(name='vsspeed', key='ikonl.vsspeed', width=4),
-        Field(name='pgain', key='ikonl.pgain', width=4),
+        BlockRow(
+            Field(name='Status', key='ikonl/status[1]', width=25),
+            Field(name='Temp', dev='temp_ikonl'),
+            Field(name='hsspeed', key='ikonl.hsspeed', width=4),
+            Field(name='vsspeed', key='ikonl.vsspeed', width=4),
+            Field(name='pgain', key='ikonl.pgain', width=4),
         ),
-    BlockRow(
-        Field(name='roi', key='ikonl.roi'),
-        Field(name='bin', key='ikonl.bin'),
-        Field(name='flip (H,V)', key='ikonl.flip'),
-        Field(name='rotation', key='ikonl.rotation'),
+        BlockRow(
+            Field(name='roi', key='ikonl.roi'),
+            Field(name='bin', key='ikonl.bin'),
+            Field(name='flip (H,V)', key='ikonl.flip'),
+            Field(name='rotation', key='ikonl.rotation'),
         ),
-    ],
-    setups='detector_ikonl',
+        ],
+        setups='detector_ikonl',
     ),
 )
 
 _detectorneocolumn = Column(
     Block('Detector Andor Neo', [
-    BlockRow(
-        Field(name='Last Image', key='exp/lastpoint', width=60),
+        BlockRow(
+            Field(name='Last Image', key='exp/lastpoint', width=60),
         ),
-    BlockRow(
-        Field(name='Status', key='neo/status[1]', width=25),
-        Field(dev='neoTemp'),
-        Field(name='elshuttermode', key='neo.elshuttermode', width=6),
-        Field(name='readoutrate MHz', key='neo.readoutrate', width=4),
+        BlockRow(
+            Field(name='Status', key='neo/status[1]', width=25),
+            Field(dev='neoTemp'),
+            Field(name='elshuttermode', key='neo.elshuttermode', width=6),
+            Field(name='readoutrate MHz', key='neo.readoutrate', width=4),
         ),
-    BlockRow(
-        Field(name='roi', key='neo.roi'),
-        Field(name='bin', key='neo.bin'),
-        Field(name='flip (H,V)', key='neo.flip'),
-        Field(name='rotation', key='neo.rotation'),
+        BlockRow(
+            Field(name='roi', key='neo.roi'),
+            Field(name='bin', key='neo.bin'),
+            Field(name='flip (H,V)', key='neo.flip'),
+            Field(name='rotation', key='neo.rotation'),
         ),
-    ],
-    setups='detector_neo',
+        ],
+        setups='detector_neo',
     ),
 )
 
 _detectorzwo01column = Column(
     Block('Detector ZWO 01', [
-    BlockRow(
-        Field(name='Last Image', key='exp/lastpoint', width=60),
+        BlockRow(
+            Field(name='Last Image', key='exp/lastpoint', width=60),
         ),
-    BlockRow(
-        Field(name='Status', key='zwo01/status[1]', width=25),
-        Field(dev='temp_zwo01'),
+        BlockRow(
+            Field(name='Status', key='zwo01/status[1]', width=25),
+            Field(dev='temp_zwo01'),
         ),
-    BlockRow(
-        Field(name='roi', key='zwo01.roi'),
-        Field(name='bin', key='zwo01.bin'),
-        Field(name='flip (H,V)', key='zwo01.flip'),
-        Field(name='rotation', key='zwo01.rotation'),
+        BlockRow(
+            Field(name='roi', key='zwo01.roi'),
+            Field(name='bin', key='zwo01.bin'),
+            Field(name='flip (H,V)', key='zwo01.flip'),
+            Field(name='rotation', key='zwo01.rotation'),
         ),
     ],
     setups='detector_zwo01',
@@ -116,7 +121,7 @@ _live = Column(
                   width=96, height=96),
         ),
         ],
-    setups='liveimage_public'
+        setups='liveimage_public'
     ),
 )
 
@@ -125,12 +130,12 @@ _shutterblock = Block('Shutters & Collimators', [
         Field(name='Reactor', dev='ReactorPower', width=7),
         Field(dev='collimator', width=10),
         Field(dev='pinhole', width=10),
-        ),
+    ),
     BlockRow(
         Field(dev='shutter1', width=10, istext = True),
         Field(dev='shutter2', width=10, istext = True),
         Field(dev='fastshutter', width=10, istext = True),
-        ),
+    ),
     ],
     setups='basic',
 )
@@ -140,7 +145,7 @@ _basicblock = Block('Info', [
         Field(name='Ambient', dev='Ambient_pressure'),
         Field(name='Flight Tube', dev='Flighttube_pressure'),
         Field(name='He bottle',dev='He_pressure'),
-        ),
+    ),
     ],
     setups='basic',
 )
@@ -148,7 +153,7 @@ _basicblock = Block('Info', [
 _sblblock = Block('Small Beam Limiter', [
     BlockRow(
         Field(dev='sbl', name='sbl  [center[x,y], width[x,y]]', width=28),
-        ),
+    ),
     ],
     setups='sbl',
 )
@@ -156,63 +161,75 @@ _sblblock = Block('Small Beam Limiter', [
 _lblblock = Block('Large Beam Limiter', [
     BlockRow(
         Field(dev='lbl', name='lbl  [center[x,y], width[x,y]]', width=28),
-        ),
+    ),
     ],
     setups='lbl',
 )
 
 _detector_translationblock = Block('Detector Translation', [
     BlockRow(
-        Field(dev='dtx', width=13), Field(dev='dty', width=13),
-        ),
+        Field(dev='dtx', width=13),
+        Field(dev='dty', width=13),
+    ),
     ],
     setups='detector_translation',
 )
 
 _sockets1block = Block('Sockets Cabinet 1', [
     BlockRow(
-        Field(dev='socket01', width=9), Field(dev='socket02', width=9), Field(dev='socket03', width=9),
-        ),
+        Field(dev='socket01', width=9),
+        Field(dev='socket02', width=9),
+        Field(dev='socket03', width=9),
+    ),
     ],
     setups='sockets',
 )
 
 _sockets2block = Block('Sockets Cabinet 2', [
     BlockRow(
-        Field(dev='socket04', width=9), Field(dev='socket05', width=9), Field(dev='socket06', width=9),
-        ),
+        Field(dev='socket04', width=9),
+        Field(dev='socket05', width=9),
+        Field(dev='socket06', width=9),
+    ),
     ],
     setups='sockets',
 )
 
 _sockets3block = Block('Sockets Cabinet 3', [
     BlockRow(
-        Field(dev='socket07', width=9), Field(dev='socket08', width=9), Field(dev='socket09', width=9),
-        ),
+        Field(dev='socket07', width=9),
+        Field(dev='socket08', width=9),
+        Field(dev='socket09', width=9),
+    ),
     ],
     setups='sockets',
 )
 
 _sockets6block = Block('Sockets Cabinet 6', [
     BlockRow(
-        Field(dev='socket10', width=9), Field(dev='socket11', width=9), Field(dev='socket12', width=9),
-        ),
+        Field(dev='socket10', width=9),
+        Field(dev='socket11', width=9),
+        Field(dev='socket12', width=9),
+    ),
     ],
     setups='sockets',
 )
 
 _sockets7block = Block('Sockets Cabinet 7', [
     BlockRow(
-        Field(dev='socket13', width=9), Field(dev='socket14', width=9), Field(dev='socket15', width=9),
-        ),
+        Field(dev='socket13', width=9),
+        Field(dev='socket14', width=9),
+        Field(dev='socket15', width=9),
+    ),
     ],
     setups='sockets',
 )
 
 _filterwheelblock = Block('Filterwheel', [
     BlockRow(
-        Field(dev='filterwheel', width=14), Field(dev='pbfilter', width=14),
-        ),
+        Field(dev='filterwheel', width=14),
+        Field(dev='pbfilter', width=14),
+    ),
     ],
     setups='filterwheel',
 )
@@ -223,15 +240,17 @@ _selectorblock = Block('Velocity Selector', [
         Field(name='Lambda',dev='selector_lambda'),
         Field(name='Tilt', dev='selector_tilt'),
         Field(name='Position', dev='selector_inout'),
-        ),
+    ),
     BlockRow(
-        Field(dev='selector_vacuum', name='Vacuum'), Field(dev='selector_rtemp', name='Rotor Temp'),
+        Field(dev='selector_vacuum', name='Vacuum'),
+        Field(dev='selector_rtemp', name='Rotor Temp'),
         Field(dev='selector_vibrt', name='Vibration'),
-        ),
+    ),
     BlockRow(
-        Field(dev='selector_winlt', name='Water Inlet'), Field(dev='selector_woutt', name='Water Outlet'),
+        Field(dev='selector_winlt', name='Water Inlet'),
+        Field(dev='selector_woutt', name='Water Outlet'),
         Field(name='Water Flow',dev='selector_wflow'),
-        ),
+    ),
     ],
     setups='selector',
 )
@@ -239,10 +258,11 @@ _selectorblock = Block('Velocity Selector', [
 _temperatureblock = Block('Cryo Temperature', [
     BlockRow(
         Field(dev='T', name='CCI 3He'),
-        ),
+    ),
     BlockRow(
-        Field(plot='Temperature', name='CCI 3He', dev='T_cci3he02', width=60, height=40, plotwindow=3600),
-        ),
+        Field(plot='Temperature', name='CCI 3He', dev='T_cci3he02', width=60,
+              height=40, plotwindow=3600),
+    ),
     ],
     setups='ccr7',
 )
@@ -250,10 +270,11 @@ _temperatureblock = Block('Cryo Temperature', [
 _batteryfurnaceblock = Block('Furnace Temperature', [
     BlockRow(
         Field(dev='T', name='Furnace'),
-        ),
+    ),
     BlockRow(
-        Field(plot='Temperature', name='Furnace', dev='T', width=50, height=30, plotwindow=3600),
-        ),
+        Field(plot='Temperature', name='Furnace', dev='T', width=50, height=30,
+              plotwindow=3600),
+    ),
     ],
     setups='battery_furnace',
 )
@@ -264,28 +285,35 @@ _tensileblock = Block('Tensile Rig', [
 	Field(dev='teext', name='Extension'),
 	Field(dev='tepos', name='Position'),
 	Field(dev='teload', name='load'),
-	),
+    ),
     BlockRow(
 	Field(plot='Extension', dev='teext', width=60, height=40, plotwindow=3600),
-        ),
+    ),
     BlockRow(
 	Field(plot='Position', dev='tepos', width=60, height=40, plotwindow=3600),
-        ),
+    ),
     BlockRow(
 	Field(plot='Load', dev='teload', width=60, height=40, plotwindow=3600),
-        ),
+    ),
     ],
     setups='tensile',
 )
 
 _garfieldblock = Block('Garfield Magnet', [
-        BlockRow(Field(dev='B_amagnet', name='B'), Field(dev='amagnet_symmetry', name='Mode') ),
+    BlockRow(
+        Field(dev='B_amagnet', name='B'),
+        Field(dev='amagnet_symmetry', name='Mode'),
+    ),
     ],
     setups='amagnet',
 )
 
 _flipperblock = Block('Mezei-Flip', [
-        BlockRow('dct1', 'dct2', Field(dev='flip', width=5)),
+    BlockRow(
+        Field(dev='dct1'),
+        Field(dev='dct2'),
+        Field(dev='flip', width=5),
+    ),
     ],
     setups='mezeiflip',
 )
@@ -293,57 +321,71 @@ _flipperblock = Block('Mezei-Flip', [
 _lockinblock = Block('Lock-In', [
     BlockRow(
         Field(dev='sr830[0]', name='X (V)', format='%1.6f', width=12),
-        Field(dev='sr830[1]', name='Y (V)', format='%1.6f', width=12)#
-        ),
+        Field(dev='sr830[1]', name='Y (V)', format='%1.6f', width=12),
+    ),
     BlockRow(
         Field(dev='sr830[2]', name='abs (V)', format='%1.6f', width=12),
-        Field(dev='sr830[3]', name='phase (deg)', width=12)
-        ),
+        Field(dev='sr830[3]', name='phase (deg)', width=12),
+    ),
     BlockRow(
-        Field(plot='Lock-In', name='X', dev='sr830[0]', width=40, height=20, plotwindow=1*3600),
+        Field(plot='Lock-In', name='X', dev='sr830[0]', width=40, height=20,
+              plotwindow=1*3600),
         Field(plot='Lock-In', name='Y', dev='sr830[1]'),
-        ),
+    ),
     ],
     setups='sr830',
 )
 
 _monochromatorblock = Block('Double Crystal PG Monochromator', [
     BlockRow(
-        Field(name='Lambda', dev='mono'), Field(name='Position', dev='mono_inout')
-        ),
+        Field(name='Lambda', dev='mono'),
+        Field(name='Position', dev='mono_inout')
+    ),
     BlockRow(
-        Field(dev='mr1'), Field(dev='mr2'), Field(dev='mtz'),
-        ),
+        Field(dev='mr1'),
+        Field(dev='mr2'),
+        Field(dev='mtz'),
+    ),
     ],
     setups='monochromator',
 )
 
 _ngiblock = Block('Neutron Grating Interferometer', [
     BlockRow(
-        Field(name='G0rz', dev='G0rz'), Field(name='G0ry', dev='G0ry'), Field(name='G0tx', dev='G0tx'),
-        ),
+        Field(name='G0rz', dev='G0rz'),
+        Field(name='G0ry', dev='G0ry'),
+        Field(name='G0tx', dev='G0tx'),
+    ),
     BlockRow(
-        Field(name='G1rz', dev='G1rz'), Field(name='G1tz', dev='G1tz'), Field(name='G12rz', dev='G12rz'),
-        ),
+        Field(name='G1rz', dev='G1rz'),
+        Field(name='G1tz', dev='G1tz'),
+        Field(name='G12rz', dev='G12rz'),
+    ),
     ],
     setups='ngi',
 )
 
 _ngi_jcnsblock = Block('Neutron Grating Interferometer', [
     BlockRow(
-        Field(name='G0rz', dev='G0rz'), Field(name='G0ry', dev='G0ry'), Field(name='G0tx', dev='G0tx'),
-        ),
+        Field(name='G0rz', dev='G0rz'),
+        Field(name='G0ry', dev='G0ry'),
+        Field(name='G0tx', dev='G0tx'),
+    ),
     BlockRow(
-        Field(name='G1rz', dev='G1rz'), Field(name='G1tz', dev='G1tz'), Field(name='G12rz', dev='G12rz'),
-        ),
+        Field(name='G1rz', dev='G1rz'),
+        Field(name='G1tz', dev='G1tz'),
+        Field(name='G12rz', dev='G12rz'),
+    ),
     ],
     setups='ngi_jcns',
 )
 
 _cryomanipulatorblock = Block('Cryostat Manipulator', [
     BlockRow(
-        Field(name='ctx', dev='ctx'), Field(name='cty', dev='cty'), Field(name='cry', dev='cry'),
-        ),
+        Field(name='ctx', dev='ctx'),
+        Field(name='cty', dev='cty'),
+        Field(name='cry', dev='cry'),
+    ),
     ],
     setups='cryomanipulator',
 )
@@ -392,13 +434,15 @@ for cryo, name in cryodict.items():
     cryoplots.append(
         Block(cryo.title(), [
             BlockRow(
-                Field(plot=cryo, plotwindow=3600, width=50, height=30, key='t_%s/setpoint' % cryo),
-                Field(plot=cryo, plotwindow=3600, width=50, height=30, dev='t_%s' % cryo),
-#                Field(widget='nicos.guisupport.plots.TrendPlot',
-#                      plotwindow=3600, width=25, height=25,
-#                      devices=['t_%s/setpoint' % cryo, 't_%s' % cryo],
-#                      names=['Setpoint', 'Regulation'],
-#                ),
+                Field(plot=cryo, plotwindow=3600, width=50, height=30,
+                      key='t_%s/setpoint' % cryo),
+                Field(plot=cryo, plotwindow=3600, width=50, height=30,
+                      dev='t_%s' % cryo),
+                # Field(widget='nicos.guisupport.plots.TrendPlot',
+                #       plotwindow=3600, width=25, height=25,
+                #       devices=['t_%s/setpoint' % cryo, 't_%s' % cryo],
+                #       names=['Setpoint', 'Regulation'],
+                # ),
             ),
             ],
             setups=cryo,

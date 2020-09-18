@@ -23,11 +23,14 @@ _expcolumn = Column(
 
 _huberblock = Block('HUBER Small Sample Manipulator', [
     BlockRow(
-        Field(dev='stx_huber'), Field(dev='sty_huber'), Field(dev='sry_huber'),
-        ),
+        Field(dev='stx_huber'),
+        Field(dev='sty_huber'),
+        Field(dev='sry_huber'),
+    ),
     BlockRow(
-        Field(dev='sgx_huber'), Field(dev='sgz_huber'),
-        ),
+        Field(dev='sgx_huber'),
+        Field(dev='sgz_huber'),
+    ),
     ],
     setups='huber',
 )
@@ -35,77 +38,79 @@ _huberblock = Block('HUBER Small Sample Manipulator', [
 
 _servostarblock = Block('Servostar Large Sample Manipulator', [
     BlockRow(
-        Field(dev='stx_servostar'), Field(dev='sty_servostar'), Field(dev='sry_servostar'),
-        ),
+        Field(dev='stx_servostar'),
+        Field(dev='sty_servostar'),
+        Field(dev='sry_servostar'),
+    ),
     ],
     setups='servostar',
 )
 
 _detectorikonlcolumn = Column(
     Block('Detector Andor IkonL', [
-    BlockRow(
-        Field(name='Path', key='Exp/proposalpath', width=40, format='%s/'),
-        Field(name='Last Image', key='exp/lastpoint', width=60),
+        BlockRow(
+            Field(name='Path', key='Exp/proposalpath', width=40, format='%s/'),
+            Field(name='Last Image', key='exp/lastpoint', width=60),
         ),
-    BlockRow(
-        Field(name='Status', key='ikonl/status[1]', width=25),
-        Field(name='Temp', dev='temp_ikonl'),
-        Field(name='hsspeed', key='ikonl.hsspeed', width=4),
-        Field(name='vsspeed', key='ikonl.vsspeed', width=4),
-        Field(name='pgain', key='ikonl.pgain', width=4),
+        BlockRow(
+            Field(name='Status', key='ikonl/status[1]', width=25),
+            Field(name='Temp', dev='temp_ikonl'),
+            Field(name='hsspeed', key='ikonl.hsspeed', width=4),
+            Field(name='vsspeed', key='ikonl.vsspeed', width=4),
+            Field(name='pgain', key='ikonl.pgain', width=4),
         ),
-    BlockRow(
-        Field(name='roi', key='ikonl.roi'),
-        Field(name='bin', key='ikonl.bin'),
-        Field(name='flip (H,V)', key='ikonl.flip'),
-        Field(name='rotation', key='ikonl.rotation'),
+        BlockRow(
+            Field(name='roi', key='ikonl.roi'),
+            Field(name='bin', key='ikonl.bin'),
+            Field(name='flip (H,V)', key='ikonl.flip'),
+            Field(name='rotation', key='ikonl.rotation'),
         ),
-    ],
-    setups='detector_ikonl',
+        ],
+        setups='detector_ikonl',
     ),
 )
 
 _detectorneocolumn = Column(
     Block('Detector Andor Neo', [
-    BlockRow(
-        Field(name='Path', key='Exp/proposalpath', width=40, format='%s/'),
-        Field(name='Last Image', key='exp/lastpoint', width=60),
+        BlockRow(
+            Field(name='Path', key='Exp/proposalpath', width=40, format='%s/'),
+            Field(name='Last Image', key='exp/lastpoint', width=60),
+            ),
+        BlockRow(
+            Field(name='Status', key='neo/status[1]', width=25),
+            Field(dev='neoTemp'),
+            Field(name='elshuttermode', key='neo.elshuttermode', width=6),
+            Field(name='readoutrate MHz', key='neo.readoutrate', width=4),
         ),
-    BlockRow(
-        Field(name='Status', key='neo/status[1]', width=25),
-        Field(dev='neoTemp'),
-        Field(name='elshuttermode', key='neo.elshuttermode', width=6),
-        Field(name='readoutrate MHz', key='neo.readoutrate', width=4),
+        BlockRow(
+            Field(name='roi', key='neo.roi'),
+            Field(name='bin', key='neo.bin'),
+            Field(name='flip (H,V)', key='neo.flip'),
+            Field(name='rotation', key='neo.rotation'),
         ),
-    BlockRow(
-        Field(name='roi', key='neo.roi'),
-        Field(name='bin', key='neo.bin'),
-        Field(name='flip (H,V)', key='neo.flip'),
-        Field(name='rotation', key='neo.rotation'),
-        ),
-    ],
-    setups='detector_neo',
+        ],
+        setups='detector_neo',
     ),
 )
 
 _detectorzwo01column = Column(
     Block('Detector ZWO 01', [
-    BlockRow(
-        Field(name='Path', key='Exp/proposalpath', width=40, format='%s/'),
-        Field(name='Last Image', key='exp/lastpoint', width=60),
+        BlockRow(
+            Field(name='Path', key='Exp/proposalpath', width=40, format='%s/'),
+            Field(name='Last Image', key='exp/lastpoint', width=60),
         ),
-    BlockRow(
-        Field(name='Status', key='zwo01/status[1]', width=25),
-        Field(dev='temp_zwo01'),
+        BlockRow(
+            Field(name='Status', key='zwo01/status[1]', width=25),
+            Field(dev='temp_zwo01'),
         ),
-    BlockRow(
-        Field(name='roi', key='zwo01.roi'),
-        Field(name='bin', key='zwo01.bin'),
-        Field(name='flip (H,V)', key='zwo01.flip'),
-        Field(name='rotation', key='zwo01.rotation'),
+        BlockRow(
+            Field(name='roi', key='zwo01.roi'),
+            Field(name='bin', key='zwo01.bin'),
+            Field(name='flip (H,V)', key='zwo01.flip'),
+            Field(name='rotation', key='zwo01.rotation'),
         ),
-    ],
-    setups='detector_zwo01',
+        ],
+        setups='detector_zwo01',
     ),
 )
 
@@ -114,12 +119,12 @@ _shutterblock = Block('Shutters & Collimators', [
         Field(name='Reactor', dev='ReactorPower', width=7),
         Field(dev='collimator', width=10),
         Field(dev='pinhole', width=10),
-        ),
+    ),
     BlockRow(
         Field(dev='shutter1', width=10, istext = True),
         Field(dev='shutter2', width=10, istext = True),
         Field(dev='fastshutter', width=10, istext = True),
-        ),
+    ),
     ],
     setups='basic',
 )
@@ -129,9 +134,12 @@ _basicblock = Block('Info', [
         Field(name='Ambient', dev='Ambient_pressure'),
         Field(name='Flight Tube', dev='Flighttube_pressure'),
         Field(dev='UBahn', width=12, istext=True),
-        ),
-    BlockRow(Field(plot='Pressure', name='Ambient', dev='Ambient_pressure', width=40, height=20, plotwindow=24*3600),
-        Field(plot='Pressure', name='Flight Tube', dev='Flighttube_pressure')),
+    ),
+    BlockRow(
+        Field(plot='Pressure', name='Ambient', dev='Ambient_pressure', width=40,
+              height=20, plotwindow=24*3600),
+        Field(plot='Pressure', name='Flight Tube', dev='Flighttube_pressure'),
+    ),
     ],
     setups='basic',
 )
@@ -139,7 +147,7 @@ _basicblock = Block('Info', [
 _sblblock = Block('Small Beam Limiter', [
     BlockRow(
         Field(dev='sbl', name='sbl  [center[x,y], width[x,y]]', width=28),
-        ),
+    ),
     ],
     setups='sbl',
 )
@@ -147,15 +155,16 @@ _sblblock = Block('Small Beam Limiter', [
 _lblblock = Block('Large Beam Limiter', [
     BlockRow(
         Field(dev='lbl', name='lbl  [center[x,y], width[x,y]]', width=28),
-        ),
+    ),
     ],
     setups='lbl',
 )
 
 _detector_translationblock = Block('Detector Translation', [
     BlockRow(
-        Field(dev='dtx', width=13), Field(dev='dty', width=13),
-        ),
+        Field(dev='dtx', width=13),
+        Field(dev='dty', width=13),
+    ),
     ],
     setups='detector_translation',
 )
