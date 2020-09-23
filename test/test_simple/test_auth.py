@@ -31,11 +31,10 @@ from os import path
 
 import pytest
 
+
 from nicos.core import ADMIN, GUEST, USER, NicosError, User
 from nicos.services.daemon.auth import AuthenticationError
 from nicos.services.daemon.auth.list import Authenticator as ListAuthenticator
-from nicos.services.daemon.auth.oauth2 import \
-    Authenticator as OAuthAuthenticator
 from nicos.services.daemon.auth.params import UserLevelAuthEntry, \
     UserPassLevelAuthEntry
 
@@ -50,7 +49,11 @@ try:
     from nicos.utils.credentials.keystore import nicoskeystore
 except ImportError:
     nicoskeystore = None
-
+try:
+    from nicos.services.daemon.auth.oauth2 import \
+        Authenticator as OAuthAuthenticator
+except ImportError:
+    OAuthAuthenticator = None
 
 session_setup = 'empty'
 
@@ -102,16 +105,19 @@ class TestUserLevelAuthEntry:
         assert raises(ValueError, UserLevelAuthEntry, inp)
 
 
-@pytest.fixture(scope='function')
-def OAuthAuth(request):
-    Auth = OAuthAuthenticator('authenicator',
-                              tokenurl='https://unit.test/',
-                              clientid='')
-    yield Auth
+@pytest.mark.skipif(OAuthAuthenticator is None,
+                    reason='oauthlib packages not installed')
+class TestOAuthAuthenticator:
 
+    @pytest.fixture
+    def OAuthAuth(self, request):
+        Auth = OAuthAuthenticator('authenicator',
+                                  tokenurl='https://unit.test/',
+                                  clientid='')
+        yield Auth
 
-def test_oauth_errors(session, OAuthAuth):
-    assert raises(AuthenticationError, OAuthAuth.authenticate, 'user', '')
+    def test_oauth_errors(self, session, OAuthAuth):
+        assert raises(AuthenticationError, OAuthAuth.authenticate, 'user', '')
 
 
 @pytest.fixture(scope='function')
