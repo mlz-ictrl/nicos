@@ -531,9 +531,6 @@ class EditorPanel(Panel):
     @pyqtSlot()
     def on_actionRun_triggered(self):
         script = self.validateScript()
-        if not self.client.isconnected:
-            self.client.signal('error', 'You are not connected to a server.')
-            return
         if script is None:
             return
         if not self.checkDirty(self.currentEditor, askonly=True):
