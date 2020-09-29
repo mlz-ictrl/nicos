@@ -220,8 +220,7 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
         It takes account into the different origins of the analyzer blades.
         """
         # check if requested positions already reached within precision
-        # TODO: use isAtTarget(target=target) Ticket #4213
-        if self.isAtTarget(target):
+        if self.isAtTarget(target=target):
             self.log.debug('device already at position, nothing to do!')
             return []
 
@@ -232,7 +231,7 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
 
     def _move_translations(self, target):
         # first check for translation
-        mvt = self._checkPositionReachedTrans(target)
+        mvt = self._checkPositionReachedTrans(self.doRead(0), target)
         if mvt:
             self.log.debug('The following translation axes start moving: %r',
                            mvt)
@@ -248,13 +247,13 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
                     dev.move(target[i])
             self._hw_wait(self._translation)
 
-            if self._checkPositionReachedTrans(target):
+            if self._checkPositionReachedTrans(self.doRead(0), target):
                 raise PositionError(self, 'Translation drive not successful')
             self.log.debug('translation movement done')
 
     def _move_rotations(self, target):
         # Rotation Movement
-        mvr = self._checkPositionReachedRot(target)
+        mvr = self._checkPositionReachedRot(self.doRead(0), target)
         if mvr:
             self.log.debug('The following rotation axes start moving: %r', mvr)
             for i in mvr:
@@ -266,7 +265,7 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
                 with self._allowed():
                     self._rotation[i].move(target[self._num_axes + i])
             self._hw_wait([self._rotation[i] for i in mvr])
-            if self._checkPositionReachedRot(target):
+            if self._checkPositionReachedRot(self.doRead(0), target):
                 raise PositionError(self, 'Rotation drive not successful: '
                                     '%r' % ['%s' % d for d in mvr])
             self.log.debug('rotation movement done')
@@ -391,34 +390,34 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
                        trans + 1, trans, delta, rmin, rmax)
         return rmin, rmax
 
-    def _checkPositionReachedTrans(self, position):
-        mv = []
-        request = self.doRead(0)[0:self._num_axes]
-
-        for i in range(len(self._translation)):
-            if abs(position[i] - request[i]) > self._translation[i].precision:
+    def _checkPositionReachedTrans(self, position, target=None):
+        if target is None:
+            return []
+        mv = [i for i, (t, p, trans) in enumerate(
+              zip(target[0:self._num_axes], position[0:self._num_axes],
+                  self._translation)) if abs(t - p) > trans.precision]
+        for i in range(self._num_axes):
+            if i in mv:
                 self.log.debug('xx%2d translation start moving', i + 1)
-                mv.append(i)
             else:
                 self.log.debug('xx%2d translation: nothing to do', i + 1)
         return mv
 
-    def _checkPositionReachedRot(self, position):
-        mv = []
-        request = self.doRead(0)[self._num_axes:2 * self._num_axes]
-
-        for i in range(len(self._rotation)):
-            if abs(position[i + self._num_axes] - request[i]) > \
-               self._rotation[i].precision:
+    def _checkPositionReachedRot(self, position, target=None):
+        if target is None:
+            return []
+        mv = [i for i, (t, p, rot) in enumerate(
+              zip(target[self._num_axes:2 * self._num_axes],
+                  position[self._num_axes:2 * self._num_axes],
+                  self._rotation)) if abs(t - p) > rot.precision]
+        for i in range(self._num_axes):
+            if i in mv:
                 self.log.debug('xx%2d rotation start moving', i + 1)
-                mv.append(i)
             else:
                 self.log.debug('xx%2d rotation: nothing to do', i + 1)
         return mv
 
     def doIsAtTarget(self, pos, target):
-        self._printPos()
-        # TODO: actually use target not pos. Ticket #4213
-        mvt = self._checkPositionReachedTrans(pos)
-        mvr = self._checkPositionReachedRot(pos)
+        mvt = self._checkPositionReachedTrans(pos, target)
+        mvr = self._checkPositionReachedRot(pos, target)
         return not mvt and not mvr

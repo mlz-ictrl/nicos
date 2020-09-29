@@ -44,7 +44,7 @@ class ExpPanel(DefaultExpPanel):
     """
 
     panelName = 'Experiment setup'
-    ui = '%s/panels/setup_exp.ui' % uipath
+    ui = '%s/panels/ui_files/setup_exp.ui' % uipath
 
     def __init__(self, parent, client, options):
         DefaultExpPanel.__init__(self, parent, client, options)
@@ -72,10 +72,10 @@ class ExpPanel(DefaultExpPanel):
         users = self.users.text()
         try:
             local = mailaddress(self.localContact.text())
-        except ValueError:
+        except ValueError as value_error:
             QMessageBox.critical(self, 'Error', 'The local contact entry is '
                                  'not  a valid email address')
-            raise ConfigurationError('')
+            raise ConfigurationError('') from value_error
         emails = self.notifEmails.toPlainText().strip()
         emails = emails.split('\n') if emails else []
         if local and local not in emails:
@@ -228,7 +228,7 @@ class FinishPanel(Panel):
     """
 
     panelName = 'Finish experiment'
-    ui = '%s/panels/finish_exp.ui' % uipath
+    ui = '%s/panels/ui_files/finish_exp.ui' % uipath
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)

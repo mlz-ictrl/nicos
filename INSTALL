@@ -32,7 +32,7 @@ If not mentioned otherwise, Python packages are available from PyPI
   - the MLZ TACO Python libraries (see https://forge.frm2.tum.de/wiki/projects:software_distribution)
   - PyTango 8.1.x or 9.x (for TANGO interface, needs TANGO libraries)
   - EPICSv3 and pyepics (for Epics interface)
-  - a working installation of omniORBpy (http://omniorb.sourceforge.net/) (for CARESS interface)
+  - a working installation of omniORBpy 4.2.X (http://omniorb.sourceforge.net/) (for CARESS interface)
   - pyserial (for TACO-less serial line communication)
 
 * Optional for the basic system:

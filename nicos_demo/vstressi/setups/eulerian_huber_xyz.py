@@ -8,7 +8,7 @@ includes = [
 ]
 
 excludes = [
-    'eulerian_newport', 'eulerian_tensile', 'robot', 'primaryslit_huber'
+    'eulerian_rsc', 'eulerian_tensile', 'robot', 'primaryslit_huber'
 ]
 
 sysconfig = dict(

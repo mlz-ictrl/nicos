@@ -24,10 +24,11 @@
 
 """Special detector devices for the SANS1"""
 
+
 from nicos.core.mixins import DeviceMixinBase
 from nicos.core.params import Param, floatrange, tupleof
 from nicos.devices.generic import Detector as GenericDetector, \
-    GatedDetector as GenericGatedDetector
+    GatedDetector as GenericGatedDetector, LockedDevice
 
 
 class DetectorMixin(DeviceMixinBase):
@@ -46,3 +47,23 @@ class Detector(DetectorMixin, GenericDetector):
 
 class GatedDetector(DetectorMixin, GenericGatedDetector):
     """Standard gated detector including its size."""
+
+
+class DetectorTranslation(LockedDevice):
+    """Standard locked device including check position at start."""
+
+    def doIsAtTarget(self, pos=None, target=None):
+        if pos is None:
+            pos = self.read(0)
+        self.log.debug('Current pos: %s, target: %s', pos, target)
+        if target is None:
+            if self._attached_device.target:
+                return self._attached_device.isAtTarget(pos)
+            if self.target is None:
+                return False
+            target = self.target
+        return self._attached_device.isAtTarget(pos, target)
+
+    def doStart(self, target):
+        if not self.isAtTarget(self.read(0), target=target):
+            LockedDevice.doStart(self, target)

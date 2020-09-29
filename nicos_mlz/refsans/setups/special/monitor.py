@@ -3,13 +3,14 @@ group = 'special'
 
 _expcolumn = Column(
     Block('Experiment fallback for fail save', [
-        BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
-                 Field(name='Title',    key='exp/title',    width=20,
-                       istext=True, maxlen=20),
-                 Field(name='Current status', key='exp/action', width=50,
-                       istext=True, maxlen=40),
-                 Field(name='Last file', key='det/lastfilenumber'),
-            )
+        BlockRow(
+            Field(name='Proposal', key='exp/proposal', width=7),
+            Field(name='Title', key='exp/title', width=20, istext=True,
+                  maxlen=20),
+            Field(name='Current status', key='exp/action', width=50,
+                  istext=True, maxlen=40),
+            Field(name='Last file', key='det/lastfilenumber'),
+        )
         ],
         # setups='experiment'
     ),
@@ -31,21 +32,27 @@ _nokcolumn = Column(Block('NOK-System fallback for fail save', _nok_array))
 
 _flippercolumn = Column(
     Block('Flipper fallback for fail save', [
-          BlockRow( Field(dev='frequency'),
-                    Field(dev='current'),
-                    Field(dev='flipper', name='Flipping_State'),
-                  )
-          ]),
+        BlockRow(
+            Field(dev='frequency'),
+            Field(dev='current'),
+            Field(dev='flipper', name='Flipping_State'),
+        ),
+        ],
+    ),
 )
 
 _refcolumn = Column(
     Block('References fallback for fail save', [
-        BlockRow( Field(dev='nok_refa1', name='ref_A1'),
-                  Field(dev='nok_refb1', name='ref_B1'),
-                  Field(dev='nok_refc1', name='ref_C1'),),
-        BlockRow( Field(dev='nok_refa2', name='ref_A2'),
-                  Field(dev='nok_refb2', name='ref_B2'),
-                  Field(dev='nok_refc2', name='ref_C2'),),
+        BlockRow(
+            Field(dev='nok_refa1', name='ref_A1'),
+            Field(dev='nok_refb1', name='ref_B1'),
+            Field(dev='nok_refc1', name='ref_C1'),
+        ),
+        BlockRow(
+            Field(dev='nok_refa2', name='ref_A2'),
+            Field(dev='nok_refb2', name='ref_B2'),
+            Field(dev='nok_refc2', name='ref_C2'),
+        ),
         ],
     ),
 )

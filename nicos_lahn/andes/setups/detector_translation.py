@@ -1,4 +1,4 @@
-description = 'detector table translation setup'
+description = 'detector table setup'
 
 group = 'lowlevel'
 
@@ -13,6 +13,17 @@ devices = dict(
         precision = 0.01,
         fmtstr = '%.2f',
     ),
+    stt_opMode = device('nicos.devices.generic.Switcher',
+        description = '2 theta axis operation modes',
+        moveable = 'mtt',
+        mapping = {
+            'ts': 65,
+            'min': 15,
+        },
+        precision = 0.01,
+        unit = '',
+        lowlevel = True,
+    ),
     lsd = device("nicos.devices.generic.Axis",
         description = "detector arm translation",
         motor = device('nicos.devices.generic.VirtualMotor',
@@ -22,5 +33,16 @@ devices = dict(
         ),
         precision = 0.01,
         fmtstr = "%.2f",
+    ),
+    lsd_opMode = device('nicos.devices.generic.Switcher',
+        description = 'detector arm operation modes',
+        moveable = 'mtt',
+        mapping = {
+            'min': 900,
+            'lsd': 1100,
+        },
+        precision = 0.01,
+        unit = '',
+        lowlevel = True,
     ),
 )
