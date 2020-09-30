@@ -317,7 +317,7 @@ node('dockerhost') {
     stage(name: 'prepare') {
         withCredentials([string(credentialsId: 'RMAPIKEY', variable: 'RMAPIKEY'),
                          string(credentialsId: 'RMSYSKEY', variable: 'RMSYSKEY')]) {
-            docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:bionic').inside(){
+            docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bionic').inside(){
                 sh  '''\
 #!/bin/bash
 export PYTHONIOENCODING=utf-8
@@ -327,8 +327,8 @@ export PYTHONIOENCODING=utf-8
         } // credentials
     } // stage
 
-u18 = docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:bionic')
-//c8 = docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:centos8')
+u18 = docker.image('docker.ictrl.frm2.tum.de:5443jenkins/nicos-jenkins:bionic')
+//c8 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:centos8')
 
 try {
     parallel pylint: {
@@ -368,7 +368,7 @@ try {
             ws {
                 checkoutSource()
                 def kafkaversion="2.12-2.3.0"
-                docker.image("jenkinsng.admin.frm2:5000/kafka:${kafkaversion}").withRun() { kafka ->
+                docker.image("docker.ictrl.frm2.tum.de:5443/jenkins/kafka:${kafkaversion}").withRun() { kafka ->
                     def kafaksuccess=false;
                     def tries = 0;
                     while (kafaksuccess==false){
@@ -392,7 +392,7 @@ try {
         } //stage
     }, test_docs: {
         stage(name: 'Test docs') {
-            docker.image('jenkinsng.admin.frm2:5000/nicos-jenkins:nicosdocs').inside(){
+            docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:nicosdocs').inside(){
                 runDocTest()
             }  // image.inside
         } // stage
