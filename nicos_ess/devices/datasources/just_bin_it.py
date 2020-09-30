@@ -141,7 +141,12 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
             self._consumer.unsubscribe()
             self.curstatus = status.OK, ''
 
-        self._hist_data = hist['data']
+        if self.hist_type == '1-D DET':
+            self._hist_data = hist['data']
+        else:
+            # For the ESS detector orientation, pixel 0 is at top-left
+            self._hist_data = np.rot90(hist['data'])
+
         self._hist_edges = hist['dim_metadata'][0]['bin_boundaries']
 
     def doStart(self):
