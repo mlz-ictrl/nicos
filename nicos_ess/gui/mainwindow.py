@@ -27,6 +27,8 @@
 
 import os
 
+from time import time as current_time
+
 from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow
 from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
     QMenu, QPixmap, QPoint, QSizePolicy, Qt, QWidget, pyqtSlot
@@ -36,10 +38,10 @@ from nicos_ess.gui.panels import get_icon
 
 
 def decolor_logo(pixmap, color):
-    retpix = QPixmap(pixmap.size())
-    retpix.fill(color)
-    retpix.setMask(pixmap.createMaskFromColor(Qt.transparent))
-    return retpix
+    ret_pix = QPixmap(pixmap.size())
+    ret_pix.fill(color)
+    ret_pix.setMask(pixmap.createMaskFromColor(Qt.transparent))
+    return ret_pix
 
 
 class Spacer(QWidget):
@@ -49,24 +51,17 @@ class Spacer(QWidget):
 
 
 class MainWindow(DefaultMainWindow):
-    """
-    Options:
-
-    * ``ess_gui`` (default False) -- Use the GUI setup defined during the
-      ESS-UX workshop.
-    """
-
     ui = '%s/main.ui' % uipath
 
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         DefaultMainWindow.__init__(self, log, gui_conf, viewonly, tunnel)
-        self.addLogo()
-        self.addInstrument()
-        self.addExperiment()
+        self.add_logo()
+        self.add_instrument()
+        self.add_experiment()
         self.set_icons()
-        self.stylefile = gui_conf.stylefile
+        self.style_file = gui_conf.stylefile
 
-        # Cheesburger menu
+        # Cheeseburger menu
         dropdown = QMenu('')
         dropdown.addAction(self.actionConnect)
         dropdown.addAction(self.actionViewOnly)
@@ -77,13 +72,6 @@ class MainWindow(DefaultMainWindow):
         self.actionUser.setMenu(dropdown)
         self.actionUser.setIconVisibleInMenu(True)
         self.dropdown = dropdown
-        # reload_action = QAction("Reload skin", self, triggered=self.reloadQSS,
-        #                         shortcut=QKeySequence.Refresh)
-        # select_action = QAction("Select skin", self, triggered=self.selectQSS)
-        # dropdown.addAction(reload_action)
-        # dropdown.addAction(select_action)
-
-    # addStatusBar(self)
 
     def set_icons(self):
         self.actionUser.setIcon(
@@ -95,29 +83,29 @@ class MainWindow(DefaultMainWindow):
         self.actionPreferences.setIcon(get_icon('tune-24px.svg'))
         self.actionExpert.setIcon(get_icon('fingerprint-24px.svg'))
 
-    def addLogo(self):
-        logoLabel = QLabel()
+    def add_logo(self):
+        logo_label = QLabel()
         pxr = decolor_logo(QPixmap("resources/logo-icon.png"), Qt.white)
-        logoLabel.setPixmap(pxr.scaledToHeight(self.toolBarMain.height(),
-                                               Qt.SmoothTransformation))
-        self.toolBarMain.insertWidget(self.toolBarMain.actions()[0], logoLabel)
-
-        nicosLabel = QLabel()
-        pxr = decolor_logo(QPixmap("resources/nicos-logo-high.svg"), Qt.white)
-        nicosLabel.setPixmap(pxr.scaledToHeight(self.toolBarMain.height(),
+        logo_label.setPixmap(pxr.scaledToHeight(self.toolBarMain.height(),
                                                 Qt.SmoothTransformation))
-        self.toolBarMain.insertWidget(self.toolBarMain.actions()[1],
-                                      nicosLabel)
+        self.toolBarMain.insertWidget(self.toolBarMain.actions()[0], logo_label)
 
-    def addInstrument(self):
-        textLabel = QLabel('Instrument:')
-        textLabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        textLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        instrumentLabel = QLabel('Unknown')
-        instrumentLabel.setSizePolicy(QSizePolicy.Expanding,
-                                      QSizePolicy.Preferred)
-        self.toolBarMain.addWidget(textLabel)
-        self.toolBarMain.addWidget(instrumentLabel)
+        nicos_label = QLabel()
+        pxr = decolor_logo(QPixmap("resources/nicos-logo-high.svg"), Qt.white)
+        nicos_label.setPixmap(pxr.scaledToHeight(self.toolBarMain.height(),
+                                                 Qt.SmoothTransformation))
+        self.toolBarMain.insertWidget(self.toolBarMain.actions()[1],
+                                      nicos_label)
+
+    def add_instrument(self):
+        text_label = QLabel('Instrument:')
+        text_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        text_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        instrument_label = QLabel('Unknown')
+        instrument_label.setSizePolicy(QSizePolicy.Expanding,
+                                       QSizePolicy.Preferred)
+        self.toolBarMain.addWidget(text_label)
+        self.toolBarMain.addWidget(instrument_label)
 
         instrument = os.getenv('INSTRUMENT')
         if instrument:
@@ -125,43 +113,85 @@ class MainWindow(DefaultMainWindow):
             logo = decolor_logo(QPixmap('resources/%s-logo.svg' % instrument),
                                 Qt.white)
             if logo.isNull():
-                instrumentLabel.setText(instrument.upper())
+                instrument_label.setText(instrument.upper())
                 return
-            instrumentLabel.setPixmap(logo.scaledToHeight(
+            instrument_label.setPixmap(logo.scaledToHeight(
                 self.toolBarMain.height(), Qt.SmoothTransformation))
 
-    def addExperiment(self):
-        textLabel = QLabel('Experiment:')
-        textLabel.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        textLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        experimentLabel = QLabel('Unknown')
-        experimentLabel.setSizePolicy(QSizePolicy.Expanding,
-                                      QSizePolicy.Preferred)
-        self.toolBarMain.addWidget(textLabel)
-        self.toolBarMain.addWidget(experimentLabel)
+    def add_experiment(self):
+        text_label = QLabel('Experiment:')
+        text_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        text_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        experiment_label = QLabel('Unknown')
+        experiment_label.setSizePolicy(QSizePolicy.Expanding,
+                                       QSizePolicy.Preferred)
+        self.toolBarMain.addWidget(text_label)
+        self.toolBarMain.addWidget(experiment_label)
 
         # if INSTRUMENT is defined add the logo/name of the instrument
         experiment = os.getenv('EXPERIMENT')
         if experiment:
-            experimentLabel.setText(experiment)
+            experiment_label.setText(experiment)
 
     def reloadQSS(self):
         self.setQSS(self.stylefile)
 
     def selectQSS(self):
-        stylefile = QFileDialog.getOpenFileName(self,
-                                                filter="Qt Stylesheet Files ("
-                                                "*.qss)")[0]
-        if stylefile:
-            self.stylefile = stylefile
-            self.setQSS(self.stylefile)
+        style_file = QFileDialog.getOpenFileName(
+            self, filter="Qt Stylesheet Files (*.qss)")[0]
+        if style_file:
+            self.style_file = style_file
+            self.setQSS(self.style_file)
 
-    def setQSS(self, stylefile):
-        with open(stylefile, 'r') as fd:
+    @staticmethod
+    def setQSS(style_file):
+        with open(style_file, 'r') as fd:
             try:
                 QApplication.instance().setStyleSheet(fd.read())
             except Exception as e:
                 print(e)
+
+    def setStatus(self, status, exception=False):
+        if status == self.current_status:
+            return
+        if self.client.last_action_at and \
+           self.current_status == 'running' and \
+           status in ('idle', 'paused') and \
+           current_time() - self.client.last_action_at > 20:
+            # show a visual indication of what happened
+            if status == 'paused':
+                msg = 'Script is now paused.'
+            elif exception:
+                msg = 'Script has exited with an error.'
+            else:
+                msg = 'Script has finished.'
+            self.trayIcon.showMessage(self.instrument, msg)
+            self.client.last_action_at = 0
+        self.current_status = status
+        is_connected = status != 'disconnected'
+        if is_connected:
+            self.actionConnect.setText('Disconnect')
+        else:
+            self.actionConnect.setText('Connect to server...')
+            self.setTitlebar(False)
+        # new status icon
+        pixmap = QPixmap(':/' + status + ('exc' if exception else ''))
+        self.statusLabel.setPixmap(pixmap)
+        self.statusLabel.setToolTip('Script status: %s' % status)
+        new_icon = QIcon()
+        new_icon.addPixmap(pixmap, QIcon.Disabled)
+        self.trayIcon.setIcon(new_icon)
+        self.trayIcon.setToolTip('%s status: %s' % (self.instrument, status))
+        if self.showtrayicon:
+            self.trayIcon.show()
+        if self.promptWindow and status != 'paused':
+            self.promptWindow.close()
+        # propagate to panels
+        for panel in self.panels:
+            panel.updateStatus(status, exception)
+        for window in self.windows.values():
+            for panel in window.panels:
+                panel.updateStatus(status, exception)
 
     def on_client_connected(self):
         DefaultMainWindow.on_client_connected(self)
@@ -172,6 +202,12 @@ class MainWindow(DefaultMainWindow):
         DefaultMainWindow.on_client_disconnected(self)
         self.actionConnect.setIcon(
             QIcon("resources/material/icons/power-24px.svg"))
+
+    @pyqtSlot(bool)
+    def on_actionConnect_triggered(self, _):
+        # connection or disconnection request?
+        connection_req = self.current_status == "disconnected"
+        super().on_actionConnect_triggered(connection_req)
 
     @pyqtSlot()
     def on_actionUser_triggered(self):
