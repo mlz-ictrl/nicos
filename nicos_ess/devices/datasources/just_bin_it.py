@@ -212,11 +212,11 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         config_base = {
             'cmd': 'config',
             'msg_id': identifier,
-            'data_brokers': self.brokers,
-            'data_topics': [self.data_topic],
             'histograms': [
                 {
                     'type': hist_type,
+                    'data_brokers': self.brokers,
+                    'data_topics': [self.data_topic],
                     'tof_range': list(self.tof_range),
                     'det_range': list(self.det_range),
                     'num_bins': self.num_bins,
