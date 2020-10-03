@@ -45,8 +45,8 @@ def _wait_for_continuation(delay, only_pause=False):
         req, current_msg = session.countloop_request  # pylint: disable=unpacking-non-sequence
         session.countloop_request = None
         if only_pause and req != 'pause':
-            # for 'finish' requests, we don't want to finish *before* starting the
-            # measurement, because then we don't have any results to return
+            # for 'finish' requests, we don't want to finish *before* starting
+            # the measurement, because then we don't have any results to return
             session.log.info('request for early finish ignored, not counting')
             return True
         exp = session.experiment

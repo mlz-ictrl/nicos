@@ -136,7 +136,8 @@ class SimulationSession(Session):
     sessiontype = SIMULATION
 
     def begin_setup(self):
-        self.log_sender.level = logging.ERROR  # log only errors before code starts
+        # log only errors before code starts
+        self.log_sender.level = logging.ERROR
 
     @classmethod
     def run(cls, sock, uuid, setups, user, code, quiet=False, debug=False):
@@ -332,8 +333,8 @@ class SimulationSupervisor(Thread):
         # has arrived
         try:
             proc.wait(5)
-        except TimeoutError:
-            raise Exception('did not terminate within 5 seconds')
+        except TimeoutError as err:
+            raise Exception('did not terminate within 5 seconds') from err
         if sandbox:
             try:
                 os.rmdir(rootdir)

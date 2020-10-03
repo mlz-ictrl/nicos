@@ -264,9 +264,9 @@ class HasOffset(DeviceMixinBase):
     TODO: handle limit/offset coupling
     """
     parameters = {
-        'offset':  Param('Offset of device zero to hardware zero', unit='main',
-                         settable=True, category='offsets', chatty=True,
-                         fmtstr='main'),
+        'offset': Param('Offset of device zero to hardware zero', unit='main',
+                        settable=True, category='offsets', chatty=True,
+                        fmtstr='main'),
     }
 
     def doWriteOffset(self, value):
@@ -345,7 +345,7 @@ class HasMapping(DeviceMixinBase):
 
     # mapped values usually are string constants and have no unit
     parameter_overrides = {
-        'unit':      Override(mandatory=False),
+        'unit': Override(mandatory=False),
     }
 
     def doIsAllowed(self, target):
@@ -531,9 +531,9 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
     Also we add a stabilising phase in the timeouttimes list.
     """
     parameters = {
-        'window':    Param('Time window for checking stabilization', unit='s',
-                           default=60.0, fmtstr='%.1f', settable=True,
-                           category='general'),
+        'window': Param('Time window for checking stabilization',
+                        unit='s', default=60.0, fmtstr='%.1f', settable=True,
+                        category='general'),
     }
 
     parameter_overrides = {
@@ -657,10 +657,10 @@ class HasCommunication(DeviceMixinBase):
     """
 
     parameters = {
-        'comtries':  Param('Maximum retries for communication',
-                           type=intrange(1, 100), default=3, settable=True),
-        'comdelay':  Param('Delay between retries', unit='s', default=0.1,
-                           fmtstr='%.1f', settable=True),
+        'comtries': Param('Maximum retries for communication',
+                          type=intrange(1, 100), default=3, settable=True),
+        'comdelay': Param('Delay between retries', unit='s', default=0.1,
+                          fmtstr='%.1f', settable=True),
     }
 
     @lazy_property
@@ -725,7 +725,8 @@ class CanDisable(DeviceMixinBase):
             try:
                 session.checkAccess(self.requires)
             except AccessError as err:
-                raise AccessError(self, 'cannot %s device: %s' % (what, err))
+                raise AccessError(
+                    self, 'cannot %s device: %s' % (what, err)) from err
         if self._sim_intercept:
             return
         self.doEnable(on)
