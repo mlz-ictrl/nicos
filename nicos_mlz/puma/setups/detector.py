@@ -62,7 +62,7 @@ devices = dict(
         lowlevel = True,
         fmtstr = '%d',
     ),
-    image = device('nicos.devices.tango.ImageChannel',
+    image = device('nicos.devices.vendor.qmesydaq.tango.ImageChannel',
         description = 'QMesyDAQ Image',
         tangodevice = tango_base + 'image',
         lowlevel = True,
