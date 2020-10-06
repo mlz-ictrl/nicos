@@ -19,17 +19,17 @@ watchlist = [
          type = 'critical',
          gracetime = 10,
     ),
-    dict(
-        condition = 't_value > 100',
-        message = 'Temperature too high',
-        type = 'critical',
-        action = 'maw(T, 0)',
-    ),
-    dict(
-        condition = 'phi_value > 100 and mono_value > 1.5',
-        message = 'phi angle too high for current mono setting',
-        gracetime = 5,
-    ),
+    # dict(
+    #     condition = 't_value > 100',
+    #     message = 'Temperature too high',
+    #     type = 'critical',
+    #     action = 'maw(T, 0)',
+    # ),
+    # dict(
+    #     condition = 'phi_value > 100 and mono_value > 1.5',
+    #     message = 'phi angle too high for current mono setting',
+    #     gracetime = 5,
+    # ),
 ]
 
 includes = [
@@ -37,8 +37,8 @@ includes = [
 ]
 
 notifiers = {
-    'default': ['email'],
-    'critical': ['email'],
+    'default': [],  # ['email'],
+    'critical': [],  # ['email'],
 }
 
 devices = dict(
