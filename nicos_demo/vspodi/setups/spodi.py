@@ -7,11 +7,18 @@ includes = [
 ]
 
 devices = dict(
-    wav = device('nicos.devices.generic.ManualMove',
+    wav = device('nicos_mlz.spodi.devices.wavelength.Wavelength',
         description = 'The incoming wavelength',
-        default = 1.7,
-        fmtstr = '%.2f',
         unit = 'AA',
-        abslimits = (0.9, 2.5),
+        omgm = 'omgm',
+        tthm = 'tthm',
+        crystal = 'crystal',
+        plane = '551',
+        fmtstr = '%.3f',
+        abslimits = (0.5, 3.0),
+    ),
+    crystal = device('nicos.devices.generic.ManualSwitch',
+        description = 'Monochromator crystal',
+        states = ['Ge',]
     ),
 )

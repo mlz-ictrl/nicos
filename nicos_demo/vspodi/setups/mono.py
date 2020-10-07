@@ -7,7 +7,7 @@ devices = dict(
         description = 'Simulated OMGM',
         fmtstr = '%.3f',
         unit = 'deg',
-        abslimits = (-40, 80),
+        abslimits = (-10, 10),
         speed = 1,
     ),
     tthm = device('nicos.devices.generic.ManualSwitch',

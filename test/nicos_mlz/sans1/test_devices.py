@@ -24,6 +24,8 @@
 
 """SANS-1 specific device tests."""
 
+import pytest
+
 from nicos.core import status
 
 session_setup = 'sans1'
@@ -39,3 +41,37 @@ def test_ieeedevice(session):
 
     assert session.getDevice('ieee2').read() == dev1.read()
     assert session.getDevice('ieee3').read() == dev1.curvalue
+
+
+class TestDetectorTranslation:
+    """Test class for the SANS1 detector translation device."""
+
+    @pytest.fixture(scope='function', autouse=True)
+    def prepare(self, session):
+        dev = session.getDevice('det1_z')
+        dev._attached_device._setROParam('target', None)
+        dev._setROParam('target', None)
+
+    def test_is_at_target_targe_is_none(self, session):
+
+        dev = session.getDevice('det1_z')
+
+        assert dev.target is None and dev._attached_device.target is None
+
+        assert dev.isAtTarget() is False
+        assert dev.doIsAtTarget() is False
+        assert dev.isAtTarget(target=1111) is True
+        assert dev.isAtTarget(target=2000) is False
+        assert dev.isAtTarget(dev.read(0)) is False
+        assert dev.isAtTarget(dev.read(0), target=1111) is True
+        assert dev.isAtTarget(dev.read(0), target=2000) is False
+
+    def test_is_at_target_has_target(self, session):
+        dev = session.getDevice('det1_z')
+        dev._setROParam('target', 1000)
+        assert dev.doIsAtTarget() is False
+
+    def test_is_at_target_adev_has_target(self, session):
+        dev = session.getDevice('det1_z')
+        dev._attached_device._setROParam('target', 1000)
+        assert dev.doIsAtTarget() is False

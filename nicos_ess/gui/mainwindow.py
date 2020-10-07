@@ -29,7 +29,6 @@ import os
 
 from time import time as current_time
 
-from nicos.clients.gui.dialogs.auth import ConnectionDialog
 from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow
 from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
     QMenu, QPixmap, QPoint, QSizePolicy, Qt, QWidget, pyqtSlot
@@ -52,13 +51,6 @@ class Spacer(QWidget):
 
 
 class MainWindow(DefaultMainWindow):
-    """
-    Options:
-
-    * ``ess_gui`` (default False) -- Use the GUI setup defined during the
-      ESS-UX workshop.
-    """
-
     ui = '%s/main.ui' % uipath
 
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
@@ -212,28 +204,10 @@ class MainWindow(DefaultMainWindow):
             QIcon("resources/material/icons/power-24px.svg"))
 
     @pyqtSlot(bool)
-    def on_actionConnect_triggered(self, on):
+    def on_actionConnect_triggered(self, _):
         # connection or disconnection request?
-        if self.current_status == 'idle':
-            self.client.disconnect()
-            if self.tunnelServer:
-                self.tunnelServer.stop()
-                self.tunnelServer = None
-            return
-
-        new_name, new_data, save, tunnel = ConnectionDialog.\
-            getConnectionData(self, self.connpresets, self.lastpreset,
-                              self.conndata, self.tunnel)
-
-        if new_data is None:
-            return
-        if save:
-            self.lastpreset = save
-            self.connpresets[save] = new_data
-        else:
-            self.lastpreset = new_name
-        self.conndata = new_data
-        self.client.connect(self.conndata)
+        connection_req = self.current_status == "disconnected"
+        super().on_actionConnect_triggered(connection_req)
 
     @pyqtSlot()
     def on_actionUser_triggered(self):

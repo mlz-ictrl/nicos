@@ -23,7 +23,7 @@ _modecol = Column(
         BlockRow(
             Field(name='Collimation', key='optic/mode', width=34),
             Field(name='Angle', dev='optic', width=34),
-            ),
+        ),
         ],
     ),
 )
@@ -122,7 +122,7 @@ _collimationcol = Column(
                   widget='nicos_mlz.refsans.gui.monitorwidgets.BeamPosition',
                   options=['slit'],#, 'gisans', 'pinhole'],
                   width=6.5, height=wig_height),
-            ),
+        ),
         ],
     ),
 )
@@ -135,16 +135,17 @@ _collimationcol = Column(
 
 _ChopperBurg = Column(
     Block('Vertical Shifts for Optic Elements in the Chopper System', [
-        BlockRow(Field(name='nok2\u1d63',  dev='nok2r_axis', width=layout_width, unit='(mm)'),
-                 Field(name='nok2\u209b',  dev='nok2s_axis', width=layout_width, unit='(mm)'),
-                 Field(name='nok3\u1d63',  dev='nok3r_axis', width=layout_width, unit='(mm)'),
-                 Field(name='nok3\u209b',  dev='nok3s_axis', width=layout_width, unit='(mm)'),
-                 Field(name='nok4\u1d63',  dev='nok4r_axis', width=layout_width, unit='(mm)'),
-                 Field(name='nok4\u209b',  dev='nok4s_axis', width=layout_width, unit='(mm)'),
-                 Field(name='disk3',       dev='disc3', width=layout_width, unit='(mm)'),
-                 Field(name='disk4',       dev='disc4', width=layout_width, unit='(mm)'),
-                 Field(name='b\u2081',     dev='b1.center', width=layout_width, unit='(mm)'),
-                 ),
+        BlockRow(
+            Field(name='nok2\u1d63', dev='nok2r_axis', width=layout_width, unit='(mm)'),
+            Field(name='nok2\u209b', dev='nok2s_axis', width=layout_width, unit='(mm)'),
+            Field(name='nok3\u1d63', dev='nok3r_axis', width=layout_width, unit='(mm)'),
+            Field(name='nok3\u209b', dev='nok3s_axis', width=layout_width, unit='(mm)'),
+            Field(name='nok4\u1d63', dev='nok4r_axis', width=layout_width, unit='(mm)'),
+            Field(name='nok4\u209b', dev='nok4s_axis', width=layout_width, unit='(mm)'),
+            Field(name='disk3',      dev='disc3', width=layout_width, unit='(mm)'),
+            Field(name='disk4',      dev='disc4', width=layout_width, unit='(mm)'),
+            Field(name='b\u2081',    dev='b1.center', width=layout_width, unit='(mm)'),
+        ),
         ],
     ),
 )
@@ -153,27 +154,27 @@ _ChopperBurg = Column(
 _SFKammer = Column(
     Block('Vertical Shifts for Optic Elements in the Neutron Guide System', [
         BlockRow(
-                 Field(name='nok5a\u1d63', dev='nok5a.reactor', width=layout_width, unit='(mm)'),
-                 Field(name='nok5a\u209b', dev='nok5a.sample', width=layout_width, unit='(mm)'),
-                 Field(name='zb\u2080',    dev='zb0_motor', width=layout_width, unit='(mm)'),
-                 Field(name='nok5b\u1d63', dev='nok5b.reactor', width=layout_width, unit='(mm)'),
-                 Field(name='nok5b\u209b', dev='nok5b.sample', width=layout_width, unit='(mm)'),
-                 Field(name='zb\u2081',    dev='zb1_motor', width=layout_width, unit='(mm)'),
-                 Field(name='nok6\u1d63',  dev='nok6r_motor', width=layout_width, unit='(mm)'),
-                 Field(name='nok6\u209b',  dev='nok6s_motor', width=layout_width, unit='(mm)'),
-                 Field(name='zb\u2082',    dev='zb2_motor', width=layout_width, unit='(mm)'),
-                 ),
+            Field(name='nok5a\u1d63', dev='nok5a.reactor', width=layout_width, unit='(mm)'),
+            Field(name='nok5a\u209b', dev='nok5a.sample', width=layout_width, unit='(mm)'),
+            Field(name='zb\u2080',    dev='zb0_motor', width=layout_width, unit='(mm)'),
+            Field(name='nok5b\u1d63', dev='nok5b.reactor', width=layout_width, unit='(mm)'),
+            Field(name='nok5b\u209b', dev='nok5b.sample', width=layout_width, unit='(mm)'),
+            Field(name='zb\u2081',    dev='zb1_motor', width=layout_width, unit='(mm)'),
+            Field(name='nok6\u1d63',  dev='nok6r_motor', width=layout_width, unit='(mm)'),
+            Field(name='nok6\u209b',  dev='nok6s_motor', width=layout_width, unit='(mm)'),
+            Field(name='zb\u2082',    dev='zb2_motor', width=layout_width, unit='(mm)'),
+        ),
         BlockRow(
-                 Field(name='nok7\u1d63',  dev='nok7r_motor', width=layout_width, unit='(mm)'),
-                 Field(name='nok7\u209b',  dev='nok7s_motor', width=layout_width, unit='(mm)'),
-                 Field(name='zb\u2083',    dev='zb3.center', width=layout_width, unit='(mm)'),
-                 Field(name='nok8\u1d63',  dev='nok8r_motor', width=layout_width, unit='(mm)'),
-                 Field(name='nok8\u209b',  dev='nok8s_motor', width=layout_width, unit='(mm)'),
-                 Field(name='bs\u2081',    dev='bs1.center', width=layout_width, unit='(mm)'),
-                 Field(name='nok9\u1d63',  dev='nok9r_motor', width=layout_width, unit='(mm)'),
-                 Field(name='nok9\u209b',  dev='nok9s_motor', width=layout_width, unit='(mm)'),
-                 Field(name='SC\u2082',    dev='sc2', width=layout_width, unit='(mm)'),
-                 ),
+            Field(name='nok7\u1d63', dev='nok7r_motor', width=layout_width, unit='(mm)'),
+            Field(name='nok7\u209b', dev='nok7s_motor', width=layout_width, unit='(mm)'),
+            Field(name='zb\u2083',   dev='zb3.center', width=layout_width, unit='(mm)'),
+            Field(name='nok8\u1d63', dev='nok8r_motor', width=layout_width, unit='(mm)'),
+            Field(name='nok8\u209b', dev='nok8s_motor', width=layout_width, unit='(mm)'),
+            Field(name='bs\u2081',   dev='bs1.center', width=layout_width, unit='(mm)'),
+            Field(name='nok9\u1d63', dev='nok9r_motor', width=layout_width, unit='(mm)'),
+            Field(name='nok9\u209b', dev='nok9s_motor', width=layout_width, unit='(mm)'),
+            Field(name='SC\u2082',   dev='sc2', width=layout_width, unit='(mm)'),
+        ),
         ],
     ),
 )
@@ -181,11 +182,11 @@ _SFKammer = Column(
 _probort = Column(
     Block('Vertical/Horizontal Shifts for Optic Elements at Sample Position', [
         BlockRow(
-                Field(name='b\u2082',     dev='b2.center', width=layout_width, unit='(mm)'),
-                Field(name='h\u2082',     dev='h2_center', width=layout_width, unit='(mm)'),
-                Field(name='b\u2083',     dev='b3.center', width=layout_width, unit='(mm)'),
-                Field(name='h\u2083',     dev='h3.center', width=layout_width, unit='(mm)'),
-                ),
+            Field(name='b\u2082', dev='b2.center', width=layout_width, unit='(mm)'),
+            Field(name='h\u2082', dev='h2_center', width=layout_width, unit='(mm)'),
+            Field(name='b\u2083', dev='b3.center', width=layout_width, unit='(mm)'),
+            Field(name='h\u2083', dev='h3.center', width=layout_width, unit='(mm)'),
+        ),
         ],
     ),
 )
@@ -193,14 +194,14 @@ _probort = Column(
 _apertures_slits = Column(
     Block('Apertures for movable slits', [
         BlockRow(
-                Field(name='b\u2081',     dev='b1.height', width=layout_width, unit='(mm)'),
-                Field(name='zb\u2083',    dev='zb3.height', width=layout_width, unit='(mm)'),
-                Field(name='bs\u2081',    dev='bs1.height', width=layout_width, unit='(mm)'),
-                Field(name='b\u2082',     dev='b2.height', width=layout_width, unit='(mm)'),
-                Field(name='h\u2082',     dev='h2_width', width=layout_width, unit='(mm)'),
-                Field(name='b\u2083',     dev='b3.height', width=layout_width, unit='(mm)'),
-                Field(name='h\u2083',     dev='h3.height', width=layout_width, unit='(mm)'),
-                ),
+            Field(name='b\u2081',  dev='b1.height', width=layout_width, unit='(mm)'),
+            Field(name='zb\u2083', dev='zb3.height', width=layout_width, unit='(mm)'),
+            Field(name='bs\u2081', dev='bs1.height', width=layout_width, unit='(mm)'),
+            Field(name='b\u2082',  dev='b2.height', width=layout_width, unit='(mm)'),
+            Field(name='h\u2082',  dev='h2_width', width=layout_width, unit='(mm)'),
+            Field(name='b\u2083',  dev='b3.height', width=layout_width, unit='(mm)'),
+            Field(name='h\u2083',  dev='h3.height', width=layout_width, unit='(mm)'),
+        ),
         ],
     ),
 )
