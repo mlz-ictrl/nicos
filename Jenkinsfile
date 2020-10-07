@@ -313,11 +313,13 @@ node('dockerhost') {
     stage(name: 'checkout code: ' + GERRIT_PROJECT) {
         checkoutSource()
     }
+u18 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bionic')
+//c8 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:centos8')
 
     stage(name: 'prepare') {
         withCredentials([string(credentialsId: 'RMAPIKEY', variable: 'RMAPIKEY'),
                          string(credentialsId: 'RMSYSKEY', variable: 'RMSYSKEY')]) {
-            docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bionic').inside(){
+           u18.inside(){
                 sh  '''\
 #!/bin/bash
 export PYTHONIOENCODING=utf-8
@@ -327,8 +329,6 @@ export PYTHONIOENCODING=utf-8
         } // credentials
     } // stage
 
-u18 = docker.image('docker.ictrl.frm2.tum.de:5443jenkins/nicos-jenkins:bionic')
-//c8 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:centos8')
 
 try {
     parallel pylint: {
