@@ -65,6 +65,7 @@ If not mentioned otherwise, Python packages are available from PyPI
   - python-redmine (optional, for the bug reporting dialog)
   - sshtunnel (optional, for the ssh tunneling between GUI and server)
   - python-nxs (optional, for writing NeXus files, readable by Mantid)
+  - dvipng (optional, for the hklplot command, this is not a Python package)
 
 * For development (running tests, generating documentation):
 
@@ -124,6 +125,7 @@ https://forge.frm2.tum.de/wiki/projects:software_distribution:deb
 * GUI and status monitor::
 
      apt-get install python3-{pyqt5,pyqt5.qsci,pyqt5.qtwebengine,gr}
+     apt-get install dvipng texlive-{latex-extra,fonts-recommended} cm-super
 
 * Development and documentation build::
 
