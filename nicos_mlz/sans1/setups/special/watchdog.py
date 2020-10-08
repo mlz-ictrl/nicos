@@ -66,7 +66,7 @@ watchlist = [
          type = None,
          gracetime = 30,
     ),
-    dict(condition = 'p_diff_wut_value > 0.5',
+    dict(condition = 'p_diff_filter_value > 0.5',
          message = 'Differential pressure at filter above 0.5 bar!\nClean Filter.',
          #type = 'critical',
          type = None,
