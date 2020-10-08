@@ -10,28 +10,21 @@ group = 'lowlevel'
 sysconfig = dict(
     cache = 'localhost',
     # Adapt this name to your instrument's name (also below).
-    instrument = 'Skeleton',
+
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
-    notifiers = ['email'],
+    notifiers = [],  # 'email'],
 )
 
 modules = ['nicos.commands.standard']
 
 includes = [
-#    'notifiers',
+    'notifiers',
 ]
 
 devices = dict(
-    Skeleton = device('nicos.devices.instrument.Instrument',
-        description = 'instrument object',
-        instrument = 'SKELETON',
-        responsible = 'R. Esponsible <r.esponsible@example.host>',
-        website = 'http://instrument.website',
-        operators = ['operator facility'],
-        facility = 'Your facility',
-    ),
-    Sample = device('nicos.devices.sample.Sample',
+
+    Sample = device('nicos.devices.tas.TASSample',
         description = 'The currently used sample',
     ),
 

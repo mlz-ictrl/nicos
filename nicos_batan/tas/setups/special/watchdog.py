@@ -23,6 +23,7 @@ watchlist = [
     #     condition = 't_value > 100',
     #     message = 'Temperature too high',
     #     type = 'critical',
+    #     setup = 'cryo',
     #     action = 'maw(T, 0)',
     # ),
     # dict(
@@ -37,8 +38,8 @@ includes = [
 ]
 
 notifiers = {
-    'default': [],  # ['email'],
-    'critical': [],  # ['email'],
+    # 'default': ['email'],
+    # 'critical': ['email'],
 }
 
 devices = dict(

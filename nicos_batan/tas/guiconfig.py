@@ -14,7 +14,10 @@ main_window = docked(
            dockpos='right'),
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel'),
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
+        sample_panel = panel('nicos.clients.gui.panels.setup_panel.TasSamplePanel',
+                             setups='tas',)
+        ),
     ),
 )
 
@@ -36,7 +39,7 @@ windows = [
 ]
 
 tools = [
-    # tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
+    tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
          # If you are not at the FRM II facility you have to change this
          # reporting address
          # receiver='useroffice@mlz-garching.de',
@@ -45,8 +48,8 @@ tools = [
          # mailserver='smtp.frm2.tum.de',
          # Please change the sender address to a valid, instrument specific
          # address
-    #      sender='demo@frm2.tum.de',
-    #     ),
+         sender='demo@frm2.tum.de',
+        ),
     tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),
     tool('Neutron cross-sections',
          'nicos.clients.gui.tools.website.WebsiteTool',

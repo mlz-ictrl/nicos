@@ -275,6 +275,12 @@ def test_sweeps(session):
     dataset = dataman.getLastScans()[-1]
     assert dataset.envvaluelists[-1][0] == 5
 
+    sweep(m, 1, 5, minstep=1)
+    sweep(m, 1, 5, delay=1)
+    sweep(m, 1, 5, minstep=1, delay=1)
+
+    assert raises(UsageError, sweep, m, 1, 5, minstep=[1, 1])
+
 
 def test_contscan(session):
     m = session.getDevice('motor')

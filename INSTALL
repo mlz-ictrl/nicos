@@ -94,7 +94,7 @@ pip can be obtained from https://pip.pypa.io/en/stable/
 
 For Ubuntu::
 
-  sudo apt-get install python-pip
+  sudo apt-get install python3-pip
 
 
 Packages to install for common distributions
@@ -109,20 +109,23 @@ Debian/Ubuntu
 You might have to use ``deb [trusted=yes]`` for the GR repository as the GPG signing
 is currently broken.
 
+The `pyctl` and `lttb` packages are available in the MLZ repositories linked at:
+https://forge.frm2.tum.de/wiki/projects:software_distribution:deb
+
 * Basic system::
 
-     apt-get install python-{dev,zmq,numpy,scipy,psutil,rsa,six,systemd} gnuplot
+     apt-get install python3-{dev,zmq,numpy,scipy,psutil,rsa,six,systemd} gnuplot
+     apt-get install python3-{keyring,keyrings.alt,crypto,lxml,html2text,lttb,nicos-pyctl}
 
 * Optional components::
 
-     apt-get install python-{mysql.connector,docutils,serial,matplotlib,astropy}
-     apt-get install python-{lxml,ldap3,crypto,keyring,keyrings.alt}
+     apt-get install python3-{mysql.connector,docutils,serial,matplotlib,astropy,h5py}
 
 * GUI and status monitor::
 
-     apt-get install python-{pyqt5,pyqt5.qsci,gr}
+     apt-get install python3-{pyqt5,pyqt5.qsci,pyqt5.qtwebengine,gr}
 
 * Development and documentation build::
 
-     apt-get install python-{sip-dev,pytest,pytest-cov,mock,coverage,sphinx}
-     apt-get install pyqt5-{dev,dev-tools}
+     apt-get install python3-{sip-dev,pytest,pytest-cov,mock,coverage,sphinx}
+     apt-get install python3-pyqt5-{dev,dev-tools}
