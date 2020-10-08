@@ -40,7 +40,7 @@ If not mentioned otherwise, Python packages are available from PyPI
   - scipy (for data fitting)
   - docutils (for formatting interactive help nicely)
   - matplotlib (for resolution plots)
-  - gnuplot (for plots in the electronig logbook)
+  - gnuplot (for plots in the electronic logbook)
   - Grace (for scanplot)
   - mysql-connector-python (preferred) or MySQLdb (for proposal DB query)
   - lxml (for U-Bahn service)
