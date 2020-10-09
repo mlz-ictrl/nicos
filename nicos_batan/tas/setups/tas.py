@@ -19,9 +19,9 @@ devices = dict(
         operators = ['BATAN SN1 developer team'],
         facility = 'Neutron Scattering Laboratory - National Nuclear Energy Agency of Indonesia, BATAN',
         energytransferunit = 'meV',
-        scatteringsense = (-1, 1, -1),
+        scatteringsense = (1, -1, 1),
         axiscoupling = False,
-        collimation = '60 30 30 60',
+        collimation = '60 40 40 60',
         cell = 'Sample',
         phi = 'phi',
         psi = 'sth',
@@ -45,7 +45,7 @@ devices = dict(
     ),
     psi = device('nicos.devices.generic.VirtualMotor',
         description = 'sample rotation angle',
-        abslimits = (0, 360),
+        abslimits = (-180, 180),
         unit = 'deg',
         speed = 2,
     ),
@@ -64,14 +64,14 @@ devices = dict(
     mth = device('nicos.devices.generic.VirtualMotor',
         description = 'monochromator rocking angle',
         unit = 'deg',
-        abslimits = (-90, 0),
+        abslimits = (0, 37),
         precision = 0.05,
         speed = 0.5,
     ),
     mtt = device('nicos.devices.generic.VirtualMotor',
         description = 'monochromator scattering angle',
         unit = 'deg',
-        abslimits = (-180, 0),
+        abslimits = (0, 75),
         precision = 0.05,
         speed = 0.5,
     ),
@@ -96,7 +96,7 @@ devices = dict(
     att = device('nicos.devices.generic.VirtualMotor',
         description = 'analyzer scattering angle',
         unit = 'deg',
-        abslimits = (-180, 180),
+        abslimits = (0, 90),
         precision = 0.05,
         speed = 0.5,
     ),
@@ -258,12 +258,12 @@ if mth() == 0:
     ath.speed = att.speed = 0.5
 SetDetectors(vdet)
 
-printinfo("============================================================")
+printinfo("===================================================================")
 printinfo("Welcome to the NICOS BATAN Triple-Axis Spectrometer SN1 demo setup.")
 printinfo("This demo is configured as a virtual triple-axis instrument.")
 printinfo("Try doing an elastic scan over a Bragg peak, e.g.")
 printinfo("  > qcscan((1, 0, 0, 0), (0.002, 0, 0, 0), 10, t=1, kf=1.4)")
 printinfo("or an energy scan, e.g.")
 printinfo("  > qscan((1, 0.2, 0, 4), (0, 0, 0, 0.2), 21, t=1, kf=1.55)")
-printinfo("============================================================")
+printinfo("===================================================================")
 '''
