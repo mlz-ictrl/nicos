@@ -48,6 +48,7 @@ devices = dict(
     s_tripped = device('nicos.devices.generic.ManualSwitch',
         description = 'Trip indicator',
         states = ['', 'High current seen', 'High current', 'Trip'],
+        pollinterval = 1,
     ),
     s_hv = device('nicos_mlz.erwin.devices.charmhv.HVSwitch',
         description = 'HV supply small detector',
@@ -55,6 +56,7 @@ devices = dict(
         banodes = ['s_banode1'],
         cathodes = ['s_cathode1', 's_cathode2'],
         window = 's_window',
+        trip = 's_tripped',
         mapping = {
             'on': {
                 's_anode1': 2175,

@@ -34,6 +34,7 @@ devices = dict(
             'High current': 2,
             'Trip': 3,
         },
+        pollinterval = 1,
     ),
     b_hv = device('nicos_mlz.erwin.devices.charmhv.HVSwitch',
         description = 'HV supply small detector',
@@ -41,6 +42,7 @@ devices = dict(
         banodes = ['b_banode%d' % i for i in range(1, 9)],
         cathodes = ['b_cathode1', 'b_cathode2'],
         window = 'b_window',
+        trip = 'b_tripped',
         mapping = {
             'on': {
                 'b_anode1': 2190,
