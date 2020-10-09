@@ -3,7 +3,6 @@
 description = 'Analyser rotation'
 group = 'optional'
 
-taco_base = '//resedasrv.reseda.frm2/reseda'
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 
 devices = dict(
