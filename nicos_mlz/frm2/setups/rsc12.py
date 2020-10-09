@@ -9,7 +9,7 @@ tango_base = 'tango://%s:10000/' % setupname
 devices = {
     'sth_%s' % setupname: device('nicos.devices.tango.MotorAxis',
         description = 'Newport z rotation axis',
-        tangodevice = tango_base + 'box/newport/motor',
+        tangodevice = tango_base + 'box/newport/sth',
         fmtstr = '%.3f',
         unit = 'deg',
     ),

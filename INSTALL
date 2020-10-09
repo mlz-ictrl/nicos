@@ -40,7 +40,7 @@ If not mentioned otherwise, Python packages are available from PyPI
   - scipy (for data fitting)
   - docutils (for formatting interactive help nicely)
   - matplotlib (for resolution plots)
-  - gnuplot (for plots in the electronig logbook)
+  - gnuplot (for plots in the electronic logbook)
   - Grace (for scanplot)
   - mysql-connector-python (preferred) or MySQLdb (for proposal DB query)
   - lxml (for U-Bahn service)
@@ -119,7 +119,7 @@ https://forge.frm2.tum.de/wiki/projects:software_distribution:deb
 
 * Optional components::
 
-     apt-get install python3-{mysql.connector,docutils,serial,matplotlib,astropy,h5py}
+     apt-get install python3-{ldap3,mysql.connector,docutils,serial,matplotlib,astropy,h5py}
 
 * GUI and status monitor::
 
