@@ -40,7 +40,7 @@ watchlist = [
          # setup = 'source',
          message = 'High voltage current too high',
          type = 'critical',
-         action = 'move(s_hv, "Off")',
+         action = 'move(s_hv, "off")',
          # gracetime = 5,
     ),
 ]
