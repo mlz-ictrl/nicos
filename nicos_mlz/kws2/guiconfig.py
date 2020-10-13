@@ -27,7 +27,7 @@ main_window = tabbed(
             ('Al 3-level',          (9,  3, 'sam_trans_x', 27,    'sam_trans_y', 75)),
             ('Al 3-level Narrow',   (12, 3, 'sam_trans_x', 20,    'sam_trans_y', 75)),
             ('Al Wide (T-contr.)',  (9,  2, 'sam_trans_x', 26.6,  'sam_trans_y', 105)),
-            ('Al Narrow (T-contr.)',(16, 2, 'sam_trans_x', 15,    'sam_trans_y', 105)),
+            ('Al Narrow (T-contr.)',(12, 2, 'sam_trans_x', 20.5,  'sam_trans_y', 105)),
             ('Al Round (T-contr.)', (10, 2, 'sam_trans_x', 24,    'sam_trans_y', 105)),
             ('Peltier 6',           (6,  1, 'sam_trans_x', 36.56, 'sam_trans_y', 0)),
             ('Peltier 8',           (8,  1, 'sam_trans_x', 36.56, 'sam_trans_y', 0)),
