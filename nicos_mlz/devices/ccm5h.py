@@ -19,16 +19,17 @@
 #
 # Module author:
 #   Alexander Lenz <alexander.lenz@frm2.tum.de>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""Devices for the SANS-1 oxford magnet (ccmsans)."""
+"""Devices for the SANS-1 oxford magnet (ccm5h)."""
 
-from nicos.core import HasTimeout, Override, Param, oneof, status
-from nicos.devices.taco.power import CurrentSupply
+from nicos.core import HasTimeout, Override, Param, oneof
+from nicos.devices.tango import Actuator
 
 
-class AsymmetricMagnet(HasTimeout, CurrentSupply):
+class AsymmetricMagnet(HasTimeout, Actuator):
     """Class for the asymmetric ccmsans.
 
     Provides the ability to set the current field, and the asymmetry ratio.
@@ -36,14 +37,9 @@ class AsymmetricMagnet(HasTimeout, CurrentSupply):
 
     parameters = {
         'asymmetry': Param('Asymmetry ratio',
-                           type=oneof(0.0, 0.11, 0.25, 0.39, 0.53, 0.70),
+                           type=oneof(0, 11, 25, 39, 53, 70),
                            settable=True,
                            volatile=True),
-    }
-
-    parameter_overrides = {
-        # default timeout: doTime() + 5 mins
-        'timeout': Override(mandatory=False, default=300),
     }
 
     parameter_overrides = {
@@ -51,11 +47,8 @@ class AsymmetricMagnet(HasTimeout, CurrentSupply):
         'timeout': Override(mandatory=False, default=5400 + 300)
     }
 
-    busystates = (status.BUSY, status.ERROR)
-    valuetype = float
-
     def doReadAsymmetry(self):
-        return float(self._taco_guard(self._dev.deviceQueryResource, 'asymmetry'))
+        return self._dev.asymmetry
 
     def doWriteAsymmetry(self, value):
-        self._taco_update_resource('asymmetry', str(value))
+        self._dev.asymmetry = value
