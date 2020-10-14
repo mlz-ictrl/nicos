@@ -114,6 +114,6 @@ class HVSwitch(SequencerMixin, MappedMoveable):
 
     def _startRaw(self, target):
         seq = self._generateSequence(self.target)
-        if self.target in ['Off', 'Safe']:
+        if self.target in ['off', 'safe']:
             seq.reverse()
         self._startSequence(seq)
