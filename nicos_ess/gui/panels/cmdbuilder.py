@@ -38,7 +38,7 @@ class CommandPanel(DefaultCommandPanel):
     """
 
     panelName = 'Command'
-    ui = '%s/panels/cmdbuilder.ui' % uipath
+    ui = '%s/panels/ui_files/cmdbuilder.ui' % uipath
     frame_visible = False
 
     def __init__(self, parent, client, options):

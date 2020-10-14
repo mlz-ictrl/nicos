@@ -25,9 +25,15 @@ _expcolumn = Column(
 
 _translationColumn = Column(
     Block('Sample translation', [
-        BlockRow(Field(dev='stx'),),
-        BlockRow(Field(dev='sty'),),
-        BlockRow(Field(dev='sry'),),
+        BlockRow(
+            Field(dev='stx'),
+        ),
+        BlockRow(
+            Field(dev='sty'),
+        ),
+        BlockRow(
+            Field(dev='sry'),
+        ),
         ],
         setups='servostar',
     ),
@@ -38,7 +44,8 @@ _detectorikonlblock = Block('Detector', [
             Field(name='Last Image', key='exp/lastpoint'),
         ),
         BlockRow(
-            Field(dev='ccdTemp'), Field(name='CCD status', key='ccd/status[1]', width=15),
+            Field(dev='ccdTemp'),
+            Field(name='CCD status', key='ccd/status[1]', width=15),
         ),
         BlockRow(
             Field(name='bin', key='ccd.bin'),
@@ -60,7 +67,8 @@ _detectorneoblock = Block('Detector', [
             Field(name='Last Image', key='exp/lastpoint'),
         ),
         BlockRow(
-            Field(dev='temp_neo'), Field(name='CCD status', key='neo/status[1]', width=15),
+            Field(dev='temp_neo'),
+            Field(name='CCD status', key='neo/status[1]', width=15),
         ),
         BlockRow(
             Field(name='bin', key='neo.bin'),
@@ -83,7 +91,9 @@ _detectorColumn = Column(
 
 _ubahnColumn = Column(
     Block('U-Bahn', [
-        BlockRow(Field(dev='UBahn'),),
+        BlockRow(
+            Field(dev='UBahn'),
+        ),
         ],
         setups='ubahn',
     ),

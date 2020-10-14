@@ -43,7 +43,7 @@ class RunningScriptPanel(Panel):
     """Provides a panel that shows the command that is currently executed."""
 
     panelName = 'Script status'
-    ui = '%s/panels/runningscript.ui' % uipath
+    ui = '%s/panels/ui_files/runningscript.ui' % uipath
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)

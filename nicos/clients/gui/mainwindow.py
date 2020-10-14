@@ -203,10 +203,6 @@ class MainWindow(DlgUtils, QMainWindow):
             lambda hide: self.setVisible(not hide))
         self.trayIcon.setContextMenu(self.trayMenu)
 
-        self.statusLabel = QLabel('', self, pixmap=QPixmap(':/disconnected'),
-                                  margin=5, minimumSize=QSize(30, 10))
-        self.toolBarMain.addWidget(self.statusLabel)
-
         # help window
         self.helpWindow = None
         # watchdog window
@@ -215,6 +211,14 @@ class MainWindow(DlgUtils, QMainWindow):
         self.pnpWindows = {}
 
         # create initial state
+        self._init_toolbar()
+
+    def _init_toolbar(self):
+        self.statusLabel = QLabel('', self, pixmap=QPixmap(':/disconnected'),
+                                  margin=5, minimumSize=QSize(30, 10))
+
+        self.toolbar = self.toolBarMain
+        self.toolbar.addWidget(self.statusLabel)
         self.setStatus('disconnected')
 
     def addPanel(self, panel, always=True):

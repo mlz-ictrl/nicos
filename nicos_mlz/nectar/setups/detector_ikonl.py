@@ -5,7 +5,7 @@ description = 'Andor IKON-L CCD camera'
 group = 'optional'
 
 includes = ['filesavers']
-excludes = ['detector']
+excludes = ['detector', 'detector_neo']
 
 tango_base = 'tango://nectarccd01.nectar.frm2:10000/nectar/'
 nethost = 'nectarsrv.nectar.frm2'  # taco
@@ -21,7 +21,7 @@ devices = dict(
         timers = ['timer'],
     ),
     ccd = device('nicos.devices.vendor.lima.Andor2LimaCCD',
-        description = 'The CCD detector',
+        description = 'The CCD detector image',
         tangodevice = tango_base + 'detector/limaccd',
         hwdevice = tango_base + 'detector/ikonl',
         pollinterval = 5,
@@ -45,6 +45,16 @@ devices = dict(
         unit = 'degC',
         precision = 3,
         fmtstr = '%.0f',
+    ),
+    sharpness = device('nicos_mlz.antares.devices.detector.Sharpness',
+        description = 'Sharpness signal from the detector image'
+    ),
+    det_sharp = device('nicos.devices.generic.Detector',
+        description = 'The Andor Ikon L camera detector with sharpness signal',
+        images = ['ccd'],
+        timers = ['timer'],
+        counters = ['sharpness'],
+        postprocess = [('sharpness', 'ccd')],
     ),
 )
 

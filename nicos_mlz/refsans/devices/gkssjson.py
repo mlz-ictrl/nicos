@@ -26,7 +26,8 @@
 
 import requests
 
-from nicos.core import Override, Param, Readable, intrange, oneof, status
+from nicos.core import Override, Param, Readable, intrange, oneof, status, \
+    usermethod
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     NicosError
 from nicos.core.mixins import HasOffset
@@ -56,12 +57,12 @@ class JsonBase(Readable):
             self.log.info(line)
             self.log.info('url %s' % self.url)
             self.log.info('err %s' % e)
-            raise CommunicationError(self, 'HTTP Timeout failed')
+            raise CommunicationError(self, 'HTTP Timeout failed') from e
         except Exception as e:
             self.log.info(line)
             self.log.info('url %s' % self.url)
             self.log.info('err %s' % e)
-            raise ConfigurationError(self, 'HTTP request failed')
+            raise ConfigurationError(self, 'HTTP request failed') from e
         res = {}
         for key in keys:
             res[key] = data[key]
@@ -136,6 +137,13 @@ class SdsRatemeter(JsonBase):
         'channel': Param('Channel to be rated',
                          type=oneof('a', 'x', 'y'), default='a',
                          settable=False),
+        'mode': Param('mode of the beam',
+                      type=oneof('reflectivity', 'gisans'),
+                      settable=True, userparam=True, default='gisans'),
+        'masks': Param('Maps mask to attached devices positions',
+                       type=dict, mandatory=True),
+        'controlurl': Param('URL to the control side',
+                            type=str, userparam=False),
     }
 
     parameter_overrides = {
@@ -143,13 +151,36 @@ class SdsRatemeter(JsonBase):
         'unit': Override(default='cps'),
     }
 
+    def doWriteMode(self, target):
+        self.log.debug('WriteMode to: %s', target)
+        val = int(self.masks[target])
+        try:
+            res = requests.post(self.controlurl, timeout=self.timeout,
+                                data={'mon_limit_start': '%d' % val})
+            if res.status_code != 200:
+                self.log.error('write mode: res %d %s', res.status_code,
+                               res.reason)
+            res.close()
+        except ConnectionError as e:
+            self.log.error('write mode: %s', e)
+
+    @usermethod
+    def clear(self):
+        try:
+            res = requests.post(self.controlurl, timeout=self.timeout,
+                                data={'mon_button': '1'})
+            if res.status_code != 200:
+                self.log.error('clear res: %d %s', res.status_code, res.reason)
+            res.close()
+        except ConnectionError as e:
+            self.log.error('clear: %s', e)
+
     def doStatus(self, maxage=0):
         try:
             res = self._read_controller([self.valuekey])
             if int(res[self.valuekey]) == 0:
                 return status.OK, ''
-            else:
-                return status.ERROR, 'System tripped! please clear'
+            return status.ERROR, 'System tripped! Please, clear.'
         except CommunicationError:
             return status.WARN, 'Timeout during talk to the hardware.'
         except NicosError:

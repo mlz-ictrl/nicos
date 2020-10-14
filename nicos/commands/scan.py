@@ -307,10 +307,14 @@ def sweep(dev, start, end, *args, **kwargs):
     long as T is still moving.  *start* can be None to start moving towards the
     *end* immediately without moving to a starting value first.
 
-    A special "delay" argument is supported to allow time delays between two
-    points:
+    Special arguments "delay" (in seconds) and "minstep" (in device units)
+    are supported to allow delays between two points. They can be combined
+    which will wait for both conditions (minimum time and also step between
+    points):
 
-    >>> sweep(T, 10, 100, t=2, delay=5)
+    >>> sweep(T, 10, 20, t=2, delay=5)      # minimum 2 points based on ramp
+    >>> sweep(T, 10, 20, t=2, minstep=0.5)  # 21 points
+    >>> sweep(T, 10, 20, t=2, delay=5, minstep=0.5)  # 2-21 points
     """
     # XXX: the SweepScan supports a) max #points and b) multiple devices, but
     # we don't offer that in this simplified interface until it's actually

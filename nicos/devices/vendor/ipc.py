@@ -298,7 +298,8 @@ class IPCModBusRS232(HasCommunication, IPCModBus):
                 return int(response[2:-3])
             except ValueError as err:
                 raise CommunicationError(
-                    self, 'invalid response: missing value (%s)' % err)
+                    self, 'invalid response: missing value (%s)' % err
+                ) from err
 
     def ping(self, addr):
         if 32 <= addr <= 255:
@@ -312,8 +313,9 @@ class IPCModBusRS232(HasCommunication, IPCModBus):
     def send(self, addr, cmd, param=0, length=0):
         try:
             cmdname, limits, retlen = IPC_MAGIC[cmd]
-        except KeyError:
-            raise ProgrammingError(self, 'Command %s not supported' % cmd)
+        except KeyError as err:
+            raise ProgrammingError(
+                self, 'Command %s not supported' % cmd) from err
         if limits:
             if length != limits[0] or not limits[1] <= param <= limits[2]:
                 raise ProgrammingError(self, 'Parameter %s outside allowed '
@@ -414,7 +416,7 @@ class IPCModBusTCP(IPCModBusRS232):
         except OSError as err:
             if last_try:
                 raise CommunicationError(
-                    self, 'tcp connection failed: %s' % err)
+                    self, 'tcp connection failed: %s' % err) from err
             # try reopening connection
             self.log.warning('tcp connection failed, retrying', exc=1)
             self.doReset()
@@ -459,7 +461,8 @@ class IPCModBusSerial(IPCModBusRS232):
                     return response
         except OSError as err:
             if last_try:
-                raise CommunicationError(self, 'serial line failed: %s' % err)
+                raise CommunicationError(
+                    self, 'serial line failed: %s' % err) from err
             # try reopening connection
             self.log.warning('serial line failed, resetting', exc=1)
             self.doReset()
@@ -629,8 +632,9 @@ class Coder(NicosCoder):
             self._attached_bus.send(self.addr, 157, 0, 3)
             session.delay(0.5)
             self.doReset()
-        except Exception:
-            raise CommunicationError(self, 'cannot clear alarm for encoder')
+        except Exception as err:
+            raise CommunicationError(
+                self, 'cannot clear alarm for encoder') from err
 
 
 class Resolver(Coder):
@@ -824,8 +828,9 @@ class Motor(HasTimeout, NicosMotor):
     def doWriteRamptype(self, value):
         try:
             self._attached_bus.send(self.addr, 50, value, 3)
-        except InvalidCommandError:
-            raise InvalidValueError(self, 'ramp type not supported by card')
+        except InvalidCommandError as err:
+            raise InvalidValueError(
+                self, 'ramp type not supported by card') from err
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 
@@ -840,8 +845,9 @@ class Motor(HasTimeout, NicosMotor):
     def doWriteDivider(self, value):
         try:
             self._attached_bus.send(self.addr, 60, value, 3)
-        except InvalidCommandError:
-            raise InvalidValueError(self, 'divider not supported by card')
+        except InvalidCommandError as err:
+            raise InvalidValueError(
+                self, 'divider not supported by card') from err
         self.log.info('parameter change not permanent, use _store() '
                       'method to write to EEPROM')
 
@@ -1270,8 +1276,9 @@ class IPCSwitches(Input):
             # temp & 128 'ref switch'
             temp = self._attached_bus.get(self.addr, 134)
             return (temp & self._mask) >> self.first
-        except Exception:
-            raise NicosError(self, 'cannot evaluate status byte of stepper')
+        except Exception as err:
+            raise NicosError(
+                self, 'cannot evaluate status byte of stepper') from err
 
 
 class Output(Input, Moveable):

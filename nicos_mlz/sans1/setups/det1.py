@@ -84,10 +84,10 @@ devices = dict(
         description = 'QMesyDAQ Timer',
         tangodevice = tango_base + 'timer',
     ),
-    det1_image = device('nicos.devices.tango.ImageChannel',
+    det1_image = device('nicos.devices.vendor.qmesydaq.tango.ImageChannel',
         description = 'QMesyDAQ Image',
         tangodevice = tango_base + 'image',
-        # flipaxes = [0],  # flip image up-down
+        flipaxes = [0],  # flip image up-down
     ),
     # the combined detector device is in sans1.py or tisane.py
 )

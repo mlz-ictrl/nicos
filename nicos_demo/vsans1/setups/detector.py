@@ -34,6 +34,7 @@ devices = dict(
         pollinterval = 15,
         fmtstr = '%d',
         unit = 'V',
+        speed = 10,
     ),
     det1_hv_ax = device('nicos_mlz.sans1.devices.hv.Sans1HV',
         description = 'high voltage of detector 1',
@@ -87,7 +88,7 @@ devices = dict(
         lowlevel = True,
         unit = 'mm',
     ),
-    det1_z = device('nicos.devices.generic.LockedDevice',
+    det1_z = device('nicos_mlz.sans1.devices.detector.DetectorTranslation',
         description =
         'detector 1 z position interlocked with high voltage supply',
         device = 'det1_z_ax',

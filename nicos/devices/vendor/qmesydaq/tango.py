@@ -24,10 +24,10 @@
 
 """Detector devices for QMesyDAQ type detectors (TANGO)."""
 
-import numpy
+import numpy as np
 
 from nicos.core.constants import SIMULATION
-from nicos.core.params import Param, Value, listof, oneof
+from nicos.core.params import ArrayDesc, Param, Value, listof, oneof
 from nicos.devices.tango import ImageChannel as BaseImageChannel
 from nicos.devices.vendor.qmesydaq import Image as QMesyDAQImage
 
@@ -38,6 +38,10 @@ class ImageChannel(QMesyDAQImage, BaseImageChannel):
         'readout': Param('Readout mode of the Detector', settable=True,
                          type=oneof('raw', 'mapped', 'amplitude'),
                          default='mapped', mandatory=False, chatty=True),
+        'flipaxes': Param('Flip data along these axes after reading from det',
+                          type=listof(int), default=[], unit=''),
+        'transpose': Param('Whether to transpose the image',
+                           type=bool, default=False),
     }
 
     def doWriteListmode(self, value):
@@ -72,6 +76,15 @@ class ImageChannel(QMesyDAQImage, BaseImageChannel):
     def doReadCalibrationfile(self):
         return self._getProperty('calibrationfile')
 
+    def doReadArray(self, quality):
+        self.arraydesc = ArrayDesc('data', shape=self._shape, dtype='<u4')
+        narray = self._dev.value.reshape(
+            self.arraydesc.shape, order='C' if not self.transpose else 'F')
+        self.readresult = [narray.sum()]
+        for axis in self.flipaxes:
+            narray = np.flip(narray, axis)
+        return narray
+
 
 class MultiCounter(BaseImageChannel):
     """Channel for QMesyDAQ that allows to access selected channels in a
@@ -89,7 +102,7 @@ class MultiCounter(BaseImageChannel):
         else:
             # read data via Tango and transform it
             val = self._dev.value
-            res = val.tolist() if isinstance(val, numpy.ndarray) else val
+            res = val.tolist() if isinstance(val, np.ndarray) else val
         expected = 3 + max(self.channels or [0])
         # first 3 values are sizes of dimensions
         if len(res) >= expected:

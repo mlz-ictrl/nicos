@@ -35,7 +35,7 @@ from nicos.core import status
 from nicos.core.acquire import CountResult, DevStatistics, acquire, \
     read_environment, stop_acquire_thread
 from nicos.core.constants import FINAL, INTERMEDIATE, SIMULATION, SLAVE
-from nicos.core.errors import LimitError, ModeError, NicosError
+from nicos.core.errors import LimitError, ModeError, NicosError, UsageError
 from nicos.core.mixins import HasLimits
 from nicos.core.params import Value
 from nicos.core.utils import CONTINUE_EXCEPTIONS, SKIP_EXCEPTIONS, multiWait
@@ -88,6 +88,7 @@ class Scan:
                                   if dev not in allenvlist)
         self._firstmoves = firstmoves
         # convert multistep to device positions
+        self._primary_devicesindex = len(devices)
         self._mscount = 1
         if multistep:
             self._mscount = mscount = len(multistep[0][1])
@@ -131,7 +132,7 @@ class Scan:
         if len(self._startpositions) <= self._mscount:
             return
         # iterate over devices (only primary scan devices)
-        for j, dev in enumerate(self._devices):
+        for j, dev in enumerate(self._devices[:self._primary_devicesindex]):
             valueInfo = dev.valueInfo()
             subvals = len(valueInfo)
             st0 = self._startpositions[0][j]
@@ -452,8 +453,14 @@ class SweepScan(Scan):
             if start is not None:
                 firstmoves.append((dev, start))
             self._sweeptargets.append(end)
-        # sweep scans support a special "delay" preset
+        # sweep scans support a special "delay" and "minstep" presets
         self._delay = preset.pop('delay', 0)
+        self._minstep = preset.pop('minstep', 0)
+        if not isinstance(self._minstep, list):
+            self._minstep = [self._minstep] * len(devices)
+        elif len(self._minstep) != len(devices):
+            raise UsageError('Invalid number of minstep values. For each '
+                             'device a minstep value must be given!')
         Scan.__init__(self, [], points, [], firstmoves, multistep,
                       detlist, envlist, preset, scaninfo, subscan, xindex)
         # XXX(dataapi): devices should be in devlist, not envlist
@@ -491,11 +498,25 @@ class SweepScan(Scan):
                     self.moveDevices(self._sweepdevices, self._sweeptargets,
                                      wait=False)
                 except SkipPoint:
-                    raise StopScan
-        elif self._delay:
-            # wait between points, but only from the second point on
-            session.action('Delay')
-            session.delay(self._delay)
+                    raise StopScan  # pylint:disable=raise-missing-from
+            if self._minstep:
+                self._laststep = [dev.read() for dev in self._sweepdevices]
+        else:
+            if self._delay:
+                # wait between points, but only from the second point on
+                session.action('Delay')
+                session.delay(self._delay)
+            if self._sweepdevices and self._minstep:
+                # wait until next step
+                while True:
+                    position = [dev.read() for dev in self._sweepdevices]
+                    l = list(zip(self._laststep, position, self._minstep))
+                    if any(abs(x-y) > z for x,y,z in l):
+                        break
+                    if not any(dev.status()[0] == status.BUSY
+                               for dev in self._sweepdevices):
+                        break
+                self._laststep = [(x + z if x < y else x - z) for x,y,z in l]
         Scan.preparePoint(self, num, xvalues)
         if session.mode == SIMULATION:
             self._sim_start = session.clock.time
