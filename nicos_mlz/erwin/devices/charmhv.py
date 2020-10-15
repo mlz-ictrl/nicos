@@ -28,7 +28,7 @@ from nicos.core.device import Moveable
 from nicos.core.errors import ConfigurationError, PositionError
 from nicos.core.params import Attach, Override, dictof, oneof
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.generic.sequence import SeqDev, SequencerMixin
+from nicos.devices.generic.sequence import SeqDev, SeqParam, SequencerMixin
 from nicos.utils import num_sort
 
 
@@ -113,7 +113,11 @@ class HVSwitch(SequencerMixin, MappedMoveable):
         return {dev.name: dev.read(maxage) for dev in self._devices.values()}
 
     def _startRaw(self, target):
+        ramp = 60 * self.mapping[self.target]['ramp']
         seq = self._generateSequence(self.target)
         if self.target in ['off', 'safe']:
             seq.reverse()
-        self._startSequence(seq)
+        self._startSequence(
+            [SeqParam(dev, 'ramp', ramp)
+             for dev in self._attached_anodes + self._attached_banodes +
+                 self._attached_cathodes + self._attached_window] + seq)
