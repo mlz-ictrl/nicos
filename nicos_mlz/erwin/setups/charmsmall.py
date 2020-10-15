@@ -43,7 +43,7 @@ devices = dict(
         fmtstr = '%.1f',
         lowlevel = True,
     ),
-    stripped = device('nicos.devices.tango.NamedDigitalInput',
+    s_tripped = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Trip indicator',
         tangodevice = tango_base + 'trip',
         mapping = {
