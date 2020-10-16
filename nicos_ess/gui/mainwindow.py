@@ -187,8 +187,6 @@ class MainWindow(DefaultMainWindow):
             self.setTitlebar(False)
         # new status icon
         pixmap = QPixmap(':/' + status + ('exc' if exception else ''))
-        self.statusLabel.setPixmap(pixmap)
-        self.statusLabel.setToolTip('Script status: %s' % status)
         new_icon = QIcon()
         new_icon.addPixmap(pixmap, QIcon.Disabled)
         self.trayIcon.setIcon(new_icon)
