@@ -683,3 +683,10 @@ class TASSample(Sample, Cell):
         self.psi0 = 0.0
         self.spacegroup = 1  # primitive triclinic, all reflexes allowed
         self.mosaic = 0.5
+
+    def _applyParams(self, number, parameters):
+        Sample._applyParams(self, number, parameters)
+        for key, value in parameters.items():
+            if key in ['lattice', 'angles', 'orient1', 'orient2', 'psi0',
+                       'spacegroup', 'mosaic']:
+                setattr(self, key, value)
