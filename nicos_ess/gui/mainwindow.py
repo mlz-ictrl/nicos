@@ -31,7 +31,7 @@ from time import time as current_time
 
 from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow
 from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
-    QMenu, QPixmap, QPoint, QSizePolicy, Qt, QWidget, pyqtSlot
+    QMenu, QPixmap, QPoint, QSize, QSizePolicy, Qt, QWidget, pyqtSlot
 
 from nicos_ess.gui import uipath
 from nicos_ess.gui.panels import get_icon
@@ -72,6 +72,15 @@ class MainWindow(DefaultMainWindow):
         self.actionUser.setMenu(dropdown)
         self.actionUser.setIconVisibleInMenu(True)
         self.dropdown = dropdown
+
+    def _init_toolbar(self):
+        self.statusLabel = QLabel('', self, pixmap=QPixmap(':/disconnected'),
+                                  margin=5, minimumSize=QSize(30, 10))
+        self.statusLabel.setStyleSheet('color: white')
+
+        self.toolbar = self.toolBarRight
+        self.toolbar.addWidget(self.statusLabel)
+        self.setStatus('disconnected')
 
     def set_icons(self):
         self.actionUser.setIcon(
@@ -171,8 +180,10 @@ class MainWindow(DefaultMainWindow):
         is_connected = status != 'disconnected'
         if is_connected:
             self.actionConnect.setText('Disconnect')
+            self.statusLabel.setText('\u2713 Connected')
         else:
             self.actionConnect.setText('Connect to server...')
+            self.statusLabel.setText('Disconnected')
             self.setTitlebar(False)
         # new status icon
         pixmap = QPixmap(':/' + status + ('exc' if exception else ''))

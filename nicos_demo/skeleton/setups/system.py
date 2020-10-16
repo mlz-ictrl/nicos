@@ -19,7 +19,7 @@ sysconfig = dict(
 modules = ['nicos.commands.standard']
 
 includes = [
-    'notifiers',
+#    'notifiers',
 ]
 
 devices = dict(
@@ -27,6 +27,9 @@ devices = dict(
         description = 'instrument object',
         instrument = 'SKELETON',
         responsible = 'R. Esponsible <r.esponsible@example.host>',
+        website = 'http://instrument.website',
+        operators = ['operator facility'],
+        facility = 'Your facility',
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',
