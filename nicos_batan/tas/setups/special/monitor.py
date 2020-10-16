@@ -53,7 +53,8 @@ _tasblock = Block('Triple-axis', [
                    attdev='att',
                    Lmsdev='Lms',
                    Laddev='Lad',
-                   Lsadev='Lsa',)),
+                   Lsadev='Lsa',
+                   tasdev='tas',)),
     ],
     setups='tas',
 )
