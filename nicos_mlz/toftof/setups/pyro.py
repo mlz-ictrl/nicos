@@ -4,12 +4,12 @@ group = 'optional'
 
 includes = ['alias_T']
 
-nethost = 'toftofsrv.toftof.frm2'
+tango_base = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/rs232/'
 
 devices = dict(
     pyro = device('nicos_mlz.toftof.devices.impac.TemperatureSensor',
         description = 'Impac pyrometer thermometer',
-        tacodevice = '//%s/toftof/rs232/ifpyrometer' % nethost,
+        tangodevice = tango_base + 'ifpyrometer',
         unit = 'C',
         fmtstr = '%.3f',
     ),
