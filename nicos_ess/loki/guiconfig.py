@@ -6,9 +6,9 @@ main_window = docked(
         ),
         (
             "Setup",
-            tabbed(
-                ("Instrument", panel("nicos_ess.gui.panels.setup_panel.SetupsPanel")),
-            ),
+            vsplit(
+                (panel("nicos_ess.gui.panels.setup_panel.SetupsPanel"))
+            ),  # vsplit
         ),
         (
             "Samples",
