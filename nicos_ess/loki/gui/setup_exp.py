@@ -138,6 +138,7 @@ class ExpPanel(Panel):
 
         self.notifEmails.setEnabled(not value)
         self.errorAbortBox.setEnabled(not value)
+        self.queryDBButton.setEnabled(not value)
 
     def on_client_experiment(self, data):
         # just reinitialize
