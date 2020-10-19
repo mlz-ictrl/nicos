@@ -60,8 +60,14 @@ class ExpPanel(Panel):
         self._new_exp_panel = options.get('new_exp_panel')
         self._finish_exp_panel = options.get('finish_exp_panel')
 
+        if client.isconnected:
+            self.on_client_connected()
+        else:
+            self.on_client_disconnected()
+
         client.connected.connect(self.on_client_connected)
-        client.setup.connect(self.on_client_connected)
+        client.disconnected.connect(self.on_client_disconnected)
+        client.setup.connect(self.on_client_setup)
         client.experiment.connect(self.on_client_experiment)
 
     def _update_proposal_info(self):
@@ -109,13 +115,20 @@ class ExpPanel(Panel):
         else:
             self.queryDBButton.setVisible(False)
             self.propLabel.setText('Enter a proposal number or name:')
-        if self.client.viewonly:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
-        else:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.Apply |
-                                              QDialogButtonBox.Close)
+        self.setViewOnly(self.client.viewonly)
+
+    def on_client_disconnected(self):
+        self.setViewOnly(True)
+
+    def setViewOnly(self, value):
+        for button in self.buttonBox.buttons():
+            button.setEnabled(not value)
 
     def on_client_experiment(self, data):
+        # just reinitialize
+        self.on_client_connected()
+
+    def on_client_setup(self, data):
         # just reinitialize
         self.on_client_connected()
 
