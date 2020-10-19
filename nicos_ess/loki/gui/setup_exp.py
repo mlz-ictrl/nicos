@@ -60,6 +60,9 @@ class ExpPanel(Panel):
         self._new_exp_panel = options.get('new_exp_panel')
         self._finish_exp_panel = options.get('finish_exp_panel')
 
+        self._text_controls = (self.queryDBButton, self.proposalNum,
+                               self.expTitle, self.users, self.localContact,)
+
         # Hide proposal retrieval until available
         self.propdbInfo.setVisible(False)
         self.queryDBButton.setVisible(False)
@@ -101,7 +104,6 @@ class ExpPanel(Panel):
         self._orig_datamails = propinfo.get('user_email', '')
         if not isinstance(self._orig_datamails, list):
             self._orig_datamails = self._orig_datamails.splitlines()
-        self.dataEmails.setPlainText(decodeAny('\n'.join(self._orig_datamails)))
 
     def on_client_connected(self):
         # fill proposal
@@ -122,12 +124,20 @@ class ExpPanel(Panel):
         self.setViewOnly(self.client.viewonly)
 
     def on_client_disconnected(self):
+        for control in self._text_controls:
+            control.setText("")
+        self.notifEmails.setPlainText("")
         self.setViewOnly(True)
 
     def setViewOnly(self, value):
         for button in self.buttonBox.buttons():
             button.setEnabled(not value)
-        self.queryDBButton.setEnabled(not value)
+
+        for control in self._text_controls:
+            control.setEnabled(not value)
+
+        self.notifEmails.setEnabled(not value)
+        self.errorAbortBox.setEnabled(not value)
 
     def on_client_experiment(self, data):
         # just reinitialize
@@ -151,10 +161,8 @@ class ExpPanel(Panel):
         emails = emails.split('\n') if emails else []
         if local and local not in emails:
             emails.append(local)
-        dataEmails = self.dataEmails.toPlainText().strip()
-        dataEmails = dataEmails.split('\n') if dataEmails else []
         errorbehavior = 'abort' if self.errorAbortBox.isChecked() else 'report'
-        return prop, title, users, local, emails, dataEmails, errorbehavior
+        return prop, title, users, local, emails, [], errorbehavior
 
     @pyqtSlot()
     def on_queryDBButton_clicked(self):
@@ -183,8 +191,6 @@ class ExpPanel(Panel):
                 #                                                local)))
                 self.notifEmails.setPlainText(
                     decodeAny(result.get('user_email', emails)))
-                self.dataEmails.setPlainText(
-                    '\n'.join(decodeAny(addr) for addr in dataEmails))
                 # check permissions:
                 failed = []
                 yes = 'yes'
