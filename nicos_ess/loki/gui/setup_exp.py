@@ -129,16 +129,16 @@ class ExpPanel(Panel):
         self.notifEmails.setPlainText("")
         self.setViewOnly(True)
 
-    def setViewOnly(self, value):
+    def setViewOnly(self, is_view_only):
         for button in self.buttonBox.buttons():
-            button.setEnabled(not value)
+            button.setEnabled(not is_view_only)
 
         for control in self._text_controls:
-            control.setEnabled(not value)
+            control.setEnabled(not is_view_only)
 
-        self.notifEmails.setEnabled(not value)
-        self.errorAbortBox.setEnabled(not value)
-        self.queryDBButton.setEnabled(not value)
+        self.notifEmails.setEnabled(not is_view_only)
+        self.errorAbortBox.setEnabled(not is_view_only)
+        self.queryDBButton.setEnabled(not is_view_only)
 
     def on_client_experiment(self, data):
         # just reinitialize
@@ -163,13 +163,12 @@ class ExpPanel(Panel):
         if local and local not in emails:
             emails.append(local)
         errorbehavior = 'abort' if self.errorAbortBox.isChecked() else 'report'
-        return prop, title, users, local, emails, [], errorbehavior
+        return prop, title, users, local, emails, errorbehavior
 
     @pyqtSlot()
     def on_queryDBButton_clicked(self):
         try:
-            prop, title, users, _, emails, dataEmails, \
-                _ = self._getProposalInput()
+            prop, title, users, _, emails, _ = self._getProposalInput()
         except ConfigurationError:
             return
 
@@ -223,7 +222,7 @@ class ExpPanel(Panel):
 
         # proposal settings
         try:
-            prop, title, users, local, email, dataEmails, errorbehavior = \
+            prop, title, users, local, email, errorbehavior = \
                 self._getProposalInput()
         except ConfigurationError:
             return
@@ -273,11 +272,7 @@ class ExpPanel(Panel):
             self.client.run('SetMailReceivers(%s)' %
                             ', '.join(map(repr, email)))
             done.append('New mail receivers set.')
-        if dataEmails != self._orig_datamails:
-            self.client.run('SetDataReceivers(%s)' %
-                            ', '.join(map(repr, dataEmails)))
-            done.append('New data mail receivers set.')
-        if errorbehavior != self._orig_proposal_info[5]:
+        if errorbehavior != self._orig_proposal_info[4]:
             self.client.run('SetErrorAbort(%s)' % (errorbehavior == 'abort'))
             done.append('New error behavior set.')
 
