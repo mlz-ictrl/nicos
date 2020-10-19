@@ -50,7 +50,7 @@ class ExpPanel(Panel):
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
         loadUi(self, findResource('nicos_ess/loki/gui/ui_files/setup_exp.ui'))
-        self.propdbInfo.setVisible(False)
+
         self._orig_proposal = None
         self._new_exp_panel = None
         self._finish_exp_panel = None
@@ -59,6 +59,10 @@ class ExpPanel(Panel):
         # FinishExperiment() respectively.
         self._new_exp_panel = options.get('new_exp_panel')
         self._finish_exp_panel = options.get('finish_exp_panel')
+
+        # Hide proposal retrieval until available
+        self.propdbInfo.setVisible(False)
+        self.queryDBButton.setVisible(False)
 
         if client.isconnected:
             self.on_client_connected()
@@ -123,6 +127,7 @@ class ExpPanel(Panel):
     def setViewOnly(self, value):
         for button in self.buttonBox.buttons():
             button.setEnabled(not value)
+        self.queryDBButton.setEnabled(not value)
 
     def on_client_experiment(self, data):
         # just reinitialize
