@@ -11,6 +11,8 @@ sysconfig = dict(
 
 modules = ['nicos.commands.standard']
 
+includes = ['temp']
+
 devices = dict(
     ESTIA=device('nicos.devices.instrument.Instrument',
                  description='instrument object',

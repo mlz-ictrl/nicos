@@ -1,43 +1,76 @@
 description = 'Prototype PT100 temperature measurement'
 
-ip_address = '192.168.1.101'
-AMSnetID = '5.49.88.38.1.1'
-
 devices = dict(
-    ads_server=device(
-        'nicos_ess.estia.devices.beckhoff_direct.ADSServer',
-        ip=ip_address,
-        port=852,
-        amsnetid=AMSnetID,
-        timeout=10.,
-        lowlevel=True
+    T01 = device('nicos_ess.estia.devices.pt100.EpicsPT100Temperature',
+        readpv = 'estia-selpt100-001:Calc_out_01',
+        statuspv = 'estia-selpt100-001:AnalogStatus_01',
+        unit = 'C',
+        description = 'Reference Air'
     ),
-    T1=device(
-        'nicos_ess.estia.devices.beckhoff_direct.PT100',
-        attribute='nTempM1',
-        description='Foot Sensor',
-        server='ads_server',
-        fmtstr='%.1f',
+    T02 = device('nicos_ess.estia.devices.pt100.EpicsPT100Temperature',
+        readpv = 'estia-selpt100-001:Calc_out_02',
+        statuspv = 'estia-selpt100-001:AnalogStatus_02',
+        unit = 'C',
+        description = 'Upstream Foot Air'
     ),
-    T2=device(
-        'nicos_ess.estia.devices.beckhoff_direct.PT100',
-        attribute='nTempM2',
-        description='Mapproach motor',
-        server='ads_server',
-        fmtstr='%.1f',
+    T03 = device('nicos_ess.estia.devices.pt100.EpicsPT100Temperature',
+        readpv = 'estia-selpt100-001:Calc_out_03',
+        statuspv = 'estia-selpt100-001:AnalogStatus_03',
+        unit = 'C',
+        description = 'Downstream Foot Air'
     ),
-    T3=device(
-        'nicos_ess.estia.devices.beckhoff_direct.PT100',
-        attribute='nTempM3',
-        description='Metrology rack',
-        server='ads_server',
-        fmtstr='%.1f',
+    T04 = device('nicos_ess.estia.devices.pt100.EpicsPT100Temperature',
+        readpv = 'estia-selpt100-001:Calc_out_04',
+        statuspv = 'estia-selpt100-001:AnalogStatus_04',
+        unit = 'C',
+        description = 'Vacuum Vessel Top'
     ),
-    T4=device(
-        'nicos_ess.estia.devices.beckhoff_direct.PT100',
-        attribute='nTempM4',
-        description='Top of Granite',
-        server='ads_server',
-        fmtstr='%.1f',
+    T05 = device('nicos_ess.estia.devices.pt100.EpicsPT100Temperature',
+        readpv = 'estia-selpt100-001:Calc_out_05',
+        statuspv = 'estia-selpt100-001:AnalogStatus_05',
+        unit = 'C',
+        description = 'In Vacuum Baseplate'
+    ),
+    T06 = device('nicos_ess.estia.devices.pt100.EpicsPT100Temperature',
+        readpv = 'estia-selpt100-001:Calc_out_06',
+        statuspv = 'estia-selpt100-001:AnalogStatus_06',
+        unit = 'C',
+        description = 'Upstream Carrier'
+    ),
+    T07 = device('nicos_ess.estia.devices.pt100.EpicsPT100Temperature',
+        readpv = 'estia-selpt100-001:Calc_out_07',
+        statuspv = 'estia-selpt100-001:AnalogStatus_07',
+        unit = 'C',
+        description = 'Upstream Foot'
+    ),
+    T08 = device('nicos_ess.estia.devices.pt100.EpicsPT100Temperature',
+        readpv = 'estia-selpt100-001:Calc_out_08',
+        statuspv = 'estia-selpt100-001:AnalogStatus_08',
+        unit = 'C',
+        description = 'Downstream Foot'
+    ),
+    T09 = device('nicos_ess.estia.devices.pt100.EpicsPT100Temperature',
+        readpv = 'estia-selpt100-001:Calc_out_09',
+        statuspv = 'estia-selpt100-001:AnalogStatus_09',
+        unit = 'C',
+        description = 'Downstream Carrier'
+    ),
+    T10 = device('nicos_ess.estia.devices.pt100.EpicsPT100Temperature',
+        readpv = 'estia-selpt100-001:Calc_out_10',
+        statuspv = 'estia-selpt100-001:AnalogStatus_10',
+        unit = 'C',
+        description = 'Center Carrier'
+    ),
+    T11 = device('nicos_ess.estia.devices.pt100.EpicsPT100Temperature',
+        readpv = 'estia-selpt100-001:Calc_out_11',
+        statuspv = 'estia-selpt100-001:AnalogStatus_11',
+        unit = 'C',
+        description = 'Metrology Rack'
+    ),
+    T12 = device('nicos_ess.estia.devices.pt100.EpicsPT100Temperature',
+        readpv = 'estia-selpt100-001:Calc_out_12',
+        statuspv = 'estia-selpt100-001:AnalogStatus_12',
+        unit = 'C',
+        description = 'Metrology Cart'
     ),
 )
