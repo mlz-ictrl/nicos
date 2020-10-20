@@ -299,7 +299,7 @@ Panel QToolBar > QCheckBox {
 }
 
 QToolButton::down-arrow {
-image: none;
+border: none;
 background-color: red;
 }
 /* QTabBar::tab  ------------------------------------------------
@@ -566,4 +566,13 @@ border-radius: 5px;
 
 Panel[panel='CommandPanel'] QPushButton {
 width:80px;
+}
+
+Panel[panel='CommandsPanel'] QToolButton {
+width:100px;
+border: 1px solid darkgrey;
+color: #1f5366;
+color: black;
+border-radius: 5px;
+outline: none;
 }
