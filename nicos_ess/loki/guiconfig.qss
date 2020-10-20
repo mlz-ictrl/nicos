@@ -558,6 +558,7 @@ Panel[panel='CommandsPanel'] QToolButton {
     color: black;
     border-radius: 5px;
     outline: none;
+    padding: 5px;
 }
 
 Panel[panel='CommandsPanel'] QToolButton::pressed {
