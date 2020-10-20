@@ -554,10 +554,14 @@ Panel[panel='CommandPanel'] QPushButton {
 Panel[panel='CommandsPanel'] QToolButton {
     width:100px;
     border: 1px solid darkgrey;
-    color: #1f5366;
+    background: white;
     color: black;
     border-radius: 5px;
     outline: none;
+}
+
+Panel[panel='CommandsPanel'] QToolButton::pressed {
+    background-color: #d4d8dc;
 }
 
 Panel[panel='CommandsPanel'] QScrollArea {
