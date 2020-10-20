@@ -61,7 +61,7 @@ main_window = docked(
             "Script Editor",
             vsplit(
                 panel(
-                    "nicos.clients.gui.panels.scriptbuilder.CommandsPanel",
+                    "nicos_ess.loki.gui.scriptbuilder.CommandsPanel",
                     modules=["nicos_ess.loki.gui.cmdlets"],
                 ),
                 panel("nicos_ess.gui.panels.editor.EditorPanel", tools=None),
