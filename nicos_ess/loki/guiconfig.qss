@@ -410,7 +410,7 @@ QCheckBox {
     color: black;
 }
 
-QCheckBox:focus {
+QCheckBox::focus {
     border: none;
 }
 
@@ -476,16 +476,11 @@ QPushButton {
     outline: none;
 }
 
-
 QPushButton:disabled {
     color: #a9a9a9;
     border-color:#a9a9a9;
 }
 
-QPushButton:!checked:hover {
-    border: 1px solid #e9ebed;
-    background-color: #e9ebed;
-}
 QPushButton:!checked:pressed {
     border: 1px solid #d4d8dc;
     background-color: #d4d8dc;
@@ -495,11 +490,6 @@ QPushButton:checked {
     background-color: #0094ca;
     color: white;
     border: 0px solid #0094ca;
-}
-
-QPushButton:checked:hover {
-    border: 0px;
-    background-color: #89c3ea;
 }
 
 QPushButton:checked:pressed {
@@ -572,7 +562,6 @@ Panel[panel='CommandsPanel'] QToolButton {
 
 Panel[panel='CommandsPanel'] QScrollArea {
     border: 0px solid grey;
-    background-color: white;
 }
 
 Panel[panel='CommandsPanel'] QScrollBar:vertical {
