@@ -568,11 +568,45 @@ Panel[panel='CommandPanel'] QPushButton {
 width:80px;
 }
 
+/* -------------------- CommandsPanel -------------------- */
+
 Panel[panel='CommandsPanel'] QToolButton {
-width:100px;
-border: 1px solid darkgrey;
-color: #1f5366;
-color: black;
-border-radius: 5px;
-outline: none;
+    width:100px;
+    border: 1px solid darkgrey;
+    color: #1f5366;
+    color: black;
+    border-radius: 5px;
+    outline: none;
 }
+
+Panel[panel='CommandsPanel'] QScrollArea {
+    border: 0px solid grey;
+}
+
+Panel[panel='CommandsPanel'] QScrollBar:vertical {
+    background: white;
+    width: 8px;
+    margin-right: 2px;
+}
+
+Panel[panel='CommandsPanel'] QScrollBar::handle:vertical {
+    background: grey;
+    min-height: 6px;
+    border-radius: 1px;
+    border: 2px solid grey;
+}
+
+Panel[panel='CommandsPanel'] QScrollBar:horizontal {
+    background: white;
+    height: 8px;
+    margin-bottom: 2px;
+}
+
+Panel[panel='CommandsPanel'] QScrollBar::handle:horizontal {
+    background: grey;
+    min-width: 6px;
+    border-radius: 1px;
+    border: 2px solid grey;
+}
+
+/* ----------------------------------------- */
