@@ -380,12 +380,6 @@ QTabBar::tab:top:!selected:hover {
     padding: 0px;
 }
 
-/* -------------------- QScrollArea ------------------------ */
-
-QScrollArea QWidget {
-    background: white;
-}
-
 /* -------------------- QSplitter ------------------------ */
 
 QSplitter {
@@ -578,6 +572,7 @@ Panel[panel='CommandsPanel'] QToolButton {
 
 Panel[panel='CommandsPanel'] QScrollArea {
     border: 0px solid grey;
+    background-color: white;
 }
 
 Panel[panel='CommandsPanel'] QScrollBar:vertical {
