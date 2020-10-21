@@ -64,7 +64,7 @@ class ImageChannel(QMesyDAQImage, BaseImageChannel):
 #       return self._getProperty('lastlistfile')
 
     def doWriteHistogramfile(self, value):
-        self._taco_update_resource('lasthistfile', '%s' % value)
+        self._dev.SetProperties(['lasthistfile', '%s' % value])
         return self._getProperty('lasthistfile')
 
 #   def doReadHistogramfile(self):
