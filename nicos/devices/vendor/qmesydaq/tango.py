@@ -24,6 +24,8 @@
 
 """Detector devices for QMesyDAQ type detectors (TANGO)."""
 
+import ast
+
 import numpy as np
 
 from nicos.core.constants import SIMULATION
@@ -45,12 +47,12 @@ class ImageChannel(QMesyDAQImage, BaseImageChannel):
     }
 
     def doWriteListmode(self, value):
-        self._dev.SetProperties(['writelistmode', '%s' % value])
-        return self._getProperty('writelistmode')
+        self._dev.SetProperties(['writelistmode', ('%s' % value).lower()])
+        return ast.literal_eval(self._getProperty('writelistmode').title())
 
     def doWriteHistogram(self, value):
-        self._dev.SetProperties('writehistogram', '%s' % value)
-        return self._getProperty('writehistogram')
+        self._dev.SetProperties(['writehistogram', ('%s' % value).lower()])
+        return ast.literal_eval(self._getProperty('writehistogram').title())
 
     def doWriteReadout(self, value):
         self._dev.SetProperties(['histogram', '%s' % value])
