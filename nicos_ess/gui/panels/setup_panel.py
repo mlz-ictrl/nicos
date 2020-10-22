@@ -29,7 +29,7 @@ from nicos.clients.gui.panels.setup_panel import ExpPanel as DefaultExpPanel, \
     SetupsPanel as DefaultSetupsPanel
 from nicos.clients.gui.utils import loadUi
 from nicos.core import ConfigurationError, mailaddress
-from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, pyqtSlot
+from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, Qt, pyqtSlot
 
 from nicos_ess.gui import uipath
 
@@ -203,15 +203,10 @@ class ExpPanel(DefaultExpPanel):
 
 
 class SetupsPanel(DefaultSetupsPanel):
-    def on_client_connected(self):
-        DefaultSetupsPanel.on_client_connected(self)
-        if self.client.viewonly:
-            self.buttonBox.removeButton(QDialogButtonBox.Apply)
-            self.buttonBox.removeButton(self._reload_btn)
-        else:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.Apply)
-            self.buttonBox.addButton(self._reload_btn,
-                                     QDialogButtonBox.ResetRole)
+    def finishUi(self):
+        self.buttonBox.setLayoutDirection(Qt.RightToLeft)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Apply)
+        self.buttonBox.addButton(self._reload_btn, QDialogButtonBox.ResetRole)
 
     def setViewOnly(self, value):
         for button in self.buttonBox.buttons():
