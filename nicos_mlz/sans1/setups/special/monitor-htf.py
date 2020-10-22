@@ -2,7 +2,8 @@ description = 'setup for the status monitor'
 group = 'special'
 
 _testblock = Block('HTF03', [
-    BlockRow(Field(gui='nicos_mlz/sans1/gui/htf03.ui')),
+    BlockRow(
+        Field(gui='nicos_mlz/sans1/gui/htf03.ui')),
     ],
 )
 

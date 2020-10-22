@@ -29,13 +29,13 @@ group = 'special'
 _configuration = Column(
     Block('Configuration', [
         BlockRow(
-                 Field(name='lambda', dev='selector_lambda', width=9),
-                 Field(name='att', dev='att', width=9),
-                 Field(name='23m', dev='ng_pol', width=9),
-                 Field(name='col', dev='col', width=9, format = '%.1f'),
-                 Field(name='sa1', dev='sa1', width=9),
-                 Field(name='sa2', dev='sa2', width=9),
-                ),
+            Field(name='lambda', dev='selector_lambda', width=9),
+            Field(name='att', dev='att', width=9),
+            Field(name='23m', dev='ng_pol', width=9),
+            Field(name='col', dev='col', width=9, format = '%.1f'),
+            Field(name='sa1', dev='sa1', width=9),
+            Field(name='sa2', dev='sa2', width=9),
+        ),
         ],
     ),
 )
@@ -43,13 +43,13 @@ _configuration = Column(
 _sans1det = Column(
     Block('Detector', [
         BlockRow(
-                 Field(name='det1_z', dev='det1_z', width=9, unit='mm', format='%.0f'),
-                 Field(name='t', dev='det1_t_ist', width=9),
-                 Field(name='t pres.', key='det1_timer.preselection', width=9, unit='s', format='%i'),
-                 Field(name='det1_hv', dev='det1_hv_ax', width=9, format='%i'),
-                 Field(name='events', dev='det1_ev', width=9),
-                 Field(name='bs1', dev='bs1', width=9),
-                ),
+            Field(name='det1_z', dev='det1_z', width=9, unit='mm', format='%.0f'),
+            Field(name='t', dev='det1_t_ist', width=9),
+            Field(name='t pres.', key='det1_timer.preselection', width=9, unit='s', format='%i'),
+            Field(name='det1_hv', dev='det1_hv_ax', width=9, format='%i'),
+            Field(name='events', dev='det1_ev', width=9),
+            Field(name='bs1', dev='bs1', width=9),
+        ),
         ],
     ),
 )
@@ -57,20 +57,21 @@ _sans1det = Column(
 _pressure = Column(
     Block('Pressure', [
         BlockRow(
-                 Field(name='Col Tube', dev='coll_tube', width=11, format = '%g'),
-                 Field(name='Col Nose', dev='coll_nose', width=11, format = '%g'),
-                 Field(name='Det Nose', dev='det_nose', width=11, format = '%g'),
-                 Field(name='Det Tube', dev='det_tube', width=11, format = '%g'),
-                ),
+            Field(name='Col Tube', dev='coll_tube', width=11, format = '%g'),
+            Field(name='Col Nose', dev='coll_nose', width=11, format = '%g'),
+            Field(name='Det Nose', dev='det_nose', width=11, format = '%g'),
+            Field(name='Det Tube', dev='det_tube', width=11, format = '%g'),
+        ),
         ],
     ),
 )
 
 _expcolumn = Column(
     Block('Experiment', [
-        BlockRow(Field(name='Current status', key='exp/action', width=18,#70
-                       istext=True, maxlen=90),
-            )
+        BlockRow(
+            Field(name='Current status', key='exp/action', width=18, #70
+                  istext=True, maxlen=90),
+        )
         ],
         # setups='experiment',
     ),
@@ -78,8 +79,9 @@ _expcolumn = Column(
 
 _pressure_box = Column(
     Block('Pressure', [
-        BlockRow(Field(name='Pressure', dev='pressure_box', width=9),
-            )
+        BlockRow(
+            Field(name='Pressure', dev='pressure_box', width=9),
+        )
         ],
         setups='pressure_box',
     ),

@@ -3,14 +3,15 @@ group = 'special'
 
 _expcolumn = Column(
     Block('Experiment', [
-        BlockRow(Field(name='Proposal', key='exp/proposal', width=7),
-                 Field(name='Title',    key='exp/title',    width=20,
-                       istext=True, maxlen=20),
-                 Field(name='Current status', key='exp/action', width=65,#70
-                       istext=True, maxlen=90),
-                 Field(name='Data file', key='exp/lastpoint'),
-                 Field(name='Current Sample', key='sample/samplename', width=16),
-            )
+        BlockRow(
+            Field(name='Proposal', key='exp/proposal', width=7),
+            Field(name='Title',    key='exp/title',    width=20,
+                  istext=True, maxlen=20),
+            Field(name='Current status', key='exp/action', width=65,#70
+                  istext=True, maxlen=90),
+            Field(name='Data file', key='exp/lastpoint'),
+            Field(name='Current Sample', key='sample/samplename', width=16),
+        )
         ],
         # setups='experiment',
     ),
@@ -19,23 +20,23 @@ _expcolumn = Column(
 _selcolumn = Column(
     Block('Selector', [
         BlockRow(
-                 Field(name='selector_rpm', dev='selector_rpm', width=8),
-                ),
+            Field(name='selector_rpm', dev='selector_rpm', width=8),
+        ),
         BlockRow(
-                 Field(name='selector_lambda', dev='selector_lambda', width=8),
-                ),
+            Field(name='selector_lambda', dev='selector_lambda', width=8),
+        ),
         BlockRow(
-                 Field(name='selector_ng', dev='selector_ng', width=8),
-                ),
+            Field(name='selector_ng', dev='selector_ng', width=8),
+        ),
         BlockRow(
-                 Field(name='selector_tilt', dev='selector_tilt', width=8, format = '%.1f'),
-                ),
+            Field(name='selector_tilt', dev='selector_tilt', width=8, format = '%.1f'),
+        ),
         BlockRow(
-                 Field(name='water flow', dev='selector_wflow', width=8, format = '%.1f'),
-                ),
+            Field(name='water flow', dev='selector_wflow', width=8, format = '%.1f'),
+        ),
         BlockRow(
-                 Field(name='rotor temp.', dev='selector_rtemp', width=8, format = '%.1f'),
-                 ),
+            Field(name='rotor temp.', dev='selector_rtemp', width=8, format = '%.1f'),
+        ),
         ],
     ),
 )
@@ -43,12 +44,12 @@ _selcolumn = Column(
 _pressurecolumn = Column(
     Block('Pressure', [
         BlockRow(
-                 Field(name='Col Pump', dev='coll_pump', width=11, format = '%g'),
-                 Field(name='Col Tube', dev='coll_tube', width=11, format = '%g'),
-                 Field(name='Col Nose', dev='coll_nose', width=11, format = '%g'),
-                 Field(name='Det Nose', dev='det_nose', width=11, format = '%g'),
-                 Field(name='Det Tube', dev='det_tube', width=11, format = '%g'),
-                ),
+            Field(name='Col Pump', dev='coll_pump', width=11, format = '%g'),
+            Field(name='Col Tube', dev='coll_tube', width=11, format = '%g'),
+            Field(name='Col Nose', dev='coll_nose', width=11, format = '%g'),
+            Field(name='Det Nose', dev='det_nose', width=11, format = '%g'),
+            Field(name='Det Tube', dev='det_tube', width=11, format = '%g'),
+        ),
         ],
     ),
 )
@@ -138,8 +139,8 @@ _collimationcolumn = Column(
 _sampleaperture = Column(
     Block('SA', [
         BlockRow(
-                 Field(name='sa2', dev='sa2', width=6, format = '%g'),
-                ),
+            Field(name='sa2', dev='sa2', width=6, format = '%g'),
+        ),
         ],
     ),
 )
@@ -147,8 +148,8 @@ _sampleaperture = Column(
 _temp_garching = Column(
     Block('Temperature @ Garching', [
         BlockRow(
-                 Field(name='Temperature', dev='meteo'),
-                ),
+            Field(name='Temperature', dev='meteo'),
+        ),
         ],
     ),
 )
@@ -160,18 +161,18 @@ _sans1det = Column(
                   widget='nicos_mlz.sans1.gui.monitorwidgets.Tube2', width=30, height=10)#, max=21000),
         ),
         BlockRow(
-                 Field(name='det1_z', dev='det1_z', width=9, unit='mm', format='%.0f'),
-                 Field(name='det1_x', dev='det1_x', width=9, unit='mm', format='%.0f'),
-                 Field(name='det1_omg', dev='det1_omg', width=9, unit='deg', format='%.0f'),
-                 Field(name='t', dev='det1_t_ist', width=9),
-                 Field(name='t pres.', key='det1_timer.preselection', width=9, unit='s', format='%i'),
-                 Field(name='det1_hv', dev='det1_hv_ax', width=9, format='%i'),
-                 Field(name='events', dev='det1_ev', width=9),
-                 Field(name='mon 1', dev='det1_mon1', width=9),
-                 Field(name='mon 2', dev='det1_mon2', width=9),
-                 Field(name='bs1_x', dev='bs1_x', width=9, format='%.1f'),
-                 Field(name='bs1_y', dev='bs1_y', width=9, format='%.1f'),
-                ),
+            Field(name='det1_z', dev='det1_z', width=9, unit='mm', format='%.0f'),
+            Field(name='det1_x', dev='det1_x', width=9, unit='mm', format='%.0f'),
+            Field(name='det1_omg', dev='det1_omg', width=9, unit='deg', format='%.0f'),
+            Field(name='t', dev='det1_t_ist', width=9),
+            Field(name='t pres.', key='det1_timer.preselection', width=9, unit='s', format='%i'),
+            Field(name='det1_hv', dev='det1_hv_ax', width=9, format='%i'),
+            Field(name='events', dev='det1_ev', width=9),
+            Field(name='mon 1', dev='det1_mon1', width=9),
+            Field(name='mon 2', dev='det1_mon2', width=9),
+            Field(name='bs1_x', dev='bs1_x', width=9, format='%.1f'),
+            Field(name='bs1_y', dev='bs1_y', width=9, format='%.1f'),
+        ),
         ],
     ),
 )
@@ -179,10 +180,10 @@ _sans1det = Column(
 _p_filter = Column(
     Block('Pressure Water Filter FAK40', [
         BlockRow(
-                 Field(name='P in', dev='p_in_filter', width=9.5, unit='bar'),
-                 Field(name='P out', dev='p_out_filter', width=9.5, unit='bar'),
-                 Field(name='P diff', dev='p_diff_filter', width=9.5, unit='bar'),
-                ),
+            Field(name='P in', dev='p_in_filter', width=9.5, unit='bar'),
+            Field(name='P out', dev='p_out_filter', width=9.5, unit='bar'),
+            Field(name='P diff', dev='p_diff_filter', width=9.5, unit='bar'),
+        ),
         ],
     ),
 )
