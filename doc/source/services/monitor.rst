@@ -172,7 +172,7 @@ The configuration of a block may use further options:
 
 This can be used instead of ``Block``, and points to a block defined inside
 another setup.  Within setups, :ref:`blocks can be defined
-<setup-monitor-blocks>` in the ``monitor_blocks`` variable.
+<setup-monitor_blocks>` in the ``monitor_blocks`` variable.
 
 If *blockname* is not given, the ``"default"`` block is used.
 
