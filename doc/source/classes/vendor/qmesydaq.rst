@@ -2,24 +2,33 @@ QMesyDAQ classes
 ================
 
 These classes are for integration of detectors with MesyTec hardware and
-controlled by `QMesyDAQ <http://forge.frm2.tum.de/projects/qmesydaq>`_.
-Communication works via the TACO interface of QMesyDAQ.
+controlled by |qmesydaq_link|.
 
 All classes are channels and must be combined to a detector device with the
 :class:`~nicos.devices.generic.detector.Detector`.
 
-There are two versions of the classes: one version where communication with
-QMesyDAQ is done via TACO, the other where communication is done via CARESS.
+There are three versions communication with QMesyDAQ:
 
-.. module:: nicos.devices.vendor.qmesydaq.taco
+ - `TANGO`_
+ - `TACO`_
+ - `CARESS`_
 
-.. autoclass:: Timer()
-.. autoclass:: Counter()
-.. autoclass:: MultiCounter()
-.. autoclass:: Image()
+TANGO
+-----
 
-.. module:: nicos.devices.vendor.qmesydaq.caress
+.. automodule:: nicos.devices.vendor.qmesydaq.tango
 
-.. autoclass:: Timer()
-.. autoclass:: Counter()
-.. autoclass:: Image()
+TACO
+----
+
+.. automodule:: nicos.devices.vendor.qmesydaq.taco
+
+CARESS
+------
+
+.. automodule:: nicos.devices.vendor.qmesydaq.caress
+
+
+.. |qmesydaq_link| raw:: html
+
+   <a href="https://www.qmesydaq.org" target="_blank">QMesyDAQ</a>
