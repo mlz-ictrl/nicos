@@ -15,3 +15,4 @@
       nicos_inl
       nicos_isis
       nicos_demo
+      nicos_jcns

@@ -16,7 +16,7 @@
 .. automodule:: nicos_mlz.devices.amagnet
 .. autoclass:: GarfieldMagnet()
 
-.. automodule:: nicos_mlz.devices.ccmsans
+.. automodule:: nicos_mlz.devices.ccm5h
 .. autoclass:: AsymmetricMagnet()
 
 .. automodule:: nicos_mlz.devices.memograph

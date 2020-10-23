@@ -7,11 +7,12 @@
 .. autoclass:: PseudoNOK()
 .. autoclass:: NOKMonitoredVoltage()
 .. autoclass:: NOKPosition()
-.. autoclass:: NOKMotorIPC()
 .. autoclass:: SingleMotorNOK()
 .. autoclass:: DoubleMotorNOK()
 .. autoclass:: DoubleMotorNOKIPC()
-.. autoclass:: DoubleMotorNOKBeckhoff()
+
+.. automodule:: nicos_mlz.refsans.devices.ipc
+.. autoclass:: NOKMotorIPC()
 
 .. automodule:: nicos_mlz.refsans.devices.slits
 
@@ -33,7 +34,6 @@
 .. autoclass:: DoubleMotorBeckhoff()
 .. autoclass:: DoubleMotorBeckhoffNOK()
 .. autoclass:: SingleSideRead()
-.. autoclass:: SingleMotorOfADoubleNOK()
 
 .. automodule:: nicos_mlz.refsans.devices.beckhoff.pumpstation
 .. autoclass:: PumpstandIO()

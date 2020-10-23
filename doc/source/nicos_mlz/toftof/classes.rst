@@ -27,7 +27,6 @@ Temperature Controller
 
 .. automodule:: nicos_mlz.toftof.devices.lascon
 
-.. autoclass:: Lascon()
 .. autoclass:: TemperatureController()
 .. autoclass:: TemperatureSensor()
 
