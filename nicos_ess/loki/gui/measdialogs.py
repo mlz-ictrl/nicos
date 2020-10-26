@@ -54,8 +54,7 @@ SAMPLE_NUM = 32
 
 
 class MeasDef(object):
-    def __init__(self, rtmode, loops=None):
-        self.rtmode = rtmode
+    def __init__(self, loops=None):
         self.loops = loops or LOOPS[:]
         self.samples = []
         self.detsets = []
@@ -69,10 +68,9 @@ class MeasDef(object):
             ('collimation', Collimation),
             ('polarizer', Polarizer),
             ('lenses', Lenses),
+            ('chopper', Chopper),
+            ('time', MeasTime),
         ]
-        if not self.rtmode:
-            elements.insert(2, ('chopper', Chopper))  # before collimation
-            elements.append(('time', MeasTime))
         return elements
 
     def getEntries(self, loop):
