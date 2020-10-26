@@ -1,0 +1,47 @@
+description = 'collimator setup'
+
+group = 'lowlevel'
+
+devices = dict(
+    tof_io = device('nicos.devices.generic.ManualSwitch',
+        description = 'ToF',
+        states = [1, 2, 3],
+        lowlevel = True,
+    ),
+    L = device('nicos.devices.generic.Switcher',
+        description = 'Distance',
+        moveable = 'tof_io',
+        mapping = {
+            10: 1,
+            13: 2,
+            17: 3,
+        },
+        unit = 'm',
+        precision = 0,
+    ),
+    collimator_io = device('nicos.devices.generic.ManualSwitch',
+        description = 'Collimator',
+        states = [1, 2, 3, 4, 5, 6],
+        lowlevel = True,
+    ),
+    hole = device('nicos.devices.generic.Switcher',
+        description = 'Hole diameter',
+        moveable = 'collimator_io',
+        mapping = {
+            6.2: 1,
+            3: 2,
+            0.85: 3,
+            1.5: 4,
+            2.5: 5,
+        },
+        unit = 'mm',
+        precision = 0,
+    ),
+    collimator = device('nicos_mlz.antares.devices.collimator.CollimatorLoverD',
+        description = 'Collimator - L/D',
+        l = 'L',
+        d = 'hole',
+        unit = 'L/D',
+        fmtstr = '%.2f',
+    ),
+)
