@@ -1,6 +1,6 @@
-======
-ESSIIP
-======
+====
+YMIR
+====
 
 `ESS <https://europeanspallationsource.se/>`_ Instrument Integration Project.
 
