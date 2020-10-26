@@ -30,7 +30,7 @@ from nicos.guisupport.qt import QDialog, QIcon, QMessageBox, QSize, \
 from nicos.utils import findResource, formatDuration
 
 from nicos_ess.loki.gui.measdialogs import LOOPS, DetsetDialog, \
-    DevicesDialog, MeasDef, RtConfigDialog, SampleDialog
+    DevicesDialog, MeasDef, SampleDialog
 from nicos_ess.loki.gui.measelement import Sample, Device
 
 
@@ -44,9 +44,7 @@ class MeasureTable(Cmdlet):
     def __init__(self, parent, client):
         uipath = findResource('nicos_ess/loki/gui/ui_files/table.ui')
         Cmdlet.__init__(self, parent, client, uipath)
-        self.measdef = self.meas_def_class(rtmode=False)
-        self.rt_settings = RtConfigDialog.DEFAULT_SETTINGS.copy()
-        self.rtConfBtn.setEnabled(False)
+        self.measdef = self.meas_def_class()
         self.updateTable()
         for loop in LOOPS:
             self.outerLoop.addItem(loop)
@@ -122,27 +120,11 @@ class MeasureTable(Cmdlet):
 
     def on_client_experiment(self, data):
         # reset everything
-        self.rtBox.setChecked(False)
-        self._clearTable()
-
-    def on_rtBox_toggled(self, state):
-        self.rtConfBtn.setEnabled(state)
         self._clearTable()
 
     def _clearTable(self):
-        self.measdef = self.meas_def_class(self.rtBox.isChecked(), self.measdef.loops)
+        self.measdef = self.meas_def_class(self.measdef.loops)
         self.updateTable()
-
-    @pyqtSlot()
-    def on_rtConfBtn_clicked(self):
-        dlg = RtConfigDialog(self)
-        dlg.setSettings(self.rt_settings)
-        if not dlg.exec_():
-            return
-        self.rt_settings = dlg.getSettings()
-
-    def getValues(self):
-        return {}
 
     def setValues(self, values):
         pass
@@ -164,8 +146,6 @@ class MeasureTable(Cmdlet):
                 if element.eltype == 'time':
                     total_time += element.getValue()
         self.table.resizeRowsToContents()
-        if self.rtBox.isChecked():
-            total_time = self.rt_settings['totaltime'] * len(table)
         self.totalTime.setText(formatDuration(total_time))
         self.changed()
 
