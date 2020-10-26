@@ -12,7 +12,7 @@ sysconfig = dict(
     # Adapt this name to your instrument's name (also below).
     instrument = 'Andes',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink', 'nxsink'],
 #    notifiers = ['email'],
 )
 
@@ -47,6 +47,11 @@ devices = dict(
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
     livesink = device('nicos.devices.datasinks.LiveViewSink'),
+    nxsink = device('nicos_sinq.nexus.nexussink.NexusSink',
+        description = "sink for NeXus file writer",
+        filenametemplate = ['andes%(year)sn%(scancounter)06d.hdf'],
+        templateclass = 'nicos_lahn.andes.nexus.nexus_templates.ANDESTemplateProvider',
+    ),
     Space = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         path = '/mnt/nfs_clientshare/andes/',
