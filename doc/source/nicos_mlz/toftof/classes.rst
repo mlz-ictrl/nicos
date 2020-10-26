@@ -4,7 +4,7 @@
 Chopper
 -------
 
-.. automodule:: nicos_mlz.toftof.devices.chopper
+.. module:: nicos_mlz.toftof.devices.chopper
 
 .. autoclass:: Controller()
 .. autoclass:: SpeedReadout()
@@ -18,14 +18,14 @@ Chopper
 Pyrometer
 ---------
 
-.. automodule:: nicos_mlz.toftof.devices.impac
+.. module:: nicos_mlz.toftof.devices.impac
 
 .. autoclass:: TemperatureSensor()
 
 Temperature Controller
 ----------------------
 
-.. automodule:: nicos_mlz.toftof.devices.lascon
+.. module:: nicos_mlz.toftof.devices.lascon
 
 .. autoclass:: TemperatureController()
 .. autoclass:: TemperatureSensor()
@@ -33,14 +33,14 @@ Temperature Controller
 Neutron Guide/Collimation
 -------------------------
 
-.. automodule:: nicos_mlz.toftof.devices.neutronguide
+.. module:: nicos_mlz.toftof.devices.neutronguide
 
 .. autoclass:: Switcher()
 
 Safety System
 -------------
 
-.. automodule:: nicos_mlz.toftof.devices.safety
+.. module:: nicos_mlz.toftof.devices.safety
 
 .. autoclass:: SafetyInputs()
 .. autoclass:: Shutter()
@@ -48,17 +48,17 @@ Safety System
 Detector
 --------
 
-.. automodule:: nicos_mlz.toftof.devices.tofcounter
+.. module:: nicos_mlz.toftof.devices.tofcounter
 
 .. autoclass:: Monitor()
 .. autoclass:: Timer()
 .. autoclass:: Image()
 
-.. automodule:: nicos_mlz.toftof.devices.detector
+.. module:: nicos_mlz.toftof.devices.detector
 
 .. autoclass:: Detector()
 
-.. automodule:: nicos_mlz.toftof.devices.toni
+.. module:: nicos_mlz.toftof.devices.toni
 
 .. autoclass:: ToniBus()
 .. autoclass:: LVPower()
@@ -67,18 +67,18 @@ Detector
 Data formats
 ------------
 
-.. automodule:: nicos_mlz.toftof.devices.datasinks
+.. module:: nicos_mlz.toftof.devices.datasinks
 
 .. autoclass:: TofImageSink()
 
 Experiment
 ----------
 
-.. automodule:: nicos_mlz.toftof.devices.experiment
+.. module:: nicos_mlz.toftof.devices.experiment
 .. autoclass:: Experiment()
 
 
 .. Misc
    ----
-   .. automodule:: nicos_mlz.toftof.devices.virtual
+   .. module:: nicos_mlz.toftof.devices.virtual
    .. autoclass:: VirtualImage()

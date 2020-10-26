@@ -1,7 +1,7 @@
 JCNS
 ====
 
-.. automodule:: nicos_mlz.jcns.devices.fpga
+.. module:: nicos_mlz.jcns.devices.fpga
 .. autoclass:: FPGAChannelBase()
 .. autoclass:: FPGATimerChannel()
 .. autoclass:: FPGACounterChannel()
@@ -9,21 +9,21 @@ JCNS
 .. autoclass:: FPGARate()
 .. autoclass:: FPGAFrequency()
 
-.. automodule:: nicos_mlz.jcns.devices.shutter
+.. module:: nicos_mlz.jcns.devices.shutter
 .. autoclass:: Shutter()
 
-.. automodule:: nicos_mlz.jcns.devices.motor
+.. module:: nicos_mlz.jcns.devices.motor
 .. autoclass:: InvertableMotor()
 .. autoclass:: MasterSlaveMotor()
 
-.. automodule:: nicos_mlz.jcns.devices.detector
+.. module:: nicos_mlz.jcns.devices.detector
 .. autoclass:: RateImageChannel()
 
-.. automodule:: nicos_mlz.jcns.devices.iviumstat
+.. module:: nicos_mlz.jcns.devices.iviumstat
 .. autoclass:: StopNamedDigitalOutput()
 
-.. automodule:: nicos_mlz.jcns.devices.meteo
+.. module:: nicos_mlz.jcns.devices.meteo
 .. autoclass:: MeteoStation()
 
-.. automodule:: nicos_mlz.jcns.devices.ohe
+.. module:: nicos_mlz.jcns.devices.ohe
 .. autoclass:: HexapodSpecial()

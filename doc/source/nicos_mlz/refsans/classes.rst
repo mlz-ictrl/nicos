@@ -2,7 +2,7 @@
 ===============================================
 
 
-.. automodule:: nicos_mlz.refsans.devices.nok_support
+.. module:: nicos_mlz.refsans.devices.nok_support
 
 .. autoclass:: PseudoNOK()
 .. autoclass:: NOKMonitoredVoltage()
@@ -11,20 +11,20 @@
 .. autoclass:: DoubleMotorNOK()
 .. autoclass:: DoubleMotorNOKIPC()
 
-.. automodule:: nicos_mlz.refsans.devices.ipc
+.. module:: nicos_mlz.refsans.devices.ipc
 .. autoclass:: NOKMotorIPC()
 
-.. automodule:: nicos_mlz.refsans.devices.slits
+.. module:: nicos_mlz.refsans.devices.slits
 
 .. autoclass:: SingleSlit()
 .. autoclass:: DoubleSlit()
 .. autoclass:: DoubleSlitSequence()
 .. autoclass:: SingleSlitAxis()
 
-.. automodule:: nicos_mlz.refsans.devices.optic
+.. module:: nicos_mlz.refsans.devices.optic
 .. autoclass:: Optic()
 
-.. automodule:: nicos_mlz.refsans.devices.beckhoff.nok
+.. module:: nicos_mlz.refsans.devices.beckhoff.nok
 .. autoclass:: BeckhoffMotorCab1()
 .. autoclass:: BeckhoffMotorCab1M0x()
 .. autoclass:: BeckhoffMotorCab1M13()
@@ -35,49 +35,49 @@
 .. autoclass:: DoubleMotorBeckhoffNOK()
 .. autoclass:: SingleSideRead()
 
-.. automodule:: nicos_mlz.refsans.devices.beckhoff.pumpstation
+.. module:: nicos_mlz.refsans.devices.beckhoff.pumpstation
 .. autoclass:: PumpstandIO()
 .. autoclass:: PumpstandPressure()
 .. autoclass:: PumpstandPump()
 
-.. automodule:: nicos_mlz.refsans.devices.beckhoff.vsd
+.. module:: nicos_mlz.refsans.devices.beckhoff.vsd
 .. autoclass:: VSDIO()
 .. autoclass:: AnalogValue()
 .. autoclass:: DigitalValue()
 
-.. automodule:: nicos_mlz.refsans.devices.detector
+.. module:: nicos_mlz.refsans.devices.detector
 .. autoclass:: ComtecCounter()
 .. autoclass:: ComtecTimer()
 .. autoclass:: ComtecFilename()
 
-.. automodule:: nicos_mlz.refsans.devices.gkssjson
+.. module:: nicos_mlz.refsans.devices.gkssjson
 .. autoclass:: SdsRatemeter()
 .. autoclass:: CPTReadout()
 
-.. automodule:: nicos_mlz.refsans.devices.chopper.real
+.. module:: nicos_mlz.refsans.devices.chopper.real
 .. autoclass:: ChopperMaster()
 .. autoclass:: ChopperDisc()
 .. autoclass:: ChopperDisc2()
 .. autoclass:: ChopperDiscTranslation()
 
-.. automodule:: nicos_mlz.refsans.devices.skew_motor
+.. module:: nicos_mlz.refsans.devices.skew_motor
 .. autoclass:: SkewRead()
 .. autoclass:: SkewMotor()
 
-.. automodule:: nicos_mlz.refsans.devices.analogencoder
+.. module:: nicos_mlz.refsans.devices.analogencoder
 .. autoclass:: AnalogEncoder()
 .. autoclass:: AnalogMove()
 
-.. automodule:: nicos_mlz.refsans.devices.sample
+.. module:: nicos_mlz.refsans.devices.sample
 .. autoclass:: Sample()
 
-.. automodule:: nicos_mlz.refsans.devices.det_yoke_enc
+.. module:: nicos_mlz.refsans.devices.det_yoke_enc
 .. autoclass:: BasePos()
 
 Data Sinks
 ----------
 
-.. automodule:: nicos_mlz.refsans.devices.datasinks
+.. module:: nicos_mlz.refsans.devices.datasinks
 .. autoclass:: ConfigObjDatafileSink()
 
 .. currentmodule:: nicos_mlz.refsans.devices.detector
@@ -86,7 +86,7 @@ Data Sinks
 Instrument specific widgets
 ---------------------------
 
-.. automodule:: nicos_mlz.refsans.gui.monitorwidgets
+.. module:: nicos_mlz.refsans.gui.monitorwidgets
 .. autoclass:: VRefsans()
 .. autoclass:: BeamPosition()
 .. autoclass:: TimeDistance()
