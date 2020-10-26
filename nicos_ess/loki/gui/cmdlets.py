@@ -126,9 +126,6 @@ class MeasureTable(Cmdlet):
         self.measdef = self.meas_def_class(self.measdef.loops)
         self.updateTable()
 
-    def getValues(self):
-        return {}
-
     def setValues(self, values):
         pass
 
