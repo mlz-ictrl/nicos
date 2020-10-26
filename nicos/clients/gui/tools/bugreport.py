@@ -75,12 +75,13 @@ class BugreportTool(DlgUtils, QDialog):
 
         self.stacker.setCurrentIndex(0)
         self.subject.setFocus()
-        btn = self.buttonBox.addButton('Login details', QDialogButtonBox.ResetRole)
+        btn = self.buttonBox.addButton('Login details',
+                                       QDialogButtonBox.ResetRole)
         btn.clicked.connect(self._queryDetails)
 
         if not redminelib:
-            self.showError('Reporting is not possible since the python-redmine '
-                           'module is not installed.')
+            self.showError('Reporting is not possible since the '
+                           'python-redmine module is not installed.')
             return  # don't add Submit button
         elif not self.instrument or not self.apikey:
             if not self._queryDetails():
@@ -183,9 +184,9 @@ class BugreportTool(DlgUtils, QDialog):
             ticket_num = self.submitIssue(ticket_type, is_critical, subject,
                                           description, reproduction, add_log)
         except Exception as e:
-            self.showError('Unfortunately, something went wrong submitting the '
-                           'ticket (%s). The tracker page will now be opened, '
-                           'please enter the ticket there.' % e)
+            self.showError('Unfortunately, something went wrong submitting '
+                           'the ticket (%s). The tracker page will now be '
+                           'opened, please enter the ticket there.' % e)
             QDesktopServices.openUrl(QUrl(CREATE_TICKET_URL))
             return
 
