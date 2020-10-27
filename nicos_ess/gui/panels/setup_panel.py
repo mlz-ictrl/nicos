@@ -46,10 +46,6 @@ class ExpPanel(DefaultExpPanel):
     panelName = 'Experiment setup'
     ui = '%s/panels/ui_files/setup_exp.ui' % uipath
 
-    def __init__(self, parent, client, options):
-        DefaultExpPanel.__init__(self, parent, client, options)
-        delattr(self, '_finish_exp_panel')
-
     def on_client_connected(self):
         # fill proposal
         self._update_proposal_info()
@@ -61,10 +57,11 @@ class ExpPanel(DefaultExpPanel):
             self.queryDBButton.setVisible(True)
         else:
             self.queryDBButton.setVisible(False)
-        if self.client.viewonly:
-            self.buttonBox.removeButton(QDialogButtonBox.Apply)
-        else:
-            self.buttonBox.setStandardButtons(QDialogButtonBox.Apply)
+        self.setViewOnly(self.client.viewonly)
+
+    def setViewOnly(self, viewonly):
+        self.buttonBox.setEnabled(not viewonly)
+        self.queryDBButton.setEnabled(not viewonly)
 
     def _getProposalInput(self):
         prop = self.proposalNum.text()

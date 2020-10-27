@@ -71,9 +71,14 @@ class ExpPanel(Panel):
         self._new_exp_panel = options.get('new_exp_panel')
         self._finish_exp_panel = options.get('finish_exp_panel')
 
+        if client.isconnected:
+            self.on_client_connected()
+        else:
+            self.on_client_disconnected()
         client.connected.connect(self.on_client_connected)
         client.setup.connect(self.on_client_connected)
         client.experiment.connect(self.on_client_experiment)
+        client.disconnected.connect(self.on_client_disconnected)
 
     def _update_proposal_info(self):
         values = self.client.eval('session.experiment.proposal, '
@@ -131,6 +136,9 @@ class ExpPanel(Panel):
             self.finishButton.setVisible(True)
             self.buttonBox.setStandardButtons(QDialogButtonBox.Apply |
                                               QDialogButtonBox.Close)
+
+    def on_client_disconnected(self):
+        self.setViewOnly(True)
 
     def on_client_experiment(self, data):
         # just reinitialize
