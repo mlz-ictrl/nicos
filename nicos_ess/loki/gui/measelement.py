@@ -186,51 +186,20 @@ class Detector(MeasElement):
         self.changed.emit(self.value)
 
 
-class Chopper(MeasElement):
-    """Element for selecting chopper TOF resolution."""
-
-    CACHE_KEY = 'chopper/resolutions'
-    SORT_KEY = lambda self, x: num_sort(x)
-    LABEL = u'TOF dλ/λ'
-
-    def createWidget(self, parent, client):
-        resos = client.getDeviceParam(*self.CACHE_KEY.split('/'))
-        self._values = ['off'] + ['%.1f%%' % v
-                                  for v in (resos or [])] + ['manual']
-        self._widget = QComboBox(parent)
-        self._widget.addItems(self._values)
-        if self.value is not None and self.value in self._values:
-            self._widget.setCurrentIndex(self._values.index(self.value))
-        elif self.value is None and self._values:
-            self.value = self._values[0]
-        self._widget.currentIndexChanged.connect(self._updateValue)
-        return self._widget
-
-    def _updateValue(self, index):
-        self.value = self._values[index]
-        self.changed.emit(self.value)
-
-
-class Selector(ChoiceElement):
-    CACHE_KEY = 'selector/mapping'
-    SORT_KEY = lambda self, x: num_sort(x)
-    LABEL = 'Selector'
-
-
 class Polarizer(ChoiceElement):
     CACHE_KEY = 'polarizer/values'
     LABEL = 'Polarizer'
-
-
-class Lenses(ChoiceElement):
-    CACHE_KEY = 'lenses/values'
-    LABEL = 'Lenses'
 
 
 class Collimation(ChoiceElement):
     CACHE_KEY = 'collimation/mapping'
     SORT_KEY = lambda self, x: num_sort(x)
     LABEL = 'Collimation'
+
+
+class Mode(ChoiceElement):
+    LABEL = 'Mode'
+    VALUES = ['TRANS', 'SANS']
 
 
 class MeasTime(MeasElement):
