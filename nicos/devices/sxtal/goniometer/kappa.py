@@ -78,7 +78,9 @@ class Kappa(PositionBase):
 
             Keep the same reflection active in the center of the detector.
         """
-        return self.With(theta=-self.theta, omega=self.omega + np.rad2deg(180) - 2 * self.theta)
+        return self.With(theta=-self.theta,
+                         omega=self.omega + np.deg2rad(180) - 2 * self.theta,
+                         _rad=True)
 
     def asG(self, _wavelength=None):
         """ Conversion. Part of Position subclass protocol.

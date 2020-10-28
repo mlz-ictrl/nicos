@@ -109,7 +109,7 @@ class Euler(PositionBase):
         """
         if not hasattr(self, 'alpha'):
             self.alpha = np.deg2rad(60)  # TODO: get from experiment?
-            self.kappamax = np.rad2deg(180)
+            self.kappamax = np.deg2rad(180)
 
         si = np.sin(0.5 * self.chi)
         co = np.sin(self.alpha) ** 2 - si ** 2
