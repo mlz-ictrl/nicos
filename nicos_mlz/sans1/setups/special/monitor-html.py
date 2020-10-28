@@ -31,6 +31,15 @@ _selcolumn = Column(
     ),
 )
 
+_instrumentshutter= Column(
+    Block('Shutter', [
+        BlockRow(
+                 Field(name='Position', dev='instrument_shutter', width=11),
+                ),
+        ],
+    ),
+)
+
 _ubahncolumn = Column(
     Block('U-Bahn', [
         BlockRow(
@@ -444,58 +453,58 @@ _p_filter = Column(
 
 _ccmsans = Column(
     Block('SANS-1 5T Magnet', [
-        BlockRow(Field(name='Field', dev='b_ccmsans', width=14),
-                ),
+        BlockRow(Field(name='Field', dev='B_ccm5h', width=12),
+             ),
         BlockRow(
-                 Field(name='Target', key='b_ccmsans/target', width=14),
-                 Field(name='Asymmetry', key='b_ccmsans/asymmetry', width=14),
-                ),
+                Field(name='Target', key='B_ccm5h/target', width=12),
+                Field(name='Asymmetry', key='B_ccm5h/asymmetry', width=12),
+            ),
         BlockRow(
-                 Field(name='Power Supply 1', dev='a_ccmsans_left', width=14),
-                 Field(name='Power Supply 2', dev='a_ccmsans_right', width=14),
-                ),
-        ],
-        setups='ccmsans',
+                Field(name='Power Supply 1', dev='I1_ccm5h', width=12),
+                Field(name='Power Supply 2', dev='I2_ccm5h', width=12),
+            ),
+    ],
+    setups='ccm5h',
     ),
 )
 
 _ccmsans_temperature = Column(
     Block('SANS-1 5T Magnet Temperatures', [
-        BlockRow(
-                 Field(name='CH Stage 1', dev='ccmsans_T1', width=14),
-                 Field(name='CH Stage 2', dev='ccmsans_T2', width=14),
-                ),
-        BlockRow(
-                 Field(name='Shield Top', dev='ccmsans_T3', width=14),
-                 Field(name='Shield Bottom', dev='ccmsans_T4', width=14),
-                ),
-        BlockRow(
-                 Field(name='Magnet TL', dev='ccmsans_T5', width=14),
-                 Field(name='Magnet TR', dev='ccmsans_T6', width=14),
-                ),
-        BlockRow(
-                 Field(name='Magnet BL', dev='ccmsans_T8', width=14),
-                 Field(name='Magnet BR', dev='ccmsans_T7', width=14),
-                ),
-        ],
-        setups='ccmsans',
+    BlockRow(
+                Field(name='CH Stage 1', dev='ccm5h_T_stage1', width=12),
+                Field(name='CH Stage 2', dev='ccm5h_T_stage2', width=12),
+            ),
+    BlockRow(
+                Field(name='Shield Top', dev='ccm5h_T_shield_top', width=12),
+                Field(name='Shield Bottom', dev='ccm5h_T_shield_bottom', width=12),
+            ),
+    BlockRow(
+                Field(name='Magnet TL', dev='ccm5h_T_topleft', width=12),
+                Field(name='Magnet TR', dev='ccm5h_T_topright', width=12),
+            ),
+    BlockRow(
+                Field(name='Magnet BL', dev='ccm5h_T_bottomleft', width=12),
+                Field(name='Magnet BR', dev='ccm5h_T_bottomright', width=12),
+            ),
+    ],
+    setups='ccm5h',
     ),
 )
 
 _ccmsans_plot = Column(
     Block('SANS-1 5T Magnet plot', [
         BlockRow(
-                 Field(plot='30 min ccmsans', name='30 min', dev='B_ccmsans',
+                 Field(plot='30 min ccmsans', name='30 min', dev='B_ccm5h',
                        width=60, height=40, plotwindow=1800),
                  Field(plot='30 min ccmsans', name='Target',
-                       key='B_ccmsans/target'),
-                 Field(plot='12 h ccmsans', name='12 h', dev='B_ccmsans',
+                       key='B_ccm5h/target'),
+                 Field(plot='12 h ccmsans', name='12 h', dev='B_ccm5h',
                        width=60, height=40, plotwindow=12*3600),
                  Field(plot='12 h ccmsans', name='Target',
-                       key='B_ccmsans/target'),
+                       key='B_ccm5h/target'),
         ),
         ],
-        setups='ccmsans',
+    setups='ccm5h',
     ),
 )
 
@@ -875,7 +884,7 @@ _wuts = Column(*tuple(wuts))
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
         title = 'SANS-1 Status monitor',
-        filename = '/sans1control/webroot/index.html',
+        filename = '/control/webroot/index.html',
         interval = 10,
         loglevel = 'info',
         cache = 'sans1ctrl.sans1.frm2',
@@ -887,7 +896,7 @@ devices = dict(
             Row(_expcolumn),
             Row(_sans1general, _table2, _table1, _sans1det),
             Row(_ubahncolumn, _meteocolumn, _pressurecolumn, _p_filter),
-            Row(_selcolumn, _chop_phase, _col_slit, _atpolcolumn, _sanscolumn),
+            Row(_instrumentshutter, _selcolumn, _chop_phase, _col_slit, _atpolcolumn, _sanscolumn),
             Row(_ccmsans, _ccmsans_temperature,
                 _ccm2a, _ccm2a_temperature,
                 _spinflipper, _ccrs, _cryos, _sc1, _sc2,

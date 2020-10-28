@@ -4,12 +4,12 @@ group = 'lowlevel'
 
 excludes = ['short_table_treff', 'table_lab']
 
-nethost = 'localhost'
+tango_base = 'tango://localhost:10000/del/table/'
 
 devices = dict(
-    mo_x = device('nicos.devices.taco.Motor',
+    mo_x = device('nicos.devices.tango.Motor',
         lowlevel = True,
-        tacodevice = '//%s/del/table/xmot' % nethost,
+        tangodevice = tango_base + 'xmot',
         unit = 'mm',
         abslimits = (0, 972),
         userlimits = (0, 972),
@@ -20,9 +20,9 @@ devices = dict(
         fmtstr = '%.3f',
         precision = 0.01,
     ),
-    mo_y = device('nicos.devices.taco.Motor',
+    mo_y = device('nicos.devices.tango.Motor',
         lowlevel = True,
-        tacodevice = '//%s/del/table/ymot' % nethost,
+        tangodevice = tango_base + 'ymot',
         unit = 'mm',
         abslimits = (0, 264.5),
         userlimits = (0, 264.5),

@@ -115,7 +115,7 @@ devices = dict(
         top = 'sst',
         opmode = 'offcentered',
     ),
-    vdetsxtal = device('nicos.devices.sxtal.virtual.VirtualSXtalDetector',
+    vdetsxtal = device('nicos.devices.sxtal.virtual.VirtualSXTalDetector',
         description = 'simulated TAS intensity',
         sxtal = 'sxtal',
         background = 1,

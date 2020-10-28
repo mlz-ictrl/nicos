@@ -293,7 +293,8 @@ class DevicesPanel(Panel):
 
     def setExpertMode(self, expert):
         self._show_lowlevel = expert
-        self.on_client_connected()
+        if self.client.isconnected:
+            self.on_client_connected()
 
     def clear(self):
         if self.tree:

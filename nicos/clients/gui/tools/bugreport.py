@@ -25,10 +25,13 @@
 """Simplified interface to report a ticket to the NICOS Redmine tracker."""
 
 import html
+import sys
 
+from nicos import nicos_version
 from nicos.clients.gui.utils import DlgUtils, loadUi
-from nicos.guisupport.qt import QCheckBox, QDesktopServices, QDialog, \
-    QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QSettings, QUrl
+from nicos.guisupport.qt import PYQT_VERSION_STR, QT_VERSION_STR, QCheckBox, \
+    QDesktopServices, QDialog, QDialogButtonBox, QGridLayout, QLabel, \
+    QLineEdit, QSettings, QUrl
 
 try:
     import redminelib
@@ -52,6 +55,7 @@ class BugreportTool(DlgUtils, QDialog):
         QDialog.__init__(self, parent)
         DlgUtils.__init__(self, self.toolName)
         loadUi(self, 'tools/bugreport.ui')
+        self.client = client
 
         settings = QSettings('nicos', 'secrets')
         settings.beginGroup('Redmine')
@@ -71,12 +75,13 @@ class BugreportTool(DlgUtils, QDialog):
 
         self.stacker.setCurrentIndex(0)
         self.subject.setFocus()
-        btn = self.buttonBox.addButton('Login details', QDialogButtonBox.ResetRole)
+        btn = self.buttonBox.addButton('Login details',
+                                       QDialogButtonBox.ResetRole)
         btn.clicked.connect(self._queryDetails)
 
         if not redminelib:
-            self.showError('Reporting is not possible since the python-redmine '
-                           'module is not installed.')
+            self.showError('Reporting is not possible since the '
+                           'python-redmine module is not installed.')
             return  # don't add Submit button
         elif not self.instrument or not self.apikey:
             if not self._queryDetails():
@@ -149,7 +154,25 @@ class BugreportTool(DlgUtils, QDialog):
         ticket_type = self.ticketType.currentText()
         is_critical = self.highPrio.isChecked()
         subject = self.subject.text().strip()
+        info = [
+            'Used versions:',
+            '    Client: %s' % nicos_version,
+            '    Python: %s' % sys.version.split()[0],
+            '    Qt:     %s' % QT_VERSION_STR,
+            '    PyQt:   %s' % PYQT_VERSION_STR,
+        ]
+        if self.client.isconnected:
+            dinfo = self.client.daemon_info.copy()
+            info += [
+                '    Server: %s' % dinfo.get('daemon_version', ''),
+                'Connected to: %s' % self.client.host,
+                '    root: %s' % dinfo.get('nicos_root', ''),
+                '    custom:',
+                '        path:    %s' % dinfo.get('custom_path', ''),
+                '        version: %s' % dinfo.get('custom_version', ''),
+            ]
         description = self.descText.toPlainText().strip()
+        description += '\n\n' + '\n'.join(info)
         reproduction = self.reproText.toPlainText().strip()
         add_log = self.scriptBox.isChecked()
 
@@ -161,9 +184,9 @@ class BugreportTool(DlgUtils, QDialog):
             ticket_num = self.submitIssue(ticket_type, is_critical, subject,
                                           description, reproduction, add_log)
         except Exception as e:
-            self.showError('Unfortunately, something went wrong submitting the '
-                           'ticket (%s). The tracker page will now be opened, '
-                           'please enter the ticket there.' % e)
+            self.showError('Unfortunately, something went wrong submitting '
+                           'the ticket (%s). The tracker page will now be '
+                           'opened, please enter the ticket there.' % e)
             QDesktopServices.openUrl(QUrl(CREATE_TICKET_URL))
             return
 

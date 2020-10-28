@@ -1,8 +1,7 @@
-======
-ESSIIP
-======
+=====================================
+`BOA <https://www.psi.ch/sinq/boa/>`_
+=====================================
 
-`ESS <https://europeanspallationsource.se/>`_ Instrument Integration Project.
 
 Instrument setups
 =================

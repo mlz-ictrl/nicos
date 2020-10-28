@@ -93,6 +93,8 @@ class SingleFileSinkHandler(DataSinkHandler):
                                                      self.sink.filenametemplate,
                                                      self.sink.subdir,
                                                      fileclass=self.fileclass,
+                                                     filemode=self.sink.filemode,
+                                                     logger=self.sink.log,
                                                      **kwargs)
         return self._file
 

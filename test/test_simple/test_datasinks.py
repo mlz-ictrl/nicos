@@ -238,6 +238,7 @@ class TestSinks:
     def test_fits_sink(self, session):
         fitsfile = path.join(session.experiment.datapath, '00000168.fits')
         assert path.isfile(fitsfile)
+        assert ('%o' % os.stat(fitsfile).st_mode)[2:] == '0444'
         with pyfits.open(fitsfile) as ffile:
             hdu = ffile[0]
             assert hdu.data.shape == (128, 128)

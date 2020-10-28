@@ -55,9 +55,9 @@ class Switch(HasTimeout, NamedDigitalOutput):
         NamedDigitalOutput.doInit(self, mode)
         # Don't create PyTango device in simulation mode
         if mode != SIMULATION:
-            self._remote = self._createPyTangoDevice(devname=self.remote)
-            self._readback = self._createPyTangoDevice(devname=self.readback)
-            self._error = self._createPyTangoDevice(devname=self.error)
+            self._remote = self._createPyTangoDevice(self.remote)
+            self._readback = self._createPyTangoDevice(self.readback)
+            self._error = self._createPyTangoDevice(self.error)
             self._sleeptime = 0.1
         else:
             self._remote = HardwareStub(self)

@@ -79,21 +79,21 @@ def fix_file(fn, make_backups=False, dryrun=True, verbose=False):
             value = fixes[value]
         else:
             try:
-                eval(value, dict(cache_unpickle=lambda x:x, inf=0))
+                eval(value, dict(cache_unpickle=lambda x:x, inf=0, nan=0))
                 # remembering values which need no fix save the cost of eval
                 fixes[value] = value
-            except SyntaxError:
+            except (SyntaxError, NameError):
                 if verbose:
                     print('- %s' % value.decode('latin-1'))
                 fixed_value = LIM.sub(b'\\1',value)
                 # sanity check: recheck value
                 try:
-                    eval(fixed_value, dict(cache_unpickle=lambda x:x, inf=0))
+                    eval(fixed_value, dict(cache_unpickle=lambda x:x, inf=0, nan=0))
                     if verbose:
                         print('+ %s' % fixed_value.decode('latin-1'))
                     fixes[value] = fixed_value
                     value = fixed_value
-                except SyntaxError:
+                except (SyntaxError, NameError):
                     print('[%r:%d] SyntaxError: Cannot convert value automatically' % (fn, idx), file=sys.stderr)
                     print('[%r:%d] %r\n' % (fn, idx, l), file=sys.stderr)
                     return False
