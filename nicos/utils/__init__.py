@@ -38,7 +38,7 @@ import traceback
 import unicodedata
 from collections import OrderedDict
 from contextlib import contextmanager
-from datetime import timedelta
+from datetime import date, timedelta
 from functools import wraps
 from io import BufferedWriter, FileIO
 from itertools import chain, islice
@@ -1163,11 +1163,11 @@ def updateFileCounter(counterpath, key, value):
 
 def allDays(fromtime, totime):
     """Determine days of an interval between two timestamps."""
-    tmfr = int(mktime(localtime(fromtime)[:3] + (0, 0, 0, 0, 0, -1)))
-    tmto = int(min(currenttime(), totime))
-    for tmday in range(tmfr, tmto, 86400):
-        lt = localtime(tmday)
-        yield str(lt[0]), '%02d-%02d' % lt[1:3]
+    current = date.fromtimestamp(fromtime)
+    final = date.fromtimestamp(totime)
+    while current <= final:
+        yield f'{current.year}', f'{current.month:02}-{current.day:02}'
+        current += timedelta(days=1)
 
 
 # Note, binding "sleep" as a local here since this function usually is run
