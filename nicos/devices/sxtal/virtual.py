@@ -32,7 +32,7 @@ import numpy as np
 from nicos.core import Attach, Measurable, Param, Readable, Value, status, vec3
 
 
-class VirtualSXtalDetector(Measurable):
+class VirtualSXTalDetector(Measurable):
     attached_devices = {
         'sxtal': Attach('SXTAL device to read', Readable),
     }

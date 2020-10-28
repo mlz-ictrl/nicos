@@ -291,58 +291,58 @@ _irf10_plot = Block('IRF10 plot', [
 )
 
 _ccmsans = Block('SANS-1 5T Magnet', [
-    BlockRow(Field(name='Field', dev='B_ccmsans', width=12),
+    BlockRow(Field(name='Field', dev='B_ccm5h', width=12),
              ),
     BlockRow(
-             Field(name='Target', key='b_ccmsans/target', width=12),
-             Field(name='Asymmetry', key='b_ccmsans/asymmetry', width=12),
+             Field(name='Target', key='B_ccm5h/target', width=12),
+             Field(name='Asymmetry', key='B_ccm5h/asymmetry', width=12),
             ),
     BlockRow(
-             Field(name='Power Supply 1', dev='A_ccmsans_left', width=12),
-             Field(name='Power Supply 2', dev='A_ccmsans_right', width=12),
+             Field(name='Power Supply 1', dev='I1_ccm5h', width=12),
+             Field(name='Power Supply 2', dev='I2_ccm5h', width=12),
             ),
     ],
-    setups='ccmsans',
+    setups='ccm5h',
 )
 
 _ccmsans_temperature = Block('SANS-1 5T Magnet Temperatures', [
     BlockRow(
-             Field(name='CH Stage 1', dev='ccmsans_T1', width=12),
-             Field(name='CH Stage 2', dev='ccmsans_T2', width=12),
+             Field(name='CH Stage 1', dev='ccm5h_T_stage1', width=12),
+             Field(name='CH Stage 2', dev='ccm5h_T_stage2', width=12),
             ),
     BlockRow(
-             Field(name='Shield Top', dev='ccmsans_T3', width=12),
-             Field(name='Shield Bottom', dev='ccmsans_T4', width=12),
+             Field(name='Shield Top', dev='ccm5h_T_shield_top', width=12),
+             Field(name='Shield Bottom', dev='ccm5h_T_shield_bottom', width=12),
             ),
     BlockRow(
-             Field(name='Magnet TL', dev='ccmsans_T5', width=12),
-             Field(name='Magnet TR', dev='ccmsans_T6', width=12),
+             Field(name='Magnet TL', dev='ccm5h_T_topleft', width=12),
+             Field(name='Magnet TR', dev='ccm5h_T_topright', width=12),
             ),
     BlockRow(
-             Field(name='Magnet BL', dev='ccmsans_T8', width=12),
-             Field(name='Magnet BR', dev='ccmsans_T7', width=12),
+             Field(name='Magnet BL', dev='ccm5h_T_bottomleft', width=12),
+             Field(name='Magnet BR', dev='ccm5h_T_bottomright', width=12),
             ),
     ],
-    setups='ccmsans',
+    setups='ccm5h',
 )
 
 _ccmsans_plot = Block('SANS-1 5T Magnet plot', [
     BlockRow(
         Field(widget='nicos.guisupport.plots.TrendPlot',
               width=40, height=20, plotwindow=1800,
-              devices=['B_ccmsans', 'b_ccmsans/target'],
+              devices=['B_ccm5h', 'B_ccm5h/target'],
               names=['30min', 'Target'],
               legend=True,
               ),
         Field(widget='nicos.guisupport.plots.TrendPlot',
               width=40, height=20, plotwindow=12*3600,
-              devices=['B_ccmsans', 'b_ccmsans/target'],
+              devices=['B_ccm5h', 'B_ccm5h/target'],
               names=['12h', 'Target'],
               legend=True,
               ),
         ),
     ],
-    setups='ccmsans',
+    setups='ccm5h',
 )
 
 _miramagnet = Block('MIRA 0.5T Magnet', [

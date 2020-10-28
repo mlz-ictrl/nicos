@@ -2,12 +2,12 @@ description = 'x-z detector table in the kiosk'
 
 group = 'lowlevel'
 
-nethost = 'localhost'
+tango_base = 'tango://localhost:10000/del/table/'
 
 devices = dict(
-    mo_x = device('nicos.devices.taco.Motor',
+    mo_x = device('nicos.devices.tango.Motor',
         lowlevel = True,
-        tacodevice = '//%s/del/table/xmot' % (nethost,),
+        tangodevice = tango_base + 'xmot',
         unit = 'mm',
         abslimits = (0, 972),
         userlimits = (0, 972),

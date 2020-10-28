@@ -111,8 +111,8 @@ class CellBase:
             alphastar[2] = arccos((co[0] * co[1] - co[2]) / (si[0] * si[1]))
             return [astar, alphastar]
         except Exception as err:
-            raise ComputationError('%s when calculating reciprocal '
-                                   'lattice' % err)
+            raise ComputationError(
+                '%s when calculating reciprocal lattice' % err) from None
 
     def cal_volume_real(self):
         try:
@@ -123,8 +123,8 @@ class CellBase:
         except ComputationError:
             raise
         except Exception as err:
-            raise ComputationError('%s when calculating real space cell '
-                                   'volume' % err)
+            raise ComputationError(
+                '%s when calculating real space cell volume' % err) from None
 
     def cal_volume_rec(self):
         try:
@@ -133,7 +133,7 @@ class CellBase:
             raise
         except Exception as err:
             raise ComputationError('%s when calculating reciprocal space cell '
-                                   'volume' % err)
+                                   'volume' % err) from None
 
     def cal_zone(self):
         return cross(self._orient1, self._orient2)
@@ -154,8 +154,8 @@ class CellBase:
         except ComputationError:
             raise
         except Exception as err:
-            raise ComputationError('%s when calculating d value in '
-                                   'real space' % err)
+            raise ComputationError(
+                '%s when calculating d value in real space' % err) from None
 
     def cal_dvalue_rec(self, Qhkl):
         try:
@@ -164,7 +164,7 @@ class CellBase:
             raise
         except Exception as err:
             raise ComputationError('%s when calculating d value in '
-                                   'reciprocal space' % err)
+                                   'reciprocal space' % err) from None
 
     def matrix_crystal2lab(self):
         try:
@@ -198,7 +198,8 @@ class CellBase:
         except ComputationError:
             raise
         except Exception as err:
-            raise ComputationError('%s when calculating UB matrix' % err)
+            raise ComputationError(
+                '%s when calculating UB matrix' % err) from None
 
     def cal_Umatrix(self, vec1, vec2, vec3, direction):
         try:
@@ -221,7 +222,8 @@ class CellBase:
         except ComputationError:
             raise
         except Exception as err:
-            raise ComputationError('%s when calculating U matrix' % err)
+            raise ComputationError(
+                '%s when calculating U matrix' % err) from None
 
     def hkl2Qcart(self, h, k, l):
         """Return the cartesian coordinates of given (h,k,l) Miller indices."""
@@ -250,7 +252,8 @@ class CellBase:
         except ComputationError:
             raise
         except Exception as err:
-            raise ComputationError('%s when transforming Qlab -> hkl' % err)
+            raise ComputationError(
+                '%s when transforming Qlab -> hkl' % err) from None
 
     def Qcart2hkl(self, Qcart):
         mat_inv = inv(self._matrix)
@@ -274,8 +277,8 @@ class CellBase:
         except ComputationError:
             raise
         except Exception as err:
-            raise ComputationError('%s when transforming angles -> Q cartesian'
-                                   % err)
+            raise ComputationError(
+                '%s when transforming angles -> Q cartesian' % err) from None
 
     def angle2hkl(self, angles, coupled=False):
         """Calculate hkl Miller indices from instrument [ki, kf, phi, psi]."""
@@ -319,7 +322,8 @@ class CellBase:
         except ComputationError:
             raise
         except Exception as err:
-            raise ComputationError('%s when calculating angle (r1, Q)' % err)
+            raise ComputationError(
+                '%s when calculating angle (r1, Q)' % err) from None
 
     def _metric(self, a, alpha):
         m = zeros((3, 3))
@@ -373,8 +377,8 @@ class CellBase:
         except ComputationError:
             raise
         except Exception as err:
-            raise ComputationError('%s when calculating angle between vectors'
-                                   % err)
+            raise ComputationError(
+                '%s when calculating angle between vectors' % err) from None
 
     def cal_phi(self, q, ki, kf, sense):
         """Return the sample scattering angle."""
@@ -390,7 +394,8 @@ class CellBase:
         except ComputationError:
             raise
         except Exception as err:
-            raise ComputationError('%s when calculating phi angle' % err)
+            raise ComputationError(
+                '%s when calculating phi angle' % err) from None
 
     def cal_kf(self, ny, ki):
         """Calculate the outgoing wavevector for given energy transfer and
@@ -440,7 +445,7 @@ class CellBase:
         except ComputationError:
             raise
         except Exception as err:
-            raise ComputationError('%s when calculating k_i' % err)
+            raise ComputationError('%s when calculating k_i' % err) from None
 
     def cal_ki3(self, Qlab, ny, alpha):
         """Calculate the incoming wavevector for given Qlab vector, energy
@@ -458,7 +463,7 @@ class CellBase:
         except ComputationError:
             raise
         except Exception as err:
-            raise ComputationError('%s when calculating k_i' % err)
+            raise ComputationError('%s when calculating k_i' % err) from None
 
     def cal_psi(self, y, alpha):
         """Calculate the rotation angle sample for given angle Y (ki, r1) and
@@ -487,7 +492,7 @@ class CellBase:
         except ComputationError:
             raise
         except Exception as err:
-            raise ComputationError('%s when calculating alpha' % err)
+            raise ComputationError('%s when calculating alpha' % err) from None
 
     def cal_alpha2(self, y, psi):
         """Calculate the angle alpha (ki, Q) for given angle Y (ki, r1)
@@ -592,7 +597,8 @@ class CellBase:
         except ComputationError:
             raise
         except Exception as err:
-            raise ComputationError('%s when calculating angles for hkl' % err)
+            raise ComputationError(
+                '%s when calculating angles for hkl' % err) from None
 
     hkl2angle = cal_angles
 
@@ -677,3 +683,10 @@ class TASSample(Sample, Cell):
         self.psi0 = 0.0
         self.spacegroup = 1  # primitive triclinic, all reflexes allowed
         self.mosaic = 0.5
+
+    def _applyParams(self, number, parameters):
+        Sample._applyParams(self, number, parameters)
+        for key, value in parameters.items():
+            if key in ['lattice', 'angles', 'orient1', 'orient2', 'psi0',
+                       'spacegroup', 'mosaic']:
+                setattr(self, key, value)

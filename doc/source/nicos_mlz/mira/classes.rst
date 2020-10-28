@@ -7,48 +7,48 @@
 .. autoclass:: DigitalInput()
 .. autoclass:: NamedDigitalInput()
 
-.. automodule:: nicos_mlz.mira.devices.axis
+.. module:: nicos_mlz.mira.devices.axis
 .. autoclass:: HoveringAxis()
 
-.. automodule:: nicos_mlz.mira.devices.cascade
+.. module:: nicos_mlz.mira.devices.cascade
 .. autoclass:: MiraXmlHandler()
 .. autoclass:: MiraXmlSink()
 
-.. automodule:: nicos_mlz.mira.devices.center
+.. module:: nicos_mlz.mira.devices.center
 .. autoclass:: CrappySensor()
 
-.. automodule:: nicos_mlz.mira.devices.experiment
+.. module:: nicos_mlz.mira.devices.experiment
 .. autoclass:: MiraExperiment()
 
-.. automodule:: nicos_mlz.mira.devices.iseg
+.. module:: nicos_mlz.mira.devices.iseg
 .. autoclass:: CascadeIsegHV()
 
-.. automodule:: nicos_mlz.mira.devices.mieze
+.. module:: nicos_mlz.mira.devices.mieze
 .. autoclass:: MiezeMaster()
 
-.. automodule:: nicos_mlz.mira.devices.radmon
+.. module:: nicos_mlz.mira.devices.radmon
 .. autoclass:: RadMon()
 
-.. automodule:: nicos_mlz.mira.devices.refcountio
+.. module:: nicos_mlz.mira.devices.refcountio
 .. autoclass:: RefcountDigitalOutput()
 .. autoclass:: MultiDigitalOutput()
 
-.. automodule:: nicos_mlz.mira.devices.rfcircuit
+.. module:: nicos_mlz.mira.devices.rfcircuit
 .. autoclass:: GeneratorDevice()
 .. autoclass:: RFCurrent()
 
-.. automodule:: nicos_mlz.mira.devices.shutter
+.. module:: nicos_mlz.mira.devices.shutter
 .. autoclass:: Shutter()
 
-.. automodule:: nicos_mlz.mira.devices.spectro
+.. module:: nicos_mlz.mira.devices.spectro
 .. autoclass:: MIRA()
 
-.. automodule:: nicos_mlz.mira.devices.sr850
+.. module:: nicos_mlz.mira.devices.sr850
 .. autoclass:: Amplifier()
 
-.. automodule:: nicos_mlz.mira.devices.stargate
+.. module:: nicos_mlz.mira.devices.stargate
 .. autoclass:: Stargate()
 .. autoclass:: ATT()
 
-.. automodule:: nicos_mlz.mira.devices.switches
+.. module:: nicos_mlz.mira.devices.switches
 .. autoclass:: BeamElement()

@@ -71,9 +71,14 @@ class ExpPanel(Panel):
         self._new_exp_panel = options.get('new_exp_panel')
         self._finish_exp_panel = options.get('finish_exp_panel')
 
+        if client.isconnected:
+            self.on_client_connected()
+        else:
+            self.on_client_disconnected()
         client.connected.connect(self.on_client_connected)
         client.setup.connect(self.on_client_connected)
         client.experiment.connect(self.on_client_experiment)
+        client.disconnected.connect(self.on_client_disconnected)
 
     def _update_proposal_info(self):
         values = self.client.eval('session.experiment.proposal, '
@@ -132,6 +137,9 @@ class ExpPanel(Panel):
             self.buttonBox.setStandardButtons(QDialogButtonBox.Apply |
                                               QDialogButtonBox.Close)
 
+    def on_client_disconnected(self):
+        self.setViewOnly(True)
+
     def on_client_experiment(self, data):
         # just reinitialize
         self.on_client_connected()
@@ -145,7 +153,7 @@ class ExpPanel(Panel):
         except ValueError:
             QMessageBox.critical(self, 'Error', 'The local contact entry is '
                                  'not  a valid email address')
-            raise ConfigurationError('')
+            raise ConfigurationError('') from None
         emails = self.notifEmails.toPlainText().strip()
         emails = emails.split('\n') if emails else []
         if local and local not in emails:
@@ -333,23 +341,29 @@ class SetupsPanel(Panel):
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
         loadUi(self, 'panels/setup_setups.ui')
-
         self.errorLabel.hide()
         self.aliasGroup.hide()
+        self._reload_btn = QPushButton('Reload current setup')
+        self.finishUi()
+
         self._aliasWidgets = {}
         self._alias_config = None
-
         self._setupinfo = {}
         self._loaded = set()
         self._loaded_basic = None
         self._prev_aliases = {}
         self._prev_alias_config = None
 
-        self._reload_btn = QPushButton('Reload current setup')
         if client.isconnected:
             self.on_client_connected()
+        else:
+            self.on_client_disconnected()
         client.connected.connect(self.on_client_connected)
         client.setup.connect(self.on_client_connected)
+        client.disconnected.connect(self.on_client_disconnected)
+
+    def finishUi(self):
+        """Overload this to add any custom UI tweaks."""
 
     def on_client_connected(self):
         # fill setups
@@ -396,7 +410,13 @@ class SetupsPanel(Panel):
                                        else Qt.Unchecked)
         self.basicSetup.setCurrentItem(keep)
         self._prev_alias_config = self._alias_config
-        if self.client.viewonly:
+        self.setViewOnly(self.client.viewonly)
+
+    def on_client_disconnected(self):
+        self.setViewOnly(True)
+
+    def setViewOnly(self, viewonly):
+        if viewonly:
             self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
             self.buttonBox.removeButton(self._reload_btn)
         else:

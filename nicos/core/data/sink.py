@@ -35,7 +35,7 @@ from nicos.core.device import Device
 from nicos.core.errors import ProgrammingError
 from nicos.core.params import INFO_CATEGORIES, Override, Param, listof, setof
 from nicos.core.status import statuses
-from nicos.utils import File
+from nicos.utils import File, enableDisableFileItem
 
 
 class DataFileBase:
@@ -52,9 +52,17 @@ class DataFileBase:
 class DataFile(DataFileBase, File):
     """Represents a Nicos data file."""
 
-    def __init__(self, shortpath, filepath):
+    def __init__(self, shortpath, filepath, filemode=None, logger=None):
         DataFileBase.__init__(self, shortpath, filepath)
         File.__init__(self, filepath, 'wb')
+        self._log = logger
+        self._filemode = filemode
+
+    def close(self):
+        File.close(self)
+        if self._filemode is not None:
+            enableDisableFileItem(self.filepath, self._filemode,
+                                  logger=self._log)
 
 
 class GzipFile(DataFileBase, StdGzipFile):

@@ -65,6 +65,27 @@ devices = dict(
         type = 'monitor',
         readpv = pvdprefix + '.S4',
     ),
+    monitor4 = device('nicos_ess.devices.epics.detector'
+        '.EpicsCounterPassiveChannel',
+        epicstimeout = 3.0,
+        description = 'Third scalar counter channel',
+        type = 'monitor',
+        readpv = pvdprefix + '.S5',
+    ),
+    monitor5 = device('nicos_ess.devices.epics.detector'
+        '.EpicsCounterPassiveChannel',
+        epicstimeout = 3.0,
+        description = 'Third scalar counter channel',
+        type = 'monitor',
+        readpv = pvdprefix + '.S6',
+    ),
+    monitor6 = device('nicos_ess.devices.epics.detector'
+        '.EpicsCounterPassiveChannel',
+        epicstimeout = 3.0,
+        description = 'Third scalar counter channel',
+        type = 'monitor',
+        readpv = pvdprefix + '.S7',
+    ),
     monitor7 = device('nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout = 3.0,
         description = 'Seventh scalar counter channel',
@@ -92,7 +113,10 @@ devices = dict(
         lowlevel = True,
         bank = 'hm_bank0',
         connector = 'hm_connector',
-        dimensions = {'x': 128, 'y': 128},
+        dimensions = {
+            'x': 128,
+            'y': 128
+        },
     ),
     sansdet = device('nicos_sinq.devices.detector.SinqDetector',
         epicstimeout = 3.0,
@@ -102,13 +126,14 @@ devices = dict(
         pausepv = pvdprefix + ':Pause',
         statuspv = pvdprefix + ':Status',
         errormsgpv = pvdprefix + ':MsgTxt',
-        thresholdpv = pvdprefix + ':Threshold',
+        thresholdpv = pvdprefix + '.PR4',
+        thresholdcounterpv = pvdprefix + '.PR3',
         monitorpreset = 'monitorpreset',
         timepreset = 'timepreset',
         timers = ['elapsedtime'],
         monitors = [
-            'monitor1', 'protoncount', 'monitor2', 'monitor3', 'monitor7',
-            'monitor8'
+            'monitor1', 'protoncount', 'monitor2', 'monitor3', 'monitor4',
+            'monitor5', 'monitor6', 'monitor7', 'monitor8'
         ],
         images = ['sans_detector'],
         others = ['histogrammer'],

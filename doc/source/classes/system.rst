@@ -21,6 +21,8 @@ The experiment device is selected in setups using
 
 .. autoclass:: ImagingExperiment()
 
+.. autoclass:: SXTalExperiment()
+
 .. autoclass:: Sample()
 
 

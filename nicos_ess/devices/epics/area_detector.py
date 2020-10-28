@@ -244,8 +244,6 @@ class ADImageChannel(ImageChannelMixin, EpicsPassiveChannel):
     parameters = {
         'pvprefix': Param('Prefix of the record PV.', type=pvname,
                           mandatory=True, settable=False, userparam=False),
-        'rawdatapv': Param('Name of the image record PV.', type=pvname,
-                           mandatory=True, settable=False, userparam=False),
     }
 
     def _get_record_fields(self):
@@ -278,7 +276,6 @@ class ADImageChannel(ImageChannelMixin, EpicsPassiveChannel):
         """
         pvs = set(self._record_fields.keys())
         pvs.add('readpv')
-        pvs.add('rawdatapv')
         return pvs
 
     def _get_pv_name(self, pvparam):
@@ -308,8 +305,8 @@ class ADImageChannel(ImageChannelMixin, EpicsPassiveChannel):
         return [self._get_pv('min_x'), self._get_pv('min_y')]
 
     def doReadArray(self, quality):
-        data = self._get_pv('rawdatapv')
-        return data.reshape(self.arraydesc.shape)
+        data = self._get_pv('readpv')
+        return np.rot90(data.reshape(self.arraydesc.shape))
 
     def valueInfo(self):
         return (Value(self.name, unit=''), )
