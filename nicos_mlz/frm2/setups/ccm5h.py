@@ -67,7 +67,7 @@ devices = dict(
         pollinterval = 15,
     ),
     ccm5h_T_bottomleft = device('nicos.devices.tango.Sensor',
-        description = 'Coil bottom left',
+        description = 'Coil bottom left (thermometer or wiring broken!)',
         tangodevice = tango_base + 'ips2/t_bottomleft',
         fmtstr = '%.2f',
         maxage = 120,
