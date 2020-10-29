@@ -2,85 +2,85 @@
 =========================================
 
 
-.. automodule:: nicos_mlz.puma.devices.attenuator
+.. module:: nicos_mlz.puma.devices.attenuator
 .. autoclass:: Attenuator()
 
-.. automodule:: nicos_mlz.puma.devices.comb_ax
+.. module:: nicos_mlz.puma.devices.comb_ax
 .. autoclass:: CombAxis()
 
-.. automodule:: nicos_mlz.puma.devices.stackedaxis
+.. module:: nicos_mlz.puma.devices.stackedaxis
 .. autoclass:: StackedAxis()
 
-.. automodule:: nicos_mlz.puma.devices.filter
+.. module:: nicos_mlz.puma.devices.filter
 .. autoclass:: PumaFilter()
 
-.. automodule:: nicos_mlz.puma.devices.focus
+.. module:: nicos_mlz.puma.devices.focus
 .. autoclass:: FocusAxis()
 
-.. automodule:: nicos_mlz.puma.devices.ipc
+.. module:: nicos_mlz.puma.devices.ipc
 .. autoclass:: Coder()
 .. autoclass:: Motor()
 .. autoclass:: Motor1()
 .. autoclass:: ReferenceMotor()
 
-.. automodule:: nicos_mlz.puma.devices.maglock
+.. module:: nicos_mlz.puma.devices.maglock
 .. autoclass:: MagLock()
 
-.. automodule:: nicos_mlz.puma.devices.mchanger
+.. module:: nicos_mlz.puma.devices.mchanger
 .. autoclass:: Mchanger()
 
-.. automodule:: nicos_mlz.puma.devices.mtt
+.. module:: nicos_mlz.puma.devices.mtt
 .. autoclass:: MttAxis()
 
-.. automodule:: nicos_mlz.puma.devices.multianalyzer
+.. module:: nicos_mlz.puma.devices.multianalyzer
 .. autoclass:: PumaMultiAnalyzer()
 
-.. automodule:: nicos_mlz.puma.devices.multidetector
+.. module:: nicos_mlz.puma.devices.multidetector
 .. autoclass:: PumaMultiDetectorLayout()
 
-.. automodule:: nicos_mlz.puma.devices.coupledaxis
+.. module:: nicos_mlz.puma.devices.coupledaxis
 .. autoclass:: PumaCoupledAxis()
 
-.. automodule:: nicos_mlz.puma.devices.pgfilter
+.. module:: nicos_mlz.puma.devices.pgfilter
 .. autoclass:: PGFilter()
 
-.. automodule:: nicos_mlz.puma.devices.senseswitch
+.. module:: nicos_mlz.puma.devices.senseswitch
 .. autoclass:: SenseSwitch()
 
-.. automodule:: nicos_mlz.puma.devices.sh_cylinder
+.. module:: nicos_mlz.puma.devices.sh_cylinder
 .. autoclass:: SH_Cylinder()
 
-.. automodule:: nicos_mlz.puma.devices.spectro
+.. module:: nicos_mlz.puma.devices.spectro
 .. autoclass:: PUMA()
 
-.. automodule:: nicos_mlz.puma.devices.sr7
+.. module:: nicos_mlz.puma.devices.sr7
 .. autoclass:: SR7Shutter()
 
-.. automodule:: nicos_mlz.puma.devices.seccoll
+.. module:: nicos_mlz.puma.devices.seccoll
 .. autoclass:: PumaSecCollBlockChanger()
 .. autoclass:: PumaSecCollLift()
 .. autoclass:: PumaSecCollPair()
 .. autoclass:: PumaSecondaryCollimator()
 
-.. automodule:: nicos_mlz.puma.devices.virtual
+.. module:: nicos_mlz.puma.devices.virtual
 .. autoclass:: VirtualReferenceMotor()
 .. autoclass:: DigitalInput()
 .. autoclass:: LogoFeedBack()
 .. autoclass:: DigitalOutput()
 
-.. automodule:: nicos_mlz.puma.devices.collimator
+.. module:: nicos_mlz.puma.devices.collimator
 .. autoclass:: Collimator()
 
-.. automodule:: nicos_mlz.puma.devices.deflector
+.. module:: nicos_mlz.puma.devices.deflector
 .. autoclass:: Deflector()
 
-.. automodule:: nicos_mlz.puma.devices.taco
+.. module:: nicos_mlz.puma.devices.taco
 .. autoclass:: CycleCounter()
 
-.. automodule:: nicos_mlz.puma.devices.kineticdetector
+.. module:: nicos_mlz.puma.devices.kineticdetector
 .. autoclass:: KineticDetector
 
 Data sinks
 ----------
-.. automodule:: nicos_mlz.puma.devices.datasinks
+.. module:: nicos_mlz.puma.devices.datasinks
 .. autoclass:: PolarizationFileSink()

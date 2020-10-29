@@ -43,7 +43,7 @@ devices = dict(
         fmtstr = '%.1f',
         lowlevel = True,
     ),
-    stripped = device('nicos.devices.tango.NamedDigitalInput',
+    s_tripped = device('nicos.devices.tango.NamedDigitalInput',
         description = 'Trip indicator',
         tangodevice = tango_base + 'trip',
         mapping = {
@@ -52,6 +52,7 @@ devices = dict(
             'High current': 2,
             'Trip': 3,
         },
+        pollinterval = 1,
     ),
     s_hv = device('nicos_mlz.erwin.devices.charmhv.HVSwitch',
         description = 'HV supply small detector',
@@ -59,6 +60,8 @@ devices = dict(
         banodes = ['s_banode1'],
         cathodes = ['s_cathode1', 's_cathode2'],
         window = 's_window',
+        trip = 's_tripped',
+        pollinterval = 1,
         mapping = {
             'on': {
                 's_anode1': 2175,

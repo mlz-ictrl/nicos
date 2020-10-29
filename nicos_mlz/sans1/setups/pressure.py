@@ -41,12 +41,4 @@ devices = dict(
         warnlimits = (0, 1),
         lowlevel = True,
     ),
-    coll_pump = device('nicos.devices.tango.Sensor',
-        description = 'pressure collimation tube: Pump',
-        tangodevice = tango_base + '/collimation/p3',
-        fmtstr = '%.4G',
-        pollinterval = 15,
-        maxage = 60,
-        lowlevel = True,
-    ),
 )

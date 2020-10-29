@@ -4,18 +4,18 @@ includes = ['alias_T']
 
 group = 'optional'
 
-nethost = 'toftofsrv.toftof.frm2'
+tango_base = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/pyro/'
 
 devices = dict(
     Ts_lascon = device('nicos_mlz.toftof.devices.lascon.TemperatureSensor',
         description = 'Sample temperature',
-        tacodevice = '//%s/toftof/pyro/network' % nethost,
+        tangodevice = tango_base + 'network',
         fmtstr = '%.3f',
         unit = 'C',
     ),
     #   T_lascon = device('nicos_mlz.toftof.devices.lascon.TemperatureController',
     #       description = 'Sample temperature control',
-    #       tacodevice = '//%s/toftof/pyro/network' % nethost,
+    #       tangodevice = tango_base + 'network',
     #       fmtstr = '%.3f',
     #       unit = 'C',
     #       precision = 0.1,

@@ -32,4 +32,5 @@ devices = dict(
 
 startupcode = '''
 det1._attached_images[0].listmode = True
+det1._attached_images[0].histogram = True
 '''

@@ -24,36 +24,19 @@
 
 """LASCON pyrometer temperature devices."""
 
-from IO import StringIO
-
 from nicos.core import HasLimits, HasWindowTimeout, Moveable, MoveError, \
     Param, PositionError, Readable, oneof, status
-from nicos.devices.taco.core import TacoDevice
+from nicos.devices.tango import StringIO
 
 
-class Lascon(TacoDevice):
-    """LASCON base communication device."""
-    taco_class = StringIO
-
-    def _parseReply(self, reply):
-        return reply.split()
-
-    def communicate(self, query):
-        reply = self._taco_guard(self._dev.communicate, query)
-        return self._parseReply(reply)
-
-    def writeLine(self, query):
-        _ = self._taco_guard(self._dev.writeLine, query)
-
-
-class TemperatureSensor(Lascon, Readable):
+class TemperatureSensor(StringIO, Readable):
     """LASCON pyrometer temperature sensor device."""
 
     def doRead(self, maxage=0):
-        return float(self.communicate('GetTemp 1')[3])
+        return float(self.communicate('GetTemp 1').split()[3])
 
 
-class TemperatureController(Lascon, HasWindowTimeout, HasLimits, Moveable):
+class TemperatureController(HasWindowTimeout, HasLimits, StringIO, Moveable):
     """LASCON pyrometer temperature controller device."""
 
     parameters = {
@@ -78,7 +61,7 @@ class TemperatureController(Lascon, HasWindowTimeout, HasLimits, Moveable):
         return self.window
 
     def doRead(self, maxage=0):
-        return float(self.communicate('GetTemp 1 0')[3])
+        return float(self.communicate('GetTemp 1 0').split()[3])
 
     def doStatus(self, maxage=0):
         return status.OK, ''
@@ -87,4 +70,4 @@ class TemperatureController(Lascon, HasWindowTimeout, HasLimits, Moveable):
         self.start(self.doRead(0))
 
     def doReadSetpoint(self):
-        return float(self.communicate('GetSTemp 1')[3])
+        return float(self.communicate('GetSTemp 1').split()[3])

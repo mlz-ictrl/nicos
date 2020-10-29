@@ -3,8 +3,6 @@ description = 'detector related devices including beamstop'
 # included by sans1
 group = 'lowlevel'
 
-nethost = 'sans1srv.sans1.frm2'
-
 tangohost = 'tango://sans1hw.sans1.frm2:10000'
 detector_base = 'tango://mesydaq.sans1.frm2.tum.de:10000/qm/qmesydaq/'
 
@@ -95,16 +93,6 @@ devices = dict(
         pollinterval = 15,
         lowlevel = True,
     ),
-    # det1_x = device('nicos.devices.taco.Axis',
-    #     description = 'detector 1 x axis',
-    #     tacodevice = '//%s/sans1/detector1/x' % (nethost, ),
-    #     fmtstr = '%.1f',
-    #     abslimits = (4, 570),
-    #     maxage = 120,
-    #     pollinterval = 5,
-    #     requires = dict(level='admin'),
-    #     precision = 0.3,
-    # ),
     det1_x = device('nicos.devices.generic.Axis',
         description = 'detector 1 x axis',
         fmtstr = '%.0f',
@@ -141,17 +129,6 @@ devices = dict(
         maxage = 120,
         pollinterval = 15,
     ),
-    # det1_z_ax = device('nicos.devices.taco.Axis',
-    #     description = 'detector 1 z axis',
-    #     tacodevice = '//%s/sans1/detector1/z' % (nethost, ),
-    #     fmtstr = '%.1f',
-    #     abslimits = (1100, 20000),
-    #     maxage = 120,
-    #     pollinterval = 5,
-    #     lowlevel = True,
-    #     precision = 1,
-    #     userlimits = (1111, 20000),
-    # ),
     det1_z_ax = device('nicos.devices.generic.Axis',
         description = 'detector 1 z axis',
         fmtstr = '%.0f',
@@ -180,17 +157,6 @@ devices = dict(
         fmtstr = '%.1f',
         lowlevel = True,
     ),
-    # det1_omg = device('nicos.devices.taco.Axis',
-    #     description = 'detector 1 omega axis',
-    #     tacodevice = '//%s/sans1/detector1/omega' % (nethost, ),
-    #     fmtstr = '%.1f',
-    #     abslimits = (-0.2, 21),
-    #     maxage = 120,
-    #     pollinterval = 5,
-    #     requires = dict(level='admin'),
-    #     userlimits = (0, 20),
-    #     precision = 0.2,
-    # ),
     det1_omg = device('nicos.devices.generic.Axis',
         description = 'detector 1 omega axis',
         fmtstr = '%.0f',

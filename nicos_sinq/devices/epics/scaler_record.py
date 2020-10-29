@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from __future__ import absolute_import, division, print_function
+
 from nicos.core import Override, Param, pvname, status
 
 from nicos_ess.devices.epics.detector import EpicsDetector
@@ -55,8 +57,13 @@ class EpicsScalerRecord(EpicsDetector):
                             type=pvname, userparam=False),
         'thresholdpv': Param('Optional PV that sets the no beam threshold',
                              type=pvname, userparam=False),
+        'thresholdcounterpv': Param('Optional PV that sets threshold counter',
+                                    type=pvname, userparam=False),
         'threshold': Param('Threshold for no beam detection', type=float,
-                           userparam=False, settable=True)
+                           userparam=False, settable=True),
+        'thresholdcounter': Param('Threshold counter for no beam detection',
+                                  type=float,
+                                  userparam=False, settable=True)
     }
 
     parameter_overrides = {
@@ -79,6 +86,9 @@ class EpicsScalerRecord(EpicsDetector):
         if self.thresholdpv:
             pvs.add('thresholdpv')
 
+        if self.thresholdcounterpv:
+            pvs.add('thresholdcounterpv')
+
         return pvs
 
     def doReadThreshold(self):
@@ -91,6 +101,17 @@ class EpicsScalerRecord(EpicsDetector):
         if not self.thresholdpv:
             self.log.warning('Threshold PV not set, cannot write it!')
         self._put_pv('thresholdpv', newValue)
+
+    def doReadThresholdcounter(self):
+        if not self.thresholdcounterpv:
+            self.log.warning('Threshold counter PV not set, cannot read it!')
+            return 0.0
+        return self._get_pv('thresholdcounterpv')
+
+    def doWriteThresholdcounter(self, newValue):
+        if not self.thresholdcounterpv:
+            self.log.warning('Threshold counterPV not set, cannot write it!')
+        self._put_pv('thresholdcounterpv', newValue)
 
     def doStatus(self, maxage=0):
         if self.errormsgpv:
@@ -106,9 +127,9 @@ class EpicsScalerRecord(EpicsDetector):
             elif status_code == 1:
                 return status.BUSY, 'Counting'
             elif status_code == 2:
-                return status.ERROR, 'No Beam present'
+                return status.BUSY, 'No Beam present'
             elif status_code == 3:
-                return status.OK, 'Paused'
+                return status.BUSY, 'Paused'
 
         return EpicsDetector.doStatus(self, maxage)
 

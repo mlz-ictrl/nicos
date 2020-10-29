@@ -1,19 +1,19 @@
 Demo
 ====
 
-.. automodule:: nicos_demo.demo.devices.attenuator
+.. module:: nicos_demo.demo.devices.attenuator
 .. autoclass:: Attenuator()
 
-.. automodule:: nicos_demo.demo.devices.cpuload
+.. module:: nicos_demo.demo.devices.cpuload
 .. autoclass:: CPULoad()
 
-.. automodule:: nicos_demo.demo.devices.net
+.. module:: nicos_demo.demo.devices.net
 .. autoclass:: Network()
 
-.. automodule:: nicos_demo.demo.devices.notifier
+.. module:: nicos_demo.demo.devices.notifier
 .. autoclass:: DBusNotifier()
 .. autoclass:: Jabberer()
 
-.. automodule:: nicos_demo.demo.devices.servo
+.. module:: nicos_demo.demo.devices.servo
 .. autoclass:: SerComIO()
 .. autoclass:: MicroPythonServo()

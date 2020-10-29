@@ -93,6 +93,7 @@ class TasWidget(NicosWidget, QWidget):
     Lmsdev = PropDef('Lmsdev', str, '', 'Distance monochromator->sample device')
     Lsadev = PropDef('Lsadev', str, '', 'Distance sample->analyzer device')
     Laddev = PropDef('Laddev', str, '', 'Distance analyzer->detector device')
+    tasdev = PropDef('tasdev', str, '', 'TAS devices')
     height = PropDef('height', int, 30, 'Widget height in characters')
     width = PropDef('width', int, 40, 'Widget width in characters')
 
@@ -121,9 +122,11 @@ class TasWidget(NicosWidget, QWidget):
             'ath': OK,
             'att': OK,
         }
+        self.scatteringsense = (-1, 1, -1)
         self._keymap = {}
         self._statuskeymap = {}
         self._targetkeymap = {}
+        self._scatteringkey = ''
 
     def registerKeys(self):
         for dev in ['mth', 'mtt', 'sth', 'stt', 'ath', 'att', 'Lms', 'Lsa',
@@ -136,6 +139,10 @@ class TasWidget(NicosWidget, QWidget):
                 self._statuskeymap[k2] = dev
                 k3 = self._source.register(self, devname + '/target')
                 self._targetkeymap[k3] = dev
+        devname = str(self.props['tasdev'])
+        if devname:
+            self._scatteringkey = self._source.register(
+                self, devname + '/scatteringsense')
 
     def on_keyChange(self, key, value, time, expired):
         if key in self._keymap and not expired:
@@ -146,6 +153,9 @@ class TasWidget(NicosWidget, QWidget):
             self.update()
         elif key in self._targetkeymap and not expired:
             self.targets[self._targetkeymap[key]] = value
+            self.update()
+        elif key == self._scatteringkey:
+            self.scatteringsense = value
             self.update()
 
     def sizeHint(self):
@@ -171,7 +181,7 @@ class TasWidget(NicosWidget, QWidget):
         # determine positions
 
         # incoming beam
-        if self.values['mth'] < 0:
+        if self.values['mth'] < 0 or self.values['mtt'] > 0:
             bx, by = 3, h - (2 + monoradius)
         else:
             bx, by = 3, 2 + monoradius
@@ -276,12 +286,12 @@ class TasWidget(NicosWidget, QWidget):
 
         # draw mono crystals
         painter.setPen(monopen)
-        mthangle = -self.values['mth'] * deg2rad
+        mthangle = self.scatteringsense[0] * self.values['mth'] * deg2rad
         painter.drawLine(mx + 10 * cos(mthangle), my - 10 * sin(mthangle),
                          mx - 10 * cos(mthangle), my + 10 * sin(mthangle))
 
         # draw ana crystals
-        athangle = -self.values['ath'] * deg2rad
+        athangle = self.scatteringsense[2] * self.values['ath'] * deg2rad
         alpha = athangle + sttangle
         # TODO if the angle is too small then it could be that the ath value
         # must be turned by 90 deg (PANDA: chair setup) ??
@@ -293,7 +303,7 @@ class TasWidget(NicosWidget, QWidget):
         # draw sample
         painter.setPen(samplepen)
         painter.setBrush(samplebrush)
-        sthangle = self.values['sth'] * deg2rad
+        sthangle = self.scatteringsense[1] * self.values['sth'] * deg2rad
         alpha = sthangle + mttangle + pi_4
         # painter.drawRect(sx - 5, sy - 5, 10, 10)
         sz = 10

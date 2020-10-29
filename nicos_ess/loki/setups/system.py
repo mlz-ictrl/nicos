@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache='localhost',
-    instrument=None,
+    instrument='LoKI',
     experiment='Exp',
     datasinks=['conssink', 'filesink', 'daemonsink'],
 )
@@ -12,10 +12,11 @@ sysconfig = dict(
 modules = ['nicos.commands.standard']
 
 devices = dict(
-    Skeleton=device('nicos.devices.instrument.Instrument',
+    LoKI=device('nicos.devices.instrument.Instrument',
         description='instrument object',
-        instrument='loki',
-        responsible='M. Loki <mike.loki@ess.eu>',
+        instrument='LoKI',
+        responsible='J. Houston <judith.houston@ess.eu>',
+        website='https://europeanspallationsource.se/instruments/loki'
     ),
 
     Sample=device('nicos.devices.sample.Sample',
@@ -25,7 +26,7 @@ devices = dict(
     Exp=device('nicos.devices.experiment.Experiment',
         description='experiment object',
         dataroot='/opt/nicos-data',
-        sendmail=True,
+        sendmail=False,
         serviceexp='p0',
         sample='Sample',
     ),

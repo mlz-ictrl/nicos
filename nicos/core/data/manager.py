@@ -481,7 +481,12 @@ class DataManager:
 
         self.log.debug('creating file %r using fileclass %r', filename,
                        fileclass)
-        datafile = fileclass(shortpath, filepath)
+        if fileclass == DataFile:
+            datafile = fileclass(
+                shortpath, filepath, kwargs.pop('filemode', None),
+                kwargs.pop('logger', None))
+        else:
+            datafile = fileclass(shortpath, filepath)
         exp = session.experiment
         if exp.managerights:
             os.chmod(filepath,

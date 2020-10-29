@@ -21,6 +21,7 @@ distribution.
    nicos_mlz
    nicos_ess
    nicos_sinq
+   nicos_jcns
    nicos_batan
    nicos_demo
    devindex
