@@ -286,18 +286,18 @@ class LokiSamplePanel(Panel):
         self.client.disconnected.connect(self.on_client_disconnected)
 
     def on_client_connected(self):
-        self.toggle_controls_availability()
+        self.setViewOnly(self.client.viewonly)
 
     def on_client_disconnected(self):
-        self.toggle_controls_availability()
+        self.setViewOnly(True)
 
-    def toggle_controls_availability(self):
+    def setViewOnly(self, viewonly):
         for control in [
             self.createBtn, self.retrieveBtn, self.openFileBtn, self.applyBtn,
             self.saveBtn, self.newBtn, self.editBtn, self.delBtn, self.frame,
             self.list
         ]:
-            control.setEnabled(self.client.isconnected)
+            control.setEnabled(not viewonly)
 
     @pyqtSlot()
     def on_actionEmpty_triggered(self):
