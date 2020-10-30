@@ -1,3 +1,5 @@
+.. _data_sets:
+
 Data sets
 =========
 
@@ -6,31 +8,37 @@ Data sets
 .. autoclass:: finish_property
 
 .. autoclass:: BaseDataset
-
-   .. automethod:: dispatch
-   .. automethod:: trimResult
-   .. automethod:: devvalueinfo
-   .. automethod:: detvalueinfo
-   .. automethod:: envvalueinfo
-
-.. .. autoattribute:: metainfo
+   :member-order: bysource
 
 .. autoclass:: PointDataset
 
-   .. automethod:: devvaluelist
-   .. automethod:: detvaluelist
-   .. automethod:: envvaluelist
-   .. automethod:: valuestats
+   .. autoattribute:: settype
+   .. autoattribute:: countertype
+
+   .. automethod:: devvaluelist()
+   .. automethod:: detvaluelist()
+   .. automethod:: envvaluelist()
+.. .. automethod:: valuestats()
 
 .. autoclass:: ScanDataset
 
-   .. automethod:: devvaluelists
-   .. automethod:: detvaluelists
-   .. automethod:: envvaluelists
+   .. autoattribute:: settype
+   .. autoattribute:: countertype
+
+.. .. automethod:: devvaluelists()
+   .. automethod:: detvaluelists()
+   .. automethod:: envvaluelists()
+   .. automethod:: metainfo
 
 .. autoclass:: SubscanDataset
 
+   .. autoattribute:: settype
+   .. autoattribute:: countertype
+
 .. autoclass:: BlockDataset
+
+   .. autoattribute:: settype
+   .. autoattribute:: countertype
 
 .. autoclass:: ScanData
    :members:
