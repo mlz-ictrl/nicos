@@ -65,6 +65,7 @@ be configured in setups like normal devices and selected in
 .. autoclass:: ImageSink()
 
 .. autoclass:: SingleRawImageSink()
+.. autoclass:: SingleTextImageSink()
 .. autoclass:: RawImageSink()
 .. autoclass:: FITSImageSink()
 .. autoclass:: TIFFImageSink()

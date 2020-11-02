@@ -37,6 +37,36 @@ from nicos.devices.datasinks.image import ImageFileReader, ImageSink, \
     SingleFileSinkHandler
 
 
+class SingleTextImageSinkHandler(NicosMetaWriterMixin, SingleFileSinkHandler):
+
+    defer_file_creation = True
+    update_headerinfo = True
+
+    def writeHeader(self, fp, metainfo, image):
+        fp.seek(0)
+        np.savetxt(fp, image, fmt='%d', delimiter='\t', newline='\n')
+        fp.write(b'\n')
+        self.writeMetaInformation(fp)
+        fp.flush()
+
+
+class SingleTextImageSink(ImageSink):
+    """Writes raw text image data and header into a single file.
+
+    Formatting of the image data is done by numpy itself, depending on the
+    image shape.
+    """
+
+    parameter_overrides = {
+        'filenametemplate': Override(mandatory=False, userparam=False,
+                                     default=['%(proposal)s_%(pointcounter)s.raw',
+                                              '%(proposal)s_%(scancounter)s'
+                                              '_%(pointnumber)s.raw']),
+    }
+
+    handlerclass = SingleTextImageSinkHandler
+
+
 class SingleRawImageSinkHandler(NicosMetaWriterMixin, SingleFileSinkHandler):
 
     defer_file_creation = True
