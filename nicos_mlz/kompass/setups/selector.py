@@ -21,7 +21,7 @@ devices = dict(
         description = 'Selector lift position',
         motor = 'nvslift_m',
 #        coder = 'nvslift_c',  # temporarily, as the coder seems broken
-        coder = 'nvslift_m',
+        coder = 'nvslift_c',
         fmtstr = '%.2f',
         precision = 0.1,
     ),

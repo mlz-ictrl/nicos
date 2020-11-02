@@ -11,7 +11,7 @@ MANIFEST
 /nicos.conf
 nicos/RELEASE-VERSION
 
-log/*/current
+log/
 
 /data/
 
