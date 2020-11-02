@@ -2,6 +2,8 @@
 Data API
 ========
 
+.. module:: nicos.core.data.sink
+
 --------
 Overview
 --------
@@ -41,8 +43,11 @@ The data handling in NICOS is split into three main parts:
    The data manager sends exactly these data sets to data sinks where they will
    be analyzed and handled.
 
-The data sending depends on the data sink 'settypes' parameter and it can be
-activated for the different type of data set types.
+Each data sink handles the data sent from the data manager individually.  It is
+not only how the data will be treated, but also which type of data set it
+handles.  This selection will be done via the :attr:`~DataSink.settypes`
+parameter of each data sink and can be activated for the different types of data
+sets.
 
 These data sets are different for a scan, a subscan, or a single count command.
 
