@@ -14,7 +14,9 @@ group = 'special'
 _tempcol = Column(
     Block('Julabo Thermostat Status', [
         BlockRow(
+            Field(name='temperature ', dev='julabo_temp', width=10,  format='%.2f', unit='(\u2103)'),
             Field(name='target temperature ', key='julabo_temp/target', width=10,  format='%.2f', unit='(\u2103)'),
+            Field(name='target temperature ', key='julabo_temp.target', width=10,  format='%.2f', unit='(\u2103)'),
             Field(name='internal bath temperature ', dev='julabo_int', width=10,  format='%.2f', unit='(\u2103)'),
             Field(name='external sensor temperature ', dev='julabo_ext', width=10,  format='%.2f', unit='(\u2103)'),
             # Field(name='Cryostat', dev='temp_cryo', width=14, unit='(K)'),
