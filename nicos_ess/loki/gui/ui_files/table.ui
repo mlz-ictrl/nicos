@@ -85,8 +85,8 @@
        </property>
        <property name="font">
         <font>
-         <weight>75</weight>
-         <bold>true</bold>
+         <weight>50</weight>
+         <bold>false</bold>
         </font>
        </property>
        <property name="text">
@@ -104,8 +104,8 @@
        </property>
        <property name="font">
         <font>
-         <weight>75</weight>
-         <bold>true</bold>
+         <weight>50</weight>
+         <bold>false</bold>
         </font>
        </property>
        <property name="text">
@@ -123,8 +123,8 @@
        </property>
        <property name="font">
         <font>
-         <weight>75</weight>
-         <bold>true</bold>
+         <weight>50</weight>
+         <bold>false</bold>
         </font>
        </property>
        <property name="text">
@@ -178,7 +178,7 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>definiert die aeussere Schleife</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -214,7 +214,7 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>definiert die mittlere Schleife</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -253,7 +253,7 @@
         <font/>
        </property>
        <property name="toolTip">
-        <string>definiert die innere Schleife</string>
+        <string/>
        </property>
       </widget>
      </item>

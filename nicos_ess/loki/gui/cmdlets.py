@@ -31,14 +31,12 @@ from nicos.utils import findResource, formatDuration
 
 from nicos_ess.loki.gui.measdialogs import LOOPS, DetsetDialog, \
     DevicesDialog, MeasDef, SampleDialog
-from nicos_ess.loki.gui.measelement import Sample, Device
+from nicos_ess.loki.gui.measelement import Device, Mode, Sample
 
 
 class MeasureTable(Cmdlet):
-
     name = 'Measurement'
     category = 'Measure'
-
     meas_def_class = MeasDef
 
     def __init__(self, parent, client):
@@ -157,6 +155,7 @@ class MeasureTable(Cmdlet):
             sample = None
             count_time = 0
             devices_args = []
+            is_trans = False
             for (k, v) in entry.items():
                 if isinstance(v, Sample):
                     sample = v.getValue()
@@ -164,6 +163,8 @@ class MeasureTable(Cmdlet):
                 elif isinstance(v, Device):
                     devices_args.append(k)
                     devices_args.append(repr(v.getValue()))
+                elif isinstance(v, Mode):
+                    is_trans = v.getValue() == Mode.VALUES[0]
 
             items.append(f"\n##### Measurement {len(out) + 1}")
             if sample:
@@ -171,6 +172,11 @@ class MeasureTable(Cmdlet):
             if devices_args:
                 args = ", ".join(devices_args)
                 items.append(f"maw({args})")
+            if is_trans:
+                items.append("# enable_trans()")
+            else:
+                items.append("# enable_sans()")
+
 
             items.append(f"# loki_count(t={count_time})")
             out.append('\n'.join(items))

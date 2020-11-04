@@ -36,8 +36,8 @@ from nicos.guisupport.qt import QDialog, QFileDialog, QFrame, QLabel, \
 from nicos.guisupport.utils import DoubleValidator
 from nicos.utils import findResource, formatDuration
 
-from nicos_ess.loki.gui.measelement import Chopper, Collimation, Detector, \
-    Device, Lenses, MeasTime, Polarizer, Sample, Selector
+from nicos_ess.loki.gui.measelement import Collimation, Detector, \
+    Device, MeasTime, Mode, Polarizer, Sample
 from nicos_ess.loki.gui.sampleconf import parse_sampleconf
 
 SAMPLES = 'samples'
@@ -63,12 +63,10 @@ class MeasDef(object):
 
     def getElements(self):
         elements = [
-            ('selector', Selector),
+            ('mode', Mode),
             ('detector', Detector),
             ('collimation', Collimation),
             ('polarizer', Polarizer),
-            ('lenses', Lenses),
-            ('chopper', Chopper),
             ('time', MeasTime),
         ]
         return elements
