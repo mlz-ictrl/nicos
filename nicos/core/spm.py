@@ -120,7 +120,7 @@ class Num(Token):
         try:
             return float(arg)
         except ValueError:
-            raise NoParse('number', arg)
+            raise NoParse('number', arg) from None
 
 Num = Num()
 
@@ -132,7 +132,7 @@ class Int(Token):
         try:
             return int(arg)
         except ValueError:
-            raise NoParse('integer', arg)
+            raise NoParse('integer', arg) from None
 
 Int = Int()
 
