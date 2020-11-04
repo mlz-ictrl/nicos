@@ -24,7 +24,7 @@
 
 """TAS specific display widgets."""
 
-from math import cos, pi, sin
+from math import cos, pi, sin, radians
 
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, WARN
 from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, QPoint, \
@@ -68,9 +68,6 @@ dettablebrush = QBrush(QColor('#ff66ff'))
 # Definitions like in C
 pi_2 = pi / 2
 pi_4 = pi / 4
-
-# Conversion factor degree to radian
-deg2rad = pi / 180.
 
 monoradius = 40
 sampleradius = 20
@@ -190,8 +187,8 @@ class TasWidget(NicosWidget, QWidget):
 
         # sample
         L = self.values['Lms'] * scale  # length is in mm -- scale down a bit
-        mttangle = self.values['mtt'] * deg2rad
-        mttangle_t = self.targets['mtt'] * deg2rad
+        mttangle = radians(self.values['mtt'])
+        mttangle_t = radians(self.targets['mtt'])
         if self.values['mth'] < 0:
             mttangle = -mttangle
             mttangle_t = -mttangle_t
@@ -201,8 +198,8 @@ class TasWidget(NicosWidget, QWidget):
 
         # analyzer
         L = self.values['Lsa'] * scale  # length is in mm -- scale down a bit
-        sttangle = self.values['stt'] * deg2rad
-        sttangle_t = self.targets['stt'] * deg2rad
+        sttangle = radians(self.values['stt'])
+        sttangle_t = radians(self.targets['stt'])
         if self.values['sth'] < 0:
             sttangle = mttangle - sttangle
             sttangle_t = mttangle_t - sttangle_t
@@ -214,8 +211,8 @@ class TasWidget(NicosWidget, QWidget):
 
         # detector
         L = self.values['Lad'] * scale  # length is in mm -- scale down a bit
-        attangle = self.values['att'] * deg2rad
-        attangle_t = self.targets['att'] * deg2rad
+        attangle = radians(self.values['att'])
+        attangle_t = radians(self.targets['att'])
         if self.values['ath'] < 0:
             attangle = sttangle - attangle
             attangle_t = sttangle_t - attangle_t
@@ -286,12 +283,12 @@ class TasWidget(NicosWidget, QWidget):
 
         # draw mono crystals
         painter.setPen(monopen)
-        mthangle = self.scatteringsense[0] * self.values['mth'] * deg2rad
+        mthangle = self.scatteringsense[0] * radians(self.values['mth'])
         painter.drawLine(mx + 10 * cos(mthangle), my - 10 * sin(mthangle),
                          mx - 10 * cos(mthangle), my + 10 * sin(mthangle))
 
         # draw ana crystals
-        athangle = self.scatteringsense[2] * self.values['ath'] * deg2rad
+        athangle = self.scatteringsense[2] * radians(self.values['ath'])
         alpha = athangle + sttangle
         # TODO if the angle is too small then it could be that the ath value
         # must be turned by 90 deg (PANDA: chair setup) ??
@@ -303,7 +300,7 @@ class TasWidget(NicosWidget, QWidget):
         # draw sample
         painter.setPen(samplepen)
         painter.setBrush(samplebrush)
-        sthangle = self.scatteringsense[1] * self.values['sth'] * deg2rad
+        sthangle = self.scatteringsense[1] * radians(self.values['sth'])
         alpha = sthangle + mttangle + pi_4
         # painter.drawRect(sx - 5, sy - 5, 10, 10)
         sz = 10

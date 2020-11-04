@@ -6,12 +6,6 @@ main_window = docked(
          tabbed(
              ('Experiment',
               panel('nicos_ess.gui.panels.setup_panel.ExpPanel')),
-             ('Samples',
-              panel(
-                  'nicos_mlz.kws1.gui.sampleconf.KWSSamplePanel',
-                  image='nicos_mlz/sans1/gui/sampleChanger22.png',
-                  positions=22, setups='sans and sc2')
-              ),
              ('Instrument',
               panel('nicos_ess.gui.panels.setup_panel.SetupsPanel')),
          ),

@@ -108,3 +108,4 @@ class Attenuator(Switch):
     def _writeValue(self, value):
         self._dev.value = 1
         session.delay(self._sleeptime)
+        self._dev.value = 0
