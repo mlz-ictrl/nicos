@@ -413,6 +413,8 @@ class SetupsPanel(Panel):
         self.setViewOnly(self.client.viewonly)
 
     def on_client_disconnected(self):
+        self.basicSetup.clear()
+        self.optSetups.clear()
         self.setViewOnly(True)
 
     def setViewOnly(self, viewonly):

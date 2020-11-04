@@ -61,7 +61,12 @@ class FocusPoint(Moveable):
             return state
         table = self._attached_table.read()
         focus = self._calculation()
-        text = 'focus' \
-            if abs(table - focus) <= self._attached_table.precision \
-            else state[1]
+        precision = 0
+        if hasattr(self._attached_table, '_attached_device'):
+            precision = self._attached_table._attached_device.precision
+        elif hasattr(self._attached_table, 'precision'):
+            precision = self._attached_table.precision
+        else:
+            precision = 0
+        text = 'focus' if abs(table - focus) <= precision else state[1]
         return status.OK, text

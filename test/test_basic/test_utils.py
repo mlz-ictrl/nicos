@@ -35,8 +35,8 @@ from datetime import timedelta
 import pytest
 
 from nicos.core.errors import NicosError
-from nicos.utils import Repeater, bitDescription, checkSetupSpec, chunks, \
-    closeSocket, comparestrings, extractKeyAndIndex, formatDuration, \
+from nicos.utils import Repeater, allDays, bitDescription, checkSetupSpec, \
+    chunks, closeSocket, comparestrings, extractKeyAndIndex, formatDuration, \
     formatExtendedFrame, formatExtendedStack, formatExtendedTraceback, \
     lazy_property, moveOutOfWay, num_sort, parseConnectionString, \
     parseDuration, readonlydict, readonlylist, safeWriteFile, squeeze, \
@@ -441,6 +441,28 @@ def test_parse_duration_parse_errors(inp):
 ])
 def test_parse_duration_type_errors(inp):
     assert raises(TypeError, parseDuration, inp)
+
+
+def test_all_days():
+    # 25. Oct 2020 switch CEST -> CET
+    exp_list = [('2020', '10-24'), ('2020', '10-25'), ('2020', '10-26'),
+                ('2020', '10-27'), ('2020', '10-28')]
+    # 28. Oct 2020, 08:00:00
+    tmto = time.mktime((2020, 10, 28, 8, 0, 0, 0, 0, -1))
+    assert list(allDays(tmto - 86400, tmto)) == exp_list[3:]
+    assert list(allDays(tmto - 2 * 86400, tmto)) == exp_list[2:]
+    assert list(allDays(tmto - 3 * 86400, tmto)) == exp_list[1:]
+    assert list(allDays(tmto - 4 * 86400, tmto)) == exp_list
+
+    # 28. Mar 2020 switch CET -> CEST
+    exp_list = [('2020', '03-27'), ('2020', '03-28'), ('2020', '03-29'),
+                ('2020', '03-30'), ('2020', '03-31')]
+    # 31. Mar 2020, 08:00:00
+    tmto = time.mktime((2020, 3, 31, 8, 0, 0, 0, 0, 1))
+    assert list(allDays(tmto - 86400, tmto)) == exp_list[3:]
+    assert list(allDays(tmto - 2 * 86400, tmto)) == exp_list[2:]
+    assert list(allDays(tmto - 3 * 86400, tmto)) == exp_list[1:]
+    assert list(allDays(tmto - 4 * 86400, tmto)) == exp_list
 
 
 @pytest.mark.parametrize('maxbackup', [2, None, 0])

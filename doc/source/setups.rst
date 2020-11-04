@@ -394,6 +394,59 @@ read.
                       ),
       )
 
+
+.. _check-setups:
+
+--------------------
+Checking setup files
+--------------------
+
+To work properly the NICOS setup files must be syntactically and content
+correct.  To verify this there exists a tool in the tools directory of the
+NICOS checkout ``check-setups``
+
+The usage of this script will be::
+
+   check-setups [-h] [-v] [-o FILE] [-s] path [path, path, ...]
+
+
+The script has several options:
+
+-h, --help               show this help message and exit
+-v, --verbose            verbose output
+-s, --separate           treat every argument as a separate setup directory for
+                         duplicate device purposes
+-o FILE, --outfile FILE  write report to FILE
+
+Apart from the options, you give paths to setup files or directories containing
+setup files.
+
+If there is no output all the checked setup files are correct.
+
+A syntax error will produce an output like this::
+
+   [17:40:00] nicos_demo/demo/setups/system.py:31: ERROR: SyntaxError:     invalid syntax
+
+If there is a parameter configured, which is not known in the device, the output
+looks like this::
+
+   [17:41:39] nicos_demo/demo/setups/system.py:34: ERROR: Exp: configured parameters not accepted by the device class: unknownparameter
+
+Additionally the tool checks the given parameters according to their definition.
+If there is a mismatch a message like this will be shown::
+
+   [17:45:21] nicos_demo/demo/setups/table.py:13: ERROR: z: parameter 'abslimits' value (50, -50) is invalid: upper limit must be greater than lower limit
+
+All these messages have to be considered serious problems and should be fixed.
+
+In case of emitted warnings::
+
+   [17:15:03] nicos_mlz/refsans/setups/elements/prim_monitor.py:52: WARNING: hv_mon: device has no description
+
+which may happen if the tool runs over directories and devices are defined more
+than once or a device has no description, it's up to the user of the tool to
+decide if this is a serious problem or not.
+
 .. rubric:: Footnotes
 
 .. [#f1] A Python module in the subdirectory ``setups`` of the site-specific

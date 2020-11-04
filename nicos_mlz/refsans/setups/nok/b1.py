@@ -4,6 +4,7 @@ group = 'lowlevel'
 
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
+optic_values = configdata('cf_optic.optic_values')
 lprecision = 0.005
 tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base']
@@ -26,7 +27,7 @@ devices = dict(
         masks = {
             'slit':   0.0,
             'point':  0.0,
-            'gisans': 0.0,
+            'gisans': -120.0 * optic_values['gisans_scale'],
         },
         nok_start = 2374.0,
         nok_end = 2387.5,
@@ -39,9 +40,9 @@ devices = dict(
         description = 'xxx slit, sample side',
         motor = 'b1s_motor',
         masks = {
-            'slit':   -0.0,
-            'point':  -0.0,
-            'gisans': -0.0,
+            'slit':   0.0,
+            'point':  0.0,
+            'gisans': 0.0,
         },
         nok_start = 2374.0,
         nok_end = 2387.5,
@@ -49,22 +50,6 @@ devices = dict(
         unit = 'mm',
         lowlevel = True,
     ),
-    # b1r_axis = device('nicos.devices.generic.Axis',
-    #     description = 'B1, reactorside',
-    #     motor = 'b1r_motor',
-    #     offset = 0.0,
-    #     precision = lprecision,
-    #     maxtries = 3,
-    #     lowlevel = True,
-    # ),
-    # b1s_axis = device('nicos.devices.generic.Axis',
-    #     description = 'B1, sampleside',
-    #     motor = 'b1s_motor',
-    #     offset = 0.0,
-    #     precision = lprecision,
-    #     maxtries = 3,
-    #     lowlevel = True,
-    # ),
     b1r_motor = device(code_base + 'beckhoff.nok.BeckhoffMotorCab1M0x',
         description = 'CAB1 controlled Blendenschild (M01), reactorside',
         tangodevice = tango_base + 'optic/io/modbus',
@@ -75,22 +60,6 @@ devices = dict(
         ruler = 233.155, #abs enc! 60.0,
         lowlevel = True,
     ),
-    # b1r_analog = device(code_base + 'beckhoff.nok.BeckhoffPoti',
-    #     description = 'Poti for B1 Reactor no ref',
-    #     tangodevice = tango_base + 'optic/io/modbus',
-    #     address = 0x3020+index_r*10, # word adress
-    #     slope = 10000,
-    #     abslimits = (-1000, 1000),
-    #     poly = [-301.3,0.01626],
-    #     lowlevel = True or showcase_values['hide_poti'],
-    # ),
-    # b1r_acc = device(code_base + 'nok_support.MotorEncoderDifference',
-    #     description = 'calc error Motor and poti',
-    #     motor = 'b1r_motor',
-    #     analog = 'b1r_analog',
-    #     lowlevel = True or showcase_values['hide_acc'],
-    #     unit = 'mm'
-    # ),
     b1s_motor = device(code_base + 'beckhoff.nok.BeckhoffMotorCab1M0x',
         description = 'CAB1 controlled Blendenschild (M02), sample side',
         tangodevice = tango_base + 'optic/io/modbus',
@@ -101,22 +70,6 @@ devices = dict(
         ruler = 140.388, #abs enc! -50.0,
         lowlevel = True,
     ),
-    # b1s_analog = device(code_base + 'beckhoff.nok.BeckhoffPoti',
-    #     description = 'Poti for B1 Sample no ref',
-    #     tangodevice = tango_base + 'optic/io/modbus',
-    #     address = 0x3020+index_s*10, # word adress
-    #     slope = 10000,
-    #     abslimits = (-1000, 1000),
-    #     poly = [-249.17,0.01626],
-    #     lowlevel = True or showcase_values['hide_poti'],
-    # ),
-    # b1s_acc = device(code_base + 'nok_support.MotorEncoderDifference',
-    #     description = 'calc error Motor and poti',
-    #     motor = 'b1s_motor',
-    #     analog = 'b1s_analog',
-    #     lowlevel = True or showcase_values['hide_acc'],
-    #     unit = 'mm'
-    # ),
 )
 
 alias_config = {

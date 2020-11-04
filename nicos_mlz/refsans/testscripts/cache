@@ -2,3 +2,4 @@ nicos/chopper2/pos=1
 nicos/chopper2_pos/target=1
 nicos/chopper2_pos/value=1
 nicos/table_z_motor/vmax=1
+nicos/b3h3_frame/value='110mm'
