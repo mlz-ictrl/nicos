@@ -38,7 +38,7 @@ import traceback
 import unicodedata
 from collections import OrderedDict
 from contextlib import contextmanager
-from datetime import timedelta
+from datetime import date, timedelta
 from functools import wraps
 from io import BufferedWriter, FileIO
 from itertools import chain, islice
@@ -69,7 +69,7 @@ class AttrDict(dict):
         try:
             return self[key]
         except KeyError:
-            raise AttributeError(key)
+            raise AttributeError(key) from None
 
     def __setattr__(self, key, value):
         self[key] = value
@@ -78,7 +78,7 @@ class AttrDict(dict):
         try:
             del self[key]
         except KeyError:
-            raise AttributeError(key)
+            raise AttributeError(key) from None
 
 
 class LCDict(dict):
@@ -361,7 +361,7 @@ def parseHostPort(host, defaultport, missingportok=False):
         try:
             port = int(port)
         except ValueError:
-            raise ValueError('invalid port number: ' + port)
+            raise ValueError('invalid port number: ' + port) from None
         if not 0 < port < 65536:
             raise ValueError('port number out of range')
     if ':' in host:
@@ -587,7 +587,8 @@ def importString(import_name):
     try:
         mod = __import__(modname, {}, {}, fromlist)
     except ImportError as err:
-        raise ImportError('Could not import %r: %s' % (import_name, err))
+        raise ImportError(
+            'Could not import %r: %s' % (import_name, err)) from err
     if not obj:
         return mod
     else:
@@ -667,7 +668,7 @@ def moveOutOfWay(filepath, maxbackups=10):
                 except os.error as ex:
                     raise RuntimeError('Could not rename %s to backup '
                                        'name %s: %s' %
-                                       (filepath, renamename, ex))
+                                       (filepath, renamename, ex)) from ex
             # retry if backup name was already used
             nxt = nxt + 1
 
@@ -1162,11 +1163,11 @@ def updateFileCounter(counterpath, key, value):
 
 def allDays(fromtime, totime):
     """Determine days of an interval between two timestamps."""
-    tmfr = int(mktime(localtime(fromtime)[:3] + (0, 0, 0, 0, 0, -1)))
-    tmto = int(min(currenttime(), totime))
-    for tmday in range(tmfr, tmto, 86400):
-        lt = localtime(tmday)
-        yield str(lt[0]), '%02d-%02d' % lt[1:3]
+    current = date.fromtimestamp(fromtime)
+    final = date.fromtimestamp(totime)
+    while current <= final:
+        yield f'{current.year}', f'{current.month:02}-{current.day:02}'
+        current += timedelta(days=1)
 
 
 # Note, binding "sleep" as a local here since this function usually is run
@@ -1402,7 +1403,7 @@ class FitterRegistry:
             return cls.fitters[key.lower()]
         except KeyError:
             raise KeyError('Unknown fitter name %r, known fitters: %s' %
-                           (key, ', '.join(cls.fitters)))
+                           (key, ', '.join(cls.fitters))) from None
 
 
 keyexpr_re = re.compile(r'(?P<dev_or_key>[a-zA-Z_0-9./]+)'
@@ -1573,7 +1574,7 @@ def parseDuration(inputvalue, allownegative=False):
 
         if not m:
             raise ValueError('"%s" can not be parsed. ' % inputvalue
-                             + DURATION_HINT)
+                             + DURATION_HINT) from None
 
         groupdict = m.groupdict()
         timedict = {}

@@ -1,3 +1,5 @@
+.. _data_sinks:
+
 Data sinks
 ==========
 

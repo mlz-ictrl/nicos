@@ -78,8 +78,8 @@ Adding setups and libraries
 
 * Setups can be created in ``nicos_<facility>/<instrument>/setups``.  Modules
   for devices go under ``nicos_<facility>/<instrument>/devices``.  The script
-  ``tools/check-setups`` is very helpful when writing new setups.  It can be
-  called directly from the checkout.
+  :ref:`check-setups <check-setups>` tool is very helpful when writing new
+  setups.  It can be called directly from the checkout.
 
 * To test setups and modules with the checkout instead of the installed copy,
   you can set the environment variable ``INSTRUMENT`` to

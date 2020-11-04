@@ -207,7 +207,7 @@ class ComtecHeaderSinkHandler(DataSinkHandler):
 
     def writeHeader(self, fp, metainfo, image):
         fp.seek(0)
-        fp.write(np.asarray(image).tostring())
+        fp.write(np.asarray(image).tobytes())
         fp.write('\n### NICOS Raw File Header V2.0\n')
         fp.write('# detector prefix is %r' % self.prefix)
         bycategory = {}
