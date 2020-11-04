@@ -143,7 +143,10 @@ def sleep(secs):
     >>> sleep(10)     # sleep for 10 seconds
     >>> sleep(0.5)    # sleep for half a second
     """
-    session.log.info('sleeping for %.1f seconds...', secs)
+    if secs > 1:
+        session.log.info('sleeping for %.1f seconds...', secs)
+    else:
+        session.log.debug('sleeping for %.1f seconds...', secs)
 
     if session.mode == SIMULATION:
         session.clock.tick(secs)
@@ -685,7 +688,7 @@ def _RunScript(filename, statdevices, debug=False):
         if session.mode == SIMULATION:
             session.log.exception('Dry run: error opening script')
             return
-        raise NicosError('cannot open script %r: %s' % (filename, e))
+        raise NicosError('cannot open script %r: %s' % (filename, e)) from e
     with fp:
         code = fp.read()
         # guard against bare excepts
@@ -787,9 +790,9 @@ def sim(what, *devices, **kwargs):
     if not path.isfile(fn) and not what.endswith(('.py', '.txt')):
         try:
             compile(what + '\n', 'exec', 'exec')
-        except Exception:
+        except Exception as e:
             raise NicosError('Argument is neither a script file nor valid '
-                             'code')
+                             'code') from e
         session.runSimulation('_RunCode(%r, %s)' % (what, debug))
         return
     if session.mode == SIMULATION:

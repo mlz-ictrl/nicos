@@ -4,6 +4,6 @@ TREFF
 Flipper
 -------
 
-.. automodule:: nicos_mlz.treff.devices.flipper
+.. module:: nicos_mlz.treff.devices.flipper
 
 .. autoclass:: Flipper()

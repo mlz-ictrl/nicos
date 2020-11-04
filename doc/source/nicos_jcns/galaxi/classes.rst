@@ -6,19 +6,27 @@ Absorber
 --------
 
 .. automodule:: nicos_jcns.galaxi.devices.absorber
-.. autoclass:: AbsorberDevice()
 
 Detectors
 ---------
 
-.. automodule:: nicos_jcns.galaxi.devices.mythen_det
+.. module:: nicos_jcns.galaxi.devices.mythen_det
 .. autoclass:: ImageChannel()
 
 .. automodule:: nicos_jcns.galaxi.devices.pindiode
-.. autoclass:: SingleDetectors()
+
+Automation
+----------
+
+.. automodule:: nicos_jcns.galaxi.devices.automation
+
+Bruker AXS control
+------------------
+
+.. automodule:: nicos_jcns.galaxi.devices.bruker_axs
 
 File formats
 ------------
 
-.. automodule:: nicos_jcns.galaxi.devices.mythen_det
+.. module:: nicos_jcns.galaxi.devices.mythen_det
 .. autoclass:: ImageSink()

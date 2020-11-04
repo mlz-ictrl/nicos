@@ -347,17 +347,9 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
             return
 
         # XXX: backlash correction and repositioning later
-        # build a moving sequence
         self.log.debug('mode: %s', self.mode)
-        sequence = [SeqDev(d, t + ofs + self.masks[self.mode], stoppable=True)
-                    for d, t, ofs in zip(self._devices, targets, self.offsets)]
-
-        # now go to target again
-        sequence += [SeqDev(d, t + ofs + self.masks[self.mode], stoppable=True)
-                     for d, t, ofs in zip(self._devices, targets, self.offsets)]
-
-        self.log.debug('Seq_3: %r', sequence)
-        self._startSequence(sequence)
+        for d, t, ofs in zip(self._devices, targets, self.offsets):
+            d.move(t + ofs + self.masks[self.mode])
 
     def doReset(self):
         multiReset(self._motors)

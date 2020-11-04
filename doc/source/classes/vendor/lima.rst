@@ -11,6 +11,7 @@ Generic devices
 ---------------
 
 .. autoclass:: GenericLimaCCD()
+.. autoclass:: LimaCCDTimer()
 
 
 Hardware specific extensions
@@ -21,7 +22,8 @@ that provide access to hardware specific functions via Lima.
 
 Andor2
 ~~~~~~
-The following classes are specific to cameras produced by Andor (https://www.andor.com/) and based on version 2 of their camera SDK.
+The following classes are specific to cameras produced by Andor (https://www.andor.com/)
+and based on version 2 of their camera SDK.
 
 .. autoclass:: Andor2LimaCCD()
 

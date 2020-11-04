@@ -24,11 +24,14 @@
 
 """Definition special power supply class for CHARM detector."""
 
-from nicos.core.device import Moveable
-from nicos.core.errors import ConfigurationError, PositionError
-from nicos.core.params import Attach, Override, dictof, oneof
+from nicos import session
+from nicos.core import status
+from nicos.core.constants import POLLER
+from nicos.core.device import Moveable, Readable
+from nicos.core.errors import ConfigurationError, ModeError, PositionError
+from nicos.core.params import Attach, Override, Param, dictof, oneof
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.generic.sequence import SeqDev, SequencerMixin
+from nicos.devices.generic.sequence import SeqDev, SeqParam, SequencerMixin
 from nicos.utils import num_sort
 
 
@@ -46,6 +49,13 @@ class HVSwitch(SequencerMixin, MappedMoveable):
                            Moveable, multiple=2),
         'window': Attach('HV channel for the window',
                          Moveable, multiple=1),
+        'trip': Attach('Devices signaling a trip on the hardware',
+                       Readable),
+    }
+
+    parameters = {
+        '_tripped': Param('Indicator for hardware trip',
+                          type=bool, internal=True, default=False),
     }
 
     parameter_overrides = {
@@ -80,6 +90,34 @@ class HVSwitch(SequencerMixin, MappedMoveable):
                     self, '%r not allowed as key in mapping. %s' % (
                         value, err)) from err
 
+    def doIsAllowed(self, target):
+        if target == 'off':
+            ok = True
+        else:
+            ok = not self._tripped and not self._attached_trip.read(0)
+        return ok, '' if ok else 'hardware is tripped'
+
+    def doStop(self):
+        if not self._tripped:
+            SequencerMixin.doStop(self)
+        else:
+            raise ModeError(self, "can't be stopped, device is tripped.")
+
+    def doReset(self):
+        if self._tripped:
+            if self.doStatus(0)[0] == status.BUSY or self._hardware_tripped():
+                raise ModeError(self, "can't reset device. Hardware is tripped")
+        SequencerMixin.doReset(self)
+        self._setROParam('_tripped', False)
+
+    def doPoll(self, n, maxage):
+        if not self._tripped and session.sessiontype == POLLER and \
+           self._hardware_tripped():
+            self._setROParam('_tripped', True)
+
+    def _hardware_tripped(self):
+        return self._attached_trip.read(0) == 'Trip'
+
     def _generateSequence(self, target):
         anodes = self._attached_anodes + self._attached_banodes
         seq = [
@@ -113,7 +151,11 @@ class HVSwitch(SequencerMixin, MappedMoveable):
         return {dev.name: dev.read(maxage) for dev in self._devices.values()}
 
     def _startRaw(self, target):
+        ramp = 60 * self.mapping[self.target]['ramp']
         seq = self._generateSequence(self.target)
         if self.target in ['off', 'safe']:
             seq.reverse()
-        self._startSequence(seq)
+        self._startSequence(
+            [SeqParam(dev, 'ramp', ramp)
+             for dev in self._attached_anodes + self._attached_banodes +
+                 self._attached_cathodes + self._attached_window] + seq)

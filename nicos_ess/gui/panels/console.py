@@ -58,7 +58,7 @@ class ConsolePanel(DefaultConsolePanel):
 
     def __init__(self, parent, client, options):
         DefaultConsolePanel.__init__(self, parent, client, options)
-        if 'reverse_scrolling' in options and options['reverse_scrolling']:
+        if options.get('reverse_scrolling', False):
             self.outView.enableReverseScrolling(True)
 
     def on_client_initstatus(self, state):
@@ -76,3 +76,6 @@ class ConsolePanel(DefaultConsolePanel):
                                                   text='Synchronizing...',
                                                   parent=self, total=total):
                 self.outView.addMessages(batch)
+
+    def setExpertMode(self, expert):
+        """Ignore base class's behaviour."""

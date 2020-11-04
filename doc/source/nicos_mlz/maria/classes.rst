@@ -2,9 +2,9 @@
 ===========================================
 
 
-.. automodule:: nicos_mlz.maria.devices.detector
+.. module:: nicos_mlz.maria.devices.detector
 .. autoclass:: MariaDetector()
 
-.. automodule:: nicos_mlz.maria.devices.yamlformat
+.. module:: nicos_mlz.maria.devices.yamlformat
 .. autoclass:: YAMLFileSinkHandler()
 .. autoclass:: YAMLFileSink()

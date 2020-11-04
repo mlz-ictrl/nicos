@@ -67,6 +67,7 @@ Instrument-specific code was contributed by:
 * Holger Gibhardt <hgibhar@gwdg.de>
 * Artur Glavic <artur.glavic@psi.ch>
 * Martin Haese <martin.haese@hzg.de>
+* Ümit Hardal <umit.hardal@ess.eu>
 * Michael Hofmann <michael.hofmann@frm2.tum.de>
 * Markus Hölzel <markus.hölzel@frm2.tum.de>
 * Stefan Huber <stefan.huber@frm2.tum.de>

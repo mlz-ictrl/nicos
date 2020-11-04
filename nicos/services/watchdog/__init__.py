@@ -59,6 +59,7 @@ class Entry:
     precondtime = 5
     okmessage = ''
     okaction = ''
+    actiontimeout = 60
 
     from_setup = None
     cond_obj = None
@@ -75,7 +76,7 @@ class Entry:
         res = {attr: getattr(self, attr) for attr in
                ('id', 'setup', 'condition', 'gracetime', 'message',
                 'scriptaction', 'action', 'type', 'precondition',
-                'precondtime', 'okmessage', 'okaction')}
+                'precondtime', 'okmessage', 'okaction', 'actiontimeout')}
         res['enabled'] = self.cond_obj.enabled
         return res
 
@@ -365,7 +366,7 @@ class Watchdog(BaseCacheClient):
         self._update_warnings_str()
         if entry.action:
             self._put_message('action', entry, entry.action)
-            self._spawn_action(entry.action)
+            self._spawn_action(entry.action, entry.actiontimeout)
 
     def _emit_expired_warning(self, entry):
         """Emit a warning that this condition has missing information."""
@@ -400,7 +401,7 @@ class Watchdog(BaseCacheClient):
                     notifier.send('NICOS warning resolved', msg)
             if entry.okaction:
                 self._put_message('action', entry, entry.okaction)
-                self._spawn_action(entry.okaction)
+                self._spawn_action(entry.okaction, entry.actiontimeout)
 
     # internal helper methods
 
@@ -425,13 +426,14 @@ class Watchdog(BaseCacheClient):
         self._put_message('pausecount', None,
                           ', '.join(self._pausecount.values()))
 
-    def _spawn_action(self, action):
+    def _spawn_action(self, action, timeout=60):
         self.log.warning('will execute action %r', action)
         script = path.join(config.nicos_root, 'bin', 'nicos-script')
         createSubprocess([sys.executable,
                           script,
                           '-M',                     # start in maintenance mode
-                          '-S', '60',               # abort after 60 seconds
+                          '-S', '%d' % timeout,     # abort after actiontimeout
+                                                    # seconds (default=60)
                           '-A', 'watchdog-action',  # appname for the logfiles
                           ','.join(self._setups),   # setups to load
                           action])                  # code to execute

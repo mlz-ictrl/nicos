@@ -501,7 +501,7 @@ class Experiment(Device):
                 mailaddress(localcontact)
             except ValueError:
                 raise ConfigurationError('localcontact is not a valid '
-                                         'email address')
+                                         'email address') from None
 
         try:
             # if proposal can be converted to a number, use the canonical form
@@ -847,7 +847,7 @@ class Experiment(Device):
             try:
                 mailaddress(email)
             except ValueError:
-                raise NicosError('need valid email address(es)')
+                raise NicosError('need valid email address(es)') from None
 
         # read and translate mailbody template
         self.log.debug('looking for template in %r', self.templatepath)
@@ -1237,7 +1237,7 @@ class ImagingExperiment(Experiment):
         self._clearImgPaths()
 
 
-class SXtalExperiment(Experiment):
+class SXTalExperiment(Experiment):
     parameters = {
         'centeredrefs': Param('List of centered reflections',
                               type=list, settable=True,

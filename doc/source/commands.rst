@@ -220,3 +220,4 @@ Simple parameter mode
 .. _spm:
 
 .. automodule:: nicos.core.spm
+   :no-members:
