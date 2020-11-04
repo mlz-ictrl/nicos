@@ -98,6 +98,7 @@ class MainWindow(DefaultMainWindow):
         pxr = decolor_logo(QPixmap("resources/logo-icon.png"), Qt.white)
         logo_label.setPixmap(pxr.scaledToHeight(self.toolBarMain.height(),
                                                 Qt.SmoothTransformation))
+        logo_label.setMargin(5)
         self.toolBarMain.insertWidget(self.toolBarMain.actions()[0], logo_label)
 
         nicos_label = QLabel()
