@@ -28,7 +28,6 @@ devices = dict(
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'Container storing Experiment properties',
-        propdb = 'propdb',
         dataroot = 'data',
         sample = 'Sample',
     ),

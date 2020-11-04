@@ -37,7 +37,13 @@ from nicos.devices.experiment import Experiment as BaseExperiment, \
     ImagingExperiment as BaseImagingExperiment
 from nicos.utils import safeName
 
-from nicos_mlz.devices.proposaldb import queryCycle, queryProposal
+
+def queryCycle():
+    raise NotImplementedError
+
+
+def queryProposal(prop, instr):
+    raise NotImplementedError
 
 
 class Experiment(BaseExperiment):

@@ -4,10 +4,6 @@ group = 'special'
 import hashlib
 
 devices = dict(
-    # to authenticate against the UserOffice, needs the "propdb" parameter
-    # set on the Experiment object
-    UserDB = device('nicos_mlz.devices.proposaldb.Authenticator'),
-
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         hashing = 'md5',
         passwd = [('guest', '', 'guest'),
@@ -17,7 +13,7 @@ devices = dict(
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = 'localhost',
-        authenticators = ['Auth'],  # or ['Auth', 'UserDB']
+        authenticators = ['Auth'],
         loglevel = 'debug',
     ),
 )

@@ -35,7 +35,6 @@ devices = dict(
         serviceexp = 'p0',
         sample = 'Sample',
         mailsender = 'reseda@frm2.tum.de',
-        propdb = '/resedacontrol/propdb',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
     ),

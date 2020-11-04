@@ -36,7 +36,6 @@ devices = dict(
         mailserver = 'mailhost.frm2.tum.de',
         serviceexp = 'maintenance',
         sample = 'Sample',
-        propdb = '/home/jcns/.nicos_proposaldb',
         managerights = dict(
             enableDirMode = 0o775,
             enableFileMode = 0o664,

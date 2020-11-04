@@ -11,9 +11,6 @@ devices = dict(
             'ictrl': 'admin',
         }
     ),
-    UserDBAuth = device('nicos_mlz.devices.proposaldb.Authenticator',
-        description = 'FRM II user office authentication',
-    ),
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         hashing = 'md5',
         passwd = [
@@ -26,7 +23,6 @@ devices = dict(
         server = '0.0.0.0',
         authenticators = [
             'LDAPAuth',
-            'UserDBAuth',
             'Auth',
         ],
     ),

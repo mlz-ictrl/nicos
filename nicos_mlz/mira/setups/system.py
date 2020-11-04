@@ -24,7 +24,6 @@ devices = dict(
         propprefix = '',
         sendmail = True,
         mailsender = 'rgeorgii@frm2.tum.de',
-        propdb = '/etc/proposaldb',
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'sample object',

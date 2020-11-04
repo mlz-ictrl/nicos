@@ -11,7 +11,6 @@ devices = dict(
             'ictrl': 'admin',
         },
     ),
-    UserDB = device('nicos_mlz.devices.proposaldb.Authenticator'),
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         hashing = 'md5',
         # first entry is the user name, second the hashed password, third the user level
@@ -22,6 +21,6 @@ devices = dict(
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = '',
-        authenticators = ['LDAPAuth', 'UserDB', 'Auth'],
+        authenticators = ['LDAPAuth', 'Auth'],
     ),
 )

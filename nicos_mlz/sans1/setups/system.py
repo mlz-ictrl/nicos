@@ -32,7 +32,6 @@ devices = dict(
     Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'experiment',
         dataroot = '/data/nicos',
-        propdb = '/control/propdb',
         sample = 'Sample',
         sendmail = True,
         mailsender = 'sans1@frm2.tum.de',
