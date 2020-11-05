@@ -39,8 +39,7 @@ from nicos.guisupport.utils import DoubleValidator
 from nicos.utils import findResource
 
 
-SAMPLE_KEYS = ('aperture', 'position', 'timefactor',
-               'thickness', 'detoffset', 'comment')
+SAMPLE_KEYS = ('aperture', 'position', 'thickness', 'detoffset', 'comment')
 
 
 def configToFrame(frame, config):
@@ -48,7 +47,6 @@ def configToFrame(frame, config):
     frame.commentBox.setText(config['comment'])
     frame.offsetBox.setText(str(config['detoffset']))
     frame.thickBox.setText(str(config['thickness']))
-    frame.factorBox.setText(str(config['timefactor']))
     frame.posTbl.setRowCount(len(config['position']))
     frame.apXBox.setText(str(config['aperture'][0]))
     frame.apYBox.setText(str(config['aperture'][1]))
@@ -72,7 +70,6 @@ def configFromFrame(frame):
         'comment': frame.commentBox.text(),
         'detoffset': float(frame.offsetBox.text()),
         'thickness': float(frame.thickBox.text()),
-        'timefactor': float(frame.factorBox.text()),
         'aperture': (float(frame.apXBox.text()),
                      float(frame.apYBox.text()),
                      float(frame.apWBox.text()),
@@ -112,9 +109,8 @@ class ConfigEditDialog(QDialog):
         layout.addWidget(self.frm)
         layout.addWidget(box)
         self.setLayout(layout)
-        for box in [self.frm.offsetBox, self.frm.thickBox, self.frm.factorBox,
-                    self.frm.apXBox, self.frm.apYBox, self.frm.apWBox,
-                    self.frm.apHBox]:
+        for box in [self.frm.offsetBox, self.frm.thickBox, self.frm.apXBox,
+                    self.frm.apYBox, self.frm.apWBox, self.frm.apHBox]:
             box.setValidator(DoubleValidator(self))
         # List of properties that are going to be enabled in-place for edit,
         # thus should not be visible here.
@@ -143,9 +139,8 @@ class ConfigEditDialog(QDialog):
                                                'one.')
             self.frm.nameBox.setFocus()
             return
-        for box in [self.frm.offsetBox, self.frm.thickBox, self.frm.factorBox,
-                    self.frm.apXBox, self.frm.apYBox, self.frm.apWBox,
-                    self.frm.apHBox]:
+        for box in [self.frm.offsetBox, self.frm.thickBox, self.frm.apXBox,
+                    self.frm.apYBox, self.frm.apWBox, self.frm.apHBox]:
             if not box.text():
                 QMessageBox.warning(self, 'Error', 'Please enter valid values '
                                                    'for all input fields.')
@@ -401,7 +396,6 @@ class LokiSamplePanel(Panel):
                     comment='',
                     detoffset=-335.0,
                     thickness=1.0,
-                    timefactor=1.0,
                     aperture=(0, 0, 10, 10),
                     position=position,
                 )
