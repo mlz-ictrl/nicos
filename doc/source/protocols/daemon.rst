@@ -158,6 +158,7 @@ Miscellaneous auxiliary commands
 .. daemoncmd:: eventunmask
 .. daemoncmd:: getversion
 .. daemoncmd:: transfer
+.. daemoncmd:: keepalive
 
 Experimental commands
 ---------------------

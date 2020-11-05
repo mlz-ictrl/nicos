@@ -516,6 +516,9 @@ class ConnectionHandler:
     def getversion(self):
         """Return the daemon's version.
 
+        Also used as a keepalive ping by the client, which can refresh user
+        login sessions if necessary.
+
         :returns: version string
         """
         self.send_ok_reply(nicos_version)
@@ -766,6 +769,20 @@ class ConnectionHandler:
         finally:
             os.close(fd)
         self.send_ok_reply(filename)
+
+    @command()
+    def keepalive(self):
+        """Do whatever is necessary to keep the connection able to function,
+        for example refresh client credentials with an external authentication
+        mechanism.
+
+        This is called every 12 hours from each connected client session.
+
+        :returns: ack
+        """
+        if 'keepalive' in self.user.data:
+            self.user.data['keepalive']()
+        self.send_ok_reply(None)
 
     @command(needcontrol=True)
     def unlock(self):

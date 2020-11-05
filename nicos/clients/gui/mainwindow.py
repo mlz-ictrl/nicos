@@ -90,6 +90,9 @@ class MainWindow(DlgUtils, QMainWindow):
     # Emitted when a panel generates code that an editor panel should add.
     codeGenerated = pyqtSignal(object)
 
+    # Interval (in ms) to make "keepalive" queries to the daemon.
+    keepaliveInterval = 12*3600*1000
+
     ui = 'main.ui'
 
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
@@ -189,6 +192,10 @@ class MainWindow(DlgUtils, QMainWindow):
         self.reconnectTimer = QTimer(singleShot=True, timeout=self._reconnect)
         self._reconnect_count = 0
         self._reconnect_time = 0
+
+        # timer for session keepalive, every 12 hours
+        self.keepaliveTimer = QTimer(singleShot=False, timeout=self._keepalive)
+        self.keepaliveTimer.start(self.keepaliveInterval)
 
         # setup tray icon
         self.trayIcon = QSystemTrayIcon(self)
@@ -331,6 +338,10 @@ class MainWindow(DlgUtils, QMainWindow):
             if self._reconnect_count <= self.client.RECONNECT_TRIES_LONG:
                 self._reconnect_time = self.client.RECONNECT_INTERVAL_LONG
             self.client.connect(self.conndata)
+
+    def _keepalive(self):
+        if self.client.isconnected:
+            self.client.ask('keepalive')
 
     def show(self):
         QMainWindow.show(self)

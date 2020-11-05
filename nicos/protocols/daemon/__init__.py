@@ -86,6 +86,7 @@ DAEMON_COMMANDS = {
     'authenticate':   0x64,  # only used during handshake
     'eventunmask':    0x65,
     'rearrange':      0x66,
+    'keepalive':      0x67,
 }
 
 ACTIVE_COMMANDS = {
