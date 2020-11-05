@@ -55,6 +55,9 @@ These data sets are different for a scan, a subscan, or a single count command.
 Interaction of commands with data manager and sinks
 ---------------------------------------------------
 
+Count command
+~~~~~~~~~~~~~
+
 .. module:: nicos.commands.measure
 
 If the user calls the :func:`~count` command in NICOS the following happens:
@@ -87,6 +90,53 @@ If the user calls the :func:`~count` command in NICOS the following happens:
 
         "count command" => "Data manager" [label="finishPoint"]{
             "Data manager" => "Data sink" [label="end"];
+        }
+   }
+
+Scan commmand
+~~~~~~~~~~~~~
+
+.. module:: nicos.commands.scan
+
+In case of calling the :func:`~scan` or related command there is the following
+interaction between the components:
+
+.. seqdiag::
+   :caption: Interaction of a scan command, data manager, and data sink
+
+   seqdiag {
+        autonumber = True;
+
+        "scan command" => "Data manager" [label="beginScan", note="initialize ScanDataset"]{
+            "Data manager" => "Data sink" [label="prepare", note="ScanDataset"];
+            "Data manager" => "Data sink" [label="begin"];
+        }
+
+        "scan command" => "Data manager" [label="beginPoint", note="initialize PointDataset"]
+        {
+            "Data manager" => "Data sink" [label="prepare", note="PointDataset"];
+            "Data manager" => "Data sink" [label="begin"];
+        }
+        "scan command" => "scan command" [label="move devices", note="read new positions"];
+
+        "scan command" => "Data manager" [label="putValues", note="updated positions"]{
+            "Data manager" => "Data sink" [label="putValues", note="updated positions"];
+        }
+
+        "scan command" => "scan command" [label="start count"];
+
+        "scan command" => "Data manager" [label="updateMetainfo"]{
+            "Data manager" => "Data sink" [label="putMetainfo", note="PointDataset"];
+        }
+
+        "scan command" => "scan command" [label="count finished"];
+
+        "scan command" => "Data manager" [label="finishPoint"] {
+            "Data manager" => "Data sink" [label="end", note="PointDataset"];
+        }
+
+        "scan command" => "Data manager" [label="finishScan"] {
+            "Data manager" => "Data sink" [label="end", note="ScanDataset"];
         }
    }
 
