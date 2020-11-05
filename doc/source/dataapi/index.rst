@@ -51,6 +51,45 @@ sets.
 
 These data sets are different for a scan, a subscan, or a single count command.
 
+---------------------------------------------------
+Interaction of commands with data manager and sinks
+---------------------------------------------------
+
+.. module:: nicos.commands.measure
+
+If the user calls the :func:`~count` command in NICOS the following happens:
+
+.. seqdiag::
+   :caption: Interaction of count command, data manager, and data sink
+
+   seqdiag {
+        autonumber = True;
+
+        "count command" => "Data manager" [label="beginPoint", rightnote="initialize PointDataset"]{
+            "Data manager" => "Data sink" [label="prepare"];
+            "Data manager" => "Data sink" [label="begin"];
+        }
+
+        "count command" => "Data manager" [label="updateMetainfo", rightnote="collect metainfo"]{
+            "Data manager" => "Data sink" [label="putMetainfo"];
+        }
+
+        "count command" -> "count command" [label="start\ndetectors", leftnote="start detectors\nand wait until\nfinshed or stopped"]{
+            "Cache" => "Data manager" [label="update value", note="new value found"];
+            "Data manager" => "Data sink" [label="putValues"];
+        }
+
+        "count command" -> "count command" [label="read detector\ndata", leftnote="detectors\nfinished or stopped"];
+
+        "count command" => "Data manager" [label="putResults"]{
+            "Data manager" => "Data sink" [label="putResults"];
+        }
+
+        "count command" => "Data manager" [label="finishPoint"]{
+            "Data manager" => "Data sink" [label="end"];
+        }
+   }
+
 ----------
 Components
 ----------
