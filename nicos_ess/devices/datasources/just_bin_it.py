@@ -118,7 +118,11 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
 
     def doPrepare(self):
         self.curstatus = status.BUSY, 'Preparing'
-        self.subscribe(self.hist_topic)
+        try:
+            self.subscribe(self.hist_topic)
+        except Exception as error:
+            self.curstatus = status.ERROR, str(error)
+            raise
         self.curstatus = status.OK, ''
 
     def new_messages_callback(self, messages):
