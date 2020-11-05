@@ -52,4 +52,7 @@ mprofile_*.dat
 *.prof
 *.lprof
 
+#PyCharm
+.idea/
+
 __pycache__
