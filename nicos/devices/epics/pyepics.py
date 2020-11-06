@@ -153,10 +153,14 @@ class EpicsDevice(DeviceMixinBase):
                                              % pvname)
 
                 self._pvctrls[pvparam] = pv.get_ctrlvars() or {}
+            self._register_pv_callbacks()
         else:
             for pvparam in self._get_pv_parameters():
                 self._pvs[pvparam] = HardwareStub(self)
                 self._pvctrls[pvparam] = {}
+
+    def _register_pv_callbacks(self):
+        pass
 
     def _get_pv_parameters(self):
         # The default implementation of this method simply returns the

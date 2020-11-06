@@ -23,11 +23,14 @@
 #
 # *****************************************************************************
 
+from time import time as currenttime
+
 from nicos.core import Override, Param, oneof, pvname, status
 from nicos.core.device import requires
 from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import CanDisable, HasOffset
 from nicos.devices.abstract import CanReference, Motor
+from nicos.devices.epics import PVMonitor
 
 from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 
@@ -98,6 +101,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
             'enable': 'CNEN',
             'set': 'SET',
             'foff': 'FOFF',
+            'alarm_status': 'STAT',
+            'alarm_severity': 'SEVR',
         }
 
     def _get_pv_parameters(self):
@@ -303,3 +308,46 @@ class AbsoluteEpicsMotor(EpicsMotor):
     def doReference(self):
         self.log.warning('This motor does not require '
                          'homing - command ignored')
+
+
+class EpicsMonitorMotor(PVMonitor, EpicsMotor):
+    def doStart(self, target):
+        self._put_pv('writepv', target)
+        if target != self.doRead():
+            self._wait_for_start()
+
+    def _on_status_change_cb(self, pvparam, value=None, char_value='', **kws):
+        self._check_move_state_changed(pvparam, value)
+        PVMonitor._on_status_change_cb(self, pvparam, value, char_value, **kws)
+
+    def _check_move_state_changed(self, pvparam, value):
+        # If the fields indicating whether the device is moving change then
+        # the cache needs to be updated immediately.
+        if pvparam in ['donemoving', 'moving']:
+            self._cache.put(self._name, pvparam, value, currenttime())
+
+    def _get_status_parameters(self):
+        status_pars = {
+            'miss',
+            'donemoving',
+            'moving',
+            'lowlimitswitch',
+            'highlimitswitch',
+            'softlimit',
+        }
+
+        if self.errormsgpv:
+            status_pars.add('errormsgpv')
+            status_pars.add('alarm_status')
+            status_pars.add('alarm_severity')
+        return status_pars
+
+    def _get_status_message(self):
+        """
+        Get the status message from the motor if the PV exists.
+        :return: The status message if it exists, otherwise an empty string.
+        """
+        if not self.errormsgpv:
+            return ''
+        return self._pvs['errormsgpv'].get(timeout=self.epicstimeout,
+                                           as_string=True)
