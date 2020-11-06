@@ -151,8 +151,6 @@ The :mod:`nicos.utils` contains a collection of general use utility functions:
 
 .. autofunction:: watchFileTime
 
-.. autofunction:: which
-
 .. autofunction:: whyExited
 
 .. autofunction:: writeFile
