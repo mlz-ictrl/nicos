@@ -27,6 +27,7 @@ from nicos.core import Override, Param, pvname, status
 from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import CanDisable, HasOffset
 from nicos.devices.abstract import CanReference, Motor
+from nicos.core.device import requires
 
 from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 
@@ -278,3 +279,14 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         self._put_pv('writepv', pos)
         self._put_pv('set', 0)
         self._put_pv('foff', 0)
+
+
+class HomingProtectedEpicsMotor(EpicsMotor):
+    """
+    The only thing that this class adds to EpicsMotor is that
+    the reference run can only happen with admin rights
+    """
+
+    @requires(level='admin')
+    def doReference(self):
+        EpicsMotor.doReference(self)
