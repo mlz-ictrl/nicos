@@ -28,9 +28,9 @@ from time import time
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QActionGroup, QColor, QFontMetrics, QIcon, \
-    QListWidgetItem, QMenu, QPixmap, QSize, QStyledItemDelegate, Qt, QTimer, \
-    QToolBar, pyqtSlot
+from nicos.guisupport.qt import QActionGroup, QBrush, QColor, QFontMetrics, \
+    QIcon, QListWidgetItem, QMenu, QPen, QPixmap, QSize, QStyledItemDelegate, \
+    Qt, QTimer, QToolBar, pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \
     BREAK_NOW, SIM_STATES, STATUS_IDLEEXC
@@ -99,14 +99,20 @@ class ScriptQueue:
 class LineDelegate(QStyledItemDelegate):
     def __init__(self, offset, view):
         QStyledItemDelegate.__init__(self, view)
-        self._offset = offset
+        self._icon_offset = offset
+        self._margin_offset = 0
+        self._pen = QPen(QBrush(QColor('grey')), 1)
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
-        text = index.data(Qt.UserRole)
-        rect = option.rect.adjusted(self._offset, 0, 0, 0)
-        painter.setPen(QColor('grey'))
-        painter.drawText(rect, 0, text)
+        lineno = index.data(Qt.UserRole)
+        rect = option.rect.adjusted(self._icon_offset, 0, 0, 0)
+        painter.save()
+        painter.setPen(self._pen)
+        painter.drawText(rect, Qt.AlignVCenter, lineno)
+        margin_x = self._icon_offset + self._margin_offset
+        painter.drawLine(margin_x, rect.top(), margin_x, rect.bottom() + 1)
+        painter.restore()
 
 
 class ScriptStatusPanel(Panel):
@@ -271,12 +277,15 @@ class ScriptStatusPanel(Panel):
         lines = script.splitlines()
         longest = len(str(len(lines)))
         padding = ' ' * (longest + 3)
-        height = QFontMetrics(self.traceView.font()).height()
+        metrics = QFontMetrics(self.traceView.font())
+        height = metrics.height()
+        lineno_width = metrics.size(0, ' ' * (longest + 2)).width()
+        self.traceView.itemDelegate()._margin_offset = lineno_width
         for (i, line) in enumerate(lines):
             item = QListWidgetItem(self.otherlineicon, padding + line,
                                    self.traceView)
             item.setSizeHint(QSize(-1, height))
-            item.setData(Qt.UserRole, '%*d |' % (longest, i+1))
+            item.setData(Qt.UserRole, '%*d' % (longest, i+1))
             self.traceView.addItem(item)
         self.current_line = -1
 
