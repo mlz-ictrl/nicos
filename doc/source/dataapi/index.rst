@@ -3,6 +3,7 @@ Data API
 ========
 
 .. module:: nicos.core.data.sink
+   :noindex:
 
 --------
 Overview
@@ -59,6 +60,7 @@ Count command
 ~~~~~~~~~~~~~
 
 .. module:: nicos.commands.measure
+   :noindex:
 
 If the user calls the :func:`~count` command in NICOS the following happens:
 
@@ -97,6 +99,7 @@ Scan commmand
 ~~~~~~~~~~~~~
 
 .. module:: nicos.commands.scan
+   :noindex:
 
 In case of calling the :func:`~scan` or related command there is the following
 interaction between the components:
