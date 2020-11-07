@@ -27,9 +27,8 @@ import h5py
 import numpy
 
 from nicos.core import SLAVE
-from nicos.core.constants import POINT
+from nicos.core.constants import POINT, SCAN
 from nicos.core.data import DataSinkHandler
-from nicos.core.data.dataset import PointDataset, ScanDataset
 from nicos.core.errors import NicosError
 from nicos.core.params import Param
 from nicos.devices.datasinks import FileSink
@@ -76,8 +75,8 @@ class NexusSinkHandler(DataSinkHandler):
         if self.startdataset is None:
             self.startdataset = self.dataset
             self.h5file = None
-            if isinstance(self.startdataset, PointDataset):
-                self.dataset.countertype = 'scan'
+            if self.startdataset.settype == POINT:
+                self.dataset.countertype = SCAN
             # Assign the counter
             self.manager.assignCounter(self.dataset)
 
@@ -131,7 +130,7 @@ class NexusSinkHandler(DataSinkHandler):
                 self.log.warning('Cannot write %s of type %s', key, type(val))
 
     def updateValues(self, dictdata, h5obj, values):
-        if isinstance(self.dataset, PointDataset):
+        if self.dataset.settype == POINT:
             for key, val in dictdata.items():
                 if isinstance(val, dict):
                     nxname = key.split(':')[0]
@@ -188,7 +187,7 @@ class NexusSinkHandler(DataSinkHandler):
         self.h5file.flush()
 
     def addSubset(self, subset):
-        if isinstance(self.startdataset, ScanDataset):
+        if self.startdataset.settype == SCAN:
             h5obj = self.h5file['/']
             self.append(self.template, h5obj, subset)
             self.h5file.flush()
@@ -218,18 +217,16 @@ class NexusSinkHandler(DataSinkHandler):
     def end(self):
         """
             There is a trick here: The NexusSink sets the dataset only on
-            initialisation. And NICOS
-            tries to make a new SinkHandler for the ScanDataset and then for
-            each PointDaset. The result is that
-            I get the NexusSinkHandler.end() doubly called with  last
-            PointDataset. However, I keep the startdatset.
-            And the NICOS engine sets the startdaset.finished from None to a
-            timestamp when it is done. I use this
-            to detect the end. If the NICOS engine in some stage changes on
-            this one, this code will break
+            initialisation. And NICOS tries to make a new SinkHandler for the
+            ScanDataset and then for each PointDaset. The result is that I get
+            the NexusSinkHandler.end() doubly called with  last PointDataset.
+            However, I keep the startdatset.  And the NICOS engine sets the
+            startdaset.finished from None to a timestamp when it is done. I use
+            this to detect the end. If the NICOS engine in some stage changes
+            on this one, this code will break
         """
         if self.startdataset.finished is not None:
-            if isinstance(self.startdataset, ScanDataset):
+            if self.startdataset.settype == SCAN:
                 h5obj = self.h5file['/']
                 linkpath = self.find_scan_link(h5obj, self.template)
                 if linkpath is not None:
