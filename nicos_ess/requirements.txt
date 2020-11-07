@@ -8,3 +8,4 @@ kafka-logging-handler
 kafka-python>=1.4.6
 pvapy
 pyepics
+h5py>=2.6
