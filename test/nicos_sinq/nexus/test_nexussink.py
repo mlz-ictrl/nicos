@@ -25,8 +25,11 @@ import os
 import time
 from os import path
 
-import h5py
 import pytest
+
+pytest.importorskip('h5py')
+
+import h5py
 
 from nicos import config
 from nicos.commands.device import maw
