@@ -49,8 +49,7 @@ devices = dict(
     nxsink = device('nicos_sinq.sans.devices.sansnexussink.SANSNexusSink',
         description = 'Sink for NeXus file writer',
         filenametemplate = ['sans%(year)sn%(scancounter)06d.hdf'],
-        templatesmodule = 'nicos_sinq.sans.nexus.nexus_templates',
-        templateclass = 'SANSTemplateProvider',
+        templateclass = 'nicos_sinq.sans.nexus.nexus_templates.SANSTemplateProvider',
     ),
     quiecksink = device('nicos_sinq.devices.datasinks.QuieckSink',
         description = 'Sink for sending UDP datafile '

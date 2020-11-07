@@ -255,11 +255,11 @@ class NexusSink(FileSink):
         writing work is done in the
         NexusSinkHandler. This class just initializes the handler properly.
     """
-    parameters = {'templatesmodule': Param(
-        'Python module containing NeXus the NexusTemplateProvider subclass',
-        type=str, mandatory=True), 'templateclass': Param(
-        'Python class implementing NexusTemplateProvider', type=str,
-        mandatory=True), }
+    parameters = {
+        'templateclass': Param('Python class implementing '
+                               'NexusTemplateProvider',
+                               type=str, mandatory=True),
+    }
 
     handlerclass = NexusSinkHandler
     _handlerObj = None
@@ -285,7 +285,7 @@ class NexusSink(FileSink):
         self._handlerObj = None
 
     def loadTemplate(self):
-        mod = importlib.import_module(self.templatesmodule)
-        class_ = getattr(mod, self.templateclass)
-        inst = class_()
-        return inst.getTemplate()
+        mod, cls = self.templateclass.rsplit('.', 1)
+        mod = importlib.import_module(mod)
+        class_ = getattr(mod, cls)
+        return class_().getTemplate()
