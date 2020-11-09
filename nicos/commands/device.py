@@ -124,7 +124,7 @@ def _rmove_poshook(dev, delta):
         return curpos + delta
     except Exception:
         raise UsageError('Device %s cannot be used with relative movement or '
-                         'wrong delta type %r' % (dev, delta))
+                         'wrong delta type %r' % (dev, delta)) from None
 
 
 @usercommand
@@ -372,7 +372,7 @@ def waitfor(dev, condition, timeout=86400):
     try:
         ast.parse(full_condition)
     except Exception:
-        raise UsageError('Could not parse condition %r' % condition)
+        raise UsageError('Could not parse condition %r' % condition) from None
 
     if session.mode == SIMULATION:
         return

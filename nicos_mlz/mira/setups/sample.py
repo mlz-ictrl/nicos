@@ -149,6 +149,22 @@ devices = dict(
         fmtstr = '%.2f',
         precision = 0.01,
     ),
+    vg1 = device('nicos.devices.tas.VirtualGonio',
+        description = 'Gonio along orient1 reflex',
+        cell = 'Sample',
+        gx = 'sgx',
+        gy = 'sgy',
+        axis = 1,
+        unit = 'deg',
+    ),
+    vg2 = device('nicos.devices.tas.VirtualGonio',
+        description = 'Gonio along orient2 reflex',
+        cell = 'Sample',
+        gx = 'sgx',
+        gy = 'sgy',
+        axis = 2,
+        unit = 'deg',
+    ),
 )
 
 alias_config = {

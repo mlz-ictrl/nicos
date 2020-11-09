@@ -44,6 +44,22 @@ class CommandPanel(DefaultCommandPanel):
     def __init__(self, parent, client, options):
         DefaultCommandPanel.__init__(self, parent, client, options)
         self.set_icons()
+        if client.isconnected:
+            self.on_client_connected()
+        else:
+            self.on_client_disconnected()
+        client.connected.connect(self.on_client_connected)
+        client.disconnected.connect(self.on_client_disconnected)
+
+    def on_client_connected(self):
+        self.setViewOnly(self.client.viewonly)
+
+    def on_client_disconnected(self):
+        self.setViewOnly(True)
+
+    def setViewOnly(self, viewonly):
+        self.inputFrame.setEnabled(not viewonly)
+        self.frame.setEnabled(not viewonly)
 
     def set_icons(self):
         self.cmdBtn.setIcon(get_icon('add-24px.svg'))

@@ -27,6 +27,7 @@ clean:
 clean-demo: clean
 	-rm -rf data/cache/*
 	-rm -rf data/logbook data/20*
+	-rm -rf log/poller* log/cache log/daemon log/elog log/nicos log/watchdog
 	-rm data/current
 
 install:

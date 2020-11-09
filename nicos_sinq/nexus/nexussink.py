@@ -26,7 +26,6 @@ import importlib
 import h5py
 import numpy
 
-from nicos import session
 from nicos.core import SLAVE
 from nicos.core.constants import POINT
 from nicos.core.data import DataSinkHandler
@@ -119,7 +118,7 @@ class NexusSinkHandler(DataSinkHandler):
                 val.create(key, h5obj, self)
             elif isinstance(val, dict):
                 if ':' not in key:
-                    session.log.warning(
+                    self.log.warning(
                         'Cannot write group %s, no nxclass defined', key)
                     continue
                 [nxname, nxclass] = key.rsplit(':', 1)
@@ -129,8 +128,7 @@ class NexusSinkHandler(DataSinkHandler):
             elif isinstance(val, NexusElementBase):
                 val.create(key, h5obj, self)
             else:
-                session.log.warning('Cannot write %s of type %s', key,
-                                    type(val))
+                self.log.warning('Cannot write %s of type %s', key, type(val))
 
     def updateValues(self, dictdata, h5obj, values):
         if isinstance(self.dataset, PointDataset):
@@ -145,7 +143,7 @@ class NexusSinkHandler(DataSinkHandler):
                 elif isinstance(val, NexusElementBase):
                     val.update(key, h5obj, self, values)
                 else:
-                    session.log.warning('Cannot identify and  update %s', key)
+                    self.log.warning('Cannot identify and  update %s', key)
 
     def append(self, dictdata, h5obj, subset):
         for key, val in dictdata.items():
@@ -160,9 +158,9 @@ class NexusSinkHandler(DataSinkHandler):
                 try:
                     val.append(key, h5obj, self, subset)
                 except Exception as err:
-                    session.log.warning('Exception %s on key %s', err, key)
+                    self.log.warning('Exception %s on key %s', err, key)
             else:
-                session.log.warning('Cannot identify and  append %s', key)
+                self.log.warning('Cannot identify and  append %s', key)
 
     def putValues(self, values):
         h5obj = self.h5file['/']
@@ -182,7 +180,7 @@ class NexusSinkHandler(DataSinkHandler):
             elif isinstance(val, NexusElementBase):
                 val.results(key, h5obj, self, results)
             else:
-                session.log.warning('Cannot add results to %s', key)
+                self.log.warning('Cannot add results to %s', key)
 
     def putResults(self, quality, results):
         h5obj = self.h5file['/']

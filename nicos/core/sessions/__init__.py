@@ -220,7 +220,7 @@ class Session:
                     cache.lock('master', cache._mastertimeout)
                 except CacheLockError as err:
                     raise ModeError('another master is already active: %s' %
-                                    sessionInfo(err.locked_by))
+                                    sessionInfo(err.locked_by)) from err
                 else:
                     cache._ismaster = True
                 # put version info into cache
@@ -1101,7 +1101,7 @@ class Session:
             devcls = self._nicos_import(modname, clsname)
         except (ImportError, AttributeError) as err:
             raise ConfigurationError("failed to import device class '%s': %s"
-                                     % (devclsname, err))
+                                     % (devclsname, err)) from err
         if not isinstance(devcls, DeviceMeta):
             raise ConfigurationError("configured device class '%s' is not a "
                                      'Device or derived class' % devclsname)

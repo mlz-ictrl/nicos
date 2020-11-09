@@ -79,8 +79,8 @@ def requires(**access):
                 if 'helpmsg' in access:
                     msg += ' (%s)' % access['helpmsg']
                 if args and isinstance(args[0], Device):
-                    raise AccessError(args[0], msg)
-                raise AccessError(msg)
+                    raise AccessError(args[0], msg) from None
+                raise AccessError(msg) from None
             return func(*args, **kwds)
         new_func.__name__ = func.__name__
         new_func.__doc__ = func.__doc__
@@ -202,7 +202,7 @@ class DeviceMeta(DeviceMixinMeta):
                             session.checkAccess(self.requires)
                         except AccessError as err:
                             raise AccessError(self, 'cannot set parameter: %s'
-                                              % err)
+                                              % err) from None
                     if self._mode == SLAVE:
                         raise ModeError('setting parameter %s not possible in '
                                         'slave mode' % param)
@@ -447,7 +447,7 @@ class Device(metaclass=DeviceMeta):
                 except UsageError:
                     raise ConfigurationError(
                         self, 'device %r item %d has wrong type (should be %s)' %
-                        (aname, i + 1, entry.devclass.__name__))
+                        (aname, i + 1, entry.devclass.__name__)) from None
                 devlist.append(dev)
 
             for dev in devlist:
@@ -650,8 +650,9 @@ class Device(metaclass=DeviceMeta):
         try:
             value = paraminfo.type(value)
         except (ValueError, TypeError) as err:
-            raise ConfigurationError(self, '%r is an invalid value for '
-                                     'parameter %s: %s' % (value, param, err))
+            raise ConfigurationError(
+                self, '%r is an invalid value for parameter %s: %s' % (
+                    value, param, err)) from err
         return value
 
     def _initParam(self, param, paraminfo=None):
@@ -894,7 +895,8 @@ class Device(metaclass=DeviceMeta):
                 self._cache.lock(self._name)
             except CacheLockError:
                 if currenttime() > start + timeout:
-                    raise CommunicationError(self, 'device locked in cache')
+                    raise CommunicationError(
+                        self, 'device locked in cache') from None
                 session.delay(self._base_loop_delay * 3)
             else:
                 break
@@ -915,7 +917,8 @@ class Device(metaclass=DeviceMeta):
         try:
             self._cache.unlock(self._name)
         except CacheLockError:
-            raise CommunicationError(self, 'device locked by other instance')
+            raise CommunicationError(
+                self, 'device locked by other instance') from None
 
     def _pollParam(self, name, with_ttl=0):
         """Read a parameter from the hardware and put its value into the cache.
@@ -1571,12 +1574,13 @@ class Moveable(Waitable):
             try:
                 session.checkAccess(self.requires)
             except AccessError as err:
-                raise AccessError(self, 'cannot start device: %s' % err)
+                raise AccessError(
+                    self, 'cannot start device: %s' % err) from None
         try:
             pos = self.valuetype(pos)
         except (ValueError, TypeError) as err:
             raise InvalidValueError(self, '%r is an invalid value for this '
-                                    'device: %s' % (pos, err))
+                                    'device: %s' % (pos, err)) from None
         ok, why = self.isAllowed(pos)
         if not ok:
             raise LimitError(self, 'moving to %s is not allowed: %s' %
@@ -1743,7 +1747,8 @@ class Moveable(Waitable):
             try:
                 session.checkAccess(self.requires)
             except AccessError as err:
-                raise AccessError(self, 'cannot stop device: %s' % err)
+                raise AccessError(
+                    self, 'cannot stop device: %s' % err) from None
         if isinstance(self, HasTimeout):
             self._setROParam('_timesout', None)
         if hasattr(self, 'doStop'):
