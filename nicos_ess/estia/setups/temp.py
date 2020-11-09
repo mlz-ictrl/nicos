@@ -1,4 +1,4 @@
-description = 'Prototype PT100 temperature measurement'
+description = 'Temperature measurement and control'
 
 devices = dict(
     T01 = device('nicos_ess.estia.devices.pt100.EpicsPT100Temperature',
@@ -72,5 +72,24 @@ devices = dict(
         statuspv = 'estia-selpt100-001:AnalogStatus_12',
         unit = 'C',
         description = 'Metrology Cart'
+    ),
+    julabo = device('nicos_ess.estia.devices.julabo.EpicsJulabo',
+        description = 'The Julabo',
+        pvprefix = 'ESTIA-JUL25HL-001',
+        readpv = 'ESTIA-JUL25HL-001:TEMP',
+        writepv = 'ESTIA-JUL25HL-001:TEMP:SP1',
+        targetpv = 'ESTIA-JUL25HL-001:TEMP:SP1:RBV',
+        statuscodepv = 'ESTIA-JUL25HL-001:STATUS',
+        statusmsgpv = 'ESTIA-JUL25HL-001:STATUSc',
+        switchpvs = {
+            'read': 'ESTIA-JUL25HL-001:MODE:SP',
+            'write': 'ESTIA-JUL25HL-001:MODE:SP'
+        },
+        switchstates = {
+            'enable': 1,
+            'disable': 0
+        },
+        epicstimeout = 3.0,
+        precision = 0.5,
     ),
 )
