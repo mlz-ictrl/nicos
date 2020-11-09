@@ -159,7 +159,7 @@ class NexusSinkHandler(DataSinkHandler):
                 except Exception as err:
                     self.log.warning('Exception %s on key %s', err, key)
             else:
-                self.log.warning('Cannot identify and  append %s', key)
+                self.log.warning('Cannot identify and append %s', key)
 
     def putValues(self, values):
         h5obj = self.h5file['/']
@@ -223,7 +223,7 @@ class NexusSinkHandler(DataSinkHandler):
             However, I keep the startdatset.  And the NICOS engine sets the
             startdaset.finished from None to a timestamp when it is done. I use
             this to detect the end. If the NICOS engine in some stage changes
-            on this one, this code will break
+            on this one, this code will break.
         """
         if self.startdataset.finished is not None:
             if self.startdataset.settype == SCAN:
@@ -236,21 +236,18 @@ class NexusSinkHandler(DataSinkHandler):
                 self.h5file = None
             except Exception:
                 # This can happen, especially with missing devices. But the
-                # resulting
-                # NeXus file is complete and sane.
+                # resulting NeXus file is complete and sane.
                 pass
             self.sink.end()
 
 
 class NexusSink(FileSink):
-    """
-        This is a sink for writing NeXus HDF5 files from a template. The
-        template is a dictionary
-        representing the structure of the NeXus file. Special elements in
-        this dictionary are
-        responsible for writing the various NeXus elements. The actual
-        writing work is done in the
-        NexusSinkHandler. This class just initializes the handler properly.
+    """This is a sink for writing NeXus HDF5 files from a template.
+
+    The template is a dictionary representing the structure of the NeXus file.
+    Special elements in this dictionary are responsible for writing the various
+    NeXus elements. The actual writing work is done in the NexusSinkHandler.
+    This class just initializes the handler properly.
     """
     parameters = {
         'templateclass': Param('Python class implementing '
@@ -265,11 +262,9 @@ class NexusSink(FileSink):
         if mode == SLAVE:
             return
 
-    #        The default implementation creates gazillions of SinkHandlers.
-    #        For NeXus we do
-    #        not want this, we want one keeping track of the whole process.
-    #        However, we want a
-    #        handler object per file.
+    # The default implementation creates gazillions of SinkHandlers.
+    # For NeXus we do not want this, we want one keeping track of the whole
+    # process.  However, we want a handler object per file.
 
     def createHandlers(self, dataset):
         if self._handlerObj is None:
