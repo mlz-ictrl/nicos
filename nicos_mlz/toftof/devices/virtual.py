@@ -33,14 +33,14 @@ from nicos_mlz.toftof.devices import calculations as calc
 
 
 class VirtualImage(BaseImage):
-    """A virtual 2-dimensional detector that generates TOFTOF data from real
-    measured data weighted by time.
+    """Virtual 2-dimensional detector that generates TOFTOF data.
+
+    The data will be generated from real measured data weighted by time.
     """
 
     parameters = {
         'datafile': Param('File to load the pixel data',
-                          settable=False,
-                          type=str,
+                          settable=False, type=str,
                           default='nicos_mlz/toftof/data/test/data.npz',
                           ),
         'timechannels': Param('Number of time channels per detector channel',
@@ -60,8 +60,8 @@ class VirtualImage(BaseImage):
                            type=intrange(1, 1024), settable=True, default=1024,
                            ),
         'monitorchannel': Param('Channel number of the monitor counter',
-                                default=956,
                                 type=intrange(1, 1024), settable=True,
+                                default=956,
                                 ),
     }
 
@@ -78,12 +78,13 @@ class VirtualImage(BaseImage):
                 self._rawdata = 0.01 * np.load(fp).reshape(self.sizes)
             self.log.warning('%r', self._rawdata.shape)
             # eliminate monitor entries
-            self._rawdata[956] = np.zeros(self._rawdata.shape[1])
+            self._rawdata[self.monitorchannel] = np.zeros(
+                self._rawdata.shape[1])
         except OSError:
             self.log.warning('data file %s not present, returning empty array '
                              'from virtual TOF image', self.datafile)
-            self._rawdata = np.zeros(self.sizes[0] *
-                                     self.sizes[1]).reshape(self.sizes)
+            self._rawdata = np.zeros(
+                self.sizes[0] * self.sizes[1]).reshape(self.sizes)
 
     def _generate(self, t):
         return np.random.poisson(t * self._rawdata)
