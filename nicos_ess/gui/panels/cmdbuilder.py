@@ -64,6 +64,7 @@ class CommandPanel(DefaultCommandPanel):
     def set_icons(self):
         self.cmdBtn.setIcon(get_icon('add-24px.svg'))
         self.simBtn.setIcon(get_icon('play_arrow_outline-24px.svg'))
+        self.simBtn.hide()
         self.runBtn.setIcon(get_icon('play_arrow-24px.svg'))
         self.frame.hide()
 
