@@ -100,9 +100,7 @@ class MeasDef(object):
         # post-process sample measurement time factor
         for entry in result:
             if 'sample' in entry and 'time' in entry:
-                entry['time'] = new_time = \
-                    MeasTime('time', None, entry['time'].getValue())
-                new_time.value *= entry['sample'].extra[1]
+                entry['time'] = MeasTime('time', None, entry['time'].getValue())
         return result
 
 
@@ -134,12 +132,10 @@ class SampleDialog(DlgUtils, QDialog):
     def _reinit(self, sampleconfigs):
         self.selList.clear()
         self.allList.clear()
-        self._times = {}
 
         for number, sample in sampleconfigs.items():
             item = QListWidgetItem(sample['name'], self.allList)
             item.setData(SAMPLE_NUM, number)
-            self._times[number] = sample.get('timefactor', 1.0)
 
     def toDefs(self):
         results = []
@@ -147,7 +143,7 @@ class SampleDialog(DlgUtils, QDialog):
             num = item.data(SAMPLE_NUM)
             results.append(OrderedDict(sample=Sample(
                 'sample', self.client, item.text(),
-                extra=(num, self._times.get(num, 1.0)))))
+                extra=(num,))))
         return [results]
 
     def on_sampleFileBtn_toggled(self, on):
