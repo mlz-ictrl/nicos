@@ -101,7 +101,6 @@ class ConfigEditDialog(QDialog):
         self.frm.addDevBtn.clicked.connect(self.on_addDevBtn_clicked)
         self.frm.delDevBtn.clicked.connect(self.on_delDevBtn_clicked)
         self.frm.readDevsBtn.clicked.connect(self.on_readDevsBtn_clicked)
-        self.frm.readApBtn.clicked.connect(self.on_readApBtn_clicked)
         box = QDialogButtonBox(self)
         box.setStandardButtons(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         box.accepted.connect(self.maybeAccept)
@@ -115,7 +114,7 @@ class ConfigEditDialog(QDialog):
         # List of properties that are going to be enabled in-place for edit,
         # thus should not be visible here.
         relevant_list = [self.frm.offsetBox, self.frm.apXBox, self.frm.apYBox,
-                         self.frm.apWBox, self.frm.apHBox, self.frm.readApBtn]
+                         self.frm.apWBox, self.frm.apHBox]
         for box in relevant_list:
             box.setVisible(False)
         if config is not None:
@@ -236,19 +235,6 @@ class ConfigEditDialog(QDialog):
         if dlg.kws3Box.isChecked():
             self._addRow('sam_x', self._readDev('sam_x'))
             self._addRow('sam_y', self._readDev('sam_y'))
-
-    def on_readApBtn_clicked(self):
-        if self.instrument != 'kws3':
-            rv = self.client.eval('ap_sam.read()', None)
-        else:
-            rv = self.client.eval('sam_ap.read()', None)
-        if rv is None:
-            QMessageBox.warning(self, 'Error', 'Could not read aperture!')
-            return
-        self.frm.apXBox.setText('%.2f' % rv[0])
-        self.frm.apYBox.setText('%.2f' % rv[1])
-        self.frm.apWBox.setText('%.2f' % rv[2])
-        self.frm.apHBox.setText('%.2f' % rv[3])
 
 
 class LokiSamplePanel(Panel):
@@ -491,8 +477,6 @@ class LokiSamplePanel(Panel):
         configToFrame(frm, self.configs[index])
         frm.addDevBtn.setVisible(False)
         frm.delDevBtn.setVisible(False)
-        frm.readApBtn.setVisible(True)
-        frm.readApBtn.clicked.connect(self.on_readApBtn_clicked)
         frm.readDevsBtn.setVisible(False)
         frm.posTbl.setEnabled(False)
         relevant_list = [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
@@ -589,9 +573,6 @@ class LokiSamplePanel(Panel):
             self.on_list_itemClicked(self.list.item(self.list.currentRow()))
         else:
             self._clearDisplay()
-
-    def on_readApBtn_clicked(self):
-        QMessageBox.warning(self, 'Error', 'Not implemented yet!')
 
     def _copy_key(self, key):
         index = self.list.currentRow()
