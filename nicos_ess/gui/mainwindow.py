@@ -73,6 +73,7 @@ class MainWindow(DefaultMainWindow):
         self.actionUser.setIconVisibleInMenu(True)
         self.dropdown = dropdown
         self.actionExpert.setEnabled(self.client.isconnected)
+        self.actionEmergencyStop.setEnabled(self.client.isconnected)
 
     def _init_toolbar(self):
         self.statusLabel = QLabel('', self, pixmap=QPixmap(':/disconnected'),
@@ -209,6 +210,7 @@ class MainWindow(DefaultMainWindow):
         self.actionConnect.setIcon(
             QIcon("resources/material/icons/power_off-24px.svg"))
         self.actionExpert.setEnabled(True)
+        self.actionEmergencyStop.setEnabled(not self.client.viewonly)
 
     def on_client_disconnected(self):
         DefaultMainWindow.on_client_disconnected(self)
@@ -216,6 +218,14 @@ class MainWindow(DefaultMainWindow):
             QIcon("resources/material/icons/power-24px.svg"))
         self.actionExpert.setEnabled(False)
         self.actionExpert.setChecked(False)
+        self.actionEmergencyStop.setEnabled(False)
+
+    def on_actionViewOnly_toggled(self, on):
+        DefaultMainWindow.on_actionViewOnly_toggled(self, on)
+        if self.client.isconnected:
+            self.actionEmergencyStop.setEnabled(not self.client.viewonly)
+        else:
+            self.actionEmergencyStop.setEnabled(False)
 
     @pyqtSlot(bool)
     def on_actionConnect_triggered(self, _):
