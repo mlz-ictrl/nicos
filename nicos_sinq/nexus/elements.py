@@ -37,7 +37,7 @@ class NexusElementBase:
         - create() which is called when the NeXus structure is created and
           static data is written
         - update() for in place updating of already created items in the
-           NeXus file
+          NeXus file
         - append() increments the np counter when a new scan point is started
         - results() saves the result of a scan points data
 
@@ -69,7 +69,7 @@ class NexusElementBase:
     def testAppend(self, sinkhandler):
         self.doAppend = bool((hasattr(sinkhandler.startdataset,
                                       'npoints') and
-                             sinkhandler.startdataset.npoints > 1) or
+                              sinkhandler.startdataset.npoints > 1) or
                              hasattr(session, '_manualscan'))
         self.np = 0
 

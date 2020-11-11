@@ -213,9 +213,6 @@ class MainWindow(DlgUtils, QMainWindow):
         # create initial state
         self._init_toolbar()
 
-        self.actionEmergencyStop.setEnabled(self.client.isconnected)
-
-
     def _init_toolbar(self):
         self.statusLabel = QLabel('', self, pixmap=QPixmap(':/disconnected'),
                                   margin=5, minimumSize=QSize(30, 10))
@@ -530,7 +527,6 @@ class MainWindow(DlgUtils, QMainWindow):
             self.client.user_level >= ADMIN)
 
         self.actionViewOnly.setChecked(self.client.viewonly)
-        self.actionEmergencyStop.setEnabled(not self.client.viewonly)
 
         # set focus to command input, if present
         for panel in self.panels:
@@ -550,7 +546,6 @@ class MainWindow(DlgUtils, QMainWindow):
 
     def on_client_disconnected(self):
         self.adminLabel.setVisible(False)
-        self.actionEmergencyStop.setEnabled(False)
         self.setStatus('disconnected')
 
     def on_client_showhelp(self, data):
@@ -636,10 +631,6 @@ class MainWindow(DlgUtils, QMainWindow):
         for window in self.windows.values():
             for panel in window.panels:
                 panel.setViewOnly(on)
-        if self.client.isconnected:
-            self.actionEmergencyStop.setEnabled(not self.client.viewonly)
-        else:
-            self.actionEmergencyStop.setEnabled(False)
 
     @pyqtSlot()
     def on_actionNicosHelp_triggered(self):

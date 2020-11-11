@@ -27,9 +27,8 @@ import h5py
 import numpy
 
 from nicos.core import SLAVE
-from nicos.core.constants import POINT
+from nicos.core.constants import POINT, SCAN
 from nicos.core.data import DataSinkHandler
-from nicos.core.data.dataset import PointDataset, ScanDataset
 from nicos.core.errors import NicosError
 from nicos.core.params import Param
 from nicos.devices.datasinks import FileSink
@@ -76,8 +75,8 @@ class NexusSinkHandler(DataSinkHandler):
         if self.startdataset is None:
             self.startdataset = self.dataset
             self.h5file = None
-            if isinstance(self.startdataset, PointDataset):
-                self.dataset.countertype = 'scan'
+            if self.startdataset.settype == POINT:
+                self.dataset.countertype = SCAN
             # Assign the counter
             self.manager.assignCounter(self.dataset)
 
@@ -131,7 +130,7 @@ class NexusSinkHandler(DataSinkHandler):
                 self.log.warning('Cannot write %s of type %s', key, type(val))
 
     def updateValues(self, dictdata, h5obj, values):
-        if isinstance(self.dataset, PointDataset):
+        if self.dataset.settype == POINT:
             for key, val in dictdata.items():
                 if isinstance(val, dict):
                     nxname = key.split(':')[0]
@@ -160,7 +159,7 @@ class NexusSinkHandler(DataSinkHandler):
                 except Exception as err:
                     self.log.warning('Exception %s on key %s', err, key)
             else:
-                self.log.warning('Cannot identify and  append %s', key)
+                self.log.warning('Cannot identify and append %s', key)
 
     def putValues(self, values):
         h5obj = self.h5file['/']
@@ -188,7 +187,7 @@ class NexusSinkHandler(DataSinkHandler):
         self.h5file.flush()
 
     def addSubset(self, subset):
-        if isinstance(self.startdataset, ScanDataset):
+        if self.startdataset.settype == SCAN:
             h5obj = self.h5file['/']
             self.append(self.template, h5obj, subset)
             self.h5file.flush()
@@ -218,18 +217,16 @@ class NexusSinkHandler(DataSinkHandler):
     def end(self):
         """
             There is a trick here: The NexusSink sets the dataset only on
-            initialisation. And NICOS
-            tries to make a new SinkHandler for the ScanDataset and then for
-            each PointDaset. The result is that
-            I get the NexusSinkHandler.end() doubly called with  last
-            PointDataset. However, I keep the startdatset.
-            And the NICOS engine sets the startdaset.finished from None to a
-            timestamp when it is done. I use this
-            to detect the end. If the NICOS engine in some stage changes on
-            this one, this code will break
+            initialisation. And NICOS tries to make a new SinkHandler for the
+            ScanDataset and then for each PointDaset. The result is that I get
+            the NexusSinkHandler.end() doubly called with  last PointDataset.
+            However, I keep the startdatset.  And the NICOS engine sets the
+            startdaset.finished from None to a timestamp when it is done. I use
+            this to detect the end. If the NICOS engine in some stage changes
+            on this one, this code will break.
         """
         if self.startdataset.finished is not None:
-            if isinstance(self.startdataset, ScanDataset):
+            if self.startdataset.settype == SCAN:
                 h5obj = self.h5file['/']
                 linkpath = self.find_scan_link(h5obj, self.template)
                 if linkpath is not None:
@@ -239,27 +236,24 @@ class NexusSinkHandler(DataSinkHandler):
                 self.h5file = None
             except Exception:
                 # This can happen, especially with missing devices. But the
-                # resulting
-                # NeXus file is complete and sane.
+                # resulting NeXus file is complete and sane.
                 pass
             self.sink.end()
 
 
 class NexusSink(FileSink):
+    """This is a sink for writing NeXus HDF5 files from a template.
+
+    The template is a dictionary representing the structure of the NeXus file.
+    Special elements in this dictionary are responsible for writing the various
+    NeXus elements. The actual writing work is done in the NexusSinkHandler.
+    This class just initializes the handler properly.
     """
-        This is a sink for writing NeXus HDF5 files from a template. The
-        template is a dictionary
-        representing the structure of the NeXus file. Special elements in
-        this dictionary are
-        responsible for writing the various NeXus elements. The actual
-        writing work is done in the
-        NexusSinkHandler. This class just initializes the handler properly.
-    """
-    parameters = {'templatesmodule': Param(
-        'Python module containing NeXus the NexusTemplateProvider subclass',
-        type=str, mandatory=True), 'templateclass': Param(
-        'Python class implementing NexusTemplateProvider', type=str,
-        mandatory=True), }
+    parameters = {
+        'templateclass': Param('Python class implementing '
+                               'NexusTemplateProvider',
+                               type=str, mandatory=True),
+    }
 
     handlerclass = NexusSinkHandler
     _handlerObj = None
@@ -268,11 +262,9 @@ class NexusSink(FileSink):
         if mode == SLAVE:
             return
 
-    #        The default implementation creates gazillions of SinkHandlers.
-    #        For NeXus we do
-    #        not want this, we want one keeping track of the whole process.
-    #        However, we want a
-    #        handler object per file.
+    # The default implementation creates gazillions of SinkHandlers.
+    # For NeXus we do not want this, we want one keeping track of the whole
+    # process.  However, we want a handler object per file.
 
     def createHandlers(self, dataset):
         if self._handlerObj is None:
@@ -285,7 +277,7 @@ class NexusSink(FileSink):
         self._handlerObj = None
 
     def loadTemplate(self):
-        mod = importlib.import_module(self.templatesmodule)
-        class_ = getattr(mod, self.templateclass)
-        inst = class_()
-        return inst.getTemplate()
+        mod, cls = self.templateclass.rsplit('.', 1)
+        mod = importlib.import_module(mod)
+        class_ = getattr(mod, cls)
+        return class_().getTemplate()

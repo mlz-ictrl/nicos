@@ -211,7 +211,7 @@ class ConnectionHandler:
                     continue
             else:  # no "break": all authenticators failed
                 self.log.error('authentication failed: %s', auth_err)
-                self.send_error_reply('credentials not accepted')
+                self.send_error_reply(str(auth_err))
                 raise CloseConnection
         else:
             self.user = User(login, ADMIN)
