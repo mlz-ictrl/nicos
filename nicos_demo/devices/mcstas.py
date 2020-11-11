@@ -71,8 +71,10 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
                       ),
         'mcstasprog': Param('Name of the McStas simulation executable',
                             type=str, settable=False),
-        'mcstasdir': Param('Directory where McStas stores results',
-                           type=str, default='singlecount', settable=False),
+        'mcstasdir': Param('Directory where McStas stores results', type=str,
+                           default='%(session.experiment.dataroot)s'
+                                   '/singlecount',
+                           settable=False),
         'mcstasfile': Param('Name of the McStas data file',
                             type=str, settable=False),
         'mcsiminfo': Param('Name for the McStas Siminfo file', settable=False,
@@ -123,6 +125,8 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         self._buf = np.zeros(self.size[::-1])
         self.readresult = [0]
         self._start_time = None
+        self._mcstasdirpath = session.experiment.data.expandNameTemplates(
+            self.mcstasdir)[0]
 
     def valueInfo(self):
         return (Value(self.name + '.sum', unit='cts', type='counter',
@@ -146,9 +150,8 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         if self._process and self._process.is_running():
             self._process.send_signal(sig)
             # wait for mcstas releasing fds
-            datafile =  path.join(self._workdir, self.mcstasdir,
-                                  self.mcstasfile)
-            siminfo = path.join(self._workdir, self.mcstasdir, self.mcsiminfo)
+            datafile =  path.join(self._mcstasdirpath, self.mcstasfile)
+            siminfo = path.join(self._mcstasdirpath, self.mcsiminfo)
             try:
                 while self._process and self._process.is_running():
                     fnames = [f.path for f in self._process.open_files()]
@@ -169,12 +172,12 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         to it.
         """
         try:
-            shutil.rmtree(self.mcstasdir)
+            shutil.rmtree(self._mcstasdirpath)
         except OSError:
             self.log.warning('could not remove old data')
         command = '%s -n %d -d %s %s' % (
-            self.mcstasprog, self.ratio * self.preselection, self.mcstasdir,
-            self._mcstas_params,
+            self.mcstasprog, self.ratio * self.preselection,
+            self._mcstasdirpath, self._mcstas_params,
         )
         self.log.debug('run %s', command)
         try:
@@ -198,7 +201,7 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
 
     def _readpsd(self, quality):
         try:
-            with open(path.join(self._workdir, self.mcstasdir, self.mcstasfile),
+            with open(path.join(self._mcstasdirpath, self.mcstasfile),
                       'r') as f:
                 lines = f.readlines()[-3 * (self.size[0] + 1):]
             if lines[0].startswith('# Data') and self.mcstasfile in lines[0]:
