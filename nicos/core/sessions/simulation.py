@@ -139,6 +139,10 @@ class SimulationSession(Session):
         # log only errors before code starts
         self.log_sender.level = logging.ERROR
 
+    def clientExec(self, func, args):
+        # just ignore these requests, they are not vital to the measurement
+        pass
+
     @classmethod
     def run(cls, sock, uuid, setups, user, code, quiet=False, debug=False):
         session.__class__ = cls
@@ -333,8 +337,8 @@ class SimulationSupervisor(Thread):
         # has arrived
         try:
             proc.wait(5)
-        except TimeoutError as err:
-            raise Exception('did not terminate within 5 seconds') from err
+        except TimeoutError:
+            raise Exception('did not terminate within 5 seconds') from None
         if sandbox:
             try:
                 os.rmdir(rootdir)
