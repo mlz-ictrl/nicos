@@ -32,6 +32,7 @@ from nicos.core import SIMULATION, ConfigurationError, \
     floatrange, none_or, pvname, status
 from nicos.core.mixins import HasWindowTimeout
 from nicos import session
+from nicos.devices.epics import SEVERITY_TO_STATUS
 from nicos.utils import HardwareStub
 from nicos.core import POLLER
 from nicos_ess.devices.epics.p4p import PvaWrapper
@@ -47,7 +48,8 @@ __all__ = [
 class EpicsMonitorMixin(DeviceMixinBase):
     pv_status_parameters = set()
     subscriptions = set()
-    _cache_relations = {}
+    _cache_relations = {'readpv': 'value'}
+    _statuses = {}
 
     def _register_pv_callbacks(self):
         value_pvs = self._get_pv_parameters()
@@ -71,9 +73,11 @@ class EpicsMonitorMixin(DeviceMixinBase):
         self.log.warn(f'{name} [{param}] says hit me with {value} {status} {severity}!')
         cache_key = self._get_cache_relation(param) or name
         self._cache.put(self._name, cache_key, value, time.time())
+        self._set_status(name, param, status, severity)
 
     def status_change_callback(self, name, param, value, status, severity, **kwargs):
         self.log.warn(f'{name} [{param}] says doStatus! {status} {severity}')
+        self._set_status(name, param, status, severity)
         st = self.doStatus()
         self._cache.put(self._name, 'status', st, time.time())
 
@@ -87,6 +91,20 @@ class EpicsMonitorMixin(DeviceMixinBase):
     def _get_status_parameters(self):
         # Returns the parameters which indicate "movement" is happening.
         return self.pv_status_parameters
+
+    def _set_status(self, name, param, status, severity):
+        self._statuses[param] = (name, status, severity)
+
+    def doStatus(self, maxage=0):
+        # For most devices we only care about the status of the read PV
+        if 'readpv' in self._statuses:
+            name, stat, severity = self._statuses['readpv']
+            self.log.warn(f'doStatus says {stat}, {severity}')
+            severity = SEVERITY_TO_STATUS.get(severity, status.UNKNOWN)
+            if severity != status.OK:
+                return severity, f'issue with {name}'
+            return severity, ''
+        return status.UNKNOWN, ''
 
 
 class EpicsDevice(DeviceMixinBase):
@@ -196,7 +214,7 @@ class EpicsDevice(DeviceMixinBase):
                                                   update_rate, timeout)
 
 
-class EpicsReadable(EpicsDevice, Readable):
+class EpicsReadable(EpicsMonitorMixin, EpicsDevice, Readable):
     """
     Handles EPICS devices that can only read a value.
     """
