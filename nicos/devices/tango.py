@@ -291,6 +291,10 @@ class PyTangoDevice(HasCommunication):
         Wraps command execution and attribute operations of the given
         device with logging and exception mapping.
         """
+        # if the device is in the proxy cache, and has already been
+        # successfully created once, skip it
+        if getattr(dev, '_nicos_proxies_applied', False):
+            return dev
         dev.command_inout = self._applyGuardToFunc(dev.command_inout)
         dev.write_attribute = self._applyGuardToFunc(dev.write_attribute,
                                                      'attr_write')
@@ -298,6 +302,7 @@ class PyTangoDevice(HasCommunication):
                                                     'attr_read')
         dev.attribute_query = self._applyGuardToFunc(dev.attribute_query,
                                                      'attr_query')
+        dev._nicos_proxies_applied = True
         return dev
 
     def _applyGuardToFunc(self, func, category='cmd'):
