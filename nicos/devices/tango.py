@@ -166,7 +166,7 @@ def check_tango_host_connection(address, timeout=3.0):
         with tcpSocketContext(tango_host, 10000, timeout=timeout):
             pass
     except OSError as e:
-        raise CommunicationError(str(e))
+        raise CommunicationError(str(e)) from None
 
 
 class PyTangoDevice(HasCommunication):
@@ -237,7 +237,7 @@ class PyTangoDevice(HasCommunication):
             session.delay(self._base_loop_delay)
 
     def _setMode(self, mode):
-        super(PyTangoDevice, self)._setMode(mode)
+        super()._setMode(mode)
         # remove the Tango device on entering simulation mode, to prevent
         # accidental access to the hardware
         if mode == SIMULATION:
@@ -280,7 +280,7 @@ class PyTangoDevice(HasCommunication):
             device.State
         except AttributeError:
             raise NicosError(self, 'connection to Tango server failed, '
-                             'is the server running?')
+                             'is the server running?') from None
         return self._applyGuardsToPyTangoDevice(device)
 
     def _applyGuardsToPyTangoDevice(self, dev):
