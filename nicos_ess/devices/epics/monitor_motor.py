@@ -32,8 +32,8 @@ from nicos_ess.devices.epics.epics_devices import EpicsAnalogMoveable, \
     EpicsMonitorMixin
 
 
-class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMonitorMixin,
-                 EpicsAnalogMoveable, Motor):
+class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
+                 Motor):
     """
     This device exposes some of the functionality provided by the EPICS motor
     record. The PV names for the fields of the record (readback, speed, etc.)

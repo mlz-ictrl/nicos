@@ -1,4 +1,5 @@
 from functools import partial
+
 import numpy as np
 from p4p.client.thread import Context
 

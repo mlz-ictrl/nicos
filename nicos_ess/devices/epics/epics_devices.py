@@ -27,16 +27,15 @@ This module contains some classes for NICOS - EPICS integration.
 """
 import time
 
-from nicos.core import SIMULATION, ConfigurationError, \
+from nicos import session
+from nicos.core import POLLER, SIMULATION, ConfigurationError, \
     DeviceMixinBase, HasLimits, Moveable, Override, Param, Readable, anytype, \
     floatrange, none_or, pvname, status
 from nicos.core.mixins import HasWindowTimeout
-from nicos import session
 from nicos.devices.epics import SEVERITY_TO_STATUS
 from nicos.utils import HardwareStub
-from nicos.core import POLLER
-from nicos_ess.devices.epics.p4p import PvaWrapper
 
+from nicos_ess.devices.epics.p4p import PvaWrapper
 
 __all__ = [
     'EpicsDevice', 'EpicsReadable', 'EpicsStringReadable',
@@ -255,7 +254,7 @@ class EpicsStringReadable(EpicsReadable):
         return self._get_pv('readpv', as_string=True)
 
 
-class EpicsMoveable(EpicsDevice, Moveable):
+class EpicsMoveable(EpicsMonitorMixin, EpicsDevice, Moveable):
     """
     Handles EPICS devices which can set and read a value.
     """
