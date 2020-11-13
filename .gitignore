@@ -56,3 +56,6 @@ mprofile_*.dat
 .idea/
 
 __pycache__
+
+#MacOs
+.DS_Store
