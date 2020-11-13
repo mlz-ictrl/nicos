@@ -34,8 +34,9 @@ devices = {
             lowlevel = True,
             unit = '',),
         precision = 0.5,
-        mapping = {'off': 0, '31.6 uA': 1, '100 uA': 2, '316 uA': 3, '1.00 mA': 4,
-                   '3.16 mA': 5, '10.0 mA': 6, '31.6 mA': 7, '100 mA': 8},
+        mapping = {'off': 0, '1 mW': 1, '10 mW': 2, '100 mW': 3,
+                  # '1 W': 4, '10 W': 5
+                  },
     ),
     'T_%s_B' % setupname: device('nicos.devices.tango.Sensor',
         description = 'The still temperature)',
