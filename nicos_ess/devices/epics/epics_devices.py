@@ -46,42 +46,46 @@ __all__ = [
 
 class EpicsMonitorMixin(DeviceMixinBase):
     pv_status_parameters = set()
-    subscriptions = set()
+    _epics_subscriptions = set()
     _cache_relations = {'readpv': 'value'}
     _statuses = {}
 
     def _register_pv_callbacks(self):
+        self._epics_subscriptions = set()
+        self._statuses = {}
+
         value_pvs = self._get_pv_parameters()
         status_pvs = self._get_status_parameters()
         if session.sessiontype == POLLER:
-            self.log.error('Poller over here!')
             self._subscribe(value_pvs, self.value_change_callback)
         else:
-            self.log.error('Daemon over here!')
             self._subscribe(status_pvs or value_pvs,
                             self.status_change_callback)
 
     def _subscribe(self, pvparams, change_callback):
         for pvparam in pvparams:
             pvname = self._get_pv_name(pvparam)
-            self.subscriptions.add(
+            self._epics_subscriptions.add(
                 self._epics_wrapper.subscribe(pvname, pvparam, change_callback,
                                               self.connection_change_callback))
 
-    def value_change_callback(self, name, param, value, status, severity, **kwargs):
-        self.log.warn(f'{name} [{param}] says hit me with {value} {status} {severity}!')
+    def value_change_callback(self, name, param, value, status, severity, message, **kwargs):
+        self.log.warn(f'{name} [{param}] says value cb with {value} {status} {severity} {message}!')
         cache_key = self._get_cache_relation(param) or name
         self._cache.put(self._name, cache_key, value, time.time())
-        self._set_status(name, param, status, severity)
+        self._set_status(name, param, status, severity, message)
 
-    def status_change_callback(self, name, param, value, status, severity, **kwargs):
-        self.log.warn(f'{name} [{param}] says doStatus! {status} {severity}')
-        self._set_status(name, param, status, severity)
+    def status_change_callback(self, name, param, value, status, severity, message, **kwargs):
+        self.log.warn(f'{name} [{param}] says status cb with {status} {severity} {message}')
+        self._set_status(name, param, status, severity, message)
         st = self.doStatus()
         self._cache.put(self._name, 'status', st, time.time())
 
     def connection_change_callback(self, name, value, **kwargs):
-        self.log.warn(f'{name} says {value}ed!')
+        if value:
+            self.log.warn(f'{name} connected!')
+        else:
+            self.log.warn(f'{name} disconnected!')
 
     def _get_cache_relation(self, param):
         # Returns the cache key associated with the parameter.
@@ -91,19 +95,26 @@ class EpicsMonitorMixin(DeviceMixinBase):
         # Returns the parameters which indicate "movement" is happening.
         return self.pv_status_parameters
 
-    def _set_status(self, name, param, status, severity):
-        self._statuses[param] = (name, status, severity)
+    def _set_status(self, name, param, status, severity, message):
+        self._statuses[param] = (name, status, severity, message)
 
     def doStatus(self, maxage=0):
         # For most devices we only care about the status of the read PV
         if 'readpv' in self._statuses:
-            name, stat, severity = self._statuses['readpv']
-            self.log.warn(f'doStatus says {stat}, {severity}')
-            severity = SEVERITY_TO_STATUS.get(severity, status.UNKNOWN)
-            if severity != status.OK:
-                return severity, f'issue with {name}'
-            return severity, ''
-        return status.UNKNOWN, ''
+            pvname, stat, severity, message = self._statuses['readpv']
+        else:
+            pvname = self._get_pv_name('readpv')
+            stat, severity, message = self._epics_wrapper.get_alarm_status(
+                pvname, self.epicstimeout)
+
+        severity = SEVERITY_TO_STATUS.get(severity, status.UNKNOWN)
+        if severity != status.OK:
+            return severity, f'issue with {pvname}: {message}'
+        return severity, ''
+
+    def doShutdown(self):
+        for sub in self._epics_subscriptions:
+            sub.close()
 
 
 class EpicsDevice(DeviceMixinBase):
@@ -130,15 +141,8 @@ class EpicsDevice(DeviceMixinBase):
 
         # Don't create PVs in simulation mode
         self._pvs = {}
-        self._pvctrls = {}
 
         if mode != SIMULATION:
-            self.log.error('STARTED')
-            self.log.error(mode)
-            # When there are standard names for PVs (see motor record), the PV
-            # names may be derived from some prefix. To make this more flexible,
-            # the pv_parameters are obtained via a method that can be overridden
-            # in subclasses.
             for pvparam in self._get_pv_parameters():
                 # Retrieve the actual PV name
                 pvname = self._get_pv_name(pvparam)
@@ -148,12 +152,10 @@ class EpicsDevice(DeviceMixinBase):
                 # Check pv exists - throws if cannot connect
                 self._epics_wrapper.connect_pv(pvname, self.epicstimeout)
                 self._pvs[pvparam] = pvname
-            self.log.error('FINISHED')
             self._register_pv_callbacks()
         else:
             for pvparam in self._get_pv_parameters():
                 self._pvs[pvparam] = HardwareStub(self)
-                self._pvctrls[pvparam] = {}
 
     def _register_pv_callbacks(self):
         pass
@@ -170,29 +172,15 @@ class EpicsDevice(DeviceMixinBase):
         return getattr(self, pvparam)
 
     def doStatus(self, maxage=0):
-        # Return the status and the affected pvs in case the status is not OK
-        mapped_status, affected_pvs = self._get_mapped_epics_status()
-
-        status_message = 'Affected PVs: ' + ', '.join(
-            affected_pvs) if mapped_status != status.OK else ''
-        return mapped_status, status_message
-
-    def _get_mapped_epics_status(self):
-        # Checks the status and severity of all the associated PVs.
-        # Returns the worst status (error prone first) and
-        # a list of all associated pvs having that error
-        status_map = {}
-        for name in self._pvs:
-            mapped_status = self._epics_wrapper.get_alarm_status(
-                self._pvs[name], self.epicstimeout)
-
-            status_map.setdefault(mapped_status, []).append(
-                self._get_pv_name(name))
-
-        return 0, [] # max(status_map.items())
+        # For most devices we only care about the status of the read PV
+        pvname = self._get_pv_name('readpv')
+        stat, severity, msg = self._epics_wrapper.get_alarm_status(pvname)
+        severity = SEVERITY_TO_STATUS[severity]
+        if SEVERITY_TO_STATUS[severity] in [status.ERROR, status.WARN]:
+            return severity, msg
+        return status.OK, msg
 
     def _setMode(self, mode):
-        super(EpicsDevice, self)._setMode(mode)
         # remove the PVs on entering simulation mode, to prevent
         # accidental access to the hardware
         if mode == SIMULATION:
@@ -277,7 +265,7 @@ class EpicsMoveable(EpicsMonitorMixin, EpicsDevice, Moveable):
 
     def _get_pv_parameters(self):
         """
-        Overriden from EpicsDevice. If the targetpv parameter is specified,
+        Overridden from EpicsDevice. If the targetpv parameter is specified,
         the PV-object should be created accordingly. Otherwise, just return
         the mandatory pv_parameters.
         """

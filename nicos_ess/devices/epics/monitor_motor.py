@@ -216,11 +216,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         return self._get_pv('writepv')
 
     def doStatus(self, maxage=0):
-        general_epics_status, _ = self._get_mapped_epics_status()
-        message = self._get_status_message()
-
-        if general_epics_status == status.ERROR:
-            return status.ERROR, message or 'Unknown problem in record'
+        stat, message = EpicsAnalogMoveable.doStatus(self)
 
         done_moving = self._get_pv('donemoving')
         moving = self._get_pv('moving')

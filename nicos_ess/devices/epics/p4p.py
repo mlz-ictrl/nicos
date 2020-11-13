@@ -1,10 +1,11 @@
 from functools import partial
+from threading import RLock
 
 import numpy as np
 from p4p.client.thread import Context
 
+from nicos import session
 from nicos.core import CommunicationError
-from nicos.devices.epics import SEVERITY_TO_STATUS
 
 # Same context can be shared across all devices.
 # nt=False tells p4p not to try to map types itself
@@ -15,6 +16,7 @@ _CONTEXT = Context('pva', nt=False)
 class PvaWrapper:
     def __init__(self):
         self.disconnected = set()
+        self.lock = RLock()
 
     @staticmethod
     def connect_pv(pvname, timeout):
@@ -87,7 +89,8 @@ class PvaWrapper:
     @staticmethod
     def get_alarm_status(pv, timeout):
         raw_result = _CONTEXT.get(pv, timeout=timeout)
-        return SEVERITY_TO_STATUS[raw_result['alarm']['severity']]
+        return raw_result['alarm']['status'], raw_result['alarm']['severity'], \
+               raw_result['alarm']['message']
 
     @staticmethod
     def get_units(pv, timeout, default=''):
@@ -107,17 +110,21 @@ class PvaWrapper:
             pass
         return default_low, default_high
 
-    def subscribe(self, pvname, pvparam, change_callback, connection_callback=None):
+    def subscribe(self, pvname, pvparam, change_callback,
+                  connection_callback=None):
         self.disconnected.add(pvname)
 
-        request = _CONTEXT.makeRequest("field(value,timeStamp,alarm,control,display)")
+        request = _CONTEXT.makeRequest(
+            "field(value,timeStamp,alarm,control,display)")
 
-        callback = partial(self._callback, pvname, pvparam, change_callback, connection_callback)
+        callback = partial(self._callback, pvname, pvparam, change_callback,
+                           connection_callback)
         subscription = _CONTEXT.monitor(pvname, callback, request=request,
                                         notify_disconnect=True)
         return subscription
 
-    def _callback(self, name, pvparam, change_callback, connection_callback, result):
+    def _callback(self, name, pvparam, change_callback, connection_callback,
+                  result):
         if isinstance(result, Exception):
             # Only callback on disconnection if was previously connected
             if connection_callback and name not in self.disconnected:
@@ -129,22 +136,26 @@ class PvaWrapper:
             # Only callback if it is a new connection
             if connection_callback:
                 connection_callback(name, True)
-            self.disconnected.remove(name)
+            with self.lock:
+                if name in self.disconnected:
+                    self.disconnected.remove(name)
 
         if change_callback:
             value = self._convert_value(result['value'])
-            status, severity = self._get_status_and_severity(result)
-            change_callback(name, pvparam, value, status, severity)
+            status, severity, message = self._get_alarm_info(result)
+            change_callback(name, pvparam, value, status, severity, message)
 
-    def _get_status_and_severity(self, value):
+    def _get_alarm_info(self, value):
         status = 0
         severity = 0
+        message = ''
         try:
             status = value['alarm']['status']
             severity = value['alarm']['severity']
-        except KeyError:
+            message = value['alarm']['message']
+        except KeyError as err:
             # information not available
             pass
-        return status, severity
+        return status, severity, message
 
 
