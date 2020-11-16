@@ -42,6 +42,7 @@ Contributors:
 * Michael Hart <michael.hart@stfc.ac.uk>
 * Klaudia Hradil <klaudia.hradil@tuwien.ac.at>
 * Lea Kleesattel <lea.kleesattel@frm2.tum.de>
+* Jakob Lass <jakob.lass@gmail.com>
 * Peter Link <peter.link@frm2.tum.de>
 * Pascal Neubert <pascal.neubert@frm2.tum.de>
 * Adrian Potter <adrian.potter@tessella.com>
