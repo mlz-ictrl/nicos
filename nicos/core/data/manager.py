@@ -435,7 +435,7 @@ class DataManager:
 
     def linkFiles(self, filepath, linkpaths):
         """Creates hardlinks in *linkpaths*, pointing to *filepath*."""
-        linkfunc = os.link if hasattr(os,  'link') else \
+        linkfunc = os.link if hasattr(os, 'link') else \
             os.symlink if hasattr(os, 'symlink') else None
         if linkfunc:  # pylint: disable=using-constant-test
             for linkpath in linkpaths:

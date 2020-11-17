@@ -108,10 +108,10 @@ class DeviceMeta(DeviceMixinMeta):
         seen_nonmixin = False
         for base in bases:
             if not isinstance(base, DeviceMeta) and seen_nonmixin:
-                raise ProgrammingError('%s.%s device: mixin class %s must come '
-                                       'before all non-mixins in the base '
-                                       'class list' % (attrs['__module__'],
-                                                       name, base.__name__))
+                raise ProgrammingError('%s.%s device: mixin class %s must come'
+                                       ' before all non-mixins in the base'
+                                       ' class list' % (attrs['__module__'],
+                                                        name, base.__name__))
             if isinstance(base, DeviceMeta):
                 seen_nonmixin = True
         newtype = DeviceMixinMeta.__new__(mcs, name, bases, attrs)
@@ -249,7 +249,8 @@ class DeviceMeta(DeviceMixinMeta):
         if 'valuetype' in attrs:
             newtype.valuetype = staticmethod(attrs['valuetype'])
 
-        # check attribute names for the attached devices (created by Device.__init__)
+        # check attribute names for the attached devices (created by
+        # Device.__init__)
         for adevname, entry in newtype.attached_devices.items():
             pname = '_attached_%s' % adevname
             if newtype.parameters and (pname in newtype.parameters):
@@ -266,8 +267,8 @@ class DeviceMeta(DeviceMixinMeta):
 
 class Device(metaclass=DeviceMeta):
     """
-    An object that has a list of parameters that are read from the configuration
-    and have default values.
+    An object that has a list of parameters that are read from the
+    configuration and have default values.
 
     Subclasses *can* implement:
 
@@ -288,8 +289,8 @@ class Device(metaclass=DeviceMeta):
     # A dictionary mapping parameter names to parameter descriptions, given as
     # Param objects.
     parameters = {
-        'name':        Param('The name of the device', type=str, settable=False,
-                             userparam=False),
+        'name':        Param('The name of the device',
+                             type=str, settable=False, userparam=False),
         'classes':     Param('Names of device class and all its base classes',
                              type=listof(str), settable=False, userparam=False),
         'description': Param('A description of the device', type=str,
@@ -333,7 +334,8 @@ class Device(metaclass=DeviceMeta):
         # register self in device registry
         if not self.temporary:
             if name in session.devices:
-                raise ProgrammingError('device with name %s already exists' % name)
+                raise ProgrammingError('device with name %s already exists' %
+                                       name)
             session.devices[name] = self
             session.device_case_map[name.lower()] = name
 
@@ -474,19 +476,19 @@ class Device(metaclass=DeviceMeta):
            true).
 
            This allows to initialize a hardware connection if it is necessary
-           for the various ``doRead...()`` methods of other parameters that read
-           the current parameter value from the hardware.
+           for the various ``doRead...()`` methods of other parameters that
+           read the current parameter value from the hardware.
 
         .. method:: doInit(mode)
 
            This method, if present, is called after all parameters have been
            initialized.  It is the correct place to set up additional
-           attributes, or to perform initial (read-only!) communication with the
-           hardware.
+           attributes, or to perform initial (read-only!) communication with
+           the hardware.
 
         .. note:: ``doPreinit()`` and ``doInit()`` are called regardless of the
-           current execution mode.  This means that if one of these methods does
-           hardware access, it must be done only if ``mode != SIMULATION``.
+           current execution mode.  This means that if one of these methods
+           does hardware access, it must be done only if ``mode != SIMULATION``.
         """
         self._cache = None
         self._subscriptions = []
@@ -521,9 +523,9 @@ class Device(metaclass=DeviceMeta):
                     try:
                         value = self._validateType(value, param, paraminfo)
                     except ConfigurationError as e:
-                        self.log.warning('value of %s from cache (%r) is invalid: %r'
-                                         ' using default handling instead.',
-                                         param, value, e)
+                        self.log.warning('value of %s from cache (%r) is '
+                                         'invalid: %r using default handling '
+                                         'instead.', param, value, e)
                         value = Ellipsis
             if value is not Ellipsis:
                 if param in self._ownparams:
@@ -865,7 +867,8 @@ class Device(metaclass=DeviceMeta):
         """Return a list of versions for this device.
 
         These are tuples (component, version) where a "component" can be the
-        name of a Python module, or an external dependency (like a TACO server).
+        name of a Python module, or an external dependency (like a TACO
+        server).
 
         The base implementation already collects VCS revision information
         available from all Python modules involved in the class inheritance
@@ -976,9 +979,9 @@ class Readable(Device):
                               default='%.3f', settable=True),
         'unit':         Param('Unit of the device main value', type=str,
                               mandatory=True, settable=True),
-        'maxage':       Param('Maximum age of cached value and status (zero to '
-                              'never use cached values, or None to cache them '
-                              'indefinitely)', unit='s', fmtstr='%.1f',
+        'maxage':       Param('Maximum age of cached value and status (zero '
+                              'to never use cached values, or None to cache '
+                              'them indefinitely)', unit='s', fmtstr='%.1f',
                               default=12, settable=True,
                               type=none_or(floatrange(0, 24 * 3600))),
         'pollinterval': Param('Polling interval for value and status (or None '
@@ -1051,8 +1054,8 @@ class Readable(Device):
     def valueInfo(self):
         """Describe the values read by this device.
 
-        Return a tuple of :class:`~nicos.core.params.Value` instances describing
-        the values that :meth:`read` returns.
+        Return a tuple of :class:`~nicos.core.params.Value` instances
+        describing the values that :meth:`read` returns.
 
         This must be overridden by every Readable that returns more than one
         value in a list.  For example, a slit that returns a width and height
@@ -1100,8 +1103,8 @@ class Readable(Device):
            date, or no cache is available.
 
            If no ``doStatus()`` is implemented, ``status()`` tries to determine
-           the status via `nicos.core.utils.multiStatus` of the attached devices.
-           If that is not possible, it returns
+           the status via `nicos.core.utils.multiStatus` of the attached
+           devices.  If that is not possible, it returns
            ``status.UNKNOWN, 'doStatus not implemented'``.
 
            The *maxage* parameter should be given to status() calls of
@@ -1115,9 +1118,9 @@ class Readable(Device):
         """Return the status of the device combined from hardware status and
         movement status determined by NICOS such as timeouts.
 
-        The default implementation just returns the hardware status, except that
-        the warnlimits of the device are checked, and the status is changed to
-        WARN if they are exceeded.
+        The default implementation just returns the hardware status, except
+        that the warnlimits of the device are checked, and the status is
+        changed to WARN if they are exceeded.
         """
         try:
             stvalue = self.doStatus(maxage)
@@ -1168,15 +1171,15 @@ class Readable(Device):
 
     def poll(self, n=0, maxage=0):
         """Get status and value directly from the device and put both values
-        into the cache.  For continuous polling, *n* should increase by one with
-        every call to *poll*.
+        into the cache.  For continuous polling, *n* should increase by one
+        with every call to *poll*.
 
         .. method:: doPoll(n, maxage)
 
            If present, this method is called to perform additional polling,
-           e.g. on parameters that can be changed from outside the NICOS system.
-           The *n* parameter can be used to perform the polling less frequently
-           than the polling of value and status.
+           e.g. on parameters that can be changed from outside the NICOS
+           system.  The *n* parameter can be used to perform the polling less
+           frequently than the polling of value and status.
 
            If doPoll returns a (status, value) tuple, they are used instead of
            calling doStatus and doRead again.
@@ -1296,8 +1299,8 @@ class Waitable(Readable):
     def wait(self):
         """Wait until movement of device is completed.
 
-        Return current device value after waiting.  This is a no-op for hardware
-        devices in simulation mode.
+        Return current device value after waiting.  This is a no-op for
+        hardware devices in simulation mode.
         """
         return multiWait([self])[self]
 
@@ -1483,9 +1486,9 @@ class Moveable(Waitable):
                                      'maximum (%s), please check and re-set '
                                      'limits', umax, amax)
             if self._mode == SIMULATION:
-                # special case: in simulation mode, doReadUserlimits is not called,
-                # so the limits are not set from the absolute limits, and are always
-                # (0, 0) except when set in the setup file
+                # special case: in simulation mode, doReadUserlimits is not
+                # called, so the limits are not set from the absolute limits,
+                # and are always (0, 0) except when set in the setup file
                 # Set them directly (bypassing pos check, as this may work at
                 # this point for simulation)
                 if self.userlimits == (0.0, 0.0):
@@ -1496,17 +1499,17 @@ class Moveable(Waitable):
         """Check if the given position can be moved to.
 
         The return value is a tuple ``(valid, why)``.  The first item is a
-        boolean indicating if the position is valid, the second item is a string
-        with the reason if it is invalid.
+        boolean indicating if the position is valid, the second item is a
+        string with the reason if it is invalid.
 
         .. method:: doIsAllowed(pos)
 
            This method must be implemented to check the validity.  If it does
            not exist, all positions are valid.
 
-           Note: to implement ordinary (min, max) limits, do not use this method
-           but inherit your device from :class:`HasLimits`.  This takes care of
-           all limit processing.
+           Note: to implement ordinary (min, max) limits, do not use this
+           method but inherit your device from :class:`HasLimits`.  This takes
+           care of all limit processing.
 
            For complex state-dependent limit use a controller device
            with :class:`IsController` implementing :meth:`isADevTargetAllowed`.
@@ -1634,9 +1637,9 @@ class Moveable(Waitable):
     def finish(self):
         """Finish up movement of the device.
 
-        This is the final step of waiting for a device, it is called by the wait
-        loop.  Devices must not rely on this method being called, since it is
-        not triggered when the movement is not waited upon.
+        This is the final step of waiting for a device, it is called by the
+        wait loop.  Devices must not rely on this method being called, since
+        it is not triggered when the movement is not waited upon.
 
         Default implementation is to check if the target has been reached, and
         to call :meth:`doFinish` if present.
@@ -1844,7 +1847,7 @@ class Measurable(Waitable):
     """
 
     parameter_overrides = {
-        'unit':  Override(description='(not used)', mandatory=False),
+        'unit': Override(description='(not used)', mandatory=False),
     }
 
     errorstates = {status.ERROR: NicosError}
@@ -1920,8 +1923,8 @@ class Measurable(Waitable):
 
         If the hook returns a data quality value from ``nicos.core.data``,
         either LIVE or INTERMEDIATE, the detector is read out and the data is
-        sent to the data sinks.  The detector is responsible for determining how
-        often this should be done.
+        sent to the data sinks.  The detector is responsible for determining
+        how often this should be done.
         """
 
     @usermethod
@@ -2094,8 +2097,8 @@ class Measurable(Waitable):
     def valueInfo(self):
         """Describe the scalar values measured by this device.
 
-        Return a tuple of :class:`~nicos.core.params.Value` instances describing
-        the values that :meth:`read` returns.
+        Return a tuple of :class:`~nicos.core.params.Value` instances
+        describing the values that :meth:`read` returns.
 
         This must be overridden by every Measurable that returns more than one
         value in a list.  The default indicates a single return value with no
@@ -2176,11 +2179,13 @@ class NoDevice(metaclass=DeviceMixinMeta):
         return (str, (self.name,))
 
     def __getattr__(self, name):
-        raise AttributeError('alias %r does not point to any device' % self.name)
+        raise AttributeError('alias %r does not point to any device' %
+                             self.name)
 
     def __setattr__(self, name, value):
         if name != 'name':
-            raise ConfigurationError('alias %r does not point to any device' % self.name)
+            raise ConfigurationError('alias %r does not point to any device' %
+                                     self.name)
         object.__setattr__(self, name, value)
 
 
@@ -2188,9 +2193,9 @@ class DeviceAlias(Device):
     """
     Generic "alias" device that can point all access to any other NICOS device.
 
-    The device that should be accessed is set using the "alias" parameter, which
-    can be configured and changed at runtime.  For example, with a DeviceAlias
-    instance *T*::
+    The device that should be accessed is set using the "alias" parameter,
+    which can be configured and changed at runtime.  For example, with a
+    DeviceAlias instance *T*::
 
         T.alias = Tcryo
         read(T)   # will read Tcryo
@@ -2209,7 +2214,8 @@ class DeviceAlias(Device):
         'alias':    Param('Device to alias', type=none_or(nicosdev),
                           settable=True, chatty=True),
         'devclass': Param('Class name that the aliased device must be an '
-                          'instance of', type=str, default='nicos.core.device.Device'),
+                          'instance of',
+                          type=str, default='nicos.core.device.Device'),
     }
 
     _ownattrs = ['_obj', '_mode', '_cache', 'alias']
@@ -2330,7 +2336,7 @@ class DeviceAlias(Device):
     # Device methods that would not be alias-aware
 
     def _setROParam(self, param, value):
-        raise NicosError(self, 'please don\'t use _setROParam on a DeviceAlias')
+        raise NicosError(self, "please don't use _setROParam on a DeviceAlias")
 
     def _getParamConfig(self, param):
         if param in self.parameters:

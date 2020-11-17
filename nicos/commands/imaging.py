@@ -88,7 +88,7 @@ def tomo(nangles, moveables=None, imgsperangle=1, ref_first=True, start=0,
     This is done by scanning over 360 deg in *nangles* steps and capturing a
     desired amount of images (*imgsperangle*) per step.  The scanning movement
     will be done by all given moveables.
-    Additionally to the calculated angles, a fixed acqisition at 180 deg will
+    Additionally to the calculated angles, a fixed acquisition at 180 deg will
     be done (for reference). It can be prepended or inserted in the correct
     order (ref_first).
 

@@ -194,8 +194,10 @@ possible with the device:
       This method can raise :exc:`.ConfigurationError` if the new parameter
       value is invalid.
 
-   NB: The method names need to contain the parameter name with the first letter
-   capitalized.
+   .. note::
+
+      The method names need to contain the parameter name with the first letter
+      capitalized.
 
    .. rubric:: Parameters
 

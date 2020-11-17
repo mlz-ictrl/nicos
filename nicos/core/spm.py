@@ -30,8 +30,8 @@ The syntax is very simple and allows no variables, loops or conditionals: a
 command line consists of a command and optional arguments, separated by spaces.
 
 Arguments can be numbers, device names, strings and symbols (words that signify
-a command option).  Strings can be quoted or unquoted as long as they start with
-a nondigit character.
+a command option).  Strings can be quoted or unquoted as long as they start
+with a nondigit character.
 
 Examples::
 
@@ -98,6 +98,7 @@ class String(Token):
             return bare(arg)
         return arg
 
+
 String = String()
 
 
@@ -109,6 +110,7 @@ class Bare(Token):
             if arg not in session.namespace:
                 return arg
         return bare('(' + arg + ')')
+
 
 Bare = Bare()
 
@@ -165,6 +167,7 @@ class Bool(Token):
     def complete(self, text, session, argsofar):
         return [c for c in ['true', 'false'] if c.startswith(text)]
 
+
 Bool = Bool()
 
 
@@ -190,6 +193,7 @@ class Dev(Token):
         return [dev for dev in session.explicit_devices if dev.startswith(text)
                 and isinstance(session.devices[dev], self.devtype)]
 
+
 AnyDev = Dev()
 
 
@@ -205,6 +209,7 @@ class DevParam(Token):
             return [p for p in dev.parameters if p.startswith(text)]
         except Exception:
             return []
+
 
 DevParam = DevParam()
 
@@ -247,6 +252,7 @@ class DeviceName(Token):
                 if c.startswith(text) and
                 c not in session.devices and not
                 session.configured_devices[c][1].get('lowlevel')]
+
 
 DeviceName = DeviceName()
 
@@ -308,7 +314,7 @@ class SPMHandler:
         # assume we're completing the last word on the command line
         if multargs or len(args) <= posargs:
             # is it a positional argument
-            el = next(islice(arguments, len(args)-1, len(args)))
+            el = next(islice(arguments, len(args) - 1, len(args)))
             return el.complete(word, self.session, args)
         else:
             # must be an option
@@ -402,8 +408,8 @@ class SPMHandler:
                         tokens.append(rest)
                         return tokens
                     raise NoParse('closing parenthesis', rest)
-                tokens.append(rest[:i+1])
-                rest = rest[i+1:]
+                tokens.append(rest[:i + 1])
+                rest = rest[i + 1:]
             elif rest.startswith('['):
                 i = 1
                 while i < len(rest):
@@ -415,8 +421,8 @@ class SPMHandler:
                         tokens.append(rest)
                         return tokens
                     raise NoParse('closing bracket', rest)
-                tokens.append(rest[:i+1])
-                rest = rest[i+1:]
+                tokens.append(rest[:i + 1])
+                rest = rest[i + 1:]
             elif rest[0].isspace():
                 m = spaces_re.match(rest)
                 rest = rest[m.end():]

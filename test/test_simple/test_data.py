@@ -133,7 +133,7 @@ def test_force_scandata(session):
     dataman = session.experiment.data
     session.experiment._setROParam('forcescandata', True)
     try:
-        count(1)
+        count(0.01)
         # ensure that a scan dataset was produced
         ds = dataman.getLastScans()[-1]
         assert ds.npoints == 1

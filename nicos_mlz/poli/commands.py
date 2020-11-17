@@ -373,17 +373,19 @@ def _getQ(v, name):
         else:
             raise TypeError
     except TypeError:
-        raise UsageError('%s must be a sequence of (h, k, l)' % name)
+        raise UsageError('%s must be a sequence of (h, k, l)' % name) from None
 
 
 def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
-    preset, detlist, envlist, move, multistep = {}, [], None, [], []
+    preset, detlist, envlist, move, multistep = {}, None, None, [], []
     for arg in args:
         if isinstance(arg, str):
             scaninfo = arg + ' - ' + scaninfo
         elif isinstance(arg, number_types):
             preset['t'] = arg
         elif isinstance(arg, Measurable):
+            if detlist is None:
+                detlist = []
             detlist.append(arg)
         elif isinstance(arg, Readable):
             if envlist is None:
@@ -932,7 +934,7 @@ def GenDataset(name, hmax, kmax, lmax, uniq=False, kvector=None):
             kvectors = [array(k) for k in kvectors]
         except Exception:
             raise UsageError('kvector needs to be a HKL vector or a list '
-                             'of HKL vectors')
+                             'of HKL vectors') from None
 
         new_hkls = []
         for hkl in hkls:

@@ -126,8 +126,8 @@ class Param:
     def __init__(self, description, type=float, default=_notset,
                  mandatory=False, settable=False, volatile=False,
                  unit=None, fmtstr='%r', category=None, preinit=False,
-                 prefercache=None, userparam=None, internal=False, chatty=False,
-                 no_sim_restore=False, ext_desc=''):
+                 prefercache=None, userparam=None, internal=False,
+                 chatty=False, no_sim_restore=False, ext_desc=''):
         self.type = fixup_conv(type)
         if default is self._notset:
             default = type()
@@ -399,8 +399,8 @@ class Attach:
 
 class Value:
     """This class defines the properties of the "value" read from `.Readable`
-    and `.Measurable` classes.  Their ``.valueInfo()`` method must return a tuple
-    of instances of this class.
+    and `.Measurable` classes.  Their ``.valueInfo()`` method must return a
+    tuple of instances of this class.
 
     * The *name* parameter is the name of the value.  By convention, if only
       one value is returned, this is the name of the device.  Otherwise, if the
@@ -788,6 +788,7 @@ def tacodev(val=None):
         raise ValueError('%r is not a valid Taco device name' % val)
     return val
 
+
 # allow only tango device names according tango spec
 # http://www.esrf.eu/computing/cs/tango/tango_doc/kernel_doc/ds_prog/node13.html
 # without any attributes and properties
@@ -807,6 +808,7 @@ def tangodev(val=None):
     if not tangodev_re.match(val):
         raise ValueError('%r is not a valid Tango device name' % val)
     return val
+
 
 # Valid characters for PV-names are documented in the EPICS base manual:
 #   http://www.aps.anl.gov/epics/base/R3-15/3-docs/AppDevGuide/node7.html
@@ -899,6 +901,7 @@ def vec3(val=None):
         raise ValueError('value needs to be a 3-element vector')
     return readonlylist(ret)
 
+
 ipv4_re = re.compile(
     r'^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}'
     r'(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
@@ -935,8 +938,8 @@ class host:
             p = int(p)
             if not 0 < p < 65536:
                 raise ValueError
-        except ValueError:
-            raise ValueError('The port is not a valid port number')
+        except ValueError as err:
+            raise ValueError('The port is not a valid port number') from err
         return p
 
     def _addDefaults(self, host, port=None):
@@ -958,8 +961,9 @@ class host:
 
         try:
             host, port = parseHostPort(val, self.defaultport, True)
-        except ValueError:
-            raise ValueError('%r is not in the form host_name[:port]' % (val,))
+        except ValueError as err:
+            raise ValueError(
+                '%r is not in the form host_name[:port]' % val) from err
         if not host:
             raise ValueError('Empty hostname is not allowed')
         return self._addDefaults(host, port)

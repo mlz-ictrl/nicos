@@ -61,17 +61,19 @@ def _getQ(v, name):
             raise TypeError
     except TypeError:
         raise UsageError('%s must be a sequence of (h, k, l) or (h, k, l, E)'
-                         % name)
+                         % name) from None
 
 
 def _handleQScanArgs(args, kwargs, Q, dQ, scaninfo):
-    preset, detlist, envlist, move, multistep = {}, [], None, [], []
+    preset, detlist, envlist, move, multistep = {}, None, None, [], []
     for arg in args:
         if isinstance(arg, str):
             scaninfo = arg + ' - ' + scaninfo
         elif isinstance(arg, number_types):
             preset['t'] = arg
         elif isinstance(arg, Measurable):
+            if detlist is None:
+                detlist = []
             detlist.append(arg)
         elif isinstance(arg, Readable):
             if envlist is None:

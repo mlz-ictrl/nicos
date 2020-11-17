@@ -239,9 +239,6 @@
          <height>20</height>
         </size>
        </property>
-       <property name="toolTip">
-        <string>definiert die aeussere Schleife</string>
-       </property>
       </widget>
      </item>
      <item>
@@ -274,9 +271,6 @@
          <width>125</width>
          <height>0</height>
         </size>
-       </property>
-       <property name="toolTip">
-        <string>definiert die mittlere Schleife</string>
        </property>
       </widget>
      </item>
@@ -313,9 +307,6 @@
        </property>
        <property name="font">
         <font/>
-       </property>
-       <property name="toolTip">
-        <string>definiert die innere Schleife</string>
        </property>
       </widget>
      </item>
