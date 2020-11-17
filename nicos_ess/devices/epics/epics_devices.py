@@ -83,9 +83,11 @@ class EpicsMonitorMixin(DeviceMixinBase):
 
     def connection_change_callback(self, name, value, **kwargs):
         if value:
-            self.log.warn(f'{name} connected!')
+            self.log.debug(f'{name} connected!')
         else:
             self.log.warn(f'{name} disconnected!')
+            self._set_status(self._get_pv_name('readpv'), 'readpv', 2, 2,
+                             "disconnected")
 
     def _get_cache_relation(self, param):
         # Returns the cache key associated with the parameter.

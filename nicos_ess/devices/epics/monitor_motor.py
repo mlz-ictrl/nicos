@@ -218,6 +218,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
     def doStatus(self, maxage=0):
         stat, message = EpicsAnalogMoveable.doStatus(self)
 
+        if stat in [status.WARN, status.ERROR]:
+            return stat, message
+
         done_moving = self._get_pv('donemoving')
         moving = self._get_pv('moving')
         if done_moving == 0 or moving != 0:
