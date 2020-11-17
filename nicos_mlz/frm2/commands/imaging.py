@@ -48,29 +48,31 @@ def openbeamimage(shutter=None, nimages=1, *detlist, **preset):
     if isinstance(shutter, int):
         nimages, shutter = shutter, None
     exp = session.experiment
-    det = exp.detectors[0]
-    limadev = det._attached_images[0] if det._attached_images else None
+    det = exp.detectors[0] if exp.detectors else None
+    limadev = det._attached_images[0] if det and det._attached_images else None
 
     # TODO: better ideas for shutter control
     if shutter:
         # Shutter was given, so open it
         maw(shutter, 'open')
-    elif limadev is not None and limadev._shutter is not None:
+    elif limadev and getattr(limadev, '_shutter', None):
         # No shutter; try the lima way
         oldmode = limadev.shuttermode
         limadev.shuttermode = 'auto'
 
     try:
-        exp.curimgtype = 'openbeam'
+        if hasattr(exp, 'curimgtype'):
+            exp.curimgtype = 'openbeam'
         changeImgSinkSubdir(relpath(exp.openbeamdir, exp.datapath))
         return [count(*detlist, **preset) for _ in range(nimages)]
     finally:
         changeImgSinkSubdir('')
-        exp.curimgtype = 'standard'
+        if hasattr(exp, 'curimgtype'):
+            exp.curimgtype = 'standard'
 
         if shutter:
             maw(shutter, 'closed')
-        elif limadev is not None and limadev._shutter is not None:
+        elif limadev and getattr(limadev, '_shutter', None):
             limadev.shuttermode = oldmode
 
 
@@ -82,27 +84,29 @@ def darkimage(shutter=None, nimages=1, *detlist, **preset):
     if isinstance(shutter, int):
         nimages, shutter = shutter, None
     exp = session.experiment
-    det = exp.detectors[0]
-    limadev = det._attached_images[0] if det._attached_images else None
+    det = exp.detectors[0] if exp.detectors else None
+    limadev = det._attached_images[0] if det and det._attached_images else None
 
     # TODO: better ideas for shutter control
     if shutter:
         # Shutter was given, so open it
         maw(shutter, 'closed')
-    elif limadev is not None and limadev._shutter is not None:
+    elif limadev and getattr(limadev, '_shutter', None):
         # No shutter; try the lima way
         oldmode = limadev.shuttermode
         limadev.shuttermode = 'always_closed'
 
     try:
-        exp.curimgtype = 'dark'
+        if hasattr(exp, 'curimgtype'):
+            exp.curimgtype = 'dark'
         changeImgSinkSubdir(relpath(exp.darkimagedir, exp.datapath))
         return [count(*detlist, **preset) for _ in range(nimages)]
     finally:
         changeImgSinkSubdir('')
-        exp.curimgtype = 'standard'
+        if hasattr(exp, 'curimgtype'):
+            exp.curimgtype = 'standard'
 
         if shutter:
             maw(shutter, 'open')
-        elif limadev is not None and limadev._shutter is not None:
+        elif limadev and getattr(limadev, '_shutter', None):
             limadev.shuttermode = oldmode
