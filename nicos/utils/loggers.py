@@ -193,7 +193,7 @@ class NicosLogfileFormatter(Formatter):
 
     def formatException(self, ei):
         if self.extended_traceback:
-            s = formatExtendedTraceback(*ei)
+            s = formatExtendedTraceback(ei[1])
         else:
             s = ''.join(traceback.format_exception(ei[0], ei[1], ei[2],
                                                    sys.maxsize))

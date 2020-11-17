@@ -1044,8 +1044,30 @@ def formatExtendedFrame(frame):
     return ret
 
 
-def formatExtendedTraceback(etype, value, tb):
-    ret = ['Traceback (most recent call last):\n']
+ST_HEADER = 'Stack trace (most recent call last):'
+TB_HEADER = 'Traceback (most recent call last):'
+TB_CAUSE_MSG = ('The above exception was the direct cause of the '
+                'following exception:')
+TB_CONTEXT_MSG = ('During handling of the above exception, another '
+                  'exception occurred:')
+
+
+def listExtendedTraceback(exc, seen=None):
+    seen = seen or set()
+    if id(exc) in seen:
+        return []
+    seen.add(id(exc))
+
+    ret = []
+    if exc.__cause__ is not None:
+        ret += listExtendedTraceback(exc.__cause__, seen)
+        ret.extend(['\n', TB_CAUSE_MSG, '\n\n'])
+    elif exc.__context__ is not None:
+        ret += listExtendedTraceback(exc.__context__, seen)
+        ret.extend(['\n', TB_CONTEXT_MSG, '\n\n'])
+
+    ret.extend([TB_HEADER, '\n'])
+    tb = exc.__traceback__
     while tb is not None:
         frame = tb.tb_frame
         filename = frame.f_code.co_filename
@@ -1059,8 +1081,17 @@ def formatExtendedTraceback(etype, value, tb):
         if filename not in ('<script>', '<string>'):
             ret += formatExtendedFrame(tb.tb_frame)
         tb = tb.tb_next
-    ret += traceback.format_exception_only(etype, value)
-    return ''.join(ret).rstrip('\n')
+    ret += traceback.format_exception_only(type(exc), exc)
+    return ret
+
+
+def formatExtendedTraceback(exc):
+    """Format a traceback for the given exception as a string.
+
+    The traceback will include the source line of each frame, as usual, but
+    also the values of local variables in the frames.
+    """
+    return ''.join(listExtendedTraceback(exc)).rstrip('\n')
 
 
 def formatExtendedStack(frame=None, level=1):
@@ -1069,7 +1100,7 @@ def formatExtendedStack(frame=None, level=1):
     """
     if frame is None:
         frame = sys._getframe(level)
-    ret = ['Stack trace (most recent call last):\n\n']
+    ret = [ST_HEADER, '\n\n']
     while frame is not None:
         lineno = frame.f_lineno
         co = frame.f_code
@@ -1095,7 +1126,7 @@ def formatException(cut=0, exc_info=None):
         typ, val, tb = sys.exc_info()
     else:
         typ, val, tb = exc_info
-    res = ['Traceback (most recent call last):\n']
+    res = [TB_HEADER, '\n']
     tbres = traceback.format_tb(tb, sys.maxsize)
     res += tbres[cut:]
     res += traceback.format_exception_only(typ, val)

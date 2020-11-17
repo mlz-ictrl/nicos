@@ -40,7 +40,7 @@ from nicos.utils import Repeater, allDays, bitDescription, checkSetupSpec, \
     formatExtendedFrame, formatExtendedStack, formatExtendedTraceback, \
     lazy_property, moveOutOfWay, num_sort, parseConnectionString, \
     parseDuration, readonlydict, readonlylist, safeWriteFile, squeeze, \
-    tcpSocket, timedRetryOnExcept, tupelize
+    tcpSocket, timedRetryOnExcept, tupelize, TB_CAUSE_MSG
 from nicos.utils.timer import Timer
 
 from test.utils import raises
@@ -139,11 +139,16 @@ def test_traceback():
     assert any('a                    = 1' in line for line in fmt)
 
     try:
-        1 / 0
-    except ZeroDivisionError:
+        try:
+            1 / 0
+        except ZeroDivisionError as err:
+            raise RuntimeError from err
+    except Exception:
         ei = sys.exc_info()
-        tb = formatExtendedTraceback(*ei)
+        tb = formatExtendedTraceback(ei[1])
         assert 'ZeroDivisionError' in tb
+        assert 'RuntimeError' in tb
+        assert TB_CAUSE_MSG in tb
         assert ', in test_traceback' in tb
 
     st = formatExtendedStack()
