@@ -38,15 +38,16 @@ __all__ = ['tomo', 'openbeamimage', 'darkimage', 'grtomo']
 
 
 @usercommand
-@helparglist('shutter, [detectors], [presets]')
+@helparglist('shutter, [nimages], [detectors], [presets]')
 # pylint: disable=keyword-arg-before-vararg
-def openbeamimage(shutter=None, *detlist, **preset):
+def openbeamimage(shutter=None, nimages=1, *detlist, **preset):
     """ANTARES specific openbeam image acquisition.
 
-    Acquires a openbeam image and creates a current link.
+    Acquires one or more openbeam images and creates link to the last taken
+    image.
     """
     exp = session.experiment
-    _openbeamimage(shutter, *detlist, **preset)
+    _openbeamimage(shutter, nimages, *detlist, **preset)
 
     src = join(exp.proposalpath, exp.lastopenbeamimage)
     dst = join(exp.proposalpath, 'currentopenbeamimage.fits')
@@ -63,15 +64,16 @@ def openbeamimage(shutter=None, *detlist, **preset):
 
 
 @usercommand
-@helparglist('shutter, [detectors], [presets]')
+@helparglist('shutter, [nimages], [detectors], [presets]')
 # pylint: disable=keyword-arg-before-vararg
-def darkimage(shutter=None, *detlist, **preset):
+def darkimage(shutter=None, nimages=1, *detlist, **preset):
     """ANTARES specific dark image acquisition.
 
-    Acquires a dark image and creates a current link.
+    Acquires one or more dark images and creates a link to the last taken
+    image.
     """
     exp = session.experiment
-    _darkimage(shutter, *detlist, **preset)
+    _darkimage(shutter, nimages, *detlist, **preset)
     src = join(exp.proposalpath, exp.lastdarkimage)
     dst = join(exp.proposalpath, 'currentdarkimage.fits')
 
