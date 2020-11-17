@@ -13,7 +13,8 @@ _expcolumn = Column(
                   istext=True, maxlen=30),
             Field(name='Current status', key='exp/action', width=30,
                   istext=True),
-            Field(name='Last file', key='exp/lastscan')),
+            Field(name='Last file', key='exp/lastscan'),
+        ),
         ],
     ),
 )
@@ -23,7 +24,7 @@ _column3 = Column(
         BlockRow(
             Field(dev='ath'),
             Field(dev='att'),
-        )
+        ),
         ],
         setups='analyzer',
     ),
@@ -82,7 +83,8 @@ _column3 = Column(
     Block('3He cell', [
         BlockRow(
             Field(name='Polarization', dev='pol', width=7),
-            Field(name='Guide field', dev='He_GF')),
+            Field(name='Guide field', dev='He_GF'),
+        ),
         ],
         setups='helios',
     ),
@@ -408,7 +410,7 @@ _column2 = Column(
         BlockRow(
             Field(dev='relay1'),
             Field(dev='relay2'),
-        )
+        ),
         ],
         setups='relay',
     ),
@@ -490,7 +492,8 @@ _column4 = Column(
         BlockRow(
             Field(dev='T', plot='T', plotwindow=12*3600, width=100, height=40),
             Field(dev='Ts', plot='T'),
-            Field(dev='TBe', name='Filter', plot='T')),
+            Field(dev='TBe', name='Filter', plot='T'),
+        ),
         ],
         setups='ccr5',
     ),

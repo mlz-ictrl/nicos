@@ -91,7 +91,8 @@ _basicblock = Block('Info', [
     ),
     BlockRow(
         Field(plot='Pressure', name='Ambient', dev='Ambient_pressure', width=40, height=20, plotwindow=24*3600),
-        Field(plot='Pressure', name='Flight Tube', dev='Flighttube_pressure')),
+        Field(plot='Pressure', name='Flight Tube', dev='Flighttube_pressure'),
+    ),
     ],
     setups='basic',
 )

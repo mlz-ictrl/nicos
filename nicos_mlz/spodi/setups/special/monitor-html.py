@@ -86,7 +86,7 @@ for i in _ccrnrs:
             ),
             ],
             setups='ccr%d and not cci3he0*' % i,
-        )
+        ),
     )
     ccrsupps.append(
         Block('CCR%d' % i, [
@@ -108,7 +108,7 @@ for i in _ccrnrs:
             ),
             ],
             setups='ccr%d' % i,
-        )
+        ),
     )
 
 
@@ -121,7 +121,7 @@ _htf = Column(
         BlockRow(
             Field(dev='T'),
             Field(name='Power', key='T/heaterpower'),
-        )
+        ),
         ],
         setups='htf*',
     ),

@@ -23,7 +23,8 @@ _column1 = Column(
         BlockRow(
             Field(name='att0', dev='att0'),
             Field(name='att1', dev='att1'),
-            Field(name='att2', dev='att2')),
+            Field(name='att2', dev='att2'),
+        ),
         ],
         setups='attenuators',
     ),
@@ -82,7 +83,7 @@ _column2 = Column(
             Field(name='arm2', dev='arm2_rot', unit='deg'),
         ),
         ],
-     ),
+    ),
 )
 
 ccrs = []
@@ -162,7 +163,8 @@ _miramagnet = Block('MIRA 0.5T Magnet', [
         Field(name='Target', key='B_miramagnet/target', width=12),
     ),
     BlockRow(
-        Field(name='Current', dev='I_miramagnet', width=12)),
+        Field(name='Current', dev='I_miramagnet', width=12),
+    ),
     ],
     setups='miramagnet',
 )
@@ -262,7 +264,8 @@ _column3 = Column(
         BlockRow(
             Field(name='Tube' , dev='T_ccr_sample_tube', unit='K'),
             Field(name='Stick', dev='T_ccr_sample_stick_b', unit='K'),
-            Field(name='Pressure', dev='P_ccr', unit='mbar')),
+            Field(name='Pressure', dev='P_ccr', unit='mbar'),
+        ),
         ],
         setups='ccr'
         ),

@@ -40,7 +40,8 @@ _column1 = Column(
         BlockRow(
             Field(name='C1', dev='cbox_0a_coil1_c1'),
             Field(name='C2', dev='cbox_0a_coil1_c2'),
-            Field(name='C3', dev='cbox_0a_coil1_c3')),
+            Field(name='C3', dev='cbox_0a_coil1_c3'),
+        ),
         BlockRow(
             Field(name='C1C2', dev='cbox_0a_coil1_c1c2serial'),
             Field(name='Trafo', dev='cbox_0a_coil1_transformer'),
@@ -54,7 +55,8 @@ _column1 = Column(
         ),
         BlockRow(
             Field(name='T Coil 1', dev='T_arm0a_coil1'),
-            Field(name='T Coil 2', dev='T_arm0a_coil2')),
+            Field(name='T Coil 2', dev='T_arm0a_coil2'),
+        ),
         ],
         setups='static_flippers and resonance_flippers and cbox_0a and arm_0a',
     ),
@@ -68,7 +70,8 @@ _column2 = Column(
         ),
         BlockRow(
             Field(name='RF0b', dev='cbox_0b_reg_amp'),
-            Field(name='HRF0b', dev='hrf_0b')),
+            Field(name='HRF0b', dev='hrf_0b'),
+        ),
         BlockRow(
             Field(name='Freq', dev='cbox_0b_fg_freq'),
         ),

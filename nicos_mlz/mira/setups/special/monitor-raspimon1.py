@@ -7,8 +7,8 @@ _expcolumn = Column(
     Block('Experiment', [
         BlockRow(
             Field(name='Proposal', key='exp/proposal', width=7),
-            Field(name='Title',    key='exp/title',    width=25,
-                  istext=True, maxlen=15),
+            Field(name='Title', key='exp/title', width=25, istext=True,
+                  maxlen=15),
             Field(name='Sample',   key='sample/samplename', width=15,
                   istext=True, maxlen=15),
             # Field(name='Remark',   key='exp/remark',   width=30,
@@ -45,7 +45,8 @@ _column1 = Column(
             Field(dev='ar', name='PSD Ar', width=4, format='%.1f', unit=' '),
             Field(dev='co2', name='PSD CO2', width=4, format='%.1f', unit=' '),
             Field(dev='t_in_fak40', name='FAK40', width=6, format='%.1f', unit=' '),
-            Field(dev='Crane', min=10, width=7)),
+            Field(dev='Crane', min=10, width=7),
+        ),
         ],
         setups='reactor',
     ),
@@ -196,7 +197,8 @@ _column3 = Column(
         BlockRow(
             Field(name='ki', dev='mono'),
             Field(dev='lam', name='lambda'),
-            Field(dev='Ei')),
+            Field(dev='Ei'),
+        ),
         ],
         setups='diff or psd_diff',
     ),
@@ -205,7 +207,7 @@ _column3 = Column(
             Field(name='H', dev='mira[0]', format='%.3f', unit=' '),
             Field(name='K', dev='mira[1]', format='%.3f', unit=' '),
             Field(name='L', dev='mira[2]', format='%.3f', unit=' '),
-           Field(name='E', dev='mira[3]', format='%.3f', unit=' '),
+            Field(name='E', dev='mira[3]', format='%.3f', unit=' '),
         ),
         BlockRow(
             Field(name='Mode', key='mira/scanmode'),

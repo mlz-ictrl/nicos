@@ -12,29 +12,36 @@ _expcolumn = Column(
             Field(name='Current status', key='exp/action', width=40, istext=True, maxlen=40),
         ),
     ],
-    )
+    ),
 )
 
 _sampletable = Column(
     Block('Sample table', [
         BlockRow(
-            Field(dev='xt', format='%.1f')),
+            Field(dev='xt', format='%.1f'),
+        ),
         BlockRow(
-            Field(dev='yt')),
+            Field(dev='yt'),
+        ),
         BlockRow(
-            Field(dev='zt', format='%.2f')),
+            Field(dev='zt', format='%.2f'),
+        ),
         BlockRow(
-            Field(dev='omgs')),
+            Field(dev='omgs'),
+        ),
         BlockRow(
-            Field(dev='tths')),
+            Field(dev='tths'),
+        ),
     ],
     setups = 'sampletable or vstressi',
     ),
     Block('Eulerian', [
         BlockRow(
-            Field(dev='chis')),
+            Field(dev='chis'),
+        ),
         BlockRow(
-            Field(dev='phis')),
+            Field(dev='phis'),
+        ),
     ],
     setups = 'eulerian*',
     ),
@@ -86,7 +93,7 @@ _measurement = Column(
             Field(name='timer', key='tim1/value'),
             Field(name='monitor', key='mon/value'),
             Field(name='counts', key='image/value'),
-        )
+        ),
         ],
     ),
     Block('Primary slit', [
@@ -168,7 +175,7 @@ _image = Column(
                   refresh=1, width=24, height=24),
         ),
         ],
-    )
+    ),
 )
 
 devices = dict(

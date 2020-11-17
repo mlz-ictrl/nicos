@@ -12,7 +12,7 @@ _expcolumn = Column(
             Field(name='Current status', key='exp/action', width=40, istext=True, maxlen=40),
         ),
         ],
-    )
+    ),
 )
 
 _sampletable = Column(
@@ -152,7 +152,8 @@ _eulerian = Column(
         ),
         BlockRow(
             Field(dev='hv1',),
-            Field(dev='hv2',)),
+            Field(dev='hv2',),
+        ),
         ],
     ),
     Block('Monochromator', [
@@ -182,7 +183,7 @@ _image = Column(
                   refresh=1, width=24, height=24),
         ),
         ]
-    )
+    ),
 )
 
 devices = dict(

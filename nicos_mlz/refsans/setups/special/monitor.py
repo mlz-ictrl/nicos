@@ -10,7 +10,7 @@ _expcolumn = Column(
             Field(name='Current status', key='exp/action', width=50,
                   istext=True, maxlen=40),
             Field(name='Last file', key='det/lastfilenumber'),
-        )
+        ),
         ],
         # setups='experiment'
     ),
