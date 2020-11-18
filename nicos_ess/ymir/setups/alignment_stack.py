@@ -2,7 +2,7 @@ description = 'The motion stages for alignment in the YMIR cave'
 
 devices = dict(
     mX=device(
-        'nicos_ess.devices.epics.motor.EpicsMotor',
+        'nicos_ess.devices.epics.EpicsMotor',
         epicstimeout=3.0,
         precision=0.1,
         description='Single axis positioner',
@@ -12,7 +12,7 @@ devices = dict(
         reseterrorpv='SES-SCAN:MC-MCU-001:m1-ErrRst',
     ),
     mY=device(
-        'nicos_ess.devices.epics.motor.EpicsMotor',
+        'nicos_ess.devices.epics.EpicsMotor',
         epicstimeout=3.0,
         precision=0.1,
         description='Single axis positioner',
@@ -22,7 +22,7 @@ devices = dict(
         reseterrorpv='SES-SCAN:MC-MCU-001:m2-ErrRst',
     ),
     mZ=device(
-        'nicos_ess.devices.epics.motor.EpicsMotor',
+        'nicos_ess.devices.epics.EpicsMotor',
         epicstimeout=3.0,
         precision=0.1,
         description='Single axis positioner',

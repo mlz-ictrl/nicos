@@ -1,7 +1,7 @@
 description = 'Stray motion stage(s) at Utgård/YMIR.'
 
 devices = dict(
-    m1=device('nicos_ess.devices.epics.motor.EpicsMotor',
+    m1=device('nicos_ess.devices.epics.EpicsMotor',
               epicstimeout=3.0,
               precision=0.1,
               description='Single axis positioner',
