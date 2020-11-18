@@ -69,25 +69,30 @@ class EpicsMonitorMixin(DeviceMixinBase):
                 self._epics_wrapper.subscribe(pvname, pvparam, change_callback,
                                               self.connection_change_callback))
 
-    def value_change_callback(self, name, param, value, status, severity, message, **kwargs):
-        self.log.debug(f'{name} [{param}] says value cb with {value} {status} {severity} {message}!')
+    def value_change_callback(self, name, param, value, severity, message,
+                              **kwargs):
+        self.log.debug(
+            f'{name} [{param}]: value cb with {value} {severity} {message}!')
         cache_key = self._get_cache_relation(param) or name
         self._cache.put(self._name, cache_key, value, time.time())
-        self._set_status(name, param, status, severity, message)
+        self._set_status(name, param, severity, message)
 
-    def status_change_callback(self, name, param, value, status, severity, message, **kwargs):
-        self.log.debug(f'{name} [{param}] says status cb with {status} {severity} {message}')
-        self._set_status(name, param, status, severity, message)
-        st = self.doStatus()
-        self._cache.put(self._name, 'status', st, time.time())
+    def status_change_callback(self, name, param, value, severity, message,
+                               **kwargs):
+        self.log.debug(
+            f'{name} [{param}]: status cb with {value} {severity} {message}')
+        self._set_status(name, param, severity, message)
+        current_status = self.doStatus()
+        self._cache.put(self._name, 'status', current_status, time.time())
 
-    def connection_change_callback(self, name, value, **kwargs):
-        if value:
+    def connection_change_callback(self, name, is_connected, **kwargs):
+        if is_connected:
             self.log.debug(f'{name} connected!')
         else:
             self.log.warn(f'{name} disconnected!')
-            self._set_status(self._get_pv_name('readpv'), 'readpv', 2, 2,
-                             "disconnected")
+            # Put into error,
+            self._set_status(self._get_pv_name('readpv'), 'readpv',
+                             status.ERROR, "disconnected")
 
     def _get_cache_relation(self, param):
         # Returns the cache key associated with the parameter.
@@ -97,19 +102,17 @@ class EpicsMonitorMixin(DeviceMixinBase):
         # Returns the parameters which indicate "movement" is happening.
         return self.pv_status_parameters
 
-    def _set_status(self, name, param, status, severity, message):
-        self._statuses[param] = (name, status, severity, message)
+    def _set_status(self, name, param, severity, message):
+        self._statuses[param] = (name, severity, message)
 
     def doStatus(self, maxage=0):
         # For most devices we only care about the status of the read PV
         if 'readpv' in self._statuses:
-            pvname, stat, severity, message = self._statuses['readpv']
+            pvname, severity, message = self._statuses['readpv']
         else:
             pvname = self._get_pv_name('readpv')
-            stat, severity, message = self._epics_wrapper.get_alarm_status(
-                pvname, self.epicstimeout)
-
-        severity = SEVERITY_TO_STATUS.get(severity, status.UNKNOWN)
+            severity, message = self._epics_wrapper.get_alarm_status(pvname,
+                                    self.epicstimeout)
         if severity != status.OK:
             return severity, f'issue with {pvname}: {message}'
         return severity, ''
@@ -176,9 +179,9 @@ class EpicsDevice(DeviceMixinBase):
     def doStatus(self, maxage=0):
         # For most devices we only care about the status of the read PV
         pvname = self._get_pv_name('readpv')
-        stat, severity, msg = self._epics_wrapper.get_alarm_status(pvname)
-        severity = SEVERITY_TO_STATUS[severity]
-        if SEVERITY_TO_STATUS[severity] in [status.ERROR, status.WARN]:
+        severity, msg = self._epics_wrapper.get_alarm_status(pvname,
+                            timeout=self.epicstimeout)
+        if severity in [status.ERROR, status.WARN]:
             return severity, msg
         return status.OK, msg
 

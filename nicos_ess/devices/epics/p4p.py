@@ -4,12 +4,13 @@ from threading import RLock
 import numpy as np
 from p4p.client.thread import Context
 
-from nicos import session
-from nicos.core import CommunicationError
+from nicos.core import CommunicationError, status
 
 # Same context can be shared across all devices.
 # nt=False tells p4p not to try to map types itself
 # we want to do this manually to avoid information loss
+from nicos.devices.epics import SEVERITY_TO_STATUS
+
 _CONTEXT = Context('pva', nt=False)
 
 
@@ -86,11 +87,9 @@ class PvaWrapper:
 
         return type(result["value"])
 
-    @staticmethod
-    def get_alarm_status(pv, timeout):
-        raw_result = _CONTEXT.get(pv, timeout=timeout)
-        return raw_result['alarm']['status'], raw_result['alarm']['severity'], \
-               raw_result['alarm']['message']
+    def get_alarm_status(self, pv, timeout):
+        result = _CONTEXT.get(pv, timeout=timeout)
+        return self._extract_alarm_info(result)
 
     @staticmethod
     def get_units(pv, timeout, default=''):
@@ -142,20 +141,19 @@ class PvaWrapper:
 
         if change_callback:
             value = self._convert_value(result['value'])
-            status, severity, message = self._get_alarm_info(result)
-            change_callback(name, pvparam, value, status, severity, message)
+            severity, message = self._extract_alarm_info(result)
+            change_callback(name, pvparam, value, severity, message)
 
-    def _get_alarm_info(self, value):
-        status = 0
-        severity = 0
-        message = ''
+    @staticmethod
+    def _extract_alarm_info(value):
+        # The EPICS 'severity' matches to the NICOS `status`.
+        # p4p doesn't give anything useful for the status, but the message has
+        # a short description of the alarm details.
         try:
-            status = value['alarm']['status']
-            severity = value['alarm']['severity']
-            message = value['alarm']['message']
+            severity = SEVERITY_TO_STATUS[value['alarm']['severity']]
+            return severity, value['alarm']['message']
         except KeyError as err:
-            # information not available
-            pass
-        return status, severity, message
+            # Information not available
+            return status.UNKNOWN, 'alarm information unavailable'
 
 
