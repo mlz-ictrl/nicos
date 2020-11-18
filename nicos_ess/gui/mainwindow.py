@@ -25,8 +25,6 @@
 
 """NICOS GUI main window."""
 
-import os
-
 from time import time as current_time
 
 from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow
@@ -56,8 +54,6 @@ class MainWindow(DefaultMainWindow):
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         DefaultMainWindow.__init__(self, log, gui_conf, viewonly, tunnel)
         self.add_logo()
-        self.add_instrument()
-        self.add_experiment()
         self.set_icons()
         self.style_file = gui_conf.stylefile
 
@@ -75,6 +71,9 @@ class MainWindow(DefaultMainWindow):
         self.actionExpert.setEnabled(self.client.isconnected)
         self.actionEmergencyStop.setEnabled(self.client.isconnected)
 
+        self._init_instrument_name()
+        self._init_experiment_name()
+
     def _init_toolbar(self):
         self.statusLabel = QLabel('', self, pixmap=QPixmap(':/disconnected'),
                                   margin=5, minimumSize=QSize(30, 10))
@@ -83,6 +82,32 @@ class MainWindow(DefaultMainWindow):
         self.toolbar = self.toolBarRight
         self.toolbar.addWidget(self.statusLabel)
         self.setStatus('disconnected')
+
+    def _init_experiment_name(self):
+        self.experiment_text = QLabel()
+        self.experiment_text.setSizePolicy(QSizePolicy.Expanding,
+                                           QSizePolicy.Preferred)
+        self.experiment_text.setStyleSheet('font-size: 17pt; font-weight: bold')
+        self.toolBarMain.addWidget(self.experiment_text)
+
+        self.experiment_label = QLabel()
+        self.experiment_label.setSizePolicy(QSizePolicy.Expanding,
+                                            QSizePolicy.Preferred)
+        self.experiment_label.setStyleSheet('font-size: 17pt')
+        self.toolBarMain.addWidget(self.experiment_label)
+
+    def _init_instrument_name(self):
+        self.instrument_text = QLabel()
+        self.instrument_text.setSizePolicy(QSizePolicy.Expanding,
+                                           QSizePolicy.Preferred)
+        self.instrument_text.setStyleSheet('font-size: 17pt; font-weight: bold')
+        self.toolBarMain.addWidget(self.instrument_text)
+
+        self.instrument_label = QLabel()
+        self.instrument_label.setSizePolicy(QSizePolicy.Expanding,
+                                            QSizePolicy.Preferred)
+        self.instrument_label.setStyleSheet('font-size: 17pt')
+        self.toolBarMain.addWidget(self.instrument_label)
 
     def set_icons(self):
         self.actionUser.setIcon(
@@ -109,41 +134,32 @@ class MainWindow(DefaultMainWindow):
         self.toolBarMain.insertWidget(self.toolBarMain.actions()[1],
                                       nicos_label)
 
-    def add_instrument(self):
-        text_label = QLabel('Instrument:')
-        text_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        text_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        instrument_label = QLabel('Unknown')
-        instrument_label.setSizePolicy(QSizePolicy.Expanding,
-                                       QSizePolicy.Preferred)
-        self.toolBarMain.addWidget(text_label)
-        self.toolBarMain.addWidget(instrument_label)
-
-        instrument = os.getenv('INSTRUMENT')
+    def update_instrument_text(self):
+        instrument = self.client.eval('session.instrument', None)
+        self.instrument_text.setText('Instrument:')
         if instrument:
-            instrument = instrument.split('.')[-1]
-            logo = decolor_logo(QPixmap('resources/%s-logo.svg' % instrument),
+            logo = decolor_logo(QPixmap(f'resources/{instrument}-logo.svg'),
                                 Qt.white)
             if logo.isNull():
-                instrument_label.setText(instrument.upper())
+                self.instrument_label.setText(instrument.upper())
                 return
-            instrument_label.setPixmap(logo.scaledToHeight(
+            self.instrument_label.setPixmap(logo.scaledToHeight(
                 self.toolBarMain.height(), Qt.SmoothTransformation))
+        else:
+            self.instrument_label.setText('UNKNOWN')
 
-    def add_experiment(self):
-        text_label = QLabel('Experiment:')
-        text_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        text_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        experiment_label = QLabel('Unknown')
-        experiment_label.setSizePolicy(QSizePolicy.Expanding,
-                                       QSizePolicy.Preferred)
-        self.toolBarMain.addWidget(text_label)
-        self.toolBarMain.addWidget(experiment_label)
+    def update_experiment_text(self):
+        max_text_length = 50
+        experiment = self.client.eval('session.experiment.title', None)
+        if experiment is not None:
+            self.experiment_text.setText("     Experiment:")
+            self.experiment_label.setText(experiment[0:max_text_length])
 
-        # if INSTRUMENT is defined add the logo/name of the instrument
-        experiment = os.getenv('EXPERIMENT')
-        if experiment:
-            experiment_label.setText(experiment)
+    def remove_experiment_and_instrument(self):
+        self.experiment_label.clear()
+        self.experiment_text.clear()
+        self.instrument_label.clear()
+        self.instrument_text.clear()
 
     def reloadQSS(self):
         self.setQSS(self.stylefile)
@@ -184,6 +200,8 @@ class MainWindow(DefaultMainWindow):
         if is_connected:
             self.actionConnect.setText('Disconnect')
             self.statusLabel.setText('\u2713 Connected')
+            self.update_instrument_text()
+            self.update_experiment_text()
         else:
             self.actionConnect.setText('Connect to server...')
             self.statusLabel.setText('Disconnected')
@@ -214,6 +232,7 @@ class MainWindow(DefaultMainWindow):
 
     def on_client_disconnected(self):
         DefaultMainWindow.on_client_disconnected(self)
+        self.remove_experiment_and_instrument()
         self.actionConnect.setIcon(
             QIcon("resources/material/icons/power-24px.svg"))
         self.actionExpert.setEnabled(False)

@@ -73,7 +73,7 @@ _choppercoolingblock = Block('Cooling system (Chopper)', [
         Field(name='P in', dev='p_in_ch_cooling'),
         Field(name='Leakage', dev='leak_ch_cooling'),
         Field(name='Cool power', dev='power_ch_cooling'),
-    )
+    ),
     ],
     setups='toftof',
 )

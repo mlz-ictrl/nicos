@@ -41,10 +41,12 @@ def changeImgSinkSubdir(newsubdir):
 
 
 @usercommand
-@helparglist('shutter, [detectors], [presets]')
+@helparglist('shutter, [images], [detectors], [presets]')
 # pylint: disable=keyword-arg-before-vararg
-def openbeamimage(shutter=None, *detlist, **preset):
-    """Acquire an open beam image."""
+def openbeamimage(shutter=None, nimages=1, *detlist, **preset):
+    """Acquire one or more open beam images."""
+    if isinstance(shutter, int):
+        nimages, shutter = shutter, None
     exp = session.experiment
     det = exp.detectors[0]
     limadev = det._attached_images[0] if det._attached_images else None
@@ -61,7 +63,7 @@ def openbeamimage(shutter=None, *detlist, **preset):
     try:
         exp.curimgtype = 'openbeam'
         changeImgSinkSubdir(relpath(exp.openbeamdir, exp.datapath))
-        return count(*detlist, **preset)
+        return [count(*detlist, **preset) for _ in range(nimages)]
     finally:
         changeImgSinkSubdir('')
         exp.curimgtype = 'standard'
@@ -73,10 +75,12 @@ def openbeamimage(shutter=None, *detlist, **preset):
 
 
 @usercommand
-@helparglist('shutter, [detectors], [presets]')
+@helparglist('shutter, [nimages], [detectors], [presets]')
 # pylint: disable=keyword-arg-before-vararg
-def darkimage(shutter=None, *detlist, **preset):
-    """Acquire a dark image."""
+def darkimage(shutter=None, nimages=1, *detlist, **preset):
+    """Acquire one or more dark images."""
+    if isinstance(shutter, int):
+        nimages, shutter = shutter, None
     exp = session.experiment
     det = exp.detectors[0]
     limadev = det._attached_images[0] if det._attached_images else None
@@ -93,7 +97,7 @@ def darkimage(shutter=None, *detlist, **preset):
     try:
         exp.curimgtype = 'dark'
         changeImgSinkSubdir(relpath(exp.darkimagedir, exp.datapath))
-        return count(*detlist, **preset)
+        return [count(*detlist, **preset) for _ in range(nimages)]
     finally:
         changeImgSinkSubdir('')
         exp.curimgtype = 'standard'

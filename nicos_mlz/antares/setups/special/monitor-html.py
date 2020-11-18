@@ -109,8 +109,8 @@ _detectorzwo01column = Column(
             Field(name='flip (H,V)', key='zwo01.flip'),
             Field(name='rotation', key='zwo01.rotation'),
         ),
-    ],
-    setups='detector_zwo01',
+        ],
+        setups='detector_zwo01',
     ),
 )
 

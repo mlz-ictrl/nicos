@@ -92,22 +92,21 @@ def tomo(nangles, moveables=None, imgsperangle=1, ref_first=True, start=0,
     be done (for reference). It can be prepended or inserted in the correct
     order (ref_first).
 
-    If you give a starting angle, the tomo command performs a continuation of
-    a stopped tomography at the closest point to the given start point.
+    If you specify a starting angle, the tomo command performs a continuation
+    of a stopped/interrupted tomography at the closest angle to the given start
+    value.
 
     Examples:
 
-    >>> tomo(10, sry) # single moveable
-    >>> tomo(10, [sry_multi_1, sry_multi_2, sry_multi_3]) # multiple moveables
-    >>> tomo(10, sry, 5) # multiple images per angle
-    >>> tomo(10, sry, t=1) # tomography with 1s exposure time
-    >>> tomo(10, sry, 1, True, det_neo, det_ikonl) # tomography by using 2 detectors (neo + ikonl)
-    >>> tomo(10, sry, 5, True, det_neo, det_ikonl, t=1) # full version
+    >>> tomo(500, sry) # single moveable
+    >>> tomo(500, [sry_multi_1, sry_multi_2, sry_multi_3]) # multiple moveables
+    >>> tomo(500, sry, 5) # multiple images per angle
+    >>> tomo(500, sry, t=1) # tomography with 1s exposure time
+    >>> tomo(500, sry, 1, True, det_neo, det_ikonl) # tomography by using 2 detectors (neo + ikonl)
+    >>> tomo(500, sry, 5, True, det_neo, det_ikonl, t=1) # full version
     >>>
-    >>> # continue a tomography at 40 deg with stepsize of 40 to 360 deg
-    >>> tomo(10, sry, 5, start=60)
-    >>> # continue a tomography at 80 deg with stepsize of 40 to 360 deg
-    >>> tomo(10, sry, 5, start=70)
+    >>> # continue a tomography at 59.88 deg (closest angle to 60 deg) to 360 deg (remaining 417 steps)
+    >>> tomo(500, sry, start=60)
     """
 
     angles = floatrange(0.0, 360.0, num=nangles)
@@ -154,14 +153,13 @@ def grtomo(nangles, moveables=None, imgsperangle=1, img180=True, startpoint=0,
 
     Examples:
 
-    >>> grtomo(10, sry) # single moveable
-    >>> grtomo(10, [sry_multi_1, sry_multi_2, sry_multi_3]) # multiple moveables
-    >>> grtomo(10, sry, 5) # multiple images per angle
-    >>> grtomo(10, sry, t=1) # tomography with 1s exposure time
-    >>> grtomo(10, sry, 1, True, 10)  # tomography with starting angle 10 deg
-    >>> grtomo(10, sry, 1, True, det_neo, det_ikonl) # tomography by using 2 detectors (neo + ikonl)
-    >>> grtomo(10, sry, 5, True, det_neo, det_ikonl, t=1) # full version
-
+    >>> grtomo(500, sry) # single moveable
+    >>> grtomo(500, [sry_multi_1, sry_multi_2, sry_multi_3]) # multiple moveables
+    >>> grtomo(500, sry, 5) # multiple images per angle
+    >>> grtomo(500, sry, t=1) # tomography with 1s exposure time
+    >>> grtomo(500, sry, 1, True, 10)  # tomography with starting angle 10 deg
+    >>> grtomo(500, sry, 1, True, det_neo, det_ikonl) # tomography by using 2 detectors (neo + ikonl)
+    >>> grtomo(500, sry, 5, True, det_neo, det_ikonl, t=1) # full version
     """
 
     title = 'golden ratio tomography'

@@ -938,8 +938,8 @@ class host:
             p = int(p)
             if not 0 < p < 65536:
                 raise ValueError
-        except ValueError as err:
-            raise ValueError('The port is not a valid port number') from err
+        except ValueError:
+            raise ValueError('The port is not a valid port number') from None
         return p
 
     def _addDefaults(self, host, port=None):
@@ -961,9 +961,9 @@ class host:
 
         try:
             host, port = parseHostPort(val, self.defaultport, True)
-        except ValueError as err:
+        except ValueError:
             raise ValueError(
-                '%r is not in the form host_name[:port]' % val) from err
+                '%r is not in the form host_name[:port]' % val) from None
         if not host:
             raise ValueError('Empty hostname is not allowed')
         return self._addDefaults(host, port)

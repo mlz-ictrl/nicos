@@ -126,7 +126,8 @@ _shutterblock = Block('Shutter / Filters', [
 
 _reactor = Block('Reactor power', [
     BlockRow(
-        Field(dev='ReactorPower')),
+        Field(dev='ReactorPower'),
+    ),
     ],
 )
 
@@ -140,7 +141,8 @@ _rightcolumn = Column(_shutterblock,
         ),
         BlockRow(
             Field(name='Ts',dev='t_ls340_b'),
-            Field(name='Heater power', key='t_ls340/heaterpower')),
+            Field(name='Heater power', key='t_ls340/heaterpower'),
+        ),
         # BlockRow(
         #     Field(dev='T', plot='T', plotwindow=1800, width=40),
         #     Field(key='ts', name='Sample T', plot='T', plotwindow=1800),
@@ -181,7 +183,7 @@ _rightcolumn = Column(_shutterblock,
         ),
         ],
         setups='ccr16',
-    )
+    ),
 )
 
 

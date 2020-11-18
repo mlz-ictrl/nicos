@@ -191,6 +191,7 @@ one of your loaded setups.  Additionally, your experiment device has to be an
 .. module:: nicos.commands.imaging
 
 .. autofunction:: tomo
+.. autofunction:: grtomo
 
 .. module:: nicos_mlz.frm2.commands.imaging
 

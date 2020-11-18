@@ -9,7 +9,7 @@ _expcolumn = [
                        maxlen=40),
             Field(name='Sample', key='sample/samplename', width=30, istext=True),
             Field(name='Remark', key='exp/remark', width=30, istext=True),
-        )
+        ),
         ],
     ),
 ]
