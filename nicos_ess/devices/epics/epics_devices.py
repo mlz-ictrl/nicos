@@ -85,14 +85,17 @@ class EpicsMonitorMixin(DeviceMixinBase):
         current_status = self.doStatus()
         self._cache.put(self._name, 'status', current_status, time.time())
 
-    def connection_change_callback(self, name, is_connected, **kwargs):
+    def connection_change_callback(self, name, pvparam, is_connected, **kwargs):
         if is_connected:
             self.log.debug(f'{name} connected!')
+            # Clear any readpv status.
+            if pvparam == 'readpv':
+                self._set_status(name, 'readpv', status.OK, '')
         else:
             self.log.warn(f'{name} disconnected!')
-            # Put into error,
-            self._set_status(self._get_pv_name('readpv'), 'readpv',
-                             status.ERROR, "disconnected")
+            # Put readpv into error state.
+            if pvparam == 'readpv':
+                self._set_status(name, 'readpv', status.ERROR, 'disconnected')
 
     def _get_cache_relation(self, param):
         # Returns the cache key associated with the parameter.

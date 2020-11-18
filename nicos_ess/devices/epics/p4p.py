@@ -127,14 +127,14 @@ class PvaWrapper:
         if isinstance(result, Exception):
             # Only callback on disconnection if was previously connected
             if connection_callback and name not in self.disconnected:
-                connection_callback(name, False)
+                connection_callback(name, pvparam, False)
                 self.disconnected.add(name)
             return
 
         if name in self.disconnected:
             # Only callback if it is a new connection
             if connection_callback:
-                connection_callback(name, True)
+                connection_callback(name, pvparam, True)
             with self.lock:
                 if name in self.disconnected:
                     self.disconnected.remove(name)
