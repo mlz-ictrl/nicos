@@ -70,13 +70,13 @@ class EpicsMonitorMixin(DeviceMixinBase):
                                               self.connection_change_callback))
 
     def value_change_callback(self, name, param, value, status, severity, message, **kwargs):
-        self.log.warn(f'{name} [{param}] says value cb with {value} {status} {severity} {message}!')
+        self.log.debug(f'{name} [{param}] says value cb with {value} {status} {severity} {message}!')
         cache_key = self._get_cache_relation(param) or name
         self._cache.put(self._name, cache_key, value, time.time())
         self._set_status(name, param, status, severity, message)
 
     def status_change_callback(self, name, param, value, status, severity, message, **kwargs):
-        self.log.warn(f'{name} [{param}] says status cb with {status} {severity} {message}')
+        self.log.debug(f'{name} [{param}] says status cb with {status} {severity} {message}')
         self._set_status(name, param, status, severity, message)
         st = self.doStatus()
         self._cache.put(self._name, 'status', st, time.time())
