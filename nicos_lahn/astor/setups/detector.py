@@ -9,9 +9,12 @@ sysconfig = dict(
 devices = dict(
     timer = device('nicos.devices.generic.VirtualTimer',
         description = 'timer for the camera',
+        lowlevel = True,
     ),
     image = device('nicos.devices.generic.VirtualImage',
         description = 'image for the camera',
+        sizes = (1024, 1024),
+        lowlevel = True,
     ),
     cam = device('nicos.devices.generic.Detector',
         description = 'ccd camera',
