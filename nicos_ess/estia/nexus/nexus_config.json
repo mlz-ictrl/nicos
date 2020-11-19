@@ -1,0 +1,71 @@
+{
+    "children": [
+      {
+        "name": "entry",
+        "type": "group",
+        "attributes": [
+          {
+            "name": "NX_class",
+            "dtype": "string",
+            "values": "NXentry"
+          }
+        ],
+        "children": [
+          {
+            "module": "dataset",
+            "config": {
+              "name": "title",
+              "values": "$TITLE$",
+              "dtype": "string"
+            }
+          },
+          {
+            "module": "dataset",
+            "config": {
+              "name": "experiment_identifier",
+              "values": "$EXP_ID$",
+              "dtype": "string"
+            }
+          },
+          $USERS$
+          {
+            "name": "sample",
+            "type": "group",
+            "attributes": [
+              {
+                "name": "NX_class",
+                "dtype": "string",
+                "values": "NXsample"
+              }
+            ],
+            "children": []
+          },
+          {
+            "name": "instrument",
+            "type": "group",
+            "attributes": [
+              {
+                "name": "NX_class",
+                "dtype": "string",
+                "values": "NXinstrument"
+              }
+            ],
+            "children": [
+              {
+                "name": "Detector",
+                "type": "group",
+                "attributes": [
+                  {
+                    "name": "NX_class",
+                    "dtype": "string",
+                    "values": "NXdetector"
+                  }
+                ],
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
