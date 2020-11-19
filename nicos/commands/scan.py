@@ -482,7 +482,8 @@ sweep.__doc__ += (ADDSCANHELP0 + ADDSCANHELP2).replace('scan(dev, ',
 twodscan.__doc__ += (ADDSCANHELP0 + ADDSCANHELP2).replace('scan(dev, ',
                                                           'twodscan(dev1, ')
 gridscan.__doc__ += (
-    ADDSCANHELP0 + ADDSCANHELP1 + ADDSCANHELP2).replace('scan(', 'gridscan(')
+    ADDSCANHELP0 + ADDSCANHELP1 + ADDSCANHELP2).replace(
+            'scan(dev,', 'gridscan([dev1, dev2],')
 
 
 @usercommand
