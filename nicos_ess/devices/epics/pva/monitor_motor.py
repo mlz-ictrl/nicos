@@ -28,8 +28,7 @@ from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import CanDisable, HasOffset
 from nicos.devices.abstract import CanReference, Motor
 
-from nicos_ess.devices.epics.epics_devices import EpicsAnalogMoveable, \
-    EpicsMonitorMixin
+from nicos_ess.devices.epics.pva.epics_devices import EpicsAnalogMoveable
 
 
 class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,

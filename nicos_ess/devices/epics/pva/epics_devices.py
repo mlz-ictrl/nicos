@@ -32,10 +32,9 @@ from nicos.core import POLLER, SIMULATION, ConfigurationError, \
     DeviceMixinBase, HasLimits, Moveable, Override, Param, Readable, anytype, \
     floatrange, none_or, pvname, status
 from nicos.core.mixins import HasWindowTimeout
-from nicos.devices.epics import SEVERITY_TO_STATUS
 from nicos.utils import HardwareStub
 
-from nicos_ess.devices.epics.p4p import PvaWrapper
+from nicos_ess.devices.epics.pva.p4p import PvaWrapper
 
 __all__ = [
     'EpicsDevice', 'EpicsReadable', 'EpicsStringReadable',
