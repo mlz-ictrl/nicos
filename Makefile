@@ -41,8 +41,8 @@ install:
 				$(and $(SETUPPACKAGE), --setup-package=$(SETUPPACKAGE))
 
 inplace-install:
-	-ln -sf -t /etc/init.d $(PWD)/etc/nicos-system
-	-ln -sf -t /usr/bin $(PWD)/bin/*
+	-ln -sf -t /etc/init.d "$$(pwd)/etc/nicos-system"
+	-ln -sf -t /usr/bin "$$(pwd)"/bin/*
 
 install-venv:
 	if [ -z "$(VENVNAME)" ]; then export VENVNAME=nicos-venv ; fi; \
