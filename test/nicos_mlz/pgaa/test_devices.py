@@ -24,7 +24,7 @@
 
 """Module to test custom specific modules."""
 
-from nicos.core.errors import LimitError
+from nicos.core.errors import InvalidValueError
 
 from test.utils import raises
 
@@ -58,7 +58,7 @@ def test_ellcol(session):
     ellcol.maw('Ell')
     assert ellcol.read(0) == 'Ell'
 
-    assert raises(LimitError, ellcol.move, 'abc')
+    assert raises(InvalidValueError, ellcol.move, 'abc')
 
     # Force an error when call another move when moving
     # TODO: This test needs a better setup to create a more realistic time

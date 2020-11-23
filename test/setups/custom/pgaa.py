@@ -35,10 +35,9 @@ devices = dict(
         states = [0, 1],
         lowlevel = True,
     ),
-    ellcol = device('nicos_mlz.pgaa.devices.ellcol.EllCol',
+    ellcol = device('nicos_mlz.pgaa.devices.BeamFocus',
         ellipse = 'ellipse',
         collimator = 'collimator',
         unit = '',
-        timeout = 0.5,
     ),
 )
