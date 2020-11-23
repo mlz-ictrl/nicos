@@ -376,6 +376,7 @@ class Scan:
                             self.moveDevices(self._devices,
                                              self._endpositions[i], wait=False)
                     except SkipPoint:
+                        session.breakpoint(2)
                         continue
                     except BaseException as err:
                         try:

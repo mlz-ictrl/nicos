@@ -24,7 +24,7 @@
 
 """Scan commands for NICOS."""
 
-from numpy import ndarray
+from numpy import meshgrid, ndarray
 
 from nicos import session
 from nicos.commands import helparglist, usercommand
@@ -38,7 +38,7 @@ from nicos.utils import number_types
 
 __all__ = [
     'scan', 'cscan', 'timescan', 'sweep', 'twodscan', 'contscan',
-    'manualscan', 'appendscan',
+    'manualscan', 'appendscan', 'gridscan',
 ]
 
 
@@ -202,11 +202,67 @@ def scan(dev, *args, **kwargs):
     3    2.0  5.0
     4    3.0  7.0
     ==== ==== ====
+
     """
     def mkpos(starts, steps, numpoints):
         return [[start + i*step for (start, step) in zip(starts, steps)]
                 for i in range(numpoints)]
+
     scanstr = _infostr('scan', (dev,) + args, kwargs)
+    devs, values, restargs = _fixType(dev, args, mkpos)
+    preset, scaninfo, detlist, envlist, move, multistep = \
+        _handleScanArgs(restargs, kwargs, scanstr)
+    Scan(devs, values, None, move, multistep, detlist, envlist, preset,
+         scaninfo).run()
+
+
+@usercommand
+@helparglist('dev-list, start-list, step-list, numpoints-list, ...')
+@spmsyntax(Dev(Moveable), Bare, Bare, Bare)
+def gridscan(dev, *args, **kwargs):
+    """Scans over a grid of device positions and count detector(s).
+
+    The orthogonal grid will spanned by the positions of each device.
+
+    >>> gridscan([dev1, dev2], [-1, -2], [1, 1], [3, 5])
+
+    which generates a measurement over a grid with positions:
+
+    ==== ==== ====
+    Step dev1 dev2
+    ==== ==== ====
+    1    -1.0 -2.0
+    2     0.0 -2.0
+    3     1.0 -2.0
+    4    -1.0 -1.0
+    5     0.0 -1.0
+    6     1.0 -1.0
+    7    -1.0  0.0
+    8     0.0  0.0
+    9     1.0  0.0
+    10   -1.0  1.0
+    11    0.0  1.0
+    12    1.0  1.0
+    13   -1.0  2.0
+    14    0.0  2.0
+    15    1.0  2.0
+    ==== ==== ====
+    """
+    def mkpos(starts, steps, numpoints):
+        if isinstance(numpoints, (list, tuple)):
+            if len(starts) != len(numpoints):
+                raise UsageError('start, steps, and numpoint arguments must '
+                                 'have the same length')
+            scanvals = [[start + j * step for j in range(numpoint)]
+                        for start, step, numpoint in
+                        zip(starts, steps, numpoints)]
+            values = meshgrid(*scanvals)
+            for i, grid in enumerate(values):
+                values[i] = list(grid.reshape(grid.size))
+            return [tuple(v[i] for v in values) for i in range(len(values[0]))]
+        raise UsageError('numpoints must be a list')
+
+    scanstr = _infostr('gridscan', (dev,) + args, kwargs)
     devs, values, restargs = _fixType(dev, args, mkpos)
     preset, scaninfo, detlist, envlist, move, multistep = \
         _handleScanArgs(restargs, kwargs, scanstr)
@@ -425,6 +481,9 @@ sweep.__doc__ += (ADDSCANHELP0 + ADDSCANHELP2).replace('scan(dev, ',
                                                        'sweep(dev, ')
 twodscan.__doc__ += (ADDSCANHELP0 + ADDSCANHELP2).replace('scan(dev, ',
                                                           'twodscan(dev1, ')
+gridscan.__doc__ += (
+    ADDSCANHELP0 + ADDSCANHELP1 + ADDSCANHELP2).replace(
+            'scan(dev,', 'gridscan([dev1, dev2],')
 
 
 @usercommand

@@ -142,8 +142,8 @@ Scanning commands
 .. autofunction:: sweep
 .. autofunction:: contscan
 .. autofunction:: appendscan
-
 .. autofunction:: manualscan
+.. autofunction:: gridscan
 
 On-line analysis commands
 -------------------------
