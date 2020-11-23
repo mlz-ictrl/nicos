@@ -112,7 +112,7 @@ class MainWindow(DefaultMainWindow):
     def set_icons(self):
         self.actionUser.setIcon(
             get_icon('settings_applications-24px.svg'))
-        self.actionEmergencyStop.setIcon(get_icon('emergency_stop-24px.svg'))
+        self.actionEmergencyStop.setIcon(get_icon('emergency_stop.svg'))
         self.actionConnect.setIcon(get_icon('power-24px.svg'))
         self.actionExit.setIcon(get_icon('exit_to_app-24px.svg'))
         self.actionViewOnly.setIcon(get_icon('lock-24px.svg'))
