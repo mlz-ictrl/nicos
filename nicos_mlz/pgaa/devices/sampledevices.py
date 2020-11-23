@@ -23,10 +23,7 @@
 # *****************************************************************************
 """Auxiliary classes for the sample changer."""
 
-from nicos.core import SIMULATION, Attach, Moveable, Override, Readable, \
-    oneof, status
-
-from nicos_mlz.panda.devices.mcc2 import MCC2Motor
+from nicos.core import Attach, Moveable, Override, Readable, oneof, status
 
 
 class SamplePusher(Moveable):
@@ -69,12 +66,3 @@ class SamplePusher(Moveable):
             return 'up'
         elif self._attached_sensorl.read(maxage):
             return 'down'
-
-
-class SampleMotor(MCC2Motor):
-
-    def doInit(self, mode):
-        MCC2Motor.doInit(self, mode)
-        # unlock motor
-        if mode != SIMULATION:
-            self.comm('XP27S1')
