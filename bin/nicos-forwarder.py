@@ -1,16 +1,13 @@
-import argparse
-import logging
 import sys
 import time
 from os import path
 from threading import RLock
 
-from nicos.utils import createThread
-
 sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
-from nicos.devices.cacheclient import CacheClient
 from nicos.core.sessions.simple import SingleDeviceSession
+from nicos.devices.cacheclient import CacheClient
+from nicos.utils import createThread
 
 # TODO: for f142 only send status/severity if it changes otherwise send NO_CHANGE
 # Are only OK, WARN and ERROR relevant? UNKNOWN?
