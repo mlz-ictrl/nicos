@@ -20,7 +20,7 @@ devices = dict(
     samplemotor = device('nicos.devices.tango.Motor',
         description = 'Motor rotating the Sample Chamber',
         tangodevice = tango_base + 'sample/motor',
-        fmtstr = '%1.f',
+        fmtstr = '%.1f',
         unit = 'Pos',
         lowlevel = True,
     ),
