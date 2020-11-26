@@ -763,7 +763,7 @@ class MotorValue(NicosWidget, QLCDNumber):
         self.registerDevice('samplemotor')
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
-        self.display(int(strvalue))
+        self.display(round(float(strvalue)))
 
 
 class DevSlider(NicosWidget, QSlider):
@@ -793,7 +793,7 @@ class DevSlider(NicosWidget, QSlider):
         self.registerDevice(self._dev)
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
-        self.setValue(int(strvalue))
+        self.setValue(round(float(strvalue)))
 
     def on_devStatusChange(self, dev, state, state_, expired):
         self.setDisabled(state==status.BUSY)
