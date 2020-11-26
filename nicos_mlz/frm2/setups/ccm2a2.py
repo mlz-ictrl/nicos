@@ -68,6 +68,10 @@ devices = {
     ),
 }
 
+startupcode='''
+B_%s.ramp = 0.1
+''' % setupname
+
 alias_config = {
     'B': {'B_%s' % setupname: 100},
 }
