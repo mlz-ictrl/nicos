@@ -1,3 +1,4 @@
+import argparse
 import sys
 import time
 from dataclasses import dataclass
@@ -6,19 +7,19 @@ from threading import RLock
 from time import time_ns
 from typing import Any, Tuple
 
-from nicos.core import status
-
-sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
-
 from kafka import KafkaProducer
-from nicos.core.sessions.simple import SingleDeviceSession
-from nicos.devices.cacheclient import CacheClient
-from nicos.utils import createThread
 from streaming_data_types.logdata_f142 import serialise_f142
 from streaming_data_types.fbschemas.logdata_f142.AlarmSeverity import AlarmSeverity
 
+sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
-# Treat everything that is not WARN or ERROR as OK
+from nicos.core import status
+from nicos.core.sessions.simple import SingleDeviceSession
+from nicos.devices.cacheclient import CacheClient
+from nicos.utils import createThread
+
+
+# Policy decision: treat everything that is not WARN or ERROR as OK
 nicos_status_to_f142 = {
     status.OK: AlarmSeverity.NO_ALARM,
     status.WARN: AlarmSeverity.MINOR,
@@ -36,7 +37,31 @@ class ForwarderApp(CacheClient):
     _status_value_cache = {}
     _current_devices = set()
     _device_watcher = None
+    _producer = None
     _lock = RLock()
+
+    def doInit(self, mode):
+        CacheClient.doInit(self, mode)
+        self._status_value_cache = {}
+        self._current_devices = set()
+        self._lock = RLock()
+        self._producer = \
+            KafkaProducer(bootstrap_servers=self._config['brokers'])
+
+        # Wait until connected
+        while not self.getDeviceList():
+            time.sleep(0.1)
+
+    def getDeviceList(self, only_explicit=True, special_clause=None):
+        devlist = [key[:-6] for (key, _) in self.query_db('')
+                   if key.endswith('/value')]
+        if special_clause:
+            devlist = [dn for dn in devlist
+                       if eval(special_clause, {'dn': dn})]
+        return sorted(devlist)
+
+    def getDeviceParam(self, devname, parname):
+        return self.get(devname, parname)
 
     def start(self, *args):
         self._device_watcher = createThread('device list watcher',
@@ -114,40 +139,37 @@ class ForwarderApp(CacheClient):
                                    dev_status)
             self.send_to_kafka(buffer)
         except Exception as error:
-            self.log.error(f"Could not send device status: {error}")
+            self.log.error(f'Could not send device status: {error}')
 
     @staticmethod
     def _to_f142(name, value, timestamp, severity):
         return serialise_f142(value, name, timestamp, alarm_severity=severity)
 
     def send_to_kafka(self, buffer):
-        self._producer.send("nicos_forwarder_test", buffer)
+        self._producer.send(self._config['topic'], buffer)
         self._producer.flush()
-
-    def doInit(self, mode):
-        CacheClient.doInit(self, mode)
-        self._status_value_cache = {}
-        self._current_devices = set()
-        self._lock = RLock()
-        self._producer = KafkaProducer(bootstrap_servers=["localhost:9092"])
-
-        # Wait until connected
-        while not self.getDeviceList():
-            time.sleep(0.1)
-
-    def getDeviceList(self, only_explicit=True, special_clause=None):
-        devlist = [key[:-6] for (key, _) in self.query_db('')
-                   if key.endswith('/value')]
-        if special_clause:
-            devlist = [dn for dn in devlist
-                       if eval(special_clause, {'dn': dn})]
-        return sorted(devlist)
-
-    def getDeviceParam(self, devname, parname):
-        return self.get(devname, parname)
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+
+    required_args = parser.add_argument_group('required arguments')
+    required_args.add_argument('-b', '--brokers', type=str, nargs='+',
+                               help='the Kafka broker addresses',
+                               required=True,)
+
+    required_args.add_argument('-t', '--topic', type=str,
+                               help='the topic to write device data to',
+                               required=True)
+
+    parser.add_argument('-c', '--cache', action='store',
+                        help='the server:port for the cache',
+                        default='localhost:14869')
+
+    args = parser.parse_args()
+
     SingleDeviceSession.run('forwarder', ForwarderApp,
-                        {'prefix': 'nicos', 'cache': 'localhost'},
+                            {'prefix': 'nicos', 'cache': args.cache,
+                             'brokers': args.brokers, 'topic': args.topic},
+
                         pidfile=False)
