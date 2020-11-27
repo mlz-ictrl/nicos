@@ -9,7 +9,9 @@ from typing import Any, Tuple
 
 from kafka import KafkaProducer
 from streaming_data_types.logdata_f142 import serialise_f142
-from streaming_data_types.fbschemas.logdata_f142.AlarmSeverity import AlarmSeverity
+from streaming_data_types.fbschemas.logdata_f142.AlarmSeverity import \
+    AlarmSeverity
+from streaming_data_types.fbschemas.logdata_f142.AlarmStatus import AlarmStatus
 
 sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
@@ -143,7 +145,9 @@ class ForwarderApp(CacheClient):
 
     @staticmethod
     def _to_f142(name, value, timestamp, severity):
-        return serialise_f142(value, name, timestamp, alarm_severity=severity)
+        # Alarm status is not relevant for NICOS but we have to send something
+        return serialise_f142(value, name, timestamp, AlarmStatus.NO_ALARM,
+                              severity)
 
     def send_to_kafka(self, buffer):
         self._producer.send(self._config['topic'], buffer)
