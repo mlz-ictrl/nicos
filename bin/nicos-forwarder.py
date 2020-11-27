@@ -184,5 +184,4 @@ if __name__ == '__main__':
     SingleDeviceSession.run('forwarder', ForwarderApp,
                             {'prefix': 'nicos', 'cache': args.cache,
                              'brokers': args.brokers, 'topic': args.topic},
-
-                        pidfile=False)
+                            pidfile=False)
