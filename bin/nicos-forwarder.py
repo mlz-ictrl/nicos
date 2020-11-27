@@ -39,11 +39,12 @@ class ForwarderApp(CacheClient):
     _lock = RLock()
 
     def start(self, *args):
-        self._device_watcher = createThread('device watcher', self.device_thread,
+        self._device_watcher = createThread('device list watcher',
+                                            self.monitor_device_list,
                                             start=False)
         self._device_watcher.start()
 
-    def device_thread(self):
+    def monitor_device_list(self):
         while True:
             try:
                 devices = set(self.getDeviceList())
@@ -66,30 +67,34 @@ class ForwarderApp(CacheClient):
             self.removeCallback(dev, 'value', self.changed_value_callback)
 
     def create_callbacks(self, devices):
-        for dev in devices:
-            self.log.info(f'Added {dev}')
-            current_status = self._convert_status(self.getDeviceParam(dev, 'status'))
-            current_value = self.getDeviceParam(dev, 'value')
-            # TODO: send initial values to kafka
-            self._status_value_cache[dev] = \
+        for dev_name in devices:
+            self.log.info(f'Added {dev_name}')
+            current_status = self._convert_status(self.getDeviceParam(dev_name,
+                                                                      'status'))
+            current_value = self.getDeviceParam(dev_name, 'value')
+            self._status_value_cache[dev_name] = \
                 DeviceState(current_status, current_value)
-            self.addCallback(dev, 'status', self.change_status_callback)
-            self.addCallback(dev, 'value', self.changed_value_callback)
+            self._send_device_status(dev_name, current_value, time_ns(),
+                                     current_status)
+            self.addCallback(dev_name, 'status', self.change_status_callback)
+            self.addCallback(dev_name, 'value', self.changed_value_callback)
 
     @staticmethod
     def _convert_status(nicos_status):
         return nicos_status_to_f142.get(nicos_status[0], AlarmSeverity.NO_ALARM)
 
-    def changed_value_callback(self, name, new_value, timestamp_s, *args, **kwargs):
+    def changed_value_callback(self, name, new_value, timestamp_s, *args,
+                               **kwargs):
         dev_name = name[0:name.index('/')]
         self.log.info(f'{dev_name} value changed to {new_value}')
         with self._lock:
             self._status_value_cache[dev_name].value = new_value
-        buffer = self._to_f142(dev_name, new_value, int(timestamp_s * 10 ** 9),
-                               AlarmSeverity.NO_CHANGE)
-        self.send_to_kafka(buffer)
+        self._send_device_status(dev_name, new_value,
+                                 int(timestamp_s * 10 ** 9),
+                                 AlarmSeverity.NO_CHANGE)
 
-    def change_status_callback(self, name, new_status, timestamp_s, *args, **kwargs):
+    def change_status_callback(self, name, new_status, timestamp_s, *args,
+                               **kwargs):
         dev_name = name[0:name.index('/')]
         self.log.info(f'{dev_name} status changed to {new_status}')
         new_status = self._convert_status(new_status)
@@ -99,9 +104,17 @@ class ForwarderApp(CacheClient):
                 return
             self._status_value_cache[dev_name].status = new_status
             value = self._status_value_cache[dev_name].value
-        buffer = self._to_f142(dev_name, value, int(timestamp_s * 10 ** 9),
-                               new_status)
-        # self.send_to_kafka(buffer)
+        self._send_device_status(dev_name, value, int(timestamp_s * 10 ** 9),
+                                 new_status)
+
+    def _send_device_status(self, dev_name, dev_value, timestamp_ns,
+                            dev_status):
+        try:
+            buffer = self._to_f142(dev_name, dev_value, timestamp_ns,
+                                   dev_status)
+            self.send_to_kafka(buffer)
+        except Exception as error:
+            self.log.error(f"Could not send device status: {error}")
 
     @staticmethod
     def _to_f142(name, value, timestamp, severity):
