@@ -687,7 +687,7 @@ class ConnectionHandler:
                                     session.experiment.data.getLastScans()])
             # session.experiment may be None or a stub
             except (AttributeError, ConfigurationError):
-                self.send_ok_reply(None)
+                self.send_ok_reply([])
         else:
             index = int(index)
             try:
