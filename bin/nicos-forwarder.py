@@ -160,7 +160,7 @@ class ForwarderApp(CacheClient):
 
     def send_to_kafka(self, buffer):
         self._producer.send(self._config['topic'], buffer)
-        self._producer.flush()
+        self._producer.flush(timeout=3)
 
 
 if __name__ == '__main__':
