@@ -47,8 +47,17 @@ class ForwarderApp(CacheClient):
         self._status_value_cache = {}
         self._current_devices = set()
         self._lock = RLock()
-        self._producer = \
-            KafkaProducer(bootstrap_servers=self._config['brokers'])
+
+        while not self._producer:
+            try:
+                self._producer = \
+                    KafkaProducer(bootstrap_servers=self._config['brokers'])
+            except Exception as error:
+                self.log.error(
+                    f'Could not connect to Kafka - will try again soon: {error}'
+                )
+                time.sleep(5)
+        self.log.info(f"Connected to Kafka brokers {self._config['brokers']}")
 
         # Wait until connected
         while not self.getDeviceList():
