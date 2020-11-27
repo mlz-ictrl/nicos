@@ -2,7 +2,7 @@ description = 'neutron guide changer or collimator'
 
 group = 'lowlevel'
 
-tango_base = 'tango://cpci2.toftof.frm2.tum.de:10000/toftof/hubermc/'
+tango_base = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/hubermc/'
 
 devices = dict(
     ngc_motor = device('nicos.devices.tango.Motor',
