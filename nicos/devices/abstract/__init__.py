@@ -122,6 +122,9 @@ class CanReference(DeviceMixinBase):
             newpos = self.read(0)
         return newpos
 
+    def doReference(self, *args):
+        raise NotImplementedError('implement doReference for concrete devices')
+
 
 # MappedReadable and MappedMoveable operate (via read/start) on a set of
 # predefined values which are mapped via the mapping parameter onto
