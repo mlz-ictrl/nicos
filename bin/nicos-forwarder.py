@@ -36,6 +36,9 @@ class DeviceState:
 
 
 class ForwarderApp(CacheClient):
+    """ Application for reading values from the NICOS Cache and sending them
+    to kafka.
+    """
     _status_value_cache = {}
     _current_devices = set()
     _device_watcher = None
@@ -81,15 +84,19 @@ class ForwarderApp(CacheClient):
         self._device_watcher.start()
 
     def monitor_device_list(self):
+        """Checks for changes in the list of devices in NICOS.
+
+        If the devices list changes then it sets up new callbacks.
+        """
         while True:
             try:
                 devices = set(self.getDeviceList())
                 if devices != self._current_devices:
                     self.log.info('Device list changed')
                     with self._lock:
-                        self.remove_current_callbacks()
+                        self._remove_current_callbacks()
                         self._status_value_cache.clear()
-                        self.create_callbacks(devices)
+                        self._create_callbacks(devices)
                         self._current_devices = devices
                 time.sleep(0.1)
             except Exception as error:
@@ -98,12 +105,17 @@ class ForwarderApp(CacheClient):
                 if self._stoprequest:
                     break  # ensure we do not restart during shutdown
 
-    def remove_current_callbacks(self):
+    def _remove_current_callbacks(self):
+        """Removes all existing callbacks."""
         for dev in self._current_devices:
-            self.removeCallback(dev, 'status', self.changed_value_callback)
-            self.removeCallback(dev, 'value', self.changed_value_callback)
+            self.removeCallback(dev, 'status', self._changed_value_callback)
+            self.removeCallback(dev, 'value', self._changed_value_callback)
 
-    def create_callbacks(self, devices):
+    def _create_callbacks(self, devices):
+        """Create callbacks for the specified devices.
+
+        :param devices: the devices to create callbacks for
+        """
         for dev_name in devices:
             self.log.info(f'Added {dev_name}')
             current_status = self._convert_status(self.getDeviceParam(dev_name,
@@ -113,16 +125,29 @@ class ForwarderApp(CacheClient):
                 DeviceState(current_status, current_value)
             self._send_device_info(dev_name, current_value, time_ns(),
                                    current_status)
-            self.addCallback(dev_name, 'status', self.change_status_callback)
-            self.addCallback(dev_name, 'value', self.changed_value_callback)
+            self.addCallback(dev_name, 'status', self._change_status_callback)
+            self.addCallback(dev_name, 'value', self._changed_value_callback)
 
     @staticmethod
     def _convert_status(nicos_status):
+        """Convert the NICOS status into the corresponding EPICS severity.
+
+        :param nicos_status: the NICOS status
+        :return: the EPICS severity
+        """
         return nicos_status_to_f142.get(nicos_status[0], AlarmSeverity.NO_ALARM)
 
-    def changed_value_callback(self, name, new_value, timestamp_s, *args,
-                               **kwargs):
-        dev_name = name[0:name.index('/')]
+    def _changed_value_callback(self, dev_name, new_value, timestamp_s, *args,
+                                **kwargs):
+        """The value changed callback.
+
+        :param dev_name: the device name
+        :param new_value: the updated value
+        :param timestamp_s: the timestamp in seconds
+        :param args: any extra (unused) arguments
+        :param kwargs: any extra (unused) keywords
+        """
+        dev_name = self._trim_name(dev_name)
         self.log.info(f'{dev_name} value changed to {new_value}')
         with self._lock:
             self._status_value_cache[dev_name].value = new_value
@@ -130,9 +155,17 @@ class ForwarderApp(CacheClient):
                                int(timestamp_s * 10 ** 9),
                                AlarmSeverity.NO_CHANGE)
 
-    def change_status_callback(self, name, new_status, timestamp_s, *args,
-                               **kwargs):
-        dev_name = name[0:name.index('/')]
+    def _change_status_callback(self, dev_name, new_status, timestamp_s, *args,
+                                **kwargs):
+        """The status changed callback.
+
+        :param dev_name: the device name
+        :param new_status: the updated value
+        :param timestamp_s: the timestamp in seconds
+        :param args: any extra (unused) arguments
+        :param kwargs: any extra (unused) keywords
+        """
+        dev_name = self._trim_name(dev_name)
         self.log.info(f'{dev_name} status changed to {new_status}')
         new_status = self._convert_status(new_status)
         with self._lock:
@@ -144,8 +177,28 @@ class ForwarderApp(CacheClient):
         self._send_device_info(dev_name, value, int(timestamp_s * 10 ** 9),
                                new_status)
 
+    def _trim_name(self, name):
+        """Returns just the device name.
+
+        The callback return the name as some_device/value or some_device/status
+        but only the "device bit" is required.
+
+        :param name: the full name
+        :return: the "device"" part of the name
+        """
+        return name[0:name.index('/')]
+
+
     def _send_device_info(self, dev_name, dev_value, timestamp_ns,
                           dev_status):
+        """
+        Send the device's information to Kafka.
+
+        :param dev_name: the device's name
+        :param dev_value: the device's value
+        :param timestamp_ns: the associated timestamp in nanoseconds
+        :param dev_status: the device's status
+        """
         if isinstance(dev_value, str):
             # Policy decision: don't send strings via f142
             return
@@ -153,17 +206,29 @@ class ForwarderApp(CacheClient):
         try:
             buffer = self._to_f142(dev_name, dev_value, timestamp_ns,
                                    dev_status)
-            self.send_to_kafka(buffer)
+            self._send_to_kafka(buffer)
         except Exception as error:
             self.log.error(f'Could not send device status: {error}')
 
     @staticmethod
-    def _to_f142(name, value, timestamp, severity):
-        # Alarm status is not relevant for NICOS but we have to send something
-        return serialise_f142(value, name, timestamp, AlarmStatus.NO_ALARM,
-                              severity)
+    def _to_f142(dev_name, dev_value, timestamp_ns, dev_severity):
+        """Convert the device information in to an f142 FlatBuffer.
 
-    def send_to_kafka(self, buffer):
+        :param dev_name: the device name
+        :param dev_value: the device's value
+        :param timestamp_ns: the associated timestamp in nanoseconds
+        :param dev_severity: the device's status
+        :return: FlatBuffer representation of data
+        """
+        # Alarm status is not relevant for NICOS but we have to send something
+        return serialise_f142(dev_value, dev_name, timestamp_ns,
+                              AlarmStatus.NO_ALARM, dev_severity)
+
+    def _send_to_kafka(self, buffer):
+        """Send the data to Kafka.
+
+        :param buffer: the encoded buffer
+        """
         self._producer.send(self._config['topic'], buffer)
         self._producer.flush(timeout=3)
 
