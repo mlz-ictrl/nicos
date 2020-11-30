@@ -110,8 +110,8 @@ class ForwarderApp(CacheClient):
             current_value = self.getDeviceParam(dev_name, 'value')
             self._status_value_cache[dev_name] = \
                 DeviceState(current_status, current_value)
-            self._send_device_status(dev_name, current_value, time_ns(),
-                                     current_status)
+            self._send_device_info(dev_name, current_value, time_ns(),
+                                   current_status)
             self.addCallback(dev_name, 'status', self.change_status_callback)
             self.addCallback(dev_name, 'value', self.changed_value_callback)
 
@@ -125,9 +125,9 @@ class ForwarderApp(CacheClient):
         self.log.info(f'{dev_name} value changed to {new_value}')
         with self._lock:
             self._status_value_cache[dev_name].value = new_value
-        self._send_device_status(dev_name, new_value,
-                                 int(timestamp_s * 10 ** 9),
-                                 AlarmSeverity.NO_CHANGE)
+        self._send_device_info(dev_name, new_value,
+                               int(timestamp_s * 10 ** 9),
+                               AlarmSeverity.NO_CHANGE)
 
     def change_status_callback(self, name, new_status, timestamp_s, *args,
                                **kwargs):
@@ -140,11 +140,15 @@ class ForwarderApp(CacheClient):
                 return
             self._status_value_cache[dev_name].status = new_status
             value = self._status_value_cache[dev_name].value
-        self._send_device_status(dev_name, value, int(timestamp_s * 10 ** 9),
-                                 new_status)
+        self._send_device_info(dev_name, value, int(timestamp_s * 10 ** 9),
+                               new_status)
 
-    def _send_device_status(self, dev_name, dev_value, timestamp_ns,
-                            dev_status):
+    def _send_device_info(self, dev_name, dev_value, timestamp_ns,
+                          dev_status):
+        if isinstance(dev_value, str):
+            # Policy decision: don't send strings via f142
+            return
+
         try:
             buffer = self._to_f142(dev_name, dev_value, timestamp_ns,
                                    dev_status)
