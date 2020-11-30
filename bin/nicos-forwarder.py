@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from os import path
 from threading import RLock
 from time import time_ns
-from typing import Any, Tuple
+from typing import Any
 
 from kafka import KafkaProducer
 from streaming_data_types.logdata_f142 import serialise_f142
@@ -57,9 +57,9 @@ class ForwarderApp(CacheClient):
                     f'Could not connect to Kafka - will try again soon: {error}'
                 )
                 time.sleep(5)
-        self.log.info(f"Connected to Kafka brokers {self._config['brokers']}")
+        self.log.info(f'Connected to Kafka brokers {self._config["brokers"]}')
 
-        # Wait until connected
+        # Wait until connected to nicos
         while not self.getDeviceList():
             time.sleep(0.1)
 
@@ -92,8 +92,9 @@ class ForwarderApp(CacheClient):
                         self.create_callbacks(devices)
                         self._current_devices = devices
                 time.sleep(0.1)
-            except Exception:
-                self.log.exception('exception in device watcher thread')
+            except Exception as error:
+                self.log.exception(
+                    f'exception in device watcher thread {error}')
                 if self._stoprequest:
                     break  # ensure we do not restart during shutdown
 
