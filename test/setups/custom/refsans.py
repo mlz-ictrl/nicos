@@ -448,6 +448,22 @@ devices = dict(
     ),
     primary_aperture = device('nicos.devices.generic.DeviceAlias'),
     last_aperture = device('nicos.devices.generic.DeviceAlias'),
+    dix_value = device('nicos.devices.generic.VirtualMotor',
+        abslimits = (0, 12000),
+        unit = 'mm',
+        lowlevel = True,
+        curvalue = 1234,
+    ),
+    dix_signal = device('nicos.devices.generic.VirtualMotor',
+        abslimits = (7000, 20000),
+        unit = '',
+        lowlevel = True,
+        curvalue = 10000,
+    ),
+    dix = device('nicos_mlz.refsans.devices.dimetix.DimetixLaser',
+        value = 'dix_value',
+        signal = 'dix_signal',
+    ),
 )
 
 alias_config = {
