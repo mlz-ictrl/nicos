@@ -189,7 +189,7 @@ class AmorControlPanel(GenericPanel):
 
     @pyqtSlot()
     def on_hsyToggleButton_clicked(self):
-        switchedOn = self.client.eval('hsy_switch.isSwitchedOn', None)
+        switchedOn = self.client.eval('hsy_switch.isEnabled', None)
         if switchedOn is None:
             self.showError('Cannot check the status of magnets!')
         newstate = 'off' if switchedOn else 'on'

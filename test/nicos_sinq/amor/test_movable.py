@@ -29,14 +29,14 @@ import pytest
 from .utils import is_at_target, unit_value
 
 try:
-    from nicos_ess.devices.epics.extensions import HasSwitchPv
+    from nicos_ess.devices.epics.extensions import HasDisablePv
 except ImportError:
-    HasSwitchPv = None
-
+    HasDisablePv = None
 
 session_setup = 'sinq_amor_movable'
 
-@pytest.mark.skipif(HasSwitchPv is None, reason='epics not importable')
+
+@pytest.mark.skipif(HasDisablePv is None, reason='epics not importable')
 class TestMovable:
     device = None  # Holds the current device object under test
 
@@ -47,10 +47,10 @@ class TestMovable:
         """
         self.device = session.getDevice(sinq_movable)
 
-        # Check if the device is powered on
-        if isinstance(self.device, HasSwitchPv):
-            if not self.device.isSwitchedOn:
-                self.device.switchOn()
+        # Check if the device is enabled
+        if isinstance(self.device, HasDisablePv):
+            if not self.device.isEnabled:
+                self.device.enable()
 
         initial = self.device.read(0)  # Original position of the device
         self.device.maw(0.0)  # Move device to 0 for tests

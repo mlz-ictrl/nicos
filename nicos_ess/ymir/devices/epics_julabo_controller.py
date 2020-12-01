@@ -30,10 +30,10 @@ This module provides control for Julabo devices via EPICS.
 from nicos.core import ConfigurationError, Param, pvname, status
 from nicos.devices.epics import EpicsWindowTimeoutDevice
 
-from nicos_ess.devices.epics.extensions import HasSwitchPv
+from nicos_ess.devices.epics.extensions import HasDisablePv
 
 
-class EpicsJulaboController(HasSwitchPv, EpicsWindowTimeoutDevice):
+class EpicsJulaboController(HasDisablePv, EpicsWindowTimeoutDevice):
     """
     Julabo devices with status and power switch.
 
@@ -71,7 +71,7 @@ class EpicsJulaboController(HasSwitchPv, EpicsWindowTimeoutDevice):
                 status_msg = self._get_pv('statusmsgpv')
                 return status.ERROR, '%d: %s' % (status_code, status_msg)
 
-        if not self.isSwitchedOn:
+        if not self.isEnabled:
             return status.WARN, 'Device is switched off'
 
         return super().doStatus(maxage)
