@@ -120,7 +120,7 @@ https://forge.frm2.tum.de/wiki/projects:software_distribution:deb
 
 * Optional components::
 
-     apt-get install python3-{ldap3,mysql.connector,docutils,serial,matplotlib,astropy,h5py}
+     apt-get install python3-{ldap3,mysql.connector,docutils,serial,matplotlib,astropy,h5py,markdown}
 
 * GUI and status monitor::
 
