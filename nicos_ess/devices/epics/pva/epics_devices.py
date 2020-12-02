@@ -308,17 +308,10 @@ class EpicsMoveable(EpicsMonitorMixin, EpicsDevice, Moveable):
         return self._epics_wrapper.get_units(self._pvs['readpv'], self.epicstimeout, default)
 
     def doReadTarget(self):
-        """
-        In many cases IOCs provide a readback of the setpoint, here represented
-        as targetpv. Since this is not provided everywhere, it should still be
-        possible to get the target, which is then assumed to be retained in the
-        PV represented by writepv.
-        """
         if self.targetpv:
             return self._get_pv('targetpv')
-
-        value = self._params.get('target')
-        return value if value is not None else self._config.get('target')
+        else:
+            return self._get_pv('writepv')
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
