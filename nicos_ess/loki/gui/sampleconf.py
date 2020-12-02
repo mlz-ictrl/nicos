@@ -138,6 +138,10 @@ class ConfigEditDialog(QDialog):
                                                'one.')
             self.frm.nameBox.setFocus()
             return
+        if float(self.frm.thickBox.text()) == 0:
+            QMessageBox.warning(self, 'Error', 'Thickness cannot be zero.')
+            self.thickBox.setFocus()
+            return
         for box in [self.frm.offsetBox, self.frm.thickBox, self.frm.apXBox,
                     self.frm.apYBox, self.frm.apWBox, self.frm.apHBox]:
             if not box.text():
