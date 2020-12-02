@@ -54,9 +54,7 @@ class MultiDigitalOutput(Moveable):
             dev.start(target)
 
     def doRead(self, maxage=0):
-        values = []
-        for dev in self._adevs['outputs']:
-            values.append(dev.read(maxage))
+        values = [dev.read(maxage) for dev in self._adevs['outputs']]
         if len(set(values)) != 1:
             devnames = [dev.name for dev in self._adevs['outputs']]
             raise NicosError(self,
