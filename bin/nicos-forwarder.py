@@ -67,7 +67,7 @@ class ForwarderApp(CacheClient):
             time.sleep(0.1)
 
     def getDeviceList(self, only_explicit=True, special_clause=None):
-        devlist = [key[:-6] for (key, _) in self.query_db('')
+        devlist = [key.replace('/value', '') for (key, _) in self.query_db('')
                    if key.endswith('/value')]
         if special_clause:
             devlist = [dn for dn in devlist
