@@ -117,3 +117,13 @@ class TestSampleChanger:
         for v in ['up', 'down']:
             push.maw(v)
             assert push.read(0) == v
+
+
+class TestAttenuator:
+
+    def test_move(self, session):
+        att = session.getDevice('att')
+        assert att.read(0) == 100
+        att.maw(47.)
+        assert att.read(0) == 47
+        assert session.getDevice('att2').read(0) == 'in'
