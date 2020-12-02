@@ -56,7 +56,7 @@ except epics.ca.ChannelAccessException as err:
         msg = err.args[0]
     else:
         msg = 'error in epics channel access setup'
-    raise ImportError(msg)
+    raise ImportError(msg) from None
 
 __all__ = [
     'EpicsDevice', 'EpicsReadable', 'EpicsStringReadable',
@@ -206,8 +206,7 @@ class EpicsDevice(DeviceMixinBase):
         return max(status_map.items())
 
     def _setMode(self, mode):
-        super(EpicsDevice, self)._setMode(mode)
-        # remove the PVs on entering simulation mode, to prevent
+        # Remove the PVs on entering simulation mode, to prevent
         # accidental access to the hardware
         if mode == SIMULATION:
             for key in self._pvs:
@@ -358,16 +357,14 @@ class EpicsMoveable(EpicsDevice, Moveable):
 
     def doReadTarget(self):
         """
-        In many cases IOCs provide a readback of the setpoint, here represented
-        as targetpv. Since this is not provided everywhere, it should still be
-        possible to get the target, which is then assumed to be retained in the
-        PV represented by writepv.
+        IOCs commonly provide a read-back of the set-point according to the
+        device (targetpv). When this read-back is not present then the writepv
+        should be read instead.
         """
         if self.targetpv:
             return self._get_pv('targetpv')
 
-        value = self._params.get('target')
-        return value if value is not None else self._config.get('target')
+        return self._get_pv('writepv')
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
