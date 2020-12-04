@@ -360,3 +360,7 @@ class EpicsDigitalMoveable(EpicsMoveable):
     Handles EPICS devices which can set and read an integer value.
     """
     valuetype = int
+
+    parameter_overrides = {
+        'fmtstr': Override(default='%d'),
+    }
