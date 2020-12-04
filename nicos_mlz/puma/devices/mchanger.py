@@ -34,13 +34,13 @@ class Mchanger(Moveable):
 
     attached_devices = {
         'monochromator': Attach('Monochromator', Moveable),
-        'magazin': Attach('Magazin', Moveable),
+        'magazine': Attach('Magazine', Moveable),
         'r3': Attach('3R coupling', Moveable),
         'lift': Attach('Lift', Moveable),
         'grip': Attach('Greifer', Moveable),
         'mlock': Attach('Magnetic lock', Moveable),
         'holdstat': Attach('Read status of monochromators holders of the '
-                           'magazin', Readable),
+                           'magazine', Readable),
         # 'foch': Attach('Horizontal focusing', Moveable),
         # 'focv': Attach('Vertical focusing', Moveable),
         'mono_stat': Attach('Read status of monochromators on the monotable',
@@ -110,7 +110,7 @@ class Mchanger(Moveable):
     def doIsAllowed(self, pos):
         if self._attached_lift.read(0) != 'ref':
             return (False, 'Lift is not at reference position. Please check if'
-                    ' mono is fixed at the magazin or at the monotable')
+                    ' mono is fixed at the magazine or at the monotable')
         return True, ''
 
     def _move2start(self):
@@ -192,7 +192,7 @@ class Mchanger(Moveable):
                                     "'%s'" % (dev, pos))
 
     def _moveUp(self, pos):
-        self._step('magazin', pos)
+        self._step('magazine', pos)
         self._step('grip', 'open')
         self._step('lift', 'bottom')
         self._step('grip', 'closed')
@@ -206,7 +206,7 @@ class Mchanger(Moveable):
         self._step('grip', 'closed')
 
     def _moveDown(self, pos):
-        self._step('magazin', pos)
+        self._step('magazine', pos)
         self._step('grip', 'open')
         self._step('lift', 'top1')
         self._step('grip', 'closed')

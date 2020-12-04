@@ -34,7 +34,7 @@ class MagLock(Moveable):
     """Puma specific magnetic lock device."""
 
     attached_devices = {
-        'magazin': Attach('The monochromator magazin', Moveable),
+        'magazine': Attach('The monochromator magazine', Moveable),
         'io_open': Attach('readout for the status', Readable),
         'io_closed': Attach('readout for the status', Readable),
         'io_set': Attach('output to set', Moveable),
@@ -121,7 +121,7 @@ class MagLock(Moveable):
 
     @property
     def _magpos(self):
-        s = self._attached_magazin.read(0)
+        s = self._attached_magazine.read(0)
         for i, k in enumerate(self.states):
             if s == k:
                 return i
