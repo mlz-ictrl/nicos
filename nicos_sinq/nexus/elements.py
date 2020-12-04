@@ -143,8 +143,11 @@ class ConstDataset(NexusElementBase):
 
 
 class DeviceAttribute(NXAttribute):
-    """Placeholder for a device attribute. This creates a NeXus group or
-    dataset attribute from the value or a parameter of the device"""
+    """Placeholder for a device attribute.
+
+    This creates a NeXus group or dataset attribute from the value or
+    parameter of the device.
+    """
 
     def __init__(self, device, parameter='value', dtype=None, defaultval=None):
         NXAttribute.__init__(self, defaultval, dtype)
@@ -167,8 +170,10 @@ class DeviceAttribute(NXAttribute):
 
 
 class DeviceDataset(NexusElementBase):
-    """Placeholder for a device. This creates a NeXus dataset from the
-    value or a parameter of a device"""
+    """Placeholder for a device.#
+
+    This creates a NeXus dataset from the value or a parameter of a device.
+    """
 
     def __init__(self, device, parameter='value', dtype=None, defaultval=None,
                  **attr):
@@ -414,8 +419,7 @@ class ImageDataset(NexusElementBase):
 
 
 class NamedImageDataset(ImageDataset):
-    """Placeholder for a detector image identified by name
-    """
+    """Placeholder for a detector image identified by name."""
     def __init__(self, image_name, **attrs):
         self._image_name = image_name
         ImageDataset.__init__(self, -1, -1, **attrs)
