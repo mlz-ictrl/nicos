@@ -59,10 +59,12 @@ Instrument-specific code was contributed by:
 
 * Fabian Beule <f.beule@fz-juelich.de>
 * Michele Brambilla <michele.brambilla@psi.ch>
+* Alexey Bykov <redi87@bk.ru>
 * Petr Cermak <cermak@mag.mff.cuni.cz>
 * Goetz Eckold <geckold@gwdg.de>
 * Artem Feoktystov <a.feoktystov@fz-juelich.de>
 * Lydia Fleischhauer-Fuss <l.fleischhauer-fuss@fz-juelich.de>
+* Arno Frank <arno.frank@tuwien.ac.at>
 * Jonathan Frank <jonathan.frank@frm2.tum.de>
 * Christian Franz <christian.franz@frm2.tum.de>
 * Weimin Gan <weimin.gan@hzg.de>
@@ -73,6 +75,8 @@ Instrument-specific code was contributed by:
 * Michael Hofmann <michael.hofmann@frm2.tum.de>
 * Markus Hölzel <markus.hölzel@frm2.tum.de>
 * Stefan Huber <stefan.huber@frm2.tum.de>
+* Leonardo Ibanez <leoo.davinci@gmail.com>
+* Johanna Jochum <johanna.jochum@frm2.tum.de>
 * Stefanie Keuler <s.keuler@fz-juelich.de>
 * Sabrina Kirstein <s.kirstein@fz-juelich.de>
 * Mark Könnecke <Mark.Koennecke@psi.ch>
@@ -95,6 +99,7 @@ Instrument-specific code was contributed by:
 * Olaf Soltwedel <olaf.soltwedel@frm2.tum.de>
 * Stefan Söllradl <stefan.soellradl@frm2.tum.de>
 * Alexander Steffens <a.steffens@fz-juelich.de>
+* Iwan Sumirat <sumirat@batan.go.id>
 * Henrik Thoma <henrik.thoma@frm2.tum.de>
 * Michael Wagener <m.wagener@fz-juelich.de>
 * Tobias Weber <tobias.weber@frm2.tum.de>
