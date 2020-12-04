@@ -27,23 +27,25 @@ import numpy as np
 
 from nicos import session
 from nicos.core import FINAL, INTERMEDIATE, INTERRUPTED
+from nicos.core.errors import NicosError
 
 
 class NexusElementBase:
-    dtype = None
-    """
-        Interface class to define NeXus elements. All NeXus elements ought
-        to supply four methods:
-        - create() which is called when the NeXus structure is created and
-          static data is written
-        - update() for in place updating of already created items in the
-          NeXus file
-        - append() increments the np counter when a new scan point is started
-        - results() saves the result of a scan points data
+    """Interface class to define NeXus elements.
 
-        The default implementations of create(), results() and update() do
-        nothing. Overload when this is not good.
+    All NeXus elements ought to supply four methods:
+
+    - create() which is called when the NeXus structure is created and static
+      data is written
+    - update() for in place updating of already created items in the NeXus file
+    - append() increments the np counter when a new scan point is started
+    - results() saves the result of a scan points data
+
+    The default implementations of create(), results() and update() do nothing.
+    Overload when this is not sufficient.
     """
+
+    dtype = None
 
     def __init__(self):
         self.doAppend = False
@@ -102,6 +104,7 @@ class NexusElementBase:
 
 
 class NXAttribute(NexusElementBase):
+    """Placeholder for a NeXus Attribute."""
 
     def __init__(self, value, dtype):
         self.dtype = dtype
@@ -116,6 +119,8 @@ class NXAttribute(NexusElementBase):
 
 
 class ConstDataset(NexusElementBase):
+    """Placeholder for a Dataset with a constant value."""
+
     def __init__(self, value, dtype, **attrs):
         self.value = value
         self.dtype = dtype
@@ -138,6 +143,9 @@ class ConstDataset(NexusElementBase):
 
 
 class DeviceAttribute(NXAttribute):
+    """Placeholder for a device attribute. This creates a NeXus group or
+    dataset attribute from the value or a parameter of the device"""
+
     def __init__(self, device, parameter='value', dtype=None, defaultval=None):
         NXAttribute.__init__(self, defaultval, dtype)
         self.device = device
@@ -159,6 +167,9 @@ class DeviceAttribute(NXAttribute):
 
 
 class DeviceDataset(NexusElementBase):
+    """Placeholder for a device. This creates a NeXus dataset from the
+    value or a parameter of a device"""
+
     def __init__(self, device, parameter='value', dtype=None, defaultval=None,
                  **attr):
         self.device = device
@@ -171,6 +182,13 @@ class DeviceDataset(NexusElementBase):
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
             self.attrs[key] = val
+        if 'units' not in self.attrs and parameter == 'value':
+            try:
+                dev = session.getDevice(device)
+                inf = dev.info()
+                self.attrs['units'] = NXAttribute(inf[0][3], 'string')
+            except NicosError:
+                pass
         NexusElementBase.__init__(self)
 
     def create(self, name, h5parent, sinkhandler):
@@ -236,6 +254,8 @@ class DeviceDataset(NexusElementBase):
 
 
 class DetectorDataset(NexusElementBase):
+    """Placeholder for a detector data dataset."""
+
     def __init__(self, nicosname, dtype, **attr):
         self.nicosname = nicosname
         self.dtype = dtype
@@ -309,6 +329,7 @@ class DetectorDataset(NexusElementBase):
 
 
 class ImageDataset(NexusElementBase):
+    """Placeholder for a detector image."""
 
     def __init__(self, detectorIDX, imageIDX, **attrs):
         self.detectorIDX = detectorIDX
@@ -392,11 +413,38 @@ class ImageDataset(NexusElementBase):
             self.update(name, h5parent, sinkhandler, results)
 
 
-class NXLink(NexusElementBase):
+class NamedImageDataset(ImageDataset):
+    """Placeholder for a detector image identified by name
     """
-        A NeXus link. I can only create it on update because the order
-        of tree traversal is undefined and in create() the object to
-        link against may not have been created yet.
+    def __init__(self, image_name, **attrs):
+        self._image_name = image_name
+        ImageDataset.__init__(self, -1, -1, **attrs)
+
+    def create(self, name, h5parent, sinkhandler):
+        detID = 0
+        imageID = 0
+        for det in sinkhandler.dataset.detectors:
+            arList = det.arrayInfo()
+            for ar in arList:
+                if ar.name == self._image_name:
+                    self.detectorIDX = detID
+                    self.imageIDX = imageID
+                    break
+                imageID += 1
+            detID += 1
+        if self.detectorIDX == -1 or self.imageIDX == -1:
+            self.log.warning('Cannot find named image %s', self._image_name)
+            self.valid = False
+            return
+        ImageDataset.create(self, name, h5parent, sinkhandler)
+
+
+class NXLink(NexusElementBase):
+    """Placeholder for a NeXus link.
+
+    I can only create it on update because the order of tree traversal is
+    undefined and in create() the object to link against may not have been
+    created yet.
     """
 
     def __init__(self, target):
@@ -424,10 +472,7 @@ class NXLink(NexusElementBase):
 
 
 class NXScanLink(NexusElementBase):
-    """
-        This is a placeholder class used for identifying where the scan devices
-        ought to be linked to
-    """
+    """Placeholder to identify where the scan devices ought to be linked to."""
 
     def __init__(self):
         NexusElementBase.__init__(self)
@@ -437,6 +482,7 @@ class NXScanLink(NexusElementBase):
 
 
 class NXTime(NexusElementBase):
+    """Placeholder for a NeXus compatible time entry."""
 
     def formatTime(self):
         time_str = time.strftime('%Y-%m-%d %H:%M:%S',
@@ -456,11 +502,11 @@ class NXTime(NexusElementBase):
 
 
 class NexusSampleEnv(NexusElementBase):
-    """
-        This is a placeholder for storing sample environment data.
-        It looks at the dataset.environment field and creates a NXlog
-        structure with the sample environment devices name. To this
-        NXlog structure, incoming data is appended whenever data can be found.
+    """Placeholder for storing sample environment data.
+
+    It looks at the dataset.environment field and creates a NXlog structure
+    with the sample environment devices name. To this NXlog structure, incoming
+    data is appended whenever data can be found.
     """
 
     def __init__(self):
@@ -483,11 +529,9 @@ class NexusSampleEnv(NexusElementBase):
         for dev in sinkhandler.dataset.environment:
             self.createNXlog(h5parent, dev)
 
-    #    The log is only appended to when the new value differs from the
-    #    previous one by
-    #    at least the precision of the device. Otherwise, there are way to
-    #    many log entries,
-    #    like 200 in 10 seconds
+    # The log is only appended to when the new value differs from the previous
+    # one by at least the precision of the device. Otherwise, there are way to
+    # many log entries, like 200 in 10 seconds
     def updatelog(self, h5parent, dataset):
         for dev in dataset.environment:
             loggroup = h5parent[dev.name]
@@ -507,3 +551,77 @@ class NexusSampleEnv(NexusElementBase):
 
     def results(self, name, h5parent, sinkhandler, results):
         self.updatelog(h5parent, sinkhandler.dataset)
+
+
+class CalcData(NexusElementBase):
+    """ Place holder base class for all classes which calculate data for the
+    NeXus file. Derived classes have to implement two methods:
+
+    - _shape(dataset) which returns the shape of the calculate data as a tuple
+    - _calcData(dataset) which actually calculates the data value. The return
+      value must be a numpy array.
+
+    Derived classes also must make sure that self.dtype points to a sensible
+    value. The default is float32.
+    """
+    def __init__(self, **attrs):
+        self.attrs = {}
+        self.doAppend = False
+        self.np = 0
+        self.valid = True
+        for key, val in attrs.items():
+            if not isinstance(val, NXAttribute):
+                val = NXAttribute(val, 'string')
+            self.attrs[key] = val
+        self.dtype = "float32"
+        NexusElementBase.__init__(self)
+
+    def create(self, name, h5parent, sinkhandler):
+        self.testAppend(sinkhandler)
+        if not self.valid:
+            return
+        rawshape = self._shape(sinkhandler.dataset)
+        if self.doAppend:
+            shape = list(rawshape)
+            shape.insert(0, 1)
+            maxshape = list(rawshape)
+            maxshape.insert(0, None)
+            chonk = list(rawshape)
+            chonk.insert(0, 1)
+            dset = h5parent.create_dataset(name, shape, maxshape=maxshape,
+                                           chunks=tuple(chonk),
+                                           dtype=self.dtype,
+                                           compression='gzip')
+        else:
+            dset = h5parent.create_dataset(name, rawshape,
+                                           chunks=tuple(rawshape),
+                                           dtype=self.dtype,
+                                           compression='gzip')
+        self.createAttributes(dset, sinkhandler)
+
+    def update(self, name, h5parent, sinkhandler, values):
+        if not self.valid:
+            return
+        data = self._calcData(sinkhandler.dataset)
+        if data:
+            dset = h5parent[name]
+            if self.doAppend:
+                if len(dset) < self.np + 1:
+                    self.resize_dataset(dset, sinkhandler)
+                dset[self.np] = data
+            else:
+                h5parent[name][...] = data
+
+    def resize_dataset(self, dset, sinkhandler):
+        rawshape = self._shape(dset)
+        idx = self.np + 1
+        shape = list(rawshape)
+        shape.insert(0, idx)
+        dset.resize(shape)
+
+    def _shape(self, dataset):
+        raise NotImplementedError("Derived class must implement _shape(dset)")
+
+    def _calcData(self, dataset):
+        raise NotImplementedError("Derived class must implement "
+                                  "_calcData(dset)")
