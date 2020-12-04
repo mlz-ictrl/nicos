@@ -24,7 +24,9 @@
 
 """Module to test custom specific modules."""
 
-from nicos.core.errors import LimitError
+import pytest
+
+from nicos.core.errors import InvalidValueError, LimitError
 
 from test.utils import raises
 
@@ -58,7 +60,7 @@ def test_ellcol(session):
     ellcol.maw('Ell')
     assert ellcol.read(0) == 'Ell'
 
-    assert raises(LimitError, ellcol.move, 'abc')
+    assert raises(InvalidValueError, ellcol.move, 'abc')
 
     # Force an error when call another move when moving
     # TODO: This test needs a better setup to create a more realistic time
@@ -67,3 +69,61 @@ def test_ellcol(session):
     # session.delay(0.1)
     # assert raises(LimitError, ellcol.maw, 'Ell')
     # ellcol.wait()
+
+
+class TestSampleChanger:
+
+    @pytest.fixture(scope='function', autouse=True)
+    def prepare(self, session):
+        # this is needed to make the init of the controllers in motor and
+        # push
+        sc = session.getDevice('sc')
+        motor = sc._attached_motor
+        push = sc._attached_push
+
+        motor.curvalue = 1
+        push.maw('down')
+        yield
+        motor.curvalue = 1
+        push.maw('down')
+
+    def test_move(self, session):
+        sc = session.getDevice('sc')
+        assert sc.read(0) == 1
+        assert sc._attached_push.read() == 'down'
+        sc.maw(2)
+        assert sc.read(0) == 2
+        assert raises(InvalidValueError, sc.maw, 0)
+
+    def test_block_pusher(self, session):
+        sc = session.getDevice('sc')
+        assert sc.read(0) == 1
+        push = session.getDevice('push')
+        push.maw('up')
+        assert push.read(0) == 'up'
+        sc._attached_motor.maw(1.5)
+        assert raises(LimitError, push.move, 'down')
+
+    def test_block_motor(self, session):
+        motor = session.getDevice('samplemotor')
+        push = session.getDevice('push')
+        assert motor.read(0) == 1
+        assert push.read(0) == 'down'
+        assert raises(LimitError, motor.move, 2)
+
+    def test_pusher(self, session):
+        push = session.getDevice('push')
+        assert push.read(0) == 'down'
+        for v in ['up', 'down']:
+            push.maw(v)
+            assert push.read(0) == v
+
+
+class TestAttenuator:
+
+    def test_move(self, session):
+        att = session.getDevice('att')
+        assert att.read(0) == 100
+        att.maw(47.)
+        assert att.read(0) == 47
+        assert session.getDevice('att2').read(0) == 'in'

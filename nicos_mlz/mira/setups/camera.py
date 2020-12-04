@@ -6,7 +6,7 @@ includes = ['base']
 tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
 sysconfig = dict(
-    datasinks = ['tifformat'],
+    datasinks = ['tifformat', 'camview'],
 )
 
 devices = dict(
@@ -32,6 +32,7 @@ devices = dict(
             ('camroi', 'camimage'),
         ],
     ),
+    camview = device('nicos.devices.datasinks.LiveViewSink'),
     tifformat = device("nicos.devices.datasinks.TIFFImageSink",
         description = "Saves image data in TIFF format",
         filenametemplate = ["%(proposal)s_%(pointcounter)08d.tiff"],

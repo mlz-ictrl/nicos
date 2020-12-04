@@ -22,7 +22,6 @@
 
 .. module:: nicos_mlz.pgaa.devices.sampledevices
 .. autoclass:: SamplePusher()
-.. autoclass:: SampleMotor()
 
 Data sinks
 ----------

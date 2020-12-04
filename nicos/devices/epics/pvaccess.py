@@ -101,7 +101,6 @@ def _pvget(channel, field='value', as_string=False):
     return result
 
 
-
 class EpicsDevice(DeviceMixinBase):
     """
     Basic EPICS device.
@@ -160,7 +159,7 @@ class EpicsDevice(DeviceMixinBase):
 
                 except pvaccess.PvaException:
                     raise CommunicationError(self, 'could not connect to PV %r'
-                                             % pv_name)
+                                             % pv_name) from None
         else:
             for pvparam in self._get_pv_parameters():
                 self._pvs[pvparam] = HardwareStub(self)
@@ -187,7 +186,6 @@ class EpicsDevice(DeviceMixinBase):
         return status.OK, ''
 
     def _setMode(self, mode):
-        super(EpicsDevice, self)._setMode(mode)
         # remove the PVs on entering simulation mode, to prevent
         # accidental access to the hardware
         if mode == SIMULATION:
@@ -426,15 +424,14 @@ class EpicsMoveable(EpicsDevice, Moveable):
 
     def doReadTarget(self):
         """
-        In many cases IOCs provide a readback of the setpoint, here represented
-        as targetpv. Since this is not provided everywhere, it should still be
-        possible to get the target.
+        IOCs commonly provide a read-back of the set-point according to the
+        device (targetpv). When this read-back is not present then the writepv
+        should be read instead.
         """
         if self.targetpv:
             return self._get_pv('targetpv')
 
-        value = self._params.get('target')
-        return value if value is not None else self._config.get('target')
+        return self._get_pv('writepv')
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv')

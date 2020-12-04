@@ -27,7 +27,6 @@
 import sys
 import threading
 import time
-import traceback
 
 from nicos import config, nicos_version
 from nicos.core import Attach, ConfigurationError, Device, Param, host, listof
@@ -35,7 +34,8 @@ from nicos.core.utils import system_user
 from nicos.protocols.daemon.classic import DEFAULT_PORT
 from nicos.services.daemon.auth import Authenticator
 from nicos.services.daemon.script import ExecutionController
-from nicos.utils import createThread, importString, parseHostPort
+from nicos.utils import createThread, formatExtendedStack, importString, \
+    parseHostPort
 
 
 class NicosDaemon(Device):
@@ -141,8 +141,7 @@ class NicosDaemon(Device):
                 name = active[tid].getName()
             else:
                 name = str(tid)
-            self.log.info('%s: %s', name,
-                          ''.join(traceback.format_stack(frame)))
+            self.log.info('%s: %s', name, formatExtendedStack(frame))
 
     def start(self):
         """Start the daemon's server."""

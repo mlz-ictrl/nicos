@@ -2,7 +2,7 @@ description = 'sample slit'
 
 group = 'lowlevel'
 
-tango_base = 'tango://cpci2.toftof.frm2.tum.de:10000/toftof/hubermc/'
+tango_base = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/hubermc/'
 
 devices = dict(
     SampleSlitMotVB = device('nicos.devices.tango.Motor',

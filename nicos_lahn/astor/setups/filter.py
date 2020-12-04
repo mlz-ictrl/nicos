@@ -10,6 +10,7 @@ devices = dict(
             unit = 'deg',
         ),
         precision = 0.01,
+        lowlevel = True,
     ),
     crystal = device('nicos.devices.generic.Switcher',
         description = 'filter changer',

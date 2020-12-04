@@ -131,15 +131,12 @@ class KafkaCacheDatabase(MemoryCacheDatabase):
                 msg = next(self._consumer)
                 message_count += 1
                 if msg.value is not None:
-                    _, entry = self._attached_serializer.decode(msg.value)
+                    msgkey, entry = self._attached_serializer.decode(msg.value)
                     if entry is not None and entry.value is not None:
-                        # self.log.debug('%s (%s): %s -> %s', msg.offset,
-                        #               msg.timestamp, msg.key, entry)
                         if entry.ttl and entry.time + entry.ttl < now:
                             entry.expired = True
 
-                        self._db[msg.key] = [entry]
-
+                        self._db[msgkey] = [entry]
         self._cleaner.start()
         self.log.info('Processed %i messages.', message_count)
 

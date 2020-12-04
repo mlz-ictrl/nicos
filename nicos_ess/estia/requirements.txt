@@ -1,2 +1,2 @@
 requests>=2.0
-pyads==2.2.6
+pyads>=2.2.6

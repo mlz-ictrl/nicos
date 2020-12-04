@@ -41,8 +41,8 @@ class FlatbuffersCacheEntrySerializer(CacheEntrySerializer):
     def encode(self, key, entry, schema='ns10', **params):
         try:
             ttl = entry.ttl if entry.ttl else 0
-            return serialise_ns10(key, entry.value, entry.time, ttl,
-                                  entry.expired)
+            value = entry.value if entry.value else ''
+            return serialise_ns10(key, value, entry.time, ttl, entry.expired)
         except Exception as error:
             self.log.error('Cannot encode ns10 cache entry: %s', error)
 
