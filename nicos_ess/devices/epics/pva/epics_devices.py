@@ -225,9 +225,10 @@ class EpicsReadable(EpicsMonitorMixin, EpicsDevice, Readable):
     }
 
     def doInit(self, mode):
-        if mode != SIMULATION:
-            self.valuetype = self._epics_wrapper.get_pv_type(
-                self._pvs['readpv'], self.epicstimeout)
+        if mode == SIMULATION:
+            return
+        self.valuetype = self._epics_wrapper.get_pv_type(self._pvs['readpv'],
+                                                         self.epicstimeout)
 
     def doReadUnit(self):
         default = self._config['unit'] if 'unit' in self._config else ''
@@ -305,7 +306,8 @@ class EpicsMoveable(EpicsMonitorMixin, EpicsDevice, Moveable):
 
     def doReadUnit(self):
         default = self._config['unit'] if 'unit' in self._config else ''
-        return self._epics_wrapper.get_units(self._pvs['readpv'], self.epicstimeout, default)
+        return self._epics_wrapper.get_units(self._pvs['readpv'],
+                                             self.epicstimeout, default)
 
     def doReadTarget(self):
         if self.targetpv:
@@ -338,7 +340,6 @@ class EpicsAnalogMoveable(HasLimits, EpicsMoveable):
     """
     Handles EPICS devices which can set and read a floating value.
     """
-
     valuetype = float
 
     parameter_overrides = {
@@ -346,7 +347,8 @@ class EpicsAnalogMoveable(HasLimits, EpicsMoveable):
     }
 
     def doReadAbslimits(self):
-        return self._epics_wrapper.get_limits(self._pvs['writepv'], self.epicstimeout)
+        return self._epics_wrapper.get_limits(self._pvs['writepv'],
+                                              self.epicstimeout)
 
 
 class EpicsWindowTimeoutDevice(HasWindowTimeout, EpicsAnalogMoveable):

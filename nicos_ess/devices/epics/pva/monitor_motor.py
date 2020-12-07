@@ -27,12 +27,10 @@ from nicos.core import Override, Param, pvname, status
 from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import CanDisable, HasOffset
 from nicos.devices.abstract import CanReference, Motor
+from nicos_ess.devices.epics.pva.epics_devices import EpicsMoveable
 
-from nicos_ess.devices.epics.pva.epics_devices import EpicsAnalogMoveable
 
-
-class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
-                 Motor):
+class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
     """
     This device exposes some of the functionality provided by the EPICS motor
     record. The PV names for the fields of the record (readback, speed, etc.)
@@ -48,6 +46,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
     may originate from the motor controller or the IOC. If it is present,
     doStatus uses it for some of the status messages.
     """
+    valuetype = float
+
     parameters = {
         'motorpv': Param('Name of the motor record PV.', type=pvname,
                          mandatory=True, settable=False, userparam=False),
@@ -68,7 +68,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         # speed, limits and offset may change from outside, can't rely on cache
         'speed': Override(volatile=True),
         'offset': Override(volatile=True, chatty=False),
-        'abslimits': Override(volatile=True),
+        'abslimits': Override(volatile=True, mandatory=False),
     }
 
     # Fields of the motor record for which an interaction via Channel Access
@@ -215,7 +215,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveable,
         return self._get_pv('writepv')
 
     def doStatus(self, maxage=0):
-        stat, message = EpicsAnalogMoveable.doStatus(self)
+        stat, message = EpicsMoveable.doStatus(self)
 
         if stat in [status.WARN, status.ERROR]:
             return stat, message
