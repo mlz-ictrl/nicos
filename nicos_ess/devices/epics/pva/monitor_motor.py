@@ -227,8 +227,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
 
         miss = self._get_pv('miss')
         if miss != 0:
-            return (
-            status.NOTREACHED, message or 'Did not reach target position.')
+            return (status.NOTREACHED,
+                    message or 'Did not reach target position.')
 
         high_limitswitch = self._get_pv('highlimitswitch')
         if high_limitswitch != 0:
