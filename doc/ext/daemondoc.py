@@ -26,7 +26,7 @@
 """Directives to document daemon commands and events."""
 
 from docutils.statemachine import ViewList
-from sphinx.domains.python import PyModulelevel
+from sphinx.domains.python import PyFunction, PyVariable
 from sphinx.util.docfields import Field
 from sphinx.util.docstrings import prepare_docstring
 
@@ -34,13 +34,13 @@ from nicos.services.daemon.handler import command_wrappers
 from nicos.utils import formatArgs
 
 
-class DaemonCommand(PyModulelevel):
+class DaemonCommand(PyFunction):
     """Directive for daemon command description."""
 
     def handle_signature(self, sig, signode):
         self.object = command_wrappers[sig].orig_function
         sig = '%s%s' % (sig, formatArgs(self.object, strip_self=True))
-        return PyModulelevel.handle_signature(self, sig, signode)
+        return PyFunction.handle_signature(self, sig, signode)
 
     def needs_arglist(self):
         return True
@@ -52,10 +52,10 @@ class DaemonCommand(PyModulelevel):
         dstring = prepare_docstring(self.object.__doc__ or '')
         # overwrite content of directive
         self.content = ViewList(dstring)
-        PyModulelevel.before_content(self)
+        PyFunction.before_content(self)
 
 
-class DaemonEvent(PyModulelevel):
+class DaemonEvent(PyVariable):
     """Directive for daemon command description."""
 
     doc_field_types = [

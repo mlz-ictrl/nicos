@@ -36,7 +36,7 @@ from docutils import nodes
 from docutils.parsers.rst import Directive
 from sphinx import addnodes
 from sphinx.domains import ObjType
-from sphinx.domains.python import PyClassmember, PyModulelevel, PythonDomain
+from sphinx.domains.python import PyAttribute, PyFunction, PythonDomain
 from sphinx.ext.autodoc import ClassDocumenter
 from sphinx.util import logging
 from sphinx.util.docstrings import prepare_docstring
@@ -49,22 +49,22 @@ from nicos.utils import formatArgs
 logger = logging.getLogger(__name__)
 
 
-class PyParameter(PyClassmember):
+class PyParameter(PyAttribute):
     def handle_signature(self, sig, signode):
         if ':' not in sig:
-            return PyClassmember.handle_signature(self, sig, signode)
+            return PyAttribute.handle_signature(self, sig, signode)
         name, descr = sig.split(':')
         name = name.strip()
-        fullname, prefix = PyClassmember.handle_signature(self, name, signode)
+        fullname, prefix = PyAttribute.handle_signature(self, name, signode)
         descr = ' (' + descr.strip() + ')'
         signode += addnodes.desc_annotation(descr, descr)
         return fullname, prefix
 
 
-class PyDerivedParameter(PyClassmember):
+class PyDerivedParameter(PyAttribute):
     def handle_signature(self, sig, signode):
         if ':' not in sig:
-            return PyClassmember.handle_signature(self, sig, signode)
+            return PyAttribute.handle_signature(self, sig, signode)
         fullname, descr = sig.split(':')
         fullname = fullname.strip()
         clsname, name = fullname.rsplit('.', 1)
@@ -83,7 +83,7 @@ class PyDerivedParameter(PyClassmember):
         pass
 
 
-orig_handle_signature = PyModulelevel.handle_signature
+orig_handle_signature = PyFunction.handle_signature
 
 
 def new_handle_signature(self, sig, signode):
@@ -95,7 +95,7 @@ def new_handle_signature(self, sig, signode):
     return ret
 
 
-PyModulelevel.handle_signature = new_handle_signature
+PyFunction.handle_signature = new_handle_signature
 
 
 class NicosClassDocumenter(ClassDocumenter):
