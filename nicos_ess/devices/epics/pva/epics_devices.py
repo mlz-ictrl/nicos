@@ -427,7 +427,7 @@ class EpicsAnalogMoveable(HasLimits, EpicsMoveable):
         return '.'.join([stem, self.pv_parameters[pvparam]])
 
 
-class EpicsDigitalMoveable(EpicsMoveable):
+class EpicsDigitalMoveable(EpicsAnalogMoveable):
     """
     Handles EPICS devices which can set and read an integer value.
     """

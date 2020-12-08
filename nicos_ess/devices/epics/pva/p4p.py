@@ -110,20 +110,20 @@ class PvaWrapper:
         return default_low, default_high
 
     def subscribe(self, pvname, pvparam, change_callback,
-                  connection_callback=None):
+                  connection_callback=None, as_string=False):
         self.disconnected.add(pvname)
 
         request = _CONTEXT.makeRequest(
             "field(value,timeStamp,alarm,control,display)")
 
         callback = partial(self._callback, pvname, pvparam, change_callback,
-                           connection_callback)
+                           connection_callback, as_string)
         subscription = _CONTEXT.monitor(pvname, callback, request=request,
                                         notify_disconnect=True)
         return subscription
 
     def _callback(self, name, pvparam, change_callback, connection_callback,
-                  result):
+                  as_string, result):
         if isinstance(result, Exception):
             # Only callback on disconnection if was previously connected
             if connection_callback and name not in self.disconnected:
@@ -140,7 +140,7 @@ class PvaWrapper:
                     self.disconnected.remove(name)
 
         if change_callback:
-            value = self._convert_value(result['value'])
+            value = self._convert_value(result['value'], as_string)
             severity, message = self._extract_alarm_info(result)
             change_callback(name, pvparam, value, severity, message)
 
