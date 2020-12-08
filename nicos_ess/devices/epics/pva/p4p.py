@@ -74,7 +74,7 @@ class PvaWrapper:
 
     @staticmethod
     def get_pv_type(pv, timeout):
-        # TODO: handle complex types
+        # TODO: handle more complex types?
         result = _CONTEXT.get(pv, timeout=timeout)
         try:
             if result['value'].getID() == 'enum_t':
