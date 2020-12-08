@@ -299,11 +299,6 @@ Panel QToolBar > QCheckBox {
     border-radius: 5px;
 }
 
-QToolButton::down-arrow {
-    border: none;
-    background-color: red;
-}
-
 /* QTabBar::tab  ------------------------------------------------
 
 https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qtabwidget-and-qtabbar
