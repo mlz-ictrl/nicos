@@ -290,3 +290,11 @@ class HomingProtectedEpicsMotor(EpicsMotor):
     @requires(level='admin')
     def doReference(self):
         EpicsMotor.doReference(self)
+
+
+class AbsoluteEpicsMotor(EpicsMotor):
+    """
+    The instances of this class cannot be homed.
+    """
+    def doReference(self):
+        self.log.warning('This motor cannot be homed - ignoring request')
