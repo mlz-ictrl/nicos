@@ -69,6 +69,9 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         'speed': Override(volatile=True),
         'offset': Override(volatile=True, chatty=False),
         'abslimits': Override(volatile=True, mandatory=False),
+
+        # Units are set by EPICS, so cannot be changed
+        'unit': Override(mandatory=False, settable=False),
     }
 
     # Fields of the motor record for which an interaction via Channel Access
