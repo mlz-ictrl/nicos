@@ -227,6 +227,11 @@ class EpicsReadable(EpicsMonitorMixin, EpicsDevice, Readable):
                         type=pvname, mandatory=True, userparam=False),
     }
 
+    parameter_overrides = {
+        # Units are set by EPICS, so cannot be changed
+        'unit': Override(mandatory=False, settable=False),
+    }
+
     pv_parameters = {
         'readpv': '',
         'units': 'EGU',
@@ -247,12 +252,6 @@ class EpicsReadable(EpicsMonitorMixin, EpicsDevice, Readable):
             return
         self.valuetype = self._epics_wrapper.get_pv_type(self._pvs['readpv'],
                                                          self.epicstimeout)
-
-    def doReadUnit(self):
-        self.log.warning("doReadUnit Readable")
-        default = self._config['unit'] if 'unit' in self._config else ''
-        return self._epics_wrapper.get_units(self._pvs['readpv'],
-                                             self.epicstimeout, default)
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
@@ -302,6 +301,8 @@ class EpicsMoveable(EpicsMonitorMixin, EpicsDevice, Moveable):
     }
 
     parameter_overrides = {
+        # Units are set by EPICS, so cannot be changed
+        'unit': Override(mandatory=False, settable=False),
         'target': Override(volatile=True),
     }
 
@@ -346,11 +347,6 @@ class EpicsMoveable(EpicsMonitorMixin, EpicsDevice, Moveable):
                     self, 'Target PV %r does not have the '
                           'correct data type' % self.targetpv)
 
-    def doReadUnit(self):
-        default = self._config['unit'] if 'unit' in self._config else ''
-        return self._epics_wrapper.get_units(self._pvs['readpv'],
-                                             self.epicstimeout, default)
-
     def doReadTarget(self):
         if self.targetpv:
             return self._get_pv('targetpv')
@@ -374,10 +370,6 @@ class EpicsStringMoveable(EpicsMoveable):
     """
     valuetype = str
 
-    parameter_overrides = {
-        'unit': Override(mandatory=False, settable=True),
-    }
-
     pv_parameters = {'readpv', 'writepv'}
 
     _cache_relations = {
@@ -399,8 +391,6 @@ class EpicsAnalogMoveable(HasLimits, EpicsMoveable):
     valuetype = float
 
     parameter_overrides = {
-        # Units are set by EPICS, so cannot be changed
-        'unit': Override(mandatory=False, settable=False),
         'abslimits': Override(mandatory=False),
     }
 
@@ -446,7 +436,9 @@ class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
     valuetype = str
 
     parameter_overrides = {
+        # Units are set by EPICS, so cannot be changed
         'unit': Override(mandatory=False, settable=False),
+        # Mapping values are usual read from EPICS
         'mapping': Override(mandatory=False, settable=True, userparam=False)
     }
 
