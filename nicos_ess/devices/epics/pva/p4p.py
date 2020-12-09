@@ -35,6 +35,14 @@ class PvaWrapper:
             return raw_result['display']
         return raw_result['control'] if 'control' in raw_result else {}
 
+    @staticmethod
+    def get_value_choices(pv, timeout):
+        # Only works for enum types like MBBI and MBBO
+        raw_result = _CONTEXT.get(pv, timeout=timeout)
+        if 'choices' in raw_result['value']:
+            return raw_result['value']['choices']
+        return []
+
     def get_pv_value(self, pv, timeout, as_string=False):
         result = _CONTEXT.get(pv, timeout=timeout)
         return self._convert_value(result['value'], as_string)

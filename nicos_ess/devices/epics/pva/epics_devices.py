@@ -28,10 +28,10 @@ This module contains some classes for NICOS - EPICS integration.
 import time
 
 from nicos import session
-from nicos.core import POLLER, SIMULATION, ConfigurationError, \
-    DeviceMixinBase, HasLimits, Moveable, Override, Param, Readable, anytype, \
+from nicos.core import POLLER, SIMULATION, ConfigurationError,\
+    DeviceMixinBase, HasLimits, Moveable, Override, Param, Readable, anytype,\
     floatrange, none_or, pvname, status
-from nicos.core.mixins import HasWindowTimeout
+from nicos.devices.abstract import MappedMoveable
 from nicos.utils import HardwareStub
 
 from nicos_ess.devices.epics.pva.p4p import PvaWrapper
@@ -39,7 +39,7 @@ from nicos_ess.devices.epics.pva.p4p import PvaWrapper
 __all__ = [
     'EpicsDevice', 'EpicsReadable', 'EpicsStringReadable',
     'EpicsMoveable', 'EpicsAnalogMoveable', 'EpicsDigitalMoveable',
-    'EpicsWindowTimeoutDevice', 'EpicsMonitorMixin'
+    'EpicsMonitorMixin'
 ]
 
 
@@ -56,17 +56,21 @@ class EpicsMonitorMixin(DeviceMixinBase):
         value_pvs = self._get_pv_parameters()
         status_pvs = self._get_status_parameters()
         if session.sessiontype == POLLER:
-            self._subscribe(value_pvs, self.value_change_callback)
+            self._subscribe_params(value_pvs, self.value_change_callback)
         else:
-            self._subscribe(status_pvs or value_pvs,
-                            self.status_change_callback)
+            self._subscribe_params(status_pvs or value_pvs,
+                                   self.status_change_callback)
 
-    def _subscribe(self, pvparams, change_callback):
+    def _subscribe_params(self, pvparams, change_callback):
         for pvparam in pvparams:
             pvname = self._get_pv_name(pvparam)
-            self._epics_subscriptions.add(
-                self._epics_wrapper.subscribe(pvname, pvparam, change_callback,
-                                              self.connection_change_callback))
+            subscription = self._subscribe(change_callback, pvname, pvparam)
+            self._epics_subscriptions.add(subscription)
+
+    def _subscribe(self, change_callback, pvname, pvparam):
+        # Override for custom subscriptions
+        return self._epics_wrapper.subscribe(pvname, pvparam, change_callback,
+                                             self.connection_change_callback)
 
     def value_change_callback(self, name, param, value, severity, message,
                               **kwargs):
@@ -436,3 +440,41 @@ class EpicsDigitalMoveable(EpicsAnalogMoveable):
     parameter_overrides = {
         'fmtstr': Override(default='%d'),
     }
+
+
+class EpicsMBBI(MappedMoveable, EpicsMoveable):
+    valuetype = str
+
+    parameter_overrides = {
+        'unit': Override(mandatory=False, settable=False),
+        'mapping': Override(mandatory=False, settable=True, userparam=False)
+    }
+
+    pv_parameters = {'readpv', 'writepv'}
+
+    def _subscribe(self, change_callback, pvname, pvparam):
+        # Override for custom subscriptions
+        return self._epics_wrapper.subscribe(pvname, pvparam, change_callback,
+                                             self.connection_change_callback,
+                                             as_string=True)
+
+    def doInit(self, mode):
+        if mode == SIMULATION:
+            return
+
+        if session.sessiontype != POLLER:
+            choices = self._epics_wrapper.get_value_choices(
+                self._get_pv_name('readpv'), self.epicstimeout)
+            # Existing mapping is fixed, so must create and replace
+            new_mapping = {}
+            for i, choice in enumerate(choices):
+                new_mapping[choice] = i
+            self.mapping = new_mapping
+
+        MappedMoveable.doInit(self, mode)
+
+    def doRead(self, maxage=0):
+        return self._get_pv('readpv', as_string=True)
+
+    def doStart(self, target):
+        self._put_pv('writepv', target)
