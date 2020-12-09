@@ -442,7 +442,7 @@ class EpicsDigitalMoveable(EpicsAnalogMoveable):
     }
 
 
-class EpicsMBBI(MappedMoveable, EpicsMoveable):
+class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
     valuetype = str
 
     parameter_overrides = {
