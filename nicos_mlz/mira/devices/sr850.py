@@ -67,6 +67,8 @@ class Amplifier(PyTangoDevice, Measurable):
         'fmtstr':    Override(default='%.6g'),
     }
 
+    _started = 0
+
     def doInit(self, mode):
         if mode == SIMULATION:
             return
