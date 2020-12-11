@@ -37,7 +37,8 @@ windows = [
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
     window('Live data', 'live',
            panel('nicos.clients.gui.panels.live.LiveDataPanel',
-                 instrument = 'imaging')),
+                 instrument='imaging',
+                 filetypes=['fits'],)),
 ]
 
 tools = [

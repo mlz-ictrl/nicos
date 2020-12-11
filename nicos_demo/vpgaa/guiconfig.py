@@ -55,7 +55,9 @@ windows = [
            panel('nicos.clients.gui.panels.live.LiveDataPanel',
                  instrument = 'imaging'), setups='tomo'),
     window('Live data', 'live',
-           panel('nicos_mlz.pgaa.gui.panels.live.LiveDataPanel'),
+           panel('nicos_mlz.pgaa.gui.panels.live.LiveDataPanel',
+                 instrument='imaging',
+                 filetypes=['fits'],),
            setups='not tomo'),
 ]
 
