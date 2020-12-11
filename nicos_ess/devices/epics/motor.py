@@ -297,4 +297,4 @@ class AbsoluteEpicsMotor(EpicsMotor):
     The instances of this class cannot be homed.
     """
     def doReference(self):
-        self.log.warning('This motor cannot be homed - ignoring request')
+        self.log.warning('This motor does not require homing - command ignored')
