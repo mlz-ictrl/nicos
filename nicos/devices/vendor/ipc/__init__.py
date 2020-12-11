@@ -145,6 +145,7 @@ class Coder(NicosCoder):
             (proto, coding, parity, byte & 31)
 
     def doReset(self):
+        self._lasterror = None
         try:
             self._attached_bus.send(self.addr, 153)
         except NicosError:
@@ -168,6 +169,7 @@ class Coder(NicosCoder):
             # record last error to return it from doStatus()
             self._lasterror = str(e)
             raise
+        self._lasterror = None
         self.log.debug('value is %d steps', value)
         return value
 
