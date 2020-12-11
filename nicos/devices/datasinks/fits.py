@@ -29,7 +29,8 @@ import numpy
 
 from nicos.core import NicosError
 from nicos.core.params import Override
-from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
+from nicos.devices.datasinks.image import ImageFileReader, ImageSink, \
+    SingleFileSinkHandler
 from nicos.utils import toAscii
 
 try:
@@ -123,3 +124,12 @@ class FITSImageSink(ImageSink):
 
     def isActiveForArray(self, arraydesc):
         return len(arraydesc.shape) == 2
+
+
+class FITSFileReader(ImageFileReader):
+    filetypes = [('fits', 'FITS File (*.fits)')]
+
+    @classmethod
+    def fromfile(cls, filename):
+        hdu_list = pyfits.open(filename)
+        return hdu_list[0].data
