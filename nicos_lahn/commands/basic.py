@@ -1,20 +1,26 @@
 from nicos import session
 from nicos.commands import usercommand
+from nicos.commands.device import maw
 
 __all__ = [
-    'refreshDeviceList',
+    'setOperationMode',
 ]
 
 @usercommand
-def refreshDeviceList(listall=True):
-    listSetups = ['andes', 'astor', 'system']
-    for name, info in session.getSetupInfo().items():
-        if info is None:
-            continue
-        if info['group'] in ('special', 'configdata'):
-            continue
-        if info['group'] == 'lowlevel' and not listall:
-            continue
-        if name in session.loaded_setups and name not in listSetups:
-            for dname in info['devices']:
-                session.getDevice(dname).poll()
+def setOperationMode(option):
+    if option == 'tension_scanner':
+        maw('mtt',session.getDevice('mtt').absmin,'crystal','BPC',
+            'lms',session.getDevice('lms').absmin,'stt',65,
+            'lsd',session.getDevice('lsd').absmin)
+    elif option == 'half_resolution':
+        maw('mtt', 70, 'crystal', 'Ge', 'lms', session.getDevice('lms').absmin,
+            'stt', session.getDevice('stt').absmin, 'lsd', 1100)
+    elif option == 'high_intensity_ge':
+        maw('mtt', session.getDevice('mtt').absmin, 'crystal', 'Ge',
+            'lms', session.getDevice('lms').absmin,
+            'stt', session.getDevice('stt').absmin, 'lsd', 1100)
+    elif option == 'high_intensity_pg':
+        maw('mtt', 42, 'crystal', 'PG', 'lms', session.getDevice('lms').absmin,
+            'stt', session.getDevice('stt').absmin, 'lsd', 1100)
+    else:
+        session.log.info('The operation mode is incorrect.')

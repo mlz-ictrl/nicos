@@ -37,15 +37,4 @@ devices = dict(
         precision = 0.01,
         fmtstr = "%.2f",
     ),
-    lsd_opMode = device('nicos.devices.generic.Switcher',
-        description = 'detector arm operation modes',
-        moveable = 'lsd',
-        mapping = {
-            'min': 900,
-            'lsd': 1100,
-        },
-        precision = 0.01,
-        unit = '',
-        lowlevel = True,
-    ),
 )
