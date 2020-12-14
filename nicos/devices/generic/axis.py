@@ -62,6 +62,8 @@ class Axis(CanReference, AbstractAxis):
         'obsreadings': Param('Number of observer readings to average over '
                              'when determining current position', type=int,
                              default=100, settable=True),
+        'autoadjust':  Param('Set motor to last target if no coder configured',
+                             type=bool, default=False, userparam=False),
     }
 
     hardware_access = False
@@ -100,15 +102,28 @@ class Axis(CanReference, AbstractAxis):
         self._stoprequest = 0
         self._maxdiff = self.dragerror if self._hascoder else 0.0
 
-        if mode == MASTER and self._hascoder and \
-           self.motor.status()[0] != status.BUSY and \
-           abs(self.motor.read() - self.coder.read()) > self.precision:
-            self.log.warning('motor and encoder have different positions '
-                             '(%s vs. %s), setting motor position to coder '
-                             'position',
-                             self.motor.format(self.motor.read()),
-                             self.coder.format(self.coder.read()))
-            self._updateMotorPosition()
+        if mode == MASTER:
+            if self._hascoder:
+                if self.autoadjust:
+                    self.log.warning('Axis has an encoder, ignoring autoadjust')
+                if self.motor.status()[0] != status.BUSY and \
+                   abs(self.motor.read() - self.coder.read()) > self.precision:
+                    self.log.warning('Motor and encoder have different '
+                                     'positions (%s vs. %s). Set motor '
+                                     'position to coder position.',
+                                     self.motor.format(self.motor.read(0)),
+                                     self.coder.format(self.coder.read(0)))
+                    self._updateMotorPosition()
+            elif self.autoadjust:
+                if self.motor.status()[0] != status.BUSY and \
+                   self.motor.target is not None and \
+                   abs(self.motor.target - self.motor.read()) > self.precision:
+                    self.log.warning(
+                        'Motor target is different from current position '
+                        '(%s vs. %s). Set motor position to last target' % (
+                            self.motor.format(self.motor.target),
+                            self.motor.format(self.motor.read())))
+                    self.motor.setPosition(self.motor.target)
 
     def _updateMotorPosition(self):
         self.motor.setPosition(self._getReading())
