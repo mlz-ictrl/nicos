@@ -32,8 +32,8 @@ from nicos.core import SIMULATION, Attach, CommunicationError, HasTimeout, \
 from nicos.devices.abstract import Coder as NicosCoder, Motor as NicosMotor
 from nicos.utils import lazy_property
 
-from .bus.base import InvalidCommandError, IPCModBus, IPCModBusSerial, \
-    IPCModBusTCP
+from .bus.base import InvalidCommandError, IPCModBus, IPCModBusRS232, \
+    IPCModBusSerial, IPCModBusTCP
 
 try:
     from .bus.taco import IPCModBusTaco, IPCModBusTacoSerial
