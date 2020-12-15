@@ -10,7 +10,7 @@ includes = ['system', 'motorbus1', 'motorbus4', 'motorbus7', 'motorbus9',
 monostates = ['GE311', 'PG002', 'CU220', 'CU111', 'None']
 monodevices = ['mono_ge311', 'mono_pg002', 'mono_cu220', 'mono_cu111',
                'mono_dummy']
-magazinpos = [(315.4, 8), (45.46, 1), (135.4, 2), (225.4, 4)]
+magazinepos = [(315.4, 8), (45.46, 1), (135.4, 2), (225.4, 4)]
 
 
 devices = dict(
@@ -73,7 +73,7 @@ devices = dict(
         timeout = 300,
     ),
 
-    # Magazin
+    # Magazine
     st_mag = device('nicos.devices.vendor.ipc.Motor',
         bus = 'motorbus7',
         addr = 76,
@@ -93,7 +93,7 @@ devices = dict(
     #     lowlevel = True,
     # ),
     mag = device('nicos.devices.generic.Axis',
-        description = 'monochromator magazin moving axis',
+        description = 'monochromator magazine moving axis',
         motor = 'st_mag',
         precision = 0.05,
         offset = 0,
@@ -110,11 +110,11 @@ devices = dict(
         unit = '',
         lowlevel = True,
     ),
-    magazin = device('nicos_mlz.puma.devices.SenseSwitch',
-        description = 'Monochromatormagazin',
+    magazine = device('nicos_mlz.puma.devices.SenseSwitch',
+        description = 'Monochromator magazine',
         moveables = 'mag',
         readables = 'io_mag',
-        mapping = dict(zip(monostates[:4], magazinpos)),
+        mapping = dict(zip(monostates[:4], magazinepos)),
         precision = [0.2, 0],
         unit = '',
         blockingmove = True,
@@ -148,9 +148,9 @@ devices = dict(
         lowlevel = True,
     ),
     mlock = device('nicos_mlz.puma.devices.MagLock',
-        description = 'Magnetic lock at magazin',
+        description = 'Magnetic lock at magazine',
         states = monostates[:4],
-        magazin = 'magazin',
+        magazine = 'magazine',
         io_open = 'mlock_op',
         io_closed = 'mlock_cl',
         io_set = 'mlock_set',
@@ -240,7 +240,7 @@ devices = dict(
         description = 'The actual monochromator changer',
         monochromator = 'mono',
         mapping = dict(zip(monostates, monodevices)),
-        magazin = 'magazin',
+        magazine = 'magazine',
         r3 = 'r3',
         lift = 'lift',
         grip = 'grip',

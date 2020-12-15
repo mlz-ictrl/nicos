@@ -9,7 +9,7 @@ includes = ['monochromator']
 monostates = ['GE311', 'PG002', 'CU220', 'CU111', 'None']
 monodevices = ['mono_ge311', 'mono_pg002', 'mono_cu220', 'mono_cu111',
                'mono_dummy']
-magazinpos = [(315.4, 8), (45.46, 1), (135.4, 2), (225.4, 4)]
+magazinepos = [(315.4, 8), (45.46, 1), (135.4, 2), (225.4, 4)]
 
 devices = dict(
     st_lift = device('nicos_mlz.puma.devices.virtual.VirtualReferenceMotor',
@@ -56,7 +56,7 @@ devices = dict(
     ),
     # Magazin
     mag = device('nicos.devices.generic.Axis',
-        description = 'monochromator magazin moving axis',
+        description = 'monochromator magazine moving axis',
         motor = device('nicos.devices.generic.VirtualMotor',
             unit = 'deg',
             abslimits = (20, 340),
@@ -80,11 +80,11 @@ devices = dict(
         unit = '',
         lowlevel = True,
     ),
-    magazin = device('nicos_mlz.puma.devices.senseswitch.SenseSwitch',
+    magazine = device('nicos_mlz.puma.devices.senseswitch.SenseSwitch',
         description = 'Monochromator magazine',
         moveables = 'mag',
         readables = 'io_mag',
-        mapping = dict(zip(monostates[:4], magazinpos)),
+        mapping = dict(zip(monostates[:4], magazinepos)),
         precision = [0.2, 0],
         unit = '',
         blockingmove = True,
@@ -107,9 +107,9 @@ devices = dict(
         lowlevel = True,
     ),
     mlock = device('nicos_mlz.puma.devices.maglock.MagLock',
-        description = 'Magnetic lock at magazin',
+        description = 'Magnetic lock at magazine',
         states = monostates[:4],
-        magazin = 'magazin',
+        magazine = 'magazine',
         io_open = 'mlock_op',
         io_closed = 'mlock_cl',
         io_set = 'mlock_set',
@@ -171,7 +171,7 @@ devices = dict(
         description = 'The actual monochromator changer',
         monochromator = 'mono',
         mapping = dict(zip(monostates, monodevices)),
-        magazin = 'magazin',
+        magazine = 'magazine',
         r3 = 'r3',
         lift = 'lift',
         grip = 'grip',

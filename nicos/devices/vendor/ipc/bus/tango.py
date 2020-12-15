@@ -18,13 +18,26 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Kirill Pshenichnyi <pshcyrill@mail.ru>
+#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#   Georg Brandl <georg.brandl@frm2.tum.de>
 #
 # *****************************************************************************
 
-"""Template for TEX-2 setup from demo NICOS skeleteon"""
+"""IPC (Institut für Physikalische Chemie, Göttingen) hardware classes."""
+
+from nicos.core import SIMULATION
+from nicos.devices.tango import PyTangoDevice
+
+from .base import IPCModBusRS232
 
 
-def determine_instrument(setup_package_path):
-    """TEX-2 Texture difractometor instruement on PNPI"""
-    return 'tex2'
+class IPCModBusTango(PyTangoDevice, IPCModBusRS232):
+
+    def doInit(self, mode):
+        IPCModBusRS232.doInit(self, mode)
+        if mode != SIMULATION:
+            self._dev.communicationTimeout = self.bustimeout
+
+    def _transmit(self, request, retlen, last_try=False):
+        reply = self._dev.BinaryCommunicate([retlen] + [ord(x) for x in request])
+        return ''.join(map(chr, reply))

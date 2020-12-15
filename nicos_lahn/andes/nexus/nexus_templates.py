@@ -1,11 +1,11 @@
-from nicos_ess.nexus import DeviceAttribute, DeviceDataset, NXDataset, NXLink
-from nicos_sinq.nexus.elements import NXTime
+from nicos_sinq.nexus.elements import ConstDataset, DetectorDataset, \
+    DeviceDataset, ImageDataset, NXLink, NXTime
 from nicos_sinq.nexus.nexussink import NexusTemplateProvider
 
 andes_default = {
      "NeXus_Version": "nexusformat v0.5.3",
      "instrument": "ANDES",
-     "owner": DeviceAttribute('LAHN', 'responsible'),
+     "owner": DeviceDataset('Andes', 'responsible'),
      "entry:NXentry": {
               "title": DeviceDataset('Exp', 'title'),
               "proposal_id": DeviceDataset('Exp', 'proposal'),
@@ -17,13 +17,13 @@ andes_default = {
                },
               "ANDES:NXinstrument": {
                        "source:NXsource": {
-                                 "type": NXDataset('Reactor Neutron Source'),
-                                 "name": NXDataset('RA10'),
-                                 "probe": NXDataset('neutron'),
+                                 "type": ConstDataset('Reactor Neutron Source', 'string'),
+                                 "name": ConstDataset('RA10', 'string'),
+                                 "probe": ConstDataset('neutron', 'string'),
                        },
                        "detector:NXdetector": {
                                    "polar_angle": DeviceDataset('stt'),
-                                   "data": DeviceDataset('cam', 'images'),
+                                   "data": ImageDataset(0, 0),
                                    "distance": DeviceDataset('lsd'),
                        },
                        "monochromator:NXmonochromator": {
@@ -31,8 +31,8 @@ andes_default = {
                                         "crystal:NXcrystal": {
                                                    "type": DeviceDataset('crystal'),
                                         },
-                                        "d_spacing": DeviceDataset('wavelength','dvalue'),
-                                        "wavelength": NXDataset('wavelength', dtype='float', units='angstrom'),
+                                        "d_spacing": DeviceDataset('wavelength', 'dvalue'),
+                                        "wavelength": DeviceDataset('wavelength', dtype='float', units='angstrom'),
                        }
               },
               "sample:NXsample": {
@@ -44,15 +44,16 @@ andes_default = {
                         "rotation_angle": DeviceDataset('phi'),
               },
               "monitor:NXmonitor": {
-                         "mode": NXDataset('timer'),
-                         "preset": DeviceDataset('cam', 'timers'),
-                         "integral": DeviceDataset('cam', 'monitors'),
+                         "mode": ConstDataset('timer', 'string'),
+                         "preset": DetectorDataset('timer', 'float32'),
+                         "integral": DetectorDataset('monitor', 'int32'),
               },
               "data:NXdata": {
                       "data": NXLink('/entry/ANDES/detector/data')
               },
         }
 }
+
 
 class ANDESTemplateProvider(NexusTemplateProvider):
     def getTemplate(self):

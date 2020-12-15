@@ -30,8 +30,8 @@ from nicos.core.errors import ConfigurationError, ProgrammingError
 from nicos.core.params import ArrayDesc, Attach, Param, Value, absolute_path, \
     anytype, dictof, dictwith, floatrange, host, intrange, ipv4, limits, \
     listof, mailaddress, nicosdev, none_or, nonemptylistof, nonemptystring, \
-    oneof, oneofdict, oneofdict_or, pvname, relative_path, setof, subdir, \
-    tacodev, tangodev, tupleof, vec3
+    oneof, oneofdict, oneofdict_or, pvname, relative_path, setof, string, \
+    subdir, tacodev, tangodev, tupleof, vec3
 
 from test.utils import raises
 
@@ -162,6 +162,12 @@ def test_tupleof():
     assert raises(ValueError, tupleof(int, str), ('a',))
     assert raises(ValueError, tupleof(int, str), 'x')
     assert raises(ProgrammingError, tupleof,)
+
+
+def test_string():
+    assert string(b'blah') == 'blah'
+    assert string() == ''
+    assert string('blah') == 'blah'
 
 
 def test_dictof():
@@ -377,12 +383,14 @@ def test_nicosdev():
     assert nicosdev('nicosdev') == 'nicosdev'
     assert nicosdev('nicos.dev') == 'nicos.dev'
     assert raises(ValueError, nicosdev, 'a.nicos.dev')
+    assert nicosdev() == ''
 
 
 def test_nonemptystring():
     p = Param('nonemptystring', type=nonemptystring)
     assert p.default is None
     assert raises(ValueError, nonemptystring, '')
+    assert nonemptystring('text') == 'text'
 
 
 def test_host():
