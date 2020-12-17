@@ -6,6 +6,7 @@ flatbuffers>=1.12
 graypy
 kafka-logging-handler<=0.2.4
 kafka-python>=1.4.6
-pvapy
 pyepics
 h5py>=2.6
+https://github.com/ess-dmsc/yuos_query/archive/v0.1.9.tar.gz
+
