@@ -30,7 +30,7 @@ import numpy as np
 from nicos.protocols.daemon import ClientTransport as BaseClientTransport, \
     ProtocolError
 from nicos.protocols.daemon.classic import ACK, ENQ, LENGTH, NAK, \
-    READ_BUFSIZE, SERIALIZERS, STX, code2event, command2code
+    READ_BUFSIZE, STX, code2event, command2code
 from nicos.utils import closeSocket, tcpSocket
 
 
@@ -93,17 +93,8 @@ class ClientTransport(BaseClientTransport):
                 raise ProtocolError('connection broken')
             buf += read
 
-        if not self.serializer:  # determine serializer class automatically
-            for serializercls in SERIALIZERS.values():
-                try:
-                    candidate = serializercls()
-                    candidate.deserialize_reply(buf, start[0:1] == STX)
-                except Exception:
-                    continue
-                self.serializer = candidate
-                break
-            else:  # no serializer found
-                raise ProtocolError('no serializer found for this connection')
+        if not self.serializer:
+            self.serializer = self.determine_serializer(buf, start[0:1] == STX)
         # XXX: handle errors
         return self.serializer.deserialize_reply(buf, start[0:1] == STX)
 

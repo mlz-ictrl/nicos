@@ -32,6 +32,7 @@ import zmq
 
 from nicos.protocols.daemon import CloseConnection, ProtocolError, \
     Server as BaseServer, ServerTransport as BaseServerTransport
+from nicos.protocols.daemon.classic import PROTO_VERSION
 from nicos.services.daemon.handler import ConnectionHandler
 from nicos.utils import createThread
 from nicos.utils.messaging import nicos_zmq_ctx
@@ -166,7 +167,7 @@ class ServerTransport(ConnectionHandler, BaseServerTransport):
 
     def get_version(self):
         # XXX: for now, make it the same as the classic proto
-        return 15
+        return PROTO_VERSION
 
     def recv_command(self):
         try:

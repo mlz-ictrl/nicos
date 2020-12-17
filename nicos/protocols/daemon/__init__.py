@@ -305,6 +305,20 @@ class ClientTransport:
         """
         raise NotImplementedError
 
+    def determine_serializer(self, data, ok):
+        """Helper for subclasses to automatically determine a serializer class
+        given certain data and 'ok' state.
+        """
+        from .classic import SERIALIZERS
+        for serializercls in SERIALIZERS.values():
+            try:
+                candidate = serializercls()
+                candidate.deserialize_reply(data, ok)
+            except Exception:
+                continue
+            return candidate
+        raise ProtocolError('no serializer found for this connection')
+
 
 class Serializer:
     """Represents a serialization format for commands and events."""
