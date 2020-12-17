@@ -24,11 +24,8 @@
 
 """LoKI sample object."""
 
-from nicos import session
-from nicos.core import ConfigurationError, Param, anytype, dictof, multiWait, \
-    tupleof
-
-from nicos_mlz.devices.sample import Sample
+from nicos.core import Param, anytype, dictof
+from nicos.devices.sample import Sample
 
 
 class LokiSample(Sample):
