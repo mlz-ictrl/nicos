@@ -33,12 +33,14 @@ def determine_instrument(setup_package_path):
     try:
         hostname = socket.gethostname().split('.')
         if hostname[1] in ('fourcircle', 'galaxi'):
-            domain = hostname[1]
+            instrument = hostname[1]
+        elif hostname[0] in ('tr1-phys',):
+            instrument = 'testrack'
         else:
-            domain = hostname[0]
+            instrument = hostname[0]
     except (ValueError, IndexError, OSError):
         pass
     else:
         # ... but only if a subdir exists for it
-        if path.isdir(path.join(setup_package_path, domain)):
-            return domain
+        if path.isdir(path.join(setup_package_path, instrument)):
+            return instrument
