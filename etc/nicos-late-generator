@@ -137,7 +137,7 @@ def main():
                 'name': name,
                 'root': config.nicos_root,
                 'proc': procname,
-                'instopt': ' -S ' + instname if instname else '',
+                'instopt': ' -S ' + procname + '-' + instname if instname else '',
                 'depends': depends,
                 'user': config.user or 'root',
                 'group': config.group or 'root',
