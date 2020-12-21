@@ -153,6 +153,7 @@ class Monitor(BaseCacheClient):
         # now start the worker thread
         self._worker.start()
 
+    def run_main_loop(self):
         self.log.info('starting main loop')
         try:
             self.mainLoop()

@@ -45,6 +45,7 @@ class MockOptions:
 def test_monitor(session):
     mon = session.getDevice('Monitor')
     mon.start(MockOptions)
+    mon.run_main_loop()
 
     assert 'Current status' in mon._rendered_content
     assert '<img src="/some/pic.png"' in mon._rendered_content

@@ -111,6 +111,10 @@ class NoninteractiveSession(Session):
         if daemon == 'systemd':
             cls._notify_systemd(appname, "READY=1\nSTATUS=running")
 
+        # For services that don't run in a separate thread
+        if hasattr(maindev, 'run_main_loop'):
+            maindev.run_main_loop()
+
         maindev.wait()
 
         session.shutdown()
