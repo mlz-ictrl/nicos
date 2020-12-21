@@ -50,5 +50,8 @@ else:
     appname = 'poller'
     args = []
 
-PollerSession.run(appname, setupname=opts.setupname, maindevname='Poller',
-                  start_args=args, daemon=opts.daemon)
+sys.exit(PollerSession.run(appname,
+                           setupname=opts.setupname,
+                           maindevname='Poller',
+                           start_args=args,
+                           daemon=opts.daemon))

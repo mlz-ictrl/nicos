@@ -42,4 +42,6 @@ parser.add_argument('-S', '--setup', action='store', dest='setupname',
 
 opts = parser.parse_args()
 
-NoninteractiveSession.run(opts.setupname, 'Collector', daemon=opts.daemon)
+sys.exit(NoninteractiveSession.run(opts.setupname,
+                                   'Collector',
+                                   daemon=opts.daemon))

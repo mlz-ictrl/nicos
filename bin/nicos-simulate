@@ -49,5 +49,5 @@ opts = parser.parse_args()
 if hasattr(signal, 'alarm'):
     signal.alarm(600)
 
-SimulationSession.run(opts.sock, opts.uuid, opts.setups.split(','),
-                      opts.user, opts.code, opts.quiet, opts.debug)
+sys.exit(SimulationSession.run(opts.sock, opts.uuid, opts.setups.split(','),
+                               opts.user, opts.code, opts.quiet, opts.debug))

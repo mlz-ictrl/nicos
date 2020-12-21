@@ -77,7 +77,7 @@ def log_unhandled(*exc_info):
 sys.excepthook = log_unhandled
 
 
-SingleDeviceSession.run('history', StandaloneHistoryApp,
-                        {'prefix': opts.prefix, 'cache': opts.cache,
-                         'views': opts.keys},
-                        pidfile=False)
+sys.exit(SingleDeviceSession.run('history', StandaloneHistoryApp,
+                                 {'prefix': opts.prefix, 'cache': opts.cache,
+                                  'views': opts.keys},
+                                 pidfile=False))

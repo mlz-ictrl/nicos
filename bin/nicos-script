@@ -59,4 +59,7 @@ else:
 if opts.stop:
     signal.alarm(opts.stop)
 
-ScriptSession.run(setup, script_text, mode=opts.mode, appname=opts.appname)
+sys.exit(ScriptSession.run(setup,
+                           script_text,
+                           mode=opts.mode,
+                           appname=opts.appname))

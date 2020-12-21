@@ -41,4 +41,4 @@ parser.add_argument('-S', '--setup', action='store', dest='setupname',
                     help="name of the setup, default is 'daemon'")
 opts = parser.parse_args()
 
-DaemonSession.run(opts.setupname, 'Daemon', daemon=opts.daemon)
+sys.exit(DaemonSession.run(opts.setupname, 'Daemon', daemon=opts.daemon))

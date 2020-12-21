@@ -50,4 +50,4 @@ if opts.nocolor:
 
 ConsoleSession.autocreate_devices = not opts.noautocreate
 
-ConsoleSession.run(opts.setup, opts.simulate)
+sys.exit(ConsoleSession.run(opts.setup, opts.simulate))

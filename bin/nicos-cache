@@ -49,5 +49,8 @@ opts = parser.parse_args()
 if opts.clear:
     opts.args.append('clear')
 
-NoninteractiveSession.run(opts.setupname, 'Server', setupname=opts.setupname,
-                          daemon=opts.daemon, start_args=opts.args)
+sys.exit(NoninteractiveSession.run(opts.setupname,
+                                   'Server',
+                                   setupname=opts.setupname,
+                                   daemon=opts.daemon,
+                                   start_args=opts.args))
