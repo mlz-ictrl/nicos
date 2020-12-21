@@ -51,6 +51,7 @@ pytest.importorskip('graypy')
 session_setup = "ess_area_detector"
 
 
+@pytest.mark.skip(reason="flaky test")
 class TestEpicsAreaDetector:
     """
     Tests for the operations EPICS areaDetector
@@ -518,6 +519,7 @@ class TestEpicsAreaDetectorWithKafkaPlugin:
         assert (raw[max(timestamps)] == self.detector.readArrays(LIVE)).all()
 
 
+@pytest.mark.skip(reason="flaky test")
 class TestEpicsAreaDetector1(unittest.TestCase):
 
     def create_patch(self, name):
