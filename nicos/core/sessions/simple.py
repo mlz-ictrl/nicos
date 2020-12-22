@@ -46,7 +46,7 @@ class NoninteractiveSession(Session):
 
     autocreate_devices = False
 
-    def _beforeStart(self, maindev):
+    def _beforeStart(self, maindev, daemonized):
         pass
 
     @classmethod
@@ -94,7 +94,7 @@ class NoninteractiveSession(Session):
             if pidfile and daemon != 'systemd':
                 writePidfile(appname)
 
-            session._beforeStart(maindev)
+            session._beforeStart(maindev, daemonized=daemon)
         except Exception as err:
             try:
                 session.log.exception('Fatal error while initializing')

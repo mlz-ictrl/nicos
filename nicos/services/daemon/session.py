@@ -70,14 +70,17 @@ class DaemonSession(NoninteractiveSession):
         if value is not None and getattr(value, '__display__', True):
             self.log.log(INFO, repr(value))
 
-    def _beforeStart(self, daemondev):
+    def _beforeStart(self, daemondev, daemonized):
         from nicos.services.daemon.utils import DaemonLogHandler
         self.daemon_device = daemondev
         self.daemon_handler = DaemonLogHandler(daemondev)
         # create a new root logger that gets the daemon handler
-        self.createRootLogger()
+        self.createRootLogger(console=not daemonized)
         self.log.addHandler(self.daemon_handler)
-        sys.stdout = LoggingStdout(sys.stdout)
+
+        # We don't want all output to end up on stdout, which is usually either
+        # /dev/null or the systemd journal.
+        sys.stdout = LoggingStdout()
 
         # add an object to be used by DaemonSink objects
         self.emitfunc = daemondev.emit_event

@@ -177,7 +177,7 @@ class SimulationSession(Session):
         session.log.info('setting up dry run...')
         session.begin_setup()
         # Handle "print" statements in the script.
-        sys.stdout = LoggingStdout(sys.stdout)
+        sys.stdout = LoggingStdout()
 
         try:
             # Initialize the session in simulation mode.

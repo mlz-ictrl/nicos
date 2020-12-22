@@ -257,20 +257,14 @@ class NicosCompleter:
 
 
 class LoggingStdout:
-    """
-    Standard output stream replacement that tees output to a logger.
-    """
-
-    def __init__(self, orig_stdout):
-        self.orig_stdout = orig_stdout
+    """Standard output stream replacement that feeds output to a logger."""
 
     def write(self, text):
         if text.strip():
             session.log.info(text)
-        self.orig_stdout.write(text)
 
     def flush(self):
-        self.orig_stdout.flush()
+        pass
 
 
 # session id support
