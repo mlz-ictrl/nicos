@@ -107,3 +107,7 @@ Notifiers can be configured in setups like normal devices and are selected in
 .. module:: nicos.devices.notifiers.slack
 
 .. autoclass:: Slacker()
+
+.. module:: nicos.devices.notifiers.mattermost
+
+.. autoclass:: Mattermost()
