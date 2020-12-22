@@ -9,10 +9,14 @@ instrument_values = configdata('instrument.values')
 URL = (instrument_values['url_base'] % 'cpt') + 'json-visual'
 code_base = instrument_values['code_base']  + 'gkssjson.CPTReadout'
 
+includes = ['chopper']
+
 devices = dict(
-    cpt0 = device(code_base,
-        description = 'Disc 1 index ' + description + ' Phase of Disk1! adjusted to 10',
+    cpt0 = device(code_base + 'proof',
+        description = 'Disc 1 index ' + description + ' Phase of Disk1! adjusted to 1.0',
         url = URL,
+        chopper = 'chopper_speed',
+        speed = 'cpt1',
         valuekey = 'chopper_act',
         timeout = 3.0,
         channel = 6,

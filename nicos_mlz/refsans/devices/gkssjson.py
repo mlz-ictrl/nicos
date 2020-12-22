@@ -26,11 +26,12 @@
 
 import requests
 
-from nicos.core import Override, Param, Readable, intrange, oneof, status, \
-    usermethod
+from nicos.core import Moveable, Override, Param, Readable, intrange, oneof, \
+    status, usermethod
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     NicosError
 from nicos.core.mixins import HasOffset
+from nicos.core.params import Attach
 
 
 class JsonBase(Readable):
@@ -128,6 +129,27 @@ class CPTReadout(HasOffset, JsonBase):
 
     def doRead(self, maxage=0):
         return self._read_ctrl(self.channel)
+
+
+class CPTReadoutproof(CPTReadout):
+
+    attached_devices = {
+        'chopper': Attach('to get status of controller', Moveable),
+        'speed': Attach('self speed', Readable),
+    }
+
+    def doStatus(self, maxage=0):
+        statChopper = self._attached_chopper.status()
+        if statChopper[0] != status.OK:
+            return statChopper
+        speedChopper = self._attached_chopper.read()
+        speedSelf = self._attached_speed.read()
+        self.log.info('%d %d', speedChopper, speedSelf)
+        if abs(speedChopper - speedSelf) > .05:
+            return status.BUSY, 'speed'
+        if abs(self._read_ctrl(self.channel) - 1) > .5:
+            return status.ERROR, 'window Error'
+        return status.OK, ''
 
 
 class SdsRatemeter(JsonBase):
