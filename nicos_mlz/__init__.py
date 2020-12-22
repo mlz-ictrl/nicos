@@ -33,10 +33,13 @@ def determine_instrument(setup_package_path):
     try:
         # Take the second part of the domain name (machine.instrument.frm2
         # or new-style machine.instrument.frm2.tum.de)
-        domain = socket.getfqdn().split('.')[1].replace('-', '_')
+        hostparts = socket.getfqdn().split('.')
+        instrument = hostparts[1].replace('-', '_')
+        if instrument == 'jcns' and hostparts[0] == 'jcnsmon':
+            instrument = 'jcnsmon'
     except (ValueError, IndexError, OSError):
         pass
     else:
         # ... but only if a subdir exists for it
-        if path.isdir(path.join(setup_package_path, domain)):
-            return domain
+        if path.isdir(path.join(setup_package_path, instrument)):
+            return instrument
