@@ -712,7 +712,8 @@ class MeasureSequencer(SequencerMixin, Measurable):
                 self._seq_thread.join()
                 self._seq_thread = None
             else:
-                raise NicosError(self, 'Cannot start device, it is still busy')
+                raise NicosError(self, 'Cannot prepare device, it is still '
+                                 'busy')
 
         if self._seq_status[0] > status.OK and not self._seq_was_stopped:
             self.log.warning('resetting internal state %s',
@@ -725,6 +726,13 @@ class MeasureSequencer(SequencerMixin, Measurable):
         Just calls ``self._startSequence(self._generateSequence())``
 
         """
+        if self._seq_is_running():
+            if self._mode == SIMULATION:
+                self._seq_thread.join()
+                self._seq_thread = None
+            else:
+                raise NicosError(self, 'Cannot start device, sequence is still '
+                                 'running (at %s)!' % self._seq_status[1])
         self._startSequence(self._generateSequence())
 
     def _generateSequence(self):
