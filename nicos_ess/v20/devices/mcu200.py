@@ -129,7 +129,8 @@ class MCU200Motor(Motor):
         except OSError:
             if retry is not None:
                 self.log.debug('Retry unsuccessful, raising error.')
-                raise CommunicationError('Communication error with device.')
+                raise CommunicationError(
+                    'Communication error with device.') from None
 
             self.log.debug('Socket error, retrying after 0.1 second sleep.')
             sleep(0.1)
