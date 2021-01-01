@@ -44,7 +44,6 @@ except ImportError:
         DB = None
 
 
-
 class ProposalDB:
     def __init__(self):
         try:
@@ -55,15 +54,17 @@ class ProposalDB:
             else:
                 credentials = readFile(session.experiment.propdb)
         except OSError as e:
-            raise ConfigurationError('Can\'t read credentials '
-                                     'for propdb-access from file: %s' % e)
+            raise ConfigurationError(
+                'Can\'t read credentials for propdb-access from file: %s' % e
+            ) from e
         credentials = credentials[0]
         try:
             self.user, hostdb = credentials.split('@')
             self.host, self.db = hostdb.split(':')
         except ValueError:
-            raise ConfigurationError('%r is an invalid credentials string '
-                                     '("user@host:dbname")' % credentials)
+            raise ConfigurationError(
+                '%r is an invalid credentials string ("user@host:dbname")' %
+                credentials) from None
         if DB is None:
             raise ConfigurationError('MySQL adapter is not installed')
 
@@ -199,5 +200,5 @@ class Authenticator(BaseAuthenticator):
         except AuthenticationError:
             raise
         except Exception as err:
-            raise AuthenticationError('exception during authenticate(): %s'
-                                      % err)
+            raise AuthenticationError(
+                'exception during authenticate(): %s' % err) from err

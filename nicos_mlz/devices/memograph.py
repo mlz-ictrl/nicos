@@ -76,7 +76,7 @@ class MemographValue(Readable):
             raise
         except Exception as err:
             raise CommunicationError(self, 'Memograph not responding or '
-                                     'changed format: %s' % err)
+                                     'changed format: %s' % err) from None
 
     def doReadUnit(self):
         return self._getRaw().split()[1].replace('°', 'deg')
