@@ -57,7 +57,7 @@ class JsonRpcClient:
                 raise CommunicationError('invalid reply')
             return response['result']
         except Exception as err:
-            raise CommunicationError('RPC call error: %s' % err)
+            raise CommunicationError('RPC call error: %s' % err) from err
 
 
 class IDS3010Server(HasCommunication, Device):
