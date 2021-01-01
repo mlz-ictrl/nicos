@@ -95,7 +95,7 @@ class Monochromator(HasLimits, Moveable):
         try:
             return abs(2 * self.dvalue1 * sin(radians(phi1)))
         except Exception:
-            raise PositionError('can not determine lambda!')
+            raise PositionError('can not determine lambda!') from None
 
     def _moveToParkingpos(self):
         for dev, target in self.parkingpos.items():
