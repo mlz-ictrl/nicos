@@ -103,7 +103,9 @@ class HasSwitchPv(DeviceMixinBase):
         # PVs specified in EpicsDevice.param
         switch_pvs = {'switchpv:' + pv for pv in self.switchpvs}
 
+        # pylint: disable=super-with-arguments
         return super(HasSwitchPv, self)._get_pv_parameters() | switch_pvs
+        # pylint: enable=super-with-arguments
 
     def _get_pv_name(self, pvparam):
         components = pvparam.split(':', 1)
@@ -111,7 +113,9 @@ class HasSwitchPv(DeviceMixinBase):
         if len(components) == 2 and components[0] == 'switchpv':
             return self.switchpvs[components[1]]
 
+        # pylint: disable=super-with-arguments
         return super(HasSwitchPv, self)._get_pv_name(pvparam)
+        # pylint: enable=super-with-arguments
 
     @property
     def isSwitchedOn(self):
