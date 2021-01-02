@@ -93,8 +93,9 @@ class Authenticator(BaseAuthenticator):
                                           password=password,
                                           auto_bind=self.BIND_METHODS[
                                               self.bindmethod])
-        except ldap3.core.exceptions.LDAPException as e:
-            raise AuthenticationError('LDAP connection failed (%s)' % e)
+        except ldap3.core.exceptions.LDAPException as err:
+            raise AuthenticationError(
+                'LDAP connection failed (%s)' % err) from None
 
         userlevel = -1
 

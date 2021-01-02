@@ -67,7 +67,8 @@ class Authenticator(BaseAuthenticator):
                     return User(username, access)
             return User(username, self.defaultlevel)
         except pam.PAMError as err:
-            raise AuthenticationError('PAM authentication failed: %s' % err)
+            raise AuthenticationError(
+                'PAM authentication failed: %s' % err) from None
         except Exception as err:
-            raise AuthenticationError('exception during PAM authentication: %s'
-                                      % err)
+            raise AuthenticationError(
+                'exception during PAM authentication: %s' % err) from None
