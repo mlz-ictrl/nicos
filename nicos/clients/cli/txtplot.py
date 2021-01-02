@@ -62,4 +62,4 @@ def txtplot(x, y, xlab, ylab, xterm_mode=False):
         return lines
 
     except OSError:
-        raise RuntimeError('Could execute gnuplot for text plot')
+        raise RuntimeError('Could execute gnuplot for text plot') from None
