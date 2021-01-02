@@ -111,7 +111,7 @@ class AmorNewExpPanel(GenericPanel):
         except ValueError:
             QMessageBox.critical(self, 'Error', 'The user email entry is '
                                  'not  a valid email address')
-            raise ConfigurationError('')
+            raise ConfigurationError('') from None
         return prop, title, username, useremail, proposaldir, remark
 
     @pyqtSlot()

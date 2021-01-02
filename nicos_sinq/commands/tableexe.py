@@ -116,7 +116,8 @@ def tableexe(csvfile):
                 else:
                     raise UsageError('%s has no parameter %s' % (devname, par))
             except Exception:
-                raise UsageError('Unrecognised column name %s' % col_name)
+                raise UsageError(
+                    'Unrecognised column name %s' % col_name) from None
 
         # Actually execute the CSV data
         idx = 0
