@@ -31,7 +31,7 @@ from nicos.guisupport.qt import QAbstractButton, QByteArray, QHBoxLayout, \
 
 class PicButton(QAbstractButton):
     def __init__(self, icon, parent=None):
-        super(PicButton, self).__init__(parent)
+        QAbstractButton.__init__(self, parent)
         self.icon = icon
         self._size = QSize(100, 100)
 
@@ -39,8 +39,9 @@ class PicButton(QAbstractButton):
         painter = QPainter(self)
         mode = QIcon.Active if self.isDown() else QIcon.Normal
         pixmap = self.icon.pixmap(self._size, mode)
-        painter.drawPixmap(QPoint(0, 0),
-                           pixmap.scaled(event.rect().size(), Qt.KeepAspectRatio))
+        painter.drawPixmap(
+            QPoint(0, 0),
+            pixmap.scaled(event.rect().size(), Qt.KeepAspectRatio))
 
     def sizeHint(self):
         return self._size
