@@ -295,7 +295,8 @@ def cache_dump(obj):
                 b64encode(pickle.dumps(obj, protocol=0)).decode() + '")'
             res.append(resstr)
         except Exception as err:
-            raise ValueError('unserializable object: %r (%s)' % (obj, err))
+            raise ValueError(
+                'unserializable object: %r (%s)' % (obj, err)) from err
     return ''.join(res)
 
 
@@ -357,4 +358,5 @@ def cache_load(entry):
         expr = parse(entry, mode='eval').body
         return ast_eval(expr)
     except Exception as err:
-        raise ValueError('corrupt cache entry: %r (%s)' % (entry, err))
+        raise ValueError(
+            'corrupt cache entry: %r (%s)' % (entry, err)) from err
