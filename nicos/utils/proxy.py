@@ -34,7 +34,7 @@ class NicosProxy:
     _obj = None
 
     def __init__(self, obj):
-        super(NicosProxy, self).__init__(obj)
+        super().__init__(obj)
         self._obj = obj
 
     def __getattr__(self, name):
