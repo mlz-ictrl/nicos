@@ -236,8 +236,9 @@ class Chopper(Moveable):
             det_z = self._attached_det_pos.presets[sel_target][det_target]['z']
             det_offset = self._attached_det_pos.offsets[det_z]
         except KeyError:
-            raise PositionError(self, 'cannot calculate chopper settings: '
-                                'selector or detector device not at preset')
+            raise PositionError(
+                self, 'cannot calculate chopper settings: selector or '
+                'detector device not at preset') from None
 
         self.log.debug('chopper calc inputs: reso=%f, lam=%f, spread=%f, '
                        'det_z=%f', reso, lam, spread, det_z)

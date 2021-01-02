@@ -62,7 +62,7 @@ class HexapodTool(DlgUtils, QMainWindow):
             try:
                 self._controller.State()
             except AttributeError:
-                raise Exception('server appears to be not running')
+                raise Exception('server appears to be not running') from None
             for axis in AXES:
                 self.axes[axis] = PyTango.DeviceProxy(TANGO_DEV_BASE + axis)
                 self.axeslist.append(self.axes[axis])
