@@ -27,7 +27,7 @@ test_template = dict()
 
 
 def setTemplate(temp):
-    global test_template
+    global test_template  # pylint: disable=global-statement
     test_template = temp
 
 
