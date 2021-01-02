@@ -62,7 +62,7 @@ class EpicsJulaboController(HasSwitchPv, EpicsWindowTimeoutDevice):
             pvs.add('statuscodepv')
             pvs.add('statusmsgpv')
 
-        return pvs | super(EpicsJulaboController, self)._get_pv_parameters()
+        return pvs | super()._get_pv_parameters()
 
     def doStatus(self, maxage=0):
         if self.statuscodepv and self.statusmsgpv:
@@ -74,4 +74,4 @@ class EpicsJulaboController(HasSwitchPv, EpicsWindowTimeoutDevice):
         if not self.isSwitchedOn:
             return status.WARN, 'Device is switched off'
 
-        return super(EpicsJulaboController, self).doStatus(maxage)
+        return super().doStatus(maxage)
