@@ -284,11 +284,6 @@ class Sans1HVOffDuration(Readable):
         return 'never'
 
 
-#class Sans1ZMotor(TacoMotor):
-#    _TACO_STATUS_MAPPING = TacoMotor._TACO_STATUS_MAPPING.copy()
-#    _TACO_STATUS_MAPPING[TACOStates.TRIPPED] = (status.WARN, 'move inhibit')
-
-
 class Sans1ZMotor(TangoMotor):
     tango_status_mapping = TangoMotor.tango_status_mapping.copy()
     tango_status_mapping[PyTango.DevState.FAULT] = status.WARN
