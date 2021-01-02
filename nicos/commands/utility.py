@@ -124,7 +124,7 @@ def floatrange(start, end, step=None, **kw):
         try:
             num = int(kw.get('num'))
         except TypeError:
-            raise UsageError('Please give either step or num.')
+            raise UsageError('Please give either step or num.') from None
         if num < 2:
             raise UsageError('The number of steps should be greater than 1.')
         return RangeListByCount(start, end, num)
@@ -184,4 +184,4 @@ def RangeListGeneral(start, end, num=10, func=identity, funcinv=None):
         ufuncinv = numpy.frompyfunc(funcinv, 1, 1)
         return ufuncinv(res).astype(numpy.float64).tolist()
     except Exception as e:
-        raise RuntimeError(str(e))
+        raise RuntimeError(str(e)) from e
