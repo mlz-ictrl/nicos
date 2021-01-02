@@ -42,5 +42,6 @@ def polcount(time, value=30):
         time = float(time)
         value = float(value)
     except ValueError:
-        raise UsageError('both counting time and flipper value should be numbers!')
+        raise UsageError('both counting time and flipper value '
+                         'should be numbers!') from None
     scan(session.getDevice('P_spinflipper'), [value, 0], time=time)

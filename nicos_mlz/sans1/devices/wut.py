@@ -57,8 +57,9 @@ class WutValue(Readable):
         except ConfigurationError:  # pass through error raised above
             raise
         except Exception as err:
-            raise CommunicationError(self, 'wut-box not responding or '
-                                     'changed format: %s' % err)
+            raise CommunicationError(
+                self, 'wut-box not responding or changed format: %s' % err
+            ) from err
 
     def _extractUnit(self, raw):
         return raw.split(';')[-1].split(' ')[-1]
