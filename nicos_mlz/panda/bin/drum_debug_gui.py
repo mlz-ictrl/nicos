@@ -38,9 +38,6 @@ from pymodbus.client.sync import ModbusTcpClient
 # This is supposed to be a custom instrument specific stand-alone tool!
 
 
-
-
-
 def Stati(status):
     l = []
     s = status >> 12
@@ -64,7 +61,7 @@ class BaseDev(QWidget):
     offset = 1
 
     def __init__(self, model, name, index, addr, has_status=False, target=None, value_offset=1):
-        super(BaseDev, self).__init__()
+        QWidget.__init__(self)
         self.index = index
         self.name = name
         self.model = model
@@ -149,7 +146,7 @@ class MainWindow(QMainWindow):
     i = 0
 
     def __init__(self, parent = None):
-        super(MainWindow, self).__init__(parent)
+        QMainWindow.__init__(self, parent)
 
         # scroll area Widget contents - layout
         self.scrollLayout = QFormLayout()
@@ -267,7 +264,7 @@ class MainWindow(QMainWindow):
             else:
                 if v.startswith('0x') or v.startswith('0X'):
                     v = int(v[2:], 16)
-                elif v.startswith(('x', 'X',  '$')):
+                elif v.startswith(('x', 'X', '$')):
                     v = int(v[1:], 16)
                 else:
                     v = int(v)
