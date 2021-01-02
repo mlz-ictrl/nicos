@@ -406,9 +406,9 @@ def get_facility_log_handlers(config):
     """
     try:
         setup_package_mod = __import__(config.setup_package)
-    except ImportError:
-        raise RuntimeError('Setup package %r does not exist.' %
-                           config.setup_package)
+    except ImportError as err:
+        raise RuntimeError(
+            'Setup package %r does not exist.' % config.setup_package) from err
 
     if not hasattr(setup_package_mod, 'get_log_handlers'):
         return []
