@@ -69,7 +69,8 @@ class ToniBus(StringIO):
             try:
                 value = int(resp, 16)
             except ValueError:
-                raise CommunicationError(self, 'invalid hex number: %r' % resp)
+                raise CommunicationError(
+                    self, 'invalid hex number: %r' % resp) from None
             return value
         return resp
 
