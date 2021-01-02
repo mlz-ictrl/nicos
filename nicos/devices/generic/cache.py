@@ -72,7 +72,7 @@ class CacheReader(Readable):
             try:
                 time, ttl, val = self._cache.get_explicit(self, 'value')
             except CacheError:
-                raise CommunicationError(self, CACHE_NOVALUE_STRING)
+                raise CommunicationError(self, CACHE_NOVALUE_STRING) from None
             if time and ttl and time + ttl < currenttime():
                 # Note: this will only be reached if self.maxage is expired as well
                 self.log.warning('value timed out in cache, this should be '

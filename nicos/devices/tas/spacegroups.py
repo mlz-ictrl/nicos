@@ -42,8 +42,9 @@ def get_spacegroup(sg):
     try:
         return sg_by_num[sg]
     except KeyError:
-        raise NicosError('space group %r not recognized (valid values '
-                         'are: num, (num, setting) or "HMsym")' % (sg,))
+        raise NicosError(
+            'space group %r not recognized (valid values are: num, (num, '
+            'setting) or "HMsym")' % (sg,)) from None
 
 def check_refcond(n, h, k, l):
     """Check reflection condition *n* against h, k, l.

@@ -334,7 +334,8 @@ class BaseCacheClient(Device):
                                      'to %s: %s', self.cache, err)
                     self._secsocket = None
                     self._disconnect('secondary socket: could not connect')
-                    raise CacheError('secondary socket could not be created')
+                    raise CacheError(
+                        'secondary socket could not be created') from err
 
             try:
                 # write request

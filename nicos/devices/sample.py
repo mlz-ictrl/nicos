@@ -115,8 +115,9 @@ class Sample(Moveable):
         try:
             parameters = self.samples[number]
         except KeyError:
-            raise InvalidValueError(self, 'cannot find sample with number '
-                                    'or name %r' % number_or_name)
+            raise InvalidValueError(
+                self, 'cannot find sample with number or name %r' %
+                number_or_name) from None
         self._applyParams(number, parameters)
         session.experiment.newSample(parameters)
         self.poll()

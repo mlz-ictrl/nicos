@@ -97,7 +97,8 @@ class THM1176(Measurable):
         except OSError as err:
             self.log.debug('exception in query: %s', err)
             if t == 0:
-                raise CommunicationError(self, 'error querying: %s' % err)
+                raise CommunicationError(
+                    self, 'error querying: %s' % err) from err
             session.delay(0.5)
             self.doReset()
             return self._query(q, binary, t-1)
@@ -109,7 +110,8 @@ class THM1176(Measurable):
             os.write(self._io, q.encode() + b'\n')
         except OSError as err:
             if t == 0:
-                raise CommunicationError(self, 'error executing: %s' % err)
+                raise CommunicationError(
+                    self, 'error executing: %s' % err) from err
             session.delay(0.5)
             self.doReset()
             self._execute(q, t-1)
@@ -122,7 +124,8 @@ class THM1176(Measurable):
             status = os.read(self._io, 100).rstrip().decode()
         except OSError as err:
             if t == 0:
-                raise CommunicationError(self, 'error getting status: %s' % err)
+                raise CommunicationError(
+                    self, 'error getting status: %s' % err) from err
             session.delay(0.5)
             self.doReset()
             return self._check_status(t-1)

@@ -48,7 +48,7 @@ def from_k(value, unit):
             raise ProgrammingError('unknown energy unit %r' % unit)
     except (ArithmeticError, ValueError) as err:
         raise ComputationError(
-            'cannot convert %s A-1 to %s: %s' % (value, unit, err))
+            'cannot convert %s A-1 to %s: %s' % (value, unit, err)) from None
 
 
 def to_k(value, unit):
@@ -65,7 +65,7 @@ def to_k(value, unit):
             raise ProgrammingError('unknown energy unit %r' % unit)
     except (ArithmeticError, ValueError) as err:
         raise ComputationError(
-            'cannot convert %s A-1 to %s: %s' % (value, unit, err))
+            'cannot convert %s A-1 to %s: %s' % (value, unit, err)) from None
 
 
 class Monochromator(Moveable):
