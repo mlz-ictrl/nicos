@@ -169,7 +169,8 @@ def readConfig():
     except ImportError:
         print('Setup package %r does not exist, cannot continue.' %
               setup_package, file=sys.stderr)
-        raise RuntimeError('Setup package %r does not exist.' % setup_package)
+        raise RuntimeError(
+            'Setup package %r does not exist.' % setup_package) from None
     setup_package_path = path.dirname(setup_package_mod.__file__)
 
     # Try to find a good value for the instrument name, either from the
