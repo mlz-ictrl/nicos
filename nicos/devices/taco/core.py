@@ -171,7 +171,7 @@ class TacoDevice(HasCommunication):
             del self._dev
 
     def _setMode(self, mode):
-        super(TacoDevice, self)._setMode(mode)
+        super()._setMode(mode)
         # remove the TACO device on entering simulation mode, to prevent
         # accidental access to the hardware
         if mode == SIMULATION:
@@ -231,7 +231,7 @@ class TacoDevice(HasCommunication):
             self._taco_guard(self._dev.setClientNetworkTimeout, value)
 
     def doUpdateLoglevel(self, value):
-        super(TacoDevice, self).doUpdateLoglevel(value)
+        super().doUpdateLoglevel(value)
         self._taco_guard = value == 'debug' and self._taco_guard_log or \
             self._taco_guard_nolog
 
