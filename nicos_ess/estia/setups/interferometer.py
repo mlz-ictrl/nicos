@@ -1,39 +1,6 @@
 description = 'Prototype interferometer measurement'
 
-ip_address = '192.168.1.1'
-
 devices = dict(
-    # ids_server = device(#     'nicos_ess.estia.devices.attocube.IDS3010Server',
-    #     ip = ip_address,
-    #     visibility = (),
-    # ),
-    # ih1 = device(#     'nicos_ess.estia.devices.attocube.IDS3010Axis',
-    #     axis = 1,
-    #     description = 'Horizontal IF axis top',
-    #     server = 'ids_server'
-    # ),
-    # ih2 = device(#     'nicos_ess.estia.devices.attocube.IDS3010Axis',
-    #     axis = 2,
-    #     description = 'Horizontal IF axis bottom',
-    #     server = 'ids_server'
-    # ),
-    # ih3 = device(#     'nicos_ess.estia.devices.attocube.IDS3010Axis',
-    #     axis = 3,
-    #     description = 'Cart position top',
-    #     server = 'ids_server'
-    # ),
-    # IDS3010 = device(#     'nicos_ess.estia.devices.attocube.IDS3010Control',
-    #     description = 'Attocube IDS3010 control',
-    #     server = 'ids_server'
-    # ),
-    # dhtop = device(#     'nicos_ess.estia.devices.attocube.MirrorDistance',
-    #     axis = 'ih1',
-    #     description = 'Horizontal distance top',
-    # ),
-    # dhbottom = device(#     'nicos_ess.estia.devices.attocube.MirrorDistance',
-    #     axis = 'ih2',
-    #     description = 'Horizontal distance bottom',
-    # ),
     pilot_laser = device('nicos_ess.estia.devices.multiline.PilotLaser',
         description = 'Pilot laser',
         pvprefix = 'ESTIA-ETALON-001',
@@ -47,6 +14,37 @@ devices = dict(
             'write': 'ESTIA-ETALON-001:RedPilotLaser-S'
         },
         visibility = (),
+    ),
+    ih1=device(
+        'nicos_ess.estia.devices.attocube.IDS3010Axis',
+        axis=1,
+        description='Horizontal IF axis top',
+        readpv='ESTIA-ATTOCUBE-001:Axis1:Displacement_RBV',
+        pvprefix='ESTIA-ATTOCUBE-001'
+    ),
+    ih2=device(
+        'nicos_ess.estia.devices.attocube.IDS3010Axis',
+        axis=2,
+        description='Horizontal IF axis bottom',
+        readpv='ESTIA-ATTOCUBE-001:Axis2:Displacement_RBV',
+        pvprefix='ESTIA-ATTOCUBE-001'
+    ),
+    ih3=device(
+        'nicos_ess.estia.devices.attocube.IDS3010Axis',
+        axis=3,
+        description='Cart position top',
+        readpv='ESTIA-ATTOCUBE-001:Axis3:Displacement_RBV',
+        pvprefix='ESTIA-ATTOCUBE-001'
+    ),
+    dhtop=device(
+        'nicos_ess.estia.devices.attocube.MirrorDistance',
+        axis='ih1',
+        description='Horizontal distance top',
+    ),
+    dhbottom=device(
+        'nicos_ess.estia.devices.attocube.MirrorDistance',
+        axis='ih2',
+        description='Horizontal distance bottom',
     ),
     env_humidity = device('nicos.devices.epics.EpicsReadable',
         description = 'Environmental humidity',

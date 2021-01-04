@@ -20,6 +20,7 @@
 # Module authors:
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
 #   Artur Glavic <artur.glavic@psi.ch>
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
@@ -30,64 +31,29 @@ interferometer.
 
 from time import time as currenttime
 
-import requests
 from numpy import cos, pi
 
 from nicos import session
-from nicos.core import SIMULATION, Attach, Device, HasCommunication, \
-    Measurable, Moveable, Override, Param, Readable, status
-from nicos.core.errors import CommunicationError
-from nicos.core.params import ipv4, oneof
+from nicos.core import Attach, Measurable, Override, Param, status, Readable
+from nicos.core.params import oneof, pvname
+from nicos.devices.epics import EpicsReadable
+
+from nicos_ess.devices.epics.base import EpicsMoveableEss
 
 
-class JsonRpcClient:
-    def __init__(self, url):
-        self.url = url
-
-    def call(self, method, args):
-        payload = {
-            'method': method,
-            'params': list(args),
-            'jsonrpc': '2.0',
-            'id': 0,
-        }
-        try:
-            response = requests.post(self.url, json=payload).json()
-            if response['id'] != 0 or not response['jsonrpc']:
-                raise CommunicationError('invalid reply')
-            return response['result']
-        except Exception as err:
-            raise CommunicationError('RPC call error: %s' % err) from err
-
-
-class IDS3010Server(HasCommunication, Device):
-    """Handle communication to interferometer
-    """
-
-    parameters = {
-        'ip': Param('IP address of interferometer',
-                    default=ipv4('192.168.1.1'), type=ipv4, preinit=True),
-    }
-
-    def doPreinit(self, mode):
-        if mode != SIMULATION:
-            self._client = JsonRpcClient('http://%s:8080/api/json' % self.ip)
-            self.log.info('Server Initialized')
-
-    def communicate(self, attribute, *args):
-        return self._com_retry(
-            'jsonrpc call',
-            lambda: self._client.call('com.attocube.ids.' + attribute, args))
-
-
-class IDS3010Axis(Readable):
+class IDS3010Axis(EpicsReadable):
     """Read interferometer inputs
     """
 
     parameters = {
-        'axis': Param('Index of the axis to be read', default=1, type=int),
+        'axis': Param('Index of the axis to be read', default=1, type=int,
+                      userparam=False),
+        'pvprefix': Param('Prefix for the axis PV', type=str, mandatory=True),
         'absolute': Param('Absolute position value', type=float,
-                          category='general', unit='um'),
+                          category='general', unit='um', settable=False),
+        'mode': Param('Current mode', type=str, category='general',
+                      settable=False),
+
     }
 
     parameter_overrides = {
@@ -95,48 +61,62 @@ class IDS3010Axis(Readable):
                          userparam=False),
     }
 
-    attached_devices = {
-        'server': Attach('Server for communication', IDS3010Server)
-    }
-
     valuetype = float
 
-    def doRead(self, maxage=0):
-        return self._attached_server.communicate(
-            'displacement.getAxisDisplacement', int(self.axis - 1))[1] * 1e-6
+    def _get_pv_parameters(self):
+        return {'readpv', 'absolute_position', 'current_mode', 'reset_axis',
+                'reset_error'}
+
+    def _get_pv_name(self, pvparam):
+
+        if hasattr(self, pvparam):
+            return getattr(self, pvparam)
+
+        if pvparam == 'absolute_position':
+            return f'{self.pvprefix}:Axis{self.axis}:AbsolutePosition_RBV'
+        if pvparam == 'current_mode':
+            return f'{self.pvprefix}:CurrentMode_RBV'
+        if pvparam == 'reset_axis':
+            return f'{self.pvprefix}:Axis{self.axis}:Reset'
+        if pvparam == 'reset_error':
+            return f'{self.pvprefix}:Axis{self.axis}:Reset:Error_RBV'
+        return None
 
     def doReadAbsolute(self):
-        return self._attached_server.communicate(
-            'displacement.getAbsolutePosition', int(self.axis - 1))[1] * 1e-6
+        return self._get_pv('absolute_position')
+
+    def doReadMode(self):
+        return self._get_pv('current_mode')
 
     def doStatus(self, maxage=0):
-        mode = self._attached_server.communicate('system.getCurrentMode')[0]
+        error = self._get_pv('reset_error')
+        if error:
+            return status.ERROR, 'Reset error'
+        mode = self._get_pv('current_mode')
         if mode == 'measurement running':
             return status.OK, 'Measuring'
-        elif mode == 'measurement starting':
+        if mode == 'measurement starting':
             return status.BUSY, 'Starting'
-        else:
-            return status.WARN, 'Off'
+        return status.WARN, 'Off'
 
     def doReset(self):
-        self._attached_server.communicate(
-            'system.resetAxis', int(self.axis - 1))
+        self._put_pv('reset', 1)
 
     def doPoll(self, n, maxage=0):
         self._pollParam('absolute')
 
 
-class IDS3010Control(Moveable):
+class IDS3010Control(EpicsMoveableEss):
     """Control interferometer measurement and alignment options.
     """
 
     _modes = {
-        "system idle": status.OK,
-        "measurement starting": status.BUSY,
-        "measurement running": status.OK,
-        "optics alignment starting": status.BUSY,
-        "optics alignment running": status.OK,
-        "pilot laser enabled": status.OK,
+        'system idle': status.OK,
+        'measurement starting': status.BUSY,
+        'measurement running': status.OK,
+        'optics alignment starting': status.BUSY,
+        'optics alignment running': status.OK,
+        'pilot laser enabled': status.OK,
     }
 
     parameters = {
@@ -144,76 +124,97 @@ class IDS3010Control(Moveable):
                        settable=True, category='general', chatty=True, ),
         'align': Param('Measure in alignment mode', type=oneof('on', 'off'),
                        settable=True, category='general', chatty=True, ),
-        'contrast1': Param('Measure in alignment mode', type=float,
+        'contrast1': Param('Contrast axis 1', type=float,
                            settable=False, category='general', chatty=True,
                            unit='%'),
-        'contrast2': Param('Measure in alignment mode', type=float,
+        'contrast2': Param('Contrast axis 2', type=float,
                            settable=False, category='general', chatty=True,
                            unit='%'),
-        'contrast3': Param('Measure in alignment mode', type=float,
+        'contrast3': Param('Contrast axis 3', type=float,
                            settable=False, category='general', chatty=True,
                            unit='%'),
+        'pvprefix': Param('Name of the record PV.', type=pvname,
+                          mandatory=True, settable=False, userparam=False),
     }
 
     parameter_overrides = {
         'unit': Override(default='', mandatory=False, settable=False,
                          userparam=False),
-        'target': Override(userparam=False)
+        'target': Override(userparam=False),
+        'statuspv': Override(mandatory=False),
     }
 
-    attached_devices = {
-        'server': Attach('Server for communication', IDS3010Server)
-    }
+    valuetype = int
 
-    valuetype = oneof('on', 'off')
+    def _get_pv_parameters(self):
+        return EpicsMoveableEss._get_pv_parameters(self) | \
+               set(self._get_record_fields())
 
     def doStatus(self, maxage=0):
-        mode = self._attached_server.communicate('system.getCurrentMode')[0]
+        mode = self._get_pv('current_mode', as_string=True)
         return self._modes[mode], mode
 
     def doRead(self, maxage=0):
-        return 'on' if self.status()[1] == "measurement running" else 'off'
+        return 'on' if EpicsMoveableEss.doRead(self, maxage) == 'measurement ' \
+                                                                'running' \
+            else 'off'
+
+    def _get_record_fields(self):
+        record_fields = {
+            'current_mode': 'CurrentMode_RBV',
+            'start_stop_alignment': 'StartStopOpticsAlignment',
+            'read_pilot': 'PilotLaser:Status_RBV',
+            'write_pilot': 'EnableDisablePilotlaser',
+            'read_contrast1': 'Axis1:ConstrastInPermille:Contrast_RBV',
+            'read_contrast2': 'Axis2:ConstrastInPermille:Contrast_RBV',
+            'read_contrast3': 'Axis3:ConstrastInPermille:Contrast_RBV',
+        }
+        return record_fields
+
+    def _get_pv_name(self, pvparam):
+        prefix = getattr(self, 'pvprefix')
+        record_fields = self._get_record_fields()
+        field = record_fields.get(pvparam)
+
+        if field is not None:
+            return ':'.join((prefix, field))
+
+        return getattr(self, pvparam)
 
     def doStart(self, target):
-        self._attached_server.communicate('system.startMeasurement'
-                                          if target == 'on' else
-                                          'system.stopMeasurement')
+        self._put_pv('writepv', 'on')
+
+    def doStop(self):
+        self._put_pv('writepv', 'off')
 
     def doReadPilot(self):
-        enabled = self._attached_server.communicate('pilotlaser.isEnabled')[0]
-        return 'on' if enabled else 'off'
+        return self._get_pv('read_pilot', as_string=True)
 
     def doWritePilot(self, value):
-        self._attached_server.communicate('pilotlaser.enable' if value == 'on'
-                                          else 'pilotlaser.disable')
+        if not value in ('on', 'off'):
+            self.log.error('Invalid value')
+            return
+        self._put_pv('write_pilot', value)
 
     def doReadAlign(self):
-        enabled = self._attached_server.communicate(
-            'system.getCurrentMode')[0].startswith('optics alignment')
-        return 'on' if enabled else 'off'
+        return self._get_pv('start_stop_alignment', as_string=True)
 
     def doWriteAlign(self, value):
-        if (value == 'on' and
-                self._attached_server.communicate(
-                    'system.getCurrentMode')[0] == "system idle"):
-            self._attached_server.communicate('system.startOpticsAlignment')
+        if not value in ('on', 'off'):
+            self.log.error('Invalid value')
+        if value == 'on' and self.status()[1] == 'system idle':
+            self._put_pv('start_stop_alignment', 'on')
         else:
-            self._attached_server.communicate('system.stopOpticsAlignment')
+            self._put_pv('start_stop_alignment', 'off')
 
     def doReadContrast1(self):
-        return self._attached_server.communicate(
-            'adjustment.getContrastInPermille', 0)[1] * 0.1
+        return self._get_pv('read_contrast1')
 
     def doReadContrast2(self):
-        return self._attached_server.communicate(
-            'adjustment.getContrastInPermille', 1)[1] * 0.1
+        return self._get_pv('read_contrast2')
 
     def doReadContrast3(self):
-        return self._attached_server.communicate(
-            'adjustment.getContrastInPermille', 2)[1] * 0.1
-
-    def doReset(self):
-        self._attached_server.com.attocube.system.rebootSystem()
+        return self._get_pv('read_contrast3')
 
     def doPoll(self, n, maxage=0):
         # poll contrast values when in alignment mode
@@ -242,7 +243,7 @@ class MirrorDistance(Measurable):
     }
 
     attached_devices = {
-        'axis': Attach('IDS Axis for the measurement', IDS3010Axis)
+        'axis': Attach('IDS Axis for the measurement', Readable)
     }
 
     valuetype = float
