@@ -11,7 +11,7 @@ _expcolumn = Column(
                   istext=True, maxlen=90),
             Field(name='Data file', key='exp/lastpoint'),
             Field(name='Current Sample', key='sample/samplename', width=16),
-        )
+        ),
         ],
         # setups='experiment',
     ),
