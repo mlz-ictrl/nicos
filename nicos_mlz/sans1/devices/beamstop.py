@@ -237,7 +237,7 @@ class BeamStop(SequencerMixin, Moveable):
     @requires()
     def doWriteShape(self, target):
         if self._seq_is_running():
-            raise UsageError('can not change shape while Busy')
+            raise UsageError('can not change shape while busy')
         if not self.shape in self.slots:
             raise UsageError('currently used shape unknown, '
                              '(Call instrument scientist!)')
