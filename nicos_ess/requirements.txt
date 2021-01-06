@@ -6,7 +6,7 @@ flatbuffers>=1.12
 graypy
 kafka-logging-handler
 kafka-python>=1.4.6
-pvapy
+# pvapy - needs to be installed manually on Mac
 pyepics
 PyQt5==5.14.2
 PyQt5-sip==12.8
