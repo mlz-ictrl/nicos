@@ -104,9 +104,7 @@ class HasDisablePv(CanDisable):
         # PVs specified in EpicsDevice.param
         switch_pvs = {'switchpv:' + pv for pv in self.switchpvs}
 
-        # pylint: disable=super-with-arguments
-        return super(HasDisablePv, self)._get_pv_parameters() | switch_pvs
-        # pylint: enable=super-with-arguments
+        return super()._get_pv_parameters() | switch_pvs
 
     def _get_pv_name(self, pvparam):
         components = pvparam.split(':', 1)
@@ -114,9 +112,7 @@ class HasDisablePv(CanDisable):
         if len(components) == 2 and components[0] == 'switchpv':
             return self.switchpvs[components[1]]
 
-        # pylint: disable=super-with-arguments
-        return super(HasDisablePv, self)._get_pv_name(pvparam)
-        # pylint: enable=super-with-arguments
+        return super()._get_pv_name(pvparam)
 
     @property
     def isEnabled(self):
