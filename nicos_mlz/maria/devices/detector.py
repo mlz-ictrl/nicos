@@ -64,8 +64,8 @@ class MariaDetector(Detector):
     def _presetiter(self):
         for i, dev in enumerate(self._attached_lives):
             if i == 0:
-                yield ("live", dev)
-            yield ("live%d" % (i + 1), dev)
+                yield ("live", dev, "other")
+            yield ("live%d" % (i + 1), dev, "other")
         yield from Detector._presetiter(self)
 
     def doSetPreset(self, **preset):
@@ -80,7 +80,7 @@ class MariaDetector(Detector):
         for name in preset:
             if name in self._presetkeys and self._presetkeys[name] and \
                     name.startswith("live"):
-                dev = self._presetkeys[name]
+                dev = self._presetkeys[name][0]
                 dev.ismaster = True
                 dev.islive = True
         self.log.debug("   presets: %s", preset)
