@@ -8,5 +8,5 @@ SELECTOR_PRESETS = {
     '12.8A': dict(lam=12.8),
     '15A':   dict(lam=15),
     '20A':   dict(lam=20),
-    '30A':   dict(lam=30),
+    '30A':   dict(lam=30.14),
 }
