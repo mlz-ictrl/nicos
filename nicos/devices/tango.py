@@ -40,7 +40,8 @@ from nicos.core import SIMULATION, ArrayDesc, CanDisable, CommunicationError, \
     ConfigurationError, Device, HardwareError, HasCommunication, HasLimits, \
     HasPrecision, HasTimeout, InvalidValueError, Moveable, NicosError, \
     Override, Param, ProgrammingError, Readable, Value, dictof, floatrange, \
-    intrange, listof, nonemptylistof, oneof, oneofdict, status, tangodev
+    intrange, listof, nonemptylistof, oneof, oneofdict, status, tangodev, \
+    waitForCompletion
 from nicos.core.constants import FINAL, SLAVE
 from nicos.core.mixins import HasOffset, HasWindowTimeout
 from nicos.devices.abstract import CanReference, Coder, Motor as NicosMotor
@@ -992,6 +993,9 @@ class ImageChannel(BaseImageChannel):
             self.readArray(FINAL)  # update readresult at startup
 
     def doReadArray(self, quality):
+        # on quality FINAL wait for tango ImageChannel finishing readout
+        if quality == FINAL:
+            waitForCompletion(self)
         narray = BaseImageChannel.doReadArray(self, quality)
         self.readresult = [narray.sum()]
         return narray
