@@ -187,13 +187,6 @@ class DeviceDataset(NexusElementBase):
             if not isinstance(val, NXAttribute):
                 val = NXAttribute(val, 'string')
             self.attrs[key] = val
-        if 'units' not in self.attrs and parameter == 'value':
-            try:
-                dev = session.getDevice(device)
-                inf = dev.info()
-                self.attrs['units'] = NXAttribute(inf[0][3], 'string')
-            except NicosError:
-                pass
         NexusElementBase.__init__(self)
 
     def create(self, name, h5parent, sinkhandler):
@@ -205,9 +198,15 @@ class DeviceDataset(NexusElementBase):
         if self.value[0] is not None:
             self.determineType()
         else:
-            session.log.warning('Warning: failed to locate data for '
-                                '%s %s in NICOS', self.device, self.parameter)
-            return
+            try:
+                dev = session.getDevice(self.device)
+                self.value = (getattr(dev, self.parameter, self.defaultval),)
+                self.determineType()
+            except Exception as e:
+                session.log.warning(
+                    'Warning: failed to locate data for %s %s in NICOS (%s)',
+                    self.device, self.parameter, e)
+                return
         self.testAppend(sinkhandler)
         if self.dtype == 'string':
             dtype = 'S%d' % (len(self.value[0]) + 1)
@@ -217,12 +216,18 @@ class DeviceDataset(NexusElementBase):
             if self.doAppend:
                 dset = h5parent.create_dataset(name, (1,), maxshape=(None,),
                                                dtype=self.dtype)
-                dset[0] = self.value[0]
             else:
                 dset = h5parent.create_dataset(name, (1,), dtype=self.dtype)
-                dset[0] = self.value[0]
+            dset[0] = self.value[0]
             if 'units' not in self.attrs:
-                dset.attrs['units'] = np.string_(self.value[2])
+                if self.parameter in ['target']:
+                    try:
+                        inf = session.getDevice(self.device).info()
+                        self.attrs['units'] = NXAttribute(inf[0][3], 'string')
+                    except NicosError:
+                        pass
+                elif len(self.value) > 2:
+                    dset.attrs['units'] = np.string_(self.value[2])
         self.createAttributes(dset, sinkhandler)
 
     def update(self, name, h5parent, sinkhandler, values):
