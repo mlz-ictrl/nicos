@@ -524,9 +524,9 @@ class Detector(Measurable):
                               self._attached_counters + self._attached_images +
                               self._attached_others)
         self._presetkeys = presetkeys
-        self._getMasters()
+        self._collectMasters()
 
-    def _getMasters(self):
+    def _collectMasters(self):
         """Internal method to collect all masters."""
         masters = []
         slaves = []
@@ -560,7 +560,7 @@ class Detector(Measurable):
                 dev = self._presetkeys[name][0]
                 dev.setChannelPreset(name, value)
                 self._channel_presets.setdefault(dev, []).append((name, value))
-        self._getMasters()
+        self._collectMasters()
         if set(self._masters) != set(self._channel_presets):
             if not self._masters:
                 self.log.warning('no master configured, detector may not stop')
