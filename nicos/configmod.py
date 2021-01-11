@@ -26,7 +26,6 @@
 Global configuration for the NICOS system.
 """
 
-import glob
 import os
 import sys
 from configparser import ConfigParser
@@ -97,14 +96,6 @@ class config:
         # Set a default setup_subdirs
         if cls.setup_subdirs is None:
             cls.setup_subdirs = cls.instrument
-
-        # Set up PYTHONPATH for Taco libraries.
-        try:
-            tacobase = os.environ['DSHOME']
-        except KeyError:
-            tacobase = '/opt/taco'
-        sys.path.extend(glob.glob(tacobase + '/lib*/python%d.*/site-packages'
-                                  % sys.version_info[0]))
 
         cls._applied = True
 
