@@ -113,9 +113,9 @@ class DaemonSession(NoninteractiveSession):
         NoninteractiveSession.setMode(self, mode)
         self.emitfunc('mode', mode)
 
-    def updateLiveData(self, tag, uid, detector, filename, dtype, nx, ny, nt,
+    def updateLiveData(self, tag, uid, detector, filenames, dtype, nx, ny, nt,
                        time, data):
-        self.emitfunc('livedata', (tag, uid, detector, filename, dtype,
+        self.emitfunc('livedata', (tag, uid, detector, filenames, dtype,
                                    nx, ny, nt, time), data)
 
     def notifyDataFile(self, tag, uid, detector, filename_or_filenames):

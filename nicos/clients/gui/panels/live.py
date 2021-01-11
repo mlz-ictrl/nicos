@@ -419,10 +419,7 @@ class LiveDataPanel(Panel):
                              + '/detlist').lower()
 
     def on_client_livedata(self, params, blobs):
-        tag, uid, det, fname, dtype, nx, ny, nz, runtime = params
-        # TODO: remove compatibility code
-        if isinstance(fname, str):
-            fname, nx, ny, nz = [fname], [nx], [ny], [nz]
+        tag, uid, det, filenames, dtype, nx, ny, nz, runtime = params
 
         if self._allowed_detectors and det not in self._allowed_detectors:
             self._ignore_livedata = True
@@ -431,7 +428,7 @@ class LiveDataPanel(Panel):
         self._runtime = runtime
         self._last_uid = uid
         if dtype:
-            self.setLiveItems(len(fname))
+            self.setLiveItems(len(filenames))
             self._last_fnames = None
             normalized_type = numpy.dtype(dtype).str
             if normalized_type not in DATATYPES:
@@ -439,8 +436,8 @@ class LiveDataPanel(Panel):
                 self.log.warning('Unsupported live data format: %s', (params,))
                 return
             self._last_format = normalized_type
-        elif fname:
-            self._last_fnames = fname
+        elif filenames:
+            self._last_fnames = filenames
             self._last_format = None
         self._last_tag = tag.lower()
         self._nx = nx
