@@ -446,6 +446,8 @@ class LiveDataPanel(Panel):
         self._last_idx = 0
         for blob in blobs:
             self._process_livedata(blob)
+        if not blobs:
+            self._process_livedata([])
 
     def _initLiveWidget(self, array):
         """Initialize livewidget based on array's shape"""
