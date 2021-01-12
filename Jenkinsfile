@@ -314,7 +314,7 @@ node('dockerhost') {
         checkoutSource()
     }
 u18 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bionic')
-c8 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:centos8')
+//c8 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:centos8')
 
     stage(name: 'prepare') {
         withCredentials([string(credentialsId: 'RMAPIKEY', variable: 'RMAPIKEY'),
@@ -354,7 +354,7 @@ try {
                 }
             }
         } //stage
-    }, test_python3centos: {
+    }, /*test_python3centos: {
         stage(name: 'Python3 CentOS tests') {
             ws {
                 checkoutSource()
@@ -363,7 +363,7 @@ try {
                 } // image.inside
             } // ws
         } // stage
-    }, test_python3: {
+    },*/ test_python3: {
         stage(name: 'Python3 tests') {
             ws {
                 checkoutSource()

@@ -5,7 +5,6 @@ venvfull="$1"
 pbranch="${2-default}"
 venv=${venvfull##*/}
 . $venvfull/bin/activate
-pip install --upgrade pip
 echo
 
 echo "==== NICOS core dependencies ======"
