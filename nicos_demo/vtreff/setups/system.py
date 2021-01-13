@@ -48,6 +48,8 @@ devices = dict(
             disableDirMode = 0o750,
             disableFileMode = 0o440,
         ),
+        mailserver='mailhost.frm2.tum.de',
+        mailsender='c.felder@fz-juelich.de',
         sendmail = True,
         zipdata = True,
         serviceexp = 'service',
