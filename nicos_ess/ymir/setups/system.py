@@ -6,7 +6,7 @@ sysconfig = dict(
     cache='localhost',
     instrument=None,
     experiment='Exp',
-    datasinks=['conssink', 'filesink', 'daemonsink', 'jbi_liveview', ],
+    datasinks=['conssink', 'filesink', 'daemonsink', 'liveview', ],
 )
 
 modules = ['nicos.commands.standard', 'nicos_ess.commands.epics']
@@ -45,13 +45,7 @@ devices = dict(
                  minfree=5,
                  ),
 
-    det=device('nicos_ess.devices.datasources.just_bin_it.JustBinItDetector',
-               description='The just-bin-it histogrammer', hist_topic='nicos1',
-               data_topic='event_data', brokers=['172.30.242.20:9092'],
-               unit='evts', command_topic='hist_commands',
-               response_topic='hist_responses'),
-
-    jbi_liveview=device('nicos.devices.datasinks.LiveViewSink', ),
+    liveview=device('nicos.devices.datasinks.LiveViewSink', ),
 
     NexusDataSink=device(
         'nicos_ess.devices.datasinks.nexussink.NexusFileWriterSink',
@@ -71,7 +65,3 @@ devices = dict(
     ),
 
 )
-
-startupcode = '''
-SetDetectors(det)
-'''
