@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -334,7 +334,8 @@ class BaseCacheClient(Device):
                                      'to %s: %s', self.cache, err)
                     self._secsocket = None
                     self._disconnect('secondary socket: could not connect')
-                    raise CacheError('secondary socket could not be created')
+                    raise CacheError(
+                        'secondary socket could not be created') from err
 
             try:
                 # write request

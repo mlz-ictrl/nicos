@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -237,7 +237,7 @@ class BeamStop(SequencerMixin, Moveable):
     @requires()
     def doWriteShape(self, target):
         if self._seq_is_running():
-            raise UsageError('can not change shape while Busy')
+            raise UsageError('can not change shape while busy')
         if not self.shape in self.slots:
             raise UsageError('currently used shape unknown, '
                              '(Call instrument scientist!)')

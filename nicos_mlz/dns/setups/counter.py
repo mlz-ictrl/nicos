@@ -6,20 +6,18 @@ group = 'optional'
 tango_base = 'tango://phys.dns.frm2:10000/dns/'
 
 devices = dict(
-    timer = device('nicos_mlz.jcns.devices.fpga.FPGATimerChannel',
+    timer = device('nicos_mlz.jcns.devices.fpga_new.FPGATimerChannel',
         description = 'Acquisition time',
-        tangodevice = tango_base + 'count/0',
+        tangodevice = tango_base + 'count/timer',
     ),
-    mon1 = device('nicos_mlz.jcns.devices.fpga.FPGACounterChannel',
+    mon1 = device('nicos.devices.tango.CounterChannel',
         description = 'Beam monitor counter',
-        tangodevice = tango_base + 'count/0',
-        channel = 0,
+        tangodevice = tango_base + 'count/mon1',
         type = 'monitor',
     ),
-    chopctr = device('nicos_mlz.jcns.devices.fpga.FPGACounterChannel',
+    chopctr = device('nicos.devices.tango.CounterChannel',
         description = 'Chopper zero signal counter',
-        tangodevice = tango_base + 'count/0',
-        channel = 4,
+        tangodevice = tango_base + 'count/chopper',
         type = 'other',
     ),
 )

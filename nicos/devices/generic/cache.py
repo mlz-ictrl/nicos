@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -72,7 +72,7 @@ class CacheReader(Readable):
             try:
                 time, ttl, val = self._cache.get_explicit(self, 'value')
             except CacheError:
-                raise CommunicationError(self, CACHE_NOVALUE_STRING)
+                raise CommunicationError(self, CACHE_NOVALUE_STRING) from None
             if time and ttl and time + ttl < currenttime():
                 # Note: this will only be reached if self.maxage is expired as well
                 self.log.warning('value timed out in cache, this should be '

@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -51,6 +51,7 @@ pytest.importorskip('graypy')
 session_setup = "ess_area_detector"
 
 
+@pytest.mark.skip(reason="flaky test")
 class TestEpicsAreaDetector:
     """
     Tests for the operations EPICS areaDetector
@@ -518,6 +519,7 @@ class TestEpicsAreaDetectorWithKafkaPlugin:
         assert (raw[max(timestamps)] == self.detector.readArrays(LIVE)).all()
 
 
+@pytest.mark.skip(reason="flaky test")
 class TestEpicsAreaDetector1(unittest.TestCase):
 
     def create_patch(self, name):

@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -406,9 +406,9 @@ def get_facility_log_handlers(config):
     """
     try:
         setup_package_mod = __import__(config.setup_package)
-    except ImportError:
-        raise RuntimeError('Setup package %r does not exist.' %
-                           config.setup_package)
+    except ImportError as err:
+        raise RuntimeError(
+            'Setup package %r does not exist.' % config.setup_package) from err
 
     if not hasattr(setup_package_mod, 'get_log_handlers'):
         return []

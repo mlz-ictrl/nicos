@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -57,8 +57,9 @@ class WutValue(Readable):
         except ConfigurationError:  # pass through error raised above
             raise
         except Exception as err:
-            raise CommunicationError(self, 'wut-box not responding or '
-                                     'changed format: %s' % err)
+            raise CommunicationError(
+                self, 'wut-box not responding or changed format: %s' % err
+            ) from err
 
     def _extractUnit(self, raw):
         return raw.split(';')[-1].split(' ')[-1]

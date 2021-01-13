@@ -26,7 +26,7 @@ def create_epics_magnet(device_id):
                   switchpvs={
                       'read': 'SQ:AMOR:' + device_id + ':PowerStatusRBV',
                       'write': 'SQ:AMOR:' + device_id + ':PowerStatus'},
-                  switchstates={'on': 1, 'off': 0},
+                  switchstates={'enable': 1, 'disable': 0},
                   precision=0.1,
                   timeout=None,
                   window=5.0,

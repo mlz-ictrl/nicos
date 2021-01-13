@@ -12,7 +12,7 @@ _expcolumn = Column(
             Field(name='Data file', key='exp/lastpoint'),
             Field(name='Current Sample', key='sample/samplename', width=16,
                   istext=True),
-        )
+        ),
         ],
         # setups='experiment',
     ),
@@ -72,7 +72,7 @@ _tisane = Column(
             Field(name='water flow', dev='chopper_waterflow', width=12, format = '%.2'),
         ),
         ],
-    setups='chopper',
+        setups='chopper',
     ),
 )
 

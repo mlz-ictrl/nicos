@@ -2,10 +2,6 @@ description = 'detector setup'
 
 group = 'lowlevel'
 
-sysconfig = dict(
-    datasinks = ['tifformat'],
-)
-
 devices = dict(
     monitor = device('nicos.devices.generic.VirtualCounter',
         description = 'simulated monitor',
@@ -36,6 +32,7 @@ devices = dict(
             abslimits = (900, 1500),
             unit = 'mm',
             speed = 1,
+            curvalue = 900,
         ),
         precision = 0.01,
         fmtstr = "%.2f",

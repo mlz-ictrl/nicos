@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -32,8 +32,8 @@ from nicos.core import SIMULATION, Attach, CommunicationError, HasTimeout, \
 from nicos.devices.abstract import Coder as NicosCoder, Motor as NicosMotor
 from nicos.utils import lazy_property
 
-from .bus.base import InvalidCommandError, IPCModBus, IPCModBusSerial, \
-    IPCModBusTCP
+from .bus.base import InvalidCommandError, IPCModBus, IPCModBusRS232, \
+    IPCModBusSerial, IPCModBusTCP
 
 try:
     from .bus.taco import IPCModBusTaco, IPCModBusTacoSerial

@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -48,7 +48,7 @@ def from_k(value, unit):
             raise ProgrammingError('unknown energy unit %r' % unit)
     except (ArithmeticError, ValueError) as err:
         raise ComputationError(
-            'cannot convert %s A-1 to %s: %s' % (value, unit, err))
+            'cannot convert %s A-1 to %s: %s' % (value, unit, err)) from None
 
 
 def to_k(value, unit):
@@ -65,7 +65,7 @@ def to_k(value, unit):
             raise ProgrammingError('unknown energy unit %r' % unit)
     except (ArithmeticError, ValueError) as err:
         raise ComputationError(
-            'cannot convert %s A-1 to %s: %s' % (value, unit, err))
+            'cannot convert %s A-1 to %s: %s' % (value, unit, err)) from None
 
 
 class Monochromator(Moveable):

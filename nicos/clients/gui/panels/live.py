@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -128,7 +128,6 @@ class LiveDataPanel(Panel):
         if hasattr(self.window(), 'closed'):
             self.window().closed.connect(self.on_closed)
         client.livedata.connect(self.on_client_livedata)
-        client.liveparams.connect(self.on_client_liveparams)
         client.connected.connect(self.on_client_connected)
         client.cache.connect(self.on_cache)
 
@@ -407,7 +406,7 @@ class LiveDataPanel(Panel):
             self._register_rois(value)
 
     def on_client_connected(self):
-        self.client.tell('eventunmask', ['livedata', 'liveparams'])
+        self.client.tell('eventunmask', ['livedata'])
         datapath = self.client.eval('session.experiment.datapath', '')
         if not datapath or not path.isdir(datapath):
             return
@@ -419,11 +418,8 @@ class LiveDataPanel(Panel):
         self.detectorskey = (self.client.eval('session.experiment.name')
                              + '/detlist').lower()
 
-    def on_client_liveparams(self, params):
-        tag, uid, det, fname, dtype, nx, ny, nz, runtime = params
-        # TODO: remove compatibility code
-        if isinstance(fname, str):
-            fname, nx, ny, nz = [fname], [nx], [ny], [nz]
+    def on_client_livedata(self, params, blobs):
+        tag, uid, det, filenames, dtype, nx, ny, nz, runtime = params
 
         if self._allowed_detectors and det not in self._allowed_detectors:
             self._ignore_livedata = True
@@ -432,7 +428,7 @@ class LiveDataPanel(Panel):
         self._runtime = runtime
         self._last_uid = uid
         if dtype:
-            self.setLiveItems(len(fname))
+            self.setLiveItems(len(filenames))
             self._last_fnames = None
             normalized_type = numpy.dtype(dtype).str
             if normalized_type not in DATATYPES:
@@ -440,14 +436,18 @@ class LiveDataPanel(Panel):
                 self.log.warning('Unsupported live data format: %s', (params,))
                 return
             self._last_format = normalized_type
-        elif fname:
-            self._last_fnames = fname
+        elif filenames:
+            self._last_fnames = filenames
             self._last_format = None
         self._last_tag = tag.lower()
         self._nx = nx
         self._ny = ny
         self._nz = nz
         self._last_idx = 0
+        for blob in blobs:
+            self._process_livedata(blob)
+        if not blobs:
+            self._process_livedata([])
 
     def _initLiveWidget(self, array):
         """Initialize livewidget based on array's shape"""
@@ -477,15 +477,14 @@ class LiveDataPanel(Panel):
         try:
             array = ReaderRegistry.getReaderCls(tag).fromfile(filename)
         except KeyError:
-            raise NicosError('Unsupported fileformat %r' % tag)
+            raise NicosError('Unsupported fileformat %r' % tag) from None
         if array is not None:
             self.setData(array, uid, display=display)
         else:
             raise NicosError('Cannot read file %r' % filename)
 
-    def on_client_livedata(self, data):
-        if self._ignore_livedata:  # ignore all live events
-            return
+    def _process_livedata(self, data):
+        # TODO: needs to be merged into on_client_livedata() above
 
         idx = self._last_idx  # 0 <= array number < n
         self._last_idx += 1

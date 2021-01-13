@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -282,11 +282,6 @@ class Sans1HVOffDuration(Readable):
             secs = int(secs) % 60
             return '%g:%02d:%02d' % (hours, mins, secs)
         return 'never'
-
-
-#class Sans1ZMotor(TacoMotor):
-#    _TACO_STATUS_MAPPING = TacoMotor._TACO_STATUS_MAPPING.copy()
-#    _TACO_STATUS_MAPPING[TACOStates.TRIPPED] = (status.WARN, 'move inhibit')
 
 
 class Sans1ZMotor(TangoMotor):

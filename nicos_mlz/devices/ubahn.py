@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -60,8 +60,9 @@ class UBahn(Readable):
             return ', '.join(n.text for n in
                              tree.findall('//td[@class="inMinColumn"]'))
         except Exception as err:
-            raise NicosError(self, 'MVG site not responding or changed format:'
-                             ' %s' % err)
+            raise NicosError(
+                self, 'MVG site not responding or changed format: %s' % err
+            ) from err
 
     def doStatus(self, maxage=0):
         return status.OK, ''

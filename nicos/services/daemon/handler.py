@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -243,11 +243,11 @@ class ConnectionHandler:
             item = queue_get()
             if item is stop_queue:
                 break
-            event, data = item
+            event, data, blobs = item
             if event in event_mask:
                 continue
             try:
-                self.send_event(event, data)
+                self.send_event(event, data, blobs)
             except socket.timeout:
                 # XXX move socket specific error handling to transport
                 self.log.error('send timeout in event sender')
@@ -516,6 +516,9 @@ class ConnectionHandler:
     def getversion(self):
         """Return the daemon's version.
 
+        Also used as a keepalive ping by the client, which can refresh user
+        login sessions if necessary.
+
         :returns: version string
         """
         self.send_ok_reply(nicos_version)
@@ -766,6 +769,20 @@ class ConnectionHandler:
         finally:
             os.close(fd)
         self.send_ok_reply(filename)
+
+    @command()
+    def keepalive(self):
+        """Do whatever is necessary to keep the connection able to function,
+        for example refresh client credentials with an external authentication
+        mechanism.
+
+        This is called every 12 hours from each connected client session.
+
+        :returns: ack
+        """
+        if 'keepalive' in self.user.data:
+            self.user.data['keepalive']()
+        self.send_ok_reply(None)
 
     @command(needcontrol=True)
     def unlock(self):

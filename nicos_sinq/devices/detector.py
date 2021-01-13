@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -56,10 +56,10 @@ class SinqDetector(EpicsScalerRecord):
         for name in self.time_preset_names:
             yield name, self._attached_timepreset, 'time'
 
-    def _getMasters(self):
+    def _collectMasters(self):
         self._channels = uniq(self._channels + [self._attached_monitorpreset,
                                                 self._attached_timepreset])
-        EpicsScalerRecord._getMasters(self)
+        EpicsScalerRecord._collectMasters(self)
 
     def doSetPreset(self, **preset):
         # The counter box can set one time and count preset. If the time

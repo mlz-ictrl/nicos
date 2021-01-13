@@ -1,4 +1,4 @@
-#  -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
@@ -18,25 +18,21 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
-'''Class to use the Servostar-Motors'''
-
-import TACOStates
-
-from nicos.core import status
-from nicos.devices.taco import Motor as TacoMotor
-
-
-# Just redefine doStatus as this doesn't work correctly with the
-# ServoStarTacoServer
-class ServoStarMotor(TacoMotor):
-    """
-    This device handles the DISABLED taco state thats given from the servostar
-    server when the hardware is idle.
-    """
-
-    _TACO_STATUS_MAPPING = dict(TacoMotor._TACO_STATUS_MAPPING)
-    _TACO_STATUS_MAPPING[TACOStates.DISABLED] = status.OK
+devices = dict(
+    DeviceCanDisable = device('test.nicos_ess.test_devices.test_epics_extensions'
+        '.EpicsDeviceThatHasDisablePv',
+        description = "A device that HasDisablePv mixin",
+        switchpvs = {
+            'read': 'EPICS:Enable.RBV',
+            'write': 'EPICS:Enable'
+        },
+        switchstates = {
+            'enable': 1,
+            'disable': 0
+        },
+    ),
+)

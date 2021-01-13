@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -175,7 +175,7 @@ class ConsoleBox(QPlainTextEdit):
             return
         elif event.key() == Qt.Key_D and event.modifiers() == Qt.ControlModifier:
             self.closeConsole.emit()
-        super(ConsoleBox, self).keyPressEvent(event)
+        QPlainTextEdit.keyPressEvent(self, event)
 
 
 class DebugConsole(QMainWindow):
@@ -217,7 +217,7 @@ Helper functions:
                 self.on_client_signal(event, args)
             return handler
         if not events:
-            events = DAEMON_EVENTS.keys()
+            events = DAEMON_EVENTS
         for event in events:
             getattr(self.parent().client, event).connect(make_handler(event))
 

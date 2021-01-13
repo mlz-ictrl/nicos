@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -31,7 +31,7 @@ from nicos.guisupport.qt import QAbstractButton, QByteArray, QHBoxLayout, \
 
 class PicButton(QAbstractButton):
     def __init__(self, icon, parent=None):
-        super(PicButton, self).__init__(parent)
+        QAbstractButton.__init__(self, parent)
         self.icon = icon
         self._size = QSize(100, 100)
 
@@ -39,8 +39,9 @@ class PicButton(QAbstractButton):
         painter = QPainter(self)
         mode = QIcon.Active if self.isDown() else QIcon.Normal
         pixmap = self.icon.pixmap(self._size, mode)
-        painter.drawPixmap(QPoint(0, 0),
-                           pixmap.scaled(event.rect().size(), Qt.KeepAspectRatio))
+        painter.drawPixmap(
+            QPoint(0, 0),
+            pixmap.scaled(event.rect().size(), Qt.KeepAspectRatio))
 
     def sizeHint(self):
         return self._size

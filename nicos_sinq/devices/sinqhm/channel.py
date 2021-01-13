@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -75,13 +75,15 @@ class HistogramImageChannel(ImageChannelMixin, PassiveChannel):
         """
         return 0
 
+    @property
     def endid(self):
         """ The end id of the data to be fetched from the bank.
         By default uses the full banks capacity, but can be
         overridden in case a smaller range is required
         """
-        return numpy.prod(self.shape())
+        return numpy.prod(self.shape)
 
+    @property
     def shape(self):
         """ Shape of the data fetched. By default uses the
         shape of the bank, but the subclasses can override
@@ -147,10 +149,11 @@ class ReshapeHistogramImageChannel(HistogramImageChannel):
 
     def doReadArray(self, quality):
         data = HistogramImageChannel.doReadArray(self, quality)
-        if len(data) >= numpy.prod(self.shape()):
-            return data.reshape(self.shape())
+        if len(data) >= numpy.prod(self.shape):
+            return data.reshape(self.shape)
         return data
 
+    @property
     def shape(self):
         return self._shape
 

@@ -1,3 +1,6 @@
+
+"""NICOS GUI LoKI configuration."""
+
 main_window = docked(
     tabbed(
         (
