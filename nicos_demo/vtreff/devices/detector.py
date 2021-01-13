@@ -83,7 +83,9 @@ class McStasImage(BaseImage):
         params.append('mirror_alfa=%s' % self._attached_sample.alfa)
         params.append('mirror_wav=%s' % self._attached_sample.waviness)
         if self._attached_sample.rflfile:
-            params.append('rflfile=%s' % self._attached_sample.rflfile)
+            params.append('rflfile=%s' %
+                          self._attached_sample.getReflectivityFile())
+
         else:
             params.append('rflfile=0')
         return params
