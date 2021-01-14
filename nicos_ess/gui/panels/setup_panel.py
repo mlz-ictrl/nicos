@@ -229,12 +229,6 @@ class FinishPanel(Panel):
 
         # Additional dialog panels to pop up after FinishExperiment().
         self._finish_exp_panel = options.get('finish_exp_panel')
-
-        # Find apply button in button panel, relabel it and add click event listener.
-        for button in self.finishButton.buttons():
-            if button.text() == 'Apply':
-                button.setText('Finish')
-                button.clicked.connect(self.on_finishButton_clicked)
         self.finishButton.setEnabled(False)
 
         client.connected.connect(self.on_client_connected)
