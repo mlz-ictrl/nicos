@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>894</width>
-    <height>646</height>
+    <height>741</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,19 +23,6 @@
       <enum>QFrame::Raised</enum>
      </property>
      <layout class="QFormLayout" name="formLayout">
-      <item row="2" column="0">
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>0</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="0" column="0" colspan="2">
        <widget class="QWidget" name="newBox" native="true">
         <layout class="QGridLayout" name="gridLayout_3">
@@ -87,15 +74,15 @@
         </layout>
        </widget>
       </item>
-      <item row="1" column="0" colspan="2">
+      <item row="2" column="0" colspan="2">
        <widget class="QWidget" name="dataBox" native="true">
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <layout class="QGridLayout" name="gridLayout">
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_8">
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_12">
              <property name="text">
-              <string>Local contact:</string>
+              <string>Proposal Number: </string>
              </property>
             </widget>
            </item>
@@ -117,31 +104,38 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>Local contact:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
             <widget class="QLineEdit" name="localContact"/>
            </item>
-           <item row="6" column="0">
+           <item row="7" column="0">
             <widget class="QLabel" name="label_3">
              <property name="text">
               <string>Sample name:</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
+           <item row="4" column="0">
             <widget class="QLabel" name="label_7">
              <property name="text">
               <string>Users:</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
+           <item row="3" column="0">
             <widget class="QLabel" name="label_6">
              <property name="text">
               <string>Experiment title:</string>
              </property>
             </widget>
            </item>
-           <item row="9" column="1">
+           <item row="10" column="1">
             <widget class="QPlainTextEdit" name="dataEmails">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -157,7 +151,7 @@
              </property>
             </widget>
            </item>
-           <item row="8" column="1">
+           <item row="9" column="1">
             <widget class="QPlainTextEdit" name="notifEmails">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -179,14 +173,14 @@
              </property>
             </widget>
            </item>
-           <item row="7" column="0" colspan="2">
+           <item row="8" column="0" colspan="2">
             <widget class="Line" name="line_3">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
             </widget>
            </item>
-           <item row="8" column="0">
+           <item row="9" column="0">
             <widget class="QLabel" name="label_10">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -205,7 +199,7 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="0" colspan="2">
+           <item row="6" column="0" colspan="2">
             <widget class="Line" name="line_2">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -219,7 +213,7 @@
              </property>
             </widget>
            </item>
-           <item row="9" column="0">
+           <item row="10" column="0">
             <widget class="QLabel" name="label_11">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -238,28 +232,48 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
+           <item row="7" column="1">
             <widget class="QLineEdit" name="sampleName"/>
            </item>
-           <item row="10" column="1">
+           <item row="11" column="1">
             <widget class="QCheckBox" name="errorAbortBox">
              <property name="text">
               <string>Do not continue scripts after fatal errors</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
+           <item row="3" column="1">
             <widget class="QLineEdit" name="expTitle"/>
            </item>
-           <item row="3" column="1">
+           <item row="4" column="1">
             <widget class="QLineEdit" name="users"/>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="proposalID">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
         </layout>
        </widget>
       </item>
-      <item row="3" column="0" colspan="2">
+      <item row="3" column="0">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>0</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="4" column="0" colspan="2">
        <widget class="QDialogButtonBox" name="buttonBox">
         <property name="layoutDirection">
          <enum>Qt::RightToLeft</enum>
