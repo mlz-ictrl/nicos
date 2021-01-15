@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -62,7 +62,7 @@ class HexapodTool(DlgUtils, QMainWindow):
             try:
                 self._controller.State()
             except AttributeError:
-                raise Exception('server appears to be not running')
+                raise Exception('server appears to be not running') from None
             for axis in AXES:
                 self.axes[axis] = PyTango.DeviceProxy(TANGO_DEV_BASE + axis)
                 self.axeslist.append(self.axes[axis])

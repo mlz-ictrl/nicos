@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -39,11 +39,11 @@ DEFAULT_PORT = 1301
 # protocol version, increment this whenever making changes to command
 # arguments or adding new commands
 
-PROTO_VERSION = 19
+PROTO_VERSION = 20
 
 # old versions with which the client is still compatible
 
-COMPATIBLE_PROTO_VERSIONS = [18]
+COMPATIBLE_PROTO_VERSIONS = []
 
 # to encode payload lengths as network-order 32-bit unsigned int
 LENGTH = struct.Struct('>I')
@@ -81,7 +81,7 @@ for _name, _number in DAEMON_COMMANDS.items():
     code2command[_enc] = _name
 
 event2code, code2event = {}, {}
-for _name, (_, _number) in DAEMON_EVENTS.items():
+for _name, (_number, _) in DAEMON_EVENTS.items():
     _enc = _codefmt.pack(_number)
     event2code[_name] = _enc
     code2event[_enc] = _name

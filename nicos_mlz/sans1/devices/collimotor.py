@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -133,7 +133,8 @@ class Sans1ColliBase(PyTangoDevice):
             self._dev.WriteOutputWord((WATCHDOG_REGISTER, WATCHDOG_DISABLE))
             # check 'dwordorder' is 'little'
             if self._getProperty('dwordorder') != 'little':
-                raise ConfigurationError("dwordorder property must be set to 'little'!")
+                raise ConfigurationError("dwordorder property must "
+                                         "be set to 'little'!")
 
 
 class Sans1ColliCoder(Sans1ColliBase, Coder):
@@ -678,7 +679,7 @@ class Sans1ColliMotorAllParams(Sans1ColliMotor):
             index = int(self._paridx.get(index, index))
         except ValueError:
             raise UsageError(self, 'Unknown parameter %r, try one of %s' %
-                             (index, ', '.join(self._paridx)))
+                             (index, ', '.join(self._paridx))) from None
         if self._readStatusWord() & (1 << 7):
             raise UsageError(self, 'Can not access Parameters while Motor is '
                              'moving, please stop it first!')

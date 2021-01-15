@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -169,12 +169,11 @@ session.updateLiveData(
     ['file.name'], '<u1', [2], [2], [1], 12345,
     [byteBuffer(arr)])
 ''', 'live.py')
-    for name, data, _exc in client.iter_signals(idx, timeout=10.0):
-        if name == 'liveparams':
+    for name, data, blobs in client.iter_signals(idx, timeout=10.0):
+        if name == 'livedata':
             assert data == ['Live', 'uid', 'detname', ['file.name'], '<u1',
                             [2], [2], [1], 12345]
-        elif name == 'livedata':
-            assert bytes(data) == b'\x01\x02\x03\x04'
+            assert [b.tobytes() for b in blobs] == [b'\x01\x02\x03\x04']
             return
 
 

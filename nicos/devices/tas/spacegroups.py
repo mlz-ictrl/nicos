@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -42,8 +42,9 @@ def get_spacegroup(sg):
     try:
         return sg_by_num[sg]
     except KeyError:
-        raise NicosError('space group %r not recognized (valid values '
-                         'are: num, (num, setting) or "HMsym")' % (sg,))
+        raise NicosError(
+            'space group %r not recognized (valid values are: num, (num, '
+            'setting) or "HMsym")' % (sg,)) from None
 
 def check_refcond(n, h, k, l):
     """Check reflection condition *n* against h, k, l.

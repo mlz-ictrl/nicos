@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -67,7 +67,8 @@ class Authenticator(BaseAuthenticator):
                     return User(username, access)
             return User(username, self.defaultlevel)
         except pam.PAMError as err:
-            raise AuthenticationError('PAM authentication failed: %s' % err)
+            raise AuthenticationError(
+                'PAM authentication failed: %s' % err) from None
         except Exception as err:
-            raise AuthenticationError('exception during PAM authentication: %s'
-                                      % err)
+            raise AuthenticationError(
+                'exception during PAM authentication: %s' % err) from None

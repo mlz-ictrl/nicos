@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -257,20 +257,14 @@ class NicosCompleter:
 
 
 class LoggingStdout:
-    """
-    Standard output stream replacement that tees output to a logger.
-    """
-
-    def __init__(self, orig_stdout):
-        self.orig_stdout = orig_stdout
+    """Standard output stream replacement that feeds output to a logger."""
 
     def write(self, text):
         if text.strip():
             session.log.info(text)
-        self.orig_stdout.write(text)
 
     def flush(self):
-        self.orig_stdout.flush()
+        pass
 
 
 # session id support

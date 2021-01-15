@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -38,25 +38,26 @@ from nicos_sinq.nexus.elements import NexusElementBase, NXAttribute, \
 
 
 class NexusTemplateProvider:
-    """
-        A base class which provides the NeXus template for the
-        NexusSinkHandler.
-        Subclasses must implement getTemplate(). This function is supposed to
-        return a
-        dictionary containg the desired NeXus structure of the file. This
-        abstraction allows
-        the dynamic provisioning of a suitable NeXus template. Because the
-        template may be dependent
-        on the setup or other instrument conditions.
+    """A base class which provides the NeXus template for the NexusSinkHandler.
+
+    Subclasses **must** implement ``getTemplate()``.
+
+    This abstraction allows the dynamic provisioning of a suitable NeXus
+    template. Because the template may be dependent on the setup or other
+    instrument conditions.
     """
 
     def getTemplate(self):
+        """Return a dictionary containing the desired NeXus structure."""
         raise NotImplementedError
 
 
 def copy_nexus_template(template):
-    """ Implement a specialized version of copy. The dict structure is deep
-    copied while the placeholders are a shallow copy of the original """
+    """Implement a specialized version of copy.
+
+    The dict structure is deep copied while the placeholders are a shallow
+    copy of the original.
+    """
     if isinstance(template, dict):
         return {k: copy_nexus_template(v) for k, v in template.items()}
     elif isinstance(template, list):

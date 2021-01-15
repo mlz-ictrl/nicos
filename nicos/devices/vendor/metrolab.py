@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -97,7 +97,8 @@ class THM1176(Measurable):
         except OSError as err:
             self.log.debug('exception in query: %s', err)
             if t == 0:
-                raise CommunicationError(self, 'error querying: %s' % err)
+                raise CommunicationError(
+                    self, 'error querying: %s' % err) from err
             session.delay(0.5)
             self.doReset()
             return self._query(q, binary, t-1)
@@ -109,7 +110,8 @@ class THM1176(Measurable):
             os.write(self._io, q.encode() + b'\n')
         except OSError as err:
             if t == 0:
-                raise CommunicationError(self, 'error executing: %s' % err)
+                raise CommunicationError(
+                    self, 'error executing: %s' % err) from err
             session.delay(0.5)
             self.doReset()
             self._execute(q, t-1)
@@ -122,7 +124,8 @@ class THM1176(Measurable):
             status = os.read(self._io, 100).rstrip().decode()
         except OSError as err:
             if t == 0:
-                raise CommunicationError(self, 'error getting status: %s' % err)
+                raise CommunicationError(
+                    self, 'error getting status: %s' % err) from err
             session.delay(0.5)
             self.doReset()
             return self._check_status(t-1)

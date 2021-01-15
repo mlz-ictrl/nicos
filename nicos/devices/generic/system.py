@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -81,7 +81,8 @@ class FreeSpace(Readable):
                 st = os.statvfs(path)
                 return (st.f_frsize * st.f_bavail) / self._factor
         except OSError as err:
-            raise NicosError(self, 'could not determine free space: %s' % err)
+            raise NicosError(
+                self, 'could not determine free space: %s' % err) from err
 
     def doStatus(self, maxage=0):
         free = self.read()

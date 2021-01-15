@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2018-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2018-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -189,7 +189,7 @@ class AmorControlPanel(GenericPanel):
 
     @pyqtSlot()
     def on_hsyToggleButton_clicked(self):
-        switchedOn = self.client.eval('hsy_switch.isSwitchedOn', None)
+        switchedOn = self.client.eval('hsy_switch.isEnabled', None)
         if switchedOn is None:
             self.showError('Cannot check the status of magnets!')
         newstate = 'off' if switchedOn else 'on'

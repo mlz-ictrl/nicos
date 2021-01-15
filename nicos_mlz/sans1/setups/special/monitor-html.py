@@ -504,7 +504,7 @@ _ccmsans_plot = Column(
                   key='B_ccm5h/target'),
         ),
         ],
-    setups='ccm5h',
+        setups='ccm5h',
     ),
 )
 
@@ -518,7 +518,7 @@ _ccm2a = Column(
              Field(name='Readback', dev='B_ccm2a_readback', width=12),
         ),
         ],
-    setups='ccm2a',
+        setups='ccm2a',
     ),
 )
 
@@ -533,7 +533,7 @@ _ccm2a_temperature = Column(
              Field(name='TB', dev='ccm2a_TB', width=12),
         ),
         ],
-    setups='ccm2a',
+        setups='ccm2a',
     ),
 )
 
@@ -744,7 +744,7 @@ _dilato = Column(
                    format='%.2f', unit='s', width=14),
         ),
         ],
-    setups='dilato',
+        setups='dilato',
     ),
 )
 

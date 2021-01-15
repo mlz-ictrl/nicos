@@ -7,3 +7,4 @@ Developers
    newdevice
    newcommand
    newdatasink
+   nexus

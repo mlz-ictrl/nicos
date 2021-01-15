@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -70,14 +70,17 @@ class DaemonSession(NoninteractiveSession):
         if value is not None and getattr(value, '__display__', True):
             self.log.log(INFO, repr(value))
 
-    def _beforeStart(self, daemondev):
+    def _beforeStart(self, daemondev, daemonized):
         from nicos.services.daemon.utils import DaemonLogHandler
         self.daemon_device = daemondev
         self.daemon_handler = DaemonLogHandler(daemondev)
         # create a new root logger that gets the daemon handler
-        self.createRootLogger()
+        self.createRootLogger(console=not daemonized)
         self.log.addHandler(self.daemon_handler)
-        sys.stdout = LoggingStdout(sys.stdout)
+
+        # We don't want all output to end up on stdout, which is usually either
+        # /dev/null or the systemd journal.
+        sys.stdout = LoggingStdout()
 
         # add an object to be used by DaemonSink objects
         self.emitfunc = daemondev.emit_event
@@ -110,12 +113,10 @@ class DaemonSession(NoninteractiveSession):
         NoninteractiveSession.setMode(self, mode)
         self.emitfunc('mode', mode)
 
-    def updateLiveData(self, tag, uid, detector, filename, dtype, nx, ny, nt,
+    def updateLiveData(self, tag, uid, detector, filenames, dtype, nx, ny, nt,
                        time, data):
-        self.emitfunc('liveparams', (tag, uid, detector, filename, dtype,
-                                     nx, ny, nt, time))
-        for buf in data:  # data is a list of memory buffers
-            self.emitfunc('livedata', buf)
+        self.emitfunc('livedata', (tag, uid, detector, filenames, dtype,
+                                   nx, ny, nt, time), data)
 
     def notifyDataFile(self, tag, uid, detector, filename_or_filenames):
         if isinstance(filename_or_filenames, str):
@@ -123,9 +124,8 @@ class DaemonSession(NoninteractiveSession):
         else:
             filenames = filename_or_filenames
         nxyt = len(filenames) * [0]
-        self.emitfunc('liveparams', (tag, uid, detector, filenames,
-                                     '', nxyt, nxyt, nxyt, 0))
-        self.emitfunc('livedata', '')
+        self.emitfunc('livedata', (tag, uid, detector, filenames,
+                                   '', nxyt, nxyt, nxyt, 0))
 
     def notifyFitCurve(self, dataset, title, xvalues, yvalues):
         self.emitfunc('datacurve', (title, xvalues, yvalues))
