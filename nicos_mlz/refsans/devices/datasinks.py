@@ -133,6 +133,24 @@ det_pos = [
     'beamstop_asym',
 ]
 
+PlanB = [
+    'det_table',
+]
+PlanB_label = [
+    '_motor',
+]
+
+ana4gpio = [
+    'ana4gpio01',
+    'ana4gpio02',
+]
+ana4gpio_label = [
+    '_ch1',
+    '_ch2',
+    '_ch3',
+    '_ch4',
+]
+
 optic = ['optic']
 optic_label = ['', '.mode']
 
@@ -272,6 +290,12 @@ for l in optic:
 for l in NOKs:
     for label in NOKs_label + NOKs_PlanB_label:
         element_part.append(l + label)
+for l in PlanB:
+    for label in PlanB_label:
+        element_part.append(l + label)
+for l in ana4gpio:
+    for label in ana4gpio_label:
+        element_part.append(l + label)
 for l in monitor:
     for label in monitor_label:
         element_part.append(l + label)
@@ -391,6 +415,11 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
                               NOKs_PlanB_label)
         self._write_label_ext(metainfo, 'Absolute_Positions', Slits, 'value',
                               Slits_PlanB_label)
+        self._write_label_ext(metainfo, 'Absolute_Positions', PlanB, 'value',
+                              PlanB_label)
+        self._write_label_ext(metainfo, 'Absolute_Positions',
+                              ana4gpio, 'value',
+                              ana4gpio_label)
         if not self._data['Absolute_Positions']:
             self.log.warning('Absolute_Positions has no content!')
 
