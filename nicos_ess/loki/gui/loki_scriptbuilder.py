@@ -22,7 +22,10 @@ class LokiScriptBuilderPanel(Panel):
 
     def _init_table(self):
         self.tableScript.setColumnCount(4)
-        self.tableScript.setRowCount(4)
+
+        # TODO: set the number of columns to a number appropriate for the
+        # current sample changer
+        self.tableScript.setRowCount(10)
 
         self.tableScript.horizontalHeader().setStretchLastSection(True)
         self.tableScript.horizontalHeader().setSectionResizeMode(
