@@ -115,7 +115,7 @@ def timedistancediagram(speed, angles, disk2_pos, D,
         tof = np.array([times[3], times[4]])
         pos = np.array([d_SCo, d_SC2])
     elif (disk2_mode == 'normal_mode'):
-        if (len(angles) == 6):  # SC2 pair is used
+        if len(angles) == 6:  # SC2 pair is used
             tof = np.array([times[1], times[4]])
             pos = np.array([d_MCo, d_SC2])
         else:
