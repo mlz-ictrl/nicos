@@ -67,10 +67,10 @@ main_window = docked(
                     "nicos_ess.loki.gui.scriptbuilder.CommandsPanel",
                     modules=["nicos_ess.loki.gui.cmdlets"],
                 ),
-                panel("nicos_ess.loki.gui.loki_scriptbuilder.LokiScriptBuilderPanel"),
                 panel("nicos_ess.gui.panels.editor.EditorPanel", tools=None),
             ),
         ),
+        ("Prototype", panel("nicos_ess.loki.gui.loki_scriptbuilder.LokiScriptBuilderPanel")),
         ("Detector Image", panel("nicos_ess.gui.panels.live.LiveDataPanel")),
         ("History", panel("nicos_ess.gui.panels.history.HistoryPanel"),),
         (
