@@ -24,12 +24,14 @@
 import unittest
 from unittest.mock import patch
 
+import pytest
+
 from nicos.core import ConfigurationError
 from nicos.core.device import Device
-from nicos_ess.devices.epics.extensions import HasDisablePv
 from nicos.devices.epics import EpicsDevice
 
-import pytest
+from nicos_ess.devices.epics.extensions import HasDisablePv
+
 pytest.importorskip('epics')
 
 
