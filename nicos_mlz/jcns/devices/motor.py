@@ -61,7 +61,8 @@ class InvertableMotor(HasOffset, TangoMotor):
         return self._invertPosition(TangoMotor.doReadRefpos(self))
 
     def doReadAbslimits(self):
-        limits = map(self._invertPosition, TangoMotor.doReadAbslimits(self))
+        limits = [self._invertPosition(l)
+                  for l in TangoMotor.doReadAbslimits(self)]
         return min(limits), max(limits)
 
     def doSetPosition(self, value):
