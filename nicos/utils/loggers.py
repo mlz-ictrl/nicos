@@ -274,7 +274,12 @@ class NicosLogfileHandler(StreamHandler):
             # should happen at most once per installation....
             pass
         if hasattr(os, 'symlink'):
-            os.symlink(path.basename(self.baseFilename), self._currentsymlink)
+            try:
+                os.symlink(path.basename(self.baseFilename),
+                           self._currentsymlink)
+            except Exception:
+                if os.name != 'nt':
+                    raise
         # finally open the new logfile....
         return open(self.baseFilename, self.mode)
 
