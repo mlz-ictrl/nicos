@@ -285,8 +285,12 @@ class LokiSamplePanel(Panel):
         ]:
             control.setEnabled(not viewonly)
             # Handle apply button separately.
-            if viewonly:
-                self.applyBtn.setEnabled(False)
+        if viewonly:
+            self.applyBtn.setEnabled(False)
+        # If one toggles view only mode without applying changes, upon exiting
+        # view-only mode, following ensures apply button is enabled.
+        if self.dirty and not viewonly:
+            self.applyBtn.setEnabled(True)
 
     @pyqtSlot()
     def on_actionEmpty_triggered(self):
