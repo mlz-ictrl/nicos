@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -27,7 +27,7 @@
 """MARIA file format saver for the new YAML based format."""
 
 from nicos import session
-from nicos.core import Override
+from nicos.core import NicosError, Override
 from nicos.core.data.dataset import ScanDataset
 from nicos.core.device import Readable
 from nicos.devices.datasinks.image import ImageSink
@@ -62,7 +62,12 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         for (info, val) in zip(self.dataset.devvalueinfo,
                                self.dataset.devvaluelist):
             dev = session.getDevice(info.name)
-            state, status = dev.status()
+            try:
+                state, status = dev.status()
+            except NicosError:
+                dev.log.warning('could not get status for data file')
+                devices.pop(info.name, None)
+                continue
             entry = self._dict()
             entry["name"] = info.name
             entry["unit"] = info.unit
@@ -77,7 +82,11 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         for name, dev in devices.items():
             if isinstance(dev, Readable):
                 entry = self._dict()
-                state, status = dev.status()
+                try:
+                    state, status = dev.status()
+                except NicosError:
+                    dev.log.warning('could not get status for data file')
+                    continue
                 entry["name"] = name
                 entry["unit"] = self._devpar(name, "unit")
                 entry["value"] = self._readdev(name)

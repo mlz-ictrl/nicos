@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -46,7 +46,7 @@ class NoninteractiveSession(Session):
 
     autocreate_devices = False
 
-    def _beforeStart(self, maindev):
+    def _beforeStart(self, maindev, daemonized):
         pass
 
     @classmethod
@@ -94,7 +94,7 @@ class NoninteractiveSession(Session):
             if pidfile and daemon != 'systemd':
                 writePidfile(appname)
 
-            session._beforeStart(maindev)
+            session._beforeStart(maindev, daemonized=daemon)
         except Exception as err:
             try:
                 session.log.exception('Fatal error while initializing')
@@ -110,6 +110,10 @@ class NoninteractiveSession(Session):
 
         if daemon == 'systemd':
             cls._notify_systemd(appname, "READY=1\nSTATUS=running")
+
+        # For services that don't run in a separate thread
+        if hasattr(maindev, 'run_main_loop'):
+            maindev.run_main_loop()
 
         maindev.wait()
 

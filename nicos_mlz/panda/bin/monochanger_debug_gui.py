@@ -2,7 +2,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -38,9 +38,6 @@ from pymodbus.client.sync import ModbusTcpClient
 # This is supposed to be a custom instrument specific stand-alone tool!
 
 
-
-
-
 def Stati(status):
     l = []
     s = status >> 12
@@ -62,7 +59,7 @@ class BaseDev(QWidget):
     has_status = False
 
     def __init__(self, model, name, addr):
-        super(BaseDev, self).__init__()
+        QWidget.__init__(self)
         self.name = name
         self.model = model
         self.addr = addr
@@ -268,7 +265,7 @@ class WriteWord(ReadWord):
             v = int(v[2:], 2)
         elif v.startswith('0') or v.startswith('o'):
             v = int(v[2:], 8)
-        elif v.startswith(('x', 'X',  '$')):
+        elif v.startswith(('x', 'X', '$')):
             v = int(v[1:], 16)
         else:
             v = int(v)
@@ -353,7 +350,7 @@ class MainWindow(QMainWindow):
     i = 0
 
     def __init__(self, parent = None):
-        super(MainWindow, self).__init__(parent)
+        QMainWindow.__init__(self, parent)
 
         # scroll area Widget contents - layout
         self.scrollLayout = QFormLayout()

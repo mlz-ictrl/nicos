@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -127,14 +127,14 @@ def parseDuration(interval, reason):
         raise UsageError('Can not parse %s from %s. '
                          'Please provide it as a string, int or float. '
                          'When in doubt encapsulate it in quotation marks.'
-                         % (reason, type(interval)))
+                         % (reason, type(interval))) from None
     except ValueError:
         raise UsageError('The format of the provided string for %s can not be '
                          'converted to a duration. Please separate the values '
                          'with spaces and/or ":", sort the durations by size '
                          'and (only) name them with "d", "h", "m", "s". e.g. '
                          '"1d:2h:3m:4s" or "2h:4s"'
-                         % reason)
+                         % reason) from None
 
 
 def getSisDetector():

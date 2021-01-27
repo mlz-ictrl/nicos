@@ -6,6 +6,7 @@ devices = dict(
     # Configure source and copy addresses to an existing address.
     email = device('nicos.devices.notifiers.Mailer',
         description = 'E-Mail notifier',
+        mailserver = 'mailhost.frm2.tum.de',
         sender = 'powtex@frm2.tum.de',
         copies = [('christian.randau@frm2.tum.de', 'all')],
         subject = 'NICOS Warning POWTEX',

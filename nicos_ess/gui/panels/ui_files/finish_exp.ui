@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>994</width>
-    <height>729</height>
+    <height>687</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -49,9 +49,18 @@
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="finishButton">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Apply</set>
+    <widget class="QPushButton" name="finishButton">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Finish</string>
+     </property>
+     <property name="default">
+      <bool>false</bool>
      </property>
     </widget>
    </item>

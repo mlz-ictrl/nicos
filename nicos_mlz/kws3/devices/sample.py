@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -63,15 +63,16 @@ class SamplePos(Moveable):
                                           values.pop('active_x'),
                                           values.pop('active_y'))
             except KeyError:
-                raise ConfigurationError(self, 'setting %r needs active_ap, '
-                                         'active_x and active_y settings' %
-                                         setting)
+                raise ConfigurationError(
+                    self, 'setting %r needs active_ap, active_x and active_y '
+                    'settings' % setting) from None
             try:
                 for name in self._aliases[setting]:
                     session.getDevice(name)
-            except NicosError:
-                raise ConfigurationError(self, 'could not create/find alias '
-                                         'targets for setting %r' % setting)
+            except NicosError as exc:
+                raise ConfigurationError(
+                    self, 'could not create/find alias targets for setting %r'
+                    % setting) from exc
             for key in values:
                 if key not in self.alloweddevs:
                     raise ConfigurationError(self, 'device %s is not allowed '

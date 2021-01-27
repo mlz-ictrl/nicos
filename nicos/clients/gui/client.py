@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -43,7 +43,10 @@ class NicosGuiClient(NicosClient, QObject):
     initstatus = pyqtSignal(object)
 
     for evt in DAEMON_EVENTS:
-        locals()[evt] = pyqtSignal(object)
+        if DAEMON_EVENTS[evt][1]:
+            locals()[evt] = pyqtSignal(object, object)
+        else:
+            locals()[evt] = pyqtSignal(object)
 
     def __init__(self, parent, parent_logger):
         QObject.__init__(self, parent)
@@ -51,7 +54,7 @@ class NicosGuiClient(NicosClient, QObject):
         logger.parent = parent_logger
         NicosClient.__init__(self, logger.warning)
         self._reg_keys = {}
-        self._event_mask = ['livedata', 'liveparams']
+        self._event_mask = ['livedata']
         self.cache.connect(self.on_cache_event)
         self.connected.connect(self.on_connected_event)
 

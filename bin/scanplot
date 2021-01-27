@@ -2,7 +2,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -320,7 +320,7 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
         try:
             xcol = colnames.index(xcol)
         except ValueError:
-            raise ValueError('X column %r not found' % xcol)
+            raise ValueError('X column %r not found' % xcol) from None
     else:
         # 1-based xcols as number
         xcol -= 1
@@ -347,7 +347,7 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
             try:
                 ycol = colnames.index(ycol)    # allow using non-intended ycols
             except ValueError:
-                raise ValueError('Y column %r not found' % ycol)
+                raise ValueError('Y column %r not found' % ycol) from None
     else:
         # 1-based ycols: ycol=1 becomes cols[ystart], ycol=2 becomes cols[ystart]
         ycol += ystart - 1

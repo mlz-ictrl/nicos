@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -1452,7 +1452,7 @@ class Session:
 
     # -- Session-specific behavior --------------------------------------------
 
-    def updateLiveData(self, tag, uid, detector, filename, dtype, nx, ny, nt,
+    def updateLiveData(self, tag, uid, detector, filenames, dtype, nx, ny, nt,
                        time, data):
         """Send new live data to clients.
 
@@ -1462,7 +1462,7 @@ class Session:
           by clients to determine if they can display this data.
         * uid - a unique id for the corresponding data point.
         * detector - name of the detector device.
-        * filename - list of filenames displayed for cached data.
+        * filenames - list of filenames displayed for cached data.
         * dtype - a string describing the data array in numpy style, if it is
           in array format.
         * nx, ny, nt - three lists of integers giving the dimensions of the data

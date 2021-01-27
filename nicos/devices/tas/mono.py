@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -126,8 +126,9 @@ class Monochromator(HasLimits, HasPrecision, BaseMonochromator):
         try:
             angle = thetaangle(self.dvalue, self.order, k)
         except ValueError:
-            raise LimitError(self, 'wavelength not reachable with d=%.3f A '
-                             'and n=%s' % (self.dvalue, self.order))
+            raise LimitError(
+                self, 'wavelength not reachable with d=%.3f A and n=%s' % (
+                    self.dvalue, self.order)) from None
         tt = 2.0 * angle * self.scatteringsense  # twotheta with correct sign
         th = angle * self.scatteringsense  # absolute theta with correct sign
         th = (angle - 90.0) * self.scatteringsense + 90.0 * self.crystalside

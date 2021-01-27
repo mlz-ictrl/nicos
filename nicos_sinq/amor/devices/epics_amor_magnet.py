@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -37,7 +37,7 @@ class EpicsAmorMagnetSwitch(EpicsMappedMoveable):
     """
 
     @property
-    def isSwitchedOn(self):
+    def isEnabled(self):
         return bool(self._readRaw())
 
 
@@ -142,13 +142,13 @@ class EpicsAmorMagnet(EpicsWindowTimeoutDeviceEss):
             msg = self._get_pv('errortext')
             return status.ERROR, '%d: %s' % (code, msg)
 
-        if not self._attached_switch.isSwitchedOn:
+        if not self._attached_switch.isEnabled:
             return status.OK, 'Off'
 
         return EpicsWindowTimeoutDeviceEss.doStatus(self, maxage)
 
     def doIsAllowed(self, position):
-        if not self._attached_switch.isSwitchedOn:
+        if not self._attached_switch.isEnabled:
             return False, 'Magnet switched OFF'
         return True, ''
 
@@ -163,5 +163,5 @@ class EpicsAmorMagnet(EpicsWindowTimeoutDeviceEss):
 
     def doInfo(self):
         # Add the state in the information of this magnet
-        state = 'on' if self._attached_switch.isSwitchedOn else 'off'
+        state = 'on' if self._attached_switch.isEnabled else 'off'
         return [('state', state, state, '', 'general')]

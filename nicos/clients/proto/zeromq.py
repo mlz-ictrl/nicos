@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -24,13 +24,13 @@
 
 import zmq
 
-from nicos.protocols.daemon import DAEMON_EVENTS, \
-    ClientTransport as BaseClientTransport, ProtocolError
+from nicos.protocols.daemon import ClientTransport as BaseClientTransport, \
+    ProtocolError
 
 
 class ClientTransport(BaseClientTransport):
 
-    def __init__(self, serializer):
+    def __init__(self, serializer=None):
         self.serializer = serializer
 
         self.sock = None
@@ -60,19 +60,20 @@ class ClientTransport(BaseClientTransport):
         data = self.serializer.serialize_cmd(cmdname, args)
         self.sock.send_multipart([cmdname.encode(), b'', data])
 
-    def get_reply(self):
+    def recv_reply(self):
         item = self.sock.recv_multipart()
         if len(item) < 3:
             raise ProtocolError('invalid frames received')
+
+        if not self.serializer:
+            self.serializer = self.determine_serializer(item[2],
+                                                        item[0] == b'ok')
+
         return self.serializer.deserialize_reply(item[2], item[0] == b'ok')
 
-    def get_event(self):
+    def recv_event(self):
         item = self.event_sock.recv_multipart()
         if len(item) < 3:
             raise ProtocolError('invalid frames received')
         event = item[1].decode()
-        # serialized or raw event data?
-        if DAEMON_EVENTS[event][0]:
-            return self.serializer.deserialize_event(item[2], item[1])
-        else:
-            return item[2]
+        return self.serializer.deserialize_event(item[2], event) + (item[3:],)

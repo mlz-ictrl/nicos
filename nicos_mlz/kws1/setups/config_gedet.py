@@ -28,6 +28,7 @@ EIGHT_PACKS = [
 HV_VALUES = {n[0]: 1530 for n in EIGHT_PACKS}
 # -- To set different HVs for some 8-packs:
 # HV_VALUES['ep01'] = 0
+# HV_VALUES['ep07'] = 1565
 
 PV_SCALES = {
 #    'ep09x': [('AScales', [2082, 2074, 2055, 2058, 2120, 2112, 2105, 2094]),('Scales', [2060, 2057, 2039, 2039, 2052, 2062, 2062, 2066])],

@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -171,7 +171,7 @@ class TacoDevice(HasCommunication):
             del self._dev
 
     def _setMode(self, mode):
-        super(TacoDevice, self)._setMode(mode)
+        super()._setMode(mode)
         # remove the TACO device on entering simulation mode, to prevent
         # accidental access to the hardware
         if mode == SIMULATION:
@@ -231,7 +231,7 @@ class TacoDevice(HasCommunication):
             self._taco_guard(self._dev.setClientNetworkTimeout, value)
 
     def doUpdateLoglevel(self, value):
-        super(TacoDevice, self).doUpdateLoglevel(value)
+        super().doUpdateLoglevel(value)
         self._taco_guard = value == 'debug' and self._taco_guard_log or \
             self._taco_guard_nolog
 

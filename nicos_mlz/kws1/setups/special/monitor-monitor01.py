@@ -65,7 +65,7 @@ _polarizer = make_blocks('Polarizer', 'polarizer', [
 _lenses = make_blocks('Lenses', 'lenses', [
     BlockRow(
         Field(devices=['lens_in', 'lens_out'],
-              widget='nicos_mlz.kws1.gui.monitorwidgets.Lenses', width=30, height=10)
+              widget='nicos_mlz.kws1.gui.monitorwidgets.Lenses', width=30, height=8)
     ),
 ])
 

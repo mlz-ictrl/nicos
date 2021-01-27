@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -27,6 +27,7 @@
 
 import os
 import shutil
+import time
 from os import path
 from signal import SIGTERM, SIGUSR2
 from subprocess import PIPE
@@ -36,18 +37,31 @@ from psutil import AccessDenied, NoSuchProcess, Popen
 
 from nicos import session
 from nicos.core import ArrayDesc, Param, Value, floatrange, intrange, status, \
-    tupleof
+    tupleof, Override, Attach, MASTER, Waitable
 from nicos.core.constants import FINAL, LIVE
-from nicos.devices.generic import ImageChannelMixin, PassiveChannel
+from nicos.devices.generic import ImageChannelMixin, ActiveChannel, \
+    PassiveChannel
 from nicos.utils import createThread
 
 
 class McStasImage(ImageChannelMixin, PassiveChannel):
-    """Image channel based on McStas simulation."""
+    """Image channel based on McStas simulation.
+
+    This channel should be used together with `McStasTimerChannel`
+    which provides the preselection [s] for calculating the number of
+    simulated neutron counts:
+
+      Ncounts = preselection [s] * ratio [cts/s]
+
+    Note: Please configure **ratio** to match the average simulated neutron
+          counts per second on your system.
+    """
 
     _mythread = None
 
     _process = None
+
+    _started = None
 
     parameters = {
         'size': Param('Detector size in pixels (x, y)',
@@ -57,19 +71,29 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
                       ),
         'mcstasprog': Param('Name of the McStas simulation executable',
                             type=str, settable=False),
-        'mcstasdir': Param('Directory where McStas stores results',
-                           type=str, default='singlecount', settable=False),
+        'mcstasdir': Param('Directory where McStas stores results', type=str,
+                           default='%(session.experiment.dataroot)s'
+                                   '/singlecount',
+                           settable=False),
         'mcstasfile': Param('Name of the McStas data file',
                             type=str, settable=False),
         'mcsiminfo': Param('Name for the McStas Siminfo file', settable=False,
                            type=str, default='mccode.sim'),
-        'ci': Param('Constant ci applied to simulated intensity I',
-                    settable=False, type=floatrange(0.), default=1e3)
+        'ratio': Param('Simulated neutrons per second for this machine. Please'
+                       ' tune this parameter according to your hardware for '
+                       ' realistic count times', settable=False,
+                       type=floatrange(1e3), default=1e6),
+        'ci': Param('Constant ci multiplied with simulated intensity I',
+                    settable=False, type=floatrange(1.)),
+        # preselection time, usually set by McStasTimer
+        'preselection': Param('Preset value for this channel', type=float,
+                              settable=True, default=1.),
     }
 
     def doInit(self, mode):
         self.arraydesc = ArrayDesc(self.name, self.size, '<u4')
         self._workdir = os.getcwd()
+        self._start_time = None
 
     def doReadArray(self, quality):
         self.log.debug('quality: %s', quality)
@@ -82,7 +106,7 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
                     self.log.exception("Couldn't join readout thread.")
                 else:
                     self._mythread = None
-        self._readpsd(quality == LIVE)
+        self._readpsd(quality)
         return self._buf
 
     def _prepare_params(self):
@@ -100,30 +124,34 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         self.log.debug('McStas parameters: %s', self._mcstas_params)
         self._buf = np.zeros(self.size[::-1])
         self.readresult = [0]
+        self._start_time = None
+        self._mcstasdirpath = session.experiment.data.expandNameTemplates(
+            self.mcstasdir)[0]
 
     def valueInfo(self):
         return (Value(self.name + '.sum', unit='cts', type='counter',
                       errors='sqrt', fmtstr='%d'),)
 
     def doStart(self):
+        self._started = True
         self._mythread = createThread('detector %s' % self, self._run)
 
     def doStatus(self, maxage=0):
-        if self._mythread and self._mythread.is_alive():
+        if self._started or (self._mythread and self._mythread.is_alive()):
             return status.BUSY, 'busy'
         return status.OK, 'idle'
 
     def doFinish(self):
         self.log.debug('finish')
+        self._started = None
         self._send_signal(SIGTERM)
 
     def _send_signal(self, sig):
         if self._process and self._process.is_running():
             self._process.send_signal(sig)
             # wait for mcstas releasing fds
-            datafile =  path.join(self._workdir, self.mcstasdir,
-                                  self.mcstasfile)
-            siminfo = path.join(self._workdir, self.mcstasdir, self.mcsiminfo)
+            datafile =  path.join(self._mcstasdirpath, self.mcstasfile)
+            siminfo = path.join(self._mcstasdirpath, self.mcsiminfo)
             try:
                 while self._process and self._process.is_running():
                     fnames = [f.path for f in self._process.open_files()]
@@ -144,13 +172,16 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
         to it.
         """
         try:
-            shutil.rmtree(self.mcstasdir)
+            shutil.rmtree(self._mcstasdirpath)
         except OSError:
-            self.log.info('could not remove old data')
-        command = '%s -n 1e8 -d %s %s' % (
-            self.mcstasprog, self.mcstasdir, self._mcstas_params)
+            self.log.warning('could not remove old data')
+        command = '%s -n %d -d %s %s' % (
+            self.mcstasprog, self.ratio * self.preselection,
+            self._mcstasdirpath, self._mcstas_params,
+        )
         self.log.debug('run %s', command)
         try:
+            self._start_time = time.time()
             self._process = Popen(command.split(), stdout=PIPE, stderr=PIPE,
                                   cwd=self._workdir)
             out, err = self._process.communicate()
@@ -166,19 +197,76 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
             self.log.error('Execution failed: %s', e)
         self._process.wait()
         self._process = None
+        self._started = None
 
-    def _readpsd(self, ignore_error=False):
+    def _readpsd(self, quality):
         try:
-            with open(path.join(self._workdir, self.mcstasdir, self.mcstasfile),
+            with open(path.join(self._mcstasdirpath, self.mcstasfile),
                       'r') as f:
                 lines = f.readlines()[-3 * (self.size[0] + 1):]
             if lines[0].startswith('# Data') and self.mcstasfile in lines[0]:
+                if quality == FINAL:
+                    seconds = self.preselection
+                else:
+                    seconds = min(time.time() - self._start_time,
+                                  self.preselection)
                 self._buf = (np.loadtxt(lines[1:self.size[0] + 1],
-                                        dtype=np.float32) * self.ci).astype(
-                    np.uint32)
+                                        dtype=np.float32)
+                             * self.ci
+                             * seconds).astype(np.uint32)
                 self.readresult = [self._buf.sum()]
-            elif not ignore_error:
+            elif quality != LIVE:
                 raise OSError('Did not find start line: %s' % lines[0])
         except OSError:
-            if not ignore_error:
+            if quality != LIVE:
                 self.log.exception('Could not read result file')
+
+
+class McStasTimer(ActiveChannel, Waitable):
+    """Timer channel for McStas simulations
+
+    This channel provides an internal neutron timer for running McStas
+    simulations using `McStasImage`
+    """
+
+    attached_devices = {
+        'mcstasimage': Attach('McStasImage channel', McStasImage),
+    }
+
+    parameters = {
+        'curvalue':  Param('Current value', settable=True, unit='main'),
+    }
+
+    parameter_overrides = {
+        'unit': Override(default='s'),
+    }
+
+    is_timer = True
+
+    def doInit(self, mode):
+        self._start_time = None
+        if mode == MASTER:
+            self.curvalue = 0
+
+    def setChannelPreset(self, name, value):
+        ActiveChannel.setChannelPreset(self, name, value)
+        self._attached_mcstasimage.preselection = value
+
+    def doStart(self):
+        if not self._start_time:
+            self._start_time = time.time()
+
+    def doStatus(self, maxage=0):
+        # wait for attached mcstas simulation
+        return Waitable.doStatus(self, maxage)
+
+    def doRead(self, maxage=0):
+        if self._start_time:
+            self.curvalue = time.time() - self._start_time
+        return self.curvalue
+
+    def doFinish(self):
+        self._start_time = None
+
+    def valueInfo(self):
+        return Value(self.name, unit='s', type='time', fmtstr='%.3f'),

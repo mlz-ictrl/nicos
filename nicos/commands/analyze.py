@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -82,19 +82,19 @@ def _getData(columns=None, dataset=None):
         try:
             xcol = [v.name for v in dataset.devvalueinfo].index(xcol) + 1
         except ValueError:
-            raise NicosError('no such X column name: %r' % xcol)
+            raise NicosError('no such X column name: %r' % xcol) from None
 
     if isinstance(ycol, str):
         try:
             ycol = [v.name for v in dataset.detvalueinfo].index(ycol) + 1
         except ValueError:
-            raise NicosError('no such Y column name: %r' % ycol)
+            raise NicosError('no such Y column name: %r' % ycol) from None
     elif ycol < 0:
         try:
             ycol = [j for (j, info) in enumerate(dataset.detvalueinfo)
                     if info.type == 'counter'][0] + 1
         except IndexError:
-            raise NicosError('no Y column of type "counter"')
+            raise NicosError('no Y column of type "counter"') from None
 
     # now make them 0-indexed
     xcol -= 1
@@ -111,11 +111,11 @@ def _getData(columns=None, dataset=None):
     try:
         xs = np.array([p[xcol] for p in xresults])
     except IndexError:
-        raise NicosError('no such X column: %r' % xcol)
+        raise NicosError('no such X column: %r' % xcol) from None
     try:
         ys = np.array([p[ycol] for p in yresults])
     except IndexError:
-        raise NicosError('no such Y column: %r' % ycol)
+        raise NicosError('no such Y column: %r' % ycol) from None
 
     if dataset.detvalueinfo[ycol].errors == 'sqrt':
         dys = np.sqrt(ys)

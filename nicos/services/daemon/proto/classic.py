@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -31,9 +31,8 @@ import threading
 import time
 import weakref
 
-from nicos.protocols.daemon import DAEMON_EVENTS, CloseConnection, \
-    ProtocolError, Server as BaseServer, \
-    ServerTransport as BaseServerTransport
+from nicos.protocols.daemon import CloseConnection, ProtocolError, \
+    Server as BaseServer, ServerTransport as BaseServerTransport
 from nicos.protocols.daemon.classic import ACK, ENQ, LENGTH, NAK, \
     PROTO_VERSION, READ_BUFSIZE, STX, code2command, event2code
 from nicos.services.daemon.handler import ConnectionHandler
@@ -63,12 +62,11 @@ class Server(BaseServer, socketserver.TCPServer):
     def close(self):
         self.server_close()
 
-    def emit(self, event, data, handler=None):
-        if DAEMON_EVENTS[event][0]:
-            data = self.serializer.serialize_event(event, data)
+    def emit(self, event, data, blobs, handler=None):
+        data = self.serializer.serialize_event(event, data)
         for hdlr in (handler,) if handler else self.handlers.values():
             try:
-                hdlr.event_queue.put((event, data), True, 0.1)
+                hdlr.event_queue.put((event, data, blobs), True, 0.1)
             except queue.Full:
                 # close event socket to let the connection get
                 # closed by the handler
@@ -238,12 +236,13 @@ class ServerTransport(ConnectionHandler, BaseServerTransport,
             try:
                 return self.serializer.deserialize_cmd(
                     buf, code2command[start[1:3]])
-            except Exception:
+            except Exception as err:
                 self.send_error_reply('invalid command or garbled data')
                 raise ProtocolError('recv_command: invalid command or '
-                                    'garbled data')
+                                    'garbled data') from err
         except OSError as err:
-            raise ProtocolError('recv_command: connection broken (%s)' % err)
+            raise ProtocolError('recv_command: connection broken (%s)' %
+                                err) from err
 
     def send_ok_reply(self, payload):
         try:
@@ -253,24 +252,32 @@ class ServerTransport(ConnectionHandler, BaseServerTransport,
                 try:
                     data = self.serializer.serialize_ok_reply(payload)
                 except Exception:
-                    raise ProtocolError('send_ok_reply: could not serialize')
+                    raise ProtocolError(
+                        'send_ok_reply: could not serialize') from None
                 self.sock.sendall(STX + LENGTH.pack(len(data)) + data)
         except OSError as err:
-            raise ProtocolError('send_ok_reply: connection broken (%s)' % err)
+            raise ProtocolError('send_ok_reply: connection broken (%s)' %
+                                err) from err
 
     def send_error_reply(self, reason):
         try:
             data = self.serializer.serialize_error_reply(reason)
         except Exception:
-            raise ProtocolError('send_error_reply: could not serialize')
+            raise ProtocolError(
+                'send_error_reply: could not serialize') from None
         try:
             self.sock.sendall(NAK + LENGTH.pack(len(data)) + data)
         except OSError as err:
-            raise ProtocolError('send_error_reply: connection broken (%s)' % err)
+            raise ProtocolError('send_error_reply: connection broken (%s)' %
+                                err) from err
 
-    def send_event(self, evtname, payload):
-        # payload is already serialized if necessary!
-        self.event_sock.sendall(STX + event2code[evtname] +
+    def send_event(self, evtname, payload, blobs):
+        self.event_sock.sendall(STX +
+                                event2code[evtname] +
+                                (b'%c' % len(blobs)) +
                                 LENGTH.pack(len(payload)))
         # send data separately to avoid copying lots of data
         self.event_sock.sendall(payload)
+        for blob in blobs:
+            self.event_sock.sendall(LENGTH.pack(len(blob)))
+            self.event_sock.sendall(blob)
