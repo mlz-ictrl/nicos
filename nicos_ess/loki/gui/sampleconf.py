@@ -454,7 +454,6 @@ class LokiSamplePanel(Panel):
             self.client.run(script)
             self.showInfo('Sample info has been transferred to the daemon.')
         self.dirty = False
-        # Disable apply button
         self.applyBtn.setEnabled(False)
 
     @pyqtSlot()
