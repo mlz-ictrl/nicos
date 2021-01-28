@@ -624,7 +624,6 @@ class LokiSamplePanel(Panel):
         self.applyBtn.setEnabled(True)
 
 
-
 class MockSample:
     def __init__(self):
         self.reset_called = False
