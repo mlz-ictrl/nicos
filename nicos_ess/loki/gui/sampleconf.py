@@ -284,7 +284,7 @@ class LokiSamplePanel(Panel):
             self.list
         ]:
             control.setEnabled(not viewonly)
-            # Handle apply button separately.
+        # Handle apply button separately.
         if viewonly:
             self.applyBtn.setEnabled(False)
         # If one toggles view only mode without applying changes, upon exiting
