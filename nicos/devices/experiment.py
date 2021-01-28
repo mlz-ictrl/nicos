@@ -1250,6 +1250,10 @@ class ImagingExperiment(Experiment):
         'lastopenbeamimage': Param('Last Open Beam image', type=str,
                                    settable=False, default='',
                                    category='general'),
+        'curimgtype': Param('Type of current/next image',
+                            type=oneof('dark', 'openbeam', 'standard'),
+                            mandatory=False, default='standard',
+                            settable=True),
     }
 
     @property
