@@ -43,6 +43,7 @@ from nicos_sinq.sxtal.trigd import Acosd, Atand2, Cosd, Rtand, Sind, \
 def tasAngleBetween(v1, v2):
     return np.rad2deg(angleBetween(v1, v2))
 
+
 def fmod(x, y):
     s = np.sign(x)
     res = s*np.mod(np.abs(x), y)
@@ -248,7 +249,7 @@ def calcPlaneNormal(r1, r2):
     return planeNormal
 
 
-def calcTasUBFromTwoReflections(cell, r1, r2,):
+def calcTasUBFromTwoReflections(cell, r1, r2):
 
     B = cell.calculateBMatrix()
 
@@ -330,6 +331,7 @@ def calcTasQAngles(UB, planeNormal, ss, a3offset, qe):
 
     QC = tasReflectionToQC(qe, UB)
 
+    # q = 2.*np.pi*np.linalg.norm(QC)
     q = np.linalg.norm(QC)
 
     cos2t = (qe.ki * qe.ki + qe.kf * qe.kf -
@@ -358,3 +360,25 @@ def calcScatteringPlaneNormal(qe1, qe2):
     planeNormal *= 1.0/np.linalg.norm(planeNormal)
 
     return planeNormal
+
+
+def calcTasQH(ub, angles, ki, kf):
+    ubinv = np.linalg.inv(ub)
+
+    om = angles.a3
+    sample_two_theta = angles.sample_two_theta
+    sgu = angles.sgu
+    sgl = angles.sgl
+    ss = np.sign(sample_two_theta)
+
+    theta = calcTheta(ki, kf, abs(sample_two_theta))
+
+    om = om - ss*theta
+    qv = uFromAngles(om, sgu, ss*sgl)
+    # normalize the QV vector to be the length of the Q vector
+    # Thereby take into account the physicists magic fudge
+    # 2PI factor
+    q = np.sqrt(ki**2 + kf**2 -
+                2. * ki * kf * Cosd(sample_two_theta))
+    qv *= q
+    return ubinv.dot(qv)

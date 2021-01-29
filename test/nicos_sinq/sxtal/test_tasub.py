@@ -516,6 +516,23 @@ def test_calcTasUBFromTwoReflections():
     r2s.append(r2)
     UBs.append(UB)
 
+    # SICS
+    cellSX = Cell(9.297644, 3.032419, 10.769930, 90., 90., 90.)
+    ki = energyToK(5.)
+    r1 = tasReflection(ki=ki, kf=ki, qh=2, qk=0, ql=0,
+                       a3=-21.92, sample_two_theta=-51.57, sgu=.057, sgl=-.844)
+    r2 = tasReflection(ki=ki, kf=ki, qh=0, qk=1, ql=0,
+                       a3=52.03, sample_two_theta=-83.659, sgu=.377, sgl=.025)
+    UB = np.array([[0.6741724, -.13984819, 0.00833411],
+                   [-0.04554178, -2.06723436, -0.0044177],
+                   [0.00997698, 0.01365775, -0.5833245]])
+    UB /= 2.*np.pi
+
+    lattices.append(cellSX)
+    r1s.append(r1)
+    r2s.append(r2)
+    UBs.append(UB)
+
     for lat, r1, r2, UBSix in zip(lattices, r1s, r2s, UBs):
         UB = calcTasUBFromTwoReflections(lat, r1, r2)
         assert (np.all(np.isclose(UB, UBSix * 2 * np.pi, atol=1e-6)))

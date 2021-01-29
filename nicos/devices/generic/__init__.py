@@ -47,4 +47,4 @@ from nicos.devices.generic.system import FreeSpace
 from nicos.devices.generic.virtual import VirtualCoder, VirtualCounter, \
     VirtualImage, VirtualMotor, VirtualRealTemperature, \
     VirtualReferenceMotor, VirtualScanningDetector, VirtualTemperature, \
-    VirtualTimer
+    VirtualTimer, VirtualGauss
