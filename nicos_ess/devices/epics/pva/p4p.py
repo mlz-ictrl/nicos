@@ -19,8 +19,7 @@ class PvaWrapper:
         self.disconnected = set()
         self.lock = RLock()
 
-    @staticmethod
-    def connect_pv(pvname, timeout):
+    def connect_pv(self, pvname, timeout):
         # Check pv is available
         try:
             _CONTEXT.get(pvname, timeout=timeout)
@@ -28,15 +27,13 @@ class PvaWrapper:
             raise CommunicationError('could not connect to PV %r' % pvname)
         return pvname
 
-    @staticmethod
-    def get_control_values(pv, timeout):
+    def get_control_values(self, pv, timeout):
         raw_result = _CONTEXT.get(pv, timeout=timeout)
         if 'display' in raw_result:
             return raw_result['display']
         return raw_result['control'] if 'control' in raw_result else {}
 
-    @staticmethod
-    def get_value_choices(pv, timeout):
+    def get_value_choices(self, pv, timeout):
         # Only works for enum types like MBBI and MBBO
         raw_result = _CONTEXT.get(pv, timeout=timeout)
         if 'choices' in raw_result['value']:
@@ -47,8 +44,7 @@ class PvaWrapper:
         result = _CONTEXT.get(pv, timeout=timeout)
         return self._convert_value(result['value'], as_string)
 
-    @staticmethod
-    def _convert_value(value, as_string=False):
+    def _convert_value(self, value, as_string=False):
         try:
             # Enums are complicated
             if value.getID() == 'enum_t':
@@ -70,18 +66,15 @@ class PvaWrapper:
 
         return value
 
-    @staticmethod
-    def put_pv_value(pv, value, wait, timeout):
+    def put_pv_value(self, pv, value, wait, timeout):
         _CONTEXT.put(pv, value, timeout=timeout, wait=wait)
 
-    @staticmethod
-    def put_pv_value_blocking(pv, value, update_rate=0.1, timeout=60):
+    def put_pv_value_blocking(self, pv, value, update_rate=0.1, timeout=60):
         # if wait is set p4p will block until the value is set or it
         # times out
         _CONTEXT.put(pv, value, timeout=timeout, wait=True)
 
-    @staticmethod
-    def get_pv_type(pv, timeout):
+    def get_pv_type(self, pv, timeout):
         # TODO: handle more complex types?
         result = _CONTEXT.get(pv, timeout=timeout)
         try:
@@ -99,16 +92,14 @@ class PvaWrapper:
         result = _CONTEXT.get(pv, timeout=timeout)
         return self._extract_alarm_info(result)
 
-    @staticmethod
-    def get_units(pv, timeout, default=''):
+    def get_units(self, pv, timeout, default=''):
         result = _CONTEXT.get(pv, timeout=timeout)
         try:
             return result['display']['units']
         except KeyError:
             return default
 
-    @staticmethod
-    def get_limits(pv, timeout, default_low=-1e308, default_high=1e308):
+    def get_limits(self, pv, timeout, default_low=-1e308, default_high=1e308):
         result = _CONTEXT.get(pv, timeout=timeout)
         try:
             default_low = result['display']['limitLow']
@@ -152,8 +143,7 @@ class PvaWrapper:
             severity, message = self._extract_alarm_info(result)
             change_callback(name, pvparam, value, severity, message)
 
-    @staticmethod
-    def _extract_alarm_info(value):
+    def _extract_alarm_info(self, value):
         # The EPICS 'severity' matches to the NICOS `status`.
         # p4p doesn't give anything useful for the status, but the message has
         # a short description of the alarm details.
