@@ -37,7 +37,7 @@ Contributors:
 * Nikolas Arend <n.arend@fz-juelich.de>
 * Nikhil Biyani <nikhil.biyani@psi.ch>
 * Pierre Boillat <pierre.boillat@psi.ch>
-* Matt Clarke <matt.clarke@esss.se>
+* Matt Clarke <matt.clarke@ess.eu>
 * Robert Georgii <robert.georgii@frm2.tum.de>
 * Michael Hart <michael.hart@stfc.ac.uk>
 * Klaudia Hradil <klaudia.hradil@tuwien.ac.at>

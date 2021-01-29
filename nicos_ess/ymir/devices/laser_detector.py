@@ -18,7 +18,7 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Matt Clarke <matt.clarke@esss.se>
+#   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
 from nicos import session
