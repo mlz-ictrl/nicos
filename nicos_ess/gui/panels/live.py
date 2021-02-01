@@ -39,6 +39,7 @@ class LiveDataPanel(DefaultLiveDataPanel):
         toolbar = QToolBar('Live data')
         toolbar.addAction(self.actionOpen)
         toolbar.addAction(self.actionPrint)
+        toolbar.addAction(self.actionSavePlot)
         toolbar.addSeparator()
         toolbar.addAction(self.actionLogScale)
         toolbar.addSeparator()
@@ -51,7 +52,7 @@ class LiveDataPanel(DefaultLiveDataPanel):
 
     def set_icons(self):
         self.actionPrint.setIcon(get_icon('print-24px.svg'))
-        self.actionPDF.setIcon(get_icon('save-24px.svg'))
+        self.actionSavePlot.setIcon(get_icon('save-24px.svg'))
         self.actionUnzoom.setIcon(get_icon('zoom_out-24px.svg'))
         self.actionOpen.setIcon(get_icon('folder_open-24px.svg'))
 

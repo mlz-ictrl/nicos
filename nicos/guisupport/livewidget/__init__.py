@@ -35,8 +35,9 @@ from gr.pygr import Coords2D, Plot as OrigPlot, PlotAxes, Point, \
 from gr.pygr.base import GRMeta, GRVisibility
 
 from nicos.guisupport.plots import GRCOLORS, MaskedPlotCurve
-from nicos.guisupport.qt import QHBoxLayout, QWidget, pyqtSignal
+from nicos.guisupport.qt import QDialog, QHBoxLayout, QWidget, pyqtSignal
 from nicos.guisupport.qtgr import InteractiveGRWidget
+from nicos.guisupport.utils import savePlot
 
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        '<u1', '<i1', '>u1', '>i1', '<f8', '<f4', '>f8', '>f4',
@@ -217,6 +218,7 @@ class LiveWidgetBase(QWidget):
         self._axesratio = 1.0
         self._logscale = False
         self._rois = {}
+        self._saveName = None
 
         layout = QHBoxLayout()
         self.gr = GRWidget(self)
@@ -365,6 +367,11 @@ class LiveWidgetBase(QWidget):
     def setCenterMark(self, flag):
         self.axes.drawxylines = flag
         self.gr.update()
+
+    def savePlot(self):
+        self._saveName = savePlot(self.gr, gr.PRINT_TYPE[gr.PRINT_PDF],
+                                  self._saveName)
+        return self._saveName
 
 
 class LiveWidget(LiveWidgetBase):

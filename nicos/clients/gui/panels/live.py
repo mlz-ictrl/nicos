@@ -102,6 +102,7 @@ class LiveDataPanel(Panel):
         self.toolbar = QToolBar('Live data')
         self.toolbar.addAction(self.actionOpen)
         self.toolbar.addAction(self.actionPrint)
+        self.toolbar.addAction(self.actionSavePlot)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.actionLogScale)
         self.toolbar.addSeparator()
@@ -248,6 +249,7 @@ class LiveDataPanel(Panel):
             menu = QMenu('&Live data', self)
             menu.addAction(self.actionOpen)
             menu.addAction(self.actionPrint)
+            menu.addAction(self.actionSavePlot)
             menu.addSeparator()
             menu.addAction(self.actionKeepRatio)
             menu.addAction(self.actionUnzoom)
@@ -629,6 +631,10 @@ class LiveDataPanel(Panel):
     @pyqtSlot()
     def on_actionPrint_triggered(self):
         self.widget.printDialog()
+
+    @pyqtSlot()
+    def on_actionSavePlot_triggered(self):
+        self.widget.savePlot()
 
     @pyqtSlot()
     def on_actionLogScale_triggered(self):
