@@ -46,7 +46,7 @@ class PvaWrapper:
         try:
             _CONTEXT.get(pvname, timeout=timeout)
         except TimeoutError:
-            raise CommunicationError('could not connect to PV %r' % pvname)
+            raise CommunicationError(f'could not connect to PV {pvname}')
         return pvname
 
     def get_control_values(self, pv, timeout):
