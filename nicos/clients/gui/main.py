@@ -28,9 +28,6 @@
 import argparse
 import logging
 import os
-# Work around a crash on Py3/Bionic when readline is imported later in
-# a callback from unpickling server data.
-import readline  # pylint: disable=unused-import
 import sys
 import traceback
 from os import path
@@ -46,6 +43,13 @@ from nicos.protocols.daemon.classic import DEFAULT_PORT
 from nicos.utils import parseConnectionString
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
     NicosLogger, initLoggers
+
+# Work around a crash on Py3/Bionic when readline is imported later in
+# a callback from unpickling server data.
+try:
+    import readline  # pylint: disable=unused-import
+except ImportError:
+    pass
 
 log = None
 
