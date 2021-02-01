@@ -28,12 +28,11 @@ import numpy as np
 from p4p.client.thread import Context
 
 from nicos.core import CommunicationError, status
+from nicos.devices.epics import SEVERITY_TO_STATUS
 
 # Same context can be shared across all devices.
 # nt=False tells p4p not to try to map types itself
 # we want to do this manually to avoid information loss
-from nicos.devices.epics import SEVERITY_TO_STATUS
-
 _CONTEXT = Context('pva', nt=False)
 
 
