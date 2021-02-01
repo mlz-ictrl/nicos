@@ -69,7 +69,7 @@ def find_uis():
 def find_gr():
     return [
         (path.join(grrtdir, '*.*'), path.join('gr', 'bin')),
-        (path.join(grrtdir,'..', 'fonts', '*.*'), path.join('gr', 'fonts')),
+        (path.join(grrtdir, '..', 'fonts', '*.*'), path.join('gr', 'fonts')),
     ]
 
 
