@@ -132,6 +132,18 @@ class PvaWrapper:
 
     def subscribe(self, pvname, pvparam, change_callback,
                   connection_callback=None, as_string=False):
+        """
+        Create a monitor subscription to the specified PV.
+
+        :param pvname: The PV name.
+        :param pvparam: The associated NICOS parameter
+            (e.g. readpv, writepv, etc.).
+        :param change_callback: The function to call when the value changes.
+        :param connection_callback: The function to call when the connection
+            status changes.
+        :param as_string: Whether to return the value as a string.
+        :return: the subscription object.
+        """
         self.disconnected.add(pvname)
 
         request = _CONTEXT.makeRequest(
