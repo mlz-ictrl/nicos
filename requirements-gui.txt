@@ -1,3 +1,8 @@
 --extra-index-url https://forge.frm2.tum.de/simple
 gr>=1.16.0
 python-redmine>=2.0.0
+# Note pyqt deps are only required for windows due to install problems on linux
+# You still need those on other systems as well (e.g. via system packages)!
+PyQt5;sys_platform=='win32'
+PyQtWebEngine;sys_platform=='win32'
+QScintilla;sys_platform=='win32'

@@ -44,7 +44,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>The current experiment must be properly finished before a new one can be started.</string>
+      <string>The current experiment must be finished before a new one can be started.</string>
      </property>
     </widget>
    </item>

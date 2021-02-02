@@ -9,7 +9,7 @@ PyYAML>=3.0
 Sphinx>=1.2.1,!=1.5
 rst2pdf>=0.16
 memory_profiler
-line_profiler
+line_profiler;sys_platform != 'win32'
 --extra-index-url https://forge.frm2.tum.de/simple
 sphinx_rtd_theme
 yapf>=0.12.0
