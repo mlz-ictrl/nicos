@@ -367,18 +367,18 @@ try {
         stage(name: 'Python3 tests') {
             ws {
                 checkoutSource()
-                def kafkaversion="2.12-2.3.0"
+                def kafkaversion="2.12-2.7.0"
                 docker.image("docker.ictrl.frm2.tum.de:5443/jenkins/kafka:${kafkaversion}").withRun() { kafka ->
-                    def kafaksuccess=false;
+                    def kafkasuccess=false;
                     def tries = 0;
-                    while (kafaksuccess==false){
+                    while (kafkasuccess==false){
                         sleep(time:5, unit: 'SECONDS')  // needed to allow kafka to start
                         try {
                         sh """
                             docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers --zookeeper localhost --partitions 1 --replication-factor 1
                             docker exec ${kafka.id} /opt/kafka_${kafkaversion}/bin/kafka-topics.sh --create --topic test-flatbuffers-history --zookeeper localhost --partitions 1 --replication-factor 1
                         """
-                        kafaksuccess=true;
+                        kafkasuccess=true;
                         } catch(e) {
                             tries++;
                             if (tries> 5) { error('could not start kafka') }
