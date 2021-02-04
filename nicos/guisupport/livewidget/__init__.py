@@ -537,7 +537,7 @@ class LiveWidget1D(LiveWidgetBase):
         self.plot.addAxes(self.axes)
 
     def getYMax(self):
-        if not self._array:
+        if self._array is None:
             return
         minupperedge = max(self._array)
 
