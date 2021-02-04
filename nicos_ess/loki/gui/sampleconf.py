@@ -26,6 +26,7 @@
 """LoKI sample configuration dialog."""
 
 import builtins
+import inspect
 import math
 import time
 
@@ -502,6 +503,13 @@ class LokiSamplePanel(Panel):
         layout = self.frame.layout()
         layout.addWidget(frm)
 
+        # editingFinished signal is fired when LineEdit lose focus.
+        # So when Matt switches to Firefox it is fired.
+        # Can use returnPressed signal but will require user to press Enter 
+        # everytime they change the value. In case they forget to press
+        # Enter, the value will not be registered.
+        # Good solution will be to make a custom LineEdit which changes
+        # color when in editing mode.
         frm.offsetBox.editingFinished.connect(lambda: self.set_offset(index,
                                               frm.offsetBox.displayText()))
         frm.apXBox.editingFinished.connect(lambda: self.set_aperture(index,
@@ -519,19 +527,26 @@ class LokiSamplePanel(Panel):
             box.setValidator(DoubleValidator(self))
 
     def set_offset(self, i, val):
+        if self.configs[i]['detoffset'] == val:
+            return
+
         self._set_dirty()
         self.configs[i]['detoffset'] = val
         self._copy_key('detoffset')
 
     def set_aperture(self, i, val, key):
-        self._set_dirty()
         # The following implementation is required as "aperture" has been
         # implemented as a tuple rather then a simple list.
+        value = float(val)
+        if self.configs[i]['aperture'][key] == value:
+            return
+
         x = self.configs[i]['aperture'][0]
         y = self.configs[i]['aperture'][1]
         w = self.configs[i]['aperture'][2]
         h = self.configs[i]['aperture'][3]
-        value = float(val)
+
+        self._set_dirty()
         aperture_switch = {
             0: (value, y, w, h),
             1: (x, value, w, h),
@@ -591,7 +606,6 @@ class LokiSamplePanel(Panel):
         index = self.list.currentRow()
         if index < 0:
             return
-        self._set_dirty()
         template = self.configs[index][key]
         for config in self.configs:
             config[key] = template
