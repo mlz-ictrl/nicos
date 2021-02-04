@@ -901,8 +901,8 @@ class Session:
                 self.log.warning("none of the desired targets for alias '%s' "
                                  'actually exist', aliasname)
 
-    def handleInitialSetup(self, setup, mode=SLAVE):
-        """Determine which setup to load, and try to become master.
+    def handleInitialSetup(self, setup, mode=SLAVE, switch_master=True):
+        """Determine which setup to load, and try to become master if wanted.
 
         Called by sessions during startup.
         """
@@ -916,14 +916,15 @@ class Session:
         if mode == MAINTENANCE:
             self.setMode(MAINTENANCE)
         elif mode == SLAVE:
-            # Try to become master if the setup didn't already switch modes.
-            try:
-                self.setMode(MASTER)
-            except ModeError:
-                self.log.info('could not enter master mode; remaining slave',
-                              exc=True)
-            except Exception:
-                self.log.warning('could not enter master mode', exc=True)
+            if switch_master:
+                # Try to become master if the setup didn't already switch modes.
+                try:
+                    self.setMode(MASTER)
+                except ModeError:
+                    self.log.info('could not enter master mode; remaining slave',
+                                  exc=True)
+                except Exception:
+                    self.log.warning('could not enter master mode', exc=True)
             if setup not in ('startup', ['startup']) or not self.cache:
                 return
             # If we became master, the user didn't select a specific startup
