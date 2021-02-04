@@ -47,7 +47,9 @@ class FullScreen1DWidget(LiveWidget1D):
         self._zoomed = False
 
     def _setData(self, array, nx, ny, nz, newrange):
-        self.curve.x = numpy.arange(*self._calcStartEndStep(array.shape[0]))
+        start, end, step = self._calcStartEndStep(array.shape[0])
+        self.curve.x = numpy.arange(
+            start + self._offset, end + self._offset, step)
         self.curve.y = numpy.ma.masked_equal(array.ravel(), 0).astype(
             numpy.float)
         self.curve.filly = .1 if self._logscale else 0

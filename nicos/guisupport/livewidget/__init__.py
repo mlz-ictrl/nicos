@@ -34,8 +34,8 @@ from gr.pygr import Coords2D, Plot as OrigPlot, PlotAxes, Point, \
     RegionOfInterest
 from gr.pygr.base import GRMeta, GRVisibility
 
-from nicos.guisupport.plots import GRCOLORS, MaskedPlotCurve
-from nicos.guisupport.qt import QDialog, QHBoxLayout, QWidget, pyqtSignal
+from nicos.guisupport.plots import GRCOLORS, GRMARKS, MaskedPlotCurve
+from nicos.guisupport.qt import QHBoxLayout, QWidget, pyqtSignal
 from nicos.guisupport.qtgr import InteractiveGRWidget
 from nicos.guisupport.utils import savePlot
 
@@ -128,6 +128,7 @@ class Axes(PlotAxes):
     def setWindow(self, xmin, xmax, ymin, ymax):
         res = PlotAxes.setWindow(self, xmin, xmax, ymin, ymax)
         # use 2 ** n for tickmarks
+
         def tick(amin, amax):
             if amin > amax:
                 amax, amin = amin, amax
@@ -266,7 +267,7 @@ class LiveWidgetBase(QWidget):
             plot = plots[0]
             pWC = event.getWC(plot.viewport)
             if (self._array is not None and plot == self.plot and
-                len(self._array.shape) == 2):
+               len(self._array.shape) == 2):
                 # TODO: adapt this for ``shape > 2`` once available.
                 ny, nx = self._array.shape[-2:]
                 x, y = int(pWC.x), int(pWC.y)
@@ -542,6 +543,10 @@ class LiveWidget1D(LiveWidgetBase):
         self.axes.addCurves(self.curve)
         self.axes.autoscale = PlotAxes.SCALE_Y
         self.plot.addAxes(self.axes)
+        self.setSymbols(False)
+        self.setLines(False)
+        self.setMark('omark')
+        self.setOffset(0)
 
     def getYMax(self):
         if self._array is None:
@@ -555,6 +560,30 @@ class LiveWidget1D(LiveWidgetBase):
             return max(ny, minupperedge * 2.15)
 
         return max(ny, minupperedge * 1.05)
+
+    def setOffset(self, offset):
+        self._offset = offset
+
+    def setPlotCount(self, amount, colors):
+        self._plotcount = amount
+
+        self.axes.resetCurves()
+        self.plot.resetPlot()
+
+        self._curves = []
+
+        for i in range(self._plotcount):
+            curve = MaskedPlotCurve([0], [.1], linecolor=colors[i])
+            curve.markercolor = colors[i]
+            curve.markersize = self._markersize
+            self._curves.append(curve)
+            self.axes.addCurves(curve)
+
+        self.axes.autoscale = PlotAxes.SCALE_Y
+        self.plot.addAxes(self.axes)
+
+        self.setLines(self.hasLines)
+        self.setSymbols(self.hasSymbols)
 
     def logscale(self, on):
         LiveWidgetBase.logscale(self, on)
@@ -571,6 +600,30 @@ class LiveWidget1D(LiveWidgetBase):
             self.axes.setWindow(*win)
         self.gr.update()
 
+    def setSymbols(self, on):
+        markertype = self._marktype if on else GRMARKS['dot']
+        for axis in self.plot.getAxes():
+            for curve in axis.getCurves():
+                curve.markertype = markertype
+        self.hasSymbols = on
+        self.update()
+
+    def setLines(self, on):
+        linetype = None
+        if on:
+            linetype = gr.LINETYPE_SOLID
+        for axis in self.plot.getAxes():
+            for curve in axis.getCurves():
+                curve.linetype = linetype
+        self.hasLines = on
+        self.update()
+
+    def setMark(self, marktype):
+        self._marktype = GRMARKS.get(marktype, 'omark')
+
+    def setMarkerSize(self, size):
+        self._markersize = size
+
     def unzoom(self):
         self.axes.setWindow(0, self._axesrange[1],
                             0.1 if self._logscale else 0,
@@ -586,10 +639,12 @@ class LiveWidget1D(LiveWidgetBase):
 
     def updateAxesRange(self, nx, ny):
         ymin = .1 if self._logscale else 0
+        if self._logscale:
+            ny = self.getYMax()
         self.axes.setWindow(0, nx, ymin, ny)
 
     def _setData(self, array, nx, ny, nz, newrange):
-        self.curve.x = numpy.arange(0, nx)
+        self.curve.x = numpy.arange(self.offset, nx + self.offset)
         self.curve.y = numpy.ma.masked_equal(self._array.ravel(), 0).astype(
             numpy.float)
         self.curve.filly = .1 if self._logscale else 0

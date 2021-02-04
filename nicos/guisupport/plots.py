@@ -118,6 +118,7 @@ class MaskedPlotCurve(PlotCurve):
         self.fillx = kwargs.pop('fillx', 0)
         self.filly = kwargs.pop('filly', 0)
         PlotCurve.__init__(self, *args, **kwargs)
+        self._markersize = 1.0
 
     @property
     def x(self):
@@ -140,6 +141,18 @@ class MaskedPlotCurve(PlotCurve):
     @y.setter
     def y(self, y):
         PlotCurve.y.__set__(self, y)
+
+    @property
+    def markersize(self):
+        return self._markersize
+
+    @markersize.setter
+    def markersize(self, size):
+        self._markersize = size
+
+    def drawGR(self):
+        gr.setmarkersize(self._markersize)
+        PlotCurve.drawGR(self)
 
 
 class NicosPlotAxes(PlotAxes):
