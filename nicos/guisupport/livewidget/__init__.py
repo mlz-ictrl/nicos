@@ -559,16 +559,22 @@ class LiveWidget1D(LiveWidgetBase):
     def logscale(self, on):
         LiveWidgetBase.logscale(self, on)
         self.axes.setLogY(on)
-        self.curve.filly = .1 if self._logscale else 0
+        newmin = .1 if on else 0
+        oldmin = .1 if not on else 0
+        self.curve.filly = newmin
         win = self.axes.getWindow()
         if win:
-            win[2] = max(.1, win[2])
+            if win[2] == oldmin:  # seems not to be zoomed in
+                win[2] = newmin
+            else:
+                win[2] = max(newmin, win[2])
             self.axes.setWindow(*win)
         self.gr.update()
 
     def unzoom(self):
         self.axes.setWindow(0, self._axesrange[1],
-                            0, max(1, self.getYMax()))
+                            0.1 if self._logscale else 0,
+                            max(1, self.getYMax()))
 
         # add some padding in x range.
         # 2nd call to avoid copy paste of the xtick function in pygr.
@@ -576,7 +582,6 @@ class LiveWidget1D(LiveWidgetBase):
         self.axes.setWindow(-self.axes.xtick,
                             self._axesrange[1] + self.axes.xtick,
                             current[2], current[3])
-
         self.gr.update()
 
     def updateAxesRange(self, nx, ny):
