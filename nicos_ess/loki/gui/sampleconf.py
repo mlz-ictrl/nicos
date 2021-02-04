@@ -257,6 +257,7 @@ class LokiSamplePanel(Panel):
 
         self.configs = []
         self.dirty = False
+        self.applyBtn.setEnabled(False)
         self.holder_info = options.get('holder_info', [])
         self.instrument = options.get('instrument', 'loki')
 
@@ -278,11 +279,18 @@ class LokiSamplePanel(Panel):
 
     def setViewOnly(self, viewonly):
         for control in [
-            self.createBtn, self.retrieveBtn, self.openFileBtn, self.applyBtn,
+            self.createBtn, self.retrieveBtn, self.openFileBtn,
             self.saveBtn, self.newBtn, self.editBtn, self.delBtn, self.frame,
             self.list
         ]:
             control.setEnabled(not viewonly)
+        # Handle apply button separately.
+        if viewonly:
+            self.applyBtn.setEnabled(False)
+        # If one toggles view only mode without applying changes, upon exiting
+        # view-only mode, following ensures apply button is enabled.
+        elif self.dirty:
+            self.applyBtn.setEnabled(True)
 
     @pyqtSlot()
     def on_actionEmpty_triggered(self):
@@ -362,7 +370,7 @@ class LokiSamplePanel(Panel):
         self.on_list_itemClicked(first_item)
 
         self.sampleGroup.setEnabled(True)
-        self.dirty = True
+        self._set_dirty()
 
     def _generate_configs(self, dlg):
         rows, levels, ax1, dax1, ax2, dax2 = dlg._info
@@ -441,11 +449,12 @@ class LokiSamplePanel(Panel):
 
     @pyqtSlot()
     def on_applyBtn_clicked(self):
-        if self.dirty:
+        if self.dirty:  # Remains as a validator
             script = self._generate_script()
             self.client.run(script)
             self.showInfo('Sample info has been transferred to the daemon.')
         self.dirty = False
+        self.applyBtn.setEnabled(False)
 
     @pyqtSlot()
     def on_saveBtn_clicked(self):
@@ -510,12 +519,12 @@ class LokiSamplePanel(Panel):
             box.setValidator(DoubleValidator(self))
 
     def set_offset(self, i, val):
-        self.dirty = True
+        self._set_dirty()
         self.configs[i]['detoffset'] = val
         self._copy_key('detoffset')
 
     def set_aperture(self, i, val, key):
-        self.dirty = True
+        self._set_dirty()
         # The following implementation is required as "aperture" has been
         # implemented as a tuple rather then a simple list.
         x = self.configs[i]['aperture'][0]
@@ -541,7 +550,7 @@ class LokiSamplePanel(Panel):
                                self.configs)
         if not dlg.exec_():
             return
-        self.dirty = True
+        self._set_dirty()
         config = configFromFrame(dlg.frm)
         self.configs.append(config)
         new_item = QListWidgetItem(config['name'], self.list)
@@ -558,7 +567,7 @@ class LokiSamplePanel(Panel):
                                self.configs[index])
         if not dlg.exec_():
             return
-        self.dirty = True
+        self._set_dirty()
         config = configFromFrame(dlg.frm)
         self.configs[index] = config
         list_item = self.list.item(index)
@@ -570,7 +579,7 @@ class LokiSamplePanel(Panel):
         index = self.list.currentRow()
         if index < 0:
             return
-        self.dirty = True
+        self._set_dirty()
         self.list.takeItem(index)
         del self.configs[index]
         if self.list.currentRow() != -1:
@@ -582,7 +591,7 @@ class LokiSamplePanel(Panel):
         index = self.list.currentRow()
         if index < 0:
             return
-        self.dirty = True
+        self._set_dirty()
         template = self.configs[index][key]
         for config in self.configs:
             config[key] = template
@@ -604,6 +613,14 @@ class LokiSamplePanel(Panel):
     def _save_script(filename, script):
         with open(filename, 'w') as fp:
             fp.writelines(script)
+
+    def _set_dirty(self):
+        """
+        Enables apply changes button if there are changes in the sample
+        configuration.
+        """
+        self.dirty = True
+        self.applyBtn.setEnabled(True)
 
 
 class MockSample:
