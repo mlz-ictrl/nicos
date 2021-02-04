@@ -24,11 +24,7 @@
 
 """TOFTOF special Live view sink for NICOS."""
 
-from time import time as currenttime
-
-from nicos import session
 from nicos.core import Override
-from nicos.utils import byteBuffer
 
 from nicos_mlz.toftof.devices.datasinks.base import TofSink, TofSinkHandler
 
@@ -38,19 +34,13 @@ class ToftofLiveViewSinkHandler(TofSinkHandler):
     def __init__(self, sink, dataset, detector):
         TofSinkHandler.__init__(self, sink, dataset, detector)
 
-    def putResults(self, quality, results):
-        if self.detector.name in results:
-            data = results[self.detector.name][1][0]
-            if data is not None:
-                if len(data.shape) == 2:
-                    treated = data[self.detector._anglemap, :].astype('<u4',
-                                                                      order='C')
-                    (resY, resX), resZ = treated.shape, 1
-                    session.updateLiveData('Live', self.dataset.uid,
-                                           self.detector.name, [''],
-                                           '<u4', [resX], [resY], [resZ],
-                                           currenttime() - self.dataset.started,
-                                           [byteBuffer(treated)])
+    def processArrays(self, result):
+        data = result[1][0]
+        if data is not None:
+            if len(data.shape) == 2:
+                treated = data[self.detector._anglemap, :].astype('<u4',
+                                                                  order='C')
+                return [treated]
 
 
 class ToftofLiveViewSink(TofSink):

@@ -39,7 +39,7 @@ DEFAULT_PORT = 1301
 # protocol version, increment this whenever making changes to command
 # arguments or adding new commands
 
-PROTO_VERSION = 20
+PROTO_VERSION = 21
 
 # old versions with which the client is still compatible
 

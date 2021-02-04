@@ -95,9 +95,15 @@ class ImageKafkaWithLiveViewDataSinkHandler(ImageKafkaDataSinkHandler):
             else:
                 continue
 
-        session.updateLiveData('Live', self.dataset.uid, self.detector.name,
-                               tags, '<u4', nx, ny, nz,
-                               currenttime() - self.dataset.started, data)
+        session.updateLiveData(
+            dict(tag='Live',
+                 uid=self.dataset.uid,
+                 detector=self.detector.name,
+                 filenames=tags,
+                 dtypes=['<u4'],
+                 shapes=list(zip(nx, ny, nz)),
+                 time=currenttime() - self.dataset.started),
+            data)
 
 
 class ImageKafkaWithLiveViewDataSink(ImageKafkaDataSink):

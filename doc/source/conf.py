@@ -315,10 +315,12 @@ latex_elements = {
     # Additional stuff for the LaTeX preamble.
     #
     'preamble': r'\setcounter{tocdepth}{3}',
-
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
+
+    # Increase the default list depth
+    'maxlistdepth' : '6',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples

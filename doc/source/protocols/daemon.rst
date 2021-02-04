@@ -308,9 +308,87 @@ protocols.
 
    An assortment of live data.
 
-   :arg: XXX document this once format is finalized.
+   :arg: ``liveparams``, ``datablobs``
 
-   This event contains blobs, which are raw arrays with the actual data.
+   ``liveparams``:
+   Describes the incoming data as a dictionary with the following keys:
+
+      - `uid`: uuid of the dataset.
+      - `time`: runtime in sec
+      - `det`: detectorname
+      - `tag`: 'live' or 'file'
+      - `filedescs`: list of dictionaries with tht following keys (for 'File')
+
+         - `filename`: filename to read from
+         - `fileformat`: format of the specified file
+      - `datadescs`: list of dictionaries with the following keys (for 'Live')
+
+         - `filename`: filename for caching
+         - `dtype`: data type for the data values
+         - `shape`: shape of one dataset
+         - `labels`: dictionary describing how to label the axis.
+
+            - allowed keys: `x`, `y`
+            - allowed values: dict with following keys
+
+              - `title`: axis title
+              -  `define`: allowed values:
+
+                - `classic`: use range(shapesize) for the labels
+                - `range`: equidistant distribution from first to last (defined
+                  by start + step * number_of_steps), additional keys:
+
+                  - `start`: start value
+                  - `step`: step size
+                  - `length`: number of steps
+                - `array`: custom labels array (typically not be equidistant),
+                  additional keys:
+
+                  - `index`: index in the labels array (default=0)
+                  - `dtype`: data type of the label values
+         - `count`: amount of (1D) datasets contained in the associated
+           databuffer
+
+   in short:
+
+      .. code-block:: python
+
+          dict(
+              uid=str,
+              time=float,
+              det=str,
+              tag=oneof('live','file'),
+              # mandatory if tag == 'file', else optional
+              filedescs=[dict(
+                  filename=str,
+                  fileformat=str,
+              ),]
+              # mandatory if tag == 'live', else optional
+              datadescs=[dict(
+                  dtype=str,
+                  shape=oneof((x,), (y, x), (t, y, x), ... ),
+                  labels={
+                      'x': dict('define': oneof('classic', 'range', 'array')),
+                      ['y': dict('define': oneof('classic', 'range', 'array'))],
+                  count=int,
+              ),]
+          )
+
+   ``datablobs``: a list of databuffers. Each entry belongs to one of two
+   categories:
+
+      - `livedata`: the actual data
+      - `livelabels`: labels for the axis one buffer per dataset
+
+   The first entries in databuffers will be processed as `livedata`.  The
+   `livedata` buffer is a list of `count` (in the associated `datadesc`)
+   datasets.
+
+   The last databuffers will be processed as `livelabels`.  The maximum amount
+   of ``livelabels`` is the length of the ``labels`` in the ``datadescs``
+   entry.  These buffers will be used only in case that the `labels` have a
+   `define` of 'array'. In this case the `index` entry of the `labels` entry
+   points to the `labelsarray`.
 
 .. daemonevt:: simresult
 

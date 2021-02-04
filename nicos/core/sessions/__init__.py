@@ -1453,33 +1453,30 @@ class Session:
 
     # -- Session-specific behavior --------------------------------------------
 
-    def updateLiveData(self, tag, uid, detector, filenames, dtype, nx, ny, nt,
-                       time, data):
+    def updateLiveData(self, parameters, databuffers, labelbuffers=None):
         """Send new live data to clients.
 
-        The parameters are:
+        parameters:
 
-        * tag - a string describing the type of data that is sent.  It is used
-          by clients to determine if they can display this data.
-        * uid - a unique id for the corresponding data point.
-        * detector - name of the detector device.
-        * filenames - list of filenames displayed for cached data.
-        * dtype - a string describing the data array in numpy style, if it is
-          in array format.
-        * nx, ny, nt - three lists of integers giving the dimensions of the data
-          arrays,
-          if it is in array format.
-        * time - the current measurement time, for determining count rate.
-        * data - the actual data as a list of byte strings.
+          * tag - a string describing the type of data that is sent.  It is
+            used by clients to determine if they can display this data.
+          * uid - a unique id for the corresponding data point.
+          * detector - name of the detector device.
+          * time - the current measurement time, for determining count rate.
+          * datadescs - list of data descriptions
+
+        databuffers:  list of the actual data as memoryviews
+
+        labelbuffers: list of label data, if custom labels are provided.
         """
 
-    def notifyDataFile(self, tag, uid, detector, filename_or_filenames):
+    def notifyDataFile(self, ftype, uid, detector, filename_or_filenames):
         """Notify clients that a new data file has been written, which might
         be viewed by live-data views.
 
         The parameters are:
 
-        * tag - a string describing the type of data saved.  It is used
+        * ftype - a string describing the type of data saved.  It is used
           by clients to determine if they can open/display this data.
         * uid - a unique id for the corresponding data point.
         * detector - name of the detector device.

@@ -473,13 +473,18 @@ class PreviewSinkHandler(special.LiveViewSinkHandler):
                 else:
                     preview[i] = counts / (tsteps * timesteptime)  # = counts/s
 
-
         return [preview]
 
-    def getAbscissa(self, result):
-        return ['<f4']
+    def getLabelDescs(self, result):
+        return {
+            'x': {
+                'define': 'array',
+                'index': 0,
+                'dtype': '<f4',
+            },
+        }
 
-    def getAbscissaArrays(self, result):
+    def getLabelArrays(self, result):
         return [self.abscissa]
 
 

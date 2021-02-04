@@ -26,6 +26,7 @@ import pytest
 
 from nicos import nicos_version
 from nicos.core import MASTER
+from nicos.core.constants import LIVE
 from nicos.protocols.daemon import STATUS_IDLE
 
 from test.utils import raises
@@ -162,17 +163,31 @@ def test_live_events(client):
     client.run_and_wait('''\
 import numpy
 from nicos import session
+from nicos.core.constants import LIVE
 from nicos.utils import byteBuffer
 arr = numpy.array([[1, 2], [3, 4]], dtype='<u1')
-session.updateLiveData(
-    'Live', 'uid', 'detname',
-    ['file.name'], '<u1', [2], [2], [1], 12345,
+session.updateLiveData(dict(
+    tag=LIVE,
+    uid='uid',
+    det='detname',
+    time=12345,
+    datadescs=[dict(
+        dtypes='<u1',
+        shapes=(2, 2, 1),
+        count=1)]),
     [byteBuffer(arr)])
 ''', 'live.py')
     for name, data, blobs in client.iter_signals(idx, timeout=10.0):
         if name == 'livedata':
-            assert data == ['Live', 'uid', 'detname', ['file.name'], '<u1',
-                            [2], [2], [1], 12345]
+            assert data == dict(uid='uid',
+                                tag=LIVE,
+                                det='detname',
+                                time=12345,
+                                datadescs=[dict(
+                                    dtypes='<u1',
+                                    shapes=[2, 2, 1],
+                                    count=1)])
+
             assert [b.tobytes() for b in blobs] == [b'\x01\x02\x03\x04']
             return
 

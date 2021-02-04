@@ -31,8 +31,8 @@ from time import time as currenttime
 import numpy as np
 
 from nicos import session
-from nicos.core import DataSink, DataSinkHandler, Override
-from nicos.core.constants import POINT, SCAN, SUBSCAN
+from nicos.core import DataSink, DataSinkHandler, Override, Param, listof
+from nicos.core.constants import LIVE, POINT, SCAN, SUBSCAN
 from nicos.core.data import ScanData
 from nicos.devices.datasinks.image import ImageSink
 from nicos.utils import byteBuffer
@@ -89,8 +89,70 @@ class LiveViewSinkHandler(DataSinkHandler):
     def processArrays(self, result):
         """Derived classes may override this in order to pre process data
         arrays in respect to the read result with the form
-        ``(readvalue, arrays)``."""
+        ``(readvalue, arrays)``.
+        """
         return result[1]
+
+    def getLabelDescs(self, result):
+        """Return a description for the display of the data.
+
+        For each of the axis a single description is as a dictionary is
+        provided:
+
+          * ``title`` - Axis label
+          * ``define`` - Type of the description. At the moment exist the
+            following values:
+
+              * ``range`` - Define a field from 'start' with 'length'
+                entries and equidistant 'step'
+              * ``classic`` - Short for the 'range' with 'start'=0 and
+                'step'=1.
+              * ``array`` - Define a field, where the values are not
+                equidistant distributed. The values will be given via the
+                'getLabelArrays' function, where the 'index' defines the
+                entry in the list and the 'dtype' the value type.
+
+        Derived classes may override this in order to specify custom
+        labels for every array.
+
+        Examples:
+            'x': {
+                    define = 'range',
+                    start = -2,
+                    length = 5,
+                    step = 0.5,
+                    title = 'tths (deg)'
+                }
+
+            'y': {
+                    define = 'classic',
+                    title = 'Counts',
+                },
+            'x': {
+                    define = 'array',
+                    dtype = '<i4',
+                    index = 0,  # first entry in the getLabelArrays list
+                    title = 'x (mm)',
+                }
+
+        """
+        return {
+            'x': {'define': 'classic'},
+            'y': {'define': 'classic'},
+        }
+
+    def getLabelArrays(self, result):
+        """Derived classes may override this to specify custom set of abscissa.
+        The buffers must be in the same order as the datatypestrings returned
+        by getAbscissa.
+        """
+        return []
+
+    def getDataSetCount(self, result):
+        """Derived classes can implement this to specify how many arrays are
+        transferred in this dataset to be displayed in one plot.
+        """
+        return 1
 
     def putResults(self, quality, results):
         if self.detector.name not in results:
@@ -98,41 +160,36 @@ class LiveViewSinkHandler(DataSinkHandler):
         result = results[self.detector.name]
         if result is None:
             return
-        buffers = []
-        filenames = []
-        nx, ny, nz = [], [], []
-        arrays = self.processArrays(result)
-        for i, data in enumerate(arrays):
+
+        databuffers = []
+        datadescs = []
+        for data in self.processArrays(result):
             if data is None:
                 continue
-            if len(data.shape) == 1:
-                resZ, resY, resX = 1, 1, data.shape
-            elif len(data.shape) == 2:
-                resZ, (resY, resX) = 1, data.shape
-            elif len(data.shape) == 3:
-                resZ, resY, resX = data.shape
-            else:
-                continue
 
-            if self.dataset.filenames and \
-                    i < len(self.dataset.filenames) and \
-                    self.dataset.filenames[i]:
-                filename = self.dataset.filenames[i]
-            else:
-                filename = self.sink.filenametemplate[0] % self.dataset.counter
+            databuffers.append(byteBuffer(np.ascontiguousarray(data)))
 
-            buf = byteBuffer(np.ascontiguousarray(data.astype('<u4')))
-            nx.append(resX)
-            ny.append(resY)
-            nz.append(resZ)
-            filenames.append(filename)
-            buffers.append(buf)
-        if buffers:
-            session.updateLiveData('Live', self.dataset.uid,
-                                   self.detector.name, filenames,
-                                   '<u4', nx, ny, nz,
-                                   currenttime() - self.dataset.started,
-                                   buffers)
+            datadesc = dict(
+                dtype=data.dtype.str,
+                shape=data.shape,
+                labels=self.getLabelDescs(results),
+                count=self.getDataSetCount(results)
+            )
+            datadescs.append(datadesc)
+
+        if databuffers:
+            parameters = dict(
+                uid=self.dataset.uid,
+                time=currenttime() - self.dataset.started,
+                det=self.detector.name,
+                tag=LIVE,
+                datadescs=datadescs,
+            )
+
+            labelbuffers = [byteBuffer(np.ascontiguousarray(arr))
+                            for arr in self.getLabelArrays(result)]
+
+            session.updateLiveData(parameters, databuffers, labelbuffers)
 
 
 class LiveViewSink(ImageSink):
@@ -153,7 +210,16 @@ class LiveViewSink(ImageSink):
 
     For the `nicos.devices.generic.Detector`, this is controlled by its
     "liveinterval" and "saveintervals" parameters.
+
+    "datasets" is a list of the amount of data sets of each sent image.
+    If more images are sent then data sets are listed the last value is
+    set for all images exceeding the list length.
     """
+
+    parameters = {
+        'datasets': Param('Amount of datasets in each liveimage.',
+                          type=listof(int), default=[1])
+    }
 
     parameter_overrides = {
         # this is fixed string for labeling cached live data
