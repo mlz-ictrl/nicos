@@ -17,7 +17,7 @@ devices = dict(
     ),
     image = device('nicos_mlz.spodi.devices.virtual.VirtualImage',
         description = 'Image data device',
-        datafile='nicos_mlz/spodi/data/run064201.ctxt',
+        datafile='nicos_demo/vspodi/data/run099999.ctxt',
         fmtstr = '%d',
         pollinterval = None,
         lowlevel = True,
