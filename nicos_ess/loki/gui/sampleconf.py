@@ -257,11 +257,9 @@ class LokiSamplePanel(Panel):
         self.createBtn.setMenu(menu)
 
         self.configs = []
-        self.dirty = False
-        self.applyBtn.setEnabled(False)
         self.holder_info = options.get('holder_info', [])
         self.instrument = options.get('instrument', 'loki')
-
+        self._set_dirty(False)
         self.initialise_connection_status_listeners()
 
     def initialise_connection_status_listeners(self):
@@ -371,7 +369,7 @@ class LokiSamplePanel(Panel):
         self.on_list_itemClicked(first_item)
 
         self.sampleGroup.setEnabled(True)
-        self._set_dirty()
+        self._set_dirty(True)
 
     def _generate_configs(self, dlg):
         rows, levels, ax1, dax1, ax2, dax2 = dlg._info
@@ -454,8 +452,8 @@ class LokiSamplePanel(Panel):
             script = self._generate_script()
             self.client.run(script)
             self.showInfo('Sample info has been transferred to the daemon.')
-        self.dirty = False
-        self.applyBtn.setEnabled(False)
+        
+        self._set_dirty(False)
 
     @pyqtSlot()
     def on_saveBtn_clicked(self):
@@ -530,7 +528,7 @@ class LokiSamplePanel(Panel):
         if self.configs[i]['detoffset'] == val:
             return
 
-        self._set_dirty()
+        self._set_dirty(True)
         self.configs[i]['detoffset'] = val
         self._copy_key('detoffset')
 
@@ -546,7 +544,7 @@ class LokiSamplePanel(Panel):
         w = self.configs[i]['aperture'][2]
         h = self.configs[i]['aperture'][3]
 
-        self._set_dirty()
+        self._set_dirty(True)
         aperture_switch = {
             0: (value, y, w, h),
             1: (x, value, w, h),
@@ -565,7 +563,7 @@ class LokiSamplePanel(Panel):
                                self.configs)
         if not dlg.exec_():
             return
-        self._set_dirty()
+        self._set_dirty(True)
         config = configFromFrame(dlg.frm)
         self.configs.append(config)
         new_item = QListWidgetItem(config['name'], self.list)
@@ -582,7 +580,7 @@ class LokiSamplePanel(Panel):
                                self.configs[index])
         if not dlg.exec_():
             return
-        self._set_dirty()
+        self._set_dirty(True)
         config = configFromFrame(dlg.frm)
         self.configs[index] = config
         list_item = self.list.item(index)
@@ -594,7 +592,7 @@ class LokiSamplePanel(Panel):
         index = self.list.currentRow()
         if index < 0:
             return
-        self._set_dirty()
+        self._set_dirty(True)
         self.list.takeItem(index)
         del self.configs[index]
         if self.list.currentRow() != -1:
@@ -628,13 +626,14 @@ class LokiSamplePanel(Panel):
         with open(filename, 'w') as fp:
             fp.writelines(script)
 
-    def _set_dirty(self):
+    # May be a better name.
+    def _set_dirty(self, value: bool):
         """
         Enables apply changes button if there are changes in the sample
         configuration.
         """
-        self.dirty = True
-        self.applyBtn.setEnabled(True)
+        self.dirty = value
+        self.applyBtn.setEnabled(value)
 
 
 class MockSample:
