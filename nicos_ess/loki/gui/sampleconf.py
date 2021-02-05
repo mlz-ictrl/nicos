@@ -153,15 +153,15 @@ class ConfigEditDialog(QDialog):
             dev_name = self.frm.posTbl.item(i, 0).text()
             dev_pos = self.frm.posTbl.item(i, 1).text()
             if not dev_name or dev_name.startswith('<'):
-                QMessageBox.warning(self, 'Error', '%r is not a valid device '
-                                                   'name.' % dev_name)
+                QMessageBox.warning(
+                    self, 'Error', f'{dev_name} is not a valid device name.')
                 return
             try:
                 dev_pos = float(dev_pos)
             except ValueError:
-                QMessageBox.warning(self, 'Error', '%r is not a valid position'
-                                                   ' for device %r.' % (
-                                    dev_pos, dev_name))
+                QMessageBox.warning(
+                    self, 'Error', f'{dev_pos} is not a valid '
+                                   f'position for device {dev_name}.')
                 return
         self.accept()
 
@@ -208,8 +208,8 @@ class ConfigEditDialog(QDialog):
     def _readDev(self, name):
         rv = self.client.eval('%s.format(%s.read())' % (name, name), None)
         if rv is None:
-            QMessageBox.warning(self, 'Error', 'Could not read device %s!' %
-                                name)
+            QMessageBox.warning(
+                self, 'Error', f'Could not read device {name}!')
             return '0'
         return rv
 
@@ -309,9 +309,9 @@ class LokiSamplePanel(Panel):
                 x = self.client.eval('%s.read()' % ax, None)
                 if x is None:
                     QMessageBox.warning(dlg, 'Error',
-                                        'Could not read %s.' % ax)
+                                        f'Could not read {ax}.')
                     return
-                box.setText('%.1f' % x)
+                box.setText(f'x:.1f')
 
         def btn_toggled(checked):
             if checked:
@@ -327,7 +327,7 @@ class LokiSamplePanel(Panel):
                         box.show()
                         if revbox:
                             revbox.show()
-                            revbox.setText('%s starts at far end' % ax)
+                            revbox.setText(f'{ax} starts at far end')
                     else:
                         lbl.hide()
                         box.hide()
@@ -434,8 +434,8 @@ class LokiSamplePanel(Panel):
         try:
             self.configs = parse_sampleconf(filename)
         except Exception as err:
-            self.showError('Could not read file: %s\n\n'
-                           'Are you sure this is a sample file?' % err)
+            self.showError(f'Could not read file: {err}\n\n'
+                           'Are you sure this is a sample file?')
         else:
             self.list.clear()
             self.sampleGroup.setEnabled(True)
@@ -470,7 +470,7 @@ class LokiSamplePanel(Panel):
         try:
             self._save_script(filename, self._generate_script())
         except Exception as err:
-            self.showError('Could not write file: %s' % err)
+            self.showError(f'Could not write file: {err}')
 
     def _clearDisplay(self):
         item = self.frame.layout().takeAt(0)
@@ -611,13 +611,13 @@ class LokiSamplePanel(Panel):
             config[key] = template
 
     def _generate_script(self):
-        script = ['# LoKI sample file for NICOS\n',
-                  '# Written: %s\n\n' % time.asctime(),
-                  'ClearSamples()\n']
+        script = [f'# LoKI sample file for NICOS\n',
+                  f'# Written: {time.asctime()}\n\n' ,
+                  f'ClearSamples()\n']
         for (i, config) in enumerate(self.configs, start=1):
-            script.append('SetSample(%d, %r, ' % (i, config['name']))
+            script.append(f"SetSample({i}, {repr(config['name'])}, ")
             for key in SAMPLE_KEYS:
-                script.append('%s=%r' % (key, config[key]))
+                script.append(f"{key}={repr(config[key])}")
                 script.append(', ')
             del script[-1]  # remove last comma
             script.append(')\n')
@@ -650,7 +650,7 @@ class MockSample:
         entry['name'] = name
         for key in SAMPLE_KEYS:
             if key not in entry:
-                raise ValueError('missing key %r in sample entry' % key)
+                raise ValueError(f'missing key {key} in sample entry')
         self.configs.append(entry)
 
 
