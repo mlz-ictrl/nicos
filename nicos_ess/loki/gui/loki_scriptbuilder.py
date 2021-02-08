@@ -20,10 +20,22 @@ class LokiScriptBuilderPanel(Panel):
 
         self.chkShowTColumn.stateChanged.connect(self.chkShowTColumn_toggled)
 
+        self.columns = ["Sample", "Trans", "Sans", "Test", "Temperature"]
         self._init_table()
 
     def _init_table(self, num_rows=10):
-        self.tableScript.setColumnCount(5)
+        self.tableScript.setColumnCount(len(self.columns))
+        for i, column in enumerate(self.columns):
+            self.tableScript.setHorizontalHeaderItem(i, QTableWidgetItem(column))
+
+        # Hide optional columns? It would be nice to have them stored so
+        # if the GUI is restarted it can recall what was hidden...
+        self.tableScript.setColumnHidden(4, True)
+
+        # Table formatting
+        self.tableScript.horizontalHeader().setStretchLastSection(True)
+        self.tableScript.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableScript.resizeColumnsToContents()
 
         # TODO: set the number of rows to a number appropriate for the
         # current sample changer
@@ -31,17 +43,6 @@ class LokiScriptBuilderPanel(Panel):
         for i in range(num_rows):
             self.tableScript.setVerticalHeaderItem(i,
                 QTableWidgetItem(chr(ord('A') + i)))
-
-        self.tableScript.setHorizontalHeaderItem(0, QTableWidgetItem("Sample"))
-        self.tableScript.setHorizontalHeaderItem(1, QTableWidgetItem("TRANS"))
-        self.tableScript.setHorizontalHeaderItem(2, QTableWidgetItem("SANS"))
-        self.tableScript.setHorizontalHeaderItem(3, QTableWidgetItem("TEST"))
-        self.tableScript.setHorizontalHeaderItem(4, QTableWidgetItem("TEMP"))
-        self.tableScript.setColumnHidden(4, True)
-        self.tableScript.horizontalHeader().setStretchLastSection(True)
-        self.tableScript.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Stretch)
-        self.tableScript.resizeColumnsToContents()
 
         combo = QComboBox()
         combo.addItems(["1", "2"])
@@ -56,8 +57,9 @@ class LokiScriptBuilderPanel(Panel):
             self.tableScript.setItem(row, 2, QTableWidgetItem("45"))
 
     def chkShowTColumn_toggled(self, state):
+        column_number = self.columns.index("Temperature")
         if state == Qt.Checked:
-            self.tableScript.setColumnHidden(4, False)
+            self.tableScript.setColumnHidden(column_number, False)
         else:
-            self.tableScript.setColumnHidden(4, True)
+            self.tableScript.setColumnHidden(column_number, True)
 
