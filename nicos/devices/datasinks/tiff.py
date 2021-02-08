@@ -25,7 +25,8 @@
 import numpy
 
 from nicos.core import NicosError, Override, Param
-from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
+from nicos.devices.datasinks.image import ImageFileReader, ImageSink, \
+    SingleFileSinkHandler
 
 try:
     import PIL
@@ -33,7 +34,6 @@ try:
 except ImportError as e:
     PIL = None
     _import_error = e
-
 
 
 class TIFFImageSinkHandler(SingleFileSinkHandler):
@@ -74,3 +74,21 @@ class TIFFImageSink(ImageSink):
 
     def isActiveForArray(self, arraydesc):
         return len(arraydesc.shape) == 2
+
+
+class TIFFFileReader(ImageFileReader):
+    filetypes = [
+        ('tiff', 'TIFF File (*.tiff)'),
+        ('tif', 'TIFF File (*.tif)')
+    ]
+
+    @classmethod
+    def fromfile(cls, filename):
+        if PIL is None:
+            raise NicosError('%s: The Python Image Library (PIL) is not '
+                             'available. Please check whether it is installed '
+                             'and in your PYTHONPATH' % _import_error)
+        with Image.open(filename) as im:
+            if im.getbands() == 'I':  # single band == gray picture
+                return numpy.asarray(im)
+            raise NicosError('Only monochrome pictures supported')
