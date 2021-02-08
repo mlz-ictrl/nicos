@@ -23,7 +23,7 @@ class LokiScriptBuilderPanel(Panel):
         self.columns = ["Sample", "Trans", "Sans", "Test", "Temperature"]
         self._init_table()
 
-    def _init_table(self, num_rows=10):
+    def _init_table(self, num_rows=26):
         self.tableScript.setColumnCount(len(self.columns))
         for i, column in enumerate(self.columns):
             self.tableScript.setHorizontalHeaderItem(i, QTableWidgetItem(column))
@@ -52,9 +52,8 @@ class LokiScriptBuilderPanel(Panel):
 
     @pyqtSlot()
     def on_testButton_clicked(self):
-        for index in self.tableScript.selectionModel().selectedRows():
-            row = index.row()
-            self.tableScript.setItem(row, 2, QTableWidgetItem("45"))
+        for index in self.tableScript.selectionModel().selectedIndexes():
+            self.tableScript.setItem(index.row(), index.column(), QTableWidgetItem(self.txtValue.text()))
 
     def chkShowTColumn_toggled(self, state):
         column_number = self.columns.index("Temperature")
