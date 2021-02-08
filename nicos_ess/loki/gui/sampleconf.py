@@ -510,49 +510,57 @@ class LokiSamplePanel(Panel):
         # color when in editing mode.
         frm.offsetBox.editingFinished.connect(lambda: self.set_offset(index,
                                               frm.offsetBox.displayText()))
-        frm.apXBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                           frm.apXBox.displayText(), 0))
-        frm.apYBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                           frm.apYBox.displayText(), 1))
-        frm.apWBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                           frm.apWBox.displayText(), 2))
-        frm.apHBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                           frm.apHBox.displayText(), 3))
+        frm.apXBox.editingFinished.connect(lambda: self.set_pos_x(index,
+                                           frm.apXBox.displayText()))
+        frm.apYBox.editingFinished.connect(lambda: self.set_pos_y(index,
+                                           frm.apYBox.displayText()))
+        frm.apWBox.editingFinished.connect(lambda: self.set_width_w(index,
+                                           frm.apWBox.displayText()))
+        frm.apHBox.editingFinished.connect(lambda: self.set_height_h(index,
+                                           frm.apHBox.displayText()))
 
         # Re-validate the values
         for box in [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
                     frm.apHBox]:
             box.setValidator(DoubleValidator(self))
 
-    def set_offset(self, i, val):
-        if self.configs[i]['detoffset'] == val:
+    def set_offset(self, index, value):
+        if self.configs[index]['detoffset'] == value:
             return
-
         self._set_dirty(True)
-        self.configs[i]['detoffset'] = val
+        self.configs[index]['detoffset'] = value
         self._copy_key('detoffset')
 
-    def set_aperture(self, i, val, key):
-        # The following implementation is required as "aperture" has been
-        # implemented as a tuple rather then a simple list.
-        value = float(val)
-        if self.configs[i]['aperture'][key] == value:
+    def set_pos_x(self, index, value):
+        value = float(value)
+        if self.configs[index]['aperture'][0] == value:
             return
-
-        x = self.configs[i]['aperture'][0]
-        y = self.configs[i]['aperture'][1]
-        w = self.configs[i]['aperture'][2]
-        h = self.configs[i]['aperture'][3]
-
+        self._set_apperture_value_at_key(index, 0, value)
+        
+    def set_pos_y(self, index, value):
+        value = float(value)
+        if self.configs[index]['aperture'][1] == value:
+            return
+        self._set_apperture_value_at_key(index, 1, value)
+    
+    def set_width_w(self, index, value):
+        value = float(value)
+        if self.configs[index]['aperture'][2] == value:
+            return
+        self._set_apperture_value_at_key(index, 2, value)
+    
+    def set_height_h(self, index, value):
+        value = float(value)
+        if self.configs[index]['aperture'][3] == value:
+            return
+        self._set_apperture_value_at_key(index, 3, value)
+    
+    def _set_apperture_value_at_key(self, index, key, value):
         self._set_dirty(True)
-        aperture_switch = {
-            0: (value, y, w, h),
-            1: (x, value, w, h),
-            2: (x, y, value, h),
-            3: (x, y, w, value)
-        }
-        self.configs[i]['aperture'] = aperture_switch[key]
-        self._copy_key('aperture')
+        container = self.configs[index]['aperture']
+        self.configs[index]['aperture'] = \
+            container[:key] + (value, ) + container[key+1:]
+        self._copy_key('aperture') 
 
     def on_list_itemDoubleClicked(self):
         self.on_editBtn_clicked()
