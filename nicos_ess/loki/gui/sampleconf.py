@@ -554,7 +554,7 @@ class LokiSamplePanel(Panel):
             return
         self._set_apperture_value_at_key(index, 3, value)
     
-    def _set_apperture_value_at_key(self, index, key, value):
+    def _set_aperture_value_at_key(self, index, key, value):
         self._set_dirty(True)
         container = self.configs[index]['aperture']
         self.configs[index]['aperture'] = \
