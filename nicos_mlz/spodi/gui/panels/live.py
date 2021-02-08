@@ -54,10 +54,9 @@ class FullScreen1DWidget(LiveWidget1D):
             self.curve.x = numpy.arange(start, end, step)
             nx = end
         elif n >= 2:
-            nx = array.shape[n - 1]
-            ny = array.shape[n - 2]
+            ny, nx = array.shape[-2:]
         if n == 3:
-            nz = array.shape[n - 3]
+            nz = array.shape[-3]
         if not self._fixedsize:
             self._axesratio = ny / float(nx)
 
@@ -77,7 +76,7 @@ class FullScreen1DWidget(LiveWidget1D):
         return nz, ny, nx
 
     def _setData(self, array, nx, ny, nz, newrange):
-        self.curve.y = numpy.ma.masked_equal(self._array.ravel(), 0).astype(
+        self.curve.y = numpy.ma.masked_equal(array.ravel(), 0).astype(
             numpy.float)
         self.curve.filly = .1 if self._logscale else 0
 
@@ -99,10 +98,6 @@ class FullScreen1DWidget(LiveWidget1D):
     def updateAxesRange(self, nx, ny):
         self.axes.setWindow(self.curve.x[0], self.curve.x[-1],
                             .1 if self._logscale else 0, ny)
-
-    def unzoom(self):
-        self.updateAxesRange(self._axesrange[1], self._axesrange[0])
-        self.rescale()
 
 
 class LiveDataPanel(BaseLiveDataPanel):
