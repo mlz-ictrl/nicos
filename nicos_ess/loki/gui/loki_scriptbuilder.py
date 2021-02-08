@@ -4,7 +4,7 @@ from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QAction, QMenu, QToolButton, pyqtSlot, \
-    QTableWidgetItem, QHeaderView, QComboBox, QSizePolicy
+    QTableWidgetItem, QHeaderView, QComboBox, QSizePolicy, Qt
 from nicos.utils import importString, findResource
 
 
@@ -18,10 +18,12 @@ class LokiScriptBuilderPanel(Panel):
         combo_options = ["TRANS First", "SANS First", "Simultaneous"]
         self.comboOrder.addItems(combo_options)
 
+        self.chkShowTColumn.stateChanged.connect(self.chkShowTColumn_toggled)
+
         self._init_table()
 
     def _init_table(self, num_rows=10):
-        self.tableScript.setColumnCount(4)
+        self.tableScript.setColumnCount(5)
 
         # TODO: set the number of rows to a number appropriate for the
         # current sample changer
@@ -34,6 +36,8 @@ class LokiScriptBuilderPanel(Panel):
         self.tableScript.setHorizontalHeaderItem(1, QTableWidgetItem("TRANS"))
         self.tableScript.setHorizontalHeaderItem(2, QTableWidgetItem("SANS"))
         self.tableScript.setHorizontalHeaderItem(3, QTableWidgetItem("TEST"))
+        self.tableScript.setHorizontalHeaderItem(4, QTableWidgetItem("TEMP"))
+        self.tableScript.setColumnHidden(4, True)
         self.tableScript.horizontalHeader().setStretchLastSection(True)
         self.tableScript.horizontalHeader().setSectionResizeMode(
             QHeaderView.Stretch)
@@ -50,4 +54,10 @@ class LokiScriptBuilderPanel(Panel):
         for index in self.tableScript.selectionModel().selectedRows():
             row = index.row()
             self.tableScript.setItem(row, 2, QTableWidgetItem("45"))
+
+    def chkShowTColumn_toggled(self, state):
+        if state == Qt.Checked:
+            self.tableScript.setColumnHidden(4, False)
+        else:
+            self.tableScript.setColumnHidden(4, True)
 
