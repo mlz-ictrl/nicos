@@ -26,7 +26,6 @@
 """LoKI sample configuration dialog."""
 
 import builtins
-import inspect
 import math
 import time
 
