@@ -1,11 +1,8 @@
-from PyQt5 import QtWidgets
-
-from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QAction, QMenu, QToolButton, pyqtSlot, \
-    QTableWidgetItem, QHeaderView, QComboBox, QSizePolicy, Qt
-from nicos.utils import importString, findResource
+from nicos.guisupport.qt import pyqtSlot, QTableWidgetItem, QHeaderView, \
+    QComboBox, QSizePolicy, Qt
+from nicos.utils import findResource
 
 
 class LokiScriptBuilderPanel(Panel):
