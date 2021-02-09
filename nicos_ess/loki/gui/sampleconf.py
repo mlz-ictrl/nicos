@@ -152,15 +152,15 @@ class ConfigEditDialog(QDialog):
             dev_name = self.frm.posTbl.item(i, 0).text()
             dev_pos = self.frm.posTbl.item(i, 1).text()
             if not dev_name or dev_name.startswith('<'):
-                QMessageBox.warning(self, 'Error', '%r is not a valid device '
-                                                   'name.' % dev_name)
+                QMessageBox.warning(
+                    self, 'Error', f'{dev_name} is not a valid device name.')
                 return
             try:
                 dev_pos = float(dev_pos)
             except ValueError:
-                QMessageBox.warning(self, 'Error', '%r is not a valid position'
-                                                   ' for device %r.' % (
-                                    dev_pos, dev_name))
+                QMessageBox.warning(
+                    self, 'Error', f'{dev_pos} is not a valid '
+                                   f'position for device {dev_name}.')
                 return
         self.accept()
 
@@ -207,8 +207,8 @@ class ConfigEditDialog(QDialog):
     def _readDev(self, name):
         rv = self.client.eval('%s.format(%s.read())' % (name, name), None)
         if rv is None:
-            QMessageBox.warning(self, 'Error', 'Could not read device %s!' %
-                                name)
+            QMessageBox.warning(
+                self, 'Error', f'Could not read device {name}!')
             return '0'
         return rv
 
@@ -256,11 +256,10 @@ class LokiSamplePanel(Panel):
         self.createBtn.setMenu(menu)
 
         self.configs = []
-        self.dirty = False
-        self.applyBtn.setEnabled(False)
         self.holder_info = options.get('holder_info', [])
         self.instrument = options.get('instrument', 'loki')
-
+        self.unapplied_changes = False
+        self.applyBtn.setEnabled(False)
         self.initialise_connection_status_listeners()
 
     def initialise_connection_status_listeners(self):
@@ -286,10 +285,11 @@ class LokiSamplePanel(Panel):
             control.setEnabled(not viewonly)
         # Handle apply button separately.
         if viewonly:
+            self.unapplied_changes = self.applyBtn.isEnabled()
             self.applyBtn.setEnabled(False)
         # If one toggles view only mode without applying changes, upon exiting
         # view-only mode, following ensures apply button is enabled.
-        elif self.dirty:
+        elif self.unapplied_changes:
             self.applyBtn.setEnabled(True)
 
     @pyqtSlot()
@@ -308,9 +308,9 @@ class LokiSamplePanel(Panel):
                 x = self.client.eval('%s.read()' % ax, None)
                 if x is None:
                     QMessageBox.warning(dlg, 'Error',
-                                        'Could not read %s.' % ax)
+                                        f'Could not read {ax}.')
                     return
-                box.setText('%.1f' % x)
+                box.setText(f'x:.1f')
 
         def btn_toggled(checked):
             if checked:
@@ -326,7 +326,7 @@ class LokiSamplePanel(Panel):
                         box.show()
                         if revbox:
                             revbox.show()
-                            revbox.setText('%s starts at far end' % ax)
+                            revbox.setText(f'{ax} starts at far end')
                     else:
                         lbl.hide()
                         box.hide()
@@ -370,7 +370,7 @@ class LokiSamplePanel(Panel):
         self.on_list_itemClicked(first_item)
 
         self.sampleGroup.setEnabled(True)
-        self._set_dirty()
+        self.applyBtn.setEnabled(True)
 
     def _generate_configs(self, dlg):
         rows, levels, ax1, dax1, ax2, dax2 = dlg._info
@@ -420,7 +420,7 @@ class LokiSamplePanel(Panel):
             self.list.setCurrentItem(last_item)
 
         self.sampleGroup.setEnabled(True)
-        self.dirty = False
+        self.applyBtn.setEnabled(False)
 
     @pyqtSlot()
     def on_openFileBtn_clicked(self):
@@ -433,8 +433,8 @@ class LokiSamplePanel(Panel):
         try:
             self.configs = parse_sampleconf(filename)
         except Exception as err:
-            self.showError('Could not read file: %s\n\n'
-                           'Are you sure this is a sample file?' % err)
+            self.showError(f'Could not read file: {err}\n\n'
+                           'Are you sure this is a sample file?')
         else:
             self.list.clear()
             self.sampleGroup.setEnabled(True)
@@ -445,15 +445,14 @@ class LokiSamplePanel(Panel):
             if new_item:
                 self.list.setCurrentItem(new_item)
             self.on_list_itemClicked(new_item)
-            self.dirty = True
+            self.applyBtn.setEnabled(True)
 
     @pyqtSlot()
     def on_applyBtn_clicked(self):
-        if self.dirty:  # Remains as a validator
-            script = self._generate_script()
-            self.client.run(script)
-            self.showInfo('Sample info has been transferred to the daemon.')
-        self.dirty = False
+        script = self._generate_script()
+        self.client.run(script)
+        self.showInfo('Sample info has been transferred to the daemon.')
+
         self.applyBtn.setEnabled(False)
 
     @pyqtSlot()
@@ -469,7 +468,7 @@ class LokiSamplePanel(Panel):
         try:
             self._save_script(filename, self._generate_script())
         except Exception as err:
-            self.showError('Could not write file: %s' % err)
+            self.showError(f'Could not write file: {err}')
 
     def _clearDisplay(self):
         item = self.frame.layout().takeAt(0)
@@ -502,44 +501,53 @@ class LokiSamplePanel(Panel):
         layout = self.frame.layout()
         layout.addWidget(frm)
 
-        frm.offsetBox.editingFinished.connect(lambda: self.set_offset(index,
-                                              frm.offsetBox.displayText()))
-        frm.apXBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                           frm.apXBox.displayText(), 0))
-        frm.apYBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                           frm.apYBox.displayText(), 1))
-        frm.apWBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                           frm.apWBox.displayText(), 2))
-        frm.apHBox.editingFinished.connect(lambda: self.set_aperture(index,
-                                           frm.apHBox.displayText(), 3))
+        frm.offsetBox.editingFinished.connect(lambda: self.set_offset(
+            frm.offsetBox.displayText()))
+        frm.apXBox.editingFinished.connect(lambda: self.set_pos_x(
+            frm.apXBox.displayText()))
+        frm.apYBox.editingFinished.connect(lambda: self.set_pos_y(
+            frm.apYBox.displayText()))
+        frm.apWBox.editingFinished.connect(lambda: self.set_width(
+            frm.apWBox.displayText()))
+        frm.apHBox.editingFinished.connect(lambda: self.set_height(
+            frm.apHBox.displayText()))
 
         # Re-validate the values
         for box in [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
                     frm.apHBox]:
             box.setValidator(DoubleValidator(self))
 
-    def set_offset(self, i, val):
-        self._set_dirty()
-        self.configs[i]['detoffset'] = val
-        self._copy_key('detoffset')
+    def set_offset(self, value):
+        # Offset is the same for all configs
+        value = float(value)
+        if self.configs[0]['detoffset'] == value:
+            return
+        for config in self.configs:
+            config['detoffset'] = value
+        self.applyBtn.setEnabled(True)
 
-    def set_aperture(self, i, val, key):
-        self._set_dirty()
-        # The following implementation is required as "aperture" has been
-        # implemented as a tuple rather then a simple list.
-        x = self.configs[i]['aperture'][0]
-        y = self.configs[i]['aperture'][1]
-        w = self.configs[i]['aperture'][2]
-        h = self.configs[i]['aperture'][3]
-        value = float(val)
-        aperture_switch = {
-            0: (value, y, w, h),
-            1: (x, value, w, h),
-            2: (x, y, value, h),
-            3: (x, y, w, value)
-        }
-        self.configs[i]['aperture'] = aperture_switch[key]
-        self._copy_key('aperture')
+    def set_pos_x(self, value):
+        self._set_aperture_value(0, value)
+
+    def set_pos_y(self, value):
+        self._set_aperture_value(1, value)
+
+    def set_width(self, value):
+        self._set_aperture_value(2, value)
+
+    def set_height(self, value):
+        self._set_aperture_value(3, value)
+
+    def _set_aperture_value(self, index, value):
+        # Aperture values are the same for all configs
+        value = float(value)
+        if self.configs[0]['aperture'][index] == value:
+            return
+        new_values = list(self.configs[0]['aperture'])
+        new_values[index] = value
+        for config in self.configs:
+            config['aperture'] = tuple(new_values)
+        self.applyBtn.setEnabled(True)
 
     def on_list_itemDoubleClicked(self):
         self.on_editBtn_clicked()
@@ -550,7 +558,7 @@ class LokiSamplePanel(Panel):
                                self.configs)
         if not dlg.exec_():
             return
-        self._set_dirty()
+        self.applyBtn.setEnabled(True)
         config = configFromFrame(dlg.frm)
         self.configs.append(config)
         new_item = QListWidgetItem(config['name'], self.list)
@@ -567,7 +575,7 @@ class LokiSamplePanel(Panel):
                                self.configs[index])
         if not dlg.exec_():
             return
-        self._set_dirty()
+        self.applyBtn.setEnabled(True)
         config = configFromFrame(dlg.frm)
         self.configs[index] = config
         list_item = self.list.item(index)
@@ -579,7 +587,7 @@ class LokiSamplePanel(Panel):
         index = self.list.currentRow()
         if index < 0:
             return
-        self._set_dirty()
+        self.applyBtn.setEnabled(True)
         self.list.takeItem(index)
         del self.configs[index]
         if self.list.currentRow() != -1:
@@ -587,23 +595,14 @@ class LokiSamplePanel(Panel):
         else:
             self._clearDisplay()
 
-    def _copy_key(self, key):
-        index = self.list.currentRow()
-        if index < 0:
-            return
-        self._set_dirty()
-        template = self.configs[index][key]
-        for config in self.configs:
-            config[key] = template
-
     def _generate_script(self):
-        script = ['# LoKI sample file for NICOS\n',
-                  '# Written: %s\n\n' % time.asctime(),
-                  'ClearSamples()\n']
+        script = [f'# LoKI sample file for NICOS\n',
+                  f'# Written: {time.asctime()}\n\n' ,
+                  f'ClearSamples()\n']
         for (i, config) in enumerate(self.configs, start=1):
-            script.append('SetSample(%d, %r, ' % (i, config['name']))
+            script.append(f"SetSample({i}, {repr(config['name'])}, ")
             for key in SAMPLE_KEYS:
-                script.append('%s=%r' % (key, config[key]))
+                script.append(f"{key}={repr(config[key])}")
                 script.append(', ')
             del script[-1]  # remove last comma
             script.append(')\n')
@@ -613,14 +612,6 @@ class LokiSamplePanel(Panel):
     def _save_script(filename, script):
         with open(filename, 'w') as fp:
             fp.writelines(script)
-
-    def _set_dirty(self):
-        """
-        Enables apply changes button if there are changes in the sample
-        configuration.
-        """
-        self.dirty = True
-        self.applyBtn.setEnabled(True)
 
 
 class MockSample:
@@ -636,7 +627,7 @@ class MockSample:
         entry['name'] = name
         for key in SAMPLE_KEYS:
             if key not in entry:
-                raise ValueError('missing key %r in sample entry' % key)
+                raise ValueError(f'missing key {key} in sample entry')
         self.configs.append(entry)
 
 
