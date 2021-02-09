@@ -452,7 +452,7 @@ class LokiSamplePanel(Panel):
         script = self._generate_script()
         self.client.run(script)
         self.showInfo('Sample info has been transferred to the daemon.')
-        
+
         self.applyBtn.setEnabled(False)
 
     @pyqtSlot()
@@ -503,7 +503,7 @@ class LokiSamplePanel(Panel):
 
         # editingFinished signal is fired when LineEdit lose focus.
         # So when Matt switches to Firefox it is fired.
-        # Can use returnPressed signal but will require user to press Enter 
+        # Can use returnPressed signal but will require user to press Enter
         # everytime they change the value. In case they forget to press
         # Enter, the value will not be registered.
         # Good solution will be to make a custom LineEdit which changes
@@ -532,35 +532,26 @@ class LokiSamplePanel(Panel):
         self._copy_key('detoffset')
 
     def set_pos_x(self, index, value):
-        value = float(value)
-        if self.configs[index]['aperture'][0] == value:
-            return
         self._set_aperture_value_at_key(index, 0, value)
-        
+
     def set_pos_y(self, index, value):
-        value = float(value)
-        if self.configs[index]['aperture'][1] == value:
-            return
         self._set_aperture_value_at_key(index, 1, value)
-    
+
     def set_width(self, index, value):
-        value = float(value)
-        if self.configs[index]['aperture'][2] == value:
-            return
         self._set_aperture_value_at_key(index, 2, value)
-    
+
     def set_height(self, index, value):
-        value = float(value)
-        if self.configs[index]['aperture'][3] == value:
-            return
         self._set_aperture_value_at_key(index, 3, value)
-    
+
     def _set_aperture_value_at_key(self, index, key, value):
+        value = float(value)
+        if self.configs[index]['aperture'][key] == value:
+            return
         self.applyBtn.setEnabled(True)
         container = self.configs[index]['aperture']
         self.configs[index]['aperture'] = \
             container[:key] + (value, ) + container[key+1:]
-        self._copy_key('aperture') 
+        self._copy_key('aperture')
 
     def on_list_itemDoubleClicked(self):
         self.on_editBtn_clicked()
