@@ -258,7 +258,7 @@ class LokiSamplePanel(Panel):
         self.configs = []
         self.holder_info = options.get('holder_info', [])
         self.instrument = options.get('instrument', 'loki')
-        self.applyBtn_was_enabled = False
+        self.unapplied_changes = False
         self.applyBtn.setEnabled(False)
         self.initialise_connection_status_listeners()
 
@@ -285,11 +285,11 @@ class LokiSamplePanel(Panel):
             control.setEnabled(not viewonly)
         # Handle apply button separately.
         if viewonly:
-            self.applyBtn_was_enabled = self.applyBtn.isEnabled()
+            self.unapplied_changes = self.applyBtn.isEnabled()
             self.applyBtn.setEnabled(False)
         # If one toggles view only mode without applying changes, upon exiting
         # view-only mode, following ensures apply button is enabled.
-        elif self.applyBtn_was_enabled:
+        elif self.unapplied_changes:
             self.applyBtn.setEnabled(True)
 
     @pyqtSlot()
@@ -514,9 +514,9 @@ class LokiSamplePanel(Panel):
                                            frm.apXBox.displayText()))
         frm.apYBox.editingFinished.connect(lambda: self.set_pos_y(index,
                                            frm.apYBox.displayText()))
-        frm.apWBox.editingFinished.connect(lambda: self.set_width_w(index,
+        frm.apWBox.editingFinished.connect(lambda: self.set_width(index,
                                            frm.apWBox.displayText()))
-        frm.apHBox.editingFinished.connect(lambda: self.set_height_h(index,
+        frm.apHBox.editingFinished.connect(lambda: self.set_height(index,
                                            frm.apHBox.displayText()))
 
         # Re-validate the values
@@ -543,13 +543,13 @@ class LokiSamplePanel(Panel):
             return
         self._set_aperture_value_at_key(index, 1, value)
     
-    def set_width_w(self, index, value):
+    def set_width(self, index, value):
         value = float(value)
         if self.configs[index]['aperture'][2] == value:
             return
         self._set_aperture_value_at_key(index, 2, value)
     
-    def set_height_h(self, index, value):
+    def set_height(self, index, value):
         value = float(value)
         if self.configs[index]['aperture'][3] == value:
             return
