@@ -501,57 +501,53 @@ class LokiSamplePanel(Panel):
         layout = self.frame.layout()
         layout.addWidget(frm)
 
-        # editingFinished signal is fired when LineEdit lose focus.
-        # So when Matt switches to Firefox it is fired.
-        # Can use returnPressed signal but will require user to press Enter
-        # everytime they change the value. In case they forget to press
-        # Enter, the value will not be registered.
-        # Good solution will be to make a custom LineEdit which changes
-        # color when in editing mode.
-        frm.offsetBox.editingFinished.connect(lambda: self.set_offset(index,
-                                              frm.offsetBox.displayText()))
-        frm.apXBox.editingFinished.connect(lambda: self.set_pos_x(index,
-                                           frm.apXBox.displayText()))
-        frm.apYBox.editingFinished.connect(lambda: self.set_pos_y(index,
-                                           frm.apYBox.displayText()))
-        frm.apWBox.editingFinished.connect(lambda: self.set_width(index,
-                                           frm.apWBox.displayText()))
-        frm.apHBox.editingFinished.connect(lambda: self.set_height(index,
-                                           frm.apHBox.displayText()))
+        frm.offsetBox.editingFinished.connect(lambda: self.set_offset(
+            frm.offsetBox.displayText()))
+        frm.apXBox.editingFinished.connect(lambda: self.set_pos_x(
+            frm.apXBox.displayText()))
+        frm.apYBox.editingFinished.connect(lambda: self.set_pos_y(
+            frm.apYBox.displayText()))
+        frm.apWBox.editingFinished.connect(lambda: self.set_width(
+            frm.apWBox.displayText()))
+        frm.apHBox.editingFinished.connect(lambda: self.set_height(
+            frm.apHBox.displayText()))
 
         # Re-validate the values
         for box in [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
                     frm.apHBox]:
             box.setValidator(DoubleValidator(self))
 
-    def set_offset(self, index, value):
-        if self.configs[index]['detoffset'] == value:
-            return
-        self.applyBtn.setEnabled(True)
-        self.configs[index]['detoffset'] = value
-        self._copy_key('detoffset')
-
-    def set_pos_x(self, index, value):
-        self._set_aperture_value_at_key(index, 0, value)
-
-    def set_pos_y(self, index, value):
-        self._set_aperture_value_at_key(index, 1, value)
-
-    def set_width(self, index, value):
-        self._set_aperture_value_at_key(index, 2, value)
-
-    def set_height(self, index, value):
-        self._set_aperture_value_at_key(index, 3, value)
-
-    def _set_aperture_value_at_key(self, index, key, value):
+    def set_offset(self, value):
+        # Offset is the same for all configs
         value = float(value)
-        if self.configs[index]['aperture'][key] == value:
+        if self.configs[0]['detoffset'] == value:
             return
+        for config in self.configs:
+            config['detoffset'] = value
         self.applyBtn.setEnabled(True)
-        container = self.configs[index]['aperture']
-        self.configs[index]['aperture'] = \
-            container[:key] + (value, ) + container[key+1:]
-        self._copy_key('aperture')
+
+    def set_pos_x(self, value):
+        self._set_aperture_value(0, value)
+
+    def set_pos_y(self, value):
+        self._set_aperture_value(1, value)
+
+    def set_width(self, value):
+        self._set_aperture_value(2, value)
+
+    def set_height(self, value):
+        self._set_aperture_value(3, value)
+
+    def _set_aperture_value(self, index, value):
+        # Aperture values are the same for all configs
+        value = float(value)
+        if self.configs[0]['aperture'][index] == value:
+            return
+        new_values = list(self.configs[0]['aperture'])
+        new_values[index] = value
+        for config in self.configs:
+            config['aperture'] = tuple(new_values)
+        self.applyBtn.setEnabled(True)
 
     def on_list_itemDoubleClicked(self):
         self.on_editBtn_clicked()
@@ -598,14 +594,6 @@ class LokiSamplePanel(Panel):
             self.on_list_itemClicked(self.list.item(self.list.currentRow()))
         else:
             self._clearDisplay()
-
-    def _copy_key(self, key):
-        index = self.list.currentRow()
-        if index < 0:
-            return
-        template = self.configs[index][key]
-        for config in self.configs:
-            config[key] = template
 
     def _generate_script(self):
         script = [f'# LoKI sample file for NICOS\n',
