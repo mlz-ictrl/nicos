@@ -15,12 +15,16 @@ class LokiScriptBuilderPanel(Panel):
                findResource('nicos_ess/loki/gui/ui_files/loki_scriptbuilder.ui'))
 
         self.window = parent
-        combo_options = ["TRANS First", "SANS First", "Simultaneous"]
-        self.comboOrder.addItems(combo_options)
 
-        self.chkShowTColumn.stateChanged.connect(self.chkShowTColumn_toggled)
+        trans_options = ['TRANS First', 'SANS First', 'Simultaneous']
+        self.comboOrder.addItems(trans_options)
 
-        self.columns = ["Sample", "TRANS\nDuration", "SANS\nDuration", "Test", "Temperature"]
+        duration_options = ['Mevents', 'seconds', 'frames']
+        self.comboDurationType.addItems(duration_options)
+
+        self.chkShowTempColumn.stateChanged.connect(self.chkShowTempColumn_toggled)
+
+        self.columns = ['Sample', 'TRANS\nDuration', 'SANS\nDuration', 'Test', 'Temperature']
         self._init_table()
 
     def _init_table(self, num_rows=26):
@@ -45,20 +49,35 @@ class LokiScriptBuilderPanel(Panel):
                 QTableWidgetItem(chr(ord('A') + i)))
 
         combo = QComboBox()
-        combo.addItems(["1", "2"])
+        combo.addItems(['1', '2'])
         combo.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.tableScript.setCellWidget(0, 3, combo)
 
+    @pyqtSlot()
+    def on_bulkUpdateButton_clicked(self):
+        for index in self.tableScript.selectionModel().selectedIndexes():
+            self._update_cell(index.row(), index.column(), self.txtValue.text())
 
     @pyqtSlot()
-    def on_testButton_clicked(self):
-        for index in self.tableScript.selectionModel().selectedIndexes():
-            self.tableScript.setItem(index.row(), index.column(), QTableWidgetItem(self.txtValue.text()))
+    def on_clearTableButton_clicked(self):
+        # TODO: ask for confirmation
+        for row in range(self.tableScript.rowCount()):
+            for column in range(self.tableScript.columnCount()):
+                self._update_cell(row, column, '')
 
-    def chkShowTColumn_toggled(self, state):
-        column_number = self.columns.index("Temperature")
+    def _update_cell(self, row, column, new_value):
+        item = self.tableScript.item(row, column)
+        if not item:
+            self.tableScript.setItem(row, column, QTableWidgetItem(new_value))
+        else:
+            item.setText(new_value)
+
+    def chkShowTempColumn_toggled(self, state):
+        # SMELL: need to avoid this breaking if the column name is changed
+        column_number = self.columns.index('Temperature')
         if state == Qt.Checked:
             self.tableScript.setColumnHidden(column_number, False)
         else:
             self.tableScript.setColumnHidden(column_number, True)
+
 
