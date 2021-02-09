@@ -20,7 +20,7 @@ class LokiScriptBuilderPanel(Panel):
 
         self.chkShowTColumn.stateChanged.connect(self.chkShowTColumn_toggled)
 
-        self.columns = ["Sample", "Trans", "Sans", "Test", "Temperature"]
+        self.columns = ["Sample", "TRANS\nDuration", "SANS\nDuration", "Test", "Temperature"]
         self._init_table()
 
     def _init_table(self, num_rows=26):
