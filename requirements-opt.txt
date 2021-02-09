@@ -15,6 +15,6 @@ PyTango>=9.0.0
 Pillow>=4.0.0
 Markdown>=2.6.9
 pamela>=0.3.0
-systemd-python>=230
+systemd-python>=230;sys_platform!='win32' and sys_platform!='darwin'
 secop-core>=0.10.5
 requests_oauthlib>=1.2.0

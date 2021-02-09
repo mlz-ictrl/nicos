@@ -536,6 +536,19 @@ class LiveWidget1D(LiveWidgetBase):
         self.axes.autoscale = PlotAxes.SCALE_Y
         self.plot.addAxes(self.axes)
 
+    def getYMax(self):
+        if self._array is None:
+            return
+        minupperedge = max(self._array)
+
+        ny = self.axes.getWindow()[3]
+
+        # leave a visually equal padding on top for logscale and normal view
+        if self._logscale:
+            return max(ny, minupperedge * 2.15)
+
+        return max(ny, minupperedge * 1.05)
+
     def logscale(self, on):
         LiveWidgetBase.logscale(self, on)
         self.axes.setLogY(on)
@@ -547,9 +560,16 @@ class LiveWidget1D(LiveWidgetBase):
         self.gr.update()
 
     def unzoom(self):
+        self.axes.setWindow(0, self._axesrange[1],
+                            0, max(1, self.getYMax()))
+
+        # add some padding in x range.
+        # 2nd call to avoid copy paste of the xtick function in pygr.
+        current = self.axes.getWindow()
         self.axes.setWindow(-self.axes.xtick,
                             self._axesrange[1] + self.axes.xtick,
-                            0, max(1, self.curve.y.max()) + self.axes.ytick)
+                            current[2], current[3])
+
         self.gr.update()
 
     def updateAxesRange(self, nx, ny):

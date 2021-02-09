@@ -349,6 +349,8 @@ class Watchdog(BaseCacheClient):
         """Emit a warning that this condition is now triggered."""
         self.log.info('got a new warning for %r', entry)
         warning_desc = strftime('%Y-%m-%d %H:%M') + ' -- ' + entry.message
+        # if only the type changed, do not send out notifications
+        type_change = entry.id in self._warnings
         if entry.action:
             warning_desc += ' -- executing %r' % entry.action
         if entry.scriptaction == 'pausecount':
@@ -358,10 +360,11 @@ class Watchdog(BaseCacheClient):
         elif entry.scriptaction:
             self._put_message('scriptaction', entry, (entry.scriptaction,
                                                       entry.message))
-        if entry.type:
+        if entry.type and not type_change:
             for notifier in self._notifiers[entry.type]:
                 notifier.send('New warning from NICOS', warning_desc)
-        self._put_message('warning', entry, entry.message)
+        if not type_change:
+            self._put_message('warning', entry, entry.message)
         self._warnings[entry.id] = (True, warning_desc)
         self._update_warnings_str()
         if entry.action:
@@ -374,11 +377,14 @@ class Watchdog(BaseCacheClient):
         warning_desc = (strftime('%Y-%m-%d %H:%M') +
                         ' -- current value(s) missing, '
                         'cannot check condition %r' % entry.condition)
+        # if only the type changed, do not send out notifications
+        type_change = entry.id in self._warnings
         # warn that we cannot check the condition anymore
-        if entry.type:
+        if entry.type and not type_change:
             for notifier in self._notifiers[entry.type]:
                 notifier.send('New warning from NICOS', warning_desc)
-        self._put_message('warning', entry, warning_desc)
+        if not type_change:
+            self._put_message('warning', entry, warning_desc)
         self._warnings[entry.id] = (False, warning_desc)
         self._update_warnings_str()
 

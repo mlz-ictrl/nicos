@@ -28,12 +28,17 @@ def get_releasefile_path():
     return path.join(thispath, 'RELEASE-VERSION')
 
 
+def translate_version(ver):
+    ver = ver.lstrip('v').rsplit('-', 2)
+    return '%s.post%s+%s' % tuple(ver) if len(ver) == 3 else ver[0]
+
+
 def get_git_version(abbrev=4, cwd=None):
     try:
         p = Popen(['git', 'describe', '--abbrev=%d' % abbrev],
                   cwd=cwd or config.nicos_root, stdout=PIPE, stderr=PIPE)
         stdout, _stderr = p.communicate()
-        return stdout.strip().decode().strip('v')
+        return translate_version(stdout.strip().decode('utf-8', 'ignore'))
     except Exception:
         return None
 

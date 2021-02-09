@@ -340,10 +340,8 @@ class EpicsReadable(EpicsDevice, Readable):
             self._register_pv_callbacks()
 
     def doReadUnit(self):
-        pvunit = self._get_pvctrl('readpv', 'units', '')
-        if not pvunit and 'unit' in self._config:
-            return self._config['unit']
-        return pvunit
+        return self._get_pvctrl('readpv', 'units',
+                                self._config.get('unit', ''))
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
