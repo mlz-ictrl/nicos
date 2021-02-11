@@ -86,6 +86,7 @@ class ExpPanel(Panel):
         if values:
             self._orig_proposal_info = values
             self.proposalNum.setText(values[0])
+            self.proposalID.setText(decodeAny(values[0]))
             self.expTitle.setText(decodeAny(values[1]))
             self.users.setText(decodeAny(values[2]))
             self.localContact.setText(decodeAny(values[3]))
@@ -114,6 +115,7 @@ class ExpPanel(Panel):
         else:
             self.newBox.setVisible(True)
             self.proposalNum.setText('')  # do not offer "service"
+            self.proposalID.setText('')
         # check for capability to ask proposal database
         if self.client.eval('getattr(session.experiment, "propdb", "")', None):
             self.propdbInfo.setVisible(True)
