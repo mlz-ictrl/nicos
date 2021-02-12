@@ -24,7 +24,7 @@
 
 """Analysator stuff for PANDA"""
 
-from nicos.core import Attach, Param, oneofdict, status
+from nicos.core import Attach, Moveable, Param, oneofdict, status
 from nicos.devices.entangle import AnalogOutput
 from nicos.devices.generic.axis import Axis
 
@@ -70,7 +70,7 @@ class AnaBlocks(AnalogOutput):
 
 class ATT_Axis(Axis):
     attached_devices = {
-        'anablocks': Attach('AnaBlocks device', AnaBlocks),
+        'anablocks': Attach('AnaBlocks device', Moveable),
     }
 
     def _duringMoveAction(self, position):
