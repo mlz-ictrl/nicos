@@ -195,7 +195,8 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
                     self.log.warning('[McStas] %s', line)
         except OSError as e:
             self.log.error('Execution failed: %s', e)
-        self._process.wait()
+        if self._process:
+            self._process.wait()
         self._process = None
         self._started = None
 
