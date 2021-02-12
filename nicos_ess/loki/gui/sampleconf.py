@@ -501,16 +501,11 @@ class LokiSamplePanel(Panel):
         layout = self.frame.layout()
         layout.addWidget(frm)
 
-        frm.offsetBox.editingFinished.connect(lambda: self.set_offset(
-            frm.offsetBox.displayText()))
-        frm.apXBox.editingFinished.connect(lambda: self.set_pos_x(
-            frm.apXBox.displayText()))
-        frm.apYBox.editingFinished.connect(lambda: self.set_pos_y(
-            frm.apYBox.displayText()))
-        frm.apWBox.editingFinished.connect(lambda: self.set_width(
-            frm.apWBox.displayText()))
-        frm.apHBox.editingFinished.connect(lambda: self.set_height(
-            frm.apHBox.displayText()))
+        frm.offsetBox.textChanged.connect(self.set_offset)
+        frm.apXBox.textChanged.connect(self.set_pos_x)
+        frm.apYBox.textChanged.connect(self.set_pos_y)
+        frm.apWBox.textChanged.connect(self.set_width)
+        frm.apHBox.textChanged.connect(self.set_height)
 
         # Re-validate the values
         for box in [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
@@ -518,10 +513,10 @@ class LokiSamplePanel(Panel):
             box.setValidator(DoubleValidator(self))
 
     def set_offset(self, value):
+        if not value:
+            return
         # Offset is the same for all configs
         value = float(value)
-        if self.configs[0]['detoffset'] == value:
-            return
         for config in self.configs:
             config['detoffset'] = value
         self.applyBtn.setEnabled(True)
@@ -540,9 +535,9 @@ class LokiSamplePanel(Panel):
 
     def _set_aperture_value(self, index, value):
         # Aperture values are the same for all configs
-        value = float(value)
-        if self.configs[0]['aperture'][index] == value:
+        if not value:
             return
+        value = float(value)
         new_values = list(self.configs[0]['aperture'])
         new_values[index] = value
         for config in self.configs:
