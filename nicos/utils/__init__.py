@@ -53,8 +53,8 @@ from time import localtime, mktime, sleep, strftime, strptime, \
 from nicos import config, get_custom_version, nicos_version
 
 try:
-    import pwd
     import grp
+    import pwd
 except ImportError:
     pwd = grp = None
 
@@ -535,8 +535,8 @@ def parseDateString(s, enddate=False):
 
 def terminalSize():
     """Try to find the terminal size as (cols, rows)."""
-    import struct
     import fcntl
+    import struct
     import termios
     try:
         h, w, _hp, _wp = struct.unpack(
