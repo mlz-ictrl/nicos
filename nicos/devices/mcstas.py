@@ -38,7 +38,7 @@ from psutil import AccessDenied, NoSuchProcess, Popen
 
 from nicos import session
 from nicos.core import ArrayDesc, Param, Value, floatrange, intrange, status, \
-    tupleof, Override, Attach, MASTER, Waitable, Readable
+    tupleof, Override, Attach, MASTER, Waitable, Readable, oneof
 from nicos.core.constants import FINAL, LIVE
 from nicos.devices.generic import ActiveChannel, ImageChannelMixin, \
     PassiveChannel
@@ -316,7 +316,7 @@ class McStasTimer(ActiveChannel, Waitable):
     """
 
     attached_devices = {
-        'mcstas': Attach('McStasImage channel', McStasSimulation),
+        'mcstas': Attach('McStasSimulation device', McStasSimulation),
     }
 
     parameters = {
@@ -359,3 +359,60 @@ class McStasTimer(ActiveChannel, Waitable):
 
     def valueInfo(self):
         return Value(self.name, unit='s', type='time', fmtstr='%.3f'),
+
+
+class McStasCounter(PassiveChannel, Waitable):
+    """Counter channel for McStas simulations"""
+
+    attached_devices = {
+        'mcstas': Attach('McStasSimulation device', McStasSimulation),
+    }
+
+    parameters = {
+        'curvalue':  Param('Current value', settable=True, unit='main'),
+        'type':      Param('Counter type', type=oneof('monitor', 'counter'),
+                           mandatory=True),
+        'mcstasfile': Param('Name of the McStas data file', type=str),
+    }
+
+    parameter_overrides = {
+        'unit': Override(default='cts'),
+        'fmtstr': Override(default='%d'),
+    }
+
+    def doInit(self, mode):
+        if mode == MASTER:
+            self.curvalue = 0
+
+    def doPrepare(self):
+        self._attached_mcstas._prepare(self.mcstasfile)
+
+    def doStart(self):
+        self._attached_mcstas._start()
+
+    def doStatus(self, maxage=0):
+        # wait for attached mcstas simulation
+        return Waitable.doStatus(self, maxage)
+
+    def doRead(self, maxage=0):
+        try:
+            with self._attached_mcstas._getDatafile(self.mcstasfile) as f:
+                for line in f:
+                    if line.startswith('# values:'):
+                        sig = float(line.split()[2])
+                        value = sig * self._attached_mcstas._getScaleFactor()
+        except Exception:
+            self.log.warning('could not read result file', exc=1)
+            value = 0
+        self.curvalue = value
+        return self.curvalue
+
+    def doFinish(self):
+        self._attached_mcstas._finish()
+
+    def doStop(self):
+        self.doFinish()
+
+    def valueInfo(self):
+        return Value(self.name, unit='cts', errors='sqrt', type=self.type,
+                     fmtstr='%d'),
