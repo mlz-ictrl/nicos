@@ -56,6 +56,11 @@ class NicosLogger(Logger):
         kwds['exc'] = True
         self.error(*msgs, **kwds)
 
+    def setLevel(self, level):
+        if hasattr(self, '_cache'):
+            self._cache.clear()
+        Logger.setLevel(self, level)
+
     def _process(self, msgs, kwds):
         # standard logging keyword arg
         exc_info = kwds.pop('exc_info', None)
