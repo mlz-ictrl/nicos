@@ -26,17 +26,15 @@
 
 from nicos.core import Attach, Override, Readable
 from nicos.devices.generic import Slit
-from nicos.devices.mcstas import McStasImage as BaseImage
+from nicos.devices.mcstas import McStasSimulation as BaseSimulation
 
 from nicos_mlz.treff.devices import MirrorSample
 
 
-class McStasImage(BaseImage):
+class McStasSimulation(BaseSimulation):
 
     parameter_overrides = {
-        'size': Override(default=(256, 256)),
         'mcstasprog': Override(default='treff_fast'),
-        'mcstasfile': Override(default='PSD_TREFF_total.psd'),
     }
 
     attached_devices = {

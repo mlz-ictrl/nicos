@@ -25,16 +25,14 @@
 """VBIODIFF detector image based on McSTAS simulation."""
 
 from nicos.core import Attach, Override, Readable
-from nicos.devices.mcstas import McStasImage as BaseImage
+from nicos.devices.mcstas import McStasSimulation as BaseSimulation
 from nicos.devices.sxtal.sample import SXTalSample
 
 
-class McStasImage(BaseImage):
+class McStasSimulation(BaseSimulation):
 
     parameter_overrides = {
-        'size': Override(default=(625, 450)),
         'mcstasprog': Override(default='biodiff_fast'),
-        'mcstasfile': Override(default='PSD_BIODIFF_total.psd'),
         'writedelay': Override(default=0.3),
     }
 

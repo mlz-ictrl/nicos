@@ -22,4 +22,4 @@
 #
 # *****************************************************************************
 
-from .detector import McStasImage
+from .detector import McStasSimulation

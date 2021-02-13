@@ -21,5 +21,6 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-from .detector import McStasImage
+
+from .detector import McStasSimulation
 from .sample import MirrorSample
