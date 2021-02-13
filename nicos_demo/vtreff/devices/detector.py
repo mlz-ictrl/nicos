@@ -27,7 +27,7 @@
 from nicos.core import Attach, Override, Readable
 from nicos.devices.generic import Slit
 
-from nicos_demo.devices import McStasImage as BaseImage
+from nicos.devices.mcstas import McStasImage as BaseImage
 from nicos_mlz.treff.devices import MirrorSample
 
 
