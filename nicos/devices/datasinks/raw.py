@@ -31,7 +31,8 @@ from os import path
 import numpy as np
 
 from nicos import session
-from nicos.core import LIVE, ConfigurationError, DataSinkHandler, Override
+from nicos.core import LIVE, ConfigurationError, DataSinkHandler, Override, \
+    NicosError
 from nicos.core.data.sink import NicosMetaWriterMixin
 from nicos.devices.datasinks.image import ImageFileReader, ImageSink, \
     SingleFileSinkHandler
@@ -217,3 +218,6 @@ class RawImageFileReader(ImageFileReader):
                             dtype = m.group(3)
                             return np.fromfile(filename, dtype).reshape((ny,
                                                                          nx))
+                raise NicosError('no ArrayDesc line found')
+        else:
+            raise NicosError('file and/or corresponding .header not found')

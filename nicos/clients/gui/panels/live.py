@@ -492,10 +492,7 @@ class LiveDataPanel(Panel):
             array = ReaderRegistry.getReaderCls(tag).fromfile(filename)
         except KeyError:
             raise NicosError('Unsupported fileformat %r' % tag) from None
-        if array is not None:
-            self.setData(array, uid, display=display)
-        else:
-            raise NicosError('Cannot read file %r' % filename)
+        self.setData(array, uid, display=display)
 
     def _process_livedata(self, data):
         # TODO: needs to be merged into on_client_livedata() above
@@ -600,8 +597,11 @@ class LiveDataPanel(Panel):
                 self.setData(array)
                 return
         if fname:
-            # show image from file
-            self.setDataFromFile(fname, ftag)
+            try:
+                # show image from file
+                self.setDataFromFile(fname, ftag)
+            except Exception as err:
+                self.showError('cannot read file: %s' % err)
 
     def on_fileList_currentItemChanged(self, item, previous):
         self.on_fileList_itemClicked(item)
@@ -615,30 +615,44 @@ class LiveDataPanel(Panel):
                                    ";;".join(ftypes.keys()))
         if self._fileopen_filter:
             fdialog.selectNameFilter(self._fileopen_filter)
-        if fdialog.exec_() == fdialog.Accepted:
-            self._fileopen_filter = fdialog.selectedNameFilter()
-            tag = ftypes[self._fileopen_filter]
-            files = fdialog.selectedFiles()
-            if files:
-                def _cacheFile(fn, tag):
-                    uid = uuid4()
-                    # setDataFromFile may raise an `NicosException`, e.g.
-                    # if the file cannot be opened.
-                    self.setDataFromFile(fn, tag, uid, display=False)
-                    return self.add_to_flist(fn, None, tag, uid)
+        if fdialog.exec_() != fdialog.Accepted:
+            return
+        files = fdialog.selectedFiles()
+        if not files:
+            return
+        self._fileopen_filter = fdialog.selectedNameFilter()
+        tag = ftypes[self._fileopen_filter]
+        errors = []
 
-                # load and display first item
-                f = files.pop(0)
-                self.fileList.setCurrentItem(_cacheFile(f, tag))
-                cachesize = self._cachesize - 1
-                # add first `cachesize` files to cache
-                for _, f in enumerateWithProgress(files[:cachesize],
-                                                  "Loading data files...",
-                                                  parent=fdialog):
-                    _cacheFile(f, tag)
-                # add further files to file list (open on request/itemClicked)
-                for f in files[cachesize:]:
-                    self.add_to_flist(f, None, tag)
+        def _cacheFile(fn, tag):
+            uid = uuid4()
+            # setDataFromFile may raise an `NicosException`, e.g.
+            # if the file cannot be opened.
+            try:
+                self.setDataFromFile(fn, tag, uid, display=False)
+            except Exception as err:
+                errors.append('%s: %s' % (fn, err))
+            else:
+                return self.add_to_flist(fn, None, tag, uid)
+
+        # load and display first item
+        f = files.pop(0)
+        item = _cacheFile(f, tag)
+        if item is not None:
+            self.fileList.setCurrentItem(item)
+        cachesize = self._cachesize - 1
+        # add first `cachesize` files to cache
+        for _, f in enumerateWithProgress(files[:cachesize],
+                                          "Loading data files...",
+                                          parent=fdialog):
+            _cacheFile(f, tag)
+        # add further files to file list (open on request/itemClicked)
+        for f in files[cachesize:]:
+            self.add_to_flist(f, None, tag)
+
+        if errors:
+            self.showError('Some files could not be opened:\n\n' +
+                           '\n'.join(errors))
 
     @pyqtSlot()
     def on_actionUnzoom_triggered(self):
