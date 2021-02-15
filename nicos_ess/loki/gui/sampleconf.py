@@ -449,6 +449,16 @@ class LokiSamplePanel(Panel):
 
     @pyqtSlot()
     def on_applyBtn_clicked(self):
+        sample_inputs = [self.sample_frame.offsetBox,
+                         self.sample_frame.apXBox,
+                         self.sample_frame.apYBox,
+                         self.sample_frame.apWBox,
+                         self.sample_frame.apHBox]
+
+        if not all(map(lambda box: box.text(), sample_inputs)):
+            self.showInfo('Enter valid values for input fields')
+            return
+
         script = self._generate_script()
         self.client.run(script)
         self.showInfo('Sample info has been transferred to the daemon.')
@@ -483,33 +493,39 @@ class LokiSamplePanel(Panel):
         if not item:
             return
         index = self.list.row(item)
-        frm = QFrame(self)
-        loadUi(frm, findResource(
+        self.sample_frame = QFrame(self)
+        loadUi(self.sample_frame, findResource(
             'nicos_ess/loki/gui/ui_files/sampleconf_summary.ui'))
-        configToFrame(frm, self.configs[index])
-        frm.addDevBtn.setVisible(False)
-        frm.delDevBtn.setVisible(False)
-        frm.readDevsBtn.setVisible(False)
-        frm.posTbl.setEnabled(False)
-        relevant_list = [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
-                         frm.apHBox]
-        for box in frm.findChildren(QLineEdit):
+        configToFrame(self.sample_frame, self.configs[index])
+        self.sample_frame.addDevBtn.setVisible(False)
+        self.sample_frame.delDevBtn.setVisible(False)
+        self.sample_frame.readDevsBtn.setVisible(False)
+        self.sample_frame.posTbl.setEnabled(False)
+        relevant_list = [self.sample_frame.offsetBox, 
+                         self.sample_frame.apXBox, 
+                         self.sample_frame.apYBox, 
+                         self.sample_frame.apWBox,
+                         self.sample_frame.apHBox]
+        for box in self.sample_frame.findChildren(QLineEdit):
             if box in relevant_list:
                 box.setEnabled(True)
             else:
                 box.setEnabled(False)
         layout = self.frame.layout()
-        layout.addWidget(frm)
+        layout.addWidget(self.sample_frame)
 
-        frm.offsetBox.textChanged.connect(self.set_offset)
-        frm.apXBox.textChanged.connect(self.set_pos_x)
-        frm.apYBox.textChanged.connect(self.set_pos_y)
-        frm.apWBox.textChanged.connect(self.set_width)
-        frm.apHBox.textChanged.connect(self.set_height)
+        self.sample_frame.offsetBox.textChanged.connect(self.set_offset)
+        self.sample_frame.apXBox.textChanged.connect(self.set_pos_x)
+        self.sample_frame.apYBox.textChanged.connect(self.set_pos_y)
+        self.sample_frame.apWBox.textChanged.connect(self.set_width)
+        self.sample_frame.apHBox.textChanged.connect(self.set_height)
 
         # Re-validate the values
-        for box in [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
-                    frm.apHBox]:
+        for box in [self.sample_frame.offsetBox, 
+                    self.sample_frame.apXBox, 
+                    self.sample_frame.apYBox, 
+                    self.sample_frame.apWBox,
+                    self.sample_frame.apHBox]:
             box.setValidator(DoubleValidator(self))
 
     def set_offset(self, value):
