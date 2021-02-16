@@ -449,13 +449,7 @@ class LokiSamplePanel(Panel):
 
     @pyqtSlot()
     def on_applyBtn_clicked(self):
-        sample_inputs = [self.sample_frame.offsetBox,
-                         self.sample_frame.apXBox,
-                         self.sample_frame.apYBox,
-                         self.sample_frame.apWBox,
-                         self.sample_frame.apHBox]
-
-        if not all(map(lambda box: box.text(), sample_inputs)):
+        if not all(map(lambda box: box.text(), self.experiment_inputs)):
             self.showInfo('Enter valid values for input fields')
             return
 
@@ -493,39 +487,35 @@ class LokiSamplePanel(Panel):
         if not item:
             return
         index = self.list.row(item)
-        self.sample_frame = QFrame(self)
-        loadUi(self.sample_frame, findResource(
+        frm = QFrame(self)
+        loadUi(frm, findResource(
             'nicos_ess/loki/gui/ui_files/sampleconf_summary.ui'))
-        configToFrame(self.sample_frame, self.configs[index])
-        self.sample_frame.addDevBtn.setVisible(False)
-        self.sample_frame.delDevBtn.setVisible(False)
-        self.sample_frame.readDevsBtn.setVisible(False)
-        self.sample_frame.posTbl.setEnabled(False)
-        relevant_list = [self.sample_frame.offsetBox, 
-                         self.sample_frame.apXBox, 
-                         self.sample_frame.apYBox, 
-                         self.sample_frame.apWBox,
-                         self.sample_frame.apHBox]
-        for box in self.sample_frame.findChildren(QLineEdit):
-            if box in relevant_list:
+        configToFrame(frm, self.configs[index])
+        frm.addDevBtn.setVisible(False)
+        frm.delDevBtn.setVisible(False)
+        frm.readDevsBtn.setVisible(False)
+        frm.posTbl.setEnabled(False)
+        self.experiment_inputs = [frm.offsetBox, 
+                                  frm.apXBox, 
+                                  frm.apYBox, 
+                                  frm.apWBox,
+                                  frm.apHBox]
+        for box in frm.findChildren(QLineEdit):
+            if box in self.experiment_inputs:
                 box.setEnabled(True)
             else:
                 box.setEnabled(False)
         layout = self.frame.layout()
-        layout.addWidget(self.sample_frame)
+        layout.addWidget(frm)
 
-        self.sample_frame.offsetBox.textChanged.connect(self.set_offset)
-        self.sample_frame.apXBox.textChanged.connect(self.set_pos_x)
-        self.sample_frame.apYBox.textChanged.connect(self.set_pos_y)
-        self.sample_frame.apWBox.textChanged.connect(self.set_width)
-        self.sample_frame.apHBox.textChanged.connect(self.set_height)
+        frm.offsetBox.textChanged.connect(self.set_offset)
+        frm.apXBox.textChanged.connect(self.set_pos_x)
+        frm.apYBox.textChanged.connect(self.set_pos_y)
+        frm.apWBox.textChanged.connect(self.set_width)
+        frm.apHBox.textChanged.connect(self.set_height)
 
         # Re-validate the values
-        for box in [self.sample_frame.offsetBox, 
-                    self.sample_frame.apXBox, 
-                    self.sample_frame.apYBox, 
-                    self.sample_frame.apWBox,
-                    self.sample_frame.apHBox]:
+        for box in self.experiment_inputs:
             box.setValidator(DoubleValidator(self))
 
     def set_offset(self, value):
