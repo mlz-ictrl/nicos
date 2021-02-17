@@ -128,7 +128,7 @@ class ExpPanel(Panel):
             self.queryDBButton.setVisible(True)
         else:
             self.queryDBButton.setVisible(False)
-            self.propLabel.setText('Enter a proposal number:')
+            self.propLabel.setText('Enter a proposal number or name:')
         if self.client.viewonly:
             self.finishButton.setVisible(False)
             self.buttonBox.setStandardButtons(QDialogButtonBox.Close)
