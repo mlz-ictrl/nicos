@@ -8,7 +8,7 @@ PODMAN_OR_DOCKER = $(shell which podman || which docker || \
 SHELL=/bin/bash
 
 RCC5 = pyrcc5
-PYTHON = /usr/bin/env python
+PYTHON = /usr/bin/env python3
 
 nicos/guisupport/gui_rc_qt5.py: resources/nicos-gui.qrc
 	-$(RCC5) -o $@ $<
