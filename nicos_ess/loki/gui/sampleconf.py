@@ -249,6 +249,35 @@ class LokiSamplePanel(Panel):
         loadUi(self, findResource('nicos_ess/loki/gui/ui_files/sampleconf.ui'))
         self.sampleGroup.setEnabled(False)
         self.frame.setLayout(QVBoxLayout())
+        
+        # Load sampleconf_summary to sample_frame widget and add to frame layout
+        self.sample_frame = QFrame(self)
+        loadUi(self.sample_frame, findResource(
+            'nicos_ess/loki/gui/ui_files/sampleconf_summary.ui'))
+
+        layout = self.frame.layout()
+        layout.addWidget(self.sample_frame)
+        self.sample_frame.hide()
+        
+        self.sample_frame.addDevBtn.setVisible(False)
+        self.sample_frame.delDevBtn.setVisible(False)
+        self.sample_frame.readDevsBtn.setVisible(False)
+        self.sample_frame.posTbl.setEnabled(False)
+        self.experiment_inputs = [self.sample_frame.offsetBox, 
+                                  self.sample_frame.apXBox, 
+                                  self.sample_frame.apYBox, 
+                                  self.sample_frame.apWBox,
+                                  self.sample_frame.apHBox]
+
+        for box in self.sample_frame.findChildren(QLineEdit):
+            if box not in self.experiment_inputs:
+                box.setEnabled(False)
+
+        self.sample_frame.offsetBox.textChanged.connect(self.set_offset)
+        self.sample_frame.apXBox.textChanged.connect(self.set_pos_x)
+        self.sample_frame.apYBox.textChanged.connect(self.set_pos_y)
+        self.sample_frame.apWBox.textChanged.connect(self.set_width)
+        self.sample_frame.apHBox.textChanged.connect(self.set_height)
 
         menu = QMenu(self)
         menu.addAction(self.actionEmpty)
@@ -295,7 +324,7 @@ class LokiSamplePanel(Panel):
     @pyqtSlot()
     def on_actionEmpty_triggered(self):
         self._clear_samples()
-        self._clearDisplay()
+        self.sample_frame.hide()
         self.sampleGroup.setEnabled(True)
 
     @pyqtSlot()
@@ -474,46 +503,16 @@ class LokiSamplePanel(Panel):
         except Exception as err:
             self.showError(f'Could not write file: {err}')
 
-    def _clearDisplay(self):
-        item = self.frame.layout().takeAt(0)
-        if item:
-            item.widget().deleteLater()
-
     def on_list_currentItemChanged(self, item):
         self.on_list_itemClicked(item)
 
     def on_list_itemClicked(self, item):
-        self._clearDisplay()
         if not item:
             return
+        if self.sample_frame.isHidden():
+            self.sample_frame.show()
         index = self.list.row(item)
-        frm = QFrame(self)
-        loadUi(frm, findResource(
-            'nicos_ess/loki/gui/ui_files/sampleconf_summary.ui'))
-        configToFrame(frm, self.configs[index])
-        frm.addDevBtn.setVisible(False)
-        frm.delDevBtn.setVisible(False)
-        frm.readDevsBtn.setVisible(False)
-        frm.posTbl.setEnabled(False)
-        self.experiment_inputs = [frm.offsetBox, 
-                                  frm.apXBox, 
-                                  frm.apYBox, 
-                                  frm.apWBox,
-                                  frm.apHBox]
-        for box in frm.findChildren(QLineEdit):
-            if box in self.experiment_inputs:
-                box.setEnabled(True)
-            else:
-                box.setEnabled(False)
-        layout = self.frame.layout()
-        layout.addWidget(frm)
-
-        frm.offsetBox.textChanged.connect(self.set_offset)
-        frm.apXBox.textChanged.connect(self.set_pos_x)
-        frm.apYBox.textChanged.connect(self.set_pos_y)
-        frm.apWBox.textChanged.connect(self.set_width)
-        frm.apHBox.textChanged.connect(self.set_height)
-
+        configToFrame(self.sample_frame, self.configs[index])
         # Re-validate the values
         for box in self.experiment_inputs:
             box.setValidator(DoubleValidator(self))
@@ -594,7 +593,7 @@ class LokiSamplePanel(Panel):
         if self.list.currentRow() != -1:
             self.on_list_itemClicked(self.list.item(self.list.currentRow()))
         else:
-            self._clearDisplay()
+            self.sample_frame.hide()
 
     def _generate_script(self):
         script = [f'# LoKI sample file for NICOS\n',
