@@ -449,6 +449,10 @@ class LokiSamplePanel(Panel):
 
     @pyqtSlot()
     def on_applyBtn_clicked(self):
+        if not all(map(lambda box: box.text(), self.experiment_inputs)):
+            self.showInfo('Enter valid values for all instrument configuration fields')
+            return
+
         script = self._generate_script()
         self.client.run(script)
         self.showInfo('Sample info has been transferred to the daemon.')
@@ -491,10 +495,13 @@ class LokiSamplePanel(Panel):
         frm.delDevBtn.setVisible(False)
         frm.readDevsBtn.setVisible(False)
         frm.posTbl.setEnabled(False)
-        relevant_list = [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
-                         frm.apHBox]
+        self.experiment_inputs = [frm.offsetBox, 
+                                  frm.apXBox, 
+                                  frm.apYBox, 
+                                  frm.apWBox,
+                                  frm.apHBox]
         for box in frm.findChildren(QLineEdit):
-            if box in relevant_list:
+            if box in self.experiment_inputs:
                 box.setEnabled(True)
             else:
                 box.setEnabled(False)
@@ -508,8 +515,7 @@ class LokiSamplePanel(Panel):
         frm.apHBox.textChanged.connect(self.set_height)
 
         # Re-validate the values
-        for box in [frm.offsetBox, frm.apXBox, frm.apYBox, frm.apWBox,
-                    frm.apHBox]:
+        for box in self.experiment_inputs:
             box.setValidator(DoubleValidator(self))
 
     def set_offset(self, value):
