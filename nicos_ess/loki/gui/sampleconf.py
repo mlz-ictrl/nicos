@@ -450,7 +450,7 @@ class LokiSamplePanel(Panel):
     @pyqtSlot()
     def on_applyBtn_clicked(self):
         if not all(map(lambda box: box.text(), self.experiment_inputs)):
-            self.showInfo('Enter valid values for input fields')
+            self.showInfo('Enter valid values for all instrument configuration fields')
             return
 
         script = self._generate_script()
