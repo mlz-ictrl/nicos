@@ -28,7 +28,7 @@ watchlist = [
          gracetime = 600,
          setup = 'befilter',
     ),
-    dict(condition = 'water_value < 1',
+    dict(condition = 'water_value != "on"',
          message = 'WATER is not flowing',
          gracetime = 5,
          type = 'critical',
