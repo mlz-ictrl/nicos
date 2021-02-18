@@ -122,7 +122,7 @@ class ExpPanel(Panel):
             self.queryDBButton.setVisible(True)
         else:
             self.queryDBButton.setVisible(False)
-            self.propLabel.setText('Enter a proposal number or name:')
+            self.propLabel.setText('Enter a proposal number:')
         self.setViewOnly(self.client.viewonly)
 
     def on_client_disconnected(self):
