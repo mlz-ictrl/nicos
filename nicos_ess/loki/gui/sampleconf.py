@@ -258,10 +258,7 @@ class LokiSamplePanel(Panel):
         layout = self.frame.layout()
         layout.addWidget(self.sample_frame)
         self.sample_frame.hide()
-        
-        self.sample_frame.addDevBtn.setVisible(False)
-        self.sample_frame.delDevBtn.setVisible(False)
-        self.sample_frame.readDevsBtn.setVisible(False)
+
         self.sample_frame.posTbl.setEnabled(False)
         self.experiment_inputs = [self.sample_frame.offsetBox, 
                                   self.sample_frame.apXBox, 
