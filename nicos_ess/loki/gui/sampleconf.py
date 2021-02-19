@@ -250,7 +250,6 @@ class LokiSamplePanel(Panel):
         self.sampleGroup.setEnabled(False)
         self.frame.setLayout(QVBoxLayout())
         
-        # Load sampleconf_summary to sample_frame widget and add to frame layout
         self.sample_frame = QFrame(self)
         loadUi(self.sample_frame, findResource(
             'nicos_ess/loki/gui/ui_files/sampleconf_summary.ui'))
