@@ -63,6 +63,7 @@ class ExpPanel(Panel):
         self._text_controls = (self.queryDBButton, self.proposalNum,
                                self.expTitle, self.users, self.localContact,)
 
+        self.applyBtn.clicked.connect(self.on_applyBtn_clicked)
         # Hide proposal retrieval until available
         self.propdbInfo.setVisible(False)
         self.queryDBButton.setVisible(False)
@@ -132,15 +133,13 @@ class ExpPanel(Panel):
         self.setViewOnly(True)
 
     def setViewOnly(self, is_view_only):
-        for button in self.buttonBox.buttons():
-            button.setEnabled(not is_view_only)
-
         for control in self._text_controls:
             control.setEnabled(not is_view_only)
 
         self.notifEmails.setEnabled(not is_view_only)
         self.errorAbortBox.setEnabled(not is_view_only)
         self.queryDBButton.setEnabled(not is_view_only)
+        self.applyBtn.setEnabled(not is_view_only)
 
     def on_client_experiment(self, data):
         # just reinitialize
@@ -212,12 +211,8 @@ class ExpPanel(Panel):
             self.showInfo('Reading proposaldb failed for an unknown reason. '
                           'Please check logfiles....\n' + repr(e))
 
-    def on_buttonBox_clicked(self, button):
-        role = self.buttonBox.buttonRole(button)
-        if role == QDialogButtonBox.ApplyRole:
-            self.applyChanges()
-        elif role == QDialogButtonBox.RejectRole:
-            self.closeWindow()
+    def on_applyBtn_clicked(self):
+        self.applyChanges()
 
     def applyChanges(self):
         done = []
