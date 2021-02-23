@@ -212,9 +212,6 @@ class ExpPanel(Panel):
                           'Please check logfiles....\n' + repr(e))
 
     def on_applyBtn_clicked(self):
-        self.applyChanges()
-
-    def applyChanges(self):
         done = []
 
         # proposal settings
