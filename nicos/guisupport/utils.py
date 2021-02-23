@@ -25,9 +25,42 @@
 """GUI support utilities."""
 
 from contextlib import contextmanager
+from os import path
 
-from nicos.guisupport.qt import QApplication, QDoubleValidator, QFont, \
-    QPalette, Qt, QValidator
+import gr
+
+from nicos.guisupport.qt import QApplication, QDoubleValidator, QFileDialog, \
+    QFont, QPalette, Qt, QValidator
+
+
+def savePlot(widget, default_file_type, old_file_path=None):
+    """Saves a plot in the specified file format.
+
+    :param widget: graphics widget.
+    :param default_file_type: default save file type.
+    :param old_file_path: file path from a previous save operation.
+    :return: returns file path,
+             returns empty string or old file path when
+             user cancels save.
+    """
+    gr_file_types = {**gr.PRINT_TYPE, **gr.GRAPHIC_TYPE}
+    save_types = ";;".join(sorted(set(gr_file_types.values())))
+    default_file = 'untitled'
+    if old_file_path:
+        default_file = path.splitext(old_file_path)[0]
+    file_path, _ = QFileDialog.getSaveFileName(None, 'Save as...',
+                                               default_file, filter=save_types,
+                                               initialFilter=default_file_type)
+    if not file_path:
+        return "" if not old_file_path else old_file_path
+
+    file_ext = path.splitext(file_path)[1]
+    if file_ext.lower()[1:] in gr_file_types:
+        widget.save(file_path)
+    else:
+        raise TypeError("Unsupported file format {}".format(file_ext))
+
+    return file_path
 
 
 def setBackgroundColor(widget, color):

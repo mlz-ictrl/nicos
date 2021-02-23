@@ -1,19 +1,19 @@
 description = 'piface box'
 group = 'plugplay'
 
-nethost = setupname
+tango_base = 'tango://pibox01:10000/box/piface/'
 
 devices = dict(
-    in_all = device('nicos.devices.taco.DigitalInput',
+    in_all = device('nicos.devices.tango.DigitalInput',
         description = 'All inputs in one device',
-        tacodevice = '//%s/box/piface/in_all' % nethost,
+        tangodevice = tango_base + 'in_all',
         maxage = 5,
         fmtstr = '0x%02x',
         pollinterval = 2
     ),
-    out_all = device('nicos.devices.taco.DigitalOutput',
+    out_all = device('nicos.devices.tango.DigitalOutput',
         description = 'All outputs in one device',
-        tacodevice = '//%s/box/piface/out_all' % nethost,
+        tangodevice = tango_base + 'out_all',
         maxage = 5,
         fmtstr = '0x%02x',
         pollinterval = 2
@@ -21,15 +21,15 @@ devices = dict(
 )
 
 for i in range(8):
-    devices['in_%d' % i] = device('nicos.devices.taco.DigitalInput',
+    devices['in_%d' % i] = device('nicos.devices.tango.DigitalInput',
         description = '%d. Input' % i,
-        tacodevice = '//%s/box/piface/in_%d' % (nethost, i,),
+        tangodevice = tango_base + 'in_%d' % i,
         maxage = 5,
         pollinterval = 2
     )
-    devices['out_%d' % i] = device('nicos.devices.taco.DigitalOutput',
+    devices['out_%d' % i] = device('nicos.devices.tango.DigitalOutput',
         description = '%d. Output' % i,
-        tacodevice = '//%s/box/piface/out_%d' % (nethost, i,),
+        tangodevice = tango_base + 'out_%d' % i,
         maxage = 5,
         pollinterval = 2
     )

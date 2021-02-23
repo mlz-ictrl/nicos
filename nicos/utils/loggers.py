@@ -56,6 +56,11 @@ class NicosLogger(Logger):
         kwds['exc'] = True
         self.error(*msgs, **kwds)
 
+    def setLevel(self, level):
+        if hasattr(self, '_cache'):
+            self._cache.clear()
+        Logger.setLevel(self, level)
+
     def _process(self, msgs, kwds):
         # standard logging keyword arg
         exc_info = kwds.pop('exc_info', None)
@@ -193,7 +198,7 @@ class NicosLogfileFormatter(Formatter):
 
     def formatException(self, ei):
         if self.extended_traceback:
-            s = formatExtendedTraceback(*ei)
+            s = formatExtendedTraceback(ei[1])
         else:
             s = ''.join(traceback.format_exception(ei[0], ei[1], ei[2],
                                                    sys.maxsize))

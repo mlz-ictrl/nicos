@@ -31,7 +31,9 @@ import numpy as np
 
 from nicos.core import Override, Param
 from nicos.core.constants import POINT
-from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
+from nicos.core.errors import NicosError
+from nicos.devices.datasinks.image import ImageFileReader, ImageSink, \
+    SingleFileSinkHandler
 from nicos.devices.datasinks.special import LiveViewSink as BaseLiveViewSink, \
     LiveViewSinkHandler as BaseLiveViewSinkHandler
 from nicos.utils import findResource
@@ -40,7 +42,7 @@ from nicos.utils import findResource
 class CaressHistogramHandler(SingleFileSinkHandler):
     """Handler for the CaressHistogram data sink."""
 
-    filetype = 'caresshistogram'
+    filetype = 'ctxt'
 
     def __init__(self, sink, dataset, detector):
         SingleFileSinkHandler.__init__(self, sink, dataset, detector)
@@ -142,6 +144,43 @@ class CaressHistogram(ImageSink):
 
     def isActiveForArray(self, arraydesc):
         return len(arraydesc.shape) == 2
+
+
+class CaressHistogramReader(ImageFileReader):
+    filetypes = [('ctxt', 'CARESS Histogram File (*.ctxt)')]
+
+    correctionfile = 'nicos_mlz/spodi/data/detcorrection.dat'
+
+    @classmethod
+    def fromfile(cls, filename):
+        sizes = (80, 256)
+        ndim = 254
+        ndet = 80
+        corrData = DataParser.ReadCorrectionFile(
+            findResource(cls.correctionfile))
+        with open(filename, 'r') as f:
+            if not f.readline().startswith('QMesyDAQ CARESS Histogram File'):
+                raise NicosError('File is not a CARESS histogram file.')
+            for line in f:
+                if line.startswith('Resosteps'):
+                    resosteps = int(line.split()[1])
+                elif line.startswith('2Theta start'):
+                    startpos = float(line.split()[2])
+                elif line.startswith('Comment'):
+                    for p in line.replace(' = ', '=').replace(' x ', 'x'
+                                                              ).split()[1:]:
+                        k, v = p.split('=')
+                        if k == 'detsampledist':
+                            detsampledist = float(v)
+            thetaRaw = DataParser.ThetaInitial(startpos, resosteps, ndet)
+            thetaCorr = DataParser.ThetaModified(
+                thetaRaw, corrData, resosteps, ndet)
+
+        data = DataParser.CaressFormat(filename, sizes[1], sizes[0])[-1]
+        return np.sum(DataParser.RingStraight(
+            thetaCorr, thetaRaw, DataParser.VertCalibIntensCorr(
+                data, corrData, resosteps, ndet, ndim),
+            resosteps, ndet, ndim, detsampledist), axis=1)
 
 
 class Straight:

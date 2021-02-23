@@ -35,8 +35,9 @@ from gr.pygr import Coords2D, Plot as OrigPlot, PlotAxes, Point, \
 from gr.pygr.base import GRMeta, GRVisibility
 
 from nicos.guisupport.plots import GRCOLORS, MaskedPlotCurve
-from nicos.guisupport.qt import QHBoxLayout, QWidget, pyqtSignal
+from nicos.guisupport.qt import QDialog, QHBoxLayout, QWidget, pyqtSignal
 from nicos.guisupport.qtgr import InteractiveGRWidget
+from nicos.guisupport.utils import savePlot
 
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        '<u1', '<i1', '>u1', '>i1', '<f8', '<f4', '>f8', '>f4',
@@ -217,6 +218,7 @@ class LiveWidgetBase(QWidget):
         self._axesratio = 1.0
         self._logscale = False
         self._rois = {}
+        self._saveName = None
 
         layout = QHBoxLayout()
         self.gr = GRWidget(self)
@@ -365,6 +367,11 @@ class LiveWidgetBase(QWidget):
     def setCenterMark(self, flag):
         self.axes.drawxylines = flag
         self.gr.update()
+
+    def savePlot(self):
+        self._saveName = savePlot(self.gr, gr.PRINT_TYPE[gr.PRINT_PDF],
+                                  self._saveName)
+        return self._saveName
 
 
 class LiveWidget(LiveWidgetBase):
@@ -552,16 +559,22 @@ class LiveWidget1D(LiveWidgetBase):
     def logscale(self, on):
         LiveWidgetBase.logscale(self, on)
         self.axes.setLogY(on)
-        self.curve.filly = .1 if self._logscale else 0
+        newmin = .1 if on else 0
+        oldmin = .1 if not on else 0
+        self.curve.filly = newmin
         win = self.axes.getWindow()
         if win:
-            win[2] = max(.1, win[2])
+            if win[2] == oldmin:  # seems not to be zoomed in
+                win[2] = newmin
+            else:
+                win[2] = max(newmin, win[2])
             self.axes.setWindow(*win)
         self.gr.update()
 
     def unzoom(self):
         self.axes.setWindow(0, self._axesrange[1],
-                            0, max(1, self.getYMax()))
+                            0.1 if self._logscale else 0,
+                            max(1, self.getYMax()))
 
         # add some padding in x range.
         # 2nd call to avoid copy paste of the xtick function in pygr.
@@ -569,7 +582,6 @@ class LiveWidget1D(LiveWidgetBase):
         self.axes.setWindow(-self.axes.xtick,
                             self._axesrange[1] + self.axes.xtick,
                             current[2], current[3])
-
         self.gr.update()
 
     def updateAxesRange(self, nx, ny):

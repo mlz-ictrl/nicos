@@ -341,14 +341,26 @@ def test_methods(session):
     assert 'param2' in keys
     assert 'value' in keys
     assert 'status' in keys
-    # loglevel
-    dev2.loglevel = 'info'
-    assert raises(ConfigurationError, setattr, dev2, 'loglevel', 'xxx')
     # test version() method
     assert ('testversion', 1.0) in dev2.version()
 
     # test access control (test session always returns False for access check)
     assert raises(AccessError, dev2.calibrate)
+
+
+def test_loglevel(session, log):
+    dev2 = session.getDevice('dev2_3')
+
+    # reject invalid loglevels
+    assert raises(ConfigurationError, setattr, dev2, 'loglevel', 'xxx')
+
+    # ensure that changing loglevels is effective
+    dev2.loglevel = 'info'
+    with log.assert_no_msg_matches('debug message'):
+        dev2.log.debug('debug message')
+    dev2.loglevel = 'debug'
+    with log.assert_msg_matches('debug message'):
+        dev2.log.debug('debug message')
 
 
 def test_is_at_target(session, log):

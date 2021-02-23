@@ -3,29 +3,25 @@
 description = "ZEA-2 counter card setup"
 group = "optional"
 
-tango_base = "tango://phys.maria.frm2:10000/maria/"
-tango_counter = tango_base + "count/"
+tango_base = "tango://phys.maria.frm2:10000/maria/count/"
 
 devices = dict(
-    mon2 = device("nicos_mlz.jcns.devices.fpga.FPGACounterChannel",
+    mon2 = device("nicos.devices.tango.CounterChannel",
         description = "Monitor 2",
-        tangodevice = tango_base + 'count/0',
+        tangodevice = tango_base + "mon2",
         type = 'monitor',
         fmtstr = '%d',
-        channel = 2,
     ),
-    mon3 = device("nicos_mlz.jcns.devices.fpga.FPGACounterChannel",
+    mon3 = device("nicos.devices.tango.CounterChannel",
         description = "Monitor 3",
-        tangodevice = tango_base + 'count/0',
+        tangodevice = tango_base + "mon3",
         type = 'monitor',
         fmtstr = '%d',
-        channel = 3,
     ),
-    mon4 = device("nicos_mlz.jcns.devices.fpga.FPGACounterChannel",
+    mon4 = device("nicos.devices.tango.CounterChannel",
         description = "Monitor 4",
-        tangodevice = tango_base + 'count/0',
+        tangodevice = tango_base + "mon4",
         type = 'monitor',
         fmtstr = '%d',
-        channel = 4,
     ),
 )
