@@ -74,7 +74,7 @@ class EpicsMonitorMixin(DeviceMixinBase):
 
     def value_change_callback(self, name, param, value, severity, message,
                               **kwargs):
-        self.log.warn(
+        self.log.debug(
             f'{name} [{param}]: value cb with {value} {severity} {message}!')
         # TODO: if no cache key then what should we do with it?
         cache_key = self._get_cache_relation(param) or name
