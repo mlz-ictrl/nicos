@@ -34,7 +34,7 @@ from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 from nicos_ess.devices.epics.extensions import HasDisablePv
 
 
-class EpicsJulabo(HasDisablePv, HasPrecision, EpicsAnalogMoveableEss):
+class TemperatureController(HasDisablePv, HasPrecision, EpicsAnalogMoveableEss):
     """
     Julabo devices with status and power switch.
 
@@ -55,39 +55,57 @@ class EpicsJulabo(HasDisablePv, HasPrecision, EpicsAnalogMoveableEss):
         'pvprefix': Param('PV prefix for the device', type=str),
         'power': Param('Output power being used', type=float, settable=False,
                        category='general', unit='%'),
-        'poll_power': Param('Include power in regular updates',
-                            default=False, type=bool, settable=True,
-                            category='general'),
         't_external': Param('External PT100 sensor', type=float,
                             settable=False, category='general', unit='C'),
-        'poll_external': Param('Include external sensor in regular updates',
-                               default=False, type=bool, settable=True,
-                               category='general'),
         't_safety': Param('Temperature reported by safety sensor',
                           type=float, settable=False, category='general',
                           chatty=True, unit='C'),
-        'poll_safety': Param('Include safety sensor in regular updates',
-                             default=False, type=bool, settable=True,
-                             category='general')
+        'p_internal': Param('Proportional control parameter', settable=True,
+                            type=float, category='general', chatty=True),
+        'i_internal': Param('Integral control parameter', settable=True,
+                            type=float, category='general', chatty=True),
+        'd_internal': Param('Derivative control parameter', settable=True,
+                            type=float, category='general', chatty=True),
+        'p_external': Param('Proportional control parameter', settable=True,
+                            type=float, category='general', chatty=True),
+        'i_external': Param('Integral control parameter', settable=True,
+                            type=float, category='general', chatty=True),
+        'd_external': Param('Derivative control parameter', settable=True,
+                            type=float, category='general', chatty=True),
     }
 
     parameter_overrides = {
         'abslimits': Override(mandatory=False),
     }
 
-    _record_fields = {
-        'disable_poll': 'DISABLE_POLL',
-        'disable_ext': 'DISABLE_EXT',
-        'sel': 'SP:SEL:RBV',
-        'external_sensor': 'EXTSENS',
-        'set_sel': 'SP:SEL',
-        't_external': 'EXTT',
-        't_safety': 'TSAFE',
-        'setpoint1': 'TEMP:SP1:RBV',
-        'power': 'POWER',
-        'high_limit': 'HILIMIT',
-        'low_limit': 'LOWLIMIT',
-    }
+    @staticmethod
+    def _get_record_fields():
+        record_fields = {
+            'disable_poll': 'DISABLE_POLL',
+            'disable_ext': 'DISABLE_EXT',
+            'sel': 'SP:SEL:RBV',
+            'external_sensor': 'EXTSENS',
+            'set_sel': 'SP:SEL',
+            't_external': 'EXTT',
+            't_safety': 'TSAFE',
+            'setpoint1': 'TEMP:SP1:RBV',
+            'power': 'POWER',
+            'high_limit': 'HILIMIT',
+            'low_limit': 'LOWLIMIT',
+            'p_internal': 'ESTIA-JUL25HL-001:INTP',
+            'i_internal': 'ESTIA-JUL25HL-001:INTI',
+            'd_internal': 'ESTIA-JUL25HL-001:INTD',
+            'p_internal_sp': 'ESTIA-JUL25HL-001:INTP:SP',
+            'i_internal_sp': 'ESTIA-JUL25HL-001:INTI:SP',
+            'd_internal_sp': 'ESTIA-JUL25HL-001:INTD:SP',
+            'p_external': 'ESTIA-JUL25HL-001:EXTP',
+            'i_external': 'ESTIA-JUL25HL-001:EXTI',
+            'd_external': 'ESTIA-JUL25HL-001:EXTD',
+            'p_external_sp': 'ESTIA-JUL25HL-001:EXTP:SP',
+            'i_external_sp': 'ESTIA-JUL25HL-001:EXTI:SP',
+            'd_external_sp': 'ESTIA-JUL25HL-001:EXTD:SP',
+        }
+        return record_fields
 
     def _get_pv_parameters(self):
         if len(set(map(bool, (self.statuscodepv, self.statusmsgpv)))) > 1:
@@ -95,7 +113,7 @@ class EpicsJulabo(HasDisablePv, HasPrecision, EpicsAnalogMoveableEss):
                 'Provide either both statuscodepv and statusmsgpv or neither. '
                 'It is not supported to specify only one of them.')
 
-        pvs = set(self._record_fields)
+        pvs = set(self._get_record_fields())
         if self.statuscodepv and self.statusmsgpv:
             pvs.add('statuscodepv')
             pvs.add('statusmsgpv')
@@ -114,7 +132,7 @@ class EpicsJulabo(HasDisablePv, HasPrecision, EpicsAnalogMoveableEss):
         :return: Actual PV name.
         """
         record_prefix = getattr(self, 'pvprefix')
-        field = self._record_fields.get(pvparam)
+        field = self._get_record_fields().get(pvparam)
 
         if field is not None:
             return ':'.join((record_prefix, field))
@@ -137,14 +155,6 @@ class EpicsJulabo(HasDisablePv, HasPrecision, EpicsAnalogMoveableEss):
 
         return EpicsAnalogMoveableEss.doStatus(self, maxage)
 
-    def doPoll(self, n, maxage=0):
-        if self.poll_external:
-            self._pollParam('t_external')
-        if self.poll_power:
-            self._pollParam('power')
-        if self.poll_safety:
-            self._pollParam('t_safety')
-
     def doReadTarget(self, maxage=0):
         return self._get_pv('setpoint1')
 
@@ -161,3 +171,39 @@ class EpicsJulabo(HasDisablePv, HasPrecision, EpicsAnalogMoveableEss):
         absmin = self._get_pv('low_limit')
         absmax = self._get_pv('high_limit')
         return absmin, absmax
+
+    def doReadP_Internal(self):
+        return self._get_pv('p_internal')
+
+    def doWriteP_Internal(self, target):
+        return self._put_pv('p_internal_sp', target)
+
+    def doReadI_Internal(self):
+        return self._get_pv('i_internal')
+
+    def doWriteI_Internal(self, target):
+        return self._put_pv('i_internal_sp', target)
+
+    def doReadD_Internal(self):
+        return self._get_pv('d_internal')
+
+    def doWriteD_Internal(self, target):
+        return self._put_pv('d_internal_sp', target)
+
+    def doReadP_External(self):
+        return self._get_pv('p_external')
+
+    def doWriteP_External(self, target):
+        return self._put_pv('p_external_sp', target)
+
+    def doReadI_External(self):
+        return self._get_pv('i_external')
+
+    def doWriteI_External(self, target):
+        return self._put_pv('i_external_sp', target)
+
+    def doReadD_External(self):
+        return self._get_pv('d_external')
+
+    def doWriteD_External(self, target):
+        return self._put_pv('d_external_sp', target)

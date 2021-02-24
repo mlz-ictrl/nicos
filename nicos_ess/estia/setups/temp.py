@@ -73,7 +73,7 @@ devices = dict(
         unit = 'C',
         description = 'Metrology Cart'
     ),
-    julabo = device('nicos_ess.estia.devices.julabo.EpicsJulabo',
+    julabo = device('nicos_ess.estia.devices.julabo.TemperatureController',
         description = 'The Julabo',
         pvprefix = 'ESTIA-JUL25HL-001',
         readpv = 'ESTIA-JUL25HL-001:TEMP',
