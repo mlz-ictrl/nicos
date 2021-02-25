@@ -21,7 +21,7 @@ class LokiScriptBuilderPanel(Panel):
 
         self.chkShowTempColumn.stateChanged.connect(self.chkShowTempColumn_toggled)
 
-        self.columns = ['Sample', 'TRANS\nDuration', 'SANS\nDuration', 'Test', 'Temperature']
+        self.columns = ['Sample', 'Thickness\n(mm)', 'TRANS\nDuration', 'SANS\nDuration', 'Test', 'Temperature']
         self._init_table()
 
     def _init_table(self, num_rows=26):
@@ -31,12 +31,15 @@ class LokiScriptBuilderPanel(Panel):
 
         # Hide optional columns? It would be nice to have them stored so
         # if the GUI is restarted it can recall what was hidden...
-        self.tableScript.setColumnHidden(4, True)
+        self.tableScript.setColumnHidden(5, True)
 
         # Table formatting
         self.tableScript.horizontalHeader().setStretchLastSection(True)
         self.tableScript.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableScript.resizeColumnsToContents()
+        self.tableScript.setAlternatingRowColors(True)
+        # TODO: move this to qss?
+        self.tableScript.setStyleSheet("alternate-background-color: aliceblue;")
 
         # TODO: set the number of rows to a number appropriate for the
         # current sample changer
