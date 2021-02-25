@@ -88,7 +88,10 @@ class ChoiceElement(MeasElement):
     def createWidget(self, parent, client):
         if self.CACHE_KEY:
             values = client.getDeviceParam(*self.CACHE_KEY.split('/'))
-            values = sorted(values or [], key=self.SORT_KEY)
+            try:
+                values = sorted(values or [], key=self.SORT_KEY)
+            except TypeError:  # unsortable?
+                pass
         else:
             values = self.VALUES
         self._values = values

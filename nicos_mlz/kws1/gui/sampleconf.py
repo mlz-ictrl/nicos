@@ -578,7 +578,7 @@ def parse_sampleconf(filename):
           'ClearSamples': mocksample.reset,
           'SetSample': mocksample.define}
     with open(filename, 'r') as fp:
-        exec(fp, ns)
+        exec(fp.read(), ns)
     # The script needs to call this, if it doesn't it is not a sample file.
     if not mocksample.reset_called:
         raise ValueError('the script never calls ClearSamples()')

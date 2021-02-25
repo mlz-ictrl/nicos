@@ -25,6 +25,7 @@
 
 """KWS file format saver"""
 
+from io import TextIOWrapper
 from os import path
 from time import localtime, strftime
 
@@ -121,7 +122,8 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
         _collslit = 'aperture_%02d' % session.getDevice('coll_guides').read()
         _exposuretime = session.getDevice('timer').read(0)[0]
 
-        w = fp.write
+        textfp = TextIOWrapper(fp)
+        w = textfp.write
 
         # sample envs
         sample_env = ['Temperature dummy line'] * 4
@@ -191,7 +193,8 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
         if len(image.shape) == 2:
             self._writedet_standard(w, image)
         else:
-            self._writedet_tof(w, image, fp)
+            self._writedet_tof(w, image, textfp)
+        textfp.detach()
 
     def _writedet_standard(self, w, image):
         w('(* Detector Data *)\n')

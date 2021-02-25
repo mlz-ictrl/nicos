@@ -96,7 +96,7 @@ class MeasDef:
         result = []
         for dicts in itertools.product(*dict_lists):
             entry = OrderedDict()
-            for d in sorted(dicts, key=lambda d: d.values()[0].ORDER):
+            for d in sorted(dicts, key=lambda d: list(d.values())[0].ORDER):
                 entry.update(d)
             result.append(entry)
         # post-process sample measurement time factor
@@ -294,7 +294,7 @@ class DetsetDialog(QDialog):
     def on_table_cellActivated(self, i, j):
         if self._edit:
             self._stopEdit()
-        element = self._rows[i].values()[j]
+        element = list(self._rows[i].values())[j]
         # create edit widget
         widget = element.createWidget(self, self.client)
         # apply constraints to the widget from other entries
