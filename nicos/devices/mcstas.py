@@ -64,21 +64,24 @@ class McStasSimulation(Readable):
     parameters = {
         'mcstasprog': Param('Name of the McStas simulation executable',
                             type=str, settable=False),
-        'mcstasdir': Param('Directory where McStas stores results', type=str,
-                           default='%(session.experiment.dataroot)s'
-                                   '/singlecount',
-                           settable=False),
-        'mcsiminfo': Param('Name for the McStas Siminfo file (without path)',
-                           settable=False, type=str, default='mccode.sim'),
-        'ratio': Param('Simulated neutrons per second for this machine. Please'
-                       ' tune this parameter according to your hardware for '
-                       ' realistic count times', settable=True,
-                       type=floatrange(1e3), default=1e6),
-        'ci': Param('Constant ci multiplied with simulated intensity I',
-                    settable=True, type=floatrange(1e-10), default=1),
-        # preselection time, usually set by McStasTimer
-        'preselection': Param('Preset value for this channel', type=float,
-                              settable=True, default=1., unit='s'),
+        'mcstasdir':  Param('Directory where McStas stores results', type=str,
+                            default='%(session.experiment.dataroot)s'
+                                    '/singlecount',
+                            settable=False),
+        'mcsiminfo':  Param('Name for the McStas Siminfo file', settable=False,
+                            type=str, default='mccode.sim'),
+        'neutronspersec':  Param('Approximate simulated neutrons per second '
+                                 'for this machine. Tune this parameter '
+                                 'according to your hardware for realistic '
+                                 'count times', settable=True,
+                                 type=floatrange(1e3), default=1e6),
+        'intensityfactor': Param('Constant multiplied with simulated McStas '
+                                 'intensity to get a simulated neutron counts '
+                                 'per second', settable=True,
+                                 type=floatrange(1.)),
+        'preselection':    Param('Simulation preset value (should be set by '
+                                 'the timer device)', type=float,
+                                 settable=True, default=1., unit='s'),
     }
 
     parameter_overrides = {
@@ -191,7 +194,7 @@ class McStasSimulation(Readable):
 
     def _getScaleFactor(self):
         """Return scale factor for simulation intensity data."""
-        return self._getTime() * self.ci
+        return self._getTime() * self.intensityfactor
 
     def _run(self):
         """Thread to run McStas simulation executable.
@@ -204,7 +207,7 @@ class McStasSimulation(Readable):
         except OSError:
             self.log.warning('could not remove old data')
         command = '%s -n %d -d %s %s' % (
-            self.mcstasprog, self.ratio * self.preselection,
+            self.mcstasprog, self.neutronspersec * self.preselection,
             self._mcstasdirpath, self._mcstas_params,
         )
         self.log.debug('run %s', command)
@@ -236,10 +239,10 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
     which provides the preselection [s] for calculating the number of
     simulated neutron counts:
 
-      Ncounts = preselection [s] * ratio [cts/s]
+      Ncounts = preselection [s] * neutronspersec [cts/s]
 
-    Note: Please configure **ratio** to match the average simulated neutron
-          counts per second on your system.
+    Note: Please configure **neutronspersec** to match the average simulated
+    neutron counts per second on your system.
     """
 
     attached_devices = {
