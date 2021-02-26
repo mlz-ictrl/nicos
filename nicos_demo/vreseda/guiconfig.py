@@ -54,7 +54,8 @@ windows = [
     window('Errors', 'errors',
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
     window('Live data', 'live',
-           panel('nicos_mlz.mira.gui.live.LiveDataPanel')),
+           panel('nicos.clients.gui.panels.live.LiveDataPanel',
+                 filetypes=['pad', 'tof'])),
 ]
 
 tools = [
@@ -75,3 +76,7 @@ tools = [
          'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=False),
 ]
+
+options = {
+    'reader_classes': ['nicos_mlz.reseda.devices.cascade.CascadeImageReader'],
+}
