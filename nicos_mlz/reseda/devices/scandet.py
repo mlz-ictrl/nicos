@@ -27,7 +27,7 @@ import numpy as np
 from nicos.core import Override, Param, Value, floatrange, oneof
 from nicos.devices.generic import ScanningDetector as NicosScanDet
 
-from nicos_mlz.reseda.devices.cascade import fit_a_sin
+from nicos.devices.vendor.cascade import fit_a_sin
 
 
 class ScanningDetector(NicosScanDet):

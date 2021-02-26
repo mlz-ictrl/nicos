@@ -82,5 +82,5 @@ tools = [
 ]
 
 options = {
-    'reader_classes': ['nicos_mlz.reseda.devices.cascade.CascadeImageReader'],
+    'reader_classes': ['nicos.devices.vendor.cascade'],
 }

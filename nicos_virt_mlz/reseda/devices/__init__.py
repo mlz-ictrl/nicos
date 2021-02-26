@@ -29,7 +29,7 @@ from nicos.core.params import ArrayDesc, Param, Value, intrange, listof, \
 from nicos.devices.generic import VirtualImage
 from nicos.protocols.cache import FLAG_NO_STORE
 
-from nicos_mlz.reseda.devices.cascade import fit_a_sin_fixed_freq
+from nicos.devices.vendor.cascade import fit_a_sin_fixed_freq
 
 
 class CascadeDetector(VirtualImage):

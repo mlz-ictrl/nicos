@@ -67,11 +67,11 @@ devices = dict(
                    }
         ),
 
-    psd_padformat = device('nicos_mlz.reseda.devices.cascade.CascadePadSink',
+    psd_padformat = device('nicos.devices.vendor.cascade.CascadePadSink',
         subdir = 'cascade',
         detectors = ['psd', 'counter', 'timer', 'monitor1', 'monitor2'],
     ),
-    psd_tofformat = device('nicos_mlz.reseda.devices.cascade.CascadeTofSink',
+    psd_tofformat = device('nicos.devices.vendor.cascade.CascadeTofSink',
         subdir = 'cascade',
         detectors = ['psd', 'counter', 'timer', 'monitor1', 'monitor2'],
     ),
@@ -84,7 +84,7 @@ devices = dict(
         sampledet = 'sampledet',
         mono = 'mono',
     ),
-    psd_channel = device('nicos_mlz.reseda.devices.cascade.CascadeDetector',
+    psd_channel = device('nicos.devices.vendor.cascade.CascadeDetector',
         description = 'CASCADE detector channel',
         tangodevice = tango_base + 'cascade/tofchannel',
         foilsorder = [0, 1, 2, 5, 6, 7, 3, 4],
