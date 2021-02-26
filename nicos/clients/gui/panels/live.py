@@ -737,7 +737,8 @@ class LiveDataPanel(Panel):
     def on_actionOpen_triggered(self):
         """Open image file using registered reader classes."""
         ftypes = {ffilter: ftype
-                  for ftype, ffilter in ReaderRegistry.filefilters()}
+                  for ftype, ffilter in ReaderRegistry.filefilters()
+                  if not self._allowed_tags or ftype in self._allowed_tags}
         fdialog = FileFilterDialog(self, "Open data files", "",
                                    ";;".join(ftypes.keys()))
         if self._fileopen_filter:
