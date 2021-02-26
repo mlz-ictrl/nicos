@@ -553,7 +553,7 @@ Panel[panel='CommandPanel'] QPushButton {
     width:80px;
 }
 
-/* -------------------- CommandsPanel -------------------- */
+/* ----------------- CommandsPanel ------------- */
 
 Panel[panel='CommandsPanel'] QToolButton {
     width:100px;
