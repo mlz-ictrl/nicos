@@ -31,8 +31,8 @@ from os import path
 import numpy as np
 
 from nicos import session
-from nicos.core import LIVE, ConfigurationError, DataSinkHandler, Override, \
-    NicosError
+from nicos.core import LIVE, ConfigurationError, DataSinkHandler, NicosError, \
+    Override
 from nicos.core.data.sink import NicosMetaWriterMixin
 from nicos.devices.datasinks.image import ImageFileReader, ImageSink, \
     SingleFileSinkHandler
@@ -72,6 +72,7 @@ class SingleRawImageSinkHandler(NicosMetaWriterMixin, SingleFileSinkHandler):
 
     defer_file_creation = True
     update_headerinfo = True
+    filetype = 'singleraw'
 
     def writeHeader(self, fp, metainfo, image):
         fp.seek(0)
@@ -92,6 +93,24 @@ class SingleRawImageSink(ImageSink):
     }
 
     handlerclass = SingleRawImageSinkHandler
+
+
+class SingleRawImageFileReader(ImageFileReader):
+    filetypes = [('singleraw', 'NICOS Single Raw Image File (*.raw)')]
+
+    @classmethod
+    def fromfile(cls, filename):
+        if path.isfile(filename):
+            with open(filename, 'rb') as f:
+                content = f.read()
+                for s in reversed(content.split(b'\n')):
+                    if s.startswith(b'ArrayDesc'):
+                        _desc, shape, t, _axes = eval(s.replace(
+                            b'ArrayDesc', b'').replace(b'dtype', b'np.dtype'))
+                        return np.frombuffer(
+                            content, t, np.product(shape)).reshape(shape)
+                raise NicosError('no ArrayDesc line found')
+        raise NicosError('file not found')
 
 
 class RawImageSinkHandler(NicosMetaWriterMixin, DataSinkHandler):
