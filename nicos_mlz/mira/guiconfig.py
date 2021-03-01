@@ -89,3 +89,7 @@ tools = [
     tool('Report NICOS bug or request enhancement',
          'nicos.clients.gui.tools.bugreport.BugreportTool'),
 ]
+
+options = {
+    'reader_classes': ['nicos_mlz.reseda.devices.cascade.CascadeImageReader'],
+}
