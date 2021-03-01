@@ -24,7 +24,6 @@ devices = dict(
         description = 'POWTEX Experiment ',
         dataroot = '/home/crandau/data',
         sample = 'Sample',
-        localcontact = 'andreas.houben@ac.rwth-aachen.de',
         propprefix = 'p',
         serviceexp = 'service',
         servicescript = '',

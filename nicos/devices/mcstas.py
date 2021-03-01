@@ -23,7 +23,7 @@
 #
 # *****************************************************************************
 
-"""detector based on McStas simulation."""
+"""Devices for simulated instruments based on McStas simulation."""
 
 import os
 import shutil
@@ -227,7 +227,7 @@ class McStasTimer(ActiveChannel, Waitable):
     """Timer channel for McStas simulations
 
     This channel provides an internal neutron timer for running McStas
-    simulations using `McStasImage`
+    simulations using `McStasImage`.
     """
 
     attached_devices = {

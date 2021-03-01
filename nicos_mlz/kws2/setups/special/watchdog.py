@@ -14,6 +14,16 @@ watchlist = [
          gracetime = 10,
          type = 'default',
     ),
+    dict(condition = 'ep01_t_value > 78 or ep02_t_value > 78 or ep03_t_value > 78 or '
+                     'ep04_t_value > 78 or ep05_t_value > 78 or ep06_t_value > 78 or '
+                     'ep07_t_value > 78 or ep08_t_value > 78 or ep09_t_value > 78 or '
+                     'ep10_t_value > 78 or ep11_t_value > 78 or ep12_t_value > 78 or '
+                     'ep13_t_value > 78 or ep14_t_value > 78 or ep15_t_value > 78 or '
+                     'ep16_t_value > 78 or ep17_t_value > 78 or ep18_t_value > 78',
+         message = 'Eight-pack temperature alarm, reached 78deg. Will shut off at 80deg.',
+         gracetime = 1,
+         type = 'default',
+    ),
     dict(condition = 'det_kwscounting and '
                      'abs(selector_speed_value - selector_speed_target) > '
                      'selector_speed_precision',
@@ -47,16 +57,16 @@ watchlist = [
          gracetime = 1,
          type = 'default',
     ),
-    dict(condition = 'det_kwscounting and '
-                     'abs(t_peltier_value - t_peltier_setpoint) > '
-                     '2 * t_peltier_precision',
-         message = 'Peltier temperature outside of setpoint, count paused',
-         okmessage = 'Peltier temperature normal again',
-         scriptaction = 'pausecount',
-         gracetime = 1,
-         type = 'default',
-         setup = 'peltier',
-    ),
+#    dict(condition = 'det_kwscounting and '
+#                     'abs(t_peltier_value - t_peltier_setpoint) > '
+#                     '2 * t_peltier_precision',
+#         message = 'Peltier temperature outside of setpoint, count paused',
+#         okmessage = 'Peltier temperature normal again',
+#         scriptaction = 'pausecount',
+#         gracetime = 1,
+#         type = 'default',
+#         setup = 'peltier',
+#    ),
     dict(condition = 'det_kwscounting and '
                      'abs(t_julabo_value - t_julabo_setpoint) > '
                      '2 * t_julabo_precision',

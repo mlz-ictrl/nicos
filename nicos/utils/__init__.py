@@ -858,7 +858,7 @@ def expandTemplate(template, keywords, field_re=field_re):
                 replacement = ''
             else:
                 defaulted.append(field.groupdict())
-        result.append(replacement)
+        result.append(str(replacement))
         current = field.end()
     result.append(template[current:])
     return ''.join(result), defaulted, missing

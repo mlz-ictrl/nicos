@@ -37,7 +37,6 @@ devices = dict(
         sendmail = True,
         serviceexp = 'p0',
         sample = 'Sample',
-        reporttemplate = '',
         elog = True,
         managerights = dict(
             enableDirMode = 0o775,

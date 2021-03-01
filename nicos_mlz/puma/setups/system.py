@@ -33,7 +33,6 @@ devices = dict(
         description = 'Experiment of PUMA',
         sample = 'Sample',
         dataroot = '/data',
-        propdb = '/pumacontrol/propdb',
         managerights = dict(
             enableDirMode = 0o775,
             enableFileMode = 0o664,

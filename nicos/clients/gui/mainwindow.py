@@ -75,6 +75,9 @@ class ToolAction(QAction):
 
     def __init__(self, client, icon, text, options, parent=None):
         QAction.__init__(self, icon, text, parent)
+        # the default menu rule is TextHeuristicRole, which moves 'setup' to
+        # the 'Preferences' Menu on a Mac -> this is not what we want
+        self.setMenuRole(self.NoRole)
         setups = options.get('setups', '')
         self.setupSpec = setups
         if self.setupSpec:
@@ -347,6 +350,11 @@ class MainWindow(DlgUtils, QMainWindow):
         QMainWindow.show(self)
         if self.autoconnect and not self.client.isconnected:
             self.on_actionConnect_triggered(True)
+        if sys.platform == 'darwin':
+            # on Mac OS loadBasicWindowSettings seems not to work before show()
+            # so we do it here again
+            with self.sgroup as settings:
+                loadBasicWindowSettings(self, settings)
 
     def startup(self):
         self.show()

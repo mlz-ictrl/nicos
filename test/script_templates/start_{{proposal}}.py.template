@@ -1,1 +1,1 @@
-Remark('proposal {{proposal}} started by {{user}}; sample is {{sample:unknown}}')
+Remark('proposal {{proposal}} started now; sample is {{sample:unknown}}')

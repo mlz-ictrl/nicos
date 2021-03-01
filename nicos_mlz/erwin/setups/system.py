@@ -30,7 +30,6 @@ devices = dict(
         dataroot = 'data',
         sample = 'Sample',
         reporttemplate = '',
-        propdb = 'propdb',
         sendmail = False,
         serviceexp = 'p0',
         mailsender = 'erwin@frm2.tum.de',

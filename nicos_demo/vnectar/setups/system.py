@@ -23,7 +23,6 @@ devices = dict(
     Exp = device('nicos_mlz.antares.devices.experiment.Experiment',
         description = 'experiment object',
         dataroot = 'data/FRM-II',
-        propdb = '/etc/propdb',
         serviceexp = 'service',
         sample = 'Sample',
         mailsender = 'nectar@frm2.tum.de',

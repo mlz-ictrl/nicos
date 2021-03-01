@@ -165,14 +165,13 @@ def test_experiment_commands(session, log):
     exp = session.experiment
 
     with log.assert_msg_matches([r'Exp : experiment directory is now .*',
-                                 r'Exp : User "F. X. User <user@example.com>" '
-                                 'added']):
+                                 r'Exp : User "F. X. User" added']):
         NewExperiment(1234, 'Test experiment',
                       'L. Contact <l.contact@frm2.tum.de>', '1. User')
         assert exp.proposal == 'p1234'
         assert exp.title == 'Test experiment'
         AddUser('F. X. User', 'user@example.com')
-        assert 'F. X. User <user@example.com>' in exp.users
+        assert 'F. X. User' in exp.users
 
     NewSample('MnSi', lattice=[4.58] * 3, angles=[90] * 3)
 
@@ -636,7 +635,8 @@ def test_notifiers(session, log):
     SetDataReceivers(receiver)
     # restore previous state
     exp.mailserver, exp.mailsender = msrv, msend
-    assert exp.propinfo['user_email'] == [receiver]
+    assert exp.propinfo['notif_emails'] == [receiver]
+    assert exp.propinfo['data_emails'] == [receiver]
     with log.assert_msg_matches([r'Email addresses',
                                  r'copy@example.com',
                                  r'receiver@example.com']):

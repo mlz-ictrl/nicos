@@ -39,6 +39,7 @@ from nicos.clients.gui.utils import enumerateWithProgress, loadUi
 from nicos.core.errors import NicosError
 from nicos.guisupport.livewidget import DATATYPES, IntegralLiveWidget, \
     LiveWidget, LiveWidget1D
+from nicos.guisupport.plots import GRCOLORS, GRMARKS
 from nicos.guisupport.qt import QActionGroup, QByteArray, QListWidgetItem, \
     QMenu, QPoint, QSizePolicy, QStatusBar, Qt, QToolBar, pyqtSlot
 from nicos.guisupport.qtgr import MouseEvent
@@ -52,6 +53,14 @@ FILEFORMAT = Qt.UserRole + 1
 FILETAG = Qt.UserRole + 2
 FILEUID = Qt.UserRole + 3
 
+DEFAULTS = dict(
+    marks='omark',
+    offset=0,
+    plotcount=1,
+    color='blue',
+    markersize=1,
+)
+
 
 class LiveDataPanel(Panel):
     """Provides a generic "detector live view".
@@ -61,17 +70,57 @@ class LiveDataPanel(Panel):
 
     Options:
 
-    * ``instrument`` -- the instrument name that is passed on to the livewidget
+    * ``instrument`` - The instrument name that is passed on to the livewidget
       module.
-    * ``filetypes`` default[] - List of filename extensions whose content should
-      be displayed.
-    * ``detectors`` (default [] - list of detector devices whose data should be
-      displayed.  If not set data from all configured detectors will be shown.
+    * ``filetypes`` (default []) - List of filename extensions whose content
+      should be displayed.
+    * ``detectors`` (default []) - List of detector devices whose data should
+      be displayed. If not set data from all configured detectors will be
+      shown.
     * ``cachesize`` (default 20) - Number of entries in the live data cache.
-      The live data cache allows to display of previous taken data.
+      The live data cache allows displaying of previously measured data.
     * ``liveonlyindex`` (default None) - Enable live only view. This disables
       interaction with the liveDataPanel and only displays the dataset of the
       set index.
+    * ``defaults`` (default []) - List of strings representing options to be
+      set to every configured plot.
+      These options can not be set on a per plot basis since they are global.
+      Options are as follows:
+
+        * ``logscale`` - Switch the logarithic scale on
+        * ``center`` - Display the center lines for the image.
+        * ``nolines`` - Display lines for the curve.
+        * ``markers`` - Display symbol for the curve.
+        * ``unzoom`` - Unzoom  the plot when new data is received
+    * ``plotsettings`` (default []) - List of dictionaries which contain
+      settings for the datasets.
+
+      Each entry will be applied to one of the detector's datasets.
+
+        * ``plotcounts`` (default [1]) - Amount of plots in the dataset.
+        * ``marks`` (default 'omark') - Shape of the markers. (if displayed)
+          Possible values are:
+
+          'dot', 'plus', 'asterrisk', 'circle', 'diagonalcross', 'solidcircle',
+          'triangleup', 'solidtriangleup', 'triangledown', 'solidtriangledown',
+          'square', 'solidsquare', 'bowtie', 'solidbowtie', 'hourglass',
+          'solidhourglass', 'diamond', 'soliddiamond', 'star', 'solidstar',
+          'triupdown', 'solidtriright', 'solidtrileft', 'hollowplus',
+          'solidplus', 'pentagon', 'hexagon', 'heptagon', 'octagon', 'star4',
+          'star5', 'star6', 'star7', 'star8', 'vline', 'hline', 'omark'.
+        * ``markersize`` (default 1) - Size of the markers. (if displayed)
+        * ``offsets`` (default [0]) - List of offsets for each curve in 1D
+          plots.
+        * ``colors`` (default [blue]) - Color of the marks and lines.
+          (if displayed)
+          If colors are set as a list the colors will be applied to the
+          individual plots (and default back to blue when wrong/missing)
+          eg:
+
+          ['red', 'green']: The first plot will be red, the second green and
+          the others will be blue (default).
+
+          'red': all plots will be red
     """
 
     panelName = 'Live data view'
@@ -94,6 +143,7 @@ class LiveDataPanel(Panel):
         self._fileopen_filter = None
         self.widget = None
         self.menu = None
+        self.unzoom = False
 
         self.statusBar = QStatusBar(self, sizeGripEnabled=False)
         policy = self.statusBar.sizePolicy()
@@ -144,7 +194,6 @@ class LiveDataPanel(Panel):
         self.detectorskey = None
         # configure instrument specific behavior
         self._instrument = options.get('instrument', '')
-
         # configure allowed file types
         supported_filetypes = ReaderRegistry.filetypes()
         opt_filetypes = set(options.get('filetypes', supported_filetypes))
@@ -154,6 +203,21 @@ class LiveDataPanel(Panel):
         detectors = options.get('detectors')
         if detectors:
             self._allowed_detectors = set(detectors)
+
+        defaults = options.get('defaults', [])
+
+        if 'logscale' in defaults:
+            self.actionLogScale.setChecked(True)
+        if 'center' in defaults:
+            self.actionMarkCenter.setChecked(True)
+        if 'nolines' not in defaults:
+            self.actionLines.setChecked(True)
+        if 'markers' in defaults:
+            self.actionSymbols.setChecked(True)
+        if 'unzoom' in defaults:
+            self.unzoom = True
+
+        self.plotsettings = options.get('plotsettings', [DEFAULTS])
 
         # configure caching
         self._cachesize = options.get('cachesize', self._cachesize)
@@ -213,6 +277,9 @@ class LiveDataPanel(Panel):
         # apply current settings
         self.widget.setCenterMark(self.actionMarkCenter.isChecked())
         self.widget.logscale(self.actionLogScale.isChecked())
+        if isinstance(self.widget, LiveWidget1D):
+            self.widget.setSymbols(self.actionSymbols.isChecked())
+            self.widget.setLines(self.actionLines.isChecked())
 
         # liveonly mode does not display a status bar
         if self._liveOnlyIndex is None:
@@ -266,6 +333,8 @@ class LiveDataPanel(Panel):
             menu.addAction(self.actionColormap)
             menu.addAction(self.actionMarkCenter)
             menu.addAction(self.actionROI)
+            menu.addAction(self.actionSymbols)
+            menu.addAction(self.actionLines)
             self.menu = menu
         return [self.menu]
 
@@ -304,6 +373,16 @@ class LiveDataPanel(Panel):
             widget.setColormap(COLORMAPS[name.upper()])
         self.toolbar.widgetForAction(
             self.actionColormap).setText(name.title())
+
+    @pyqtSlot()
+    def on_actionLines_triggered(self):
+        if self.widget and isinstance(self.widget, LiveWidget1D):
+            self.widget.setLines(self.actionLines.isChecked())
+
+    @pyqtSlot()
+    def on_actionSymbols_triggered(self):
+        if self.widget and isinstance(self.widget, LiveWidget1D):
+            self.widget.setSymbols(self.actionSymbols.isChecked())
 
     def _getLiveWidget(self, roi):
         return self._livewidgets.get(roi + '/roi', None)
@@ -537,6 +616,54 @@ class LiveDataPanel(Panel):
                         else:
                             # image is not cached and could not be loaded
                             self.log.exception(e)
+            if self.unzoom and self.widget:
+                self.on_actionUnzoom_triggered()
+
+    def applyPlotSettings(self):
+        if not self.widget:
+            return
+
+        if self._liveOnlyIndex is not None:
+            index = self._liveOnlyIndex
+        else:
+            index = self.fileList.currentRow()
+
+        if index == self.lastSettingsIndex:
+            return
+
+        self.lastSettingsIndex = index
+
+        if isinstance(self.widget, LiveWidget1D):
+            def getElement(l, index, default):
+                try:
+                    return l[index]
+                except IndexError:
+                    return default
+
+            settings = getElement(self.plotsettings, index, DEFAULTS)
+
+            plotcount = settings.get('plotcounts', DEFAULTS['plotcount'])
+            marks = GRMARKS[settings.get('marks', DEFAULTS['mark'])]
+            markersize = settings.get('markersize', DEFAULTS['markersize'])
+            offset = settings.get('offsets', DEFAULTS['offset'])
+            colors = settings.get('colors', DEFAULTS['color'])
+
+            if isinstance(colors, list):
+                colors = [GRCOLORS[color] for color in colors]
+                if len(colors) > plotcount:
+                    colors = colors[:plotcount]
+                while len(colors) < plotcount:
+                    colors.append(GRCOLORS[DEFAULTS['colors']])
+            else:
+                try:
+                    colors = [GRCOLORS[colors]]
+                except KeyError:
+                    colors = [GRCOLORS[DEFAULTS['colors']]]
+
+            self.widget.setOffset(offset)
+            self.widget.setMarks(marks)
+            self.widget.setMarkerSize(markersize)
+            self.widget.setPlotCount(plotcount, colors)
 
     def remove_obsolete_cached_files(self):
         """Removes outdated cached files from the file list or set cached flag

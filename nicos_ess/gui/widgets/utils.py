@@ -1,4 +1,4 @@
-#  -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
@@ -18,8 +18,40 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Jens Krüger <jens.krueger@frm2.tum.de>
+#   Kenan Muric <kenan.muric@ess.eu>
 #
 # *****************************************************************************
 
-from .mcstas import McStasImage
+from enum import Enum
+from nicos.guisupport.qt import pyqtProperty
+
+
+class State(Enum):
+    DEFAULT, BUSY = range(2)
+
+
+class StyleSelector:
+    """
+    A class that encapsulates the state used for stylesheet selection
+    in the relevant qss files.
+    """
+
+    def __init__(self):
+        self.state = State.DEFAULT
+
+    @pyqtProperty(str)
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, value):
+        self._state = str(value).split(".")[-1]
+
+
+def refresh_widget(widget):
+    """
+    Function that correctly updates the widget with a new stylesheet.
+    """
+    widget.style().unpolish(widget)
+    widget.style().polish(widget)
+    widget.update()

@@ -44,7 +44,6 @@ devices = dict(
             disableOwner = 'jcns',
             disableGroup = 'treff',
         ),
-        propdb = '/home/jcns/.propdb',
         mailsender = 'treff@frm2.tum.de',
         sendmail = True,
         zipdata = True,

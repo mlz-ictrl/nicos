@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-#  -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
@@ -19,28 +18,24 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
+#   Kenan Muric <kenan.muric@ess.eu>
 #
 # *****************************************************************************
 
-import argparse
-import sys
-from os import path
+from nicos.clients.gui.widgets.lineedit import CommandLineEdit as \
+    CommandLineEditBase
+from .utils import State, StyleSelector, refresh_widget
 
-sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
-from nicos.core.sessions.simple import NoninteractiveSession
+class CommandLineEdit(CommandLineEditBase, StyleSelector):
+    """
+    This widget extends from CommandLineEdit in NICOS core and overrides all
+    functions that are using widget palette dependent functions in the base
+    class. Stylesheets is the preferred choice in NICOS ESS.
+    """
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-d', '--daemon', dest='daemon', action='store_true',
-                    help='daemonize the cache process')
-parser.add_argument('-D', '--systemd', dest='daemon', action='store_const',
-                    const='systemd', help='run in systemd service mode')
-parser.add_argument('-S', '--setup', action='store', dest='setupname',
-                    default='pushversioninfo',
-                    help="name of the setup, default is 'pushversioninfo'")
-opts = parser.parse_args()
-
-sys.exit(NoninteractiveSession.run(opts.setupname,
-                                   'PushVersionInfo',
-                                   daemon=opts.daemon))
+    def setStatus(self, status):
+        CommandLineEditBase.setStatus(self, status)
+        self.state = State.BUSY if status != 'idle' \
+            else State.DEFAULT
+        refresh_widget(self)

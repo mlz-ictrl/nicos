@@ -68,7 +68,7 @@ devices = dict(
         description = 'ROI 1',
         roi = (122, 76, 12, 114),
     ),
-    timer = device('nicos_demo.devices.mcstas.McStasTimer',
+    timer = device('nicos.devices.mcstas.McStasTimer',
         description='McStas virtual neutron counts timer channel',
         mcstasimage = 'detimg',
     ),

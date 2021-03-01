@@ -36,7 +36,6 @@ devices = dict(
     Exp = device('nicos_mlz.devices.experiment.Experiment',
         description = 'experiment object',
         dataroot = '/data',
-        propdb = '/spodicontrol/propdb',
         sendmail = False,
         serviceexp = 'p0',
         sample = 'Sample',
