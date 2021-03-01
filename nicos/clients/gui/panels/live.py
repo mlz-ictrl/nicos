@@ -77,8 +77,6 @@ class LiveDataPanel(Panel):
 
     Options:
 
-    * ``instrument`` - The instrument name that is passed on to the livewidget
-      module.
     * ``filetypes`` (default []) - List of filename extensions whose content
       should be displayed.
     * ``detectors`` (default []) - List of detector devices whose data should
@@ -201,9 +199,6 @@ class LiveDataPanel(Panel):
 
         self.rois = {}
         self.detectorskey = None
-        # configure instrument specific behavior
-        self._instrument = options.get('instrument', '')
-
         # configure allowed file types
         supported_filetypes = ReaderRegistry.filetypes()
         opt_filetypes = set(options.get('filetypes', supported_filetypes))
@@ -517,14 +512,6 @@ class LiveDataPanel(Panel):
 
     def on_client_connected(self):
         self.client.tell('eventunmask', ['livedata'])
-        datapath = self.client.eval('session.experiment.datapath', '')
-        if not datapath or not path.isdir(datapath):
-            return
-        if self._instrument == 'imaging':
-            for fn in sorted(os.listdir(datapath)):
-                if fn.endswith('.fits'):
-                    self.add_to_flist(path.join(datapath, fn), 'fits', FILE,
-                                      False)
         self.detectorskey = (self.client.eval('session.experiment.name')
                              + '/detlist').lower()
 
@@ -969,3 +956,15 @@ class LiveDataPanel(Panel):
     @pyqtSlot()
     def on_actionKeepRatio_triggered(self):
         self.widget.gr.setAdjustSelection(self.actionKeepRatio.isChecked())
+
+
+class ImagingLiveDataPanel(LiveDataPanel):
+
+    def on_client_connected(self):
+        LiveDataPanel.on_client_connected(self)
+        datapath = self.client.eval('session.experiment.datapath', '')
+        if not datapath or not path.isdir(datapath):
+            return
+        for fn in sorted(os.listdir(datapath)):
+            if fn.endswith('.fits'):
+                self.add_to_flist(path.join(datapath, fn), '', 'fits', False)
