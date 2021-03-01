@@ -2,17 +2,17 @@ description = 'ZWO CCD camera 3 devices'
 
 group = 'lowlevel'
 
-tango_base = 'tango://zwo03:10000/zwo/camera/'
+tango_base = 'tango://zwo03:10000/lima/zwo/'
 
 devices = dict(
     zwo03 = device('nicos.devices.vendor.lima.GenericLimaCCD',
         description = 'ZWO ASI camera 3',
-        tangodevice = tango_base + '1',
+        tangodevice = tango_base + 'camera0',
         lowlevel = True,
         flip = (True, False),
     ),
     timer_zwo03 = device('nicos.devices.vendor.lima.LimaCCDTimer',
-        tangodevice = tango_base + '1',
+        tangodevice = tango_base + 'camera0',
         lowlevel = True,
     ),
     det_zwo03 = device('nicos.devices.generic.Detector',
