@@ -20,11 +20,15 @@ class LokiScriptBuilderPanel(Panel):
         self.comboDurationType.addItems(duration_options)
 
         self.chkShowTempColumn.stateChanged.connect(self.chkShowTempColumn_toggled)
+        self.chkShowPreCommand.stateChanged.connect(self.chkShowPreCommand_toggled)
+        self.chkShowPostCommand.stateChanged.connect(self.chkShowPostCommand_toggled)
 
-        self.columns = ['Sample', 'Thickness\n(mm)', 'TRANS\nDuration', 'SANS\nDuration', 'Test', 'Temperature']
+        self.columns = ['Position', 'Sample', 'Thickness\n(mm)',
+                        'TRANS\nDuration', 'SANS\nDuration', 'Temperature',
+                        'Pre-command', 'Post-command']
         self._init_table()
 
-    def _init_table(self, num_rows=26):
+    def _init_table(self, num_rows=25):
         self.tableScript.setColumnCount(len(self.columns))
         for i, column in enumerate(self.columns):
             self.tableScript.setHorizontalHeaderItem(i, QTableWidgetItem(column))
@@ -32,26 +36,18 @@ class LokiScriptBuilderPanel(Panel):
         # Hide optional columns? It would be nice to have them stored so
         # if the GUI is restarted it can recall what was hidden...
         self.tableScript.setColumnHidden(5, True)
+        self.tableScript.setColumnHidden(6, True)
+        self.tableScript.setColumnHidden(7, True)
 
         # Table formatting
         self.tableScript.horizontalHeader().setStretchLastSection(True)
         self.tableScript.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableScript.resizeColumnsToContents()
         self.tableScript.setAlternatingRowColors(True)
-        # TODO: move this to qss?
+        # TODO: move this to qss file?
         self.tableScript.setStyleSheet("alternate-background-color: aliceblue;")
 
-        # TODO: set the number of rows to a number appropriate for the
-        # current sample changer
         self.tableScript.setRowCount(num_rows)
-        for i in range(num_rows):
-            self.tableScript.setVerticalHeaderItem(i,
-                QTableWidgetItem(chr(ord('A') + i)))
-
-        combo = QComboBox()
-        combo.addItems(['1', '2'])
-        combo.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.tableScript.setCellWidget(0, 3, combo)
 
     @pyqtSlot()
     def on_bulkUpdateButton_clicked(self):
@@ -75,6 +71,22 @@ class LokiScriptBuilderPanel(Panel):
     def chkShowTempColumn_toggled(self, state):
         # SMELL: need to avoid this breaking if the column name is changed
         column_number = self.columns.index('Temperature')
+        if state == Qt.Checked:
+            self.tableScript.setColumnHidden(column_number, False)
+        else:
+            self.tableScript.setColumnHidden(column_number, True)
+
+    def chkShowPreCommand_toggled(self, state):
+        # SMELL: need to avoid this breaking if the column name is changed
+        column_number = self.columns.index('Pre-command')
+        if state == Qt.Checked:
+            self.tableScript.setColumnHidden(column_number, False)
+        else:
+            self.tableScript.setColumnHidden(column_number, True)
+
+    def chkShowPostCommand_toggled(self, state):
+        # SMELL: need to avoid this breaking if the column name is changed
+        column_number = self.columns.index('Post-command')
         if state == Qt.Checked:
             self.tableScript.setColumnHidden(column_number, False)
         else:
