@@ -69,7 +69,7 @@
         </property>
        </widget>
       </item>
-      <item row="6" column="0">
+      <item row="7" column="0">
        <widget class="QCheckBox" name="chkShowTempColumn">
         <property name="text">
          <string>Temperature</string>
@@ -102,7 +102,7 @@
         </property>
        </widget>
       </item>
-      <item row="9" column="1">
+      <item row="10" column="1">
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -115,7 +115,7 @@
         </property>
        </spacer>
       </item>
-      <item row="7" column="0">
+      <item row="8" column="0">
        <widget class="QCheckBox" name="chkShowPreCommand">
         <property name="text">
          <string>Pre-command</string>
@@ -129,17 +129,24 @@
         </property>
        </widget>
       </item>
+      <item row="9" column="0">
+       <widget class="QCheckBox" name="chkShowPostCommand">
+        <property name="text">
+         <string>Post-command</string>
+        </property>
+       </widget>
+      </item>
       <item row="3" column="0">
        <widget class="QLabel" name="label_7">
         <property name="text">
-         <string>Duration type:</string>
+         <string>TRANS duration type:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QLabel" name="label_6">
         <property name="text">
          <string>Optional</string>
@@ -147,9 +154,9 @@
        </widget>
       </item>
       <item row="3" column="1" colspan="2">
-       <widget class="QComboBox" name="comboDurationType"/>
+       <widget class="QComboBox" name="comboTransDurationType"/>
       </item>
-      <item row="10" column="2">
+      <item row="11" column="2">
        <widget class="QPushButton" name="pushButton">
         <property name="text">
          <string>Generate</string>
@@ -169,12 +176,15 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="0">
-       <widget class="QCheckBox" name="chkShowPostCommand">
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_9">
         <property name="text">
-         <string>Post-command</string>
+         <string>SANS duration type:</string>
         </property>
        </widget>
+      </item>
+      <item row="4" column="1" colspan="2">
+       <widget class="QComboBox" name="comboSansDurationType"/>
       </item>
      </layout>
     </widget>

@@ -21,14 +21,15 @@ class LokiScriptBuilderPanel(Panel):
         self.comboOrder.addItems(trans_options)
 
         duration_options = ['Mevents', 'seconds', 'frames']
-        self.comboDurationType.addItems(duration_options)
+        self.comboSansDurationType.addItems(duration_options)
+        self.comboSansDurationType.currentTextChanged.connect(self._on_duration_type_changed)
 
         self.permanent_columns = {
             "position": "Position",
             "sample": "Sample",
             "thickness": "Thickness\n(mm)",
-            "trans_duration": "TRANS\nDuration",
-            "sans_duration": "SANS\nDuration"
+            "trans_duration": "TRANS Duration",
+            "sans_duration": "SANS Duration"
         }
 
         self.optional_columns = {
@@ -49,7 +50,7 @@ class LokiScriptBuilderPanel(Panel):
                 title = self.permanent_columns[name]
             else:
                 title = self.optional_columns[name][0]
-            self.tableScript.setHorizontalHeaderItem(i, QTableWidgetItem(title))
+            self._set_column_title(i, title)
 
         # Configure optional columns.
         for name, details in self.optional_columns.items():
@@ -66,6 +67,11 @@ class LokiScriptBuilderPanel(Panel):
         self.tableScript.setStyleSheet(TABLE_QSS)
 
         self.tableScript.setRowCount(num_rows)
+
+        self._on_duration_type_changed(self.comboSansDurationType.currentText())
+
+    def _set_column_title(self, index, title):
+        self.tableScript.setHorizontalHeaderItem(index, QTableWidgetItem(title))
 
     @pyqtSlot()
     def on_bulkUpdateButton_clicked(self):
@@ -98,3 +104,8 @@ class LokiScriptBuilderPanel(Panel):
     def _show_column(self, column_name):
         column_number = self.columns_in_order.index(column_name)
         self.tableScript.setColumnHidden(column_number, False)
+
+    def _on_duration_type_changed(self, value):
+        column_number = self.columns_in_order.index("sans_duration")
+        self._set_column_title(column_number, f'{self.permanent_columns["sans_duration"]}\n({value})')
+
