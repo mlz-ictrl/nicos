@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ### BEGIN INIT INFO
 # Provides: nicos-system
 # Required-Start: $local_fs $remote_fs $network $named $time

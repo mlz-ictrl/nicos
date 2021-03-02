@@ -50,7 +50,6 @@ devices = dict(
         mailsender = 'poli@frm2.tum.de',
         serviceexp = 'p0',
         sample = 'Sample',
-        propdb = '/home/jcns/.propdb',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
     ),

@@ -23,7 +23,7 @@
 #
 # *****************************************************************************
 
-"""detector based on McStas simulation."""
+"""Devices for simulated instruments based on McStas simulation."""
 
 import os
 import shutil
@@ -188,14 +188,15 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
             if out:
                 self.log.debug('McStas output:')
                 for line in out.splitlines():
-                    self.log.debug('[McStas] %s', line)
+                    self.log.debug('[McStas] %s', line.decode('utf-8', 'ignore'))
             if err:
                 self.log.warning('McStas found some problems:')
                 for line in err.splitlines():
-                    self.log.warning('[McStas] %s', line)
+                    self.log.warning('[McStas] %s', line.decode('utf-8', 'ignore'))
         except OSError as e:
             self.log.error('Execution failed: %s', e)
-        self._process.wait()
+        if self._process:
+            self._process.wait()
         self._process = None
         self._started = None
 
@@ -226,7 +227,7 @@ class McStasTimer(ActiveChannel, Waitable):
     """Timer channel for McStas simulations
 
     This channel provides an internal neutron timer for running McStas
-    simulations using `McStasImage`
+    simulations using `McStasImage`.
     """
 
     attached_devices = {

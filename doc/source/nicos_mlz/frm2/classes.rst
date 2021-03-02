@@ -1,8 +1,7 @@
 `FRM II <http://www.frm2.tum.de>`_
 ==================================
 
-.. module:: nicos_mlz.devices.proposaldb
-.. autoclass:: ProposalDB()
+.. module:: nicos_mlz.devices.ghost
 .. autoclass:: Authenticator()
 
 .. module:: nicos_mlz.devices.experiment

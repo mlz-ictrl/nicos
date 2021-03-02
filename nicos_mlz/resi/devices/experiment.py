@@ -33,8 +33,6 @@ from nicos.core import Param, UsageError
 from nicos.devices.experiment import Experiment
 from nicos.utils import disableDirectory
 
-from nicos_mlz.devices.proposaldb import queryCycle
-
 
 class ResiExperiment(Experiment):
 
@@ -79,14 +77,7 @@ class ResiExperiment(Experiment):
             os.unlink(self.proposalsymlink)
 
         # query new cycle
-        if 'cycle' not in kwds:
-            try:
-                cycle, _started = queryCycle()
-                kwds['cycle'] = cycle
-            except Exception:
-                self.log.warning('cannot query reactor cycle, please give a '
-                                 '"cycle" keyword to this function')
-        self.cycle = kwds['cycle']
+        self.cycle = kwds.get('cycle', 'unknown')
 
         # checks are done, set the new experiment
         Experiment.new(self, proposal, title)

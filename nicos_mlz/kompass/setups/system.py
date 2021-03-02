@@ -38,7 +38,6 @@ devices = dict(
         propprefix = '',
         sendmail = True,
         mailsender = 'kompass@frm2.tum.de',
-        propdb = '/kompasscontrol/propdb',
         managerights = dict(
             enableDirMode = 0o775,
             enableFileMode = 0o664,

@@ -39,47 +39,25 @@ class FullScreen1DWidget(LiveWidget1D):
         self.plot.xlabel = 'tths (deg)'
         self.plot.ylabel = 'counts'
         self.axes.xdual = False
-        self.axes.xtick = 1
+        self.axes.xtick = 5
         self.axes.majorx = 10
         self.axes.ticksize = 0.005
-
-    def setData(self, array):
-        self._array = array
-        nz, ny, nx = 1, 1, 1
-        newrange = False
-
-        n = len(array.shape)
-        if n == 1:
-            start, end, step = self._calcStartEndStep(array.shape[0])
-            self.curve.x = numpy.arange(start, end, step)
-            nx = end
-        elif n >= 2:
-            nx = array.shape[n - 1]
-            ny = array.shape[n - 2]
-        if n == 3:
-            nz = array.shape[n - 3]
-        if not self._fixedsize:
-            self._axesratio = ny / float(nx)
-
-        if (ny, nx) != self._axesrange:
-            if not self._fixedsize:
-                self.updateAxesRange(nx, ny)
-                newrange = True
-            self.axes.xlines = [nx / 2]
-            self.axes.ylines = [ny / 2]
-
-        self._axesrange = (ny, nx)  # rows, cols
-
-        self._setData(array, nx, ny, nz, newrange)
-
-        self.updateZData()
-        self.rescale()
-        return nz, ny, nx
+        self.curve.x = numpy.arange(0, 2, 1)
+        self.gr.update()
+        self._zoomed = False
 
     def _setData(self, array, nx, ny, nz, newrange):
-        self.curve.y = numpy.ma.masked_equal(self._array.ravel(), 0).astype(
+        start, end, step = self._calcStartEndStep(array.shape[0])
+        self.curve.x = numpy.arange(
+            start + self._offset, end + self._offset, step)
+        self.curve.y = numpy.ma.masked_equal(array.ravel(), 0).astype(
             numpy.float)
         self.curve.filly = .1 if self._logscale else 0
+
+        if not self._zoomed:
+            self.axes.setWindow(self.curve.x[0], self.curve.x[-1],
+                                .1 if self._logscale else 0,
+                                max(self.curve.y))
 
     def _calcStartEndStep(self, nx):
         """Calculate start, end, and step value for the x axis.
@@ -89,20 +67,29 @@ class FullScreen1DWidget(LiveWidget1D):
         """
         startp, steps, rg = self.client.eval('adet._startpos, adet.resosteps, '
                                              'adet.range', None)
-        # The orientation of the tths is in negative direction but
-        # it will be used in positive direction to avoid type the '-'
-        # for each position in the frontend
+        # The orientation of the tths is in negative direction but it will be
+        # used in positive direction to avoid type the '-' for each position in
+        # the frontend
         step = rg / steps
         start = -(startp - (rg - step))
         return start, start + nx * step, step
 
-    def updateAxesRange(self, nx, ny):
-        self.axes.setWindow(self.curve.x[0], self.curve.x[-1],
-                            .1 if self._logscale else 0, ny)
-
     def unzoom(self):
-        self.updateAxesRange(self._axesrange[1], self._axesrange[0])
-        self.rescale()
+        self.axes.setWindow(self.curve.x[0], self.curve.x[-1],
+                            0.1 if self._logscale else 0,
+                            max(1, self.getYMax()))
+        self._zoomed = False
+        self.gr.update()
+
+    def zoom(self, master, dpercent, p0):
+        if self.plot == master:
+            self._zoomed = True
+        LiveWidget1D.zoom(self, master, dpercent, p0)
+
+    def select(self, master, p0, p1):
+        if self.plot == master:
+            self._zoomed = True
+        LiveWidget1D.select(self, master, p0, p1)
 
 
 class LiveDataPanel(BaseLiveDataPanel):

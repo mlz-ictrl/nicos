@@ -12,6 +12,7 @@ devices = dict(
             ('c.lang@fz-juelich.de', 'all'),
             ('m.s.appavou@fz-juelich.de', 'all'),
             ('t.kohnke@fz-juelich.de', 'all'),
+            ('s.staringer@fz-juelich.de', 'all'),
         ],
         subject = '[KWS-2]',
     ),

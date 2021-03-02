@@ -31,7 +31,6 @@ devices = dict(
         serviceexp = 'service',
         sendmail = False,
         zipdata = False,
-        localcontact = 'Ulrich Ruecker <u.ruecker@fz-juelich.de>'
     ),
     galaxi = device('nicos.devices.instrument.Instrument',
         description = 'GALAXI high resolution diffractometer.',

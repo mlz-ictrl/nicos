@@ -525,11 +525,20 @@ QMessageBox > QLabel {
 
 /* ----------------------------------------- */
 
-CommandLineEdit {
-font-size: 20;
-min-height: 22px;
-border: 2px solid #0094ca;
-border-radius: 5px;
+CommandLineEdit[state="DEFAULT"] {
+    font-size: 20;
+    min-height: 22px;
+    border: 2px solid #0094ca;
+    border-radius: 5px;
+    background-color: white;
+}
+
+CommandLineEdit[state="BUSY"] {
+    font-size: 20;
+    min-height: 22px;
+    border: 2px solid #0094ca;
+    border-radius: 5px;
+    background-color: #ffdddd;
 }
 
 Panel[panel='ExpPanel'] QLineEdit,

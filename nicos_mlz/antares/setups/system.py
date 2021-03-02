@@ -23,7 +23,6 @@ devices = dict(
         description = 'Antares Experiment',
         dataroot = '/data/FRM-II',
         sample = 'Sample',
-        propdb = '/etc/propdb',
         mailsender = 'antares@frm2.tum.de',
         propprefix = 'p',
         serviceexp = 'service',

@@ -30,6 +30,7 @@ SEVERITY_TO_STATUS = {
     0: status.OK,  # NO_ALARM
     1: status.WARN,  # MINOR
     2: status.ERROR,  # MAJOR
+    3: status.UNKNOWN,  # INVALID
 }
 
 STAT_TO_STATUS = {

@@ -56,7 +56,6 @@ class SinqExperiment(Experiment):
 
     parameter_overrides = {
         'propprefix': Override(default=''),
-        'reporttemplate': Override(default=''),
         'serviceexp': Override(default='Service'),
         'sendmail': Override(default=False),
         'zipdata': Override(default=False),

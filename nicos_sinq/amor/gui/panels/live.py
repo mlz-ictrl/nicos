@@ -24,7 +24,8 @@
 # *****************************************************************************
 
 from nicos.clients.gui.panels.live import LiveDataPanel as BaseLiveDataPanel
-from nicos.guisupport.livewidget import IntegralLiveWidget as BaseIntegralLiveWidget, \
+from nicos.guisupport.livewidget import \
+    IntegralLiveWidget as BaseIntegralLiveWidget, \
     LiveWidget1D as BaseLiveWidget1D, Plot
 
 
@@ -51,8 +52,7 @@ class IntegralLiveWidget(ProvidesTitleSetter, BaseIntegralLiveWidget):
 
 
 class LiveDataPanel(BaseLiveDataPanel):
-    """In addition to the base class, also sets the title of the plots
-    """
+    """In addition to the base class, also sets the title of the plots."""
 
     def __init__(self, parent, client, options):
         BaseLiveDataPanel.__init__(self, parent, client, options)

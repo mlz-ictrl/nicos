@@ -45,7 +45,7 @@ class Experiment(ImagingExperiment):
 
         # don't create a sample from propdb data
         if kwds:
-            kwds['sample'] = ''
+            kwds['default_sample'] = ''
 
         return kwds
 

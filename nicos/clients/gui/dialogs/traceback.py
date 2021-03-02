@@ -27,6 +27,7 @@
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QClipboard, QDialog, \
     QDialogButtonBox, QFont, QPushButton, QTreeWidgetItem, pyqtSlot
+from nicos.utils import TB_HEADER, TB_CAUSE_MSG, TB_CONTEXT_MSG
 
 
 class TracebackDialog(QDialog):
@@ -38,13 +39,13 @@ class TracebackDialog(QDialog):
         self.view = view
         self.client = parent.client
 
-        assert tb.startswith('Traceback')
+        assert tb.startswith(TB_HEADER)
         # split into frames and message
         frames = []
         message = ''
         curframe = []
         for line in tb.splitlines():
-            if line.startswith('        '):
+            if line.startswith('        '):  # frame local variable
                 try:
                     name, v = line.split('=', 1)
                 except ValueError:
@@ -52,13 +53,19 @@ class TracebackDialog(QDialog):
                 else:
                     if curframe:
                         curframe[2][name.strip()] = v.strip()
-            elif line.startswith('    '):
+            elif line.startswith('    '):    # frame source code
                 if curframe:
-                    curframe[1] = line.strip()
-            elif line.startswith('  '):
-                curframe = [line.strip(), '', {}]
+                    curframe[1] = line
+            elif line.startswith('  '):      # frame file/line
+                curframe = [line.strip(), '', {}, None, None]
                 frames.append(curframe)
-            elif not line.startswith('Traceback'):
+            elif line.startswith(TB_CAUSE_MSG):
+                curframe[-2] = message
+            elif line.startswith(TB_CONTEXT_MSG):
+                curframe[-1] = message
+            elif line.startswith(TB_HEADER):
+                message = ''  # only collect the message of the final exc
+            else:
                 message += line
 
         button = QPushButton('To clipboard', self)
@@ -69,18 +76,32 @@ class TracebackDialog(QDialog):
             QApplication.clipboard().setText(tb+'\n', QClipboard.Clipboard)
         button.clicked.connect(copy)
 
+        def line_item(msg):
+            item = QTreeWidgetItem(self.tree, [msg])
+            item.setFirstColumnSpanned(True)
+            return item
+
         self.message.setText(message[:200])
         self.tree.setFont(view.font())
         boldfont = QFont(view.font())
         boldfont.setBold(True)
-        for filename, line, bindings in frames:
-            item = QTreeWidgetItem(self.tree, [filename])
-            item.setFirstColumnSpanned(True)
-            item = QTreeWidgetItem(self.tree, [line])
-            item.setFirstColumnSpanned(True)
-            item.setFont(0, boldfont)
+        for filename, line, bindings, cause, context in frames:
+            line_item(filename)
+            code_item = line_item(line)
+            code_item.setFont(0, boldfont)
             for var, value in bindings.items():
-                QTreeWidgetItem(item, ['', var, value])
+                QTreeWidgetItem(code_item, ['', var, value])
+            if cause:
+                line_item(cause)
+                line_item('')
+                line_item(TB_CAUSE_MSG).setFont(0, boldfont)
+                line_item('')
+            elif context:
+                line_item(context)
+                line_item('')
+                line_item(TB_CONTEXT_MSG).setFont(0, boldfont)
+                line_item('')
+        line_item(message)
 
     @pyqtSlot()
     def on_ticketButton_clicked(self):

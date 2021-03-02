@@ -27,7 +27,7 @@
 from nicos.core import Attach, Override, Readable
 from nicos.devices.sxtal.sample import SXTalSample
 
-from nicos_demo.devices import McStasImage as BaseImage
+from nicos.devices.mcstas import McStasImage as BaseImage
 
 
 class McStasImage(BaseImage):

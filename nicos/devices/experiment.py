@@ -73,20 +73,19 @@ class Experiment(Device):
     """
 
     parameters = {
-        'title':          Param('Experiment title', type=str, settable=True,
-                                category='experiment'),
         'proposal':       Param('Current proposal number or proposal string',
-                                type=str, settable=True, category='experiment'),
-        'proptype':       Param('Current proposal type', settable=False,
-                                internal=True,
+                                type=str, category='experiment'),
+        'proptype':       Param('Current proposal type', internal=True,
                                 type=oneof('service', 'user', 'other')),
         'propprefix':     Param('Prefix of the proposal if is a number',
                                 type=str, settable=True, default='p'),
-        'users':          Param('User names and emails for the proposal',
-                                type=str, settable=True, category='experiment'),
-        'localcontact':   Param('Local contact for current experiment',
-                                type=mailaddress, settable=True,
+        # The next three are formed from propinfo on read access.
+        'title':          Param('Experiment title', type=str, volatile=True,
                                 category='experiment'),
+        'users':          Param('User names and emails for the proposal',
+                                type=str, volatile=True, category='experiment'),
+        'localcontact':   Param('Local contacts for current experiment',
+                                volatile=True, category='experiment'),
         'remark':         Param('Current remark about experiment configuration',
                                 type=str, settable=True, category='experiment'),
         'dataroot':       Param('Root data path under which all proposal '
@@ -133,16 +132,13 @@ class Experiment(Device):
                                 type=none_or(mailaddress)),
         'mailtemplate':   Param('Mail template file name (in templates)',
                                 type=str, default='mailtext.txt'),
-        'reporttemplate': Param('File name of experimental report template '
-                                '(in templates)',
-                                type=str, default='experimental_report.rtf'),
         'serviceexp':     Param('Name of proposal to switch to after user '
                                 'experiment', type=nonemptystring,
                                 default='service'),
         'servicescript':  Param('Script to run for service time', type=str,
                                 default='', settable=True),
-        'strictservice':  Param('Only the configured service exp. is considered "service"',
-                                type=bool,
+        'strictservice':  Param('Only the configured service experiment is '
+                                'considered "service"', type=bool,
                                 default=False, settable=False),
         'pausecount':     Param('Reason for pausing the count loop', type=str,
                                 settable=True, internal=True,
@@ -295,12 +291,91 @@ class Experiment(Device):
         except ValueError:
             return 'other' if self.strictservice else 'service'
 
+    #
+    # hooks called during new(), can be overridden in subclasses
+    #
+
+    def _newCheckHook(self, proptype, proposal):
+        """Hook for checking if the given proposal type and name.
+
+        Can raise an exception if e.g. the current user may not open the
+        given proposal.
+        """
+
     def _newPropertiesHook(self, proposal, kwds):
-        """Hook for querying a database for proposal related stuff
+        """Hook for querying a database for proposal related data.
 
         Should return an updated kwds dictionary.
         """
         return kwds
+
+    def _newSetupHook(self):
+        """Hook for doing additional setup work on new experiments,
+        after everything has been set up.
+        """
+
+    #
+    # connection to a proposal management system
+    #
+    def _canQueryProposals(self):
+        """Return true if this Experiment can query a proposal management
+        system for information.
+
+        This is not a parameter since it may depend for example on the
+        currently logged in user.
+        """
+        return False
+
+    def _queryProposals(self, proposal=None, kwds=None):
+        """Query the proposal management system.
+
+        Should only be called if `_canQueryProposals` returns True.
+
+        If *proposal* is not None, it specifies a proposal ID to query.  If it
+        is None, query all allowable proposals -- this can take into account
+        any restrictions that make sense: e.g. current date, logged in user
+        (see `session.getExecutingUser()`) or instrument parameters.
+
+        Must return a list of dictionaries, one per valid proposal, with
+        information about the proposal.
+
+        Additional *kwds*, if a dictionary, are merged into each proposal
+        information dictionary.
+
+        The following keys are defined, and must be present for each proposal
+        except where noted.  Lists and dictionaries can be empty.  Other keys
+        can be added and processed by site-specific implementations.
+
+        * proposal: proposal ID, string
+        * session: experiment ID, string (optional)
+        * title: string (optional, default is the proposal ID)
+        * instrument: string (optional)
+        * startdate: datetime (optional)
+        * enddate: datetime (optional)
+        * default_sample: string (optional), if given must be a name of one
+          of the samples in the `samples` dict
+        * users: list of dicts with:
+          * name: string
+          * email: string
+          * affiliation: string (optional)
+        * localcontacts: list of dicts, with keys same as users
+        * samples: list of dicts:
+          * name: string
+        * data_emails: list of addresses to send the data/link to the data to
+          (this should be initially set to the user email addresses, but can
+          be changed afterwards from GUI/commands)
+        * notif_emails: list of addresses to send notifications to
+          (this should be initially set to the user and local contact email
+          addresses, but can be changed afterwards from GUI/commands)
+        * errors: list of problems with this proposal that should be shown
+          to the user and prevent using it
+        * warnings: list of problems with this proposal that should be shown
+          to the user, but not prevent using it
+
+        The data from a chosen proposal is then used as the base for the
+        `propinfo` parameter.
+        """
+        raise NotImplementedError
 
     #
     # don't override any method defined below in derived classes!
@@ -423,6 +498,31 @@ class Experiment(Device):
                              path.abspath(path.join(config.nicos_root,
                                                     'template')))
 
+    def doReadTitle(self):
+        return self.propinfo.get('title', 'Unknown')
+
+    def doReadUsers(self):
+        res = []
+        for user in self.propinfo.get('users', []):
+            userstr = user['name']
+            if user.get('affiliation'):
+                userstr += ' (%s)' % user['affiliation']
+            res.append(userstr)
+        return ', '.join(res)
+
+    def doReadLocalcontact(self):
+        if not self.propinfo.get('localcontacts'):
+            if session._instrument:
+                return session.instrument.responsible
+
+        res = []
+        for user in self.propinfo.get('localcontacts', []):
+            userstr = user['name']
+            if user.get('email'):
+                userstr += ' <%s>' % user['email']
+            res.append(userstr)
+        return ', '.join(res)
+
     def doUpdateManagerights(self, mrinfo):
         """Check the managerights dict into values used later."""
         if pwd and self._mode != SIMULATION:
@@ -496,13 +596,6 @@ class Experiment(Device):
             raise UsageError('Simulating switching experiments is not '
                              'supported!')
 
-        if localcontact:
-            try:
-                mailaddress(localcontact)
-            except ValueError:
-                raise ConfigurationError('localcontact is not a valid '
-                                         'email address') from None
-
         try:
             # if proposal can be converted to a number, use the canonical form
             # and prepend prefix
@@ -518,19 +611,32 @@ class Experiment(Device):
         proptype = self.getProposalType(proposal)
         self.log.debug('new proposal type is %s', proptype)
 
+        # check if we may create this proposal (e.g. check user permissions)
+        self._newCheckHook(proptype, proposal)
+
         # check if we should finish the experiment first
         if proptype == 'user' and self.mustFinish:
             self.log.error('cannot switch directly to new user experiment, '
                            'please use "FinishExperiment" first')
             return
 
-        # allow instruments to override (e.g. from proposal DB)
+        # combine all arguments into the keywords dict
         if title:
             kwds['title'] = title
+
+        # note: parameter names are singular for backwards compatibility
         if user:
-            kwds['user'] = user
+            if isinstance(user, list):
+                kwds['users'] = user
+            else:
+                kwds.setdefault('users', []).append({'name': user})
         if localcontact:
-            kwds['localcontact'] = localcontact
+            if isinstance(localcontact, list):
+                kwds['localcontacts'] = localcontact
+            else:
+                kwds.setdefault('localcontacts', []).append(
+                    {'name': localcontact}
+                )
         kwds['proposal'] = proposal
 
         # check whether or not this proposal is finished - a thread is alive
@@ -580,22 +686,22 @@ class Experiment(Device):
 
         # set new experiment properties given by caller
         self._setROParam('proptype', proptype)
-        kwds = self._newPropertiesHook(proposal, kwds)
-        self._setROParam('propinfo', kwds)
-        self.title = kwds.get('title', '')
-        self.users = kwds.get('user', '')
-        if proptype != 'service' and session._instrument:
-            default_local = session.instrument.responsible
-        else:
-            default_local = ''
-        self.localcontact = kwds.get('localcontact', default_local)
+
+        # give an opportunity to check propsal database etc.
+        propinfo = self._newPropertiesHook(proposal, kwds)
+        self._setROParam('propinfo', propinfo)
+        # Update cached values of the volatile parameters
+        self._pollParam('title')
+        self._pollParam('users')
+        self._pollParam('localcontact')
 
         # assignment to proposalpath/sampledir adjusts possible symlinks
-        self.proposal = proposal
+        self._setROParam('proposal', proposal)
         # change proposalpath to new value
         self.proposalpath = self.proposalpath_of(proposal)
         # newSample also (re-)creates all needed dirs
-        self.sample.new({'name': kwds.get('sample', '')})
+        # TODO: apply more properties from the sample if present
+        self.sample.new({'name': propinfo.get('default_sample', '')})
 
         # debug output
         self.log.info('experiment directory is now %s', self.proposalpath)
@@ -603,8 +709,11 @@ class Experiment(Device):
         self.log.info('data directory is now %s', self.datapath)
 
         # notify logbook
-        session.elogEvent('newexperiment', (proposal, title))
+        session.elogEvent('newexperiment', (proposal, self.title))
         session.elogEvent('setup', list(session.explicit_setups))
+
+        # run hook
+        self._newSetupHook()
 
         # send 'experiment' change event before the last hooks
         # maybe better after the last hook?
@@ -613,8 +722,7 @@ class Experiment(Device):
         # expand templates
         if proptype != 'service':
             if self.templates:
-                kwds['proposal'] = self.proposal
-                self.handleTemplates(proposal, kwds)
+                self.handleTemplates(proposal, propinfo)
             self.log.info('New experiment %s started', proposal)
         else:
             if self.servicescript:
@@ -624,6 +732,26 @@ class Experiment(Device):
             self.log.info('Maintenance time started')
 
         self._createCustomProposalSymlink()
+
+    @usermethod
+    def update(self, title=None, users=None, localcontacts=None):
+        """Update experiment properties.
+
+        This is also called from the GUI panel when changing experiment
+        properties.
+        """
+        propinfo = dict(self.propinfo)
+        if title is not None:
+            propinfo['title'] = title
+        if users is not None:
+            propinfo['users'] = users
+        if localcontacts is not None:
+            propinfo['localcontacts'] = localcontacts
+        self._setROParam('propinfo', propinfo)
+        # Update cached values of the volatile parameters
+        self._pollParam('title')
+        self._pollParam('users')
+        self._pollParam('localcontact')
 
     @usermethod
     def finish(self):
@@ -641,27 +769,15 @@ class Experiment(Device):
         """
         thd = None
 
-        # update metadata
-        propinfo = dict(self.propinfo)
-        propinfo.setdefault('from_time', time.time())
-        propinfo['to_time'] = time.time()
-        self._setROParam('propinfo', propinfo)
-
         # zip up the experiment data if wanted
         if self.proptype == 'user':
-            try:
-                self._generateExpReport()
-            except Exception:
-                self.log.warning('could not generate experimental report',
-                                 exc=1)
-
             if self._mode != SIMULATION:
                 if hasattr(self, 'doFinish'):
                     self.doFinish()
                 pzip = None
                 receivers = None
                 if self.sendmail:
-                    receivers = self.propinfo.get('user_email', [])
+                    receivers = self.propinfo.get('data_emails', [])
                 if self.zipdata or self.sendmail:
                     pzip = path.join(self.proposalpath, '..', self.proposal +
                                      '.zip')
@@ -669,8 +785,7 @@ class Experiment(Device):
                     stats = self._statistics()
                 except Exception:
                     self.log.exception('could not gather experiment statistics')
-                    stats = {}
-                stats.update(propinfo)
+                    stats = self.propinfo.copy()
                 # start separate thread for zipping and disabling old proposal
                 self.log.debug('starting separate thread for zipping and '
                                'disabling proposal')
@@ -723,8 +838,6 @@ class Experiment(Device):
                 if fn == 'README':
                     continue
                 if self.mailtemplate and fn.startswith(self.mailtemplate):
-                    continue
-                if self.reporttemplate and fn.startswith(self.reporttemplate):
                     continue
                 if fn in self.skiptemplates:
                     continue
@@ -932,17 +1045,16 @@ class Experiment(Device):
     @usermethod
     def addUser(self, name, email=None, affiliation=None):
         """Called by `.AddUser`."""
-        if email:
-            user = '%s <%s>' % (name, email)
-        else:
-            user = name
-        if affiliation is not None:
-            user += ' (' + affiliation + ')'
-        if not self.users:
-            self.users = user
-        else:
-            self.users = self.users + ', ' + user
-        self.log.info('User "%s" added', user)
+        propinfo = dict(self.propinfo)
+        users = list(propinfo.get('users', []))
+        users.append({
+            'name': name,
+            'email': email or '',
+            'affiliation': affiliation or '',
+        })
+        propinfo['users'] = users
+        self._setROParam('propinfo', propinfo)
+        self.log.info('User "%s" added', name)
 
     def newSample(self, parameters):
         """Hook called by the sample object to notify of new sample name.
@@ -999,72 +1111,6 @@ class Experiment(Device):
         }
         d.update(self.propinfo)
         return d
-
-    def _generateExpReport(self):
-        if self._mode == SIMULATION:
-            return  # dont touch fs if in simulation!
-        if not self.reporttemplate:
-            return
-        # read and translate ExpReport template
-        self.log.debug('looking for template in %r', self.templatepath)
-        try:
-            data = self.getTemplate(self.reporttemplate)
-        except OSError:
-            self.log.warning('reading experimental report template %s failed, '
-                             'please fetch a copy from the User Office',
-                             self.reporttemplate)
-            return  # nothing to do about it.
-
-        # prepare template....
-        # can not do this directly in rtf as {} have special meaning....
-        # KEEP IN SYNC WHEN CHANGING THE TEMPLATE!
-        # reminder: format is {{key:default#description}},
-        # always specify default here !
-        #
-        # first clean up template
-        data = data.replace('\\par Please replace the place holder in the upper'
-                            ' part (brackets <>) by the appropriate values.', '')
-        data = data.replace('\\par Description', '\\par\n\\par '
-                            'Please check all pre-filled values carefully! '
-                            'They were partially read from the proposal and '
-                            'might need correction.\n'
-                            '\\par\n'
-                            '\\par Description')
-        # replace placeholders with templating markup
-        data = data.replace('<your title as mentioned in the submission form>',
-                            '"{{title:The title of your proposed experiment}}"')
-        data = data.replace('<proposal No.>', 'Proposal {{proposal:0815}}')
-        data = data.replace('<your name> ', '{{users:A. Guy, A. N. Otherone}}')
-        data = data.replace('<coauthor, same affilation> ', 'and coworkers')
-        data = data.replace('<other coauthor> ', 'S. T. Ranger')
-        data = data.replace('<your affiliation>, }',
-                            '{{affiliation:affiliation of main proposer and '
-                            'coworkers}}, }\n\\par ')
-        data = data.replace('<other affiliation>', 'affiliation of coproposers '
-                            'other than 1')
-        data = data.replace('<Instrument used>',
-                            '{{instrument:<The Instrument used>}}')
-        data = data.replace('<date of experiment>', '{{from_date:01.01.1970}} '
-                            '- {{to_date:12.03.2038}}')
-        data = data.replace('<local contact>', '{{localcontact:L. Contact '
-                            '<l.contact@frm2.tum.de>}}')
-
-        # collect info
-        stats = self._statistics()
-        stats.update(self.propinfo)
-        # encode all text that may be Unicode into RTF \u escapes
-        for key in stats:
-            if isinstance(stats[key], str):
-                stats[key] = stats[key].encode('rtfunicode')
-
-        # template data
-        newcontent, _, _ = expandTemplate(data, stats)
-        newfn, _, _ = expandTemplate(self.reporttemplate, stats)
-
-        with open(path.join(self.proposalpath, newfn), 'w') as fp:
-            fp.write(newcontent)
-        self.log.info('An experimental report template was created at %r for '
-                      'your convenience.', path.join(self.proposalpath, newfn))
 
     def doWriteRemark(self, remark):
         if remark:

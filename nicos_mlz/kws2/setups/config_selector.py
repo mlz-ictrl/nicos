@@ -2,7 +2,7 @@ description = 'preset values for the velocity selector'
 group = 'configdata'
 
 SELECTOR_PRESETS = {
-#    '2.9A tilt':  dict(lam=2.9,  spread=0.2, speed=26565, tilted=True),
+    '2.9A tilt':  dict(lam=2.9,  spread=0.2, speed=26565, tilted=True),
 #    '3.95A tilt': dict(lam=3.95, spread=0.2, speed=18290, tilted=True),
     '4.66A':      dict(lam=4.66, spread=0.1, speed=27307, tilted=False),
 #    '4.66A tilt': dict(lam=4.66, spread=0.2, speed=15108, tilted=True),
@@ -16,5 +16,5 @@ SELECTOR_PRESETS = {
 #    '9A':         dict(lam=9,    spread=0.1, speed=14053, tilted=False),
     '10A':        dict(lam=10,   spread=0.1, speed=12640, tilted=False),
 #    '11.3A':      dict(lam=11.3, spread=0.1, speed=11178, tilted=False),
-#    '19A':        dict(lam=19,   spread=0.1, speed=6634,  tilted=False),
+    '19A':        dict(lam=19,   spread=0.1, speed=6634,  tilted=False),
 }

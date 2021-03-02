@@ -2,8 +2,6 @@ description = 'setup for the execution daemon'
 group = 'special'
 
 devices = dict(
-    # UserDB = device('nicos_mlz.devices.proposaldb.Authenticator'),
-
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         hashing = 'md5',
         passwd = [
@@ -14,7 +12,7 @@ devices = dict(
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = '',
-        authenticators = ['Auth'],  # and/or 'UserDB'
+        authenticators = ['Auth'],
         loglevel = 'info',
         # autosimulate = True,
     ),

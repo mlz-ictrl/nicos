@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>608</width>
-    <height>531</height>
+    <width>1159</width>
+    <height>732</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -83,31 +83,6 @@
           </property>
          </column>
         </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QPushButton" name="addDevBtn">
-           <property name="text">
-            <string>Add device</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="delDevBtn">
-           <property name="text">
-            <string>Remove device</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="readDevsBtn">
-           <property name="text">
-            <string>Read current positions</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
        </item>
       </layout>
      </item>
@@ -438,9 +413,6 @@
   <tabstop>nameBox</tabstop>
   <tabstop>commentBox</tabstop>
   <tabstop>posTbl</tabstop>
-  <tabstop>addDevBtn</tabstop>
-  <tabstop>delDevBtn</tabstop>
-  <tabstop>readDevsBtn</tabstop>
   <tabstop>apXBox</tabstop>
   <tabstop>apYBox</tabstop>
   <tabstop>apWBox</tabstop>

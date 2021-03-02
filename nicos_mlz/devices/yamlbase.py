@@ -93,21 +93,22 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
             o['format']['units'][obj] = unit
 
         exp = o['experiment']
-        # TODO: use experiment number when we have it in NICOS
-        exp['number'] = expdev.proposal
+        exp['number'] = expdev.propinfo.get('session', expdev.proposal)
         exp['proposal'] = expdev.proposal
         exp['title'] = expdev.title
+
         exp['authors'] = []
-        authors = [
-            {'name': expdev.users,
-             'roles': ['principal_investigator']},
-            {'name':  expdev.localcontact,
-             'roles': ['local_contact']},
-        ]
-        for author in authors:
+        for user in expdev.propinfo['users']:
             a = AutoDefaultODict()
-            a['name'] = author['name']
-            a['roles'] = self._flowlist(author['roles'])
+            a['name'] = user['name']
+            a['affiliation'] = user.get('affiliation')
+            a['roles'] = self._flowlist(['principal_investigator'])
+            exp['authors'].append(a)
+        for user in expdev.propinfo['localcontacts']:
+            a = AutoDefaultODict()
+            a['name'] = user['name']
+            a['affiliation'] = user.get('affiliation')
+            a['roles'] = self._flowlist(['local_contact'])
             exp['authors'].append(a)
 
         meas = o['measurement']

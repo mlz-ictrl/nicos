@@ -25,7 +25,6 @@ devices = dict(
         description = 'The currently running experiment',
         dataroot = '/localdata/',
         sample = 'Sample',
-        propdb = '/pgaacontrol/propdbb',
     ),
     FITSFileSaver = device('nicos.devices.datasinks.FITSImageSink',
         description = 'Saves image data in FITS format',

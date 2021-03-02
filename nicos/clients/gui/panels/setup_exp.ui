@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>670</width>
-    <height>729</height>
+    <height>709</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -98,7 +98,7 @@
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Query the Proposal Database for Information about this proposal number.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>Query DB</string>
+         <string>Query database</string>
         </property>
        </widget>
       </item>
@@ -139,7 +139,11 @@
          </widget>
         </item>
         <item row="4" column="1">
-         <widget class="QLineEdit" name="localContact"/>
+         <widget class="QLineEdit" name="localContacts">
+          <property name="toolTip">
+           <string>local contacts, please specify as: First Name &lt;first@email.com&gt;[; Second Name &lt;second@email.com&gt;]</string>
+          </property>
+         </widget>
         </item>
         <item row="1" column="0" colspan="2">
          <widget class="QLabel" name="label_9">
@@ -157,7 +161,7 @@
         <item row="4" column="0">
          <widget class="QLabel" name="label_8">
           <property name="text">
-           <string>Local contact:</string>
+           <string>Local contacts:</string>
           </property>
          </widget>
         </item>
@@ -249,7 +253,11 @@
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QLineEdit" name="users"/>
+         <widget class="QLineEdit" name="users">
+          <property name="toolTip">
+           <string>users, please specify as: First Name &lt;first@email.com&gt;[; Second Name &lt;second@email.com&gt;]</string>
+          </property>
+         </widget>
         </item>
         <item row="6" column="0">
          <widget class="QLabel" name="label_3">
@@ -307,7 +315,7 @@
   <tabstop>queryDBButton</tabstop>
   <tabstop>expTitle</tabstop>
   <tabstop>users</tabstop>
-  <tabstop>localContact</tabstop>
+  <tabstop>localContacts</tabstop>
   <tabstop>sampleName</tabstop>
   <tabstop>notifEmails</tabstop>
   <tabstop>dataEmails</tabstop>

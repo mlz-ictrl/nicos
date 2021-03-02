@@ -24,7 +24,7 @@
 # *****************************************************************************
 
 """NICOS GUI main window."""
-
+from os import path
 from time import time as current_time
 
 from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow
@@ -32,7 +32,7 @@ from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
     QMenu, QPixmap, QPoint, QSize, QSizePolicy, Qt, QWidget, pyqtSlot
 
 from nicos_ess.gui import uipath
-from nicos_ess.gui.panels import get_icon
+from nicos_ess.gui.panels import get_icon, root_path
 
 
 def decolor_logo(pixmap, color):
@@ -110,9 +110,8 @@ class MainWindow(DefaultMainWindow):
         self.toolBarMain.addWidget(self.instrument_label)
 
     def set_icons(self):
-        self.actionUser.setIcon(
-            get_icon('settings_applications-24px.svg'))
-        self.actionEmergencyStop.setIcon(get_icon('emergency_stop.svg'))
+        self.actionUser.setIcon(get_icon('settings_applications-24px.svg'))
+        self.actionEmergencyStop.setIcon(get_icon('emergency_stop-24px.svg'))
         self.actionConnect.setIcon(get_icon('power-24px.svg'))
         self.actionExit.setIcon(get_icon('exit_to_app-24px.svg'))
         self.actionViewOnly.setIcon(get_icon('lock-24px.svg'))
@@ -121,14 +120,16 @@ class MainWindow(DefaultMainWindow):
 
     def add_logo(self):
         logo_label = QLabel()
-        pxr = decolor_logo(QPixmap("resources/logo-icon.png"), Qt.white)
+        pxr = decolor_logo(QPixmap(path.join(root_path, 'resources',
+                                             'logo-icon.png')), Qt.white)
         logo_label.setPixmap(pxr.scaledToHeight(self.toolBarMain.height(),
                                                 Qt.SmoothTransformation))
         logo_label.setMargin(5)
         self.toolBarMain.insertWidget(self.toolBarMain.actions()[0], logo_label)
 
         nicos_label = QLabel()
-        pxr = decolor_logo(QPixmap("resources/nicos-logo-high.svg"), Qt.white)
+        pxr = decolor_logo(QPixmap(path.join(root_path, 'resources',
+                                             'nicos-logo-high.svg')), Qt.white)
         nicos_label.setPixmap(pxr.scaledToHeight(self.toolBarMain.height(),
                                                  Qt.SmoothTransformation))
         self.toolBarMain.insertWidget(self.toolBarMain.actions()[1],
@@ -138,7 +139,8 @@ class MainWindow(DefaultMainWindow):
         instrument = self.client.eval('session.instrument', None)
         self.instrument_text.setText('Instrument:')
         if instrument:
-            logo = decolor_logo(QPixmap(f'resources/{instrument}-logo.svg'),
+            logo = decolor_logo(QPixmap(path.join(root_path,
+                                'resources', f'{instrument}-logo.svg')),
                                 Qt.white)
             if logo.isNull():
                 self.instrument_label.setText(instrument.upper())
@@ -225,16 +227,14 @@ class MainWindow(DefaultMainWindow):
 
     def on_client_connected(self):
         DefaultMainWindow.on_client_connected(self)
-        self.actionConnect.setIcon(
-            QIcon("resources/material/icons/power_off-24px.svg"))
+        self.actionConnect.setIcon(get_icon("power_off-24px.svg"))
         self.actionExpert.setEnabled(True)
         self.actionEmergencyStop.setEnabled(not self.client.viewonly)
 
     def on_client_disconnected(self):
         DefaultMainWindow.on_client_disconnected(self)
         self.remove_experiment_and_instrument()
-        self.actionConnect.setIcon(
-            QIcon("resources/material/icons/power-24px.svg"))
+        self.actionConnect.setIcon(get_icon("power-24px.svg"))
         self.actionExpert.setEnabled(False)
         self.actionExpert.setChecked(False)
         self.actionEmergencyStop.setEnabled(False)

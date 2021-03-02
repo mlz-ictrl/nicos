@@ -39,6 +39,7 @@ from nicos.clients.gui.utils import enumerateWithProgress, loadUi
 from nicos.core.errors import NicosError
 from nicos.guisupport.livewidget import DATATYPES, IntegralLiveWidget, \
     LiveWidget, LiveWidget1D
+from nicos.guisupport.plots import GRCOLORS, GRMARKS
 from nicos.guisupport.qt import QActionGroup, QByteArray, QListWidgetItem, \
     QMenu, QPoint, QSizePolicy, QStatusBar, Qt, QToolBar, pyqtSlot
 from nicos.guisupport.qtgr import MouseEvent
@@ -52,6 +53,14 @@ FILEFORMAT = Qt.UserRole + 1
 FILETAG = Qt.UserRole + 2
 FILEUID = Qt.UserRole + 3
 
+DEFAULTS = dict(
+    marks='omark',
+    offset=0,
+    plotcount=1,
+    color='blue',
+    markersize=1,
+)
+
 
 class LiveDataPanel(Panel):
     """Provides a generic "detector live view".
@@ -61,14 +70,57 @@ class LiveDataPanel(Panel):
 
     Options:
 
-    * ``instrument`` -- the instrument name that is passed on to the livewidget
+    * ``instrument`` - The instrument name that is passed on to the livewidget
       module.
-    * ``filetypes`` default[] - List of filename extensions whose content should
-      be displayed.
-    * ``detectors`` (default [] - list of detector devices whose data should be
-      displayed.  If not set data from all configured detectors will be shown.
+    * ``filetypes`` (default []) - List of filename extensions whose content
+      should be displayed.
+    * ``detectors`` (default []) - List of detector devices whose data should
+      be displayed. If not set data from all configured detectors will be
+      shown.
     * ``cachesize`` (default 20) - Number of entries in the live data cache.
-      The live data cache allows to display of previous taken data.
+      The live data cache allows displaying of previously measured data.
+    * ``liveonlyindex`` (default None) - Enable live only view. This disables
+      interaction with the liveDataPanel and only displays the dataset of the
+      set index.
+    * ``defaults`` (default []) - List of strings representing options to be
+      set to every configured plot.
+      These options can not be set on a per plot basis since they are global.
+      Options are as follows:
+
+        * ``logscale`` - Switch the logarithic scale on
+        * ``center`` - Display the center lines for the image.
+        * ``nolines`` - Display lines for the curve.
+        * ``markers`` - Display symbol for the curve.
+        * ``unzoom`` - Unzoom  the plot when new data is received
+    * ``plotsettings`` (default []) - List of dictionaries which contain
+      settings for the datasets.
+
+      Each entry will be applied to one of the detector's datasets.
+
+        * ``plotcounts`` (default [1]) - Amount of plots in the dataset.
+        * ``marks`` (default 'omark') - Shape of the markers. (if displayed)
+          Possible values are:
+
+          'dot', 'plus', 'asterrisk', 'circle', 'diagonalcross', 'solidcircle',
+          'triangleup', 'solidtriangleup', 'triangledown', 'solidtriangledown',
+          'square', 'solidsquare', 'bowtie', 'solidbowtie', 'hourglass',
+          'solidhourglass', 'diamond', 'soliddiamond', 'star', 'solidstar',
+          'triupdown', 'solidtriright', 'solidtrileft', 'hollowplus',
+          'solidplus', 'pentagon', 'hexagon', 'heptagon', 'octagon', 'star4',
+          'star5', 'star6', 'star7', 'star8', 'vline', 'hline', 'omark'.
+        * ``markersize`` (default 1) - Size of the markers. (if displayed)
+        * ``offsets`` (default [0]) - List of offsets for each curve in 1D
+          plots.
+        * ``colors`` (default [blue]) - Color of the marks and lines.
+          (if displayed)
+          If colors are set as a list the colors will be applied to the
+          individual plots (and default back to blue when wrong/missing)
+          eg:
+
+          ['red', 'green']: The first plot will be red, the second green and
+          the others will be blue (default).
+
+          'red': all plots will be red
     """
 
     panelName = 'Live data view'
@@ -91,6 +143,7 @@ class LiveDataPanel(Panel):
         self._fileopen_filter = None
         self.widget = None
         self.menu = None
+        self.unzoom = False
 
         self.statusBar = QStatusBar(self, sizeGripEnabled=False)
         policy = self.statusBar.sizePolicy()
@@ -102,6 +155,7 @@ class LiveDataPanel(Panel):
         self.toolbar = QToolBar('Live data')
         self.toolbar.addAction(self.actionOpen)
         self.toolbar.addAction(self.actionPrint)
+        self.toolbar.addAction(self.actionSavePlot)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.actionLogScale)
         self.toolbar.addSeparator()
@@ -115,8 +169,13 @@ class LiveDataPanel(Panel):
         self.setControlsEnabled(False)
         self.set2DControlsEnabled(False)
 
-        # self.widget.setControls(Logscale | MinimumMaximum | BrightnessContrast |
-        #                         Integrate | Histogram)
+        # hide fileselection in liveonly mode
+        self._liveOnlyIndex = options.get('liveonlyindex', None)
+        if self._liveOnlyIndex is not None:
+            self.pastFilesWidget.hide()
+            self.statusBar.hide()
+            # disable interactions with the plot
+            self.setAttribute(Qt.WA_TransparentForMouseEvents)
 
         self.liveitems = []
         self.setLiveItems(1)
@@ -135,14 +194,6 @@ class LiveDataPanel(Panel):
         self.detectorskey = None
         # configure instrument specific behavior
         self._instrument = options.get('instrument', '')
-        # self.widget.setInstrumentOption(self._instrument)
-        # if self._instrument == 'toftof':
-        #     self.widget.setAxisLabels('time channels', 'detectors')
-        # elif self._instrument == 'imaging':
-        #     self.widget.setControls(ShowGrid | Logscale | Grayscale |
-        #                             Normalize | Darkfield | Despeckle |
-        #                             CreateProfile | Histogram | MinimumMaximum)
-        #     self.widget.setStandardColorMap(True, False)
         # configure allowed file types
         supported_filetypes = ReaderRegistry.filetypes()
         opt_filetypes = set(options.get('filetypes', supported_filetypes))
@@ -153,9 +204,24 @@ class LiveDataPanel(Panel):
         if detectors:
             self._allowed_detectors = set(detectors)
 
+        defaults = options.get('defaults', [])
+
+        if 'logscale' in defaults:
+            self.actionLogScale.setChecked(True)
+        if 'center' in defaults:
+            self.actionMarkCenter.setChecked(True)
+        if 'nolines' not in defaults:
+            self.actionLines.setChecked(True)
+        if 'markers' in defaults:
+            self.actionSymbols.setChecked(True)
+        if 'unzoom' in defaults:
+            self.unzoom = True
+
+        self.plotsettings = options.get('plotsettings', [DEFAULTS])
+
         # configure caching
         self._cachesize = options.get('cachesize', self._cachesize)
-        if self._cachesize < 1:
+        if self._cachesize < 1 or self._liveOnlyIndex is not None:
             self._cachesize = 1  # always cache the last live image
         self._datacache = BoundedOrderedDict(maxlen=self._cachesize)
 
@@ -176,6 +242,8 @@ class LiveDataPanel(Panel):
                 item.setData(FILETAG, 'live')
                 self.fileList.insertItem(self.fileList.count(), item)
                 self.liveitems.append(item)
+            if self._liveOnlyIndex is not None:
+                self.fileList.setCurrentRow(self._liveOnlyIndex)
         if n == 1:
             self.liveitems[0].setText('<Live>')
         else:
@@ -209,8 +277,14 @@ class LiveDataPanel(Panel):
         # apply current settings
         self.widget.setCenterMark(self.actionMarkCenter.isChecked())
         self.widget.logscale(self.actionLogScale.isChecked())
-        self.widget.gr.cbm.addHandler(MouseEvent.MOUSE_MOVE,
-                                      self.on_mousemove_gr)
+        if isinstance(self.widget, LiveWidget1D):
+            self.widget.setSymbols(self.actionSymbols.isChecked())
+            self.widget.setLines(self.actionLines.isChecked())
+
+        # liveonly mode does not display a status bar
+        if self._liveOnlyIndex is None:
+            self.widget.gr.cbm.addHandler(MouseEvent.MOUSE_MOVE,
+                                          self.on_mousemove_gr)
 
         self.menuColormap = QMenu(self)
         self.actionsColormap = QActionGroup(self)
@@ -244,10 +318,14 @@ class LiveDataPanel(Panel):
         settings.setValue('geometry', self.saveGeometry())
 
     def getMenus(self):
+        if self._liveOnlyIndex is not None:
+            return []
+
         if not self.menu:
             menu = QMenu('&Live data', self)
             menu.addAction(self.actionOpen)
             menu.addAction(self.actionPrint)
+            menu.addAction(self.actionSavePlot)
             menu.addSeparator()
             menu.addAction(self.actionKeepRatio)
             menu.addAction(self.actionUnzoom)
@@ -255,6 +333,8 @@ class LiveDataPanel(Panel):
             menu.addAction(self.actionColormap)
             menu.addAction(self.actionMarkCenter)
             menu.addAction(self.actionROI)
+            menu.addAction(self.actionSymbols)
+            menu.addAction(self.actionLines)
             self.menu = menu
         return [self.menu]
 
@@ -263,6 +343,9 @@ class LiveDataPanel(Panel):
         yield from self._livewidgets.values()
 
     def getToolbars(self):
+        if self._liveOnlyIndex is not None:
+            return []
+
         return [self.toolbar]
 
     def on_mousemove_gr(self, event):
@@ -290,6 +373,16 @@ class LiveDataPanel(Panel):
             widget.setColormap(COLORMAPS[name.upper()])
         self.toolbar.widgetForAction(
             self.actionColormap).setText(name.title())
+
+    @pyqtSlot()
+    def on_actionLines_triggered(self):
+        if self.widget and isinstance(self.widget, LiveWidget1D):
+            self.widget.setLines(self.actionLines.isChecked())
+
+    @pyqtSlot()
+    def on_actionSymbols_triggered(self):
+        if self.widget and isinstance(self.widget, LiveWidget1D):
+            self.widget.setSymbols(self.actionSymbols.isChecked())
 
     def _getLiveWidget(self, roi):
         return self._livewidgets.get(roi + '/roi', None)
@@ -478,10 +571,7 @@ class LiveDataPanel(Panel):
             array = ReaderRegistry.getReaderCls(tag).fromfile(filename)
         except KeyError:
             raise NicosError('Unsupported fileformat %r' % tag) from None
-        if array is not None:
-            self.setData(array, uid, display=display)
-        else:
-            raise NicosError('Cannot read file %r' % filename)
+        self.setData(array, uid, display=display)
 
     def _process_livedata(self, data):
         # TODO: needs to be merged into on_client_livedata() above
@@ -526,6 +616,54 @@ class LiveDataPanel(Panel):
                         else:
                             # image is not cached and could not be loaded
                             self.log.exception(e)
+            if self.unzoom and self.widget:
+                self.on_actionUnzoom_triggered()
+
+    def applyPlotSettings(self):
+        if not self.widget:
+            return
+
+        if self._liveOnlyIndex is not None:
+            index = self._liveOnlyIndex
+        else:
+            index = self.fileList.currentRow()
+
+        if index == self.lastSettingsIndex:
+            return
+
+        self.lastSettingsIndex = index
+
+        if isinstance(self.widget, LiveWidget1D):
+            def getElement(l, index, default):
+                try:
+                    return l[index]
+                except IndexError:
+                    return default
+
+            settings = getElement(self.plotsettings, index, DEFAULTS)
+
+            plotcount = settings.get('plotcounts', DEFAULTS['plotcount'])
+            marks = GRMARKS[settings.get('marks', DEFAULTS['mark'])]
+            markersize = settings.get('markersize', DEFAULTS['markersize'])
+            offset = settings.get('offsets', DEFAULTS['offset'])
+            colors = settings.get('colors', DEFAULTS['color'])
+
+            if isinstance(colors, list):
+                colors = [GRCOLORS[color] for color in colors]
+                if len(colors) > plotcount:
+                    colors = colors[:plotcount]
+                while len(colors) < plotcount:
+                    colors.append(GRCOLORS[DEFAULTS['colors']])
+            else:
+                try:
+                    colors = [GRCOLORS[colors]]
+                except KeyError:
+                    colors = [GRCOLORS[DEFAULTS['colors']]]
+
+            self.widget.setOffset(offset)
+            self.widget.setMarks(marks)
+            self.widget.setMarkerSize(markersize)
+            self.widget.setPlotCount(plotcount, colors)
 
     def remove_obsolete_cached_files(self):
         """Removes outdated cached files from the file list or set cached flag
@@ -547,6 +685,10 @@ class LiveDataPanel(Panel):
                     self.fileList.takeItem(row)
 
     def add_to_flist(self, filename, fformat, ftag, uid=None, scroll=True):
+        # liveonly mode doesn't display a filelist
+        if self._liveOnlyIndex is not None:
+            return
+
         shortname = path.basename(filename)
         item = QListWidgetItem(shortname)
         item.setData(FILENAME, filename)
@@ -582,8 +724,11 @@ class LiveDataPanel(Panel):
                 self.setData(array)
                 return
         if fname:
-            # show image from file
-            self.setDataFromFile(fname, ftag)
+            try:
+                # show image from file
+                self.setDataFromFile(fname, ftag)
+            except Exception as err:
+                self.showError('cannot read file: %s' % err)
 
     def on_fileList_currentItemChanged(self, item, previous):
         self.on_fileList_itemClicked(item)
@@ -597,30 +742,44 @@ class LiveDataPanel(Panel):
                                    ";;".join(ftypes.keys()))
         if self._fileopen_filter:
             fdialog.selectNameFilter(self._fileopen_filter)
-        if fdialog.exec_() == fdialog.Accepted:
-            self._fileopen_filter = fdialog.selectedNameFilter()
-            tag = ftypes[self._fileopen_filter]
-            files = fdialog.selectedFiles()
-            if files:
-                def _cacheFile(fn, tag):
-                    uid = uuid4()
-                    # setDataFromFile may raise an `NicosException`, e.g.
-                    # if the file cannot be opened.
-                    self.setDataFromFile(fn, tag, uid, display=False)
-                    return self.add_to_flist(fn, None, tag, uid)
+        if fdialog.exec_() != fdialog.Accepted:
+            return
+        files = fdialog.selectedFiles()
+        if not files:
+            return
+        self._fileopen_filter = fdialog.selectedNameFilter()
+        tag = ftypes[self._fileopen_filter]
+        errors = []
 
-                # load and display first item
-                f = files.pop(0)
-                self.fileList.setCurrentItem(_cacheFile(f, tag))
-                cachesize = self._cachesize - 1
-                # add first `cachesize` files to cache
-                for _, f in enumerateWithProgress(files[:cachesize],
-                                                  "Loading data files...",
-                                                  parent=fdialog):
-                    _cacheFile(f, tag)
-                # add further files to file list (open on request/itemClicked)
-                for f in files[cachesize:]:
-                    self.add_to_flist(f, None, tag)
+        def _cacheFile(fn, tag):
+            uid = uuid4()
+            # setDataFromFile may raise an `NicosException`, e.g.
+            # if the file cannot be opened.
+            try:
+                self.setDataFromFile(fn, tag, uid, display=False)
+            except Exception as err:
+                errors.append('%s: %s' % (fn, err))
+            else:
+                return self.add_to_flist(fn, None, tag, uid)
+
+        # load and display first item
+        f = files.pop(0)
+        item = _cacheFile(f, tag)
+        if item is not None:
+            self.fileList.setCurrentItem(item)
+        cachesize = self._cachesize - 1
+        # add first `cachesize` files to cache
+        for _, f in enumerateWithProgress(files[:cachesize],
+                                          "Loading data files...",
+                                          parent=fdialog):
+            _cacheFile(f, tag)
+        # add further files to file list (open on request/itemClicked)
+        for f in files[cachesize:]:
+            self.add_to_flist(f, None, tag)
+
+        if errors:
+            self.showError('Some files could not be opened:\n\n' +
+                           '\n'.join(errors))
 
     @pyqtSlot()
     def on_actionUnzoom_triggered(self):
@@ -629,6 +788,10 @@ class LiveDataPanel(Panel):
     @pyqtSlot()
     def on_actionPrint_triggered(self):
         self.widget.printDialog()
+
+    @pyqtSlot()
+    def on_actionSavePlot_triggered(self):
+        self.widget.savePlot()
 
     @pyqtSlot()
     def on_actionLogScale_triggered(self):

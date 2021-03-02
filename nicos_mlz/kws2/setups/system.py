@@ -36,14 +36,13 @@ devices = dict(
         mailserver = 'mailhost.frm2.tum.de',
         serviceexp = 'maintenance',
         sample = 'Sample',
-        propdb = '/home/jcns/.nicos_proposaldb',
         managerights = dict(
             enableDirMode = 0o775,
             enableFileMode = 0o664,
             disableDirMode = 0o500,
             disableFileMode = 0o400,
             owner = 'jcns',
-            group = 'games'
+            group = 'iff'
         ),
         errorbehavior = 'abort',
     ),

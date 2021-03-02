@@ -56,6 +56,11 @@ class NicosLogger(Logger):
         kwds['exc'] = True
         self.error(*msgs, **kwds)
 
+    def setLevel(self, level):
+        if hasattr(self, '_cache'):
+            self._cache.clear()
+        Logger.setLevel(self, level)
+
     def _process(self, msgs, kwds):
         # standard logging keyword arg
         exc_info = kwds.pop('exc_info', None)
@@ -193,7 +198,7 @@ class NicosLogfileFormatter(Formatter):
 
     def formatException(self, ei):
         if self.extended_traceback:
-            s = formatExtendedTraceback(*ei)
+            s = formatExtendedTraceback(ei[1])
         else:
             s = ''.join(traceback.format_exception(ei[0], ei[1], ei[2],
                                                    sys.maxsize))
@@ -274,7 +279,12 @@ class NicosLogfileHandler(StreamHandler):
             # should happen at most once per installation....
             pass
         if hasattr(os, 'symlink'):
-            os.symlink(path.basename(self.baseFilename), self._currentsymlink)
+            try:
+                os.symlink(path.basename(self.baseFilename),
+                           self._currentsymlink)
+            except Exception:
+                if os.name != 'nt':
+                    raise
         # finally open the new logfile....
         return open(self.baseFilename, self.mode)
 

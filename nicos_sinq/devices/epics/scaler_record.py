@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
-# Copyright (c) 2009-2021 by the NICOS contributors (see AUTHORS)
+# Copyright (c) 2009-2020 by the NICOS contributors (see AUTHORS)
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -119,17 +119,17 @@ class EpicsScalerRecord(EpicsDetector):
             if message_text and message_text != 'OK':
                 return status.ERROR, message_text
 
-        if self.statuspv:
-            status_code = int(self._get_pv('statuspv'))
-
-            if status_code == 0:
-                return status.OK, 'Idle'
-            elif status_code == 1:
-                return status.BUSY, 'Counting'
-            elif status_code == 2:
-                return status.BUSY, 'No Beam present'
-            elif status_code == 3:
-                return status.BUSY, 'Paused'
+        cnt = int(self._get_pv('startpv'))
+        if cnt == 1:
+            if self.statuspv:
+                status_code = int(self._get_pv('statuspv'))
+                if status_code == 2:
+                    return status.BUSY, 'No Beam present'
+                elif status_code == 3:
+                    return status.BUSY, 'Paused'
+            return status.BUSY, 'Counting'
+        elif cnt == 0:
+            return status.OK, 'Idle'
 
         return EpicsDetector.doStatus(self, maxage)
 

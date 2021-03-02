@@ -27,11 +27,12 @@ devices = dict(
         precision = 0.01,
         moveable = 'drum',
         mapping = {
-            '1': 0,
-            '2': 90,
-            '3': 180,
-            '4': 270,
+            '800': 0,
+            '400': 90,
+            '600': 180,
+            '200': 270,
         },
         fallback = '-',
+        unit = 'L/D',
     ),
 )

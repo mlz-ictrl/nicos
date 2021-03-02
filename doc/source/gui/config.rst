@@ -222,12 +222,14 @@ Standard NICOS panels
 Nicos includes a comprehensive set of Panels for most general use cases:
 
 .. autoclass:: nicos.clients.gui.panels.console.ConsolePanel()
+     :no-members:
 
 .. figure:: consolepanel.png
      :alt: console panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.commandline.CommandLinePanel()
+     :no-members:
 
 .. figure:: commandlinepanel.png
      :alt: command line panel
@@ -236,54 +238,63 @@ Nicos includes a comprehensive set of Panels for most general use cases:
 .. _commandbuilder-commandpanel:
 
 .. autoclass:: nicos.clients.gui.panels.cmdbuilder.CommandPanel()
+     :no-members:
 
 .. figure:: commandbuilder.png
      :alt: command panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.devices.DevicesPanel()
+     :no-members:
 
 .. figure:: devicepanel.png
      :alt: device panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.editor.EditorPanel()
+     :no-members:
 
 .. figure:: editorpanel.png
      :alt: editor panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.elog.ELogPanel()
+     :no-members:
 
 .. figure:: elogpanel.png
      :alt: electronic logbook panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.errors.ErrorPanel()
+     :no-members:
 
 .. figure:: errorpanel.png
      :alt: error panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.expinfo.ExpInfoPanel()
+     :no-members:
 
 .. figure:: experimentinfopanel.png
      :alt: experiment info panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.setup_panel.ExpPanel()
+     :no-members:
 
 .. figure:: exppanel.png
      :alt: experiment panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.history.HistoryPanel()
+     :no-members:
 
 .. figure:: historypanel.png
      :alt: history panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.live.LiveDataPanel()
+     :no-members:
 
 .. figure:: livewidgetpanel.png
      :scale: 75%
@@ -291,72 +302,84 @@ Nicos includes a comprehensive set of Panels for most general use cases:
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.logviewer.LogViewerPanel()
+     :no-members:
 
 .. figure:: logviewerpanel.png
      :alt: log viewer panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.scans.ScansPanel()
+     :no-members:
 
 .. figure:: scanspanel.png
      :alt: scans panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.scriptbuilder.CommandsPanel()
+     :no-members:
 
 .. figure:: scriptbuilderpanel.png
      :alt: script builder panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.status.ScriptStatusPanel()
+     :no-members:
 
 .. figure:: scriptstatuspanel.png
      :alt: script status panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.watch.WatchPanel()
+     :no-members:
 
 .. figure:: watchpanel.png
      :alt: watch panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.watchdog.WatchdogPanel()
+     :no-members:
 
 .. figure:: watchdogpanel.png
      :alt: watchdog panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.generic.GenericPanel()
+     :no-members:
 
 .. figure:: genericpanel.png
      :alt: generic panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.setup_panel.SetupsPanel()
+     :no-members:
 
 .. figure:: setupspanel.png
      :alt: setups panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.setup_panel.DetEnvPanel()
+     :no-members:
 
 .. figure:: detenvpanel.png
      :alt: detector and environment panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.setup_panel.GenericSamplePanel()
+     :no-members:
 
 .. figure:: genericsamplepanel.png
      :alt: sample panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.setup_panel.TasSamplePanel()
+     :no-members:
 
 .. figure:: tassamplepanel.png
      :alt: TAS sample panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.setup_panel.SXTalSamplePanel()
+     :no-members:
 
 .. figure:: sxtalsamplepanel.png
      :alt: SXT sample panel
@@ -413,24 +436,28 @@ Delivered tools
 Tools that come with NICOS are:
 
 .. autoclass:: nicos.clients.gui.tools.calculator.CalculatorTool()
+     :no-members:
 
 .. figure:: calculatortool.png
      :alt: calculator tool
      :align: center
 
 .. autoclass:: nicos.clients.gui.tools.commands.CommandsTool()
+     :no-members:
 
 .. figure:: commandstool.png
      :alt: commands tool
      :align: center
 
 .. autoclass:: nicos.clients.gui.tools.estop.EmergencyStopTool()
+     :no-members:
 
 .. figure:: emergencystoptool.png
      :alt: emergency stop tool
      :align: center
 
 .. autoclass:: nicos.clients.gui.tools.website.WebsiteTool()
+     :no-members:
 
 .. figure:: websitetool.png
      :scale: 50%

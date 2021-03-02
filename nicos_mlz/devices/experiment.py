@@ -35,9 +35,15 @@ from nicos import session
 from nicos.core import Override, Param, oneof
 from nicos.devices.experiment import Experiment as BaseExperiment, \
     ImagingExperiment as BaseImagingExperiment
-from nicos.utils import safeName
+from nicos.utils import expandTemplate, safeName
 
-from nicos_mlz.devices.proposaldb import queryCycle, queryProposal
+
+def queryCycle():
+    raise NotImplementedError
+
+
+def queryProposal(prop, instr):
+    raise NotImplementedError
 
 
 class Experiment(BaseExperiment):
@@ -52,6 +58,9 @@ class Experiment(BaseExperiment):
         'cycle':   Param('Current reactor cycle', type=str, settable=True),
         'propdb':  Param('Filename with credentials string for proposal DB',
                          type=str, default='', userparam=False),
+        'reporttemplate': Param('File name of experimental report template '
+                                '(in templates)',
+                                type=str, default='experimental_report.rtf'),
     }
 
     parameter_overrides = {
@@ -78,6 +87,13 @@ class Experiment(BaseExperiment):
                 kwds.update(upd)
         return kwds
 
+    def _canQueryProposals(self):
+        return bool(self.propdb)
+
+    def _queryProposals(self, proposal=None, kwds=None):
+        res = self._fillProposal(proposal, kwds or {})
+        return [] if res is None else [res]
+
     # pylint: disable=inconsistent-return-statements
     def _fillProposal(self, proposal, kwds):
         """Fill proposal info from proposal database."""
@@ -90,17 +106,17 @@ class Experiment(BaseExperiment):
             self.log.warning('unable to query proposal info', exc=1)
             return
 
-        kwds['wrong_instrument'] = info.get('wrong_instrument')
+        if info.get('wrong_instrument'):
+            return
 
         # check permissions
-        if 'wrong_instrument' not in info:
-            if info.get('permission_security', 'no') != 'yes':
-                self.log.error('No permission for this experiment from '
-                               'security!  Please call 12699 (929-142).')
-            if info.get('permission_radiation_protection', 'no') != 'yes':
-                self.log.error('No permission for this experiment from '
-                               'radiation protection! Please call 14955 '
-                               '(14739/929-090).')
+        if info.get('permission_security', 'no') != 'yes':
+            self.log.error('No permission for this experiment from '
+                           'security!  Please call 12699 (929-142).')
+        if info.get('permission_radiation_protection', 'no') != 'yes':
+            self.log.error('No permission for this experiment from '
+                           'radiation protection! Please call 14955 '
+                           '(14739/929-090).')
 
         kwds['permission_security'] = info.get('permission_security', 'no')
         kwds['permission_radiation_protection'] = \
@@ -168,6 +184,77 @@ class Experiment(BaseExperiment):
         kwds.setdefault('affiliation', 'MLZ Garching; Lichtenbergstr. 1; '
                         '85748 Garching; Germany')
         return kwds
+
+    def doFinish(self):
+        try:
+            self._generateExpReport()
+        except Exception:
+            self.log.warning('could not generate experimental report',
+                             exc=1)
+
+    def _generateExpReport(self):
+        if not self.reporttemplate:
+            return
+        # read and translate ExpReport template
+        self.log.debug('looking for template in %r', self.templatepath)
+        try:
+            data = self.getTemplate(self.reporttemplate)
+        except IOError:
+            self.log.warning('reading experimental report template %s failed, '
+                             'please fetch a copy from the User Office',
+                             self.reporttemplate)
+            return  # nothing to do about it.
+
+        # prepare template....
+        # can not do this directly in rtf as {} have special meaning....
+        # KEEP IN SYNC WHEN CHANGING THE TEMPLATE!
+        # reminder: format is {{key:default#description}},
+        # always specify default here !
+        #
+        # first clean up template
+        data = data.replace('\\par Please replace the place holder in the upper'
+                            ' part (brackets <>) by the appropriate values.', '')
+        data = data.replace('\\par Description', '\\par\n\\par '
+                            'Please check all pre-filled values carefully! '
+                            'They were partially read from the proposal and '
+                            'might need correction.\n'
+                            '\\par\n'
+                            '\\par Description')
+        # replace placeholders with templating markup
+        # TODO: change placeholders
+        data = data.replace('<your title as mentioned in the submission form>',
+                            '"{{title:The title of your proposed experiment}}"')
+        data = data.replace('<proposal No.>', 'Proposal {{proposal:0815}}')
+        data = data.replace('<your name> ', '{{users:A. Guy, A. N. Otherone}}')
+        data = data.replace('<coauthor, same affilation> ', 'and coworkers')
+        data = data.replace('<other coauthor> ', 'S. T. Ranger')
+        data = data.replace('<your affiliation>, }',
+                            '{{affiliation:affiliation of main proposer and '
+                            'coworkers}}, }\n\\par ')
+        data = data.replace('<other affiliation>', 'affiliation of coproposers '
+                            'other than 1')
+        data = data.replace('<Instrument used>',
+                            '{{instrument:<The Instrument used>}}')
+        data = data.replace('<date of experiment>', '{{from_date:01.01.1970}} '
+                            '- {{to_date:12.03.2038}}')
+        data = data.replace('<local contact>', '{{localcontact:L. Contact '
+                            '<l.contact@frm2.tum.de>}}')
+
+        # collect info
+        stats = self._statistics()
+        # encode all text that may be Unicode into RTF \u escapes
+        for key in stats:
+            if isinstance(stats[key], str):
+                stats[key] = stats[key].encode('rtfunicode')
+
+        # template data
+        newcontent, _, _ = expandTemplate(data, stats)
+        newfn, _, _ = expandTemplate(self.reporttemplate, stats)
+
+        with open(path.join(self.proposalpath, newfn), 'w') as fp:
+            fp.write(newcontent)
+        self.log.info('An experimental report template was created at %r for '
+                      'your convenience.', path.join(self.proposalpath, newfn))
 
 
 class ImagingExperiment(Experiment, BaseImagingExperiment):

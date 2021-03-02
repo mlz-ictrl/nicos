@@ -105,7 +105,7 @@ class TestNexusSink:
                                      units=NXAttribute('deg', 'string')),
             },
         }
-        session.experiment.title = 'GurkenTitle'
+        session.experiment.update(title='GurkenTitle')
         maw(session.getDevice('sry'), 23.7)
         session.experiment.setDetectors(['det', ])
         setTemplate(template)
@@ -131,7 +131,7 @@ class TestNexusSink:
                               'units': NXAttribute('mm', 'string'), }
         }
 
-        session.experiment.title = 'GurkenTitle'
+        session.experiment.update(title='GurkenTitle')
         setTemplate(template)
         self.setScanCounter(session, 47)
         session.experiment.setDetectors(['det', ])

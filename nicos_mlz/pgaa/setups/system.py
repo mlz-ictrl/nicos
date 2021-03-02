@@ -32,7 +32,6 @@ devices = dict(
         description = 'The currently running experiment',
         dataroot = '/localdata/',
         sample = 'Sample',
-        propdb = '/pgaacontrol/propdbb',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),

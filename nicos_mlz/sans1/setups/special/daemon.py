@@ -17,10 +17,9 @@ devices = dict(
             'ictrl': 'admin',
         },
     ),
-    UserDB = device('nicos_mlz.devices.proposaldb.Authenticator'),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = 'sans1ctrl.sans1.frm2',
-        authenticators = ['LDAPAuth', 'UserDB'],
+        authenticators = ['LDAPAuth'],
         loglevel = 'debug',
     ),
 )

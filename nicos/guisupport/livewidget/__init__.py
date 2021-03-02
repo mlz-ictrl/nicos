@@ -34,9 +34,10 @@ from gr.pygr import Coords2D, Plot as OrigPlot, PlotAxes, Point, \
     RegionOfInterest
 from gr.pygr.base import GRMeta, GRVisibility
 
-from nicos.guisupport.plots import GRCOLORS, MaskedPlotCurve
+from nicos.guisupport.plots import GRCOLORS, GRMARKS, MaskedPlotCurve
 from nicos.guisupport.qt import QHBoxLayout, QWidget, pyqtSignal
 from nicos.guisupport.qtgr import InteractiveGRWidget
+from nicos.guisupport.utils import savePlot
 
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        '<u1', '<i1', '>u1', '>i1', '<f8', '<f4', '>f8', '>f4',
@@ -127,6 +128,7 @@ class Axes(PlotAxes):
     def setWindow(self, xmin, xmax, ymin, ymax):
         res = PlotAxes.setWindow(self, xmin, xmax, ymin, ymax)
         # use 2 ** n for tickmarks
+
         def tick(amin, amax):
             if amin > amax:
                 amax, amin = amin, amax
@@ -217,6 +219,7 @@ class LiveWidgetBase(QWidget):
         self._axesratio = 1.0
         self._logscale = False
         self._rois = {}
+        self._saveName = None
 
         layout = QHBoxLayout()
         self.gr = GRWidget(self)
@@ -264,7 +267,7 @@ class LiveWidgetBase(QWidget):
             plot = plots[0]
             pWC = event.getWC(plot.viewport)
             if (self._array is not None and plot == self.plot and
-                len(self._array.shape) == 2):
+               len(self._array.shape) == 2):
                 # TODO: adapt this for ``shape > 2`` once available.
                 ny, nx = self._array.shape[-2:]
                 x, y = int(pWC.x), int(pWC.y)
@@ -365,6 +368,11 @@ class LiveWidgetBase(QWidget):
     def setCenterMark(self, flag):
         self.axes.drawxylines = flag
         self.gr.update()
+
+    def savePlot(self):
+        self._saveName = savePlot(self.gr, gr.PRINT_TYPE[gr.PRINT_PDF],
+                                  self._saveName)
+        return self._saveName
 
 
 class LiveWidget(LiveWidgetBase):
@@ -535,29 +543,108 @@ class LiveWidget1D(LiveWidgetBase):
         self.axes.addCurves(self.curve)
         self.axes.autoscale = PlotAxes.SCALE_Y
         self.plot.addAxes(self.axes)
+        self.setSymbols(False)
+        self.setLines(False)
+        self.setMark('omark')
+        self.setOffset(0)
+
+    def getYMax(self):
+        if self._array is None:
+            return
+        minupperedge = max(self._array)
+
+        ny = self.axes.getWindow()[3]
+
+        # leave a visually equal padding on top for logscale and normal view
+        if self._logscale:
+            return max(ny, minupperedge * 2.15)
+
+        return max(ny, minupperedge * 1.05)
+
+    def setOffset(self, offset):
+        self._offset = offset
+
+    def setPlotCount(self, amount, colors):
+        self._plotcount = amount
+
+        self.axes.resetCurves()
+        self.plot.resetPlot()
+
+        self._curves = []
+
+        for i in range(self._plotcount):
+            curve = MaskedPlotCurve([0], [.1], linecolor=colors[i])
+            curve.markercolor = colors[i]
+            curve.markersize = self._markersize
+            self._curves.append(curve)
+            self.axes.addCurves(curve)
+
+        self.axes.autoscale = PlotAxes.SCALE_Y
+        self.plot.addAxes(self.axes)
+
+        self.setLines(self.hasLines)
+        self.setSymbols(self.hasSymbols)
 
     def logscale(self, on):
         LiveWidgetBase.logscale(self, on)
         self.axes.setLogY(on)
-        self.curve.filly = .1 if self._logscale else 0
+        newmin = .1 if on else 0
+        oldmin = .1 if not on else 0
+        self.curve.filly = newmin
         win = self.axes.getWindow()
         if win:
-            win[2] = max(.1, win[2])
+            if win[2] == oldmin:  # seems not to be zoomed in
+                win[2] = newmin
+            else:
+                win[2] = max(newmin, win[2])
             self.axes.setWindow(*win)
         self.gr.update()
 
+    def setSymbols(self, on):
+        markertype = self._marktype if on else GRMARKS['dot']
+        for axis in self.plot.getAxes():
+            for curve in axis.getCurves():
+                curve.markertype = markertype
+        self.hasSymbols = on
+        self.update()
+
+    def setLines(self, on):
+        linetype = None
+        if on:
+            linetype = gr.LINETYPE_SOLID
+        for axis in self.plot.getAxes():
+            for curve in axis.getCurves():
+                curve.linetype = linetype
+        self.hasLines = on
+        self.update()
+
+    def setMark(self, marktype):
+        self._marktype = GRMARKS.get(marktype, 'omark')
+
+    def setMarkerSize(self, size):
+        self._markersize = size
+
     def unzoom(self):
+        self.axes.setWindow(0, self._axesrange[1],
+                            0.1 if self._logscale else 0,
+                            max(1, self.getYMax()))
+
+        # add some padding in x range.
+        # 2nd call to avoid copy paste of the xtick function in pygr.
+        current = self.axes.getWindow()
         self.axes.setWindow(-self.axes.xtick,
                             self._axesrange[1] + self.axes.xtick,
-                            0, max(1, self.curve.y.max()) + self.axes.ytick)
+                            current[2], current[3])
         self.gr.update()
 
     def updateAxesRange(self, nx, ny):
         ymin = .1 if self._logscale else 0
+        if self._logscale:
+            ny = self.getYMax()
         self.axes.setWindow(0, nx, ymin, ny)
 
     def _setData(self, array, nx, ny, nz, newrange):
-        self.curve.x = numpy.arange(0, nx)
+        self.curve.x = numpy.arange(self.offset, nx + self.offset)
         self.curve.y = numpy.ma.masked_equal(self._array.ravel(), 0).astype(
             numpy.float)
         self.curve.filly = .1 if self._logscale else 0

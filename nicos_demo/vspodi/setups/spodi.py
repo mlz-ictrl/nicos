@@ -3,7 +3,8 @@ description = 'Virtual SPODI instrument'
 group = 'basic'
 
 includes = [
-    'system', 'sampletable', 'detector', 'slits', 'filter', 'mono', 'reactor'
+    'system', 'sampletable', 'detector', 'slits', 'filter', 'mono', 'reactor',
+    'nguide',
 ]
 
 devices = dict(
