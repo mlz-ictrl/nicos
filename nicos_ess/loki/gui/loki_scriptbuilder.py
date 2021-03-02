@@ -6,6 +6,8 @@ from nicos.guisupport.qt import pyqtSlot, QTableWidgetItem, QHeaderView, \
     Qt
 from nicos.utils import findResource
 
+TABLE_QSS = "alternate-background-color: aliceblue;"
+
 
 class LokiScriptBuilderPanel(Panel):
     def __init__(self, parent, client, options):
@@ -21,16 +23,16 @@ class LokiScriptBuilderPanel(Panel):
         duration_options = ['Mevents', 'seconds', 'frames']
         self.comboDurationType.addItems(duration_options)
 
-        self.chkShowTempColumn.stateChanged.connect(
-            partial(self._optional_column_toggled, "Temperature"))
-        self.chkShowPreCommand.stateChanged.connect(
-            partial(self._optional_column_toggled, "Pre-command"))
-        self.chkShowPostCommand.stateChanged.connect(
-            partial(self._optional_column_toggled, "Post-command"))
-
         self.columns = ['Position', 'Sample', 'Thickness\n(mm)',
                         'TRANS\nDuration', 'SANS\nDuration', 'Temperature',
                         'Pre-command', 'Post-command']
+
+        self.optional_columns = {
+            "temperature": ("Temperature", self.chkShowTempColumn),
+            "pre-command": ("Pre-command", self.chkShowPreCommand),
+            "post-command": ("Post-command", self.chkShowPostCommand)
+        }
+
         self._init_table()
 
     def _init_table(self, num_rows=25):
@@ -38,19 +40,19 @@ class LokiScriptBuilderPanel(Panel):
         for i, column in enumerate(self.columns):
             self.tableScript.setHorizontalHeaderItem(i, QTableWidgetItem(column))
 
-        # Hide optional columns? It would be nice to have them stored so
-        # if the GUI is restarted it can recall what was hidden...
-        self.tableScript.setColumnHidden(5, True)
-        self.tableScript.setColumnHidden(6, True)
-        self.tableScript.setColumnHidden(7, True)
+        # Configure optional columns.
+        for _, item in self.optional_columns.items():
+            title, checkbox = item
+            checkbox.stateChanged.connect(
+                partial(self._on_optional_column_toggled, title))
+            self._hide_column(title)
 
         # Table formatting
         self.tableScript.horizontalHeader().setStretchLastSection(True)
         self.tableScript.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableScript.resizeColumnsToContents()
         self.tableScript.setAlternatingRowColors(True)
-        # TODO: move this to qss file?
-        self.tableScript.setStyleSheet("alternate-background-color: aliceblue;")
+        self.tableScript.setStyleSheet(TABLE_QSS)
 
         self.tableScript.setRowCount(num_rows)
 
@@ -73,14 +75,16 @@ class LokiScriptBuilderPanel(Panel):
         else:
             item.setText(new_value)
 
-    def _optional_column_toggled(self, column_name, state):
-        column_number = self.columns.index(column_name)
-        self._toggle_column_visibility(column_number, state)
-
-    def _toggle_column_visibility(self, column_number, state):
+    def _on_optional_column_toggled(self, column_name, state):
         if state == Qt.Checked:
-            self.tableScript.setColumnHidden(column_number, False)
+            self._show_column(column_name)
         else:
-            self.tableScript.setColumnHidden(column_number, True)
+            self._hide_column(column_name)
 
+    def _hide_column(self, column_name):
+        column_number = self.columns.index(column_name)
+        self.tableScript.setColumnHidden(column_number, True)
 
+    def _show_column(self, column_name):
+        column_number = self.columns.index(column_name)
+        self.tableScript.setColumnHidden(column_number, False)
