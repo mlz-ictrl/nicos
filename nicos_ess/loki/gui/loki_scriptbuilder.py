@@ -84,9 +84,6 @@ class LokiScriptBuilderPanel(Panel):
         self._on_duration_type_changed(column_name,
                                        combobox.currentText())
 
-    def _set_column_title(self, index, title):
-        self.tableScript.setHorizontalHeaderItem(index, QTableWidgetItem(title))
-
     @pyqtSlot()
     def on_bulkUpdateButton_clicked(self):
         for index in self.tableScript.selectionModel().selectedIndexes():
@@ -123,3 +120,6 @@ class LokiScriptBuilderPanel(Panel):
         column_number = self.columns_in_order.index(column_name)
         self._set_column_title(column_number,
             f'{self.permanent_columns[column_name]}\n({value})')
+
+    def _set_column_title(self, index, title):
+        self.tableScript.setHorizontalHeaderItem(index, QTableWidgetItem(title))
