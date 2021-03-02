@@ -20,9 +20,7 @@ class LokiScriptBuilderPanel(Panel):
         trans_options = ['TRANS First', 'SANS First', 'Simultaneous']
         self.comboOrder.addItems(trans_options)
 
-        duration_options = ['Mevents', 'seconds', 'frames']
-        self.comboSansDurationType.addItems(duration_options)
-        self.comboSansDurationType.currentTextChanged.connect(self._on_duration_type_changed)
+        self.duration_options = ['Mevents', 'seconds', 'frames']
 
         self.permanent_columns = {
             "position": "Position",
@@ -59,6 +57,18 @@ class LokiScriptBuilderPanel(Panel):
                 partial(self._on_optional_column_toggled, name))
             self._hide_column(name)
 
+        # Link the duration dropdowns to the corresponding columns
+        self.comboSansDurationType.addItems(self.duration_options)
+        self.comboTransDurationType.addItems(self.duration_options)
+        self.comboSansDurationType.currentTextChanged.connect(
+            partial(self._on_duration_type_changed, "sans_duration"))
+        self.comboTransDurationType.currentTextChanged.connect(
+            partial(self._on_duration_type_changed, "trans_duration"))
+        self._on_duration_type_changed("sans_duration",
+                                       self.comboSansDurationType.currentText())
+        self._on_duration_type_changed("trans_duration",
+                                       self.comboTransDurationType.currentText())
+
         # Table formatting
         self.tableScript.horizontalHeader().setStretchLastSection(True)
         self.tableScript.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -67,8 +77,6 @@ class LokiScriptBuilderPanel(Panel):
         self.tableScript.setStyleSheet(TABLE_QSS)
 
         self.tableScript.setRowCount(num_rows)
-
-        self._on_duration_type_changed(self.comboSansDurationType.currentText())
 
     def _set_column_title(self, index, title):
         self.tableScript.setHorizontalHeaderItem(index, QTableWidgetItem(title))
@@ -105,7 +113,7 @@ class LokiScriptBuilderPanel(Panel):
         column_number = self.columns_in_order.index(column_name)
         self.tableScript.setColumnHidden(column_number, False)
 
-    def _on_duration_type_changed(self, value):
-        column_number = self.columns_in_order.index("sans_duration")
-        self._set_column_title(column_number, f'{self.permanent_columns["sans_duration"]}\n({value})')
+    def _on_duration_type_changed(self, column_name, value):
+        column_number = self.columns_in_order.index(column_name)
+        self._set_column_title(column_number, f'{self.permanent_columns[column_name]}\n({value})')
 
