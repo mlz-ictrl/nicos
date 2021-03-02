@@ -53,26 +53,53 @@ from threading import Event
 from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, NicosError, \
     Override, Param, status, usermethod
-from nicos.core.device import DeviceMeta, Moveable, Readable
+from nicos.core.device import Device, DeviceMeta, Moveable, Readable
 from nicos.core.errors import ConfigurationError
 from nicos.core.params import anytype, dictwith, floatrange, intrange, \
-    listof, nonemptylistof, nonemptystring, oneofdict, string, tupleof
-from nicos.utils import printTable
+    listof, none_or, nonemptystring, oneofdict, string, tupleof
+from nicos.core.utils import formatStatus
+from nicos.utils import printTable, readonlydict
 
 # pylint: disable=import-error,no-name-in-module
 import secop.modules
 from secop.client import SecopClient
-from secop.datatypes import FloatRange, ScaledInteger
 from secop.errors import CommunicationFailedError
 
 SecopStatus = secop.modules.Drivable.Status
 
 IFCLASSES = {
     'Drivable': 'SecopMoveable',
-    'Writable': 'SecopMoveable',  # Writable does not exist in NICOS
+    'Writable': 'SecopWritable',
     'Readable': 'SecopReadable',
     'Module': 'SecopDevice',
 }
+
+
+class NicosSecopClient(SecopClient):
+    def internalize_name(self, name):
+        """name mangling
+
+        in order to avoid existing NICOS Moveable attributes
+        """
+        if name in ('target', 'status', 'stop'):
+            return name
+        name = super().internalize_name(name).lower()
+        prefix, sep, postfix = name.partition('_')
+        if prefix not in dir(SecopMoveable):
+            return name
+        # mangle names matching NICOS device attributes
+        # info -> info_, info_ -> info_1, info_1 -> info_2, ...
+        if not sep:
+            return name + '_'
+        if not postfix:
+            return name + '_1'
+        try:
+            num = int(postfix)
+            if str(num) == postfix:
+                return '%s_%d' % (prefix, num + 1)
+        except ValueError:
+            pass
+        return name
 
 
 class DefunctDevice(Exception):
@@ -83,74 +110,156 @@ def clean_identifier(anystring):
     return str(re.sub(r'\W+|^(?=\d)', '_', anystring))
 
 
-def get_validator_dict():
-    """convert SECoP datatype into NICOS validator
+# we extend the NICOS types which are not bare types or functions
+# and make them comparable for equality
 
-    returns the python code of an equivalent NICOS validator for the
-    SECoP datatype
-    """
-    # use leading underscore to avoid conflicts with built-ins
+class ComparableType:
+    _compare_key = None
 
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        return self._compare_key == other._compare_key
+
+
+class SecopDouble(ComparableType, floatrange):
     # pylint: disable=redefined-builtin
-    def _double(min=None, max=None, **kwds):
-        if max is None:
-            if min is None:
-                return float
-            return floatrange(min)
-        return floatrange("float('-inf')" if min is None else min, max)
+    def __init__(self, min, max):
+        floatrange.__init__(self, "float('-inf')" if min is None else min, max)
+        self._compare_key = min, max
 
+
+# pylint: disable=redefined-builtin
+def Secop_double(min=None, max=None, **kwds):
+    if min is None and max is None:
+        return float
+    return SecopDouble(min, max)
+
+
+class SecopInt(ComparableType, intrange):
     # pylint: disable=redefined-builtin
-    def _int(min=None, max=None, **kwds):
-        # be tolerant with missing min / max here
-        if max is None:
-            if min is None:
-                return int
-            return intrange(min, 1 << 64)
-        return intrange(-1 << 64 if min is None else min, max)
-
-    def _bool(**kwds):
-        return bool
-
-    def _blob(minbytes=0, **kwds):
-        # ignore maxbytes and minbytes > 1
-        return nonemptystring if minbytes else string
-
-    def _string(minchars=0, **kwds):
-        # ignore maxchars and minchars > 1
-        return nonemptystring if minchars else string
-
-    def _enum(members, **kwds):
-        # do not use oneof here, as in general numbers are relevant for the
-        # specs use ordered dict here: indicates that the given order would
-        # be preferred for a GUI
-        # TODO: nicos.guisupport.typedvalue should be modified to keep the
-        #       order for combo box
-        return oneofdict(OrderedDict(sorted(((v, k)
-                                             for k, v in members.items()))))
-
-    def _array(members, minlen=0, **kwds):
-        # ignore maxlen and minlen > 1
-        members = get_validator(**members)
-        return nonemptylistof(members) if minlen else listof(members)
-
-    def _tuple(members, **kwds):
-        return tupleof(*(get_validator(**m) for m in members))
-
-    def _struct(members, **kwds):
-        # ignore 'optional' property
-        return dictwith(**{n: get_validator(**m) for n, m in members.items()})
-
-    # command is treated separately
-
-    # return dict of functions with stripped keys
-    return {key[1:]: func for key, func in locals().items()}
+    def __init__(self, min, max):
+        intrange.__init__(self, min, max)
+        self._compare_key = min, max
 
 
-DATATYPE_TO_VALIDATOR = get_validator_dict()
+# pylint: disable=redefined-builtin
+def Secop_int(min=None, max=None, **kwds):
+    # by the spec, min and max are mandatory in SECoP
+    # an integer without limits is therefore indicated by big limits
+    # 9999 is apparently big value, but not bigger than 2 ** 15
+    # which might be a natural limit if the server side uses 16bit ints.
+    # be tolerant with missing min / max here (future spec change?)
+    if min <= -9999 and max >= 9999:
+        return int
+    return SecopInt(min, max)
 
 
-def get_validator(type, **kwds):  # pylint: disable=redefined-builtin
-    return DATATYPE_TO_VALIDATOR[type](**kwds)
+def Secop_bool(**kwds):
+    return bool
+
+
+def Secop_string(minchars=0, **kwds):
+    # ignore maxchars and minchars > 1
+    return nonemptystring if minchars else string
+
+
+def Secop_blob(minbytes=0, **kwds):
+    # ignore maxbytes and minbytes > 1
+    return nonemptystring if minbytes else string
+
+
+class Secop_enum(ComparableType, oneofdict):
+    def __init__(self, members, **kwds):
+        # Do not use oneof here, as in general numbers are relevant for the
+        # specs. Unfortunately, ComboBox will sort items by name, and not by
+        # values, which IMO would be preferrable.
+        # Eventually nicos.guisupport.typedvalue.ComboWidget should be changed
+        # to keep the given order instead or sorting by name, at least when
+        # vals is an OrderedDict ...
+        oneofdict.__init__(
+            self, OrderedDict(sorted(((v, k) for k, v in members.items()))))
+        self.__doc__ = 'one of ' + ', '.join('%s, %d' % kv
+                                             for kv in members.items())
+        self._compare_key = self.vals
+
+    def __call__(self, val=None):
+        if val is None:
+            return next(iter(self.vals))
+        return oneofdict.__call__(self, val)
+
+
+class Secop_array(ComparableType, listof):
+    def __init__(self, members, minlen=0, maxlen=None, **kwds):
+        conv = get_validator(members)
+        listof.__init__(self, conv)
+        self._compare_key = conv, minlen, maxlen
+
+    def __call__(self, val=None):
+        conv, minlen, maxlen = self._compare_key
+        if val is None:
+            val = [conv()] * minlen
+        result = listof.__call__(self, val)
+        if len(result) < minlen:
+            raise ValueError('value needs a length >= %d' % minlen)
+        if maxlen is not None and len(result) > maxlen:
+            raise ValueError('value needs a length <= %d' % maxlen)
+        return result
+
+
+class Secop_tuple(ComparableType, tupleof):
+    def __init__(self, members, **kwds):
+        self._compare_key = tuple(get_validator(m) for m in members)
+        tupleof.__init__(self, *self._compare_key)
+
+
+class NoneOr(ComparableType, none_or):
+    def __init__(self, conv):
+        self._compare_key = conv
+        none_or.__init__(self, conv)
+
+
+class Secop_struct(ComparableType, dictwith):
+    def __init__(self, members, optional=(), **kwds):
+        convs = {k: get_validator(m) for k, m in members.items()}
+        for key in optional:
+            # missing optional items are indicated with a None value
+            convs[key] = NoneOr(convs[key])
+        self._compare_key = optional, convs
+        self.optional = optional
+        self.mandatorykeys = set(convs) - set(optional)
+        dictwith.__init__(self, **convs)
+
+    def __call__(self, val=None):
+        if val is None:
+            return {k: conv() for k, conv in self.convs.items()
+                    if k in self.mandatorykeys}
+        if not isinstance(val, dict):
+            raise ValueError('value needs to be a dict')
+        vkeys = set(val)
+        msgs = []
+        if vkeys - self.keys:
+            msgs.append('unknown keys: %s' % ', '.join((vkeys - self.keys)))
+        if self.mandatorykeys - vkeys:
+            msgs.append('missing keys: %s' % ', '.join(self.mandatorykeys - vkeys))
+        if msgs:
+            raise ValueError('Key mismatch in dictionary: ' + ', '.join(msgs))
+        ret = {}
+        for k, conv in self.convs.items():
+            ret[k] = conv(val.get(k))
+        return readonlydict(ret)
+
+    def write_validator(self, val=None):
+        """special validator for writing"""
+        val = self(val)
+        if self.optional:
+            # remove optional values which are None
+            val = {k: v for k, v in val.items() if v is not None}
+        return val
+
+
+def get_validator(datainfo):
+    return globals()['Secop_%s' % datainfo['type']](**datainfo)
 
 
 def type_name(typ):
@@ -204,15 +313,22 @@ class SecNodeDevice(Readable):
                              type=bool, prefercache=False, userparam=False),
         'setup_info':  Param('Setup info', type=anytype, default={},
                              settable=True),
+        'visibility_level': Param('level for visibility of created devices',
+                                  type=intrange(1, 3), prefercache=False,
+                                  default=1, userparam=False),
     }
     parameter_overrides = {
         'unit': Override(default='', mandatory=False),
+        # no polling on the SEC node
+        'maxage': Override(default=None, userparam=False),
+        # SECoP 'pollinterval' would be accessible as 'pollinterval_'
+        'pollinterval': Override(default=None, userparam=False),
     }
 
     valuetype = str
     _secnode = None
     _value = ''
-    _status = status.OK, 'unconnected'
+    _status = status.OK, 'unconnected'   # the nicos status
     _devices = {}
 
     def doPreinit(self, mode):
@@ -275,11 +391,11 @@ class SecNodeDevice(Readable):
             self._disconnect()
         if self._secnode:
             self._secnode.disconnect()
-        self._secnode = SecopClient(self.uri, log=self.log)
+        self._secnode = NicosSecopClient(self.uri, log=self.log)
         self._secnode.register_callback(None, self.nodeStateChange,
                                         self.descriptiveDataChange)
         try:
-            self._secnode.connect()
+            self._secnode.connect(10)
             self._set_status(status.OK, 'connected')
             self.createDevices()
             return
@@ -321,10 +437,12 @@ class SecNodeDevice(Readable):
         """
         if online and state == 'connected':
             self._set_status(status.OK, 'connected')
+            for device in self._devices.values():
+                device.setConnected(True)
         elif not online:
             self._set_status(status.ERROR, 'reconnecting')
             for device in self._devices.values():
-                device.updateSecopStatus((400, 'disconnected'))
+                device.setConnected(False)
         else:
             self._set_status(status.WARN, state)
 
@@ -423,53 +541,46 @@ class SecNodeDevice(Readable):
                 clsname = 'SecopDevice'
             kwds = {}
             for pname, props in mod_desc['parameters'].items():
-                datatype = props['datatype']
-                typ = get_validator(**datatype.export_datatype())
+                datainfo = props['datainfo']
+                typ = get_validator(datainfo)
                 pargs = dict(type=typ, description=props['description'])
                 if not props.get('readonly', True) and pname != 'target':
                     pargs['settable'] = True
-                unit = ''
+                unit = datainfo.get('unit', '')
                 fmtstr = None
-                if isinstance(datatype, FloatRange):
-                    fmtstr = getattr(datatype, 'fmtstr', '%g')
-                    unit = getattr(datatype, 'unit', '')
-                elif isinstance(datatype, ScaledInteger):
-                    fmtstr = getattr(
-                        datatype, 'fmtstr',
-                        '%%%df' % max(0, -floor(log10(props['scale']))))
-                    unit = getattr(datatype, 'unit', '')
+                if datainfo['type'] == 'double':
+                    fmtstr = datainfo.get('fmtstr', '%g')
+                elif datainfo['type'] == 'scaled':
+                    fmtstr = datainfo.get(
+                        'fmtstr', '%%.%df' %
+                                  max(0, -floor(log10(props['scale']))))
                 if unit:
                     pargs['unit'] = unit
-                if pname == 'status':
-                    continue
-                if pname == 'value':
-                    try:
-                        kwds['unit'] = datatype.unit
-                    except AttributeError:
-                        pass
+                if pname == 'target':
+                    kwds['valuetype'] = typ
+                    pargs['type'] = anytype
+                elif pname == 'value':
+                    kwds['unit'] = unit
                     if fmtstr is not None:
                         kwds['fmtstr'] = fmtstr
                     else:
                         kwds['fmtstr'] = '%r'
                     kwds['maintype'] = typ
-                    continue
-                if pname == 'target':
-                    kwds['valuetype'] = typ
-                if fmtstr is not None and fmtstr != '%g':
-                    pargs['fmtstr'] = fmtstr
-                params_cfg[pname] = pargs
+                if pname not in ('status', 'value'):
+                    if fmtstr is not None and fmtstr != '%g':
+                        pargs['fmtstr'] = fmtstr
+                    params_cfg[pname] = pargs
             for cname, props in mod_desc['commands'].items():
-                cmddict = props['datatype'].export_datatype()
-                argtype = cmddict.get('argument')
-                if argtype:
-                    argtype = get_validator(**argtype)
-                resulttype = cmddict.get('result')
-                if resulttype:
-                    resulttype = get_validator(**resulttype)
-                commands_cfg[cname] = dict(
-                    cmddict.get('argument', {}),  # additional info on argument
-                    argtype=argtype, resulttype=resulttype,
-                    description=props['description'])
+                cmddict = {'description': props['description']}
+                datainfo = props['datainfo']
+                argdatainfo = datainfo.get('argument')
+                if argdatainfo:
+                    cmddict['argtype'] = get_validator(argdatainfo)
+                    if 'optional' in argdatainfo:
+                        cmddict['optional'] = argdatainfo['optional']
+                if 'result' in datainfo:
+                    cmddict['resulttype'] = datainfo['result']
+                commands_cfg[cname] = cmddict
             if clsname != 'SecopDevice':
                 kwds.setdefault('unit', '')  # unit is mandatory on Readables
             desc = dict(secnode=self.name,
@@ -478,6 +589,7 @@ class SecNodeDevice(Readable):
                         secop_module=module,
                         params_cfg=params_cfg,
                         commands_cfg=commands_cfg,
+                        lowlevel=module_properties.get('visibility', 1) > self.visibility_level,
                         **kwds)
             setup_info[prefix + module] = (
                 'nicos.devices.secop.%s' % clsname, desc)
@@ -525,11 +637,14 @@ class SecNodeDevice(Readable):
                     self.log.error('device %s already exists', devname)
                     continue
                 base = dev.__class__.__bases__[0]
-                prevcfg = base.__module__ + '.' + base.__name__, \
-                    dict(secnode=self.name, **dev._config)
+                prevcfg = (base.__module__ + '.' + base.__name__,
+                           dict(secnode=self.name, **dev._config))
             else:
                 prevcfg = None
-            if prevcfg != devcfg:
+            if prevcfg == devcfg:
+                if dev._defunct:
+                    dev.setAlive(self)
+            else:
                 session.configured_devices[devname] = devcfg
                 session.dynamic_devices[devname] = setupname
                 if dev is None:
@@ -557,7 +672,7 @@ class SecNodeDevice(Readable):
                         dev = session.devices[devname]
                 if not isinstance(dev, SecopReadable):
                     # we will not get status updates for these
-                    dev.updateSecopStatus((SecopStatus.IDLE, ''))
+                    dev.updateStatus()
 
         defunct = set()
         # defunct devices no longer available
@@ -565,9 +680,11 @@ class SecNodeDevice(Readable):
             dev = session.devices.get(devname)
             if dev is None or dev._attached_secnode != self:
                 continue
-            if dev._sdevs:
+            # do not consider temporary devices
+            sdevs = [att for att in dev._sdevs if att in session.devices]
+            if sdevs:
                 self.log.warning('defunct device is attached to %s',
-                                 ', '.join(dev._sdevs))
+                                 ', '.join(sdevs))
             dev.setDefunct()
             defunct.add(devname)
 
@@ -576,7 +693,7 @@ class SecNodeDevice(Readable):
                               list(session.explicit_setups))
 
 
-class SecopDevice(Readable):
+class SecopDevice(Device):
     # based on Readable instead of Device, as we want to have a status
     attached_devices = {
         'secnode': Attach('sec node', SecNodeDevice),
@@ -585,12 +702,6 @@ class SecopDevice(Readable):
         'secop_module': Param('SECoP module', type=str, settable=False,
                               userparam=False),
     }
-    parameter_overrides = {
-        # do not force to give unit in setup file
-        # (take from SECoP description)
-        'unit': Override(default='', mandatory=False),
-    }
-    _status = (SecopStatus.ERROR, 'disconnected')
     STATUS_MAP = {
         0: status.DISABLED,
         1: status.OK,
@@ -598,8 +709,8 @@ class SecopDevice(Readable):
         3: status.BUSY,
         4: status.ERROR,
     }
-    _maintype = staticmethod(anytype)
     _defunct = False
+    _cache = None
 
     @classmethod
     def makeDevClass(cls, name, **config):
@@ -656,6 +767,9 @@ class SecopDevice(Readable):
             attrs['doRead%s' % pname.title()] = do_read
 
             if kwargs.get('settable', False):
+                if isinstance(typ, Secop_struct):
+                    typ = typ.write_validator
+
                 def do_write(self, value, pname=pname, validator=typ):
                     return self._write(pname, value, validator)
 
@@ -663,7 +777,7 @@ class SecopDevice(Readable):
 
         for cname, cmddict in commands_cfg.items():
 
-            def makecmd(cname, argtype, optional=(), members=(), **kwds):
+            def makecmd(cname, argtype=None, optional=(), **kwds):
                 if isinstance(argtype, tupleof):
                     # treat tuple elements as separate arguments
                     help_arglist = ', '.join('<%s>' % type_name(t)
@@ -701,7 +815,7 @@ class SecopDevice(Readable):
                     help_arglist = '<%s>' % type_name(argtype) if argtype \
                                    else ''
 
-                    def cmd(self, argument):
+                    def cmd(self, argument=None):
                         return self._call(cname, argument)
 
                 cmd.help_arglist = help_arglist
@@ -735,13 +849,14 @@ class SecopDevice(Readable):
 
     def __init__(self, name, **config):
         """apply modified config"""
-        Readable.__init__(self, name, **self._modified_config)
+        self._attached_secnode = None
+        Device.__init__(self, name, **self._modified_config)
         del self.__class__._modified_config
 
     def replaceClass(self, config):
         """replace the class on the fly
 
-        happens when the structure fo the device has changed
+        happens when the structure for the device has changed
         """
         cls = self.__class__.__bases__[0]
         newclass = cls.makeDevClass(self.name, **config)
@@ -777,29 +892,33 @@ class SecopDevice(Readable):
         if parameter not in self.parameters:
             return
         if readerror:
-            return  # do not know how to indicate an error on a parameter
+            if self._cache:
+                self._cache.invalidate(self, parameter)
+            return
         try:
             # ignore timestamp for now
             self._setROParam(parameter, value)
-        except Exception:
-            self.log.exception('can not set %s:%s to %r',
-                               module, parameter, value)
+        except Exception as err:
+            self.log.error('%r', err)
+            self.log.error('can not set %s:%s to %r', module, parameter, value)
 
-    def _raise_defunct(self):
+    def _defunct_error(self):
         if session.devices.get(self.name) == self:
-            raise DefunctDevice('SECoP device %s no longer available'
-                                % self.name)
-        raise DefunctDevice('refers to a replaced defunct SECoP device %s'
-                            % self.name)
+            return DefunctDevice('SECoP device %s no longer available'
+                                 % self.name)
+        return DefunctDevice('refers to a replaced defunct SECoP device %s'
+                             % self.name)
 
     def _read(self, param, maxage, validator):
         try:
             secnode = self._attached_secnode._secnode
         except AttributeError:
-            self._raise_defunct()
+            raise self._defunct_error() from None
+        if not secnode.online:
+            raise NicosError('no SECoP connection')
         value, timestamp, readerror = secnode.cache[self.secop_module, param]
         if readerror:
-            raise NicosError(str(readerror))
+            raise NicosError(str(readerror)) from None
         if maxage is not None and time.time() > (timestamp or 0) + maxage:
             value = secnode.getParameter(self.secop_module, param)[0]
         value = validator(value)
@@ -812,7 +931,7 @@ class SecopDevice(Readable):
                                                          param, value)
             return value
         except AttributeError:
-            self._raise_defunct()
+            raise self._defunct_error() from None
 
     def _call(self, cname, argument=None):
         return self._attached_secnode._secnode.execCommand(
@@ -820,15 +939,16 @@ class SecopDevice(Readable):
 
     def setDefunct(self):
         if self._defunct:
-            self.log.error('device is already defunct')
+            self.log.warning('device is already defunct')
             return
-        self.updateSecopStatus((SecopStatus.ERROR, 'defunct'))
         self._defunct = True
         if self._attached_secnode is not None:
             self._attached_secnode.unregisterDevice(self)
             # make defunct
             self._attached_secnode = None
+            self.updateStatus()
             self._cache = None
+        self.updateStatus()
 
     def setAlive(self, secnode):
         self._defunct = False
@@ -836,42 +956,79 @@ class SecopDevice(Readable):
         self._attached_secnode = secnode
         secnode.registerDevice(self)
         # clear defunct status
-        self.updateSecopStatus((SecopStatus.IDLE, ''))
+        self.updateStatus()
 
     def doShutdown(self):
         if not self._defunct:
             self.setDefunct()
 
-    def doRead(self, maxage=0):
-        """dummy, as there is no value"""
-        return ''
+    def doStatus(self, maxage=0):
+        if not self._attached_secnode:
+            return status.ERROR, 'defunct'
+        if not self._attached_secnode._secnode.online:
+            return status.ERROR, 'no SECoP connection'
+        return status.OK, ''
 
-    def updateSecopStatus(self, value):
-        """update status from SECoP status value"""
-        self._status = value
+    def updateStatus(self):
+        """get the status and update status in cache"""
+        # even when not a Readable, the status in the cache is updated
+        # and appears in the device panel
         if self._cache:
             self._cache.put(self, 'status', self.doStatus())
 
-    def _update_status(self, module, parameter, value, timestamp, readerror):
-        if value is not None:
-            self.updateSecopStatus(tuple(value))
+    def setConnected(self, connected):
+        if not connected:
+            if self._cache:
+                self._cache.clear(self, ['status'])
+        self.updateStatus()
+
+
+class SecopReadable(SecopDevice, Readable):
+    parameter_overrides = {
+        # do not force to give unit in setup file
+        # (take from SECoP description)
+        'unit': Override(default='', mandatory=False),
+        # maxage and pollinterval are unused as polling is done remotely
+        'maxage': Override(default=None, userparam=False),
+        'pollinterval': Override(default=None, userparam=False),
+    }
+    _maintype = staticmethod(anytype)
+
+    def doRead(self, maxage=0):
+        try:
+            return self._read('value', maxage, self._maintype)
+        except NicosError:
+            st = self.doStatus()
+            if st[0] in (status.DISABLED, status.ERROR):
+                raise NicosError(st[1]) from None
+            raise
 
     def doStatus(self, maxage=0):
-        code, text = self._status
+        code, text = SecopDevice.doStatus(self)
+        if code != status.OK:
+            return code, text
+        cached = self._attached_secnode._secnode.cache.get(
+            (self.secop_module, 'status'))
+        if not cached:
+            return code, text
+        value, _, readerror = cached
+        if value is None:
+            code, text = SecopStatus.ERROR, str(readerror)
+        else:
+            code, text = value
         if 390 <= code < 400:  # SECoP status finalizing
             return status.OK, text
         # treat SECoP code 401 (unknown) as error - should be distinct from
         # NICOS status unknown
         return self.STATUS_MAP.get(code // 100, status.UNKNOWN), text
 
-
-class SecopReadable(SecopDevice):
-
-    def doRead(self, maxage=0):
-        return self._read('value', maxage, self._maintype)
+    def _update_status(self, module, parameter, value, timestamp, readerror):
+        self.updateStatus()
 
     def _update_value(self, module, parameter, value, timestamp, readerror):
-        if value is None:
+        if readerror:
+            if self._cache:
+                self._cache.invalidate(self, 'value')
             return
         if self._cache:
             try:
@@ -881,15 +1038,34 @@ class SecopReadable(SecopDevice):
                 pass
             self._cache.put(self, 'value', value)
 
+    def info(self):
+        # override the default NICOS behaviour here:
+        # a disabled SECoP module should be ignored silently
+        st = self.status()
+        if st[0] == status.DISABLED:
+            # do not display info in data file when disabled
+            return []
+        if st[0] == status.ERROR:
+            # avoid calling read()
+            return [('value', None, 'Error: %s' % st[1], '', 'general'),
+                    ('status', st, formatStatus(st), '', 'status')]
+        return Readable.info(self)
 
-class SecopMoveable(SecopReadable, Moveable):
+
+class SecopWritable(SecopReadable, Moveable):
 
     def doStart(self, value):
         try:
-            self._attached_secnode._secnode.setParameter(self.secop_module,
-                                                         'target', value)
+            self._attached_secnode._secnode.setParameter(
+                self.secop_module, 'target', value)
         except AttributeError:
-            self._raise_defunct()
+            raise self._defunct_error() from None
+
+    def doStop(self):
+        self.log.info('stopping a Writable is a no-op')
+
+
+class SecopMoveable(SecopWritable):
 
     def doStop(self):
         if self.status(0)[0] == status.BUSY:
@@ -897,5 +1073,5 @@ class SecopMoveable(SecopReadable, Moveable):
                 self._attached_secnode._secnode.execCommand(
                     self.secop_module, 'stop')
             except Exception as e:
-                self.log.error('error while stopping: %s', e)
-                self.updateSecopStatus((200, 'error while stopping'))
+                self.log.error('error while stopping: %r', e)
+                self.updateStatus()
