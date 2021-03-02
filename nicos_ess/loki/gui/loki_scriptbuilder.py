@@ -13,12 +13,12 @@ class LokiScriptBuilderPanel(Panel):
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
         loadUi(self,
-               findResource('nicos_ess/loki/gui/ui_files/loki_scriptbuilder.ui'))
+               findResource('nicos_ess/loki/gui/ui_files/loki_scriptbuilder.ui')
+               )
 
         self.window = parent
 
-        trans_options = ['TRANS First', 'SANS First', 'Simultaneous']
-        self.comboOrder.addItems(trans_options)
+        self.trans_options = ['TRANS First', 'SANS First', 'Simultaneous']
 
         self.duration_options = ['Mevents', 'seconds', 'frames']
 
@@ -39,9 +39,10 @@ class LokiScriptBuilderPanel(Panel):
         self.columns_in_order = [name for name in self.permanent_columns.keys()]
         self.columns_in_order.extend(self.optional_columns.keys())
 
-        self._init_table()
+        self._init_panel()
 
-    def _init_table(self, num_rows=25):
+    def _init_panel(self, num_rows=25):
+        # Create columns
         self.tableScript.setColumnCount(len(self.columns_in_order))
         for i, name in enumerate(self.columns_in_order):
             if name in self.permanent_columns:
@@ -50,33 +51,38 @@ class LokiScriptBuilderPanel(Panel):
                 title = self.optional_columns[name][0]
             self._set_column_title(i, title)
 
-        # Configure optional columns.
+        # Link optional columns with corresponding check-boxes
         for name, details in self.optional_columns.items():
             _, checkbox = details
             checkbox.stateChanged.connect(
                 partial(self._on_optional_column_toggled, name))
             self._hide_column(name)
 
-        # Link the duration dropdowns to the corresponding columns
-        self.comboSansDurationType.addItems(self.duration_options)
-        self.comboTransDurationType.addItems(self.duration_options)
-        self.comboSansDurationType.currentTextChanged.connect(
-            partial(self._on_duration_type_changed, "sans_duration"))
-        self.comboTransDurationType.currentTextChanged.connect(
-            partial(self._on_duration_type_changed, "trans_duration"))
-        self._on_duration_type_changed("sans_duration",
-                                       self.comboSansDurationType.currentText())
-        self._on_duration_type_changed("trans_duration",
-                                       self.comboTransDurationType.currentText())
+        # Configure duration type combo-boxes
+        self._link_duration_combobox_to_column("sans_duration",
+                                               self.comboSansDurationType)
+        self._link_duration_combobox_to_column("trans_duration",
+                                               self.comboTransDurationType)
 
-        # Table formatting
+        # Set up trans order combo-box
+        self.comboTransOrder.addItems(self.trans_options)
+
+        # General table formatting
         self.tableScript.horizontalHeader().setStretchLastSection(True)
-        self.tableScript.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableScript.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch)
         self.tableScript.resizeColumnsToContents()
         self.tableScript.setAlternatingRowColors(True)
         self.tableScript.setStyleSheet(TABLE_QSS)
 
         self.tableScript.setRowCount(num_rows)
+
+    def _link_duration_combobox_to_column(self, column_name, combobox):
+        combobox.addItems(self.duration_options)
+        combobox.currentTextChanged.connect(
+            partial(self._on_duration_type_changed, column_name))
+        self._on_duration_type_changed(column_name,
+                                       combobox.currentText())
 
     def _set_column_title(self, index, title):
         self.tableScript.setHorizontalHeaderItem(index, QTableWidgetItem(title))
@@ -115,5 +121,5 @@ class LokiScriptBuilderPanel(Panel):
 
     def _on_duration_type_changed(self, column_name, value):
         column_number = self.columns_in_order.index(column_name)
-        self._set_column_title(column_number, f'{self.permanent_columns[column_name]}\n({value})')
-
+        self._set_column_title(column_number,
+            f'{self.permanent_columns[column_name]}\n({value})')
