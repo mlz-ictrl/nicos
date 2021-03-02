@@ -1,7 +1,9 @@
+from functools import partial
+
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import pyqtSlot, QTableWidgetItem, QHeaderView, \
-    QComboBox, QSizePolicy, Qt
+    Qt
 from nicos.utils import findResource
 
 
@@ -19,9 +21,12 @@ class LokiScriptBuilderPanel(Panel):
         duration_options = ['Mevents', 'seconds', 'frames']
         self.comboDurationType.addItems(duration_options)
 
-        self.chkShowTempColumn.stateChanged.connect(self.chkShowTempColumn_toggled)
-        self.chkShowPreCommand.stateChanged.connect(self.chkShowPreCommand_toggled)
-        self.chkShowPostCommand.stateChanged.connect(self.chkShowPostCommand_toggled)
+        self.chkShowTempColumn.stateChanged.connect(
+            partial(self._optional_column_toggled, "Temperature"))
+        self.chkShowPreCommand.stateChanged.connect(
+            partial(self._optional_column_toggled, "Pre-command"))
+        self.chkShowPostCommand.stateChanged.connect(
+            partial(self._optional_column_toggled, "Post-command"))
 
         self.columns = ['Position', 'Sample', 'Thickness\n(mm)',
                         'TRANS\nDuration', 'SANS\nDuration', 'Temperature',
@@ -68,9 +73,8 @@ class LokiScriptBuilderPanel(Panel):
         else:
             item.setText(new_value)
 
-    def chkShowTempColumn_toggled(self, state):
-        # SMELL: need to avoid this breaking if the column name is changed
-        column_number = self.columns.index('Temperature')
+    def _optional_column_toggled(self, column_name, state):
+        column_number = self.columns.index(column_name)
         self._toggle_column_visibility(column_number, state)
 
     def _toggle_column_visibility(self, column_number, state):
@@ -78,15 +82,5 @@ class LokiScriptBuilderPanel(Panel):
             self.tableScript.setColumnHidden(column_number, False)
         else:
             self.tableScript.setColumnHidden(column_number, True)
-
-    def chkShowPreCommand_toggled(self, state):
-        # SMELL: need to avoid this breaking if the column name is changed
-        column_number = self.columns.index('Pre-command')
-        self._toggle_column_visibility(column_number, state)
-
-    def chkShowPostCommand_toggled(self, state):
-        # SMELL: need to avoid this breaking if the column name is changed
-        column_number = self.columns.index('Post-command')
-        self._toggle_column_visibility(column_number, state)
 
 
