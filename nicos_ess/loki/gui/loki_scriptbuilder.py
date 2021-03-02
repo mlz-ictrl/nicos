@@ -23,9 +23,13 @@ class LokiScriptBuilderPanel(Panel):
         duration_options = ['Mevents', 'seconds', 'frames']
         self.comboDurationType.addItems(duration_options)
 
-        self.columns = ['Position', 'Sample', 'Thickness\n(mm)',
-                        'TRANS\nDuration', 'SANS\nDuration', 'Temperature',
-                        'Pre-command', 'Post-command']
+        self.permanent_columns = {
+            "position": "Position",
+            "sample": "Sample",
+            "thickness": "Thickness\n(mm)",
+            "trans_duration": "TRANS\nDuration",
+            "sans_duration": "SANS\nDuration"
+        }
 
         self.optional_columns = {
             "temperature": ("Temperature", self.chkShowTempColumn),
@@ -33,19 +37,26 @@ class LokiScriptBuilderPanel(Panel):
             "post-command": ("Post-command", self.chkShowPostCommand)
         }
 
+        self.columns_in_order = [name for name in self.permanent_columns.keys()]
+        self.columns_in_order.extend(self.optional_columns.keys())
+
         self._init_table()
 
     def _init_table(self, num_rows=25):
-        self.tableScript.setColumnCount(len(self.columns))
-        for i, column in enumerate(self.columns):
-            self.tableScript.setHorizontalHeaderItem(i, QTableWidgetItem(column))
+        self.tableScript.setColumnCount(len(self.columns_in_order))
+        for i, name in enumerate(self.columns_in_order):
+            if name in self.permanent_columns:
+                title = self.permanent_columns[name]
+            else:
+                title = self.optional_columns[name][0]
+            self.tableScript.setHorizontalHeaderItem(i, QTableWidgetItem(title))
 
         # Configure optional columns.
-        for _, item in self.optional_columns.items():
-            title, checkbox = item
+        for name, details in self.optional_columns.items():
+            _, checkbox = details
             checkbox.stateChanged.connect(
-                partial(self._on_optional_column_toggled, title))
-            self._hide_column(title)
+                partial(self._on_optional_column_toggled, name))
+            self._hide_column(name)
 
         # Table formatting
         self.tableScript.horizontalHeader().setStretchLastSection(True)
@@ -63,7 +74,6 @@ class LokiScriptBuilderPanel(Panel):
 
     @pyqtSlot()
     def on_clearTableButton_clicked(self):
-        # TODO: ask for confirmation
         for row in range(self.tableScript.rowCount()):
             for column in range(self.tableScript.columnCount()):
                 self._update_cell(row, column, '')
@@ -82,9 +92,9 @@ class LokiScriptBuilderPanel(Panel):
             self._hide_column(column_name)
 
     def _hide_column(self, column_name):
-        column_number = self.columns.index(column_name)
+        column_number = self.columns_in_order.index(column_name)
         self.tableScript.setColumnHidden(column_number, True)
 
     def _show_column(self, column_name):
-        column_number = self.columns.index(column_name)
+        column_number = self.columns_in_order.index(column_name)
         self.tableScript.setColumnHidden(column_number, False)
