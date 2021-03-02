@@ -71,6 +71,9 @@ class LokiScriptBuilderPanel(Panel):
     def chkShowTempColumn_toggled(self, state):
         # SMELL: need to avoid this breaking if the column name is changed
         column_number = self.columns.index('Temperature')
+        self._toggle_column_visibility(column_number, state)
+
+    def _toggle_column_visibility(self, column_number, state):
         if state == Qt.Checked:
             self.tableScript.setColumnHidden(column_number, False)
         else:
@@ -79,17 +82,11 @@ class LokiScriptBuilderPanel(Panel):
     def chkShowPreCommand_toggled(self, state):
         # SMELL: need to avoid this breaking if the column name is changed
         column_number = self.columns.index('Pre-command')
-        if state == Qt.Checked:
-            self.tableScript.setColumnHidden(column_number, False)
-        else:
-            self.tableScript.setColumnHidden(column_number, True)
+        self._toggle_column_visibility(column_number, state)
 
     def chkShowPostCommand_toggled(self, state):
         # SMELL: need to avoid this breaking if the column name is changed
         column_number = self.columns.index('Post-command')
-        if state == Qt.Checked:
-            self.tableScript.setColumnHidden(column_number, False)
-        else:
-            self.tableScript.setColumnHidden(column_number, True)
+        self._toggle_column_visibility(column_number, state)
 
 
