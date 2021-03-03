@@ -43,7 +43,7 @@ devices = dict(
             disableDirMode = 0o500,
             disableFileMode = 0o400,
             owner = 'jcns',
-            group = 'games'
+            group = 'iff'
         ),
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
