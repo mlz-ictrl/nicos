@@ -119,11 +119,6 @@ class EpicsDevice(DeviceMixinBase):
                               default=1.0),
     }
 
-    # A set of all parameters that indicate PV names.  Since PVs are very
-    # limited, an EpicsDevice is expected to use many different PVs a lot
-    # of times.
-    pv_parameters = set()
-
     # This will store PV objects for each PV param.
     _pvs = {}
     _pvctrls = {}
@@ -166,7 +161,7 @@ class EpicsDevice(DeviceMixinBase):
     def _get_pv_parameters(self):
         # The default implementation of this method simply returns the
         # pv_parameters set
-        return self.pv_parameters
+        return set()
 
     def _get_pv_name(self, pvparam):
         # In the default case, the name of a PV-parameter is stored in ai
@@ -267,11 +262,12 @@ class EpicsReadable(EpicsDevice, Readable):
                         type=pvname, mandatory=True),
     }
 
-    pv_parameters = {'readpv'}
-
     parameter_overrides = {
         'unit': Override(mandatory=False),
     }
+
+    def _get_pv_parameters(self):
+        return {'readpv'}
 
     def doInit(self, mode):
         if mode != SIMULATION:
@@ -316,8 +312,6 @@ class EpicsMoveable(EpicsDevice, Moveable):
         'target': Override(volatile=True),
     }
 
-    pv_parameters = {'readpv', 'writepv'}
-
     def _get_pv_parameters(self):
         """
         Overriden from EpicsDevice. If the targetpv parameter is specified,
@@ -325,19 +319,19 @@ class EpicsMoveable(EpicsDevice, Moveable):
         the mandatory pv_parameters.
         """
         if self.targetpv:
-            return self.pv_parameters | {'targetpv'}
+            return {'readpv', 'writepv', 'targetpv'}
 
-        return self.pv_parameters
+        return {'readpv', 'writepv'}
 
     def doInit(self, mode):
         if mode == SIMULATION:
             return
         intype = FTYPE_TO_VALUETYPE.get(self._pvs['readpv'].ftype, anytype)
         outtype = FTYPE_TO_VALUETYPE.get(self._pvs['writepv'].ftype, anytype)
-        if intype != self.valuetype:
+        if intype is not anytype and intype != self.valuetype:
             raise ConfigurationError(self, 'Input PV %r does not have the '
                                            'correct data type' % self.readpv)
-        if outtype != self.valuetype:
+        if outtype is not anytype and outtype != self.valuetype:
             raise ConfigurationError(self, 'Output PV %r does not have the '
                                            'correct data type' % self.writepv)
 
@@ -345,7 +339,7 @@ class EpicsMoveable(EpicsDevice, Moveable):
             target_type = FTYPE_TO_VALUETYPE.get(
                 self._pvs['targetpv'].ftype, anytype)
 
-            if target_type != self.valuetype:
+            if target_type is not anytype and target_type != self.valuetype:
                 raise ConfigurationError(
                     self, 'Target PV %r does not have the '
                           'correct data type' % self.targetpv)

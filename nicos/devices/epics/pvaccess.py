@@ -117,11 +117,6 @@ class EpicsDevice(DeviceMixinBase):
                         type=bool, default=False, preinit=True)
     }
 
-    # A set of all parameters that indicate PV names.  Since PVs are very
-    # limited, an EpicsDevice is expected to use many different PVs a lot
-    # of times.
-    pv_parameters = set()
-
     pv_cache_relations = {}
 
     # This will store PV objects for each PV param.
@@ -174,7 +169,7 @@ class EpicsDevice(DeviceMixinBase):
 
     def _get_pv_parameters(self):
         # The default implementation of this method simply returns the pv_parameters set
-        return self.pv_parameters
+        return set()
 
     def _get_pv_name(self, pvparam):
         # In the default case, the name of a PV-parameter is stored in a parameter.
@@ -346,6 +341,9 @@ class EpicsReadable(EpicsDevice, Readable):
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
 
+    def _get_pv_parameters(self):
+        return {'readpv'}
+
 
 class EpicsStringReadable(EpicsReadable):
     """
@@ -391,9 +389,9 @@ class EpicsMoveable(EpicsDevice, Moveable):
         the mandatory pv_parameters.
         """
         if self.targetpv:
-            return self.pv_parameters | {'targetpv'}
+            return {'readpv', 'writepv', 'targetpv'}
 
-        return self.pv_parameters
+        return {'readpv', 'writepv'}
 
     def doInit(self, mode):
         if mode == SIMULATION:

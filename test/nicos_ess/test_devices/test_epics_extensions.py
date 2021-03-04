@@ -32,6 +32,9 @@ from nicos.devices.epics import EpicsDevice
 
 from nicos_ess.devices.epics.extensions import HasDisablePv
 
+from test.nicos_ess.test_devices.utils import create_patch, \
+    create_method_patch, return_value_wrapper
+
 pytest.importorskip('epics')
 
 
@@ -40,28 +43,6 @@ session_setup = 'ess_extensions'
 
 class EpicsDeviceThatHasDisablePv(HasDisablePv, EpicsDevice, Device):
     pass
-
-
-# utility functions
-
-def create_patch(obj, name):
-    patcher = patch(name)
-    thing = patcher.start()
-    obj.addCleanup(patcher.stop)
-    return thing
-
-
-def create_method_patch(reason, obj, name, replacement):
-    patcher = patch.object(obj, name, replacement)
-    thing = patcher.start()
-    reason.addCleanup(patcher.stop)
-    return thing
-
-
-def return_value_wrapper(value):
-    def return_value(*args, **kwargs):
-        return value
-    return return_value
 
 
 class TestHasDisablePv(unittest.TestCase):

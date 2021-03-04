@@ -30,6 +30,7 @@ import time
 
 import flatbuffers
 import numpy
+from unittest.mock import patch
 
 from nicos.core import UsageError
 
@@ -153,3 +154,23 @@ def create_hs00(data=None, timestamp=None, source='test_device'):
                                       labels=labels,
                                       dtype=data.dtype.type)
     return encoder.encode(ts, arraydesc, data, source)
+
+
+def create_patch(obj, name):
+    patcher = patch(name)
+    thing = patcher.start()
+    obj.addCleanup(patcher.stop)
+    return thing
+
+
+def create_method_patch(reason, obj, name, replacement):
+    patcher = patch.object(obj, name, replacement)
+    thing = patcher.start()
+    reason.addCleanup(patcher.stop)
+    return thing
+
+
+def return_value_wrapper(value):
+    def return_value(*args, **kwargs):
+        return value
+    return return_value
