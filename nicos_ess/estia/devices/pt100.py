@@ -69,11 +69,10 @@ class EpicsPT100Temperature(EpicsReadableEss):
                           mandatory=False),
     }
 
-    def _get_record_fields(self):
-        pvs = self.pv_parameters
+    def _get_pv_parameters(self):
         if self.statuspv:
-            pvs |= {'statuspv'}
-        return pvs
+            return EpicsReadableEss._get_pv_parameters(self) | {'statuspv'}
+        return EpicsReadableEss._get_pv_parameters(self)
 
     def doStatus(self, maxage=0):
         mapped_status, status_message = EpicsReadableEss.doStatus(self, maxage)
