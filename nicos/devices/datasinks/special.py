@@ -116,24 +116,25 @@ class LiveViewSinkHandler(DataSinkHandler):
         labels for every array.
 
         Examples:
-            'x': {
+
+            'x': dict(
                     define = 'range',
                     start = -2,
                     length = 5,
                     step = 0.5,
                     title = 'tths (deg)'
-                }
+                 )
 
-            'y': {
+            'y': dict(
                     define = 'classic',
                     title = 'Counts',
-                },
-            'x': {
+                 ),
+            'x': dict(
                     define = 'array',
                     dtype = '<i4',
                     index = 0,  # first entry in the getLabelArrays list
                     title = 'x (mm)',
-                }
+                 )
 
         """
         return {

@@ -308,45 +308,46 @@ protocols.
 
    An assortment of live data.
 
-   :arg: ``liveparams``, ``datablobs``
+   :arg: ``liveparams`` and some ``datablobs``
 
    ``liveparams``:
    Describes the incoming data as a dictionary with the following keys:
 
-      - `uid`: uuid of the dataset.
+      - `uid`: uuid of the dataset
       - `time`: runtime in sec
-      - `det`: detectorname
+      - `det`: detector name
       - `tag`: 'live' or 'file'
-      - `filedescs`: list of dictionaries with tht following keys (for 'File')
+      - `filedescs`: list of dictionaries with the following keys (for 'file')
 
          - `filename`: filename to read from
          - `fileformat`: format of the specified file
-      - `datadescs`: list of dictionaries with the following keys (for 'Live')
+
+      - `datadescs`: list of dictionaries with the following keys (for 'live')
 
          - `filename`: filename for caching
-         - `dtype`: data type for the data values
+         - `dtype`: numpy data type for the data values
          - `shape`: shape of one dataset
-         - `labels`: dictionary describing how to label the axis.
+         - `labels`: dictionary describing how to label the axis:
 
             - allowed keys: `x`, `y`
-            - allowed values: dict with following keys
+            - allowed values: dict with the following keys:
 
               - `title`: axis title
-              -  `define`: allowed values:
+              - `define`: allowed values:
 
                 - `classic`: use range(shapesize) for the labels
                 - `range`: equidistant distribution from first to last (defined
-                  by start + step * number_of_steps), additional keys:
+                  by ``start + step * number_of_steps``), additional keys:
 
                   - `start`: start value
                   - `step`: step size
                   - `length`: number of steps
-                - `array`: custom labels array (typically not be equidistant),
+                - `array`: custom labels array (typically not equidistant),
                   additional keys:
 
                   - `index`: index in the labels array (default=0)
                   - `dtype`: data type of the label values
-         - `count`: amount of (1D) datasets contained in the associated
+         - `count`: amount of datasets contained in the associated
            databuffer
 
    in short:
@@ -380,15 +381,15 @@ protocols.
       - `livedata`: the actual data
       - `livelabels`: labels for the axis one buffer per dataset
 
-   The first entries in databuffers will be processed as `livedata`.  The
+   The first entries in datablobs will be processed as `livedata`.  The
    `livedata` buffer is a list of `count` (in the associated `datadesc`)
    datasets.
 
-   The last databuffers will be processed as `livelabels`.  The maximum amount
+   The last datablobs will be processed as `livelabels`.  The maximum amount
    of ``livelabels`` is the length of the ``labels`` in the ``datadescs``
    entry.  These buffers will be used only in case that the `labels` have a
    `define` of 'array'. In this case the `index` entry of the `labels` entry
-   points to the `labelsarray`.
+   points to the corresponding entry in `livelabels`.
 
 .. daemonevt:: simresult
 
