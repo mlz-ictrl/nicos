@@ -89,24 +89,26 @@ class LiveDataPanel(Panel):
     * ``liveonlyindex`` (default None) - Enable live only view. This disables
       interaction with the liveDataPanel and only displays the dataset of the
       set index.
+
     * ``defaults`` (default []) - List of strings representing options to be
-      set to every configured plot.
+      set for every configured plot.
       These options can not be set on a per plot basis since they are global.
       Options are as follows:
 
-        * ``logscale`` - Switch the logarithic scale on
+        * ``logscale`` - Switch the logarithic scale on.
         * ``center`` - Display the center lines for the image.
         * ``nolines`` - Display lines for the curve.
-        * ``markers`` - Display symbol for the curve.
-        * ``unzoom`` - Unzoom  the plot when new data is received
+        * ``markers`` - Display symbols for data points.
+        * ``unzoom`` - Unzoom the plot when new data is received.
+
     * ``plotsettings`` (default []) - List of dictionaries which contain
-      settings for the datasets.
+      settings for the individual datasets.
 
       Each entry will be applied to one of the detector's datasets.
 
-        * ``plotcounts`` (default [1]) - Amount of plots in the dataset.
-        * ``marks`` (default 'omark') - Shape of the markers. (if displayed)
-          Possible values are:
+      * ``plotcount`` (default [1]) - Amount of plots in the dataset.
+      * ``marks`` (default 'omark') - Shape of the markers (if displayed).
+        Possible values are:
 
           'dot', 'plus', 'asterrisk', 'circle', 'diagonalcross', 'solidcircle',
           'triangleup', 'solidtriangleup', 'triangledown', 'solidtriangledown',
@@ -114,20 +116,21 @@ class LiveDataPanel(Panel):
           'solidhourglass', 'diamond', 'soliddiamond', 'star', 'solidstar',
           'triupdown', 'solidtriright', 'solidtrileft', 'hollowplus',
           'solidplus', 'pentagon', 'hexagon', 'heptagon', 'octagon', 'star4',
-          'star5', 'star6', 'star7', 'star8', 'vline', 'hline', 'omark'.
-        * ``markersize`` (default 1) - Size of the markers. (if displayed)
-        * ``offsets`` (default [0]) - List of offsets for each curve in 1D
-          plots.
-        * ``colors`` (default [blue]) - Color of the marks and lines.
-          (if displayed)
-          If colors are set as a list the colors will be applied to the
-          individual plots (and default back to blue when wrong/missing)
-          eg:
+          'star5', 'star6', 'star7', 'star8', 'vline', 'hline', 'omark'
 
-          ['red', 'green']: The first plot will be red, the second green and
-          the others will be blue (default).
+      * ``markersize`` (default 1) - Size of the markers (if displayed).
+      * ``offsets`` (default [0]) - List of offsets for the X axis labels of
+        each curve in 1D plots.
+      * ``colors`` (default [blue]) - Color of the marks and lines
+        (if displayed).
+        If colors are set as a list the colors will be applied to the
+        individual plots (and default back to blue when wrong/missing),
+        for example:
 
-          'red': all plots will be red
+        ['red', 'green']: The first plot will be red, the second green and
+        the others will be blue (default).
+
+        'red': all plots will be red.
     """
 
     panelName = 'Live data view'
