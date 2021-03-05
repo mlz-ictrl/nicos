@@ -57,7 +57,7 @@ DEFAULTS = dict(
     marks='omark',
     offset=0,
     plotcount=1,
-    color='blue',
+    colors='blue',
     markersize=1,
 )
 
@@ -104,7 +104,7 @@ class LiveDataPanel(Panel):
 
       Each entry will be applied to one of the detector's datasets.
 
-      * ``plotcount`` (default [1]) - Amount of plots in the dataset.
+      * ``plotcount`` (default 1) - Amount of plots in the dataset.
       * ``marks`` (default 'omark') - Shape of the markers (if displayed).
         Possible values are:
 
@@ -117,9 +117,9 @@ class LiveDataPanel(Panel):
           'star5', 'star6', 'star7', 'star8', 'vline', 'hline', 'omark'
 
       * ``markersize`` (default 1) - Size of the markers (if displayed).
-      * ``offsets`` (default [0]) - List of offsets for the X axis labels of
+      * ``offset`` (default 0) - Offset for the X axis labels of
         each curve in 1D plots.
-      * ``colors`` (default [blue]) - Color of the marks and lines
+      * ``colors`` (default ['blue']) - Color of the marks and lines
         (if displayed).
         If colors are set as a list the colors will be applied to the
         individual plots (and default back to blue when wrong/missing),
@@ -745,8 +745,7 @@ class LiveDataPanel(Panel):
 
             settings = getElement(self.plotsettings, index, DEFAULTS)
 
-            # TODO: check which of the plotcount is correct
-            plotcount = settings.get('plotcounts', DEFAULTS['plotcount'])
+            plotcount = settings.get('plotcount', DEFAULTS['plotcount'])
             if self.params['tag'] == LIVE:
                 plotcount = self.params['datadescs'][index].get(
                     'count', DEFAULTS['plotcount'])
@@ -754,14 +753,14 @@ class LiveDataPanel(Panel):
                 plotcount = DEFAULTS['plotcount']
             marks = [settings.get('marks', DEFAULTS['marks'])]
             markersize = settings.get('markersize', DEFAULTS['markersize'])
-            offset = settings.get('offsets', DEFAULTS['offset'])
-            colors = settings.get('colors', DEFAULTS['color'])
+            offset = settings.get('offset', DEFAULTS['offset'])
+            colors = settings.get('colors', DEFAULTS['colors'])
 
             if isinstance(colors, list):
                 if len(colors) > plotcount:
                     colors = colors[:plotcount]
                 while len(colors) < plotcount:
-                    colors.append(DEFAULTS['color'])
+                    colors.append(DEFAULTS['colors'])
             else:
                 colors = [colors] * plotcount
 
