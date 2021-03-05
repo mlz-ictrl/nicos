@@ -98,16 +98,16 @@ class CascadeDetector(BaseImageChannel):
     parameters = {
         'mode':         Param('Data acquisition mode (tof or image)',
                               type=oneof('tof', 'image'), settable=True,
-                              volatile=True),
+                              volatile=True, category='presets'),
         'roi':          Param('Region of interest, given as (x1, y1, x2, y2)',
                               type=tupleof(int, int, int, int),
                               default=(-1, -1, -1, -1), settable=True),
         'tofchannels':  Param('Total number of TOF channels to use', type=int,
-                              default=128, settable=True),
+                              default=128, settable=True, category='presets'),
         'foilsorder':   Param('Usable foils, ordered by number. Must match the '
                               'number of foils configured in the server!',
                               type=listof(intrange(0, 31)), settable=False,
-                              mandatory=True),
+                              mandatory=True, category='instrument'),
         'fitfoil':      Param('Foil for contrast fitting (number BEFORE resorting)',
                               type=int, default=0, settable=True),
     }
