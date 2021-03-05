@@ -320,7 +320,7 @@ latex_elements = {
     # 'figure_align': 'htbp',
 
     # Increase the default list depth
-    'maxlistdepth' : '6',
+    'maxlistdepth' : '8',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
