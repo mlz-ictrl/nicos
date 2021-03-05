@@ -295,9 +295,9 @@ class Motor(HasTimeout, NicosMotor):
         'max':        Param('Upper motorlimit', settable=True,
                             type=intrange(0, 999999), unit='steps'),
         'startdelay': Param('Start delay', type=floatrange(0, 25), unit='s',
-                            settable=True),
+                            settable=True, volatile=True),
         'stopdelay':  Param('Stop delay', type=floatrange(0, 25), unit='s',
-                            settable=True),
+                            settable=True, volatile=True),
         'divider':    Param('Speed divider', settable=True,
                             type=intrange(-1, 7)),
         # volatile parameters to read/switch card features
