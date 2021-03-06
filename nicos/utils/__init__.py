@@ -434,9 +434,12 @@ def tcpSocketContext(host, defaultport, timeout=None):
         closeSocket(sock)
 
 
-def getfqdn(name=''):
+def getfqdn():
     """Get fully qualified hostname."""
-    return socket.getfqdn(name)
+    hostname = socket.gethostname()
+    if '.' in hostname:
+        return hostname
+    return socket.getfqdn(hostname)
 
 
 def bitDescription(bits, *descriptions):
