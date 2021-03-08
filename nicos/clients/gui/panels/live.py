@@ -711,9 +711,7 @@ class LiveDataPanel(Panel):
             return
 
         # determine 1D array size
-        arraysize = 1
-        for dimension in shape:
-            arraysize *= dimension
+        arraysize = numpy.product(shape)
 
         # check and split the input array
         if len(entry) < count * arraysize:
