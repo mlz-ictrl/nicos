@@ -146,7 +146,7 @@ devices = dict(
         font = 'Luxi Sans',
         valuefont = 'Consolas',
         padding = 0,
-        filename = '/dnscontrol/webroot/index.html',
+        filename = '/control/webroot/index.html',
         fontsize = 17,
         layout = [
             Row(_expcolumn),
