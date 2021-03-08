@@ -242,9 +242,8 @@ class Plot:
         gr.text(x - dx, y - 0.01, time.strftime(TIMEFMT, timeVal))
         gr.setcharup(0., 1.)
 
-    def addcurve(self, name):
-        self.curves.append(pygr.PlotCurve([currenttime()], [0], legend=name,
-                                          linewidth=4))
+    def addcurve(self, name, t):
+        self.curves.append(pygr.PlotCurve([t], [0], legend=name, linewidth=4))
         self.axes.addCurves(self.curves[-1])
         self.data.append([[], []])
         return len(self.curves) - 1
@@ -295,6 +294,8 @@ class Plot:
         gr.setwsviewport(0, self.width * 0.0022, 0, self.height * 0.0022)
         try:
             self.plot.drawGR()
+        except Exception as err:
+            return html.escape('Error generating plot: %s' % err)
         finally:
             gr.endprint()
             gr.clearws()
@@ -394,6 +395,7 @@ class Monitor(BaseMonitor):
         self += '</div></td></tr>\n'
 
         self._plots = {}
+        inittime = currenttime()
 
         def _create_field(blk, config):
             if 'widget' in config or 'gui' in config:
@@ -409,7 +411,7 @@ class Monitor(BaseMonitor):
                     p = Plot(field.plotwindow, field.width, field.height)
                     self._plots[field.plot] = p
                     blk += p
-                field._plotcurve = p.addcurve(field.name)
+                field._plotcurve = p.addcurve(field.name, inittime)
             elif field.picture:
                 pic = Picture(field.picture, field.width, field.height,
                               html.escape(field.name))
