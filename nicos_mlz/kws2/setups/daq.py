@@ -8,7 +8,7 @@ includes = ['counter']
 excludes = ['virtual_daq']
 
 sysconfig = dict(
-    datasinks = ['kwsformat', 'LiveViewSink'],
+    datasinks = ['kwsformat', 'yamlformat', 'binaryformat', 'livesink'],
 )
 
 tango_base = 'tango://phys.kws2.frm2:10000/kws2/'
@@ -21,9 +21,10 @@ devices = dict(
     yamlformat = device('nicos_mlz.kws2.devices.yamlformat.YAMLFileSink',
         detectors = ['det'],
     ),
-    LiveViewSink = device("nicos.devices.datasinks.LiveViewSink",
-        description = "Sends image data to LiveViewWidget",
+    binaryformat = device('nicos_mlz.kws1.devices.yamlformat.BinaryArraySink',
+        detectors = ['det'],
     ),
+    livesink = device('nicos.devices.datasinks.LiveViewSink'),
     det_mode = device('nicos.devices.generic.ReadonlyParamDevice',
         description = 'Current detector mode',
         device = 'det_img',
@@ -35,6 +36,7 @@ devices = dict(
         timer = 'timer',
         highvoltage = 'gedet_HV',
         fmtstr = '%d (%.1f cps)',
+        rebin8x8 = True,
     ),
     det_img_jum = device('nicos_mlz.kws1.devices.daq.KWSImageChannel',
         description = 'Image for the small KWS detector',

@@ -17,5 +17,6 @@ for i in range(1,9):
                description = 'Digital Output%d' % i,
                tangodevice = tango_base + 'out%d' % i,
                mapping = dict(On = 1, Off = 0),
+               unit = '',
               )
 

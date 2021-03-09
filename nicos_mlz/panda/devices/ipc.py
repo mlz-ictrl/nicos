@@ -25,8 +25,26 @@
 """IPC class to work around reset bug of triple cards from göttingen"""
 
 
-from nicos.core import status, usermethod
-from nicos.devices.vendor.ipc import Motor as _Motor
+from nicos.core import status, usermethod, Param
+from nicos.devices.vendor.ipc import Motor as _Motor, Coder as _Coder
+
+
+class Coder(_Coder):
+    """Work around encoders whose absolute-turn counter is broken, so
+    they wrap the 25-bit value within the used axis range.
+
+    Attention: Can now return negative step values!
+    """
+    parameters = {
+        'wrapbits': Param('Resolution to mitigate wraparound', type=int,
+                          default=25),
+    }
+
+    def doReadSteps(self):
+        steps = _Coder.doReadSteps(self)
+        if steps > 2**(self.wrapbits-1):
+            return steps - 2**self.wrapbits
+        return steps
 
 
 # create a workaround class, not resetting

@@ -5,7 +5,7 @@ group = 'lowlevel'
 display_order = 25
 
 sysconfig = dict(
-    datasinks = ['kwsformat', 'yamlformat'],
+    datasinks = ['kwsformat', 'yamlformat', 'binaryformat'],
 )
 
 devices = dict(
@@ -16,7 +16,7 @@ devices = dict(
     ),
     det_img = device('nicos_mlz.kws1.devices.daq.VirtualKWSImageChannel',
         description = 'Image for the large KWS detector',
-        sizes = (128, 128),
+        sizes = (144, 256),
     ),
     det_mode = device('nicos.devices.generic.ReadonlyParamDevice',
         description = 'Current detector mode',
@@ -47,6 +47,9 @@ devices = dict(
         detectors = ['det'],
     ),
     yamlformat = device('nicos_mlz.kws1.devices.yamlformat.YAMLFileSink',
+        detectors = ['det'],
+    ),
+    binaryformat = device('nicos_mlz.kws1.devices.yamlformat.BinaryArraySink',
         detectors = ['det'],
     ),
     det = device('nicos_mlz.kws1.devices.daq.KWSDetector',

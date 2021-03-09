@@ -63,9 +63,13 @@ class GarfieldMagnet(CanDisable, CalibratedMagnet):
     }
 
     def doRead(self, maxage=0):
-        if self._attached_currentreadback is not None:
-            return self._current2field(
-                self._attached_currentreadback.read(maxage))
+        currentreadback = self._attached_currentreadback
+        if currentreadback is not None:
+            # take abs to not fail if the currentreadback ever includes the sign
+            current = abs(currentreadback.read(maxage))
+            if self._attached_currentsource.read(maxage) < 0:
+                return self._current2field(-current)
+            return self._current2field(current)
         return self._current2field(self._attached_currentsource.read(maxage))
 
     def doWriteUserlimits(self, limits):
@@ -100,4 +104,6 @@ class GarfieldMagnet(CanDisable, CalibratedMagnet):
     def doEnable(self, on):
         # disabling via the enable device will rampdown fast, if needed.
         self._attached_enable.maw('on' if on else 'off')
-        self._attached_currentsource.enable() # never disable!
+        if self._attached_currentreadback is not None:
+            self._attached_currentreadback.enable()  # never disable!
+        self._attached_currentsource.enable()  # never disable!

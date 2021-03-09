@@ -23,8 +23,6 @@
 #
 # *****************************************************************************
 
-import numpy
-
 from nicos.clients.gui.panels.live import LiveDataPanel as BaseLiveDataPanel
 from nicos.guisupport.livewidget import LiveWidget1D
 
@@ -36,60 +34,49 @@ class FullScreen1DWidget(LiveWidget1D):
     def __init__(self, parent):
         LiveWidget1D.__init__(self, parent)
         self.plot.viewport = [0.05, .98, 0.1, .98]
-        self.plot.xlabel = 'tths (deg)'
-        self.plot.ylabel = 'counts'
         self.axes.xdual = False
         self.axes.xtick = 5
         self.axes.majorx = 10
         self.axes.ticksize = 0.005
-        self.curve.x = numpy.arange(0, 2, 1)
         self.gr.update()
         self._zoomed = False
 
-    def _setData(self, array, nx, ny, nz, newrange):
-        start, end, step = self._calcStartEndStep(array.shape[0])
-        self.curve.x = numpy.arange(
-            start + self._offset, end + self._offset, step)
-        self.curve.y = numpy.ma.masked_equal(array.ravel(), 0).astype(
-            numpy.float)
-        self.curve.filly = .1 if self._logscale else 0
-
+    def _adjustXAxisRange(self):
         if not self._zoomed:
-            self.axes.setWindow(self.curve.x[0], self.curve.x[-1],
-                                .1 if self._logscale else 0,
-                                max(self.curve.y))
+            LiveWidget1D._adjustXAxisRange(self)
 
-    def _calcStartEndStep(self, nx):
-        """Calculate start, end, and step value for the x axis.
-
-        The start and end values are calculated from the detector start value,
-        number of resosteps and the detector range.
-        """
-        startp, steps, rg = self.client.eval('adet._startpos, adet.resosteps, '
-                                             'adet.range', None)
-        # The orientation of the tths is in negative direction but it will be
-        # used in positive direction to avoid type the '-' for each position in
-        # the frontend
-        step = rg / steps
-        start = -(startp - (rg - step))
-        return start, start + nx * step, step
+    def _adjustYAxisRange(self):
+        if not self._zoomed:
+            LiveWidget1D._adjustYAxisRange(self)
 
     def unzoom(self):
-        self.axes.setWindow(self.curve.x[0], self.curve.x[-1],
-                            0.1 if self._logscale else 0,
-                            max(1, self.getYMax()))
+        labels = self._labels['x']
+        self._axesrange['x'] = labels[0], labels[-1]
+        self._axesrange['y'] = (0.1 if self._logscale else 0,
+                                max(1, self.getYMax()))
         self._zoomed = False
-        self.gr.update()
+        LiveWidget1D.unzoom(self)
 
     def zoom(self, master, dpercent, p0):
+        LiveWidget1D.zoom(self, master, dpercent, p0)
         if self.plot == master:
             self._zoomed = True
-        LiveWidget1D.zoom(self, master, dpercent, p0)
+            self._axesrange['x'] = self.axes.getWindow()[:2]
+            self._axesrange['y'] = self.axes.getWindow()[2:]
 
     def select(self, master, p0, p1):
+        LiveWidget1D.select(self, master, p0, p1)
         if self.plot == master:
             self._zoomed = True
-        LiveWidget1D.select(self, master, p0, p1)
+            self._axesrange['x'] = self.axes.getWindow()[:2]
+            self._axesrange['y'] = self.axes.getWindow()[2:]
+
+    def getYMax(self):
+        minupperedge = 1
+        if self._arrays:
+            minupperedge = max([max(array) for array in self._arrays])
+            minupperedge *= 2.15 if self._logscale else 1.05
+        return minupperedge
 
 
 class LiveDataPanel(BaseLiveDataPanel):

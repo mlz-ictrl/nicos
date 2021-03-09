@@ -234,16 +234,18 @@ class RotAxis(RefAxis):
             session.delay(self.wrapwaittime)
 
     def doReference(self, gotopos=None):
-        """references this axis by finding the reference switch and then
+        """References this axis by finding the reference switch and then
         setting current position to refpos.
-        1) Finding the refswitch by going backwards until the refswitch
-           (=negative limit switch) fires,
-        2) then go forward a little until the switch is not active,
-        3) then crawl SLOWLY backwards to hit it again.
-        4) current position is set to self.refpos (e.g. the reference is
+
+        1) Finding the refswitch by going forwards until the refswitch
+           (=negative limit switch) fires
+        2) then go SLOWLY forward until the switch is not active
+        3) current position is set to self.refpo (e.g. the reference is
            stored, the referencing done)
-        If an axis can't go reliably backwards (e.g. blocking) in step 1)
-        then this fails!!!
+
+        Previous strategy was to backwards for referencing, which was changed
+        in order to NEVER change the movement direction, which was checked
+        to be better for accuracy.
         """
 
         # Check initial conditions

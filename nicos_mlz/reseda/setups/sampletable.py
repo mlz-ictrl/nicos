@@ -3,8 +3,9 @@
 description = 'Sample table (translation)'
 group = 'optional'
 
-taco_base = '//resedasrv.reseda.frm2/reseda'
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
+
+includes = ['coderbus']
 
 devices = dict(
     srz_mot = device('nicos.devices.tango.Motor',
@@ -14,9 +15,23 @@ devices = dict(
         unit = 'deg',
         lowlevel = True,
     ),
-    srz_enc = device('nicos.devices.taco.Coder',
+    srz_enc = device('nicos.devices.vendor.ipc.Coder',
         description = 'Sample rotation: z (encoder)',
-        tacodevice = '%s/enc/probe_1' % taco_base,
+        # bitlength: 25l
+        # busaddr: 88l
+        # devname: reseda/rs485/encoder
+        # encoding: gray
+        # offset: 3977.53247
+        # parity: no
+        # protocol: ssi
+        # stepsperunit: 8192.0
+        # type: EncoderEncoder
+        bus = 'encoderbus',
+        addr = 88,
+        slope = 8192.,
+        zerosteps = 32583949,
+        circular = 360,
+        confbyte = 0x79, # 0111 1001
         fmtstr = '%.3f',
         unit = 'deg',
         lowlevel = True,

@@ -23,7 +23,7 @@ devices = dict(
     reseda = device('nicos.devices.instrument.Instrument',
         description = 'Resonance spin echo spectrometer',
         instrument = 'RESEDA',
-        responsible = 'Christian Franz <christian.franz@frm2.tum.de>',
+        responsible = 'Johanna Jochum <johanna.jochum@frm2.tum.de>',
         doi = 'http://dx.doi.org/10.17815/jlsrf-1-37',
         website = 'http://www.mlz-garching.de/reseda',
         operators = ['Technische Universität München (TUM)'],
@@ -50,7 +50,7 @@ devices = dict(
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Space on log drive',
         path = '/resedacontrol/log',
-        minfree = 0.5,
+        minfree = 1.5,
         lowlevel = True,
     ),
 )

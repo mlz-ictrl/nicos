@@ -83,6 +83,11 @@ class SelectorLambda(Moveable):
         self.log.debug('moving selector to %f rpm', speed)
         self._attached_seldev.start(speed)
 
+    def doInfo(self):
+        tilted = bool(self._attached_tiltdev.read())
+        val = 0.2 if tilted else 0.1
+        return [('spread', val, str(val), '', 'general')]
+
 
 class SelectorSwitcher(KWS1SelectorSwitcher):
     """Switcher whose mapping is determined by a list of presets."""

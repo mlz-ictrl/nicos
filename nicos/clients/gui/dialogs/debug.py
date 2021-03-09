@@ -97,12 +97,12 @@ class ConsoleBox(QPlainTextEdit):
         self.moveCursor(QTextCursor.End)
 
     def getConstruct(self, command):
-        res = self.compiler('\n'.join(self.construct + [command]),
+        self.construct.append(command)
+        res = self.compiler('\n'.join(self.construct),
                             '<interactive>', 'single')
         if res is not None:
+            # construct is complete and parsed successfully
             self.construct = []
-        else:
-            self.construct.append(command)
         return res
 
     def addToHistory(self, command):
@@ -141,16 +141,12 @@ class ConsoleBox(QPlainTextEdit):
         try:
             command = self.getConstruct(command)
             if not command:
-                return
+                return self.newPrompt()
             exec(command, self.namespace)
         except SystemExit:
             self.closeConsole.emit()
         except BaseException:
-            traceback_lines = traceback.format_exc().split('\n')
-            # Remove traceback mentioning this file, and a linebreak
-            for i in (2, 1, -1):
-                traceback_lines.pop(i)
-            self.appendPlainText('\n'.join(traceback_lines))
+            self.appendPlainText(traceback.format_exc())
         finally:
             sys.stdout = tmp_stdout
         self.newPrompt()
@@ -175,7 +171,7 @@ class ConsoleBox(QPlainTextEdit):
             return
         elif event.key() == Qt.Key_D and event.modifiers() == Qt.ControlModifier:
             self.closeConsole.emit()
-        QPlainTextEdit.keyPressEvent(self, event)
+        return QPlainTextEdit.keyPressEvent(self, event)
 
 
 class DebugConsole(QMainWindow):

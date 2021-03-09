@@ -5,7 +5,7 @@ group = 'lowlevel'
 display_order = 25
 
 sysconfig = dict(
-    datasinks = ['kwsformat', 'yamlformat'],
+    datasinks = ['kwsformat', 'yamlformat', 'binaryformat'],
 )
 
 includes = ['virtual_gedet']
@@ -16,6 +16,9 @@ devices = dict(
         detectors = ['det'],
     ),
     yamlformat = device('nicos_mlz.kws2.devices.yamlformat.YAMLFileSink',
+        detectors = ['det'],
+    ),
+    binaryformat = device('nicos_mlz.kws1.devices.yamlformat.BinaryArraySink',
         detectors = ['det'],
     ),
     det_mode = device('nicos.devices.generic.ReadonlyParamDevice',

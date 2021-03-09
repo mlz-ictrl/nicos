@@ -30,7 +30,8 @@ import numpy as np
 from nicos.core import SIMULATION, ArrayDesc, ConfigurationError, Override, \
     Param, Value, intrange, listof, oneof, tupleof
 from nicos.core.data import GzipFile
-from nicos.devices.datasinks.raw import SingleRawImageSink
+from nicos.devices.datasinks.raw import SingleRawImageFileReader, \
+    SingleRawImageSink, SingleRawImageSinkHandler
 from nicos.devices.tango import BaseImageChannel
 from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.utils.fitting import curve_fit
@@ -52,7 +53,9 @@ def fit_a_sin(x, y):
         return avg + avg * contrast * np.sin(freq * x + phase)
     try:
         popt = startpar
+        # pylint: disable=unbalanced-tuple-unpacking
         popt, pcov = curve_fit(model_sin, x, y, startpar, np.sqrt(np.abs(y)))
+        # pylint: enable=unbalanced-tuple-unpacking
         perr = np.sqrt(abs(np.diagonal(pcov)))
         return popt, perr, ''
     except Exception as e:
@@ -77,7 +80,9 @@ def fit_a_sin_fixed_freq(x, y):
     def model_sin(x, avg, contrast, phase):
         return avg + avg * contrast * np.sin(freq * x + phase)
     try:
+        # pylint: disable=unbalanced-tuple-unpacking
         popt, pcov = curve_fit(model_sin, x, y, startpar, np.sqrt(np.abs(y)))
+        # pylint: enable=unbalanced-tuple-unpacking
         perr = np.sqrt(abs(np.diagonal(pcov)))
         return [popt[0], popt[1], freq, popt[2]], [perr[0], perr[1], 0, perr[2]], ''
     except Exception as e:
@@ -267,6 +272,11 @@ class CascadeDetector(BaseImageChannel):
         return data
 
 
+class CascadePadSinkHandler(SingleRawImageSinkHandler):
+
+    filetype = 'pad'
+
+
 class CascadePadSink(SingleRawImageSink):
 
     parameter_overrides = {
@@ -274,8 +284,15 @@ class CascadePadSink(SingleRawImageSink):
                                      settable=False),
     }
 
+    handlerclass = CascadePadSinkHandler
+
     def isActiveForArray(self, arraydesc):
         return len(arraydesc.shape) == 2
+
+
+class CascadeTofSinkHandler(SingleRawImageSinkHandler):
+
+    filetype = 'tof'
 
 
 class CascadeTofSink(SingleRawImageSink):
@@ -287,5 +304,14 @@ class CascadeTofSink(SingleRawImageSink):
 
     fileclass = GzipFile
 
+    handlerclass = CascadeTofSinkHandler
+
     def isActiveForArray(self, arraydesc):
         return len(arraydesc.shape) == 3
+
+
+class CascadeImageReader(SingleRawImageFileReader):
+    filetypes = [
+        ('pad', 'PAD Image File (*.pad)'),
+        ('tof', 'TOF Image File (*.tof)'),
+    ]

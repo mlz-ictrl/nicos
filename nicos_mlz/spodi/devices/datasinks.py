@@ -219,8 +219,41 @@ class Straight:
 class LiveViewSinkHandler(Straight, BaseLiveViewSinkHandler):
     """Data live view handler."""
 
+    def prepare(self):
+        Straight.prepare(self)
+
     def processArrays(self, result):
         return [np.sum(arr, axis=1) for arr in self._ringStraight(result)]
+
+    def getLabelDescs(self, result):
+        ds = self.dataset
+        resosteps = ds.metainfo['adet', 'resosteps'][0]
+        ninputs = ds.metainfo['adet', 'numinputs'][0]
+        start, _, step = self._calcStartEndStep(
+            ds.metainfo['adet', '_startpos'][0], resosteps,
+            ds.metainfo['adet', 'range'][0], ninputs * resosteps)
+        return {
+            'x': {
+                'define': 'range',
+                'title': 'tths (deg)',
+                'start': start,
+                'length': resosteps * ninputs,
+                'step': step,
+            },
+        }
+
+    def _calcStartEndStep(self, startp, steps, rg, nx):
+        """Calculate start, end, and step value for the x axis.
+
+        The start and end values are calculated from the detector start value,
+        number of resosteps and the detector range.
+        """
+        # The orientation of the tths is in negative direction but it will be
+        # used in positive direction to avoid type the '-' for each position in
+        # the frontend
+        step = rg / steps
+        start = -(startp - (rg - step))
+        return start, start + nx * step, step
 
 
 class LiveViewSink(BaseLiveViewSink):

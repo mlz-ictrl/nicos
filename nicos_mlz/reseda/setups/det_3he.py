@@ -2,10 +2,9 @@
 
 description = '3He detector'
 group = 'optional'
-includes = ['det_base']
+includes = ['det_base', 'coderbus']
 excludes = ['det_cascade']
 
-taco_base = '//resedasrv/reseda'
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 
 devices = dict(
@@ -38,12 +37,25 @@ devices = dict(
         lowlevel = True,
         unit = 'deg',
     ),
-    det_rot_enc = device('nicos.devices.taco.Coder',
+    det_rot_enc = device('nicos.devices.vendor.ipc.Coder',
         description = 'Detector rotation (encoder)',
-        tacodevice = '%s/enc/det2_1' % taco_base,
+        # bitlength: 25
+        # direction: forward
+        # encoding: gray
+        # offset: -143.223950e+02
+        # parity: no
+        # protocol: ssi
+        # stepsperunit:
+        # type: EncoderEncoder
+        bus = 'encoderbus',
+        addr = 83,
+        slope = 163840.,
+        zerosteps = 23465812,
+        circular = 360,
+        confbyte = 0x79, # 0111 1001
+        unit = 'deg',
         fmtstr = '%.3f',
         lowlevel = True,
-        unit = 'deg',
     ),
     det_rot = device('nicos.devices.generic.Axis',
         description = 'Detector rotation',

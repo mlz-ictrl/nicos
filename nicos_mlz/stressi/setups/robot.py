@@ -33,24 +33,22 @@ devices = dict(
         description = 'OMGS feedback device for the robot',
         fmtstr = '%.2f',
         unit = 'deg',
-        coderoffset = -1229.1539993286133,
+        coderoffset = 0,  # -1229.1539993286133 on VME
         abslimits = (0, 140),
         nameserver = '%s' % nameservice,
-        objname = 'VME',
-        config = 'DUMMYO 114 11 0x00f1c000 1 4096 500 50 2 24 50 '
-                 '-1 10 1 5000 1 10 0 0 0',
+        config = 'DUMMYO 500 TANGO.caress_object tango://motorbox02:10000/box/channel4/coder',
+        absdev = False,
         lowlevel = True,
     ),
     dummyT = device('nicos.devices.vendor.caress.EKFMotor',
         description = 'TTHS feedback device for the robot',
         fmtstr = '%.2f',
         unit = 'deg',
-        coderoffset = 1244.04814453125,
+        coderoffset = 0,  # 1244.04814453125 on VME
         abslimits = (0, 140),
         nameserver = '%s' % nameservice,
-        objname = 'VME',
-        config = 'DUMMYT 114 11 0x00f1c000 3 4096 500 5  2 24 50 '
-                 '1 10 1 3000 1 30 0 0 0',
+        absdev = False,
+        config = 'DUMMYT 500 TANGO.caress_object tango://motorbox02:10000/box/channel3/coder',
         lowlevel = True,
     ),
     # *** Roboter Kath ***

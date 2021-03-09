@@ -62,13 +62,14 @@ class SingleDetectors(Measurable):
             self._preset = presets['t']
 
     def valueInfo(self):
-        return tuple(Value('%16s' % diode.name, unit='%23s' % 'counts',
-                           errors='none', type='counter', fmtstr='%18.10g')
-                     for diode in self._attached_pindiodes)
+        return tuple(Value(
+            pd.name, type='counter', unit=pd.unit,
+            fmtstr=pd.fmtstr,
+        ) for pd in self._attached_pindiodes)
 
     def doRead(self, maxage=0):
         self.log.debug('Integral read')
-        values = [dev.read(0) for dev in self._attached_pindiodes]
+        values = [int(dev.read(0)) for dev in self._attached_pindiodes]
         return values
 
     def doPrepare(self):

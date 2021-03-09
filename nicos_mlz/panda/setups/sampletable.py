@@ -149,16 +149,14 @@ devices = dict(
         lowlevel = True,
         # current = 2.0,
     ),
-    sgx_enc = device('nicos.devices.vendor.ipc.Coder',
+    sgx_enc = device('nicos_mlz.panda.devices.ipc.Coder',
         bus = 'bus1',
         addr = CODER(5), 
         slope = -2**13 / 1.0,
-        # zerosteps = 33513471,
-        # zerosteps = 33554406, #33554431,
-        zerosteps = 33546235,  # changed 19.3.2015
+        zerosteps = 71,  # 3/2021
         confbyte = SSI | GRAY | P_NONE | TOTALBITS(25),
         unit = 'deg',
-        circular = -4096,  # 12 bit (4096) for turns, times 2 deg per turn divided by 2 (+/-)
+        wrapbits = 25,
         lowlevel = True,
     ),
     sgx = device('nicos.devices.generic.Axis',
@@ -187,16 +185,15 @@ devices = dict(
         lowlevel = True,
         # current = 2.0,
     ),
-    sgy_enc = device('nicos.devices.vendor.ipc.Coder',
+    sgy_enc = device('nicos_mlz.panda.devices.ipc.Coder',
         bus = 'bus1',
         addr = CODER(4),  # original tripple card on bus2
         # addr = CODER(8),
         slope = 2**13 / 1.0,
-        # zerosteps = 33554387, # 33554410,
-        zerosteps = 8147,  # changed 19.3.2015
+        zerosteps = -16384,  # 3/2021
         confbyte = SSI | GRAY | P_NONE | TOTALBITS(25),
         unit = 'deg',
-        circular = -4096,  # 12 bit (4096) for turns, times 2 deg per turn divided by 2 (+/-)
+        wrapbits = 25,
         lowlevel = True,
     ),
     sgy = device('nicos.devices.generic.Axis',

@@ -42,7 +42,6 @@ devices = dict(
             abslimits = (-56.119, 1.381),
         ),
         nok_start = 198.0,
-        nok_length = 90.0,
         nok_end = 288.0,
         nok_gap = 1.0,
         backlash = -2,
@@ -50,7 +49,6 @@ devices = dict(
     ),
     nok2 = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
         nok_start = 334.0,
-        nok_length = 300.0,
         nok_end = 634.0,
         nok_gap = 1.0,
         inclinationlimits = (-10, 10),
@@ -80,7 +78,6 @@ devices = dict(
     ),
     nok_inc_failed = device('nicos_mlz.refsans.devices.nok_support.DoubleMotorNOK',
         nok_start = 334.0,
-        nok_length = 300.0,
         nok_end = 634.0,
         nok_gap = 1.0,
         inclinationlimits = (10, -10),
@@ -152,7 +149,6 @@ devices = dict(
             speed = 0.,
         ),
         nok_start = 5856.5,
-        nok_length = 13,
         nok_end = 5862.5,
         nok_gap = 1,
         masks = {
@@ -173,7 +169,6 @@ devices = dict(
             unit = 'mm',
         ),
         nok_start = 8837.5,
-        nok_length = 13.0,
         nok_end = 8850.5,
         nok_gap = 1.0,
         masks = {
@@ -194,7 +189,6 @@ devices = dict(
             unit = 'mm',
         ),
         nok_start = 8837.5,
-        nok_length = 13.0,
         nok_end = 8850.5,
         nok_gap = 1.0,
         masks = {

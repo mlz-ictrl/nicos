@@ -2,7 +2,7 @@ description = 'setup for the NICOS watchdog'
 group = 'special'
 
 watchlist = [
-    dict(condition = 'LogSpace_value < .5',
+    dict(condition = 'LogSpace_value < 1.5',
          message = 'Disk space for the log files becomes too low.',
          type = 'critical',
          gracetime = 30,

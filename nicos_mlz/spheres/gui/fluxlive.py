@@ -23,9 +23,12 @@
 # *****************************************************************************
 
 
+from uuid import uuid1
+
 import numpy
 
 from nicos.clients.gui.panels.live import LiveDataPanel
+from nicos.core.constants import LIVE
 
 
 class FluxLivePanel(LiveDataPanel):
@@ -34,6 +37,16 @@ class FluxLivePanel(LiveDataPanel):
 
         self._datakey = options.get('key', None)
         client.cache.connect(self.on_client_cache)
+        self.uuid = str(uuid1())
+
+    def on_client_connected(self):
+        LiveDataPanel.on_client_connected(self)
+
+        if self._datakey is not None:
+            data = self.client.getCacheKey(self._datakey)
+            # if NICOS is restarting the cache might return None
+            if data:
+                self.displayData(0, *data[1])
 
     def on_client_cache(self, data):
         _time, key, op, value = data
@@ -45,19 +58,22 @@ class FluxLivePanel(LiveDataPanel):
             elif op == '!':
                 elastic = inelastic = direct = numpy.array([0]*16)
 
-            self.on_client_liveparams(
-                {'uid': '',
-                 'abscissa': [None],
-                 'filenames': [''],
-                 'shapes': [(48,)],
-                 'dtypes': ['<u8'],
-                 'tag': 'Live',
-                 'time': _time,
-                 'detector': 'flux'})
+            self.displayData(_time, elastic, inelastic, direct)
 
-            self._ignore_livedata = False
-            self._last_idx = 0
+    def displayData(self, time, elastic, inelastic, direct):
+        newparams = dict(
+            uid=self.uuid,
+            time=time,
+            det='flux',
+            tag=LIVE,
+            datadescs=[dict(
+                dtype='<u8',
+                shape=(16,),
+                count=3)
+            ],
+        )
 
-            self.on_client_livedata(numpy.concatenate((elastic,
-                                                       inelastic,
-                                                       direct)))
+        self.on_client_livedata(newparams,
+                                [numpy.concatenate((elastic,
+                                                    inelastic,
+                                                    direct))])

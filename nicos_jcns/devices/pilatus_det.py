@@ -27,7 +27,7 @@ from time import time
 
 from nicos import session
 from nicos.core import status
-from nicos.core.constants import FINAL
+from nicos.core.constants import FINAL, SIMULATION
 from nicos.core.data import DataSinkHandler
 from nicos.core.device import Readable, requires
 from nicos.core.errors import ConfigurationError, InvalidValueError
@@ -239,9 +239,10 @@ class Configuration(PyTangoDevice, PassiveChannel):
         self._poll_all_channels()
 
     def doUpdateEnergy(self, value):
-        # only necessary for transmitting setup values to the hardware
-        if self.doStatus()[0] == status.OK:
-            self._write_energy(value)
+        if session.mode != SIMULATION:
+            # only necessary for transmitting setup values to the hardware
+            if self.doStatus()[0] == status.OK:
+                self._write_energy(value)
 
     def doReadExposures(self):
         return self._dev.exposures
@@ -270,16 +271,17 @@ class Configuration(PyTangoDevice, PassiveChannel):
 
     def doWriteMxsettings(self, value):
         start_time = time()
-        # energy update must be completed after maximum 15 seconds
-        while time() < start_time + 15:
-            if self.doStatus()[0] == status.OK:
-                break
-            self.log.info('waiting until the detector is ready')
-            session.delay(1.5)
-        else:
-            self.log.error('mxsettings update could not be performed: '
-                           'pilatus detector is still busy')
-            return
+        if session.mode != SIMULATION:
+             # energy update must be completed after maximum 15 seconds
+            while time() < start_time + 15:
+                if self.doStatus()[0] == status.OK:
+                    break
+                self.log.info('waiting until the detector is ready')
+                session.delay(1.5)
+            else:
+                self.log.error('mxsettings update could not be performed: '
+                               'pilatus detector is still busy')
+                return
         # flatten dict {k1: v1, k2: v2, ...} to [k1, v1, k2, v2, ...]
         self._dev.mxSettings = [str(v) for v in list(sum(value.items(), ()))]
 

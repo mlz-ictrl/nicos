@@ -6,8 +6,7 @@ tango_base = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/hubermc/'
 
 devices = dict(
     ngc_motor = device('nicos.devices.tango.Motor',
-        description = 'The TACO motor for the neutron guide changing '
-        'mechanism',
+        description = 'Motor of the neutron guide changing mechanism',
         tangodevice = tango_base + 'ccmot',
         fmtstr = '%7.3f',
         userlimits = (-131.4, 0.),

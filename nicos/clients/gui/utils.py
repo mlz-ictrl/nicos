@@ -25,8 +25,6 @@
 """NICOS GUI utilities."""
 
 import logging
-import os
-import socket
 from os import path
 
 from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
@@ -34,15 +32,6 @@ from nicos.guisupport.qt import QApplication, QByteArray, QColor, QDateTime, \
     QDialog, QFileDialog, QFont, QLabel, QMessageBox, QProgressDialog, \
     QPushButton, QSettings, QSize, QStyle, Qt, QTextEdit, QToolButton, \
     QVBoxLayout, QWidget, uic
-
-
-def getXDisplay():
-    try:
-        lhost = socket.getfqdn(socket.gethostbyaddr(socket.gethostname())[0])
-    except OSError:
-        return ''
-    else:
-        return lhost + os.environ.get('DISPLAY', ':0')
 
 
 def splitTunnelString(tunnel):

@@ -8,7 +8,7 @@ includes = ['counter']
 excludes = ['virtual_daq']
 
 sysconfig = dict(
-    datasinks = ['np_sink', 'yaml_sink'],
+    datasinks = ['yamlformat', 'binaryformat'],
 )
 
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
@@ -20,12 +20,11 @@ basename = (
 )
 
 devices = dict(
-    np_sink = device('nicos.devices.datasinks.text.NPFileSink',
-        description = 'Saves image data in text format',
-        filenametemplate = [basename + '.det'],
+    yamlformat = device('nicos_mlz.kws3.devices.yamlformat.YAMLFileSink',
+        detectors = ['det'],
     ),
-    yaml_sink = device('nicos_mlz.kws3.devices.yamlformat.YAMLFileSink',
-        filenametemplate = [basename + '.yaml'],
+    binaryformat = device('nicos_mlz.kws1.devices.yamlformat.BinaryArraySink',
+        detectors = ['det'],
     ),
     det_img = device('nicos.devices.generic.DeviceAlias',
         alias = 'det_img_hrd',

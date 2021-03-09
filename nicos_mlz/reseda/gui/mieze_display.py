@@ -31,7 +31,7 @@ from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.clients.gui.widgets.plotting import NicosPlotCurve
 from nicos.guisupport.livewidget import LiveWidget1D
-from nicos.guisupport.plots import GRCOLORS, GRMARKS
+from nicos.guisupport.plots import GRCOLORS, GRMARKS, MaskedPlotCurve
 from nicos.guisupport.qt import QSize, QSizePolicy, QWidget
 from nicos.protocols.cache import cache_load
 from nicos.utils import findResource
@@ -48,13 +48,17 @@ class MiniPlot(LiveWidget1D):
 
     def __init__(self, parent=None, **kwds):
         LiveWidget1D.__init__(self, parent)
-        self.plot.xlabel = 'time slots'
-        self.plot.ylabel = 'summed counts'
-        self.fitcurve = NicosPlotCurve([0], [.1], linecolor=COLOR_BLUE)
-        self.curve.GR_MARKERSIZE = 10
-        self.curve.markertype = CIRCLE_MARKER
-        self.fitcurve.markertype = DOT_MARKER
-        self.axes.addCurves(self.fitcurve)
+        self.setTitles({'x': 'time slots', 'y': 'summed counts'})
+        self.axes.resetCurves()
+        self._curves = [
+            MaskedPlotCurve([0], [1], linecolor=GRCOLORS['blue'],
+                            markertype=CIRCLE_MARKER, linetype=None),
+            NicosPlotCurve([0], [.1], linecolor=COLOR_BLUE,
+                           markertype=DOT_MARKER),
+        ]
+        self._curves[0].markersize = 10
+        for curve in self._curves:
+            self.axes.addCurves(curve)
         # Disable creating a mouse selection to zoom
         self.gr.setMouseSelectionEnabled(False)
 
@@ -79,10 +83,10 @@ class FoilWidget(QWidget):
         self.plotwidget.setSizePolicy(QSizePolicy.MinimumExpanding,
                                       QSizePolicy.MinimumExpanding)
         self.verticalLayout.insertWidget(0, self.plotwidget)
-        self.do_update([(0, 0, 0, 0), (0, 0, 0, 0), [0]*16] * 2)
+        self.do_update([(0, 0, 0, 0), (0, 0, 0, 0), [0] * 16] * 2)
 
     def do_update(self, data, roi=False):
-        popt, perr, counts = data[int(roi)*3:int(roi)*3+3]
+        popt, perr, counts = data[int(roi) * 3:int(roi) * 3 + 3]
         avg, contrast, freq, phase = popt
         davg, dcontrast, dfreq, dphase = perr
 
@@ -99,7 +103,7 @@ class FoilWidget(QWidget):
         self.phase_error.setText('%.3f' % dphase)
 
         # now update plot
-        fitcurve, datacurve = self.plotwidget.fitcurve, self.plotwidget.curve
+        datacurve, fitcurve = self.plotwidget._curves
         fitcurve.x = np.arange(-0.5, 16.5, 0.1)
         fitcurve.y = np.array([self.model_sine(x, avg, contrast, freq, phase)
                                for x in fitcurve.x])
@@ -108,7 +112,6 @@ class FoilWidget(QWidget):
         datacurve.errorBar1 = ErrorBar(datacurve.x, datacurve.y,
                                        np.sqrt(datacurve.y),
                                        markercolor=datacurve.markercolor)
-        datacurve.linetype = None
         self.plotwidget.reset()
         self.plotwidget.update()
 

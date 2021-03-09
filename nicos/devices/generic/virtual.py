@@ -192,13 +192,15 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
 class VirtualCoder(HasOffset, Coder):
     """A virtual coder that just returns the value of a motor, with offset."""
 
+    hardware_access = False
+
     attached_devices = {
         'motor': Attach('Motor to read out to get coder value', Readable,
                         optional=True)
     }
 
     parameter_overrides = {
-        'unit': Override(mandatory=False),
+        'unit': Override(mandatory=False, volatile=True),
     }
 
     def doRead(self, maxage=0):

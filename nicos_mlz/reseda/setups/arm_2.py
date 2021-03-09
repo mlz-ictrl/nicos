@@ -3,8 +3,9 @@
 description = 'Arm 2 (MIEZE)'
 group = 'optional'
 
-taco_base = '//resedasrv.reseda.frm2/reseda'
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
+
+includes = ['coderbus']
 
 devices = dict(
     arm2_rot_mot = device('nicos.devices.tango.Motor',
@@ -14,9 +15,24 @@ devices = dict(
         lowlevel = True,
         # abslimits = (-5.0, 60.0)
     ),
-    arm2_rot_enc = device('nicos.devices.taco.Coder',
+    arm2_rot_enc = device('nicos.devices.vendor.ipc.Coder',
         description = 'Rotation arm 2 (encoder)',
-        tacodevice = '%s/enc/arm2' % taco_base, # not enc/arm2 due to broken hw
+        # bitlength: 25
+        # busaddr: 87l
+        # direction: forward
+        # encoding: gray
+        # offset: -78441.6815
+        # parity: no
+        # protocol: ssi
+        # stepsperunit: 427.0
+        # type: EncoderEncoder
+        bus = 'encoderbus',
+        addr = 87,
+        slope = 427.,
+        zerosteps = 33494598,
+        circular = 360,
+        confbyte = 0x79, # 0111 1001
+        unit = 'deg',
         fmtstr = '%.3f',
         lowlevel = True,
     ),

@@ -29,6 +29,7 @@ import sys
 import threading
 
 from nicos.core import ACCESS_LEVELS, AccessError, watchdog_user
+from nicos.core.constants import FILE
 from nicos.core.sessions.simple import NoninteractiveSession
 from nicos.core.sessions.utils import LoggingStdout
 from nicos.devices.cacheclient import DaemonCacheClient
@@ -113,19 +114,27 @@ class DaemonSession(NoninteractiveSession):
         NoninteractiveSession.setMode(self, mode)
         self.emitfunc('mode', mode)
 
-    def updateLiveData(self, tag, uid, detector, filenames, dtype, nx, ny, nt,
-                       time, data):
-        self.emitfunc('livedata', (tag, uid, detector, filenames, dtype,
-                                   nx, ny, nt, time), data)
+    def updateLiveData(self, parameters, databuffers, labelbuffers=None):
+        if labelbuffers is None:
+            labelbuffers = []
+        self.emitfunc('livedata', parameters, databuffers + labelbuffers)
 
-    def notifyDataFile(self, tag, uid, detector, filename_or_filenames):
+    def notifyDataFile(self, ftype, uid, detector, filename_or_filenames):
         if isinstance(filename_or_filenames, str):
             filenames = [filename_or_filenames]
         else:
             filenames = filename_or_filenames
-        nxyt = len(filenames) * [0]
-        self.emitfunc('livedata', (tag, uid, detector, filenames,
-                                   '', nxyt, nxyt, nxyt, 0))
+        filedescs = [{'filename': fname, 'fileformat': ftype}
+                     for fname in filenames]
+        params = dict(
+            uid=uid,
+            time=0,
+            det=detector,
+            tag=FILE,
+            filedescs=filedescs,
+        )
+
+        self.emitfunc('livedata', params)
 
     def notifyFitCurve(self, dataset, title, xvalues, yvalues):
         self.emitfunc('datacurve', (title, xvalues, yvalues))

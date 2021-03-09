@@ -52,12 +52,18 @@ def miezetau(wavelength, deltaFreq, distance):
 @usercommand
 def zero():
     """Shut down all (static) power supplies."""
-    ps = ['hrf_0a', 'hrf_0b', 'hrf_1a', 'hrf_1b', 'hsf_0a', 'hsf_0b', 'hsf_1', 'sf_0a',
-          'sf_0b', 'sf_1', 'gf0', 'gf1', 'gf2', 'gf4', 'gf5', 'gf6', 'gf7',
-          'gf8', 'gf9', 'gf10']
+    ps = ['hrf_0a', 'hrf_0b', 'hrf_1a', 'hrf_1b', 'hsf_0a', 'hsf_0b', 'hsf_1',
+          'sf_0a', 'sf_0b', 'sf_1', 'gf1', 'gf2', 'gf4', 'gf5', 'gf6', 'gf7',
+          'gf8', 'gf9', 'gf10', 'nse0', 'nse1']
     for powersupply in ps:
         powersupply = session.getDevice(powersupply)
         move(powersupply, 0.001)
+    wait()
+
+    # Stop regulation and turn fg_amp off
+    stop('cbox_0a_reg_amp', 'cbox_0b_reg_amp', 'cbox_1_reg_amp')
+    maw('cbox_0a_fg_amp', 0.001, 'cbox_0b_fg_amp', 0.001,
+        'cbox_1_fg_amp', 0.001)
 
 
 @usercommand
@@ -101,6 +107,7 @@ def set_cascade():
     move(psd_timebin_freq, 32 * (f2 - f1))
     move(fg_burst, 'arm')
     move(fg_burst, 'trigger')
+    wait()
 
 
 @helparglist('echolist, counttime')
@@ -111,11 +118,11 @@ def miezescan(echolist, counttime):
     echolist: list of echotimes
     counttime: counting time (the **same** for all list entries)
     """
+    # psd_channel.mode = 'tof'
     echotime = session.getDevice('echotime')
     with manualscan(echotime, counttime):
         for etime in echolist:
-            move(echotime, etime)
-            set_cascade()
+            setecho(etime)
             count(counttime)
 
 
