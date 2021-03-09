@@ -50,7 +50,7 @@ devices = dict(
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Space on log drive',
         path = '/resedacontrol/log',
-        minfree = 0.5,
+        minfree = 1.5,
         lowlevel = True,
     ),
 )
