@@ -263,7 +263,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         self._fname = fp.shortpath
         self._filepath = fp.filepath
         if not quickyaml:
-            self._file = TextIOWrapper(fp)
+            self._file = TextIOWrapper(fp, encoding='utf-8')
         else:
             fp.close()
             self._file = io.FileIO(self._filepath, 'w')

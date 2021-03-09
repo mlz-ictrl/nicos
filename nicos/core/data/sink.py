@@ -227,7 +227,7 @@ class NicosMetaWriterMixin:
 
         to be used by derived sinks"""
         bycategory = self._collectMetaInformation(update_headerinfo)
-        wrapper = TextIOWrapper(fp)
+        wrapper = TextIOWrapper(fp, encoding='utf-8')
         wrapper.write('### NICOS %s V2.0\n' % title)
         for category, catname in INFO_CATEGORIES:
             if category not in bycategory:

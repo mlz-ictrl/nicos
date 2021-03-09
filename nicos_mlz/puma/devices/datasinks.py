@@ -38,7 +38,7 @@ class PolarizationFileSinkHandler(SingleFileSinkHandler):
 
     def writeHeader(self, fp, metainfo, image):
         fp.seek(0)
-        wrapper = TextIOWrapper(fp)
+        wrapper = TextIOWrapper(fp, encoding='utf-8')
         wrapper.write('\n%s PUMA Polarisation File Header V2.0\n' %
                       (self.sink.commentchar * 3))
         # XXX(dataapi): add a utility function to convert metainfo to old
@@ -62,7 +62,7 @@ class PolarizationFileSinkHandler(SingleFileSinkHandler):
 
     def writeData(self, fp, image):
         """Write the image data part of the file (second part)."""
-        wrapper = TextIOWrapper(fp)
+        wrapper = TextIOWrapper(fp, encoding='utf-8')
         for i, l in enumerate(image.T):
             fmtstr = '\t'.join(['%d'] * (1 + len(l))) + '\n'
             wrapper.write(fmtstr % ((i,) + tuple(l.tolist())))

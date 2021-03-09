@@ -151,7 +151,7 @@ class RawImageSinkHandler(NicosMetaWriterMixin, DataSinkHandler):
         if self._logfile is None:
             return
         self._logfile.seek(0)
-        wrapper = TextIOWrapper(self._logfile)
+        wrapper = TextIOWrapper(self._logfile, encoding='utf-8')
         wrapper.write('%-15s\tmean\tstdev\tmin\tmax\n' % '# dev')
         for dev in self.dataset.valuestats:
             wrapper.write('%-15s\t%.3f\t%.3f\t%.3f\t%.3f\n' %
