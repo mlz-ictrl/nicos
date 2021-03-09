@@ -47,6 +47,10 @@ _column1 = Column(
              Field(name='C', dev='T_ccr_cold_head'),
              Field(name='D', dev='T_ccr_sample_tube'),
         ),
+        BlockRow(
+            Field(plot='cryo 30min', name='Temp 30min', devs='T_ccr_sample_tube',
+                  width=60, height=40, plotwindow=1800),
+        ),
         ],
         setups='ccr'
         ),
