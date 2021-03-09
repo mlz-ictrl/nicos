@@ -9,8 +9,12 @@ devices = dict(
         grouproles = {
             'reseda': 'admin',
             'ictrl': 'admin',
-        }
+        },
     ),
+    # UserDBAuth = device('nicos_mlz.devices.proposaldb.Authenticator',
+    #     description = 'FRM II user office authentication',
+    #     loglevel = 'info',
+    # ),
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         hashing = 'md5',
         passwd = [
