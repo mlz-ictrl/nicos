@@ -43,6 +43,8 @@ _column1 = Column(
     Block('Pressures', [
         BlockRow(
             Field(name='Guides and Tube', dev='P_ng_elements', unit='mbar'),
+        ),
+        BlockRow(
             Field(name='Polariser', dev='P_polarizer', units='mbar'),
             Field(name='Selector', dev='P_selector_vacuum', units='mbar'),
         ),
@@ -266,9 +268,16 @@ _column3 = Column(
             Field(name='Stick', dev='T_ccr_sample_stick_b', unit='K'),
             Field(name='Pressure', dev='P_ccr', unit='mbar'),
         ),
+        BlockRow(
+            Field(widget='nicos.guisupport.plots.TrendPlot', 
+            width = 40, height=20, plotwindow=1800,
+            devices=['T_ccr_sample_tube'],
+            names=['30min'],
+            legend=True),
+        ),
         ],
         setups='ccr'
-        ),
+    ),
 ) + Column(*magnets) + Column(*ccrs) + Column(*cryos)
 
 devices = dict(
