@@ -158,7 +158,7 @@ class CaressHistogramReader(ImageFileReader):
         ndet = 80
         corrData = DataParser.ReadCorrectionFile(
             findResource(cls.correctionfile))
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             if not f.readline().startswith('QMesyDAQ CARESS Histogram File'):
                 raise NicosError('File is not a CARESS histogram file.')
             for line in f:

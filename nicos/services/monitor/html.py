@@ -343,8 +343,7 @@ class Monitor(BaseMonitor):
             try:
                 if self._content:
                     content = ''.join(ct.getHTML() for ct in self._content)
-                    safeWriteFile(self.filename, content, mode='w',
-                                  maxbackups=0)
+                    safeWriteFile(self.filename, content, maxbackups=0)
             except Exception:
                 self.log.error('could not write status to %r', self.filename,
                                exc=1)

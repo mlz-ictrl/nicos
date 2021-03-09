@@ -154,7 +154,7 @@ class DlgUtils:
             ctl.setText(fname)
 
     def viewTextFile(self, fname):
-        with open(fname) as f:
+        with open(fname, encoding='utf-8', erorrs='replace') as f:
             contents = f.read()
         qd = QDialog(self, 'PreviewDlg', True)
         qd.setCaption('File preview')

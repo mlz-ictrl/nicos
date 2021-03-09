@@ -179,7 +179,7 @@ class ELogPanel(Panel):
             return
         filename = reply.url().path()
         if filename.endswith('.dat'):
-            content = open(filename).read()
+            content = open(filename, encoding='utf-8', errors='replace').read()
             window = QMainWindow(self)
             window.resize(600, 800)
             window.setWindowTitle(filename)

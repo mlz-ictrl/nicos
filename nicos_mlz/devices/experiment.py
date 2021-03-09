@@ -192,7 +192,8 @@ class Experiment(BaseExperiment):
         newcontent, _, _ = expandTemplate(data, stats)
         newfn, _, _ = expandTemplate(self.reporttemplate, stats)
 
-        with open(path.join(self.proposalpath, newfn), 'w') as fp:
+        with open(path.join(self.proposalpath, newfn), 'w',
+                  encoding='utf-8') as fp:
             fp.write(newcontent)
         self.log.info('An experimental report template was created at %r for '
                       'your convenience.', path.join(self.proposalpath, newfn))

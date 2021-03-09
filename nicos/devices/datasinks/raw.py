@@ -226,7 +226,7 @@ class RawImageFileReader(ImageFileReader):
     def fromfile(cls, filename):
         fheader = path.splitext(filename)[0] + '.header'
         if path.isfile(fheader) and path.isfile(filename):
-            with open(fheader, 'r') as fd:
+            with open(fheader, 'r', encoding='utf-8', errors='replace') as fd:
                 for line in fd:
                     # TODO: ArrayDesc currently uses nx, ny, nz, ... as shape
                     if line.startswith('ArrayDesc('):

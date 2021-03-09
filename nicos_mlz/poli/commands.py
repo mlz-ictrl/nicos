@@ -759,7 +759,7 @@ def IndexPeaks(max_deviation=0.2, listname='default'):
 
     # write input file for Indexus
     root = session.experiment.samplepath
-    with open(path.join(root, 'indexus.txt'), 'w') as fp:
+    with open(path.join(root, 'indexus.txt'), 'w', encoding='utf-8') as fp:
         fp.write('''\
 poli                             ! instrument
 n                                ! extended output
@@ -773,7 +773,7 @@ n                                ! extended output
 .0 .1 -1.0 1.0                   ! offset nu, step, low and high limits
 ''' % params)
     R2D = math.degrees
-    with open(path.join(root, 'angles.txt'), 'w') as fp:
+    with open(path.join(root, 'angles.txt'), 'w', encoding='utf-8') as fp:
         fp.write('   gamma    omega       nu        I     sigI\n')
         for pos, _hkl, (intensity, sigma) in posl:
             fp.write('%8.3f %8.3f %8.3f %8.2f %8.2f\n' % (
@@ -795,7 +795,7 @@ n                                ! extended output
     dgamma = 0.
     dnu = 0.
     chi2 = 0.
-    with open(path.join(root, 'indexus.lis'), 'r') as fp:
+    with open(path.join(root, 'indexus.lis'), 'r', encoding='utf-8') as fp:
         lines = iter(fp)
         for line in lines:
             if line.startswith(' best combination:'):
@@ -971,7 +971,7 @@ def GenDataset(name, hmax, kmax, lmax, uniq=False, kvector=None):
                      len(all_pos), len(hkls))
 
     fullpath = path.join(root, name + '.csv')
-    with open(fullpath, 'w') as fp:
+    with open(fullpath, 'w', encoding='utf-8') as fp:
         writer = csv.writer(fp)
         writer.writerow(['h', 'k', 'l', 'gamma', 'omega', 'nu', 'width'])
         for row in all_pos:
@@ -1009,7 +1009,7 @@ def ScanDataset(name, speed=None, timedelta=None, start=1, cont=True):
     session.log.info('Reading reflection list from %s.', fullpath)
 
     all_pos = []
-    with open(fullpath, 'r') as fp:
+    with open(fullpath, 'r', encoding='utf-8') as fp:
         reader = csv.reader(fp)
         for row in reader:
             if row[0] == 'h':

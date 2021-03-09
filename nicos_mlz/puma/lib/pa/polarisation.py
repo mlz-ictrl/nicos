@@ -310,14 +310,14 @@ class PA:
 if __name__ == '__main__':
     def read():
         ret = {}
-        with open('PolData_In.txt') as f:
+        with open('PolData_In.txt', encoding='utf-8') as f:
             for line in f.readlines():
                 key, value = line.split('=')
                 ret[key.strip()] = float(value.strip())
         return ret
 
     def write(pa):
-        with open('PolData_Out.txt', 'w') as f:
+        with open('PolData_Out.txt', 'w', encoding='utf-8') as f:
             f.write('Parameter-List:\n')
             f.write('wavevector of scattered neutrons     : %6.3f 1/A\n' % pa.kf)
             f.write('netplane-distance of analyzer        : %6.3f A\n' % pa.da)
