@@ -229,7 +229,6 @@ class FinishPanel(Panel):
 
         # Additional dialog panels to pop up after FinishExperiment().
         self._finish_exp_panel = options.get('finish_exp_panel')
-
         self.finishButton.setEnabled(False)
 
         client.connected.connect(self.on_client_connected)
