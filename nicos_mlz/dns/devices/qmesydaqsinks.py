@@ -45,8 +45,8 @@ class HistogramSinkHandler(DataSinkHandler):
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
         qmname = countdown(filepaths[0])
-        self.sink._attached_timer._taco_update_resource('writehistogram', 'on')
-        self.sink._attached_timer._taco_update_resource('lasthistfile', qmname)
+        self.sink._attached_timer._dev.SetProperties(['writehistogram', 'true'])
+        self.sink._attached_timer._dev.SetProperties(['lasthistfile', qmname])
 
 
 class ListmodeSinkHandler(DataSinkHandler):
@@ -56,8 +56,8 @@ class ListmodeSinkHandler(DataSinkHandler):
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
         qmname = countdown(filepaths[0])
-        self.sink._attached_timer._taco_update_resource('writelistmode', 'on')
-        self.sink._attached_timer._taco_update_resource('lastlistfile', qmname)
+        self.sink._attached_timer._dev.SetProperties(['writelistmode', 'true'])
+        self.sink._attached_timer._dev.SetProperties(['lastlistfile', qmname])
         limage = self.sink._attached_liveimage
         limage._dev.filename = filepaths[0]
         limage._dev.delay = self.sink._attached_tofchannel.delay * 100
