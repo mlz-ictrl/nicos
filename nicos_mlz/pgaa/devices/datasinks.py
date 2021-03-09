@@ -270,7 +270,7 @@ class CSVDataFile(TextIOWrapper):
     """Represents a csv data file."""
 
     def __init__(self, shortpath, filepath, filemode=None, logger=None):
-        TextIOWrapper.__init__(self, FileIO(filepath, 'a'))
+        TextIOWrapper.__init__(self, FileIO(filepath, 'a'), encoding='utf-8')
         self.shortpath = shortpath
         self.filepath = filepath
         self._log = logger
