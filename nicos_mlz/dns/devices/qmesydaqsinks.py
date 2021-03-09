@@ -59,10 +59,11 @@ class ListmodeSinkHandler(DataSinkHandler):
         self.sink._attached_timer._dev.SetProperties(['writelistmode', 'true'])
         self.sink._attached_timer._dev.SetProperties(['lastlistfile', qmname])
         limage = self.sink._attached_liveimage
-        limage._dev.filename = filepaths[0]
-        limage._dev.delay = self.sink._attached_tofchannel.delay * 100
-        limage._dev.timeInterval = self.sink._attached_tofchannel.divisor * 100
-        limage._dev.timeChannels = self.sink._attached_tofchannel.timechannels
+        if limage:
+            limage._dev.filename = filepaths[0]
+            limage._dev.delay = self.sink._attached_tofchannel.delay * 100
+            limage._dev.timeInterval = self.sink._attached_tofchannel.divisor * 100
+            limage._dev.timeChannels = self.sink._attached_tofchannel.timechannels
 
 
 class QMesyDAQSink(FileSink):
@@ -83,6 +84,6 @@ class ListmodeSink(QMesyDAQSink):
     handlerclass = ListmodeSinkHandler
 
     attached_devices = {
-        'liveimage': Attach('device to set filename', Device),
+        'liveimage': Attach('device to set filename', Device, optional=True),
         'tofchannel': Attach('device to get TOF settings', Device),
     }
