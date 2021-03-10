@@ -28,15 +28,13 @@
 import socket
 from os import path
 
-from nicos.utils import getfqdn
-
 from nicos_sinq.devices.loggers.mongo import create_mongo_handler
 
 
 def determine_instrument(setup_package_path):
     """SINQ specific way to find the NICOS instrument from the host name."""
     try:
-        domain = 'nicos_sinq/' + getfqdn()
+        domain = 'nicos_sinq/' + socket.getfqdn()
     except (ValueError, IndexError, OSError):
         pass
     else:

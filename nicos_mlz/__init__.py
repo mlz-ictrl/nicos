@@ -27,15 +27,17 @@
 import socket
 from os import path
 
-from nicos.utils import getfqdn
-
 
 def determine_instrument(setup_package_path):
     """MLZ specific way to find the NICOS instrument from the host name."""
     try:
         # Take the second part of the domain name (machine.instrument.frm2
         # or new-style machine.instrument.frm2.tum.de)
-        hostparts = getfqdn().split('.')
+        hostname = socket.gethostname()
+        # can't use nicos.utils.getfqdn due to import dependency
+        if '.' not in hostname:
+            hostname = socket.getfqdn(hostname)
+        hostparts = hostname.split('.')
         instrument = hostparts[1].replace('-', '_')
         if instrument == 'jcns' and hostparts[0] == 'jcnsmon':
             instrument = 'jcnsmon'
