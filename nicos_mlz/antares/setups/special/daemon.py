@@ -14,6 +14,15 @@ devices = dict(
             'ictrl': 'admin',
         }
     ),
+    UserDBAuth = device('nicos_mlz.devices.ghost.Authenticator',
+         description = 'FRM II user office authentication',
+         instrument = 'ANTARES',
+         ghosthost = 'ghost.mlz-garching.de',
+         aliases = {
+             'ms': ('michael.schulz@frm2.tum.de', 'admin'),
+         },
+         loglevel = 'info',
+    ),
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         description = 'Authentication device',
         hashing = 'md5',
@@ -27,7 +36,7 @@ devices = dict(
     Daemon = device('nicos.services.daemon.NicosDaemon',
         description = 'Daemon, executing commands and scripts',
         server = '0.0.0.0',
-        authenticators = ['LDAPAuth', 'Auth'],
+        authenticators = ['LDAPAuth', 'UserDBAuth', 'Auth'],
         loglevel = 'debug',
     ),
 )
