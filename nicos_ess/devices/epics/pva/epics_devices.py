@@ -138,20 +138,17 @@ class EpicsDevice(DeviceMixinBase):
                               type=none_or(floatrange(0.1, 60)),
                               userparam=False, mandatory=False, default=1.0),
     }
+
     parameter_overrides = {
         # Hide the parameters that are irrelevant when using monitors.
         'maxage': Override(userparam=False, settable=False),
         'pollinterval': Override(userparam=False, settable=False),
     }
 
-    # A set of all parameters that indicate PV names.  Since PVs are very
-    # limited, an EpicsDevice is expected to use many different PVs a lot
-    # of times.
-    _pv_parameters = set()
-
     # This will store PV objects for each PV param.
     _pvs = {}
     _epics_wrapper = None
+    _record_fields = {}
 
     def doPreinit(self, mode):
         self._epics_wrapper = PvaWrapper()
@@ -178,15 +175,13 @@ class EpicsDevice(DeviceMixinBase):
         pass
 
     def _get_pv_parameters(self):
-        # The default implementation of this method simply returns the
-        # pv_parameters set
-        return self._pv_parameters
+        return set(self._record_fields.keys())
 
     def _get_pv_name(self, pvparam):
-        # In the default case, the name of a PV-parameter is stored in a
-        # parameter. This method can be overridden in subclasses in case the
-        # name can be derived using some other information.
-        return getattr(self, pvparam)
+        if hasattr(self, pvparam):
+            return getattr(self, pvparam)
+        stem = getattr(self, 'readpv')
+        return '.'.join([stem, self._record_fields.get(pvparam, '')])
 
     def doStatus(self, maxage=0):
         # For most devices we only care about the status of the read PV
@@ -232,7 +227,7 @@ class EpicsReadable(EpicsMonitorMixin, EpicsDevice, Readable):
         'unit': Override(mandatory=False, settable=False),
     }
 
-    _pv_parameters = {
+    _record_fields = {
         'readpv': '',
         'units': 'EGU',
     }
@@ -240,11 +235,6 @@ class EpicsReadable(EpicsMonitorMixin, EpicsDevice, Readable):
     _cache_relations = {
         'readpv': 'value',
         'units': 'unit',
-    }
-
-    parameter_overrides = {
-        # Units are set by EPICS, so cannot be changed
-        'unit': Override(mandatory=False, settable=False),
     }
 
     def doInit(self, mode):
@@ -257,13 +247,7 @@ class EpicsReadable(EpicsMonitorMixin, EpicsDevice, Readable):
         return self._get_pv('readpv')
 
     def _get_pv_parameters(self):
-        return set(self.pv_parameters.keys())
-
-    def _get_pv_name(self, pvparam):
-        if hasattr(self, pvparam):
-            return getattr(self, pvparam)
-        stem = getattr(self, 'readpv')
-        return '.'.join([stem, self._pv_parameters[pvparam]])
+        return set(self._record_fields.keys())
 
 
 class EpicsStringReadable(EpicsReadable):
@@ -273,14 +257,16 @@ class EpicsStringReadable(EpicsReadable):
     """
     valuetype = str
 
-    _pv_parameters = {'readpv'}
+    _record_fields = {
+        'readpv': '',
+    }
 
     _cache_relations = {
         'readpv': 'value',
     }
 
     def _get_pv_parameters(self):
-        return self._pv_parameters
+        return {'readpv'}
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv', as_string=True)
@@ -306,8 +292,6 @@ class EpicsMoveable(EpicsMonitorMixin, EpicsDevice, Moveable):
         'target': Override(volatile=True),
     }
 
-    _pv_parameters = {'readpv', 'writepv', }
-
     _cache_relations = {
         'readpv': 'value',
         'writepv': 'target',
@@ -315,15 +299,9 @@ class EpicsMoveable(EpicsMonitorMixin, EpicsDevice, Moveable):
 
     def _get_pv_parameters(self):
         if self.targetpv:
-            return self._pv_parameters | {'targetpv'}
+            return {'readpv', 'writepv', 'targetpv'}
 
-        return self._pv_parameters
-
-    def _get_pv_name(self, pvparam):
-        if hasattr(self, pvparam):
-            return getattr(self, pvparam)
-        stem = getattr(self, 'readpv')
-        return '.'.join([stem, self._pv_parameters[pvparam]])
+        return {'readpv', 'writepv'}
 
     def doInit(self, mode):
         if mode == SIMULATION:
@@ -370,15 +348,13 @@ class EpicsStringMoveable(EpicsMoveable):
     """
     valuetype = str
 
-    _pv_parameters = {'readpv', 'writepv'}
-
     _cache_relations = {
         'readpv': 'value',
         'writepv': 'target',
     }
 
     def _get_pv_parameters(self):
-        return self._pv_parameters
+        return {'readpv', 'writepv'}
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv', as_string=True)
@@ -394,7 +370,7 @@ class EpicsAnalogMoveable(HasLimits, EpicsMoveable):
         'abslimits': Override(mandatory=False),
     }
 
-    _pv_parameters = {
+    _record_fields = {
         'readpv': '',
         'writepv': '',
         'units': 'EGU',
@@ -407,18 +383,12 @@ class EpicsAnalogMoveable(HasLimits, EpicsMoveable):
     }
 
     def _get_pv_parameters(self):
-        params = set(self._pv_parameters.keys())
+        params = set(self._record_fields.keys())
 
         if self.targetpv:
             return params | {'targetpv'}
 
         return params
-
-    def _get_pv_name(self, pvparam):
-        if hasattr(self, pvparam):
-            return getattr(self, pvparam)
-        stem = getattr(self, 'readpv')
-        return '.'.join([stem, self._pv_parameters[pvparam]])
 
 
 class EpicsDigitalMoveable(EpicsAnalogMoveable):
@@ -442,7 +412,8 @@ class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
         'mapping': Override(mandatory=False, settable=True, userparam=False)
     }
 
-    _pv_parameters = {'readpv', 'writepv'}
+    def _get_pv_parameters(self):
+        return {'readpv', 'writepv'}
 
     def _subscribe(self, change_callback, pvname, pvparam):
         # Override for custom subscriptions
