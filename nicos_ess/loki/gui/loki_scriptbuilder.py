@@ -80,11 +80,68 @@ class LokiScriptBuilderPanel(Panel):
         QShortcut(QKeySequence.Paste, self.tableScript).activated.connect(
             self._handle_table_paste)
 
-        temp = QShortcut(QKeySequence.Copy, self.tableScript)
+        QShortcut(QKeySequence.Cut, self.tableScript).activated.connect(
+            self._handle_cut_cells)
 
-        temp.activated.connect(self._handle_copy_cells)
-        temp.setContext(Qt.WidgetWithChildrenShortcut)
-        print(temp)
+        QShortcut(QKeySequence.Delete, self.tableScript).activated.connect(
+            self._handle_delete_cells)
+
+        # TODO: this doesn't work on a Mac?
+        QShortcut(QKeySequence.Backspace, self.tableScript).activated.connect(
+            self._handle_delete_cells)
+
+        # TODO: Cannot do keyboard copy as it is ambiguous - investigate
+        QShortcut(QKeySequence.Copy, self.tableScript).activated.connect(
+            self._handle_copy_cells)
+
+        QShortcut(QKeySequence('Ctrl+i'), self.tableScript).activated.connect(
+            self._insert_row_above)
+
+        QShortcut(QKeySequence('Ctrl+j'), self.tableScript).activated.connect(
+            self._insert_row_below)
+
+    @pyqtSlot()
+    def on_cutButton_clicked(self):
+        self._handle_cut_cells()
+
+    @pyqtSlot()
+    def on_copyButton_clicked(self):
+        self._handle_copy_cells()
+
+    @pyqtSlot()
+    def on_pasteButton_clicked(self):
+        self._handle_table_paste()
+
+    def _insert_row_above(self):
+        lowest, _ = self._get_selected_rows_limits()
+        if lowest is not None:
+            self.tableScript.insertRow(lowest)
+
+    def _insert_row_below(self):
+        _, highest = self._get_selected_rows_limits()
+        if highest:
+            self.tableScript.insertRow(highest + 1)
+
+    def _get_selected_rows_limits(self):
+        lowest = None
+        highest = None
+        for index in self.tableScript.selectionModel().selectedIndexes():
+            if lowest is None:
+                lowest = index.row()
+                highest = index.row()
+                continue
+            lowest = min(lowest, index.row())
+            highest = max(highest, index.row())
+        return lowest, highest
+
+
+    def _handle_cut_cells(self):
+        self._handle_copy_cells()
+        self._handle_delete_cells()
+
+    def _handle_delete_cells(self):
+        for index in self.tableScript.selectionModel().selectedIndexes():
+            self._update_cell(index.row(), index.column(), '')
 
     def _handle_copy_cells(self):
         if len(self.tableScript.selectedRanges()) != 1:
@@ -92,7 +149,6 @@ class LokiScriptBuilderPanel(Panel):
             return
         selected_data = self._extract_selected_data()
         QApplication.instance().clipboard().setText('\n'.join(selected_data))
-        print('\n'.join(selected_data))
 
     def _extract_selected_data(self):
         selected_data = []
@@ -118,6 +174,7 @@ class LokiScriptBuilderPanel(Panel):
         return ''
 
     def _handle_table_paste(self):
+        # TODO: expand selection to match pasted items
         indices = []
         for index in self.tableScript.selectionModel().selectedIndexes():
             indices.append((index.row(), index.column()))
