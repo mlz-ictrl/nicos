@@ -191,7 +191,7 @@ class Authenticator(BaseAuthenticator):
 
     parameters = {
         'ghosthost':  Param('Host of the GhOST system to authenticate against',
-                            type=nonemptystring),
+                            type=nonemptystring, mandatory=True),
         'instrument': Param('Name of the instrument in GhOST', type=str),
         'checkexp':   Param('If true, check that users are either affiliated '
                             'with the current experiment, or registered '
