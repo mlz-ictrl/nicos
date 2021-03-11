@@ -86,19 +86,13 @@ class LokiScriptBuilderPanel(Panel):
         QShortcut(QKeySequence.Delete, self.tableScript).activated.connect(
             self._handle_delete_cells)
 
-        # TODO: this doesn't work on a Mac?
+        # TODO: this doesn't work on a Mac? How about Linux?
         QShortcut(QKeySequence.Backspace, self.tableScript).activated.connect(
             self._handle_delete_cells)
 
         # TODO: Cannot do keyboard copy as it is ambiguous - investigate
         QShortcut(QKeySequence.Copy, self.tableScript).activated.connect(
             self._handle_copy_cells)
-
-        QShortcut(QKeySequence('Ctrl+i'), self.tableScript).activated.connect(
-            self._insert_row_above)
-
-        QShortcut(QKeySequence('Ctrl+j'), self.tableScript).activated.connect(
-            self._insert_row_below)
 
     @pyqtSlot()
     def on_cutButton_clicked(self):
@@ -178,6 +172,9 @@ class LokiScriptBuilderPanel(Panel):
         row_data = []
         curr_row = -1
         for index in self.tableScript.selectionModel().selectedIndexes():
+            if self.tableScript.isColumnHidden(index.column()):
+                # Don't copy hidden columns
+                continue
             if curr_row != index.row():
                 if row_data:
                     selected_data.append('\t'.join(row_data))
@@ -197,7 +194,6 @@ class LokiScriptBuilderPanel(Panel):
         return ''
 
     def _handle_table_paste(self):
-        # TODO: expand selection to match pasted items
         indices = []
         for index in self.tableScript.selectionModel().selectedIndexes():
             indices.append((index.row(), index.column()))
