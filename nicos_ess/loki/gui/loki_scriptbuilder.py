@@ -195,15 +195,18 @@ class LokiScriptBuilderPanel(Panel):
             return
 
         # Copied data is tabular so insert at top-left most position
-        for y, row in enumerate(copied_table):
-            x = 0
-            for value in row:
-                while top_left[1] + x < self.tableScript.columnCount():
-                    if not self.tableScript.isColumnHidden(top_left[1] + x):
-                        self._update_cell(top_left[0] + y, top_left[1] + x, value)
-                        x += 1
+        for row_index, row_data in enumerate(copied_table):
+            col_index = 0
+            for value in row_data:
+                while top_left[1] + col_index < self.tableScript.columnCount():
+                    # Only paste into visible columns
+                    if not self.tableScript.isColumnHidden(top_left[1] + 
+                                                           col_index):
+                        self._update_cell(top_left[0] + row_index,
+                                          top_left[1] + col_index, value)
+                        col_index += 1
                         break
-                    x += 1
+                    col_index += 1
 
     def _link_duration_combobox_to_column(self, column_name, combobox):
         combobox.addItems(self.duration_options)
