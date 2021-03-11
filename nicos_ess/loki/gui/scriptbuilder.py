@@ -55,6 +55,13 @@ class CommandsPanel(Panel):
         self.mapping = {}
         self.expertmode = self.mainwindow.expertmode
 
+        if client.isconnected:
+            self.on_client_connected()
+        else:
+            self.on_client_disconnected()
+        client.connected.connect(self.on_client_connected)
+        client.disconnected.connect(self.on_client_disconnected)
+
         modules = options.get('modules', [])
         for module in modules:
             importString(module)  # should register cmdlets
@@ -85,6 +92,23 @@ class CommandsPanel(Panel):
 
     def setExpertMode(self, expert):
         self.expertmode = expert
+
+    def setViewOnly(self, viewonly):
+        """
+        While the commands still be visible, they will be disabled.
+        They can be made un-visible but the UI frame is not dynamically adjust
+        itself thus leading a big gray area which is not pleasing.
+
+        Disabling each cmdlet seems not possible via direct call to them, thus
+        we disable the frame.
+        """
+        self.frame.setEnabled(not viewonly)
+
+    def on_client_connected(self):
+        self.frame.setEnabled(True)
+
+    def on_client_disconnected(self):
+        self.frame.setEnabled(False)
 
     def on_cmdletRemove(self):
         cmdlet = self.sender()
