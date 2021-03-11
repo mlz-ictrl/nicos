@@ -134,7 +134,6 @@ class LokiScriptBuilderPanel(Panel):
             highest = max(highest, index.row())
         return lowest, highest
 
-
     def _handle_cut_cells(self):
         self._handle_copy_cells()
         self._handle_delete_cells()
@@ -197,8 +196,14 @@ class LokiScriptBuilderPanel(Panel):
 
         # Copied data is tabular so insert at top-left most position
         for y, row in enumerate(copied_table):
-            for x, value in enumerate(row):
-                self._update_cell(top_left[0] + y, top_left[1] + x, value)
+            x = 0
+            for value in row:
+                while top_left[1] + x < self.tableScript.columnCount():
+                    if not self.tableScript.isColumnHidden(top_left[1] + x):
+                        self._update_cell(top_left[0] + y, top_left[1] + x, value)
+                        x += 1
+                        break
+                    x += 1
 
     def _link_duration_combobox_to_column(self, column_name, combobox):
         combobox.addItems(self.duration_options)
@@ -213,7 +218,8 @@ class LokiScriptBuilderPanel(Panel):
 
     def _do_bulk_update(self, value):
         for index in self.tableScript.selectionModel().selectedIndexes():
-            self._update_cell(index.row(), index.column(), value)
+            if not self.tableScript.isColumnHidden(index.column()):
+                self._update_cell(index.row(), index.column(), value)
 
     @pyqtSlot()
     def on_clearTableButton_clicked(self):
