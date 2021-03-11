@@ -223,11 +223,16 @@ class LokiScriptBuilderPanel(Panel):
             col_index = 0
             for value in row_data:
                 while top_left[1] + col_index < self.tableScript.columnCount():
+                    current_column = top_left[1] + col_index
+                    current_row = top_left[0] + row_index
                     # Only paste into visible columns
-                    if not self.tableScript.isColumnHidden(top_left[1] +
-                                                           col_index):
-                        self._update_cell(top_left[0] + row_index,
-                                          top_left[1] + col_index, value)
+                    #TODO: switch the clause to tidy ?
+                    if not self.tableScript.isColumnHidden(current_column):
+                        self._update_cell(current_row,
+                                          current_column, value)
+                        item = self.tableScript.item(current_row,
+                                                     current_column)
+                        item.setSelected(True)
                         col_index += 1
                         break
                     col_index += 1
