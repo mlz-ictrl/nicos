@@ -112,6 +112,27 @@ class LokiScriptBuilderPanel(Panel):
     def on_pasteButton_clicked(self):
         self._handle_table_paste()
 
+    @pyqtSlot()
+    def on_addAboveButton_clicked(self):
+        self._insert_row_above()
+
+    @pyqtSlot()
+    def on_addBelowButton_clicked(self):
+        self._insert_row_below()
+
+    @pyqtSlot()
+    def on_deleteRowsButton_clicked(self):
+        self._delete_rows()
+
+    def _delete_rows(self):
+        rows_to_remove = set()
+        for index in self.tableScript.selectionModel().selectedIndexes():
+            rows_to_remove.add(index.row())
+        rows_to_remove = list(rows_to_remove)
+        rows_to_remove.sort(reverse=True)
+        for row_num in rows_to_remove:
+            self.tableScript.removeRow(row_num)
+
     def _insert_row_above(self):
         lowest, _ = self._get_selected_rows_limits()
         if lowest is not None:
@@ -123,6 +144,9 @@ class LokiScriptBuilderPanel(Panel):
             self.tableScript.insertRow(highest + 1)
 
     def _get_selected_rows_limits(self):
+        if self.tableScript.rowCount() == 0:
+            return 0, -1
+
         lowest = None
         highest = None
         for index in self.tableScript.selectionModel().selectedIndexes():
