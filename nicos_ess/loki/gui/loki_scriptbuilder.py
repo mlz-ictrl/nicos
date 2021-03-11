@@ -119,7 +119,7 @@ class LokiScriptBuilderPanel(Panel):
 
     def _insert_row_below(self):
         _, highest = self._get_selected_rows_limits()
-        if highest:
+        if highest is not None:
             self.tableScript.insertRow(highest + 1)
 
     def _get_selected_rows_limits(self):
