@@ -221,17 +221,16 @@ class LokiScriptBuilderPanel(Panel):
                 while top_left[1] + col_index < self.tableScript.columnCount():
                     current_column = top_left[1] + col_index
                     current_row = top_left[0] + row_index
-                    # Only paste into visible columns
-                    #TODO: switch the clause to tidy ?
-                    if not self.tableScript.isColumnHidden(current_column):
-                        self._update_cell(current_row,
-                                          current_column, value)
-                        item = self.tableScript.item(current_row,
-                                                     current_column)
-                        item.setSelected(True)
-                        col_index += 1
-                        break
                     col_index += 1
+                    # Only paste into visible columns
+                    if not self.tableScript.isColumnHidden(current_column):
+                        self._update_cell(current_row, current_column, value)
+                        self._select_cell(current_row, current_column)
+                        break
+
+    def _select_cell(self, row, column):
+        item = self.tableScript.item(row, column)
+        item.setSelected(True)
 
     def _link_duration_combobox_to_column(self, column_name, combobox):
         combobox.addItems(self.duration_options)
