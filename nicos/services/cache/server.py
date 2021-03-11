@@ -218,7 +218,7 @@ class CacheWorker:
         if op == OP_TELL:
             self.db.tell(key, value, time, ttl, self)
         elif op == OP_ASK:
-            if ttl:
+            if ttl is not None:
                 return self.db.ask_hist(key, time, time + ttl)
             else:
                 # although passed, time and ttl are ignored here

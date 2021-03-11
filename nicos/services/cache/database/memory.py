@@ -155,7 +155,7 @@ class MemoryCacheDatabaseWithHistory(MemoryCacheDatabase):
                 if fromtime <= entry.time <= totime:
                     ret.append('%r@%s=%s\n' % (entry.time, key, entry.value))
                     inrange = True
-                elif not inrange and entry.value:
+                elif not inrange and entry.value and entry.time < fromtime:
                     ret = ['%r@%s=%s\n' % (entry.time, key, entry.value)]
         except Exception:
             self.log.exception('error reading store for history query')

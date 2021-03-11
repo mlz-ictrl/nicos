@@ -241,6 +241,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         bydate = path.join(self._basepath, self._year, self._currday)
         ensureDirectory(bydate)
         filename = path.join(bydate, category)
+        # pylint: disable=consider-using-with
         fd = open(filename, 'a+', encoding='utf-8')
         fd.seek(0, os.SEEK_END)
         # write version identification, but only for empty files
@@ -367,7 +368,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                             # bunch up 100 entries at a time
                             yield ''.join(temp)
                             temp = []
-                    elif not inrange and value:
+                    elif not inrange and value and time < fromtime:
                         lastvalue = '%r@%s=%s\n' % (time, key, value)
             except Exception:
                 self.log.exception('error reading store file for history query')
