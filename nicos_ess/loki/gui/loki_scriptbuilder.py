@@ -186,8 +186,8 @@ class LokiScriptBuilderPanel(Panel):
             # Don't paste images etc.
             return
 
-        copied_table = [[x for x in row.strip().split('\t')]
-                        for row in clipboard_text.split('\n')]
+        copied_table = [[x for x in row.split('\t')]
+                        for row in clipboard_text.splitlines()]
 
         if len(copied_table) == 1 and len(copied_table[0]) == 1:
             # Only one value, so put it in all selected cells
@@ -200,7 +200,7 @@ class LokiScriptBuilderPanel(Panel):
             for value in row_data:
                 while top_left[1] + col_index < self.tableScript.columnCount():
                     # Only paste into visible columns
-                    if not self.tableScript.isColumnHidden(top_left[1] + 
+                    if not self.tableScript.isColumnHidden(top_left[1] +
                                                            col_index):
                         self._update_cell(top_left[0] + row_index,
                                           top_left[1] + col_index, value)
