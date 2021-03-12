@@ -115,7 +115,7 @@ def test_focuspoint(session):
     assert state[0] == status.OK
     assert state[1] == 'focus'
 
-    fp.maw(1000)
+    fp.maw(1100)
     state = fp.status(0)
     assert state[0] == status.OK
     assert state[1] == 'idle'

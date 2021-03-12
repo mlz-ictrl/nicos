@@ -23,10 +23,11 @@
 # *****************************************************************************
 
 from nicos.core import Moveable, Readable, status
-from nicos.core.params import Attach, Param, floatrange
+from nicos.core.mixins import HasLimits
+from nicos.core.params import Attach, Override, Param, floatrange
 
 
-class FocusPoint(Moveable):
+class FocusPoint(HasLimits, Moveable):
     attached_devices = {
         'table': Attach('table', Moveable),
         'pivot': Attach('pivot', Readable),
@@ -35,6 +36,10 @@ class FocusPoint(Moveable):
     parameters = {
         'gisansdistance': Param('GISANS distance',
                                 type=floatrange(0, None), default=10700),
+    }
+
+    parameter_overrides = {
+        'abslimits': Override(mandatory=True, volatile=False),
     }
 
     def moveToFocus(self):
