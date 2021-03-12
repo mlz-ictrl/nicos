@@ -37,6 +37,66 @@ from nicos.utils import createThread
 from nicos_ess.devices.kafka.consumer import KafkaSubscriber
 
 
+class Hist1dTof:
+    name = 'hist1d'
+
+    @classmethod
+    def get_array_description(cls, num_bins, det_width, det_height):
+        return ArrayDesc('data', shape=(num_bins,), dtype=np.float64)
+
+    @classmethod
+    def transform_data(cls, data):
+        return data
+
+    @classmethod
+    def get_info(cls, name, num_bins, det_width, det_height):
+        return [(f'{name} bins', num_bins, str(num_bins), '', 'general')]
+
+
+class Hist2dTof:
+    name = 'hist2d'
+
+    @classmethod
+    def get_array_description(cls, num_bins, det_width, det_height):
+        return ArrayDesc('data', shape=(num_bins, num_bins), dtype=np.float64)
+
+    @classmethod
+    def transform_data(cls, data):
+        # For the ESS detector orientation, pixel 0 is at top-left
+        return np.rot90(data)
+
+    @classmethod
+    def get_info(cls, name, num_bins, det_width, det_height):
+        return [(f'{name} bins', (num_bins, num_bins),
+                 str((num_bins, num_bins)), '', 'general')]
+
+
+class Hist2dDet:
+    name = 'dethist'
+
+    @classmethod
+    def get_array_description(cls, num_bins, det_width, det_height):
+        return ArrayDesc('data', shape=(det_width, det_height),
+                         dtype=np.float64)
+
+    @classmethod
+    def transform_data(cls, data):
+        # For the ESS detector orientation, pixel 0 is at top-left
+        return np.rot90(data)
+
+    @classmethod
+    def get_info(cls, name, num_bins, det_width, det_height):
+        return [(f'{name} width', det_width, str(det_width), '', 'general'),
+                (f'{name} height', det_height, str(det_height), '', 'general')]
+
+
+hist_type_by_name = {
+    '1-D TOF': Hist1dTof,
+    '2-D TOF': Hist2dTof,
+    '2-D DET': Hist2dDet,
+}
+
+
 class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
     parameters = {
         'hist_topic': Param('The topic to listen on for the histogram data',
@@ -48,7 +108,7 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
                             mandatory=True,
                             ),
         'hist_type': Param('The number of dimensions to histogram in',
-                           type=oneof('1-D TOF', '2-D TOF', '2-D DET'),
+                           type=oneof(*hist_type_by_name.keys()),
                            default='1-D TOF', userparam=True, settable=True
                            ),
         'tof_range': Param('The time-of-flight range to histogram',
@@ -91,15 +151,8 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
         KafkaSubscriber.doPreinit(self, None)
 
     def arrayInfo(self):
-        if self.hist_type == '1-D TOF':
-            return ArrayDesc('data', shape=(self.num_bins,), dtype=np.float64)
-        elif self.hist_type == '2-D DET':
-            return ArrayDesc('data', shape=(self.det_width, self.det_height),
-                             dtype=np.float64)
-        elif self.hist_type == '2-D TOF':
-            return ArrayDesc('data', shape=(self.num_bins, self.num_bins),
-                             dtype=np.float64)
-        raise NameError('Unrecognised histogram type. Developer typo?')
+        return hist_type_by_name[self.hist_type].get_array_description(
+            self.num_bins, self.det_width, self.det_height)
 
     def doPrepare(self):
         self._current_status = status.BUSY, 'Preparing'
@@ -132,11 +185,8 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
             self._consumer.unsubscribe()
             self._current_status = status.OK, ''
 
-        if self.hist_type == '1-D TOF':
-            self.hist_data = hist['data']
-        else:
-            # For the ESS detector orientation, pixel 0 is at top-left
-            self.hist_data = np.rot90(hist['data'])
+        self.hist_data = \
+            hist_type_by_name[self.hist_type].transform_data(hist['data'])
 
         self._hist_edges = hist['dim_metadata'][0]['bin_boundaries']
 
@@ -165,17 +215,11 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
                 self._updater_thread.join()
 
     def get_configuration(self):
-        hist_type = {
-            '2-D TOF': 'hist2d',
-            '2-D DET': 'dethist',
-            '1-D TOF': 'hist1d',
-        }[self.hist_type]
-
         # Generate a unique-ish id
         self._unique_id = 'nicos-{}-{}'.format(self.name, int(time.time()))
 
         return {
-            'type': hist_type,
+            'type': hist_type_by_name[self.hist_type].name,
             'data_brokers': self.brokers,
             'data_topics': [self.data_topic],
             'tof_range': list(self.tof_range),
@@ -191,14 +235,8 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
     def doInfo(self):
         result = [(f'{self.name} histogram type', self.hist_type,
                    self.hist_type, '', 'general')]
-        if self.hist_type == '2-D DET':
-            result.append((f'{self.name} width', self.det_width,
-                           str(self.det_width), '', 'general'))
-            result.append((f'{self.name} height', self.det_height,
-                           str(self.det_height), '', 'general'))
-        else:
-            result.append((f'{self.name} bins', self.num_bins,
-                           str(self.num_bins), '', 'general'))
+        result.extend(hist_type_by_name[self.hist_type].get_info(self.name,
+                      self.num_bins, self.det_width, self.det_height))
         return result
 
 
