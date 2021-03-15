@@ -1,0 +1,41 @@
+# This script will loop through all defined geometries
+# and loop at each geometry through all defined samples
+
+# --- start initital setup ---
+run('sc.py')
+s = sc_script()
+# --- end initital setup ---
+
+# --- start defining standard values ---
+# sizes of diaphragms
+#s.diaphragms = {'bg1':'42mm', 'bg2':'28mm', 'sa1':'20mm'}
+# sequence of moving through the samples on the samplechanger
+s.sample_sequence = [9,  8,  7,  6,  5,  4,  3,  2]
+# sequence of moving through the geometries defined below
+s.geometry_sequence = [4]
+# for (re)starting the script at a specific point
+#s.start_at = [1, 1] # geometry, sample
+# --- end defining standard values ---
+
+
+# geometry number: [wavelength [AA], col [m], det1_z [mm], bs1_x [mm], bs1_y [mm]]
+geometries = {
+    1: [ 4.501,  4,  1111, 500, 489],
+    2: [ 4.501, 8, 8000, 500, 489],
+    3: [ 4.501, 20, 20000, 500, 486],
+    4: [12.000, 20, 20000, 500, 455]
+    }
+
+# sample position: [name, {geo1: [trans_time1, scatt_time1], geo2: [trans_time2, scatt_time2], ...}]
+# times in seconds; if time = 0, the measurement will be skipped
+# trans_time: time for transmission measurement
+# scatt_time: time for scattering measurement
+standard_times_SAM =    {4: [100, 3600]}
+
+samples = {
+         4: ['PNIPAM_b_POEGA_1', {4: [100, 900]}],
+         5: ['PNIPAM_b_POEGA_2', {4: [100, 900]}],
+         6: ['PNIPAM_b_POEGA_3', {4: [100, 900]}],
+    }
+
+s.run(geometries, samples)

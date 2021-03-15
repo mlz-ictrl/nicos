@@ -1,0 +1,275 @@
+#################################################################################
+# Script to facilitate switching between geometries on the SANS-1 @ MLZ
+# Idea and initial version by Lukas Karge
+# This version written by Sebastian Busch
+# Update 2021 by Andreas Wilhelm
+################################################################################
+
+class sc_script(object):
+    """
+    A class to facilitate moving the SANS1 machine with sample changer
+    """
+
+    def __init__(self):#{{{
+        """
+        Setting standard values
+        """
+        #for dev in [att, bg1, bg2, col, det1_z, sa1]:
+        #    try:
+        #        self.__dict__[str(dev)] = dev.read()
+        #    except:
+        #        printinfo("ERROR: cannot read", str(dev))
+        #try:
+        #    self.__dict__['wl'] = round(selector_lambda.read(),1)
+        #except:
+        #    printinfo("ERROR: cannot read", str(selector_lambda))
+        CreateDevice('col_sw', 'det1_hv_ax')
+        self.waitlist = []
+        self.start_at = [None, None] # sample, geometry
+        self.sample_sequence = [  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11,
+                                 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12]
+        self.geometry_sequence = None
+        self.measure_sample = False
+        self.measure_geometry = False
+        self.prev_trans_scatt = None
+    #}}}
+
+    def cond_move(self, device, target, sync=False):#{{{
+        """
+        conditional move: check the current position and move only if needed
+        """
+        need_to_move = False
+        if device == det1_z:
+            if round(target/100) != round(det1_z.read()/100):
+                need_to_move = True
+        elif device == selector_lambda:
+            if round(target,1) != round(device.read(),1):
+                need_to_move = True
+        else:
+            if device.read() != target:
+                need_to_move = True
+        if need_to_move:
+            #printinfo('Need to move: ', device)
+            self.waitlist.append(device)
+            move(device, target)
+            if sync:
+                self.cond_wait(device)
+    #}}}
+
+    def cond_wait(self, device=None):#{{{
+        """
+        conditional wait: check if we moved the device before and wait only then
+        """
+        if device == None:
+            wait()
+            self.waitlist = []
+        elif device in self.waitlist:
+            wait(device)
+            self.waitlist.remove(device)
+            #printinfo(self.waitlist)
+    #}}}
+
+    def beamstop(self, inbeam=True, bs1x=500, bs1y=490):#{{{
+        """
+        move beamstop in or out of beam
+        """
+        if inbeam:
+            #printinfo("Moving beamstop into beam")
+            #self.cond_move(bs1, (bs1x, bs1y))
+            maw(bs1, (bs1x, bs1y))
+        else:
+            #printinfo("Moving beamstop out of beam")
+            #self.cond_move(bs1, (500, 200))
+            maw(bs1, (500, 200))
+    #}}}
+
+    def geo(self, sample, wl, coll, det, bs1x, bs1y, trans_scatt):#{{{
+        """
+        Move SANS1 to the given geometry.
+        sample: number on sample changer
+        wl: wavelength (Angstrom)
+        coll: collimation (m)
+        det: detector (mm)
+        bs1x: beamstop 1 x position (mm)
+        bs1y: beamstop 1 y position (mm)
+        trans_scatt: 't' / 's' transmission or scattering measurement
+        """
+
+        #attenuator settings
+        #low/high: neutron flux
+        #Tr/Sc: transmission/scattering
+        #letters: O='open', H='x100', T='x1000'
+        #first: old state; second: during change; third: new state
+        #
+        #"from <left> to <top>"
+        #        low Tr  low Sc  high Tr high Sc
+        #low Tr  HHH     HHO     HTT     HTO
+        #low Sc  OHH     OHO     OTT     OTO
+        #high Tr TTH     TTO     TTT     TTO
+        #high Sc OTH     OTO     OTT     OTO
+        #
+        #since "OTO" is faster than "OHO"
+        #        low Tr  low Sc  high Tr high Sc
+        #low Tr  HHH     HHO     HTT     HTO
+        #low Sc  OHH     OTO     OTT     OTO
+        #high Tr TTH     TTO     TTT     TTO
+        #high Sc OTH     OTO     OTT     OTO
+        att_settings = [
+                [['x100' , 'x100' , 'x100'], ['x100' , 'x100' , 'open'], ['x100' , 'x1000', 'x1000'], ['x100' , 'x1000', 'open']],
+                [['open' , 'x100' , 'x100'], ['open' , 'x1000', 'open'], ['open' , 'x1000', 'x1000'], ['open' , 'x1000', 'open']],
+                [['x1000', 'x1000', 'x100'], ['x1000', 'x1000', 'open'], ['x1000', 'x1000', 'x1000'], ['x1000', 'x1000', 'open']],
+                [['open' , 'x1000', 'x100'], ['open' , 'x1000', 'open'], ['open' , 'x1000', 'x1000'], ['open' , 'x1000', 'open']]
+                ]
+        att_index_before = 0
+        att_index_after = 0
+        # before
+        if self.prev_trans_scatt != 't': # includes 's' and None
+            att_index_before += 1
+        if ((col.read() < 10) and (selector_lambda.read() < 8)): # high flux
+            att_index_before += 2
+        # after
+        if trans_scatt != 't':
+            att_index_after += 1
+        if ((coll < 10) and (wl < 8)): # high flux
+            att_index_after += 2
+        
+        #################################### das könnte wohl raus #2021
+        ## attenuator during change
+        #atten_target = att_settings[att_index_before][att_index_after][1]
+        #self.cond_move(att, atten_target, sync=True)
+        #################################### und durch das hier ersetzt
+        self.cond_move(instrument_shutter, 'close')
+        self.cond_wait(instrument_shutter)
+        
+        self.cond_move(det1_z, det)
+        self.cond_move(selector_lambda, wl)
+        #self.cond_move(sa1, '20mm')
+        self.cond_move(SampleChanger, sample)
+        #self.cond_move(col_sw, '{0:d}'.format(coll))
+        if coll <= 20:
+            self.cond_move(col_sw, coll)
+            self.cond_move(ng_pol, 'ng')
+        else:
+            self.cond_move(col_sw, 20)
+            self.cond_move(ng_pol, 'col')
+        if trans_scatt == 't':
+            self.beamstop(inbeam=False)
+        else:
+            self.beamstop(inbeam=True, bs1x=bs1x, bs1y=bs1y) # ((coll < 18) or (wl < 10))
+        self.cond_wait(col_sw)
+        self.cond_wait(ng_pol)
+        ## calculate and set bg diaphragms
+        #sa2_dia = sa2.read()
+        #delta = 50.#-sa2_dia
+        #if coll >= 16:
+        #    bg1_opt = delta/coll*16.#+sa2_dia
+        #    bg1_poss = [20., 42., 50.]
+        #    bg1_name = ['20mm', '42mm', 'open']
+        #    bg1_ind = [bg1_opt <= bg for bg in bg1_poss].index(True)
+        #    self.cond_move(bg1, bg1_name[bg1_ind])
+        #if coll >= 6:
+        #    bg2_opt = delta/coll*4.#+sa2_dia
+        #    bg2_poss = [12., 20., 28., 50.]
+        #    bg2_name = ['12mm', '20mm', '28mm', 'open']
+        #    bg2_ind = [bg2_opt <= bg for bg in bg2_poss].index(True)
+        #    self.cond_move(bg2, bg2_name[bg2_ind])
+        self.cond_wait(selector_lambda)
+        self.cond_wait(det1_z)
+        if det1_hv_ax.read() < 1450:
+            printerror("sc.py: det1_hv did not reach target, trying again")
+            sleep(100)
+            maw(det1_hv, 'ON')
+        self.cond_wait(bs1)
+        self.cond_wait(SampleChanger)
+        SelectSample(sample)
+        # attenuator for next measurement
+        atten_target = att_settings[att_index_before][att_index_after][2]
+        self.cond_move(att, atten_target)
+        #self.cond_wait(bg1)
+        #self.cond_wait(bg2)
+        #self.cond_wait(sa1)
+        self.cond_wait(att)
+        #self.cond_wait()
+        self.cond_move(instrument_shutter, 'open') #2021
+        self.cond_wait(instrument_shutter) #2021
+        printinfo("Instrument in position:")
+        printinfo("Wavelength", selector_lambda.read())
+        printinfo("Attenuator", att.read())
+        printinfo("Collimation", col.read())
+        printinfo("Sample to detector distance", det1_z.read())
+        printinfo("Beamstop", bs1.read())
+    #}}}
+
+    def run(self, geometries, samples):#{{{
+        """
+        Loop through the measurements
+        """
+        ClearSamples()
+        for sam_num in self.sample_sequence:
+            if sam_num not in samples.keys():
+                continue
+            samplename, geodict = samples[sam_num]
+            SetSample(sam_num, samplename)
+        if self.geometry_sequence == None:
+            self.geometry_sequence = geometries.keys()
+            self.geometry_sequence.sort()
+        if self.start_at[0] == None:
+            self.measure_geometry = True
+        if self.start_at[1] == None:
+            self.measure_sample = True
+        for geo_num in self.geometry_sequence:
+            if geo_num == self.start_at[0]:
+                self.measure_geometry = True
+            if not self.measure_geometry:
+                printinfo("Starting at geometry number", self.start_at[0], "- skipping geometry number", geo_num)
+                continue
+            wl, coll, det, bs1x, bs1y = geometries[geo_num]
+            for sam_num in self.sample_sequence:
+                if sam_num not in samples.keys():
+                    continue
+                if sam_num == self.start_at[1]:
+                    self.measure_sample = True
+                if not self.measure_sample:
+                    printinfo("Starting at sample number", self.start_at[1], "- skipping sample number", sam_num)
+                    continue
+                samplename, geodict = samples[sam_num]
+                if geo_num not in geodict.keys():
+                    continue
+                trans_time, scatt_time = geodict[geo_num]
+                if self.prev_trans_scatt == 's': # we are in scattering geo, start with it
+                    if scatt_time > 0.:
+                        printinfo("Moving to scattering of sample", samplename, "in geometry", geometries[geo_num])
+                        self.geo(sam_num, wl, coll, det, bs1x, bs1y, 's')
+                        printinfo("Measuring scattering of sample", samplename, "in geometry", geometries[geo_num])
+                        printinfo("[geometry, sample] =", [geo_num, sam_num])
+                        count(scatt_time)
+                        self.prev_trans_scatt = 's'
+                    if trans_time > 0.:
+                        printinfo("Moving to transmission of sample", samplename, "in geometry", geometries[geo_num])
+                        self.geo(sam_num, wl, coll, det, bs1x, bs1y, 't')
+                        printinfo("Measuring transmission of sample", samplename, "in geometry", geometries[geo_num])
+                        printinfo("[geometry, sample] =", [geo_num, sam_num])
+                        count(trans_time)
+                        self.prev_trans_scatt = 't'
+                else:
+                    if trans_time > 0.:
+                        printinfo("Moving to transmission of sample", samplename, "in geometry", geometries[geo_num])
+                        self.geo(sam_num, wl, coll, det, bs1x, bs1y, 't')
+                        printinfo("Measuring transmission of sample", samplename, "in geometry", geometries[geo_num])
+                        printinfo("[geometry, sample] =", [geo_num, sam_num])
+                        count(trans_time)
+                        self.prev_trans_scatt = 't'
+                    if scatt_time > 0.:
+                        printinfo("Moving to scattering of sample", samplename, "in geometry", geometries[geo_num])
+                        self.geo(sam_num, wl, coll, det, bs1x, bs1y, 's')
+                        printinfo("Measuring scattering of sample", samplename, "in geometry", geometries[geo_num])
+                        printinfo("[geometry, sample] =", [geo_num, sam_num])
+                        count(scatt_time)
+                        self.prev_trans_scatt = 's'
+        # when script finishes
+        self.cond_move(instrument_shutter, 'close') #2021
+        self.beamstop(inbeam=True)
+        self.cond_wait(instrument_shutter) #2021
+        printinfo("Script finished!")
+    #}}}
+
