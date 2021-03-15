@@ -109,7 +109,7 @@ class Expression(Condition):
         try:
             value = eval(self.expr, keydict)
         except NameError:
-            if self.setup_enabled and self.enabled:
+            if self.setup_enabled and self.enabled and not self.expires_at:
                 self.expires_at = time + 6
         except Exception:
             self.log.warning('error evaluating %r warning '

@@ -69,6 +69,23 @@ def test_expression():
     assert expr.log.warnings
 
 
+def test_expired():
+    expr = Expression(DummyLog(), 'a and b', '')
+
+    # no values: not triggered, not expired
+    assert not expr.triggered
+    assert not expr.is_expired(0)
+
+    expr.update(0, {'a': 1})
+    # expires after 6 seconds
+    assert not expr.is_expired(5)
+    assert expr.is_expired(10)
+
+    # needs to be still expired, not all values given
+    expr.update(12, {'a': 1})
+    assert expr.is_expired(12)
+
+
 def test_delayed():
     expr = Expression(DummyLog(), 'a', '')
     delayed = DelayedTrigger(DummyLog(), expr, 5)
