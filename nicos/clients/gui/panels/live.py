@@ -966,4 +966,4 @@ class ImagingLiveDataPanel(LiveDataPanel):
             return
         for fn in sorted(os.listdir(datapath)):
             if fn.endswith('.fits'):
-                self.add_to_flist(path.join(datapath, fn), '', 'fits', False)
+                self.add_to_flist(path.join(datapath, fn), 'fits', FILE)
