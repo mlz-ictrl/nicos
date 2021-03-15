@@ -1,6 +1,7 @@
 import csv
 from functools import partial
 import os.path as osp
+import numpy as np
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
@@ -40,7 +41,6 @@ class LokiScriptBuilderPanel(Panel):
 
         self.columns_in_order = [name for name in self.permanent_columns.keys()]
         self.columns_in_order.extend(self.optional_columns.keys())
-
         self._init_panel()
 
     def _init_panel(self, num_rows=25):
@@ -127,7 +127,36 @@ class LokiScriptBuilderPanel(Panel):
             'Open table',
             osp.expanduser("~"),
             'Table Files (*.txt *.csv)')[0]
-    
+        try:
+            self._load_table_from_file(filename)
+        except Exception as ex:
+            self.showError(f"Cannot read table contents from {filename}")
+        
+    def _load_table_from_file(self, filename):
+        with open(filename, "r") as file:
+            reader = csv.reader(file)
+            headers = next(reader)
+            # If headers were modified by hand in the file by user
+            if not set(headers).issubset(set(self.columns_in_order)):
+                raise ValueError(f"Headers in {filename} are not correct \n",
+                                 f"Available headers {self.columns_in_order}")
+
+            # corresponding indices of elements in headers list to colums_in_order
+            indices = [i for i, e in enumerate(self.columns_in_order) 
+                       if e in headers]
+
+            _n_colums = len(self.columns_in_order)
+            for i, row in enumerate(reader):
+                # create appropriate length list to fill the table row
+                r = self._fill_elements(row, indices, _n_colums)
+                for column in range(self.tableScript.columnCount()):
+                    self._update_cell(i, column, r[column])
+
+            # Set the checkButtons if available in headers to render the column
+            for optional in set(headers).intersection(
+                set(self.optional_columns.keys())):
+                self.optional_columns[optional][1].setChecked(True)
+
     @pyqtSlot()
     def on_saveTableButton_clicked(self):
         filename = QFileDialog.getSaveFileName(
@@ -147,18 +176,19 @@ class LokiScriptBuilderPanel(Panel):
             for column in range(self.tableScript.columnCount()):
                 header = self.tableScript.horizontalHeaderItem(column)
                 if not self.tableScript.isColumnHidden(column):
-                    headers.append(header.text().replace("\n", ""))
+                    headers.append(self.columns_in_order[column])
             
             writer.writerow(headers)
 
             for row in range(self.tableScript.rowCount()):
                 rowdata = []
                 for column in range(self.tableScript.columnCount()):
-                    item = self.tableScript.item(row, column)
-                    if item is not None:
-                        rowdata.append(item.text())
-                    else:
-                        rowdata.append('')
+                    if not self.tableScript.isColumnHidden(column):
+                        item = self.tableScript.item(row, column)
+                        if item is not None:
+                            rowdata.append(item.text())
+                        else:
+                            rowdata.append('')
                 if any(rowdata):
                     data.append(rowdata)
             writer.writerows(data)
@@ -327,3 +357,10 @@ class LokiScriptBuilderPanel(Panel):
 
     def _set_column_title(self, index, title):
         self.tableScript.setHorizontalHeaderItem(index, QTableWidgetItem(title))
+
+    @staticmethod
+    def _fill_elements(row, indices, length):
+        r = [""] * length
+        for index, value in zip(indices, row):
+            r[index] = value
+        return r
