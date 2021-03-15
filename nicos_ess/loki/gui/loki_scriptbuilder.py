@@ -1,11 +1,11 @@
 import csv
-from functools import partial
 import os.path as osp
+from functools import partial
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import pyqtSlot, QTableWidgetItem, QHeaderView, \
-    Qt, QShortcut, QKeySequence, QApplication, QFileDialog
+from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
+    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot
 from nicos.utils import findResource
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
@@ -118,11 +118,11 @@ class LokiScriptBuilderPanel(Panel):
     @pyqtSlot()
     def on_deleteRowsButton_clicked(self):
         self._delete_rows()
-    
+
     @pyqtSlot()
     def on_loadTableButton_clicked(self):
         filename = QFileDialog.getOpenFileName(
-            self, 
+            self,
             'Open table',
             osp.expanduser("~"),
             'Table Files (*.txt *.csv)')[0]
@@ -130,8 +130,10 @@ class LokiScriptBuilderPanel(Panel):
             self._load_table_from_file(filename)
         except Exception as ex:
             self.showError(f"Cannot read table contents from {filename}:\n{ex}")
-        
+
     def _load_table_from_file(self, filename):
+        """Populate table from csv file"""
+
         with open(filename, "r") as file:
             reader = csv.reader(file)
             headers = next(reader)
@@ -142,7 +144,7 @@ class LokiScriptBuilderPanel(Panel):
 
             self.on_clearTableButton_clicked()
             # corresponding indices of elements in headers list to colums_in_order
-            indices = [i for i, e in enumerate(self.columns_in_order) 
+            indices = [i for i, e in enumerate(self.columns_in_order)
                        if e in headers]
 
             ncols = len(self.columns_in_order)
@@ -177,7 +179,7 @@ class LokiScriptBuilderPanel(Panel):
                 header = self.tableScript.horizontalHeaderItem(column)
                 if not self.tableScript.isColumnHidden(column):
                     headers.append(self.columns_in_order[column])
-            
+
             writer.writerow(headers)
 
             for row in range(self.tableScript.rowCount()):
@@ -360,7 +362,13 @@ class LokiScriptBuilderPanel(Panel):
 
     @staticmethod
     def _fill_elements(row, indices, length):
+        """Returns a list of len length, with elements of row placed at
+        given indices.
+        """
+        if len(row) ==  length:
+            return row
         r = [""] * length
+        # Slicing similar to numpy arrays r[indices] = row
         for index, value in zip(indices, row):
             r[index] = value
         return r
