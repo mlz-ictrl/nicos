@@ -1,7 +1,6 @@
 import csv
 from functools import partial
 import os.path as osp
-import numpy as np
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
@@ -130,7 +129,7 @@ class LokiScriptBuilderPanel(Panel):
         try:
             self._load_table_from_file(filename)
         except Exception as ex:
-            self.showError(f"Cannot read table contents from {filename}")
+            self.showError(f"Cannot read table contents from {filename}:\n{ex}")
         
     def _load_table_from_file(self, filename):
         with open(filename, "r") as file:
@@ -141,16 +140,17 @@ class LokiScriptBuilderPanel(Panel):
                 raise ValueError(f"Headers in {filename} are not correct \n",
                                  f"Available headers {self.columns_in_order}")
 
+            self.on_clearTableButton_clicked()
             # corresponding indices of elements in headers list to colums_in_order
             indices = [i for i, e in enumerate(self.columns_in_order) 
                        if e in headers]
 
-            _n_colums = len(self.columns_in_order)
-            for i, row in enumerate(reader):
+            ncols = len(self.columns_in_order)
+            for row, data in enumerate(reader):
                 # create appropriate length list to fill the table row
-                r = self._fill_elements(row, indices, _n_colums)
+                data = self._fill_elements(data, indices, ncols)
                 for column in range(self.tableScript.columnCount()):
-                    self._update_cell(i, column, r[column])
+                    self._update_cell(row, column, data[column])
 
             # Set the checkButtons if available in headers to render the column
             for optional in set(headers).intersection(
