@@ -967,3 +967,6 @@ class ImagingLiveDataPanel(LiveDataPanel):
         for fn in sorted(os.listdir(datapath)):
             if fn.endswith('.fits'):
                 self.add_to_flist(path.join(datapath, fn), 'fits', FILE)
+
+    def setLiveItems(self, n):
+        pass  # No live entries for the imaging instruments
