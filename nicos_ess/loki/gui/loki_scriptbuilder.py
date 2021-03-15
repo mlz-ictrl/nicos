@@ -1,9 +1,11 @@
+import csv
 from functools import partial
+import os.path as osp
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import pyqtSlot, QTableWidgetItem, QHeaderView, \
-    Qt, QShortcut, QKeySequence, QApplication
+    Qt, QShortcut, QKeySequence, QApplication, QFileDialog
 from nicos.utils import findResource
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
@@ -117,6 +119,49 @@ class LokiScriptBuilderPanel(Panel):
     @pyqtSlot()
     def on_deleteRowsButton_clicked(self):
         self._delete_rows()
+    
+    @pyqtSlot()
+    def on_loadTableButton_clicked(self):
+        filename = QFileDialog.getOpenFileName(
+            self, 
+            'Open table',
+            osp.expanduser("~"),
+            'Table Files (*.txt *.csv)')[0]
+    
+    @pyqtSlot()
+    def on_saveTableButton_clicked(self):
+        filename = QFileDialog.getSaveFileName(
+            self,
+            'Save table',
+            osp.expanduser("~"),
+            'Table files (*.txt *.csv)')[0]
+        if not filename:
+            return
+        if not filename.endswith(('.txt', '.csv')):
+            filename = filename+".csv"
+
+        with open(filename, "w") as file:
+            headers = []
+            data = []
+            writer = csv.writer(file)
+            for column in range(self.tableScript.columnCount()):
+                header = self.tableScript.horizontalHeaderItem(column)
+                if not self.tableScript.isColumnHidden(column):
+                    headers.append(header.text().replace("\n", ""))
+            
+            writer.writerow(headers)
+
+            for row in range(self.tableScript.rowCount()):
+                rowdata = []
+                for column in range(self.tableScript.columnCount()):
+                    item = self.tableScript.item(row, column)
+                    if item is not None:
+                        rowdata.append(item.text())
+                    else:
+                        rowdata.append('')
+                if any(rowdata):
+                    data.append(rowdata)
+            writer.writerows(data)
 
     def _delete_rows(self):
         rows_to_remove = set()
