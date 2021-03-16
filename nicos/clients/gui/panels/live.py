@@ -539,8 +539,6 @@ class LiveDataPanel(Panel):
         None: `default`: Start at 0 with stepwidth 1.
 
         Save the axis labels to the datacache.
-
-        return the remaining blobs, aka the actual data.
         """
 
         CLASSIC = {'define': 'classic'}
@@ -642,8 +640,8 @@ class LiveDataPanel(Panel):
         self.params = params
         self._runtime = params['time']
         if params['tag'] == LIVE:
-            datacount = params.get('count', 1)
-            self.setLiveItems(len(params['datadescs']))
+            datacount = len(params['datadescs'])
+            self.setLiveItems(datacount)
 
             self._process_axis_labels(blobs[datacount:])
 
@@ -701,11 +699,11 @@ class LiveDataPanel(Panel):
         If the array is too small an Error is raised.
         If the size exceeds the expected amount it is truncated.
 
-        Returns a list of arrays corresponding to the ``count`` of
+        Returns a list of arrays corresponding to the ``plotcount`` of
         ``index`` into ``datadescs`` of the current params"""
 
         datadesc = self.params['datadescs'][index]
-        count = datadesc.get('count', DEFAULTS['plotcount'])
+        count = datadesc.get('plotcount', DEFAULTS['plotcount'])
         shape = datadesc['shape']
 
         # ignore irrelevant data in liveOnly mode
@@ -745,10 +743,9 @@ class LiveDataPanel(Panel):
 
             settings = getElement(self.plotsettings, index, DEFAULTS)
 
-            plotcount = settings.get('plotcount', DEFAULTS['plotcount'])
             if self.params['tag'] == LIVE:
                 plotcount = self.params['datadescs'][index].get(
-                    'count', DEFAULTS['plotcount'])
+                    'plotcount', DEFAULTS['plotcount'])
             else:
                 plotcount = DEFAULTS['plotcount']
             marks = [settings.get('marks', DEFAULTS['marks'])]
