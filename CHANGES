@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Release 3.8.1
+-------------
+
+* Core
+
+   - Add general NeXuS support (taken from SINQ implementation)
+
 Release 3.8.0
 -------------
 

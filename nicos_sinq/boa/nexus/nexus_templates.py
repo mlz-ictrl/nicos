@@ -24,11 +24,10 @@
 import copy
 
 from nicos import session
-
-from nicos_sinq.nexus.elements import ConstDataset, DetectorDataset, \
+from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceAttribute, DeviceDataset, ImageDataset, NexusSampleEnv, \
     NXAttribute, NXLink, NXScanLink, NXTime
-from nicos_sinq.nexus.nexussink import NexusTemplateProvider
+from nicos.nexus.nexussink import NexusTemplateProvider
 
 
 class BOATemplateProvider(NexusTemplateProvider):

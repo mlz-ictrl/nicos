@@ -40,7 +40,7 @@ devices = dict(
     ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     dmnsink = device('nicos.devices.datasinks.DaemonSink'),
-    nxsink = device('nicos_sinq.nexus.nexussink.NexusSink',
+    nxsink = device('nicos.nexus.nexussink.NexusSink',
         description = "Sink for NeXus file writer",
         filenametemplate = ['hrpt%(year)sn%(scancounter)06d.hdf'],
         templateclass = 'nicos_sinq.hrpt.nexus.nexus_templates.HRPTTemplateProvider',

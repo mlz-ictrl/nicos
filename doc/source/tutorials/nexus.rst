@@ -2,7 +2,7 @@ NeXus data sinks in NICOS
 =========================
 
 Writing a `NeXus <https://www.nexusformat.org/>`_ file in NICOS is technically
-quite easy.  If a :class:`~nicos_sinq.nexus.nexussink.NexusSink` device
+quite easy.  If a :class:`~nicos.nexus.nexussink.NexusSink` device
 is configured and added to the datasinks in the sysconfig dictionary, a valid
 NeXus file will be written.
 
@@ -14,7 +14,7 @@ Example::
 
       )
 
-      nxsink = device('nicos_sinq.nexus.nexussink.NexusSink',
+      nxsink = device('nicos.nexus.nexussink.NexusSink',
          description = '...',
          templateclass = '...',
 
@@ -23,13 +23,13 @@ Example::
 The most difficult part is to define the correct structure.  NICOS provides
 a mechanism to achieve this.  For this purpose you must implement a template
 provider class derived from
-:class:`~nicos_sinq.nexus.nexussink.NexusTemplateProvider`.
+:class:`~nicos.nexus.nexussink.NexusTemplateProvider`.
 
 Your specific template provider class has to implement the ``getTemplate`` method.
 
 Example::
 
-       from nicos_sinq.nexus.nexussink import NexusTemplateProvider
+       from nicos.nexus.nexussink import NexusTemplateProvider
 
        class YourTemplateProvide(NexusTemplateProvider):
 
@@ -70,10 +70,10 @@ a few NeXus groups.  A group is defined as a new dictionary with a syntax of:
 For valid NeXus class names consult the NeXus documentation at
 https://nexusformat.org
 
-The :class:`~nicos_sinq.nexus.elements.DeviceAttribute` will be taken from the
-`nicos_sinq.nexus.elements` module::
+The :class:`~nicos.nexus.elements.DeviceAttribute` will be taken from the
+`nicos.nexus.elements` module::
 
-   from nicos_sinq.nexus.elements import DeviceAttribute
+   from nicos.nexus.elements import DeviceAttribute
 
 The parameters of the ``DeviceAttribute`` class are the *name* of our configured
 instrument and its parameter *responsible*::
@@ -99,10 +99,10 @@ The monochromator can be added like this::
         }
     }
 
-The classes :class:`~nicos_sinq.nexus.elements.DeviceDataset` and
-:class:`~nicos_sinq.nexus.elements.ConstDataset` have to be imported first::
+The classes :class:`~nicos.nexus.elements.DeviceDataset` and
+:class:`~nicos.nexus.elements.ConstDataset` have to be imported first::
 
-   from nicos_sinq.nexus.elements import ConstDataset, DeviceDataset
+   from nicos.nexus.elements import ConstDataset, DeviceDataset
 
 The parameters *wavelength*, *mtt*, and *mono* are configured NICOS devices.
 *dvalue* is a parameter of the *mono* device definining the distance between
@@ -120,8 +120,8 @@ string) into the NeXus file.  The ``DeviceDataset`` takes the value of a NICOS
 device into NeXus.
 
 The access to the detector values is done by the
-:class:`~nicos_sinq.nexus.elements.DetectorDataset` and
-:class:`~nicos_sinq.nexus.elements.ImageDataset` classes.
+:class:`~nicos.nexus.elements.DetectorDataset` and
+:class:`~nicos.nexus.elements.ImageDataset` classes.
 
 For the monitor value the access is set::
 
@@ -149,11 +149,11 @@ have been provided which should cover most use cases.  It can happen that the
 provided placeholder do not suffice.  In that case there are two options:
 
 * For simpler cases you derive a class from
-  :class:`~nicos_sinq.nexus.elements.CalcData` and implement the necessary
+  :class:`~nicos.nexus.elements.CalcData` and implement the necessary
   methods.
 
 * If more control is need how NeXus data is written, derive a class from
-  :class:`~nicos_sinq.nexus.elements.NexusElementBase` and implement your
+  :class:`~nicos.nexus.elements.NexusElementBase` and implement your
   requirements.
 
 For more details see the reference of these classes.
@@ -164,13 +164,13 @@ For more elaborate examples, search the ``nicos_sinq`` tree, for example
 NeXus data sink
 ---------------
 
-.. module:: nicos_sinq.nexus.nexussink
+.. module:: nicos.nexus.nexussink
 .. autoclass:: NexusSink()
 
 NeXus template
 --------------
 
-.. currentmodule:: nicos_sinq.nexus.nexussink
+.. currentmodule:: nicos.nexus.nexussink
 .. autoclass:: NexusTemplateProvider()
    :members: getTemplate
 
@@ -179,5 +179,5 @@ NeXus template
 NeXus elements
 --------------
 
-.. automodule:: nicos_sinq.nexus.elements
+.. automodule:: nicos.nexus.elements
    :member-order: bysource
