@@ -54,7 +54,15 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
         """
         self.ghost_instrument = instr
         # first, login to GhOST
-        self.checkCredentials(email, password)
+        error = None
+        try:
+            self.checkCredentials(email, password)
+        except ghostapi.errors.GhostApiException as err:
+            # this avoids leaking authentication details via tracebacks
+            error = str(err)
+        if error:
+            raise AuthenticationError('login failed: %s' % error)
+
         # check local contact status
         try:
             instrs = self.getLCInstruments(email)
