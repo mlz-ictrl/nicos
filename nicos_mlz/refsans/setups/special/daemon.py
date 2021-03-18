@@ -9,18 +9,11 @@ devices = dict(
         grouproles = {
             'refsans': 'admin',
             'ictrl': 'admin',
+            'se': 'user',
         },
-    ),
-    Auth = device('nicos.services.daemon.auth.list.Authenticator',
-        hashing = 'md5',
-        # first entry is the user name, second the hashed password, third the user level
-        passwd = [
-            ('guest', '', 'guest'),
-            ('user', 'ee11cbb19052e40b07aac0ca060c23ee', 'user'),
-        ],
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = '',
-        authenticators = ['LDAPAuth', 'Auth'],
+        authenticators = ['LDAPAuth'],
     ),
 )
