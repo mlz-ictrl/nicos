@@ -28,15 +28,16 @@ import kafka
 import numpy as np
 from streaming_data_types.histogram_hs00 import deserialise_hs00
 
-from nicos.core import ArrayDesc, Override, Param, Value, floatrange, anytype, \
-    oneof, status, tupleof
+from nicos.core import ArrayDesc, Override, Param, Value, anytype, \
+    floatrange, host, listof, multiStatus, oneof, status, tupleof
 from nicos.core.constants import LIVE
-from nicos.core.device import Measurable
+from nicos.devices.generic import Detector, ImageChannelMixin, PassiveChannel
+from nicos.utils import createThread
 
 from nicos_ess.devices.kafka.consumer import KafkaSubscriber
 
 
-class JustBinItDetector(KafkaSubscriber, Measurable):
+class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
     parameters = {
         'hist_topic': Param('The topic to listen on for the histogram data',
                             type=str, userparam=False, settable=False,
@@ -46,14 +47,6 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
                             type=str, userparam=False, settable=False,
                             mandatory=True,
                             ),
-        'command_topic': Param('The topic to send just-bin-it commands to',
-                               type=str, userparam=False, settable=False,
-                               mandatory=True,
-                               ),
-        'response_topic': Param('The topic where just-bin-it responses appear',
-                               type=str, userparam=False, settable=False,
-                               mandatory=True,
-                               ),
         'hist_type': Param('The number of dimensions to histogram in',
                            type=oneof('1-D TOF', '2-D TOF', '2-D DET'),
                            default='1-D TOF', userparam=True, settable=True
@@ -78,55 +71,46 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         'source': Param('The number of bins to histogram into', type=str,
                         default='', userparam=True, settable=True,
                         ),
-        'curstatus': Param('Store the current device status',
-                           type=tupleof(int, str), default=(status.OK, ''),
-                           settable=True, internal=True,
-                           ),
         'hist_data': Param('Store the current histogram data',
                            type=anytype, default=np.array([]),
                            settable=True, internal=True,
                            ),
-        'unique_id': Param('Store the current identifier', type=str,
-                           default='', settable=True, internal=True,
-                           ),
-        'liveinterval': Param('Interval to read out live images',
-                              type=floatrange(0), default=1, unit='s',
-                              settable=True,
-                              ),
-        'ack_timeout': Param('How long to wait for timeout on acknowledgement',
-                             type=int, default=5, unit='s',
-                             userparam=False, settable=False,
-                             ),
     }
 
     parameter_overrides = {
         'unit': Override(default='events', settable=False, mandatory=False),
+        'fmtstr': Override(default='%d'),
     }
-    _last_live = 0
-    _presets = {}
+
+    _unique_id = None
+    _current_status = (status.OK, '')
 
     def doPreinit(self, mode):
-        self._command_sender = kafka.KafkaProducer(
-            bootstrap_servers=self.brokers)
+        self._current_status = (status.OK, '')
         # Set up the data consumer
         KafkaSubscriber.doPreinit(self, None)
-        # Set up the response message consumer
-        self._response_consumer = kafka.KafkaConsumer(
-            bootstrap_servers=self.brokers)
-        self._response_topic = kafka.TopicPartition(self.response_topic, 0)
-        self._response_consumer.assign([self._response_topic])
-        self._response_consumer.seek_to_end()
-        self.log.debug('Response topic consumer initial position = %s',
-                       self._response_consumer.position(self._response_topic))
+
+    def arrayInfo(self):
+        if self.hist_type == '1-D TOF':
+            return ArrayDesc('data', shape=(self.num_bins,), dtype=np.float64)
+        elif self.hist_type == '2-D DET':
+            return ArrayDesc('data', shape=(self.det_width, self.det_height),
+                             dtype=np.float64)
+        elif self.hist_type == '2-D TOF':
+            return ArrayDesc('data', shape=(self.num_bins, self.num_bins),
+                             dtype=np.float64)
+        raise NameError('Unrecognised histogram type. Developer typo?')
 
     def doPrepare(self):
-        self.curstatus = status.BUSY, 'Preparing'
+        self._current_status = status.BUSY, 'Preparing'
+        self.hist_data = np.array([])
+        self._hist_edges = np.array([])
         try:
             self.subscribe(self.hist_topic)
         except Exception as error:
-            self.curstatus = status.ERROR, str(error)
+            self._current_status = status.ERROR, str(error)
             raise
-        self.curstatus = status.OK, ''
+        self._current_status = status.OK, ''
 
     def new_messages_callback(self, messages):
         # Only care about most recent message, keys are timestamps.
@@ -135,18 +119,18 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
         hist = deserialise_hs00(messages[most_recent_ts])
         info = json.loads(hist['info'])
         self.log.debug('received unique id = {}'.format(info['id']))
-        if info['id'] != self.unique_id:
+        if info['id'] != self._unique_id:
             return
         if info['state'] in ['COUNTING', 'INITIALISED']:
-            self.curstatus = status.BUSY, 'Counting'
+            self._current_status = status.BUSY, 'Counting'
         elif info['state'] == 'ERROR':
             error_msg = info[
                 'error_message'] if 'error_message' in info else 'unknown error'
-            self.curstatus = status.ERROR, error_msg
+            self._current_status = status.ERROR, error_msg
         elif info['state'] == 'FINISHED':
             self._halt_consumer_thread()
             self._consumer.unsubscribe()
-            self.curstatus = status.OK, ''
+            self._current_status = status.OK, ''
 
         if self.hist_type == '1-D TOF':
             self.hist_data = hist['data']
@@ -156,16 +140,131 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
 
         self._hist_edges = hist['dim_metadata'][0]['bin_boundaries']
 
+    def doRead(self, maxage=0):
+        return [self.hist_data.sum()]
+
+    def doReadArray(self, quality):
+        return self.hist_data
+
+    def valueInfo(self):
+        return (Value(self.name, fmtstr='%d'),)
+
     def doStart(self):
-        self.curstatus = status.BUSY, 'Requesting start...'
+        self._current_status = status.BUSY, 'Waiting to start...'
+
+    def doStop(self):
+        self._current_status = status.OK, ''
+
+    def doStatus(self, maxage=0):
+        return self._current_status
+
+    def _halt_consumer_thread(self, join=False):
+        if self._updater_thread is not None:
+            self._stoprequest = True
+            if join and self._updater_thread.is_alive():
+                self._updater_thread.join()
+
+    def get_configuration(self):
+        hist_type = {
+            '2-D TOF': 'hist2d',
+            '2-D DET': 'dethist',
+            '1-D TOF': 'hist1d',
+        }[self.hist_type]
+
+        # Generate a unique-ish id
+        self._unique_id = 'nicos-{}-{}'.format(self.name, int(time.time()))
+
+        return {
+            'type': hist_type,
+            'data_brokers': self.brokers,
+            'data_topics': [self.data_topic],
+            'tof_range': list(self.tof_range),
+            'det_range': list(self.det_range),
+            'num_bins': self.num_bins,
+            'width': self.det_width,
+            'height': self.det_height,
+            'topic': self.hist_topic,
+            'source': self.source,
+            'id': self._unique_id,
+        }
+
+    def doInfo(self):
+        result = [(f'{self.name} histogram type', self.hist_type,
+                   self.hist_type, '', 'general')]
+        if self.hist_type == '2-D DET':
+            result.append((f'{self.name} width', self.det_width,
+                           str(self.det_width), '', 'general'))
+            result.append((f'{self.name} height', self.det_height,
+                           str(self.det_height), '', 'general'))
+        else:
+            result.append((f'{self.name} bins', self.num_bins,
+                           str(self.num_bins), '', 'general'))
+        return result
+
+
+class JustBinItDetector(Detector):
+    """ A "detector" that reads image data from just-bin-it.
+
+    Note: it only uses image channels.
+    """
+    parameters = {
+        'brokers': Param('List of kafka hosts to be connected',
+                         type=listof(host(defaultport=9092)),
+                         default=['localhost'], preinit=True, userparam=False
+                         ),
+        'command_topic': Param('The topic to send just-bin-it commands to',
+                               type=str, userparam=False, settable=False,
+                               mandatory=True,
+                               ),
+        'response_topic': Param('The topic where just-bin-it responses appear',
+                               type=str, userparam=False, settable=False,
+                               mandatory=True,
+                               ),
+        'ack_timeout': Param('How long to wait for timeout on acknowledgement',
+                             type=int, default=5, unit='s',
+                             userparam=False, settable=False,
+                             ),
+    }
+
+    parameter_overrides = {
+        'unit': Override(default='events', settable=False, mandatory=False),
+        'fmtstr': Override(default='%d'),
+        'liveinterval': Override(type=floatrange(0.5), default=1),
+    }
+    _last_live = 0
+    _presets = {}
+    _presetkeys = {'t'}
+    _ack_thread = None
+    _exit_thread = False
+
+    def doPreinit(self, mode):
+        self._command_sender = kafka.KafkaProducer(
+            bootstrap_servers=self.brokers)
+        # Set up the response message consumer
+        self._response_consumer = kafka.KafkaConsumer(
+            bootstrap_servers=self.brokers)
+        self._response_topic = kafka.TopicPartition(self.response_topic, 0)
+        self._response_consumer.assign([self._response_topic])
+        self._response_consumer.seek_to_end()
+        self.log.debug('Response topic consumer initial position = %s',
+                       self._response_consumer.position(self._response_topic))
+
+    def doInit(self, _mode):
+        pass
+
+    def doPrepare(self):
+        for image_channel in self._attached_images:
+            image_channel.doPrepare()
+
+    def doStart(self):
         self._last_live = -(self.liveinterval or 0)
 
         # Generate a unique-ish id
-        self.unique_id = 'nicos-{}'.format(int(time.time()))
-        self.log.debug('set unique id = %s', self.unique_id)
+        unique_id = 'nicos-{}-{}'.format(self.name, int(time.time()))
+        self.log.debug('set unique id = %s', unique_id)
 
         count_interval = self._presets.get('t', None)
-        config = self._create_config(count_interval, self.unique_id)
+        config = self._create_config(count_interval, unique_id)
 
         if count_interval:
             self.log.info(
@@ -176,69 +275,65 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
 
         self._send_command(self.command_topic, json.dumps(config).encode())
 
-        # Wait for acknowledgement of the command being received
-        self._check_for_ack()
+        # Tell the channels to start
+        for image_channel in self._attached_images:
+            image_channel.doStart()
 
-    def _check_for_ack(self):
-        timeout = int(time.time()) + self.ack_timeout
+        # Check for acknowledgement of the command being received
+        self._exit_thread = False
+        self._ack_thread = createThread("jbi-ack", self._check_for_ack,
+                                        (unique_id, self.ack_timeout))
+
+    def _check_for_ack(self, identifier, timeout_duration):
+        timeout = int(time.time()) + timeout_duration
         acknowledged = False
-        while not acknowledged:
+        while not (acknowledged or self._exit_thread):
             messages = self._response_consumer.poll(timeout_ms=50)
             responses = messages.get(self._response_topic, [])
             for records in responses:
                 msg = json.loads(records.value)
-                if 'msg_id' in msg and msg['msg_id'] == self.unique_id:
-                    self._handle_message(msg)
-                    acknowledged = True
+                if 'msg_id' in msg and msg['msg_id'] == identifier:
+                    acknowledged = self._handle_message(msg)
                     break
             # Check for timeout
             if not acknowledged and int(time.time()) > timeout:
-                self._stop_histogramming()
                 err_msg = 'Count aborted as no acknowledgement received from ' \
-                          'just-bin-it'
-                self.curstatus = status.ERROR, err_msg
+                          'just-bin-it within timeout duration '\
+                          f'({timeout_duration} seconds)'
+                self.log.error(err_msg)
                 break
+        if not acknowledged:
+            # Couldn't start histogramming, so stop the channels etc.
+            self._stop_histogramming()
+            for image_channel in self._attached_images:
+                image_channel.doStop()
 
     def _handle_message(self, msg):
         if 'response' in msg and msg['response'] == 'ACK':
             self.log.info(
                 'Counting request acknowledged by just-bin-it')
+            return True
         elif 'response' in msg and msg['response'] == 'ERR':
             self.log.error('just-bin-it could not start counting: %s',
                            msg['message'])
         else:
             self.log.error('Unknown response message received from just-bin-it')
+        return False
 
     def _send_command(self, topic, message):
         self._command_sender.send(topic, message)
         self._command_sender.flush()
 
     def _create_config(self, interval, identifier):
-        if self.hist_type == '2-D TOF':
-            hist_type = 'hist2d'
-        elif self.hist_type == '2-D DET':
-            hist_type = 'dethist'
-        else:
-            hist_type = 'hist1d'
+        histograms = []
+
+        for image_channel in self._attached_images:
+            histograms.append(image_channel.get_configuration())
 
         config_base = {
             'cmd': 'config',
             'msg_id': identifier,
-            'histograms': [
-                {
-                    'type': hist_type,
-                    'data_brokers': self.brokers,
-                    'data_topics': [self.data_topic],
-                    'tof_range': list(self.tof_range),
-                    'det_range': list(self.det_range),
-                    'num_bins': self.num_bins,
-                    'width': self.det_width,
-                    'height': self.det_height,
-                    'topic': self.hist_topic,
-                    'source': self.source,
-                    'id': identifier,
-                }
-            ],
+            'histograms': histograms
         }
 
         if interval:
@@ -248,40 +343,49 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
             config_base['start'] = int(time.time()) * 1000
         return config_base
 
+    def valueInfo(self):
+        return tuple(info for channel in self._attached_images
+                          for info in channel.valueInfo())
+
     def doRead(self, maxage=0):
-        return [self.hist_data.sum()]
+        return [data for channel in self._attached_images
+                     for data in channel.read(maxage)]
 
     def doReadArrays(self, quality):
-        return self.hist_data
+        return [image.doReadArray(quality) for image in self._attached_images]
 
     def doFinish(self):
+        self._stop_ack_thread()
         self._stop_histogramming()
 
     def _stop_histogramming(self):
         self._send_command(self.command_topic, b'{"cmd": "stop"}')
 
-    def _halt_consumer_thread(self, join=False):
-        if self._updater_thread is not None:
-            self._stoprequest = True
-            if join and self._updater_thread.is_alive():
-                self._updater_thread.join()
-
     def doShutdown(self):
-        self._halt_consumer_thread(join=True)
-        self._consumer.close()
         self._response_consumer.close()
 
     def doSetPreset(self, **presets):
-        self.curstatus = status.BUSY, 'Preparing'
-        self.hist_data = np.array([])
-        self._hist_edges = np.array([])
         self._presets = presets
 
     def doStop(self):
+        self._stop_ack_thread()
         self._stop_histogramming()
 
+    def _stop_ack_thread(self):
+        if self._ack_thread and self._ack_thread.is_alive():
+            self._exit_thread = True
+            self._ack_thread.join()
+            self._ack_thread = None
+
     def doStatus(self, maxage=0):
-        return self.curstatus
+        return multiStatus(self._attached_images, maxage)
+
+    def doReset(self):
+        pass
+
+    def doInfo(self):
+        return [data for channel in self._attached_images
+                     for data in channel.doInfo()]
 
     def duringMeasureHook(self, elapsed):
         if elapsed > self._last_live + self.liveinterval:
@@ -289,8 +393,5 @@ class JustBinItDetector(KafkaSubscriber, Measurable):
             return LIVE
         return None
 
-    def valueInfo(self):
-        return (Value(self.name, unit=self.unit),)
-
     def arrayInfo(self):
-        return (ArrayDesc('data', shape=(self.num_bins,), dtype=np.float64),)
+        return tuple(image.arrayInfo() for image in self._attached_images)

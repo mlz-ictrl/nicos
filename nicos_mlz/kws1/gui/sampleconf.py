@@ -549,7 +549,7 @@ class KWSSamplePanel(Panel):
             del script[-1]  # remove last comma
             script.append(')\n')
         if filename is not None:
-            with open(filename, 'w') as fp:
+            with open(filename, 'w', encoding='utf-8') as fp:
                 fp.writelines(script)
         return ''.join(script)
 
@@ -579,7 +579,7 @@ def parse_sampleconf(filename):
     ns = {'__builtins__': builtin_ns,
           'ClearSamples': mocksample.reset,
           'SetSample': mocksample.define}
-    with open(filename, 'r') as fp:
+    with open(filename, 'r', encoding='utf-8') as fp:
         exec(fp.read(), ns)
     # The script needs to call this, if it doesn't it is not a sample file.
     if not mocksample.reset_called:

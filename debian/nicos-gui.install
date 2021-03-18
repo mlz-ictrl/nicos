@@ -1,1 +1,2 @@
-usr/local/nicos/bin/nicos-gui /usr/bin
+bin/nicos-gui usr/bin/
+bin/nicos-history usr/bin/

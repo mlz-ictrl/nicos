@@ -824,7 +824,8 @@ class Experiment(Device):
         """returns the content of the requested template"""
         for tmpldir in self.templatepath:
             if path.isfile(path.join(tmpldir, tmplname)):
-                with open(path.join(tmpldir, tmplname), 'r') as f:
+                with open(path.join(tmpldir, tmplname), 'r',
+                          encoding='utf-8') as f:
                     return f.read()
         raise OSError('no such template found')
 
@@ -916,7 +917,7 @@ class Experiment(Device):
                     self.log.warning('could not translate template file %s',
                                      fn, exc=1)
             # save result
-            with open(finalname, 'w') as fp:
+            with open(finalname, 'w', encoding='utf-8') as fp:
                 fp.write(content)
             os.chmod(finalname, self.managerights.get('enableFileMode',
                                                       DEFAULT_FILE_MODE))

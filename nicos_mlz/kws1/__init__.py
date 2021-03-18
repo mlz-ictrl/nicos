@@ -33,7 +33,7 @@ from nicos.utils import safeWriteFile
 def _get_instr_config():
     currentfile = os.path.join(config.setup_package_path, config.instrument,
                                'setups', 'current_%s.py' % config.instrument)
-    return open(currentfile).read()
+    return open(currentfile, encoding='utf-8').read()
 
 
 def _apply_instr_config(code):

@@ -1,0 +1,2 @@
+tar-ignore = "__pycache__"
+tar-ignore = ".mailmap"

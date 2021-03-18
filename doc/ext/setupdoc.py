@@ -378,7 +378,7 @@ def setupdoc_builder_inited(app):
                 except OSError:
                     # ignore already existent dirs
                     pass
-                with open(rstname, 'w') as f:
+                with open(rstname, 'w', encoding='utf-8') as f:
                     f.write(RST_SETUP_FILE %
                             {'facility': facility, 'instr': instr,
                              'setupname': setup})

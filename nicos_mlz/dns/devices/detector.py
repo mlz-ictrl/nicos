@@ -27,12 +27,10 @@ import numpy
 
 from nicos import session
 from nicos.core import SIMULATION, Value
-from nicos.core.params import ArrayDesc, Attach, Param, dictof, intrange, \
-    tupleof
-from nicos.devices.generic.detector import Detector, ImageChannelMixin, \
-    PassiveChannel
+from nicos.core.params import ArrayDesc, Attach, Param, tupleof
+from nicos.devices.generic.detector import Detector
 from nicos.devices.polarized.flipper import OFF, ON, BaseFlipper
-from nicos.devices.tango import PyTangoDevice
+from nicos.devices.tango import PyTangoDevice, TOFChannel
 
 P_TIME = 't'
 P_TIME_SF = 'tsf'
@@ -42,20 +40,10 @@ P_MON_SF = 'mon1sf'
 P_MON_NSF = 'mon1nsf'
 
 
-class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
+class TofChannel(TOFChannel):
     """Basic Tango Device for TofDetector."""
 
-    STRSHAPE = ['x', 'y', 'z', 't']
-
     parameters = {
-        'detshape':     Param('Shape of tof detector', type=dictof(str, int)),
-        'timechannels': Param('Number of time channels - if set to 1 TOF mode '
-                              'is disabled', type=intrange(1, 1024),
-                              settable=True),
-        'divisor':      Param('Width of a time channel',
-                              type=int, unit='0.1us', settable=True),
-        'delay':        Param('Offset delay in measure begin', type=int,
-                              unit='0.1us', settable=True),
         'readchannels': Param('Tuple of (start, end) channel numbers will be '
                               'returned by a read', type=tupleof(int, int),
                               default=(0, 0), settable=True, mandatory=True),
@@ -66,62 +54,30 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
     }
 
     def doInit(self, mode):
-        self.arraydesc = ArrayDesc('data',
-                                   (self.detshape.get('x', 1),
-                                    self.detshape.get('t', 1)),
-                                   numpy.uint32)
+        shape = (256, 256)  # select some arbitrary shape
         if mode != SIMULATION:
             self._dev.set_timeout_millis(10000)
+            shape = tuple(self._dev.detectorSize)[::-1]
+        self.arraydesc = ArrayDesc('data', shape=shape, dtype='<u4')
 
     def doPrepare(self):
         self._dev.Clear()
         PyTangoDevice._hw_wait(self)
-        self.log.debug("Detector cleared")
         self._dev.Prepare()
 
     def doStart(self):
         start, end = self.readchannels
         self.readresult = [0] * (end - start + 1)
         self._dev.Start()
-        self.log.debug("Detector started")
 
     def doFinish(self):
         self._dev.Stop()
         session.delay(0.2)
         PyTangoDevice._hw_wait(self)
 
-    def doStop(self):
-        self._dev.Stop()
-
     def doPause(self):
         self.doFinish()
         return True
-
-    def doResume(self):
-        self.doStart()
-
-    def doReadTimechannels(self):
-        return self._dev.timeChannels
-
-    def doWriteTimechannels(self, value):
-        self._dev.timeChannels = value
-        self._pollParam('detshape')
-
-    def doReadDivisor(self):
-        return self._dev.timeInterval
-
-    def doWriteDivisor(self, value):
-        self._dev.timeInterval = value
-
-    def doReadDelay(self):
-        return self._dev.delay
-
-    def doWriteDelay(self, value):
-        self._dev.delay = value
-
-    def doReadDetshape(self):
-        shvalue = self._dev.detectorSize
-        return {'x': shvalue[0], 't': shvalue[3]}
 
     def valueInfo(self):
         start, end = self.readchannels
@@ -130,11 +86,12 @@ class TofChannel(PyTangoDevice, ImageChannelMixin, PassiveChannel):
                      for i in range(start, end + 1))
 
     def doReadArray(self, quality):
-        self.log.debug("Tof Detector read image")
+        self.arraydesc = ArrayDesc('data', shape=tuple(self._dev.detectorSize)[::-1],
+                                   dtype='<u4')
         start, end = self.readchannels
         # get current data array from detector
         array = numpy.asarray(self._dev.value, numpy.uint32)
-        array = array.reshape(self.detshape['t'], self.detshape['x'])
+        array = array.reshape(self.arraydesc.shape)
         if self.timechannels > 1:
             startT, endT = self.readtimechan
             res = array[startT:endT+1].sum(axis=0)[start:end+1]

@@ -67,7 +67,7 @@ def ExportTuning(mode, wavelength, filename='tuning'):
     if path.exists(filename):
         printerror('File already exists. Please select another name.')
         return
-    with open(filename, 'w') as fp:
+    with open(filename, 'w', encoding='utf-8') as fp:
         writer = csv.writer(fp)
         writer.writerow(['echotime'] + devices)
         for (etime, devs) in table.items():
@@ -97,7 +97,7 @@ def ImportTuning(mode, wavelength, filename='tuning'):
         printerror('File does not exist. Please select another name.')
         return
     newtable = {}
-    with open(filename, 'r') as fp:
+    with open(filename, 'r', encoding='utf-8') as fp:
         reader = iter(csv.reader(fp))
         headers = reader.next()
         if headers[0] != 'echotime':

@@ -58,10 +58,10 @@ class Pyro4Device(HasCommunication):
                 Pyro4.config.MAX_RETRIES = self.comtries
             if self.hmackey and hasattr(Pyro4.config, "HMAC_KEY"):  # Pyro 4.18
                 # pylint: disable=assigning-non-slot
-                Pyro4.config.HMAC_KEY = self.hmackey
+                Pyro4.config.HMAC_KEY = self.hmackey.encode()
             self._dev = Pyro4.Proxy(self.pyro4device)
             if self.hmackey and hasattr(self._dev, "_pyroHMACKey"):  # Pyro 4.43
-                self._dev._pyroHmacKey = self.hmackey
+                self._dev._pyroHmacKey = self.hmackey.encode()
             self._dev._pyroRelease()
 
 

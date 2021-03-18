@@ -1,0 +1,8 @@
+#!/usr/bin/dh-exec
+tools/cache-inspector => usr/bin/nicos-cache-inspector
+tools/check-setups => usr/bin/nicos-check-setups
+tools/mkpasswd => usr/bin/nicos-mkpasswd
+tools/password-editor => usr/bin/nicos-password-editor
+tools/reformat-setup => usr/bin/nicos-reformat-setup
+tools/setup-editor => usr/bin/nicos-setup-editor
+nicostools/ usr/lib/python3/dist-packages/

@@ -1,0 +1,9 @@
+usr/bin/designer-nicos
+usr/bin/nicos-aio
+usr/bin/nicos-client
+usr/bin/nicos-demo
+usr/bin/nicos-grep-cache
+usr/bin/nicos-keystore
+usr/bin/nicos-pushversioninfo
+usr/bin/nicos-script
+nicos usr/lib/python3/dist-packages/

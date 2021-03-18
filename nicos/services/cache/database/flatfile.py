@@ -114,7 +114,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         self._cleaner.join()
 
     def _read_one_storefile(self, filename):
-        with open(filename, 'r+') as fd:
+        with open(filename, 'r+', encoding='utf-8') as fd:
             # read file format identification
             firstline = fd.readline()
             if firstline.startswith('# NICOS cache store file v2'):
@@ -241,7 +241,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         bydate = path.join(self._basepath, self._year, self._currday)
         ensureDirectory(bydate)
         filename = path.join(bydate, category)
-        fd = open(filename, 'a+')
+        fd = open(filename, 'a+', encoding='utf-8')
         fd.seek(0, os.SEEK_END)
         # write version identification, but only for empty files
         if fd.tell() == 0:
@@ -318,7 +318,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         fn = path.join(self._basepath, year, monthday, category)
         if not path.isfile(fn):
             return
-        with open(fn, 'U') as fd:
+        with open(fn, 'U', encoding='utf-8') as fd:
             firstline = fd.readline()
             nsplit = 2
             if firstline.startswith('# NICOS cache store file v2'):

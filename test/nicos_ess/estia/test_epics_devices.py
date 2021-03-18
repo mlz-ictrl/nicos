@@ -78,6 +78,7 @@ def test_get_pt100_status_message_error():
     assert get_pt100_status_message(error) == (status.ERROR, 'error')
 
 
+@pytest.mark.skip
 @patch('epics.pv.PV')
 class TestEpicsPT100(TestCase):
     session = None

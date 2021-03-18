@@ -174,7 +174,7 @@ def make_configdata(filepath, all_setups, dep_files):
         else:
             fullname = all_setups[setupname]
         ns = {}
-        with open(fullname) as fp:
+        with open(fullname, encoding='utf-8') as fp:
             exec(fp.read(), ns)
         dep_files.add(fullname)
         try:

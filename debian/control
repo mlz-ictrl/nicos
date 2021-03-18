@@ -1,68 +1,147 @@
 Source: nicos
 Section: misc
-Priority: extra
-Maintainer: Alexander Lenz <alexander.lenz@frm2.tum.de>
-Build-Depends: debhelper (>= 9.0.0),
+Priority: optional
+Maintainer: Jens Krüger <jens.krueger@frm2.tum.de>
+Build-Depends: debhelper (>= 11~),
+ dh-python,
+ dh-exec,
+ cmake,
  git,
- python (>= 2.7),
- python-six,
- python-setuptools
-Standards-Version: 3.9.3
-
-Package: nicos-core
-Architecture: all
-Depends: python (>= 2.7),
- python-setuptools,
- python-dev,
- python-numpy,
- python-zmq (>= 2.0),
- python-psutil (>= 0.4),
- python-rsa,
- python-six,
- python-lttb,
- nicos-pyctl,
- nicos-quickyaml
-Description: NICOS core system
-
-Package: nicos-services
-Architecture: all
-Depends: nicos-core
-Description: NICOS services
-
-Package: nicos-optional
-Architecture: all
-Depends: nicos-core,
- gnuplot,
- taco-client-io,
- taco-client-motor,
- taco-client-encoder,
- taco-client-temperature,
- taco-client-powersupply,
- taco-client-detector,
- python-pytango,
- python-mysql.connector,
- python-serial,
- python-scipy,
- python-docutils,
- python-lxml,
- python-pyfits,
- python-ldap3
-Description: NICOS optional components
-
-Package: nicos-gui
-Architecture: all
-Depends: nicos-core,
- python-setuptools,
- python-qt4,
- python-qscintilla2,
- python-scipy,
- python-redmine
-Description: NICOS gui tools
+ lsb-release,
+ python3 (>= 3.6),
+ python3-six,
+ python3-sphinx,
+ python3-setuptools,
+ python3-systemd,
+ python3-numpy,
+ python3-scipy,
+ python3-html2text,
+ python3-zmq,
+ python3-sip,
+ python3-h5py,
+ python3-pyqt5,
+ python3-nicos-pyctl,
+ python3-rsa,
+ python3-ldap3,
+ python3-psutil,
+ python3-pytest,
+ python3-matplotlib,
+ python3-astropy,
+ python3-pil,
+ python3-keyring,
+ python3-keyrings.alt,
+ python3-requests,
+ python3-mock
+Standards-Version: 4.1.4
 
 Package: nicos
 Architecture: all
-Depends: nicos-core,
+Depends: ${misc:Depends},
+ ${python3:Depends},
+ gnuplot,
+ python3-six,
+ python3-docutils,
+ python3-numpy,
+ python3-scipy,
+ python3-rsa,
+ python3-zmq (>= 2.0),
+ python3-ldap3,
+ python3-html2text,
+ python3-lttb,
+ python3-astropy,
+ python3-pil,
+ python3-pyqt5,
+ python3-gr
+# python3-ads,
+Description: The NICOS base package
+ This package contains the base for the  "Networked Instrument COntrol Sytem".
+ It installs the basic components.
+ .
+ This package contains the Python3 version of nicos.
+
+Package: nicos-services
+Architecture: all
+Depends: ${misc:Depends},
+ ${python3:Depends},
+ nicos,
+ python3-nicos-pyctl (>= 1.0),
+ python3-psutil (>= 0.4),
+ python3-requests,
+ python3-keyring,
+ python3-keyrings.alt,
+ python3-markdown,
+ python3-docutils,
+ python3-systemd
+# nicos-sandbox-helper
+Recommends:
+ python3-pytango (>= 9.3.0)
+Description: All NICOS services
+ The NICOS system needs some services to work properly:
+ daemon, poller, and cache. Some additional service provide a some
+ additional functionality like the electronic logbook and HTML
+ status monitor.
+ .
+ The basic commands and devices will be installed as well.
+
+Package: nicos-instruments
+Architecture: all
+Depends: ${misc:Depends},
+ ${python3:Depends},
  nicos-services,
- nicos-optional,
- nicos-gui
+ python3-serial,
+ python3-lxml,
+ python3-matplotlib,
+ python3-pyro4,
+ python3-h5py,
+ python3-tz
+Recommends:
+ secop-core,
+ python3-nicos-quickyaml,
+ python3-pycryptodome (>= 3.4.7)
+Description: All NICOS instrument specific components
+ This package installs instrument specific packages used in NICOS.
+ .
+ Normally the instrument specific device implementation and GUI
+ components need additional packages to run properly. This package
+ installs them.
+
+Package: nicos-gui
+Architecture: all
+Depends: ${misc:Depends},
+ ${python3:Depends},
+ nicos,
+ python3-redmine,
+ python3-pyqt5.qsci,
+ python3-pyqt5.qtwebengine,
+ python3-pyqt5.qtsvg,
+ python3-pyqt5.qtopengl
+Recommends:
+ python3-sshtunnel
+Description: NICOS graphical user interfaces
+ The graphical user frontend of NICOS allows the user to
+ easy interact with the NICOS daemon.
+ .
+ This package contains the Python3 version of nicos-gui.
+
+Package: nicos-tools
+Architecture: all
+Depends: ${misc:Depends},
+ ${python3:Depends},
+ nicos,
+ python3-yapf
+Description: Tools for developing and changing setups
+ - check-setups: during the development and changing of setups the setup
+   files can be check with check-setups for syntax errors and some parameter
+   checks will be performed
+ .
+ This package contains the Python3 version of nicos-gui-common.
+
+Package: nicos-all
+Architecture: all
+Depends: ${misc:Depends},
+ ${python3:Depends},
+ nicos-services,
+ nicos-gui,
+ nicos-tools
 Description: Meta package for all NICOS components
+ Convenient package to install the whole collection of all NICOS packages.

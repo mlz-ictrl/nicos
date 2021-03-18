@@ -1,0 +1,11 @@
+nicos-services: debian-changelog-line-too-long
+nicos-services: package-contains-documentation-outside-usr-share-doc
+nicos-services: systemd-service-file-missing-documentation-key lib/systemd/system/nicos-late-generator.service
+nicos-services: binary-without-manpage usr/bin/nicos-cache
+nicos-services: binary-without-manpage usr/bin/nicos-collector
+nicos-services: binary-without-manpage usr/bin/nicos-daemon
+nicos-services: binary-without-manpage usr/bin/nicos-elog
+nicos-services: binary-without-manpage usr/bin/nicos-monitor
+nicos-services: binary-without-manpage usr/bin/nicos-poller
+nicos-services: binary-without-manpage usr/bin/nicos-simulate
+nicos-services: binary-without-manpage usr/bin/nicos-watchdog

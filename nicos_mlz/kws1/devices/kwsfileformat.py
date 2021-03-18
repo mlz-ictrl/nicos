@@ -122,7 +122,7 @@ class KWSFileSinkHandler(SingleFileSinkHandler):
         _collslit = 'aperture_%02d' % session.getDevice('coll_guides').read()
         _exposuretime = session.getDevice('timer').read(0)[0]
 
-        textfp = TextIOWrapper(fp)
+        textfp = TextIOWrapper(fp, encoding='utf-8')
         w = textfp.write
 
         # sample envs

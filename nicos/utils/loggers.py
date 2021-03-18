@@ -286,7 +286,7 @@ class NicosLogfileHandler(StreamHandler):
                 if os.name != 'nt':
                     raise
         # finally open the new logfile....
-        return open(self.baseFilename, self.mode)
+        return open(self.baseFilename, self.mode, encoding='utf-8')
 
     def filter(self, record):
         return not self.disabled

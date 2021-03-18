@@ -52,7 +52,8 @@ class BasicScriptHandler:
 
     def __init__(self):
         try:
-            with open(path.join(my_uipath, 'basic_script.py'), 'r') as f:
+            with open(path.join(my_uipath, 'basic_script.py'), 'r',
+                      encoding='utf-8') as f:
                 basic_script = f.read()
         except OSError:
             basic_script = ''

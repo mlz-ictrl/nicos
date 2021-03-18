@@ -1,0 +1,12 @@
+nicos: debian-changelog-line-too-long
+nicos: package-contains-documentation-outside-usr-share-doc
+nicos: binary-without-manpage usr/bin/designer-nicos
+nicos: binary-without-manpage usr/bin/nicos-aio
+nicos: binary-without-manpage usr/bin/nicos-client
+nicos: binary-without-manpage usr/bin/nicos-demo
+nicos: binary-without-manpage usr/bin/nicos-grep-cache
+nicos: binary-without-manpage usr/bin/nicos-keystore
+nicos: binary-without-manpage usr/bin/nicos-pushversioninfo
+nicos: binary-without-manpage usr/bin/nicos-script
+nicos: image-file-in-usr-lib usr/lib/python3/dist-packages/nicos/nicos/clients/gui/tools/calculator_images/braggfml.png
+nicos: image-file-in-usr-lib usr/lib/python3/dist-packages/nicos/nicos/clients/gui/tools/calculator_images/miezefml.png

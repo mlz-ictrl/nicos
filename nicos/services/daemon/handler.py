@@ -545,6 +545,8 @@ class ConnectionHandler:
               tuple of (current loaded setups, explicitly loaded setups)
            devices
               list of names of all existing devices
+           devicefailures
+              dict mapping failed device names to error strings
         """
         current_script = self.controller.current_script
         request_queue = self.controller.get_queue()
@@ -561,6 +563,7 @@ class ConnectionHandler:
             setups   = (list(session.loaded_setups),
                         session.explicit_setups),
             devices  = list(session.devices),
+            devicefailures = session.device_failures,
         ))
 
     @command()

@@ -1,16 +1,74 @@
 Changelog
 =========
 
-Unreleased changes
-------------------
+Release 3.8.0
+-------------
 
 * Core
 
   - NICOS now requires Python 3.6 to run.
 
+  - All files produced by or delivered with NICOS will be encoded as UTF-8.
+
+  - The live data transport protocol has been extended, so that 1-D data
+    can be delivered with information about the abscissa labels, and
+    multiple data curves can be sent in a single event.
+
+  - The SECoP (https://github.com/SampleEnvironment/SECoP) integration has
+    been improved.
+
+  - McStas support has been improved and extended.
+
+  - Cleaned up the proposal management in the Experiment class.
+
+  - Added a notifier class for `Mattermost <https://mattermost.com/>`_.
+
+  - Tracebacks in logfiles and shown to the user now support Python 3 chained
+    exceptions.
+
+* Commands
+
+  - Added ``gridscan``, which performs a scan over an orthogonal grid of
+    multiple devices.
+
 * GUI
 
   - The GUI now requires PyQt 5.
+
+  - Devices that fail to create are now shown in the devices list with an error
+    symbol, instead of being omitted from the list entirely.
+
+  - Add editor config to pop out dry run windows.  This makes sense when the
+    editor is in a panel configuration with limited vertical space, e.g. with a
+    script builder on top.
+
+  - Live data view changes:
+    Add capability to display more than 1 curve in the live data view panel.
+    Add configuration to select the displayed data file types, marker types,
+    and line types. Additionally added some configuration to define the default
+    behaviour for new live data.
+
+  - Plots can now be exported as graphics from the history viewer.
+
+  - Improved Windows client building.
+
+  - Many more image data formats can now be read back in from file in the Live
+    Data panel.
+
+  - ``.desktop`` files are now provided for ``nicos-gui`` and ``nicos-history``
+    to add NICOS to the application menu on Linux.
+
+  - The electronic logbook now accepts Markdown formatted text entry.
+
+* Watchdog
+
+  - Reduced the chattering if only the message changes but not the level.
+
+  - Added timeout parameter for each entry.
+
+* Documentation
+
+  - Added data handling description and tutorial how to check the setup files.
 
 
 Release 3.7.0

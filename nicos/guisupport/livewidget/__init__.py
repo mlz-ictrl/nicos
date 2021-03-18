@@ -461,9 +461,9 @@ class LiveWidget(LiveWidgetBase):
         amin, amax = arr.min(), arr.max()
 
         if amin != amax:
-            self.surf.z = 1000 + 255 * (arr - amin) / (amax - amin)
+            self.surf.z = 1000 + 255 / (amax - amin) * (arr - amin)
         elif amax > 0:
-            self.surf.z = 1000 + 255 * arr / amax
+            self.surf.z = 1000 + 255 / amax * arr
         else:
             self.surf.z = 1000 + arr
 
