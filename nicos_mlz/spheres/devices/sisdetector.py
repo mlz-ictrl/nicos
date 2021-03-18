@@ -87,7 +87,7 @@ class SISChannel(ImageChannel):
                                    settable=True, default=1200),
         'regulardets':       Param('relevant detectors for the monitor',
                                    type=listof(int),
-                                   volatile=True),
+                                   volatile=True, settable=True),
         'elasticparams':     Param('Interval and amount for one elastic scan '
                                    'datafile',
                                    type=listof(int),
