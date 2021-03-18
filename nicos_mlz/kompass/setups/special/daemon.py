@@ -2,13 +2,6 @@ description = 'setup for the execution daemon'
 group = 'special'
 
 devices = dict(
-    Auth = device('nicos.services.daemon.auth.list.Authenticator',
-        hashing = 'md5',
-        passwd = [('guest', '', 'guest'),
-                  # ('user', 'd3bde5ce3e546626df42771c58986d4e', 'user'),
-                  # ('admin', 'f3309476bdb36550aa8fb90ae748c9cc', 'admin'),
-                 ],
-    ),
     UserDBAuth = device('nicos_mlz.devices.ghost.Authenticator',
          description = 'FRM II user office authentication',
          instrument = 'KOMPASS',
@@ -29,7 +22,7 @@ devices = dict(
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = '',
-        authenticators = ['UserDBAuth', 'LDAPAuth', 'Auth',],
+        authenticators = ['UserDBAuth', 'LDAPAuth',],
         loglevel = 'info',
     ),
 )
