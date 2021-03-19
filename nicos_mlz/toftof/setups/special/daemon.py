@@ -8,7 +8,7 @@ devices = dict(
         userbasedn = 'ou=People,dc=frm2,dc=de',
         groupbasedn = 'ou=Group,dc=frm2,dc=de',
         grouproles = {
-            'reseda': 'admin',
+            'toftof': 'admin',
             'ictrl': 'admin',
             'se': 'user',
         },
