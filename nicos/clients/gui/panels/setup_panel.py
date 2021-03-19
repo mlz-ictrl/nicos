@@ -32,7 +32,7 @@ from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell
 from nicos.guisupport import typedvalue
 from nicos.guisupport.qt import QComboBox, QDialog, QDialogButtonBox, QFrame, \
     QHBoxLayout, QLabel, QListWidgetItem, QMessageBox, QPushButton, QSize, \
-    QStyle, QStyledItemDelegate, QTextDocument, Qt, pyqtSlot
+    QStyle, QStyledItemDelegate, Qt, QTextDocument, pyqtSlot
 from nicos.guisupport.widget import NicosWidget
 
 
@@ -342,7 +342,7 @@ class ExpPanel(Panel):
         script_running = self.mainwindow.current_status != 'idle'
 
         # do some work
-        if prop and prop != self._orig_propinfo['proposal']:
+        if prop and prop != self._orig_propinfo.get('proposal'):
             args = {'proposal': prop}
             if title:
                 args['title'] = title
