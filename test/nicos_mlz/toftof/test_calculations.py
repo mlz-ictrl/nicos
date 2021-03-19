@@ -27,8 +27,8 @@
 import pytest
 
 from nicos_mlz.toftof.devices.calculations import Eres1, ResolutionAnalysis, \
-    alpha, calculateChopperDelay, calculateCounterDelay, \
-    calculateTimeInterval, phi, phi1, speedRatio, t1, t2
+    alpha, calculateChopperDelay, calculateCounterDelay, calculateFrameTime, \
+    phi, phi1, speedRatio, t1, t2
 
 from test.utils import approx
 
@@ -137,24 +137,25 @@ class TestBasicCalculations:
             assert calculateChopperDelay(wl, speed, ratio, st, ch5_90deg) == \
                 expected
 
-    def test_timeinterval_calculations(self):
+    def test_frametime_calculations(self):
         for speed, ratio, expected in [
             (14000, 5, 0.0107143),
             (0, 1, 0.052),
         ]:
-            assert calculateTimeInterval(speed, ratio) == approx(expected,
+            assert calculateFrameTime(speed, ratio) == approx(expected,
                                                                  abs=1e-7)
 
     def test_counterdelay_calculations(self):
         for wl, speed, ratio, delay, ch5_90deg_offset, expected in [
-            (6, 14000, 5, 0, False, 129070),
-            (6, 14000, 5, 1, False, 200499),
-            (6, 14000, 5, 0, True, 155856),
-            (6, 14000, 6, 0, False, 127999),
-            (6, 14000, 6, 0, True, 153713),
+            (6, 14000, 5, 0, False, 129070*5e-8),
+            (6, 14000, 5, 1, False, 200499*5e-8),
+            (6, 14000, 5, 0, True, 155856*5e-8),
+            (6, 14000, 6, 0, False, 127999*5e-8),
+            (6, 14000, 6, 0, True, 153713*5e-8),
         ]:
             assert calculateCounterDelay(wl, speed, ratio, delay,
-                                         ch5_90deg_offset) == expected
+                                         ch5_90deg_offset) == approx(expected,
+                                                                     abs=5e-8)
 
     def test_resolution_analysis(self):
         chSpeed = 14000

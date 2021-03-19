@@ -47,13 +47,13 @@ class VirtualImage(BaseImage):
                               type=intrange(1, 4096), settable=True,
                               default=1024,
                               ),
-        'timeinterval': Param('Time interval between pulses',
+        'frametime': Param('Time interval between pulses',
                               type=float, settable=True, default=0.1,
                               ),
         'delay': Param('TOF frame delay',
                        type=int, settable=True,
                        ),
-        'channelwidth': Param('Channel width',
+        'timeinterval': Param('duration of a single time slot',
                               volatile=True,
                               ),
         'numinputs': Param('Number of detector channels',
@@ -89,5 +89,5 @@ class VirtualImage(BaseImage):
     def _generate(self, t):
         return np.random.poisson(t * self._rawdata)
 
-    def doReadChannelwidth(self):
-        return int(1.0 + self.timeinterval / (calc.ttr * 1024))
+    def doReadTimeinterval(self):
+        return 5e-8 * int(1.0 + self.frametime / (calc.ttr * 1024))

@@ -2,27 +2,28 @@ description = 'TOF counter devices'
 
 group = 'lowlevel'
 
-nethost = 'toftofsrv.toftof.frm2'
+tango_base = 'tango://cpci3.toftof.frm2:10000/'
 
 devices = dict(
-    timer = device('nicos_mlz.toftof.devices.tofcounter.Timer',
+    timer = device('nicos.devices.tango.TimerChannel',
         description = 'The TOFTOF timer',
-        tacodevice = '//%s/toftof/tof/toftimer' % nethost,
+        tangodevice = tango_base + 'toftof/det/timer',
         fmtstr = '%.1f',
         lowlevel = True,
     ),
-    monitor = device('nicos_mlz.toftof.devices.tofcounter.Monitor',
+    monitor = device('nicos.devices.tango.CounterChannel',
         description = 'The TOFTOF monitor',
-        tacodevice = '//%s/toftof/tof/tofmoncntr' % nethost,
+        tangodevice = tango_base + 'toftof/det/monitor',
         type = 'monitor',
         presetaliases = ['mon1'],
         fmtstr = '%d',
         unit = 'cts',
         lowlevel = True,
     ),
-    image = device('nicos_mlz.toftof.devices.tofcounter.Image',
+    image = device('nicos_mlz.toftof.devices.detector.TOFTOFChannel',
         description = 'The TOFTOF image',
-        tacodevice = '//%s/toftof/tof/tofhistcntr' % nethost,
+        tangodevice = tango_base + 'toftof/det/histogram',
+        timechannels = 1024,
         fmtstr = '%d',
         unit = 'cts',
         lowlevel = True,

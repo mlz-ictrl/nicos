@@ -62,7 +62,7 @@ class TofTofNexusLegacyTemplate(NexusTemplateProvider):
                     'platform': ConstDataset('Linux', 'string'),
                     'chopper:NXchopper': {
                         'crc': DeviceDataset('chCRC', dtype='int32'),
-                        'delay': DeviceDataset('det', 'delay', dtype='int32'),
+                        'delay': DeviceDataset('chdelay', dtype='int32'),
                         'num_of_channels': DeviceDataset(
                             'det', 'timechannels', dtype='int32'),
                         'num_of_detectors': DeviceDataset('det', 'numinputs',
@@ -123,7 +123,7 @@ class TofTofNexusLegacyTemplate(NexusTemplateProvider):
                 'monitor:NXmonitor': {
                     'tof_monitor_input': DeviceDataset('det',
                                                        'monitorchannel'),
-                    'tof_time_interval': DeviceDataset('det', 'timeinterval'),
+                    'tof_time_interval': DeviceDataset('ch', 'frametime'),
                     'data': MonitorData(),
                     'elastic_peak': ElasticPeakGuess(),
                     'integral': MonitorValue(),

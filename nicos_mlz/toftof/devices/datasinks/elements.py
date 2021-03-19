@@ -496,10 +496,10 @@ class TOFTOFImageDataset(ImageDataset):
                     self.resize_dataset(dset, sinkhandler)
                 dset[self.np] = array
             else:
-                ninputs = det.numinputs
                 tchannels = det.timechannels
-                reddata = array[0:tchannels, 0:ninputs]
-                h5parent[name][...] = reddata.reshape(ninputs, 1, tchannels)
+                reddata = np.transpose(array[0:tchannels, det._detectormap])
+                h5parent[name][...] = reddata.reshape(det.numinputs, 1,
+                                                      tchannels)
 
     def resize_dataset(self, dset, sinkhandler):
         det = sinkhandler.dataset.detectors[self.detectorIDX]

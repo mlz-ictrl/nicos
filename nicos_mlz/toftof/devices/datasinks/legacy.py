@@ -84,14 +84,19 @@ class TofImageSinkHandler(TofSinkHandler):
             headlines.append('TOF_CountPreselection: %d' %
                              header['det', 'preset'][0])
 
-        headlines.append('TOF_TimeInterval: %f' %
-                         header['det', 'timeinterval'][0])
+        # for now: keep old name in datafile! (old: timeinterval, new: frametime)
+        # TOF_TimeInterval is the time between pulses, so take it from chopper
+        headlines.append('TOF_TimeInterval: %g' %
+                         header['ch', 'frametime'][0])
+        # legacy value (in units of 50 ns)
         headlines.append('TOF_ChannelWidth: %s' %
                          header['det', 'channelwidth'][1])
+
         headlines.append('TOF_TimeChannels: %s' %
                          header['det', 'timechannels'][1])
         headlines.append('TOF_NumInputs: %s' % header['det', 'numinputs'][1])
-        headlines.append('TOF_Delay: %s' % header['det', 'delay'][1])
+        # Value in legacy unit of 50 ns
+        headlines.append('TOF_Delay: %d' % int(float(header['det', 'delay'][1])/5e-8))
         headlines.append('TOF_MonitorInput: %s' %
                          header['det', 'monitorchannel'][1])
 
@@ -102,9 +107,18 @@ class TofImageSinkHandler(TofSinkHandler):
                       (calc.ttr * header['det', 'channelwidth'][0]))
         headlines.append('TOF_ChannelOfElasticLine_Guess: %d' % guess)
 
-        headlines.append('HV_PowerSupplies: hv0-2: %s V, %s V, %s V' % tuple(
-            [header.get(('hv%d' % i, 'value'), (0, 'unknown'))[1]
-             for i in range(3)]))
+        # new names
+        headlines.append('TOF_Delay_in_seconds: %g' % float(header['det', 'delay'][1]))
+        headlines.append('TOF_HistogramTime: %g' %
+                         header['det', 'frametime'][0])
+        headlines.append('TOF_HistogramSlotWidth: %g' %
+                         header['det', 'timeinterval'][0])
+        headlines.append('TOF_HistogramSlots: %g' %
+                         header['det', 'timechannels'][0])
+
+        headlines.append('HV_PowerSupplies: hv0-2: ' + ', '.join('%s V' %
+            header.get(('hv%d' % i, 'value'), (0, 'unknown'))[1]
+            for i in range(3)))
         headlines.append('LV_PowerSupplies: lv0-7: %s' % ', '.join(
             [header.get(('lv%d' % i, 'value'), (0, 'unknown'))[1]
              for i in range(8)]))
