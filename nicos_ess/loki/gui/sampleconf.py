@@ -20,6 +20,7 @@
 # Module authors:
 #   Georg Brandl <g.brandl@fz-juelich.de>
 #   Artem Feoktystov <a.feoktystov@fz-juelich.de>
+#   AÜC Hardal <umit.hardal@ess.eu>
 #
 # *****************************************************************************
 
