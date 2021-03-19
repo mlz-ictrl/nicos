@@ -13,9 +13,17 @@ devices = dict(
             'se': 'user',
         },
     ),
+    UserDBAuth = device('nicos_mlz.devices.ghost.Authenticator',
+         description = 'FRM II user office authentication',
+         instrument = 'TOFTOF',
+         ghosthost = 'ghost.mlz-garching.de',
+         aliases = {
+         },
+         loglevel = 'info',
+    ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = 'tofhw.toftof.frm2',
-        authenticators = ['LDAPAuth'],
+        authenticators = ['LDAPAuth', 'UserDBAuth'],
         loglevel = 'info',
     ),
 )
