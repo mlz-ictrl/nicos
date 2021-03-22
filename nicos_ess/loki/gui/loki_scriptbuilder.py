@@ -157,30 +157,6 @@ class LokiScriptBuilderPanel(Panel):
         except Exception as ex:
             self.showError(f"Cannot write table contents to {filename}:\n{ex}")
 
-        # with open(filename, "w") as file:
-        #     headers = []
-        #     data = []
-        #     writer = csv.writer(file)
-        #     for column in range(self.tableScript.columnCount()):
-        #         header = self.tableScript.horizontalHeaderItem(column)
-        #         if not self.tableScript.isColumnHidden(column):
-        #             headers.append(self.columns_in_order[column])
-
-        #     writer.writerow(headers)
-
-        #     for row in range(self.tableScript.rowCount()):
-        #         rowdata = []
-        #         for column in range(self.tableScript.columnCount()):
-        #             if not self.tableScript.isColumnHidden(column):
-        #                 item = self.tableScript.item(row, column)
-        #                 if item is not None:
-        #                     rowdata.append(item.text())
-        #                 else:
-        #                     rowdata.append('')
-        #         if any(rowdata):
-        #             data.append(rowdata)
-        #     writer.writerows(data)
-
     def _delete_rows(self):
         rows_to_remove = set()
         for index in self.tableScript.selectionModel().selectedIndexes():
@@ -345,16 +321,3 @@ class LokiScriptBuilderPanel(Panel):
 
     def _set_column_title(self, index, title):
         self.tableScript.setHorizontalHeaderItem(index, QTableWidgetItem(title))
-
-    @staticmethod
-    def _fill_elements(row, indices, length):
-        """Returns a list of len length, with elements of row placed at
-        given indices.
-        """
-        if len(row) ==  length:
-            return row
-        r = [""] * length
-        # Slicing similar to numpy arrays r[indices] = row
-        for index, value in zip(indices, row):
-            r[index] = value
-        return r
