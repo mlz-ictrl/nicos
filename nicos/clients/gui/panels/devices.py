@@ -578,6 +578,8 @@ class DevicesPanel(Panel):
                 if dlg.moveBtn:
                     dlg.moveBtn.setEnabled(not devinfo.fixed)
                     dlg.moveBtn.setText(devinfo.fixed and '(fixed)' or 'Move')
+                if dlg.target:
+                    dlg.target.setEnabled(not devinfo.fixed)
         elif subkey == 'userlimits':
             if not value:
                 return
@@ -987,9 +989,12 @@ class ControlDialog(QDialog):
             else:
                 self.moveBtn = None
 
-            if params.get('fixed') and self.moveBtn:
-                self.moveBtn.setEnabled(False)
-                self.moveBtn.setText('(fixed)')
+            if params.get('fixed'):
+                if self.moveBtn:
+                    self.moveBtn.setEnabled(False)
+                    self.moveBtn.setText('(fixed)')
+                if self.target:
+                    self.target.setEnabled(False)
 
     def on_paramList_customContextMenuRequested(self, pos):
         item = self.paramList.itemAt(pos)
