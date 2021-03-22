@@ -7,6 +7,8 @@ from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
     QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot
 from nicos.utils import findResource
+from nicos_ess.utilities.load_save_tables import load_table_from_csv, \
+    save_table_to_csv
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
@@ -127,37 +129,15 @@ class LokiScriptBuilderPanel(Panel):
             osp.expanduser("~"),
             'Table Files (*.txt *.csv)')[0]
         try:
-            self._load_table_from_file(filename)
-        except Exception as ex:
-            self.showError(f"Cannot read table contents from {filename}:\n{ex}")
+            headers_from_file = load_table_from_csv(
+                self.tableScript, self.columns_in_order, filename)
 
-    def _load_table_from_file(self, filename):
-        """Populate table from csv file"""
-
-        with open(filename, "r") as file:
-            reader = csv.reader(file)
-            headers = next(reader)
-            # If headers were modified by hand in the file by user
-            if not set(headers).issubset(set(self.columns_in_order)):
-                raise ValueError(f"Headers in {filename} are not correct \n",
-                                 f"Available headers {self.columns_in_order}")
-
-            self.on_clearTableButton_clicked()
-            # corresponding indices of elements in headers list to colums_in_order
-            indices = [i for i, e in enumerate(self.columns_in_order)
-                       if e in headers]
-
-            ncols = len(self.columns_in_order)
-            for row, data in enumerate(reader):
-                # create appropriate length list to fill the table row
-                data = self._fill_elements(data, indices, ncols)
-                for column in range(self.tableScript.columnCount()):
-                    self._update_cell(row, column, data[column])
-
-            # Set the checkButtons if available in headers to render the column
-            for optional in set(headers).intersection(
+            for optional in set(headers_from_file).intersection(
                 set(self.optional_columns.keys())):
                 self.optional_columns[optional][1].setChecked(True)
+
+        except Exception as ex:
+            self.showError(f"Cannot read table contents from {filename}:\n{ex}")
 
     @pyqtSlot()
     def on_saveTableButton_clicked(self):
@@ -171,29 +151,35 @@ class LokiScriptBuilderPanel(Panel):
         if not filename.endswith(('.txt', '.csv')):
             filename = filename+".csv"
 
-        with open(filename, "w") as file:
-            headers = []
-            data = []
-            writer = csv.writer(file)
-            for column in range(self.tableScript.columnCount()):
-                header = self.tableScript.horizontalHeaderItem(column)
-                if not self.tableScript.isColumnHidden(column):
-                    headers.append(self.columns_in_order[column])
+        try:
+            save_table_to_csv(
+                self.tableScript, filename, headers=self.columns_in_order)
+        except Exception as ex:
+            self.showError(f"Cannot write table contents to {filename}:\n{ex}")
 
-            writer.writerow(headers)
+        # with open(filename, "w") as file:
+        #     headers = []
+        #     data = []
+        #     writer = csv.writer(file)
+        #     for column in range(self.tableScript.columnCount()):
+        #         header = self.tableScript.horizontalHeaderItem(column)
+        #         if not self.tableScript.isColumnHidden(column):
+        #             headers.append(self.columns_in_order[column])
 
-            for row in range(self.tableScript.rowCount()):
-                rowdata = []
-                for column in range(self.tableScript.columnCount()):
-                    if not self.tableScript.isColumnHidden(column):
-                        item = self.tableScript.item(row, column)
-                        if item is not None:
-                            rowdata.append(item.text())
-                        else:
-                            rowdata.append('')
-                if any(rowdata):
-                    data.append(rowdata)
-            writer.writerows(data)
+        #     writer.writerow(headers)
+
+        #     for row in range(self.tableScript.rowCount()):
+        #         rowdata = []
+        #         for column in range(self.tableScript.columnCount()):
+        #             if not self.tableScript.isColumnHidden(column):
+        #                 item = self.tableScript.item(row, column)
+        #                 if item is not None:
+        #                     rowdata.append(item.text())
+        #                 else:
+        #                     rowdata.append('')
+        #         if any(rowdata):
+        #             data.append(rowdata)
+        #     writer.writerows(data)
 
     def _delete_rows(self):
         rows_to_remove = set()
