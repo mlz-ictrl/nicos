@@ -20,6 +20,7 @@
 # Module authors:
 #   Georg Brandl <g.brandl@fz-juelich.de>
 #   Artem Feoktystov <a.feoktystov@fz-juelich.de>
+#   AÜC Hardal <umit.hardal@ess.eu>
 #
 # *****************************************************************************
 
@@ -39,19 +40,14 @@ from nicos.guisupport.utils import DoubleValidator
 from nicos.utils import findResource
 
 
-SAMPLE_KEYS = ('aperture', 'position', 'thickness', 'detoffset', 'comment')
+SAMPLE_KEYS = ('position', 'thickness', 'comment')
 
 
 def configToFrame(frame, config):
     frame.nameBox.setText(config['name'])
     frame.commentBox.setText(config['comment'])
-    frame.offsetBox.setText(str(config['detoffset']))
     frame.thickBox.setText(str(config['thickness']))
     frame.posTbl.setRowCount(len(config['position']))
-    frame.apXBox.setText(str(config['aperture'][0]))
-    frame.apYBox.setText(str(config['aperture'][1]))
-    frame.apWBox.setText(str(config['aperture'][2]))
-    frame.apHBox.setText(str(config['aperture'][3]))
     for i, (dev_name, position) in enumerate(config['position'].items()):
         frame.posTbl.setItem(i, 0, QTableWidgetItem(dev_name))
         frame.posTbl.setItem(i, 1, QTableWidgetItem(str(position)))
@@ -68,12 +64,7 @@ def configFromFrame(frame):
     return {
         'name': frame.nameBox.text(),
         'comment': frame.commentBox.text(),
-        'detoffset': float(frame.offsetBox.text()),
         'thickness': float(frame.thickBox.text()),
-        'aperture': (float(frame.apXBox.text()),
-                     float(frame.apYBox.text()),
-                     float(frame.apWBox.text()),
-                     float(frame.apHBox.text())),
         'position': position,
     }
 
@@ -108,15 +99,7 @@ class ConfigEditDialog(QDialog):
         layout.addWidget(self.frm)
         layout.addWidget(box)
         self.setLayout(layout)
-        for box in [self.frm.offsetBox, self.frm.thickBox, self.frm.apXBox,
-                    self.frm.apYBox, self.frm.apWBox, self.frm.apHBox]:
-            box.setValidator(DoubleValidator(self))
-        # List of properties that are going to be enabled in-place for edit,
-        # thus should not be visible here.
-        relevant_list = [self.frm.offsetBox, self.frm.apXBox, self.frm.apYBox,
-                         self.frm.apWBox, self.frm.apHBox]
-        for box in relevant_list:
-            box.setVisible(False)
+        self.frm.thickBox.setValidator(DoubleValidator(self))
         if config is not None:
             configToFrame(self.frm, config)
 
@@ -142,12 +125,7 @@ class ConfigEditDialog(QDialog):
             QMessageBox.warning(self, 'Error', 'Thickness cannot be zero.')
             self.frm.thickBox.setFocus()
             return
-        for box in [self.frm.offsetBox, self.frm.thickBox, self.frm.apXBox,
-                    self.frm.apYBox, self.frm.apWBox, self.frm.apHBox]:
-            if not box.text():
-                QMessageBox.warning(self, 'Error', 'Please enter valid values '
-                                                   'for all input fields.')
-                return
+
         for i in range(self.frm.posTbl.rowCount()):
             dev_name = self.frm.posTbl.item(i, 0).text()
             dev_pos = self.frm.posTbl.item(i, 1).text()
@@ -259,21 +237,6 @@ class LokiSamplePanel(Panel):
         self.sample_frame.hide()
 
         self.sample_frame.posTbl.setEnabled(False)
-        self.experiment_inputs = [self.sample_frame.offsetBox, 
-                                  self.sample_frame.apXBox, 
-                                  self.sample_frame.apYBox, 
-                                  self.sample_frame.apWBox,
-                                  self.sample_frame.apHBox]
-
-        for box in self.sample_frame.findChildren(QLineEdit):
-            if box not in self.experiment_inputs:
-                box.setEnabled(False)
-
-        self.sample_frame.offsetBox.textChanged.connect(self.set_offset)
-        self.sample_frame.apXBox.textChanged.connect(self.set_pos_x)
-        self.sample_frame.apYBox.textChanged.connect(self.set_pos_y)
-        self.sample_frame.apWBox.textChanged.connect(self.set_width)
-        self.sample_frame.apHBox.textChanged.connect(self.set_height)
 
         menu = QMenu(self)
         menu.addAction(self.actionEmpty)
@@ -474,10 +437,6 @@ class LokiSamplePanel(Panel):
 
     @pyqtSlot()
     def on_applyBtn_clicked(self):
-        if not all(map(lambda box: box.text(), self.experiment_inputs)):
-            self.showInfo('Enter valid values for all instrument configuration fields')
-            return
-
         script = self._generate_script()
         self.client.run(script)
         self.showInfo('Sample info has been transferred to the daemon.')
@@ -509,41 +468,6 @@ class LokiSamplePanel(Panel):
             self.sample_frame.show()
         index = self.list.row(item)
         configToFrame(self.sample_frame, self.configs[index])
-        # Re-validate the values
-        for box in self.experiment_inputs:
-            box.setValidator(DoubleValidator(self))
-
-    def set_offset(self, value):
-        if not value:
-            return
-        # Offset is the same for all configs
-        value = float(value)
-        for config in self.configs:
-            config['detoffset'] = value
-        self.applyBtn.setEnabled(True)
-
-    def set_pos_x(self, value):
-        self._set_aperture_value(0, value)
-
-    def set_pos_y(self, value):
-        self._set_aperture_value(1, value)
-
-    def set_width(self, value):
-        self._set_aperture_value(2, value)
-
-    def set_height(self, value):
-        self._set_aperture_value(3, value)
-
-    def _set_aperture_value(self, index, value):
-        # Aperture values are the same for all configs
-        if not value:
-            return
-        value = float(value)
-        new_values = list(self.configs[0]['aperture'])
-        new_values[index] = value
-        for config in self.configs:
-            config['aperture'] = tuple(new_values)
-        self.applyBtn.setEnabled(True)
 
     def on_list_itemDoubleClicked(self):
         self.on_editBtn_clicked()
