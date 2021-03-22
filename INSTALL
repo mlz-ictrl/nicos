@@ -42,7 +42,6 @@ If not mentioned otherwise, Python packages are available from PyPI
   - matplotlib (for resolution plots)
   - gnuplot (for plots in the electronic logbook)
   - Grace (for scanplot)
-  - mysql-connector-python (preferred) or MySQLdb (for proposal DB query)
   - lxml (for U-Bahn service)
   - astropy or pyfits (for the handling of FITS formatted files)
   - ldap3 (for ldap authentication)
@@ -121,7 +120,7 @@ https://forge.frm2.tum.de/wiki/projects:software_distribution:deb
 
 * Optional components::
 
-     apt-get install python3-{ldap3,mysql.connector,docutils,serial,matplotlib,astropy,h5py,markdown}
+     apt-get install python3-{ldap3,docutils,serial,matplotlib,astropy,h5py,markdown}
 
 * GUI and status monitor::
 
