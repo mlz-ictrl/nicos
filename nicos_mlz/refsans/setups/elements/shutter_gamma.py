@@ -47,13 +47,13 @@ devices = dict(
         description = 'Poti for shutter_gamma',
         tangodevice = tango_base + 'test/wb_a/1_0',
         scale = 1,   # mounted from bottom
-        lowlevel = True,
+        lowlevel = showcase_values['hide_poti'],
     ),
     shutter_gamma_acc = device(code_base + 'nok_support.MotorEncoderDifference',
          description = 'calc error Motor and poti',
          motor = 'shutter_gamma_motor',
          analog = 'shutter_gamma_analog',
-         lowlevel = showcase_values['hide_poti'],
+         lowlevel = showcase_values['hide_acc'],
          unit = 'mm'
     ),
 )
