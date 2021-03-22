@@ -342,9 +342,9 @@ class Experiment(Device):
         Additional *kwds*, if a dictionary, are merged into each proposal
         information dictionary.
 
-        The following keys are defined, and must be present for each proposal
-        except where noted.  Lists and dictionaries can be empty.  Other keys
-        can be added and processed by site-specific implementations.
+        The following keys are defined, only "proposal" must be present.
+        Lists and dictionaries can be empty.  Other keys can be added and
+        processed by site-specific implementations.
 
         * proposal: proposal ID, string
         * session: experiment ID, string (optional)
@@ -359,7 +359,7 @@ class Experiment(Device):
           * email: string
           * affiliation: string (optional)
         * localcontacts: list of dicts, with keys same as users
-        * samples: list of dicts:
+        * samples: optional list of dicts:
           * name: string
         * data_emails: list of addresses to send the data/link to the data to
           (this should be initially set to the user email addresses, but can
