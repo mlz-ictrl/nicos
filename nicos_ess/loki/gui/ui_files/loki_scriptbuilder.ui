@@ -157,7 +157,7 @@
        <widget class="QComboBox" name="comboTransDurationType"/>
       </item>
       <item row="11" column="2">
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="generateScriptButton">
         <property name="text">
          <string>Generate</string>
         </property>
