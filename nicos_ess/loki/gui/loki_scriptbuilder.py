@@ -135,7 +135,6 @@ class LokiScriptBuilderPanel(Panel):
             for optional in set(headers_from_file).intersection(
                 set(self.optional_columns.keys())):
                 self.optional_columns[optional][1].setChecked(True)
-
         except Exception as ex:
             self.showError(f"Cannot read table contents from {filename}:\n{ex}")
 
