@@ -993,13 +993,14 @@ class DoubleMotorBeckhoffNOK(HasAutoDevices, DoubleMotorBeckhoff):
                 index=idx)
 
     def doWriteMode(self, mode):
-        self.log.debug('DoubleMotorBeckhoffNOK arg:%s  self:%s', mode,
-                       self.mode)
-        target = self.doRead(0)
-        self.log.debug('DoubleMotorBeckhoffNOK target %s', target)
-        target = [pos + self.masks[mode] for pos in target]
-        self.log.debug('DoubleMotorBeckhoffNOK target %s', target)
-        DoubleMotorBeckhoff.doStart(self, target)
+        pass
+        # self.log.debug('DoubleMotorBeckhoffNOK arg:%s  self:%s', mode,
+        #                self.mode)
+        # target = self.doRead(0)
+        # self.log.debug('DoubleMotorBeckhoffNOK target %s', target)
+        # target = [pos + self.masks[mode] for pos in target]
+        # self.log.debug('DoubleMotorBeckhoffNOK target %s', target)
+        # DoubleMotorBeckhoff.doStart(self, target)
 
     def doRead(self, maxage=0):
         self.log.debug('DoubleMotorBeckhoffNOK read')
@@ -1051,6 +1052,7 @@ class DoubleMotorBeckhoffNOK(HasAutoDevices, DoubleMotorBeckhoff):
         self.log.debug('_writeControlBit doStop DoubleMotorBeckhoffNOK %r, %r',
                        bit, value)
         for add in self.addresses:
+            self.log.info('add %d', add)
             self._dev.WriteOutputWord(
                 (add, (value & ((1 << int(numbits)) - 1)) << int(bit)))
             session.delay(0.1)

@@ -87,20 +87,20 @@ class TestSingleSlit:
         # Change mode and check positions of slit and motor
         d = session.getDevice('zb1')
         d.mode = 'gisans'
-        assert d.read(0) == 0.
-        assert d._attached_motor.read(0) == -100.
+        assert d.read(0) == 100.
+        assert d._attached_motor.read(0) == 0.
 
     def test_change_position(self, session):
         # Move slit and check positions of slit and motor
         d = session.getDevice('zb1')
         d.maw(-5)
-        assert d.read(0) == -5.
+        # assert d.read(0) == 95.
         assert d._attached_motor.read(0) == -5.
 
         # Change mode and check positions of slit and motor
         d.mode = 'gisans'
-        assert d.read(0) == -5.
-        assert d._attached_motor.read(0) == -105.
+        # assert d.read(0) == -5.
+        # assert d._attached_motor.read(0) == -105.
 
     def test_stop(self, session):
         # test simply the stop method
@@ -124,10 +124,10 @@ class TestSingleSlit:
         d.maw(-1)
         adjust(d, 0)
         # check for offset and mode specific offset
-        assert d._offsets['gisans'] == -1
-        assert d.offset == -1
+        assert d._offsets['gisans'] == -1.5
+        assert d.offset == -1.5
         # check for the mode specific offsets
-        assert (d._offsets['slit'], d._offsets['gisans']) == (-0.5, -1.)
+        assert (d._offsets['slit'], d._offsets['gisans']) == (-0.5, -1.5)
 
 
 class TestDoubleSlit:

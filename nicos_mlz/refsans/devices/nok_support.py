@@ -357,15 +357,16 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         multiReset(self._motors)
 
     def doWriteMode(self, mode):
-        self.log.debug('DoubleMotorNOK arg:%s  self:%s', mode, self.mode)
-        target = self.doRead(0)
-        self.log.debug('DoubleMotorNOK target %s', target)
-        target = [pos + self.masks[mode] for pos in target]
-        self.log.debug('DoubleMotorNOK target %s', target)
-        sequence = [SeqDev(d, t + ofs, stoppable=True)
-                    for d, t, ofs in zip(self._devices, target, self.offsets)]
-        self.log.debug('Seq_4: %r', sequence)
-        self._startSequence(sequence)
+        pass
+        # self.log.debug('DoubleMotorNOK arg:%s  self:%s', mode, self.mode)
+        # target = self.doRead(0)
+        # self.log.debug('DoubleMotorNOK target %s', target)
+        # target = [pos + self.masks[mode] for pos in target]
+        # self.log.debug('DoubleMotorNOK target %s', target)
+        # sequence = [SeqDev(d, t + ofs, stoppable=True)
+        #             for d, t, ofs in zip(self._devices, target, self.offsets)]
+        # self.log.debug('Seq_4: %r', sequence)
+        # self._startSequence(sequence)
 
     def doStatus(self, maxage=0):
         self.log.debug('DoubleMotorNOK status')

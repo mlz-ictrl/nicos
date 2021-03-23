@@ -76,6 +76,7 @@ class SingleSlit(PseudoNOK, HasOffset, Moveable):
     valuetype = float
 
     def doWriteOffset(self, value):
+        self.log.debug('use of doWriteOffset')
         HasOffset.doWriteOffset(self, value)
         # deep copy is need to be able to change the values
         d = self._offsets.copy()
@@ -97,11 +98,12 @@ class SingleSlit(PseudoNOK, HasOffset, Moveable):
             target + self.masks[self.mode] + self.offset)
 
     def doWriteMode(self, mode):
-        self._attached_motor.start(self._attached_motor.read(0) +
-                                   self.masks[mode] - self.masks[self.mode])
+        pass
+        # self._attached_motor.start(self._attached_motor.read(0) +
+        #                            self.masks[mode] - self.masks[self.mode])
         # update the offset parameter from offset mapping
-        self._setROParam('offset', self._offsets.get(mode, 0.))
-        self.log.debug('New offset is now: %f', self.offset)
+        # self._setROParam('offset', self._offsets.get(mode, 0.))
+        # self.log.debug('New offset is now: %f', self.offset)
 
 
 class DoubleSlit(PseudoNOK, Moveable):
