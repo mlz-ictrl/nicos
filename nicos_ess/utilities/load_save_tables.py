@@ -1,5 +1,4 @@
 import csv
-import os.path as osp
 
 from nicos.guisupport.qt import QTableWidgetItem
 
@@ -21,9 +20,10 @@ def save_table_to_csv(table, filename, headers=None):
         writer = csv.writer(file)
         for column in range(table.columnCount()):
             if not table.isColumnHidden(column):
-                header = headers[column] \
-                    if headers else table.horizontalHeaderItem(column)
-                headers_to_write.append(header.replace("\n", ''))
+                header = (
+                    headers[column] if headers else table.horizontalHeaderItem(column)
+                )
+                headers_to_write.append(header.replace("\n", ""))
 
         writer.writerow(headers_to_write)
 
@@ -35,7 +35,7 @@ def save_table_to_csv(table, filename, headers=None):
                     if item is not None:
                         rowdata.append(item.text())
                     else:
-                        rowdata.append('')
+                        rowdata.append("")
             if any(rowdata):
                 data.append(rowdata)
         writer.writerows(data)
@@ -58,6 +58,7 @@ def load_table_from_csv(table, headers, filename):
     --------
         headers_from_file (List(str)): List of headers read from filename
     """
+
     def _update_cell(row, column, value, table=table):
         item = table.item(row, column)
         if not item:
@@ -71,13 +72,15 @@ def load_table_from_csv(table, headers, filename):
 
         # If headers were modified by hand in the file by user
         if not set(headers_from_file).issubset(set(headers)):
-            raise ValueError(f"Headers in {filename} are not correct \n",
-                             f"Available headers {headers}")
+            raise ValueError(
+                f"Headers in {filename} are not correct \n",
+                f"Available headers {headers}",
+            )
 
         # clear existing entries in table
         for row in range(table.rowCount()):
             for column in range(table.columnCount()):
-                _update_cell(row, column, '')
+                _update_cell(row, column, "")
 
         # corresponding indices of elements in headers_read list to headers
         indices = [i for i, e in enumerate(headers) if e in headers_from_file]
@@ -96,7 +99,7 @@ def _fill_elements(row, indices, length):
     """Returns a list of len length, with elements of row placed at
     given indices.
     """
-    if len(row) ==  length:
+    if len(row) == length:
         return row
     r = [""] * length
     # Slicing similar to numpy arrays r[indices] = row
