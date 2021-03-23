@@ -43,11 +43,13 @@ def save_table_to_csv(table, filename, headers=None):
 
 def load_table_from_csv(table, headers, filename):
     """Load QTableWidget data for from a text file
+       Allows to load partial table from filename.
 
     Parameters:
     -----------
         table (QTableWidget): Table widget to be loaded
-        headers (List[str]): List of column names to fill.
+        headers (List[str]): List of column names in table.
+            len(headers) must be same as number of columns in table
         filename (str): Path to the filename
 
     Raises:
@@ -65,6 +67,12 @@ def load_table_from_csv(table, headers, filename):
             table.setItem(row, column, QTableWidgetItem(value))
         else:
             item.setText(value)
+
+    if len(headers) != table.columnCount():
+        raise ValueError(
+            f"Length of headers {len(headers)} does not match"
+            f"the number of colums {table.columnCount()} in table"
+        )
 
     with open(filename, "r") as file:
         reader = csv.reader(file)
