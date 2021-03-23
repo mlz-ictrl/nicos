@@ -264,28 +264,32 @@ class LokiScriptBuilderPanel(Panel):
                 if item is not None:
                     filler[column] = item.text()
                 else:
-                    filler[column] = ''
+                    filler[column] = ""
             # Create script for the row only if all permanent columns values
             # are present
             if all(map(filler.get, self.permanent_columns.keys())):
                 set_temperature = ""
                 # Set temperature only if available for the sample
-                if filler.get("temperature", ''):
+                if filler.get("temperature", ""):
                     set_temperature = f"set_temperature({filler['temperature']})\n"
 
-                do_trans = (f"do_trans({filler['trans_duration']}, "
-                            f"{self.comboTransDurationType.currentText()})\n")
-                do_sans = (f"do_sans({filler['sans_duration']}, "
-                           f"{self.comboSansDurationType.currentText()})\n")
+                do_trans = (
+                    f"do_trans({filler['trans_duration']}, "
+                    f"{self.comboTransDurationType.currentText()})\n"
+                )
+                do_sans = (
+                    f"do_sans({filler['sans_duration']}, "
+                    f"{self.comboSansDurationType.currentText()})\n"
+                )
                 # What to do if order is Simultaneous?
-                if self.comboTransOrder.currentText() == 'TRANS First':
+                if self.comboTransOrder.currentText() == "TRANS First":
                     count = do_trans + do_sans
                 else:
                     count = do_sans + do_trans
 
                 template += (
                     f"{filler['pre-command']}\n"
-                    f"set_sample({filler['sample']}, {filler['thickness']}) \n"
+                    f"set_sample({filler['sample']}, {filler['thickness']})\n"
                     f"set_position({filler['position']})\n"
                     f"{set_temperature}"
                     f"{count}"
