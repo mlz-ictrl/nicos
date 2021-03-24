@@ -127,6 +127,10 @@ class LokiScriptBuilderPanel(Panel):
             'Open table',
             osp.expanduser("~"),
             'Table Files (*.txt *.csv)')[0]
+
+        if not filename:
+            return
+
         try:
             headers_from_file = load_table_from_csv(
                 self.tableScript, self.columns_in_order, filename)
