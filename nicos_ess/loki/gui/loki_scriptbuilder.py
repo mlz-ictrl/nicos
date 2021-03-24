@@ -1,3 +1,5 @@
+from collections import OrderedDict
+from enum import IntEnum
 from functools import partial
 
 from nicos.clients.gui.panels import Panel
@@ -9,7 +11,18 @@ from nicos.utils import findResource
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
 
+class TransOrder(IntEnum):
+    TRANSFIRST = 0
+    SANSFIRST = 1
+    SIMULTANEOUS = 2
+
+
 class LokiScriptBuilderPanel(Panel):
+    _available_trans_options = OrderedDict({
+        "TRANS First": TransOrder.TRANSFIRST,
+        "SANS First": TransOrder.SANSFIRST,
+        "Simultaneous": TransOrder.SIMULTANEOUS
+    })
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
         loadUi(self,
@@ -17,8 +30,6 @@ class LokiScriptBuilderPanel(Panel):
                )
 
         self.window = parent
-
-        self.trans_options = ['TRANS First', 'SANS First', 'Simultaneous']
 
         self.duration_options = ['Mevents', 'seconds', 'frames']
 
@@ -65,7 +76,7 @@ class LokiScriptBuilderPanel(Panel):
                                                self.comboTransDurationType)
 
         # Set up trans order combo-box
-        self.comboTransOrder.addItems(self.trans_options)
+        self.comboTransOrder.addItems(self._available_trans_options.keys())
 
         # General table formatting
         self.tableScript.horizontalHeader().setStretchLastSection(True)
@@ -282,7 +293,8 @@ class LokiScriptBuilderPanel(Panel):
                     f"{self.comboSansDurationType.currentText()})\n"
                 )
                 # What to do if order is Simultaneous?
-                if self.comboTransOrder.currentText() == "TRANS First":
+                if self._available_trans_options[
+                    self.comboTransOrder.currentText()] == TransOrder.TRANSFIRST:
                     count = do_trans + do_sans
                 else:
                     count = do_sans + do_trans
