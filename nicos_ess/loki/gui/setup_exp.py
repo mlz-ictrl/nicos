@@ -57,8 +57,8 @@ class ExpPanel(Panel):
 
         # Setting up warning label so user remembers to press apply button.
         self._defined_emails = self.notifEmails.toPlainText().strip()
-        num_experiment_props_opts = len(self._getProposalInput())
-        self.is_exp_props_edited = [False] * num_experiment_props_opts
+        self.num_experiment_props_opts = len(self._getProposalInput())
+        self.is_exp_props_edited = [False] * self.num_experiment_props_opts
         self.applyWarningLabel.setStyleSheet('color: red')
         self.applyWarningLabel.setVisible(False)
 
@@ -70,7 +70,6 @@ class ExpPanel(Panel):
         self._text_controls = (self.queryDBButton, self.proposalNum,
                                self.expTitle, self.users, self.localContact,)
 
-        self.applyBtn.clicked.connect(self.on_applyBtn_clicked)
         # Hide proposal retrieval until available
         self.propdbInfo.setVisible(False)
         self.queryDBButton.setVisible(False)
@@ -137,6 +136,8 @@ class ExpPanel(Panel):
         for control in self._text_controls:
             control.setText("")
         self.notifEmails.setPlainText("")
+        self.proposalNum.setText('')  # do not offer "service"
+        self.proposalID.setText('')
         self.setViewOnly(True)
         self.applyWarningLabel.setVisible(False)
 
@@ -219,6 +220,7 @@ class ExpPanel(Panel):
             self.showInfo('Reading proposaldb failed for an unknown reason. '
                           'Please check logfiles....\n' + repr(e))
 
+    @pyqtSlot()
     def on_applyBtn_clicked(self):
         done = []
 
@@ -288,6 +290,7 @@ class ExpPanel(Panel):
             self.showInfo('\n'.join(done))
         self._update_proposal_info()
         self._defined_emails = self.notifEmails.toPlainText().strip()
+        self.is_exp_props_edited = [False] * self.num_experiment_props_opts
         self.applyWarningLabel.setVisible(False)
 
     @pyqtSlot(str)
