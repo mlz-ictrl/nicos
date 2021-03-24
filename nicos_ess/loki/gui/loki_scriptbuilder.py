@@ -147,11 +147,10 @@ class LokiScriptBuilderPanel(Panel):
             self,
             'Save table',
             osp.expanduser("~"),
-            'Table files (*.txt *.csv)')[0]
+            'Table files (*.txt *.csv)',
+            initialFilter='*.csv;;*.txt')[0]
         if not filename:
             return
-        if not filename.endswith(('.txt', '.csv')):
-            filename = filename+".csv"
 
         try:
             save_table_to_csv(
