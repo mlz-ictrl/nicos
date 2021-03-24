@@ -54,6 +54,7 @@ Contributors:
 * Tobias Unruh <tobias.unruh@krist.uni-erlangen.de>
 * Michael Wedel <michael.wedel@esss.se>
 * Wolfgang Wein <wein@informatik.tu-muenchen.de>
+* Markus Zolliker <markus.zolliker@psi.ch>
 
 Instrument-specific code was contributed by:
 
