@@ -35,7 +35,7 @@ install:
 	@echo
 	@if [ -z "$(PREFIX)" ]; then echo "PREFIX is empty! Do not run make install on instruments"; exit 1; fi
 	mkdir -p $(DESTDIR)$(PREFIX)
-	python setup.py install --prefix=$(PREFIX) \
+	$(PYTHON) setup.py install --prefix=$(PREFIX) \
 	                        $(and $(DESTDIR),--root=$(DESTDIR)) \
 				$(and $(INSTRUMENT),--instrument=$(INSTRUMENT)) \
 				$(and $(SETUPPACKAGE), --setup-package=$(SETUPPACKAGE))
@@ -98,7 +98,7 @@ manualrelease: test release
 
 release:
 	cd doc; rm -rf build/html; ${MAKE} html
-	python setup.py sdist
+	$(PYTHON) setup.py sdist
 
 help:
 	@echo "Important targets:"
