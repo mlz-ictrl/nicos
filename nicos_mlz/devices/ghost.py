@@ -134,15 +134,24 @@ class GhostWrapper(ghostapi.rest.GhostRestAPI):
         If no matching proposal is found, nothing is returned.
         """
         result = []
+        sessions = []
         try:
             sessions = self.getTodaysSessions()
         except Exception:
-            session.log.warning("error querying today's sessions from GhOST",
+            if not self.is_local_contact:
+                session.log.warning("error querying today's sessions from GhOST",
                                 exc=1)
-            return []
+                return []
         if proposal is not None:
             sessions = [ses for ses in sessions
                         if ses['proposal_number'] == proposal]
+        if not sessions and proposal and self.is_local_contact:
+            try:
+                sessions = self.getExperimentsForProposal(proposal)
+            except Exception:
+                session.log.warning("error querying sessions for proposal from GhOST",
+                                exc=1)
+                return []
         for ses in sessions:
             try:
                 res = self.queryExperiment(ses['number'])
