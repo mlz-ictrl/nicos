@@ -12,7 +12,6 @@ essiip_default = {
                 "TEST_sampleEnv": EventStream(
                     "UTGARD_choppers",
                     "LabS-Utgard-VIP:Rack-Chopper-PDU:ExtSensor1-RB",
-                    "10.4.0.13:9092",
                     mod="f142",
                     dtype="double",
                 ),

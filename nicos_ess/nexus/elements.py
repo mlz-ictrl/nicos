@@ -410,12 +410,11 @@ class EventStream(KafkaStream):
     """ Stream that provides event data from Kafka
     """
 
-    def __init__(self, topic, source, broker, mod='ev42', dtype='uint64',
+    def __init__(self, topic, source, mod='ev42', dtype='uint64',
                  **attr):
         KafkaStream.__init__(self, **attr)
         self.set('topic', topic)
         self.set('source', source)
-        self.set('broker', broker)
         self.set('writer_module', mod)
         self.set('type', dtype)
 

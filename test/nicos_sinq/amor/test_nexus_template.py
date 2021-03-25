@@ -94,12 +94,10 @@ elements = {
              'type': 'string'}
          },
     ('event_stream', EventStream(topic='topic', source='source',
-                                 broker="localhost:9092", dtype="uint32")):
+                                 dtype="uint32")):
         {'type': 'stream',
          'stream': {'topic': 'topic', 'source': 'source',
-                    'type': 'uint32',
-                    'broker': 'localhost:9092',
-                    'writer_module': 'ev42'}
+                    'type': 'uint32', 'writer_module': 'ev42'}
          },
     ('group_normal', NXGroup('NXgroup')):
         {'attributes': {'NX_class': 'NXgroup'},
