@@ -17,6 +17,7 @@ devices = dict(
          instrument = 'MIRA',
          ghosthost = 'ghost.mlz-garching.de',
          aliases = {
+            'robertg': ('robert.georgii@frm2.tum.de', 'admin'),
          },
          loglevel = 'info',
     ),
