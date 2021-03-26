@@ -238,6 +238,9 @@ class LokiSamplePanel(Panel):
 
         self.sample_frame.posTbl.setEnabled(False)
 
+        for box in self.sample_frame.findChildren(QLineEdit):
+            box.setEnabled(False)
+
         menu = QMenu(self)
         menu.addAction(self.actionEmpty)
         menu.addAction(self.actionGenerate)
