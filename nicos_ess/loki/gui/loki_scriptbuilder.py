@@ -41,6 +41,7 @@ class LokiScriptBuilderPanel(Panel):
 
         self.columns_in_order = [name for name in self.permanent_columns.keys()]
         self.columns_in_order.extend(self.optional_columns.keys())
+        self.last_save_location = None
         self._init_panel()
 
     def _init_panel(self, num_rows=25):
@@ -125,7 +126,8 @@ class LokiScriptBuilderPanel(Panel):
         filename = QFileDialog.getOpenFileName(
             self,
             'Open table',
-            osp.expanduser("~"),
+            osp.expanduser("~") if self.last_save_location is None \
+                else self.last_save_location,
             'Table Files (*.txt *.csv)')[0]
 
         if not filename:
@@ -146,12 +148,15 @@ class LokiScriptBuilderPanel(Panel):
         filename = QFileDialog.getSaveFileName(
             self,
             'Save table',
-            osp.expanduser("~"),
+            osp.expanduser("~") if self.last_save_location is None \
+                else self.last_save_location,
             'Table files (*.txt *.csv)',
             initialFilter='*.csv;;*.txt')[0]
+
         if not filename:
             return
 
+        self.last_save_location = osp.dirname(filename)
         try:
             save_table_to_csv(
                 self.tableScript, filename, headers=self.columns_in_order)
