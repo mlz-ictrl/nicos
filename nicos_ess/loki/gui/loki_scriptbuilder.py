@@ -151,10 +151,12 @@ class LokiScriptBuilderPanel(Panel):
             osp.expanduser("~") if self.last_save_location is None \
                 else self.last_save_location,
             'Table files (*.txt *.csv)',
-            initialFilter='*.csv;;*.txt')[0]
+            initialFilter='*.txt;;*.csv')[0]
 
         if not filename:
             return
+        if not filename.endswith(('.txt', '.csv')):
+            filename = filename + '.csv'
 
         self.last_save_location = osp.dirname(filename)
         try:
