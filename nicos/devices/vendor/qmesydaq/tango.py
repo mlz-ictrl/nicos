@@ -29,7 +29,7 @@ import ast
 import numpy as np
 
 from nicos.core.constants import SIMULATION
-from nicos.core.params import ArrayDesc, Param, Value, listof, oneof
+from nicos.core.params import Param, Value, listof, oneof
 from nicos.devices.tango import ImageChannel as BaseImageChannel
 from nicos.devices.vendor.qmesydaq import Image as QMesyDAQImage
 
@@ -79,10 +79,9 @@ class ImageChannel(QMesyDAQImage, BaseImageChannel):
         return self._getProperty('calibrationfile')
 
     def doReadArray(self, quality):
-        self.arraydesc = ArrayDesc('data', shape=self._shape, dtype='<u4')
-        narray = self._dev.value.reshape(
-            self.arraydesc.shape, order='C' if not self.transpose else 'F')
-        self.readresult = [narray.sum()]
+        narray = BaseImageChannel.doReadArray(self, quality)
+        if self.transpose:
+            narray = np.transpose(narray)
         for axis in self.flipaxes:
             narray = np.flip(narray, axis)
         return narray
