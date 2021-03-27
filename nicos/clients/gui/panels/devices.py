@@ -429,7 +429,8 @@ class DevicesPanel(Panel):
         devitem.setFont(0, lowlevelFont[lowlevel_device])
 
         if failure:
-            devitem.setText(2, 'creating device failed: %s' % failure)
+            short_failure = failure.split('\n')[0]
+            devitem.setText(2, 'creating device failed: %s' % short_failure)
             if self.useicons:
                 devitem.setIcon(0, self.statusIcon[ERROR])
         else:
