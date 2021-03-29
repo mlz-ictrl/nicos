@@ -24,12 +24,10 @@
 
 """Detector devices for QMesyDAQ type detectors (TANGO)."""
 
-import ast
-
 import numpy as np
 
 from nicos.core.constants import SIMULATION
-from nicos.core.params import Param, Value, listof, oneof
+from nicos.core.params import Override, Param, Value, listof, oneof
 from nicos.devices.tango import ImageChannel as BaseImageChannel
 from nicos.devices.vendor.qmesydaq import Image as QMesyDAQImage
 
@@ -46,13 +44,27 @@ class ImageChannel(QMesyDAQImage, BaseImageChannel):
                            type=bool, default=False),
     }
 
+    # Use the configuration from QMesyDAQ
+    parameter_overrides = {
+        'listmode': Override(volatile=True),
+        'histogram': Override(volatile=True),
+    }
+
     def doWriteListmode(self, value):
         self._dev.SetProperties(['writelistmode', ('%s' % value).lower()])
-        return ast.literal_eval(self._getProperty('writelistmode').title())
+        return self.doReadListmode()
+
+    def doReadListmode(self):
+        return {'false': False, 'true': True}[
+            self._getProperty('writelistmode')]
 
     def doWriteHistogram(self, value):
         self._dev.SetProperties(['writehistogram', ('%s' % value).lower()])
-        return ast.literal_eval(self._getProperty('writehistogram').title())
+        return self.doReadHistogram()
+
+    def doReadHistogram(self):
+        return {'false': False, 'true': True}[
+            self._getProperty('writehistogram')]
 
     def doWriteReadout(self, value):
         self._dev.SetProperties(['histogram', value])
