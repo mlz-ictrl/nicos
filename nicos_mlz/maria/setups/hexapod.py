@@ -7,6 +7,7 @@ excludes = []
 
 tango_base = 'tango://phys.maria.frm2:10000/maria/'
 hexapod = tango_base + 'hexapod/h_'
+tango_s7 = tango_base + 'FZJS7/'
 
 devices = dict(
    detarm = device('nicos.devices.tango.Motor',
@@ -22,6 +23,13 @@ devices = dict(
         unit = 'deg',
         precision = 0.005,
         fmtstr = '%.3f',
+    ),
+    cradle = device('nicos.devices.tango.Motor',
+        description = 'cradle on hexapod table',
+        tangodevice = tango_s7 + 'cradle',
+        precision = 0.01,
+        fmtstr = '%.2f',
+        unit = 'steps',
     ),
     t2t = device("nicos_mlz.jcns.devices.motor.MasterSlaveMotor",
         description = "2 theta axis moving detarm = 2 * omega",
