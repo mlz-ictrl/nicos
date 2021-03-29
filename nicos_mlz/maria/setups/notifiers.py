@@ -9,8 +9,8 @@ devices = dict(
         mailserver = 'mailhost.frm2.tum.de',
         sender = 'maria@frm2.tum.de',
         copies = [
-            ('s.mattauch@fz-juelich.de', 'all'),
             ('a.koutsioumpas@fz-juelich.de', 'all'),
+            ('k.zhernenkov@fz-juelich.de', 'all'),
             ('c.felder@fz-juelich.de', 'important'),
         ],
         subject = '[NICOS] MARIA',

@@ -43,7 +43,7 @@ devices = dict(
     maria = device('nicos.devices.instrument.Instrument',
         description = 'MAgnetic Reflectometer with Incident Angle',
         instrument = 'MARIA',
-        responsible = 'Stefan Mattauch <s.mattauch@fz-juelich.de>',
+        responsible = 'Alexandros Koutsioumpas <a.koutsioumpas@fz-juelich.de>',
         operators = ['Jülich Centre for Neutron Science (JCNS)'],
         website = 'http://www.mlz-garching.de/maria',
     ),
