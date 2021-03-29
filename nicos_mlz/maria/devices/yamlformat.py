@@ -39,6 +39,11 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
 
     filetype = "MLZ.MARIA.2.0-beta1"
 
+    def _processArrayInfo(self, arrayinfo):
+        # images are not handled by this sink
+        # don't add _arraydesc setting
+        return
+
     def _write_instr_data(self, meas, image):
         # get corresponding scan dataset with scan info if available
         stack = self.manager._stack
