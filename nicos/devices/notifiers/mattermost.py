@@ -74,10 +74,10 @@ class Mattermost(Notifier):
     }
 
     def doInit(self, mode):
-        hookid = nicoskeystore.getCredential(self.credid)
-        if not hookid:
+        secret_hookid = nicoskeystore.getCredential(self.credid)
+        if not secret_hookid:
             raise ConfigurationError('Mattermost hook ID missing in keystore')
-        self._hookurl = self.baseurl + '/hooks/' + hookid
+        self._hookurl = self.baseurl + '/hooks/' + secret_hookid
 
     def send(self, subject, body, what=None, short=None, important=True):
         message = '**%s**\n\n```\n%s\n```' % (subject, body)

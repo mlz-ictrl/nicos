@@ -46,7 +46,10 @@ subprocess.check_call([sys.executable,
 def find_custom():
     res = []
     for facilityroot in glob.glob(path.join(rootdir, 'nicos_*')):
-        for root, _dirs, files in os.walk(facilityroot):
+        for root, dirs, files in os.walk(facilityroot):
+            # Prune unneeded subdirs.
+            dirs[:] = [d for d in dirs
+                       if d not in ('setups', 'testscripts', 'template')]
             for fn in files:
                 if fn.endswith('.pyc'):
                     continue

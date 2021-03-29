@@ -50,7 +50,7 @@ uipath = path.dirname(__file__)
 
 
 def loadUi(widget, uiname):
-    uic.loadUi(path.join(uipath, uiname), widget)
+    return uic.loadUi(path.join(uipath, uiname), widget)
 
 
 def dialogFromUi(parent, uiname):

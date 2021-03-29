@@ -21,11 +21,3 @@
 #   Mark Koennecke <Mark.Koennecke@psi.ch>
 #
 # *****************************************************************************
-from nicos.core.params import Override
-from nicos.nexus.nexussink import NexusSink
-
-
-class SANSNexusSink(NexusSink):
-    parameter_overrides = {
-        'settypes': Override(settable=True),
-    }

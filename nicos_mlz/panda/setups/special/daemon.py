@@ -2,6 +2,13 @@ description = 'setup for the execution daemon'
 group = 'special'
 
 devices = dict(
+    GhostAuth = device('nicos_mlz.devices.ghost.Authenticator',
+        description = 'GHoST proposal system authentication',
+        instrument = 'PANDA',
+        ghosthost = 'ghost.mlz-garching.de',
+        aliases = {
+        },
+    ),
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         description = 'Authentication device',
         hashing = 'md5',
@@ -20,7 +27,7 @@ devices = dict(
     Daemon = device('nicos.services.daemon.NicosDaemon',
         description = 'Daemon, executing commands and scripts',
         server = '',
-        authenticators = ['Auth'],
-        loglevel = 'debug',
+        authenticators = ['GhostAuth', 'Auth'],
+        loglevel = 'info',
     ),
 )

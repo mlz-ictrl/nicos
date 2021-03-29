@@ -35,17 +35,16 @@ from nicos import config
 from nicos.commands.device import maw
 from nicos.commands.measure import count
 from nicos.commands.scan import scan
-from nicos.utils import updateFileCounter
-
-from nicos_sinq.nexus.elements import ConstDataset, DetectorDataset, \
+from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceAttribute, DeviceDataset, ImageDataset, NXAttribute, NXLink, \
     NXScanLink
+from nicos.utils import updateFileCounter
 
-from test.nicos_sinq.nexus.TestTemplateProvider import setTemplate
+from test.nexus.TestTemplateProvider import setTemplate
 
 year = time.strftime('%Y')
 
-session_setup = 'sinq_nexussink'
+session_setup = 'nexussink'
 
 
 class TestNexusSink:

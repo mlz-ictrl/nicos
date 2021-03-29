@@ -1,6 +1,6 @@
-from nicos_sinq.nexus.elements import ConstDataset, DetectorDataset, \
+from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceDataset, ImageDataset, NXLink, NXTime
-from nicos_sinq.nexus.nexussink import NexusTemplateProvider
+from nicos.nexus.nexussink import NexusTemplateProvider
 
 andes_default = {
      "NeXus_Version": "nexusformat v0.5.3",

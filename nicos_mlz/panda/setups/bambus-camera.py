@@ -6,6 +6,7 @@ includes = [
     'system', 'sampletable', 'panda_mtt', 'manual', 'alias_sth', 'monofoci',
     'camera', 'reactor', 'monoturm',
 ]
+excludes = ['ana']
 
 modules = ['nicos.commands.tas']
 

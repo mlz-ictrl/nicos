@@ -12,22 +12,25 @@ devices = dict(
         grouproles = {
             'antares': 'admin',
             'ictrl': 'admin',
+            'se': 'guest',
         }
     ),
-    Auth = device('nicos.services.daemon.auth.list.Authenticator',
-        description = 'Authentication device',
-        hashing = 'md5',
-        # first entry is the user name, second the hashed password, third the user level
-        passwd = [
-            ('guest', '', 'guest'),
-            ('user', 'ee11cbb19052e40b07aac0ca060c23ee', 'user'),
-            ('admin', '21232f297a57a5a743894a0e4a801fc3', 'admin'),
-        ],
+    UserDBAuth = device('nicos_mlz.devices.ghost.Authenticator',
+         description = 'FRM II user office authentication',
+         instrument = 'ANTARES',
+         ghosthost = 'ghost.mlz-garching.de',
+         aliases = {
+             'ms': ('michael.schulz@frm2.tum.de', 'admin'),
+         },
+         loglevel = 'info',
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         description = 'Daemon, executing commands and scripts',
         server = '0.0.0.0',
-        authenticators = ['LDAPAuth', 'Auth'],
+        authenticators = [
+            'LDAPAuth',
+            'UserDBAuth',
+        ],
         loglevel = 'debug',
     ),
 )

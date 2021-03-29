@@ -2,7 +2,7 @@
 description = 'Detector test table setup'
 
 group = 'basic'
-excludes = ['det']
+excludes = ['det', 'ndp']
 includes = ['treff', 'counter']
 
 sysconfig = dict(

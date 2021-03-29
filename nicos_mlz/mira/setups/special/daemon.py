@@ -9,18 +9,21 @@ devices = dict(
         grouproles = {
             'mira': 'admin',
             'ictrl': 'admin',
+            'se': 'user',
         }
     ),
-    Auth = device('nicos.services.daemon.auth.list.Authenticator',
-        hashing = 'md5',
-        passwd = [
-            ('admin', 'cf5bdfb40421ac1f30cc4d45b66b5a81', 'admin'),
-            ('', '', 'user'),
-        ],
+    UserDBAuth = device('nicos_mlz.devices.ghost.Authenticator',
+         description = 'FRM II user office authentication',
+         instrument = 'MIRA',
+         ghosthost = 'ghost.mlz-garching.de',
+         aliases = {
+            'robertg': ('robert.georgii@frm2.tum.de', 'admin'),
+         },
+         loglevel = 'info',
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = 'miractrl.mira.frm2',
         loglevel = 'info',
-        authenticators = ['LDAPAuth', 'Auth']
+        authenticators = ['LDAPAuth', 'UserDBAuth']
     ),
 )

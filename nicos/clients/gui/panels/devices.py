@@ -429,7 +429,8 @@ class DevicesPanel(Panel):
         devitem.setFont(0, lowlevelFont[lowlevel_device])
 
         if failure:
-            devitem.setText(2, 'creating device failed: %s' % failure)
+            short_failure = failure.split('\n')[0]
+            devitem.setText(2, 'creating device failed: %s' % short_failure)
             if self.useicons:
                 devitem.setIcon(0, self.statusIcon[ERROR])
         else:
@@ -578,6 +579,8 @@ class DevicesPanel(Panel):
                 if dlg.moveBtn:
                     dlg.moveBtn.setEnabled(not devinfo.fixed)
                     dlg.moveBtn.setText(devinfo.fixed and '(fixed)' or 'Move')
+                if dlg.target:
+                    dlg.target.setEnabled(not devinfo.fixed)
         elif subkey == 'userlimits':
             if not value:
                 return
@@ -987,9 +990,12 @@ class ControlDialog(QDialog):
             else:
                 self.moveBtn = None
 
-            if params.get('fixed') and self.moveBtn:
-                self.moveBtn.setEnabled(False)
-                self.moveBtn.setText('(fixed)')
+            if params.get('fixed'):
+                if self.moveBtn:
+                    self.moveBtn.setEnabled(False)
+                    self.moveBtn.setText('(fixed)')
+                if self.target:
+                    self.target.setEnabled(False)
 
     def on_paramList_customContextMenuRequested(self, pos):
         item = self.paramList.itemAt(pos)

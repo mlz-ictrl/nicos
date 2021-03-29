@@ -5,20 +5,27 @@ group = 'special'
 import hashlib
 
 devices = dict(
-    Auth = device('nicos.services.daemon.auth.list.Authenticator',
-        hashing = 'sha1',
-        # for the meaning of these entries see
-        # https://forge.frm2.tum.de/nicos/doc/nicos-stable/services/daemon/#nicos.services.daemon.auth.list.Authenticator
-        passwd = [
-            ('guest', '', 'guest'),
-            ('user', hashlib.sha1(b'user').hexdigest(), 'user'),
-            ('admin', hashlib.sha1(b'admin').hexdigest(), 'admin'),
-        ],
+    UserDBAuth = device('nicos_mlz.devices.ghost.Authenticator',
+         description = 'FRM II user office authentication',
+         instrument = 'ERWIN',
+         ghosthost = 'ghost.mlz-garching.de',
+         aliases = {
+         },
+         loglevel = 'info',
     ),
-    # PamAuth = device('nicos.services.daemon.auth.pam.Authenticator'),
+    LDAPAuth = device('nicos.services.daemon.auth.ldap.Authenticator',
+        uri = 'ldap://phaidra.admin.frm2',
+        userbasedn = 'ou=People,dc=frm2,dc=de',
+        groupbasedn = 'ou=Group,dc=frm2,dc=de',
+        grouproles = {
+            'erwin': 'admin',
+            'ictrl': 'admin',
+            'se': 'user',
+        },
+    ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-        authenticators = ['Auth'],
-        loglevel = 'debug',
+        authenticators = ['UserDBAuth', 'LDAPAuth'],
+        loglevel = 'info',
         server = '',
     ),
 )

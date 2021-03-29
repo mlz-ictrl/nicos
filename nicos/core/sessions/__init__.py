@@ -812,6 +812,7 @@ class Session:
                 raise NicosError('Deadlock detected! Session.unloadSetup '
                                  "failed on these devices: '%s'" % devs)
 
+        already_shutdown.update(self.device_failures)
         self.deviceCallback('destroy', list(already_shutdown))
         self.setupCallback([], [])
         self.devices.clear()

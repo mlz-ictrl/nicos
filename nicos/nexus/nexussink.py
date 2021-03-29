@@ -32,9 +32,8 @@ from nicos.core.data import DataSinkHandler
 from nicos.core.errors import NicosError
 from nicos.core.params import Param
 from nicos.devices.datasinks import FileSink
-
-from nicos_sinq.nexus.elements import NexusElementBase, NXAttribute, \
-    NXScanLink, NXTime
+from nicos.nexus.elements import NexusElementBase, NXAttribute, NXScanLink, \
+    NXTime
 
 
 class NexusTemplateProvider:

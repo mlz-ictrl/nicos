@@ -1,3 +1,2 @@
-mysql-connector-python-rf>=2.2.2
 --extra-index-url https://forge.frm2.tum.de/simple
-ghostapi>=1.0.6
+ghostapi>=1.1.1

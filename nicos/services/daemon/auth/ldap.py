@@ -88,14 +88,17 @@ class Authenticator(BaseAuthenticator):
         userdn = self._get_user_dn(username)
 
         # first of all: try a bind to check user existence and password
+        error = None
         try:
             connection = ldap3.Connection(self.uri, user=userdn,
                                           password=password,
                                           auto_bind=self.BIND_METHODS[
                                               self.bindmethod])
         except ldap3.core.exceptions.LDAPException as err:
-            raise AuthenticationError(
-                'LDAP connection failed (%s)' % err) from None
+            # this avoids leaking credential details via tracebacks
+            error = str(err)
+        if error:
+            raise AuthenticationError('LDAP connection failed (%s)' % error)
 
         userlevel = -1
 

@@ -21,7 +21,7 @@
 #   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
-from nicos_sinq.nexus.nexussink import NexusTemplateProvider
+from nicos.nexus.nexussink import NexusTemplateProvider
 
 test_template = dict()
 
