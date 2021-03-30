@@ -104,9 +104,9 @@ class Axis(CanReference, AbstractAxis):
         if mode == MASTER and self._hascoder and \
            self.motor.status()[0] != status.BUSY and \
            abs(self.motor.read() - self.coder.read()) > self.precision:
-            self.log.warning('Motor and encoder have different positions '
-                             '(%s vs. %s). Set motor position to coder '
-                             'position.' % (
+            self.log.warning('motor and encoder have different positions '
+                             '(%s vs. %s), setting motor position to coder '
+                             'position' % (
                                  self.motor.format(self.motor.read()),
                                  self.coder.format(self.coder.read())))
             self.motor.setPosition(self._getReading())
@@ -296,9 +296,9 @@ class Axis(CanReference, AbstractAxis):
     def doWriteDragerror(self, value):
         if not self._hascoder:
             if value != 0:
-                self.log.warning('Setting a nonzero value for dragerror only '
+                self.log.warning('setting a nonzero value for dragerror only '
                                  'works if a coder was specified in the setup, '
-                                 'which is different from the motor.')
+                                 'which is different from the motor')
             return 0.0
         else:
             self._maxdiff = value
