@@ -98,13 +98,13 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
         exp['title'] = expdev.title
 
         exp['authors'] = []
-        for user in expdev.propinfo['users']:
+        for user in expdev.propinfo.get('users', []):
             a = AutoDefaultODict()
             a['name'] = user['name']
             a['affiliation'] = user.get('affiliation')
             a['roles'] = self._flowlist(['principal_investigator'])
             exp['authors'].append(a)
-        for user in expdev.propinfo['localcontacts']:
+        for user in expdev.propinfo.get('localcontacts', []):
             a = AutoDefaultODict()
             a['name'] = user['name']
             a['affiliation'] = user.get('affiliation')

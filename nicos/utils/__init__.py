@@ -1036,7 +1036,7 @@ def whyExited(status):
 def formatExtendedFrame(frame):
     ret = []
     for key, value in frame.f_locals.items():
-        if key in ('credentials', 'password'):
+        if key.startswith(('credentials', 'password', 'secret')):
             continue
         try:
             valstr = repr(value)[:256]
@@ -1082,7 +1082,8 @@ def listExtendedTraceback(exc, seen=None):
             item = item + '    %s\n' % line.strip()
         ret.append(item)
         if filename not in ('<script>', '<string>'):
-            ret += formatExtendedFrame(tb.tb_frame)
+            if tb.tb_frame.f_globals.get('__name__', '').startswith('nicos'):
+                ret += formatExtendedFrame(tb.tb_frame)
         tb = tb.tb_next
     ret += traceback.format_exception_only(type(exc), exc)
     return ret

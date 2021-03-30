@@ -25,10 +25,84 @@
 """Custom TAS instrument class for PANDA."""
 
 from nicos import session
+from nicos.core import SIMULATION
+from nicos.core.utils import multiWait
+from nicos.devices.tas.mono import from_k
 from nicos.devices.tas.spectro import TAS
+from nicos.devices.generic.sequence import SequencerMixin, SeqDev
 
 
-class PANDA(TAS):
+class PANDA(SequencerMixin, TAS):
+    """TAS subclass for PANDA that does not move all axes at once,
+    but positions the analyzer last.
+    """
+
+    def doReset(self):
+        self.doWriteScatteringsense(self.scatteringsense)
+        SequencerMixin.doReset(self)
+
+    def doStart(self, pos):
+        self.doWriteScatteringsense(self.scatteringsense)
+        qh, qk, ql, ny = pos
+        ny = self._thz(ny)
+        angles = self._attached_cell.cal_angles(
+            [qh, qk, ql], ny, self.scanmode, self.scanconstant,
+            self.scatteringsense[1], self.axiscoupling, self.psi360)
+        mono, ana, phi, psi, alpha = self._attached_mono, self._attached_ana, \
+            self._attached_phi, self._attached_psi, self._attached_alpha
+
+        movefirst = []
+        self.log.debug('moving mono to %s', angles[0])
+        movefirst.append(SeqDev(mono, from_k(angles[0], mono.unit)))
+        self.log.debug('moving phi/stt to %s', angles[2])
+        movefirst.append(SeqDev(phi, angles[2]))
+        self.log.debug('moving psi/sth to %s', angles[3])
+        movefirst.append(SeqDev(psi, angles[3]))
+        if alpha is not None:
+            self.log.debug('moving alpha to %s', angles[4])
+            movefirst.append(SeqDev(alpha, angles[4]))
+        seq = []
+        # move mono/sample all at once
+        seq.append(movefirst)
+        # afterwards correct ana
+        if self.scanmode != 'DIFF':
+            self.log.debug('moving ana to %s', angles[1])
+            seq.append(SeqDev(ana, from_k(angles[1], ana.unit)))
+        # spurion check
+        if self.spurioncheck and self._mode == SIMULATION:
+            self._spurionCheck(pos)
+        # store the min and max values of h,k,l, and E for simulation
+        self._sim_setValue(pos)
+        # start
+        self._startSequence(seq)
+
+    def _runFailed(self, i, action, exc_info):
+        # stop all other motors on failure to start
+        self.stop()
+        raise exc_info[1]
+
+    def _waitFailed(self, i, action, exc_info):
+        # wait for all other motors on failure
+        try:
+            multiWait(self._getWaiters())
+        except Exception:  # we want to reraise the original exception
+            pass
+        raise exc_info[1]
+
+    def doFinish(self):
+        SequencerMixin.doFinish(self)
+        # make sure index members read the latest value
+        for index in (self.h, self.k, self.l, self.E):
+            if index._cache:
+                index._cache.invalidate(index, 'value')
+
+    def doStatus(self, maxage=0):
+        # prefer sequence status to subdevice status
+        if self._seq_is_running():
+            return self._seq_status
+        return SequencerMixin.doStatus(self, maxage)
+
+    # -- resolution calculation methods
 
     def _getCollimation(self):
         ret = [6000]

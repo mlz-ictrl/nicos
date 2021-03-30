@@ -54,10 +54,10 @@ class Slacker(Notifier):
     }
 
     def doInit(self, mode):
-        token = nicoskeystore.getCredential(self.keystoretoken)
-        if not token:
+        secret_token = nicoskeystore.getCredential(self.keystoretoken)
+        if not secret_token:
             raise ConfigurationError('Slack API token missing in keyring')
-        self._slack = slackwebclient(token)
+        self._slack = slackwebclient(secret_token)
 
     def send(self, subject, body, what=None, short=None, important=True):
         message = html.escape('*%s*\n\n```%s```' % (subject, body), False)

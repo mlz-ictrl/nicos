@@ -20,7 +20,7 @@ devices = dict(
         unit = 'deg',
         lowlevel = True,
     ),
-    panda = device('nicos.devices.tas.TAS',
+    panda = device('nicos_mlz.panda.devices.spectro.PANDA',
         description = 'the PANDA spectrometer',
         instrument = 'PANDA',
         responsible = 'Astrid Schneidewind <astrid.schneidewind@frm2.tum.de>',

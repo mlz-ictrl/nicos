@@ -2,9 +2,13 @@ description = 'setup for the execution daemon'
 group = 'special'
 
 devices = dict(
-    # fixed list of users:
-    # first entry is the user name, second the hashed password, third the user level
-    # (of course, for real passwords you don't calculate the hash here :)
+    GhostAuth = device('nicos_mlz.devices.ghost.Authenticator',
+         description = 'GHoST proposal system authentication',
+         instrument = 'BIODIFF',
+         ghosthost = 'ghost.mlz-garching.de',
+         aliases = {
+         },
+    ),
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
         hashing = 'md5',
         passwd = [('guest', '', 'guest'),
@@ -13,7 +17,7 @@ devices = dict(
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = '',
-        authenticators = ['Auth'],
+        authenticators = ['GhostAuth', 'Auth'],
         loglevel = 'info',
     ),
 )

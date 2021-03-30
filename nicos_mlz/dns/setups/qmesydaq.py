@@ -7,7 +7,8 @@ sysconfig = dict(
     datasinks = ['Histogram', 'Listmode'],
 )
 
-qm = 'tango://phys.dns.frm2:10000/qm/qmesydaq/'
+tango_base = 'tango://phys.dns.frm2:10000/'
+qm_base = tango_base + 'qm/qmesydaq/'
 
 devices = dict(
     Histogram = device('nicos_mlz.dns.devices.qmesydaqsinks.HistogramSink',
@@ -28,26 +29,26 @@ devices = dict(
     ),
     qmon1 = device('nicos.devices.tango.CounterChannel',
         description = 'QMesyDAQ Counter0',
-        tangodevice = qm + 'counter0',
+        tangodevice = qm_base + 'counter0',
         type = 'monitor',
     ),
     qmon2 = device('nicos.devices.tango.CounterChannel',
         description = 'QMesyDAQ Counter1',
-        tangodevice = qm + 'counter1',
+        tangodevice = qm_base + 'counter1',
         type = 'monitor',
     ),
     qevents = device('nicos.devices.tango.CounterChannel',
         description = 'QMesyDAQ Events channel',
-        tangodevice = qm + 'events',
+        tangodevice = qm_base + 'events',
         type = 'counter',
     ),
     qtimer = device('nicos.devices.tango.TimerChannel',
         description = 'QMesyDAQ Timer',
-        tangodevice = qm + 'timer',
+        tangodevice = qm_base + 'timer',
     ),
     qlive = device('nicos_mlz.dns.devices.ImageChannel',
         description = 'QMesyDAQ live image',
-        tangodevice = 'tango://phys.dns.frm2:10000/dns/mesy/img',
+        tangodevice = tango_base + 'dns/mesy/img',
     ),
     qm_det = device('nicos_mlz.dns.devices.detector.DNSDetector',
         description = 'QMesyDAQ MultiChannel Detector',
@@ -55,7 +56,7 @@ devices = dict(
         timers = ['qtimer'],
         counters = ['qevents'],
         monitors = ['qmon1', 'qmon2'],
-        images = [],  # qlive
+        images = ['qlive'],
     ),
 )
 
