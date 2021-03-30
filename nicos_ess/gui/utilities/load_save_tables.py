@@ -4,15 +4,14 @@ from nicos.guisupport.qt import QTableWidgetItem
 
 
 def save_table_to_csv(table, filename, headers=None):
-    """Save QTableWidget data to a text file
+    """Save QTableWidget data to a text file.
 
-    Parameters:
-    -----------
-        table (QTableWidget): Table widget to be saved
-        filename (str): path to the filename
-        headers (List[str], optional): List of column names.
-            Defaults to None. If None, it will use the horizontalHeaderItem
-            from QTableWidget
+    :param table: Table widget containing data to be saved
+    :param filename: file to save as
+    :param headers: List of column names.
+
+    Note: If headers not specified, it will use the horizontalHeaderItem
+    from QTableWidget
     """
     with open(filename, "w") as file:
         headers_to_write = []
@@ -42,25 +41,15 @@ def save_table_to_csv(table, filename, headers=None):
 
 
 def load_table_from_csv(table, headers, filename):
-    """Load QTableWidget data for from a text file
-       Allows to load partial table from filename.
+    """Load QTableWidget data for from a csv file.
 
-    Parameters:
-    -----------
-        table (QTableWidget): Table widget to be loaded
-        headers (List[str]): List of column names in table.
-            len(headers) must be same as number of columns in table
-        filename (str): Path to the filename
+    Allows to load partial table from filename.
 
-    Raises:
-    -------
-        ValueError
-
-    Returns:
-    --------
-        headers_from_file (List(str)): List of headers read from filename
+    :param table: Table widget to be loaded into
+    :param headers: List of column names in table.
+    :param filename: path to csv file
+    :return: List of headers read from file
     """
-
     def _update_cell(row, column, value, table=table):
         item = table.item(row, column)
         if not item:
