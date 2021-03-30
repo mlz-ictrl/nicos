@@ -213,7 +213,6 @@ class ForwarderApp(CacheClient):
         """
         return name[0:name.index('/')]
 
-
     def _send_device_info(self, dev_name, dev_value, timestamp_ns,
                           dev_status):
         """
