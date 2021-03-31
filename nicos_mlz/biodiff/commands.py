@@ -78,7 +78,7 @@ class RScan(Scan):
                     if det.ctrl_photoshutter:
                         where.append((det._attached_photoshutter, OPEN))
             if where:
-                where = zip(*where)
+                where = list(zip(*where))
                 self.moveDevices(where[0], where[1])
 
     def handleError(self, what, err):

@@ -14,5 +14,5 @@ devices = {
 
 startupcode = """
 CreateDevice('rte1104_io')
-rte1104_io.writeLine("MMEM:RCL 'C:\\users\\Public\\Documents\\Rohde-Schwarz\\RTx\\SaveSets\\RTE1104_Settings_NRSE_default.dfl'")
+rte1104_io.writeLine("MMEM:RCL 'C:\\\\users\\\\Public\\\\Documents\\\\Rohde-Schwarz\\\\RTx\\\\SaveSets\\\\RTE1104_Settings_NRSE_default.dfl'")
 """
