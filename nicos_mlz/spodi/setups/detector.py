@@ -6,14 +6,14 @@ tango_base = 'tango://spodictrl.spodi.frm2:10000/spodi/'
 detector_base = 'tango://mesydaq.spodi.frm2.tum.de:10000/qm/qmesydaq/'
 
 devices = dict(
-    mon = device('nicos.devices.tango.CounterChannel',
+    mon = device('nicos.devices.vendor.qmesydaq.tango.CounterChannel',
         description = 'HWB MON',
         tangodevice = detector_base + 'counter0',
         fmtstr = '%d',
         type = 'monitor',
         lowlevel = True,
     ),
-    tim1 = device('nicos.devices.tango.TimerChannel',
+    tim1 = device('nicos.devices.vendor.qmesydaq.tango.TimerChannel',
         description = 'HWB TIM1',
         tangodevice = detector_base + 'timer',
         fmtstr = '%.2f',

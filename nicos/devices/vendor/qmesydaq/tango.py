@@ -28,8 +28,31 @@ import numpy as np
 
 from nicos.core.constants import SIMULATION
 from nicos.core.params import Override, Param, Value, listof, oneof
-from nicos.devices.tango import ImageChannel as BaseImageChannel
+from nicos.devices.tango import CounterChannel as BaseCounterChannel, \
+    ImageChannel as BaseImageChannel, TimerChannel as BaseTimerChannel
 from nicos.devices.vendor.qmesydaq import Image as QMesyDAQImage
+
+
+class TimerChannel(BaseTimerChannel):
+
+    def doFinish(self):
+        self.doStatus(0)
+        return BaseTimerChannel.doFinish(self)
+
+    def doStop(self):
+        self.doStatus(0)
+        return BaseTimerChannel.doStop(self)
+
+
+class CounterChannel(BaseCounterChannel):
+
+    def doFinish(self):
+        self.doStatus(0)
+        return BaseCounterChannel.doFinish(self)
+
+    def doStop(self):
+        self.doStatus(0)
+        return BaseCounterChannel.doStop(self)
 
 
 class ImageChannel(QMesyDAQImage, BaseImageChannel):
@@ -97,6 +120,14 @@ class ImageChannel(QMesyDAQImage, BaseImageChannel):
         for axis in self.flipaxes:
             narray = np.flip(narray, axis)
         return narray
+
+    def doFinish(self):
+        self.doStatus(0)
+        return BaseImageChannel.doFinish(self)
+
+    def doStop(self):
+        self.doStatus(0)
+        return BaseImageChannel.doStop(self)
 
 
 class MultiCounter(BaseImageChannel):
