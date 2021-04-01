@@ -16,13 +16,14 @@ scanbasename = basename + "%(scancounter)08d_%(pointnumber)08d"
 countbasename = basename + "%(pointpropcounter)010d"
 
 devices = dict(
-    NPGZFileSink = device("nicos.devices.datasinks.text.NPGZFileSink",
+    NPGZFileSink = device("nicos_mlz.maria.devices.datasinks.NPGZFileSink",
         description = "Saves image data in numpy text "
         "format",
         filenametemplate = [
             scanbasename + "_%(arraynumber)d.gz",
             countbasename + "_%(arraynumber)d.gz",
         ],
+        linknametemplate = (0, [scanbasename + ".gz", countbasename + ".gz"]),
     ),
     YAMLSaver = device("nicos_mlz.maria.devices.yamlformat.YAMLFileSink",
         filenametemplate = [
