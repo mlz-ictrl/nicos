@@ -502,15 +502,11 @@ class TOFTOFImageDataset(ImageDataset):
             self.update(name, h5parent, sinkhandler, results)
 
 
-class List(NexusElementBase):
-
-    def __init__(self, start, end):
-        NexusElementBase.__init__(self)
-        self.start = start
-        self.end = end
+class ChannelList(NexusElementBase):
 
     def create(self, name, h5parent, sinkhandler):
-        n = self.end - self.start + 1
-        dset = h5parent.create_dataset(name, (n,), dtype='float32')
-        for i in range(self.start, self.end + 1):
-            dset[i] = float(i)
+        det = sinkhandler.dataset.detectors[0]
+        dset = h5parent.create_dataset(name, (det.timechannels,),
+                                       dtype='float32')
+        for i in range(det.timechannels):
+            dset[i] = float(i + 1)

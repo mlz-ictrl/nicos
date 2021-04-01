@@ -29,11 +29,11 @@ from nicos.nexus.elements import ConstDataset, DeviceAttribute, \
     DeviceDataset, NXAttribute
 from nicos.nexus.nexussink import NexusTemplateProvider
 
-from nicos_mlz.toftof.devices.datasinks.elements import DetInfo, Duration, \
-    ElasticPeakGuess, EndTime, EntryIdentifier, ExperimentTitle, FileName, \
-    GonioDataset, HVDataset, List, LVDataset, Mode, MonitorData, MonitorRate, \
-    MonitorTof, MonitorValue, SampleCountRate, SampleCounts, StartTime, \
-    Status, TableDataset, TOFTOFImageDataset, ToGo
+from nicos_mlz.toftof.devices.datasinks.elements import ChannelList, DetInfo, \
+    Duration, ElasticPeakGuess, EndTime, EntryIdentifier, ExperimentTitle, \
+    FileName, GonioDataset, HVDataset, LVDataset, Mode, MonitorData, \
+    MonitorRate, MonitorTof, MonitorValue, SampleCountRate, SampleCounts, \
+    StartTime, Status, TableDataset, TOFTOFImageDataset, ToGo
 
 seconds = NXAttribute('s', 'string')
 signal = NXAttribute(1, 'int64')
@@ -131,7 +131,7 @@ class TofTofNexusLegacyTemplate(NexusTemplateProvider):
                     'time_of_flight': MonitorTof(),
                 },
                 'data:NXdata': {
-                    'channel_number': List(0, 1023),
+                    'channel_number': ChannelList(),
                     'data': TOFTOFImageDataset(
                         0, 0, signal=signal, units='counts',
                         axes='2theta:channel_number'),
