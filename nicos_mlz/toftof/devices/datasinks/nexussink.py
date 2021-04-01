@@ -182,7 +182,8 @@ class NexusSinkHandler(DataSinkHandler):
                 try:
                     val.results(key, h5obj, self, results)
                 except Exception as err:
-                    self.log.warning('resultValues: Exception %s on key %r', err, key)
+                    self.log.warning('resultValues: Exception %s on key %r',
+                                     err, key)
             else:
                 self.log.warning('Cannot add results to %s', key)
 
