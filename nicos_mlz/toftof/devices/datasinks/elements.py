@@ -359,8 +359,8 @@ class MonitorData(NexusElementBase):
         if data is not None:
             dset = h5parent[name]
             for i, v in enumerate(
-                data[sinkhandler.dataset.metainfo['det',
-                                                  'monitorchannel'][0]]):
+                data[:, sinkhandler.dataset.metainfo['det',
+                                                     'monitorchannel'][0]]):
                 dset[i] = v
 
 
@@ -478,7 +478,7 @@ class TOFTOFImageDataset(ImageDataset):
                 else:
                     ninputs = det.numinputs
                     tchannels = det.timechannels
-                    reddata = data[0:ninputs, 0:tchannels]
+                    reddata = data[0:tchannels, 0:ninputs]
                     h5parent[name][...] = reddata.reshape(ninputs, 1,
                                                           tchannels)
 
