@@ -140,7 +140,8 @@ class NexusSinkHandler(DataSinkHandler):
                     try:
                         val.update(key, h5obj, self, values)
                     except Exception as err:
-                        self.log.warning('Exception %s on key %s', err, key)
+                        self.log.warning('updateValues: Exception %s on key %r',
+                                         err, key)
                 else:
                     self.log.warning('Cannot identify and  update %s', key)
 
@@ -157,7 +158,7 @@ class NexusSinkHandler(DataSinkHandler):
                 try:
                     val.append(key, h5obj, self, subset)
                 except Exception as err:
-                    self.log.warning('Exception %s on key %s', err, key)
+                    self.log.warning('append: Exception %s on key %r', err, key)
             else:
                 self.log.warning('Cannot identify and append %s', key)
 
@@ -181,7 +182,7 @@ class NexusSinkHandler(DataSinkHandler):
                 try:
                     val.results(key, h5obj, self, results)
                 except Exception as err:
-                    self.log.warning('Exception %s on key %s', err, key)
+                    self.log.warning('resultValues: Exception %s on key %r', err, key)
             else:
                 self.log.warning('Cannot add results to %s', key)
 
