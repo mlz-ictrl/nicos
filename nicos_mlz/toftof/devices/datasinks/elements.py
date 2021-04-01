@@ -341,7 +341,9 @@ class SampleCountRate(NexusElementBase):
 class MonitorData(NexusElementBase):
 
     def create(self, name, h5parent, sinkhandler):
-        dset = h5parent.create_dataset(name, (1024,), dtype='int64')
+        det = sinkhandler.dataset.detectors[0]
+        dset = h5parent.create_dataset(name, (det.timechannels,),
+                                       dtype='int64')
         dset.attrs['units'] = np.string_('counts')
         dset.attrs['signal'] = 1
 
