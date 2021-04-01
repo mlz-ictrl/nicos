@@ -461,6 +461,8 @@ class TOFTOFImageDataset(ImageDataset):
         if not self.valid:
             return
         det = sinkhandler.dataset.detectors[self.detectorIDX]
+        if det.name not in values:
+            return
         # Be persistent in getting at array data
         arrayData = det.readArrays(FINAL)
         if arrayData is None:
