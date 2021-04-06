@@ -85,15 +85,6 @@
     <string>Ctrl+U</string>
    </property>
   </action>
-  <action name="actionPDF">
-   <property name="icon">
-    <iconset>
-     <normaloff>:/save</normaloff>:/save</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Save as PDF...</string>
-   </property>
-  </action>
   <action name="actionLogScale">
    <property name="checkable">
     <bool>true</bool>
@@ -170,6 +161,28 @@
    </property>
    <property name="toolTip">
     <string>Save plot</string>
+   </property>
+  </action>
+  <action name="actionLines">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Lines</string>
+   </property>
+   <property name="toolTip">
+    <string>Activate Lines</string>
+   </property>
+  </action>
+  <action name="actionSymbols">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show symbols</string>
+   </property>
+   <property name="toolTip">
+    <string>Show symbols</string>
    </property>
   </action>
  </widget>

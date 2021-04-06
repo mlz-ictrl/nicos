@@ -25,8 +25,8 @@
 import numpy
 
 from nicos.clients.gui.panels.live import LiveDataPanel as DefaultLiveDataPanel
-from nicos.guisupport.livewidget import DATATYPES, \
-    LiveWidget as DefaultLiveWidget, LiveWidget1D as DefaultLiveWidget1D
+from nicos.guisupport.livewidget import LiveWidget as DefaultLiveWidget, \
+    LiveWidget1D as DefaultLiveWidget1D, AXES
 from nicos.guisupport.qt import QComboBox, QGroupBox, QListWidget, QSize, Qt, \
     QToolBar, QVBoxLayout, pyqtSignal
 
@@ -127,6 +127,66 @@ def get_detectors_in_layout(layout):
     return [item.widget().name for item in layout_iterator(layout)]
 
 
+def process_axis_labels(datadesc, blobs, offset=0):
+    """Convert the raw axis label descriptions.
+    Similar to LiveDataPanel._process_axis_labels, but is flexible in datadesc.
+    """
+    CLASSIC = {'define': 'classic'}
+    labels = {}
+    titles = {}
+    for size, axis in zip(reversed(datadesc['shape']), AXES):
+        # if the 'labels' key does not exist or does not have the right
+        # axis key set default to 'classic'.
+        label = datadesc.get(
+            'labels', {'x': CLASSIC, 'y': CLASSIC}).get(axis, CLASSIC)
+
+        if label['define'] == 'range':
+            start = label.get('start', 0)
+            size = label.get('length', 1)
+            step = label.get('step', 1)
+            end = start + step * size
+            labels[axis] = numpy.arange(start, end, step)
+        elif label['define'] == 'array':
+            index = label.get('index', 0)
+            labels[axis] = numpy.frombuffer(blobs[index],
+                                            label.get('dtype', '<i4'))
+        else:
+            labels[axis] = numpy.array(range(size))
+        labels[axis] += offset if axis == 'x' else 0
+        titles[axis] = label.get('title')
+
+    return labels, titles
+
+
+def processDataArrays(index, params, data):
+    """Returns a list of arrays corresponding to the ``count`` of
+    ``index`` into ``datadescs`` of the current params"""
+    datadesc = params['datadescs'][index]
+    count = datadesc.get('count', 1)
+    shape = datadesc['shape']
+
+    # determine 1D array size
+    arraysize = numpy.product(shape)
+    arrays = numpy.split(data[:count * arraysize], count)
+
+    # reshape every array in the list
+    for i, array in enumerate(arrays):
+        arrays[i] = array.reshape(shape)
+    return arrays
+
+
+def process_livedata(widget, data, params, labels, idx):
+    descriptions = params['datadescs']
+
+    # pylint: disable=len-as-condition
+    if len(data):
+        arrays = processDataArrays(
+            idx, params, numpy.frombuffer(data,descriptions[idx]['dtype']))
+        if arrays is None:
+            return
+        widget.setData(arrays, labels)
+
+
 class MultiLiveDataPanel(LiveDataPanel):
     """
     Implements a LiveDataPanel that shows all the detectors in a side area.
@@ -166,7 +226,7 @@ class MultiLiveDataPanel(LiveDataPanel):
 
     def add_detector_to_preview(self, detname):
         previews = self.create_preview(detname)
-        self._previews_cache.update({detname: {'params': [], 'blobs': []}})
+        self._previews_cache.update({detname: {'params': {}, 'blobs': []}})
         for preview in previews:
             preview.widget().clicked.connect(self.on_preview_clicked)
             self._previews[preview.widget().name] = preview
@@ -200,11 +260,18 @@ class MultiLiveDataPanel(LiveDataPanel):
         :param blobs: data array
         :return: None
         """
+        det_name = params['det']
         if [preview for preview in self._previews if preview.startswith(
-                params[2])]:
+                det_name)]:
             self.set_preview_data(params, blobs)
-        if params[2] == self._detector_selected:
-            DefaultLiveDataPanel.on_client_livedata(self, params, blobs)
+
+        detector_selected = '-'.join(self._detector_selected.split('-')[:-1])
+        if det_name == detector_selected:
+            channel = int(self._detector_selected.split('-')[-1])
+            param = dict(params)
+            param['datadescs'] = [param['datadescs'][channel]]
+            blob = [blobs[channel]]
+            DefaultLiveDataPanel.on_client_livedata(self, param, blob)
 
     def find_detectors(self):
         """
@@ -250,27 +317,18 @@ class MultiLiveDataPanel(LiveDataPanel):
         :param blobs: data array
         :return: None
         """
-        _, _, detname, _, dtype, nx, ny, nz, _ = params
+        detname = params['det']
 
-        normalized_type = numpy.dtype(dtype).str
-        if normalized_type not in DATATYPES:
-            self._last_format = None
-            self.log.warning('Unsupported live data format: %s', (params,))
-            return
+        self._previews_cache[detname]['params'] = params
+        self._previews_cache[detname]['blobs'] = blobs
 
-        self._previews_cache[f'{detname}']['params'] = params
-        self._previews_cache[f'{detname}']['blobs'] = blobs
-
-        for ch in range(len(nx)):
-            array = numpy.frombuffer(blobs[ch], dtype=normalized_type)
-            try:
-                if nz[ch] > 1:
-                    array = array.reshape((nz[ch], ny[ch], nx[ch]))
-                elif ny[ch] > 1:
-                    array = array.reshape((ny[ch], nx[ch]))
-                self._previews[f'{detname}-{ch}'].widget().setData(array)
-            except Exception as e:
-                self.log.warning(e)
+        for index, datadesc in enumerate(params['datadescs']):
+            normalized_type = self.normalizeType(datadesc['dtype'])
+            widget = self._previews[f'{detname}-{index}'].widget()
+            labels, _ = process_axis_labels(datadesc, blobs)
+            process_livedata(widget,
+                             numpy.frombuffer(blobs[index], normalized_type),
+                             params, labels, index)
 
     def on_preview_clicked(self, detname):
         """
@@ -287,18 +345,11 @@ class MultiLiveDataPanel(LiveDataPanel):
         blobs = self._previews_cache[cached_name].get('blobs', [])
 
         if params and blobs:
-            _, uid, _, _, dtype, nx, ny, nz, _ = params
-            normalized_type = numpy.dtype(dtype).str
-            if normalized_type not in DATATYPES:
-                return
-
             ch = int(detname.split('-')[-1])
-            array = numpy.frombuffer(blobs[ch], dtype=normalized_type)
-            if nz[ch] > 1:
-                array = array.reshape((nz[ch], ny[ch], nx[ch]))
-            elif ny[ch] > 1:
-                array = array.reshape((ny[ch], nx[ch]))
-            self.setData(array, uid, display=True)
+            pars = dict(params)
+
+            pars['datadescs'] = [pars['datadescs'][ch]]
+            DefaultLiveDataPanel.on_client_livedata(self, pars, [blobs[ch]])
 
     def on_closed(self):
         """

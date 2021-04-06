@@ -24,4 +24,4 @@
 
 from nicos_mlz.toftof.devices.datasinks.legacy import TofImageSink
 from nicos_mlz.toftof.devices.datasinks.live import ToftofLiveViewSink
-from nicos_mlz.toftof.devices.datasinks.nexus import TofNeXuS
+from nicos_mlz.toftof.devices.datasinks.nexussink import NexusSink
