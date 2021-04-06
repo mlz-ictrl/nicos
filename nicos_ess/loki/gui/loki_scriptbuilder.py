@@ -144,15 +144,40 @@ class LokiScriptBuilderPanel(Panel):
         if not filename:
             return
 
-        try:
-            headers_from_file = load_table_from_csv(
-                self.tableScript, self.columns_in_order, filename)
+        data = load_table_from_csv(filename)
+        headers_from_file = data.pop(0)
 
-            for optional in set(headers_from_file).intersection(
-                set(self.optional_columns.keys())):
-                self.optional_columns[optional][1].setChecked(True)
-        except Exception as ex:
-            self.showError(f"Cannot read table contents from {filename}:\n{ex}")
+        if not set(headers_from_file).issubset(set(self.columns_in_order)):
+            self.showError(f"{filename} is not compatible with the table")
+            return
+        self._fill_table(headers_from_file, data)
+
+        for optional in set(headers_from_file).intersection(
+            set(self.optional_columns.keys())):
+            self.optional_columns[optional][1].setChecked(True)
+
+    def _fill_table(self, headers, data):
+        # corresponding indices of elements in headers_from_file list to headers
+        indices = [i for i, e in enumerate(self.columns_in_order)
+                   if e in headers]
+
+        for idx, row in enumerate(data):
+            # create appropriate length list to fill the table row
+            row = self._fill_elements(row, indices, len(self.columns_in_order))
+            for column in range(self.tableScript.columnCount()):
+                self._update_cell(idx, column, row[column])
+
+    def _fill_elements(self, row, indices, length):
+        """Returns a list of len length, with elements of row placed at
+        given indices.
+        """
+        if len(row) == length:
+            return row
+        r = [""] * length
+        # Slicing similar to numpy arrays r[indices] = row
+        for index, value in zip(indices, row):
+            r[index] = value
+        return r
 
     @pyqtSlot()
     def on_saveTableButton_clicked(self):
@@ -171,10 +196,33 @@ class LokiScriptBuilderPanel(Panel):
 
         self.last_save_location = osp.dirname(filename)
         try:
-            save_table_to_csv(
-                self.tableScript, filename, headers=self.columns_in_order)
+            headers = self._extract_headers_from_table()
+            data = self._extract_data_from_table()
+            save_table_to_csv(data, filename, headers)
         except Exception as ex:
             self.showError(f"Cannot write table contents to {filename}:\n{ex}")
+
+    def _extract_headers_from_table(self):
+        headers = []
+        for column in range(self.tableScript.columnCount()):
+            if not self.tableScript.isColumnHidden(column):
+                headers.append(self.columns_in_order[column])
+        return headers
+
+    def _extract_data_from_table(self):
+        data = []
+        for row in range(self.tableScript.rowCount()):
+            rowdata = []
+            for column in range(self.tableScript.columnCount()):
+                if not self.tableScript.isColumnHidden(column):
+                    item = self.tableScript.item(row, column)
+                    if item is not None:
+                        rowdata.append(item.text())
+                    else:
+                        rowdata.append("")
+            if any(rowdata):
+                data.append(rowdata)
+        return data
 
     def _delete_rows(self):
         rows_to_remove = set()
