@@ -232,6 +232,11 @@ class LiveDataPanel(Panel):
             self._cachesize = 1  # always cache the last live image
         self._datacache = BoundedOrderedDict(maxlen=self._cachesize)
 
+        self._initControlsGUI()
+
+    def _initControlsGUI(self):
+        pass
+
     def setLiveItems(self, n):
         nitems = len(self.liveitems)
         if n < nitems:
