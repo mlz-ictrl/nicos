@@ -313,7 +313,7 @@ class MainWindow(QMainWindow):
         add(self.saveDevices(setupItem))
         add(self.saveStartupcode(setupData))
 
-        with open(setupPath, 'w') as outputFile:
+        with open(setupPath, 'w', encoding='utf-8') as outputFile:
             outputStringWithNewlines = ''.join(output)
             outputStringListWithNewLines = \
                 outputStringWithNewlines.splitlines()

@@ -94,7 +94,7 @@ def AddCountsToCellsFile(analyser, polariser, counts):
         ytransval = session.getDevice('ytrans')()
     else:
         ytransval = 0
-    with open(cells_file(), 'a') as f:
+    with open(cells_file(), 'a', encoding='utf-8') as f:
         f.write('{:10d}{:11d}{:10.2f}{:10d}{:10d}{:10d}'
                 '{:>12}{:>7}{:8.1f}{:8.1f}'
                 '{:8.1f}{:8.1f}{:8.1f}{:8.1f}'
@@ -108,7 +108,7 @@ def AddCountsToCellsFile(analyser, polariser, counts):
 def AddHeaderToCellsFile(analyser_cell_name, analyser_cell_pressure,
                          polariser_cell_name, polariser_cell_pressure, wavelen):
     """Add header info to the file."""
-    with open(cells_file(), 'a') as f:
+    with open(cells_file(), 'a', encoding='utf-8') as f:
         f.write(LARGE_COMMENT)
         f.write('# Analyser/decpol cell ({}) pressure = {} bar,  Polariser '
                 'cell ({}) pressure = {} bar,  Wavelength = {} Angstrom\n'
@@ -126,7 +126,7 @@ def AddHeaderToCellsFile(analyser_cell_name, analyser_cell_pressure,
 def AddPolariserHeaderToCellsFile(polariser_cell_name, polariser_cell_pressure,
                                   wavelen):
     """Add header info to the file."""
-    with open(cells_file(), 'a') as f:
+    with open(cells_file(), 'a', encoding='utf-8') as f:
         f.write(LARGE_COMMENT)
         f.write('# Polariser cell ({}) pressure = {} bar,  '
                 'Wavelength = {} Angstrom\n'
@@ -142,7 +142,7 @@ def AddPolariserHeaderToCellsFile(polariser_cell_name, polariser_cell_pressure,
 
 def AddTransToCellsFile(analyser_cell_transmission, polariser_cell_transmission):
     """Add transmission info to the file."""
-    with open(cells_file(), 'a') as f:
+    with open(cells_file(), 'a', encoding='utf-8') as f:
         f.write(SMALL_COMMENT)
         f.write('# Analyser/decpol cell: Transmission = {:.2f} %,  Polariser '
                 'cell: Transmission = {:.2f} %\n'
@@ -152,7 +152,7 @@ def AddTransToCellsFile(analyser_cell_transmission, polariser_cell_transmission)
 
 def AddPolariserTransToCellsFile(polariser_cell_transmission):
     """Add transmission info to the file."""
-    with open(cells_file(), 'a') as f:
+    with open(cells_file(), 'a', encoding='utf-8') as f:
         f.write(SMALL_COMMENT)
         f.write('# Polariser cell: Transmission = {:.2f} %\n'.format(polariser_cell_transmission))
         f.write(SMALL_COMMENT)
@@ -160,7 +160,7 @@ def AddPolariserTransToCellsFile(polariser_cell_transmission):
 
 def AddFooterToCellsFile():
     """Add footer info to the file."""
-    with open(cells_file(), 'a') as f:
+    with open(cells_file(), 'a', encoding='utf-8') as f:
         f.write('\n\n')
 
 

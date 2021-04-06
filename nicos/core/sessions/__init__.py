@@ -100,6 +100,8 @@ class Session:
         self.sessionid = makeSessionId()
         # contains all created device objects
         self.devices = {}
+        # contains names of failed devices, mapped to error strings
+        self.device_failures = {}
         # maps lower-cased device names to actual-cased device names
         self.device_case_map = {}
         # contains the name of all explicitly created devices
@@ -810,9 +812,11 @@ class Session:
                 raise NicosError('Deadlock detected! Session.unloadSetup '
                                  "failed on these devices: '%s'" % devs)
 
+        already_shutdown.update(self.device_failures)
         self.deviceCallback('destroy', list(already_shutdown))
         self.setupCallback([], [])
         self.devices.clear()
+        self.device_failures.clear()
         self.device_case_map.clear()
         self.configured_devices.clear()
         self.dynamic_devices.clear()
@@ -1043,6 +1047,10 @@ class Session:
         """Mark the end of a multi-create."""
         self._multi_level -= 1
         if not self._multi_level:
+            if self._failed_devices:
+                failures = {name: str(err)
+                            for (name, err) in self._failed_devices.items()}
+                self.deviceCallback('failed', failures)
             self._failed_devices = None
             self.deviceCallback('create', self._success_devices)
             self._success_devices = None
@@ -1146,20 +1154,24 @@ class Session:
                 return self.devices[devname]
             self.destroyDevice(devname)
 
-        devcls, devconfig = self.importDevice(devname, replace_classes)
-        if 'description' in devconfig:
-            self.log.info("creating device '%s' (%s)... ",
-                          devname, devconfig['description'])
-        else:
-            self.log.info("creating device '%s'... ", devname)
-
         try:
+            devcls, devconfig = self.importDevice(devname, replace_classes)
+            if 'description' in devconfig:
+                self.log.info("creating device '%s' (%s)... ",
+                              devname, devconfig['description'])
+            else:
+                self.log.info("creating device '%s'... ", devname)
+
             dev = devcls(devname, **devconfig)
             self.log.debug("device '%s' created", devname)
         except Exception as err:
             if self._failed_devices is not None:
                 self._failed_devices[devname] = err
+            else:
+                self.deviceCallback('failed', {devname: str(err)})
+            self.device_failures[devname] = str(err)
             raise
+        self.device_failures.pop(devname, None)
         if self._success_devices is not None:
             self._success_devices.append(devname)
         else:
@@ -1171,6 +1183,7 @@ class Session:
 
     def destroyDevice(self, devname):
         """Shutdown a device and remove it from the list of created devices."""
+        self.device_failures.pop(devname, None)
         if devname not in self.devices:
             self.log.warning("device '%s' not created", devname)
             return

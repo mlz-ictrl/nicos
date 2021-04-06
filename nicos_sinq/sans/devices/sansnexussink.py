@@ -22,8 +22,7 @@
 #
 # *****************************************************************************
 from nicos.core.params import Override
-
-from nicos_sinq.nexus.nexussink import NexusSink
+from nicos.nexus.nexussink import NexusSink
 
 
 class SANSNexusSink(NexusSink):

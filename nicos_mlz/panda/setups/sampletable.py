@@ -121,7 +121,7 @@ devices = dict(
         zerosteps = 831380,
         confbyte = ENDAT | BINARY | P_EVEN | TOTALBITS(20),
         unit = 'deg',
-        circular = 360,  # map values to -180..0..180 degree
+        circular = 360,  # map values to 0..360 degree
         lowlevel = True,
     ),
     sth_st = device('nicos.devices.generic.Axis',

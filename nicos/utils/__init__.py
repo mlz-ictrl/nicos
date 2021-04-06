@@ -434,9 +434,12 @@ def tcpSocketContext(host, defaultport, timeout=None):
         closeSocket(sock)
 
 
-def getfqdn(name=''):
+def getfqdn():
     """Get fully qualified hostname."""
-    return socket.getfqdn(name)
+    hostname = socket.gethostname()
+    if '.' in hostname:
+        return hostname
+    return socket.getfqdn(hostname)
 
 
 def bitDescription(bits, *descriptions):
@@ -619,12 +622,12 @@ DEFAULT_FILE_MODE = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
 
 
 def readFile(filename):
-    with open(filename, 'r') as fp:
+    with open(filename, 'r', encoding='utf-8') as fp:
         return [line.strip() for line in fp]
 
 
 def writeFile(filename, lines):
-    with open(filename, 'w') as fp:
+    with open(filename, 'w', encoding='utf-8') as fp:
         fp.writelines(lines)
 
 
@@ -673,7 +676,7 @@ def moveOutOfWay(filepath, maxbackups=10):
             nxt = nxt + 1
 
 
-def safeWriteFile(filepath, content, mode='w', maxbackups=10):
+def safeWriteFile(filepath, content, maxbackups=10):
     """(Almost) atomic writing of a file.
 
     The content is first written to a temporary file and then swapped in while
@@ -686,7 +689,7 @@ def safeWriteFile(filepath, content, mode='w', maxbackups=10):
     if isinstance(content, list):
         writeFile(tmpfile, content)
     else:
-        open(tmpfile, mode).write(content)
+        open(tmpfile, 'w', encoding='utf-8').write(content)
     try:
         if maxbackups:
             moveOutOfWay(filepath, maxbackups)
@@ -1033,7 +1036,7 @@ def whyExited(status):
 def formatExtendedFrame(frame):
     ret = []
     for key, value in frame.f_locals.items():
-        if key in ('credentials', 'password'):
+        if key.startswith(('credentials', 'password', 'secret')):
             continue
         try:
             valstr = repr(value)[:256]
@@ -1079,7 +1082,8 @@ def listExtendedTraceback(exc, seen=None):
             item = item + '    %s\n' % line.strip()
         ret.append(item)
         if filename not in ('<script>', '<string>'):
-            ret += formatExtendedFrame(tb.tb_frame)
+            if tb.tb_frame.f_globals.get('__name__', '').startswith('nicos'):
+                ret += formatExtendedFrame(tb.tb_frame)
         tb = tb.tb_next
     ret += traceback.format_exception_only(type(exc), exc)
     return ret

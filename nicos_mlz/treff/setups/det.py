@@ -65,7 +65,6 @@ devices = dict(
         description = "Jumiom detector",
         shutter = "expshutter",
         timers = ["timer"],
-        lives = ["timer"],
         monitors = ["mon0", "mon1"],
         images = ["detimg"],
         counters = ["roi1", "roi2", "roi_pol", "full"],

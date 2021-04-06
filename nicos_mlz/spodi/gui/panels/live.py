@@ -73,8 +73,8 @@ class FullScreen1DWidget(LiveWidget1D):
 
     def getYMax(self):
         minupperedge = 1
-        if self._arrays:
-            minupperedge = max([max(array) for array in self._arrays])
+        if self._arrays is not None:
+            minupperedge = max([array.max() for array in self._arrays])
             minupperedge *= 2.15 if self._logscale else 1.05
         return minupperedge
 

@@ -23,11 +23,11 @@
 #
 # *****************************************************************************
 
-from nicos.core import Override, Param, pvname, status
+from nicos.core import Override, Param, oneof, pvname, status
+from nicos.core.device import requires
 from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import CanDisable, HasOffset
 from nicos.devices.abstract import CanReference, Motor
-from nicos.core.device import requires
 
 from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 
@@ -59,6 +59,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         'reseterrorpv': Param('Optional PV with error reset switch.',
                               type=pvname, mandatory=False, settable=False,
                               userparam=False),
+        'reference_direction': Param('Reference run direction',
+                                     type=oneof('forward', 'reverse'),
+                                     default='forward', settable=False,
+                                     userparam=False, mandatory=False),
     }
 
     parameter_overrides = {
@@ -163,7 +167,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
 
             # Adjust user limits
             self.userlimits = (
-            self.userlimits[0] + diff, self.userlimits[1] + diff)
+                self.userlimits[0] + diff, self.userlimits[1] + diff)
 
             self.log.info('The new user limits are: ' + str(self.userlimits))
 
@@ -210,7 +214,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         miss = self._get_pv('miss')
         if miss != 0:
             return (
-            status.NOTREACHED, message or 'Did not reach target position.')
+                status.NOTREACHED, message or 'Did not reach target position.')
 
         high_limitswitch = self._get_pv('highlimitswitch')
         if high_limitswitch != 0:
@@ -258,7 +262,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         return absmin, absmax
 
     def doReference(self):
-        self._put_pv_blocking('homeforward', 1)
+        self._put_pv_blocking('home%s' % self.reference_direction, 1)
 
     def doReset(self):
         if self.errorbitpv and self.reseterrorpv:
@@ -297,4 +301,5 @@ class AbsoluteEpicsMotor(EpicsMotor):
     The instances of this class cannot be homed.
     """
     def doReference(self):
-        self.log.warning('This motor does not require homing - command ignored')
+        self.log.warning('This motor does not require '
+                         'homing - command ignored')

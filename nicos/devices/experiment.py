@@ -342,9 +342,9 @@ class Experiment(Device):
         Additional *kwds*, if a dictionary, are merged into each proposal
         information dictionary.
 
-        The following keys are defined, and must be present for each proposal
-        except where noted.  Lists and dictionaries can be empty.  Other keys
-        can be added and processed by site-specific implementations.
+        The following keys are defined, only "proposal" must be present.
+        Lists and dictionaries can be empty.  Other keys can be added and
+        processed by site-specific implementations.
 
         * proposal: proposal ID, string
         * session: experiment ID, string (optional)
@@ -359,7 +359,7 @@ class Experiment(Device):
           * email: string
           * affiliation: string (optional)
         * localcontacts: list of dicts, with keys same as users
-        * samples: list of dicts:
+        * samples: optional list of dicts:
           * name: string
         * data_emails: list of addresses to send the data/link to the data to
           (this should be initially set to the user email addresses, but can
@@ -824,7 +824,8 @@ class Experiment(Device):
         """returns the content of the requested template"""
         for tmpldir in self.templatepath:
             if path.isfile(path.join(tmpldir, tmplname)):
-                with open(path.join(tmpldir, tmplname), 'r') as f:
+                with open(path.join(tmpldir, tmplname), 'r',
+                          encoding='utf-8') as f:
                     return f.read()
         raise OSError('no such template found')
 
@@ -916,7 +917,7 @@ class Experiment(Device):
                     self.log.warning('could not translate template file %s',
                                      fn, exc=1)
             # save result
-            with open(finalname, 'w') as fp:
+            with open(finalname, 'w', encoding='utf-8') as fp:
                 fp.write(content)
             os.chmod(finalname, self.managerights.get('enableFileMode',
                                                       DEFAULT_FILE_MODE))

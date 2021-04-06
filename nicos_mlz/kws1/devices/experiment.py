@@ -49,7 +49,7 @@ class KWSExperiment(Experiment):
         proto_path = path.join(self.proposalpath, 'protocol.txt')
         try:
             text = self._generate_protocol(with_ts=True)
-            with open(proto_path, 'w') as fp:
+            with open(proto_path, 'w', encoding='utf-8') as fp:
                 fp.write(text)
         except Exception:
             self.log.warning('Error during protocol generation', exc=1)
@@ -108,7 +108,7 @@ class KWSExperiment(Experiment):
 
 def read_dat_file(runno, senv, fname):
     data = {'#': runno, 'Run': str(runno), 'TOF': 'no'}
-    it = iter(open(fname))
+    it = iter(open(fname, encoding='utf-8'))
     for line in it:
         if line.startswith('Standard_Sample '):
             parts = line.split()

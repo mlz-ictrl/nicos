@@ -84,7 +84,7 @@ def main():
     if opts.verbose:
         root_log.setLevel(logging.INFO)
     if opts.filename:
-        outfile = open(opts.filename, 'a')
+        outfile = open(opts.filename, 'a', encoding='utf-8')
         root_log.addHandler(FileHandler(outfile))
 
     ret = SetupValidator().walk(paths, opts.separate)

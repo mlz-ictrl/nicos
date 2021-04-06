@@ -69,7 +69,7 @@ class FluxLivePanel(LiveDataPanel):
             datadescs=[dict(
                 dtype='<u8',
                 shape=(16,),
-                count=3)
+                plotcount=3)
             ],
         )
 

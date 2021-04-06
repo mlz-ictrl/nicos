@@ -135,7 +135,7 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
                                          self.sink.subdir)
         self._fname = fp.shortpath
         self._filepath = fp.filepath
-        self._file = TextIOWrapper(fp)
+        self._file = TextIOWrapper(fp, encoding='utf-8')
 
     def _write_section(self, section):
         self._file.write('%s %s\n' % (self._commentc * 3, section))

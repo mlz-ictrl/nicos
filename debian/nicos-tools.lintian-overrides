@@ -1,0 +1,9 @@
+nicos-tools: debian-changelog-line-too-long
+nicos-tools: image-file-in-usr-lib
+nicos-tools: package-contains-documentation-outside-usr-share-doc
+nicos-tools: binary-without-manpage usr/bin/nicos-cache-inspector
+nicos-tools: binary-without-manpage usr/bin/nicos-check-setups
+nicos-tools: binary-without-manpage usr/bin/nicos-mkpasswd
+nicos-tools: binary-without-manpage usr/bin/nicos-password-editor
+nicos-tools: binary-without-manpage usr/bin/nicos-reformat-setup
+nicos-tools: binary-without-manpage usr/bin/nicos-setup-editor

@@ -165,6 +165,11 @@
     <string>Shut down the device</string>
    </property>
   </action>
+  <action name="actionRetryCreate">
+   <property name="text">
+    <string>Retry to create</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

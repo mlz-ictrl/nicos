@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>805</width>
+    <height>502</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Live data</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QWidget" name="verticalLayoutWidget_2">
+      <layout class="QVBoxLayout" name="widgetLayout"/>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget">
+      <layout class="QVBoxLayout" name="monitorLayout">
+       <item>
+        <widget class="QScrollArea" name="scroll">
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollContent">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>774</width>
+            <height>498</height>
+           </rect>
+          </property>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionPrint">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/print</normaloff>:/print</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Print...</string>
+   </property>
+   <property name="toolTip">
+    <string>Print current plot</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionUnzoom">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/viewfull</normaloff>:/viewfull</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Unzoom</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="actionLogScale">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Logarithmic Y scale</string>
+   </property>
+   <property name="iconText">
+    <string>Log Scale</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionColormap">
+   <property name="text">
+    <string>&amp;Colormap</string>
+   </property>
+   <property name="toolTip">
+    <string>Select colormap</string>
+   </property>
+  </action>
+  <action name="actionROI">
+   <property name="text">
+    <string>&amp;Region Of Interest</string>
+   </property>
+   <property name="toolTip">
+    <string>Open region of interest in seperate window</string>
+   </property>
+  </action>
+  <action name="actionMarkCenter">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Center Mark</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark center of detector image</string>
+   </property>
+  </action>
+  <action name="actionKeepRatio">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Keep ratio</string>
+   </property>
+   <property name="toolTip">
+    <string>Keep aspect ratio of selection rectangle</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/open</normaloff>:/open</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Open</string>
+   </property>
+   <property name="toolTip">
+    <string>Open data</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSavePlot">
+   <property name="text">
+    <string>&amp;Save plot</string>
+   </property>
+   <property name="iconText">
+    <string>Log Scale</string>
+   </property>
+   <property name="toolTip">
+    <string>Save plot</string>
+   </property>
+  </action>
+  <action name="actionLines">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Lines</string>
+   </property>
+   <property name="toolTip">
+    <string>Activate Lines</string>
+   </property>
+  </action>
+  <action name="actionSymbols">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show symbols</string>
+   </property>
+   <property name="toolTip">
+    <string>Show symbols</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../../../resources/nicos-gui-material.qrc"/>
+ </resources>
+ <connections/>
+</ui>

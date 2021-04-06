@@ -35,7 +35,7 @@ from gr import COLORMAPS as GR_COLORMAPS
 
 from nicos.clients.gui.dialogs.filesystem import FileFilterDialog
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import enumerateWithProgress, loadUi
+from nicos.clients.gui.utils import enumerateWithProgress, loadUi, uipath
 from nicos.core.constants import FILE, LIVE
 from nicos.core.errors import NicosError
 from nicos.guisupport.livewidget import AXES, DATATYPES, IntegralLiveWidget, \
@@ -57,7 +57,7 @@ DEFAULTS = dict(
     marks='omark',
     offset=0,
     plotcount=1,
-    color='blue',
+    colors='blue',
     markersize=1,
 )
 
@@ -77,8 +77,6 @@ class LiveDataPanel(Panel):
 
     Options:
 
-    * ``instrument`` - The instrument name that is passed on to the livewidget
-      module.
     * ``filetypes`` (default []) - List of filename extensions whose content
       should be displayed.
     * ``detectors`` (default []) - List of detector devices whose data should
@@ -106,7 +104,7 @@ class LiveDataPanel(Panel):
 
       Each entry will be applied to one of the detector's datasets.
 
-      * ``plotcount`` (default [1]) - Amount of plots in the dataset.
+      * ``plotcount`` (default 1) - Amount of plots in the dataset.
       * ``marks`` (default 'omark') - Shape of the markers (if displayed).
         Possible values are:
 
@@ -119,9 +117,9 @@ class LiveDataPanel(Panel):
           'star5', 'star6', 'star7', 'star8', 'vline', 'hline', 'omark'
 
       * ``markersize`` (default 1) - Size of the markers (if displayed).
-      * ``offsets`` (default [0]) - List of offsets for the X axis labels of
+      * ``offset`` (default 0) - Offset for the X axis labels of
         each curve in 1D plots.
-      * ``colors`` (default [blue]) - Color of the marks and lines
+      * ``colors`` (default ['blue']) - Color of the marks and lines
         (if displayed).
         If colors are set as a list the colors will be applied to the
         individual plots (and default back to blue when wrong/missing),
@@ -135,9 +133,11 @@ class LiveDataPanel(Panel):
 
     panelName = 'Live data view'
 
+    ui = f'{uipath}/panels/live.ui'
+
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, 'panels/live.ui')
+        loadUi(self, self.ui)
 
         self._allowed_tags = set()
         self._allowed_detectors = set()
@@ -201,9 +201,6 @@ class LiveDataPanel(Panel):
 
         self.rois = {}
         self.detectorskey = None
-        # configure instrument specific behavior
-        self._instrument = options.get('instrument', '')
-
         # configure allowed file types
         supported_filetypes = ReaderRegistry.filetypes()
         opt_filetypes = set(options.get('filetypes', supported_filetypes))
@@ -517,14 +514,6 @@ class LiveDataPanel(Panel):
 
     def on_client_connected(self):
         self.client.tell('eventunmask', ['livedata'])
-        datapath = self.client.eval('session.experiment.datapath', '')
-        if not datapath or not path.isdir(datapath):
-            return
-        if self._instrument == 'imaging':
-            for fn in sorted(os.listdir(datapath)):
-                if fn.endswith('.fits'):
-                    self.add_to_flist(path.join(datapath, fn), 'fits', FILE,
-                                      False)
         self.detectorskey = (self.client.eval('session.experiment.name')
                              + '/detlist').lower()
 
@@ -550,8 +539,6 @@ class LiveDataPanel(Panel):
         None: `default`: Start at 0 with stepwidth 1.
 
         Save the axis labels to the datacache.
-
-        return the remaining blobs, aka the actual data.
         """
 
         CLASSIC = {'define': 'classic'}
@@ -653,8 +640,8 @@ class LiveDataPanel(Panel):
         self.params = params
         self._runtime = params['time']
         if params['tag'] == LIVE:
-            datacount = params.get('count', 1)
-            self.setLiveItems(len(params['datadescs']))
+            datacount = len(params['datadescs'])
+            self.setLiveItems(datacount)
 
             self._process_axis_labels(blobs[datacount:])
 
@@ -712,11 +699,11 @@ class LiveDataPanel(Panel):
         If the array is too small an Error is raised.
         If the size exceeds the expected amount it is truncated.
 
-        Returns a list of arrays corresponding to the ``count`` of
+        Returns a list of arrays corresponding to the ``plotcount`` of
         ``index`` into ``datadescs`` of the current params"""
 
         datadesc = self.params['datadescs'][index]
-        count = datadesc.get('count', DEFAULTS['plotcount'])
+        count = datadesc.get('plotcount', DEFAULTS['plotcount'])
         shape = datadesc['shape']
 
         # ignore irrelevant data in liveOnly mode
@@ -724,9 +711,7 @@ class LiveDataPanel(Panel):
             return
 
         # determine 1D array size
-        arraysize = 1
-        for dimension in shape:
-            arraysize *= dimension
+        arraysize = numpy.product(shape)
 
         # check and split the input array
         if len(entry) < count * arraysize:
@@ -758,23 +743,21 @@ class LiveDataPanel(Panel):
 
             settings = getElement(self.plotsettings, index, DEFAULTS)
 
-            # TODO: check which of the plotcount is correct
-            plotcount = settings.get('plotcounts', DEFAULTS['plotcount'])
             if self.params['tag'] == LIVE:
                 plotcount = self.params['datadescs'][index].get(
-                    'count', DEFAULTS['plotcount'])
+                    'plotcount', DEFAULTS['plotcount'])
             else:
                 plotcount = DEFAULTS['plotcount']
             marks = [settings.get('marks', DEFAULTS['marks'])]
             markersize = settings.get('markersize', DEFAULTS['markersize'])
-            offset = settings.get('offsets', DEFAULTS['offset'])
-            colors = settings.get('colors', DEFAULTS['color'])
+            offset = settings.get('offset', DEFAULTS['offset'])
+            colors = settings.get('colors', DEFAULTS['colors'])
 
             if isinstance(colors, list):
                 if len(colors) > plotcount:
                     colors = colors[:plotcount]
                 while len(colors) < plotcount:
-                    colors.append(DEFAULTS['color'])
+                    colors.append(DEFAULTS['colors'])
             else:
                 colors = [colors] * plotcount
 
@@ -969,3 +952,18 @@ class LiveDataPanel(Panel):
     @pyqtSlot()
     def on_actionKeepRatio_triggered(self):
         self.widget.gr.setAdjustSelection(self.actionKeepRatio.isChecked())
+
+
+class ImagingLiveDataPanel(LiveDataPanel):
+
+    def on_client_connected(self):
+        LiveDataPanel.on_client_connected(self)
+        datapath = self.client.eval('session.experiment.datapath', '')
+        if not datapath or not path.isdir(datapath):
+            return
+        for fn in sorted(os.listdir(datapath)):
+            if fn.endswith('.fits'):
+                self.add_to_flist(path.join(datapath, fn), 'fits', FILE)
+
+    def setLiveItems(self, n):
+        pass  # No live entries for the imaging instruments

@@ -32,7 +32,7 @@ class DaemonSetup:
     def __init__(self, filename):
         self._filename = filename
 
-        with open(filename) as f:
+        with open(filename, encoding='utf-8') as f:
             self.setup = redbaron.RedBaron(f.read())
 
         # search for the list authenticator entries
@@ -110,5 +110,5 @@ class DaemonSetup:
 
     def save(self):
         """Write the setup content to file."""
-        with open(self._filename, 'w') as f:
+        with open(self._filename, 'w', encoding='utf-8') as f:
             f.write(self.setup.dumps())

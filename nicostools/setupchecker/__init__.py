@@ -313,7 +313,7 @@ class SetupChecker:
     def check(self):
         # check syntax
         try:
-            with open(self.filename) as fp:
+            with open(self.filename, encoding='utf-8') as fp:
                 self.code = fp.read()
             exec(self.code, self.ns)
             self.ast = ast.parse(self.code)

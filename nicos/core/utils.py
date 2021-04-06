@@ -188,7 +188,7 @@ def multiWait(devices):
 
     Errors raised are handled like in the following way:
     The error is logged, and the first exception with the highest serverity
-    (exception in `CONTINUE_EXECPTIONS` < `SKIP_EXCPTIONS` < other exceptions)
+    (exception in `CONTINUE_EXECPTIONS` < `SKIP_EXCEPTIONS` < other exceptions)
     is re-raised at the end.
 
     *baseclass* allows to restrict the devices waited on.

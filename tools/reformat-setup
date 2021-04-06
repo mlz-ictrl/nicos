@@ -73,13 +73,13 @@ def parseArgv(argv):
 def reformatFile(fn, inplace=False, diff=False):
     logging.debug('Reformatting %s ...', fn)
 
-    with open(fn, 'r') as f:
+    with open(fn, 'r', encoding='utf-8') as f:
         origin = f.read()
 
     result = format_setup_text(origin)
 
     if inplace:
-        with open(fn, 'w') as f:
+        with open(fn, 'w', encoding='utf-8') as f:
             f.write(result)
     if diff:
         diff = difflib.unified_diff(origin.splitlines(), result.splitlines())

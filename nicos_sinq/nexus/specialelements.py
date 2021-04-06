@@ -28,8 +28,7 @@
 # *****************************************************************************
 
 from nicos import session
-
-from nicos_sinq.nexus.elements import NexusElementBase, NXAttribute
+from nicos.nexus.elements import NexusElementBase, NXAttribute
 
 
 class TwoThetaArray(NexusElementBase):

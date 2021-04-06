@@ -87,7 +87,7 @@ class ProtocolPanel(Panel):
             return
         try:
             text = self.outText.toPlainText()
-            with open(fn, 'w') as fp:
+            with open(fn, 'w', encoding='utf-8') as fp:
                 fp.write(text)
         except Exception as err:
             self.showError('Could not save: %s' % err)

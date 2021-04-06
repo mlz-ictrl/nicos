@@ -583,7 +583,7 @@ def NicosLoad(prefix, filenum=-1, **kwargs):
     #~ header = True
     #~ tableheader = False
     #~ table = False
-    with open(filename, 'rU') as f:   # open file and ignore different line-endings
+    with open(filename, 'rU', encoding='utf-8') as f:   # open file and ignore different line-endings
         l = f.readline()  # read first line
         if l.startswith('filename     : '):
             fileformat = 'old'
@@ -699,7 +699,7 @@ def PandaLoad(filename):
             else:
                 print("Loading file %s" % filename)
             self._filename = filename
-            with open(filename, 'r') as f:
+            with open(filename, 'r', encoding='utf-8') as f:
                 line = '***'
                 while line != '':
                     line = f.readline()

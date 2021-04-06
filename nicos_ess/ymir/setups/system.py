@@ -22,12 +22,12 @@ devices = dict(
                   description='The currently used sample',
                   ),
 
-    Exp=device('nicos.devices.experiment.Experiment',
-               description='experiment object',
-               dataroot='/opt/nicos-data',
-               sendmail=True,
-               serviceexp='p0',
+    Exp=device('nicos_ess.devices.experiment.EssExperiment',
+               description="The current experiment",
+               dataroot='/opt/nicos-data/ymir',
                sample='Sample',
+               server_url='https://useroffice-test.esss.lu.se/graphql',
+               instrument='YMIR'
                ),
 
     filesink=device('nicos.devices.datasinks.AsciiScanfileSink',

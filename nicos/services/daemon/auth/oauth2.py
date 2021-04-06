@@ -46,20 +46,21 @@ class Authenticator(BaseAuthenticator):
     }
 
     def authenticate(self, username, password):
-        client_secret = nicoskeystore.getCredential(self.keystoretoken)
+        secret = nicoskeystore.getCredential(self.keystoretoken)
+        error = None
         try:
             oauth = OAuth2Session(
                 client=LegacyApplicationClient(client_id=self.clientid))
             token = oauth.fetch_token(
                 token_url=self.tokenurl, username=username, password=password,
-                client_id=self.clientid, client_secret=client_secret)
-
-            if not oauth.authorized:
-                raise AuthenticationError('wrong password')
-            return User(username, USER,
-                        {'token': token, 'clientid': self.clientid})
-        except AuthenticationError:
-            raise
+                client_id=self.clientid, client_secret=secret)
         except Exception as err:
+            # this avoids leaking credential details via tracebacks
+            error = str(err)
+        if error:
             raise AuthenticationError('exception during authenticate(): %s'
-                                      % err) from err
+                                      % error)
+        if not oauth.authorized:
+            raise AuthenticationError('wrong password')
+        return User(username, USER,
+                    {'token': token, 'clientid': self.clientid})

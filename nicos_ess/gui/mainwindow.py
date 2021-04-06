@@ -175,7 +175,7 @@ class MainWindow(DefaultMainWindow):
 
     @staticmethod
     def setQSS(style_file):
-        with open(style_file, 'r') as fd:
+        with open(style_file, 'r', encoding='utf-8') as fd:
             try:
                 QApplication.instance().setStyleSheet(fd.read())
             except Exception as e:

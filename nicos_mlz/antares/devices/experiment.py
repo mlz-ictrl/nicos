@@ -41,13 +41,9 @@ class Experiment(ImagingExperiment):
         return os.path.join(self.proposalpath, 'current')
 
     def _fillProposal(self, proposal, kwds):
-        kwds = ImagingExperiment._fillProposal(self, proposal, kwds)
-
+        ImagingExperiment._fillProposal(self, proposal, kwds)
         # don't create a sample from propdb data
-        if kwds:
-            kwds['default_sample'] = ''
-
-        return kwds
+        kwds['default_sample'] = ''
 
     def doFinish(self):
         if self.samplesymlink:

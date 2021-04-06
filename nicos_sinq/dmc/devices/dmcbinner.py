@@ -24,15 +24,15 @@
 
 import numpy as np
 
-from nicos_ess.devices.datasources.just_bin_it import JustBinItDetector
+from nicos_ess.devices.datasources.just_bin_it import JustBinItImage
 
 
-class DMCBinner(JustBinItDetector):
+class DMCBinner(JustBinItImage):
     """
     Just rotates the histogram received to match expectations
     """
 
-    def doReadArrays(self, quality):
-        if self._hist_data.size > 0:
-            return np.rot90(self._hist_data)
-        return self._hist_data
+    def doReadArray(self, quality):
+        if self.hist_data.size > 0:
+            return np.rot90(self.hist_data)
+        return self.hist_data

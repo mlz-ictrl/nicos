@@ -1249,7 +1249,7 @@ class Readable(Device):
         return ret
 
     def info(self):
-        """Automatically add device main value and status (if not OK)."""
+        """Automatically add device main value and status."""
         ret = []
         try:
             val = self.read()

@@ -24,7 +24,6 @@ devices = dict(
         description = 'POWTEX Experiment ',
         dataroot = '/home/crandau/data',
         sample = 'Sample',
-        propprefix = 'p',
         serviceexp = 'service',
         servicescript = '',
         templates = 'templates',

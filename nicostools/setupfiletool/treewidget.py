@@ -285,7 +285,7 @@ class TreeWidget(TreeWidgetContextMenu):
                 QMessageBox.warning(self, 'Error', 'Setup already exists!')
                 return None, None
             try:
-                open(abspath, 'w').close()
+                open(abspath, 'w', encoding='utf-8').close()
             except OSError:
                 QMessageBox.warning(self, 'Error', 'Could not create new '
                                     'setup!')

@@ -1,12 +1,15 @@
 from collections import OrderedDict
 from enum import IntEnum
 from functools import partial
+import os.path as osp
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import pyqtSlot, QTableWidgetItem, QHeaderView, \
-    Qt, QShortcut, QKeySequence, QApplication
+from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
+    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot
 from nicos.utils import findResource
+from nicos_ess.gui.utilities.load_save_tables import load_table_from_csv, \
+    save_table_to_csv
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
@@ -49,7 +52,7 @@ class LokiScriptBuilderPanel(Panel):
 
         self.columns_in_order = [name for name in self.permanent_columns.keys()]
         self.columns_in_order.extend(self.optional_columns.keys())
-
+        self.last_save_location = None
         self._init_panel()
 
     def _init_panel(self, num_rows=25):
@@ -128,6 +131,50 @@ class LokiScriptBuilderPanel(Panel):
     @pyqtSlot()
     def on_deleteRowsButton_clicked(self):
         self._delete_rows()
+
+    @pyqtSlot()
+    def on_loadTableButton_clicked(self):
+        filename = QFileDialog.getOpenFileName(
+            self,
+            'Open table',
+            osp.expanduser("~") if self.last_save_location is None \
+                else self.last_save_location,
+            'Table Files (*.txt *.csv)')[0]
+
+        if not filename:
+            return
+
+        try:
+            headers_from_file = load_table_from_csv(
+                self.tableScript, self.columns_in_order, filename)
+
+            for optional in set(headers_from_file).intersection(
+                set(self.optional_columns.keys())):
+                self.optional_columns[optional][1].setChecked(True)
+        except Exception as ex:
+            self.showError(f"Cannot read table contents from {filename}:\n{ex}")
+
+    @pyqtSlot()
+    def on_saveTableButton_clicked(self):
+        filename = QFileDialog.getSaveFileName(
+            self,
+            'Save table',
+            osp.expanduser("~") if self.last_save_location is None \
+                else self.last_save_location,
+            'Table files (*.txt *.csv)',
+            initialFilter='*.txt;;*.csv')[0]
+
+        if not filename:
+            return
+        if not filename.endswith(('.txt', '.csv')):
+            filename = filename + '.csv'
+
+        self.last_save_location = osp.dirname(filename)
+        try:
+            save_table_to_csv(
+                self.tableScript, filename, headers=self.columns_in_order)
+        except Exception as ex:
+            self.showError(f"Cannot write table contents to {filename}:\n{ex}")
 
     def _delete_rows(self):
         rows_to_remove = set()

@@ -247,7 +247,7 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
                   '/data/current/data/' + filename,
                   '/data/2012/%s/data/%s' % (fileprefix, filename)]:
         try:
-            f = open(fpath, 'r')
+            f = open(fpath, 'r', encoding='utf-8')
             break
         except OSError:
             continue

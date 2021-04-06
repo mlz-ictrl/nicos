@@ -29,13 +29,13 @@ import keyword
 import os
 import re
 import rlcompleter
-import socket
 import time
 
 from nicos import session
 from nicos.core.constants import MAINTENANCE, MASTER, SIMULATION, SLAVE
 from nicos.core.device import Device, DeviceAlias
 from nicos.core.errors import UsageError
+from nicos.utils import getfqdn
 
 try:
     import readline
@@ -272,7 +272,7 @@ class LoggingStdout:
 def makeSessionId():
     """Create a unique identifier for the current session."""
     try:
-        hostname = socket.getfqdn()
+        hostname = getfqdn()
     except OSError:
         hostname = 'localhost'
     pid = os.getpid()

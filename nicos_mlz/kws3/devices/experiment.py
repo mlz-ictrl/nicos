@@ -50,7 +50,7 @@ def unquote(line):
 def read_det_file(runno, senv, fname):
     data = {'#': runno, 'Run': str(runno)}
     data['Pnt'] = fname.split('_')[1].lstrip('0')
-    it = iter(open(fname))
+    it = iter(open(fname, encoding='utf-8'))
     devname = envname = None
     for line in it:
         if line.startswith('        started:'):

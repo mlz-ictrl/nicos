@@ -48,7 +48,7 @@ class Andor2LimaCCD(BaseAndor2LimaCCD):
 
     def doReadArray(self, quality):
         narray = BaseAndor2LimaCCD.doReadArray(self, quality)
-        self.readresult = [narray.sum()]
+        self.readresult = [narray.sum() if narray is not None else 0]
         return narray
 
     def valueInfo(self):

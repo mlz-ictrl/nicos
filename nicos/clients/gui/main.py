@@ -136,7 +136,7 @@ def main(argv):
     for stylefile in [gui_conf.stylefile] or stylefiles:
         if path.isfile(stylefile):
             try:
-                with open(stylefile, 'r') as fd:
+                with open(stylefile, 'r', encoding='utf-8') as fd:
                     app.setStyleSheet(fd.read())
                 gui_conf.stylefile = stylefile
                 break

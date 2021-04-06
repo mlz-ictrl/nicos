@@ -65,8 +65,8 @@ class MicrostepMotor(BaseSequencer, NicosMotor):
         self._setROParam("maxspeed", self.microstep / self.maxmovetime)
         self._delay = self.maxtime
         if self.speed < 1e-8:
-            self.log.warning("Speed has not been set. Set maximum speed %.4f",
-                             self.maxspeed)
+            self.log.warning("speed has not been set, setting maximum "
+                             "speed %.4f", self.maxspeed)
             self.speed = self.maxspeed
 
     @property
@@ -109,20 +109,20 @@ maxspeed: %.4f
         if value < self.maxspeed or math.fabs(self.maxspeed - value) < 1e-5:
             self._delay = delay
         else:
-            raise LimitError(self, "Speed too high. Maximum speed is %.4f"
+            raise LimitError(self, "speed too high, maximum speed is %.4f"
                              % self.maxspeed)
 
     def doWriteMaxtime(self, value):
         self._setROParam("maxspeed", self.microstep / self._maxmovetime(value))
         if self.speed > self.maxspeed:
-            self.log.warning("Speed too high. Set speed to %.4f",
+            self.log.warning("speed too high, setting speed to %.4f",
                              self.maxspeed)
             self.speed = self.maxspeed
 
     def doWriteMicrostep(self, value):
         self._setROParam("maxspeed", value / self.maxmovetime)
         if self.speed > self.maxspeed:
-            self.log.warning("Speed too high. Set speed to %.4f",
+            self.log.warning("speed too high, setting speed to %.4f",
                              self.maxspeed)
             self.speed = self.maxspeed
 

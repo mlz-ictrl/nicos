@@ -24,7 +24,6 @@ devices = dict(
         dataroot = '/data/FRM-II',
         sample = 'Sample',
         mailsender = 'antares@frm2.tum.de',
-        propprefix = 'p',
         serviceexp = 'service',
         servicescript = '',
         templates = 'templates',

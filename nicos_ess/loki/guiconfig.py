@@ -21,15 +21,17 @@ main_window = docked(
                 ('Al 3-level',   (9,  3, 'sam_trans_x', 27,     'sam_trans_y', 75)),
             ])),  # vsplit
         ),
+        (
+            "Experiment Configuration",
+            vsplit(
+                (panel("nicos_ess.loki.gui.experiment_conf.LokiExperimentPanel"))
+            ),  # vsplit
+        ),
         ("  ", panel("nicos_ess.gui.panels.empty.EmptyPanel")),
         (
             "Instrument interaction",
             hsplit(
                 vbox(
-                    panel(
-                        "nicos_ess.gui.panels.cmdbuilder.CommandPanel",
-                        modules=["nicos.clients.gui.cmdlets"],
-                    ),
                     tabbed(
                         (
                             "Output",
@@ -50,6 +52,10 @@ main_window = docked(
                                 eta=True,
                             ),
                         ),
+                    ),
+                    panel(
+                        "nicos_ess.gui.panels.cmdbuilder.CommandPanel",
+                        modules=["nicos.clients.gui.cmdlets"],
                     ),
                 ),  # vsplit
                 panel(

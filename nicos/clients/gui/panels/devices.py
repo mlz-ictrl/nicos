@@ -113,7 +113,7 @@ class DevInfo(AttrDict):
 
     def __init__(self, name, value='-', status=(OK, ''), fmtstr='%s', unit='',
                  expired=False, fixed=False, classes=None,
-                 valtime=0, stattime=0):
+                 valtime=0, stattime=0, failure=None):
         AttrDict.__init__(self, {
             'name': name,
             'value': value,
@@ -126,6 +126,7 @@ class DevInfo(AttrDict):
             'valtime': valtime,
             'stattime': stattime,
             'params': {},
+            'failure': failure,
         })
 
     def fmtValUnit(self):
@@ -238,6 +239,10 @@ class DevicesPanel(Panel):
         self.devmenu_ro.addAction(self.actionShutDown)
         self.devmenu_ro.addAction(self.actionHelp)
 
+        self.devmenu_failed = QMenu(self)
+        self.devmenu_failed.addAction(self.actionRetryCreate)
+        self.devmenu_failed.addAction(self.actionShutDown)
+
         self._menu_dev = None   # device for which context menu is shown
         self._dev2setup = {}
         self._setupinfo = {}
@@ -314,10 +319,13 @@ class DevicesPanel(Panel):
         if not state:
             return
         devlist = state['devices']
+        faildevdict = state.get('devicefailures', {})
         self._read_setup_info(state['setups'])
 
         for devname in devlist:
             self._create_device_item(devname)
+        for (devname, error) in faildevdict.items():
+            self._create_device_item(devname, failure=error)
 
         # close all control dialogs for now nonexisting devices
         for ldevname in list(self._control_dialogs):
@@ -373,11 +381,11 @@ class DevicesPanel(Panel):
             for devname in info['devices']:
                 self._dev2setup[devname] = setupname
 
-    def _create_device_item(self, devname, add_cat=False):
+    def _create_device_item(self, devname, add_cat=False, failure=None):
         ldevname = devname.lower()
         # get all cache keys pertaining to the device
         params = self.client.getDeviceParams(devname)
-        if not params:
+        if not params and not failure:
             return
         lowlevel_device = params.get('lowlevel') or False
         if lowlevel_device and not self._show_lowlevel:
@@ -420,12 +428,19 @@ class DevicesPanel(Panel):
         devitem.setForeground(0, lowlevelBrush[lowlevel_device])
         devitem.setFont(0, lowlevelFont[lowlevel_device])
 
-        if self.useicons:
-            devitem.setIcon(0, self.statusIcon[OK])
+        if failure:
+            short_failure = failure.split('\n')[0]
+            devitem.setText(2, 'creating device failed: %s' % short_failure)
+            if self.useicons:
+                devitem.setIcon(0, self.statusIcon[ERROR])
+        else:
+            if self.useicons:
+                devitem.setIcon(0, self.statusIcon[OK])
+
         devitem.setToolTip(0, params.get('description', ''))
         self._devitems[ldevname] = devitem
         # fill the device info with dummy values, will be populated below
-        self._devinfo[ldevname] = DevInfo(devname)
+        self._devinfo[ldevname] = DevInfo(devname, failure=failure)
 
         # let the cache handler process all properties
         for key, value in params.items():
@@ -447,6 +462,11 @@ class DevicesPanel(Panel):
         if action == 'create':
             for devname in devlist:
                 self._create_device_item(devname, add_cat=True)
+            self.tree.sortItems(0, Qt.AscendingOrder)
+            self._update_view()
+        elif action == 'failed':
+            for (devname, error) in devlist.items():
+                self._create_device_item(devname, add_cat=True, failure=error)
             self.tree.sortItems(0, Qt.AscendingOrder)
             self._update_view()
         elif action == 'destroy':
@@ -484,6 +504,9 @@ class DevicesPanel(Panel):
             self._control_dialogs[ldevname].on_cache(subkey, value)
         devitem = self._devitems[ldevname]
         devinfo = self._devinfo[ldevname]
+        if devinfo.failure:
+            # do not present any info for nonexisting devices
+            return
         if subkey == 'value':
             if time < devinfo.valtime:
                 return
@@ -556,6 +579,8 @@ class DevicesPanel(Panel):
                 if dlg.moveBtn:
                     dlg.moveBtn.setEnabled(not devinfo.fixed)
                     dlg.moveBtn.setText(devinfo.fixed and '(fixed)' or 'Move')
+                if dlg.target:
+                    dlg.target.setEnabled(not devinfo.fixed)
         elif subkey == 'userlimits':
             if not value:
                 return
@@ -614,11 +639,15 @@ class DevicesPanel(Panel):
         if item.type() == DEVICE_TYPE:
             self._menu_dev = item.text(0)
             ldevname = self._menu_dev.lower()
-            if 'nicos.core.device.Moveable' in self._devinfo[ldevname].classes and \
-               not self.client.viewonly:
-                self.devmenu.popup(self.tree.viewport().mapToGlobal(point))
-            elif 'nicos.core.device.Readable' in self._devinfo[ldevname].classes:
-                self.devmenu_ro.popup(self.tree.viewport().mapToGlobal(point))
+            devinfo = self._devinfo[ldevname]
+            point = self.tree.viewport().mapToGlobal(point)
+            if devinfo.failure:
+                self.devmenu_failed.popup(point)
+            elif 'nicos.core.device.Moveable' in devinfo.classes and \
+                 not self.client.viewonly:
+                self.devmenu.popup(point)
+            elif 'nicos.core.device.Readable' in devinfo.classes:
+                self.devmenu_ro.popup(point)
 
     def on_filter_editTextChanged(self, text):
         for i in range(self.filter.count()):
@@ -640,8 +669,17 @@ class DevicesPanel(Panel):
             setupitem.setHidden(all_children_hidden)
 
     @pyqtSlot()
+    def on_actionRetryCreate_triggered(self):
+        if self._menu_dev:
+            self.exec_command('CreateDevice(%r)' % self._menu_dev)
+
+    @pyqtSlot()
     def on_actionShutDown_triggered(self):
         if self._menu_dev:
+            if self._devinfo[self._menu_dev.lower()].failure:
+                # it doesn't need to be shut down, just remove the tree item
+                self.on_client_device(('destroy', [self._menu_dev]))
+                return
             if self.askQuestion('This will unload the device until the setup '
                                 'is loaded again. Proceed?'):
                 self.exec_command('RemoveDevice(%r)' % self._menu_dev,
@@ -691,7 +729,14 @@ class DevicesPanel(Panel):
     def on_tree_itemActivated(self, item, column):
         if item.type() == DEVICE_TYPE:
             devname = item.text(0)
-            self._open_control_dialog(devname)
+            failure = self._devinfo[devname.lower()].failure
+            if failure:
+                if self.askQuestion('This device could not be created due to '
+                                    'the following error:\n\n%s\n\nDo you '
+                                    'want to retry creating it?' % failure):
+                    self.exec_command('CreateDevice(%r)' % devname)
+            else:
+                self._open_control_dialog(devname)
         elif item.type() == PARAM_TYPE:
             devname = item.parent().text(0)
             dlg = self._open_control_dialog(devname)
@@ -945,9 +990,12 @@ class ControlDialog(QDialog):
             else:
                 self.moveBtn = None
 
-            if params.get('fixed') and self.moveBtn:
-                self.moveBtn.setEnabled(False)
-                self.moveBtn.setText('(fixed)')
+            if params.get('fixed'):
+                if self.moveBtn:
+                    self.moveBtn.setEnabled(False)
+                    self.moveBtn.setText('(fixed)')
+                if self.target:
+                    self.target.setEnabled(False)
 
     def on_paramList_customContextMenuRequested(self, pos):
         item = self.paramList.itemAt(pos)

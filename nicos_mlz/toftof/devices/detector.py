@@ -232,7 +232,7 @@ class Detector(GenericDetector):
         return self._attached_images[0].numinputs
 
     def _import_detinfo(self):
-        with open(self.detinfofile, newline=None) as fp:
+        with open(self.detinfofile, newline=None, encoding='utf-8') as fp:
             self._detinfo = list(fp)
 
         dmap = {}  # maps "Total" (ElNr) to 2theta

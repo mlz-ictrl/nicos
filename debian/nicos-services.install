@@ -1,1 +1,11 @@
-etc/init.d
+usr/bin/nicos-monitor
+usr/bin/nicos-poller
+usr/bin/nicos-collector
+usr/bin/nicos-daemon
+usr/bin/nicos-cache
+usr/bin/nicos-watchdog
+usr/bin/nicos-elog
+usr/bin/nicos-simulate
+etc/nicos-late-generator lib/systemd/scripts/
+etc/nicos-late-generator.service lib/systemd/system/
+etc/nicos.target lib/systemd/system/

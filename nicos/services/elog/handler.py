@@ -248,7 +248,8 @@ class HtmlWriter:
 
     def open(self, directory, instr, proposal):
         self.close()
-        with open(path.join(directory, 'logbook.html'), 'w') as f:
+        with open(path.join(directory, 'logbook.html'), 'w',
+                  encoding='utf-8') as f:
             f.write(FRAMESET % (instr, proposal))
         self.fd = create_or_open(path.join(directory, 'content.html'), PROLOG)
         self.fd_toc = create_or_open(path.join(directory, 'toc.html'),
