@@ -378,11 +378,15 @@ class LokiScriptBuilderPanel(Panel):
                 self._update_cell(row, column, '')
 
     def get_position(self, value):
-        return f"set_position({value}) \n"
+        return f"set_position({value})"
+
+    def get_sample(self, value):
+        return f"set_sample('{value}')"
+
 
     @pyqtSlot()
     def on_generateScriptButton_clicked(self):
-        template = ""
+        table = []
         for row in range(self.tableScript.rowCount()):
             values = []
             filler = dict.fromkeys(self.columns_in_order)
@@ -395,11 +399,16 @@ class LokiScriptBuilderPanel(Panel):
             # Create script for the row only if all permanent columns values
             # are present
             for idx, column in enumerate(self.columns_in_order):
+                item = self.tableScript.item(row, idx)
                 if column == "position":
-                    item = self.tableScript.item(row, idx)
                     if item is not None:
                         values.append(self.get_position(item.text()))
+                elif column == "sample":
+                    if item is not None:
+                        values.append(self.get_sample(item.text()))
+
             print(values)
+            table.append("\n".join(values))
             # if all(map(filler.get, self.permanent_columns.keys())):
             #     set_temperature = ""
             #     # Set temperature only if available for the sample
@@ -429,7 +438,7 @@ class LokiScriptBuilderPanel(Panel):
             #         f"{count}"
             #         f"{filler['post-command']}\n"
             #     )
-        self.mainwindow.codeGenerated.emit(template)
+        self.mainwindow.codeGenerated.emit("\n".join(table))
 
     def _update_cell(self, row, column, new_value):
         item = self.tableScript.item(row, column)
