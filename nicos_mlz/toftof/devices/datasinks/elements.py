@@ -464,7 +464,7 @@ class TOFTOFImageDataset(ImageDataset):
         if det.name not in values:
             return
         # Be persistent in getting at array data
-        arrayData = det.readArrays(FINAL)
+        arrayData = det.readArrays(FINAL) if det.isCompleted() else None
         if arrayData is None:
             arrayData = det.readArrays(INTERRUPTED)
         if arrayData is None:
