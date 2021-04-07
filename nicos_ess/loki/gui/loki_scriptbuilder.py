@@ -415,19 +415,20 @@ class LokiScriptBuilderPanel(Panel):
     def on_generateScriptButton_clicked(self):
 
         table = self.get_template()
-        print(table)
+        template = ""
         if self.comboTransOrder.currentText() == "TRANS First":
-            template = ""
             for row_values in table:
                 template += self.do_trans(row_values)
 
             for row_values in table:
                 template += self.do_sans(row_values)
-            # set_sample(name, thickness)
-            # do_trans(values, Mevents)
-            # do_sans(values, Mevents)
+
         elif self.comboTransOrder.currentText() == "SANS First":
-            pass
+            for row_values in table:
+                template += self.do_sans(row_values)
+
+            for row_values in table:
+                template += self.do_trans(row_values)
 
             # set_position(pos)
             # set_sample(name, thickness)
