@@ -89,6 +89,6 @@ class TIFFFileReader(ImageFileReader):
                              'available. Please check whether it is installed '
                              'and in your PYTHONPATH' % _import_error)
         with Image.open(filename) as im:
-            if im.getbands() == 'I':  # single band == gray picture
+            if im.getbands() in ('I', ('I',)):  # single band == gray picture
                 return numpy.asarray(im)
             raise NicosError('Only monochrome pictures supported')
