@@ -38,7 +38,7 @@ except ImportError as e:
 
 class TIFFImageSinkHandler(SingleFileSinkHandler):
 
-    filetype = 'TIFF'
+    filetype = 'tiff'
     defer_file_creation = True
     accept_final_images_only = True
 
@@ -78,8 +78,7 @@ class TIFFImageSink(ImageSink):
 
 class TIFFFileReader(ImageFileReader):
     filetypes = [
-        ('tiff', 'TIFF File (*.tiff)'),
-        ('tif', 'TIFF File (*.tif)')
+        ('tiff', 'TIFF File (*.tiff *.tif)'),
     ]
 
     @classmethod

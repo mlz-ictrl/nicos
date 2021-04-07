@@ -636,7 +636,6 @@ class LiveDataPanel(Panel):
                 and params['det'] not in self._allowed_detectors:
             return
 
-        params['tag'] = params['tag'].lower()
         self.params = params
         self._runtime = params['time']
         if params['tag'] == LIVE:
