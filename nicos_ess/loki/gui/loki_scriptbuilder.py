@@ -6,7 +6,7 @@ import os.path as osp
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
-    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot
+    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot, QMessageBox
 from nicos.utils import findResource
 from nicos_ess.gui.utilities.load_save_tables import load_table_from_csv, \
     save_table_to_csv
@@ -181,6 +181,11 @@ class LokiScriptBuilderPanel(Panel):
 
     @pyqtSlot()
     def on_saveTableButton_clicked(self):
+        if self.is_data_in_hidden_columns():
+            self.showError("Cannot save because data in optional column(s)."
+                           "Select the optional column or clear the column.")
+            return
+
         filename = QFileDialog.getSaveFileName(
             self,
             'Save table',
@@ -201,6 +206,18 @@ class LokiScriptBuilderPanel(Panel):
             save_table_to_csv(data, filename, headers)
         except Exception as ex:
             self.showError(f"Cannot write table contents to {filename}:\n{ex}")
+
+    def is_data_in_hidden_columns(self):
+        optional_indices = [i for i, e in enumerate(self.columns_in_order)
+                            if e in self.optional_columns.keys()]
+
+        for row in range(self.tableScript.rowCount()):
+            for column in optional_indices:
+                if self.tableScript.isColumnHidden(column):
+                    item = self.tableScript.item(row, column)
+                    if item and item.text():
+                        return True
+        return False
 
     def _extract_headers_from_table(self):
         headers = []
