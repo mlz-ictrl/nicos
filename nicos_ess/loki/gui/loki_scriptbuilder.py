@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from enum import IntEnum
+from enum import Enum
 from functools import partial
 import os.path as osp
 
@@ -14,16 +14,20 @@ from nicos_ess.gui.utilities.load_save_tables import load_table_from_csv, \
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
 
-class TransOrder(IntEnum):
+class TransOrder(Enum):
     TRANSFIRST = 0
     SANSFIRST = 1
-    SIMULTANEOUS = 2
+    TRANSTHENSANS = 2
+    SANSTHENTRANS = 3
+    SIMULTANEOUS = 4
 
 
 class LokiScriptBuilderPanel(Panel):
     _available_trans_options = OrderedDict({
         "TRANS First": TransOrder.TRANSFIRST,
         "SANS First": TransOrder.SANSFIRST,
+        "TRANS then SANS":TransOrder.TRANSTHENSANS,
+        "SANS then TRANS": TransOrder.SANSTHENTRANS,
         "Simultaneous": TransOrder.SIMULTANEOUS
     })
     def __init__(self, parent, client, options):
@@ -150,6 +154,8 @@ class LokiScriptBuilderPanel(Panel):
         if not set(headers_from_file).issubset(set(self.columns_in_order)):
             self.showError(f"{filename} is not compatible with the table")
             return
+        # Clear existing table before populating from file
+        self.on_clearTableButton_clicked()
         self._fill_table(headers_from_file, data)
 
         for optional in set(headers_from_file).intersection(
@@ -393,8 +399,9 @@ class LokiScriptBuilderPanel(Panel):
                     continue
                 row_values[column] = item.text()
 
-            if row_values:
+            if all(map(row_values.get, self.permanent_columns.keys())):
                 table.append(row_values)
+
         return table
 
     def do_trans(self, row_values):
@@ -408,7 +415,7 @@ class LokiScriptBuilderPanel(Panel):
         template = \
             (f"{self.get_position(row_values['position'])}\n"
             f"{self.get_sample(row_values['sample'], row_values['thickness'])}\n"
-            f"do_sans({row_values['trans_duration']})\n")
+            f"do_sans({row_values['sans_duration']})\n")
         return template
 
     @pyqtSlot()
@@ -430,10 +437,15 @@ class LokiScriptBuilderPanel(Panel):
             for row_values in table:
                 template += self.do_trans(row_values)
 
-            # set_position(pos)
-            # set_sample(name, thickness)
-            # do_sans(values, Mevents)
-            # do_trans(values, Mevents)
+        elif self.comboTransOrder.currentText() == "TRANS then SANS":
+            for row_values in table:
+                template += self.do_trans(row_values)
+                template += self.do_sans(row_values)
+
+        elif self.comboTransOrder.currentText() == "SANS then TRANS":
+            for row_values in table:
+                template += self.do_sans(row_values)
+                template += self.do_trans(row_values)
         else:
             pass
             # set_position(pos)
