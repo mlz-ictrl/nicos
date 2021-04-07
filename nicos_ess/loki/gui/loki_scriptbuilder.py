@@ -383,6 +383,8 @@ class LokiScriptBuilderPanel(Panel):
     def get_sample(self, value):
         return f"set_sample('{value}')"
 
+    def get_thickness(self, value):
+        return f"set_thickness('{value}')"
 
     @pyqtSlot()
     def on_generateScriptButton_clicked(self):
@@ -400,14 +402,15 @@ class LokiScriptBuilderPanel(Panel):
             # are present
             for idx, column in enumerate(self.columns_in_order):
                 item = self.tableScript.item(row, idx)
+                if item is None:
+                    continue
                 if column == "position":
-                    if item is not None:
-                        values.append(self.get_position(item.text()))
+                    values.append(self.get_position(item.text()))
                 elif column == "sample":
-                    if item is not None:
-                        values.append(self.get_sample(item.text()))
+                    values.append(self.get_sample(item.text()))
+                elif column == "thickness":
+                    values.append(self.get_thickness(item.text()))
 
-            print(values)
             table.append("\n".join(values))
             # if all(map(filler.get, self.permanent_columns.keys())):
             #     set_temperature = ""
