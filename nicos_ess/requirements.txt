@@ -6,7 +6,9 @@ flatbuffers>=1.12
 graypy
 kafka-logging-handler<=0.2.4
 kafka-python>=1.4.6
+p4p
 pyepics
-h5py>=2.6
+PyQt5==5.15.4;sys_platform=='darwin'
+PyQtWebEngine==5.15.4;sys_platform=='darwin'
+QScintilla==2.12.1;sys_platform=='darwin'
 https://github.com/ess-dmsc/yuos_query/archive/v0.1.9.tar.gz
-
