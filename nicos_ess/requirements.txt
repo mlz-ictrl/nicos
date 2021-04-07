@@ -8,7 +8,7 @@ kafka-logging-handler<=0.2.4
 kafka-python>=1.4.6
 p4p
 pyepics
-PyQt5==5.15.4;sys_platform=='darwin'
-PyQtWebEngine==5.15.4;sys_platform=='darwin'
-QScintilla==2.12.1;sys_platform=='darwin'
+PyQt5==5.15.4
+PyQtWebEngine==5.15.4
+QScintilla==2.12.1
 https://github.com/ess-dmsc/yuos_query/archive/v0.1.9.tar.gz
