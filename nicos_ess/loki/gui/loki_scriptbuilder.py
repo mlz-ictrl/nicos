@@ -380,38 +380,67 @@ class LokiScriptBuilderPanel(Panel):
     def get_position(self, value):
         return f"set_position({value})"
 
-    def get_sample(self, value):
-        return f"set_sample('{value}')"
+    def get_sample(self, name, thickness):
+        return f"set_sample('{name}', {thickness})"
 
-    def get_thickness(self, value):
-        return f"set_thickness('{value}')"
-
-    @pyqtSlot()
-    def on_generateScriptButton_clicked(self):
+    def get_template(self):
         table = []
         for row in range(self.tableScript.rowCount()):
-            values = []
-            filler = dict.fromkeys(self.columns_in_order)
-            # for idx, column in enumerate(self.columns_in_order):
-            #     item = self.tableScript.item(row, idx)
-            #     if item is not None:
-            #         filler[column] = item.text()
-            #     else:
-            #         filler[column] = ""
-            # Create script for the row only if all permanent columns values
-            # are present
+            row_values = {}
             for idx, column in enumerate(self.columns_in_order):
                 item = self.tableScript.item(row, idx)
                 if item is None:
                     continue
-                if column == "position":
-                    values.append(self.get_position(item.text()))
-                elif column == "sample":
-                    values.append(self.get_sample(item.text()))
-                elif column == "thickness":
-                    values.append(self.get_thickness(item.text()))
+                row_values[column] = item.text()
 
-            table.append("\n".join(values))
+            if row_values:
+                table.append(row_values)
+        return table
+
+    def do_trans(self, row_values):
+        template = \
+            (f"{self.get_position(row_values['position'])}\n"
+            f"{self.get_sample(row_values['sample'], row_values['thickness'])}\n"
+            f"do_trans({row_values['trans_duration']})\n")
+        return template
+
+    def do_sans(self, row_values):
+        template = \
+            (f"{self.get_position(row_values['position'])}\n"
+            f"{self.get_sample(row_values['sample'], row_values['thickness'])}\n"
+            f"do_sans({row_values['trans_duration']})\n")
+        return template
+
+    @pyqtSlot()
+    def on_generateScriptButton_clicked(self):
+
+        table = self.get_template()
+        print(table)
+        if self.comboTransOrder.currentText() == "TRANS First":
+            template = ""
+            for row_values in table:
+                template += self.do_trans(row_values)
+
+            for row_values in table:
+                template += self.do_sans(row_values)
+            # set_sample(name, thickness)
+            # do_trans(values, Mevents)
+            # do_sans(values, Mevents)
+        elif self.comboTransOrder.currentText() == "SANS First":
+            pass
+
+            # set_position(pos)
+            # set_sample(name, thickness)
+            # do_sans(values, Mevents)
+            # do_trans(values, Mevents)
+        else:
+            pass
+            # set_position(pos)
+            # set_sample(name, thickness)
+            # do_simultaneous(values, Mevents)
+
+
+            # table.append("\n".join(values))
             # if all(map(filler.get, self.permanent_columns.keys())):
             #     set_temperature = ""
             #     # Set temperature only if available for the sample
@@ -441,7 +470,7 @@ class LokiScriptBuilderPanel(Panel):
             #         f"{count}"
             #         f"{filler['post-command']}\n"
             #     )
-        self.mainwindow.codeGenerated.emit("\n".join(table))
+        self.mainwindow.codeGenerated.emit(template)
 
     def _update_cell(self, row, column, new_value):
         item = self.tableScript.item(row, column)
