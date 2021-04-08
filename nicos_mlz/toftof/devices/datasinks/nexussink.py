@@ -27,7 +27,7 @@ import h5py
 import numpy
 
 from nicos.core import SLAVE
-from nicos.core.constants import POINT, SCAN
+from nicos.core.constants import LIVE, POINT, SCAN
 from nicos.core.data import DataSinkHandler
 from nicos.core.errors import NicosError
 from nicos.core.params import Override, Param, setof
@@ -189,9 +189,10 @@ class NexusSinkHandler(DataSinkHandler):
 
     def putResults(self, quality, results):
         if self._inited and results:
-            h5obj = self.h5file['/']
-            self.resultValues(self.template, h5obj, results)
-            self.h5file.flush()
+            if quality != LIVE:
+                h5obj = self.h5file['/']
+                self.resultValues(self.template, h5obj, results)
+                self.h5file.flush()
 
     def addSubset(self, subset):
         if self.startdataset.settype == SCAN:

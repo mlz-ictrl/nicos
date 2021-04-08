@@ -30,7 +30,6 @@ import time
 import numpy as np
 
 from nicos import session
-from nicos.core import FINAL, INTERMEDIATE, INTERRUPTED
 from nicos.nexus.elements import ImageDataset, NexusElementBase, NXTime
 
 from nicos_mlz.toftof.devices import calculations as calc
@@ -463,26 +462,22 @@ class TOFTOFImageDataset(ImageDataset):
         det = sinkhandler.dataset.detectors[self.detectorIDX]
         if det.name not in values:
             return
-        # Be persistent in getting at array data
-        arrayData = det.readArrays(FINAL) if det.isCompleted() else None
-        if arrayData is None:
-            arrayData = det.readArrays(INTERRUPTED)
-        if arrayData is None:
-            arrayData = det.readArrays(INTERMEDIATE)
-        if arrayData is not None:
-            data = arrayData[self.imageIDX]
-            if data is not None:
-                dset = h5parent[name]
-                if self.doAppend:
-                    if len(dset) < self.np + 1:
-                        self.resize_dataset(dset, sinkhandler)
-                    dset[self.np] = data
-                else:
-                    ninputs = det.numinputs
-                    tchannels = det.timechannels
-                    reddata = data[0:tchannels, 0:ninputs]
-                    h5parent[name][...] = reddata.reshape(ninputs, 1,
-                                                          tchannels)
+
+    def results(self, name, h5parent, sinkhandler, results):
+        det = sinkhandler.dataset.detectors[self.detectorIDX]
+        data = results.get(det.name)
+        if data is not None:
+            array = data[1][0]
+            dset = h5parent[name]
+            if self.doAppend:
+                if len(dset) < self.np + 1:
+                    self.resize_dataset(dset, sinkhandler)
+                dset[self.np] = array
+            else:
+                ninputs = det.numinputs
+                tchannels = det.timechannels
+                reddata = array[0:tchannels, 0:ninputs]
+                h5parent[name][...] = reddata.reshape(ninputs, 1, tchannels)
 
     def resize_dataset(self, dset, sinkhandler):
         det = sinkhandler.dataset.detectors[self.detectorIDX]
@@ -494,14 +489,6 @@ class TOFTOFImageDataset(ImageDataset):
         shape.insert(0, idx)
         session.log.info('New shape: %r', shape)
         dset.resize(shape)
-
-    def results(self, name, h5parent, sinkhandler, results):
-        dset = h5parent[name]
-        if self.doAppend:
-            idx = self.np + 1
-            if len(dset) < idx:
-                self.resize_dataset(dset, sinkhandler)
-            self.update(name, h5parent, sinkhandler, results)
 
 
 class ChannelList(NexusElementBase):
