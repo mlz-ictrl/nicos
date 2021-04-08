@@ -23,6 +23,8 @@ class LokiScriptModel(QAbstractTableModel):
             [4,5,6],
         ]
 
+        self.headerData = ["a","b", "c"]
+
     def data(self, index, role):
         if role == Qt.DisplayRole:
             return self._data[index.row()][index.column()]
@@ -44,6 +46,12 @@ class LokiScriptModel(QAbstractTableModel):
 
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
+
+    def headerData(self, section, orientation, role):
+        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+            return self.headerData[section]
+        if role == Qt.DisplayRole and orientation == Qt.Vertical:
+            return section + 1
 
 
 class LokiScriptBuilderPanel(Panel):
