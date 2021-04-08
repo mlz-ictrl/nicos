@@ -13,20 +13,70 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QPushButton" name="pushButton">
-   <property name="geometry">
-    <rect>
-     <x>260</x>
-     <y>180</y>
-     <width>112</width>
-     <height>32</height>
-    </rect>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTableWidget" name="tableWidget">
+     <property name="rowCount">
+      <number>2</number>
+     </property>
+     <property name="columnCount">
+      <number>2</number>
+     </property>
+     <row/>
+     <row/>
+     <column/>
+     <column/>
+     <item row="0" column="0">
+      <property name="text">
+       <string>a</string>
+      </property>
+     </item>
+     <item row="0" column="1">
+      <property name="text">
+       <string>b</string>
+      </property>
+     </item>
+     <item row="1" column="0">
+      <property name="text">
+       <string>o</string>
+      </property>
+     </item>
+     <item row="1" column="1">
+      <property name="text">
+       <string>p</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>PushButton</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionCopy">
+   <property name="icon">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
+     <normaloff>:/copy</normaloff>:/copy</iconset>
    </property>
    <property name="text">
-    <string>PushButton</string>
+    <string>C&amp;opy</string>
    </property>
-  </widget>
+   <property name="toolTip">
+    <string>Copy selected text to clipboard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetShortcut</enum>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../../resources/nicos-gui.qrc"/>
+ </resources>
  <connections/>
 </ui>
