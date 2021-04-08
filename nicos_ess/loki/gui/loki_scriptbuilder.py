@@ -27,6 +27,11 @@ class LokiScriptModel(QAbstractTableModel):
         if role == Qt.DisplayRole:
             return self._data[index.row()][index.column()]
 
+    def setData(self, index, value, role):
+        if role == Qt.EditRole:
+            self._data[index.row()][index.column()] = value
+            return True
+
     def rowCount(self, index):
         return len(self._data)
 
@@ -36,6 +41,9 @@ class LokiScriptModel(QAbstractTableModel):
     def add_row(self):
         self._data.append([7,8,9])
         self.layoutChanged.emit()
+
+    def flags(self, index):
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
 
 
 class LokiScriptBuilderPanel(Panel):
