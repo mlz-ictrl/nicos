@@ -21,6 +21,8 @@ class TestPanel(Panel):
         # self.layout().setMenuBar(self.createPanelToolbar())
 
         self.menus = None
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.on_context_menu)
 
         # ctrl_c = QShortcut(QKeySequence.Copy, self.tableWidget)
         # ctrl_c.activated.connect(self._handle_copy_cells)
@@ -36,6 +38,13 @@ class TestPanel(Panel):
         bar.addAction(self.actionPaste)
 
         return bar
+
+    def on_context_menu(self, pos):
+        context = QMenu(self)
+        context.addAction(self.actionCut)
+        context.addAction(self.actionCopy)
+        context.addAction(self.actionPaste)
+        context.exec_(self.mapToGlobal(pos))
 
     @pyqtSlot()
     def on_actionCopy_triggered(self):
@@ -86,8 +95,6 @@ class TestPanel(Panel):
         return ''
 
     def getMenus(self):
-
-
         menuEdit = QMenu('&Edit', self)
         menuEdit.addAction(self.actionCut)
         menuEdit.addAction(self.actionCopy)
