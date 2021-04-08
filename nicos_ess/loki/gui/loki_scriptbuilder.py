@@ -26,8 +26,8 @@ class TransOrder(Enum):
 
 class LokiScriptBuilderPanel(Panel):
     _available_trans_options = OrderedDict({
-        "TRANS First": TransOrder.TRANSFIRST,
-        "SANS First": TransOrder.SANSFIRST,
+        "All TRANS First": TransOrder.TRANSFIRST,
+        "All SANS First": TransOrder.SANSFIRST,
         "TRANS then SANS":TransOrder.TRANSTHENSANS,
         "SANS then TRANS": TransOrder.SANSTHENTRANS,
         "Simultaneous": TransOrder.SIMULTANEOUS
@@ -427,31 +427,34 @@ class LokiScriptBuilderPanel(Panel):
     def on_generateScriptButton_clicked(self):
         labeled_data = self._extract_labeled_data()
         template = ""
-        if self.comboTransOrder.currentText() == "TRANS First":
+        trans_order = self._available_trans_options[
+            self.comboTransOrder.currentText()]
+
+        if trans_order == TransOrder.TRANSFIRST:
             for row_values in labeled_data:
                 template += self.do_trans(row_values)
 
             for row_values in labeled_data:
                 template += self.do_sans(row_values)
-
-        elif self.comboTransOrder.currentText() == "SANS First":
+        elif trans_order == TransOrder.SANSFIRST:
             for row_values in labeled_data:
                 template += self.do_sans(row_values)
 
             for row_values in labeled_data:
                 template += self.do_trans(row_values)
-
-        elif self.comboTransOrder.currentText() == "TRANS then SANS":
+        elif trans_order == TransOrder.TRANSTHENSANS:
             for row_values in labeled_data:
                 template += self.do_trans(row_values)
                 template += self.do_sans(row_values)
 
-        elif self.comboTransOrder.currentText() == "SANS then TRANS":
+        elif trans_order == TransOrder.SANSTHENTRANS:
             for row_values in labeled_data:
                 template += self.do_sans(row_values)
                 template += self.do_trans(row_values)
-        else:
+        elif trans_order == TransOrder.SIMULTANEOUS:
             pass
+        else:
+            assert True, "Unspecified trans order"
 
         self.mainwindow.codeGenerated.emit(template)
 
