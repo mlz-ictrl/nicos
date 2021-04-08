@@ -72,7 +72,8 @@ class LokiScriptBuilderPanel(Panel):
         self.window = parent
 
         self.model = LokiScriptModel()
-        self.tableView.setModel(self.model)
+        # self.tableView.setModel(self.model)
+        self.tableView.hide()
 
         self.duration_options = ['Mevents', 'seconds', 'frames']
 
