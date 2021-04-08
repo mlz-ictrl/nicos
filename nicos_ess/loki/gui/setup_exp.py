@@ -121,8 +121,6 @@ class ExpPanel(Panel):
             self.newBox.setVisible(False)
         else:
             self.newBox.setVisible(True)
-            self.proposalNum.setText('')  # do not offer "service"
-            self.proposalID.setText('')
         # check for capability to ask proposal database
         if self.client.eval('getattr(session.experiment, "propdb", "")', None):
             self.propdbInfo.setVisible(True)
