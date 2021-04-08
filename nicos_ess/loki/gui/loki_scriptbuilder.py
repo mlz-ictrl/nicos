@@ -21,6 +21,8 @@ class LokiScriptBuilderPanel(Panel):
 
         self.window = parent
         self.menus = None
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.on_context_menu)
 
         self.trans_options = ['TRANS First', 'SANS First', 'Simultaneous']
 
@@ -81,22 +83,21 @@ class LokiScriptBuilderPanel(Panel):
 
         self.tableScript.setRowCount(num_rows)
 
-        # QShortcut(QKeySequence.Paste, self.tableScript).activated.connect(
-        #     self._handle_table_paste)
-        #
-        # QShortcut(QKeySequence.Cut, self.tableScript).activated.connect(
-        #     self._handle_cut_cells)
-        #
-        # QShortcut(QKeySequence.Delete, self.tableScript).activated.connect(
-        #     self._handle_delete_cells)
-        #
-        # # TODO: this doesn't work on a Mac? How about Linux?
-        # QShortcut(QKeySequence.Backspace, self.tableScript).activated.connect(
-        #     self._handle_delete_cells)
-        #
-        # # TODO: Cannot do keyboard copy as it is ambiguous - investigate
-        # QShortcut(QKeySequence.Copy, self.tableScript).activated.connect(
-        #     self._handle_copy_cells)
+    @pyqtSlot()
+    def on_actionCopy_triggered(self):
+        self._handle_copy_cells()
+
+    @pyqtSlot()
+    def on_actionCut_triggered(self):
+        self._handle_cut_cells()
+
+    @pyqtSlot()
+    def on_actionPaste_triggered(self):
+        self._handle_table_paste()
+
+    @pyqtSlot()
+    def on_actionDeleteRows_triggered(self):
+        self._delete_rows()
 
     @pyqtSlot()
     def on_cutButton_clicked(self):
@@ -337,13 +338,17 @@ class LokiScriptBuilderPanel(Panel):
         menuEdit.addAction(self.actionCopy)
         menuEdit.addAction(self.actionPaste)
 
-        # if self.toolconfig:
-        #     menuTools = QMenu('Editor t&ools', self)
-        #     createToolMenu(self, self.toolconfig, menuTools)
-        #     menus = [menuFile, menuView, menuEdit, menuScript, menuTools]
-        # else:
+        menuTable = QMenu('&Table', self)
+        menuTable.addAction(self.actionDeleteRows)
 
-        menus = [menuEdit]
-
-        self.menus = menus
+        self.menus = [menuEdit, menuTable]
         return self.menus
+
+    def on_context_menu(self, pos):
+        context = QMenu(self)
+        context.addAction(self.actionCut)
+        context.addAction(self.actionCopy)
+        context.addAction(self.actionPaste)
+        context.addSeparator()
+        context.addAction(self.actionDeleteRows)
+        context.exec_(self.mapToGlobal(pos))

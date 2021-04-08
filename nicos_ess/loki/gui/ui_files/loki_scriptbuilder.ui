@@ -342,7 +342,7 @@
   </layout>
   <action name="actionCut">
    <property name="icon">
-    <iconset resource="../../../../resources/nicos-gui.qrc">
+    <iconset>
      <normaloff>:/cut</normaloff>:/cut</iconset>
    </property>
    <property name="text">
@@ -357,7 +357,7 @@
   </action>
   <action name="actionCopy">
    <property name="icon">
-    <iconset resource="../../../../resources/nicos-gui.qrc">
+    <iconset>
      <normaloff>:/copy</normaloff>:/copy</iconset>
    </property>
    <property name="text">
@@ -372,7 +372,7 @@
   </action>
   <action name="actionPaste">
    <property name="icon">
-    <iconset resource="../../../../resources/nicos-gui.qrc">
+    <iconset>
      <normaloff>:/paste</normaloff>:/paste</iconset>
    </property>
    <property name="text">
@@ -385,9 +385,22 @@
     <string>Ctrl+V</string>
    </property>
   </action>
+  <action name="actionDeleteRows">
+  <property name="icon">
+    <iconset>
+     <normaloff>:/close</normaloff>:/close</iconset>
+   </property>
+   <property name="text">
+    <string>Delete Row(s)</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete selected rows</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Backspace</string>
+   </property>
+  </action>
  </widget>
- <resources>
-  <include location="../../../../resources/nicos-gui.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
