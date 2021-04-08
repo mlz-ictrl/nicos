@@ -31,9 +31,9 @@ class TestPanel(Panel):
 
     def createPanelToolbar(self):
         bar = QToolBar('Editor')
-        # bar.addAction(self.actionCut)
+        bar.addAction(self.actionCut)
         bar.addAction(self.actionCopy)
-        # bar.addAction(self.actionPaste)
+        bar.addAction(self.actionPaste)
 
         return bar
 
@@ -45,6 +45,19 @@ class TestPanel(Panel):
             return
         selected_data = self._extract_selected_data()
         QApplication.instance().clipboard().setText('\n'.join(selected_data))
+
+    @pyqtSlot()
+    def on_actionCut_triggered(self):
+        print("cut from toolbar")
+        # if len(self.tableWidget.selectedRanges()) != 1:
+        #     # Can only select one continuous region to copy
+        #     return
+        # selected_data = self._extract_selected_data()
+        # QApplication.instance().clipboard().setText('\n'.join(selected_data))
+
+    @pyqtSlot()
+    def on_actionPaste_triggered(self):
+        print("paste from toolbar")
 
     def _extract_selected_data(self):
         selected_data = []
@@ -76,9 +89,9 @@ class TestPanel(Panel):
 
 
         menuEdit = QMenu('&Edit', self)
-        # menuEdit.addAction(self.actionCut)
+        menuEdit.addAction(self.actionCut)
         menuEdit.addAction(self.actionCopy)
-        # menuEdit.addAction(self.actionPaste)
+        menuEdit.addAction(self.actionPaste)
 
         # if self.toolconfig:
         #     menuTools = QMenu('Editor t&ools', self)

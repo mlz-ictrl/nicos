@@ -74,6 +74,36 @@
     <enum>Qt::WidgetShortcut</enum>
    </property>
   </action>
+  <action name="actionCut">
+   <property name="icon">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
+     <normaloff>:/cut</normaloff>:/cut</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Cut</string>
+   </property>
+   <property name="toolTip">
+    <string>Cut selected text to clipboard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="icon">
+    <iconset resource="../../../../resources/nicos-gui.qrc">
+     <normaloff>:/paste</normaloff>:/paste</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Paste</string>
+   </property>
+   <property name="toolTip">
+    <string>Paste text from clipboard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>
