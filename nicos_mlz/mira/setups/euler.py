@@ -4,15 +4,17 @@ group = 'optional'
 includes = ['base']
 excludes = ['mono1']
 
+tango_base = 'tango://miractrl.mira.frm2:10000/mira/euler/'
+
 devices = dict(
-    co_ephi = device('nicos.devices.taco.Coder',
+    co_ephi = device('nicos.devices.tango.Sensor',
         lowlevel = True,
-        tacodevice = '//mirasrv/mira/encoder/ephi',
+        tangodevice = tango_base + 'phi_coder',
         unit = 'deg',
     ),
-    mo_ephi = device('nicos.devices.taco.Motor',
+    mo_ephi = device('nicos.devices.tango.Motor',
         lowlevel = True,
-        tacodevice = '//mirasrv/mira/motor/ephi',
+        tangodevice = tango_base + 'phi_motor',
         abslimits = (-355.0, 355.0),
         unit = 'deg',
     ),
@@ -23,14 +25,14 @@ devices = dict(
         fmtstr = '%.3f',
         precision = 0.01,
     ),
-    co_echi = device('nicos.devices.taco.Coder',
+    co_echi = device('nicos.devices.tango.Sensor',
         lowlevel = True,
-        tacodevice = '//mirasrv/mira/encoder/echi',
+        tangodevice = tango_base + 'chi_coder',
         unit = 'deg',
     ),
-    mo_echi = device('nicos.devices.taco.Motor',
+    mo_echi = device('nicos.devices.tango.Motor',
         lowlevel = True,
-        tacodevice = '//mirasrv/mira/motor/echi',
+        tangodevice = tango_base + 'chi_motor',
         abslimits = (-355.0, 355.0),
         unit = 'deg',
     ),
