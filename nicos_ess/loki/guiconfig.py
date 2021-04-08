@@ -76,7 +76,7 @@ main_window = docked(
                 panel("nicos_ess.gui.panels.editor.EditorPanel", tools=None),
             ),
         ),
-        # ("Prototype", panel("nicos_ess.loki.gui.loki_scriptbuilder.LokiScriptBuilderPanel")),
+        ("Prototype", panel("nicos_ess.loki.gui.loki_scriptbuilder.LokiScriptBuilderPanel")),
         ("Test", panel("nicos_ess.loki.gui.test.TestPanel")),
         ("Detector Image", panel("nicos_ess.gui.panels.live.LiveDataPanel")),
         ("History", panel("nicos_ess.gui.panels.history.HistoryPanel"),),

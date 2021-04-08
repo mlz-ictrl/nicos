@@ -4,7 +4,7 @@ from functools import partial
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
-    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot
+    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot, QMenu
 from nicos.utils import findResource
 from nicos_ess.gui.utilities.load_save_tables import load_table_from_csv, \
     save_table_to_csv
@@ -20,6 +20,7 @@ class LokiScriptBuilderPanel(Panel):
                )
 
         self.window = parent
+        self.menus = None
 
         self.trans_options = ['TRANS First', 'SANS First', 'Simultaneous']
 
@@ -80,22 +81,22 @@ class LokiScriptBuilderPanel(Panel):
 
         self.tableScript.setRowCount(num_rows)
 
-        QShortcut(QKeySequence.Paste, self.tableScript).activated.connect(
-            self._handle_table_paste)
-
-        QShortcut(QKeySequence.Cut, self.tableScript).activated.connect(
-            self._handle_cut_cells)
-
-        QShortcut(QKeySequence.Delete, self.tableScript).activated.connect(
-            self._handle_delete_cells)
-
-        # TODO: this doesn't work on a Mac? How about Linux?
-        QShortcut(QKeySequence.Backspace, self.tableScript).activated.connect(
-            self._handle_delete_cells)
-
-        # TODO: Cannot do keyboard copy as it is ambiguous - investigate
-        QShortcut(QKeySequence.Copy, self.tableScript).activated.connect(
-            self._handle_copy_cells)
+        # QShortcut(QKeySequence.Paste, self.tableScript).activated.connect(
+        #     self._handle_table_paste)
+        #
+        # QShortcut(QKeySequence.Cut, self.tableScript).activated.connect(
+        #     self._handle_cut_cells)
+        #
+        # QShortcut(QKeySequence.Delete, self.tableScript).activated.connect(
+        #     self._handle_delete_cells)
+        #
+        # # TODO: this doesn't work on a Mac? How about Linux?
+        # QShortcut(QKeySequence.Backspace, self.tableScript).activated.connect(
+        #     self._handle_delete_cells)
+        #
+        # # TODO: Cannot do keyboard copy as it is ambiguous - investigate
+        # QShortcut(QKeySequence.Copy, self.tableScript).activated.connect(
+        #     self._handle_copy_cells)
 
     @pyqtSlot()
     def on_cutButton_clicked(self):
@@ -329,3 +330,20 @@ class LokiScriptBuilderPanel(Panel):
 
     def _set_column_title(self, index, title):
         self.tableScript.setHorizontalHeaderItem(index, QTableWidgetItem(title))
+
+    def getMenus(self):
+        menuEdit = QMenu('&Edit', self)
+        menuEdit.addAction(self.actionCut)
+        menuEdit.addAction(self.actionCopy)
+        menuEdit.addAction(self.actionPaste)
+
+        # if self.toolconfig:
+        #     menuTools = QMenu('Editor t&ools', self)
+        #     createToolMenu(self, self.toolconfig, menuTools)
+        #     menus = [menuFile, menuView, menuEdit, menuScript, menuTools]
+        # else:
+
+        menus = [menuEdit]
+
+        self.menus = menus
+        return self.menus
