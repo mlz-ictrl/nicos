@@ -5,7 +5,7 @@ import os.path as osp
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
-    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot, QMessageBox
+    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot
 from nicos.utils import findResource
 from nicos_ess.gui.utilities.load_save_tables import load_table_from_csv, \
     save_table_to_csv
@@ -376,12 +376,6 @@ class LokiScriptBuilderPanel(Panel):
             for column in range(self.tableScript.columnCount()):
                 self._update_cell(row, column, '')
 
-    def get_position(self, value):
-        return f"set_position({value})"
-
-    def get_sample(self, name, thickness):
-        return f"set_sample('{name}', {thickness})"
-
     def _extract_labeled_data(self):
         table = []
         for row in range(self.tableScript.rowCount()):
@@ -398,62 +392,17 @@ class LokiScriptBuilderPanel(Panel):
 
         return table
 
-    def do_trans(self, row_values):
-        template = (
-            f"{self.get_position(row_values['position'])}\n"
-            f"{self.get_sample(row_values['sample'], row_values['thickness'])}\n"
-            f"do_trans({row_values['trans_duration']}, "
-            f"'{self.comboTransDurationType.currentText()}')\n")
-        return template
-
-    def do_sans(self, row_values):
-        template = (
-            f"{self.get_position(row_values['position'])}\n"
-            f"{self.get_sample(row_values['sample'], row_values['thickness'])}\n"
-            f"do_sans({row_values['sans_duration']}, "
-            f"'{self.comboSansDurationType.currentText()}')\n")
-        return template
-
     @pyqtSlot()
     def on_generateScriptButton_clicked(self):
         labeled_data = self._extract_labeled_data()
-        template = self.generate_script(labeled_data)
 
-        ScriptGenerator().generate_script(labeled_data, self._available_trans_options[
-            self.comboTransOrder.currentText()], self.comboTransDurationType.currentText(), self.comboSansDurationType.currentText())
+        template = ScriptGenerator().generate_script(
+            labeled_data,
+            self._available_trans_options[self.comboTransOrder.currentText()],
+            self.comboTransDurationType.currentText(),
+            self.comboSansDurationType.currentText())
 
         self.mainwindow.codeGenerated.emit(template)
-
-    def generate_script(self, labeled_data):
-        template = ""
-        trans_order = self._available_trans_options[
-            self.comboTransOrder.currentText()]
-        if trans_order == TransOrder.TRANSFIRST:
-            for row_values in labeled_data:
-                template += self.do_trans(row_values)
-
-            for row_values in labeled_data:
-                template += self.do_sans(row_values)
-        elif trans_order == TransOrder.SANSFIRST:
-            for row_values in labeled_data:
-                template += self.do_sans(row_values)
-
-            for row_values in labeled_data:
-                template += self.do_trans(row_values)
-        elif trans_order == TransOrder.TRANSTHENSANS:
-            for row_values in labeled_data:
-                template += self.do_trans(row_values)
-                template += self.do_sans(row_values)
-
-        elif trans_order == TransOrder.SANSTHENTRANS:
-            for row_values in labeled_data:
-                template += self.do_sans(row_values)
-                template += self.do_trans(row_values)
-        elif trans_order == TransOrder.SIMULTANEOUS:
-            pass
-        else:
-            assert True, "Unspecified trans order"
-        return template
 
     def _update_cell(self, row, column, new_value):
         item = self.tableScript.item(row, column)
