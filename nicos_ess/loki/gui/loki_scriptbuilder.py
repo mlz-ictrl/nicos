@@ -5,7 +5,7 @@ import os.path as osp
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
-    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot
+    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot, QAbstractTableModel
 from nicos.utils import findResource
 from nicos_ess.gui.utilities.load_save_tables import load_table_from_csv, \
     save_table_to_csv
@@ -13,6 +13,29 @@ from nicos_ess.loki.gui.script_generator import ScriptGenerator, TransOrder
 
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
+
+
+class LokiScriptModel(QAbstractTableModel):
+    def __init__(self):
+        super().__init__()
+        self._data = [
+            [1,2,3],
+            [4,5,6],
+        ]
+
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            return self._data[index.row()][index.column()]
+
+    def rowCount(self, index):
+        return len(self._data)
+
+    def columnCount(self, index):
+        return len(self._data[0])
+
+    def add_row(self):
+        self._data.append([7,8,9])
+        self.layoutChanged.emit()
 
 
 class LokiScriptBuilderPanel(Panel):
@@ -23,6 +46,7 @@ class LokiScriptBuilderPanel(Panel):
         "SANS then TRANS": TransOrder.SANSTHENTRANS,
         "Simultaneous": TransOrder.SIMULTANEOUS
     })
+
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
         loadUi(self,
@@ -30,6 +54,9 @@ class LokiScriptBuilderPanel(Panel):
                )
 
         self.window = parent
+
+        self.model = LokiScriptModel()
+        self.tableView.setModel(self.model)
 
         self.duration_options = ['Mevents', 'seconds', 'frames']
 
@@ -107,7 +134,9 @@ class LokiScriptBuilderPanel(Panel):
 
     @pyqtSlot()
     def on_cutButton_clicked(self):
-        self._handle_cut_cells()
+        self.model.add_row()
+        # self.model.layoutChanged.emit()
+        # self._handle_cut_cells()
 
     @pyqtSlot()
     def on_copyButton_clicked(self):
