@@ -1,7 +1,6 @@
 ## TODO
 - Associate QTable and model. Investigate
-- For simulatneous what to do and what values to use.
-- Add options "do_trans then do_sans" and "do_sans then do_trans" in combobox.
+- For simultaneous what to do and what values to use.
 - Move code from on_generateScriptButton_clicked to separate class (ScriptGenerator)
 - Remove trailing rows but keep rows in between.
 
@@ -11,3 +10,4 @@
 - load_csv should return the data array.
 - Warn user if hidden column has values.
 - Add units in do_trans and do_sans.
+- Add options "do_trans then do_sans" and "do_sans then do_trans" in combobox.

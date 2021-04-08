@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from enum import Enum
 from functools import partial
 import os.path as osp
 
@@ -10,18 +9,10 @@ from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
 from nicos.utils import findResource
 from nicos_ess.gui.utilities.load_save_tables import load_table_from_csv, \
     save_table_to_csv
-from nicos_ess.loki.gui.script_generator import ScriptGenerator
+from nicos_ess.loki.gui.script_generator import ScriptGenerator, TransOrder
 
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
-
-
-class TransOrder(Enum):
-    TRANSFIRST = 0
-    SANSFIRST = 1
-    TRANSTHENSANS = 2
-    SANSTHENTRANS = 3
-    SIMULTANEOUS = 4
 
 
 class LokiScriptBuilderPanel(Panel):
@@ -426,10 +417,17 @@ class LokiScriptBuilderPanel(Panel):
     @pyqtSlot()
     def on_generateScriptButton_clicked(self):
         labeled_data = self._extract_labeled_data()
+        template = self.generate_script(labeled_data)
+
+        ScriptGenerator().generate_script(labeled_data, self._available_trans_options[
+            self.comboTransOrder.currentText()], self.comboTransDurationType.currentText(), self.comboSansDurationType.currentText())
+
+        self.mainwindow.codeGenerated.emit(template)
+
+    def generate_script(self, labeled_data):
         template = ""
         trans_order = self._available_trans_options[
             self.comboTransOrder.currentText()]
-
         if trans_order == TransOrder.TRANSFIRST:
             for row_values in labeled_data:
                 template += self.do_trans(row_values)
@@ -455,8 +453,7 @@ class LokiScriptBuilderPanel(Panel):
             pass
         else:
             assert True, "Unspecified trans order"
-
-        self.mainwindow.codeGenerated.emit(template)
+        return template
 
     def _update_cell(self, row, column, new_value):
         item = self.tableScript.item(row, column)
