@@ -110,7 +110,7 @@ devices = dict(
         chopper = 6,
         gear = 2,
         edge = 'close',
-        reference = 129.7,
+        reference = 129.7, #2021-04-23 07:06:24 Encoder homeRun 129.7,
     ),
     core1 = device(code_base_analog,
         description = 'Temperature of motorcoil 1',

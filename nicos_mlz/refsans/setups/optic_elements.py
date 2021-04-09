@@ -123,18 +123,26 @@ devices = dict(
             'nok3'  : [  -1.541887,  -3.532116],        #02
             'nok4'  : [  -5.827513, -10.471382],        #03
             'b1'    : [  -1.0,      -11.686477],        #04   12.099516
-            'nok5a' : [ -21.971213, -30.971213],        #05
+            'nok5a' : [ -22.571213, -30.371213],        #05
+            # Due to inclimit, org is 2021-05-19
+            # 'nok5a' : [ -21.971213, -30.971213],        #05
             'zb0'   :   -34.837178             ,        #06
             # Due to a mechanical limit the values are reduced by 1
             # normally the values should be:
             # 'nok5b' : [ -38.479458, -54.667368],      #07
-            'nok5b' : [ -37.479458, -53.667368],        #07
+            'nok5b' : [ -38.079458, -53.067368],        #07
+            # Due to a mechanical limit the values are reduced by 1
+            # normally the values should be:
+            # 'nok5b' : [ -37.479458, -53.667368],        #07
             'zb1'   :   -57.845240             ,        #08
             'nok6'  : [ -61.487520, -77.675430],        #09
             'zb2'   :   -80.866571             ,        #10
             'nok7'  : [ -85.079409, -94.234866],        #11
             'zb3'   : [  12.092881, -97.445910],        #12
-            'nok8'  : [-101.068287,-106.110423],        #13
+            'nok8'  : [-100.068287,-105.110423],        #13
+            # Due to a mechanical limit the values are reduced by 1
+            # normally the values should be:
+            #'nok8'  : [-101.068287,-106.110423],        #13
             'bs1'   : [  12.072978,-109.659821],        #14
             # Due to a mechanical limit the values are reduced by 1.5
             # normally the values should be:
@@ -230,41 +238,40 @@ devices = dict(
 
         },
         masks = {
-            'debug'               :{'nok2':'ng','nok3':'debug','nok4':'debug','b1': 'debug','nok5a': 'debug','zb0': 'debug','nok5b': 'debug','zb1': 'debug','nok6': 'debug','zb2': 'debug','nok7': 'debug','zb3': 'debug','nok8': 'debug','bs1': 'debug','nok9': 'debug','b2': 'debug','b3': 'debug'},
-            'gisans'              :{'nok2':'ng','nok3':   'ng','nok4':   'rc','b1':'gisans','nok5a':    'fc','zb0':'gisans','nok5b':    'fc','zb1':'gisans','nok6':    'fc','zb2':'gisans','nok7':    'fc','zb3':'gisans','nok8':    'fc','bs1':'gisans','nok9':    'fc','b2':'gisans','b3':  'slit'},
-            'gisans789'           :{'nok2':'ng','nok3':   'ng','nok4':   'rc','b1':'gisans','nok5a':    'fc','zb0':'gisans','nok5b':    'fc','zb1':'gisans','nok6':    'fc','zb2':'gisans','nok7':    'ng','zb3':'gisans','nok8':    'ng','bs1':'gisans','nok9':    'fc','b2':'gisans','b3':  'slit'},
-            'point'               :{'nok2':'ng','nok3':   'rc','nok4':   'ng','b1':  'slit','nok5a':    'fc','zb0':  'slit','nok5b':    'fc','zb1':  'slit','nok6':    'fc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            'fc:nok5a'            :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'fc','zb0':  'slit','nok5b':    'fc','zb1':  'slit','nok6':    'fc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            '12mrad789'           :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'fc','zb0':  'slit','nok5b':    'fc','zb1':  'slit','nok6':    'fc','zb2':  'slit','nok7':    'ng','zb3':  'slit','nok8':    'ng','bs1':  'slit','nok9':    'ng','b2':  'slit','b3':  'slit'},
-            '12mrad234'           :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'fc','zb0':  'slit','nok5b':    'fc','zb1':  'slit','nok6':    'fc','zb2':  'slit','nok7':    'ng','zb3':  'slit','nok8':    'ng','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            '48mrad'              :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'vc','zb1':  'slit','nok6':    'vc','zb2':  'slit','nok7':    'ng','zb3':  'slit','nok8':    'ng','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            'fc:nok5b'            :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'ng','zb0':  'slit','nok5b':    'fc','zb1':  'slit','nok6':    'fc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            'fc:nok6'             :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'ng','zb0':  'slit','nok5b':    'ng','zb1':  'slit','nok6':    'fc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            'fc:nok7'             :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'ng','zb0':  'slit','nok5b':    'ng','zb1':  'slit','nok6':    'ng','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            'fc:nok8'             :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'ng','zb0':  'slit','nok5b':    'ng','zb1':  'slit','nok6':    'ng','zb2':  'slit','nok7':    'ng','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            'fc:nok9'             :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'ng','zb0':  'slit','nok5b':    'ng','zb1':  'slit','nok6':    'ng','zb2':  'slit','nok7':    'ng','zb3':  'slit','nok8':    'ng','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            'neutronguide'        :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'ng','zb0':  'slit','nok5b':    'ng','zb1':  'slit','nok6':    'ng','zb2':  'slit','nok7':    'ng','zb3':  'slit','nok8':    'ng','bs1':  'slit','nok9':    'ng','b2':  'slit','b3':  'slit'},
-            'vc:nok5a_fc:nok5b'   :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'fc','zb1':  'slit','nok6':    'fc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            'vc:nok5a_fc:nok6'    :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'vc','zb1':  'slit','nok6':    'fc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            'vc:nok5a_fc:nok7'    :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'vc','zb1':  'slit','nok6':    'vc','zb2':  'slit','nok7':    'fc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            'vc:nok5a_fc:nok8'    :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'vc','zb1':  'slit','nok6':    'vc','zb2':  'slit','nok7':    'vc','zb3':  'slit','nok8':    'fc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            'vc:nok5a_fc:nok9'    :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'vc','zb1':  'slit','nok6':    'vc','zb2':  'slit','nok7':    'vc','zb3':  'slit','nok8':    'vc','bs1':  'slit','nok9':    'fc','b2':  'slit','b3':  'slit'},
-            'vc:nok5a'            :{'nok2':'ng','nok3':   'ng','nok4':   'ng','b1':  'slit','nok5a':    'vc','zb0':  'slit','nok5b':    'vc','zb1':  'slit','nok6':    'vc','zb2':  'slit','nok7':    'vc','zb3':  'slit','nok8':    'vc','bs1':  'slit','nok9':    'vc','b2':  'slit','b3':  'slit'},
-            #'vc:nok5b_fc:nok6'    :
-            #'vc:nok5b_fc:nok7'    :
-            #'vc:nok5b_fc:nok8'    :
-            #'vc:nok5b_fc:nok9'    :
-            #'vc:nok5b'            :
-            #'vc:nok6_fc:nok7'     :
-            #'vc:nok6_fc:nok8'     :
-            #'vc:nok6_fc:nok9'     :
-            #'vc:nok6'             :
-            #'vc:nok7_fc:nok8'     :
-            #'vc:nok7_fc:nok9'     :
-            #'vc:nok7'             :
-            #'vc:nok8_fc:nok9'     :
-            #'vc:nok8'             :
-            #'vc:nok9'             :
+            '12mrad234'           :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'fc','zb0':  'slit','nok5b':'fc','zb1':  'slit','nok6':'fc','zb2':  'slit','nok7':'fc','zb3':  'slit','nok8':'fc','bs1':  'slit','nok9':'fc','b2':  'slit','b3':'slit'},
+            '12mrad789'           :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'fc','zb0':  'slit','nok5b':'fc','zb1':  'slit','nok6':'fc','zb2':  'slit','nok7':'ng','zb3':  'slit','nok8':'ng','bs1':  'slit','nok9':'ng','b2':  'slit','b3':'slit'},
+            '48mrad'              :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'vc','zb0':  'slit','nok5b':'vc','zb1':  'slit','nok6':'vc','zb2':  'slit','nok7':'ng','zb3':  'slit','nok8':'ng','bs1':  'slit','nok9':'fc','b2':  'slit','b3':'slit'},
+            'fc:nok5a'            :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'fc','zb0':  'slit','nok5b':'fc','zb1':  'slit','nok6':'fc','zb2':  'slit','nok7':'fc','zb3':  'slit','nok8':'fc','bs1':  'slit','nok9':'fc','b2':  'slit','b3':'slit'},
+            'fc:nok5b'            :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'ng','zb0':  'slit','nok5b':'fc','zb1':  'slit','nok6':'fc','zb2':  'slit','nok7':'fc','zb3':  'slit','nok8':'fc','bs1':  'slit','nok9':'fc','b2':  'slit','b3':'slit'},
+            'fc:nok6'             :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'ng','zb0':  'slit','nok5b':'ng','zb1':  'slit','nok6':'fc','zb2':  'slit','nok7':'fc','zb3':  'slit','nok8':'fc','bs1':  'slit','nok9':'fc','b2':  'slit','b3':'slit'},
+            'fc:nok7'             :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'ng','zb0':  'slit','nok5b':'ng','zb1':  'slit','nok6':'ng','zb2':  'slit','nok7':'fc','zb3':  'slit','nok8':'fc','bs1':  'slit','nok9':'fc','b2':  'slit','b3':'slit'},
+            'fc:nok8'             :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'ng','zb0':  'slit','nok5b':'ng','zb1':  'slit','nok6':'ng','zb2':  'slit','nok7':'ng','zb3':  'slit','nok8':'fc','bs1':  'slit','nok9':'fc','b2':  'slit','b3':'slit'},
+            'fc:nok9'             :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'ng','zb0':  'slit','nok5b':'ng','zb1':  'slit','nok6':'ng','zb2':  'slit','nok7':'ng','zb3':  'slit','nok8':'ng','bs1':  'slit','nok9':'fc','b2':  'slit','b3':'slit'},
+            'gisans'              :{'nok2':'ng','nok3':'ng','nok4':'rc','b1':'gisans','nok5a':'fc','zb0':'gisans','nok5b':'fc','zb1':'gisans','nok6':'fc','zb2':'gisans','nok7':'fc','zb3':'gisans','nok8':'fc','bs1':'gisans','nok9':'fc','b2':'gisans','b3':'slit'},
+            'gisans789'           :{'nok2':'ng','nok3':'ng','nok4':'rc','b1':'gisans','nok5a':'fc','zb0':'gisans','nok5b':'fc','zb1':'gisans','nok6':'fc','zb2':'gisans','nok7':'ng','zb3':'gisans','nok8':'ng','bs1':'gisans','nok9':'fc','b2':'gisans','b3':'slit'},
+            'neutronguide'        :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'ng','zb0':  'slit','nok5b':'ng','zb1':  'slit','nok6':'ng','zb2':  'slit','nok7':'ng','zb3':  'slit','nok8':'ng','bs1':  'slit','nok9':'ng','b2':  'slit','b3':'slit'},
+            'point'               :{'nok2':'ng','nok3':'rc','nok4':'ng','b1':  'slit','nok5a':'fc','zb0':  'slit','nok5b':'fc','zb1':  'slit','nok6':'fc','zb2':  'slit','nok7':'fc','zb3':  'slit','nok8':'fc','bs1':  'slit','nok9':'fc','b2':  'slit','b3':'slit'},
+            'vc:nok5a'            :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'vc','zb0':  'slit','nok5b':'vc','zb1':  'slit','nok6':'vc','zb2':  'slit','nok7':'vc','zb3':  'slit','nok8':'vc','bs1':  'slit','nok9':'vc','b2':  'slit','b3':'slit'},
+            'vc:nok5a_fc:nok5b'   :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'vc','zb0':  'slit','nok5b':'fc','zb1':  'slit','nok6':'fc','zb2':  'slit','nok7':'fc','zb3':  'slit','nok8':'fc','bs1':  'slit','nok9':'fc','b2':  'slit','b3':'slit'},
+            'vc:nok5a_fc:nok6'    :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'vc','zb0':  'slit','nok5b':'vc','zb1':  'slit','nok6':'fc','zb2':  'slit','nok7':'fc','zb3':  'slit','nok8':'fc','bs1':  'slit','nok9':'fc','b2':  'slit','b3':'slit'},
+            'vc:nok5a_fc:nok7'    :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'vc','zb0':  'slit','nok5b':'vc','zb1':  'slit','nok6':'vc','zb2':  'slit','nok7':'fc','zb3':  'slit','nok8':'fc','bs1':  'slit','nok9':'fc','b2':  'slit','b3':'slit'},
+            'vc:nok5a_fc:nok8'    :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'vc','zb0':  'slit','nok5b':'vc','zb1':  'slit','nok6':'vc','zb2':  'slit','nok7':'vc','zb3':  'slit','nok8':'fc','bs1':  'slit','nok9':'fc','b2':  'slit','b3':'slit'},
+            'vc:nok5a_fc:nok9'    :{'nok2':'ng','nok3':'ng','nok4':'ng','b1':  'slit','nok5a':'vc','zb0':  'slit','nok5b':'vc','zb1':  'slit','nok6':'vc','zb2':  'slit','nok7':'vc','zb3':  'slit','nok8':'vc','bs1':  'slit','nok9':'fc','b2':  'slit','b3':'slit'},
+            'vc:nok5b'            :{},
+            'vc:nok5b_fc:nok6'    :{},
+            'vc:nok5b_fc:nok7'    :{},
+            'vc:nok5b_fc:nok8'    :{},
+            'vc:nok5b_fc:nok9'    :{},
+            'vc:nok6'             :{},
+            'vc:nok6_fc:nok7'     :{},
+            'vc:nok6_fc:nok8'     :{},
+            'vc:nok6_fc:nok9'     :{},
+            'vc:nok7'             :{},
+            'vc:nok7_fc:nok8'     :{},
+            'vc:nok7_fc:nok9'     :{},
+            'vc:nok8'             :{},
+            'vc:nok8_fc:nok9'     :{},
+            'vc:nok9'             :{},
         },
     ),
 )
