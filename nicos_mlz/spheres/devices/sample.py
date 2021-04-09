@@ -27,14 +27,30 @@ Devices to control the sample environment at SPHERES
 """
 
 from nicos import session
-from nicos.core import SIMULATION, oneof
+from nicos.core import SIMULATION, oneof, Override, anytype
 from nicos.core.params import Attach, Param, tangodev
 from nicos.core.status import WARN
-from nicos.devices.entangle import TemperatureController
+from nicos.devices import entangle
 from nicos.utils import HardwareStub
 
 
-class SEController(TemperatureController):
+class TemperatureController(entangle.TemperatureController):
+    parameter_overrides = {
+        'heateroutput': Override(type=anytype),
+    }
+
+    attached_devices = {
+        'heater': Attach('Heater of the device',
+                         entangle.NamedDigitalOutput)
+    }
+
+    def doReadHeateroutput(self):
+        if self._attached_heater.read() == 'off':
+            return 'OFF'
+        return entangle.TemperatureController.doReadHeateroutput(self)
+
+
+class SEController(entangle.TemperatureController):
     """Controller to set Temperature
     """
 
@@ -51,7 +67,7 @@ class SEController(TemperatureController):
         'samplestick': Param('Sample stick currently in use',
                              type=oneof('lt', 'ht'),
                              volatile=True, settable=True),
-        'devtarget':   Param('Target of the underlying tango device',
+        'devtarget':   Param('Target of the underlying entangle device',
                              volatile=True)
     }
 
@@ -100,15 +116,15 @@ class SEController(TemperatureController):
         return TemperatureController.isAtTarget(self, target=target)
 
 
-class PressureController(TemperatureController):
+class PressureController(entangle.TemperatureController):
     """Device to be able to set the pressure manually.
     Pressure is set via the controller, which is supposed to handle the limits
     within which setting pressure is allowed.
     """
 
     parameters = {
-        'controller': Param('SEController device name', type=tangodev,
-                             mandatory=True, preinit=True),
+        'controller':        Param('SEController device name', type=tangodev,
+                                   mandatory=True, preinit=True),
         'pressuretolerance': Param('Tolerance for the adjustment of the '
                                    'pressure',
                                    settable=True, volatile=True)
@@ -122,8 +138,14 @@ class PressureController(TemperatureController):
         else:
             self._controller = HardwareStub(self)
 
-    def doStart(self, target):
-        self._controller.setPressure(target)
+    def doStart(self, value):
+        cval = self._dev.value
+
+        if cval - self.pressuretolerance < value < cval + self.pressuretolerance:
+            self.log.warning('Pressure already within tolerance of %.2f mbar ',
+                             self.pressuretolerance, value)
+        else:
+            self._controller.setPressure(value)
 
     def doStop(self):
         pass

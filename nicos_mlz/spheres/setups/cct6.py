@@ -16,9 +16,10 @@ devices = dict(
         maxage = 5,
         precision = 0.1
     ),
-    cct6_T_sample = device('nicos.devices.entangle.TemperatureController',
+    cct6_T_sample = device('nicos_mlz.spheres.devices.sample.TemperatureController',
         description = 'Sample temperature regulation',
         tangodevice = tango_sample + 'samplecontroller',
+        heater = 'cct6_h_sample',
         pollinterval = 2,
         maxage = 5,
         abslimits = (0, 500),
@@ -26,9 +27,10 @@ devices = dict(
         visibility = (),
         unit = 'K'
     ),
-    cct6_T_tube = device('nicos.devices.entangle.TemperatureController',
+    cct6_T_tube = device('nicos_mlz.spheres.devices.sample.TemperatureController',
         description = 'Tube temperature regulation',
         tangodevice = tango_sample + 'tubecontroller',
+        heater = 'cct6_h_tube',
         pollinterval = 2,
         maxage = 5,
         abslimits = (0, 300),
