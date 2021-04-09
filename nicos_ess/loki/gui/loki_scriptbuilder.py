@@ -66,6 +66,21 @@ class LokiScriptModel(QAbstractTableModel):
         if role == Qt.DisplayRole and orientation == Qt.Vertical:
             return section + 1
 
+    def update_data_from_clipboard(self, copied_data, top_left_index):
+        # Copied data is tabular so insert at top-left most position
+        for row_index, row_data in enumerate(copied_data):
+            col_index = 0
+            for value in row_data:
+                if top_left_index[1] + col_index < len(self._data[0]):
+                    current_column = top_left_index[1] + col_index
+                    current_row = top_left_index[0] + row_index
+                    col_index += 1
+                    print(row_index, current_column, current_row, value)
+                    if current_row >= len(self._data):
+                        self._data.insert(current_row, [''] * len(self.headerData))
+                    self._data[current_row][current_column] = value
+            # TODO: Deal with hidden columns
+        self.layoutChanged.emit()
 
 class LokiScriptBuilderPanel(Panel):
     _available_trans_options = OrderedDict({
@@ -310,7 +325,6 @@ class LokiScriptBuilderPanel(Panel):
         lowest, highest = self._get_selected_rows_limits()
         if lowest is not None:
             self.tableView.model().insertRow(lowest)
-        print(self.tableView.model()._data)
 
     def _insert_row_below(self):
         _, highest = self._get_selected_rows_limits()
@@ -370,7 +384,33 @@ class LokiScriptBuilderPanel(Panel):
             return cell.text()
         return ''
 
+    def _new_handle_paste(self):
+        indices = []
+        for index in self.tableView.selectedIndexes():
+            indices.append((index.row(), index.column()))
+        top_left = indices[0]
+
+        clipboard_text = QApplication.instance().clipboard().text()
+        data_type = QApplication.instance().clipboard().mimeData()
+
+        if not data_type.hasText():
+            # Don't paste images etc.
+            return
+
+        copied_table = [[x for x in row.split('\t')]
+                        for row in clipboard_text.splitlines()]
+        print(copied_table)
+        print(indices)
+        if len(copied_table) == 1 and len(copied_table[0]) == 1:
+            # TODO: Bulk update in model
+            # Only one value, so put it in all selected cells
+            self._do_bulk_update(copied_table[0][0])
+            return
+        self.model.update_data_from_clipboard(copied_table, top_left)
+
     def _handle_table_paste(self):
+        self._new_handle_paste()
+        return
         indices = []
         for index in self.tableScript.selectionModel().selectedIndexes():
             indices.append((index.row(), index.column()))
