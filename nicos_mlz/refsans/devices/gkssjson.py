@@ -23,6 +23,8 @@
 # *****************************************************************************
 """REFSANS SDS (safe detector system) devices."""
 
+import os
+
 import requests
 
 from nicos.core import HasPrecision, Override, Param, Readable, intrange, \
@@ -99,6 +101,8 @@ class CPTReadout(HasOffset, JsonBase):
             if self.phasesign == 'millisecond':
                 res *= 0.00002
                 # 1 == 20ns == 0.00002 ms
+            elif data['start_act'] == 0:
+                res = -1
             else:
                 res = 3e9 / res  # speed
                 res -= self.offset  # Zero
@@ -108,6 +112,8 @@ class CPTReadout(HasOffset, JsonBase):
             res = data[self.valuekey][6]
             if self.phasesign == 'millisecond':
                 res *= 0.00002
+            elif data['start_act'] == 0:
+                res = -1
             else:
                 res = -360.0 * res / data['start_act']
                 res = self._kreis(res)
@@ -117,6 +123,8 @@ class CPTReadout(HasOffset, JsonBase):
             res = data[self.valuekey][channel]
             if self.phasesign == 'millisecond':
                 res *= 0.00002
+            elif data['start_act'] == 0:
+                res = -1
             else:
                 res = -360.0 * res / data['start_act']
                 res -= self.offset
@@ -191,12 +199,22 @@ class SdsRatemeter(JsonBase):
         self.log.debug('WriteMode to: %s', target)
         val = int(self.masks[target])
         try:
-            res = requests.post(self.controlurl, timeout=self.timeout,
-                                data={'mon_limit_start': '%d' % val})
-            if res.status_code != 200:
-                self.log.error('write mode: res %d %s', res.status_code,
-                               res.reason)
-            res.close()
+            if True:
+                os.system('curl -d "mon_limit_start=%d" -X POST %s' %
+                          (int(round(val)), self.controlurl))
+            else:
+                line = 'requests.post('
+                line += self.controlurl+','
+                line += 'timeout=%f,' % self.timeout
+                line += "data={'mon_limit_start': '%d'}" % val
+                line += ')'
+                self.log.debug(line)
+                res = requests.post(self.controlurl, timeout=self.timeout,
+                                    data={'mon_limit_start': '%d' % val})
+                if res.status_code != 200:
+                    self.log.error('write mode: res %d %s', res.status_code,
+                                   res.reason)
+                res.close()
         except ConnectionError as e:
             self.log.error('write mode: %s', e)
 
@@ -208,11 +226,22 @@ class SdsRatemeter(JsonBase):
         if self._sim_intercept:
             return
         try:
-            res = requests.post(self.controlurl, timeout=self.timeout,
-                                data={'mon_button': '1'})
-            if res.status_code != 200:
-                self.log.error('clear res: %d %s', res.status_code, res.reason)
-            res.close()
+            if True:
+                os.system('curl -d "mon_button=1" -X POST %s' %
+                          self.controlurl)
+            else:
+                line = 'requests.post('
+                line += self.controlurl+','
+                line += 'timeout=%f,' % self.timeout
+                line += "data={'mon_button': '1'}"
+                line += ')'
+                self.log.debug(line)
+                res = requests.post(self.controlurl, timeout=self.timeout,
+                                    data={'mon_button': '1'})
+                if res.status_code != 200:
+                    self.log.error(
+                        'clear res: %d %s', res.status_code, res.reason)
+                res.close()
         except ConnectionError as e:
             self.log.error('clear: %s', e)
 

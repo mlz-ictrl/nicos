@@ -9,13 +9,13 @@ code_base = instrument_values['code_base']
 URL = instrument_values['url_base'] % 'savedetector'
 
 devices = dict(
-    sds = device(code_base + 'gkssjson.SdsRatemeter',
+    safedetectorsystem = device(code_base + 'gkssjson.SdsRatemeter',
         description = description,
         # valuekey = 'time',
         valuekey = 'mon_alarm',
         unit = 'cps',
         url = URL + 'json?1',
-        controlurl = 'control.html',
+        controlurl = URL + 'control.html',
         masks = {
             'reflectivity': 200,
             'gisans': 100,
