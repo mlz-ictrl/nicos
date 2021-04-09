@@ -5,7 +5,7 @@ import os.path as osp
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
-    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot, QAbstractTableModel
+    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot, QAbstractTableModel, QModelIndex
 from nicos.utils import findResource
 from nicos_ess.gui.utilities.load_save_tables import load_table_from_csv, \
     save_table_to_csv
@@ -21,6 +21,9 @@ class LokiScriptModel(QAbstractTableModel):
         self._data = [
             [1,2,3],
             [4,5,6],
+            [1,2,3],
+            [1,2,3],
+            [1,2,3],
         ]
 
         self.headerData = ["a","b", "c"]
@@ -40,9 +43,11 @@ class LokiScriptModel(QAbstractTableModel):
     def columnCount(self, index):
         return len(self._data[0])
 
-    def add_row(self):
-        self._data.append([7,8,9])
-        self.layoutChanged.emit()
+    def insertRow(self, position, index=QModelIndex()):
+        self.beginInsertRows(index, position, position)
+        self._data.insert(position, [''] * len(self.headerData))
+        self.endInsertRows()
+        return True
 
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
@@ -150,8 +155,9 @@ class LokiScriptBuilderPanel(Panel):
 
     @pyqtSlot()
     def on_cutButton_clicked(self):
-        self.model.add_row()
-        # self.model.layoutChanged.emit()
+        # self.model.add_row()
+        self.model._data.append([7, 8, 9])
+        self.model.layoutChanged.emit()
         # self._handle_cut_cells()
 
     @pyqtSlot()
@@ -295,22 +301,19 @@ class LokiScriptBuilderPanel(Panel):
             self.tableScript.removeRow(row_num)
 
     def _insert_row_above(self):
-        lowest, _ = self._get_selected_rows_limits()
+        lowest, highest = self._get_selected_rows_limits()
         if lowest is not None:
-            self.tableScript.insertRow(lowest)
+            self.tableView.model().insertRow(lowest)
 
     def _insert_row_below(self):
         _, highest = self._get_selected_rows_limits()
         if highest is not None:
-            self.tableScript.insertRow(highest + 1)
+            self.tableView.model().insertRow(highest + 1)
 
     def _get_selected_rows_limits(self):
-        if self.tableScript.rowCount() == 0:
-            return 0, -1
-
         lowest = None
         highest = None
-        for index in self.tableScript.selectionModel().selectedIndexes():
+        for index in self.tableView.selectedIndexes():
             if lowest is None:
                 lowest = index.row()
                 highest = index.row()
