@@ -387,6 +387,9 @@
    <property name="shortcut">
     <string>Ctrl+V</string>
    </property>
+      <property name="shortcutContext">
+    <enum>Qt::WidgetShortcut</enum>
+   </property>
   </action>
   <action name="actionDeleteRows">
    <property name="icon">

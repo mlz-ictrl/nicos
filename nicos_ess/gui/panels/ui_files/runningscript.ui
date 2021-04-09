@@ -169,9 +169,6 @@ border-color: darkgrey;</string>
    <property name="shortcut">
     <string>Ctrl+C</string>
    </property>
-   <property name="shortcutContext">
-    <enum>Qt::WidgetShortcut</enum>
-   </property>
   </action>
   <action name="actionAllowLineWrap">
    <property name="checkable">
