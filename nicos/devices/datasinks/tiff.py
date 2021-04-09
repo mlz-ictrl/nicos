@@ -38,7 +38,7 @@ except ImportError as e:
 
 class TIFFImageSinkHandler(SingleFileSinkHandler):
 
-    filetype = 'TIFF'
+    filetype = 'tiff'
     defer_file_creation = True
     accept_final_images_only = True
 
@@ -78,8 +78,7 @@ class TIFFImageSink(ImageSink):
 
 class TIFFFileReader(ImageFileReader):
     filetypes = [
-        ('tiff', 'TIFF File (*.tiff)'),
-        ('tif', 'TIFF File (*.tif)')
+        ('tiff', 'TIFF File (*.tiff *.tif)'),
     ]
 
     @classmethod
@@ -89,6 +88,6 @@ class TIFFFileReader(ImageFileReader):
                              'available. Please check whether it is installed '
                              'and in your PYTHONPATH' % _import_error)
         with Image.open(filename) as im:
-            if im.getbands() == 'I':  # single band == gray picture
+            if im.getbands() in ('I', ('I',)):  # single band == gray picture
                 return numpy.asarray(im)
             raise NicosError('Only monochrome pictures supported')
