@@ -244,6 +244,8 @@ cptoptic = ['cptoptic', 4]
 
 analog_encoder = '_acc'
 
+attenuator = 'attenuator'
+
 environment = [
     'julabo_ext', 'julabo_int', 'julabo_temp',
     'active_regulator',
@@ -355,6 +357,7 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             self._data['optic_mode'] = self._dict()
             self._data['cpt'] = self._dict()
             self._data['analog_encoder'] = self._dict()
+            self._data['Attenuators'] = self._dict()
             self._data['environment'] = self._dict()
 
     def begin(self):
@@ -455,6 +458,14 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
                 self._data['cpt'][dev] = metainfo[dev, 'value'][0]
             except KeyError:
                 pass
+
+    def _write_attenuators(self, metainfo):
+        keys = list(metainfo.keys())
+        for tup in keys:
+            if tup[1] == 'value' and attenuator in tup[0]:
+                element_part.append(tup[0])
+                self._data['Attenuators'][tup[0]] = metainfo[tup[0],
+                                                             'value'][0]
 
     def _write_analog_encoder(self, metainfo):
         keys = list(metainfo.keys())
@@ -560,6 +571,7 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             self._write_safetysystem(metainfo)
             self._write_cpt(metainfo)
             self._write_analog_encoder(metainfo)
+            self._write_attenuators(metainfo)
             self._write_environment(metainfo)
 
         elements = []
