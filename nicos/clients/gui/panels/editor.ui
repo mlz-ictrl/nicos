@@ -323,6 +323,9 @@
    <property name="shortcut">
     <string>Ctrl+X</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetShortcut</enum>
+   </property>
   </action>
   <action name="actionCopy">
    <property name="icon">
