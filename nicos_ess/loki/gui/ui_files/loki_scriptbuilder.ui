@@ -369,6 +369,9 @@
    <property name="shortcut">
     <string>Ctrl+C</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetShortcut</enum>
+   </property>
   </action>
   <action name="actionPaste">
    <property name="icon">
@@ -386,7 +389,7 @@
    </property>
   </action>
   <action name="actionDeleteRows">
-  <property name="icon">
+   <property name="icon">
     <iconset>
      <normaloff>:/close</normaloff>:/close</iconset>
    </property>
