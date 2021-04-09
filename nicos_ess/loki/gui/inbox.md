@@ -1,10 +1,19 @@
 ## TODO
-- Associate QTable and model. Investigate
+- Add cut and copy in model.
+- Bulk update.
+- Handle hidden columns.
+- Update headers title from combobox.
+- load and save.
+- generate script from model.
+
 - For simultaneous what to do and what values to use.
 - Remove trailing rows but keep rows in between.
 - In simultaneous mode, use DO_SANS and use the time from SANS.
   - Warning if different times in SANS and TRANS. Or Gray out.
   - Use SANS times always and just do DO_SANS
+
+- Script factory. (Different ticket)
+
 
 ## DONE
 - pass data to save_csv method rather than QTableWidget.
@@ -14,3 +23,4 @@
 - Add units in do_trans and do_sans.
 - Add options "do_trans then do_sans" and "do_sans then do_trans" in combobox.
 - Move code from on_generateScriptButton_clicked to separate class (ScriptGenerator)
+- Associate QTable and model. Investigate

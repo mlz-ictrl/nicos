@@ -19,15 +19,23 @@ TABLE_QSS = 'alternate-background-color: aliceblue;'
 class LokiScriptModel(QAbstractTableModel):
     def __init__(self):
         super().__init__()
-        self._data = [
-            [1,2,3],
-            [4,5,6],
-            [7,8,9],
-            [10,11,12],
-            [13,14,15],
-        ]
 
-        self.headerData = ["a","b", "c"]
+        self.permanent_columns = {
+            'position': 'Position',
+            'sample': 'Sample',
+            'thickness': 'Thickness\n(mm)',
+            'trans_duration': 'TRANS Duration',
+            'sans_duration': 'SANS Duration'
+        }
+
+        self.optional_columns = {}
+
+        self.columns_in_order = [name for name in self.permanent_columns.keys()]
+        self.columns_in_order.extend(self.optional_columns.keys())
+        self.headerData = self.columns_in_order
+        self._data = []
+        for _ in range(25):
+            self.create_empty_row(0)
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
@@ -44,9 +52,12 @@ class LokiScriptModel(QAbstractTableModel):
     def columnCount(self, index):
         return len(self._data[0])
 
+    def create_empty_row(self, position):
+        self._data.insert(position, [''] * len(self.headerData))
+
     def insertRow(self, position, index=QModelIndex()):
         self.beginInsertRows(index, position, position)
-        self._data.insert(position, [''] * len(self.headerData))
+        self.create_empty_row(position)
         self.endInsertRows()
         return True
 
@@ -75,12 +86,30 @@ class LokiScriptModel(QAbstractTableModel):
                     current_column = top_left_index[1] + col_index
                     current_row = top_left_index[0] + row_index
                     col_index += 1
-                    print(row_index, current_column, current_row, value)
                     if current_row >= len(self._data):
-                        self._data.insert(current_row, [''] * len(self.headerData))
+                        self.create_empty_row(current_row)
+                    # TODO: Handle hidden columns
                     self._data[current_row][current_column] = value
-            # TODO: Deal with hidden columns
+
         self.layoutChanged.emit()
+
+    def select_data(self, selected_indices):
+
+        curr_row = -1
+        row_data = []
+        selected_data = []
+        for row, column in selected_indices:
+            if row != curr_row:
+                if row_data:
+                    selected_data.append('\t'.join(row_data))
+                    row_data.clear()
+            curr_row = row
+            row_data.append(self._data[row][column])
+        # TODO: Handle hidden columns
+        if row_data:
+            selected_data.append('\t'.join(row_data))
+            row_data.clear()
+        return selected_data
 
 class LokiScriptBuilderPanel(Panel):
     _available_trans_options = OrderedDict({
@@ -352,30 +381,19 @@ class LokiScriptBuilderPanel(Panel):
             self._update_cell(index.row(), index.column(), '')
 
     def _handle_copy_cells(self):
-        if len(self.tableScript.selectedRanges()) != 1:
-            # Can only select one continuous region to copy
-            return
+        # TODO: Handle non continuos selection
+        # if len(self.tableView.selectedRanges()) != 1:
+        #     # Can only select one continuous region to copy
+        #     return
         selected_data = self._extract_selected_data()
         QApplication.instance().clipboard().setText('\n'.join(selected_data))
 
     def _extract_selected_data(self):
-        selected_data = []
-        row_data = []
-        curr_row = -1
-        for index in self.tableScript.selectionModel().selectedIndexes():
-            if self.tableScript.isColumnHidden(index.column()):
-                # Don't copy hidden columns
-                continue
-            if curr_row != index.row():
-                if row_data:
-                    selected_data.append('\t'.join(row_data))
-                    row_data.clear()
-                curr_row = index.row()
-            cell_text = self._get_cell_text(index.row(), index.column())
-            row_data.append(cell_text)
-        if row_data:
-            selected_data.append('\t'.join(row_data))
-            row_data.clear()
+        selected_indices = []
+        for index in self.tableView.selectedIndexes():
+            selected_indices.append((index.row(), index.column()))
+
+        selected_data = self.model.select_data(selected_indices)
         return selected_data
 
     def _get_cell_text(self, row, column):
@@ -384,7 +402,7 @@ class LokiScriptBuilderPanel(Panel):
             return cell.text()
         return ''
 
-    def _new_handle_paste(self):
+    def _handle_table_paste(self):
         indices = []
         for index in self.tableView.selectedIndexes():
             indices.append((index.row(), index.column()))
@@ -399,51 +417,13 @@ class LokiScriptBuilderPanel(Panel):
 
         copied_table = [[x for x in row.split('\t')]
                         for row in clipboard_text.splitlines()]
-        print(copied_table)
-        print(indices)
+
         if len(copied_table) == 1 and len(copied_table[0]) == 1:
             # TODO: Bulk update in model
             # Only one value, so put it in all selected cells
             self._do_bulk_update(copied_table[0][0])
             return
         self.model.update_data_from_clipboard(copied_table, top_left)
-
-    def _handle_table_paste(self):
-        self._new_handle_paste()
-        return
-        indices = []
-        for index in self.tableScript.selectionModel().selectedIndexes():
-            indices.append((index.row(), index.column()))
-        top_left = indices[0]
-
-        clipboard_text = QApplication.instance().clipboard().text()
-        data_type = QApplication.instance().clipboard().mimeData()
-
-        if not data_type.hasText():
-            # Don't paste images etc.
-            return
-
-        copied_table = [[x for x in row.split('\t')]
-                        for row in clipboard_text.splitlines()]
-
-        if len(copied_table) == 1 and len(copied_table[0]) == 1:
-            # Only one value, so put it in all selected cells
-            self._do_bulk_update(copied_table[0][0])
-            return
-
-        # Copied data is tabular so insert at top-left most position
-        for row_index, row_data in enumerate(copied_table):
-            col_index = 0
-            for value in row_data:
-                while top_left[1] + col_index < self.tableScript.columnCount():
-                    current_column = top_left[1] + col_index
-                    current_row = top_left[0] + row_index
-                    col_index += 1
-                    # Only paste into visible columns
-                    if not self.tableScript.isColumnHidden(current_column):
-                        self._update_cell(current_row, current_column, value)
-                        self._select_cell(current_row, current_column)
-                        break
 
     def _select_cell(self, row, column):
         item = self.tableScript.item(row, column)
