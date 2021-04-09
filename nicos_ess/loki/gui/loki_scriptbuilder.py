@@ -1,16 +1,17 @@
+import os.path as osp
 from collections import OrderedDict
 from functools import partial
-import os.path as osp
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
-    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot, QAbstractTableModel, QModelIndex
+from nicos.guisupport.qt import QAbstractTableModel, QApplication, \
+    QFileDialog, QHeaderView, QKeySequence, QModelIndex, QShortcut, Qt, \
+    QTableWidgetItem, pyqtSlot
 from nicos.utils import findResource
+
 from nicos_ess.gui.utilities.load_save_tables import load_table_from_csv, \
     save_table_to_csv
 from nicos_ess.loki.gui.script_generator import ScriptGenerator, TransOrder
-
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
@@ -21,9 +22,9 @@ class LokiScriptModel(QAbstractTableModel):
         self._data = [
             [1,2,3],
             [4,5,6],
-            [1,2,3],
-            [1,2,3],
-            [1,2,3],
+            [7,8,9],
+            [10,11,12],
+            [13,14,15],
         ]
 
         self.headerData = ["a","b", "c"]
@@ -47,6 +48,13 @@ class LokiScriptModel(QAbstractTableModel):
         self.beginInsertRows(index, position, position)
         self._data.insert(position, [''] * len(self.headerData))
         self.endInsertRows()
+        return True
+
+    def removeRows(self, rows, index=QModelIndex()):
+        for row in sorted(rows, reverse=True):
+            self.beginRemoveRows(QModelIndex(), row, row)
+            del self._data[row]
+            self.endRemoveRows()
         return True
 
     def flags(self, index):
@@ -293,17 +301,16 @@ class LokiScriptBuilderPanel(Panel):
 
     def _delete_rows(self):
         rows_to_remove = set()
-        for index in self.tableScript.selectionModel().selectedIndexes():
+        for index in self.tableView.selectedIndexes():
             rows_to_remove.add(index.row())
         rows_to_remove = list(rows_to_remove)
-        rows_to_remove.sort(reverse=True)
-        for row_num in rows_to_remove:
-            self.tableScript.removeRow(row_num)
+        self.tableView.model().removeRows(rows_to_remove)
 
     def _insert_row_above(self):
         lowest, highest = self._get_selected_rows_limits()
         if lowest is not None:
             self.tableView.model().insertRow(lowest)
+        print(self.tableView.model()._data)
 
     def _insert_row_below(self):
         _, highest = self._get_selected_rows_limits()
