@@ -83,6 +83,15 @@ class LokiScriptBuilderPanel(Panel):
 
         self.tableScript.setRowCount(num_rows)
 
+        QShortcut(QKeySequence.Paste, self.tableScript).activated.connect(
+            self._handle_table_paste)
+
+        QShortcut(QKeySequence.Cut, self.tableScript).activated.connect(
+            self._handle_cut_cells)
+
+        QShortcut(QKeySequence.Copy, self.tableScript).activated.connect(
+            self._handle_copy_cells)
+
     @pyqtSlot()
     def on_actionCopy_triggered(self):
         self._handle_copy_cells()
