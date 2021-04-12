@@ -55,6 +55,10 @@ class LokiScriptModel(QAbstractTableModel):
     def create_empty_row(self, position):
         self._data.insert(position, [''] * len(self.headerData))
 
+    def update_cell(self, row, column):
+        self._data[row][column] = ''
+        self.layoutChanged.emit()
+
     def insertRow(self, position, index=QModelIndex()):
         self.beginInsertRows(index, position, position)
         self.create_empty_row(position)
@@ -207,10 +211,7 @@ class LokiScriptBuilderPanel(Panel):
 
     @pyqtSlot()
     def on_cutButton_clicked(self):
-        # self.model.add_row()
-        self.model._data.append([7, 8, 9])
-        self.model.layoutChanged.emit()
-        # self._handle_cut_cells()
+        self._handle_cut_cells()
 
     @pyqtSlot()
     def on_copyButton_clicked(self):
@@ -377,8 +378,8 @@ class LokiScriptBuilderPanel(Panel):
         self._handle_delete_cells()
 
     def _handle_delete_cells(self):
-        for index in self.tableScript.selectionModel().selectedIndexes():
-            self._update_cell(index.row(), index.column(), '')
+        for index in self.tableView.selectedIndexes():
+            self.model.update_cell(index.row(), index.column())
 
     def _handle_copy_cells(self):
         # TODO: Handle non continuos selection
@@ -417,7 +418,6 @@ class LokiScriptBuilderPanel(Panel):
 
         copied_table = [[x for x in row.split('\t')]
                         for row in clipboard_text.splitlines()]
-
         if len(copied_table) == 1 and len(copied_table[0]) == 1:
             # TODO: Bulk update in model
             # Only one value, so put it in all selected cells
