@@ -258,6 +258,10 @@ class LokiScriptBuilderPanel(Panel):
         indices = []
         for index in self.tableScript.selectionModel().selectedIndexes():
             indices.append((index.row(), index.column()))
+
+        if not indices:
+            return
+
         top_left = indices[0]
 
         clipboard_text = QApplication.instance().clipboard().text()
