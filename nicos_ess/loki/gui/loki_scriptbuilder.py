@@ -93,22 +93,6 @@ class LokiScriptBuilderPanel(Panel):
         copy_shortcut.setContext(Qt.WidgetShortcut)
 
     @pyqtSlot()
-    def on_actionCopy_triggered(self):
-        self._handle_copy_cells()
-
-    @pyqtSlot()
-    def on_actionCut_triggered(self):
-        self._handle_cut_cells()
-
-    @pyqtSlot()
-    def on_actionPaste_triggered(self):
-        self._handle_table_paste()
-
-    @pyqtSlot()
-    def on_actionDeleteRows_triggered(self):
-        self._delete_rows()
-
-    @pyqtSlot()
     def on_cutButton_clicked(self):
         self._handle_cut_cells()
 
