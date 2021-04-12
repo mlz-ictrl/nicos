@@ -39,6 +39,7 @@ from nicos.guisupport.qt import QDialog, QDialogButtonBox, QFileDialog, \
 from nicos.guisupport.utils import DoubleValidator
 from nicos.utils import findResource
 
+from nicos_ess.loki.gui.connection_listener import ConnectionListener
 
 SAMPLE_KEYS = ('position', 'thickness', 'comment')
 
@@ -219,7 +220,7 @@ class ConfigEditDialog(QDialog):
             self._addRow('sam_y', self._readDev('sam_y'))
 
 
-class LokiSamplePanel(Panel):
+class LokiSamplePanel(Panel, ConnectionListener):
     panelName = 'LoKI sample setup'
 
     def __init__(self, parent, client, options):
@@ -252,14 +253,6 @@ class LokiSamplePanel(Panel):
         self.unapplied_changes = False
         self.applyBtn.setEnabled(False)
         self.initialise_connection_status_listeners()
-
-    def initialise_connection_status_listeners(self):
-        if self.client.isconnected:
-            self.on_client_connected()
-        else:
-            self.on_client_disconnected()
-        self.client.connected.connect(self.on_client_connected)
-        self.client.disconnected.connect(self.on_client_disconnected)
 
     def on_client_connected(self):
         self.setViewOnly(self.client.viewonly)

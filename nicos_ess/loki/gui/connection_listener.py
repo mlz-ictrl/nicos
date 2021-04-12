@@ -22,34 +22,20 @@
 #
 # *****************************************************************************
 
-"""LoKI Experiment Configuration dialog."""
-
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QFrame
-from nicos.utils import findResource
-
-from nicos_ess.loki.gui.connection_listener import ConnectionListener
 
 
-class LokiExperimentPanel(Panel, ConnectionListener):
-    panelName = 'LoKI Instrument Setup'
-
+class ConnectionListener(Panel):
+    """
+    This is the base class that listens connection status.
+    """
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, findResource('nicos_ess/loki/gui/ui_files/exp_config.ui'))
-        
-        self.experiment_frame = QFrame(self)
 
-        self.holder_info = options.get('holder_info', [])
-        self.instrument = options.get('instrument', 'loki')
-        self.initialise_connection_status_listeners()
-
-    def on_client_connected(self):
-        self.setViewOnly(self.client.viewonly)
-
-    def on_client_disconnected(self):
-        self.setViewOnly(True)
-
-    def setViewOnly(self, viewonly):
-        pass
+    def initialise_connection_status_listeners(self):
+        if self.client.isconnected:
+            self.on_client_connected()
+        else:
+            self.on_client_disconnected()
+        self.client.connected.connect(self.on_client_connected)
+        self.client.disconnected.connect(self.on_client_disconnected)

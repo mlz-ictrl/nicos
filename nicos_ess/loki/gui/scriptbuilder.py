@@ -30,8 +30,10 @@ from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QAction, QMenu, QToolButton, pyqtSlot
 from nicos.utils import importString, findResource
 
+from nicos_ess.loki.gui.connection_listener import ConnectionListener
 
-class CommandsPanel(Panel):
+
+class CommandsPanel(Panel, ConnectionListener):
     """Provides a panel to create via click-and-choose multiple NICOS commands.
 
     This panel allows the user to create a series of NICOS commands with
@@ -55,12 +57,7 @@ class CommandsPanel(Panel):
         self.mapping = {}
         self.expertmode = self.mainwindow.expertmode
 
-        if client.isconnected:
-            self.on_client_connected()
-        else:
-            self.on_client_disconnected()
-        client.connected.connect(self.on_client_connected)
-        client.disconnected.connect(self.on_client_disconnected)
+        self.initialise_connection_status_listeners()
 
         modules = options.get('modules', [])
         for module in modules:
