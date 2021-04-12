@@ -20,9 +20,6 @@ class LokiScriptBuilderPanel(Panel):
                )
 
         self.window = parent
-        self.menus = None
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.on_context_menu)
 
         self.trans_options = ['TRANS First', 'SANS First', 'Simultaneous']
 
@@ -347,12 +344,3 @@ class LokiScriptBuilderPanel(Panel):
 
     def _set_column_title(self, index, title):
         self.tableScript.setHorizontalHeaderItem(index, QTableWidgetItem(title))
-
-    def on_context_menu(self, pos):
-        context = QMenu(self)
-        context.addAction(self.actionCut)
-        context.addAction(self.actionCopy)
-        context.addAction(self.actionPaste)
-        context.addSeparator()
-        context.addAction(self.actionDeleteRows)
-        context.exec_(self.mapToGlobal(pos))
