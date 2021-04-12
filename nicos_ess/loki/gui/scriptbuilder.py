@@ -56,6 +56,10 @@ class CommandsPanel(LokiPanelBase):
         self.mapping = {}
         self.expertmode = self.mainwindow.expertmode
 
+        self._cmdlet = self.sender()
+        self._layout = self.frame.layout()
+        self.index = self._layout.indexOf(self._cmdlet)
+
         self.initialise_connection_status_listeners()
 
         modules = options.get('modules', [])
@@ -107,38 +111,25 @@ class CommandsPanel(LokiPanelBase):
         self.frame.setEnabled(False)
 
     def on_cmdletRemove(self):
-        cmdlet = self.sender()
-        layout = self.frame.layout()
+        self._layout.removeWidget(self._cmdlet)
+        self._cmdlet.hide()
 
-        layout.removeWidget(cmdlet)
-        cmdlet.hide()
-
-        if layout.count() < 3:
+        if self._layout.count() < 3:
             self.runBtn.setVisible(False)
 
     def on_cmdletUp(self):
-        cmdlet = self.sender()
-        layout = self.frame.layout()
-
-        index = layout.indexOf(cmdlet)
-
-        if not index:
+        if not self.index:
             return
 
-        layout.removeWidget(cmdlet)
-        layout.insertWidget(index - 1, cmdlet)
+        self._layout.removeWidget(self._cmdlet)
+        self._layout.insertWidget(self.index - 1, self._cmdlet)
 
     def on_cmdletDown(self):
-        cmdlet = self.sender()
-        layout = self.frame.layout()
-
-        index = layout.indexOf(cmdlet)
-
-        if index >= (layout.count() - 3):
+        if self.index >= (self._layout.count() - 3):
             return
 
-        layout.removeWidget(cmdlet)
-        layout.insertWidget(index + 1, cmdlet)
+        self._layout.removeWidget(self._cmdlet)
+        self._layout.insertWidget(self.index + 1, self._cmdlet)
 
     @pyqtSlot()
     def on_runBtn_clicked(self):
@@ -147,8 +138,8 @@ class CommandsPanel(LokiPanelBase):
         mode = 'python'
         if self.client.eval('session.spMode', False):
             mode = 'simple'
-        for i in range(self.frame.layout().count() - 2):
-            cmdlet = self.frame.layout().itemAt(i).widget()
+        for i in range(self._layout.count() - 2):
+            cmdlet = self._layout.itemAt(i).widget()
             valid = valid and cmdlet.isValid()
             generated = cmdlet.generate(mode)
             if not generated.endswith('\n'):
