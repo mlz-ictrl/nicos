@@ -25,13 +25,14 @@
 """NICOS GUI multiple cmdlet script-builder input."""
 
 from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
-from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QAction, QMenu, QToolButton, pyqtSlot
 from nicos.utils import importString, findResource
 
+from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 
-class CommandsPanel(Panel):
+
+class CommandsPanel(LokiPanelBase):
     """Provides a panel to create via click-and-choose multiple NICOS commands.
 
     This panel allows the user to create a series of NICOS commands with
@@ -46,7 +47,7 @@ class CommandsPanel(Panel):
     panelName = 'Commands'
 
     def __init__(self, parent, client, options):
-        Panel.__init__(self, parent, client, options)
+        LokiPanelBase.__init__(self, parent, client, options)
         loadUi(self,
                findResource('nicos_ess/loki/gui/ui_files/scriptbuilder.ui'))
 
@@ -55,12 +56,7 @@ class CommandsPanel(Panel):
         self.mapping = {}
         self.expertmode = self.mainwindow.expertmode
 
-        if client.isconnected:
-            self.on_client_connected()
-        else:
-            self.on_client_disconnected()
-        client.connected.connect(self.on_client_connected)
-        client.disconnected.connect(self.on_client_disconnected)
+        self.initialise_connection_status_listeners()
 
         modules = options.get('modules', [])
         for module in modules:
