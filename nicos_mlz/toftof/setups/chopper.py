@@ -5,7 +5,6 @@ group = 'lowlevel'
 includes = ['choppermemograph']
 
 tango_host = 'tango://tofhw.toftof.frm2:10000/'
-nethost = 'toftofsrv.toftof.frm2'
 
 devices = dict(
     ch = device('nicos_mlz.toftof.devices.chopper.Controller',
