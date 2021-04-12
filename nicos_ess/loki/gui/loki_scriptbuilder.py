@@ -348,18 +348,6 @@ class LokiScriptBuilderPanel(Panel):
     def _set_column_title(self, index, title):
         self.tableScript.setHorizontalHeaderItem(index, QTableWidgetItem(title))
 
-    def getMenus(self):
-        menuEdit = QMenu('&Edit', self)
-        menuEdit.addAction(self.actionCut)
-        menuEdit.addAction(self.actionCopy)
-        menuEdit.addAction(self.actionPaste)
-
-        menuTable = QMenu('&Table', self)
-        menuTable.addAction(self.actionDeleteRows)
-
-        self.menus = [menuEdit, menuTable]
-        return self.menus
-
     def on_context_menu(self, pos):
         context = QMenu(self)
         context.addAction(self.actionCut)
