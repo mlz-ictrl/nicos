@@ -21,30 +21,39 @@ class LokiScriptModel(QAbstractTableModel):
         super().__init__()
 
         self._header_data = header_data
-        self._data = []
+        self._table_data = []
         for _ in range(num_rows):
             self.create_empty_row(0)
 
+    @property
+    def table_data(self):
+        return self._table_data
+
+    @table_data.setter
+    def table_data(self, value):
+        self._table_data = value
+        self.layoutChanged.emit()
+
     def data(self, index, role):
         if role == Qt.DisplayRole:
-            return self._data[index.row()][index.column()]
+            return self._table_data[index.row()][index.column()]
 
     def setData(self, index, value, role):
         if role == Qt.EditRole:
-            self._data[index.row()][index.column()] = value
+            self._table_data[index.row()][index.column()] = value
             return True
 
     def rowCount(self, index):
-        return len(self._data)
+        return len(self._table_data)
 
     def columnCount(self, index):
-        return len(self._data[0])
+        return len(self._table_data[0])
 
     def create_empty_row(self, position):
-        self._data.insert(position, [''] * len(self._header_data))
+        self._table_data.insert(position, [''] * len(self._header_data))
 
-    def update_data_at_index(self, index, value):
-        self._data[index.row()][index.column()] = value
+    def update_data_at_index(self, row, column, value):
+        self._table_data[row][column] = value
         self.layoutChanged.emit()
 
     def insertRow(self, position, index=QModelIndex()):
@@ -56,7 +65,7 @@ class LokiScriptModel(QAbstractTableModel):
     def removeRows(self, rows, index=QModelIndex()):
         for row in sorted(rows, reverse=True):
             self.beginRemoveRows(QModelIndex(), row, row)
-            del self._data[row]
+            del self._table_data[row]
             self.endRemoveRows()
         return True
 
@@ -80,19 +89,18 @@ class LokiScriptModel(QAbstractTableModel):
         for row_index, row_data in enumerate(copied_data):
             col_index = 0
             for value in row_data:
-                if top_left_index[1] + col_index < len(self._data[0]):
+                if top_left_index[1] + col_index < len(self._table_data[0]):
                     current_column = top_left_index[1] + col_index
                     current_row = top_left_index[0] + row_index
                     col_index += 1
-                    if current_row >= len(self._data):
+                    if current_row >= len(self._table_data):
                         self.create_empty_row(current_row)
                     # TODO: Handle hidden columns
-                    self._data[current_row][current_column] = value
+                    self._table_data[current_row][current_column] = value
 
         self.layoutChanged.emit()
 
     def select_data(self, selected_indices):
-
         curr_row = -1
         row_data = []
         selected_data = []
@@ -102,12 +110,15 @@ class LokiScriptModel(QAbstractTableModel):
                     selected_data.append('\t'.join(row_data))
                     row_data.clear()
             curr_row = row
-            row_data.append(self._data[row][column])
+            row_data.append(self._table_data[row][column])
         # TODO: Handle hidden columns
         if row_data:
             selected_data.append('\t'.join(row_data))
             row_data.clear()
         return selected_data
+
+    def clear(self):
+        self.table_data = [[""] * len(self._table_data[0])] * len(self._table_data)
 
 
 class LokiScriptBuilderPanel(Panel):
@@ -233,11 +244,13 @@ class LokiScriptBuilderPanel(Panel):
         indices = [i for i, e in enumerate(self.columns_in_order)
                    if e in headers]
 
+        table_data = []
         for idx, row in enumerate(data):
             # create appropriate length list to fill the table row
             row = self._fill_elements(row, indices, len(self.columns_in_order))
-            for column in range(self.tableScript.columnCount()):
-                self._update_cell(idx, column, row[column])
+            table_data.append(row)
+
+        self.model.table_data = table_data
 
     def _fill_elements(self, row, indices, length):
         """Returns a list of len length, with elements of row placed at
@@ -293,24 +306,27 @@ class LokiScriptBuilderPanel(Panel):
 
     def _extract_headers_from_table(self):
         headers = []
-        for column in range(self.tableScript.columnCount()):
-            if not self.tableScript.isColumnHidden(column):
+        for column in range(len(self.columns_in_order)):
+            if not self.tableView.isColumnHidden(column):
                 headers.append(self.columns_in_order[column])
         return headers
 
     def _extract_data_from_table(self):
+        table_data = self.model.table_data
+        # Remove hidden columns from data
         data = []
-        for row in range(self.tableScript.rowCount()):
-            rowdata = []
-            for column in range(self.tableScript.columnCount()):
-                if not self.tableScript.isColumnHidden(column):
-                    item = self.tableScript.item(row, column)
-                    if item is not None:
-                        rowdata.append(item.text())
-                    else:
-                        rowdata.append("")
-            if any(rowdata):
-                data.append(rowdata)
+        for row, row_data in enumerate(table_data):
+            relevant_column = []
+            for column, column_data in enumerate(row_data):
+                if not self.tableView.isColumnHidden(column):
+                    relevant_column.append(column_data)
+            data.append(relevant_column)
+        # Remove the trailing empty rows
+        for row, row_data in reversed(list(enumerate(data))):
+            if any(row_data):
+                break
+            else:
+                data.pop(row)
         return data
 
     def _delete_rows(self):
@@ -348,7 +364,7 @@ class LokiScriptBuilderPanel(Panel):
 
     def _handle_delete_cells(self):
         for index in self.tableView.selectedIndexes():
-            self.model.update_data_at_index(index, "")
+            self.model.update_data_at_index(index.row(), index.column(), "")
 
     def _handle_copy_cells(self):
         # TODO: Handle non continuos selection
@@ -412,14 +428,11 @@ class LokiScriptBuilderPanel(Panel):
     def _do_bulk_update(self, value):
         for index in self.tableView.selectedIndexes():
             # TODO: Handle hidden columns
-            # if not self.tableScript.isColumnHidden(index.column()):
-            self.model.update_data_at_index(index, value)
+            self.model.update_data_at_index(index.row(), index.column(), value)
 
     @pyqtSlot()
     def on_clearTableButton_clicked(self):
-        for row in range(self.tableScript.rowCount()):
-            for column in range(self.tableScript.columnCount()):
-                self._update_cell(row, column, '')
+        self.model.clear()
 
     def _extract_labeled_data(self):
         table = []
@@ -477,4 +490,3 @@ class LokiScriptBuilderPanel(Panel):
 
     def _set_column_title(self, index, title):
         self.model.setHeaderData(index, Qt.Horizontal, title)
-        # self.tableScript.setHorizontalHeaderItem(index, QTableWidgetItem(title))
