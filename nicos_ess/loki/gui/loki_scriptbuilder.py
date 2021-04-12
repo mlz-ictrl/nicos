@@ -17,22 +17,22 @@ TABLE_QSS = 'alternate-background-color: aliceblue;'
 
 
 class LokiScriptModel(QAbstractTableModel):
-    def __init__(self):
+    def __init__(self, header_data):
         super().__init__()
 
-        self.permanent_columns = {
-            'position': 'Position',
-            'sample': 'Sample',
-            'thickness': 'Thickness\n(mm)',
-            'trans_duration': 'TRANS Duration',
-            'sans_duration': 'SANS Duration'
-        }
+        # self.permanent_columns = {
+        #     'position': 'Position',
+        #     'sample': 'Sample',
+        #     'thickness': 'Thickness\n(mm)',
+        #     'trans_duration': 'TRANS Duration',
+        #     'sans_duration': 'SANS Duration'
+        # }
 
-        self.optional_columns = {}
+        # self.optional_columns = {}
 
-        self.columns_in_order = [name for name in self.permanent_columns.keys()]
-        self.columns_in_order.extend(self.optional_columns.keys())
-        self.headerData = self.columns_in_order
+        # self.columns_in_order = [name for name in self.permanent_columns.keys()]
+        # self.columns_in_order.extend(self.optional_columns.keys())
+        self._header_data = header_data
         self._data = []
         for _ in range(25):
             self.create_empty_row(0)
@@ -53,7 +53,7 @@ class LokiScriptModel(QAbstractTableModel):
         return len(self._data[0])
 
     def create_empty_row(self, position):
-        self._data.insert(position, [''] * len(self.headerData))
+        self._data.insert(position, [''] * len(self._header_data))
 
     def update_data_at_index(self, index, value):
         self._data[index.row()][index.column()] = value
@@ -77,9 +77,15 @@ class LokiScriptModel(QAbstractTableModel):
 
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
-            return self.headerData[section]
+            return self._header_data[section]
         if role == Qt.DisplayRole and orientation == Qt.Vertical:
             return section + 1
+
+    def setHeaderData(self, section, orientation, value, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+            self._header_data[section] = value
+            self.headerDataChanged.emit(orientation, section, section)
+        return True
 
     def update_data_from_clipboard(self, copied_data, top_left_index):
         # Copied data is tabular so insert at top-left most position
@@ -133,16 +139,6 @@ class LokiScriptBuilderPanel(Panel):
 
         self.window = parent
 
-        self.model = LokiScriptModel()
-        self.tableView.setModel(self.model)
-
-        self.tableView.horizontalHeader().setStretchLastSection(True)
-        self.tableView.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Stretch)
-        self.tableView.resizeColumnsToContents()
-        self.tableView.setAlternatingRowColors(True)
-        self.tableView.setStyleSheet(TABLE_QSS)
-
         self.duration_options = ['Mevents', 'seconds', 'frames']
 
         self.permanent_columns = {
@@ -162,7 +158,36 @@ class LokiScriptBuilderPanel(Panel):
         self.columns_in_order = [name for name in self.permanent_columns.keys()]
         self.columns_in_order.extend(self.optional_columns.keys())
         self.last_save_location = None
-        self._init_panel()
+        # self._init_panel()
+        self._init_table_model()
+
+    def _init_table_model(self):
+        headers = [
+            self.permanent_columns[name]
+            if name in self.permanent_columns else self.optional_columns[name][0]
+            for name in self.columns_in_order]
+
+        self.model = LokiScriptModel(headers)
+        self.tableView.setModel(self.model)
+        for name, details in self.optional_columns.items():
+            _, checkbox = details
+            checkbox.stateChanged.connect(
+                partial(self._on_optional_column_toggled, name))
+            self._hide_column(name)
+
+        self._link_duration_combobox_to_column('sans_duration',
+                                               self.comboSansDurationType)
+        self._link_duration_combobox_to_column('trans_duration',
+                                               self.comboTransDurationType)
+
+        # Set up trans order combo-box
+        self.comboTransOrder.addItems(self._available_trans_options.keys())
+        self.tableView.horizontalHeader().setStretchLastSection(True)
+        self.tableView.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch)
+        self.tableView.resizeColumnsToContents()
+        self.tableView.setAlternatingRowColors(True)
+        self.tableView.setStyleSheet(TABLE_QSS)
 
     def _init_panel(self, num_rows=25):
         # Create columns
@@ -503,11 +528,11 @@ class LokiScriptBuilderPanel(Panel):
 
     def _hide_column(self, column_name):
         column_number = self.columns_in_order.index(column_name)
-        self.tableScript.setColumnHidden(column_number, True)
+        self.tableView.setColumnHidden(column_number, True)
 
     def _show_column(self, column_name):
         column_number = self.columns_in_order.index(column_name)
-        self.tableScript.setColumnHidden(column_number, False)
+        self.tableView.setColumnHidden(column_number, False)
 
     def _on_duration_type_changed(self, column_name, value):
         column_number = self.columns_in_order.index(column_name)
@@ -515,4 +540,5 @@ class LokiScriptBuilderPanel(Panel):
             f'{self.permanent_columns[column_name]}\n({value})')
 
     def _set_column_title(self, index, title):
-        self.tableScript.setHorizontalHeaderItem(index, QTableWidgetItem(title))
+        self.model.setHeaderData(index, Qt.Horizontal, title)
+        # self.tableScript.setHorizontalHeaderItem(index, QTableWidgetItem(title))
