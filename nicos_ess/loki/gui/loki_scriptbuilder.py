@@ -31,8 +31,16 @@ class LokiScriptModel(QAbstractTableModel):
 
     @table_data.setter
     def table_data(self, value):
-        self._table_data = value
-        self.layoutChanged.emit()
+
+        if isinstance(value, list) and all(
+            [isinstance(val, list) and len(val) == len(self._header_data)
+             for val in value]):
+            self._table_data = value
+            self.layoutChanged.emit()
+        else:
+            raise AttributeError(
+                f"Attribute must be a 2D list of shape (_, {len(self._header_data)})"
+            )
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
