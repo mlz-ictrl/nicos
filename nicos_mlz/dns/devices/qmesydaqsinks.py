@@ -22,13 +22,14 @@
 #
 # *****************************************************************************
 
-"""QMesyDAQ file writer classes."""
+"""QMesyDAQ related classes."""
 
 from os import path
 
 from nicos.core import Attach, DataSinkHandler, Device, Override
 from nicos.core.constants import POINT
 from nicos.devices.datasinks import FileSink
+from nicos.devices.tango import CounterChannel
 
 
 def countdown(fn):
@@ -45,8 +46,8 @@ class HistogramSinkHandler(DataSinkHandler):
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
         qmname = countdown(filepaths[0])
-        self.sink._attached_timer._dev.SetProperties(['writehistogram', 'true'])
-        self.sink._attached_timer._dev.SetProperties(['lasthistfile', qmname])
+        self.sink._attached_image._dev.SetProperties(['writehistogram', 'true'])
+        self.sink._attached_image._dev.SetProperties(['lasthistfile', qmname])
 
 
 class ListmodeSinkHandler(DataSinkHandler):
@@ -56,8 +57,8 @@ class ListmodeSinkHandler(DataSinkHandler):
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
         qmname = countdown(filepaths[0])
-        self.sink._attached_timer._dev.SetProperties(['writelistmode', 'true'])
-        self.sink._attached_timer._dev.SetProperties(['lastlistfile', qmname])
+        self.sink._attached_image._dev.SetProperties(['writelistmode', 'true'])
+        self.sink._attached_image._dev.SetProperties(['lastlistfile', qmname])
         limage = self.sink._attached_liveimage
         if limage:
             limage._dev.filename = filepaths[0]
@@ -68,7 +69,7 @@ class ListmodeSinkHandler(DataSinkHandler):
 
 class QMesyDAQSink(FileSink):
     attached_devices = {
-        'timer': Attach('device to set the file name', Device),
+        'image': Attach('Device to set the file name', Device),
     }
 
     parameter_overrides = {
@@ -87,3 +88,10 @@ class ListmodeSink(QMesyDAQSink):
         'liveimage': Attach('device to set filename', Device, optional=True),
         'tofchannel': Attach('device to get TOF settings', Device),
     }
+
+
+class ImageCounterChannel(CounterChannel):
+    """Counter channel that is based on an image on the Tango side."""
+
+    def doRead(self, maxage=0):
+        return self._dev.value.sum()
