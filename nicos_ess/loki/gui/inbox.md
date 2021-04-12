@@ -1,9 +1,6 @@
 ## TODO
-- Add cut and copy in model.
-- Bulk update.
+- is_item_in_hidden_column needs to be updated
 - Handle hidden columns.
-- Update headers title from combobox.
-- load and save.
 - generate script from model.
 
 - For simultaneous what to do and what values to use.
@@ -24,3 +21,7 @@
 - Add options "do_trans then do_sans" and "do_sans then do_trans" in combobox.
 - Move code from on_generateScriptButton_clicked to separate class (ScriptGenerator)
 - Associate QTable and model. Investigate
+- Add cut and copy in model.
+- Bulk update.
+- Update headers title from combobox.
+- load and save.
