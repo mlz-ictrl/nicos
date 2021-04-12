@@ -170,7 +170,7 @@ border-color: darkgrey;</string>
     <string>Ctrl+C</string>
    </property>
    <property name="shortcutContext">
-    <enum>Qt::WidgetShortcut</enum>
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
    </property>
   </action>
   <action name="actionAllowLineWrap">
