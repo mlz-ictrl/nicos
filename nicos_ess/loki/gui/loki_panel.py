@@ -25,7 +25,7 @@
 from nicos.clients.gui.panels import Panel
 
 
-class ConnectionListener(Panel):
+class LokiPanelBase(Panel):
     """
     This is the base class that listens connection status.
     """
@@ -39,3 +39,9 @@ class ConnectionListener(Panel):
             self.on_client_disconnected()
         self.client.connected.connect(self.on_client_connected)
         self.client.disconnected.connect(self.on_client_disconnected)
+
+    def on_client_connected(self):
+        self.setViewOnly(self.client.viewonly)
+
+    def on_client_disconnected(self):
+        self.setViewOnly(True)
