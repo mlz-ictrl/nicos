@@ -27,7 +27,7 @@ from nicos.clients.gui.panels import Panel
 
 class LokiPanelBase(Panel):
     """
-    This is the base class LoKI panel.
+    This is the base class for LoKI panel.
     """
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
