@@ -55,8 +55,8 @@ class LokiScriptModel(QAbstractTableModel):
     def create_empty_row(self, position):
         self._data.insert(position, [''] * len(self.headerData))
 
-    def update_cell(self, row, column):
-        self._data[row][column] = ''
+    def update_data_at_index(self, index, value):
+        self._data[index.row()][index.column()] = value
         self.layoutChanged.emit()
 
     def insertRow(self, position, index=QModelIndex()):
@@ -115,6 +115,7 @@ class LokiScriptModel(QAbstractTableModel):
             row_data.clear()
         return selected_data
 
+
 class LokiScriptBuilderPanel(Panel):
     _available_trans_options = OrderedDict({
         "All TRANS First": TransOrder.TRANSFIRST,
@@ -134,6 +135,13 @@ class LokiScriptBuilderPanel(Panel):
 
         self.model = LokiScriptModel()
         self.tableView.setModel(self.model)
+
+        self.tableView.horizontalHeader().setStretchLastSection(True)
+        self.tableView.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Stretch)
+        self.tableView.resizeColumnsToContents()
+        self.tableView.setAlternatingRowColors(True)
+        self.tableView.setStyleSheet(TABLE_QSS)
 
         self.duration_options = ['Mevents', 'seconds', 'frames']
 
@@ -379,7 +387,7 @@ class LokiScriptBuilderPanel(Panel):
 
     def _handle_delete_cells(self):
         for index in self.tableView.selectedIndexes():
-            self.model.update_cell(index.row(), index.column())
+            self.model.update_data_at_index(index, "")
 
     def _handle_copy_cells(self):
         # TODO: Handle non continuos selection
@@ -441,9 +449,10 @@ class LokiScriptBuilderPanel(Panel):
         self._do_bulk_update(self.txtValue.text())
 
     def _do_bulk_update(self, value):
-        for index in self.tableScript.selectionModel().selectedIndexes():
-            if not self.tableScript.isColumnHidden(index.column()):
-                self._update_cell(index.row(), index.column(), value)
+        for index in self.tableView.selectedIndexes():
+            # TODO: Handle hidden columns
+            # if not self.tableScript.isColumnHidden(index.column()):
+            self.model.update_data_at_index(index, value)
 
     @pyqtSlot()
     def on_clearTableButton_clicked(self):
