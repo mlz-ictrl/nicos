@@ -312,14 +312,12 @@ class LokiScriptBuilderPanel(Panel):
     def is_data_in_hidden_columns(self):
         optional_indices = [i for i, e in enumerate(self.columns_in_order)
                             if e in self.optional_columns.keys()]
-
-        for row in range(self.tableScript.rowCount()):
-            for column in optional_indices:
-                if self.tableScript.isColumnHidden(column):
-                    item = self.tableScript.item(row, column)
-                    if item and item.text():
-                        return True
-        return False
+        # Transform table_data to allow easy access to columns like data[0]
+        data = list(zip(*self.model.table_data))
+        return any(
+            [any(data[column])
+             for column in optional_indices
+             if self.tableView.isColumnHidden(column)])
 
     def _extract_headers_from_table(self):
         headers = []
