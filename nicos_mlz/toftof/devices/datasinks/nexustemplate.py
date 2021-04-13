@@ -115,7 +115,7 @@ class TofTofNexusLegacyTemplate(NexusTemplateProvider):
                     'name': DeviceDataset('Exp', 'users'),
                     'role': ConstDataset('experiment_team', 'string'),
                 },
-                'sample:NXSample': {
+                'sample:NXsample': {
                     'description': DeviceDataset('Sample', 'samplename'),
                     'total_counts': SampleCounts(),
                     'total_count_rate': SampleCountRate(),

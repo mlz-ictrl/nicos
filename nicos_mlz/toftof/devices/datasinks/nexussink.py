@@ -34,35 +34,9 @@ from nicos.core.params import Override, Param, setof
 from nicos.devices.datasinks import FileSink
 from nicos.nexus.elements import NexusElementBase, NXAttribute, NXScanLink, \
     NXTime
+from nicos.nexus.nexussink import copy_nexus_template
 
-
-class NexusTemplateProvider:
-    """A base class which provides the NeXus template for the NexusSinkHandler.
-
-    Subclasses **must** implement ``getTemplate()``.
-
-    This abstraction allows the dynamic provisioning of a suitable NeXus
-    template. Because the template may be dependent on the setup or other
-    instrument conditions.
-    """
-
-    def getTemplate(self):
-        """Return a dictionary containing the desired NeXus structure."""
-        raise NotImplementedError
-
-
-def copy_nexus_template(template):
-    """Implement a specialized version of copy.
-
-    The dict structure is deep copied while the placeholders are a shallow
-    copy of the original.
-    """
-    if isinstance(template, dict):
-        return {k: copy_nexus_template(v) for k, v in template.items()}
-    elif isinstance(template, list):
-        return [copy_nexus_template(elem) for elem in template]
-    else:
-        return template
+from nicos_mlz.toftof.devices.datasinks.elements import SampleEnvironment
 
 
 class NexusSinkHandler(DataSinkHandler):
@@ -99,6 +73,15 @@ class NexusSinkHandler(DataSinkHandler):
 
     def putMetainfo(self, metainfo):
         if not self._inited:
+            sample = self.template['Scan:NXentry']['sample:NXsample']
+            for dev in metainfo.get(('Exp', 'envlist'), [[]])[0]:
+                unit = metainfo.get((dev, 'value'))[2]
+                if dev.startswith('T') and 'temperature' not in sample:
+                    sample['temperature'] = SampleEnvironment(dev, unit)
+                elif dev == 'B':
+                    sample['magneticfield'] = SampleEnvironment(dev, unit)
+                elif dev == 'P':
+                    sample['pressure'] = SampleEnvironment(dev, unit)
             self.createStructure()
             self._inited = True
 
