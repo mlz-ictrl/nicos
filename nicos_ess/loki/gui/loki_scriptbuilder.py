@@ -126,7 +126,7 @@ class LokiScriptModel(QAbstractTableModel):
                     row_data.clear()
             curr_row = row
             row_data.append(self._table_data[row][column])
-        # TODO: Handle hidden columns
+
         if row_data:
             selected_data.append('\t'.join(row_data))
             row_data.clear()
@@ -394,6 +394,9 @@ class LokiScriptBuilderPanel(Panel):
     def _extract_selected_data(self):
         selected_indices = []
         for index in self.tableView.selectedIndexes():
+            if self.tableView.isColumnHidden(index.column()):
+                # Don't select hidden columns
+                continue
             selected_indices.append((index.row(), index.column()))
 
         selected_data = self.model.select_data(selected_indices)
