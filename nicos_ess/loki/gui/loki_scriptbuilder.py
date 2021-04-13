@@ -22,7 +22,6 @@ class LokiScriptModel(QAbstractTableModel):
 
         self._header_data = header_data
         self._num_rows = num_rows
-
         self._table_data = []
         for _ in range(num_rows):
             self.create_empty_row(0)
@@ -36,13 +35,11 @@ class LokiScriptModel(QAbstractTableModel):
         if isinstance(value, list) and all(
             [isinstance(val, list) and len(val) == len(self._header_data)
              for val in value]):
-            self._table_data = value
-
             # Extend the list with empty rows if value has less than n_rows
             if len(value) < self._num_rows:
-                self._table_data.extend(self.empty_2d_list(
+                value.extend(self.empty_2d_list(
                         self._num_rows - len(value), len(self._header_data)))
-
+            self._table_data = value
             self.layoutChanged.emit()
         else:
             raise AttributeError(
@@ -138,7 +135,7 @@ class LokiScriptModel(QAbstractTableModel):
 
     @staticmethod
     def empty_2d_list(rows, columns):
-        return [[""] * columns] * rows
+        return [[""] * columns for _ in range(rows)]
 
 
 class LokiScriptBuilderPanel(Panel):
