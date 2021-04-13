@@ -1,12 +1,5 @@
 ## TODO
 - Handle hidden columns.
-- generate script from model.
-
-- For simultaneous what to do and what values to use.
-- In simultaneous mode, use DO_SANS and use the time from SANS.
-  - Warning if different times in SANS and TRANS. Or Gray out.
-  - Use SANS times always and just do DO_SANS
-
 - Script factory. (Different ticket)
 
 
@@ -25,3 +18,9 @@
 - load and save.
 - is_item_in_hidden_column needs to be updated
 - Remove trailing rows but keep rows in between.
+
+- generate script from model.
+- For simultaneous what to do and what values to use.
+- In simultaneous mode, use DO_SANS and use the time from SANS.
+  - Warning if different times in SANS and TRANS. Or Gray out.
+  - Use SANS times always and just do DO_SANS

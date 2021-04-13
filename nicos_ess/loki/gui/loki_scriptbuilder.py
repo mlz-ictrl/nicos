@@ -452,6 +452,14 @@ class LokiScriptBuilderPanel(Panel):
     def on_generateScriptButton_clicked(self):
         labeled_data = self._extract_labeled_data()
 
+        if self._available_trans_options[self.comboTransOrder.currentText()] ==\
+            TransOrder.SIMULTANEOUS:
+                if not all([data['sans_duration'] == data['trans_duration']
+                            for data in labeled_data]):
+                    self.showError(
+                        "Different SANS and TRANS duration specified in "
+                        "SIMULTANEOUS mode. SANS duration will be used in the script.")
+
         template = ScriptGenerator().generate_script(
             labeled_data,
             self._available_trans_options[self.comboTransOrder.currentText()],

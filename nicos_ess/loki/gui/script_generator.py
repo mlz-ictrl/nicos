@@ -10,8 +10,13 @@ class TransOrder(Enum):
 
 
 class ScriptGenerator:
-    def generate_script(self, labeled_data, trans_order, trans_duration_type,
-                        sans_duration_type):
+    def generate_script(
+        self,
+        labeled_data,
+        trans_order,
+        trans_duration_type,
+        sans_duration_type):
+
         template = ""
         if trans_order == TransOrder.TRANSFIRST:
             for row_values in labeled_data:
@@ -35,9 +40,12 @@ class ScriptGenerator:
                 template += self._do_sans(row_values, sans_duration_type)
                 template += self._do_trans(row_values, trans_duration_type)
         elif trans_order == TransOrder.SIMULTANEOUS:
-            pass
+            for row_values in labeled_data:
+                template += self._do_sans(row_values, sans_duration_type)
         else:
-            assert True, "Unspecified trans order"
+            raise NotImplementedError(
+                f"Unspecified trans order {trans_order.name}")
+
         return template
 
     def _do_trans(self, row_values, trans_duration_type):
