@@ -1,5 +1,5 @@
 ## TODO
-- Handle hidden columns.
+
 - Script factory. (Different ticket)
 
 
@@ -24,3 +24,7 @@
 - In simultaneous mode, use DO_SANS and use the time from SANS.
   - Warning if different times in SANS and TRANS. Or Gray out.
   - Use SANS times always and just do DO_SANS
+
+- Handle hidden columns in pasting data.
+- Handle hidden columns in copying data.
+- Handle non-continuos data selection

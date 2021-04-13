@@ -1,6 +1,7 @@
 import os.path as osp
 from collections import OrderedDict
 from functools import partial
+from itertools import groupby
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
@@ -384,10 +385,14 @@ class LokiScriptBuilderPanel(Panel):
             self.model.update_data_at_index(index.row(), index.column(), "")
 
     def _handle_copy_cells(self):
-        # TODO: Handle non continuos selection
-        # if len(self.tableView.selectedRanges()) != 1:
-        #     # Can only select one continuous region to copy
-        #     return
+        indices = [(index.row(), index.column())
+                   for index in self.tableView.selectedIndexes()]
+        if len(set(
+            [len(list(group))
+             for _, group in groupby(indices, lambda x: x[0])])) != 1:
+            # Can only select one continuous region to copy
+            return
+
         selected_data = self._extract_selected_data()
         QApplication.instance().clipboard().setText('\n'.join(selected_data))
 
