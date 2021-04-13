@@ -1,10 +1,8 @@
 ## TODO
-- is_item_in_hidden_column needs to be updated
 - Handle hidden columns.
 - generate script from model.
 
 - For simultaneous what to do and what values to use.
-- Remove trailing rows but keep rows in between.
 - In simultaneous mode, use DO_SANS and use the time from SANS.
   - Warning if different times in SANS and TRANS. Or Gray out.
   - Use SANS times always and just do DO_SANS
@@ -25,3 +23,5 @@
 - Bulk update.
 - Update headers title from combobox.
 - load and save.
+- is_item_in_hidden_column needs to be updated
+- Remove trailing rows but keep rows in between.

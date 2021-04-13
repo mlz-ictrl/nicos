@@ -320,10 +320,9 @@ class LokiScriptBuilderPanel(Panel):
              if self.tableView.isColumnHidden(column)])
 
     def _extract_headers_from_table(self):
-        headers = []
-        for column in range(len(self.columns_in_order)):
-            if not self.tableView.isColumnHidden(column):
-                headers.append(self.columns_in_order[column])
+        headers = [column
+                   for idx, column in enumerate(self.columns_in_order)
+                   if not self.tableView.isColumnHidden(idx)]
         return headers
 
     def _extract_data_from_table(self):
@@ -397,12 +396,6 @@ class LokiScriptBuilderPanel(Panel):
         selected_data = self.model.select_data(selected_indices)
         return selected_data
 
-    def _get_cell_text(self, row, column):
-        cell = self.tableScript.item(row, column)
-        if cell:
-            return cell.text()
-        return ''
-
     def _handle_table_paste(self):
         indices = []
         for index in self.tableView.selectedIndexes():
@@ -425,10 +418,6 @@ class LokiScriptBuilderPanel(Panel):
             return
         self.model.update_data_from_clipboard(copied_table, top_left)
 
-    def _select_cell(self, row, column):
-        item = self.tableScript.item(row, column)
-        item.setSelected(True)
-
     def _link_duration_combobox_to_column(self, column_name, combobox):
         combobox.addItems(self.duration_options)
         combobox.currentTextChanged.connect(
@@ -450,20 +439,14 @@ class LokiScriptBuilderPanel(Panel):
         self.model.clear()
 
     def _extract_labeled_data(self):
-        table = []
-        for row in range(self.tableScript.rowCount()):
-            row_values = {}
-            for idx, column in enumerate(self.columns_in_order):
-                item = self.tableScript.item(row, idx)
-                if item is None:
-                    continue
-                row_values[column] = item.text()
+        labeled_data = []
+        for row_data in self.model.table_data:
+            labeled_row_data = dict(zip(self.columns_in_order, row_data))
             # Row will contribute to script only if all permanent columns
             # values are present
-            if all(map(row_values.get, self.permanent_columns.keys())):
-                table.append(row_values)
-
-        return table
+            if all(map(labeled_row_data.get, self.permanent_columns.keys())):
+                labeled_data.append(labeled_row_data)
+        return labeled_data
 
     @pyqtSlot()
     def on_generateScriptButton_clicked(self):
