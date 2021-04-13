@@ -96,7 +96,8 @@ class LokiScriptModel(QAbstractTableModel):
             self.headerDataChanged.emit(orientation, section, section)
         return True
 
-    def update_data_from_clipboard(self, copied_data, top_left_index):
+    def update_data_from_clipboard(
+        self, copied_data, top_left_index, avoid=None):
         # Copied data is tabular so insert at top-left most position
         for row_index, row_data in enumerate(copied_data):
             col_index = 0
@@ -107,7 +108,9 @@ class LokiScriptModel(QAbstractTableModel):
                     col_index += 1
                     if current_row >= len(self._table_data):
                         self.create_empty_row(current_row)
-                    # TODO: Handle hidden columns
+
+                    if avoid is not None and current_column in avoid:
+                        continue
                     self._table_data[current_row][current_column] = value
 
         self.layoutChanged.emit()
@@ -412,11 +415,13 @@ class LokiScriptBuilderPanel(Panel):
         copied_table = [[x for x in row.split('\t')]
                         for row in clipboard_text.splitlines()]
         if len(copied_table) == 1 and len(copied_table[0]) == 1:
-            # TODO: Bulk update in model
             # Only one value, so put it in all selected cells
             self._do_bulk_update(copied_table[0][0])
             return
-        self.model.update_data_from_clipboard(copied_table, top_left)
+        hidden_columns = [idx for idx in range(len(self.columns_in_order))
+                          if self.tableView.isColumnHidden(idx)]
+        self.model.update_data_from_clipboard(
+            copied_table, top_left, hidden_columns)
 
     def _link_duration_combobox_to_column(self, column_name, combobox):
         combobox.addItems(self.duration_options)
