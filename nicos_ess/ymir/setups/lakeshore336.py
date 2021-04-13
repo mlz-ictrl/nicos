@@ -21,7 +21,7 @@ devices = dict(
     ),
     ls336_model=device('nicos.devices.epics.EpicsStringReadable',
         description='The device model',
-        readpv='{}Model'.format(pv_root),
+        readpv='{}MODEL'.format(pv_root),
     ),
     OUT_ls336_1=device('nicos.devices.epics.EpicsReadable',
         description='Output 1 reading',
