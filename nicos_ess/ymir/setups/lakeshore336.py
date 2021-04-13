@@ -1,6 +1,6 @@
 description = 'The Lakeshore 336 at YMIR.'
 
-pv_root = 'THIS_NEEDS_THE_CORRECT_VALUE:'
+pv_root = 'UTG-SEE-MESI:Tctrl-LS336-004:'
 
 devices = dict(
     T_ls336_A = device('nicos.devices.epics.EpicsReadable',
