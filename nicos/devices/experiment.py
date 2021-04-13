@@ -85,7 +85,7 @@ class Experiment(Device):
         'users':          Param('User names and emails for the proposal',
                                 type=str, volatile=True, category='experiment'),
         'localcontact':   Param('Local contacts for current experiment',
-                                volatile=True, category='experiment'),
+                                type=str, volatile=True, category='experiment'),
         'remark':         Param('Current remark about experiment configuration',
                                 type=str, settable=True, category='experiment'),
         'dataroot':       Param('Root data path under which all proposal '
