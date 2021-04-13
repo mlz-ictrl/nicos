@@ -404,6 +404,7 @@ class DetInfo(NexusElementBase):
         inds = theta.argsort()
         theta = theta[inds]
         values = values[inds]
+        detNr = detNr[inds]
         if self.column == 13:
             list_of_none_detectors_angles = []
             for none_det in list_of_none_detectors:
