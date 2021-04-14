@@ -27,9 +27,9 @@ devices = dict(
         description='Position',
         readpv='{}PosW24_Stat'.format(pv_root),
     ),
-    skf_pos_Z13=device('nicos_ess.devices.epics.pva.EpicsReadable',
+    skf_pos_Z12=device('nicos_ess.devices.epics.pva.EpicsReadable',
         description='Position',
-        readpv='{}PosZ13_Stat'.format(pv_root),
+        readpv='{}PosZ12_Stat'.format(pv_root),
     ),
     skf_status=device(
         'nicos.devices.epics.EpicsStringReadable',
@@ -52,6 +52,7 @@ devices = dict(
     skf_speed=device(
         'nicos_ess.devices.epics.pva.EpicsAnalogMoveable',
         description='The current speed.',
+        requires={'level': 'user'},
         readpv='{}Spd_Stat'.format(pv_root),
         writepv='{}Spd_SP'.format(pv_root),
         abslimits=(0.0, 77),
