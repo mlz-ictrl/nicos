@@ -92,6 +92,10 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         copy_shortcut.activated.connect(self._handle_copy_cells)
         copy_shortcut.setContext(Qt.WidgetShortcut)
 
+        delete_shortcut = QShortcut("Ctrl+Backspace", self.tableScript)
+        delete_shortcut.activated.connect(self._delete_rows)
+        delete_shortcut.setContext(Qt.WidgetShortcut)
+
     @pyqtSlot()
     def on_cutButton_clicked(self):
         self._handle_cut_cells()
