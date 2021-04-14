@@ -3,7 +3,7 @@ from functools import partial
 
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
-    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot, QMenu
+    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot
 from nicos.utils import findResource
 from nicos_ess.gui.utilities.load_save_tables import load_table_from_csv, \
     save_table_to_csv
