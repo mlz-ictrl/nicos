@@ -11,4 +11,8 @@ devices = dict(
         'nicos_ess.devices.epics.pva.EpicsStringReadable',
         readpv='{}Link-Sts'.format(pv_root),
         description='Status of link to EVG'),
+    NTP_DIFF=device(
+        'nicos_ess.devices.epics.pva.EpicsReadable',
+        readpv='FS:timeDiffnsNTPEVR:01'.format(pv_root),
+        description='The difference between the Utgård EVR and the NTP client'),
 )

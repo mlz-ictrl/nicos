@@ -272,6 +272,25 @@
      </layout>
     </widget>
    </item>
+   <item>
+    <widget class="QLabel" name="applyWarningLabel">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Changes in the experiment proposal have not been applied. Press the apply button when finished editing!</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::NoTextInteraction</set>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

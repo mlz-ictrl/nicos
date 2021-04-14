@@ -62,7 +62,7 @@ TAGMAP = {'T/svalue': (1000, 'ICd%temp_begin', 11),
 
 class TiffLaueImageSinkHandler(SingleFileSinkHandler):
 
-    filetype = 'TIFF'
+    filetype = 'tiff'
     defer_file_creation = True
 
     def doPreinit(self, _mode):

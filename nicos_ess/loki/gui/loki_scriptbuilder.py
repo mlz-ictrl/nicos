@@ -1,20 +1,20 @@
 import os.path as osp
 from functools import partial
 
-from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
     QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot, QMenu
 from nicos.utils import findResource
 from nicos_ess.gui.utilities.load_save_tables import load_table_from_csv, \
     save_table_to_csv
+from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
 
-class LokiScriptBuilderPanel(Panel):
+class LokiScriptBuilderPanel(LokiPanelBase):
     def __init__(self, parent, client, options):
-        Panel.__init__(self, parent, client, options)
+        LokiPanelBase.__init__(self, parent, client, options)
         loadUi(self,
                findResource('nicos_ess/loki/gui/ui_files/loki_scriptbuilder.ui')
                )

@@ -103,7 +103,7 @@ Selector Monitor_1 Monitor_2 Monitor_3
 
 class KWSFileSinkHandler(SingleFileSinkHandler):
 
-    filetype = 'KWS'
+    filetype = 'kws'
     accept_final_images_only = True
 
     def getDetectorPos(self):

@@ -14,11 +14,6 @@ pc_ctrl = '%sctrl' % instrument_name
 
 values = {
     'instrument_name': instrument_name,
-    'nethost': '%ssrv.%s.%s' % (
-        instrument_name,
-        instrument_name,
-        geographical_place,
-    ),
     'pc_hw': pc_hw,
     'pc_hw_real1': '%sctrl02' % instrument_name,
     'pc_hw_real2': '',

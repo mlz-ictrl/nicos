@@ -24,15 +24,10 @@
 
 """TOFTOF special Live view sink for NICOS."""
 
-from nicos.core import Override
-
-from nicos_mlz.toftof.devices.datasinks.base import TofSink, TofSinkHandler
+from nicos.devices.datasinks.special import LiveViewSink, LiveViewSinkHandler
 
 
-class ToftofLiveViewSinkHandler(TofSinkHandler):
-
-    def __init__(self, sink, dataset, detector):
-        TofSinkHandler.__init__(self, sink, dataset, detector)
+class ToftofLiveViewSinkHandler(LiveViewSinkHandler):
 
     def processArrays(self, result):
         data = result[1][0]
@@ -42,15 +37,14 @@ class ToftofLiveViewSinkHandler(TofSinkHandler):
                                                                   order='C')
                 return [treated]
 
+    def getLabelDescs(self, result):
+        return {
+            'x': {'define': 'classic', 'title': 'time channels'},
+            'y': {'define': 'classic', 'title': 'detectors'},
+        }
 
-class ToftofLiveViewSink(TofSink):
+
+class ToftofLiveViewSink(LiveViewSink):
     """A data sink that sends images to attached clients for live preview."""
-
-    parameter_overrides = {
-        # this is not really used, so we give it a default that would
-        # raise if used as a template filename
-        'filenametemplate': Override(mandatory=False, userparam=False,
-                                     default=['']),
-    }
 
     handlerclass = ToftofLiveViewSinkHandler

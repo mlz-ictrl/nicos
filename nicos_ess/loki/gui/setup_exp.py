@@ -26,15 +26,16 @@
 
 from __future__ import absolute_import, division, print_function
 
-from nicos.clients.gui.panels import Panel, PanelDialog
+from nicos.clients.gui.panels import PanelDialog
 from nicos.clients.gui.utils import loadUi
 from nicos.core import ConfigurationError
 from nicos.core.params import mailaddress
-from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, pyqtSlot
+from nicos.guisupport.qt import QMessageBox, pyqtSlot
 from nicos.utils import decodeAny, findResource
+from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 
 
-class ExpPanel(Panel):
+class ExpPanel(LokiPanelBase):
     """Provides a panel with several input fields for the experiment settings.
 
     Options:
@@ -48,7 +49,7 @@ class ExpPanel(Panel):
     panelName = 'Experiment setup'
 
     def __init__(self, parent, client, options):
-        Panel.__init__(self, parent, client, options)
+        LokiPanelBase.__init__(self, parent, client, options)
         loadUi(self, findResource('nicos_ess/loki/gui/ui_files/setup_exp.ui'))
 
         self._orig_proposal = None
@@ -74,13 +75,8 @@ class ExpPanel(Panel):
         self.propdbInfo.setVisible(False)
         self.queryDBButton.setVisible(False)
 
-        if client.isconnected:
-            self.on_client_connected()
-        else:
-            self.on_client_disconnected()
+        self.initialise_connection_status_listeners()
 
-        client.connected.connect(self.on_client_connected)
-        client.disconnected.connect(self.on_client_disconnected)
         client.setup.connect(self.on_client_setup)
         client.experiment.connect(self.on_client_experiment)
 
@@ -121,8 +117,6 @@ class ExpPanel(Panel):
             self.newBox.setVisible(False)
         else:
             self.newBox.setVisible(True)
-            self.proposalNum.setText('')  # do not offer "service"
-            self.proposalID.setText('')
         # check for capability to ask proposal database
         if self.client.eval('getattr(session.experiment, "propdb", "")', None):
             self.propdbInfo.setVisible(True)
