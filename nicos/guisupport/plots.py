@@ -380,5 +380,6 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
                 name = key
             key, index, scale, offset = extractKeyAndIndex(key)
             keyid = self._source.register(self, key)
-            self.keyindices.setdefault(keyid, []).append(index)
-            self.addcurve(keyid, index, name, scale, offset)
+            if (keyid, index) not in self.series:
+                self.keyindices.setdefault(keyid, []).append(index)
+                self.addcurve(keyid, index, name, scale, offset)

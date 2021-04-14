@@ -25,6 +25,7 @@
 """NICOS TOFTOF experiment class."""
 
 from nicos import session
+from nicos.core.params import Override
 
 from nicos_mlz.devices.experiment import Experiment as BaseExperiment
 
@@ -34,6 +35,10 @@ class Experiment(BaseExperiment):
 
     The service experiment will be filled up with instrument specific data.
     """
+
+    parameter_overrides = {
+        'envlist': Override(category='general'),
+    }
 
     def _newPropertiesHook(self, proposal, kwds):
         if self.proptype == 'service':

@@ -337,6 +337,27 @@ class SampleCountRate(NexusElementBase):
         h5parent[name][0] = info[2] / info[0] if info[0] else 0.
 
 
+class SampleEnvironment(NexusElementBase):
+
+    def __init__(self, device, unit):
+        NexusElementBase.__init__(self)
+        self.device = device
+        self.unit = unit
+        self._names = ['', 'standard_deviation_of_', 'minimum_', 'maximum_']
+
+    def create(self, name, h5parent, sinkhandler):
+        for s in self._names:
+            dset = h5parent.create_dataset('%s%s' % (s, name), (1,),
+                                           dtype='float32')
+            dset.attrs['units'] = np.string_(self.unit)
+            dset[0] = 0
+
+    def results(self, name, h5parent, sinkhandler, results):
+        for s, v in zip(self._names,
+                        sinkhandler.dataset.valuestats[self.device]):
+            h5parent['%s%s' % (s, name)][0] = v
+
+
 class MonitorData(NexusElementBase):
 
     def create(self, name, h5parent, sinkhandler):
