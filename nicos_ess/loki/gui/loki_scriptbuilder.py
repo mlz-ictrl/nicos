@@ -80,22 +80,21 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
         self.tableScript.setRowCount(num_rows)
 
-        QShortcut(QKeySequence.Paste, self.tableScript).activated.connect(
-            self._handle_table_paste)
+        self._create_keyboard_shortcuts()
 
-        QShortcut(QKeySequence.Cut, self.tableScript).activated.connect(
-            self._handle_cut_cells)
+    def _create_keyboard_shortcuts(self):
+        for key, to_call in [
+            (QKeySequence.Paste, self._handle_table_paste),
+            (QKeySequence.Cut, self._handle_cut_cells),
+            (QKeySequence.Copy, self._handle_copy_cells),
+            ("Ctrl+Backspace", self._delete_rows),
+        ]:
+            self._create_shortcut_key(key, to_call)
 
-        QShortcut(QKeySequence.Delete, self.tableScript).activated.connect(
-            self._handle_delete_cells)
-
-        # TODO: this doesn't work on a Mac? How about Linux?
-        QShortcut(QKeySequence.Backspace, self.tableScript).activated.connect(
-            self._handle_delete_cells)
-
-        # TODO: Cannot do keyboard copy as it is ambiguous - investigate
-        QShortcut(QKeySequence.Copy, self.tableScript).activated.connect(
-            self._handle_copy_cells)
+    def _create_shortcut_key(self, shortcut_keys, to_call):
+        shortcut = QShortcut(shortcut_keys, self.tableScript)
+        shortcut.activated.connect(to_call)
+        shortcut.setContext(Qt.WidgetShortcut)
 
     @pyqtSlot()
     def on_cutButton_clicked(self):
@@ -244,6 +243,10 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         indices = []
         for index in self.tableScript.selectionModel().selectedIndexes():
             indices.append((index.row(), index.column()))
+
+        if not indices:
+            return
+
         top_left = indices[0]
 
         clipboard_text = QApplication.instance().clipboard().text()
