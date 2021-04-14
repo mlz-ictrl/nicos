@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache='localhost',
-    instrument=None,
+    instrument='Premp',
     experiment='Exp',
     datasinks=['conssink', 'filesink', 'daemonsink',],
 )
