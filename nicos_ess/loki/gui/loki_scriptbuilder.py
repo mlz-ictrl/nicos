@@ -81,12 +81,12 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         self.tableScript.setRowCount(num_rows)
 
         # Keyboard shortcuts
-        self._connect_key_shortcut(QKeySequence.Paste, self._handle_table_paste)
-        self._connect_key_shortcut(QKeySequence.Cut, self._handle_cut_cells)
-        self._connect_key_shortcut(QKeySequence.Copy, self._handle_copy_cells)
-        self._connect_key_shortcut("Ctrl+Backspace", self._delete_rows)
+        self._create_shortcut_key(QKeySequence.Paste, self._handle_table_paste)
+        self._create_shortcut_key(QKeySequence.Cut, self._handle_cut_cells)
+        self._create_shortcut_key(QKeySequence.Copy, self._handle_copy_cells)
+        self._create_shortcut_key("Ctrl+Backspace", self._delete_rows)
 
-    def _connect_key_shortcut(self, shortcut_keys, callable):
+    def _create_shortcut_key(self, shortcut_keys, callable):
         shortcut = QShortcut(shortcut_keys, self.tableScript)
         shortcut.activated.connect(callable)
         shortcut.setContext(Qt.WidgetShortcut)
