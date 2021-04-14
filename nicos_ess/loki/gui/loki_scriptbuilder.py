@@ -5,150 +5,24 @@ from itertools import groupby
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QAbstractTableModel, QApplication, \
-    QFileDialog, QHeaderView, QKeySequence, QModelIndex, QShortcut, Qt, \
+from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, Qt, \
     QTableWidgetItem, pyqtSlot
 from nicos.utils import findResource
 
-from nicos_ess.gui.utilities.load_save_tables import load_table_from_csv, \
-    save_table_to_csv
+from nicos_ess.utilities.csv_utils import load_table_from_csv, save_table_to_csv
+from nicos_ess.loki.gui.loki_scriptbuilder_model import LokiScriptModel
 from nicos_ess.loki.gui.script_generator import ScriptGenerator, TransOrder
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
 
-class LokiScriptModel(QAbstractTableModel):
-    def __init__(self, header_data, num_rows=25):
-        super().__init__()
-
-        self._header_data = header_data
-        self._num_rows = num_rows
-        self._table_data = []
-        for _ in range(num_rows):
-            self.create_empty_row(0)
-
-    @property
-    def table_data(self):
-        return self._table_data
-
-    @table_data.setter
-    def table_data(self, value):
-        if isinstance(value, list) and all(
-            [isinstance(val, list) and len(val) == len(self._header_data)
-             for val in value]):
-            # Extend the list with empty rows if value has less than n_rows
-            if len(value) < self._num_rows:
-                value.extend(self.empty_2d_list(
-                        self._num_rows - len(value), len(self._header_data)))
-            self._table_data = value
-            self.layoutChanged.emit()
-        else:
-            raise AttributeError(
-                f"Attribute must be a 2D list of shape (_, {len(self._header_data)})"
-            )
-
-    def data(self, index, role):
-        if role == Qt.DisplayRole:
-            return self._table_data[index.row()][index.column()]
-
-    def setData(self, index, value, role):
-        if role == Qt.EditRole:
-            self._table_data[index.row()][index.column()] = value
-            return True
-
-    def rowCount(self, index):
-        return len(self._table_data)
-
-    def columnCount(self, index):
-        return len(self._table_data[0])
-
-    def create_empty_row(self, position):
-        self._table_data.insert(position, [''] * len(self._header_data))
-
-    def update_data_at_index(self, row, column, value):
-        self._table_data[row][column] = value
-        self.layoutChanged.emit()
-
-    def insertRow(self, position, index=QModelIndex()):
-        self.beginInsertRows(index, position, position)
-        self.create_empty_row(position)
-        self.endInsertRows()
-        return True
-
-    def removeRows(self, rows, index=QModelIndex()):
-        for row in sorted(rows, reverse=True):
-            self.beginRemoveRows(QModelIndex(), row, row)
-            del self._table_data[row]
-            self.endRemoveRows()
-        return True
-
-    def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
-
-    def headerData(self, section, orientation, role):
-        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
-            return self._header_data[section]
-        if role == Qt.DisplayRole and orientation == Qt.Vertical:
-            return section + 1
-
-    def setHeaderData(self, section, orientation, value, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
-            self._header_data[section] = value
-            self.headerDataChanged.emit(orientation, section, section)
-        return True
-
-    def update_data_from_clipboard(
-        self, copied_data, top_left_index, avoid=None):
-        # Copied data is tabular so insert at top-left most position
-        for row_index, row_data in enumerate(copied_data):
-            col_index = 0
-            for value in row_data:
-                if top_left_index[1] + col_index < len(self._table_data[0]):
-                    current_column = top_left_index[1] + col_index
-                    current_row = top_left_index[0] + row_index
-                    col_index += 1
-                    if current_row >= len(self._table_data):
-                        self.create_empty_row(current_row)
-
-                    if avoid is not None and current_column in avoid:
-                        continue
-                    self._table_data[current_row][current_column] = value
-
-        self.layoutChanged.emit()
-
-    def select_data(self, selected_indices):
-        curr_row = -1
-        row_data = []
-        selected_data = []
-        for row, column in selected_indices:
-            if row != curr_row:
-                if row_data:
-                    selected_data.append('\t'.join(row_data))
-                    row_data.clear()
-            curr_row = row
-            row_data.append(self._table_data[row][column])
-
-        if row_data:
-            selected_data.append('\t'.join(row_data))
-            row_data.clear()
-        return selected_data
-
-    def clear(self):
-        self.table_data = self.empty_2d_list(
-            len(self._table_data), len(self._header_data))
-
-    @staticmethod
-    def empty_2d_list(rows, columns):
-        return [[""] * columns for _ in range(rows)]
-
-
 class LokiScriptBuilderPanel(Panel):
     _available_trans_options = OrderedDict({
-        "All TRANS First": TransOrder.TRANSFIRST,
-        "All SANS First": TransOrder.SANSFIRST,
-        "TRANS then SANS":TransOrder.TRANSTHENSANS,
-        "SANS then TRANS": TransOrder.SANSTHENTRANS,
-        "Simultaneous": TransOrder.SIMULTANEOUS
+        'All TRANS First': TransOrder.TRANSFIRST,
+        'All SANS First': TransOrder.SANSFIRST,
+        'TRANS then SANS':TransOrder.TRANSTHENSANS,
+        'SANS then TRANS': TransOrder.SANSTHENTRANS,
+        'Simultaneous': TransOrder.SIMULTANEOUS
     })
 
     def __init__(self, parent, client, options):
@@ -185,7 +59,8 @@ class LokiScriptBuilderPanel(Panel):
     def _init_table_panel(self):
         headers = [
             self.permanent_columns[name]
-            if name in self.permanent_columns else self.optional_columns[name][0]
+            if name in self.permanent_columns
+            else self.optional_columns[name][0]
             for name in self.columns_in_order]
 
         self.model = LokiScriptModel(headers)
@@ -201,7 +76,6 @@ class LokiScriptBuilderPanel(Panel):
                                                self.comboSansDurationType)
         self._link_duration_combobox_to_column('trans_duration',
                                                self.comboTransDurationType)
-
 
         self.tableView.horizontalHeader().setStretchLastSection(True)
         self.tableView.horizontalHeader().setSectionResizeMode(
@@ -239,7 +113,7 @@ class LokiScriptBuilderPanel(Panel):
         filename = QFileDialog.getOpenFileName(
             self,
             'Open table',
-            osp.expanduser("~") if self.last_save_location is None \
+            osp.expanduser('~') if self.last_save_location is None \
                 else self.last_save_location,
             'Table Files (*.txt *.csv)')[0]
 
@@ -250,7 +124,7 @@ class LokiScriptBuilderPanel(Panel):
         headers_from_file = data.pop(0)
 
         if not set(headers_from_file).issubset(set(self.columns_in_order)):
-            self.showError(f"{filename} is not compatible with the table")
+            self.showError(f'{filename} is not compatible with the table')
             return
         # Clear existing table before populating from file
         self.on_clearTableButton_clicked()
@@ -274,28 +148,27 @@ class LokiScriptBuilderPanel(Panel):
         self.model.table_data = table_data
 
     def _fill_elements(self, row, indices, length):
-        """Returns a list of len length, with elements of row placed at
-        given indices.
+        """Returns a list with row elements placed in the given indices.
         """
         if len(row) == length:
             return row
-        r = [""] * length
-        # Slicing similar to numpy arrays r[indices] = row
+        result = [''] * length
+        # Slicing similar to numpy arrays result[indices] = row
         for index, value in zip(indices, row):
-            r[index] = value
-        return r
+            result[index] = value
+        return result
 
     @pyqtSlot()
     def on_saveTableButton_clicked(self):
         if self.is_data_in_hidden_columns():
-            self.showError("Cannot save because data in optional column(s)."
-                           "Select the optional column or clear the column.")
+            self.showError('Cannot save because data in optional column(s).'
+                           'Select the optional column or clear the column.')
             return
 
         filename = QFileDialog.getSaveFileName(
             self,
             'Save table',
-            osp.expanduser("~") if self.last_save_location is None \
+            osp.expanduser('~') if self.last_save_location is None \
                 else self.last_save_location,
             'Table files (*.txt *.csv)',
             initialFilter='*.txt;;*.csv')[0]
@@ -311,7 +184,7 @@ class LokiScriptBuilderPanel(Panel):
             data = self._extract_data_from_table()
             save_table_to_csv(data, filename, headers)
         except Exception as ex:
-            self.showError(f"Cannot write table contents to {filename}:\n{ex}")
+            self.showError(f'Cannot write table contents to {filename}:\n{ex}')
 
     def is_data_in_hidden_columns(self):
         optional_indices = [i for i, e in enumerate(self.columns_in_order)
@@ -382,7 +255,7 @@ class LokiScriptBuilderPanel(Panel):
 
     def _handle_delete_cells(self):
         for index in self.tableView.selectedIndexes():
-            self.model.update_data_at_index(index.row(), index.column(), "")
+            self.model.update_data_at_index(index.row(), index.column(), '')
 
     def _handle_copy_cells(self):
         indices = [(index.row(), index.column())
@@ -444,7 +317,6 @@ class LokiScriptBuilderPanel(Panel):
 
     def _do_bulk_update(self, value):
         for index in self.tableView.selectedIndexes():
-            # TODO: Handle hidden columns
             self.model.update_data_at_index(index.row(), index.column(), value)
 
     @pyqtSlot()
@@ -470,8 +342,9 @@ class LokiScriptBuilderPanel(Panel):
                 if not all([data['sans_duration'] == data['trans_duration']
                             for data in labeled_data]):
                     self.showError(
-                        "Different SANS and TRANS duration specified in "
-                        "SIMULTANEOUS mode. SANS duration will be used in the script.")
+                        'Different SANS and TRANS duration specified in '
+                        'SIMULTANEOUS mode. SANS duration will be used in '
+                        'the script.')
 
         template = ScriptGenerator().generate_script(
             labeled_data,
