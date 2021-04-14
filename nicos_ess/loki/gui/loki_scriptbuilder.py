@@ -1,57 +1,145 @@
+import os.path as osp
 from collections import OrderedDict
 from functools import partial
-import os.path as osp
+from itertools import groupby
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
-    QKeySequence, QShortcut, Qt, QTableWidgetItem, pyqtSlot, QAbstractTableModel
+from nicos.guisupport.qt import QAbstractTableModel, QApplication, \
+    QFileDialog, QHeaderView, QKeySequence, QModelIndex, QShortcut, Qt, \
+    QTableWidgetItem, pyqtSlot
 from nicos.utils import findResource
+
 from nicos_ess.gui.utilities.load_save_tables import load_table_from_csv, \
     save_table_to_csv
 from nicos_ess.loki.gui.script_generator import ScriptGenerator, TransOrder
-
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
 
 class LokiScriptModel(QAbstractTableModel):
-    def __init__(self):
+    def __init__(self, header_data, num_rows=25):
         super().__init__()
-        self._data = [
-            [1,2,3],
-            [4,5,6],
-        ]
 
-        self.headerData = ["a","b", "c"]
+        self._header_data = header_data
+        self._num_rows = num_rows
+        self._table_data = []
+        for _ in range(num_rows):
+            self.create_empty_row(0)
+
+    @property
+    def table_data(self):
+        return self._table_data
+
+    @table_data.setter
+    def table_data(self, value):
+        if isinstance(value, list) and all(
+            [isinstance(val, list) and len(val) == len(self._header_data)
+             for val in value]):
+            # Extend the list with empty rows if value has less than n_rows
+            if len(value) < self._num_rows:
+                value.extend(self.empty_2d_list(
+                        self._num_rows - len(value), len(self._header_data)))
+            self._table_data = value
+            self.layoutChanged.emit()
+        else:
+            raise AttributeError(
+                f"Attribute must be a 2D list of shape (_, {len(self._header_data)})"
+            )
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
-            return self._data[index.row()][index.column()]
+            return self._table_data[index.row()][index.column()]
 
     def setData(self, index, value, role):
         if role == Qt.EditRole:
-            self._data[index.row()][index.column()] = value
+            self._table_data[index.row()][index.column()] = value
             return True
 
     def rowCount(self, index):
-        return len(self._data)
+        return len(self._table_data)
 
     def columnCount(self, index):
-        return len(self._data[0])
+        return len(self._table_data[0])
 
-    def add_row(self):
-        self._data.append([7,8,9])
+    def create_empty_row(self, position):
+        self._table_data.insert(position, [''] * len(self._header_data))
+
+    def update_data_at_index(self, row, column, value):
+        self._table_data[row][column] = value
         self.layoutChanged.emit()
+
+    def insertRow(self, position, index=QModelIndex()):
+        self.beginInsertRows(index, position, position)
+        self.create_empty_row(position)
+        self.endInsertRows()
+        return True
+
+    def removeRows(self, rows, index=QModelIndex()):
+        for row in sorted(rows, reverse=True):
+            self.beginRemoveRows(QModelIndex(), row, row)
+            del self._table_data[row]
+            self.endRemoveRows()
+        return True
 
     def flags(self, index):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
 
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
-            return self.headerData[section]
+            return self._header_data[section]
         if role == Qt.DisplayRole and orientation == Qt.Vertical:
             return section + 1
+
+    def setHeaderData(self, section, orientation, value, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+            self._header_data[section] = value
+            self.headerDataChanged.emit(orientation, section, section)
+        return True
+
+    def update_data_from_clipboard(
+        self, copied_data, top_left_index, avoid=None):
+        # Copied data is tabular so insert at top-left most position
+        for row_index, row_data in enumerate(copied_data):
+            col_index = 0
+            for value in row_data:
+                if top_left_index[1] + col_index < len(self._table_data[0]):
+                    current_column = top_left_index[1] + col_index
+                    current_row = top_left_index[0] + row_index
+                    col_index += 1
+                    if current_row >= len(self._table_data):
+                        self.create_empty_row(current_row)
+
+                    if avoid is not None and current_column in avoid:
+                        continue
+                    self._table_data[current_row][current_column] = value
+
+        self.layoutChanged.emit()
+
+    def select_data(self, selected_indices):
+        curr_row = -1
+        row_data = []
+        selected_data = []
+        for row, column in selected_indices:
+            if row != curr_row:
+                if row_data:
+                    selected_data.append('\t'.join(row_data))
+                    row_data.clear()
+            curr_row = row
+            row_data.append(self._table_data[row][column])
+
+        if row_data:
+            selected_data.append('\t'.join(row_data))
+            row_data.clear()
+        return selected_data
+
+    def clear(self):
+        self.table_data = self.empty_2d_list(
+            len(self._table_data), len(self._header_data))
+
+    @staticmethod
+    def empty_2d_list(rows, columns):
+        return [[""] * columns for _ in range(rows)]
 
 
 class LokiScriptBuilderPanel(Panel):
@@ -71,10 +159,6 @@ class LokiScriptBuilderPanel(Panel):
 
         self.window = parent
 
-        self.model = LokiScriptModel()
-        # self.tableView.setModel(self.model)
-        self.tableView.hide()
-
         self.duration_options = ['Mevents', 'seconds', 'frames']
 
         self.permanent_columns = {
@@ -90,70 +174,45 @@ class LokiScriptBuilderPanel(Panel):
             'pre-command': ('Pre-command', self.chkShowPreCommand),
             'post-command': ('Post-command', self.chkShowPostCommand)
         }
+        # Set up trans order combo-box
+        self.comboTransOrder.addItems(self._available_trans_options.keys())
 
         self.columns_in_order = [name for name in self.permanent_columns.keys()]
         self.columns_in_order.extend(self.optional_columns.keys())
         self.last_save_location = None
-        self._init_panel()
+        self._init_table_panel()
 
-    def _init_panel(self, num_rows=25):
-        # Create columns
-        self.tableScript.setColumnCount(len(self.columns_in_order))
-        for i, name in enumerate(self.columns_in_order):
-            if name in self.permanent_columns:
-                title = self.permanent_columns[name]
-            else:
-                title = self.optional_columns[name][0]
-            self._set_column_title(i, title)
+    def _init_table_panel(self):
+        headers = [
+            self.permanent_columns[name]
+            if name in self.permanent_columns else self.optional_columns[name][0]
+            for name in self.columns_in_order]
 
-        # Link optional columns with corresponding check-boxes
+        self.model = LokiScriptModel(headers)
+        self.tableView.setModel(self.model)
+
         for name, details in self.optional_columns.items():
             _, checkbox = details
             checkbox.stateChanged.connect(
                 partial(self._on_optional_column_toggled, name))
             self._hide_column(name)
 
-        # Configure duration type combo-boxes
         self._link_duration_combobox_to_column('sans_duration',
                                                self.comboSansDurationType)
         self._link_duration_combobox_to_column('trans_duration',
                                                self.comboTransDurationType)
 
-        # Set up trans order combo-box
-        self.comboTransOrder.addItems(self._available_trans_options.keys())
 
-        # General table formatting
-        self.tableScript.horizontalHeader().setStretchLastSection(True)
-        self.tableScript.horizontalHeader().setSectionResizeMode(
+        self.tableView.horizontalHeader().setStretchLastSection(True)
+        self.tableView.horizontalHeader().setSectionResizeMode(
             QHeaderView.Stretch)
-        self.tableScript.resizeColumnsToContents()
-        self.tableScript.setAlternatingRowColors(True)
-        self.tableScript.setStyleSheet(TABLE_QSS)
-
-        self.tableScript.setRowCount(num_rows)
-
-        QShortcut(QKeySequence.Paste, self.tableScript).activated.connect(
-            self._handle_table_paste)
-
-        QShortcut(QKeySequence.Cut, self.tableScript).activated.connect(
-            self._handle_cut_cells)
-
-        QShortcut(QKeySequence.Delete, self.tableScript).activated.connect(
-            self._handle_delete_cells)
-
-        # TODO: this doesn't work on a Mac? How about Linux?
-        QShortcut(QKeySequence.Backspace, self.tableScript).activated.connect(
-            self._handle_delete_cells)
-
-        # TODO: Cannot do keyboard copy as it is ambiguous - investigate
-        QShortcut(QKeySequence.Copy, self.tableScript).activated.connect(
-            self._handle_copy_cells)
+        self.tableView.resizeColumnsToContents()
+        self.tableView.setAlternatingRowColors(True)
+        self.tableView.setStyleSheet(TABLE_QSS)
 
     @pyqtSlot()
     def on_cutButton_clicked(self):
-        self.model.add_row()
-        # self.model.layoutChanged.emit()
-        # self._handle_cut_cells()
+        self._handle_cut_cells()
 
     @pyqtSlot()
     def on_copyButton_clicked(self):
@@ -206,11 +265,13 @@ class LokiScriptBuilderPanel(Panel):
         indices = [i for i, e in enumerate(self.columns_in_order)
                    if e in headers]
 
+        table_data = []
         for idx, row in enumerate(data):
             # create appropriate length list to fill the table row
             row = self._fill_elements(row, indices, len(self.columns_in_order))
-            for column in range(self.tableScript.columnCount()):
-                self._update_cell(idx, column, row[column])
+            table_data.append(row)
+
+        self.model.table_data = table_data
 
     def _fill_elements(self, row, indices, length):
         """Returns a list of len length, with elements of row placed at
@@ -255,63 +316,58 @@ class LokiScriptBuilderPanel(Panel):
     def is_data_in_hidden_columns(self):
         optional_indices = [i for i, e in enumerate(self.columns_in_order)
                             if e in self.optional_columns.keys()]
-
-        for row in range(self.tableScript.rowCount()):
-            for column in optional_indices:
-                if self.tableScript.isColumnHidden(column):
-                    item = self.tableScript.item(row, column)
-                    if item and item.text():
-                        return True
-        return False
+        # Transform table_data to allow easy access to columns like data[0]
+        data = list(zip(*self.model.table_data))
+        return any(
+            [any(data[column])
+             for column in optional_indices
+             if self.tableView.isColumnHidden(column)])
 
     def _extract_headers_from_table(self):
-        headers = []
-        for column in range(self.tableScript.columnCount()):
-            if not self.tableScript.isColumnHidden(column):
-                headers.append(self.columns_in_order[column])
+        headers = [column
+                   for idx, column in enumerate(self.columns_in_order)
+                   if not self.tableView.isColumnHidden(idx)]
         return headers
 
     def _extract_data_from_table(self):
+        table_data = self.model.table_data
+        # Remove hidden columns from data
         data = []
-        for row in range(self.tableScript.rowCount()):
-            rowdata = []
-            for column in range(self.tableScript.columnCount()):
-                if not self.tableScript.isColumnHidden(column):
-                    item = self.tableScript.item(row, column)
-                    if item is not None:
-                        rowdata.append(item.text())
-                    else:
-                        rowdata.append("")
-            if any(rowdata):
-                data.append(rowdata)
+        for row, row_data in enumerate(table_data):
+            relevant_column = []
+            for column, column_data in enumerate(row_data):
+                if not self.tableView.isColumnHidden(column):
+                    relevant_column.append(column_data)
+            data.append(relevant_column)
+        # Remove the trailing empty rows
+        for row, row_data in reversed(list(enumerate(data))):
+            if any(row_data):
+                break
+            else:
+                data.pop(row)
         return data
 
     def _delete_rows(self):
         rows_to_remove = set()
-        for index in self.tableScript.selectionModel().selectedIndexes():
+        for index in self.tableView.selectedIndexes():
             rows_to_remove.add(index.row())
         rows_to_remove = list(rows_to_remove)
-        rows_to_remove.sort(reverse=True)
-        for row_num in rows_to_remove:
-            self.tableScript.removeRow(row_num)
+        self.tableView.model().removeRows(rows_to_remove)
 
     def _insert_row_above(self):
-        lowest, _ = self._get_selected_rows_limits()
+        lowest, highest = self._get_selected_rows_limits()
         if lowest is not None:
-            self.tableScript.insertRow(lowest)
+            self.tableView.model().insertRow(lowest)
 
     def _insert_row_below(self):
         _, highest = self._get_selected_rows_limits()
         if highest is not None:
-            self.tableScript.insertRow(highest + 1)
+            self.tableView.model().insertRow(highest + 1)
 
     def _get_selected_rows_limits(self):
-        if self.tableScript.rowCount() == 0:
-            return 0, -1
-
         lowest = None
         highest = None
-        for index in self.tableScript.selectionModel().selectedIndexes():
+        for index in self.tableView.selectedIndexes():
             if lowest is None:
                 lowest = index.row()
                 highest = index.row()
@@ -325,45 +381,35 @@ class LokiScriptBuilderPanel(Panel):
         self._handle_delete_cells()
 
     def _handle_delete_cells(self):
-        for index in self.tableScript.selectionModel().selectedIndexes():
-            self._update_cell(index.row(), index.column(), '')
+        for index in self.tableView.selectedIndexes():
+            self.model.update_data_at_index(index.row(), index.column(), "")
 
     def _handle_copy_cells(self):
-        if len(self.tableScript.selectedRanges()) != 1:
+        indices = [(index.row(), index.column())
+                   for index in self.tableView.selectedIndexes()]
+        if len(set(
+            [len(list(group))
+             for _, group in groupby(indices, lambda x: x[0])])) != 1:
             # Can only select one continuous region to copy
             return
+
         selected_data = self._extract_selected_data()
         QApplication.instance().clipboard().setText('\n'.join(selected_data))
 
     def _extract_selected_data(self):
-        selected_data = []
-        row_data = []
-        curr_row = -1
-        for index in self.tableScript.selectionModel().selectedIndexes():
-            if self.tableScript.isColumnHidden(index.column()):
-                # Don't copy hidden columns
+        selected_indices = []
+        for index in self.tableView.selectedIndexes():
+            if self.tableView.isColumnHidden(index.column()):
+                # Don't select hidden columns
                 continue
-            if curr_row != index.row():
-                if row_data:
-                    selected_data.append('\t'.join(row_data))
-                    row_data.clear()
-                curr_row = index.row()
-            cell_text = self._get_cell_text(index.row(), index.column())
-            row_data.append(cell_text)
-        if row_data:
-            selected_data.append('\t'.join(row_data))
-            row_data.clear()
-        return selected_data
+            selected_indices.append((index.row(), index.column()))
 
-    def _get_cell_text(self, row, column):
-        cell = self.tableScript.item(row, column)
-        if cell:
-            return cell.text()
-        return ''
+        selected_data = self.model.select_data(selected_indices)
+        return selected_data
 
     def _handle_table_paste(self):
         indices = []
-        for index in self.tableScript.selectionModel().selectedIndexes():
+        for index in self.tableView.selectedIndexes():
             indices.append((index.row(), index.column()))
         top_left = indices[0]
 
@@ -376,29 +422,14 @@ class LokiScriptBuilderPanel(Panel):
 
         copied_table = [[x for x in row.split('\t')]
                         for row in clipboard_text.splitlines()]
-
         if len(copied_table) == 1 and len(copied_table[0]) == 1:
             # Only one value, so put it in all selected cells
             self._do_bulk_update(copied_table[0][0])
             return
-
-        # Copied data is tabular so insert at top-left most position
-        for row_index, row_data in enumerate(copied_table):
-            col_index = 0
-            for value in row_data:
-                while top_left[1] + col_index < self.tableScript.columnCount():
-                    current_column = top_left[1] + col_index
-                    current_row = top_left[0] + row_index
-                    col_index += 1
-                    # Only paste into visible columns
-                    if not self.tableScript.isColumnHidden(current_column):
-                        self._update_cell(current_row, current_column, value)
-                        self._select_cell(current_row, current_column)
-                        break
-
-    def _select_cell(self, row, column):
-        item = self.tableScript.item(row, column)
-        item.setSelected(True)
+        hidden_columns = [idx for idx in range(len(self.columns_in_order))
+                          if self.tableView.isColumnHidden(idx)]
+        self.model.update_data_from_clipboard(
+            copied_table, top_left, hidden_columns)
 
     def _link_duration_combobox_to_column(self, column_name, combobox):
         combobox.addItems(self.duration_options)
@@ -412,35 +443,35 @@ class LokiScriptBuilderPanel(Panel):
         self._do_bulk_update(self.txtValue.text())
 
     def _do_bulk_update(self, value):
-        for index in self.tableScript.selectionModel().selectedIndexes():
-            if not self.tableScript.isColumnHidden(index.column()):
-                self._update_cell(index.row(), index.column(), value)
+        for index in self.tableView.selectedIndexes():
+            # TODO: Handle hidden columns
+            self.model.update_data_at_index(index.row(), index.column(), value)
 
     @pyqtSlot()
     def on_clearTableButton_clicked(self):
-        for row in range(self.tableScript.rowCount()):
-            for column in range(self.tableScript.columnCount()):
-                self._update_cell(row, column, '')
+        self.model.clear()
 
     def _extract_labeled_data(self):
-        table = []
-        for row in range(self.tableScript.rowCount()):
-            row_values = {}
-            for idx, column in enumerate(self.columns_in_order):
-                item = self.tableScript.item(row, idx)
-                if item is None:
-                    continue
-                row_values[column] = item.text()
+        labeled_data = []
+        for row_data in self.model.table_data:
+            labeled_row_data = dict(zip(self.columns_in_order, row_data))
             # Row will contribute to script only if all permanent columns
             # values are present
-            if all(map(row_values.get, self.permanent_columns.keys())):
-                table.append(row_values)
-
-        return table
+            if all(map(labeled_row_data.get, self.permanent_columns.keys())):
+                labeled_data.append(labeled_row_data)
+        return labeled_data
 
     @pyqtSlot()
     def on_generateScriptButton_clicked(self):
         labeled_data = self._extract_labeled_data()
+
+        if self._available_trans_options[self.comboTransOrder.currentText()] ==\
+            TransOrder.SIMULTANEOUS:
+                if not all([data['sans_duration'] == data['trans_duration']
+                            for data in labeled_data]):
+                    self.showError(
+                        "Different SANS and TRANS duration specified in "
+                        "SIMULTANEOUS mode. SANS duration will be used in the script.")
 
         template = ScriptGenerator().generate_script(
             labeled_data,
@@ -465,11 +496,11 @@ class LokiScriptBuilderPanel(Panel):
 
     def _hide_column(self, column_name):
         column_number = self.columns_in_order.index(column_name)
-        self.tableScript.setColumnHidden(column_number, True)
+        self.tableView.setColumnHidden(column_number, True)
 
     def _show_column(self, column_name):
         column_number = self.columns_in_order.index(column_name)
-        self.tableScript.setColumnHidden(column_number, False)
+        self.tableView.setColumnHidden(column_number, False)
 
     def _on_duration_type_changed(self, column_name, value):
         column_number = self.columns_in_order.index(column_name)
@@ -477,4 +508,4 @@ class LokiScriptBuilderPanel(Panel):
             f'{self.permanent_columns[column_name]}\n({value})')
 
     def _set_column_title(self, index, title):
-        self.tableScript.setHorizontalHeaderItem(index, QTableWidgetItem(title))
+        self.model.setHeaderData(index, Qt.Horizontal, title)
