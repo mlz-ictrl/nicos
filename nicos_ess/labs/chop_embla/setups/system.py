@@ -14,7 +14,7 @@ modules = ['nicos.commands.standard', 'nicos_ess.commands.epics']
 devices = dict(
     Skeleton=device('nicos.devices.instrument.Instrument',
                     description='instrument object',
-                    instrument='premp',
+                    instrument='chop_embla',
                     responsible='S. Body <some.body@ess.eu>',
                     ),
 
