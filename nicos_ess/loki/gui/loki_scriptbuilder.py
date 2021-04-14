@@ -80,21 +80,16 @@ class LokiScriptBuilderPanel(LokiPanelBase):
 
         self.tableScript.setRowCount(num_rows)
 
-        paste_shortcut = QShortcut(QKeySequence.Paste, self.tableScript)
-        paste_shortcut.activated.connect(self._handle_table_paste)
-        paste_shortcut.setContext(Qt.WidgetShortcut)
+        # Keyboard shortcuts
+        self._connect_key_shortcut(QKeySequence.Paste, self._handle_table_paste)
+        self._connect_key_shortcut(QKeySequence.Cut, self._handle_cut_cells)
+        self._connect_key_shortcut(QKeySequence.Copy, self._handle_copy_cells)
+        self._connect_key_shortcut("Ctrl+Backspace", self._delete_rows)
 
-        cut_shortcut = QShortcut(QKeySequence.Cut, self.tableScript)
-        cut_shortcut.activated.connect(self._handle_cut_cells)
-        cut_shortcut.setContext(Qt.WidgetShortcut)
-
-        copy_shortcut = QShortcut(QKeySequence.Copy, self.tableScript)
-        copy_shortcut.activated.connect(self._handle_copy_cells)
-        copy_shortcut.setContext(Qt.WidgetShortcut)
-
-        delete_shortcut = QShortcut("Ctrl+Backspace", self.tableScript)
-        delete_shortcut.activated.connect(self._delete_rows)
-        delete_shortcut.setContext(Qt.WidgetShortcut)
+    def _connect_key_shortcut(self, shortcut_keys, callable):
+        shortcut = QShortcut(shortcut_keys, self.tableScript)
+        shortcut.activated.connect(callable)
+        shortcut.setContext(Qt.WidgetShortcut)
 
     @pyqtSlot()
     def on_cutButton_clicked(self):
