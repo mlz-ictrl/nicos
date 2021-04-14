@@ -7,6 +7,8 @@ devices = dict(
          instrument = 'DNS',
          ghosthost = 'ghost.mlz-garching.de',
          aliases = {
+             'ys': ('y.su@fz-juelich.de', 'user'),
+             'tm': ('t.mueller@fz-juelich.de', 'user'),
          },
     ),
     Auth = device('nicos.services.daemon.auth.list.Authenticator',

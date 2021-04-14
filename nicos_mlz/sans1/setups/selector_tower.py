@@ -2,8 +2,6 @@ description = 'Selector Tower Movement'
 
 group = 'lowlevel'
 
-nethost = 'sans1srv.sans1.frm2'
-
 tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1/'
 
 devices = dict(

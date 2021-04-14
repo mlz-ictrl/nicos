@@ -26,9 +26,9 @@ devices = dict(
             enableDirMode = 0o775,
             enableFileMode = 0o664,
             disableDirMode = 0o700,
-            disableFileMode = 0o600,
+            disableFileMode = 0o400,
             owner = 'jcns',
-            group = 'panda'
+            group = 'mlzinstr'
         ),
         sendmail = True,
         zipdata = True,

@@ -217,7 +217,11 @@ class ReaderMeta(type):
 
 
 class ImageFileReader(metaclass=ReaderMeta):
-    filetypes = []  # list of (filetype abbreviation, QFileDialog filter str)
+    # List of (filetype, QFileDialog filter string, i.e. "Name (*.ext *.ext2)")
+    #
+    # The filetype has to be identical to the filetype reported by the sink
+    # which is writing the file.
+    filetypes = []
 
     @classmethod
     def fromfile(cls, filename):

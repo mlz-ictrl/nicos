@@ -40,7 +40,7 @@ from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 
 class DNSFileSinkHandler(SingleFileSinkHandler):
 
-    filetype = 'DNS'
+    filetype = 'dns'
     accept_final_images_only = True
 
     def writeData(self, fp, image):
