@@ -4,15 +4,15 @@ from functools import partial
 from itertools import groupby
 
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, Qt, \
-    QKeySequence, QShortcut, QTableWidgetItem, pyqtSlot
+from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, \
+    QKeySequence, QShortcut, Qt, pyqtSlot
 from nicos.utils import findResource
 
-from nicos_ess.utilities.csv_utils import load_table_from_csv, save_table_to_csv
 from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 from nicos_ess.loki.gui.loki_scriptbuilder_model import LokiScriptModel
 from nicos_ess.loki.gui.script_generator import ScriptGenerator, TransOrder
-
+from nicos_ess.utilities.csv_utils import load_table_from_csv, \
+    save_table_to_csv
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
