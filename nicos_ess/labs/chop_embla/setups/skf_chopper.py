@@ -28,7 +28,7 @@ devices = dict(
         description='The current speed.',
         readpv='{}Spd_Stat'.format(pv_root),
         writepv='{}Spd_SP'.format(pv_root),
-        abslimits=(0.0, 14),
+        abslimits=(0.0, 77),
     ),
 
 )
