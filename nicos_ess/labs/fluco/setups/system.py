@@ -12,11 +12,11 @@ sysconfig = dict(
 modules = ['nicos.commands.standard', 'nicos_ess.commands.epics']
 
 devices = dict(
-    Skeleton=device('nicos.devices.instrument.Instrument',
-                    description='instrument object',
-                    instrument='fluco',
-                    responsible='S. Body <some.body@ess.eu>',
-                    ),
+    Fluco=device('nicos.devices.instrument.Instrument',
+             description='instrument object',
+             instrument='Fluco',
+             responsible='S. Body <some.body@ess.eu>',
+             ),
 
     Sample=device('nicos.devices.sample.Sample',
                   description='The currently used sample',
