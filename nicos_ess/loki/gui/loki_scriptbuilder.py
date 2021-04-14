@@ -57,7 +57,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         self.last_save_location = None
         self._init_table_panel()
 
-    def _init_table_panel(self, num_rows=25):
+    def _init_table_panel(self):
         headers = [
             self.permanent_columns[name]
             if name in self.permanent_columns
@@ -81,11 +81,9 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         self.tableView.horizontalHeader().setStretchLastSection(True)
         self.tableView.horizontalHeader().setSectionResizeMode(
             QHeaderView.Stretch)
-
-        self.tableScript.resizeColumnsToContents()
-        self.tableScript.setAlternatingRowColors(True)
-        self.tableScript.setStyleSheet(TABLE_QSS)
-        self.tableScript.setRowCount(num_rows)
+        self.tableView.resizeColumnsToContents()
+        self.tableView.setAlternatingRowColors(True)
+        self.tableView.setStyleSheet(TABLE_QSS)
 
         self._create_keyboard_shortcuts()
 
@@ -99,7 +97,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             self._create_shortcut_key(key, to_call)
 
     def _create_shortcut_key(self, shortcut_keys, to_call):
-        shortcut = QShortcut(shortcut_keys, self.tableScript)
+        shortcut = QShortcut(shortcut_keys, self.tableView)
         shortcut.activated.connect(to_call)
         shortcut.setContext(Qt.WidgetShortcut)
 
@@ -376,13 +374,6 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             self.comboSansDurationType.currentText())
 
         self.mainwindow.codeGenerated.emit(template)
-
-    def _update_cell(self, row, column, new_value):
-        item = self.tableScript.item(row, column)
-        if not item:
-            self.tableScript.setItem(row, column, QTableWidgetItem(new_value))
-        else:
-            item.setText(new_value)
 
     def _on_optional_column_toggled(self, column_name, state):
         if state == Qt.Checked:
