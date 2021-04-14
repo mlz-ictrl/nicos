@@ -1,0 +1,42 @@
+description = 'The Lakeshore 155.'
+
+pv_root = 'E04-SEE:LS155-001:'
+
+devices = dict(
+    ls155_mode=device('nicos_ess.devices.epics.pva.EpicsStringReadable',
+        description='Current mode',
+        readpv='{}FunctionMode-S'.format(pv_root),
+    ),
+    ls155_idn=device('nicos_ess.devices.epics.pva.EpicsStringReadable',
+        description='The device idn',
+        readpv='{}IDN-R'.format(pv_root),
+        lowlevel=False,
+    ),
+    ls155_amplitude_A=device('nicos_ess.devices.epics.pva.EpicsAnalogMoveable',
+        description='DC amplitude (current)',
+        readpv='{}CurrAmp-R'.format(pv_root),
+        writepv='{}CurrValue-S'.format(pv_root),
+        lowlevel=False,
+    ),
+    ls155_amplitude_V=device('nicos_ess.devices.epics.pva.EpicsAnalogMoveable',
+        description='DC amplitude (current)',
+        readpv='{}VoltAmp-R'.format(pv_root),
+        writepv='{}VoltValue-S'.format(pv_root),
+        lowlevel=False,
+    ),
+    ls155_output=device('nicos_ess.devices.epics.pva.EpicsMappedMoveable',
+        description='Outputting DC',
+        readpv='{}OutputState-RBV'.format(pv_root),
+        writepv='{}OutputState-S'.format(pv_root),
+        lowlevel=False,
+        mapping={'Off': 0, 'On': 1},
+    ),
+    ls155_shape=device(
+        'nicos_ess.devices.epics.pva.EpicsMappedMoveable',
+        description='Outputting DC',
+        readpv='{}FunctionShape-RBV'.format(pv_root),
+        writepv='{}FunctionShape-S'.format(pv_root),
+        lowlevel=False,
+        mapping={'DC': 0, 'AC': 1},
+    ),
+)

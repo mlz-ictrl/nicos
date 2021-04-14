@@ -4,8 +4,6 @@ group = 'lowlevel'
 
 excludes = ['sans1_det']
 
-nethost = 'sans1srv.sans1.frm2'
-
 sysconfig = dict(
     datasinks = ['Histogram', 'Listmode']
 )

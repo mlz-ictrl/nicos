@@ -25,13 +25,14 @@
 """NICOS GUI multiple cmdlet script-builder input."""
 
 from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
-from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QAction, QMenu, QToolButton, pyqtSlot
 from nicos.utils import importString, findResource
 
+from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 
-class CommandsPanel(Panel):
+
+class CommandsPanel(LokiPanelBase):
     """Provides a panel to create via click-and-choose multiple NICOS commands.
 
     This panel allows the user to create a series of NICOS commands with
@@ -46,7 +47,7 @@ class CommandsPanel(Panel):
     panelName = 'Commands'
 
     def __init__(self, parent, client, options):
-        Panel.__init__(self, parent, client, options)
+        LokiPanelBase.__init__(self, parent, client, options)
         loadUi(self,
                findResource('nicos_ess/loki/gui/ui_files/scriptbuilder.ui'))
 
@@ -55,12 +56,11 @@ class CommandsPanel(Panel):
         self.mapping = {}
         self.expertmode = self.mainwindow.expertmode
 
-        if client.isconnected:
-            self.on_client_connected()
-        else:
-            self.on_client_disconnected()
-        client.connected.connect(self.on_client_connected)
-        client.disconnected.connect(self.on_client_disconnected)
+        self._cmdlet = self.sender()
+        self._layout = self.frame.layout()
+        self.index = self._layout.indexOf(self._cmdlet)
+
+        self.initialise_connection_status_listeners()
 
         modules = options.get('modules', [])
         for module in modules:
@@ -111,38 +111,25 @@ class CommandsPanel(Panel):
         self.frame.setEnabled(False)
 
     def on_cmdletRemove(self):
-        cmdlet = self.sender()
-        layout = self.frame.layout()
+        self._layout.removeWidget(self._cmdlet)
+        self._cmdlet.hide()
 
-        layout.removeWidget(cmdlet)
-        cmdlet.hide()
-
-        if layout.count() < 3:
+        if self._layout.count() < 3:
             self.runBtn.setVisible(False)
 
     def on_cmdletUp(self):
-        cmdlet = self.sender()
-        layout = self.frame.layout()
-
-        index = layout.indexOf(cmdlet)
-
-        if not index:
+        if not self.index:
             return
 
-        layout.removeWidget(cmdlet)
-        layout.insertWidget(index - 1, cmdlet)
+        self._layout.removeWidget(self._cmdlet)
+        self._layout.insertWidget(self.index - 1, self._cmdlet)
 
     def on_cmdletDown(self):
-        cmdlet = self.sender()
-        layout = self.frame.layout()
-
-        index = layout.indexOf(cmdlet)
-
-        if index >= (layout.count() - 3):
+        if self.index >= (self._layout.count() - 3):
             return
 
-        layout.removeWidget(cmdlet)
-        layout.insertWidget(index + 1, cmdlet)
+        self._layout.removeWidget(self._cmdlet)
+        self._layout.insertWidget(self.index + 1, self._cmdlet)
 
     @pyqtSlot()
     def on_runBtn_clicked(self):
@@ -151,8 +138,8 @@ class CommandsPanel(Panel):
         mode = 'python'
         if self.client.eval('session.spMode', False):
             mode = 'simple'
-        for i in range(self.frame.layout().count() - 2):
-            cmdlet = self.frame.layout().itemAt(i).widget()
+        for i in range(self._layout.count() - 2):
+            cmdlet = self._layout.itemAt(i).widget()
             valid = valid and cmdlet.isValid()
             generated = cmdlet.generate(mode)
             if not generated.endswith('\n'):

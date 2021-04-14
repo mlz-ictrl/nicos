@@ -3,20 +3,21 @@ from collections import OrderedDict
 from functools import partial
 from itertools import groupby
 
-from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QFileDialog, QHeaderView, Qt, \
-    QTableWidgetItem, pyqtSlot
+    QKeySequence, QShortcut, QTableWidgetItem, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_ess.utilities.csv_utils import load_table_from_csv, save_table_to_csv
+from nicos_ess.loki.gui.loki_panel import LokiPanelBase
 from nicos_ess.loki.gui.loki_scriptbuilder_model import LokiScriptModel
 from nicos_ess.loki.gui.script_generator import ScriptGenerator, TransOrder
+
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
 
-class LokiScriptBuilderPanel(Panel):
+class LokiScriptBuilderPanel(LokiPanelBase):
     _available_trans_options = OrderedDict({
         'All TRANS First': TransOrder.TRANSFIRST,
         'All SANS First': TransOrder.SANSFIRST,
@@ -26,7 +27,7 @@ class LokiScriptBuilderPanel(Panel):
     })
 
     def __init__(self, parent, client, options):
-        Panel.__init__(self, parent, client, options)
+        LokiPanelBase.__init__(self, parent, client, options)
         loadUi(self,
                findResource('nicos_ess/loki/gui/ui_files/loki_scriptbuilder.ui')
                )
@@ -56,7 +57,7 @@ class LokiScriptBuilderPanel(Panel):
         self.last_save_location = None
         self._init_table_panel()
 
-    def _init_table_panel(self):
+    def _init_table_panel(self, num_rows=25):
         headers = [
             self.permanent_columns[name]
             if name in self.permanent_columns
@@ -80,9 +81,27 @@ class LokiScriptBuilderPanel(Panel):
         self.tableView.horizontalHeader().setStretchLastSection(True)
         self.tableView.horizontalHeader().setSectionResizeMode(
             QHeaderView.Stretch)
-        self.tableView.resizeColumnsToContents()
-        self.tableView.setAlternatingRowColors(True)
-        self.tableView.setStyleSheet(TABLE_QSS)
+
+        self.tableScript.resizeColumnsToContents()
+        self.tableScript.setAlternatingRowColors(True)
+        self.tableScript.setStyleSheet(TABLE_QSS)
+        self.tableScript.setRowCount(num_rows)
+
+        self._create_keyboard_shortcuts()
+
+    def _create_keyboard_shortcuts(self):
+        for key, to_call in [
+            (QKeySequence.Paste, self._handle_table_paste),
+            (QKeySequence.Cut, self._handle_cut_cells),
+            (QKeySequence.Copy, self._handle_copy_cells),
+            ("Ctrl+Backspace", self._delete_rows),
+        ]:
+            self._create_shortcut_key(key, to_call)
+
+    def _create_shortcut_key(self, shortcut_keys, to_call):
+        shortcut = QShortcut(shortcut_keys, self.tableScript)
+        shortcut.activated.connect(to_call)
+        shortcut.setContext(Qt.WidgetShortcut)
 
     @pyqtSlot()
     def on_cutButton_clicked(self):
@@ -284,6 +303,10 @@ class LokiScriptBuilderPanel(Panel):
         indices = []
         for index in self.tableView.selectedIndexes():
             indices.append((index.row(), index.column()))
+
+        if not indices:
+            return
+
         top_left = indices[0]
 
         clipboard_text = QApplication.instance().clipboard().text()

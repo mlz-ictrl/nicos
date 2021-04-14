@@ -49,7 +49,7 @@ from nicos.utils import BoundedOrderedDict, ReaderRegistry
 COLORMAPS = OrderedDict(GR_COLORMAPS)
 
 FILENAME = Qt.UserRole
-FILEFORMAT = Qt.UserRole + 1
+FILETYPE = Qt.UserRole + 1
 FILETAG = Qt.UserRole + 2
 FILEUID = Qt.UserRole + 3
 
@@ -62,11 +62,11 @@ DEFAULTS = dict(
 )
 
 
-def readDataFromFile(filename, fileformat):
+def readDataFromFile(filename, filetype):
     try:
-        return ReaderRegistry.getReaderCls(fileformat).fromfile(filename)
+        return ReaderRegistry.getReaderCls(filetype).fromfile(filename)
     except KeyError:
-        raise NicosError('Unsupported fileformat %r' % fileformat) from None
+        raise NicosError('Unsupported file format %r' % filetype) from None
 
 
 class LiveDataPanel(Panel):
@@ -139,7 +139,7 @@ class LiveDataPanel(Panel):
         Panel.__init__(self, parent, client, options)
         loadUi(self, self.ui)
 
-        self._allowed_tags = set()
+        self._allowed_filetypes = set()
         self._allowed_detectors = set()
         self._runtime = 0
         self._range_active = False
@@ -204,7 +204,7 @@ class LiveDataPanel(Panel):
         # configure allowed file types
         supported_filetypes = ReaderRegistry.filetypes()
         opt_filetypes = set(options.get('filetypes', supported_filetypes))
-        self._allowed_tags = opt_filetypes & set(supported_filetypes)
+        self._allowed_filetypes = opt_filetypes & set(supported_filetypes)
 
         # configure allowed detector device names
         detectors = options.get('detectors')
@@ -232,6 +232,11 @@ class LiveDataPanel(Panel):
             self._cachesize = 1  # always cache the last live image
         self._datacache = BoundedOrderedDict(maxlen=self._cachesize)
 
+        self._initControlsGUI()
+
+    def _initControlsGUI(self):
+        pass
+
     def setLiveItems(self, n):
         nitems = len(self.liveitems)
         if n < nitems:
@@ -245,7 +250,7 @@ class LiveDataPanel(Panel):
             for i in range(nitems, n):
                 item = QListWidgetItem('<Live #%d>' % (i + 1))
                 item.setData(FILENAME, i)
-                item.setData(FILEFORMAT, '')
+                item.setData(FILETYPE, '')
                 item.setData(FILETAG, LIVE)
                 self.fileList.insertItem(self.fileList.count(), item)
                 self.liveitems.append(item)
@@ -580,29 +585,27 @@ class LiveDataPanel(Panel):
         if self._liveOnlyIndex is not None and idx != self._liveOnlyIndex:
             return
 
-        if self.params['tag'] in self._allowed_tags \
-                or self.params['tag'] == LIVE:
-            try:
-                descriptions = self.params['datadescs']
-            except KeyError:
-                self.log.warning('Livedata with tag "Live" without '
-                                 '"datadescs" provided.')
+        try:
+            descriptions = self.params['datadescs']
+        except KeyError:
+            self.log.warning('Livedata with tag "Live" without '
+                             '"datadescs" provided.')
+            return
+
+        # pylint: disable=len-as-condition
+        if len(data):
+            # we got live data with specified formats
+            arrays = self.processDataArrays(
+                idx, numpy.frombuffer(data, descriptions[idx]['dtype']))
+
+            if arrays is None:
                 return
 
-            # pylint: disable=len-as-condition
-            if len(data):
-                # we got live data with specified formats
-                arrays = self.processDataArrays(
-                    idx, numpy.frombuffer(data, descriptions[idx]['dtype']))
+            # put everythin into the cache
+            uid = self.getIndexedUID(idx)
+            self._datacache[uid]['dataarrays'] = arrays
 
-                if arrays is None:
-                    return
-
-                # put everythin into the cache
-                uid = self.getIndexedUID(idx)
-                self._datacache[uid]['dataarrays'] = arrays
-
-                self.liveitems[idx].setData(FILEUID, uid)
+            self.liveitems[idx].setData(FILEUID, uid)
 
     def _process_filenames(self):
         # TODO: allow multiple fileformats?
@@ -612,15 +615,15 @@ class LiveDataPanel(Panel):
         for i, filedesc in enumerate(self.params['filedescs']):
             uid = self.getIndexedUID(number_of_items + i)
             name = filedesc['filename']
-            tag = filedesc.get('fileformat')
-            if tag is None or tag not in ReaderRegistry.filetypes():
+            filetype = filedesc.get('fileformat')
+            if filetype is None or filetype not in ReaderRegistry.filetypes():
                 continue  # Ignore unregistered file types
-            self.add_to_flist(name, tag, FILE, uid)
+            self.add_to_flist(name, filetype, FILE, uid)
             try:
                 # update display for selected live channel,
                 # just cache otherwise
                 self.setDataFromFile(
-                    name, tag, uid, display=(i == self._livechannel))
+                    name, filetype, uid, display=(i == self._livechannel))
             except Exception as e:
                 if uid in self._datacache:
                     # image is already cached
@@ -636,7 +639,6 @@ class LiveDataPanel(Panel):
                 and params['det'] not in self._allowed_detectors:
             return
 
-        params['tag'] = params['tag'].lower()
         self.params = params
         self._runtime = params['time']
         if params['tag'] == LIVE:
@@ -674,11 +676,11 @@ class LiveDataPanel(Panel):
             widgetcls = IntegralLiveWidget
         self.initLiveWidget(widgetcls)
 
-    def setDataFromFile(self, filename, tag, uid=None, display=True):
+    def setDataFromFile(self, filename, filetype, uid=None, display=True):
         """Load data array from file and dispatch to live widgets using
         ``setData``. Do not use caching if uid is ``None``.
         """
-        array = readDataFromFile(filename, tag)
+        array = readDataFromFile(filename, filetype)
         if array is not None:
             if uid:
                 if uid not in self._datacache:
@@ -785,10 +787,10 @@ class LiveDataPanel(Panel):
         # cache has cleared data or data has not been cached in the first place
         elif uid is None and item.data(FILETAG) == FILE:
             filename = item.data(FILENAME)
-            fileformat = item.data(FILEFORMAT)
+            filetype = item.data(FILETYPE)
 
             if path.isfile(filename):
-                rawdata = readDataFromFile(filename, fileformat)
+                rawdata = readDataFromFile(filename, filetype)
                 labels = {}
                 titles = {}
                 for axis, entry in zip(AXES, reversed(rawdata.shape)):
@@ -856,7 +858,7 @@ class LiveDataPanel(Panel):
                 else:
                     self.fileList.takeItem(index)
 
-    def add_to_flist(self, filename, fformat, ftag, uid=None, scroll=True):
+    def add_to_flist(self, filename, filetype, tag, uid=None, scroll=True):
         # liveonly mode doesn't display a filelist
         if self._liveOnlyIndex is not None:
             return
@@ -864,8 +866,8 @@ class LiveDataPanel(Panel):
         shortname = path.basename(filename)
         item = QListWidgetItem(shortname)
         item.setData(FILENAME, filename)
-        item.setData(FILEFORMAT, fformat)
-        item.setData(FILETAG, ftag)
+        item.setData(FILETYPE, filetype)
+        item.setData(FILETAG, tag)
         item.setData(FILEUID, uid)
         self.fileList.insertItem(self.fileList.count(), item)
         if uid:
@@ -882,7 +884,8 @@ class LiveDataPanel(Panel):
         """Open image file using registered reader classes."""
         ftypes = {ffilter: ftype
                   for ftype, ffilter in ReaderRegistry.filefilters()
-                  if not self._allowed_tags or ftype in self._allowed_tags}
+                  if not self._allowed_filetypes
+                  or ftype in self._allowed_filetypes}
         fdialog = FileFilterDialog(self, "Open data files", "",
                                    ";;".join(ftypes.keys()))
         if self._fileopen_filter:
@@ -893,23 +896,23 @@ class LiveDataPanel(Panel):
         if not files:
             return
         self._fileopen_filter = fdialog.selectedNameFilter()
-        tag = ftypes[self._fileopen_filter]
+        filetype = ftypes[self._fileopen_filter]
         errors = []
 
-        def _cacheFile(fn, tag):
+        def _cacheFile(fn, filetype):
             uid = uuid4()
             # setDataFromFile may raise an `NicosException`, e.g.
             # if the file cannot be opened.
             try:
-                self.setDataFromFile(fn, tag, uid, display=False)
+                self.setDataFromFile(fn, filetype, uid, display=False)
             except Exception as err:
                 errors.append('%s: %s' % (fn, err))
             else:
-                return self.add_to_flist(fn, tag, FILE, uid)
+                return self.add_to_flist(fn, filetype, FILE, uid)
 
         # load and display first item
         f = files.pop(0)
-        item = _cacheFile(f, tag)
+        item = _cacheFile(f, filetype)
         if item is not None:
             self.fileList.setCurrentItem(item)
         cachesize = self._cachesize - 1
@@ -917,10 +920,10 @@ class LiveDataPanel(Panel):
         for _, f in enumerateWithProgress(files[:cachesize],
                                           "Loading data files...",
                                           parent=fdialog):
-            _cacheFile(f, tag)
+            _cacheFile(f, filetype)
         # add further files to file list (open on request/itemClicked)
         for f in files[cachesize:]:
-            self.add_to_flist(f, tag, FILE)
+            self.add_to_flist(f, filetype, FILE)
 
         if errors:
             self.showError('Some files could not be opened:\n\n' +

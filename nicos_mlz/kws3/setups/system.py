@@ -40,10 +40,10 @@ devices = dict(
         managerights = dict(
             enableDirMode = 0o775,
             enableFileMode = 0o664,
-            disableDirMode = 0o500,
+            disableDirMode = 0o700,
             disableFileMode = 0o400,
             owner = 'jcns',
-            group = 'iff'
+            group = 'mlzinstr'
         ),
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',

@@ -5,8 +5,6 @@ group = 'plugplay'
 
 includes = ['alias_T']
 
-nethost = setupname
-
 tango_base = 'tango://%s:10000/box/' % setupname
 
 devices = {
