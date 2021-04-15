@@ -142,16 +142,23 @@ class ForwarderApp(CacheClient):
         :param devices: the devices to create callbacks for
         """
         for dev_name in devices:
-            self.log.info(f'Added {dev_name}')
-            current_status = self._convert_status(self.getDeviceParam(dev_name,
-                                                                      'status'))
-            current_value = self.getDeviceParam(dev_name, 'value')
-            self._status_value_cache[dev_name] = \
-                DeviceState(current_status, current_value)
-            self._send_device_info(dev_name, current_value, time_ns(),
-                                   current_status)
-            self.addCallback(dev_name, 'status', self._change_status_callback)
-            self.addCallback(dev_name, 'value', self._changed_value_callback)
+            try:
+                self.log.info(f'Added {dev_name}')
+                current_status = self._convert_status(
+                    self.getDeviceParam(dev_name,
+                                        'status'))
+                current_value = self.getDeviceParam(dev_name, 'value')
+                self._status_value_cache[dev_name] = \
+                    DeviceState(current_status, current_value)
+                self._send_device_info(dev_name, current_value, time_ns(),
+                                       current_status)
+                self.addCallback(dev_name, 'status',
+                                 self._change_status_callback)
+                self.addCallback(dev_name, 'value',
+                                 self._changed_value_callback)
+            except Exception as error:
+                self.log.error("Could not create callbacks for %s: %s",
+                               dev_name, error)
 
     @staticmethod
     def _convert_status(nicos_status):
