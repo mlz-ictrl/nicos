@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache='localhost',
-    instrument='Premp',
+    instrument='Embla',
     experiment='Exp',
     datasinks=['conssink', 'filesink', 'daemonsink',],
 )
@@ -12,11 +12,11 @@ sysconfig = dict(
 modules = ['nicos.commands.standard', 'nicos_ess.commands.epics']
 
 devices = dict(
-    Premp=device('nicos.devices.instrument.Instrument',
-             description='instrument object',
-             instrument='Premp',
-             responsible='S. Body <some.body@ess.eu>',
-             ),
+    Embla=device('nicos.devices.instrument.Instrument',
+                 description='instrument object',
+                 instrument='Embla',
+                 responsible='M. Olsson <markus.olsson@ess.eu>',
+                 ),
 
     Sample=device('nicos.devices.sample.Sample',
                   description='The currently used sample',
