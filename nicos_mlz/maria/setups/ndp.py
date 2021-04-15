@@ -6,37 +6,13 @@ group = "plugplay"
 includes = [
     "counter",
     "shutter",
+    "detector_sinks",
 ]
 excludes = ["det"]
 
-sysconfig = dict(
-    datasinks = ["LiveViewSink", "NPGZFileSink", "YAMLSaver"],
-)
-
 tango_base = "tango://phys.maria.frm2:10000/ndp"
 
-basename = "%(proposal)s_%(session.experiment.sample.filename)s_"
-scanbasename = basename + "%(scancounter)08d_%(pointnumber)08d"
-countbasename = basename + "%(pointpropcounter)010d"
-
 devices = dict(
-    LiveViewSink = device("nicos.devices.datasinks.LiveViewSink",
-        description = "Sends image data to LiveViewWidget",
-    ),
-    NPGZFileSink = device("nicos.devices.datasinks.text.NPGZFileSink",
-        description = "Saves image data in numpy text "
-        "format",
-        filenametemplate = [
-            scanbasename + "_%(arraynumber)d.gz",
-            countbasename + "_%(arraynumber)d.gz",
-        ],
-    ),
-    YAMLSaver = device("nicos_mlz.maria.devices.yamlformat.YAMLFileSink",
-        filenametemplate = [
-            scanbasename + ".yaml",
-            countbasename + ".yaml",
-        ],
-    ),
     chn1 = device("nicos_mlz.jcns.devices.detector.RateImageChannel",
         description = "NDP detector 1",
         tangodevice = tango_base + "/fastcomtec/chn1",

@@ -41,8 +41,7 @@ devices = dict(
         diameter = 0.29,
     ),
     selector_lambda_tilt = device('nicos.devices.vendor.astrium.SelectorLambda',
-        description = 'Selector center wavelength '
-        'control',
+        description = 'Selector center wavelength control',
         seldev = 'selector',
         unit = 'A',
         fmtstr = '%.2f',

@@ -10,6 +10,6 @@ devices = dict(
         poll = [],
         neverpoll = ['detector', 'measurement', 'notifiers'],
         alwayspoll = ['reactor'],
-        blacklist = []
+        blacklist = [],
     ),
 )

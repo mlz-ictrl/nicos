@@ -1,8 +1,6 @@
 description = 'sample table (external control)'
 group = 'lowlevel'
 
-excludes = ['sample']
-
 tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
 devices = dict(

@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import Attach, Moveable, NicosError
+from nicos.core import Attach, Moveable
 from nicos.devices.tango import DigitalOutput
 
 
@@ -55,9 +55,9 @@ class MultiDigitalOutput(Moveable):
 
     def doRead(self, maxage=0):
         values = [dev.read(maxage) for dev in self._adevs['outputs']]
-        if len(set(values)) != 1:
-            devnames = [dev.name for dev in self._adevs['outputs']]
-            raise NicosError(self,
-                'outputs have different read values: '
-                + ', '.join('%s=%s' % x for x in zip(devnames, values)))
-        return values[0]
+        # if len(set(values)) != 1:
+        #     devnames = [dev.name for dev in self._adevs['outputs']]
+        #     raise NicosError(self,
+        #         'outputs have different read values: '
+        #         + ', '.join('%s=%s' % x for x in zip(devnames, values)))
+        return min(values)

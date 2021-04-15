@@ -23,6 +23,7 @@ main_window = tabbed(
     ),
     ('Mieze display',
      panel('nicos_mlz.reseda.gui.mieze_display.MiezePanel',
+           foils=[0, 1, 2, 5, 6, 7],
            setups='mieze')
     ),
 )

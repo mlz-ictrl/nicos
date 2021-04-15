@@ -8,6 +8,7 @@ devices = dict(
         sender = 'mira@frm2.tum.de',
         copies = [('rgeorgii@frm2.tum.de', 'all')],
         subject = 'MIRA',
+        mailserver='smtp.frm2.tum.de',
     ),
     smser = device('nicos.devices.notifiers.SMSer',
         description = 'Reports via SMS',

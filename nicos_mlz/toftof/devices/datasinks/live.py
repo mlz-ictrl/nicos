@@ -24,6 +24,8 @@
 
 """TOFTOF special Live view sink for NICOS."""
 
+import numpy
+
 from nicos.devices.datasinks.special import LiveViewSink, LiveViewSinkHandler
 
 
@@ -33,8 +35,8 @@ class ToftofLiveViewSinkHandler(LiveViewSinkHandler):
         data = result[1][0]
         if data is not None:
             if len(data.shape) == 2:
-                treated = data[self.detector._anglemap, :].astype('<u4',
-                                                                  order='C')
+                treated = numpy.transpose(data)[
+                    self.detector._anglemap, :].astype('<u4')
                 return [treated]
 
     def getLabelDescs(self, result):

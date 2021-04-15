@@ -25,11 +25,11 @@ devices = {
                 sensor = '%s_coil_rms' % setupname,
                 moveable = '%s_fg_amp' % setupname,
                 loopdelay = 1.0,
-                maxstep = 0.1,
-                minstep = 0.005,
+                maxstep = 0.01,  # 0.1
+                minstep = 0.0001,  # 0.005
                 maxage = 11.0,
                 pollinterval = 5.0,
-                stepfactor = 0.3,
+                stepfactor = 0.1, #0.3
                 unit = 'V',
                ),
         ),
@@ -63,6 +63,7 @@ devices = {
             description = 'Power amplifier gain',
             tangodevice = '%s/%s/pa_gain' % (tango_base, setupname),
             pollinterval = 3,
+            unit = 'W',
         ),
     '%s' % setupname:
         device('nicos_mlz.reseda.devices.cbox.CBoxResonanceFrequency',
