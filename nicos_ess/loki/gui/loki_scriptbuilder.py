@@ -245,14 +245,18 @@ class LokiScriptBuilderPanel(LokiPanelBase):
         self.tableView.model().removeRows(rows_to_remove)
 
     def _insert_row_above(self):
-        lowest, highest = self._get_selected_rows_limits()
+        lowest, _ = self._get_selected_rows_limits()
         if lowest is not None:
             self.tableView.model().insertRow(lowest)
+        elif self.model.num_rows == 0:
+           self.tableView.model().insertRow(0)
 
     def _insert_row_below(self):
         _, highest = self._get_selected_rows_limits()
         if highest is not None:
             self.tableView.model().insertRow(highest + 1)
+        elif self.model.num_rows == 0:
+           self.tableView.model().insertRow(0)
 
     def _get_selected_rows_limits(self):
         lowest = None
