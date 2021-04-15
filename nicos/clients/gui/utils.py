@@ -25,13 +25,14 @@
 """NICOS GUI utilities."""
 
 import logging
+from contextlib import contextmanager
 from os import path
 
 from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
-from nicos.guisupport.qt import QApplication, QByteArray, QColor, QDateTime, \
-    QDialog, QFileDialog, QFont, QLabel, QMessageBox, QProgressDialog, \
-    QPushButton, QSettings, QSize, QStyle, Qt, QTextEdit, QToolButton, \
-    QVBoxLayout, QWidget, uic
+from nicos.guisupport.qt import QApplication, QByteArray, QColor, QCursor, \
+    QDateTime, QDialog, QFileDialog, QFont, QLabel, QMessageBox, \
+    QProgressDialog, QPushButton, QSettings, QSize, QStyle, Qt, QTextEdit, \
+    QToolButton, QVBoxLayout, QWidget, uic
 
 
 def splitTunnelString(tunnel):
@@ -334,3 +335,12 @@ class DebugHandler(logging.Handler):
             msg = self.format(record)
             self.mainwindow.debugConsole.addLogMsg('#' * 80)
             self.mainwindow.debugConsole.addLogMsg(msg)
+
+
+@contextmanager
+def waitCursor():
+    try:
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        yield
+    finally:
+        QApplication.restoreOverrideCursor()

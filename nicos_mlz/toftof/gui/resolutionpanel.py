@@ -22,19 +22,16 @@
 #
 # *****************************************************************************
 
-from contextlib import contextmanager
-
 from numpy import array
 
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import loadUi
+from nicos.clients.gui.utils import loadUi, waitCursor
 from nicos.core.errors import NicosError
 from nicos.core.utils import ADMIN
 from nicos.guisupport.livewidget import LiveWidget1D
 from nicos.guisupport.plots import GRCOLORS, MaskedPlotCurve
-from nicos.guisupport.qt import QApplication, QCursor, QDialogButtonBox, \
-    QDoubleValidator, QLabel, QMessageBox, QSize, QSizePolicy, Qt, \
-    QVBoxLayout, QWidget, pyqtSlot
+from nicos.guisupport.qt import QDialogButtonBox, QDoubleValidator, QLabel, \
+    QMessageBox, QSize, QSizePolicy, Qt, QVBoxLayout, QWidget, pyqtSlot
 from nicos.guisupport.widget import NicosWidget
 from nicos.utils import findResource
 
@@ -50,15 +47,6 @@ DELTA = '\u0394'
 LAMBDA = '\u03bb'
 MICRO = '\xb5'
 MINUSONE = '\u207b\xb9'
-
-
-@contextmanager
-def wait_cursor():
-    try:
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-        yield
-    finally:
-        QApplication.restoreOverrideCursor()
 
 
 class MiniPlot(LiveWidget1D):
@@ -178,7 +166,7 @@ class ResolutionPanel(NicosWidget, Panel):
         pass
 
     def initUi(self):
-        with wait_cursor():
+        with waitCursor():
             loadUi(self,
                    findResource('nicos_mlz/toftof/gui/resolutionpanel.ui'))
 
@@ -197,7 +185,7 @@ class ResolutionPanel(NicosWidget, Panel):
         pass
 
     def on_client_connected(self):
-        with wait_cursor():
+        with waitCursor():
             missed_devices = []
             for d in ('chSpeed', 'chRatio', 'chWL', 'chST'):
                 try:
