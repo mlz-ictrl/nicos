@@ -173,7 +173,7 @@ class ForwarderApp(CacheClient):
         :param kwargs: any extra (unused) keywords
         """
         dev_name = self._trim_name(dev_name)
-        self.log.info(f'{dev_name} value changed to {new_value}')
+        self.log.debug(f'{dev_name} value changed to {new_value}')
         with self._lock:
             self._status_value_cache[dev_name].value = new_value
         self._send_device_info(dev_name, new_value,
@@ -191,7 +191,7 @@ class ForwarderApp(CacheClient):
         :param kwargs: any extra (unused) keywords
         """
         dev_name = self._trim_name(dev_name)
-        self.log.info(f'{dev_name} status changed to {new_status}')
+        self.log.debug(f'{dev_name} status changed to {new_status}')
         new_status = self._convert_status(new_status)
         with self._lock:
             if new_status == self._status_value_cache[dev_name].status:
