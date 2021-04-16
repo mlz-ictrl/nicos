@@ -37,7 +37,7 @@ class ProducesKafkaMessages(DeviceMixinBase):
     parameters = {
         'brokers': Param('List of kafka hosts to be connected',
                          type=listof(host(defaultport=9092)),
-                         default=['localhost'], preinit=True, userparam=False),
+                         mandatory=True, preinit=True, userparam=False),
         'max_request_size': Param('Maximum size of kafka message',
                                   type=int, default=16000000, preinit=True,
                                   userparam=False),
