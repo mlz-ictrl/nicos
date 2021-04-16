@@ -33,12 +33,12 @@ from nicos_mlz.antares.lib.calculations import gam_rem_adp_log, scharr_filter
 from test.utils import approx
 
 
-def test_calculations():
-    img = scipy.misc.ascent()
+def test_sharpness():
+    img = scipy.misc.ascent().astype(np.uint16)
 
     sharpvals = []
     sigmas = [-30, -11, -5, -3, 0, 3, 5, 11, 30]
-    exp_sharpness = [15.34, 34.98, 63.92, 99.24, 271.79, 99.24, 63.92, 34.98,
+    exp_sharpness = [15.34, 34.98, 63.92, 99.24, 271.84, 99.24, 63.92, 34.98,
                      15.34]
 
     # calculate sharpness for a series of blurred pictures
@@ -49,15 +49,15 @@ def test_calculations():
         sharpvals.append(sharp)
 
 
-def test_sharpness():
-    img = scipy.misc.ascent()
+def test_calculations():
+    white = 0xffff * np.ones([500, 500], dtype=np.uint16)
+    assert scharr_filter(gam_rem_adp_log(white, 25, 100, 400, 0.8)) == 0
+
+    black = np.zeros([500, 500], dtype=np.uint16)
+    assert scharr_filter(gam_rem_adp_log(black, 25, 100, 400, 0.8)) == 0
+
+    img = scipy.misc.ascent().astype(np.uint16)
 
     assert scharr_filter(gam_rem_adp_log(img, 25, 100, 400, 0.8)) > \
        scharr_filter(gam_rem_adp_log(
            ndimage.gaussian_filter(img, sigma=10), 25, 100, 400, 0.8))
-
-    white = 0xff * np.ones([500, 500, 3], dtype=np.uint8)
-    assert scharr_filter(gam_rem_adp_log(white, 25, 100, 400, 0.8)) == 0
-
-    black = np.zeros([500, 500, 3], dtype=np.uint8)
-    assert scharr_filter(gam_rem_adp_log(black, 25, 100, 400, 0.8)) == 0
