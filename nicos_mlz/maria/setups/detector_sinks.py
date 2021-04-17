@@ -16,8 +16,8 @@ devices = dict(
         description = "Saves image data in numpy text "
         "format",
         filenametemplate = [
-            scanbasename + "_%(arraynumber)d.gz",
-            countbasename + "_%(arraynumber)d.gz",
+            scanbasename + ".gz",
+            countbasename + ".gz",
         ],
     ),
     YAMLSaver = device("nicos_mlz.maria.devices.yamlformat.YAMLFileSink",
