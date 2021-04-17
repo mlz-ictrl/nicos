@@ -28,7 +28,7 @@ import numpy as np
 import scipy.misc
 from scipy import ndimage
 
-from nicos_mlz.antares.lib.calculations import gam_rem_adp_log, scharr_filter
+from nicos.utils.gammafilter import gam_rem_adp_log, scharr_filter
 
 from test.utils import approx
 
