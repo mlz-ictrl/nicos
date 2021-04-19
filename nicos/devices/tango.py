@@ -29,6 +29,7 @@ All NICOS - TANGO devices only support devices which fulfill the official
 MLZ TANGO interface for the respective device classes.
 """
 
+import ast
 import os
 import re
 
@@ -672,6 +673,26 @@ class PowerSupply(HasTimeout, RampActuator):
             self._pollParam('current', 1)
 
 
+def parse_mapping(mapping):
+    """Parse the "mapping" property of digital devices."""
+    reverse = {}
+    forward = {}
+    mapping = ast.literal_eval(mapping or '[]')
+    for entry in mapping:
+        parts = entry.split(':')
+        if len(parts) < 2:
+            continue
+        try:
+            val = int(parts[0].strip())
+        except ValueError:
+            continue
+        label = parts[1].strip()
+        reverse[val] = label
+        if len(parts) == 2 or 'ro' not in parts[2]:
+            forward[label] = val
+    return reverse, forward
+
+
 class DigitalInput(PyTangoDevice, Readable):
     """
     A device reading a bitfield.
@@ -693,12 +714,21 @@ class NamedDigitalInput(DigitalInput):
     """
 
     parameters = {
-        'mapping': Param('A dictionary mapping state names to integers',
-                         type=dictof(str, int)),
+        'mapping': Param('A dictionary mapping state names to integers - '
+                         'if not given, read the mapping from the Tango '
+                         'device if possible',
+                         type=dictof(str, int), mandatory=False),
     }
 
     def doInit(self, mode):
-        self._reverse = {v: k for (k, v) in self.mapping.items()}
+        if self.mapping:
+            self._reverse = {v: k for (k, v) in self.mapping.items()}
+            return
+        try:
+            self._reverse = parse_mapping(self._getProperty('mapping'))[0]
+        except Exception:
+            self.log.warning('could not parse value mapping from Tango', exc=1)
+            self._reverse = {}
 
     def doRead(self, maxage=0):
         value = self._dev.value
@@ -751,18 +781,33 @@ class NamedDigitalOutput(DigitalOutput):
     """
 
     parameters = {
-        'mapping': Param('A dictionary mapping state names to integer values',
-                         type=dictof(str, int), mandatory=True),
+        'mapping': Param('A dictionary mapping state names to integers - '
+                         'if not given, read the mapping from the Tango '
+                         'device if possible',
+                         type=dictof(str, int), mandatory=False),
     }
 
     def doInit(self, mode):
-        self._reverse = {v: k for (k, v) in self.mapping.items()}
-        # oneofdict: allows both types of values (string/int), but normalizes
-        # them into the string form
-        self.valuetype = oneofdict(self._reverse)
+        if self.mapping:
+            self._reverse = {v: k for (k, v) in self.mapping.items()}
+            # oneofdict: allows both types of values (string/int), but
+            # normalizes them into the string form
+            self.valuetype = oneofdict(self._reverse)
+            self._forward = self.mapping
+            return
+        try:
+            self._reverse, self._forward = \
+                parse_mapping(self._getProperty('mapping'))
+            # we don't build the valuetype from self._reverse since it should
+            # only contain the write-able values
+            self.valuetype = oneofdict({v: k for (k, v)
+                                        in self._forward.items()})
+        except Exception:
+            self.log.warning('could not parse value mapping from Tango', exc=1)
+            self._reverse = self._forward = {}
 
     def doStart(self, target):
-        value = self.mapping.get(target, target)
+        value = self._forward.get(target, target)
         self._dev.value = value
 
     def doRead(self, maxage=0):

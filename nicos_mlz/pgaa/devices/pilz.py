@@ -83,7 +83,7 @@ class Switch(HasTimeout, NamedDigitalOutput):
         the value we take the remote control enable bit
         The switch is configured to write a bit, hold it some time and reset it
         """
-        value = self.mapping.get(target, target)
+        value = self._forward.get(target, target)
         if value == self._readback.value:
             return
         self._enableRemote()

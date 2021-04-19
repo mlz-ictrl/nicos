@@ -117,7 +117,7 @@ class NamedDigitalOutput(tango.NamedDigitalOutput):
         tango.NamedDigitalOutput.doInit(self, mode)
 
     def doStart(self, target):
-        value = self.mapping.get(target, target)
+        value = self._forward.get(target, target)
         self._dev.WriteOutputBit([self.startoffset, value])
 
     def doRead(self, maxage=0):
