@@ -415,21 +415,25 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
 
     def _write_misc(self, metainfo):
         for dev in Miscellaneous:
+            self.log.debug('dev misc %s', dev)
             if (dev, 'value') in metainfo:
                 self._data['Miscellaneous'][dev] = metainfo[dev, 'value'][0]
 
     def _write_vsd(self, metainfo):
         for dev in VSD:
+            self.log.debug('dev vsd %s', dev)
             if (dev, 'value') in metainfo:
                 self._data['vsd'][dev] = metainfo[dev, 'value'][0]
 
     def _write_safetysystem(self, metainfo):
         for dev in safetysystem:
+            self.log.debug('dev shs %s', dev)
             if (dev, 'value') in metainfo:
                 self._data['safetysystem'][dev] = metainfo[dev, 'value'][0]
 
     def _write_environment(self, metainfo):
         for dev in environment:
+            self.log.debug('dev env %s', dev)
             if (dev, 'value') in metainfo:
                 self._data['environment'][dev] = metainfo[dev, 'value'][0]
 
@@ -510,6 +514,7 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
     def _write_sample(self, metainfo):
         sample = self._dict()
         for devname in Gonio:
+            self.log.debug('dev sample %s', devname)
             if (devname, 'value') in metainfo:
                 sample[devname] = metainfo[devname, 'value'][0]
             else:
@@ -528,6 +533,10 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             if (dev, 'value') in metainfo:
                 extra[dev] = metainfo[dev, 'value'][0]
         self._data['Extra'] = extra
+        mstr = str(metainfo)
+        for evel in ['\xb0']:  # 'degC'
+            mstr = mstr.replace(evel, '+')
+        self._data['metainfo'] = mstr
 
     def putMetainfo(self, metainfo):
         self.log.debug('metainfo: %s', str(metainfo).replace(
@@ -555,15 +564,21 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
 
         elements = []
         for dev, _key in metainfo:
+            self.log.debug('dev extra %s %s', dev, _key)
             if dev not in elements + element_part:
                 elements.append(dev)
+        self.log.debug('Loop done')
         if elements:
-            self.log.debug('EXTRA %s', str(elements))
+            self.log.debug('EXTRA %s', elements)
 
         if self._data:
             # should be empty
+            self.log.debug('write_extra')
             self._write_extra(metainfo, elements)
+            self.log.debug('write_extra done')
+        self.log.debug('_dump %s', self._data)
         self._dump()
+        self.log.debug('_dump done')
 
     def putResults(self, quality, results):
         """Called when the point dataset main results are updated.
