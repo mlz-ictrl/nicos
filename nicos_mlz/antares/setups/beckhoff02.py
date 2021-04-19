@@ -5,13 +5,14 @@ tango_base = 'tango://antareshw.antares.frm2:10000/antares/beckhoff02/beckhoff02
 
 devices = {}
 
-for i in range(1,9):
+for i in range(1, 9):
     devices['beckhoff02_T%d' % i] = \
         device('nicos.devices.tango.Sensor',
                description = 'Temperature Sensor %d' % i,
                tangodevice = tango_base + 't%d' % i,
                unit = 'degC',
               )
+for i in range(1, 13):
     devices['beckhoff02_out%d' % i] = \
         device('nicos.devices.tango.NamedDigitalOutput',
                description = 'Digital Output%d' % i,
