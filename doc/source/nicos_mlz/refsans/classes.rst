@@ -35,11 +35,6 @@
 .. autoclass:: DoubleMotorBeckhoffNOK()
 .. autoclass:: SingleSideRead()
 
-.. module:: nicos_mlz.refsans.devices.beckhoff.pumpstation
-.. autoclass:: PumpstandIO()
-.. autoclass:: PumpstandPressure()
-.. autoclass:: PumpstandPump()
-
 .. module:: nicos_mlz.refsans.devices.beckhoff.vsd
 .. autoclass:: VSDIO()
 .. autoclass:: AnalogValue()
