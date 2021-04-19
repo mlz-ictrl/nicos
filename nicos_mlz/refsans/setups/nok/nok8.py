@@ -24,10 +24,10 @@ devices = dict(
         nok_motor = [9120.0, 9500.0],
         precision = 0.0,
         masks = {
-            'ng': optic_values['ng'],
-            'rc': optic_values['ng'],
-            'vc': optic_values['vc'],
-            'fc': optic_values['fc'],
+            'ng': -0.75 + optic_values['ng'],  # 2021-03-18 11:55:55 Theo MH 0.0
+            'rc': -0.75 + optic_values['ng'],  # 2021-03-18 11:55:55 Theo MH 0.0
+            'vc': -0.75 + optic_values['vc'],  # 2021-03-18 11:55:55 Theo MH 0.0
+            'fc': -1.75 + optic_values['fc'],  # 2021-03-18 11:55:55 Theo MH 0.0
         },
     ),
     nok8r_axis = device('nicos.devices.generic.Axis',

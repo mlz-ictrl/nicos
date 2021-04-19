@@ -274,8 +274,8 @@ devices = dict(
         address = 0x3020+4*10, # word address
         slope = 10000,
         unit = 'mm',
-        ruler = 302.679, #abs enc! -28.2111,
-        abslimits = (-155.7889, 28.111099999999997),
+        ruler = 291.879,  # 2021-03-17 14:36:00 TheoMH 302.679 Abschwaecher
+        abslimits = (-155.7889, 28.111099999999997),  # 2021-03-17 todo
         lowlevel = False,
     ),
     zb1_motor = device(code_base + 'beckhoff.nok.BeckhoffMotorCab1M13',
@@ -284,8 +284,8 @@ devices = dict(
         address = 0x3020+7*10, # word address
         slope = 10000,
         unit = 'mm',
-        ruler = 291.092, #abs enc! -54.080,
-        abslimits = (-178.9,  53.9),
+        ruler = 292.292,  # 2021-03-17 14:36:00 TheoMH 291.092, Abschwaecher
+        abslimits = (-178.9,  53.9),  # 2021-03-17 todo
         lowlevel = False,
     ),
     zb2_motor = device(code_base + 'ipc.NOKMotorIPC',

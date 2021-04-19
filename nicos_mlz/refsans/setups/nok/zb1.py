@@ -2,7 +2,7 @@ description = 'Slit ZB1 using beckhoff controllers'
 
 group = 'lowlevel'
 
-include1 = ['zz_absoluts']
+includes = ['zz_absoluts']
 
 instrument_values = configdata('instrument.values')
 showcase_values = configdata('cf_showcase.showcase_values')
