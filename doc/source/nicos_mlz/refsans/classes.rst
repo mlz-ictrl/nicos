@@ -30,7 +30,6 @@
 .. autoclass:: BeckhoffMotorCab1M13()
 .. autoclass:: BeckhoffMotorDetector()
 .. autoclass:: BeckhoffCoderDetector()
-.. autoclass:: BeckhoffMotorHSlit()
 .. autoclass:: DoubleMotorBeckhoff()
 .. autoclass:: DoubleMotorBeckhoffNOK()
 .. autoclass:: SingleSideRead()

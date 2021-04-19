@@ -700,37 +700,6 @@ class BeckhoffCoderDetector(BeckhoffBase, Coder):
     HW_Status_Inv = 0
 
 
-class BeckhoffMotorHSlit(BeckhoffMotorBase, Motor):
-
-    hardware_access = True
-
-    parameter_overrides = {
-        # see docu: speed = 0.1..8mm/s
-        'vmax': Override(settable=True, type=floatrange(-8), default=0.1),
-        'slope': Override(default=1000),
-    }
-
-    def doInit(self, mode):
-        self.HW_readable_Params.update(dict(offset=50))
-        self.HW_writeable_Params.update(dict(offset=50, firmwareReset=255))
-
-    def doReference(self):
-        self.log.info('Absolute encoders are working fine.')
-
-    def doReadOffset(self):
-        return self._steps2phys(self._HW_readParameter('offset'))
-
-    @requires(level='admin')
-    def doWriteOffset(self, value):
-        self._HW_writeParameter('offset', self._phys2steps(value),
-                                store2eeprom=True)
-
-    @requires(level='admin')
-    def doReset(self):
-        # see docu for MAGIC NUMBER
-        self._HW_writeParameter('firmwareReset', 0x544b4531)
-
-
 class SingleMotorOfADoubleMotorNOK(AutoDevice, Moveable):
     """
     empty class marking a Motor as beeing useable by a (DoubleMotorNok)
