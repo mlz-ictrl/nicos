@@ -5,8 +5,7 @@ group = 'optional'
 # includes = ['gonio']
 
 instrument_values = configdata('instrument.values')
-
-tango_base = instrument_values['tango_base']
+tango_url = instrument_values['tango_url'] % setupname
 code_base = instrument_values['code_base'] + 'tristate.TriState'
 
 devices = dict(
@@ -17,7 +16,7 @@ devices = dict(
     ),
     height_port = device('nicos.devices.tango.Sensor',
         description = 'Sample surface position',
-        tangodevice = tango_base + 'refsans/keyence/sensor',
+        tangodevice = tango_url + 'box/keyence/sensor',
         unit = 'mm',
         lowlevel = True,
     ),
