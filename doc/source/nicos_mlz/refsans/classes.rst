@@ -28,8 +28,6 @@
 .. autoclass:: BeckhoffMotorCab1()
 .. autoclass:: BeckhoffMotorCab1M0x()
 .. autoclass:: BeckhoffMotorCab1M13()
-.. autoclass:: BeckhoffMotorDetector()
-.. autoclass:: BeckhoffCoderDetector()
 .. autoclass:: DoubleMotorBeckhoff()
 .. autoclass:: DoubleMotorBeckhoffNOK()
 .. autoclass:: SingleSideRead()
@@ -66,7 +64,6 @@
 .. autoclass:: Sample()
 
 .. module:: nicos_mlz.refsans.devices.analog
-.. autoclass:: AnalogPoly()
 .. autoclass:: AnalogCalc()
 .. autoclass:: Accuracy()
 

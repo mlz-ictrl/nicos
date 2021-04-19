@@ -31,7 +31,7 @@ from nicos.core import SIMULATION, Attach, AutoDevice, CommunicationError, \
     Moveable, MoveError, NicosTimeoutError, Override, Param, Readable, \
     UsageError, dictwith, floatrange, limits, requires, status
 from nicos.core.params import oneof, tupleof
-from nicos.devices.abstract import CanReference, Coder, Motor
+from nicos.devices.abstract import CanReference, Motor
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
 from nicos.devices.tango import PyTangoDevice
 from nicos.utils import bitDescription
@@ -644,62 +644,6 @@ class BeckhoffMotorCab1M13(BeckhoffMotorCab1):
         self._HW_writeParameter('vMax', self._phys2speed(value))
 
 
-class BeckhoffMotorDetector(BeckhoffMotorBase, Motor):
-
-    hardware_access = True
-
-    parameter = {
-        'disablecoder': Param('disable/enable coder flag',
-                              type=bool, userparam=False, default=False),
-        'dragerror': Param('Drag error',
-                           type=float, userparam=False),
-    }
-
-    parameter_overrides = {
-        # see docu: speed = 1..70mm/s
-        'vmax': Override(settable=True, type=floatrange(1, 70), default=1),
-        'slope': Override(default=100),
-    }
-
-    def doInit(self, mode):
-        self.HW_readable_Params.update(dict(disableCoder=135, dragError=136))
-        self.HW_writeable_Params.update(dict(disableCoder=135, dragError=136))
-
-    def doReadDisablecoder(self):
-        return self._HW_readParameter('disableCoder')
-
-    def doReadDragerror(self):
-        return self._steps2phys(self._HW_readParameter('dragError'))
-
-    @requires(level='admin')
-    def doWriteVmax(self, value):
-        self._HW_writeParameter('vMax', self._phys2speed(value))
-
-    @requires(level='admin')
-    def doWriteDisablecoder(self, value):
-        if value:
-            self.log.warning('disabling Coder !!!')
-            self._HW_writeParameter('disableCoder', 1)
-        else:
-            self._HW_writeParameter('disableCoder', 0)
-
-    @requires(level='admin')
-    def doWriteDragerror(self, value):
-        self._HW_writeParameter('dragError', self._phys2steps(value))
-
-
-class BeckhoffCoderDetector(BeckhoffBase, Coder):
-    """stripped down control block which only provides the current position"""
-
-    hardware_access = True
-
-    parameter_overrides = {
-        'slope': Override(default=100),
-    }
-
-    HW_Status_Inv = 0
-
-
 class SingleMotorOfADoubleMotorNOK(AutoDevice, Moveable):
     """
     empty class marking a Motor as beeing useable by a (DoubleMotorNok)
@@ -1044,8 +988,7 @@ class DoubleMotorBeckhoffNOK(DoubleMotorBeckhoff):
                 unit=self.unit,
                 both=self,
                 lowlevel=True,
-                index=idx,
-                )
+                index=idx)
 
     def doWriteMode(self, mode):
         self.log.debug('DoubleMotorBeckhoffNOK arg:%s  self:%s', mode,
