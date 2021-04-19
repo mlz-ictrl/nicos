@@ -113,8 +113,8 @@ class VRefsans(NicosWidget, QWidget):
         self._fulllength = sum(self._length)
 
     def registerKeys(self):
-        for dev in ['nok0', 'shutter_gamma', 'nok2', 'nok3', 'nok4', 'nok5a', 'nok5b',
-                    'nok6', 'nok7', 'nok8']:
+        for dev in ['nok0', 'shutter_gamma', 'nok2', 'nok3', 'nok4', 'nok5a',
+                    'nok5b', 'nok6', 'nok7', 'nok8']:
             devname = str(self.props[dev + 'dev'])
             if devname:
                 k1 = self._source.register(self, devname + '/value')
@@ -163,8 +163,8 @@ class VRefsans(NicosWidget, QWidget):
         # determine positions
         beam = QPolygonF([QPointF(4, 5)])
         i = 0
-        for k in ['nok0', 'shutter_gamma', 'nok2', 'nok3', 'nok4', 'nok5a', 'nok5b',
-                  'nok6', 'nok7', 'nok8']:
+        for k in ['nok0', 'shutter_gamma', 'nok2', 'nok3', 'nok4', 'nok5a',
+                  'nok5b', 'nok6', 'nok7', 'nok8']:
             v = self.values[k]
             if isinstance(v, (tuple, readonlylist)):
                 x, y = v
@@ -204,6 +204,7 @@ class TimeDistance(NicosWidget, TimeDistanceWidget):
 
     designer_description = 'REFSANS time distance diagram display'
 
+    chopper = PropDef('chopper', str, 'chopper', 'Chopper system device')
     chopper1 = PropDef('chopper1', str, 'chopper1', 'Chopper 1 device')
     chopper2 = PropDef('chopper2', str, 'chopper2', 'Chopper 2 device')
     chopper3 = PropDef('chopper3', str, 'chopper3', 'Chopper 3 device')
@@ -211,12 +212,8 @@ class TimeDistance(NicosWidget, TimeDistanceWidget):
     chopper5 = PropDef('chopper5', str, 'chopper5', 'Chopper 5 device')
     chopper6 = PropDef('chopper6', str, 'chopper6', 'Chopper 6 device')
 
-    disc2_pos = PropDef('disc2_pos', str, 'disc2_pos',
-                        'Position of disc2 translation')
-
     periods = PropDef('periods', int, 2,
                       'Number of periods to display')
-    D = PropDef('D', float, 22.8, 'Beamline length')
 
     fp = PropDef('flightpath', str, 'real_flight_path', 'Flight path device')
 
@@ -227,6 +224,8 @@ class TimeDistance(NicosWidget, TimeDistanceWidget):
         self._phases = [0] * 6
         self._disk2_pos = 5
         self._fp = 0
+        self._disc2_mode = 'normal_mode'
+        self._D = 22.8
 
     def registerKeys(self):
         # chopperspeed, chopper phases,a
@@ -234,6 +233,16 @@ class TimeDistance(NicosWidget, TimeDistanceWidget):
             devname = self.props.get(dev)
             if devname:
                 self._source.register(self, devname + '/value')
+
+        for dev in ['chopper']:
+            devname = self.props.get(dev)
+            if devname:
+                self._source.register(self, devname + '/mode')
+
+        for dev in ['chopper']:
+            devname = self.props.get(dev)
+            if devname:
+                self._source.register(self, devname + '/dist')
 
         for dev in ['chopper1', 'chopper2', 'chopper3', 'chopper4', 'chopper5',
                     'chopper6']:
@@ -268,11 +277,18 @@ class TimeDistance(NicosWidget, TimeDistanceWidget):
                     if value is not None:
                         index = int(devname[-1]) - 1
                         self._phases[index] = float(value)
+            elif param == 'mode' and devname == 'chopper':
+                if value is not None:
+                    self._disc2_mode = str(value)
+            elif param == 'dist' and devname == 'chopper':
+                if value is not None:
+                    self._D = float(value)
             elif param == 'pos' and devname == 'chopper2':
                 if value is not None:
                     self._disk2_pos = int(value)
             self.plot(self._speed, self._phases, self.props['periods'],
-                      self._disk2_pos, self.props['D'], self._fp)
+                      self._disk2_pos, self._D, self._disc2_mode,
+                      self._fp)
 
 
 class RefsansWidget(NicosWidget, RefsansView):
