@@ -46,6 +46,11 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
     :param Actual_D: actual disk1 - detector distance (m)
     """
     plot.clear()
+
+    # Background color as from NICOS Monitor
+    plot.set_facecolor('#F0F0F0')
+    plot.figure.patch.set_color('#F0F0F0')
+
     # if d_MCo == d_SCo:
     #    raise ValueError('Disk2 and 3 collide !')
     # ++ Param hack todo ###
@@ -213,3 +218,11 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
     plot.set_xlabel('Time since start signal (ms)')
     plot.set_ylabel('Distance from chopper 1 (m)')
     plot.legend(loc='upper center', ncol=6, borderaxespad=0.)
+    if Actual_D is not None:
+        # possible frame overlap. The warning is raised by using a orange frame
+        # and a text on top of the plot
+        if Actual_D > D:
+            plot.set_facecolor('orange')
+            plot.figure.suptitle(
+                'POSSIBLE FRAME OVERLAP. CHECK CHOPPER SETTINGS', fontsize=16,
+                fontweight='bold', color = 'orange')
