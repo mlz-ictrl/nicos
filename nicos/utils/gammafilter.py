@@ -24,6 +24,7 @@
 
 from math import exp, pi
 
+import cv2
 import numpy as np
 from scipy import ndimage, signal
 
@@ -74,18 +75,15 @@ def scharr_filter(img):
     return sharpness
 
 
-def gam_rem_adp_log(img, thr3, thr5, thr7, sig_log):
-    if img.min() == img.max():
-        return img
-    # create the kernel of LOG filter
-    f_log = -laplace(9, sig_log)
-    # do the LOG filter
-    img_log = signal.fftconvolve(img, f_log, mode='same')
-    # median the LOG edge enhanced image, 3 by 3 is good enough
-    img_logm3 = ndimage.median_filter(img_log, (3, 3))
+def gam_rem_adp_log(img, thr3=25, thr5=100, thr7=400, sig_log=0.8):
+    f_log = -laplace(9, sig_log)  # create the kernel of LOG filter
 
+    img_log = cv2.filter2D(
+        img, -1, cv2.flip(f_log, -1), borderType=cv2.BORDER_CONSTANT)
+    # median the LOG edge enhanced image, 3 by 3 is good enough
+    img_logm3 = cv2.medianBlur(img_log, 3)
     # substitute only those pixels whose values are greater than adaptive
-    # threshold, which is set to median(log(img)) + thr, where thr is a
+    # threshold, which is set to median(log(img))+thr, where thr is a
     # predetermined constant chosed to be best fitted for specific noise
     # charateristics by user.
     # Adaptive filter size:
@@ -94,26 +92,13 @@ def gam_rem_adp_log(img, thr3, thr5, thr7, sig_log):
     imgthr5 = np.greater(img_log, img_logm3 + thr5)
     imgthr7 = np.greater(img_log, img_logm3 + thr7)
 
-    # we found that some of the edge pixels are not removed. so we dilate
-    # the map7
-    if np.sum(imgthr7) >= 0:
-        s = np.ones([3, 3])  # the dilate structure
-        # boxcar smoothing plus threshold to identify single pixel spots
-        single7 = signal.convolve2d(imgthr7 * 255, s / np.sum(s),
-                                    mode='same') < 30
-        # those single pixels in threshold map7
-        single7 = single7 & imgthr7
-        # take these out of map7 before dilation
-        imgthr7 = np.logical_xor(imgthr7, single7)
-        # and add them again after dilation
-        imgthr7 = np.logical_or(ndimage.binary_dilation(imgthr7, s),
-                                single7)
+    # we found that some of the edge pixels are not removed. so we dilate the
+    # map7
+    s = np.ones([3, 3])
+    imgthr7 = ndimage.binary_dilation(imgthr7, s)
 
-    imgthr5 = np.logical_xor((imgthr5 | imgthr7), imgthr7)
-    imgthr3 = np.logical_xor(imgthr3, imgthr5)
-
-    # clean the border of map5 and map7, otherwise there might be out of
-    # range error when doing the replacement
+    # clean the border of map5 and map7, otherwise there might be out of range
+    # error when doing the replacement
     imgthr7[:3, :] = False
     imgthr7[:, :3] = False
     imgthr7[:, -3:] = False
@@ -126,22 +111,20 @@ def gam_rem_adp_log(img, thr3, thr5, thr7, sig_log):
 
     img_adp = np.copy(img)
     # 3 by 3 median filtering, as substitution image
-    imgm3 = ndimage.median_filter(img, (3, 3))
+    imgm3 = cv2.medianBlur(img, 3)
+
+    imgm5 = cv2.medianBlur(img, 5)
+    # opencv medianBlur only support 8-bit images for kernels > 5
+    # https://docs.opencv.org/4.5.2/d4/d86/group__imgproc__filter.html#ga564869aa33e58769b4469101aac458f9
+    imgm7 = (256 * cv2.medianBlur((img / 256).astype(np.uint8), 7)).astype(np.int16)
 
     thr3list = np.nonzero(imgthr3)
     img_adp[thr3list] = imgm3[thr3list]
 
-    index = np.nonzero(imgthr5)
-    n5 = np.shape(index)[1]
-    for i in range(n5):
-        img_adp[index[0][i], index[1][i]] = np.median(
-            img[index[0][i] - 2:index[0][i] + 3,
-                index[1][i] - 2:index[1][i] + 3])
+    thr5list = np.nonzero(imgthr5)
+    img_adp[thr5list] = imgm5[thr5list]
 
-    index = np.nonzero(imgthr7)
-    n7 = np.shape(index)[1]
-    for i in range(n7):
-        img_adp[index[0][i], index[1][i]] = np.median(
-            img[index[0][i] - 3:index[0][i] + 4,
-                index[1][i] - 3:index[1][i] + 4])
+    thr7list = np.nonzero(imgthr7)
+    img_adp[thr7list] = imgm7[thr7list]
+
     return img_adp

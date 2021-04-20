@@ -20,32 +20,45 @@
 # Module authors:
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #   Matthias Pomm <matthias.pomm@hzg.de>
+#   Gaetano Mangiapia <gaetano.mangiapia@hzg.de>
 #
 # *****************************************************************************
 """Chopper related devices."""
 
 import numpy as np
 
-from nicos_mlz.refsans.lib.calculations import SC1_Pos, chopper_pos, \
-    chopper_resolution, d_SC2
+from nicos_mlz.refsans.lib.calculations import SC1_Pos, chopper_pos, d_SC2
 
 
-def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
-                        SC2_full_open=240, D=22.8, n_per=2, title_prefix='',
-                        plot=None, Actual_D=None):
-    """Draw a time-distance diagram for the chopper.
+def timedistancediagram(speed, angles, disk2_pos, D,
+                        SC2_full_open=240, n_per=2,
+                        disk2_mode='normal_mode',
+                        plot=None,
+                        Actual_D=None):
 
-    :param speed: the running speed  (rounds per min)
-    :param angles: the angles for d1 to d6 as returned by chopper_config (deg)
-    :param disk2_pos: translation position of chopper2 disc
-    :param SC_mode: ????
-    :param D: beamline length (distance disk1 - detector)(m)
+    """Draw a time-distance diagram for the chopper for Monitor 01
+
+    input:
+    :param speed: disc running speed  (rounds per min)
+    :param angles: Real angles, from disk1 to disk6, in a list, in degrees.
+                   If SC2 is not used, last two angles have to be set to None.
+    :param disk2_pos: the real disk 2 position (from 1 to 5)
+    :param D: last beamline length (disk1 - detector distance, in meters) set
+              in chopper_config
+    :param SC_full_open: ???
     :param n_per: the number of periods to display (int)
-    :param title_prefix: ???
-    :param plot: matplotlib plot object
-    :param Actual_D: actual disk1 - detector distance (m)
+    :param disk2_mode: the disk2 mode. oneof('normal_mode',
+                                             'virtual_disc2_pos_6')
+    :param plot: matplotlib plot object, on which the plot has to be shown
+    :param Actual_D: actual beamline length, in meters
     """
+
     plot.clear()
+
+    # Background color as from NICOS Monitor
+    plot.set_facecolor('#F0F0F0')
+    plot.figure.patch.set_color('#F0F0F0')
+
     # if d_MCo == d_SCo:
     #    raise ValueError('Disk2 and 3 collide !')
     # ++ Param hack todo ###
@@ -57,90 +70,77 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
     # distance from disk1 to the closing disk for the SC1 (m)
     d_SCc = chopper_pos[SC1_Pos]
 
-    per = 60. / speed if speed else 1e10  # in s
-    freq = 1. / per  # in Hz
-
-    resolution = (d_MCo / 2) / (D - d_MCo / 2)
-    resolution = chopper_resolution(disk2_pos, D)
+    per = 60000.0 / speed if speed else 1e13  # in ms
+    freq = 1.0 / per  # in kHz
 
     angles = np.array(angles, dtype=float)
-    trailing_edge_MC = 1000 * (0 + 240) / (360 * freq)  # in mHz
-    trailing_edge_SC = 1000 * (0 + 240) / (360 * freq)  # in mHz
-    trailing_edge_SC2 = 1000 * (360 - SC2_full_open) / (360 * freq)  # in mHz
+    trailing_edge_MC = (0 + 240) / (360 * freq)  # in ms
+    trailing_edge_SC = (0 + 240) / (360 * freq)  # in ms
+    trailing_edge_SC2 = (360 - SC2_full_open) / (360 * freq)  # in ms
     # print(trailing_edge_SC2)
 
     # if SC2 is not present limit the angles to 4 values
     if np.all(angles[-2:] == [None, None]):
         angles = angles[:-2]
 
-    times = angles * 1000. / (360 * freq)  # in ms
+    times = angles / (360 * freq)  # in ms
 
     # period limits
     for i in range(n_per + 1):
-        plot.vlines(i * per * 1000, 0, D, 'b', ':', lw=2)  # in ms
+        plot.vlines(i * per, 0, D, 'b', ':', lw=2)  # in ms
 
     # beams
-    t = np.linspace(-times[2], n_per * per * 1000)  # in ms
-
-    # wl_0 first
-    # a hack to describe infinitely fast neutrons
-    tof = np.array([times[0], times[3]])
-    if tof[1] == 0:
-        tof[1] = 1e-6
-    pos = np.array([0, d_SCc])
-
-    # f0 = p.polyfit(tof, pos, 1) flake8 assigned but never used
-    # beam0 = p.polyval(f0, t) flake8 assigned but never used
-
-    # wl_0 last
-    tof = np.array([times[0], times[2]])
-    # a hack to describe infinitelly fast neutrons
-    if tof[1] == 0:
-        tof[1] = 1e-6
-    pos = np.array([0, d_SCc])
-    # f = p.polyfit(tof, pos, 1) flake8 assigned but never used
-    # beam1 = p.polyval(f, t) flake8 assigned but never used
+    t = np.linspace(-times[2], n_per * per)  # in ms
 
     # wl_min
-    if SC2_mode is not None:
+    if len(angles) == 6:  # SC2 pair is used
         tof = np.array([times[0], times[5]])
         pos = np.array([0, d_SC2])
-    else:
+    else:  # SC2 is not used
         tof = np.array([times[0], times[3]])
         pos = np.array([0, d_SCc])
+
     if tof[1] == 0:
-        tof[1] = 1e-6
+        tof[1] = 1e-6  # a hack to describe infinitely fast neutrons
+
     f1 = np.polyfit(tof, pos, 1)
     beam2 = np.polyval(f1, t)
-    # f1 = fit_lin(tof, pos)
-    # beam2 = f1[0] * t +f1[1]
+
     detection = [(D - f1[1]) / f1[0]]
 
     # wl_max
-    if SC2_mode is not None:
-        tof = np.array([times[1], times[4]])
-        pos = np.array([d_MCo, d_SC2])
-    else:
-        tof = np.array([times[1], times[2]])
-        pos = np.array([d_MCo, d_SCo])
+    if (disk2_mode == 'virtual_disc2_pos_6'):
+        # In this case SC2 must be used. The check of disk2_mode is important
+        # to prevent wrong display of wl_max
+        tof = np.array([times[3], times[4]])
+        pos = np.array([d_SCo, d_SC2])
+    elif (disk2_mode == 'normal_mode'):
+        if len(angles) == 6:  # SC2 pair is used
+            tof = np.array([times[1], times[4]])
+            pos = np.array([d_MCo, d_SC2])
+        else:
+            tof = np.array([times[1], times[2]])
+            pos = np.array([d_MCo, d_SCo])
+
     if tof[1] == 0:
         tof[1] = 1e-6
+
     f2 = np.polyfit(tof, pos, 1)
     beam3 = np.polyval(f2, t)
-    # f2 = fit_lin(tof, pos)
-    # beam3 = f2[0] * t +f2[1]
 
     detection.append((D - f2[1]) / f2[0])
 
     detection = np.array(detection)
 
     for i in range(-1, n_per + 1):
-        ip = i * per * 1000
+        ip = i * per
+
         # disk1: black line
         if i == -1:
             plot.hlines(0, ip, ip + trailing_edge_MC, lw=3, label='disk 1')
         else:
             plot.hlines(0, ip, ip + trailing_edge_MC, lw=3)
+
         # disk2: blue line
         if i == -1:
             plot.hlines(d_MCo, times[1] - trailing_edge_SC2 + ip,
@@ -148,6 +148,7 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
         else:
             plot.hlines(d_MCo, times[1] - trailing_edge_SC2 + ip,
                         times[1] + ip, 'b', lw=3)
+
         # disk3: green line
         if i == -1:
             plot.hlines(d_SCc, times[2] + ip, times[2] + trailing_edge_SC + ip,
@@ -155,6 +156,7 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
         else:
             plot.hlines(d_SCc, times[2] + ip, times[2] + trailing_edge_SC + ip,
                         'g', lw=3)
+
         # disk4: red line
         if i == -1:
             plot.hlines(d_SCo, times[3] - trailing_edge_SC + ip, times[3] + ip,
@@ -162,6 +164,7 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
         else:
             plot.hlines(d_SCo, times[3] - trailing_edge_SC + ip, times[3] + ip,
                         'r', lw=3)
+
         try:
             # disk5: green line
             plot.hlines(d_SC2 + 0.05, times[4] + ip,
@@ -179,6 +182,7 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
                         label='detector set position')
         else:
             plot.hlines(D, *plot.get_xlim(), colors='#FFFF00', lw=4)
+
         # detector (actual position)
         if Actual_D is not None:
             if i == -1:
@@ -187,18 +191,16 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
             else:
                 plot.hlines(Actual_D, *plot.get_xlim(), colors='#FF7F39')
 
-        # plot.plot(t + ip, beam0, 'g')
-        # plot.plot(t + ip, beam1, 'g')
         plot.plot(t + ip, beam2, 'b')
         plot.plot(t + ip, beam3, 'r')
 
-    plot.set_xlim(0, (n_per + .2) * per * 1000)
+    plot.set_xlim(0, (n_per + .2) * per)
     plot.set_ylim(0, D * 1.1)
 
     detect_st = 'First n.: '
     for el in detection:
         detect_st += '%s ' % round(el, 1)
-        elcorr = np.mod(el, per * 1000)
+        elcorr = np.mod(el, per)
 
         if elcorr != el:
             detect_st += '(%s ms)' % round(elcorr, 1)
@@ -206,10 +208,18 @@ def timedistancediagram(speed, angles, disk2_pos=5, SC2_mode='default',
         detect_st += ' , Last n. : '
     detect_st = detect_st[:-10]
 
-    title = '%s Angles : %s (deg) at %.0f speed\n%s\nResolution %.1f (%%)' % (
-        title_prefix, angles.round(2), speed, detect_st, resolution)
+    title = 'Angles : %s (deg) at %.0f speed\n%s' % (
+        angles.round(2), speed, detect_st)
 
     plot.set_title(title, fontsize='x-small')
-    plot.set_xlabel('Time since start signal (ms)')
-    plot.set_ylabel('Distance from chopper 1 (m)')
+    plot.set_xlabel('Time since start signal / ms')
+    plot.set_ylabel('Distance from master chopper / m')
     plot.legend(loc='upper center', ncol=6, borderaxespad=0.)
+    if Actual_D is not None:
+        # possible frame overlap. The warning is raised by using a orange frame
+        # and a text on top of the plot
+        if Actual_D > D:
+            plot.set_facecolor('orange')
+            plot.figure.suptitle(
+                'POSSIBLE FRAME OVERLAP. CHECK CHOPPER SETTINGS', fontsize=16,
+                fontweight='bold', color='orange')

@@ -27,10 +27,10 @@ devices = {
         fmtstr = '%.2f, %.2f',
         inclinationlimits = (-14.99, 14.99),
         masks = {
-            'ng': optic_values['ng'],
-            'rc': optic_values['ng'],
-            'vc': optic_values['vc'],
-            'fc': optic_values['fc'],
+            'ng': 1.4 + optic_values['ng'],  # 2021-03-18 11:52:07 TheoMH 0.0
+            'rc': 1.4 + optic_values['ng'],  # 2021-03-18 11:52:07 TheoMH 0.0
+            'vc': 1.4 + optic_values['vc'],  # 2021-03-18 11:52:07 TheoMH 0.0
+            'fc': 1.4 + optic_values['fc'],  # 2021-03-18 11:52:07 TheoMH 0.0
         },
     ),
 }

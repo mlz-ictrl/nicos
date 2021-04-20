@@ -15,7 +15,7 @@ devices = dict(
         # length: 6.0,
         description = 'zb2 single Slit at nok6 before nok7',
         unit = 'mm',
-        motor = 'zb2_motor',
+        motor = 'zb2_axis',
         nok_start = 7633.5, # 7591.5
         nok_end = 7639.5, # 7597.5
         nok_gap = 1.0,
@@ -25,6 +25,14 @@ devices = dict(
             'point':   -2,
             'gisans':    -122.0 * optic_values['gisans_scale'],
         },
+    ),
+    zb2_axis = device('nicos.devices.generic.Axis',
+        description = 'zb2 single Slit for backlash',
+        motor = 'zb2_motor',
+        backlash = -0.5,
+        precision = optic_values['precision_ipcsms'],
+        unit = 'mm',
+        lowlevel = True,
     ),
     zb2_analog = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for ZB2',

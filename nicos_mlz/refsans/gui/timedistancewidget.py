@@ -43,12 +43,14 @@ class TimeDistanceWidget(QWidget):
         layout.addWidget(self.canvas)
         self.setLayout(layout)
 
-    def plot(self, speed, angles, nperiods, disc2_pos, D, Actual_D=None):
+    def plot(self, speed, angles, nperiods, disc2_pos, D, disc2_mode,
+             Actual_D=None):
         # discards the old graph
         self._static_ax.clear()
 
-        timedistancediagram(speed, angles, n_per=nperiods, D=D,
-                            disk2_pos=disc2_pos, plot=self._static_ax,
+        timedistancediagram(speed, angles, disc2_pos, D,
+                            n_per=nperiods, disk2_mode=disc2_mode,
+                            plot=self._static_ax,
                             Actual_D=Actual_D)
 
         # refresh canvas

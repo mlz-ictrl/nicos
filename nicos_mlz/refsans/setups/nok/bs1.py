@@ -27,8 +27,8 @@ devices = dict(
         nok_end = 9770.5,
         nok_gap = 18.0,
         masks = {
-            'slit':   -1.725,
-            'point':  -2.325,
+            'slit': -1.10,  # 2021-03-17 15:37:19 TheoMH -1.725 + _axis -1.8
+            'point': 0.70,  # 2021-03-17 15:37:19 TheoMH -1.725
             'gisans': -40.915 * optic_values['gisans_scale'],
         },
         lowlevel = True,
@@ -42,9 +42,9 @@ devices = dict(
         nok_end = 9770.5,
         nok_gap = 18.0,
         masks = {
-            'slit':   -2.255,
-            'point':  -1.655,
-            'gisans': 0.915,
+            'slit': -1.00,  # 2021-03-17 15:37:19 TheoMH -2.255
+            'point': -1.00,  # 2021-03-17 15:37:19 TheoMH -2.255
+            'gisans':-2.255,
         },
         lowlevel = True,
         unit = 'mm',
@@ -53,7 +53,7 @@ devices = dict(
         description = 'Axis of BS1, reactor side',
         motor = 'bs1r_motor',
         # obs = ['bs1r_analog'],
-        backlash = 0,
+        backlash = -0.5,
         precision = optic_values['precision_ipcsms'],
         unit = 'mm',
         lowlevel = True,
@@ -86,7 +86,7 @@ devices = dict(
         description = 'Axis of BS1, sample side',
         motor = 'bs1s_motor',
         # obs = ['bs1s_analog'],
-        backlash = 0,
+        backlash = -0.5,
         precision = optic_values['precision_ipcsms'],
         unit = 'mm',
         lowlevel = True,

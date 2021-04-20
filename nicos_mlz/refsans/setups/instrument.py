@@ -34,9 +34,18 @@ values = {
         tld,
         tango_port,
     ),
-    'url_base': 'http://%%s.%s.%s/' % (
+    'tango_url': 'tango://%%s.%s.%s.%s.%s:%d/' % (
         instrument_name,
         geographical_place,
+        master,
+        tld,
+        tango_port,
+    ),
+    'url_base': 'http://%%s.%s.%s.%s.%s/' % (
+        instrument_name,
+        geographical_place,
+        master,
+        tld,
     ),
     'code_base': '%s_%s.%s.devices.' % (
         software_system,

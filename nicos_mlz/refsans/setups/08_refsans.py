@@ -4,6 +4,7 @@ group = 'basic'
 
 includes = [
     # 'autocollimator',
+    # 'attenuators',
     # 'b3h3',
     # 'backguard',
     'beamstop',

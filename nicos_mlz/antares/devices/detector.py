@@ -38,8 +38,7 @@ from nicos.devices.generic.detector import ActiveChannel, ImageChannelMixin, \
     PostprocessPassiveChannel
 from nicos.devices.tango import PyTangoDevice
 from nicos.devices.vendor.lima import Andor2LimaCCD, Andor3LimaCCD
-
-from nicos_mlz.antares.lib.calculations import gam_rem_adp_log, scharr_filter
+from nicos.utils.gammafilter import gam_rem_adp_log, scharr_filter
 
 
 class UsesFastshutter(DeviceMixinBase):

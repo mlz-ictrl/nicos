@@ -623,7 +623,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._write_float(tths)
         for (info, val) in zip(point.detvalueinfo, point.detvaluelist):
             self.log.debug('%s: %r', info.type, val)
-            if info.type == 'counter':
+            if info.type == 'counter' and info.name.endswith('.sum'):
                 addvalues = (tths, )
                 buf = b'\x80'
                 if addvalues:
@@ -654,6 +654,8 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             self._write_integer(tim1)
         for (info, val) in zip(point.detvalueinfo, point.detvaluelist):
             if info.type == 'monitor':
+                self._write_integer(val)
+            elif info.type == 'counter' and not info.name.endswith('.sum'):
                 self._write_integer(val)
         if self._scan_type != 'SGEN2':
             for (info, val) in zip(point.envvalueinfo, point.envvaluelist):

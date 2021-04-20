@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import Readable
+from nicos.core import Readable, status
 from nicos.core.mixins import CanDisable
 from nicos.core.params import Attach
 
@@ -39,6 +39,14 @@ class TriState(CanDisable, Readable):
         if self._enabled:
             return self._attached_port.read(maxage)
         return 0
+
+    def doStatus(self, maxage=0):
+        if self._enabled:
+            stat = self._attached_port.status(maxage)
+            if stat[0] == status.OK:
+                return status.OK, 'enable'
+            return stat
+        return status.OK, 'disable'
 
     def doEnable(self, on):
         self._enabled = on

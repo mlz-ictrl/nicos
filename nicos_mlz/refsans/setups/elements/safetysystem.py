@@ -129,4 +129,11 @@ devices = dict(
         okmask = 0b11,
         lowlevel = False,
     ),
+    personalkey = device(code_base + 'Group',
+        description = ' ',
+        shs = 'safetysystem',
+        bitlist = ['Personenschluessel_Terminal'],
+        okmask = 0b1,
+        lowlevel = False,
+    ),
 )

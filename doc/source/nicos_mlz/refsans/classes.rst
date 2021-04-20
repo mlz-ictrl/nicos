@@ -28,17 +28,9 @@
 .. autoclass:: BeckhoffMotorCab1()
 .. autoclass:: BeckhoffMotorCab1M0x()
 .. autoclass:: BeckhoffMotorCab1M13()
-.. autoclass:: BeckhoffMotorDetector()
-.. autoclass:: BeckhoffCoderDetector()
-.. autoclass:: BeckhoffMotorHSlit()
 .. autoclass:: DoubleMotorBeckhoff()
 .. autoclass:: DoubleMotorBeckhoffNOK()
 .. autoclass:: SingleSideRead()
-
-.. module:: nicos_mlz.refsans.devices.beckhoff.pumpstation
-.. autoclass:: PumpstandIO()
-.. autoclass:: PumpstandPressure()
-.. autoclass:: PumpstandPump()
 
 .. module:: nicos_mlz.refsans.devices.beckhoff.vsd
 .. autoclass:: VSDIO()
@@ -72,7 +64,6 @@
 .. autoclass:: Sample()
 
 .. module:: nicos_mlz.refsans.devices.analog
-.. autoclass:: AnalogPoly()
 .. autoclass:: AnalogCalc()
 .. autoclass:: Accuracy()
 

@@ -6,7 +6,7 @@ sysconfig = dict(cache = 'localhost')
 devices = dict(
     Poller = device('nicos.services.poller.Poller',
         alwayspoll = ['memograph'],
-        neverpoll = ['qmesydaq'],
+        neverpoll = [],  # 'qmesydaq'],
         blacklist = []
     ),
 )

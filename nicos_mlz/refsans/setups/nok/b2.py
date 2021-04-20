@@ -26,9 +26,9 @@ devices = dict(
         nok_end = 11064.50,
         nok_gap = 1.0,
         masks = {
-            'slit':   0.0,
-            'point':  0.0,
-            'gisans': 0.0, #  -218.645,
+            'slit': 0.225,  # 2021-03-17 16:13:48 TheoMH 0.0
+            'point': 0.225,  # 2021-03-17 16:13:48 TheoMH 0.0
+            'gisans': 0.225,  # 2021-03-17 16:13:48 TheoMH 0.0
         },
         lowlevel = True,
         unit = 'mm',
@@ -41,9 +41,9 @@ devices = dict(
         nok_end = 11064.50,
         nok_gap = 1.0,
         masks = {
-            'slit':   0.0,
-            'point':  0.0,
-            'gisans': -85 * optic_values['gisans_scale'], #  206.4,
+            'slit': -1.225,  # 2021-03-17 16:13:48 TheoMH 0.0
+            'point': -1.225,  # 2021-03-17 16:13:48 TheoMH 0.0
+            'gisans': -85 * optic_values['gisans_scale'],
         },
         unit = 'mm',
         lowlevel = True,
