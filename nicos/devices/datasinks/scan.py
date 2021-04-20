@@ -197,9 +197,13 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
             values += [';']
         values += [safe_format(info.fmtstr, val) for (info, val) in
                    zip(self.dataset.detvalueinfo, point.detvaluelist)]
-        values += point.filenames
+        values += self.getFilenames(point)
+
         self._file.write('\t'.join(values) + '\n')
         self._file.flush()
+
+    def getFilenames(self, point):
+        return point.filenames
 
     def end(self):
         if self._fname:
