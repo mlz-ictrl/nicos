@@ -11,4 +11,3 @@ html2text>=3.200.3
 six>=1.10.0
 lttb>=0.2.2
 h5py>=2.6
-opencv-python-headless

@@ -48,7 +48,11 @@ from nicos.guisupport.qt import QActionGroup, QByteArray, QListWidgetItem, \
 from nicos.guisupport.qtgr import MouseEvent
 from nicos.protocols.cache import cache_load
 from nicos.utils import BoundedOrderedDict, ReaderRegistry
-from nicos.utils.gammafilter import gam_rem_adp_log
+
+try:
+    from nicos.utils.gammafilter import gam_rem_adp_log
+except ImportError:
+    gam_rem_adp_log = None
 
 COLORMAPS = OrderedDict(GR_COLORMAPS)
 
@@ -1047,6 +1051,11 @@ class ImagingControls(QWidget):
         self.maxSlider.sliderReleased.connect(self.showData)
         self.minSlider.sliderReleased.connect(self.showData)
 
+        if not gam_rem_adp_log:
+            self.despeckleBox.hide()
+            self.despeckleValues.hide()
+        else:
+            self.despeckleWarningLabel.hide()
         self.despeckleBox.toggled.connect(self.showData)
         self.darkfieldBox.toggled.connect(self.showData)
         self.normalizeBox.toggled.connect(self.showData)

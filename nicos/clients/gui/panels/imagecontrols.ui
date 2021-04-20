@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>805</width>
+    <width>906</width>
     <height>871</height>
    </rect>
   </property>
@@ -16,132 +16,10 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="6" column="1">
-      <layout class="QHBoxLayout" name="thresholdslLayout">
-       <item>
-        <widget class="QSpinBox" name="despeckleValue">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="accelerated">
-          <bool>true</bool>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>65536</number>
-         </property>
-         <property name="value">
-          <number>100</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="thr3Layout">
-         <item>
-          <widget class="QLabel" name="thr3Label">
-           <property name="text">
-            <string>thr3</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="thr3Value">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="toolTip">
-            <string>Threshold value for 3x3 region of spot filter</string>
-           </property>
-           <property name="accelerated">
-            <bool>true</bool>
-           </property>
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>65536</number>
-           </property>
-           <property name="value">
-            <number>50</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="thr5Layout">
-         <item>
-          <widget class="QLabel" name="thr5Label">
-           <property name="text">
-            <string>thr5</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="thr5Value">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="toolTip">
-            <string>Threshold value for 5x5 region of spot filter</string>
-           </property>
-           <property name="accelerated">
-            <bool>true</bool>
-           </property>
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>65536</number>
-           </property>
-           <property name="value">
-            <number>100</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="thr7Layout">
-         <item>
-          <widget class="QLabel" name="thr7Label">
-           <property name="text">
-            <string>thr7</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="thr7Value">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="toolTip">
-            <string>Threshold value for 7x7 region of spot filter</string>
-           </property>
-           <property name="accelerated">
-            <bool>true</bool>
-           </property>
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>65536</number>
-           </property>
-           <property name="value">
-            <number>200</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </item>
-     <item row="1" column="0">
-      <widget class="QCheckBox" name="logscaleBox">
+     <item row="0" column="0">
+      <widget class="QCheckBox" name="gridBox">
        <property name="text">
-        <string>logscale</string>
+        <string>show grid</string>
        </property>
       </widget>
      </item>
@@ -158,6 +36,166 @@
         <string>dark image</string>
        </property>
       </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QCheckBox" name="logscaleBox">
+       <property name="text">
+        <string>logscale</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <layout class="QHBoxLayout" name="thresholdslLayout">
+       <item>
+        <widget class="QLabel" name="despeckleWarningLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Gamma spot filtering is not available since python-opencv is missing.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="despeckleValues" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QSpinBox" name="despeckleValue">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="accelerated">
+             <bool>true</bool>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>65536</number>
+            </property>
+            <property name="value">
+             <number>100</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="thr3Layout">
+            <item>
+             <widget class="QLabel" name="thr3Label">
+              <property name="text">
+               <string>thr3</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="thr3Value">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>Threshold value for 3x3 region of spot filter</string>
+              </property>
+              <property name="accelerated">
+               <bool>true</bool>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>65536</number>
+              </property>
+              <property name="value">
+               <number>50</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="thr5Layout">
+            <item>
+             <widget class="QLabel" name="thr5Label">
+              <property name="text">
+               <string>thr5</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="thr5Value">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>Threshold value for 5x5 region of spot filter</string>
+              </property>
+              <property name="accelerated">
+               <bool>true</bool>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>65536</number>
+              </property>
+              <property name="value">
+               <number>100</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="thr7Layout">
+            <item>
+             <widget class="QLabel" name="thr7Label">
+              <property name="text">
+               <string>thr7</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="thr7Value">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>Threshold value for 7x7 region of spot filter</string>
+              </property>
+              <property name="accelerated">
+               <bool>true</bool>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>65536</number>
+              </property>
+              <property name="value">
+               <number>200</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item row="4" column="1">
       <widget class="QLineEdit" name="darkfieldFile">
@@ -183,10 +221,10 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QCheckBox" name="gridBox">
+     <item row="7" column="0">
+      <widget class="QCheckBox" name="despeckleBox">
        <property name="text">
-        <string>show grid</string>
+        <string>gamma spot filter thresholds</string>
        </property>
       </widget>
      </item>
@@ -197,13 +235,6 @@
        </property>
        <property name="text">
         <string>/data/FRM-II/current/currentopenbeamimage.fits</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QCheckBox" name="despeckleBox">
-       <property name="text">
-        <string>gamma spot filter thresholds</string>
        </property>
       </widget>
      </item>
@@ -634,6 +665,34 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>gridBox</tabstop>
+  <tabstop>logscaleBox</tabstop>
+  <tabstop>grayscaleBox</tabstop>
+  <tabstop>cyclicBox</tabstop>
+  <tabstop>darkfieldBox</tabstop>
+  <tabstop>darkfieldFile</tabstop>
+  <tabstop>normalizeBox</tabstop>
+  <tabstop>normalizedFile</tabstop>
+  <tabstop>despeckleBox</tabstop>
+  <tabstop>despeckleValue</tabstop>
+  <tabstop>thr3Value</tabstop>
+  <tabstop>thr5Value</tabstop>
+  <tabstop>thr7Value</tabstop>
+  <tabstop>operationSelector</tabstop>
+  <tabstop>filterSelector</tabstop>
+  <tabstop>profileButton</tabstop>
+  <tabstop>profileHideButton</tabstop>
+  <tabstop>profileWidth</tabstop>
+  <tabstop>profileBins</tabstop>
+  <tabstop>xsumButton</tabstop>
+  <tabstop>ysumButton</tabstop>
+  <tabstop>autoScaling</tabstop>
+  <tabstop>minSlider</tabstop>
+  <tabstop>maxSlider</tabstop>
+  <tabstop>brtSlider</tabstop>
+  <tabstop>ctrSlider</tabstop>
+ </tabstops>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>
  </resources>
