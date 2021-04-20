@@ -29,7 +29,7 @@ import numpy as np
 from scipy import ndimage, signal
 
 
-def laplace(n, sigma):
+def LaplacianOfGaussian(n, sigma):
     """Laplacian of Gaussian.
 
     :param N: kernel size.
@@ -76,7 +76,7 @@ def scharr_filter(img):
 
 
 def gam_rem_adp_log(img, thr3=25, thr5=100, thr7=400, sig_log=0.8):
-    f_log = -laplace(9, sig_log)  # create the kernel of LOG filter
+    f_log = -LaplacianOfGaussian(9, sig_log)  # create kernel of LOG filter
 
     img_log = cv2.filter2D(
         img, -1, cv2.flip(f_log, -1), borderType=cv2.BORDER_CONSTANT)
