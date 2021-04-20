@@ -23,7 +23,9 @@
 # *****************************************************************************
 
 from nicos.core import Param, tupleof
+from nicos.devices.datasinks import AsciiScanfileSink
 from nicos.devices.datasinks.file import TEMPLATE_DESC
+from nicos.devices.datasinks.scan import AsciiScanfileSinkHandler
 from nicos.devices.datasinks.text import NPGZFileSink as BaseNPGZFileSink, \
     NPGZImageSinkHandler as BaseNPGZImageSinkHandler
 
@@ -52,3 +54,13 @@ class NPGZFileSink(BaseNPGZFileSink):
                                   mandatory=True,settable = False,
                                   prefercache = False, ext_desc=TEMPLATE_DESC),
     }
+
+
+class ScanFileSinkHandler(AsciiScanfileSinkHandler):
+    def getFilenames(self, point):
+        # enforce "yaml" before "gz", otherwise this will be random
+        return sorted(point.filenames, reverse=True)
+
+
+class ScanFileSink(AsciiScanfileSink):
+    handlerclass = ScanFileSinkHandler
