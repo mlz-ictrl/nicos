@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 from nicos.core import Attach, Moveable
-from nicos.devices.tango import DigitalOutput
+from nicos.devices.entangle import DigitalOutput
 
 
 class RefcountDigitalOutput(DigitalOutput):

@@ -10,7 +10,7 @@ tango_base = 'tango://motorbox02.spodi.frm2.tum.de:10000/box/'
 
 devices = dict(
     # ;Monochromator
-    omgm = device('nicos.devices.tango.Motor',
+    omgm = device('nicos.devices.entangle.Motor',
         description = 'HWB OMGM',
         tangodevice = tango_base + 'omgm/motor',
         fmtstr = '%.3f',

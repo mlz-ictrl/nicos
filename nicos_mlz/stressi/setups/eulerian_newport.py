@@ -14,12 +14,12 @@ sysconfig = dict(
 tango_base = 'tango://motorbox06.stressi.frm2.tum.de:10000/box/'
 
 devices = dict(
-    chis_m = device('nicos.devices.tango.Motor',
+    chis_m = device('nicos.devices.entangle.Motor',
         tangodevice = tango_base + 'channel3/motor',
         fmtstr = '%.2f',
         lowlevel = True,
     ),
-    chis_c = device('nicos.devices.tango.Sensor',
+    chis_c = device('nicos.devices.entangle.Sensor',
         tangodevice = tango_base + 'channel3/coder',
         fmtstr = '%.2f',
         lowlevel = True,
@@ -30,7 +30,7 @@ devices = dict(
         coder = 'chis_c',
         precision = 0.01,
     ),
-    phis_m = device('nicos.devices.tango.Motor',
+    phis_m = device('nicos.devices.entangle.Motor',
         tangodevice = tango_base + 'channel4/motor',
         fmtstr = '%.2f',
         lowlevel = True,

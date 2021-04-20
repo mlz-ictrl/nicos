@@ -133,7 +133,7 @@ devices = dict(
         lowlevel = True,
     ),
 #-------------------------------------------------------------------------------
-#    ng_pol_c_test = device('nicos.devices.tango.Sensor',
+#    ng_pol_c_test = device('nicos.devices.entangle.Sensor',
 #        description = 'NG Pol coder test device',
 #        # IP-adresse: 172.25.49.114
 #        tangodevice='%s/coll/3m_test/plc_encoder1'% (tangohost,),

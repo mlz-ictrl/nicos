@@ -5,13 +5,13 @@ group = 'lowlevel'
 tango_base = 'tango://cpci3.toftof.frm2:10000/'
 
 devices = dict(
-    timer = device('nicos.devices.tango.TimerChannel',
+    timer = device('nicos.devices.entangle.TimerChannel',
         description = 'The TOFTOF timer',
         tangodevice = tango_base + 'toftof/det/timer',
         fmtstr = '%.1f',
         lowlevel = True,
     ),
-    monitor = device('nicos.devices.tango.CounterChannel',
+    monitor = device('nicos.devices.entangle.CounterChannel',
         description = 'The TOFTOF monitor',
         tangodevice = tango_base + 'toftof/det/monitor',
         type = 'monitor',

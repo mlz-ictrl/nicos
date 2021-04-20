@@ -25,7 +25,7 @@ devices = dict(
             'inout': 'out'
         },
     ),
-    mr1 = device('nicos.devices.tango.Motor',
+    mr1 = device('nicos.devices.entangle.Motor',
         description = 'Rotation of first monochromator crystal',
         tangodevice = tango_base + 'fzjs7/mr1',
         # tangodevice = tango_base + 'copley/m11',
@@ -37,7 +37,7 @@ devices = dict(
         lowlevel = True,
         precision = 0.01
     ),
-    mr2 = device('nicos.devices.tango.Motor',
+    mr2 = device('nicos.devices.entangle.Motor',
         description = 'Rotation of second monochromator crystal',
         tangodevice = tango_base + 'fzjs7/mr2',
         # tangodevice = tango_base + 'copley/m12',
@@ -49,7 +49,7 @@ devices = dict(
         lowlevel = True,
         precision = 0.01
     ),
-    mtz = device('nicos.devices.tango.Motor',
+    mtz = device('nicos.devices.entangle.Motor',
         description = 'Translation of second monochromator crystal',
         tangodevice = tango_base + 'fzjs7/mtz',
         # tangodevice = tango_base + 'copley/m13',
@@ -62,7 +62,7 @@ devices = dict(
         lowlevel = True,
         precision = 0.01
     ),
-    mono_io = device('nicos.devices.tango.DigitalOutput',
+    mono_io = device('nicos.devices.entangle.DigitalOutput',
         description = 'Moves Monochromator in and out of beam',
         tangodevice = tango_base + 'fzjdp_digital/Monochromator',
         unit = '',
@@ -82,7 +82,7 @@ devices = dict(
         precision = 0,
         lowlevel = True,
     ),
-    monoswitch_io = device('nicos.devices.tango.DigitalOutput',
+    monoswitch_io = device('nicos.devices.entangle.DigitalOutput',
         description = 'Tango device for Monoswitch in/out',
         tangodevice = tango_base + 'fzjdp_digital/Monochromator',
         lowlevel = True,

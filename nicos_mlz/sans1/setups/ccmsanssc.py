@@ -7,20 +7,20 @@ includes = ['sample_changer']
 tango_base = 'tango://ccmsanssc:10000/box/'
 
 devices = dict(
-    ccmsanssc_switch = device('nicos.devices.tango.NamedDigitalOutput',
+    ccmsanssc_switch = device('nicos.devices.entangle.NamedDigitalOutput',
         description = 'position switch for pressure valve',
         lowlevel = False,
         tangodevice = tango_base + 'phytron/switch',
         mapping = {'free': 1,
                    'closed': 2},
     ),
-    ccmsanssc_motor = device('nicos.devices.tango.Motor',
+    ccmsanssc_motor = device('nicos.devices.entangle.Motor',
         lowlevel = True,
         tangodevice = tango_base + 'phytron/motor',
         abslimits = (0, 600),
         unit = 'mm',
     ),
-    ccmsanssc_coder = device('nicos.devices.tango.Sensor',
+    ccmsanssc_coder = device('nicos.devices.entangle.Sensor',
         lowlevel = True,
         tangodevice = tango_base + 'phytron/coder',
         unit = 'mm',

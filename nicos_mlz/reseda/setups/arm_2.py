@@ -8,7 +8,7 @@ tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 includes = ['coderbus']
 
 devices = dict(
-    arm2_rot_mot = device('nicos.devices.tango.Motor',
+    arm2_rot_mot = device('nicos.devices.entangle.Motor',
         description = 'Rotation arm 2 (motor)',
         tangodevice = '%s/arm2/2theta' % tango_base,
         fmtstr = '%.3f',
@@ -36,7 +36,7 @@ devices = dict(
         fmtstr = '%.3f',
         lowlevel = True,
     ),
-    arm2_rot_air = device('nicos.devices.tango.DigitalOutput',
+    arm2_rot_air = device('nicos.devices.entangle.DigitalOutput',
         description = 'Rotation arm 2 (air)',
         tangodevice = '%s/iobox/plc_air_a2' % tango_base,
         fmtstr = '%d',

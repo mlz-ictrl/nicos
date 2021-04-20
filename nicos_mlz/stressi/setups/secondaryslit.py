@@ -5,7 +5,7 @@ group = 'optional'
 devices = dict(
     sst = device('nicos.devices.generic.Axis',
         description = 'SST',
-        motor = device('nicos.devices.tango.Motor',
+        motor = device('nicos.devices.entangle.Motor',
             fmtstr = '%.2f',
             tangodevice = 'tango://motorbox03.stressi.frm2.tum.de:10000/box/channel6/motor',
         ),
@@ -13,7 +13,7 @@ devices = dict(
     ),
     ssw = device('nicos.devices.generic.Axis',
         description = 'Secondary Slit Width',
-        motor = device('nicos.devices.tango.Motor',
+        motor = device('nicos.devices.entangle.Motor',
             tangodevice = 'tango://stressictrl.stressi.frm2:10000/stressi/schunk/motor',
             fmtstr = '%.1f',
             # unit = 'mm',

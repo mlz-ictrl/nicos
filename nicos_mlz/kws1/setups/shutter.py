@@ -10,11 +10,11 @@ tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 tango_base_mlz = 'tango://ictrlfs.ictrl.frm2:10000/mlz/'
 
 devices = dict(
-    shutter_in = device('nicos.devices.tango.DigitalInput',
+    shutter_in = device('nicos.devices.entangle.DigitalInput',
         tangodevice = tango_base + 'sps/shutter_read',
         lowlevel = True,
     ),
-    shutter_set = device('nicos.devices.tango.DigitalOutput',
+    shutter_set = device('nicos.devices.entangle.DigitalOutput',
         tangodevice = tango_base + 'sps/shutter_write',
         lowlevel = True,
     ),
@@ -24,7 +24,7 @@ devices = dict(
         input = 'shutter_in',
         waittime = 1,
     ),
-    nl3b_shutter = device('nicos.devices.tango.NamedDigitalInput',
+    nl3b_shutter = device('nicos.devices.entangle.NamedDigitalInput',
         description = 'Neutron guide 3b shutter status',
         mapping = {'closed': 0,
                    'open': 1},
@@ -32,7 +32,7 @@ devices = dict(
         pollinterval = 60,
         maxage = 120,
     ),
-    sixfold_shutter = device('nicos.devices.tango.NamedDigitalInput',
+    sixfold_shutter = device('nicos.devices.entangle.NamedDigitalInput',
         description = 'Sixfold shutter status',
         mapping = {'closed': 0,
                    'open': 1},

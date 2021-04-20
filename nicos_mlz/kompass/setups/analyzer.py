@@ -6,17 +6,17 @@ tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/aircontrol/plc_'
 
 devices = dict(
     # att (A6)
-    att_m = device('nicos.devices.tango.Motor',
+    att_m = device('nicos.devices.entangle.Motor',
         tangodevice = tango_base + 'att_mot',
         fmtstr = '%.4f',
         lowlevel = True,
     ),
-    att_c = device('nicos.devices.tango.Sensor',
+    att_c = device('nicos.devices.entangle.Sensor',
         tangodevice = tango_base + 'att_enc',
         fmtstr = '%.4f',
         lowlevel = True,
     ),
-    air_detector = device('nicos.devices.tango.DigitalOutput',
+    air_detector = device('nicos.devices.entangle.DigitalOutput',
         tangodevice = tango_base + 'airpads_detector',
         lowlevel = True,
     ),
@@ -32,14 +32,14 @@ devices = dict(
         precision = 0.001,
     ),
     # apth (S-Bender)
-    apth = device('nicos.devices.tango.Motor',
+    apth = device('nicos.devices.entangle.Motor',
         description = 'apth',
         tangodevice = tango_base + 'apth_mot',
         fmtstr = '%.4f',
     ),
 
     # ahfh (Heusler-Analyzer)
-    ahfh = device('nicos.devices.tango.Motor',
+    ahfh = device('nicos.devices.entangle.Motor',
         description = 'ahfh',
         tangodevice = tango_base + 'ahfh_mot',
         fmtstr = '%.4f',
@@ -47,12 +47,12 @@ devices = dict(
 )
 
 for key in ('left', 'right'):
-    devices['asb_cyl_' + key] = device('nicos.devices.tango.NamedDigitalOutput',
+    devices['asb_cyl_' + key] = device('nicos.devices.entangle.NamedDigitalOutput',
         description = '%s ana shielding blocks lifter' % key,
         tangodevice = tango_base + 'asb_cyl_%s' % key,
         mapping = dict(up=1, down=0),
     )
-    devices['asb_cyl_%s_ofs' % key] = device('nicos.devices.tango.AnalogOutput',
+    devices['asb_cyl_%s_ofs' % key] = device('nicos.devices.entangle.AnalogOutput',
         description = 'offset of %s ana shielding blocks lift' % key,
         tangodevice = tango_base + 'asb_cyl_%s_ofs' % key,
         fmtstr = '%.3f',
@@ -68,11 +68,11 @@ for key in ('left', 'right'):
 for key in ('ath', 'agx', 'atx', 'aty', 'afv', 'afh', ): #'nutator'):
     devices[key] = device('nicos.devices.generic.Axis',
         description = key,
-        motor = device('nicos.devices.tango.Motor',
+        motor = device('nicos.devices.entangle.Motor',
             tangodevice = tango_base + '%s_mot' % key,
             fmtstr = '%.4f',
         ),
-        coder = device('nicos.devices.tango.Sensor',
+        coder = device('nicos.devices.entangle.Sensor',
             tangodevice = tango_base + '%s_enc' % key,
             fmtstr = '%.4f',
         ),

@@ -7,7 +7,7 @@ includes = ['guidehall']
 tango_base = 'tango://ictrlfs.ictrl.frm2:10000/mlz/'
 
 devices = dict(
-    NL4b = device('nicos.devices.tango.NamedDigitalInput',
+    NL4b = device('nicos.devices.entangle.NamedDigitalInput',
         description = 'NL4b shutter status',
         mapping = {'closed': 0,
                    'open': 1},

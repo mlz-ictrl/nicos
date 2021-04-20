@@ -27,7 +27,7 @@
 from nicos.core import MASTER, Attach, HasPrecision, Moveable, Override, \
     Param, PositionError, floatrange, intrange, listof, oneof, status, \
     tupleof
-from nicos.devices.tango import WindowTimeoutAO
+from nicos.devices.entangle import WindowTimeoutAO
 from nicos.utils import clamp
 
 from nicos_mlz.kws1.devices.daq import KWSDetector

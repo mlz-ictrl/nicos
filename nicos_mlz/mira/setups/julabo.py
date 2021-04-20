@@ -6,7 +6,7 @@ includes = ['alias_T']
 tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
 devices = dict(
-    T_julabo = device('nicos.devices.tango.TemperatureController',
+    T_julabo = device('nicos.devices.entangle.TemperatureController',
         description = 'temperature regulation',
         tangodevice = tango_base + 'humidity/tempctrl',
         pollinterval = 0.7,

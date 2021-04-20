@@ -5,7 +5,7 @@ group = 'lowlevel'
 tango_base = 'tango://pgaahw.pgaa.frm2:10000/pgaa/sample/'
 
 devices = dict(
-    chamber_pressure = device('nicos.devices.tango.Sensor',
+    chamber_pressure = device('nicos.devices.entangle.Sensor',
         description = 'vacuum sensor in sample chamber',
         tangodevice = tango_base + 'vacuum',
         fmtstr = '%.2g',

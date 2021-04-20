@@ -7,12 +7,12 @@ tango_base = 'tango://motorbox03.stressi.frm2.tum.de:10000/box/'
 includes = ['rad_fwhm']
 
 devices = dict(
-    rcdet_m = device('nicos.devices.tango.Motor',
+    rcdet_m = device('nicos.devices.entangle.Motor',
         tangodevice = tango_base + 'channel7/motor',
         fmtstr = '%.3f',
 	lowlevel = True,
     ),
-    rcdet_c = device('nicos.devices.tango.Sensor',
+    rcdet_c = device('nicos.devices.entangle.Sensor',
         tangodevice = tango_base + 'channel7/coder',
         fmtstr = '%.3f',
         lowlevel = True,

@@ -4,12 +4,12 @@ group = 'lowlevel'
 tango_base = 'tango://miractrl.mira.frm2:10000/mira/'
 
 devices = dict(
-    co_stt = device('nicos.devices.tango.Sensor',
+    co_stt = device('nicos.devices.entangle.Sensor',
         lowlevel = True,
         tangodevice = tango_base + 'sample/phi_ext_enc',
         unit = 'deg',
     ),
-    mo_stt = device('nicos.devices.tango.Motor',
+    mo_stt = device('nicos.devices.entangle.Motor',
         lowlevel = True,
         tangodevice = tango_base + 'sample/phi_ext_mot',
         unit = 'deg',
@@ -41,7 +41,7 @@ devices = dict(
         tangodevice = tango_base + 'air/sample_ext',
         lowlevel = True,
     ),
-    air_ana = device('nicos.devices.tango.DigitalOutput',
+    air_ana = device('nicos.devices.entangle.DigitalOutput',
         tangodevice = tango_base + 'air/det_ext',
         lowlevel = True,
     ),

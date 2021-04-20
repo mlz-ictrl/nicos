@@ -5,7 +5,7 @@ group = 'lowlevel'
 tango_base = 'tango://ictrlfs.ictrl.frm2:10000/mlz/'
 
 devices = dict(
-    ReactorPower = device('nicos.devices.tango.AnalogInput',
+    ReactorPower = device('nicos.devices.entangle.AnalogInput',
         description = 'FRM II reactor power',
         tangodevice = tango_base + 'reactor/power',
         warnlimits = (19, 21),

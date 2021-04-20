@@ -2,7 +2,7 @@ description = 'Cryostat Compressor Control Box'
 group = 'optional'
 
 devices = dict(
-    compressor = device('nicos.devices.tango.NamedDigitalOutput',
+    compressor = device('nicos.devices.entangle.NamedDigitalOutput',
         description = 'Powerswitch of the cryostat compressor',
         tangodevice =
         'tango://antareshw.antares.frm2:10000/antares/pumacc/pumacc_compressor',

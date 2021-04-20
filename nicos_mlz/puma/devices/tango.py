@@ -23,7 +23,7 @@
 # *****************************************************************************
 """Special TANGO devices for PUMA."""
 
-from nicos.devices.tango import CounterChannel
+from nicos.devices.entangle import CounterChannel
 
 
 class CycleCounter(CounterChannel):

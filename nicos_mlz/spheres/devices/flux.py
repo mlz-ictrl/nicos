@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 from nicos.core.params import Param, listof
-from nicos.devices.tango import VectorInput
+from nicos.devices.entangle import VectorInput
 
 
 class Flux(VectorInput):

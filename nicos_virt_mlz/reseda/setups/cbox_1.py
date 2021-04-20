@@ -40,7 +40,7 @@ devices = {
             abslimits = (0, 10),
         ),
     # '%s_fg_amp' % setupname:
-    #     device('nicos.devices.tango.AnalogOutput',
+    #     device('nicos.devices.entangle.AnalogOutput',
     #         description = 'Frequency generator amplitude',
     #         tangodevice = '%s/%s/fg_amplitude' % (tango_base, setupname),
     #         pollinterval = 30,
@@ -48,14 +48,14 @@ devices = {
     #         unit = 'V',
     #     ),
     # '%s_fwdp' % setupname:
-    #     device('nicos.devices.tango.AnalogInput',
+    #     device('nicos.devices.entangle.AnalogInput',
     #         description = 'Power amplifier forward power',
     #         tangodevice = '%s/%s/pa_fwdp' % (tango_base, setupname),
     #         pollinterval = 10,
     #         unit = 'W',
     #     ),
     # '%s_revp' % setupname:
-    #     device('nicos.devices.tango.AnalogInput',
+    #     device('nicos.devices.entangle.AnalogInput',
     #         description = 'Power amplifier reverse power',
     #         tangodevice = '%s/%s/pa_revp' % (tango_base, setupname),
     #         pollinterval = 10,

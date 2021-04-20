@@ -8,7 +8,7 @@ tango_base = 'tango://phys.maria.frm2:10000/maria/'
 piezo_slit = tango_base + 'smaract/piezo_'
 
 devices = dict(
-    piezo_left = device('nicos.devices.tango.Motor',
+    piezo_left = device('nicos.devices.entangle.Motor',
         description = 'Left blade of the SmarAct piezo slit',
         tangodevice = piezo_slit + 'left',
         unit = 'mm',
@@ -16,7 +16,7 @@ devices = dict(
         fmtstr = '%.2f',
         lowlevel = False,
     ),
-    piezo_right = device('nicos.devices.tango.Motor',
+    piezo_right = device('nicos.devices.entangle.Motor',
         description = 'Right blade of the SmarAct piezo slit',
         tangodevice = piezo_slit + 'right',
         unit = 'mm',
@@ -24,7 +24,7 @@ devices = dict(
         fmtstr = '%.2f',
         lowlevel = False,
     ),
-    piezo_bottom = device('nicos.devices.tango.Motor',
+    piezo_bottom = device('nicos.devices.entangle.Motor',
         description = 'Bottom blade of the SmarAct piezo slit',
         tangodevice = piezo_slit + 'bottom',
         unit = 'mm',
@@ -32,7 +32,7 @@ devices = dict(
         fmtstr = '%.2f',
         lowlevel = False,
     ),
-    piezo_top = device('nicos.devices.tango.Motor',
+    piezo_top = device('nicos.devices.entangle.Motor',
         description = 'Top blade of the SmarAct piezo slit',
         tangodevice = piezo_slit + 'top',
         unit = 'mm',

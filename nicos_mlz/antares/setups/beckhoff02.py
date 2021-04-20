@@ -7,14 +7,14 @@ devices = {}
 
 for i in range(1, 9):
     devices['beckhoff02_T%d' % i] = \
-        device('nicos.devices.tango.Sensor',
+        device('nicos.devices.entangle.Sensor',
                description = 'Temperature Sensor %d' % i,
                tangodevice = tango_base + 't%d' % i,
                unit = 'degC',
               )
 for i in range(1, 13):
     devices['beckhoff02_out%d' % i] = \
-        device('nicos.devices.tango.NamedDigitalOutput',
+        device('nicos.devices.entangle.NamedDigitalOutput',
                description = 'Digital Output%d' % i,
                tangodevice = tango_base + 'out%d' % i,
                mapping = dict(On = 1, Off = 0),

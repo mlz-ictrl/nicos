@@ -5,13 +5,13 @@ group = 'lowlevel'
 tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/'
 
 devices = dict(
-    nvslift_m = device('nicos.devices.tango.Motor',
+    nvslift_m = device('nicos.devices.entangle.Motor',
         description = 'Neutron selector lift motor',
         tangodevice = tango_base + 'lift/motor',
         # unit = 'mm',
         lowlevel = True,
     ),
-    nvslift_c = device('nicos.devices.tango.Sensor',
+    nvslift_c = device('nicos.devices.entangle.Sensor',
         description = 'Selector lift coder',
         tangodevice = tango_base + 'lift/coder',
         fmtstr = '%.2f',

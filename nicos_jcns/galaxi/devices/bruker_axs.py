@@ -26,7 +26,7 @@
 """GALAXI Bruker AXS control"""
 
 from nicos.core import Waitable, status
-from nicos.devices.tango import NamedDigitalInput, PartialDigitalInput
+from nicos.devices.entangle import NamedDigitalInput, PartialDigitalInput
 
 
 class TubeConditioner(NamedDigitalInput, Waitable):

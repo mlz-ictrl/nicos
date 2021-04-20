@@ -25,7 +25,7 @@
 """Support classes for the HTS magnet"""
 
 from nicos.core import Override
-from nicos.devices.tango import AnalogInput
+from nicos.devices.entangle import AnalogInput
 
 
 class WaterFlow(AnalogInput):

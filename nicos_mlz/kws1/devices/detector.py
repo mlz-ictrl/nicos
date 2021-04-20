@@ -28,9 +28,9 @@ from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
     DeviceMixinBase, HasLimits, Moveable, MoveError, Override, Param, dictof, \
     dictwith, multiReset, multiStop, none_or, oneof, status
 from nicos.devices.abstract import MappedMoveable
+from nicos.devices.entangle import Motor as TangoMotor
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep, \
     SequencerMixin
-from nicos.devices.tango import Motor as TangoMotor
 from nicos.utils import num_sort
 
 

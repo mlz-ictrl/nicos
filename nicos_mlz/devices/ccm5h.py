@@ -26,7 +26,7 @@
 """Devices for the SANS-1 oxford magnet (ccm5h)."""
 
 from nicos.core import HasTimeout, Override, Param, oneof
-from nicos.devices.tango import Actuator
+from nicos.devices.entangle import Actuator
 
 
 class AsymmetricMagnet(HasTimeout, Actuator):

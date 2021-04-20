@@ -7,7 +7,7 @@ includes = ['alias_B', 'alias_sth']
 tango_base = 'tango://%s:10000/box/' % setupname
 
 devices = {
-    'B_%s' % setupname: device('nicos.devices.tango.Actuator',
+    'B_%s' % setupname: device('nicos.devices.entangle.Actuator',
         description = 'The magnetic field',
         tangodevice = tango_base + 'magnet/field',
         abslimits = (-5.555, 5.555),
@@ -15,11 +15,11 @@ devices = {
     'sth_%s' % setupname: device('nicos.devices.generic.Axis',
         description = 'Cryotstat tube rotation',
         abslimits = (-180, 180),
-        motor = device('nicos.devices.tango.Motor',
+        motor = device('nicos.devices.entangle.Motor',
             tangodevice = tango_base + 'motor/motor',
             lowlevel = True,
             ),
-        coder = device('nicos.devices.tango.Sensor',
+        coder = device('nicos.devices.entangle.Sensor',
             tangodevice = tango_base + 'motor/encoder',
             lowlevel = True,
             ),
@@ -31,7 +31,7 @@ devices = {
 maxtemps = [None, 4.3, 4.3, 5.1, 4.7, None, None, None, 4.3]
 
 for i in range(1, 9):
-    dev = device('nicos.devices.tango.Sensor',
+    dev = device('nicos.devices.entangle.Sensor',
         description = '5.5T magnet temperature sensor %d' % i,
         tangodevice = tango_base + 'lakeshore/sensor%d' % i,
         warnlimits = (0, maxtemps[i]),

@@ -27,7 +27,7 @@
 import time
 
 from nicos.core import SIMULATION, HasTimeout, Param, status, tangodev
-from nicos.devices.tango import AnalogInput, AnalogOutput
+from nicos.devices.entangle import AnalogInput, AnalogOutput
 
 
 class SpinflipperPower(HasTimeout, AnalogOutput):
@@ -75,7 +75,7 @@ class SpinflipperPower(HasTimeout, AnalogOutput):
                                            tangodevice=self.reversetangodevice,
                                            lowlevel=True)
 
-    def doTime(self, move_from, move_to):
+    def doTime(self, old_value, target):
         return self.busytime
 
     def doInfo(self):

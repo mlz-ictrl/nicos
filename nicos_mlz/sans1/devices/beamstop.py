@@ -30,10 +30,10 @@ from nicos import session
 from nicos.core import ADMIN, SIMULATION, SLAVE, Attach, Moveable, Override, \
     Param, PositionError, UsageError, dictof, floatrange, limits, oneof, \
     requires, status, tupleof
+from nicos.devices.entangle import Sensor
 from nicos.devices.generic import Axis
 from nicos.devices.generic.sequence import SeqCall, SeqDev as NicosSeqDev, \
     SequencerMixin
-from nicos.devices.tango import Sensor
 
 
 class FunnySensor(Sensor):

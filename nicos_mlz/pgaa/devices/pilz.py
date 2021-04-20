@@ -27,7 +27,7 @@
 from nicos import session
 from nicos.core import SIMULATION, Param, status, tangodev
 from nicos.core.mixins import HasTimeout
-from nicos.devices.tango import NamedDigitalOutput
+from nicos.devices.entangle import NamedDigitalOutput
 from nicos.utils import HardwareStub
 
 

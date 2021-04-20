@@ -44,12 +44,12 @@ from time import monotonic
 
 from nicos.core import SIMULATION, Attach, InvalidValueError, Param, listof, \
     status
-from nicos.devices import tango
+from nicos.devices import entangle
 
 from nicos_mlz.mira.devices.axis import HoveringAxis
 
 
-class Stargate(tango.DigitalOutput):
+class Stargate(entangle.DigitalOutput):
     """Device for controlling the MIRA-Stargate blocks."""
 
     valuetype = listof(int)
@@ -83,10 +83,10 @@ class Stargate(tango.DigitalOutput):
             return status.BUSY, 'moving/waiting'
         return status.OK, ''
 
-    def doStart(self, value):
+    def doStart(self, target):
         bitvals = [0, 0, 0]
-        for curidx in range(len(value)):
-            curval = value[curidx]
+        for curidx in range(len(target)):
+            curval = target[curidx]
 
             byteidx = curidx // 4
             bitidx = (curidx % 4) * 2

@@ -27,7 +27,7 @@
 from nicos.core import SIMULATION, Attach, ConfigurationError, HasLimits, \
     InvalidValueError, Moveable, Override, Param, ProgrammingError, \
     floatrange, limits, oneof
-from nicos.devices.tango import AnalogInput
+from nicos.devices.entangle import AnalogInput
 from nicos.utils import clamp
 
 

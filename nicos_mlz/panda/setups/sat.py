@@ -7,11 +7,11 @@ group = 'optional'
 tango_base = 'tango://phys.panda.frm2:10000/panda/'
 
 devices = dict(
-    sat_in = device('nicos.devices.tango.DigitalInput',
+    sat_in = device('nicos.devices.entangle.DigitalInput',
         tangodevice = tango_base + 'sat/input',
         lowlevel = True,
     ),
-    sat_out = device('nicos.devices.tango.DigitalOutput',
+    sat_out = device('nicos.devices.entangle.DigitalOutput',
         tangodevice = tango_base + 'sat/output',
         lowlevel = True,
     ),

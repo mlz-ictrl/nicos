@@ -28,7 +28,7 @@ import numpy as np
 
 from nicos.core.constants import SIMULATION
 from nicos.core.params import Override, Param, Value, listof, oneof
-from nicos.devices.tango import CounterChannel as BaseCounterChannel, \
+from nicos.devices.entangle import CounterChannel as BaseCounterChannel, \
     ImageChannel as BaseImageChannel, TimerChannel as BaseTimerChannel
 from nicos.devices.vendor.qmesydaq import Image as QMesyDAQImage
 

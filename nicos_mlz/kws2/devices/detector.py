@@ -29,8 +29,8 @@ from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
     HasOffset, Moveable, MoveError, Override, Param, dictof, dictwith, \
     multiReset, multiStop, status
 from nicos.devices.abstract import MappedMoveable
+from nicos.devices.entangle import AnalogInput
 from nicos.devices.generic.sequence import SeqCall, SeqDev, SequencerMixin
-from nicos.devices.tango import AnalogInput
 from nicos.utils import num_sort
 
 from nicos_mlz.kws1.devices.detector import DetectorPosSwitcherMixin, \

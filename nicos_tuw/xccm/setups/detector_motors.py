@@ -5,7 +5,7 @@ group = 'lowlevel'
 tangobase = 'tango://localhost:10000/box/'
 
 devices = dict(
-    det_Tx_m = device('nicos.devices.tango.Motor',
+    det_Tx_m = device('nicos.devices.entangle.Motor',
         description = 'Detector translation x-axis motor',
         tangodevice = tangobase + 'detector/Tx_Motor',
         lowlevel = True,
@@ -16,7 +16,7 @@ devices = dict(
         # coder = 'sample_tilt_c',
         precision = 0.01,
     ),
-    det_Ty_m = device('nicos.devices.tango.Motor',
+    det_Ty_m = device('nicos.devices.entangle.Motor',
         description = 'Detector translation y-axis motor',
         tangodevice = tangobase + 'detector/Ty_Motor',
         lowlevel = True,
@@ -27,7 +27,7 @@ devices = dict(
         # coder = 'sample_tilt_c',
         precision = 0.01,
     ),
-    det_Tz_Upper_m = device('nicos.devices.tango.Motor',
+    det_Tz_Upper_m = device('nicos.devices.entangle.Motor',
         description = 'Upper Detector half translation z-axis motor',
         tangodevice = tangobase + 'detector/Tz_Upper_Motor',
         lowlevel = True,
@@ -38,7 +38,7 @@ devices = dict(
         # coder = 'sample_tilt_c',
         precision = 0.01,
     ),
-    det_Tz_Lower_m = device('nicos.devices.tango.Motor',
+    det_Tz_Lower_m = device('nicos.devices.entangle.Motor',
         description = 'Lower Detector half translation z-axis motor',
         tangodevice = tangobase + 'detector/Tz_Lower_Motor',
         lowlevel = True,

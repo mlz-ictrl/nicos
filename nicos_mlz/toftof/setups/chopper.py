@@ -9,7 +9,7 @@ tango_host = 'tango://tofhw.toftof.frm2:10000/'
 devices = dict(
     ch = device('nicos_mlz.toftof.devices.chopper.Controller',
         description = 'TOFTOF chopper control device',
-        io = device('nicos.devices.tango.StringIO',
+        io = device('nicos.devices.entangle.StringIO',
             tangodevice = tango_host + 'toftof/rs232/ifchcontrol',
         ),
         speed_accuracy = 10,

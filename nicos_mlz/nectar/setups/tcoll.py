@@ -5,11 +5,11 @@ group = 'optional'
 tango_base = 'tango://phytron02.nectar.frm2.tum.de:10000/'
 
 devices = dict(
-    drum_c = device('nicos.devices.tango.Sensor',
+    drum_c = device('nicos.devices.entangle.Sensor',
         tangodevice = tango_base + 'box/channel7/enc',
         lowlevel = True,
     ),
-    drum_m = device('nicos.devices.tango.Motor',
+    drum_m = device('nicos.devices.entangle.Motor',
         tangodevice = tango_base + 'box/channel7/mot',
         abslimits = (-10, 370),
         precision = 0.05,

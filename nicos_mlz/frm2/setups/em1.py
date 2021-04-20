@@ -7,7 +7,7 @@ includes = ['alias_B']
 tango_base = 'tango://%s:10000/box/' % setupname
 
 devices = {
-    'I_%s' % setupname: device('nicos.devices.tango.PowerSupply',
+    'I_%s' % setupname: device('nicos.devices.entangle.PowerSupply',
         description = 'Magnet current',
         tangodevice = tango_base + 'bruker/supply',
         fmtstr = '%.1f',
@@ -31,7 +31,7 @@ devices = {
             0.029687
         )
     ),
-    '%s_sam_trans' % setupname: device('nicos.devices.tango.Motor',
+    '%s_sam_trans' % setupname: device('nicos.devices.entangle.Motor',
         description = 'Sample changer stage',
         tangodevice = tango_base + 'plc/plc_motor',
         fmtstr = '%.1f',

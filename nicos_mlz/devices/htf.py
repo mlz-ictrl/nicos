@@ -25,7 +25,7 @@
 """Support classes for the HTF-0x ControlBoxes"""
 
 from nicos.core.params import Attach, Param, floatrange
-from nicos.devices.tango import AnalogOutput, TemperatureController
+from nicos.devices.entangle import AnalogOutput, TemperatureController
 
 
 class HTFTemperatureController(TemperatureController):

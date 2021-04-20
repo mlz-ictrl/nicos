@@ -25,7 +25,7 @@
 from nicos.core import Moveable, Readable, status
 from nicos.core.mixins import HasLimits
 from nicos.core.params import Attach, Param, floatrange
-from nicos.devices.tango import StringIO
+from nicos.devices.entangle import StringIO
 
 
 class Base(Readable):

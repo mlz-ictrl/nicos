@@ -93,7 +93,7 @@ for (epname, epicsid) in eps: # + [('ep09x', 'GE-D7561E-EP')]:
         lowlevel = True,
     )
 
-#devices['ep10_P'] = device('nicos.devices.tango.AnalogInput',
+#devices['ep10_P'] = device('nicos.devices.entangle.AnalogInput',
 #                           tangodevice = tango_base + 'ep10/power',
 #                           description = 'ep10 delivered PoE power',
 #                           lowlevel = True,)

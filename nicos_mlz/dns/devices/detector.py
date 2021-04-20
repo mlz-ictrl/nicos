@@ -28,9 +28,10 @@ import numpy
 from nicos import session
 from nicos.core import SIMULATION, Value
 from nicos.core.params import ArrayDesc, Attach, Param, tupleof
+from nicos.devices.entangle import TOFChannel
 from nicos.devices.generic.detector import Detector
 from nicos.devices.polarized.flipper import OFF, ON, BaseFlipper
-from nicos.devices.tango import PyTangoDevice, TOFChannel
+from nicos.devices.tango import PyTangoDevice
 
 P_TIME = 't'
 P_TIME_SF = 'tsf'

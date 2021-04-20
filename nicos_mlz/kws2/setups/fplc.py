@@ -7,11 +7,11 @@ tango_base = 'tango://phys.kws2.frm2:10000/kws2/'
 devices = dict(
     fplc_trigger = device('nicos_mlz.kws2.devices.fplc.FPLCTrigger',
         description = 'Triggers FPLC measurement',
-        input = device('nicos.devices.tango.DigitalInput',
+        input = device('nicos.devices.entangle.DigitalInput',
             tangodevice = tango_base + 'fplc/plc_finished',
             lowlevel = True,
         ),
-        output = device('nicos.devices.tango.DigitalOutput',
+        output = device('nicos.devices.entangle.DigitalOutput',
             tangodevice = tango_base + 'fplc/plc_trigger',
             lowlevel = True,
         ),

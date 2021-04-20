@@ -64,7 +64,7 @@ from nicos.core import Override, Param, Readable, floatrange, intrange, \
     oneof, status
 from nicos.core.errors import CommunicationError
 from nicos.core.mixins import HasOffset
-from nicos.devices.tango import StringIO
+from nicos.devices.entangle import StringIO
 
 
 class TriangleBase(Readable, StringIO):

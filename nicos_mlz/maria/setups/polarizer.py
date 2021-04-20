@@ -9,12 +9,12 @@ tango_dio = tango_base + "/FZJDP_Digital"
 tango_ps = tango_base + "/toellner"
 
 devices = dict(
-    pol = device("nicos.devices.tango.Motor",
+    pol = device("nicos.devices.entangle.Motor",
         description = "Polarization",
         tangodevice = tango_s7 + "/pol",
         precision = 0.01,
     ),
-    analyzer_shift = device("nicos.devices.tango.NamedDigitalOutput",
+    analyzer_shift = device("nicos.devices.entangle.NamedDigitalOutput",
         description = "Analyzer shift",
         tangodevice = tango_dio + "/analyzershift",
         mapping = {
@@ -48,7 +48,7 @@ devices = dict(
         setpoint = 0.6,
         unit = 'A',
     ),
-    pow4curr2 = device("nicos.devices.tango.PowerSupply",
+    pow4curr2 = device("nicos.devices.entangle.PowerSupply",
         description = "Power supply 4 current control ch 2",
         tangodevice = tango_ps + "/pow4curr2",
         unit = 'A',

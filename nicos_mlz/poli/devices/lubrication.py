@@ -25,7 +25,7 @@
 """Lubrication device for lifting counter."""
 
 from nicos.core import status
-from nicos.devices.tango import DigitalOutput
+from nicos.devices.entangle import DigitalOutput
 
 
 class LubeSwitch(DigitalOutput):

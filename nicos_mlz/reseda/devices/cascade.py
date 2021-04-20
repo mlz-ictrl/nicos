@@ -32,7 +32,7 @@ from nicos.core import SIMULATION, ArrayDesc, ConfigurationError, Override, \
 from nicos.core.data import GzipFile
 from nicos.devices.datasinks.raw import SingleRawImageFileReader, \
     SingleRawImageSink, SingleRawImageSinkHandler
-from nicos.devices.tango import BaseImageChannel
+from nicos.devices.entangle import BaseImageChannel
 from nicos.protocols.cache import FLAG_NO_STORE
 from nicos.utils.fitting import curve_fit
 

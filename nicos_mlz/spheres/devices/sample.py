@@ -30,12 +30,12 @@ from nicos import session
 from nicos.core import SIMULATION, oneof
 from nicos.core.params import Attach, Param, tangodev
 from nicos.core.status import WARN
-from nicos.devices import tango
-from nicos.devices.tango import TemperatureController
+from nicos.devices import entangle
+from nicos.devices.entangle import TemperatureController
 from nicos.utils import HardwareStub
 
 
-class SEController(tango.TemperatureController):
+class SEController(entangle.TemperatureController):
     """Controller to set Temperature
     """
 
@@ -66,12 +66,12 @@ class SEController(tango.TemperatureController):
         self._dev.RushTemperature(temperature)
 
     def _combinedStatus(self, maxage=0):
-        state = tango.TemperatureController.doStatus(self, maxage)
+        state = entangle.TemperatureController.doStatus(self, maxage)
         # if there is a warning from the controller, display it.
         if state[0] == WARN:
             return state
         else:
-            return tango.TemperatureController._combinedStatus(self, maxage)
+            return entangle.TemperatureController._combinedStatus(self, maxage)
 
     def stopPressure(self):
         self._dev.StopPressureRegulation()
@@ -102,7 +102,7 @@ class SEController(tango.TemperatureController):
         return TemperatureController.isAtTarget(self, target=target)
 
 
-class PressureController(tango.TemperatureController):
+class PressureController(entangle.TemperatureController):
     """Device to be able to set the pressure manually.
     Pressure is set via the controller, which is supposed to handle the limits
     within which setting pressure is allowed.
@@ -117,15 +117,15 @@ class PressureController(tango.TemperatureController):
     }
 
     def doPreinit(self, mode):
-        tango.TemperatureController.doPreinit(self, mode)
+        entangle.TemperatureController.doPreinit(self, mode)
 
         if mode != SIMULATION:
             self._controller = self._createPyTangoDevice(self.controller)
         else:
             self._controller = HardwareStub(self)
 
-    def doStart(self, value):
-        self._controller.setPressure(value)
+    def doStart(self, target):
+        self._controller.setPressure(target)
 
     def doStop(self):
         pass

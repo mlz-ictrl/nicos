@@ -31,10 +31,10 @@ import PyTango
 
 from nicos.core import Attach, HasPrecision, InvalidValueError, Moveable, \
     Override, Param, PositionError, Readable, listof, status, tupleof
+from nicos.devices.entangle import Motor as TangoMotor, PowerSupply
 from nicos.devices.generic.sequence import BaseSequencer, \
     LockedDevice as NicosLockedDevice, SeqDev, SeqMethod, SeqParam, SeqSleep
 from nicos.devices.generic.switcher import Switcher
-from nicos.devices.tango import Motor as TangoMotor, PowerSupply
 
 
 class VoltageSwitcher(Switcher):
@@ -241,9 +241,9 @@ class Sans1HV(BaseSequencer):
     def doIsAllowed(self, target):
         return self._attached_supply.isAllowed(target)
 
-    def doTime(self, pos, target):
+    def doTime(self, old_value, target):
         # duration is in minutes...
-        duration = abs(pos - target) / float(self.fastramp)
+        duration = abs(old_value - target) / float(self.fastramp)
         if not self.lasthv or (currenttime() - self.lasthv > self.maxofftime):
             # cold start
             fromVolts = 0
@@ -290,6 +290,7 @@ class Sans1ZMotor(TangoMotor):
 
 
 class LockedDevice(HasPrecision, NicosLockedDevice):
-    def doStart(self, pos):
-        if abs(self.read(0) - pos) >= self.precision:
-            NicosLockedDevice.doStart(self, pos)
+
+    def doStart(self, target):
+        if abs(self.read(0) - target) >= self.precision:
+            NicosLockedDevice.doStart(self, target)

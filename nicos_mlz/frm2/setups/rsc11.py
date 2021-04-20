@@ -7,7 +7,7 @@ includes = ['alias_sth']
 tango_base = 'tango://%s:10000/' % setupname
 
 devices = {
-    'sth_%s' % setupname: device('nicos.devices.tango.MotorAxis',
+    'sth_%s' % setupname: device('nicos.devices.entangle.MotorAxis',
         description = 'Newport rotation axis',
         tangodevice = tango_base + 'box/newport/motor',
         fmtstr = '%.3f',

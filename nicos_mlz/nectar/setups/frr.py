@@ -3,7 +3,7 @@ description = 'Focus rotation ring'
 group = 'lowlevel'
 
 devices = dict(
-    frr_m = device('nicos.devices.tango.Motor',
+    frr_m = device('nicos.devices.entangle.Motor',
         tangodevice = 'tango://phytron01.nectar.frm2.tum.de:10000/box/frr/mot',
         fmtstr = '%.1f',
         lowlevel = True,

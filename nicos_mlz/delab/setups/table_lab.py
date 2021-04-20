@@ -5,7 +5,7 @@ group = 'lowlevel'
 tango_base = 'tango://localhost:10000/del/table/'
 
 devices = dict(
-    mo_x = device('nicos.devices.tango.Motor',
+    mo_x = device('nicos.devices.entangle.Motor',
         lowlevel = True,
         tangodevice = tango_base + 'xmot',
         unit = 'mm',

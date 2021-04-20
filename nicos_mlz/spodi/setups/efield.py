@@ -5,7 +5,7 @@ group = 'optional'
 tango_base = 'tango://spodisrv.spodi.frm2:10000/spodi/hcp/'
 
 devices = dict(
-    E = device('nicos.devices.tango.PowerSupply',
+    E = device('nicos.devices.entangle.PowerSupply',
         description = 'Sample environment: electrical field',
         tangodevice = tango_base + 'hv',
         abslimits = (0, 35000),

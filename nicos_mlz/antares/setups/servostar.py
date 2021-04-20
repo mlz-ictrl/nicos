@@ -4,7 +4,7 @@ group = 'optional'
 tango_base = 'tango://antareshw.antares.frm2:10000/antares'
 
 devices = dict(
-    stx_servostar = device('nicos.devices.tango.Motor',
+    stx_servostar = device('nicos.devices.entangle.Motor',
         description = 'Sample Translation X',
         tangodevice = tango_base + '/mani/x',
         pollinterval = 5,
@@ -13,7 +13,7 @@ devices = dict(
         userlimits = (0, 1010),
         abslimits = (0, 1010),
     ),
-    sty_servostar = device('nicos.devices.tango.Motor',
+    sty_servostar = device('nicos.devices.entangle.Motor',
         description = 'Sample Translation Y',
         tangodevice = tango_base + '/mani/y',
         pollinterval = 5,
@@ -22,7 +22,7 @@ devices = dict(
         userlimits = (0, 580),
         abslimits = (0, 580),
     ),
-    sry_servostar = device('nicos.devices.tango.Motor',
+    sry_servostar = device('nicos.devices.entangle.Motor',
         description = 'Sample Rotation around Y',
         tangodevice = tango_base + '/mani/phi',
         pollinterval = 5,

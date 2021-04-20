@@ -23,7 +23,7 @@ devices = dict(
     # fmtstr = '%d',
     # lowlevel = True,
     # ),
-    # mon_hv = device('nicos.devices.tango.PowerSupply',
+    # mon_hv = device('nicos.devices.entangle.PowerSupply',
     #     description = 'High voltage power supply of the monitor',
     #     tangodevice = '%s/mon/hv' % tango_base,
     #     abslimits = (0, 1050),

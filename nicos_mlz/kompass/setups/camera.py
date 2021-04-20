@@ -8,7 +8,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    camtimer = device('nicos.devices.tango.TimerChannel',
+    camtimer = device('nicos.devices.entangle.TimerChannel',
         description = 'timer for the Neutron camera',
         tangodevice = tango_base + 'camera/timer',
     ),

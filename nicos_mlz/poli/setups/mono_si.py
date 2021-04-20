@@ -8,13 +8,13 @@ tango_base = 'tango://phys.poli.frm2:10000/poli/'
 s7_motor = tango_base + 's7_motor/'
 
 devices = dict(
-    sih = device('nicos.devices.tango.Motor',
+    sih = device('nicos.devices.entangle.Motor',
         lowlevel = False,
         description = 'Silicon monochromator horizontal focus',
         tangodevice = s7_motor + 'sih',
         fmtstr = '%.2f',
     ),
-    siv = device('nicos.devices.tango.Motor',
+    siv = device('nicos.devices.entangle.Motor',
         lowlevel = False,
         description = 'Silicon monochromator vertical focus',
         tangodevice = s7_motor + 'siv',

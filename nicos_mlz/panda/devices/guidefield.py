@@ -29,8 +29,8 @@ import numpy as np
 from nicos.core import Attach, LimitError, Override, Param
 from nicos.core.params import floatrange, tupleof
 from nicos.devices.abstract import MappedMoveable
+from nicos.devices.entangle import PowerSupply
 from nicos.devices.generic import VirtualMotor
-from nicos.devices.tango import PowerSupply
 from nicos.utils import lazy_property
 
 ###############################################################################

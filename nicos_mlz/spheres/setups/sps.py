@@ -122,7 +122,7 @@ mappings = [
 devices = dict()
 
 for name, analog in analogs.items():
-    devices[name] = device('nicos.devices.tango.AnalogInput',
+    devices[name] = device('nicos.devices.entangle.AnalogInput',
         description=analog['desc'],
         tangodevice=profibus_base + name,
         unit=analog['unit'],
@@ -130,7 +130,7 @@ for name, analog in analogs.items():
     )
 
 for name, digital in digitals.items():
-    devices[name] = device('nicos.devices.tango.NamedDigitalInput',
+    devices[name] = device('nicos.devices.entangle.NamedDigitalInput',
         description=digital['desc'],
         tangodevice=profibus_base + name,
         unit=digital['unit'],
@@ -139,7 +139,7 @@ for name, digital in digitals.items():
     )
 
 for name, cluster in clusters.items():
-    devices[name] = device('nicos.devices.tango.NamedDigitalInput',
+    devices[name] = device('nicos.devices.entangle.NamedDigitalInput',
         description=cluster['desc'],
         tangodevice=profibus_base + name,
         unit=cluster['unit'],
@@ -148,7 +148,7 @@ for name, cluster in clusters.items():
     )
 
 for name, dev in background.items():
-    devices['back_' + name] = device('nicos.devices.tango.AnalogInput',
+    devices['back_' + name] = device('nicos.devices.entangle.AnalogInput',
         description=dev['desc'],
         tangodevice=profinet_base + name,
         unit=dev['unit'],

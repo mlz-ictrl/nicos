@@ -8,7 +8,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    sxccdtimer = device('nicos.devices.tango.TimerChannel',
+    sxccdtimer = device('nicos.devices.entangle.TimerChannel',
         description = 'timer for the Neutron camera',
         tangodevice = tango_base + 'sxccd/timer',
     ),

@@ -9,7 +9,7 @@ excludes = ["det2"]
 tango_base = "tango://phys.maria.frm2:10000/maria/"
 
 devices = dict(
-    detimg = device("nicos.devices.tango.ImageChannel",
+    detimg = device("nicos.devices.entangle.ImageChannel",
         description = "Denex detector image",
         tangodevice = tango_base + "fastcomtec/detector",
         fmtstr = "%d cts",

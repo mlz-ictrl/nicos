@@ -24,7 +24,7 @@
 
 from nicos.core.device import Readable, Waitable
 from nicos.core.params import Attach
-from nicos.devices.tango import NamedDigitalOutput
+from nicos.devices.entangle import NamedDigitalOutput
 
 
 class DOFlipper(NamedDigitalOutput, Waitable):

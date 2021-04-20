@@ -30,7 +30,7 @@ devices = dict(
 #       maxage = 120,
 #       pollinterval = 15,
 #   ),
-    # T_spinflipper_AG = device('nicos.devices.tango.AnalogInput',
+    # T_spinflipper_AG = device('nicos.devices.entangle.AnalogInput',
     #     description = 'temperature of ag1016',
     #     fmtstr = '%.3f',
     #     maxage = 120,
@@ -38,7 +38,7 @@ devices = dict(
     # ),
 
     # HP33220A
-#   A_spinflipper_hp = device('nicos.devices.tango.AnalogOutput',
+#   A_spinflipper_hp = device('nicos.devices.entangle.AnalogOutput',
 #       description = 'amplitude of the frequency generator',
 #       fmtstr = '%.3f',
 #       abslimits = (0, 2.0),
@@ -46,7 +46,7 @@ devices = dict(
 #       maxage = 120,
 #       pollinterval = 15,
 #   ),
-#   F_spinflipper_hp = device('nicos.devices.tango.AnalogOutput',
+#   F_spinflipper_hp = device('nicos.devices.entangle.AnalogOutput',
 #       description = 'frequency of the frequency generator',
 #       fmtstr = '%.0f',
 #       abslimits = (0.0, 4000000.0),

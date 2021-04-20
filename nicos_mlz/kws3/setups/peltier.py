@@ -7,7 +7,7 @@ includes = ['alias_T']
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
 
 devices = dict(
-    T_peltier = device('nicos.devices.tango.TemperatureController',
+    T_peltier = device('nicos.devices.entangle.TemperatureController',
         description = 'The regulated temperature',
         tangodevice = tango_base + 'tlc40/control',
         unit = 'degC',

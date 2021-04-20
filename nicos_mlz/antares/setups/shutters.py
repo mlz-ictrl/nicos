@@ -7,7 +7,7 @@ tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 
 devices = dict(
     # Pilz shutter control
-    shutter1_io = device('nicos.devices.tango.DigitalOutput',
+    shutter1_io = device('nicos.devices.entangle.DigitalOutput',
         description = 'Tango device for Shutter 1',
         tangodevice = tango_base + 'fzjdp_digital/PilzShutter1',
         lowlevel = True,
@@ -20,7 +20,7 @@ devices = dict(
         precision = 0,
         unit = '',
     ),
-    shutter2_io = device('nicos.devices.tango.DigitalOutput',
+    shutter2_io = device('nicos.devices.entangle.DigitalOutput',
         description = 'Tango device for Shutter 2',
         tangodevice = tango_base + 'fzjdp_digital/PilzShutter2',
         lowlevel = True,
@@ -33,7 +33,7 @@ devices = dict(
         precision = 0,
         unit = '',
     ),
-    fastshutter_io = device('nicos.devices.tango.DigitalOutput',
+    fastshutter_io = device('nicos.devices.entangle.DigitalOutput',
         description = 'Tango device for Fast shutter',
         tangodevice = tango_base + 'fzjdp_digital/FastShutter',
         comdelay = 0.1,

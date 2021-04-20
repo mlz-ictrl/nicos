@@ -7,7 +7,7 @@ includes = ["alias_T"]
 tango_base = "tango://phys.maria.frm2:10000/maria"
 
 devices = dict(
-    T_julabo = device("nicos.devices.tango.TemperatureController",
+    T_julabo = device("nicos.devices.entangle.TemperatureController",
         description = "The regulated temperature",
         tangodevice = tango_base + "/waterjulabo/control",
         abslimits = (5, 80),

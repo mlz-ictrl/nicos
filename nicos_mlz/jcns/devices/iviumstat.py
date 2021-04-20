@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos.devices.tango import NamedDigitalOutput
+from nicos.devices.entangle import NamedDigitalOutput
 
 
 class StopNamedDigitalOutput(NamedDigitalOutput):

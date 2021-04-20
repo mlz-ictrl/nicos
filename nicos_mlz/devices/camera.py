@@ -24,7 +24,7 @@
 
 """Support classes for neutron cameras at the FRM II."""
 
-from nicos.devices.tango import BaseImageChannel
+from nicos.devices.entangle import BaseImageChannel
 
 
 class CameraImage(BaseImageChannel):

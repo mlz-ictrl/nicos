@@ -26,7 +26,7 @@
 
 from nicos import session
 from nicos.core import Param
-from nicos.devices.tango import Actuator
+from nicos.devices.entangle import Actuator
 
 
 class CascadeIsegHV(Actuator):
@@ -37,11 +37,11 @@ class CascadeIsegHV(Actuator):
                           type=int, settable=True, default=60),
     }
 
-    def doStart(self, value):
+    def doStart(self, target):
         if abs(self.read(0)) < 10 and self.waittime:
             self.log.warning('Please make sure the Cascade detector '
                              'is supplied with counting gas!  Waiting '
                              'for %d seconds before ramping up the HV.',
                              self.waittime)
             session.delay(self.waittime)
-        return Actuator.doStart(self, value)
+        return Actuator.doStart(self, target)

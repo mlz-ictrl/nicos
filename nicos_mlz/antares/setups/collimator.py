@@ -8,7 +8,7 @@ tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 
 devices = dict(
     # Collimator
-    collimator_io = device('nicos.devices.tango.DigitalOutput',
+    collimator_io = device('nicos.devices.entangle.DigitalOutput',
         description = 'Tango device for Collimator',
         tangodevice = tango_base + 'fzjdp_digital/Collimator',
         lowlevel = True,

@@ -7,7 +7,7 @@ devices = {}
 
 for i in range(1,9):
     devices['Temperature_Sensor_T%d' % i] = \
-        device('nicos.devices.tango.Sensor',
+        device('nicos.devices.entangle.Sensor',
                description = 'Temperature Sensor T%d' % i,
                tangodevice = tango_base + 't%d' % i,
                unit = 'degC',

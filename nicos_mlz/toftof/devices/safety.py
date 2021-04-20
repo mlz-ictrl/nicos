@@ -27,7 +27,7 @@
 
 from nicos import session
 from nicos.core import Attach, Moveable, Override, Readable, oneofdict, status
-from nicos.devices.tango import DigitalInput, DigitalOutput
+from nicos.devices.entangle import DigitalInput, DigitalOutput
 
 from nicos_mlz.toftof.devices.safety_desc import bit_description
 

@@ -29,9 +29,9 @@ from nicos.commands.basic import sleep
 from nicos.core import SIMULATION, UsageError, dictwith, floatrange, \
     oneofdict_or, status
 from nicos.core.params import Attach, Param
+from nicos.devices.entangle import NamedDigitalOutput, VectorInput
 from nicos.devices.generic.sequence import SeqCall, SeqDev, SequencerMixin
 from nicos.devices.generic.switcher import MultiSwitcher
-from nicos.devices.tango import NamedDigitalOutput, VectorInput
 from nicos.protocols.daemon import STATUS_INBREAK
 from nicos.utils import number_types
 

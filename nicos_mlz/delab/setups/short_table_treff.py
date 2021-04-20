@@ -7,7 +7,7 @@ excludes = ['long_table_treff', 'table_lab']
 tango_base = 'tango://localhost:10000/del/table/'
 
 devices = dict(
-    mo_x = device('nicos.devices.tango.Motor',
+    mo_x = device('nicos.devices.entangle.Motor',
         lowlevel = True,
         tangodevice = tango_base + 'xmot',
         unit = 'mm',
@@ -20,7 +20,7 @@ devices = dict(
         fmtstr = '%.3f',
         precision = 0.01,
     ),
-    mo_y = device('nicos.devices.tango.Motor',
+    mo_y = device('nicos.devices.entangle.Motor',
         lowlevel = True,
         tangodevice = tango_base + 'ymot',
         unit = 'mm',

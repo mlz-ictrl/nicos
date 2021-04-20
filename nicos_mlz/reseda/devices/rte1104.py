@@ -27,7 +27,7 @@ import math
 
 from nicos.core import Attach, Moveable, Override, Param, Readable, intrange, \
     status
-from nicos.devices.tango import StringIO
+from nicos.devices.entangle import StringIO
 
 
 class RTE1104(Readable):

@@ -11,20 +11,20 @@ acqhost = 'phys.spheres.frm2'
 acq = 'tango://%s:10000/spheres/sis/' % acqhost
 
 devices = dict(
-    doppler_switch = device('nicos.devices.tango.NamedDigitalOutput',
+    doppler_switch = device('nicos.devices.entangle.NamedDigitalOutput',
         description = 'Switch doppler on and off',
         tangodevice = doppler + 'switch',
         mapping = dict(on=1,
                        off=0),
         lowlevel = True,
     ),
-    doppler_speed = device('nicos.devices.tango.AnalogOutput',
+    doppler_speed = device('nicos.devices.entangle.AnalogOutput',
         description = 'Controller for the speed of the doppler',
         tangodevice = doppler + 'speed',
         unit = 'm/s',
         lowlevel = True,
     ),
-    doppler_amplitude = device('nicos.devices.tango.AnalogOutput',
+    doppler_amplitude = device('nicos.devices.entangle.AnalogOutput',
         description = 'Controller for the amplitude of the doppler',
         tangodevice = doppler + 'amplitude',
         unit = 'mm',

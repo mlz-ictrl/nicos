@@ -27,7 +27,7 @@
 
 from nicos.core import ADMIN, Attach, CommunicationError, Moveable, Override, \
     Param, intrange, oneofdict, requires, status
-from nicos.devices.tango import StringIO
+from nicos.devices.entangle import StringIO
 
 
 class ToniBus(StringIO):

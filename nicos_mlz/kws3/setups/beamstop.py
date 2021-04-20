@@ -14,7 +14,7 @@ devices = dict(
         resolution = 'resolution',
         outpos = 100,
     ),
-    det_beamstop_x = device('nicos.devices.tango.Motor',
+    det_beamstop_x = device('nicos.devices.entangle.Motor',
         description = 'beamstop x',
         tangodevice = s7_motor + 'beamstop_x',
         unit = 'mm',

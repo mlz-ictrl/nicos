@@ -26,7 +26,7 @@
 """
 
 from nicos.core import Override, Param, floatrange, intrange, oneof
-from nicos.devices.tango import NamedDigitalOutput
+from nicos.devices.entangle import NamedDigitalOutput
 
 
 class Burst(NamedDigitalOutput):

@@ -7,12 +7,12 @@ includes = ['frr']
 tango_base = 'tango://phytron01.nectar.frm2:10000/'
 
 devices = dict(
-    fov_mot = device('nicos.devices.tango.Motor',
+    fov_mot = device('nicos.devices.entangle.Motor',
         description = 'FOV motor',
         tangodevice = tango_base + 'box/FOV/mot',
         lowlevel = True,
     ),
-    fov_enc = device('nicos.devices.tango.Sensor',
+    fov_enc = device('nicos.devices.entangle.Sensor',
         description = 'FOV encoder',
         tangodevice = tango_base + 'box/FOV/enc',
         lowlevel = True,

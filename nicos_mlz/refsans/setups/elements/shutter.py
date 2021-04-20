@@ -8,7 +8,7 @@ tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base']
 
 devices = dict(
-    shutter_motor = device('nicos.devices.tango.Motor',
+    shutter_motor = device('nicos.devices.entangle.Motor',
         description = 'Instrument shutter linear motor',
         tangodevice = tango_base + 'shutter/shutter/motor',
         abslimits = (0, 55),

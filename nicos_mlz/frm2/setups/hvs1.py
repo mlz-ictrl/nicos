@@ -4,7 +4,7 @@ group = 'plugplay'
 tango_base = 'tango://%s:10000/box/' % setupname
 
 devices = {
-    'U_%s' % setupname: device('nicos.devices.tango.PowerSupply',
+    'U_%s' % setupname: device('nicos.devices.entangle.PowerSupply',
         description = 'High voltage applied to sample',
         tangodevice = tango_base + 'fug/supply',
         fmtstr = '%.1f',

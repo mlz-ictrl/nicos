@@ -26,7 +26,7 @@
 
 from nicos.core.device import Readable
 from nicos.core.params import Attach, Param, listof
-from nicos.devices.tango import NamedDigitalOutput
+from nicos.devices.entangle import NamedDigitalOutput
 
 
 class DetectorDistance(Readable):

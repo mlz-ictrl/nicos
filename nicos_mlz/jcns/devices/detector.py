@@ -25,7 +25,7 @@
 from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.core.device import Measurable
 from nicos.core.params import Attach, Value
-from nicos.devices.tango import BaseImageChannel
+from nicos.devices.entangle import BaseImageChannel
 
 
 def calculateRate(store, quality, cts, seconds):

@@ -31,7 +31,7 @@ from nicos import session
 from nicos.core import Value, status
 from nicos.core.device import Measurable, Moveable
 from nicos.core.params import Attach, Param
-from nicos.devices.tango import AnalogInput, DigitalInput, NamedDigitalInput
+from nicos.devices.entangle import AnalogInput, DigitalInput, NamedDigitalInput
 
 
 class SingleDetectors(Measurable):

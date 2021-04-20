@@ -14,7 +14,7 @@ devices = dict(
         unit = 'mm',
         port = 'height_port',
     ),
-    height_port = device('nicos.devices.tango.Sensor',
+    height_port = device('nicos.devices.entangle.Sensor',
         description = 'Sample surface position',
         tangodevice = tango_url + 'box/keyence/sensor',
         unit = 'mm',

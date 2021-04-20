@@ -9,7 +9,7 @@ includes = ['rte1104']
 
 devices = {
     '%s_fg_freq' % setupname:
-        device('nicos.devices.tango.AnalogOutput',
+        device('nicos.devices.entangle.AnalogOutput',
             description = 'Frequency generator frequency',
             tangodevice = '%s/%s/fg_frequency' % (tango_base, setupname),
             pollinterval = 30,
@@ -35,7 +35,7 @@ devices = {
                ),
         ),
     '%s_fg_amp' % setupname:
-        device('nicos.devices.tango.AnalogOutput',
+        device('nicos.devices.entangle.AnalogOutput',
             description = 'Frequency generator amplitude',
             tangodevice = '%s/%s/fg_amplitude' % (tango_base, setupname),
             # abslimits have to be set in res file!
@@ -43,14 +43,14 @@ devices = {
             unit = 'V',
         ),
     '%s_fwdp' % setupname:
-        device('nicos.devices.tango.AnalogInput',
+        device('nicos.devices.entangle.AnalogInput',
             description = 'Power amplifier forward power',
             tangodevice = '%s/%s/pa_fwdp' % (tango_base, setupname),
             pollinterval = 10,
             unit = 'W',
         ),
     '%s_revp' % setupname:
-        device('nicos.devices.tango.AnalogInput',
+        device('nicos.devices.entangle.AnalogInput',
             description = 'Power amplifier reverse power',
             tangodevice = '%s/%s/pa_revp' % (tango_base, setupname),
             pollinterval = 10,
@@ -61,7 +61,7 @@ devices = {
             pollinterval = 30,
             description = 'CBox',
             unit = 'Hz',
-            power_divider = device('nicos.devices.tango.DigitalOutput',
+            power_divider = device('nicos.devices.entangle.DigitalOutput',
                 description = 'Power divider to split the power for both coils',
                 tangodevice = '%s/%s/plc_power_divider' %
                 (tango_base, setupname),
@@ -69,7 +69,7 @@ devices = {
                 unit = '',
                 fmtstr = '%.0f',
             ),
-            highpass = device('nicos.devices.tango.DigitalOutput',
+            highpass = device('nicos.devices.entangle.DigitalOutput',
                 description = 'Highpass filter to smooth the signal',
                 tangodevice = '%s/%s/plc_highpass' % (tango_base, setupname),
                 lowlevel = False,  # temporary due to inaccurate auto tune
@@ -80,7 +80,7 @@ devices = {
             pa_revp = '%s_revp' % setupname,
             fg = '%s_fg_freq' % setupname,
             coil_amp = '%s_coil_rms' % setupname,
-            diplexer = device('nicos.devices.tango.DigitalOutput',
+            diplexer = device('nicos.devices.entangle.DigitalOutput',
                 description =
                 'Lowpass filter to smooth the signal (enable for low frequency, disable for high frequency)',
                 tangodevice = '%s/%s/plc_diplexer' % (tango_base, setupname),
@@ -88,28 +88,28 @@ devices = {
                 unit = '',
                 fmtstr = '%.0f',
             ),
-            coil1_c1 = device('nicos.devices.tango.DigitalOutput',
+            coil1_c1 = device('nicos.devices.entangle.DigitalOutput',
                 description = 'Coil 1: Capacitor bank 1',
                 tangodevice = '%s/%s/plc_a_c1' % (tango_base, setupname),
                 lowlevel = False,  # temporary due to inaccurate auto tune
                 unit = '',
                 fmtstr = '%.0f',
             ),
-            coil1_c2 = device('nicos.devices.tango.DigitalOutput',
+            coil1_c2 = device('nicos.devices.entangle.DigitalOutput',
                 description = 'Coil 1: Capacitor bank 2',
                 tangodevice = '%s/%s/plc_a_c2' % (tango_base, setupname),
                 lowlevel = False,  # temporary due to inaccurate auto tune
                 unit = '',
                 fmtstr = '%.0f',
             ),
-            coil1_c3 = device('nicos.devices.tango.DigitalOutput',
+            coil1_c3 = device('nicos.devices.entangle.DigitalOutput',
                 description = 'Coil 1: Capacitor bank 3',
                 tangodevice = '%s/%s/plc_a_c3' % (tango_base, setupname),
                 lowlevel = False,  # temporary due to inaccurate auto tune
                 unit = '',
                 fmtstr = '%.0f',
             ),
-            coil1_c1c2serial = device('nicos.devices.tango.DigitalOutput',
+            coil1_c1c2serial = device('nicos.devices.entangle.DigitalOutput',
                 description =
                 'Coil 1: Use c1 and c2 in serial instead of parallel',
                 tangodevice = '%s/%s/plc_a_c1c2serial' %
@@ -118,7 +118,7 @@ devices = {
                 unit = '',
                 fmtstr = '%.0f',
             ),
-            coil1_transformer = device('nicos.devices.tango.DigitalOutput',
+            coil1_transformer = device('nicos.devices.entangle.DigitalOutput',
                 description =
                 'Coil 1: Used to manipulate the coil resistance to match the power amplifier resistance',
                 tangodevice = '%s/%s/plc_a_transformer' %
@@ -127,28 +127,28 @@ devices = {
                 unit = '',
                 fmtstr = '%.0f',
             ),
-            coil2_c1 = device('nicos.devices.tango.DigitalOutput',
+            coil2_c1 = device('nicos.devices.entangle.DigitalOutput',
                 description = 'Coil 2: Capacitor bank 1',
                 tangodevice = '%s/%s/plc_b_c1' % (tango_base, setupname),
                 lowlevel = False,  # temporary due to inaccurate auto tune
                 unit = '',
                 fmtstr = '%.0f',
             ),
-            coil2_c2 = device('nicos.devices.tango.DigitalOutput',
+            coil2_c2 = device('nicos.devices.entangle.DigitalOutput',
                 description = 'Coil 2: Capacitor bank 2',
                 tangodevice = '%s/%s/plc_b_c2' % (tango_base, setupname),
                 lowlevel = False,  # temporary due to inaccurate auto tune
                 unit = '',
                 fmtstr = '%.0f',
             ),
-            coil2_c3 = device('nicos.devices.tango.DigitalOutput',
+            coil2_c3 = device('nicos.devices.entangle.DigitalOutput',
                 description = 'Coil 2: Capacitor bank 3',
                 tangodevice = '%s/%s/plc_b_c3' % (tango_base, setupname),
                 lowlevel = False,  # temporary due to inaccurate auto tune
                 unit = '',
                 fmtstr = '%.0f',
             ),
-            coil2_c1c2serial = device('nicos.devices.tango.DigitalOutput',
+            coil2_c1c2serial = device('nicos.devices.entangle.DigitalOutput',
                 description =
                 'Coil 2: Use c1 and c2 in serial instead of parallel',
                 tangodevice = '%s/%s/plc_b_c1c2serial' %
@@ -157,7 +157,7 @@ devices = {
                 unit = '',
                 fmtstr = '%.0f',
             ),
-            coil2_transformer = device('nicos.devices.tango.DigitalOutput',
+            coil2_transformer = device('nicos.devices.entangle.DigitalOutput',
                 description =
                 'Coil 2: Used to manipulate the coil resistance to match the power amplifier resistance',
                 tangodevice = '%s/%s/plc_b_transformer' %

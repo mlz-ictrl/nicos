@@ -5,7 +5,7 @@ group = 'optional'
 tango_base = 'tango://antareshw.antares.frm2.tum.de:10000/antares/'
 
 devices = dict(
-    nGI_sampletz = device('nicos.devices.tango.Motor',
+    nGI_sampletz = device('nicos.devices.entangle.Motor',
         speed = 5,
         unit = 'mm',
         description = 'Movement of Sample in beam direction',

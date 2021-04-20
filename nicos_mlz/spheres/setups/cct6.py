@@ -16,7 +16,7 @@ devices = dict(
         maxage = 5,
         precision = 0.1
     ),
-    cct6_T_sample = device('nicos.devices.tango.TemperatureController',
+    cct6_T_sample = device('nicos.devices.entangle.TemperatureController',
         description = 'Sample temperature regulation',
         tangodevice = tango_sample + 'samplecontroller',
         pollinterval = 2,
@@ -26,7 +26,7 @@ devices = dict(
         lowlevel = True,
         unit = 'K'
     ),
-    cct6_T_tube = device('nicos.devices.tango.TemperatureController',
+    cct6_T_tube = device('nicos.devices.entangle.TemperatureController',
         description = 'Tube temperature regulation',
         tangodevice = tango_sample + 'tubecontroller',
         pollinterval = 2,
@@ -36,7 +36,7 @@ devices = dict(
         lowlevel = True,
         unit = 'K',
     ),
-    cct6_v_flood = device('nicos.devices.tango.NamedDigitalInput',
+    cct6_v_flood = device('nicos.devices.entangle.NamedDigitalInput',
         description = 'Valve to flood the sample environment '
         'with exchangegas',
         tangodevice = tango_sample + 'floodvalve',
@@ -46,7 +46,7 @@ devices = dict(
         pollinterval = 2,
         unit = '',
     ),
-    cct6_v_vacuum = device('nicos.devices.tango.NamedDigitalInput',
+    cct6_v_vacuum = device('nicos.devices.entangle.NamedDigitalInput',
         description = 'Valve to evacuate the sample environment',
         tangodevice = tango_sample + 'vacuumvalve',
         mapping = {'closed': 0,
@@ -55,7 +55,7 @@ devices = dict(
         pollinterval = 2,
         unit = ''
     ),
-    cct6_h_sample = device('nicos.devices.tango.NamedDigitalOutput',
+    cct6_h_sample = device('nicos.devices.entangle.NamedDigitalOutput',
         description = 'Heater of the sample',
         tangodevice = tango_sample + 'sampleheater',
         mapping = {'off': 0,
@@ -66,7 +66,7 @@ devices = dict(
         pollinterval = 2,
         unit = ''
     ),
-    cct6_h_tube = device('nicos.devices.tango.NamedDigitalOutput',
+    cct6_h_tube = device('nicos.devices.entangle.NamedDigitalOutput',
         description = 'Heater of the tube',
         tangodevice = tango_sample + 'tubeheater',
         mapping = {'off': 0,

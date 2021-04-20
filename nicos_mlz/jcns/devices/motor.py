@@ -26,7 +26,7 @@
 from nicos.core import HasOffset, Param, Value
 from nicos.core.device import Moveable
 from nicos.core.params import Attach, Override
-from nicos.devices.tango import Motor as TangoMotor
+from nicos.devices.entangle import Motor as TangoMotor
 
 
 class InvertableMotor(HasOffset, TangoMotor):

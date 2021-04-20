@@ -5,13 +5,13 @@ group = 'plugplay'
 tango_base = 'tango://%s:10000/box/' % setupname
 
 devices = {
-    'P_%s' % setupname: device('nicos.devices.tango.Sensor',
+    'P_%s' % setupname: device('nicos.devices.entangle.Sensor',
         description = 'Pressure readout',
         tangodevice = tango_base + 'beckhoff/pressure',
         fmtstr = '%.3f',
         unit = 'bar',
     ),
-    'P_%s_pump' % setupname: device('nicos.devices.tango.WindowTimeoutAO',
+    'P_%s_pump' % setupname: device('nicos.devices.entangle.WindowTimeoutAO',
         description = 'Pressure at the pump',
         tangodevice = tango_base + 'pump/pressure',
         fmtstr = '%.1f',

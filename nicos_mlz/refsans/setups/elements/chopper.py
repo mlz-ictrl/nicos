@@ -11,7 +11,7 @@ code_base_analog = instrument_values['code_base'] + 'analogencoder.AnalogEncoder
 includes = ['shutter', 'vsd']
 
 devices = dict(
-    chopper_io = device('nicos.devices.tango.StringIO',
+    chopper_io = device('nicos.devices.entangle.StringIO',
         tangodevice = tango_host,
         lowlevel = True,
     ),

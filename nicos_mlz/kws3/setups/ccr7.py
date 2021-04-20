@@ -5,20 +5,20 @@ includes = ['alias_T']
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
 
 devices = dict(
-    T_ccr7 = device('nicos.devices.tango.TemperatureController',
+    T_ccr7 = device('nicos.devices.entangle.TemperatureController',
         description = 'CCR7 temperature regulation',
         tangodevice = tango_base + 'ls340ccr7/control',
         pollinterval = 1,
         maxage = 6,
         abslimits = (0, 300),
     ),
-    T_ccr7_A = device('nicos.devices.tango.Sensor',
+    T_ccr7_A = device('nicos.devices.entangle.Sensor',
         description = 'CCR7 sensor A',
         tangodevice = tango_base + 'ls340ccr7/sensa',
         pollinterval = 1,
         maxage = 6,
     ),
-    T_ccr7_B = device('nicos.devices.tango.Sensor',
+    T_ccr7_B = device('nicos.devices.entangle.Sensor',
         description = 'CCR7 sensor B',
         tangodevice = tango_base + 'ls340ccr7/sensb',
         pollinterval = 1,

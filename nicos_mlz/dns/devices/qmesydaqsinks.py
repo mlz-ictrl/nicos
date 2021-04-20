@@ -27,7 +27,7 @@
 from nicos.core import Attach, DataSinkHandler, Device, Override
 from nicos.core.constants import POINT
 from nicos.devices.datasinks import FileSink
-from nicos.devices.tango import CounterChannel
+from nicos.devices.entangle import CounterChannel
 
 
 class HistogramSinkHandler(DataSinkHandler):

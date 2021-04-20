@@ -7,7 +7,7 @@ tango_base = 'tango://phys.galaxi.kfa-juelich.de:10000/galaxi/'
 devices = dict(
     T = device('nicos.devices.generic.DeviceAlias'),
     Ts = device('nicos.devices.generic.DeviceAlias'),
-    T_lauda_intern = device('nicos.devices.tango.TemperatureController',
+    T_lauda_intern = device('nicos.devices.entangle.TemperatureController',
         description = 'Lauda regulated to internal (bath) sensor',
         tangodevice = tango_base + 'lauda/controller_int',
         unit = 'degC',
@@ -15,7 +15,7 @@ devices = dict(
         precision = 0.1,
         window = 10,
     ),
-    T_lauda_extern = device('nicos.devices.tango.TemperatureController',
+    T_lauda_extern = device('nicos.devices.entangle.TemperatureController',
         description = 'Lauda regulated to external sensor',
         tangodevice = tango_base + 'lauda/controller_ext',
         unit = 'degC',

@@ -5,7 +5,7 @@ group = 'lowlevel'
 tango_base = 'tango://tofhw.toftof.frm2.tum.de:10000/toftof/hubermc/'
 
 devices = dict(
-    ngc_motor = device('nicos.devices.tango.Motor',
+    ngc_motor = device('nicos.devices.entangle.Motor',
         description = 'Motor of the neutron guide changing mechanism',
         tangodevice = tango_base + 'ccmot',
         fmtstr = '%7.3f',

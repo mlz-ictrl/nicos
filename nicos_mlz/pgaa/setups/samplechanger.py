@@ -7,24 +7,24 @@ excludes = ['sampletable']
 tango_base = 'tango://pgaahw.pgaa.frm2:10000/pgaa/'
 
 devices = dict(
-    sensort = device('nicos.devices.tango.DigitalInput',
+    sensort = device('nicos.devices.entangle.DigitalInput',
         description = 'sensor at the top of tube',
         tangodevice = tango_base + 'sample/tube_sensor_top',
         lowlevel = True
     ),
-    sensorl = device('nicos.devices.tango.DigitalInput',
+    sensorl = device('nicos.devices.entangle.DigitalInput',
         description = 'sensor at the bottom of tube',
         tangodevice = tango_base + 'sample/tube_sensor_low',
         lowlevel = True
     ),
-    samplemotor = device('nicos.devices.tango.Motor',
+    samplemotor = device('nicos.devices.entangle.Motor',
         description = 'Motor rotating the Sample Chamber',
         tangodevice = tango_base + 'sample/motor',
         fmtstr = '%.1f',
         unit = 'Pos',
         lowlevel = True,
     ),
-    pushactuator = device('nicos.devices.tango.NamedDigitalOutput',
+    pushactuator = device('nicos.devices.entangle.NamedDigitalOutput',
         description = 'Push device actuator',
         tangodevice = tango_base + 'sample/tube_press',
         mapping = {'down': 1,

@@ -25,7 +25,7 @@
 """Special device for Sans1 Func counter"""
 
 
-from nicos.devices.tango import Sensor
+from nicos.devices.entangle import Sensor
 
 CONFIG = '''
 *RST;

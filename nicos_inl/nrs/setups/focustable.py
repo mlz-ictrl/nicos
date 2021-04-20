@@ -5,7 +5,7 @@ group = 'lowlevel'
 tango_base = 'tango://localhost:10000/st/'
 
 devices = dict(
-    focusm = device('nicos.devices.tango.Motor',
+    focusm = device('nicos.devices.entangle.Motor',
         description = 'Camera focus motor (translation)',
         tangodevice = tango_base + 'focus/motor',
         unit = 'mm',

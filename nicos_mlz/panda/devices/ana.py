@@ -25,8 +25,8 @@
 """Analysator stuff for PANDA"""
 
 from nicos.core import Attach, Param, oneofdict, status
+from nicos.devices.entangle import AnalogOutput
 from nicos.devices.generic.axis import Axis
-from nicos.devices.tango import AnalogOutput
 
 ACTIONMODES = {0: 'alldown', 1: 'default', 2: 'dooropen', 3: 'service'}
 R_ACTIONMODES = {'alldown': 0, 'default': 1, 'dooropen': 2, 'service': 3}

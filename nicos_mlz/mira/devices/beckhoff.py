@@ -25,10 +25,10 @@
 """Devices for the Beckhoff Busklemmensystem."""
 
 from nicos.core import SIMULATION, Param, listof
-from nicos.devices import tango
+from nicos.devices import entangle
 
 
-class DigitalInput(tango.DigitalInput):
+class DigitalInput(entangle.DigitalInput):
     """Device object for a 1-bit digital input device via a Beckhoff modbus
     interface.
     """
@@ -44,7 +44,7 @@ class DigitalInput(tango.DigitalInput):
         return self._dev.ReadInputBit(self.offset)
 
 
-class NamedDigitalInput(tango.NamedDigitalInput):
+class NamedDigitalInput(entangle.NamedDigitalInput):
     """Device object for a 1-bit digital input device via a Beckhoff modbus
     interface.
     """
@@ -61,7 +61,7 @@ class NamedDigitalInput(tango.NamedDigitalInput):
         return self._reverse.get(value, value)
 
 
-class DigitalOutput(tango.DigitalOutput):
+class DigitalOutput(entangle.DigitalOutput):
     """Device object for a digital output device via a Beckhoff modbus
     interface.
     """
@@ -84,8 +84,8 @@ class DigitalOutput(tango.DigitalOutput):
         return tuple(self._dev.ReadOutputBits([self.startoffset,
                                                self.bitwidth]))
 
-    def doStart(self, value):
-        self._dev.WriteOutputBits([self.startoffset] + value)
+    def doStart(self, target):
+        self._dev.WriteOutputBits([self.startoffset] + target)
 
     def doIsAllowed(self, target):
         try:
@@ -100,7 +100,7 @@ class DigitalOutput(tango.DigitalOutput):
         return '[' + ', '.join(['%s'] * self.bitwidth) + ']'
 
 
-class NamedDigitalOutput(tango.NamedDigitalOutput):
+class NamedDigitalOutput(entangle.NamedDigitalOutput):
     """Device object for a digital output device via a Beckhoff modbus
     interface.
     """
@@ -114,7 +114,7 @@ class NamedDigitalOutput(tango.NamedDigitalOutput):
         # switch off watchdog, important before doing any write access
         if mode != SIMULATION:
             self._dev.WriteOutputWord([0x1120, 0])
-        tango.NamedDigitalOutput.doInit(self, mode)
+        entangle.NamedDigitalOutput.doInit(self, mode)
 
     def doStart(self, target):
         value = self._forward.get(target, target)

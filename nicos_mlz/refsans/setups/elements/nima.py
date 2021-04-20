@@ -8,7 +8,7 @@ tango_host = instrument_values['tango_base'] + 'test/nima_nima/io'
 code_base = instrument_values['code_base'] + 'nima.'
 
 devices = dict(
-    nima_io = device('nicos.devices.tango.StringIO',
+    nima_io = device('nicos.devices.entangle.StringIO',
         tangodevice = tango_host,
         lowlevel = True,
     ),

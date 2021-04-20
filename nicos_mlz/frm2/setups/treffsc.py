@@ -4,7 +4,7 @@ description = 'samplechanger for the neutron optics group, used @TREFF'
 group = 'plugplay'
 
 devices = dict(
-    transAxis = device('nicos.devices.tango.Motor',
+    transAxis = device('nicos.devices.entangle.Motor',
         tangodevice = 'tango://treffsc:10000/treffsc/thorlabs/motor',
         description = 'translation axis',
         abslimits = (0, 300),

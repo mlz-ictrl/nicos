@@ -26,7 +26,7 @@
 
 
 from nicos.core import Param, oneof
-from nicos.devices.tango import AnalogOutput
+from nicos.devices.entangle import AnalogOutput
 
 
 class Frequency(AnalogOutput):

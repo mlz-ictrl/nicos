@@ -31,7 +31,7 @@ from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import DeviceMixinBase, HasOffset
 from nicos.core.params import Attach
 from nicos.devices.abstract import Motor
-from nicos.devices.tango import StringIO
+from nicos.devices.entangle import StringIO
 
 from nicos_mlz.refsans.devices.chopper.base import ChopperDisc as ChopperDiscBase, \
     ChopperDisc2 as ChopperDisc2Base, \

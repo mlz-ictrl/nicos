@@ -7,7 +7,7 @@ includes = ['alias_T']
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
 
 devices = dict(
-    T_mawi_1 = device('nicos.devices.tango.Sensor',
+    T_mawi_1 = device('nicos.devices.entangle.Sensor',
         description = 'temperature of channel 1',
         tangodevice = tango_base + 'mawitherm/ch1',
         unit = 'degC',

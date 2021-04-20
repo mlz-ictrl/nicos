@@ -24,7 +24,7 @@
 
 from nicos.core import Param
 from nicos.core.constants import SIMULATION
-from nicos.devices.tango import AnalogInput
+from nicos.devices.entangle import AnalogInput
 
 
 class ReadOnlyPowerSupply(AnalogInput):

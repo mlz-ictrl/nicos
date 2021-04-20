@@ -61,7 +61,7 @@ devices = dict(
                       'Garching-Forschungszentrum to Munich',
         fmtstr='%s',
     ),
-    OutsideTemp = device('nicos.devices.tango.Sensor',
+    OutsideTemp = device('nicos.devices.entangle.Sensor',
         description = 'Outdoor air temperature',
         tangodevice = 'tango://ictrlfs.ictrl.frm2:10000/frm2/meteo/temp',
     ),

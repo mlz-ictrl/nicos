@@ -28,7 +28,7 @@ from time import sleep, time as currenttime
 
 from nicos.core import MASTER, Attach, HasTimeout, Moveable, Override, Param, \
     Readable, oneof, status
-from nicos.devices.tango import AnalogInput
+from nicos.devices.entangle import AnalogInput
 
 
 class FPLCTrigger(HasTimeout, Moveable):

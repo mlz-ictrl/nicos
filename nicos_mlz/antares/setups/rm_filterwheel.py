@@ -8,7 +8,7 @@ tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 
 devices = dict(
     # PB-Filter
-    pbfilter_io = device('nicos.devices.tango.DigitalOutput',
+    pbfilter_io = device('nicos.devices.entangle.DigitalOutput',
         description = 'Tango device for Pb filter in/out',
         tangodevice = tango_base + 'fzjdp_digital/FilterPb',
         lowlevel = True,
@@ -23,7 +23,7 @@ devices = dict(
     ),
 
     # Filter Wheel
-    filterwheel_inout_io = device('nicos.devices.tango.DigitalOutput',
+    filterwheel_inout_io = device('nicos.devices.entangle.DigitalOutput',
         description = 'Tango device for filter wheel in/out',
         tangodevice = tango_base + 'fzjdp_digital/FilterWheel',
         lowlevel = True,
@@ -37,7 +37,7 @@ devices = dict(
         precision = 0,
         lowlevel = True,
     ),
-    filterwheel_mot = device('nicos.devices.tango.Motor',
+    filterwheel_mot = device('nicos.devices.entangle.Motor',
         tangodevice = tango_base + 'fzjs7/Filterrad',
         precision = 0.,
         lowlevel = True,

@@ -5,7 +5,7 @@ group = 'optional'
 tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1'
 
 devices = dict(
-    pressure_box = device('nicos.devices.tango.Sensor',
+    pressure_box = device('nicos.devices.entangle.Sensor',
         description = 'pressure cell',
         tangodevice = tango_base + '/keller/sensor',
         fmtstr = '%.2f',

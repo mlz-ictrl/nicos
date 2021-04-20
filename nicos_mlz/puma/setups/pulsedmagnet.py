@@ -5,11 +5,11 @@ group = 'optional'
 tango_host = 'tango://puma5.puma.frm2:10000/puma/'
 
 devices = dict(
-    B_pm = device('nicos.devices.tango.Sensor',
+    B_pm = device('nicos.devices.entangle.Sensor',
         description = 'Hall sensor',
         tangodevice = tango_host + 'magnet/field',
     ),
-    B_current = device('nicos.devices.tango.PowerSupply',
+    B_current = device('nicos.devices.entangle.PowerSupply',
         description = 'Current through magnet coils',
         tangodevice = tango_host + 'ps/current',
     ),

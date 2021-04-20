@@ -7,7 +7,7 @@ group = 'optional'
 tango_base = 'tango://nectarhw.nectar.frm2:10000/nectar'
 
 devices = dict(
-    fastshutter_io = device('nicos.devices.tango.DigitalOutput',
+    fastshutter_io = device('nicos.devices.entangle.DigitalOutput',
         description = 'Beckhoff controlled fast shutter',
         tangodevice = '%s/shutter/plc_shutter' % tango_base,
         lowlevel = True,

@@ -25,7 +25,7 @@
 """Special feature for Leybold Center."""
 
 from nicos.core import status
-from nicos.devices.tango import Sensor
+from nicos.devices.entangle import Sensor
 
 
 class CrappySensor(Sensor):

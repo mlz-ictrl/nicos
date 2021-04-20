@@ -9,7 +9,7 @@ tango_base = 'tango://heinzinger.reseda.frm2:10000/box/heinzinger'
 coil_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 
 devices = dict(
-    nse0 = device('nicos.devices.tango.PowerSupply',
+    nse0 = device('nicos.devices.entangle.PowerSupply',
         description = 'Subtraction coil 0',
         tangodevice = '%s/nse/current' % coil_base,
         fmtstr = '%.5f',
@@ -19,7 +19,7 @@ devices = dict(
         unit = 'A',
         precision = 0.0005,
     ),
-    nse1 = device('nicos.devices.tango.PowerSupply',
+    nse1 = device('nicos.devices.entangle.PowerSupply',
         description = 'Subtraction coil 1',
         tangodevice = '%s/nse1/current' % coil_base,
         fmtstr = '%.5f',
@@ -29,7 +29,7 @@ devices = dict(
         unit = 'A',
         precision = 0.0005,
     ),
-    phase = device('nicos.devices.tango.PowerSupply',
+    phase = device('nicos.devices.entangle.PowerSupply',
         description = 'NRSE Phase coil',
         tangodevice = '%s/coil/phase' % coil_base,
         tangotimeout = 5.0,

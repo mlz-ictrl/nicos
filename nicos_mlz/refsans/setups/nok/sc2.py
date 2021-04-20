@@ -7,7 +7,7 @@ instrument_values = configdata('instrument.values')
 tango_base = instrument_values['tango_base']
 
 devices = dict(
-    sc2 = device('nicos.devices.tango.Motor',
+    sc2 = device('nicos.devices.entangle.Motor',
         description = 'sc2 Motor; has brake, will move down to mech. limit if '
                       'brake and control are off, this will kill the system '
                       '2019-05-29 photo',

@@ -30,10 +30,10 @@ from nicos.core.params import Attach, Override, Param, floatrange, limits, \
     none_or, oneof, tupleof
 from nicos.core.utils import multiReset
 from nicos.devices.abstract import CanReference, Coder
+from nicos.devices.entangle import Sensor
 from nicos.devices.generic import Axis
 from nicos.devices.generic.sequence import SeqDev, SeqMethod, SequenceItem, \
     SequencerMixin
-from nicos.devices.tango import Sensor
 from nicos.utils import clamp, lazy_property
 
 from nicos_mlz.refsans.devices.mixins import PolynomFit, PseudoNOK
@@ -315,10 +315,10 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         # no problems detected, so it should be safe to go there....
         return True, ''
 
-    def doIsAtTarget(self, pos, targets):
-        traveldists = [target - (akt + ofs)
-                       for target, akt, ofs in zip(targets, pos, self.offsets)]
-        self.log.debug('doIsAtTarget', targets, 'traveldists', traveldists)
+    def doIsAtTarget(self, pos, target):
+        traveldists = [t - (akt + ofs)
+                       for t, akt, ofs in zip(target, pos, self.offsets)]
+        self.log.debug('doIsAtTarget', target, 'traveldists', traveldists)
         return max(abs(v) for v in traveldists) <= self.precision
 
     def doStop(self):
@@ -330,7 +330,7 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
         finally:
             self.reset()
 
-    def doStart(self, targets):
+    def doStart(self, target):
         """Generate and start a sequence if none is running.
 
         The sequence is optimised for negative backlash.
@@ -343,12 +343,12 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
             raise MoveError(self, 'Cannot start device, it is still moving!')
 
         # check precision, only move if needed!
-        if self.isAtTarget(target=targets):
+        if self.isAtTarget(target=target):
             return
 
         # XXX: backlash correction and repositioning later
         self.log.debug('mode: %s', self.mode)
-        for d, t, ofs in zip(self._devices, targets, self.offsets):
+        for d, t, ofs in zip(self._devices, target, self.offsets):
             d.move(t + ofs + self.masks[self.mode])
 
     def doReset(self):

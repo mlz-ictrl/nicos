@@ -4,11 +4,11 @@ group = 'lowlevel'
 tango_base = 'tango://phys.poli.frm2:10000/poli/'
 
 devices = dict(
-    ShutterOut = device('nicos.devices.tango.DigitalOutput',
+    ShutterOut = device('nicos.devices.entangle.DigitalOutput',
         tangodevice = tango_base + 's7_digital/shutter',
         lowlevel = True,
     ),
-    ShutterIn = device('nicos.devices.tango.DigitalOutput',
+    ShutterIn = device('nicos.devices.entangle.DigitalOutput',
         tangodevice = tango_base + 's7_digital/shutter_in',
         lowlevel = True,
     ),

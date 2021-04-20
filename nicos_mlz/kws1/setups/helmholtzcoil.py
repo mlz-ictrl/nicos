@@ -7,7 +7,7 @@ includes = ['alias_B']
 tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 
 devices = dict(
-    I_helmholtz = device('nicos.devices.tango.PowerSupply',
+    I_helmholtz = device('nicos.devices.entangle.PowerSupply',
         description = 'Current in coils',
         tangodevice = tango_base + 'gesupply/ps2',
         unit = 'A',

@@ -7,13 +7,13 @@ instrument_values = configdata('instrument.values')
 tango_base = instrument_values['tango_base'] + 'h2/plc/'
 
 devices = dict(
-    h2_center = device('nicos.devices.tango.Actuator',
+    h2_center = device('nicos.devices.entangle.Actuator',
         description = 'Horizontal slit system: offset of the slit-center to the beam. towards TOFTOF is plus',
         tangodevice = tango_base + '_centeraxis',
         unit = 'mm',
         abslimits = (-69.5, 69.5),
     ),
-    h2_width = device('nicos.devices.tango.Actuator',
+    h2_width = device('nicos.devices.entangle.Actuator',
         description = 'Horizontal slit system: opening of the slit',
         tangodevice = tango_base + '_widthaxis',
         unit = 'mm',

@@ -8,7 +8,7 @@ tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
 s7_motor = tango_base + 's7_motor/'
 
 devices = dict(
-    mir_sam_x = device('nicos.devices.tango.Motor',
+    mir_sam_x = device('nicos.devices.entangle.Motor',
         description = 'virtual pair mir_x and sam_hub_x',
         tangodevice = s7_motor + 'mir_sam_x',
         unit = 'mm',
@@ -16,7 +16,7 @@ devices = dict(
         fmtstr = '%.3f',
         lowlevel = True,
     ),
-    mir_sam_y = device('nicos.devices.tango.Motor',
+    mir_sam_y = device('nicos.devices.entangle.Motor',
         description = 'virtual pair mir_y and sam_hub_y',
         tangodevice = s7_motor + 'mir_sam_y',
         unit = 'mm',
@@ -24,7 +24,7 @@ devices = dict(
         fmtstr = '%.3f',
         lowlevel = True,
     ),
-    mir_sam_tilt = device('nicos.devices.tango.Motor',
+    mir_sam_tilt = device('nicos.devices.entangle.Motor',
         description = 'virtual pair mir_tilt sam_hub_y',
         tangodevice = s7_motor + 'mir_sam_tilt',
         unit = 'mm',
@@ -32,7 +32,7 @@ devices = dict(
         fmtstr = '%.3f',
         lowlevel = True,
     ),
-    mir_sam_det = device('nicos.devices.tango.Motor',
+    mir_sam_det = device('nicos.devices.entangle.Motor',
         description = 'virtual mir_y + mir_tilt + sam_hub_y + det_y',
         tangodevice = s7_motor + 'mir_sam_det',
         unit = 'mm',

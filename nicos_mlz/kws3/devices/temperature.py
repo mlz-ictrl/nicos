@@ -25,8 +25,8 @@
 """KWS-3 flexible temperature controller."""
 
 from nicos.core import Param, dictof, none_or, oneof, tangodev, tupleof
+from nicos.devices.entangle import TemperatureController
 from nicos.devices.generic.paramdev import ParamDevice
-from nicos.devices.tango import TemperatureController
 
 # out-dev, (in-dev, min-out, max-out, init-pid) if software-regulated
 entry = tupleof(tangodev, none_or(tupleof(tangodev, float, float, float, float, float)))

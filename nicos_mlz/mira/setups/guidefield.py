@@ -10,28 +10,28 @@ includes = []
 
 devices = {
     'gf1':
-        device('nicos.devices.tango.PowerSupply',
+        device('nicos.devices.entangle.PowerSupply',
             description = 'Current of gf1',
             tangodevice = '%s/gf1/current' % (tango_base,),
             abslimits = (0.000, 20.0),
             unit = 'A',
         ),
     'gf2':
-        device('nicos.devices.tango.PowerSupply',
+        device('nicos.devices.entangle.PowerSupply',
             description = 'Current of gf2',
             tangodevice = '%s/gf2/current' % (tango_base,),
             abslimits = (0.000, 20.0),
             unit = 'A',
         ),
     'gf3':
-        device('nicos.devices.tango.PowerSupply',
+        device('nicos.devices.entangle.PowerSupply',
             description = 'Current of gf3',
             tangodevice = '%s/gf3/current' % (tango_base,),
             abslimits = (0.000, 20.0),
             unit = 'A',
         ),
     'gf4':
-        device('nicos.devices.tango.PowerSupply',
+        device('nicos.devices.entangle.PowerSupply',
             description = 'Current of gf4',
             tangodevice = '%s/gf4/current' % (tango_base,),
             abslimits = (0.000, 20.0),

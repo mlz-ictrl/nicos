@@ -5,7 +5,7 @@ group = 'lowlevel'
 tango_base = 'tango://localhost:10000/st/'
 
 devices = dict(
-    sample_x_m = device('nicos.devices.tango.Motor',
+    sample_x_m = device('nicos.devices.entangle.Motor',
         description = 'Sample X translation motor',
         tangodevice = tango_base + 'sample_x/motor',
         unit = 'mm',
@@ -17,7 +17,7 @@ devices = dict(
         motor = 'sample_x_m',
         precision = 0.01,
     ),
-    # sample_y_m = device('nicos.devices.tango.Motor',
+    # sample_y_m = device('nicos.devices.entangle.Motor',
     #     description = 'Sample Y translation motor',
     #     tangodevice = tango_base + 'sample_y/motor',
     #     unit = 'mm',
@@ -29,7 +29,7 @@ devices = dict(
     #     motor = 'sample_y_m',
     #     precision = 0.01,
     # ),
-    rotm = device('nicos.devices.tango.Motor',
+    rotm = device('nicos.devices.entangle.Motor',
         description = 'Sample rotation motor',
         tangodevice = tango_base + 'rot/motor',
         unit = 'deg',

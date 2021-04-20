@@ -14,7 +14,7 @@ sysconfig = dict(
 tango_base = 'tango://phys.kws1.frm2:10000/kws1/'
 
 devices = dict(
-    det_ext_rt = device('nicos.devices.tango.NamedDigitalOutput',
+    det_ext_rt = device('nicos.devices.entangle.NamedDigitalOutput',
         description = 'Switch for external-start realtime mode',
         tangodevice = tango_base + 'sps/rtswitch',
         lowlevel = False,

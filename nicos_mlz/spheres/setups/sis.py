@@ -56,7 +56,7 @@ devices = dict(
         tangodevice = sis + 'counter',
         lowlevel = True,
     ),
-    sistimer = device('nicos.devices.tango.TimerChannel',
+    sistimer = device('nicos.devices.entangle.TimerChannel',
         description='Timer for the SIS detector',
         tangodevice=sis + 'timer',
     ),

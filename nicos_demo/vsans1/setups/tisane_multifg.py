@@ -76,7 +76,7 @@ OFF_STRING = (
                  )
 
 devices = dict(
-#    tisane_fc = device('nicos.devices.tango.Sensor',
+#    tisane_fc = device('nicos.devices.entangle.Sensor',
 #        description = "Frequency counter for chopper signal",
 #        unit = "Hz",
 #        pollinterval = 1,

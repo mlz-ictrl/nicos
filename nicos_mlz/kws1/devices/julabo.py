@@ -24,7 +24,7 @@
 
 """Special device for Julabo temperature controllers."""
 
-from nicos.devices.tango import TemperatureController as BaseController
+from nicos.devices.entangle import TemperatureController as BaseController
 
 
 class TemperatureController(BaseController):

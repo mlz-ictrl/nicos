@@ -11,19 +11,19 @@ tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
 s7_motor = tango_base + 's7_motor/'
 
 devices = dict(
-    det_x = device('nicos.devices.tango.Motor',
+    det_x = device('nicos.devices.entangle.Motor',
         description = 'detector translation X',
         tangodevice = s7_motor + 'det_x',
         unit = 'mm',
         precision = 0.01,
     ),
-    det_y = device('nicos.devices.tango.Motor',
+    det_y = device('nicos.devices.entangle.Motor',
         description = 'detector translation Y',
         tangodevice = s7_motor + 'det_y',
         unit = 'cm',
         precision = 0.01,
     ),
-    det_z = device('nicos.devices.tango.Motor',
+    det_z = device('nicos.devices.entangle.Motor',
         description = 'detector translation Z',
         tangodevice = s7_motor + 'det_z',
         unit = 'mm',

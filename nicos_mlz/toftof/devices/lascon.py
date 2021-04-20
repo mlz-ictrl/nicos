@@ -26,7 +26,7 @@
 
 from nicos.core import HasLimits, HasWindowTimeout, Moveable, MoveError, \
     Param, PositionError, Readable, oneof, status
-from nicos.devices.tango import StringIO
+from nicos.devices.entangle import StringIO
 
 
 class TemperatureSensor(StringIO, Readable):
@@ -57,7 +57,7 @@ class TemperatureController(HasWindowTimeout, HasLimits, StringIO, Moveable):
     def doPoll(self, n, maxage):
         self._pollParam('setpoint', 1)
 
-    def doTime(self, oldvalue, newvalue):
+    def doTime(self, old, new):
         return self.window
 
     def doRead(self, maxage=0):

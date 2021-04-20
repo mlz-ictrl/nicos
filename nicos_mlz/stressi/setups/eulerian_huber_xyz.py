@@ -13,7 +13,7 @@ sysconfig = dict(
 tango_base = 'tango://motorbox05.stressi.frm2.tum.de:10000/box/'
 
 devices = dict(
-    xe_m = device('nicos.devices.tango.Motor',
+    xe_m = device('nicos.devices.entangle.Motor',
         tangodevice = tango_base + 'channel1/motor',
         speed = 1,
         fmtstr = '%.2f',
@@ -25,7 +25,7 @@ devices = dict(
         motor = 'xe_m',
         precision = 0.01,
     ),
-    ye_m = device('nicos.devices.tango.Motor',
+    ye_m = device('nicos.devices.entangle.Motor',
         tangodevice = tango_base + 'channel2/motor',
         speed = 1,
         fmtstr = '%.2f',
@@ -37,7 +37,7 @@ devices = dict(
         motor = 'ye_m',
         precision = 0.01,
     ),
-    ze_m = device('nicos.devices.tango.Motor',
+    ze_m = device('nicos.devices.entangle.Motor',
         tangodevice = tango_base + 'channel3/motor',
         speed = 1,
         fmtstr = '%.2f',

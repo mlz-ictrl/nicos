@@ -6,7 +6,7 @@ group = 'optional'
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda/'
 
 devices = {
-    'rte1104_io': device('nicos.devices.tango.StringIO',
+    'rte1104_io': device('nicos.devices.entangle.StringIO',
         tangodevice = tango_base + 'rte1104/io',
         lowlevel = True,
     ),

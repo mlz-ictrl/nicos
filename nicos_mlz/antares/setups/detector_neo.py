@@ -50,7 +50,7 @@ devices = dict(
         counters = ['sharpness'],
         postprocess = [('sharpness', 'neo')],
     ),
-    socket_neo = device('nicos.devices.tango.NamedDigitalOutput',
+    socket_neo = device('nicos.devices.entangle.NamedDigitalOutput',
         description = 'Powersocket 01 (Neo Camera attached)',
         tangodevice = 'tango://antareshw.antares.frm2:10000/antares/'
         'fzjdp_digital/Socket01',

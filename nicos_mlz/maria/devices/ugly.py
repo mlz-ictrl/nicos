@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos.devices.tango import StringIO as BaseStringIO
+from nicos.devices.entangle import StringIO as BaseStringIO
 
 
 class StringIO(BaseStringIO):

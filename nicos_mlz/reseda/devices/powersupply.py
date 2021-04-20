@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 from nicos.core import Override
-from nicos.devices.tango import PowerSupply as TangoPowerSupply
+from nicos.devices.entangle import PowerSupply as TangoPowerSupply
 
 
 class PowerSupply(TangoPowerSupply):

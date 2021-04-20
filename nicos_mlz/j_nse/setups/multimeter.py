@@ -5,7 +5,7 @@ group = 'optional'
 tango_base = 'tango://phys.j-nse.frm2:10000/j-nse/'
 
 devices = dict(
-    coil_res = device('nicos.devices.tango.VectorInput',
+    coil_res = device('nicos.devices.entangle.VectorInput',
         description = 'vacuum in coil 2 vessel',
         tangodevice = tango_base + 'dmm/ch',
         unit = 'Ohm',

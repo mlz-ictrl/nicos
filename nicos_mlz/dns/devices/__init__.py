@@ -1,2 +1,2 @@
 
-from nicos.devices.tango import BaseImageChannel as ImageChannel
+from nicos.devices.entangle import BaseImageChannel as ImageChannel

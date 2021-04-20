@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 from nicos.core import HasPrecision, MoveError
-from nicos.devices.tango import AnalogOutput
+from nicos.devices.entangle import AnalogOutput
 
 
 class PumpAnalogOutput(HasPrecision, AnalogOutput):

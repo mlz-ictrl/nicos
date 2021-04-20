@@ -5,18 +5,18 @@ group = 'optional'
 tangohost = 'tango://spodictrl.spodi.frm2.tum.de:10000/spodi/samplechanger/sc_'
 
 devices = dict(
-    samr = device('nicos.devices.tango.NamedDigitalOutput',
+    samr = device('nicos.devices.entangle.NamedDigitalOutput',
         description = '(de-)activates the sample rotation',
         tangodevice = tangohost + 'rotation',
         mapping = dict(on=1, off=0),
     ),
-    sams_e = device('nicos.devices.tango.Sensor',
+    sams_e = device('nicos.devices.entangle.Sensor',
         description = 'Position of the sample change selection wheel',
         tangodevice = tangohost + 'selectencoder',
         unit = 'deg',
         lowlevel = True,
     ),
-    sams_m = device('nicos.devices.tango.Actuator',
+    sams_m = device('nicos.devices.entangle.Actuator',
         description = 'Motor position of the sample change selection wheel',
         tangodevice = tangohost + 'selectmotor',
         unit = 'deg',

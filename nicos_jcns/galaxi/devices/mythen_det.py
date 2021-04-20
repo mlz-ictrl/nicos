@@ -29,7 +29,7 @@ from nicos.core.params import Param, dictwith
 from nicos.core.utils import USER, usermethod
 from nicos.devices.datasinks.image import ImageSink as BaseImageSink, \
     SingleFileSinkHandler as BaseSingleFileSinkHandler
-from nicos.devices.tango import ImageChannel as TangoImageChannel
+from nicos.devices.entangle import ImageChannel as TangoImageChannel
 
 # available energy parameters
 ENERGY_PARAMETERS = ('xray', 'threshold')

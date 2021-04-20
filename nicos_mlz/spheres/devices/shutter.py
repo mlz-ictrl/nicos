@@ -29,7 +29,7 @@ Device related to the shutter at SPHERES
 from nicos.core import status
 from nicos.core.mixins import HasTimeout
 from nicos.core.params import Attach, Param
-from nicos.devices.tango import NamedDigitalInput, NamedDigitalOutput
+from nicos.devices.entangle import NamedDigitalInput, NamedDigitalOutput
 
 
 class ShutterCluster(HasTimeout, NamedDigitalOutput):

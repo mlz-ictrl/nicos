@@ -46,14 +46,14 @@ devices = {
             default = 0,
         ),
     # '%s_fwdp' % setupname:
-    #     device('nicos.devices.tango.AnalogInput',
+    #     device('nicos.devices.entangle.AnalogInput',
     #            description = 'Power amplifier forward power',
     #            tangodevice = '%s/%s/pa_fwdp' % (tango_base, setupname),
     #            pollinterval = 10,
     #            unit = 'W',
     #     ),
     # '%s_revp' % setupname:
-    #        device('nicos.devices.tango.AnalogInput',
+    #        device('nicos.devices.entangle.AnalogInput',
     #            description = 'Power amplifier reverse power',
     #            tangodevice = '%s/%s/pa_revp' % (tango_base, setupname),
     #            pollinterval = 10,

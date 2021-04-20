@@ -31,7 +31,7 @@ import urllib
 from nicos import session
 from nicos.core import SIMULATION, Param, dictof
 from nicos.core.utils import USER, User
-from nicos.devices.tango import StringIO
+from nicos.devices.entangle import StringIO
 from nicos.services.daemon.script import RequestError, ScriptRequest
 from nicos.utils import createThread
 

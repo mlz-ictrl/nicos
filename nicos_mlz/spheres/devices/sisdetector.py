@@ -33,8 +33,8 @@ from nicos.core import FINAL, INTERMEDIATE, LIVE, NicosError, Param, \
     UsageError, oneof, status
 from nicos.core.constants import SIMULATION
 from nicos.core.params import Attach, Value, listof
+from nicos.devices.entangle import BaseImageChannel, NamedDigitalOutput
 from nicos.devices.generic.detector import Detector
-from nicos.devices.tango import BaseImageChannel, NamedDigitalOutput
 
 from nicos_mlz.spheres.devices.doppler import ELASTIC, INELASTIC
 

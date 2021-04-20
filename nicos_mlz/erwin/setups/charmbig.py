@@ -7,25 +7,25 @@ tango_host = 'taco6.ictrl.frm2.tum.de'
 tango_base = 'tango://%s:10000/test/bcharm/' % tango_host
 
 devices = dict(
-    b_cathode1 = device('nicos.devices.tango.PowerSupply',
+    b_cathode1 = device('nicos.devices.entangle.PowerSupply',
         description = 'Cathode 1',
         tangodevice = tango_base + 'cathode1',
         fmtstr = '%.1f',
         lowlevel = True,
     ),
-    b_cathode2 = device('nicos.devices.tango.PowerSupply',
+    b_cathode2 = device('nicos.devices.entangle.PowerSupply',
         description = 'Cathode 2',
         tangodevice = tango_base + 'cathode2',
         fmtstr = '%.1f',
         lowlevel = True,
     ),
-    b_window = device('nicos.devices.tango.PowerSupply',
+    b_window = device('nicos.devices.entangle.PowerSupply',
         description = 'Window',
         tangodevice = tango_base + 'window',
         fmtstr = '%.1f',
         lowlevel = True,
     ),
-    b_tripped = device('nicos.devices.tango.NamedDigitalInput',
+    b_tripped = device('nicos.devices.entangle.NamedDigitalInput',
         description = 'Trip indicator',
         tangodevice = tango_base + 'trip',
         mapping = {
@@ -118,7 +118,7 @@ devices = dict(
 )
 
 for i in range(1, 10):
-    devices['b_anode%d' % i] = device('nicos.devices.tango.PowerSupply',
+    devices['b_anode%d' % i] = device('nicos.devices.entangle.PowerSupply',
         description = 'Anode %d' % i,
         tangodevice = tango_base + 'anode%d' % i,
         fmtstr = '%.1f',
@@ -126,7 +126,7 @@ for i in range(1, 10):
     )
 
 for i in range(1, 9):
-    devices['b_banode%d' % i] = device('nicos.devices.tango.PowerSupply',
+    devices['b_banode%d' % i] = device('nicos.devices.entangle.PowerSupply',
         description = 'Boundary anode %d' % i,
         tangodevice = tango_base + 'banode%d' % i,
         fmtstr = '%.1f',

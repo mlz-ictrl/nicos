@@ -4,13 +4,13 @@ group = 'optional'
 tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 
 devices = dict(
-    dct1 = device('nicos.devices.tango.PowerSupply',
+    dct1 = device('nicos.devices.entangle.PowerSupply',
         description = 'Current 1',
         tangodevice = tango_base + 'lambda1/current',
         abslimits = (0, 5),
         lowlevel = False,
     ),
-    dct2 = device('nicos.devices.tango.PowerSupply',
+    dct2 = device('nicos.devices.entangle.PowerSupply',
         description = 'Current 2',
         tangodevice = tango_base + 'lambda2/current',
         abslimits = (0, 5),

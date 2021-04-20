@@ -31,10 +31,10 @@ import PyTango
 from nicos import session
 from nicos.core import Attach, Moveable, NicosTimeoutError, Override, Param, \
     Readable, dictof, status, tupleof, usermethod
+from nicos.devices.entangle import PowerSupply
 from nicos.devices.epics import EpicsAnalogMoveable, EpicsReadable
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
 from nicos.devices.generic.switcher import Switcher
-from nicos.devices.tango import PowerSupply
 
 
 class HVSwitcher(Switcher):
