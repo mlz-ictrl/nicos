@@ -10,7 +10,7 @@ sysconfig = dict(
     cache = 'resedactrl.reseda.frm2',
     instrument = 'reseda',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink','livesink', 'LiveImgSink'],
     notifiers = ['email', 'slacker'],
 )
 
@@ -42,6 +42,8 @@ devices = dict(
     ),
     daemonsink = device('nicos.devices.datasinks.DaemonSink',
     ),
+    livesink = device('nicos.devices.datasinks.LiveViewSink',
+    ),
     DataSpace = device('nicos.devices.generic.FreeSpace',
         description = 'The amount of free space for storing data',
         path = '/data',
@@ -52,5 +54,10 @@ devices = dict(
         path = '/resedacontrol/log',
         minfree = 1.5,
         lowlevel = True,
+    ),
+    LiveImgSink = device('nicos.devices.datasinks.PNGLiveFileSink',
+        description = 'Saves live image as .png every now and then',
+        filename = '/resedacontrol/webroot/live.png',
+        interval = 1,
     ),
 )

@@ -84,6 +84,13 @@ _column1 = Column(
     #     ],
     #     setups='pressure'
     # ),
+    Block('', [
+        BlockRow(
+            Field(name='Live data', picture='reseda-online/live.png',
+                refresh=1, width=24, height=24),
+        ),
+        ]
+    ),
 )
 
 _column2 = Column(
