@@ -27,7 +27,8 @@ from time import time as currenttime
 
 import numpy as np
 
-from nicos.core import DataSinkHandler, NicosError, Override, Param, limits
+from nicos.core import DataSinkHandler, NicosError, Override, Param, \
+    intrange, limits
 from nicos.devices.datasinks.image import ImageSink
 
 try:
@@ -86,6 +87,8 @@ class PNGLiveFileSinkHandler(DataSinkHandler):
 
     def _writeData(self, data):
         image = np.asarray(data)
+        if len(image.shape) > 2:
+            image = np.sum(image, axis=self.sink.sumaxis - 1)
         max_pixel = image.max()
         if self.sink.log10:
             zeros = (image == 0)
@@ -148,15 +151,17 @@ class PNGLiveFileSink(ImageSink):
         'interval': Param('Interval to write file to disk', unit='s',
                           default=5),
         'filename': Param('File name for .png image', type=str, mandatory=True),
-        'log10':    Param('Use logarithmic counts for image', type=bool,
-                          default=False),
+        'log10': Param('Use logarithmic counts for image', type=bool,
+                       default=False),
         'size': Param('Size of the generated image', unit='pixels',
-                      default=256, settable = True),
-        'rgb':    Param('Create RBG image', type=bool,
-                          default=True, mandatory = False),
-        'histrange':    Param('Range of histogram for scaling greyscale image',
-                              type=limits, default=(0.05,0.95),
-                              settable = True, mandatory = False),
+                      default=256, settable=True),
+        'rgb': Param('Create RBG image', type=bool,
+                     default=True, mandatory=False),
+        'histrange': Param('Range of histogram for scaling greyscale image',
+                           type=limits, default=(0.05,0.95),
+                           settable=True, mandatory=False),
+        'sumaxis': Param('Axis over which should be summed if data are 3D',
+                         type=intrange(1, 3), default=1, settable=False),
     }
 
     handlerclass = PNGLiveFileSinkHandler
@@ -169,4 +174,4 @@ class PNGLiveFileSink(ImageSink):
                              'and in your PYTHONPATH')
 
     def isActiveForArray(self, arraydesc):
-        return len(arraydesc.shape) == 2
+        return len(arraydesc.shape) in (2, 3)
