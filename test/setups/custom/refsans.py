@@ -375,6 +375,7 @@ devices = dict(
         unit = 'mm',
         table = 'det_table_a',
         pivot = 'det_pivot',
+        abslimits = [1065, 10864],
     ),
     det_table_a = device('nicos.devices.generic.Axis',
         motor = device('nicos.devices.generic.VirtualMotor',
