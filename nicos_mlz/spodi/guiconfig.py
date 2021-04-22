@@ -29,7 +29,8 @@ windows = [
     window('Errors', 'errors',
            panel('nicos.clients.gui.panels.errors.ErrorPanel')),
     window('Live data', 'live',
-           panel('nicos_mlz.spodi.gui.panels.live.LiveDataPanel')),
+           panel('nicos_mlz.spodi.gui.panels.live.LiveDataPanel',
+                 filetypes=['ctxt'])),
 ]
 
 tools = [
@@ -50,3 +51,7 @@ tools = [
          'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=False),
 ]
+
+options = {
+    'reader_classes': ['nicos_mlz.spodi.devices.datasinks.CaressHistogramReader'],
+}
