@@ -741,6 +741,8 @@ class LiveDataPanel(Panel):
 
         if self._liveOnlyIndex is not None:
             index = self._liveOnlyIndex
+        elif self.fileList.currentItem() not in self.liveitems:
+            return
         else:
             index = self.fileList.currentRow()
 
