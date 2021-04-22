@@ -59,24 +59,24 @@ devices = dict(
         fallback = '<undefined>',
         precision = 0,
     ),
-    #fg1_frequency = device('nicos_mlz.sans1.devices.wmirfgen.Frequency',
-    #    description = 'Device the frequency and frequency modulation',
-    #    tangodevice = tango_base + 'rfgen1/frequency',
-    #    abslimits = (0.1, 40000)
-    #),
-    #fg1_frequency_rf1 = device('nicos.devices.tango.AnalogOutput',
-    #    description = 'Tango device for the first '
-    #    'internal frequency generator '
-    #    '(for modulation)',
-    #    tangodevice = tango_base + 'rfgen1/mod_rf1',
-    #    abslimits = (0.0, 40000)
-    #),
-    #fg1_power = device('nicos.devices.tango.AnalogOutput',
-    #    description = 'Tango device for the power level',
-    #    tangodevice = tango_base + 'rfgen1/power',
-    #    abslimits = (-130, 30)
-    #),
-    fg2_frequency = device('nicos_mlz.sans1.devices.wmirfgen.Frequency',
+#    fg1_frequency = device('nicos_mlz.devices.wmirfgen.Frequency',
+#        description = 'Device the frequency and frequency modulation',
+#        tangodevice = tango_base + 'rfgen1/frequency',
+#        abslimits = (0.1, 40000)
+#    ),
+#    fg1_frequency_rf1 = device('nicos.devices.tango.AnalogOutput',
+#        description = 'Tango device for the first '
+#        'internal frequency generator '
+#        '(for modulation)',
+#        tangodevice = tango_base + 'rfgen1/mod_rf1',
+#        abslimits = (0.0, 40000)
+#    ),
+#    fg1_power = device('nicos.devices.tango.AnalogOutput',
+#        description = 'Tango device for the power level',
+#        tangodevice = tango_base + 'rfgen1/power',
+#        abslimits = (-130, 30)
+#    ),
+    fg2_frequency = device('nicos_mlz.devices.wmirfgen.Frequency',
         description = 'Device the frequency and frequency modulation',
         tangodevice = tango_base + 'rfgen2/frequency',
         abslimits = (0.1, 40000)
