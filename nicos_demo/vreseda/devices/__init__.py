@@ -100,7 +100,7 @@ class CascadeDetector(VirtualImage):
     def arraydesc(self):
         if self.mode == 'image':
             return ArrayDesc('data', self._datashape, '<u4', ['X', 'Y'])
-        return ArrayDesc('data', self._datashape, '<u4', ['T', 'X', 'Y'])
+        return ArrayDesc('data', self._datashape, '<u4', ['X', 'Y', 'T'])
 
     def doReadArray(self, quality):
         # get current data array from detector, reshape properly
