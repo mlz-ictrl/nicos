@@ -29,6 +29,8 @@ from nicos.core.params import ArrayDesc, Param, Value, intrange, listof, \
 from nicos.devices.generic import VirtualImage
 from nicos.protocols.cache import FLAG_NO_STORE
 
+from nicos_mlz.reseda.devices.cascade import fit_a_sin_fixed_freq
+
 
 class CascadeDetector(VirtualImage):
 
@@ -124,6 +126,8 @@ class CascadeDetector(VirtualImage):
         # nperfoil = self.tofchannels // self.foils
         # shaped = data.reshape((self.foils, nperfoil) + self._datashape[1:])
 
+        x = np.arange(nperfoil)
+
         ty = shaped[self.fitfoil].sum((1, 2))
         ry = shaped[self.fitfoil, :, y1:y2, x1:x2].sum((1, 2))
 
@@ -139,6 +143,10 @@ class CascadeDetector(VirtualImage):
         for foil in self.foilsorder:
             foil_tot = shaped[foil].sum((1, 2))
             foil_roi = shaped[foil, :, y1:y2, x1:x2].sum((1, 2))
-            payload.append([foil_tot.tolist(), foil_roi.tolist()])
+            tpopt, tperr, _ = fit_a_sin_fixed_freq(x, foil_tot)
+            rpopt, rperr, _ = fit_a_sin_fixed_freq(x, foil_roi)
+            payload.append([tpopt, tperr, foil_tot.tolist(),
+                            rpopt, rperr, foil_roi.tolist()])
+
         self._cache.put(self.name, '_foildata', payload, flag=FLAG_NO_STORE)
         return data
