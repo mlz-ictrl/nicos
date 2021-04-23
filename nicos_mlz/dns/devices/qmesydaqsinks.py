@@ -24,19 +24,10 @@
 
 """QMesyDAQ related classes."""
 
-from os import path
-
 from nicos.core import Attach, DataSinkHandler, Device, Override
 from nicos.core.constants import POINT
 from nicos.devices.datasinks import FileSink
 from nicos.devices.tango import CounterChannel
-
-
-def countdown(fn):
-    dn, bn = path.dirname(fn), path.basename(fn)
-    parts = bn.split('.', 1)
-    bn = '%08d.%s' % (int(parts[0])-1, parts[1])
-    return path.join(dn, bn)
 
 
 class HistogramSinkHandler(DataSinkHandler):
@@ -45,7 +36,7 @@ class HistogramSinkHandler(DataSinkHandler):
         filepaths = self.manager.getFilenames(self.dataset,
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
-        qmname = countdown(filepaths[0])
+        qmname = filepaths[0]
         self.sink._attached_image._dev.SetProperties(['writehistogram', 'true'])
         self.sink._attached_image._dev.SetProperties(['lasthistfile', qmname])
 
@@ -56,7 +47,7 @@ class ListmodeSinkHandler(DataSinkHandler):
         filepaths = self.manager.getFilenames(self.dataset,
                                               self.sink.filenametemplate,
                                               self.sink.subdir)[1]
-        qmname = countdown(filepaths[0])
+        qmname = filepaths[0]
         self.sink._attached_image._dev.SetProperties(['writelistmode', 'true'])
         self.sink._attached_image._dev.SetProperties(['lastlistfile', qmname])
         limage = self.sink._attached_liveimage
