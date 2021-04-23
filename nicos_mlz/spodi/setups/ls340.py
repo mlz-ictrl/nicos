@@ -2,6 +2,8 @@ description = 'LakeShore LS340 controller'
 
 group = 'optional'
 
+includes = ['alias_T']
+
 tango_base = 'tango://spodictrl.spodi.frm2.tum.de:10000/spodi/ls340/'
 
 devices = {
@@ -29,4 +31,14 @@ devices = {
         # unit = 'K',
         fmtstr = '%.3f',
     ),
+}
+
+alias_config = {
+    'T': {
+        'T_%s' % setupname: 200,
+    },
+    'Ts': {
+        'T_%s_B' % setupname: 100,
+        'T_%s_A' % setupname: 90,
+    },
 }
