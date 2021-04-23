@@ -32,8 +32,8 @@ from nicos.clients.gui.panels.live import IntegralLiveWidget, LiveDataPanel, \
 
 
 class LivePowderWidget(LiveWidget1D):
-    def __init__(self,parent):
-        LiveWidget1D.__init__(self,parent)
+    def __init__(self, parent, **kwargs):
+        LiveWidget1D.__init__(self, parent, **kwargs)
 
     def _setData(self, array, nx, ny, nz, newrange):
         start = float(self.client.getCacheKey('s2t/value')[1])

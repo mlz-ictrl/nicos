@@ -38,14 +38,14 @@ class ProvidesTitleSetter:
 
 
 class SingleDetectorLiveWidget(ProvidesTitleSetter, BaseLiveWidget1D):
-    def __init__(self, parent):
-        BaseLiveWidget1D.__init__(self, parent)
+    def __init__(self, parent, **kwargs):
+        BaseLiveWidget1D.__init__(self, parent, **kwargs)
         self.plot.viewport = [0.1, .95, 0.1, .85]
 
 
 class IntegralLiveWidget(ProvidesTitleSetter, BaseIntegralLiveWidget):
-    def __init__(self, parent):
-        BaseIntegralLiveWidget.__init__(self, parent)
+    def __init__(self, parent, **kwargs):
+        BaseIntegralLiveWidget.__init__(self, parent, **kwargs)
         self.plot.viewport = [.1, .75, .1, .70]
         self.plotxint.viewport = [.8, .95, .1, .70]
 

@@ -95,7 +95,10 @@ class LiveDataPanel(Panel):
     * ``liveonlyindex`` (default None) - Enable live only view. This disables
       interaction with the liveDataPanel and only displays the dataset of the
       set index.
-
+    * ``xscale`` - (default 'binary') - Scaling algorithm for the x axis
+      ('binary' or 'decimal')
+    * ``yscale`` - (default 'binary') - Scaling algorithm for the y axis
+      ('binary' or 'decimal')
     * ``defaults`` (default []) - List of strings representing options to be
       set for every configured plot.
       These options can not be set on a per plot basis since they are global.
@@ -161,6 +164,8 @@ class LiveDataPanel(Panel):
         self._axis_labels = {}
         self.params = {}
         self._offset = 0
+        self.xscale = options.get('xscale', 'binary')
+        self.yscale = options.get('yscale', 'binary')
 
         self.statusBar = QStatusBar(self, sizeGripEnabled=False)
         policy = self.statusBar.sizePolicy()
@@ -290,7 +295,7 @@ class LiveDataPanel(Panel):
             self.widget.deleteLater()
 
         # create a new one
-        self.widget = widgetcls(self)
+        self.widget = widgetcls(self, xscale=self.xscale, yscale=self.yscale)
 
         # enable/disable controls and set defaults for new livewidget instances
         self.setControlsEnabled(True)
@@ -981,8 +986,7 @@ class LiveDataPanel(Panel):
 class AutoScaleLiveWidget1D(LiveWidget1D):
 
     def __init__(self, parent=None):
-        LiveWidget1D.__init__(self, parent)
-        self.axes.xdual = False
+        LiveWidget1D.__init__(self, parent, xscale='decimal')
 
     def getYMax(self):
         minupperedge = 1
@@ -1181,6 +1185,10 @@ class ImagingLiveDataPanel(LiveDataPanel):
     """
 
     def __init__(self, parent, client, options):
+        if 'xscale' not in options:
+            options['xscale'] = 'decimal'
+        if 'yscale' not in options:
+            options['yscale'] = 'decimal'
         LiveDataPanel.__init__(self, parent, client, options)
         self._spectra = options.get('spectra', False)
         self._initLiveWidget(None)
@@ -1239,9 +1247,6 @@ class ImagingLiveDataPanel(LiveDataPanel):
         else:
             self.initLiveWidget(ImagingLiveWidget)
             # self.initLiveWidget(LiveWidget)
-        # No 2**n values
-        self.widget.axes.xdual = False
-        self.widget.axes.ydual = False
         # Set the grayscale as default
         for action in self.actionsColormap.actions():
             if action.data().upper() == 'GRAYSCALE':

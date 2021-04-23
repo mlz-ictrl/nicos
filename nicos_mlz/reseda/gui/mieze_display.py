@@ -46,7 +46,7 @@ class MiniPlot(LiveWidget1D):
     client = None
 
     def __init__(self, parent=None, **kwds):
-        LiveWidget1D.__init__(self, parent)
+        LiveWidget1D.__init__(self, parent, **kwds)
         self.setTitles({'x': 'time slots', 'y': 'summed counts'})
         self.axes.resetCurves()
         self._curves = [

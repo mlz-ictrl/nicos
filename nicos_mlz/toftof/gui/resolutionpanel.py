@@ -54,7 +54,7 @@ class MiniPlot(LiveWidget1D):
     client = None
 
     def __init__(self, xlabel, ylabel, ncurves=1, parent=None, **kwds):
-        LiveWidget1D.__init__(self, parent)
+        LiveWidget1D.__init__(self, parent, **kwds)
 
         self.axes.resetCurves()
         self.setTitles({'x': xlabel, 'y': ylabel})
@@ -86,7 +86,7 @@ class PlotWidget(QWidget):
         self.name = name
         parent.setLayout(QVBoxLayout())
         self.plot = MiniPlot(xlabel, ylabel, ncurves, self, color1=COLOR_BLUE,
-                             color2=COLOR_RED)
+                             color2=COLOR_RED, **kwds)
         titleLabel = QLabel(title)
         titleLabel.setAlignment(Qt.AlignCenter)
         titleLabel.setStyleSheet('QLabel {font-weight: 600}')
@@ -107,37 +107,38 @@ class PlotWidget(QWidget):
 
 class DynamicRangePlot(PlotWidget):
 
-    def __init__(self, parent):
+    def __init__(self, parent, **kwds):
         PlotWidget.__init__(self, 'Dynamic Range', DELTA + 'E (meV)',
-                            '|Q| ' + ANGSTROM + MINUSONE, 2, parent=parent)
+                            '|Q| ' + ANGSTROM + MINUSONE, 2, parent=parent,
+                            **kwds)
         self.plot._curves[0].legend = 'low'
         self.plot._curves[1].legend = 'high'
 
 
 class ElasticResolutionPlot(PlotWidget):
 
-    def __init__(self, parent):
+    def __init__(self, parent, **kwds):
         PlotWidget.__init__(self, 'Elastic Resolution',
                             LAMBDA + '(' + ANGSTROM + ')',
-                            'dE (' + MICRO + 'eV)', 1, parent=parent)
+                            'dE (' + MICRO + 'eV)', 1, parent=parent, **kwds)
         self.plot.logscale(True)
 
 
 class ResolutionPlot(PlotWidget):
 
-    def __init__(self, parent):
+    def __init__(self, parent, **kwds):
         PlotWidget.__init__(self, 'Resolution', 'Energy (meV)',
-                            'dE (' + MICRO + 'eV)', 1, parent=parent)
+                            'dE (' + MICRO + 'eV)', 1, parent=parent, **kwds)
         self.plot.logscale(True)
 
 
 class IntensityPlot(PlotWidget):
 
-    def __init__(self, direction, parent=None):
+    def __init__(self, direction, parent=None, **kwds):
         PlotWidget.__init__(self, 'Calculated intensity at PSD for spin-%s '
                             'neutrons' % direction,
                             'PSD channel position (cm)', 'intensity',
-                            parent=parent)
+                            parent=parent, **kwds)
         self.plot._curves[0].legend = 'without analyzer'
         self.plot._curves[1].legend = 'with analyzer'
 
@@ -177,9 +178,9 @@ class ResolutionPanel(NicosWidget, Panel):
                 f.setValidator(valid)
                 f.setReadOnly(True)
 
-            self.plot1 = DynamicRangePlot(self.drPlot)
-            self.plot2 = ElasticResolutionPlot(self.erPlot)
-            self.plot3 = ResolutionPlot(self.rPlot)
+            self.plot1 = DynamicRangePlot(self.drPlot, xscale='decimal')
+            self.plot2 = ElasticResolutionPlot(self.erPlot, xscale='decimal')
+            self.plot3 = ResolutionPlot(self.rPlot, xscale='decimal')
 
     def registerKeys(self):
         pass

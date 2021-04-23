@@ -28,8 +28,8 @@ from nicos.guisupport.livewidget import LiveWidget1D
 
 class FullScreen1DWidget(LiveWidget1D):
 
-    def __init__(self, parent):
-        LiveWidget1D.__init__(self, parent)
+    def __init__(self, parent, **kwargs):
+        LiveWidget1D.__init__(self, parent, **kwargs)
         self.plot.viewport = [0.02, .98, 0.1, .98]
         self.plot.xlabel = 'channel'
         self.plot.ylabel = 'counts'

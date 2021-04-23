@@ -79,8 +79,8 @@ class LiveWidget(DefaultLiveWidget):
 
     clicked = pyqtSignal(str)
 
-    def __init__(self, name, parent=None):
-        DefaultLiveWidget.__init__(self, parent)
+    def __init__(self, name, parent=None, **kwargs):
+        DefaultLiveWidget.__init__(self, parent, **kwargs)
         self.setMinimumSize(150, 150)
         self.name = name
 
@@ -96,8 +96,8 @@ class LiveWidget1D(DefaultLiveWidget1D):
 
     clicked = pyqtSignal(str)
 
-    def __init__(self, name='', parent=None):
-        DefaultLiveWidget1D.__init__(self, parent)
+    def __init__(self, name='', parent=None, **kwargs):
+        DefaultLiveWidget1D.__init__(self, parent, **kwargs)
         self.setMinimumSize(150, 150)
         self.name = name
 

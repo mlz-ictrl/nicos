@@ -68,8 +68,8 @@ class Cellarray(gr.pygr.PlotSurface):
 
 
 class GRWidget(InteractiveGRWidget):
-    def __init__(self, widget, **kwds):
-        InteractiveGRWidget.__init__(self, widget, **kwds)
+    def __init__(self, widget, **kwargs):
+        InteractiveGRWidget.__init__(self, widget, **kwargs)
         self.widget = widget
         self.adjustSelectRect = self._noadjustSelectRect
 
@@ -108,8 +108,8 @@ class GRWidget(InteractiveGRWidget):
 
 
 class Plot(OrigPlot):
-    def __init__(self, widget, **kwds):
-        OrigPlot.__init__(self, **kwds)
+    def __init__(self, widget, **kwargs):
+        OrigPlot.__init__(self, **kwargs)
         self.widget = widget
 
     def resetPlot(self):
@@ -118,8 +118,8 @@ class Plot(OrigPlot):
 
 
 class Axes(PlotAxes):
-    def __init__(self, widget, xdual=False, ydual=False, **kwds):
-        PlotAxes.__init__(self, **kwds)
+    def __init__(self, widget, xdual=False, ydual=False, **kwargs):
+        PlotAxes.__init__(self, **kwargs)
         self.widget = widget
         self.xdual, self.ydual = xdual, ydual
 
@@ -217,7 +217,7 @@ class LiveWidgetBase(QWidget):
 
     closed = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent, **kwargs):
         QWidget.__init__(self, parent)
 
         self._arrays = None
@@ -239,8 +239,9 @@ class LiveWidgetBase(QWidget):
         self.setLayout(layout)
 
         self.plot = Plot(self, viewport=(0.1, 0.95, 0.1, 0.95))
-        self.axes = Axes(self, viewport=self.plot.viewport, xdual=True,
-                         ydual=True)
+        self.axes = Axes(self, viewport=self.plot.viewport,
+                         xdual=kwargs.get('xscale', 'binary') == 'binary',
+                         ydual=kwargs.get('yscale', 'binary') == 'binary')
         self.plot.addAxes(self.axes)
         self.gr.addPlot(self.plot)
 
@@ -445,8 +446,8 @@ class LiveWidgetBase(QWidget):
 
 class LiveWidget(LiveWidgetBase):
 
-    def __init__(self, parent):
-        LiveWidgetBase.__init__(self, parent)
+    def __init__(self, parent, **kwargs):
+        LiveWidgetBase.__init__(self, parent, **kwargs)
 
         self.axes.setGrid(False)
         self.axes.xylinecolor = COLOR_MAXINTENSITY
@@ -481,17 +482,19 @@ class LiveWidget(LiveWidgetBase):
 
 class IntegralLiveWidget(LiveWidget):
 
-    def __init__(self, parent):
-        LiveWidget.__init__(self, parent)
+    def __init__(self, parent, **kwargs):
+        LiveWidget.__init__(self, parent, **kwargs)
 
         self.plot.viewport = (0.1, 0.75, 0.1, 0.75)
         self.axes.viewport = self.plot.viewport
         self.plotyint = Plot(self, viewport=(0.1, 0.75, 0.8, 0.95))
         self.axesyint = Axes(self, viewport=self.plotyint.viewport,
-                             drawX=False, drawY=True, xdual=True)
+                             drawX=False, drawY=True,
+                             xdual=kwargs.get('xscale', 'binary') == 'binary')
         self.plotxint = Plot(self, viewport=(0.8, 0.95, 0.1, 0.75))
         self.axesxint = Axes(self, viewport=self.plotxint.viewport,
-                             drawX=True, drawY=False, ydual=True)
+                             drawX=True, drawY=False,
+                             ydual=kwargs.get('yscale', 'binary') == 'binary')
 
         vp = self.axesxint.viewport
         self._charheight = 0.024 * (vp[3] - vp[2])
@@ -650,13 +653,14 @@ class IntegralLiveWidget(LiveWidget):
 
 class LiveWidget1D(LiveWidgetBase):
 
-    def __init__(self, parent):
-        LiveWidgetBase.__init__(self, parent)
+    def __init__(self, parent, **kwargs):
+        LiveWidgetBase.__init__(self, parent, **kwargs)
 
         self.plot.resetPlot()
         self._curves = [MaskedPlotCurve([0], [1], linecolor=GRCOLORS['blue'])]
-        self.axes = AutoScaleAxes(self, viewport=self.plot.viewport,
-                                  xdual=True)
+        self.axes = AutoScaleAxes(
+            self, viewport=self.plot.viewport,
+            xdual=kwargs.get('xscale', 'binary') == 'binary')
         self.axes.setGrid(True)
         self.axes.addCurves(self._curves[0])
         self.axes.autoscale = PlotAxes.SCALE_Y

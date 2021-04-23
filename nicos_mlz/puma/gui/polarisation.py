@@ -51,7 +51,7 @@ class MiniPlot(LiveWidget1D):
     client = None
 
     def __init__(self, xlabel, ylabel, parent=None, **kwds):
-        LiveWidget1D.__init__(self, parent)
+        LiveWidget1D.__init__(self, parent, **kwds)
 
         self.axes.resetCurves()
         self.setTitles({'x': xlabel, 'y': ylabel})
@@ -88,7 +88,7 @@ class PlotWidget(QWidget):
         self.name = name
         parent.setLayout(QVBoxLayout())
         self.plot = MiniPlot(xlabel, ylabel, self, color1=COLOR_BLACK,
-                             color2=COLOR_RED)
+                             color2=COLOR_RED, **kwds)
         titleLabel = QLabel(title)
         titleLabel.setAlignment(Qt.AlignCenter)
         titleLabel.setStyleSheet('QLabel {font-weight: 600}')
@@ -109,22 +109,22 @@ class PlotWidget(QWidget):
 
 class IntensityPlot(PlotWidget):
 
-    def __init__(self, direction, parent=None):
+    def __init__(self, direction, parent=None, **kwds):
         PlotWidget.__init__(self, 'Calculated intensity at PSD for spin-%s '
                             'neutrons' % direction,
                             'PSD channel position (cm)', 'intensity',
-                            parent=parent)
+                            parent=parent, **kwds)
         self.plot._curves[0].legend = 'without analyzer'
         self.plot._curves[1].legend = 'with analyzer'
 
 
 class TransmissionPlot(PlotWidget):
 
-    def __init__(self, direction, parent=None):
+    def __init__(self, direction, parent=None, **kwds):
         PlotWidget.__init__(self, 'Calculated refl/trans coeff of deflectors '
                             'for spin-%s neutrons' % direction,
                             'Deflector angle (deg)', 'Refl/trans coefficient',
-                            parent=parent)
+                            parent=parent, **kwds)
         self.plot._curves[0].linecolor = COLOR_BLUE
         self.plot._curves[0].legend = 'Reflectivity'
         self.plot._curves[0].markercolor = COLOR_BLUE
