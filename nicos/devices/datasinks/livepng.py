@@ -39,7 +39,6 @@ except ImportError as e:
     _import_error = e
 
 
-
 def makeLUT(n, spec):
     lut = np.ones(n + 1, np.uint8)
     nold = 0
@@ -53,6 +52,7 @@ def makeLUT(n, spec):
     assert ni == n
     lut[n] = lut[n - 1]
     return lut
+
 
 # "Jet" colormap parametrized as in Matplotlib
 colormap = {
@@ -113,21 +113,21 @@ class PNGLiveFileSinkHandler(DataSinkHandler):
                 # Our origin is bottom left, but image origin is top left
                 rgb_arr = np.ascontiguousarray(np.flipud(rgb_arr))
                 # PIL expects (w, h) but shape is (ny, nx)
-                img = Image.frombuffer('RGB', image.shape[::-1], rgb_arr, 'raw',
-                        'RGB', 0, 1)
+                img = Image.frombuffer('RGB', image.shape[::-1], rgb_arr,
+                                       'raw', 'RGB', 0, 1)
             else:
-                hist,bins = np.histogram(norm_arr.flatten(),1024)
+                hist, bins = np.histogram(norm_arr.flatten(), 1024)
                 cdf = hist.cumsum()
                 cdf_normalized = cdf.astype(float) / cdf.max()
                 minval = bins[np.argmax(cdf_normalized>self.sink.histrange[0])]
                 maxval = bins[np.argmax(cdf_normalized>self.sink.histrange[1])]
-                img = (norm_arr - minval) / (maxval-minval)*255.
+                img = (norm_arr - minval) / (maxval - minval) * 255.
                 # Our origin is bottom left, but image origin is top left
                 img = np.flipud(img)
-                img = np.clip(img, 0 , 255)
+                img = np.clip(img, 0, 255)
                 img = Image.fromarray(img.astype(np.uint8))
             img.thumbnail((self.sink.size, self.sink.size),
-                      PIL.Image.ANTIALIAS)
+                          PIL.Image.ANTIALIAS)
             img.save(self.sink.filename)
         except Exception:
             self.log.warning('could not save live PNG', exc=1)
@@ -150,18 +150,19 @@ class PNGLiveFileSink(ImageSink):
     }
 
     parameters = {
-        'interval': Param('Interval to write file to disk', unit='s',
-                          default=5),
-        'filename': Param('File name for .png image', type=str, mandatory=True),
+        'interval': Param('Interval to write file to disk',
+                          unit='s', default=5),
+        'filename': Param('File name for .png image',
+                          type=str, mandatory=True),
         'log10': Param('Use logarithmic counts for image', type=bool,
                        default=False),
-        'size': Param('Size of the generated image', unit='pixels',
-                      default=256, settable=True),
-        'rgb': Param('Create RBG image', type=bool,
-                     default=True, mandatory=False),
+        'size': Param('Size of the generated image',
+                      unit='pixels', default=256, settable=True),
+        'rgb': Param('Create RBG image',
+                     type=bool, default=True, mandatory=False),
         'histrange': Param('Range of histogram for scaling greyscale image',
-                           type=limits, default=(0.05,0.95),
-                           settable=True, mandatory=False),
+                           type=limits, default=(0.05, 0.95), settable=True,
+                           mandatory=False),
         'sumaxis': Param('Axis over which should be summed if data are 3D',
                          type=intrange(1, 3), default=1, settable=False),
     }
@@ -171,8 +172,8 @@ class PNGLiveFileSink(ImageSink):
     def doPreinit(self, mode):
         if PIL is None:
             self.log.error(_import_error)
-            raise NicosError(self, 'Python Image Library (PIL) is not ' +
-                             'available. Please check whether it is installed ' +
+            raise NicosError(self, 'Python Image Library (PIL) is not '
+                             'available. Please check whether it is installed '
                              'and in your PYTHONPATH')
 
     def isActiveForArray(self, arraydesc):
