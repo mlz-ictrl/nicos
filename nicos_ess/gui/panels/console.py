@@ -64,7 +64,7 @@ class ConsolePanel(DefaultConsolePanel):
     def on_client_initstatus(self, state):
         # Same as DefaultConsolePanel.on_client_initstatus but reverse the
         # list if reverse_scrolling is enable
-        if self.outView.text_curson_position == QTextCursor.End:
+        if self.outView.insert_position == QTextCursor.End:
             DefaultConsolePanel.on_client_initstatus(self, state)
         else:
             self.on_client_mode(state['mode'])
