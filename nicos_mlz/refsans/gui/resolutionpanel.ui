@@ -188,17 +188,12 @@
            <widget class="QComboBox" name="SC2_mode">
             <item>
              <property name="text">
-              <string>default</string>
+              <string>normal</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>smart</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>single_period</string>
+              <string>pos 6</string>
              </property>
             </item>
            </widget>
