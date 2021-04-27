@@ -271,7 +271,7 @@ class TimeDistance(NicosWidget, TimeDistanceWidget):
                 elif devname == 'disc2_pos':
                     self._disk2_pos = int(value)
                 elif devname == 'fp':
-                    self._fp = int(value)
+                    self._fp = float(value)
             elif param == 'phase':
                 if devname.startswith('chopper'):
                     if value is not None:
