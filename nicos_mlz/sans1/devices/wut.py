@@ -51,8 +51,8 @@ class WutValue(Readable):
     def _getRaw(self):
         url = 'http://%s/Single%s' % (self.hostname, self.port)
         try:
-            response = urllib.request.urlopen(url)
-            html = response.read()
+            response = urllib.request.urlopen(url) # pylint:disable=consider-using-with
+            html = response.read().decode('utf-8')
             return str(html)
         except ConfigurationError:  # pass through error raised above
             raise
