@@ -1,7 +1,7 @@
 description = 'W&T Box * 4-20mA * Nr. 1'
 
 includes = []
-_wutbox = 'wut-40-20-01'
+_wutbox = 'wut-4-20-01'
 _wutbox_dev = _wutbox.replace('-','_')
 
 devices = {
