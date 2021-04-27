@@ -259,10 +259,8 @@ class ExpPanel(DefaultExpPanel):
         self._set_warning_visibility()
 
     def _get_proposal_data(self, props_key):
-        curr_value = self._orig_propinfo.get(props_key)
-        if curr_value is None:
-            curr_value = ""
-        return curr_value
+        # returns empty string in case key not found or value of key is None
+        return self._orig_propinfo.get(props_key, '') or ''
 
     def _apply_warning_status(self, value, index, props_curr_val):
         self.is_exp_props_edited[index] = \
