@@ -65,16 +65,16 @@ devices = dict(
         pollinterval = 15,
     ),
 
-    # WUT Box
-    T_spinflipper = device('nicos_mlz.sans1.devices.wut.WutValue',
-        hostname = 'sans1wut-temp-spinflip.sans1.frm2',
-        port = '1',
-        description = 'temperature of spinflipper',
-        fmtstr = '%.2F',
-        lowlevel = False,
-        loglevel = 'info',
-        unit = 'C',
-    ),
+    # WUT Box 22.04.2021 check for bug; T = 212degC ?!?
+    #T_spinflipper = device('nicos_mlz.sans1.devices.wut.WutValue',
+    #    hostname = 'sans1wut-temp-spinflip.sans1.frm2',
+    #    port = '1',
+    #    description = 'temperature of spinflipper',
+    #    fmtstr = '%.2F',
+    #    lowlevel = False,
+    #    loglevel = 'info',
+    #    unit = 'C',
+    #),
 
     # Keysight 34461A
     U_spinflipper = device('nicos_mlz.sans1.devices.k34461a.VoltageMeter',
