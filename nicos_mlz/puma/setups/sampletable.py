@@ -100,8 +100,6 @@ devices = dict(
         # when magnet is on :
         # alias = 'sth_m7T5_ccr',
         devclass = 'nicos.devices.generic.Axis',
-        # when magnet is on :
-        # devclass = 'nicos.devices.taco.Axis',
     ),
 
     # Tilting
