@@ -83,7 +83,7 @@ class MessageView(QTextBrowser):
         self.setFullTimestamps(False)
         self._background_image = None
         self._background_image_area = None
-        self.text_curson_position = QTextCursor.End
+        self.insert_position = QTextCursor.End
 
     def setFullTimestamps(self, on):
         if on:
@@ -213,7 +213,7 @@ class MessageView(QTextBrowser):
 
     def addText(self, text, fmt=None):
         textcursor = self.textCursor()
-        textcursor.movePosition(self.text_curson_position)
+        textcursor.movePosition(self.insert_position)
         textcursor.setCharFormat(fmt or std)
         textcursor.insertText(text)
 
@@ -234,7 +234,7 @@ class MessageView(QTextBrowser):
 
     def addMessages(self, messages):
         textcursor = self.textCursor()
-        textcursor.movePosition(self.text_curson_position)
+        textcursor.movePosition(self.insert_position)
         formatter = self.formatMessage
         for message in messages:
             text, fmt = formatter(message, actions=False)
@@ -304,9 +304,9 @@ class MessageView(QTextBrowser):
 
     def enableReverseScrolling(self, value):
         if value:
-            self.text_curson_position = QTextCursor.Start
+            self.insert_position = QTextCursor.Start
         else:
-            self.text_curson_position = QTextCursor.End
+            self.insert_position = QTextCursor.End
 
     def resizeEvent(self, ev):
         # recalculate the background area only if necessary

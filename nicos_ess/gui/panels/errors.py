@@ -39,7 +39,7 @@ class ErrorPanel(DefaultErrorPanel):
 
     def __init__(self, parent, client, options):
         DefaultErrorPanel.__init__(self, parent, client, options)
-        self.outView.text_curson_position = QTextCursor.Start
+        self.outView.insert_position = QTextCursor.Start
 
     def on_client_connected(self):
         messages = self.client.ask('getmessages', '10000', default=[])
