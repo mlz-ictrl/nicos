@@ -27,8 +27,11 @@ import socket
 from os import path
 
 from nicos import session
-from nicos.core import SIMULATION, DataSink, DataSinkHandler, Override, Param
+from nicos.core import SIMULATION, Attach, DataSink, DataSinkHandler, \
+    Override, Param
 from nicos.core.errors import ProgrammingError
+from nicos.devices.generic.manual import ManualSwitch
+from nicos.nexus.nexussink import NexusSink
 from nicos.utils import readFileCounter, updateFileCounter
 
 from nicos_ess.devices.datasinks.nexussink import NexusFileWriterSink, \
@@ -130,7 +133,8 @@ class QuieckHandler(DataSinkHandler):
 
     def end(self):
         DataSinkHandler.end(self)
-        if self.dataset == self._startdataset:
+        if self.dataset == self._startdataset and \
+                len(self._startdataset.filepaths) > 0:
             message = 'QUIECK/' + self._startdataset.filepaths[0]
             try:
                 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as socke:
@@ -174,3 +178,21 @@ class QuieckSink(DataSink):
 
     def end(self):
         self._handlerObj = None
+
+
+class SwitchableNexusSink(NexusSink):
+    """"
+    This allows file writing to be switched on/off through a ManualSwitch
+    """
+    attached_devices = {
+        'file_switch': Attach('Switch for switching file writing on/off',
+                              ManualSwitch),
+    }
+
+    def createHandlers(self, dataset):
+        if self._attached_file_switch.read(0) == 'on':
+            return NexusSink.createHandlers(self, dataset)
+        else:
+            session.log.warning(
+                'NeXus file writing suppressed on user request')
+            return []

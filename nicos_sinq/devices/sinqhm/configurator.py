@@ -81,7 +81,7 @@ class HistogramConfArray(HistogramConfElement):
                            'dims %s and data length %s', dim, len(data))
             return
         self.dim = dim
-        self.data = data
+        self.data = list(data)
 
     def dataText(self):
         """ The string that is used to write the data list in XML file.

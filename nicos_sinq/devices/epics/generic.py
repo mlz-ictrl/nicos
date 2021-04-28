@@ -23,7 +23,7 @@
 # *****************************************************************************
 import epics
 
-from nicos.core import CommunicationError, Param, status
+from nicos.core import CommunicationError, Override, Param, status
 from nicos.core.mixins import HasLimits
 from nicos.devices.epics import EpicsMoveable, EpicsReadable
 
@@ -41,23 +41,30 @@ class WindowMoveable(HasLimits, EpicsMoveable):
                         mandatory=True)
     }
 
+    parameter_overrides = {
+        'target': Override(settable=True),
+
+    }
+
     valuetype = float
-
-    _target = None
-
-    def doInit(self, mode):
-        EpicsMoveable.doInit(self, mode)
-        self._target = self.read(0)
+    _driveTarget = None
 
     def doStart(self, value):
-        self._target = value
+        # I have to use my private _driveTarget as the target
+        # attribute is marked volatile in EpicsMoveable and is
+        # not holding the real target.
+        self._driveTarget = value
         EpicsMoveable.doStart(self, value)
 
     def doStatus(self, maxage=0):
-        pos = self.doRead(maxage)
-        if abs(pos - self._target) < self.window:
-            return status.OK, 'Done'
-        return status.BUSY, 'Moving'
+        pos = self.doRead(0)
+        if self._driveTarget:
+            if abs(pos - self._driveTarget) < self.window:
+                self._driveTarget = None
+                return status.OK, 'Done'
+            else:
+                return status.BUSY, 'Moving'
+        return status.OK, 'Done'
 
 
 class EpicsArrayReadable(EpicsReadable):

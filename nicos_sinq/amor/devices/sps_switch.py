@@ -80,10 +80,11 @@ class SpsSwitch(EpicsDeviceEss, MappedMoveable):
 
         now = currenttime()
         if self.lasttarget is not None and \
-                self.lasttarget != self._readRaw(maxage) and \
-                now > self.lasttoggle+10:
-            return (status.WARN, '%s not reached!'
-                                 % self._inverse_mapping[self.lasttarget])
+                self.lasttarget != self._readRaw(maxage):
+            if now > self.lasttoggle+10:
+                return (status.WARN, '%s not reached!'
+                        % self._inverse_mapping[self.lasttarget])
+            return status.BUSY, ''
         return status.OK, ''
 
     def doIsAtTarget(self, pos, target):

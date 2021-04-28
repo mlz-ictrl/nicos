@@ -22,13 +22,15 @@
 #
 # *****************************************************************************
 
+import time
+
 import numpy
 
 from nicos.core import Attach, Override, Param, Value, dictof, status
 from nicos.devices.generic import ImageChannelMixin, PassiveChannel
 
-from nicos_ess.devices.datasinks.imagesink.histogramdesc import HistogramDesc, \
-    HistogramDimDesc
+from nicos_ess.devices.datasinks.imagesink.histogramdesc import \
+    HistogramDesc, HistogramDimDesc
 from nicos_sinq.devices.sinqhm.configurator import HistogramConfBank
 from nicos_sinq.devices.sinqhm.connector import HttpConnector
 
@@ -58,6 +60,9 @@ class HistogramImageChannel(ImageChannelMixin, PassiveChannel):
         'connector': Attach('HTTP Connector for Histogram Memory Server',
                             HttpConnector),
     }
+
+    _dataTime = 0
+    _data = None
 
     @property
     def bank(self):
@@ -105,22 +110,39 @@ class HistogramImageChannel(ImageChannelMixin, PassiveChannel):
 
     def doStart(self):
         self.readresult = [0]
+        self._dataTime = 0
+
+    def doFinish(self):
+        self._dataTime = 0
 
     def doReadArray(self, quality):
-        """ Get the data formatted with uint32 numpy array
-        """
-        order = '<' if self.connector.byteorder == 'little' else '>'
-        dt = numpy.dtype('uint32')
-        dt = dt.newbyteorder(order)
+        """ Get the data formatted as uint32 numpy array
 
-        # Read the raw bytes from the server
-        params = (('bank', self.bank.bankid), ('start', self.startid),
-                  ('end', self.endid()))
-        req = self.connector.get('readhmdata.egi', params)
-        data = numpy.frombuffer(req.content, dt)
-        # Set the result and return data
-        self.readresult = [int(sum(data))]
-        return data
+            It was noticed that NICOS was reading the array very frequently.
+            So frequently, that storing a FOCUS file took three minutes.
+            Other changes in nexussink which mitigated the problem. In addition
+            this method was changed that it reads data only after a three
+            seconds cache interval. This interval is reset both in doStart()
+            and doFinish() in order to ensure good data always.
+        """
+        if time.time() > self._dataTime + 3:
+            order = '<' if self.connector.byteorder == 'little' else '>'
+            dt = numpy.dtype('uint32')
+            dt = dt.newbyteorder(order)
+
+            # Read the raw bytes from the server
+            params = (('bank', self.bank.bankid), ('start', self.startid),
+                      ('end', self.endid))
+            req = self.connector.get('readhmdata.egi', params)
+            data = numpy.frombuffer(req.content, dt)
+            # Set the result and return data
+            self.readresult = [int(sum(data))]
+            if len(data) >= numpy.prod(self.shape):
+                self._data = data.reshape(self.shape, order='C')
+            else:
+                self._data = data
+            self._dataTime = time.time()
+        return self._data
 
     def doStatus(self, maxage=0):
         return self.connector.status(maxage)
@@ -150,7 +172,7 @@ class ReshapeHistogramImageChannel(HistogramImageChannel):
     def doReadArray(self, quality):
         data = HistogramImageChannel.doReadArray(self, quality)
         if len(data) >= numpy.prod(self.shape):
-            return data.reshape(self.shape)
+            return data.reshape(self.shape, order='C')
         return data
 
     @property
