@@ -22,11 +22,12 @@
 #
 # *****************************************************************************
 import importlib
+from pathlib import Path
 
 import h5py
 import numpy
 
-from nicos.core.constants import POINT, SCAN
+from nicos.core.constants import LIVE, POINT, SCAN
 from nicos.core.data import DataSinkHandler
 from nicos.core.errors import NicosError
 from nicos.core.params import Param
@@ -89,6 +90,8 @@ class NexusSinkHandler(DataSinkHandler):
             self.template = copy_nexus_template(self.sink.loadTemplate())
 
             self.h5file = h5py.File(self.startdataset.filepaths[0], 'w')
+            p = Path(self.startdataset.filepaths[0])
+            self.log.info('Writing file %s', p.name)
             self.h5file.attrs['file_name'] = numpy.string_(
                 self.startdataset.filepaths[0])
             tf = NXTime()
@@ -180,6 +183,9 @@ class NexusSinkHandler(DataSinkHandler):
                 self.log.warning('Cannot add results to %r', key)
 
     def putResults(self, quality, results):
+        # Suppress updating data files when updating live data
+        if quality == LIVE:
+            return
         h5obj = self.h5file['/']
         self.resultValues(self.template, h5obj, results)
         self.h5file.flush()

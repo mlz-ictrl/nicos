@@ -26,7 +26,7 @@ import time
 import numpy as np
 
 from nicos import session
-from nicos.core import FINAL, INTERMEDIATE, INTERRUPTED
+from nicos.core.device import Readable
 from nicos.core.errors import NicosError
 
 
@@ -207,7 +207,8 @@ class DeviceDataset(NexusElementBase):
                     'Warning: failed to locate data for %s %s in NICOS (%s)',
                     self.device, self.parameter, e)
                 return
-        self.testAppend(sinkhandler)
+        if self.parameter == 'value':
+            self.testAppend(sinkhandler)
         if self.dtype == 'string':
             dtype = 'S%d' % (len(self.value[0].encode('utf-8')) + 1)
             dset = h5parent.create_dataset(name, (1,), dtype=dtype)
@@ -383,27 +384,6 @@ class ImageDataset(NexusElementBase):
                                            compression='gzip')
         self.createAttributes(dset, sinkhandler)
 
-    def update(self, name, h5parent, sinkhandler, values):
-        if not self.valid:
-            return
-        det = sinkhandler.dataset.detectors[self.detectorIDX]
-        # Be persistent in getting at array data
-        arrayData = det.readArrays(FINAL)
-        if arrayData is None:
-            arrayData = det.readArrays(INTERRUPTED)
-        if arrayData is None:
-            arrayData = det.readArrays(INTERMEDIATE)
-        if arrayData is not None:
-            data = arrayData[self.imageIDX]
-            if data is not None:
-                dset = h5parent[name]
-                if self.doAppend:
-                    if len(dset) < self.np + 1:
-                        self.resize_dataset(dset, sinkhandler)
-                    dset[self.np] = data
-                else:
-                    h5parent[name][...] = data
-
     def resize_dataset(self, dset, sinkhandler):
         det = sinkhandler.dataset.detectors[self.detectorIDX]
         arinfo = det.arrayInfo()
@@ -416,11 +396,17 @@ class ImageDataset(NexusElementBase):
 
     def results(self, name, h5parent, sinkhandler, results):
         dset = h5parent[name]
-        if self.doAppend:
-            idx = self.np + 1
-            if len(dset) < idx:
-                self.resize_dataset(dset, sinkhandler)
-            self.update(name, h5parent, sinkhandler, results)
+        det = sinkhandler.dataset.detectors[self.detectorIDX]
+        data = results.get(det.name)
+        if data is not None:
+            array = data[1][self.imageIDX]
+            if self.doAppend:
+                idx = self.np + 1
+                if len(dset) < idx:
+                    self.resize_dataset(dset, sinkhandler)
+                dset[self.np] = array
+            else:
+                h5parent[name][...] = array
 
 
 class NamedImageDataset(ImageDataset):
@@ -518,7 +504,9 @@ class NexusSampleEnv(NexusElementBase):
     data is appended whenever data can be found.
     """
 
-    def __init__(self):
+    def __init__(self, update_interval=10):
+        self._update_interval = update_interval
+        self._last_update = {}
         NexusElementBase.__init__(self)
 
     def createNXlog(self, h5parent, dev):
@@ -532,28 +520,39 @@ class NexusSampleEnv(NexusElementBase):
         dset = loggroup.create_dataset('value', (1,), maxshape=(None,),
                                        dtype='float32')
         dset[0] = dev.read()
+        self._last_update[dev.name] = time.time()
 
     def create(self, name, h5parent, sinkhandler):
         self.starttime = time.time()
         for dev in sinkhandler.dataset.environment:
-            self.createNXlog(h5parent, dev)
+            # There can be DeviceStatistics in the environment.
+            # We do not know how to write those
+            if isinstance(dev, Readable):
+                self.createNXlog(h5parent, dev)
 
-    # The log is only appended to when the new value differs from the previous
-    # one by at least the precision of the device. Otherwise, there are way to
-    # many log entries, like 200 in 10 seconds
     def updatelog(self, h5parent, dataset):
-        for dev in dataset.environment:
+        current_time = time.time()
+        for devidx, dev in enumerate(dataset.environment):
+            if not isinstance(dev, Readable):
+                continue
             loggroup = h5parent[dev.name]
             dset = loggroup['value']
-            val = dev.read()
+            val = dataset.envvaluelist[devidx]
+            if val is None:
+                return
             idx = len(dset)
-            if abs(val - dset[idx - 1]) > dev.precision:
+            # We need to control the amount of data written as update
+            # gets called frequently. This tests:
+            # - The value has changed at all
+            # - Against a maximum update interval
+            if val != dset[idx - 1] and \
+               current_time > self._last_update[dev.name] + self._update_interval:
                 dset.resize((idx + 1,))
-                dset[idx] = dev.read()
+                dset[idx] = val
                 dset = loggroup['time']
                 dset.resize((idx + 1,))
-                intervall = time.time() - self.starttime
-                dset[idx] = intervall
+                dset[idx] = current_time - self.starttime
+                self._last_update[dev.name] = current_time
 
     def update(self, name, h5parent, sinkhandler, values):
         self.updatelog(h5parent, sinkhandler.dataset)
@@ -608,11 +607,11 @@ class CalcData(NexusElementBase):
                                            compression='gzip')
         self.createAttributes(dset, sinkhandler)
 
-    def update(self, name, h5parent, sinkhandler, values):
+    def results(self, name, h5parent, sinkhandler, _results):
         if not self.valid:
             return
         data = self._calcData(sinkhandler.dataset)
-        if data:
+        if data is not None:
             dset = h5parent[name]
             if self.doAppend:
                 if len(dset) < self.np + 1:
