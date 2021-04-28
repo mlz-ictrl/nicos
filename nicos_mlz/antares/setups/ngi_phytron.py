@@ -5,7 +5,7 @@ group = 'optional'
 excludes = ['ngi']
 
 tango_base_phy1 = 'tango://phytron1.antares.frm2.tum.de:10000/box/'
-tango_base_phy3 = 'tango://phytron3.antares.frm2.tum.de:10000/box/'
+tango_base_phy3 = 'tango://phytron2.antares.frm2.tum.de:10000/box/'
 
 devices = dict(
     G0rz = device('nicos.devices.tango.Motor',

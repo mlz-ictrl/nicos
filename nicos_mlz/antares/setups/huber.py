@@ -45,7 +45,7 @@ devices = dict(
         pollinterval = 5,
         maxage = 12,
     ),
-#    sry_huber = device('nicos.devices.tango.Motor',
+#    sry_huber_fast = device('nicos.devices.tango.Motor',
 #        description = 'Sample Rotation around Y',
 #        tangodevice = tango_base + 'copley/m13',
 #        precision = 0.01,
@@ -54,3 +54,14 @@ devices = dict(
 #        maxage = 12,
 #    ),
 )
+
+monitor_blocks = {
+   'default': Block('HUBER Small Sample Manipulator', [
+   BlockRow(
+       Field(dev='stx_huber'), Field(dev='sty_huber'), Field(dev='sry_huber'),
+       ),
+   BlockRow(
+       Field(dev='sgx_huber'), Field(dev='sgz_huber'),
+       ),
+   ], setups=setupname)
+}

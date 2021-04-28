@@ -41,7 +41,7 @@ class MiraXmlHandler(SingleFileSinkHandler):
         timer = self.sink._attached_timer
         mono = self.sink._attached_mono
         write = fp.write
-        write('''\
+        write(b'''\
 <measurement_file>
 
 <instrument_name>MIRA</instrument_name>
@@ -75,9 +75,9 @@ class MiraXmlHandler(SingleFileSinkHandler):
 
         filled = np.repeat(np.repeat(image, 256 // w, 0), 256 // h, 1)
         if filled.shape == (256, 256):
-            write(self.sink._format[1] % tuple(filled.ravel() / 4.))
+            write((self.sink._format[1] % tuple(filled.ravel() / 4.)).encode())
 
-        write('''\
+        write(b'''\
 </detector_value>
 
 </measurement_data>

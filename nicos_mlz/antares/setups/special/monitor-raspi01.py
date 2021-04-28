@@ -21,20 +21,7 @@ _expcolumn = Column(
     ),
 )
 
-_huberblock = Block('HUBER Small Sample Manipulator', [
-    BlockRow(
-        Field(dev='stx_huber'),
-        Field(dev='sty_huber'),
-        Field(dev='sry_huber'),
-    ),
-    BlockRow(
-        Field(dev='sgx_huber'),
-        Field(dev='sgz_huber'),
-    ),
-    ],
-    setups='huber',
-)
-
+_huberblock = SetupBlock('huber')
 
 _servostarblock = Block('Servostar Large Sample Manipulator', [
     BlockRow(

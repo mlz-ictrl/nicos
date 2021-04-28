@@ -114,7 +114,9 @@ class ResolutionPanel(NicosWidget, Panel):
         self.phase6.setText('%.2f deg' % angles[5])
 
         nperiods = self.periods.value()
-        self.ttd.plot(speed, angles, nperiods, disk2, D)
+        sc2_mode = 'normal_mode' if self.SC2_mode.currentIndex() == 0 else \
+            'virtual_disc2_pos_6'
+        self.ttd.plot(speed, angles, nperiods, disk2, D, sc2_mode)
 
     @pyqtSlot('QAbstractButton *')
     def createScript(self, button):

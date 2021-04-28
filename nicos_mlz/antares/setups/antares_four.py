@@ -5,41 +5,41 @@ group = 'basic'
 excludes = ['antares_l', 'antares_s']
 includes = [
     'basic', 'sbl',
-    'detector_zwo01', 'detector_zwo02', 'detector_zwo03', 'detector_zwo04',
+    'detector_zwo02', 'detector_zwo03', 'detector_zwo04', 'detector_zwo05',
     'shutters', 'multitomo',
 ]
 
 sysconfig = dict(
-    datasinks = ['ImageSaver1', 'ImageSaver2', 'ImageSaver3', 'ImageSaver4'],
+    datasinks = ['ImageSaver2', 'ImageSaver3', 'ImageSaver4', 'ImageSaver5'],
 )
 
 devices = dict(
-    ImageSaver1 = device('nicos.devices.datasinks.FITSImageSink',
-        description = 'Saves image data in FITS format',
-        filenametemplate = ['1_%(pointcounter)08d.fits'],
-        subdir = 'cam1',
-        detectors = ['det_zwo1'],
-    ),
     ImageSaver2 = device('nicos.devices.datasinks.FITSImageSink',
         description = 'Saves image data in FITS format',
         filenametemplate = ['2_%(pointcounter)08d.fits'],
         subdir = 'cam2',
-        detectors = ['det_zwo2'],
+        detectors = ['det_zwo02'],
     ),
     ImageSaver3 = device('nicos.devices.datasinks.FITSImageSink',
         description = 'Saves image data in FITS format',
         filenametemplate = ['3_%(pointcounter)08d.fits'],
         subdir = 'cam3',
-        detectors = ['det_zwo3'],
+        detectors = ['det_zwo03'],
     ),
     ImageSaver4 = device('nicos.devices.datasinks.FITSImageSink',
         description = 'Saves image data in FITS format',
         filenametemplate = ['4_%(pointcounter)08d.fits'],
         subdir = 'cam4',
-        detectors = ['det_zwo4'],
+        detectors = ['det_zwo04'],
+    ),
+    ImageSaver5 = device('nicos.devices.datasinks.FITSImageSink',
+        description = 'Saves image data in FITS format',
+        filenametemplate = ['5_%(pointcounter)08d.fits'],
+        subdir = 'cam5',
+        detectors = ['det_zwo05'],
     ),
 )
 
 startupcode = """
-SetDetectors(det_zwo1, det_zwo2, det_zwo3, det_zwo4)
+SetDetectors(det_zwo02, det_zwo03, det_zwo04, det_zwo05)
 """
