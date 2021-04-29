@@ -18,8 +18,9 @@ maw(att, 'x100')
 maw(ng_pol, 'pol1')
 maw(ng_pol, 'ng')
 
-maw(col, 20)
-maw(col, 2)
+# These test cases disabled due to problems with 'instrument_shutter' device
+# maw(col, 20)
+# maw(col, 2)
 
 maw(bg1, '41mm')
 maw(bg1, 'open')

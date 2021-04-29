@@ -1,0 +1,6 @@
+move(SampleChanger, 11)
+maw(st1_y, -5.0)
+maw(st1_x, -30)
+maw(st1_z, -3.6)
+
+printinfo("Ready to measure.")

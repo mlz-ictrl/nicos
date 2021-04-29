@@ -45,7 +45,7 @@ _selcolumn = Column(
 _instrumentshutter= Column(
     Block('Shutter', [
         BlockRow(
-                 Field(name='Position', dev='instrument_shutter', width=11),
+                 Field(name='Position', dev='instrument_shutter', width=8),
                 ),
         ],
     ),
@@ -127,10 +127,6 @@ _ubahncolumn = Column(
 _collimationcolumn = Column(
     Block('Collimation',[
         BlockRow(
-            Field(dev='att', name='att',
-                  widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
-                  options=['open','x1000','x100','x10','dia10'],
-                  width=6.5,height=9),
             Field(dev='ng_pol', name='23',
                   widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
                   options=['col','pol2','pol1','ng'],
@@ -147,7 +143,7 @@ _collimationcolumn = Column(
                   widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
                   options=['49mm','open','19mm','41mm'],
                   disabled_options = ['N.A.'],
-                  width=7,height=9),
+                  width=6,height=9),
             Field(dev='col_16', name='16',
                   widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
                   options=['free2','free1','col','ng'],
@@ -176,7 +172,7 @@ _collimationcolumn = Column(
                   widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
                   options=['27mm','19mm','11mm','open'],
                   disabled_options = ['N.A.'],
-                  width=7,height=9),
+                  width=6,height=9),
             Field(dev='col_4', name='4',
                   widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
                   options=['free2','free1','col','ng'],
@@ -205,7 +201,7 @@ _collimationcolumn = Column(
 _sampleaperture = Column(
     Block('SA', [
         BlockRow(
-            Field(name='sa2', dev='sa2', width=8, format = '%g'),
+            Field(name='sa2', dev='sa2', width=6, format = '%g'),
         )
         ],
     ),
@@ -252,14 +248,29 @@ _col_slit = Column(
         ),
         BlockRow(
             Field(name='Left', dev='slit_left', unit='mm', format='%.2f'),
+        ),
+        BlockRow(
             Field(name='Right', dev='slit_right', unit='mm', format='%.2f'),
         ),
         BlockRow(
             Field(name='Bottom', dev='slit_bottom', unit='mm', format='%.2f'),
         ),
         BlockRow(
-            Field(name='Slit [width x height]', dev='slit', width=12, unit='mm'),
+            Field(name='Slit [w x h]', dev='slit', width=12, unit='mm'),
         ),
+        ],
+    ),
+)
+
+_att = Column(
+    Block('Att', [
+        BlockRow(
+                 Field(dev='att', name='att',
+                  widget='nicos_mlz.sans1.gui.monitorwidgets.CollimatorTable',
+                  options=['open','x1000','x100','x10','dia10'],
+                  width=6.5,height=9),
+                  #width=16.5,height=9),
+                ),
         ],
     ),
 )
@@ -288,7 +299,7 @@ devices = dict(
         fontsize = 12,#12
         padding = 0,#3
         layout = [
-            Row(_instrumentshutter, _selcolumn, _tisane, _col_slit, _collimationcolumn, _sampleaperture),
+            Row(_instrumentshutter, _selcolumn, _tisane, _col_slit, _att, _collimationcolumn, _sampleaperture),
             Row(_sans1det),
             # Row(_sans1general),
             Row(_chop_phase, _ubahncolumn, _pressurecolumn, _p_filter),

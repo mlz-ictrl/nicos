@@ -1,0 +1,6 @@
+move(SampleChanger, 11)
+maw(st1_x, -30)
+maw(st1_y, 98)
+
+printinfo("Change samples now")
+printinfo("!!! run finish_sample_change before measuring !!!")

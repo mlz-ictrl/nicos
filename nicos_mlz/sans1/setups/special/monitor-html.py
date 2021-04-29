@@ -508,47 +508,91 @@ _ccmsans_plot = Column(
     ),
 )
 
-_ccm2a = Column(
-    Block('CCM2a Magnet', [
+_ccm2a2 = Column(
+    Block('CCM2a2 Magnet', [
         BlockRow(
-             Field(name='Field', dev='B_ccm2a', width=12),
+             Field(name='Field', dev='B_ccm2a2', width=12),
         ),
         BlockRow(
-             Field(name='Target', key='B_ccm2a/target', width=12),
-             Field(name='Readback', dev='B_ccm2a_readback', width=12),
+             Field(name='Target', key='B_ccm2a2/target', width=12),
+             Field(name='Readback', dev='B_ccm2a2_readback', width=12),
         ),
         ],
-        setups='ccm2a',
+        setups='ccm2a2',
     ),
 )
 
-_ccm2a_temperature = Column(
-    Block('CCM2a Magnet Temperature', [
+_ccm2a2_temperature = Column(
+    Block('CCM2a2 Magnet Temperature', [
         BlockRow(
-             Field(name='T1', dev='ccm2a_T1', width=12),
-             Field(name='T2', dev='ccm2a_T2', width=12),
+             Field(name='T1', dev='ccm2a2_T1', width=12),
+             Field(name='T2', dev='ccm2a2_T2', width=12),
         ),
         BlockRow(
-             Field(name='TA', dev='ccm2a_TA', width=12),
-             Field(name='TB', dev='ccm2a_TB', width=12),
+             Field(name='TA', dev='ccm2a2_TA', width=12),
+             Field(name='TB', dev='ccm2a2_TB', width=12),
         ),
         ],
-        setups='ccm2a',
+        setups='ccm2a2',
     ),
 )
 
-_ccm2a_plot = Column(
-    Block('CCM2a Magnet plot', [
+_ccm2a2_plot = Column(
+    Block('CCM2a2 Magnet plot', [
         BlockRow(
-            Field(plot='30 min ccm2a', name='30 min', dev='B_ccm2a',
+            Field(plot='30 min ccm2a2', name='30 min', dev='B_ccm2a2',
                   width=60, height=40, plotwindow=1800),
-            Field(plot='30 min ccm2a', name='Target', key='B_ccm2a/target'),
-            Field(plot='12 h ccm2a', name='12 h', dev='B_ccm2a', width=60,
+            Field(plot='30 min ccm2a2', name='Target', key='B_ccm2a2/target'),
+            Field(plot='12 h ccm2a2', name='12 h', dev='B_ccm2a2', width=60,
                   height=40, plotwindow=12*3600),
-            Field(plot='12 h ccm2a', name='Target', key='B_ccm2a/target'),
+            Field(plot='12 h ccm2a2', name='Target', key='B_ccm2a2/target'),
         ),
         ],
-        setups='ccm2a',
+        setups='ccm2a2',
+    ),
+)
+
+_ccm2a5 = Column(
+    Block('CCM2a5 Magnet', [
+        BlockRow(
+             Field(name='Field', dev='B_ccm2a5', width=12),
+        ),
+        BlockRow(
+             Field(name='Target', key='B_ccm2a5/target', width=12),
+             Field(name='Readback', dev='B_ccm2a5_readback', width=12),
+        ),
+        ],
+        setups='ccm2a5',
+    ),
+)
+
+_ccm2a5_temperature = Column(
+    Block('CCM2a5 Magnet Temperature', [
+        BlockRow(
+             Field(name='T1', dev='ccm2a5_T1', width=12),
+             Field(name='T2', dev='ccm2a5_T2', width=12),
+        ),
+        BlockRow(
+             Field(name='TA', dev='ccm2a5_TA', width=12),
+             Field(name='TB', dev='ccm2a5_TB', width=12),
+        ),
+        ],
+        setups='ccm2a5',
+    ),
+)
+
+_ccm2a5_plot = Column(
+    Block('CCM2a5 Magnet plot', [
+        BlockRow(
+            Field(plot='30 min ccm2a5', name='30 min', dev='B_ccm2a5',
+                  width=60, height=40, plotwindow=1800),
+            Field(plot='30 min ccm2a5', name='Target', key='B_ccm2a5/target'),
+            Field(plot='12 h ccm2a5', name='12 h', dev='B_ccm2a5', width=60,
+                  height=40, plotwindow=12*3600),
+            Field(plot='12 h ccm2a5', name='Target', key='B_ccm2a5/target'),
+        ),
+        ],
+        setups='ccm2a5',
     ),
 )
 
@@ -576,7 +620,7 @@ _spinflipper = Column(
              Field(name='Reverse', key='P_spinflipper/reverse', unitkey='W'),
         ),
         BlockRow(
-             Field(name='Temperature', dev='T_spinflipper'),
+             #Field(name='Temperature', dev='T_spinflipper'),
              Field(name='Voltage', dev='U_spinflipper'),
         ),
         BlockRow(
@@ -898,13 +942,14 @@ devices = dict(
             Row(_ubahncolumn, _meteocolumn, _pressurecolumn, _p_filter),
             Row(_instrumentshutter, _selcolumn, _chop_phase, _col_slit, _atpolcolumn, _sanscolumn),
             Row(_ccmsans, _ccmsans_temperature,
-                _ccm2a, _ccm2a_temperature,
+                _ccm2a2, _ccm2a2_temperature,
+                _ccm2a5, _ccm2a5_temperature,
                 _spinflipper, _ccrs, _cryos, _sc1, _sc2,
                 _sc_t, _ccmsanssc, _miramagnet, _amagnet,
                 _htf03, _htf01, _irf01, _irf10, _rscs, _julabo,
                 _tisane_counts, _tisane_fc, _helios01, _wuts, _dilato,
                 _pressure_box),
-            Row(_ccmsans_plot, _ccm2a_plot, _ccr19_plot,
+            Row(_ccmsans_plot, _ccm2a2_plot, _ccm2a5_plot, _ccr19_plot,
                 _htf03_plot, _irf01_plot, _irf10_plot, _htf01_plot, _julabo_plot,
                 _miramagnet_plot, _dilato_plot, _pressure_box_plot),
             Row(_dilato_plot2),
