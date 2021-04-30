@@ -30,7 +30,7 @@ devices = dict(
         description = 'The currently used sample',
         lowlevel = True,
     ),
-    Sample = device('nicos_demo.vtreff.devices.MirrorSample',
+    Sample = device('nicos_virt_mlz.treff.devices.MirrorSample',
         description = 'The currently used mirror sample',
         alignerrors = {
             'sample_y': 2,

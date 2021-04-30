@@ -34,7 +34,7 @@ devices = dict(
     LiveViewSink = device('nicos.devices.datasinks.LiveViewSink',
         description = 'Sends image data to LiveViewWidget',
     ),
-    detimg = device('nicos_demo.vtreff.devices.detector.McStasImage',
+    detimg = device('nicos_virt_mlz.treff.devices.detector.McStasImage',
         description = 'Detector image',
         ratio = 1.6e6,
         size = (256, 256),
