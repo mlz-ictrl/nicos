@@ -67,14 +67,8 @@ def checkoutSource() {
 }
 
 def publishGerrit(name, value) {
-    gerritverificationpublisher([
-        verifyStatusValue: value,
-        verifyStatusName: name,
-        verifyStatusCategory: 'test',
-        verifyStatusReporter: 'jenkins',
-        verifyStatusRerun: '@recheck'
-    ])
-
+    def map = [(-1) :"FAILED", 0:"RUNNING", 1:"SUCCESSFUL"]	
+    gerritPostCheck(["jenkins:${name}":map[value]])
 }
 
 
@@ -104,6 +98,7 @@ def refreshVenv(info="" , venv='$NICOS3VENV', checkupdates=false) {
 def runPylint(info='', venv='$NICOS3VENV') {
     def idtag = "pylint-$info".toString()
     verifyresult.put(idtag, 0)
+    publishGerrit(idtag,verifyresult[idtag])
     try {
         withCredentials([string(credentialsId: 'GERRITHTTP', variable: 'GERRITHTTP')]) {
             try {
@@ -151,6 +146,7 @@ fi"""
 
 def runIsort() {
     verifyresult.put('isort',0)
+    publishGerrit('isort', verifyresult['isort'])
     try {
         withCredentials([string(credentialsId: 'GERRITHTTP', variable: 'GERRITHTTP')]) {
             refreshVenv()
@@ -187,6 +183,7 @@ def runIsort() {
 
 def runSetupcheck() {
     verifyresult.put('sc', 0)
+    publishGerrit('setupcheck',verifyresult['sc'])
     try {
         withCredentials([string(credentialsId: 'GERRITHTTP',
                                 variable: 'GERRITHTTP')]) {
@@ -244,6 +241,7 @@ addopts = --junit-xml=pytest-${pyver}.xml
 
 
     verifyresult.put(pyver, 0)
+    publishGerrit('pytest-'+pyver, verifyresult[pyver])
     try {
          timeout(10) {
 
@@ -280,6 +278,7 @@ addopts = --junit-xml=pytest-${pyver}.xml
 
 def runDocTest() {
     verifyresult.put('doc', 0)
+    publishGerrit('doc', verifyresult['doc'])
     try {
         refreshVenv('','$NICOS3VENV')
         sh './ciscripts/run_doctest.sh'
