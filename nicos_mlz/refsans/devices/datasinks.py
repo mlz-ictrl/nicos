@@ -78,6 +78,7 @@ Gonio = [
     'gonio_phi',
     'gonio_theta',
     'gonio_z',
+    'gonio_x',
     'gonio_y',
     'gonio_top_phi',
     'gonio_top_theta',
