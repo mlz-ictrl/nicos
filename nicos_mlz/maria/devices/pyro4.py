@@ -60,7 +60,7 @@ class Pyro4Device(HasCommunication):
                 # pylint: disable=assigning-non-slot
                 Pyro4.config.HMAC_KEY = self.hmackey.encode()
             self._dev = Pyro4.Proxy(self.pyro4device)
-            if self.hmackey and hasattr(self._dev, "_pyroHMACKey"):  # Pyro 4.43
+            if self.hmackey and hasattr(self._dev, "_pyroHmacKey"):  # Pyro 4.43
                 self._dev._pyroHmacKey = self.hmackey.encode()
             self._dev._pyroRelease()
 
