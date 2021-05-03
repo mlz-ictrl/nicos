@@ -1,0 +1,29 @@
+*************************** NARZISS Data File ********************************
+Original Filename    = !!FILE!!
+Title                = !!VAR(Exp,title)!!
+User                 = !!VAR(Exp,users)!!
+ProposalID           = !!VAR(Exp,proposal)!!
+Sample Name          = !!VAR(Sample,samplename)!!
+File Creation Date   = !!DATE!!
+Last Scan Command    = !!VAR(lastscancommand)!!
+****************************************************************************
+MOM             = !!DRIV(mom)!!
+MOM zero        = !!ZERO(mom)!!
+FOM             = !!DRIV(fom)!!
+FOM zero        = !!ZERO(fom)!!
+POM             = !!DRIV(pom)!!
+POM zero        = !!ZERO(pom)!!
+AOM             = !!DRIV(aom)!!
+AOM zero        = !!ZERO(aom)!!
+SOM             = !!DRIV(som)!!
+SOM zero        = !!ZERO(som)!!
+STY             = !!DRIV(sty)!!
+STY zero        = !!ZERO(sty)!!
+STTL            = !!DRIV(sttl)!!
+STTL zero       = !!ZERO(sttl)!!
+STTC            = !!DRIV(sttc)!!
+STTC zero       = !!ZERO(sttc)!!
+Lambda          = 5.0 
+----------------------------------------------------------------------------
+!!SCANZERO!!
+**************************** DATA ******************************************
