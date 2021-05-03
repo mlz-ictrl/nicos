@@ -28,6 +28,7 @@
 from nicos.core import ConfigurationError, InvalidValueError, Moveable, \
     Override, Param, PositionError, Readable, anytype, dictof, floatrange, \
     listof, multiReset, multiStatus, multiStop, multiWait, none_or, status
+from nicos.core.constants import SIMULATION
 from nicos.core.params import Attach
 from nicos.devices.abstract import MappedMoveable, MappedReadable
 from nicos.utils import lazy_property
@@ -268,6 +269,11 @@ class MultiSwitcher(MappedMoveable):
             multiWait(moveables)
 
     def _readRaw(self, maxage=0):
+        if self._mode == SIMULATION and self.target is not None:
+            # In simulation mode the values of the readables are assumed to be
+            # given in the mapping table for the current target
+            return tuple(d.read(maxage) for d in self._attached_moveables) + \
+                   tuple(self.mapping[self.target][len(self._attached_moveables):])
         return tuple(d.read(maxage) for d in self.devices)
 
     def _mapReadValue(self, pos):
