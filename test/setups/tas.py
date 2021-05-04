@@ -134,6 +134,7 @@ devices = dict(
         countloopdelay = 0.002,
         collimation = '20 20 20 60',
         responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
+        axiscoupling = True,
     ),
     vtasdet = device('nicos.devices.tas.virtual.VirtualTasDetector',
         tas = 'Tas',

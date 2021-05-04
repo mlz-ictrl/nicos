@@ -64,7 +64,7 @@ class TAS(Instrument, Moveable):
         'scanconstant': Param('Constant of the operation mode', type=float,
                               default=0, settable=True, category='instrument'),
         'axiscoupling': Param('Whether the sample th/tt axes are coupled',
-                              type=bool, default=True, settable=True,
+                              type=bool, default=False, settable=True,
                               category='instrument'),
         'psi360':       Param('Whether the range of psi is 0-360 deg '
                               '(otherwise -180-180 deg is assumed)',
