@@ -85,6 +85,7 @@ class SimResultFrame(QWidget):
     """Shows the results of a simulation/dry run."""
 
     def __init__(self, parent, panel, client):
+        self.client = client
         QWidget.__init__(self, parent)
         loadUi(self, 'panels/simresult.ui')
         self.simOutStack.setCurrentIndex(0)
@@ -141,9 +142,8 @@ class SimResultFrame(QWidget):
         self.simOutStack.setCurrentIndex(on)
 
     def on_simOutView_anchorClicked(self, url):
-        url = url.toString()
-        if url.startswith('trace:'):
-            TracebackDialog(self, self.simOutView, url[6:]).show()
+        if url.scheme() == 'trace':
+            TracebackDialog(self, self.simOutView, url.path()).show()
 
     def on_simOutViewErrors_anchorClicked(self, url):
         self.on_simOutView_anchorClicked(url)
