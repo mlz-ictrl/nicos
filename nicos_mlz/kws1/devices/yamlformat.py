@@ -63,8 +63,8 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         sample = session.experiment.sample
         meas['sample']['comment'] = sample.comment
         meas['sample']['timefactor'] = sample.timefactor
-        meas['sample']['thickness'] = sample.thickness
-        meas['sample']['detoffset'] = sample.detoffset
+        meas['sample']['thickness'] = sample.thickness / 1000  # in m
+        meas['sample']['detoffset'] = sample.detoffset / 1000
 
         det1 = self._dict()
         det1['type'] = 'position_sensitive_detector'
