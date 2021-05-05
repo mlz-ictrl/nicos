@@ -27,9 +27,9 @@
 import numpy as np
 
 from nicos import session
-from nicos.core import SIMULATION, SLAVE, Attach, Moveable, Override, Param, \
-    PositionError, UsageError, dictof, floatrange, limits, oneof, requires, \
-    status, tupleof
+from nicos.core import ADMIN, SIMULATION, SLAVE, Attach, Moveable, Override, \
+    Param, PositionError, UsageError, dictof, floatrange, limits, oneof, \
+    requires, status, tupleof
 from nicos.devices.generic import Axis
 from nicos.devices.generic.sequence import SeqCall, SeqDev as NicosSeqDev, \
     SequencerMixin
@@ -233,7 +233,7 @@ class BeamStop(SequencerMixin, Moveable):
         self._attached_xaxis.start(target[0])
         self._attached_yaxis.start(target[1])
 
-    #@requires(level='admin')
+    # @requires(level=ADMIN)
     @requires()
     def doWriteShape(self, target):
         if self._seq_is_running():
@@ -288,5 +288,5 @@ class BeamStop(SequencerMixin, Moveable):
         self._seq_stopflag = True
         self._setROParam('fixed', 'Error during sequence (step %r), needs '
                                   'manual fixing!' % step)
-        self._setROParam('fixedby', ('admin', 20))
+        self._setROParam('fixedby', (ADMIN, 20))
         raise exc_info[1]

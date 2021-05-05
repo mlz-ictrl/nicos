@@ -26,8 +26,8 @@
 
 import struct
 
-from nicos.core import SIMULATION, Attach, Override, Param, Readable, dictof, \
-    oneof, requires, status, usermethod
+from nicos.core import ADMIN, SIMULATION, Attach, Override, Param, Readable, \
+    dictof, oneof, requires, status, usermethod
 from nicos.devices.tango import PyTangoDevice
 
 
@@ -91,7 +91,7 @@ class VSDIO(PyTangoDevice, Readable):
         value = struct.unpack('<2H', struct.pack('=I', value))
         self._dev.WriteOutputWords(tuple([self.address + addr]) + value)
 
-    @requires(level='admin')
+    @requires(level=ADMIN)
     def _load_factory(self):
         # QAD should be
         # pwd([0xFFFF,2])

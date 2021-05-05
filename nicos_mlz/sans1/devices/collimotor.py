@@ -29,7 +29,7 @@ import time
 from numpy import int32, uint16, uint32
 
 from nicos import session
-from nicos.core import SIMULATION, Attach, CommunicationError, \
+from nicos.core import ADMIN, SIMULATION, USER, Attach, CommunicationError, \
     ConfigurationError, HasTimeout, InvalidValueError, Moveable, MoveError, \
     Override, Param, PositionError, UsageError, floatrange, intrange, \
     none_or, oneof, oneofdict, requires, status, usermethod
@@ -541,7 +541,7 @@ class Sans1ColliMotor(Sans1ColliBase, CanReference, SequencerMixin, HasTimeout, 
             return max(status.BUSY, _status[0]), _status[1]
         return _status
 
-    @requires(level='admin')
+    @requires(level=ADMIN)
     def doReference(self):
         if self._seq_is_running():
             raise MoveError(self, 'Cannot reference a moving device!')
@@ -672,7 +672,7 @@ class Sans1ColliMotorAllParams(Sans1ColliMotor):
     # more advanced stuff: setting/getting parameters
     # only to be used manually at the moment
     @usermethod
-    @requires(level='user')
+    @requires(level=USER)
     def readParameter(self, index):
         self.log.debug('readParameter %d', index)
         try:
@@ -711,7 +711,7 @@ class Sans1ColliMotorAllParams(Sans1ColliMotor):
         return self._readReturn()
 
     @usermethod
-    @requires(level='admin')
+    @requires(level=ADMIN)
     def writeParameter(self, index, value, store2eeprom=False):
         self.log.debug('writeParameter %d:0x%04x', index, value)
         if store2eeprom:

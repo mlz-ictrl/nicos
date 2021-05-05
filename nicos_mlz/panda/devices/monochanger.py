@@ -25,7 +25,7 @@
 """PANDA Monochromator changer hardware classes. FOR TESTING ONLY!"""
 
 from nicos import session
-from nicos.core import Moveable, Readable, status, usermethod
+from nicos.core import ADMIN, Moveable, Readable, status, usermethod
 from nicos.core.device import HasOffset
 from nicos.core.errors import MoveError, NicosError, UsageError
 from nicos.core.params import Attach, Override, Param, oneof
@@ -138,7 +138,7 @@ class Changer(BaseSequencer):
     }
 
     parameter_overrides = {
-        'requires': Override(default={'level': 'admin'}),
+        'requires': Override(default={'level': ADMIN}),
     }
 
     positions = ['101', '110', '011', '111']  # CounterClockwise

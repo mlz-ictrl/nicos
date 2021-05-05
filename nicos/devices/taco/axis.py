@@ -29,8 +29,8 @@ import TACOStates  # pylint: disable=import-error
 from Motor import Motor as TACOMotor  # pylint: disable=import-error
 
 from nicos import session
-from nicos.core import SLAVE, Attach, ModeError, Moveable, Param, anytype, \
-    oneof, requires, status, tupleof, usermethod
+from nicos.core import ADMIN, SLAVE, Attach, ModeError, Moveable, Param, \
+    anytype, oneof, requires, status, tupleof, usermethod
 from nicos.devices.abstract import Axis as AbstractAxis, CanReference
 from nicos.devices.generic.sequence import SeqCall, SeqDev, SeqSleep, \
     SequencerMixin
@@ -81,7 +81,7 @@ class Axis(CanReference, TacoDevice, AbstractAxis):
         self._taco_reset(self._dev, self.resetcall)
 
     @usermethod
-    @requires(level='admin', helpmsg='use adjust() to set a new offset')
+    @requires(level=ADMIN, helpmsg='use adjust() to set a new offset')
     def setPosition(self, pos):
         """Sets the current position of the axis to the target.
 
