@@ -24,14 +24,13 @@
 
 import numpy
 
+from nicos.clients.flowui import uipath
+from nicos.clients.flowui.panels import get_icon
 from nicos.clients.gui.panels.live import LiveDataPanel as DefaultLiveDataPanel
-from nicos.guisupport.livewidget import LiveWidget as DefaultLiveWidget, \
-    LiveWidget1D as DefaultLiveWidget1D, AXES
+from nicos.guisupport.livewidget import AXES, \
+    LiveWidget as DefaultLiveWidget, LiveWidget1D as DefaultLiveWidget1D
 from nicos.guisupport.qt import QComboBox, QGroupBox, QListWidget, QSize, Qt, \
     QToolBar, QVBoxLayout, pyqtSignal
-
-from nicos_ess.gui import uipath
-from nicos_ess.gui.panels import get_icon
 
 
 class LiveDataPanel(DefaultLiveDataPanel):
@@ -199,7 +198,7 @@ class MultiLiveDataPanel(LiveDataPanel):
     widget
     """
     panelName = 'MultidetectorLiveDataView'
-    ui = f'{uipath}/panels/live.ui'
+    ui = f'{uipath}/panels/ui_files/live.ui'
 
     def __init__(self, parent, client, options):
         self.fileList = QListWidget()

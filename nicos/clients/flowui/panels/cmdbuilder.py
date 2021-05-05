@@ -24,12 +24,11 @@
 
 """NICOS GUI single cmdlet command input."""
 
+from nicos.clients.flowui import uipath
+from nicos.clients.flowui.panels import get_icon
 from nicos.clients.gui.panels.cmdbuilder import \
     CommandPanel as DefaultCommandPanel
 from nicos.guisupport.qt import pyqtSlot
-
-from nicos_ess.gui import uipath
-from nicos_ess.gui.panels import get_icon
 
 
 class CommandPanel(DefaultCommandPanel):

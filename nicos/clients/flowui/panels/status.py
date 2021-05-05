@@ -22,10 +22,9 @@
 #
 # *****************************************************************************
 
+from nicos.clients.flowui.panels import get_icon
 from nicos.clients.gui.panels.status import \
     ScriptStatusPanel as DefaultScriptStatusPanel
-
-from nicos_ess.gui.panels import get_icon
 
 
 class ScriptStatusPanel(DefaultScriptStatusPanel):

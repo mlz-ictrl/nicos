@@ -24,9 +24,9 @@
 
 """NICOS GUI experiment setup window."""
 
+from nicos.clients.flowui.panels.setup_panel import ExpPanel as EssExpPanel
 from nicos.guisupport.qt import QDialog, QFileDialog
 
-from nicos_ess.gui.panels.setup_panel import ExpPanel as EssExpPanel
 from nicos_sinq.gui import uipath
 
 

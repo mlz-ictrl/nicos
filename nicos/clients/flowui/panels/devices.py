@@ -24,13 +24,12 @@
 
 """NICOS GUI panel with a list of all devices."""
 
+from nicos.clients.flowui.panels import get_icon
 from nicos.clients.gui.panels.devices import \
     DevicesPanel as DefaultDevicesPanel
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
     WARN
 from nicos.guisupport.qt import QCheckBox, Qt
-
-from nicos_ess.gui.panels import get_icon
 
 
 class DevicesPanel(DefaultDevicesPanel):
@@ -76,8 +75,8 @@ class DevicesPanel(DefaultDevicesPanel):
     def _hide_top_level(self):
         for itemid in range(self.tree.topLevelItemCount()):
             topitem = self.tree.topLevelItem(itemid)
-            hide = all([topitem.child(devid).isHidden() for devid in range(
-                topitem.childCount())])
+            hide = all((topitem.child(devid).isHidden() for devid in range(
+                topitem.childCount())))
             if hide:
                 topitem.setHidden(True)
 

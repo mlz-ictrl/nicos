@@ -22,36 +22,21 @@
 #
 # *****************************************************************************
 
-from enum import Enum
-from nicos.guisupport.qt import pyqtProperty
+from nicos.clients.gui.widgets.lineedit import \
+    CommandLineEdit as CommandLineEditBase
+
+from .utils import State, StyleSelector, refresh_widget
 
 
-class State(Enum):
-    DEFAULT, BUSY = range(2)
-
-
-class StyleSelector:
+class CommandLineEdit(CommandLineEditBase, StyleSelector):
     """
-    A class that encapsulates the state used for stylesheet selection
-    in the relevant qss files.
+    This widget extends from CommandLineEdit in NICOS core and overrides all
+    functions that are using widget palette dependent functions in the base
+    class. Stylesheets is the preferred choice in NICOS ESS.
     """
 
-    def __init__(self):
-        self.state = State.DEFAULT
-
-    @pyqtProperty(str)
-    def state(self):
-        return self._state
-
-    @state.setter
-    def state(self, value):
-        self._state = str(value).split(".")[-1]
-
-
-def refresh_widget(widget):
-    """
-    Function that correctly updates the widget with a new stylesheet.
-    """
-    widget.style().unpolish(widget)
-    widget.style().polish(widget)
-    widget.update()
+    def setStatus(self, status):
+        CommandLineEditBase.setStatus(self, status)
+        self.state = State.BUSY if status != 'idle' \
+            else State.DEFAULT
+        refresh_widget(self)

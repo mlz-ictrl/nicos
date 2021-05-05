@@ -220,7 +220,7 @@
             <widget class="QLineEdit" name="expTitle"/>
            </item>
            <item row="4" column="1">
-            <widget class="QLineEdit" name="localContact"/>
+            <widget class="QLineEdit" name="localContacts"/>
            </item>
            <item row="10" column="1">
             <widget class="QPlainTextEdit" name="notifEmails">
@@ -291,6 +291,16 @@
        <widget class="QDialogButtonBox" name="buttonBox">
         <property name="standardButtons">
          <set>QDialogButtonBox::Apply</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="applyWarningLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>

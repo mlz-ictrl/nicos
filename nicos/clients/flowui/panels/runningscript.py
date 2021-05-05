@@ -24,12 +24,11 @@
 
 import os
 
+from nicos.clients.flowui import uipath
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QPixmap, Qt
 from nicos.protocols.daemon import STATUS_RUNNING
-
-from nicos_ess.gui import uipath
 
 
 def decolor_logo(pixmap, color):

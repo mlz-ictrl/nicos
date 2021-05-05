@@ -24,15 +24,14 @@
 
 """NICOS GUI experiment setup window."""
 
+from nicos.clients.flowui import uipath
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import ExpPanel as DefaultExpPanel, \
-    SetupsPanel as DefaultSetupsPanel
-from nicos.clients.gui.panels.setup_panel import combineUsers, splitUsers
+    SetupsPanel as DefaultSetupsPanel, combineUsers, splitUsers
 from nicos.clients.gui.utils import loadUi
 from nicos.core import ConfigurationError
-from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, Qt, pyqtSignal, \
-    pyqtSlot
-from nicos_ess.gui import uipath
+from nicos.guisupport.qt import QDialogButtonBox, QMessageBox, Qt, \
+    pyqtSignal, pyqtSlot
 
 
 class ExpPanel(DefaultExpPanel):

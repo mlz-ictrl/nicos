@@ -22,43 +22,55 @@
 #
 # *****************************************************************************
 
-from nicos.clients.gui.panels.history import \
-    HistoryPanel as DefaultHistoryPanel
+
+from nicos.clients.flowui.panels import get_icon
+from nicos.clients.gui.panels.scans import ScansPanel as DefaultScansPanel
 from nicos.guisupport.qt import QActionGroup, QCheckBox, QComboBox, QFrame, \
     QHBoxLayout, QToolBar, QWidgetAction
 
-from nicos_ess.gui.panels import get_icon
 
-
-class HistoryPanel(DefaultHistoryPanel):
-
+class ScansPanel(DefaultScansPanel):
     def __init__(self, parent, client, options):
-        DefaultHistoryPanel.__init__(self, parent, client, options)
-        self.layout().setMenuBar(self.setPanelToolbar())
+        DefaultScansPanel.__init__(self, parent, client, options)
+        self.bars = self.createPanelToolbar()
+        for index, bar in enumerate(self.bars):
+            self.layout().insertWidget(index, bar)
         self.set_icons()
 
-    def setPanelToolbar(self):
-        bar = QToolBar('History viewer')
-        bar.addAction(self.actionNew)
-        bar.addAction(self.actionEditView)
-        bar.addSeparator()
+    def set_icons(self):
+        self.actionPrint.setIcon(get_icon('print-24px.svg'))
+        self.actionSavePlot.setIcon(get_icon('save-24px.svg'))
+        self.actionUnzoom.setIcon(get_icon('zoom_out-24px.svg'))
+        self.actionClose.setIcon(get_icon('zoom_out-24px.svg'))
+
+    def createPanelToolbar(self):
+        bar = QToolBar('Scans')
         bar.addAction(self.actionSavePlot)
         bar.addAction(self.actionPrint)
-        bar.addAction(self.actionSaveData)
         bar.addSeparator()
-        bar.addAction(self.actionUnzoom)
+        bar.addAction(self.actionXAxis)
+        bar.addAction(self.actionYAxis)
+        bar.addAction(self.actionNormalized)
+        bar.addSeparator()
+        bar.addAction(self.actionLogXScale)
         bar.addAction(self.actionLogScale)
+        bar.addAction(self.actionUnzoom)
         bar.addSeparator()
         bar.addAction(self.actionAutoScale)
         bar.addAction(self.actionScaleX)
         bar.addAction(self.actionScaleY)
+        bar.addAction(self.actionLegend)
+        bar.addAction(self.actionErrors)
+        bar.addAction(self.actionResetPlot)
+        bar.addAction(self.actionDeletePlot)
         bar.addSeparator()
-        bar.addAction(self.actionResetView)
-        bar.addAction(self.actionDeleteView)
-        bar.addSeparator()
-        bar.addAction(self.actionFitPeak)
-        wa = QWidgetAction(bar)
-        self.fitPickCheckbox = QCheckBox(bar)
+        bar.addAction(self.actionAutoDisplay)
+        bar.addAction(self.actionCombine)
+
+        fitbar = QToolBar('Scan fitting')
+        fitbar.addAction(self.actionFitPeak)
+        wa = QWidgetAction(fitbar)
+        self.fitPickCheckbox = QCheckBox(fitbar)
         self.fitPickCheckbox.setText('Pick')
         self.fitPickCheckbox.setChecked(True)
         self.actionPickInitial.setChecked(True)
@@ -67,11 +79,11 @@ class HistoryPanel(DefaultHistoryPanel):
         layout = QHBoxLayout()
         layout.setContentsMargins(10, 0, 10, 0)
         layout.addWidget(self.fitPickCheckbox)
-        frame = QFrame(bar)
+        frame = QFrame(fitbar)
         frame.setLayout(layout)
         wa.setDefaultWidget(frame)
-        bar.addAction(wa)
-        ag = QActionGroup(bar)
+        fitbar.addAction(wa)
+        ag = QActionGroup(fitbar)
         ag.addAction(self.actionFitPeakGaussian)
         ag.addAction(self.actionFitPeakLorentzian)
         ag.addAction(self.actionFitPeakPV)
@@ -81,29 +93,22 @@ class HistoryPanel(DefaultHistoryPanel):
         ag.addAction(self.actionFitSigmoid)
         ag.addAction(self.actionFitLinear)
         ag.addAction(self.actionFitExponential)
-        wa = QWidgetAction(bar)
-        self.fitComboBox = QComboBox(bar)
+        wa = QWidgetAction(fitbar)
+        self.fitComboBox = QComboBox(fitbar)
         for a in ag.actions():
             itemtext = a.text().replace('&', '')
             self.fitComboBox.addItem(itemtext)
             self.fitfuncmap[itemtext] = a
         self.fitComboBox.currentIndexChanged.connect(
-            self.on__fitComboBox_currentIndexChanged)
+            self.on_fitComboBox_currentIndexChanged)
         wa.setDefaultWidget(self.fitComboBox)
-        bar.addAction(wa)
-        bar.addSeparator()
-        bar.addAction(self.actionFitArby)
-        self.bar = bar
-        self.actionFitLinear.trigger()
-        return bar
+        fitbar.addAction(wa)
+        fitbar.addSeparator()
+        fitbar.addAction(self.actionFitArby)
 
-    def set_icons(self):
-        self.actionNew.setIcon(get_icon('add_circle_outline-24px.svg'))
-        self.actionEditView.setIcon(get_icon('edit-24px.svg'))
-        self.actionSavePlot.setIcon(get_icon('save-24px.svg'))
-        self.actionPrint.setIcon(get_icon('print-24px.svg'))
-        self.actionUnzoom.setIcon(get_icon('zoom_out-24px.svg'))
-        self.actionSaveData.setIcon(get_icon('archive-24px.svg'))
+        bars = [bar, fitbar]
+
+        return bars
 
     def getToolbars(self):
         return []

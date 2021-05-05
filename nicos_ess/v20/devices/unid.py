@@ -22,8 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos.core import ConfigurationError, Measurable, Param
-from nicos.core import oneof, status
+from nicos.core import ConfigurationError, Measurable, Param, oneof, status
 
 try:
     from daqmw.daqmwcom import daqmwcom

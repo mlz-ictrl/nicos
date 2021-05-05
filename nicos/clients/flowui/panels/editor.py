@@ -24,11 +24,10 @@
 
 """NICOS GUI user editor window."""
 
+from nicos.clients.flowui.panels import get_icon
 from nicos.clients.gui.panels.editor import EditorPanel as DefaultEditorPanel
 from nicos.clients.gui.utils import showToolText
 from nicos.guisupport.qt import QToolBar
-
-from nicos_ess.gui.panels import get_icon
 
 
 class EditorPanel(DefaultEditorPanel):

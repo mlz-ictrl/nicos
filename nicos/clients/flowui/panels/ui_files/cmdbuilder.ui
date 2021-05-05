@@ -262,7 +262,7 @@
   <customwidget>
    <class>CommandLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>nicos_ess.gui.widgets.lineedit.h</header>
+   <header>nicos.clients.flowui.widgets.lineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>
