@@ -85,6 +85,11 @@ devices = {
         fmtstr = '%.1f',
         unit = 'ml/min',
     ),
+    '%s_coldhead' % setupname : device('nicos.devices.tango.NamedDigitalOutput',
+        description = 'Compressor for Coldhead (should be ON)',
+        tangodevice = plc_tango_base + 'coldhead',
+        mapping = {'on': 1, 'off': 0},
+    ),
 }
 
 alias_config = {
