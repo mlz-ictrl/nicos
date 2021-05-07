@@ -29,9 +29,10 @@ import numpy as np
 from nicos.core import Attach, LimitError, Override, Param
 from nicos.core.params import floatrange, tupleof
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.generic import VirtualMotor
 from nicos.devices.tango import PowerSupply
 from nicos.utils import lazy_property
+
+from nicos_mlz.panda.devices.guidefield import AlphaStorage
 
 ###############################################################################
 # configuration
@@ -64,23 +65,6 @@ class VectorCoil(PowerSupply):
                                     settable=True, default=1., type=float,
                                     unit='A', category='general'),
     }
-
-
-class AlphaStorage(VirtualMotor):
-    r"""Storage for the spectrometer's \\alpha value."""
-    parameter_overrides = {
-        'speed': Override(default=0.),
-    }
-
-    _callback = None
-
-    def doStart(self, pos):
-        VirtualMotor.doStart(self, pos)
-        if self._callback is not None:
-            try:
-                self._callback()  # pylint: disable=not-callable
-            except Exception as e:
-                self.log.error('Calling callback failed, %r', e, exc=1)
 
 
 class GuideField(MappedMoveable):
