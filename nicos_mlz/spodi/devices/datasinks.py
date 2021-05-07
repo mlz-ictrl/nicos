@@ -153,9 +153,9 @@ class CaressHistogramReader(ImageFileReader):
 
     @classmethod
     def fromfile(cls, filename):
-        sizes = (80, 256)
         ndim = 254
         ndet = 80
+        sizes = (ndet, ndim)
         corrData = DataParser.ReadCorrectionFile(
             findResource(cls.correctionfile))
         with open(filename, 'r', encoding='utf-8') as f:

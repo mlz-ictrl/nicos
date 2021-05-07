@@ -609,7 +609,7 @@ class LiveDataPanel(Panel):
             if arrays is None:
                 return
 
-            # put everythin into the cache
+            # put everything into the cache
             uid = self.getIndexedUID(idx)
             self._datacache[uid]['dataarrays'] = arrays
 
