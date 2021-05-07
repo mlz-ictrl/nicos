@@ -8,7 +8,7 @@ devices = dict(
     nvslift_m = device('nicos.devices.tango.Motor',
         description = 'Neutron selector lift motor',
         tangodevice = tango_base + 'lift/motor',
-        unit = 'mm',
+        # unit = 'mm',
         lowlevel = True,
     ),
     nvslift_c = device('nicos.devices.tango.Sensor',
@@ -35,6 +35,6 @@ devices = dict(
         precision = 1.0,
         blockingmove = False,
         lowlevel = False,
-        unit = '',
+        unit = 'mm',
     ),
 )

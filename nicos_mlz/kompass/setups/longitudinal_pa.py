@@ -3,7 +3,7 @@ description = 'Kompass setup for longitudinal polarisation analysis mode'
 group = 'optional'
 
 includes = []
-excludes = ['kepco', 'polarized']
+excludes = ['kepco']
 tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/'
 
 devices = dict(
