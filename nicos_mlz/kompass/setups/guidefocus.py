@@ -47,8 +47,8 @@ devices = dict(
         description = 'Neutron guide selector',
         moveables = ['sguide', 'lguide'],
         mapping = {
-            'straight': [205.037, 207.0],
-            'focussing': [0., -2.],
+            'straight': [205.037, 208.5],
+            'focussing': [0., -3.5],
         },
         fallback = 'undefined',
         fmtstr = '%s',
