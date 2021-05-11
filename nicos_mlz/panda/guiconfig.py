@@ -52,4 +52,8 @@ tools = [
     tool('Emergency stop button', 'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=False),
     cmdtool('Marche (Server control)', 'marche-gui'),
+    cmdtool('Ana Block control', ['sh', '-c', 'quango-mlzgui -m panda/analyzer/plc_block{1,2,3,4,5} + '
+                                  'panda/analyzer/plc_block{6,7,8,9,10} + '
+                                  'panda/analyzer/plc_block{11,12,13,14,15} + '
+                                  'panda/analyzer/plc_block{16,17,18}']),
 ]
