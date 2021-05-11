@@ -23,6 +23,10 @@ Axis-related classes
 Mapping device classes
 ----------------------
 
+.. autoclass:: TransformedReadable()
+
+.. autoclass:: TransformedMoveable()
+
 .. autoclass:: MappedReadable()
 
 .. autoclass:: MappedMoveable()

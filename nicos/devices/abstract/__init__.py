@@ -126,12 +126,81 @@ class CanReference(DeviceMixinBase):
         raise NotImplementedError('implement doReference for concrete devices')
 
 
+class TransformedReadable(Readable):
+    """Base class for all read-only value-transformed devices.
+
+    Subclasses need to define their attached devices and implement a
+    `_readRaw()` method, returning (raw) device values.
+    The transformation should be done in the `_mapReadValue()` function that is
+    required to be implemented.
+
+    .. automethod:: _readRaw
+
+    .. automethod:: _mapReadValue
+    """
+
+    def doRead(self, maxage=0):
+        return self._mapReadValue(self._readRaw(maxage))
+
+    def _mapReadValue(self, value):
+        """Hook for integration of transformed devices.
+
+        This method is called with the value returned by `._readRaw()` and
+        should map the raw value to the transformed value.
+        """
+        raise ProgrammingError(self, 'Somebody please implement a proper '
+                               '_readMapValue method!')
+
+    def _readRaw(self, maxage=0):
+        """Read the unmapped/raw value from the device.
+
+        Must be implemented in derived classes!
+        """
+        raise ProgrammingError(self, 'Somebody please implement a proper '
+                               '_readRaw or doRead method!')
+
+
+class TransformedMoveable(TransformedReadable, Moveable):
+    """Base class for all moveable value-transformed devices
+
+    Subclasses need to define their attached devices and implement `._readRaw()`
+    and `._startRaw()`, operating on raw values.
+    The `_mapTargetValue()` is needed and should do the equivalent of the inverse
+    `_mapReadValue()` function (or whatever is appropriate for the device).
+
+    .. automethod:: _startRaw
+
+    .. automethod:: _mapTargetValue
+    """
+
+
+    def doStart(self, target):
+        return self._startRaw(self._mapTargetValue(target))
+
+    def _mapTargetValue(self, target):
+        """Hook for integration of transformed devices.
+
+        This method is called to get a value to pass to `._startRaw()` and
+        should map the target value to a raw value.
+        """
+        raise ProgrammingError(self, 'Somebody please implement a proper '
+                               '_mapTargetValue method!')
+
+
+    def _startRaw(self, target):
+        """Initiate movement to the unmapped/raw value from the device.
+
+        Must be implemented in derived classes!
+        """
+        raise ProgrammingError(self, 'Somebody please implement a proper '
+                               '_startRaw or doStart method!')
+
 # MappedReadable and MappedMoveable operate (via read/start) on a set of
 # predefined values which are mapped via the mapping parameter onto
 # device-specific (raw) values.
 
-class MappedReadable(HasMapping, Readable):
-    """Base class for all read-only value-mapped devices.
+class MappedReadable(HasMapping, TransformedReadable):
+    """Base class for all read-only (discrete) value-mapped devices.
 
     (also called selector or multiplexer/mux).
 
@@ -170,9 +239,6 @@ class MappedReadable(HasMapping, Readable):
         except PositionError as e:
             return status.NOTREACHED, str(e)
 
-    def doRead(self, maxage=0):
-        return self._mapReadValue(self._readRaw(maxage))
-
     def _mapReadValue(self, value):
         """Hook for integration of mapping/switcher devices.
 
@@ -189,17 +255,9 @@ class MappedReadable(HasMapping, Readable):
         else:
             raise PositionError(self, 'unknown unmapped position %r' % value)
 
-    def _readRaw(self, maxage=0):
-        """Read the unmapped/raw value from the device.
 
-        Must be implemented in derived classes!
-        """
-        raise ProgrammingError(self, 'Somebody please implement a proper '
-                               '_readRaw or doRead method!')
-
-
-class MappedMoveable(MappedReadable, Moveable):
-    """Base class for all moveable value-mapped devices
+class MappedMoveable(MappedReadable, TransformedMoveable):
+    """Base class for all moveable (discrete) value-mapped devices
 
     Subclasses need to define their attached devices and implement `._readRaw()`
     and `._startRaw()`, operating on raw values.  Subclasses should also
@@ -217,9 +275,6 @@ class MappedMoveable(MappedReadable, Moveable):
             self.valuetype = oneof(*sorted(self.mapping, key=num_sort))
         MappedReadable.doInit(self, mode)
 
-    def doStart(self, target):
-        return self._startRaw(self._mapTargetValue(target))
-
     def _mapTargetValue(self, target):
         """Hook for integration of mapping/switcher devices.
 
@@ -236,11 +291,3 @@ class MappedMoveable(MappedReadable, Moveable):
                                         'this device; valid positions are %s'
                                         % (target, positions))
         return self.mapping.get(target, target)
-
-    def _startRaw(self, target):
-        """Initiate movement to the unmapped/raw value from the device.
-
-        Must be implemented in derived classes!
-        """
-        raise ProgrammingError(self, 'Somebody please implement a proper '
-                               '_startRaw or doStart method!')
