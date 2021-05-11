@@ -60,7 +60,7 @@ tools = [
          parts=['sample', 'selector', 'detector', 'shutter', 'chopper', 'collimation',
                 'lenses', 'polarizer', 'daq']),
     cmdtool('Server control (Marche)', 'marche-gui'),
-    cmdtool('GE detector status', 'nicos-monitor -S monitor-gedet'),
+    cmdtool('GE detector status', ['nicos-monitor', '-S', 'monitor-gedet']),
     tool('Sample environment logbooks',
          'nicos.clients.gui.tools.website.WebsiteTool',
          url='https://wiki.frm2.tum.de/se:jcns:log:index'),
