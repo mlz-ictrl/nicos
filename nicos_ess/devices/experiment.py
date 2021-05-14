@@ -27,7 +27,7 @@
 import os
 
 from yuos_query.exceptions import BaseYuosException
-from yuos_query.proposal_system import YuosClient
+from yuos_query.yuos_client import YuosClient
 
 from nicos.core import Override, Param
 from nicos.devices.experiment import Experiment
@@ -50,8 +50,17 @@ class EssExperiment(Experiment):
         'zipdata': Override(default=False),
     }
 
+    def doInit(self, mode):
+        Experiment.doInit(self, mode)
+        self._client = None
+        # Get secret from the environment
+        token = os.environ.get('YUOS_TOKEN')
+        if token:
+            self._client = YuosClient(self.server_url, token, self.instrument)
+
     def _canQueryProposals(self):
-        return True
+        if self._client:
+            return True
 
     def _queryProposals(self, proposal=None, kwds=None):
         if not proposal:
@@ -77,11 +86,8 @@ class EssExperiment(Experiment):
         return [result]
 
     def _do_query(self, proposal):
-        # Get secret from the environment
-        token = os.environ['YUOS_TOKEN']
         try:
-            client = YuosClient(self.server_url, token)
-            return client.proposal_by_id(self.instrument, proposal)
+            return self._client.proposal_by_id(proposal)
         except BaseYuosException as error:
             self.log.error(f'{error}')
             raise
