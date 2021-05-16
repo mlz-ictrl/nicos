@@ -19,12 +19,26 @@ basename = (
     '%(detector)s_%(det.mode)s'
 )
 
+NAME_TEMPLATE = (
+    '%(pointcounter)08d_%(pointnumber)04d_'
+    '%(proposal)s_'
+    '%(session.experiment.sample.filename)s_'
+    'C%(resolution)s_'
+    'D%(detector)s_'
+    'L%(selector)s_'
+    'P%(polarizer)s_'
+    '%(det_img.mode)s.'
+    '%(session.instrument.name)s'
+)
+
 devices = dict(
     yamlformat = device('nicos_mlz.kws3.devices.yamlformat.YAMLFileSink',
         detectors = ['det'],
+        filenametemplate = [NAME_TEMPLATE + '.yaml'],
     ),
     binaryformat = device('nicos_mlz.kws1.devices.yamlformat.BinaryArraySink',
         detectors = ['det'],
+        filenametemplate = [NAME_TEMPLATE + '.array.gz'],
     ),
     det_img = device('nicos.devices.generic.DeviceAlias',
         alias = 'det_img_hrd',

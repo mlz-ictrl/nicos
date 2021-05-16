@@ -34,6 +34,12 @@ devices = dict(
         fallback = 'inbetween',
         precision = 25,
     ),
+    gedet_Tmax = device('nicos_mlz.kws1.devices.gedet.GEMaxTemperature',
+        description = 'highest of all 8-pack FPGA temperatures',
+        epts = [epname + '_T' for (epname, _) in eps],
+        unit = 'degC',
+        warnlimits = (0, 75),
+    ),
 
     gedet_power = device('nicos.devices.generic.MultiSwitcher',
         description = 'switches the GE detector 54V power supply',
