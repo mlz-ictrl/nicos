@@ -8,7 +8,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = None,
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'liveview'],
     notifiers = ['email'],
 )
 
@@ -53,4 +53,5 @@ devices = dict(
         path = None,
         minfree = 5,
     ),
+    liveview=device('nicos.devices.datasinks.LiveViewSink', ),
 )
