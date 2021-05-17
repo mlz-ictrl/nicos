@@ -30,7 +30,7 @@ import PyTango
 
 from nicos import session
 from nicos.core import Attach, Moveable, NicosTimeoutError, Override, Param, \
-    dictof, status, tupleof, usermethod
+    dictof, status, tupleof, usermethod, Readable
 from nicos.devices.epics import EpicsAnalogMoveable, EpicsReadable
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
 from nicos.devices.generic.switcher import Switcher
@@ -194,3 +194,25 @@ class HVEpicsAnalogMoveable(EpicsAnalogMoveable):
 class HVEpicsArrayReadable(EpicsReadable):
     def doRead(self, maxage=0):
         return self._get_pv('readpv')[:8].tolist()
+
+
+class GEMaxTemperature(Readable):
+    """Return the maximum of a number of 8-pack temperatures."""
+
+    attached_devices = {
+        'epts':   Attach('Individual 8-pack Temps', Readable, multiple=True),
+    }
+
+    def doStatus(self, maxage=0):
+        # do not forward individual 8-pack status
+        return status.OK, ''
+
+    def doRead(self, maxage=0):
+        maxtemp = 0
+        for dev in self._attached_epts:
+            try:
+                maxtemp = max(maxtemp, dev.read(maxage))
+            except Exception:
+                # if individual 8-packs are not reachable, ignore
+                pass
+        return maxtemp

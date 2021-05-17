@@ -34,9 +34,9 @@ main_window = tabbed(
     ('Device Plotting', panel('nicos.clients.gui.panels.history.HistoryPanel')),
     ('Logbook', panel('nicos.clients.gui.panels.elog.ELogPanel')),
     ('Live display', panel('nicos.clients.gui.panels.live.LiveDataPanel',
-                           instrument='dns')),
+                           detectors=['det'])),
     ('Live display (PSD)', panel('nicos.clients.gui.panels.live.LiveDataPanel',
-                           instrument='dnspsd')),
+                           detectors=['qm_det'])),
 )
 
 windows = []
