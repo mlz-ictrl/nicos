@@ -6,7 +6,7 @@ set +e
 PYFILESCHANGED=$(~/tools2/bin/changedfiles --py)
 if [[ -n "$PYFILESCHANGED" ]] ; then
     set -o pipefail
-    PYTHONPATH=.:${PYTHONPATH} isort -c -df -ns __init__.py $PYFILESCHANGED | tee isort_all.txt
+    PYTHONPATH=.:${PYTHONPATH} isort -c --diff $PYFILESCHANGED | tee isort_all.txt
     res=$?
     set +o pipefail
 else
