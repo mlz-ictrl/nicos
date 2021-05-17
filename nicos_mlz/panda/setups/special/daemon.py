@@ -7,6 +7,8 @@ devices = dict(
         instrument = 'PANDA',
         ghosthost = 'ghost.mlz-garching.de',
         aliases = {
+            'aschneid': ('astrid.schneidewind@frm2.tum.de', 'admin'),
+            'cfranz': ('c.franz@fz-juelich.de', 'admin'),
         },
     ),
     Auth = device('nicos.services.daemon.auth.list.Authenticator',

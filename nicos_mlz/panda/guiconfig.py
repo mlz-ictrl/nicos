@@ -29,8 +29,7 @@ windows = [
     window('Logbook', 'table', panel('nicos.clients.gui.panels.elog.ELogPanel')),
     window('Log files', 'table', panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
     window('Errors', 'errors', panel('nicos.clients.gui.panels.errors.ErrorPanel')),
-    window('Camera', 'live', panel('nicos.clients.gui.panels.live.LiveDataPanel',
-                                   instrument='poli')),
+    window('Camera', 'live', panel('nicos.clients.gui.panels.live.LiveDataPanel')),
     window('Pandora', 'editor', panel('nicos_mlz.panda.gui.mtt_manual.MTTManualPanel')),
 ]
 

@@ -2,28 +2,19 @@ description = 'setup for the NICOS watchdog'
 group = 'special'
 
 watchlist = [
-    dict(condition = 'ep01_t_value > 80 or ep02_t_value > 80 or ep03_t_value > 80 or '
-                     'ep04_t_value > 80 or ep05_t_value > 80 or ep06_t_value > 80 or '
-                     'ep07_t_value > 80 or ep08_t_value > 80 or ep09_t_value > 80 or '
-                     'ep10_t_value > 80 or ep11_t_value > 80 or ep12_t_value > 80 or '
-                     'ep13_t_value > 80 or ep14_t_value > 80 or ep15_t_value > 80 or '
-                     'ep16_t_value > 80 or ep17_t_value > 80 or ep18_t_value > 80',
-         message = 'Eight-pack temperature alarm, shutting down detector power',
-         scriptaction = 'immediatestop',
-         action = 'move("gedet_power", "off")',
-         gracetime = 10,
-         type = 'default',
-    ),
-    dict(condition = 'ep01_t_value > 78 or ep02_t_value > 78 or ep03_t_value > 78 or '
-                     'ep04_t_value > 78 or ep05_t_value > 78 or ep06_t_value > 78 or '
-                     'ep07_t_value > 78 or ep08_t_value > 78 or ep09_t_value > 78 or '
-                     'ep10_t_value > 78 or ep11_t_value > 78 or ep12_t_value > 78 or '
-                     'ep13_t_value > 78 or ep14_t_value > 78 or ep15_t_value > 78 or '
-                     'ep16_t_value > 78 or ep17_t_value > 78 or ep18_t_value > 78',
-         message = 'Eight-pack temperature alarm, reached 78deg. Will shut off at 80deg.',
-         gracetime = 1,
-         type = 'default',
-    ),
+        # TODO: reactivate!
+#    dict(condition = 'gedet_tmax_value > 80',
+#         message = 'Eight-pack temperature alarm, shutting down detector power',
+#         scriptaction = 'immediatestop',
+#         action = 'move("gedet_power", "off")',
+#         gracetime = 10,
+#         type = 'default',
+#    ),
+#    dict(condition = 'gedet_tmax_value > 78',
+#         message = 'Eight-pack temperature alarm, reached 78deg. Will shut off at 80deg.',
+#         gracetime = 1,
+#         type = 'default',
+#    ),
     dict(condition = 'det_kwscounting and '
                      'abs(selector_speed_value - selector_speed_target) > '
                      'selector_speed_precision',
