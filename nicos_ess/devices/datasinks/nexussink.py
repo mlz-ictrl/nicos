@@ -237,7 +237,7 @@ class NexusFileWriterSinkHandler(DataSinkHandler):
 
         filename = os.path.basename(self.dataset.filepaths[0])
         if self.sink.file_output_dir:
-            filename = os.path.join(self.sink.file_output_dir, filename)
+            filename = os.path.join(self.sink.get_output_file_dir(), filename)
 
         # Write the stop time if already known
         stop_time = 0
@@ -414,3 +414,6 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
                 dataset.finished,
                 dataset.metainfo,
             )
+
+    def get_output_file_dir(self):
+        return self.file_output_dir

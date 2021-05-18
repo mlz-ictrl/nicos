@@ -19,19 +19,22 @@
 #
 # Module authors:
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
 from time import time as currenttime
+from os import path
 
 import numpy
 
 from nicos import session
 from nicos.core import FINAL, LIVE
-from nicos.utils import byteBuffer
+from nicos.utils import byteBuffer, safeName
 
 from nicos_ess.devices.datasinks.imagesink import ImageKafkaDataSink, \
     ImageKafkaDataSinkHandler
+from nicos_sinq.devices.datasinks import SinqNexusFileSink
 
 
 class ImageKafkaWithLiveViewDataSinkHandler(ImageKafkaDataSinkHandler):
@@ -108,3 +111,14 @@ class ImageKafkaWithLiveViewDataSinkHandler(ImageKafkaDataSinkHandler):
 
 class ImageKafkaWithLiveViewDataSink(ImageKafkaDataSink):
     handlerclass = ImageKafkaWithLiveViewDataSinkHandler
+
+
+def to_snake(s):
+    return safeName(''.join(['_'+c.lower() if c.isupper() else c for c in
+                             s]).lstrip('_'))
+
+
+class AmorNexusFileSink(SinqNexusFileSink):
+    def get_output_file_dir(self):
+        return path.join(self.file_output_dir,
+                         to_snake(session.experiment.title))
