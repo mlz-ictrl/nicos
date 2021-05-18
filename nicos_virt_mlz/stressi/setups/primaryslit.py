@@ -1,4 +1,4 @@
-description = 'Primary slit CARESS HWB Devices'
+description = 'Primary slit devices'
 
 group = 'lowlevel'
 
