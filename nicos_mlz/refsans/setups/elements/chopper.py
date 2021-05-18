@@ -140,4 +140,18 @@ devices = dict(
         unit = 'degC',
         visibility = (),
     ),
+    core5 = device(code_base_analog,
+        description = 'Temperature of motorcoil 5',
+        device = 'Temperature1',
+        poly = [-10, 1],  #2021-04-13 07:26:25 QAD
+        unit = 'degC',
+        visibility = (),
+    ),
+    core6 = device(code_base_analog,
+        description = 'Temperature of motorcoil 6',
+        device = 'Temperature3',
+        poly = [-10, 1],  #2021-04-13 07:26:25 QAD
+        unit = 'degC',
+        visibility = (),
+    ),
 )
