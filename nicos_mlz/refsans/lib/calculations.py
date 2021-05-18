@@ -177,7 +177,6 @@ def chopper_config(wl_min=0.0,
                    gap=.1,
                    interface=True,
                    ):
-
     """
     Calculate the full chopper configuration
 
@@ -331,7 +330,7 @@ def chopper_config(wl_min=0.0,
     # The routine checks if the configuration found produces frame overlap.
     # This is in particular critical if 'default_full_open'
     # is chosen, since this SC2_mode does not modify the beam line extension
-    if (SC2_mode == 'default_full_open'):
+    if SC2_mode == 'default_full_open':
         if res['D'] > practical_SC2(wl_min=wl_min, wl_max=wl_max, D=D,
                                     disk2_pos=disk2_pos,
                                     SC2_full_open=SC2_full_open,
@@ -347,9 +346,9 @@ def chopper_config(wl_min=0.0,
     # parasitic band. If disk2 in not in virtual mode, the phases of discs 3
     # and 4 are adjusted to suppress all parasitic bands found, where possible.
     #
-    if (suppress_parasitic):
+    if suppress_parasitic:
 
-        if (disk2_pos == 6):
+        if disk2_pos == 6:
             res['angles'][1] = 300
             # Sets the phase of disk2 to the Matthias standard value
             res['disk2_Pos'] = 5
@@ -365,11 +364,11 @@ def chopper_config(wl_min=0.0,
 
         if len(parasitic_wl) > 0:
 
-            if (disk2_pos == 6):  # Optimization for disk2_pos = 6
+            if disk2_pos == 6:  # Optimization for disk2_pos = 6
 
                 # Gets the minimum wavelength of the first parasitic wavelength
                 # band
-                if (type(parasitic_wl[0]) is list):
+                if isinstance(parasitic_wl[0], list):
                     parasitic_wl = parasitic_wl[0][0]
                 else:
                     parasitic_wl = parasitic_wl[0]
@@ -406,9 +405,9 @@ def chopper_config(wl_min=0.0,
                 #
                 # where, this time, we have to impose that the phase of the
                 # neutron is null when it crosses SC1
-                phase_at_disk2pos = \
-                    np.mod(360 * freq * wl_max / h_m *
-                           (chopper_pos[res['disk2_Pos']] - d_SCc), 360)
+                phase_at_disk2pos = np.mod(
+                    360 * freq * wl_max / h_m *
+                    (chopper_pos[res['disk2_Pos']] - d_SCc), 360)
 
                 if phase_at_disk2pos < res['angles'][1]:
                     # The wl_max may not be provided. Evaluates the new value
@@ -419,7 +418,7 @@ def chopper_config(wl_min=0.0,
                     wl_max_real = h_m / new_vl_max
                     res['wl_max'] = wl_max_real
 
-            elif (SC2_mode is not None):  # Optimization for disk2_pos < 6
+            elif SC2_mode is not None:  # Optimization for disk2_pos < 6
 
                 # In this case, since SC1 does not determine the wavelength
                 # band, an analytic approach for solving the problem does not
@@ -506,7 +505,7 @@ def chopper_config(wl_min=0.0,
             # parasitic wavelengths have not been found. If this happens for
             # disk2_Pos = 6, this means that virtual_6 may be achieved for
             # every disk2_pos value
-            if (disk2_pos == 6):
+            if disk2_pos == 6:
                 # Sets back the old values for disk2_pos and its phase
                 res['disk2_Pos'] = 6
                 # Sets the disc2 in the generic position 6
@@ -658,9 +657,9 @@ def chopper_parasitic(res,
     for i in range(0, 5, 2):
         # It operates on the phases of discs 2, 4, 6. The index i runs on the
         # elements of the phase_arr list
-        if (phase_arr[i] is not None):
+        if phase_arr[i] is not None:
             t = np.mod(phase_arr[i], 360)
-            if (t >= ch_deg[i]):
+            if t >= ch_deg[i]:
                 phase_opaques[i] = [t - ch_deg[i], t, -np.inf, -np.inf]
             else:
                 phase_opaques[i] = [0, t, t + 360 - ch_deg[i], 360]
@@ -670,9 +669,9 @@ def chopper_parasitic(res,
     for i in range(1, 5, 2):
         # It operates on the phases of discs 3 and 5. The index i runs on the
         # elements of the phase_arr list
-        if (phase_arr[i] is not None):
+        if phase_arr[i] is not None:
             t = np.mod(phase_arr[i], 360)
-            if (t < 360 - ch_deg[i]):
+            if t < 360 - ch_deg[i]:
                 phase_opaques[i] = [t, t + ch_deg[i], -np.inf, -np.inf]
             else:
                 phase_opaques[i] = [0, t + ch_deg[i] - 360, t, 360]
@@ -690,7 +689,7 @@ def chopper_parasitic(res,
     fact_ang = h_m * per / 360.0
     # factor to convert the wavelengths into phase velocity, in Å mm / deg
 
-    if (wl_start == 0):
+    if wl_start == 0:
         wl_start = wl_step
 
     wl = wl_start - wl_step
@@ -738,15 +737,15 @@ def chopper_parasitic(res,
                     ierr = 1  # Blocked neutron
                     break  # It is not necessary to verify the other discs
 
-            if ((ierr == 1) and (k == k_prev + 1) and (j == nmax_grad - 1)):
+            if (ierr == 1) and (k == k_prev + 1) and (j == nmax_grad - 1):
                 # The blocked neutron is the first appearing after a block of
                 # transmitted neutrons
-                if (wl_through[-1][0] != wl - wl_step):
+                if wl_through[-1][0] != wl - wl_step:
                     # It might be a bandwidth smaller than wl_step
                     wl_through[-1].append(wl - wl_step)
                     ph_through[-1].append(phase_min)
 
-            elif ((ierr == 0) and (k != k_prev + 1)):
+            elif (ierr == 0) and (k != k_prev + 1):
                 # The transmitted neutron is the first appearing after a block
                 # of blocked neutrons
                 wl_through.append([wl])
@@ -754,11 +753,11 @@ def chopper_parasitic(res,
                 k_prev = k
                 break  # It is not necessary to verify the other phases
 
-            elif ((ierr == 0) and (k == k_prev + 1)):
+            elif (ierr == 0) and (k == k_prev + 1):
                 # The passing neutron is in a block of transmitted neutrons
                 k_prev = k
                 phase_min = deg0
-                if (k == n_checks - 1):  # Last wavelength to be verified
+                if k == n_checks - 1:  # Last wavelength to be verified
                     wl_through[-1].append(wl)
                     ph_through[-1].append(deg0)
 
@@ -893,7 +892,6 @@ def practical_SC2(wl_min=0,
 
     # 'full_open' configuration uses, as 'default_full_open', the full aperture
     # of SC2 and, at the same time, adjust D to maximize the intensity
-
     # given the max opening of SC2 what is the minimal period from the open
     # period dT we calculate the rotation freq (deg/sec)
     dt_chopper = t_SC2c - t_SC2o
@@ -959,15 +957,13 @@ def practical_SC2(wl_min=0,
     # and it has to be increased (the maximum wavelength depends only on the
     # disk 1 - detector distance and therefore cannot be modified).
 
-    if (SC2_opening_single_frame > SC2_full_open):
-
+    if SC2_opening_single_frame > SC2_full_open:
         t_SC2o = t_SC2c - per_single_frame / (360 / SC2_full_open)
         ang_SC2_single_frame, SC2_opening_single_frame = \
             angles(t_SC2o, t_SC2c, freq_single_frame)
 
         wl_min_real = h_m * t_SC2o / d_SC2
         tof_min_single_frame = D * t_SC2o / d_SC2
-
     else:
         wl_min_real = wl_min
         tof_min_single_frame = tof_min
@@ -994,7 +990,6 @@ def practical_SC2(wl_min=0,
 
 
 def chopper_resolution(disk2_pos, D):
-
     """
     Returns the relative wavelength resolution in percentage
 
