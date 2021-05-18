@@ -72,6 +72,7 @@ chopper = [
     'chopper/wlmin',
     'chopper/wlmax',
     'chopper/gap',
+    'chopper/manner',
 ]
 
 Gonio = [

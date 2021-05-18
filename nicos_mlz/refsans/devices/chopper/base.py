@@ -68,24 +68,28 @@ class SeqFuzzyParam(SeqParam):
 class ChopperMaster(CanReference, BaseSequencer):
 
     valuetype = dictwith(
-        wlmin=float,
-        wlmax=float,
-        gap=float,
+        wlmin=floatrange(0, 30),
+        wlmax=floatrange(0, 30),
+        gap=floatrange(0, 100),
         chopper2_pos=intrange(1, 6),
         D=float,
+        manner=oneof('normal', 'parasitic'),
     )
 
     parameters = {
         'mode': Param('Chopper operation mode (normal, virtual6)',
                       type=oneof('normal_mode', 'virtual_disc2_pos_6'),
                       settable=False, category='status'),
-        'delay': Param('delay for Startsignal in Degree',
+        'manner': Param('Chopper interface mode (normal, parasitic)',
+                        type=oneof('normal', 'parasitic'),
+                        settable=True, category='status', default='normal'),
+        'delay': Param('Delay for start signal in deg',
                        type=floatrange(-360, 360), settable=True,
                        userparam=True),
-        'wlmin': Param('Wavelength min',
+        'wlmin': Param('Mimimum of wavelength',
                        type=floatrange(0, 30), settable=True, userparam=True,
                        unit='AA', category='status'),
-        'wlmax': Param('Wavelength max',
+        'wlmax': Param('Maximum of wavelength',
                        type=floatrange(0, 30), settable=True, userparam=True,
                        unit='AA', category='status'),
         'dist': Param('flight path (distance chopper disc 1 to detector)',
@@ -99,7 +103,7 @@ class ChopperMaster(CanReference, BaseSequencer):
                             userparam=True, mandatory=False, volatile=True,
                             category='status'),
         'speed': Param('Chopper1 speed ... ',
-                       type=float, settable=False, userparam=True,
+                       type=floatrange(0), settable=False, userparam=True,
                        mandatory=False, volatile=True, category='status'),
     }
 
@@ -121,23 +125,45 @@ class ChopperMaster(CanReference, BaseSequencer):
                           self._attached_chopper5, self._attached_chopper6)
 
     def _generateSequence(self, target):
+        self.log.info('_generateSequence')
         self.wlmin, self.wlmax = limits((target.get('wlmin', self.wlmin),
                                          target.get('wlmax', self.wlmax)))
         self.dist = target.get('D', self.dist)
         self.gap = target.get('gap', self.gap)
+        self.manner = target.get('manner', self.manner)
         chopper2_pos = target.get('chopper2_pos')
 
-        speed, angles, _ = chopper_config(
-            self.wlmin, self.wlmax, self.dist, chopper2_pos, gap=self.gap)
+        self.log.info('analysis manner = %s', self.manner)
+        suppress_parasitic = self.manner == 'normal'
+        self.log.info('suppress_parasitic = %s', suppress_parasitic)
 
-        self.log.debug('speed: %d, angles = %s', speed, angles)
+        speed, angles, disc2_out, D_o, wl_min_o, wl_max_o = chopper_config(
+            self.wlmin, self.wlmax, self.dist, chopper2_pos, gap=self.gap,
+            suppress_parasitic=suppress_parasitic)
+        if speed is None:
+            line = 'None'
+        else:
+            line = 'speed: %d, ' % speed
+            line += 'disc2_out = %d,' % disc2_out
+            line += 'angles = %s ' % angles
+            line += 'D: %f, ' % D_o
+            line += 'wl_min: %f, ' % wl_min_o
+            line += 'wl_max: %f, ' % wl_max_o
+        self.log.info(line)
 
         seq = []
+        self.log.warning('BLOCKED')
+        # return seq
         shutter_pos = self._attached_shutter.read(0)
         shutter_ok = self._attached_shutter.status(0)[0] == status.OK
-        if chopper2_pos == 6:
+        # if chopper2_pos == 6:
+        if self.manner == 'parasitic':
             self._setROParam('mode', 'virtual_disc2_pos_6')
         else:
+            if chopper2_pos != disc2_out:
+                self.log.info('automatic changing chopper2_pos from %d to %d',
+                              chopper2_pos, disc2_out)
+                chopper2_pos = disc2_out
             self._setROParam('mode', 'normal_mode')
             chopper2_pos_akt = self._attached_chopper2.pos
             if chopper2_pos_akt != chopper2_pos:
@@ -158,6 +184,10 @@ class ChopperMaster(CanReference, BaseSequencer):
         if shutter_ok:
             seq.append(SeqDev(self._attached_shutter, shutter_pos,
                               stoppable=True))
+        # for line in seq:
+        #     self.log.info(line)
+        # self.log.warning('BLOCKED Debug MP only')
+        # return []
         return seq
 
     def doRead(self, maxage=0):
@@ -170,6 +200,7 @@ class ChopperMaster(CanReference, BaseSequencer):
             'chopper2_pos':
                 self._attached_chopper2.pos
                 if self.mode == 'normal_mode' else 6,
+            'manner': self.manner,
         }
         return value
 
