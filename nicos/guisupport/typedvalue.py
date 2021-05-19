@@ -230,7 +230,7 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
         return MultiWidget(parent, typ.types, curvalue, client,
                            allow_enter=allow_enter, valinfo=valinfo)
     elif isinstance(typ, params.dictwith):
-        return DictWithWidget(parent, typ.keys, typ.convs.values(),
+        return DictWithWidget(parent, typ.convs.keys(), typ.convs.values(),
                               curvalue, client, allow_enter=allow_enter)
     elif typ == params.limits:
         return LimitsWidget(parent, curvalue, client, allow_enter=allow_enter)
