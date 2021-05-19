@@ -4,6 +4,8 @@ description = 'Virtual detector motor setup'
 group = 'lowlevel'
 display_order = 65
 
+excludes = ['beamstop']
+
 devices = dict(
     beamstop = device('nicos_mlz.kws3.devices.resolution.Beamstop',
         description = 'select beamstop presets',
