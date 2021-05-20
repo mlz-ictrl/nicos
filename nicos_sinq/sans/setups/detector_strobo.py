@@ -66,6 +66,27 @@ devices = dict(
         type = 'monitor',
         readpv = pvdprefix + '.S4',
     ),
+    monitor4 = device('nicos_ess.devices.epics.detector'
+        '.EpicsCounterPassiveChannel',
+        epicstimeout = 3.0,
+        description = 'Third scalar counter channel',
+        type = 'monitor',
+        readpv = pvdprefix + '.S5',
+    ),
+    monitor5 = device('nicos_ess.devices.epics.detector'
+        '.EpicsCounterPassiveChannel',
+        epicstimeout = 3.0,
+        description = 'Third scalar counter channel',
+        type = 'monitor',
+        readpv = pvdprefix + '.S6',
+    ),
+    monitor6 = device('nicos_ess.devices.epics.detector'
+        '.EpicsCounterPassiveChannel',
+        epicstimeout = 3.0,
+        description = 'Third scalar counter channel',
+        type = 'monitor',
+        readpv = pvdprefix + '.S7',
+    ),
     monitor7 = device('nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
         epicstimeout = 3.0,
         description = 'Seventh scalar counter channel',
@@ -92,9 +113,16 @@ devices = dict(
         description = "Image channel for area detector",
         lowlevel = True,
         bank = 'hm_bank0',
-        dimensions = {'x': 128, 'y': 128},
+        dimensions = {
+            'x': 128,
+            'y': 128
+        },
         connector = 'hm_connector',
         tof_axis = 'hm_ax_tof',
+    ),
+    sans_slice = device('nicos_sinq.devices.channel.SelectSliceImageChannel',
+        description = 'Slice selector',
+        data_channel = 'sans_detector'
     ),
     sansdet = device('nicos_sinq.devices.detector.SinqDetector',
         epicstimeout = 3.0,
@@ -109,10 +137,10 @@ devices = dict(
         timepreset = 'timepreset',
         timers = ['elapsedtime'],
         monitors = [
-            'monitor1', 'protoncount', 'monitor2', 'monitor3', 'monitor7',
-            'monitor8'
+            'monitor1', 'protoncount', 'monitor2', 'monitor3', 'monitor4',
+            'monitor5', 'monitor6', 'monitor7', 'monitor8'
         ],
-        images = ['sans_detector'],
+        images = ['sans_detector', 'sans_slice'],
         others = ['histogrammer'],
         liveinterval = 7,
         saveintervals = [60]

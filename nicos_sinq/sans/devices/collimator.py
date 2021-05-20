@@ -44,7 +44,7 @@ class SegmentPulse(Pulse):
     def doRead(self, maxage=0):
         return self._attached_moveable.read(maxage)
 
-    def doIsAtTarget(self, pos):
+    def doIsAtTarget(self, pos, target):
         return True
 
 
@@ -54,7 +54,7 @@ class SegmentMoveable(EpicsDigitalMoveable):
     wish to pulse. Suppresses a confusing and unnecessary
     warning
     """
-    def doIsAtTarget(self, pos):
+    def doIsAtTarget(self, pos, target):
         return True
 
 
@@ -126,6 +126,8 @@ class Segment(Moveable):
         if self._attached_hand.read(0) == 0:
             self._attached_hand.start(1)
         self._target = pos
+        if pos == self.doRead(0):
+            return
         self._start_time = time.time()
         if pos == 'ble':
             self._attached_ble.start(1)
@@ -177,7 +179,7 @@ class Polariser(Moveable):
         if pos == 'in':
             self._attached_cols1.start('zus')
         else:
-            self._attached_cols1.start('ble')
+            self._attached_cols1.start('nl')
 
     def doStatus(self, maxage=0):
         return self._attached_cols1.status(maxage)
@@ -194,7 +196,7 @@ class Collimator(Moveable):
                            Moveable, multiple=7),
     }
 
-    _steps = [18, 15, 11, 8, 6, 4.5, 3]
+    _steps = [18, 15, 11, 8, 6, 4.5, 3, 2]
 
     def doIsAllowed(self, pos):
         if pos in self._steps:
@@ -208,15 +210,24 @@ class Collimator(Moveable):
     def doRead(self, maxage=0):
         for idx, seg in enumerate(self._attached_segments):
             pos = seg.read(maxage)
-            if pos == 'nl':
-                return self._steps[idx]
+            if pos == 'ble':
+                if all(seg.read() == 'ble' for seg in
+                        self._attached_segments[idx:]):
+                    return self._steps[idx]
+                return 'unknown position'
+            if pos == 'transit':
+                return 'transit position'
+        return self._steps[-1]
 
     def doStart(self, target):
+        # what if colsX is was moved independently?
         for idx, step in enumerate(self._steps):
             if idx == 0 and self._attached_segments[0].read(0) == 'zus':
                 # leave polariser alone
                 continue
+            if idx == 7:
+                break
             if target < step:
-                self._attached_segments[idx].start('ble')
-            else:
                 self._attached_segments[idx].start('nl')
+            else:
+                self._attached_segments[idx].start('ble')

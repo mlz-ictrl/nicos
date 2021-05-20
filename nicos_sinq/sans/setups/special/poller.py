@@ -11,7 +11,7 @@ devices = dict(
     Poller = device('nicos.services.poller.Poller',
         alwayspoll = [],
         # setups that should be polled regardless if loaded
-        neverpoll = [],
+        neverpoll = ['frappy', 'frappy_main', 'frappy_stick', 'frappy_addons'],
         # setups that should not be polled even if loaded
         blacklist = [],  # DEVICES that should never be polled
         # (usually detectors or devices that have problems

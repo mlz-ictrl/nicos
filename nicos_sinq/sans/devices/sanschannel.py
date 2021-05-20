@@ -40,12 +40,13 @@ class StroboHistogramImageChannel(ReshapeHistogramImageChannel):
                            HistogramConfAxis),
     }
 
+    @property
     def shape(self):
-        return tuple(self.dimensions.values() + (
-            self._attached_tof_axis.length,))
+        return tuple(self.dimensions.values()) + (
+            self._attached_tof_axis.length,)
 
     def _dimDesc(self):
         res = ReshapeHistogramImageChannel._dimDesc(self)
-        res.append(HistogramDimDesc(self._attached_tof_axis.length,
-                                    'strobo', ''))
+        res.append(
+            HistogramDimDesc(self._attached_tof_axis.length, 'strobo', ''))
         return res

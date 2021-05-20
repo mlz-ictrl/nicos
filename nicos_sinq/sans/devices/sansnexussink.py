@@ -22,10 +22,11 @@
 #
 # *****************************************************************************
 from nicos.core.params import Override
-from nicos.nexus.nexussink import NexusSink
+
+from nicos_sinq.devices.datasinks import SwitchableNexusSink
 
 
-class SANSNexusSink(NexusSink):
+class SANSNexusSink(SwitchableNexusSink):
     parameter_overrides = {
         'settypes': Override(settable=True),
     }

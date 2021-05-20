@@ -171,6 +171,8 @@ sans_default = {"NeXus_Version": "4.4.0",
 sample_common = {
     "name": DeviceDataset("Sample", "samplename"),
     "hugo": NexusSampleEnv(),
+    "temperature": DeviceDataset("temperature", "value", defaultval=0.0),
+    "magfield": DeviceDataset("magfield", "value", defaultval=0.0),
     "aequatorial_angle": ConstDataset(0, "float",
                                       units=NXAttribute("degree", "string")),
 }

@@ -17,13 +17,20 @@ devices = dict(
         label = 'ID',
         unit = '',
     ),
+    tof_array = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfTofArray',
+        description = 'TOF data array',
+        dim = [
+            5,
+        ],
+        data = [10, 20, 30, 40, 50],
+        lowlevel = True,
+        formatter = '%9d',
+    ),
     hm_ax_tof = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfAxis',
         description = 'TOF axis',
         lowlevel = True,
-        mapping = 'calculate',
-        preoffset = 0,
-        length = 401,
-        divisor = 10,
+        mapping = 'boundary',
+        array = 'tof_array',
         label = 'TOF',
         unit = 'arbitrary'
     ),
@@ -40,6 +47,6 @@ devices = dict(
         active = '0x00000000',
         increment = 1,
         banks = ['hm_bank0'],
-        connector = 'hm_connector'
+        connector = 'hm_connector',
     ),
 )
