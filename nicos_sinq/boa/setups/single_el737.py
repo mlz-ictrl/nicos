@@ -2,7 +2,7 @@ description = 'Neutron counter box'
 
 group = 'lowlevel'
 
-excludes = ['embl', 'embl_config']
+excludes = ['embl', 'embl_config', 'andor', 'andorccd']
 
 pvprefix = 'SQ:BOA:counter'
 
@@ -40,7 +40,7 @@ devices = dict(
         readpv = pvprefix + '.S5',
     ),
     countval = device('nicos_ess.devices.epics.detector'
-                  '.EpicsCounterPassiveChannel',
+        '.EpicsCounterPassiveChannel',
         epicstimeout = 3.0,
         description = 'Actual counts in single detector',
         type = 'monitor',

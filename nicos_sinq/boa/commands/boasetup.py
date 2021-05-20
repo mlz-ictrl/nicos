@@ -51,7 +51,8 @@ from nicos.commands.basic import AddSetup, RemoveSetup
 # is backed by this list containing tuples of PV name and corresponding setup
 test_presence = [('SQ:BOA:MCU4:PRESENT', 'adaptive_optics17'),
                  ('SQ:BOA:NGIV2:PRESENT', 'ngiv2'),
-                 ('SQ:BOA:AGILENT:PRESENT', 'agilent')]
+                 ('SQ:BOA:AGILENT:PRESENT', 'agilent'),
+                 ('SQ:BOA:PICO:PRESENT', 'picoflipper')]
 
 # For some devices EPICS can detect on which table they sit in addition to the
 # test for presence. These devices are held in this list. There is a tuple of

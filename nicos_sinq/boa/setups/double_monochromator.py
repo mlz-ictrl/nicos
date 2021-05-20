@@ -2,6 +2,10 @@ description = 'BOA Double Monochromator'
 
 pvprefix = 'SQ:BOA:mcu2:'
 
+excludes = [
+    'imaging_double_mono',
+]
+
 devices = dict(
     mth1 = device('nicos_ess.devices.epics.motor.EpicsMotor',
         epicstimeout = 3.0,

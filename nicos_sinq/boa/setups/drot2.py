@@ -7,7 +7,7 @@ devices = dict(
         epicstimeout = 3.0,
         description = 'Rotation table 2 bottom motor',
         motorpv = pvprefix + 'RD',
-        errormsgpv = pvprefix + 'RB-MsgTxt',
+        errormsgpv = pvprefix + 'RD-MsgTxt',
     ),
     re = device('nicos_ess.devices.epics.motor.EpicsMotor',
         epicstimeout = 3.0,

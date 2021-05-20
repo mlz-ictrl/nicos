@@ -239,8 +239,8 @@ class ControlDetector(Detector):
             res = res + det.doRead(maxage)
         return res
 
-    def doReadArrays(self):
-        res = self._attached_trigger.doReadArrays()
+    def doReadArrays(self, quality):
+        res = self._attached_trigger.doReadArrays(quality)
         for det in self._attached_slave_detectors:
-            res = res + det.doReadArrays()
+            res += det.doReadArrays(quality)
         return res

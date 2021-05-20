@@ -78,7 +78,9 @@ class BOATemplateProvider(NexusTemplateProvider):
                                                                  'string'))},
                                       }, }
     _tables = ['Table2', 'Table3', 'Table4', 'Table5', 'Table6']
-    _detectors = ['embl', 'andor', 'single_el737']
+    _detectors = ['embl', 'andor', 'single_el737', 'ccdwww', 'andorccd']
+    _excluded_devices = ['slit1', 'slit2', 'dslit', 'ccdwww_connector',
+                         'ccd_cooler']
     _detector = None
 
     def containsDetector(self, table):
@@ -96,6 +98,8 @@ class BOATemplateProvider(NexusTemplateProvider):
         devices = table.getTableDevices()
         content = dict()
         for d in devices:
+            if d in self._excluded_devices:
+                continue
             try:
                 dev = session.getDevice(d)
                 content[dev.name] = DeviceDataset(dev.name,
@@ -124,6 +128,12 @@ class BOATemplateProvider(NexusTemplateProvider):
         elif name == 'andor':
             content['data'] = ImageDataset(0, 0,
                                            signal=NXAttribute(1, 'int32'))
+        elif name == 'ccdwww':
+            content['data'] = ImageDataset(0, 0,
+                                           signal=NXAttribute(1, 'int32'))
+        elif name == 'andorccd':
+            content['data'] = ImageDataset(0, 0,
+                                           signal=NXAttribute(1, 'int32'))
         elif name == 'embl':
             content['data'] = ImageDataset(0, 0,
                                            signal=NXAttribute(1, 'int32'))
@@ -146,5 +156,5 @@ class BOATemplateProvider(NexusTemplateProvider):
             entry[name + ':NXdetector'] = content
             entry['data:Nxdata'] = self.makeData(name)
         else:
-            session.log.info('No detector FOUND! May be: check setup???')
+            session.log.info('No  ! May be: check setup???')
         return boa_template
