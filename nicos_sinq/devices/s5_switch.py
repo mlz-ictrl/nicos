@@ -19,19 +19,20 @@
 #
 # Module authors:
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
+#   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
 
 from time import time as currenttime
 
 from nicos.core import Override, Param, pvname, status
-from nicos.core.errors import PositionError
+from nicos.core.errors import ConfigurationError
 from nicos.devices.abstract import MappedMoveable
 
 from nicos_ess.devices.epics.base import EpicsDeviceEss, EpicsReadable
 
 
-class SpsSwitch(EpicsDeviceEss, MappedMoveable):
+class S5Switch(EpicsDeviceEss, MappedMoveable):
     """AMOR has a Siemens programmable logic unit for controlling the shutter
     and a switch for the alignment laser and the spin flipper. This is SPS
     which is connected to the world as such via a custom RS232 interface and a
@@ -70,6 +71,14 @@ class SpsSwitch(EpicsDeviceEss, MappedMoveable):
         'warnlimits': Override(userparam=False)
     }
 
+    def doInit(self, mode):
+        EpicsDeviceEss.doInit(self, mode)
+        MappedMoveable.doInit(self, mode)
+        raw = self._pvs['readpv'].get(timeout=self.epicstimeout,
+                                      count=self.byte+1)
+        if self.byte > len(raw):
+            raise ConfigurationError('Byte specified is out of bounds')
+
     def _get_pv_parameters(self):
         return {'readpv', 'commandpv'}
 
@@ -94,9 +103,6 @@ class SpsSwitch(EpicsDeviceEss, MappedMoveable):
     def _readBit(self, byte, bit):
         raw = self._pvs['readpv'].get(timeout=self.epicstimeout,
                                       count=self.byte+1)
-        if byte > len(raw):
-            raise PositionError('Byte specified is out of bounds')
-
         powered = 1 << bit
         return raw[byte] & powered == powered
 
@@ -110,7 +116,7 @@ class SpsSwitch(EpicsDeviceEss, MappedMoveable):
             self._put_pv('commandpv', self.commandstr)
 
 
-class AmorShutter(SpsSwitch):
+class AmorShutter(S5Switch):
     """Class to represent AMOR shutter.
 
     Two bits from PLC are important in determing the shutter state:
@@ -149,14 +155,14 @@ class AmorShutter(SpsSwitch):
         if self._isBroken():
             return status.WARN, 'BROKEN'
 
-        super_status = SpsSwitch.doStatus(self, maxage)
+        super_status = S5Switch.doStatus(self, maxage)
         if super_status[0] != status.OK:
             return super_status
 
         return status.OK, 'Enabled'
 
 
-class SpsBit(EpicsReadable):
+class S5Bit(EpicsReadable):
     """
     A class for reading a single bit from a SINQ SPS S5
     """
@@ -170,12 +176,16 @@ class SpsBit(EpicsReadable):
                      settable=False),
     }
 
+    def doInit(self, mode):
+        EpicsReadable.doInit(self, mode)
+        raw = self._pvs['readpv'].get(timeout=self.epicstimeout,
+                                      count=self.byte+1)
+        if self.byte > len(raw):
+            raise ConfigurationError('Byte specified is out of bounds')
+
     def doRead(self, maxage=0):
         raw = self._pvs['readpv'].get(timeout=self.epicstimeout,
                                       count=self.byte+1)
-
-        if self.byte > len(raw):
-            raise PositionError('Byte specified is out of bounds')
 
         powered = 1 << self.bit
         return raw[self.byte] & powered == powered

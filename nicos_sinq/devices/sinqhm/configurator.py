@@ -199,7 +199,7 @@ class HistogramConfAxis(HistogramConfElement):
     def doReadLength(self):
         # In case an array is attached the length of the axis is automatically
         # deduced from the length of the array
-        if self._attached_array:
+        if self._attached_array and self.mapping != 'lookuptable':
             arraylen = len(self._attached_array.data)
             if arraylen == 0:
                 self.log.warning('Data not configured in the array: %s!',
