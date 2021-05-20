@@ -25,7 +25,7 @@ main_window = docked(
                      ('Scan Plot',
                       panel('nicos_ess.gui.panels.scans.ScansPanel')),
                      ('Detector Image',
-                      panel('nicos_ess.gui.panels.live.LiveDataPanel')),
+                      panel('nicos_ess.gui.panels.live.MultiLiveDataPanel')),
                      ('Script Status',
                       panel('nicos_ess.gui.panels.status.ScriptStatusPanel',
                             eta=True)),
@@ -51,7 +51,7 @@ main_window = docked(
                       tools=None),
             ), # vsplit
         ),
-        ('Detector Image', panel('nicos_ess.gui.panels.live.LiveDataPanel')),
+        ('Detector Image', panel('nicos_ess.gui.panels.live.MultiLiveDataPanel')),
         (
             'History',
             panel('nicos_ess.gui.panels.history.HistoryPanel'),
