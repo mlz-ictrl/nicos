@@ -4,8 +4,6 @@ group = 'lowlevel'
 
 pvprefix = 'SQ:AMOR:mota:'
 
-includes = ['logical_motors']
-
 devices = dict(
     som=device('nicos_ess.devices.epics.motor.EpicsMotor',
                epicstimeout=3.0,
@@ -31,11 +29,6 @@ devices = dict(
                motorpv=pvprefix + 'sch',
                errormsgpv=pvprefix + 'sch-MsgTxt',
                ),
-    s2t = device('nicos_sinq.amor.devices.logical_motor.AmorLogicalMotor',
-        description = 'Logical motor sample two theta',
-        motortype = 's2t',
-        controller = 'controller_lm'
-    ),
     hsy_switch=device(
         'nicos_sinq.amor.devices.epics_amor_magnet.EpicsAmorMagnetSwitch',
         description='Switch to turn magnet on/off',

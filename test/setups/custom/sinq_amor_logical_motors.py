@@ -81,5 +81,22 @@ devices = dict(
         switch = 'laser_switch',
         positioner = 'laser_positioner',
         dimetix = 'dimetix'
-    )
+    ),
+    com = device('test.nicos_ess.test_devices.test_epics_motor.FakeEpicsMotor',
+        epicstimeout = 3.0,
+        description = 'Counter tilt motor',
+        motorpv = 'com',
+    ),
+    coz = device('test.nicos_ess.test_devices.test_epics_motor.FakeEpicsMotor',
+        epicstimeout = 3.0,
+        description = 'Counter z translation motor',
+        motorpv = 'coz',
+    ),
+    nu = device('nicos_sinq.amor.devices.logical_motor.DetectorAngleMotor',
+        description = 'Sample omega',
+        com = 'com',
+        coz = 'coz',
+        unit = 'deg',
+        coz_scale_factor = 10.,
+    ),
 )

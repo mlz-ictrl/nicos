@@ -36,10 +36,10 @@ import math
 
 from nicos import session
 from nicos.core import Attach, Override, Param, dictwith, oneof, status
-from nicos.core.device import Moveable
+from nicos.core.device import Moveable, Readable
 from nicos.core.errors import PositionError
 from nicos.core.utils import multiStatus
-from nicos.devices.abstract import Motor
+from nicos.devices.abstract import Motor, TransformedMoveable
 from nicos.utils import number_types
 
 from nicos_ess.devices.epics.motor import EpicsMotor
@@ -52,7 +52,127 @@ ATH = 'ath'  # ath - analyzer theta
 motortypes = [M2T, S2T, ATH]
 
 
-class AmorLogicalMotorHandler(Moveable):
+class InterfaceLogicalMotorHandler(Moveable):
+
+    parameter_overrides = {
+        'fmtstr': Override(volatile=True),
+        'unit': Override(mandatory=False, default='degree'),
+    }
+
+    status_to_msg = {
+        status.ERROR: 'Error in %s',
+        status.BUSY: 'Moving: %s ...',
+        status.WARN: 'Warning in %s',
+        status.NOTREACHED: '%s did not reach target!',
+        status.UNKNOWN: 'Unknown status in %s!',
+        status.OK: 'Ready.'
+    }
+
+    def doPreinit(self, mode):
+        self._logical_motors = {}
+        self._motortypes = []
+        self.valuetype = {}
+
+    def register(self, motortype, motor):
+        self._motortypes.append(motortype)
+        self._logical_motors[motortype] = motor
+
+    def doReadFmtstr(self):
+        return ', '.join([mt + '=%(' + mt + ').3f' for mt in self._motortypes])
+
+    def _get_dev(self, dev):
+        return getattr(self, '_attached_%s' % dev, None)
+
+    def _read_dev(self, dev):
+        dev = self._get_dev(dev)
+        return dev.read(0) if dev else 0.0
+
+    def _is_active(self, component):
+        return component in session.loaded_setups
+    #     distances = self._attached_distances
+    #     return component in session.loaded_setups and \
+    #         isinstance(getattr(distances, component), number_types)
+
+    def doStatus(self, maxage=0):
+        # Check for error and warning in the dependent devices
+        devs = {dev: self._get_dev(dev) for dev in self._status_devs
+                if self._get_dev(dev)}
+        st_devs = multiStatus(devs, 0)
+        devs = [n for n, d in devs.items() if d.status()[0] == st_devs[0]]
+
+        if st_devs[0] in self.status_to_msg:
+            msg = self.status_to_msg[st_devs[0]]
+            if '%' in msg:
+                msg = msg % ', '.join(devs)
+            return st_devs[0], msg
+
+        return st_devs
+
+    def doIsCompleted(self):
+        # No attached devices, so have to manually check the doIsCompleted
+        for dev in self._status_devs:
+            dev = self._get_dev(dev)
+            if dev and not dev.isCompleted():
+                return False
+
+        return True
+
+    def doIsAllowed(self, targets):
+        # Calculate the possible motor positions using these targets
+        motor_targets = self._get_move_list(self._get_targets(targets))
+        # Check if these positions are allowed and populate the
+        # faults list with the motors that cannot be moved
+        faults = []
+        for motor, target in motor_targets:
+            allowed, _ = motor.isAllowed(target)
+            if not allowed:
+                faults.append(motor.name)
+                self.log.error('%s cant be moved to %s; limits are %s', motor,
+                               motor.format(target, motor.unit),
+                               motor.abslimits)
+
+        # Return false if some motors cannot reach their new target
+        if faults:
+            return False, '%s not movable!' % ', '.join(faults)
+
+        # Return True if everything ok
+        return True, ''
+
+    def doStart(self, targets):
+        for motor, target in self._get_move_list(self._get_targets(targets)):
+            self.log.debug('New target for %s: %s', motor,
+                           motor.format(target, motor.unit))
+            motor.move(target)
+
+    def _get_targets(self, targets):
+        targets_dict = {}
+        current = self.read(0)
+        for mt in self._motortypes:
+            target = targets.get(mt)
+            if target is None:
+                # If the target is not valid or not specified, fetch the
+                # target from motor itself
+                motor = self._logical_motors.get(mt)
+                if not motor:
+                    self.log.debug('Missing the logical motor %s! '
+                                   'Using target = %s (current position) ',
+                                   mt, current[mt])
+                    targets_dict[mt] = current[mt]
+                elif motor.target is not None:
+                    targets_dict[mt] = round(motor.target or current[mt], 3)
+                else:
+                    targets_dict[mt] = current[mt]
+            else:
+                targets_dict[mt] = round(target, 3)
+
+        # Return the dictionary of motortype mapped to their targets
+        return targets_dict
+
+    def _get_move_list(self, targets):
+        return []
+
+
+class AmorLogicalMotorHandler(InterfaceLogicalMotorHandler):
     """ Controller for the logical motors. This class has all the
     equations coded and can be used to read the positions of the logical
     motors or to calculate the positions of the real motors when the logical
@@ -84,11 +204,6 @@ class AmorLogicalMotorHandler(Moveable):
                             DistancesHandler)
     }
 
-    valuetype = dictwith(m2t=float, s2t=float, ath=float)
-
-    status_devs = ['soz', 'com', 'cox', 'coz', 'd1b', 'd2b', 'd3b', 'd4b',
-                   'aoz', 'aom']
-
     status_to_msg = {
         status.ERROR: 'Error in %s',
         status.BUSY: 'Moving: %s ...',
@@ -98,27 +213,11 @@ class AmorLogicalMotorHandler(Moveable):
         status.OK: 'Ready.'
     }
 
-    def doInit(self, mode):
-        # Collect all the logical motors in this variable
-        self._logical_motors = {}
-
-    def register(self, motortype, motor):
-        self._logical_motors[motortype] = motor
-
-    def doReadFmtstr(self):
-        return ', '.join([mt + '=%(' + mt + ').3f' for mt in motortypes])
-
-    def _get_dev(self, dev):
-        return getattr(self, '_attached_%s' % dev, None)
-
-    def _read_dev(self, dev):
-        dev = self._get_dev(dev)
-        return dev.read(0) if dev else 0.0
-
-    def _is_active(self, component):
-        distances = self._attached_distances
-        return component in session.loaded_setups and \
-            isinstance(getattr(distances, component), number_types)
+    def doPreinit(self, mode):
+        self._status_devs = ['soz', 'com', 'cox', 'coz', 'd1b', 'd2b', 'd3b',
+                             'd4b', 'aoz', 'aom']
+        InterfaceLogicalMotorHandler.doPreinit(self, mode)
+        self.valuetype = dictwith(m2t=float, s2t=float, ath=float)
 
     def doRead(self, maxage=0):
         distances = self._attached_distances
@@ -153,82 +252,6 @@ class AmorLogicalMotorHandler(Moveable):
             S2T: round(acts2t, 3),
             ATH: round(actath, 3)
         }
-
-    def doStatus(self, maxage=0):
-        # Check for error and warning in the dependent devices
-        devs = {dev: self._get_dev(dev) for dev in self.status_devs
-                if self._get_dev(dev)}
-        st_devs = multiStatus(devs, 0)
-        devs = [n for n, d in devs.items() if d.status()[0] == st_devs[0]]
-
-        if st_devs[0] in self.status_to_msg:
-            msg = self.status_to_msg[st_devs[0]]
-            if '%' in msg:
-                msg = msg % ', '.join(devs)
-            return st_devs[0], msg
-
-        return st_devs
-
-    def doIsCompleted(self):
-        # No attached devices, so have to manually check the doIsCompleted
-        for dev in self.status_devs:
-            dev = self._get_dev(dev)
-            if dev and not dev.isCompleted():
-                return False
-
-        return True
-
-    def doIsAllowed(self, targets):
-        # Calculate the possible motor positions using these targets
-        motor_targets = self._get_move_list(self._get_targets(targets))
-
-        # Check if these positions are allowed and populate the
-        # faults list with the motors that cannot be moved
-        faults = []
-        for motor, target in motor_targets:
-            allowed, _ = motor.isAllowed(target)
-            if not allowed:
-                faults.append(motor.name)
-                self.log.error('%s cant be moved to %s; limits are %s', motor,
-                               motor.format(target, motor.unit),
-                               motor.abslimits)
-
-        # Return false if some motors cannot reach their new target
-        if faults:
-            return False, '%s not movable!' % ', '.join(faults)
-
-        # Return True if everything ok
-        return True, ''
-
-    def doStart(self, targets):
-        for motor, target in self._get_move_list(self._get_targets(targets)):
-            self.log.debug('New target for %s: %s', motor,
-                           motor.format(target, motor.unit))
-            motor.move(target)
-
-    def _get_targets(self, targets):
-        targets_dict = {}
-        current = self.read(0)
-        for mt in motortypes:
-            target = targets.get(mt)
-            if target is None:
-                # If the target is not valid or not specified, fetch the
-                # target from motor itself
-                motor = self._logical_motors.get(mt)
-                if not motor:
-                    self.log.debug('Missing the logical motor %s! '
-                                   'Using target = %s (current position) ',
-                                   mt, current[mt])
-                    targets_dict[mt] = current[mt]
-                elif motor.target is not None:
-                    targets_dict[mt] = round(motor.target or current[mt], 3)
-                else:
-                    targets_dict[mt] = current[mt]
-            else:
-                targets_dict[mt] = round(target, 3)
-
-        # Return the dictionary of motortype mapped to their targets
-        return targets_dict
 
     def _get_move_list(self, targets):
         # Equations to calculate the positions of the real motors to be moved
@@ -364,3 +387,28 @@ class AmorLogicalMotor(Motor):
             self._attached_controller.stop()
             # Reset the target for this motor
             self._setROParam('target', self.doRead(0))
+
+
+class DetectorAngleMotor(TransformedMoveable):
+
+    # The real motors
+    attached_devices = {
+        'com': Attach('com motor', Readable),
+        'coz': Attach('coz motor', Readable),
+    }
+
+    parameters = {
+        'coz_scale_factor': Param(
+            'Scale factor in the coz computation', type=int, mandatory=True)
+    }
+
+    def doRead(self, maxage=0):
+        return -self._attached_com.doRead()
+
+    def _mapTargetValue(self, target):
+        return -target, \
+               math.tan(math.radians(target)) * self.coz_scale_factor
+
+    def _startRaw(self, target):
+        self._attached_com.start(target[0])
+        self._attached_coz.start(target[1])

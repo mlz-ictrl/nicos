@@ -9,8 +9,6 @@ includes = [
     'frame_overlap',
     'polariser',
     'sample',
-    'slit1',
-    'slit5'
 ]
 
 startupcode = '''

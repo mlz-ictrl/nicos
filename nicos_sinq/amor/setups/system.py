@@ -12,8 +12,6 @@ sysconfig = dict(
 modules = ['nicos.commands.standard', 'nicos_ess.commands.file_writing',
            'nicos_sinq.amor.commands', 'nicos_sinq.commands.sics']
 
-includes = ['laser']
-
 devices = dict(
     Amor=device('nicos.devices.instrument.Instrument',
                 description='instrument object',
@@ -124,28 +122,4 @@ devices = dict(
                   '/entry1/AMOR/single_detector_2/time_binning']
     ),
 
-    Distances = device(
-        'nicos_sinq.amor.devices.component_handler.DistancesHandler',
-        description='Device to handle distance calculation in AMOR',
-        components={
-            'polariser': (-232, 0),
-            'slit2': (302, 0),
-            'slit3': (-22, 0),
-            'slit4': (306, 0),
-            'sample': (-310, 0),
-            'detector': (326, 0),
-            'selene': (-726, 0),
-            'analyser': (310, 0)
-        },
-        fixedcomponents={
-            'chopper': 9906,
-            'filter': 8609,
-            'slit1': 9010,
-        },
-        order=['chopper', 'slit1', 'filter', 'polariser', 'slit2', 'selene',
-               'slit3', 'sample', 'slit4', 'analyser', 'detector'],
-        switch='laser_switch',
-        positioner='laser_positioner',
-        dimetix='dimetix'
-    )
 )

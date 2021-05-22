@@ -19,11 +19,14 @@
 #
 # Module authors:
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
 import sys
 import time
+from unittest import TestCase
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -219,3 +222,38 @@ class TestLogicalMotor:
         for slavename, target in test_targets[(0.100, 0.100, 0.000)]:
             slave = session.getDevice(slavename)
             assert slave.read() == approx(target, abs=1e-2)
+
+
+def create_method_patch(reason, obj, name, replacement):
+    patcher = patch.object(obj, name, replacement)
+    thing = patcher.start()
+    reason.addCleanup(patcher.stop)
+    return thing
+
+
+def return_value_wrapper(value):
+    def return_value(*args, **kwargs):
+        return value
+    return return_value
+
+
+class TestDetectorAngleMotor(TestCase):
+
+    @pytest.fixture(autouse=True)
+    def initialize_devices(self, session):
+        self.session = session
+
+    def test_do_start(self):
+        nu = self.session.getDevice('nu')
+        nu._attached_com = Mock()
+        nu._attached_coz = Mock()
+
+        target = 45
+        expected_coz = 1 * nu.coz_scale_factor
+
+        nu.start(target)
+        coz_target = nu._attached_coz.start.call_args[0]
+        com_target = nu._attached_com.start.call_args[0]
+
+        assert com_target[0] == -target
+        assert coz_target[0] == approx(expected_coz, abs=0.01)

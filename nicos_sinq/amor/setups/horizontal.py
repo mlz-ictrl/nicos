@@ -8,8 +8,6 @@ includes = [
     'detector',
     'frame_overlap',
     'sample',
-    'slit1',
-    'slit5'
 ]
 
 startupcode = '''
