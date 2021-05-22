@@ -1,95 +1,45 @@
-description = 'Neutron counter box and channels in the SINQ AMOR.'
+description = 'Multiblade detector'
 
-group='lowlevel'
+sysconfig = dict(datasinks = ['jbi_liveview'],)
 
-includes = ['hm_config']
-
-pvprefix = 'SQ:AMOR:counter'
+display_order = 28
 
 devices = dict(
-    timepreset=device(
-        'nicos_ess.devices.epics.detector.EpicsTimerActiveChannel',
-        epicstimeout=3.0,
-        description='Used to set and view time preset',
-        unit='sec',
-        readpv=pvprefix + '.TP',
-        presetpv=pvprefix + '.TP',
+    det_image = device(
+        'nicos_ess.devices.datasources.just_bin_it.JustBinItImage',
+        description = 'Detector image channel',
+        hist_topic = 'AMOR_histograms',
+        data_topic = 'FREIA_detector',
+        brokers = configdata('config.KAFKA_BROKERS'),
+        unit = 'evts',
+        hist_type = '2-D DET',
+        det_width = 32,
+        det_height = 160,
+        det_range = (0, 32*160),
+        lowlevel= True
     ),
-    elapsedtime=device(
-        'nicos_ess.devices.epics.detector.EpicsTimerPassiveChannel',
-        epicstimeout=3.0,
-        description='Used to view elapsed time while counting',
-        unit='sec',
-        readpv=pvprefix + '.T',
+    proton_charge = device(
+        'nicos_sinq.devices.epics.proton_counter.SINQProtonCharge',
+        description = 'Proton charge monitor',
+        readpv = 'SQ:AMOR:current:BEAMINT',
+        pvprefix = 'SQ:AMOR:current:',
+        unit = 'uC',
+        type = 'counter',
+        fmtstr = '%3.3f',
     ),
-    monitorpreset=device(
-        'nicos_ess.devices.epics.detector.EpicsCounterActiveChannel',
-        epicstimeout=3.0,
-        description='Used to set and view monitor preset',
-        type='monitor',
-        readpv=pvprefix + '.PR2',
-        presetpv=pvprefix + '.PR2',
+    det = device('nicos_ess.devices.datasources.just_bin_it.JustBinItDetector',
+        description = 'The just-bin-it histogrammer',
+        brokers = configdata('config.KAFKA_BROKERS'),
+        unit = '',
+        command_topic = 'AMOR_histCommands',
+        response_topic = 'AMOR_histResponse',
+        images = ['det_image'],
+        monitors = ['proton_charge'],
     ),
-    monitorval=device(
-        'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
-        epicstimeout=3.0,
-        description='Monitor for nutron beam',
-        type='monitor',
-        readpv=pvprefix + '.S2',
-    ),
-    protoncurr=device(
-        'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
-        epicstimeout=3.0,
-        description='Monitor for proton current',
-        type='monitor',
-        readpv=pvprefix + '.S5',
-    ),
-    histogrammer=device(
-        'nicos_sinq.devices.sinqhm.channel.HistogramMemoryChannel',
-        description="Histogram Memory Channel",
-        connector='hm_connector'
-    ),
-    area_detector=device(
-        'nicos_sinq.devices.sinqhm.channel.HistogramImageChannel',
-        description="Image channel for area detector",
-        bank='hm_bank0',
-        connector='hm_connector',
-    ),
-    single_det1=device(
-        'nicos_sinq.amor.devices.image_channel.AmorSingleDetectorImageChannel',
-        description="Image channel for single detector 1",
-        bank='hm_bank1',
-        connector='hm_connector',
-        detectorid=0,
-    ),
-    single_det2=device(
-        'nicos_sinq.amor.devices.image_channel.AmorSingleDetectorImageChannel',
-        description="Image channel for single detector 2",
-        bank='hm_bank1',
-        connector='hm_connector',
-        detectorid=1,
-    ),
-    psd_tof=device(
-        'nicos_sinq.devices.detector.SinqDetector',
-        epicstimeout=3.0,
-        description='EL737 counter box that counts neutrons and '
-                    'starts streaming events',
-        startpv=pvprefix + '.CNT',
-        pausepv=pvprefix + ':Pause',
-        statuspv=pvprefix + ':Status',
-        errormsgpv=pvprefix + ':MsgTxt',
-        thresholdpv=pvprefix + ':Threshold',
-        monitorpreset='monitorpreset',
-        timepreset='timepreset',
-        timers=['elapsedtime'],
-        monitors=['monitorval', 'protoncurr'],
-        images=['area_detector', 'single_det1', 'single_det2'],
-        others=['histogrammer'],
-        liveinterval=20,
-        saveintervals=[60]
+    jbi_liveview = device('nicos.devices.datasinks.LiveViewSink',
     ),
 )
 
 startupcode = '''
-SetDetectors(psd_tof)
+SetDetectors(det)
 '''
