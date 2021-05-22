@@ -55,7 +55,7 @@ devices = dict(
         filenametemplate = ['amor%(year)sn%(pointcounter)06d.hdf'],
         status_provider = 'NexusFileWriter',
         templatesmodule = 'nicos_sinq.amor.nexus.nexus_templates',
-        templatename = 'amor_default'
+        templatename = 'amor_commissioning'
     ),
     NexusFileWriter = device(
         'nicos_ess.devices.datasinks.nexussink.NexusFileWriterStatus',
