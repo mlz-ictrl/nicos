@@ -10,18 +10,6 @@ devices = dict(
                    offset=-238,
                    lowlevel=True),
 
-    laser_switch=device('nicos_sinq.amor.devices.sps_switch.SpsSwitch',
-        description='Laser light controlled by SPS',
-        epicstimeout=3.0,
-        readpv='SQ:AMOR:SPS1:DigitalInput',
-        commandpv='SQ:AMOR:SPS1:Push',
-        commandstr="S0001",
-        byte=15,
-        bit=7,
-        mapping={'OFF': False, 'ON': True},
-        lowlevel=True
-    ),
-
     xlz=device('nicos_ess.devices.epics.motor.EpicsMotor',
                epicstimeout=3.0,
                description='Counter z position distance laser motor',

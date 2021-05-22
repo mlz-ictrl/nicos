@@ -23,9 +23,4 @@ devices = dict(
                motorpv=pvprefix + 'atz',
                errormsgpv=pvprefix + 'atz-MsgTxt',
                ),
-    ath = device('nicos_sinq.amor.devices.logical_motor.AmorLogicalMotor',
-        description = 'Logical Motor analyser theta',
-        motortype = 'ath',
-        controller = 'controller_lm'
-    ),
 )
