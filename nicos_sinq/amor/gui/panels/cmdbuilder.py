@@ -21,7 +21,29 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
+from nicos.clients.flowui.panels import get_icon
+from nicos.clients.flowui.panels.cmdbuilder import \
+    CommandPanel as DefaultCommandPanel
+from nicos.guisupport.qt import pyqtSlot
 
-from os import path
+from nicos_sinq.amor.gui import uipath
 
-uipath = path.dirname(__file__)
+
+class CommandPanel(DefaultCommandPanel):
+    ui = f'{uipath}/panels/ui_files/cmdbuilder.ui'
+
+    def set_icons(self):
+        DefaultCommandPanel.set_icons(self)
+        self.pauseBtn.setIcon(get_icon('stop-24px.svg'))
+        self.emergencyStopBtn.setIcon(
+            get_icon('emergency_stop_cross_red-24px.svg')
+            )
+        self.pause = False
+
+    @pyqtSlot()
+    def on_pauseBtn_clicked(self):
+        self.client.tell_action('stop')
+
+    @pyqtSlot()
+    def on_emergencyStopBtn_clicked(self):
+        self.client.tell_action('emergency')
