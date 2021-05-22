@@ -1,4 +1,4 @@
-description = 'NICOS startup setup'
+description = 'AMOR startup setup'
 group = 'lowlevel'
 
 # The startup setup is loaded first thing on NICOS session startup.  It should

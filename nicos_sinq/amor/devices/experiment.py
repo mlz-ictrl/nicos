@@ -32,6 +32,7 @@ class AmorExperiment(SinqExperiment):
 
     parameters = {
         'mode': Param('Current mode of operation',
-                      type=oneof('horizontal', 'deflector'), settable=True,
+                      type=oneof('simple', 'deflector', 'virtual_stz'),
+                      settable=True,
                       category='experiment'),
     }
