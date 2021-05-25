@@ -132,6 +132,10 @@ except the :ref:`description <setup-description>` entry:
            datasinks = ['conssink', 'filesink', 'dmnsink'],
        )
 
+   The entries `notifiers` and `datasinks` may occur in multiple setups and
+   the lists of all **loaded** setups will be merged together so all entries
+   will be available.
+
    The possible entries are:
 
    `cache`
