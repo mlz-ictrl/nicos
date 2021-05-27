@@ -44,10 +44,13 @@ _experimentcol = Column(
     Block('Experiment', [
         BlockRow(
             Field(name='proposal', key='exp/proposal', width=7),
-            Field(name='user(s)', key='exp/users',    width=60, istext=True, maxlen=60),
+            Field(name='user(s)', key='exp/users', width=60, istext=True, maxlen=60),
         ),
         BlockRow(
-            Field(name='proposal title',    key='exp/title',    width=80, istext=True, maxlen=80),
+            Field(name='Remark', key='exp/remark', width=80, istext=True, maxlen=80),
+        ),
+        BlockRow(
+            Field(name='proposal title', key='exp/title', width=80, istext=True, maxlen=80),
         ),
         BlockRow(
             Field(name='current runnumber', key='exp/lastpoint'),
