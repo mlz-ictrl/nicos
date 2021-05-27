@@ -387,7 +387,8 @@ class Scan:
                     try:
                         # measure...
                         # XXX(dataapi): is target= needed?
-                        point = dataman.beginPoint(target=position)
+                        point = dataman.beginPoint(target=position,
+                                                   preset=self._preset)
                         dataman.putValues(waitresults)
                         self.readEnvironment()
                         try:
