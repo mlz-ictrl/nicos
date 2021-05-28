@@ -396,7 +396,9 @@ try {
         } //stage
     }, test_docs: {
         stage(name: 'Test docs') {
-            docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:nicosdocs').inside(){
+            docimage = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:nicosdocs')
+            docimage.pull()
+            docimage.inside(){
                 runDocTest()
             }  // image.inside
         } // stage
