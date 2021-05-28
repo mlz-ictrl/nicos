@@ -89,7 +89,7 @@ lint:
 	@-PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc nicos/ nicos_*/ nicostools/ tools/* bin/*
 
 changelint:
-	PYFILESCHANGED=$$(git diff --name-status `git merge-base HEAD HEAD^` | sed -e '/^D/d' | sed -e 's/.\t//'  | grep "\.py\$$"); \
+	PYFILESCHANGED=$$(git diff --name-only --diff-filter=dux HEAD^...HEAD | grep "\.py$$") ; \
 	if [[ -n "$$PYFILESCHANGED" ]]; then \
 		PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc $$PYFILESCHANGED; \
 	else echo 'no python files changed'; fi
