@@ -113,6 +113,9 @@
    <property name="text">
     <string>&amp;Unzoom</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
+   </property>
   </action>
   <action name="actionSavePlot">
    <property name="icon">
