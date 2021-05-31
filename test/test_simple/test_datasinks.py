@@ -33,6 +33,7 @@ import pytest
 
 from nicos import config
 from nicos.commands.scan import scan
+from nicos.devices.datasinks.scan import AsciiScanfileReader
 from nicos.utils import readFile, updateFileCounter
 
 from test.utils import raises
@@ -75,7 +76,7 @@ def setup_module(session):
     os.makedirs(dataroot)
 
     counter = path.join(dataroot, exp.counterfile)
-    open(counter, 'w').close()
+    open(counter, 'w').close()  # pylint: disable=consider-using-with
     updateFileCounter(counter, 'scan', 42)
     updateFileCounter(counter, 'point', 167)
 
@@ -152,6 +153,26 @@ class TestSinks:
         assert scan.samplecounter == 1
         assert session.experiment.lastscan == 43
         assert session.experiment.lastpoint == 172
+
+    def test_scan_file_reader(self, session):
+        scanfile = path.join(session.experiment.datapath, 'p1234_00000043.dat')
+        assert path.isfile(scanfile)
+        asfr = AsciiScanfileReader(scanfile)
+        ds = asfr.scandataset
+        assert ds.number == 0
+        assert ds.counter == '43 (p1234_00000043.dat)'
+        assert ds.devvaluelists == [['0.000', '0.000'],
+                                    ['1.000', '0.000'],
+                                    ['2.000', '0.000'],
+                                    ['3.000', '0.000'],
+                                    ['4.000', '0.000']]
+        assert ds.envvaluelists == [[], [], [], [], []]
+        assert len(ds.detvaluelists) == 5
+        assert len(ds.subsets) == 5
+        assert ds.devices == []
+        assert ds.environment == []
+        assert ds.detectors == []
+        assert ds.preset == {}
 
     def test_raw_sinks(self, session):
         # check contents of files written by the raw sink

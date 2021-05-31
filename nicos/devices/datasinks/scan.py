@@ -24,13 +24,17 @@
 
 """Data sink classes (new API) for NICOS."""
 
+import datetime
+import re
 from io import TextIOWrapper
-from time import localtime, strftime
+from os.path import basename
+from time import localtime, mktime, strftime
 
 from nicos import session
 from nicos.core import INFO_CATEGORIES, ConfigurationError, DataSink, \
-    DataSinkHandler, Override, Param
+    DataSinkHandler, Override, Param, Value
 from nicos.core.constants import POINT, SCAN, SUBSCAN
+from nicos.core.data.dataset import PointDataset, ScanData, ScanDataset
 from nicos.devices.datasinks import FileSink
 from nicos.utils import tabulated
 
@@ -205,6 +209,148 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
             self._write_section('End of NICOS data file %s' % self._fname)
             self._file.close()
             self._file = None
+
+
+class AsciiScanfileReader:
+
+    re_number_unit = re.compile(r'^(\d+\.?\d*)(\s(.+)|)')
+    re_collection_unit = re.compile(r'^((\(|\[).+(\)|\]))(\s(.+)|)')
+
+    class DevFake:
+
+        def __init__(self, name):
+            self.name = name
+
+    def __init__(self, filename):
+        self.scandataset = ScanDataset()
+        self.metainfo = {}
+        self.readFile(filename)
+
+    def getCategory(self, text):
+        for cat, txt in INFO_CATEGORIES:
+            if text == txt:
+                return cat
+        return ''
+
+    def getKeyValue(self, line):
+        k, v = line[1:].split(':', 1)
+        return k.strip(), v.strip()
+
+    def getDevicesDetectors(self, line):
+        devs, dets = line.split(';')
+        return devs.split(), dets.split()
+
+    def getMetainfoKey(self, line):
+        return line.rsplit('_', 1)
+
+    def getMetainfoValue(self, line):
+        session.log.debug(line)
+        if line:
+            res = self.re_number_unit.match(line)
+            if res:
+                v = res.group(1)
+                return (v, v, res.group(2))
+            res = self.re_collection_unit.match(line)
+            if res:
+                v = res.group(1)
+                return (v, v, res.group(5) or '')
+        return (line, line, '')
+
+    @property
+    def scandata(self):
+        return ScanData(self.scandataset)
+
+    def readFile(self, filename):
+        entry = ''
+        scanheader = 0
+
+        def guess_det_type(name, unit):
+            if unit in ['s']:
+                return 'time'
+            elif unit in ['cts']:
+                if name.startswith('m'):
+                    return 'monitor'
+                return 'counter'
+            return 'other'
+
+        with open(filename, 'r') as f:
+            for line in f:
+                lin = line.strip()
+                if lin.startswith('###'):
+                    _, t = lin.split(' ', 1)
+                    cat = self.getCategory(t)
+                    if cat:
+                        session.log.debug('cat: %s, t: %s', cat, t)
+                        entry = cat
+                    elif t.startswith('NICOS data file,'):
+                        entry = 'header'
+                        created = t.split(' ', 5)[5]
+                        self.scandataset.started = mktime(
+                            datetime.datetime.strptime(
+                                created, TIMEFMT).timetuple())
+                        session.log.debug('created: %s, started: %s',
+                                          created, self.scandataset.started)
+                    elif t.startswith('Scan data'):
+                        entry = 'data'
+                    elif t.startswith('End of NICOS data file'):
+                        entry = ''
+                elif lin.startswith('#'):
+                    if entry == 'header':
+                        key, value = self.getKeyValue(lin)
+                        if key == 'filename':
+                            self.scandataset.filenames = [value]
+                        elif key == 'filepath':
+                            self.scandataset.filepaths = [value]
+                        elif key == 'number':
+                            self.scandataset.counter = '%s (%s)' % (
+                                value, basename(filename))
+                        elif key == 'info':
+                            self.scandataset.info = value
+                        else:
+                            session.log.warning('unknown header: %s=%s',
+                                                key, value)
+                    elif entry == 'data':
+                        # get header lines devices and units
+                        if not scanheader:
+                            devs, dets = self.getDevicesDetectors(line[1:])
+                            session.log.debug('devs: %s, dets: %s', devs, dets)
+                            self.devs = [self.DevFake(dev) for dev in devs]
+                            self.dets = [self.DevFake(det) for det in dets]
+                        else:
+                            devunits, detunits = self.getDevicesDetectors(
+                                line[1:])
+                            session.log.debug('units: dev %s, det: %s',
+                                              devunits, detunits)
+                            self.scandataset.devvalueinfo = [
+                                Value(d.name, unit=u)
+                                for d, u in zip(self.devs, devunits)]
+                            self.scandataset.detvalueinfo = [
+                                Value(d.name, unit=u,
+                                      type=guess_det_type(d.name, u))
+                                for d, u in zip(self.dets, detunits)]
+                            self.scandataset.envvalueinfo = []
+                        scanheader += 1
+                    elif not entry:
+                        break
+                    else:
+                        key, value = self.getKeyValue(lin)
+                        devname, devkey = self.getMetainfoKey(key)
+                        self.metainfo[devname, devkey] = self.getMetainfoValue(
+                            value) + (entry,)
+                        session.log.debug('%s: %s=%s', entry, key, value)
+                        session.log.debug('    %s %s', devname, devkey)
+                else:
+                    # get scan data
+                    devvals, detvals = self.getDevicesDetectors(line)
+                    pds = PointDataset(devices=self.devs, detectors=self.dets)
+                    pds._addvalues({dev.name: (None, val)
+                                    for dev, val in zip(self.devs, devvals)})
+                    pds.results.update({det.name: [val]
+                                       for det, val in zip(self.dets, detvals)}
+                                       )
+                    pds.metainfo.update(self.metainfo)
+                    pds.finished = True  # better to use a finish date?
+                    self.scandataset.subsets.append(pds)
 
 
 class AsciiScanfileSink(FileSink):
