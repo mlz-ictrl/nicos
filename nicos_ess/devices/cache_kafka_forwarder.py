@@ -19,10 +19,12 @@
 #
 # Module authors:
 #   Matt Clarke <matt.clarke@ess.eu>
+#   Ebad Kamil <ebad.kamil@ess.eu>
 #
 # *****************************************************************************
 import queue
 import time
+from threading import Lock
 
 from kafka import KafkaProducer
 from streaming_data_types.fbschemas.logdata_f142.AlarmSeverity import \
@@ -81,6 +83,8 @@ class CacheKafkaForwarder(ForwarderBase, Device):
                             'accepted', default=[],
                             type=listof(str),
                             ),
+        'update_interval': Param('Time interval (in secs.) to send regular updates',
+                                 default=10.0, type=float, settable=False)
 
     }
     parameter_overrides = {
@@ -91,12 +95,16 @@ class CacheKafkaForwarder(ForwarderBase, Device):
     def doInit(self, mode):
         self._dev_to_value_cache = {}
         self._dev_to_status_cache = {}
+        self._dev_to_timestamp_cache = {}
         self._producer = None
+        self._lock = Lock()
 
         self._initFilters()
         self._queue = queue.Queue(1000)
         self._worker = createThread('cache_to_kafka', self._processQueue,
                                     start=False)
+        self._regular_update_worker = createThread(
+            'send_regular_updates', self._poll_updates, start=False)
         while not self._producer:
             try:
                 self._producer = \
@@ -110,6 +118,21 @@ class CacheKafkaForwarder(ForwarderBase, Device):
 
     def _startWorker(self):
         self._worker.start()
+        self._regular_update_worker.start()
+
+    def _poll_updates(self):
+        while True:
+            with self._lock:
+                for dev_name in set(self._dev_to_value_cache.keys()).union(
+                        self._dev_to_status_cache.keys()):
+                    if self._relevant_properties_available(dev_name):
+                        self._push_to_queue(
+                            dev_name,
+                            self._dev_to_value_cache[dev_name],
+                            self._dev_to_status_cache[dev_name],
+                            self._dev_to_timestamp_cache[dev_name])
+
+            time.sleep(self.update_interval)
 
     def _checkKey(self, key):
         if key.endswith('/value') or key.endswith('/status'):
@@ -121,7 +144,7 @@ class CacheKafkaForwarder(ForwarderBase, Device):
             return True
         return False
 
-    def _putChange(self, time, ttl, key, value):
+    def _putChange(self, timestamp, ttl, key, value):
         if value is None:
             return
         dev_name = key[0:key.index('/')]
@@ -129,22 +152,35 @@ class CacheKafkaForwarder(ForwarderBase, Device):
             return
         self.log.debug('_putChange %s %s %s', key, value, time)
 
-        if key.endswith('value'):
-            self._dev_to_value_cache[dev_name] = value
-        else:
-            self._dev_to_status_cache[dev_name] = convert_status(value)
+        with self._lock:
+            if key.endswith('value'):
+                self._dev_to_value_cache[dev_name] = value
+            else:
+                self._dev_to_status_cache[dev_name] = convert_status(value)
 
-        # Don't send until have at least one reading for both value and status
-        if dev_name in self._dev_to_value_cache and \
-                dev_name in self._dev_to_status_cache:
-            try:
-                self._queue.put((dev_name, self._dev_to_value_cache[dev_name],
-                                 self._dev_to_status_cache[dev_name],
-                                 int(float(time) * 10 ** 9)))
-            except queue.Full:
-                self.log.error('Queue full, so discarding older value(s)')
-                self._queue.get()
-                self._queue.task_done()
+            timestamp_ns = int(float(timestamp) * 10 ** 9)
+            self._dev_to_timestamp_cache[dev_name] = timestamp_ns
+            # Don't send until have at least one reading for both value and status
+            if self._relevant_properties_available(dev_name):
+                self._push_to_queue(
+                    dev_name,
+                    self._dev_to_value_cache[dev_name],
+                    self._dev_to_status_cache[dev_name],
+                    timestamp_ns,)
+
+    def _relevant_properties_available(self, dev_name):
+        return dev_name in self._dev_to_value_cache \
+            and dev_name in self._dev_to_status_cache \
+            and dev_name in self._dev_to_timestamp_cache
+
+    def _push_to_queue(self, dev_name, value, status, timestamp):
+        try:
+            self._queue.put_nowait((dev_name, value, status, timestamp))
+        except queue.Full:
+            self.log.error('Queue full, so discarding older value(s)')
+            self._queue.get()
+            self._queue.put((dev_name, value, status, timestamp))
+            self._queue.task_done()
 
     def _processQueue(self):
         while True:
