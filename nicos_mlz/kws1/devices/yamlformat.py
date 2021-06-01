@@ -68,9 +68,13 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
 
         det1 = self._dict()
         det1['type'] = 'position_sensitive_detector'
-        det1['mode'] = self.dataset.metainfo['det_img', 'mode'][0]
-        # the first entry in "slices" is always 0 in the TOF modes
-        slices = self.dataset.metainfo['det_img', 'slices'][0][1:]
+        try:
+            det1['mode'] = self.dataset.metainfo['det_img', 'mode'][0]
+            # the first entry in "slices" is always 0 in the TOF modes
+            slices = self.dataset.metainfo['det_img', 'slices'][0][1:]
+        except KeyError:
+            det1['mode'] = 'normal'
+            slices = []
         det1['time_channels'] = len(slices) or 1
         det1['time_slices_us'] = self._flowlist(slices)
         det1['pixels_x'] = image.shape[-1]

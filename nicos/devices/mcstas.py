@@ -78,7 +78,7 @@ class McStasSimulation(Readable):
         'intensityfactor': Param('Constant multiplied with simulated McStas '
                                  'intensity to get a simulated neutron counts '
                                  'per second', settable=True,
-                                 type=floatrange(1.)),
+                                 type=floatrange(1e-10), default=1),
         'preselection':    Param('Simulation preset value (should be set by '
                                  'the timer device)', type=float,
                                  settable=True, default=1., unit='s'),
@@ -216,14 +216,10 @@ class McStasSimulation(Readable):
             self._process = Popen(command.split(), stdout=PIPE, stderr=PIPE,
                                   cwd=self._workdir)
             out, err = self._process.communicate()
-            if out:
-                self.log.debug('McStas output:')
-                for line in out.splitlines():
-                    self.log.debug('[McStas] %s', line.decode('utf-8', 'ignore'))
-            if err:
-                self.log.warning('McStas found some problems:')
-                for line in err.splitlines():
-                    self.log.warning('[McStas] %s', line.decode('utf-8', 'ignore'))
+            for line in out.splitlines():
+                self.log.debug('[McStas out] %s', line.decode('utf-8', 'ignore'))
+            for line in err.splitlines():
+                self.log.debug('[McStas err] %s', line.decode('utf-8', 'ignore'))
         except OSError as e:
             self.log.error('Execution failed: %s', e)
         if self._process:

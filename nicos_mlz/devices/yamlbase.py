@@ -144,5 +144,5 @@ class YAMLBaseFileSinkHandler(SingleFileSinkHandler):
                          array_handling=self.yaml_array_handling).dump(o, fp)
         fp.flush()
 
-    def _write_instr_data(self, meas_root, image):
+    def _write_instr_data(self, meas, image):
         raise NotImplementedError('implement _write_instr_data')
