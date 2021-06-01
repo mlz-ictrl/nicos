@@ -215,16 +215,16 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
 class AsciiScanfileSink(FileSink):
     """A data sink that writes to a plain ASCII data file."""
     parameters = {
-        'commentchar':      Param('Comment character', type=str, default='#',
-                                  settable=True),
-        'semicolon':        Param('Whether to add a semicolon between X and Y '
-                                  'values', type=bool, default=True),
+        'commentchar': Param('Comment character', type=str, default='#',
+                             settable=True),
+        'semicolon':   Param('Whether to add a semicolon between X and Y '
+                             'values', type=bool, default=True),
     }
 
     handlerclass = AsciiScanfileSinkHandler
 
     parameter_overrides = {
-        'settypes':  Override(default=[SCAN, SUBSCAN]),
+        'settypes': Override(default=[SCAN, SUBSCAN]),
         'filenametemplate': Override(default=['%(proposal)s_%(scancounter)08d.dat']),
     }
 
