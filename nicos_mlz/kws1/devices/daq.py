@@ -310,9 +310,7 @@ class KWSDetector(Detector):
         Detector.doInit(self, session_mode)
         self._img = self._attached_images[0]
         if session_mode == MASTER:
-            if not self._attached_images or \
-               not isinstance(self._attached_images[0], (KWSImageChannel,
-                                                         VirtualKWSImageChannel)):
+            if not self._attached_images:
                 raise ConfigurationError(self, 'KWSDetector needs a KWSChannel '
                                          'as attached image')
             self.kwscounting = False
