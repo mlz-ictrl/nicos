@@ -120,5 +120,5 @@ devices = dict(
 )
 
 alias_config = {
-    'last_slit': {'b3': 100},
+    'last_aperture': {'b3': 100},
 }
