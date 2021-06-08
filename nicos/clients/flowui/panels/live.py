@@ -296,6 +296,7 @@ class MultiLiveDataPanel(LiveDataPanel):
             if len(array_desc[channel_id].shape) == 1:
                 widget = LiveWidget1D(name=f'{detname}-{channel_id}',
                                       parent=self)
+                widget.setLines(True)
             else:
                 widget = LiveWidget(name=f'{detname}-{channel_id}', parent=self)
             widget.gr.keepRatio = True
