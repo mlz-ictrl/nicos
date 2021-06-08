@@ -73,7 +73,7 @@ devices = dict(
     ),
     psd_tof = device('nicos_sinq.devices.epics.scaler_record.EpicsScalerRecord',
         epicstimeout = 3.0,
-        description='EL737 counter box that counts neutrons and starts streaming events',
+        description = 'EL737 counter box that counts neutrons and starts streaming events',
         startpv = pvprefix + '.CNT',
         pausepv = pvprefix + ':Pause',
         statuspv = pvprefix + ':Status',

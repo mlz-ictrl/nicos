@@ -24,52 +24,47 @@ devices = dict(
         controller = 'controller',
         loglevel = 'debug'
     ),
-    dimetix=device('nicos_sinq.amor.devices.dimetix.EpicsDimetix',
-                   description='Laser distance measurement device',
-                   readpv='SQ:AMOR:DIMETIX:DIST',
-                   epicstimeout=3.0,),
-
-    laser_switch=device(
-        'nicos_sinq.amor.devices.sps_switch.SpsSwitch',
-        description='Laser light controlled by SPS',
-        epicstimeout=3.0,
-        readpv='SQ:AMOR:SPS1:DigitalInput',
-        commandpv='SQ:AMOR:SPS1:Push',
-        commandstr="S0001",
-        bytelist=[(15, 7)],
-        mapping={'OFF': 0, 'ON': 1}
+    dimetix = device('nicos_sinq.amor.devices.dimetix.EpicsDimetix',
+        description = 'Laser distance measurement device',
+        readpv = 'SQ:AMOR:DIMETIX:DIST',
+        epicstimeout = 3.0,
     ),
-
-    xlz=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
-               description='Counter z position distance laser motor',
-               motorpv='SQ:AMOR:mota:xlz',
-               errormsgpv='SQ:AMOR:mota:xlz-MsgTxt',
-               lowlevel=True
-               ),
-
-    laser_positioner=device(
-        'nicos.devices.generic.Switcher',
-        description='Position laser to read components',
-        moveable='xlz',
-        mapping={'park': -0.1,
-                 'analyser': -24.0,
-                 'detector': 0.0,
-                 'polariser': -88.0,
-                 'sample': -52.0,
-                 'slit2': -73.0,
-                 'slit3': -63.0,
-                 'slit4': -34.0,
-                 'selene': -116.0,
-                 },
-        fallback='<undefined>',
-        precision=0
+    laser_switch = device('nicos_sinq.amor.devices.sps_switch.SpsSwitch',
+        description = 'Laser light controlled by SPS',
+        epicstimeout = 3.0,
+        readpv = 'SQ:AMOR:SPS1:DigitalInput',
+        commandpv = 'SQ:AMOR:SPS1:Push',
+        commandstr = "S0001",
+        bytelist = [(15, 7)],
+        mapping = {'OFF': 0, 'ON': 1}
     ),
-
-    Distances = device(
-        'nicos_sinq.amor.devices.component_handler.DistancesHandler',
-        description='Device to handle distance calculation in AMOR',
-        components={
+    xlz = device('nicos_ess.devices.epics.motor.EpicsMotor',
+        description = 'Counter z position distance laser motor',
+        epicstimeout = 3.0,
+        motorpv = 'SQ:AMOR:mota:xlz',
+        errormsgpv = 'SQ:AMOR:mota:xlz-MsgTxt',
+        lowlevel = True
+    ),
+    laser_positioner = device('nicos.devices.generic.Switcher',
+        description = 'Position laser to read components',
+        moveable = 'xlz',
+        mapping = {
+            'park': -0.1,
+            'analyser': -24.0,
+            'detector': 0.0,
+            'polariser': -88.0,
+            'sample': -52.0,
+            'slit2': -73.0,
+            'slit3': -63.0,
+            'slit4': -34.0,
+            'selene': -116.0,
+        },
+        fallback = '<undefined>',
+        precision = 0
+    ),
+    Distances = device('nicos_sinq.amor.devices.component_handler.DistancesHandler',
+        description = 'Device to handle distance calculation in AMOR',
+        components = {
             'polariser': (-232, 0),
             'slit2': (302, 0),
             'slit3': (-22, 0),
@@ -80,11 +75,11 @@ devices = dict(
             'filter': (-726, 0),
             'slit1': (0, 0)
         },
-        fixedcomponents={
+        fixedcomponents = {
             'chopper': 9906,
         },
-        switch='laser_switch',
-        positioner='laser_positioner',
-        dimetix='dimetix'
+        switch = 'laser_switch',
+        positioner = 'laser_positioner',
+        dimetix = 'dimetix'
     )
 )
