@@ -4,7 +4,6 @@ devices = dict(
     mX=device(
         'nicos_ess.devices.epics.motor.EpicsMotor',
         epicstimeout=3.0,
-        precision=0.1,
         description='Single axis positioner',
         motorpv='SES-SCAN:MC-MCU-001:m1',
         errormsgpv='SES-SCAN:MC-MCU-001:m1-MsgTxt',
@@ -14,7 +13,6 @@ devices = dict(
     mY=device(
         'nicos_ess.devices.epics.motor.EpicsMotor',
         epicstimeout=3.0,
-        precision=0.1,
         description='Single axis positioner',
         motorpv='SES-SCAN:MC-MCU-001:m2',
         errormsgpv='SES-SCAN:MC-MCU-001:m2-MsgTxt',
@@ -24,7 +22,6 @@ devices = dict(
     mZ=device(
         'nicos_ess.devices.epics.motor.EpicsMotor',
         epicstimeout=3.0,
-        precision=0.1,
         description='Single axis positioner',
         motorpv='SES-SCAN:MC-MCU-001:m3',
         errormsgpv='SES-SCAN:MC-MCU-001:m3-MsgTxt',
