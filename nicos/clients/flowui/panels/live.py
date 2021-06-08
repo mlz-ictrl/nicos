@@ -204,8 +204,8 @@ class MultiLiveDataPanel(LiveDataPanel):
         self.fileList = QListWidget()
         self.tb_fileList = QComboBox()
         self._detector_selected = options.get('default_detector', '')
-        self._previews = dict()
-        self._previews_cache = dict()
+        self._previews = {}
+        self._previews_cache = {}
         LiveDataPanel.__init__(self, parent, client, options)
         self.layout().setMenuBar(self.toolbar)
         self.scroll.setWidgetResizable(True)
@@ -232,6 +232,9 @@ class MultiLiveDataPanel(LiveDataPanel):
             self.scrollContent.layout().addWidget(preview)
 
     def on_client_setup(self):
+        self._create_previews()
+
+    def _create_previews(self):
         """
         The object populates the checkbox with all the available detectors.
         If this method is called after a reconnection, destroys the content
@@ -326,9 +329,16 @@ class MultiLiveDataPanel(LiveDataPanel):
             normalized_type = self.normalizeType(datadesc['dtype'])
             widget = self._previews[f'{detname}-{index}'].widget()
             labels, _ = process_axis_labels(datadesc, blobs)
+            if self._has_plot_changed_dimensionality(widget, labels):
+                # Previews are no longer correct widget types
+                self._create_previews()
             process_livedata(widget,
                              numpy.frombuffer(blobs[index], normalized_type),
                              params, labels, index)
+
+    def _has_plot_changed_dimensionality(self, widget, labels):
+        return (isinstance(widget, LiveWidget1D) and 'y' in labels) or \
+               (not isinstance(widget, LiveWidget1D) and 'y' not in labels)
 
     def on_preview_clicked(self, detname):
         """
