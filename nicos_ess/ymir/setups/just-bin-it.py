@@ -28,8 +28,8 @@ devices = dict(
         description='The just-bin-it histogrammer',
         brokers=['172.30.242.20:9092'],
         unit='',
-        command_topic='hist_commands',
-        response_topic='hist_responses',
+        command_topic='ymir_jbi_commands',
+        response_topic='ymir_jbi_responses',
         images=['det_image1', 'det_image2'],
     ),
 )
