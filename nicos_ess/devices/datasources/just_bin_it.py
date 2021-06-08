@@ -41,7 +41,7 @@ class Hist1dTof:
     name = 'hist1d'
 
     @classmethod
-    def get_array_description(cls, num_bins, det_width, det_height):
+    def get_array_description(cls, num_bins, **ignored):
         return ArrayDesc('data', shape=(num_bins,), dtype=np.float64)
 
     @classmethod
@@ -49,7 +49,7 @@ class Hist1dTof:
         return data
 
     @classmethod
-    def get_info(cls, name, num_bins, det_width, det_height):
+    def get_info(cls, name, num_bins, **ignored):
         return [(f'{name} bins', num_bins, str(num_bins), '', 'general')]
 
 
@@ -57,7 +57,7 @@ class Hist2dTof:
     name = 'hist2d'
 
     @classmethod
-    def get_array_description(cls, num_bins, det_width, det_height):
+    def get_array_description(cls, num_bins, **ignored):
         return ArrayDesc('data', shape=(num_bins, num_bins), dtype=np.float64)
 
     @classmethod
@@ -66,7 +66,7 @@ class Hist2dTof:
         return np.rot90(data)
 
     @classmethod
-    def get_info(cls, name, num_bins, det_width, det_height):
+    def get_info(cls, name, num_bins, **ignored):
         return [(f'{name} bins', (num_bins, num_bins),
                  str((num_bins, num_bins)), '', 'general')]
 
@@ -75,7 +75,7 @@ class Hist2dDet:
     name = 'dethist'
 
     @classmethod
-    def get_array_description(cls, num_bins, det_width, det_height):
+    def get_array_description(cls, det_width, det_height, **ignored):
         return ArrayDesc('data', shape=(det_width, det_height),
                          dtype=np.float64)
 
@@ -85,15 +85,36 @@ class Hist2dDet:
         return np.rot90(data)
 
     @classmethod
-    def get_info(cls, name, num_bins, det_width, det_height):
+    def get_info(cls, name, det_width, det_height, **ignored):
         return [(f'{name} width', det_width, str(det_width), '', 'general'),
                 (f'{name} height', det_height, str(det_height), '', 'general')]
+
+
+class Hist2dRoi:
+    name = 'roihist'
+
+    @classmethod
+    def get_array_description(cls, det_width, det_height, **ignored):
+        return ArrayDesc('data', shape=(det_width, det_height),
+                         dtype=np.float64)
+
+    @classmethod
+    def transform_data(cls, data):
+        # For the ESS detector orientation, pixel 0 is at top-left
+        return np.rot90(data)
+
+    @classmethod
+    def get_info(cls, name, det_width, left_edges, **ignored):
+        height = len(left_edges)
+        return [(f'{name} width', det_width, str(det_width), '', 'general'),
+                (f'{name} height', height, str(height), '', 'general')]
 
 
 hist_type_by_name = {
     '1-D TOF': Hist1dTof,
     '2-D TOF': Hist2dTof,
     '2-D DET': Hist2dDet,
+    '2-D ROI': Hist2dRoi,
 }
 
 
@@ -128,6 +149,10 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
         'num_bins': Param('The number of bins to histogram into', type=int,
                           default=50, userparam=True, settable=True,
                           ),
+        'left_edges': Param('The left edges for a ROI histogram',
+                            type=listof(int), default=[],
+                            userparam=True, settable=True,
+                           ),
         'source': Param('The number of bins to histogram into', type=str,
                         default='', userparam=True, settable=True,
                         ),
@@ -149,7 +174,7 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
 
     def arrayInfo(self):
         return hist_type_by_name[self.hist_type].get_array_description(
-            self.num_bins, self.det_width, self.det_height)
+            **self._get_all_parameters())
 
     def doPrepare(self):
         self._current_status = status.BUSY, 'Preparing'
@@ -224,6 +249,7 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
             'num_bins': self.num_bins,
             'width': self.det_width,
             'height': self.det_height,
+            'left_edges': self.left_edges,
             'topic': self.hist_topic,
             'source': self.source,
             'id': self._unique_id,
@@ -232,9 +258,12 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
     def doInfo(self):
         result = [(f'{self.name} histogram type', self.hist_type,
                    self.hist_type, '', 'general')]
-        result.extend(hist_type_by_name[self.hist_type].get_info(self.name,
-                      self.num_bins, self.det_width, self.det_height))
+        result.extend(hist_type_by_name[self.hist_type].get_info(
+            **self._get_all_parameters()))
         return result
+
+    def _get_all_parameters(self):
+        return {k: getattr(self, k) for k in self.parameters}
 
 
 class JustBinItDetector(Detector):
