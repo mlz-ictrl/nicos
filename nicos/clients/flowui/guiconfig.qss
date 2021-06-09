@@ -46,7 +46,7 @@ QWidget {
     font-family: "Source Sans Pro";
 }
 
-.MainWindow,
+MainWindow,
 QMenuBar {
 /* background-color: qlineargradient(x1:.1, y1:0, x2:0.2, stop:0 #1f5366, stop:1
 #0094ca); */

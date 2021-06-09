@@ -34,6 +34,7 @@ from os import path
 
 from nicos import config
 from nicos.clients.base import ConnectionData
+from nicos.clients.flowui.mainwindow import MainWindow as MainWindowESS
 from nicos.clients.gui.config import processGuiConfig
 from nicos.clients.gui.dialogs.instr_select import InstrSelectDialog
 from nicos.clients.gui.mainwindow import MainWindow
@@ -44,6 +45,8 @@ from nicos.utils import parseConnectionString
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogfileHandler, \
     NicosLogger, initLoggers
 
+from nicos_sinq.gui.mainwindow import MainWindowSINQ
+
 # Work around a crash on Py3/Bionic when readline is imported later in
 # a callback from unpickling server data.
 try:
@@ -52,6 +55,12 @@ except ImportError:
     pass
 
 log = None
+
+_mainwindow_cls = {
+    'default': MainWindow,
+    'ess': MainWindowESS,
+    'sinq': MainWindowSINQ,
+    }
 
 
 def parseargs():
@@ -121,12 +130,9 @@ def main(argv):
     gui_conf = processGuiConfig(configcode)
     gui_conf.stylefile = ''
 
-    instrumentpath = path.join('/', *os.path.abspath(opts.configfile).split(
-        '/')[:-1])
-    for f in os.listdir(instrumentpath):
-        if f.endswith(".qss"):
-            gui_conf.stylefile = path.join(instrumentpath, f)
-            break
+    if gui_conf.options.get('facility') in ['ess', 'sinq']:
+        gui_conf.stylefile = f"{config.nicos_root}" \
+                             f"/nicos/clients/flowui/guiconfig.qss"
 
     stylefiles = [path.join(userpath, 'style-%s.qss' % sys.platform),
         path.join(userpath, 'style.qss'),
@@ -144,11 +150,9 @@ def main(argv):
                 log.warning('Error setting user style sheet from %s',
                             stylefile, exc=1)
 
-    if 'ess_gui' in gui_conf.options and gui_conf.options['ess_gui']:
-        from nicos.clients.flowui.mainwindow import MainWindow as MainWindowESS
-        mainwindow = MainWindowESS(log, gui_conf, opts.viewonly, opts.tunnel)
-    else:
-        mainwindow = MainWindow(log, gui_conf, opts.viewonly, opts.tunnel)
+    mainwindow_cls = _mainwindow_cls.get(gui_conf.options.get('facility',
+                                                              'default'))
+    mainwindow = mainwindow_cls(log, gui_conf, opts.viewonly, opts.tunnel)
     log.addHandler(DebugHandler(mainwindow))
 
     if opts.connect:
