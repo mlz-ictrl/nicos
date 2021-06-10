@@ -34,7 +34,6 @@ devices = dict(
         operators = ['Technische Universität München (TUM)'],
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
-        semicolon = False,
     ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink',
     ),
