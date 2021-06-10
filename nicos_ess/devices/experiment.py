@@ -25,12 +25,14 @@
 """ESS Experiment device."""
 
 import os
+import time
 
 from yuos_query.exceptions import BaseYuosException
 from yuos_query.yuos_client import YuosClient
 
 from nicos.core import Override, Param
 from nicos.devices.experiment import Experiment
+from nicos.utils import createThread
 
 
 class EssExperiment(Experiment):
@@ -41,6 +43,11 @@ class EssExperiment(Experiment):
         'instrument': Param('The instrument name in the proposal system',
             type=str, category='experiment', mandatory=True,
         ),
+        'cache_filepath': Param('Path to the proposal cache',
+            type=str, category='experiment', mandatory=True,
+        ),
+        'update_interval': Param('Time interval (in hrs.) for cache updates',
+            default=1.0, type=float)
     }
 
     parameter_overrides = {
@@ -53,14 +60,27 @@ class EssExperiment(Experiment):
     def doInit(self, mode):
         Experiment.doInit(self, mode)
         self._client = None
+        self._update_cache_worker = createThread(
+            'update_cache', self._update_cache, start=False)
         # Get secret from the environment
         token = os.environ.get('YUOS_TOKEN')
         if token:
-            self._client = YuosClient(self.server_url, token, self.instrument)
+            try:
+                self._client = YuosClient(
+                    self.server_url, token, self.instrument, self.cache_filepath)
+                self._update_cache_worker.start()
+            except BaseYuosException as error:
+                self.log.warn(f'QueryDB not available: {error}')
 
     def _canQueryProposals(self):
         if self._client:
             return True
+
+    def _update_cache(self):
+        while True:
+            # Client instantiation updates the cache. Thus wait before updating
+            time.sleep(self.update_interval * 3600)
+            self._client.update_cache()
 
     def _queryProposals(self, proposal=None, kwds=None):
         if not proposal:
@@ -69,14 +89,12 @@ class EssExperiment(Experiment):
         query_result = self._do_query(proposal)
         if not query_result:
             raise RuntimeError(f'could not find proposal {proposal}')
-        users = self._extract_users(query_result)
-
         result = {
             'proposal': str(query_result.id),
             'title': query_result.title,
-            'users': users,
+            'users': self._extract_users(query_result),
             'localcontacts': [],
-            'samples': [],
+            'samples': self._extract_samples(query_result),
             'dataemails': [],
             'notif_emails': [],
             'errors': [],
@@ -91,6 +109,19 @@ class EssExperiment(Experiment):
         except BaseYuosException as error:
             self.log.error(f'{error}')
             raise
+
+    def _extract_samples(self, query_result):
+        samples = []
+        for sample in query_result.samples:
+            samples.append({
+                'name': sample.name,
+                'formula': sample.formula,
+                'number of': sample.number,
+                'mass/volume':
+                    f'{sample.mass_or_volume[0]} {sample.mass_or_volume[1]}'.strip(),
+                'density': f'{sample.density[0]} {sample.density[1]}'.strip(),
+            })
+        return samples
 
     def _extract_users(self, query_result):
         users = []

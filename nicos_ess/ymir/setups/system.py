@@ -27,7 +27,8 @@ devices = dict(
                dataroot='/opt/nicos-data/ymir',
                sample='Sample',
                server_url='https://useroffice-test.esss.lu.se/graphql',
-               instrument='YMIR'
+               instrument='YMIR',
+               cache_filepath='/opt/nicos-data/ymir/cached_proposals.json'
                ),
 
     filesink=device('nicos.devices.datasinks.AsciiScanfileSink',
