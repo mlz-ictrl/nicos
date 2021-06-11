@@ -116,7 +116,7 @@ class EpicsDevice(DeviceMixinBase):
     parameters = {
         'epicstimeout': Param('Timeout for getting EPICS PVs',
                               type=none_or(floatrange(0.1, 60)),
-                              default=1.0),
+                              default=1.0, userparam=False),
     }
 
     # This will store PV objects for each PV param.
@@ -259,7 +259,7 @@ class EpicsReadable(EpicsDevice, Readable):
 
     parameters = {
         'readpv': Param('PV for reading device value',
-                        type=pvname, mandatory=True),
+                        type=pvname, mandatory=True, userparam=False),
     }
 
     parameter_overrides = {
@@ -300,11 +300,12 @@ class EpicsMoveable(EpicsDevice, Moveable):
 
     parameters = {
         'readpv': Param('PV for reading device value',
-                        type=pvname, mandatory=True),
+                        type=pvname, mandatory=True, userparam=False),
         'writepv': Param('PV for writing device target',
-                         type=pvname, mandatory=True),
+                         type=pvname, mandatory=True, userparam=False),
         'targetpv': Param('Optional target readback PV.',
-                          type=none_or(pvname), mandatory=False)
+                          type=none_or(pvname), mandatory=False,
+                          userparam=False)
     }
 
     parameter_overrides = {
