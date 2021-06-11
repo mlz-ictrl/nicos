@@ -225,10 +225,10 @@ class ExpPanel(DefaultExpPanel):
 
     @pyqtSlot(str)
     def on_users_textChanged(self, value):
-        curr_val = self._get_proposal_data('users')
-        # Special handling for users is needed.
-        curr_val = curr_val[0]['name']
-        self._apply_warning_status(value, 2, curr_val)
+        users = self._get_proposal_data('users', [])
+        if users:
+            curr_val = combineUsers(users)
+            self._apply_warning_status(value, 2, curr_val)
 
     @pyqtSlot(str)
     def on_localContacts_textChanged(self, value):
@@ -260,9 +260,8 @@ class ExpPanel(DefaultExpPanel):
         self.is_exp_props_edited[7] = value != self._defined_data_emails
         self._set_warning_visibility()
 
-    def _get_proposal_data(self, props_key):
-        # returns empty string in case key not found or value of key is None
-        return self._orig_propinfo.get(props_key, '') or ''
+    def _get_proposal_data(self, props_key, default=''):
+        return self._orig_propinfo.get(props_key, default) or default
 
     def _apply_warning_status(self, value, index, props_curr_val):
         self.is_exp_props_edited[index] = \
