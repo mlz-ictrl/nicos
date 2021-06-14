@@ -566,6 +566,7 @@ class MainWindow(DlgUtils, QMainWindow):
     def on_client_disconnected(self):
         self.adminLabel.setVisible(False)
         self.setStatus('disconnected')
+        self.actionViewOnly.setChecked(True)
 
     def on_client_showhelp(self, data):
         if not HelpWindow:
