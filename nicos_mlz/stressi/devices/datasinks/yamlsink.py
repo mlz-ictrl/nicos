@@ -493,6 +493,5 @@ class YamlDatafileSink(AsciiScanfileSink):
 
     parameter_overrides = {
         'settypes': Override(default=[SCAN, SUBSCAN]),
-        'semicolon': Override(default=''),
         'commentchar': Override(default='',)
     }

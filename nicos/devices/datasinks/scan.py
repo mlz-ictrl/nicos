@@ -125,7 +125,6 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
         DataSinkHandler.__init__(self, sink, dataset, detector)
         self._file = None
         self._fname = None
-        self._semicolon = sink.semicolon
         self._commentc = sink.commentchar
         self._template = sink.filenametemplate
 
@@ -169,15 +168,10 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
         yunits = [v.unit for v in ds.detvalueinfo]
         # to be written later (after info)
         file_names = ['file%d' % i for i in range(1, nfiles + 1)]
-        if self._semicolon:
-            self._colnames = xnames + [';'] + ynames + file_names
-            # make sure there are no empty units
-            self._colunits = [u or '-' for u in xunits + [';'] + yunits +
-                              [''] * nfiles]
-        else:
-            self._colnames = xnames + ynames + file_names
-            self._colunits = [u or '-' for u in xunits + yunits +
-                              [''] * nfiles]
+        self._colnames = xnames + [';'] + ynames + file_names
+        # make sure there are no empty units
+        self._colunits = [u or '-' for u in xunits + [';'] + yunits +
+                          [''] * nfiles]
         self._file.flush()
 
     def addSubset(self, point):
@@ -193,8 +187,7 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
                   zip(self.dataset.devvalueinfo, point.devvaluelist)] + \
                  [safe_format(info.fmtstr, val) for (info, val) in
                   zip(self.dataset.envvalueinfo, point.envvaluelist)]
-        if self._semicolon:
-            values += [';']
+        values += [';']
         values += [safe_format(info.fmtstr, val) for (info, val) in
                    zip(self.dataset.detvalueinfo, point.detvaluelist)]
         values += self.getFilenames(point)
@@ -217,8 +210,6 @@ class AsciiScanfileSink(FileSink):
     parameters = {
         'commentchar': Param('Comment character', type=str, default='#',
                              settable=True),
-        'semicolon':   Param('Whether to add a semicolon between X and Y '
-                             'values', type=bool, default=True),
     }
 
     handlerclass = AsciiScanfileSinkHandler

@@ -667,6 +667,5 @@ class ConfigObjDatafileSink(FileSink):
 
     parameter_overrides = {
         'settypes': Override(default=[POINT]),
-        'semicolon': Override(default=''),
         'commentchar': Override(default='#'),
     }
