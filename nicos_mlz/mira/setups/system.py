@@ -36,7 +36,6 @@ devices = dict(
         website = 'http://www.mlz-garching.de/mira',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',
-        semicolon = False,
     ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink',
     ),
