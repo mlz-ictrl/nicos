@@ -56,11 +56,6 @@ class MainWindow(DefaultMainWindow):
         self.set_icons()
         self.style_file = gui_conf.stylefile
 
-        # Connect widget events.
-        self.getPanel('Experiment setup').exp_proposal_activated.connect(
-            self.getPanel('Finish experiment').on_new_experiment_proposal
-        )
-
         # Cheeseburger menu
         dropdown = QMenu('')
         dropdown.addAction(self.actionConnect)

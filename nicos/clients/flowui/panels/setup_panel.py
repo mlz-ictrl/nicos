@@ -294,33 +294,39 @@ class FinishPanel(Panel):
 
     panelName = 'Finish experiment'
     ui = '%s/panels/ui_files/finish_exp.ui' % uipath
-
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
         loadUi(self, self.ui)
         self._finish_exp_panel = None
 
-        # Additional dialog panels to pop up after FinishExperiment().
+        # Additional dialog panel to pop up after FinishExperiment().
         self._finish_exp_panel = options.get('finish_exp_panel')
-        self.finishButton.setEnabled(False)
 
+        self.finishButton.setEnabled(False)
         client.connected.connect(self.on_client_connected)
         client.disconnected.connect(self.on_client_disconnected)
-        client.setup.connect(self.on_client_connected)
+        client.experiment.connect(self.on_experiment_changed)
+
+    def on_experiment_changed(self, a):
+        self._enable_finishing()
+
+    def _enable_finishing(self):
+        if not self.client.viewonly and self._is_user_experiment():
+            self.finishButton.setEnabled(True)
+        else:
+            self.finishButton.setEnabled(False)
+
+    def _is_user_experiment(self):
+        return self.client.eval('session.experiment.proptype', '') == 'user'
 
     def on_client_connected(self):
-        if not self.client.viewonly:
-            self.finishButton.setEnabled(True)
+        self._enable_finishing()
 
     def on_client_disconnected(self):
         self.finishButton.setEnabled(False)
 
     def setViewOnly(self, value):
-        self.finishButton.setEnabled(self.client.isconnected and not value)
-
-    def on_new_experiment_proposal(self):
-        if not self.client.viewonly:
-            self.finishButton.setEnabled(True)
+        self._enable_finishing()
 
     @pyqtSlot()
     def on_finishButton_clicked(self):
@@ -332,7 +338,6 @@ class FinishPanel(Panel):
             self.showError('Could not finish experiment, a script '
                            'is still running.')
         else:
-            self.finishButton.setEnabled(False)
             self.show_finish_message()
 
     def show_finish_message(self):
