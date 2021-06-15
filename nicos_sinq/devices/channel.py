@@ -19,11 +19,17 @@
 #
 # Module authors:
 #   Mark Koennecke <mark.koennecke@psi.ch>
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
-from nicos.core import ArrayDesc, Attach, Param, Value
-from nicos.devices.generic import ImageChannelMixin, PassiveChannel
+from time import time as currenttime
+
+from nicos.core import ArrayDesc, Attach, HasPrecision, Moveable, Override, \
+    Param, Readable, Value, status
+from nicos.devices.generic import ActiveChannel, ImageChannelMixin, \
+    PassiveChannel
+from nicos.utils import lazy_property
 
 
 class SelectSliceImageChannel(ImageChannelMixin, PassiveChannel):
@@ -59,3 +65,80 @@ class SelectSliceImageChannel(ImageChannelMixin, PassiveChannel):
 
     def valueInfo(self):
         return [Value(self.name, type='counter', unit=self.unit)]
+
+
+class ReadableToChannel(HasPrecision, ActiveChannel):
+    """
+    Allow to use a generic device (e.g. sample environment) as an Active
+    channel.
+    """
+
+    attached_devices = {'dev': Attach('Device to use as a counter', Readable)}
+
+    parameters = {
+        'window': Param('Time window for which the value has to be within '
+                        'precision', type=int, mandatory=False, settable=True)}
+
+    parameter_overrides = {
+        'lowlevel': Override(default=True),
+    }
+
+    def doPreinit(self, mode):
+        self._preselection_reached = True
+
+    def doRead(self, maxage=0):
+        return self._attached_dev.doRead()
+
+    def doStart(self):
+        if not self._preselection_reached and isinstance(self._attached_dev,
+                                                         Moveable):
+            self._attached_dev.start(self.preselection)
+
+    def doFinish(self):
+        self._preselection_reached = True
+
+    def doStop(self):
+        self._attached_dev.stop()
+        self.doFinish()
+
+    @lazy_property
+    def _history(self):
+        if self._cache:
+            self._cache.addCallback(self, 'value', self._cacheCB)
+            self._subscriptions.append(('value', self._cacheCB))
+            t = currenttime()
+            return self._cache.history(self, 'value', t - self.window, t)
+        return []
+
+    # use values determined by poller or waitForCompletion loop
+    # to fill our history
+    def _cacheCB(self, key, value, time):
+        self._history.append((time, value))
+        # clean out stale values, if more than one
+        stale = None
+        for i, entry in enumerate(self._history):
+            t, _ = entry
+            if t >= time - self.window:
+                stale = i
+                break
+        else:
+            return
+        # remove oldest entries, but keep one stale
+        if stale > 1:
+            del self._history[:stale - 1]
+
+    def doStatus(self, maxage=0):
+        vals = [v for t, v in self._history[:]]
+        stable = all(
+            abs(v - self.preselection) <= self.precision for v in vals)
+        if stable or self._preselection_reached:
+            return status.OK, 'Done'
+        return status.BUSY, 'target not reached'
+
+    def setChannelPreset(self, name, value):
+        self._preselection_reached = False
+        ActiveChannel.setChannelPreset(self, name, value)
+
+    def valueInfo(self):
+        return Value('%s' % self, type='other', unit=self._attached_dev.unit,
+                     fmtstr=self._attached_dev.fmtstr, errors='none'),
