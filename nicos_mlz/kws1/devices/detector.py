@@ -26,7 +26,7 @@
 
 from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
     DeviceMixinBase, HasLimits, Moveable, MoveError, Override, Param, dictof, \
-    dictwith, multiReset, multiStop, oneof, status
+    dictwith, multiReset, multiStop, none_or, oneof, status
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep, \
     SequencerMixin
@@ -79,7 +79,8 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
         'mapkey':     Param('Last selector position for mapping',
                             type=str, settable=True, internal=True),
         'beamstopsettlepos': Param('Settling position for beamstop y axis',
-                                   settable=True, default=400),
+                                   type=none_or(float), settable=True,
+                                   default=400),
     }
 
     parameter_overrides = {
@@ -124,15 +125,18 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
                 raise MoveError(self, 'Cannot start device, sequence is still '
                                       'running (at %s)!' % self._seq_status[1])
 
+        det_z = self._attached_det_z
         seq = []
         seq.append(SeqDev(self._attached_bs_y, pos[1], stoppable=True))
         seq.append(SeqDev(self._attached_bs_x, pos[0], stoppable=True))
-        seq.append(SeqDev(self._attached_det_z, pos[2], stoppable=True))
+        seq.append(SeqDev(det_z, pos[2], stoppable=True))
 
         # if z has to move, reposition beamstop y afterwards by going to
         # some other value (damping vibrations) and back
-        if abs(self._attached_det_z.read(0) - pos[2]) > self._attached_det_z.precision:
-            seq.append(SeqDev(self._attached_bs_y, self.beamstopsettlepos, stoppable=True))
+        if self.beamstopsettlepos is not None and \
+           abs(det_z.read(0) - pos[2]) > det_z.precision:
+            seq.append(SeqDev(self._attached_bs_y, self.beamstopsettlepos,
+                              stoppable=True))
             seq.append(SeqSleep(30))
             seq.append(SeqDev(self._attached_bs_y, pos[1], stoppable=True))
 
