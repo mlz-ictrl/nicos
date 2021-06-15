@@ -1,0 +1,9 @@
+Virtual twins of MLZ instruments
+================================
+
+This facility tree contains "virtual twins" of MLZ instruments, which
+work together with a Monte-Carlo simulation and try to give a realistic
+feel for the handling and performance of the instrument.
+
+The sources for the simulations are collected in a separate git repository:
+https://forge.frm2.tum.de/review/plugins/gitiles/mlz/mcstas/nicos-instruments
