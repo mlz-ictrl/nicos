@@ -79,7 +79,7 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
 
     stoprequest = 0
 
-    valuetype = tupleof(*(float for i in range(2 * _num_axes)))
+    valuetype = tupleof(*(float,) * 2 * _num_axes)
 
     _allowed_called = False
 

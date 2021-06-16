@@ -58,7 +58,7 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
         'att': Attach('Coupled axes detector', Moveable),
     }
 
-    valuetype = tupleof(*(float for i in range(2 * _num_axes)))
+    valuetype = tupleof(*(float,) * 2 * _num_axes)
 
     parameters = {
         'general_reset': Param('',
