@@ -34,6 +34,7 @@ from nicos.guisupport.display import PictureDisplay, ValueDisplay, \
 from nicos.guisupport.qt import QApplication, QColor, QCursor, QFont, \
     QFontMetrics, QFrame, QHBoxLayout, QIcon, QLabel, QMainWindow, QPalette, \
     QSizePolicy, Qt, QVBoxLayout, pyqtSignal, uic
+from nicos.guisupport.squeezedlbl import SqueezedLabel
 from nicos.guisupport.utils import scaledFont
 from nicos.guisupport.widget import NicosWidget
 from nicos.services.monitor import Monitor as BaseMonitor
@@ -252,7 +253,7 @@ class Monitor(BaseMonitor):
         lbl = QLabel('Warnings', self._warnpanel, font=warnfont)
         lbl.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         warningslayout.addWidget(lbl)
-        self._warnlabel = QLabel('', self._warnpanel, font=blockfont)
+        self._warnlabel = SqueezedLabel('', self._warnpanel, font=blockfont)
         warningslayout.addWidget(self._warnlabel)
         self._warnpanel.setLayout(warningslayout)
         masterlayout.addWidget(self._warnpanel)
