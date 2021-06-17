@@ -712,7 +712,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
     _timer = None
 
     def doInit(self, mode):
-        self.arraydesc = ArrayDesc(self.name, self.sizes, '<u4')
+        self.arraydesc = ArrayDesc(self.name, self.sizes[::-1], '<u4')
 
     def doPrepare(self):
         self.readresult = [0]

@@ -183,7 +183,7 @@ class VirtualKWSImageChannel(VirtualImage):
     def _configure(self, tofsettings):
         if self.mode == 'standard':
             self.slices = []
-            self.arraydesc = ArrayDesc('data', self.sizes, np.uint32)
+            self.arraydesc = ArrayDesc('data', self.sizes[::-1], np.uint32)
         else:
             # set timing of TOF slices
             channels, interval, q, custom = tofsettings
@@ -196,7 +196,7 @@ class VirtualKWSImageChannel(VirtualImage):
                 for i in range(channels):
                     times.append(times[-1] + int(interval * q**i))
             self.slices = times
-            self.arraydesc = ArrayDesc('data', (channels,) + self.sizes,
+            self.arraydesc = ArrayDesc('data', (channels,) + self.sizes[::-1],
                                        np.uint32)
 
     def doReadArray(self, quality):
