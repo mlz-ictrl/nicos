@@ -476,7 +476,7 @@ def createSubprocess(cmdline, **kwds):
                                       kwds.get('stdout') or
                                       kwds.get('stderr')):
             kwds['close_fds'] = True
-    return subprocess.Popen(cmdline, **kwds)
+    return subprocess.Popen(cmdline, **kwds)  # pylint: disable=consider-using-with
 
 
 try:
@@ -911,6 +911,7 @@ def daemonize():
     os.close(2)
 
     # redirect standard file descriptors
+    # pylint: disable=consider-using-with
     sys.stdin = open('/dev/null', 'r')
     sys.stdout = sys.stderr = open('/dev/null', 'w')
 
@@ -1282,8 +1283,8 @@ def decodeAny(string):
 _SAFE_FILE_CHARS = frozenset('-=+_.,()[]{}0123456789abcdefghijklmnopqrstuvwxyz'
                              'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 _BAD_NAMES = frozenset(('.', '..', 'con', 'prn', 'aux', 'nul') +
-                       tuple('com%d' for d in range(1, 10)) +
-                       tuple('lpt%d' for d in range(1, 10)))
+                       tuple(f'com{d}' for d in range(1, 10)) +
+                       tuple(f'lpt{d}' for d in range(1, 10)))
 
 
 def safeName(what, _SAFE_FILE_CHARS=_SAFE_FILE_CHARS):
@@ -1299,7 +1300,7 @@ def safeName(what, _SAFE_FILE_CHARS=_SAFE_FILE_CHARS):
         s = s.replace('__', '_')
     # avoid special bad names
     if s.lower() in _BAD_NAMES:
-        s = '_%s_'
+        s = f'_{s}_'
     return s if s else '_empty_'
 
 

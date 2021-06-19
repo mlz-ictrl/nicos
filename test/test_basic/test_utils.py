@@ -35,12 +35,13 @@ from datetime import timedelta
 import pytest
 
 from nicos.core.errors import NicosError
-from nicos.utils import Repeater, allDays, bitDescription, checkSetupSpec, \
-    chunks, closeSocket, comparestrings, extractKeyAndIndex, formatDuration, \
-    formatExtendedFrame, formatExtendedStack, formatExtendedTraceback, \
-    lazy_property, moveOutOfWay, num_sort, parseConnectionString, \
-    parseDuration, readonlydict, readonlylist, safeWriteFile, squeeze, \
-    tcpSocket, timedRetryOnExcept, tupelize, TB_CAUSE_MSG
+from nicos.utils import TB_CAUSE_MSG, Repeater, allDays, bitDescription, \
+    checkSetupSpec, chunks, closeSocket, comparestrings, extractKeyAndIndex, \
+    formatDuration, formatExtendedFrame, formatExtendedStack, \
+    formatExtendedTraceback, lazy_property, moveOutOfWay, num_sort, \
+    parseConnectionString, parseDuration, readonlydict, readonlylist, \
+    safeName, safeWriteFile, squeeze, tcpSocket, timedRetryOnExcept, \
+    tupelize
 from nicos.utils.timer import Timer
 
 from test.utils import raises
@@ -468,6 +469,11 @@ def test_all_days():
     assert list(allDays(tmto - 2 * 86400, tmto)) == exp_list[2:]
     assert list(allDays(tmto - 3 * 86400, tmto)) == exp_list[1:]
     assert list(allDays(tmto - 4 * 86400, tmto)) == exp_list
+
+@pytest.mark.parametrize('name', [('COM1','_COM1_'),
+                                  ('xyz.txt','xyz.txt')])
+def test_safeName(name):
+    assert safeName(name[0]) == name[1]
 
 
 @pytest.mark.parametrize('maxbackup', [2, None, 0])
