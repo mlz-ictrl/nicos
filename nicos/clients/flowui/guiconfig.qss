@@ -402,7 +402,7 @@ QSplitter::handle:horizontal{
 
 QSplitter::handle:vertical{
   image: url(:/splitterh);
-} 
+}
 
 /* --------- QCheckBox ----------------------- */
 
@@ -516,7 +516,7 @@ QPushButton:checked:pressed {
 /* -------------------- QDialog ------------------------ */
 /* At the end, so that it overrides QTab*/
 
-QDialog, 
+QDialog,
 QMessageBox > QLabel {
   background-color: #a9a9a9;
   color: #1f5366;
@@ -571,4 +571,29 @@ border-radius: 5px;
 
 Panel[panel='CommandPanel'] QPushButton {
 width:80px;
+}
+
+LiveWidgetWrapper:title {
+    subcontrol-origin: margin;
+    subcontrol-position: top center;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+LiveWidgetWrapper[state="SELECTED"] {
+    border: 5px solid #0094CA;
+    border-radius: 5px;
+}
+
+LiveWidgetWrapper[state="UNSELECTED"] {
+    border: 5px solid white;
+    border-radius: 5px;
+}
+QScrollBar:vertical {
+    width: 10px;
+    background-color: none;
+}
+QScrollBar:horizontal {
+    width: 10px;
+    background-color: none;
 }

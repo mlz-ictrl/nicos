@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+from enum import Enum
+
 import numpy
 
 from nicos.clients.flowui import uipath
@@ -30,7 +32,12 @@ from nicos.clients.gui.panels.live import LiveDataPanel as DefaultLiveDataPanel
 from nicos.guisupport.livewidget import AXES, \
     LiveWidget as DefaultLiveWidget, LiveWidget1D as DefaultLiveWidget1D
 from nicos.guisupport.qt import QComboBox, QGroupBox, QListWidget, QSize, Qt, \
-    QToolBar, QVBoxLayout, pyqtSignal
+    QToolBar, QVBoxLayout, pyqtProperty, pyqtSignal
+
+
+class State(Enum):
+    UNSELECTED = 0
+    SELECTED = 1
 
 
 class LiveDataPanel(DefaultLiveDataPanel):
@@ -101,6 +108,8 @@ class LiveWidget1D(DefaultLiveWidget1D):
 class LiveWidgetWrapper(QGroupBox):
     def __init__(self, title, parent=None):
         QGroupBox.__init__(self, title=title, parent=parent)
+        self.state = State.UNSELECTED
+
         self.setContentsMargins(0, 0, 0, 0)
         vbox = QVBoxLayout()
         vbox.setContentsMargins(0, 0, 0, 0)
@@ -116,6 +125,23 @@ class LiveWidgetWrapper(QGroupBox):
         # Maintain aspect ratio when resizing
         new_size = QSize(event.size().width(), event.size().width())
         self.resize(new_size)
+
+    @pyqtProperty(str)
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, value):
+        self._state = value.name
+        self.refresh_widget()
+
+    def refresh_widget(self):
+        """
+        Update the widget with a new stylesheet.
+        """
+        self.style().unpolish(self)
+        self.style().polish(self)
+        self.update()
 
 
 def layout_iterator(layout):
@@ -233,6 +259,11 @@ class MultiLiveDataPanel(LiveDataPanel):
 
     def on_client_setup(self):
         self._create_previews()
+
+    def highlight_selected_preview(self, detname):
+        for preview in self._previews.values():
+            preview.state = State.UNSELECTED
+        self._previews[detname].state = State.SELECTED
 
     def _create_previews(self):
         """
@@ -360,6 +391,8 @@ class MultiLiveDataPanel(LiveDataPanel):
 
             pars['datadescs'] = [pars['datadescs'][ch]]
             DefaultLiveDataPanel.on_client_livedata(self, pars, [blobs[ch]])
+
+        self.highlight_selected_preview(detname)
 
     def on_closed(self):
         """
