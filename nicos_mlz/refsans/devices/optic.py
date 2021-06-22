@@ -132,7 +132,13 @@ class Optic(Moveable):
                 if self.setting[target][ele] == 'debug':
                     line += ' debug'
                 else:
-                    f.move(self.setting[target][ele])
+                    post = []
+                    if ele in ['nok5a', 'nok5b', 'zb0', 'zb1',]:
+                        post.append(ele)
+                    else:
+                        f.move(self.setting[target][ele])
+                    for ele in post:
+                        f.maw(self.setting[target][ele])
                     line += ' %s' % self.setting[target][ele]
                 self.log.debug(line)
             else:
@@ -149,7 +155,15 @@ class Optic(Moveable):
                 if self.masks[target][ele] == 'debug':
                     line += ' debug'
                 else:
-                    f.mode = self.masks[target][ele]
+                    post = []
+                    if ele in ['nok5a', 'nok5b', 'zb0', 'zb1',]:
+                        post.append(ele)
+                    else:
+                        f.mode = self.masks[target][ele]
+                    for ele in post:
+                        f.mode = self.masks[target][ele]
+                        f = getattr(self, '_attached_' + ele)
+                        f.wait()
                     line += ' %s' % self.masks[target][ele]
                 self.log.debug(line)
             else:
