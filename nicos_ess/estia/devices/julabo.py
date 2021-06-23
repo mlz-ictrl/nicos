@@ -27,8 +27,8 @@ This module contains a device for reading the Julabo temperature
 controller using EPICS.
 """
 
-from nicos.core import ConfigurationError, Override, Param, pvname, status, \
-    HasPrecision
+from nicos.core import ConfigurationError, HasPrecision, Override, Param, \
+    pvname, status
 
 from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 from nicos_ess.devices.epics.extensions import HasDisablePv

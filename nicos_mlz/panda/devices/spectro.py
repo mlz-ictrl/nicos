@@ -27,9 +27,9 @@
 from nicos import session
 from nicos.core import SIMULATION
 from nicos.core.utils import multiWait
+from nicos.devices.generic.sequence import SeqDev, SequencerMixin
 from nicos.devices.tas.mono import from_k
 from nicos.devices.tas.spectro import TAS
-from nicos.devices.generic.sequence import SequencerMixin, SeqDev
 
 
 class PANDA(SequencerMixin, TAS):

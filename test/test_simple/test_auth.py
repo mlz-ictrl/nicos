@@ -31,7 +31,6 @@ from os import path
 
 import pytest
 
-
 from nicos.core import ADMIN, GUEST, USER, NicosError, User
 from nicos.services.daemon.auth import AuthenticationError
 from nicos.services.daemon.auth.list import Authenticator as ListAuthenticator

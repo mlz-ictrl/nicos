@@ -24,10 +24,10 @@
 
 """Support for measuring in-situ with the FPLC system."""
 
-from time import time as currenttime, sleep
+from time import sleep, time as currenttime
 
-from nicos.core import Attach, HasTimeout, Moveable, Override, Param, \
-    Readable, oneof, status, MASTER
+from nicos.core import MASTER, Attach, HasTimeout, Moveable, Override, Param, \
+    Readable, oneof, status
 from nicos.devices.tango import AnalogInput
 
 

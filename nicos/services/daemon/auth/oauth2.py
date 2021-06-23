@@ -22,13 +22,13 @@
 #
 # *****************************************************************************
 
+from oauthlib.oauth2 import LegacyApplicationClient
+from requests_oauthlib import OAuth2Session
+
 from nicos.core import USER, Param, User
 from nicos.services.daemon.auth import AuthenticationError, \
     Authenticator as BaseAuthenticator
 from nicos.utils.credentials.keystore import nicoskeystore
-
-from oauthlib.oauth2 import LegacyApplicationClient
-from requests_oauthlib import OAuth2Session
 
 
 class Authenticator(BaseAuthenticator):

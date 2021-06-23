@@ -24,8 +24,7 @@
 # *****************************************************************************
 
 from nicos.clients.gui.panels.live import LiveDataPanel as BaseLiveDataPanel
-from nicos.guisupport.livewidget import \
-    IntegralLiveWidget as BaseIntegralLiveWidget, \
+from nicos.guisupport.livewidget import IntegralLiveWidget as BaseIntegralLiveWidget, \
     LiveWidget1D as BaseLiveWidget1D, Plot
 
 

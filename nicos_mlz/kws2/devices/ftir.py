@@ -27,8 +27,8 @@
 from time import time as currenttime
 
 from nicos import session
-from nicos.core import Attach, Moveable, Measurable, Param, \
-    Readable, status, NicosTimeoutError, Value, listof
+from nicos.core import Attach, Measurable, Moveable, NicosTimeoutError, \
+    Param, Readable, Value, listof, status
 
 BUSY = 1
 READY = 2

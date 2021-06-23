@@ -26,9 +26,9 @@
 
 from nicos import session
 from nicos.core import Override, status
-from nicos.core.utils import formatStatus
-from nicos.core.data.sink import GzipFile
 from nicos.core.data.dataset import ScanDataset
+from nicos.core.data.sink import GzipFile
+from nicos.core.utils import formatStatus
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.utils import byteBuffer
 

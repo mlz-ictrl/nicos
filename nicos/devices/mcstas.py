@@ -36,10 +36,10 @@ import numpy as np
 from psutil import AccessDenied, NoSuchProcess, Popen
 
 from nicos import session
-from nicos.core import ArrayDesc, Param, Value, floatrange, intrange, status, \
-    tupleof, Override, Attach, MASTER, Waitable
+from nicos.core import MASTER, ArrayDesc, Attach, Override, Param, Value, \
+    Waitable, floatrange, intrange, status, tupleof
 from nicos.core.constants import FINAL, LIVE
-from nicos.devices.generic import ImageChannelMixin, ActiveChannel, \
+from nicos.devices.generic import ActiveChannel, ImageChannelMixin, \
     PassiveChannel
 from nicos.utils import createThread
 

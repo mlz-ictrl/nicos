@@ -41,7 +41,8 @@ from nicos.guisupport.qt import QAction, QActionGroup, QByteArray, QColor, \
     QDialog, QFileDialog, QFileSystemModel, QFileSystemWatcher, QFont, \
     QFontMetrics, QHBoxLayout, QHeaderView, QInputDialog, QMenu, QMessageBox, \
     QPen, QPrintDialog, QPrinter, QsciLexerPython, QsciPrinter, \
-    QsciScintilla, Qt, QTabWidget, QToolBar, QTreeWidgetItem, QWidget, pyqtSlot
+    QsciScintilla, Qt, QTabWidget, QToolBar, QTreeWidgetItem, QWidget, \
+    pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
 from nicos.utils import formatDuration, formatEndtime
 

@@ -33,7 +33,6 @@ from nicos.core import Param, oneof
 from nicos.core.params import floatrange
 from nicos.devices.sample import Sample
 
-
 # get paths for rflfiles (*.rfl)
 rfldir_paths = [
     path.join(config.setup_package_path, p.strip(), 'rflfiles')

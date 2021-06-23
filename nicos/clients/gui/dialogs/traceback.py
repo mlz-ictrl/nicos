@@ -27,7 +27,7 @@
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QApplication, QClipboard, QDialog, \
     QDialogButtonBox, QFont, QPushButton, QTreeWidgetItem, pyqtSlot
-from nicos.utils import TB_HEADER, TB_CAUSE_MSG, TB_CONTEXT_MSG
+from nicos.utils import TB_CAUSE_MSG, TB_CONTEXT_MSG, TB_HEADER
 
 
 class TracebackDialog(QDialog):

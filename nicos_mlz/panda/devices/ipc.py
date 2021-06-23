@@ -25,8 +25,8 @@
 """IPC class to work around reset bug of triple cards from göttingen"""
 
 
-from nicos.core import status, usermethod, Param
-from nicos.devices.vendor.ipc import Motor as _Motor, Coder as _Coder
+from nicos.core import Param, status, usermethod
+from nicos.devices.vendor.ipc import Coder as _Coder, Motor as _Motor
 
 
 class Coder(_Coder):

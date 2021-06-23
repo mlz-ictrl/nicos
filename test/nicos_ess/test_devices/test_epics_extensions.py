@@ -32,8 +32,8 @@ from nicos.devices.epics import EpicsDevice
 
 from nicos_ess.devices.epics.extensions import HasDisablePv
 
-from test.nicos_ess.test_devices.utils import create_patch, \
-    create_method_patch, return_value_wrapper
+from test.nicos_ess.test_devices.utils import create_method_patch, \
+    create_patch, return_value_wrapper
 
 pytest.importorskip('epics')
 

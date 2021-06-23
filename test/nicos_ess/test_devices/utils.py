@@ -27,10 +27,10 @@ Utilities for serializing a hs00 flatbuffer
 """
 
 import time
+from unittest.mock import patch
 
 import flatbuffers
 import numpy
-from unittest.mock import patch
 
 from nicos.core import UsageError
 

@@ -33,8 +33,8 @@ from nicos import config
 from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
     QMainWindow, QMessageBox, Qt, QTreeWidgetItem, uic
 
-from ..utils import format_setup_text
 from . import classparser, setupcontroller
+from ..utils import format_setup_text
 from .devicewidget import DeviceWidget
 from .setupwidget import SetupWidget
 from .utilities.utilities import ItemTypes, getNicosDir, getResDir

@@ -23,8 +23,8 @@
 #
 # *****************************************************************************
 
-from time import time as currenttime
 from os import path
+from time import time as currenttime
 
 import numpy
 
