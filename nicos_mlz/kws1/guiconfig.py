@@ -83,3 +83,7 @@ tools = [
     #tool('Webcam', 'nicos.clients.gui.tools.website.WebsiteTool',
     #     url='http://kws1:kws1@172.25.34.66/view/viewer_index.shtml?id=296'),
 ]
+
+options = {
+    'reader_classes': ['nicos_mlz.kws1.devices.yamlformat'],
+}

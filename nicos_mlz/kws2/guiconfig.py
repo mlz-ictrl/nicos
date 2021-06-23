@@ -78,3 +78,7 @@ tools = [
     tool('Downtime report', 'nicos.clients.gui.tools.downtime.DownTimeTool',
          sender='kws2@frm2.tum.de'),
 ]
+
+options = {
+    'reader_classes': ['nicos_mlz.kws1.devices.yamlformat'],
+}

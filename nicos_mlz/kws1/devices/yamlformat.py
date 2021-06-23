@@ -24,12 +24,16 @@
 
 """KWS-1 file format saver with YAML."""
 
+import gzip
+import numpy as np
+
 from nicos import session
 from nicos.core import Override, status
 from nicos.core.data.dataset import ScanDataset
 from nicos.core.data.sink import GzipFile
 from nicos.core.utils import formatStatus
-from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
+from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler, \
+    ImageFileReader
 from nicos.utils import byteBuffer
 
 from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler
@@ -50,21 +54,21 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         else:
             det1['pixel_height'] = 4.0
 
-    def _write_instr_data(self, meas, image):
+    def _write_instr_data(self, meas_root, image):
         manager = session.experiment.data  # get datamanager
         # get corresponding scan dataset with scan info if available
         stack = manager._stack
         if len(stack) >= 2 and isinstance(stack[-2], ScanDataset):
             scands = stack[-2]
-            meas['info'] = scands.info
+            meas_root['info'] = scands.info
         else:
-            meas['info'] = self.dataset.info
+            meas_root['info'] = self.dataset.info
 
         sample = session.experiment.sample
-        meas['sample']['comment'] = sample.comment
-        meas['sample']['timefactor'] = sample.timefactor
-        meas['sample']['thickness'] = sample.thickness / 1000  # in m
-        meas['sample']['detoffset'] = sample.detoffset / 1000
+        meas_root['sample']['comment'] = sample.comment
+        meas_root['sample']['timefactor'] = sample.timefactor
+        meas_root['sample']['thickness'] = sample.thickness / 1000  # in m
+        meas_root['sample']['detoffset'] = sample.detoffset / 1000
 
         det1 = self._dict()
         det1['type'] = 'position_sensitive_detector'
@@ -87,7 +91,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         det1['data'] = '<see .array file>'
         det1['dataformat'] = '32-bit integer'
 
-        meas['detectors'] = [det1]
+        meas_root['detectors'] = [det1]
 
         # store device information
         deventries = {}
@@ -111,7 +115,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
             if key == 'value' and meta[2]:
                 deventry['unit'] = meta[2]
 
-        meas['devices'] = [
+        meas_root['devices'] = [
             entry for (_, entry) in sorted(deventries.items())
             if len(entry) > 1
         ]
@@ -165,3 +169,29 @@ class BinaryArraySink(ImageSink):
                                      default=[NAME_TEMPLATE + '.array.gz'],
                                      ),
     }
+
+
+class BinaryArrayReader(ImageFileReader):
+    filetypes = [('arraygz', 'Compressed image array (*.array.gz)')]
+
+    @classmethod
+    def fromfile(cls, filename):
+        yamlname = filename.replace('.array.gz', '.yaml')
+        dim_x = dim_y = dim_t = 1
+
+        with open(yamlname, 'r', encoding='utf-8') as fp:
+            for line in fp:
+                line = line.strip()
+                if line.startswith('pixels_x:'):
+                    dim_x = int(line.split()[-1])
+                elif line.startswith('pixels_y:'):
+                    dim_y = int(line.split()[-1])
+                elif line.startswith('time_channels:'):
+                    dim_t = int(line.split()[-1])
+        if dim_t > 1:
+            shape = (dim_t, dim_y, dim_x)
+        else:
+            shape = (dim_y, dim_x)
+
+        with gzip.open(filename) as fp:
+            return np.frombuffer(fp.read(), '<u4').reshape(shape)
