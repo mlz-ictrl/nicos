@@ -82,30 +82,41 @@ class EssExperiment(Experiment):
             time.sleep(self.update_interval * 3600)
             self._client.update_cache()
 
-    def _queryProposals(self, proposal=None, kwds=None):
-        if not proposal:
-            raise RuntimeError('Please enter a valid proposal ID')
+    def _queryProposals(self, query=None, kwds=None):
+        if not query:
+            raise RuntimeError('Please enter a valid proposal ID or federal ID')
 
-        query_result = self._do_query(proposal)
-        if not query_result:
-            raise RuntimeError(f'could not find proposal {proposal}')
-        result = {
-            'proposal': str(query_result.id),
-            'title': query_result.title,
-            'users': self._extract_users(query_result),
+        if query[0].isdigit():
+            results = self._query_by_id(query)
+        else:
+            results = self._query_by_fed_id(query)
+
+        if not results:
+            raise RuntimeError(f'could not find corresponding proposal(s) for '
+                               f'{query}')
+        return [{
+            'proposal': str(proposal.id),
+            'title': proposal.title,
+            'users': self._extract_users(proposal),
             'localcontacts': [],
-            'samples': self._extract_samples(query_result),
+            'samples': self._extract_samples(proposal),
             'dataemails': [],
             'notif_emails': [],
             'errors': [],
             'warnings': [],
-        }
+        } for proposal in results]
 
-        return [result]
-
-    def _do_query(self, proposal):
+    def _query_by_id(self, proposal):
         try:
-            return self._client.proposal_by_id(proposal)
+            result = self._client.proposal_by_id(proposal)
+            return [result] if result else []
+        except BaseYuosException as error:
+            self.log.error(f'{error}')
+            raise
+
+    def _query_by_fed_id(self, name):
+        try:
+            return self._client.proposals_for_user(name)
         except BaseYuosException as error:
             self.log.error(f'{error}')
             raise
@@ -125,7 +136,7 @@ class EssExperiment(Experiment):
 
     def _extract_users(self, query_result):
         users = []
-        for first, last in query_result.users:
+        for first, last, _ in query_result.users:
             users.append(
                 {
                     'name': f'{first} {last}',
@@ -134,7 +145,7 @@ class EssExperiment(Experiment):
                 }
             )
         if query_result.proposer:
-            first, last = query_result.proposer
+            first, last, _ = query_result.proposer
             users.append(
                 {
                     'name': f'{first} {last}',
