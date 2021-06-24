@@ -29,7 +29,6 @@ from nicos.clients.flowui.mainwindow import MainWindow as MainWindowESS, \
 class MainWindowSINQ(MainWindowESS):
 
     def set_icons(self):
-        print(f"uifile: {self.ui}")
         MainWindowESS.set_icons(self)
         self.actionEmergencyStop.setIcon(
             get_icon('emergency_stop_cross_red-24px.svg')
