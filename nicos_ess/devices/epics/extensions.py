@@ -41,6 +41,12 @@ class EpicsMappedMoveable(MappedMoveable, EpicsDigitalMoveableEss):
     enums or bools.
     """
 
+    parameters = {
+        'ignore_stop': Param(
+            'Whether to do anything when stop is called',
+            type=bool, default=False, userparam=False),
+    }
+
     def doInit(self, mode):
         EpicsDigitalMoveableEss.doInit(self, mode)
         MappedMoveable.doInit(self, mode)
@@ -59,6 +65,10 @@ class EpicsMappedMoveable(MappedMoveable, EpicsDigitalMoveableEss):
 
     def _startRaw(self, target):
         EpicsDigitalMoveableEss.doStart(self, target)
+
+    def doStop(self):
+        if not self.ignore_stop:
+            EpicsDigitalMoveableEss.doStop(self)
 
 
 class EpicsMappedFloatMoveable(EpicsMappedMoveable):
