@@ -357,7 +357,7 @@ protocols.
 
                   - `index`: index in the labels array (default=0)
                   - `dtype`: data type of the label values
-         - `count`: amount of datasets contained in the associated
+         - `plotcount`: amount of datasets contained in the associated
            databuffer
 
    in short:
@@ -381,7 +381,7 @@ protocols.
                   labels={
                       'x': dict('define': oneof('classic', 'range', 'array')),
                       ['y': dict('define': oneof('classic', 'range', 'array'))],
-                  count=int,
+                  plotcount=int,
               ),]
           )
 
@@ -392,7 +392,7 @@ protocols.
       - `livelabels`: labels for the axis one buffer per dataset
 
    The first entries in datablobs will be processed as `livedata`.  The
-   `livedata` buffer is a list of `count` (in the associated `datadesc`)
+   `livedata` buffer is a list of `plotcount` (in the associated `datadesc`)
    datasets.
 
    The last datablobs will be processed as `livelabels`.  The maximum amount
