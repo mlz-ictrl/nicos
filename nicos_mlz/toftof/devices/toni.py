@@ -115,16 +115,19 @@ class LVPower(Moveable):
     """Toni TOFTOF-type low-voltage power supplies."""
 
     attached_devices = {
-        'bus':  Attach('Toni communication bus', ToniBus),
+        'bus': Attach('Toni communication bus', ToniBus),
     }
 
     parameters = {
-        'addr':  Param('Bus address of the supply controller',
-                       type=intrange(0xF0, 0xFF), mandatory=True),
+        'addr': Param('Bus address of the supply controller',
+                      type=intrange(0xF0, 0xFF), mandatory=True),
+        'temperature': Param('Temperature of the module',
+                             type=int, settable=False, volatile=True,
+                             unit='degC', fmtstr='%d'),
     }
 
     parameter_overrides = {
-        'unit':  Override(mandatory=False, default=''),
+        'unit': Override(mandatory=False, default=''),
     }
 
     valuetype = oneofdict({1: 'on', 0: 'off'})
@@ -133,10 +136,27 @@ class LVPower(Moveable):
         sval = self._attached_bus.communicate('S?', self.addr, expect_hex=2)
         return 'on' if sval >> 7 else 'off'
 
+    def doReadTemperature(self):
+        return self._attached_bus.communicate('T?', self.addr, expect_hex=2)
+
     def doStatus(self, maxage=0):
         sval = self._attached_bus.communicate('S?', self.addr, expect_hex=2)
-        tval = self._attached_bus.communicate('T?', self.addr, expect_hex=2)
-        return status.OK, 'status=%d, temperature=%d' % (sval, tval)
+        if sval in (0x0, 0x80):
+            return status.OK, ''
+        msg = []
+        if sval & 0x1:
+            msg.append('undervoltage +5V')
+        if sval & 0x2:
+            msg.append('overvoltage +5V')
+        if sval & 0x4:
+            msg.append('undervoltage -5V')
+        if sval & 0x8:
+            msg.append('overvoltage -5V')
+        if sval & 0x10:
+            msg.append('undervoltage +12V')
+        if sval & 0x20:
+            msg.append('overvoltage +12V')
+        return status.ERROR, ', '.join(msg)
 
     @requires(level=ADMIN)
     def doStart(self, target):
