@@ -281,10 +281,10 @@ class LiveWidgetBase(QWidget):
             if (self._arrays is not None and plot == self.plot and
                len(self._arrays[0].shape) == 2):
                 # TODO: adapt this for ``shape > 2`` once available.
-                ny, nx = self._arrays[0].shape[-2:]
                 x, y = int(pWC.x), int(pWC.y)
-                if 0 <= x < nx and 0 <= y < ny:
-                    return x, y, self._arrays[0][y, x]
+                if self._labels['x'][0] <= x < self._labels['x'][-1] and \
+                        self._labels['y'][0] <= y < self._labels['y'][-1]:
+                    return x, y, self._arrays[0][y+1, x+1]
             return pWC.x, pWC.y
 
     def setWindow(self, xmin, xmax, ymin, ymax):
@@ -550,27 +550,39 @@ class IntegralLiveWidget(LiveWidget):
                                 ymin - 0.5, ymax - 0.5)
 
     def getLabelIndices(self, axis, minimum, maximum):
-        imin = None
         try:
             labels = self._labels[axis]
         except KeyError:
             raise UsageError('No labels for %d' % axis) from None
 
-        for i, label in enumerate(labels):
-            if imin is None:
-                if label == minimum:
-                    imin = i
-                if label > minimum:
-                    imin = i - 1
-            else:
-                if label == maximum:
-                    return imin, i
-                if label > maximum:
-                    return imin, i - 1
+        if minimum < labels[0]:
+            imin = 0
+        elif minimum > labels[-1]:
+            imin = len(labels) - 1
+        else:
+            imin = None
 
-        raise UsageError('%d, %d not in range %d, %d.' % (minimum, maximum,
-                                                          labels[0],
-                                                          labels[-1]))
+        if maximum < labels[0]:
+            imax = 0
+        elif maximum > labels[-1]:
+            imax = len(labels) - 1
+        else:
+            imax = None
+
+        if imax is None or imin is None:
+            for i, label in enumerate(labels):
+                if imin is None:
+                    if label == minimum:
+                        imin = i
+                    if label > minimum:
+                        imin = max(i - 1, 0)
+                if imax is None:
+                    if label == maximum:
+                        imax = i
+                    if label > maximum:
+                        imax = i - 1
+
+        return imin, imax
 
     def _rescale(self):
         """Rescales integral plots in respect to the main/cellarray plot."""
@@ -585,12 +597,12 @@ class IntegralLiveWidget(LiveWidget):
         ny, nx = reference.shape
 
         # find the indices of the relevant values
-        x0 = min(max(0, ixmin), ixmax)  # 0 <= x0 <= ixmax
-        x1 = max(0, min(nx, ixmax))     # 0 <= x1 <= ixmax
-        y0 = min(max(0, iymin), iymax)  # 0 <= y0 <= iymax
-        y1 = max(0, min(ny, iymax))     # 0 <= y1 <= iymax
+        x0 = self._labels['x'][min(max(0, ixmin), ixmax)]  # 0 <= x0 <= ixmax
+        x1 = self._labels['x'][max(0, min(nx, ixmax))]     # 0 <= x1 <= ixmax
+        y0 = self._labels['y'][min(max(0, iymin), iymax)]  # 0 <= y0 <= iymax
+        y1 = self._labels['y'][max(0, min(ny, iymax))]     # 0 <= y1 <= iymax
 
-        if x0 >= x1 or y0 >= y1:
+        if x0 > x1 or y0 > y1:
             return
 
         # use float type in order to mask zeros with 0.1 for logscale
