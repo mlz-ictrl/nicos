@@ -58,10 +58,11 @@ class SeqFuzzyParam(SeqParam):
         setattr(self.dev, self.paramname, self.value)
 
     def isCompleted(self):
-        value = getattr(self.dev, self.paramname)
-        if self.precision is None:
-            return value == self.value
-        return abs(value - self.value) <= self.precision
+        return True  # for known bug in firmware
+        # value = getattr(self.dev, self.paramname)
+        # if self.precision is None:
+        #     return value == self.value
+        # return abs(value - self.value) <= self.precision
 
 
 class ChopperMaster(CanReference, BaseSequencer):
