@@ -63,7 +63,7 @@ class FPGAChannelBase(PyTangoDevice, ActiveChannel):
         raise NotImplementedError
 
     def doStart(self):
-        if self.ismaster:
+        if self.iscontroller:
             self._dev.DevFPGACountReset()
             # preselection has to be set here and not in doWritePreset
             # because `DevFPGACountReset()` resets all values.

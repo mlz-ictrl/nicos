@@ -52,7 +52,7 @@ devices = dict(
     ),
     ccdwww = device('nicos_sinq.boa.devices.ccdwww.AndorCCD',
         description = 'CCDWWW image channel',
-        ismaster = True,
+        iscontroller = True,
         connector = 'ccdwww_connector',
         shape = (1024, 1024)
     ),
@@ -93,7 +93,7 @@ devices = dict(
     boacontrol = device('nicos_sinq.boa.devices.ccdcontrol.BoaControlDetector',
         description = 'BOA CCD control',
         trigger = 'el737',
-        slave_detectors = ['andorccd'],
+        followers = ['andorccd'],
         liveinterval = 5,
         minimum_rate = 0,
         rate_monitor = 'monitorval',

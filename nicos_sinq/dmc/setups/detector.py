@@ -124,7 +124,7 @@ devices = dict(
     dmcdet = device('nicos_sinq.devices.detector.ControlDetector',
         description = 'DMC detector coordination',
         trigger = 'el737',
-        slave_detectors = 'jubit'
+        followers = ['jubit'],
     )
 )
 startupcode = '''

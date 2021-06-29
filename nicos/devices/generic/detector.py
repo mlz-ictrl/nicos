@@ -54,7 +54,7 @@ class PassiveChannel(Measurable):
     """
 
     parameters = {
-        'ismaster':      Param('If this channel is an active master',
+        'iscontroller':  Param('If this channel is an active controller',
                                type=bool, settable=True),
         'presetaliases': Param('Aliases for setting a preset for the first '
                                'scalar on this channel',
@@ -96,7 +96,7 @@ class PassiveChannel(Measurable):
         This can be ignored by passive channels since soft presets are checked
         explicitly.
         """
-        self.ismaster = True
+        self.iscontroller = True
 
     def presetReached(self, name, value, maxage):
         """Return true if the soft preset for *name* has reached the given
@@ -166,7 +166,7 @@ class ActiveChannel(PassiveChannel):
         return self.status(maxage)[0] == status.OK
 
     def doEstimateTime(self, elapsed):
-        if not self.ismaster or self.doStatus()[0] != status.BUSY:
+        if not self.iscontroller or self.doStatus()[0] != status.BUSY:
             return None
         if self.is_timer:
             return self.preselection - elapsed
@@ -222,7 +222,7 @@ class RectROIChannel(PostprocessPassiveChannel):
     def getReadResult(self, arrays, _results, _quality):
         if any(self.roi):
             x, y, w, h = self.roi
-            return [arr[y:y+h, x:x+w].sum() for arr in arrays]
+            return [arr[y:y + h, x:x + w].sum() for arr in arrays]
         return [arr.sum() for arr in arrays]
 
     def valueInfo(self):
@@ -274,7 +274,7 @@ class RateChannel(PostprocessPassiveChannel):
     def valueInfo(self):
         if self.readresult and len(self.readresult) > 2:
             infos = []
-            for i in range(1, len(self.readresult) // 2  + 1):
+            for i in range(1, len(self.readresult) // 2 + 1):
                 name = self.name + '[%d]' % i
                 infos.extend([
                     Value(name=name + ' (total)', type='counter', fmtstr='%d',
@@ -315,12 +315,12 @@ class TimerChannelMixin(DeviceMixinBase):
                      fmtstr=self.fmtstr),
 
     def doTime(self, preset):
-        if self.ismaster:
+        if self.iscontroller:
             return self.preselection
         return 0
 
     def doSimulate(self, preset):
-        if self.ismaster:
+        if self.iscontroller:
             return [self.preselection]
         return [0.0]
 
@@ -332,7 +332,8 @@ class CounterChannelMixin(DeviceMixinBase):
 
     parameters = {
         'type': Param('Type of channel: monitor or counter',
-                      type=oneof('monitor', 'counter', 'other'), mandatory=True),
+                      type=oneof('monitor', 'counter', 'other'),
+                      mandatory=True),
     }
 
     parameter_overrides = {
@@ -346,7 +347,7 @@ class CounterChannelMixin(DeviceMixinBase):
                      type=self.type, fmtstr=self.fmtstr),
 
     def doSimulate(self, preset):
-        if self.ismaster:
+        if self.iscontroller:
             return [int(self.preselection)]
         return [0]
 
@@ -416,9 +417,9 @@ class Detector(Measurable):
     `ActiveChannel` is able to stop by itself, usually implemented in hardware,
     so that the preset is reached exactly, or overshot by very little.
 
-    In the detector, channels with a preset are called "masters", while
-    channels without are called "slaves".  Which channels are masters and
-    slaves can change with every count cycle.
+    In the detector, channels with a preset are called "controller", while
+    channels without are called "followers".  Which channels are controllers
+    and followers can change with every count cycle.
     """
 
     attached_devices = {
@@ -453,7 +454,7 @@ class Detector(Measurable):
     }
 
     hardware_access = False
-    multi_master = True
+    multi_controller = True
 
     _last_live = 0
     _last_save = 0
@@ -462,8 +463,8 @@ class Detector(Measurable):
     _user_comment = ''
 
     def doInit(self, _mode):
-        self._masters = []
-        self._slaves = []
+        self._controlchannels = []
+        self._followchannels = []
         self._channel_presets = {}
         self._postprocess = []
         self._postpassives = []
@@ -524,18 +525,18 @@ class Detector(Measurable):
                               self._attached_counters + self._attached_images +
                               self._attached_others)
         self._presetkeys = presetkeys
-        self._collectMasters()
+        self._collectControllers()
 
-    def _collectMasters(self):
-        """Internal method to collect all masters."""
-        masters = []
-        slaves = []
+    def _collectControllers(self):
+        """Internal method to collect all controllers."""
+        controllers = []
+        followers = []
         for ch in self._channels:
-            if ch.ismaster:
-                masters.append(ch)
+            if ch.iscontroller:
+                controllers.append(ch)
             else:
-                slaves.append(ch)
-        self._masters, self._slaves = masters, slaves
+                followers.append(ch)
+        self._controlchannels, self._followchannels = controllers, followers
 
     def _getPreset(self, preset):
         """Returns previous preset if no preset has been set."""
@@ -552,33 +553,34 @@ class Detector(Measurable):
         if not preset:
             # keep old settings
             return
-        for master in self._masters:
-            master.ismaster = False
+        for controller in self._controlchannels:
+            controller.iscontroller = False
         self._channel_presets = {}
         for (name, value) in preset.items():
             if name in self._presetkeys and name != 'live':
                 dev = self._presetkeys[name][0]
                 dev.setChannelPreset(name, value)
                 self._channel_presets.setdefault(dev, []).append((name, value))
-        self._collectMasters()
-        if set(self._masters) != set(self._channel_presets):
-            if not self._masters:
-                self.log.warning('no master configured, detector may not stop')
+        self._collectControllers()
+        if set(self._controlchannels) != set(self._channel_presets):
+            if not self._controlchannels:
+                self.log.warning(
+                    'no controller configured, detector may not stop')
             else:
-                self.log.warning('master setting for devices %s ignored by '
-                                 'detector',
-                                 ', '.join(set(self._channel_presets) -
-                                           set(self._masters)))
-        self.log.debug("   presets: %s", preset)
-        self.log.debug("presetkeys: %s", self._presetkeys)
-        self.log.debug("   masters: %s", self._masters)
-        self.log.debug("    slaves: %s", self._slaves)
+                self.log.warning(
+                    'controller setting for devices %s ignored by detector',
+                    ', '.join(set(self._channel_presets) -
+                              set(self._controlchannels)))
+        self.log.debug("    presets: %s", preset)
+        self.log.debug(" presetkeys: %s", self._presetkeys)
+        self.log.debug("controllers: %s", self._controlchannels)
+        self.log.debug("  followers: %s", self._followchannels)
 
     def doPrepare(self):
-        for slave in self._slaves:
-            slave.prepare()
-        for master in self._masters:
-            master.prepare()
+        for follower in self._followchannels:
+            follower.prepare()
+        for controller in self._controlchannels:
+            controller.prepare()
 
     def doStart(self):
         # setting this to -interval, instead of 0, will send some live data at
@@ -586,10 +588,10 @@ class Detector(Measurable):
         self._last_live = -(self.liveinterval or 0)
         self._last_save = 0
         self._last_save_index = 0
-        for slave in self._slaves:
-            slave.start()
-        for master in self._masters:
-            master.start()
+        for follower in self._followchannels:
+            follower.start()
+        for controller in self._controlchannels:
+            controller.start()
 
     def doTime(self, preset):
         self.doSetPreset(**preset)  # okay in simmode
@@ -597,29 +599,29 @@ class Detector(Measurable):
 
     def doPause(self):
         success = True
-        for slave in self._slaves:
-            success &= slave.pause()
-        for master in self._masters:
-            success &= master.pause()
+        for follower in self._followchannels:
+            success &= follower.pause()
+        for controller in self._controlchannels:
+            success &= controller.pause()
         return success
 
     def doResume(self):
-        for slave in self._slaves:
-            slave.resume()
-        for master in self._masters:
-            master.resume()
+        for follower in self._followchannels:
+            follower.resume()
+        for controller in self._controlchannels:
+            controller.resume()
 
     def doFinish(self):
-        for master in self._masters:
-            master.finish()
-        for slave in self._slaves:
-            slave.finish()
+        for controller in self._controlchannels:
+            controller.finish()
+        for follower in self._followchannels:
+            follower.finish()
 
     def doStop(self):
-        for master in self._masters:
-            master.stop()
-        for slave in self._slaves:
-            slave.stop()
+        for controller in self._controlchannels:
+            controller.stop()
+        for follower in self._followchannels:
+            follower.stop()
 
     def doRead(self, maxage=0):
         ret = []
@@ -662,9 +664,9 @@ class Detector(Measurable):
         st, text = multiStatus(self._getWaiters(), maxage)
         if st == status.ERROR:
             return st, text
-        for master in self._masters:
-            for (name, value) in self._channel_presets.get(master, ()):
-                if master.presetReached(name, value, maxage):
+        for controller in self._controlchannels:
+            for (name, value) in self._channel_presets.get(controller, ()):
+                if controller.presetReached(name, value, maxage):
                     return status.OK, text
         return st, text
 
@@ -689,10 +691,11 @@ class Detector(Measurable):
         return {'info'} | set(self._presetkeys)
 
     def doEstimateTime(self, elapsed):
-        eta = {master.estimateTime(elapsed) for master in self._masters}
+        eta = {controller.estimateTime(elapsed)
+               for controller in self._controlchannels}
         eta.discard(None)
         if eta:
-            # first master stops, so take min
+            # first controller stops, so take min
             return min(eta)
         return None
 
@@ -739,16 +742,16 @@ class DetectorForecast(Readable):
         # read all values of all counters and store them by device
         counter_values = {ch: ch.read(maxage)[0]
                           for ch in self._attached_det._channels}
-        # go through the master channels and determine the one
+        # go through the controller channels and determine the one
         # closest to the preselection
         fraction_complete = 0
-        for m in self._attached_det._masters:
-            p = float(m.preselection)
+        for c in self._attached_det._controlchannels:
+            p = float(c.preselection)
             if p > 0:
                 fraction_complete = max(fraction_complete,
-                                        counter_values[m] / p)
+                                        counter_values[c] / p)
         if fraction_complete == 0:
-            # no master or all zero?  just return the current values
+            # no controller or all zero?  just return the current values
             fraction_complete = 1.0
         # scale all counter values by that fraction
         return [counter_values[ch] / fraction_complete
@@ -767,8 +770,8 @@ class GatedDetector(Detector):
     """
 
     attached_devices = {
-        'gates':   Attach('Gating devices', Moveable,
-                          multiple=True, optional=True),
+        'gates': Attach('Gating devices', Moveable,
+                        multiple=True, optional=True),
     }
 
     parameters = {

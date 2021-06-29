@@ -56,7 +56,7 @@ class CCDWWWImageChannel(ImageChannelMixin, ActiveChannel):
     """
     # Parameters which need to be considered for configuration
     _config_list = []
-    ismaster = True
+    iscontroller = True
 
     attached_devices = {
         'connector': Attach('The connector to the CCDWWW HTTP server',

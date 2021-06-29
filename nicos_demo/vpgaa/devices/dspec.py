@@ -38,14 +38,14 @@ class Spectrum(VirtualImage):
     parameter_overrides = {
         'sizes': Override(type=tupleof(intrange(1, 1), intrange(1, 16384)),
                           default=(1, 16384)),
-        'ismaster': Override(settable=True),
+        'iscontroller': Override(settable=True),
     }
 
     # set to True to get a simplified doEstimateTime
     is_timer = False
 
     def doEstimateTime(self, elapsed):
-        if not self.ismaster or self.doStatus()[0] != status.BUSY:
+        if not self.iscontroller or self.doStatus()[0] != status.BUSY:
             return None
         if self.is_timer:
             return self.preselection - elapsed
@@ -113,22 +113,22 @@ class DSPec(GatedDetector):
     def doSetPreset(self, **preset):
         self._clear()
         for master in self._masters:
-            master.ismaster = False
+            master.iscontroller = False
         if 'TrueTime' in preset:
             for d in self._attached_timers:
                 if d.name == 'truetim':
-                    d.ismaster = True
+                    d.iscontroller = True
                     d.preselection = preset['TrueTime'] * 1
         elif 'LiveTime' in preset:
             for d in self._attached_timers:
                 if d.name == 'livetim':
-                    d.ismaster = True
+                    d.iscontroller = True
                     d.preselection = preset['LiveTime'] * 1
         elif 'ClockTime' in preset:
             self._stop = preset['ClockTime']
         elif 'counts' in preset:
             for d in self._attached_images:
-                d.ismaster = True
+                d.iscontroller = True
                 d.preselection = preset['counts']
 
         self._preset = preset

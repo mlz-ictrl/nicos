@@ -101,8 +101,8 @@ class SinqDetector(EpicsScalerRecord):
         mode = ''
         value = 0
         unit = ''
-        for d in self._masters:
-            for k in self._presetkeys:
+        for d in self._controlchannels:
+            for k in self._presetkeys:  # pylint: disable=consider-using-dict-items
                 if self._presetkeys[k] and\
                         self._presetkeys[k][0].name == d.name:
                     preselection = d.preselection
@@ -123,48 +123,50 @@ class SinqDetector(EpicsScalerRecord):
 
 class ControlDetector(Detector):
     """
-    This is a base class for classes which wish to coordinate multiple
-    detectors. The model is that there are multiple slave detectors (like
+    Base class for classes which wish to coordinate multiple detectors.
+
+    The model is that there are multiple follower detectors (like
     Histogram Memories) and one trigger detector which when started,
     actually starts data acquisition on the assembly. This implementation
     passes most Detector methods through to all participating detectors.
     start() and doIsCompleted() are implemented in such a way that it does
     the right thing for the SINQ combination of el737 counter box as
-    trigger and HM slaves.
+    trigger and HM follower.
     """
 
     attached_devices = {
         'trigger': Attach('Detector which triggers data acquisition',
                           Detector),
-        'slave_detectors': Attach('Slave detectors', Measurable,
-                                  multiple=True, optional=True),
+        'followers': Attach('Follower detectors', Measurable,
+                            multiple=True, optional=True),
     }
     _slaves_stopped = False
+    _followers_stopped = False
 
     def doSetPreset(self, **preset):
-        for det in self._attached_slave_detectors:
+        for det in self._attached_followers:
             det.setPreset(**preset)
         self._attached_trigger.setPreset(**preset)
 
     def doPrepare(self):
-        for det in self._attached_slave_detectors:
+        for det in self._attached_followers:
             det.prepare()
         self._attached_trigger.prepare()
 
     def doStart(self):
-        for det in self._attached_slave_detectors:
+        for det in self._attached_followers:
             det.start()
         self._attached_trigger.start()
-        self._slaves_stopped = False
+        self._followers_stopped = False
 
     def doIsCompleted(self):
         if self._attached_trigger.isCompleted():
-            if not self._slaves_stopped:
-                for det in self._attached_slave_detectors:
+            if not self._followers_stopped:
+                for det in self._attached_followers:
                     det.stop()
-                    self._slaves_stopped = True
+                    self._followers_stopped = True
                     return False
-            for det in self._attached_slave_detectors:
+            for det in self._attached_followers:
                 if not det.isCompleted():
                     return False
             return True
@@ -172,13 +174,13 @@ class ControlDetector(Detector):
             return False
 
     def doFinish(self):
-        for det in self._attached_slave_detectors:
+        for det in self._attached_followers:
             det.finish()
         self._attached_trigger.finish()
 
     def readResults(self, quality):
         data, arrays = self._attached_trigger.readResults(quality)
-        for det in self._attached_slave_detectors:
+        for det in self._attached_followers:
             d1, ar2 = det.readResults(quality)
             data = data + d1
             arrays = arrays + ar2
@@ -186,31 +188,31 @@ class ControlDetector(Detector):
 
     def doPause(self):
         self._attached_trigger.pause()
-        for det in self._attached_slave_detectors:
+        for det in self._attached_followers:
             det.pause()
 
     def doResume(self):
-        for det in self._attached_slave_detectors:
+        for det in self._attached_followers:
             det.resume()
         self._attached_trigger.resume()
 
     def doStop(self):
         self._attached_trigger.stop()
-        for det in self._attached_slave_detectors:
+        for det in self._attached_followers:
             det.stop()
 
     def duringMeasurementHook(self, elapsed):
         res = self._attached_trigger.duringMeasurementHook(elapsed)
         if res:
             return res
-        for det in self._attached_slave_detectors:
+        for det in self._attached_followers:
             res = det.duringMeasurementHook(elapsed)
             if res:
                 return res
 
     def doInfo(self):
         res = self._attached_trigger.doInfo()
-        for det in self._attached_slave_detectors:
+        for det in self._attached_followers:
             res = res + det.doInfo()
         return res
 
@@ -221,24 +223,24 @@ class ControlDetector(Detector):
         if not self._attached_trigger:
             self.doInit('')
         res = self._attached_trigger.valueInfo()
-        for det in self._attached_slave_detectors:
+        for det in self._attached_followers:
             res = res + det.valueInfo()
         return res
 
     def arrayInfo(self):
         res = self._attached_trigger.arrayInfo()
-        for det in self._attached_slave_detectors:
+        for det in self._attached_followers:
             res = res + det.arrayInfo()
         return res
 
     def doRead(self, maxage=0):
         res = self._attached_trigger.doRead(maxage)
-        for det in self._attached_slave_detectors:
+        for det in self._attached_followers:
             res = res + det.doRead(maxage)
         return res
 
     def doReadArrays(self, quality):
         res = self._attached_trigger.doReadArrays(quality)
-        for det in self._attached_slave_detectors:
+        for det in self._attached_followers:
             res += det.doReadArrays(quality)
         return res

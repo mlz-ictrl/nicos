@@ -131,7 +131,7 @@ devices = dict(
     focusdet = device('nicos_sinq.focus.devices.detector.FocusDetector',
         description = 'FOCUS detector control',
         trigger = 'el737',
-        slave_detectors = [],
+        followers = [],
         liveinterval = 120,
         saveintervals = [0, 900, 900],
     ),

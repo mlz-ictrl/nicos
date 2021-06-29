@@ -7,20 +7,20 @@ devices = dict(
                      description='Time channel of TsDau detector.',
                      host=connection,
                      remoteobj='device',
-                     ismaster=True,
+                     iscontroller=True,
                      ),
     tsd_filename=device('nicos_ess.v20.devices.tsdau.TsDauFilenameChannel',
                         description='File name of Tsdau detector',
                         directory='',
                         host=connection,
                         remoteobj='device',
-                        ismaster=False
+                        iscontroller=False
                         ),
     tsd_counter=device('nicos_ess.v20.devices.tsdau.TsDauCounterChannel',
                        description='Counter channel of TsDau detector',
                        host=connection,
                        remoteobj='device',
-                       ismaster=False,
+                       iscontroller=False,
                        type='counter'
                        ),
     tsdau=device('nicos_ess.v20.devices.tsdau.TsDauDetector',
