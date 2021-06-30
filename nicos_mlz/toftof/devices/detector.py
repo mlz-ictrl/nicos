@@ -45,6 +45,10 @@ class TOFTOFChannel(ImageChannel, TOFChannel):
         'frametime': Param('Total width of all time bins in s',
                            type=float, mandatory=False, volatile=True,
                            default=0.1, category='general', settable=True,),
+        'monitorchannel': Param('Channel number of the monitor counter',
+                                type=intrange(1, 1024), settable=False,
+                                default=956,
+                                ),
     }
     parameter_overrides = {
         'timechannels': Override(default=1024),
@@ -102,6 +106,12 @@ class TOFTOFChannel(ImageChannel, TOFChannel):
         value = int(value / calc.ttr) * int(calc.ttr * 1e9)
         self.log.debug('set counter delay: %d ns', value)
         self._dev.delay = value
+
+    def doReadArray(self, quality):
+        ndata = ImageChannel.doReadArray(self, quality)
+        self.readresult = [ndata[2:self.monitorchannel].sum() +
+                           ndata[self.monitorchannel + 1:].sum()]
+        return ndata
 
 
 class Detector(GenericDetector):
