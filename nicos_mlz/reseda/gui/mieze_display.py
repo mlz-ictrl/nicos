@@ -38,7 +38,6 @@ from nicos.utils import findResource
 
 COLOR_BLUE = GRCOLORS['blue']
 
-CIRCLE_MARKER = GRMARKS['circle']
 DOT_MARKER = GRMARKS['dot']
 
 
@@ -52,11 +51,11 @@ class MiniPlot(LiveWidget1D):
         self.axes.resetCurves()
         self._curves = [
             MaskedPlotCurve([0], [1], linecolor=GRCOLORS['blue'],
-                            markertype=CIRCLE_MARKER, linetype=None),
+                            markertype=DOT_MARKER, linetype=None),
             NicosPlotCurve([0], [.1], linecolor=COLOR_BLUE,
                            markertype=DOT_MARKER),
         ]
-        self._curves[0].markersize = 10
+        self._curves[0].markersize = 3
         for curve in self._curves:
             self.axes.addCurves(curve)
         # Disable creating a mouse selection to zoom
