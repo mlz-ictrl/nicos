@@ -10,7 +10,7 @@ sysconfig = dict(
     cache = 'resedactrl.reseda.frm2',
     instrument = 'reseda',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink','livesink', 'LiveImgSink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink', 'LiveImgSink'],
     notifiers = ['email', 'slacker'],
 )
 
