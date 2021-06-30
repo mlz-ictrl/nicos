@@ -24,9 +24,9 @@
 
 """TOFTOF detector."""
 
-import numpy
-
 from time import time as currenttime
+
+import numpy
 
 from nicos import session
 from nicos.core import Attach, Moveable, NicosError, Override, Param, \
