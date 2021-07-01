@@ -7,13 +7,13 @@ includes = ['alias_T']
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 
 devices = dict(
-    #T_ccr = device('nicos_mlz.devices.ccr.CCRControl',
-    #    description = 'The main temperature control device of the CCR',
-    #    stick = 'T_ccr_stick',
-    #    tube = 'T_ccr_tube',
-    #    unit = 'K',
-    #    fmtstr = '%.3f',
-    #),
+    # T_ccr = device('nicos_mlz.devices.ccr.CCRControl',
+    #     description = 'The main temperature control device of the CCR',
+    #     stick = 'T_ccr_stick',
+    #     tube = 'T_ccr_tube',
+    #     unit = 'K',
+    #     fmtstr = '%.3f',
+    # ),
     T_ccr_stick = device('nicos.devices.tango.TemperatureController',
         description = 'The control device of the sample (stick)',
         tangodevice = '%s/ccr/control2' % tango_base,
@@ -77,15 +77,16 @@ devices = dict(
 
 alias_config = {
     'T': {
-        #'T_ccr': 200,
+        # 'T_ccr': 200,
         'T_ccr_stick': 150,
         'T_ccr_tube': 100
     },
     'Ts': {
         'T_ccr_stick': 100,
-        #'T_ccr_ssample': 90,
+        # 'T_ccr_sample_stick_a': 90,
+        # 'T_ccr_sample_stick_b': 80,
         'T_ccr_tube': 20,
-        #'T_ccr_scoldhead': 10
+        # 'T_ccr_cold_head': 10
     },
 }
 
