@@ -16,6 +16,9 @@ modules = ['nicos.commands.standard']
 includes = [
     'notifiers',
     'coiltemp',
+    'reactor',
+    'guidehall',
+    'nl2a',
 ]
 
 devices = dict(
