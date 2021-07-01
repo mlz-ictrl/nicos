@@ -165,7 +165,7 @@ class ExpPanel(Panel):
         self._orig_errorbehavior = errorbehavior
         if not propinfo:
             return
-        self.proposalNum.setText(propinfo['proposal'])
+        self.proposalNum.setText(propinfo.get('proposal', ''))
         self.expTitle.setText(propinfo.get('title', ''))
 
         self.users.setText(combineUsers(propinfo.get('users', [])))
