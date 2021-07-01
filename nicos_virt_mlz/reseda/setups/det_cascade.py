@@ -31,7 +31,7 @@ devices = dict(
     #     tangodevice = tango_base + 'cascade/tofchannel',
     #     tofchannels = 128,
     # ),
-    psd_channel = device('nicos_demo.vreseda.devices.CascadeDetector',
+    psd_channel = device('nicos_virt_mlz.reseda.devices.CascadeDetector',
         description = 'CASCADE detector channel',
         foilsorder = [5, 4, 3, 0, 1, 2, 6, 7],
     ),
