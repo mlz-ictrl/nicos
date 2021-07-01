@@ -14,7 +14,7 @@ watchlist = [
         type = 'critical',
     ),
     dict(
-        condition = 'sel_value < 6000',
+        condition = 'selector_speed_value < 6000',
         message = 'Problem with selector. Value below 6000rpm',
         gracetime = 2,
     ),

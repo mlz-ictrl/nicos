@@ -2,12 +2,13 @@ description = 'CASCADE detector'
 
 group = 'lowlevel'
 
-includes = ['det_base', 'filesavers']
+includes = ['det_base', 'filesavers', 'mono']
 
 excludes = ['det_3he']
 
 sysconfig = dict(
-    datasinks = ['psd_padformat', 'psd_tofformat', 'psd_liveview', 'HDF5FileSaver'],
+    datasinks = ['psd_padformat', 'psd_tofformat', 'psd_liveview',
+                 'psd_xmlformat', 'HDF5FileSaver'],
 )
 
 devices = dict(
@@ -26,11 +27,18 @@ devices = dict(
         detectors = ['psd', 'scandet', 'counter', 'timer', 'monitor1', 'monitor2'],
     ),
     psd_liveview = device('nicos.devices.datasinks.LiveViewSink'),
-    # psd_channel = device('nicos.devices.vendor.cascade.CascadeDetector',
-    #     description = 'CASCADE detector channel',
-    #     tangodevice = tango_base + 'cascade/tofchannel',
-    #     tofchannels = 128,
-    # ),
+    sampledet = device('nicos.devices.generic.ManualMove',
+        description = 'sample-detector distance to be written to the data files',
+        abslimits = (0, 5000),
+        unit = 'mm',
+    ),
+    psd_xmlformat = device('nicos_mlz.mira.devices.cascade.MiraXmlSink',
+        subdir = 'cascade',
+        timer = 'timer',
+        monitor = 'monitor1',
+        sampledet = 'sampledet',
+        mono = 'vmono',
+    ),
     psd_channel = device('nicos_virt_mlz.reseda.devices.CascadeDetector',
         description = 'CASCADE detector channel',
         foilsorder = [5, 4, 3, 0, 1, 2, 6, 7],
