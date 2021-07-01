@@ -133,9 +133,9 @@ class ConstDataset(NexusElementBase):
 
     def create(self, name, h5parent, sinkhandler):
         if self.dtype == 'string':
-            dtype = 'S%d' % (len(self.value) + 1)
+            dtype = 'S%d' % (len(self.value.encode('utf-8')) + 1)
             dset = h5parent.create_dataset(name, (1,), dtype)
-            dset[0] = np.string_(self.value)
+            dset[0] = np.array(self.value.encode('utf-8'), dtype=dtype)
         else:
             dset = h5parent.create_dataset(name, (1,), dtype=self.dtype)
             dset[0] = self.value
@@ -209,9 +209,9 @@ class DeviceDataset(NexusElementBase):
                 return
         self.testAppend(sinkhandler)
         if self.dtype == 'string':
-            dtype = 'S%d' % (len(self.value[0]) + 1)
+            dtype = 'S%d' % (len(self.value[0].encode('utf-8')) + 1)
             dset = h5parent.create_dataset(name, (1,), dtype=dtype)
-            dset[0] = np.string_(self.value[0])
+            dset[0] = np.array(self.value[0].encode('utf-8'), dtype=dtype)
         else:
             if self.doAppend:
                 dset = h5parent.create_dataset(name, (1,), maxshape=(None,),
