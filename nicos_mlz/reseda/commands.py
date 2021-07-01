@@ -133,9 +133,9 @@ def pol(up, down):
     return (up - down) / (up + down)
 
 
-@helparglist('device, start, step, numsteps')
+@helparglist('device, start, step, numsteps, time=0.2')
 @usercommand
-def freqscan(device, start, step, numsteps):
+def freqscan(device, start, step, numsteps, time=0.2):
     """Special scan for finding a resonance.
 
     Detector must be set to according device (e.g. cbox_0a_coil_rms)
@@ -143,11 +143,12 @@ def freqscan(device, start, step, numsteps):
     start:  starting frequency in Hz
     step:   steps in Hz
     numsteps: number of steps
+    time: delay between points
     """
     with manualscan(device):
         for i in range(numsteps):
             maw(device, start + step*i)
-            session.delay(0.2)
+            session.delay(time)
             count(1)
 
 
