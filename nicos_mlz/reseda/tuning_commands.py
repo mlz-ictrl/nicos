@@ -99,7 +99,7 @@ def ImportTuning(mode, wavelength, filename='tuning'):
     newtable = {}
     with open(filename, 'r', encoding='utf-8') as fp:
         reader = iter(csv.reader(fp))
-        headers = reader.next()
+        headers = reader.__next__()
         if headers[0] != 'echotime':
             printerror('This does not appear to be a tuning table.')
             return
