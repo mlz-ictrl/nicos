@@ -66,16 +66,19 @@ _column2 = Column(
     ),
     Block('Sample table', [
         BlockRow(
-            Field(name='Rotation', dev='srz', unit='deg'),
+            Field(dev='sgx'),
+            Field(dev='sgy'),
+            Field(name='Rotation z', dev='srz', unit='deg'),
         ),
         BlockRow(
             Field(dev='stx'),
             Field(dev='sty'),
+            Field(dev='stz'),
         ),
-        BlockRow(
-            Field(dev='sgx'),
-            Field(dev='sgy'),
-        ),
+        # BlockRow(
+        #     Field(dev='sgx'),
+        #     Field(dev='sgy'),
+        # ),
         ],
         setups='sampletable',
     ),
@@ -289,7 +292,7 @@ devices = dict(
         font = 'Droid Sans',
         valuefont = 'Consolas',
         fontsize = '14',
-        padding = 2,
+        padding = 3,
         layout = [[_expcolumn], [_column1, _column2, _column3]]
     ),
 )

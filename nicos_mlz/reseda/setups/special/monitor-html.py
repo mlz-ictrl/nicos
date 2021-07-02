@@ -105,16 +105,18 @@ _column2 = Column(
         setups='slitsng',
     ),
     Block('Sample table', [
-        BlockRow(
-            Field(name='Rotation', dev='srz', unit='deg'),
-        ),
+        # BlockRow(
+        #     Field(name='Rotation', dev='srz', unit='deg'),
+        # ),
         BlockRow(
             Field(dev='stx'),
             Field(dev='sty'),
+            Field(dev='stz'),
         ),
         BlockRow(
             Field(dev='sgx'),
             Field(dev='sgy'),
+            Field(dev='srz'),
         ),
         ],
         setups='sampletable',
@@ -183,20 +185,20 @@ for cryo in 'cci3he01 cci3he02 cci3he03 ccidu01 ccidu02'.split():
         setups=cryo,
     ))
 
-_ccmsans = Block('SANS-1 5T Magnet', [
+_ccm5h = Block('SANS-1 5T Magnet', [
     BlockRow(
-        Field(name='Field', dev='b_ccmsans', width=12),
+        Field(name='Field', dev='B_ccm5h', width=12),
     ),
     BlockRow(
-        Field(name='Target', key='b_ccmsans/target', width=12),
-        Field(name='Asymmetry', key='b_ccmsans/asymmetry', width=12),
+        Field(name='Target', key='b_ccm5h/target', width=12),
+        Field(name='Asymmetry', key='b_ccm5h/asymmetry', width=12),
     ),
     BlockRow(
-        Field(name='Power Supply 1', dev='a_ccmsans_left', width=12),
-        Field(name='Power Supply 2', dev='a_ccmsans_right', width=12),
+        Field(name='Power Supply 1', dev='I1_ccm5h', width=12),
+        Field(name='Power Supply 2', dev='I2_ccm5h', width=12),
     ),
     ],
-    setups='ccmsans',
+    setups='ccm5h',
 )
 
 _miramagnet = Block('MIRA 0.5T Magnet', [
@@ -251,7 +253,7 @@ _ccm2a = Block('CCM2a Magnet', [
     setups='ccm2a',
 )
 
-magnets = [_ccm2a, _ccmsans, _miramagnet, _amagnet]
+magnets = [_ccm2a, _ccm5h, _miramagnet, _amagnet]
 
 _column3 = Column(
     Block('Cascade detector', [

@@ -163,8 +163,8 @@ devices = dict(
         prefix = 'nicos/',
         font = 'Droid Sans',
         valuefont = 'Consolas',
-        fontsize = '14',
-        padding = 5,
+        fontsize = '13',
+        padding = 4,
         colors = 'dark',
         layout = [[_guidefields], [_column1, _column2, _column3], [_subcoils]]
     ),
