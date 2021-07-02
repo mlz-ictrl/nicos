@@ -29,6 +29,10 @@ Utilities for serializing a hs00 flatbuffer
 import time
 from unittest.mock import patch
 
+import pytest
+
+pytest.importorskip('flatbuffers')
+
 import flatbuffers
 import numpy
 

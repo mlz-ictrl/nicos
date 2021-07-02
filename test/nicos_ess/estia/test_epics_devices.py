@@ -34,11 +34,12 @@ import pytest
 
 from nicos.core import status
 
+pytest.importorskip('epics')
+pytest.importorskip('kafka')
+
 from nicos_ess.devices.epics.base import EpicsDeviceEss, EpicsReadableEss
 from nicos_ess.estia.devices.pt100 import EpicsPT100Temperature, error_bits, \
     get_pt100_status_message
-
-pytest.importorskip('epics')
 
 session_setup = 'estia'
 

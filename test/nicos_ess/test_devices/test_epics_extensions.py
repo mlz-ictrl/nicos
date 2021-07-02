@@ -30,12 +30,13 @@ from nicos.core import ConfigurationError
 from nicos.core.device import Device
 from nicos.devices.epics import EpicsDevice
 
+pytest.importorskip('epics')
+pytest.importorskip('kafka')
+
 from nicos_ess.devices.epics.extensions import HasDisablePv
 
 from test.nicos_ess.test_devices.utils import create_method_patch, \
     create_patch, return_value_wrapper
-
-pytest.importorskip('epics')
 
 
 session_setup = 'ess_extensions'

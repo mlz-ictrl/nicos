@@ -1,5 +1,6 @@
 # pylint: skip-file
 
+# test: needs = pyfits
 # test: setups = detbox_blackbox
 # test: setupcode = SetDetectors(det_ikonl)
 
