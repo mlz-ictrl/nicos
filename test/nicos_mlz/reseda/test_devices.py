@@ -33,6 +33,30 @@ from test.utils import approx, raises
 session_setup = 'reseda'
 
 
+class TestSelector:
+
+    @pytest.fixture(scope='function', autouse=True)
+    def prepare(self, session):
+        yield
+        session.getDevice('selector_speed').maw(0)
+        session.getDevice('selcradle').maw(0)
+
+    def test_device(self, session):
+        lambda_ = session.getDevice('selector_lambda')
+        sel = session.getDevice('selector_speed')
+        assert lambda_._get_tilt(0) == 0.0
+        assert sel.read(0) == 0
+        # if selector not moving the wavelength is negative to indicate zero
+        # speed
+        assert lambda_.read() == -1
+
+        sel.maw(10000)
+        assert lambda_.read(0) == approx(12.7305, abs=0.0001)
+
+        lambda_.maw(6)
+        assert sel.read(0) == approx(21218, abs=1)
+
+
 class TestSelectorSpread:
 
     @pytest.fixture(scope='function', autouse=True)
