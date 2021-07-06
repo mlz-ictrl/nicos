@@ -24,8 +24,11 @@
 
 """Astrium selector device with adaptations for RESEDA"""
 
+from math import asin, pi, radians
+
 from nicos.core import Param
-from nicos.devices.vendor.astrium import SelectorLambda as NicosSelectorLambda
+from nicos.devices.vendor.astrium import SelectorLambda as NicosSelectorLambda, \
+    SelectorLambdaSpread as NicosSelectorLambdaSpread
 
 
 class SelectorLambda(NicosSelectorLambda):
@@ -68,3 +71,14 @@ class SelectorLambda(NicosSelectorLambda):
         speed = int(self.sel_inv(value))
         self.log.debug('moving selector to %d rpm', speed)
         self._attached_seldev.start(speed)
+
+
+class SelectorLambdaSpread(NicosSelectorLambdaSpread):
+
+    def doRead(self, maxage=0):
+        lamdev = self._attached_lamdev
+        tilt = lamdev._get_tilt(maxage)
+        eff_twistangle = lamdev.twistangle + \
+            tilt * lamdev.length / lamdev.beamcenter
+        spread = 2 * asin(pi / self.n_lamellae) / radians(eff_twistangle)
+        return 100 * spread
