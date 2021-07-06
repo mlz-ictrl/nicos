@@ -48,4 +48,8 @@ devices = dict(
         arm2 = 'arm2_rot',
         minangle = 50,
     ),
+    psd_channel = device('nicos_virt_mlz.reseda.devices.CascadeDetector',
+        description = 'CASCADE detector channel',
+        foilsorder = [5, 4, 3, 0, 1, 2, 6, 7],
+    ),
 )
