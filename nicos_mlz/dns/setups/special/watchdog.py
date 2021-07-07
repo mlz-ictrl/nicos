@@ -18,18 +18,18 @@ group = 'special'
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 watchlist = [
-    dict(condition = 'nlashutter_value == "closed" '
-                     'and reactorpower_value > 19.1',
-         message = 'NL6 or sixfold shutter closed',
-         type = 'critical',
-         gracetime = 300
-        ),
-    dict(condition = 'expshutter_value == "open" '
-                     'and reactorpower_value < 0.1',
-         message = 'reactor off',
-         type = 'critical',
-         gracetime = 300
-        ),
+#    dict(condition = 'nlashutter_value == "closed" '
+#                     'and reactorpower_value > 19.1',
+#         message = 'NL6 or sixfold shutter closed',
+#         type = 'critical',
+#         gracetime = 300
+#        ),
+#    dict(condition = 'expshutter_value == "open" '
+#                     'and reactorpower_value < 0.1',
+#         message = 'reactor off',
+#         type = 'critical',
+#         gracetime = 300
+#        ),
 #    dict(condition = 't_value > 100',
 #         message = 'Temperature too high',
 #         type = 'critical',
