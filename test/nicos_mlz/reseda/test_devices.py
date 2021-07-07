@@ -26,7 +26,9 @@
 
 import pytest
 
-from test.utils import approx
+from nicos.core.errors import LimitError
+
+from test.utils import approx, raises
 
 session_setup = 'reseda'
 
@@ -48,3 +50,33 @@ class TestSelectorSpread:
         for l in [12, 6]:
             lambda_.maw(l)
             assert delta.read(0) == approx(11.7, abs=0.1)
+
+
+class TestArmController:
+
+    @pytest.fixture(scope='function', autouse=True)
+    def prepare(self, session):
+        yield
+        session.getDevice('arm1_rot').maw(-55)
+        session.getDevice('arm2_rot').maw(0)
+
+    def test_device(self, session):
+        _ctrl = session.getDevice('armctrl')
+        arm1 = session.getDevice('arm1_rot')
+        arm2 = session.getDevice('arm2_rot')
+        assert arm1.read(0) == -55
+        assert arm2.read(0) == 0
+
+        # too close
+        assert raises(LimitError, arm2.maw, -10)
+        assert raises(LimitError, arm1.maw, -10)
+
+        # would cross
+        assert raises(LimitError, arm1, 5)
+
+        # move arm 1 as close as possible
+        arm1.maw(-50)
+
+        # move arm 2 as close as possible
+        arm1.maw(-55)
+        arm2.maw(-5)
