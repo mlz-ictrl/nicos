@@ -1,6 +1,7 @@
 description = 'power supplies'
 
 group = 'optional'
+excludes = ['power']
 
 tango_base = 'tango://phys.j-nse.frm2:10000/j-nse/'
 
