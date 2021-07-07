@@ -3,6 +3,7 @@
 description = 'setup for Beckhoff PLC mtt devices on PANDA'
 
 group = 'lowlevel'
+display_order = 23
 
 tango_base = 'tango://phys.panda.frm2:10000/panda/'
 plc = tango_base + 'beckhoff_mtt/plc_'

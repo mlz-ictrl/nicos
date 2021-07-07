@@ -3,6 +3,7 @@
 description = 'detectors'
 
 group = 'lowlevel'  # is included by panda.py
+display_order = 70
 
 excludes = ['qmesydaq']
 

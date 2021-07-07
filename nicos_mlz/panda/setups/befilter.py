@@ -3,6 +3,7 @@
 description = 'Beryllium filter'
 
 group = 'optional'
+display_order = 31
 
 tango_base = 'tango://phys.panda.frm2:10000/panda/'
 

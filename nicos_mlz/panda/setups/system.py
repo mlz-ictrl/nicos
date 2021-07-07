@@ -3,6 +3,7 @@
 description = 'system setup for PANDA'
 
 group = 'lowlevel'
+display_order = 90
 
 sysconfig = dict(
     cache = 'phys.panda.frm2',

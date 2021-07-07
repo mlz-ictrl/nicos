@@ -1,6 +1,7 @@
 description = 'qmesydaq channel devices'
 
 group = 'lowlevel'
+display_order = 70
 
 qm = '//phys.panda.frm2/panda/qmesydaq/'
 

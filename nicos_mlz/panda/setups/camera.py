@@ -1,5 +1,7 @@
 description = 'Neutron camera'
+
 group = 'optional'
+display_order = 71
 
 tango_base = 'tango://phys.panda.frm2:10000/panda/'
 
