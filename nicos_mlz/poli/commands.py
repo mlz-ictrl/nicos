@@ -783,7 +783,7 @@ n                                ! extended output
     proc = createSubprocess(['indexus'], cwd=root, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT)
     output = proc.communicate()[0]
-    if 'unable to find solution' in output:
+    if b'unable to find solution' in output:
         session.log.warning('Indexus could not find a solution.')
         IndexPeaks._last_result = None
         return
@@ -1052,10 +1052,7 @@ def ScanDataset(name, speed=None, timedelta=None, start=1, cont=True):
             # if abs(cur_om - om1) > abs(cur_om - om2):
             #     om1, om2 = om2, om1
             umin, umax = instr._attached_omega.userlimits
-            if om1 < umin:
-                om1 = umin
-            if om1 > umax:
-                om1 = umax
+            om1 = min(max(om1, umin), umax)
             try:
                 maw(instr._attached_gamma, calc['gamma'],
                     instr._attached_nu, calc['nu'],
