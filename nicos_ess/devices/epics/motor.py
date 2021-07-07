@@ -79,6 +79,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         'abslimits': Override(volatile=True),
     }
 
+    motor_status_mapping = {
+        'MAJOR': status.ERROR,
+        'MINOR': status.WARN,
+        'INVALID': status.UNKNOWN
+    }
+
     # Fields of the motor record for which an interaction via Channel Access
     # is required.
     def _get_record_fields(self):
@@ -205,11 +211,11 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         return self._get_pv('writepv')
 
     def doStatus(self, maxage=0):
-        general_epics_status, _ = self._get_mapped_epics_status()
-        message = self._get_status_message()
-
+        general_epics_status, message = self._get_status_message()
         if general_epics_status == status.ERROR:
             return status.ERROR, message or 'Unknown problem in record'
+        elif general_epics_status == status.WARN:
+            return status.WARN, message
 
         done_moving = self._get_pv('donemoving')
         moving = self._get_pv('moving')
@@ -239,12 +245,38 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         """
         Get the status message from the motor if the PV exists.
 
-        :return: The status message if it exists, otherwise an empty string.
+        :return: tuple with status and message to display, empty string message
+        if status is OK.
         """
-        if not self.errormsgpv:
-            return ''
+        msg_txt, alarm_severity, alarm_status = self._read_epics_alarm_pvs()
+        if msg_txt:
+            stat = self.motor_status_mapping.get(alarm_severity, status.OK)
+            if alarm_status == 'COMM' and stat == status.UNKNOWN:
+                stat = status.ERROR
+            self._log_epics_msg_info(msg_txt, stat, alarm_status)
+            return stat, msg_txt
+        else:
+            return status.OK, ''
 
-        return self._get_pv('errormsgpv', as_string=True)
+    def _read_epics_alarm_pvs(self):
+        """
+        :return: tuple containing alarm message, severity and status
+        """
+        if self.errormsgpv:
+            return (self._get_pv('errormsgpv', as_string=True),
+                    self._get_pv('alarm_severity', as_string=True),
+                    self._get_pv('alarm_status', as_string=True))
+        else:
+            return '', '', ''
+
+    def _log_epics_msg_info(self, msg_txt, stat, epics_status):
+        if stat == status.OK or stat == status.UNKNOWN:
+            return
+        msg_to_log = f'Motor message: {msg_txt} ({epics_status})'
+        if stat == status.WARN:
+            self.log.warning(msg_to_log)
+        elif stat == status.ERROR:
+            self.log.error(msg_to_log)
 
     def doStop(self):
         self._put_pv('stop', 1, False)
@@ -325,29 +357,3 @@ class EpicsMonitorMotor(PVMonitor, EpicsMotor):
         # the cache needs to be updated immediately.
         if pvparam in ['donemoving', 'moving']:
             self._cache.put(self._name, pvparam, value, currenttime())
-
-    def _get_status_parameters(self):
-        status_pars = {
-            'miss',
-            'donemoving',
-            'moving',
-            'lowlimitswitch',
-            'highlimitswitch',
-            'softlimit',
-        }
-
-        if self.errormsgpv:
-            status_pars.add('errormsgpv')
-            status_pars.add('alarm_status')
-            status_pars.add('alarm_severity')
-        return status_pars
-
-    def _get_status_message(self):
-        """
-        Get the status message from the motor if the PV exists.
-        :return: The status message if it exists, otherwise an empty string.
-        """
-        if not self.errormsgpv:
-            return ''
-        return self._pvs['errormsgpv'].get(timeout=self.epicstimeout,
-                                           as_string=True)
