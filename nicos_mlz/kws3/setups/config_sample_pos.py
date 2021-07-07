@@ -16,7 +16,7 @@ dock_pos_sam10_x = 140.000
 dock_pos_sam10_y = 1.000
 
 dock_pos_sam01_x = 150.00
-dock_pos_sam01_y = 30.00
+dock_pos_sam01_y = 45.00
 
 SAMPLE_POS_PRESETS = {
     # TODO: add proper presets
