@@ -2,4 +2,4 @@ description = 'Flipping ratio'
 
 group = 'basic'
 
-includes = ['table_lifting', 'detector']
+includes = ['table_lifting', 'flipping']

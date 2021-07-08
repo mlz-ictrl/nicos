@@ -5,6 +5,13 @@ group = 'optional'
 tango_base = 'tango://phys.j-nse.frm2:10000/j-nse/'
 
 devices = dict(
+    coil_monitor = device('nicos.devices.tango.Sensor',
+        description = 'Voltage from coil',
+        tangodevice = tango_base + 'datalogger/plc_analog1',
+        pollinterval = 10,
+        maxage = 30,
+    ),
+
     cc1r1 = device('nicos.devices.tango.Sensor',
         description = 'Temp cc1r1',
         tangodevice = tango_base + 'plcanalog/CC1R1',
