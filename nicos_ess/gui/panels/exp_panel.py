@@ -133,7 +133,6 @@ class ExpPanel(Panel):
     """
 
     panelName = 'Experiment setup'
-    exp_proposal_activated = pyqtSignal()
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
@@ -344,7 +343,6 @@ class ExpPanel(Panel):
         if changes:
             self.showInfo('\n'.join(changes))
         self._update_proposal_info()
-        self.exp_proposal_activated.emit()
 
     def _set_samples(self, changes):
         if self.hide_samples:
