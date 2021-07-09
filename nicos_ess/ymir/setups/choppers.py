@@ -7,6 +7,7 @@ devices = dict(
         'nicos.devices.epics.EpicsStringReadable',
         description='The chopper status.',
         readpv='{}Chop_Stat'.format(pv_root),
+        lowlevel=True,
     ),
     mini_chopper_control=device(
         'nicos_ess.devices.epics.extensions.EpicsMappedMoveable',
@@ -33,5 +34,11 @@ devices = dict(
         readpv='{}ChopDly-S'.format(pv_root),
         writepv='{}ChopDly-S'.format(pv_root),
         abslimits=(0.0, 71428571.0),
+    ),
+    mini_chopper=device(
+        'nicos_ess.devices.epics.chopper.EssChopperController',
+        description='The mini-chopper controller',
+        state='mini_chopper_status',
+        command='mini_chopper_control',
     ),
 )
