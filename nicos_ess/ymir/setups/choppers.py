@@ -30,8 +30,8 @@ devices = dict(
     mini_chopper_delay=device(
         'nicos.devices.epics.EpicsAnalogMoveable',
         description='The current delay.',
-        readpv='{}Chopper-Delay-SP'.format(pv_root),
-        writepv='{}Chopper-Delay-SP'.format(pv_root),
+        readpv='{}ChopDly-S'.format(pv_root),
+        writepv='{}ChopDly-S'.format(pv_root),
         abslimits=(0.0, 71428571.0),
     ),
 )
