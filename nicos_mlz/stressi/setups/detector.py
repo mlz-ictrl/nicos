@@ -2,7 +2,7 @@ description = 'Detector CARESS HWB Devices'
 
 group = 'lowlevel'
 
-tango_host = 'tango://ps01.stressi.frm2:10000/stressi/det/'
+tango_host = 'tango://ps01.stressi.frm2:10000/box/det/'
 detector_base = 'tango://mesydaq.stressi.frm2.tum.de:10000/qm/qmesydaq/'
 
 devices = dict(
