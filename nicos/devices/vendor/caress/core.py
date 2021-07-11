@@ -398,7 +398,7 @@ class CARESSDevice(HasCommunication):
             return function(*args)
         except (CORBA.COMM_FAILURE, CORBA.TRANSIENT) as err:
             tries = self.comtries - 1
-            while True and tries > 0:
+            while True and tries > 0:  # pylint: disable=simplifiable-condition
                 self.log.warning('Remaining tries: %d', tries)
                 session.delay(self.comdelay)
                 if isinstance(err, CORBA.TRANSIENT):

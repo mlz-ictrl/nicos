@@ -294,7 +294,8 @@ class PumaSecCollPair(HasTimeout, BlockingSequencer):
             # self.reset()
             # session.delay(2)
             # switch on hardware
-            if True or self.autoonoff:  # ask why on/off automatic is needed
+            # ask why on/off automatic is needed
+            if True or self.autoonoff:  # pylint: disable=condition-evals-to-constant
                 seq.append(SeqDev(self._attached_a2_powvalunit, 1))
                 seq.append(SeqSleep(2))
                 seq.append(SeqDev(self._attached_a2_lgon, 1))
