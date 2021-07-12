@@ -926,7 +926,7 @@ class Device(metaclass=DeviceMeta):
     def _pollParam(self, name, with_ttl=0):
         """Read a parameter from the hardware and put its value into the cache.
 
-        This is intendend to be used from :meth:`doPoll` methods, so that they
+        This is intended to be used from :meth:`doPoll` methods, so that they
         don't have to implement parameter polling themselves.  For readable
         devices, if *with_ttl* is > 0, the cached value gets the TTL of the
         device value, determined by :attr:`maxage`, multiplied by *with_ttl*.
