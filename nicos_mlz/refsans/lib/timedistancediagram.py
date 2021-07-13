@@ -59,6 +59,12 @@ def timedistancediagram(speed, angles, disk2_pos, D,
     plot.set_facecolor('#F0F0F0')
     plot.figure.patch.set_color('#F0F0F0')
 
+    # Max value for y axis
+    if Actual_D is not None:
+        y_max = 1.1 * max(D, Actual_D)
+    else:
+        y_max = 1.1 * D
+
     # if d_MCo == d_SCo:
     #    raise ValueError('Disk2 and 3 collide !')
     # ++ Param hack todo ###
@@ -87,7 +93,7 @@ def timedistancediagram(speed, angles, disk2_pos, D,
 
     # period limits
     for i in range(n_per + 1):
-        plot.vlines(i * per, 0, D, 'b', ':', lw=2)  # in ms
+        plot.vlines(i * per, 0, y_max, 'b', ':', lw=2)  # in ms
 
     # beams
     t = np.linspace(-times[2], n_per * per)  # in ms
@@ -143,19 +149,21 @@ def timedistancediagram(speed, angles, disk2_pos, D,
 
         # disk2: blue line
         if i == -1:
-            plot.hlines(d_MCo, times[1] - trailing_edge_SC2 + ip,
+            plot.hlines(d_MCo, times[1] - trailing_edge_SC + ip,
                         times[1] + ip, 'b', lw=3, label='disk 2')
         else:
-            plot.hlines(d_MCo, times[1] - trailing_edge_SC2 + ip,
+            plot.hlines(d_MCo, times[1] - trailing_edge_SC + ip,
                         times[1] + ip, 'b', lw=3)
 
         # disk3: green line
         if i == -1:
-            plot.hlines(d_SCc, times[2] + ip, times[2] + trailing_edge_SC + ip,
-                        'g', lw=3, label='disks 3 and 5')
+            plot.hlines(
+                d_SCc + 0.05, times[2] + ip, times[2] + trailing_edge_SC + ip,
+                'g', lw=3, label='disks 3 and 5')
         else:
-            plot.hlines(d_SCc, times[2] + ip, times[2] + trailing_edge_SC + ip,
-                        'g', lw=3)
+            plot.hlines(
+                d_SCc + 0.05, times[2] + ip, times[2] + trailing_edge_SC + ip,
+                'g', lw=3)
 
         # disk4: red line
         if i == -1:
@@ -189,13 +197,13 @@ def timedistancediagram(speed, angles, disk2_pos, D,
                 plot.hlines(Actual_D, *plot.get_xlim(), colors='#FF7F39', lw=4,
                             label='detector actual position')
             else:
-                plot.hlines(Actual_D, *plot.get_xlim(), colors='#FF7F39')
+                plot.hlines(Actual_D, *plot.get_xlim(), colors='#FF7F39', lw=4)
 
         plot.plot(t + ip, beam2, 'b')
         plot.plot(t + ip, beam3, 'r')
 
     plot.set_xlim(0, (n_per + .2) * per)
-    plot.set_ylim(0, D * 1.1)
+    plot.set_ylim(0, y_max)
 
     detect_st = 'First n.: '
     for el in detection:
@@ -215,6 +223,7 @@ def timedistancediagram(speed, angles, disk2_pos, D,
     plot.set_xlabel('Time since start signal / ms')
     plot.set_ylabel('Distance from master chopper / m')
     plot.legend(loc='upper center', ncol=6, borderaxespad=0.)
+    plot.figure.suptitle(' ', fontsize=16, fontweight='bold')
     if Actual_D is not None:
         # possible frame overlap. The warning is raised by using a orange frame
         # and a text on top of the plot

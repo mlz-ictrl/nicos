@@ -261,7 +261,7 @@ class DoubleSlitSequence(SequencerMixin, DoubleSlit):
         center = self.center.read(0)
         dif = target[1] - center
         self.log.debug('safe %s dif %.2f center %.2f', target, dif, center)
-        if True and False:
+        if True and False:  # pylint: disable=condition-evals-to-constant
             safe_seq = []
             step = (target[0] + .5001) * np.sign(dif)
             akt = center + step

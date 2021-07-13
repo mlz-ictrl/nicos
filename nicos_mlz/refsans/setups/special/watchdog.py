@@ -36,6 +36,12 @@ watchlist = [
          message = 'Reactor power falling or Sixfold or NL2b closed',
          type = 'critical',
     ),
+    # dict(
+    #     condition = '(sixfold_value == "closed" or nl2b_value == "closed") '
+    #     'and reactorpower_value > 19.1',
+    #     message = 'NL2b or sixfold shutter closed',
+    #     type = 'critical',
+    # ),
     dict(condition = 'pressure_CB_value > 0.2',
          precondition = 'pressure_CB_value < 0.1',
          message = 'pressure_CB_value > 0.2',
