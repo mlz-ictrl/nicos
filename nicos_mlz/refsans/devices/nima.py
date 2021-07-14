@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-from nicos.core import Moveable, Readable, status
-from nicos.core.mixins import HasLimits
-from nicos.core.params import Attach, Param, floatrange
+from nicos.core import Moveable, Readable, status, usermethod
+from nicos.core.mixins import HasLimits, HasPrecision
+from nicos.core.params import Attach, Param, floatrange, oneof
 from nicos.devices.entangle import StringIO
 
 
@@ -36,45 +36,59 @@ class Base(Readable):
         'comm': Attach('Communication device', StringIO),
     }
 
+    parameters = {
+        'stringserver': Param('string server', type=oneof('pop', 'read'),
+                              settable=True, default='pop'),
+        'data': Param('stored data',
+                      internal=True, type=str,
+                      settable=True, default=''),
+    }
+
+    def doReset(self):
+        self.log.debug('RESET')
+        self._attached_comm.communicate('cmd:reset')
+
+    def doGet(self, style, maxage=0):
+        style = style.replace('_', ' ')
+        if style + ';' not in self.data or self.stringserver == 'read':
+            res = self._attached_comm.communicate('read')
+        else:
+            res = self.data
+        res = res.split(';')
+        if style == 'status':
+            simple, text = res[res.index(style) + 1].split('+')
+            ret = int(simple), text
+        else:
+            index = res.index(style)
+            val = res.pop(index + 1)
+            res.pop(index)
+            ret = self.valuetype(val)
+        line = ''
+        for l in res:
+            line += '%s;' % str(l)
+        self._setROParam('data', line)
+        return ret
+
     def doStatus(self, maxage=0):
         return status.OK, ''
 
     def doRead(self, maxage=0):
-        return self._attached_comm.communicate('read')
+        return ''
 
 
-class ReadName(Base):
+class ReadName(Readable):
 
     valuetype = float
 
-    parameters = {
-        'curstatus': Param('Store the current device status',
-                           internal=True, type=str,
-                           settable=True, default='default'),
+    attached_devices = {
+        'comm': Attach('Communication device', Readable),
     }
 
-    def doRead(self, maxage=0):
-        self.log.debug(self)
-        res = Base.doRead(self, maxage)
-        self.log.debug(res)
-        res = res.split(';')
-        self.log.debug(res)
-
-        self._setROParam('curstatus', res[res.index('status') + 1])
-        self.log.debug(self.curstatus)
-
-        label = self.name[5:]
-        self.log.debug(label)
-        index = res.index(label)
-        self.log.debug(index)
-        return self.valuetype(res[index + 1])
-
     def doStatus(self, maxage=0):
-        if self.curstatus == 'ok':
-            return Base.doStatus(self, maxage)
-        elif self.curstatus == 'offline':
-            return (status.ERROR, self.curstatus)
-        return (status.UNKNOWN, self.curstatus)
+        return self._attached_comm.doGet('status')
+
+    def doRead(self, maxage=0):
+        return self.valuetype(self._attached_comm.doGet(self.name[5:]))
 
 
 class MoveName(HasLimits, ReadName, Moveable):
@@ -88,10 +102,14 @@ class MoveName(HasLimits, ReadName, Moveable):
     def _command(self, ss):
         self.log.debug('_command: >%s<', ss)
         res = self._attached_comm.communicate(ss)
-        if res != 'ack':
-            self.log.error('unexpected result >%s<', res)
-        else:
+        if res == 'ack':
             self.log.debug('result >%s<', res)
+        elif res.find('get:') == 0:
+            res = res.split(':')[1]
+            self.log.debug('get >%s<', res)
+            return res
+        else:
+            self.log.error('unexpected result >%s<', res)
 
     def doStart(self, target):
         self._command('%s:%f:%f' % (self.name[5:], target, self.speed))
@@ -99,8 +117,40 @@ class MoveName(HasLimits, ReadName, Moveable):
     def doStop(self):
         self._command('stop')
 
-    def open(self):
-        self._command('open')
 
+class Area(MoveName):
+
+    valuetype = oneof('open', 'close')
+
+    def doStart(self, target):
+        self._command(target)
+
+    @usermethod
+    def open(self):
+        self.doStart('open')
+
+    @usermethod
     def close(self):
-        self._command('close')
+        self.doStart('close')
+
+
+class Press(HasPrecision, MoveName):
+
+    parameters = {
+        'plate_perimeter': Param('perimeter of plate',
+                                 type=floatrange(10, 30), mandatory=False,
+                                 settable=True, userparam=True, default=21),
+        'calibration_weight': Param('perimeter of plate',
+                                    type=floatrange(50, 200), mandatory=False,
+                                    settable=True, userparam=True,
+                                    default=101.6),
+    }
+
+    def doWritePrecision(self, value):
+        self._command('set:precision:%f' % value)
+        self.log.info('write Precison %f. unsaved' % value)
+
+    def doReadPrecision(self, value):
+        value = float(self._command('get:precision'))
+        self.log.info('write Precison %f', value)
+        return value
