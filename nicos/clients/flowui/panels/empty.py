@@ -26,8 +26,4 @@ from nicos.clients.gui.panels import Panel
 
 
 class EmptyPanel(Panel):
-    """ Define an empty panel to be used as a placeholder
-    """
-
-    def __init__(self, parent, client, options):
-        Panel.__init__(self, parent, client, options)
+    """Empty panel to be used as a placeholder."""
