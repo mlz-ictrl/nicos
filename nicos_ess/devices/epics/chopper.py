@@ -24,7 +24,7 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
-from nicos.core import Attach, Override, Readable, multiStatus, status
+from nicos.core import Attach, Override, Readable, Waitable, status
 from nicos.devices.abstract import MappedMoveable
 
 
@@ -61,8 +61,7 @@ class EssChopperController(MappedMoveable):
         pass
 
     def doStatus(self, maxage=0):
-        attached = [self._attached_command, self._attached_state]
-        stat, msg = multiStatus(attached, maxage)
+        stat, msg = Waitable.doStatus(self, maxage)
         if stat != status.OK:
             return stat, msg
         return status.OK, ''
