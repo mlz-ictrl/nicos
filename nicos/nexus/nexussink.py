@@ -26,7 +26,6 @@ import importlib
 import h5py
 import numpy
 
-from nicos.core import SLAVE
 from nicos.core.constants import POINT, SCAN
 from nicos.core.data import DataSinkHandler
 from nicos.core.errors import NicosError
@@ -61,8 +60,7 @@ def copy_nexus_template(template):
         return {k: copy_nexus_template(v) for k, v in template.items()}
     elif isinstance(template, list):
         return [copy_nexus_template(elem) for elem in template]
-    else:
-        return template
+    return template
 
 
 class NexusSinkHandler(DataSinkHandler):
@@ -257,10 +255,6 @@ class NexusSink(FileSink):
 
     handlerclass = NexusSinkHandler
     _handlerObj = None
-
-    def doInit(self, mode):
-        if mode == SLAVE:
-            return
 
     # The default implementation creates gazillions of SinkHandlers.
     # For NeXus we do not want this, we want one keeping track of the whole
