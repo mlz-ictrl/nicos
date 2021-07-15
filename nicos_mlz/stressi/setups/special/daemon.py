@@ -2,12 +2,6 @@ description = 'setup for the execution daemon'
 group = 'special'
 
 devices = dict(
-    Auth   = device('nicos.services.daemon.auth.list.Authenticator',
-                    # the hashing maybe 'md5' or 'sha1'
-                    hashing = 'md5',
-                    passwd = [('guest', '', 'guest'),
-                             ],
-                   ),
     UserDBAuth = device('nicos_mlz.devices.ghost.Authenticator',
          description = 'FRM II user office authentication',
          instrument = 'STRESS-SPEC',
@@ -23,11 +17,12 @@ devices = dict(
         grouproles = {
             'stressi': 'admin',
             'ictrl': 'admin',
+            'se': 'user',
         }
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = '',
-        authenticators = ['UserDBAuth', 'LDAPAuth', 'Auth'],
+        authenticators = ['UserDBAuth', 'LDAPAuth'],
         loglevel = 'info',
     ),
 )

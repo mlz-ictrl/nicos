@@ -26,7 +26,6 @@
 
 from math import asin, pi, radians
 
-from nicos.core import Param
 from nicos.devices.vendor.astrium import SelectorLambda as NicosSelectorLambda, \
     SelectorLambdaSpread as NicosSelectorLambdaSpread
 
@@ -37,9 +36,7 @@ class SelectorLambda(NicosSelectorLambda):
     wavelength. (RESEDA version)
     """
 
-    parameters = {
-        'radius': Param('Selector radius', mandatory=True, unit='m'),
-    }
+    speed_scale = 6.5933900e2
 
     def sel(self, maxage):
         """Calculate wavelength from speed and tilting angle.
@@ -49,8 +46,8 @@ class SelectorLambda(NicosSelectorLambda):
         """
         spd = self._attached_seldev.read(maxage)
         if spd:
-            return 6.5933900e2 * (
-                self.twistangle + self.length / self.radius *
+            return self.speed_scale * (
+                self.twistangle + self.length / self.beamcenter *
                 self._get_tilt(maxage)) / (spd * self.length)
         return -1
 
@@ -60,8 +57,8 @@ class SelectorLambda(NicosSelectorLambda):
         The rotation speed is given in 'rpm', the tilting angle in 'deg', and
         the wavelength in 'AA'.
         """
-        return 6.5933900e2 * (
-            self.twistangle + self.length / self.radius *
+        return self.speed_scale * (
+            self.twistangle + self.length / self.beamcenter *
             self._get_tilt(maxage)) / (lam * self.length)
 
     def doRead(self, maxage=0):

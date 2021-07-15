@@ -25,7 +25,7 @@ devices = dict(
         fmtstr = '%.2f',
         twistangle = 48.27,
         length = 0.25,
-        radius = 0.16,
+        # radius = 0.16,
         beamcenter = 0.115,
         maxspeed = 28500,
     ),
