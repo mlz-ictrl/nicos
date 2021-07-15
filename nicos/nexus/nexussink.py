@@ -118,7 +118,7 @@ class NexusSinkHandler(DataSinkHandler):
             elif isinstance(val, dict):
                 if ':' not in key:
                     self.log.warning(
-                        'Cannot write group %s, no nxclass defined', key)
+                        'Cannot write group %r, no nxclass defined', key)
                     continue
                 [nxname, nxclass] = key.rsplit(':', 1)
                 nxgroup = h5obj.create_group(nxname)
@@ -127,7 +127,7 @@ class NexusSinkHandler(DataSinkHandler):
             elif isinstance(val, NexusElementBase):
                 val.create(key, h5obj, self)
             else:
-                self.log.warning('Cannot write %s of type %s', key, type(val))
+                self.log.warning('Cannot write %r of type %r', key, type(val))
 
     def updateValues(self, dictdata, h5obj, values):
         if self.dataset.settype == POINT:
@@ -142,7 +142,7 @@ class NexusSinkHandler(DataSinkHandler):
                 elif isinstance(val, NexusElementBase):
                     val.update(key, h5obj, self, values)
                 else:
-                    self.log.warning('Cannot identify and  update %s', key)
+                    self.log.warning('Cannot identify and update %r', key)
 
     def append(self, dictdata, h5obj, subset):
         for key, val in dictdata.items():
@@ -157,9 +157,9 @@ class NexusSinkHandler(DataSinkHandler):
                 try:
                     val.append(key, h5obj, self, subset)
                 except Exception as err:
-                    self.log.warning('Exception %s on key %s', err, key)
+                    self.log.warning('Exception %r on key %r', err, key)
             else:
-                self.log.warning('Cannot identify and append %s', key)
+                self.log.warning('Cannot identify and append %r', key)
 
     def putValues(self, values):
         h5obj = self.h5file['/']
@@ -179,7 +179,7 @@ class NexusSinkHandler(DataSinkHandler):
             elif isinstance(val, NexusElementBase):
                 val.results(key, h5obj, self, results)
             else:
-                self.log.warning('Cannot add results to %s', key)
+                self.log.warning('Cannot add results to %r', key)
 
     def putResults(self, quality, results):
         h5obj = self.h5file['/']
