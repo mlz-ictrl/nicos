@@ -29,7 +29,6 @@ devices = dict(
         fmtstr = '%.4f',
         lowlevel = True,
     ),
-    # currently broken
     mtt_c = device('nicos.devices.tango.Sensor',
         tangodevice = tango_base + 'mono/mtt_c',
         fmtstr = '%.4f',

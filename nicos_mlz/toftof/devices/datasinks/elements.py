@@ -42,9 +42,9 @@ class ExperimentTitle(NexusElementBase):
         usercomment = metainfo.get(('det', 'usercomment'),
                                    metainfo.get(('det', 'info'),
                                                 ('', '', '', '')))[0]
-        dtype = 'S%d' % (len(usercomment) + 1)
+        dtype = 'S%d' % (len(usercomment.encode('utf-8')) + 1)
         dset = h5parent.create_dataset(name, (1,), dtype)
-        dset[0] = np.string_(usercomment)
+        dset[0] = np.array(usercomment.encode('utf-8'), dtype=dtype)
 
 
 class EntryIdentifier(NexusElementBase):
@@ -239,9 +239,9 @@ class FileName(NexusElementBase):
 
     def create(self, name, h5parent, sinkhandler):
         filename = sinkhandler._filename
-        dtype = 'S%d' % (len(filename) + 1)
+        dtype = 'S%d' % (len(filename.encode('utf-8')) + 1)
         dset = h5parent.create_dataset(name, (1,), dtype)
-        dset[0] = np.string_(filename)
+        dset[0] = np.array(filename.encode('utf-8'), dtype=dtype)
 
 
 class ElasticPeakGuess(NexusElementBase):
