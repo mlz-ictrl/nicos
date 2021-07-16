@@ -21,7 +21,10 @@
 #   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
+
+import datetime
 import os
+import re
 import time
 from os import path
 
@@ -37,7 +40,7 @@ from nicos.commands.measure import count
 from nicos.commands.scan import scan
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceAttribute, DeviceDataset, ImageDataset, NXAttribute, NXLink, \
-    NXScanLink
+    NXScanLink, NXTime
 from nicos.utils import updateFileCounter
 
 from test.nexus.TestTemplateProvider import setTemplate
@@ -243,3 +246,25 @@ class TestNexusSink:
         assert (ds.attrs['target'] == b'/entry/sry')
 
         fin.close()
+
+    def test_times(self, session):
+        p = re.compile(r'^\d{4}(-\d{2}){2} \d{2}(:\d{2}){2}$')
+        template = {
+            'entry:NXentry': {
+                'start_time': NXTime(),
+                'end_time': NXTime(),
+            },
+        }
+        setTemplate(template)
+        session.experiment.setDetectors(['det', ])
+        self.setScanCounter(session, 51)
+
+        count(t=0.1)
+
+        fin = h5py.File(path.join(session.experiment.datapath,
+                                  'test%sn000052.hdf' % year), 'r')
+        for s in ['start_time', 'end_time']:
+            ts = fin['entry/%s' % s][0].decode('utf-8')
+            assert p.match(ts)  # check format
+            assert datetime.datetime.strptime(
+                ts, '%Y-%m-%d %H:%M:%S').timetuple()  # check value
