@@ -99,6 +99,8 @@ class TestNexusSink:
         template = {
             'entry:NXentry': {
                 'name': DeviceDataset('Exp', 'title'),
+                'title': DeviceDataset('Exp', 'title2',
+                                       defaultval='Default title'),
                 'def': ConstDataset('NXmonopd', 'string'),
                 'sry': DeviceDataset('sry',
                                      units=NXAttribute('deg', 'string')),
@@ -116,6 +118,9 @@ class TestNexusSink:
         ds = fin['entry/name']
         assert (ds[0] == b'GurkenTitle')
 
+        ds = fin['entry/title']
+        assert (ds[0] == b'Default title')
+
         ds = fin['entry/def']
         assert (ds[0] == b'NXmonopd')
 
@@ -126,8 +131,12 @@ class TestNexusSink:
 
     def test_Attributes(self, session):
         template = {
-            'entry:NXentry': {'title': DeviceAttribute('Exp', 'title'),
-                              'units': NXAttribute('mm', 'string'), }
+            'entry:NXentry': {
+                'title': DeviceAttribute('Exp', 'title'),
+                'title2': DeviceAttribute('Exp', 'title2',
+                                          defaultval='Default title'),
+                'units': NXAttribute('mm', 'string'),
+            }
         }
 
         session.experiment.update(title='GurkenTitle')
@@ -141,6 +150,7 @@ class TestNexusSink:
                                   'test%sn000048.hdf' % year), 'r')
         g = fin['entry']
         assert (g.attrs['title'] == b'GurkenTitle')
+        assert (g.attrs['title2'] == b'Default title')
         assert (g.attrs['units'] == b'mm')
         fin.close()
 
