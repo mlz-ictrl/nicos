@@ -8,7 +8,7 @@ Components of the NICOS system
 
     rankdir = LR;
 
-    subgraph cluster0 {
+    subgraph cluster_server {
         node [style=filled,color=white];
         style = "rounded,filled";
         color = lightsalmon;
@@ -34,7 +34,7 @@ Components of the NICOS system
         label = "Servers";
     }
 
-    subgraph cluster1 {
+    subgraph cluster_clients {
         node [style=filled,color=white];
         style = "rounded,filled";
         color = lightblue;
@@ -50,6 +50,23 @@ Components of the NICOS system
         label = "Clients";
     }
 
+    subgraph cluster_hardware {
+        label = "Hardware";
+        node [style=filled,color=white];
+        style = "rounded,filled";
+        color = yellow;
+        rank = min;
+
+        {"device servers"; hardware;}
+
+        "device servers" -> "hardware"
+        "hardware"      -> "device servers"
+
+        edge[style=dashed]
+        "nicos-daemon" -> hardware;
+        hardware       -> "nicos-poller";
+        hardware       -> "nicos-daemon";
+    }
 
     "nicos-cache"   -> "nicos-gui"
     "nicos-cache"   -> "nicos-client"
@@ -57,8 +74,11 @@ Components of the NICOS system
     "nicos-cache"   -> "nicos-history"
     "nicos-daemon"  -> "nicos-gui"
     "nicos-daemon"  -> "nicos-client"
+    "nicos-daemon"  -> "device servers"
     "nicos-gui"     -> "nicos-daemon"
     "nicos-client"  -> "nicos-daemon"
+    "device servers" -> "nicos-daemon"
+    "device servers" -> "nicos-poller"
 
 
 The NICOS components come in the form of executables located in the ``bin``
