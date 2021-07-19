@@ -33,6 +33,6 @@ class DMCBinner(JustBinItImage):
     """
 
     def doReadArray(self, quality):
-        if self.hist_data.size > 0:
-            return np.rot90(self.hist_data)
-        return self.hist_data
+        if self._hist_data.size > 0:
+            return np.rot90(self._hist_data)
+        return self._hist_data

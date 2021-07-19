@@ -28,8 +28,8 @@ import kafka
 import numpy as np
 from streaming_data_types.histogram_hs00 import deserialise_hs00
 
-from nicos.core import ArrayDesc, Override, Param, Value, anytype, \
-    floatrange, host, listof, multiStatus, oneof, status, tupleof
+from nicos.core import ArrayDesc, Override, Param, Value, floatrange, host, \
+    listof, multiStatus, oneof, status, tupleof
 from nicos.core.constants import LIVE
 from nicos.devices.generic import Detector, ImageChannelMixin, PassiveChannel
 from nicos.utils import createThread
@@ -131,10 +131,6 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
         'source': Param('The number of bins to histogram into', type=str,
                         default='', userparam=True, settable=True,
                         ),
-        'hist_data': Param('Store the current histogram data',
-                           type=anytype, default=np.array([]),
-                           settable=True, internal=True,
-                           ),
     }
 
     parameter_overrides = {
@@ -144,6 +140,7 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
 
     _unique_id = None
     _current_status = (status.OK, '')
+    _hist_data = np.array([])
 
     def doPreinit(self, mode):
         self._current_status = (status.OK, '')
@@ -156,7 +153,7 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
 
     def doPrepare(self):
         self._current_status = status.BUSY, 'Preparing'
-        self.hist_data = np.array([])
+        self._hist_data = np.array([])
         self._hist_edges = np.array([])
         try:
             self.subscribe(self.hist_topic)
@@ -185,16 +182,16 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
             self._consumer.unsubscribe()
             self._current_status = status.OK, ''
 
-        self.hist_data = \
+        self._hist_data = \
             hist_type_by_name[self.hist_type].transform_data(hist['data'])
 
         self._hist_edges = hist['dim_metadata'][0]['bin_boundaries']
 
     def doRead(self, maxage=0):
-        return [self.hist_data.sum()]
+        return [self._hist_data.sum()]
 
     def doReadArray(self, quality):
-        return self.hist_data
+        return self._hist_data
 
     def valueInfo(self):
         return (Value(self.name, fmtstr='%d'),)
