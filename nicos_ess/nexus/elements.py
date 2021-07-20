@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Nikhil Biyani <nikhil.biyani@psi.ch>
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
@@ -225,9 +226,19 @@ class KafkaStream(NexusElementBase):
     The defined properties of the stream can be set. The FileWriter
     using these properties fills up the data in the files using messages
     from Kafka.
+
+    * broker: Kafka broker to use for data
+    * topic: Kafka topic where the data can be found
+    * source: name of the data source
+    * writer_module: one of the flatbuffer schemas defined in [https://github.com/ess-dmsc/streaming-data-types]
+    * type: data type
+    * array_size: dimension of the array
+    * store_latest_into: where to write latest LogData value
+    * chunk_size:  chunk size in nr of elements
     """
+
     stream_keys = ['broker', 'topic', 'source', 'writer_module', 'type',
-                   'array_size', 'store_latest_into']
+                   'array_size', 'store_latest_into', 'chunk_size']
 
     def __init__(self, **attr):
         self.stream = {}
@@ -411,12 +422,14 @@ class EventStream(KafkaStream):
     """
 
     def __init__(self, topic, source, mod='ev42', dtype='uint64',
-                 **attr):
+                 chunk_size=None, **attr):
         KafkaStream.__init__(self, **attr)
         self.set('topic', topic)
         self.set('source', source)
         self.set('writer_module', mod)
         self.set('type', dtype)
+        if chunk_size:
+            self.set('chunk_size', chunk_size)
 
 
 class DeviceAttribute(NXAttribute):
