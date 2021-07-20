@@ -1,4 +1,4 @@
-description = 'Email and SMS notifier examples'
+description = 'Email notifier example'
 
 group = 'lowlevel'
 

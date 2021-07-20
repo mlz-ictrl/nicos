@@ -13,13 +13,13 @@ sysconfig = dict(
     instrument = 'Skeleton',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
-    notifiers = ['email'],
+    notifiers = [],  # ['email'],
 )
 
 modules = ['nicos.commands.standard']
 
 includes = [
-#    'notifiers',
+    'notifiers',
 ]
 
 devices = dict(
