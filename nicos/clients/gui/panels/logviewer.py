@@ -55,10 +55,7 @@ class LogViewerPanel(Panel):
         controlPath = self.client.eval('config.nicos_root', '')
         loggingPath = self.client.eval('config.logging_path', '')
 
-        if os.path.isabs(loggingPath):
-            self._logPath = loggingPath
-        else:
-            self._logPath = os.path.join(controlPath, loggingPath)
+        self._logPath = os.path.join(controlPath, loggingPath)
 
         # display filtered logs
         self.updateView()
