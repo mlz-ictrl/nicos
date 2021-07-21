@@ -152,7 +152,7 @@
   <customwidget>
    <class>TreeWidget</class>
    <extends>QTreeWidget</extends>
-   <header>setupfiletool/treewidget.h</header>
+   <header>nicostools/setupfiletool/treewidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

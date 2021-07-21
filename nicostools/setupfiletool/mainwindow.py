@@ -23,13 +23,13 @@
 # *****************************************************************************
 """Application main window."""
 
-# icons: https://launchpad.net/elementaryicons
+# icons: https://github.com/elementary/icons
 
 import inspect
 import logging
+import os
 from os import path
 
-from nicos import config
 from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
     QMainWindow, QMessageBox, Qt, QTreeWidgetItem, uic
 
@@ -39,11 +39,9 @@ from .devicewidget import DeviceWidget
 from .setupwidget import SetupWidget
 from .utilities.utilities import ItemTypes, getNicosDir, getResDir
 
-config.apply()
-
 
 class MainWindow(QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, facility, instrument, parent=None):
         QMainWindow.__init__(self, parent)
         uic.loadUi(path.join(path.dirname(path.abspath(__file__)),
                              'ui', 'mainwindow.ui'), self)
@@ -51,7 +49,8 @@ class MainWindow(QMainWindow):
         logging.basicConfig()
         self.log = logging.getLogger()
 
-        setupcontroller.init(self.log)
+        setupcontroller.init(
+            os.path.join(getNicosDir(), 'nicos_%s' % facility), self.log)
         classparser.init(self.log)
 
         # dictionary of absolute path to a setup - setupWidget
@@ -92,8 +91,8 @@ class MainWindow(QMainWindow):
             instrumentAction = self.instrumentMenu.addAction(directory)
             instrumentAction.triggered.connect(
                 self.treeWidget.setInstrumentMode)
-        if config.instrument and config.instrument not in ('jcns', 'demo'):
-            self.treeWidget.setSingleInstrument(config.instrument)
+        if instrument:
+            self.treeWidget.setSingleInstrument(instrument)
 
     def loadSetup(self, setup, instrument):
         # load a previously not loaded setup's data and initialize their
@@ -225,9 +224,8 @@ class MainWindow(QMainWindow):
 
     def aboutSetupFileTool(self):
         QMessageBox.information(
-            self,
-            'About SetupFileTool', 'A tool designed to optimize editing' +
-            ' setup files for NICOS.')
+            self, 'About SetupFileTool',
+            'A tool designed to optimize editing setup files for NICOS.')
 
     def closeEvent(self, event):
         # Find all setups that have been edited

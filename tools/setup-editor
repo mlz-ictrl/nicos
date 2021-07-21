@@ -23,6 +23,7 @@
 #
 # *****************************************************************************
 
+import argparse
 import sys
 from os import path
 
@@ -32,15 +33,45 @@ except ImportError:
     sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
     from nicos.guisupport.qt import QApplication
 
+from nicos import config
 from nicostools.setupfiletool.mainwindow import MainWindow
+
+config.apply()
 
 
 def main(argv=None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-f', '--facility', dest='facility', action='store', default='demo',
+        type=str, help='Name of the facility', metavar='FACILITY'
+    )
+    parser.add_argument(
+        '-i', '--instrument', dest='instrument', action='store', default='',
+        type=str, help='Name of the instrument', metavar='INSTRUMENT'
+    )
+
+    opts = parser.parse_args()
+
+    if opts.facility:
+        facility = opts.facility
+    elif config.setup_package and config.setup_package.find('_') != -1:
+        facility = config.setup_package.split('_')[1]
+    else:
+        raise Exception('No facility given')
+
+    if opts.instrument:
+        instrument = opts.instrument
+    # 'demo' is default for nicos_demo facility
+    elif 'demo' not in [config.instrument, facility]:
+        instrument = config.instrument
+    else:
+        instrument = ''
+
     if not argv:
         argv = sys.argv
 
     app = QApplication(argv)
-    window = MainWindow()
+    window = MainWindow(facility.lower(), instrument.lower())
     window.show()
     return app.exec_()
 

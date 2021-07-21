@@ -193,17 +193,22 @@
        </item>
        <item>
         <property name="text">
+         <string>configdata</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>lowlevel</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>optional</string>
         </property>
        </item>
        <item>
         <property name="text">
          <string>plugplay</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>lowlevel</string>
         </property>
        </item>
        <item>
@@ -295,7 +300,7 @@
   <customwidget>
    <class>SysconfigWidget</class>
    <extends>QTreeWidget</extends>
-   <header>setupfiletool/sysconfigwidget.h</header>
+   <header>nicostools/setupfiletool/sysconfigwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

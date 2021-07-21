@@ -48,7 +48,7 @@ def init(log):
 
     paths = [os.path.join(getNicosDir(), 'nicos', 'devices'),
              os.path.join(getNicosDir(), 'nicos', 'services')] + glob.glob(
-        getNicosDir() + '/nicos_mlz/*/devices')
+        getNicosDir() + '/nicos_*/*/devices')
 
     pys = []
     for pth in paths:
@@ -67,7 +67,7 @@ def init(log):
         try:
             mod = session._nicos_import(moduleName)
             modules[moduleName] = mod
-        except (ImportError, KeyError) as e:
+        except (ImportError, KeyError, NameError) as e:
             log.warning('Error importing ' + moduleName + ': ' + str(e))
 
 

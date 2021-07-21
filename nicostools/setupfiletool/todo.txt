@@ -1,5 +1,3 @@
-- Command line: Specify instrument via argument, else go with all instruments.
-
 - When switching the instrument from one to another, ask whether to save the
   edited setups.
 
