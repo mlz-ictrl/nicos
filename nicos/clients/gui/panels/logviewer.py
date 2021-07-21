@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Alexander Lenz <alexander.lenz@frm2.tum.de>
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
@@ -49,6 +50,8 @@ class LogViewerPanel(Panel):
         self.dateTimeEditFrom.setDateTime(
             QDateTime.currentDateTime().addDays(-1))
         self.dateTimeEditTo.setDateTime(QDateTime.currentDateTime())
+
+        client.connected.connect(self.on_client_connected)
 
     def on_client_connected(self):
         # determine log path via daemon
