@@ -55,8 +55,8 @@ devices = dict(
 alias_config = {
     'hv_mon':  {
         'hv_mon1': 100,
-        'hv_mon2': 100,
-        'hv_mon3': 100,
-        'hv_mon4': 100,
+        'hv_mon2': 800,
+        'hv_mon3': 300,
+        'hv_mon4': 400,
     },
 }
