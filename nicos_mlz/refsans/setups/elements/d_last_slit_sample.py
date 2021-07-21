@@ -15,5 +15,5 @@ devices = dict(
 )
 
 alias_config = {
-    'd_last_slit_sample': {'sample_x_manual': 300},
+    'd_last_slit_sample': {'sample_x_manual': 100},
 }
