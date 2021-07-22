@@ -997,7 +997,7 @@ class ImageChannel(BaseImageChannel):
         if quality == FINAL:
             waitForCompletion(self)
         narray = BaseImageChannel.doReadArray(self, quality)
-        self.readresult = [narray.sum()]
+        self.readresult = [narray.sum() if narray is not None else 0]
         return narray
 
     def valueInfo(self):
