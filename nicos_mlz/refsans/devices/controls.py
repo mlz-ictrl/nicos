@@ -25,7 +25,7 @@
 """Temperature controlled device."""
 
 from nicos import session
-from nicos.core import Moveable, NicosTimeoutError, Readable
+from nicos.core import Moveable, NicosTimeoutError, Readable, status
 from nicos.core.params import Attach, Param, floatrange
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod
 
@@ -39,7 +39,7 @@ class TemperatureControlled(BaseSequencer):
 
     parameters = {
         'maxtemp': Param('maximum temperature to move device',
-                        type=floatrange(0), default=40),
+                         type=floatrange(0), default=40),
         'timeout': Param('Time limit for the device to reach its target'
                          ', or None', unit='s', fmtstr='%.1f',
                          type=floatrange(0), default=20,
@@ -50,6 +50,9 @@ class TemperatureControlled(BaseSequencer):
         return self._attached_device.read(maxage)
 
     def doStatus(self, maxage=0):
+        state = BaseSequencer.doStatus(self, maxage)
+        if state[0] != status.OK:
+            return state
         return self._attached_device.status(maxage)
 
     def doIsAllowed(self, target):
