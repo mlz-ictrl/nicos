@@ -133,14 +133,12 @@ class ControlDetector(Detector):
     trigger and HM slaves.
     """
 
-    attached_devices = {'trigger':
-                        Attach('Detector which triggers data acquisition',
-                               Detector),
-                        'slave_detectors': Attach('Slave detectors',
-                                                  Measurable,
-                                                  multiple=True,
-                                                  optional=True),
-                        }
+    attached_devices = {
+        'trigger': Attach('Detector which triggers data acquisition',
+                          Detector),
+        'slave_detectors': Attach('Slave detectors', Measurable,
+                                  multiple=True, optional=True),
+    }
     _slaves_stopped = False
 
     def doSetPreset(self, **preset):
