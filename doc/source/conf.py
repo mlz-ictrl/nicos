@@ -72,7 +72,7 @@ master_doc = 'index'
 # General information about the project.
 project = 'NICOS'
 author = 'NICOS authors and contributors'
-copyright = '2009-2020, FRM II / ' + author  # pylint: disable=redefined-builtin
+copyright = '2009-2021, FRM II / ' + author  # pylint: disable=redefined-builtin
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
