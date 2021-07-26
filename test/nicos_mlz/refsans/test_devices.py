@@ -40,22 +40,22 @@ def test_slits(session):
     assert zb1.read(0) == 0.
     assert zb1.mode == 'slit'
 
-    assert zb3.read(0) == [12., 0.]
+    assert zb3.read(0) == [0., 12.]
     assert zb3.mode == 'slit'
 
-    assert zb3.height.read(0) == 12.
+    assert zb3.opening.read(0) == 12.
     assert zb3.center.read(0) == 0.
 
-    assert zb3.height.isAllowed(12.)[0]
-    assert zb3.height.isAllowed(0.)[0]
+    assert zb3.opening.isAllowed(12.)[0]
+    assert zb3.opening.isAllowed(0.)[0]
 
     zb3.center.maw(10)
-    assert zb3.read(0) == [12., 10]
+    assert zb3.read(0) == [10., 12.]
 
     zb3.mode = 'point'
-    assert zb3.read(0) == [12., 10]
+    assert zb3.read(0) == [10., 12.]
 
-    assert not zb3.height.isAllowed(20)[0]
+    assert not zb3.center.isAllowed(20)[0]
 
     zb3.stop()
 

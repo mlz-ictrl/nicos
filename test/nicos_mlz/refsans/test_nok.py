@@ -136,7 +136,7 @@ class TestDoubleSlit:
     def prepare(self, session):
         dev = session.getDevice('zb3')
         dev.mode = 'slit'
-        dev.maw([12, 0])
+        dev.maw([0, 12])
 
         # check for the same mode of the double slit and attached single slits
         for d in [dev, session.getDevice('zb3r'), session.getDevice('zb3s')]:
@@ -154,23 +154,23 @@ class TestDoubleSlit:
         d, r, s = (session.getDevice('zb3'), session.getDevice('zb3r'),
                    session.getDevice('zb3s'))
 
-        d.maw([12, 0])
-        assert d.read(0) == [12, 0]
+        d.maw([0, 12])
+        assert d.read(0) == [0, 12]
         assert (r.read(0), s.read(0)) == (0, 0)
 
         # move to a reduced opening, check double and single positions
-        d.maw([6, 0])
-        assert d.read(0) == [6, 0]
+        d.maw([0, 6])
+        assert d.read(0) == [0, 6]
         assert (r.read(0), s.read(0)) == (-3, 3)
 
         # move to position with reduced opening
-        d.maw([6, -10])
-        assert d.read(0) == [6, -10]
-        assert (r.read(0), s.read(0)) == (-13, -7)
+        d.maw([10, 6])
+        assert d.read(0) == [10, 6]
+        assert (r.read(0), s.read(0)) == (7, 13)
 
     def test_failures(self, session):
         d = session.getDevice('zb3')
-        assert raises(InvalidValueError, d.maw, (-10, 0))
+        assert raises(InvalidValueError, d.maw, (-120, 6))
         assert raises(LimitError, d.maw, (12, -200))
 
     def test_stop(self, session):

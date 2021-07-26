@@ -53,8 +53,8 @@ def prepare(session, dataroot):
                 'zb3r_acc', 'zb3s_acc', 'primary_aperture']:
         session.getDevice(dev)
     zb3 = session.getDevice('zb3')
-    session.getDevice('primary_aperture').alias = zb3.height
-    session.getDevice('last_aperture').alias = zb3.height
+    session.getDevice('primary_aperture').alias = zb3.center
+    session.getDevice('last_aperture').alias = zb3.center
     count(t=0.01)
 
     yield

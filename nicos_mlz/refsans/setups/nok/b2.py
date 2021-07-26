@@ -13,7 +13,7 @@ devices = dict(
     #
     b2 = device(code_base + 'slits.DoubleSlit',
         description = 'b2 at sample pos',
-        fmtstr = 'opening: %.3f mm, zpos: %.3f mm',
+        fmtstr = 'zpos: %.3f mm, open: %.3f mm',
         unit = '',
         slit_r = 'b2r',
         slit_s = 'b2s',

@@ -12,7 +12,7 @@ read()
 status()
 
 # read some special devices
-read(zb3.height, zb3.center)
+read(zb3.opening, zb3.center)
 
 # test count
 count(1)

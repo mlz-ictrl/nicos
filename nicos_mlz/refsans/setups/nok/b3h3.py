@@ -81,7 +81,7 @@ devices = dict(
     ),
     h3 = device(code_base + 'slits.DoubleSlit',
         description = 'h3 together with b3',
-        fmtstr = 'open: %.3f, xpos: %.3f',
+        fmtstr = 'zpos: %.3f, open: %.3f',
         maxheight = 80,
         unit = 'mm',
         slit_r = 'h3r',
