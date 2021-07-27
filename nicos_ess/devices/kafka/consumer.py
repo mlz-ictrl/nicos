@@ -95,11 +95,11 @@ class KafkaSubscriber(DeviceMixinBase):
         while not self._stoprequest:
             sleep(self._long_loop_delay)
 
-            messages = {}
+            messages = []
             data = self._consumer.poll(5)
             for records in data.values():
                 for record in records:
-                    messages[record.timestamp] = record.value
+                    messages.append((record.timestamp, record.value))
 
             if messages:
                 self.new_messages_callback(messages)
@@ -111,7 +111,7 @@ class KafkaSubscriber(DeviceMixinBase):
         """This method is called whenever a new messages appear on
         the topic. The subclasses should define this method if
         a callback is required when new messages appear.
-        :param messages: dict of timestamp and raw message
+        :param messages: list of tuples of timestamp and raw message
         """
 
     def no_messages_callback(self):

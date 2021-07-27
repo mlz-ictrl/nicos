@@ -163,10 +163,10 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
         self._current_status = status.OK, ''
 
     def new_messages_callback(self, messages):
-        # Only care about most recent message, keys are timestamps.
-        most_recent_ts = max(messages.keys())
+        # Only care about most recent message
+        _, most_recent = sorted(messages, key=lambda m: m[0])[~0]
 
-        hist = deserialise_hs00(messages[most_recent_ts])
+        hist = deserialise_hs00(most_recent)
         info = json.loads(hist['info'])
         self.log.debug('received unique id = {}'.format(info['id']))
         if info['id'] != self._unique_id:

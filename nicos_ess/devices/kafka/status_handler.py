@@ -84,7 +84,7 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
 
     def new_messages_callback(self, messages):
         json_messages = {}
-        for timestamp, msg in messages.items():
+        for timestamp, msg in messages:
             try:
                 if isinstance(msg, str):
                     # handle "old style" messages

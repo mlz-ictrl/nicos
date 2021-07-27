@@ -41,7 +41,7 @@ from nicos_ess.devices.datasinks.nexussink import NexusFileWriterStatus
 pytest.importorskip('graypy')
 
 try:
-    from unittest import mock, TestCase
+    from unittest import TestCase, mock
 except ImportError:
     pytestmark = pytest.mark.skip('all tests still WIP')
 
@@ -182,7 +182,7 @@ class TestStatus(TestCase):
             NexusFileWriterStatus, '_status_update_callback'
         ) as mock_method:
             self.device.new_messages_callback(
-                {12345: json.dumps(message_json)}
+                [(12345, json.dumps(message_json))]
             )
             mock_method.assert_called_once()
             messages = mock_method.call_args[0]
@@ -197,7 +197,7 @@ class TestStatus(TestCase):
         with mock.patch.object(
             NexusFileWriterStatus, '_status_update_callback'
         ) as mock_method:
-            self.device.new_messages_callback({12345: message_fb})
+            self.device.new_messages_callback([(12345, message_fb)])
             mock_method.assert_called_once()
             messages = mock_method.call_args[0]
             # warning: during processing the `update_interval` is added to
@@ -210,7 +210,7 @@ class TestStatus(TestCase):
         with mock.patch.object(
             NexusFileWriterStatus, '_status_update_callback'
         ) as mock_method:
-            self.device.new_messages_callback({12345: message_fb})
+            self.device.new_messages_callback([(12345, message_fb)])
             assert mock_method.call_args is None
 
     @pytest.mark.skip(
@@ -227,11 +227,11 @@ class TestStatus(TestCase):
         ) as mock_method:
             self.device._tracked_datasets[jobid] = BaseDataset()
             self.device.new_messages_callback(
-                {12345: json.dumps(message_json)}
+                [(12345, json.dumps(message_json))]
             )
             mock_method.assert_called_once()
 
-        self.device.new_messages_callback({12345: json.dumps(message_json)})
+        self.device.new_messages_callback([(12345, json.dumps(message_json))])
         assert len(self.device._started) == 1 and jobid in self.device._started
 
     @pytest.mark.skip(
@@ -248,10 +248,10 @@ class TestStatus(TestCase):
             NexusFileWriterStatus, '_on_start'
         ) as mock_method:
             self.device._tracked_datasets[jobid] = BaseDataset()
-            self.device.new_messages_callback({12345: message_serialised})
+            self.device.new_messages_callback([(12345, message_serialised)])
             mock_method.assert_called_once()
 
-        self.device.new_messages_callback({12345: message_serialised})
+        self.device.new_messages_callback([(12345, message_serialised)])
         assert len(self.device._started) == 1 and jobid in self.device._started
 
     @pytest.mark.skip(
@@ -268,12 +268,12 @@ class TestStatus(TestCase):
         ) as mock_method:
             self.device._tracked_datasets[jobid] = BaseDataset()
             self.device.new_messages_callback(
-                {12345: json.dumps(message_json)}
+                [(12345, json.dumps(message_json))]
             )
             mock_method.assert_called_once()
 
         self.device._tracked_datasets[jobid] = BaseDataset()
         self.device._started = [jobid]
-        self.device.new_messages_callback({12345: json.dumps(message_json)})
+        self.device.new_messages_callback([(12345, json.dumps(message_json))])
         assert jobid not in self.device._started
         assert jobid not in self.device._tracked_datasets

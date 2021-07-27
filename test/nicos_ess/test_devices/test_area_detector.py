@@ -325,10 +325,10 @@ class TestKafkaAreaDetectorConsumer:
         Test that _last_message is actually the message with the larger
         timestamp
         """
-        messages = {1234: list(range(10)),
-                    5678: list(range(8, 20)),
-                    9012: list(range(5, 35, 7))
-                    }
+        messages = [(1234, list(range(10))),
+                    (5678, list(range(8, 20))),
+                    (9012, list(range(5, 35, 7)))
+                   ]
         self.detector.new_messages_callback(messages)
         assert self.detector._lastmessage == (9012, list(range(5, 35, 7)))
 
@@ -374,10 +374,11 @@ class TestKafkaAreaDetectorConsumer:
         for ts in timestamps:
             raw[ts] = numpy.random.randint(1, high=100, size=[10, ],
                                            dtype='uint32')
-        messages = {}
+        messages = []
         for ts, data in raw.items():
-            messages[ts] = create_hs00(data=numpy.array(data), timestamp=ts,
-                                       source='test_histo')
+            messages.append((ts, create_hs00(data=numpy.array(data),
+                                             timestamp=ts,
+                                             source='test_histo')))
         self.detector.new_messages_callback(messages)
         data = self.detector.doReadArray(None)
         assert (raw[max(timestamps)] == data).all()
@@ -511,10 +512,11 @@ class TestEpicsAreaDetectorWithKafkaPlugin:
         for ts in timestamps:
             raw[ts] = numpy.random.randint(1, high=100, size=[5, 5, ],
                                            dtype='uint32')
-        messages = {}
+        messages = []
         for ts, data in raw.items():
-            messages[ts] = create_hs00(data=numpy.array(data), timestamp=ts,
-                                       source='test_histo')
+            messages.append((ts, create_hs00(data=numpy.array(data),
+                                             timestamp=ts,
+                                             source='test_histo')))
         self.image_channel.new_messages_callback(messages)
         assert (raw[max(timestamps)] == self.detector.readArrays(LIVE)).all()
 

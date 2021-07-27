@@ -84,8 +84,7 @@ class ADKafkaImageDetector(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
     def new_messages_callback(self, messages):
         if not messages:
             return
-        lastkey = sorted(list(messages.keys()))[-1]
-        self._lastmessage = (lastkey, messages[lastkey])
+        self._lastmessage = sorted(messages, key=lambda m: m[0])[~0]
 
     def doStatus(self, maxage=0):
         st = self._attached_kafka_plugin.doStatus()

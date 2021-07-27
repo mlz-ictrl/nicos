@@ -44,7 +44,7 @@ from nicos_ess.devices.forwarder import EpicsKafkaForwarder, \
     EpicsKafkaForwarderControl
 
 try:
-    from unittest import mock, TestCase
+    from unittest import TestCase, mock
 except ImportError:
     pytestmark = pytest.mark.skip('all tests still WIP')
 
@@ -92,7 +92,8 @@ def create_random_messages(num_messages, num_pvs=10):
 
 
 def create_issued_from_messages(messages):
-    streams = messages[sorted(list(messages.keys()))[-1]].get('streams', [])
+    _, message = sorted(messages, key=lambda m: m[0])[~0]
+    streams = message.get('streams', [])
     issued = {}
     for stream in streams:
         issued[stream['channel_name']] = (
@@ -107,7 +108,8 @@ def create_f142_buffer(value, source_name='mypv'):
 
 
 def create_pv_details_from_messages(messages):
-    streams = messages[sorted(list(messages.keys()))[-1]].get('streams', [])
+    _, message = sorted(messages, key=lambda m: m[0])[~0]
+    streams = message.get('streams', [])
     pv_details = {}
     for stream in streams:
         pv_details[stream['channel_name']] = (
@@ -140,14 +142,14 @@ class TestEpicsKafkaForwarderStatus(TestCase):
         with mock.patch.object(
             EpicsKafkaForwarder, '_status_update_callback'
         ) as mock_method:
-            self.device.new_messages_callback({123456: message_fb})
+            self.device.new_messages_callback([(123456, message_fb)])
             mock_method.assert_called_once()
             messages = mock_method.call_args[0]
 
         message_json.update({'update_interval': update_interval})
         assert messages == ({123456: message_json},)
 
-        self.device.new_messages_callback({12345: message_fb})
+        self.device.new_messages_callback([(12345, message_fb)])
         assert self.device.forwarded == {pvname}
 
     def test_update_forwarded_many_pvs(self):
@@ -155,8 +157,8 @@ class TestEpicsKafkaForwarderStatus(TestCase):
         pvnames = {f'mypv{d}' for d in range(10)}
         message_json = {'streams': [create_stream(pv) for pv in pvnames]}
         message_fb = create_x5f2_buffer(message_json)
-        self.device.new_messages_callback({12345: message_fb})
-        self.device.new_messages_callback({12345: message_fb})
+        self.device.new_messages_callback([(12345, message_fb)])
+        self.device.new_messages_callback([(12345, message_fb)])
         assert self.device.forwarded == pvnames
 
     def test_update_forwarded_pv_sets_forwarding_status(self):
@@ -164,7 +166,7 @@ class TestEpicsKafkaForwarderStatus(TestCase):
         pvname = 'mypv'
         message_json = {'streams': [create_stream(pvname)]}
         message_fb = create_x5f2_buffer(message_json)
-        self.device.new_messages_callback({12345: message_fb})
+        self.device.new_messages_callback([(12345, message_fb)])
         assert self.device.curstatus == (status.OK, 'Forwarding..')
 
     def test_update_forwarded_many_pvs_set_forwarding_status(self):
@@ -172,20 +174,20 @@ class TestEpicsKafkaForwarderStatus(TestCase):
         pvnames = {f'mypv{d}' for d in range(10)}
         message_json = {'streams': [create_stream(pv) for pv in pvnames]}
         message_fb = create_x5f2_buffer(message_json)
-        self.device.new_messages_callback({12345: message_fb})
+        self.device.new_messages_callback([(12345, message_fb)])
         assert self.device.curstatus == (status.OK, 'Forwarding..')
 
     def test_update_forwarded_many_pvs_set_forwarding_status_json(self):
         assert self.device.curstatus == (0, '')
         pvnames = {f'mypv{d}' for d in range(10)}
         message_json = {'streams': [create_stream(pv) for pv in pvnames]}
-        self.device.new_messages_callback({12345: json.dumps(message_json)})
+        self.device.new_messages_callback([(12345, json.dumps(message_json))])
         assert self.device.curstatus == (status.OK, 'Forwarding..')
 
     def test_empty_message_gives_idle_state(self):
         message_json = {'streams': []}
         message_fb = create_x5f2_buffer(message_json)
-        self.device.new_messages_callback({12345: message_fb})
+        self.device.new_messages_callback([(12345, message_fb)])
         assert not self.device.forwarded
         assert self.device.curstatus == (status.OK, 'idle')
 
@@ -203,7 +205,7 @@ class TestEpicsKafkaForwarderStatus(TestCase):
         message_json = {'streams': []}
         for update_interval in [1000, 2000]:
             message_fb = create_x5f2_buffer(message_json, update_interval)
-            self.device.new_messages_callback({123456: message_fb})
+            self.device.new_messages_callback([(123456, message_fb)])
             assert self.device.statusinterval == update_interval // 1000
 
     def test_next_update_json(self):
@@ -211,7 +213,7 @@ class TestEpicsKafkaForwarderStatus(TestCase):
         for update_interval in [1000, 2000]:
             message_json['update_interval'] = update_interval
             self.device.new_messages_callback(
-                {123456: json.dumps(message_json)}
+                [(123456, json.dumps(message_json))]
             )
             assert self.device.statusinterval == update_interval // 1000
 
@@ -261,7 +263,7 @@ class TestEpicsKafkaForwarderControl(TestCase):
     def test_status_message_all_forwarded_gives_forwarding(self):
         pvnames = {f'mypv{i}' for i in range(10)}
         message = {'streams': [create_stream(pv) for pv in pvnames]}
-        self.device._issued = create_issued_from_messages({12345: message})
+        self.device._issued = create_issued_from_messages([(12345, message)])
         self.device.status_update(message)
 
         assert not self.device._notforwarding
@@ -272,7 +274,7 @@ class TestEpicsKafkaForwarderControl(TestCase):
         extra_key = '1234'
         pvnames = {f'mypv{i}' for i in range(10)}
         message = {'streams': [create_stream(pv) for pv in pvnames]}
-        self.device._issued = create_issued_from_messages({12345: message})
+        self.device._issued = create_issued_from_messages([(12345, message)])
         self.device._issued[extra_key] = list(self.device._issued.keys())[-1]
         self.device.status_update(message)
 
@@ -283,7 +285,7 @@ class TestEpicsKafkaForwarderControl(TestCase):
     def test_add_pvs(self):
         pvnames = {f'mypv{i}' for i in range(10)}
         message = {'streams': [create_stream(pv) for pv in pvnames]}
-        pv_details = create_pv_details_from_messages({1236: message})
+        pv_details = create_pv_details_from_messages([(1236, message)])
 
         with mock.patch.object(
             EpicsKafkaForwarderControl, 'send'
@@ -304,7 +306,7 @@ class TestEpicsKafkaForwarderControl(TestCase):
     def test_reissue(self):
         pvnames = {f'mypv{i}' for i in range(10)}
         message = {'streams': [create_stream(pv) for pv in pvnames]}
-        pv_details = create_pv_details_from_messages({1236: message})
+        pv_details = create_pv_details_from_messages([(1236, message)])
         self.device.add(pv_details)
 
         with mock.patch.object(
@@ -343,22 +345,20 @@ class TestEpicsForwarderStatusAndControl(TestCase):
         self.control._notforwarding = {}
 
     def test_empty_messages_are_ignored(self):
-        message_json = {'streams': [create_stream('pv')]}
-        create_pv_details_from_messages({1234: message_json})
-        self.device._issued = create_pv_details_from_messages(
-            {1234: message_json}
-        )
+        message = {'streams': [create_stream('pv')]}
+        create_pv_details_from_messages([(1234, message)])
+        self.device._issued = create_pv_details_from_messages([(1236, message)])
         with mock.patch.object(
             EpicsKafkaForwarder, '_status_update_callback'
         ) as mock_method:
-            self.device.new_messages_callback({})
+            self.device.new_messages_callback([])
             assert not mock_method.called, 'method should not have been called'
 
     def test_status_message_on_empty_issued_gives_none_issued(self):
         pvs = {f'pv{i}' for i in range(5)}
         message_json = {'streams': [create_stream(pv) for pv in pvs]}
         message_fb = create_x5f2_buffer(message_json)
-        self.device.new_messages_callback({12346: message_fb})
+        self.device.new_messages_callback([(12346, message_fb)])
 
         assert not self.control._notforwarding
         assert not self.control._issued
@@ -370,9 +370,9 @@ class TestEpicsForwarderStatusAndControl(TestCase):
         message_fb = create_x5f2_buffer(message_json)
 
         self.control._issued = create_issued_from_messages(
-            {12346: message_json}
+            [(12346, message_json)]
         )
-        self.device.new_messages_callback({12346: message_fb})
+        self.device.new_messages_callback([(12346, message_fb)])
 
         assert not self.control._notforwarding
         assert self.control._issued
@@ -387,9 +387,9 @@ class TestEpicsForwarderStatusAndControl(TestCase):
         }
 
         self.control._issued = create_issued_from_messages(
-            {12346: message_json}
+            [(12346, message_json)]
         )
-        self.device.new_messages_callback({12346: message_fb})
+        self.device.new_messages_callback([(12346, message_fb)])
         self.control._issued.update(extra_pv)
         self.control.status_update(message_json)
         assert self.control._notforwarding == set(extra_pv)
@@ -398,8 +398,8 @@ class TestEpicsForwarderStatusAndControl(TestCase):
 
     def test_add_pvs(self):
         pvs = {f'pv{i}' for i in range(5)}
-        message_json = {'streams': [create_stream(pv) for pv in pvs]}
-        pv_details = create_pv_details_from_messages({1234: message_json})
+        message = {'streams': [create_stream(pv) for pv in pvs]}
+        pv_details = create_pv_details_from_messages([(1234, message)])
 
         with mock.patch.object(
             EpicsKafkaForwarderControl, 'send'
@@ -421,12 +421,11 @@ class TestEpicsForwarderStatusAndControl(TestCase):
 
     def test_reissue(self):
         pvs = {f'pv{i}' for i in range(5)}
-        message_json = {'streams': [create_stream(pv) for pv in pvs]}
+        message = {'streams': [create_stream(pv) for pv in pvs]}
 
-        pv_details = create_pv_details_from_messages({1234: message_json})
-        self.control._issued = create_issued_from_messages(
-            {1234: message_json}
-        )
+        pv_details = create_pv_details_from_messages([(1234, message)])
+        self.control._issued = create_pv_details_from_messages(
+            [(1236, message)])
 
         with mock.patch.object(
             EpicsKafkaForwarderControl, 'send'
