@@ -41,6 +41,6 @@ opts = parser.parse_args()
 
 prompt = 'Please enter password: '
 if opts.encryption == 'md5':
-    print(hashlib.md5(getpass.getpass(prompt)).hexdigest())
+    print(hashlib.md5(getpass.getpass(prompt).encode()).hexdigest())
 else:
-    print(hashlib.sha1(getpass.getpass(prompt)).hexdigest())
+    print(hashlib.sha1(getpass.getpass(prompt).encode()).hexdigest())
