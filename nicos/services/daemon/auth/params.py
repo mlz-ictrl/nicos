@@ -33,12 +33,12 @@ def _access_level_list():
 
 
 def UserPassLevelAuthEntry(val=None):
-    """Provide a 3-tuple of user, level and password
+    """Provide a 3-tuple of user, password, and level
 
         * user: string
+        * password: string
         * level: oneof(ACCESS_LEVELS)
            currently: GUEST, USER, ADMIN
-        * password: string
     """
     val = list(val)
     if len(val) != 3:
