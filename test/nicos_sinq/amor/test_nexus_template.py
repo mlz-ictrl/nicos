@@ -50,64 +50,68 @@ elements = {
         {'attribute_dev': 1.0
          },
     ('dataset', NXDataset(1.0, unit="unit")):
-        {'values': 1.0,
-         'type': 'dataset',
-         'name': 'dataset',
-         'dataset': {
-             'size': [1]
-         },
-         'attributes': {'unit': 'unit'}
-         },
+        {
+            'module': 'dataset',
+            'config': {
+                'name': 'dataset',
+                'values': 1.0,
+            },
+            'attributes': {'unit': 'unit'}
+        },
     ('dataset_float', DeviceDataset('dev1')):
-        {'values': 1.0,
-         'type': 'dataset',
-         'name': 'dataset_float',
-         'dataset': {
-             'size': [1]
-         },
-         'attributes': {
-             'nicos_name': 'dev1',
-             'units': 'unit',
-             'nicos_param': 'value'}
-         },
+        {
+            'module': 'dataset',
+            'config': {
+                'name': 'dataset_float',
+                'values': 1.0,
+            },
+            'attributes': {
+                'nicos_name': 'dev1',
+                'units': 'unit',
+                'nicos_param': 'value'}
+        },
     ('dataset_int', DeviceDataset('dev1', 'parint')):
-        {'values': 1,
-         'type': 'dataset',
-         'name': 'dataset_int',
-         'dataset': {
-             'size': [1]
-         },
-         'attributes': {
-             'nicos_name': 'dev1',
-             'units': 'int',
-             'nicos_param': 'parint'}
-         },
-    ('dataset_str', DeviceDataset('dev1', 'parstr')):
-        {'values': 'parstr',
-         'attributes': {
-             'nicos_name': 'dev1',
-             'nicos_param': 'parstr'},
-         'type': 'dataset',
-         'name': 'dataset_str',
-         'dataset': {
-             'size': [1],
-             'string_size': 7,
-             'type': 'string'}
-         },
+        {
+            'module': 'dataset',
+            'config': {
+                'name': 'dataset_int',
+                'values': 1,
+            },
+            'attributes': {
+                'nicos_name': 'dev1',
+                'units': 'int',
+                'nicos_param': 'parint'}
+        },
+    ('dataset_str', DeviceDataset('dev1', 'parstr', dtype='string')):
+        {
+            'module': 'dataset',
+            'config': {
+                'name': 'dataset_str',
+                'values': 'parstr',
+                'dtype': 'string',
+            },
+            'attributes': {
+                'nicos_name': 'dev1',
+                'nicos_param': 'parstr'},
+        },
     ('event_stream', EventStream(topic='topic', source='source',
                                  dtype='uint32', chunk_size=1234)):
-        {'type': 'stream',
-         'stream': {'topic': 'topic', 'source': 'source',
-                    'type': 'uint32', 'writer_module': 'ev42',
-                    'chunk_size': 1234
-                    }
-         },
+        {
+            'module': 'ev42',
+            'config': {
+                'topic': 'topic',
+                'source': 'source',
+                'dtype': 'uint32',
+                'chunk_size': 1234
+            },
+        },
     ('group_normal', NXGroup('NXgroup')):
-        {'attributes': {'NX_class': 'NXgroup'},
-         'type': 'group',
-         'name': 'group_normal',
-         'children': []
-         },
+        {
+            'type': 'group',
+            'name': 'group_normal',
+            'children': [],
+            'attributes': {'NX_class': 'NXgroup'}
+        },
 }
 
 # A dummy template to be tested
@@ -138,11 +142,10 @@ converted = {
                     "children": []
                 },
                 {
-                    "values": 1.0,
-                    "type": "dataset",
-                    "name": "child_dataset",
-                    "dataset": {
-                        'size': [1]
+                    "module": "dataset",
+                    "config": {
+                        "name": "child_dataset",
+                        "values": 1.0,
                     },
                     "attributes": {"unit": "unit"}
                 }

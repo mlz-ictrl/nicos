@@ -2,6 +2,7 @@
 -r ../requirements-gui.txt
 
 ess-streaming-data-types>=0.9.0
+file-writer-control>=1.1.5
 flatbuffers==1.12
 graypy
 kafka-logging-handler<=0.2.4

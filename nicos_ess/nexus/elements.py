@@ -106,9 +106,11 @@ class NXDataset(NexusElementBase):
             return {}
 
         root_dict = {
-            "type": "dataset",
-            "name": name,
-            "values": self.value,
+            "module": "dataset",
+            "config": {
+                "name": name,
+                "values": self.value,
+            }
         }
 
         # For lists and strings type is required
@@ -127,19 +129,8 @@ class NXDataset(NexusElementBase):
                 self.dtype = 'string'
 
         # Add the 'dtype' if specified
-        root_dict['dataset'] = {}
         if self.dtype:
-            root_dict['dataset']["type"] = self.dtype
-
-            # If the type is string/list then the size is to be written
-            if self.dtype == "string":
-                root_dict['dataset']['string_size'] = len(self.value) + 1
-
-        if isinstance(self.value, list):
-            # Only 1D array supported by NICOS
-            root_dict['dataset']['size'] = [len(self.value)]
-        else:
-            root_dict['dataset']['size'] = [1]
+            root_dict['config']['dtype'] = self.dtype
 
         # Add the attributes if present
         if self.attrs:
@@ -151,8 +142,7 @@ class NXDataset(NexusElementBase):
                     for attr_structure in attr.structure(attr_name, metainfo):
                         if attr_structure:
                             attr_dict.update(attr_structure)
-
-            root_dict["attributes"] = attr_dict
+            root_dict['attributes'] = attr_dict
 
         return [root_dict]
 
@@ -269,7 +259,10 @@ class KafkaStream(NexusElementBase):
             "stream": {k: v for k, v in self.stream.items() if v}
         }
 
-        # Add the attributes
+        self._add_attributes(metainfo, stream_dict)
+        return [stream_dict]
+
+    def _add_attributes(self, metainfo, stream_dict):
         if self.stream_attrs:
             attr_dict = {}
             for attr_name, attr in self.stream_attrs.items():
@@ -279,7 +272,6 @@ class KafkaStream(NexusElementBase):
                             attr_dict.update(attr_structure)
 
             stream_dict["attributes"] = attr_dict
-        return [stream_dict]
 
 
 class CacheStream(DeviceValuePlaceholder, KafkaStream):
@@ -420,7 +412,6 @@ class DeviceStream(DeviceValuePlaceholder, KafkaStream):
 class EventStream(KafkaStream):
     """ Stream that provides event data from Kafka
     """
-
     def __init__(self, topic, source, mod='ev42', dtype='uint64',
                  chunk_size=None, **attr):
         KafkaStream.__init__(self, **attr)
@@ -430,6 +421,21 @@ class EventStream(KafkaStream):
         self.set('type', dtype)
         if chunk_size:
             self.set('chunk_size', chunk_size)
+
+    def structure(self, name, metainfo):
+        stream_dict = {
+            'module': self.stream['writer_module'],
+            'config': {
+                'source': self.stream['source'],
+                'topic': self.stream['topic'],
+                'dtype': self.stream['type']
+            }
+        }
+        if self.stream['chunk_size']:
+            stream_dict['config']['chunk_size'] = self.stream['chunk_size']
+
+        self._add_attributes(metainfo, stream_dict)
+        return [stream_dict]
 
 
 class DeviceAttribute(NXAttribute):

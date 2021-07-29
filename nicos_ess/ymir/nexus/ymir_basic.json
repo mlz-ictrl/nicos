@@ -1,0 +1,52 @@
+{
+  "children": [
+    {
+      "name": "entry",
+      "type": "group",
+      "attributes": [
+        {
+          "name": "NX_class",
+          "dtype": "string",
+          "values": "NXentry"
+        }
+      ],
+      "children": [
+        {
+          "name": "sample",
+          "type": "group",
+          "attributes": [
+            {
+              "name": "NX_class",
+              "dtype": "string",
+              "values": "NXsample"
+            }
+          ],
+          "children": [
+            {
+              "name": "Motion",
+              "type": "group",
+              "attributes": [
+                {
+                  "name": "units",
+                  "dtype": "string",
+                  "values": "mm"
+                }
+              ],
+              "children": [
+                {
+                  "module": "f142",
+                  "config": {
+                    "source": "IOC:m1.RBV",
+                    "topic": "Ymir_motion",
+                    "dtype": "double",
+                    "value_units": "mm"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
