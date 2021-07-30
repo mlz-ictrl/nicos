@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache = 'localhost',
-    instrument = 'hrpd',
+    instrument = 'DN3',
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
     notifiers = ['email'],
@@ -17,15 +17,14 @@ includes = [
 ]
 
 devices = dict(
-    hrpd = device('nicos.devices.instrument.Instrument',
+    DN3 = device('nicos.devices.instrument.Instrument',
         description = 'instrument object',
-        instrument = 'HRPD',
+        instrument = 'DN3',
         responsible = 'rifai <rifai@batan.go.id>',
     ),
     Sample = device('nicos.devices.sample.Sample',
         description = 'The currently used sample',
     ),
-
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',
         dataroot = 'data',

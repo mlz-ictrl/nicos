@@ -23,11 +23,9 @@ includes = [
 ]
 
 devices = dict(
-
     Sample = device('nicos.devices.tas.TASSample',
         description = 'The currently used sample',
     ),
-
     # Configure dataroot here (usually /data).
     Exp = device('nicos.devices.experiment.Experiment',
         description = 'experiment object',

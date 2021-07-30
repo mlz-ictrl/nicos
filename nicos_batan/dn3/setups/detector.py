@@ -1,4 +1,4 @@
-description = 'Simulated HRPD instrument'
+description = 'Simulated DN3 instrument'
 
 group = 'lowlevel'
 

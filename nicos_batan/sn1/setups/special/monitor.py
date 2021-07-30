@@ -10,7 +10,7 @@ _expcolumn = Column(
             Field(name='Current status', key='exp/action', width=40,
                   istext=True, maxlen=40),
             Field(name='Last scan file', key='exp/lastscan',
-                  setups='tas'),
+                  setups='sn1'),
         )
     ],
     ),
@@ -22,7 +22,7 @@ _axisblock = Block('Axes', [
     # BlockRow('psi', 'phi'),
     # BlockRow('ath', 'att'),
     ],
-    setups='tas',  # this is the name of a setup that must be loaded in the
+    setups='sn1',  # this is the name of a setup that must be loaded in the
                    # NICOS master instance for this block to be displayed
 )
 
@@ -35,14 +35,14 @@ _detectorblock = Block('Detector', [
 )
 
 _tasblock = Block('Triple-axis', [
-    BlockRow(Field(dev='tas[0]', name='H', format='%.3f', unit=' '),
-             Field(dev='tas[1]', name='K', format='%.3f', unit=' '),
-             Field(dev='tas[2]', name='L', format='%.3f', unit=' '),
-             Field(dev='tas[3]', name='E', format='%.3f', unit=' ')),
-    BlockRow(Field(key='tas/scanmode', name='Mode'),
+    BlockRow(Field(dev='SN1[0]', name='H', format='%.3f', unit=' '),
+             Field(dev='SN1[1]', name='K', format='%.3f', unit=' '),
+             Field(dev='SN1[2]', name='L', format='%.3f', unit=' '),
+             Field(dev='SN1[3]', name='E', format='%.3f', unit=' ')),
+    BlockRow(Field(key='sn1/scanmode', name='Mode'),
              Field(dev='mono', name='ki', min=1.55, max=1.6),
              Field(dev='ana', name='kf'),
-             Field(key='tas/energytransferunit', name='Unit')),
+             Field(key='sn1/energytransferunit', name='Unit')),
     BlockRow(Field(widget='nicos.guisupport.tas.TasWidget',
                    width=40, height=30,
                    mthdev='mth',
@@ -54,9 +54,9 @@ _tasblock = Block('Triple-axis', [
                    Lmsdev='Lms',
                    Laddev='Lad',
                    Lsadev='Lsa',
-                   tasdev='tas',)),
+                   tasdev='SN1',)),
     ],
-    setups='tas',
+    setups='sn1',
 )
 
 _slitblock = Block('Sample Slit', [
@@ -64,7 +64,7 @@ _slitblock = Block('Sample Slit', [
     BlockRow(Field(dev='ss.height', name='Height'),
              Field(dev='ss.width', name='Width')),
     ],
-    setups='tas',
+    setups='sn1',
 )
 
 _rightcolumn = Column(_axisblock)

@@ -6,14 +6,14 @@ modules = ['nicos.commands.tas']
 includes = ['source']
 
 sysconfig = dict(
-    instrument = 'tas',
+    instrument = 'SN1',
     datasinks = ['filesink'],
 )
 
 devices = dict(
-    tas = device('nicos.devices.tas.TAS',
+    SN1 = device('nicos.devices.tas.TAS',
         description = 'BATAN virtual triple-axis spectrometer SN1',
-        instrument = 'VTAS',
+        instrument = 'SN1',
         responsible = 'Iwan Sumirat <iwansumirat@gmail.com>',
         website = 'http://www.batan.go.id/index.php/id/fasilitas-pstbm',
         operators = ['BATAN SN1 developer team'],
@@ -104,34 +104,34 @@ devices = dict(
         description = 'incoming wavevector',
         unit = 'A-1',
         base = 'mono',
-        tas = 'tas',
+        tas = 'SN1',
         scanmode = 'CKI'
     ),
     kf = device('nicos.devices.tas.Wavevector',
         description = 'outgoing wavevector',
         unit = 'A-1',
         base = 'ana',
-        tas = 'tas',
+        tas = 'SN1',
         scanmode = 'CKF',
     ),
     Ei = device('nicos.devices.tas.Energy',
         description = 'incoming energy',
         unit = 'meV',
         base = 'mono',
-        tas = 'tas',
+        tas = 'SN1',
         scanmode = 'CKI',
     ),
     Ef = device('nicos.devices.tas.Energy',
         description = 'outgoing energy',
         unit = 'meV',
         base = 'ana',
-        tas = 'tas',
+        tas = 'SN1',
         scanmode = 'CKF',
     ),
     Qmod = device('nicos.devices.tas.QModulus',
         description = 'absolute Q',
         unit = 'A-1',
-        tas = 'tas',
+        tas = 'SN1',
     ),
     ssl = device('nicos.devices.generic.VirtualMotor',
         abslimits = (-20, 40),
@@ -167,14 +167,14 @@ devices = dict(
     ),
     vdet = device('nicos.devices.tas.virtual.VirtualTasDetector',
         description = 'simulated TAS intensity',
-        tas = 'tas',
+        tas = 'SN1',
         background = 1,
         realtime = True,
     ),
     ec = device('nicos.devices.tas.EulerianCradle',
         description = 'Eulerian cradle',
         cell = 'Sample',
-        tas = 'tas',
+        tas = 'SN1',
         chi = 'echi',
         omega = 'ephi'
     ),
@@ -253,11 +253,11 @@ alias_config = {
 startupcode = '''
 if mth() == 0:
     mth.speed = mtt.speed = ath.speed = att.speed = psi.speed = phi.speed = 0
-    reset(tas)
+    reset(SN1)
     mono(1.55)
     kf(1.55)
     Sample.lattice = [3.5, 3.5, 3.5]
-    tas(1,0,0,0)
+    SN1(1,0,0,0)
     mth.speed = mtt.speed = 0.5
     psi.speed = 2
     phi.speed = 1

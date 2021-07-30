@@ -27,4 +27,4 @@
 
 def determine_instrument(setup_package_path):
     # TODO adapt to Batan systems
-    return 'hrpd'
+    return 'dn3'

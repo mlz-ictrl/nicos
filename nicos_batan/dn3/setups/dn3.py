@@ -1,9 +1,9 @@
-description = 'Simulated HRPD instrument'
+description = 'Simulated DN3 instrument'
 
 group = 'basic'
 
 sysconfig = dict(
-    datasinks = ['hrpdsink'],
+    datasinks = ['dn3sink'],
 )
 
 includes = ['detector', 'monochromator']  # 'source']
@@ -29,8 +29,8 @@ devices = dict(
         states = ['45', '90', '135'],
         unit = 'deg',
     ),
-    hrpdsink = device('nicos_batan.hrpd.devices.datasinks.HrpdSink',
-        description = 'HRPD specific data file format',
+    dn3sink = device('nicos_batan.dn3.devices.datasinks.DN3Sink',
+        description = 'DN3 specific data file format',
         filenametemplate = ['%(proposal)s_%(pointcounter)08d.txt'],
         detectors = ['adet'],
     ),

@@ -22,14 +22,14 @@
 #
 # *****************************************************************************
 
-"""HRPD specific file format(s)."""
+"""DN3 specific file format(s)."""
 
 from nicos.core import Override
 from nicos.core.constants import POINT
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 
 
-class HrpdFileHandler(SingleFileSinkHandler):
+class DN3FileHandler(SingleFileSinkHandler):
     """Handler for the CaressHistogram data sink."""
 
     filetype = 'caresshistogram'
@@ -57,8 +57,8 @@ class HrpdFileHandler(SingleFileSinkHandler):
         fp.flush()
 
 
-class HrpdSink(ImageSink):
-    """Data sink for the HRPD specific data file format.
+class DN3Sink(ImageSink):
+    """Data sink for the DN3 specific data file format.
 
     The counts of neutrons in each tube will be written in respect to the angle
     of the tube at measurement time.
@@ -72,7 +72,7 @@ class HrpdSink(ImageSink):
         'settypes': Override(default=[POINT]),
     }
 
-    handlerclass = HrpdFileHandler
+    handlerclass = DN3FileHandler
 
     def isActiveForArray(self, arraydesc):
         return len(arraydesc.shape) == 2
