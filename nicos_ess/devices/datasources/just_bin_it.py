@@ -161,6 +161,7 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
     parameter_overrides = {
         'unit': Override(default='events', settable=False, mandatory=False),
         'fmtstr': Override(default='%d'),
+        'pollinterval': Override(default=None, userparam=False, settable=False),
     }
 
     _unique_id = None
@@ -293,6 +294,7 @@ class JustBinItDetector(Detector):
         'unit': Override(default='events', settable=False, mandatory=False),
         'fmtstr': Override(default='%d'),
         'liveinterval': Override(type=floatrange(0.5), default=1),
+        'pollinterval': Override(default=None, userparam=False, settable=False),
     }
     _last_live = 0
     _presets = {}
