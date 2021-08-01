@@ -39,7 +39,10 @@ main_window = docked(
 
 windows = [
     window('Editor', 'editor',
-           panel('nicos.clients.gui.panels.editor.EditorPanel')),
+       vsplit(
+           panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+           panel('nicos.clients.gui.panels.editor.EditorPanel',
+           ))),
     window('Scans', 'plotter',
            panel('nicos.clients.gui.panels.scans.ScansPanel'),
            setups='not tomo and not pgaa and not pgai'),

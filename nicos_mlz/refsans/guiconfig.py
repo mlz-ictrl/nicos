@@ -48,7 +48,10 @@ windows = [
     window('Live data', 'live',
            panel('nicos.clients.gui.panels.live.LiveDataPanel')),
     window('Editor', 'editor',
-           panel('nicos.clients.gui.panels.editor.EditorPanel')),
+       vsplit(
+           panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+           panel('nicos.clients.gui.panels.editor.EditorPanel',
+           ))),
     window('Scans', 'plotter',
            panel('nicos.clients.gui.panels.scans.ScansPanel')),
     window('History', 'find',
