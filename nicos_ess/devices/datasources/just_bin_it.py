@@ -188,29 +188,28 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
         self._current_status = status.OK, ''
 
     def new_messages_callback(self, messages):
-        # Only care about most recent message
-        _, most_recent = sorted(messages, key=lambda m: m[0])[~0]
+        for _, message in messages:
+            hist = deserialise_hs00(message)
+            info = json.loads(hist['info'])
+            self.log.debug('received unique id = {}'.format(info['id']))
+            if info['id'] != self._unique_id:
+                continue
+            if info['state'] in ['COUNTING', 'INITIALISED']:
+                self._current_status = status.BUSY, 'Counting'
+            elif info['state'] == 'ERROR':
+                error_msg = info[
+                    'error_message'] if 'error_message' in info else 'unknown error'
+                self._current_status = status.ERROR, error_msg
+            elif info['state'] == 'FINISHED':
+                self._halt_consumer_thread()
+                self._consumer.unsubscribe()
+                self._current_status = status.OK, ''
+                break
 
-        hist = deserialise_hs00(most_recent)
-        info = json.loads(hist['info'])
-        self.log.debug('received unique id = {}'.format(info['id']))
-        if info['id'] != self._unique_id:
-            return
-        if info['state'] in ['COUNTING', 'INITIALISED']:
-            self._current_status = status.BUSY, 'Counting'
-        elif info['state'] == 'ERROR':
-            error_msg = info[
-                'error_message'] if 'error_message' in info else 'unknown error'
-            self._current_status = status.ERROR, error_msg
-        elif info['state'] == 'FINISHED':
-            self._halt_consumer_thread()
-            self._consumer.unsubscribe()
-            self._current_status = status.OK, ''
+            self._hist_data = \
+                hist_type_by_name[self.hist_type].transform_data(hist['data'])
 
-        self._hist_data = \
-            hist_type_by_name[self.hist_type].transform_data(hist['data'])
-
-        self._hist_edges = hist['dim_metadata'][0]['bin_boundaries']
+            self._hist_edges = hist['dim_metadata'][0]['bin_boundaries']
 
     def doRead(self, maxage=0):
         return [self._hist_data.sum()]
