@@ -285,6 +285,7 @@ class Slit(CanReference, Moveable):
     def doWriteOpmode(self, value):
         if self._cache:
             self._cache.invalidate(self, 'value')
+            self._cache.put(self, 'fmtstr', self.fmtstr_map[value])
 
     def doUpdateOpmode(self, value):
         if value == 'centered':
