@@ -4,7 +4,7 @@ devices = dict(
     det_image1=device(
         'nicos_ess.devices.datasources.just_bin_it.JustBinItImage',
         description='A just-bin-it image channel',
-        hist_topic='hist-topic-1',
+        hist_topic='ymir_visualisation',
         data_topic='FREIA_detector',
         brokers=['172.30.242.20:9092'],
         unit='evts',
@@ -16,7 +16,7 @@ devices = dict(
     det_image2=device(
         'nicos_ess.devices.datasources.just_bin_it.JustBinItImage',
         description='A just-bin-it image channel',
-        hist_topic='hist-topic-2',
+        hist_topic='ymir_visualisation',
         data_topic='FREIA_detector',
         brokers=['172.30.242.20:9092'],
         unit='evts',
