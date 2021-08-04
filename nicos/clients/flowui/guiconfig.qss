@@ -374,6 +374,11 @@ QTabBar::tab:top:!selected:hover {
   padding: 0px;
 }
 
+QTabBar {
+background-color: transparent;
+qproperty-drawBase:0;
+}
+
 
 /* -------------------- QScrollArea ------------------------ */
 
