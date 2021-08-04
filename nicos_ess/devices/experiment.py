@@ -72,6 +72,12 @@ class EssExperiment(Experiment):
             except BaseYuosException as error:
                 self.log.warn(f'QueryDB not available: {error}')
 
+    def doReadTitle(self):
+        if self.proptype == 'service':
+            return 'Service mode'
+        else:
+            return self.propinfo.get('title', '')
+
     def _canQueryProposals(self):
         if self._client:
             return True
@@ -82,29 +88,29 @@ class EssExperiment(Experiment):
             time.sleep(self.update_interval * 3600)
             self._client.update_cache()
 
-    def _queryProposals(self, query=None, kwds=None):
-        if not query:
+    def _queryProposals(self, proposal=None, kwds=None):
+        if not proposal:
             raise RuntimeError('Please enter a valid proposal ID or federal ID')
 
-        if query[0].isdigit():
-            results = self._query_by_id(query)
+        if proposal[0].isdigit():
+            results = self._query_by_id(proposal)
         else:
-            results = self._query_by_fed_id(query)
+            results = self._query_by_fed_id(proposal)
 
         if not results:
             raise RuntimeError(f'could not find corresponding proposal(s) for '
-                               f'{query}')
+                               f'{proposal}')
         return [{
-            'proposal': str(proposal.id),
-            'title': proposal.title,
-            'users': self._extract_users(proposal),
+            'proposal': str(prop.id),
+            'title': prop.title,
+            'users': self._extract_users(prop),
             'localcontacts': [],
-            'samples': self._extract_samples(proposal),
+            'samples': self._extract_samples(prop),
             'dataemails': [],
             'notif_emails': [],
             'errors': [],
             'warnings': [],
-        } for proposal in results]
+        } for prop in results]
 
     def _query_by_id(self, proposal):
         try:
