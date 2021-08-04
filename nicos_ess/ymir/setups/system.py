@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 sysconfig = dict(
     cache='localhost',
-    instrument=None,
+    instrument='YMIR',
     experiment='Exp',
     datasinks=['conssink', 'filesink', 'daemonsink', 'liveview', ],
 )
@@ -12,11 +12,11 @@ sysconfig = dict(
 modules = ['nicos.commands.standard', 'nicos_ess.commands.epics']
 
 devices = dict(
-    Skeleton=device('nicos.devices.instrument.Instrument',
-                    description='instrument object',
-                    instrument='ymir',
-                    responsible='M. Clarke <matt.clarke@ess.eu>',
-                    ),
+    YMIR=device('nicos.devices.instrument.Instrument',
+                description='instrument object',
+                instrument='YMIR',
+                responsible='M. Clarke <matt.clarke@ess.eu>',
+                ),
 
     Sample=device('nicos.devices.sample.Sample',
                   description='The currently used sample',
