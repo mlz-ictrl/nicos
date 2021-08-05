@@ -573,15 +573,16 @@ class CaressScanfileSinkHandler(DataSinkHandler):
             self._write_defdata('TIM', master)
         self._flush()
 
-    def putValues(self, value):
+    def putValues(self, values):
         if self.dataset.settype == POINT:
             return
 
-    def addSubset(self, point):
-        self.log.debug('add subset: %s, #%d', point.settype, point.number)
-        if point.settype != POINT:
+    def addSubset(self, subset):
+        self.log.debug('add subset: %s, #%d', subset.settype, subset.number)
+        if subset.settype != POINT:
             return
 
+        point = subset
         if point.number == 1:
             self._write_header(point)
 
