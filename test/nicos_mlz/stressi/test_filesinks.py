@@ -51,7 +51,8 @@ def prepare(session, dataroot):
     session.experiment.setDetectors(['adet'])
 
     # Create devices needed in data sinks
-    for dev in ['xt', 'yt', 'zt', 'slits', 'slitm', 'slite', 'slitp', 'omgm']:
+    for dev in ['xt', 'yt', 'zt', 'slits', 'slitm', 'slite', 'slitp', 'omgm',
+                'tths']:
         session.getDevice(dev)
 
     # Adjust the monochromator to reasonable position and check it
