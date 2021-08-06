@@ -483,7 +483,7 @@ _spinflipper = Block('Spin Flipper', [
         Field(name='Reverse', key='P_spinflipper/reverse', unitkey='W'),
     ),
     BlockRow(
-        Field(name='Temperature', dev='T_spinflipper'),
+        #Field(name='Temperature', dev='T_spinflipper'),
         Field(name='Voltage', dev='U_spinflipper'),
     ),
     BlockRow(
