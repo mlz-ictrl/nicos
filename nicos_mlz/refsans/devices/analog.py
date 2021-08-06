@@ -25,8 +25,6 @@
 Support code for any encoder with analog signal, like poti laser distance etc
 """
 
-from __future__ import absolute_import, division, print_function
-
 from nicos.core import Readable, oneof, status
 from nicos.core.params import Attach, Param
 from nicos.devices.abstract import Coder
