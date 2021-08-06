@@ -257,7 +257,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Changes in the experiment proposal have not been applied!</string>
+      <string>Changes to the experiment proposal have not been applied!</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
