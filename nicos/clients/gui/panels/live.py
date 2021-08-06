@@ -496,7 +496,7 @@ class LiveDataPanel(Panel):
             for key, w in self._livewidgets.items():
                 if w == widget:
                     self.log.debug('delete roi: %s', key)
-                    del self._livewidgets[key]
+                    del self._livewidgets[key]  # pylint: disable=unnecessary-dict-index-lookup
                     break
             if key:
                 roi = key.rsplit('/', 1)[0]
