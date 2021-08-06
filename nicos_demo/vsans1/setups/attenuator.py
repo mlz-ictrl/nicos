@@ -18,5 +18,6 @@ devices = dict(
         unit = 'mm',
         abslimits = (-400, 600),
         visibility = (),
+        curvalue = -2,
     ),
 )

@@ -19,6 +19,7 @@ devices = dict(
         fmtstr = '%.2f',
         abslimits = (-0, 600),
         visibility = (),
+        curvalue = 594.5,
         unit = 'mm',
     ),
     sc1 = device('nicos.devices.generic.MultiSwitcher',

@@ -81,6 +81,7 @@ devices = dict(
         fmtstr = '%.2f',
         abslimits = (-50, 50),
         visibility = (),
+        curvalue = -31,
         unit = 'mm',
     ),
     st1_x = device('nicos.devices.generic.Axis',

@@ -34,6 +34,7 @@ devices = dict(
         pollinterval = 15,
         fmtstr = '%d',
         unit = 'V',
+        precision = 1,
         speed = 10,
     ),
     det1_hv_ax = device('nicos_mlz.sans1.devices.hv.Sans1HV',
