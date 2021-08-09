@@ -24,12 +24,15 @@
 
 """SECoP client test suite."""
 
-import pytest
 import pickle
+import pytest
 
-from nicos.devices.secop import get_validator
+pytest.importorskip('secop')
+
 from nicos.core.params import string, nonemptystring, floatrange, intrange, \
     oneofdict, listof, tupleof, dictwith
+from nicos.devices.secop import get_validator
+
 from test.utils import raises
 
 
