@@ -49,8 +49,13 @@ class ExpPanel(DefaultExpPanel):
         self._new_settings = {}
         DefaultExpPanel.__init__(self, parent, client, options)
 
+    def initUi(self):
+        DefaultExpPanel.initUi(self)
+        self._text_controls = (self.expTitle, self.users, self.localContacts,
+                               self.proposalNum, self.sampleName)
         self.applyWarningLabel.setStyleSheet('color: red')
         self.applyWarningLabel.setVisible(False)
+        self.buttonBox.addButton("Discard Changes", QDialogButtonBox.ResetRole)
 
     def on_client_connected(self):
         # fill proposal
@@ -65,12 +70,33 @@ class ExpPanel(DefaultExpPanel):
         self.setViewOnly(self.client.viewonly)
 
     def on_client_disconnected(self):
-        ExpPanel.on_client_connected(self)
-        self.applyWarningLabel.setVisible(False)
+        for control in self._text_controls:
+            control.setText('')
+        self.notifEmails.setPlainText('')
+        self.dataEmails.setPlainText('')
+        DefaultExpPanel.on_client_disconnected(self)
 
     def setViewOnly(self, viewonly):
-        self.buttonBox.setEnabled(not viewonly)
+        for control in self._text_controls:
+            control.setEnabled(not viewonly)
+        self.notifEmails.setEnabled(not viewonly)
+        self.dataEmails.setEnabled(not viewonly)
+        self.errorAbortBox.setEnabled(not viewonly)
         self.queryDBButton.setEnabled(not viewonly)
+        if viewonly:
+            self._set_buttons_and_warning_behaviour(False)
+        else:
+            self._check_for_changes()
+
+    def on_buttonBox_clicked(self, button):
+        role = self.buttonBox.buttonRole(button)
+        if role == QDialogButtonBox.ApplyRole:
+            self.applyChanges()
+        elif role == QDialogButtonBox.ResetRole:
+            self.discardChanges()
+
+    def discardChanges(self):
+        self._update_proposal_info()
 
     def _getProposalInput(self):
         prop = self.proposalNum.text().strip()
@@ -95,72 +121,6 @@ class ExpPanel(DefaultExpPanel):
         errorbehavior = 'abort' if self.errorAbortBox.isChecked() else 'report'
         return prop, title, users, local, sample, notifEmails, dataEmails, \
             errorbehavior
-
-    def applyChanges(self):
-        done = []
-
-        # proposal settings
-        try:
-            prop, title, users, local, sample, notifEmails, _, \
-                errorbehavior = self._getProposalInput()
-        except ConfigurationError:
-            return
-        notifEmails = [_f for _f in notifEmails if _f]  # remove empty lines
-
-        # check conditions
-        if self.client.eval('session.experiment.serviceexp', True) and \
-           self.client.eval('session.experiment.proptype', 'user') == 'user' and \
-           self.client.eval('session.experiment.proposal', '') != prop:
-            self.showError('Can not directly switch experiments, please use '
-                           'FinishExperiment first!')
-            return
-
-        # do some work
-        if prop and prop != self._orig_propinfo.get('proposal'):
-            args = {'proposal': prop}
-            if local:
-                args['localcontact'] = local
-            if title:
-                args['title'] = title
-            if users:
-                args['user'] = users
-            code = 'NewExperiment(%s)' % ', '.join('%s=%r' % i
-                                                   for i in args.items())
-            if self.client.run(code, noqueue=False) is None:
-                self.showError('Could not start new experiment, a script is '
-                               'still running.')
-                return
-            done.append('New experiment started.')
-            if self._new_exp_panel:
-                dlg = PanelDialog(self, self.client, self._new_exp_panel,
-                                  'New experiment')
-                dlg.exec_()
-        else:
-            if title != self._orig_propinfo.get('title'):
-                self.client.run('Exp.update(title=%r)' % title)
-                done.append('New experiment title set.')
-            if users != self._orig_propinfo.get('users'):
-                self.client.run('Exp.update(users=%r)' % users)
-                done.append('New users set.')
-            if local != self._orig_propinfo.get('localcontacts'):
-                self.client.run('Exp.update(localcontacts=%r)' % local)
-                done.append('New local contact set.')
-        if sample != self._orig_samplename:
-            self.client.run('NewSample(%r)' % sample)
-            done.append('New sample name set.')
-        if notifEmails != self._orig_propinfo.get('notif_emails'):
-            self.client.run('SetMailReceivers(%s)' %
-                            ', '.join(map(repr, notifEmails)))
-            done.append('New mail receivers set.')
-        if errorbehavior != self._orig_errorbehavior:
-            self.client.run('SetErrorAbort(%s)' % (errorbehavior == 'abort'))
-            done.append('New error behavior set.')
-
-        # tell user about everything we did
-        if done:
-            self.showInfo('\n'.join(done))
-
-        self._update_proposal_info()
 
     def _update_proposal_info(self):
         DefaultExpPanel._update_proposal_info(self)
@@ -268,7 +228,15 @@ class ExpPanel(DefaultExpPanel):
 
     def _check_for_changes(self):
         changed = self._old_settings != self._new_settings
-        self.applyWarningLabel.setVisible(changed)
+        self._set_buttons_and_warning_behaviour(changed)
+
+    def _set_buttons_and_warning_behaviour(self, value):
+        for button in self.buttonBox.buttons():
+            role = self.buttonBox.buttonRole(button)
+            button.setEnabled(value)
+            if role == QDialogButtonBox.ResetRole:
+                button.setVisible(value)
+        self.applyWarningLabel.setVisible(value)
 
 
 class SetupsPanel(DefaultSetupsPanel):
