@@ -313,6 +313,8 @@ class MttAxis(Axis):
                     # self._stoprequest = 2
                     # self.log.debug('Error state = %s', self._errorstate)
                     self.log.warning(msg)
+                    session.notify('PUMA: %s' % self.name,
+                                   'mobil block probably got stuck')
                     break
             self.log.info('MB change took %1.f s', self.blocksleep - t)
             # restart motor to target
