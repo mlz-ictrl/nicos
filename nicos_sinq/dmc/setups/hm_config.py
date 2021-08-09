@@ -1,5 +1,7 @@
 description = 'Devices for configuring Histogram Memory'
 
+group = 'lowlevel'
+
 devices = dict(
     hm_connector=device(
         'nicos_sinq.devices.sinqhm.connector.HttpConnector',

@@ -1,12 +1,12 @@
 description = 'Sample devices in the SINQ DMC.'
 
-pvprefix = 'SQ:DMC:mota:'
+pvprefix = 'SQ:DMC:mcu2:'
 
 devices = dict(
-    som=device('nicos_ess.devices.epics.motor.EpicsMotor',
+    a3=device('nicos_ess.devices.epics.motor.EpicsMotor',
                epicstimeout=3.0,
                description='Sample omega motor',
-               motorpv=pvprefix + 'SOM',
-               errormsgpv=pvprefix + 'SOM-MsgTxt',
-               )
+               motorpv=f'{pvprefix}SOM',
+               errormsgpv=f'{pvprefix}SOM-MsgTxt',
+               ),
 )

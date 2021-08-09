@@ -18,67 +18,95 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Module authors:
-#   Georg Brandl <g.brandl@fz-juelich.de>
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
 """NICOS GUI default configuration."""
 
-main_window = tabbed(
-    ('Instrument', docked(
-        vsplit(
-             tabbed(
-                ('All output',
-                 panel('nicos.clients.gui.panels.console.ConsolePanel',
-                       hasinput=True, hasmenu=True,
-                       watermark='nicos_sinq/watermark.png')),
-                ('Errors/Warnings',
-                 panel('nicos.clients.gui.panels.errors.ErrorPanel')),
-            ),
+main_window = docked(
+    tabbed(
+        ('Setup',
+         tabbed(
+             ('Experiment',
+              panel('nicos_ess.gui.panels.exp_panel.ExpPanel')),
+             ('Instrument',
+              panel('nicos.clients.flowui.panels.setup_panel.SetupsPanel')),
+         ),
         ),
-        ('Experiment Setup',
-         panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
-               dockpos='left')),
-        ('Control devices',
-         panel('nicos.clients.gui.panels.devices.DevicesPanel', icons=True,
-               dockpos='right')),
-    )),
-    ('Script Builder',
-     vsplit(
-         panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
-         panel('nicos.clients.gui.panels.editor.EditorPanel',
-               tools=[
-                   tool('Scan Generator',
-                        'nicos.clients.gui.tools.scan.ScanTool')
-               ]),
-     )),
-    ('Device History', panel('nicos.clients.gui.panels.history.HistoryPanel')),
-    ('Log files', panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
-)
+        ('  ', panel('nicos.clients.flowui.panels.empty.EmptyPanel')),
+        ('Instrument interaction',
+         hsplit(
+             vbox(
+                 panel(
+                     'nicos.clients.flowui.panels.cmdbuilder.CommandPanel',
+                      modules=['nicos.clients.gui.cmdlets'],
+                    ),
+                 tabbed(
+                     ('Output',
+                      panel('nicos.clients.flowui.panels.console.ConsolePanel',
+                            hasinput=False)),
+                     ('Scan Plot',
+                      panel('nicos.clients.flowui.panels.scans.ScansPanel')),
+                     ('Detector Image',
+                      panel('nicos.clients.flowui.panels.live.LiveDataPanel')),
+                     ('Script Status',
+                      panel('nicos.clients.flowui.panels.status.ScriptStatusPanel',
+                            eta=True)),
+                 ),
 
-windows = [
-    window('Editor', 'editor',
-           panel('nicos.clients.gui.panels.editor.EditorPanel')),
-    window('Scans', 'plotter',
-           panel('nicos.clients.gui.panels.scans.ScansPanel')),
-    window('Logbook', 'table',
-           panel('nicos.clients.gui.panels.elog.ELogPanel')),
-    window('LiveData', 'livedata',
-           panel('nicos.clients.gui.panels.live.LiveDataPanel')),
-    ]
+             ), # vsplit
+             panel(
+                 'nicos.clients.flowui.panels.devices.DevicesPanel',
+                 dockpos='right',
+                 param_display={'tas': 'scanmode',
+                                'Exp': ['lastpoint', 'lastscan']},
+                 filters=[('Detector', 'det'),
+                          ('Temperatures', '^T'),
+                          ],
+             ),
+         ),  # hsplit
+         ),
+        (
+            'Batch file generation',
+            vsplit(
+                panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+                panel('nicos.clients.flowui.panels.editor.EditorPanel',
+                      tools=None),
+            ), # vsplit
+        ),
+        ('Detector Image',
+         panel('nicos.clients.flowui.panels.live.LiveDataPanel')),
+        (
+            'History',
+            panel('nicos.clients.flowui.panels.history.HistoryPanel'),
+        ),
+        ('Logs',
+            tabbed(
+                ('Errors', panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+                ('Log files', panel(
+                    'nicos.clients.gui.panels.logviewer.LogViewerPanel')),
+            ),
+         ),
+
+
+        ('  ', panel('nicos.clients.flowui.panels.empty.EmptyPanel')),
+
+        ('Finish Experiment',
+         panel('nicos.clients.flowui.panels.setup_panel.FinishPanel')),
+
+        position='left',
+    ), # tabbed
+
+    ) #docked
+
+windows = [ ]
 
 tools = [
-    tool('Emergency stop button',
-         'nicos.clients.gui.tools.estop.EmergencyStopTool',
-         runatstartup=False),
-    tool('Calculator', 'nicos.clients.gui.tools.calculator.CalculatorTool'),
-    tool('Neutron cross-sections',
-         'nicos.clients.gui.tools.website.WebsiteTool',
-         url='http://www.ncnr.nist.gov/resources/n-lengths/'),
-    tool('Neutron activation', 'nicos.clients.gui.tools.website.WebsiteTool',
-         url='https://webapps.frm2.tum.de/intranet/activation/'),
-    tool('Neutron calculations', 'nicos.clients.gui.tools.website.WebsiteTool',
-         url='https://webapps.frm2.tum.de/intranet/neutroncalc/'),
     tool('Report NICOS bug or request enhancement',
          'nicos.clients.gui.tools.bugreport.BugreportTool'),
 ]
+
+options = {
+    'facility': 'sinq',
+}
