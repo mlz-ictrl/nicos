@@ -616,8 +616,8 @@ class SetupsPanel(Panel):
                         alias_config.setdefault(aliasname, []).append((target,
                                                                        prio))
         # sort by priority
-        for aliasname in alias_config:
-            alias_config[aliasname].sort(key=lambda x: -x[1])
+        for alias in alias_config.values():
+            alias.sort(key=lambda x: -x[1])
         # create/update widgets
         layout = self.aliasGroup.layout()
         # only preselect previous aliases if we have the same choices for them
