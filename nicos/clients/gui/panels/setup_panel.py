@@ -132,7 +132,7 @@ class ExpPanel(Panel):
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
-        loadUi(self, self.ui)
+        self.initUi()
         self.propdbInfo.setVisible(False)
         self._orig_propinfo = {}
         self._orig_samplename = None
@@ -153,6 +153,9 @@ class ExpPanel(Panel):
         client.setup.connect(self.on_client_connected)
         client.experiment.connect(self.on_client_experiment)
         client.disconnected.connect(self.on_client_disconnected)
+
+    def initUi(self):
+        loadUi(self, self.ui)
 
     def _update_proposal_info(self):
         propinfo, samplename, errorbehavior = \
