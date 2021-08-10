@@ -191,6 +191,16 @@ class ExpPanel(Panel):
         self.client.connected.connect(self.on_client_connected)
         self.client.disconnected.connect(self.on_client_disconnected)
         self.client.experiment.connect(self.on_experiment_finished)
+        self.client.register(self, "Exp/title")
+        self.client.register(self, "Exp/users")
+        self.client.register(self, "Exp/localcontact")
+        self.client.register(self, "Exp/propinfo")
+        self.client.register(self, "Sample/samples")
+
+    def on_keyChange(self, key, value, time, expired):
+        # Value of any registered key changes,
+        # update the proposal panel of all clients.
+        self._update_proposal_info()
 
     def _update_proposal_info(self):
         values = self.client.eval('session.experiment.proposal, '
@@ -265,14 +275,14 @@ class ExpPanel(Panel):
         self.notifEmails.setPlainText('')
         self.setViewOnly(True)
 
-    def setViewOnly(self, is_view_only):
+    def setViewOnly(self, viewonly):
         for control in self._text_controls:
-            control.setEnabled(not is_view_only)
-        self.notifEmails.setEnabled(not is_view_only)
-        self.errorAbortBox.setEnabled(not is_view_only)
-        self.queryDBButton.setEnabled(not is_view_only)
-        self.sampleTable.setEnabled(not is_view_only)
-        if is_view_only:
+            control.setEnabled(not viewonly)
+        self.notifEmails.setEnabled(not viewonly)
+        self.errorAbortBox.setEnabled(not viewonly)
+        self.queryDBButton.setEnabled(not viewonly)
+        self.sampleTable.setEnabled(not viewonly)
+        if viewonly:
             self._set_buttons_and_warning_behaviour(False)
         else:
             self._check_for_changes()
