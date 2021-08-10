@@ -17,16 +17,16 @@ devices = dict(
         dependencies = ['gf%i' % i for i in ([1, 2] + list(range(4, 11)))]
         + ['hsf_%s' % entry for entry in packs]
         + ['sf_%s' % entry for entry in packs]
-        + ['hrf_0a','hrf_0b', 'hrf_1a', 'hrf_1b']
+        + ['hrf_0a', 'hrf_0b', 'hrf_1a', 'hrf_1b']
         + ['nse0', 'nse1']
         + ['cbox_%s_%s' % (pack, component)
-            for pack in packs
+            for pack in ['0a', '0b', '1a',]
             for component in cbox_components],
         zerofirst = {
             'cbox_0a_fg_amp': 0.001,
             'cbox_0b_fg_amp': 0.001,
         },
-        stopfirst = ['cbox_0a_reg_amp', 'cbox_0b_reg_amp', 'cbox_1_reg_amp'],
+        stopfirst = ['cbox_0a_reg_amp', 'cbox_0b_reg_amp', 'cbox_1a_reg_amp'],
         unit = 'ns',
         fmtstr = '%g'
     ),

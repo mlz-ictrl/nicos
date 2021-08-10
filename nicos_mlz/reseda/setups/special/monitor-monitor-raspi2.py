@@ -107,28 +107,28 @@ _column3 = Column(
             Field(name='HSF1', dev='hsf_1'),
         ),
         BlockRow(
-            Field(name='RF1', dev='cbox_1_reg_amp'),
+            Field(name='RF1', dev='cbox_1a_reg_amp'),
             Field(name='HRF1a', dev='hrf_1a'),
             Field(name='HRF1b', dev='hrf_1b'),
         ),
         BlockRow(
-            Field(name='Freq', dev='cbox_1_fg_freq'),
+            Field(name='Freq', dev='cbox_1a_fg_freq'),
         ),
         BlockRow(
-            Field(name='C1', dev='cbox_1_coil1_c1'),
-            Field(name='C2', dev='cbox_1_coil1_c2'),
-            Field(name='C3', dev='cbox_1_coil1_c3'),
+            Field(name='C1', dev='cbox_1a_coil1_c1'),
+            Field(name='C2', dev='cbox_1a_coil1_c2'),
+            Field(name='C3', dev='cbox_1a_coil1_c3'),
         ),
         BlockRow(
-            Field(name='C1C2', dev='cbox_1_coil1_c1c2serial'),
-            Field(name='Trafo', dev='cbox_1_coil1_transformer'),
+            Field(name='C1C2', dev='cbox_1a_coil1_c1c2serial'),
+            Field(name='Trafo', dev='cbox_1a_coil1_transformer'),
         ),
         BlockRow(
-            Field(name='Diplexer', dev='cbox_1_diplexer'),
-            Field(name='Highpass', dev='cbox_1_highpass'),
+            Field(name='Diplexer', dev='cbox_1a_diplexer'),
+            Field(name='Highpass', dev='cbox_1a_highpass'),
         ),
         BlockRow(
-            Field(name='Power Divider', dev='cbox_1_power_divider'),
+            Field(name='Power Divider', dev='cbox_1a_power_divider'),
         ),
         BlockRow(
             Field(name='T Coil 1', dev='T_arm1_coil1'),
