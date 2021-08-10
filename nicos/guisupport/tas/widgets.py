@@ -42,23 +42,10 @@ class TasView(QGraphicsView):
     detectorradius = 10
     _beams = []
 
-    def __init__(self, parent=None):
-        scene = QGraphicsScene()
-        QGraphicsView.__init__(self, scene)
+    def __init__(self, parent=None, designMode=False):
+        self.scene = QGraphicsScene(parent)
+        QGraphicsView.__init__(self, self.scene, parent)
         self.setRenderHints(QPainter.Antialiasing)
-
-        self._mono = MonoTable(0., 0, self.monoradius, scene=scene)
-        self._sample = SampleTable(0, 0, self.sampleradius, scene=scene)
-        self._sample_t = TableTarget(0, 0, self.sampleradius, scene=scene)
-        self._ana = AnaTable(0, 0, self.anaradius, scene=scene)
-        self._ana_t = TableTarget(0, 0, self.anaradius, scene=scene)
-        self._det = DetTable(0, 0, self.detectorradius, scene=scene)
-        self._det_t = TableTarget(0, 0, self.detectorradius, scene=scene)
-        self._src = TableBase(0, 0, 0, scene=scene)
-        self._beams.append(Beam(self._src, self._mono, scene=scene))
-        self._beams.append(Beam(self._mono, self._sample, scene=scene))
-        self._beams.append(Beam(self._sample, self._ana, scene=scene))
-        self._beams.append(Beam(self._ana, self._det, scene=scene))
 
         # default values (used when no such devices are configured)
         self.values = {
@@ -82,7 +69,26 @@ class TasView(QGraphicsView):
             'ath': status.OK,
             'att': status.OK,
         }
-        self.update()
+        self._designMode = designMode
+
+    def initUi(self):
+        scene = self.scene
+        self._mono = MonoTable(0., 0, self.monoradius, scene=scene)
+        self._sample = SampleTable(0, 0, self.sampleradius, scene=scene)
+        self._sample_t = TableTarget(0, 0, self.sampleradius, scene=scene)
+        self._ana = AnaTable(0, 0, self.anaradius, scene=scene)
+        self._ana_t = TableTarget(0, 0, self.anaradius, scene=scene)
+        self._det = DetTable(0, 0, self.detectorradius, scene=scene)
+        self._det_t = TableTarget(0, 0, self.detectorradius, scene=scene)
+        self._src = TableBase(0, 0, 0, scene=scene)
+        self._src_beam = Beam(self._src, self._mono, scene=scene)
+        self._mono_beam = Beam(self._mono, self._sample, scene=scene)
+        self._sample_beam = Beam(self._sample, self._ana, scene=scene)
+        self._ana_beam = Beam(self._ana, self._det, scene=scene)
+        self._beams = (self._src_beam, self._mono_beam, self._sample_beam,
+                       self._ana_beam)
+        if self._designMode:
+            self.update()
 
     def resizeEvent(self, rsevent):
         s = self.size()
