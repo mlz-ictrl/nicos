@@ -79,9 +79,10 @@ class ConsoleScanSinkHandler(DataSinkHandler):
         session.log.info('%s%s', self._indent, tabulated(self._colwidths, units))
         session.log.info('%s%s', self._indent, '-' * self._rulerlen)
 
-    def addSubset(self, point):
-        if point.settype != POINT:
+    def addSubset(self, subset):
+        if subset.settype != POINT:
             return
+        point = subset
         ds = self.dataset
         if ds.npoints:
             pointstr = '%s/%s' % (point.number, ds.npoints)
@@ -174,9 +175,10 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
                           [''] * nfiles]
         self._file.flush()
 
-    def addSubset(self, point):
-        if point.settype != POINT:
+    def addSubset(self, subset):
+        if subset.settype != POINT:
             return
+        point = subset
         ds = self.dataset
         if point.number == 1:
             self._write_header(ds, len(point.filenames))
