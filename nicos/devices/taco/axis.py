@@ -25,8 +25,8 @@
 
 """NICOS axis classes."""
 
-import TACOStates
-from Motor import Motor as TACOMotor
+import TACOStates  # pylint: disable=import-error
+from Motor import Motor as TACOMotor  # pylint: disable=import-error
 
 from nicos import session
 from nicos.core import SLAVE, Attach, ModeError, Moveable, Param, anytype, \
@@ -69,8 +69,8 @@ class Axis(CanReference, TacoDevice, AbstractAxis):
     def doRead(self, maxage=0):
         return self._taco_guard(self._dev.read) - self.offset
 
-    def doTime(self, start, end):
-        s, v, a = abs(start - end), self.speed, self.accel
+    def doTime(self, old_value, target):
+        s, v, a = abs(old_value - target), self.speed, self.accel
         if v <= 0 or a <= 0:
             return 0
         if s > v**2 / a:  # do we reach nominal speed?
@@ -241,5 +241,6 @@ class HoveringAxis(SequencerMixin, Axis):
         # stop only the axis, but the sequence has to run through
         Axis.doStop(self)
 
-    def doTime(self, start, end):
-        return Axis.doTime(self, start, end) + self.startdelay + self.stopdelay
+    def doTime(self, old_value, target):
+        return Axis.doTime(
+            self, old_value, target) + self.startdelay + self.stopdelay

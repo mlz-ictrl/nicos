@@ -316,7 +316,7 @@ class Sans1ColliMotor(Sans1ColliBase, CanReference, SequencerMixin, HasTimeout, 
         self._writeControlBit(4, 1)     # docu: bit4 = reference, autoresets
         # according to docu, the refpos is (also) a parameter of the KL....
 
-    def doSetPosition(self, value):
+    def doSetPosition(self, pos):
         for _ in range(100):
             if self._readStatusWord() & (1 << 7):
                 continue
@@ -340,7 +340,7 @@ class Sans1ColliMotor(Sans1ColliBase, CanReference, SequencerMixin, HasTimeout, 
         loops = 10
         for loop in range(loops):
             self.log.debug('setPosition: loop %d of %d', loop, loops)
-            self._writeDestination(self._phys2steps(value))
+            self._writeDestination(self._phys2steps(pos))
             # index=1: update current position
             self._writeUpperControlWord((1 << 8) | 1)
 
@@ -772,8 +772,8 @@ class Sans1ColliMotorAllParams(Sans1ColliMotor):
         return ['off', 'on'][self._readControlBit(0)]
 
     # Parameter 1 : CurrentPosition
-    def doSetPosition(self, value):
-        self.writeParameter(1, self._phys2steps(value))
+    def doSetPosition(self, pos):
+        self.writeParameter(1, self._phys2steps(pos))
 
     # Parameter 2 : Refpos
     def doReadRefpos(self):
