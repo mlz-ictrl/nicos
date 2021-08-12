@@ -25,9 +25,8 @@
 """TAS specific display widgets."""
 
 from nicos.guisupport.qt import QSize
+from nicos.guisupport.tas.widgets import TasView
 from nicos.guisupport.widget import NicosWidget, PropDef
-
-from .widgets import TasView
 
 
 class TasWidget(NicosWidget, TasView):
@@ -48,12 +47,16 @@ class TasWidget(NicosWidget, TasView):
     width = PropDef('width', int, 40, 'Widget width in characters')
 
     def __init__(self, parent, designMode=False):
-        TasView.__init__(self, parent)
-        NicosWidget.__init__(self)
 
         self._keymap = {}
         self._statuskeymap = {}
         self._targetkeymap = {}
+
+        TasView.__init__(self, parent, designMode)
+        NicosWidget.__init__(self)
+
+    def initUi(self):
+        TasView.initUi(self)
 
     def registerKeys(self):
         for dev in self.values:
