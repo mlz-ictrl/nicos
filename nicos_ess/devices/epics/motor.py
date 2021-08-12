@@ -25,7 +25,7 @@
 
 from time import time as currenttime
 
-from nicos.core import Override, Param, oneof, pvname, status
+from nicos.core import ADMIN, Override, Param, oneof, pvname, status
 from nicos.core.device import requires
 from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import CanDisable, HasOffset
@@ -296,7 +296,7 @@ class HomingProtectedEpicsMotor(EpicsMotor):
     the reference run can only happen with admin rights
     """
 
-    @requires(level='admin')
+    @requires(level=ADMIN)
     def doReference(self):
         EpicsMotor.doReference(self)
 
