@@ -27,9 +27,10 @@
 import struct
 
 from nicos import session
-from nicos.core import SIMULATION, Attach, AutoDevice, CommunicationError, \
-    Moveable, MoveError, NicosTimeoutError, Override, Param, Readable, \
-    UsageError, dictwith, floatrange, limits, requires, status
+from nicos.core import ADMIN, SIMULATION, Attach, AutoDevice, \
+    CommunicationError, Moveable, MoveError, NicosTimeoutError, Override, \
+    Param, Readable, UsageError, dictwith, floatrange, limits, requires, \
+    status
 from nicos.core.params import oneof, tupleof
 from nicos.devices.abstract import CanReference, Motor
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod, SeqSleep
@@ -395,7 +396,7 @@ class BeckhoffMotorBase(PolynomFit, CanReference, BeckhoffBase, BaseSequencer):
         raise UsageError(self, 'ReadPar command not recognized by HW, please '
                          'retry later ...')
 
-    @requires(level='admin')
+    @requires(level=ADMIN)
     def _HW_writeParameter(self, index, value, store2eeprom=False):
         if index not in self.HW_writeable_Params:
             raise UsageError('Writing not possible for parameter index %s' %
@@ -517,7 +518,7 @@ class BeckhoffMotorBase(PolynomFit, CanReference, BeckhoffBase, BaseSequencer):
         self.log.debug('BeckhoffMotorBase Seq generated')
         return seq
 
-    @requires(level='admin')
+    @requires(level=ADMIN)
     def doReference(self):
         self._HW_wait_while_BUSY()
         self._HW_reference()
@@ -627,7 +628,7 @@ class BeckhoffMotorCab1M0x(BeckhoffMotorCab1):
         'vmax': Override(settable=True, type=floatrange(0, 800)),
     }
 
-    @requires(level='admin')
+    @requires(level=ADMIN)
     def doWriteVMax(self, value):
         self._HW_writeParameter('vMax', self._phys2speed(value))
 
@@ -639,7 +640,7 @@ class BeckhoffMotorCab1M13(BeckhoffMotorCab1):
         'vmax': Override(settable=True, type=floatrange(0, 8)),
     }
 
-    @requires(level='admin')
+    @requires(level=ADMIN)
     def doWriteVmax(self, value):
         self._HW_writeParameter('vMax', self._phys2speed(value))
 
