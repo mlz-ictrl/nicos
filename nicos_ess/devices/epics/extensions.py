@@ -71,6 +71,12 @@ class EpicsMappedMoveable(MappedMoveable, EpicsDigitalMoveableEss):
         if not self.ignore_stop:
             EpicsDigitalMoveableEss.doStop(self)
 
+    def doRead(self, maxage=0):
+        return MappedMoveable.doRead(self, maxage)
+
+    def doStart(self, value):
+        MappedMoveable.doStart(self, value)
+
 
 class EpicsMappedFloatMoveable(EpicsMappedMoveable):
     valuetype = float
