@@ -7,7 +7,7 @@ excludes = ['kepco']
 tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/'
 
 devices = dict(
-    coil_1 = device('nicos_mlz.kompass.devices.guidefield.VectorCoil',
+    coil_1 = device('nicos_mlz.panda.devices.guidefield.VectorCoil',
         description = 'Powersupply for horizontal field 1 at sample',
         tangodevice = tango_base + 'kepco/current5',
         abslimits = (-20, 20),
@@ -16,7 +16,7 @@ devices = dict(
         calibrationcurrent = 10,          # A
         lowlevel = False,
     ),
-    coil_2 = device('nicos_mlz.kompass.devices.guidefield.VectorCoil',
+    coil_2 = device('nicos_mlz.panda.devices.guidefield.VectorCoil',
         description = 'Powersupply for horizontal field 2 at sample',
         tangodevice = tango_base + 'kepco/current6',
         abslimits = (-20, 20),
@@ -25,7 +25,7 @@ devices = dict(
         calibrationcurrent = 10,           # A
         lowlevel = False,
     ),
-    coil_3 = device('nicos_mlz.kompass.devices.guidefield.VectorCoil',
+    coil_3 = device('nicos_mlz.panda.devices.guidefield.VectorCoil',
         description = 'Powersupply for vertical field at sample',
         tangodevice = tango_base + 'kepco/current7',
         abslimits = (-20, 20),
@@ -34,10 +34,11 @@ devices = dict(
         calibrationcurrent = 2,         # A  only 2A at KOMPASS, at PANDA was 10 A
         lowlevel = False,
     ),
-    gf = device('nicos_mlz.kompass.devices.guidefield.GuideField',
+    gf = device('nicos_mlz.panda.devices.guidefield.GuideField',
         description = 'Vector field at sample location',
         alpha = 'alphastorage',
         coils = ['coil_1', 'coil_2', 'coil_3'],
+        alphaoffset = 0,
         field = 0.8,    # mT   at KOMPASS, at PANDA was 1 mT
         mapping = {'off': None,
                    'par':   ( 1., 0., 0.),

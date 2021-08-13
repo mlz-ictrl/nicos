@@ -24,36 +24,6 @@
 
 """Polarized support for Panda"""
 
-# v0.5
-# uses a MappedMoveable now
-# Also uses AnalogIO, as CurrentSupply needs an implemented ramp,
-# which not all PowersupplyServers implement.
-#
-# v0.4
-# Now works with the new generic.Switcher as base
-# alphastorage also updates the guidefield whenever the tas-device moves
-#
-# v0.3
-# changes:
-# works now as a switchable, every switch request sets the correct field
-# still some minor problems
-#
-# v0.2
-# changes:
-# works in panda as a moveable
-# setmode sets the operation mode
-# TODO: change to a switchable, which determines needed values autonomous
-#
-# v0.1alpha
-# based on setfield.py
-# changes:
-# implemented as Class GuideField
-# support for pandacontrol-interface (doStart,doRead,...)
-# current-limits for coils are now taken from the
-#     correspondig coil-object(s)
-# suggestion for a nicm_conf.py entry
-
-
 import numpy as np
 
 from nicos.core import Attach, LimitError, Override, Param
@@ -73,6 +43,7 @@ from nicos.utils import lazy_property
 # - Z is # 'up' (pointing to the sky)
 # - Y is chosen to have right-handed system....
 ###############################################################################
+
 
 class VectorCoil(PowerSupply):
     """VectorCoil is a device to control a coil which creates a field at the
@@ -144,6 +115,8 @@ class GuideField(MappedMoveable):
         'precision':    Override(mandatory=False),
     }
     parameters = {
+        'alphaoffset': Param('Offset for the alpha angle',
+                             type=float, settable=False, default=90,),
         'background': Param('Static magnetic field which is always present and'
                             ' should be corrected',
                             type=tupleof(float, float, float), unit='mT',
@@ -185,11 +158,11 @@ class GuideField(MappedMoveable):
         if self.target in self.mapping:
             self.doStart(self.target)
 
-    def _startRaw(self, orient):
-        if orient:
-            orient = np.array(orient)
+    def _startRaw(self, target):
+        if target:
+            target = np.array(target)
             # set requested field (may try to compensate background)
-            self._setfield(self.field * orient)
+            self._setfield(self.field * target)
         else:  # switch off completely
             self.coils[0].doStart(0.0)
             self.coils[1].doStart(0.0)
@@ -207,7 +180,7 @@ class GuideField(MappedMoveable):
         """
         # read alpha, calculate beta
         alpha = self.alpha.read(0)
-        beta = np.radians(90 - alpha)
+        beta = np.radians(self.alphaoffset - alpha)
         R = np.array([
             [np.cos(beta), -np.sin(beta), 0.0],
             [np.sin(beta),  np.cos(beta), 0.0],
@@ -221,10 +194,10 @@ class GuideField(MappedMoveable):
         """
         # read alpha, calculate beta
         alpha = self.alpha.read(0)
-        beta = np.radians(90 - alpha)
+        beta = np.radians(self.alphaoffset - alpha)
         RR = np.array([
             [np.cos(beta), -np.sin(beta), 0.0],
-            [np.sin(beta),  np.cos(beta), 0.0],
+            [np.sin(beta), np.cos(beta), 0.0],
             [0.0, 0.0, 1.0]])
         return np.dot(RR, np.dot(self._currentmatrix, I))
 
