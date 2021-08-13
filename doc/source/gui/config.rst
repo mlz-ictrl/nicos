@@ -296,9 +296,8 @@ Nicos includes a comprehensive set of Panels for most general use cases:
 .. autoclass:: nicos.clients.gui.panels.live.LiveDataPanel()
      :no-members:
 
-.. figure:: livewidgetpanel.png
-     :scale: 75%
-     :alt: livewidget panel
+.. figure:: liveview.png
+     :alt: liveview panel
      :align: center
 
 .. autoclass:: nicos.clients.gui.panels.logviewer.LogViewerPanel()
