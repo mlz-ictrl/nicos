@@ -57,7 +57,7 @@ from nicos.utils import ensureDirectory
 
 from test.utils import ErrorLogged, raises
 
-session_setup = 'test_commands'
+session_setup = 'commands'
 
 
 class TestBasic:
