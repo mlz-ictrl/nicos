@@ -19,6 +19,7 @@ devices = dict(
         speed = 'cpt1',
         valuekey = 'chopper_act',
         timeout = 3.0,
+        precision = .25,
         channel = 6,
         offset = 47.514,  # 2020-07-06 10:18:29 56.404,
         unit = 'deg',

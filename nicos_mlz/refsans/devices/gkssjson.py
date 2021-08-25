@@ -26,8 +26,8 @@
 
 import requests
 
-from nicos.core import Moveable, Override, Param, Readable, intrange, oneof, \
-    status, usermethod
+from nicos.core import HasPrecision, Moveable, Override, Param, Readable, \
+    intrange, oneof, status, usermethod
 from nicos.core.errors import CommunicationError, ConfigurationError, \
     NicosError
 from nicos.core.mixins import HasOffset
@@ -131,7 +131,7 @@ class CPTReadout(HasOffset, JsonBase):
         return self._read_ctrl(self.channel)
 
 
-class CPTReadoutproof(CPTReadout):
+class CPTReadoutproof(HasPrecision, CPTReadout):
 
     attached_devices = {
         'chopper': Attach('to get status of controller', Moveable),
@@ -144,10 +144,10 @@ class CPTReadoutproof(CPTReadout):
             return statChopper
         speedChopper = self._attached_chopper.read()
         speedSelf = self._attached_speed.read()
-        self.log.info('%d %d', speedChopper, speedSelf)
-        if abs(speedChopper - speedSelf) > .05:
+        self.log.info('%.2f %.2f', speedChopper, speedSelf)
+        if abs(speedChopper - speedSelf) > self.precision:
             return status.BUSY, 'speed'
-        if abs(self._read_ctrl(self.channel) - 1) > .5:
+        if abs(self._read_ctrl(self.channel) - 1) > self.precision:
             return status.ERROR, 'window Error'
         return status.OK, ''
 
