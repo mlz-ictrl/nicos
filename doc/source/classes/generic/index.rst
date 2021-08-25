@@ -15,6 +15,7 @@ setup file.
    :maxdepth: 1
 
    alias
+   analog
    axis
    cache
    detector

@@ -42,7 +42,6 @@
 
 .. module:: nicos_mlz.sans1.devices.wut
 .. autoclass:: WutValue()
-.. autoclass:: WutDiff()
 
 .. module:: nicos_mlz.sans1.devices.detector
 .. autoclass:: Detector()

@@ -26,6 +26,7 @@
 
 # backwards compatibility for config files
 from nicos.core.device import DeviceAlias, NoDevice
+from nicos.devices.generic.analog import CalculatedReadable
 from nicos.devices.generic.axis import Axis
 from nicos.devices.generic.cache import CacheReader, CacheWriter
 from nicos.devices.generic.detector import ActiveChannel, \

@@ -29,8 +29,8 @@ w&t box shows pressore before and after the filter at the instrument.
 
 import urllib
 
-from nicos.core import Attach, CommunicationError, ConfigurationError, \
-    Override, Param, Readable, status
+from nicos.core import CommunicationError, ConfigurationError, Override, \
+    Param, Readable, status
 
 
 class WutValue(Readable):
@@ -51,7 +51,7 @@ class WutValue(Readable):
     def _getRaw(self):
         url = 'http://%s/Single%s' % (self.hostname, self.port)
         try:
-            response = urllib.request.urlopen(url) # pylint:disable=consider-using-with
+            response = urllib.request.urlopen(url)  # pylint:disable=consider-using-with
             html = response.read().decode('utf-8')
             return str(html)
         except ConfigurationError:  # pass through error raised above
@@ -72,30 +72,6 @@ class WutValue(Readable):
 
     def doRead(self, maxage=0):
         return self._extractValue(self._getRaw())
-
-    def doStatus(self, maxage=0):
-        return status.OK, ''
-
-
-class WutDiff(Readable):
-
-    attached_devices = {
-        'dev1': Attach('1st Device', Readable),
-        'dev2': Attach('2nd Device', Readable),
-    }
-
-    parameter_overrides = {
-        'unit':         Override(mandatory=False),
-        'pollinterval': Override(default=60),
-        'maxage':       Override(default=125),
-    }
-
-    def doReadUnit(self):
-        return self._attached_dev1.unit
-
-    def doRead(self, maxage=0):
-        return self._attached_dev1.doRead(maxage) - \
-            self._attached_dev2.doRead(maxage)
 
     def doStatus(self, maxage=0):
         return status.OK, ''
