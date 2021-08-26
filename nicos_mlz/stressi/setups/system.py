@@ -77,6 +77,7 @@ devices = dict(
     caresssink = device('nicos_mlz.stressi.devices.datasinks.CaressScanfileSink',
         filenametemplate = ['m2%(scancounter)08d.dat'],
         detectors = ['adet'],
+        flipimage = True,
     ),
     yamlsink = device('nicos_mlz.stressi.devices.datasinks.YamlDatafileSink',
         filenametemplate = ['m2%(scancounter)08d.yaml'],

@@ -96,24 +96,32 @@ class CascadeDetector(BaseImageChannel):
     """
 
     parameters = {
-        'mode':         Param('Data acquisition mode (tof or image)',
-                              type=oneof('tof', 'image'), settable=True,
-                              volatile=True, category='presets'),
-        'roi':          Param('Region of interest, given as (x1, y1, x2, y2)',
-                              type=tupleof(int, int, int, int),
-                              default=(-1, -1, -1, -1), settable=True),
-        'tofchannels':  Param('Total number of TOF channels to use', type=int,
-                              default=128, settable=True, category='presets'),
-        'foilsorder':   Param('Usable foils, ordered by number. Must match the '
-                              'number of foils configured in the server!',
-                              type=listof(intrange(0, 31)), settable=False,
-                              mandatory=True, category='instrument'),
-        'fitfoil':      Param('Foil for contrast fitting (number BEFORE resorting)',
-                              type=int, default=0, settable=True),
+        'mode':        Param('Data acquisition mode (tof or image)',
+                             type=oneof('tof', 'image'), settable=True,
+                             volatile=True, category='presets'),
+        'roi':         Param('Region of interest, given as (x1, y1, x2, y2)',
+                             type=tupleof(int, int, int, int),
+                             default=(-1, -1, -1, -1), settable=True),
+        'tofchannels': Param('Total number of TOF channels to use',
+                             type=intrange(1, 1024), default=128,
+                             settable=True, category='presets'),
+        'foilsorder':  Param('Usable foils, ordered by number. Must match the '
+                             'number of foils configured in the server!',
+                             type=listof(intrange(0, 31)), settable=False,
+                             mandatory=True, category='instrument'),
+        'sizes':       Param('Detector size in pixels (x, y)',
+                             type=tupleof(intrange(1, 1024),
+                                          intrange(1, 1024)),
+                             settable=False, default=(128, 128)),
+        'foils':       Param('Number of spaces for foils in the TOF data',
+                             type=intrange(1, 32), default=8),
+        'fitfoil':     Param('Foil for contrast fitting (number BEFORE '
+                             'resorting)',
+                             type=int, default=0, settable=True),
     }
 
     parameter_overrides = {
-        'fmtstr':   Override(default='roi %s, total %s, file %s'),
+        'fmtstr': Override(default='roi %s, total %s, file %s'),
     }
 
     #
@@ -133,8 +141,9 @@ class CascadeDetector(BaseImageChannel):
 
     def doUpdateMode(self, value):
         self._dataprefix = (value == 'image') and 'IMAG' or 'DATA'
-        self._datashape = (value == 'image') and (128, 128) or \
-            (self._perfoil * len(self.foilsorder), 128, 128)
+        self._datashape = (value == 'image') and self.sizes or (
+            (self.tofchannels,) + self.sizes)
+        self._tres = (value == 'image') and 1 or self.tofchannels
 
     #
     # Device interface
@@ -212,7 +221,9 @@ class CascadeDetector(BaseImageChannel):
 
     @property
     def arraydesc(self):
-        return ArrayDesc('data', self._datashape, '<u4')
+        if self.mode == 'image':
+            return ArrayDesc('data', self._datashape, '<u4', ['X', 'Y'])
+        return ArrayDesc('data', self._datashape, '<u4', ['X', 'Y', 'T'])
 
     def doReadArray(self, quality):
         # get current data array from detector, reshape properly
@@ -226,13 +237,16 @@ class CascadeDetector(BaseImageChannel):
             x1, y1, x2, y2 = 0, 0, data.shape[-1], data.shape[-2]
             roi = total
 
-        if self.mode != 'tof':
+        if self.mode == 'image':
             self.readresult = [roi, total]
             return data
 
         # demux timing into foil + timing
         nperfoil = self._datashape[0] // len(self.foilsorder)
-        shaped = data.reshape((len(self.foilsorder), nperfoil) + self._datashape[1:])
+        shaped = data.reshape(
+            (len(self.foilsorder), nperfoil) + self._datashape[1:])
+        # nperfoil = self.tofchannels // self.foils
+        # shaped = data.reshape((self.foils, nperfoil) + self._datashape[1:])
 
         x = np.arange(nperfoil)
         ty = shaped[self.fitfoil].sum((1, 2))
@@ -243,14 +257,16 @@ class CascadeDetector(BaseImageChannel):
         tpopt, tperr, msg = fit_a_sin_fixed_freq(x, ty)
         if msg:
             self.log.debug(msg)
-        self.log.debug('total result is %r +/- %r for [avg, contrast, freq, phase]',
-                       tpopt, tperr)
+        self.log.debug(
+            'total result is %r +/- %r for [avg, contrast, freq, phase]',
+            tpopt, tperr)
 
         rpopt, rperr, msg = fit_a_sin_fixed_freq(x, ry)
         if msg:
             self.log.debug(msg)
-        self.log.debug('ROI result is %r +/- %r for [avg, contrast, freq, phase]',
-                       rpopt, rperr)
+        self.log.debug(
+            'ROI result is %r +/- %r for [avg, contrast, freq, phase]',
+            rpopt, rperr)
 
         self.readresult = [
             roi, total,
