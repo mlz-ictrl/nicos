@@ -40,7 +40,7 @@ bits of three consecutive 16-bit holding registers (offset_out).  Readback is
 done in three different holding registers with addresses n, n+2, n+4.
 """
 
-from time import time as currenttime
+from time import monotonic
 
 from nicos.core import SIMULATION, Attach, InvalidValueError, Param, listof, \
     status
@@ -79,7 +79,7 @@ class Stargate(tango.DigitalOutput):
         return chevrons[:11]
 
     def doStatus(self, maxage=0):
-        if self._started and self._started + 3 > currenttime():
+        if self._started and self._started + 3 > monotonic():
             return status.BUSY, 'moving/waiting'
         return status.OK, ''
 
@@ -97,7 +97,7 @@ class Stargate(tango.DigitalOutput):
                 bitvals[byteidx] |= (1 << (bitidx+1))
 
         self._dev.WriteOutputWords([self.offset_out] + bitvals)
-        self._started = currenttime()
+        self._started = monotonic()
 
     def doIsAllowed(self, value):
         if len(value) != 11:

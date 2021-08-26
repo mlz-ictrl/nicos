@@ -24,13 +24,14 @@
 
 """Flexible Timers, thread free."""
 
-import time
+from time import monotonic, sleep
 
 # XXX
 # also use a singleton to 'register' all timer objects and
 # one single thread regularly checking all timers 'is_running'
 #
 # XXX: do we need locking? (multithreads?)
+
 
 class Timer:
     """Flexible Timer class."""
@@ -86,7 +87,7 @@ class Timer:
             self._cb_kwds = cb_kwds or dict()
             self._cb_func = cb_func
         self._run_for = run_for
-        self._started = time.time()
+        self._started = monotonic()
         self._active = True
 
     def stop(self):
@@ -95,7 +96,7 @@ class Timer:
         Do nothing if already stopped.
         """
         if self._active:
-            self._stopped = time.time()
+            self._stopped = monotonic()
             self._active = False
 
     def is_running(self):
@@ -108,7 +109,7 @@ class Timer:
             # runs until stopped explicitly
             return self._active
         if self._active:
-            if self._started + self._run_for < time.time():
+            if self._started + self._run_for < monotonic():
                 # time is up !
                 self.stop()
                 self._run_cb()
@@ -117,7 +118,7 @@ class Timer:
     def elapsed_time(self):
         """Return the time the timer already run."""
         if self._active:
-            return time.time() - self._started
+            return monotonic() - self._started
         if self._run_for is None:
             return self._stopped - self._started
         return min(self._run_for, self._stopped - self._started)
@@ -148,10 +149,10 @@ class Timer:
         while self.is_running():
             remaining = self.remaining_time()
             if remaining > interval:
-                time.sleep(interval)
+                sleep(interval)
             else:
                 if remaining > 0:
-                    time.sleep(remaining)
+                    sleep(remaining)
             if callable(notify_func):
                 notify_func(self, *notify_args)
 
@@ -161,7 +162,7 @@ class Timer:
             return
         # adjust timestamp so that it looks as nothing had ever happened
         if self._run_for is None:
-            self._started = time.time() - self.elapsed_time()
+            self._started = monotonic() - self.elapsed_time()
         elif self.remaining_time():
-            self._started  = time.time() + self.elapsed_time() - self._run_for
+            self._started = monotonic() + self.elapsed_time() - self._run_for
         self._active = True

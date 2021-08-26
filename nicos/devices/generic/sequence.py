@@ -27,7 +27,7 @@
 
 import sys
 from datetime import timedelta
-from time import time as currenttime
+from time import monotonic, time as currenttime
 
 from nicos import session
 from nicos.core import SIMULATION, Attach, Device, DeviceMixinBase, \
@@ -197,14 +197,14 @@ class SeqSleep(SequenceItem):
         if self.duration > 3:
             session.beginActionScope(self.reason or 'Sleeping %s (H:M:S)' %
                                      timedelta(seconds=self.duration))
-        self.endtime = currenttime() + self.duration
+        self.endtime = monotonic() + self.duration
 
     def isCompleted(self):
         if session.mode == SIMULATION:
             return True
-        if not self.stopflag and self.endtime > currenttime():
+        if not self.stopflag and self.endtime > monotonic():
             # arbitrary choice of max 5s
-            session.delay(min(5, self.endtime - currenttime()))
+            session.delay(min(5, self.endtime - monotonic()))
             return False
         if self.duration > 3:
             session.endActionScope()
@@ -217,7 +217,7 @@ class SeqSleep(SequenceItem):
         if self.endtime:
             # already started, __repr__ is used for updating status strings.
             return str(timedelta(
-                seconds=round(self.endtime - currenttime())))
+                seconds=round(self.endtime - monotonic())))
         else:
             return '%g s' % self.duration
 
@@ -390,7 +390,7 @@ class SequencerMixin(DeviceMixinBase):
                 # wait until all actions are finished
                 waiters = set(step)
                 while waiters:
-                    t = currenttime()
+                    t = monotonic()
                     self._set_seq_status(status.BUSY, 'waiting: ' +
                                          '; '.join(map(repr, waiters)))
                     for action in list(waiters):
@@ -414,7 +414,7 @@ class SequencerMixin(DeviceMixinBase):
                             dev.stop()
                         break
                     # 0.1s - code execution time
-                    t = .1 - (currenttime() - t)
+                    t = .1 - (monotonic() - t)
                     if waiters and t > 0:
                         session.delay(t)
 

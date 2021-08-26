@@ -26,7 +26,7 @@
 This module contains some classes for NICOS - EPICS integration.
 """
 import threading
-from time import time as currenttime
+from time import monotonic
 
 import epics
 
@@ -249,9 +249,9 @@ class EpicsDevice(DeviceMixinBase):
 
         pv.put(value, use_complete=True)
 
-        start = currenttime()
+        start = monotonic()
         while not pv.put_complete:
-            if currenttime() - start > timeout:
+            if monotonic() - start > timeout:
                 raise CommunicationError('Timeout in setting %s' % pv.pvname)
             session.delay(update_rate)
 

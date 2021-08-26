@@ -26,7 +26,7 @@
 
 import threading
 import types
-from time import time as currenttime
+from time import monotonic, time as currenttime
 
 from nicos import session
 from nicos.core import status
@@ -445,7 +445,7 @@ class HasTimeout(DeviceMixinBase):
             return False
         timeoutTime = self._timeoutTime
         if timeoutTime is not None:
-            remaining = timeoutTime - currenttime()
+            remaining = timeoutTime - monotonic()
             if remaining > 0:
                 self.log.debug("%.2f s left before timeout", remaining)
             else:
@@ -458,7 +458,7 @@ class HasTimeout(DeviceMixinBase):
         a new target.
         """
         self._timeoutActionCalled = False
-        timesout = self._getTimeoutTimes(self.read(), target, currenttime())
+        timesout = self._getTimeoutTimes(self.read(), target, monotonic())
         self._setROParam('_timesout', timesout)
 
     def _clearTimeout(self):
@@ -510,7 +510,7 @@ class HasTimeout(DeviceMixinBase):
             elif self._timesout:
                 # give indication about the phase of the movement
                 for m, t in self._timesout or []:
-                    if t > currenttime():
+                    if t > monotonic():
                         msg = statusString(m, msg)
                         break
         elif code == status.ERROR:

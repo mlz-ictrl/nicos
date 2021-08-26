@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 import datetime
-from time import time as currenttime
+from time import monotonic
 
 from nicos import session
 from nicos.core import Attach, Moveable, Param, Readable, Value, pvname, status
@@ -45,7 +45,7 @@ class WaitPV(SequenceItem):
         SequenceItem.__init__(self)
 
     def run(self):
-        self._endtime = currenttime() + self._timeout
+        self._endtime = monotonic() + self._timeout
 
     def stop(self):
         self._stopped = True
@@ -53,7 +53,7 @@ class WaitPV(SequenceItem):
     def isCompleted(self):
         if self._camini._timedout:
             return True
-        if self._timeout != 0 and currenttime() > self._endtime:
+        if self._timeout != 0 and monotonic() > self._endtime:
             self._camini._timedout = True
             return True
         return bool(self._camini.readPV(self._pv) ==
@@ -89,7 +89,7 @@ class WaitNotPV(SequenceItem):
         SequenceItem.__init__(self)
 
     def run(self):
-        self._endtime = currenttime() + self._timeout
+        self._endtime = monotonic() + self._timeout
 
     def stop(self):
         self._stopped = True
@@ -97,7 +97,7 @@ class WaitNotPV(SequenceItem):
     def isCompleted(self):
         if self._camini._timedout:
             return True
-        if self._timeout != 0 and currenttime() > self._endtime:
+        if self._timeout != 0 and monotonic() > self._endtime:
             self._camini._timedout = True
             return True
         return bool(self._camini.readPV(self._pv) !=

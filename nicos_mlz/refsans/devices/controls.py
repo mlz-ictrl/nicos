@@ -25,7 +25,7 @@
 """Temperature controlled device."""
 
 import operator
-from time import monotonic as currenttime
+from time import monotonic
 
 from nicos import session
 from nicos.core import SIMULATION, Moveable, NicosError, NicosTimeoutError, \
@@ -52,7 +52,7 @@ class SeqWaitConditional(SequenceItem):
     def run(self):
         self.stopflag = False
         self.waiting = False
-        self.endtime = currenttime() + self.timeout
+        self.endtime = monotonic() + self.timeout
 
     def isCompleted(self):
         if session.mode == SIMULATION:
@@ -66,12 +66,12 @@ class SeqWaitConditional(SequenceItem):
             return True
         if self.stopflag:
             raise NicosError('Stop received: Waiting aborted')
-        if currenttime() < self.endtime:
+        if monotonic() < self.endtime:
             compstr = '<=' if self.limittype == 'max' else '>='
             self.dev.log.info(
                 '%s %s %s, timeout in: %.1f min', self.dev.format(value),
                 compstr, self.dev.format(self.limit, True),
-                (self.endtime - currenttime()) / 60)
+                (self.endtime - monotonic()) / 60)
             session.delay(1)
             self.waiting = True
             return False
