@@ -308,7 +308,7 @@ class CaminiDetector(EpicsDeviceEss, SequencerMixin,
 
         self.log.debug(str(setups_log))
 
-        for s in setups_log:
+        for s in setups_log:  # pylint: disable=consider-using-dict-items
             for dev in setups_log[s]:
 
                 # The FITS standard defines max 8 characters for a header key.
