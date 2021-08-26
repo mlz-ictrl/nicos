@@ -41,7 +41,7 @@ from nicos.utils.files import findSetupRoots, iterSetups
 from nicos.utils.loggers import StreamHandler
 
 try:
-    import nicos.guisupport.qt as qt
+    from nicos.guisupport import qt
     from nicos.clients.gui.panels import Panel
 except ImportError:
     qt = None
