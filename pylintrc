@@ -105,6 +105,7 @@ disable=fixme
     ,superfluous-parens
     ,trailing-comma-tuple
     ,unneeded-not
+    ,unused-private-member
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
