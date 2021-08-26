@@ -156,12 +156,12 @@ class ATT(HoveringAxis):
         self._move_stargate()
         HoveringAxis._preMoveAction(self)
 
-    def doStart(self, pos):
+    def doStart(self, target):
         # Since the _preMoveAction is not executed in simulation mode,
         # we have to move the stargate here too.
         if self._mode == SIMULATION:
             self._move_stargate()
-        HoveringAxis.doStart(self, pos)
+        HoveringAxis.doStart(self, target)
 
     def doStatus(self, maxage=0):
         if not self.movestargate:
