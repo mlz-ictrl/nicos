@@ -25,7 +25,9 @@ main_window = docked(
                      ('Scan Plot',
                       panel('nicos.clients.flowui.panels.scans.ScansPanel')),
                      ('Detector Image',
-                      panel('nicos.clients.flowui.panels.live.MultiLiveDataPanel')),
+                      panel('nicos_ess.dream.gui.live.LiveDataPanel')),
+                     ('Comparison Panel',
+                      panel('nicos_ess.dream.gui.comparison_panel.ComparisonPanel')),
                      ('Script Status',
                       panel('nicos.clients.flowui.panels.status.ScriptStatusPanel',
                             eta=True)),
@@ -81,5 +83,7 @@ tools = [
 ]
 
 options = {
+    'reader_classes': ['nicos.devices.datasinks.text',
+                       'nicos_ess.dream.devices.datasinks.numpy_reader'],
     'facility': 'ess',
 }
