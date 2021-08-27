@@ -522,13 +522,24 @@ class LiveDataPanel(Panel):
             value = None
         if key in self.rois:
             self.on_roiChange(key, value)
-        elif key == self.detectorskey and self.widget:
+        elif key == self._detectorskey() and self.widget:
             self._register_rois(value)
+
+    def _detectorskey(self):
+        if self.detectorskey is None:
+            self.detectorskey = self._query_detectorskey()
+        return self.detectorskey
+
+    def _query_detectorskey(self):
+        try:
+            return ('%s/detlist' % self.client.eval(
+                'session.experiment.name')).lower()
+        except AttributeError:
+            pass
 
     def on_client_connected(self):
         self.client.tell('eventunmask', ['livedata'])
-        self.detectorskey = (self.client.eval('session.experiment.name')
-                             + '/detlist').lower()
+        self.detectorskey = self._query_detectorskey()
 
     def normalizeType(self, dtype):
         normalized_type = numpy.dtype(dtype).str
