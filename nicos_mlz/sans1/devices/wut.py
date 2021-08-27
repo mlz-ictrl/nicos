@@ -22,24 +22,22 @@
 #
 # *****************************************************************************
 
-"""Show values read out from a w&t web UI.
-
-w&t box shows pressore before and after the filter at the instrument.
-"""
+"""Access to W&T IO devices via web UI."""
 
 import urllib
 
-from nicos.core import CommunicationError, ConfigurationError, Override, \
-    Param, Readable, status
+from nicos.core import CommunicationError, ConfigurationError, \
+    Override, Param, Readable, floatrange, status
 
 
-class WutValue(Readable):
+class WutReadValue(Readable):
+    """Read values from a W&T IO device via web UI."""
 
     parameters = {
-        'hostname':     Param('Host name of the wut site',
-                              type=str, mandatory=True),
-        'port':         Param('Port of the sensor',
-                              type=str, mandatory=True),
+        'hostname': Param('Host name of the wut site',
+                          type=str, mandatory=True),
+        'port':     Param('Port of the sensor',
+                          type=int, mandatory=True),
     }
 
     parameter_overrides = {
@@ -49,11 +47,11 @@ class WutValue(Readable):
     }
 
     def _getRaw(self):
-        url = 'http://%s/Single%s' % (self.hostname, self.port)
+        url = 'http://%s/Single%d' % (self.hostname, self.port)
         try:
-            response = urllib.request.urlopen(url)  # pylint:disable=consider-using-with
-            html = response.read().decode('utf-8')
-            return str(html)
+            with urllib.request.urlopen(url) as response:
+                html = response.read().decode('utf-8')
+                return str(html)
         except ConfigurationError:  # pass through error raised above
             raise
         except Exception as err:
@@ -75,3 +73,30 @@ class WutValue(Readable):
 
     def doStatus(self, maxage=0):
         return status.OK, ''
+
+
+class WutWriteValue(WutReadValue):
+    """Write values on a W&T device via web UI."""
+
+    parameters = {
+        'pw': Param('Password to get write access',
+                    type=str, default='sans1', userparam=False,
+                    settable=False),
+        'timeout': Param('Communication timeout',
+                         type=floatrange(0), default=1, userparam=False,
+                         settable=False),
+    }
+
+    def doStart(self, value):
+        url = 'http://%s/outputaccess%d?PW=%s&State=%s&' % (
+            self.hostname, self.port, self.pw, value)
+        try:
+            with urllib.request.urlopen(url, timeout=self.timeout) as response:
+                html = response.read()
+                self.log.debug(html)
+        except ConfigurationError:  # pass through error raised above
+            raise
+        except Exception as err:
+            raise CommunicationError(
+                self, 'wut-box is not responding or changed format: %s' % err
+            ) from err

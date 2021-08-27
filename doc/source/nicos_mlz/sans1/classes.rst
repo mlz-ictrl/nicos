@@ -31,9 +31,6 @@
 .. module:: nicos_mlz.sans1.devices.tisane
 .. autoclass:: Burst()
 
-.. module:: nicos_mlz.sans1.devices.tisane_trigger
-.. autoclass:: WutValue()
-
 .. module:: nicos_mlz.sans1.devices.wmirfgen
 .. autoclass:: Frequency()
 
@@ -41,7 +38,8 @@
 .. autoclass:: IEEEDevice()
 
 .. module:: nicos_mlz.sans1.devices.wut
-.. autoclass:: WutValue()
+.. autoclass:: WutReadValue()
+.. autoclass:: WutWriteValue()
 
 .. module:: nicos_mlz.sans1.devices.detector
 .. autoclass:: Detector()

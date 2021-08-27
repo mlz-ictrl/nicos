@@ -5,9 +5,9 @@ _wutbox = 'wut-0-10-02'
 _wutbox_dev = _wutbox.replace('-','_')
 
 devices = {
-    _wutbox_dev +'_1': device('nicos_mlz.sans1.devices.wut.WutValue',
+    _wutbox_dev +'_1': device('nicos_mlz.sans1.devices.wut.WutReadValue',
         hostname = _wutbox + '.sans1.frm2',
-        port = '1',
+        port = 1,
         description = 'input 1 voltage',
         fmtstr = '%.3F',
         lowlevel = False,
@@ -16,9 +16,9 @@ devices = {
         maxage = 20,
         unit = 'V',
     ),
-    _wutbox_dev +'_2': device('nicos_mlz.sans1.devices.wut.WutValue',
+    _wutbox_dev +'_2': device('nicos_mlz.sans1.devices.wut.WutReadValue',
         hostname = _wutbox + '.sans1.frm2',
-        port = '2',
+        port = 2,
         description = 'input 2 voltage',
         fmtstr = '%.3F',
         lowlevel = False,

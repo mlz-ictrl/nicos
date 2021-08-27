@@ -3,18 +3,18 @@ description = 'pressure filter readout'
 group = 'lowlevel'
 
 devices = dict(
-    p_in_filter = device('nicos_mlz.sans1.devices.wut.WutValue',
+    p_in_filter = device('nicos_mlz.sans1.devices.wut.WutReadValue',
         hostname = 'sans1wut-p-diff-fak40.sans1.frm2',
-        port = '1',
+        port = 1,
         description = 'pressure in front of filter',
         fmtstr = '%.2F',
         lowlevel = False,
         loglevel = 'info',
         unit = 'bar',
     ),
-    p_out_filter = device('nicos_mlz.sans1.devices.wut.WutValue',
+    p_out_filter = device('nicos_mlz.sans1.devices.wut.WutReadValue',
         hostname = 'sans1wut-p-diff-fak40.sans1.frm2',
-        port = '2',
+        port = 2,
         description = 'pressure behind filter',
         fmtstr = '%.2F',
         lowlevel = False,
