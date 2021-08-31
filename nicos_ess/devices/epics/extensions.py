@@ -27,12 +27,13 @@
 """
 This module contains ESS specific EPICS developments.
 """
-from nicos.core import CanDisable, ConfigurationError, Device, Param, \
-    anytype, dictwith, pvname, usermethod
+from nicos.core import Attach, CanDisable, ConfigurationError, Device, \
+    InvalidValueError, Override, Param, anytype, dictwith, pvname, \
+    usermethod
 from nicos.devices.abstract import MappedMoveable
 
-from nicos_ess.devices.epics.base import EpicsDeviceEss, \
-    EpicsDigitalMoveableEss
+from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss, \
+    EpicsDeviceEss, EpicsDigitalMoveableEss
 
 
 class EpicsMappedMoveable(MappedMoveable, EpicsDigitalMoveableEss):
@@ -74,6 +75,36 @@ class EpicsMappedMoveable(MappedMoveable, EpicsDigitalMoveableEss):
 class EpicsMappedFloatMoveable(EpicsMappedMoveable):
     valuetype = float
     relax_mapping = True
+
+
+class EpicsAnalogMoveableWithUnitsSelector(EpicsAnalogMoveableEss):
+    """
+    A device where the units are the value of another PV.
+    """
+
+    parameter_overrides = {
+        'unit': Override(mandatory=False, userparam=False, volatile=True),
+    }
+
+    attached_devices = {
+        'units': Attach('Units', EpicsMappedMoveable),
+    }
+
+    def doPoll(self, n, maxage):
+        self._pollParam('unit')
+
+    def doReadUnit(self):
+        return str(self._attached_units.doRead())
+
+    def doWriteUnit(self, value):
+        try:
+            self._attached_units.doStart(value)
+        except InvalidValueError as error:
+            positions = ', '.join(repr(pos)
+                                  for pos in self._attached_units.mapping)
+            raise InvalidValueError(self, f'{value} is an invalid unit choice '
+                                          f'for this device; valid choices are '
+                                          f'{positions}') from error
 
 
 class HasDisablePv(CanDisable):
