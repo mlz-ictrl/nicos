@@ -56,6 +56,13 @@ class MainWindow(DefaultMainWindow):
         self.set_icons()
         self.style_file = gui_conf.stylefile
 
+        self.editor_wintype = self.gui_conf.find_panel(
+            ('editor.EditorPanel',
+             'nicos.clients.flowui.panels.editor.EditorPanel'))
+        self.history_wintype = self.gui_conf.find_panel(
+            ('history.HistoryPanel',
+             'nicos.clients.flowui.panels.history.HistoryPanel'))
+
         # Cheeseburger menu
         dropdown = QMenu('')
         dropdown.addAction(self.actionConnect)
