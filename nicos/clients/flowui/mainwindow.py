@@ -32,7 +32,7 @@ from nicos.clients.flowui import uipath
 from nicos.clients.flowui.panels import get_icon, root_path
 from nicos.clients.gui.mainwindow import MainWindow as DefaultMainWindow
 from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
-    QMenu, QPixmap, QPoint, QSize, QSizePolicy, Qt, QWidget, pyqtSlot
+    QMenu, QPixmap, QPoint, QSizePolicy, Qt, QWidget, pyqtSlot
 
 
 def decolor_logo(pixmap, color):
@@ -81,15 +81,17 @@ class MainWindow(DefaultMainWindow):
 
         self._init_instrument_name()
         self._init_experiment_name()
+        self.on_client_disconnected()
 
     def _init_toolbar(self):
-        self.statusLabel = QLabel('', self, pixmap=QPixmap(':/disconnected'),
-                                  margin=5, minimumSize=QSize(30, 10))
-        self.statusLabel.setStyleSheet('color: white')
+        self.status_label = QLabel()
+        self.status_label.setStyleSheet('font-size: 17pt; font-weight: bold')
+        self.status_text = QLabel()
+        self.status_text.setStyleSheet('font-size: 17pt')
 
         self.toolbar = self.toolBarRight
-        self.toolbar.addWidget(self.statusLabel)
-        self.setStatus('disconnected')
+        self.toolbar.addWidget(self.status_text)
+        self.toolbar.addWidget(self.status_label)
 
     def _init_experiment_name(self):
         self.experiment_label = QLabel()
@@ -162,21 +164,15 @@ class MainWindow(DefaultMainWindow):
         max_text_length = 50
         experiment = self.client.eval('session.experiment.title', None)
         if experiment is not None:
-            self.experiment_label.setText("     Experiment:")
+            self.experiment_label.setText('     Experiment:')
             self.experiment_text.setText(experiment[0:max_text_length])
-
-    def remove_experiment_and_instrument(self):
-        self.experiment_label.clear()
-        self.experiment_text.clear()
-        self.instrument_label.clear()
-        self.instrument_text.clear()
 
     def reloadQSS(self):
         self.setQSS(self.stylefile)
 
     def selectQSS(self):
         style_file = QFileDialog.getOpenFileName(
-            self, filter="Qt Stylesheet Files (*.qss)")[0]
+            self, filter='Qt Stylesheet Files (*.qss)')[0]
         if style_file:
             self.style_file = style_file
             self.setQSS(self.style_file)
@@ -206,16 +202,7 @@ class MainWindow(DefaultMainWindow):
             self.trayIcon.showMessage(self.instrument, msg)
             self.client.last_action_at = 0
         self.current_status = status
-        is_connected = status != 'disconnected'
-        if is_connected:
-            self.actionConnect.setText('Disconnect')
-            self.statusLabel.setText('\u2713 Connected')
-            self.update_instrument_text()
-            self.update_experiment_text()
-        else:
-            self.actionConnect.setText('Connect to server...')
-            self.statusLabel.setText('Disconnected')
-            self.setTitlebar(False)
+        self._update_toolbar_info(status)
         # new status icon
         pixmap = QPixmap(':/' + status + ('exc' if exception else ''))
         new_icon = QIcon()
@@ -233,19 +220,46 @@ class MainWindow(DefaultMainWindow):
             for panel in window.panels:
                 panel.updateStatus(status, exception)
 
+    def _update_toolbar_info(self, status):
+        if status != 'disconnected':
+            self.update_instrument_text()
+            self.update_experiment_text()
+        else:
+            self.clear_experiment_text()
+            self.clear_instrument_text()
+        self._update_status_text(status)
+
+    def _update_status_text(self, status):
+        if status == 'disconnected':
+            self.status_label.setText(status.upper())
+            self.status_text.setText('')
+        else:
+            self.status_label.setText('     Status: ')
+            self.status_text.setText(status.upper())
+
+    def clear_instrument_text(self):
+        self.instrument_label.clear()
+        self.instrument_text.clear()
+
+    def clear_experiment_text(self):
+        self.experiment_label.clear()
+        self.experiment_text.clear()
+
     def on_client_connected(self):
         DefaultMainWindow.on_client_connected(self)
-        self.actionConnect.setIcon(get_icon("power_off-24px.svg"))
+        self.actionConnect.setIcon(get_icon('power_off-24px.svg'))
         self.actionExpert.setEnabled(True)
         self.actionEmergencyStop.setEnabled(not self.client.viewonly)
+        self.actionConnect.setText('Disconnect')
 
     def on_client_disconnected(self):
         DefaultMainWindow.on_client_disconnected(self)
-        self.remove_experiment_and_instrument()
-        self.actionConnect.setIcon(get_icon("power-24px.svg"))
+        self.actionConnect.setIcon(get_icon('power-24px.svg'))
+        self.actionConnect.setText('Connect to server...')
         self.actionExpert.setEnabled(False)
         self.actionExpert.setChecked(False)
         self.actionEmergencyStop.setEnabled(False)
+        self.setTitlebar(False)
 
     def on_actionViewOnly_toggled(self, on):
         DefaultMainWindow.on_actionViewOnly_toggled(self, on)
@@ -257,7 +271,7 @@ class MainWindow(DefaultMainWindow):
     @pyqtSlot(bool)
     def on_actionConnect_triggered(self, _):
         # connection or disconnection request?
-        connection_req = self.current_status == "disconnected"
+        connection_req = self.current_status == 'disconnected'
         super().on_actionConnect_triggered(connection_req)
 
     @pyqtSlot()

@@ -37,3 +37,9 @@ class MainWindowSINQ(MainWindowESS):
         self.actionEmergencyStop.setIcon(
             get_icon('emergency_stop_cross_red-24px.svg')
         )
+
+    def _update_status_text(self, status):
+        if status == 'disconnected':
+            self.status_label.setText('Disconnected')
+        else:
+            self.status_label.setText('\u2713 Connected')
