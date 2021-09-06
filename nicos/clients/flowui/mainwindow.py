@@ -90,30 +90,30 @@ class MainWindow(DefaultMainWindow):
         self.setStatus('disconnected')
 
     def _init_experiment_name(self):
-        self.experiment_text = QLabel()
-        self.experiment_text.setSizePolicy(QSizePolicy.Expanding,
-                                           QSizePolicy.Preferred)
-        self.experiment_text.setStyleSheet('font-size: 17pt; font-weight: bold')
-        self.toolBarMain.addWidget(self.experiment_text)
-
         self.experiment_label = QLabel()
         self.experiment_label.setSizePolicy(QSizePolicy.Expanding,
-                                            QSizePolicy.Preferred)
-        self.experiment_label.setStyleSheet('font-size: 17pt')
+                                           QSizePolicy.Preferred)
+        self.experiment_label.setStyleSheet('font-size: 17pt; font-weight: bold')
         self.toolBarMain.addWidget(self.experiment_label)
 
-    def _init_instrument_name(self):
-        self.instrument_text = QLabel()
-        self.instrument_text.setSizePolicy(QSizePolicy.Expanding,
-                                           QSizePolicy.Preferred)
-        self.instrument_text.setStyleSheet('font-size: 17pt; font-weight: bold')
-        self.toolBarMain.addWidget(self.instrument_text)
+        self.experiment_text = QLabel()
+        self.experiment_text.setSizePolicy(QSizePolicy.Expanding,
+                                            QSizePolicy.Preferred)
+        self.experiment_text.setStyleSheet('font-size: 17pt')
+        self.toolBarMain.addWidget(self.experiment_text)
 
+    def _init_instrument_name(self):
         self.instrument_label = QLabel()
         self.instrument_label.setSizePolicy(QSizePolicy.Expanding,
-                                            QSizePolicy.Preferred)
-        self.instrument_label.setStyleSheet('font-size: 17pt')
+                                           QSizePolicy.Preferred)
+        self.instrument_label.setStyleSheet('font-size: 17pt; font-weight: bold')
         self.toolBarMain.addWidget(self.instrument_label)
+
+        self.instrument_text = QLabel()
+        self.instrument_text.setSizePolicy(QSizePolicy.Expanding,
+                                            QSizePolicy.Preferred)
+        self.instrument_text.setStyleSheet('font-size: 17pt')
+        self.toolBarMain.addWidget(self.instrument_text)
 
     def set_icons(self):
         self.actionUser.setIcon(get_icon('settings_applications-24px.svg'))
@@ -143,25 +143,25 @@ class MainWindow(DefaultMainWindow):
 
     def update_instrument_text(self):
         instrument = self.client.eval('session.instrument', None)
-        self.instrument_text.setText('Instrument:')
+        self.instrument_label.setText('Instrument:')
         if instrument:
             logo = decolor_logo(QPixmap(path.join(root_path,
                                 'resources', f'{instrument}-logo.svg')),
                                 Qt.white)
             if logo.isNull():
-                self.instrument_label.setText(instrument.upper())
+                self.instrument_text.setText(instrument.upper())
                 return
-            self.instrument_label.setPixmap(logo.scaledToHeight(
+            self.instrument_text.setPixmap(logo.scaledToHeight(
                 self.toolBarMain.height(), Qt.SmoothTransformation))
         else:
-            self.instrument_label.setText('UNKNOWN')
+            self.instrument_text.setText('UNKNOWN')
 
     def update_experiment_text(self):
         max_text_length = 50
         experiment = self.client.eval('session.experiment.title', None)
         if experiment is not None:
-            self.experiment_text.setText("     Experiment:")
-            self.experiment_label.setText(experiment[0:max_text_length])
+            self.experiment_label.setText("     Experiment:")
+            self.experiment_text.setText(experiment[0:max_text_length])
 
     def remove_experiment_and_instrument(self):
         self.experiment_label.clear()
