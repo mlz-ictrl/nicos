@@ -102,14 +102,13 @@ class SinqDetector(EpicsScalerRecord):
         value = 0
         unit = ''
         for d in self._controlchannels:
-            for k in self._presetkeys:  # pylint: disable=consider-using-dict-items
-                if self._presetkeys[k] and\
-                        self._presetkeys[k][0].name == d.name:
+            for pkey in self._presetkeys.items():
+                if pkey and pkey[0].name == d.name:
                     preselection = d.preselection
                     if preselection != 0:
                         value = preselection
                         unit = d.unit
-                        mode = 'timer' if k.startswith('t') else 'monitor'
+                        mode = 'timer' if pkey.startswith('t') else 'monitor'
                         break
         ret.append(('mode', mode, mode, '', 'presets'))
         ret.append(('preset', value, '%s' % value, unit, 'presets'))
