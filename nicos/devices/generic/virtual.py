@@ -216,7 +216,7 @@ class VirtualCoder(HasOffset, Coder):
     def doStatus(self, maxage=0):
         return status.OK, ''
 
-    def doSetPosition(self, _pos):
+    def doSetPosition(self, pos):
         pass
 
     def doReadUnit(self):

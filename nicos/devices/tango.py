@@ -405,8 +405,8 @@ class Sensor(AnalogInput, Coder):
     formula.
     """
 
-    def doSetPosition(self, value):
-        self._dev.Adjust(value)
+    def doSetPosition(self, pos):
+        self._dev.Adjust(pos)
 
 
 class AnalogOutput(PyTangoDevice, HasLimits, CanDisable, Moveable):
@@ -436,16 +436,16 @@ class AnalogOutput(PyTangoDevice, HasLimits, CanDisable, Moveable):
     def doRead(self, maxage=0):
         return self._dev.value
 
-    def doStart(self, value):
+    def doStart(self, target):
         try:
-            self._dev.value = value
+            self._dev.value = target
         except NicosError:
             # changing target value during movement is not allowed by the
             # Tango base class state machine. If we are moving, stop first.
             if self.status(0)[0] == status.BUSY:
                 self.stop()
                 self._hw_wait()
-                self._dev.value = value
+                self._dev.value = target
             else:
                 raise
 
@@ -486,8 +486,8 @@ class Actuator(AnalogOutput, NicosMotor):
         self._dev.speed = value
         return self._dev.speed
 
-    def doSetPosition(self, value):
-        self._dev.Adjust(value)
+    def doSetPosition(self, pos):
+        self._dev.Adjust(pos)
 
 
 class Motor(CanReference, Actuator):
@@ -528,8 +528,8 @@ class Motor(CanReference, Actuator):
         self._dev.Reference()
         self.wait()
 
-    def doTime(self, start, end):
-        s, v, a, d = abs(start - end), self.speed, self.accel, self.decel
+    def doTime(self, old_value, target):
+        s, v, a, d = abs(old_value - target), self.speed, self.accel, self.decel
         if v <= 0:
             return 0
         if d <= 0:  # decel can be =0 to mean the same as accel
@@ -554,8 +554,8 @@ class MotorAxis(HasOffset, Motor):
     def doStart(self, target):
         return Motor.doStart(self, target + self.offset)
 
-    def doSetPosition(self, value):
-        return Motor.doSetPosition(self, value + self.offset)
+    def doSetPosition(self, pos):
+        return Motor.doSetPosition(self, pos + self.offset)
 
 
 class RampActuator(HasPrecision, AnalogOutput):
@@ -771,8 +771,8 @@ class DigitalOutput(PyTangoDevice, Moveable):
     def doRead(self, maxage=0):
         return self._dev.value
 
-    def doStart(self, value):
-        self._dev.value = value
+    def doStart(self, target):
+        self._dev.value = target
 
 
 class NamedDigitalOutput(DigitalOutput):
@@ -1124,8 +1124,8 @@ class OnOffSwitch(PyTangoDevice, Moveable):
             return 'off'
         return 'on'
 
-    def doStart(self, value):
-        if value == 'on':
+    def doStart(self, target):
+        if target == 'on':
             self._dev.On()
         else:
             self._dev.Off()
@@ -1161,14 +1161,14 @@ class VectorOutput(PyTangoDevice, Moveable):
     def doRead(self, maxage=0):
         return list(self._dev.value)
 
-    def doStart(self, value):
+    def doStart(self, target):
         try:
-            self._dev.value = value
+            self._dev.value = target
         except NicosError:
             if self.status(0)[0] == status.BUSY:
                 self.stop()
                 self._hw_wait()
-                self._dev.value = value
+                self._dev.value = target
             else:
                 raise
 

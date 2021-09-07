@@ -59,8 +59,8 @@ class Motor(CanReference, TacoDevice, AbstractMotor):
     def doStart(self, target):
         self._taco_guard(self._dev.start, target)
 
-    def doSetPosition(self, target):
-        self._taco_guard(self._dev.setpos, target)
+    def doSetPosition(self, pos):
+        self._taco_guard(self._dev.setpos, pos)
 
     def doStop(self):
         self._taco_guard(self._dev.stop)

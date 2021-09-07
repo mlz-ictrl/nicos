@@ -65,10 +65,9 @@ class InvertableMotor(HasOffset, TangoMotor):
                   for l in TangoMotor.doReadAbslimits(self)]
         return min(limits), max(limits)
 
-    def doSetPosition(self, value):
-        return TangoMotor.doSetPosition(self,
-                                        self._invertPosition(value +
-                                                             self.offset))
+    def doSetPosition(self, pos):
+        return TangoMotor.doSetPosition(
+            self, self._invertPosition(pos + self.offset))
 
 
 class MasterSlaveMotor(Moveable):

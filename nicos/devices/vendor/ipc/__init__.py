@@ -197,7 +197,7 @@ class Coder(NicosCoder):
             return status.ERROR, self._lasterror
         return status.OK, ''
 
-    def doSetPosition(self, target):
+    def doSetPosition(self, pos):
         raise NicosError('setPosition not implemented for IPC coders')
 
     def _endatclearalarm(self):
@@ -374,14 +374,14 @@ class Motor(HasTimeout, NicosMotor):
         else:
             return (self._fromsteps(self.min), self._fromsteps(self.max))
 
-    def doWriteUserlimits(self, limits):
-        NicosMotor.doWriteUserlimits(self, limits)
+    def doWriteUserlimits(self, value):
+        NicosMotor.doWriteUserlimits(self, value)
         if self.slope < 0:
-            self.min = self._tosteps(limits[1])
-            self.max = self._tosteps(limits[0])
+            self.min = self._tosteps(value[1])
+            self.max = self._tosteps(value[0])
         else:
-            self.min = self._tosteps(limits[0])
-            self.max = self._tosteps(limits[1])
+            self.min = self._tosteps(value[0])
+            self.max = self._tosteps(value[1])
 
     def doReadSpeed(self):
         return self._attached_bus.get(self.addr, 128)
@@ -682,7 +682,7 @@ class Motor(HasTimeout, NicosMotor):
         self.log.debug('status is %d:%s', st, msg[2:])
         return st, msg[2:]
 
-    def doSetPosition(self, target):
+    def doSetPosition(self, pos):
         """Adjust the current stepper position of the IPC-stepper card to match
         the given position.
 
@@ -691,8 +691,8 @@ class Motor(HasTimeout, NicosMotor):
         within that.  So we 'set' the position of the card instead of adjusting
         our zerosteps.
         """
-        self.log.debug('setPosition: %s', target)
-        value = self._tosteps(target)
+        self.log.debug('setPosition: %s', pos)
+        value = self._tosteps(pos)
         self.doWriteSteps(value)
         self._params['steps'] = value  # save last valid position in cache
         if self._cache:

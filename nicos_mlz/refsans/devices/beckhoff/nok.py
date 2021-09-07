@@ -278,7 +278,7 @@ class BeckhoffBase(PyTangoDevice):
             return (status.OK, 'simulation')
         return self._HW_status()
 
-    def doSetPosition(self, target):
+    def doSetPosition(self, pos):
         pass
 
 

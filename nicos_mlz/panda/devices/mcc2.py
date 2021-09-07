@@ -447,9 +447,9 @@ class MCC2Motor(MCC2core, NicosMotor):
                 return
         self.log.error('Stopping failed! no ACK!')
 
-    def doSetPosition(self, newpos):
+    def doSetPosition(self, pos):
         ''' set current position to given value'''
-        d = int(newpos * self.slope * self.microstep)
+        d = int(pos * self.slope * self.microstep)
         self.comm('XP20S%d XP21S%d XP19S%d' % (d, d, d))  # set all counters
 
     def doStatus(self, maxage=0):

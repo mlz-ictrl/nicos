@@ -24,7 +24,7 @@
 
 """Taco coder class for NICOS."""
 
-from Encoder import Encoder
+from Encoder import Encoder  # pylint: disable=import-error
 
 from nicos.devices.abstract import Coder as AbstractCoder
 from nicos.devices.taco.core import TacoDevice
@@ -35,5 +35,5 @@ class Coder(TacoDevice, AbstractCoder):
 
     taco_class = Encoder
 
-    def doSetPosition(self, target):
-        self._taco_guard(self._dev.setpos, target)
+    def doSetPosition(self, pos):
+        self._taco_guard(self._dev.setpos, pos)
