@@ -116,7 +116,7 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
         except Exception:
             self.log.warning('could not update detector mapping', exc=1)
 
-    def _startRaw(self, pos):
+    def _startRaw(self, target):
         if self._seq_is_running():
             if self._mode == SIMULATION:
                 self._seq_thread.join()
@@ -127,18 +127,18 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
 
         det_z = self._attached_det_z
         seq = []
-        seq.append(SeqDev(self._attached_bs_y, pos[1], stoppable=True))
-        seq.append(SeqDev(self._attached_bs_x, pos[0], stoppable=True))
-        seq.append(SeqDev(det_z, pos[2], stoppable=True))
+        seq.append(SeqDev(self._attached_bs_y, target[1], stoppable=True))
+        seq.append(SeqDev(self._attached_bs_x, target[0], stoppable=True))
+        seq.append(SeqDev(det_z, target[2], stoppable=True))
 
         # if z has to move, reposition beamstop y afterwards by going to
         # some other value (damping vibrations) and back
         if self.beamstopsettlepos is not None and \
-           abs(det_z.read(0) - pos[2]) > det_z.precision:
+           abs(det_z.read(0) - target[2]) > det_z.precision:
             seq.append(SeqDev(self._attached_bs_y, self.beamstopsettlepos,
                               stoppable=True))
             seq.append(SeqSleep(30))
-            seq.append(SeqDev(self._attached_bs_y, pos[1], stoppable=True))
+            seq.append(SeqDev(self._attached_bs_y, target[1], stoppable=True))
 
         self._startSequence(seq)
 
@@ -146,9 +146,9 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
         return {n: (d.read(maxage), getattr(d, 'precision', 0))
                 for (n, d) in self._adevs.items()}
 
-    def _mapReadValue(self, pos):
+    def _mapReadValue(self, value):
         def eq(posname, val):
-            return abs(pos[posname][0] - val) <= pos[posname][1]
+            return abs(value[posname][0] - val) <= value[posname][1]
 
         for name, values in self.mapping.items():
             if eq('det_z', values[2]) and eq('bs_x', values[0]) and \

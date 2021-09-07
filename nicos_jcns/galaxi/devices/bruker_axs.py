@@ -74,7 +74,7 @@ class WaterCooler(PartialDigitalInput):
         value = self._dev.value
         reason_dict = {0: 'pressure', 1: 'temperature', 2: 'flow rate',
                        4: 'conductance', 5: 'water level'}
-        reason = ', '.join(reason_dict[bit] for bit in reason_dict
+        reason = ', '.join(reason for bit, reason in reason_dict.items()
                            if not (value >> bit) & 1)
         if not reason:
             return status.UNKNOWN, 'error indicating bit set by mistake?'

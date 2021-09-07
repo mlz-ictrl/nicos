@@ -101,6 +101,6 @@ class SelectorSwitcher(MultiSwitcher):
     def _getWaiters(self):
         return self._attached_moveables
 
-    def _start_unchecked(self, position):
-        MultiSwitcher._start_unchecked(self, position)
-        self._attached_det_pos._updateMapping(position)
+    def _start_unchecked(self, pos):
+        MultiSwitcher._start_unchecked(self, pos)
+        self._attached_det_pos._updateMapping(pos)

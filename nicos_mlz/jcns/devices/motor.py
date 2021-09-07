@@ -97,9 +97,9 @@ class MasterSlaveMotor(Moveable):
         return [self._attached_master.read(maxage),
                 self._attached_slave.read(maxage)]
 
-    def doStart(self, pos):
-        self._attached_master.move(pos)
-        self._attached_slave.move(self._slavePos(pos))
+    def doStart(self, target):
+        self._attached_master.move(target)
+        self._attached_slave.move(self._slavePos(target))
 
     def doIsAllowed(self, pos):
         faultmsgs = []

@@ -109,7 +109,7 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
         except Exception:
             self.log.warning('could not update detector mapping', exc=1)
 
-    def _startRaw(self, pos):
+    def _startRaw(self, target):
         if self._seq_is_running():
             if self._mode == SIMULATION:
                 self._seq_thread.join()
@@ -120,27 +120,27 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
 
         # switch det_img alias synchronously, the chopper sets its mode param!
         det_img_alias = session.getDevice('det_img')
-        if pos[3]:
+        if target[3]:
             det_img_alias.alias = 'det_img_jum'
         else:
             det_img_alias.alias = 'det_img_ge'
 
         seq = []
-        seq.append(SeqDev(self._attached_attenuator, pos[4]))
-        if pos[3]:
+        seq.append(SeqDev(self._attached_attenuator, target[4]))
+        if target[3]:
             seq.append(SeqDev(self._attached_det_z, self.detbackpos,
                               stoppable=True))
-            seq.append(SeqDev(self._attached_psd_y, pos[1], stoppable=True))
-            seq.append(SeqDev(self._attached_psd_x, pos[0], stoppable=True))
+            seq.append(SeqDev(self._attached_psd_y, target[1], stoppable=True))
+            seq.append(SeqDev(self._attached_psd_x, target[0], stoppable=True))
         else:
             seq.append(SeqDev(self._attached_psd_x, 0, stoppable=True))
             seq.append(SeqDev(self._attached_psd_y, self.psdtoppos,
                               stoppable=True))
-            seq.append(SeqDev(self._attached_bs_y, pos[1], stoppable=True))
-            seq.append(SeqDev(self._attached_bs_x, pos[0], stoppable=True))
-            seq.append(SeqDev(self._attached_det_z, pos[2], stoppable=True))
+            seq.append(SeqDev(self._attached_bs_y, target[1], stoppable=True))
+            seq.append(SeqDev(self._attached_bs_x, target[0], stoppable=True))
+            seq.append(SeqDev(self._attached_det_z, target[2], stoppable=True))
             # maybe reposition beamstop Y axis to counter jitter.
-            seq.append(SeqCall(self._check_bsy, pos[1]))
+            seq.append(SeqCall(self._check_bsy, target[1]))
 
         self._startSequence(seq)
 
@@ -166,12 +166,12 @@ class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
         return {n: (d.read(maxage), getattr(d, 'precision', 0))
                 for (n, d) in self._adevs.items()}
 
-    def _mapReadValue(self, pos):
+    def _mapReadValue(self, value):
         def eq(posname, val):
-            return abs(pos[posname][0] - val) <= pos[posname][1]
+            return abs(value[posname][0] - val) <= value[posname][1]
 
         for name, values in self.mapping.items():
-            if pos['attenuator'][0] != values[4]:
+            if value['attenuator'][0] != values[4]:
                 continue
             if values[3]:
                 if not eq('det_z', self.detbackpos):

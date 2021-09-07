@@ -61,8 +61,8 @@ class HVSwitcher(Switcher):
                 return name
         return self.fallback
 
-    def doTime(self, old, new):
-        if old != new:
+    def doTime(self, old_value, target):
+        if old_value != target:
             session.clock.tick(90)
         return 0
 
@@ -173,11 +173,11 @@ class GEPowerSupply(PowerSupply):
     Conversely, when setting voltage to zero, the device is switched OFF.
     """
 
-    def doStart(self, value):
-        if value != 0 and self._dev.State() == PyTango.DevState.OFF:
+    def doStart(self, target):
+        if target != 0 and self._dev.State() == PyTango.DevState.OFF:
             self._dev.On()
-            PowerSupply.doStart(self, value)
-        elif value == 0:
+            PowerSupply.doStart(self, target)
+        elif target == 0:
             self._dev.Off()
 
 
