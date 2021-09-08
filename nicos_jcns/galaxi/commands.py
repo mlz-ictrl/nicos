@@ -117,7 +117,7 @@ def SetDetectorEnergy(radiation=None, **value):
       * *xray* -- x-ray energy in kilo electron volt
       * *threshold* -- threshold energy in kilo electron volt
       * *wait* -- whether the command should wait until all detectors
-        completed the parameter update (defaults to True)
+        completed the parameter update (defaults to `True`)
 
     Examples:
 
