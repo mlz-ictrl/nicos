@@ -42,7 +42,7 @@ class Switcher(GenericSwitcher):
     parameter_overrides = {
         'precision': Override(default=0.1, mandatory=False),
         'fallback': Override(default='Unknown', mandatory=False),
-        'blockingmove': Override(default='False', mandatory=False),
+        'blockingmove': Override(default=True, mandatory=False),
     }
 
     def _startRaw(self, target):

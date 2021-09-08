@@ -120,12 +120,12 @@ class GuideField(MappedMoveable):
         'background': Param('Static magnetic field which is always present and'
                             ' should be corrected',
                             type=tupleof(float, float, float), unit='mT',
-                            settable='True', default=(0., 0., 0.),
+                            settable=True, default=(0., 0., 0.),
                             category='general'),
         'field':      Param('Absolute value of the desired field at the '
                             'sample position',
                             type=floatrange(0.1, 100), unit='mT',
-                            settable='True', default=25.,
+                            settable=True, default=25.,
                             category='general'),
     }
 
