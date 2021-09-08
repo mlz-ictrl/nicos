@@ -34,7 +34,6 @@ import pytest
 
 from nicos.core import status
 
-pytest.importorskip('epics')
 pytest.importorskip('kafka')
 
 from nicos_ess.devices.epics.base import EpicsDeviceEss, EpicsReadableEss

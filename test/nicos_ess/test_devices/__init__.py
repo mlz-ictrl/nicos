@@ -21,3 +21,7 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
+
+import pytest
+
+pytest.importorskip('epics')

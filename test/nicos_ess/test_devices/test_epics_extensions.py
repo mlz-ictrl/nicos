@@ -30,7 +30,6 @@ from nicos.core import ConfigurationError
 from nicos.core.device import Device
 from nicos.devices.epics import EpicsDevice
 
-pytest.importorskip('epics')
 pytest.importorskip('kafka')
 
 from nicos_ess.devices.epics.extensions import HasDisablePv

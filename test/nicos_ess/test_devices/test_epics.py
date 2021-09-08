@@ -29,8 +29,6 @@ from test.nicos_ess.test_devices.utils import create_patch
 
 session_setup = 'ess_epics_base'
 
-pytest.importorskip('epics')
-
 
 class TestReadableDevice(unittest.TestCase):
 
