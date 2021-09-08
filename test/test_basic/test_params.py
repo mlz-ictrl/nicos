@@ -31,7 +31,7 @@ from nicos.core.params import ArrayDesc, Attach, Param, Value, absolute_path, \
     anytype, dictof, dictwith, floatrange, host, intrange, ipv4, limits, \
     listof, mailaddress, nicosdev, none_or, nonemptylistof, nonemptystring, \
     oneof, oneofdict, oneofdict_or, pvname, relative_path, setof, string, \
-    subdir, tacodev, tangodev, tupleof, vec3
+    subdir, tacodev, tangodev, tupleof, vec3, boolean
 
 from test.utils import raises
 
@@ -168,6 +168,16 @@ def test_string():
     assert string(b'blah') == 'blah'
     assert string() == ''
     assert string('blah') == 'blah'
+
+
+def test_boolean():
+    assert boolean(True) is True
+    assert boolean(False) is False
+    assert boolean() is False
+    assert boolean(10) is True
+    assert boolean(0) is False
+    assert raises(ValueError, boolean, 'True')
+    assert raises(ValueError, boolean, 'False')
 
 
 def test_dictof():

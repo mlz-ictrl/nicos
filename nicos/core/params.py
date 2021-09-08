@@ -226,8 +226,8 @@ class Override:
 
     def apply(self, paraminfo):
         newinfo = copy.copy(paraminfo)
-        for attr in self._kw:
-            setattr(newinfo, attr, self._kw[attr])
+        for attr, val in self._kw.items():
+            setattr(newinfo, attr, val)
         return newinfo
 
 
@@ -504,10 +504,13 @@ def fixup_conv(conv):
     """Fix-up a single converter type.
 
     This changes `str` to `string`, a converter that decodes bytes instead of
-    converting them using `repr`.
+    converting them using `repr`, and `bool` to `boolean`, which refuses to
+    convert strings due to the trap of ``'False'`` being true.
     """
     if conv is str:
         return string
+    elif conv is bool:
+        return boolean
     return conv
 
 
@@ -519,6 +522,13 @@ def string(s=None):
         # str(s) would result in the string "b'...'"
         return decodeAny(s)
     return str(s)
+
+
+def boolean(v=None):
+    """a boolean value"""
+    if isinstance(v, str):
+        raise ValueError('please use True or False without quotes, or 1/0)')
+    return bool(v)
 
 
 class listof:
