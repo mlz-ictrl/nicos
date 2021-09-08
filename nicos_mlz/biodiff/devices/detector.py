@@ -99,12 +99,12 @@ class ImagePlateDrum(PyTangoDevice, Moveable):
             ImagePlateDrum.POS_READ: self._dev.AbortReadProcess,
         }
 
-    def doStart(self, pos):
-        self.log.debug("doStart: pos: %s", pos)
+    def doStart(self, target):
+        self.log.debug("doStart: pos: %s", target)
         myStatus = self.status(0)
         if myStatus[0] == status.OK:
-            self._moveTo = pos
-            self._mapStart[pos]()
+            self._moveTo = target
+            self._mapStart[target]()
         else:
             raise MoveError(self, "Movement not allowed during device status "
                             "'%s'" % (status.statuses[myStatus[0]]))

@@ -114,8 +114,8 @@ class CacheWriter(HasWindowTimeout, HasLimits, CacheReader, Moveable):
         'timeout': Override(default=900),
     }
 
-    def doStart(self, pos):
-        self._cache.put(self, self.setkey, pos)
+    def doStart(self, target):
+        self._cache.put(self, self.setkey, target)
 
     def doStop(self):
         self._cache.put(self, self.setkey, self.target)

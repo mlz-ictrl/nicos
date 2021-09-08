@@ -24,7 +24,7 @@
 
 """Implementation of TACO I/O devices."""
 
-import IO
+import IO  # pylint: disable=import-error
 
 from nicos.core import Attach, HasLimits, Moveable, NicosError, Override, \
     Param, Readable, dictof, oneof, oneofdict, tupleof
@@ -50,8 +50,8 @@ class AnalogOutput(TacoDevice, HasLimits, Moveable):
 
     taco_class = IO.AnalogOutput
 
-    def doStart(self, value):
-        self._taco_guard(self._dev.write, value)
+    def doStart(self, target):
+        self._taco_guard(self._dev.write, target)
 
 
 class DigitalInput(TacoDevice, Readable):

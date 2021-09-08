@@ -220,13 +220,13 @@ class SXTalBase(Instrument, Moveable):
         self._sim_min = tuple(map(min, pos, self._sim_min or pos))
         self._sim_max = tuple(map(max, pos, self._sim_max or pos))
 
-    def doStart(self, hkl):
-        poslist = self._extractPos(self._calcPos(hkl))
+    def doStart(self, target):
+        poslist = self._extractPos(self._calcPos(target))
         for (devname, devvalue) in poslist:
             dev = self._adevs[devname]
             dev.start(devvalue)
         # store the min and max values of h,k,l, and E for simulation
-        self._sim_setValue(hkl)
+        self._sim_setValue(target)
 
     def doFinish(self):
         # make sure index members read the latest value
@@ -484,21 +484,20 @@ class TASSXTal(SXTalBase):
             if name in self.__dict__:
                 self.__dict__[name].shutdown()
 
-    def _calcPos(self, hkle, wavelength=None):
-        return hkle
+    def _calcPos(self, hkl, wavelength=None):
+        return hkl
 
-    def _extractPos(self, hkle):
+    def _extractPos(self, pos):
         ki = self._attached_mono.read(0)
         kf = self._attached_ana.read(0)
         if self.inelastic:
             if self.emode == 'FKI':
-                kf = ki - hkle[3]
+                kf = ki - pos[3]
             else:
-                ki = kf + hkle[3]
+                ki = kf + pos[3]
         ki = to_k(ki, self._attached_mono.unit)
         kf = to_k(kf, self._attached_ana.unit)
-        qepos = tasQEPosition(ki, kf, hkle[0], hkle[1],
-                              hkle[2], 0)
+        qepos = tasQEPosition(ki, kf, pos[0], pos[1], pos[2], 0)
         ub = session.experiment.sample.getUB()
         try:
             angpos = calcTasQAngles(ub, np.array(self.plane_normal),
@@ -598,7 +597,7 @@ class SXTalIndex(AutoDevice, Moveable):
     def doRead(self, maxage=0):
         return self._attached_sxtal.read(maxage)[self.index]
 
-    def doStart(self, pos):
+    def doStart(self, target):
         current = list(self._attached_sxtal.read(0.5))
-        current[self.index] = pos
+        current[self.index] = target
         self._attached_sxtal.start(current)

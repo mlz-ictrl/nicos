@@ -356,12 +356,12 @@ class VirtualRotAxisMotor(VirtualMotor):
     def _refswitch(self):
         return 200. <= self.doRead() <= 220.
 
-    def doStart(self, pos):
-        if self.curvalue > pos:  # going backwards
+    def doStart(self, target):
+        if self.curvalue > target:  # going backwards
             if self._refswitch():
                 raise NicosError(self, 'Can\'t go backwards, Limit-switch is '
                                  'active!')
-        return VirtualMotor.doStart(self, pos)
+        return VirtualMotor.doStart(self, target)
 
     def doStatus(self, maxage=0):
         if self._refswitch():

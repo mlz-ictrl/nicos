@@ -433,11 +433,11 @@ class MCC2Motor(MCC2core, NicosMotor):
         self.comm('XP15S%d' % int(f))
         return self.doReadAccel()
 
-    def doStart(self, pos):
+    def doStart(self, target):
         """go to a absolute postition"""
         if self.doStatus(0)[0] != status.OK:
             raise MoveError('Can not start, please check status!')
-        pos = int(pos * self.slope * self.microstep)
+        pos = int(target * self.slope * self.microstep)
         self.comm('XE%d' % pos)
 
     def doStop(self):

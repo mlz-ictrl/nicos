@@ -84,5 +84,5 @@ class ParamDevice(ReadonlyParamDevice, Moveable):
         self.valuetype = self._attached_device._getParamConfig(
             self.parameter).type
 
-    def doStart(self, value):
-        setattr(self._attached_device, self.parameter, value)
+    def doStart(self, target):
+        setattr(self._attached_device, self.parameter, target)

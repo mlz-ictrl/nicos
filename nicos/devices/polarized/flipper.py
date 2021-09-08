@@ -69,8 +69,8 @@ class MezeiFlipper(BaseFlipper):
                           type=tupleof(float, float)),
     }
 
-    def doStart(self, value):
-        if value == ON:
+    def doStart(self, target):
+        if target == ON:
             self._attached_flip.start(self.currents[0])
             self._attached_corr.start(self.currents[1])
         else:
@@ -104,8 +104,8 @@ class KFlipper(BaseFlipper):
                              unit='A'),  # actually A * Angstroms ** index
     }
 
-    def doStart(self, value):
-        if value == ON:
+    def doStart(self, target):
+        if target == ON:
             # query current momentum and calculate polinomial
             k = self._attached_kvalue.read(0)
             flip_current = sum(v * (k ** i) for i, v in enumerate(self.flipcurrent))

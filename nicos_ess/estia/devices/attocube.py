@@ -174,9 +174,9 @@ class IDS3010Control(Moveable):
     def doRead(self, maxage=0):
         return 'on' if self.status()[1] == "measurement running" else 'off'
 
-    def doStart(self, value):
+    def doStart(self, target):
         self._attached_server.communicate('system.startMeasurement'
-                                          if value == 'on' else
+                                          if target == 'on' else
                                           'system.stopMeasurement')
 
     def doReadPilot(self):

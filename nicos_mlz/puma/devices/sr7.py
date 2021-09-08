@@ -60,13 +60,13 @@ class SR7Shutter(HasTimeout, Moveable):
             return False, 'can only close shutter from remote'
         return True, ''
 
-    def doStart(self, pos):
-        if pos == self.read(0):
+    def doStart(self, target):
+        if target == self.read(0):
             return
-        self._attached_sr7set.start(self.positions.index(pos))
-        if self.wait() != pos:
+        self._attached_sr7set.start(self.positions.index(target))
+        if self.wait() != target:
             raise PositionError(self, 'device returned wrong position')
-        self.log.info('SR7: %s', pos)
+        self.log.info('SR7: %s', target)
 
     def doRead(self, maxage=0):
         res = self.doStatus()[0]

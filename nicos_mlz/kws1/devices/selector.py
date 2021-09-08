@@ -75,8 +75,8 @@ class SelectorLambda(Moveable):
         speed = int(round(60 * self.constant / (value - self.offset)))
         return self._attached_seldev.isAllowed(speed)
 
-    def doStart(self, value):
-        speed = int(round(60 * self.constant / (value - self.offset)))
+    def doStart(self, target):
+        speed = int(round(60 * self.constant / (target - self.offset)))
         self.log.debug('moving selector to %f rpm', speed)
         self._attached_seldev.start(speed)
 

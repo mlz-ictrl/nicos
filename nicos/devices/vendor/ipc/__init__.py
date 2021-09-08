@@ -891,9 +891,9 @@ class Output(Input, Moveable):
             return False, 'outside range [0, %d] of digital output' % maxval
         return True, ''
 
-    def doStart(self, pos):
+    def doStart(self, target):
         curval = self._attached_bus.get(self.addr, 191)
-        newval = (pos << self.first) | (curval & ~self._mask)
+        newval = (target << self.first) | (curval & ~self._mask)
         self._attached_bus.send(self.addr, 190, newval, 3)
 
 

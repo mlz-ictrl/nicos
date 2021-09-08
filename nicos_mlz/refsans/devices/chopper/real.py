@@ -515,9 +515,9 @@ class ChopperDiscTranslation(ChopperDiscTranslationBase, ChopperBase,
                           mandatory=False, default=1),
     }
 
-    def doStart(self, value):
-        self.log.info('requested position %d', value)
-        what = 'm4077=%d' % value
+    def doStart(self, target):
+        self.log.info('requested position %d', target)
+        what = 'm4077=%d' % target
         self.log.debug('doWritePos what: %s', what)
         res = self._attached_comm.writeLine(what)
         self.log.debug('doWritePos res: %d', res)

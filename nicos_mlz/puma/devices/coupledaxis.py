@@ -100,7 +100,7 @@ class PumaCoupledAxis(HasPrecision, HasLimits, Moveable):
             return False, '%s and %s are not close enough' % (self.tt, self.th)
         return False, '; '.join([th_allowed[1], tt_allowed[1]])
 
-    def doStart(self, position):
+    def doStart(self, target):
         """Move coupled axis (tt/th).
 
         The tt axis should without moving the coupled axis th (tt + th == 0)
@@ -108,8 +108,8 @@ class PumaCoupledAxis(HasPrecision, HasLimits, Moveable):
         if self.doStatus(0)[0] == status.BUSY:
             self.log.error('device busy')
 
-        target = (position, -position)
-        if not self._checkReachedPosition(target):
+        position = (target, -target)
+        if not self._checkReachedPosition(position):
             try:
                 self._setROParam('_status', True)
 
@@ -118,18 +118,18 @@ class PumaCoupledAxis(HasPrecision, HasLimits, Moveable):
                 tt = self.tt.read(0)
                 th = self.th.read(0)
 
-                if abs(tt - target[0]) > self.difflimit or \
-                   abs(th - target[1]) > self.difflimit:
-                    delta = abs(tt - position)
+                if abs(tt - position[0]) > self.difflimit or \
+                   abs(th - position[1]) > self.difflimit:
+                    delta = abs(tt - target)
                     mod = math.fmod(delta, self.difflimit)
                     steps = int(delta / self.difflimit)
                     self.log.debug('delta/self.difflimit, mod: %s, %s', steps,
                                    mod)
 
-                    if tt > position:
+                    if tt > target:
                         self.log.debug('case tt > position')
                         delta = -self.difflimit
-                    elif tt < position:
+                    elif tt < target:
                         self.log.debug('case tt < position')
                         delta = self.difflimit
 
@@ -144,16 +144,16 @@ class PumaCoupledAxis(HasPrecision, HasLimits, Moveable):
                 else:
                     steps = 1
 
-                if not self._checkReachedPosition(target):
+                if not self._checkReachedPosition(position):
                     self.log.debug('step: %d, move tt: %.2f, th: %.2f:',
-                                   steps, position, -position)
+                                   steps, target, -target)
                     self.__setDiffLimit()
-                    self.th.move(-position)
-                    self.tt.move(position)
+                    self.th.move(-target)
+                    self.tt.move(target)
                     self._hw_wait()
-                if not self._checkReachedPosition(target):
+                if not self._checkReachedPosition(position):
                     PositionError(self, "couldn't reach requested position "
-                                  '%7.3f' % position)
+                                  '%7.3f' % target)
             finally:
                 self.log.debug('Clear status flag')
                 self._setROParam('_status', False)

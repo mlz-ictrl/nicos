@@ -121,19 +121,19 @@ class Segment(Moveable):
             return False, reason
         return True, ''
 
-    def doStart(self, pos):
+    def doStart(self, target):
         # Will only need to be done once (or someone messes with the rack)
         if self._attached_hand.read(0) == 0:
             self._attached_hand.start(1)
-        self._target = pos
-        if pos == self.doRead(0):
+        self._target = target
+        if target == self.doRead(0):
             return
         self._start_time = time.time()
-        if pos == 'ble':
+        if target == 'ble':
             self._attached_ble.start(1)
-        elif pos == 'nl':
+        elif target == 'nl':
             self._attached_nl.start(1)
-        elif pos == 'zus':
+        elif target == 'zus':
             self._attached_zus.start(1)
 
     def doStatus(self, maxage=0):
@@ -175,8 +175,8 @@ class Polariser(Moveable):
             return 'in'
         return 'out'
 
-    def doStart(self, pos):
-        if pos == 'in':
+    def doStart(self, target):
+        if target == 'in':
             self._attached_cols1.start('zus')
         else:
             self._attached_cols1.start('nl')

@@ -48,9 +48,9 @@ class FocusPoint(HasLimits, Moveable):
     def doRead(self, maxage=0):
         return self._attached_table.read(maxage)
 
-    def doStart(self, pos):
+    def doStart(self, target):
         # self.moveToFocus() or move table
-        self._attached_table.move(pos)
+        self._attached_table.move(target)
 
     def _calculation(self, pivot=None):
         if pivot is None:

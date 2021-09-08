@@ -75,8 +75,8 @@ class AlphaStorage(VirtualMotor):
 
     _callback = None
 
-    def doStart(self, pos):
-        VirtualMotor.doStart(self, pos)
+    def doStart(self, target):
+        VirtualMotor.doStart(self, target)
         if self._callback is not None:
             try:
                 self._callback()  # pylint: disable=not-callable

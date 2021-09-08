@@ -111,11 +111,11 @@ class EchoTime(Moveable):
         # if the echo time could not be determined
         return 0.0
 
-    def doStart(self, value):
+    def doStart(self, target):
         # filter unsupported echotimes
         # find best match from table
         for entry in self.currenttable:
-            if abs(entry - value) < 1e-12:
+            if abs(entry - target) < 1e-12:
                 value = entry
                 break
         else:

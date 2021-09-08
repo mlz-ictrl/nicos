@@ -41,9 +41,9 @@ class PANDA(SequencerMixin, TAS):
         self.doWriteScatteringsense(self.scatteringsense)
         SequencerMixin.doReset(self)
 
-    def doStart(self, pos):
+    def doStart(self, target):
         self.doWriteScatteringsense(self.scatteringsense)
-        qh, qk, ql, ny = pos
+        qh, qk, ql, ny = target
         ny = self._thz(ny)
         angles = self._attached_cell.cal_angles(
             [qh, qk, ql], ny, self.scanmode, self.scanconstant,
@@ -70,18 +70,18 @@ class PANDA(SequencerMixin, TAS):
             seq.append(SeqDev(ana, from_k(angles[1], ana.unit)))
         # spurion check
         if self.spurioncheck and self._mode == SIMULATION:
-            self._spurionCheck(pos)
+            self._spurionCheck(target)
         # store the min and max values of h,k,l, and E for simulation
-        self._sim_setValue(pos)
+        self._sim_setValue(target)
         # start
         self._startSequence(seq)
 
-    def _runFailed(self, i, action, exc_info):
+    def _runFailed(self, step, action, exc_info):
         # stop all other motors on failure to start
         self.stop()
         raise exc_info[1]
 
-    def _waitFailed(self, i, action, exc_info):
+    def _waitFailed(self, step, action, exc_info):
         # wait for all other motors on failure
         try:
             multiWait(self._getWaiters())

@@ -152,8 +152,8 @@ class EpicsAmorMagnet(EpicsWindowTimeoutDeviceEss):
             return False, 'Magnet switched OFF'
         return True, ''
 
-    def doStart(self, val):
-        EpicsWindowTimeoutDeviceEss.doStart(self, val * self.fieldfactor)
+    def doStart(self, target):
+        EpicsWindowTimeoutDeviceEss.doStart(self, target * self.fieldfactor)
 
     def doReadAbslimits(self):
         absmin = self._get_pv('lowlimit') / self.fieldfactor

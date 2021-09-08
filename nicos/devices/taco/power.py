@@ -24,8 +24,8 @@
 
 """TACO power supply classes."""
 
-import DEVERRORS
 # pylint: disable=import-error
+import DEVERRORS
 from PowerSupply import CurrentControl, VoltageControl
 
 from nicos import session
@@ -63,17 +63,17 @@ class Supply(HasOffset, HasLimits, TacoDevice, Moveable):
     def doRead(self, maxage=0):
         return self._taco_guard(self._dev.read) - self.offset
 
-    def doStart(self, value, fromvarcheck=False):
-        self._taco_guard(self._dev.write, value + self.offset)
+    def doStart(self, target, fromvarcheck=False):
+        self._taco_guard(self._dev.write, target + self.offset)
         session.delay(0.5)  # wait until server goes into "moving" status
         if self.variance > 0:
             newvalue = self.wait()
-            maxdelta = value * (self.variance/100.) + 0.1
-            if abs(newvalue - value) > maxdelta:
+            maxdelta = target * (self.variance/100.) + 0.1
+            if abs(newvalue - target) > maxdelta:
                 if not fromvarcheck:
                     self.log.warning('value %s instead of %s exceeds variance',
-                                     newvalue, value)
-                    self.doStart(value, fromvarcheck=True)
+                                     newvalue, target)
+                    self.doStart(target, fromvarcheck=True)
                 else:
                     raise MoveError(self,
                                     'power supply failed to set correct value')

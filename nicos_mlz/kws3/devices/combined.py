@@ -57,10 +57,10 @@ class Mirror(Moveable):
                 return False, name + ': ' + why
         return True, ''
 
-    def doStart(self, pos):
-        self._attached_x.start(pos[0])
-        self._attached_y.start(pos[1])
-        self._attached_tilt.start(pos[2])
+    def doStart(self, target):
+        self._attached_x.start(target[0])
+        self._attached_y.start(target[1])
+        self._attached_tilt.start(target[2])
 
 
 class Detector(Moveable):
@@ -93,7 +93,7 @@ class Detector(Moveable):
                 return False, name + ': ' + why
         return True, ''
 
-    def doStart(self, pos):
-        self._attached_x.start(pos[0])
-        self._attached_y.start(pos[1])
-        self._attached_z.start(pos[2])
+    def doStart(self, target):
+        self._attached_x.start(target[0])
+        self._attached_y.start(target[1])
+        self._attached_z.start(target[2])

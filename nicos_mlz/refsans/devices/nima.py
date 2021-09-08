@@ -93,8 +93,8 @@ class MoveName(HasLimits, ReadName, Moveable):
         else:
             self.log.debug('result >%s<', res)
 
-    def doStart(self, pos):
-        self._command('%s:%f:%f' % (self.name[5:], pos, self.speed))
+    def doStart(self, target):
+        self._command('%s:%f:%f' % (self.name[5:], target, self.speed))
 
     def doStop(self):
         self._command('stop')

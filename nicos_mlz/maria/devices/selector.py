@@ -42,8 +42,8 @@ class SelectorLambda(_SelectorLambda):
             value = self._constant() / amin
         return value
 
-    def doStart(self, value):
-        return _SelectorLambda.doStart(self, self._adjustValue(value))
+    def doStart(self, target):
+        return _SelectorLambda.doStart(self, self._adjustValue(target))
 
     def doIsAllowed(self, value):
         return _SelectorLambda.doIsAllowed(self, self._adjustValue(value))

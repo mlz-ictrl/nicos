@@ -86,11 +86,11 @@ class CounterRotatingMotor(Moveable):
             return False, '%d violates limit of slave motor: %s' % (pos, why)
         return True, ''
 
-    def doStart(self, pos):
-        master_pos, slave_pos = self._calcNewPos(pos)
+    def doStart(self, target):
+        master_pos, slave_pos = self._calcNewPos(target)
         self._attached_master.start(master_pos)
         self._attached_slave.start(slave_pos)
-        self.old_target = pos
+        self.old_target = target
 
     def doRead(self, maxage=0):
         return ((self._attached_master.read(0)

@@ -83,8 +83,8 @@ class EulerianCradle(Moveable):
         # XXX how to get the real plane?
         return self.target
 
-    def doStart(self, value):
-        r1, r2 = value
+    def doStart(self, target):
+        r1, r2 = target
         for val in self.reflex1, self.reflex2, self.angles1, self.angles2:
             if all(v == 0 for v in val):
                 raise NicosError(self, 'Please first set the Eulerian cradle '

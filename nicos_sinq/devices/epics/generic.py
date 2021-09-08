@@ -49,12 +49,12 @@ class WindowMoveable(HasLimits, EpicsMoveable):
     valuetype = float
     _driveTarget = None
 
-    def doStart(self, value):
+    def doStart(self, target):
         # I have to use my private _driveTarget as the target
         # attribute is marked volatile in EpicsMoveable and is
         # not holding the real target.
-        self._driveTarget = value
-        EpicsMoveable.doStart(self, value)
+        self._driveTarget = target
+        EpicsMoveable.doStart(self, target)
 
     def doStatus(self, maxage=0):
         pos = self.doRead(0)

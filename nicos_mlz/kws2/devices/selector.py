@@ -76,10 +76,10 @@ class SelectorLambda(Moveable):
                     (value - self.offsets[tilted])))
         return self._attached_seldev.isAllowed(speed)
 
-    def doStart(self, value):
+    def doStart(self, target):
         tilted = bool(self._attached_tiltdev.read(0))
         speed = int(round(60 * self.constants[tilted] /
-                    (value - self.offsets[tilted])))
+                    (target - self.offsets[tilted])))
         self.log.debug('moving selector to %f rpm', speed)
         self._attached_seldev.start(speed)
 

@@ -62,19 +62,19 @@ class PumaFilter(HasTimeout, Moveable):
 
     valuetype = oneof('in', 'out')
 
-    def doStart(self, position):
+    def doStart(self, target):
         motor = self._attached_motor
         currentpos = self.read(0)
         motorpos = motor.read(0)
 
-        if position == currentpos and motorpos == self.justpos:
+        if target == currentpos and motorpos == self.justpos:
             return
 
         if abs(motorpos - self.justpos) > 0.5:
             motorpos = motor.maw(0)
 
-        self._attached_io_set.start(1 if position == 'in' else 0)
-        if self.wait() != position:
+        self._attached_io_set.start(1 if target == 'in' else 0)
+        if self.wait() != target:
             raise PositionError(self, 'device returned wrong position')
 
         if (self.doStatus()[0] == status.OK) and (motorpos != self.justpos):

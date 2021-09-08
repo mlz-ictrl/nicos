@@ -366,8 +366,8 @@ class EpicsMoveable(EpicsDevice, Moveable):
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
 
-    def doStart(self, value):
-        self._put_pv('writepv', value)
+    def doStart(self, target):
+        self._put_pv('writepv', target)
 
     def doStop(self):
         self.doStart(self.doRead())

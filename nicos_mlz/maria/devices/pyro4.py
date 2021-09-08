@@ -81,8 +81,8 @@ class DigitalOutput(Pyro4Device, HasTimeout, Moveable):
         with globalLock, self._dev:
             return self._dev.afp_state_get()
 
-    def doStart(self, value):
-        if self.read(0) != value:
+    def doStart(self, target):
+        if self.read(0) != target:
             with globalLock, self._dev:
                 self._dev.afp_flip_do()
 

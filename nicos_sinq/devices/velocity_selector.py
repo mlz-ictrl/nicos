@@ -73,8 +73,8 @@ class VSTiltMotor(EpicsMotor):
                    'Velocity Selector must be stopped before moving tilt'
         return True, ''
 
-    def doStart(self, pos):
-        EpicsMotor.doStart(self, pos)
+    def doStart(self, target):
+        EpicsMotor.doStart(self, target)
 
 
 class VSLambda(Moveable):
@@ -119,8 +119,8 @@ class VSLambda(Moveable):
             why = 'requested %d rpm, %s' % (speed, why)
         return allowed, why
 
-    def doStart(self, value):
+    def doStart(self, target):
         A, B = self._calcCoefficients()
-        speed = B/(value - A)
+        speed = B/(target - A)
         self.log.debug('moving selector to %d rpm', speed)
         self._attached_seldev.start(speed)

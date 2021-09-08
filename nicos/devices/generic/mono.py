@@ -98,8 +98,8 @@ class Monochromator(Moveable):
             self.target == 'unknown'):
             self._setROParam('target', from_k(to_k(0.73, 'A'), self.unit))
 
-    def doStart(self, pos):
-        self._sim_setValue(pos)
+    def doStart(self, target):
+        self._sim_setValue(target)
 
     def doIsAllowed(self, pos):
         return True, ''

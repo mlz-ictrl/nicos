@@ -48,9 +48,9 @@ class Trigger(PyTangoDevice, Moveable):
         if self.target not in self.strings:
             self._setROParam('target', self.safesetting)
 
-    def doStart(self, value):
+    def doStart(self, target):
         # !ALWAYS! send selected string
-        self._dev.WriteLine(self.strings[value])
+        self._dev.WriteLine(self.strings[target])
         # wait until our buffer is empty
         self._dev.Flush()
         # send a query and wait for the response,

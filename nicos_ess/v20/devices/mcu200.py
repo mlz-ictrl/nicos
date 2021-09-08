@@ -59,8 +59,8 @@ class MCU200Motor(Motor):
                               (status.UNKNOWN,
                                'Unknown device status: {}'.format(devstatus)))
 
-    def doStart(self, pos):
-        self._send_command('Q', '01={}'.format(pos))
+    def doStart(self, target):
+        self._send_command('Q', '01={}'.format(target))
         self._send_command('M', '=1')
 
     def doStop(self):

@@ -141,12 +141,12 @@ class RTE1104YScaleSetting(Moveable):
                                                       self.channel))
         return setting * 10. / (2.2 * math.sqrt(2))
 
-    def doStart(self, value):
-        setting = math.ceil(value * math.sqrt(2.) * 2.2) / 10.
+    def doStart(self, target):
+        setting = math.ceil(target * math.sqrt(2.) * 2.2) / 10.
         self._attached_io.writeLine('CHAN%d:SCAL %g' %
                                     (self.channel, setting))
         if self._attached_regulator:
-            self._attached_regulator.start(value)
+            self._attached_regulator.start(target)
 
     def doStatus(self, maxage=0):
         if self._attached_regulator:

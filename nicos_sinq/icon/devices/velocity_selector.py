@@ -67,9 +67,9 @@ class VSState(Moveable):
             return 'on'
         return 'off'
 
-    def doStart(self, pos):
-        self._target = pos
-        if pos == 'on':
+    def doStart(self, target):
+        self._target = target
+        if target == 'on':
             self._attached_on.start(1)
             return
         self._attached_off.start(1)
@@ -176,12 +176,12 @@ class VSLambda(Moveable):
             return 0
         return 3.569084E+2/wavelength - 2.807392
 
-    def isAllowed(self, target):
-        speed = self._lambdaToSpeed(target)
+    def isAllowed(self, pos):
+        speed = self._lambdaToSpeed(pos)
         return self._attached_speed.isAllowed(speed)
 
-    def doStart(self, pos):
-        self._attached_speed.start(self._lambdaToSpeed(pos))
+    def doStart(self, target):
+        self._attached_speed.start(self._lambdaToSpeed(target))
 
     def doRead(self, maxage=0):
         speed = self._attached_speed.read(maxage)

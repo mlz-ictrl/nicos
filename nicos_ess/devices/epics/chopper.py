@@ -49,8 +49,8 @@ class EssChopperController(MappedMoveable):
     def doRead(self, maxage=0):
         return self._attached_state.read()
 
-    def doStart(self, value):
-        self._attached_command.move(value)
+    def doStart(self, target):
+        self._attached_command.move(target)
 
     def doStop(self):
         # Ignore - stopping the chopper is done via the move command.

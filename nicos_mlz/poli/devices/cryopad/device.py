@@ -184,8 +184,8 @@ class CryopadPol(Moveable):
             return status.NOTREACHED, 'unknown polarization setting'
         return status.OK, 'idle'
 
-    def doStart(self, pos):
-        theta_chi = calc.DIRECTIONS[pos]
+    def doStart(self, target):
+        theta_chi = calc.DIRECTIONS[target]
         cppos = self._attached_cryopad.target or (0, 0, 0, 0)
         if self.side == 'in':
             target = tuple(theta_chi) + cppos[2:4]

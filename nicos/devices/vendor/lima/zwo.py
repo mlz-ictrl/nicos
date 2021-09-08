@@ -55,9 +55,9 @@ class ZwoTC(PyTangoDevice, HasLimits, HasPrecision, LimaCooler, Moveable):
 
         return (nicosState, coolerState)
 
-    def doStart(self, value):
-        if value > 10:
+    def doStart(self, target):
+        if target > 10:
             self.cooleron = False
         else:
-            self._dev.temperature_sp = value
+            self._dev.temperature_sp = target
             self.cooleron = True

@@ -38,18 +38,17 @@ class PGFilter(Moveable):
 
     valuetype = oneof('in', 'out')
 
-    def doStart(self, position):
+    def doStart(self, target):
         try:
-
             if self.doStatus()[0] != status.OK:
                 raise NicosError(self, 'filter returned wrong position')
 
-            if position == self.read(0):
+            if target == self.read(0):
                 return
 
-            if position == 'in':
+            if target == 'in':
                 self._attached_io_set.move(1)
-            elif position == 'out':
+            elif target == 'out':
                 self._attached_io_set.move(0)
             else:
                 # shouldn't happen...

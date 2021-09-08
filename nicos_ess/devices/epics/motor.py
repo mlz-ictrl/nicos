@@ -198,8 +198,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
 
-    def doStart(self, value):
-        self._put_pv('writepv', value)
+    def doStart(self, target):
+        self._put_pv('writepv', target)
 
     def doReadTarget(self):
         return self._get_pv('writepv')
@@ -311,9 +311,9 @@ class AbsoluteEpicsMotor(EpicsMotor):
 
 
 class EpicsMonitorMotor(PVMonitor, EpicsMotor):
-    def doStart(self, value):
-        self._put_pv('writepv', value)
-        if value != self.doRead():
+    def doStart(self, target):
+        self._put_pv('writepv', target)
+        if target != self.doRead():
             self._wait_for_start()
 
     def _on_status_change_cb(self, pvparam, value=None, char_value='', **kws):

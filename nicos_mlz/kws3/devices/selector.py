@@ -55,17 +55,18 @@ class SelectorSpeed(HasLimits, HasPrecision, Moveable):
             return status.BUSY, 'moving'
         return status.OK, ''
 
-    def doStart(self, pos):
+    def doStart(self, target):
         # do not start moving if already there, since the stability check in
         # the SPS always waits
-        if pos == self.target and abs(self.read(0) - pos) < self.precision:
+        if target == self.target and abs(
+           self.read(0) - target) < self.precision:
             return
         stbits = self._attached_status.read(0)
         if not stbits & 1:
             raise MoveError(self, 'selector is in local mode')
         # valid bit needs a rising edge
         self._attached_valid.move(0)
-        self._attached_speed.maw(pos)
+        self._attached_speed.maw(target)
         time.sleep(0.2)
         self._attached_valid.move(1)
         time.sleep(0.2)

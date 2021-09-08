@@ -137,12 +137,12 @@ class Monochromator(HasLimits, HasPrecision, BaseMonochromator):
             th -= tt
         return th, tt
 
-    def doStart(self, pos):
-        th, tt = self._calc_angles(to_k(pos, self.unit))
+    def doStart(self, target):
+        th, tt = self._calc_angles(to_k(target, self.unit))
         self._attached_twotheta.start(tt)
         self._attached_theta.start(th)
         self._movefoci(self.focmode, self.hfocuspars, self.vfocuspars)
-        self._sim_setValue(pos)
+        self._sim_setValue(target)
 
     def _movefoci(self, focmode, hfocuspars, vfocuspars):
         lam = from_k(to_k(self.target, self.unit), 'A')  # get goalposition in A

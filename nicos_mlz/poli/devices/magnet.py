@@ -89,14 +89,14 @@ class MagnetSampleTheta(Moveable):
                                    'incoming and outgoing beam free')
         return min(result, key=lambda pos: abs(pos - 0.1))
 
-    def doStart(self, pos):
+    def doStart(self, target):
         # get target for scattering angle
         gamma = self._attached_two_theta.target
         magnet = self._attached_magnet_theta.read(0)
         # determine nearest free window
         new_magnet = self._find_window(gamma, magnet)
         self._attached_magnet_theta.start(to_range(new_magnet))
-        self._attached_sample_theta.start(to_range(pos - new_magnet))
+        self._attached_sample_theta.start(to_range(target - new_magnet))
 
     def _getWaiters(self):
         return [self._attached_sample_theta, self._attached_magnet_theta]

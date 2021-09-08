@@ -135,11 +135,11 @@ class IsegNHQChannel(EpicsAnalogMoveableEss):
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
 
-    def doStart(self, pos):
+    def doStart(self, target):
         # We want these to happen in order.  If the first times out, an
         # exception is thrown and prevents the startpv from being triggered.
         self._started = True
-        self._put_pv_blocking('writepv', pos)
+        self._put_pv_blocking('writepv', target)
         self._put_pv('startpv', 1)  # Value doesn't actually matter
 
     def doReadTarget(self):

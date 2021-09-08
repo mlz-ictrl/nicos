@@ -79,8 +79,8 @@ class Beamstop(Moveable):
     def _getWaiters(self):
         return [self._attached_moveable]
 
-    def doStart(self, pos):
-        if pos == 'out':
+    def doStart(self, target):
+        if target == 'out':
             self._attached_moveable.start(self.outpos)
             return
         respos = self._attached_resolution.target

@@ -36,9 +36,9 @@ class PulseSwitch(ManualSwitch):
 
     _started_to = []
 
-    def doStart(self, pos):
-        self._started_to.append(pos)
-        ManualSwitch.doStart(self, pos)
+    def doStart(self, target):
+        self._started_to.append(target)
+        ManualSwitch.doStart(self, target)
 
 
 def test_params(session):

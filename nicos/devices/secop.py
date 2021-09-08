@@ -1054,10 +1054,10 @@ class SecopReadable(SecopDevice, Readable):
 
 class SecopWritable(SecopReadable, Moveable):
 
-    def doStart(self, value):
+    def doStart(self, target):
         try:
             self._attached_secnode._secnode.setParameter(
-                self.secop_module, 'target', value)
+                self.secop_module, 'target', target)
         except AttributeError:
             raise self._defunct_error() from None
 

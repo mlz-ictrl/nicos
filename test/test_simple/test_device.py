@@ -82,8 +82,8 @@ class Dev2(HasLimits, HasOffset, CanDisable, Moveable):
         methods_called.add('doIsAllowed')
         return True, ''
 
-    def doStart(self, pos):
-        self._val = pos
+    def doStart(self, target):
+        self._val = target
         methods_called.add('doStart')
 
     def doStop(self):
@@ -139,11 +139,11 @@ class Dev3(HasLimits, HasOffset, Moveable):
     def doRead(self, maxage=0):
         return self._val - self.offsetsign * self.offset
 
-    def doStart(self, pos):
-        self._val = pos + self.offsetsign * self.offset
+    def doStart(self, target):
+        self._val = target + self.offsetsign * self.offset
 
-    def doAdjust(self, old, new):
-        self.offset += self.offsetsign * (old - new)
+    def doAdjust(self, oldvalue, newvalue):
+        self.offset += self.offsetsign * (oldvalue - newvalue)
 
 
 class Dev4(Device):

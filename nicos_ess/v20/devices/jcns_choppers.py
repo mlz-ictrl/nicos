@@ -90,11 +90,11 @@ class JCNSChopper(EpicsAnalogMoveable):
     def doRead(self, maxage=0):
         return self._get_pv('readpv')
 
-    def doStart(self, value):
+    def doStart(self, target):
         if self._get_pv('drivepv') != 1:
             raise MoveError('Chopper drive must be active to change phase')
 
-        self._put_pv('writepv', value)
+        self._put_pv('writepv', target)
 
     def doStatus(self, maxage=0):
         raw_status = self._get_pv('statuspv')

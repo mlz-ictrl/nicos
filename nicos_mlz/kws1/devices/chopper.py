@@ -79,15 +79,15 @@ class ChopperParams(Moveable):
                 '0-5 Hz and 25-32 Hz is not allowed'
         return True, ''
 
-    def doStart(self, pos):
-        if pos[0] == 0:
+    def doStart(self, target):
+        if target[0] == 0:
             if self._attached_freq1.read(0) == 0:
                 return
             for dev in (self._attached_phase1, self._attached_phase2,
                         self._attached_freq1, self._attached_freq2):
                 dev.start(0)
             return
-        (freq, opening) = pos
+        (freq, opening) = target
         self._attached_freq1.start(freq)
         self._attached_freq2.start(freq)
         # calculate phases of the two choppers (they should be around 180deg)
@@ -216,17 +216,17 @@ class Chopper(Moveable):
         if self._mode == MASTER and 'nmax' in self._params:
             self.calcresult = (0, 0, 0)
 
-    def doStart(self, value):
-        if value == 'off':
+    def doStart(self, target):
+        if target == 'off':
             if self._attached_daq.mode == 'tof':  # don't touch realtime
                 self._attached_daq.mode = 'standard'
             self._attached_params.start((0, 0))
             return
-        elif value == 'manual':
+        elif target == 'manual':
             if self._attached_daq.mode == 'standard':
                 self._attached_daq.mode = 'tof'
             return
-        reso = float(value.strip('%')) / 100.0
+        reso = float(target.strip('%')) / 100.0
 
         sel_target = self._attached_selector.target
         det_target = self._attached_det_pos.target

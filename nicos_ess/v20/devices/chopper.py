@@ -62,10 +62,10 @@ class EpicsEnumMoveable(EpicsMoveable):
             self.enum_strs = list(self._get_pvctrl('writepv', 'enum_strs', []))
             self.log.info('%s',self.enum_strs)
 
-    def doStart(self, value):
-        real_value = value
-        if isinstance(value, str):
-            real_value = self.enum_strs.index(value.lower())
+    def doStart(self, target):
+        real_value = target
+        if isinstance(target, str):
+            real_value = self.enum_strs.index(target.lower())
 
         self._put_pv('writepv', real_value)
 
@@ -103,13 +103,13 @@ class EssChopper(Moveable):
         return [self._attached_speed.read(maxage),
                 self._attached_phase.read(maxage)]
 
-    def doStart(self, pos):
+    def doStart(self, target):
         if hasattr(self, '_attached_state') and \
            self._attached_state.read() == 'init':
             self.initialize()
 
-        self._attached_speed.move(pos[0])
-        self._attached_phase.move(pos[1])
+        self._attached_speed.move(target[0])
+        self._attached_phase.move(target[1])
         self._attached_command.move('start')
 
     def doStop(self):

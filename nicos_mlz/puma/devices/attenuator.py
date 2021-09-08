@@ -56,16 +56,16 @@ class Attenuator(HasLimits, Moveable):
         self.log.debug('device status read from hardware: %s', stat1)
         self.log.debug('device status sent to hardware: %s', stat2)
 
-    def doStart(self, position):
+    def doStart(self, target):
         try:
-            actpos = position
-            if position == self.read(0):
+            actpos = target
+            if target == self.read(0):
                 return
-            if position > self._filmax:
+            if target > self._filmax:
                 self.log.info('exceeding maximum filter thickness; '
                               'switch to maximum %d %s',
                               self._filmax, self.unit)
-                position = self._filmax
+                target = self._filmax
 
             if self.doStatus()[0] == status.ERROR:
                 raise NicosError(self, 'inconsistency of attenuator status, '
@@ -77,14 +77,14 @@ class Attenuator(HasLimits, Moveable):
             result = 0
             temp = 0
             for i in range(4, -1, -1):
-                temp = (position - position % self._filterlist[i])
+                temp = (target - target % self._filterlist[i])
                 if temp > 0:
                     result += 2**i
-                    position -= self._filterlist[i]
+                    target -= self._filterlist[i]
 
                 self.log.debug('position: %d, temp: %d result: %d, '
                                'filterlist[i]: %d',
-                               position, temp, result, self._filterlist[i])
+                               target, temp, result, self._filterlist[i])
             self._attached_io_set.move(result)
             session.delay(3)
 

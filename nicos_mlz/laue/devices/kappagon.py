@@ -55,13 +55,13 @@ class KappaGon(IsController, Moveable):
                                phi=self._adevs['phi'].read(maxage),
                                )
 
-    def doStart(self, pos):
-        if isinstance(pos, PositionBase):
-            target = pos.asK()
-            self._adevs['ttheta'].start(target.theta * 2.)
-            self._adevs['omega'].start(target.omega)
-            self._adevs['kappa'].start(target.kappa)
-            self._adevs['phi'].start(target.phi)
+    def doStart(self, target):
+        if isinstance(target, PositionBase):
+            pos = target.asK()
+            self._adevs['ttheta'].start(pos.theta * 2.)
+            self._adevs['omega'].start(pos.omega)
+            self._adevs['kappa'].start(pos.kappa)
+            self._adevs['phi'].start(pos.phi)
         else:
             raise ValueError('incorrect arguments for start, needs to be a PositionBase object')
 

@@ -79,10 +79,10 @@ class VirtualMotor(HasOffset, CanDisable, Motor):
             else:
                 self._setROParam('target', self.curvalue - self.offset)
 
-    def doStart(self, pos):
+    def doStart(self, target):
         if self.curstatus[0] == status.DISABLED:
             raise MoveError(self, 'cannot move, motor is disabled')
-        pos = float(pos) + self.offset
+        pos = float(target) + self.offset
         if self._thread:
             self._setROParam('curstatus', (status.BUSY, 'waiting for stop'))
             self._stop = True
@@ -460,9 +460,9 @@ class VirtualTemperature(VirtualMotor):
         'precision': Override(default=1),
     }
 
-    def doStart(self, pos):
-        self.setpoint = pos
-        VirtualMotor.doStart(self, pos)
+    def doStart(self, target):
+        self.setpoint = target
+        VirtualMotor.doStart(self, target)
 
     def _step(self, start, end, elapsed, speed):
         # calculate an exponential approximation to the setpoint with a time
@@ -537,14 +537,14 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
     def doShutdown(self):
         self._stopflag = True
 
-    def doStart(self, pos):
+    def doStart(self, target):
         # do nothing more, its handled in the thread...
         with self._statusLock:
             # insert target position into history
             # if target is far away -> loop goes busy
             # else loop sets to stable again....
             currtime = time.time()
-            self._window.append((currtime, pos))
+            self._window.append((currtime, target))
             self._starttime = currtime
             self.curstatus = status.BUSY, 'ramping setpoint'
 

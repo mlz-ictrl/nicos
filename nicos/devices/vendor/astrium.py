@@ -80,8 +80,8 @@ class SelectorLambda(Moveable):
             why = 'requested %d rpm, %s' % (speed, why)
         return allowed, why
 
-    def doStart(self, value):
-        speed = int(self._constant(self._get_tilt(0)) / value)
+    def doStart(self, target):
+        speed = int(self._constant(self._get_tilt(0)) / target)
         self.log.debug('moving selector to %d rpm', speed)
         self._attached_seldev.start(speed)
 

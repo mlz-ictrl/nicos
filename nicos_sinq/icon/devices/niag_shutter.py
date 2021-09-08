@@ -89,16 +89,16 @@ class NiagShutter(HasTimeout, MappedMoveable):
     # based on the method definition from the MultiSwitcher class, simplified
     # because there is no need to define the precision for digital inputs
 
-    def _mapReadValue(self, pos):
+    def _mapReadValue(self, value):
         """maps a tuple to one of the configured values"""
         for name, values in self.mapping.items():
-            if tuple(pos) == tuple(values):
+            if tuple(value) == tuple(values):
                 return name
         if self.fallback is not None:
             return self.fallback
         raise PositionError(self, 'unknown position of %s: %s' % (
             ', '.join(str(d) for d in self._adevs),
-            ', '.join(d.format(p) for (p, d) in zip(pos, self._adevs))))
+            ', '.join(d.format(p) for (p, d) in zip(value, self._adevs))))
 
     # completion is checked by verifying the feedback values, because
     # the "motion" of the outputs (pulses) is finished before the shutter
@@ -137,9 +137,9 @@ class NiagShutter(HasTimeout, MappedMoveable):
 
     # only allow to start if the enable bit is active
 
-    def doStart(self, pos):
+    def doStart(self, target):
         if self._attached_is_enabled.read():
-            return MappedMoveable.doStart(self, pos)
+            return MappedMoveable.doStart(self, target)
         raise MoveError(self, 'Device is disabled')
 
     def doReset(self):

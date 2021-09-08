@@ -64,8 +64,8 @@ class SelectorLambda(NicosSelectorLambda):
     def doRead(self, maxage=0):
         return self.sel(maxage)
 
-    def doStart(self, value):
-        speed = int(self.sel_inv(value))
+    def doStart(self, target):
+        speed = int(self.sel_inv(target))
         self.log.debug('moving selector to %d rpm', speed)
         self._attached_seldev.start(speed)
 

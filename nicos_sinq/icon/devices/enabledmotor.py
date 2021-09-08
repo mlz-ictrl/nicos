@@ -46,11 +46,11 @@ class EnabledMotor(HomingProtectedEpicsMotor):
 
     _stop_sent = False
 
-    def doStart(self, pos):
+    def doStart(self, target):
         if self._attached_lock.read(0) == 0:
             raise NicosError(self, 'Motor cannot move while door is open')
         self._stop_sent = False
-        EpicsMotor.doStart(self, pos)
+        EpicsMotor.doStart(self, target)
 
     def doStatus(self, maxage=0):
         ret = EpicsMotor.doStatus(self, maxage)

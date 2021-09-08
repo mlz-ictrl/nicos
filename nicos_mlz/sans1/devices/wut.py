@@ -87,9 +87,9 @@ class WutWriteValue(WutReadValue):
                          settable=False),
     }
 
-    def doStart(self, value):
+    def doStart(self, target):
         url = 'http://%s/outputaccess%d?PW=%s&State=%s&' % (
-            self.hostname, self.port, self.pw, value)
+            self.hostname, self.port, self.pw, target)
         try:
             with urllib.request.urlopen(url, timeout=self.timeout) as response:
                 html = response.read()

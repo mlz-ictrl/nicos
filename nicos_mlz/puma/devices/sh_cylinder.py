@@ -43,8 +43,8 @@ class SH_Cylinder(Moveable):
                            mandatory=False, unit='s'),
     }
 
-    def doStart(self, position):
-        if position == self.read(0):
+    def doStart(self, target):
+        if target == self.read(0):
             return
 
         if self._checkAir() != 1:
@@ -57,8 +57,8 @@ class SH_Cylinder(Moveable):
         if self._attached_io_ref.read(0) != 1:
             raise NicosError(self, 'Cannot close the shutter!')
 
-        if position != -1:
-            self._attached_io_pos.move(position)
+        if target != -1:
+            self._attached_io_pos.move(target)
             session.delay(self.timedelay)
             self._attached_io_air.move(1)
             session.delay(self.timedelay)

@@ -91,12 +91,12 @@ class SatBox(HasTimeout, Moveable):
             return status.OK, ''
         return status.BUSY, 'moving'
 
-    def doStart(self, rpos):
-        if rpos > sum(self.blades):
+    def doStart(self, target):
+        if target > sum(self.blades):
             raise InvalidValueError(self, 'Value %d too big!, maximum is %d'
-                                    % (rpos, sum(self.blades)))
+                                    % (target, sum(self.blades)))
         which = 0
-        pos = rpos
+        pos = target
         # start with biggest blade and work downwards, ignoring disabled blades
         for bladewidth in reversed(self.blades):
             if bladewidth and pos >= bladewidth:
@@ -104,8 +104,8 @@ class SatBox(HasTimeout, Moveable):
                 pos -= bladewidth
         if pos != 0:
             self.log.warning('Value %d impossible, trying %d instead!',
-                             rpos, rpos + 1)
-            return self.start(rpos + 1)
+                             target, target + 1)
+            return self.start(target + 1)
         self._attached_output.move(which)
         if self.readout == 'output':
             # if we have no readback, give blades time to react

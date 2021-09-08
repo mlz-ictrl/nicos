@@ -57,17 +57,17 @@ class MagLock(Moveable):
     def _bitmask(self, num):
         return 1 << num
 
-    def doStart(self, position):
+    def doStart(self, target):
         magpos = self._magpos
         if magpos not in [0, 1, 2, 3]:
             raise NicosError(self, 'depot at unknown position')
 
-        if position == self.read(0):
+        if target == self.read(0):
             return
 
-        if position == 'closed':
+        if target == 'closed':
             self._attached_io_set.move(0)
-        elif position == 'open':
+        elif target == 'open':
             self._attached_io_set.move(self._bitmask(magpos))
         else:
             self.log.info('Maglock: illegal input')
@@ -75,7 +75,7 @@ class MagLock(Moveable):
 
         session.delay(2)  # XXX!
 
-        if self.read(0) != position:
+        if self.read(0) != target:
             raise NicosError(self, 'maglock returned wrong position!')
         else:
             self.log.info('Maglock: %s', self.read(0))

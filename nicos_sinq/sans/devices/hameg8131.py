@@ -64,8 +64,8 @@ class HAMEG8131(EpicsMoveable):
                 return False,  'Set frequency and amplitude first'
         return True, ''
 
-    def doStart(self, pos):
-        if pos == 'on':
+    def doStart(self, target):
+        if target == 'on':
             self._put_pv('writepv', 1)
         else:
             self._put_pv('writepv', 0)

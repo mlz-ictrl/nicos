@@ -40,8 +40,8 @@ class Flipper(MezeiFlipper):
             return DOWN
         return UP
 
-    def doStart(self, value):
-        if value == DOWN:
+    def doStart(self, target):
+        if target == DOWN:
             self._attached_flip.start(self.currents[0])
             self._attached_corr.start(self.currents[1])
         else:

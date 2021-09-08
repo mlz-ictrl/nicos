@@ -120,8 +120,8 @@ class ResiDevice(Moveable):
     def doRead(self, maxage=0):
         return ResiPositionProxy(self._hardware.GetPosition(maxage))
 
-    def doStart(self, args):
-        self._hardware.Goto(**args)
+    def doStart(self, target):
+        self._hardware.Goto(**target)
 
     def doStatus(self, maxage=0):
         statusmap = {0: (OK, 'idle'), 1: (BUSY, 'moving')}
@@ -161,8 +161,8 @@ class ResiVAxis(Moveable):
     parameters = {
         'mapped_axis': Param('Mapped axis', type=str, mandatory=True)
     }
-    def doStart(self, value):
-        self._attached_basedevice.doStart({self.mapped_axis:value})
+    def doStart(self, target):
+        self._attached_basedevice.doStart({self.mapped_axis:target})
     def doRead(self, maxage=0):
         return math.degrees(getattr(self._attached_basedevice.read(maxage), self.mapped_axis))
     def doIsCompleted(self):
