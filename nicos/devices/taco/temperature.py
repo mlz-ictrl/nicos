@@ -24,8 +24,8 @@
 
 """NICOS temperature controller classes."""
 
-import TACOStates
-import Temperature
+import TACOStates  # pylint: disable=import-error
+import Temperature  # pylint: disable=import-error
 
 from nicos.core import HasLimits, HasWindowTimeout, Moveable, MoveError, \
     Override, Param, PositionError, Readable, oneof, status
@@ -89,9 +89,9 @@ class TemperatureController(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
         self._taco_guard(self._dev.write, target)
         self._pollParam('setpoint', 100)
 
-    def doTime(self, oldvalue, newvalue):
+    def doTime(self, old_value, target):
         if self.ramp:
-            ramptime = 60 * abs(newvalue - oldvalue) / self.ramp
+            ramptime = 60 * abs(target - old_value) / self.ramp
         else:
             ramptime = 0
         return ramptime + self.window
@@ -215,12 +215,10 @@ class TemperatureController(TacoDevice, HasWindowTimeout, HasLimits, Moveable):
     def doWriteMaxheaterpower(self, value):
         self.__stop_and_set('maxpower', value)
 
-    def doWriteUserlimits(self, limits):
-        wlimits = HasLimits.doWriteUserlimits(self, limits)
-        if wlimits:
-            limits = wlimits
+    def doWriteUserlimits(self, value):
+        HasLimits.doWriteUserlimits(self, value)
         try:
-            self.__stop_and_set('usermax', limits[1])
+            self.__stop_and_set('usermax', value[1])
         except Exception as err:
             if str(err) != 'resource not supported':
                 self.log.warning('Error during update of usermax resource: %s',

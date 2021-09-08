@@ -616,13 +616,13 @@ class HasWindowTimeout(HasPrecision, HasTimeout):
             return True
         return False
 
-    def doTime(self, old, new):
-        if old is None or new is None or old == new:
+    def doTime(self, old_value, target):
+        if old_value is None or target is None or old_value == target:
             return 0.
         if 'speed' in self.parameters and self.speed != 0:
-            return abs(new - old) / self.speed + self.window
+            return abs(target - old_value) / self.speed + self.window
         elif 'ramp' in self.parameters and self.ramp != 0:
-            return abs(new - old) / (self.ramp / 60.) + self.window
+            return abs(target - old_value) / (self.ramp / 60.) + self.window
         return self.window
 
     def doEstimateTime(self, elapsed):

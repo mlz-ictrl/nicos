@@ -57,7 +57,7 @@ class TemperatureController(HasWindowTimeout, HasLimits, StringIO, Moveable):
     def doPoll(self, n, maxage):
         self._pollParam('setpoint', 1)
 
-    def doTime(self, old, new):
+    def doTime(self, old_value, target):
         return self.window
 
     def doRead(self, maxage=0):

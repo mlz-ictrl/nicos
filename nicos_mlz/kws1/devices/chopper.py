@@ -41,14 +41,14 @@ SPEED = 3.956
 class ChopperFrequency(WindowTimeoutAO):
     """Chopper frequency setting with timing."""
 
-    def doTime(self, old, new):
-        if old is None or new is None:
+    def doTime(self, old_value, target):
+        if old_value is None or target is None:
             return 0.
-        if old == new:
-            return 20.                   # phase adjustment
-        total = 30.                      # phase adjustment
-        total += abs(old - new) / 0.25   # frequency speedup
-        total += 60. if new == 0 else 0  # complete stop adds ~1min
+        if old_value == target:
+            return 20.                            # phase adjustment
+        total = 30.                               # phase adjustment
+        total += abs(old_value - target) / 0.25   # frequency speedup
+        total += 60. if target == 0 else 0        # complete stop adds ~1min
         return total
 
 

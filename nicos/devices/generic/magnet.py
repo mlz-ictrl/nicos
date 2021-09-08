@@ -130,27 +130,25 @@ class CalibratedMagnet(HasLimits, Moveable):
         minfield, maxfield = [self._current2field(I)
                               for I in self._attached_currentsource.abslimits]
         # include 0 in allowed range
-        if minfield > 0:
-            minfield = 0
-        if maxfield < 0:
-            maxfield = 0
+        minfield = min(minfield, 0)
+        maxfield = max(maxfield, 0)
         # get configured limits if any, or take max from source
         limits = self._config.get('abslimits', (minfield, maxfield))
         # in any way, clamp limits to what the source can handle
         limits = [clamp(i, minfield, maxfield) for i in limits]
         return min(limits), max(limits)
 
-    def doWriteUserlimits(self, limits):
-        HasLimits.doWriteUserlimits(self, limits)
+    def doWriteUserlimits(self, value):
+        HasLimits.doWriteUserlimits(self, value)
         # all Ok, set source to max of pos/neg field current
-        maxcurr = max(self._field2current(i) for i in limits)
-        mincurr = min(self._field2current(i) for i in limits)
+        maxcurr = max(self._field2current(i) for i in value)
+        mincurr = min(self._field2current(i) for i in value)
         self._attached_currentsource.userlimits = (mincurr, maxcurr)
 
-    def doTime(self, startval, target):
+    def doTime(self, old_value, target):
         # get difference in current
         delta = abs(self._field2current(target) -
-                    self._field2current(startval))
+                    self._field2current(old_value))
         # ramp is per minute, doTime should return seconds
         return 60 * delta / self._attached_currentsource.ramp
 
@@ -242,11 +240,11 @@ class BipolarSwitchingMagnet(BaseSequencer, CalibratedMagnet):
         raise NotImplementedError('please use a proper derived class and '
                                   'implement this there!')
 
-    def _generateSequence(self, value):
+    def _generateSequence(self, target):
         sequence = []
         currentsource = self._attached_currentsource
-        if value != 0:
-            need_pol = +1 if value > 0 else -1
+        if target != 0:
+            need_pol = +1 if target > 0 else -1
             curr_pol = self._get_field_polarity()
             # if the switch values are not correct, drive to zero and switch
             if curr_pol != need_pol:
@@ -254,8 +252,8 @@ class BipolarSwitchingMagnet(BaseSequencer, CalibratedMagnet):
                     sequence.append(SeqDev(currentsource, 0.))
                 # insert switching Sequence
                 self._seq_set_field_polarity(need_pol, sequence)
-        sequence.append(SeqDev(currentsource, abs(value)))
-        if value == 0:
+        sequence.append(SeqDev(currentsource, abs(target)))
+        if target == 0:
             self._seq_set_field_polarity(0, sequence)
         return sequence
 
@@ -285,9 +283,9 @@ class BipolarSwitchingMagnet(BaseSequencer, CalibratedMagnet):
         limits = [clamp(i, -maxfield, maxfield) for i in limits]
         return min(limits), max(limits)
 
-    def doWriteUserlimits(self, limits):
-        HasLimits.doWriteUserlimits(self, limits)
+    def doWriteUserlimits(self, value):
+        HasLimits.doWriteUserlimits(self, value)
         currentsource = self._attached_currentsource
         # all Ok, set source to max of pos/neg field current
-        maxcurr = max(abs(self._field2current(i)) for i in limits)
+        maxcurr = max(abs(self._field2current(i)) for i in value)
         currentsource.userlimits = (0, maxcurr)

@@ -146,11 +146,10 @@ class Axis(CanReference, AbstractAxis):
         umin, umax = self._attached_motor.userlimits
         return umin - self.offset, umax - self.offset
 
-    def doWriteUserlimits(self, limits):
+    def doWriteUserlimits(self, value):
         # pylint: disable=assignment-from-none
-        rval = AbstractAxis.doWriteUserlimits(self, limits)
-        if rval:
-            limits = rval
+        rval = AbstractAxis.doWriteUserlimits(self, value)
+        limits = rval if rval else value
         # if the offset is currently changing, we need to use _new_offset
         self._attached_motor.userlimits = (
             limits[0] + getattr(self, '_new_offset', self.offset),
@@ -288,10 +287,10 @@ class Axis(CanReference, AbstractAxis):
             self._errorstate = None
             raise errorstate  # pylint: disable=raising-bad-type
 
-    def doTime(self, start, end):
+    def doTime(self, old_value, target):
         if hasattr(self._attached_motor, 'doTime'):
-            return self._attached_motor.doTime(start, end)
-        return abs(end - start) / self.speed if self.speed != 0 else 0.
+            return self._attached_motor.doTime(old_value, target)
+        return abs(target - old_value) / self.speed if self.speed != 0 else 0.
 
     def doWriteDragerror(self, value):
         if not self._hascoder:

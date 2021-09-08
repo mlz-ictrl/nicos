@@ -36,8 +36,8 @@ class SelectorSpeed(WindowTimeoutAO):
     Control selector speed.
     """
 
-    def doTime(self, old, new):
-        return abs(new - old) / 110.0
+    def doTime(self, old_value, target):
+        return abs(target - old_value) / 110.0
 
 
 class SelectorLambda(Moveable):
