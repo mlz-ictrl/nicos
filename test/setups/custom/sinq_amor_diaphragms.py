@@ -1,5 +1,3 @@
-import test.nicos_sinq.amor.test_diaphragms
-
 description = 'Various devices for diaphragms in AMOR'
 
 devices = dict(

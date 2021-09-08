@@ -29,6 +29,8 @@ import pytest
 
 from nicos.devices.generic import Slit
 
+pytest.importorskip('epics')
+
 from nicos_sinq.amor.devices.slit import AmorSlitHandler
 
 session_setup = "sinq_amor_diaphragms"

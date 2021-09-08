@@ -30,6 +30,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+pytest.importorskip('epics')
+
 from nicos.core import LimitError, status
 
 from test.utils import ErrorLogged, approx, raises
