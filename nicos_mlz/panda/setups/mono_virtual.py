@@ -1,6 +1,7 @@
 description = 'PANDA virtual monochromator'
 
 group = 'lowlevel'
+display_order = 21
 
 includes = ['monoturm']
 

@@ -1,6 +1,7 @@
 description = 'PANDA Si-monochromator'
 
 group = 'lowlevel'
+display_order = 21
 
 includes = ['monofoci', 'monoturm', 'panda_mtt']
 

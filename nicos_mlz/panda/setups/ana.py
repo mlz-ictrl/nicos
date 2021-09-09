@@ -7,6 +7,7 @@ includes = ['system','sampletable']
 excludes = ['bambus']
 
 group = 'lowlevel'
+display_order = 60
 
 tango_base = 'tango://phys.panda.frm2:10000/panda/'
 

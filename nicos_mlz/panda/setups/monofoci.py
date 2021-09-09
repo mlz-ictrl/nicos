@@ -3,6 +3,7 @@
 description = 'Setup of a Monochromator Focusing Box on PANDA'
 
 group = 'lowlevel'
+display_order = 22
 
 extended = dict(dynamic_loaded = True)
 

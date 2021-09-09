@@ -1,6 +1,8 @@
 description = 'IPC slits after mono shielding'
 
 group = 'optional'
+display_order = 32
+
 includes = ['system']
 
 tango_base = 'tango://phys.panda.frm2.tum.de:10000/panda/'

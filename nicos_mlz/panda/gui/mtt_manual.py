@@ -37,28 +37,29 @@ EXTRA_SEG_ANGLE = 15.
 MAX_SEGS = 10
 MAX_ANGLE = 180.
 
+# (bit, invert, phi, r, talign, text)
 SWITCHES = [
     # bits from diagnostics
-    (0,  +35,  870, 2, 'Leak CW'),
-    (1,  -35,  870, 1, 'Leak CCW'),
-    (2,  +15,  700, 2, 'Max MB change CW'),
-    (3,  +12,  770, 2, 'Min MB change CW'),
-    (4,  +10,  820, 2, 'Block in beam CW'),
-    (5,  -10,  820, 1, 'Block in beam CCW'),
-    (6,  -12,  770, 1, 'Min MB change CCW'),
-    (7,  -15,  700, 1, 'Max MB change CCW'),
-    (8,  180,  500, 2, 'Emergency stop'),
-    (9,  180,  600, 2, 'Compr. Air OK'),
-    (10, 0,    800, 3, 'MB arm mid'),
-    (11, +15,  450, 2, 'Arm Klinke CW'),
-    (12, -15,  450, 1, 'Arm Klinke CCW'),
+    (0,  False, +35,  870, 2, 'Leak CW'),
+    (1,  False, -35,  870, 1, 'Leak CCW'),
+    (2,  False, +15,  700, 2, 'Max MB change CW'),
+    (3,  False, +12,  770, 2, 'Min MB change CW'),
+    (4,  True,  +10,  820, 2, 'Block in beam CW'),
+    (5,  True, -10,  820, 1, 'Block in beam CCW'),
+    (6,  False, -12,  770, 1, 'Min MB change CCW'),
+    (7,  False, -15,  700, 1, 'Max MB change CCW'),
+    (8,  False, 180,  500, 2, 'Emergency stop'),
+    (9,  False, 180,  600, 2, 'Compr. Air OK'),
+    (10, False, 0,    800, 3, 'MB arm mid'),
+    (11, False, +15,  450, 2, 'Arm Klinke CW'),
+    (12, False, -15,  450, 1, 'Arm Klinke CCW'),
     # bits from diag_switches
-    (16, +30,  400, 2, 'Limit Arm CW'),
-    (17, -30,  400, 1, 'Limit Arm CCW'),
-    (18, -25,  425, 1, 'Ref Arm'),
-    (19, -245, 880, 2, 'Limit MTT CW'),
-    (20, -205, 880, 2, 'Limit MTT CCW'),
-    (21, -200, 880, 2, 'Ref MTT'),
+    (16, False, +30,  400, 2, 'Limit Arm CW'),
+    (17, False, -30,  400, 1, 'Limit Arm CCW'),
+    (18, False, -25,  425, 1, 'Ref Arm'),
+    (19, False, -245, 880, 2, 'Limit MTT CW'),
+    (20, False, -205, 880, 2, 'Limit MTT CCW'),
+    (21, False, -200, 880, 2, 'Ref MTT'),
 ]
 
 
@@ -145,8 +146,8 @@ class MonoBlocks(NicosWidget, QWidget):
 
         # switches
         swvals = self.values[0] | self.values[1] << 16
-        for (bit, phi, r, talign, text) in SWITCHES:
-            on = swvals & (1 << bit) != 0
+        for (bit, invert, phi, r, talign, text) in SWITCHES:
+            on = (swvals & (1 << bit) != 0) ^ invert
             r = (r / 1800) * dia
             posx = r * cos(radians(phi - 90))
             posy = r * sin(radians(phi - 90))
