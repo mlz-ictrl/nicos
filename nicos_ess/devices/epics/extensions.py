@@ -74,8 +74,8 @@ class EpicsMappedMoveable(MappedMoveable, EpicsDigitalMoveableEss):
     def doRead(self, maxage=0):
         return MappedMoveable.doRead(self, maxage)
 
-    def doStart(self, value):
-        MappedMoveable.doStart(self, value)
+    def doStart(self, target):
+        MappedMoveable.doStart(self, target)
 
 
 class EpicsMappedFloatMoveable(EpicsMappedMoveable):
