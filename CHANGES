@@ -1,34 +1,20 @@
 Changelog
 =========
 
-Release 3.8.5
--------------
-
-* GUI
-
-  - The dry results can't be collapsed anymore but closed
-
-Release 3.8.3
--------------
-
-* GUI
-
-  - Display 3D data by summing in z direction as 2D pictures in live
-    data panel
-
-Release 3.8.2
--------------
-
-* GUI
-
-  - Add interface to initialize control elements in live data panel
-
-Release 3.8.1
+Release 3.9.0
 -------------
 
 * Core
 
-   - Add general NeXuS support (taken from SINQ implementation)
+   - Add general NeXuS support (taken from SINQ implementation).
+
+* GUI
+
+  - The dry results can't be collapsed anymore but closed.
+  - Display 3D data by summing in z direction as 2D pictures in live
+    data panel.
+  - Add interface to initialize control elements in live data panel.
+
 
 Release 3.8.0
 -------------
