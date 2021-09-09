@@ -3,6 +3,7 @@
 description = 'setup for sample attenuator'
 
 group = 'optional'
+display_order = 30
 
 tango_base = 'tango://phys.panda.frm2:10000/panda/'
 

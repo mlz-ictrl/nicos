@@ -5,6 +5,7 @@ description = 'Sampletable complete'
 includes = ['system']
 
 group = 'lowlevel'
+display_order = 40
 
 tango_base = 'tango://phys.panda.frm2:10000/panda/'
 

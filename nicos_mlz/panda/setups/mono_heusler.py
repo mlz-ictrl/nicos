@@ -1,6 +1,7 @@
 description = 'PANDA Heusler-monochromator'
 
 group = 'lowlevel'
+display_order = 21
 
 includes = ['monofoci', 'monoturm', 'panda_mtt']
 excludes = ['mono_pg', 'mono_cu', 'mono_si', 'ana_heusler']

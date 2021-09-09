@@ -1,6 +1,7 @@
 description = 'PANDA Heusler-analyzer'
 
 group = 'lowlevel'
+display_order = 60
 
 includes = ['monofoci', 'monoturm', 'panda_mtt']
 

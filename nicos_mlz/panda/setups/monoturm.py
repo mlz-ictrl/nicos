@@ -6,6 +6,7 @@ description = 'Monoturm, everything inside the Monochromator housing'
 includes = ['sampletable']
 
 group = 'lowlevel'
+display_order = 20
 
 tango_base = 'tango://phys.panda.frm2:10000/panda/'
 

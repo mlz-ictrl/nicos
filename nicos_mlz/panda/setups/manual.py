@@ -1,6 +1,7 @@
 description = 'collimators and lengths'
 
 group = 'lowlevel'
+display_order = 10
 
 devices = dict(
     lsm = device('nicos.devices.generic.ManualMove',
