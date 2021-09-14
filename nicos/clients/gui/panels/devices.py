@@ -174,7 +174,7 @@ class DevicesPanel(Panel):
 
           filters = [
               ('All', ''),
-              ('Default', 'T|UBahn'),
+              ('Default', 'T|MVG'),
               ('Foo', 'bar$'),
           ]
 
