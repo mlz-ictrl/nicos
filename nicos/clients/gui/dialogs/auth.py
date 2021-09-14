@@ -60,6 +60,7 @@ class ConnectionDialog(QDialog):
             new_data = ConnectionData(host, port, self.userName.text(),
                                       self.password.text())
         new_data.viewonly = self.viewonly.isChecked()
+        new_data.expertmode = self.expertmode.isChecked()
         if tunnel:
             tunnel = '%s:%s@%s' % (self.remoteUserName.text(),
                                    self.remotePassword.text(),
@@ -110,6 +111,7 @@ class ConnectionDialog(QDialog):
             self.presetOrAddr.setEditText(
                 '%s:%s' % (lastdata.host, lastdata.port))
             self.viewonly.setChecked(lastdata.viewonly)
+            self.expertmode.setChecked(lastdata.expertmode)
         self.userName.setText(lastdata.user)
         self.password.setFocus()
 
@@ -134,6 +136,7 @@ class ConnectionDialog(QDialog):
             conn = self.connpresets[text]
             self.userName.setText(conn.user)
             self.viewonly.setChecked(conn.viewonly)
+            self.expertmode.setChecked(conn.expertmode)
             self.presetFrame.hide()
         else:
             self.presetFrame.show()
@@ -143,6 +146,7 @@ class ConnectionDialog(QDialog):
         self.presetOrAddr.setEditText(item.text())
         self.userName.setText(conn.user)
         self.viewonly.setChecked(conn.viewonly)
+        self.expertmode.setChecked(conn.expertmode)
         self.password.setFocus()
 
     def on_quickList_itemDoubleClicked(self, item):

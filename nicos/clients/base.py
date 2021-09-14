@@ -48,16 +48,18 @@ class ErrorResponse(Exception):
 
 
 class ConnectionData:
-    def __init__(self, host, port, user, password, viewonly=False):
+    def __init__(self, host, port, user, password, viewonly=False,
+                 expertmode=False):
         self.host = host
         self.port = port
         self.user = user
         self.password = password
         self.viewonly = viewonly
+        self.expertmode = expertmode
 
     def copy(self):
         return ConnectionData(self.host, self.port, self.user,
-                              self.password, self.viewonly)
+                              self.password, self.viewonly, self.expertmode)
 
     def serialize(self):
         return vars(self)

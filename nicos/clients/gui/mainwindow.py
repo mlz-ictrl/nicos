@@ -546,6 +546,7 @@ class MainWindow(DlgUtils, QMainWindow):
             self.client.user_level >= ADMIN)
 
         self.actionViewOnly.setChecked(self.client.viewonly)
+        self.actionExpert.setChecked(self.conndata.expertmode)
 
         # set focus to command input, if present
         for panel in self.panels:
@@ -671,6 +672,7 @@ class MainWindow(DlgUtils, QMainWindow):
                            ' is not available on your system.')
             return
         from nicos.clients.gui.tools.website import WebsiteTool
+
         # XXX: change URL to current release version
         dlg = WebsiteTool(
             self, self.client,

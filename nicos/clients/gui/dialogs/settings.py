@@ -112,8 +112,9 @@ class SettingsDialog(DlgUtils, QDialog):
         name = dlg.name.text()
         while name in self.connpresets:
             name += '_'
-        cdata = ConnectionData(dlg.host.text(), dlg.port.value(),
-                               dlg.login.text(), None, dlg.viewonly.isChecked())
+        cdata = ConnectionData(
+            dlg.host.text(), dlg.port.value(), dlg.login.text(), None,
+            dlg.viewonly.isChecked(), dlg.expertmode.isChecked())
         self.connpresets[name] = cdata
         QListWidgetItem(name + ' (%s:%s)' % (cdata.host, cdata.port),
                         self.settinglist).setData(32, name)
@@ -139,12 +140,14 @@ class SettingsDialog(DlgUtils, QDialog):
         dlg.port.setValue(cdata.port)
         dlg.login.setText(cdata.user)
         dlg.viewonly.setChecked(cdata.viewonly)
+        dlg.expertmode.setChecked(cdata.expertmode)
         if dlg.exec_() != QDialog.Accepted:
             return
         cdata.host = dlg.host.text()
         cdata.port = dlg.port.value()
         cdata.user = dlg.login.text()
         cdata.viewonly = dlg.viewonly.isChecked()
+        cdata.expertmode = dlg.expertmode.isChecked()
         item.setText('%s (%s:%s)' % (dlg.name.text(), cdata.host, cdata.port))
 
     def on_settingsTree_itemClicked(self, item, column):
