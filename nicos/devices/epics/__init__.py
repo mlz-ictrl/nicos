@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-import os
-
 from nicos.core import status
 
 SEVERITY_TO_STATUS = {
@@ -38,16 +36,7 @@ STAT_TO_STATUS = {
     17: status.UNKNOWN,  # Invalid/unknown IOC state
 }
 
-# Use environment variable to determine which python EPICS
-# binding it to be used
-if os.environ.get('NICOS_EPICS') == 'pvaccess':
-    from nicos.devices.epics.pvaccess import EpicsAnalogMoveable, \
-        EpicsDevice, EpicsDigitalMoveable, EpicsMoveable, EpicsReadable, \
-        EpicsStringMoveable, EpicsStringReadable, EpicsWindowTimeoutDevice, \
-        pvget, pvput
-else:
-    from nicos.devices.epics.monitor import PyEpicsMonitor as PVMonitor
-    from nicos.devices.epics.pyepics import EpicsAnalogMoveable, EpicsDevice, \
-        EpicsDigitalMoveable, EpicsMoveable, EpicsReadable, \
-        EpicsStringMoveable, EpicsStringReadable, EpicsWindowTimeoutDevice, \
-        pvget, pvput
+from nicos.devices.epics.monitor import PyEpicsMonitor as PVMonitor
+from nicos.devices.epics.pyepics import EpicsAnalogMoveable, EpicsDevice, \
+    EpicsDigitalMoveable, EpicsMoveable, EpicsReadable, EpicsStringMoveable, \
+    EpicsStringReadable, EpicsWindowTimeoutDevice, pvget, pvput
