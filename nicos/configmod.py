@@ -108,30 +108,32 @@ class NicosConfigParser(ConfigParser):
         return optionstr
 
 
-def findSetupPackage(nicos_root, global_cfg):
-    """Get the setup package of the NICOS install.
+def findSetupPackageAndInstrument(nicos_root, global_cfg):
+    """Get the setup package and instrument of the NICOS install.
 
-    The package can be specified by:
+    The setup package and instrument can be specified by:
 
-    * environment variable NICOS_SETUP_PACKAGE
-    * setup_package in main `nicos.conf`
+    * environment variable INSTRUMENT
+    * setup_package and instrument in main `nicos.conf`
 
-    Default is `nicos_demo`.
+    Default is `nicos_demo, None`.
     """
-    setup_package = None
 
+    instr = None
     if 'INSTRUMENT' in os.environ:
         if '.' in os.environ['INSTRUMENT']:
-            setup_package = os.environ['INSTRUMENT'].rsplit('.', 1)[0]
+            return os.environ['INSTRUMENT'].rsplit('.', 1)
+        instr = os.environ['INSTRUMENT']
 
-    if setup_package is None and \
-       global_cfg.has_option('nicos', 'setup_package'):
-        setup_package = global_cfg.get('nicos', 'setup_package')
+    setup_package = global_cfg.get('nicos', 'setup_package',
+                                   fallback='nicos_demo')
 
-    if setup_package is None:
-        setup_package = 'nicos_demo'
+    # Try to find a good value for the instrument name, either from the
+    # environment, from the local config,  or from the hostname.
+    if instr is None:
+        instr = global_cfg.get('nicos', 'instrument', fallback=None)
 
-    return setup_package
+    return setup_package, instr
 
 
 def readConfig():
@@ -155,7 +157,8 @@ def readConfig():
         sys.path[:0] = pypath.split(':')
 
     # Find setup package and its path.
-    setup_package = findSetupPackage(nicos_root, global_cfg)
+    setup_package, instr = findSetupPackageAndInstrument(
+        nicos_root, global_cfg)
     try:
         setup_package_mod = importlib.import_module(setup_package)
     except ImportError:
@@ -165,16 +168,7 @@ def readConfig():
             'Setup package %r does not exist.' % setup_package) from None
     setup_package_path = path.dirname(setup_package_mod.__file__)
 
-    # Try to find a good value for the instrument name, either from the
-    # environment, from the local config,  or from the hostname.
-    instr = None
-    if 'INSTRUMENT' in os.environ:
-        instr = os.environ['INSTRUMENT']
-        if '.' in instr:
-            instr = instr.rsplit('.', 1)[1]
-    elif global_cfg.has_option('nicos', 'instrument'):
-        instr = global_cfg.get('nicos', 'instrument')
-    elif hasattr(setup_package_mod, 'determine_instrument'):
+    if instr is None and hasattr(setup_package_mod, 'determine_instrument'):
         # Let the setup package have a try.
         instr = setup_package_mod.determine_instrument(setup_package_path)
 
