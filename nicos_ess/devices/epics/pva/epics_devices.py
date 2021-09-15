@@ -27,6 +27,8 @@ This module contains some classes for NICOS - EPICS integration using p4p.
 """
 import time
 
+import numpy
+
 from nicos import session
 from nicos.core import POLLER, SIMULATION, ConfigurationError, \
     DeviceMixinBase, HasLimits, Moveable, Override, Param, Readable, anytype, \
@@ -252,6 +254,14 @@ class EpicsStringReadable(EpicsReadable):
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv', as_string=True)
+
+    def value_change_callback(self, name, param, value, severity, message,
+                              **kwargs):
+        if isinstance(value, numpy.ndarray):
+            # It is a char waveform
+            value = "".join(chr(x) for x in value)
+        EpicsDevice.value_change_callback(self, name, param, value,
+                                          severity, message, **kwargs)
 
 
 class EpicsMoveable(EpicsDevice, Moveable):
