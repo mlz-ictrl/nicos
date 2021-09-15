@@ -22,6 +22,36 @@
 #
 # *****************************************************************************
 
-def determine_instrument(setup_package_path):
-    # for now, I'll just leave it like that
-    return 'tex3'
+"""Class for virtual DIOM PhyMotion module"""
+
+from nicos.core import Override, Param, intrange, status
+from nicos.core.device import Moveable
+
+
+class DIOMVirtual(Moveable):
+    """Virtual module DIOM PhyMotion controller"""
+    valuetype = intrange(0,255)
+    parameters = {
+        'units': Param('units', type=str, default=''),
+        'curvalue':  Param('Current value',
+                           type=intrange(0, 255),
+                           internal=True, default=0,
+                           settable=True
+                           ),
+    }
+
+    parameter_overrides = {
+        'fmtstr': Override(default='%d'),
+    }
+
+    def doInit(self, mode):
+        self.log.debug('Init DIOM class, mode = %s', mode)
+
+    def doStart(self, val):
+        self.curvalue = val
+
+    def doRead(self, maxage = 0):
+        return self.curvalue
+
+    def doStatus(self, maxage = 0):
+        return status.OK, ''

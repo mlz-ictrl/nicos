@@ -3,7 +3,7 @@ group = 'special'
 
 devices = dict(
     Auth = device('nicos.services.daemon.auth.list.Authenticator',
-        hashing = 'md5',
+        hashing = 'sha1',
         # for the meaning of these entries see
         # https://forge.frm2.tum.de/nicos/doc/nicos-stable/services/daemon/#nicos.services.daemon.auth.list.Authenticator
         passwd = [
@@ -11,8 +11,8 @@ devices = dict(
             # The entries for these password hashes are generated from randomized
             # passwords and not reproduceable, please don't forget to create new
             # ones.
-            ('user', 'bbb05bd186cc346b78dfb9c712da0042', 'user'),
-            ('admin', 'bbb05bd186cc346b78dfb9c712da0042', 'admin'),
+            ('user', '524c2a0a7472a49032bbc78aba99746ef9e4f235', 'user'),
+            ('admin', '524c2a0a7472a49032bbc78aba99746ef9e4f235', 'admin'),
         ],
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
