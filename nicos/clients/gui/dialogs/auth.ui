@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>466</width>
-    <height>689</height>
+    <width>736</width>
+    <height>880</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,127 +36,6 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap resource="../../../../resources/nicos-gui.qrc">:/nicos-logo-mlz.png</pixmap>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <spacer name="verticalSpacer_3">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>15</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QListWidget" name="quickList">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
-     </property>
-     <property name="textElideMode">
-      <enum>Qt::ElideMiddle</enum>
-     </property>
-     <property name="verticalScrollMode">
-      <enum>QAbstractItemView::ScrollPerPixel</enum>
-     </property>
-     <property name="horizontalScrollMode">
-      <enum>QAbstractItemView::ScrollPerPixel</enum>
-     </property>
-     <property name="movement">
-      <enum>QListView::Static</enum>
-     </property>
-     <property name="flow">
-      <enum>QListView::LeftToRight</enum>
-     </property>
-     <property name="resizeMode">
-      <enum>QListView::Adjust</enum>
-     </property>
-     <property name="gridSize">
-      <size>
-       <width>72</width>
-       <height>64</height>
-      </size>
-     </property>
-     <property name="viewMode">
-      <enum>QListView::IconMode</enum>
-     </property>
-     <item>
-      <property name="text">
-       <string>MIRA</string>
-      </property>
-      <property name="icon">
-       <iconset resource="../../../../resources/nicos-gui.qrc">
-        <normaloff>:/appicon</normaloff>:/appicon</iconset>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>POLI</string>
-      </property>
-      <property name="icon">
-       <iconset resource="../../../../resources/nicos-gui.qrc">
-        <normaloff>:/appicon</normaloff>:/appicon</iconset>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>localhost</string>
-      </property>
-      <property name="icon">
-       <iconset resource="../../../../resources/nicos-gui.qrc">
-        <normaloff>:/appicon</normaloff>:/appicon</iconset>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>test</string>
-      </property>
-      <property name="icon">
-       <iconset resource="../../../../resources/nicos-gui.qrc">
-        <normaloff>:/appicon</normaloff>:/appicon</iconset>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>&amp;Connecting to:</string>
-     </property>
-     <property name="buddy">
-      <cstring>presetOrAddr</cstring>
-     </property>
-    </widget>
-   </item>
    <item row="4" column="1">
     <widget class="QComboBox" name="presetOrAddr">
      <property name="font">
@@ -167,6 +46,61 @@
      </property>
      <property name="editable">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>&amp;Password:</string>
+     </property>
+     <property name="buddy">
+      <cstring>password</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QWidget" name="widget" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="121,186">
+      <item>
+       <widget class="QLabel" name="logoLabel">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap>../../../../resources/mlz-logo-auth.png</pixmap>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="nicosLabel">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap>../../../../resources/nicos-logo-auth.png</pixmap>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>&amp;Connecting to:</string>
+     </property>
+     <property name="buddy">
+      <cstring>presetOrAddr</cstring>
      </property>
     </widget>
    </item>
@@ -258,36 +192,6 @@
      </layout>
     </widget>
    </item>
-   <item row="7" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>&amp;User name:</string>
-     </property>
-     <property name="buddy">
-      <cstring>userName</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="1">
-    <widget class="QLineEdit" name="userName">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>&amp;Password:</string>
-     </property>
-     <property name="buddy">
-      <cstring>password</cstring>
-     </property>
-    </widget>
-   </item>
    <item row="8" column="1">
     <widget class="QLineEdit" name="password">
      <property name="inputMask">
@@ -301,10 +205,115 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="1">
-    <widget class="QCheckBox" name="viewonly">
+   <item row="7" column="1">
+    <widget class="QLineEdit" name="userName">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QListWidget" name="quickList">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="textElideMode">
+      <enum>Qt::ElideMiddle</enum>
+     </property>
+     <property name="verticalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
+     <property name="horizontalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
+     <property name="movement">
+      <enum>QListView::Static</enum>
+     </property>
+     <property name="flow">
+      <enum>QListView::LeftToRight</enum>
+     </property>
+     <property name="resizeMode">
+      <enum>QListView::Adjust</enum>
+     </property>
+     <property name="gridSize">
+      <size>
+       <width>72</width>
+       <height>64</height>
+      </size>
+     </property>
+     <property name="viewMode">
+      <enum>QListView::IconMode</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>MIRA</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../../../../resources/nicos-gui.qrc">
+        <normaloff>:/appicon</normaloff>:/appicon</iconset>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>POLI</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../../../../resources/nicos-gui.qrc">
+        <normaloff>:/appicon</normaloff>:/appicon</iconset>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>localhost</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../../../../resources/nicos-gui.qrc">
+        <normaloff>:/appicon</normaloff>:/appicon</iconset>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>test</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../../../../resources/nicos-gui.qrc">
+        <normaloff>:/appicon</normaloff>:/appicon</iconset>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>View only</string>
+      <string>&amp;User name:</string>
+     </property>
+     <property name="buddy">
+      <cstring>userName</cstring>
      </property>
     </widget>
    </item>
@@ -324,6 +333,29 @@
      </property>
     </spacer>
    </item>
+   <item row="2" column="0">
+    <spacer name="verticalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>15</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="9" column="1">
+    <widget class="QCheckBox" name="viewonly">
+     <property name="text">
+      <string>View only</string>
+     </property>
+    </widget>
+   </item>
    <item row="11" column="0" colspan="2">
     <widget class="QFrame" name="presetFrame">
      <property name="frameShape">
@@ -333,7 +365,16 @@
       <enum>QFrame::Plain</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <property name="margin">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
        <number>0</number>
       </property>
       <item row="2" column="1">
@@ -347,16 +388,6 @@
        </widget>
       </item>
      </layout>
-    </widget>
-   </item>
-   <item row="12" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
     </widget>
    </item>
   </layout>

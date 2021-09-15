@@ -28,6 +28,10 @@ from nicos.clients.flowui.mainwindow import MainWindow as MainWindowESS, \
 
 class MainWindowSINQ(MainWindowESS):
 
+    def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
+        MainWindowESS.__init__(self, log, gui_conf, viewonly=False, tunnel='')
+        self.facility_logo = 'resources/psi-logo-auth.png'
+
     def set_icons(self):
         MainWindowESS.set_icons(self)
         self.actionEmergencyStop.setIcon(

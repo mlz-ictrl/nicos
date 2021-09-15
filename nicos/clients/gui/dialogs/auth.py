@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
@@ -27,7 +28,7 @@
 from nicos.clients.base import ConnectionData
 from nicos.clients.gui.utils import loadUi, splitTunnelString
 from nicos.guisupport.qt import QDialog, QFontMetrics, QIcon, \
-    QListWidgetItem, QPalette, QPyNullVariant, QSize
+    QListWidgetItem, QPalette, QPixmap, QPyNullVariant, QSize
 from nicos.protocols.daemon.classic import DEFAULT_PORT
 
 
@@ -72,6 +73,8 @@ class ConnectionDialog(QDialog):
     def __init__(self, parent, connpresets, lastpreset, lastdata, tunnel=''):
         QDialog.__init__(self, parent)
         loadUi(self, 'dialogs/auth.ui')
+        if hasattr(parent, 'facility_logo'):
+            self.logoLabel.setPixmap(QPixmap(parent.facility_logo))
         self.connpresets = connpresets
         if isinstance(lastpreset, QPyNullVariant):
             lastpreset = None

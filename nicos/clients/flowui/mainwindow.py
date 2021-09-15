@@ -20,6 +20,7 @@
 # Module authors:
 #   Georg Brandl <georg.brandl@frm2.tum.de>
 #   Christian Felder <c.felder@fz-juelich.de>
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
@@ -55,6 +56,7 @@ class MainWindow(DefaultMainWindow):
         self.add_logo()
         self.set_icons()
         self.style_file = gui_conf.stylefile
+        self.facility_logo = 'resources/ess-logo-auth.png'
 
         self.editor_wintype = self.gui_conf.find_panel(
             ('editor.EditorPanel',
