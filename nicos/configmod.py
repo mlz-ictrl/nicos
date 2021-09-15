@@ -26,6 +26,7 @@
 Global configuration for the NICOS system.
 """
 
+import importlib
 import os
 import sys
 from configparser import ConfigParser
@@ -103,8 +104,8 @@ class config:
 # read nicos.conf files
 
 class NicosConfigParser(ConfigParser):
-    def optionxform(self, key):
-        return key
+    def optionxform(self, optionstr):
+        return optionstr
 
 
 def findSetupPackage(nicos_root, global_cfg):
@@ -121,7 +122,7 @@ def findSetupPackage(nicos_root, global_cfg):
 
     if 'INSTRUMENT' in os.environ:
         if '.' in os.environ['INSTRUMENT']:
-            setup_package = os.environ['INSTRUMENT'].split('.')[0]
+            setup_package = os.environ['INSTRUMENT'].rsplit('.', 1)[0]
 
     if setup_package is None and \
        global_cfg.has_option('nicos', 'setup_package'):
@@ -156,7 +157,7 @@ def readConfig():
     # Find setup package and its path.
     setup_package = findSetupPackage(nicos_root, global_cfg)
     try:
-        setup_package_mod = __import__(setup_package)
+        setup_package_mod = importlib.import_module(setup_package)
     except ImportError:
         print('Setup package %r does not exist, cannot continue.' %
               setup_package, file=sys.stderr)
@@ -170,7 +171,7 @@ def readConfig():
     if 'INSTRUMENT' in os.environ:
         instr = os.environ['INSTRUMENT']
         if '.' in instr:
-            instr = instr.split('.')[1]
+            instr = instr.rsplit('.', 1)[1]
     elif global_cfg.has_option('nicos', 'instrument'):
         instr = global_cfg.get('nicos', 'instrument')
     elif hasattr(setup_package_mod, 'determine_instrument'):
