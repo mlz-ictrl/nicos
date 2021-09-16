@@ -30,7 +30,7 @@ class MainWindowSINQ(MainWindowESS):
 
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         MainWindowESS.__init__(self, log, gui_conf, viewonly=False, tunnel='')
-        self.facility_logo = 'resources/psi-logo-auth.png'
+        self.facility_logo = ':/psi-logo-auth'
 
     def set_icons(self):
         MainWindowESS.set_icons(self)

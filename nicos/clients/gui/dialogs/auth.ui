@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>466</width>
-    <height>762</height>
+    <width>1155</width>
+    <height>755</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Authenticate</string>
@@ -70,11 +76,32 @@
      <layout class="QHBoxLayout" name="horizontalLayout" stretch="121,186">
       <item>
        <widget class="QLabel" name="logoLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>132</width>
+          <height>80</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>132</width>
+          <height>80</height>
+         </size>
+        </property>
         <property name="text">
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>../../../../resources/mlz-logo-auth.png</pixmap>
+         <pixmap>../../../../resources/mlz-logo-auth.svg</pixmap>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -83,11 +110,32 @@
       </item>
       <item>
        <widget class="QLabel" name="nicosLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>208</width>
+          <height>80</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>208</width>
+          <height>80</height>
+         </size>
+        </property>
         <property name="text">
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>../../../../resources/nicos-logo-auth.png</pixmap>
+         <pixmap resource="../../../../resources/nicos-gui.qrc">:/nicos-logo</pixmap>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

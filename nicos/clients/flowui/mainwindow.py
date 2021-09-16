@@ -56,7 +56,7 @@ class MainWindow(DefaultMainWindow):
         self.add_logo()
         self.set_icons()
         self.style_file = gui_conf.stylefile
-        self.facility_logo = 'resources/ess-logo-auth.png'
+        self.facility_logo = ':/ess-logo-auth'
 
         self.editor_wintype = self.gui_conf.find_panel(
             ('editor.EditorPanel',
