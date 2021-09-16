@@ -31,8 +31,8 @@ import numpy
 
 from nicos import session
 from nicos.core import POLLER, SIMULATION, ConfigurationError, \
-    DeviceMixinBase, HasLimits, Moveable, Override, Param, Readable, anytype, \
-    floatrange, none_or, pvname, status
+    DeviceMixinBase, HasLimits, HasPrecision, Moveable, Override, Param, \
+    Readable, anytype, floatrange, none_or, pvname, status
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.epics.pva.p4p import P4pWrapper
 from nicos.utils import HardwareStub
@@ -89,7 +89,6 @@ class EpicsDevice(DeviceMixinBase):
 
     def _register_pv_callbacks(self):
         self._epics_subscriptions = set()
-
         value_pvs = self._get_pv_parameters()
         status_pvs = self._get_status_parameters()
         if session.sessiontype == POLLER:
@@ -349,7 +348,7 @@ class EpicsStringMoveable(EpicsMoveable):
         return self._get_pv('readpv', as_string=True)
 
 
-class EpicsAnalogMoveable(HasLimits, EpicsMoveable):
+class EpicsAnalogMoveable(HasPrecision, HasLimits, EpicsMoveable):
     """
     Handles EPICS devices which can set and read a floating value.
     """
@@ -390,6 +389,18 @@ class EpicsAnalogMoveable(HasLimits, EpicsMoveable):
         if not self.has_unit:
             return ''
         return self._epics_wrapper.get_units(self._param_to_pv['readpv'])
+
+    def doStatus(self, maxage=0):
+        severity, msg = EpicsMoveable.doStatus(self, maxage)
+
+        if severity in [status.ERROR, status.WARN]:
+            return severity, msg
+
+        at_target = HasPrecision.doIsAtTarget(self, self.doRead(),
+                                              self.doReadTarget())
+        if not at_target:
+            return status.BUSY, 'moving'
+        return status.OK, msg
 
 
 class EpicsDigitalMoveable(EpicsAnalogMoveable):
