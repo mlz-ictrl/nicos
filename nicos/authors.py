@@ -48,6 +48,7 @@ Contributors:
 * Peter Link <peter.link@frm2.tum.de>
 * Kenan Muric <kenan.muric@ess.eu>
 * Pascal Neubert <pascal.neubert@frm2.tum.de>
+* Tobias Neuwirth <tobias.neuwirth@frm2.tum.de>
 * Adrian Potter <adrian.potter@tessella.com>
 * Jörg Pulz <joerg.pulz@frm2.tum.de>
 * Stefan Rainow <s.rainow@fz-juelich.de>
@@ -89,7 +90,6 @@ Instrument-specific code was contributed by:
 * Gaetano Mangiapia <gaetano.mangiapia@hzg.de>
 * Rifai Muslih <rifai@batan.go.id>
 * Thomas Müller <t.mueller@fz-juelich.de>
-* Tobias Neuwirth <tobias.neuwirth@frm2.tum.de>
 * Dominic Oram <dominic.oram@stfc.ac.uk>
 * Ji Tae Park <jitae.park@frm2.tum.de>
 * Matthias Pomm <matthias.pomm@hzg.de>
@@ -112,10 +112,11 @@ Instrument-specific code was contributed by:
 * Tobias Weber <tobias.weber@frm2.tum.de>
 * Andreas Wilhelm <andreas.wilhelm@frm2.tum.de>
 * Aleks Wischolit <aleks.wischolit@frm2.tum.de>
+* Marcell Wolf <marcell.wolf@frm2.tum.de>
 
 Logos were contributed by:
 
-* Ramona Bucher <ramona.bucher@frm2.tum.de>
+* Ramona Schurek <r.schurek@fz-juelich.de>
 
 It is free software, and can be distributed under the terms of the
 GNU General Public license version 2 or later (see LICENSE).
