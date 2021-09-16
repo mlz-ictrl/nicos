@@ -34,9 +34,8 @@ from nicos.core import POLLER, SIMULATION, ConfigurationError, \
     DeviceMixinBase, HasLimits, Moveable, Override, Param, Readable, anytype, \
     floatrange, none_or, pvname, status
 from nicos.devices.abstract import MappedMoveable
+from nicos.devices.epics.pva.p4p import P4pWrapper
 from nicos.utils import HardwareStub
-
-from nicos_ess.devices.epics.pva.p4p import P4pWrapper
 
 __all__ = [
     'EpicsDevice', 'EpicsReadable', 'EpicsStringReadable',
