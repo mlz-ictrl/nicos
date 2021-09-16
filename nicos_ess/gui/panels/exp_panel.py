@@ -324,13 +324,9 @@ class ExpPanel(Panel):
         local_contacts = self._format_local_contacts(
             self.new_proposal_settings.local_contacts)
 
-        if self._experiment_in_progress(proposal_id):
-            self.showError('Can not directly switch experiments, please use '
-                           'FinishExperiment first!')
-            return
-
         # do some work
         if proposal_id != self.old_proposal_settings.proposal_id:
+            self.client.run('FinishExperiment()', noqueue=True)
             args = {'proposal': proposal_id,
                     'title': self.new_proposal_settings.title,
                     'localcontact': local_contacts, 'user': users}
