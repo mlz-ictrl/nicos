@@ -389,7 +389,7 @@ class HasTimeout(DeviceMixinBase):
     parameters = {
         'timeout':   Param('Time limit for the device to reach its target'
                            ', or None', unit='s', fmtstr='%.1f',
-                           type=none_or(float),
+                           type=none_or(floatrange(0)),
                            settable=True, mandatory=False, chatty=True),
         '_timesout': Param('Device movement should finish between these '
                            'timestamps',
