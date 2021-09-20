@@ -100,6 +100,11 @@ class DoubleValidator(QDoubleValidator):
     def validate(self, string, pos):
         if ',' in string:
             return QValidator.Invalid, string, pos
+        elif string.startswith('.'):
+            return QDoubleValidator.validate(self, '0' + string, pos + 1)
+        elif string.startswith('-.') or string.startswith('+.'):
+            return QDoubleValidator.validate(
+                self, '%s0%s' % (string[0], string[1:]), pos + 1)
         return QDoubleValidator.validate(self, string, pos)
 
 

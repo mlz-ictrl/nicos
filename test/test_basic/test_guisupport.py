@@ -41,6 +41,10 @@ def test_double_validator():
             ('0', -1, 1),
             ('0', 0, inf),
             ('0', -inf, 0),
+            ('.1', -1, 1),
+            ('-.1', -1, 1),
+            ('+.1', -1, 1),
+            ('.e9', -1, 1),  # valid due to prepend of '0' in validator
     ]:
         validator.setBottom(args[1])
         validator.setTop(args[2])
