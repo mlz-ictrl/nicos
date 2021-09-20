@@ -21,52 +21,65 @@
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************
-
 """Tests for various APIs in nicos.guisupport."""
+
+import pytest
 
 from nicos.guisupport.qt import QValidator
 from nicos.guisupport.utils import DoubleValidator
 
+idmap = {
+    QValidator.Acceptable: 'Acceptable', QValidator.Intermediate: 'Intermediate',
+    QValidator.Invalid: 'Invalid'
+}
 
-def test_double_validator():
-    inf = float('inf')
+
+def idfn(val):
+    if isinstance(val, (
+        list,
+        tuple,
+    )):
+        return idmap[val[0]] + '-' + (val[1] or 'inp')
+
+
+inf = float('inf')
+
+
+@pytest.mark.parametrize(
+    'val, ll, ul, expected',
+    [
+        ('0', -inf, inf, (QValidator.Acceptable, None)),
+        ('0.0', -inf, inf, (QValidator.Acceptable, None)),
+        ('0.0e0', -inf, inf, (QValidator.Acceptable, None)),
+        ('-0.0', -inf, inf, (QValidator.Acceptable, None)),
+        ('1.23456789123456789e130', -inf, inf, (QValidator.Acceptable, None)),
+        ('0', -1, 1, (QValidator.Acceptable, None)),
+        ('0', 0, inf, (QValidator.Acceptable, None)),
+        ('0', -inf, 0, (QValidator.Acceptable, None)),
+        ('.1', -1, 1, (QValidator.Acceptable, '0.1')),
+        ('-.1', -1, 1, (QValidator.Acceptable, '-0.1')),
+        ('+.1', -1, 1, (QValidator.Acceptable, '+0.1')),
+        ('.e9', 0, 10, (QValidator.Acceptable, '0.e9')),  # validator prepends 0!
+        # intermediate
+        ('4', 10, 50, (QValidator.Intermediate, None)),
+        ('-4', -50, -10, (QValidator.Intermediate, None)),
+        ('1.0e', -inf, inf, (QValidator.Intermediate, None)),
+        ('0', 10, 20, (QValidator.Intermediate, None)),
+        ('1.e9', 0, 10, (QValidator.Intermediate, '1.e9')),
+        # invalid
+        ('-15', 10, 20, (QValidator.Invalid, None)),
+        ('-1', 10, 20, (QValidator.Invalid, None)),
+        ('+15', -20, -10, (QValidator.Invalid, None)),
+        ('+1', -20, -10, (QValidator.Invalid, None)),
+        ('1,5', 0, 10, (QValidator.Invalid, None)),
+    ],
+    ids=idfn
+)
+def test_double_validator(val, ll, ul, expected):
     # valid cases
     validator = DoubleValidator()
-    for args in [
-            ('0', -inf, inf),
-            ('0.0', -inf, inf),
-            ('0.0e0', -inf, inf),
-            ('-0.0', -inf, inf),
-            ('1.23456789123456789e130', -inf, inf),
-            ('0', -1, 1),
-            ('0', 0, inf),
-            ('0', -inf, 0),
-            ('.1', -1, 1),
-            ('-.1', -1, 1),
-            ('+.1', -1, 1),
-            ('.e9', -1, 1),  # valid due to prepend of '0' in validator
-    ]:
-        validator.setBottom(args[1])
-        validator.setTop(args[2])
-        assert validator.validate(args[0], 0)[0] == QValidator.Acceptable
-    # intermediate cases
-    for args in [
-            ('4', 10, 50),
-            ('-4', -50, -10),
-            ('1.0e', -inf, inf),
-            ('0', 10, 20),
-    ]:
-        validator.setBottom(args[1])
-        validator.setTop(args[2])
-        assert validator.validate(args[0], 0)[0] == QValidator.Intermediate
-    # invalid cases
-    for args in [
-            ('-15', 10, 20),
-            ('-1', 10, 20),
-            ('+15', -20, -10),
-            ('+1', -20, -10),
-            ('1,5', 0, 10),
-    ]:
-        validator.setBottom(args[1])
-        validator.setTop(args[2])
-        assert validator.validate(args[0], 0)[0] == QValidator.Invalid
+    validator.setBottom(ll)
+    validator.setTop(ul)
+    valres = validator.validate(val, 0)
+    assert valres[0] == expected[0]
+    assert valres[1] == expected[1] or val
