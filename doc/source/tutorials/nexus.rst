@@ -68,7 +68,7 @@ a few NeXus groups.  A group is defined as a new dictionary with a syntax of:
    'groupname:NeXus class name': {}
 
 For valid NeXus class names consult the NeXus documentation at
-https://nexusformat.org
+https://www.nexusformat.org
 
 The :class:`~nicos.nexus.elements.DeviceAttribute` will be taken from the
 `nicos.nexus.elements` module::
