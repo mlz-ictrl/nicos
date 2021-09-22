@@ -6,7 +6,7 @@ description = 'config file for setup properties of devices'
 
 group = 'configdata'
 
-tango_base = 'tango://localhost:10000/'
+tango_base = 'tango://server.tex3.pnpi:10000/'
 
 # -------------------- Colimators --------------- #
 COLX1_CONF = {
