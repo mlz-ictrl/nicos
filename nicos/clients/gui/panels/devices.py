@@ -333,9 +333,9 @@ class DevicesPanel(Panel):
                 self._control_dialogs[ldevname].close()
 
         # add all toplevel items to the tree, sorted
-        for cat in self._catitems:
-            self.tree.addTopLevelItem(self._catitems[cat])
-            self._catitems[cat].setExpanded(True)
+        for citem in self._catitems.values():
+            citem.setExpanded(True)
+            self.tree.addTopLevelItem(citem)
         for devitem in self._devitems.values():
             devitem.setExpanded(True)
         self.tree.sortItems(0, Qt.AscendingOrder)
@@ -622,8 +622,7 @@ class DevicesPanel(Panel):
         retval = OK
         for i in range(item.childCount()):
             lstatus = self._devinfo[item.child(i).text(0).lower()].status[0]
-            if retval < lstatus:
-                retval = lstatus
+            retval = max(retval, lstatus)
         return retval
 
     def on_tree_itemCollapsed(self, item):
