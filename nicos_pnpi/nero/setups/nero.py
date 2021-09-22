@@ -2,4 +2,7 @@ description = 'Real NERO'
 
 group = 'basic'
 
-includes = ['count']
+includes = ['count',
+            'monochromator',
+            'se',
+            ]

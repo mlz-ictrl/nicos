@@ -1,6 +1,6 @@
 description = 'Count nero devices'
 
-tango_base = 'tango://server.nero.pnpi:10000/counts/'
+tango_base = configdata('localconfig.tango_base') + 'count/'
 
 devices = dict(
     det1_timer = device('nicos.devices.generic.VirtualTimer',
