@@ -44,8 +44,10 @@ devices = dict(
         path = None,
         minfree = 5,
     ),
-    UBahn = device('nicos_mlz.devices.ubahn.UBahn',
+    UBahn = device('nicos_mlz.devices.mvg.MVG',
         description = 'Next subway departures',
+        tangodevice='tango://ictrlfs.ictrl.frm2.tum.de:10000/mvg/U6/departures',
+        limit =3 ,
     ),
 )
 

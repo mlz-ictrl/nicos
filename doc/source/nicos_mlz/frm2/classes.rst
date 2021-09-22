@@ -21,9 +21,6 @@
 .. module:: nicos_mlz.devices.memograph
 .. autoclass:: MemographValue()
 
-.. module:: nicos_mlz.devices.ubahn
-.. autoclass:: UBahn()
-
 .. module:: nicos_mlz.devices.mvg
 .. autoclass:: MVG()
 
