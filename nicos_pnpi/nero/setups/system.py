@@ -6,7 +6,7 @@ sysconfig = dict(
     cache = 'localhost',
     instrument = 'Instrument',
     experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink'],
+    datasinks = ['conssink', 'filesink', 'daemonsink', 'livesink', 'nxsink'],
     notifiers = ['email'],
 )
 
@@ -42,6 +42,15 @@ devices = dict(
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
     livesink = device('nicos.devices.datasinks.LiveViewSink'),
+
+    nxsink = device('nicos.nexus.nexussink.NexusSink',
+                    templateclass = 'nicos_pnpi.nero.templates.'\
+                                    'nxtemplate.NxTemplateCount',
+                    filenametemplate = ['NERO%(scancounter)08d.hdf5'],
+                    subdir = 'nxdata',
+                    detectors = ['det'],
+                    settypes = set(['point','scan']),
+                    ),
 
     Space = device('nicos.devices.generic.FreeSpace',
                    description = 'The amount of free space for storing data',
