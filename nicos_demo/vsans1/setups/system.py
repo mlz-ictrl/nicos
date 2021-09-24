@@ -13,7 +13,7 @@ sysconfig = dict(
 
 modules = ['nicos.commands.standard']
 
-includes = ['notifiers']
+includes = ['notifiers', 'reactor', 'nl4a']
 
 devices = dict(
     Sample = device('nicos_mlz.sans1.devices.sans1_sample.Sans1Sample',
