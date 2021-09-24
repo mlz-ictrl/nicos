@@ -12,7 +12,7 @@ devices = dict(
         abslimits = (3100, 28300),
         unit = 'rpm',
         fmtstr = '%.0f',
-        warnlimits = (3099, 28300),
+        warnlimits = (3099, 28310),
         maxage = 35,
     ),
     selector_lambda = device('nicos.devices.vendor.astrium.SelectorLambda',

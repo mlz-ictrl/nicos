@@ -9,10 +9,10 @@ excludes = ['selector042']
 devices = dict(
     selector_rpm = device('nicos.devices.generic.VirtualMotor',
         description = 'Selector speed control',
-        abslimits = (3100, 20000),
+        abslimits = (3100, 28300),
         unit = 'rpm',
         fmtstr = '%.0f',
-        warnlimits = (3099, 20000),
+        warnlimits = (3099, 28310),
         jitter = 10,
         maxage = 35,
     ),
