@@ -11,5 +11,6 @@ includes = [
     'virtual_optic_motors',
     'virtual_IOcard',
     'optic_tool_switch',
-    'virtual_capillary_motors'
+    'virtual_capillary_motors',
+    'capillary_selector'
 ]
