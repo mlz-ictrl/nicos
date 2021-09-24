@@ -27,7 +27,8 @@
 import pytest
 
 from nicos.commands.device import adjust
-from nicos.core.errors import ConfigurationError, InvalidValueError, LimitError
+from nicos.core.errors import ConfigurationError, InvalidValueError, \
+    LimitError, UsageError
 
 from test.utils import raises
 
@@ -175,3 +176,90 @@ class TestDoubleSlit:
     def test_stop(self, session):
         d = session.getDevice('zb3')
         d.stop()
+
+
+class TestGap:
+
+    @pytest.fixture(scope='function', autouse=True)
+    def prepare(self, session):
+        gap = session.getDevice('h2')
+        gap.left.maw(0)
+        gap.right.maw(0)
+        yield
+
+    def test_centered_mode(self, session):
+        gap = session.getDevice('h2')
+        gap.opmode = 'centered'
+
+        w = 2
+        gap.maw([w])
+        assert gap.left.read(0) == -w / 2
+        assert gap.right.read(0) == w / 2
+
+        assert gap.width.read(0) == w
+        assert gap.center.read(0) == 0
+
+        gap.width.maw(10)
+        assert gap.read(0) == [10]
+        assert gap.left.read(0) == -5
+        assert gap.right.read(0) == 5
+
+        assert raises(InvalidValueError, gap.maw, [-1, 5])
+        assert raises(LimitError, gap.maw, [-1])
+        assert raises(UsageError, gap.center.maw, 1)
+
+    def test_offcentered_mode(self, session):
+        gap = session.getDevice('h2')
+        gap.opmode = 'offcentered'
+
+        assert gap.read(0) == [0, 0]
+
+        gap.maw((1, 10))
+        assert gap.left.read(0) == -4
+        assert gap.right.read(0) == 6
+
+        assert gap.width.read(0) == 10
+        assert gap.center.read(0) == 1
+
+        assert raises(InvalidValueError, gap.maw, [2])
+        assert raises(LimitError, gap.maw, [1, -1])
+
+    def test_2blades_mode(self, session):
+        gap = session.getDevice('h2')
+        gap.opmode = '2blades'
+
+        assert gap.read(0) == [0, 0]
+        gap.maw([-5, 5])
+
+        assert gap.center.read(0) == 0
+        assert gap.width.read(0) == 10
+
+        assert raises(InvalidValueError, gap.maw, [2])
+        assert raises(LimitError, gap.maw, [5, -5])
+
+    def test_2blades_oppsite_mode(self, session):
+        gap = session.getDevice('h2')
+        gap.opmode = '2blades_opposite'
+
+        assert gap.read(0) == [0, 0]
+
+        gap.maw([5, 5])
+        assert gap.width.read(0) == 10
+        assert gap.center.read(0) == 0
+
+        assert raises(InvalidValueError, gap.maw, [2])
+
+    def test_reset(self, session):
+        gap = session.getDevice('h2')
+        gap.reset()
+
+    def test_reference(self, session):
+        gap = session.getDevice('h2')
+        gap.reference()
+
+    def test_change_fmtstr(self, session):
+        gap = session.getDevice('h2')
+        gap.opmode = 'centered'
+
+        gap.fmtstr = '%.3f'
+        assert gap.fmtstr == '%.3f'

@@ -26,11 +26,14 @@
 
 import numpy as np
 
-from nicos.core import SIMULATION, Attach, AutoDevice, Moveable, Override, \
-    Param, Value, dictof, dictwith, floatrange, oneof, status, tupleof
-from nicos.core.errors import MoveError
+from nicos import session
+from nicos.core import SIMULATION, Attach, AutoDevice, HasPrecision, \
+    Moveable, Override, Param, Value, dictof, dictwith, floatrange, \
+    multiReset, multiStatus, multiWait, oneof, status, tupleof
+from nicos.core.errors import MoveError, UsageError
 from nicos.core.mixins import HasOffset
-from nicos.core.utils import devIter
+from nicos.core.utils import devIter, multiReference
+from nicos.devices.abstract import CanReference
 from nicos.devices.generic import ManualSwitch
 from nicos.devices.generic.sequence import SeqDev, SequencerMixin
 from nicos.utils import lazy_property
@@ -366,3 +369,284 @@ class SingleSlitAxis(AutoDevice, Moveable):
 
     def doIsAllowed(self, target):
         return self.slit.isAllowed(self._conv(target))
+
+
+class Gap(CanReference, Moveable):
+    """A rectangular gap consisting of 2 blades.
+
+    The gap can operate in four "opmodes", controlled by the `opmode`
+    parameter:
+
+    * '2blades' -- both blades are controlled separately.  Values read from the
+      slit are lists in the order ``[left, right]``; for ``move()`` the same
+      list of coordinates has to be supplied.
+    * '2blades_opposite' -- like '2blades', but left/right opposite coordinate
+      systems, i.e. [5, 5] is an opening of 10.
+    * 'centered' -- only width is controlled; the gap is centered at the zero
+      value of the left-right coordinates.  Values read and written are in the
+      form ``[width]``.
+    * 'offcentered' -- the center and width are controlled.  Values are read
+      and written are in the form ``[center, width]``.
+
+    Normally, the lower level ``right`` and ``left`` devices need to share a
+    common coordinate system, i.e. when ``right.read() == left.read()`` the gap
+    is closed.  A different convention can be selected when setting
+    `coordinates` to ``"opposite"``: in this case, the blades meet at
+    coordinate 0, and both move in positive direction when they open.
+
+    All instances have attributes controlling single dimensions that can be
+    used as devices, for example in scans.  These attributes are:
+
+    * `left`, `right` -- controlling the blades individually, independent of
+      the opmode
+    * `center`, `width` -- controlling "logical" coordinates of the gap,
+      independent of the opmode
+
+    Example usage::
+
+        >>> move(gap.center, 5)       # move gap center
+        >>> scan(gap.width, 0, 1, 6)  # scan over slit width from 0 to 5 mm
+    """
+
+    attached_devices = {
+        'left': Attach('Left blade', HasPrecision),
+        'right': Attach('Right blade', HasPrecision),
+    }
+
+    parameters = {
+        'opmode': Param('Mode of operation for the slit',
+                        type=oneof('2blades', '2blades_opposite',
+                                   'centered', 'offcentered'),
+                        settable=True),
+        'coordinates': Param('Coordinate convention for left/right and '
+                             'top/bottom blades', default='equal',
+                             type=oneof('equal', 'opposite')),
+        'fmtstr_map': Param('A dictionary mapping operation modes to format '
+                            'strings (used for internal management).',
+                            type=dictof(str, str), settable=False,
+                            mandatory=False, userparam=False,
+                            default={
+                                '2blades': '%.2f %.2f',
+                                '2blades_opposite': '%.2f %.2f',
+                                'centered': '%.2f',
+                                'offcentered': '%.2f, %.2f',
+                            }),
+        'parallel_ref': Param('Set to True if the blades\' reference drive '
+                              'can be done in parallel.', type=bool,
+                              default=False),
+    }
+
+    parameter_overrides = {
+        'fmtstr': Override(volatile=True),
+        'unit': Override(mandatory=False),
+    }
+
+    valuetype = tupleof(float, float)
+
+    hardware_access = False
+
+    _delay = 0.25  # delay between starting to move opposite blades
+
+    def doInit(self, mode):
+        self._axes = [self._attached_left, self._attached_right]
+        self._axnames = ['left', 'right']
+
+        for name in self._axnames:
+            self.__dict__[name] = self._adevs[name]
+
+        for name, cls in [
+            ('center', CenterGapAxis), ('width', WidthGapAxis),
+        ]:
+            self.__dict__[name] = cls('%s.%s' % (self.name, name), gap=self,
+                                      unit=self.unit, lowlevel=True)
+
+    def doShutdown(self):
+        for name in ['center', 'width']:
+            if name in self.__dict__:
+                self.__dict__[name].shutdown()
+
+    def _getPositions(self, target):
+        if self.opmode == '2blades':
+            # if len(target) != 2:
+            #     raise InvalidValueError(self, 'arguments required for '
+            #                             '2-blades mode: [left, right]')
+            positions = list(target)
+        elif self.opmode == '2blades_opposite':
+            # if len(target) != 2:
+            #     raise InvalidValueError(self, 'arguments required for '
+            #                             '4-blades mode: [left, right]')
+            positions = [-target[0], target[1]]
+        elif self.opmode == 'centered':
+            # if len(target) != 1:
+            #     raise InvalidValueError(self, 'arguments required for '
+            #                             'centered mode: [width]')
+            positions = [-target[0] / 2, target[0] / 2]
+        else:
+            # if len(target) != 2:
+            #     raise InvalidValueError(self, 'arguments required for '
+            #                             'offcentered mode: [center, width]')
+            positions = [target[0] - target[1] / 2, target[0] + target[1] / 2]
+        return positions
+
+    def doIsAllowed(self, target):
+        return self._doIsAllowedPositions(self._getPositions(target))
+
+    def _isAllowedSlitOpening(self, positions):
+        ok, why = True, ''
+        if positions[1] < positions[0]:
+            ok, why = False, 'gap opening is negative'
+        return ok, why
+
+    def _doIsAllowedPositions(self, positions):
+        f = self.coordinates == 'opposite' and -1 or +1
+        for ax, axname, pos in zip(self._axes, self._axnames, positions):
+            if axname in ('left'):
+                pos *= f
+            ok, why = ax.isAllowed(pos)
+            if not ok:
+                return ok, '[%s blade] %s' % (axname, why)
+        return self._isAllowedSlitOpening(positions)
+
+    def doStart(self, target):
+        self._doStartPositions(self._getPositions(target))
+
+    def _doStartPositions(self, positions):
+        f = self.coordinates == 'opposite' and -1 or +1
+        tl, tr = positions
+        # determine which axes to move first, so that the blades can
+        # not touch when one moves first
+        cl, cr = self._doReadPositions(0)
+        al, ar = self._axes
+        if tr < cr and tl < cl:
+            # both move to smaller values, need to start right blade first
+            al.move(tl * f)
+            session.delay(self._delay)
+            ar.move(tr)
+        elif tr > cr and tl > cl:
+            # both move to larger values, need to start left blade first
+            ar.move(tr)
+            session.delay(self._delay)
+            al.move(tl * f)
+        else:
+            # don't care
+            ar.move(tr)
+            al.move(tl * f)
+
+    def doReset(self):
+        multiReset(self._axes)
+        multiWait(self._axes)
+
+    def doReference(self):
+        multiReference(self, self._axes, self.parallel_ref)
+
+    def _doReadPositions(self, maxage):
+        cl, cr = [d.read(maxage) for d in self._axes]
+        if self.coordinates == 'opposite':
+            cl *= -1
+        return [cl, cr]
+
+    def doRead(self, maxage=0):
+        l, r = positions = self._doReadPositions(maxage)
+        if self.opmode == 'centered':
+            if abs((l + r) / 2) > self._attached_left.precision:
+                self.log.warning('gap seems to be offcentered, but is '
+                                 'set to "centered" mode')
+            return [r - l]
+        elif self.opmode == 'offcentered':
+            return [(l + r) / 2, r - l]
+        elif self.opmode == '2blades_opposite':
+            return [-l, r]
+        return positions
+
+    def doPoll(self, n, maxage):
+        # also poll sub-AutoDevices we created
+        for dev in devIter(self.__dict__, baseclass=AutoDevice):
+            dev.poll(n, maxage)
+
+    def valueInfo(self):
+        if self.opmode == 'centered':
+            return Value('%s.width' % self, unit=self.unit, fmtstr='%.2f')
+        elif self.opmode == 'offcentered':
+            return Value('%s.center' % self, unit=self.unit, fmtstr='%.2f'), \
+                Value('%s.width' % self, unit=self.unit, fmtstr='%.2f')
+        return Value('%s.left' % self, unit=self.unit, fmtstr='%.2f'), \
+            Value('%s.right' % self, unit=self.unit, fmtstr='%.2f')
+
+    def doStatus(self, maxage=0):
+        return multiStatus(list(zip(self._axnames, self._axes)))
+
+    def doReadUnit(self):
+        return self._attached_left.unit
+
+    def doWriteFmtstr(self, value):
+        # since self.fmtstr_map is a readonly dict a temp. copy is created
+        # to update the dict and then put to cache back
+        tmp = dict(self.fmtstr_map)
+        tmp[self.opmode] = value
+        self._setROParam('fmtstr_map', tmp)
+
+    def doReadFmtstr(self):
+        return self.fmtstr_map[self.opmode]
+
+    def doWriteOpmode(self, value):
+        if self._cache:
+            self._cache.invalidate(self, 'value')
+
+    def doUpdateOpmode(self, value):
+        if value == 'centered':
+            self.valuetype = tupleof(float)
+        else:
+            self.valuetype = tupleof(float, float)
+
+
+class GapAxis(AutoDevice, Moveable):
+    """
+    "Partial" devices for slit axes, useful for e.g. scanning
+    over the device slit.centerx.
+    """
+
+    attached_devices = {
+        'gap': Attach('Slit whose axis is controlled', Gap),
+    }
+
+    valuetype = float
+
+    hardware_access = False
+
+    def doRead(self, maxage=0):
+        positions = self._attached_gap._doReadPositions(maxage)
+        return self._convertRead(positions)
+
+    def doStart(self, target):
+        currentpos = self._attached_gap._doReadPositions(0.1)
+        positions = self._convertStart(target, currentpos)
+        self._attached_gap._doStartPositions(positions)
+
+    def doIsAllowed(self, target):
+        currentpos = self._attached_gap._doReadPositions(0.1)
+        positions = self._convertStart(target, currentpos)
+        return self._attached_gap._doIsAllowedPositions(positions)
+
+
+class CenterGapAxis(GapAxis):
+
+    def doStart(self, target):
+        if self._attached_gap.opmode == 'centered':
+            raise UsageError("Can't move center if gap is in 'centered' mode")
+
+    def _convertRead(self, positions):
+        return (positions[0] + positions[1]) / 2.
+
+    def _convertStart(self, target, current):
+        width = current[1] - current[0]
+        return (target - width / 2, target + width / 2)
+
+
+class WidthGapAxis(GapAxis):
+
+    def _convertRead(self, positions):
+        return positions[1] - positions[0]
+
+    def _convertStart(self, target, current):
+        center = (current[0] + current[1]) / 2.
+        return (center - target / 2, center + target / 2)
