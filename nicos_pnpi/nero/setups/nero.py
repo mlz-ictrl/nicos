@@ -5,4 +5,5 @@ group = 'basic'
 includes = ['count',
             'monochromator',
             'se',
+            'colimator',
             ]

@@ -99,7 +99,7 @@ X_GAP_CONF = {
     'speed': 0.5,
     'unit': 'mm',
     'abslimits': (-100, 100),
-    'lowlevel': False,
+    'lowlevel': True,
 }
 
 Y_GAP_CONF = {
@@ -108,5 +108,5 @@ Y_GAP_CONF = {
     'speed': 0.5,
     'unit': 'mm',
     'abslimits': (-100, 100),
-    'lowlevel': False,
+    'lowlevel': True,
 }
