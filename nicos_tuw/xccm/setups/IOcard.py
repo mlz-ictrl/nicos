@@ -1,6 +1,6 @@
 description = 'Actuators and feedback of the shutter, detector, and valves'
 
-groupt = 'lowlevel'
+group = 'lowlevel'
 
 tangobase = 'tango://localhost:10000/box/'
 
