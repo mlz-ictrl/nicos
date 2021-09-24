@@ -7,7 +7,9 @@ includes = [
 #    'table',
 #    'detector',
     'virtual_sample_motors',
-#    'detector_motors',
+    'virtual_detector_motors',
     'virtual_optic_motors',
-#    'IOcard'
+    'virtual_IOcard',
+    'optic_tool_switch',
+    'virtual_capillary_motors'
 ]
