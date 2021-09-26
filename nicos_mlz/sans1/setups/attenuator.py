@@ -18,6 +18,7 @@ devices = dict(
         pollinterval = 15,
         maxage = 60,
         precision = 0.1,
+        fmtstr = '%s',
     ),
     att_a = device('nicos.devices.generic.Axis',
         description = 'Attenuator axis',
