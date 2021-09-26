@@ -180,6 +180,11 @@ class BeamStop(SequencerMixin, Moveable):
         'xaxis': Attach('Axis for the X-movement', BeamStopAxis),
         'yaxis': Attach('Axis for the Y-movement', BeamStopAxis),
     }
+
+    parameter_overrides = {
+        'fmtstr': Override(default='%.3f, %.3f'),
+    }
+
     valuetype = tupleof(float, float)
     _honor_stop = True
 
