@@ -27,9 +27,10 @@
 from math import atan, pi, radians, tan
 
 from nicos.core import Attach, Moveable, Param, Readable, status
+from nicos.core.mixins import HasPrecision
 
 
-class SelectorLambda(Moveable):
+class SelectorLambda(HasPrecision, Moveable):
     """
     Control selector wavelength directly, converting between speed and
     wavelength.
@@ -81,6 +82,8 @@ class SelectorLambda(Moveable):
         return allowed, why
 
     def doStart(self, target):
+        if self.isAtTarget(target=target):
+            return
         speed = int(self._constant(self._get_tilt(0)) / target)
         self.log.debug('moving selector to %d rpm', speed)
         self._attached_seldev.start(speed)
