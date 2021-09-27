@@ -59,7 +59,7 @@ class SeqWaitConditional(SequenceItem):
             return True
         value = self.dev.read(0)
         if self.opmap[self.limittype][1](value, self.limit):
-            log = self.dev.log if self.waiting else self.dev.debug
+            log = self.dev.log.info if self.waiting else self.dev.log.debug
             log('%s %s %s continue', self.dev.format(value),
                 self.opmap[self.limittype][0],
                 self.dev.format(self.limit, True))
