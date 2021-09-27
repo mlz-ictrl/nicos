@@ -635,6 +635,10 @@ class LockedDevice(BaseSequencer):
                            default=None, type=none_or(anytype)),
     }
 
+    parameter_overrides = {
+        'unit': Override(volatile=True),
+    }
+
     def _generateSequence(self, target):
         device = self._attached_device
         lock = self._attached_lock
@@ -672,6 +676,9 @@ class LockedDevice(BaseSequencer):
 
     def doIsAllowed(self, target):
         return self._attached_device.isAllowed(target)
+
+    def doReadUnit(self):
+        return self._attached_device.unit
 
 
 class MeasureSequencer(SequencerMixin, Measurable):
