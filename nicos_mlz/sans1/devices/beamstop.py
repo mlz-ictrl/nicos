@@ -28,8 +28,8 @@ import numpy as np
 
 from nicos import session
 from nicos.core import ADMIN, SIMULATION, SLAVE, Attach, Moveable, Override, \
-    Param, PositionError, UsageError, dictof, floatrange, limits, oneof, \
-    requires, status, tupleof
+    Param, PositionError, UsageError, dictof, floatrange, intrange, limits, \
+    oneof, requires, status, tupleof
 from nicos.devices.entangle import Sensor
 from nicos.devices.generic import Axis
 from nicos.devices.generic.sequence import SeqCall, SeqDev as NicosSeqDev, \
@@ -65,13 +65,12 @@ class BeamStopAxis(Axis):
         'fixed': Override(type=oneof(''), default=''),
         'offset': Override(type=oneof(0.0), default=0.0),
         'lowlevel': Override(default=True),
-        'maxtries': Override(default=1000, settable=False),
+        'maxtries': Override(default=1000, settable=False,
+                             type=intrange(1, 1000)),
     }
 
     def doInit(self, mode):
         Axis.doInit(self, mode)
-        if self.maxtries < 1000:
-            self._setROParam('maxtries', 1000)
         self._setROParam('userlimits', self.abslimits)
         if mode not in (SIMULATION, SLAVE) and \
            self._attached_motor.status()[0] != status.BUSY:
