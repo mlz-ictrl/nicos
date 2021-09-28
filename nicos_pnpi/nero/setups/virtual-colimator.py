@@ -4,6 +4,7 @@ excludes = ['colimator']
 
 x_gap_conf = configdata('localconfig.X_GAP_CONF')
 y_gap_conf = configdata('localconfig.Y_GAP_CONF')
+theta_conf = configdata('localconfig.THETA_CONF')
 
 devices = dict(
     x_gap = device('nicos.devices.generic.VirtualMotor',
@@ -28,7 +29,17 @@ devices = dict(
                  description = 'colimator gap',
                  horizontal = 'x_gap',
                  vertical = 'y_gap',
-                 )
+                 ),
+
+    # shaper rotation angle
+    theta = device('nicos.devices.generic.VirtualMotor',
+                   description = theta_conf['description'],
+                   precision = theta_conf['precision'],
+                   lowlevel = theta_conf['lowlevel'],
+                   abslimits = theta_conf['abslimits'],
+                   speed = theta_conf['speed'],
+                   unit = theta_conf['unit'],
+                   ),
 )
 
 

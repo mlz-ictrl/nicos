@@ -76,5 +76,11 @@ devices = dict(
                    unit = omega_conf['unit'],
                    ),
 
+    shutter = device('nicos.devices.generic.ManualSwitch',
+                     description = 'virtual shutter',
+                     states = ['unknown', 'open', 'close'],
+                     requires = {'level': 0},
+                     ),
+
 )
 

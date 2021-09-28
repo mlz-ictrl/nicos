@@ -110,3 +110,12 @@ Y_GAP_CONF = {
     'abslimits': (-100, 100),
     'lowlevel': True,
 }
+
+THETA_CONF = {
+    'description': 'shaper rotation',
+    'precision': 0.01,
+    'speed': 0.5,
+    'unit': 'deg',
+    'abslimits': (-0, 180),
+    'lowlevel': False,
+}
