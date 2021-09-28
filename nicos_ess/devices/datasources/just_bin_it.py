@@ -27,6 +27,7 @@ import time
 import kafka
 import numpy as np
 from streaming_data_types.histogram_hs00 import deserialise_hs00
+from streaming_data_types.utils import get_schema
 
 from nicos.core import ArrayDesc, InvalidValueError, Override, Param, Value, \
     floatrange, host, listof, multiStatus, oneof, status, tupleof
@@ -192,6 +193,8 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
 
     def new_messages_callback(self, messages):
         for _, message in messages:
+            if not get_schema(message) == 'hs00':
+                continue
             hist = deserialise_hs00(message)
             info = json.loads(hist['info'])
             self.log.debug('received unique id = {}'.format(info['id']))
