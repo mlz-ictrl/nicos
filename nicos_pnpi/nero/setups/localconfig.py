@@ -111,11 +111,56 @@ Y_GAP_CONF = {
     'lowlevel': True,
 }
 
-THETA_CONF = {
+THETA_S_CONF = {
     'description': 'shaper rotation',
     'precision': 0.01,
-    'speed': 0.5,
+    'speed': 0.25,
     'unit': 'deg',
-    'abslimits': (-0, 180),
+    'abslimits': (-5, 5),
+    'lowlevel': False,
+}
+
+X_S_CONF = {
+    'description': 'shaper perpendicular movement',
+    'precision': 0.01,
+    'speed': 0.5,
+    'unit': 'mm',
+    'abslimits': (-50, 50),
+    'lowlevel': False,
+}
+
+DIA1_ANGLE_CONF = {
+    'description': 'the diaphragm #1 angle',
+    'precision': 0.01,
+    'speed': 0.25,
+    'unit': 'deg',
+    'abslimits': (-5, 5),
+    'lowlevel': False,
+}
+
+DIA1_POS_CONF = {
+    'description': 'the diaphragm #1 perpendicular beam movement',
+    'precision': 0.01,
+    'speed': 0.5,
+    'unit': 'mm',
+    'abslimits': (-50, 50),
+    'lowlevel': False,
+}
+
+DIA2_ANGLE_CONF = {
+    'description': 'the diaphragm #2 angle',
+    'precision': 0.01,
+    'speed': 0.25,
+    'unit': 'deg',
+    'abslimits': (-5, 5),
+    'lowlevel': False,
+}
+
+DIA2_POS_CONF = {
+    'description': 'the diaphragm #2 perpendicular beam movement',
+    'precision': 0.01,
+    'speed': 0.5,
+    'unit': 'mm',
+    'abslimits': (-50, 50),
     'lowlevel': False,
 }
