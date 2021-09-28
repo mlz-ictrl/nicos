@@ -248,9 +248,6 @@ class BeamStop(SequencerMixin, Moveable):
         if self.shape not in self.slots:
             raise UsageError('currently used shape unknown, '
                              '(Call instrument scientist!)')
-        if target not in self.slots:
-            raise UsageError('unknown shape, use one of %s' %
-                             ', '.join([repr(s) for s in self.slots]))
         self._startSequence(self._generateSequence(target))
         # important!
         # shape will be changed by the sequence, so we force the old value here
