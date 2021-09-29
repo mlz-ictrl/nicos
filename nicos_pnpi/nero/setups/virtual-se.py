@@ -28,4 +28,17 @@ devices = dict(
                    speed = alpha_conf['speed'],
                    unit = alpha_conf['unit'],
                    ),
+
+    fb = device('nicos.devices.generic.ManualSwitch',
+                description = 'Flipper before sample table',
+                states = ['unknown', 'off', 'on'],
+                requires = {'level': 0},
+                ),
+
+    fa = device('nicos.devices.generic.ManualSwitch',
+                description = 'Flipper after sample table',
+                states = ['unknown', 'off', 'on'],
+                requires = {'level': 0},
+                ),
+
 )

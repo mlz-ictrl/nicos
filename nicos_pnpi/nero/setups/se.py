@@ -30,4 +30,18 @@ devices = dict(
                    speed = alpha_conf['speed'],
                    unit = alpha_conf['unit'],
                    ),
+
+    fb = device('nicos.devices.entangle.DigitalOutput',
+                description = 'Flipper before sample table',
+                tangodevice = tango_base + 'fb',
+                fmtstr = '%#x',
+                lowlevel = False,
+                ),
+
+    fa = device('nicos.devices.entangle.DigitalOutput',
+                description = 'Flipper after sample table',
+                tangodevice = tango_base + 'fa',
+                fmtstr = '%#x',
+                lowlevel = False,
+                ),
 )

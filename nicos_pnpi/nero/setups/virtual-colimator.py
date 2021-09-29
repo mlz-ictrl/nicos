@@ -79,23 +79,23 @@ devices = dict(
                    ),
 
     dia2_angle = device('nicos.devices.generic.VirtualMotor',
-                     description = dia2_angle_conf['description'],
-                     precision = dia2_angle_conf['precision'],
-                     lowlevel = dia2_angle_conf['lowlevel'],
-                     abslimits = dia2_angle_conf['abslimits'],
-                     speed = dia2_angle_conf['speed'],
-                     unit = dia2_angle_conf['unit'],
-                     ),
+                        description = dia2_angle_conf['description'],
+                        precision = dia2_angle_conf['precision'],
+                        lowlevel = dia2_angle_conf['lowlevel'],
+                        abslimits = dia2_angle_conf['abslimits'],
+                        speed = dia2_angle_conf['speed'],
+                        unit = dia2_angle_conf['unit'],
+                        ),
 
 
     dia2_pos = device('nicos.devices.generic.VirtualMotor',
-                   description = dia2_pos_conf['description'],
-                   precision = dia2_pos_conf['precision'],
-                   lowlevel = dia2_pos_conf['lowlevel'],
-                   abslimits = dia2_pos_conf['abslimits'],
-                   speed = dia2_pos_conf['speed'],
-                   unit = dia2_pos_conf['unit'],
-                   ),
+                      description = dia2_pos_conf['description'],
+                      precision = dia2_pos_conf['precision'],
+                      lowlevel = dia2_pos_conf['lowlevel'],
+                      abslimits = dia2_pos_conf['abslimits'],
+                      speed = dia2_pos_conf['speed'],
+                      unit = dia2_pos_conf['unit'],
+                      ),
 )
 
 

@@ -82,4 +82,11 @@ devices = dict(
                    speed = omega_conf['speed'],
                    unit = omega_conf['unit'],
                    ),
+
+    shutter = device('nicos.devices.entangle.DigitalOutput',
+                     description = 'Shutter device switch',
+                     tangodevice = tango_base + 'shutter',
+                     fmtstr = '%#x',
+                     lowlevel = False,
+                     ),
 )
