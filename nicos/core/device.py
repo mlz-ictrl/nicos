@@ -126,14 +126,9 @@ class DeviceMeta(DeviceMixinMeta):
             if adevname != adevname.lower():
                 raise ProgrammingError('%r device: attached device name %r is '
                                        'not all-lowercase' % (name, adevname))
-            # backwards compatibility: convert all entries to Attach objects
             if not isinstance(entry, Attach):
-                session.log.warning("Please use 'Attach' to define an attached"
-                                    " device. The use of a tuple is deprecated!")
-                _multiple = isinstance(entry[0], list)
-                _devclass = entry[0][0] if _multiple else entry[0]
-                newtype.attached_devices[adevname] = \
-                    Attach(entry[1], _devclass, multiple=_multiple)
+                raise ProgrammingError("Please use 'Attach' to define an "
+                                       "attached device.")
 
         # create parameter properties
         for param, info in newtype.parameters.items():
