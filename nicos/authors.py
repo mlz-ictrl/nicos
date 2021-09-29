@@ -93,6 +93,7 @@ Instrument-specific code was contributed by:
 * Dominic Oram <dominic.oram@stfc.ac.uk>
 * Ji Tae Park <jitae.park@frm2.tum.de>
 * Matthias Pomm <matthias.pomm@hzg.de>
+* Kirill Pshenichnyi <pshcyrill@mail.ru>
 * Andrew Sazonov <andrew.sazonov@frm2.tum.de>
 * Philipp Schmakat <philipp.schmakat@frm2.tum.de>
 * Astrid Schneidewind <astrid.schneidewind@frm2.tum.de>
