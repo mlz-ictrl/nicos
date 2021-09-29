@@ -56,8 +56,6 @@ class DeviceMixinMeta(type):
                     if pinfo.classname is None:
                         pinfo.classname = base.__module__ + '.' + base.__name__
         newtype = type.__new__(mcs, name, bases, attrs)
-        if '__constructed__' in attrs:
-            return newtype
         for entry in newtype.__mergedattrs__:
             newentry = {}
             for base in reversed(bases):

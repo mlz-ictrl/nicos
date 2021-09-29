@@ -116,9 +116,6 @@ class DeviceMeta(DeviceMixinMeta):
                 seen_nonmixin = True
         newtype = DeviceMixinMeta.__new__(mcs, name, bases, attrs)
 
-        # hack around a class creation bug in Python 2
-        attrs['__constructed__'] = True
-
         # to debug MRO problems you could use this line
         # print 'MRO:', newtype, newtype.mro()
         for adevname, entry in list(newtype.attached_devices.items()):
