@@ -176,18 +176,6 @@ class TestStatus(TestCase):
         self.device._setROParam('nextupdate', expected_update + 10)
         assert self.device.is_process_running()
 
-    def test_json_status_is_processed(self):
-        message_json = {'a': 1}
-        with mock.patch.object(
-            NexusFileWriterStatus, '_status_update_callback'
-        ) as mock_method:
-            self.device.new_messages_callback(
-                [(12345, json.dumps(message_json))]
-            )
-            mock_method.assert_called_once()
-            messages = mock_method.call_args[0]
-            assert messages == ({12345: message_json},)
-
     def test_x5f2_status_is_processed(self):
         message_json = {'a': 1}
         update_interval = 1111

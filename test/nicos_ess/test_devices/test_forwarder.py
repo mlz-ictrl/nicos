@@ -177,13 +177,6 @@ class TestEpicsKafkaForwarderStatus(TestCase):
         self.device.new_messages_callback([(12345, message_fb)])
         assert self.device.curstatus == (status.OK, 'Forwarding..')
 
-    def test_update_forwarded_many_pvs_set_forwarding_status_json(self):
-        assert self.device.curstatus == (0, '')
-        pvnames = {f'mypv{d}' for d in range(10)}
-        message_json = {'streams': [create_stream(pv) for pv in pvnames]}
-        self.device.new_messages_callback([(12345, json.dumps(message_json))])
-        assert self.device.curstatus == (status.OK, 'Forwarding..')
-
     def test_empty_message_gives_idle_state(self):
         message_json = {'streams': []}
         message_fb = create_x5f2_buffer(message_json)
@@ -206,15 +199,6 @@ class TestEpicsKafkaForwarderStatus(TestCase):
         for update_interval in [1000, 2000]:
             message_fb = create_x5f2_buffer(message_json, update_interval)
             self.device.new_messages_callback([(123456, message_fb)])
-            assert self.device.statusinterval == update_interval // 1000
-
-    def test_next_update_json(self):
-        message_json = {'streams': []}
-        for update_interval in [1000, 2000]:
-            message_json['update_interval'] = update_interval
-            self.device.new_messages_callback(
-                [(123456, json.dumps(message_json))]
-            )
             assert self.device.statusinterval == update_interval // 1000
 
 
