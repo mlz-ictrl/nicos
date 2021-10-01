@@ -29,7 +29,7 @@ import pytest
 from nicos.core import status
 from nicos.core.errors import LimitError
 
-from test.utils import raises
+from test.utils import approx, raises
 
 session_setup = 'refsans'
 
@@ -127,8 +127,8 @@ def test_resolution(session):
     chopper = session.getDevice('chopper')
     chopper.maw({'D': 22.8, 'chopper2_pos': 5, 'gap': 0.1,
                  'wlmax': 21.0, 'wlmin': 3.0})
-    assert rfp.read(0) == 11.153
-    assert res.read(0) == 6.168
+    assert rfp.read(0) == 11.1496
+    assert res.read(0) == 6.133
 
 
 class TestDevices:
@@ -208,7 +208,7 @@ class TestChopper:
                      'wlmin': 0.0})
         assert chopper.read(0) == {'D': 22.8, 'chopper2_pos': 6, 'gap': 0.0,
                                    'wlmax': 21.0, 'wlmin': 0.0}
-        assert chopper2.phase == 300
+        assert approx(chopper2.phase) == 302.415
         assert chopper.mode == 'virtual_disc2_pos_6'
 
 

@@ -126,7 +126,7 @@ class ChopperMaster(CanReference, BaseSequencer):
         self.gap = target.get('gap', self.gap)
         chopper2_pos = target.get('chopper2_pos')
 
-        speed, angles = chopper_config(
+        speed, angles, _ = chopper_config(
             self.wlmin, self.wlmax, self.dist, chopper2_pos, gap=self.gap)
 
         self.log.debug('speed: %d, angles = %s', speed, angles)
