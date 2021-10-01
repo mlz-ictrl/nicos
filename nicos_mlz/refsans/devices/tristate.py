@@ -23,11 +23,11 @@
 # *****************************************************************************
 
 from nicos.core import Readable, status
-from nicos.core.mixins import CanDisable
+from nicos.core.mixins import CanDisable, HasOffset
 from nicos.core.params import Attach
 
 
-class TriState(CanDisable, Readable):
+class TriState(CanDisable, HasOffset, Readable):
     attached_devices = {
         'port': Attach('port to read the real number', Readable),
     }
@@ -35,9 +35,10 @@ class TriState(CanDisable, Readable):
     _enabled = True
 
     def doRead(self, maxage=0):
-        self.log.debug('mode=%s' % self._enabled)
+        self.log.debug('enabled=%s' % self._enabled)
         if self._enabled:
-            return self._attached_port.read(maxage)
+            self.log.debug('offset=%.3f' % self.offset)
+            return self._attached_port.read(maxage) - self.offset
         return 0
 
     def doStatus(self, maxage=0):
