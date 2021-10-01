@@ -33,33 +33,33 @@ from nicos.utils import AutoDefaultODict
 
 # if these labels apear as part of a key, they are "known"
 element_part = [
-    'cooling_memograph',
-    'FAK40_Cap',
-    'FAK40_Press',
-    'flow_memograph_in',
-    'flow_memograph_out',
-    'leak_memograph',
-    'NL2b', 'Space', 'timer', 'Sample', 'mon1', 'mon2',
-    # 'optic',
-    'p_memograph_in',
-    'p_memograph_out',
-    'REFSANS', 'Crane', 'det', 'Sixfold', 'ReactorPower', 'Exp', 'image',
-    # 'shutter',
-    # 'shutter_gamma',
-    't_memograph_in',
-    't_memograph_out',
-    'triangle',
-    'triangle_phi',
-    'triangle_theta',
-    'vacuum_CB',
-    'vacuum_SFK',
-    'vacuum_SR',
-    'wegbox_A_1ref',
-    'wegbox_A_2ref',
-    'wegbox_B_1ref',
-    'wegbox_B_2ref',
-    'wegbox_C_1ref',
-    'wegbox_C_2ref',
+#     'cooling_memograph',
+#     'FAK40_Cap',
+#     'FAK40_Press',
+#     'flow_memograph_in',
+#     'flow_memograph_out',
+#     'leak_memograph',
+#     'NL2b', 'Space', 'timer', 'Sample', 'mon1', 'mon2',
+#     # 'optic',
+#     'p_memograph_in',
+#     'p_memograph_out',
+#     'REFSANS', 'Crane', 'det', 'Sixfold', 'ReactorPower', 'Exp', 'image',
+#     # 'shutter',
+#     # 'shutter_gamma',
+#     't_memograph_in',
+#     't_memograph_out',
+#     'triangle',
+#     'triangle_phi',
+#     'triangle_theta',
+#     'vacuum_CB',
+#     'vacuum_SFK',
+#     'vacuum_SR',
+#     'wegbox_A_1ref',
+#     'wegbox_A_2ref',
+#     'wegbox_B_1ref',
+#     'wegbox_B_2ref',
+#     'wegbox_C_1ref',
+#     'wegbox_C_2ref',
 ]
 chopper = [
     'chopper2_pos',
@@ -79,6 +79,7 @@ Gonio = [
     'gonio_theta',
     'gonio_z',
     'gonio_x',
+    'sample_x_manual',
     'gonio_y',
     'gonio_top_phi',
     'gonio_top_theta',
@@ -123,6 +124,11 @@ simple_lateral_label = ['', '_mode']
 det_pos = [
     'det_pivot',
     'det_table',
+    'det_table_cab_temp',
+    'det_table_ctrl',
+    'det_table_motor_temp',
+    'det_table_poti',
+    'det_table_raw',
     'det_yoke',
     'det_yoke_enc',
     'det_drift',
@@ -169,15 +175,21 @@ Miscellaneous = [
     'chamber_CB',
     'chamber_SFK',
     'chamber_SR',
+    'hv_anode',
+    'hv_drift1',
+    'hv_drift2',
+    'hv_mon',
 ]
 
 safetysystem = [
     'doors',
     'place',
     'PO_save',
+    'basis',
     'service',
     'SR_save',
     'supervisor',
+    'personalkey',
     'techOK',
     'user',
 ]
@@ -270,7 +282,7 @@ environment = [
     'active_regulator',
     'pump0_diameter', 'pump0_rate', 'pump0_run',
     'pump1_diameter', 'pump1_rate', 'pump1_run',
-    'nima_area', 'nima_pressure', 'nima_speed',
+    'nima_area', 'nima_pressure', 'nima_speed', 'nima_z',
 ]
 
 element_part += chopper
@@ -581,10 +593,10 @@ class ConfigObjDatafileSinkHandler(DataSinkHandler):
             if (dev, 'value') in metainfo:
                 extra[dev] = metainfo[dev, 'value'][0]
         self._data['Extra'] = extra
-        mstr = str(metainfo)
-        for evel in ['\xb0']:  # 'degC'
-            mstr = mstr.replace(evel, '+')
-        self._data['metainfo'] = mstr
+        # mstr = str(metainfo)
+        # for evel in ['\xb0']:  # 'degC'
+        #     mstr = mstr.replace(evel, '+')
+        # self._data['metainfo'] = mstr
 
     def putMetainfo(self, metainfo):
         self.log.debug('metainfo: %s', str(metainfo).replace(
