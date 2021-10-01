@@ -28,6 +28,7 @@ from nicos.devices.datasinks.file import FileSink
 from nicos.devices.datasinks.fits import FITSImageSink
 from nicos.devices.datasinks.image import ImageSink
 from nicos.devices.datasinks.livepng import PNGLiveFileSink
+from nicos.devices.datasinks.nexusfilereader import NexusFileReader
 from nicos.devices.datasinks.raw import RawImageSink, SingleRawImageSink, \
     SingleTextImageSink
 from nicos.devices.datasinks.scan import AsciiScanfileSink, ConsoleScanSink
