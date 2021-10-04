@@ -30,12 +30,14 @@ from streaming_data_types.histogram_hs00 import deserialise_hs00
 from streaming_data_types.utils import get_schema
 
 from nicos.core import ArrayDesc, InvalidValueError, Override, Param, Value, \
-    floatrange, host, listof, multiStatus, oneof, status, tupleof
-from nicos.core.constants import LIVE
+    floatrange, listof, multiStatus, oneof, status, tupleof
+from nicos.core.constants import LIVE, MASTER
 from nicos.devices.generic import Detector, ImageChannelMixin, PassiveChannel
 from nicos.utils import createThread
 
 from nicos_ess.devices.kafka.consumer import KafkaSubscriber
+from nicos_ess.devices.kafka.status_handler import DISCONNECTED_STATE, \
+    KafkaStatusHandler
 
 
 class Hist1dTof:
@@ -193,7 +195,7 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
 
     def new_messages_callback(self, messages):
         for _, message in messages:
-            if not get_schema(message) == 'hs00':
+            if get_schema(message) != 'hs00':
                 continue
             hist = deserialise_hs00(message)
             info = json.loads(hist['info'])
@@ -275,16 +277,12 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
         return {k: getattr(self, k) for k in self.parameters}
 
 
-class JustBinItDetector(Detector):
+class JustBinItDetector(Detector, KafkaStatusHandler):
     """ A "detector" that reads image data from just-bin-it.
 
     Note: it only uses image channels.
     """
     parameters = {
-        'brokers': Param('List of kafka hosts to be connected',
-                         type=listof(host(defaultport=9092)),
-                         mandatory=True, preinit=True, userparam=False
-                         ),
         'command_topic': Param('The topic to send just-bin-it commands to',
                                type=str, userparam=False, settable=False,
                                mandatory=True,
@@ -304,6 +302,7 @@ class JustBinItDetector(Detector):
         'fmtstr': Override(default='%d'),
         'liveinterval': Override(type=floatrange(0.5), default=1),
         'pollinterval': Override(default=None, userparam=False, settable=False),
+        'statustopic': Override(default='', mandatory=False),
     }
     _last_live = 0
     _presets = {}
@@ -314,6 +313,9 @@ class JustBinItDetector(Detector):
     _conditions = {}
 
     def doPreinit(self, mode):
+        if self.statustopic:
+            # Enable heartbeat monitoring
+            KafkaStatusHandler.doPreinit(self, mode)
         presetkeys = {'t'}
         for image_channel in self._attached_images:
             presetkeys.add(image_channel.name)
@@ -495,7 +497,21 @@ class JustBinItDetector(Detector):
             thread.join()
 
     def doStatus(self, maxage=0):
+        curstatus = self._cache.get(self, 'status')
+        if curstatus and curstatus[0] == status.ERROR:
+            return curstatus
         return multiStatus(self._attached_images, maxage)
+
+    def _status_update_callback(self, messages):
+        # Called on heartbeat received
+        if self._mode == MASTER:
+            if self._cache.get(self, 'status') == DISCONNECTED_STATE:
+                self._cache.put(self, 'status', (status.OK, ''), time.time())
+
+    def no_messages_callback(self):
+        if self._mode == MASTER and not self.is_process_running():
+            # No heartbeat
+            self._cache.put(self, 'status', DISCONNECTED_STATE, time.time())
 
     def doReset(self):
         pass

@@ -35,6 +35,8 @@ from nicos.core.constants import SIMULATION
 
 from nicos_ess.devices.kafka.consumer import KafkaSubscriber
 
+DISCONNECTED_STATE = (status.ERROR, 'Disconnected')
+
 
 class KafkaStatusHandler(KafkaSubscriber, Readable):
     """ Communicates with Kafka and receives status updates.
@@ -109,7 +111,7 @@ class KafkaStatusHandler(KafkaSubscriber, Readable):
     def no_messages_callback(self):
         # Check if the process is still running
         if self._mode == MASTER and not self.is_process_running():
-            self._setROParam('curstatus', (status.ERROR, 'Disconnected'))
+            self._setROParam('curstatus', DISCONNECTED_STATE)
 
     def is_process_running(self):
         # Allow some leeway in case of message lag.
