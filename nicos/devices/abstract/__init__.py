@@ -173,7 +173,6 @@ class TransformedMoveable(TransformedReadable, Moveable):
     .. automethod:: _mapTargetValue
     """
 
-
     def doStart(self, target):
         return self._startRaw(self._mapTargetValue(target))
 
@@ -185,7 +184,6 @@ class TransformedMoveable(TransformedReadable, Moveable):
         """
         raise ProgrammingError(self, 'Somebody please implement a proper '
                                '_mapTargetValue method!')
-
 
     def _startRaw(self, target):
         """Initiate movement to the unmapped/raw value from the device.
