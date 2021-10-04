@@ -2,7 +2,7 @@
 
 description = 'WMI microwave generator'
 
-group = 'optional'
+group = 'plugplay'
 
 tango_base = 'tango://%s:10000/box/' % setupname
 
