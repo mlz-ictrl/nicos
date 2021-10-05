@@ -25,6 +25,7 @@
 """
 This module contains some classes for NICOS - EPICS integration using p4p.
 """
+import os
 import time
 
 import numpy
@@ -34,48 +35,54 @@ from nicos.core import POLLER, SIMULATION, ConfigurationError, \
     DeviceMixinBase, HasLimits, HasPrecision, Moveable, Override, Param, \
     Readable, anytype, floatrange, none_or, pvname, status
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.epics.pva.p4p import P4pWrapper
 from nicos.utils import HardwareStub
 
 __all__ = [
     'EpicsDevice', 'EpicsReadable', 'EpicsStringReadable',
-    'EpicsMoveable', 'EpicsAnalogMoveable', 'EpicsDigitalMoveable',
+    'EpicsMoveable', 'EpicsStringMoveable', 'EpicsAnalogMoveable',
+    'EpicsDigitalMoveable', 'EpicsMappedMoveable'
 ]
+
+DEFAULT_EPICS_PROTOCOL = os.environ.get('DEFAULT_EPICS_PROTOCOL', 'ca')
 
 
 class EpicsDevice(DeviceMixinBase):
-    hardware_access = True
-    valuetype = anytype
-    pv_status_parameters = set()
-    _epics_subscriptions = []
-    _cache_relations = {'readpv': 'value'}
-
     parameters = {
         'epicstimeout': Param('Timeout for getting EPICS PVs',
                               type=none_or(floatrange(0.1, 60)),
                               userparam=False, mandatory=False, default=1.0),
         'monitor': Param('Use a PV monitor', type=bool, default=False),
+        'pva': Param('Use pva', type=bool,
+                     default=DEFAULT_EPICS_PROTOCOL == 'pva'),
     }
 
-    # This will store PV objects for each PV param.
-    _param_to_pv = {}
+    hardware_access = True
+    valuetype = anytype
+    _param_to_pv = {}   # This will store PV objects for each PV param.
     _epics_wrapper = None
     _record_fields = {}
     _pvs = {}
+    _epics_subscriptions = []
+    _cache_relations = {'readpv': 'value'}
 
     def doPreinit(self, mode):
         self._param_to_pv = {}
         self._pvs = {}
 
-        self._epics_wrapper = P4pWrapper(self.epicstimeout)
+        if self.pva:
+            from nicos.devices.epics.pva.p4p import P4pWrapper
+            self._epics_wrapper = P4pWrapper(self.epicstimeout)
+        else:
+            from nicos.devices.epics.pva.caproto import CaprotoWrapper
+            self._epics_wrapper = CaprotoWrapper(self.epicstimeout)
 
         if mode != SIMULATION:
             for pvparam in self._get_pv_parameters():
                 # Retrieve the actual PV name
                 pvname = self._get_pv_name(pvparam)
                 if not pvname:
-                    raise ConfigurationError(self, 'PV for parameter %s was '
-                                                   'not found!' % pvparam)
+                    raise ConfigurationError(self, 'PV for parameter '
+                                                   f'{pvparam} was not found!')
                 # Check pv exists - throws if cannot connect
                 self._epics_wrapper.connect_pv(pvname)
                 self._param_to_pv[pvparam] = pvname
@@ -89,7 +96,7 @@ class EpicsDevice(DeviceMixinBase):
 
     def _register_pv_callbacks(self):
         self._epics_subscriptions = []
-        value_pvs = self._get_pv_parameters()
+        value_pvs = list(self._cache_relations.keys())
         status_pvs = self._get_status_parameters()
         if session.sessiontype == POLLER:
             self._subscribe_params(value_pvs, self.value_change_callback)
@@ -115,9 +122,11 @@ class EpicsDevice(DeviceMixinBase):
         """
         Override this for custom behaviour in sub-classes.
         """
-        cache_key = self._get_cache_relation(param) or name
-        self._cache.put(self._name, cache_key, value, time.time())
-        self._cache.put(self._name, 'unit', units, time.time())
+        cache_key = self._get_cache_relation(param)
+        if cache_key:
+            self._cache.put(self._name, cache_key, value, time.time())
+            if param == 'readpv':
+                self._cache.put(self._name, 'unit', units, time.time())
 
     def status_change_callback(self, name, param, value, units, severity,
                                message, **kwargs):
@@ -138,8 +147,8 @@ class EpicsDevice(DeviceMixinBase):
         return self._cache_relations.get(param, None)
 
     def _get_status_parameters(self):
-        # Returns the parameters which indicate "movement" is happening.
-        return self.pv_status_parameters
+        # Returns the parameters which indicate "status".
+        return set()
 
     def doShutdown(self):
         for sub in self._epics_subscriptions:
@@ -298,18 +307,18 @@ class EpicsMoveable(EpicsDevice, Moveable):
         in_type = self._epics_wrapper.get_pv_type(self._param_to_pv['readpv'])
         out_type = self._epics_wrapper.get_pv_type(self._param_to_pv['writepv'])
         if in_type != self.valuetype:
-            raise ConfigurationError(self, 'Input PV %r does not have the '
-                                           'correct data type' % self.readpv)
+            raise ConfigurationError(self, f'Input PV {self.readpv} does not '
+                                           'have the correct data type')
         if out_type != self.valuetype:
-            raise ConfigurationError(self, 'Output PV %r does not have the '
-                                           'correct data type' % self.writepv)
+            raise ConfigurationError(self, f'Output PV {self.writepv} does not '
+                                           'have the correct data type')
         if self.targetpv:
             target_type = self._epics_wrapper.get_pv_type(
                 self._param_to_pv['targetpv'])
             if target_type != self.valuetype:
                 raise ConfigurationError(
-                    self, 'Target PV %r does not have the '
-                          'correct data type' % self.targetpv)
+                    self, f'Target PV {self.targetpv} does not have the '
+                          'correct data type')
 
     def doReadTarget(self):
         if self.targetpv:

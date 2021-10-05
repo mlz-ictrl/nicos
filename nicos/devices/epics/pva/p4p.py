@@ -37,6 +37,10 @@ _CONTEXT = Context('pva', nt=False)
 
 
 class P4pWrapper:
+    """ Class that wraps the p4p module that provides EPICS PVA Access (PVA)
+    support.
+    """
+
     def __init__(self, timeout=3.0):
         self.disconnected = set()
         self.lock = Lock()

@@ -1,8 +1,7 @@
 --extra-index-url https://forge.frm2.tum.de/simple
+-r requirements-epics.txt
 pyserial>=2.5
 astropy>=3.0
-p4p==4.0.0a1
-pyepics>=3.2.4
 nicos-quickyaml>=1.1.0
 docutils>=0.12
 redbaron>=0.6.3
