@@ -30,7 +30,7 @@ import time
 import numpy as np
 
 from nicos import session
-from nicos.nexus.elements import ImageDataset, NexusElementBase, NXTime
+from nicos.nexus.elements import ImageDataset, NexusElementBase
 
 from nicos_mlz.toftof.devices import calculations as calc
 
@@ -131,38 +131,6 @@ class Mode(NexusElementBase):
         dtype = 'S%d' % (len(mode) + 1)
         dset = h5parent.create_dataset(name, (1,), dtype)
         dset[0] = np.string_(mode)
-
-
-class StartTime(NXTime):
-
-    def __init__(self):
-        NXTime.__init__(self)
-        self.time = 0
-
-    def formatTime(self):
-        return time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(self.time))
-
-    def create(self, name, h5parent, sinkhandler):
-        self.time = sinkhandler.dataset.started
-        NXTime.create(self, name, h5parent, sinkhandler)
-
-
-class EndTime(StartTime):
-
-    def create(self, name, h5parent, sinkhandler):
-        if sinkhandler.dataset.finished:
-            self.time = sinkhandler.dataset.finished
-        else:
-            self.time = time.time()
-        NXTime.create(self, name, h5parent, sinkhandler)
-
-    def update(self, name, h5parent, sinkhandler, values):
-        if sinkhandler.dataset.finished:
-            self.time = sinkhandler.dataset.finished
-        else:
-            self.time = time.time()
-        dset = h5parent[name]
-        dset[0] = np.string_(self.formatTime())
 
 
 class Duration(NexusElementBase):
