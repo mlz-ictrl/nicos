@@ -21,4 +21,5 @@ includes = [
     "slits",
     "selector",
     "arbox",
+    "memograph",
 ]

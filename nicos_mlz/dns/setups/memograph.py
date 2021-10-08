@@ -1,7 +1,7 @@
 description = 'memograph readout'
 
 group = 'optional'
-tango_base = 'tango://ictrlfs.ictrl.frm2.tum.de:10000/memograph-uja01/POLI/'
+tango_base = 'tango://ictrlfs.ictrl.frm2.tum.de:10000/memograph02/DNS/'
 
 devices = dict(
     cooling_t_in = device('nicos.devices.entangle.Sensor',

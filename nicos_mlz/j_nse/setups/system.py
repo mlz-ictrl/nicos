@@ -19,6 +19,7 @@ includes = [
     'reactor',
     'guidehall',
     'nl2a',
+    'memograph',
 ]
 
 devices = dict(

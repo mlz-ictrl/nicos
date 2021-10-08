@@ -10,7 +10,7 @@ devices = dict(
     Poller = device('nicos.services.poller.Poller',
         loglevel = 'info',
         autosetup = True,
-        alwayspoll = [],
+        alwayspoll = ['memograph'],
         neverpoll = ['blenden_old'],
         blacklist = [],
     ),

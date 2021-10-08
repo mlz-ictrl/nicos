@@ -9,8 +9,8 @@ sysconfig = dict(
 
 devices = dict(
     Poller = device('nicos.services.poller.Poller',
-        alwayspoll = [],  # setups that should be polled regardless if loaded
-        neverpoll = ['qmesydaq'],  # setups that should not be polled even if loaded
+        alwayspoll = ['memograph'],
+        neverpoll = ['qmesydaq'],
         blacklist = [],  # DEVICES that should never be polled
         # (usually detectors or devices that have problems
         # with concurrent access from processes)
