@@ -408,7 +408,7 @@ _signal = Column(
     Block('safetysystem', [
         BlockRow(
             Field(name='Everything', dev='signal', width=12),
-            Field(name='', key='signal/status[1]', width=con_width),
+            Field(name='', key='signal/condition', width=con_width),
         ),
         ],
     ),
@@ -428,7 +428,7 @@ _service = Column(
     Block('service', [
         BlockRow(
             Field(name='service', dev='service', width=12),
-            Field(name='', key='service/status[1]', width=con_width),
+            Field(name='', key='service/condition', width=con_width),
         ),
         ],
     ),
@@ -437,7 +437,7 @@ _supervisor = Column(
     Block('supervisor', [
         BlockRow(
             Field(name='supervisor', dev='supervisor', width=12),
-            Field(name='', key='supervisor/status[1]', width=con_width),
+            Field(name='', key='supervisor/condition', width=con_width),
         ),
         ],
     ),
@@ -446,7 +446,7 @@ _techOK = Column(
     Block('techOK', [
         BlockRow(
             Field(name='techOK', dev='techOK', width=12),
-            Field(name='', key='techOK/status[1]', width=con_width),
+            Field(name='', key='techOK/condition', width=con_width),
         ),
         ],
     ),
@@ -455,7 +455,7 @@ _user = Column(
     Block('user', [
         BlockRow(
             Field(name='user', dev='user', width=12),
-            Field(name='', key='user/status[1]', width=con_width),
+            Field(name='', key='user/condition', width=con_width),
         ),
         ],
     ),
@@ -669,12 +669,11 @@ _plot2_2 = Column(
 
 
 Time_selection1 = Time_selection10h
-name1 = 'Reactor';  Elemente1 = ['ReactorPower']
-name1 = 'system';   Elemente1 = ['all', 'all_avg', 'cache', 'cache_avg', 'logSpace']
+Elemente1 = ['ReactorPower']
 Time_selection2 = Time_selection10h
 Elemente2 = ['sds']
 _plotcolumn = Column(
-    Block('%s %d%s' % (name1, Time_selection1[0], Time_selection1[1]) , [
+    Block('Reactor %d%s' % (Time_selection1[0], Time_selection1[1]) , [
         BlockRow(
             Field(widget='nicos.guisupport.plots.TrendPlot',
                   width=30,
