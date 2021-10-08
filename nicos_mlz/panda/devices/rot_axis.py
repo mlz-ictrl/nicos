@@ -146,7 +146,7 @@ class RefAxis(Axis):
             # Step 3) Now SLOWLY crawl onto the refswitch
             if self.refspeed:
                 m.speed = self.refspeed
-            tries = 7
+            maxtries = tries = 7
             self.log.info('Referencing: SLOW Mode: find refswitch')
             while not(refsw(m)) and tries > 0:
                 self.log.debug('Another %d slots left to try', tries)
@@ -162,7 +162,7 @@ class RefAxis(Axis):
             m.speed = oldspeed
             if tries == 0:
                 self.log.error('Referencing: RefSwitch still not active after '
-                               '%.1f %s, exiting!', self.wraparound, self.unit)
+                               '%d tries, exiting!', maxtries)
                 self.start(oldpos)
                 return
 
