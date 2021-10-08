@@ -3,6 +3,7 @@ description = 'Antrax plug switching box'
 group = 'plugplay'
 
 instrument_values = configdata('instrument.values')
+lowlevel = ()
 
 tango_url = instrument_values['tango_url'] % setupname
 
@@ -15,5 +16,6 @@ devices = {
             'off': 0,
             'on': 1,
         },
+        visibility = lowlevel,
     ),
 }
