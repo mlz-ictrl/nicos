@@ -5,7 +5,6 @@ devices = dict(
         'nicos.devices.epics.pva.EpicsReadable',
         description='The laser PV',
         readpv='plc-ts:PLC:slowdata',
-        has_unit=False,
         lowlevel=True,
         epicstimeout=3.0,
     ),

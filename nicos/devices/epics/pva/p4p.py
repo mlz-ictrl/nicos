@@ -41,6 +41,10 @@ class P4pWrapper:
         self.disconnected = set()
         self.lock = Lock()
         self._timeout = timeout
+        self._units = {}
+        self._values = {}
+        self._alarms = {}
+        self._choices = {}
 
     def connect_pv(self, pvname):
         # Check pv is available
@@ -49,19 +53,20 @@ class P4pWrapper:
         except TimeoutError:
             raise CommunicationError(
                 f'could not connect to PV {pvname}') from None
-        return pvname
 
     def get_pv_value(self, pvname, as_string=False):
         result = _CONTEXT.get(pvname, timeout=self._timeout)
-        return self._convert_value(result['value'], as_string)
+        return self._convert_value(pvname, result['value'], as_string)
 
-    def _convert_value(self, value, as_string=False):
+    def _convert_value(self, pvname, value, as_string=False):
         try:
             # Enums are complicated
             if value.getID() == 'enum_t':
                 index = value['index']
                 if as_string:
-                    return value['choices'][index]
+                    if pvname not in self._choices:
+                        self.get_value_choices(pvname)
+                    return self._choices[pvname][index]
                 return index
         except AttributeError:
             # getID() doesn't (currently) exist for scalar
@@ -73,17 +78,13 @@ class P4pWrapper:
             if isinstance(value, np.ndarray):
                 return value.tostring().decode()
             else:
-                str(value)
-
+                return str(value)
         return value
 
     def put_pv_value(self, pvname, value, wait=False):
         _CONTEXT.put(pvname, value, timeout=self._timeout, wait=wait)
 
-    def put_pv_value_blocking(self, pvname, value, update_rate=0.1,
-                              block_timeout=60):
-        # if wait is set p4p will block until the value is set or it
-        # times out
+    def put_pv_value_blocking(self, pvname, value, block_timeout=60):
         _CONTEXT.put(pvname, value, timeout=block_timeout, wait=True)
 
     def get_pv_type(self, pvname):
@@ -105,6 +106,9 @@ class P4pWrapper:
 
     def get_units(self, pvname, default=''):
         result = _CONTEXT.get(pvname, timeout=self._timeout)
+        return self._get_units(result, default)
+
+    def _get_units(self, result, default):
         try:
             return result['display']['units']
         except KeyError:
@@ -129,7 +133,8 @@ class P4pWrapper:
         # Only works for enum types like MBBI and MBBO
         raw_result = _CONTEXT.get(pvname, timeout=self._timeout)
         if 'choices' in raw_result['value']:
-            return raw_result['value']['choices']
+            self._choices[pvname] = raw_result['value']['choices']
+            return self._choices[pvname]
         return []
 
     def subscribe(self, pvname, pvparam, change_callback,
@@ -175,11 +180,28 @@ class P4pWrapper:
             with self.lock:
                 if pvname in self.disconnected:
                     self.disconnected.remove(pvname)
+                    if pvname in self._values:
+                        del self._values[pvname]
+                    if pvname in self._choices:
+                        del self._choices[pvname]
 
         if change_callback:
-            value = self._convert_value(result['value'], as_string)
-            severity, message = self._extract_alarm_info(result)
-            change_callback(pvname, pvparam, value, severity, message)
+            # PVA only sends a delta of what has changed
+            change_set = result.changedSet()
+
+            if 'value' in change_set or 'value.index' in change_set:
+                self._values[pvname] = self._convert_value(pvname,
+                                                           result['value'],
+                                                           as_string)
+            if 'display.units' in change_set:
+                self._units[pvname] = self._get_units(result, '')
+            if 'alarm.status' in change_set or 'alarm.severity' in change_set:
+                self._alarms[pvname] = self._extract_alarm_info(result)
+
+            if pvname in self._values:
+                severity, msg = self._alarms.get(pvname, (status.UNKNOWN, ''))
+                change_callback(pvname, pvparam, self._values[pvname],
+                                self._units.get(pvname, ''), severity, msg)
 
     def _extract_alarm_info(self, value):
         # The EPICS 'severity' matches to the NICOS `status` and the message has

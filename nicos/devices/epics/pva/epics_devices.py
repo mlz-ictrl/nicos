@@ -47,7 +47,7 @@ class EpicsDevice(DeviceMixinBase):
     hardware_access = True
     valuetype = anytype
     pv_status_parameters = set()
-    _epics_subscriptions = set()
+    _epics_subscriptions = []
     _cache_relations = {'readpv': 'value'}
 
     parameters = {
@@ -88,7 +88,7 @@ class EpicsDevice(DeviceMixinBase):
             self._register_pv_callbacks()
 
     def _register_pv_callbacks(self):
-        self._epics_subscriptions = set()
+        self._epics_subscriptions = []
         value_pvs = self._get_pv_parameters()
         status_pvs = self._get_status_parameters()
         if session.sessiontype == POLLER:
@@ -101,7 +101,7 @@ class EpicsDevice(DeviceMixinBase):
         for pvparam in pvparams:
             pvname = self._get_pv_name(pvparam)
             subscription = self._subscribe(change_callback, pvname, pvparam)
-            self._epics_subscriptions.add(subscription)
+            self._epics_subscriptions.append(subscription)
 
     def _subscribe(self, change_callback, pvname, pvparam):
         """
@@ -110,16 +110,17 @@ class EpicsDevice(DeviceMixinBase):
         return self._epics_wrapper.subscribe(pvname, pvparam, change_callback,
                                              self.connection_change_callback)
 
-    def value_change_callback(self, name, param, value, severity, message,
-                              **kwargs):
+    def value_change_callback(self, name, param, value, units, severity,
+                              message, **kwargs):
         """
         Override this for custom behaviour in sub-classes.
         """
         cache_key = self._get_cache_relation(param) or name
         self._cache.put(self._name, cache_key, value, time.time())
+        self._cache.put(self._name, 'unit', units, time.time())
 
-    def status_change_callback(self, name, param, value, severity, message,
-                               **kwargs):
+    def status_change_callback(self, name, param, value, units, severity,
+                               message, **kwargs):
         """
         Override this for custom behaviour in sub-classes.
         """
@@ -179,12 +180,15 @@ class EpicsDevice(DeviceMixinBase):
                                                 as_string=as_string)
 
     def _put_pv(self, pvparam, value, wait=False):
+        # If wait = True then will block until finished or timeout.
+        # It cannot be interrupted
         self._epics_wrapper.put_pv_value(self._param_to_pv[pvparam], value,
                                          wait=wait)
 
-    def _put_pv_blocking(self, pvparam, value, update_rate=0.1, timeout=60):
+    def _put_pv_blocking(self, pvparam, value, timeout=60):
+        # Will block until finished or timeout - cannot be interrupted
         self._epics_wrapper.put_pv_value_blocking(self._param_to_pv[pvparam],
-                                                  value, update_rate, timeout)
+                                                  value, timeout)
 
 
 class EpicsReadable(EpicsDevice, Readable):
@@ -194,7 +198,6 @@ class EpicsReadable(EpicsDevice, Readable):
     parameters = {
         'readpv': Param('PV for reading device value',
                         type=pvname, mandatory=True, userparam=False),
-        'has_unit': Param('There is a EGU field', type=bool, default=True),
     }
 
     parameter_overrides = {
@@ -203,18 +206,17 @@ class EpicsReadable(EpicsDevice, Readable):
 
     _record_fields = {
         'readpv': '',
-        'units': 'EGU',
     }
 
     _cache_relations = {
         'readpv': 'value',
-        'units': 'unit',
     }
 
     def doInit(self, mode):
         if mode == SIMULATION:
             return
-        self.valuetype = self._epics_wrapper.get_pv_type(self._param_to_pv['readpv'])
+        self.valuetype = self._epics_wrapper.get_pv_type(
+            self._param_to_pv['readpv'])
         EpicsDevice.doInit(self, mode)
 
     def doRead(self, maxage=0):
@@ -222,13 +224,9 @@ class EpicsReadable(EpicsDevice, Readable):
 
     def _get_pv_parameters(self):
         fields = set(self._record_fields.keys())
-        if not self.has_unit:
-            fields.remove('units')
         return fields
 
     def doReadUnit(self):
-        if not self.has_unit:
-            return ''
         return self._epics_wrapper.get_units(self._param_to_pv['readpv'])
 
 
@@ -253,12 +251,12 @@ class EpicsStringReadable(EpicsReadable):
     def doRead(self, maxage=0):
         return self._get_pv('readpv', as_string=True)
 
-    def value_change_callback(self, name, param, value, severity, message,
-                              **kwargs):
+    def value_change_callback(self, name, param, value, units, severity,
+                              message, **kwargs):
         if isinstance(value, numpy.ndarray):
             # It is a char waveform
             value = "".join(chr(x) for x in value)
-        EpicsDevice.value_change_callback(self, name, param, value,
+        EpicsDevice.value_change_callback(self, name, param, value, units,
                                           severity, message, **kwargs)
 
 
@@ -354,10 +352,6 @@ class EpicsAnalogMoveable(HasPrecision, HasLimits, EpicsMoveable):
     """
     valuetype = float
 
-    parameters = {
-        'has_unit': Param('There is a EGU field', type=bool, default=True),
-    }
-
     parameter_overrides = {
         'abslimits': Override(mandatory=False),
         'unit': Override(mandatory=False, settable=False, volatile=True),
@@ -366,19 +360,15 @@ class EpicsAnalogMoveable(HasPrecision, HasLimits, EpicsMoveable):
     _record_fields = {
         'readpv': '',
         'writepv': '',
-        'units': 'EGU',
     }
 
     _cache_relations = {
         'readpv': 'value',
-        'writepv': 'target',
-        'units': 'unit',
+        'writepv': 'target'
     }
 
     def _get_pv_parameters(self):
         fields = set(self._record_fields.keys())
-        if not self.has_unit:
-            fields.remove('units')
 
         if self.targetpv:
             return fields | {'targetpv'}
@@ -386,8 +376,6 @@ class EpicsAnalogMoveable(HasPrecision, HasLimits, EpicsMoveable):
         return fields
 
     def doReadUnit(self):
-        if not self.has_unit:
-            return ''
         return self._epics_wrapper.get_units(self._param_to_pv['readpv'])
 
     def doStatus(self, maxage=0):
@@ -442,7 +430,6 @@ class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
             return
 
         EpicsDevice.doInit(self, mode)
-        MappedMoveable.doInit(self, mode)
 
         if session.sessiontype != POLLER:
             choices = self._epics_wrapper.get_value_choices(
@@ -452,6 +439,7 @@ class EpicsMappedMoveable(MappedMoveable, EpicsMoveable):
             for i, choice in enumerate(choices):
                 new_mapping[choice] = i
             self.mapping = new_mapping
+        MappedMoveable.doInit(self, mode)
 
     def doRead(self, maxage=0):
         return self._get_pv('readpv', as_string=True)
