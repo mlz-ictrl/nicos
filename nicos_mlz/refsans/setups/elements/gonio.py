@@ -74,7 +74,7 @@ devices = dict(
         precision = 0.01,
     ),
     gonio_y_motor = device('nicos.devices.entangle.Motor',
-        description = 'y axis motor',
+        description = 'y axis motor 0,19mm/sec',
         tangodevice = tango_base2 + 'y_m',
         visibility = (),
     ),
@@ -93,10 +93,16 @@ devices = dict(
         description = 'Z axis motor',
         tangodevice = tango_base1 + 'z_m',
         visibility = (),
+        unit = 'mm',
     ),
     gonio_z_enc = device('nicos.devices.entangle.Sensor',
         description = 'Z axis coder',
         tangodevice = tango_base1 + 'z_e',
         visibility = (),
+        unit = 'mm',
     ),
 )
+
+alias_config = {
+    'd_last_slit_sample': {'gonio_x': 300},
+}
