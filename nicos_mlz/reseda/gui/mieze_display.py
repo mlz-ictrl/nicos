@@ -91,15 +91,16 @@ class FoilWidget(QWidget):
         self.plotwidget.setSizePolicy(QSizePolicy.MinimumExpanding,
                                       QSizePolicy.MinimumExpanding)
         self.verticalLayout.insertWidget(0, self.plotwidget)
-        self.do_update([(0, 0, 0, 0), (0, 0, 0, 0), [0] * 16] * 2)
+        self.do_update([['avg', 'contrast', 'phase', 'freq'],
+                        (0, 0, 0, 0), (0, 0, 0, 0), [0] * 16] * 2)
 
     def do_update(self, data, roi=False):
-        popt, perr, counts = data[int(roi) * 3:int(roi) * 3 + 3]
-        avg, contrast, freq, phase = popt
-        davg, dcontrast, dfreq, dphase = perr
-
         # data contains a list [avg, avgErr, contrast, contrastErr,
         # freq, freErr, phase, phaseErr, 16 * counts]
+        popt, perr, counts = data[int(roi) * 4:(int(roi) + 1) * 4][1:]
+        avg, contrast, phase, freq = popt
+        davg, dcontrast, dphase, dfreq = perr
+
         self.avg_value.setText('%.0f' % abs(avg))
         self.avg_error.setText('%.1f' % davg)
         self.contrast_value.setText('%.2f' % abs(contrast))
@@ -113,7 +114,8 @@ class FoilWidget(QWidget):
         # now update plot
         datacurve, fitcurve = self.plotwidget._curves
         fitcurve.x = np.arange(-0.5, 16.5, 0.1)
-        fitcurve.y = self.fitter.fit_model(fitcurve.x, avg, contrast, phase)
+        fitcurve.y = self.fitter.fit_model(
+            fitcurve.x, avg, contrast, phase, freq)
         datacurve.x = np.arange(0, 16, 1)
         datacurve.y = np.array(counts)
         datacurve.errorBar1 = ErrorBar(datacurve.x, datacurve.y,

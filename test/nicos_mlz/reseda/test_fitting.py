@@ -57,7 +57,7 @@ def idfn(val):
 class TestMiezeFit:
 
     @pytest.mark.parametrize('fitconf', [
-        (MiezeFit, {'avg': 1, 'phase': 0, 'contrast': 1}, None),
+        (MiezeFit, {'avg': 1, 'contrast': 1, 'phase': 0, 'freq': 1}, None)
         ], indirect=['fitconf'], ids=idfn)
     def test_fit(self, fitconf):
         fitter = fitconf[0]

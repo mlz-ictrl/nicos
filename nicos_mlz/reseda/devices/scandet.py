@@ -64,12 +64,14 @@ class ScanningDetector(NicosScanDet):
                                 roivalues.append(subset.detvaluelist[i])
                                 break
                         scanvalues.append(subset.devvaluelist[0])
-                    # ofs, ampl, freq, phase
+                    # ofs, ampl, phase, freq
                     res = self.fitter.run(scanvalues, roivalues, None)
                     if res._failed:
                         self.log.warning(res._message)
-                    return [res.contrast, res.dcontrast,
-                            res.avg, res.davg]
+                    return [res.avg, res.davg,
+                            res.contrast, res.dcontrast,
+                            res.phase, res.dphase,
+                            res.freq, res.dfreq]
         res = []
         for ctr in self._attached_detector._attached_counters:
             x = []
@@ -80,11 +82,15 @@ class ScanningDetector(NicosScanDet):
                         y.append(subset.detvaluelist[i])
                         x.append(subset.devvaluelist[0])
                         break
-            # ofs, ampl, freq, phase
+            # ofs, ampl, phase, freq
             res = self.fitter.run(x, y, None)
             if res._failed:
                 self.log.warning(res._message)
-            res.extend([res.contrast, res.dcontrast, res.avg, res.davg])
+            res.extend([
+                res.avg, res.davg,
+                res.contrast, res.dcontrast,
+                res.phase, res.dphase,
+                res.freq, res.dfreq])
         return res
 
     def doReadPositions(self):
@@ -99,22 +105,40 @@ class ScanningDetector(NicosScanDet):
         res = []
         for imgdet in self._attached_detector._attached_images:
             if getattr(imgdet, 'mode', None) in ['image']:
-                return (Value('fit.contrast', unit='', type='other',
-                              errors='next', fmtstr='%.3f'),
-                        Value('fit.contrastErr', unit='', type='error',
-                              errors='none', fmtstr='%.3f'),
-                        Value('fit.avg', unit='', type='other', errors='next',
-                              fmtstr='%.1f'),
-                        Value('fit.avgErr', unit='', type='error',
-                              errors='none', fmtstr='%.1f'))
+                return (
+                    Value('fit.avg', unit='', type='other', errors='next',
+                          fmtstr='%.1f'),
+                    Value('fit.avgErr', unit='', type='error', errors='none',
+                          fmtstr='%.1f'),
+                    Value('fit.contrast', unit='', type='other', errors='next',
+                          fmtstr='%.3f'),
+                    Value('fit.contrastErr', unit='', type='error',
+                          errors='none', fmtstr='%.3f'),
+                    Value('fit.phase', unit='', type='other', errors='next',
+                          fmtstr='%.3f'),
+                    Value('fit.phaseErr', unit='', type='error',
+                          errors='none', fmtstr='%.3f'),
+                    Value('fit.freq', unit='', type='other', errors='next',
+                          fmtstr='%.1f'),
+                    Value('fit.freqErr', unit='', type='error', errors='none',
+                          fmtstr='%.1f'),
+                )
         res = []
         for ctr in self._attached_detector._attached_counters:
+            res.append(Value('%s.fit.avg' % ctr.name, unit=ctr.unit,
+                             type='other', errors='next', fmtstr='%.1f'))
+            res.append(Value('%s.fit.avgErr' % ctr.name, unit=ctr.unit,
+                             type='error', errors='none', fmtstr='%.1f'))
             res.append(Value('%s.fit.contrast' % ctr.name, unit=ctr.unit,
                              type='other', errors='next', fmtstr='%.3f'))
             res.append(Value('%s.fit.contrastErr' % ctr.name, unit=ctr.unit,
                              type='error', errors='none', fmtstr='%.3f'))
-            res.append(Value('%s.fit.avg' % ctr.name, unit=ctr.unit,
+            res.append(Value('%s.fit.phase' % ctr.name, unit=ctr.unit,
                              type='other', errors='next', fmtstr='%.1f'))
-            res.append(Value('%s.fit.avgErr' % ctr.name, unit=ctr.unit,
+            res.append(Value('%s.fit.phaseErr' % ctr.name, unit=ctr.unit,
+                             type='error', errors='none', fmtstr='%.1f'))
+            res.append(Value('%s.fit.freq' % ctr.name, unit=ctr.unit,
+                             type='other', errors='next', fmtstr='%.1f'))
+            res.append(Value('%s.fit.freqErr' % ctr.name, unit=ctr.unit,
                              type='error', errors='none', fmtstr='%.1f'))
         return tuple(res)

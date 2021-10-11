@@ -35,7 +35,7 @@ class MiezeFit(PredefinedFit):
 
     names = ['mieze']
     fit_title = 'mieze fit'
-    fit_params = ['avg', 'contrast', 'phase']
+    fit_params = ['avg', 'contrast', 'phase', 'freq']
     fit_p_descr = fit_params
 
     timechannels = 16
@@ -44,27 +44,25 @@ class MiezeFit(PredefinedFit):
         PredefinedFit.__init__(self, parstart, xmin, xmax)
         self.freq = 2 * pi / self.timechannels
 
-    def fit_model(self, x, avg, contrast, phase):
-        return avg * (1 + abs(contrast) * np.sin(self.freq * x + phase))
+    def fit_model(self, x, avg, contrast, phase, freq):
+        return avg * (1 + abs(contrast) * np.sin(freq * x + phase))
 
     def guesspar(self, x, y):
-        self.freq = 2 * pi / len(y)
+        freq = 2 * pi / len(y)
         if len(y) == 1:
             contrast = 0
         else:
             contrast = 0.5 * np.ptp(y) * len(y) / (sum(y) + 1e-6)
         yavg = np.average(y)
-        return [yavg, contrast, 0]
+        return [yavg, contrast, contrast, freq]
 
     def process_result(self, res):
         res.label_x = res.phase
         res.label_y = min(res.curve_x)
-        res.freq = self.freq
-        res.dfreq = 0
         res.contrast = abs(res.contrast)
         res.label_contents = [
             ('Average', res.avg, res.davg),
-            ('Freq', res.freq, res.dfreq),
             ('Contrast', res.contrast, res.dcontrast),
             ('Phase', res.phase, res.dphase),
+            ('Frequency', res.freq, res.dfreq),
         ]
