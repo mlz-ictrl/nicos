@@ -30,6 +30,7 @@ from nicos.devices.generic import VirtualImage
 from nicos.protocols.cache import FLAG_NO_STORE
 
 from nicos_mlz.reseda.utils import MiezeFit
+from nicos_virt_mlz.reseda.devices.detector import McStasImage, McStasSimulation
 
 
 class CascadeDetector(VirtualImage):
