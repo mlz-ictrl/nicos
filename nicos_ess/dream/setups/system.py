@@ -10,7 +10,7 @@ sysconfig = dict(
 )
 
 modules = ['nicos.commands.standard', 'nicos_ess.commands.epics',
-           'nicos_ess.commands.file_writing', 'nicos_ess.v20.commands.filewriter']
+           'nicos_ess.commands.file_writing']
 
 devices = dict(
     DREAM=device(
