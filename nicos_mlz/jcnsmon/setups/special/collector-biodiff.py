@@ -2,13 +2,18 @@ description = 'setup for the NICOS collector service'
 group = 'special'
 
 devices = dict(
+    #SECache = device('nicos.services.collector.CacheForwarder',
+    #    cache = 'localhost',
+    #    prefix = 'nicos/se',
+    #    keyfilters = ['.*ccm3a.*'],
+    #),
     GlobalCache = device('nicos.services.collector.CacheForwarder',
         cache = 'localhost',
-        prefix = 'nicos/jnse',
-        keyfilters = ['magb*.*', 'cooling.*'],
+        prefix = 'nicos/biodiff',
+        keyfilters = ['selector.*', 'cooling.*'],
     ),
     Collector = device('nicos.services.collector.Collector',
-        cache = 'phys.j-nse.frm2',
+        cache = 'phys.biodiff.frm2',
         forwarders = ['GlobalCache'],
     ),
 )

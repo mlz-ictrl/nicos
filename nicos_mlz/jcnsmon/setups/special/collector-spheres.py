@@ -19,8 +19,13 @@ devices = dict(
             'c_pressure': 'cct21_c_pressure',
         }
     ),
+    GlobalCache = device('nicos.services.collector.CacheForwarder',
+        cache = 'localhost',
+        prefix = 'nicos/spheres',
+        keyfilters = ['cooling.*'],
+    ),
     Collector = device('nicos.services.collector.Collector',
         cache = 'phys.spheres.frm2',
-        forwarders = ['SECache'],
+        forwarders = ['GlobalCache', 'SECache'],
     ),
 )
