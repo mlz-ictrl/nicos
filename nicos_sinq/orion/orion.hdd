@@ -1,0 +1,26 @@
+*************************** ORION Data File ********************************
+Original Filename    = !!FILE!!
+Title                = !!VAR(Exp,title)!!
+User                 = !!VAR(Exp,users)!!
+ProposalID           = !!VAR(Exp,proposal)!!
+Sample Name          = !!VAR(Sample,samplename)!!
+File Creation Date   = !!DATE!!
+****************************************************************************
+LAMBDA          = !!DRIV(mono)!!
+SOM             = !!DRIV(som)!!
+SOM zero        = !!ZERO(som)!!
+SGU             = !!DRIV(sgu)!!
+SGU zero        = !!ZERO(sgu)!!
+SGL             = !!DRIV(sgl)!!
+SGL zero        = !!ZERO(sgl)!!
+STT             = !!DRIV(stt)!!
+STT zero        = !!ZERO(stt)!!
+CHI             = !!DRIV(chi)!!
+CHI zero        = !!ZERO(chi)!!
+PHI             = !!DRIV(phi)!!
+PHI zero        = !!ZERO(phi)!!
+----------------------------------------------------------------------------
+UB = !!VAR(Sample,ubmatrix)!!
+----------------------------------------------------------------------------
+!!SCANZERO!!
+**************************** DATA ******************************************

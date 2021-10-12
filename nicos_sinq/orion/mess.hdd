@@ -1,0 +1,12 @@
+CCL
+instrument             = ORION
+title                  = !!VAR(Exp,title)!!
+sample                 = !!VAR(Sample,samplename)!!
+user                   = !!VAR(Exp,users)!!
+ProposalID             = !!VAR(Exp,proposal)!!
+original_filename      = !!FILE!!
+date                   = !!DATE!!
+
+# Parameters
+UB = !!SCRIPT('str(Sample.ubmatrix)')!!
+#data
