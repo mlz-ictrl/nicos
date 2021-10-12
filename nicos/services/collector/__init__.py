@@ -119,8 +119,7 @@ class CacheForwarder(ForwarderBase, BaseCacheClient):
         if value is None:
             msg = '%s@%s%s%s\n' % (time, self._prefix, key, OP_TELLOLD)
         else:
-            msg = '%s%s@%s%s%s%s\n' % (time, ttl,
-                                       self._prefix, key, OP_TELL, value)
+            msg = '%s@%s%s%s%s\n' % (time, self._prefix, key, OP_TELL, value)
         self._queue.put(msg)
 
     def _handle_msg(self, _time, _ttlop, _ttl, _tsop, _key, _op, _value):
@@ -146,8 +145,8 @@ class MappingCacheForwarder(CacheForwarder):
             msg = '%s@%s%s%s\n' % (time, self._prefix, dev + slash + sub,
                                    OP_TELLOLD)
         else:
-            msg = '%s%s@%s%s%s%s\n' % (time, ttl, self._prefix,
-                                       dev + slash + sub, OP_TELL, value)
+            msg = '%s@%s%s%s%s\n' % (time, self._prefix, dev + slash + sub,
+                                     OP_TELL, value)
         self._queue.put(msg)
 
 
