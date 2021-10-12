@@ -50,7 +50,7 @@ class SXTalBase(Instrument, Moveable):
     """
 
     attached_devices = {
-        'mono': Attach('Monochromator device', Monochromator),
+        'mono': Attach('Monochromator device', Moveable),
     }
 
     parameters = {
@@ -76,6 +76,10 @@ class SXTalBase(Instrument, Moveable):
                           type=bool, default=False,
                           settable=True,
                           userparam=True),
+        'orienting_reflections': Param('Reflections from which the UB'
+                                       'was calculated',
+                                       type=tupleof(int, int), settable=True,
+                                       default=(0, 0)),
     }
 
     parameter_overrides = {
@@ -184,9 +188,7 @@ class SXTalBase(Instrument, Moveable):
         """
         Test if this position it to close to the incoming beam
         """
-        if poslist[0] > 3.:
-            return True
-        return False
+        return abs(poslist[0][1]) <= 3
 
     def doIsAllowed(self, hkl):
         try:
@@ -194,7 +196,7 @@ class SXTalBase(Instrument, Moveable):
         except Exception as err:
             return False, str(err)
         zero = np.zeros((len(poslist),))
-        if np.allclose(poslist, zero):
+        if np.allclose([p[1] for p in poslist], zero):
             return False, 'Failed to calculate angles for ' + str(hkl)
         if self._isToClose(poslist):
             return False, 'Reflection %s to close to incoming beam'\
@@ -253,7 +255,7 @@ class SXTalBase(Instrument, Moveable):
         if self._attached_mono.unit != 'A':
             oldunit = self._attached_mono.unit
             self._attached_mono.unit = 'A'
-        result = self._attached_mono.read(0)
+        result = float(self._attached_mono.read(0))
         if oldunit:
             self._attached_mono.unit = oldunit
         return result
@@ -297,7 +299,7 @@ class EulerSXTal(SXTalBase):
     }
 
     def _extractPos(self, pos):
-        om, chi, phi = z1ToBisecting(self._attached_mono.read(0),
+        om, chi, phi = z1ToBisecting(self.wavelength,
                                      pos)
         tth = 2. * om
         poslist = [
@@ -556,9 +558,7 @@ class TASSXTal(SXTalBase):
         """
         Test if this position it to close to the incoming beam
         """
-        if poslist[3] > 3.:
-            return True
-        return False
+        return abs(poslist[1][1]) <= 3
 
     def _rfl_to_reflection(self, r):
         """convert a reflection from reflection list format to internal
@@ -574,7 +574,7 @@ class TASSXTal(SXTalBase):
         tref1 = self._rfl_to_reflection(r1)
         tref2 = self._rfl_to_reflection(r2)
         self.plane_normal = calcPlaneNormal(tref1, tref2)
-        return calcTasUBFromTwoReflections(cell, tref1, tref2)
+        return calcTasUBFromTwoReflections(cell, tref1, tref2)/(np.pi * 2.)
 
 
 class SXTalIndex(AutoDevice, Moveable):

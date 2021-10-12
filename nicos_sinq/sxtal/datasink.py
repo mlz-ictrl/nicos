@@ -75,10 +75,13 @@ class CCLSinkHandler(SINQAsciiSinkHandler):
 
     def begin(self):
         if not self._ccl_file:
-            self._ccl_file = open(self.dataset.filepaths[0], 'w')  # pylint: disable=consider-using-with
+            # pylint: disable=consider-using-with
+            self._ccl_file = open(self.dataset.filepaths[0], 'w',
+                                  encoding='utf-8')
             base = os.path.splitext(self.dataset.filepaths[0])[0]
             rflfile = base + '.rfl'
-            self._rfl_file = open(rflfile, 'w')  # pylint: disable=consider-using-with
+            # pylint: disable=consider-using-with
+            self._rfl_file = open(rflfile, 'w', encoding='utf-8')
             self._rfl_file.write('%s\n' % rflfile)
 
     def addSubset(self, point):

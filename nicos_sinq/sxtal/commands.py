@@ -26,7 +26,7 @@ A set of commands special for single crystal diffraction
 """
 
 import os
-import os.path as path
+from os import path
 
 import numpy as np
 
@@ -41,9 +41,11 @@ from nicos.core.utils import multiWait
 from nicos.devices.generic.detector import DummyDetector
 from nicos.devices.sxtal.xtal.sxtalcell import SXTalCell
 
-from nicos_sinq.sxtal.instrument import SXTalBase
+from nicos_sinq.sxtal.cell import calculateBMatrix
+from nicos_sinq.sxtal.instrument import SXTalBase, TASSXTal
 from nicos_sinq.sxtal.sample import SXTalSample
 from nicos_sinq.sxtal.singlexlib import calcTheta
+from nicos_sinq.sxtal.tasublib import KToEnergy, makeAuxReflection
 from nicos_sinq.sxtal.util import window_integrate
 
 
@@ -84,6 +86,16 @@ def AddRef(hkl=None, angles=None, aux=None, reflist=None):
     instrument is stored in the reflection list. In any other case a
     reflection is entered with the missing information set to defaults.
     """
+    def add_current(inst, hkl, rfl, aux):
+        angles = inst._readPos()
+        rfl.append(hkl, angles, aux)
+
+    def add_current_tas(inst, hkl, rfl):
+        angles = inst._readPos()
+        aux = KToEnergy(angles[0]), KToEnergy(angles[1])
+        angles = angles[2:]
+        rfl.append(hkl, angles, aux)
+
     sample, inst = getSampleInst()
     if not sample:
         return
@@ -92,7 +104,16 @@ def AddRef(hkl=None, angles=None, aux=None, reflist=None):
         session.log.error('Reflection list %s not found', reflist)
         return
     if not hkl and not angles:
-        angles = inst.readPos()
+        hkl = inst.read(0)
+        if isinstance(inst, TASSXTal):
+            return add_current_tas(inst, hkl, rfl)
+        else:
+            return add_current(inst, hkl, rfl, aux)
+    if hkl and not angles:
+        if isinstance(inst, TASSXTal):
+            return add_current_tas(inst, hkl, rfl)
+        else:
+            return add_current(inst, hkl, rfl, aux)
     rfl.append(hkl, angles, aux)
 
 
@@ -133,6 +154,8 @@ def ListRef(reflist=None):
         aux = True
         for v in rfl.column_headers[2]:
             header += '%8s' % v
+    else:
+        aux = False
     session.log.info(header)
     refiter = rfl.generate(0)
     r = next(refiter)
@@ -186,6 +209,42 @@ def ClearRef(reflist=None):
         session.log.error('Reflection list %s not found', reflist)
         return
     rfl.clear()
+
+
+@usercommand
+@helparglist('A tuple of (h, k, l) for the auxiliary reflection and the '
+             'index of the reference reflection, Optionally the name of '
+             'the reflection list to work on')
+def AddAuxRef(hkl, idx, reflist=None):
+    """
+    Add an auxiliary reflection from energies and B matrix.
+    Works only for TAS. A3, SGU, SGL will be invalid
+    """
+    sample, inst = getSampleInst()
+    if not sample:
+        return
+    rfl = sample.getRefList(reflist)
+    if rfl is None:
+        session.log.error('Reflection list %s not found', reflist)
+        return
+    if not isinstance(inst, TASSXTal):
+        session.log.error('This command does only work for TAS')
+        return
+    r1 = rfl.get_reflection(idx)
+    calcr = inst._rfl_to_reflection(r1)
+    cell = sample.getCell()
+    B = calculateBMatrix(cell)
+    try:
+        r2 = makeAuxReflection(B, calcr, inst.scattering_sense, hkl)
+        angles = r2.angles.a3, r2.angles.sample_two_theta, 0, 0
+        aux = KToEnergy(r2.qe.ki), KToEnergy(r2.qe.kf)
+        en = aux[0] - aux[1]
+        hl = list(hkl)
+        hl.append(en)
+        rfl.append(tuple(hl), angles, aux)
+    except RuntimeError as e:
+        session.log.error(e)
+        return
 
 
 @usercommand
@@ -536,7 +595,7 @@ def SaveRef(filename, reflist=None, fmt=None):
         session.log.error('Reflection list %s not found', reflist)
         return
     fname = _auxfilename(filename)
-    with open(fname, 'w') as out:
+    with open(fname, 'w', encoding='utf-8') as out:
         if fmt and fmt == 'rafin':
             write_rafin_header(out, sample, inst)
             process_list(rfl, write_rafin, **{'file': out})
@@ -563,7 +622,7 @@ def LoadRef(filename, reflist=None):
     fname = _auxfilename(filename)
     rfl.clear()
     count = 0
-    with open(fname, 'r') as fin:
+    with open(fname, 'r', encoding='utf-8') as fin:
         for line in fin:
             values = line.split()
             if len(values) < 3:
@@ -785,14 +844,14 @@ def IndexTH(idx, reflist=None, hkllim=10):
     result = []
     for h in range(-hkllim, hkllim):
         for k in range(-hkllim, hkllim):
-            for l in range(-hkllim, hkllim):
-                z1 = inst._calcPos((h, k, l))
+            for ql in range(-hkllim, hkllim):
+                z1 = inst._calcPos((h, k, ql))
                 d, theta = calcTheta(inst.wavelength, z1)
                 if d == 0:
                     continue
                 hkl_tth = 2. * np.rad2deg(np.arcsin(theta))
                 if rfl_tth - .2 < hkl_tth < rfl_tth + .2:
-                    result.append((h, k, l, hkl_tth))
+                    result.append((h, k, ql, hkl_tth))
     session.log.info('Suggested indices for reflection %d, two_theta= %8.4f',
                      idx, rfl_tth)
     for res in result:
@@ -836,6 +895,7 @@ def CalcUB(idx1, idx2, replace=False, reflist=None):
     session.log.info('New UB:\n %s', str(newub))
     if replace:
         sample.ubmatrix = list(newub.flatten())
+        inst.orienting_reflections = (idx1, idx2)
 
 
 @usercommand
