@@ -27,6 +27,7 @@ from pathlib import Path
 import h5py
 import numpy
 
+from nicos import session
 from nicos.core.constants import LIVE, POINT, SCAN
 from nicos.core.data import DataSinkHandler
 from nicos.core.errors import NicosError
@@ -65,9 +66,20 @@ def copy_nexus_template(template):
 
 
 class NexusSinkHandler(DataSinkHandler):
+    """
+    For a scan NICOS sends first a scan dataset and then a point dataset
+    for each scan point. This class has to make sure that all this ends up
+    in one NeXus file. This requires keeping a copy of the start dataset
+    around and some logic in begin() end end()
 
+    Then it turned out that h5py.flush() does not write a useable file
+    to disk for other programs to digest while the data is still being
+    collected. Thus it is necessary to keep the file closed and open and
+    close it only when data needs to be updated.
+    """
     def __init__(self, sink, dataset, detector):
         self.startdataset = None
+        self._filename = None
         DataSinkHandler.__init__(self, sink, dataset, detector)
 
     def prepare(self):
@@ -86,9 +98,10 @@ class NexusSinkHandler(DataSinkHandler):
                                           self.sink.subdir)
 
     def begin(self):
-        if self.dataset.settype == POINT and not self.h5file:
+        if self.dataset.settype == POINT and not self._filename:
             self.template = copy_nexus_template(self.sink.loadTemplate())
 
+            self._filename = self.startdataset.filepaths[0]
             self.h5file = h5py.File(self.startdataset.filepaths[0], 'w')
             p = Path(self.startdataset.filepaths[0])
             self.log.info('Writing file %s', p.name)
@@ -107,9 +120,11 @@ class NexusSinkHandler(DataSinkHandler):
             self.createStructure()
 
     def createStructure(self):
+        if not self.h5file:
+            self.h5file = h5py.File(self._filename, 'r+')
         h5obj = self.h5file['/']
         self.create(self.template, h5obj)
-        self.h5file.flush()
+        self.h5file.close()
 
     def create(self, dictdata, h5obj):
         for key, val in dictdata.items():
@@ -163,10 +178,14 @@ class NexusSinkHandler(DataSinkHandler):
                 self.log.warning('Cannot identify and append %r', key)
 
     def putValues(self, values):
-        h5obj = self.h5file['/']
-        if values:
-            self.updateValues(self.template, h5obj, values)
-            self.h5file.flush()
+        try:
+            with h5py.File(self._filename, 'r+') as self.h5file:
+                h5obj = self.h5file['/']
+                if values:
+                    self.updateValues(self.template, h5obj, values)
+        except BlockingIOError:
+            # This is not interesting to know
+            pass
 
     def resultValues(self, dictdata, h5obj, results):
         for key, val in dictdata.items():
@@ -186,15 +205,24 @@ class NexusSinkHandler(DataSinkHandler):
         # Suppress updating data files when updating live data
         if quality == LIVE:
             return
-        h5obj = self.h5file['/']
-        self.resultValues(self.template, h5obj, results)
-        self.h5file.flush()
+        try:
+            with h5py.File(self._filename, 'r+') as self.h5file:
+                h5obj = self.h5file['/']
+                self.resultValues(self.template, h5obj, results)
+        except BlockingIOError:
+            session.log.warning('Other process is accessing NeXus file '
+                                'while saving results')
 
     def addSubset(self, subset):
         if self.startdataset.settype == SCAN:
-            h5obj = self.h5file['/']
-            self.append(self.template, h5obj, subset)
-            self.h5file.flush()
+            try:
+                with h5py.File(self._filename, 'r+') as self.h5file:
+                    h5obj = self.h5file['/']
+                    self.append(self.template, h5obj, subset)
+            except BlockingIOError:
+                session.log.warning('Other process is accessing NeXus file '
+                                    'while updating, possibly loosing '
+                                    'scan point')
 
     def find_scan_link(self, h5obj, template):
         for key, val in template.items():
@@ -231,17 +259,18 @@ class NexusSinkHandler(DataSinkHandler):
         """
         if self.startdataset.finished is not None:
             if self.startdataset.settype == SCAN:
-                h5obj = self.h5file['/']
-                linkpath = self.find_scan_link(h5obj, self.template)
-                if linkpath is not None:
-                    self.make_scan_links(h5obj, self.template, linkpath)
-            try:
-                self.h5file.close()
-                self.h5file = None
-            except Exception:
-                # This can happen, especially with missing devices. But the
-                # resulting NeXus file is complete and sane.
-                pass
+                with h5py.File(self._filename, 'r+') as self.h5file:
+                    h5obj = self.h5file['/']
+                    linkpath = self.find_scan_link(h5obj, self.template)
+                    if linkpath is not None:
+                        self.make_scan_links(h5obj, self.template, linkpath)
+                try:
+                    self.h5file.close()
+                    self.h5file = None
+                except Exception:
+                    # This can happen, especially with missing devices. But the
+                    # resulting NeXus file is complete and sane.
+                    pass
             self.sink.end()
 
 
