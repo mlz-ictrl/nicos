@@ -20,6 +20,7 @@ devices = dict(
         grouproles = {
             'erwin': 'admin',
             'ictrl': 'admin',
+            'del': 'user',
             'se': 'user',
         },
     ),
