@@ -27,11 +27,14 @@
 #
 # *****************************************************************************
 
+import time
+
 import numpy as np
 
 from nicos import session
 from nicos.core.errors import ConfigurationError
-from nicos.nexus.elements import NexusElementBase, NXAttribute
+from nicos.nexus.elements import DeviceDataset, NexusElementBase, \
+    NexusSampleEnv, NXAttribute
 
 from nicos_sinq.devices.sinqhm.configurator import HistogramConfArray
 
@@ -103,8 +106,8 @@ class ConfArray(NexusElementBase):
         try:
             array = session.getDevice(self._array_name)
             if not isinstance(array, HistogramConfArray):
-                raise ConfigurationError('%s is no HistogramConfArray' %
-                                         self._array_name)
+                raise ConfigurationError('{self._array_name} is no '
+                                         'HistogramConfArray')
         except ConfigurationError:
             session.log.warning('Array %s not found, NOT stored',
                                 self._array_name)
@@ -115,3 +118,149 @@ class ConfArray(NexusElementBase):
         else:
             dset[...] = array.data
         self.createAttributes(dset, sinkhandler)
+
+
+class ArrayParam(NexusElementBase):
+    """
+    For writing an array parameter to a NeXus file
+    """
+    def __init__(self, dev, parameter, dtype, reshape=None, **attrs):
+        self.dev = dev
+        self.parameter = parameter
+        self.dtype = dtype
+        self.reshape = reshape
+        self.attrs = {}
+        for key, val in attrs.items():
+            if not isinstance(val, NXAttribute):
+                val = NXAttribute(val, 'string')
+                self.attrs[key] = val
+        NexusElementBase.__init__(self)
+
+    def create(self, name, h5parent, sinkhandler):
+        if (self.dev, self.parameter) in sinkhandler.dataset.metainfo:
+            rawvalue = sinkhandler.dataset.metainfo[
+                (self.dev, self.parameter)]
+            value = np.array(rawvalue, ([]), self.dtype)
+            if self.reshape:
+                value = value.reshape(self.reshape)
+            dset = h5parent.create_dataset(name, value.shape, self.dtype)
+            dset[...] = value
+            self.createAttributes(dset, sinkhandler)
+        else:
+            session.log.warning('Failed to write %s, device %s not found',
+                                name, self.dev)
+
+
+class Reflection(NexusElementBase):
+    """
+    Writes reflection data to the NeXus file
+    """
+    def __init__(self, idx, reflist, **attrs):
+        self.idx = idx
+        self.reflist = reflist
+        self.attrs = {}
+        for key, val in attrs.items():
+            if not isinstance(val, NXAttribute):
+                val = NXAttribute(val, 'string')
+                self.attrs[key] = val
+        NexusElementBase.__init__(self)
+
+    def create(self, name, h5parent, sinkhandler):
+        try:
+            rlist = session.getDevice(self.reflist)
+            try:
+                rfl = rlist.get_reflection(self.idx)
+            except IndexError:
+                session.log.warning('Failed to write %s, cannot find '
+                                    'reflection %d', name, self.idx)
+                return
+        except ConfigurationError:
+            session.log.warning('Failed to write %s, reflist %s not '
+                                'found or reflection %d not found',
+                                name, self.dev, self.idx)
+            return
+        value = np.array([el for tup in rfl for el in tup], 'float32')
+        dset = h5parent.create_dataset(name, value.shape, 'float32')
+        dset[...] = value
+        self.createAttributes(dset, sinkhandler)
+
+
+class ScanVars(NexusElementBase):
+    """
+    This class writes a list of scanned variables
+    """
+    def create(self, name, h5parent, sinkhandler):
+        scanvars = ''
+        if sinkhandler.startdataset.devices:
+            for dev in sinkhandler.startdataset.devices:
+                scanvars += dev.name + ','
+        dtype = 'S{len(scanvars) + 1}'
+        dset = h5parent.create_dataset(name, (1,), dtype)
+        dset[0] = scanvars
+
+
+class ScanCommand(NexusElementBase):
+    """
+    This class writes the last scan command
+    """
+    def create(self, name, h5parent, sinkhandler):
+        com = session._script_text
+        dtype = 'S{len(com) + 1)}'
+        dset = h5parent.create_dataset(name, (1,), dtype)
+        dset[0] = com
+
+
+class AbsoluteTime(NexusElementBase):
+    """
+    Little class which stores the absolute time at each scan
+    point
+    """
+
+    def create(self, name, h5parent, sinkhandler):
+        h5parent.create_dataset(name, (1,), maxshape=(None,),
+                                dtype='float64')
+        self.doAppend = True
+
+    def results(self, name, h5parent, sinkhandler, results):
+        dset = h5parent[name]
+        self.resize_dataset(dset)
+        dset[self.np] = time.time()
+
+
+class EnvDeviceDataset(DeviceDataset):
+    """
+    The OUT variable in TAS allows to have other values to be
+    logged with the data. In NICOS, this is implemented by adding those
+    values to the environment. In order to get the log into the NeXus
+    file, this special class also searches the environment for values
+    to store.
+    """
+
+    def results(self, name, h5parent, sinkhandler, results):
+        if name not in h5parent:
+            # can happen, when we cannot find the device on creation
+            return
+        dset = h5parent[name]
+        for dev in sinkhandler.dataset.devices + \
+                sinkhandler.dataset.environment:
+            if dev.name == self.device:
+                value = dev.read()
+                if self.doAppend:
+                    self.resize_dataset(dset)
+                    dset[self.np] = value
+
+
+class OutSampleEnv(NexusSampleEnv):
+    """
+    This class is another helper to implement the OUT
+    functionality. It prevents NXlogs to be created for
+    standard instrument components.
+    """
+    def __init__(self, blocklist=None, update_interval=10):
+        self._blocklist = blocklist
+        NexusSampleEnv.__init__(self, update_interval)
+
+    def isValidDevice(self, dev):
+        if self._blocklist and dev.name in self._blocklist:
+            return False
+        return NexusElementBase.isValidDevice(self, dev)
