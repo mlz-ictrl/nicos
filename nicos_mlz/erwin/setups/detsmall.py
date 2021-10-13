@@ -30,5 +30,6 @@ devices = dict(
         images = ['ds_image'],
         monitors = ['ds_mon1'],
         timers = ['ds_timer'],
+        liveinterval = 1.0,
     ),
 )
