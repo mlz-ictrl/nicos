@@ -7,7 +7,7 @@ flatbuffers==1.12
 graypy
 kafka-logging-handler<=0.2.4
 kafka-python>=1.4.6
-p4p==4.0.0a1
+p4p==4.0.0a2
 pyepics
 PyQt5==5.15.4;sys_platform=='darwin'
 PyQtWebEngine==5.15.4;sys_platform=='darwin'
