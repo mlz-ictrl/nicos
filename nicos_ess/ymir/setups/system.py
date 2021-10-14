@@ -50,10 +50,11 @@ devices = dict(
     liveview=device('nicos.devices.datasinks.LiveViewSink', ),
 
     NexusStructure=device(
-        'nicos_ess.devices.datasinks.file_writer.NexusStructureTemplate',
+        'nicos_ess.devices.datasinks.nexus_structure.NexusStructureTemplate',
         description='Provides the NeXus structure',
         templatesmodule='nicos_ess.ymir.nexus.nexus_templates',
         templatename='ymir_default',
+        lowlevel=True,
     ),
     FileWriterStatus=device(
         'nicos_ess.devices.datasinks.file_writer.FileWriterStatus',

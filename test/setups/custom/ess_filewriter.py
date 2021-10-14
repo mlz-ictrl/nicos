@@ -42,7 +42,7 @@ devices = dict(
         description='The currently used sample',
     ),
     NexusStructure=device(
-        'nicos_ess.devices.datasinks.file_writer.NexusStructureTemplate',
+        'nicos_ess.devices.datasinks.nexus_structure.NexusStructureTemplate',
         description='Provides the NeXus structure',
         templatesmodule='nicos_ess.ymir.nexus.nexus_templates',
         templatename='ymir_default',

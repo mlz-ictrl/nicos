@@ -24,10 +24,8 @@
 #   Kenan Muric <kenan.muric@ess.eu>
 #
 # *****************************************************************************
-import copy
 import json
 import threading
-import time
 from datetime import datetime
 from time import time as currenttime
 
@@ -40,90 +38,17 @@ from streaming_data_types.fbschemas.action_response_answ.ActionType import \
     ActionType
 
 from nicos import session
-from nicos.core import MASTER, Attach, CommunicationError, Device, \
-    NicosError, Param, ScanDataset, host, listof, status, usermethod
+from nicos.core import MASTER, Attach, CommunicationError, Param, \
+    ScanDataset, host, listof, status, usermethod
 from nicos.core.constants import INTERRUPTED, POINT
 from nicos.core.data.sink import DataSinkHandler
-from nicos.core.params import Override, relative_path
+from nicos.core.params import Override
 from nicos.devices.datasinks.file import FileSink
 
+from nicos_ess.devices.datasinks.nexus_structure import NexusStructureProvider
 from nicos_ess.devices.kafka.status_handler import KafkaStatusHandler
-from nicos_ess.nexus.converter import NexusTemplateConverter
 
 NOT_CURRENTLY_WRITING = 'not_currently_writing'
-
-
-class NexusStructureProvider(Device):
-    def get_structure(self, dataset, start_time):
-        raise NotImplementedError('must implement get_structure method')
-
-
-class NexusStructureJsonFile(NexusStructureProvider):
-    parameters = {
-        'nexus_config_path': Param('NeXus configuration filepath',
-            type=relative_path, mandatory=True, userparam=True, settable=True),
-    }
-
-    def get_structure(self, dataset, start_time):
-        with open(self.nexus_config_path, 'r') as file:
-            return file.read()
-
-
-class NexusStructureTemplate(NexusStructureProvider):
-    parameters = {
-        'templatesmodule': Param(
-            'Python module containing NeXus nexus_templates',
-            type=str, mandatory=True),
-        'templatename': Param('Template name from the nexus_templates module',
-            type=str, mandatory=True),
-    }
-
-    _templates = []
-    _template = None
-
-    def doInit(self, mode):
-        self.log.info(self.templatesmodule)
-        self._templates = __import__(
-            self.templatesmodule, fromlist=[self.templatename]
-        )
-        self.log.info('Finished importing nexus_templates')
-        self.set_template(self.templatename)
-
-    def set_template(self, val):
-        """
-        Sets the template from the given template modules.
-        Parses the template using *parserclass* method parse. The parsed
-        root, event kafka streams and device placeholders are then set.
-        :param val: template name
-        """
-        if not hasattr(self._templates, val):
-            raise NicosError(
-                'Template %s not found in module %s'
-                % (val, self.templatesmodule)
-            )
-
-        self._template = getattr(self._templates, val)
-
-        if self.templatename != val:
-            self._setROParam('templatename', val)
-
-    def _add_start_time(self, dataset, start_time):
-        dataset.started = start_time.timestamp()
-        start_time_str = time.strftime('%Y-%m-%d %H:%M:%S',
-                                       time.localtime(dataset.started))
-
-        # Add start time to metainfo
-        if ('dataset', 'starttime') not in dataset.metainfo:
-            dataset.metainfo[('dataset', 'starttime')] = (start_time_str,
-                                                          start_time_str,
-                                                          '', 'general')
-
-    def get_structure(self, dataset, start_time):
-        template = copy.deepcopy(self._template)
-        self._add_start_time(dataset, start_time)
-        converter = NexusTemplateConverter()
-        structure = converter.convert(template, dataset.metainfo)
-        return json.dumps(structure)
 
 
 class FileWriterStatus(KafkaStatusHandler):
