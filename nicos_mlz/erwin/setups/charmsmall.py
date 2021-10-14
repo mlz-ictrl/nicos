@@ -68,6 +68,7 @@ devices = dict(
         window = 's_window',
         trip = 's_tripped',
         pollinterval = 1,
+        fmtstr = '%s',
         mapping = {
             'on': {
                 's_anode1': 2175,
