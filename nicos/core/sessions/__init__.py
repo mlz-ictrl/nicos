@@ -671,9 +671,9 @@ class Session:
             inner_load(setupname, sysconfig, devlist, startupcode)
 
         # sort the preferred aliases by priority
-        for aliasname in self.alias_config:
+        for ac in self.alias_config.values():
             # first element has the highest priority
-            self.alias_config[aliasname].sort(key=lambda x: -x[1])
+            ac.sort(key=lambda x: -x[1])
 
         # initialize the cache connection
         if sysconfig.get('cache') and self._mode != SIMULATION:
