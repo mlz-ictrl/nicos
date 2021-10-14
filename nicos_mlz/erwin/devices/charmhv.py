@@ -28,11 +28,44 @@ from nicos import session
 from nicos.core import status
 from nicos.core.constants import POLLER
 from nicos.core.device import Moveable, Readable
-from nicos.core.errors import ConfigurationError, ModeError, PositionError
+from nicos.core.errors import ConfigurationError, ModeError, NicosError, \
+    PositionError
 from nicos.core.params import Attach, Override, Param, dictof, oneof
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.generic.sequence import SeqDev, SeqParam, SequencerMixin
 from nicos.utils import num_sort
+
+
+class SeqRampParam(SeqParam):
+    """Special parameter sequence.
+
+    Since the parameter will be written on the hardware, and the hardware does
+    not return the set parameter value exactly (due to rounding effects)
+    a precision is needed to verify the current value.
+
+    The number of retries is needed due to the time needed to apply the value
+    on the hardware
+    """
+
+    precision = 0.01
+    nretries = 2
+
+    def __init__(self, dev, value):
+        SeqParam.__init__(self, dev=dev, paramname='ramp', value=value)
+
+    def run(self):
+        setattr(self.dev, self.paramname, self.value)
+        for _ in range(self.nretries):
+            if self.isCompleted():
+                return
+            session.delay(0.2)
+            self.log.info('waiting')
+        raise NicosError('Setting Parameter %s of dev %s to %r failed!' % (
+            self.paramname, self.dev, self.value))
+
+    def isCompleted(self):
+        return abs(
+            getattr(self.dev, self.paramname) - self.value) <= self.precision
 
 
 class HVSwitch(SequencerMixin, MappedMoveable):
@@ -151,11 +184,12 @@ class HVSwitch(SequencerMixin, MappedMoveable):
         return {dev.name: dev.read(maxage) for dev in self._devices.values()}
 
     def _startRaw(self, target):
-        ramp = 60 * self.mapping[self.target]['ramp']
+        ramp = self.mapping[self.target]['ramp']
         seq = self._generateSequence(self.target)
         if self.target in ['off', 'safe']:
             seq.reverse()
         self._startSequence(
-            [SeqParam(dev, 'ramp', ramp)
+            [SeqRampParam(dev, ramp)
              for dev in self._attached_anodes + self._attached_banodes +
-                 self._attached_cathodes + self._attached_window] + seq)
+             self._attached_cathodes] +
+            [SeqRampParam(dev, -ramp) for dev in self._attached_window] + seq)
