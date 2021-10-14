@@ -122,10 +122,10 @@ A simple setup file for the monitor could look like this:
      ),
 
      Block('Triple-axis', [
-         BlockRow(Field(dev='tas', item=0, name='H', format='%.3f', unit=' '),
-                  Field(dev='tas', item=1, name='K', format='%.3f', unit=' '),
-                  Field(dev='tas', item=2, name='L', format='%.3f', unit=' '),
-                  Field(dev='tas', item=3, name='E', format='%.3f', unit=' ')
+         BlockRow(Field(dev='tas[0]', name='H', format='%.3f', unit=' '),
+                  Field(dev='tas[1]', name='K', format='%.3f', unit=' '),
+                  Field(dev='tas[2]', name='L', format='%.3f', unit=' '),
+                  Field(dev='tas[3]', name='E', format='%.3f', unit=' ')
                  ),
          BlockRow(Field(key='tas/scanmode', name='Mode'),
                   Field(dev='mono', name='ki'),

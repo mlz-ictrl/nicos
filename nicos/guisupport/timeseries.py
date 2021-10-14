@@ -23,18 +23,17 @@
 #   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************
+
 """
 NICOS value plot widget.
 """
 
-import functools
-import operator
 from time import time as currenttime
 
 import numpy as np
 from lttb import lttb
 
-from nicos.utils import number_types
+from nicos.utils import number_types, KEYEXPR_NS
 
 
 def buildTickDistAndSubTicks(mintime, maxtime, minticks=3):
@@ -112,16 +111,15 @@ class TimeSeries:
     minsize = 500
     maxsize = 100000
 
-    def __init__(self, name, interval, scale, offset, window, signal_obj,
+    def __init__(self, descr, interval, expr, window, signal_obj,
                  info=None, mapping=None):
-        self.name = name
+        self.descr = descr
+        self.expr = expr
         self.disabled = False
         self.signal_obj = signal_obj
         self.info = info
         self.interval = interval
         self.window = window
-        self.scale = scale
-        self.offset = offset
 
         # [[x, y], [x, y]] array of data points
         self.data = None
@@ -138,9 +136,7 @@ class TimeSeries:
 
     @property
     def title(self):
-        return (self.name + ('*%g' % self.scale if self.scale != 1 else '') +
-                ('%+g' % self.offset if self.offset else '') +
-                (' (' + self.info + ')' if self.info else ''))
+        return self.descr + (' (' + self.info + ')' if self.info else '')
 
     # convenience API to get columns of the valid data
 
@@ -155,7 +151,7 @@ class TimeSeries:
     def init_empty(self):
         self.data = np.zeros((self.minsize, 2))
 
-    def init_from_history(self, history, starttime, endtime, valueindex=()):
+    def init_from_history(self, history, starttime, endtime):
         ltime = 0
         lvalue = None
         maxdelta = max(2 * self.interval, 11)
@@ -165,12 +161,12 @@ class TimeSeries:
         for vtime, value in history:
             if value is None:
                 continue
-            if valueindex:
-                try:
-                    value = functools.reduce(operator.getitem, valueindex, value)
-                except (TypeError, IndexError):
-                    continue
             delta = vtime - ltime
+            if self.expr:
+                try:
+                    value = eval(self.expr, KEYEXPR_NS, {'x': value})
+                except Exception:
+                    continue
             if not isinstance(value, number_types):
                 # if it's a string, create a new unique integer value for the string
                 if isinstance(value, str):
@@ -178,7 +174,6 @@ class TimeSeries:
                 # other values we can't use
                 else:
                     continue
-            value = value * self.scale + self.offset
             if delta < self.interval:
                 # value comes too fast -> ignore
                 lvalue = value
@@ -210,7 +205,7 @@ class TimeSeries:
         self.last_y = lvalue
         if self.string_mapping:
             self.info = ', '.join(
-                '%g=%s' % (v * self.scale + self.offset, k) for (k, v) in
+                '%g=%s' % (v, k) for (k, v) in
                 sorted(self.string_mapping.items(), key=lambda x: x[1]))
 
     def synthesize_value(self):
@@ -219,19 +214,22 @@ class TimeSeries:
         delta = currenttime() - self._last_update_time
         if delta > self.interval:
             self.add_value(self.data[self.n - 1, 0] + delta, self.last_y,
-                           real=False, use_scale=False)
+                           real=False, use_expr=False)
 
-    def add_value(self, vtime, value, real=True, use_scale=True):
+    def add_value(self, vtime, value, real=True, use_expr=True):
         if not isinstance(value, number_types):
             if isinstance(value, str):
                 value = self.string_mapping.setdefault(value, len(self.string_mapping))
                 self.info = ', '.join(
-                    '%g=%s' % (v * self.scale + self.offset, k) for (k, v) in
+                    '%g=%s' % (v, k) for (k, v) in
                     sorted(self.string_mapping.items(), key=lambda x: x[1]))
             else:
                 return
-        elif use_scale:
-            value = value * self.scale + self.offset
+        elif use_expr and self.expr:
+            try:
+                value = eval(self.expr, KEYEXPR_NS, {'x': value})
+            except Exception:
+                return
         n, real_n = self.n, self.real_n
         arrsize = self.data.shape[0]
         self.last_y = value

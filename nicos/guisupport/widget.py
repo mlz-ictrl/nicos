@@ -26,15 +26,13 @@
 Base class for NICOS UI widgets.
 """
 
-import functools
-import operator
 from copy import copy
 
 from nicos.core.constants import NOT_AVAILABLE
 from nicos.core.status import OK
 from nicos.guisupport.qt import QFont, QFontMetrics, pyqtProperty
 from nicos.protocols.daemon import DAEMON_EVENTS
-from nicos.utils import AttrDict, extractKeyAndIndex, lazy_property
+from nicos.utils import AttrDict, parseKeyExpression, lazy_property, KEYEXPR_NS
 
 
 class NicosListener:
@@ -46,11 +44,10 @@ class NicosListener:
         self.devinfo = {}
         self.registerKeys()
 
-    def _newDevinfo(self, valueindex, unit, fmtstr, isdevice):
-        valueindex = tuple(map(int, valueindex))
+    def _newDevinfo(self, expr, unit, fmtstr, isdevice):
         return AttrDict(
             {'value': '-',
-             'valueindex': valueindex,
+             'expr': expr,
              'strvalue': '-',
              'fullvalue': '-',
              'status': (OK, ''),
@@ -62,24 +59,27 @@ class NicosListener:
              'isdevice': isdevice})
 
     def registerDevice(self, dev, unit='', fmtstr=''):
-        dev, valueindex, _scale, _offset = extractKeyAndIndex(
-            dev, False, normalize=lambda s: s.lower())
-        self.devinfo[dev] = self._newDevinfo(valueindex, unit, fmtstr, True)
-        self._devmap[self._source.register(self, dev + '/value')] = dev
-        self._devmap[self._source.register(self, dev + '/status')] = dev
-        self._devmap[self._source.register(self, dev + '/fixed')] = dev
+        if not dev:
+            return
+        key, expr, _ = parseKeyExpression(
+            dev, append_value=False, normalize=lambda s: s.lower())
+        self.devinfo[key] = self._newDevinfo(expr, unit, fmtstr, True)
+        self._devmap[self._source.register(self, key + '/value')] = key
+        self._devmap[self._source.register(self, key + '/status')] = key
+        self._devmap[self._source.register(self, key + '/fixed')] = key
         if not unit:
-            self._devmap[self._source.register(self, dev + '/unit')] = dev
+            self._devmap[self._source.register(self, key + '/unit')] = key
         if not fmtstr:
-            self._devmap[self._source.register(self, dev + '/fmtstr')] = dev
+            self._devmap[self._source.register(self, key + '/fmtstr')] = key
 
     def registerKey(self, valuekey, statuskey='', unit='', fmtstr=''):
-        valuekey, valueindex, _scale, _offset = extractKeyAndIndex(valuekey, False)
-        self.devinfo[valuekey] = self._newDevinfo(valueindex, unit, fmtstr,
-                                                  False)
-        self._devmap[self._source.register(self, valuekey)] = valuekey
+        if not valuekey:
+            return
+        key, expr, _ = parseKeyExpression(valuekey, append_value=False)
+        self.devinfo[key] = self._newDevinfo(expr, unit, fmtstr, False)
+        self._devmap[self._source.register(self, key)] = key
         if statuskey:
-            self._devmap[self._source.register(self, statuskey)] = valuekey
+            self._devmap[self._source.register(self, statuskey)] = key
 
     def registerKeys(self):
         """Register any keys that should be watched."""
@@ -130,10 +130,9 @@ class NicosListener:
         # it's either /value, or any key registered as value
         # first, apply item selection
         if value is not None:
-            if devinfo.valueindex:
+            if devinfo.expr:
                 try:
-                    fvalue = functools.reduce(operator.getitem,
-                                              devinfo.valueindex, value)
+                    fvalue = eval(devinfo.expr, KEYEXPR_NS, {'x': value})
                 except Exception:
                     fvalue = NOT_AVAILABLE
             else:

@@ -233,7 +233,7 @@ var1supp2 = Block('Variox - pressures', [
         Field(dev='var1_p', name='p reg.', width=10),
     ),
     BlockRow(
-        Field(key='var1_p/status', name='Status', item=1, maxlen=6),
+        Field(key='var1_p/status[1]', name='Status', maxlen=6),
     ),
     BlockRow(
         Field(key='var1_p/setpoint', name='p (sp)'),

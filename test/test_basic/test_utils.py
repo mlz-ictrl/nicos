@@ -36,13 +36,13 @@ import pytest
 
 from nicos.core.errors import NicosError
 from nicos.core.sessions.utils import SimClock
-from nicos.utils import TB_CAUSE_MSG, Repeater, allDays, bitDescription, \
-    checkSetupSpec, chunks, closeSocket, comparestrings, extractKeyAndIndex, \
+from nicos.utils import KEYEXPR_NS, TB_CAUSE_MSG, Repeater, allDays, \
+    bitDescription, checkSetupSpec, chunks, closeSocket, comparestrings, \
     formatDuration, formatExtendedFrame, formatExtendedStack, \
     formatExtendedTraceback, lazy_property, moveOutOfWay, num_sort, \
-    parseConnectionString, parseDuration, readFileCounter, readonlydict, \
-    readonlylist, safeName, safeWriteFile, squeeze, tcpSocket, \
-    timedRetryOnExcept, tupelize, updateFileCounter
+    parseConnectionString, parseDuration, parseKeyExpression, \
+    readFileCounter, readonlydict, readonlylist, safeName, safeWriteFile, \
+    squeeze, tcpSocket, timedRetryOnExcept, tupelize, updateFileCounter
 from nicos.utils.timer import Timer
 
 from test.utils import raises
@@ -360,29 +360,29 @@ def test_check_setup_spec():
         assert res == result
 
 
-def test_extract_key_and_index():
-    assert extractKeyAndIndex('dev') == ('dev/value', (), 1, 0)
-    assert extractKeyAndIndex('dev.key') == ('dev/key', (), 1, 0)
-    assert extractKeyAndIndex('dev.key[0]') == ('dev/key', (0,), 1, 0)
-    assert extractKeyAndIndex('dev.key[0][1]') == ('dev/key', (0, 1), 1, 0)
-    assert extractKeyAndIndex('dev[0][1]') == ('dev/value', (0, 1), 1, 0)
-    assert extractKeyAndIndex('dev[0,1]') == ('dev[0,1]', (), 1, 0)
-    assert extractKeyAndIndex('dev.key[0][ 1]') == ('dev/key', (0, 1), 1, 0)
-    assert extractKeyAndIndex('dev.key[ 0][ 1]') == ('dev/key', (0, 1), 1, 0)
-    assert extractKeyAndIndex('dev.key[ 0 ][ 1]') == ('dev/key', (0, 1), 1, 0)
-    assert extractKeyAndIndex('dev.key[ 0 ][ 1 ]') == ('dev/key', (0, 1), 1, 0)
-    assert extractKeyAndIndex('dev.key[10 ][ 1]') == ('dev/key', (10, 1), 1, 0)
-    assert extractKeyAndIndex('dev.key[0') == ('dev/key[0', (), 1, 0)
-    assert extractKeyAndIndex('dev.key0]') == ('dev/key0]', (), 1, 0)
-    assert extractKeyAndIndex('dev.key*10') == ('dev/key', (), 10, 0)
-    assert extractKeyAndIndex('dev.key*-10') == ('dev/key', (), -10, 0)
-    assert extractKeyAndIndex('dev.key * -1') == ('dev/key', (), -1, 0)
-    assert extractKeyAndIndex('dev.key +5') == ('dev/key', (), 1, 5)
-    assert extractKeyAndIndex('dev.key- 5') == ('dev/key', (), 1, -5)
-    assert extractKeyAndIndex('dev.key*10 -5') == ('dev/key', (), 10, -5)
-    assert extractKeyAndIndex('dev.key[0] * 10+5') == ('dev/key', (0,), 10, 5)
-    assert extractKeyAndIndex('dev*1.2e1 +5e-2') == ('dev/value', (), 12, 0.05)
-    assert extractKeyAndIndex('dev*1e+1+5e1') == ('dev/value', (), 10, 50)
+def test_parse_key_expression():
+    assert parseKeyExpression('dev.key')[0] == 'dev/key'
+    assert parseKeyExpression('dev.key', normalize=lambda s: s)[0] == \
+        'dev.key/value'
+    assert parseKeyExpression('dev.key', False, normalize=lambda s: s)[0] == \
+        'dev.key'
+
+    key, expr, _ = parseKeyExpression('dev + 1')
+    assert key == 'dev/value'
+    assert eval(expr, {}, {'x': 42}) == 43
+
+    _, expr, _ = parseKeyExpression('100/(dev/key)/10')
+    assert eval(expr, {}, {'x': 2}) == 5
+
+    _, expr, _ = parseKeyExpression('sqrt(key)')
+    assert eval(expr, KEYEXPR_NS, {'x': 25}) == 5
+
+    _, _, descs = parseKeyExpression('a/b, c.d*2, sqrt(e)', multiple=True)
+    assert descs == [
+        'a/b',
+        'c.d*2',
+        'sqrt(e)'
+    ]
 
 
 def test_squeeze():

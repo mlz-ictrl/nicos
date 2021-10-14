@@ -24,6 +24,7 @@
 
 """NICOS utilities independent from an active session."""
 
+import ast
 import fnmatch
 import inspect
 import linecache
@@ -48,6 +49,8 @@ from stat import S_IRGRP, S_IROTH, S_IRUSR, S_IRWXU, S_IWUSR, S_IXGRP, \
     S_IXOTH, S_IXUSR
 from time import localtime, mktime, sleep, strftime, strptime, \
     time as currenttime
+
+import numpy
 
 # do **not** import nicos.session here
 # session dependent nicos utilities should be implemented in nicos.core.utils
@@ -1459,50 +1462,105 @@ class FitterRegistry:
                            (key, ', '.join(cls.fitters))) from None
 
 
-keyexpr_re = re.compile(r'(?P<dev_or_key>[a-zA-Z_0-9./]+)'
-                        r'(?P<indices>(?:\[[0-9]+\])*)'
-                        r'(?P<scale>\*-?[0-9.]+(?:[eE][+-]?[0-9]+)?)?'
-                        r'(?P<offset>[+-][0-9.]+(?:[eE][+-]?[0-9]+)?)?$')
+class KeyExprTransform(ast.NodeTransformer):
+    def visit_BinOp(self, node):
+        self.generic_visit(node)
+        if isinstance(node.op, ast.Div) and \
+           isinstance(node.left, ast.Name) and \
+           isinstance(node.right, ast.Name):
+            return ast.Name(id=node.left.id + '/' + node.right.id,
+                            ctx=ast.Load())
+        return node
+
+    def visit_Attribute(self, node):
+        self.generic_visit(node)
+        if isinstance(node.value, ast.Name):
+            return ast.Name(id=node.value.id + '.' + node.attr,
+                            ctx=ast.Load())
+        return node
 
 
-def extractKeyAndIndex(spec, append_value=True,
-                       normalize=lambda s: s.lower().replace('.', '/')):
-    """Extract a key and possibly subindex from a cache key specification
-    given by the user.  This takes into account the following changes:
+KEYEXPR_NS = {}
+for name in [
+        'pi', 'sqrt', 'sin', 'cos', 'tan', 'arcsin', 'arccos',
+        'arctan', 'exp', 'log', 'radians', 'degrees', 'ceil', 'floor']:
+    KEYEXPR_NS[name] = getattr(numpy, name)
+KEYEXPR_NS['numpy'] = numpy
 
-    * '.' is replaced by '/' if *normalize* is not redefined.
-    * If it is not in the form 'dev/key', '/value' is automatically appended
-      if *append_value* is not false.
-    * Subitems can be specified: ``dev.keys[10], det.rates[0][1]``.
-    * A scale factor can be added with ``*X``.
-    * An offset can be added with ``+X`` or ``-X``.
+
+def _split_spec(spec, exprs):
+    """Return the code for each *expr* in the code *spec*."""
+    offset = 0
+    snippets = []
+    for expr in exprs[1:]:
+        new_offset = expr.col_offset
+        snippets.append(spec[offset:new_offset].strip().rstrip(','))
+        offset = new_offset
+    snippets.append(spec[offset:].strip())
+    return snippets
+
+
+def parseKeyExpression(spec, append_value=True,
+                       normalize=lambda s: s.lower().replace('.', '/'),
+                       multiple=False):
+    """Extract expression(s) depending on cache keys from a string.
+
+    An expression must contain a single cache key (given as "a.b" or "a/b"),
+    and can otherwise employ Python expression syntax for indexing, scaling
+    etc., converting the value to a final form.  Useful math functions from
+    `numpy` (as present in the NICOS namespace) and `numpy` itself are defined.
+
+    `/value` is appended to keys without slash if *append_value* is true, and
+    dots are replaced by slashes if *normalize* is not redefined.
+    If *multiple* is true, multiple expressions forming a tuple are allowed.
+
+    Returns:
+
+    * the normalized key name (or a list if multiple)
+    * a code object that calculates the final value from the cache key which
+      must be given the name `x` (or a list if multiple), or None if no
+      calculation is needed
+    * a string with the cleaned expression
+
+    Raises `ValueError` if the expression can't be parsed or is invalid.
     """
-    match = keyexpr_re.match(spec.replace(' ', ''))
-    if not match:
-        return normalize(spec), (), 1.0, 0
-    groups = match.groupdict()
-    key = normalize(groups['dev_or_key'])
-    if '/' not in key and append_value:
-        key += '/value'
-    indices = groups['indices']
     try:
-        if indices is not None:
-            indices = tuple(map(int, indices[1:-1].split('][')))
+        expr = ast.parse(spec, mode='eval').body
+    except SyntaxError:
+        raise ValueError('invalid key spec: %r' % spec) from None
+    if isinstance(expr, ast.Tuple) and multiple:
+        exprs = expr.elts
+        descs = _split_spec(spec, exprs)
+    else:
+        exprs = [expr]
+        descs = [spec]
+    keys = []
+    funs = []
+    transformer = KeyExprTransform()
+    for expr in exprs:
+        # normalize names occuring in the formula
+        expr = ast.fix_missing_locations(transformer.visit(expr))
+        # find the variable and replace by "x"
+        key = None
+        for node in ast.walk(expr):
+            if isinstance(node, ast.Name) and node.id not in KEYEXPR_NS:
+                key = normalize(node.id)
+                if '/' not in key and append_value:
+                    key += '/value'
+                node.id = 'x'
+                break
+        if key is None:
+            raise ValueError('no variable in key spec %r' % descs[-1])
+        keys.append(key)
+        # expression can be None to mean "identity"
+        if isinstance(expr, ast.Name) and expr.id == 'x':
+            funs.append(None)
         else:
-            indices = ()
-    except ValueError:
-        indices = ()
-    scale = groups['scale']
-    try:
-        scale = float(scale[1:]) if scale is not None else 1.0
-    except ValueError:
-        scale = 1.0
-    offset = groups['offset']
-    try:
-        offset = float(offset) if offset is not None else 0.0
-    except ValueError:
-        offset = 0.0
-    return key, indices, scale, offset
+            funs.append(compile(ast.Expression(body=expr), '<expr>', 'eval'))
+
+    if multiple:
+        return keys, funs, descs
+    return keys[0], funs[0], descs[0]
 
 
 def checkSetupSpec(setupspec, setups, log=None):

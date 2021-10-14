@@ -67,7 +67,7 @@ The :mod:`nicos.utils` contains a collection of general use utility functions:
 
 .. autofunction:: expandTemplate
 
-.. autofunction:: extractKeyAndIndex
+.. autofunction:: parseKeyExpression
 
 .. autofunction:: findResource
 
