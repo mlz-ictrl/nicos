@@ -396,7 +396,8 @@ def test_moveOutOfWay(tmpdir, maxbackup):
     i = 0
     fn1 = str(tmpdir.join('test1'))
     while i < 3:
-        open(fn1, 'w').write('Test %r %i' % (maxbackup, i))
+        with open(fn1, 'w', encoding='utf-8') as fp:
+            fp.write('Test %r %i' % (maxbackup, i))
         moveOutOfWay(fn1, maxbackup)
         i += 1
 
@@ -487,10 +488,11 @@ def test_safeWriteFile(tmpdir, maxbackup, content):
     files = [f for f in os.listdir(str(tmpdir)) if f.startswith('test1')]
     assert 'test1' in files
     assert len(files) == maxbackup + 1 if maxbackup is not None else 4
-    if isinstance(content, list):
-        assert len(open(fn1).readlines()) == len(content)
-    else:
-        assert len(open(fn1).read()) == len(content)
+    with open(fn1, encoding='utf-8') as fp:
+        if isinstance(content, list):
+            assert len(fp.readlines()) == len(content)
+        else:
+            assert len(fp.read()) == len(content)
 
 
 def test_tupelize():

@@ -689,7 +689,8 @@ def safeWriteFile(filepath, content, maxbackups=10):
     if isinstance(content, list):
         writeFile(tmpfile, content)
     else:
-        open(tmpfile, 'w', encoding='utf-8').write(content)
+        with open(tmpfile, 'w', encoding='utf-8') as fp:
+            fp.write(content)
     try:
         if maxbackups:
             moveOutOfWay(filepath, maxbackups)
@@ -911,9 +912,9 @@ def daemonize():
     os.close(2)
 
     # redirect standard file descriptors
-    # pylint: disable=consider-using-with
-    sys.stdin = open('/dev/null', 'r')
-    sys.stdout = sys.stderr = open('/dev/null', 'w')
+    # pylint: disable=consider-using-with,unspecified-encoding
+    sys.stdin = open('/dev/null', 'r', encoding=None)
+    sys.stdout = sys.stderr = open('/dev/null', 'w', encoding=None)
 
 
 def setuser(recover=True):
@@ -1408,7 +1409,7 @@ def num_sort(x, inf=float('inf')):
 
 
 class ReaderRegistry:
-    readers = dict()
+    readers = {}
 
     @classmethod
     def registerReader(cls, rdcls):
@@ -1430,7 +1431,7 @@ class ReaderRegistry:
 
 
 class FitterRegistry:
-    fitters = dict()
+    fitters = {}
 
     @classmethod
     def registerFitter(cls, rdcls):
