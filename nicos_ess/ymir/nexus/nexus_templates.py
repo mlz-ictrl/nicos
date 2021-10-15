@@ -6,11 +6,13 @@ ymir_default = {
     "entry1:NXentry": {
         "comment": DeviceDataset('Exp', 'remark'),
         "title": DeviceDataset('Exp', 'title'),
-        "proposal_id": DeviceDataset('Exp', 'proposal'),
+        "experiment_identifier": DeviceDataset('Exp', 'proposal'),
+        "user:NXuser": {
+            "name": DeviceDataset('Exp', 'users'),
+        },
         "motion:NXentry": {
             "motor": EventStream("Ymir_motion", "SES-SCAN:MC-MCU-001:m1.RBV",
-                                 mod="f142", dtype="double",
-                    ),
+                                 mod="f142", dtype="double",),
         }
     }
 }

@@ -12,6 +12,22 @@
       ],
       "children": [
         {
+          "module": "dataset",
+          "config": {
+            "name": "title",
+            "values": "$TITLE$",
+            "dtype": "string"
+          }
+        },
+        {
+          "module": "dataset",
+          "config": {
+            "name": "experiment_identifier",
+            "values": "$EXP_ID$",
+            "dtype": "string"
+          }
+        },
+        {
           "name": "sample",
           "type": "group",
           "attributes": [
