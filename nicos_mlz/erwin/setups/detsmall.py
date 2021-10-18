@@ -6,6 +6,10 @@ tango_host = 'qmesydaq-test.del.frm2.tum.de'
 
 tango_base = 'tango://%s:10000/qm/qmesydaq/' % tango_host
 
+sysconfig = dict(
+    datasinks = ['ds_histogram',],
+)
+
 devices = dict(
     ds_mon1 = device('nicos.devices.vendor.qmesydaq.tango.CounterChannel',
         description = 'Monitor 1 at small charm detector',
@@ -31,5 +35,11 @@ devices = dict(
         monitors = ['ds_mon1'],
         timers = ['ds_timer'],
         liveinterval = 1.0,
+    ),
+    ds_histogram = device('nicos_mlz.devices.qmesydaqsinks.HistogramSink',
+        description = 'Histogram data written via QMesyDAQ',
+        image = 'ds_image',
+        subdir = 'mtxt',
+        filenametemplate = ['%(pointcounter)07d.mtxt'],
     ),
 )
