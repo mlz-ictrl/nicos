@@ -1,0 +1,5 @@
+description = 'minimal NICOS startup setup'
+
+group = 'lowlevel'
+
+devices = dict()
