@@ -73,6 +73,10 @@ class ImageChannel(QMesyDAQImage, BaseImageChannel):
         'histogram': Override(volatile=True),
     }
 
+    def doReadRoisize(self):
+        tmp = self._dev.roiSize.tolist()
+        return tmp if sum(tmp) else (1, 1)
+
     def doWriteListmode(self, value):
         self._dev.SetProperties(['writelistmode', ('%s' % value).lower()])
         return self.doReadListmode()
