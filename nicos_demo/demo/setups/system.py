@@ -9,7 +9,6 @@ sysconfig = dict(
     datasinks = ['conssink', 'dmnsink'],
     notifiers = [],
 )
-includes= ['mvg']
 
 modules = ['nicos.commands.standard']
 
