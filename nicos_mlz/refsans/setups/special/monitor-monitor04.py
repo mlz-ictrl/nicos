@@ -68,6 +68,8 @@ _nima = Column(
             Field(name='area surface', dev='nima_area', width=10, format='%.1f', unit='(cm\u00b2)'),
             Field(name='pressure', dev='nima_pressure', width=10, format='%.2f', unit='(mN/m)'),
             Field(name='barrier speed', dev='nima_speed', width=10, format='%.2f', unit='(mm/s)'),
+            Field(name='Gonio Z', dev='gonio_z', width=10, format='%.2f', unit='(mm)'),
+            Field(name='height', dev='height', width=10, format='%.2f', unit='(mm)'),
         ),
         ],
         setups = 'nima',
