@@ -313,10 +313,12 @@ class MultiLiveDataPanel(LiveDataPanel):
         """
         state = self.client.ask('getstatus')
         if not state:
-            return {}
-        detlist = self.client.getCacheKey('exp/detlist')[1]
-        return [det for det in detlist if self.client.eval(f'{det}.arrayInfo('
-                                                           f')', [])]
+            return []
+        detlist = self.client.getCacheKey('exp/detlist')
+        if not detlist:
+            return []
+        return [det for det in detlist[1]
+                if self.client.eval(f'{det}.arrayInfo()', [])]
 
     def create_preview(self, detname):
         """
