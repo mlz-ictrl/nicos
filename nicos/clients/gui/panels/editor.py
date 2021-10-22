@@ -210,7 +210,7 @@ class EditorPanel(Panel):
         self.toolconfig = options.get('tools')
         self.sim_window = options.get('sim_window', 'inline')
         if self.sim_window not in ('single', 'multi', 'inline'):
-            self.log.warning('invalid sim_window option %r, using inline',
+            self.log.warning("invalid sim_window option %r, using 'inline'",
                              self.sim_window)
             self.sim_window = 'inline'
 
