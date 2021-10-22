@@ -27,6 +27,7 @@ from threading import Lock
 import numpy as np
 from p4p.client.thread import Context
 
+from nicos.commands import helparglist, hiddenusercommand
 from nicos.core import CommunicationError, status
 from nicos.devices.epics import SEVERITY_TO_STATUS
 
@@ -34,6 +35,31 @@ from nicos.devices.epics import SEVERITY_TO_STATUS
 # nt=False tells p4p not to try to map types itself
 # we want to do this manually to avoid information loss
 _CONTEXT = Context('pva', nt=False)
+
+@hiddenusercommand
+@helparglist('name[, timeout]')
+def pvget(name, timeout=3.0):
+    """ Returns the PV's current value in its raw form via PVA.
+
+    :param name: the PV name
+    :param timeout: the EPICS timeout
+    :return: the PV's raw value
+    """
+    response = _CONTEXT.get(name, timeout=timeout)
+    return response['value']
+
+
+@hiddenusercommand
+@helparglist('name, value[, wait, timeout]')
+def pvput(name, value, wait=False, timeout=3.0):
+    """ Sets a PV's value via PVA.
+
+    :param name: the PV name
+    :param value: the value to set
+    :param wait: whether to wait for completion
+    :param timeout: the EPICS timeout
+    """
+    _CONTEXT.put(name, value, timeout=timeout, wait=wait)
 
 
 class P4pWrapper:

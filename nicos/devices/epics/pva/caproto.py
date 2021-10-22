@@ -25,8 +25,10 @@ from functools import partial
 
 import numpy as np
 from caproto import CaprotoTimeoutError, ChannelType
+from caproto.sync.client import read, write
 from caproto.threading.client import Context
 
+from nicos.commands import helparglist, hiddenusercommand
 from nicos.core import CommunicationError, anytype, status
 from nicos.devices.epics import SEVERITY_TO_STATUS
 
@@ -83,6 +85,31 @@ STATUS_TO_MESSAGE = {
 
 # Same context can be shared across all devices.
 _Context = Context()
+
+@hiddenusercommand
+@helparglist('name[, timeout]')
+def caget(name, timeout=3.0):
+    """ Returns the PV's current value in its raw form via CA.
+
+    :param name: the PV name
+    :param timeout: the EPICS timeout
+    :return: the PV's raw value
+    """
+    response = read(name, timeout=timeout)
+    return response.data[0] if len(response.data) == 1 else response.data
+
+
+@hiddenusercommand
+@helparglist('name, value[, wait, timeout]')
+def caput(name, value, wait=False, timeout=3.0):
+    """ Sets a PV's value via CA.
+
+    :param name: the PV name
+    :param value: the value to set
+    :param wait: whether to wait for completion
+    :param timeout: the EPICS timeout
+    """
+    write(name, value, notify=wait, timeout=timeout)
 
 
 class CaprotoWrapper:
