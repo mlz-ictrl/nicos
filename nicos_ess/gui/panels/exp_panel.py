@@ -163,7 +163,7 @@ class ExpPanel(Panel):
         loadUi(self, findResource('nicos_ess/gui/panels/ui_files/exp_panel.ui'))
 
         self.old_proposal_settings = ProposalSettings()
-        self.new_proposal_settings = deepcopy(self.old_proposal_settings)
+        self.new_proposal_settings = ProposalSettings()
 
         self.users_model = TableModel(['name', 'email', 'affiliation'])
         self.users_model.data_updated.connect(self.on_users_changed)
@@ -225,6 +225,7 @@ class ExpPanel(Panel):
         self.client.connected.connect(self.on_client_connected)
         self.client.disconnected.connect(self.on_client_disconnected)
         self.client.experiment.connect(self.on_experiment_finished)
+        self.client.setup.connect(self.on_client_setup)
         self.client.register(self, 'Exp/title')
         self.client.register(self, 'Exp/users')
         self.client.register(self, 'Exp/localcontact')
@@ -302,6 +303,13 @@ class ExpPanel(Panel):
         self._update_users_model([])
         self.notifEmails.setPlainText('')
         self.setViewOnly(True)
+        self.old_proposal_settings = ProposalSettings()
+        self.new_proposal_settings = ProposalSettings()
+
+    def on_client_setup(self, data):
+        if 'system' in data[0]:
+            self._is_proposal_system_available()
+            self._update_proposal_info()
 
     def setViewOnly(self, viewonly):
         for control in self._text_controls:
