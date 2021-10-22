@@ -681,7 +681,7 @@ class EditorPanel(Panel):
         else:
             # reload without asking
             try:
-                with open(self.filenames[editor]) as f:
+                with open(self.filenames[editor], encoding='utf-8') as f:
                     text = f.read()
             except Exception:
                 return
@@ -731,7 +731,7 @@ class EditorPanel(Panel):
         if not self.checkDirty(self.currentEditor):
             return
         try:
-            with open(fn, 'r') as f:
+            with open(fn, 'r', encoding='utf-8') as f:
                 text = f.read()
         except Exception as err:
             return self.showError('Opening file failed: %s' % err)
@@ -743,7 +743,8 @@ class EditorPanel(Panel):
 
     def openFile(self, fn, quiet=False):
         try:
-            with open(fn.encode(sys.getfilesystemencoding())) as f:
+            with open(fn.encode(sys.getfilesystemencoding()),
+                      encoding='utf-8') as f:
                 text = f.read()
         except Exception as err:
             if quiet:
@@ -806,7 +807,7 @@ class EditorPanel(Panel):
         try:
             self.saving = True
             try:
-                with open(self.filenames[editor], 'w') as f:
+                with open(self.filenames[editor], 'w', encoding='utf-8') as f:
                     f.write(editor.text())
             finally:
                 self.saving = False
