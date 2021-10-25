@@ -146,18 +146,19 @@ class EssExperiment(Experiment):
 
     def _extract_users(self, query_result):
         users = []
-        for first, last, _ in query_result.users:
-            users.append(self._create_user(f'{first} {last}', '', ''))
+        for first, last, fed_id, org in query_result.users:
+            users.append(self._create_user(f'{first} {last}', '', org, fed_id))
         if query_result.proposer:
-            first, last, _ = query_result.proposer
-            users.append(self._create_user(f'{first} {last}', '', ''))
+            first, last, fed_id, org = query_result.proposer
+            users.append(self._create_user(f'{first} {last}', '', org, fed_id))
         return users
 
-    def _create_user(self, name, email, affiliation):
+    def _create_user(self, name, email, affiliation, fed_id):
         return {
             'name': name,
             'email': email,
             'affiliation': affiliation,
+            'facility_user_id': fed_id
         }
 
     def get_samples(self):
