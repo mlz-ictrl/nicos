@@ -659,8 +659,9 @@ class SetupsPanel(Panel):
         if to_add and not to_remove and not new_basic:
             cmd = 'AddSetup'
             setups = to_add
-        else:
-            cmd = 'NewSetup'
+        elif to_remove and not new_basic:
+            cmd = 'RemoveSetup'
+            setups = to_remove
         if setups:
             if self.client.run('%s(%s)' % (cmd, ', '.join(map(repr, setups))),
                                noqueue=True) is None:
