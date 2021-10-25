@@ -6,6 +6,7 @@ includes = ['alias_T']
 
 plc_tango_base = f'tango://{setupname}:10000/box/plc/_'
 ls_tango_base = f'tango://{setupname}:10000/box/lakeshore/'
+gh_tango_base = f'tango://{setupname}:10000/box/gashandling/'
 
 
 devices = {
@@ -84,6 +85,10 @@ devices = {
         tangodevice = plc_tango_base + 'flow',
         fmtstr = '%.1f',
         unit = 'ml/min',
+    ),
+    '%s_gashandling' % setupname: device('nicos.devices.entangle.NamedDigitalOutput',
+        description = 'Gashandling fsm',
+        tangodevice = gh_tango_base + 'fsm',
     ),
 }
 
