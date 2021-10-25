@@ -24,6 +24,7 @@
 
 """NICOS GUI user editor window."""
 
+import locale
 import sys
 import time
 from logging import WARNING
@@ -49,6 +50,10 @@ from nicos.utils import formatDuration, formatEndtime
 has_scintilla = QsciScintilla is not None
 
 COMMENT_STR = '## '
+try:
+    ENCODING = locale.getpreferredencoding(False)
+except Exception:
+    ENCODING = 'utf-8'
 
 
 if has_scintilla:
@@ -681,7 +686,7 @@ class EditorPanel(Panel):
         else:
             # reload without asking
             try:
-                with open(self.filenames[editor], encoding='utf-8') as f:
+                with open(self.filenames[editor], encoding=ENCODING) as f:
                     text = f.read()
             except Exception:
                 return
@@ -731,7 +736,7 @@ class EditorPanel(Panel):
         if not self.checkDirty(self.currentEditor):
             return
         try:
-            with open(fn, 'r', encoding='utf-8') as f:
+            with open(fn, 'r', encoding=ENCODING) as f:
                 text = f.read()
         except Exception as err:
             return self.showError('Opening file failed: %s' % err)
@@ -744,7 +749,7 @@ class EditorPanel(Panel):
     def openFile(self, fn, quiet=False):
         try:
             with open(fn.encode(sys.getfilesystemencoding()),
-                      encoding='utf-8') as f:
+                      encoding=ENCODING) as f:
                 text = f.read()
         except Exception as err:
             if quiet:
@@ -807,7 +812,7 @@ class EditorPanel(Panel):
         try:
             self.saving = True
             try:
-                with open(self.filenames[editor], 'w', encoding='utf-8') as f:
+                with open(self.filenames[editor], 'w', encoding=ENCODING) as f:
                     f.write(editor.text())
             finally:
                 self.saving = False
