@@ -9,6 +9,7 @@ includes = ['alias_T']
 tango_base = 'tango://%s:10000/box/' % setupname
 plc_tango_base = tango_base + 'plc/_'
 
+# This box is equipped with the 1K heatswitch
 devices = {
     'T_%s' % setupname : device('nicos_mlz.devices.ccr.CCRControl',
         description = 'The main temperature control device of the CCR',
@@ -42,27 +43,27 @@ devices = {
         tangodevice = tango_base + 'tube/range1',
         mapping = dict(off=0, low=1, medium=2, high=3),
     ),
-    'T_%s_A' % setupname : device('nicos.devices.entangle.Sensor',
-        description = '(optional) Sample temperature',
+    'T_%s_still' % setupname : device('nicos.devices.entangle.Sensor',
+        description = '(LS-Sensor A) Still temperature',
         tangodevice = tango_base + 'sample/sensora',
         unit = 'K',
         fmtstr = '%.3f',
     ),
-    'T_%s_B' % setupname : device('nicos.devices.entangle.Sensor',
-        description = '(regulation) Temperature at the stick',
+    'T_%s_sample_stick' % setupname : device('nicos.devices.entangle.Sensor',
+        description = '(LS-Sensor B) Temperature at the stick',
         tangodevice = tango_base + 'stick/sensorb',
         unit = 'K',
         fmtstr = '%.3f',
     ),
-    'T_%s_C' % setupname : device('nicos.devices.entangle.Sensor',
-        description = 'Temperature of the coldhead',
+    'T_%s_coldhead' % setupname : device('nicos.devices.entangle.Sensor',
+        description = '(LS-Sensor C) Temperature of the coldhead',
         tangodevice = tango_base + 'coldhead/sensorc',
         warnlimits = (0, 300),
         unit = 'K',
         fmtstr = '%.3f',
     ),
-    'T_%s_D' % setupname : device('nicos.devices.entangle.Sensor',
-        description = '(regulation) Temperature at thermal coupling to the tube',
+    'T_%s_sample_tube' % setupname : device('nicos.devices.entangle.Sensor',
+        description = '(LS-Sensor D) Temperature at thermal coupling to the tube',
         tangodevice = tango_base + 'tube/sensord',
         warnlimits = (0, 300),
         unit = 'K',
@@ -110,11 +111,16 @@ devices = {
         tangodevice = plc_tango_base + 'p2',
         unit = 'mbar',
     ),
+    '%s_1K_heatswitch' % setupname : device('nicos.devices.entangle.NamedDigitalOutput',
+        description = 'Heat switch to connect the 1K stage',
+        tangodevice = plc_tango_base + 'heatswitch_onoff',
+        mapping = {'on': 1, 'off': 0},
+    ),
 }
 
 alias_config = {
     'T':  {'T_%s' % setupname: 200, 'T_%s_stick' % setupname: 150, 'T_%s_tube' % setupname: 100},
-    'Ts': {'T_%s_B' % setupname: 100, 'T_%s_A' % setupname: 90, 'T_%s_D' % setupname: 20, 'T_%s_C' % setupname: 10},
+    'Ts': {'T_%s_sample_stick' % setupname: 100, 'T_%s_sample_tube' % setupname: 90, 'T_%s_still' % setupname: 20, 'T_%s_coldhead' % setupname: 10},
 }
 
 startupcode = '''
