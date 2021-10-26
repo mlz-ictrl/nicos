@@ -23,6 +23,6 @@ devices = dict(
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = 'pumahw.puma.frm2',
         authenticators = ['UserDBAuth', 'LDAPAuth'],
-        loglevel = 'debug',
+        loglevel = 'info',
     ),
 )
