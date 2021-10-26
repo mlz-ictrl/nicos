@@ -27,6 +27,7 @@
             "dtype": "string"
           }
         },
+        $USERS$
         {
           "name": "sample",
           "type": "group",

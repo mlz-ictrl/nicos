@@ -50,7 +50,37 @@ class NexusStructureJsonFile(NexusStructureProvider):
         structure = structure.replace('$TITLE$', metainfo[('Exp', 'title')][0])
         structure = structure.replace('$EXP_ID$',
                                       metainfo[('Exp', 'proposal')][0])
+        structure = self._insert_users(structure, metainfo)
         return structure
+
+    def _insert_users(self, structure, metainfo):
+        users = []
+        for user in metainfo[('Exp', 'users')][0]:
+            username = user.get('name', '').replace(" ", "")
+            if not username:
+                continue
+
+            result = {
+                'type': 'group',
+                'name': f'user_{username}',
+                'attributes': {'NX_class': 'NXuser'},
+                'children': [],
+            }
+            for n, v in user.items():
+                result['children'].append(
+                    {
+                        'module': 'dataset',
+                        'config': {
+                            'name': n,
+                            'values': v,
+                            'dtype': 'string'
+                        }
+                    }
+                )
+
+            users.append(json.dumps(result))
+        users_str = ','.join(users) + ',' if users else ''
+        return structure.replace('$USERS$', users_str)
 
 
 class NexusStructureTemplate(NexusStructureProvider):
