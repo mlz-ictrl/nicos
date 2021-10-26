@@ -297,7 +297,7 @@ def ListDatasinks():
             for ds in session.datasinks
         ]
         printTable(('name', 'used for', 'active for detectors'),
-                    items, session.log.info)
+                   items, session.log.info)
     else:
         session.log.info('At the moment no data sinks are set.')
 
