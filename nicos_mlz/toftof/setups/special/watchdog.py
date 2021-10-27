@@ -45,17 +45,17 @@ watchlist = [
     ),
     dict(
         condition = 'flow_in_chopper_value < 15',
-        message = 'The flow in the chopper cooling system is to low',
+        message = 'The flow in the chopper cooling system is too low',
         # priority = 1,
     ),
     dict(
         condition = 't_in_chopper_value > 30',
-        message = 'The temperature in the chopper cooling system is to high',
+        message = 'The temperature in the chopper cooling system is too high',
         # priority = 1,
     ),
     dict(
         condition = "water_level_chopper_value != 'OK'",
-        message = 'The water level in the chopper cooling level is to low',
+        message = 'The water level in the chopper cooling level is too low',
         # priority = 1,
     ),
 ]

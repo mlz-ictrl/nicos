@@ -24,8 +24,8 @@ devices = dict(
         description = 'Water level status in TermoTek chiller',
         readable = device('nicos.devices.entangle.Sensor',
             tangodevice = tango_base + 'level',
-            fmtstr = '%s',
         ),
+        fmtstr = '%s',
         mapping = {
             'OK': 0,
             'WARNING': 1,
