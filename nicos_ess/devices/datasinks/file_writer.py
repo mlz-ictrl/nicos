@@ -42,35 +42,73 @@ from nicos.core import MASTER, Attach, CommunicationError, Param, \
     ScanDataset, host, listof, status, usermethod
 from nicos.core.constants import INTERRUPTED, POINT
 from nicos.core.data.sink import DataSinkHandler
-from nicos.core.params import Override
+from nicos.core.params import Override, anytype, dictof
 from nicos.devices.datasinks.file import FileSink
 
 from nicos_ess.devices.datasinks.nexus_structure import NexusStructureProvider
 from nicos_ess.devices.kafka.status_handler import KafkaStatusHandler
 
-NOT_CURRENTLY_WRITING = 'not_currently_writing'
+
+class JobRecord:
+    def __init__(self, job_id, counter, update_interval, next_update):
+        self.job_id = job_id
+        self.counter = counter
+        self.update_interval = update_interval
+        self.next_update = next_update
+        self.start_time = None
+        self.stop_time = None
+        self.stop_requested = False
+
+    @classmethod
+    def from_dict(cls, job_dict):
+        result = JobRecord('', 0, 0, 0)
+        for k, v in job_dict.items():
+            if k in result.__dict__:
+                result.__dict__[k] = v
+        return result
+
+    def as_dict(self):
+        return self.__dict__
 
 
 class FileWriterStatus(KafkaStatusHandler):
     """Monitors Kafka for the status of any file-writing jobs."""
+    parameters = {
+        'cached_jobs': Param(
+            description='stores the jobs in progress in the cache',
+            type=dictof(str, anytype),
+            internal=True, settable=True),
+    }
+
     _lock = None
     _jobs = {}
-    _marked_for_stop = set()
-    _recently_stopped = {}
     _type_to_handler = {}
 
     def doPreinit(self, mode):
         KafkaStatusHandler.doPreinit(self, mode)
         self._lock = threading.RLock()
         self._jobs = {}
-        self._marked_for_stop = set()
-        self._recently_stopped = {}
-        self._update_status(status.OK, '')
+        self._set_status(status.OK, '')
         self._type_to_handler = {
             b'x5f2': self._on_status_message,
             b'answ': self._on_response_message,
             b'wrdn': self._on_stopped_message,
         }
+
+    def doInit(self, mode):
+        self._retrieve_cache_jobs()
+
+    def _retrieve_cache_jobs(self):
+        for k, v in self.cached_jobs.items():
+            job = JobRecord.from_dict(v)
+            if job.stop_requested:
+                continue
+                # Update the timeout so it doesn't time out immediately
+            job.next_update = currenttime() + job.update_interval
+            self._jobs[k] = job
+
+    def _update_cached_jobs(self):
+        self.cached_jobs = {n: v.as_dict() for n, v in self._jobs.items()}
 
     def new_messages_callback(self, messages):
         for _, msg in sorted(messages, key=lambda x: x[0]):
@@ -82,33 +120,37 @@ class FileWriterStatus(KafkaStatusHandler):
         result = deserialise_x5f2(message)
         status_info = json.loads(result.status_json)
         job_id = status_info['job_id']
-        if job_id == NOT_CURRENTLY_WRITING:
-            return
-        if job_id in self._recently_stopped:
-            # Ignore delayed message
+        if job_id not in self._jobs:
             return
         update_interval = result.update_interval // 1000
         next_update = currenttime() + update_interval
-        self._jobs[job_id] = (update_interval, next_update)
-        if len(self._jobs) > 1:
-            self._update_status(status.BUSY, f'writing {len(self._jobs)} jobs')
-        else:
-            self._update_status(status.BUSY,
-                                f'writing {list(self._jobs.keys())[0]}')
+        self._jobs[job_id].start_time = status_info['start_time']
+        self._jobs[job_id].update_interval = update_interval
+        self._jobs[job_id].next_update = next_update
+
+        if len(self._jobs) == 1:
+            self._set_status(status.BUSY, 'job in progress')
+        elif len(self._jobs) > 1:
+            self._set_status(status.BUSY, f'{len(self._jobs)} jobs in progress')
 
     def _on_stopped_message(self, message):
         result = deserialise_wrdn(message)
+        if result.job_id not in self._jobs:
+            return
+
         self.log.info(f'stopped writing {result.job_id}')
-        if result.job_id in self._jobs:
-            del self._jobs[result.job_id]
-        if result.job_id in self._marked_for_stop:
-            self._marked_for_stop.remove(result.job_id)
-        self._recently_stopped[result.job_id] = currenttime()
+        metadata = json.loads(result.metadata)
+        self._jobs[result.job_id].stop_time = metadata['stop_time']
+        del self._jobs[result.job_id]
+        self._update_cached_jobs()
+
         if not self._jobs:
-            self._update_status(status.OK, '')
+            self._set_status(status.OK, '')
 
     def _on_response_message(self, message):
         result = deserialise_answ(message)
+        if result.job_id not in self._jobs:
+            return
         if result.action == ActionType.StartJob:
             self._on_start_response(result)
         elif result.action == ActionType.SetStopTime:
@@ -116,75 +158,76 @@ class FileWriterStatus(KafkaStatusHandler):
 
     def _on_start_response(self, result):
         if result.outcome == ActionOutcome.Success:
-            msg = f'starting to write job {result.job_id}'
-            self._update_status(status.BUSY, msg)
-            self.log.info(msg)
-            self._jobs[result.job_id] = (self.statusinterval,
-                                         currenttime() + self.statusinterval)
+            self.log.info(f'starting to write job {result.job_id}')
+            self._jobs[result.job_id].update_interval = self.statusinterval
+            self._jobs[result.job_id].next_update = currenttime() + \
+                                                    self.statusinterval
         else:
-            self._update_status(status.ERROR, 'failed to start')
             self.log.error(result.message)
+            del self._jobs[result.job_id]
+            self._update_cached_jobs()
 
     def _on_stop_response(self, result):
-        if result.job_id in self._recently_stopped:
-            # Ignore delayed message
-            return
+        if not self._jobs[result.job_id].stop_requested:
+            self.log.warning('stop requested from external agent for %s',
+                             result.job_id)
 
         if result.outcome == ActionOutcome.Success:
-            self._marked_for_stop.add(result.job_id)
             msg = f'request to stop writing succeeded for job {result.job_id}'
             self.log.info(msg)
         else:
             msg = f'stop writing request failed for job {result.job_id}'
-            self._update_status(status.ERROR, msg)
+            self._set_status(status.ERROR, msg)
             self.log.error('%s: %s', msg, result.message)
 
     def no_messages_callback(self):
         with self._lock:
-            self._prune_stopped_jobs()
             if not self._jobs:
+                self._set_status(status.OK, '')
                 return
             self._check_for_lost_jobs()
 
-    def _prune_stopped_jobs(self):
-        prune_after_seconds = 60
-        self._recently_stopped = {k: v for k, v in
-                                  self._recently_stopped.items() if
-                                  currenttime() < v + prune_after_seconds}
-
     def _check_for_lost_jobs(self):
         overdue_jobs = [k for k, v in self._jobs.items() if
-                        currenttime() > v[1] + self.timeoutinterval]
+                        currenttime() > v.next_update + self.timeoutinterval]
         for overdue in overdue_jobs:
             self.log.error(f'lost connection to job {overdue}')
             # Assume it has gone for good...
             del self._jobs[overdue]
-        if not self._jobs and self._mode == MASTER:
-            self._update_status(status.ERROR, 'lost job(s) - see logs')
+        if overdue_jobs:
+            self._update_cached_jobs()
 
     def doInfo(self):
         result = [(f'{self.name}', '', '', '', 'general')]
-        for i, job in enumerate(self.jobs):
+        for i, job in enumerate(self._jobs):
             result.append((f'job {i + 1}', f'{job}', f'{job}', '', 'general'))
         return result
 
-    def _update_status(self, stat, message):
+    def _set_status(self, stat, message):
         if self._mode == MASTER:
             self._setROParam('curstatus', (stat, message))
 
     @property
-    def jobs(self):
+    def jobs_in_progress(self):
         with self._lock:
             return set(self._jobs.keys())
 
     @property
     def marked_for_stop(self):
         with self._lock:
-            return set(self._marked_for_stop)
+            return {k for k, v in self._jobs.items() if v.stop_requested}
 
-    def add_marked_for_stop(self, job_id):
+    def mark_for_stop(self, job_id):
         with self._lock:
-            self._marked_for_stop.add(job_id)
+            if job_id in self._jobs:
+                self._jobs[job_id].stop_requested = True
+                self._update_cached_jobs()
+
+    def add_job(self, job_id, counter):
+        with self._lock:
+            self._jobs[job_id] = JobRecord(job_id, counter, self.statusinterval,
+                                           currenttime() + self.statusinterval)
+            self._update_cached_jobs()
 
 
 class FileWriterSinkHandler(DataSinkHandler):
@@ -221,7 +264,8 @@ class FileWriterSinkHandler(DataSinkHandler):
         datetime_now = datetime.now()
         structure = self.sink._attached_nexus.get_structure(self.dataset,
                                                             datetime_now)
-        self.sink._start_job(self.dataset.filenames[0], structure, datetime_now)
+        self.sink._start_job(self.dataset.filenames[0], self.dataset.counter,
+                             structure, datetime_now)
 
     def end(self):
         if self.sink._manual_start:
@@ -320,7 +364,8 @@ class FileWriterControlSink(FileSink):
         self._manual_start = True
         session.experiment.data.finishPoint()
 
-    def _start_job(self, filename, structure, start_time=None, stop_time=None):
+    def _start_job(self, filename, counter, structure, start_time=None,
+                   stop_time=None):
         self.check_okay_to_start()
 
         # Initialise the write job.
@@ -340,6 +385,7 @@ class FileWriterControlSink(FileSink):
         while not start_handler.is_done():
             if int(currenttime()) > timeout:
                 raise Exception('request to start writing job not acknowledged')
+        self._attached_status.add_job(write_job.job_id, counter)
 
     @usermethod
     def stop_job(self, job_id=''):
@@ -359,7 +405,6 @@ class FileWriterControlSink(FileSink):
 
         active_jobs = self.get_active_jobs()
         if not active_jobs:
-            self.log.warning('all jobs have already stopped or are stopping')
             return
 
         if job_id and job_id not in active_jobs:
@@ -374,8 +419,9 @@ class FileWriterControlSink(FileSink):
                            'with the job ID specified in quotes')
             return
 
+        stop_time = datetime.now()
         job_handler = self._create_job_handler(job_id)
-        stop_handler = job_handler.set_stop_time(datetime.now())
+        stop_handler = job_handler.set_stop_time(stop_time)
         timeout = int(currenttime()) + self.timeoutinterval
 
         while not stop_handler.is_done() and not job_handler.is_done():
@@ -383,16 +429,16 @@ class FileWriterControlSink(FileSink):
                 self.log.error('request to stop writing job not'
                                'acknowledged by filewriter')
                 return
-        self._attached_status.add_marked_for_stop(job_id)
+        self._attached_status.mark_for_stop(job_id)
 
     def check_okay_to_start(self):
         active_jobs = self.get_active_jobs()
         if active_jobs:
-            raise Exception('cannot start file-writing as following job(s) '
-                            f'already in progress: {",".join(active_jobs)}')
+            raise Exception(f'cannot start file-writing as {len(active_jobs)} '
+                            'job(s) already in progress')
 
     def get_active_jobs(self):
-        jobs = self._attached_status.jobs
+        jobs = self._attached_status.jobs_in_progress
         active_jobs = \
             self._attached_status.marked_for_stop.symmetric_difference(jobs)
         return active_jobs

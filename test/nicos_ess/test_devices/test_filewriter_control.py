@@ -33,8 +33,7 @@ from nicos.commands.scan import scan
 from nicos.core import MASTER
 
 from test.nicos_ess.test_devices.test_filewriter_status import \
-    create_status_message, create_stop_request_message, no_op, \
-    prepare_filewriter_status
+    create_status_message, no_op, prepare_filewriter_status
 
 session_setup = 'ess_filewriter'
 
@@ -77,6 +76,7 @@ class TestFileWriterControl(TestCase):
 
     def test_cannot_start_job_if_job_in_progress(self):
         job_id_1 = 'job id 1'
+        self.filewriter_status.add_job(job_id_1, 42)
         messages = [(123, create_status_message(job_id_1))]
         self.filewriter_status.new_messages_callback(messages)
 
@@ -92,9 +92,8 @@ class TestFileWriterControl(TestCase):
 
     def test_can_start_job_if_existing_job_is_stopping(self):
         job_id_1 = 'job id 1'
-        messages = [(123, create_status_message(job_id_1)),
-                    (125, create_stop_request_message(job_id_1))]
-        self.filewriter_status.new_messages_callback(messages)
+        self.filewriter_status.add_job(job_id_1, 42)
+        self.filewriter_status.mark_for_stop(job_id_1)
 
         self.filewriter_control.start_job()
 
@@ -107,6 +106,7 @@ class TestFileWriterControl(TestCase):
 
     def test_can_stop_running_job(self):
         job_id_1 = 'job id 1'
+        self.filewriter_status.add_job(job_id_1, 42)
         messages = [(123, create_status_message(job_id_1))]
         self.filewriter_status.new_messages_callback(messages)
 
@@ -116,9 +116,8 @@ class TestFileWriterControl(TestCase):
 
     def test_stop_job_ignored_if_existing_job_is_already_stopping(self):
         job_id_1 = 'job id 1'
-        messages = [(123, create_status_message(job_id_1)),
-                    (125, create_stop_request_message(job_id_1))]
-        self.filewriter_status.new_messages_callback(messages)
+        self.filewriter_status.add_job(job_id_1, 42)
+        self.filewriter_status.mark_for_stop(job_id_1)
 
         self.filewriter_control.stop_job()
 
@@ -126,6 +125,7 @@ class TestFileWriterControl(TestCase):
 
     def test_stop_job_ignored_if_job_id_does_not_match(self):
         job_id_1 = 'job id 1'
+        self.filewriter_status.add_job(job_id_1, 42)
         messages = [(123, create_status_message(job_id_1))]
         self.filewriter_status.new_messages_callback(messages)
 
@@ -135,6 +135,7 @@ class TestFileWriterControl(TestCase):
 
     def test_can_stop_job_if_job_id_matches(self):
         job_id_1 = 'job id 1'
+        self.filewriter_status.add_job(job_id_1, 42)
         messages = [(123, create_status_message(job_id_1))]
         self.filewriter_status.new_messages_callback(messages)
 
@@ -145,6 +146,8 @@ class TestFileWriterControl(TestCase):
     def test_with_multiple_jobs_no_jobs_stopped_if_job_id_not_supplied(self):
         job_id_1 = 'job id 1'
         job_id_2 = 'job id 2'
+        self.filewriter_status.add_job(job_id_1, 42)
+        self.filewriter_status.add_job(job_id_2, 42)
         status_messages = [(123, create_status_message(job_id_1)),
                            (234, create_status_message(job_id_2))]
         self.filewriter_status.new_messages_callback(status_messages)
@@ -156,6 +159,8 @@ class TestFileWriterControl(TestCase):
     def test_with_multiple_jobs_specified_job_is_stopped(self):
         job_id_1 = 'job id 1'
         job_id_2 = 'job id 2'
+        self.filewriter_status.add_job(job_id_1, 42)
+        self.filewriter_status.add_job(job_id_2, 42)
         status_messages = [(123, create_status_message(job_id_1)),
                            (234, create_status_message(job_id_2))]
         self.filewriter_status.new_messages_callback(status_messages)
@@ -164,7 +169,7 @@ class TestFileWriterControl(TestCase):
 
         self.job_handler.set_stop_time.assert_called_once()
         assert job_id_1 in self.filewriter_status.marked_for_stop
-        assert job_id_2 in self.filewriter_status.jobs
+        assert job_id_2 in self.filewriter_status.jobs_in_progress
 
     def test_one_file_for_all_scan_points(self):
         m = self.session.getDevice('motor')
@@ -195,6 +200,7 @@ class TestFileWriterControl(TestCase):
 
     def test_count_starts_file(self):
         det = self.session.getDevice('det')
+        det = self.session.getDevice('det')
         count(det, t=0.)
 
         self.job_handler.start_job.assert_called_once()
@@ -211,6 +217,7 @@ class TestFileWriterControl(TestCase):
         # Create a lost job
         self.filewriter_control.start_job()
         job_id_1 = 'job id 1'
+        self.filewriter_status.add_job(job_id_1, 42)
         messages = [(123, create_status_message(job_id_1))]
         self.filewriter_status.new_messages_callback(messages)
         old_timeout = self.filewriter_status.timeoutinterval
