@@ -15,6 +15,7 @@ includes = [
     'collimator',
     'rc',
     'samplememograph',
+    'chiller',
 ]
 
 startupcode = '''

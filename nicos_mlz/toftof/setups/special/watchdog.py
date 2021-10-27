@@ -43,6 +43,21 @@ watchlist = [
         message = 'There is a leak in the chopper cooling system',
         priority = 2,
     ),
+    dict(
+        condition = 'flow_in_chopper_value < 15',
+        message = 'The flow in the chopper cooling system is to low',
+        # priority = 1,
+    ),
+    dict(
+        condition = 't_in_chopper_value > 30',
+        message = 'The temperature in the chopper cooling system is to high',
+        # priority = 1,
+    ),
+    dict(
+        condition = "water_level_chopper_value != 'OK'",
+        message = 'The water level in the chopper cooling level is to low',
+        # priority = 1,
+    ),
 ]
 
 # The Watchdog device has two lists of notifiers, one for priority 1 and
