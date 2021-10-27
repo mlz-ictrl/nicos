@@ -36,7 +36,7 @@ devices = dict(
         axiscoupling = False,
         psi360 = False,
     ),
-    Sample = device('nicos.devices.tas.TASSample',
+    Sample = device('nicos_mlz.devices.sample.TASSample',
         description = 'The currently used sample',
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',

@@ -21,7 +21,7 @@ devices = dict(
         #  we do not have a dedicated responsible
         operators = ['Technische Universität München (TUM)'],
     ),
-    Sample = device('nicos.devices.sample.Sample',
+    Sample = device('nicos_mlz.devices.sample.Sample',
         description = 'The currently used sample',
     ),
 

@@ -14,7 +14,7 @@ modules = ['nicos.commands.standard']
 includes = ['notifiers']
 
 devices = dict(
-    Sample = device('nicos.devices.sample.Sample',
+    Sample = device('nicos_mlz.devices.sample.Sample',
         description = 'Container storing Sample properties',
     ),
     MEPHISTO = device('nicos.devices.instrument.Instrument',

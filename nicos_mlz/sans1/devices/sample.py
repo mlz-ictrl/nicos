@@ -26,7 +26,8 @@
 
 from nicos import session
 from nicos.core import Override
-from nicos.devices.sample import Sample as NicosSample
+
+from nicos_mlz.devices.sample import Sample as NicosSample
 
 
 class Sample(NicosSample):

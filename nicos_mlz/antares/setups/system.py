@@ -16,7 +16,7 @@ modules = ['nicos.commands.basic', 'nicos.commands.standard',
 includes = ['notifiers']
 
 devices = dict(
-    Sample = device('nicos.devices.experiment.Sample',
+    Sample = device('nicos_mlz.devices.sample.Sample',
         description = 'Default Sample',
     ),
     Exp = device('nicos_mlz.antares.devices.Experiment',

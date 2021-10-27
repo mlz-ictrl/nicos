@@ -22,7 +22,7 @@ devices = dict(
             'Karlsruhe Institute of Technology (KIT)',
         ],
     ),
-    Sample = device('nicos.devices.sample.Sample',
+    Sample = device('nicos_mlz.devices.sample.Sample',
         description = 'sample object',
     ),
     Exp = device('nicos_mlz.devices.experiment.Experiment',

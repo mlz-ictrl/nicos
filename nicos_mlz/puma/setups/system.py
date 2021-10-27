@@ -47,7 +47,7 @@ devices = dict(
         mailsender = 'puma@frm2.tum.de',
         serviceexp = 'service',
     ),
-    Sample = device('nicos.devices.tas.TASSample',
+    Sample = device('nicos_mlz.devices.sample.TASSample',
         description = 'Currently used sample',
     ),
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink',

@@ -26,14 +26,13 @@
 """NICOS Sample device."""
 
 from nicos.core import Param, none_or
+from nicos.core.mixins import DeviceMixinBase
 from nicos.devices.sample import Sample as NicosSample
+from nicos.devices.tas import TASSample as NicosTASSample
 
 
-class Sample(NicosSample):
-    """A special device to represent a sample.
-
-    This has the MLZ-specific sample ID from the sample tracker.
-    """
+class MLZSampleMixin(DeviceMixinBase):
+    """Special mixin with MLZ-specific sample ID from the sample tracker. """
 
     parameters = {
         'sampleid': Param('Sample ID from the sample tracker',
@@ -42,11 +41,43 @@ class Sample(NicosSample):
     }
 
     def clear(self):
+        """Clear sample tracker information."""
+        self.sampleid = None
+
+    def _applyParams(self, number, parameters):
+        """Apply sample tracker id."""
+        self.sampleid = parameters.get('id')
+
+
+class Sample(MLZSampleMixin, NicosSample):
+    """A special device to represent a sample.
+
+    This has the MLZ-specific sample ID from the sample tracker.
+    """
+
+    def clear(self):
         """Clear experiment-specific information."""
         NicosSample.clear(self)
-        self.sampleid = None
+        MLZSampleMixin.clear(self)
 
     def _applyParams(self, number, parameters):
         """Apply sample parameters."""
         NicosSample._applyParams(self, number, parameters)
-        self.sampleid = parameters.get('id')
+        MLZSampleMixin._applyParams(self, number, parameters)
+
+
+class TASSample(MLZSampleMixin, NicosTASSample):
+    """A special device to represent a TAS sample.
+
+    This has the MLZ-specific sample ID from the sample tracker.
+    """
+
+    def clear(self):
+        """Clear experiment-specific information."""
+        NicosTASSample.clear(self)
+        MLZSampleMixin.clear(self)
+
+    def _applyParams(self, number, parameters):
+        """Apply sample parameters."""
+        NicosTASSample._applyParams(self, number, parameters)
+        MLZSampleMixin._applyParams(self, number, parameters)

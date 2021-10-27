@@ -17,7 +17,7 @@ sysconfig = dict(
 modules = ['nicos.commands.standard', 'nicos_mlz.reseda.tuning_commands',  'nicos_mlz.reseda.commands']
 
 devices = dict(
-    Sample = device('nicos.devices.sample.Sample',
+    Sample = device('nicos_mlz.devices.sample.Sample',
         description = 'The sample',
     ),
     reseda = device('nicos.devices.instrument.Instrument',

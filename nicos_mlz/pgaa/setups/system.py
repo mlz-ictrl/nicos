@@ -16,7 +16,7 @@ group = 'lowlevel'
 includes = ['notifiers']
 
 devices = dict(
-    Sample = device('nicos.devices.sample.Sample',
+    Sample = device('nicos_mlz.devices.sample.Sample',
         description = 'The sample',
     ),
     PGAA = device('nicos.devices.instrument.Instrument',
