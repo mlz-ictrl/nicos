@@ -28,9 +28,12 @@ from unittest import TestCase, mock
 
 import pytest
 
-from nicos_ess.devices.datasinks.file_writer import NOT_CURRENTLY_WRITING
-
+pytest.importorskip('file_writer_control')
 pytest.importorskip('streaming_data_types')
+
+from nicos.core import MASTER
+
+from nicos_ess.devices.datasinks.file_writer import NOT_CURRENTLY_WRITING
 
 from streaming_data_types import serialise_answ, serialise_wrdn, serialise_x5f2
 from streaming_data_types.fbschemas.action_response_answ.ActionOutcome import \
@@ -38,7 +41,6 @@ from streaming_data_types.fbschemas.action_response_answ.ActionOutcome import \
 from streaming_data_types.fbschemas.action_response_answ.ActionType import \
     ActionType
 
-from nicos.core import MASTER
 
 session_setup = 'ess_filewriter'
 
