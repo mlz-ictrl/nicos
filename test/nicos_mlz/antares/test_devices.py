@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-"""ANTARES specific monochromator tests."""
+"""ANTARES specific devices tests."""
 
 import pytest
 
@@ -72,3 +72,28 @@ class TestMonochromator:
         # Move to parking position
         mono.maw(None)
         assert mono.read(0) is None
+
+class TestCollimator:
+
+    @pytest.fixture(scope='function')
+    def collimator(self, session):
+        colli = session.getDevice('collimator')
+        yield colli
+        session.destroyDevice(colli)
+
+    def test_l_over_d(self, collimator):
+        assert collimator._attached_d.read(0) == 2
+        assert collimator.read(0) == 2500
+
+
+class TestBlur:
+
+    @pytest.fixture(scope='function')
+    def blur(self, session):
+        blur = session.getDevice('blur')
+        yield blur
+        return blur
+
+    def test_blur(self, blur):
+        assert blur.read(0) == approx(4e-6)
+        assert blur.unit == 'um'
