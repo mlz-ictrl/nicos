@@ -1,0 +1,176 @@
+{
+    "children": [
+      {
+        "name": "entry",
+        "type": "group",
+        "attributes": [
+          {
+            "name": "NX_class",
+            "dtype": "string",
+            "values": "NXentry"
+          }
+        ],
+        "children": [
+          {
+            "module": "dataset",
+            "config": {
+              "name": "title",
+              "values": "$TITLE$",
+              "dtype": "string"
+            }
+          },
+          {
+            "module": "dataset",
+            "config": {
+              "name": "experiment_identifier",
+              "values": "$EXP_ID$",
+              "dtype": "string"
+            }
+          },
+          $USERS$
+          {
+            "name": "sample",
+            "type": "group",
+            "attributes": [
+              {
+                "name": "NX_class",
+                "dtype": "string",
+                "values": "NXsample"
+              }
+            ],
+            "children": [
+              {
+                "module": "dataset",
+                "config": {
+                  "name": "description",
+                  "dtype": "string",
+                  "values": ""
+                }
+              },
+              {
+                "name": "X-axis",
+                "type": "group",
+                "attributes": [
+                  {
+                    "name": "units",
+                    "dtype": "string",
+                    "values": "mm"
+                  }
+                ],
+                "children": [
+                  {
+                    "module": "f142",
+                    "config": {
+                      "source": "pos_x",
+                      "topic": "nicos_cache",
+                      "dtype": "double",
+                      "value_units": "mm"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "Y-axis",
+                "type": "group",
+                "attributes": [
+                  {
+                    "name": "units",
+                    "dtype": "string",
+                    "values": "mm"
+                  }
+                ],
+                "children": [
+                  {
+                    "module": "f142",
+                    "config": {
+                      "source": "pos_y",
+                      "topic": "nicos_cache",
+                      "dtype": "double",
+                      "value_units": "mm"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "Z-axis",
+                "type": "group",
+                "attributes": [
+                  {
+                    "name": "units",
+                    "dtype": "string",
+                    "values": "mm"
+                  }
+                ],
+                "children": [
+                  {
+                    "module": "f142",
+                    "config": {
+                      "source": "pos_z",
+                      "topic": "nicos_cache",
+                      "dtype": "double",
+                      "value_units": "mm"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "instrument",
+            "type": "group",
+            "attributes": [
+              {
+                "name": "NX_class",
+                "dtype": "string",
+                "values": "NXinstrument"
+              }
+            ],
+            "children": [
+              {
+                "name": "Detector",
+                "type": "group",
+                "attributes": [
+                  {
+                    "name": "NX_class",
+                    "dtype": "string",
+                    "values": "NXdetector"
+                  }
+                ],
+                "children": [
+                  {
+                    "module": "dataset",
+                    "config": {
+                      "name": "description",
+                      "dtype": "string",
+                      "values": ""
+                    }
+                  },
+                  {
+                    "name": "DREAM_endcap",
+                    "type": "group",
+                    "attributes": [
+                      {
+                        "name": "units",
+                        "dtype": "string",
+                        "values": "mm"
+                      }
+                    ],
+                    "children": [
+                      {
+                        "module": "ev42",
+                        "config": {
+                          "source": "just-bin-it",
+                          "topic": "fake_events",
+                          "dtype": "uint32"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }

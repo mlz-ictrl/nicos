@@ -6,11 +6,10 @@ sysconfig = dict(
     cache='localhost',
     instrument='DREAM',
     experiment='Exp',
-    datasinks=['conssink', 'daemonsink', 'liveview'],
+    datasinks=['conssink', 'daemonsink', 'liveview', 'FileWriterControl'],
 )
 
-modules = ['nicos.commands.standard', 'nicos_ess.commands.epics',
-           'nicos_ess.commands.file_writing']
+modules = ['nicos.commands.standard', 'nicos_ess.commands.epics']
 
 devices = dict(
     DREAM=device(
@@ -56,33 +55,28 @@ devices = dict(
         'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
         description='Monitors the status of the Forwarder',
         statustopic="status_topic",
-        forwarder_control="KafkaForwarderControl",
         brokers=["localhost"],
     ),
-
-    KafkaForwarderControl=device(
-        'nicos_ess.devices.forwarder.EpicsKafkaForwarderControl',
-        description='Controls the Forwarder',
-        cmdtopic="TEST_forwarderConfig",
-        instpvtopic="pv_topic",
-        brokers=["localhost"],
+    NexusStructure=device(
+        'nicos_ess.devices.datasinks.nexus_structure.NexusStructureJsonFile',
+        description='Provides the NeXus structure',
+        nexus_config_path="nicos_ess/dream/nexus/nexus_config.json",
+        lowlevel=True,
     ),
-
-    NexusDataSink=device(
-        'nicos_ess.devices.datasinks.nexussink.NexusFileWriterSink',
-        description='Sink for NeXus file writer (kafka-to-nexus)',
+    FileWriterStatus=device(
+        'nicos_ess.devices.datasinks.file_writer.FileWriterStatus',
+        description='Status of the file-writer',
         brokers=['localhost:9092'],
-        cmdtopic='FileWriter_writerCommand',
-        status_provider='NexusFileWriter',
-        templatesmodule='nicos_ess.dream_demo.nexus.nexus_templates',
-        templatename='dream_default',
+        statustopic='DREAM_controlTopic',
+        unit='',
     ),
-
-    NexusFileWriter=device(
-        'nicos_ess.devices.datasinks.nexussink.NexusFileWriterStatus',
-        description='Status for nexus file writing',
+    FileWriterControl=device(
+        'nicos_ess.devices.datasinks.file_writer.FileWriterControlSink',
+        description='Control for the file-writer',
         brokers=['localhost:9092'],
-        statustopic='FileWriter_writerStatus',
+        pool_topic='DREAM_jobPool',
+        status='FileWriterStatus',
+        nexus='NexusStructure',
     ),
 )
 
