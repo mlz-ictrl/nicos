@@ -30,7 +30,7 @@ from nicos.core.device import requires
 from nicos.core.errors import ConfigurationError
 from nicos.core.mixins import CanDisable, HasOffset
 from nicos.devices.abstract import CanReference, Motor
-from nicos.devices.epics import PVMonitor
+from nicos.devices.epics import SEVERITY_TO_STATUS, PVMonitor
 
 from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss
 
@@ -62,10 +62,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         'reseterrorpv': Param('Optional PV with error reset switch.',
                               type=pvname, mandatory=False, settable=False,
                               userparam=False),
-        'reference_direction': Param('Reference run direction',
+        'reference_direction': Param('Reference run direction.',
                                      type=oneof('forward', 'reverse'),
                                      default='forward', settable=False,
-                                     userparam=False, mandatory=False),
+                                     userparam=False, mandatory=False)
     }
 
     parameter_overrides = {
@@ -79,11 +79,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         'abslimits': Override(volatile=True),
     }
 
-    motor_status_mapping = {
-        'MAJOR': status.ERROR,
-        'MINOR': status.WARN,
-        'INVALID': status.UNKNOWN
-    }
+    _motor_status = (status.OK, '')
 
     # Fields of the motor record for which an interaction via Channel Access
     # is required.
@@ -211,11 +207,12 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         return self._get_pv('writepv')
 
     def doStatus(self, maxage=0):
-        general_epics_status, message = self._get_status_message()
-        if general_epics_status == status.ERROR:
-            return status.ERROR, message or 'Unknown problem in record'
-        elif general_epics_status == status.WARN:
-            return status.WARN, message
+        stat, message = self._get_status_message()
+        self._motor_status = stat, message
+        if stat == status.ERROR:
+            return stat, message or 'Unknown problem in record'
+        elif stat == status.WARN:
+            return stat, message
 
         done_moving = self._get_pv('donemoving')
         moving = self._get_pv('moving')
@@ -250,11 +247,11 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         """
         msg_txt, alarm_severity, alarm_status = self._read_epics_alarm_pvs()
         if msg_txt:
-            stat = self.motor_status_mapping.get(alarm_severity, status.OK)
-            if alarm_status == 'COMM' and stat == status.UNKNOWN:
-                stat = status.ERROR
-            self._log_epics_msg_info(msg_txt, stat, alarm_status)
-            return stat, msg_txt
+            if alarm_status == 'COMM' and alarm_severity == status.UNKNOWN:
+                alarm_severity = status.ERROR
+            if self._motor_status != (alarm_severity, msg_txt):
+                self._log_epics_msg_info(msg_txt, alarm_severity, alarm_status)
+            return alarm_severity, msg_txt
         else:
             return status.OK, ''
 
@@ -264,19 +261,20 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         """
         if self.errormsgpv:
             return (self._get_pv('errormsgpv', as_string=True),
-                    self._get_pv('alarm_severity', as_string=True),
+                    SEVERITY_TO_STATUS.get(self._get_pv('alarm_severity'),
+                                           status.UNKNOWN),
                     self._get_pv('alarm_status', as_string=True))
         else:
-            return '', '', ''
+            return '', status.OK, ''
 
     def _log_epics_msg_info(self, msg_txt, stat, epics_status):
         if stat == status.OK or stat == status.UNKNOWN:
             return
-        msg_to_log = f'Motor message: {msg_txt} ({epics_status})'
+        msg_to_log = '%s (%s)'
         if stat == status.WARN:
-            self.log.warning(msg_to_log)
+            self.log.warning(msg_to_log, msg_txt, epics_status)
         elif stat == status.ERROR:
-            self.log.error(msg_to_log)
+            self.log.error(msg_to_log, msg_txt, epics_status)
 
     def doStop(self):
         self._put_pv('stop', 1, False)
