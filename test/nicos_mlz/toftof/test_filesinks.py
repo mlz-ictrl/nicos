@@ -24,7 +24,7 @@
 
 """TOFTOF specific data sink tests."""
 
-from os import path
+from pathlib import Path
 
 import pytest
 
@@ -33,57 +33,58 @@ from nicos.commands.measure import count
 session_setup = 'toftof'
 exp_dataroot = 'toftofdata'
 
-try:
-    import nxs
-except ImportError:
-    nxs = None
-
-
-@pytest.fixture(scope='class', autouse=True)
-def prepare(session, dataroot):
-    """Prepare a dataset for TOFTOF"""
-
-    session.experiment.setDetectors(['det'])
-    session.experiment.setEnvironment(['B', 'P', 'T'])
-
-    # Create devices needed in data sinks
-    for dev in ['slit', 'vac0', 'vac1', 'vac2', 'vac3', 'gx', 'gy', 'gz',
-                'gphi', 'gcx', 'gcy']:
-        session.getDevice(dev)
-
-    rc = session.getDevice('rc')
-    rc.maw('on')
-    assert rc.read(0) == 'on'
-
-    assert session.getDevice('chRatio').read(0) == 1
-    assert session.getDevice('chCRC').read(0) == 1
-    assert session.getDevice('chST').read(0) == 1
-
-    for disc in ['d1', 'd2', 'd3', 'd4', 'd6', 'd7']:
-        assert session.getDevice(disc).read(0) == 6000
-    assert session.getDevice('d5').read(0) == -6000
-
-    chSpeed = session.getDevice('chSpeed')
-    chSpeed.maw(6000)
-
-    chWL = session.getDevice('chWL')
-    assert chWL.read(0) == 4.5
-
-    ngc = session.getDevice('ngc')
-    ngc.maw('focus')
-
-    count(t=0.15)  # test to write the intermediate: file t > det.saveinterval
-    count(mon1=150)
-
-    yield
-
 
 class TestSinks:
 
-    @pytest.mark.skipif(nxs is None, reason='NeXuS library missing')
-    def test_toftof_sink(self, session):
-        toftoffile = path.join(session.experiment.datapath, '00000043_0000.raw')
-        assert path.isfile(toftoffile)
+    @pytest.fixture(scope='class', autouse=True)
+    def prepare(self, session, dataroot):
+        """Prepare a dataset for TOFTOF"""
 
-        logfile = path.join(session.experiment.datapath, '00000043_0000.log')
-        assert path.isfile(logfile)
+        session.experiment.setDetectors(['det'])
+        session.experiment.setEnvironment(['B', 'P', 'T'])
+
+        # Create devices needed in data sinks
+        for dev in ['slit', 'vac0', 'vac1', 'vac2', 'vac3', 'gx', 'gy', 'gz',
+                    'gphi', 'gcx', 'gcy']:
+            session.getDevice(dev)
+
+        rc = session.getDevice('rc')
+        rc.maw('on')
+        assert rc.read(0) == 'on'
+
+        assert session.getDevice('chRatio').read(0) == 1
+        assert session.getDevice('chCRC').read(0) == 1
+        assert session.getDevice('chST').read(0) == 1
+
+        for disc in ['d1', 'd2', 'd3', 'd4', 'd6', 'd7']:
+            assert session.getDevice(disc).read(0) == 6000
+        assert session.getDevice('d5').read(0) == -6000
+
+        chSpeed = session.getDevice('chSpeed')
+        chSpeed.maw(6000)
+
+        chWL = session.getDevice('chWL')
+        assert chWL.read(0) == 4.5
+
+        ngc = session.getDevice('ngc')
+        ngc.maw('focus')
+
+        count(t=0.15)  # test to write the intermediate: file t > det.saveinterval
+        count(mon1=150)
+
+        yield
+
+    def check_file(self, fil):
+        return fil.exists() and fil.is_file() and fil.stat().st_size > 0
+
+    def test_toftof_sink(self, session):
+        datapath = Path(session.experiment.datapath)
+
+        toftoffile = datapath.joinpath('00000043_0000.raw')
+        assert self.check_file(toftoffile)
+
+        logfile = datapath.joinpath('00000043_0000.log')
+        assert self.check_file(logfile)
+
+        nxsfile = datapath.joinpath('TOFTOF00000043.nxs')
+        assert self.check_file(nxsfile)
