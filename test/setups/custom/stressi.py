@@ -167,4 +167,10 @@ devices = dict(
         filenametemplate = ['m2%(scancounter)08d.dat'],
         detectors = ['adet'],
     ),
+    tthm_r = device('nicos_mlz.stressi.devices.wavelength.TransformedMoveable',
+        dev = 'tthm',
+        informula = '1./0.5 * x - 11.5 / 0.5',
+        outformula = '0.5 * x + 11.5',
+        precision = 0.001,
+    ),
 )
