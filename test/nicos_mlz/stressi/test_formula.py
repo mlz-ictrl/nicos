@@ -42,3 +42,5 @@ def test_basic_calculations():
 
     f = Formula('pi')
     assert f.eval(1) == math.pi
+
+    assert str(f) == 'pi'

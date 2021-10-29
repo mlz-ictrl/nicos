@@ -29,17 +29,19 @@ from math import asin, pi, sin
 from nicos.core import SIMULATION, Attach, HasLimits, HasPrecision, Moveable, \
     Override, Param, status
 from nicos.core.errors import ConfigurationError, PositionError
+from nicos.devices.abstract import \
+    TransformedMoveable as BaseTransformedMoveable
 from nicos.devices.generic import Switcher
 
 from nicos_mlz.stressi.devices.mixins import TransformMove
 
 
-class TransformedMoveable(HasPrecision, TransformMove, Moveable):
+class TransformedMoveable(HasPrecision, TransformMove, BaseTransformedMoveable):
     """Moveable transforming the data from and to a Moveable."""
 
     valuetype = float
 
-    hardware_access = True
+    hardware_access = False
 
 
 class Wavelength(HasLimits, Moveable):
