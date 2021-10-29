@@ -27,10 +27,10 @@
 import numpy as np
 
 from nicos import session
-from nicos.core import SIMULATION, Attach, AutoDevice, HasPrecision, \
-    Moveable, Override, Param, Value, dictof, dictwith, floatrange, \
-    multiReset, multiStatus, multiWait, oneof, status, tupleof
-from nicos.core.errors import MoveError, UsageError
+from nicos.core import Attach, AutoDevice, HasPrecision, Moveable, Override, \
+    Param, Value, dictof, dictwith, floatrange, multiReset, multiStatus, \
+    multiWait, oneof, status, tupleof
+from nicos.core.errors import UsageError
 from nicos.core.mixins import HasOffset
 from nicos.core.utils import devIter, multiReference
 from nicos.devices.abstract import CanReference
@@ -227,20 +227,6 @@ class DoubleSlitSequence(SequencerMixin, DoubleSlit):
     attached_devices = {
         'adjustment': Attach('positioning Frame of b3h3', ManualSwitch),
     }
-
-    def doStart(self, targets):
-        """Generate and start a sequence if non is running.
-
-        Just calls ``self._startSequence(self._generateSequence(target))``
-        """
-        if self._seq_is_running():
-            if self._mode == SIMULATION:
-                self._seq_thread.join()
-                self._seq_thread = None
-            else:
-                raise MoveError(self, 'Cannot start device, sequence is still '
-                                      'running (at %s)!' % self._seq_status[1])
-        self._startSequence(self._generateSequence(targets))
 
     def doStatus(self, maxage=0):
         self.log.debug('DoubleSlitSequence status')
