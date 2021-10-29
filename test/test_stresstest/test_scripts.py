@@ -116,7 +116,7 @@ testscriptspath = path.join(module_root, 'test', 'scripts')
                                     if f.endswith('.nic')])
 def test_one_script(session, script):
     script = path.join(testscriptspath, script)
-    with open(script) as codefile:
+    with open(script, encoding='utf-8') as codefile:
         code = codefile.read()
     m = re.match(r'.*Raises(.*)\..*', script)
     if m:

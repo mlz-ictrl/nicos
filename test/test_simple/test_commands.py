@@ -186,7 +186,8 @@ def test_run_command(session, log):
     exp.new(0, user='user')
     # create a test script in the current scriptpath
     ensureDirectory(session.experiment.scriptpath)
-    with open(os.path.join(session.experiment.scriptpath, 'test.py'), 'w') as f:
+    with open(os.path.join(session.experiment.scriptpath, 'test.py'), 'w',
+              encoding='utf-8') as f:
         f.write('read()')
     run('test')
 
