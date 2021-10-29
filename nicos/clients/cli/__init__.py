@@ -896,7 +896,7 @@ class NicosCmdClient(NicosClient):
             self.put_client('End of stacktrace.')
         elif cmd == 'debugclient':
             import pdb
-            pdb.set_trace()
+            pdb.set_trace()  # pylint: disable=forgotten-debug-statement
         elif cmd == 'debug':
             self.tell('debug', arg)
         elif cmd == 'eval':
