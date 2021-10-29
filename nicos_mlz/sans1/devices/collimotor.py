@@ -66,27 +66,14 @@ class Sans1ColliSlit(Switcher):
     }
 
     def _mapReadValue(self, value):
-        prec = self.precision
         if self._attached_table.read() != self.activeposition:
             return 'N.A.'
-        for name, pos in self.mapping.items():
-            if prec:
-                if abs(pos - value) <= prec:
-                    return name
-            elif pos == value:
-                return name
-        if self.fallback is not None:
-            return self.fallback
-        if self.relax_mapping:
-            return self._attached_moveable.format(value, True)
-        raise PositionError(self, 'unknown position of %s' %
-                            self._attached_moveable)
+        return Switcher._mapReadValue(self, value)
 
     def doStatus(self, maxage=0):
         if self._attached_table.read() != self.activeposition:
             return multiStatus(self._adevs, maxage)
-        else:
-            return Switcher.doStatus(self, maxage)
+        return Switcher.doStatus(self, maxage)
 
 
 class Sans1ColliSwitcher(Switcher):
