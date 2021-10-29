@@ -45,7 +45,7 @@ devices = dict(
         fontsize = 14,
         padding = 3,
         layout = layout,
-        expectmaster = False,
+        # expectmaster = False,
         filename = '/WebServer/jcnswww.jcns.frm2/httpdocs/monitor/memograph.html',
         noexpired = False,
     ),
