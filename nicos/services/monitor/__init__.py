@@ -192,8 +192,8 @@ class Monitor(BaseCacheClient):
     def _wait_retry(self):
         if not self._keys_expired:
             time = currenttime()
-            for key in self._keymap:
-                for obj in self._keymap[key]:
+            for key, objs in self._keymap.items():
+                for obj in objs:
                     self.signalKeyChange(obj, key, None, time, True)
             self._keys_expired = True
         self.updateTitle('Disconnected (%s)' % strftime('%d.%m.%Y %H:%M:%S'))
