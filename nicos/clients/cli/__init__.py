@@ -29,6 +29,7 @@ import ctypes
 import ctypes.util
 import getpass
 import glob
+import locale
 import os
 import random
 import readline
@@ -80,6 +81,11 @@ tab: complete
 # yay, global state!
 readline_result = Ellipsis
 
+try:
+    ENCODING = locale.getpreferredencoding(False)
+except Exception:
+    ENCODING = 'utf-8'
+
 
 def readline_finish_callback(result):
     """A callback for readline() below that records the final line
@@ -91,6 +97,7 @@ def readline_finish_callback(result):
     librl.rl_callback_handler_remove()
     # NULL pointer gives None, which means EOF
     readline_result = result
+
 
 c_readline_finish_callback = rl_vcpfunc_t(readline_finish_callback)
 
@@ -780,7 +787,8 @@ class NicosCmdClient(NicosClient):
                 return
             fpath = path.join(self.scriptpath, path.expanduser(arg))
             try:
-                code = open(fpath).read()
+                with open(fpath, encoding=ENCODING) as f:
+                    code = f.read()
             except Exception as e:
                 self.put_error('Unable to open file: %s.' % e)
                 return
@@ -801,7 +809,8 @@ class NicosCmdClient(NicosClient):
                 return
             fpath = path.join(self.scriptpath, path.expanduser(arg))
             try:
-                code = open(fpath).read()
+                with open(fpath, encoding=ENCODING) as f:
+                    code = f.read()
             except Exception as e:
                 self.put_error('Unable to open file: %s.' % e)
                 return
@@ -816,7 +825,8 @@ class NicosCmdClient(NicosClient):
             # detect whether we have a filename or potential Python code
             if path.isfile(fpath) or fpath.endswith(('.py', '.txt')):
                 try:
-                    code = open(fpath).read()
+                    with open(fpath, encoding=ENCODING) as f:
+                        code = f.read()
                 except Exception as e:
                     self.put_error('Unable to open file: %s.' % e)
                     return
