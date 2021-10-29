@@ -99,15 +99,15 @@ class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
         yield
         self._allowed_called = False
 
-    def isAdevTargetAllowed(self, dev, target):
+    def isAdevTargetAllowed(self, adev, adevtarget):
         if not self._allowed_called:
             stat = self.doStatus(0)
             if stat[0] != status.OK:
                 return False, '%s: Controller device is busy!' % self
-            if dev in self._translation:
-                return self._check_translation(self._translation.index(dev),
-                                               target)
-            return self._check_rotation(self._rotation.index(dev), target)
+            if adev in self._translation:
+                return self._check_translation(self._translation.index(adev),
+                                               adevtarget)
+            return self._check_rotation(self._rotation.index(adev), adevtarget)
         return True, ''
 
     def _check_rotation(self, rindex, target):

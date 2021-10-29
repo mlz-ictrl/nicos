@@ -130,7 +130,7 @@ class Doppler(SequencerMixin, MultiSwitcher):
         if not self.waitForAcq(10):
             return
 
-        seq = list()
+        seq = []
         # to change the doppler speed it has to be stopped first
         seq.append(SeqDev(self._attached_switch, 'off'))
         seq.append(SeqCall(session.delay, 0.5))
@@ -213,12 +213,12 @@ class Doppler(SequencerMixin, MultiSwitcher):
     def inRange(self, speed):
         return self.customrange[0] < speed < self.customrange[-1]
 
-    def _mapReadValue(self, pos):
-        value = MultiSwitcher._mapReadValue(self, pos)
-        if value == self.fallback and self.inRange(pos[0]):
-            value = pos[0]
+    def _mapReadValue(self, value):
+        pos = MultiSwitcher._mapReadValue(self, value)
+        if pos == self.fallback and self.inRange(value[0]):
+            pos = value[0]
 
-        return value
+        return pos
 
     def doReadCustomrange(self):
         return self._attached_moveables[0].userlimits

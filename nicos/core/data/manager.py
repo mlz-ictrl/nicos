@@ -372,7 +372,7 @@ class DataManager:
         # translate entries
         filenames = []
         for nametmpl in nametemplates:
-            kwds = dict(additionalinfo) if additionalinfo else dict()
+            kwds = dict(additionalinfo) if additionalinfo else {}
             kwds.update(session.experiment.propinfo)
             kwds.update(self.getCounters())
             try:

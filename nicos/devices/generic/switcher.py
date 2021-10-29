@@ -82,12 +82,12 @@ class Switcher(MappedMoveable):
         """Return raw position value of the moveable."""
         return self._attached_moveable.read(maxage)
 
-    def _mapReadValue(self, pos):
+    def _mapReadValue(self, value):
         """Override default inverse mapping to allow a
         deviation <= precision.
         """
         prec = self.precision
-        for name, value in self.mapping.items():
+        for name, pos in self.mapping.items():
             if prec:
                 if abs(pos - value) <= prec:
                     return name
@@ -96,10 +96,10 @@ class Switcher(MappedMoveable):
         if self.fallback is not None:
             return self.fallback
         if self.relax_mapping:
-            return self._attached_moveable.format(pos, True)
+            return self._attached_moveable.format(value, True)
         raise PositionError(self, 'unknown position of %s: %s' %
                             (self._attached_moveable,
-                             self._attached_moveable.format(pos, True))
+                             self._attached_moveable.format(value, True))
                             )
 
     def doStatus(self, maxage=0):
@@ -151,9 +151,9 @@ class ReadonlySwitcher(MappedReadable):
     def _readRaw(self, maxage=0):
         return self._attached_readable.read(maxage)
 
-    def _mapReadValue(self, pos):
+    def _mapReadValue(self, value):
         prec = self.precision
-        for name, value in self.mapping.items():
+        for name, pos in self.mapping.items():
             if prec:
                 if abs(pos - value) <= prec:
                     return name
@@ -276,7 +276,7 @@ class MultiSwitcher(MappedMoveable):
                    tuple(self.mapping[self.target][len(self._attached_moveables):])
         return tuple(d.read(maxage) for d in self.devices)
 
-    def _mapReadValue(self, pos):
+    def _mapReadValue(self, value):
         """maps a tuple to one of the configured values"""
         hasprec = bool(self.precision)
         if hasprec:
@@ -285,7 +285,7 @@ class MultiSwitcher(MappedMoveable):
                 precisions = [precisions[0]] * len(self.devices)
         for name, values in self.mapping.items():
             if hasprec:
-                for p, v, prec in zip(pos, values, precisions):
+                for p, v, prec in zip(value, values, precisions):
                     if prec:
                         if abs(p - v) > prec:
                             break
@@ -294,13 +294,13 @@ class MultiSwitcher(MappedMoveable):
                 else:  # if there was no break we end here...
                     return name
             else:
-                if tuple(pos) == tuple(values):
+                if tuple(value) == tuple(values):
                     return name
         if self.fallback is not None:
             return self.fallback
         raise PositionError(self, 'unknown position of %s: %s' % (
             ', '.join(str(d) for d in self.devices),
-            ', '.join(d.format(p) for (p, d) in zip(pos, self.devices))))
+            ', '.join(d.format(p) for (p, d) in zip(value, self.devices))))
 
     def doStatus(self, maxage=0):
         # if the underlying device is moving or in error state,

@@ -47,7 +47,7 @@ class Experiment(_Experiment):
         self.log.debug("changed samplepath to: %s" % self.samplepath)
         # expand/copy templates
         if self.getProposalType(self.proposal) != 'service' and self.templates:
-            params = dict(parameters) if parameters else dict()
+            params = dict(parameters) if parameters else {}
             params.update(self.propinfo)
             self.handleTemplates(self.proposal, params)
 

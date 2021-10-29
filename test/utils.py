@@ -545,7 +545,7 @@ def startSubprocess(filename, *args, **kwds):
         popen_kwds = dict(stdin=subprocess.PIPE,
                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     else:
-        popen_kwds = dict()
+        popen_kwds = {}
     proc = createSubprocess(
         [sys.executable, path.join(module_root, 'test', 'bin', filename)] +
         list(args), **popen_kwds)

@@ -228,7 +228,7 @@ class DoubleSlitSequence(SequencerMixin, DoubleSlit):
         'adjustment': Attach('positioning Frame of b3h3', ManualSwitch),
     }
 
-    def doStart(self, target):
+    def doStart(self, targets):
         """Generate and start a sequence if non is running.
 
         Just calls ``self._startSequence(self._generateSequence(target))``
@@ -240,7 +240,7 @@ class DoubleSlitSequence(SequencerMixin, DoubleSlit):
             else:
                 raise MoveError(self, 'Cannot start device, sequence is still '
                                       'running (at %s)!' % self._seq_status[1])
-        self._startSequence(self._generateSequence(target))
+        self._startSequence(self._generateSequence(targets))
 
     def doStatus(self, maxage=0):
         self.log.debug('DoubleSlitSequence status')
