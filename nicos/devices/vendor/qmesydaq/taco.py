@@ -24,10 +24,10 @@
 
 """Detector devices for QMesyDAQ type detectors."""
 
-import IO
-import IOCommon
+import IO  # pylint: disable=import-error
+import IOCommon  # pylint: disable=import-error
 import numpy as np
-from Detector import Detector
+from Detector import Detector  # pylint: disable=import-error
 
 from nicos.core import FINAL, MASTER, SIMULATION, ArrayDesc, Param, Value, \
     listof, oneof
