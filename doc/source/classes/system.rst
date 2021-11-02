@@ -70,6 +70,15 @@ be configured in setups like normal devices and selected in
 .. autoclass:: FITSImageSink()
 .. autoclass:: TIFFImageSink()
 
+.. module:: nicos.devices.datasinks.text
+
+.. autoclass:: NPFileSink()
+.. autoclass:: NPGZFileSink()
+
+.. module:: nicos.nexus.nexussink
+
+.. autoclass:: NexusSink
+
 
 Data Sink Handlers
 ^^^^^^^^^^^^^^^^^^
