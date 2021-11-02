@@ -33,8 +33,8 @@ from nicos.clients.flowui.panels import get_icon
 from nicos.clients.gui.panels.live import FILENAME, FILETAG, FILEUID, \
     LiveDataPanel
 from nicos.core.constants import LIVE
-from nicos.guisupport.qt import QAction, QCursor, QInputDialog, QLineEdit, \
-    QMenu, Qt, QToolBar, QVBoxLayout, pyqtSlot
+from nicos.guisupport.qt import QAction, QCursor, QFileDialog, QInputDialog, \
+    QLineEdit, QMenu, Qt, QToolBar, QVBoxLayout, pyqtSlot
 from nicos.utils import BoundedOrderedDict
 
 from nicos_ess.dream.gui.comparison_plot_widgets import ComparisonPlot1D, \
@@ -62,6 +62,8 @@ class ComparisonPanel(LiveDataPanel):
 
         self._init_right_click_context_menu()
         self._reset_reference_data()
+
+        self.last_save_location = None
 
         self.reference_data_1d = None
         self.reference_data_2d = None
@@ -91,11 +93,14 @@ class ComparisonPanel(LiveDataPanel):
 
         self.toolbar = QToolBar()
         self.toolbar.addAction(self.actionOpen)
+        self.toolbar.addAction(self.actionSaveData)
+        self.toolbar.addSeparator()
         self.toolbar.addAction(self.actionLogScale)
         self.toolbar.addAction(self.actionUnzoom)
 
         self.actionUnzoom.setIcon(get_icon('zoom_out-24px.svg'))
         self.actionOpen.setIcon(get_icon('folder_open-24px.svg'))
+        self.actionSaveData.setIcon(get_icon('archive-24px.svg'))
         self.layout().setMenuBar(self.toolbar)
 
         # Hide tabs during initialization. Will become visible when data arrives
@@ -228,6 +233,7 @@ class ComparisonPanel(LiveDataPanel):
                     if self._show_difference
                     else data + self.reference_data_2d[1]
                 )
+
             self._plot_2d.setData(data, labels=labels)
 
     def set_live_data(self, blob):
@@ -291,6 +297,32 @@ class ComparisonPanel(LiveDataPanel):
     def _is_item_snapshot(self, item):
         return item is not None and item.data(FILETAG) == SNAP
 
+    def export_data_to_file(self):
+        """Saves data of the currently selected item on the fileList widget.
+        Note: Does not save reference data and difference.
+        """
+        filename = QFileDialog.getSaveFileName(
+            self,
+            'Save image',
+            str(Path.home())
+            if self.last_save_location is None
+            else self.last_save_location,
+            'Numpy binary files (*.npy)',
+            initialFilter='*.npy',
+        )[0]
+
+        if not filename:
+            return
+        filename = Path(filename).with_suffix('.npy')
+        self.last_save_location = str(filename.parent)
+
+        _, data, _ = self._extract_data()
+
+        if data:
+            np.save(filename, np.array(data[0]))
+        else:
+            self.showError(f'No data available for writing to {filename}')
+
     @pyqtSlot()
     def on_actionLogScale_triggered(self):
         self._plot_2d.plot.logscale(self.actionLogScale.isChecked())
@@ -316,3 +348,7 @@ class ComparisonPanel(LiveDataPanel):
         uid = uuid4()
         self._snap_cache[uid] = {'dataarrays': data, 'labels': labels}
         self.add_to_flist(f'snapshot_{datetime.now()}', '', SNAP, uid)
+
+    @pyqtSlot()
+    def on_actionSaveData_triggered(self):
+        self.export_data_to_file()

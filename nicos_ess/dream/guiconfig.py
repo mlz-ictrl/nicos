@@ -25,7 +25,7 @@ main_window = docked(
                      ('Scan Plot',
                       panel('nicos.clients.flowui.panels.scans.ScansPanel')),
                      ('Detector Image',
-                      panel('nicos_ess.dream.gui.live.LiveDataPanel')),
+                      panel('nicos.clients.flowui.panels.live.MultiLiveDataPanel')),
                      ('Comparison Panel',
                       panel('nicos_ess.dream.gui.comparison_panel.ComparisonPanel')),
                      ('Script Status',
