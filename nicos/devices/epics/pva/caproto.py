@@ -119,7 +119,7 @@ class CaprotoWrapper:
 
     def __init__(self, timeout=3.0):
         self._pvs = {}
-        self._enums = {}
+        self._choices = {}
         self._callbacks = set()
         self._timeout = timeout
 
@@ -130,7 +130,7 @@ class CaprotoWrapper:
         value = self._create_pv(pvname)
         # Do some prep work for enum types
         if hasattr(value.metadata, 'enum_strings'):
-            self._enums[pvname] = self.get_value_choices(pvname)
+            self._choices[pvname] = self.get_value_choices(pvname)
 
     def _create_pv(self, pvname, connection_callback=None):
         try:
@@ -154,34 +154,34 @@ class CaprotoWrapper:
         except CaprotoTimeoutError:
             raise TimeoutError(f"getting {pvname} timed out") from None
 
-    def _convert_value(self, pvname, value, as_string=False):
-        if len(value.data) == 1:
-            value = value.data[0]
-            if pvname in self._enums:
-                return self._enums[pvname][value]
+    def _convert_value(self, pvname, raw_value, as_string=False):
+        if len(raw_value.data) == 1:
+            value = raw_value.data[0]
+            if pvname in self._choices:
+                return self._choices[pvname][value] if as_string else value
             elif isinstance(value, bytes):
                 return value.decode()
             return str(value) if as_string else value
 
         # waveforms and arrays are ndarrays
-        if isinstance(value.data, np.ndarray):
+        if isinstance(raw_value.data, np.ndarray):
             val_type = FTYPE_TO_TYPE[self._pvs[pvname].channel.native_data_type]
             if val_type == bytes or as_string:
-                return value.data.tobytes().decode()
+                return raw_value.data.tobytes().decode()
 
-        return str(value.data) if as_string else value.data
+        return str(raw_value.data) if as_string else raw_value.data
 
     def put_pv_value(self, pvname, value, wait=False):
-        if pvname in self._enums:
-            value = self._enums[pvname].index(value)
+        if pvname in self._choices:
+            value = self._choices[pvname].index(value)
         try:
             self._pvs[pvname].write(value, wait=wait, timeout=self._timeout)
         except CaprotoTimeoutError:
             raise TimeoutError(f"setting {pvname} timed out") from None
 
     def put_pv_value_blocking(self, pvname, value, block_timeout=60):
-        if pvname in self._enums:
-            value = self._enums[pvname].index(value)
+        if pvname in self._choices:
+            value = self._choices[pvname].index(value)
         try:
             self._pvs[pvname].write(value, wait=True, timeout=block_timeout)
         except CaprotoTimeoutError:
@@ -222,9 +222,12 @@ class CaprotoWrapper:
 
     def get_value_choices(self, pvname):
         # Only works for enum types like MBBI and MBBO
-        values = self.get_control_values(pvname)
-        if hasattr(values, 'enum_strings'):
-            return [x.decode() for x in values.enum_strings]
+        value = self.get_control_values(pvname)
+        return self._extract_choices(value)
+
+    def _extract_choices(self, value):
+        if hasattr(value, 'enum_strings'):
+            return [x.decode() for x in value.enum_strings]
         return []
 
     def subscribe(self, pvname, pvparam, change_callback,
