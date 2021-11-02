@@ -23,6 +23,11 @@ The experiment device is selected in setups using
 
 .. autoclass:: SXTalExperiment()
 
+Sample
+------
+
+.. module:: nicos.devices.sample
+
 .. autoclass:: Sample()
 
 
