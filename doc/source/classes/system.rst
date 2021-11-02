@@ -80,15 +80,6 @@ be configured in setups like normal devices and selected in
 .. autoclass:: NexusSink
 
 
-Data Sink Handlers
-^^^^^^^^^^^^^^^^^^
-
-.. currentmodule:: nicos.core.data
-
-.. autoclass:: DataSinkHandler
-   :members:
-
-
 .. _notifiers:
 
 Notifiers
