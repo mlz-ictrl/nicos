@@ -172,7 +172,7 @@ except the :ref:`description <setup-description>` entry:
 
    `notifiers`
 
-      A list of names of "notifiers", i.e. special devices that can notify the
+      A list of names of :ref:`notifiers`, i.e. special devices that can notify the
       user or instrument responsibles via various channels (e.g. email).  These
       devices *must* be defined somewhere in a ``devices`` dictionary and be of
       class :class:`nicos.devices.notifiers.Notifier` or a subclass.
