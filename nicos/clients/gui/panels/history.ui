@@ -172,6 +172,9 @@
    <property name="toolTip">
     <string>Delete view</string>
    </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
   </action>
   <action name="actionResetView">
    <property name="text">
