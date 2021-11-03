@@ -165,9 +165,8 @@ class EpicsDevice(DeviceMixinBase):
 
     def doStatus(self, maxage=0):
         # For most devices we only care about the status of the read PV
-        pvname = self._get_pv_name('readpv')
         try:
-            severity, msg = self._epics_wrapper.get_alarm_status(pvname)
+            severity, msg = self.get_alarm_status('readpv')
         except TimeoutError:
             return status.ERROR, 'timeout reading status'
         if severity in [status.ERROR, status.WARN]:
@@ -198,6 +197,9 @@ class EpicsDevice(DeviceMixinBase):
         # Will block until finished or timeout - cannot be interrupted
         self._epics_wrapper.put_pv_value_blocking(self._param_to_pv[pvparam],
                                                   value, timeout)
+
+    def get_alarm_status(self, pvparam):
+        return self._epics_wrapper.get_alarm_status(self._param_to_pv[pvparam])
 
 
 class EpicsReadable(EpicsDevice, Readable):
