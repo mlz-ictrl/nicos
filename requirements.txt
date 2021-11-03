@@ -8,6 +8,5 @@ rsa>=3.1.2
 ldap3>=2.0.0
 psutil>=2.0
 html2text>=3.200.3
-six>=1.10.0
 lttb>=0.2.2
 h5py>=2.6

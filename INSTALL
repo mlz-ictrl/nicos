@@ -16,7 +16,6 @@ If not mentioned otherwise, Python packages are available from PyPI
   - numpy
   - pyzmq version >= 2
   - rsa
-  - six
   - lttb version >= 0.2.2
 
 * For the provided SysV compatible init script and nicos-demo:
@@ -115,7 +114,7 @@ https://forge.frm2.tum.de/wiki/projects:software_distribution:deb
 
 * Basic system::
 
-     apt-get install python3-{dev,zmq,numpy,scipy,psutil,rsa,six,systemd} gnuplot
+     apt-get install python3-{dev,zmq,numpy,scipy,psutil,rsa,systemd} gnuplot
      apt-get install python3-{keyring,keyrings.alt,crypto,lxml,html2text,lttb,nicos-pyctl}
 
 * Optional components::
