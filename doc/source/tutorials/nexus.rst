@@ -1,8 +1,8 @@
-NeXus data sinks in NICOS
+NeXuS data files in NICOS
 =========================
 
-Writing a `NeXus <https://www.nexusformat.org/>`_ file in NICOS is technically
-quite easy.  If a :class:`~nicos.nexus.nexussink.NexusSink` device
+Writing a `NeXus <https://www.nexusformat.org/>`_ data file in NICOS is
+technically quite easy.  If a :class:`~nicos.nexus.nexussink.NexusSink` device
 is configured and added to the datasinks in the sysconfig dictionary, a valid
 NeXus file will be written.
 
