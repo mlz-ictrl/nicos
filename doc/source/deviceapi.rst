@@ -508,6 +508,8 @@ Currently NICOS supports the following list of common mixin classes:
  - :class:`~nicos.core.mixins.HasWindowTimeout`
  - :class:`~nicos.core.mixins.HasCommunication`
  - :class:`~nicos.core.mixins.IsController`
+ - :class:`~nicos.core.mixins.CanDisable`
+ - :class:`~nicos.core.mixins.AutoDevice`
  - :class:`~nicos.devices.abstract.CanReference`
  - :class:`~nicos.devices.generic.detector.TimerChannelMixin`
  - :class:`~nicos.devices.generic.detector.CounterChannelMixin`
@@ -577,7 +579,14 @@ Currently NICOS supports the following list of common mixin classes:
 .. autoclass:: CanDisable()
 
 
+``AutoDevice``
+==============
+
+.. autoclass:: AutoDevice()
+
+
 .. currentmodule:: nicos.devices.abstract
+
 
 ``CanReference``
 ================
