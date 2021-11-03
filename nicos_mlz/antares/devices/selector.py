@@ -46,8 +46,8 @@ class SelectorTilt(HasLimits, BaseSequencer):
     def _generateSequence(self, target):
         seq = []
         if self._attached_selector.read(0) > self.maxtiltspeed:
-            seq.insert(0, SeqDev(self._attached_selector, self.maxtiltspeed,
-                                 stoppable=True))
+            seq.append(SeqDev(self._attached_selector, self.maxtiltspeed,
+                              stoppable=True))
         seq.append(SeqMethod(self, '_check_speed'))
         seq.append(SeqMethod(self._attached_motor, 'release'))
         seq.append(SeqDev(self._attached_motor, target, stoppable=True))
