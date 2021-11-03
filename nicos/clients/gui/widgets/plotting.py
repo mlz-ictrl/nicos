@@ -845,10 +845,10 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
                 return curves[0].isErrorBarEnabled(1)
         return False
 
-    def setErrorBarEnabled(self, flag):
+    def setErrorBarEnabled(self, on):
         for axis in self._plot.getAxes():
             for curve in axis.getCurves():
-                curve.setErrorBarEnabled(flag)
+                curve.setErrorBarEnabled(on)
         self.update()
 
     def setSymbols(self, on):
@@ -1014,10 +1014,10 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         self.setCursor(self._cursor)
         self.setMouseSelectionEnabled(self._mouseSelEnabled)
 
-    def _plotFit(self, res):
+    def _plotFit(self, fitter):
         color = self._color.getNextColorIndex()
-        resultcurve = NicosPlotCurve(res.curve_x, res.curve_y,
-                                     legend=res._title,
+        resultcurve = NicosPlotCurve(fitter.curve_x, fitter.curve_y,
+                                     legend=fitter._title,
                                      linecolor=color, markercolor=color)
         self.addPlotCurve(resultcurve, True)
         resultcurve.markertype = gr.MARKERTYPE_DOT
@@ -1027,13 +1027,13 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
             (n + ': ' if n else '') +
             (v if isinstance(v, str) else '%g' % v) +
             (dv if isinstance(dv, str) else ' +/- %g' % dv)
-            for (n, v, dv) in res.label_contents)
-        grtext = Text(res.label_x, res.label_y, text, self._axes, .012,
+            for (n, v, dv) in fitter.label_contents)
+        grtext = Text(fitter.label_x, fitter.label_y, text, self._axes, .012,
                       hideviewport=False)
         resultcurve.dependent.append(grtext)
         coord = CoordConverter(self._axes.sizex, self._axes.sizey,
                                self._axes.getWindow())
-        roi = RegionOfInterest(reference=res, regionType=RegionOfInterest.TEXT,
+        roi = RegionOfInterest(reference=fitter, regionType=RegionOfInterest.TEXT,
                                axes=self._axes)
         for nxi, nyi in zip(*grtext.getBoundingBox()):
             coord.setNDC(nxi, nyi)
