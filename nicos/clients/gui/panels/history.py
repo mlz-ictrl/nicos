@@ -473,6 +473,9 @@ class BaseHistoryWindow:
             item.setForeground(QBrush(QColor('#aaaaaa')))
             item.setData(Qt.UserRole, view)
 
+        self.viewList.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.viewList.customContextMenuRequested['QPoint'].connect(self.showContextMenu)
+
         self.menus = None
         self.bar = None
 
@@ -748,6 +751,12 @@ class BaseHistoryWindow:
             self.actionLines, self.actionFitPeak, self.actionFitArby,
         ]:
             action.setEnabled(on)
+
+    def showContextMenu(self, point):
+        if self.askQuestion('Remove this view?'):
+            self.viewList.takeItem(self.viewList.currentRow())
+            if self.viewStack:
+                self.on__actionDeleteView_triggered()
 
     def enableAutoScaleActions(self, on):
         for action in [self.actionAutoScale, self.actionScaleX,
