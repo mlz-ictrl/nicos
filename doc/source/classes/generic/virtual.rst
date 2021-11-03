@@ -12,11 +12,14 @@ testing purposes.
 .. autoclass:: VirtualReferenceMotor()
 .. autoclass:: VirtualCoder()
 
+.. autoclass:: VirtualChannel()
 .. autoclass:: VirtualTimer()
 .. autoclass:: VirtualCounter()
-.. autoclass:: VirtualCounter()
+
+.. autoclass:: VirtualGauss()
+
+.. autoclass:: VirtualImage()
+.. autoclass:: VirtualScanningDetector()
 
 .. autoclass:: VirtualTemperature()
 .. autoclass:: VirtualRealTemperature()
-.. autoclass:: VirtualImage()
-.. autoclass:: VirtualScanningDetector()
