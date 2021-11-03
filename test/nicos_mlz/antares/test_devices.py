@@ -92,8 +92,23 @@ class TestBlur:
     def blur(self, session):
         blur = session.getDevice('blur')
         yield blur
-        return blur
+        session.destroyDevice(blur)
 
     def test_blur(self, blur):
         assert blur.read(0) == approx(4e-6)
         assert blur.unit == 'um'
+
+
+class TestSelectorTilt:
+
+    @pytest.fixture(scope='function')
+    def tilt(self, session):
+        selector = session.getDevice('selector')
+        selector.maw(15000)
+        tilt = session.getDevice('selector_tilt')
+        yield tilt
+        session.destroyDevice(tilt)
+
+    def test_selector_tilt(self, tilt):
+        assert tilt.read(0) == 0
+        tilt.maw(1)
