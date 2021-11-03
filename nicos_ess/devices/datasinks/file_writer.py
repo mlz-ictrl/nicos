@@ -305,8 +305,11 @@ class FileWriterControlSink(FileSink):
         return JobHandler(self._command_channel, job_id)
 
     @usermethod
-    def start_job(self):
+    def start_job(self, title=None):
         """Start a new file-writing job."""
+        if title is not None:
+            session.experiment.update(title=str(title))
+
         self.check_okay_to_start()
         self._manual_start = False
 
