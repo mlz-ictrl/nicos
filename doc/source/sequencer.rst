@@ -37,8 +37,8 @@ are the quantities a call to :meth:`status` should return.
 
 .. _SequenceItem:
 
-SequenceItem
-------------
+SequenceItems
+-------------
 
 Each possible action is derived from `SequenceItem`. You can choose between:
 
@@ -89,13 +89,6 @@ The result is used to create the status string.
 
 
 .. autoclass:: SequenceItem()
-
-  .. automethod:: check
-  .. automethod:: run
-  .. automethod:: retry
-  .. automethod:: stop
-  .. automethod:: isCompleted
-
 .. autoclass:: SeqDev
 .. autoclass:: SeqParam
 .. autoclass:: SeqCall
