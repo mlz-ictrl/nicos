@@ -102,11 +102,10 @@ class NexusSinkHandler(DataSinkHandler):
             self.template = copy_nexus_template(self.sink.loadTemplate())
 
             self._filename = self.startdataset.filepaths[0]
-            self.h5file = h5py.File(self.startdataset.filepaths[0], 'w')
-            p = Path(self.startdataset.filepaths[0])
+            self.h5file = h5py.File(self._filename, 'w')
+            p = Path(self._filename)
             self.log.info('Writing file %s', p.name)
-            self.h5file.attrs['file_name'] = numpy.string_(
-                self.startdataset.filepaths[0])
+            self.h5file.attrs['file_name'] = numpy.string_(self._filename)
             tf = NXTime()
             self.h5file.attrs['file_time'] = numpy.string_(tf.formatTime())
 
