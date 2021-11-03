@@ -50,10 +50,9 @@ devices = dict(
     liveview=device('nicos.devices.datasinks.LiveViewSink', ),
 
     NexusStructure=device(
-        'nicos_ess.devices.datasinks.nexus_structure.NexusStructureTemplate',
+        'nicos_ess.devices.datasinks.nexus_structure.NexusStructureJsonFile',
         description='Provides the NeXus structure',
-        templatesmodule='nicos_ess.ymir.nexus.nexus_templates',
-        templatename='ymir_default',
+        nexus_config_path='nicos_ess/ymir/nexus/ymir_basic.json',
         lowlevel=True,
     ),
     FileWriterStatus=device(
@@ -67,7 +66,7 @@ devices = dict(
         'nicos_ess.devices.datasinks.file_writer.FileWriterControlSink',
         description='Control for the file-writer',
         brokers=['172.30.242.20:9092'],
-        pool_topic='UTGARD_jobPool',
+        pool_topic='UTGARD_writerJobPool',
         status='FileWriterStatus',
         nexus='NexusStructure',
     ),
