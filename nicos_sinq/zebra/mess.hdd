@@ -1,0 +1,40 @@
+CCL
+instrument             = ZEBRA
+title                  = !!VAR(Exp, title)!!
+sample                 = !!VAR(Sample, samplename)!!
+user                   = !!VAR(Exp, users)!!
+ProposalID             = !!VAR(Exp, proposal)!!
+original_filename      = !!FILE!!
+date                   = !!DATE!!
+mf                     = !!DRIV(mf)
+
+# Parameters
+!!VAR(Sample, ubmatrix)!!
+a                      = !!VAR(Sample, a)!!
+b                      = !!VAR(Sample, b)!!
+c                      = !!VAR(Sample, c)!!
+alpha                  = !!VAR(Sample, alpha)!!
+beta                   = !!VAR(Sample, beta)!!
+gamma                  = !!VAR(Sample, gamma)!!
+cex1                   = !!DRIV(cex1)!!
+cex2                   = !!DRIV(cex2)!!
+mexz                   = !!DRIV(mexz)!!
+moml                   = !!DRIV(moml)!!
+mcvl                   = !!DRIV(mcvl)!!
+momu                   = !!DRIV(momu)!!
+mcvu                   = !!DRIV(mcvu)!!
+detectorDistance       = !!DRIV(detdist)!!
+snv                    = !!DRIV(snv)!!
+snh                    = !!DRIV(snh)!!
+snvm                    = !!DRIV(snvm)!!
+snhm                    = !!DRIV(snhm)!!
+s1vt                    = !!DRIV(s1vt)!!
+s1vb                    = !!DRIV(s1vb)!!
+s1hr                    = !!DRIV(s1hr)!!
+s1hl                    = !!DRIV(s1hl)!!
+s2vt                    = !!DRIV(s2vt)!!
+s2vb                    = !!DRIV(s2vb)!!
+s2hr                    = !!DRIV(s2hr)!!
+s2hl                    = !!DRIV(s2hl)!!
+
+#data
