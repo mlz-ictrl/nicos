@@ -25,12 +25,17 @@ import copy
 import json
 import time
 
-from nicos.core import Device, NicosError, Param, relative_path
+from nicos.core import Device, NicosError, Override, Param, relative_path
 
 from nicos_ess.nexus.converter import NexusTemplateConverter
 
 
 class NexusStructureProvider(Device):
+
+    parameter_overrides = {
+        'lowlevel': Override(default=True),
+    }
+
     def get_structure(self, dataset, start_time):
         raise NotImplementedError('must implement get_structure method')
 
