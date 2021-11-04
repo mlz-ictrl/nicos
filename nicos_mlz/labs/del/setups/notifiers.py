@@ -9,7 +9,4 @@ devices = dict(
         copies = [('karl.zeitelhack@frm2.tum.de', 'all')],
         subject = 'DEL',
     ),
-    # smser = device('nicos.devices.notifiers.SMSer',
-    #     server = 'triton.admin.frm2'
-    # ),
 )
