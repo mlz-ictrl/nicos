@@ -46,12 +46,12 @@ inplace-install:
 
 install-venv:
 	if [ -z "$(VENVNAME)" ]; then export VENVNAME=nicos-venv ; fi; \
-	if [ -z "$(USEPYTHON)" ]; then export USEPYTHON=`which python`; fi; \
+	if [ -z "$(USEPYTHON)" ]; then export USEPYTHON=`which python3`; fi; \
 	echo "Installing into venv: $(DESTDIR)$${VENVNAME}"; \
 	echo "using $${USEPYTHON}"; \
-	virtualenv --system-site-packages -p $${USEPYTHON} $(DESTDIR)$${VENVNAME}; \
+	$${USEPYTHON} -m venv --copies --system-site-packages $(DESTDIR)$${VENVNAME}; \
 	. $(DESTDIR)$${VENVNAME}/bin/activate; \
-	pip install "pip>=1.5" ; \
+	pip install -U pip ; \
 	pip install -r requirements.txt ; \
 	python setup.py install
 
@@ -59,7 +59,7 @@ install-requirements:
 	@echo "Trying to install up-to-date requirements using pip"
 	@echo "If something goes wrong, try updating by hand, maybe you need root privileges"
 	@echo "Updating pip..."
-	pip install "pip>=1.5"
+	pip install -U pip
 	@echo "Install requirements"
 	pip install -r requirements.txt
 
