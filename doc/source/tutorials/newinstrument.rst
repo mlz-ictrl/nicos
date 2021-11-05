@@ -58,42 +58,9 @@ in the ``nicos_hynes`` directory which will be used to look for a setup name or
 a device library.  Please enter the name of your previously selected directory,
 e.g. ``woni`` in this tutorial.
 
-The ``nicos.conf`` should now look like::
+The ``nicos.conf`` should now look like:
 
-   # nicos.conf:
-   # This file configures NICOS for a specific instrument.
-
-   [nicos]
-   # user: The system user which will own the nicos files.
-   #user = "nicd"
-
-   # group: The system group which will own the nicos files.
-   #group = "nicd"
-
-   # umask: The umask used upon creating files and directories.
-   #umask = "022"
-
-   # setup_package: The Python package where to look for instrument setups.
-   # The default is nicos_demo.
-   setup_package = "nicos_hynes"
-
-   # setup_subdirs: A list of subdir names to find setups under the custom path.
-   # Usually this is ["instrumentname"]
-   setup_subdirs = ["woni"]
-
-   # services: Defines which nicos services will be started by the init.d
-   # script 'nicos-system' on which host (identified by the short name
-   # as output by `hostname -s`)
-   # * You can specify "services" alone as a configuration for all hosts.
-   # * Or "services_hostname" for a specific host.
-   services = ["cache", "poller", "daemon", "elog", "watchdog"]
-   # services_somehost = ["daemon"]
-
-   [environment]
-
-   # More environment variables (including PYTHONPATH) can be defined here.
-   ENV_VAR = "blah"
-
+.. literalinclude:: nicos_hynes/woni/nicos.conf
 
 To test your configured instrument you can set the environment variable
 ``INSTRUMENT`` to ``nicos_<facility>.<instrument>`` (here ``nicos_hynes.woni``).
@@ -117,30 +84,18 @@ is the device object inherited from the skeleton.  This has to be adapted to
 the settings of your instrument by editing the file ``nicos_hynes/woni/setups/system.py``.
 (The details of the setup file syntax are available :doc:`here <../setups>`)
 
-Searching for the line ``devices = dict(`` you will find the following code::
+Searching for the line ``devices = dict(`` you will find the following code:
 
-    Skeleton = device('nicos.devices.instrument.Instrument',
-                      description = 'instrument object',
-                      instrument = 'SKELETON',
-                      responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',
-                      website = 'http://instrument.website',
-                      operators = ['operator facility'],
-                      facility = 'Your facility',
-                     ),
+.. literalinclude:: ../../../nicos_demo/skeleton/setups/system.py
+   :lines: 26-33
 
 Change the ``Skeleton`` to ``WONI`` (or your instrument name).  Adjust some
 parameters to your values: ``facility``, ``website``, ``operators``, and add
 the ``doi`` parameter (if a DOI for your instrument exists), see:
-:class:`nicos.devices.instrument.Instrument`::
+:class:`nicos.devices.instrument.Instrument`:
 
-    WONI = device('nicos.devices.instrument.Instrument',
-        description = 'instrument object',
-        instrument = 'WONI',
-        responsible = 'R. Esponsible <r.esponsible@hynes.org>',
-        website = 'http://www.hynes.org/woni',
-        operators = ['HYNES', 'An OtherFacility'],
-        facility = 'HYNES',
-    ),
+.. literalinclude:: nicos_hynes/woni/setups/system.py
+   :lines: 26-33
 
 The new instrument should be added to the system configuration::
 
@@ -181,21 +136,9 @@ monochromator crystal, a sample table with translations of ``x``, ``y``, and
 ``z``.  On top of it a rotation axis ``sample_rot`` which can be mounted.
 
 Let's create a setup file for the monochromator device(s):
-``nicos_hynes/woni/setups/monochromator.py``::
+``nicos_hynes/woni/setups/monochromator.py``:
 
-    description = 'Monochromator devices'
-
-    group = 'lowlevel'
-
-    devices = dict(
-        mono_rot = device('nicos.devices.generic.VirtualMotor',
-            description = 'Rotation of the monochromator crystal',
-            abslimits = (0, 90),
-            fmtstr = '%2.f',
-            speed = 1,
-            unit = 'deg',
-        ),
-    )
+.. literalinclude:: nicos_hynes/woni/setups/monochromator.py
 
 After checking the syntax of the configuration file and starting the ``nicos-demo``
 we can load the new setup via the command::
@@ -214,63 +157,14 @@ This means that this file is normally not presented to the users, see
 :ref:`here <setup-group>`.
 
 The sample table devices we put into the ``nicos_hynes/woni/setups/sampletable.py``
-file::
+file:
 
-    description = 'Sample table devices'
-
-    group = 'lowlevel'
-
-    devices = dict(
-        x = device('nicos.devices.generic.VirtualMotor',
-            description = 'Sample translation X',
-            abslimits = (-100, 100),
-            fmtstr = '%.2f',
-            speed = 1,
-            unit = 'mm',
-        ),
-        y = device('nicos.devices.generic.VirtualMotor',
-            description = 'Sample translation Y',
-            abslimits = (-100, 100),
-            fmtstr = '%.2f',
-            speed = 1,
-            unit = 'mm',
-        ),
-        z = device('nicos.devices.generic.VirtualMotor',
-            description = 'Sample translation Z',
-            abslimits = (0, 100),
-            fmtstr = '%.2f',
-            speed = 0.5,
-            unit = 'mm',
-        ),
-    )
+.. literalinclude:: nicos_hynes/woni/setups/sampletable.py
 
 And for the detector we put its configuration into
-``nicos_hynes/woni/setups/detector.py``::
+``nicos_hynes/woni/setups/detector.py``:
 
-    description = 'Detector devices'
-
-    group = 'lowlevel'
-
-    devices = dict(
-        timer = device('nicos.devices.generic.VirtualTimer',
-            visibility = (),
-        ),
-        monitor = device('nicos.devices.generic.VirtualCounter',
-            visibility = (),
-            type = 'monitor',
-            countrate = 100,
-        ),
-        image = device('nicos.devices.generic.VirtualImage',
-            visibility = (),
-            size = (80, 256),
-        ),
-        det = device('nicos.devices.generic.Detector',
-            description = 'Detector device with timer, monitor, and image',
-            timers = ['timer'],
-            monitors = ['monitor'],
-            images = ['image'],
-        ),
-    )
+.. literalinclude:: nicos_hynes/woni/setups/detector.py
 
 If you look into the configurations of the ``timer``, ``monitor``, and ``image``
 devices you'll see that the ``visibility`` configuration parameters are set to
@@ -293,7 +187,7 @@ shows how to make it::
 
     group = 'basic'
 
-    includes = ['monochromator', 'sampletable', 'detector']
+.. literalinclude:: nicos_hynes/woni/setups/woni.py
 
 If this setup is used in the ``NewSetup`` command, then all three previous
 setups will be loaded.
@@ -310,21 +204,9 @@ more information see: :ref:`setups`:
 .. figure:: images/nicos-step5.png
 
 Do you remember, that we haven't created the sample rotation device?  This will
-follow now.  We create a separate setup ``nicos_hynes/woni/setups/samplerot.py``::
+follow now.  We create a separate setup ``nicos_hynes/woni/setups/samplerot.py``:
 
-    description = 'Sample rotation device'
-
-    group = 'optional'
-
-    devices = dict(
-        sample_rot = device('nicos.devices.generic.VirtualMotor',
-            description = 'Sample rotation',
-            abslimits = (-720, 720),
-            speed = 1,
-            unit = 'deg',
-            fmtstr = '%1.f',
-        ),
-    )
+.. literalinclude:: nicos_hynes/woni/setups/samplerot.py
 
 As you can see, this setup belongs to the 'optional' group.  This type of
 setup can be loaded by the user when they are needed, in our case if the sample
