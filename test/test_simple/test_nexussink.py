@@ -71,7 +71,7 @@ class TestNexusSink:
     def setScanCounter(self, session, no):
         dataroot = path.join(config.nicos_root, self.datadir)
         counter = path.join(dataroot, session.experiment.counterfile)
-        open(counter, 'w').close()
+        open(counter, 'w', encoding='utf-8').close()  # pylint: disable=consider-using-with
         updateFileCounter(counter, 'scan', no)
         # print('SetCounter')
         updateFileCounter(counter, 'point', 167)

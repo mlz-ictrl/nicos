@@ -76,7 +76,7 @@ def setup_module(session):
     os.makedirs(dataroot)
 
     counter = path.join(dataroot, exp.counterfile)
-    open(counter, 'w').close()  # pylint: disable=consider-using-with
+    open(counter, 'w', encoding='utf-8').close()  # pylint: disable=consider-using-with
     updateFileCounter(counter, 'scan', 42)
     updateFileCounter(counter, 'point', 167)
 
@@ -269,7 +269,7 @@ class TestSinks:
     def test_yaml_sink_1(self, session):
         yamlfile = path.join(session.experiment.datapath, '00000168.yaml')
         assert path.isfile(yamlfile)
-        with open(yamlfile) as df:
+        with open(yamlfile, encoding='utf-8') as df:
             data = df.read()
             # note: whitespace is significant in the following lines!
             assert '''instrument:
@@ -286,7 +286,7 @@ class TestSinks:
     def test_yaml_sink_2(self, session):
         yamlfile = path.join(session.experiment.datapath, '00000168.yaml')
         assert path.isfile(yamlfile)
-        with open(yamlfile) as df:
+        with open(yamlfile, encoding='utf-8') as df:
             contents = yaml.safe_load(df)
         assert contents['instrument']['name'] == 'INSTR'
         assert contents['experiment']['proposal'] == 'p1234'
