@@ -55,7 +55,7 @@ devices = dict(
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
     LogSpace = device('nicos.devices.generic.FreeSpace',
         description = 'Free space on the log drive',
-        path = '/control/log',
+        path = '/home/localadmin/nicos/log',
         lowlevel = True,
         warnlimits = (0.5, None),
     ),
