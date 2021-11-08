@@ -206,9 +206,9 @@ class CaprotoWrapper:
 
     def get_limits(self, pvname, default_low=-1e308, default_high=1e308):
         values = self.get_control_values(pvname)
-        if hasattr(values, 'lower_warning_limit'):
-            default_low = values.lower_warning_limit
-            default_high = values.upper_warning_limit
+        if hasattr(values, 'lower_ctrl_limit'):
+            default_low = values.lower_ctrl_limit
+            default_high = values.upper_ctrl_limit
         return default_low, default_high
 
     def get_control_values(self, pvname):

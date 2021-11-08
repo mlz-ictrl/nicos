@@ -180,8 +180,13 @@ class EpicsDevice(DeviceMixinBase):
             for key in self._param_to_pv:
                 self._param_to_pv[key] = HardwareStub(self)
 
-    def _get_limits(self, pvparam):
-        return self._epics_wrapper.get_limits(self._get_pv_name(pvparam))
+    def _get_limits(self, pvparam, default_low=-1e308, default_high=1e308):
+        low, high = self._epics_wrapper.get_limits(self._get_pv_name(pvparam),
+                                                   default_low, default_high)
+        if low == 0 and high == 0:
+            # No limits set on PV, so use defaults
+            return default_low, default_high
+        return low, high
 
     def _get_pv(self, pvparam, as_string=False):
         return self._epics_wrapper.get_pv_value(self._param_to_pv[pvparam],
@@ -364,7 +369,7 @@ class EpicsAnalogMoveable(HasPrecision, HasLimits, EpicsMoveable):
     valuetype = float
 
     parameter_overrides = {
-        'abslimits': Override(mandatory=False),
+        'abslimits': Override(mandatory=False, volatile=True),
         'unit': Override(mandatory=False, settable=False, volatile=True),
     }
 
@@ -400,6 +405,9 @@ class EpicsAnalogMoveable(HasPrecision, HasLimits, EpicsMoveable):
         if not at_target:
             return status.BUSY, 'moving'
         return status.OK, msg
+
+    def doReadAbslimits(self):
+        return self._get_limits('writepv')
 
 
 class EpicsDigitalMoveable(EpicsAnalogMoveable):
