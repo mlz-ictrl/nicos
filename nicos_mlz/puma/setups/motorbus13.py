@@ -2,7 +2,7 @@ description = 'Motor bus 13'
 
 group = 'lowlevel'
 
-tango_base = 'tango://pumadma.puma.frm2:10000/pumadma/'
+tango_base = 'tango://pumadma.puma.frm2:10000/puma/'
 
 devices = dict(
     motorbus13 = device('nicos.devices.vendor.ipc.IPCModBusTango',
