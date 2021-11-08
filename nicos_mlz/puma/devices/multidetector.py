@@ -23,8 +23,8 @@
 # *****************************************************************************
 """PUMA multi detector class."""
 
-import math
 from itertools import tee
+from math import atan, degrees, radians, tan
 
 import numpy as np
 
@@ -103,8 +103,6 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
 
     hardware_access = False
     threadstate = None
-    D2R = math.pi / 180
-    R2D = 1. / D2R
     # [-100, -80, -60, -40, -20, 0, 20, 40, 60, 80, 100]
     hortranslation = range(-100, 101, 20)
     anglis = [2.28, 2.45, 2.38, 2.35, 2.30, 2.43, 2.37, 2.43, 2.32, 2.36]
@@ -502,13 +500,13 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
         read1 = []
 
         for i in range(len(self._rotdetector0)):
-            angle = pos[i] * self.D2R
-            read0 = (self.detectorradius + trans[i]) * math.tan(angle)  # b
+            angle = radians(pos[i])
+            read0 = (self.detectorradius + trans[i]) * tan(angle)  # b
             read0 += self.hortranslation[i]  # b corrected
             # b/a: a corrected detector radius
             temp = read0 / (self.detectorradius + trans[i])
-            temp = math.atan(temp)  # calc angle radian
-            temp = temp * self.R2D  # convert to degrees
+            temp = atan(temp)  # calc angle radian
+            temp = degrees(temp)  # convert to degrees
             read1.append(temp)  # list append
         self.log.debug('corrected detector angles: %s', read1)
         return read1
@@ -518,14 +516,14 @@ class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
         read1 = []
 
         for i in range(len(self._rotdetector0)):
-            angle = pos[i] * self.D2R
+            angle = radians(pos[i])
             # b: without taking into account the horizontal shift
-            read0 = math.tan(angle) * (self.detectorradius + trans[i])
+            read0 = tan(angle) * (self.detectorradius + trans[i])
             read0 -= self.hortranslation[i]  # b check if minus/plus?
             # b/a: a corrected detector radius
             temp = read0 / self.detectorradius
-            temp = math.atan(temp)  # calc angle radian
-            temp = temp * self.R2D  # convert to degrees
+            temp = atan(temp)  # calc angle radian
+            temp = degrees(temp)  # convert to degrees
             read1.append(temp)  # list append
         self.log.debug('corrected detector angles: %s', read1)
         return read1
