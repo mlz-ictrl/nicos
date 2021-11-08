@@ -28,7 +28,7 @@ import pytest
 
 from nicos.core.errors import LimitError, PositionError  # , MoveError
 
-from test.utils import raises
+from test.utils import raises, approx
 
 session_setup = 'puma'
 
@@ -60,24 +60,32 @@ def test_comb_axis(session, log):
         assert raises(LimitError, phi.move, 20)
 
 
-def test_focus_axis(session):
-    ax = session.getDevice('afpg')
+class TestFocusAxis:
 
-    assert ax.read(0) == 0
+    @pytest.fixture(scope='function')
+    def af(self, session):
+        af = session.getDevice('af')
+        af.maw(0)
 
-    for t in [1, -1]:
-        ax.maw(t)
-        assert ax.read(0) == t
+        yield af
 
-    # Check for the flat position target move
-    ax.maw(0)
-    assert ax.read(0) == ax.flatpos
+        session.destroyDevice(af)
 
-    # Check the target changing if target outside [lowlimit, uplimit]
-    ax.maw(ax.abslimits[0])
-    assert ax.read(0) == ax.lowlimit
-    ax.maw(ax.abslimits[1])
-    assert ax.read(0) == ax.uplimit
+    def test_move(self, af):
+        for t in [-1, 1, 4.5]:
+            af.maw(t)
+            assert af.read(0) == approx(t, abs=af.precision)
+
+    def test_flatpos(self, af):
+        # Check for the flat position target move
+        af.maw(0)
+        assert af.read(0) == approx(af.flatpos, abs=af.precision)
+
+    def test_target_outside_limit_move(self, af):
+        # Check the target changing if target outside [lowlimit, uplimit]
+        for t, c in zip(af.abslimits, [af.lowlimit, af.uplimit]):
+            af.maw(t)
+            assert af.read(0) == approx(c, abs=af.precision)
 
 
 def test_mtt_axis(session, log):
