@@ -8,7 +8,7 @@ includes = ['system', motorbus]
 
 modules = ['nicos_mlz.puma.commands']
 
-group = 'lowlevel'
+group = 'optional'
 
 tr_speed = 15
 tr_accel = 30
