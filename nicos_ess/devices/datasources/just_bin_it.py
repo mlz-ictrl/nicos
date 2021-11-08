@@ -31,7 +31,7 @@ from streaming_data_types.utils import get_schema
 
 from nicos.core import ArrayDesc, InvalidValueError, Override, Param, Value, \
     floatrange, listof, multiStatus, oneof, status, tupleof
-from nicos.core.constants import LIVE, MASTER
+from nicos.core.constants import LIVE, MASTER, SIMULATION
 from nicos.devices.generic import Detector, ImageChannelMixin, PassiveChannel
 from nicos.utils import createThread
 
@@ -173,6 +173,8 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
     _hist_sum = 0
 
     def doPreinit(self, mode):
+        if mode == SIMULATION:
+            return
         self._update_status(status.OK, '')
         # Set up the data consumer
         KafkaSubscriber.doPreinit(self, None)
@@ -311,15 +313,19 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
     _conditions_thread = None
     _exit_thread = False
     _conditions = {}
+    hardware_access = True
 
     def doPreinit(self, mode):
-        if self.statustopic:
-            # Enable heartbeat monitoring
-            KafkaStatusHandler.doPreinit(self, mode)
         presetkeys = {'t'}
         for image_channel in self._attached_images:
             presetkeys.add(image_channel.name)
         self._presetkeys = presetkeys
+        if mode == SIMULATION:
+            return
+
+        if self.statustopic:
+            # Enable heartbeat monitoring
+            KafkaStatusHandler.doPreinit(self, mode)
         self._command_sender = kafka.KafkaProducer(
             bootstrap_servers=self.brokers)
         # Set up the response message consumer
@@ -340,7 +346,7 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
         for image_channel in self._attached_images:
             image_channel.doPrepare()
 
-    def doStart(self):
+    def doStart(self, **preset):
         self._last_live = -(self.liveinterval or 0)
 
         # Generate a unique-ish id
@@ -458,10 +464,6 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
     def doReadArrays(self, quality):
         return [image.doReadArray(quality) for image in self._attached_images]
 
-    def doFinish(self):
-        self._stop_job_threads()
-        self._stop_histogramming()
-
     def _stop_histogramming(self):
         self._send_command(self.command_topic, b'{"cmd": "stop"}')
 
@@ -484,6 +486,12 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
         self._presets = preset.copy()
 
     def doStop(self):
+        self._do_stop()
+
+    def doFinish(self):
+        self._do_stop()
+
+    def _do_stop(self):
         self._stop_job_threads()
         self._stop_histogramming()
 
@@ -528,3 +536,9 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
 
     def arrayInfo(self):
         return tuple(image.arrayInfo() for image in self._attached_images)
+
+    def doTime(self, preset):
+        return 0
+
+    def presetInfo(self):
+        return tuple(self._presetkeys)
