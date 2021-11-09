@@ -247,7 +247,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         """
         msg_txt, alarm_severity, alarm_status = self._read_epics_alarm_pvs()
         if msg_txt:
-            if alarm_status == 'COMM' and alarm_severity == status.UNKNOWN:
+            if alarm_severity == status.UNKNOWN:
                 alarm_severity = status.ERROR
             if self._motor_status != (alarm_severity, msg_txt):
                 self._log_epics_msg_info(msg_txt, alarm_severity, alarm_status)

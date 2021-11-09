@@ -271,7 +271,7 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
         stat, msg = self.get_alarm_status('readpv')
         if self.errormsgpv:
             err_msg = self._get_pv('errormsgpv', as_string=True)
-            if msg == 'COMM' and stat == status.UNKNOWN:
+            if stat == status.UNKNOWN:
                 stat = status.ERROR
             if self._motor_status != (stat, err_msg):
                 self._log_epics_msg_info(err_msg, stat, msg)
