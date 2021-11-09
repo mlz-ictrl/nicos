@@ -1273,8 +1273,8 @@ class StandaloneHistoryApp(CacheClient):
             pass
         self._stoprequest = True
 
-    def _propagate(self, data):
-        self._window.newValue.emit(data)
+    def _propagate(self, args):
+        self._window.newValue.emit(args)
 
 
 class SettingsDialog(QDialog):
