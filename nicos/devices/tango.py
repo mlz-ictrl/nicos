@@ -68,6 +68,10 @@ FATAL_REASONS = {
     'API_DeviceNotExported',
 }
 
+if not PyTango.utils.constants.NUMPY_SUPPORT:
+    raise NicosError('PyTango does not have numpy support, but it is required '
+                     'by NICOS')
+
 
 def describe_dev_error(exc):
     """Return a better description for a Tango exception.
