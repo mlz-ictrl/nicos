@@ -51,9 +51,9 @@ class HVSwitcher(Switcher):
                            type=dictof(str, list), mandatory=True),
     }
 
-    def _mapReadValue(self, pos):
+    def _mapReadValue(self, value):
         prec = self.precision
-        for name, value in self.mapping.items():
+        for name, pos in self.mapping.items():
             if prec:
                 if all(abs(p - v) <= prec for (p, v) in zip(pos, value)):
                     return name

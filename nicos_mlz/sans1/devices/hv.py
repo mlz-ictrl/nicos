@@ -47,10 +47,10 @@ class VoltageSwitcher(Switcher):
                                     % (target, positions))
         return self.mapping.get(target)[0]
 
-    def _mapReadValue(self, pos):
+    def _mapReadValue(self, value):
         """Override default inverse mapping to allow a deviation <= precision"""
         for name, values in self.mapping.items():
-            value, prec = values
+            pos, prec = values
             if pos == value:
                 return name
             elif prec:
@@ -60,7 +60,7 @@ class VoltageSwitcher(Switcher):
             return self.fallback
         raise PositionError(self, 'unknown position of %s: %s' %
                             (self._attached_moveable,
-                             self._attached_moveable.format(pos, True))
+                             self._attached_moveable.format(value, True))
                             )
 
     def doStatus(self, maxage=0):
