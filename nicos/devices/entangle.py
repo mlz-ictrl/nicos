@@ -151,7 +151,7 @@ class Actuator(AnalogOutput, NicosMotor):
     """
 
     parameter_overrides = {
-        'speed':  Override(volatile=True),
+        'speed': Override(volatile=True),
     }
 
     def doReadSpeed(self):
@@ -281,7 +281,7 @@ class TemperatureController(HasWindowTimeout, RampActuator):
     parameter_overrides = {
         # We want this to be freely user-settable, and not produce a warning
         # on startup, so select a usually sensible default.
-        'precision':    Override(mandatory=False, default=0.1),
+        'precision': Override(mandatory=False, default=0.1),
     }
 
     def doReadP(self):
