@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 import numpy
-from PyTango import DevState  # pylint: disable=no-name-in-module
+from tango import DevState
 
 from nicos import session
 from nicos.core import Moveable, status

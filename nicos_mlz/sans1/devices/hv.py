@@ -27,7 +27,7 @@
 
 from time import localtime, strftime, time as currenttime
 
-import PyTango
+from tango import DevState
 
 from nicos.core import Attach, HasPrecision, InvalidValueError, Moveable, \
     Override, Param, PositionError, Readable, listof, status, tupleof
@@ -286,7 +286,7 @@ class Sans1HVOffDuration(Readable):
 
 class Sans1ZMotor(TangoMotor):
     tango_status_mapping = TangoMotor.tango_status_mapping.copy()
-    tango_status_mapping[PyTango.DevState.FAULT] = status.WARN
+    tango_status_mapping[DevState.FAULT] = status.WARN
 
 
 class LockedDevice(HasPrecision, NicosLockedDevice):

@@ -23,7 +23,7 @@
 # *****************************************************************************
 
 import numpy as np
-import PyTango
+from tango import DevState
 
 from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
     Measurable, Moveable, Override, Param, Readable, Value, intrange, listof, \
@@ -138,7 +138,7 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         self.doFinish()
 
     def doStatus(self, maxage=0):
-        if self._dev.State() == PyTango.DevState.MOVING:
+        if self._dev.State() == DevState.MOVING:
             return status.BUSY, 'counting'
         return status.OK, 'idle'
 

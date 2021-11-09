@@ -33,6 +33,7 @@ https://forge.frm2.tum.de/entangle/defs/entangle-master/
 import ast
 
 import numpy
+from tango import DevState
 
 from nicos.core import SIMULATION, ArrayDesc, CanDisable, Device, HasLimits, \
     HasPrecision, HasTimeout, Moveable, NicosError, Override, Param, \
@@ -44,7 +45,7 @@ from nicos.devices.abstract import CanReference, Coder, Motor as NicosMotor
 from nicos.devices.generic.detector import ActiveChannel, \
     CounterChannelMixin, ImageChannelMixin, PassiveChannel, \
     TimerChannelMixin
-from nicos.devices.tango import PyTango, PyTangoDevice
+from nicos.devices.tango import PyTangoDevice
 from nicos.utils import squeeze
 
 # Only export Nicos devices for 'from nicos.device.entangle import *'
@@ -785,15 +786,15 @@ class OnOffSwitch(PyTangoDevice, Moveable):
     valuetype = oneof('on', 'off')
 
     tango_status_mapping = PyTangoDevice.tango_status_mapping.copy()
-    tango_status_mapping[PyTango.DevState.OFF] = status.OK
-    tango_status_mapping[PyTango.DevState.ALARM] = status.OK
-    tango_status_mapping[PyTango.DevState.MOVING] = status.OK
+    tango_status_mapping[DevState.OFF] = status.OK
+    tango_status_mapping[DevState.ALARM] = status.OK
+    tango_status_mapping[DevState.MOVING] = status.OK
 
     def doReadUnit(self):
         return ''
 
     def doRead(self, maxage=0):
-        if self._dev.State() == PyTango.DevState.OFF:
+        if self._dev.State() == DevState.OFF:
             return 'off'
         return 'on'
 

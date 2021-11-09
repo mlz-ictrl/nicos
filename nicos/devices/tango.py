@@ -29,7 +29,7 @@ This module contains the NICOS - TANGO integration.
 import os
 import re
 
-import PyTango
+import tango
 
 from nicos import session
 from nicos.core import SIMULATION, CommunicationError, ConfigurationError, \
@@ -38,9 +38,9 @@ from nicos.core import SIMULATION, CommunicationError, ConfigurationError, \
 from nicos.utils import HardwareStub, tcpSocketContext
 
 EXC_MAPPING = {
-    PyTango.CommunicationFailed: CommunicationError,
-    PyTango.WrongNameSyntax: ConfigurationError,
-    PyTango.DevFailed: NicosError,
+    tango.CommunicationFailed: CommunicationError,
+    tango.WrongNameSyntax: ConfigurationError,
+    tango.DevFailed: NicosError,
 }
 
 REASON_MAPPING = {
@@ -68,8 +68,8 @@ FATAL_REASONS = {
     'API_DeviceNotExported',
 }
 
-if not PyTango.utils.constants.NUMPY_SUPPORT:
-    raise NicosError('PyTango does not have numpy support, but it is required '
+if not tango.utils.constants.NUMPY_SUPPORT:
+    raise NicosError('Tango does not have numpy support, but it is required '
                      'by NICOS')
 
 
@@ -153,7 +153,7 @@ class PyTangoDevice(HasCommunication):
     """
     Basic PyTango device.
 
-    The PyTangoDevice uses an internal PyTango.DeviceProxy but wraps command
+    The PyTangoDevice uses an internal tango.DeviceProxy but wraps command
     execution and attribute operations with logging and exception mapping.
     """
 
@@ -171,11 +171,11 @@ class PyTangoDevice(HasCommunication):
     }
 
     tango_status_mapping = {
-        PyTango.DevState.ON:     status.OK,
-        PyTango.DevState.ALARM:  status.WARN,
-        PyTango.DevState.OFF:    status.DISABLED,
-        PyTango.DevState.FAULT:  status.ERROR,
-        PyTango.DevState.MOVING: status.BUSY,
+        tango.DevState.ON:     status.OK,
+        tango.DevState.ALARM:  status.WARN,
+        tango.DevState.OFF:    status.DISABLED,
+        tango.DevState.FAULT:  status.ERROR,
+        tango.DevState.MOVING: status.BUSY,
     }
 
     # Since each DeviceProxy leaks a few Python objects, we can't just
@@ -184,14 +184,14 @@ class PyTangoDevice(HasCommunication):
     proxy_cache = {}
 
     def doPreinit(self, mode):
-        # Wrap PyTango client creation (so even for the ctor, logging and
+        # Wrap Tango client creation (so even for the ctor, logging and
         # exception mapping is enabled).
         self._createPyTangoDevice = self._applyGuardToFunc(
             self._createPyTangoDevice, 'constructor')
 
         self._dev = None
 
-        # Don't create PyTango device in simulation mode
+        # Don't create Tango device in simulation mode
         if mode != SIMULATION:
             self._dev = self._createPyTangoDevice(self.tangodevice)
         else:
@@ -213,7 +213,7 @@ class PyTangoDevice(HasCommunication):
 
     def doReset(self):
         self._dev.Reset()
-        while self._dev.State() == PyTango.DevState.INIT:
+        while self._dev.State() == tango.DevState.INIT:
             session.delay(self._base_loop_delay)
 
     def _setMode(self, mode):
@@ -245,13 +245,13 @@ class PyTangoDevice(HasCommunication):
 
     def _createPyTangoDevice(self, address):  # pylint: disable=method-hidden
         """
-        Creates the PyTango DeviceProxy and wraps command execution and
+        Creates the Tango DeviceProxy and wraps command execution and
         attribute operations with logging and exception mapping.
         """
         check_tango_host_connection(self.tangodevice, self.tangotimeout)
         proxy_key = (self._name, address)
         if proxy_key not in PyTangoDevice.proxy_cache:
-            PyTangoDevice.proxy_cache[proxy_key] = PyTango.DeviceProxy(address)
+            PyTangoDevice.proxy_cache[proxy_key] = tango.DeviceProxy(address)
         device = PyTangoDevice.proxy_cache[proxy_key]
         device.set_timeout_millis(int(self.tangotimeout * 1000))
         # detect not running and not exported devices early, because that
@@ -324,7 +324,7 @@ class PyTangoDevice(HasCommunication):
     def _com_return(self, result, info):
         # explicit check for loglevel to avoid expensive reprs
         if self.loglevel == 'debug':
-            if isinstance(result, PyTango.DeviceAttribute):
+            if isinstance(result, tango.DeviceAttribute):
                 the_repr = repr(result.value)[:300]
             else:
                 # This line explicitly logs '=> None' for commands which
@@ -338,12 +338,12 @@ class PyTangoDevice(HasCommunication):
         exc = str(err)
         if err.args:
             exc = err.args[0]  # Can be str or DevError
-            if isinstance(exc, PyTango.DevError):
+            if isinstance(exc, tango.DevError):
                 return describe_dev_error(exc)
         return exc
 
     def _tango_exc_reason(self, err):
-        if err.args and isinstance(err.args[0], PyTango.DevError):
+        if err.args and isinstance(err.args[0], tango.DevError):
             return err.args[0].reason.strip()
         return ''
 

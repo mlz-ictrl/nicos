@@ -26,7 +26,7 @@
 
 import time
 
-import PyTango
+from tango import DevState
 
 from nicos import session
 from nicos.core import Attach, Moveable, NicosTimeoutError, Override, Param, \
@@ -174,7 +174,7 @@ class GEPowerSupply(PowerSupply):
     """
 
     def doStart(self, target):
-        if target != 0 and self._dev.State() == PyTango.DevState.OFF:
+        if target != 0 and self._dev.State() == DevState.OFF:
             self._dev.On()
             PowerSupply.doStart(self, target)
         elif target == 0:
