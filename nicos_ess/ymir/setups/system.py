@@ -71,5 +71,11 @@ devices = dict(
         status='FileWriterStatus',
         nexus='NexusStructure',
     ),
+    SciChat=device(
+        'nicos_ess.devices.scichat.ScichatBot',
+        description='Connects to SciChat as a write-only client',
+        url='https://scitest.esss.lu.se/_matrix/client/r0',
+        room_id='!gaEXiGVYXizrNgFExx:ess',
+    ),
 
 )

@@ -42,7 +42,7 @@ devices = dict(
     conssink=device('nicos.devices.datasinks.ConsoleScanSink',),
 
     daemonsink=device('nicos.devices.datasinks.DaemonSink',),
-    liveview=device('nicos.devices.datasinks.LiveViewSink', ),
+    liveview=device('nicos.devices.datasinks.LiveViewSink',),
 
     Space=device(
         'nicos.devices.generic.FreeSpace',
