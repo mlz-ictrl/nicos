@@ -3,12 +3,6 @@ description = 'Placeholders for devices not yet present.'
 group = 'lowlevel'
 
 devices = dict(
-    xs = device('nicos.devices.generic.VirtualMotor',
-        description = 'Sample x position',
-        abslimits = (0, 730),
-        unit = 'mm',
-        curvalue = 2500
-    ),
     xd2 = device('nicos.devices.generic.VirtualMotor',
         description = 'Diaphragm2 x position',
         abslimits = (0, 3000),

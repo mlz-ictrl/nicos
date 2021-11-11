@@ -5,6 +5,12 @@ group = 'lowlevel'
 pvprefix = 'SQ:AMOR:motserial:'
 
 devices = dict(
+    xs=device('nicos.devices.generic.VirtualMotor',
+              description='Sample X position',
+              abslimits=(100, 8000),
+              curvalue=2265,
+              unit='mm',
+    ),
     som = device('nicos_ess.devices.epics.motor.EpicsMotor',
         epicstimeout = 3.0,
         description = 'Sample omega motor',

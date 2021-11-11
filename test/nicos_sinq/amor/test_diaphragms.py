@@ -22,96 +22,67 @@
 #
 # *****************************************************************************
 
-from unittest import TestCase
-from unittest.mock import patch
+from numpy import tan, pi, sqrt
 
 import pytest
 
-from nicos.devices.generic import Slit
-
-pytest.importorskip('epics')
-
-from nicos_sinq.amor.devices.slit import AmorSlitHandler
-
-session_setup = "sinq_amor_diaphragms"
+session_setup = "sinq_amor"
 
 
-def _make_default_slit_dict(slit_number, left, right, bottom, top):
-    return {
-        f'd{slit_number}t' : top,
-        f'd{slit_number}b': bottom,
-        f'd{slit_number}l': left,
-        f'd{slit_number}r': right,
-    }
-
-_default_values = [
-
-]
-
-def fake_is_active_diaphragm1(*args):
-    if args[0] == 'diaphragm1':
-        return True
-    return False
-
-
-def fake_is_active_diaphragm2(*args):
-    if args[0] == 'diaphragm2':
-        return True
-    return False
-
-
-def fake_is_active_diaphragm3(*args):
-    if args[0] == 'diaphragm3':
-        return True
-    return False
-
-
-def fake_is_active_all_diaphragms(*args):
-    if 'diaphragm' in args[0]:
-        return True
-    return False
-
-# TODO: add more target test
-test_targets1 = {
-    # did, dih, div
-    (0.0,  0.0, 0.0): [('d1l', 0.0), ('d1r', 0.0), ('d1t', 0.0), ('d1b', 0.0)],
-}
-test_targets2 = {
-    # d2d, d2h, d2v
-    (0.0,  0.0, 0.0): [('d2l', 0.0), ('d2r', 0.0), ('d2t', 0.0), ('d2b', 0.0)],
-}
-
-
-class TestAmorSlitHandlerController(TestCase):
+class TestSlitDivergence:
 
     @pytest.fixture(autouse=True)
     def initialize_devices(self, session):
+        self.slit = session.getDevice('slit1')
+        # The divergence device is low level, but we want to test the aliased
+        # devices
+        session.getDevice('divergence')
+        session.getDevice('d1l').maw(5)
+        session.getDevice('d1r').maw(5)
+        session.getDevice('d1b').maw(5)
+        session.getDevice('d1t').maw(5)
         self.session = session
-        self.ctrl = session.getDevice('controller_slm')
 
-    @patch.object(AmorSlitHandler, '_is_active',
-                  wraps=fake_is_active_diaphragm1)
-    def test_diaphragm1_default_values(self, mock):
-        assert isinstance(self.session.getDevice('slit1'), Slit)
-        self.session.getDevice('xs')._value = 1.0
+    def test_read_div_did(self):
+        for top, bottom, div, did in [
+            (1, 0, 45, 22.5),
+            (tan(pi/8), -tan(pi/8), 0, 22.5),
+            (1, -1, 0, 45)
+        ]:
+            self.slit.maw([5, 5, bottom, top])
+            assert self.session.getDevice('did').read(0) == pytest.approx(did)
+            assert self.session.getDevice('div').read(0) == pytest.approx(div)
 
-        for targets, blades in test_targets1.items():
-            for blade in blades:
-                self.session.getDevice(blade[0]).curvalue = blade[1]
-            values = self.ctrl.read()
-            assert values['did'] == targets[0]
-            assert values['dih'] == targets[1]
-            assert values['div'] == targets[2]
+    def test_set_div_did(self):
+        for top, bottom, div, did in [
+            (1, 0, 45, 22.5),
+            (tan(pi/8), tan(pi/8), 45, 0),
+            (tan(pi/8), -tan(pi/8), 0, 22.5),
+            (1, -1, 0, 45),
+        ]:
+            self.session.getDevice('div').maw(div)
+            self.session.getDevice('did').maw(did)
 
-    @patch.object(AmorSlitHandler, '_is_active',
-                  wraps=fake_is_active_diaphragm2)
-    def test_diaphragm2_default_values(self, mock):
-        assert isinstance(self.session.getDevice('slit2'), Slit)
+            _, _, bottom_, top_ = self.slit.read(0)
+            assert top_ == pytest.approx(top)
+            assert bottom_ == pytest.approx(bottom)
 
-        for targets, blades in test_targets2.items():
-            for blade in blades:
-                self.session.getDevice(blade[0]).curvalue = blade[1]
-            values = self.ctrl.read()
-            assert values['d2d'] == targets[0]
-            assert values['d2h'] == targets[1]
-            assert values['d2v'] == targets[2]
+    def test_read_dih(self):
+        for left, right, dih in [
+            (1, 1, 90.0),
+            (.5, .5, 53.13010),
+            (sqrt(1./3), sqrt(1./3), 60)
+        ]:
+            self.slit.maw([left, right, 5, 5])
+            assert self.session.getDevice('dih').read(0) == pytest.approx(dih)
+
+    def test_set_dih(self):
+        for left, right, dih in [
+            (1, 1, 90.0),
+            (.5, .5, 53.13010),
+            (sqrt(1./3), sqrt(1./3), 60)
+        ]:
+            self.session.getDevice('dih').maw(dih)
+            left_, right_, _, _ = self.slit.read(0)
+            assert left_ == pytest.approx(left)
+            assert right_ == pytest.approx(right)

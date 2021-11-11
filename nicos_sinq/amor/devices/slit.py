@@ -24,18 +24,19 @@
 # *****************************************************************************
 
 """Slit devices in AMOR"""
-from numpy import arctan, radians, tan
+from numpy import arctan, degrees, radians, tan
 
-from nicos.core import Attach, HasPrecision, Override, Param, Readable, \
-    dictwith, oneof, status
+from nicos import session
+from nicos.core import Attach, Device, HasPrecision, Moveable, Override, \
+    Param, Readable, dictwith, oneof, status
 from nicos.core.utils import multiStatus
-from nicos.devices.generic.slit import Slit, SlitAxis
+from nicos.devices.generic.slit import Slit, SlitAxis as DefaultSlitAxis
 
 from nicos_sinq.amor.devices.logical_motor import AmorLogicalMotor, \
     InterfaceLogicalMotorHandler
 
 
-class SlitOpening(HasPrecision, SlitAxis):
+class SlitOpening(HasPrecision, DefaultSlitAxis):
     """Device to control the slit opening/height.
 
     Motor dXt changes moves the slit's top slab in turn changing the
@@ -95,16 +96,25 @@ class SlitOpening(HasPrecision, SlitAxis):
         return st_devs
 
 
-def read_divergence(xs, slit):
-    left, _, bottom, top = slit
-    s = arctan(top/xs)
-    d = arctan(bottom/xs)
-    return s+d, 2*arctan(left/xs), (s-d)/2
-
-
-def read_beam_shaping(slit):
+def read_divergence(distance, slit):
     left, right, bottom, top = slit
-    return top+bottom, right+left, (top-bottom)/2
+    s = arctan(top / distance)
+    d = arctan(bottom / distance)
+    h = 2 * arctan((left+right) / distance)
+    return{
+        'div': degrees(s+d),
+        'did': degrees((s-d)/2),
+        'dih': degrees(h)
+    }
+
+
+def read_beam_shaping(slit, diaphragm_index):
+    left, right, bottom, top = slit
+    return {
+        f'd{diaphragm_index}v': top+bottom,
+        f'd{diaphragm_index}d': (top-bottom)/2,
+        f'd{diaphragm_index}h': left+right
+    }
 
 
 class AmorSlitHandler(InterfaceLogicalMotorHandler):
@@ -123,11 +133,11 @@ class AmorSlitHandler(InterfaceLogicalMotorHandler):
         'xl': Attach('Deflector x position', Readable, missingok=True,
                      optional=True),
         'mu_offset': Attach('Sample x position', Readable, missingok=True,
-                           optional=True),
+                            optional=True),
         'kappa': Attach('Inclination of the beam after the Selene guide',
                         Readable, missingok=True, optional=True),
         'soz_ideal': Attach('Ideal sample omega', Readable, missingok=True,
-                      optional=True),
+                            optional=True),
         'xd3': Attach('', Readable, missingok=True, optional=True),
         'slit1': Attach('slit 1', Slit, missingok=True, optional=True),
         'slit2': Attach('slit 2', Slit, missingok=True, optional=True),
@@ -136,76 +146,80 @@ class AmorSlitHandler(InterfaceLogicalMotorHandler):
         'slit3': Attach('slit 3', Slit, missingok=True, optional=True),
         'slit3z': Attach('Z motor for slit 3', Readable, missingok=True,
                          optional=True),
-        }
+    }
 
     def doPreinit(self, mode):
         self._status_devs = ['slit1', 'slit2', 'slit2z', 'slit3', 'slit3z']
         InterfaceLogicalMotorHandler.doPreinit(self, mode)
-        self.valuetype = dictwith(div=float, did=float, dih=float)
+        self.valuetype = dictwith(div=float, did=float, dih=float, d2v=float,
+                                  d2d=float, d2h=float, d3v=float, d3d=float,
+                                  d3h=float, )
 
     def doRead(self, maxage=0):
         result = {}
         if self._is_active('diaphragm1'):
-            v, h, d = read_divergence(self._read_dev('xs'),
-                                      self._read_dev('slit1'))
-            result.update({'div': v, 'dih': h, 'did': d})
+            result.update(read_divergence(
+                self._read_dev('xs'),
+                self._read_dev('slit1')
+            ))
         if self._is_active('diaphragm2'):
-            v, h, d = read_beam_shaping(self._read_dev('slit2'))
-            result.update({'d2v': v, 'd2h': h, 'd2d': d})
+            result.update(read_beam_shaping(self._read_dev('slit2'), 2))
         if self._is_active('diaphragm3'):
-            v, h, d = read_beam_shaping(self._read_dev('slit3'))
-            result.update({'d3v': v, 'd3h': h, 'd3d': d})
+            result.update(read_beam_shaping(self._read_dev('slit3'), 3))
         return result
 
     def _get_move_list(self, targets):
         positions = []
         if self._is_active('diaphragm1'):
-            xs = self._read_dev('xs')
-            div = targets.get('div') or self._read_dev('div')
-            did = targets.get('did') or self._read_dev('did')
-            dih = targets.get('dih') or self._read_dev('dih')
-            top = xs * tan(radians(div / 2 + did))
-            bottom = xs * tan(radians(div / 2 - did))
-            horizontal = xs * tan(radians(dih / 2))
-            positions.extend([(self._get_dev('slit1'),
-                               (top, bottom, horizontal, horizontal))
-                              ])
+            distance = self._read_dev('xs')
+            div = targets.get('div') or session.getDevice('div').read()
+            did = targets.get('did') or session.getDevice('did').read()
+            dih = targets.get('dih') or session.getDevice('dih').read()
 
+            top = distance * tan(radians(0.5 * div + did))
+            bottom = distance * tan(radians(0.5 * div - did))
+            horizontal = distance * tan(.5 * radians(dih))
+            positions.extend([(self._get_dev('slit1'),
+                               (horizontal, horizontal, bottom, top))
+                              ])
         if self._is_active('diaphragm2'):
-            v = targets.get('d2v')
-            d = targets.get('d2d')
-            h = targets.get('d2h')
-            ltz = self._read_dev('ltz')
-            xd2 = self._read_dev('xd2')
-            xl = self._read_dev('xl')
-            mu_offset = self._read_dev('mu_offset')
+            d2v = targets.get('d2v') or self._read_dev('d2v')
+            d2d = targets.get('d2d') or self._read_dev('d2d')
+            d2h = targets.get('d2h') or self._read_dev('d2h')
+            top = 0.5 * d2v + d2d
+            bottom = 0.5 * d2v - d2d
+            horizontal = .5 * d2h
+
+            distance = self._read_dev('xd2')
             kappa = self._read_dev('kappa')
             if self._is_active('deflector'):
-                z = ltz - (xd2 - xl) * tan(radians(self._read_dev('mu') +
-                                                   mu_offset))
+                ltz = self._read_dev('ltz')
+                xl = self._read_dev('xl')
+                mu_offset = self._read_dev('mu_offset')
+                z = ltz - (distance - xl) * tan(radians(self._read_dev(
+                    'mu') + mu_offset))
             else:
-                z = xd2 * tan(radians(kappa))
-            top = 0.5 * (v + d)
-            bottom = 0.5 * (v - d)
-            horizontal = 0.5 * h
+                z = distance * tan(radians(kappa))
             positions.extend([(self._get_dev('slit2z'), z),
                               (self._get_dev('slit2'),
                                (top, bottom, horizontal, horizontal))
                               ])
 
         if self._is_active('diaphragm3'):
+            d3v = targets.get('d3v')
+            d3d = targets.get('d3d')
+            d3h = targets.get('d3h')
+            top = 0.5 * d3v + d3d
+            bottom = 0.5 * d3v - d3d
+            horizontal = .5 * d3h
+
             soz_ideal = self._read_dev('soz_ideal')
             xd3 = self._read_dev('xd3')
             nu = self._read_dev('nu')
             xs = self._read_dev('xs')
             kappa = self._read_dev('kappa')
-            v = targets.get('d3v')
-            d = targets.get('d3d')
-            h = targets.get('d3h')
             z = soz_ideal + (xd3 - xs) * tan(radians(nu + kappa))
-            top = 0.5 * (v + d)
-            bottom = 0.5 * (v - d)
-            horizontal = 0.5 * h
+
             positions.extend([(self._get_dev('slit2z'), z),
                               (self._get_dev('slit2'),
                                (top, bottom, horizontal, horizontal))
@@ -228,8 +242,8 @@ class AmorSlitLogicalMotor(AmorLogicalMotor):
     parameter_overrides = {
         'unit': Override(mandatory=False, default='degree'),
         'target': Override(volatile=True),
-        'abslimits': Override(mandatory=False, default=(-3.0, 3.0)),
-        'userlimits': Override(mandatory=False, default=(-3.0, 3.0))
+        'abslimits': Override(mandatory=False),
+        'userlimits': Override(mandatory=False)
     }
 
     attached_devices = {
@@ -237,5 +251,99 @@ class AmorSlitLogicalMotor(AmorLogicalMotor):
                              AmorSlitHandler)
     }
 
-    def doRead(self, maxage=0):
-        return self._attached_controller.doRead(maxage)
+
+class SlitAxis(DefaultSlitAxis):
+    """
+    The diaphragm consists of 4 blades, much like a standard slit. The use
+    case is different though: one is no interested in the width and height
+    but in the divergence.
+    In addition to the slit, this slit axis attaches a controller that
+    converts the position of the 4 blades to different quantities related to
+    the beam divergence.
+    """
+    attached_devices = {
+        'controller': Attach('Controller, used to connect slit and distance '
+                             'to the axis', Device),
+    }
+
+
+class DivergenceAperture(Device):
+    """
+    Slit1 is fix mounted behind the instrument shutter and can not be moved as
+    a whole. Its center is by definition the origin of the instrument
+    coordinate system.
+    The corresponding virtual devices are divergences and angles.
+    """
+
+    class VerticalDisplacement(SlitAxis):
+        """
+        Defines the vertical displacement (angular) of the beam incident on the
+        sample
+        """
+
+        def _convertRead(self, positions):
+            distance = self._attached_controller._attached_distance.read()
+            s = arctan(positions[3] / distance)
+            d = arctan(positions[2] / distance)
+            return .5 * degrees(s - d)
+
+        def _convertStart(self, target, current):
+            distance = self._attached_controller._attached_distance.read()
+            vertical = self._attached_controller.vertical.read()
+            top = distance * tan(radians(0.5 * vertical + target))
+            bottom = distance * tan(radians(0.5 * vertical - target))
+            return [current[0], current[1], bottom, top]
+
+    class VerticalDivergence(SlitAxis):
+        """
+        Defines the vertical divergence of the beam incident on the sample
+        """
+
+        def _convertRead(self, positions):
+            distance = self._attached_controller._attached_distance.read()
+            s = arctan(positions[3] / distance)
+            d = arctan(positions[2] / distance)
+            return degrees(s + d)
+
+        def _convertStart(self, target, current):
+            distance = self._attached_controller._attached_distance.read()
+            divergence = self._attached_controller.displacement.read()
+            top = distance * tan(radians(0.5 * target + divergence))
+            bottom = distance * tan(radians(0.5 * target - divergence))
+            return [current[0], current[1], bottom, top]
+
+    class HorizontalDivergence(SlitAxis):
+        """
+        Defines the horiziontal divergence of the beam incident on the sample
+        """
+
+        def _convertRead(self, positions):
+            distance = self._attached_controller._attached_distance.read()
+            return degrees(2 * arctan(positions[0] / distance))
+
+        def _convertStart(self, target, current):
+            distance = self._attached_controller._attached_distance.read()
+            tgt = list(current)
+            tgt[:2] = [distance * tan(.5 * radians(target))] * 2
+            return tgt
+
+    attached_devices = {
+        'slit': Attach('Corresponding slit', Slit),
+        'distance': Attach('Sample x position', Moveable),
+    }
+
+    parameter_overrides = {
+        'unit': Override(mandatory=False, default='degree'),
+    }
+
+    def doInit(self, mode):
+
+        for name, cls in [
+            ('displacement', DivergenceAperture.VerticalDisplacement),
+            ('vertical', DivergenceAperture.VerticalDivergence),
+            ('horizontal', DivergenceAperture.HorizontalDivergence),
+        ]:
+            self.__dict__[name] = cls(self.name + '.' + name,
+                                      slit=self._attached_slit,
+                                      controller=self, lowlevel=True,
+                                      unit='deg')
