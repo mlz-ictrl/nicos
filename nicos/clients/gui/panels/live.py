@@ -36,18 +36,18 @@ from gr import COLORMAPS as GR_COLORMAPS
 
 from nicos.clients.gui.dialogs.filesystem import FileFilterDialog
 from nicos.clients.gui.panels import Panel
-from nicos.clients.gui.utils import enumerateWithProgress, loadUi, uipath, \
-    waitCursor
+from nicos.clients.gui.utils import dialogFromUi, enumerateWithProgress, \
+    loadUi, uipath, waitCursor
 from nicos.core.constants import FILE, LIVE
 from nicos.core.errors import NicosError
 from nicos.guisupport.livewidget import AXES, DATATYPES, IntegralLiveWidget, \
     LiveWidget, LiveWidget1D
-from nicos.guisupport.qt import QActionGroup, QByteArray, QListWidgetItem, \
-    QMenu, QPoint, QSizePolicy, QStatusBar, Qt, QToolBar, QWidget, \
-    pyqtSignal, pyqtSlot
+from nicos.guisupport.qt import QActionGroup, QByteArray, QDialog, \
+    QListWidgetItem, QMenu, QPoint, QSizePolicy, QStatusBar, Qt, QToolBar, \
+    QWidget, pyqtSignal, pyqtSlot
 from nicos.guisupport.qtgr import MouseEvent
 from nicos.protocols.cache import cache_load
-from nicos.utils import BoundedOrderedDict, ReaderRegistry
+from nicos.utils import BoundedOrderedDict, ReaderRegistry, safeName
 
 try:
     from nicos.utils.gammafilter import gam_rem_adp_log
@@ -178,6 +178,7 @@ class LiveDataPanel(Panel):
         self.toolbar.addAction(self.actionOpen)
         self.toolbar.addAction(self.actionPrint)
         self.toolbar.addAction(self.actionSavePlot)
+        self.toolbar.addAction(self.actionAttachElog)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.actionLogScale)
         self.toolbar.addSeparator()
@@ -358,6 +359,7 @@ class LiveDataPanel(Panel):
             menu.addAction(self.actionOpen)
             menu.addAction(self.actionPrint)
             menu.addAction(self.actionSavePlot)
+            menu.addAction(self.actionAttachElog)
             menu.addSeparator()
             menu.addAction(self.actionKeepRatio)
             menu.addAction(self.actionUnzoom)
@@ -415,6 +417,25 @@ class LiveDataPanel(Panel):
     def on_actionSymbols_triggered(self):
         if self.widget and isinstance(self.widget, LiveWidget1D):
             self.widget.setSymbols(self.actionSymbols.isChecked())
+
+    @pyqtSlot()
+    def on_actionAttachElog_triggered(self):
+        newdlg = dialogFromUi(self, 'panels/plot_attach.ui')
+        suffix = '.svg'  # self.widget.SAVE_EXT
+        newdlg.filename.setText(
+            safeName('data_%s' % self.params['uid'] + suffix))
+        ret = newdlg.exec_()
+        if ret != QDialog.Accepted:
+            return
+        descr = newdlg.description.text()
+        fname = newdlg.filename.text()
+        pathname = self.widget.gr.saveQuietly()
+        with open(pathname, 'rb') as fp:
+            remotefn = self.client.ask('transfer', fp.read())
+        if remotefn is not None:
+            self.client.eval('_LogAttach(%r, [%r], [%r])' %
+                             (descr, remotefn, fname))
+        os.unlink(pathname)
 
     def _getLiveWidget(self, roi):
         return self._livewidgets.get(roi + '/roi', None)

@@ -26,6 +26,8 @@
 """NICOS livewidget with GR."""
 
 import math
+import os
+import tempfile
 
 import gr
 import numpy
@@ -105,6 +107,15 @@ class GRWidget(InteractiveGRWidget):
 
     def mousePan(self, event):
         self.widget.pan(event.getNDC(), event.getOffset())
+
+    def _save(self, extension=".pdf"):
+        fd, pathname = tempfile.mkstemp(extension)
+        self.save(pathname)
+        os.close(fd)
+        return pathname
+
+    def saveQuietly(self):
+        return self._save('.svg')
 
 
 class Plot(OrigPlot):

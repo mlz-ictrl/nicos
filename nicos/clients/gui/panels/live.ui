@@ -109,6 +109,11 @@
     <string>Ctrl+U</string>
    </property>
   </action>
+  <action name="actionAttachElog">
+   <property name="text">
+    <string>Attach to electronic log</string>
+   </property>
+  </action>
   <action name="actionSavePlot">
    <property name="checkable">
     <bool>false</bool>
