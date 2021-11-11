@@ -32,13 +32,16 @@ from nicos.core.sessions.utils import sessionInfo
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.protocols.cache import OP_ASK, OP_SUBSCRIBE, OP_TELL, cache_load
 from nicos.services.elog.handler import Handler
-from nicos.utils import timedRetryOnExcept
+from nicos.utils import importString, timedRetryOnExcept
 
 
 class Logbook(BaseCacheClient):
 
     parameters = {
         'plotformat': Param('Format for scan plots', type=oneof('svg', 'png')),
+        'handlerclass': Param('Class to handle the incoming messages',
+                              type=str,
+                              default='nicos.services.elog.handler.Handler'),
     }
 
     parameter_overrides = {
@@ -48,7 +51,8 @@ class Logbook(BaseCacheClient):
     def doInit(self, mode):
         BaseCacheClient.doInit(self, mode)
         # this is run in the main thread
-        self._handler = Handler(self.log, self.plotformat)
+        class_ = importString(self.handlerclass)
+        self._handler = class_(self.log, self.plotformat)
         # the execution master lock needs to be refreshed every now and then
         self._islocked = False
         self._lock_expires = 0.
