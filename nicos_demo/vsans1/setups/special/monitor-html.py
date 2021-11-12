@@ -31,15 +31,6 @@ _selcolumn = Column(
     ),
 )
 
-_ubahncolumn = Column(
-    Block('U-Bahn', [
-        BlockRow(
-                 Field(name='Train', dev='Ubahn'),
-                ),
-        ],
-    ),
-)
-
 _meteocolumn = Column(
     Block('Outside Temp', [
         BlockRow(
@@ -748,7 +739,7 @@ devices = dict(
         layout = [
             Row(_expcolumn),
             Row(_sans1general, _table2, _table1, _sans1det),
-            Row(_ubahncolumn, _meteocolumn, _pressurecolumn, _p_filter),
+            Row(_meteocolumn, _pressurecolumn, _p_filter),
             Row(_selcolumn, _col_slit, _atpolcolumn, _sanscolumn),
             Row(_ccmsans, _ccmsans_temperature,
                 _ccm2a, _ccm2a_temperature,

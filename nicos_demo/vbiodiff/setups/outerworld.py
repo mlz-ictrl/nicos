@@ -4,9 +4,6 @@ description = "Outside world data"
 group = "lowlevel"
 
 devices = dict(
-    ubahn = device('nicos_mlz.devices.ubahn.UBahn',
-        description = 'Next subway departures',
-    ),
     meteo = device('nicos.devices.generic.VirtualCoder',
         description = 'Outdoor air temperature',
         motor = device('nicos.devices.generic.VirtualMotor',

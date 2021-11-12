@@ -57,14 +57,6 @@ _detectorblock = Column(
     ),
 )
 
-_ubahnColumn = Column(
-    Block('U-Bahn', [
-        BlockRow(Field(dev='UBahn'),),
-        ],
-        setups='ubahn',
-    ),
-)
-
 
 devices = dict(
     Monitor = device('nicos.services.monitor.html.Monitor',
@@ -78,6 +70,6 @@ devices = dict(
         valuefont = 'Consolas',
         padding = 0,
         layout = [[_expcolumn],
-                  [_translationColumn, _detectorblock, _ubahnColumn]],
+                  [_translationColumn, _detectorblock, ]],
     ),
 )

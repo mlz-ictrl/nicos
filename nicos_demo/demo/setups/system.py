@@ -47,9 +47,6 @@ devices = dict(
         minfree = 0.5,
         lowlevel = True,
     ),
-    UBahn = device('nicos_mlz.devices.ubahn.UBahn',
-        description = 'Next subway departures',
-    ),
 )
 
 startupcode = '''
