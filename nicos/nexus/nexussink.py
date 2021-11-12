@@ -21,7 +21,7 @@
 #   Mark Koennecke <Mark.Koennecke@psi.ch>
 #
 # *****************************************************************************
-import importlib
+
 from pathlib import Path
 
 import h5py
@@ -35,6 +35,7 @@ from nicos.core.params import Param
 from nicos.devices.datasinks import FileSink
 from nicos.nexus.elements import NexusElementBase, NXAttribute, NXScanLink, \
     NXTime
+from nicos.utils import importString
 
 
 class NexusTemplateProvider:
@@ -305,7 +306,5 @@ class NexusSink(FileSink):
         self._handlerObj = None
 
     def loadTemplate(self):
-        mod, cls = self.templateclass.rsplit('.', 1)
-        mod = importlib.import_module(mod)
-        class_ = getattr(mod, cls)
+        class_ = importString(self.templateclass)
         return class_().getTemplate()
