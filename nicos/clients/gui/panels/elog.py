@@ -179,7 +179,8 @@ class ELogPanel(Panel):
             return
         filename = reply.url().path()
         if filename.endswith('.dat'):
-            content = open(filename, encoding='utf-8', errors='replace').read()
+            with open(filename, encoding='utf-8', errors='replace') as fp:
+                content = fp.read()
             window = QMainWindow(self)
             window.resize(600, 800)
             window.setWindowTitle(filename)
@@ -271,7 +272,8 @@ class ELogPanel(Panel):
         if not newname:
             newname = path.basename(fname)
         desc = dlg.fileDesc.text()
-        filecontent = open(fname, 'rb').read()
+        with open(fname, 'rb') as fp:
+            filecontent = fp.read()
         remotefn = self.client.ask('transfer', filecontent)
         if remotefn is not None:
             self.client.eval('_LogAttach(%r, [%r], [%r])' %
