@@ -29,7 +29,7 @@ from nicos.clients.gui.panels.base import Panel, SetupDepWindowMixin
 from nicos.clients.gui.utils import SettingGroup, loadBasicWindowSettings, \
     loadUi, loadUserStyle
 from nicos.guisupport.qt import QColorDialog, QFontDialog, QMainWindow, \
-    QSplitter, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
+    QSplitter, QToolBar, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
 from nicos.utils import checkSetupSpec
 from nicos.utils.loggers import NicosLogger
 
@@ -116,6 +116,12 @@ class AuxiliaryWindow(SetupDepWindowMixin, QMainWindow):
         event.accept()
         self.closed.emit(self)
         del self.panels[:]  # this is necessary to get the Qt objects destroyed
+
+    def show(self):
+        QMainWindow.show(self)
+        for tb in self.findChildren(QToolBar):
+            if not tb.isVisible():
+                tb.show()
 
     @pyqtSlot()
     def on_actionFont_triggered(self):
