@@ -25,6 +25,7 @@
 """Module for basic user commands."""
 
 import builtins
+import locale
 import os
 import sys
 import time
@@ -57,6 +58,11 @@ __all__ = [
     'ListDataReceivers', '_trace', 'timer',
     'LogEntry', '_LogAttach', 'SetErrorAbort', 'pause', 'abort',
 ]
+
+try:
+    ENCODING = locale.getpreferredencoding(False)
+except Exception:
+    ENCODING = 'utf-8'
 
 
 # -- help and introspection ---------------------------------------------------
@@ -683,32 +689,31 @@ def _RunScript(filename, statdevices, debug=False):
             dev._sim_max = None
     session.log.info('running user script: %s', fn)
     try:
-        fp = open(fn, 'r')
+        with open(fn, 'r', encoding=ENCODING) as fp:
+            code = fp.read()
     except Exception as e:
         if session.mode == SIMULATION:
             session.log.exception('Dry run: error opening script')
             return
         raise NicosError('cannot open script %r: %s' % (filename, e)) from e
-    with fp:
-        code = fp.read()
-        # guard against bare excepts
-        code = fixupScript(code)
-        # quick guard against self-recursion
-        if session.experiment and session.experiment.scripts and \
-                code.strip() == session.experiment.scripts[-1].strip():
-            raise NicosError('script %r would call itself, aborting' %
-                             filename)
+    # guard against bare excepts
+    code = fixupScript(code)
+    # quick guard against self-recursion
+    if session.experiment and session.experiment.scripts and \
+            code.strip() == session.experiment.scripts[-1].strip():
+        raise NicosError('script %r would call itself, aborting' %
+                         filename)
 
-        def compiler(src):
-            return compile(src + '\n', fn, 'exec')
-        compiled = session.scriptHandler(code, fn, compiler)
-        with _ScriptScope(path.basename(fn), code):
-            try:
-                exec(compiled, session.namespace)
-            except Exception:
-                if debug:
-                    traceback.print_exc()
-                raise
+    def compiler(src):
+        return compile(src + '\n', fn, 'exec')
+    compiled = session.scriptHandler(code, fn, compiler)
+    with _ScriptScope(path.basename(fn), code):
+        try:
+            exec(compiled, session.namespace)
+        except Exception:
+            if debug:
+                traceback.print_exc()
+            raise
     session.log.info('finished user script: %s', fn)
     if session.mode == SIMULATION:
         session.log.info('simulated minimum runtime: %s',
