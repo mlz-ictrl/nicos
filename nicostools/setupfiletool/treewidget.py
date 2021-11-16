@@ -29,6 +29,7 @@ from os import path
 from nicos.guisupport.qt import QIcon, QMenu, QMessageBox, Qt, \
     QTreeWidgetItem, pyqtSignal
 from nicos.guisupport.utils import waitCursor
+from nicos.utils import writeFile
 
 from . import classparser, setupcontroller
 from .dialogs import NewDeviceDialog, NewSetupDialog
@@ -285,7 +286,7 @@ class TreeWidget(TreeWidgetContextMenu):
                 QMessageBox.warning(self, 'Error', 'Setup already exists!')
                 return None, None
             try:
-                open(abspath, 'w', encoding='utf-8').close()
+                writeFile(abspath, [])
             except OSError:
                 QMessageBox.warning(self, 'Error', 'Could not create new '
                                     'setup!')

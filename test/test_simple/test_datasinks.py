@@ -62,7 +62,6 @@ except ImportError:
     yaml = None
 
 
-
 year = time.strftime('%Y')
 
 session_setup = 'data'
