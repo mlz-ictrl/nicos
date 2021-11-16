@@ -38,4 +38,4 @@ def getNicosDir():
 
 
 def getResDir():
-    return path.join(getNicosDir(), 'tools', 'setupfiletool', 'res')
+    return path.join(getNicosDir(), 'nicostools', 'setupfiletool', 'res')
