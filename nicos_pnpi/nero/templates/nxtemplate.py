@@ -24,7 +24,6 @@
 
 """ Nexus template for NERO machine """
 
-from nicos import session
 from nicos.nexus.elements import DetectorDataset, DeviceAttribute, \
     DeviceDataset, ImageDataset
 from nicos.nexus.nexussink import NexusTemplateProvider
@@ -51,129 +50,74 @@ class NxTemplateCount(NexusTemplateProvider):
                 },
                 'NERO:NXinstrument': {
                     'collimator:NXcollimator': {
-                        'width': DeviceDataset('x_gap',
-                                               'curvalue',
+                        'width': DeviceDataset('col.width',
                                                dtype='float32',
-                                               unit=session.getDevice(
-                                                   'x_gap'
-                                               ).unit),
-                        'height': DeviceDataset('y_gap',
-                                                'curvalue',
+                                               ),
+                        'height': DeviceDataset('col.height',
                                                 dtype='float32',
-                                                unit=session.getDevice(
-                                                    'y_gap'
-                                                ).unit),
+                                                ),
                         'theta_s': DeviceDataset('theta_s',
-                                                 'curvalue',
                                                  dtype='float32',
-                                                 unit=session.getDevice(
-                                                     'theta_s'
-                                                 ).unit),
+                                                 ),
                         'x_s': DeviceDataset('x_s',
-                                             'curvalue',
                                              dtype='float32',
-                                             unit=session.getDevice(
-                                                 'x_s'
-                                             ).unit),
+                                             ),
                         'dia1_angle': DeviceDataset('dia1_angle',
-                                                    'curvalue',
                                                     dtype='float32',
-                                                    unit=session.getDevice(
-                                                        'dia1_angle'
-                                                    ).unit),
+                                                    ),
                         'dia1_pos': DeviceDataset('dia1_pos',
-                                                  'curvalue',
                                                   dtype='float32',
-                                                  unit=session.getDevice(
-                                                      'dia1_pos'
-                                                  ).unit),
+                                                  ),
                         'dia2_angle': DeviceDataset('dia2_angle',
-                                                    'curvalue',
                                                     dtype='float32',
-                                                    unit=session.getDevice(
-                                                        'dia1_angle'
-                                                    ).unit),
+                                                    ),
                         'dia2_pos': DeviceDataset('dia2_pos',
-                                                  'curvalue',
                                                   dtype='float32',
-                                                  unit=session.getDevice(
-                                                      'dia1_pos'
-                                                  ).unit),
+                                                  ),
                         'fa': DeviceDataset('fa'),
                         'fb': DeviceDataset('fb'),
                     },
                     'monochromator:NXcrystal': {
                         'chi1': DeviceDataset('chi1',
-                                              'curvalue',
                                               dtype='float32',
-                                              unit=session.getDevice(
-                                                  'chi1'
-                                              ).unit),
+                                              ),
                         'chi2': DeviceDataset('chi2',
-                                              'curvalue',
                                               dtype='float32',
-                                              unit=session.getDevice(
-                                                  'chi2'
-                                              ).unit),
+                                              ),
                         'chi3': DeviceDataset('chi3',
-                                              'curvalue',
                                               dtype='float32',
-                                              unit=session.getDevice(
-                                                  'chi3'
-                                              ).unit),
+                                              ),
                         'chi4': DeviceDataset('chi4',
-                                              'curvalue',
                                               dtype='float32',
-                                              unit=session.getDevice(
-                                                  'chi4'
-                                              ).unit),
+                                              ),
                         'omega': DeviceDataset('omega',
-                                               'curvalue',
                                                dtype='float32',
-                                               unit=session.getDevice(
-                                                   'omega'
-                                               ).unit),
+                                               ),
                         'x': DeviceDataset('x_mon',
-                                           'curvalue',
                                            dtype='float32',
-                                           unit=session.getDevice(
-                                               'x_mon'
-                                           ).unit),
+                                           ),
                         'y': DeviceDataset('y_mon',
-                                           'curvalue',
                                            dtype='float32',
-                                           unit=session.getDevice(
-                                               'y_mon'
-                                           ).unit),
+                                           ),
                         'shutter': DeviceDataset('shutter'),
                     }
                 },
                 'monitor:NXmonitor': {
                     'monitor': DetectorDataset('det1_mon1',
                                                dtype='int',
-                                               unit=session.getDevice(
-                                                   'det1_mon1'
-                                               ).unit),
+                                               ),
                     'fdetecor': DetectorDataset('fdet1',
                                                 dtype='int',
-                                                unit=session.getDevice(
-                                                    'fdet1'
-                                                ).unit),
+                                                ),
                 },
                 'sample:NXsample': {
                     'samplename': DeviceAttribute('Sample', 'samplename'),
                     'alpha': DeviceDataset('alpha',
-                                           'curvalue',
                                            dtype='float32',
-                                           unit=session.getDevice(
-                                               'alpha'
-                                           ).unit),
+                                           ),
                     'magnet_field': DeviceDataset('B',
-                                                  'curvalue',
                                                   dtype='float32',
-                                                  unit=session.getDevice(
-                                                      'B'
-                                                  ).unit),
+                                                  ),
                 },
             },
         }
