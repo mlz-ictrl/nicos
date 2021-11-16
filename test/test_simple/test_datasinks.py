@@ -76,7 +76,6 @@ def setup_module(session):
     os.makedirs(dataroot)
 
     counter = path.join(dataroot, exp.counterfile)
-    open(counter, 'w', encoding='utf-8').close()  # pylint: disable=consider-using-with
     updateFileCounter(counter, 'scan', 42)
     updateFileCounter(counter, 'point', 167)
 

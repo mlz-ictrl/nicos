@@ -49,7 +49,6 @@ def setup_module(session):
         os.makedirs(dataroot)
 
     counter = path.join(dataroot, exp.counterfile)
-    open(counter, 'w').close()
     updateFileCounter(counter, 'scan', 42)
     updateFileCounter(counter, 'point', 167)
 

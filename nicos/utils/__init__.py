@@ -1189,10 +1189,16 @@ def readFileCounter(counterpath, key):
 
 
 def updateFileCounter(counterpath, key, value):
-    """Update a counter file."""
+    """Update a counter file.
+
+       If the file does not exist, it will get created.
+    """
     if not path.isdir(path.dirname(counterpath)):
         os.makedirs(path.dirname(counterpath))
-    lines = readFile(counterpath)
+    try:
+        lines = readFile(counterpath)
+    except OSError:
+        lines = []
     new_lines = []
     for line in lines:
         linekey, _ = line.split()

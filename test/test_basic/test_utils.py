@@ -39,9 +39,9 @@ from nicos.utils import TB_CAUSE_MSG, Repeater, allDays, bitDescription, \
     checkSetupSpec, chunks, closeSocket, comparestrings, extractKeyAndIndex, \
     formatDuration, formatExtendedFrame, formatExtendedStack, \
     formatExtendedTraceback, lazy_property, moveOutOfWay, num_sort, \
-    parseConnectionString, parseDuration, readonlydict, readonlylist, \
-    safeName, safeWriteFile, squeeze, tcpSocket, timedRetryOnExcept, \
-    tupelize
+    parseConnectionString, parseDuration, readFileCounter, readonlydict, \
+    readonlylist, safeName, safeWriteFile, squeeze, tcpSocket, \
+    timedRetryOnExcept, tupelize, updateFileCounter
 from nicos.utils.timer import Timer
 
 from test.utils import raises
@@ -501,3 +501,44 @@ def test_tupelize():
     assert list(tupelize(ilist[:3])) == [('a', 1)]
     assert list(tupelize(ilist, 3)) == [('a', 1, 'b'), (2, 'c', 3)]
     assert list(tupelize(ilist[:4], 3)) == [('a', 1, 'b')]
+
+
+@pytest.fixture(scope='function')
+def nonexistantfile(tmpdir):
+    fc1 = str(tmpdir.join('testcounter1'))
+    try:
+        os.unlink(fc1)
+    except FileNotFoundError:
+        pass
+    yield fc1
+    try:
+        os.unlink(fc1)
+    except FileNotFoundError:
+        pass
+
+@pytest.fixture(scope='function')
+def filecounterfile(tmpdir):
+    fc = str(tmpdir.join('testcounter2'))
+    with open(fc, "w", encoding="utf-8") as f:
+        f.write('key1 1234\n')
+        f.write('key2 5678\n')
+    yield fc
+    os.unlink(fc)
+
+def test_readfilecounter_exist(filecounterfile):
+    assert readFileCounter(filecounterfile, 'key1') == 1234
+    assert readFileCounter(filecounterfile, 'key3') == 0
+
+def test_readfilecounter_nofile(nonexistantfile):
+    assert readFileCounter(nonexistantfile, 'key') == 0
+    assert os.path.exists(nonexistantfile)
+
+def test_updatefilecounter_exist(filecounterfile):
+    updateFileCounter(filecounterfile, 'key1', 222)
+    assert readFileCounter(filecounterfile, 'key1') == 222
+    assert readFileCounter(filecounterfile, 'key2') == 5678
+
+def test_updatefilecounter_nofile(nonexistantfile):
+    updateFileCounter(nonexistantfile, 'key', 9876)
+    assert os.path.exists(nonexistantfile)
+    assert readFileCounter(nonexistantfile, 'key') == 9876
