@@ -33,8 +33,8 @@ from os import path
 from nicos.guisupport.qt import QApplication, QFileDialog, QIcon, QLabel, \
     QMainWindow, QMessageBox, Qt, QTreeWidgetItem, uic
 
-from . import classparser, setupcontroller
 from ..utils import format_setup_text
+from . import classparser, setupcontroller
 from .devicewidget import DeviceWidget
 from .setupwidget import SetupWidget
 from .utilities.utilities import ItemTypes, getNicosDir, getResDir
@@ -61,6 +61,8 @@ class MainWindow(QMainWindow):
 
         self.labelHeader = QLabel('Select Setup or device...')
         self.labelHeader.setAlignment(Qt.AlignCenter)
+
+        self.treeWidget.headerItem().setText(0, facility)
 
         # signal/slot connections
         self.treeWidget.itemActivated.connect(self.loadSelection)

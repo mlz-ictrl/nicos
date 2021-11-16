@@ -267,16 +267,17 @@ class TreeWidget(TreeWidgetContextMenu):
 
             if not fileName.endswith('.py'):
                 fileName += '.py'
+            facility = self.headerItem().text(0)
             if dlg.isSpecialSetup():
                 abspath = path.join(getNicosDir(),
-                                    'nicos_mlz',
+                                    'nicos_%s' % facility,
                                     dlg.currentInstrument(),
                                     'setups',
                                     'special',
                                     fileName)
             else:
                 abspath = path.join(getNicosDir(),
-                                    'nicos_mlz',
+                                    'nicos_%s' % facility,
                                     dlg.currentInstrument(),
                                     'setups',
                                     fileName)
