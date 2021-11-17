@@ -260,7 +260,7 @@ class DeviceDataset(NexusElementBase):
         for dev in sinkhandler.dataset.devices:
             if dev.name == self.device:
                 dset = h5parent[name]
-                parent = sinkhandler.h5file[linkroot]
+                parent = h5parent[linkroot]
                 parent[name] = dset
                 dset.attrs['target'] = np.string_(dset.name)
 
@@ -456,7 +456,7 @@ class NXLink(NexusElementBase):
     def update(self, name, h5parent, sinkhandler, values):
         if not self.linkCreated:
             try:
-                other = sinkhandler.h5file[self.target]
+                other = h5parent[self.target]
             except KeyError:
                 session.log.warning(
                     'Cannot link %s to %s, target does not exist',
