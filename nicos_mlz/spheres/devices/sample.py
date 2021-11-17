@@ -30,12 +30,11 @@ from nicos import session
 from nicos.core import SIMULATION, oneof
 from nicos.core.params import Attach, Param, tangodev
 from nicos.core.status import WARN
-from nicos.devices import entangle
 from nicos.devices.entangle import TemperatureController
 from nicos.utils import HardwareStub
 
 
-class SEController(entangle.TemperatureController):
+class SEController(TemperatureController):
     """Controller to set Temperature
     """
 
@@ -66,12 +65,11 @@ class SEController(entangle.TemperatureController):
         self._dev.RushTemperature(temperature)
 
     def _combinedStatus(self, maxage=0):
-        state = entangle.TemperatureController.doStatus(self, maxage)
+        state = TemperatureController.doStatus(self, maxage)
         # if there is a warning from the controller, display it.
         if state[0] == WARN:
             return state
-        else:
-            return entangle.TemperatureController._combinedStatus(self, maxage)
+        return TemperatureController._combinedStatus(self, maxage)
 
     def stopPressure(self):
         self._dev.StopPressureRegulation()
@@ -102,7 +100,7 @@ class SEController(entangle.TemperatureController):
         return TemperatureController.isAtTarget(self, target=target)
 
 
-class PressureController(entangle.TemperatureController):
+class PressureController(TemperatureController):
     """Device to be able to set the pressure manually.
     Pressure is set via the controller, which is supposed to handle the limits
     within which setting pressure is allowed.
@@ -117,7 +115,7 @@ class PressureController(entangle.TemperatureController):
     }
 
     def doPreinit(self, mode):
-        entangle.TemperatureController.doPreinit(self, mode)
+        TemperatureController.doPreinit(self, mode)
 
         if mode != SIMULATION:
             self._controller = self._createPyTangoDevice(self.controller)
