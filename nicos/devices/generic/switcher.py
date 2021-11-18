@@ -66,8 +66,8 @@ class Switcher(MappedMoveable):
     }
 
     parameter_overrides = {
-        'fallback':  Override(userparam=False, type=none_or(str),
-                              mandatory=False),
+        'fallback': Override(userparam=False, type=none_or(str),
+                             mandatory=False),
     }
 
     hardware_access = False
@@ -222,11 +222,11 @@ class MultiSwitcher(MappedMoveable):
     }
 
     parameter_overrides = {
-        'mapping':   Override(description='Mapping of state names to N values '
-                              'to move the moveables to',
-                              type=dictof(anytype, listof(anytype))),
-        'fallback':  Override(userparam=False, type=none_or(anytype),
-                              mandatory=False),
+        'mapping': Override(description='Mapping of state names to N values '
+                            'to move the moveables to',
+                            type=dictof(anytype, listof(anytype))),
+        'fallback': Override(userparam=False, type=none_or(anytype),
+                             mandatory=False),
     }
 
     hardware_access = False

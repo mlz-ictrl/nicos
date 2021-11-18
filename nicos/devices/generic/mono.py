@@ -82,16 +82,11 @@ class Monochromator(Moveable):
 
     hardware_access = False
 
-    parameters = {}
-
     parameter_overrides = {
-        'unit':
-            Override(
-                default='A-1',
-                type=oneof('A-1', 'A', 'meV', 'THz'),
-                chatty=True),
-        'fmtstr':
-            Override(default='%.3f'), }
+        'unit': Override(default='A-1', type=oneof('A-1', 'A', 'meV', 'THz'),
+                         chatty=True),
+        'fmtstr': Override(default='%.3f'),
+    }
 
     def doInit(self, mode):
         if ('target' not in self._params or not self.target or
