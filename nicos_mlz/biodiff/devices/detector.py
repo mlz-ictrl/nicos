@@ -56,25 +56,27 @@ class ImagePlateDrum(PyTangoDevice, Moveable):
     valuetype = oneof(POS_ERASE, POS_EXPO, POS_READ)
 
     parameters = {
-        "drumpos": Param("Drum position in degree", type=float,
-                         settable=True, volatile=True, category="general"),
+        "drumpos":     Param("Drum position in degree",
+                             type=float, settable=True, volatile=True,
+                             category="general"),
         "readheadpos": Param("Read head motor position in mm",
                              type=float, settable=True, volatile=True,
                              category="general"),
-        "drumexpo": Param("Drum expo position in degree",
-                          type=float, settable=True, volatile=True,
-                          category="general"),
-        "readspeed": Param("Readout velocity for the detector drum "
-                           "in rpm", type=float, settable=True,
-                           volatile=True, category="general"),
-        "erasespeed": Param("Erase velocity for the detector drum "
-                            "in rpm", type=float, settable=True,
-                            volatile=True, category="general"),
-        "freqlaser": Param("Frequency for the laser diode in Hz",
-                           type=float, settable=True, volatile=True,
-                           category="general"),
-        "timeerase": Param("Erasure time in seconds", type=float,
-                           settable=True, volatile=True, category="general"),
+        "drumexpo":    Param("Drum expo position in degree",
+                             type=float, settable=True, volatile=True,
+                             category="general"),
+        "readspeed":   Param("Readout velocity for the detector drum in rpm",
+                             type=float, settable=True, volatile=True,
+                             category="general"),
+        "erasespeed":  Param("Erase velocity for the detector drum in rpm",
+                             type=float, settable=True, volatile=True,
+                             category="general"),
+        "freqlaser":   Param("Frequency for the laser diode in Hz",
+                             type=float, settable=True, volatile=True,
+                             category="general"),
+        "timeerase":   Param("Erasure time in seconds",
+                             type=float, settable=True, volatile=True,
+                             category="general"),
     }
 
     parameter_overrides = {
@@ -193,24 +195,25 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
     }
 
     attached_devices = {
-        "imgdrum":      Attach("Image Plate Detector Drum "
-                               "control device.", ImagePlateDrum),
+        "imgdrum": Attach("Image Plate Detector Drum control device.",
+                          ImagePlateDrum),
     }
 
     parameters = {
-        "erase": Param("Erase image plate on next start?", type=bool,
-                       settable=True, mandatory=False, default=True),
-        "roi": Param("Region of interest",
-                     type=tupleof(int, int, int, int),
-                     default=(0, 0, 0, 0),
-                     settable=True, volatile=True,
-                     category="general"),
-        "pixelsize": Param("Pixel size in microns",
-                           type=oneof(125, 250, 500), default=500,
-                           settable=True, volatile=True, category="general"),
-        "file": Param("Image file location on maatel computer",
-                      type=str, settable=True, volatile=True,
-                      category="general"),
+        "erase":          Param("Erase image plate on next start?",
+                                type=bool, settable=True, mandatory=False,
+                                default=True),
+        "roi":            Param("Region of interest",
+                                type=tupleof(int, int, int, int),
+                                default=(0, 0, 0, 0),
+                                settable=True, volatile=True,
+                                category="general"),
+        "pixelsize":      Param("Pixel size in microns",
+                                type=oneof(125, 250, 500), default=500,
+                                settable=True, volatile=True, category="general"),
+        "file":           Param("Image file location on maatel computer",
+                                type=str, settable=True, volatile=True,
+                                category="general"),
         "readout_millis": Param("Timeout in ms for the readout",
                                 type=int, settable=True, default=60000),
     }
@@ -276,11 +279,11 @@ class BiodiffDetector(Detector):
     }
 
     parameters = {
-        "ctrl_gammashutter": Param("Control gamma shutter?", type=bool,
-                                   settable=True, mandatory=False,
+        "ctrl_gammashutter": Param("Control gamma shutter?",
+                                   type=bool, settable=True, mandatory=False,
                                    default=True),
-        "ctrl_photoshutter": Param("Control photo shutter?", type=bool,
-                                   settable=True, mandatory=False,
+        "ctrl_photoshutter": Param("Control photo shutter?",
+                                   type=bool, settable=True, mandatory=False,
                                    default=True),
     }
 
