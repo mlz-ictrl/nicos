@@ -32,11 +32,7 @@ from nicos.nexus.nexussink import NexusElementBase
 class FileName(NexusElementBase):
 
     def create(self, name, h5parent, sinkhandler):
-        filename = sinkhandler.manager.getFilenames(
-            sinkhandler.dataset,
-            sinkhandler.sink.filenametemplate,
-            sinkhandler.sink.subdir
-        )[0]
+        filename = sinkhandler._filename
         dtype = 'S%d' % (len(filename.encode('utf-8')) + 1)
         dset = h5parent.create_dataset(name, (1,), dtype)
         dset[0] = np.array(filename.encode('utf-8'), dtype=dtype)
