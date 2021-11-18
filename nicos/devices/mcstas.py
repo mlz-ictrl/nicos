@@ -37,8 +37,8 @@ import numpy as np
 from psutil import AccessDenied, NoSuchProcess, Popen
 
 from nicos import session
-from nicos.core import ArrayDesc, Param, Value, floatrange, intrange, status, \
-    tupleof, Override, Attach, MASTER, Waitable, Readable, oneof
+from nicos.core import MASTER, ArrayDesc, Attach, Override, Param, Readable, \
+    Value, Waitable, floatrange, intrange, oneof, status, tupleof
 from nicos.core.constants import FINAL, LIVE
 from nicos.devices.generic import ActiveChannel, ImageChannelMixin, \
     PassiveChannel
@@ -183,7 +183,7 @@ class McStasSimulation(Readable):
     def _getDatafile(self, name):
         """Return a file object for the McStas data file with given name."""
         # pylint: disable=consider-using-with
-        return open(path.join(self._mcstasdirpath, name), 'r')
+        return open(path.join(self._mcstasdirpath, name), 'r', encoding='utf-8')
 
     def _getTime(self):
         """Return elapsed time for simulation."""

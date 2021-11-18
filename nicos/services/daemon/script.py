@@ -324,7 +324,8 @@ class ExecutionController(Controller):
             # many breakpoints if not on the highest level.
             self.eventfunc('status', (status, lineno))
 
-    def _breakfunc(self, frame, flag):
+    def _breakfunc(self, frame, arg):
+        flag = arg
         # check level of breakpoint reached
         fn = frame.f_code.co_filename
         if fn.startswith('<break>'):  # '<break>n' means stoplevel n
@@ -479,35 +480,23 @@ class ExecutionController(Controller):
                               quiet=quiet)
 
     def add_watch_expression(self, val):
-        self.watchlock.acquire()
-        try:
+        with self.watchlock:
             self.watchexprs.add(val)
-        finally:
-            self.watchlock.release()
 
     def remove_watch_expression(self, val):
-        self.watchlock.acquire()
-        try:
+        with self.watchlock:
             self.watchexprs.discard(val)
-        finally:
-            self.watchlock.release()
 
     def remove_all_watch_expressions(self, group):
-        self.watchlock.acquire()
-        try:
+        with self.watchlock:
             for expr in self.watchexprs.copy():
                 if expr.endswith(group):
                     self.watchexprs.remove(expr)
-        finally:
-            self.watchlock.release()
 
     def eval_watch_expressions(self):
         ret = {}
-        self.watchlock.acquire()
-        try:
+        with self.watchlock:
             vals = list(self.watchexprs)
-        finally:
-            self.watchlock.release()
         for val in vals:
             try:
                 expr = val.partition(':')[0]
@@ -691,9 +680,9 @@ class ExecutionController(Controller):
                         # that are queued after that should be executed, so
                         # we don't block requests here
                         session.log.info('Script stopped by %s', err.args[2])
-                except BdbQuit as err:  # pylint: disable=bad-except-order
+                except BdbQuit:  # pylint: disable=bad-except-order
                     session.log.error('Script stopped through debugger')
-                except Exception as err:  # pylint: disable=bad-except-order
+                except Exception:  # pylint: disable=bad-except-order
                     # the topmost two frames are still in the
                     # daemon, so don't display them to the user
                     # perhaps also send an error notification

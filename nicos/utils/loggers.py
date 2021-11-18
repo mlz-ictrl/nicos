@@ -141,8 +141,8 @@ class NicosConsoleFormatter(Formatter):
         else:
             self.colorize = lambda c, s: s
 
-    def formatException(self, exc_info):
-        return traceback.format_exception_only(*exc_info[0:2])[-1]
+    def formatException(self, ei):
+        return traceback.format_exception_only(*ei[0:2])[-1]
 
     def formatTime(self, record, datefmt=None):
         return time.strftime(datefmt or DATEFMT,
@@ -169,11 +169,11 @@ class NicosConsoleFormatter(Formatter):
                 # do not display input again
                 return ''
             elif levelno <= WARNING:
-                fmtstr = self.colorize('fuchsia', '%s%%(levelname)s: %%(message)s'
-                                       % namefmt)
+                fmtstr = self.colorize(
+                    'fuchsia', '%s%%(levelname)s: %%(message)s' % namefmt)
             else:
-                fmtstr = self.colorize('red', '%s%%(levelname)s: %%(message)s'
-                                       % namefmt)
+                fmtstr = self.colorize(
+                    'red', '%s%%(levelname)s: %%(message)s' % namefmt)
             fmtstr = '%(filename)s' + datefmt + fmtstr
             if not getattr(record, 'nonl', False):
                 fmtstr += '\n'

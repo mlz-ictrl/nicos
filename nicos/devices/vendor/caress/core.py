@@ -407,7 +407,7 @@ class CARESSDevice(HasCommunication):
                 session.delay(self.comdelay)
                 try:
                     return function(*args)
-                except (CORBA.COMM_FAILURE, CORBA.TRANSIENT) as err:
+                except (CORBA.COMM_FAILURE, CORBA.TRANSIENT):
                     tries -= 1
             raise CommunicationError(
                 self, 'CARESS error: %s%r: %s' % (

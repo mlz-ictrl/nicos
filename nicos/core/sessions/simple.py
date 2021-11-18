@@ -125,7 +125,7 @@ class NoninteractiveSession(Session):
 class SingleDeviceSession(NoninteractiveSession):
 
     @classmethod
-    def _get_maindev(cls, appname, maindevcls, setup):
+    def _get_maindev(cls, appname, maindevcls, setup):  # pylint: disable=arguments-renamed
         return maindevcls(appname, **setup)
 
 
