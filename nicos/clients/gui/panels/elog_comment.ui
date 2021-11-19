@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>475</width>
-    <height>425</height>
+    <width>535</width>
+    <height>446</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,12 +26,19 @@
       <string>Add &amp;amp;comment, Markdown formatted (&lt;a href=&quot;help&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;help&lt;/span&gt;&lt;/a&gt;):</string>
      </property>
      <property name="buddy">
-      <cstring>freeFormText</cstring>
+      <cstring>editor</cstring>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="freeFormText"/>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPlainTextEdit" name="editor"/>
+     </item>
+     <item>
+      <widget class="QTextBrowser" name="viewer"/>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QFrame" name="helpFrame">
@@ -42,7 +49,16 @@
       <enum>QFrame::Plain</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <property name="margin">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
        <number>0</number>
       </property>
       <item row="0" column="0" colspan="2">
@@ -95,7 +111,7 @@
       <item row="1" column="1">
        <widget class="QLabel" name="label_8">
         <property name="text">
-          <string>
+         <string>
 | table  | heading  |
 | ------ | -------- |
 | table  | contents |
@@ -129,7 +145,8 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>freeFormText</tabstop>
+  <tabstop>editor</tabstop>
+  <tabstop>viewer</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>

@@ -31,9 +31,9 @@ from os import path
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.guisupport.qt import QActionGroup, QDesktopServices, QDialog, \
-    QInputDialog, QLineEdit, QMainWindow, QMenu, QPrintDialog, QPrinter, \
-    QPushButton, Qt, QTextDocument, QTextEdit, QTimer, QToolBar, QUrl, \
-    QWebPage, QWebView, pyqtSlot
+    QFontDatabase, QInputDialog, QLineEdit, QMainWindow, QMenu, QPrintDialog, \
+    QPrinter, QPushButton, Qt, QTextDocument, QTextEdit, QTimer, QToolBar, \
+    QUrl, QWebPage, QWebView, pyqtSlot
 
 if QWebView is None:
     raise ImportError('Qt webview component is not available')
@@ -245,11 +245,19 @@ class ELogPanel(Panel):
     def on_actionAddComment_triggered(self):
         dlg = dialogFromUi(self, 'panels/elog_comment.ui')
         dlg.helpFrame.setVisible(False)
+        if hasattr(dlg.viewer, 'setMarkdown'):
+            dlg.editor.textChanged.connect(
+                lambda : dlg.viewer.setMarkdown(dlg.editor.toPlainText()))
+        else:
+            dlg.viewer.hide()
         dlg.mdLabel.linkActivated.connect(
             lambda link: dlg.helpFrame.setVisible(True))
+        f = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        f.setFixedPitch(True)
+        dlg.editor.setFont(f)
         if dlg.exec_() != QDialog.Accepted:
             return
-        text = dlg.freeFormText.toPlainText()
+        text = dlg.editor.toPlainText()
         if not text:
             return
         self.client.eval('LogEntry(%r)' % text)
