@@ -239,8 +239,8 @@ class MainWindow(QMainWindow):
         if setupItemsToBeSaved:
             reply = QMessageBox.question(self, 'Unsaved changes',
                                          'Do you want to save your changes?',
-                                         QMessageBox.Yes,
-                                         QMessageBox.No,
+                                         QMessageBox.Yes|
+                                         QMessageBox.No|
                                          QMessageBox.Cancel)
             if reply == QMessageBox.Yes:
                 self.saveSetups(setupItemsToBeSaved)
