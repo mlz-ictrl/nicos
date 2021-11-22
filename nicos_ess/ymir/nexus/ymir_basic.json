@@ -27,7 +27,7 @@
             "dtype": "string"
           }
         },
-        $USERS$
+        "$USERS$",
         {
           "name": "instrument",
           "type": "group",
