@@ -248,7 +248,7 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
     elif typ in (int, float, str, params.string):
         return EditWidget(parent, typ, curvalue, fmtstr or '%.4g',
                           allow_enter=allow_enter)
-    elif typ == bool:
+    elif typ in (bool, params.boolean):
         if allow_buttons:
             return ButtonWidget(parent, [True, False])
         return ComboWidget(parent, [True, False], curvalue)
