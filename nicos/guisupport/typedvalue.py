@@ -282,6 +282,15 @@ def create(parent, typ, curvalue, fmtstr='', unit='',
     elif typ == SXTalCellType:
         return TableWidget(parent, float, curvalue.rmat.T.round(10), '%.4g',
                            client, allow_enter=allow_enter)
+    elif typ == list:
+        if curvalue:
+            ltype = type(curvalue[0])
+            if all(isinstance(sub, ltype) for sub in curvalue):
+                return ListOfWidget(parent, ltype, curvalue, client,
+                                    allow_enter=allow_enter)
+        else:
+            return ListOfWidget(parent, str, curvalue, client,
+                                allow_enter=allow_enter)
     return MissingWidget(parent, curvalue)
 
 
