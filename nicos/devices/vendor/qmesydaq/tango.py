@@ -146,28 +146,26 @@ class MultiCounter(BaseImageChannel):
 
     def doRead(self, maxage=0):
         if self._mode == SIMULATION:
-            res = [0] * (max(self.channels) + 3)
+            res = [0] * max(self.channels)
         else:
             # read data via Tango and transform it
             val = self._dev.value
             res = val.tolist() if isinstance(val, np.ndarray) else val
-        expected = 3 + max(self.channels or [0])
-        # first 3 values are sizes of dimensions
+        expected = max(self.channels or [0])
         if len(res) >= expected:
-            data = res[3:]
             # ch is 1 based, data is 0 based
-            total = sum([data[ch - 1] for ch in self.channels])
+            total = sum(res[ch - 1] for ch in self.channels)
         else:
             self.log.warning('not enough data returned, check config! '
                              '(got %d elements, expected >=%d)',
                              len(res), expected)
-            data = None
+            res = None
             total = 0
         resultlist = [total]
-        if data is not None:
+        if res is not None:
             for ch in self.channels:
                 # ch is 1 based, data is 0 based
-                resultlist.append(data[ch - 1])
+                resultlist.append(res[ch - 1])
         return resultlist
 
     def doFinish(self):
