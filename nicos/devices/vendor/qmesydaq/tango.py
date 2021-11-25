@@ -170,6 +170,14 @@ class MultiCounter(BaseImageChannel):
                 resultlist.append(data[ch - 1])
         return resultlist
 
+    def doFinish(self):
+        self.doStatus(0)
+        return BaseImageChannel.doFinish(self)
+
+    def doStop(self):
+        self.doStatus(0)
+        return BaseImageChannel.doStop(self)
+
     def valueInfo(self):
         resultlist = [Value('ch.sum', unit='cts', errors='sqrt',
                             type='counter', fmtstr='%d')]
