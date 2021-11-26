@@ -50,14 +50,14 @@ devices = dict(
     FileWriterStatus=device(
         'nicos_ess.devices.datasinks.file_writer.FileWriterStatus',
         description='Status for file-writer',
-        brokers=['1.2.3.4:9092'],
+        brokers=['someserver:9092'],
         statustopic='TEST_controlTopic',
         unit='',
     ),
     FileWriterControl=device(
         'nicos_ess.devices.datasinks.file_writer.FileWriterControlSink',
         description='Control for file-writer',
-        brokers=['1.2.3.4:9092'],
+        brokers=['someserver:9092'],
         unit='',
         pool_topic='TEST_jobPool',
         nexus='NexusStructure',
