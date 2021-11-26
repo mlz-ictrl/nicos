@@ -4,7 +4,7 @@ group = 'basic'
 
 includes = [
     'neutron_aperture', 'shutters', 'beam_limiter_1', 'beam_limiter_2',
-    'camera_focus_3', 'detector', 'sensors'
+    'camera_focus_3', 'sensors'
 ]
 
 display_order = 50

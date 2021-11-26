@@ -30,6 +30,7 @@ devices = dict(
         motorpv = pvprefix + 'g1tzl',
         errormsgpv = pvprefix + 'g1tzl-MsgTxt',
         precision = 0.01,
+        reference_direction = 'reverse',
     ),
     g2_rz = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
         epicstimeout = 3.0,

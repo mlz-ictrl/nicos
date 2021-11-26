@@ -1,4 +1,4 @@
-#  -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # *****************************************************************************
 # NICOS, the Networked Instrument Control System of the MLZ
 # Copyright (c) 2009-2022 by the NICOS contributors (see AUTHORS)
@@ -22,21 +22,28 @@
 #
 # *****************************************************************************
 
-from nicos.core import status
-from nicos.devices.epics import \
-    EpicsDigitalMoveable as EpicsCoreDigitalMoveable, \
-    EpicsReadable as EpicsCoreReadable
+
+from nicos_sinq.icon.commands.iconcommands import tomo_run, tomo_setup
+
+session_setup = 'sinq_tomoscan'
 
 
-class EpicsDigitalMoveable(EpicsCoreDigitalMoveable):
-    """
-    This adds a doStatus() Method to the core
-    EpicsDigitalMoveable
-    """
-    def doStatus(self, maxage=0):
-        return status.OK, 'Idle'
+def test_tomoscan(session, log):
+    m = session.getDevice('motor')
+    session.experiment.setDetectors([session.getDevice('det')])
+    dataman = session.experiment.data
 
+    # Simple test...
+    tomo_setup(m, 10)
+    tomo_run()
+    dataset = dataman.getLastScans()[-1]
+    assert dataset.devvaluelists[0] == [1.0, 0.0]
+    assert dataset.devvaluelists[1] == [2.0, 36.0]
+    assert abs(m.read() - 36.) < .02
 
-class EpicsReadable(EpicsCoreReadable):
-    def doStatus(self, maxage=0):
-        return status.OK, 'Idle'
+    # Run again
+    tomo_run()
+    dataset = dataman.getLastScans()[-1]
+    assert dataset.devvaluelists[0] == [1.0, 0.0]
+    assert dataset.devvaluelists[1] == [2.0, 36.0]
+    assert abs(m.read() - 36.) < .02

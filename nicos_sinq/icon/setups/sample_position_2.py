@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 includes = [
     'neutron_aperture', 'shutters', 'beam_limiter_1', 'beam_limiter_2',
-    'detector', 'sensors'
+    'sensors'
 ]
 
 display_order = 40
@@ -85,16 +85,3 @@ devices = dict(
         precision = 0.01,
     ),
 )
-
-#Axis 2RZ with air bearing --> Sensor not yet defined
-"""               
-    
-    sp2_ry = device('nicos.devices.generic.sequence.LockedDevice',
-        description='Sample Position 2, Rotation Y',
-        device='sp2_ry_axis',
-        lock='sp2_ry_brake',
-        unlockvalue = 1,
-        lockvalue = 0,
-    ),
-    
-"""

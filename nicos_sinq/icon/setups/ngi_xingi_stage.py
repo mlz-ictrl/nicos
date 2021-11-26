@@ -20,6 +20,7 @@ devices = dict(
         motorpv = pvprefix + 'sgtx',
         errormsgpv = pvprefix + 'sgtx-MsgTxt',
         precision = 0.01,
+        reference_direction = 'reverse',
     ),
     xs_ty = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
         epicstimeout = 3.0,
@@ -27,6 +28,7 @@ devices = dict(
         motorpv = pvprefix + 'sgty',
         errormsgpv = pvprefix + 'sgty-MsgTxt',
         precision = 0.01,
+        reference_direction = 'reverse',
     ),
     xs_tz = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
         epicstimeout = 3.0,
@@ -34,5 +36,6 @@ devices = dict(
         motorpv = pvprefix + 'sgtz',
         errormsgpv = pvprefix + 'sgtz-MsgTxt',
         precision = 0.01,
+        reference_direction = 'reverse',
     ),
 )

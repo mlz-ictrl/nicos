@@ -132,3 +132,21 @@ class SinqExperiment(Experiment):
         if not os.access(scriptpath, os.R_OK | os.W_OK | os.X_OK):
             raise ValueError('Cannot access scriptpath %s' % scriptpath)
         # param set in device.py
+
+
+class TomoSinqExperiment(SinqExperiment):
+    """
+    This only adds a parameter to store the dictionary of
+    tomography parameters for the tomography commands in
+    iconcommands.py
+    """
+
+    parameters = {
+        'tomo_params': Param('Dictionary of tomography parameters',
+                             type=dict,
+                             internal=True,
+                             settable=True),
+    }
+
+    def doInit(self, mode):
+        self.tomo_params = {'status': 'reset'}
