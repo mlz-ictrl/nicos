@@ -86,6 +86,8 @@ STUBS = dict(
              'member DevState.ALARM=11',
              'member DevState.DISABLE=12',
              'member DevState.UNKNOWN=13',
+             'class constants',
+             'member constants.NUMPY_SUPPORT=True',
              'exception ConnectionFailed', 'exception CommunicationFailed',
              'exception WrongNameSyntax', 'exception DevFailed',
              'exception NonDbDevice', 'exception WrongData',
