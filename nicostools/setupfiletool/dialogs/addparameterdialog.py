@@ -36,7 +36,7 @@ class AddParameterDialog(QDialog):
                                           'ui',
                                           'dialogs',
                                           'addparameterdialog.ui')), self)
-        self.lineEditCustomParameter.setHidden(True)
+        self.lineEditCustomParameter.hide()
         missingParameters = [key for key in parameters.keys()
                              if key not in existingParameters.keys() and
                              not key.startswith('_')]
@@ -53,5 +53,4 @@ class AddParameterDialog(QDialog):
     def getValue(self):
         if self.checkBoxCustomParameter.checkState() == Qt.Checked:
             return self.lineEditCustomParameter.text()
-        else:
-            return self.listWidgetSelectParameter.currentItem().text()
+        return self.listWidgetSelectParameter.currentItem().text()

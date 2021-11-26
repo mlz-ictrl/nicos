@@ -24,10 +24,11 @@
 
 from os import path
 
-from nicos.guisupport.qt import QDialog, QMenu, QRegExp, QRegExpValidator, \
-    Qt, uic
+from nicos.guisupport.qt import QDialog, QDialogButtonBox, QMenu, QRegExp, \
+    QRegExpValidator, Qt, uic
 
 from .. import classparser
+from ..utilities.utilities import getClass
 
 
 class NewDeviceDialog(QDialog):
@@ -39,20 +40,31 @@ class NewDeviceDialog(QDialog):
                                           'dialogs',
                                           'newdevicedialog.ui')), self)
         self.menu = QMenu('Select class')
-        self.pushButtonSelectClass.setMenu(self.menu)
-        for _class in sorted([str(__class)[14:-2] for __class in classesList]):
+        self.menuCustom = QMenu('Select class')
+
+        for _class in sorted([getClass(__class) for __class in classesList]):
             self.recursiveMenu(_class, self.menu)
 
-        self.menuCustom = QMenu('Select class')
-        for _class in sorted([str(__class)[14:-2] for __class in
+        for _class in sorted([getClass(__class) for __class in
                               classparser.getDeviceClasses(None)]):
-            self.recursiveMenu(_class, self.menuCustom)
+            if _class.startswith('nicos.'):
+                self.recursiveMenu(_class, self.menu)
+            else:
+                self.recursiveMenu(_class, self.menuCustom)
 
         self.checkBoxCustomClasses.stateChanged.connect(
             self.stateChangedHandler)
 
         self.lineEditDeviceName.setValidator(QRegExpValidator(
             QRegExp('[A-Za-z0-9_]*')))
+        self.pushButtonSelectClass.setMenu(self.menu)
+        self.buttonBox.button(QDialogButtonBox.Ok).setDisabled(True)
+        self.lineEditDeviceName.textChanged['const QString &'].connect(
+            self.devChanged)
+
+    def devChanged(self, text):
+        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(
+            bool(text) and bool(self.labelSelectedClass.text()))
 
     def stateChangedHandler(self, state):
         if state == Qt.Checked:
@@ -61,22 +73,20 @@ class NewDeviceDialog(QDialog):
             self.pushButtonSelectClass.setMenu(self.menu)
 
     def recursiveMenu(self, partialString, parentMenu):
-        if len(partialString.split('.')) == 1:
+        if not partialString.count('.'):
             action = parentMenu.addAction(partialString)
             action.triggered.connect(self.classSelectedSlot)
         else:
             uncombinedNextPartialString = partialString.split('.')
-            menus = parentMenu.findChildren(QMenu)
-
-            submenuIsPresent = False
             submenu = None
-            for menu in menus:
+            for menu in parentMenu.findChildren(
+                QMenu, options=Qt.FindDirectChildrenOnly):
                 if menu.title() == uncombinedNextPartialString[0]:
                     submenu = menu
                     uncombinedNextPartialString.pop(0)
-                    submenuIsPresent = True
+                    break
 
-            if not submenuIsPresent:
+            if not submenu:
                 submenu = QMenu(uncombinedNextPartialString.pop(0), parentMenu)
                 parentMenu.addMenu(submenu)
 
@@ -88,11 +98,11 @@ class NewDeviceDialog(QDialog):
         self.recursiveActionParent(self.sender(), stringList)
         stringList.append(self.sender().text())
         self.labelSelectedClass.setText('.'.join(stringList))
+        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(
+            bool(self.lineEditDeviceName.text()) and bool(stringList))
 
     def recursiveActionParent(self, action, partialStringList):
-        if action.parent() == self.menu:
-            return
-        elif action.parent() == self.menuCustom:
+        if action.parent() in [self.menu, self.menuCustom]:
             return
         partialStringList.insert(0, action.parent().title())
         self.recursiveActionParent(action.parent(), partialStringList)

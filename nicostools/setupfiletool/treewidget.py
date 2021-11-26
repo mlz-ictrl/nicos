@@ -312,8 +312,9 @@ class TreeWidget(TreeWidgetContextMenu):
 
     def addDevice(self):
         with waitCursor():
-            dlg = NewDeviceDialog(classparser.getDeviceClasses
-                                  (self.getCurrentInstrument().text(0)), self)
+            instrument = self.getCurrentInstrument().text(0)
+            dlg = NewDeviceDialog(
+                classparser.getDeviceClasses('nicos_%s' % instrument), self)
 
         if dlg.exec_():
             if not dlg.labelSelectedClass.text():
@@ -322,7 +323,7 @@ class TreeWidget(TreeWidgetContextMenu):
             if not dlg.lineEditDeviceName.text():
                 QMessageBox.warning(self, 'Error', 'No name entered.')
                 return
-            if dlg.lineEditDeviceName.text() in\
+            if dlg.lineEditDeviceName.text() in \
                     self.currentItem().setup.devices.keys():
                 QMessageBox.warning(self, 'Error', 'Setup already contains a '
                                     'device with that name!')

@@ -74,9 +74,7 @@ class DeviceWidget(QWidget):
 
     def getClassOfDevice(self, device):
         myClass = device.classString.split('.')[-1]
-        mod = device.classString.split('.')
-        mod.pop()
-        mod = '.'.join(mod)
+        mod = '.'.join(device.classString.split('.')[:-1])
         return getattr(classparser.modules[mod], myClass)
 
     def loadDevice(self, device):
@@ -101,6 +99,7 @@ class DeviceWidget(QWidget):
 
         mandatoryParams = []
         optionalParams = []
+
         for param in sorted(device.parameters):
             try:
                 mandatory = self.myClass.parameters[param].mandatory
@@ -111,12 +110,7 @@ class DeviceWidget(QWidget):
             else:
                 optionalParams.append(param)
 
-        for param in mandatoryParams:
-            value = device.parameters[param]
-            newParam = self.createParameterWidget(param, value)
-            self.parametersLayout.addWidget(newParam)
-            self.parameters[param] = newParam
-        for param in optionalParams:
+        for param in mandatoryParams + optionalParams:
             value = device.parameters[param]
             newParam = self.createParameterWidget(param, value)
             self.parametersLayout.addWidget(newParam)

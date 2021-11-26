@@ -31,7 +31,7 @@ from nicos.core.device import Device as _Class_device
 from nicos.core.sessions import Session
 
 from .utilities.excluded_devices import excluded_device_classes
-from .utilities.utilities import getNicosDir
+from .utilities.utilities import getClass, getNicosDir
 
 modules = {}
 session = Session('SetupFileTool')
@@ -49,6 +49,8 @@ def init(log):
     paths = [
         Path().joinpath(getNicosDir(), 'nicos', 'devices'),
         Path().joinpath(getNicosDir(), 'nicos', 'services')] + list(
+        Path(getNicosDir()).glob(
+            '%s' % Path().joinpath('nicos_*', 'devices'))) + list(
         Path(getNicosDir()).glob(
             '%s' % Path().joinpath('nicos_*', '*', 'devices')))
 
@@ -82,26 +84,23 @@ def getDeviceClasses(instrumentPrefix):
             elif mod.startswith('services'):
                 modkeys.append(mod)
     else:
-        modkeys = modules.keys()
+        modkeys = list(modules.keys())
     # Got all modules that contain device classes eligible for this instrument.
     classes = []
     for key in modkeys:
         classesOfModule = inspect.getmembers(modules[key], inspect.isclass)
         for _class in classesOfModule:
-            if issubclass(_class[1], _Class_device) and\
+            if issubclass(_class[1], _Class_device) and \
                     _class[1] not in classes:
                 classes.append(_class[1])
 
-    classes = [_class for _class in sorted(classes)
-               if str(_class)[14:-2] not in excluded_device_classes]
+    classes = [_class for _class in classes
+               if getClass(_class) not in excluded_device_classes]
     # classes (the list) may contain classes that were imported in some module.
     # parse out those classes and remove them from the returned list.
     return_classes = []
     for _class in classes:
-        _class_str = str(_class)[14:-2]
-        uncombinedModule = _class_str.split('.')
-        uncombinedModule.pop()
-        mod = '.'.join(uncombinedModule)
+        mod = '.'.join(getClass(_class).split('.')[:-1])
         if mod in modules:
             return_classes.append(_class)
     return return_classes

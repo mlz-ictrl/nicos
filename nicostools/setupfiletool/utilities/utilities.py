@@ -39,3 +39,7 @@ def getNicosDir():
 
 def getResDir():
     return path.join(getNicosDir(), 'nicostools', 'setupfiletool', 'res')
+
+
+def getClass(_class):
+    return str(_class).strip("<>").split()[-1].strip("'")

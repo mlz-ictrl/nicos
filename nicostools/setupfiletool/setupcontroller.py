@@ -115,11 +115,10 @@ class Setup:
         self.watch_conditions = copy(info[self.name]['watch_conditions'])
         self.devices = {}
         devs = info[self.name]['devices']
-        for deviceName in devs:
-            self.devices[deviceName] = (Device(deviceName,
-                                               devs[deviceName][0],
-                                               copy(devs[deviceName][1]))
-                                        )
+        for deviceName, device in devs.items():
+            self.devices[deviceName] = Device(deviceName,
+                                              device[0],
+                                              copy(device[1]))
 
 
 class Device:

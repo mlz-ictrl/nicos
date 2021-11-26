@@ -22,12 +22,13 @@
 #
 # *****************************************************************************
 
-# base class for a QTreeWidget with context menu on items
+"""Base class for a QTreeWidget with context menu on items."""
 
 from nicos.guisupport.qt import QTreeWidget
 
 
 class TreeWidgetContextMenu(QTreeWidget):
+
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
 
