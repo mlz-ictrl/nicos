@@ -10,7 +10,8 @@ sysconfig = dict(
                'FileWriterControl'],
 )
 
-modules = ['nicos.commands.standard', 'nicos_ess.commands.epics']
+modules = ['nicos.commands.standard', 'nicos_ess.commands.epics',
+           'nicos_ess.commands.filewriter']
 
 devices = dict(
     YMIR=device('nicos.devices.instrument.Instrument',
