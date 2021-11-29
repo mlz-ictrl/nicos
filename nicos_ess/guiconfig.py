@@ -64,10 +64,6 @@ main_window = docked(
                     'nicos.clients.gui.panels.logviewer.LogViewerPanel')),
             ),
          ),
-
-
-        ('  ', panel('nicos.clients.flowui.panels.empty.EmptyPanel')),
-
         position='left',
     ), # tabbed
 
