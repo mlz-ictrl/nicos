@@ -22,8 +22,12 @@
 #
 # *****************************************************************************
 
-import h5py
+try:
+    import h5py
+except ImportError:
+    h5py = None
 
+from nicos.core import NicosError
 from nicos.devices.datasinks.image import ImageFileReader
 
 
@@ -80,6 +84,10 @@ class NexusFileReader(ImageFileReader):
 
     @classmethod
     def fromfile(cls, filename):
+        if h5py is None:
+            raise NicosError(None,
+                             'h5py module is not available. Check if it is '
+                             'installed and in your PYTHONPATH')
         with h5py.File(filename, 'r') as f:
             dataset = scan(f)
             if dataset is None:
