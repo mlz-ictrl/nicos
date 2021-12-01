@@ -24,6 +24,7 @@ devices = dict(
         description = 'secondary spectrometer angle (A6)',
         motor = 'att_m',
         coder = 'att_c',
+        abslimits = (-130, 130),
         startdelay = 2,
         stopdelay = 2,
         switch = 'air_detector',
@@ -80,3 +81,6 @@ for key in ('ath', 'agx', 'atx', 'aty', 'afv', 'afh', ): #'nutator'):
         precision = 0.001,
     )
 
+startupcode = '''
+att.motor.speed=0.4
+'''
