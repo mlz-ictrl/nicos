@@ -6,7 +6,7 @@ from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     NXAttribute, NXLink, NXScanLink, NXTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
-from nicos_sinq.nexus.specialelements import FixedArray
+from nicos_sinq.nexus.specialelements import FixedArray, OptionalDeviceDataset
 
 sans_detector = {
         "count_mode": DetectorDataset("mode", "string"),
@@ -175,6 +175,7 @@ sample_common = {
     "magfield": DeviceDataset("magfield", "value", defaultval=0.0),
     "aequatorial_angle": ConstDataset(0, "float",
                                       units=NXAttribute("degree", "string")),
+    "stick_rotation": OptionalDeviceDataset("dom"),
 }
 
 sample_std = {
@@ -188,6 +189,8 @@ sample_std = {
     "z_null": DeviceDataset("z", "offset"),
     "omega": DeviceDataset("sg"),
     "omega_null": DeviceDataset("sg", "offset"),
+    "a3": DeviceDataset("a3"),
+    "a3_null": DeviceDataset("a3", "offset"),
     "position": DeviceDataset("spos"),
     "position_null": DeviceDataset("spos", "offset"),
 }

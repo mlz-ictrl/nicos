@@ -39,6 +39,12 @@ devices = dict(
         path = None,
         minfree = 5,
     ),
+    mcu1 = device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
+        epicstimeout = 3.0,
+        description = 'Controller mcu1 direct access',
+        commandpv = 'SQ:SANS:mcu1.AOUT',
+        replypv = 'SQ:SANS:mcu1.AINP',
+    ),
     stopo = device('nicos_sinq.devices.storedpositions.StoredPositions',
         description = 'General purpose stored positions object'
     ),
