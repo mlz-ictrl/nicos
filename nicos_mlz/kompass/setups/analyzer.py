@@ -1,6 +1,6 @@
 description = 'Analyzer tower devices'
 
-group = 'optional'
+group = 'lowlevel'
 
 tango_base = 'tango://kompasshw.kompass.frm2:10000/kompass/aircontrol/plc_'
 
@@ -45,6 +45,18 @@ devices = dict(
         tangodevice = tango_base + 'ahfh_mot',
         fmtstr = '%.4f',
     ),
+    ana = device('nicos.devices.tas.Monochromator',
+        description = 'Analyzer unit to move outgoing wavevector',
+        unit = 'A-1',
+        dvalue = 3.355,
+        theta = 'ath',
+        twotheta = 'att',
+        focush = None,
+        focusv = None,
+        abslimits = (0.1, 10),
+        scatteringsense = 1,
+        crystalside = 1,
+    ),
 )
 
 for key in ('left', 'right'):
@@ -66,7 +78,7 @@ for key in ('left', 'right'):
 # ay (aty)
 # afh
 # afv
-for key in ('ath', 'agx', 'atx', 'aty', 'afv', 'afh', ): #'nutator'):
+for key in ('ath', 'agx', 'atx', 'aty', 'afv', 'afh', ):  #'nutator'):
     devices[key] = device('nicos.devices.generic.Axis',
         description = key,
         motor = device('nicos.devices.entangle.Motor',
