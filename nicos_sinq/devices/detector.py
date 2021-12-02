@@ -56,10 +56,10 @@ class SinqDetector(EpicsScalerRecord):
         for name in self.time_preset_names:
             yield name, self._attached_timepreset, 'time'
 
-    def _collectMasters(self):
+    def _collectControllers(self):
         self._channels = uniq(self._channels + [self._attached_monitorpreset,
                                                 self._attached_timepreset])
-        EpicsScalerRecord._collectMasters(self)
+        EpicsScalerRecord._collectControllers(self)
 
     def doSetPreset(self, **preset):
         # The counter box can set one time and count preset. If the time
@@ -74,10 +74,22 @@ class SinqDetector(EpicsScalerRecord):
         if countpreset and timepreset:
             self.log.debug('Both count and time preset cannot be set at '
                            'the same time.')
-            self.log.debug('Using just the count preset.')
-            for name in timepreset:
-                preset.pop(name)
-            timepreset = set()
+            self.log.debug('Using the best preset')
+            # The best preset is the one which is not 0,
+            # The monitor preset is preferred
+            monname = list(countpreset)[0]
+            timename = list(timepreset)[0]
+            monval = preset[monname]
+            timeval = preset[timename]
+            if monval > 0:
+                for name in timepreset:
+                    preset.pop(name)
+                timepreset = set()
+                timeval = 0
+            elif timeval > 0:
+                for name in countpreset:
+                    preset.pop(name)
+                countpreset = set()
 
         if timepreset:
             preset['m'] = 0
@@ -94,6 +106,23 @@ class SinqDetector(EpicsScalerRecord):
         # Let the parent handle the rest
         EpicsScalerRecord.doSetPreset(self, **preset)
 
+    def _getPreset(self, preset):
+        if preset:
+            return preset
+        # None given, deduce from values
+        result = {}
+        timepreset = self._attached_timepreset.read()
+        monpreset = self._attached_monitorpreset.read()
+        if monpreset[0] > 0:
+            # Prefer the monitor preset over the timepreset
+            # This reflects SINQ usage
+            # When we have a time preset, other logic ensures
+            # that the monitor preset is 0
+            result['m'] = monpreset[0]
+            return result
+        result['t'] = max(1, timepreset[0])
+        return result
+
     def doInfo(self):
         ret = EpicsScalerRecord.doInfo(self)
 
@@ -103,12 +132,13 @@ class SinqDetector(EpicsScalerRecord):
         unit = ''
         for d in self._controlchannels:
             for pkey in self._presetkeys.items():
-                if pkey and pkey[0].name == d.name:
+                if pkey and pkey[1][0].name == d.name:
                     preselection = d.preselection
                     if preselection != 0:
                         value = preselection
                         unit = d.unit
-                        mode = 'timer' if pkey.startswith('t') else 'monitor'
+                        mode = 'timer' if pkey[0].startswith('t') \
+                            else 'monitor'
                         break
         ret.append(('mode', mode, mode, '', 'presets'))
         ret.append(('preset', value, '%s' % value, unit, 'presets'))
@@ -147,6 +177,9 @@ class ControlDetector(Detector):
             det.setPreset(**preset)
         self._attached_trigger.setPreset(**preset)
 
+    def _getPreset(self, preset):
+        return self._attached_trigger._getPreset(preset)
+
     def doPrepare(self):
         for det in self._attached_followers:
             det.prepare()
@@ -163,8 +196,8 @@ class ControlDetector(Detector):
             if not self._followers_stopped:
                 for det in self._attached_followers:
                     det.stop()
-                    self._followers_stopped = True
-                    return False
+                self._followers_stopped = True
+                return False
             for det in self._attached_followers:
                 if not det.isCompleted():
                     return False
