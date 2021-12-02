@@ -119,6 +119,11 @@ class ScriptRequest(Request):
         return {'reqid': self.reqid, 'name': self.name, 'script': self.text,
                 'user': self.user.name}
 
+    def serialize_result(self, success):
+        base = self.serialize()
+        base['success'] = success
+        return base
+
     def __repr__(self):
         if self.name:
             return '%s: %r' % (self.name, self.text)
@@ -665,9 +670,12 @@ class ExecutionController(Controller):
                 except Exception:
                     session.log.log(INPUT, formatScript(request))
                     session.logUnhandledException(cut_frames=1)
+                    self.eventfunc('done', request.serialize_result(False))
                     continue
+                success = False
                 try:
                     self.current_script.execute(self)
+                    success = True
                 except ControlStop as err:
                     if err.args[0] == 'emergency stop':
                         # block all pending requests (should have been done
@@ -692,6 +700,7 @@ class ExecutionController(Controller):
                         # last resort: do not exit script thread even if we
                         # can't handle this exception
                         pass
+                self.eventfunc('done', request.serialize_result(success))
                 if self.debugger:
                     self.debug_end(tracing=False)
                 session.clearActions()

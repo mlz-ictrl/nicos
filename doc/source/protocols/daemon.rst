@@ -225,7 +225,17 @@ protocols.
 
    A request is now being processed.
 
-   :arg: The request as a dictionary, see above.
+   :arg: The request as a dictionary, as for ``request``.
+
+.. daemonevt:: done
+
+   A request is done processing.
+
+   :arg: The request as a dictionary, as for ``request``, but with an additional
+      key:
+
+      - ``'success'`` - a boolean, true if the request executed without an
+        exception (or emergency stop) raised
 
 .. daemonevt:: updated
 

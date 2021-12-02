@@ -155,6 +155,8 @@ DAEMON_EVENTS = {
     'eta':         (0x101A, False),
     # message sent out while simulating
     'simmessage':  (0x101B, False),
+    # a request/script is done processing
+    'done':        (0x101C, False),
 }
 
 # possible states of ETA simulation

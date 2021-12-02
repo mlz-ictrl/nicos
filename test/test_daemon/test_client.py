@@ -22,6 +22,8 @@
 #
 # *****************************************************************************
 
+import logging
+
 import pytest
 
 from nicos import nicos_version
@@ -200,3 +202,25 @@ def test_abort(client):
         if name == 'message':
             if 'Script stopped by abort()' in data[3]:
                 return
+
+
+def test_run(client):
+    idx = len(client._signals)
+    script, filename = 'print(42)', 'file.py'
+    client.run_and_wait(script, filename)
+    reqid = None
+    for name, data, _exc in client.iter_signals(idx, timeout=10.0):
+        if name == 'request':
+            reqid = data['reqid']
+            assert data['script'] == script
+            assert data['name'] == filename
+            assert data['user'] == 'user'
+        elif name == 'processing':
+            assert data['reqid'] == reqid
+        elif name == 'message':
+            if data[2] == logging.INFO:
+                assert data[3].strip() == '42'
+        elif name == 'done':
+            assert data['reqid'] == reqid
+            assert data['success'] is True
+            break
