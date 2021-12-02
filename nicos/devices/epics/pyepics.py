@@ -134,13 +134,14 @@ class EpicsDevice(DeviceMixinBase):
                 epics.ca.use_initial_context()
 
             # When there are standard names for PVs (see motor record), the PV
-            # names may be derived from some prefix. To make this more flexible,
-            # the pv_parameters are obtained via a method that can be overridden
-            # in subclasses.
+            # names may be derived from some prefix. To make this more
+            # flexible, the pv_parameters are obtained via a method that can
+            # be overridden in subclasses.
             pv_parameters = self._get_pv_parameters()
             for pvparam in pv_parameters:
 
-                # Retrieve the actual PV-name from (potentially overridden) method
+                # Retrieve the actual PV-name from (potentially overridden)
+                # method
                 pvname = self._get_pv_name(pvparam)
                 if not pvname:
                     raise ConfigurationError(self, 'PV for parameter %s was '
@@ -370,7 +371,7 @@ class EpicsMoveable(EpicsDevice, Moveable):
         self._put_pv('writepv', target)
 
     def doStop(self):
-        self.doStart(self.doRead())
+        self.doStart(self.doRead(0))
 
 
 class EpicsStringMoveable(EpicsMoveable):
