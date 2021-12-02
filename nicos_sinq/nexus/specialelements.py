@@ -37,6 +37,7 @@ from nicos.nexus.elements import DeviceDataset, NexusElementBase, \
     NexusSampleEnv, NXAttribute
 
 from nicos_sinq.devices.sinqhm.configurator import HistogramConfArray
+from nicos_sinq.sxtal.sample import SXTalSample
 
 
 class TwoThetaArray(NexusElementBase):
@@ -113,10 +114,34 @@ class ConfArray(NexusElementBase):
                                 self._array_name)
             return
         dset = h5parent.create_dataset(name, tuple(array.dim), 'float32')
+        dset[...] = np.array(array.data, dtype='float32') * self._scale
+        self.createAttributes(dset, sinkhandler)
+
+
+class TimeBinConfArray(ConfArray):
+    """
+    At SINQ we do not store the last bin in the time_binning
+    in the NeXus file. Such that the dimensions of the data and
+    the time binning match
+    """
+    def create(self, name, h5parent, sinkhandler):
+        try:
+            array = session.getDevice(self._array_name)
+            if not isinstance(array, HistogramConfArray):
+                raise ConfigurationError('%s is no HistogramConfArray' %
+                                         self._array_name)
+        except ConfigurationError:
+            session.log.warning('Array %s not found, NOT stored',
+                                self._array_name)
+            return
+        timeDim = array.dim[0]-1
+        dset = h5parent.create_dataset(name, (timeDim,), 'float32')
+        data = np.array(array.data, dtype='float32')
+        data = data[0:timeDim]
         if self._scale != 1.:
-            dset[...] = np.array(array.data, dtype='float32') * self._scale
+            dset[...] = data * self._scale
         else:
-            dset[...] = array.data
+            dset[...] = data
         self.createAttributes(dset, sinkhandler)
 
 
@@ -264,3 +289,47 @@ class OutSampleEnv(NexusSampleEnv):
         if self._blocklist and dev.name in self._blocklist:
             return False
         return NexusElementBase.isValidDevice(self, dev)
+
+
+class OptionalDeviceDataset(DeviceDataset):
+    """
+    A device dataset which is only written when it is actually configured
+    """
+    def __init__(self, device, parameter='value', dtype=None, defaultval=None,
+                 **attr):
+        self.valid = False
+        DeviceDataset.__init__(self, device, parameter='value', dtype=None,
+                               defaultval=None, **attr)
+
+    def create(self, name, h5parent, sinkhandler):
+        try:
+            _ = session.getDevice(self.device)
+            self.valid = True
+            DeviceDataset.create(self, name, h5parent, sinkhandler)
+        except ConfigurationError:
+            pass
+
+    def update(self, name, h5parent, sinkhandler, values):
+        if self.valid:
+            DeviceDataset.update(self, name, h5parent, sinkhandler, values)
+
+    def results(self, name, h5parent, sinkhandler, results):
+        if self.valid:
+            DeviceDataset.results(self, name, h5parent, sinkhandler, results)
+
+
+class CellArray(NexusElementBase):
+    """
+    This little class stores the cell constants from
+    nicos_sinq.sxtal.SXTalsample as an array
+    """
+    def create(self, name, h5parent, sinkhandler):
+        sample = session.experiment.sample
+        if not isinstance(sample, SXTalSample):
+            session.log.error('Your sample is no SXTalSample')
+            return
+        data = [sample.a, sample.b, sample.c,
+                sample.alpha, sample.beta, sample.gamma]
+        ds = h5parent.create_dataset(name, (6,), maxshape=(None,),
+                                     dtype='float64')
+        ds[...] = np.array(data)
