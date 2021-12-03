@@ -662,6 +662,7 @@ class BaseHistoryWindow:
             settings.setValue(key, json.dumps(info))
         settings.endGroup()
         settings.beginGroup('views_new')
+        settings.remove('')  # empty the existing entries before add new
         for view in self.views:
             settings.setValue(view.name, json.dumps(view.dlginfo))
         settings.endGroup()
