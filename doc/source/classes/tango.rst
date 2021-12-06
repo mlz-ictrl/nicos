@@ -1,3 +1,5 @@
+.. _tango:
+
 Tango classes
 =============
 

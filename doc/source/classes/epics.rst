@@ -1,3 +1,5 @@
+.. _epics:
+
 EPICS classes
 =============
 

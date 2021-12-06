@@ -3,8 +3,9 @@ Vendor-specific device classes
 
 These devices are implementations of the communication with devices from a
 specific vendor.  There are not many such implementations in the NICOS core
-because most device-specific communication is handled by TACO servers, which
-present a standard interface to NICOS described :ref:`here <taco>`.
+because most device-specific communication is handled by :ref:`TANGO <tango>`
+or :ref:`TACO <taco>` servers or :ref:`EPICS <epics>` IOC's, which present a
+standard interface to NICOS.
 
 .. toctree::
    :maxdepth: 1
