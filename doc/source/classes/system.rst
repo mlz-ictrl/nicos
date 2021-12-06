@@ -105,12 +105,6 @@ Notifiers can be configured in setups like normal devices and are selected in
 :ref:`sysconfig <setup-sysconfig>`.  They are also used by the
 :ref:`watchdog <watchdog>` service.
 
-.. todo::
-
-   add the ``Notifier`` class to the developer section.
-
-.. .. autoclass:: Notifier()
-
 .. autoclass:: Mailer()
 .. autoclass:: SMSer()
 

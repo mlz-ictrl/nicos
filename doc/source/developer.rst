@@ -16,6 +16,7 @@ development environment and coding guidelines.
    dataapi/index
    classes/abstract
    sequencer
+   notifiers
    sessionapi
    coreapi/index
    protocols/index
