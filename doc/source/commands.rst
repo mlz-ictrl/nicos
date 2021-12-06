@@ -1,15 +1,36 @@
 User Commands
 =============
 
+- `Getting help`_
+- `Device commands`_
+- `Scanning commands`_
+- `Output commands`_
+- `Setup-related commands`_
+- `Experiment-related commands`_
+- `Sample-related commands`_
+- `Script-related commands`_
+- `Simulation mode commands`_
+- `Notification commands`_
+- `Miscellaneous commands`_
+- `On-line analysis commands`_
+- `Triple-axis commands`_
+- `Imaging commands`_
+- `Sample utility functions`_
+- `Simple parameter mode`_
+
 Getting help
 ------------
 
-.. autofunction:: nicos.commands.basic.help
-.. autofunction:: nicos.commands.basic.ListCommands
-.. autofunction:: nicos.commands.device.ListDevices
-.. autofunction:: nicos.commands.device.ListParams
-.. autofunction:: nicos.commands.device.ListMethods
-.. autofunction:: nicos.commands.device.version
+.. module:: nicos.commands.basic
+
+.. autofunction:: help
+.. autofunction:: ListCommands
+
+.. module:: nicos.commands.device
+.. autofunction:: ListDevices
+.. autofunction:: ListParams
+.. autofunction:: ListMethods
+.. autofunction:: version
 
 Output commands
 ---------------
@@ -28,7 +49,7 @@ and the logfile.
 Setup-related commands
 ----------------------
 
-.. module:: nicos.commands.basic
+.. currentmodule:: nicos.commands.basic
 
 .. autofunction:: NewSetup
 .. autofunction:: AddSetup
@@ -83,19 +104,21 @@ Miscellaneous commands
 Device commands
 ---------------
 
-.. module:: nicos.commands.device
+.. currentmodule:: nicos.commands.device
 
 .. autofunction:: read
-.. autofunction:: status
 
 .. autofunction:: move
-.. autofunction:: rmove
-.. autofunction:: wait
-.. autofunction:: waitfor
 .. autofunction:: maw
+.. autofunction:: rmove
 .. autofunction:: rmaw
 .. autofunction:: stop
+
+.. autofunction:: status
+
 .. autofunction:: reset
+.. autofunction:: wait
+.. autofunction:: waitfor
 .. autofunction:: info
 
 .. autofunction:: limits
@@ -122,11 +145,13 @@ Measuring commands
 
 .. autofunction:: count
 .. autofunction:: preset
+
 .. autofunction:: SetDetectors
-.. autofunction:: SetEnvironment
 .. autofunction:: AddDetector
-.. autofunction:: AddEnvironment
 .. autofunction:: ListDetectors
+
+.. autofunction:: SetEnvironment
+.. autofunction:: AddEnvironment
 .. autofunction:: ListEnvironment
 .. autofunction:: ListDatasinks
 .. autofunction:: avg
@@ -199,16 +224,16 @@ one of your loaded setups.  Additionally, your experiment device has to be an
 .. autofunction:: openbeamimage
 .. autofunction:: darkimage
 
-Sample related functions
-------------------------
+Sample-related commands
+-----------------------
 
 .. module:: nicos.commands.sample
 
 .. autofunction:: NewSample
 .. autofunction:: SetSample
+.. autofunction:: ListSamples
 .. autofunction:: SelectSample
 .. autofunction:: ClearSamples
-.. autofunction:: ListSamples
 
 Sample utility functions
 ------------------------
