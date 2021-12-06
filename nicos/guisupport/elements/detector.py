@@ -34,5 +34,5 @@ class Detector(TableBase):
 
     def __init__(self, size, radius, parent=None, scene=None):
         TableBase.__init__(self, 0, 0, size, parent, scene)
-        self.setPos(-radius, -size)
+        self.setPos(-radius, 0)
         self.setTransformOriginPoint(radius, 0)
