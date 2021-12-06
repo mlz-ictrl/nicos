@@ -5,6 +5,12 @@ These device classes do not represent actual hardware devices, but they use the
 same configuration and parameter API as devices and are therefore Device
 subclasses.
 
+- `Experiment`_
+- `Instrument`_
+- `Sample`_
+- `Data Sinks`_
+- `Notifiers`_
+
 Experiment
 ----------
 
@@ -23,14 +29,6 @@ The experiment device is selected in setups using
 
 .. autoclass:: SXTalExperiment()
 
-Sample
-------
-
-.. module:: nicos.devices.sample
-
-.. autoclass:: Sample()
-
-
 Instrument
 ----------
 
@@ -41,6 +39,13 @@ functionality of the specific instrument.  It is selected in setups using
 :ref:`sysconfig <setup-sysconfig>`.
 
 .. autoclass:: Instrument()
+
+Sample
+------
+
+.. module:: nicos.devices.sample
+
+.. autoclass:: Sample()
 
 
 .. _data-sinks:
