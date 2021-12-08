@@ -28,10 +28,10 @@
 
 import os
 import shutil
-import time
 from os import path
 from signal import SIGTERM, SIGUSR2
 from subprocess import PIPE
+from time import monotonic
 
 import numpy as np
 from psutil import AccessDenied, NoSuchProcess, Popen
@@ -188,7 +188,7 @@ class McStasSimulation(Readable):
     def _getTime(self):
         """Return elapsed time for simulation."""
         if self._started:
-            return min(time.time() - self._start_time, self.preselection)
+            return min(monotonic() - self._start_time, self.preselection)
         else:
             return self.preselection
 
@@ -219,7 +219,7 @@ class McStasSimulation(Readable):
         )
         self.log.debug('run %s', command)
         try:
-            self._start_time = time.time()
+            self._start_time = monotonic()
             self._process = Popen(command.split(), stdout=PIPE, stderr=PIPE,
                                   cwd=self._workdir)
             out, err = self._process.communicate()
