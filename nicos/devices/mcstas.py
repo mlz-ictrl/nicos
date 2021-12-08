@@ -196,6 +196,13 @@ class McStasSimulation(Readable):
         """Return scale factor for simulation intensity data."""
         return self._getTime() * self.intensityfactor
 
+    def _getNeutronsToSimulate(self):
+        """Return number of neutrons to simulate.
+
+        default: neutronspersec * preselection
+        """
+        return self.neutronspersec * self.preselection
+
     def _run(self):
         """Thread to run McStas simulation executable.
 
@@ -207,7 +214,7 @@ class McStasSimulation(Readable):
         except OSError:
             self.log.warning('could not remove old data')
         command = '%s -n %d -d %s %s' % (
-            self.mcstasprog, self.neutronspersec * self.preselection,
+            self.mcstasprog, self._getNeutronsToSimulate(),
             self._mcstasdirpath, self._mcstas_params,
         )
         self.log.debug('run %s', command)
