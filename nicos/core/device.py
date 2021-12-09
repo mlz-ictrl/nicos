@@ -117,7 +117,7 @@ class DeviceMeta(DeviceMixinMeta):
         newtype = DeviceMixinMeta.__new__(mcs, name, bases, attrs)
 
         # to debug MRO problems you could use this line
-        # print 'MRO:', newtype, newtype.mro()
+        # print('MRO:', newtype, newtype.mro())
         for adevname, entry in list(newtype.attached_devices.items()):
             # adev names are always lowercased
             if adevname != adevname.lower():
