@@ -46,7 +46,7 @@ devices = dict(
     ),
     nxfw = device('nicos.devices.generic.ManualSwitch',
         description = 'Switch for enabling/disabling NeXus file writing',
-        states = ['on', 'off'],
+        states = ['on', 'off']
     ),
     nxsink = device('nicos_sinq.devices.datasinks.SwitchableNexusSink',
         file_switch = 'nxfw',

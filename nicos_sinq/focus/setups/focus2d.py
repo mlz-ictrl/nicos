@@ -29,5 +29,5 @@ devices = dict(
     ),
 )
 startupcode = """
-focusdet.find_slaves()
+focusdet.find_followers()
 """

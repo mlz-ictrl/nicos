@@ -27,7 +27,6 @@ import numpy as np
 from nicos import session
 from nicos.core import Attach, Device, Param, Value, listof
 from nicos.core.errors import ConfigurationError
-from nicos.core.utils import usermethod
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
 
 from nicos_ess.devices.datasinks.imagesink.histogramdesc import \
@@ -46,16 +45,15 @@ class FocusDetector(ControlDetector):
 
     _banks = {'middle', 'lower', 'upper', 'f2d'}
 
-    @usermethod
-    def find_slaves(self):
-        found_slaves = []
+    def find_followers(self):
+        found_followers = []
         for b in self._banks:
             try:
-                slave = session.getDevice(b + '_detector')
-                found_slaves.append(slave)
+                fl = session.getDevice(b + '_detector')
+                found_followers.append(fl)
             except ConfigurationError:
                 pass
-        self._attached_slave_detectors = found_slaves
+        self._attached_followers = found_followers
 
 
 class Focus2DArray(HistogramConfArray):
@@ -73,7 +71,7 @@ class Focus2DArray(HistogramConfArray):
         pass
 
     def dataText(self):
-        with open(self.lookup_file, 'r') as fin:
+        with open(self.lookup_file, 'r', encoding='utf-8') as fin:
             lookup = fin.readlines()
         return ''.join(lookup[1:])
 
@@ -99,7 +97,7 @@ class MergedImageChannel(ImageChannelMixin, PassiveChannel):
     _idx_lower = None
 
     def doInit(self, mode):
-        with open(self.mergefile, 'r') as fin:
+        with open(self.mergefile, 'r', encoding='utf-8') as fin:
             fin.readline()  # skip first line
             line = fin.readline()
             merged_length = int(line)

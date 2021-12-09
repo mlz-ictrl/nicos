@@ -22,6 +22,7 @@
 #
 # *****************************************************************************
 
+
 from nicos.core import Param, pvname, status
 from nicos.devices.epics import EpicsAnalogMoveable
 
@@ -31,6 +32,7 @@ from nicos_sinq.devices.epics.generic import WindowMoveable
 class ChopperMoveable(WindowMoveable):
 
     _starting = False
+    _target = None
 
     def doStart(self, target):
         self._starting = True
