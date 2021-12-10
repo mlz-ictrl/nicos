@@ -790,10 +790,10 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
     """
 
     parameters = {
-        'sizes': Param('Detector size in pixels (x, y)',
-                       settable=False,
-                       type=tupleof(intrange(1, 1024), intrange(1, 1024)),
-                       default=(128, 128)),
+        'size': Param('Detector size in pixels (x, y)',
+                      settable=False,
+                      type=tupleof(intrange(1, 1024), intrange(1, 1024)),
+                      default=(128, 128)),
         'background': Param('Background level, use 0 to switch off',
                             settable=True, type=int, default=10),
     }
@@ -811,7 +811,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
     _timer = None
 
     def doInit(self, mode):
-        self.arraydesc = ArrayDesc(self.name, self.sizes[::-1], '<u4')
+        self.arraydesc = ArrayDesc(self.name, self.size[::-1], '<u4')
 
     def doPrepare(self):
         self.readresult = [0]
@@ -867,7 +867,7 @@ class VirtualImage(ImageChannelMixin, PassiveChannel):
                else 5)
         coll = (self._attached_collimation.read() if self._attached_collimation
                 else '15m')
-        xl, yl = self.sizes
+        xl, yl = self.size
         xx, yy = np.meshgrid(np.linspace(-(xl // 2), (xl // 2) - 1, xl),
                              np.linspace(-(yl // 2), (yl // 2) - 1, yl))
         beam = (t * 100 * np.exp(-xx**2/50) * np.exp(-yy**2/50)).astype(int)

@@ -17,7 +17,7 @@ devices = dict(
     image = device('nicos.devices.generic.VirtualImage',
         description = 'Image data device',
         fmtstr = '%d',
-        sizes = (256, 256),
+        size = (256, 256),
         lowlevel = True,
     ),
     cam = device('nicos.devices.generic.Detector',

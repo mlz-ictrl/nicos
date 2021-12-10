@@ -58,7 +58,7 @@ devices = dict(
         fmtstr = '%d',
         pollinterval = 86400,
         lowlevel = True,
-        sizes = (1, 5),
+        size = (1, 5),
     ),
     det = device('nicos.devices.generic.Detector',
         # description = 'Puma detector device (5 counters)',

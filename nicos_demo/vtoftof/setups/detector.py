@@ -23,7 +23,7 @@ devices = dict(
         pollinterval = None,
         lowlevel = True,
         numinputs = 1006,
-        sizes = [1024, 1024],
+        size = (1024, 1024),
         datafile = 'nicos_demo/vtoftof/data/test/data.npz',
     ),
     det = device('nicos_mlz.toftof.devices.detector.Detector',

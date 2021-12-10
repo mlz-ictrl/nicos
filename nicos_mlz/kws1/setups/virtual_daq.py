@@ -16,7 +16,7 @@ devices = dict(
     ),
     det_img = device('nicos_mlz.kws1.devices.daq.VirtualKWSImageChannel',
         description = 'Image for the large KWS detector',
-        sizes = (144, 256),
+        size = (144, 256),
     ),
     det_mode = device('nicos.devices.generic.ReadonlyParamDevice',
         description = 'Current detector mode',

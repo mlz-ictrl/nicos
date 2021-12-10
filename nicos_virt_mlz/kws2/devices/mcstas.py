@@ -90,7 +90,7 @@ class KwsDetectorImage(McStasImage):
                 for i in range(channels):
                     times.append(times[-1] + int(interval * q**i))
             self.slices = times
-            self.arraydesc = ArrayDesc('data', (channels,) + self.sizes,
+            self.arraydesc = ArrayDesc('data', (channels,) + self.size,
                                        np.uint32)
 
     def doReadArray(self, quality):

@@ -62,8 +62,8 @@ class CascadeDetector(VirtualImage):
 
     def doUpdateMode(self, value):
         self._dataprefix = (value == 'image') and 'IMAG' or 'DATA'
-        self._datashape = (value == 'image') and self.sizes or \
-            (self._perfoil * len(self.foilsorder), ) + self.sizes
+        self._datashape = (value == 'image') and self.size or (
+            self.size + (self._perfoil * len(self.foilsorder), ))
         # (self.tofchannels,)
         self._tres = (value == 'image') and 1 or self.tofchannels
 

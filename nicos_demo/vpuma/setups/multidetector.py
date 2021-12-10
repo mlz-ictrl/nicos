@@ -47,7 +47,7 @@ devices = dict(
         fmtstr = '%d',
         pollinterval = 86400,
         lowlevel = True,
-        sizes = (1, 11),
+        size = (1, 11),
     ),
     det = device('nicos.devices.generic.Detector',
         description = 'Multidetector with single channels',

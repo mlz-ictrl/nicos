@@ -197,7 +197,7 @@ devices = dict(
         description = 'demo 2D detector',
         distance = 'det1_z',
         collimation = 'guide',
-        sizes = (128, 128),
+        size = (128, 128),
     ),
     det = device('nicos.devices.generic.GatedDetector',
         description = 'demo 2D detector',

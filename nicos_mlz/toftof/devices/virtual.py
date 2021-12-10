@@ -66,7 +66,7 @@ class VirtualImage(BaseImage):
     }
 
     parameter_overrides = {
-        'sizes': Override(default=(1024, 1024), prefercache=False),
+        'size': Override(default=(1024, 1024), prefercache=False),
     }
 
     _rawdata = None
@@ -75,7 +75,7 @@ class VirtualImage(BaseImage):
         BaseImage.doInit(self, mode)
         try:
             with open(self.datafile, 'rb') as fp:
-                self._rawdata = 0.01 * np.load(fp).reshape(self.sizes)
+                self._rawdata = 0.01 * np.load(fp).reshape(self.size)
             self.log.warning('%r', self._rawdata.shape)
             # eliminate monitor entries
             self._rawdata[self.monitorchannel] = np.zeros(
@@ -83,8 +83,7 @@ class VirtualImage(BaseImage):
         except OSError:
             self.log.warning('data file %s not present, returning empty array '
                              'from virtual TOF image', self.datafile)
-            self._rawdata = np.zeros(
-                self.sizes[0] * self.sizes[1]).reshape(self.sizes)
+            self._rawdata = np.zeros(self.size)
 
     def _generate(self, t):
         return np.random.poisson(t * self._rawdata)

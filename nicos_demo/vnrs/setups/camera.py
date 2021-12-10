@@ -12,7 +12,7 @@ devices = dict(
     cam = device('nicos.devices.generic.VirtualImage',
         description = 'ZWO ASI camera',
         fmtstr = '%d',
-        sizes = (1024, 1024),
+        size = (1024, 1024),
         lowlevel = True,
     ),
     timer = device('nicos.devices.generic.VirtualTimer',

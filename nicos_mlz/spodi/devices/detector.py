@@ -251,8 +251,6 @@ class Detector(MeasureSequencer):
         image = self._attached_detector._attached_images[0]
         if hasattr(image, 'size'):
             height = image.size[1]
-        elif hasattr(image, 'sizes'):
-            height = image.sizes[1]
         else:
             height = 256
         shape = (value * self.numinputs, height)

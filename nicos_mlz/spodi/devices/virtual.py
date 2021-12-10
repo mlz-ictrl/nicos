@@ -50,7 +50,7 @@ class VirtualImage(BaseImage):
     }
 
     parameter_overrides = {
-        'sizes': Override(default=(80, 256), prefercache=False),
+        'size': Override(default=(80, 256), prefercache=False),
     }
 
     _rawdata = None
@@ -59,14 +59,13 @@ class VirtualImage(BaseImage):
         BaseImage.doInit(self, mode)
         try:
             data = DataParser.CaressFormat(findResource(self.datafile),
-                                           self.sizes[1], self.sizes[0])
+                                           self.size[1], self.size[0])
             self._rawdata = 0.1 * data[3]
             self._resosteps = data[1]
         except (OSError, ValueError):
             self.log.warning('data file %s not present, returning empty array '
                              'from virtual SPODI image', self.datafile)
-            self._rawdata = np.zeros(
-                self.sizes[0] * self.sizes[1]).reshape(self.sizes)
+            self._rawdata = np.zeros(self.size)
             self._resosteps = 1
 
     def _calc_ind_percentage(self, start, end):
@@ -84,7 +83,7 @@ class VirtualImage(BaseImage):
     def _generate(self, t):
         resosteps = self._cache.get(self.detname, 'resosteps')
         step = self._cache.get(self.detname, '_step')
-        data = np.zeros(self.sizes[0] * self.sizes[1]).reshape(self.sizes)
+        data = np.zeros(self.size)
         if step < resosteps:
             arng = np.arange(0, 80) * self._resosteps
             stepsize = self._resosteps / resosteps

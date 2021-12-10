@@ -20,7 +20,7 @@ devices = dict(
         fmtstr = '%d',
         pollinterval = 86400,
         lowlevel = True,
-        sizes = (32, 1),
+        size = (32, 1),
     ),
     basedet = device('nicos.devices.generic.Detector',
         description = 'Classical detector with single channels',

@@ -38,7 +38,7 @@ devices = dict(
     image = device('nicos.devices.generic.VirtualImage',
         description = 'demo 2D detector',
         fmtstr = '%d',
-        sizes = (256, 256),
+        size = (256, 256),
         lowlevel = True,
     ),
     det = device('nicos.devices.generic.Detector',

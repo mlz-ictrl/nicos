@@ -16,7 +16,7 @@ devices = dict(
                        ),
 
     det1_img = device('nicos.devices.generic.VirtualImage',
-                      sizes = (128, 128),
+                      size = (128, 128),
                       fmtstr = "%d cts",
                       description = 'PSD Detector',
                       ),

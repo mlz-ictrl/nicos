@@ -20,7 +20,7 @@ devices = dict(
         description = 'The CCD detector',
         pollinterval = 5,
         maxage = 12,
-        sizes = (1024, 1024),
+        size = (1024, 1024),
     ),
     ccdTemp = device('nicos.devices.generic.VirtualTemperature',
         description = 'Temperature of the CCD detector',

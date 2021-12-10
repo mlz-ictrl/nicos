@@ -19,7 +19,7 @@ devices = dict(
         description = 'Image data device',
         fmtstr = '%d',
         pollinterval = 86400,
-        sizes = (1, 16384),
+        size = (1, 16384),
         lowlevel = True,
     ),
     _60p = device('nicos_demo.vpgaa.devices.DSPec',

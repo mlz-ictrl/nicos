@@ -13,7 +13,7 @@ devices = dict(
     ),
     image = device('nicos.devices.generic.VirtualImage',
         description = 'image for the camera',
-        sizes = (1024, 1024),
+        size = (1024, 1024),
         lowlevel = True,
     ),
     cam = device('nicos.devices.generic.Detector',

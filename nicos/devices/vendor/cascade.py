@@ -58,7 +58,7 @@ class CascadeDetector(BaseImageChannel):
                              'number of foils configured in the server!',
                              type=listof(intrange(0, 31)), settable=False,
                              mandatory=True, category='instrument'),
-        'sizes':       Param('Detector size in pixels (x, y)',
+        'size':        Param('Detector size in pixels (x, y)',
                              type=tupleof(intrange(1, 1024),
                                           intrange(1, 1024)),
                              settable=False, default=(128, 128)),
@@ -92,8 +92,8 @@ class CascadeDetector(BaseImageChannel):
 
     def doUpdateMode(self, value):
         self._dataprefix = (value == 'image') and 'IMAG' or 'DATA'
-        self._datashape = (value == 'image') and self.sizes or (
-            (self.tofchannels,) + self.sizes)
+        self._datashape = (value == 'image') and self.size or (
+            self.size + (self.tofchannels,))
         self._tres = (value == 'image') and 1 or self.tofchannels
 
     #
@@ -117,7 +117,7 @@ class CascadeDetector(BaseImageChannel):
 
     def doInit(self, mode):
         # self._tres is set by doUpdateMode
-        self._xres, self._yres = self.sizes
+        self._xres, self._yres = self.size
         # if mode != SIMULATION:
         #    self.doReset()
 

@@ -14,7 +14,7 @@ devices = dict(
     neo = device('nicos.devices.generic.VirtualImage',
         description = 'demo 2D detector',
         fmtstr = '%d',
-        sizes = (1024, 1024),
+        size = (1024, 1024),
         lowlevel = True,
     ),
     temp_neo = device('nicos.devices.generic.VirtualTemperature',

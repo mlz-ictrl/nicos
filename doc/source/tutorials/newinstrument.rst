@@ -260,7 +260,7 @@ And for the detector we put its configuration into
         ),
         image = device('nicos.devices.generic.VirtualImage',
             lowlevel = True,
-            sizes = (80, 256),
+            size = (80, 256),
         ),
         det = device('nicos.devices.generic.Detector',
             description = 'Detector device with timer, monitor, and image',

@@ -33,7 +33,7 @@ devices = dict(
         mcstasfile = 'PSD_BIODIFF_total.psd',
         description = 'Image plate image',
         fmtstr = '%d',
-        # sizes = (625, 450),
+        # size = (625, 450),
         lowlevel = True,
     ),
     imgdet = device('nicos_mlz.biodiff.devices.detector.BiodiffDetector',

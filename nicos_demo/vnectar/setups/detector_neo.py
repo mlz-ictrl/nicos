@@ -12,7 +12,7 @@ devices = dict(
     ),
     neo = device('nicos.devices.generic.VirtualImage',
         description = 'Andor Neo sCMOS camera detector image',
-        sizes = (1024, 1024),
+        size = (1024, 1024),
     ),
     temp_neo = device('nicos.devices.generic.VirtualTemperature',
         description = 'The CMOS chip temperature',

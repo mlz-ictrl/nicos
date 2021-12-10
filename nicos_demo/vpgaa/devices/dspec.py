@@ -36,8 +36,8 @@ class Spectrum(VirtualImage):
     }
 
     parameter_overrides = {
-        'sizes': Override(type=tupleof(intrange(1, 1), intrange(1, 16384)),
-                          default=(1, 16384)),
+        'size': Override(type=tupleof(intrange(1, 1), intrange(1, 16384)),
+                         default=(1, 16384)),
         'iscontroller': Override(settable=True),
     }
 

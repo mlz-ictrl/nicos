@@ -18,7 +18,7 @@ devices = dict(
     ),
     ccd = device('nicos.devices.generic.VirtualImage',
         description = 'The CCD detector',
-        sizes = (1024, 1024),
+        size = (1024, 1024),
     ),
     ccdTemp = device('nicos.devices.generic.VirtualTemperature',
         description = 'Temperature of the CCD detector',

@@ -26,7 +26,7 @@ devices = dict(
     ccd = device('nicos.devices.generic.VirtualImage',
         description = 'Andor DV936 CCD camera',
         fmtstr = '%d',
-        sizes = (1024, 1024),
+        size = (1024, 1024),
         lowlevel = True,
     ),
     roi1 = device("nicos.devices.generic.RectROIChannel",
