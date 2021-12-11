@@ -19,7 +19,7 @@
 #
 # Module authors:
 #   Jens Krüger <jens.krueger@frm2.tum.de>
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Georg Brandl <g.brandl@fz-juelich.de>
 #   Christian Felder <c.felder@fz-juelich.de>
 #
 # *****************************************************************************

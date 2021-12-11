@@ -20,7 +20,7 @@
 # Module authors:
 #   Peter Link <peter.link@frm2.tum.de>
 #   Holger Gibhardt <hgibhar@gwdg.de>
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Georg Brandl <g.brandl@fz-juelich.de>
 #
 # *****************************************************************************
 

@@ -19,7 +19,7 @@
 #
 # Module authors:
 #   Christian Felder <c.felder@fz-juelich.de>
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Georg Brandl <g.brandl@fz-juelich.de>
 #   Enrico Faulhaber <enrico.faulhaber@frm2.tum.de>
 #
 # *****************************************************************************

@@ -21,7 +21,7 @@
 #   Bertrand Roessli
 #   Marc Janoschek
 #   Florian Bernlochner
-#   Georg Brandl <georg.brandl@frm2.tum.de>
+#   Georg Brandl <g.brandl@fz-juelich.de>
 #
 # *****************************************************************************
 
