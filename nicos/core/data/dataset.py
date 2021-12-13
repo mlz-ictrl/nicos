@@ -228,8 +228,8 @@ class PointDataset(BaseDataset):
         """Value statistics.
 
         The value statistics is a dictionary where the key is the device name
-        and the value is a tuple of mean value, standard deviation, minimum value
-        and maximum value.
+        and the value is a tuple of mean value, standard deviation, minimum
+        value and maximum value.
         """
         res = {}
         with self._statslock:

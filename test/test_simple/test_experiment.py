@@ -74,7 +74,8 @@ def test_experiment(session, cleanup):
 
     assert exp.scriptpath == spath
     ensureDirectory(spath)
-    with open(path.join(spath, 'servicestart.py'), 'w', encoding='utf-8') as fp:
+    with open(path.join(spath, 'servicestart.py'), 'w',
+              encoding='utf-8') as fp:
         fp.write('Remark("service time")\n')
 
     # first, go in service mode

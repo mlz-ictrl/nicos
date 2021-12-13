@@ -227,7 +227,7 @@ class TestEpicsKafkaForwarderControl(TestCase):
 
     def test_empty_status_update_nothrows_if_no_issued(self):
         try:
-            self.device.status_update(dict())
+            self.device.status_update({})
             assert True
         except Exception as e:
             assert False, str(e)
@@ -235,7 +235,7 @@ class TestEpicsKafkaForwarderControl(TestCase):
     def test_empty_status_update_throws_if_issued(self):
         self.device._issued = {'pv': ()}
         with pytest.raises(KeyError):
-            assert self.device.status_update(dict())
+            assert self.device.status_update({})
 
     def test_status_message_on_empty_issued_gives_none_issued(self):
         message = {'streams': [create_stream('pv')]}

@@ -134,7 +134,7 @@ def test_dryrun(session, facility, instr, script):
     fullpath = path.join(custom_dir, instr, 'testscripts', script)
     cachepath = path.join(custom_dir, instr, 'testscripts', 'cache')
 
-    with open(fullpath) as fp:
+    with open(fullpath, encoding='utf-8') as fp:
         for line in fp:
             if line.startswith('# test:'):
                 parts = line.split(None, 4)

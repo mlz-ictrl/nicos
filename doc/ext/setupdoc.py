@@ -299,7 +299,7 @@ class SetupDirective(Directive):
             klass = getattr(mod, klass)
             CLASS_CACHE[classPath] = klass
             return klass
-        except ImportError as e:
+        except ImportError:
             self.warning('Could not import device class %s' % classPath)
         except AttributeError as e:
             self.warning(str(e))

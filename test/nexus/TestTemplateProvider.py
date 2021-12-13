@@ -23,7 +23,7 @@
 # *****************************************************************************
 from nicos.nexus.nexussink import NexusTemplateProvider
 
-test_template = dict()
+test_template = {}
 
 
 def setTemplate(temp):

@@ -91,6 +91,6 @@ class TestSinks:
     def test_yaml_file_content(self, session):
         yamlfile = path.join(session.experiment.datapath, 'm200000043.yaml')
 
-        with open(yamlfile) as df:
+        with open(yamlfile, encoding='utf-8') as df:
             contents = yaml.safe_load(df)
         assert contents['experiment']

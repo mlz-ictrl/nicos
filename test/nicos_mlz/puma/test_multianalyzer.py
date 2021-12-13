@@ -128,14 +128,16 @@ class TestMultiAnalyzer:
 
         dirname = os.path.dirname(__file__)
         # read good targets from file
-        with open(os.path.join(dirname, 'man_test.txt')) as f:
+        with open(os.path.join(dirname, 'man_test.txt'),
+                  encoding='utf-8') as f:
             for s in f.readlines():
                 # convert stringified list to list avoiding use of 'eval'
                 v = ast.literal_eval(s)
                 assert man.isAllowed(v)[0]
 
         # read bad targets from file
-        with open(os.path.join(dirname, 'man_test_fail.txt')) as f:
+        with open(os.path.join(dirname, 'man_test_fail.txt'),
+                  encoding='utf-8') as f:
             for s in f.readlines():
                 # convert stringified list to list avoiding use of 'eval'
                 v = ast.literal_eval(s)
