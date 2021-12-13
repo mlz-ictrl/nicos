@@ -243,12 +243,12 @@ def activation(formula=None, instrument=None,
             % locals()
     qs = ACTIVATIONURL + qs
     try:
-        response = urllib.request.urlopen(qs)
+        with urllib.request.urlopen(qs) as response:
+            data = json.load(response)
     except urllib.error.HTTPError as e:
         session.log.warning('Error opening: %s', qs)
         session.log.warning(e)
         return None
-    data = json.load(response)
     if data['ecode'] == 'unknown instrument' and flux is None:
         session.log.warning('Instrument %s unknown to calculator, '
                             'specify flux manually', instrument)

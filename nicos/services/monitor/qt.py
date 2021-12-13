@@ -409,8 +409,8 @@ class Monitor(BaseMonitor):
     def newWidgetInfo(self, info):
         self._statuslabel.setText(info)
 
-    def updateTitle(self, title):
-        self._master.updateTitle.emit(title)
+    def updateTitle(self, text):
+        self._master.updateTitle.emit(text)
 
     def switchWarnPanel(self, on):
         self._master.switchWarnPanel.emit(on)

@@ -74,7 +74,7 @@ def test_experiment(session, cleanup):
 
     assert exp.scriptpath == spath
     ensureDirectory(spath)
-    with open(path.join(spath, 'servicestart.py'), 'w') as fp:
+    with open(path.join(spath, 'servicestart.py'), 'w', encoding='utf-8') as fp:
         fp.write('Remark("service time")\n')
 
     # first, go in service mode
@@ -123,7 +123,7 @@ def test_experiment(session, cleanup):
     nr = readFileCounter(datapath('..', 'counters'), 'scan')
     fn = datapath('p999', 'data', 'p999_%08d.dat' % nr)
     assert path.isfile(fn)
-    with open(fn, 'r') as fp:
+    with open(fn, 'r', encoding='utf-8') as fp:
         assert 'Meßzeit' in fp.read()
 
     # now, finish the experiment

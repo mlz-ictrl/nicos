@@ -42,11 +42,11 @@ class NicosGuiClient(NicosClient, QObject):
     error = pyqtSignal(object)
     initstatus = pyqtSignal(object)
 
-    for evt in DAEMON_EVENTS:
-        if DAEMON_EVENTS[evt][1]:
-            locals()[evt] = pyqtSignal(object, object)
+    for evk, event in DAEMON_EVENTS.items():
+        if event[1]:
+            locals()[evk] = pyqtSignal(object, object)
         else:
-            locals()[evt] = pyqtSignal(object)
+            locals()[evk] = pyqtSignal(object)
 
     def __init__(self, parent, parent_logger):
         QObject.__init__(self, parent)

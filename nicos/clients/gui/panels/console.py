@@ -33,7 +33,7 @@ from nicos.clients.gui.utils import enumerateWithProgress, loadUi, modePrompt
 from nicos.guisupport.qt import QAbstractPrintDialog, QDialog, QFileDialog, \
     QMenu, QMessageBox, QPrintDialog, QPrinter, Qt, QTextEdit, pyqtSlot
 from nicos.guisupport.utils import setBackgroundColor
-from nicos.utils import chunks, findResource
+from nicos.utils import LOCALE_ENCODING, chunks, findResource
 
 
 class ConsolePanel(Panel):
@@ -213,7 +213,7 @@ class ConsolePanel(Panel):
             return
         try:
             fn = fn.encode(sys.getfilesystemencoding())
-            with open(fn, 'w') as f:
+            with open(fn, 'w', encoding=LOCALE_ENCODING) as f:
                 f.write(self.outView.getOutputString())
         except Exception as err:
             QMessageBox.warning(self, 'Error', 'Writing file failed: %s' % err)

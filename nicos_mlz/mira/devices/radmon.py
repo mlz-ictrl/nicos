@@ -40,7 +40,8 @@ class RadMon(Readable):
 
     def doRead(self, maxage=0):
         img = self._op.open('http://miracam.mira.frm2/IMAGE.JPG').read()
-        open('/tmp/radmon.jpg', 'wb').write(img)
+        with open('/tmp/radmon.jpg', 'wb') as f:
+            f.write(img)
         p1 = createSubprocess('/usr/local/bin/ssocr -d 3 -i 1 -t 50 -l maximum '
                               'rotate 1 crop 300 157 57 30 '
                               'make_mono invert keep_pixels_filter 5 '

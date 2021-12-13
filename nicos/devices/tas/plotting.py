@@ -75,11 +75,11 @@ class SpaceMap:
 
         self.taus = []
         self.hkls = []
-        for kwd in kwds:
-            if kwd.startswith('tau'):
-                self.taus.append(kwds[kwd])
-            elif kwd.startswith('hkl'):
-                self.hkls.append(kwds[kwd])
+        for key, value in kwds.items():
+            if key.startswith('tau'):
+                self.taus.append(value)
+            elif key.startswith('hkl'):
+                self.hkls.append(value)
 
         mode = self.tasinfo['scanmode']
         const = self.tasinfo['scanconstant']

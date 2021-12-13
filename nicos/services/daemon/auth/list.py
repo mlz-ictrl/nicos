@@ -94,8 +94,7 @@ class Authenticator(BaseAuthenticator):
         for (user, pw, level) in self.passwd:
             if user == '':  # pylint: disable=compare-to-empty-string
                 if pw and pw == self._hash(password):
-                    if level > USER:
-                        level = USER  # limit passworded anonymous to USER
+                    level = min(level, USER)  # limit passworded anonymous to USER
                     return User(username, level)
                 elif not pw:  # fix passwordless anonymous to GUEST
                     return User(username, GUEST)

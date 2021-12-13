@@ -208,7 +208,7 @@ class NicosClassDocumenter(ClassDocumenter):
             'name': self.object.__name__,
             'module': self.env.ref_context.get('py:module',
                                                self.object.__module__),
-            'blurb': docstr.split('\n\n')[0],
+            'blurb': docstr.split('\n\n', maxsplit=1)[0],
         }
 
         mandatoryparaminfo = []

@@ -221,12 +221,8 @@ class DNSScan(Cmdlet):
         # if only SF or only NSF or empty list, use t= instead of both
         sf_state = '_sf' in fieldstring
         nsf_state = '_nsf' in fieldstring
-        timestring = '{}sf={}{}, {}nsf={}{}'.format(values['norm'],
-                                                    values['SF'],
-                                                    mpm_string,
-                                                    values['norm'],
-                                                    values['NSF'],
-                                                    mpm_string)
+        timestring = '{norm}sf={SF}{mpm}, {norm}nsf={NSF}{mpm}'.format(
+            **values, mpm=mpm_string)
         if ("'off'" in active_fields or
                 not active_fields or
                 (nsf_state and not sf_state)):
@@ -270,14 +266,10 @@ class PowderScan(DNSScan):
         command, values, increment, fieldstring, timestring = \
             self.pregenerate(mode)
         command += ('scan([det_rot, sample_rot], '
-                    '[{}, {}], [{}, {}], {}, {}{})').format(
-                        values['lowest_2theta'],
-                        values['omega_start'],
-                        increment,
-                        increment,
-                        values['bankpositions'],
-                        fieldstring,
-                        timestring)
+                    '[{lowest_2theta}, {omega_start}], '
+                    '[{increment}, {increment}], {bankpositions}, {fs}{ts})'
+                    ).format(**values, fs=fieldstring, ts=timestring,
+                             increment=increment)
         if values['close_after']:
             command += "\nmaw(expshutter, 'closed')"
         return command

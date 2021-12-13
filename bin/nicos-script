@@ -31,6 +31,7 @@ from os import path
 sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
 from nicos.core.sessions.simple import ScriptSession
+from nicos.utils import LOCALE_ENCODING
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-M', '--maintenance', dest='mode', const='maintenance',
@@ -52,7 +53,8 @@ elif len(opts.args) >= 2:
 
 setup = setup.split(',')
 if path.isfile(script):
-    script_text = open(script, 'U').read()
+    with open(script, 'U', encoding=LOCALE_ENCODING) as f:
+        script_text = f.read()
 else:
     script_text = script
 

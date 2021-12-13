@@ -58,7 +58,7 @@ def printout(*args, **kwargs):
 
 if path.isfile(_DEFAULT) and 'INSTRUMENT' not in os.environ:
     try:
-        with open(_DEFAULT, 'r') as fd:
+        with open(_DEFAULT, 'r', encoding='utf-8') as fd:
             for line in fd:
                 if not line.startswith('#'):
                     (key, sep, value) = line.partition('=')
@@ -96,6 +96,7 @@ def get_config():
         services = [svc.strip() for svc in services.split(',')]
     return services, log_path, pid_path
 
+
 SERVICES, LOG_PATH, PID_PATH = get_config()
 
 
@@ -129,8 +130,9 @@ def read_pidfile(name, wait=0):
     pidpath = path.join(PID_PATH, '%s.pid' % name)
     while True:
         try:
-            pid = open(pidpath, 'rb').read()
-            pid = int(pid)
+            with open(pidpath, 'rb') as f:
+                pid = f.read()
+                pid = int(pid)
         except (OSError, ValueError):
             if time.time() > begin + wait:
                 return
@@ -320,6 +322,7 @@ def main(args):
             check_stray_procs(name)
 
     return exitstatus
+
 
 try:
     exitstatus = main(sys.argv)
