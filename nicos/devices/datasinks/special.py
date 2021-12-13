@@ -46,15 +46,15 @@ class DaemonSinkHandler(DataSinkHandler):
     def _emitDataset(self):
         session.emitfunc('dataset', ScanData(self.dataset))
 
-    def addSubset(self, point):
-        if point.settype != POINT:
+    def addSubset(self, subset):
+        if subset.settype != POINT:
             return
         if not self._dataset_emitted:
             self._emitDataset()
             self._dataset_emitted = True
         else:
-            xvalues = point.devvaluelist + point.envvaluelist
-            yvalues = point.detvaluelist
+            xvalues = subset.devvaluelist + subset.envvaluelist
+            yvalues = subset.detvaluelist
             session.emitfunc('datapoint',
                              (str(self.dataset.uid), xvalues, yvalues))
 
