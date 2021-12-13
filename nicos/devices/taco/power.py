@@ -24,9 +24,9 @@
 
 """TACO power supply classes."""
 
-# pylint: disable=import-error
-import DEVERRORS
-from PowerSupply import CurrentControl, VoltageControl
+import DEVERRORS  # pylint: disable=import-error
+from PowerSupply import CurrentControl, VoltageControl \
+    # pylint: disable=import-error
 
 from nicos import session
 from nicos.core import HasLimits, HasOffset, Moveable, MoveError, NicosError, \

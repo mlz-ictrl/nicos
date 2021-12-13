@@ -25,9 +25,9 @@
 
 """Detector classes for NICOS."""
 
-import IOCommon
-import TACOStates
-from IO import Counter, Timer
+import IOCommon  # pylint: disable=import-error
+import TACOStates  # pylint: disable=import-error
+from IO import Counter, Timer  # pylint: disable=import-error
 
 from nicos.core import Param, UsageError, oneofdict
 from nicos.devices.generic import ActiveChannel, CounterChannelMixin, \
