@@ -27,6 +27,7 @@
 import fnmatch
 import inspect
 import linecache
+import locale
 import os
 import re
 import signal
@@ -57,6 +58,11 @@ try:
     import pwd
 except ImportError:
     pwd = grp = None
+
+try:
+    LOCALE_ENCODING = locale.getpreferredencoding(False)
+except Exception:
+    LOCALE_ENCODING = 'utf-8'
 
 
 # all builtin number types (useful for isinstance checks)

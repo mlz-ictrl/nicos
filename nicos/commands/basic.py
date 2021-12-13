@@ -25,7 +25,6 @@
 """Module for basic user commands."""
 
 import builtins
-import locale
 import os
 import sys
 import time
@@ -42,8 +41,8 @@ from nicos.core.sessions.utils import EXECUTIONMODES
 from nicos.core.spm import AnyDev, Bool, DeviceName, Multi, Num, Oneof, \
     SetupName, String, spmsyntax
 from nicos.devices.notifiers import Mailer
-from nicos.utils import fixupScript, formatArgs, formatDuration, printTable, \
-    reexecProcess, resolveClasses
+from nicos.utils import LOCALE_ENCODING, fixupScript, formatArgs, \
+    formatDuration, printTable, reexecProcess, resolveClasses
 from nicos.utils.timer import Timer
 
 __all__ = [
@@ -58,11 +57,6 @@ __all__ = [
     'ListDataReceivers', '_trace', 'timer',
     'LogEntry', '_LogAttach', 'SetErrorAbort', 'pause', 'abort',
 ]
-
-try:
-    ENCODING = locale.getpreferredencoding(False)
-except Exception:
-    ENCODING = 'utf-8'
 
 
 # -- help and introspection ---------------------------------------------------
@@ -689,7 +683,7 @@ def _RunScript(filename, statdevices, debug=False):
             dev._sim_max = None
     session.log.info('running user script: %s', fn)
     try:
-        with open(fn, 'r', encoding=ENCODING) as fp:
+        with open(fn, 'r', encoding=LOCALE_ENCODING) as fp:
             code = fp.read()
     except Exception as e:
         if session.mode == SIMULATION:

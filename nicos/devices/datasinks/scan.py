@@ -25,7 +25,6 @@
 """Data sink classes (new API) for NICOS."""
 
 import datetime
-import locale
 import re
 from io import TextIOWrapper
 from os.path import basename
@@ -37,14 +36,9 @@ from nicos.core import INFO_CATEGORIES, ConfigurationError, DataSink, \
 from nicos.core.constants import POINT, SCAN, SUBSCAN
 from nicos.core.data.dataset import PointDataset, ScanData, ScanDataset
 from nicos.devices.datasinks import FileSink
-from nicos.utils import tabulated
+from nicos.utils import LOCALE_ENCODING, tabulated
 
 TIMEFMT = '%Y-%m-%d %H:%M:%S'
-
-try:
-    ENCODING = locale.getpreferredencoding(False)
-except Exception:
-    ENCODING = 'utf-8'
 
 
 def safe_format(fmtstr, value):
@@ -279,7 +273,7 @@ class AsciiScanfileReader:
                 return 'counter'
             return 'other'
 
-        with open(filename, 'r', encoding=ENCODING) as f:
+        with open(filename, 'r', encoding=LOCALE_ENCODING) as f:
             for line in f:
                 lin = line.strip()
                 if lin.startswith('###'):

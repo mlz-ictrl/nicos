@@ -29,7 +29,6 @@ import ctypes
 import ctypes.util
 import getpass
 import glob
-import locale
 import os
 import random
 import readline
@@ -52,8 +51,8 @@ from nicos.core import MAINTENANCE, MASTER, SIMULATION, SLAVE
 from nicos.protocols.daemon import BREAK_AFTER_LINE, BREAK_AFTER_STEP, \
     SIM_STATES, STATUS_IDLE, STATUS_IDLEEXC, STATUS_INBREAK
 from nicos.protocols.daemon.classic import DEFAULT_PORT
-from nicos.utils import colorize, formatDuration, formatEndtime, \
-    parseConnectionString, terminalSize
+from nicos.utils import LOCALE_ENCODING, colorize, formatDuration, \
+    formatEndtime, parseConnectionString, terminalSize
 from nicos.utils.loggers import ACTION, INPUT
 
 levels = {DEBUG: 'DEBUG', INFO: 'INFO', WARNING: 'WARNING',
@@ -80,11 +79,6 @@ tab: complete
 
 # yay, global state!
 readline_result = Ellipsis
-
-try:
-    ENCODING = locale.getpreferredencoding(False)
-except Exception:
-    ENCODING = 'utf-8'
 
 
 def readline_finish_callback(result):
@@ -787,7 +781,7 @@ class NicosCmdClient(NicosClient):
                 return
             fpath = path.join(self.scriptpath, path.expanduser(arg))
             try:
-                with open(fpath, encoding=ENCODING) as f:
+                with open(fpath, encoding=LOCALE_ENCODING) as f:
                     code = f.read()
             except Exception as e:
                 self.put_error('Unable to open file: %s.' % e)
@@ -809,7 +803,7 @@ class NicosCmdClient(NicosClient):
                 return
             fpath = path.join(self.scriptpath, path.expanduser(arg))
             try:
-                with open(fpath, encoding=ENCODING) as f:
+                with open(fpath, encoding=LOCALE_ENCODING) as f:
                     code = f.read()
             except Exception as e:
                 self.put_error('Unable to open file: %s.' % e)
@@ -825,7 +819,7 @@ class NicosCmdClient(NicosClient):
             # detect whether we have a filename or potential Python code
             if path.isfile(fpath) or fpath.endswith(('.py', '.txt')):
                 try:
-                    with open(fpath, encoding=ENCODING) as f:
+                    with open(fpath, encoding=LOCALE_ENCODING) as f:
                         code = f.read()
                 except Exception as e:
                     self.put_error('Unable to open file: %s.' % e)
