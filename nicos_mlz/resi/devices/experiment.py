@@ -50,7 +50,7 @@ class ResiExperiment(Experiment):
         """deviate from default of <dataroot>/<year>/<proposal>"""
         return path.join(self.dataroot, 'zyklus' + str(self.cycle), proposal)
 
-    def new(self, proposal, title=None, users=None, localcontact=None, **kwds):
+    def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
         # Resi-specific handling of proposal number
         if isinstance(proposal, int):
             proposal = 'p%s' % proposal
