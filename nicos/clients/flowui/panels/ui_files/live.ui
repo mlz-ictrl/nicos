@@ -191,8 +191,6 @@
    </property>
   </action>
  </widget>
- <resources>
-  <include location="../../../resources/nicos-gui-material.qrc"/>
- </resources>
+
  <connections/>
 </ui>

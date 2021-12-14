@@ -90,11 +90,6 @@
         <property name="text">
          <string>New Cmd</string>
         </property>
-        <property name="icon">
-         <iconset resource="../../../resources/nicos-gui-material.qrc">
-          <normaloff>:/material/add</normaloff>
-          <normalon>:/material/remove</normalon>:/material/add</iconset>
-        </property>
         <property name="checkable">
          <bool>true</bool>
         </property>
@@ -111,10 +106,6 @@
         <property name="text">
          <string>Dry run</string>
         </property>
-        <property name="icon">
-         <iconset resource="../../../resources/nicos-gui-material.qrc">
-          <normaloff>:/material/play_outline</normaloff>:/material/play_outline</iconset>
-        </property>
        </widget>
       </item>
       <item>
@@ -124,10 +115,6 @@
         </property>
         <property name="text">
          <string>Run</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../../../resources/nicos-gui-material.qrc">
-          <normaloff>:/material/play</normaloff>:/material/play</iconset>
         </property>
        </widget>
       </item>
@@ -267,7 +254,6 @@
  </customwidgets>
  <resources>
   <include location="../../../resources/nicos-gui.qrc"/>
-  <include location="../../../resources/nicos-gui-material.qrc"/>
  </resources>
  <connections/>
 </ui>
