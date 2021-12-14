@@ -83,8 +83,8 @@ class Timer:
         called.
         """
         if cb_func is not Ellipsis:
-            self._cb_args = cb_args or tuple()
-            self._cb_kwds = cb_kwds or dict()
+            self._cb_args = cb_args or ()
+            self._cb_kwds = cb_kwds or {}
             self._cb_func = cb_func
         self._run_for = run_for
         self._started = monotonic()

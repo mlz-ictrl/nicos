@@ -194,8 +194,7 @@ class TofImageSinkHandler(TofSinkHandler):
             # is not finished yet. If the time between start time and current
             # time is less then the preset the counting is running or stopped
             time = min(currenttime() - self.dataset.started, float(info[0]))
-            if time > preset:
-                time = preset
+            time = min(time, preset)
             if time < preset:
                 lines.append('ToGo: %.0f s' % (preset - time))
             lines.append('Status: %5.1f %% completed' %

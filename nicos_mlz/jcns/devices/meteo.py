@@ -22,8 +22,7 @@
 #
 # *****************************************************************************
 
-import nicos.core.status as status
-from nicos.core import HasOffset, Override, Param, Readable, oneof
+from nicos.core import HasOffset, Override, Param, Readable, oneof, status
 from nicos.core.errors import NicosError
 
 try:

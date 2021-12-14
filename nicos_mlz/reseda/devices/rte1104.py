@@ -45,7 +45,7 @@ class RTE1104(Readable):
     }
 
     attached_devices = {
-       'io': Attach('Communication device', StringIO),
+        'io': Attach('Communication device', StringIO),
     }
 
     def doRead(self, maxage=0):
@@ -93,12 +93,12 @@ class RTE1104TimescaleSetting(Moveable):
         # main value is freq!
         if self._attached_freqgen:
             return self._attached_freqgen.read(maxage)
-        return self.timescale/float(self._attached_io.communicate(
-            'TIM:SCAL?' % self.channel))
+        return self.timescale / float(self._attached_io.communicate(
+            'TIM:SCAL?'))  # % self.channel))
 
     def doStart(self, target):
-        self._attached_io.writeLine('TIM:SCAL %g' %
-                                    (self.timescale/float(target)))
+        self._attached_io.writeLine(
+            'TIM:SCAL %g' % (self.timescale / float(target)))
         if self._attached_freqgen:
             self._attached_freqgen.start(target)
 
@@ -117,9 +117,9 @@ class RTE1104YScaleSetting(Moveable):
     }
 
     attached_devices = {
-       'io': Attach('Communication device', StringIO),
-       'regulator': Attach('regulator for the amplitude', Moveable,
-                           optional=True),
+        'io': Attach('Communication device', StringIO),
+        'regulator': Attach('regulator for the amplitude', Moveable,
+                            optional=True),
     }
 
     parameter_overrides = {

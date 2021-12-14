@@ -45,8 +45,8 @@ class JsonCacheEntrySerializer(CacheEntrySerializer):
         entry_dict['key'] = key
         return self._encoder.encode(entry_dict)
 
-    def decode(self, coded):
-        edict = self._decoder.decode(coded)
+    def decode(self, encoded):
+        edict = self._decoder.decode(encoded)
         entry = CacheEntry(edict['time'], edict['ttl'], edict['value'])
         entry.expired = edict['expired']
         key = edict['key']

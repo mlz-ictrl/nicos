@@ -27,7 +27,7 @@ import time
 from collections import OrderedDict
 from os import path
 
-from nicos.core import status
+from nicos.core.status import BUSY
 from nicos.guisupport.led import ClickableOutputLed
 from nicos.guisupport.qt import QAbstractButton, QAbstractSpinBox, QCheckBox, \
     QComboBox, QCursor, QDateTime, QDateTimeEdit, QDoubleValidator, \
@@ -410,9 +410,9 @@ class AttCell(CellItem):
         self.cb.valueChanged[int].connect(self.on_cb_changed)
         self.set_layout()
 
-    def setValue(self, value):
-        if value in AttCell.Attenuators:
-            self.state = float(value)
+    def setValue(self, val):
+        if val in AttCell.Attenuators:
+            self.state = float(val)
             if not self.cb.isVisible():
                 for i, led in enumerate(self.cled):
                     led.setValue(AttCell.Attenuators[self.state][i])
@@ -458,9 +458,9 @@ class PosCell(CellItem):
         self.setMaximumWidth(45)
         self.cb.valueChanged[int].connect(self.on_cb_changed)
 
-    def setValue(self, newData):
-        if newData in range(1, 16 + 1):
-            self.cb.setValue(newData)
+    def setValue(self, val):
+        if val in range(1, 16 + 1):
+            self.cb.setValue(val)
 
     def value(self):
         return int(self.cb.value())
@@ -483,8 +483,8 @@ class BeamCell(CellItem):
         self.set_layout()
         self.led.valueChanged[int].connect(self.on_led_changed)
 
-    def setValue(self, new_data):
-        self.led.setValue(new_data)
+    def setValue(self, val):
+        self.led.setValue(val)
 
     def value(self):
         return self.led.value()
@@ -508,8 +508,8 @@ class ValueCell(CellItem):
         self.vd.valueChanged[int].connect(self.valueChanged)
         self.vd.valueChanged[float].connect(self.valueChanged)
 
-    def setValue(self, new_data):
-        next_val = float(new_data)
+    def setValue(self, val):
+        next_val = float(val)
         self.vd.setValue(next_val)
         self.state = next_val
 
@@ -542,11 +542,11 @@ class CondCell(CellItem):
         self.set_layout()
         self.setMaximumWidth(100)
 
-    def setValue(self, new_data):
-        if new_data in CondCell.conds:
-            self.cc.setValue(new_data)
-            self.state = new_data
-            self.condChanged.emit(new_data)
+    def setValue(self, val):
+        if val in CondCell.conds:
+            self.cc.setValue(val)
+            self.state = val
+            self.condChanged.emit(val)
 
     def value(self):
         return self.cc.currentText()
@@ -593,9 +593,9 @@ class StartCell(CellItem):
         self.set_layout()
         self.setValue(state)
 
-    def setValue(self, new_data):
-        self.state[0] = int(float(new_data[0]))
-        self.state[1] = int(float(new_data[1]))
+    def setValue(self, val):
+        self.state[0] = int(float(val[0]))
+        self.state[1] = int(float(val[1]))
         dt = QDateTime()
         dt.setMSecsSinceEpoch(self.state[0] * 1000)
         self.date_widget.setDateTime(dt)
@@ -666,8 +666,8 @@ class ElColCell(CellItem):
         self.picbtn.clicked.connect(self.on_clicked)
         self.setValue(state)
 
-    def setValue(self, new_data):
-        self.picbtn.setChecked(new_data == 'Ell')
+    def setValue(self, val):
+        self.picbtn.setChecked(val == 'Ell')
         self.picbtn.update()
 
     def value(self):
@@ -694,9 +694,9 @@ class DetectorCell(CellItem):
         self.cb_leg.stateChanged.connect(self.on_statechanged)
         self.cb_60p.stateChanged.connect(self.on_statechanged)
 
-    def setValue(self, data):
-        self.cb_60p.setChecked('_60p' in data)
-        self.cb_leg.setChecked('LEGe' in data)
+    def setValue(self, val):
+        self.cb_60p.setChecked('_60p' in val)
+        self.cb_leg.setChecked('LEGe' in val)
 
     def value(self):
         s = []
@@ -730,7 +730,8 @@ class FileNum(NicosListener, QLineEdit):
 
     def keyPressEvent(self, e):
         if e.key() in [Qt.Key_Return, Qt.Key_Enter]:
-            self._client.tell('exec', 'csvsink.filecount = %s' % int(self.text()))
+            self._client.tell('exec',
+                              'csvsink.filecount = %s' % int(self.text()))
             self.setReadOnly(True)
         else:
             QLineEdit.keyPressEvent(self, e)
@@ -795,8 +796,8 @@ class DevSlider(NicosWidget, QSlider):
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         self.setValue(round(float(strvalue)))
 
-    def on_devStatusChange(self, dev, state, state_, expired):
-        self.setDisabled(state==status.BUSY)
+    def on_devStatusChange(self, dev, code, status, expired):
+        self.setDisabled(code == BUSY)
 
 
 class PushSlider(DevSlider):

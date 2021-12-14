@@ -271,18 +271,12 @@ class SXTalCell:
         mink = -maxk
         minl = -maxl
         # Apply user limits.
-        if minh < uhmin:
-            minh = uhmin
-        if mink < ukmin:
-            mink = ukmin
-        if minl < ulmin:
-            minl = ulmin
-        if maxh > uhmax:
-            maxh = uhmax
-        if maxk > ukmax:
-            maxk = ukmax
-        if maxl > ulmax:
-            maxl = ulmax
+        minh = max(minh, uhmin)
+        mink = max(mink, ukmin)
+        minl = max(minl, ulmin)
+        maxh = min(maxh, uhmax)
+        maxk = min(maxk, ukmax)
+        maxl = min(maxl, ulmax)
         result = None
 
         # Perform pre-loop calculations

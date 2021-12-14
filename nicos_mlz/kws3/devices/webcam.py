@@ -49,7 +49,7 @@ class WebcamSinkHandler(SingleFileSinkHandler):
         except Exception as e:
             self.log.warning('could not get webcam image: %s', e)
 
-    def putResults(self, quality, result):
+    def putResults(self, quality, results):
         pass
 
     def putMetainfo(self, metainfo):

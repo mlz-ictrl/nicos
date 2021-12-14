@@ -91,7 +91,7 @@ class ForwarderBase(CacheKeyFilter, DeviceMixinBase):
     def _startWorker(self):
         pass
 
-    def _putChange(self, time, ttl, key, value):
+    def _putChange(self, timestamp, ttl, key, value):
         pass
 
 
@@ -113,13 +113,14 @@ class CacheForwarder(ForwarderBase, BaseCacheClient):
     def _startWorker(self):
         self._worker.start()
 
-    def _putChange(self, time, ttl, key, value):
+    def _putChange(self, timestamp, ttl, key, value):
         if not self._checkKey(key):
             return
         if value is None:
-            msg = '%s@%s%s%s\n' % (time, self._prefix, key, OP_TELLOLD)
+            msg = '%s@%s%s%s\n' % (timestamp, self._prefix, key, OP_TELLOLD)
         else:
-            msg = '%s@%s%s%s%s\n' % (time, self._prefix, key, OP_TELL, value)
+            msg = '%s@%s%s%s%s\n' % (timestamp, self._prefix, key, OP_TELL,
+                                     value)
         self._queue.put(msg)
 
     def _handle_msg(self, _time, _ttlop, _ttl, _tsop, _key, _op, _value):
@@ -136,17 +137,17 @@ class MappingCacheForwarder(CacheForwarder):
                      mandatory=True),
     }
 
-    def _putChange(self, time, ttl, key, value):
+    def _putChange(self, timestamp, ttl, key, value):
         if not self._checkKey(key):
             return
         dev, slash, sub = key.partition('/')
         dev = self.map.get(dev, dev)
         if value is None:
-            msg = '%s@%s%s%s\n' % (time, self._prefix, dev + slash + sub,
+            msg = '%s@%s%s%s\n' % (timestamp, self._prefix, dev + slash + sub,
                                    OP_TELLOLD)
         else:
-            msg = '%s@%s%s%s%s\n' % (time, self._prefix, dev + slash + sub,
-                                     OP_TELL, value)
+            msg = '%s@%s%s%s%s\n' % (timestamp, self._prefix,
+                                     dev + slash + sub, OP_TELL, value)
         self._queue.put(msg)
 
 
@@ -174,10 +175,11 @@ class WebhookForwarder(ForwarderBase, Device):
         self._queue = queue.Queue(1000)
         self._processor = createThread('webhookprocessor', self._processQueue)
 
-    def _putChange(self, time, ttl, key, value):
+    def _putChange(self, timestamp, ttl, key, value):
         if not self._checkKey(key):
             return
-        pdict = dict(time=time, ttl=ttl, key=self._prefix + key, value=value)
+        pdict = dict(time=timestamp, ttl=ttl, key=self._prefix + key,
+                     value=value)
         retry = 2
         while retry:
             try:

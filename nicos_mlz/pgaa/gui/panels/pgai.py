@@ -509,7 +509,7 @@ class PGAIPanel(Panel):
         fn = self.fileName.text()
         if fn:
             try:
-                with open(fn, 'r') as f:
+                with open(fn, 'r', encoding='utf-8') as f:
                     for line in f.readlines():
                         x, y, z = line.split(',')
                         self.addPoint(float(x), float(y), float(z))

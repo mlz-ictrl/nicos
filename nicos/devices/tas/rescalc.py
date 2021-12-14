@@ -177,6 +177,7 @@ class unitcell:
         repstr = "<Unit cell object>\n"
         repstr += "a      b      c      alpha   beta   gamma\n"
         degree_sym = "deg"
+        # pylint: disable=bad-string-format-type
         repstr += "%2.3fA %2.3fA %2.3fA %3.1f%s   %3.1f%s   %3.1f%s\n" % \
             (self.a, self.b, self.c, degrees(self.alpha), degree_sym,
              degrees(self.beta), degree_sym, degrees(self.gamma), degree_sym)

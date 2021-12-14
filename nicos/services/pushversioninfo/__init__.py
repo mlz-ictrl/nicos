@@ -153,6 +153,7 @@ class PushVersionInfo(BaseCacheClient):
         update_string = self.update_uri + append
         update_string += urllib.parse.urlencode(paramdict)
         try:
+            # pylint: disable=consider-using-with
             urllib.request.urlopen(update_string)
             self.log.debug('update sent successfully for %s',
                            infodict.get('service', 'base'))

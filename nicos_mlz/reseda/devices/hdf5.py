@@ -51,7 +51,8 @@ class ResedaHDF5DataFile(DataFileBase, h5py.File):
 
         subst = {'subscancounter': self._subscancounter}
 
-        self._current_group = self.create_group(self.subscan_group_tmpl % subst)
+        self._current_group = self.create_group(
+            self.subscan_group_tmpl % subst)
         self._subscancounter += 1
 
         return self._current_group
@@ -92,31 +93,32 @@ class ResedaHDF5SinkHandler(DataSinkHandler):
             self.current_file.scalars_tmpl = self.sink.scalarstmpl
             self.current_file.image_tmpl = self.sink.imagetmpl
 
-    def addSubset(self, point):
+    def addSubset(self, subset):
         if self.dataset.settype == SCAN:
             return  # outer scan; nothing to do
 
-        if not point.results:
+        if not subset.results:
             return  # no results
 
-        detector = point.detectors[0]
-        data = point.results[detector.name]  # only 1 detector supported
+        detector = subset.detectors[0]
+        data = subset.results[detector.name]  # only 1 detector supported
 
         # data[1]: image (mieze), data[0]: count sums (nrse)
 
         if data[0]:
             scalars = numpy.array(data[0], dtype=numpy.int32)
             # begin point counter at 0
-            hdf5dataset = self.current_file.createScalarsDataset(point.number - 1, scalars)
+            hdf5dataset = self.current_file.createScalarsDataset(
+                subset.number - 1, scalars)
 
             for i, info in enumerate(detector.valueInfo()):
                 for attr in ['name', 'type', 'unit']:
                     hdf5dataset.attrs['value_info_%d/%s'
                                       % (i, attr)] = getattr(info, attr)
-            self._addMetadata(point.metainfo, hdf5dataset)
+            self._addMetadata(subset.metainfo, hdf5dataset)
         if data[1]:
             image = numpy.array(data[1][0], dtype=numpy.int32)
-            self.current_file.createImageDataset(point.number - 1, image)
+            self.current_file.createImageDataset(subset.number - 1, image)
 
         self.current_file.flush()
 
@@ -128,10 +130,10 @@ class ResedaHDF5SinkHandler(DataSinkHandler):
                 self.current_file = None
 
     def _addMetadata(self, metadata, hdf5dataset):
-        hdf5dataset.attrs['begintime'] = strftime('%Y-%m-%d %H:%M:%S',
-                                          localtime(self.dataset.started))
-        hdf5dataset.attrs['endtime'] = strftime('%Y-%m-%d %H:%M:%S',
-                            localtime(currenttime()))
+        hdf5dataset.attrs['begintime'] = strftime(
+            '%Y-%m-%d %H:%M:%S', localtime(self.dataset.started))
+        hdf5dataset.attrs['endtime'] = strftime(
+            '%Y-%m-%d %H:%M:%S', localtime(currenttime()))
 
         for (dev, param), (_, strvalue, unit, _) in metadata.items():
             hdf5dataset.attrs['%s/%s' % (dev, param)] = \

@@ -34,4 +34,4 @@ statuscolor = {
     status.OK: Qt.transparent,  # make it completely transparent
 }
 
-__all__ = ('statuscolor')
+__all__ = ['statuscolor']

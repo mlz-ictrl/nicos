@@ -76,7 +76,7 @@ class QPyNullVariant:
 propertyMetaclass = type(QObject)
 
 
-QT_VER = int(QT_VERSION_STR.split('.')[0])
+QT_VER = int(QT_VERSION_STR.split('.', maxsplit=1)[0])
 
 if 'linux' in sys.platform:
     import ctypes

@@ -54,21 +54,21 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         else:
             det1['pixel_height'] = 4.0
 
-    def _write_instr_data(self, meas_root, image):
+    def _write_instr_data(self, meas, image):
         manager = session.experiment.data  # get datamanager
         # get corresponding scan dataset with scan info if available
         stack = manager._stack
         if len(stack) >= 2 and isinstance(stack[-2], ScanDataset):
             scands = stack[-2]
-            meas_root['info'] = scands.info
+            meas['info'] = scands.info
         else:
-            meas_root['info'] = self.dataset.info
+            meas['info'] = self.dataset.info
 
         sample = session.experiment.sample
-        meas_root['sample']['comment'] = sample.comment
-        meas_root['sample']['timefactor'] = sample.timefactor
-        meas_root['sample']['thickness'] = sample.thickness / 1000  # in m
-        meas_root['sample']['detoffset'] = sample.detoffset / 1000
+        meas['sample']['comment'] = sample.comment
+        meas['sample']['timefactor'] = sample.timefactor
+        meas['sample']['thickness'] = sample.thickness / 1000  # in m
+        meas['sample']['detoffset'] = sample.detoffset / 1000
 
         det1 = self._dict()
         det1['type'] = 'position_sensitive_detector'
@@ -91,7 +91,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
         det1['data'] = '<see .array file>'
         det1['dataformat'] = '32-bit integer'
 
-        meas_root['detectors'] = [det1]
+        meas['detectors'] = [det1]
 
         # store device information
         deventries = {}
@@ -115,7 +115,7 @@ class YAMLFileSinkHandler(YAMLBaseFileSinkHandler):
             if key == 'value' and meta[2]:
                 deventry['unit'] = meta[2]
 
-        meas_root['devices'] = [
+        meas['devices'] = [
             entry for (_, entry) in sorted(deventries.items())
             if len(entry) > 1
         ]

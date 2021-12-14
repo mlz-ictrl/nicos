@@ -33,7 +33,7 @@ def export_table_to_csv(data, filename, headers=None):
     :param filename: file to save as
     :param headers: List of column names.
     """
-    with open(filename, "w") as file:
+    with open(filename, 'w', encoding='utf-8') as file:
         writer = csv.writer(file)
         if headers:
             writer.writerow(headers)
@@ -46,7 +46,7 @@ def import_table_from_csv(filename):
     :param filename: path to csv file
     :return: tuple of headers (empty if no headers) and rows
     """
-    with open(filename, "r") as file:
+    with open(filename, 'r', encoding='utf-8') as file:
         sniffer = csv.Sniffer()
         has_header = sniffer.has_header(file.read(2048))
         file.seek(0)

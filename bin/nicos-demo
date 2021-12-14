@@ -37,10 +37,11 @@ import psutil
 thisfile = path.realpath(__file__)
 bin_path = path.normpath(path.dirname(thisfile))
 
+# pylint: disable=consider-using-with
 dev_null = open(os.devnull, 'wb')
 background_processes = []
 
-from configparser import NoOptionError, NoSectionError, ConfigParser
+from configparser import ConfigParser, NoOptionError, NoSectionError
 
 
 def echo(s):

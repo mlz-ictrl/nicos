@@ -405,16 +405,16 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
         if quality != FINAL and self.dataset.settype != POINT:
             return
 
-    def addSubset(self, point):
+    def addSubset(self, subset):
         if not self._wrote_header:
             self._fill_header()
             self._wrote_header = True
 
-        if point.settype != POINT:
-            self.log.info('add subset: %s', point.settype)
+        if subset.settype != POINT:
+            self.log.info('add subset: %s', subset.settype)
             return
         self.log.debug('%r - %r', self.dataset.detvalueinfo,
-                       point.detvaluelist)
+                       subset.detvaluelist)
 
         # the image data are hopefully always at this place
         try:
@@ -422,7 +422,7 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
                 det = session.experiment.detectors[0]
             else:
                 det = session.getDevice(self.sink.detectors[0])
-            self._detvalues = point.results[det.name][1][0]
+            self._detvalues = subset.results[det.name][1][0]
         except IndexError:
             # create empty data set
             self.log.error('Could not get the image data from %s', det.name)
@@ -430,11 +430,11 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
 
         scanpoint = self._dict()
         scanparams = self._dict()
-        if point.devvaluelist:
-            scanparams[point.devvalueinfo[0].name] = self._float(
-                '%.2f' % point.devvaluelist[0])
+        if subset.devvaluelist:
+            scanparams[subset.devvalueinfo[0].name] = self._float(
+                '%.2f' % subset.devvaluelist[0])
         scanpoint['scan_parameters'] = scanparams
-        for (info, val) in zip(self.dataset.detvalueinfo, point.detvaluelist):
+        for (info, val) in zip(self.dataset.detvalueinfo, subset.detvaluelist):
             if info.type == 'time':
                 scanpoint['time'] = self._float('%.2f' % val)
             elif info.type == 'counter':
@@ -454,8 +454,8 @@ class YamlDatafileSinkHandler(AsciiScanfileSinkHandler):
                              array_handling=quickyaml.ARRAY_AS_SEQ).dump(
                                  self._data, self._file)
         elif yaml:
-            yaml.dump(self._data, self._file, allow_unicode=True, canonical=False,
-                      default_flow_style=False, indent=4)
+            yaml.dump(self._data, self._file, allow_unicode=True,
+                      canonical=False, default_flow_style=False, indent=4)
 
     def end(self):
         if self.dataset.settype == POINT:

@@ -518,7 +518,7 @@ class QueuedMeasurement(Measurement):
             return
         new_data = self.extract_data(newreq['script'])
         self.data.update(new_data)
-        for key in new_data:
+        for key, data in new_data.items():
             k = key
             if k == 'at_after':
                 k = 'at/after'
@@ -527,7 +527,7 @@ class QueuedMeasurement(Measurement):
             if '__%s__' % key in self.basic_script and \
                k in self.column_order:
                 index = self.column_order.index(k)
-                self.widgets[index].setValue(new_data[key])
+                self.widgets[index].setValue(data)
 
 
 class Log(Row):

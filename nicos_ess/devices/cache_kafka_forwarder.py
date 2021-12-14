@@ -150,7 +150,7 @@ class CacheKafkaForwarder(ForwarderBase, Device):
         dev_name = key[0:key.index('/')]
         if not self._checkKey(key) or not self._checkDevice(dev_name):
             return
-        self.log.debug('_putChange %s %s %s', key, value, time)
+        self.log.debug('_putChange %s %s %s', key, value, timestamp)
 
         with self._lock:
             if key.endswith('value'):

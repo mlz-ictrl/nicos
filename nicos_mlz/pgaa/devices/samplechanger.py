@@ -69,11 +69,11 @@ class SampleChanger(IsController, BaseSequencer):
         'fmtstr': Override(default='%.0f'),
     }
 
-    def isAdevTargetAllowed(self, dev, target):
-        if dev == self._attached_motor:
+    def isAdevTargetAllowed(self, adev, adevtarget):
+        if adev == self._attached_motor:
             if self._attached_push._attached_sensort.read(0) in ['down', 0]:
                 return False, '"push" is not in top position or moving'
-        elif dev == self._attached_push:
+        elif adev == self._attached_push:
             if self._attached_motor.status(0)[0] == status.BUSY:
                 return False, 'motor moving'
             if self._attached_motor.read(0) not in list(range(1, 17)):

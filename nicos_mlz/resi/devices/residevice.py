@@ -129,7 +129,7 @@ class ResiDevice(Moveable):
         return statusmap[hwstatus][0], statusmap[hwstatus][1]
 
     def doInfo(self):
-        info = list()
+        info = []
         pos = ResiPositionProxy(self._hardware.GetPosition())
         info.append(('position', pos, str(pos), '', 'experiment'))
         info.append(('reflex', self._hardware.current_reflex,

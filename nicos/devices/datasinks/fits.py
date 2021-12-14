@@ -48,9 +48,9 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
     defer_file_creation = True
     accept_final_images_only = True
 
-    def writeData(self, fp, data):
+    def writeData(self, fp, image):
         # ensure numpy type
-        npData = numpy.array(data)
+        npData = numpy.array(image)
 
         # create primary hdu from image data
         hdu = pyfits.PrimaryHDU(npData)
@@ -75,7 +75,7 @@ class FITSImageSinkHandler(SingleFileSinkHandler):
               strftime('%Y-%m-%d %H:%M:%S', localtime(self.dataset.started))),
              ('endtime',
               strftime('%Y-%m-%d %H:%M:%S', localtime(finished)))
-            ] + sorted(header.items())
+             ] + sorted(header.items())
         )
 
         for key, value in header.items():

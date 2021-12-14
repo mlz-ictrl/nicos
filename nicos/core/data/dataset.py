@@ -233,8 +233,8 @@ class PointDataset(BaseDataset):
         """
         res = {}
         with self._statslock:
-            for devname in self._valuestats:
-                t0, t1, t2, mini, maxi, _, lastv = self._valuestats[devname]
+            for devname, (t0, t1, t2,
+                          mini, maxi, _, lastv) in self._valuestats.items():
                 if t0 > 0:
                     mean = t1 / t0
                     stdev = sqrt(abs(t2 / t0 - t1 ** 2 / t0 ** 2))

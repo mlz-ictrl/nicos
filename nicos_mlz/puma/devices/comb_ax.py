@@ -58,11 +58,11 @@ class CombAxis(Axis):
         self._fixpos = self.read(0) + self._attached_fix_ax.read(0) if val \
             else None
 
-    def doIsAllowed(self, pos):
-        mainax = Axis.doIsAllowed(self, pos)
+    def doIsAllowed(self, target):
+        mainax = Axis.doIsAllowed(self, target)
         if not self.iscomb:
             return mainax
-        relpos = self._fixpos - pos
+        relpos = self._fixpos - target
         fixax = self._attached_fix_ax.isAllowed(relpos)
         if mainax[0] and fixax[0]:
             return True, 'Ok'

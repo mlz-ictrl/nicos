@@ -107,7 +107,7 @@ class SpaceMap:
             return
         pylab.scatter([x], [y], **props)
         if label is not None:
-            pylab.text(x, y-0.1, label, size='x-small',
+            pylab.text(x, y - 0.1, label, size='x-small',
                        horizontalalignment='center', verticalalignment='top')
 
     def plot_hkls(self, hkls, labels=None, **props):
@@ -125,7 +125,7 @@ class SpaceMap:
         pylab.scatter(xs, ys, **props)
         if labels is not None:
             for i, x, y in zip(indices, xs, ys):
-                pylab.text(x, y-0.1, labels[i], size='x-small',
+                pylab.text(x, y - 0.1, labels[i], size='x-small',
                            horizontalalignment='center', verticalalignment='top')
 
     def check_hkls(self, hkls):

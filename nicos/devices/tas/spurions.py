@@ -54,6 +54,7 @@ def check_acc_bragg(instr, h, k, l, ny, sc=None, verbose=False):
                    'Bragg peak, accidental Bragg scattering may occur')
     return ret
 
+
 def check_ho_spurions(kf, dEmin=0, dEmax=20):
     ret = []
     spurlist = []
@@ -110,14 +111,14 @@ def check_powderrays(ki, dlist, phi=None):
     ret = []
 
     if phi is not None:
-        for my_line in lines1_list:
-            if abs(lines1_list[my_line] - phi) < 2:
+        for my_line, angle in lines1_list.items():
+            if abs(angle - phi) < 2:
                 ret.append('powder line: %s at %6.3f deg' %
-                           (my_line, lines1_list[my_line]))
-        for my_line in lines2_list:
-            if abs(lines2_list[my_line] - phi) < 2:
+                           (my_line, angle))
+        for my_line, angle in lines2_list.items():
+            if abs(angle - phi) < 2:
                 ret.append('powder line from 2ki: %s at %6.3f deg' %
-                           (my_line, lines2_list[my_line]))
+                           (my_line, angle))
     else:
         ret.append('found powder lines for ki = %5.3f A-1:' % ki)
         for my_line, angle in lines1_list.items():

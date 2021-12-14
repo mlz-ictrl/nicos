@@ -184,9 +184,9 @@ class Experiment(BaseExperiment):
         # collect info
         stats = self._statistics()
         # encode all text that may be Unicode into RTF \u escapes
-        for key in stats:
-            if isinstance(stats[key], str):
-                stats[key] = stats[key].encode('rtfunicode')
+        for key, stat in stats.items():
+            if isinstance(stat, str):
+                stats[key] = stat.encode('rtfunicode')
 
         # template data
         newcontent, _, _ = expandTemplate(data, stats)

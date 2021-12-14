@@ -193,8 +193,8 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             filename = QFileDialog.getOpenFileName(
                 self,
                 'Open table',
-                osp.expanduser('~') if self.last_save_location is None \
-                    else self.last_save_location,
+                osp.expanduser('~') if self.last_save_location is None
+                else self.last_save_location,
                 'Table Files (*.txt *.csv)')[0]
 
             if not filename:
@@ -269,7 +269,7 @@ class LokiScriptBuilderPanel(LokiPanelBase):
     def is_data_in_hidden_columns(self):
         optional_indices = [index for index, element in
                             enumerate(self.columns_in_order)
-                            if element in self.optional_columns.keys()]
+                            if element in self.optional_columns]
         # Transform table_data to allow easy access to columns like data[0]
         data = list(zip(*self.model.table_data))
         return any(
@@ -389,8 +389,8 @@ class LokiScriptBuilderPanel(LokiPanelBase):
             self._do_bulk_update(copied_table[0][0])
             return
 
-        self.model.update_data_from_clipboard(copied_table, top_left,
-                                              self._get_hidden_column_indices())
+        self.model.update_data_from_clipboard(
+            copied_table, top_left, self._get_hidden_column_indices())
 
     def _link_duration_combobox_to_column(self, column_name, combobox):
         combobox.addItems(self.duration_options)
@@ -436,11 +436,10 @@ class LokiScriptBuilderPanel(LokiPanelBase):
                 == TransOrder.SIMULTANEOUS:
             if not all((data['sans_duration'] == data['trans_duration']
                         for data in labeled_data)):
-                self.showError(
-                        'Different SANS and TRANS duration specified in '
-                        'SIMULTANEOUS mode. SANS duration will be used in '
-                        'the script.'
-                )
+                self.showError('Different SANS and TRANS duration specified '
+                               'in SIMULTANEOUS mode. SANS duration will be '
+                               'used in the script.'
+                               )
 
         _trans_order = self._available_trans_options[
             self.comboTransOrder.currentText()]

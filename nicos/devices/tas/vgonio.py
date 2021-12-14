@@ -103,11 +103,13 @@ class VirtualGonio(Moveable):
     def doIsAllowed(self, target):
         gx, gy = self._calcReal(target)
         ok, msg = self._attached_gx.isAllowed(gx)
+        # pylint: disable=bad-string-format-type
         if not ok:
             return False, 'real X gonio cannot move to %.3f: %s' % (gx, msg)
         ok, msg = self._attached_gy.isAllowed(gy)
         if not ok:
             return False, 'real Y gonio cannot move to %.3f: %s' % (gy, msg)
+        # pylint: enable=bad-string-format-type
         return True, ''
 
     def doStart(self, target):

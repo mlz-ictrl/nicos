@@ -153,7 +153,7 @@ class MainWindow(QMainWindow):
 
     def newDeviceAddedSlot(self, deviceName, _classString):
         setupItem = self.getCurrentSetupItem()
-        if setupItem.setup.abspath not in self.setupWidgets.keys():
+        if setupItem.setup.abspath not in self.setupWidgets:
             self.loadSetup(setupItem.setup, setupItem.parent().text(0))
 
         uncombinedModule = _classString.split('.')
@@ -186,7 +186,7 @@ class MainWindow(QMainWindow):
             setupItem.setup.edited = True
 
     def deviceRemovedSlot(self, setupItem, deviceName):
-        if setupItem.setup.abspath not in self.setupWidgets.keys():
+        if setupItem.setup.abspath not in self.setupWidgets:
             self.loadSetup(setupItem.setup, setupItem.parent().text(0))
 
         try:
@@ -208,7 +208,7 @@ class MainWindow(QMainWindow):
             setupItem.setup.edited = True
 
     def deviceAddedSlot(self, setupItem, newDeviceName):
-        if setupItem.setup.abspath not in self.setupWidgets.keys():
+        if setupItem.setup.abspath not in self.setupWidgets:
             self.loadSetup(setupItem.setup, setupItem.parent().text(0))
         else:
             for deviceName, device in setupItem.setup.devices.items():

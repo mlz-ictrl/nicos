@@ -46,5 +46,5 @@ class RobotMotor(Motor):
     def doReadSpeed(self):
         return self._attached_speedmotor.read()
 
-    def doWriteSpeed(self, value):
-        self._attached_speedmotor.maw(value)
+    def doWriteSpeed(self, speed):
+        self._attached_speedmotor.maw(speed)

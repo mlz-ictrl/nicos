@@ -276,7 +276,7 @@ class ChopperDiscTranslation(CanReference, IsController, DeviceMixinBase):
         return False, 'Disc (%s) speed is too high, %.0f!' % (
             self._attached_disc, self.read(0))
 
-    def isAdevTargetAllowed(self, dev, target):
+    def isAdevTargetAllowed(self, adev, adevtarget):
         state = self.status(0)
         if state[0] == status.OK:
             return True, ''

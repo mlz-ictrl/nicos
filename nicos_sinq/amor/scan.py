@@ -44,6 +44,5 @@ class WallTimeScan(SweepScan):
 
         # Reset the preset depending on the elapsed time and expected time
         preset = num * self.walltime - self._etime.retrieve()
-        if preset < 0:
-            preset = 0
+        preset = max(preset, 0)
         self._preset = {'t': preset}

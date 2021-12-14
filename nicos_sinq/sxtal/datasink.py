@@ -84,7 +84,7 @@ class CCLSinkHandler(SINQAsciiSinkHandler):
             self._rfl_file = open(rflfile, 'w', encoding='utf-8')
             self._rfl_file.write('%s\n' % rflfile)
 
-    def addSubset(self, point):
+    def addSubset(self, subset):
         # Prevent unwelcome things from happening in the base class
         pass
 

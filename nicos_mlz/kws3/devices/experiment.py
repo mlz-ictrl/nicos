@@ -50,42 +50,42 @@ def unquote(line):
 def read_det_file(runno, senv, fname):
     data = {'#': runno, 'Run': str(runno)}
     data['Pnt'] = fname.split('_')[1].lstrip('0')
-    it = iter(open(fname, encoding='utf-8'))
-    devname = envname = None
-    for line in it:
-        if line.startswith('        started:'):
-            day, timeofday = unquote(line).split('T')
-            data['Started'] = timeofday
-            data['Day'] = day
-        elif line.startswith('        environment:'):
-            break
-    for line in it:
-        if line.startswith('        -   name:'):
-            envname = line.split()[-1]
-            if envname != 'etime':
-                senv.add(envname)
-        elif line.startswith('            value:'):
-            if envname and envname != 'etime':
-                data[envname] = unquote(line)
-        elif line.startswith('    devices:'):
-            break
-    for line in it:
-        if line.startswith('    -   name:'):
-            devname = line.split()[-1]
-        elif line.startswith('        value:'):
-            if devname == 'resolution':
-                data['Reso'] = unquote(line)
-            elif devname == 'selector':
-                data['Sel'] = unquote(line)
-            elif devname == 'sample_pos':
-                data['SamPos'] = unquote(line)
-            elif devname == 'detector':
-                data['Det'] = unquote(line)
-            elif devname == 'Sample':
-                data['Sample'] = unquote(line)
-            elif devname == 'det_img':
-                data['Cts'] = '%.2g' % float(next(it).split()[-1])
-                data['Rate'] = '%.0f' % float(next(it).split()[-1])
-            elif devname == 'timer':
-                data['Time'] = '%.1fs' % float(next(it).split()[-1])
+    with open(fname, encoding='utf-8') as it:
+        devname = envname = None
+        for line in it:
+            if line.startswith('        started:'):
+                day, timeofday = unquote(line).split('T')
+                data['Started'] = timeofday
+                data['Day'] = day
+            elif line.startswith('        environment:'):
+                break
+        for line in it:
+            if line.startswith('        -   name:'):
+                envname = line.split()[-1]
+                if envname != 'etime':
+                    senv.add(envname)
+            elif line.startswith('            value:'):
+                if envname and envname != 'etime':
+                    data[envname] = unquote(line)
+            elif line.startswith('    devices:'):
+                break
+        for line in it:
+            if line.startswith('    -   name:'):
+                devname = line.split()[-1]
+            elif line.startswith('        value:'):
+                if devname == 'resolution':
+                    data['Reso'] = unquote(line)
+                elif devname == 'selector':
+                    data['Sel'] = unquote(line)
+                elif devname == 'sample_pos':
+                    data['SamPos'] = unquote(line)
+                elif devname == 'detector':
+                    data['Det'] = unquote(line)
+                elif devname == 'Sample':
+                    data['Sample'] = unquote(line)
+                elif devname == 'det_img':
+                    data['Cts'] = '%.2g' % float(next(it).split()[-1])
+                    data['Rate'] = '%.0f' % float(next(it).split()[-1])
+                elif devname == 'timer':
+                    data['Time'] = '%.1fs' % float(next(it).split()[-1])
     return data

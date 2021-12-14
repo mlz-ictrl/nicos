@@ -108,51 +108,51 @@ class KWSExperiment(Experiment):
 
 def read_dat_file(runno, senv, fname):
     data = {'#': runno, 'Run': str(runno), 'TOF': 'no'}
-    it = iter(open(fname, encoding='utf-8'))
-    for line in it:
-        if line.startswith('Standard_Sample '):
-            parts = line.split()
-            data['Day'] = parts[-2]
-            data['Started'] = parts[-1][:-3]
-        elif line.startswith('(* Comment'):
-            next(it)
-            data['Sel'] = next(it).split('|')[-1].strip()[7:]
-            data['Sample'] = next(it).split('|')[0].strip()
-        elif line.startswith('(* Collimation'):
-            next(it)
-            next(it)
-            info = next(it).split()
-            data['Coll'] = info[0] + 'm'
-            data['Pol'] = info[4]
-            data['Lens'] = info[5]
-            if data['Lens'] == 'out-out-out':
-                data['Lens'] = 'no'
-        elif line.startswith('(* Detector Discription'):
-            for _ in range(3):
+    with open(fname, encoding='utf-8') as it:
+        for line in it:
+            if line.startswith('Standard_Sample '):
+                parts = line.split()
+                data['Day'] = parts[-2]
+                data['Started'] = parts[-1][:-3]
+            elif line.startswith('(* Comment'):
                 next(it)
-            info = next(it).split()
-            data['Det'] = '%.3gm' % float(info[1])
-        elif line.startswith('(* Temperature'):
-            for _ in range(4):
-                info = next(it)
-                if 'dummy' in info:
-                    continue
-                parts = info.split()
-                data[parts[0]] = parts[3]
-                senv.add(parts[0])
-        elif line.startswith('(* Real'):
-            data['Time'] = next(it).split()[0] + 's'
-            data['t'] = int(data['Time'][:-1])
-        elif line.startswith('(* Detector Data Sum'):
-            next(it)
-            total = float(next(it).split()[0])
-            data['Cts'] = '%.2g' % total
-            data['Rate'] = '%.0f' % (total / data['t'])
-        elif line.startswith('(* Chopper'):
-            data['TOF'] = 'TOF'
-        elif line.startswith('(* Detector Time Slices'):
-            if data['TOF'] != 'TOF':
-                data['TOF'] = 'RT'
-        elif line.startswith('(* Detector Data'):
-            break
+                data['Sel'] = next(it).split('|')[-1].strip()[7:]
+                data['Sample'] = next(it).split('|')[0].strip()
+            elif line.startswith('(* Collimation'):
+                next(it)
+                next(it)
+                info = next(it).split()
+                data['Coll'] = info[0] + 'm'
+                data['Pol'] = info[4]
+                data['Lens'] = info[5]
+                if data['Lens'] == 'out-out-out':
+                    data['Lens'] = 'no'
+            elif line.startswith('(* Detector Discription'):
+                for _ in range(3):
+                    next(it)
+                info = next(it).split()
+                data['Det'] = '%.3gm' % float(info[1])
+            elif line.startswith('(* Temperature'):
+                for _ in range(4):
+                    info = next(it)
+                    if 'dummy' in info:
+                        continue
+                    parts = info.split()
+                    data[parts[0]] = parts[3]
+                    senv.add(parts[0])
+            elif line.startswith('(* Real'):
+                data['Time'] = next(it).split()[0] + 's'
+                data['t'] = int(data['Time'][:-1])
+            elif line.startswith('(* Detector Data Sum'):
+                next(it)
+                total = float(next(it).split()[0])
+                data['Cts'] = '%.2g' % total
+                data['Rate'] = '%.0f' % (total / data['t'])
+            elif line.startswith('(* Chopper'):
+                data['TOF'] = 'TOF'
+            elif line.startswith('(* Detector Time Slices'):
+                if data['TOF'] != 'TOF':
+                    data['TOF'] = 'RT'
+            elif line.startswith('(* Detector Data'):
+                break
     return data

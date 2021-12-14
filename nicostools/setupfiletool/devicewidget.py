@@ -52,7 +52,7 @@ class DeviceWidget(QWidget):
             if not param:
                 QMessageBox.warning(self, 'Error',
                                     'No name parameter name entered.')
-            if param in self.parameters.keys():
+            if param in self.parameters:
                 QMessageBox.warning(self, 'Error', 'Parameter already exists.')
                 return
             self.parametersLayout.takeAt(self.parametersLayout.count() - 1)

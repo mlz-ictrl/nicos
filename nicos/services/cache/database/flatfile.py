@@ -207,7 +207,7 @@ class FlatfileCacheDatabase(CacheDatabase):
         for category, (fd, _, db) in self._cat.items():
             if fd:
                 fd.close()
-                self._cat[category][0] = None
+                self._cat[category][0] = None  # pylint: disable=unnecessary-dict-index-lookup
             fd = self._create_fd(category)
             for subkey, entry in db.items():
                 if entry.value:
@@ -394,7 +394,7 @@ class FlatfileCacheDatabase(CacheDatabase):
                                                   time, None)
                                 if fd is None:
                                     fd = self._create_fd(cat)
-                                    self._cat[cat][0] = fd
+                                    self._cat[cat][0] = fd  # pylint: disable=unnecessary-dict-index-lookup
                                 fd.write('%s\t%s\t-\t-\n' % (subkey, time))
                                 fd.flush()
         while not self._stoprequest:

@@ -57,7 +57,7 @@ class SINQAsciiSinkHandler(DataSinkHandler):
         return value
 
     def _initHeader(self):
-        with open(self.sink.templatefile, 'r') as fin:
+        with open(self.sink.templatefile, 'r', encoding='utf-8') as fin:
             template = fin.read()
 
         template = template.replace('!!FILE!!', self.dataset.filepaths[0])
@@ -110,26 +110,26 @@ class SINQAsciiSinkHandler(DataSinkHandler):
         for _, det in self.sink.scaninfo:
             self.scanvalues[det] = []
 
-    def addSubset(self, point):
-        if point.settype != POINT:
+    def addSubset(self, subset):
+        if subset.settype != POINT:
             return
 
-        if point.number == 1:
+        if subset.number == 1:
             self._initHeader()
 
         for i in range(len(self.dataset.devices)):
             self.scanvalues[self.dataset.devices[i].name].append(
-                point.devvaluelist[i])
+                subset.devvaluelist[i])
 
         for _, det in self.sink.scaninfo:
-            if det in point.values:
-                self.scanvalues[det].append(point.values[det])
+            if det in subset.values:
+                self.scanvalues[det].append(subset.values[det])
             else:
                 session.log.warning('Detector %s not found when saving scan '
                                     'data', det)
 
     def end(self):
-        with open(self.dataset.filepaths[0], 'w') as out:
+        with open(self.dataset.filepaths[0], 'w', encoding='utf-8') as out:
             out.write(self.header)
 
             # Do the scan variable and steps line

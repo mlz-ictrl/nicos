@@ -85,7 +85,7 @@ def tableexe(csvfile):
             (not path.isfile(fname) and os.access(fname, os.R_OK)):
         raise UsageError('The file %r does not exist or is not readable'
                          % fname)
-    with open(fname, 'r') as fin:
+    with open(fname, 'r', encoding='utf-8') as fin:
         csv_data = csv.reader(fin, delimiter=',')
         # Analyse header
         devlist = []

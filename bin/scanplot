@@ -247,7 +247,7 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
                   '/data/current/data/' + filename,
                   '/data/2012/%s/data/%s' % (fileprefix, filename)]:
         try:
-            f = open(fpath, 'r', encoding='utf-8')
+            f = open(fpath, 'r', encoding='utf-8')  # pylint: disable=consider-using-with
             break
         except OSError:
             continue
@@ -600,9 +600,9 @@ if sumflag + diffflag + mergeflag > 1:
 normflag = 'norm' in sys.argv
 monitorcorrection = 'mcorr' in sys.argv
 
-for fitfunname in fitfunlist:
+for fitfunname, fun in fitfunlist.items():
     if fitfunname in sys.argv:
-        function = fitfunlist[fitfunname]
+        function = fun
 
 if diffflag:
     if len(filelist) != 2:

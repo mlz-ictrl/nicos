@@ -23,13 +23,13 @@ class TemplateScriptHandler(ast.NodeVisitor):
         self.values = {}
         # print('%s' % text)
         _ast = ast.parse(text)
-        for i in self.blocks:
+        for i, block in self.blocks.items():
             if i >= len(_ast.body):
                 break
             v = self._extract_node(self.ast.body[i], _ast.body[i])
-            # print(self.blocks[i], '%r' % v)
+            # print(block, '%r' % v)
             self.values.update(
-                {k.strip(self.kmark): v for k, v in zip(self.blocks[i], v)})
+                {k.strip(self.kmark): v for k, v in zip(block, v)})
         return self.values
 
     def get(self, key):
@@ -83,7 +83,7 @@ class TemplateScriptHandler(ast.NodeVisitor):
                     if isinstance(a1, ast.Str) and self._is_key(a1.s):
                         ret.append(self._value(a2))
                     elif isinstance(a1, ast.Starred) and \
-                       self._is_key(a1.value.id):
+                        self._is_key(a1.value.id):
                         ret.append(self._value(a2.value))
             if node1.keywords or node2.keywords:
                 for k1, k2 in zip(node1.keywords, node2.keywords):

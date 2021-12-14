@@ -102,6 +102,6 @@ def getDeviceClasses(instrumentPrefix):
         uncombinedModule = _class_str.split('.')
         uncombinedModule.pop()
         mod = '.'.join(uncombinedModule)
-        if mod in modules.keys():
+        if mod in modules:
             return_classes.append(_class)
     return return_classes

@@ -96,7 +96,7 @@ class BOATemplateProvider(NexusTemplateProvider):
             self._detector = det
             table.removeSetup(det)
         devices = table.getTableDevices()
-        content = dict()
+        content = {}
         for d in devices:
             if d in self._excluded_devices:
                 continue
@@ -120,7 +120,7 @@ class BOATemplateProvider(NexusTemplateProvider):
         name = self._detector
         if 'single' in name:
             name = 'single'
-        content = dict()
+        content = {}
         if name == 'single':
             content['data'] = DetectorDataset('countval', 'int32',
                                               units=NXAttribute(
@@ -140,7 +140,7 @@ class BOATemplateProvider(NexusTemplateProvider):
         return name, content
 
     def makeData(self, name):
-        content = dict()
+        content = {}
         content['data'] = NXLink('/entry/%s/data' % (name))
         content['None'] = NXScanLink()
         return content
