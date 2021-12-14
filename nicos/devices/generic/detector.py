@@ -42,7 +42,7 @@ from nicos.utils import uniq
 
 
 class PassiveChannel(Measurable):
-    """Abstract base class for one channel of a aggregate detector.
+    """Abstract base class for one channel of an aggregate detector.
 
     See the `Detector` documentation for an overview of channel types, and
     the difference between passive and active channels.
