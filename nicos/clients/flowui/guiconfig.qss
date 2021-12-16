@@ -527,12 +527,6 @@ CommandLineEdit[state="BUSY"] {
     background-color: #ffdddd;
 }
 
-Panel[panel='ExpPanel'] QLineEdit,
-Panel[panel='ExpPanel'] QPlainTextEdit {
-    border: 1px solid #1f5366;
-    border-radius: 5px;
-}
-
 Panel[panel='ExpPanel'] QLineEdit::focus,
 Panel[panel='ExpPanel'] QPlainTextEdit::focus {
     border: 1px solid #0094ca;
