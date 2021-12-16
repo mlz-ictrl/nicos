@@ -42,7 +42,6 @@ Gray off grid:    #a9a9a9
 
 QWidget {
     font-size: 14px;
-    font-family: "Source Sans Pro";
 }
 
 MainWindow,
