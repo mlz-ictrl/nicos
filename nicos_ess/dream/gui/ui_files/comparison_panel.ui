@@ -42,13 +42,6 @@
          <property name="topMargin">
           <number>0</number>
          </property>
-         <item>
-          <widget class="QPushButton" name="snapShotButton">
-           <property name="text">
-            <string>Snapshot</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
       </layout>
@@ -200,16 +193,23 @@
           <number>5</number>
          </property>
          <item>
+          <widget class="QPushButton" name="snapShotButton">
+           <property name="text">
+            <string>Take Snapshot</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="updateReferenceButton">
            <property name="text">
-            <string>Update Reference</string>
+            <string>Set Reference</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="resetReferenceButton">
            <property name="text">
-            <string>Reset Reference</string>
+            <string>Clear Reference</string>
            </property>
           </widget>
          </item>

@@ -258,21 +258,22 @@ class ComparisonPanel(LiveDataPanel):
 
         name, labels, data = blob
         msg = f'Reference: {name} \nSet at: '
+        update_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         if data.ndim == 1:
             self.reference_data_1d = (labels, data)
             self._update_1d_plot()
-            self.status_1d.setText(f'{msg} {datetime.now()}')
+            self.status_1d.setText(f'{msg} {update_time}')
         elif data.ndim == 2:
             self.reference_data_2d = (labels, data)
             self._update_2d_plot()
-            self.status_2d.setText(f'{msg} {datetime.now()}')
+            self.status_2d.setText(f'{msg} {update_time}')
 
     def _reset_reference_data(self):
         self.reference_data_1d = None
         self.reference_data_2d = None
         self._plot_1d.reset_reference()
-        msg = 'No reference available'
+        msg = 'No reference set'
         self.status_1d.setText(msg)
         self.status_2d.setText(msg)
 
