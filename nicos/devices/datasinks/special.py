@@ -174,7 +174,7 @@ class LiveViewSinkHandler(DataSinkHandler):
                 dtype=data.dtype.str,
                 shape=data.shape,
                 labels=self.getLabelDescs(results),
-                count=self.getDataSetCount(results)
+                plotcount=self.getDataSetCount(results)
             )
             datadescs.append(datadesc)
 
