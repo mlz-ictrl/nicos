@@ -208,8 +208,8 @@ class NicosMetaWriterMixin:
                 stat = device.status()
                 # also map stat[0] to a string
                 if stat[1]:
-                    stat = ('%s_status' % devname, ('%s: %s' %
-                        (statuses[stat[0]].lower(), stat[1].strip())))
+                    stat = ('%s_status' % devname, ('%s: %s' % (
+                        statuses[stat[0]].lower(), stat[1].strip())))
                 else:
                     stat = ('%s_status' % devname, statuses[stat[0]].lower())
                 bycategory[category].append(stat)
