@@ -99,7 +99,7 @@ class ImageKafkaWithLiveViewDataSinkHandler(ImageKafkaDataSinkHandler):
                 continue
 
         session.updateLiveData(
-            dict(tag='Live',
+            dict(tag=LIVE,
                  uid=self.dataset.uid,
                  detector=self.detector.name,
                  filenames=tags,
