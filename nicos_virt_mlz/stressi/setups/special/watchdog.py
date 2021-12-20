@@ -34,6 +34,7 @@ watchlist = [
         precondtime = 600,
         message = 'Reactor power too low',
         type = 'critical',
+        setup = 'reactor',
         # action = 'stop()',
         gracetime = 300,
     ),
@@ -43,6 +44,7 @@ watchlist = [
         precondtime = 600,
         message = 'High voltage problem (anode voltage felt down)',
         type = 'highvoltage',
+        setup = 'detector',
         gracetime = 5,
     ),
     dict(
@@ -51,6 +53,7 @@ watchlist = [
         precondtime = 600,
         message = 'High voltage problem (drift voltage felt down)',
         type = 'highvoltage',
+        setup = 'detector',
         gracetime = 5,
     ),
 ]

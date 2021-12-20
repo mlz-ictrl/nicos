@@ -36,6 +36,7 @@ watchlist = [
         type = 'critical',
         # action = 'stop()',
         gracetime = 300,
+        setup = 'reactor',
     ),
     dict(
         condition = 'hv1_value < 3000',
@@ -44,6 +45,7 @@ watchlist = [
         message = 'High voltage problem (anode voltage felt down)',
         type = 'highvoltage',
         gracetime = 5,
+        setup = 'detector',
     ),
     dict(
         condition = 'hv2_value > -2300',
@@ -52,6 +54,7 @@ watchlist = [
         message = 'High voltage problem (drift voltage felt down)',
         type = 'highvoltage',
         gracetime = 5,
+        setup = 'detector',
     ),
 ]
 
