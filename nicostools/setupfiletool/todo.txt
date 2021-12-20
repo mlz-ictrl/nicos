@@ -1,9 +1,6 @@
 - When switching the instrument from one to another, ask whether to save the
   edited setups.
 
-- Filter parameters in AddParameterDialog: Do not show "classes", "name".
-  Need to work out which ones not to show.
-
 - When adding a custom parameter, allow selection of the type (e.g. display
   some common used python classes msuch as str, int, float or list).
 

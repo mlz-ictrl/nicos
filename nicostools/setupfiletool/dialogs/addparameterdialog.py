@@ -39,7 +39,8 @@ class AddParameterDialog(QDialog):
         self.lineEditCustomParameter.hide()
         missingParameters = [key for key in parameters.keys()
                              if key not in existingParameters.keys() and
-                             not key.startswith('_')]
+                             not key.startswith('_') and
+                             key not in ('classes', 'name')]
         if missingParameters:
             for key in sorted(missingParameters):
                 listItem = QListWidgetItem(key, self.listWidgetSelectParameter)
