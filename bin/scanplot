@@ -56,31 +56,31 @@ def getguess(xs, ys, func):
     guess[1] = ys[centerindex]       # amplitude
     guess[3] = max(ys.min() - 1, 0)  # background
 
-    overhalf = xs[ys > guess[1]/2.]
+    overhalf = xs[ys > guess[1] / 2.]
     guess[2] = abs((overhalf[0] - overhalf[-1]) / 1.8) or 0.1
 
     if func is gausswlorentz:
-        guess[5] = guess[3]     # background
-        guess[3] = guess[2]     # gauss width
-        guess[4] = 3*guess[2]   # lorentz width
-        guess[2] = guess[1]/10  # lorentz amplitude
+        guess[5] = guess[3]         # background
+        guess[3] = guess[2]         # gauss width
+        guess[4] = 3 * guess[2]     # lorentz width
+        guess[2] = guess[1] / 10    # lorentz amplitude
     elif func is twogauss:
-        guess[5] = guess[1]*0.9       # amplitude #2
-        guess[4] = guess[0]+guess[2]  # center #2
-        guess[0] = guess[0]-guess[2]  # center #1
-        guess[2] /= 2.0               # width
+        guess[5] = guess[1] * 0.9       # amplitude #2
+        guess[4] = guess[0] + guess[2]  # center #2
+        guess[0] = guess[0] - guess[2]  # center #1
+        guess[2] /= 2.0                 # width
 
     return guess
 
 
 def gausswlorentz(xs, center, ampg, ampl, widthg, widthl, back):
     """Two peaks centered at the same pos: Lorentzian and Gaussian."""
-    gauss = ampg * exp(-0.5 * (xs - center)**2/widthg**2)
-    lorentz = ampl / (1 + (xs - center)**2/widthl**2)
-    bose = 1.0 / (1 - exp(-xs * 11.605/1.37))
+    gauss = ampg * exp(-0.5 * (xs - center)**2 / widthg**2)
+    lorentz = ampl / (1 + (xs - center)**2 / widthl**2)
+    bose = 1.0 / (1 - exp(-xs * 11.605 / 1.37))
     return back + gauss + \
         piecewise(xs, [xs < 0, xs == 0, xs > 0],
-                  [lorentz/(bose + 1), lorentz, lorentz/bose])
+                  [lorentz / (bose + 1), lorentz, lorentz / bose])
 
 
 gausswlorentz.params = ['center', 'amplitudeGauss', 'amplitudeLorentz',
@@ -89,7 +89,7 @@ gausswlorentz.params = ['center', 'amplitudeGauss', 'amplitudeLorentz',
 
 def lorentz(xs, center, amp, width, back):
     """Lorentzian peak function."""
-    return back + amp / (1 + (xs - center)**2/width**2)
+    return back + amp / (1 + (xs - center)**2 / width**2)
 
 
 lorentz.params = ['center', 'amplitude', 'width', 'background']
@@ -97,7 +97,8 @@ lorentz.params = ['center', 'amplitude', 'width', 'background']
 
 def gauss(xs, center, amp, width, back):
     """Gauss peak function."""
-    return back + amp * exp(-0.5 * (xs-center)**2 / (width/(2*sqrt(2*log(2))))**2)
+    return back + amp * exp(-0.5 * (xs - center)**2 / (
+        width / (2 * sqrt(2 * log(2))))**2)
 
 
 gauss.params = ['center', 'amplitude', 'width', 'background']
@@ -123,7 +124,7 @@ fitfunlist = {
     'gg': twogauss,
 }
 
-colormap = {0: 1,  1: 2,  2: 3,  3: 4,   4: 6,   5: 8, 6: 9,
+colormap = {0: 1, 1: 2, 2: 3, 3: 4, 4: 6, 5: 8, 6: 9,
             7: 10, 8: 11, 9: 12, 10: 13, 11: 14, 12: 15}
 
 
@@ -439,7 +440,7 @@ def getdatafromfile(filename, fileprefix, xcol=None, ycol=None,
             scale = 1.0
         if kicol > -1:
             myki = v[kicol]
-            fcorr = 0.0478*myki**3 - 0.4747*myki**2 + 1.6149*myki - 0.9704
+            fcorr = 0.0478 * myki**3 - 0.4747 * myki**2 + 1.6149 * myki - 0.9704
         else:
             fcorr = 1.0
         ys.append(yval * scale / fcorr)
@@ -540,7 +541,7 @@ ymax = None
 xmin = None
 xmax = None
 cascade = None
-kwargs={}
+kwargs = {}
 
 for arg in sys.argv:
     if arg[0:4] == 'tcol':
@@ -558,8 +559,8 @@ for arg in sys.argv:
             pass
     elif arg[0:4] == 'ycol':
         # add code for multicolumn for polarised mode
-        newycols = arg.split('=')[1].split(',') # get stringlist
-        for i in range(len(newycols)): # convert element-by-element to int
+        newycols = arg.split('=')[1].split(',')  # get stringlist
+        for i in range(len(newycols)):  # convert element-by-element to int
             try:
                 newycols[i] = int(newycols[i])
             except ValueError:
@@ -589,11 +590,11 @@ for arg in sys.argv:
     elif arg[0:7] == 'cascade':
         cascade = float(arg.split('=')[1])
 
-logflag   = 'log' in sys.argv
+logflag = 'log' in sys.argv
 mergeflag = 'merge' in sys.argv
-fitflag   = 'fit' in sys.argv
-sumflag   = 'sum' in sys.argv
-diffflag  = 'diff' in sys.argv
+fitflag = 'fit' in sys.argv
+sumflag = 'sum' in sys.argv
+diffflag = 'diff' in sys.argv
 if sumflag + diffflag + mergeflag > 1:
     print('illegal option combination: diff / sum / merge')
     sys.exit(1)
