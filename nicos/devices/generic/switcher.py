@@ -142,8 +142,8 @@ class ReadonlySwitcher(MappedReadable):
     }
 
     parameter_overrides = {
-        'fallback':  Override(userparam=False, type=none_or(str),
-                              mandatory=False),
+        'fallback': Override(userparam=False, type=none_or(str),
+                             mandatory=False),
     }
 
     hardware_access = False
