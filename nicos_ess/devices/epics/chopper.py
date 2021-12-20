@@ -44,8 +44,9 @@ class ChopperAlarms(EpicsDevice, Readable):
     }
 
     _alarm_state = {}
-    _chopper_alarm_names = {'Comm_Alrm', 'HW_Alrm', 'SW_Alrm', 'nTmp_Alrm',
-                            'ILck_Alrm', 'Pos_Alrm', 'Ref_Alrm', 'V_Alrm'}
+    _chopper_alarm_names = {'Comm_Alrm', 'HW_Alrm', 'IntLock_Alrm', 'Lvl_Alrm',
+                            'Pos_Alrm', 'Pwr_Alrm', 'Ref_Alrm', 'SW_Alrm',
+                            'Volt_Alrm'}
     _record_fields = {}
     _cache_relations = {}
 
