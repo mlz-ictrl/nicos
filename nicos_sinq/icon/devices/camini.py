@@ -302,8 +302,7 @@ class CaminiDetector(EpicsDeviceEss, SequencerMixin,
             s_devlist = [d for d in s_devlist if d in devlist]
             self.log.debug(s_devlist)
             for d in s_devlist:
-                if s not in setups_log.keys():
-                    setups_log[s] = []
+                setups_log.setdefault(s, [])
                 setups_log[s].append(session.devices[d])
 
         self.log.debug(str(setups_log))
