@@ -25,7 +25,7 @@
 
 import pytest
 
-from nicos.guisupport.qt import QValidator
+from nicos.guisupport.qt import QLocale, QValidator
 from nicos.guisupport.utils import DoubleValidator
 
 idmap = {
@@ -78,6 +78,7 @@ inf = float('inf')
 def test_double_validator(val, ll, ul, expected):
     # valid cases
     validator = DoubleValidator()
+    validator.setLocale(QLocale('en'))
     validator.setBottom(ll)
     validator.setTop(ul)
     valres = validator.validate(val, 0)
