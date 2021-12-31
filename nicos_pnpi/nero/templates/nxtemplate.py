@@ -25,10 +25,9 @@
 """ Nexus template for NERO machine """
 
 from nicos.nexus.elements import DetectorDataset, DeviceAttribute, \
-    DeviceDataset, ImageDataset
+    DeviceDataset, EndTime, ImageDataset, StartTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
-from nicos_mlz.toftof.devices.datasinks.elements import EndTime, StartTime
 from nicos_pnpi.nero.devices.datasinks.elements import FileName
 
 
