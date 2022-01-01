@@ -30,4 +30,4 @@ sysconfig = dict(
     cache = alt_cache_addr,
 )
 
-devices = dict()
+devices = {}

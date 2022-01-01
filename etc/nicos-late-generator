@@ -68,7 +68,7 @@ def printerr(*args, **kwargs):
 
 if path.isfile(_DEFAULT) and 'INSTRUMENT' not in os.environ:
     try:
-        with open(_DEFAULT, 'r') as fd:
+        with open(_DEFAULT, 'r', encoding='utf-8') as fd:
             for line in fd:
                 if not line.startswith('#'):
                     (key, sep, value) = line.partition('=')
@@ -132,7 +132,7 @@ def main():
         depends = ''
         if procname != 'cache' and 'cache' in services:
             depends = 'After=nicos-cache.service\nRequires=nicos-cache.service'
-        with open(unitfile, 'w') as fp:
+        with open(unitfile, 'w', encoding='utf-8') as fp:
             fp.write(TEMPLATE % {
                 'name': name,
                 'root': config.nicos_root,
