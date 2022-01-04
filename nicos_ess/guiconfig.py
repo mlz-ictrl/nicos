@@ -2,14 +2,8 @@
 
 main_window = docked(
     tabbed(
-        ('Setup',
-         tabbed(
-             ('Experiment',
-              panel('nicos_ess.gui.panels.exp_panel.ExpPanel')),
-             ('Instrument',
-              panel('nicos.clients.flowui.panels.setup_panel.SetupsPanel')),
-         ),
-        ),
+        ('Experiment', panel('nicos_ess.gui.panels.exp_panel.ExpPanel')),
+        ('Setup', panel('nicos.clients.flowui.panels.setup_panel.SetupsPanel')),
         ('  ', panel('nicos.clients.flowui.panels.empty.EmptyPanel')),
         ('Instrument interaction',
          hsplit(
@@ -51,8 +45,6 @@ main_window = docked(
                       tools=None),
             ), # vsplit
         ),
-        ('Detector Image',
-         panel('nicos.clients.flowui.panels.live.MultiLiveDataPanel')),
         (
             'History',
             panel('nicos.clients.flowui.panels.history.HistoryPanel'),
