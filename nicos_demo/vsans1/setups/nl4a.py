@@ -7,7 +7,7 @@ includes = ['guidehall']
 devices = dict(
     NL4a = device('nicos.devices.generic.ManualSwitch',
         description = 'NL4a shutter status',
-        states = ('closed', 'open'),
+        states = ('open', 'closed'),
         pollinterval = 60,
         maxage = 120,
     ),

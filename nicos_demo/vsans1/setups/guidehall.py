@@ -5,7 +5,7 @@ group = 'lowlevel'
 devices = dict(
     Sixfold = device('nicos.devices.generic.ManualSwitch',
         description = 'Sixfold shutter status',
-        states = ('closed', 'open'),
+        states = ('open', 'closed'),
         pollinterval = 60,
         maxage = 120,
     ),
