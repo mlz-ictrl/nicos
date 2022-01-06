@@ -48,6 +48,8 @@ class RadialCollimator(EpicsDevice, MappedMoveable):
                         type=oneof('on', 'off'), mandatory=False,
                         volatile=False, default='off', userparam=True,
                         settable=True),
+        'type': Param('Type of the radial collimator', type=str,
+                      userparam=True, settable=True),
         'readback': Param('Radial Collimator Status Readback',
                           type=oneof('on', 'off'), volatile=True,
                           default='off', userparam=True, settable=False),
@@ -61,14 +63,14 @@ class RadialCollimator(EpicsDevice, MappedMoveable):
                              default=False, userparam=True)}
 
     def _get_pv_parameters(self):
-        return {'target', 'readback'}
+        return ['target', 'readback']
 
     def _get_pv_name(self, pvparam):
         prefix = getattr(self, 'basepv')
         if pvparam == 'target':
-            return prefix + ':SP'
+            return prefix + 'RUN'
         elif pvparam == 'readback':
-            return prefix + ':RBV'
+            return prefix + 'RUN_RBV'
         else:
             raise ConfigurationError(
                 'requested invalid pv %s for radial collimator' % (pvparam))

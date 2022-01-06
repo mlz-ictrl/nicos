@@ -2,9 +2,8 @@ description = 'For testing environment support and NeXus writing'
 
 group = 'optional'
 
-
 devices = dict(
-    tt = device('nicos.devices.generic.VirtualTemperature',
+    temperature = device('nicos.devices.generic.VirtualTemperature',
         description = 'Temperature of the World',
         abslimits = (4, 600),
         warnlimits = (6, 600),

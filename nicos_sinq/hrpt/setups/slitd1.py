@@ -8,12 +8,14 @@ devices = dict(
         motorpv = pvprefix + 'D1R',
         errormsgpv = pvprefix + 'D1R-MsgTxt',
         precision = 0.01,
+        abslimits = (0.0, 341.0),
     ),
     d1l = device('nicos_ess.devices.epics.motor.EpicsMotor',
         description = 'D1 Slit Left Blade',
         motorpv = pvprefix + 'D1L',
         errormsgpv = pvprefix + 'D1L-MsgTxt',
         precision = 0.01,
+        abslimits = (0, 341.0),
     ),
     slit1 = device('nicos_sinq.hrpt.devices.slit.Gap',
         description = 'Slit 1 controller',
@@ -24,10 +26,13 @@ devices = dict(
         coordinates = 'opposite',
         conversion_factor = 22.66
     ),
-    slit1_width=device('nicos.devices.generic.ParamDevice',
-                       parameter = 'width',
-                       device = 'slit1',
-                       description = 'Slit1 width',
-                       copy_status = True
+    slit1_width = device('nicos.core.device.DeviceAlias',
+        description = 'slit  1 width',
+        alias = 'slit1.width',
+        devclass = 'nicos_sinq.hrpt.devices.slit.WidthGapAxis'
     ),
 )
+
+startupcode = """
+slit1_width.alias='slit1.width'
+"""

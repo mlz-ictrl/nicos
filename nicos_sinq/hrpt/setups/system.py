@@ -43,13 +43,15 @@ devices = dict(
     nxsink = device('nicos.nexus.nexussink.NexusSink',
         description = "Sink for NeXus file writer",
         filenametemplate = ['hrpt%(year)sn%(scancounter)06d.hdf'],
-        templateclass = 'nicos_sinq.hrpt.nexus.nexus_templates.HRPTTemplateProvider',
+        templateclass =
+        'nicos_sinq.hrpt.nexus.nexus_templates.HRPTTemplateProvider',
     ),
     livesink = device('nicos.devices.datasinks.LiveViewSink',
         description = "Sink for forwarding live data to the GUI",
     ),
     quiecksink = device('nicos_sinq.devices.datasinks.QuieckSink',
-        description = 'Sink for sending UDP datafile notifications'),
+        description = 'Sink for sending UDP datafile notifications'
+    ),
 )
 """
     KafkaForwarder=device('nicos_ess.devices.forwarder.EpicsKafkaForwarder',

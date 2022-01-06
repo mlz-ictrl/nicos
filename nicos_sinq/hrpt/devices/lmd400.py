@@ -59,6 +59,9 @@ class LMD400(EpicsDevice, Device):
             raise ConfigurationError(
                 'requested invalid pv %s for LMD400' % (pvparam))
 
+    def _get_pv_parameters(self):
+        return self.pv_parameters
+
     def doReadAlarm(self):
         return self._get_pv('alarm', as_string=True)
 
