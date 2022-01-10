@@ -183,7 +183,7 @@ class NicosPlotAxes(PlotAxes):
 
     def drawGR(self):
         lwidth = gr.inqlinewidth()
-        gr.setlinewidth(0.)
+        gr.setlinewidth(0.1)
         PlotAxes.drawGR(self)
         gr.setlinewidth(lwidth)
 
