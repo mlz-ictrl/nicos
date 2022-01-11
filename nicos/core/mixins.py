@@ -114,6 +114,50 @@ class AutoDevice(DeviceMixinBase):
     """
 
 
+class HasAutoDevices(DeviceMixinBase):
+    """
+    This mixin can be intherited from device classes creating ``AutoDevices``.
+    """
+
+    autodevices = None
+
+    parameters = {
+        'autodevice_visibility': Param('Selects in which context the auto '
+                                       'created devices should be '
+                                       'shown/included',
+                                       type=bool,
+                                       default=True,
+                                       ),
+    }
+
+    def add_autodevice(self, autodevname, cls, **devparams):
+        """
+        Create the ``AutoDevice`` with the class given by the cls parameter.
+
+        Fill the self.autodevices list with the names of the created devices.
+        It will be used in the device shutdown to remove all generated
+        devices if the device will be shutdown.
+
+        The `namespace` parameter in `devparams` controls the visibility in of
+        the auto device. If `namespace` is 'device' the device will be
+        accessible by the syntax 'device.autodevname', in case of 'global' by
+        'autodevname'.
+        """
+        if self.autodevices is None:
+            self.autodevices = []
+
+        fullname = autodevname
+        if devparams.pop('namespace', 'device') != 'global':
+            fullname = self.name + '.' + autodevname
+        self.__dict__[autodevname] = cls(fullname, **devparams)
+        self.autodevices.append(autodevname)
+
+    def doShutdown(self):
+        for name in self.autodevices or []:
+            if name in self.__dict__:
+                self.__dict__[name].shutdown()
+
+
 class HasLimits(DeviceMixinBase):
     """
     This mixin can be inherited from device classes that are continuously

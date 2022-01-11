@@ -36,8 +36,8 @@ from nicos.core.errors import AccessError, CacheError, CacheLockError, \
     InvalidValueError, LimitError, ModeError, MoveError, NicosError, \
     NicosTimeoutError, PositionError, ProgrammingError, SPMError, UsageError
 from nicos.core.mixins import AutoDevice, CanDisable, DeviceMixinBase, \
-    HasCommunication, HasLimits, HasMapping, HasOffset, HasPrecision, \
-    HasTimeout, HasWindowTimeout, IsController
+    HasAutoDevices, HasCommunication, HasLimits, HasMapping, HasOffset, \
+    HasPrecision, HasTimeout, HasWindowTimeout, IsController
 from nicos.core.params import INFO_CATEGORIES, ArrayDesc, Attach, Override, \
     Param, Value, absolute_path, anytype, dictof, dictwith, floatrange, host, \
     intrange, limits, listof, mailaddress, nicosdev, none_or, nonemptylistof, \

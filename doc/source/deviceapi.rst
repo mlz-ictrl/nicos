@@ -507,6 +507,7 @@ Currently NICOS supports the following list of common mixin classes:
  - :class:`~nicos.core.mixins.HasTimeout`
  - :class:`~nicos.core.mixins.HasWindowTimeout`
  - :class:`~nicos.core.mixins.HasCommunication`
+ - :class:`~nicos.core.mixins.HasAutoDevices`
  - :class:`~nicos.core.mixins.IsController`
  - :class:`~nicos.core.mixins.CanDisable`
  - :class:`~nicos.core.mixins.AutoDevice`
@@ -565,6 +566,12 @@ Currently NICOS supports the following list of common mixin classes:
 ====================
 
 .. autoclass:: HasCommunication()
+
+
+``HasAutoDevices``
+==================
+
+.. autoclass:: HasAutoDevices()
 
 
 ``IsController``
