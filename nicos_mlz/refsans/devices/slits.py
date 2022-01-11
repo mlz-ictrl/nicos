@@ -31,7 +31,7 @@ from nicos.core import Attach, AutoDevice, HasPrecision, Moveable, Override, \
     Param, Value, dictof, dictwith, floatrange, multiReset, multiStatus, \
     multiWait, oneof, status, tupleof
 from nicos.core.errors import UsageError
-from nicos.core.mixins import HasOffset
+from nicos.core.mixins import HasAutoDevices, HasOffset
 from nicos.core.utils import devIter, multiReference
 from nicos.devices.abstract import CanReference
 from nicos.devices.generic import ManualSwitch
@@ -357,7 +357,7 @@ class SingleSlitAxis(AutoDevice, Moveable):
         return self.slit.isAllowed(self._conv(target))
 
 
-class Gap(CanReference, Moveable):
+class Gap(HasAutoDevices, CanReference, Moveable):
     """A rectangular gap consisting of 2 blades.
 
     The gap can operate in four "opmodes", controlled by the `opmode`
@@ -443,13 +443,9 @@ class Gap(CanReference, Moveable):
         for name, cls in [
             ('center', CenterGapAxis), ('width', WidthGapAxis),
         ]:
-            self.__dict__[name] = cls('%s.%s' % (self.name, name), gap=self,
-                                      unit=self.unit, lowlevel=True)
-
-    def doShutdown(self):
-        for name in ['center', 'width']:
-            if name in self.__dict__:
-                self.__dict__[name].shutdown()
+            self.add_autodevice(name, cls,
+                                gap=self, unit=self.unit,
+                                lowlevel=self.autodevice_visibility)
 
     def _getPositions(self, target):
         if self.opmode == '2blades':

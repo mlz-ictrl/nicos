@@ -27,8 +27,8 @@
 from numpy import arctan, degrees, radians, tan
 
 from nicos import session
-from nicos.core import Attach, Device, HasPrecision, Moveable, Override, \
-    Param, Readable, dictwith, oneof, status
+from nicos.core import Attach, Device, HasAutoDevices, HasPrecision, \
+    Moveable, Override, Param, Readable, dictwith, oneof, status
 from nicos.core.utils import multiStatus
 from nicos.devices.generic.slit import Slit, SlitAxis as DefaultSlitAxis
 
@@ -267,7 +267,7 @@ class SlitAxis(DefaultSlitAxis):
     }
 
 
-class DivergenceAperture(Device):
+class DivergenceAperture(HasAutoDevices, Device):
     """
     Slit1 is fix mounted behind the instrument shutter and can not be moved as
     a whole. Its center is by definition the origin of the instrument
@@ -343,7 +343,8 @@ class DivergenceAperture(Device):
             ('vertical', DivergenceAperture.VerticalDivergence),
             ('horizontal', DivergenceAperture.HorizontalDivergence),
         ]:
-            self.__dict__[name] = cls(self.name + '.' + name,
-                                      slit=self._attached_slit,
-                                      controller=self, lowlevel=True,
-                                      unit='deg')
+            self.add_autodevice(name, cls,
+                                slit=self._attached_slit,
+                                controller=self,
+                                lowlevel=self.autodevice_visibility,
+                                unit='deg')

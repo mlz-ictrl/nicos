@@ -25,14 +25,14 @@
 """NICOS slit device."""
 
 from nicos import session
-from nicos.core import Attach, AutoDevice, HasPrecision, InvalidValueError, \
-    Moveable, Override, Param, Value, dictof, multiReset, multiStatus, \
-    multiWait, oneof, tupleof
+from nicos.core import Attach, AutoDevice, HasAutoDevices, HasPrecision, \
+    InvalidValueError, Moveable, Override, Param, Value, dictof, multiReset, \
+    multiStatus, multiWait, oneof, tupleof
 from nicos.core.utils import devIter, multiReference
 from nicos.devices.abstract import CanReference
 
 
-class Slit(CanReference, Moveable):
+class Slit(HasAutoDevices, CanReference, Moveable):
     """A rectangular slit consisting of four blades.
 
     The slit can operate in four "opmodes", controlled by the `opmode`
@@ -118,18 +118,13 @@ class Slit(CanReference, Moveable):
 
         for name in self._axnames:
             self.__dict__[name] = self._adevs[name]
-
         for name, cls in [
             ('centerx', CenterXSlitAxis), ('centery', CenterYSlitAxis),
             ('width', WidthSlitAxis), ('height', HeightSlitAxis)
         ]:
-            self.__dict__[name] = cls(self.name+'.'+name, slit=self,
-                                      unit=self.unit, lowlevel=True)
-
-    def doShutdown(self):
-        for name in ['centerx', 'centery', 'width', 'height']:
-            if name in self.__dict__:
-                self.__dict__[name].shutdown()
+            self.add_autodevice(name, cls, slit=self,
+                                unit=self.unit,
+                                lowlevel=self.autodevice_visibility)
 
     def _getPositions(self, target):
         if self.opmode == '4blades':
