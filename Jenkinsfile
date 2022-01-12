@@ -315,8 +315,7 @@ node('dockerhost') {
 def u18 = null;
 def c8 = null;
    stage('docker setup') {
-   u18 = docker.image('nicos-jenkins:bionic')
-   //u18 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bionic')
+   u18 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:bionic')
 //   u18.pull()
 //c8 = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:centos8')
 //c8.pull()
@@ -397,9 +396,8 @@ try {
         } //stage
     }, test_docs: {
         stage(name: 'Test docs') {
-            docimage = docker.image('nicos-jenkins:nicosdocs')
-//            docimage = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:nicosdocs')
-//            docimage.pull()
+            docimage = docker.image('docker.ictrl.frm2.tum.de:5443/jenkins/nicos-jenkins:nicosdocs')
+            docimage.pull()
             docimage.inside(){
                 runDocTest()
             }  // image.inside
