@@ -10,7 +10,7 @@ devices = dict(
 )
 
 for i in range(1, 9):
-    devices['T_%s_%d' % (setupname, i)] = device('nicos.devices.tango.Sensor',
+    devices['T_%s_%d' % (setupname, i)] = device('nicos.devices.entangle.Sensor',
         description = '%s temperature %d' % (setupname.capitalize(), i),
         tangodevice = tangobase + '%d' % i,
         pollinterval = 30,
