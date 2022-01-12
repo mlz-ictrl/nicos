@@ -19,5 +19,7 @@ devices = dict(
         unit='ns',
         description='The difference between the Utgård EVR and the NTP client',
         monitor=True),
-
+    EFU_stat=device('nicos_ess.devices.efu_status.EFUStatus',
+                    ipconfig='172.30.242.39:8011',
+                    description='EFU connection status'),
 )
