@@ -84,8 +84,9 @@ class NexusStructureJsonFile(NexusStructureProvider):
                 )
 
             users.append(json.dumps(result))
-        users_str = ','.join(users) if users else ''
-        return structure.replace('"$USERS$"', users_str)
+        if users:
+            structure = structure.replace('"$USERS$"', ','.join(users))
+        return structure
 
 
 class NexusStructureTemplate(NexusStructureProvider):
