@@ -28,8 +28,8 @@
 from math import cos, pi, radians, sqrt
 
 from nicos.core import SIMULATION, Attach, AutoDevice, ComputationError, \
-    InvalidValueError, LimitError, Moveable, Override, Param, Readable, \
-    Value, multiStatus, oneof, status, tupleof
+    HasAutoDevices, InvalidValueError, LimitError, Moveable, Override, Param, \
+    Readable, Value, multiStatus, oneof, status, tupleof
 from nicos.devices.instrument import Instrument
 from nicos.devices.tas import spurions
 from nicos.devices.tas.cell import Cell
@@ -40,7 +40,7 @@ SCANMODES = ['CKI', 'CKF', 'CPHI', 'CPSI', 'DIFF']
 ENERGYTRANSFERUNITS = ['meV', 'THz']
 
 
-class TAS(Instrument, Moveable):
+class TAS(HasAutoDevices, Instrument, Moveable):
     """An instrument class that can move in (q,w) space.
 
     When setting up a triple-axis configuration, use this as your instrument
@@ -94,15 +94,19 @@ class TAS(Instrument, Moveable):
     hardware_access = False
 
     def doInit(self, mode):
-        self.__dict__['h'] = TASIndex('h', unit='rlu', fmtstr='%.3f',
-                                      index=0, lowlevel=True, tas=self)
-        self.__dict__['k'] = TASIndex('k', unit='rlu', fmtstr='%.3f',
-                                      index=1, lowlevel=True, tas=self)
-        self.__dict__['l'] = TASIndex('l', unit='rlu', fmtstr='%.3f',
-                                      index=2, lowlevel=True, tas=self)
-        self.__dict__['E'] = TASIndex('E', unit=self.energytransferunit,
-                                      fmtstr='%.3f', index=3, lowlevel=True,
-                                      tas=self)
+        self.add_autodevice('h', TASIndex, namespace='global',
+                            unit='rlu', fmtstr='%.3f', index=0,
+                            lowlevel=self.autodevice_visibility, tas=self)
+        self.add_autodevice('k', TASIndex, namespace='global',
+                            unit='rlu', fmtstr='%.3f', index=1,
+                            lowlevel=self.autodevice_visibility, tas=self)
+        self.add_autodevice('l', TASIndex, namespace='global',
+                            unit='rlu', fmtstr='%.3f', index=2,
+                            lowlevel=self.autodevice_visibility, tas=self)
+        self.add_autodevice('E', TASIndex, namespace='global',
+                            unit=self.energytransferunit, fmtstr='%.3f',
+                            index=3, lowlevel=self.autodevice_visibility,
+                            tas=self)
         self._last_calpos = None
 
         if self.scatteringsense[0] != self._attached_mono.scatteringsense:
@@ -113,11 +117,6 @@ class TAS(Instrument, Moveable):
             self.log.warning('%s.scatteringsense is not the same as '
                              '%s.scatteringsense[2], please reset %s',
                              self._attached_ana, self, self)
-
-    def doShutdown(self):
-        for name in ['h', 'k', 'l', 'E']:
-            if name in self.__dict__:
-                self.__dict__[name].shutdown()
 
     def _getWaiters(self):
         if self.scanmode == 'DIFF':

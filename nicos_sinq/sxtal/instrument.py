@@ -28,8 +28,9 @@
 import numpy as np
 
 from nicos import session
-from nicos.core import Attach, AutoDevice, LimitError, Moveable, Override, \
-    Param, Value, dictof, intrange, listof, oneof, tupleof, vec3
+from nicos.core import Attach, AutoDevice, HasAutoDevices, LimitError, \
+    Moveable, Override, Param, Value, dictof, intrange, listof, oneof, \
+    tupleof, vec3
 from nicos.core.errors import InvalidValueError
 from nicos.devices.generic.mono import Monochromator, from_k, to_k
 from nicos.devices.instrument import Instrument
@@ -42,7 +43,7 @@ from nicos_sinq.sxtal.tasublib import calcPlaneNormal, calcTasQAngles, \
     tasQEPosition, tasReflection
 
 
-class SXTalBase(Instrument, Moveable):
+class SXTalBase(HasAutoDevices, Instrument, Moveable):
     """An instrument class that can move in q space.
 
     When setting up a single xtal configuration, use a subclass that reflects
@@ -93,18 +94,16 @@ class SXTalBase(Instrument, Moveable):
     _last_calpos = None
 
     def doInit(self, mode):
-        self.__dict__['h'] = SXTalIndex('h', unit='rlu', fmtstr='%.3f',
-                                        index=0, lowlevel=True, sxtal=self)
-        self.__dict__['k'] = SXTalIndex('k', unit='rlu', fmtstr='%.3f',
-                                        index=1, lowlevel=True, sxtal=self)
-        self.__dict__['l'] = SXTalIndex('l', unit='rlu', fmtstr='%.3f',
-                                        index=2, lowlevel=True, sxtal=self)
+        self.add_autodevice('h', SXTalIndex, namespace='global',
+                            unit='rlu', fmtstr='%.3f', index=0,
+                            lowlevel=self.autodevice_visibility, sxtal=self)
+        self.add_autodevice('k', SXTalIndex, namespace='global',
+                            unit='rlu', fmtstr='%.3f', index=1,
+                            lowlevel=self.autodevice_visibility, sxtal=self)
+        self.add_autodevice('l', SXTalIndex, namespace='global',
+                            unit='rlu', fmtstr='%.3f', index=2,
+                            lowlevel=self.autodevice_visibility, sxtal=self)
         self._last_calpos = None
-
-    def doShutdown(self):
-        for name in ['h', 'k', 'l']:
-            if name in self.__dict__:
-                self.__dict__[name].shutdown()
 
     def _calcPos(self, hkl, wavelength=None):
         """Calculate the Z1 vector for a given HKL position."""
@@ -476,15 +475,10 @@ class TASSXTal(SXTalBase):
     def doInit(self, mode):
         SXTalBase.doInit(self, mode)
         if self.inelastic:
-            self.__dict__['en'] = SXTalIndex('en', unit='meV',
-                                             fmtstr='%.3f', index=3,
-                                             lowlevel=True, sxtal=self)
+            self.add_autodevice('en', SXTalIndex, namespace='global',
+                                unit='meV', fmtstr='%.3f', index=3,
+                                lowlevel=self.autodevice_visibility, sxtal=self)
             self.valuetype = tupleof(float, float, float, float)
-
-    def doShutdown(self):
-        for name in ['h', 'k', 'l', 'en']:
-            if name in self.__dict__:
-                self.__dict__[name].shutdown()
 
     def _calcPos(self, hkl, wavelength=None):
         return hkl
