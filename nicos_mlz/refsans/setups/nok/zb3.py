@@ -69,7 +69,7 @@ devices = dict(
          motor = 'zb3r_motor',
          analog = 'zb3r_analog',
          visibility = showcase_values['hide_acc'],
-         unit = 'mm'
+         unit = 'mm',
     ),
     zb3r_analog = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for ZB3, reactor side',
@@ -91,7 +91,7 @@ devices = dict(
          motor = 'zb3s_motor',
          analog = 'zb3s_analog',
          visibility = showcase_values['hide_acc'],
-         unit = 'mm'
+         unit = 'mm',
     ),
     zb3s_analog = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for ZB3, sample side',

@@ -76,7 +76,7 @@ devices = dict(
          motor = 'nok2r_motor',
          analog = 'nok2r_analog',
          visibility = showcase_values['hide_acc'],
-         unit = 'mm'
+         unit = 'mm',
     ),
     nok2s_axis = device('nicos.devices.generic.Axis',
          description = 'Axis of NOK2, sample side',
@@ -107,7 +107,7 @@ devices = dict(
          motor = 'nok2s_motor',
          analog = 'nok2s_analog',
          visibility = showcase_values['hide_acc'],
-         unit = 'mm'
+         unit = 'mm',
     ),
 
 )

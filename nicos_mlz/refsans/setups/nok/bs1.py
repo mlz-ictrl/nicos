@@ -1,3 +1,4 @@
+
 description = "DoubleSlit [slit k1] between nok8 and nok9"
 
 group = 'lowlevel'
@@ -63,7 +64,7 @@ devices = dict(
          motor = 'bs1r_motor',
          analog = 'bs1r_analog',
          visibility = showcase_values['hide_acc'],
-         unit = 'mm'
+         unit = 'mm',
     ),
     bs1r_analog = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for BS1, reactor side',
@@ -96,7 +97,7 @@ devices = dict(
          motor = 'bs1s_motor',
          analog = 'bs1s_analog',
          visibility = showcase_values['hide_acc'],
-         unit = 'mm'
+         unit = 'mm',
     ),
     bs1s_analog = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for BS1, sample side',

@@ -44,7 +44,7 @@ devices = dict(
          motor = 'nok4r_motor',
          analog = 'nok4r_analog',
          visibility = showcase_values['hide_acc'],
-         unit = 'mm'
+         unit = 'mm',
     ),
     nok4r_analog = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for NOK4, reactor side',
@@ -76,7 +76,7 @@ devices = dict(
          motor = 'nok4s_motor',
          analog = 'nok4s_analog',
          visibility = showcase_values['hide_acc'],
-         unit = 'mm'
+         unit = 'mm',
     ),
     nok4s_analog = device(code_base + 'nok_support.NOKPosition',
         description = 'Position sensing for NOK4, sample side',

@@ -48,7 +48,7 @@ devices = dict(
          motor = 'zb2_motor',
          analog = 'zb2_analog',
          visibility = showcase_values['hide_acc'],
-         unit = 'mm'
+         unit = 'mm',
     ),
     zb2_poti = device(code_base + 'nok_support.NOKMonitoredVoltage',
         description = 'Poti for ZB2',
