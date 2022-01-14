@@ -1,7 +1,5 @@
 description = 'Neutron counter box and HM at SINQ BO.'
 
-group = 'lowlevel'
-
 includes = ['embl_config']
 excludes = [
     'single_el737',

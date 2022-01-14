@@ -4,9 +4,7 @@ excludes = [
     'shutter',
 ]
 
-sysconfig = {
-    'datasinks': ['shuttersink',]
-}
+sysconfig = {'datasinks': ['shuttersink',]}
 
 devices = dict(
     shutter = device('nicos.devices.generic.manual.ManualSwitch',

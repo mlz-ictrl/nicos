@@ -24,4 +24,18 @@ devices = dict(
         timeout = 20,
         precision = 0.1,
     ),
+    mcu2 = device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
+        epicstimeout = 3.0,
+        description = 'Controller of the devices connected to MCU2',
+        commandpv = 'SQ:BOA:MCU2.AOUT',
+        replypv = 'SQ:BOA:MCU2.AINP',
+    ),
+    pico_mcu = device('nicos_sinq.boa.devices.pico.PicoSwitch',
+        description = 'Device to switch flipper via MCU',
+        directmcu = 'mcu2',
+        mapping = {
+            'on': 1,
+            'off': 0
+        },
+    )
 )

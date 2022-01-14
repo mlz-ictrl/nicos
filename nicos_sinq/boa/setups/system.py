@@ -21,7 +21,7 @@ modules = [
     'nicos_sinq.boa.commands.boasetup'
 ]
 
-includes = ['table2', 'table3', 'table4', 'table5', 'table6']
+includes = ['table2', 'table3', 'table4', 'table5', 'table6', 'notifiers']
 devices = dict(
     BOA = device('nicos.devices.instrument.Instrument',
         description = 'instrument object',
@@ -54,8 +54,8 @@ devices = dict(
     mcu3 = device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
         epicstimeout = 3.0,
         description = 'Controller of the devices connected to mcu3',
-        commandpv = 'SQ:BOA:mcu3.AOUT',
-        replypv = 'SQ:BOA:mcu3.AINP',
+        commandpv = 'SQ:BOA:MCU3.AOUT',
+        replypv = 'SQ:BOA:MCU3.AINP',
     ),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     dmnsink = device('nicos.devices.datasinks.DaemonSink'),

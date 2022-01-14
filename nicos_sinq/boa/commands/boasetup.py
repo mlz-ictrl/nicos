@@ -49,7 +49,7 @@ from nicos.commands.basic import AddSetup, RemoveSetup
 # For some devices I can only test presence and not on which table they sit.
 # This
 # is backed by this list containing tuples of PV name and corresponding setup
-test_presence = [('SQ:BOA:MCU4:PRESENT', 'adaptive_optics17'),
+test_presence = [('SQ:BOA:MCU4:PRESENT', 'quasi_adaptive_optics'),
                  ('SQ:BOA:NGIV2:PRESENT', 'ngiv2'),
                  ('SQ:BOA:AGILENT:PRESENT', 'agilent'),
                  ('SQ:BOA:PICO:PRESENT', 'picoflipper')]
@@ -61,13 +61,13 @@ table_presence = [('SQ:BOA:xy1:TableIndex', 'translation1'),
                   ('SQ:BOA:xy1:TableIndex', 'translation2'),
                   ('SQ:BOA:drot1:TableIndex', 'drot1'),
                   ('SQ:BOA:drot2:TableIndex', 'drot2'),
-                  ('SQ:BOA:dg:TableIndex', 'goniometer_g'),
+                  ('SQ:BOA:dg:TableIndex', 'double_goniometer'),
                   ('SQ:BOA:sl1:TableIndex', 'slit1'),
                   ('SQ:BOA:sl2:TableIndex', 'slit2'),
                   ('SQ:BOA:sld:TableIndex', 'detector_slit'),
-                  ('SQ:BOA:adap:TableIndex', 'adaptive_optics'),
+                  ('SQ:BOA:adap:TableIndex', 'fully_adaptive_optics'),
                   ('SQ:BOA:ra:TableIndex', 'rotation_ra'),
-                  ('SQ:BOA:gbl:TableIndex', 'goniometer_gbl'),
+                  ('SQ:BOA:gbl:TableIndex', 'single_goniometer'),
                   ('SQ:BOA:taz:TableIndex', 'translation_z')
                   ]
 

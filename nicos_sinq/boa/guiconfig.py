@@ -5,7 +5,7 @@ main_window = docked(
         ('Setup',
          tabbed(
              ('Experiment',
-              panel('nicos.clients.flowui.panels.setup_panel.ExpPanel')),
+              panel('nicos_sinq.gui.panels.setup_panel.ExpPanel')),
              ('Samples',
               panel(
                   'nicos_mlz.kws1.gui.sampleconf.KWSSamplePanel',
@@ -89,5 +89,5 @@ tools = [
 ]
 
 options = {
-    'ess_gui' : True,
+    'facility': 'sinq',
 }

@@ -25,6 +25,7 @@ import time
 
 from nicos import session
 from nicos.core import Param, nicosdev
+from nicos.core.status import BUSY
 
 from nicos_sinq.devices.detector import ControlDetector
 
@@ -56,12 +57,18 @@ class BoaControlDetector(ControlDetector):
 
     def doStart(self):
         self._triggerFinished = None
-        if self._attached_slave_detectors:
-            self._attached_slave_detectors[0].start()
-        time.sleep(.5)
-        # session.log.info('Started CCD\n')
-        self._attached_trigger.start()
-        # session.log.info('Started Trigger\n')
+        if self._attached_followers:
+            det = self._attached_followers[0]
+            det.start()
+            for _ in range(0, 5):
+                stat, _ = det.status()
+                if stat == BUSY:
+                    break
+                time.sleep(.3)
+            time.sleep(.9)
+            # session.log.info('Started CCD\n')
+            self._attached_trigger.start()
+            # session.log.info('Started Trigger\n')
 
     def _testRate(self):
         dev = session.getDevice(self.rate_monitor)
@@ -87,7 +94,8 @@ class BoaControlDetector(ControlDetector):
                 # self._attached_slave_detectors[0].stop()
                 return False
         else:
-            if all(det.isCompleted for det in self._attached_detectors):
+            if all(det.isCompleted() for det in
+                   self._attached_followers):
                 return self._testRate()
             else:
                 if time.time() > self._triggerFinished + 180:
@@ -96,7 +104,7 @@ class BoaControlDetector(ControlDetector):
                     start = time.monotonic()
                     while time.monotonic() - start < 200:
                         time.sleep(1.)
-                        if self._attached_slave_detectors[0].isCompleted():
+                        if self._attached_followers[0].isCompleted():
                             break
                     self.start()
                 return False

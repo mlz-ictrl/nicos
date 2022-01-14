@@ -27,9 +27,8 @@ import socket
 
 from nicos import session
 from nicos.core import SIMULATION, CommunicationError, Param, \
-    ProgrammingError, status
+    status, MoveError
 from nicos.core.device import Moveable
-from nicos.core.errors import MoveError
 from nicos.core.params import oneof
 from nicos.devices.generic.sequence import SeqMethod, SeqSleep, SequencerMixin
 from nicos.utils import closeSocket
@@ -47,12 +46,13 @@ class AdamShutter(SequencerMixin, Moveable):
         'port':      Param('TCP Port on network2serial converter',
                            type=int, default=4001),
     }
-    valuetype = oneof('open', 'closed', 'enclosure broken')
+    valuetype = oneof('open', 'close', 'enclosure broken')
     _connection = None
     readRequest = bytearray([1, 0, 0, 0, 0, 6, 1, 1, 0, 0, 0, 12])
     zeroRequest = [2, 0, 0, 0, 0, 6, 1, 5, 0, 0, 0, 0]
     setRequest = [2, 0, 0, 0, 0, 6, 1, 5, 0, 0, 255, 0]
     busTimeout = 50
+    _broken = 'enclosure broken'
 
     def doInit(self, mode):
         if mode != SIMULATION:
@@ -62,29 +62,39 @@ class AdamShutter(SequencerMixin, Moveable):
                 self.log.exception('Failed to connect to adam shutter module')
 
     def doIsAllowed(self, target):
-        if self.read(0) == 'enclosure broken':
+        if self.read(0) == self._broken:
             return False, 'Cannot move shutter when enclosure is broken'
         return True, ''
 
     def _transact(self, request, expected_bytes):
-        self._connection.sendall(request)
-        p = select.select([self._connection], [], [], self.busTimeout)
-        if self._connection in p[0]:
-            data = self._connection.recv(expected_bytes)
-        else:
-            raise CommunicationError('No response from adam-6051')
-        return bytearray(data)
+        def inner_transact(self, request, expected_bytes):
+            self._connection.sendall(request)
+            p = select.select([self._connection], [], [], self.busTimeout)
+            if self._connection in p[0]:
+                data = self._connection.recv(expected_bytes)
+            else:
+                raise CommunicationError('No response from adam-6051')
+            return bytearray(data)
+
+        try:
+            return inner_transact(self, request, expected_bytes)
+        except CommunicationError:
+            # This could mean that the connection became stale.
+            # Try to reopen and try again before really treating this
+            # as an error
+            self.doReset()
+            return inner_transact(self, request, expected_bytes)
 
     def doRead(self, maxage=0):
         byte_data = self._transact(self.readRequest, 11)
         stat = byte_data[9]
         if stat & 8:
-            return 'enclosure broken'
+            return self._broken
         elif stat & 2:
             return 'open'
         elif stat & 1:
-            return 'closed'
-        raise ProgrammingError('Cannot interpret adam code %d' % stat)
+            return 'close'
+        return 'switching between states'
 
     def doStart(self, target):
         """Generate and start a sequence if non is running.
@@ -133,8 +143,12 @@ class AdamShutter(SequencerMixin, Moveable):
         return seq
 
     def doStatus(self, maxage=0):
+        if self._seq_is_running():
+            return status.BUSY, 'Switching'
         if self.read(maxage) == self.target:
             return status.OK, ''
+        if self.read(maxage) == self._broken:
+            return status.WARN, self._broken
         return status.BUSY, ''
 
     def doReset(self):

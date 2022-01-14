@@ -45,7 +45,7 @@ class BoaShutterHandler(DataSinkHandler):
     def end(self):
         DataSinkHandler.end(self)
         if self.dataset == self._startDataset:
-            self._moveShutter('closed')
+            self._moveShutter('close')
             self._startDataset = None
 
 

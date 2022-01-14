@@ -4,9 +4,7 @@ excludes = [
     'shutter_sim',
 ]
 
-sysconfig = {
-    'datasinks': ['shuttersink',]
-}
+sysconfig = {'datasinks': ['shuttersink',]}
 
 devices = dict(
     shutter = device('nicos_sinq.boa.devices.adamshutter.AdamShutter',

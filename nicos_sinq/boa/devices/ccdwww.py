@@ -25,10 +25,10 @@
 import numpy as np
 
 from nicos import session
-from nicos.core.constants import FINAL
+from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.core.device import Moveable
 from nicos.core.params import Attach, Param, Value, oneof, tupleof
-from nicos.core.status import BUSY, OK
+from nicos.core.status import BUSY, OK, ERROR
 from nicos.core.utils import usermethod
 from nicos.devices.generic import ActiveChannel, ImageChannelMixin
 
@@ -85,29 +85,36 @@ class CCDWWWImageChannel(ImageChannelMixin, ActiveChannel):
     def doStop(self):
         # No result to HTTP GET expected
         self.connector.get('interrupt')
+        self._isExposing = False
 
     def doFinish(self):
-        # No result to HTTP GET expected
         self.connector.get('interrupt')
 
     def presetInfo(self):
-        return ['t', ]
+        return ['t']
 
     def doStatus(self, maxage=0):
-        conn_status = self.connector.status(maxage)
+        conn_status = self._attached_connector.status(maxage)
         if conn_status[0] != OK:
             return conn_status
         stat = self.connector.get('locked')
-        if stat == 1:
-            return BUSY, 'Counting'
-        self._isExposing = False
-        return OK, 'Idle'
+        if not stat.ok:
+            return ERROR, 'Failed to read CCD camera status'
+        if int(stat.text) != 1:
+            self._isExposing = False
+            return OK, 'Idle'
+        return BUSY, 'Counting'
 
     def doReadArray(self, quality):
-        if quality == FINAL and not self._isExposing and self._readData:
+        accepted = [FINAL, INTERRUPTED]
+        if quality in accepted and not self._isExposing and self._readData:
             # Read the raw bytes from the server
-            # session.log.info('Reading CCD data.. \n')
             req = self.connector.get('data')
+            if req.status_code != 200:
+                session.log.info('CCD camera bad http code %d, message %s',
+                                 req.status_code, req.text)
+                stat, mes = self.doStatus()
+                session.log.info('Camera state = %d, %s', stat, mes)
             order = '<' if self.connector.byteorder == 'little' else '>'
             dt = np.dtype('uint32')
             dt = dt.newbyteorder(order)
@@ -182,13 +189,15 @@ class AndorCCD(CCDWWWImageChannel):
         'vamp': Param('Read out amplitude',
                       int, default=1, settable=True),
         'writetiff': Param('Flag if the ccdwww writes a tiff file',
-                           oneof(0, 1), default=0, settable=True)
+                           oneof(0, 1), default=0, settable=True),
+        'temperature': Param('Required cooler temperature', int,
+                             default=-70, settable=True)
     }
     _config_list = ['daqmode', 'accucycle', 'accucounts', 'triggermode',
                     'imagepar', 'shutterlevel', 'shuttermode',
                     'openingtime', 'closingtime',
                     'flip', 'rotate', 'hspeed', 'vspeed', 'vamp',
-                    'writetiff']
+                    'writetiff', 'temperature']
 
     def doStart(self):
         # This code figures out the current filename and point number
@@ -213,7 +222,7 @@ class AndorCCD(CCDWWWImageChannel):
     def presetInfo(self):
         if int(self.triggermode) == 7:
             return ['t', 'm']
-        return ['t', ]
+        return ['t']
 
 
 class CCDCooler(Moveable):

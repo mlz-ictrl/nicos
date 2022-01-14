@@ -36,8 +36,8 @@ devices = dict(
         bottom = 'sbb',
         lowlevel = True
     ),
-    slit2_opening = device('nicos_sinq.amor.devices.slit.SlitOpening',
-        description = 'Slit 2 opening controller',
+    slit2_height = device('nicos_sinq.amor.devices.slit.SlitOpening',
+        description = 'Slit 2 height controller',
         slit = 'slit2'
     ),
     slit2_width = device('nicos.devices.generic.slit.WidthSlitAxis',

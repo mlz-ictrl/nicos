@@ -116,6 +116,7 @@ devices = dict(
         ],
         description = 'TOF Array',
         lowlevel = True,
+        formatter = '%9d',
     ),
     hm_ax_tof = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfAxis',
         description = 'TOF axis',
@@ -123,7 +124,7 @@ devices = dict(
         mapping = 'boundary',
         array = 'hm_tof_array',
         label = 'TOF',
-        unit = 'ms'
+        unit = 'ms',
     ),
     hm_bank0 = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfBank',
         description = 'EMBL HM',

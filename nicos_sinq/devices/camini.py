@@ -32,7 +32,7 @@ from nicos.devices.generic import Detector
 from nicos.devices.generic.sequence import SeqDev, SeqMethod, SeqSleep, \
     SequenceItem, SequencerMixin
 
-from nicos_ess.devices.epics.base import EpicsDeviceEss
+from nicos_ess.devices.epics.base import EpicsDeviceEss, EpicsDigitalMoveable
 
 
 class WaitPV(SequenceItem):
@@ -367,3 +367,11 @@ class CaminiDetector(EpicsDeviceEss, SequencerMixin,
 
     def arrayInfo(self):
         return ()
+
+
+class CaminiTrigger(EpicsDigitalMoveable):
+    """
+    EpicsDigitalMoveable does not return a sensible status here
+    """
+    def doStatus(self, maxage=0):
+        return status.OK, ''
