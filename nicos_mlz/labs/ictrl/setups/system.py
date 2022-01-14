@@ -4,7 +4,7 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'ictrlfs.ictrl.frm2',
+    cache = 'localhost',
     instrument = None,
     experiment = 'Exp',
     datasinks = ['conssink', 'filesink', 'daemonsink'],
