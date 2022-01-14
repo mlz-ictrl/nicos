@@ -22,6 +22,7 @@ includes = [
     'optic_elements',
     'poti_ref',
     'prim_monitor',
+    'psutil',
     'pumpstand',
     'qmesydaq',
     'reactor',
