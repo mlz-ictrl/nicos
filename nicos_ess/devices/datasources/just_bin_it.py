@@ -48,6 +48,10 @@ class Hist1dTof:
         return ArrayDesc('data', shape=(num_bins,), dtype=np.float64)
 
     @classmethod
+    def get_zeroes(cls, num_bins, **ignored):
+        return cls.transform_data(np.zeros(shape=(num_bins,), dtype=np.float64))
+
+    @classmethod
     def transform_data(cls, data):
         return data
 
@@ -62,6 +66,11 @@ class Hist2dTof:
     @classmethod
     def get_array_description(cls, num_bins, **ignored):
         return ArrayDesc('data', shape=(num_bins, num_bins), dtype=np.float64)
+
+    @classmethod
+    def get_zeroes(cls, num_bins, **ignored):
+        return cls.transform_data(np.zeros(shape=(num_bins, num_bins),
+                                           dtype=np.float64))
 
     @classmethod
     def transform_data(cls, data):
@@ -83,6 +92,11 @@ class Hist2dDet:
                          dtype=np.float64)
 
     @classmethod
+    def get_zeroes(cls, det_width, det_height, **ignored):
+        return cls.transform_data(np.zeros(shape=(det_width, det_height),
+                                           dtype=np.float64))
+
+    @classmethod
     def transform_data(cls, data):
         # For the ESS detector orientation, pixel 0 is at top-left
         return np.rot90(data)
@@ -97,9 +111,14 @@ class Hist2dRoi:
     name = 'roihist'
 
     @classmethod
-    def get_array_description(cls, det_width, det_height, **ignored):
-        return ArrayDesc('data', shape=(det_width, det_height),
+    def get_array_description(cls, det_width, left_edges, **ignored):
+        return ArrayDesc('data', shape=(det_width, left_edges),
                          dtype=np.float64)
+
+    @classmethod
+    def get_zeroes(cls, det_width, left_edges, **ignored):
+        return cls.transform_data(np.zeros(shape=(det_width, left_edges),
+                                           dtype=np.float64))
 
     @classmethod
     def transform_data(cls, data):
@@ -167,17 +186,20 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
         'pollinterval': Override(default=None, userparam=False, settable=False),
     }
 
-    _unique_id = None
-    _current_status = (status.OK, '')
-    _hist_data = np.array([])
-    _hist_sum = 0
-
     def doPreinit(self, mode):
+        self._zero_data()
+        self._hist_sum = 0
+        _unique_id = None
+        _current_status = (status.OK, '')
         if mode == SIMULATION:
             return
         self._update_status(status.OK, '')
         # Set up the data consumer
         KafkaSubscriber.doPreinit(self, None)
+
+    def _zero_data(self):
+        self._hist_data = hist_type_by_name[self.hist_type].get_zeroes(
+            **self._get_all_parameters())
 
     def arrayInfo(self):
         return hist_type_by_name[self.hist_type].get_array_description(
@@ -185,7 +207,7 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
 
     def doPrepare(self):
         self._update_status(status.BUSY, 'Preparing')
-        self._hist_data = np.array([])
+        self._zero_data()
         self._hist_edges = np.array([])
         self._hist_sum = 0
         try:
