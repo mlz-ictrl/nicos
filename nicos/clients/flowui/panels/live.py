@@ -242,7 +242,7 @@ class MultiLiveDataPanel(LiveDataPanel):
 
     def on_client_connected(self):
         DefaultLiveDataPanel.on_client_connected(self)
-        self.on_client_setup()
+        self._cleanup_existing_previews()
 
     def on_client_disconnected(self):
         self._cleanup_existing_previews()
@@ -264,7 +264,6 @@ class MultiLiveDataPanel(LiveDataPanel):
 
     def on_client_setup(self):
         self._cleanup_existing_previews()
-        self._create_previews()
 
     def highlight_selected_preview(self, detname):
         for preview in self._previews.values():
@@ -273,10 +272,7 @@ class MultiLiveDataPanel(LiveDataPanel):
 
     def _create_previews(self):
         """
-        The object populates the checkbox with all the available detectors.
-        If this method is called after a reconnection, destroys the content
-        of the detector group before reallocating.
-        :return: None
+        Populates the previews with all the available detectors.
         """
         detectors = set(self.find_detectors())
         if not detectors:
@@ -291,10 +287,10 @@ class MultiLiveDataPanel(LiveDataPanel):
             first_preview.widget().clicked.emit(first_preview.widget().name)
 
     def on_client_cache(self, data):
-        # Update the preview if the list of detectors being used changes
+        # Clear the previews if the list of detectors being used changes
         (_, key, _, _) = data
         if key == 'exp/detlist':
-            self.on_client_setup()
+            self._cleanup_existing_previews()
 
     def on_client_livedata(self, params, blobs):
         """
@@ -307,6 +303,10 @@ class MultiLiveDataPanel(LiveDataPanel):
         :return: None
         """
         det_name = params['det']
+
+        if not self._previews:
+            self._create_previews()
+
         if [preview for preview in self._previews if preview.startswith(
                 det_name)]:
             self.set_preview_data(params, blobs)
@@ -367,7 +367,6 @@ class MultiLiveDataPanel(LiveDataPanel):
         :return: None
         """
         detname = params['det']
-
         self._previews_cache[detname]['params'] = params
         self._previews_cache[detname]['blobs'] = blobs
 
@@ -377,7 +376,8 @@ class MultiLiveDataPanel(LiveDataPanel):
             labels, _ = process_axis_labels(datadesc, blobs)
             if self._has_plot_changed_dimensionality(widget, labels):
                 # Previews are no longer correct widget types
-                self.on_client_setup()
+                self._cleanup_existing_previews()
+                return
             process_livedata(widget,
                              numpy.frombuffer(blobs[index], normalized_type),
                              params, labels, index)
