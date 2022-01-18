@@ -21,7 +21,6 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
-from collections import OrderedDict
 from enum import Enum
 
 import numpy
@@ -106,7 +105,7 @@ class LiveWidget1D(DefaultLiveWidget1D):
 
 
 class LiveWidgetWrapper(QGroupBox):
-    def __init__(self, title, parent=None):
+    def __init__(self, title, widget, parent=None):
         QGroupBox.__init__(self, title=title, parent=parent)
         self.state = State.UNSELECTED
 
@@ -114,8 +113,6 @@ class LiveWidgetWrapper(QGroupBox):
         vbox = QVBoxLayout()
         vbox.setContentsMargins(0, 0, 0, 0)
         self.setLayout(vbox)
-
-    def set_live_widget(self, widget):
         self.layout().addWidget(widget)
 
     def widget(self):
@@ -213,6 +210,62 @@ def process_livedata(widget, data, params, labels, idx):
         widget.setData(arrays, labels)
 
 
+class DetContainer:
+    """
+    Container class for items related to a detector.
+    """
+    def __init__(self, name):
+        self.name = name
+        self._params_cache = {}
+        self._blobs_cache = []
+        self._previews_to_index = {}
+        self._previews = []
+
+    def add_preview(self, name):
+        self._previews_to_index[name] = len(self._previews)
+        self._previews.append(name)
+
+    def update_cache(self, params, blobs):
+        self._params_cache = params
+        self._blobs_cache = blobs
+
+    def get_preview_name(self, index):
+        return self._previews[index]
+
+    def get_preview_data(self, name):
+        ch = self._previews_to_index[name]
+        if self._params_cache and self._blobs_cache:
+            params = dict(self._params_cache)
+            params['datadescs'] = [params['datadescs'][ch]]
+            return params, [self._blobs_cache[ch]]
+        return None, None
+
+
+class Preview:
+    """
+    Container class for items related to a preview.
+    """
+    def __init__(self, name, detector, widget):
+        """
+        :param name: name of the preview
+        :param detector: the detector the preview belongs to
+        :param widget: the preview widget.
+        """
+        self.name = name
+        self.detector = detector
+        self._widget = widget
+
+    @property
+    def widget(self):
+        return self._widget.widget()
+
+    def show(self):
+        self._widget.state = State.SELECTED
+
+    def hide(self):
+        self._widget.state = State.UNSELECTED
+
+
 class MultiLiveDataPanel(LiveDataPanel):
     """
     Implements a LiveDataPanel that shows all the detectors in a side area.
@@ -231,8 +284,8 @@ class MultiLiveDataPanel(LiveDataPanel):
         self.fileList = QListWidget()
         self.tb_fileList = QComboBox()
         self._detector_selected = options.get('default_detector', '')
-        self._previews = OrderedDict()
-        self._previews_cache = {}
+        self._detectors = {}
+        self._previews = {}
         LiveDataPanel.__init__(self, parent, client, options)
         self.layout().setMenuBar(self.toolbar)
         self.scroll.setWidgetResizable(True)
@@ -253,39 +306,44 @@ class MultiLiveDataPanel(LiveDataPanel):
             item.widget().deleteLater()
             del item
         self._previews.clear()
-        self._previews_cache.clear()
+        self._detectors.clear()
 
-    def add_detector_to_preview(self, detname):
-        previews = self.create_preview(detname)
-        self._previews_cache.update({detname: {'params': {}, 'blobs': []}})
+    def create_previews_for_detector(self, det_name):
+        previews = self.create_preview_widgets(det_name)
+
         for preview in previews:
+            name = preview.widget().name
+            self._previews[name] = Preview(name, det_name, preview)
+            self._detectors[det_name].add_preview(name)
             preview.widget().clicked.connect(self.on_preview_clicked)
-            self._previews[preview.widget().name] = preview
             self.scrollContent.layout().addWidget(preview)
 
     def on_client_setup(self):
         self._cleanup_existing_previews()
 
-    def highlight_selected_preview(self, detname):
-        for preview in self._previews.values():
-            preview.state = State.UNSELECTED
-        self._previews[detname].state = State.SELECTED
+    def highlight_selected_preview(self, selected):
+        for name, preview in self._previews.items():
+            if name == selected:
+                preview.show()
+            else:
+                preview.hide()
 
-    def _create_previews(self):
+    def _populate_previews(self):
         """
-        Populates the previews with all the available detectors.
+        Populates the preview widget with all the available detectors.
         """
         detectors = set(self.find_detectors())
         if not detectors:
             return
         for detector in detectors:
-            self.add_detector_to_preview(detector)
+            self._detectors[detector] = DetContainer(detector)
+            self.create_previews_for_detector(detector)
         self._display_first_detector()
 
     def _display_first_detector(self):
         if self._previews:
             first_preview = next(iter(self._previews.values()))
-            first_preview.widget().clicked.emit(first_preview.widget().name)
+            first_preview.widget.clicked.emit(first_preview.name)
 
     def on_client_cache(self, data):
         # Clear the previews if the list of detectors being used changes
@@ -295,34 +353,29 @@ class MultiLiveDataPanel(LiveDataPanel):
 
     def on_client_livedata(self, params, blobs):
         """
-        If the blob comes from a detector that has been selected in the
-        checkbox update the preview.
-        If in addition the detector is the one selected to provide the main
-        image updates the view.
+        Updates the previews and the selected main image.
+
         :param params: data parameters
         :param blobs: data array
-        :return: None
         """
         det_name = params['det']
 
         if not self._previews:
-            self._create_previews()
+            self._populate_previews()
 
-        if [preview for preview in self._previews if preview.startswith(
-                det_name)]:
-            self.set_preview_data(params, blobs)
+        self.set_preview_data(params, blobs)
 
-        detector_selected = '-'.join(self._detector_selected.split('-')[:-1])
-        if det_name == detector_selected:
-            channel = int(self._detector_selected.split('-')[-1])
-            param = dict(params)
-            param['datadescs'] = [param['datadescs'][channel]]
-            blob = [blobs[channel]]
-            DefaultLiveDataPanel.on_client_livedata(self, param, blob)
+        if not self._detector_selected or \
+                self._detector_selected not in self._previews:
+            return
+
+        if self._previews[self._detector_selected].detector == det_name:
+            pars, blob = self._detectors[det_name].get_preview_data(
+                self._detector_selected)
+            DefaultLiveDataPanel.on_client_livedata(self, pars, blob)
 
     def find_detectors(self):
         """
-        Returns a list with all the devices of type Detector.
         :return: a list with the name of all the configured detectors.
         """
         state = self.client.ask('getstatus')
@@ -334,46 +387,38 @@ class MultiLiveDataPanel(LiveDataPanel):
         return [det for det in detlist[1]
                 if self.client.eval(f'{det}.arrayInfo()', [])]
 
-    def create_preview(self, detname):
+    def create_preview_widgets(self, det_name):
         """
-        Return a widget to be used for the detector preview.
-        :param detname: detector name
-        :return: a LiveWidget
+        :param det_name: detector name
+        :return: a list of preview widgets
         """
-        array_desc = self.client.eval(f'{detname}.arrayInfo()', [])
-        widgets = []
-        for channel_id in range(len(array_desc)):
-            if len(array_desc[channel_id].shape) == 1:
-                widget = LiveWidget1D(name=f'{detname}-{channel_id}',
-                                      parent=self)
+        array_info = self.client.eval(f'{det_name}.arrayInfo()', ())
+        previews = []
+
+        for info in array_info:
+            if len(info.shape) == 1:
+                widget = LiveWidget1D(name=info.name, parent=self)
                 widget.setLines(True)
             else:
-                widget = LiveWidget(name=f'{detname}-{channel_id}', parent=self)
+                widget = LiveWidget(name=info.name, parent=self)
             widget.gr.keepRatio = True
             widget.gr.setAttribute(Qt.WA_TransparentForMouseEvents)
-            if len(array_desc) > 1:
-                title = f'{detname}-ch:{channel_id}'
-            else:
-                title = f'{detname}'
-            superwidget = LiveWidgetWrapper(title=title)
-            superwidget.set_live_widget(widget)
-            widgets.append(superwidget)
-        return widgets
+            previews.append(LiveWidgetWrapper(title=info.name, widget=widget))
+        return previews
 
     def set_preview_data(self, params, blobs):
         """
         Plots the data in the corresponding preview.
         :param params: data parameters
         :param blobs: data array
-        :return: None
         """
-        detname = params['det']
-        self._previews_cache[detname]['params'] = params
-        self._previews_cache[detname]['blobs'] = blobs
+        parent = params['det']
+        self._detectors[parent].update_cache(params, blobs)
 
         for index, datadesc in enumerate(params['datadescs']):
             normalized_type = self.normalizeType(datadesc['dtype'])
-            widget = self._previews[f'{detname}-{index}'].widget()
+            name = self._detectors[parent].get_preview_name(index)
+            widget = self._previews[name].widget
             labels, _ = process_axis_labels(datadesc, blobs)
             if self._has_plot_changed_dimensionality(widget, labels):
                 # Previews are no longer correct widget types
@@ -387,33 +432,24 @@ class MultiLiveDataPanel(LiveDataPanel):
         return (isinstance(widget, LiveWidget1D) and 'y' in labels) or \
                (not isinstance(widget, LiveWidget1D) and 'y' not in labels)
 
-    def on_preview_clicked(self, detname):
+    def on_preview_clicked(self, det_name):
         """
         Set the main display to show data of the corresponding preview widget
-        :param detname: detector name
-        :return:
+        :param det_name: detector name
         """
-        self._detector_selected = detname
+        self._detector_selected = det_name
+        parent = self._previews[det_name].detector
+        pars, blob = self._detectors[parent].get_preview_data(
+            self._detector_selected)
 
-        cached_name = '-'.join(detname.split('-')[:-1])
-        if cached_name not in self._previews_cache:
-            return
-        params = self._previews_cache[cached_name].get('params', [])
-        blobs = self._previews_cache[cached_name].get('blobs', [])
+        if pars and blob:
+            DefaultLiveDataPanel.on_client_livedata(self, pars, blob)
 
-        if params and blobs:
-            ch = int(detname.split('-')[-1])
-            pars = dict(params)
-
-            pars['datadescs'] = [pars['datadescs'][ch]]
-            DefaultLiveDataPanel.on_client_livedata(self, pars, [blobs[ch]])
-
-        self.highlight_selected_preview(detname)
+        self.highlight_selected_preview(det_name)
 
     def on_closed(self):
         """
-        Clear the preview.
-        :return: None
+        Clear the previews.
         """
         for item in layout_iterator(self.scrollContent.layout()):
             item.widget().deleteLater()
