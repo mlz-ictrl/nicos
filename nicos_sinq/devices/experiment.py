@@ -59,11 +59,15 @@ class SinqExperiment(Experiment):
         'serviceexp': Override(default='Service'),
         'sendmail': Override(default=False),
         'zipdata': Override(default=False),
+        'title': Override(settable=True, volatile=False),
     }
 
     parameters = {
         'scriptpath': Param('Path to script files',
-                            type=absolute_path, settable=True)
+                            type=absolute_path, settable=True),
+        'proposal_title': Param('Title for the proposal',
+                                type=str, settable=True,
+                                category='experiment'),
     }
     datamanager_class = SinqDataManager
 
@@ -132,6 +136,11 @@ class SinqExperiment(Experiment):
         if not os.access(scriptpath, os.R_OK | os.W_OK | os.X_OK):
             raise ValueError('Cannot access scriptpath %s' % scriptpath)
         # param set in device.py
+
+    def _newPropertiesHook(self, proposal, kwds):
+        if 'proposal_title' in kwds:
+            self.proposal_title = kwds['proposal_title']
+        return kwds
 
 
 class TomoSinqExperiment(SinqExperiment):
