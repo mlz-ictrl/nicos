@@ -20,7 +20,7 @@ devices = dict(
                 responsible='M. Clarke <matt.clarke@ess.eu>',
                 ),
 
-    Sample=device('nicos.devices.sample.Sample',
+    Sample=device('nicos_ess.devices.sample.EssSample',
                   description='The currently used sample',
                   ),
 

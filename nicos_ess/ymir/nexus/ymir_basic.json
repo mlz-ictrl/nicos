@@ -28,6 +28,7 @@
           }
         },
         "$USERS$",
+        "$SAMPLES$",
         {
           "name": "instrument",
           "type": "group",
