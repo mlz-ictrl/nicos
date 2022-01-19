@@ -52,7 +52,7 @@ class Hist1dTof:
         return cls.transform_data(np.zeros(shape=(num_bins,), dtype=np.float64))
 
     @classmethod
-    def transform_data(cls, data):
+    def transform_data(cls, data, rotation=None):
         return data
 
     @classmethod
@@ -73,9 +73,11 @@ class Hist2dTof:
                                            dtype=np.float64))
 
     @classmethod
-    def transform_data(cls, data):
+    def transform_data(cls, data, rotation=None):
         # For the ESS detector orientation, pixel 0 is at top-left
-        return np.rot90(data)
+        if rotation:
+            return np.rot90(data, k=rotation//90)
+        return data
 
     @classmethod
     def get_info(cls, name, num_bins, **ignored):
@@ -97,9 +99,11 @@ class Hist2dDet:
                                            dtype=np.float64))
 
     @classmethod
-    def transform_data(cls, data):
+    def transform_data(cls, data, rotation=None):
         # For the ESS detector orientation, pixel 0 is at top-left
-        return np.rot90(data)
+        if rotation:
+            return np.rot90(data, k=rotation//90)
+        return data
 
     @classmethod
     def get_info(cls, name, det_width, det_height, **ignored):
@@ -121,9 +125,11 @@ class Hist2dRoi:
                                            dtype=np.float64))
 
     @classmethod
-    def transform_data(cls, data):
+    def transform_data(cls, data, rotation=None):
         # For the ESS detector orientation, pixel 0 is at top-left
-        return np.rot90(data)
+        if rotation:
+            return np.rot90(data, k=rotation//90)
+        return data
 
     @classmethod
     def get_info(cls, name, det_width, left_edges, **ignored):
@@ -174,10 +180,14 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
         'left_edges': Param('The left edges for a ROI histogram',
                             type=listof(int), default=[],
                             userparam=True, settable=True,
-                           ),
-        'source': Param('The number of bins to histogram into', type=str,
+                            ),
+        'source': Param('Identifier source on multiplexed topics', type=str,
                         default='', userparam=True, settable=True,
                         ),
+        'rotation': Param('Rotation angle to apply to the image',
+                          type=oneof(0, 90, 180, 270),
+                          default=90, userparam=True, settable=True,
+                          ),
     }
 
     parameter_overrides = {
@@ -238,8 +248,9 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
                 self._update_status(status.OK, '')
                 break
 
-            self._hist_data = \
-                hist_type_by_name[self.hist_type].transform_data(hist['data'])
+            self._hist_data = hist_type_by_name[self.hist_type].transform_data(
+                    hist['data'], rotation=self.rotation
+            )
             self._hist_sum = self._hist_data.sum()
             self._hist_edges = hist['dim_metadata'][0]['bin_boundaries']
 
