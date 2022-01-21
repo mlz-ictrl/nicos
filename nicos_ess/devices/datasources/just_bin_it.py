@@ -44,8 +44,8 @@ class Hist1dTof:
     name = 'hist1d'
 
     @classmethod
-    def get_array_description(cls, num_bins, **ignored):
-        return ArrayDesc('data', shape=(num_bins,), dtype=np.float64)
+    def get_array_description(cls, name, num_bins, **ignored):
+        return ArrayDesc(name, shape=(num_bins,), dtype=np.float64)
 
     @classmethod
     def get_zeroes(cls, num_bins, **ignored):
@@ -64,8 +64,8 @@ class Hist2dTof:
     name = 'hist2d'
 
     @classmethod
-    def get_array_description(cls, num_bins, **ignored):
-        return ArrayDesc('data', shape=(num_bins, num_bins), dtype=np.float64)
+    def get_array_description(cls, name, num_bins, **ignored):
+        return ArrayDesc(name, shape=(num_bins, num_bins), dtype=np.float64)
 
     @classmethod
     def get_zeroes(cls, num_bins, **ignored):
@@ -89,8 +89,8 @@ class Hist2dDet:
     name = 'dethist'
 
     @classmethod
-    def get_array_description(cls, det_width, det_height, **ignored):
-        return ArrayDesc('data', shape=(det_width, det_height),
+    def get_array_description(cls, name, det_width, det_height, **ignored):
+        return ArrayDesc(name, shape=(det_width, det_height),
                          dtype=np.float64)
 
     @classmethod
@@ -115,8 +115,8 @@ class Hist2dRoi:
     name = 'roihist'
 
     @classmethod
-    def get_array_description(cls, det_width, left_edges, **ignored):
-        return ArrayDesc('data', shape=(det_width, left_edges),
+    def get_array_description(cls, name, det_width, left_edges, **ignored):
+        return ArrayDesc(name, shape=(det_width, left_edges),
                          dtype=np.float64)
 
     @classmethod
