@@ -105,14 +105,14 @@ class ConnectionDialog(QDialog):
             self.resize(self.sizeHint())
 
         self.presetOrAddr.addItems(sorted(connpresets))
-        self.presetOrAddr.setEditText(lastpreset)
-        if not lastpreset and lastdata:
-            # if we have no stored last preset connection, put in the raw data
+        if lastdata:
             self.presetOrAddr.setEditText(
                 '%s:%s' % (lastdata.host, lastdata.port))
             self.viewonly.setChecked(lastdata.viewonly)
             self.expertmode.setChecked(lastdata.expertmode)
-        self.userName.setText(lastdata.user)
+            self.userName.setText(lastdata.user)
+        if lastpreset:  # prefer preset name
+            self.presetOrAddr.setEditText(lastpreset)
         self.password.setFocus()
 
         self.viaFrame.setHidden(not tunnel)
@@ -131,7 +131,8 @@ class ConnectionDialog(QDialog):
         self.presetFrame.hide()
         self.resize(QSize(self.width(), self.minimumSize().height()))
 
-    def on_presetOrAddr_editTextChanged(self, text):
+    def on_presetOrAddr_currentIndexChanged(self, _idx):
+        text = self.presetOrAddr.currentText()
         if text in self.connpresets:
             conn = self.connpresets[text]
             self.userName.setText(conn.user)
