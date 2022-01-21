@@ -125,6 +125,7 @@ class LiveWidgetWrapper(QGroupBox):
         # Maintain aspect ratio when resizing
         new_size = QSize(event.size().width(), event.size().width())
         self.resize(new_size)
+        self.setMinimumHeight(event.size().width())
 
     @pyqtProperty(str)
     def state(self):
