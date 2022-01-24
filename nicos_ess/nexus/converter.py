@@ -25,10 +25,8 @@
 from nicos import session
 from nicos.core.errors import NicosError
 
-from nicos_ess.nexus import DeviceStream
 from nicos_ess.nexus.elements import KafkaStream, NXAttribute, NXDataset, \
     NXGroup, NXLink
-from nicos_ess.nexus.placeholder import DeviceValuePlaceholder
 
 
 class NexusTemplateConverter:
@@ -84,16 +82,6 @@ class NexusTemplateConverter:
                 elif isinstance(val, (NXGroup, NXLink, KafkaStream)):
                     group.children[key] = val
                 elif isinstance(val, NXDataset):
-                    # Check if the this dataset should rather be tracked
-                    # and should appear as NXlog
-                    tracked = session.experiment.envlist
-                    if isinstance(val.value, DeviceValuePlaceholder):
-                        if val.value.device in tracked:
-                            stream = DeviceStream(val.value.device,
-                                                  val.value.parameter)
-                            stream.stream_attrs = val.attrs
-                            group.children[key] = stream
-                            continue
                     group.children[key] = val
                 elif isinstance(val, NXAttribute):
                     group.attrs[key] = val

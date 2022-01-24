@@ -295,7 +295,6 @@ class NexusFileWriterSink(ProducesKafkaMessages, FileSink):
     * Dataset value should be a instance of class NXDataset.
     * Attribute value can either be numerical or instance of class NXattribute
     * Detector event streams are marked using the class EventStream
-    * Device values that are to be streamed are marked with DeviceStream
 
     Example template:
     template = {

@@ -24,7 +24,7 @@
 # *****************************************************************************
 
 from nicos import session
-from nicos.core import ConfigurationError, NicosError
+from nicos.core import ConfigurationError
 
 from nicos_ess.nexus.placeholder import DeviceValuePlaceholder, PlaceholderBase
 
@@ -301,90 +301,6 @@ class CacheStream(DeviceValuePlaceholder, KafkaStream):
         self.stream_attrs["nicos_name"] = NXAttribute(self.device)
         self.stream_attrs["nicos_param"] = NXAttribute(self.parameter)
         self.stream_attrs["source_name"] = NXAttribute(key)
-
-        info = self.fetch_info(metainfo)
-        if info:
-            self.stream_attrs["units"] = NXAttribute(info[2])
-
-        if self.separate_log:
-            self.store_latest_into(name)
-            gname = name + '_log'
-        else:
-            gname = name
-
-        group_dict = NXGroup('NXlog').structure(gname, metainfo)[0]
-        stream_dicts = KafkaStream.structure(self, name, metainfo)
-        group_dict["children"] += stream_dicts
-
-        struct = [group_dict]
-
-        if self.separate_log:
-            link = NXLink(gname + '/' + name).structure(name, metainfo)
-            struct += link
-
-        return struct
-
-
-class DeviceStream(DeviceValuePlaceholder, KafkaStream):
-    """ Streams device parameter using data of associated PVs present in
-    the form of Kafka messages. Note, to use this the forwarder must be
-    forwarding the PVs to the topics. Internally, PV names are fetched
-    from the device and corresponding topic and schema data is fetched
-    from the Forwarder Device.
-    """
-
-    def __init__(self, device, parameter='value', separate_log=True, **attr):
-        KafkaStream.__init__(self, **attr)
-        DeviceValuePlaceholder.__init__(self, device, parameter)
-        self.separate_log = separate_log
-
-    def structure(self, name, metainfo):
-        device = session.getDevice(self.device)
-        parameter = self.parameter
-
-        if parameter == 'value':
-            parameter = 'readpv'
-
-        # Fetch the PV name for the parameter. This will fail if the
-        # parameter name is not mapped to the PV in class
-        source = device._get_pv_name(parameter)
-
-        # Get the forwarded topic and schema for the PV
-        try:
-            forwarder = session.getDevice('KafkaForwarder')
-        except ConfigurationError:
-            session.log.warning("FORWARDER not found!! Can't track device "
-                                "%s..", device.name)
-            return
-
-        if not forwarder.is_process_running():
-            session.log.warning('Forwarder is not running. Correct values will'
-                                ' not be written for device %s.', device.name)
-
-        topicandschema = forwarder.pv_forwarding_info(source)
-        if not topicandschema:
-            raise NicosError('Info not found for device %s and its '
-                             'property: %s' % (device.name, parameter))
-
-        # Infer the type, count of PV
-        dbr_type = device._pvs[parameter].type
-        count = device._pvs[parameter].count
-        if '_' in dbr_type:
-            dbr_type = dbr_type.split('_')[-1]
-
-        if count > 1:
-            self.set('array_size', count)
-
-        self.set('type', dbr_type)
-        self.set('source', source)
-        self.set('topic', topicandschema[0])
-        self.set('writer_module', topicandschema[1])
-        self.set('broker', forwarder.brokers[0])
-
-        # Add the attributes
-        self.stream_attrs["nicos_name"] = NXAttribute(self.device)
-        self.stream_attrs["nicos_param"] = NXAttribute(self.parameter)
-        self.stream_attrs["source_name"] = NXAttribute(source)
 
         info = self.fetch_info(metainfo)
         if info:
