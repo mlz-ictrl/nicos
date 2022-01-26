@@ -265,7 +265,7 @@ class ADImageChannel(ImageChannelMixin, EpicsPassiveChannel):
     def doPrepare(self):
         shape = self._get_pv('size_x'), self._get_pv('size_y')
         data_type = data_type_t[self._get_pv('data_type', as_string=True)]
-        self.arraydesc = ArrayDesc('data', shape=shape, dtype=data_type)
+        self.arraydesc = ArrayDesc(self.name, shape=shape, dtype=data_type)
 
     def _get_pv_parameters(self):
         """
