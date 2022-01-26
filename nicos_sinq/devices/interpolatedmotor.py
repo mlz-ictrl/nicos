@@ -76,7 +76,7 @@ class InterpolatedMotor(TransformedMoveable):
         self._attached_raw_motor.start(target)
 
     def _mapReadValue(self, value):
-        return interp([value], self._raw_positions, self._target_positions)[0]
+        return interp(value, self.raw_positions, self.target_positions)
 
     def _mapTargetValue(self, target):
-        return interp([target], self._target_positions, self._raw_positions)[0]
+        return interp(target, self.target_positions, self.raw_positions)

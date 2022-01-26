@@ -59,7 +59,9 @@ class S5Switch(EpicsDevice, MappedMoveable):
         'lasttoggle': Param('Store the time when last toggled', type=int,
                             settable=True, internal=True, default=0),
         'lasttarget': Param('Store the last raw target of move', type=bool,
-                            settable=True, internal=True, default=None)
+                            settable=True, internal=True, default=None),
+        'sps_timeout': Param('How long to wait for the SPS to do its job',
+                             type=float, default='10'),
     }
 
     parameter_overrides = {
@@ -90,8 +92,8 @@ class S5Switch(EpicsDevice, MappedMoveable):
         now = monotonic()
         if self.lasttarget is not None and \
                 self.lasttarget != self._readRaw(maxage):
-            if now > self.lasttoggle+10:
-                return (status.WARN, '%s not reached!'
+            if now > self.lasttoggle + self.sps_timeout:
+                return (status.ERROR, '%s not reached! Timeout waiting for SPS'
                         % self._inverse_mapping[self.lasttarget])
             return status.BUSY, ''
         return status.OK, ''
@@ -104,6 +106,7 @@ class S5Switch(EpicsDevice, MappedMoveable):
         raw = self._pvs['readpv'].get(timeout=self.epicstimeout,
                                       count=self.byte+1)
         powered = 1 << bit
+        self.log.debug('S5 byte = %d', raw[byte])
         return raw[byte] & powered == powered
 
     def _readRaw(self, maxage=0):

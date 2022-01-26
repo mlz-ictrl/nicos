@@ -164,8 +164,8 @@ class ArrayParam(NexusElementBase):
     def create(self, name, h5parent, sinkhandler):
         if (self.dev, self.parameter) in sinkhandler.dataset.metainfo:
             rawvalue = sinkhandler.dataset.metainfo[
-                (self.dev, self.parameter)]
-            value = np.array(rawvalue, ([]), self.dtype)
+                (self.dev, self.parameter)][0]
+            value = np.array(rawvalue, self.dtype)
             if self.reshape:
                 value = value.reshape(self.reshape)
             dset = h5parent.create_dataset(name, value.shape, self.dtype)
@@ -219,7 +219,7 @@ class ScanVars(NexusElementBase):
         if sinkhandler.startdataset.devices:
             for dev in sinkhandler.startdataset.devices:
                 scanvars += dev.name + ','
-        dtype = 'S{len(scanvars) + 1}'
+        dtype = f'S{len(scanvars) + 1}'
         dset = h5parent.create_dataset(name, (1,), dtype)
         dset[0] = scanvars
 
@@ -230,7 +230,7 @@ class ScanCommand(NexusElementBase):
     """
     def create(self, name, h5parent, sinkhandler):
         com = session._script_text
-        dtype = 'S{len(com) + 1)}'
+        dtype = f'S{len(com) + 1}'
         dset = h5parent.create_dataset(name, (1,), dtype)
         dset[0] = com
 

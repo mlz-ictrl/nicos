@@ -58,6 +58,7 @@ class HttpConnector(HasCommunication, Readable):
         403: 'Authentication did not work..',
         404: 'Somehow, address was not found!',
         500: 'Internal server error',
+        501: 'Internal server error',
     }
 
     def doInit(self, mode):
@@ -73,9 +74,11 @@ class HttpConnector(HasCommunication, Readable):
         # Check if the communication was successful
         response = result.status_code
         if response in self.status_code_msg:
-            raise CommunicationError(self.status_code_msg.get(response))
+            raise CommunicationError(self.status_code_msg.get(response)
+                                     + result.content)
         elif response != 200:
-            raise CommunicationError('Error while connecting to server!')
+            raise CommunicationError('Error while connecting to server! %s'
+                                     % result.content)
         self._setROParam('curstatus', (status.OK, ''))
         return result
 

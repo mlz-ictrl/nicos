@@ -44,8 +44,7 @@ class ILLAsciiHandler(DataSinkHandler):
 
     def _getMLZCryst(self):
         result = {}
-        scat = eval(self._findValue(session.instrument.name,
-                                    'scattering_sense'))
+        scat = self._findValue(session.instrument.name, 'scatteringsense')
         result['ss'] = scat[1]
         mode = self._findValue(session.instrument.name, 'scanmode')
         if mode == 'CKI':
@@ -228,7 +227,7 @@ class ILLAsciiHandler(DataSinkHandler):
                                   self.sink.subdir)
 
     def _findValue(self, dev, par):
-        return self.dataset.metainfo.get((dev, par), ['', 'UNKNOWN'])[1]
+        return self.dataset.metainfo.get((dev, par), ['UNKNOWN', 'UNKNOWN'])[0]
 
     def addSubset(self, subset):
         if subset.settype != POINT:
