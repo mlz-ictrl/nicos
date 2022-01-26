@@ -80,6 +80,8 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
     }
 
     _motor_status = (status.OK, '')
+    _start_time = None
+    _start_delay = .2
 
     # Fields of the motor record for which an interaction via Channel Access
     # is required.
@@ -171,9 +173,11 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
             # Read the absolute limits from the device as they have changed.
             self.abslimits  # pylint: disable=pointless-statement
 
+            # Place new limits into the allowed range..
+            usmin = max(self.userlimits[0] + diff, self.abslimits[0])
+            usmax = min(self.userlimits[1] + diff, self.abslimits[1])
             # Adjust user limits
-            self.userlimits = (
-                self.userlimits[0] + diff, self.userlimits[1] + diff)
+            self.userlimits = (usmin, usmax)
 
             self.log.info('The new user limits are: ' + str(self.userlimits))
 
@@ -200,12 +204,24 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
         return self._get_pv('readpv')
 
     def doStart(self, target):
+        self._start_time = currenttime()
         self._put_pv('writepv', target)
 
     def doReadTarget(self):
         return self._get_pv('writepv')
 
+    def _test_starting(self):
+        if self._start_time and currenttime() < \
+                self._start_time + self._start_delay:
+            done_moving = self._get_pv('donemoving')
+            if done_moving == 1:
+                return True
+        return False
+
     def doStatus(self, maxage=0):
+        if self._test_starting():
+            return status.BUSY, 'starting'
+
         stat, message = self._get_status_message()
         self._motor_status = stat, message
         if stat == status.ERROR:
