@@ -21,10 +21,12 @@
 #   Kenan Muric <kenan.muric@ess.eu>
 #
 # *****************************************************************************
-from subprocess import check_output
+from subprocess import CalledProcessError, check_output
 
 from nicos.core import Override, Param, Readable, host, status
 from nicos.utils import parseHostPort
+
+DEFAULT_EFU_PORT = 8888
 
 
 class EFUStatus(Readable):
@@ -32,8 +34,9 @@ class EFUStatus(Readable):
     This device reports Event Formation Unit status.
     """
     parameters = {
-        'ipconfig': Param('IP and port configuration', type=host,
-                           mandatory=True, userparam=False),
+        'ipconfig': Param('IP and port configuration',
+                          type=host(defaultport=DEFAULT_EFU_PORT),
+                          mandatory=True, userparam=False),
     }
 
     parameter_overrides = {
@@ -53,8 +56,7 @@ class EFUStatus(Readable):
     }
 
     def doInit(self, mode):
-        efu_host, efu_port = parseHostPort(self.ipconfig.defaulthost,
-                                           self.ipconfig.defaultport)
+        efu_host, efu_port = parseHostPort(self.ipconfig, DEFAULT_EFU_PORT)
         self._command = f'echo "RUNTIMESTATS" | nc {efu_host} {efu_port}'
 
     def doRead(self, maxage=0):
@@ -68,7 +70,7 @@ class EFUStatus(Readable):
             raw_stat = check_output(self._command, shell=True)
             stat = int(raw_stat.split()[-1])
             return self._stat_to_status.get(stat, unknown_status)
-        except (ValueError, IndexError) as e:
+        except (ValueError, IndexError, CalledProcessError) as e:
             self.log.error('Could not correctly access EFU status. '
                            'Error was: %s', e)
             return unknown_status
