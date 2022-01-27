@@ -459,12 +459,14 @@ class TASSXTal(SXTalBase):
                        default='FKI'),
         'scattering_sense': Param('Scattering sense at the sample',
                                   type=oneof(-1, 1), settable=True,
-                                  default=1),
+                                  category='instrument', default=1),
         'plane_normal': Param('Plane normal',
                               type=tupleof(float, float, float),
-                              settable=True, default=(0, 0, 1)),
+                              settable=True, default=(0, 0, 1),
+                              category='instrument'),
         'out_of_plane': Param('Flag if we may move out of plane or not',
-                              type=bool, settable=True, default=True),
+                              type=bool, settable=True,
+                              category='instrument', default=True),
     }
 
     parameter_overrides = {
@@ -496,7 +498,7 @@ class TASSXTal(SXTalBase):
         qepos = tasQEPosition(ki, kf, pos[0], pos[1], pos[2], 0)
         ub = session.experiment.sample.getUB()
         try:
-            angpos = calcTasQAngles(ub, np.array(self.plane_normal),
+            angpos = calcTasQAngles(ub*np.pi*2, np.array(self.plane_normal),
                                     self.scattering_sense, 0, qepos)
         except RuntimeError as xx:
             raise InvalidValueError(xx) from None

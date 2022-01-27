@@ -157,22 +157,22 @@ def ListRef(reflist=None):
     else:
         aux = False
     session.log.info(header)
-    refiter = rfl.generate(0)
-    r = next(refiter)
-    count = 0
-    while r:
-        data = '%4d' % count
-        for q in r[0]:
-            data += '%8.4f' % q
-        data += ' '
-        for a in r[1]:
-            data += '%8.3f' % a
-        if aux:
-            for v in r[2]:
-                data += '%8.3f' % v
-        session.log.info(data)
-        count += 1
-        r = next(refiter)
+    try:
+        count = 0
+        for r in rfl.generate(0):
+            data = '%4d' % count
+            for q in r[0]:
+                data += '%8.4f' % q
+            data += ' '
+            for a in r[1]:
+                data += '%8.3f' % a
+            if aux:
+                for v in r[2]:
+                    data += '%8.3f' % v
+            session.log.info(data)
+            count += 1
+    except StopIteration:
+        pass
     session.log.info('--- The End ---')
 
 
@@ -501,30 +501,32 @@ def Center(idx, reflist=None, **preset):
 
 def process_list(reflist, function, **preset):
     """apply function to all reflections in reflist"""
-    refiter = reflist.generate(0)
-    r = next(refiter)
-    while r:
-        function(r, **preset)
-        r = next(refiter)
+    try:
+        for r in reflist.generate(0):
+            function(r, **preset)
+    except StopIteration:
+        pass
 
 
 def process_center(reflist, **preset):
-    refiter = reflist.generate(0)
-    idx = 0
-    r = next(refiter)
-    while r:
-        ok, newang = inner_center(r, **preset)
-        if ok:
-            reflist.modify_reflection(idx, None, newang, None)
-        else:
-            if len(r[1]) == 4:
-                session.log.error('Failed to center reflection at %f %f %f %f',
-                                  r[1][0], r[1][1], r[1][2], r[1][3])
+    try:
+        idx = 0
+        for r in reflist.generate(0):
+            ok, newang = inner_center(r, **preset)
+            if ok:
+                reflist.modify_reflection(idx, None, newang, None)
             else:
-                session.log.error('Failed to center reflection at %f %f %f',
-                                  r[1][0], r[1][1], r[1][2])
-        r = next(refiter)
-        idx += 1
+                if len(r[1]) == 4:
+                    session.log.error('Failed to center reflection at '
+                                      '%f %f %f %f',
+                                      r[1][0], r[1][1], r[1][2], r[1][3])
+                else:
+                    session.log.error('Failed to center reflection at '
+                                      '%f %f %f',
+                                      r[1][0], r[1][1], r[1][2])
+            idx += 1
+    except StopIteration:
+        pass
 
 
 @usercommand
@@ -696,20 +698,20 @@ def GenerateSuper(targetlist, vector, srclist=None):
     if len(vector) != 3:
         session.log.error('Need a three component super structure vector')
         return
-    count = 0
-    srcit = src.generate(0)
     vec = np.array(vector)
-    r = next(srcit)
-    while r:
-        rm = np.array(r[0])
-        newr = rm + vec
-        count += 1
-        target.append(tuple(newr), (), ())
-        newr = rm - vec
-        if target.find_reflection(newr) < 0:
-            target.append(tuple(newr))
+    try:
+        count = 0
+        for r in src.generate(0):
+            rm = np.array(r[0])
+            newr = rm + vec
             count += 1
-        r = next(srcit)
+            target.append(tuple(newr), (), ())
+            newr = rm - vec
+            if target.find_reflection(newr) < 0:
+                target.append(tuple(newr))
+                count += 1
+    except StopIteration:
+        pass
     # Add super structure reflections for 0, 0, 0
     newr = (0, 0, 0) + vec
     target.append(tuple(newr), (), ())
@@ -755,6 +757,8 @@ class HKLScan(Scan):
         _scanfuncs[self.scanmode](point.target[0], subscan=True,
                                   **self._preset)
         subscan = self.dataset.subsets[-1].subsets[-1]
+        # If NICOS crashes on this line then the center_counter
+        # for the instrument is set to a non existing value.
         index = [i for (i, v) in enumerate(subscan.detvalueinfo)
                  if v.name == session.instrument.center_counter][0]
         vals = [x[index] for x in subscan.detvaluelists]
@@ -810,12 +814,15 @@ def Measure(scanmode=None, skip=0, reflist=None, **preset):
     if rfl is None:
         session.log.error('Reflection list %s not found', reflist)
         return
-    rfliter = rfl.generate(skip)
-    r = next(rfliter)
-    pos = []
-    while r:
-        pos.append([r[0]])
-        r = next(rfliter)
+    if len(preset) == 0:
+        session.log.error('No preset specified')
+        return
+    try:
+        pos = []
+        for r in rfl.generate(skip):
+            pos.append([r[0]])
+    except StopIteration:
+        pass
     if scanmode is None:
         scanmode = inst.scanmode
     inst.ccl_file = True
@@ -942,12 +949,12 @@ def test_threshold(xcolumn, ycolumn, pos, threshold):
 def test_proximity(rfl, ang):
     """Test if this close in chi and phi to another
     reflection."""
-    rit = rfl.generate(0)
-    r = next(rit)
-    while r:
-        if abs(r[1][2] - ang[2]) < 15 and abs(r[1][3]-ang[3]) < 15:
-            return True
-        r = next(rit)
+    try:
+        for r in rfl.generate(0):
+            if abs(r[1][2] - ang[2]) < 15 and abs(r[1][3]-ang[3]) < 15:
+                return True
+    except StopIteration:
+        pass
     return False
 
 

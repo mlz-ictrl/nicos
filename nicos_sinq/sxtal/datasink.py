@@ -31,6 +31,7 @@ from nicos.core.data.sink import DataSink
 
 from nicos_sinq.devices.sinqasciisink import SINQAsciiSink, \
     SINQAsciiSinkHandler
+from nicos_sinq.sxtal.instrument import SXTalBase
 from nicos_sinq.sxtal.util import window_integrate
 
 
@@ -42,7 +43,7 @@ class SxtalScanSink(SINQAsciiSink):
 
     def createHandlers(self, dataset):
         if session.instrument.ccl_file:
-            return None
+            return []
         return DataSink.createHandlers(self, dataset)
 
 
@@ -230,6 +231,8 @@ class CCLSink(SINQAsciiSink):
     _handlerObj = None
 
     def createHandlers(self, dataset):
+        if not isinstance(session.instrument, SXTalBase):
+            return []
         if not session.instrument.ccl_file:
             return []
         if self._handlerObj is None:
