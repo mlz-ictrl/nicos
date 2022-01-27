@@ -4,6 +4,8 @@ requires = ['monochromator', 'sample']
 
 excludes = ['zebraeuler', 'zebranb']
 
+sysconfig = dict(instrument = 'ZEBRA',)
+
 devices = dict(
     ZEBRA = device('nicos_sinq.sxtal.instrument.TASSXTal',
         description = 'instrument object',
@@ -43,6 +45,7 @@ devices = dict(
         devclass = 'nicos.devices.sxtal.instrument.SXTalIndex'
     ),
 )
+
 startupcode = """
 maw(zebramode, 'tas')
 """

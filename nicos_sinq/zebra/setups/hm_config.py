@@ -94,6 +94,7 @@ devices = dict(
     hm_tof_array = device('nicos_sinq.devices.sinqhm.configurator.HistogramConfArray',
         data = [0, 20000],
         tag = 'tof',
+        formatter = '%9d',
         dim = [
             2,
         ],

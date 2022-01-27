@@ -22,29 +22,70 @@
 #
 # *****************************************************************************
 
-from nicos.core.device import Attach, Moveable
-from nicos.core.errors import InvalidValueError
+from nicos.core.device import Attach, Moveable, oneof
+from nicos.core.utils import multiStatus
 from nicos.devices.generic.mono import Monochromator
 
 
 class ZebraWavelength(Monochromator):
     """
     At Zebra, the wavelength depends on the position of the
-    monochromator lift
+    monochromator lift and the omega value of the monochromator
     """
 
     attached_devices = {
-        'lift': Attach('Monochromator lift device', Moveable)
+        'mexz': Attach('Monochromator lift device', Moveable),
+        'pg': Attach('PG filter', Moveable),
+        'moml': Attach('Lower omega', Moveable),
+        'mcvl': Attach('Lower curvature', Moveable),
+        'momu': Attach('Upper omega', Moveable),
+        'mcvu': Attach('Upper curvature', Moveable),
     }
 
-    def doRead(self, maxage=0):
-        pos = self._attached_lift.doRead(maxage)
-        posmap = {0: 2.3, 547.45: 1.178}
-        for target, wl in posmap.items():
-            if abs(target - pos) < 1.:
-                return wl
-        raise InvalidValueError('Monochromator lift at unknown '
-                                'position %f' % pos)
+    _wl_map = {
+        1.178: [('mexz', 547.445), ('pg', 'Out'), ('moml', -99.906),
+                ('mcvl', 2.2)],
+        2.305: [('mexz', .5), ('pg', 'In'), ('momu', -13.152),
+                ('mcvu', 158.7)],
+        1.383: [('pg', 'Out'), ('mexz', 547.445), ('moml', -35.11),
+                ('mcvl', 7)],
+        0.778: [('pg', 'Out'), ('mcvl', 2.2), ('mexz', 547.445),
+                ('moml', -89.937)]
+    }
 
-    def doIsAllowed(self, pos):
-        return False, 'This monochromator shall not be driven'
+    _wait_dev = []
+
+    def doRead(self, maxage=0):
+        for key, data in self._wl_map.items():
+            isValid = True
+            for entry in data:
+                mot, val = entry
+                if isinstance(val, float):
+                    if abs(self._adevs[mot].read(0) - val) > .1:
+                        isValid = False
+                        break
+                else:
+                    # pgfilter is in or out
+                    if self._adevs[mot].read(0) != val:
+                        isValid = False
+                        break
+            if isValid:
+                return key
+        # self.log.warning('Monochromator in transition or in '
+        #                  'in invalid position')
+        return -9999.99
+
+    def doInit(self, mode):
+        self.valuetype = oneof(*self._wl_map.keys())
+        Monochromator.doInit(self, mode)
+
+    def doStart(self, target):
+        self._wait_dev = []
+        data = self._wl_map[target]
+        for entry in data:
+            mot, val = entry
+            self._adevs[mot].move(val)
+            self._wait_dev.append(self._adevs[mot])
+
+    def doStatus(self, maxage=0):
+        return multiStatus(self._wait_dev, maxage)

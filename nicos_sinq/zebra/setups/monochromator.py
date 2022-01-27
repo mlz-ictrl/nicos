@@ -4,6 +4,8 @@ mota = 'SQ:ZEBRA:mota:'
 motb = 'SQ:ZEBRA:motb:'
 motd = 'SQ:ZEBRA:motd:'
 
+includes = ['sps']
+
 devices = dict(
     mtvl = device('nicos_ess.devices.epics.motor.EpicsMotor',
         epicstimeout = 3.0,
@@ -99,7 +101,12 @@ devices = dict(
     wavelength = device('nicos_sinq.zebra.devices.zebrawl.ZebraWavelength',
         description = 'Wavelength for ZEBRA',
         unit = 'A-1',
-        lift = 'mexz'
+        mexz = 'mexz',
+        pg = 'pgfilter',
+        moml = 'moml',
+        mcvl = 'mcvl',
+        momu = 'momu',
+        mcvu = 'mcvu',
     ),
     cex1 = device('nicos_ess.devices.epics.motor.EpicsMotor',
         epicstimeout = 3.0,

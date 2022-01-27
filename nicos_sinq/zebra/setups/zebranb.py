@@ -3,6 +3,9 @@ description = 'Installs normal beam geometry into ZEBRA'
 requires = ['monochromator', 'sample']
 
 excludes = ['zebraeuler', 'zebratas']
+
+sysconfig = dict(instrument = 'ZEBRA',)
+
 devices = dict(
     ZEBRA = device('nicos_sinq.sxtal.instrument.LiftingSXTal',
         description = 'instrument object',
@@ -32,6 +35,7 @@ devices = dict(
         devclass = 'nicos.devices.sxtal.instrument.SXTalIndex'
     ),
 )
+
 startupcode = """
 maw(zebramode, 'nb')
 """
