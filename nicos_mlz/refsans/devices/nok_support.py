@@ -309,8 +309,8 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
             return False, 'Inclination %.2f out of limit (%.2f, %.2f)!' % (
                 inclination, incmin, incmax)
 
-        for dev in self._devices:
-            res = dev.isAllowed(target_r)
+        for dev, tar in zip(self._devices, targets):
+            res = dev.isAllowed(tar)
             if not res[0]:
                 return res
 
