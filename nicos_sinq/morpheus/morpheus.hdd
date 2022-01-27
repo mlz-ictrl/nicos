@@ -1,0 +1,52 @@
+*************************** MORPHEUS Data File ********************************
+Original Filename    = !!FILE!!
+Title                = !!VAR(Exp,title)!!
+User                 = !!VAR(Exp,user)!!
+ProposalID           = !!VAR(Exp,proposal)!!
+Sample Name          = !!VAR(Sample,samplename)!!
+File Creation Date   = !!DATE!!
+Last Scan Command    = !!VAR(lastscancommand)!!
+****************************************************************************
+MTH             = !!DRIV(mth)!!
+MTH zero        = !!ZERO(mth)!!
+MTT             = !!DRIV(mtt)!!
+MTT zero        = !!ZERO(mtt)!!
+Lambda          = !!DRIV(wavelength)!!
+MFV             = !!DRIV(mfv)!!
+MFV zero        = !!ZERO(mfv)!!
+----------------------------------------------------------------------------
+STH             = !!DRIV(sth)!!
+STH zero        = !!ZERO(sth)!!
+STT             = !!DRIV(stt)!!
+STT zero        = !!ZERO(stt)!!
+STX             = !!DRIV(stx)!!
+STX zero        = !!ZERO(stx)!!
+STY             = !!DRIV(sty)!!
+STY zero        = !!ZERO(sty)!!
+SGX             = !!DRIV(sgx)!!
+SGX zero        = !!ZERO(sgx)!!
+SGY             = !!DRIV(sgy)!!
+SGY zero        = !!ZERO(sgy)!!
+----------------------------------------------------------------------------
+SCX             = !!DRIV(scx)!!
+SCX zero        = !!ZERO(scx)!!
+SCY             = !!DRIV(scy)!!
+SCY zero        = !!ZERO(scy)!!
+----------------------------------------------------------------------------
+D1R             = !!DRIV(d1r)!!
+D1R zero        = !!ZERO(d1r)!!
+D1L             = !!DRIV(d1l)!!
+D1L zero        = !!ZERO(d1l)!!
+D2R             = !!DRIV(d2r)!!
+D2R zero        = !!ZERO(d2r)!!
+D2L             = !!DRIV(d2l)!!
+D2L zero        = !!ZERO(d2l)!!
+D3R             = !!DRIV(d3r)!!
+D3R zero        = !!ZERO(d3r)!!
+D3L             = !!DRIV(d3l)!!
+D3L zero        = !!ZERO(d3l)!!
+----------------------------------------------------------------------------
+TEMP            = !!DRIV(temperature)!!
+----------------------------------------------------------------------------
+!!SCANZERO!!
+**************************** DATA ******************************************

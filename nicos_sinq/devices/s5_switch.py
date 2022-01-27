@@ -26,11 +26,10 @@
 from time import monotonic
 
 from nicos.core import Override, Param, pvname, status
-from nicos.core.errors import ConfigurationError
-from nicos.devices.abstract import MappedMoveable
-from nicos.devices.epics import EpicsDevice
+from nicos.core.errors import ConfigurationError, PositionError
+from nicos.devices.abstract import MappedMoveable, MappedReadable
+from nicos.devices.epics import EpicsDevice, EpicsReadable
 
-from nicos_ess.devices.epics.base import EpicsReadable
 
 
 class S5Switch(EpicsDevice, MappedMoveable):
@@ -192,3 +191,48 @@ class S5Bit(EpicsReadable):
 
         powered = 1 << self.bit
         return raw[self.byte] & powered == powered
+
+
+class SpsReadable(EpicsDevice, MappedReadable):
+    """SINQ has a Siemens programmable logic unit for controlling the shutter
+    and a switch for the alignment laser and the spin flipper. This is SPS
+    which is connected to the world as such via a custom RS232 interface and a
+    terminal server. *readpv* returns a waveform record with 16 bytes giving
+    the state of the SPS digital inputs. *commandpv* sends the commands to
+    toggle SPS buttons.
+    """
+
+    parameters = {
+        'byte': Param('Byte number representing the state of this unit',
+                      type=int, mandatory=True, userparam=False,
+                      settable=False),
+        'bit': Param('Bit number from the byte representing the state',
+                     type=int, mandatory=True, userparam=False,
+                     settable=False),
+        'readpv': Param('PV to read the digital input waveform', type=pvname,
+                        mandatory=True, settable=False, userparam=False),
+    }
+
+    parameter_overrides = {
+        'mapping': Override(userparam=False, settable=False),
+        'fallback': Override(userparam=False),
+        'unit': Override(mandatory=False, userparam=False, settable=False),
+        'fmtstr': Override(userparam=False),
+        'maxage': Override(userparam=False),
+        'pollinterval': Override(userparam=False),
+        'warnlimits': Override(userparam=False)
+    }
+
+    def _get_pv_parameters(self):
+        return {'readpv'}
+
+    def _readBit(self, byte, bit):
+        raw = self._pvs['readpv'].get(16)
+        if byte > len(raw):
+            raise PositionError('Byte specified is out of bounds')
+
+        powered = 1 << bit
+        return raw[byte] & powered == powered
+
+    def _readRaw(self, maxage=0):
+        return self._readBit(self.byte, self.bit)
