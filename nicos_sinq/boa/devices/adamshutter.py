@@ -46,13 +46,13 @@ class AdamShutter(SequencerMixin, Moveable):
         'port':      Param('TCP Port on network2serial converter',
                            type=int, default=4001),
     }
-    valuetype = oneof('open', 'close', 'enclosure broken')
+    valuetype = oneof('open', 'closed', 'enclosure broken')
     _connection = None
     readRequest = bytearray([1, 0, 0, 0, 0, 6, 1, 1, 0, 0, 0, 12])
     zeroRequest = [2, 0, 0, 0, 0, 6, 1, 5, 0, 0, 0, 0]
     setRequest = [2, 0, 0, 0, 0, 6, 1, 5, 0, 0, 255, 0]
     busTimeout = 50
-    _broken = 'enclosure broken'
+    _broken = valuetype.vals[2]
 
     def doInit(self, mode):
         if mode != SIMULATION:
@@ -89,11 +89,11 @@ class AdamShutter(SequencerMixin, Moveable):
         byte_data = self._transact(self.readRequest, 11)
         stat = byte_data[9]
         if stat & 8:
-            return self._broken
+            return self.valuetype.vals[2]
         elif stat & 2:
-            return 'open'
+            return self.valuetype.vals[0]
         elif stat & 1:
-            return 'close'
+            return self.valuetype.vals[1]
         return 'switching between states'
 
     def doStart(self, target):
@@ -117,7 +117,7 @@ class AdamShutter(SequencerMixin, Moveable):
     def _generateSequence(self, target):
 
         seq = []
-        if target == 'open':
+        if target == self.valuetype.vals[0]:
             address = 16
         else:
             address = 17
@@ -145,9 +145,10 @@ class AdamShutter(SequencerMixin, Moveable):
     def doStatus(self, maxage=0):
         if self._seq_is_running():
             return status.BUSY, 'Switching'
-        if self.read(maxage) == self.target:
+        current = self.read(maxage)
+        if current == self.target:
             return status.OK, ''
-        if self.read(maxage) == self._broken:
+        if current == self._broken:
             return status.WARN, self._broken
         return status.BUSY, ''
 

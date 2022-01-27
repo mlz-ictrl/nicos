@@ -40,9 +40,9 @@ class CameaAzimuthalAngle(NexusElementBase):
         NexusElementBase.__init__(self)
 
     def create(self, name, h5parent, sinkhandler):
-        if (self.dev, 'scattering_sense') in sinkhandler.dataset.metainfo:
+        if (self.name, 'scattering_sense') in sinkhandler.dataset.metainfo:
             ss = sinkhandler.dataset.metainfo[
-                (self.dev, 'scattering_sense')]
+                (self.name, 'scattering_sense')]
             if ss == 1:
                 value = 0.
             else:
@@ -53,7 +53,7 @@ class CameaAzimuthalAngle(NexusElementBase):
         else:
             session.log.warning('Failed to write azimuthal_angle, '
                                 'device %s not found',
-                                self.dev)
+                                self.name)
 
 
 class BoundaryArrayParam(ArrayParam):
@@ -65,9 +65,9 @@ class BoundaryArrayParam(ArrayParam):
         if (self.dev, self.parameter) in sinkhandler.dataset.metainfo:
             rawvalue = sinkhandler.dataset.metainfo[
                 (self.dev, self.parameter)]
-            value = np.array(rawvalue, ([]), self.dtype)
+            value = np.array(rawvalue[0], self.dtype)
             length = value.size
-            value = value.reshape((length/2, 2))
+            value = value.reshape((int(length/2), 2))
             dset = h5parent.create_dataset(name, value.shape, self.dtype)
             dset[...] = value
             self.createAttributes(dset, sinkhandler)

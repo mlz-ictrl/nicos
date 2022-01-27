@@ -12,7 +12,10 @@ devices = dict(
     ublist = device('nicos_sinq.sxtal.reflist.ReflexList',
         description = 'Reflection list for '
         'UB matrix refinement',
-        reflection_list = []
+        reflection_list = [],
+        column_headers = (
+            ('H', 'K', 'L'), ('A3', 'A4', 'SGU', 'SGL'), ('EI', 'EF')
+        ),
     ),
     Sample = device('nicos_sinq.sxtal.sample.SXTalSample',
         description = 'The currently used sample',

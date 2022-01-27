@@ -51,7 +51,7 @@ class EigerA2Controller(InterfaceLogicalMotorHandler):
     }
 
     def doPreinit(self, mode):
-        self._status_devs = ['a2rot', 'd2r', 'd2l']
+        self._status_devs = ['reala2', 'right', 'left']
         InterfaceLogicalMotorHandler.doPreinit(self, mode)
 
     def doRead(self, maxage=0):

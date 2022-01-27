@@ -17,7 +17,7 @@ devices = dict(
         chi = 'chi',
         phi = 'phi',
         mono = 'mono',
-        center_counter = 'gausscount',
+        center_counter = 'counts',
         center_steps = [.1, .1, .2, .2]
     ),
     h = device('nicos.core.device.DeviceAlias',
