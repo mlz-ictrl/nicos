@@ -13,14 +13,14 @@ code_base = instrument_values['code_base']
 devices = dict(
     shutter_gamma = device('nicos.devices.generic.Switcher',
         description = 'leadblock on nok1',
-        moveable = 'shutter_gamma_switcher',
+        moveable = 'shutter_gamma_axis',
         precision = 0.5,
         mapping = {'closed': -55,
                    'open': 0},
         fallback = 'offline',
         unit = '',
     ),
-    shutter_gamma_switcher = device(code_base + 'nok_support.SingleMotorNOK',
+    shutter_gamma_axis = device(code_base + 'nok_support.SingleMotorNOK',
         # length: 90.0 mm
         description = 'shutter_gamma',
         motor = 'shutter_gamma_motor',
