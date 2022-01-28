@@ -72,7 +72,7 @@ devices = dict(
         limiters = ['limiter_laser', 'limiter_det1', 'limiter_det2'],
         shutter = 'shutter',
         lasersel = 'laser',
-        wavelengthmap = {'red': 650, 'green': 550},
+        wavelengthmap = {'red': 632.8, 'green': 532.1},
     ),
     mirror_pos = device('nicos.devices.entangle.Motor',
         description = 'Mirror table to select laser',
