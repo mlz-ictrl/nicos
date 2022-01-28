@@ -28,9 +28,10 @@ from collections import OrderedDict
 from nicos.core import ADMIN, Attach, ConfigurationError, HasPrecision, \
     Override, Param, Readable, UsageError, pvname, requires, status
 from nicos.core.constants import SIMULATION
+from nicos.devices.epics import EpicsDevice
 
-from nicos_ess.devices.epics.base import EpicsDeviceEss, \
-    EpicsDigitalMoveableEss, EpicsWindowTimeoutDeviceEss
+from nicos_ess.devices.epics.base import EpicsDigitalMoveableEss, \
+    EpicsWindowTimeoutDeviceEss
 
 
 class EpicsChopperSpeed(EpicsWindowTimeoutDeviceEss):
@@ -39,7 +40,7 @@ class EpicsChopperSpeed(EpicsWindowTimeoutDeviceEss):
     valuetype = int
 
 
-class EpicsChopperDisc(EpicsDeviceEss, Readable):
+class EpicsChopperDisc(EpicsDevice, Readable):
     """Class that represents one of the chopper disc in the
     chopper system. The chopper disk can be either MASTER
     or a SLAVE. In case it is master, one should be able to
@@ -140,8 +141,8 @@ class EpicsChopperDisc(EpicsDeviceEss, Readable):
                          self._displayed_props())
 
     def doStatus(self, maxage=0):
-        if EpicsDeviceEss.doStatus(self, maxage)[0] == status.ERROR:
-            return EpicsDeviceEss.doStatus(self, maxage)
+        if EpicsDevice.doStatus(self, maxage)[0] == status.ERROR:
+            return EpicsDevice.doStatus(self, maxage)
 
         if (self._attached_speed
                 and self._attached_speed.status(maxage)[0] == status.BUSY):

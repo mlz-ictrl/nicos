@@ -75,20 +75,19 @@ class EpicsJulabo(HasDisablePv, HasPrecision, EpicsAnalogMoveableEss):
         'abslimits': Override(mandatory=False),
     }
 
-    def _get_record_fields(self):
-        return {
-            'disable_poll': 'DISABLE_POLL',
-            'disable_ext': 'DISABLE_EXT',
-            'sel': 'SP:SEL:RBV',
-            'external_sensor': 'EXTSENS',
-            'set_sel': 'SP:SEL',
-            't_external': 'EXTT',
-            't_safety': 'TSAFE',
-            'setpoint1': 'TEMP:SP1:RBV',
-            'power': 'POWER',
-            'high_limit': 'HILIMIT',
-            'low_limit': 'LOWLIMIT',
-        }
+    _record_fields = {
+        'disable_poll': 'DISABLE_POLL',
+        'disable_ext': 'DISABLE_EXT',
+        'sel': 'SP:SEL:RBV',
+        'external_sensor': 'EXTSENS',
+        'set_sel': 'SP:SEL',
+        't_external': 'EXTT',
+        't_safety': 'TSAFE',
+        'setpoint1': 'TEMP:SP1:RBV',
+        'power': 'POWER',
+        'high_limit': 'HILIMIT',
+        'low_limit': 'LOWLIMIT',
+    }
 
     def _get_pv_parameters(self):
         if len(set(map(bool, (self.statuscodepv, self.statusmsgpv)))) > 1:

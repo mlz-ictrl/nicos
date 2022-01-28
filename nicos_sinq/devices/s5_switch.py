@@ -28,11 +28,12 @@ from time import monotonic
 from nicos.core import Override, Param, pvname, status
 from nicos.core.errors import ConfigurationError
 from nicos.devices.abstract import MappedMoveable
+from nicos.devices.epics import EpicsDevice
 
-from nicos_ess.devices.epics.base import EpicsDeviceEss, EpicsReadable
+from nicos_ess.devices.epics.base import EpicsReadable
 
 
-class S5Switch(EpicsDeviceEss, MappedMoveable):
+class S5Switch(EpicsDevice, MappedMoveable):
     """AMOR has a Siemens programmable logic unit for controlling the shutter
     and a switch for the alignment laser and the spin flipper. This is SPS
     which is connected to the world as such via a custom RS232 interface and a
@@ -72,7 +73,6 @@ class S5Switch(EpicsDeviceEss, MappedMoveable):
     }
 
     def doInit(self, mode):
-        EpicsDeviceEss.doInit(self, mode)
         MappedMoveable.doInit(self, mode)
         raw = self._pvs['readpv'].get(timeout=self.epicstimeout,
                                       count=self.byte+1)
@@ -83,7 +83,7 @@ class S5Switch(EpicsDeviceEss, MappedMoveable):
         return {'readpv', 'commandpv'}
 
     def doStatus(self, maxage=0):
-        epics_status = EpicsDeviceEss.doStatus(self, maxage)
+        epics_status = EpicsDevice.doStatus(self, maxage)
         if epics_status[0] != status.OK:
             return epics_status
 

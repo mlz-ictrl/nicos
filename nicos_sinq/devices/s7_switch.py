@@ -27,12 +27,11 @@ from time import time as currenttime
 from nicos import session
 from nicos.core import Attach, Override, Param, none_or, oneof, pvname, status
 from nicos.devices.abstract import MappedMoveable
+from nicos.devices.epics import EpicsDevice
 from nicos.devices.generic import Pulse
 
-from nicos_ess.devices.epics.base import EpicsDeviceEss
 
-
-class S7Switch(EpicsDeviceEss, MappedMoveable):
+class S7Switch(EpicsDevice, MappedMoveable):
     """
     This class implements switching something in a Siemens S7 SPS as
     programmed by Roman Bürge. These things are toggled by sending a

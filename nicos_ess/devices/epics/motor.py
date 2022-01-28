@@ -83,29 +83,28 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsAnalogMoveableEss,
 
     # Fields of the motor record for which an interaction via Channel Access
     # is required.
-    def _get_record_fields(self):
-        return {
-            'readpv': 'RBV',
-            'writepv': 'VAL',
-            'stop': 'STOP',
-            'donemoving': 'DMOV',
-            'moving': 'MOVN',
-            'miss': 'MISS',
-            'homeforward': 'HOMF',
-            'homereverse': 'HOMR',
-            'speed': 'VELO',
-            'offset': 'OFF',
-            'highlimit': 'HLM',
-            'lowlimit': 'LLM',
-            'softlimit': 'LVIO',
-            'lowlimitswitch': 'LLS',
-            'highlimitswitch': 'HLS',
-            'enable': 'CNEN',
-            'set': 'SET',
-            'foff': 'FOFF',
-            'alarm_status': 'STAT',
-            'alarm_severity': 'SEVR',
-        }
+    _record_fields = {
+        'readpv': 'RBV',
+        'writepv': 'VAL',
+        'stop': 'STOP',
+        'donemoving': 'DMOV',
+        'moving': 'MOVN',
+        'miss': 'MISS',
+        'homeforward': 'HOMF',
+        'homereverse': 'HOMR',
+        'speed': 'VELO',
+        'offset': 'OFF',
+        'highlimit': 'HLM',
+        'lowlimit': 'LLM',
+        'softlimit': 'LVIO',
+        'lowlimitswitch': 'LLS',
+        'highlimitswitch': 'HLS',
+        'enable': 'CNEN',
+        'set': 'SET',
+        'foff': 'FOFF',
+        'alarm_status': 'STAT',
+        'alarm_severity': 'SEVR',
+    }
 
     def _get_pv_parameters(self):
         """

@@ -28,11 +28,12 @@ from time import monotonic
 
 from nicos import session
 from nicos.core import Attach, Moveable, Param, Readable, Value, pvname, status
+from nicos.devices.epics import EpicsDevice
 from nicos.devices.generic import Detector
 from nicos.devices.generic.sequence import SeqDev, SeqMethod, SeqSleep, \
     SequenceItem, SequencerMixin
 
-from nicos_ess.devices.epics.base import EpicsDeviceEss, EpicsDigitalMoveable
+from nicos_ess.devices.epics.base import EpicsDigitalMoveable
 
 
 class WaitPV(SequenceItem):
@@ -135,8 +136,7 @@ class Message(SequenceItem):
         return True
 
 
-class CaminiDetector(EpicsDeviceEss, SequencerMixin,
-                     Detector):
+class CaminiDetector(EpicsDevice, SequencerMixin, Detector):
     """
     NIAG runs most of their CCD cameras through Camini.
     The camera is setup outside off NICOS and then
@@ -194,7 +194,7 @@ class CaminiDetector(EpicsDeviceEss, SequencerMixin,
         return self._put_pv(pvname, value, True)
 
     def doPreinit(self, mode):
-        EpicsDeviceEss.doPreinit(self, mode)
+        EpicsDevice.doPreinit(self, mode)
 
     def _get_pv_parameters(self):
         pvs = {'trigpv', 'validpv', 'metapv', 'shutpv', 'armpv', 'filepv'}
@@ -210,7 +210,6 @@ class CaminiDetector(EpicsDeviceEss, SequencerMixin,
         self._startSequence(self._generateSequence())
 
     def doStatus(self, maxage=0):
-        # It was calling the inappropriate doStatus() from EpicsDeviceEss
         if self._timedout:
             return status.ERROR, 'Timeout'
         if self._seq_is_running():

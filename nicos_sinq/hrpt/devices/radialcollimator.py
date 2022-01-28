@@ -26,11 +26,10 @@ from nicos import session
 from nicos.core import Param, oneof, pvname, status
 from nicos.core.errors import ConfigurationError
 from nicos.devices.abstract import MappedMoveable
+from nicos.devices.epics import EpicsDevice
 
-from nicos_ess.devices.epics.base import EpicsDeviceEss
 
-
-class RadialCollimator(EpicsDeviceEss, MappedMoveable):
+class RadialCollimator(EpicsDevice, MappedMoveable):
     """
         HRPT has a radial collimator which can be switched on and off. When
         on, it oscillates between a minimum
@@ -61,14 +60,15 @@ class RadialCollimator(EpicsDeviceEss, MappedMoveable):
                              'collimator on count', type=bool, settable=True,
                              default=False, userparam=True)}
 
-    pv_parameters = {'target', 'readback'}
+    def _get_pv_parameters(self):
+        return {'target', 'readback'}
 
     def _get_pv_name(self, pvparam):
         prefix = getattr(self, 'basepv')
         if pvparam == 'target':
-            return prefix + 'RUN'
+            return prefix + ':SP'
         elif pvparam == 'readback':
-            return prefix + 'RUNRBV'
+            return prefix + ':RBV'
         else:
             raise ConfigurationError(
                 'requested invalid pv %s for radial collimator' % (pvparam))

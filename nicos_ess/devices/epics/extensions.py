@@ -31,9 +31,10 @@ from nicos.core import Attach, CanDisable, ConfigurationError, Device, \
     InvalidValueError, Override, Param, anytype, dictwith, pvname, \
     usermethod
 from nicos.devices.abstract import MappedMoveable
+from nicos.devices.epics import EpicsDevice
 
 from nicos_ess.devices.epics.base import EpicsAnalogMoveableEss, \
-    EpicsDeviceEss, EpicsDigitalMoveableEss
+    EpicsDigitalMoveableEss
 
 
 class EpicsMappedMoveable(MappedMoveable, EpicsDigitalMoveableEss):
@@ -197,7 +198,7 @@ class HasDisablePv(CanDisable):
             self.log.info('Device is already disabled')
 
 
-class EpicsCommandReply(EpicsDeviceEss, Device):
+class EpicsCommandReply(EpicsDevice, Device):
     """
     Device to directly control devices connected to
     the asyn controller via EPICS.

@@ -27,23 +27,11 @@ This module contains ESS specific Base classes for EPICS.
 """
 
 from nicos.core import Override
-from nicos.devices.epics import EpicsAnalogMoveable, EpicsDevice, \
-    EpicsDigitalMoveable, EpicsMoveable, EpicsReadable, EpicsStringReadable, \
-    EpicsWindowTimeoutDevice
+from nicos.devices.epics import EpicsAnalogMoveable, EpicsDigitalMoveable, \
+    EpicsMoveable, EpicsReadable, EpicsStringReadable, EpicsWindowTimeoutDevice
 
 
-class EpicsDeviceEss(EpicsDevice):
-    """ Base class for EPICS Device to be used in the ESS instrument devices.
-    """
-    def _get_record_fields(self):
-        return {}
-
-    def doPreinit(self, mode):
-        self._record_fields = self._get_record_fields()
-        EpicsDevice.doPreinit(self, mode)
-
-
-class EpicsReadableEss(EpicsDeviceEss, EpicsReadable):
+class EpicsReadableEss(EpicsReadable):
     parameter_overrides = {
         'fmtstr': Override(userparam=False),
         'maxage': Override(userparam=False),
@@ -51,23 +39,14 @@ class EpicsReadableEss(EpicsDeviceEss, EpicsReadable):
         'warnlimits': Override(userparam=False)
     }
 
-    def doPreinit(self, mode):
-        EpicsDeviceEss.doPreinit(self, mode)
-        EpicsReadable.doPreinit(self, mode)
 
-
-class EpicsStringReadableEss(EpicsDeviceEss, EpicsStringReadable):
-
+class EpicsStringReadableEss(EpicsStringReadable):
     parameter_overrides = {
         'readpv': Override(userparam=False)
     }
 
-    def doPreinit(self, mode):
-        EpicsDeviceEss.doPreinit(self, mode)
-        EpicsStringReadable.doPreinit(self, mode)
 
-
-class EpicsMoveableEss(EpicsDeviceEss, EpicsMoveable):
+class EpicsMoveableEss(EpicsMoveable):
     parameter_overrides = {
         'fmtstr': Override(userparam=False),
         'maxage': Override(userparam=False),
@@ -75,12 +54,8 @@ class EpicsMoveableEss(EpicsDeviceEss, EpicsMoveable):
         'warnlimits': Override(userparam=False)
     }
 
-    def doPreinit(self, mode):
-        EpicsDeviceEss.doPreinit(self, mode)
-        EpicsMoveable.doPreinit(self, mode)
 
-
-class EpicsAnalogMoveableEss(EpicsDeviceEss, EpicsAnalogMoveable):
+class EpicsAnalogMoveableEss(EpicsAnalogMoveable):
     parameter_overrides = {
         'fmtstr': Override(userparam=False),
         'maxage': Override(userparam=False),
@@ -88,12 +63,8 @@ class EpicsAnalogMoveableEss(EpicsDeviceEss, EpicsAnalogMoveable):
         'warnlimits': Override(userparam=False)
     }
 
-    def doPreinit(self, mode):
-        EpicsDeviceEss.doPreinit(self, mode)
-        EpicsAnalogMoveable.doPreinit(self, mode)
 
-
-class EpicsDigitalMoveableEss(EpicsDeviceEss, EpicsDigitalMoveable):
+class EpicsDigitalMoveableEss(EpicsDigitalMoveable):
     parameter_overrides = {
         'fmtstr': Override(userparam=False),
         'maxage': Override(userparam=False),
@@ -101,19 +72,11 @@ class EpicsDigitalMoveableEss(EpicsDeviceEss, EpicsDigitalMoveable):
         'warnlimits': Override(userparam=False)
     }
 
-    def doPreinit(self, mode):
-        EpicsDeviceEss.doPreinit(self, mode)
-        EpicsDigitalMoveable.doPreinit(self, mode)
 
-
-class EpicsWindowTimeoutDeviceEss(EpicsDeviceEss, EpicsWindowTimeoutDevice):
+class EpicsWindowTimeoutDeviceEss(EpicsWindowTimeoutDevice):
     parameter_overrides = {
         'fmtstr': Override(userparam=False),
         'maxage': Override(userparam=False),
         'pollinterval': Override(userparam=False),
         'warnlimits': Override(userparam=False)
     }
-
-    def doPreinit(self, mode):
-        EpicsDeviceEss.doPreinit(self, mode)
-        EpicsWindowTimeoutDevice.doPreinit(self, mode)

@@ -24,8 +24,7 @@
 
 from nicos.core import Device, Param, listof, pvname
 from nicos.core.errors import ConfigurationError
-
-from nicos_ess.devices.epics.base import EpicsDevice
+from nicos.devices.epics import EpicsDevice
 
 
 class LMD400(EpicsDevice, Device):

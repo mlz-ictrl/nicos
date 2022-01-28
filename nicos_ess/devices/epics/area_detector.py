@@ -31,9 +31,9 @@ import numpy as np
 from nicos.core import LIVE, ArrayDesc, Param, Value, multiStatus, pvname, \
     status
 from nicos.core.device import Device
+from nicos.devices.epics import EpicsDevice
 from nicos.devices.generic import ImageChannelMixin
 
-from nicos_ess.devices.epics.base import EpicsDeviceEss
 from nicos_ess.devices.epics.detector import EpicsDetector, \
     EpicsPassiveChannel, EpicsTimerPassiveChannel
 from nicos_ess.devices.epics.status import ADKafkaStatus
@@ -136,7 +136,7 @@ class EpicsAreaDetector(EpicsDetector):
         return LIVE
 
 
-class ADKafkaPlugin(EpicsDeviceEss, Device):
+class ADKafkaPlugin(EpicsDevice, Device):
     """
     Device that allows to configure the EPICS ADPluginKafka
     """
@@ -164,8 +164,6 @@ class ADKafkaPlugin(EpicsDeviceEss, Device):
             pvs.append('statuspv')
         if self.msgpv:
             pvs.append('msgpv')
-        pvs += set(self._record_fields)
-
         return pvs
 
     def _get_pv_name(self, pvparam):
@@ -177,12 +175,6 @@ class ADKafkaPlugin(EpicsDeviceEss, Device):
         :param pvparam: PV alias.
         :return: Actual PV name.
         """
-        prefix = getattr(self, 'kafkapv')
-        field = self._record_fields.get(pvparam)
-
-        if field is not None:
-            return ':'.join((prefix, field))
-
         return getattr(self, pvparam)
 
     @property
@@ -246,17 +238,15 @@ class ADImageChannel(ImageChannelMixin, EpicsPassiveChannel):
                           mandatory=True, settable=False, userparam=False),
     }
 
-    def _get_record_fields(self):
-        camera_channel_fields = {
-            'size_x': 'SizeX_RBV',
-            'size_y': 'SizeY_RBV',
-            'bin_x': 'BinX_RBV',
-            'bin_y': 'BinY_RBV',
-            'min_x': 'MinX_RBV',
-            'min_y': 'MinY_RBV',
-            'data_type': 'DataType_RBV'
-        }
-        return camera_channel_fields
+    _record_fields = {
+        'size_x': 'SizeX_RBV',
+        'size_y': 'SizeY_RBV',
+        'bin_x': 'BinX_RBV',
+        'bin_y': 'BinY_RBV',
+        'min_x': 'MinX_RBV',
+        'min_y': 'MinY_RBV',
+        'data_type': 'DataType_RBV'
+    }
 
     def doInit(self, mode):
         EpicsPassiveChannel.doInit(self, mode)

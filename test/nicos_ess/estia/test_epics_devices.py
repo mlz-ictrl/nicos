@@ -33,10 +33,11 @@ from unittest.mock import patch
 import pytest
 
 from nicos.core import status
+from nicos.devices.epics import EpicsDevice
 
 pytest.importorskip('kafka')
 
-from nicos_ess.devices.epics.base import EpicsDeviceEss, EpicsReadableEss
+from nicos_ess.devices.epics.base import EpicsReadableEss
 from nicos_ess.estia.devices.pt100 import EpicsPT100Temperature, error_bits, \
     get_pt100_status_message
 
@@ -86,7 +87,7 @@ class TestEpicsPT100(TestCase):
     @pytest.fixture(autouse=True)
     def initialize_devices(self, session):
         self.session = session
-        create_method_patch(self, EpicsDeviceEss, '_get_mapped_epics_status',
+        create_method_patch(self, EpicsDevice, '_get_mapped_epics_status',
                             return_value_wrapper((status.OK, '')))
 
     def test_status_underrange(self, mock):
