@@ -201,7 +201,7 @@ class ADKafkaPlugin(EpicsDeviceEss, Device):
             result = e
         return result
 
-    def doStatus(self):
+    def doStatus(self, maxage=0):
         general_epics_status, _ = self._get_mapped_epics_status()
         message = self._get_status_message()
 
