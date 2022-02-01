@@ -70,7 +70,7 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
         self._setROParam('imagewidth', int(iwstr))
         self._setROParam('imageheight', int(ihstr))
         shape = (self.imagewidth, self.imageheight)
-        self.arraydesc = ArrayDesc('data', shape, np.uint16)
+        self.arraydesc = ArrayDesc(self.name, shape, np.uint16)
 
     def doStart(self):
         self._communicate('Snap')
@@ -92,7 +92,7 @@ class PSLDetector(ImageChannelMixin, ActiveChannel):
         self._setROParam('imagewidth', shape[0])
         self._setROParam('imageheight', shape[1])
         # default for detector 'I:16' mode
-        self.arraydesc = ArrayDesc('data', shape, self._modemap[mode])
+        self.arraydesc = ArrayDesc(self.name, shape, self._modemap[mode])
         na = np.frombuffer(bytearray(data), self._modemap[mode])
 
         na = np.flipud(na.reshape(shape))

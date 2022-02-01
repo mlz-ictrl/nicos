@@ -290,19 +290,19 @@ class Image(QMesydaqCaressDevice, QMesyDAQImage):
         # first 3 values are sizes of dimensions
         # evaluate shape return correctly reshaped numpy array
         if (res[1], res[2]) in [(1, 1), (0, 1), (1, 0), (0, 0)]:  # 1D array
-            self.arraydesc = ArrayDesc('data', shape=(res[0], ), dtype='<u4')
+            self.arraydesc = ArrayDesc(self.name, shape=(res[0],), dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0])
             self.readresult = [data.sum()]
             return data
         if res[2] in [0, 1]:  # 2D array
-            self.arraydesc = ArrayDesc('data', shape=(res[0], res[1]),
+            self.arraydesc = ArrayDesc(self.name, shape=(res[0], res[1]),
                                        dtype='<u4')
             data = numpy.fromiter(res[3:], '<u4', res[0] * res[1])
             self.readresult = [data.sum()]
             return data.reshape((res[0], res[1]), order='C' if not
                                 self.transpose else 'F')
         # 3D array
-        self.arraydesc = ArrayDesc('data', shape=(res[0], res[1], res[2]),
+        self.arraydesc = ArrayDesc(self.name, shape=(res[0], res[1], res[2]),
                                    dtype='<u4')
         data = numpy.fromiter(res[3:], '<u4', res[0] * res[1] * res[3])
         self.readresult = [data.sum()]

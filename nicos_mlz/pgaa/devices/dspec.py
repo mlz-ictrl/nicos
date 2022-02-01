@@ -127,7 +127,7 @@ class DSPec(PyTangoDevice, Measurable):
 
     def doInit(self, mode):
         self._clear()
-        self.arraydesc = ArrayDesc('data', (1, 16384), np.uint32)
+        self.arraydesc = ArrayDesc(self.name, (1, 16384), np.uint32)
 
     def doFinish(self):
         self.doStop()

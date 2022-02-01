@@ -667,7 +667,7 @@ class BaseImageChannel(ImageChannelMixin, DetectorChannel):
             shape = self._shape
         else:
             shape = (256, 256)  # select some arbitrary shape
-        self.arraydesc = ArrayDesc('data', shape=shape, dtype='<u4')
+        self.arraydesc = ArrayDesc(self.name, shape=shape, dtype='<u4')
 
     @property
     def _shape(self):
@@ -699,7 +699,7 @@ class BaseImageChannel(ImageChannelMixin, DetectorChannel):
 
     def doReadArray(self, quality):
         self.arraydesc = ArrayDesc(
-            'data', shape=self._shape, dtype='<u4')
+            self.name, shape=self._shape, dtype='<u4')
         return self._dev.value.reshape(self.arraydesc.shape)
 
 

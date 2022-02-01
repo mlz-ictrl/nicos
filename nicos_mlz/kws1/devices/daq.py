@@ -64,7 +64,7 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         else:
             self._resolution = (128, 128, 1)
         shape = (self._resolution[1], self._resolution[0])
-        self.arraydesc = ArrayDesc('data', shape, np.uint32)
+        self.arraydesc = ArrayDesc(self.name, shape, np.uint32)
 
     def _configure(self, tofsettings):
         value = self.mode
@@ -83,7 +83,7 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         self.slices = []
         shape = (self._resolution[1], self._resolution[0])
         # (y, x)
-        self.arraydesc = ArrayDesc('data', shape, np.uint32)
+        self.arraydesc = ArrayDesc(self.name, shape, np.uint32)
 
     def _setup_tof(self, ext_trigger, tofsettings):
         # set timing of TOF slices
@@ -99,7 +99,7 @@ class KWSImageChannel(ImageChannelMixin, PyTangoDevice, ActiveChannel):
         self.slices = times
         shape = (channels, self._resolution[1], self._resolution[0])
         # (t, y, x)
-        self.arraydesc = ArrayDesc('data', shape, np.uint32)
+        self.arraydesc = ArrayDesc(self.name, shape, np.uint32)
         if self._mode == SIMULATION:
             return
         if ext_trigger:
@@ -183,7 +183,7 @@ class VirtualKWSImageChannel(VirtualImage):
     def _configure(self, tofsettings):
         if self.mode == 'standard':
             self.slices = []
-            self.arraydesc = ArrayDesc('data', self.sizes[::-1], np.uint32)
+            self.arraydesc = ArrayDesc(self.name, self.sizes[::-1], np.uint32)
         else:
             # set timing of TOF slices
             channels, interval, q, custom = tofsettings
@@ -196,8 +196,8 @@ class VirtualKWSImageChannel(VirtualImage):
                 for i in range(channels):
                     times.append(times[-1] + int(interval * q**i))
             self.slices = times
-            self.arraydesc = ArrayDesc('data', (channels,) + self.sizes[::-1],
-                                       np.uint32)
+            self.arraydesc = ArrayDesc(
+                self.name, (channels,) + self.sizes[::-1], np.uint32)
 
     def doReadArray(self, quality):
         res = VirtualImage.doReadArray(self, quality)

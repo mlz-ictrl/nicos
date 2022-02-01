@@ -190,7 +190,7 @@ class GenericLimaCCD(PyTangoDevice, ImageChannelMixin, PassiveChannel):
 
     def doInit(self, mode):
         # Determine image type
-        self.arraydesc = ArrayDesc('data', self._width_height[::-1],
+        self.arraydesc = ArrayDesc(self.name, self._width_height[::-1],
                                    self._getImageType())
 
     def doShutdown(self):

@@ -35,6 +35,7 @@ from nicos.core.data import DataSinkHandler
 from nicos.core.status import BUSY, OK
 from nicos.devices.datasinks import FileSink
 from nicos.devices.entangle import BaseImageChannel
+from nicos.utils import lazy_property
 
 MODES = ['cross_auto1', 'cross_auto2', 'auto1_auto2', 'cross_cross']
 
@@ -66,8 +67,13 @@ class DLSCard(BaseImageChannel):
         data = self._dev.intensity
         return data.reshape((len(data) // 3, 3))
 
-    abscissa_arraydesc = ArrayDesc('data', shape=(264,), dtype='<f8')
-    intensity_arraydesc = ArrayDesc('data', shape=(100, 3), dtype='<f8')
+    @lazy_property
+    def abscissa_arraydesc(self):
+        return ArrayDesc('%s_abscissa' % self.name, shape=(264,), dtype='<f8')
+
+    @lazy_property
+    def intensity_arraydesc(self):
+        return ArrayDesc('%s_intensity' % self.name, shape=(100, 3), dtype='<f8')
 
 
 class DLSDetector(Measurable):

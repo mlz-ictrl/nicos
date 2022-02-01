@@ -219,7 +219,7 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
     }
 
     def doInit(self, mode):
-        self.arraydesc = ArrayDesc('data',
+        self.arraydesc = ArrayDesc(self.name,
                                    self.MAP_SHAPE[self.pixelsize],
                                    numpy.uint16)
 
@@ -265,7 +265,8 @@ class ImagePlateImage(ImageChannelMixin, PassiveChannel):
 
     def doWritePixelsize(self, value):
         self._attached_imgdrum._dev.PixelSize = value
-        self.arraydesc = ArrayDesc('data', self.MAP_SHAPE[value], numpy.uint16)
+        self.arraydesc = ArrayDesc(self.name, self.MAP_SHAPE[value],
+                                   numpy.uint16)
 
     def doWriteFile(self, value):
         self._attached_imgdrum._dev.ImageFile = value

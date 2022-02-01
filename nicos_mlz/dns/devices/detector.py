@@ -59,7 +59,7 @@ class TofChannel(TOFChannel):
         if mode != SIMULATION:
             self._dev.set_timeout_millis(10000)
             shape = tuple(self._dev.detectorSize)[::-1]
-        self.arraydesc = ArrayDesc('data', shape=shape, dtype='<u4')
+        self.arraydesc = ArrayDesc(self.name, shape=shape, dtype='<u4')
 
     def doPrepare(self):
         self._dev.Clear()
@@ -87,8 +87,8 @@ class TofChannel(TOFChannel):
                      for i in range(start, end + 1))
 
     def doReadArray(self, quality):
-        self.arraydesc = ArrayDesc('data', shape=tuple(self._dev.detectorSize)[::-1],
-                                   dtype='<u4')
+        self.arraydesc = ArrayDesc(
+            self.name, shape=tuple(self._dev.detectorSize)[::-1], dtype='<u4')
         start, end = self.readchannels
         # get current data array from detector
         array = numpy.asarray(self._dev.value, numpy.uint32)
