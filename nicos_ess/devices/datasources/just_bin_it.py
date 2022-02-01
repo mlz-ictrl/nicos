@@ -197,8 +197,6 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
     }
 
     def doPreinit(self, mode):
-        self._zero_data()
-        self._hist_sum = 0
         _unique_id = None
         _current_status = (status.OK, '')
         if mode == SIMULATION:
@@ -207,13 +205,17 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
         # Set up the data consumer
         KafkaSubscriber.doPreinit(self, None)
 
+    def doInit(self, mode):
+        self._hist_sum = 0
+        self._zero_data()
+
     def _zero_data(self):
         self._hist_data = hist_type_by_name[self.hist_type].get_zeroes(
-            **self._get_all_parameters())
+            **self._params)
 
     def arrayInfo(self):
         return hist_type_by_name[self.hist_type].get_array_description(
-            **self._get_all_parameters())
+            **self._params)
 
     def doPrepare(self):
         self._update_status(status.BUSY, 'Preparing')
@@ -305,11 +307,8 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
         result = [(f'{self.name} histogram type', self.hist_type,
                    self.hist_type, '', 'general')]
         result.extend(hist_type_by_name[self.hist_type].get_info(
-            **self._get_all_parameters()))
+            **self._params))
         return result
-
-    def _get_all_parameters(self):
-        return {k: getattr(self, k) for k in self.parameters}
 
 
 class JustBinItDetector(Detector, KafkaStatusHandler):
