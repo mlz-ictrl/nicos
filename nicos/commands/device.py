@@ -592,15 +592,15 @@ def set(dev, parameter, value):  # pylint: disable=redefined-builtin
 @spmsyntax(AnyDev, DevParam)
 @parallel_safe
 def get(dev, parameter):
-    """Return the value of a parameter of the device.
+    """Print the value of a parameter of the device.
 
-    A parameter value can also be read using attribute syntax,
-    i.e. ``dev.param``.
+    The parameter value can also be get using attribute syntax,
+    i.e. ``dev.param``, to use it programmatically.
 
     Examples:
 
     >>> get(phi, 'speed')
-    >>> print(phi.speed)
+    >>> print(phi.speed * 2)
     """
     dev = session.getDevice(dev)
     value = getattr(dev, parameter)
