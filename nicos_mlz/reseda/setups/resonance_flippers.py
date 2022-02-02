@@ -9,7 +9,7 @@ tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 devices = dict(
     hrf_0a = device('nicos.devices.entangle.PowerSupply',
         description = 'Helmholtz coils for resonant flippers arm 0 - A',
-        tangodevice = '%s/heinzinger0a/current' % tango_base,
+        tangodevice = '%s/spf1/current' % tango_base,
         fmtstr = '%.3f',
         tangotimeout = 5.0,
         pollinterval = 60,
@@ -19,7 +19,7 @@ devices = dict(
     ),
     hrf_0b = device('nicos.devices.entangle.PowerSupply',
         description = 'Helmholtz coils for resonant flipper arm 0 - B',
-        tangodevice = '%s/heinzinger0b/current' % tango_base,
+        tangodevice = '%s/spf2/current' % tango_base,
         fmtstr = '%.3f',
         tangotimeout = 5.0,
         pollinterval = 60,
