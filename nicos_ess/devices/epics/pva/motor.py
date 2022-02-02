@@ -202,9 +202,10 @@ class EpicsMotor(CanDisable, CanReference, HasOffset, EpicsMoveable, Motor):
             # Read the absolute limits from the device as they have changed.
             self.abslimits  # pylint: disable=pointless-statement
 
-            # Adjust user limits
-            self.userlimits = (
-                self.userlimits[0] + diff, self.userlimits[1] + diff)
+            # Adjust user limits into allowed range
+            usmin = max(self.userlimits[0] + diff, self.abslimits[0])
+            usmax = min(self.userlimits[1] + diff, self.abslimits[1])
+            self.userlimits = (usmin, usmax)
 
             self.log.info('The new user limits are: ' + str(self.userlimits))
 
