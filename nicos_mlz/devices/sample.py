@@ -36,9 +36,9 @@ class Sample(NicosSample):
     """
 
     parameters = {
-        'sampleid':     Param('Sample ID from the sample tracker',
-                              type=none_or(int), settable=True,
-                              category='sample'),
+        'sampleid': Param('Sample ID from the sample tracker',
+                          type=none_or(int), settable=True,
+                          category='sample'),
     }
 
     def clear(self):
