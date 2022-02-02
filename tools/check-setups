@@ -69,7 +69,7 @@ def main():
         # get default custom paths
         default_dirs = [
             path.join(config.setup_package_path, p.strip(), 'setups')
-            for p in config.setup_subdirs.split(',')
+            for p in config.setup_subdirs
         ]
         paths = default_dirs
 

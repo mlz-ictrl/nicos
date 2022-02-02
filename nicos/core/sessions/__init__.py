@@ -126,7 +126,7 @@ class Session:
         self.alias_config = {}
         # paths to setup files
         self._setup_paths = [path.join(config.setup_package_path, p.strip(), 'setups')
-                             for p in config.setup_subdirs.split(',')]
+                             for p in config.setup_subdirs]
         # devices failed and succeeded to create in the current setup process
         self._failed_devices = None
         self._success_devices = None

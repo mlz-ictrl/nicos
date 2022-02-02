@@ -68,11 +68,11 @@ Configuration
 -------------
 
 In your ``nicos.conf`` file (which should be at the root of the NICOS
-installation directory), there is a header ``[services]`` that configures the
-startup system::
+installation directory), there is a header ``[nicos]`` that configures the
+system::
 
-  [services]
-  services = cache,poller,elog,watchdog,daemon,monitor-html
+  [nicos]
+  services = ["cache", "poller", "elog", "watchdog", "daemon", "monitor-html"]
 
 If an entry consists of ``servicename-instancename``, like in ``monitor-html``
 above, the service is started with the instancename as an argument.  In this

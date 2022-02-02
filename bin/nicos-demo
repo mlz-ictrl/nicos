@@ -33,6 +33,7 @@ from os import path
 from time import sleep
 
 import psutil
+import toml
 
 thisfile = path.realpath(__file__)
 bin_path = path.normpath(path.dirname(thisfile))
@@ -40,8 +41,6 @@ bin_path = path.normpath(path.dirname(thisfile))
 # pylint: disable=consider-using-with
 dev_null = open(os.devnull, 'wb')
 background_processes = []
-
-from configparser import ConfigParser, NoOptionError, NoSectionError
 
 
 def echo(s):
@@ -128,9 +127,12 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.RawTextHelpFormatter,
 )
 
-global_cfg = ConfigParser()
 nicos_root = path.normpath(path.dirname(path.dirname(__file__)))
-global_cfg.read(path.join(nicos_root, 'nicos.conf'))
+try:
+    with open(path.join(nicos_root, 'nicos.conf'), encoding='utf-8') as fp:
+        global_cfg = toml.load(fp)
+except OSError:
+    global_cfg = {}
 
 services = parser.add_argument_group(
     'service selection',
@@ -171,19 +173,13 @@ client.add_argument('--textclient', '-T', action='store_true',
 client.add_argument('--aioclient', action='store_true',
                     help='disable daemon and start console shell')
 
-# try to get the default 'guiconfig' from nicos.conf
-try:
-    guiconfig = global_cfg.get('nicos-demo', 'guiconfig')
-except (NoOptionError, NoSectionError):
-    guiconfig = ''
+# get the default 'guiconfig' and 'connect' options from nicos.conf
+demo_cfg = global_cfg.get('nicos-demo', {})
+guiconfig = demo_cfg.get('guiconfig', '')
+connect = demo_cfg.get('connect', 'guest:guest@localhost')
 ui = parser.add_argument_group('graphical user interface options')
 ui.add_argument('--guiconfig', '-c', action='store', default=guiconfig,
                 help='use given GUI config file instead of the default one')
-# try to get default 'connect' string from nicos.conf
-try:
-    connect = global_cfg.get('nicos-demo', 'connect')
-except (NoOptionError, NoSectionError):
-    connect = 'guest:guest@localhost'
 ui.add_argument('-u', dest='guiuser', action='store',
                 default=connect,
                 help='use given user:password@server:port for the daemon login')

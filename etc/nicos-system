@@ -90,10 +90,6 @@ def get_config():
         services = config.services
     log_path = path.join(nicos_root, config.logging_path)
     pid_path = path.join(nicos_root, config.pid_path)
-    if services.lower().strip() in ['', 'none']:
-        services = []
-    else:
-        services = [svc.strip() for svc in services.split(',')]
     return services, log_path, pid_path
 
 

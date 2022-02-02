@@ -24,7 +24,6 @@
 
 import glob
 import os
-from configparser import ConfigParser
 from distutils.dir_util import mkpath
 from os import path
 
@@ -131,28 +130,29 @@ class nicosinstall(stinstall):
                            path.join(self.install_icons, res))
 
     def createInitialGlobalNicosConf(self):
-        cfg = ConfigParser()
-        cfg.optionxform = str
-        cfg.read(self.install_conf)
-        if not cfg.has_section('nicos'):
-            cfg.add_section('nicos')
-        cfg.set('nicos', 'pid_path', '%s' % self.true_pid)
-        cfg.set('nicos', 'logging_path', '%s' % self.true_log)
-        cfg.set('nicos', 'installed_from', '%s' % path.abspath(os.curdir))
+        import toml
+        cfg = {}
+        if path.isfile(self.install_conf):
+            with open(self.install_conf, encoding='utf-8') as fp:
+                cfg = toml.load(fp)
+        section = cfg.setdefault('nicos', {})
+        section['pid_path'] = self.true_pid
+        section['logging_path'] = self.true_log
+        section['installed_from'] = path.abspath(os.curdir)
         if self.instrument:
-            cfg.set('nicos', 'instrument',  '%s' % self.instrument)
+            section['instrument'] = self.instrument
         else:
             self.announce("INSTRUMENT not given, please check %s to set the"
                           " correct instrument! "
                           "(see Installation guide in docs)" % self.install_conf, 2)
         if self.setup_package:
-            cfg.set('nicos', 'setup_package', '%s' % self.setup_package)
+            section['setup_package'] = self.setup_package
         else:
             self.announce("SETUPPACKAGE not given, please check %s to set the"
                           " correct setup_package! "
                           "(see Installation guide in docs)" % self.install_conf, 2)
-        with open(self.install_conf, 'w', encoding='utf-8') as configfile:
-            cfg.write(configfile)
+        with open(self.install_conf, 'w', encoding='utf-8') as fp:
+            toml.dump(cfg, fp)
 
     def run_install_etc(self):
         self.copy_tree('etc', self.install_etc)
@@ -175,6 +175,7 @@ setup(
     packages = packages,
     package_data = package_data,
     scripts = scripts,
+    setup_requires = ['toml'],
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

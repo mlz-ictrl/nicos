@@ -36,7 +36,7 @@ from nicos.devices.sample import Sample
 # get paths for rflfiles (*.rfl)
 rfldir_paths = [
     path.join(config.setup_package_path, p.strip(), 'rflfiles')
-    for p in config.setup_subdirs.split(',')
+    for p in config.setup_subdirs
 ]
 
 rfl_files = []

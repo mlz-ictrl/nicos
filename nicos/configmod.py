@@ -29,9 +29,10 @@ Global configuration for the NICOS system.
 import importlib
 import os
 import sys
-from configparser import ConfigParser
 from os import path
 from re import compile as regexcompile, escape as regexescape
+
+import toml
 
 
 class config:
@@ -43,21 +44,21 @@ class config:
 
     user = None
     group = None
-    umask = None
+    umask = None  # as a string!
 
     nicos_root = path.normpath(path.dirname(path.dirname(__file__)))
 
     setup_package = None  # the root package to find setups in
-    setup_subdirs = None  # setup groups to be used like 'panda,frm2'
+    setup_subdirs = []  # setup groups to be used, as a list
     pid_path = 'pid'
     logging_path = 'log'
-    systemd_props = ''  # additional systemd Service properties
+    systemd_props = []  # additional systemd Service properties
     systemd_network_timeout = 10  # timeout for finding a hostname in systemd
 
     simple_mode = False
     sandbox_simulation = False
     sandbox_simulation_debug = False
-    services = 'cache,poller'
+    services = ['cache', 'poller']
     keystorepaths = ['/etc/nicos/keystore', '~/.config/nicos/keystore']
 
     @classmethod
@@ -72,15 +73,6 @@ class config:
         for key, value in values.items():
             setattr(cls, key, value)
 
-        def to_bool(val):
-            if not isinstance(val, bool):
-                return val.lower() in ('yes', 'true', 'on')
-            return val
-
-        # Type-coerce booleans.
-        cls.simple_mode = to_bool(cls.simple_mode)
-        cls.sandbox_simulation = to_bool(cls.sandbox_simulation)
-
         # Apply environment variables.
         for key, value in environment.items():
             env_re = regexcompile(r'(?<![$])[$]' + regexescape(key))
@@ -90,22 +82,15 @@ class config:
                 for comp in env_re.sub('', value).split(':'):
                     if comp:
                         sys.path.insert(0, comp)
-            oldvalue = os.environ.get(key, "")
+            oldvalue = os.environ.get(key, '')
             value = env_re.sub(oldvalue, value)
             os.environ[key] = value
 
         # Set a default setup_subdirs
-        if cls.setup_subdirs is None:
-            cls.setup_subdirs = cls.instrument
+        if not cls.setup_subdirs:
+            cls.setup_subdirs = [cls.instrument]
 
         cls._applied = True
-
-
-# read nicos.conf files
-
-class NicosConfigParser(ConfigParser):
-    def optionxform(self, optionstr):
-        return optionstr
 
 
 def findSetupPackageAndInstrument(nicos_root, global_cfg):
@@ -125,15 +110,26 @@ def findSetupPackageAndInstrument(nicos_root, global_cfg):
             return os.environ['INSTRUMENT'].rsplit('.', 1)
         instr = os.environ['INSTRUMENT']
 
-    setup_package = global_cfg.get('nicos', 'setup_package',
-                                   fallback='nicos_demo')
+    nicos_section = global_cfg.get('nicos', {})
+    setup_package = nicos_section.get('setup_package', 'nicos_demo')
 
     # Try to find a good value for the instrument name, either from the
     # environment, from the local config,  or from the hostname.
     if instr is None:
-        instr = global_cfg.get('nicos', 'instrument', fallback=None)
+        instr = nicos_section.get('instrument')
 
     return setup_package, instr
+
+
+def readToml(filename):
+    """Read a single TOML configuration file, or return an empty dict
+    if it doesn't exist.
+    """
+    try:
+        with open(filename, encoding='utf-8') as fp:
+            return toml.load(fp)
+    except OSError:
+        return {}
 
 
 def readConfig():
@@ -148,13 +144,11 @@ def readConfig():
     # Read the local config from the standard path.
     # Get the root path of the NICOS install.
     nicos_root = config.nicos_root
-    global_cfg = NicosConfigParser()
-    global_cfg.read(path.join(nicos_root, 'nicos.conf'))
+    global_cfg = readToml(path.join(nicos_root, 'nicos.conf'))
 
     # Apply global PYTHONPATH, so that we can find the setup package in it.
-    if global_cfg.has_option('environment', 'PYTHONPATH'):
-        pypath = global_cfg.get('environment', 'PYTHONPATH')
-        sys.path[:0] = pypath.split(':')
+    if 'PYTHONPATH' in global_cfg.get('environment', {}):
+        sys.path[:0] = global_cfg['environment']['PYTHONPATH'].split(':')
 
     # Find setup package and its path.
     setup_package, instr = findSetupPackageAndInstrument(
@@ -184,22 +178,15 @@ def readConfig():
         raise RuntimeError('No instrument configured or detected.')
 
     # Now read the instrument-specific nicos.conf.
-    instr_cfg = NicosConfigParser()
-    instr_cfg.read(path.join(setup_package_path, instr, 'nicos.conf'))
+    instr_cfg = readToml(path.join(setup_package_path, instr, 'nicos.conf'))
 
     # Now read the whole configuration from both locations, where the
     # local config overrides the instrument specific config.
     values = {'instrument': instr}
     environment = {}
     for cfg in (instr_cfg, global_cfg):
-        # Get nicos config values.
-        if cfg.has_section('nicos'):
-            for option in cfg.options('nicos'):
-                values[option] = cfg.get('nicos', option)
-        # Get environment variables.
-        if cfg.has_section('environment'):
-            for name in cfg.options('environment'):
-                environment[name] = cfg.get('environment', name)
+        values.update(cfg.get('nicos', {}))
+        environment.update(cfg.get('environment', {}))
 
     values['nicos_root'] = nicos_root
     values['setup_package'] = setup_package

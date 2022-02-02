@@ -238,7 +238,7 @@ class Experiment(Device):
         """Paths where all template files are stored."""
         return [path.abspath(path.join(self.dataroot, self.templates))] + \
             [path.join(config.setup_package_path, p.strip(), 'template')
-             for p in config.setup_subdirs.split(',')]
+             for p in config.setup_subdirs]
 
     @property
     def proposalsymlink(self):

@@ -21,17 +21,18 @@
 #   Björn Pedersen <bjoern.pedersen@frm2.tum.de>
 #
 # *****************************************************************************
+
 """
 Utility routines for nicos file finding
-
 
 This modules contains helper functions to find e.g. setupfiles etc.
 """
 
 import os
 import re
-from configparser import ConfigParser
 from os import path
+
+from nicos.configmod import readToml
 
 SETUPNAME_RE = re.compile(r'[-\w]+$')
 
@@ -91,10 +92,10 @@ def findSetupRoots(filename):
             # nicos.conf, let's just search in the setup's directory
             return (path.dirname(filename),)
         dirname = new_dirname
-    cfg = ConfigParser()
-    cfg.read(path.join(dirname, 'nicos.conf'))
-    if cfg.has_option('nicos', 'setup_subdirs'):
-        return tuple(path.join(path.dirname(dirname), subdir) for subdir in
-                     cfg.get('nicos', 'setup_subdirs').split(','))
+    cfg = readToml(path.join(dirname, 'nicos.conf'))
+    subdirs = cfg.get('nicos', {}).get('setup_subdirs', None)
+    if subdirs is not None:
+        return tuple(path.join(path.dirname(dirname), subdir)
+                     for subdir in subdirs)
     else:
         return (dirname,)

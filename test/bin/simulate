@@ -58,9 +58,9 @@ user = args[3]
 code = args[4]
 
 if len(args) > 5:
-    setup_subdirs = args[5]
+    setup_subdirs = args[5].split(',')
 else:
-    setup_subdirs = '../test'
+    setup_subdirs = ['../test']
 
 if len(args) > 6 and os.path.isfile(args[6]):
     sync_cache_file = args[6]

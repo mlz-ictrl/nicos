@@ -108,10 +108,6 @@ def get_configured_services(hostname):
         services = getattr(config, host_spec_services)
     else:
         services = config.services
-    if services.lower().strip() in ['', 'none']:
-        services = []
-    else:
-        services = [svc.strip() for svc in services.split(',')]
     return services
 
 
@@ -142,7 +138,7 @@ def main():
                 'user': config.user or 'root',
                 'group': config.group or 'root',
                 'umask': config.umask or '002',
-                'props': config.systemd_props,
+                'props': '\n'.join(config.systemd_props),
             })
         symlink = path.join(wants_dir, path.basename(unitfile))
         if not path.islink(symlink):
