@@ -129,13 +129,10 @@ class MainWindow(DefaultMainWindow):
         self.actionExpert.setIcon(get_icon('fingerprint-24px.svg'))
 
     def add_logo(self):
-        logo_label = QLabel()
-        pxr = decolor_logo(QPixmap(path.join(root_path, 'resources',
-                                             'logo-icon.png')), Qt.white)
-        logo_label.setPixmap(pxr.scaledToHeight(self.toolBarMain.height(),
-                                                Qt.SmoothTransformation))
-        logo_label.setMargin(5)
-        self.toolBarMain.insertWidget(self.toolBarMain.actions()[0], logo_label)
+        spacer = QWidget()
+        spacer.setMinimumWidth(20)
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.toolBarMain.insertWidget(self.toolBarMain.actions()[0], spacer)
 
         nicos_label = QLabel()
         pxr = decolor_logo(QPixmap(path.join(root_path, 'resources',
