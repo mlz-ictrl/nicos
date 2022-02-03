@@ -3,27 +3,30 @@ prefix = "IOC"
 
 devices = dict(
     pos_x=device(
-        'nicos_ess.devices.epics.motor.EpicsMotor',
+        'nicos_ess.devices.epics.pva.motor.EpicsMotor',
         unit='mm',
         epicstimeout=3.0,
         precision=0.1,
         description='X axis alignment',
         motorpv=f'{prefix}:m1',
+        monitor=True,
     ),
     pos_y=device(
-        'nicos_ess.devices.epics.motor.EpicsMotor',
+        'nicos_ess.devices.epics.pva.motor.EpicsMotor',
         unit='mm',
         epicstimeout=3.0,
         precision=0.1,
         description='Y axis alignment',
         motorpv=f'{prefix}:m2',
+        monitor=True,
     ),
     pos_z=device(
-        'nicos_ess.devices.epics.motor.EpicsMotor',
+        'nicos_ess.devices.epics.pva.motor.EpicsMotor',
         unit='mm',
         epicstimeout=3.0,
         precision=0.1,
         description='Z axis alignment',
         motorpv=f'{prefix}:m3',
+        monitor=True,
     ),
 )

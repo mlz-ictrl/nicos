@@ -3,36 +3,40 @@ prefix = "IOC"
 
 devices = dict(
     blade_l=device(
-        'nicos_ess.devices.epics.motor.EpicsMotor',
+        'nicos_ess.devices.epics.pva.motor.EpicsMotor',
         unit='mm',
         epicstimeout=3.0,
         precision=0.1,
         description='X axis alignment',
         motorpv=f'{prefix}:m4',
+        monitor=True
     ),
     blade_r=device(
-        'nicos_ess.devices.epics.motor.EpicsMotor',
+        'nicos_ess.devices.epics.pva.motor.EpicsMotor',
         unit='mm',
         epicstimeout=3.0,
         precision=0.1,
         description='Y axis alignment',
         motorpv=f'{prefix}:m5',
+        monitor=True
     ),
     blade_t=device(
-        'nicos_ess.devices.epics.motor.EpicsMotor',
+        'nicos_ess.devices.epics.pva.motor.EpicsMotor',
         unit='mm',
         epicstimeout=3.0,
         precision=0.1,
         description='Z axis alignment',
         motorpv=f'{prefix}:m6',
+        monitor=True
     ),
     blade_b=device(
-        'nicos_ess.devices.epics.motor.EpicsMotor',
+        'nicos_ess.devices.epics.pva.motor.EpicsMotor',
         unit='mm',
         epicstimeout=3.0,
         precision=0.1,
         description='Z axis alignment',
         motorpv=f'{prefix}:m7',
+        monitor=True
     ),
     slit_1=device('nicos.devices.generic.slit.Slit',
         description='Slit 1 with left, right, bottom and top motors',
