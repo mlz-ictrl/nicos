@@ -28,7 +28,7 @@
 from nicos.clients.base import ConnectionData
 from nicos.clients.gui.utils import loadUi, splitTunnelString
 from nicos.guisupport.qt import QDialog, QFontMetrics, QIcon, \
-    QListWidgetItem, QPalette, QPixmap, QPyNullVariant, QSize
+    QListWidgetItem, QPalette, QPixmap, QPyNullVariant, QSize, pyqtSlot
 from nicos.protocols.daemon.classic import DEFAULT_PORT
 
 
@@ -131,6 +131,7 @@ class ConnectionDialog(QDialog):
         self.presetFrame.hide()
         self.resize(QSize(self.width(), self.minimumSize().height()))
 
+    @pyqtSlot(int)
     def on_presetOrAddr_currentIndexChanged(self, _idx):
         text = self.presetOrAddr.currentText()
         if text in self.connpresets:
@@ -142,12 +143,17 @@ class ConnectionDialog(QDialog):
         else:
             self.presetFrame.show()
 
+    def on_presetOrAddr_editTextChanged(self, text):
+        # If the text is not the currently selected preset,
+        # we are typing a host name and should have the possibility
+        # to save as a preset.
+        index = self.presetOrAddr.currentIndex()
+        if text != self.presetOrAddr.itemText(index):
+            self.presetFrame.show()
+
     def on_quickList_itemClicked(self, item):
-        conn = self.connpresets[item.text()]
-        self.presetOrAddr.setEditText(item.text())
-        self.userName.setText(conn.user)
-        self.viewonly.setChecked(conn.viewonly)
-        self.expertmode.setChecked(conn.expertmode)
+        self.presetOrAddr.setCurrentIndex(
+            self.presetOrAddr.findText(item.text()))
         self.password.setFocus()
 
     def on_quickList_itemDoubleClicked(self, item):
