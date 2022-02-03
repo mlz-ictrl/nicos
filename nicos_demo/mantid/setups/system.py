@@ -44,6 +44,6 @@ if not Exp.proposal and Exp._mode != SIMULATION:
     else:
         NewExperiment(0, 'MANTID demo experiment',
                       localcontact='Nico Suser <nico.suser@frm2.tum.de>')
-        AddUser('H. Maier-Leibnitz <heinz.maier-leibnitz@frm2.tum.de')
+        AddUser('H. Maier-Leibnitz', 'heinz.maier-leibnitz@frm2.tum.de', 'MLZ')
         NewSample('Gd3CdB7')
 '''
