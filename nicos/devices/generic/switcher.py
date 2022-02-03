@@ -303,8 +303,8 @@ class MultiSwitcher(MappedMoveable):
             ', '.join(d.format(p) for (p, d) in zip(value, self.devices))))
 
     def doStatus(self, maxage=0):
-        # if the underlying device is moving or in error state,
-        # reflect its status
+        # if the underlying devices are moving or in error state,
+        # reflect their status
         move_status = multiStatus(self.devices, maxage)
         if move_status[0] not in (status.OK, status.WARN):
             return move_status
