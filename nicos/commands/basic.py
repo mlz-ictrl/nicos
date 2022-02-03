@@ -50,7 +50,7 @@ __all__ = [
     'NewSetup', 'AddSetup', 'RemoveSetup', 'ListSetups',
     '_Restart', 'Keep',
     'CreateDevice', 'RemoveDevice', 'CreateAllDevices',
-    'NewExperiment', 'FinishExperiment', 'AddUser',
+    'NewExperiment', 'FinishExperiment', 'AddUser', 'ListUsers',
     'Remark', 'SetMode', 'SetSimpleMode',
     'sync', 'ClearCache', 'UserInfo', '_RunScript', '_RunCode', 'run', 'sim',
     'notify', 'SetMailReceivers', 'ListMailReceivers', 'SetDataReceivers',
@@ -462,6 +462,24 @@ def AddUser(name, email=None, affiliation=None):
     if session.mode == SIMULATION:
         return
     session.experiment.addUser(name, email, affiliation)
+
+
+@usercommand
+@parallel_safe
+def ListUsers():
+    """List the current users of the experiment.
+
+    Example:
+
+    >>> ListUsers()
+    """
+    session.log.info('Current users:')
+    items = []
+    for user in session.experiment.propinfo['users']:
+        items.append((user['name'], user.get('email', ''),
+                      user.get('affiliation', '')))
+    items.sort()
+    printTable(('name', 'email', 'affiliation'), items, session.log.info)
 
 
 @usercommand

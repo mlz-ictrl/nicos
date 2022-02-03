@@ -35,7 +35,7 @@ from nicos.commands import usercommandWrapper
 # pylint: disable=redefined-builtin
 from nicos.commands.basic import AddSetup, AddUser, ClearCache, \
     CreateAllDevices, CreateDevice, FinishExperiment, ListCommands, \
-    ListDataReceivers, ListMailReceivers, ListSetups, LogEntry, \
+    ListDataReceivers, ListMailReceivers, ListSetups, ListUsers, LogEntry, \
     NewExperiment, NewSetup, Remark, RemoveDevice, RemoveSetup, \
     SetDataReceivers, SetErrorAbort, SetMailReceivers, SetMode, UserInfo, \
     _LogAttach, dir, help, notify, run, sleep
@@ -172,6 +172,12 @@ def test_experiment_commands(session, log):
         assert exp.title == 'Test experiment'
         AddUser('F. X. User', 'user@example.com')
         assert 'F. X. User' in exp.users
+
+    with log.assert_msg_matches([r': Current users:',
+                                 r': name[ ]*email[ ]*affiliation',
+                                 r'1. User',
+                                 r'F. X. User[ ]*user@example.com']):
+        ListUsers()
 
     NewSample('MnSi', lattice=[4.58] * 3, angles=[90] * 3)
 

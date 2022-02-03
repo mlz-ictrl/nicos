@@ -69,6 +69,8 @@ Experiment-related commands
 .. autofunction:: LogEntry
 .. autofunction:: FinishExperiment
 
+.. autofunction:: ListUsers
+
 Script-related commands
 -----------------------
 
