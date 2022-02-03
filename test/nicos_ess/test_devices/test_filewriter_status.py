@@ -28,8 +28,6 @@ from unittest import TestCase, mock
 
 import pytest
 
-from nicos_ess.devices.datasinks.file_writer import JobRecord, JobState
-
 pytest.importorskip('file_writer_control')
 pytest.importorskip('streaming_data_types')
 
@@ -40,6 +38,8 @@ from streaming_data_types.fbschemas.action_response_answ.ActionType import \
     ActionType
 
 from nicos.core import MASTER
+
+from nicos_ess.devices.datasinks.file_writer import JobRecord, JobState
 
 session_setup = 'ess_filewriter'
 

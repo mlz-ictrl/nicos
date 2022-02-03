@@ -26,9 +26,6 @@ from unittest import TestCase, mock
 
 import pytest
 
-from nicos_ess.devices.datasinks.file_writer import FileWriterController, \
-    JobRecord
-
 from test.utils import ErrorLogged
 
 pytest.importorskip('streaming_data_types')
@@ -36,6 +33,9 @@ pytest.importorskip('streaming_data_types')
 from nicos.commands.measure import count
 from nicos.commands.scan import scan
 from nicos.core import SIMULATION
+
+from nicos_ess.devices.datasinks.file_writer import FileWriterController, \
+    JobRecord
 
 from test.nicos_ess.test_devices.test_filewriter_status import \
     create_status_message, create_stop_message_with_error, no_op, \
