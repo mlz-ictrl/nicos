@@ -29,7 +29,6 @@
 """NICOS GUI experiment setup window."""
 from copy import deepcopy
 
-from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.panels.setup_panel import ProposalDelegate, \
     combineUsers, splitUsers
 from nicos.clients.gui.utils import dialogFromUi, loadUi
@@ -37,6 +36,7 @@ from nicos.core import ConfigurationError
 from nicos.guisupport.qt import QAbstractTableModel, QDialogButtonBox, \
     QHeaderView, QListWidgetItem, QMessageBox, Qt, pyqtSignal, pyqtSlot
 from nicos.utils import decodeAny, findResource
+from nicos_ess.gui.panels.panel import PanelBase
 
 
 class TableModel(QAbstractTableModel):
@@ -152,14 +152,14 @@ class ProposalSettings:
         return True
 
 
-class ExpPanel(Panel):
+class ExpPanel(PanelBase):
     """Provides a panel with several input fields for the experiment settings.
     """
 
     panelName = 'Experiment setup'
 
     def __init__(self, parent, client, options):
-        Panel.__init__(self, parent, client, options)
+        PanelBase.__init__(self, parent, client, options)
         loadUi(self, findResource('nicos_ess/gui/panels/ui_files/exp_panel.ui'))
 
         self.old_proposal_settings = ProposalSettings()
@@ -218,12 +218,7 @@ class ExpPanel(Panel):
         self.sampleLine.hide()
 
     def initialise_connection_status_listeners(self):
-        if self.client.isconnected:
-            self.on_client_connected()
-        else:
-            self.on_client_disconnected()
-        self.client.connected.connect(self.on_client_connected)
-        self.client.disconnected.connect(self.on_client_disconnected)
+        PanelBase.initialise_connection_status_listeners(self)
         self.client.experiment.connect(self.on_experiment_finished)
         self.client.setup.connect(self.on_client_setup)
         self.client.register(self, 'Exp/title')
@@ -284,9 +279,9 @@ class ExpPanel(Panel):
             table.setColumnWidth(i, width / num_cols)
 
     def on_client_connected(self):
+        PanelBase.on_client_connected(self)
         self._update_proposal_info()
         self._is_proposal_system_available()
-        self.setViewOnly(self.client.viewonly)
 
     def _is_proposal_system_available(self):
         if self.client.eval('session.experiment._canQueryProposals()', None):
@@ -297,12 +292,12 @@ class ExpPanel(Panel):
             self.proposalNum.setReadOnly(False)
 
     def on_client_disconnected(self):
+        PanelBase.on_client_disconnected(self)
         for control in self._text_controls:
             control.setText('')
         self._update_samples_model([])
         self._update_users_model([])
         self.notifEmails.setPlainText('')
-        self.setViewOnly(True)
         self.old_proposal_settings = ProposalSettings()
         self.new_proposal_settings = ProposalSettings()
 

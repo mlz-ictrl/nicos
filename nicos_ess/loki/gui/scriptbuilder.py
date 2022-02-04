@@ -36,7 +36,7 @@ from nicos.guisupport.qt import QAction, QApplication, QCursor, QFileDialog, \
     QHeaderView, QKeySequence, QMenu, QShortcut, Qt, QTableView, pyqtSlot
 from nicos.utils import findResource
 
-from nicos_ess.loki.gui.panel import PanelBase
+from nicos_ess.gui.panels.panel import PanelBase
 from nicos_ess.loki.gui.script_generator import ScriptFactory, TransOrder
 from nicos_ess.loki.gui.scriptbuilder_model import LokiScriptModel
 from nicos_ess.utilities.csv_utils import export_table_to_csv, \
