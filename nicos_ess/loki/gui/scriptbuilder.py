@@ -36,9 +36,9 @@ from nicos.guisupport.qt import QAction, QApplication, QCursor, QFileDialog, \
     QHeaderView, QKeySequence, QMenu, QShortcut, Qt, QTableView, pyqtSlot
 from nicos.utils import findResource
 
-from nicos_ess.loki.gui.loki_panel import LokiPanelBase
-from nicos_ess.loki.gui.loki_script_generator import ScriptFactory, TransOrder
-from nicos_ess.loki.gui.loki_scriptbuilder_model import LokiScriptModel
+from nicos_ess.loki.gui.panel import PanelBase
+from nicos_ess.loki.gui.script_generator import ScriptFactory, TransOrder
+from nicos_ess.loki.gui.scriptbuilder_model import LokiScriptModel
 from nicos_ess.utilities.csv_utils import export_table_to_csv, \
     import_table_from_csv
 from nicos_ess.utilities.table_utils import convert_table_to_clipboard_text, \
@@ -47,7 +47,7 @@ from nicos_ess.utilities.table_utils import convert_table_to_clipboard_text, \
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
 
-class LokiScriptBuilderPanel(LokiPanelBase):
+class LokiScriptBuilderPanel(PanelBase):
     _available_trans_options = OrderedDict({
         'All TRANS First': TransOrder.TRANSFIRST,
         'All SANS First': TransOrder.SANSFIRST,
@@ -57,9 +57,9 @@ class LokiScriptBuilderPanel(LokiPanelBase):
     })
 
     def __init__(self, parent, client, options):
-        LokiPanelBase.__init__(self, parent, client, options)
+        PanelBase.__init__(self, parent, client, options)
         loadUi(self,
-               findResource('nicos_ess/loki/gui/ui_files/loki_scriptbuilder.ui')
+               findResource('nicos_ess/loki/gui/ui_files/scriptbuilder.ui')
                )
 
         self.window = parent

@@ -25,7 +25,7 @@
 from nicos.clients.gui.panels import Panel
 
 
-class LokiPanelBase(Panel):
+class PanelBase(Panel):
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
 

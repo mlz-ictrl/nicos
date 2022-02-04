@@ -24,7 +24,7 @@
 #
 # *****************************************************************************
 
-from nicos_ess.loki.gui.loki_scriptbuilder_model import LokiScriptModel
+from nicos_ess.loki.gui.scriptbuilder_model import LokiScriptModel
 
 HEADERS = ['COLUMN_1', 'COLUMN_2', 'COLUMN_3']
 
