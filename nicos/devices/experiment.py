@@ -1225,14 +1225,13 @@ class Experiment(Device):
                 newlist.append(devname)
         self.detlist = newlist
         newlist = []
-        for devname in self.envlist:
-            if ':' in devname:
-                devname = devname.split(':')[0]
+        for entry in self.envlist:
+            devname = entry.split(':')[0]
             if devname not in session.configured_devices:
                 self.log.warning('removing device %r from environment, it '
                                  'does not exist in any loaded setup', devname)
             else:
-                newlist.append(devname)
+                newlist.append(entry)
         self.envlist = newlist
 
 

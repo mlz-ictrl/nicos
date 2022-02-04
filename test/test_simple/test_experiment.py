@@ -33,6 +33,7 @@ import pytest
 
 from nicos.commands.basic import run
 from nicos.commands.scan import scan
+from nicos.core.acquire import DevStatistics, Average
 from nicos.utils import enableDirectory, ensureDirectory, readFileCounter
 
 from test.utils import runtime_root
@@ -180,3 +181,20 @@ def test_expandenv_dataroot(session):
     exp.finish()
     exp.new('p888', 'etitle2', 'me2 <m.e2@me.net>', 'you2')
     assert os.access(datapath('p888', extra='xxx'), os.X_OK)
+
+
+def test_envlist(session):
+    exp = session.experiment
+    motor = session.getDevice('motor')
+    coder = session.getDevice('coder')
+
+    exp.setEnvironment([motor, 'coder', 'motor:avg', coder, Average(coder),
+                        'unknown'])
+    assert exp.envlist == ['motor', 'coder', 'motor:avg', 'coder:avg',
+                           'unknown']
+    assert len(exp.sampleenv) == 4
+    assert exp.sampleenv[:2] == [motor, coder]
+    assert isinstance(exp.sampleenv[2], DevStatistics)
+
+    exp._scrubDetEnvLists()
+    assert exp.envlist == ['motor', 'coder', 'motor:avg', 'coder:avg']
