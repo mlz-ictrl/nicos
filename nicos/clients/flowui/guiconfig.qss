@@ -421,6 +421,7 @@ QColumnView {
     border-radius: 5px;
 }
 
+QDoubleSpinBox,
 QListWidget,
 QTextBrowser,
 QLineEdit {
