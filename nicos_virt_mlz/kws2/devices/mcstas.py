@@ -46,14 +46,23 @@ class KwsSimulation(McStasSimulation):
         mm2m = lambda x: x/1000
         sel_tilted = session.getDevice('selector_tilted').read(0)
         coll_d = session.getDevice('coll_guides').read(0)
+        # sample x also selects the sample in the simulation
+        # 0-10 -> sample 0 (empty beam)
+        # 10-30 -> sample 1 (empty cell)
+        # 30-50 -> sample 2 and so on
+        sx = session.getDevice('sam_trans_x').read(0)
+        sample_select, sample_x = divmod(sx + 10, 20)
+        sample_select -= 2
+        sample_x = (sample_x - 10) / 1000  # mm -> m
 
         return [
             param('Lam', 'selector_lambda'),
             'sel_ang=5' if sel_tilted else 'sel_ang=0',
             param('Clen', 'coll_guides'),
             param('Dlen', 'det_z'),
-            # selects the sample in the simulation
-            param('smpch', 'sam_trans_x', lambda x: (x / 21) + 1),
+            'smpch=%s' % sample_select,
+            'smpx=%s' % sample_x,
+            param('smpy', 'sam_trans_y', mm2m),
             param('cslitw', 'aperture_%02d' % coll_d, lambda x: x[0] / 1000),
             param('cslith', 'aperture_%02d' % coll_d, lambda x: x[1] / 1000),
             param('sslitw', 'ap_sam.width', mm2m),

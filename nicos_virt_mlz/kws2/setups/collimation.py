@@ -24,6 +24,7 @@ devices = dict(
         unit = 'm',
         abslimits = (0, 20),
         curvalue = 8,
+        speed = 2,
     ),
     aperture_20 = device('nicos_mlz.kws1.devices.collimation.CollimationSlit',
         description = '20m aperture',
