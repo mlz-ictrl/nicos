@@ -71,7 +71,7 @@ devices = dict(
         readpv = pvprefix + detector_channel + 'AcquireTime_RBV',
         presetpv = pvprefix + detector_channel + 'AcquireTime',
     ),
-    adimage_channel = device('nicos_ess.devices.epics.area_detector.ADImageChannel',
+    adimage_channel = device('nicos_sinq.devices.epics.area_detector.ADImageChannel',
         description = 'Image data from CCD',
         pvprefix = pvprefix + 'cam1',
         readpv = pvprefix + 'image1:ArrayData',

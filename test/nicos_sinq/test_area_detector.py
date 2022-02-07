@@ -46,7 +46,7 @@ pytest.importorskip('kafka')
 pytest.importorskip('graypy')
 
 
-session_setup = "ess_area_detector"
+session_setup = "sinq_area_detector"
 
 
 @pytest.mark.skip(reason="flaky test")

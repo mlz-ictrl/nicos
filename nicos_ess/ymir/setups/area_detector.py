@@ -6,7 +6,7 @@ data_channel = 'image1'
 
 devices = dict(
     ad=device(
-        'nicos_ess.devices.epics.area_detector.EpicsAreaDetector',
+        'nicos_sinq.devices.epics.area_detector.EpicsAreaDetector',
         description='Area detector instance that can only interact with EPICS',
         statepv=f'{pvprefix}:{detector_channel}:DetectorState_RBV',
         startpv=f'{pvprefix}:{detector_channel}:Acquire',
@@ -16,7 +16,7 @@ devices = dict(
     ),
 
     ad_channel=device(
-        'nicos_ess.devices.epics.area_detector.ADImageChannel',
+        'nicos_sinq.devices.epics.area_detector.ADImageChannel',
         description='The image channel',
         pvprefix=f'{pvprefix}:{detector_channel}',
         readpv=f'{pvprefix}:{data_channel}:ArrayData',

@@ -21,7 +21,7 @@
 #   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
-from nicos_ess.devices.epics.area_detector import EpicsAreaDetector
+from nicos_sinq.devices.epics.area_detector import EpicsAreaDetector
 
 
 class AndorAreaDetector(EpicsAreaDetector):

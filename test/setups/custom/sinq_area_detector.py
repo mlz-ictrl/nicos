@@ -9,7 +9,7 @@ kafka_topic = 'sim_data_topic'
 
 devices = dict(
     areadetector_base=device(
-        'nicos_ess.devices.epics.area_detector.EpicsAreaDetector',
+        'nicos_sinq.devices.epics.area_detector.EpicsAreaDetector',
         epicstimeout=3.0,
         description='Area detector instance that can only interact with EPICS',
         unit='',
@@ -35,7 +35,7 @@ devices = dict(
     ),
 
     areadetector_kafka=device(
-        'nicos_ess.devices.epics.area_detector.EpicsAreaDetector',
+        'nicos_sinq.devices.epics.area_detector.EpicsAreaDetector',
         epicstimeout=3.0,
         description='Area detector instance that can interact with EPICS and read the kafka image stream',
         unit='',
@@ -48,13 +48,13 @@ devices = dict(
     ),
 
     kafka_image_channel=device(
-        'nicos_ess.devices.kafka.area_detector.ADKafkaImageDetector',
+        'nicos_sinq.devices.kafka.area_detector.ADKafkaImageDetector',
         description='ImageChannel that reads from a kafka stream',
         kafka_plugin='kafka_plugin',
     ),
 
     kafka_plugin=device(
-        'nicos_ess.devices.epics.area_detector.ADKafkaPlugin',
+        'nicos_sinq.devices.epics.area_detector.ADKafkaPlugin',
         description='Device that can interact with ADKafkaPlugin',
         kafkapv=pvprefix + kafka_channel,
         brokerpv=pvprefix + kafka_channel + 'KafkaBrokerAddress_RBV',
