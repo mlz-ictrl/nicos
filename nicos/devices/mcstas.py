@@ -44,6 +44,11 @@ from nicos.devices.generic import ActiveChannel, ImageChannelMixin, \
     PassiveChannel
 from nicos.utils import createThread
 
+# Minimum time to let McStas run before attempting to save data
+# via SIGUSR2.  If McStas is still in the initialization phase,
+# it can crash with SIGUSR2.
+MIN_RUNTIME = 0.5
+
 
 class McStasSimulation(Readable):
     """Base device for running McStas simulations.
@@ -101,7 +106,9 @@ class McStasSimulation(Readable):
         return ''  # nothing useful here
 
     def _saveIntermediate(self):
-        self._send_signal(SIGUSR2)
+        # give the simulation some time to initialize
+        if self._getTime() > MIN_RUNTIME:
+            self._send_signal(SIGUSR2)
 
     def _joinProcess(self):
         if self._mythread and self._mythread.is_alive():
@@ -407,7 +414,8 @@ class McStasCounter(PassiveChannel, Waitable):
                         sig = float(line.split()[2])
                         value = sig * self._attached_mcstas._getScaleFactor()
         except Exception:
-            self.log.warning('could not read result file', exc=1)
+            if self._attached_mcstas._getTime() > MIN_RUNTIME:
+                self.log.warning('could not read result file', exc=1)
             value = 0
         self.curvalue = value * self.intensityfactor
         return self.curvalue
