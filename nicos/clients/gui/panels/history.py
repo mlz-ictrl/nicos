@@ -43,8 +43,8 @@ from nicos.clients.gui.widgets.plotting import ArbitraryFitter, CosineFitter, \
 from nicos.core import Param, listof
 from nicos.devices.cacheclient import CacheClient
 from nicos.guisupport.qt import QAction, QActionGroup, QApplication, QBrush, \
-    QByteArray, QCheckBox, QColor, QComboBox, QCompleter, QDateTime, QDialog, \
-    QFont, QFrame, QHBoxLayout, QListWidgetItem, QMainWindow, QMenu, \
+    QByteArray, QCheckBox, QColor, QComboBox, QCompleter, QCursor, QDateTime, \
+    QDialog, QFont, QFrame, QHBoxLayout, QListWidgetItem, QMainWindow, QMenu, \
     QMessageBox, QObject, QSettings, QSizePolicy, QStatusBar, \
     QStyledItemDelegate, Qt, QTimer, QToolBar, QWidgetAction, pyqtSignal, \
     pyqtSlot
@@ -754,10 +754,10 @@ class BaseHistoryWindow:
             action.setEnabled(on)
 
     def showContextMenu(self, point):
-        if self.askQuestion('Remove this view?'):
-            self.viewList.takeItem(self.viewList.currentRow())
-            if self.viewStack:
-                self.on__actionDeleteView_triggered()
+        popMenu = QMenu(self)
+        popMenu.addAction(self.actionEditView)
+        popMenu.addAction(self.actionDeleteView)
+        popMenu.exec_(QCursor.pos())
 
     def enableAutoScaleActions(self, on):
         for action in [self.actionAutoScale, self.actionScaleX,
