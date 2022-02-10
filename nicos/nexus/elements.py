@@ -531,13 +531,17 @@ class NexusSampleEnv(NexusElementBase):
     data is appended whenever data can be found.
     """
 
-    def __init__(self, update_interval=10):
+    def __init__(self, update_interval=10, postfix=None):
         self._update_interval = update_interval
         self._last_update = {}
+        self._postfix = postfix
         NexusElementBase.__init__(self)
 
     def createNXlog(self, h5parent, dev):
-        loggroup = h5parent.create_group(dev.name)
+        logname = dev.name
+        if self._postfix:
+            logname += self._postfix
+        loggroup = h5parent.create_group(logname)
         loggroup.attrs['NX_class'] = np.string_('NXlog')
         dset = loggroup.create_dataset('time', (1,), maxshape=(None,),
                                        dtype='float32')
@@ -562,7 +566,10 @@ class NexusSampleEnv(NexusElementBase):
         for devidx, dev in enumerate(dataset.environment):
             if not isinstance(dev, Readable):
                 continue
-            loggroup = h5parent[dev.name]
+            logname = dev.name
+            if self._postfix:
+                logname += self._posfix
+            loggroup = h5parent[logname]
             dset = loggroup['value']
             val = dataset.envvaluelist[devidx]
             if val is None:
@@ -573,7 +580,8 @@ class NexusSampleEnv(NexusElementBase):
             # - The value has changed at all
             # - Against a maximum update interval
             if val != dset[idx - 1] and \
-               current_time > self._last_update[dev.name] + self._update_interval:
+               current_time > self._last_update[dev.name] +\
+                    self._update_interval:
                 dset.resize((idx + 1,))
                 dset[idx] = val
                 dset = loggroup['time']
