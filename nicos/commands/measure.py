@@ -28,7 +28,7 @@
 from nicos import session
 from nicos.commands import helparglist, parallel_safe, usercommand
 from nicos.core.acquire import Average, CountResult, MinMax, acquire, \
-    read_environment, stop_acquire_thread
+    read_environment, stop_acquire_thread, StdDev
 from nicos.core.device import Measurable, SubscanMeasurable
 from nicos.core.errors import NicosError, UsageError
 from nicos.utils import createThread, number_types, printTable
@@ -38,7 +38,7 @@ __all__ = [
     'SetDetectors', 'AddDetector', 'ListDetectors',
     'SetEnvironment', 'AddEnvironment', 'ListEnvironment',
     'ListDatasinks',
-    'avg', 'minmax',
+    'avg', 'minmax', 'stddev',
 ]
 
 
@@ -335,3 +335,22 @@ def minmax(dev):
     maximum of the device "T" over the counting period.
     """
     return MinMax(dev)
+
+
+@usercommand
+def stddev(dev):
+    """Create a "statistics device" that calculates the scan-point standard
+    deviation.
+
+    This pseudo-device can be used in the sample environment in order to
+    calculate the standard deviation of a device over the whole scan point,
+    as opposed to the value at the end of the scan point.
+
+    For example:
+
+    >>> SetEnvironment(stddev(T), minmax(T))
+
+    would record for every point in a scan the standard deviation and the
+    minimum and maximum of the device "T" over the counting period.
+    """
+    return StdDev(dev)
