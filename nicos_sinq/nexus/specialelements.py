@@ -333,3 +333,43 @@ class CellArray(NexusElementBase):
         ds = h5parent.create_dataset(name, (6,), maxshape=(None,),
                                      dtype='float64')
         ds[...] = np.array(data)
+
+
+class DevStat(NexusElementBase):
+    """
+    This class stores data from a DevStatistics environment
+    contribution. This is allways optional and will only be
+    written when it exists.
+    """
+    def __init__(self, statname, **attr):
+        self._statname = statname
+        self.attrs = {}
+        for key, val in attr.items():
+            if not isinstance(val, NXAttribute):
+                val = NXAttribute(val, 'string')
+            self.attrs[key] = val
+        NexusElementBase.__init__(self)
+
+    def _find_devstatistics(self, sinkhandler):
+        for dev in sinkhandler.dataset.environment:
+            if dev.name == self._statname:
+                return dev
+        return None
+
+    def create(self, name, h5parent, sinkhandler):
+        if self._find_devstatistics(sinkhandler):
+            h5parent.create_dataset(name, (1,), maxshape=(None,),
+                                    dtype='float64')
+            self.createAttributes(sinkhandler.dataset, sinkhandler)
+            self.testAppend(sinkhandler)
+
+    def results(self, name, h5parent, sinkhandler, results):
+        devstat = self._find_devstatistics(sinkhandler)
+        if devstat:
+            dset = h5parent[name]
+            val = devstat.retrieve(sinkhandler.dataset.valuestats)
+            if self.doAppend:
+                self.resize_dataset(dset)
+                dset[self.np] = val
+            else:
+                dset[0] = val
