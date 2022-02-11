@@ -29,25 +29,17 @@ main_window = docked(
         ('Setup',
          tabbed(
              ('Experiment',
-              panel('nicos_sinq.gui.panels.setup_panel.ExpPanel')),
-             ('Samples',
-              panel(
-                  'nicos_mlz.kws1.gui.sampleconf.KWSSamplePanel',
-                  image='nicos_mlz/sans1/gui/sampleChanger22.png',
-                  positions=22, setups='sans and sc2')
-              ),
+              panel('nicos.clients.flowui.panels.setup_panel.ExpPanel')),
              ('Instrument',
               panel('nicos.clients.flowui.panels.setup_panel.SetupsPanel')),
          ),
-        ),
+         ),
         ('  ', panel('nicos.clients.flowui.panels.empty.EmptyPanel')),
         ('Instrument interaction',
          hsplit(
              vbox(
-                 panel(
-                     'nicos.clients.flowui.panels.cmdbuilder.CommandPanel',
-                      modules=['nicos.clients.gui.cmdlets'],
-                    ),
+                 panel('nicos.clients.flowui.panels.cmdbuilder.CommandPanel',
+                       modules=['nicos.clients.gui.cmdlets'],),
                  tabbed(
                      ('Output',
                       panel('nicos.clients.flowui.panels.console.ConsolePanel',
@@ -55,13 +47,14 @@ main_window = docked(
                      ('Scan Plot',
                       panel('nicos.clients.flowui.panels.scans.ScansPanel')),
                      ('Detector Image',
-                      panel('nicos.clients.flowui.panels.live.LiveDataPanel')),
+                      panel('nicos_sinq.sans.gui.panels.live.SansLiveDataPanel')
+                      ),
                      ('Script Status',
-                      panel('nicos.clients.flowui.panels.status.ScriptStatusPanel',
-                            eta=True)),
+                      panel(
+                          'nicos.clients.flowui.panels.status.ScriptStatusPanel',
+                          eta=True)),
                  ),
-
-             ), # vsplit
+             ),  # vsplit
              panel(
                  'nicos.clients.flowui.panels.devices.DevicesPanel',
                  dockpos='right',
@@ -73,25 +66,23 @@ main_window = docked(
              ),
          ),  # hsplit
          ),
-        (
-            'Batch file generation',
-            vsplit(
-                panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
-                panel('nicos.clients.flowui.panels.editor.EditorPanel',
-                      tools=None),
-            ), # vsplit
-        ),
-        ('Detector Image', panel('nicos.clients.flowui.panels.live.LiveDataPanel')),
-        (
-            'History',
-            panel('nicos.clients.flowui.panels.history.HistoryPanel'),
-        ),
+        ('Batch file generation',
+         vsplit(
+             panel('nicos.clients.gui.panels.scriptbuilder.CommandsPanel'),
+             panel('nicos.clients.flowui.panels.editor.EditorPanel',
+                   tools=None),),
+         ),
+        ('Detector Image',
+         panel('nicos_sinq.sans.gui.panels.live.SansLiveDataPanel')),
+        ('History',
+         panel('nicos.clients.flowui.panels.history.HistoryPanel'),),
         ('Logs',
-            tabbed(
-                ('Errors', panel('nicos.clients.gui.panels.errors.ErrorPanel')),
-                ('Log files', panel(
-                    'nicos.clients.gui.panels.logviewer.LogViewerPanel')),
-            ),
+         tabbed(
+             ('Errors',
+              panel('nicos.clients.gui.panels.errors.ErrorPanel')),
+             ('Log files',
+              panel('nicos.clients.gui.panels.logviewer.LogViewerPanel')),
+         ),
          ),
 
 
@@ -101,11 +92,11 @@ main_window = docked(
          panel('nicos.clients.flowui.panels.setup_panel.FinishPanel')),
 
         position='left',
-    ), # tabbed
+    ),  # tabbed
 
-    ) #docked
+)  # docked
 
-windows = [ ]
+windows = []
 
 tools = [
     tool('Report NICOS bug or request enhancement',
@@ -113,5 +104,5 @@ tools = [
 ]
 
 options = {
-    'ess_gui' : True,
+    'facility': 'sinq',
 }
