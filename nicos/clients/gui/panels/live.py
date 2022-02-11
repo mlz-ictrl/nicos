@@ -43,8 +43,8 @@ from nicos.core.errors import NicosError
 from nicos.guisupport.livewidget import AXES, DATATYPES, IntegralLiveWidget, \
     LiveWidget, LiveWidget1D
 from nicos.guisupport.qt import QActionGroup, QByteArray, QDialog, \
-    QListWidgetItem, QMenu, QPoint, QSizePolicy, QStatusBar, Qt, QToolBar, \
-    QWidget, pyqtSignal, pyqtSlot
+    QFileDialog, QListWidgetItem, QMenu, QPoint, QSizePolicy, QStatusBar, Qt,\
+    QToolBar, QWidget, pyqtSignal, pyqtSlot
 from nicos.guisupport.qtgr import MouseEvent
 from nicos.protocols.cache import cache_load
 from nicos.utils import BoundedOrderedDict, ReaderRegistry, safeName
@@ -53,6 +53,11 @@ try:
     from nicos.utils.gammafilter import gam_rem_adp_log
 except ImportError:
     gam_rem_adp_log = None
+
+try:
+    from colorcet import mapping_flipped as cet_mapping_flipped
+except ImportError:
+    cet_mapping_flipped = None
 
 COLORMAPS = OrderedDict(GR_COLORMAPS)
 
@@ -140,6 +145,37 @@ class LiveDataPanel(Panel):
         the others will be blue (default).
 
         'red': all plots will be red.
+
+      * ``use_cet`` (default False) - If True and the colorcet library is
+        installed extend the available colormaps with the colorcet maps.
+
+    A user-defined colormap file must be composed of three columns (R,G,B)
+    normalised to 1 or in the range 0-255, e.g.:
+
+    6.50e-01 8.07e-01 8.90e-01
+    1.21e-01 4.70e-01 7.05e-01
+    2.00e-01 6.27e-01 1.72e-01
+    9.84e-01 6.03e-01 5.99e-01
+    9.92e-01 7.49e-01 4.35e-01
+    1.00e+00 4.98e-01 0.00e+00
+    4.15e-01 2.39e-01 6.03e-01
+    1.00e+00 1.00e+00 5.99e-01
+    6.94e-01 3.49e-01 1.56e-01
+
+    or
+
+    255 255 255
+    251 255 255
+    86 215 255
+    84 213 255
+    80 209 255
+    77 205 255
+    0 0 8
+    0 0 6
+    0 0 0
+
+    If less than 256 colors are provided the colors intensities are linear
+    interpolated.
     """
 
     panelName = 'Live data view'
@@ -248,6 +284,10 @@ class LiveDataPanel(Panel):
 
         self._initControlsGUI()
 
+        if options.get('use_cet', False) and cet_mapping_flipped:
+            COLORMAPS.update(OrderedDict(
+                {v: k for k, v in cet_mapping_flipped.items()}))
+
     def _initControlsGUI(self):
         pass
 
@@ -286,6 +326,38 @@ class LiveDataPanel(Panel):
             action.setEnabled(flag)
         self.actionOpen.setEnabled(True)  # File Open action always available
 
+    def _initColormapMenu(self):
+        self.menuColormap = QMenu(self)
+        self.actionsColormap = QActionGroup(self)
+        activeMap = self.widget.getColormap()
+        activeCaption = None
+        for name, value in COLORMAPS.items():
+            caption = name.title()
+            action = self.menuColormap.addAction(caption)
+            action.setData(caption)
+            action.setCheckable(True)
+            if activeMap == value:
+                action.setChecked(True)
+                # update toolButton text later otherwise this may fail
+                # depending on the setup and qt versions in use
+                activeCaption = caption
+            self.actionsColormap.addAction(action)
+            action.triggered.connect(self.on_colormap_triggered)
+
+        def from_file():
+            fname = QFileDialog.getOpenFileName(self, 'Open file')
+            self.widget.surf.colormap = fname[0]
+            self.toolbar.widgetForAction(self.actionColormap).setText(
+                'Custom')
+
+        action = self.menuColormap.addAction('From file')
+        action.setStatusTip('Open new colormap')
+        action.triggered.connect(from_file)
+        self.actionsColormap.addAction(action)
+
+        self.actionColormap.setMenu(self.menuColormap)
+        return activeCaption
+
     def initLiveWidget(self, widgetcls):
         if isinstance(self.widget, widgetcls):
             return
@@ -317,23 +389,7 @@ class LiveDataPanel(Panel):
                                           self.on_mousemove_gr)
 
         # handle menus
-        self.menuColormap = QMenu(self)
-        self.actionsColormap = QActionGroup(self)
-        activeMap = self.widget.getColormap()
-        activeCaption = None
-        for name, value in COLORMAPS.items():
-            caption = name.title()
-            action = self.menuColormap.addAction(caption)
-            action.setData(caption)
-            action.setCheckable(True)
-            if activeMap == value:
-                action.setChecked(True)
-                # update toolButton text later otherwise this may fail
-                # depending on the setup and qt versions in use
-                activeCaption = caption
-            self.actionsColormap.addAction(action)
-            action.triggered.connect(self.on_colormap_triggered)
-        self.actionColormap.setMenu(self.menuColormap)
+        activeCaption = self._initColormapMenu()
 
         # finish initiation
         self.widgetLayout.addWidget(self.widget)

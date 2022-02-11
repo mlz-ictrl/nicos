@@ -28,6 +28,7 @@
 import math
 import os
 import tempfile
+from functools import lru_cache
 
 import gr
 import numpy
@@ -36,11 +37,17 @@ from gr.pygr import Coords2D, Coords2DList, Plot as OrigPlot, PlotAxes, \
     Point, RegionOfInterest
 from gr.pygr.base import GRMeta, GRVisibility
 
+from nicos.clients.gui.main import log
 from nicos.core import UsageError
 from nicos.guisupport.plots import GRCOLORS, GRMARKS, MaskedPlotCurve
 from nicos.guisupport.qt import QHBoxLayout, QWidget, pyqtSignal
 from nicos.guisupport.qtgr import InteractiveGRWidget
 from nicos.guisupport.utils import savePlot
+
+try:
+    import colorcet
+except ImportError:
+    colorcet = None
 
 DATATYPES = frozenset(('<u4', '<i4', '>u4', '>i4', '<u2', '<i2', '>u2', '>i2',
                        '<u1', '<i1', '>u1', '>i1', '<f8', '<f4', '>f8', '>f4',
@@ -50,6 +57,7 @@ COLOR_MAXINTENSITY = 1255
 
 AXES = ['x', 'y']
 
+COLORMAP_MAGIC_ID = 103
 
 def sgn(x):
     if x >= 0:
@@ -57,16 +65,40 @@ def sgn(x):
     return -1
 
 
+@lru_cache()
+def colormap_from_file(filename):
+    try:
+        with open(filename, 'r', encoding="ascii") as f:
+            data = numpy.loadtxt(f)
+        if numpy.amax(data) > 1:
+            return data / 256
+    except Exception as e:
+        log.error('%s: can\'t use %s', e, filename)
+        return None
+    return data
+
+
 class Cellarray(gr.pygr.PlotSurface):
 
     def drawGR(self):
+
         if self.visible:
-            gr.setcolormap(self.colormap)
-            # GKS origin at upper left corner
-            # swapped ymin, ymax to get have origin
-            # at lower left corner (mirror y)
-            gr.cellarray(self.x[0], self.x[-1], self.y[-1], self.y[0],
-                         len(self.x), len(self.y), self.z)
+            def set_value():
+                gr.cellarray(self.x[0], self.x[-1], self.y[-1], self.y[0],
+                             len(self.x), len(self.y), self.z)
+
+            if isinstance(self.colormap, int):
+                gr.setcolormap(self.colormap)
+                set_value()
+                return
+            if colorcet and self.colormap in colorcet.mapping_flipped.keys():
+                gr.setcolormapfromrgb(getattr(colorcet, self.colormap))
+                set_value()
+                return
+            colormap = colormap_from_file(self.colormap)
+            if colormap is not None:
+                gr.setcolormapfromrgb(colormap)
+            set_value()
 
 
 class GRWidget(InteractiveGRWidget):
