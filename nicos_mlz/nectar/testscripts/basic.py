@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # pylint: skip-file
 
-# test: needs = pyfits
+# test: needs = astropy
 # test: setups = nectar, servostar, detector
 # test: setupcode = SetDetectors(det)
 

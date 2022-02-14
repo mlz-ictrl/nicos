@@ -1,6 +1,6 @@
 # pylint: skip-file
 
-# test: needs = pyfits
+# test: needs = astropy
 # test: setups = detbox_blackbox
 # test: setupcode = SetDetectors(det_ikonl)
 
