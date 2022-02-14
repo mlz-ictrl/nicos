@@ -115,12 +115,12 @@ def timedistancediagram(speed, angles, disk2_pos, D,
     detection = [(D - f1[1]) / f1[0]]
 
     # wl_max
-    if (disk2_mode == 'virtual_disc2_pos_6'):
+    if disk2_mode == 'virtual_disc2_pos_6':
         # In this case SC2 must be used. The check of disk2_mode is important
         # to prevent wrong display of wl_max
         tof = np.array([times[3], times[4]])
         pos = np.array([d_SCo, d_SC2])
-    elif (disk2_mode == 'normal_mode'):
+    elif disk2_mode == 'normal_mode':
         if len(angles) == 6:  # SC2 pair is used
             tof = np.array([times[1], times[4]])
             pos = np.array([d_MCo, d_SC2])

@@ -73,7 +73,7 @@ class TOFTOFChannel(ImageChannel, TOFChannel):
         #       (in this case: returned < set) so, increase the wanted value
         #       until the used one is big enough
         actual_timeinterval = self.doReadTimeinterval()
-        while (actual_timeinterval * self.timechannels < value):
+        while actual_timeinterval * self.timechannels < value:
             wanted_timeinterval += calc.ttr
             self.doWriteTimeinterval(wanted_timeinterval)
             actual_timeinterval = self.doReadTimeinterval()

@@ -70,7 +70,7 @@ def directToReciprocalLattice(directLattice):
 
     arg = 1 + 2 * cos_alfa * cos_beta * cos_gamma - cos_alfa * cos_alfa -\
         cos_beta * cos_beta - cos_gamma * cos_gamma
-    if (arg < 0.0):
+    if arg < 0.0:
         raise AttributeError('Reciprocal lattice has negative volume!')
     vol = ad * bd * cd * np.sqrt(arg)/(2 * np.pi)
     reciprocal.a = bd * cd * sin_alfa / vol
