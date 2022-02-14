@@ -249,7 +249,7 @@ class Detector(MeasureSequencer):
     def _set_resosteps(self, value):
         # TODO: shape should be (y, x) not (x, y)
         image = self._attached_detector._attached_images[0]
-        if hasattr(image, 'size'):
+        if hasattr(image, 'size') and len(image.size) > 1:
             height = image.size[1]
         else:
             height = 256
