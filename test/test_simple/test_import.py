@@ -59,8 +59,6 @@ all_instrs = [(path.basename(facility_dir), instr_dir)
 @pytest.mark.parametrize('fac_instr', all_instrs, ids=str)
 def test_import_all(fac_instr):
     facility, instr = fac_instr
-    if instr == 'delab':
-        return
     instrlib = path.join(module_root, facility, instr, 'devices')
     if not path.isdir(instrlib):
         return

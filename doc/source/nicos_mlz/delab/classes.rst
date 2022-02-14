@@ -1,2 +1,0 @@
-FRM II Detector laboratory
-==========================
