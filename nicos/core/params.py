@@ -594,7 +594,7 @@ def limits(val=None):
         raise ValueError('value must be a list or tuple and have 2 elements')
     ll = float(val[0])
     ul = float(val[1])
-    if not ll <= ul:
+    if ll > ul:
         raise ValueError('upper limit must be greater than lower limit')
     return (ll, ul)
 
@@ -652,7 +652,7 @@ class intrange:
                              'A boolean was given!')
         fr = int(fr)
         to = int(to)
-        if not fr <= to:
+        if fr > to:
             raise ValueError('intrange must fulfill from <= to, given was '
                              '[%f, %f]' % (fr, to))
         self.__doc__ = 'an integer in the range [%d, %d]' % (fr, to)
@@ -677,7 +677,7 @@ class floatrange:
         fr = float(fr)
         if to is not None:
             to = float(to)
-            if not fr <= to:
+            if fr > to:
                 raise ValueError('floatrange must fulfill from <= to, given '
                                  'was [%f, %f]' % (fr, to))
             self.__doc__ = 'a float in the range [%f, %f]' % (fr, to)
@@ -694,9 +694,8 @@ class floatrange:
             if not self.fr <= val <= self.to:
                 raise ValueError('value needs to fulfill %f <= x <= %f' %
                                  (self.fr, self.to))
-        else:
-            if not self.fr <= val:
-                raise ValueError('value needs to fulfill %f <= x' % self.fr)
+        elif self.fr > val:
+            raise ValueError('value needs to fulfill %f <= x' % self.fr)
         return val
 
 

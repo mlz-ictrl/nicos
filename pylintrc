@@ -104,7 +104,6 @@ disable=fixme
     ,no-else-return
     ,superfluous-parens
     ,trailing-comma-tuple
-    ,unneeded-not
     ,unused-private-member
     ,consider-using-f-string
 

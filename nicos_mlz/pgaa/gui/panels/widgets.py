@@ -633,7 +633,7 @@ class NameCommentCell(CellItem):
 
     def reloadstate(self):
         text = str(self.le.text())
-        if not text == self.state:
+        if text != self.state:
             self.cellChanged.emit(self)
 
     def on_return_pressed(self):
