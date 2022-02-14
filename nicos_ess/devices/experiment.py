@@ -68,7 +68,7 @@ class EssExperiment(Experiment):
                                       self.instrument, self.cache_filepath)
             self._update_cache_worker.start()
         except Exception as error:
-            self.log.warn(f'QueryDB not available: {error}')
+            self.log.warn('QueryDB not available: %s', error)
 
     def doReadTitle(self):
         if self.proptype == 'service':
@@ -118,14 +118,14 @@ class EssExperiment(Experiment):
             result = self._client.proposal_by_id(proposal)
             return [result] if result else []
         except BaseYuosException as error:
-            self.log.error(f'{error}')
+            self.log.error('%s', error)
             raise
 
     def _query_by_fed_id(self, name):
         try:
             return self._client.proposals_for_user(name)
         except BaseYuosException as error:
-            self.log.error(f'{error}')
+            self.log.error('%s', error)
             raise
 
     def _extract_samples(self, query_result):
