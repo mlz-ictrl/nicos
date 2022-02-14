@@ -38,16 +38,16 @@ from nicos.utils import createThread
 class EssExperiment(Experiment):
     parameters = {
         'server_url': Param('URL of the proposal system',
-            type=str, category='experiment', mandatory=True,
+            type=str, category='experiment', mandatory=True, userparam=False
         ),
         'instrument': Param('The instrument name in the proposal system',
-            type=str, category='experiment', mandatory=True,
+            type=str, category='experiment', mandatory=True, userparam=False
         ),
         'cache_filepath': Param('Path to the proposal cache',
-            type=str, category='experiment', mandatory=True,
+            type=str, category='experiment', mandatory=True, userparam=False
         ),
         'update_interval': Param('Time interval (in hrs.) for cache updates',
-            default=1.0, type=float)
+            default=1.0, type=float, userparam=False)
     }
 
     parameter_overrides = {
@@ -62,15 +62,13 @@ class EssExperiment(Experiment):
         self._client = None
         self._update_cache_worker = createThread(
             'update_cache', self._update_cache, start=False)
-        # Get secret from the environment
-        token = os.environ.get('YUOS_TOKEN')
-        if token:
-            try:
-                self._client = YuosClient(
-                    self.server_url, token, self.instrument, self.cache_filepath)
-                self._update_cache_worker.start()
-            except BaseYuosException as error:
-                self.log.warn(f'QueryDB not available: {error}')
+        try:
+            self._client = YuosClient(self.server_url,
+                                      os.environ.get('YUOS_TOKEN'),
+                                      self.instrument, self.cache_filepath)
+            self._update_cache_worker.start()
+        except Exception as error:
+            self.log.warn(f'QueryDB not available: {error}')
 
     def doReadTitle(self):
         if self.proptype == 'service':
