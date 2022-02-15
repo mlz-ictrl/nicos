@@ -8,7 +8,6 @@ def create_epics_motor(controller_id, device_id):
     SQ:AMOR:mot<controller_id>:device_id
     '''
     return device('nicos_ess.devices.epics.motor.EpicsMotor',
-                  epicstimeout=3.0,
                   description='Test motor',
                   motorpv='SQ:AMOR:mot' + controller_id + ':' + device_id,
                   )
@@ -19,7 +18,6 @@ def create_epics_magnet(device_id):
     Creates a magnet with the given device id
     '''
     return device('nicos_sinq.amor.devices.epics_amor_magnet.EpicsAmorMagnet',
-                  epicstimeout=3.0,
                   description='Test magnet',
                   basepv='SQ:AMOR:' + device_id,
                   pvdelim=':',
@@ -38,7 +36,6 @@ def create_epics_asyn_controller(device_id):
     Creates an asyn controller with the given device id
     """
     return device('nicos_sinq.devices.epics.extensions.EpicsAsynController',
-                  epicstimeout=3.0,
                   description='Asyn controller for motors in serial1',
                   commandpv='SQ:AMOR:' + device_id + '.AOUT',
                   replypv='SQ:AMOR:' + device_id + '.AINP',

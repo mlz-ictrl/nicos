@@ -6,7 +6,6 @@ display_order = 5
 
 devices = dict(
     na_selector_pos = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
-        epicstimeout = 3.0,
         description = 'Rotary position of neutron aperture selector',
         motorpv = 'SQ:ICON:board5:NA',
         errormsgpv = 'SQ:ICON:board5:NA-MsgTxt',

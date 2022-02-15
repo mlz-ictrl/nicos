@@ -25,7 +25,6 @@ devices = dict(
         window = .2,
     ),
     flip_port = device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
-        epicstimeout = 3.0,
         description = 'Direct connection to spin flipper',
         commandpv = pvprefix + '.AOUT',
         replypv = pvprefix + '.AINP',

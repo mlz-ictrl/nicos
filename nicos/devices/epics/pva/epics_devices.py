@@ -50,7 +50,7 @@ class EpicsDevice(DeviceMixinBase):
     parameters = {
         'epicstimeout': Param('Timeout for getting EPICS PVs',
                               type=none_or(floatrange(0.1, 60)),
-                              userparam=False, mandatory=False, default=1.0),
+                              userparam=False, mandatory=False, default=3.0),
         'monitor': Param('Use a PV monitor', type=bool, default=False),
         'pva': Param('Use pva', type=bool,
                      default=DEFAULT_EPICS_PROTOCOL == 'pva'),

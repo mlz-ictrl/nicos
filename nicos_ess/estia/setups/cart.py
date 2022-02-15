@@ -4,7 +4,6 @@ pvprefix = 'PSI-ESTIARND:MC-MCU-01:'
 
 devices = dict(
     mapproach = device('nicos_ess.devices.epics.motor.EpicsMotor',
-        epicstimeout = 3.0,
         description = 'Rotator for approach',
         motorpv = f'{pvprefix}m12',
         errormsgpv = f'{pvprefix}m12-MsgTxt',
@@ -14,7 +13,6 @@ devices = dict(
         fmtstr = '%.1f',
     ),
     mpos = device('nicos_ess.devices.epics.motor.EpicsMotor',
-        epicstimeout = 3.0,
         description = 'Cart positioning',
         motorpv = f'{pvprefix}m13',
         errormsgpv = f'{pvprefix}m13-MsgTxt',

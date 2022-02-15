@@ -116,7 +116,7 @@ class EpicsDevice(DeviceMixinBase):
     parameters = {
         'epicstimeout': Param('Timeout for getting EPICS PVs',
                               type=none_or(floatrange(0.1, 60)),
-                              default=1.0, userparam=False),
+                              default=3.0, userparam=False),
     }
 
     # This will store PV objects for each PV param.

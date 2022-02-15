@@ -5,11 +5,10 @@ pvprefix = 'SQ:NEUTRA:board4:'
 group = 'lowlevel'
 
 display_order = 40
-epics_timeout = 3.0
+
 
 devices = dict(
     focus_midi_axis = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
-        epicstimeout = epics_timeout,
         description = 'Axis Camera Positioning Midibox',
         motorpv = pvprefix + 'CMID',
         errormsgpv = pvprefix + 'CMID-MsgTxt',
@@ -17,7 +16,6 @@ devices = dict(
         lowlevel = True,
     ),
     focus_midi_brake = device('nicos.devices.epics.EpicsDigitalMoveable',
-        epicstimeout = epics_timeout,
         readpv = 'SQ:NEUTRA:b4io4:BrakeCMID',
         writepv = 'SQ:NEUTRA:b4io4:BrakeCMID',
         lowlevel = True,

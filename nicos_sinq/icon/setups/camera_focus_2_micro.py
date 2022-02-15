@@ -8,7 +8,6 @@ pvprefix = 'SQ:ICON:usetup:'
 
 devices = dict(
     focus_micro = device('nicos.devices.epics.EpicsWindowTimeoutDevice',
-        epicstimeout = 3.0,
         description = 'Camera focus micro setup',
         writepv = pvprefix + 'SETP',
         readpv = pvprefix + 'POS',

@@ -10,7 +10,6 @@ kafka_topic = 'sim_data_topic'
 devices = dict(
     areadetector_base=device(
         'nicos_sinq.devices.epics.area_detector.EpicsAreaDetector',
-        epicstimeout=3.0,
         description='Area detector instance that can only interact with EPICS',
         unit='',
         statepv=pvprefix + detector_channel + 'DetectorState_RBV',
@@ -36,7 +35,6 @@ devices = dict(
 
     areadetector_kafka=device(
         'nicos_sinq.devices.epics.area_detector.EpicsAreaDetector',
-        epicstimeout=3.0,
         description='Area detector instance that can interact with EPICS and read the kafka image stream',
         unit='',
         readpv=pvprefix + detector_channel + 'Acquire_RBV',

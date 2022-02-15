@@ -2,7 +2,6 @@ description = 'Devices for the attenuator'
 
 devices = dict(
     attpos = device('nicos_ess.devices.epics.motor.EpicsMotor',
-        epicstimeout = 3.0,
         description = 'Attenuator motor',
         motorpv = 'SQ:SANS:mcu1:attpos',
         errormsgpv = 'SQ:SANS:mcu1:attpos' + '-MsgTxt',

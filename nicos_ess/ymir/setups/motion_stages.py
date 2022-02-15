@@ -7,7 +7,6 @@ devices = dict(
         errormsgpv='LabS-ESSIIP:MC-MCU-01:m1-MsgTxt',
         errorbitpv='LabS-ESSIIP:MC-MCU-01:m1-Err',
         reseterrorpv='LabS-ESSIIP:MC-MCU-01:m1-ErrRst',
-        epicstimeout=3.0,
         monitor=True,
     ),
 )

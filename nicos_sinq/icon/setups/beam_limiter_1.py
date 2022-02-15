@@ -8,7 +8,6 @@ pvprefix = 'SQ:ICON:board1:'
 
 devices = dict(
     bl1left = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
-        epicstimeout = 3.0,
         description = 'Beam limiter 1 -X',
         motorpv = pvprefix + 'B1nX',
         errormsgpv = pvprefix + 'B1nX-MsgTxt',
@@ -16,7 +15,6 @@ devices = dict(
         lowlevel = True,
     ),
     bl1right = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
-        epicstimeout = 3.0,
         description = 'Beam limiter 1 +X',
         motorpv = pvprefix + 'B1pX',
         errormsgpv = pvprefix + 'B1pX-MsgTxt',
@@ -24,7 +22,6 @@ devices = dict(
         lowlevel = True,
     ),
     bl1bottom = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
-        epicstimeout = 3.0,
         description = 'Beam limiter 1 -Y',
         motorpv = pvprefix + 'B1nY',
         errormsgpv = pvprefix + 'B1nY-MsgTxt',
@@ -32,7 +29,6 @@ devices = dict(
         lowlevel = True,
     ),
     bl1top = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
-        epicstimeout = 3.0,
         description = 'Beam limiter 1 +Y',
         motorpv = pvprefix + 'B1pY',
         errormsgpv = pvprefix + 'B1pY-MsgTxt',

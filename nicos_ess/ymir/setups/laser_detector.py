@@ -6,7 +6,6 @@ devices = dict(
         description='The laser PV',
         readpv='plc-ts:PLC:slowdata',
         lowlevel=True,
-        epicstimeout=3.0,
     ),
     laser=device('nicos_ess.ymir.devices.laser_detector.LaserDetector',
         description='Laser detector in YMIR cave',

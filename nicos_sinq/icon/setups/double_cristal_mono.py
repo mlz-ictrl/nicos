@@ -4,7 +4,6 @@ display_order = 20
 
 devices = dict(
     mth1 = device('nicos_ess.devices.epics.motor.EpicsMotor',
-        epicstimeout = 3.0,
         description = 'Double cristal monochromator, Theta 1',
         motorpv = 'SQ:ICON:dcm:mth1',
         errormsgpv = 'SQ:ICON:dcm:mth1-MsgTxt',
@@ -12,7 +11,6 @@ devices = dict(
         reference_direction = 'reverse',
     ),
     mth2 = device('nicos_ess.devices.epics.motor.EpicsMotor',
-        epicstimeout = 3.0,
         description = 'Double cristal monochromator, Theta 2',
         motorpv = 'SQ:ICON:dcm:mth2',
         errormsgpv = 'SQ:ICON:dcm:mth2-MsgTxt',
@@ -20,7 +18,6 @@ devices = dict(
         reference_direction = 'reverse',
     ),
     mtz = device('nicos_ess.devices.epics.motor.EpicsMotor',
-        epicstimeout = 3.0,
         description = 'Double cristal monochromator, translation Z',
         motorpv = 'SQ:ICON:dcm:mtz',
         errormsgpv = 'SQ:ICON:dcm:mtz-MsgTxt',

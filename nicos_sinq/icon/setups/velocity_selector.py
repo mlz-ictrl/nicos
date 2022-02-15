@@ -28,7 +28,6 @@ for name, pv in vsreadables.items():
         description = 'VS %s readout' % name,
         readpv = pv,
         lowlevel = hide,
-        epicstimeout = 3.0,
     )
 
 for name, pv in vswritables.items():
@@ -37,7 +36,6 @@ for name, pv in vswritables.items():
         readpv = pv,
         writepv = pv,
         lowlevel = hide,
-        epicstimeout = 3.0
     )
 
 for name, pv in vssetpwritable.items():
@@ -47,7 +45,6 @@ for name, pv in vssetpwritable.items():
         writepv = pv,
         lowlevel = hide,
         abslimits = (0, 4095),
-        epicstimeout = 3.0
     )
 
 devices['vs_state'] = device('nicos_sinq.icon.devices.velocity_selector.VSState',

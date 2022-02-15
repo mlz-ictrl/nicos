@@ -25,7 +25,6 @@ devices = dict(
         precision = 0.1,
     ),
     mcu2 = device('nicos_ess.devices.epics.extensions.EpicsCommandReply',
-        epicstimeout = 3.0,
         description = 'Controller of the devices connected to MCU2',
         commandpv = 'SQ:BOA:MCU2.AOUT',
         replypv = 'SQ:BOA:MCU2.AINP',

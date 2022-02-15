@@ -89,7 +89,6 @@ devices = dict(
             'enable': 1,
             'disable': 0
         },
-        epicstimeout = 3.0,
         precision = 0.5,
     ),
 )

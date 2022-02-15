@@ -5,25 +5,21 @@ pvprefix = 'SQ:FOCUS:PFIFF:'
 devices = dict(
     pf_flightpath = device('nicos.devices.epics.EpicsReadable',
         description = 'Vakuum value for flightpath',
-        epicstimeout = 3.0,
         readpv = pvprefix + 'Flightpath',
         lowlevel = True
     ),
     pf_antitrumpet = device('nicos.devices.epics.EpicsReadable',
         description = 'Vakuum value for antitrumpet',
-        epicstimeout = 3.0,
         readpv = pvprefix + 'Antitrumpet',
         lowlevel = True
     ),
     pf_sample = device('nicos.devices.epics.EpicsReadable',
         description = 'Vakuum value for sample chamber',
-        epicstimeout = 3.0,
         readpv = pvprefix + 'SampleChamber',
         lowlevel = True
     ),
     pf_bef = device('nicos.devices.epics.EpicsReadable',
         description = 'Vakuum value for BE filter',
-        epicstimeout = 3.0,
         readpv = pvprefix + 'BeFilter',
         lowlevel = True
     ),

@@ -5,18 +5,15 @@ group = 'basic'
 includes = ['camera_focus_3', 'beam_limiter_2', 'shutters', 'detector']
 
 display_order = 50
-epics_timeout = 3.0
 
 devices = dict(
     sp3_tx = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
-        epicstimeout = epics_timeout,
         description = 'Sample Position 3, Translation X',
         motorpv = 'SQ:NEUTRA:board1:SP3TX',
         errormsgpv = 'SQ:NEUTRA:board1:SP3TX-MsgTxt',
         precision = 0.01,
     ),
     sp3_ty_axis = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
-        epicstimeout = epics_timeout,
         description = 'Sample Position 3, Translation Y Axis',
         motorpv = 'SQ:NEUTRA:board1:SP3TY',
         errormsgpv = 'SQ:NEUTRA:board1:SP3TY-MsgTxt',
@@ -24,7 +21,6 @@ devices = dict(
         lowlevel = True,
     ),
     sp3_ty_brake = device('nicos.devices.epics.EpicsDigitalMoveable',
-        epicstimeout = epics_timeout,
         description = 'Sample Position 3, Translation Y Brake',
         readpv = 'SQ:NEUTRA:b4io4:BrakeSP3',
         writepv = 'SQ:NEUTRA:b4io4:BrakeSP3',
@@ -39,7 +35,6 @@ devices = dict(
         unit = 'mm',
     ),
     sp3_ry = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
-        epicstimeout = epics_timeout,
         description = 'Sample Position 2, Rotation Y',
         motorpv = 'SQ:NEUTRA:board3:SP23RY',
         errormsgpv = 'SQ:NEUTRA:board3:SP23RY-MsgTxt',
@@ -47,7 +42,6 @@ devices = dict(
         unit = 'deg',
     ),
     sp3_rz = device('nicos_ess.devices.epics.motor.HomingProtectedEpicsMotor',
-        epicstimeout = epics_timeout,
         description = 'Sample Position 2, Rotation Z',
         motorpv = 'SQ:NEUTRA:board3:SP23RZ',
         errormsgpv = 'SQ:NEUTRA:board3:SP23RZ-MsgTxt',

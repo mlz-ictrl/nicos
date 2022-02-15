@@ -8,15 +8,13 @@ excludes = ['detector']
 
 devices = dict(
     s2t=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
                description='Detector Two Theta',
                motorpv=pvmprefix + 'STT',
                errormsgpv=pvmprefix + 'STT-MsgTxt',
                precision=0.01,
-                   ),
+    ),
     timepreset=device(
         'nicos_ess.devices.epics.detector.EpicsTimerActiveChannel',
-        epicstimeout=3.0,
         description='Used to set and view time preset',
         unit='sec',
         readpv=pvprefix + '.TP',
@@ -24,14 +22,12 @@ devices = dict(
     ),
     elapsedtime=device(
         'nicos_ess.devices.epics.detector.EpicsTimerPassiveChannel',
-        epicstimeout=3.0,
         description='Used to view elapsed time while counting',
         unit='sec',
         readpv=pvprefix + '.T',
     ),
     monitorpreset=device(
         'nicos_ess.devices.epics.detector.EpicsCounterActiveChannel',
-        epicstimeout=3.0,
         description='Used to set and view monitor preset',
         type='monitor',
         readpv=pvprefix + '.PR2',
@@ -39,14 +35,12 @@ devices = dict(
     ),
     monitor1=device(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
-        epicstimeout=3.0,
         description='First scalar counter channel',
         type='monitor',
         readpv=pvprefix + '.S2',
     ),
     monitor2=device(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
-        epicstimeout=3.0,
         description='Second scalar counter channel',
         type='monitor',
         readpv=pvprefix + '.S3',
@@ -54,7 +48,6 @@ devices = dict(
 
     c3=device(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
-        epicstimeout=3.0,
         description='Third scalar counter channel',
         type='monitor',
         lowlevel=True,
@@ -62,7 +55,6 @@ devices = dict(
     ),
     protoncount=device(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
-        epicstimeout=3.0,
         description='Fourth scalar counter channel',
         type='monitor',
         lowlevel=True,
@@ -70,7 +62,6 @@ devices = dict(
     ),
     c5=device(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
-        epicstimeout=3.0,
         description='Fifth scalar counter channel',
         type='monitor',
         lowlevel=True,
@@ -78,7 +69,6 @@ devices = dict(
     ),
     c6=device(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
-        epicstimeout=3.0,
         description='Sixth scalar counter channel',
         type='monitor',
         lowlevel=True,
@@ -86,7 +76,6 @@ devices = dict(
     ),
     c7=device(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
-        epicstimeout=3.0,
         description='Seventh scalar counter channel',
         type='monitor',
         lowlevel=True,
@@ -94,7 +83,6 @@ devices = dict(
     ),
     c8=device(
         'nicos_ess.devices.epics.detector.EpicsCounterPassiveChannel',
-        epicstimeout=3.0,
         description='Eighth scalar counter channel',
         type='monitor',
         lowlevel=True,
@@ -114,7 +102,6 @@ devices = dict(
     ),
     hrptdet=device(
         'nicos_sinq.devices.detector.SinqDetector',
-        epicstimeout=3.0,
         description='EL737 counter box that counts neutrons and '
                     'starts streaming events',
         startpv=pvprefix + '.CNT',

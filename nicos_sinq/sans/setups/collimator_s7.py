@@ -32,8 +32,7 @@ for col, colpv in segments.items():
             lowlevel = hide,
             writepv = pvprefix + colpv + itempv,
             readpv = pvprefix + colpv + itempv + '_RBV',
-            epicstimeout = 3.0
-        )
+            )
         devices[col + '_' + name] = device('nicos_sinq.sans.devices.collimator.SegmentPulse',
             description = '%s %s pulse device' % (col, name),
             moveable = col + '_io' + name,
@@ -47,8 +46,7 @@ for col, colpv in segments.items():
             description = '%s %s readout' % (col, name),
             lowlevel = hide,
             readpv = pvprefix + colpv + ':' + name.upper() + '_RBV',
-            epicstimeout = 3.0
-        )
+            )
     devices[col] = device('nicos_sinq.sans.devices.collimator.Segment',
         description = 'Collimator segment %s' % col,
         hand = col + '_hand',

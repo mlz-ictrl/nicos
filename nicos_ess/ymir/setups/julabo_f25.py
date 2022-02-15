@@ -9,7 +9,6 @@ devices = dict(
         readpv='{}TEMP'.format(pv_root),
         writepv='{}TEMP:SP1'.format(pv_root),
         targetpv='{}TEMP:SP1:RBV'.format(pv_root),
-        epicstimeout=3.0,
     ),
     julabo_status=device(
         'nicos_ess.devices.epics.extensions.EpicsMappedMoveable',
@@ -23,14 +22,12 @@ devices = dict(
         description='The external sensor temperature',
         readpv='{}EXTT'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
     ),
     julabo_external_enabled=device(
         'nicos.devices.epics.EpicsStringReadable',
         description='Whether the external sensor is enabled',
         readpv='{}EXTSENS'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
     ),
     julabo_internal_P=device(
         'nicos.devices.epics.EpicsAnalogMoveable',
@@ -38,7 +35,6 @@ devices = dict(
         readpv='{}INTP'.format(pv_root),
         writepv='{}INTP:SP'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
     ),
     julabo_internal_I=device(
         'nicos.devices.epics.EpicsAnalogMoveable',
@@ -46,7 +42,6 @@ devices = dict(
         readpv='{}INTI'.format(pv_root),
         writepv='{}INTI:SP'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
     ),
     julabo_internal_D=device(
         'nicos.devices.epics.EpicsAnalogMoveable',
@@ -54,6 +49,5 @@ devices = dict(
         readpv='{}INTD'.format(pv_root),
         writepv='{}INTD:SP'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
     ),
 )

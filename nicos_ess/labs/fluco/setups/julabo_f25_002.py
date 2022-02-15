@@ -9,7 +9,6 @@ devices = dict(
         readpv='{}TEMP'.format(pv_root),
         writepv='{}TEMP:SP1'.format(pv_root),
         targetpv='{}TEMP:SP1:RBV'.format(pv_root),
-        epicstimeout=3.0,
         abslimits=(-1e308, 1e308),
     ),
     julabo_mode_002=device(
@@ -23,7 +22,6 @@ devices = dict(
         'nicos.devices.epics.pva.EpicsReadable',
         description='The external sensor temperature',
         readpv='{}EXTT'.format(pv_root),
-        epicstimeout=3.0,
     ),
     julabo_external_enabled_002=device(
         'nicos.devices.epics.pva.EpicsMappedMoveable',
@@ -38,7 +36,6 @@ devices = dict(
         readpv='{}INTP'.format(pv_root),
         writepv='{}INTP:SP'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
         abslimits=(-1e308, 1e308),
     ),
     julabo_internal_I_002=device(
@@ -47,7 +44,6 @@ devices = dict(
         readpv='{}INTI'.format(pv_root),
         writepv='{}INTI:SP'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
         abslimits=(-1e308, 1e308),
     ),
     julabo_internal_D_002=device(
@@ -56,7 +52,6 @@ devices = dict(
         readpv='{}INTD'.format(pv_root),
         writepv='{}INTD:SP'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
         abslimits=(-1e308, 1e308),
     ),
     julabo_safety_002=device(
@@ -64,7 +59,6 @@ devices = dict(
         description='The safety sensor temperature',
         readpv='{}TSAFE'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
     ),
     julabo_max_cooling_002=device(
         'nicos.devices.epics.pva.EpicsAnalogMoveable',
@@ -72,7 +66,6 @@ devices = dict(
         readpv='{}MAX:COOL:RBV'.format(pv_root),
         writepv='{}MAX:COOL'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
         abslimits=(-1e308, 1e308),
     ),
     julabo_max_heating_002=device(
@@ -81,7 +74,6 @@ devices = dict(
         readpv='{}MAX:HEAT:RBV'.format(pv_root),
         writepv='{}MAX:HEAT'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
         abslimits=(-1e308, 1e308),
     ),
     julabo_heating_power_002=device(
@@ -89,14 +81,12 @@ devices = dict(
         description='The heating power being used %',
         readpv='{}POWER'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
     ),
     julabo_internal_slope_002=device(
         'nicos.devices.epics.pva.EpicsReadable',
         description='The internal slope',
         readpv='{}SI:SLOPE:RBV'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
     ),
     julabo_external_P_002=device(
         'nicos.devices.epics.pva.EpicsAnalogMoveable',
@@ -104,7 +94,6 @@ devices = dict(
         readpv='{}EXTP'.format(pv_root),
         writepv='{}EXTP:SP'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
         abslimits=(-1e308, 1e308),
     ),
     julabo_external_I_002=device(
@@ -113,7 +102,6 @@ devices = dict(
         readpv='{}EXTI'.format(pv_root),
         writepv='{}EXTI:SP'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
         abslimits=(-1e308, 1e308),
     ),
     julabo_external_D_002=device(
@@ -122,7 +110,6 @@ devices = dict(
         readpv='{}EXTD'.format(pv_root),
         writepv='{}EXTD:SP'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
         abslimits=(-1e308, 1e308),
     ),
     julabo_high_limit_002=device(
@@ -131,7 +118,6 @@ devices = dict(
         readpv='{}HILIMIT'.format(pv_root),
         writepv='{}HILIMIT:SP'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
         abslimits=(-1e308, 1e308),
     ),
     julabo_low_limit_002=device(
@@ -140,7 +126,6 @@ devices = dict(
         readpv='{}LOWLIMIT'.format(pv_root),
         writepv='{}LOWLIMIT:SP'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
         abslimits=(-1e308, 1e308),
     ),
     julabo_status_002=device(
@@ -148,13 +133,11 @@ devices = dict(
         description='The status',
         readpv='{}STATUS'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
     ),
     julabo_version_002=device(
         'nicos.devices.epics.pva.EpicsStringReadable',
         description='The software version',
         readpv='{}VERSION'.format(pv_root),
         lowlevel=True,
-        epicstimeout=3.0,
     ),
 )

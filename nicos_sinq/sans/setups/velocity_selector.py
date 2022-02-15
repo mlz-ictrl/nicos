@@ -9,7 +9,6 @@ devices = dict(
         description = 'Velocity Selector Speed',
         writepv = selprefix + 'Speed',
         readpv = selprefix + 'I_DREH_RBV',
-        epicstimeout = 3.0,
         abslimits = (3000, 28800),
         window = 20,
         forbidden_regions = forbidden,
@@ -19,7 +18,6 @@ devices = dict(
         motorpv = 'SQ:SANS:mcu1:tilt',
         errormsgpv = 'SQ:SANS:mcu1:tilt-MsgTxt',
         precision = .01,
-        epicstimeout = 3.0,
         limit = 50,
         vs_rotation = 'vs_speed'
     ),

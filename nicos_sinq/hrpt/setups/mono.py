@@ -5,7 +5,6 @@ mexprefix = 'SQ:HRPT:motb:'
 
 devices = dict(
     momu=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
                description='Upper Monochromator Theta Motor',
                motorpv=pvprefix + 'MOMU',
                errormsgpv=pvprefix + 'MOMU-MsgTxt',
@@ -13,7 +12,6 @@ devices = dict(
                ),
 
     mtvu=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
                description='Upper Monochromator Upper Translation',
                motorpv=pvprefix + 'MTVU',
                errormsgpv=pvprefix + 'MTVU-MsgTxt',
@@ -21,7 +19,6 @@ devices = dict(
                ),
 
     mtpu=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
                description='Upper Monochromator Lower Tranlation',
                motorpv=pvprefix + 'MTPU',
                errormsgpv=pvprefix + 'MTPU-MsgTxt',
@@ -29,14 +26,12 @@ devices = dict(
               ),
 
     mgvu=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
                description='Upper Monochromator Upper Tilt',
                motorpv=pvprefix + 'MGVU',
                errormsgpv=pvprefix + 'MGVU-MsgTxt',
                precision=0.02,
                ),
     mgpu=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
                description='Upper Monochromator Lower Tilt',
                motorpv=pvprefix + 'MGPU',
                errormsgpv=pvprefix + 'MGPU-MsgTxt',
@@ -44,14 +39,12 @@ devices = dict(
               ),
 
     mcvu=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
                description='Upper Monochromator Curvature',
                motorpv=pvprefix + 'MCVU',
                errormsgpv=pvprefix + 'MCVU-MsgTxt',
                precision=0.02,
               ),
     moml=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
                description='Lower Monochromator Theta Motor',
                motorpv=pvprefix + 'MOML',
                errormsgpv=pvprefix + 'MOML-MsgTxt',
@@ -59,7 +52,6 @@ devices = dict(
                ),
 
     mtvl=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
                description='Lower Monochromator Upper Translation',
                motorpv=pvprefix + 'MTVL',
                errormsgpv=pvprefix + 'MTVL-MsgTxt',
@@ -67,7 +59,6 @@ devices = dict(
                ),
 
     mtpl=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
                description='Lower Monochromator Lower Tranlation',
                motorpv=pvprefix + 'MTPL',
                errormsgpv=pvprefix + 'MTPL-MsgTxt',
@@ -75,22 +66,19 @@ devices = dict(
                    ),
 
     mgvl=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
                description='Lower Monochromator Upper Tilt',
                motorpv=pvprefix + 'MGVL',
                errormsgpv=pvprefix + 'MGVL-MsgTxt',
                precision=0.02,
                    ),
     mgpl=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
-               description='Lower Monochromator Lower Tilt',
+                      description='Lower Monochromator Lower Tilt',
                motorpv=pvprefix + 'MGPL',
                errormsgpv=pvprefix + 'MGPL-MsgTxt',
                precision=0.02,
                    ),
 
     mcvl=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
                description='Lower Monochromator Curvature',
                motorpv=pvprefix + 'MCVL',
                errormsgpv=pvprefix + 'MCVL-MsgTxt',
@@ -98,7 +86,6 @@ devices = dict(
                    ),
 
     mexz=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
                description='Monochromator Lift Position',
                motorpv=mexprefix + 'MEXZ',
                errormsgpv=mexprefix + 'MEXZ-MsgTxt',

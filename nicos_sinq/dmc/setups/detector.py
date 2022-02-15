@@ -6,7 +6,6 @@ excludes = ['el737', 'andorccd']
 
 devices = dict(
     a4=device('nicos_ess.devices.epics.motor.EpicsMotor',
-               epicstimeout=3.0,
                description='Detector angle (s2t)',
                motorpv='SQ:DMC:mcu2:S2T',
                errormsgpv='SQ:DMC:mcu2:S2T-MsgTxt',
@@ -39,7 +38,6 @@ devices = dict(
         fmtstr = '%3.3f',
     ),
     monitor = device('nicos_ess.devices.epics.detector.EpicsCounterActiveChannel',
-        epicstimeout=3.0,
         description='Scalar counter channel',
         type='monitor',
         readpv='SQ:DMC:monitor:counts',
@@ -65,4 +63,3 @@ devices = dict(
 start = """
 SetDetectors(det)
 """
-

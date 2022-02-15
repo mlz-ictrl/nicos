@@ -48,7 +48,6 @@ devices = dict(
         minfree = 5,
     ),
     emergency = device('nicos.devices.epics.EpicsReadable',
-        epicstimeout = 3.0,
         description = 'Emergency stop indicator',
         readpv = 'SQ:ICON:b1io1:EmergencyRBV',
     ),

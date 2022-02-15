@@ -13,7 +13,6 @@ devices = dict(
         description='The volume to be pumped',
         readpv='{}VOLUME'.format(pv_root),
         writepv='{}SET_VOLUME'.format(pv_root),
-        epicstimeout=3.0,
         abslimits=(-1e308, 1e308),
     ),
     pump_volume_units_9000=device(
