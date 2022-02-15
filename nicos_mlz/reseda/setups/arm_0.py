@@ -2,4 +2,4 @@
 
 description = 'Arm 0'
 group = 'optional'
-includes = ['arm_0a', 'arm_0b']
+includes = ['cbox_0a', 'cbox_0b']
