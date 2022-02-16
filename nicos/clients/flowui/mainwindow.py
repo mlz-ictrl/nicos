@@ -246,6 +246,7 @@ class MainWindow(DefaultMainWindow):
         DefaultMainWindow.on_client_connected(self)
         self.actionConnect.setIcon(get_icon('power_off-24px.svg'))
         self.actionExpert.setEnabled(True)
+        self.actionViewOnly.setEnabled(True)
         self.actionEmergencyStop.setEnabled(not self.client.viewonly)
         self.actionConnect.setText('Disconnect')
 
@@ -254,7 +255,7 @@ class MainWindow(DefaultMainWindow):
         self.actionConnect.setIcon(get_icon('power-24px.svg'))
         self.actionConnect.setText('Connect to server...')
         self.actionExpert.setEnabled(False)
-        self.actionExpert.setChecked(False)
+        self.actionViewOnly.setEnabled(False)
         self.actionEmergencyStop.setEnabled(False)
         self.setTitlebar(False)
 

@@ -638,11 +638,15 @@ class MainWindow(DlgUtils, QMainWindow):
 
     def on_actionExpert_toggled(self, on):
         self.expertmode = on
+        self.conndata.expertmode = on
         for panel in self.panels:
             panel.setExpertMode(on)
         for window in self.windows.values():
             for panel in window.panels:
                 panel.setExpertMode(on)
+
+    def on_actionViewOnly_triggered(self):
+        self.conndata.viewonly = self.actionViewOnly.isChecked()
 
     def on_actionViewOnly_toggled(self, on):
         # also triggered when the action is checked by on_client_connected
