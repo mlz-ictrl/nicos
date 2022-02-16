@@ -364,6 +364,7 @@ class Device(metaclass=DeviceMeta):
     attribute_whitelist = {
         'valuetype',  # for all devices
         'arraydesc',  # for image producers
+        'autodevices',  # for HasAutoDevices
     }
 
     def __setattr__(self, name, value):
