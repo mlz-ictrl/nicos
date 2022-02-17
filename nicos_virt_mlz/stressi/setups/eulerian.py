@@ -3,11 +3,8 @@ description = 'STRESS-SPEC setup with Eulerian cradle'
 group = 'basic'
 
 includes = [
-    'system', 'monochromator', 'detector', 'sampletable', 'primaryslit',
-    'slits', 'reactor'
+    'standard', 'sampletable',
 ]
-
-excludes = ['stressi', 'robot']
 
 sysconfig = dict(
         datasinks = ['caresssink'],
@@ -37,3 +34,7 @@ devices = dict(
         precision = 0.001,
     ),
 )
+
+startupcode = '''
+SetDetectors(adet)
+'''
