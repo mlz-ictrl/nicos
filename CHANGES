@@ -6,14 +6,65 @@ Release 3.9.0
 
 * Core
 
-   - Add general NeXuS support (taken from SINQ implementation).
+  - ``nicos.conf`` files are now in TOML format.  The ``toml`` library is a new
+    dependency.
+
+  - Added general NeXuS support (taken from SINQ implementation).
+
+  - The ``lowlevel`` device parameter has been replaced by a new parameter
+    ``visibility``, which can specify the visibility for different categories,
+    e.g. the user namespace or the measurement metadata.
+
+  - A new mixin ``HasAutoDevices`` can be used to consistently handle
+    auto-subdevices and their properties.
+
+* Commands
+
+  - Added ``stddev`` statistics function for the environment to record the
+    standard deviation of a device's value during acquisition.
+
+  - Added the ``ListUsers`` command.
+
+  - Added the ``ListDatasinks`` command.
+
+* Devices
+
+  - Added a generic "calculated readable" device that combines the values of two
+    other devices.
+
+  - The Epics integration now supports different protocols via the ``caproto``
+    and ``p4p`` libraries.
+
+  - The Tango devices depending on the MLZ interface specification have been
+    moved to ``nicos.devices.entangle``.
+
+  - The McStas support for virtual devices has been extended to cover single
+    detectors/counters and now includes a separate device to configure
+    parameters related to McStas.
 
 * GUI
 
+  - NICOS Scan files can now be re-read and displayed in the scan window.
+
   - The dry results can't be collapsed anymore but closed.
+
   - Display 3D data by summing in z direction as 2D pictures in live
     data panel.
-  - Add interface to initialize control elements in live data panel.
+
+  - Added interface to initialize control elements in live data panel.
+
+  - Live plot images can now be easily added to the elog.
+
+  - Expert mode can now be pre-set in a connection profile.
+
+* Other
+
+  - A new IPython client interface has been added.  See ``doc/iPython.rst`` for
+    usage and details.
+
+* Docs
+
+  - Updated and expanded the "set up a new instrument" howto guide.
 
 
 Release 3.8.0
