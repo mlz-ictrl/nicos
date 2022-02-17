@@ -31,6 +31,11 @@ watchlist = [
          setup = 'ccm8v',
          message = '8T Magnet: He level below 30%',
         ),
+    dict(condition = 'ccm8v_shutdown_value > 0',
+         type = 'se',
+         setup = 'ccm8v',
+         message = '8T Magnet: Heaters shut down due to overheat',
+        ),
 ]
 
 includes = ['notifiers']

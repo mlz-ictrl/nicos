@@ -125,7 +125,10 @@ devices = {
         fmtstr = '%.3g',
         unit = 'mbar',
     ),
-
+    '%s_shutdown' % setupname : device('nicos.devices.entangle.DigitalInput',
+        description = 'Heater shutdown due to overheat',
+        tangodevice = tango_base + 'heater/monitor',
+    ),
 }
 
 alias_config = {
