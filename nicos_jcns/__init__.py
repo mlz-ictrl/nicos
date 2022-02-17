@@ -32,7 +32,7 @@ def determine_instrument(setup_package_path):
     """JCNS lab and infrastructure way to find the instrument."""
     try:
         hostname = socket.gethostname().split('.')
-        if hostname[1] in ('fourcircle', 'galaxi'):
+        if hostname[1] in ('fourcircle', 'galaxi', 'jcnsse'):
             instrument = hostname[1]
         elif hostname[0] in ('tr1-phys',):
             instrument = 'testrack'
