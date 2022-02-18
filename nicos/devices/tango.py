@@ -50,12 +50,15 @@ REASON_MAPPING = {
     'Entangle_InvalidValue': InvalidValueError,
     'Entangle_ProgrammingError': ProgrammingError,
     'Entangle_HardwareFailure': HardwareError,
+    'Entangle_HardwareUnavailable': HardwareError,
+    'Entangle_UnrecognizedHardware': HardwareError,
 }
 
 # Tango DevFailed reasons that should not cause a retry
 FATAL_REASONS = {
     'Entangle_ConfigurationError',
     'Entangle_UnrecognizedHardware',
+    'Entangle_HardwareUnavailable',
     'Entangle_WrongAPICall',
     'Entangle_InvalidValue',
     'Entangle_NotSupported',
