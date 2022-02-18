@@ -40,7 +40,7 @@ class CalculatedReadable(Readable):
 
     parameters = {
         'op': Param('Operation between the device values',
-                    type=oneof('mul', '*', 'div', '/', 'add', '+', 'dif', '-'),
+                    type=oneof('mul', '*', 'div', '/', 'add', '+', 'sub', '-'),
                     settable=False, mandatory=True, default='div'),
     }
 
@@ -60,13 +60,13 @@ class CalculatedReadable(Readable):
         value2 = self._attached_device2.read(maxage)
 
         self.log.debug('value 1: %f 2: %f', value1, value2)
-        if self.op in ['add', '+']:
+        if self.op in ('add', '+'):
             result = value1 + value2
-        elif self.op in ['dif', '-']:
+        elif self.op in ('sub', '-'):
             result = value1 - value2
-        elif self.op in ['mul', '*']:
+        elif self.op in ('mul', '*'):
             result = value1 * value2
-        elif self.op in ['div', '/']:
+        elif self.op in ('div', '/'):
             result = value1 / value2
         self.log.debug('final result: %f', result)
         return result
@@ -74,9 +74,9 @@ class CalculatedReadable(Readable):
     def doReadUnit(self):
         unit = self._params.get('unit')
         if unit is None:
-            if self.op in ['div', '/']:
+            if self.op in ('div', '/'):
                 unit = ''
-            elif self.op in ['mul', '*']:
+            elif self.op in ('mul', '*'):
                 unit = '%s^2' % self._attached_device1.unit
             else:
                 unit = self._attached_device1.unit
