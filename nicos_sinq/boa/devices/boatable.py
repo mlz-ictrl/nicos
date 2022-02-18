@@ -46,8 +46,7 @@ class BoaTable(Device):
                                     default=[], settable=True,
                                     userparam=False), }
 
-    def doInit(self, mode):
-        self.hardware_access = False
+    hardware_access = False
 
     @usermethod
     def addSetup(self, name):
