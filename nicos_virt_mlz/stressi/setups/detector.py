@@ -44,6 +44,7 @@ devices = dict(
     image = device('nicos.devices.mcstas.McStasImage',
         description = 'Image data device',
         mcstas = 'mcstas',
+        mcstasfile = 'PSD_STRESSI_total.psd',
         fmtstr = '%d',
         unit = 'cts',
         pollinterval = 86400,
