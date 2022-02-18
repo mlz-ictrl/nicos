@@ -383,9 +383,9 @@ class Device(metaclass=DeviceMeta):
             elif not isinstance(obj, property):
                 # this should also be forbidden at some point, but for now just
                 # emit a warning to make sure it doesn't break the world
-                self.log.warning('Setting a non-parameter attribute %s.%s: '
-                                 'this is deprecated and will be an error '
-                                 'in a future version.', self, name)
+                raise ProgrammingError(
+                    self, f'setting a non-parameter attribute {self}.{name}: '
+                    'name needs to have an underscore prefix')
         object.__setattr__(self, name, value)
 
     def __str__(self):

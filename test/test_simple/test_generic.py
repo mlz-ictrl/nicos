@@ -166,14 +166,14 @@ class TestSwitcher:
         sw = session.getDevice('sw2')
         fallback = sw.fallback
         relax_mapping = sw.relax_mapping
-        sw.relax_mapping = True
+        sw.__dict__['relax_mapping'] = True
         sw._setROParam('fallback', 'unknown')
         v = session.getDevice('v3')
         v.maw(9)
 
         yield sw
 
-        sw.relax_mapping = relax_mapping
+        sw.__dict__['relax_mapping'] = relax_mapping
         sw._setROParam('fallback', fallback)
 
     def test_switcher_relaxing(self, relaxed_switcher):
@@ -185,7 +185,7 @@ class TestSwitcher:
         assert sw.read(0) == '9.000 mm'
         assert sw.status(0)[0] == status.NOTREACHED
 
-        sw.relax_mapping = False
+        sw.__dict__['relax_mapping'] = False
         assert raises(PositionError, sw.read, 0)
         assert sw.status(0)[0] == status.NOTREACHED
 
