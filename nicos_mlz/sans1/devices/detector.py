@@ -34,7 +34,7 @@ from nicos.devices.generic import Detector as GenericDetector, \
 class DetectorMixin(DeviceMixinBase):
     """Provide the size parameter."""
     parameters = {
-        'size': Param('size of the active detector area',
+        'size': Param('physical size of the active detector area',
                       type=tupleof(floatrange(0), floatrange(0)),
                       settable=False, mandatory=False, unit='mm',
                       default=(1000., 1000.)),
@@ -42,11 +42,11 @@ class DetectorMixin(DeviceMixinBase):
 
 
 class Detector(DetectorMixin, GenericDetector):
-    """Standard detector including its size."""
+    """Standard detector including its physical size."""
 
 
 class GatedDetector(DetectorMixin, GenericGatedDetector):
-    """Standard gated detector including its size."""
+    """Standard gated detector including its physical size."""
 
 
 class DetectorTranslation(LockedDevice):
