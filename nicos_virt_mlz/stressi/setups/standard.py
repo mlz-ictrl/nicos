@@ -4,7 +4,7 @@ group = 'lowlevel'
 
 includes = [
     'system',
-    'reactor'
+    'reactor',
     'monochromator',
     'slits',
     'primaryslit',
