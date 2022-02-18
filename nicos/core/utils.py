@@ -244,7 +244,7 @@ def multiWait(devices):
                     continue
                 if dev in devices:
                     # populate the results dictionary, but only with the values
-                    # of excplicitly given devices
+                    # of explicitly given devices
                     values[dev] = dev.read()
                 # this device is done: don't wait for it anymore
                 devlist.remove(dev)
