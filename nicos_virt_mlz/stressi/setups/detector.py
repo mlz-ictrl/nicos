@@ -45,6 +45,7 @@ devices = dict(
         description = 'Image data device',
         mcstas = 'mcstas',
         mcstasfile = 'PSD_STRESSI_total.psd',
+        size = (256, 256),
         fmtstr = '%d',
         unit = 'cts',
         pollinterval = 86400,
