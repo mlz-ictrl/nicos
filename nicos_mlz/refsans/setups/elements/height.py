@@ -43,8 +43,6 @@ devices = dict(
         loopdelay = 1.0,
         maxstep = 0.1,
         minstep = 0.01,
-        maxage = 11.0,
-        pollinterval = 5.0,
         stepfactor = 1.0,
         unit = 'mm',
     ),
