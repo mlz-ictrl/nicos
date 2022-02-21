@@ -387,7 +387,7 @@ class DevicesPanel(Panel):
         params = self.client.getDeviceParams(devname)
         if not params and not failure:
             return
-        lowlevel_device = 'devlist' in params.get('visibility', ('devlist,'))
+        lowlevel_device = 'devlist' not in params.get('visibility', {'devlist'})
         if lowlevel_device and not self._show_lowlevel:
             return
         if 'nicos.core.data.sink.DataSink' in params.get('classes', []) and \
