@@ -253,13 +253,11 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
     }
 
     parameters = {
-        'size': Param('Detector size in pixels (x, y)',
-                      settable=False,
-                      type=tupleof(intrange(1, 8192), intrange(1, 8192)),
-                      default=(1, 1),
-                      ),
+        'size':       Param('Detector size in pixels (x, y)',
+                            type=tupleof(intrange(1, 8192), intrange(1, 8192)),
+                            default=(1, 1)),
         'mcstasfile': Param('Name of the McStas data file',
-                            type=str, settable=False),
+                            type=str, mandatory=True),
     }
 
     def doInit(self, mode):
@@ -375,7 +373,8 @@ class McStasCounter(PassiveChannel, Waitable):
         'curvalue':        Param('Current value', settable=True, unit='main'),
         'type':            Param('Counter type', type=oneof('monitor', 'counter'),
                                  mandatory=True),
-        'mcstasfile':      Param('Name of the McStas data file', type=str),
+        'mcstasfile':      Param('Name of the McStas data file', type=str,
+                                 mandatory=True),
         'intensityfactor': Param('Factor to attenuate simulated counts, e.g. '
                                  'for beam monitors', settable=True,
                                  type=floatrange(1e-10), default=1),
