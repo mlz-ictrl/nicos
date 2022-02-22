@@ -76,7 +76,7 @@ class McStasSimulation(Readable):
                                  'count times', settable=True,
                                  type=floatrange(1e3), default=1e6),
         'intensityfactor': Param('Constant multiplied with simulated McStas '
-                                 'intensity to get a simulated neutron counts '
+                                 'intensity to get simulated neutron counts '
                                  'per second', settable=True,
                                  type=floatrange(1e-10), default=1),
         'preselection':    Param('Simulation preset value (should be set by '
@@ -372,10 +372,13 @@ class McStasCounter(PassiveChannel, Waitable):
     }
 
     parameters = {
-        'curvalue':  Param('Current value', settable=True, unit='main'),
-        'type':      Param('Counter type', type=oneof('monitor', 'counter'),
-                           mandatory=True),
-        'mcstasfile': Param('Name of the McStas data file', type=str),
+        'curvalue':        Param('Current value', settable=True, unit='main'),
+        'type':            Param('Counter type', type=oneof('monitor', 'counter'),
+                                 mandatory=True),
+        'mcstasfile':      Param('Name of the McStas data file', type=str),
+        'intensityfactor': Param('Factor to attenuate simulated counts, e.g. '
+                                 'for beam monitors', settable=True,
+                                 type=floatrange(1e-10), default=1),
     }
 
     parameter_overrides = {
@@ -407,7 +410,7 @@ class McStasCounter(PassiveChannel, Waitable):
         except Exception:
             self.log.warning('could not read result file', exc=1)
             value = 0
-        self.curvalue = value
+        self.curvalue = value * self.intensityfactor
         return self.curvalue
 
     def doFinish(self):
