@@ -20,7 +20,7 @@ devices = dict(
         filenametemplate = ['%(proposal)s_%(pointcounter)08d.tiff'],
         mode = 'I;16',
     ),
-    mcstas = device('nicos_demo.vbiodiff.devices.McStasSimulation',
+    mcstas = device('nicos_virt_mlz.biodiff.devices.McStasSimulation',
         description = 'McStas simulation',
         sample = 'Sample',
         s1 = 'd_diaphragm1',
