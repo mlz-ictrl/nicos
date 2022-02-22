@@ -255,7 +255,7 @@ class McStasImage(ImageChannelMixin, PassiveChannel):
     parameters = {
         'size':       Param('Detector size in pixels (x, y)',
                             type=tupleof(intrange(1, 8192), intrange(1, 8192)),
-                            default=(1, 1)),
+                            mandatory=True),
         'mcstasfile': Param('Name of the McStas data file',
                             type=str, mandatory=True),
     }
