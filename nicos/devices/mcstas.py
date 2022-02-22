@@ -196,8 +196,7 @@ class McStasSimulation(Readable):
         """Return elapsed time for simulation."""
         if self._started:
             return min(monotonic() - self._start_time, self.preselection)
-        else:
-            return self.preselection
+        return self.preselection
 
     def _getScaleFactor(self):
         """Return scale factor for simulation intensity data."""
