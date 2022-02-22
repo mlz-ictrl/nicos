@@ -67,6 +67,8 @@ class KwsSimulation(McStasSimulation):
             param('cslith', 'aperture_%02d' % coll_d, lambda x: x[1] / 1000),
             param('sslitw', 'ap_sam.width', mm2m),
             param('sslith', 'ap_sam.height', mm2m),
+            param('sslitx', 'ap_sam.centerx', mm2m),
+            param('sslity', 'ap_sam.centery', mm2m),
             param('bx', 'beamstop_x', mm2m),
             param('by', 'beamstop_y', lambda x: x / 1000 - 0.52),
             'vheight=0',
