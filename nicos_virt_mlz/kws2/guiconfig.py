@@ -70,3 +70,7 @@ tools = [
     tool('Neutron calculations', 'nicos.clients.gui.tools.website.WebsiteTool',
          url='https://webapps.frm2.tum.de/intranet/neutroncalc/'),
 ]
+
+options = {
+    'reader_classes': ['nicos_mlz.kws1.devices.yamlformat'],
+}
