@@ -92,7 +92,7 @@ class SimClock:
         self.time = 0
 
     def wait(self, time):
-        self.time = min(self.time, time)
+        self.time = max(self.time, time)
 
     def tick(self, sec):
         self.time += sec
