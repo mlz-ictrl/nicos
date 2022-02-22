@@ -206,7 +206,7 @@ class SampleDialog(DlgUtils, QDialog):
 
     @pyqtSlot()
     def on_upBtn_clicked(self):
-        ix = map(self.selList.row, self.selList.selectedItems())
+        ix = [self.selList.row(i) for i in self.selList.selectedItems()]
         if not ix or ix[0] == 0:
             return
         self.selList.insertItem(ix[0] - 1, self.selList.takeItem(ix[0]))
@@ -214,7 +214,7 @@ class SampleDialog(DlgUtils, QDialog):
 
     @pyqtSlot()
     def on_downBtn_clicked(self):
-        ix = map(self.selList.row, self.selList.selectedItems())
+        ix = [self.selList.row(i) for i in self.selList.selectedItems()]
         if not ix or ix[0] == self.selList.count() - 1:
             return
         self.selList.insertItem(ix[0] + 1, self.selList.takeItem(ix[0]))
