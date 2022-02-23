@@ -827,8 +827,8 @@ Resolution Info:
         TT = real(self.S * matrix([h, k, l]).transpose())
         # cos(theta) and sin(theta) are the projections of the Q vector onto
         # the directions V1 and V2
-        cos_theta = TT[0, 0] / sqrt(dot(TT.transpose(), TT))
-        sin_theta = TT[1, 0] / sqrt(dot(TT.transpose(), TT))
+        cos_theta = float(TT[0, 0] / sqrt(dot(TT.transpose(), TT)))
+        sin_theta = float(TT[1, 0] / sqrt(dot(TT.transpose(), TT)))
 
         #----- Rotation matrix from system of resolution matrix
         # to system defined by V1, V2, V3 => V1,V2 define scattering plane,
