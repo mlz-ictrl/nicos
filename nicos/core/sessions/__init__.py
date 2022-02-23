@@ -1428,8 +1428,13 @@ class Session:
     def runSimulation(self, code, uuid='0', wait=True, quiet=False):
         """Spawn a simulation of *code*.
 
-        If *wait* is true, wait until the process is finished.
         If *quiet* is true, only results will be emitted.
+
+        If *wait* is true, wait until the process is finished and return a list
+        of "results" of the simulation, which can be sent back by using the
+        ``session.log_sender.add_result`` method.  Otherwise, the simulation is
+        only started, and the method returns the supervisor object which can be
+        waited for using ``join()``.
         """
         if not self.cache:
             raise NicosError('cannot start dry run, no cache is configured')
@@ -1464,6 +1469,8 @@ class Session:
         supervisor.start()
         if wait:
             supervisor.join()
+            return supervisor.results
+        return supervisor
 
     # -- Session-specific behavior --------------------------------------------
 

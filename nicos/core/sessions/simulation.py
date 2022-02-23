@@ -52,6 +52,8 @@ SIM_MESSAGE = 0x01
 SIM_BLOCK_RES = 0x02
 # the duration for the whole code
 SIM_END_RES = 0x03
+# a "result" (simulation defined) to emit
+SIM_RESULT = 0x04
 
 
 def serialize(data):
@@ -100,6 +102,9 @@ class SimLogSender(logging.Handler):
     def send_block_result(self, block, time):
         self.socket.send(serialize((SIM_BLOCK_RES,
                                     [block, time, self.simuuid])))
+
+    def add_result(self, obj):
+        self.socket.send(serialize((SIM_RESULT, obj)))
 
     def finish(self, exception=False):
         stoptime = -1 if exception else self.session.clock.time
@@ -251,6 +256,7 @@ class SimulationSupervisor(Thread):
 
     def __init__(self, sandbox, uuid, code, setups, user, emitter,
                  more_args=None, quiet=False):
+        self.results = []
         Thread.__init__(self, target=self._run,
                         name='SimulationSupervisor',
                         args=(sandbox, uuid, code, setups, user, emitter,
@@ -321,6 +327,8 @@ class SimulationSupervisor(Thread):
                     request = emitter.current_script()
                     if request.reqid == uuid:
                         request.updateRuntime(block, duration)
+            elif msgtype == SIM_RESULT:
+                self.results.append(msg)
             elif msgtype == SIM_END_RES:
                 if emitter:
                     if not quiet:
