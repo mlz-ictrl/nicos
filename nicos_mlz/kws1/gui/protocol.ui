@@ -18,7 +18,16 @@
     <normaloff>:/paste</normaloff>:/paste</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
@@ -326,6 +335,16 @@
    <header>nicos.clients.gui.widgets.lineedit.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>firstEdit</tabstop>
+  <tabstop>lastEdit</tabstop>
+  <tabstop>stampBox</tabstop>
+  <tabstop>genBtn</tabstop>
+  <tabstop>printBtn</tabstop>
+  <tabstop>fontBox</tabstop>
+  <tabstop>saveBtn</tabstop>
+  <tabstop>outText</tabstop>
+ </tabstops>
  <resources>
   <include location="../../../resources/nicos-gui.qrc"/>
  </resources>
