@@ -48,22 +48,23 @@ class TestSimulationSession(SimulationSession):
 
 
 args = sys.argv[1:]
-if len(args) < 5:
-    raise SystemExit('Usage: nicos-simulate sock uuid setups user code '
+if len(args) < 4:
+    raise SystemExit('Usage: nicos-simulate sock uuid setups user '
                      '[setup_subdirs [sync_cache_file]]')
 sock = args[0]
 uuid = args[1]
 setups = args[2].split(',')
 user = args[3]
-code = args[4]
 
-if len(args) > 5:
-    setup_subdirs = args[5].split(',')
+if len(args) > 4:
+    setup_subdirs = args[4].split(',')
 else:
     setup_subdirs = ['../test']
 
-if len(args) > 6 and os.path.isfile(args[6]):
-    sync_cache_file = args[6]
+if len(args) > 5 and os.path.isfile(args[5]):
+    sync_cache_file = args[5]
+
+code = sys.stdin.read()
 
 config.apply()
 config.nicos_root = runtime_root

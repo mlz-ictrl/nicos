@@ -32,12 +32,16 @@ sys.path.insert(0, path.dirname(path.dirname(path.realpath(__file__))))
 
 from nicos.core.sessions.simulation import SimulationSession
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(description="""\
+Run some code in a NICOS dry-run session, and send back status infos
+and results to a supervisor session.
+
+Code is read from standard input until EOF.
+""")
 parser.add_argument('sock', type=str, help='0MQ communication address')
 parser.add_argument('uuid', type=str, help='the uuid of the code')
 parser.add_argument('setups', help='comma separated list of setup files')
 parser.add_argument('user', type=str, help='user name,user Level')
-parser.add_argument('code', type=str, help='code to be executed')
 parser.add_argument('--quiet', help='send only results', action='store_true',
                     default=False)
 parser.add_argument('--debug', help='send log messages to stderr',
@@ -45,9 +49,11 @@ parser.add_argument('--debug', help='send log messages to stderr',
 
 opts = parser.parse_args()
 
+code = sys.stdin.read()
+
 # kill forcibly after 10 minutes
 if hasattr(signal, 'alarm'):
     signal.alarm(600)
 
 sys.exit(SimulationSession.run(opts.sock, opts.uuid, opts.setups.split(','),
-                               opts.user, opts.code, opts.quiet, opts.debug))
+                               opts.user, code, opts.quiet, opts.debug))

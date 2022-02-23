@@ -27,6 +27,7 @@
 import logging
 import os
 import pickle
+import subprocess
 import sys
 import tempfile
 from os import path
@@ -290,7 +291,10 @@ class SimulationSupervisor(Thread):
             args.append('--debug')
         proc = createSubprocess(prefixargs +
                                 [sys.executable, scriptname, sockname, uuid,
-                                 ','.join(setups), userstr, code] + args)
+                                 ','.join(setups), userstr] + args,
+                                stdin=subprocess.PIPE)
+        proc.stdin.write(code.encode())
+        proc.stdin.close()
         if sandbox:
             if not session.current_sysconfig.get('cache'):
                 raise NicosError('no cache is configured')
