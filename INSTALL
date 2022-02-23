@@ -41,7 +41,6 @@ If not mentioned otherwise, Python packages are available from PyPI
   - docutils (for formatting interactive help nicely)
   - matplotlib (for resolution plots)
   - gnuplot (for plots in the electronic logbook)
-  - Grace (for scanplot)
   - lxml (for U-Bahn service)
   - astropy or pyfits (for the handling of FITS formatted files)
   - ldap3 (for ldap authentication)
