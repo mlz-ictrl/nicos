@@ -11,7 +11,7 @@ devices = dict(
         default = 1,
         unit = 'mm',
         abslimits = (0, 30),
-        requires = {'level': 'admin'},
+        # requires = {'level': 'admin'},
     ),
     psh = device('nicos.devices.generic.ManualMove',
         description = 'Slit Height',
@@ -19,7 +19,7 @@ devices = dict(
         default = 1,
         unit = 'mm',
         abslimits = (0, 30),
-        requires = {'level': 'admin'},
+        # requires = {'level': 'admin'},
     ),
 )
 
