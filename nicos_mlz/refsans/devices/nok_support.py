@@ -23,8 +23,8 @@
 # **************************************************************************
 """Support Code for REFSANS's NOK's."""
 
-from nicos.core import AutoDevice, ConfigurationError, HasPrecision, \
-    Moveable, MoveError, Readable, dictwith, status
+from nicos.core import AutoDevice, ConfigurationError, HasAutoDevices, \
+    HasPrecision, Moveable, MoveError, Readable, dictwith, status
 from nicos.core.errors import HardwareError
 from nicos.core.params import Attach, Override, Param, floatrange, limits, \
     none_or, oneof, tupleof
@@ -237,7 +237,7 @@ class DoubleMotorAxis(AutoDevice, Moveable):
 
 
 class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
-                     Moveable):
+                     HasAutoDevices, Moveable):
     """NOK using two axes.
 
     If backlash is negative, approach form the negative side (default),
@@ -279,13 +279,14 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
     def doInit(self, mode):
         for name, idx, ido in [('reactor', 0, 1),
                                ('sample', 1, 0)]:
-            # TODO: Needs to use HasAutoDevices?
-            self.__dict__[name] = DoubleMotorAxis('%s.%s' % (self.name, name),
-                                                  unit=self.unit,
-                                                  both=self,
-                                                  visibility=(),
-                                                  index=idx,
-                                                  other=ido)
+            self.add_autodevice(
+                                name,
+                                DoubleMotorAxis,
+                                unit=self.unit,
+                                both=self,
+                                visibility=(),
+                                index=idx,
+                                other=ido)
         self._motors = [self._attached_motor_r, self._attached_motor_s]
 
     @lazy_property
