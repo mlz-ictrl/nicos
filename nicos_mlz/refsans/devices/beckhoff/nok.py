@@ -984,11 +984,12 @@ class DoubleMotorBeckhoffNOK(DoubleMotorBeckhoff):
     def doInit(self, mode):
         for name, idx in [('reactor', 0),
                           ('sample', 1)]:
+            # TODO: needs to use HasAutoDevices?
             self.__dict__[name] = SingleMotorOfADoubleMotorNOK(
                 '%s.%s' % (self.name, name),
                 unit=self.unit,
                 both=self,
-                lowlevel=True,
+                visibility=(),
                 index=idx)
 
     def doWriteMode(self, mode):

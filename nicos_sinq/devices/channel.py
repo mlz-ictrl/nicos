@@ -80,7 +80,7 @@ class ReadableToChannel(HasPrecision, ActiveChannel):
                         'precision', type=int, mandatory=False, settable=True)}
 
     parameter_overrides = {
-        'lowlevel': Override(default=True),
+        'visibility': Override(default=()),
     }
 
     def doPreinit(self, mode):

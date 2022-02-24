@@ -380,6 +380,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 elif device == 'slite':
                     d1['SLITM_E'] = value
                 elif device == 'transm':
+                    # XXX: should be fixable now?
                     # The position of the moveable is needed, which is normally
                     # lowlevel and therefore not added to the metadata
                     d1[device] = session.getDevice(device). \

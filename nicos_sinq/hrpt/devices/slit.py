@@ -56,6 +56,7 @@ class Gap(DefaultGap):
         for name in self._axnames:
             self.__dict__[name] = self._adevs[name]
 
+        # TODO: needs to use HasAutoDevices?
         for name, cls in [('center', CenterGapAxis), ('width', WidthGapAxis), ]:
             self.__dict__[name] = cls('%s.%s' % (self.name, name), gap=self,
-                                      unit=self.unit, lowlevel=True)
+                                      unit=self.unit, visibility=())

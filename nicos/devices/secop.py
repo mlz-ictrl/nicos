@@ -583,13 +583,14 @@ class SecNodeDevice(Readable):
                 commands_cfg[cname] = cmddict
             if clsname != 'SecopDevice':
                 kwds.setdefault('unit', '')  # unit is mandatory on Readables
+            if module_properties.get('visibility', 1) > self.visibility_level:
+                kwds['visibility'] = ()
             desc = dict(secnode=self.name,
                         description=mod_desc.get('properties', {}).get(
                             'description', ''),
                         secop_module=module,
                         params_cfg=params_cfg,
                         commands_cfg=commands_cfg,
-                        lowlevel=module_properties.get('visibility', 1) > self.visibility_level,
                         **kwds)
             setup_info[prefix + module] = (
                 'nicos.devices.secop.%s' % clsname, desc)

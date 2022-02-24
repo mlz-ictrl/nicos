@@ -253,15 +253,15 @@ And for the detector we put its configuration into
 
     devices = dict(
         timer = device('nicos.devices.generic.VirtualTimer',
-            lowlevel = True,
+            visibility = (),
         ),
         monitor = device('nicos.devices.generic.VirtualCounter',
-            lowlevel = True,
+            visibility = (),
             type = 'monitor',
             countrate = 100,
         ),
         image = device('nicos.devices.generic.VirtualImage',
-            lowlevel = True,
+            visibility = (),
             size = (80, 256),
         ),
         det = device('nicos.devices.generic.Detector',
@@ -273,8 +273,8 @@ And for the detector we put its configuration into
     )
 
 If you look into the configurations of the ``timer``, ``monitor``, and ``image``
-devices you'll see that the ``lowlevel`` configuration parameters are set to
-``True``.  This hides these devices from the user, because the user does not
+devices you'll see that the ``visibility`` configuration parameters are set to
+``()``.  This hides these devices from the user, because the user does not
 need to see all possible devices.  At the end the user would be confused due
 to the high number of devices.  You will see as well that all devices are
 attached to the ``det`` device which is the final detector device.

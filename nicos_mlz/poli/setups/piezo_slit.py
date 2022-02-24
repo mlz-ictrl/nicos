@@ -1,6 +1,6 @@
 description = 'SmarAct stick-slip piezo motor slit'
 
-# TODO: opmode, coordinates, lowlevel
+# TODO: opmode, coordinates, visibility
 
 group = 'optional'
 

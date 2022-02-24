@@ -279,10 +279,11 @@ class DoubleMotorNOK(SequencerMixin, CanReference, PseudoNOK, HasPrecision,
     def doInit(self, mode):
         for name, idx, ido in [('reactor', 0, 1),
                                ('sample', 1, 0)]:
+            # TODO: Needs to use HasAutoDevices?
             self.__dict__[name] = DoubleMotorAxis('%s.%s' % (self.name, name),
                                                   unit=self.unit,
                                                   both=self,
-                                                  lowlevel=True,
+                                                  visibility=(),
                                                   index=idx,
                                                   other=ido)
         self._motors = [self._attached_motor_r, self._attached_motor_s]
