@@ -58,7 +58,7 @@ class WindowMoveable(HasLimits, EpicsMoveable):
 
     def doStatus(self, maxage=0):
         pos = self.doRead(0)
-        if self._driveTarget:
+        if self._driveTarget is not None:
             if abs(pos - self._driveTarget) < self.window:
                 self._driveTarget = None
                 return status.OK, 'Done'
