@@ -155,3 +155,31 @@ watch_conditions = [
          message = '8T Magnet: Heaters shut down due to overheat',
         ),
 ]
+
+monitor_blocks = {
+    'short': Block('8T Magnet', [
+        BlockRow(
+            Field(dev='B'),
+            Field(dev='T'),
+            Field(dev='Ts'),
+        ),
+    ], setups='ccm8v'),
+    'se': Block('ccm8v - 8T magnet', [
+        BlockRow(Field(name='Field', dev='se/B_ccm8v'),
+                 Field(name='Hall', dev='se/ccm8v_Bhall')),
+        '---',
+        BlockRow(Field(name='VTI', dev='se/T_ccm8v_vti'),
+                 Field(name='VTI heat', dev='se/ccm8v_vti_heater'),
+                 Field(name='VTI NV', dev='se/ccm8v_vti_nv')),
+        BlockRow(Field(name='LT-Stick', dev='se/T_ccm8v_stick'),
+                 Field(name='LT-Stick heat', dev='se/ccm8v_stick_heater')),
+        BlockRow(Field(name='HT-Stick', dev='se/T_ccm8v_htstick'),
+                 Field(name='HT-Stick heat', dev='se/ccm8v_htstick_heater')),
+        '---',
+        BlockRow(Field(name='Coils', dev='se/ccm8v_Tmag'),
+                 Field(name='Dewar', dev='se/ccm8v_pdewar', unit=' '),
+                 Field(name='Coldhead', dev='se/ccm8v_Tcoldhead')),
+        BlockRow(Field(name='LHe', dev='se/ccm8v_LHe'),
+                 Field(name='LN2', dev='se/ccm8v_LN2')),
+    ]),
+}

@@ -260,15 +260,7 @@ di1 = Block('Kelvinox', [
     setups='di1',
 )
 
-ccm8v = Block('8T Magnet', [
-    BlockRow(
-        Field(dev='B'),
-        Field(dev='T'),
-        Field(dev='Ts'),
-    ),
-    ],
-    setups='ccm8v',
-)
+ccm8v = SetupBlock('ccm8v', 'short')
 
 column2 = Column(shutters, collimation, ccm8v) + Column(*cryos) + Column(*ccrs) + \
           Column(var1, di1)
