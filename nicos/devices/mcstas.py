@@ -344,6 +344,9 @@ class McStasTimer(ActiveChannel, Waitable):
         ActiveChannel.setChannelPreset(self, name, value)
         self._attached_mcstas.preselection = value
 
+    def doTime(self, preset):
+        return self._attached_mcstas.preselection if self.iscontroller else 0
+
     def doPrepare(self):
         self._attached_mcstas._prepare()
 
