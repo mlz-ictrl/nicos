@@ -424,7 +424,7 @@ class KWSSamplePanel(Panel):
         else:
             if do_apply:
                 self.client.run(script, self.filename)
-                self.showInfo('Sample info has been transferred to the daemon.')
+                self.showInfo('Sample info has been activated.')
             self.closeWindow()
 
     def on_buttonBox_rejected(self):
