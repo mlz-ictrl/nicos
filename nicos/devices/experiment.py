@@ -36,7 +36,6 @@ from textwrap import dedent
 from nicos import config, session
 # import for side-effects
 from nicos._vendor import rtfunicode  # pylint: disable=unused-import
-from nicos.commands.basic import run
 from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
     Device, Measurable, NicosError, Param, Readable, UsageError, anytype, \
     dictof, listof, mailaddress, none_or, oneof, usermethod
@@ -726,6 +725,7 @@ class Experiment(Device):
             self.log.info('New experiment %s started', proposal)
         else:
             if self.servicescript:
+                from nicos.commands.basic import run
                 run(self.servicescript)
             else:
                 self.log.debug('not running service script, none configured')
