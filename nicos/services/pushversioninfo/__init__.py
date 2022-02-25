@@ -77,15 +77,16 @@ class PushVersionInfo(BaseCacheClient):
                             'disable. The access token and Version info is '
                             'directly appended to the URI, encoded as a '
                             'query parameter.',
-                            type=none_or(str), mandatory=True, userparam=False),
+                            type=none_or(str), mandatory=True,
+                            userparam=False),
         'tokenid': Param('Id used in the keystore for the update token',
                          type=str, default='frm2jenkins'),
-        'infokey':    Param('URI parameter key for the info dict', type=str,
-                            mandatory=True),
+        'infokey': Param('URI parameter key for the info dict', type=str,
+                         mandatory=True),
     }
 
     parameter_overrides = {
-        'prefix':     Override(mandatory=False, default='sysinfo/'),
+        'prefix': Override(mandatory=False, default='sysinfo/'),
     }
 
     def doInit(self, mode):
