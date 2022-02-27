@@ -31,10 +31,9 @@ import shutil
 import signal
 import subprocess
 import sys
-import time
 from logging import DEBUG, ERROR, WARNING, Formatter, StreamHandler
 from os import path
-from time import sleep
+from time import monotonic, sleep
 
 import mock
 import pytest
@@ -569,9 +568,9 @@ def killSubprocess(proc):
     sys.stderr.write(' [%s terminate %s...' % (proc.nicos_name, proc.pid))
     if proc.poll() is None:
         proc.terminate()
-        start = time.time()
-        while time.time() < start + 2:
-            time.sleep(0.05)
+        start = monotonic()
+        while monotonic() < start + 2:
+            sleep(0.05)
             if proc.poll() is not None:
                 break
         else:
@@ -585,12 +584,12 @@ def startCache(hostport, setup='cache', wait=10):
     # start the cache server
     def cache_wait_cb():
         if wait:
-            start = time.time()
-            while time.time() < start + wait:
+            start = monotonic()
+            while monotonic() < start + wait:
                 try:
                     s = tcpSocket(hostport, 0)
                 except OSError:
-                    time.sleep(0.02)
+                    sleep(0.02)
                 except Exception as e:
                     sys.stderr.write('%r' % e)
                     raise
