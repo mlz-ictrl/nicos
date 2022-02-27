@@ -3,7 +3,6 @@ gr>=1.17.3
 python-redmine>=2.0.0
 # Note pyqt deps are only required for windows due to install problems on linux
 # You still need those on other systems as well (e.g. via system packages)!
-# Version 5.15 does not produce a working PyInstaller exe with WebEngine.
-PyQt5>=5.15;sys_platform=='win32'
-PyQtWebEngine>=5.15;sys_platform=='win32'
+PyQt5>=5.15.6;sys_platform=='win32'
+PyQtWebEngine>=5.15.5;sys_platform=='win32'
 QScintilla>=2.12;sys_platform=='win32'
