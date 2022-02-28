@@ -76,7 +76,7 @@ class McStasSimulation(BaseSimulation):
         return [
             'xprime=%s' % self._dev(self._attached_xprime, 2 * 1000),
             'yprime=%s' % self._dev(self._attached_yprime, 2 * 1000),
-            'primeswitch=0',
+            'primeswitch=1',
             'lambda=%s' % self._dev(self._attached_l_ambda),
             'xpos=%s' % self._dev(self._attached_xpos, 1000),
             'ypos=%s' % self._dev(self._attached_ypos, 1000),
