@@ -25,8 +25,8 @@ _axisblock = Block('Axes', [
     #     Field(dev='mtt'),
     # ),
     # BlockRow(
-    #     Field(dev='psi'),
-    #     Field(dev='phi'),
+    #     Field(dev='sth'),
+    #     Field(dev='stt'),
     # ),
     # BlockRow(
     #     Field(dev='ath'),
@@ -67,8 +67,8 @@ _tasblock = Block('Triple-axis', [
               width=40, height=30,
               mthdev='mth',
               mttdev='mtt',
-              sthdev='psi',
-              sttdev='phi',
+              sthdev='sth',
+              sttdev='stt',
               athdev='ath',
               attdev='att',
               Lmsdev='Lms',

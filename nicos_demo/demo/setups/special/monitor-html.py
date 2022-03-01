@@ -24,8 +24,8 @@ _axisblock = Block('Axes', [
         Field(dev='mtt'),
     ),
     BlockRow(
-        Field(dev='psi'),
-        Field(dev='phi'),
+        Field(dev='sth'),
+        Field(dev='stt'),
     ),
     BlockRow(
         Field(dev='ath'),
