@@ -24,7 +24,7 @@
 
 """Test the text client."""
 
-import time
+from time import monotonic, sleep
 
 import mock
 
@@ -71,20 +71,20 @@ def test_textclient(daemon):
             return any(msg in line for line in out)
 
         def has_msg_wait(msg, timeout=5):
-            start = time.time()
+            start = monotonic()
             while not any(msg in line for line in out):
-                time.sleep(0.01)
-                if time.time() > start + timeout:
+                sleep(0.01)
+                if monotonic() > start + timeout:
                     print('!!! messages:', out)
                     return False
             print('messages:', out)
             return True
 
         def wait_idle(timeout=5):
-            start = time.time()
+            start = monotonic()
             have_processing = have_busy = have_idle = False
             while not (have_processing and have_busy and have_idle):
-                time.sleep(0.01)
+                sleep(0.01)
                 for (name, data, _) in sig:
                     if name == 'processing':
                         have_processing = True
@@ -92,7 +92,7 @@ def test_textclient(daemon):
                         have_busy = True
                     elif name == 'status' and data[0] == STATUS_IDLE:
                         have_idle = True
-                if time.time() > start + timeout:
+                if monotonic() > start + timeout:
                     print('!!! events:', sig)
                     assert False, 'idle wait timeout'
             print('events:', sig)
@@ -136,7 +136,7 @@ def test_textclient(daemon):
         yield 'Q'  # queue
         assert has_msg('# Command queued')
 
-        time.sleep(0.1)  # wait for the new request event to arrive
+        sleep(0.1)  # wait for the new request event to arrive
         yield '/pending'
         assert has_msg('# Showing pending')
         assert has_msg('maw(dm2, 50)')

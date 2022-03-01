@@ -29,8 +29,8 @@ import os
 import pickle
 import socket
 import sys
-import time
 from datetime import timedelta
+from time import mktime, monotonic, sleep
 
 import pytest
 
@@ -237,7 +237,7 @@ def test_tcpsocket(serversocket):
 
 
 def test_timer():
-    t = time.time()
+    t = monotonic()
 
     def cb(tmr, x, y=None):
         if x == 3 and y == 'ykwd':
@@ -250,8 +250,8 @@ def test_timer():
     # a) test a (short) timed timer
     tmr = Timer(0.1, cb, cb_args=(3,),cb_kwds={'y':'ykwd'})
     assert tmr.is_running()
-    while (time.time() - t < 1.5) and tmr.is_running():
-        time.sleep(0.05)
+    while (monotonic() - t < 1.5) and tmr.is_running():
+        sleep(0.05)
     assert not tmr.is_running()
     assert tmr.cb_called
     assert tmr.elapsed_time() == 0.1
@@ -262,11 +262,11 @@ def test_timer():
 
     # b) test an unlimited timer (for a short while)
     tmr.start()
-    time.sleep(0.02)  # due to windows time.time() resolution
+    sleep(0.02)  # due to windows time() resolution
     assert tmr.is_running()
     assert tmr.elapsed_time() > 0
     assert tmr.remaining_time() is None
-    time.sleep(0.1)
+    sleep(0.1)
     assert 0.1 < tmr.elapsed_time() < 0.2
     tmr.stop()
     # check elapsed time for stopped timer
@@ -279,7 +279,7 @@ def test_timer():
     tmr.restart()
 
     tmr.start(run_for=0.5)
-    time.sleep(0.1)
+    sleep(0.1)
     tmr.stop()
     tmr.restart()
     tmr.wait(interval=0.1, notify_func=nf, notify_args=('notify',))
@@ -456,7 +456,7 @@ def test_all_days():
     exp_list = [('2020', '10-24'), ('2020', '10-25'), ('2020', '10-26'),
                 ('2020', '10-27'), ('2020', '10-28')]
     # 28. Oct 2020, 08:00:00
-    tmto = time.mktime((2020, 10, 28, 8, 0, 0, 0, 0, -1))
+    tmto = mktime((2020, 10, 28, 8, 0, 0, 0, 0, -1))
     assert list(allDays(tmto - 86400, tmto)) == exp_list[3:]
     assert list(allDays(tmto - 2 * 86400, tmto)) == exp_list[2:]
     assert list(allDays(tmto - 3 * 86400, tmto)) == exp_list[1:]
@@ -466,7 +466,7 @@ def test_all_days():
     exp_list = [('2020', '03-27'), ('2020', '03-28'), ('2020', '03-29'),
                 ('2020', '03-30'), ('2020', '03-31')]
     # 31. Mar 2020, 08:00:00
-    tmto = time.mktime((2020, 3, 31, 8, 0, 0, 0, 0, 1))
+    tmto = mktime((2020, 3, 31, 8, 0, 0, 0, 0, 1))
     assert list(allDays(tmto - 86400, tmto)) == exp_list[3:]
     assert list(allDays(tmto - 2 * 86400, tmto)) == exp_list[2:]
     assert list(allDays(tmto - 3 * 86400, tmto)) == exp_list[1:]

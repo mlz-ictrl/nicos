@@ -22,7 +22,7 @@
 #
 # *****************************************************************************
 
-import time
+from time import monotonic, sleep
 
 import pytest
 
@@ -34,15 +34,15 @@ from test.utils import daemon_addr, killSubprocess, startSubprocess
 
 
 def daemon_wait_cb():
-    start = time.time()
+    start = monotonic()
     wait = 10
     s = None
-    while time.time() < start + wait:
+    while monotonic() < start + wait:
 
         try:
             s = tcpSocket(daemon_addr, 0)
         except OSError:
-            time.sleep(0.02)
+            sleep(0.02)
         else:
             s.close()
             break
@@ -79,18 +79,18 @@ class TestClient(NicosClient):
         self._signals.append((name, data, data2))
 
     def iter_signals(self, startindex, timeout):
-        starttime = time.time()
+        starttime = monotonic()
         while True:
             endindex = len(self._signals)
             yield from self._signals[startindex:endindex]
             startindex = endindex
-            time.sleep(0.05)
-            if time.time() > starttime + timeout:
+            sleep(0.05)
+            if monotonic() > starttime + timeout:
                 raise AssertionError('timeout in iter_signals')
 
     def wait_idle(self):
         while True:
-            time.sleep(0.05)
+            sleep(0.05)
             st = self.ask('getstatus')
             if st['status'][0] in (STATUS_IDLE, STATUS_IDLEEXC):
                 break
