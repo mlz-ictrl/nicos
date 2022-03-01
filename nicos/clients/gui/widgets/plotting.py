@@ -945,7 +945,7 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
                 existing_curve.errorBar2 = plotcurve.errorBar2
             if existing_curve not in self.plotcurves:
                 self.plotcurves.append(existing_curve)
-        else:
+        elif plotcurve.x.size:  # this should imply 'and plotcurve.y.size'
             color = self._color.getNextColorIndex()
             plotcurve.linecolor = color
             plotcurve.markercolor = color
@@ -1136,7 +1136,8 @@ class ViewPlot(NicosGrPlot):
         plotcurve.x = np.delete(series.x, nans)
         plotcurve.y = np.delete(series.y, nans)
         plotcurve.legend = series.title
-        self._axes.addCurves(plotcurve)
+        if plotcurve.x.size:  # this should imply 'and plotcurve.y.size'
+            self._axes.addCurves(plotcurve)
         InteractiveGRWidget.update(self)
 
     def setSlidingWindow(self, window):
