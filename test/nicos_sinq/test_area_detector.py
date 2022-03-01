@@ -26,13 +26,12 @@
 Tests for EPICS area detector
 """
 
-import time
 import unittest
+from time import monotonic, sleep
 from unittest.mock import patch
 
 import numpy
 import pytest
-
 from epics import PV
 
 from nicos.core import CommunicationError, status
@@ -60,16 +59,16 @@ class TestEpicsAreaDetector:
     time_preset = 1
     PVtime = None
 
-    def _wait_for_completion(self, start=time.time(), preset=time_preset):
+    def _wait_for_completion(self, start=monotonic(), preset=time_preset):
         while self.detector.doStatus()[0] == status.BUSY and \
-                (time.time() - start) < (preset + 1):
-            time.sleep(0.01)
+                (monotonic() - start) < (preset + 1):
+            sleep(0.01)
 
     @pytest.fixture()
     def reset_time(self, request):
         def fin():
             self.PVtime.put(0.01)
-            time.sleep(.5)
+            sleep(.5)
 
         request.addfinalizer(fin)
 
@@ -123,7 +122,7 @@ class TestEpicsAreaDetector:
         Test that the time preset is set properly.
         """
         self.detector.doSetPreset(t=self.time_preset)
-        time.sleep(0.5)
+        sleep(0.5)
         assert self.PVtime.get() == self.time_preset
 
     def test_acquisition_time(self, reset_time):
@@ -131,21 +130,21 @@ class TestEpicsAreaDetector:
         Test that the acquisition time corresponds to the time preset
         """
         self.detector.doSetPreset(t=self.time_preset)
-        time.sleep(0.5)
-        start = time.time()
+        sleep(0.5)
+        start = monotonic()
         self.detector.start()
         self._wait_for_completion(start)
         assert self.time_preset <= (
-                time.time() - start) <= self.time_preset + 0.1
+                monotonic() - start) <= self.time_preset + 0.1
 
     @pytest.mark.skip(reason="Doesn't work in ADSimDetector")
     def test_remaining_time(self, reset_time):
         pv = PV('13SIM1:cam1:TimeRemaining_RBV')
         self.detector.doSetPreset(t=self.time_preset)
-        start = time.time()
+        start = monotonic()
         self.detector.start()
-        time.sleep(.1 * self.time_preset)
-        elapsed = start - time.time()
+        sleep(.1 * self.time_preset)
+        elapsed = start - monotonic()
         assert abs(pv.get() - (self.time_preset - elapsed)) < .1
 
 
@@ -211,13 +210,13 @@ class TestKafkaPlugin:
     def test_broker(self):
         assert self.detector.broker == self.broker
         self.PVbroker.put('a_different_broker.psi.ch:9092')
-        time.sleep(.5)
+        sleep(.5)
         assert self.detector.broker == 'a_different_broker.psi.ch:9092'
 
     def test_topic(self):
         assert self.detector.topic == self.topic
         self.PVtopic.put('a_different_topic')
-        time.sleep(.5)
+        sleep(.5)
         assert self.detector.topic == 'a_different_topic'
 
     def test_status_on_success(self):
@@ -238,14 +237,14 @@ class TestKafkaPlugin:
         if not self.PVstatus:
             pytest.skip('Can\'t change PV status')
         self.PVstatus.put(ADKafkaStatus.CONNECTING)
-        time.sleep(.5)
+        sleep(.5)
         assert self.detector.doStatus()[0] == status.WARN
 
     def test_status_on_disconnected(self):
         if not self.PVstatus:
             pytest.skip('Can\'t change PV status')
         self.PVstatus.put(ADKafkaStatus.DISCONNECTED)
-        time.sleep(.5)
+        sleep(.5)
         st = self.detector.doStatus()
         assert st[0] == status.ERROR
 
@@ -253,7 +252,7 @@ class TestKafkaPlugin:
         if not self.PVstatus:
             pytest.skip('Can\'t change PV status')
         self.PVstatus.put(ADKafkaStatus.ERROR)
-        time.sleep(.5)
+        sleep(.5)
         st = self.detector.doStatus()
         assert st[0] == status.ERROR
 
@@ -264,8 +263,6 @@ class TestKafkaPlugin:
         self.PVmessage.put(msg)
         st = self.detector.doStatus()
         assert st[1] == msg
-
-
 
 
 class TestKafkaAreaDetectorConsumer:
@@ -326,7 +323,7 @@ class TestKafkaAreaDetectorConsumer:
         messages = [(1234, list(range(10))),
                     (5678, list(range(8, 20))),
                     (9012, list(range(5, 35, 7)))
-                   ]
+                    ]
         self.detector.new_messages_callback(messages)
         assert self.detector._lastmessage == (9012, list(range(5, 35, 7)))
 
@@ -401,10 +398,10 @@ class TestEpicsAreaDetectorWithKafkaPlugin:
     PVmessage = None
     PVstatus = None
 
-    def _wait_for_completion(self, start=time.time(), preset=time_preset):
+    def _wait_for_completion(self, start=monotonic(), preset=time_preset):
         while self.detector.doStatus()[0] == status.BUSY and \
-                (time.time() - start) < (preset + 1):
-            time.sleep(0.01)
+                (monotonic() - start) < (preset + 1):
+            sleep(0.01)
 
     @pytest.fixture(autouse=True)
     def restore_pvs(self, request):
@@ -422,7 +419,7 @@ class TestEpicsAreaDetectorWithKafkaPlugin:
     def reset_time(self, request):
         def fin():
             self.PVtime.put(0.01)
-            time.sleep(.5)
+            sleep(.5)
 
         request.addfinalizer(fin)
 
@@ -477,7 +474,7 @@ class TestEpicsAreaDetectorWithKafkaPlugin:
         if not self.PVstatus:
             pytest.skip('Can\'t change PV status')
         self.PVstatus.put(ADKafkaStatus.CONNECTING)
-        time.sleep(.5)
+        sleep(.5)
         assert self.detector.doStatus() == (status.WARN, 'Connecting')
 
     def test_status_on_disconnected(self):
@@ -485,7 +482,7 @@ class TestEpicsAreaDetectorWithKafkaPlugin:
             pytest.skip('Can\'t change PV status')
         self.PVstatus.put(ADKafkaStatus.DISCONNECTED)
         self.PVmessage.put('A meaningful disconnected error message')
-        time.sleep(.5)
+        sleep(.5)
         assert self.detector.doStatus() == (
             status.ERROR, 'A meaningful disconnected error message')
 
@@ -494,7 +491,7 @@ class TestEpicsAreaDetectorWithKafkaPlugin:
             pytest.skip('Can\'t change PV status')
         self.PVstatus.put(ADKafkaStatus.ERROR)
         self.PVmessage.put('A meaningful error message')
-        time.sleep(.5)
+        sleep(.5)
         st = self.detector.doStatus()
         self.log.warning(st)
         assert st == (status.ERROR, 'A meaningful error message')

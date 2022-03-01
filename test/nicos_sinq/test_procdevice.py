@@ -21,7 +21,7 @@
 #   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
-import time
+from time import monotonic, sleep
 
 session_setup = 'sinq_procdevice'
 
@@ -29,14 +29,14 @@ session_setup = 'sinq_procdevice'
 def test_procdevice(session):
     sleeper = session.getDevice('sleeper')
 
-    start = time.time()
+    start = monotonic()
     sleeper.maw(27)
-    end = time.time()
+    end = monotonic()
     assert((end-start) < 3.)
 
-    start = time.time()
+    start = monotonic()
     sleeper.start(10)
-    time.sleep(.5)
-    end = time.time()
+    sleep(.5)
+    end = monotonic()
     sleeper.stop()
     assert((end - start) < 2.)
