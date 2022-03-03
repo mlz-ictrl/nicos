@@ -40,7 +40,10 @@ class Logbook(BaseCacheClient):
         'plotformat': Param('Format for scan plots', type=oneof('svg', 'png')),
         'handlerclasses': Param('Classes to handle the incoming messages',
                                 type=listof(str),
-                                default=['nicos.services.elog.handler.html.Handler']),
+                                default=[
+                                    'nicos.services.elog.handler.html.Handler',
+                                    'nicos.services.elog.handler.text.Handler',
+                                ]),
     }
 
     parameter_overrides = {

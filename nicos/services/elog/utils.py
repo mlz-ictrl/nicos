@@ -27,6 +27,7 @@
 import html
 import time
 from logging import DEBUG, ERROR, FATAL, INFO, WARNING
+from os import path
 
 from nicos.utils.loggers import ACTION, INPUT
 
@@ -94,3 +95,16 @@ def pretty2(fmtstr, value1, value2):
         if value2 != 0 and abs((value2 - value1)/value2) < 0.00001:
             return fmt1
     return '%s - %s' % (fmt1, fmt2)
+
+
+def create_or_open(filename, prolog=b''):
+    if not path.isfile(filename):
+        open(filename, 'wb').close()  # pylint: disable=consider-using-with
+    # we have to open in binary mode since we want to do a nonzero seek from
+    # the end, which the text wrapper doesn't support
+    fd = open(filename, 'r+b')  # pylint: disable=consider-using-with
+    fd.seek(0, 2)
+    if fd.tell() == 0:
+        fd.write(prolog)
+        fd.flush()
+    return fd

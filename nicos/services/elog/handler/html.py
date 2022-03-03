@@ -32,8 +32,8 @@ from time import localtime, strftime
 
 from nicos.services.elog.genplot import plotDataset
 from nicos.services.elog.handler import Handler as BaseHandler
-from nicos.services.elog.utils import formatMessage, formatMessagePlain, \
-    pretty1, pretty2
+from nicos.services.elog.utils import create_or_open, formatMessage, pretty1, \
+    pretty2
 
 try:
     import markdown
@@ -213,19 +213,6 @@ PROLOG_TOC = b'''\
 '''
 
 
-def create_or_open(filename, prolog=b''):
-    if not path.isfile(filename):
-        open(filename, 'wb').close()  # pylint: disable=consider-using-with
-    # we have to open in binary mode since we want to do a nonzero seek from
-    # the end, which the text wrapper doesn't support
-    fd = open(filename, 'r+b')  # pylint: disable=consider-using-with
-    fd.seek(0, 2)
-    if fd.tell() == 0:
-        fd.write(prolog)
-        fd.flush()
-    return fd
-
-
 class HtmlWriter:
     def __init__(self):
         self.fd = None
@@ -312,39 +299,17 @@ class HtmlWriter:
         return 'id%s-%s' % (id(self), self.curid)
 
 
-class TextWriter:
-    def __init__(self):
-        self.fd = None
-
-    def close(self):
-        if self.fd:
-            self.fd.close()
-            self.fd = None
-
-    def open(self, directory):
-        self.close()
-        self.fd = create_or_open(path.join(directory, 'nicos_log.txt'))
-
-    def message(self, message):
-        if self.fd:
-            self.fd.write(formatMessagePlain(message).encode())
-            self.fd.flush()
-
-
 class Handler(BaseHandler):
     def __init__(self, log, plotformat):
         BaseHandler.__init__(self, log, plotformat)
         self.out = HtmlWriter()
-        self.out_plain = TextWriter()
 
     def close(self):
         self.out.close()
-        self.out_plain.close()
 
     def handle_directory(self, time, data):
         BaseHandler.handle_directory(self, time, data)
         self.out.open(self.logdir, self.instr or 'NICOS', self.proposal)
-        self.out_plain.open(self.logdir)
         self.log.info('Opened new output files in %s', self.logdir)
 
     def handle_newexperiment(self, time, data):
@@ -480,7 +445,6 @@ class Handler(BaseHandler):
                               '<span class="msglabel">Messages</span>'
                               '<pre class="messages">\n', '</pre></div>\n',
                               formatted)
-        self.out_plain.message(message)
 
     def handle_scanend(self, time, dataset):
         names = '+'.join(dataset.xnames)
