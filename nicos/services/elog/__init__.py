@@ -40,11 +40,11 @@ class Logbook(BaseCacheClient):
         'plotformat': Param('Format for scan plots', type=oneof('svg', 'png')),
         'handlerclass': Param('Class to handle the incoming messages',
                               type=str,
-                              default='nicos.services.elog.handler.Handler'),
+                              default='nicos.services.elog.handler.html.Handler'),
     }
 
     parameter_overrides = {
-        'prefix':  Override(default='logbook/', mandatory=False),
+        'prefix': Override(default='logbook/', mandatory=False),
     }
 
     def doInit(self, mode):
@@ -95,7 +95,7 @@ class Logbook(BaseCacheClient):
             return
         key = key[len(self._prefix):]
         time = time and float(time)
-        # self.log.info('got %s=%r', key, value)
+        self.log.debug('got %s=%r', key, value)
         try:
             value = cache_load(value)
             self._handler.handle(key, time, value)

@@ -31,6 +31,7 @@ from shutil import copyfile
 from time import localtime, strftime
 
 from nicos.services.elog.genplot import plotDataset
+from nicos.services.elog.handler import Handler as BaseHandler
 from nicos.services.elog.utils import formatMessage, formatMessagePlain, \
     pretty1, pretty2
 
@@ -75,7 +76,7 @@ FRAMESET = '''\
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>%s logbook: %s</title>
 </head>
-<frameset cols="200,*">
+<frameset cols="25%%,*">
 <frame src="toc.html">
 <frame src="content.html" name="content">
 </frameset>
@@ -330,29 +331,19 @@ class TextWriter:
             self.fd.flush()
 
 
-class Handler:
+class Handler(BaseHandler):
     def __init__(self, log, plotformat):
-        self.log = log
-        self.plotformat = plotformat
-
-        self.dir = self.logdir = None
+        BaseHandler.__init__(self, log, plotformat)
         self.out = HtmlWriter()
         self.out_plain = TextWriter()
-
-    def handle(self, key, timestamp, data):
-        fun = getattr(self, f'handle_{key}', None)
-        if fun:
-            fun(timestamp, data)
 
     def close(self):
         self.out.close()
         self.out_plain.close()
 
     def handle_directory(self, time, data):
-        directory, instr, proposal = data
-        self.dir = directory
-        self.logdir = path.join(directory, 'logbook')
-        self.out.open(self.logdir, instr or 'NICOS', proposal)
+        BaseHandler.handle_directory(self, time, data)
+        self.out.open(self.logdir, self.instr or 'NICOS', self.proposal)
         self.out_plain.open(self.logdir)
         self.log.info('Opened new output files in %s', self.logdir)
 
@@ -398,27 +389,27 @@ class Handler:
                           (targetid, escape(remark)))
         self.out.toc_entry(2, escape(remark), targetid)
 
-    def handle_scriptbegin(self, time, data):
+    def handle_scriptbegin(self, time, script):
         self.out.timestamp(time)
         targetid = self.out.new_id()
-        text = 'Script started: %s' % escape(data)
+        text = 'Script started: %s' % escape(script)
         # self.out.toc_entry(2, text, targetid)
         self.out.newstate('plain', '', '',
                           '<p id="%s" class="scriptbegin">%s</p>\n' %
                           (targetid, text))
 
-    def handle_scriptend(self, time, data):
+    def handle_scriptend(self, time, script):
         self.out.timestamp(time)
         targetid = self.out.new_id()
-        text = 'Script finished: %s' % escape(data)
+        text = 'Script finished: %s' % escape(script)
         # self.out.toc_entry(2, text, targetid)
         self.out.newstate('plain', '', '',
                           '<p id="%s" class="scriptend">%s</p>\n' %
                           (targetid, text))
 
-    def handle_sample(self, time, data):
+    def handle_sample(self, time, sample):
         self.out.timestamp(time)
-        text = 'New sample: %s' % escape(data)
+        text = 'New sample: %s' % escape(sample)
         targetid = self.out.new_id()
         self.out.toc_entry(2, text, targetid, 'sample')
         self.out.newstate('plain', '', '',
@@ -434,9 +425,9 @@ class Handler:
                           '<p id="%s" class="detectors">%s</p>\n' %
                           (targetid, text))
 
-    def handle_environment(self, time, dlist):
+    def handle_environment(self, time, elist):
         self.out.timestamp(time)
-        text = 'New standard environment: %s' % escape(', '.join(dlist))
+        text = 'New standard environment: %s' % escape(', '.join(elist))
         targetid = self.out.new_id()
         self.out.toc_entry(2, text, targetid, 'environment')
         self.out.newstate('plain', '', '',
@@ -562,10 +553,9 @@ class Handler:
         self.out.newstate('scan-' + names,
                           '<table class="scan"><tr class="head">' + headers
                           + '</tr>', '</table>\n', ''.join(html))
-        if scannumber >= 0 and scannumber % 100 in (0, 50):
+        if scannumber >= 0 and scannumber % 50 == 0:
             self.out.toc_entry(3, 'Scan %d' % scannumber, 'scan%s' % scannumber)
 
 
 # more ideas:
-# - internal links -> reference scan numbers or attachments
 # - integrated latex $foo$ syntax
