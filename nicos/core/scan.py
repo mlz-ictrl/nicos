@@ -353,13 +353,14 @@ class Scan:
     def _inner_run(self):
         dataman = session.experiment.data
         # move all devices to starting position before starting scan
-        try:
-            self.prepareScan(self._startpositions[0])
-            skip_first_point = False
-        except StopScan:
-            return
-        except SkipPoint:
-            skip_first_point = True
+        skip_first_point = False
+        if self._startpositions:
+            try:
+                self.prepareScan(self._startpositions[0])
+            except StopScan:
+                return
+            except SkipPoint:
+                skip_first_point = True
         # if the scan was already aborted, we haven't started writing
         self.beginScan()
         try:
