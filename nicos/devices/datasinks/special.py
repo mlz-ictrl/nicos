@@ -46,7 +46,7 @@ class DaemonSinkHandler(DataSinkHandler):
     def _emitDataset(self):
         session.emitfunc('dataset', ScanData(self.dataset))
 
-    def addSubset(self, point):
+    def addSubset(self, point):  # pylint: disable=arguments-renamed
         if point.settype != POINT:
             return
         if not self._dataset_emitted:
