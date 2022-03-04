@@ -662,10 +662,13 @@ class CaressScanfileSinkHandler(DataSinkHandler):
                 self._write_integer(val)
         if self._scan_type != 'SGEN2':
             for (info, val) in zip(point.envvalueinfo, point.envvaluelist):
-                if hasattr(info, 'name') and \
-                   info.name != 'etime' and \
-                   not info.name.endswith(':elapsedtime'):
-                    self._write_float(val)
+                if (hasattr(info, 'name') and info.name != 'etime' and not
+                        info.name.endswith(':elapsedtime')):
+                    if isinstance(val, numbers.Real):
+                        self._write_float(val)
+                    else:
+                        self.log.info("Ignoring environment device '%s' "
+                                      "returning non-number value", info.name)
         self._detvalues = None
 
     def putResults(self, quality, results):
