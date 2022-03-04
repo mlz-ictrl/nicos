@@ -49,6 +49,7 @@ class DaemonSinkHandler(DataSinkHandler):
     def addSubset(self, subset):
         if subset.settype != POINT:
             return
+        # please note subset is always a POINT below this line!
         if not self._dataset_emitted:
             self._emitDataset()
             self._dataset_emitted = True
@@ -174,7 +175,7 @@ class LiveViewSinkHandler(DataSinkHandler):
                 dtype=data.dtype.str,
                 shape=data.shape,
                 labels=self.getLabelDescs(results),
-                count=self.getDataSetCount(results)
+                plotcount=self.getDataSetCount(results)
             )
             datadescs.append(datadesc)
 
