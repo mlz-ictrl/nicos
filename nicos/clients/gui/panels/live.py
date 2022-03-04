@@ -477,7 +477,8 @@ class LiveDataPanel(Panel):
         newdlg = dialogFromUi(self, 'panels/plot_attach.ui')
         suffix = '.svg'  # self.widget.SAVE_EXT
         newdlg.filename.setText(
-            safeName('data_%s' % self.params['uid'] + suffix))
+            safeName('data_' + self.fileList.currentItem().data(FILEUID)
+                     + suffix))
         ret = newdlg.exec_()
         if ret != QDialog.Accepted:
             return
