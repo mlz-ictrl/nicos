@@ -749,10 +749,6 @@ class HKLScan(Scan):
                       preset, scaninfo, subscan)
         self.scanmode = scanmode
 
-    def endScan(self):
-        # This is here for debugging: see datasink.py:152ff
-        Scan.endScan(self)
-
     def acquire(self, point, preset):
         _scanfuncs[self.scanmode](point.target[0], subscan=True,
                                   **self._preset)

@@ -804,6 +804,3 @@ class QScan(Scan):
                    self._startpositions[1][0][i]:
                     self._xindex = i
                     break
-
-    def beginScan(self):
-        Scan.beginScan(self)
