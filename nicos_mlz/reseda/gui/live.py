@@ -117,5 +117,5 @@ class CascadeLiveDataPanel(LiveDataPanel):
         if self.unzoom and self.widget:
             self.on_actionUnzoom_triggered()
 
-    def _show(self, data=None):
+    def _show(self, params=None, data=None):
         self.showData()
