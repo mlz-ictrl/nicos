@@ -12,7 +12,7 @@ group = 'special'
 # 'action' -- code to execute if condition is true (default no code is executed)
 # 'type' -- selects notifiers from configured lists
 
-watchlist = [
+watch_conditions = [
     # dict(condition = 'cooltemp_value > 30',
     #     message = 'Cooling water temperature exceeds 30 C',
     # ),
@@ -31,7 +31,7 @@ devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
         cache = 'localhost',
         notifiers = {'default': ['email']},
-        watch = watchlist,
+        watch = watch_conditions,
         mailreceiverkey = 'email/receivers',
     ),
 )

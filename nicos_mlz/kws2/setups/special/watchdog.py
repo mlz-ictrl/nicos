@@ -1,7 +1,7 @@
 description = 'setup for the NICOS watchdog'
 group = 'special'
 
-watchlist = [
+watch_conditions = [
         # TODO: reactivate!
 #    dict(condition = 'gedet_tmax_value > 80',
 #         message = 'Eight-pack temperature alarm, shutting down detector power',
@@ -89,6 +89,6 @@ devices = dict(
         cache = 'localhost',
         notifiers = notifiers,
         mailreceiverkey = 'email/receivers',
-        watch = watchlist,
+        watch = watch_conditions,
     ),
 )

@@ -1,7 +1,7 @@
 description = 'setup for the NICOS watchdog'
 group = 'special'
 
-watchlist = [
+watch_conditions = [
 #    dict(condition = 'det_kwscounting and '
 #                     'ep10_HV_value < ep10_HV_target - 10',
 #         message = 'EP 10 HV too low!',
@@ -90,6 +90,6 @@ devices = dict(
         cache = 'localhost',
         notifiers = notifiers,
         mailreceiverkey = 'email/receivers',
-        watch = watchlist,
+        watch = watch_conditions,
     ),
 )

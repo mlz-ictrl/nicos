@@ -54,7 +54,7 @@ A simple setup file for the watchdog could look like this::
   description = 'setup for the NICOS watchdog'
   group = 'special'
 
-  watchlist = [
+  watch_conditions = [
       dict(condition = 't_value > 300',
            message = 'Temperature too high (exceeds 300 K)',
            type = 'critical',
@@ -91,7 +91,7 @@ A simple setup file for the watchdog could look like this::
                         cache = 'localhost:14869',
                         notifiers = {'default': ['mailer'],
                                      'critical': ['mailer', 'smser']},
-                        watch = watchlist,
+                        watch = watch_conditions,
                        ),
   )
 

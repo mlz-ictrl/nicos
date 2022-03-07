@@ -1,7 +1,7 @@
 description = 'setup for the NICOS watchdog'
 group = 'special'
 
-watchlist = [
+watch_conditions = [
     dict(condition = 'LogSpace_status[0] == WARN',
          message = 'Disk space for log files becomes too low.',
          type = 'critical',
@@ -91,6 +91,6 @@ devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
         cache = 'localhost:14869',
         notifiers = {},
-        watch = watchlist,
+        watch = watch_conditions,
    ),
 )

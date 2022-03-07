@@ -12,7 +12,7 @@ group = 'special'
 # 'priority' -- 1 or 2, where 2 is more severe (default 1)
 # 'action' -- code to execute if condition is true (default no code is executed)
 
-watchlist = [
+watch_conditions = [
     dict(condition = 'LogSpace_status[0] == WARN',
          message = 'Disk space for log files becomes too low.',
          type = 'critical',
@@ -123,9 +123,9 @@ includes = ['notifiers']
 devices = dict(
     Watchdog = device('nicos.services.watchdog.Watchdog',
                       cache = 'sans1ctrl.sans1.frm2:14869',
-                      #notifiers = {'default': ['info'], 'critical': ['email']},
+                      # notifiers = {'default': ['info'], 'critical': ['email']},
                       notifiers = {},
-                      watch = watchlist,
-                      #mailreceiverkey = 'email/receivers',
+                      watch = watch_conditions,
+                      # mailreceiverkey = 'email/receivers',
                      ),
 )

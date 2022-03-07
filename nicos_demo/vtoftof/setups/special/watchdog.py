@@ -22,7 +22,7 @@ group = 'special'
 #   (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 
-watchlist = [
+watch_conditions = [
     dict(condition = 'LogSpace_status[0] == WARN',
          message = 'Disk space for log files becomes too low.',
          type = 'critical',
@@ -63,7 +63,7 @@ devices = dict(
         cache = 'localhost:14869',
         notifiers = {'default': [],
                      'critical': []},
-        watch = watchlist,
+        watch = watch_conditions,
         loglevel = 'info',
     ),
 )

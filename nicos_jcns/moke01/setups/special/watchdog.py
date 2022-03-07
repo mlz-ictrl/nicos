@@ -1,7 +1,7 @@
 description = 'setup for the NICOS watchdog'
 group = 'special'
 
-watchlist = []
+watch_conditions = []
 
 includes = ['notifiers']
 
@@ -15,6 +15,6 @@ devices = dict(
         cache = 'localhost',
         notifiers = notifiers,
         mailreceiverkey = 'email/receivers',
-        watch = watchlist,
+        watch = watch_conditions,
     ),
 )

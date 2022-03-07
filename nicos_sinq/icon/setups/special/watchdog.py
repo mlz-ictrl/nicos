@@ -1,11 +1,11 @@
 description = 'setup for the NICOS watchdog'
 group = 'special'
 
-# watchlist:
+# watch_conditions:
 # The entries in this list are dictionaries.
 # For the entry keys and their meaning see:
 # https://forge.frm2.tum.de/nicos/doc/nicos-stable/services/watchdog
-watchlist = [
+watch_conditions = [
     dict(
         condition = 'len(Exp_scripts) > 0 and  emergency_value == 1',
         message = 'Emergency stop engaged: FULL STOP!!!!',
@@ -33,6 +33,6 @@ devices = dict(
         cache = 'localhost',
         notifiers = notifiers,
         mailreceiverkey = 'email/receivers',
-        watch = watchlist,
+        watch = watch_conditions,
     ),
 )

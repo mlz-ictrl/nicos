@@ -22,7 +22,7 @@ group = 'special'
 #   (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
 
-watchlist = [
+watch_conditions = [
     dict(
         condition = 'reactorpower_value < 19.0 or sixfold_value == "closed" or'
                     ' nl2b_value == "closed"',
@@ -44,6 +44,6 @@ devices = dict(
         cache = 'localhost:14869',
         notifiers = {'default': [],
                      'critical': []},
-        watch = watchlist,
+        watch = watch_conditions,
     ),
 )

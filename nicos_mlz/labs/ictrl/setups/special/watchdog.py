@@ -1,7 +1,7 @@
 description = 'setup for the NICOS watchdog'
 group = 'special'
 
-# watchlist:
+# watch_conditions:
 # The entries in this list are dictionaries. Possible keys:
 #
 # 'setup' -- setup that must be loaded (default '' to mean all setups)
@@ -22,7 +22,7 @@ group = 'special'
 # 'pausecount' -- if True, the count loop should be paused on the condition
 #     (default False)
 # 'action' -- code to execute if condition is true (default no code is executed)
-watchlist = [
+watch_conditions = [
     dict(
         condition = 't_value > 100',
         message = 'Temperature too high',
@@ -51,6 +51,6 @@ devices = dict(
         cache = 'localhost',
         notifiers = notifiers,
         mailreceiverkey = 'email/receivers',
-        watch = watchlist,
+        watch = watch_conditions,
     ),
 )

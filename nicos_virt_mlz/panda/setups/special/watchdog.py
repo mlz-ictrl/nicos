@@ -12,7 +12,7 @@ group = 'special'
 # 'priority' -- 1 or 2, where 2 is more severe (default 1)
 # 'action' -- code to execute if condition is true (default no code is executed)
 
-watchlist = [
+watch_conditions = [
 ]
 
 includes = ['notifiers']
@@ -26,7 +26,7 @@ devices = dict(
         notifiers = {
             'default': ['email'],
         },
-        watch = watchlist,
+        watch = watch_conditions,
         mailreceiverkey = '',
         loglevel = 'debug',
     ),

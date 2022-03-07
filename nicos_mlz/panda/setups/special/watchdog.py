@@ -12,7 +12,7 @@ group = 'special'
 # 'priority' -- 1 or 2, where 2 is more severe (default 1)
 # 'action' -- code to execute if condition is true (default no code is executed)
 
-watchlist = [
+watch_conditions = [
     # dict(condition = 'cooltemp_value > 30',
     #      message = 'Cooling water temperature exceeds 30C, check FAK40 or MIRA Leckmon!',
     #      type = 'critical',
@@ -85,7 +85,7 @@ devices = dict(
             'critical': ['email1', 'smser'],
             'onlyastrid': ['email2', 'smsastr'],
         },
-        watch = watchlist,
+        watch = watch_conditions,
         mailreceiverkey = 'email/receivers',  ## replace all email addresses with MailRecievers from current experiment
         #mailreceiverkey = '',   ## normal settings
         loglevel = 'debug',

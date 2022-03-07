@@ -134,7 +134,7 @@ class Watchdog(BaseCacheClient):
                 notiflist.append(dev)
                 self._all_notifiers.append(dev)
 
-        # process entries in the default watchlist
+        # process entries in the default watch_conditions
         for entry_dict in self.watch:
             self._add_entry(entry_dict, 'watchdog')
 

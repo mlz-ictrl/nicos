@@ -1,11 +1,11 @@
 description = 'setup for the NICOS watchdog'
 group = 'special'
 
-# watchlist:
+# watch_conditions:
 # The entries in this list are dictionaries.
 # For the entry keys and their meaning see:
 # https://forge.frm2.tum.de/nicos/doc/nicos-stable/services/watchdog
-watchlist = [
+watch_conditions = [
     # The first 2 entries check the disk space for the data and the log file
     # if there is any underflow in limits the user and/or instrument
     # responsible will informed via the NICOS alarm channels
@@ -38,6 +38,6 @@ devices = dict(
         cache = 'localhost',
         notifiers = notifiers,
         mailreceiverkey = 'email/receivers',
-        watch = watchlist,
+        watch = watch_conditions,
     ),
 )

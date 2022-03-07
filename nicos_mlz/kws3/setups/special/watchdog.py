@@ -1,7 +1,7 @@
 description = 'setup for the NICOS watchdog'
 group = 'special'
 
-watchlist = [
+watch_conditions = [
 #    dict(condition = 'det_kwscounting and '
 #                     'abs(selector_speed_value - selector_speed_target) > '
 #                     'selector_speed_precision',
@@ -69,6 +69,6 @@ devices = dict(
         cache = 'localhost',
         notifiers = notifiers,
         mailreceiverkey = 'email/receivers',
-        watch = watchlist,
+        watch = watch_conditions,
     ),
 )

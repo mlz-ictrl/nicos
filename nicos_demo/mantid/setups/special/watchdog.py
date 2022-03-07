@@ -1,7 +1,7 @@
 description = 'setup for the NICOS watchdog'
 group = 'special'
 
-# watchlist:
+# watch_conditions:
 # The entries in this list are dictionaries. Possible keys:
 #
 # 'setup' -- setup that must be loaded (default '' to mean all setups)
@@ -22,7 +22,7 @@ group = 'special'
 #     or 'stop' or 'immediatestop' to cancel script execution
 #     (default '')
 # 'action' -- code to execute if condition is true (default no code is executed)
-watchlist = []
+watch_conditions = []
 
 notifiers = {
     'default':  [],
@@ -36,6 +36,6 @@ devices = dict(
                       # name
                       cache = 'localhost',
                       notifiers = notifiers,
-                      watch = watchlist,
+                      watch = watch_conditions,
                      ),
 )
