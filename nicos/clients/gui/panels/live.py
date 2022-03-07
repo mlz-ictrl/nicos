@@ -536,7 +536,7 @@ class LiveDataPanel(Panel):
             widget.close()
 
     def on_closed(self):
-        for w in self._livewidgets.values():
+        for w in list(self._livewidgets.values()):
             w.close()
 
     def _register_rois(self, detectors):
