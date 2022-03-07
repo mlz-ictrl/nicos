@@ -23,12 +23,13 @@ devices = dict(
         description='The currently used sample',
     ),
 
-    Exp=device('nicos.devices.experiment.Experiment',
-        description='experiment object',
-        dataroot='/opt/nicos-data',
-        sendmail=False,
-        serviceexp='p0',
+    Exp=device('nicos_ess.devices.experiment.EssExperiment',
+        description="The current experiment",
+        dataroot='/opt/nicos-data/loki',
         sample='Sample',
+        server_url='https://useroffice-test.esss.lu.se/graphql',
+        instrument='LoKI',
+        cache_filepath='/opt/nicos-data/loki/cached_proposals.json'
     ),
 
     filesink=device('nicos.devices.datasinks.AsciiScanfileSink',),
