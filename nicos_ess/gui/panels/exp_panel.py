@@ -165,7 +165,8 @@ class ExpPanel(PanelBase):
         self.old_proposal_settings = ProposalSettings()
         self.new_proposal_settings = ProposalSettings()
 
-        self.users_model = TableModel(['name', 'email', 'affiliation'])
+        self._user_fields = ['name', 'email', 'affiliation']
+        self.users_model = TableModel(self._user_fields)
         self.users_model.data_updated.connect(self.on_users_changed)
         self.userTable.setModel(self.users_model)
         self.userTable.horizontalHeader().setSectionResizeMode(
@@ -332,6 +333,7 @@ class ExpPanel(PanelBase):
         return []
 
     def applyChanges(self):
+        self.queryDBButton.setFocus(True)
         if self.mainwindow.current_status != 'idle':
             self.showInfo('Cannot change settings while a script is running!')
             return
@@ -341,6 +343,14 @@ class ExpPanel(PanelBase):
         proposal_id = self.new_proposal_settings.proposal_id
         local_contacts = self._format_local_contacts(
             self.new_proposal_settings.local_contacts)
+
+        # Check users filled out correctly
+        users = [user for user in self.users_model.raw_data
+                 if any(user.values())]
+        for user in users:
+            if not all(field in user for field in self._user_fields):
+                self.showError('User details not filled out completely')
+                return
 
         # do some work
         if proposal_id != self.old_proposal_settings.proposal_id:
@@ -358,7 +368,7 @@ class ExpPanel(PanelBase):
         else:
             self._set_title(changes)
             self._set_local_contacts(local_contacts, changes)
-        self._set_users(changes)
+        self._set_users(users, changes)
         self._set_samples(changes)
         self._set_notification_receivers(changes)
         self._set_abort_on_error(changes)
@@ -393,10 +403,8 @@ class ExpPanel(PanelBase):
                             self.new_proposal_settings.title)
             changes.append('New experiment title set.')
 
-    def _set_users(self, changes):
+    def _set_users(self, users, changes):
         if self.users_model.raw_data != self.old_proposal_settings.users:
-            users = [user for user in self.users_model.raw_data
-                     if any(user.values())]
             self.client.run('Exp.update(users=%r)' % users)
             changes.append('New users set.')
 
@@ -430,7 +438,8 @@ class ExpPanel(PanelBase):
         users = self.users_model.raw_data
         rows = set(index.row() for index in self.userTable.selectedIndexes())
         for row in sorted(rows, reverse=True):
-            users.pop(row)
+            if row < len(users):
+                users.pop(row)
         self.users_model.raw_data = users
 
     @pyqtSlot()
