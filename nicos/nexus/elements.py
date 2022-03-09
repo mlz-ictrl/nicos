@@ -568,7 +568,7 @@ class NexusSampleEnv(NexusElementBase):
                 continue
             logname = dev.name
             if self._postfix:
-                logname += self._posfix
+                logname += self._postfix
             loggroup = h5parent[logname]
             dset = loggroup['value']
             val = dataset.envvaluelist[devidx]
