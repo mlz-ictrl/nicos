@@ -99,8 +99,9 @@ class Oscillator(Moveable):
         if self.stoppable:
             self._stop()
         else:
-            raise UsageError(self, "Please use: 'move(%s, 'off')' to stop the "
-                             "moving device" % self)
+            if self._osc_thread:
+                raise UsageError(self, "Please use: 'move(%s, 'off')' to stop "
+                                       "the moving device" % self)
 
     def doRead(self, maxage=0):
         """Return the current status of the moveable controller."""

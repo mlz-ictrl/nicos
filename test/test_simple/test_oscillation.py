@@ -73,6 +73,7 @@ def test_movement(session):
     osci.maw('off')
     assert osci.read() == 'off'
     assert osci.status()[0] == status.OK
+    assert osci.stop() is None
 
     osci2 = session.getDevice('osci2')
     osci2.maw('on')
