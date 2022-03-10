@@ -60,6 +60,7 @@ class SinqExperiment(Experiment):
         'sendmail': Override(default=False),
         'zipdata': Override(default=False),
         'title': Override(settable=True, volatile=False),
+        'users': Override(settable=True, volatile=False),
     }
 
     parameters = {
@@ -68,6 +69,8 @@ class SinqExperiment(Experiment):
         'proposal_title': Param('Title for the proposal',
                                 type=str, settable=True,
                                 category='experiment'),
+        'user_email': Param('User email', type=str, settable=True,
+                            category='experiment'),
     }
     datamanager_class = SinqDataManager
 
