@@ -22,27 +22,28 @@
 #
 # *****************************************************************************
 
-"""MongoDB log handler"""
+"""Logstash log handler"""
 
 import logging
 import urllib
 
+try:
+    from logstash_async.handler import AsynchronousLogstashHandler
+except ImportError:
+    AsynchronousLogstashHandler = None
 
-class MongoLogHandler(logging.Handler):
-    pass
 
-
-def create_mongo_handler(config):
+def create_logstash_handler(config):
     """
     :param config: configuration dictionary
-    :return: [MongoLogHandler, ] if 'mongo_logger' is in options,  else []
+    :return: [AsynchronousLogstashHandler, ] if 'logstash' is in options,  else []
     """
     from nicos.core import ConfigurationError
 
-    if hasattr(config, 'mongo_logger'):
-        url = urllib.parse.urlparse(config.mongo_logger)
-        if not url.netloc:
-            raise ConfigurationError('mongo_logger: invalid url')
-        mongo_handler = MongoLogHandler()
-        mongo_handler.setLevel(logging.WARNING)
-        return mongo_handler
+    if hasattr(config, 'logstash') and AsynchronousLogstashHandler:
+        url = urllib.parse.urlparse(config.logstash)
+        if not (url.hostname and url.port):
+            raise ConfigurationError(f'logstash: invalid url {url}')
+        logstash_handler = AsynchronousLogstashHandler(url.hostname, url.port, database_path=None)
+        logstash_handler.setLevel(logging.WARNING)
+        return logstash_handler

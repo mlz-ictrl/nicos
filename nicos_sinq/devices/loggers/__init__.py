@@ -22,4 +22,4 @@
 #
 # *****************************************************************************
 
-from nicos_sinq.devices.loggers.mongo import create_mongo_handler
+from nicos_sinq.devices.loggers.logstash import create_logstash_handler
