@@ -26,7 +26,8 @@
 
 from math import asin, pi, radians
 
-from nicos.devices.vendor.astrium import SelectorLambda as NicosSelectorLambda, \
+from nicos.devices.vendor.astrium import \
+    SelectorLambda as NicosSelectorLambda, \
     SelectorLambdaSpread as NicosSelectorLambdaSpread
 
 

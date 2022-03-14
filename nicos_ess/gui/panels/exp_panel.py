@@ -36,6 +36,7 @@ from nicos.core import ConfigurationError
 from nicos.guisupport.qt import QAbstractTableModel, QDialogButtonBox, \
     QHeaderView, QListWidgetItem, QMessageBox, Qt, pyqtSignal, pyqtSlot
 from nicos.utils import decodeAny, findResource
+
 from nicos_ess.gui.panels.panel import PanelBase
 
 

@@ -36,9 +36,9 @@ from nicos.core import SIMULATION, CommunicationError, HasCommunication, \
 from nicos.utils import HardwareStub
 
 try:
-    from TACOErrors import DevErr_ExecutionDenied, DevErr_RangeError, \
-        DevErr_InvalidValue, DevErr_RuntimeError, DevErr_InternalError, \
-        DevErr_IOError, DevErr_SystemError
+    from TACOErrors import DevErr_ExecutionDenied, DevErr_InternalError, \
+        DevErr_InvalidValue, DevErr_IOError, DevErr_RangeError, \
+        DevErr_RuntimeError, DevErr_SystemError
 except ImportError:
     DevErr_ExecutionDenied = 4010
     DevErr_RangeError      = 4017

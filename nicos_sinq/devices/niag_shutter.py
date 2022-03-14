@@ -24,7 +24,7 @@
 
 """ NIAG shutter devices """
 
-from nicos.core import Attach, MoveError, Moveable, Override, Param, \
+from nicos.core import Attach, Moveable, MoveError, Override, Param, \
     PositionError, Readable, anytype, dictof, listof, multiReset, \
     multiStatus, none_or, status
 from nicos.core.mixins import HasTimeout

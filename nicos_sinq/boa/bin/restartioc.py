@@ -5,9 +5,9 @@
 
   Mark Koennecke, November 2019
 """
-import pexpect
 import sys
 
+import pexpect
 
 if len(sys.argv) < 3:
     print('Usage:\n\trestartioc.py host:port prompt\n')

@@ -26,8 +26,8 @@
 
 import urllib
 
-from nicos.core import CommunicationError, ConfigurationError, \
-    Override, Param, Readable, floatrange, status
+from nicos.core import CommunicationError, ConfigurationError, Override, \
+    Param, Readable, floatrange, status
 
 
 class WutReadValue(Readable):

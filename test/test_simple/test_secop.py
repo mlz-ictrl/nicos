@@ -25,16 +25,16 @@
 """SECoP client test suite."""
 
 import pickle
+
 import pytest
 
 pytest.importorskip('secop')
 
-from nicos.core.params import string, nonemptystring, floatrange, intrange, \
-    oneofdict, listof, tupleof, dictwith
+from nicos.core.params import dictwith, floatrange, intrange, listof, \
+    nonemptystring, oneofdict, string, tupleof
 from nicos.devices.secop import get_validator
 
 from test.utils import raises
-
 
 simple_types = [
     (dict(type='double'), float),

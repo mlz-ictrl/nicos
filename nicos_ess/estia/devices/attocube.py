@@ -34,7 +34,7 @@ from time import time as currenttime
 from numpy import cos, pi
 
 from nicos import session
-from nicos.core import Attach, Measurable, Override, Param, status, Readable
+from nicos.core import Attach, Measurable, Override, Param, Readable, status
 from nicos.core.params import oneof, pvname
 from nicos.devices.epics import EpicsReadable
 

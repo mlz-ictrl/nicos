@@ -27,4 +27,4 @@ from .qt import Qt  # pylint: disable=unused-import
 
 # pylint: disable=unused-wildcard-import,wildcard-import
 from qtgr import *  # isort:skip
-from qtgr.events import GUIConnector  # pylint: disable=unused-import
+from qtgr.events import GUIConnector  # isort:skip, pylint: disable=unused-import

@@ -25,8 +25,8 @@ from collections import namedtuple
 
 import numpy as np
 
-from nicos.core import Attach, Override, Param, Readable, pvname, status, \
-    limits, CommunicationError
+from nicos.core import Attach, CommunicationError, Override, Param, Readable, \
+    limits, pvname, status
 
 from nicos_ess.devices.epics.base import EpicsReadableEss
 from nicos_ess.devices.epics.extensions import HasDisablePv

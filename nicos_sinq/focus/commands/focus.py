@@ -25,7 +25,7 @@
 import numpy as np
 
 from nicos import session
-from nicos.commands import helparglist, usercommand, parallel_safe
+from nicos.commands import helparglist, parallel_safe, usercommand
 from nicos.commands.device import maw
 from nicos.core.errors import ConfigurationError
 

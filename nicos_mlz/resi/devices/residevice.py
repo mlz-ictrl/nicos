@@ -42,8 +42,8 @@ sys.path.append('/home/resi/pedersen/workspace/nonius_new/app')
 
 # imports from the nonius libs
 try:
-    from sc_scan_new import HuberScan
     from goniometer import position
+    from sc_scan_new import HuberScan
 except ImportError as e:
     # at least make the module importable for setup checking
     session.log.info(e)

@@ -28,7 +28,7 @@ import pytest
 
 from nicos.core.errors import LimitError, PositionError
 
-from test.utils import raises, approx
+from test.utils import approx, raises
 
 session_setup = 'puma'
 

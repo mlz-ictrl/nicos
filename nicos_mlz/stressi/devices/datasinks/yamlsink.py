@@ -23,6 +23,7 @@
 # *****************************************************************************
 """YAML data sink classes for STRESS-SPEC."""
 
+import io
 import re
 import time
 from io import TextIOWrapper
@@ -38,7 +39,6 @@ from nicos.utils import AutoDefaultODict
 
 try:
     import quickyaml
-    import io
 except ImportError:
     quickyaml = None
     try:

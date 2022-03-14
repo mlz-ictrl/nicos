@@ -41,7 +41,6 @@ from nicos_sinq.devices.kafka.area_detector import \
 
 from test.nicos_ess.test_devices.utils import create_hs00
 
-
 session_setup = "sinq_area_detector"
 
 

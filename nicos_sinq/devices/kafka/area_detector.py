@@ -29,8 +29,8 @@ from nicos.core import Attach, status
 from nicos.core.constants import LIVE
 from nicos.devices.generic.detector import ImageChannelMixin, PassiveChannel
 
-from nicos_sinq.devices.epics.area_detector import ADKafkaPlugin
 from nicos_ess.devices.kafka.consumer import KafkaSubscriber
+from nicos_sinq.devices.epics.area_detector import ADKafkaPlugin
 
 try:
     from nicos_ess.devices.fbschemas.hs00 import Array, ArrayUInt, \

@@ -37,7 +37,6 @@ except ImportError:
 from nicos.guisupport.qt import QApplication, QMainWindow
 from nicos.utils.loggers import ColoredConsoleHandler, NicosLogger, initLoggers
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument('-r', '--receiver', dest='receiver', action='store',
                     help='mailaddress of the receiver, defaults to'

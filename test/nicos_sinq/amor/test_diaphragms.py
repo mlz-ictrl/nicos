@@ -22,9 +22,8 @@
 #
 # *****************************************************************************
 
-from numpy import tan, pi, sqrt
-
 import pytest
+from numpy import pi, sqrt, tan
 
 session_setup = "sinq_amor"
 

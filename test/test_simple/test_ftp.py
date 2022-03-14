@@ -35,10 +35,10 @@ import pytest
 from nicos.utils import createThread, ftp
 
 try:
-    from pyftpdlib.servers import ThreadedFTPServer
-    from pyftpdlib.handlers import FTPHandler
-    from pyftpdlib.filesystems import AbstractedFS
     from pyftpdlib.authorizers import DummyAuthorizer
+    from pyftpdlib.filesystems import AbstractedFS
+    from pyftpdlib.handlers import FTPHandler
+    from pyftpdlib.servers import ThreadedFTPServer
 except ImportError:
     ThreadedFTPServer = object
     FTPHandler = object

@@ -33,7 +33,7 @@ import pytest
 
 from nicos.commands.basic import run
 from nicos.commands.scan import scan
-from nicos.core.acquire import DevStatistics, Average
+from nicos.core.acquire import Average, DevStatistics
 from nicos.utils import enableDirectory, ensureDirectory, readFileCounter
 
 from test.utils import runtime_root

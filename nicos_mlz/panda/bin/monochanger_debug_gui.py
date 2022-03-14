@@ -28,12 +28,12 @@
 import sys
 from struct import pack, unpack
 
+# pylint: disable=import-error
+from pymodbus.client.sync import ModbusTcpClient
+
 from nicos.guisupport.qt import QApplication, QFormLayout, QFrame, \
     QHBoxLayout, QLabel, QLineEdit, QMainWindow, QPushButton, QScrollArea, \
     QVBoxLayout, QWidget
-
-# pylint: disable=import-error
-from pymodbus.client.sync import ModbusTcpClient
 
 # This is supposed to be a custom instrument specific stand-alone tool!
 

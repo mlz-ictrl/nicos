@@ -27,8 +27,8 @@
 
 from nicos import session
 from nicos.commands import helparglist, parallel_safe, usercommand
-from nicos.core.acquire import Average, CountResult, MinMax, acquire, \
-    read_environment, stop_acquire_thread, StdDev
+from nicos.core.acquire import Average, CountResult, MinMax, StdDev, acquire, \
+    read_environment, stop_acquire_thread
 from nicos.core.device import Measurable, SubscanMeasurable
 from nicos.core.errors import NicosError, UsageError
 from nicos.utils import createThread, number_types, printTable

@@ -44,8 +44,8 @@ from nicos.utils import checkSetupSpec, parseKeyExpression, safeWriteFile, \
     KEYEXPR_NS
 
 try:
-    from gr import pygr
     import gr
+    from gr import pygr
 
     # required for import order
     import nicos.clients.gui.widgets.plotting  # pylint: disable=unused-import

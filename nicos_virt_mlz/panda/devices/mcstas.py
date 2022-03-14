@@ -26,7 +26,6 @@
 
 from nicos import session
 from nicos.core import Override
-
 from nicos.devices.mcstas import McStasSimulation
 
 

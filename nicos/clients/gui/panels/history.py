@@ -125,7 +125,8 @@ class View(QObject):
                     if not history:
                         from nicos.clients.gui.main import log
                         if log is None:
-                            from __main__ import log  # pylint: disable=no-name-in-module
+                            from __main__ import \
+                                log  # pylint: disable=no-name-in-module
                         log.error('Error getting history for %s.', key)
                         QMessageBox.warning(widget, 'Error',
                                             'Could not get history for %s, '

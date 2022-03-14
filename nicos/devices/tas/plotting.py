@@ -184,6 +184,7 @@ class SpaceMap:
 
     def plot_ellipsoid(self, hkl, x, y):
         import pylab
+
         # plot resolution ellipsoid in x-y plane
         self.resmat.sethklen(hkl[0], hkl[1], hkl[2], self.ny*THZ2MEV)
         xs1, ys1, xs2, ys2 = self.resmat.resellipse()[:4]

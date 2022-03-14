@@ -26,8 +26,7 @@ import select
 import socket
 
 from nicos import session
-from nicos.core import SIMULATION, CommunicationError, Param, \
-    status, MoveError
+from nicos.core import SIMULATION, CommunicationError, MoveError, Param, status
 from nicos.core.device import Moveable
 from nicos.core.params import oneof
 from nicos.devices.generic.sequence import SeqMethod, SeqSleep, SequencerMixin

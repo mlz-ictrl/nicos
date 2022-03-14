@@ -22,10 +22,11 @@
 #
 # *****************************************************************************
 
-from nicos import session
-from nicos_sinq.devices.datasinks import SinqNexusFileSink
-
 from os import path
+
+from nicos import session
+
+from nicos_sinq.devices.datasinks import SinqNexusFileSink
 
 
 class DMCNexusFileSink(SinqNexusFileSink):

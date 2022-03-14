@@ -35,12 +35,12 @@ from nicos.core.errors import CommunicationError, ConfigurationError, \
 from nicos.utils import createSubprocess
 
 try:
-    from omniORB import CORBA
     import CosNaming
-
-    from . import CARESS
-    from . import _GlobalIDL  # pylint: disable=unused-import
     import omniORB
+    from omniORB import CORBA
+
+    from . import _GlobalIDL  # pylint: disable=unused-import
+    from . import CARESS
 
     sys.modules['CARESS'] = sys.modules['nicos.devices.vendor.caress.CARESS']
     sys.modules['ABSDEV'] = sys.modules['nicos.devices.vendor.caress._GlobalIDL']

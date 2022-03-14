@@ -65,7 +65,7 @@ except (ImportError, RuntimeError):
     QtDBus = None
 
 try:
-    from PyQt5.Qsci import QsciScintilla, QsciLexerPython, QsciPrinter
+    from PyQt5.Qsci import QsciLexerPython, QsciPrinter, QsciScintilla
 except (ImportError, RuntimeError):
     QsciScintilla = QsciLexerPython = QsciPrinter = None
 
@@ -81,6 +81,7 @@ QT_VER = int(QT_VERSION_STR.split('.', maxsplit=1)[0])
 if 'linux' in sys.platform:
     import ctypes
     import ctypes.util
+
     # preload opengl library for usage e.g. in QtWebkit
     # otherwise on various linux systems the opengl shader program
     # cannot be created which results in black/white window content.

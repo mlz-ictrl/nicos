@@ -23,6 +23,7 @@
 # *****************************************************************************
 
 import hashlib
+
 from test.utils import daemon_addr
 
 description = 'setup for the execution daemon'

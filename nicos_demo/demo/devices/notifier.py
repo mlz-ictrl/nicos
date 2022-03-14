@@ -44,7 +44,7 @@ NS_XHTML = 'http://www.w3.org/1999/xhtml'
 class DBusNotifier(Notifier):
 
     def send(self, subject, body, what=None, short=None, important=True):
-        from nicos.guisupport.qt import QVariant, QtDBus
+        from nicos.guisupport.qt import QtDBus, QVariant
 
         dbus_interface = QtDBus.QDBusInterface(
             'org.freedesktop.Notifications',

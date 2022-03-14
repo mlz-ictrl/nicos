@@ -808,13 +808,12 @@ def PandaLoad(filename):
 #
 if __name__ == '__main__':
     import gtk
-
     import matplotlib
     matplotlib.use('GTKAgg')
     import matplotlib.pyplot as plt
+
     #~ import matplotlib.artist as artist
     #~ import matplotlib.colors as colors
-
     #~ s = PandaScan('../data/test_00033343')
     s1 = PandaLoad('/data/2010/cycle_25/p4305_00044189')
     print(s1, dir(s1))
@@ -861,9 +860,10 @@ if __name__ == '__main__':
     #~ m = NicosLoad('/data/2012/cycle_28/p6658', range(49526, 49556+1))
     m = NicosLoad('/data/2012/cycle_28/p6658', range(49557, 49581+1))
 
+    import matplotlib.pyplot as plt
     import numpy as np
     from matplotlib.mlab import griddata
-    import matplotlib.pyplot as plt
+
     #~ import numpy.ma as ma
     #~ from numpy.random import uniform
 

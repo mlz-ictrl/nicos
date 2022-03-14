@@ -28,10 +28,10 @@ from numpy import array
 
 from nicos.core.errors import ConfigurationError, ProgrammingError
 from nicos.core.params import ArrayDesc, Attach, Param, Value, absolute_path, \
-    anytype, dictof, dictwith, floatrange, host, intrange, ipv4, limits, \
-    listof, mailaddress, nicosdev, none_or, nonemptylistof, nonemptystring, \
-    oneof, oneofdict, oneofdict_or, pvname, relative_path, setof, string, \
-    subdir, tacodev, tangodev, tupleof, vec3, boolean
+    anytype, boolean, dictof, dictwith, floatrange, host, intrange, ipv4, \
+    limits, listof, mailaddress, nicosdev, none_or, nonemptylistof, \
+    nonemptystring, oneof, oneofdict, oneofdict_or, pvname, relative_path, \
+    setof, string, subdir, tacodev, tangodev, tupleof, vec3
 
 from test.utils import raises
 

@@ -24,16 +24,15 @@
 from copy import deepcopy
 
 from nicos import session
-
-from nicos_sinq.focus.nexus.focus import FocusCoordinates, ScaledImage, \
-    SliceTofImage, SumImage
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceAttribute, DeviceDataset, NamedImageDataset, NexusSampleEnv, \
     NXAttribute, NXLink, NXTime
 from nicos.nexus.nexussink import NexusTemplateProvider
+
+from nicos_sinq.focus.nexus.focus import FocusCoordinates, ScaledImage, \
+    SliceTofImage, SumImage
 from nicos_sinq.nexus.specialelements import ConfArray, FixedArray, \
     TwoThetaArray
-
 
 focus_default = {"NeXus_Version": "4.4.0",
                  "instrument": "FOCUS at SINQ",

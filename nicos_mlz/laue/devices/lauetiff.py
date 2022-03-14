@@ -33,12 +33,13 @@ from nicos.core.params import Override
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 
 try:
-    from PIL import PILLOW_VERSION
     from distutils.version import LooseVersion
+
+    from PIL import PILLOW_VERSION
     if LooseVersion(PILLOW_VERSION) < LooseVersion('3.99.0'):
         raise ImportError
     from PIL import Image
-    from PIL.TiffImagePlugin import ImageFileDirectory_v2, STRIPOFFSETS
+    from PIL.TiffImagePlugin import STRIPOFFSETS, ImageFileDirectory_v2
 
 except ImportError:
     Image = None

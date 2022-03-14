@@ -30,8 +30,8 @@ from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     NXScanLink, NXTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
-from nicos_sinq.camea.nexus.camea_elements import CameaAzimuthalAngle, \
-    BoundaryArrayParam
+from nicos_sinq.camea.nexus.camea_elements import BoundaryArrayParam, \
+    CameaAzimuthalAngle
 from nicos_sinq.nexus.specialelements import AbsoluteTime, ArrayParam, \
     EnvDeviceDataset, OutSampleEnv, Reflection, ScanCommand, ScanVars
 

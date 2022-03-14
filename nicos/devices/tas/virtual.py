@@ -107,8 +107,8 @@ class VirtualTasDetector(Measurable):
         return self._lastresult
 
     def _simulate(self):
-        from nicos.devices.tas.rescalc import resmat, calc_MC, demosqw
         from nicos.commands.tas import _resmat_args
+        from nicos.devices.tas.rescalc import calc_MC, demosqw, resmat
         taspos = self._attached_tas.read(0)
         mat = resmat(*_resmat_args(taspos, {}))
         self.log.debug('virtual TAS det: MC simulation at %r', taspos)

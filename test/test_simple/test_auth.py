@@ -40,8 +40,8 @@ from nicos.services.daemon.auth.params import UserLevelAuthEntry, \
 from test.utils import raises
 
 try:
-    from nicos.services.daemon.auth.keyring import Authenticator as \
-        KeyringAuthenticator
+    from nicos.services.daemon.auth.keyring import \
+        Authenticator as KeyringAuthenticator
 except ImportError:
     KeyringAuthenticator = None
 try:

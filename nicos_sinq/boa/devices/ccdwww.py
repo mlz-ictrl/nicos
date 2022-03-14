@@ -28,7 +28,7 @@ from nicos import session
 from nicos.core.constants import FINAL, INTERRUPTED
 from nicos.core.device import Moveable
 from nicos.core.params import Attach, Param, Value, oneof, tupleof
-from nicos.core.status import BUSY, OK, ERROR
+from nicos.core.status import BUSY, ERROR, OK
 from nicos.core.utils import usermethod
 from nicos.devices.generic import ActiveChannel, ImageChannelMixin
 

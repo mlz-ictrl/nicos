@@ -25,6 +25,7 @@
 """KWS-1 file format saver with YAML."""
 
 import gzip
+
 import numpy as np
 
 from nicos import session
@@ -32,8 +33,8 @@ from nicos.core import Override, status
 from nicos.core.data.dataset import ScanDataset
 from nicos.core.data.sink import GzipFile
 from nicos.core.utils import formatStatus
-from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler, \
-    ImageFileReader
+from nicos.devices.datasinks.image import ImageFileReader, ImageSink, \
+    SingleFileSinkHandler
 from nicos.utils import byteBuffer
 
 from nicos_mlz.devices.yamlbase import YAMLBaseFileSinkHandler

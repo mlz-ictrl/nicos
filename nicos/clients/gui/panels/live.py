@@ -43,7 +43,7 @@ from nicos.core.errors import NicosError
 from nicos.guisupport.livewidget import AXES, DATATYPES, IntegralLiveWidget, \
     LiveWidget, LiveWidget1D
 from nicos.guisupport.qt import QActionGroup, QByteArray, QDialog, \
-    QFileDialog, QListWidgetItem, QMenu, QPoint, QSizePolicy, QStatusBar, Qt,\
+    QFileDialog, QListWidgetItem, QMenu, QPoint, QSizePolicy, QStatusBar, Qt, \
     QToolBar, QWidget, pyqtSignal, pyqtSlot
 from nicos.guisupport.qtgr import MouseEvent
 from nicos.protocols.cache import cache_load

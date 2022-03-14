@@ -50,6 +50,11 @@ from collections import OrderedDict
 from math import floor, log10
 from threading import Event
 
+# pylint: disable=import-error,no-name-in-module
+import secop.modules
+from secop.client import SecopClient
+from secop.errors import CommunicationFailedError
+
 from nicos import session
 from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, NicosError, \
     Override, Param, status, usermethod
@@ -59,11 +64,6 @@ from nicos.core.params import anytype, dictwith, floatrange, intrange, \
     listof, none_or, nonemptystring, oneofdict, string, tupleof
 from nicos.core.utils import formatStatus
 from nicos.utils import printTable, readonlydict
-
-# pylint: disable=import-error,no-name-in-module
-import secop.modules
-from secop.client import SecopClient
-from secop.errors import CommunicationFailedError
 
 SecopStatus = secop.modules.Drivable.Status
 

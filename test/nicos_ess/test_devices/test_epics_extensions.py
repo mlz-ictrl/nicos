@@ -37,7 +37,6 @@ from nicos_ess.devices.epics.extensions import HasDisablePv
 from test.nicos_ess.test_devices.utils import create_method_patch, \
     create_patch, return_value_wrapper
 
-
 session_setup = 'ess_extensions'
 
 

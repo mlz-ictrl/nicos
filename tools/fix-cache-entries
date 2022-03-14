@@ -29,7 +29,6 @@ import re
 import socket
 from math import ceil
 
-
 # default cache server to use when no arguments are given
 CACHES = ['localhost']
 

@@ -21,7 +21,7 @@
 #   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
-from nicos.core import Attach, HasPrecision, Param, Moveable, floatrange
+from nicos.core import Attach, HasPrecision, Moveable, Param, floatrange
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep
 
 

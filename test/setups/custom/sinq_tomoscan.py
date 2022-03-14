@@ -23,7 +23,8 @@
 # *****************************************************************************
 
 from os import path
-from test.utils import runtime_root, module_root
+
+from test.utils import module_root, runtime_root
 
 description = 'Setup for SINQ Tomography scan test'
 

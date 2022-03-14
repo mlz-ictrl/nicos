@@ -25,7 +25,7 @@
 import math
 
 from nicos.core import multiStatus, status
-from nicos.core.device import Attach, Param, listof, Moveable
+from nicos.core.device import Attach, Moveable, Param, listof
 from nicos.devices.generic.mono import to_k
 
 from nicos_sinq.devices.logical_motor import InterfaceLogicalMotorHandler

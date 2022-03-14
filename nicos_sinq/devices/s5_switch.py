@@ -31,7 +31,6 @@ from nicos.devices.abstract import MappedMoveable, MappedReadable
 from nicos.devices.epics import EpicsDevice, EpicsReadable
 
 
-
 class S5Switch(EpicsDevice, MappedMoveable):
     """AMOR has a Siemens programmable logic unit for controlling the shutter
     and a switch for the alignment laser and the spin flipper. This is SPS

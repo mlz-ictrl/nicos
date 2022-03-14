@@ -21,6 +21,7 @@
 #
 # *****************************************************************************
 import nicos.devices.generic
+
 import nicos_sinq.devices.channel
 
 name = 'Special devices for SINQ'

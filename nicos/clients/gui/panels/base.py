@@ -135,8 +135,8 @@ class Panel(DlgUtils, QWidget, SetupDepPanelMixin):
 
         If the window is the main window, nothing will be done.
         """
-        from nicos.clients.gui.panels.tabwidget import DetachedWindow
         from nicos.clients.gui.panels.auxwindows import AuxiliaryWindow
+        from nicos.clients.gui.panels.tabwidget import DetachedWindow
         obj = self
         while hasattr(obj, 'parent'):
             obj = obj.parent()

@@ -28,7 +28,8 @@ from unittest.mock import patch
 import pytest
 
 from nicos.core import status
-from nicos.devices.epics import EpicsReadable, EpicsMoveable
+from nicos.devices.epics import EpicsMoveable, EpicsReadable
+
 from nicos_ess.devices.epics.base import EpicsMoveableEss
 from nicos_ess.estia.devices.attocube import IDS3010Axis, IDS3010Control
 

@@ -160,6 +160,7 @@ def multiStatus(devices, maxage=None):
     devices.
     """
     from nicos.core.device import Readable
+
     # get to work
     rettext = []
     retstate = 0

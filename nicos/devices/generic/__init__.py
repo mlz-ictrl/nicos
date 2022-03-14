@@ -46,6 +46,6 @@ from nicos.devices.generic.switcher import MultiSwitcher, ReadonlySwitcher, \
     Switcher
 from nicos.devices.generic.system import FreeSpace
 from nicos.devices.generic.virtual import VirtualCoder, VirtualCounter, \
-    VirtualImage, VirtualMotor, VirtualRealTemperature, \
+    VirtualGauss, VirtualImage, VirtualMotor, VirtualRealTemperature, \
     VirtualReferenceMotor, VirtualScanningDetector, VirtualTemperature, \
-    VirtualTimer, VirtualGauss
+    VirtualTimer
