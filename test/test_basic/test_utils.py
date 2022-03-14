@@ -75,23 +75,23 @@ def test_readonly_objects():
     assert isinstance(unpickled, readonlydict)
     assert len(unpickled) == 2
 
-    l = readonlylist([1, 2, 3])
-    assert raises(TypeError, l.append, 4)
+    lst = readonlylist([1, 2, 3])
+    assert raises(TypeError, lst.append, 4)
 
     # pickle Protocoll 0
-    unpickled = pickle.loads(pickle.dumps(l))
+    unpickled = pickle.loads(pickle.dumps(lst))
     assert isinstance(unpickled, readonlylist)
     assert len(unpickled) == 3
     # pickle Protocoll 2
-    unpickled = pickle.loads(pickle.dumps(l, 2))
+    unpickled = pickle.loads(pickle.dumps(lst, 2))
     assert isinstance(unpickled, readonlylist)
     assert len(unpickled) == 3
 
 
 def test_readonlylist_hashable():
-    l = readonlylist([1, 2, 3])
-    assert l == [1, 2, 3]
-    dt = {l: 'testval'}
+    lst = readonlylist([1, 2, 3])
+    assert lst == [1, 2, 3]
+    dt = {lst: 'testval'}
     assert dt[readonlylist([1, 2, 3])] == 'testval'
 
 
@@ -216,17 +216,19 @@ def serversocket():
     yield serv
     closeSocket(serv)
 
+
 def test_tcpsocket(serversocket):
     sock = None
 
-    sockargs = [ ('localhost:65432', 1),
-                ('localhost', 65432),
-                (('localhost', 65432), 1, dict(timeout=5))
-        ]
+    sockargs = [
+        ('localhost:65432', 1),
+        ('localhost', 65432),
+        (('localhost', 65432), 1, dict(timeout=5))
+    ]
     for args in sockargs:
         try:
             if len(args) == 3:
-                kwds= args[2]
+                kwds = args[2]
                 args = args[:2]
                 sock = tcpSocket(*args, **kwds)
             else:
@@ -242,13 +244,16 @@ def test_timer():
     def cb(tmr, x, y=None):
         if x == 3 and y == 'ykwd':
             tmr.cb_called = True
+
     def nf(tmr, info):
-        if info == "notify":
+        if info == 'notify':
             tmr.notify_called = True
+
     def nf1(tmr):
-        tmr.notify_called = "yes"
+        tmr.notify_called = 'yes'
+
     # a) test a (short) timed timer
-    tmr = Timer(0.1, cb, cb_args=(3,),cb_kwds={'y':'ykwd'})
+    tmr = Timer(0.1, cb, cb_args=(3,), cb_kwds={'y': 'ykwd'})
     assert tmr.is_running()
     while (monotonic() - t < 1.5) and tmr.is_running():
         sleep(0.05)
@@ -286,7 +291,7 @@ def test_timer():
     assert tmr.notify_called
     tmr.start(run_for=0.5)
     tmr.wait(0.1, nf1)
-    assert tmr.notify_called=="yes"
+    assert tmr.notify_called == 'yes'
 
 
 def test_num_sort():
@@ -472,8 +477,9 @@ def test_all_days():
     assert list(allDays(tmto - 3 * 86400, tmto)) == exp_list[1:]
     assert list(allDays(tmto - 4 * 86400, tmto)) == exp_list
 
-@pytest.mark.parametrize('name', [('COM1','_COM1_'),
-                                  ('xyz.txt','xyz.txt')])
+
+@pytest.mark.parametrize('name', [('COM1', '_COM1_'),
+                                  ('xyz.txt', 'xyz.txt')])
 def test_safeName(name):
     assert safeName(name[0]) == name[1]
 
@@ -521,7 +527,7 @@ def nonexistantfile(tmpdir):
 @pytest.fixture(scope='function')
 def filecounterfile(tmpdir):
     fc = str(tmpdir.join('testcounter2'))
-    with open(fc, "w", encoding="utf-8") as f:
+    with open(fc, 'w', encoding='utf-8') as f:
         f.write('key1 1234\n')
         f.write('key2 5678\n')
     yield fc
