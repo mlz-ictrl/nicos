@@ -257,9 +257,7 @@ class NewViewDialog(DlgUtils, QDialog):
         self.devicesExpandBtn.hide()
         self._createDeviceTree()
 
-    # TODO: remove 'lowlevel' once it is removed from Device
-    blacklist = {'maxage', 'pollinterval', 'visibility', 'lowlevel', 'classes',
-                 'value'}
+    blacklist = {'maxage', 'pollinterval', 'visibility', 'classes', 'value'}
 
     def _createDeviceTree(self):
         def param_predicate(name, value, info):
