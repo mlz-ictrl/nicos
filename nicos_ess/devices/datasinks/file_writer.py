@@ -33,18 +33,18 @@ from datetime import datetime, timedelta
 from enum import Enum
 from time import time as currenttime
 
-from kafka import KafkaProducer, KafkaConsumer, TopicPartition
+from kafka import KafkaConsumer, KafkaProducer, TopicPartition
 from kafka.errors import KafkaError
-from streaming_data_types import deserialise_answ, deserialise_wrdn, \
-    deserialise_x5f2, serialise_6s4t, serialise_pl72, deserialise_pl72
+from streaming_data_types import deserialise_answ, deserialise_pl72, \
+    deserialise_wrdn, deserialise_x5f2, serialise_6s4t, serialise_pl72
 from streaming_data_types.fbschemas.action_response_answ.ActionOutcome import \
     ActionOutcome
 from streaming_data_types.fbschemas.action_response_answ.ActionType import \
     ActionType
 
 from nicos import session
-from nicos.core import MASTER, Attach, Param, ScanDataset, host, listof, \
-    status
+from nicos.core import ADMIN, MASTER, Attach, Param, ScanDataset, host, \
+    listof, status
 from nicos.core.constants import INTERRUPTED, POINT
 from nicos.core.data.sink import DataSinkHandler
 from nicos.core.params import Override, anytype
@@ -581,17 +581,20 @@ class FileWriterControlSink(FileSink):
 
     def list_jobs(self):
         dt_format = '%Y-%m-%d %H:%M:%S'
-        headers = ('job', 'job ID', 'status', 'start time', 'stop time',
-                   'replay of', 'error')
+        headers = ['job', 'status', 'start time', 'stop time', 'replay of',
+                   'error']
+        funcs = [lambda job: str(job.job_number),
+                 lambda job: job.get_state_string(),
+                 lambda job: job.start_time.strftime(dt_format),
+                 lambda job: job.stop_time.strftime(dt_format),
+                 lambda job: str(job.replay_of) if job.replay_of else '',
+                 lambda job: job.error_msg if job.error_msg else '']
+        if session.daemon_device.current_script().user.level == ADMIN:
+            headers.insert(1, 'job  GUID')
+            funcs.insert(1, lambda job: job.job_id)
         items = []
         for job in self._attached_status._jobs_in_order.values():
-            items.append([str(job.job_number), job.job_id,
-                          job.get_state_string(),
-                          job.start_time.strftime(dt_format),
-                          job.stop_time.strftime(
-                              dt_format) if job.stop_requested else '',
-                          str(job.replay_of) if job.replay_of else '',
-                          job.error_msg if job.error_msg else ''])
+            items.append([func(job) for func in funcs])
         printTable(headers, items, session.log.info)
 
     def replay_job(self, job_number):
