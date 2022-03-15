@@ -84,7 +84,11 @@ class SetupChecker:
         self.setupname = path.basename(filename)[:-3]
         self.log = logging.getLogger(filename)
         self.is_guiconfig = self.setupname.startswith('guiconfig')
-        setup_roots = findSetupRoots(filename)
+        try:
+            setup_roots = findSetupRoots(filename)
+        except RuntimeError as err:
+            self.log_error(str(err))
+            setup_roots = (path.dirname(filename),)
         if setup_roots in SetupChecker.all_setups_cache:
             all_setups = SetupChecker.all_setups_cache[setup_roots]
         else:
