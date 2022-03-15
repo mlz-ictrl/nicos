@@ -35,6 +35,8 @@ from nicos.protocols.daemon.classic import DEFAULT_PORT
 class ConnectionDialog(QDialog):
     """A dialog to request connection parameters."""
 
+    ui = 'dialogs/auth.ui'
+
     @classmethod
     def getConnectionData(cls, parent, connpresets, lastpreset, lastdata,
                           tunnel=''):
@@ -73,7 +75,7 @@ class ConnectionDialog(QDialog):
 
     def __init__(self, parent, connpresets, lastpreset, lastdata, tunnel=''):
         QDialog.__init__(self, parent)
-        loadUi(self, 'dialogs/auth.ui')
+        loadUi(self, self.ui)
         if hasattr(parent, 'facility_logo'):
             self.logoLabel.setPixmap(QPixmap(parent.facility_logo))
         self.connpresets = connpresets
