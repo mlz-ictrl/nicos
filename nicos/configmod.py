@@ -130,6 +130,10 @@ def readToml(filename):
             return toml.load(fp)
     except OSError:
         return {}
+    except toml.TomlDecodeError as err:
+        raise RuntimeError(
+            f'could not read NICOS config file at {filename!r},'
+            f' please make sure it is valid TOML: {err}') from None
 
 
 def readConfig():
