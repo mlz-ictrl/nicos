@@ -21,15 +21,18 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
+import copy
 
+from nicos import session
 from nicos.nexus.elements import DetectorDataset, DeviceAttribute, \
-    DeviceDataset, ImageDataset, NXAttribute, NXLink, NXTime
+    DeviceDataset, ImageDataset, NXAttribute, NXLink, NXTime, NXScanLink
 from nicos.nexus.nexussink import NexusTemplateProvider
 
 from nicos_ess.nexus import EventStream, NXDataset
 from nicos_ess.nexus.elements import CacheStream
+from nicos_sinq.nexus.specialelements import AbsoluteTime
 
-dmc_default = {
+dmc_base = {
     'NeXus_Version': '4.4.0',
     'instrument': 'DMC',
     'owner': DeviceAttribute('DMC', 'responsible'),
@@ -103,110 +106,6 @@ dmc_default = {
                                                                       'string')
                                                     ),
             },
-            'detector:NXdetector': {
-                'detector_position': DeviceDataset('a4',
-                                                   dtype='float32',
-                                                   units=NXAttribute('degree',
-                                                                     'string')),
-                'summed_counts': DetectorDataset('counts', dtype='int32',
-                                                 units=NXAttribute('counts',
-                                                                   'string')),
-                'data': NXLink('/entry/DMC/detector/counts'),
-            }
-        },
-        'data:NXdata': {
-            'signal': NXAttribute('data', 'string'),
-            'data': NXLink('/entry/DMC/detector/data')
-        }
-    }
-}
-
-
-dmc_optics = {
-    'NeXus_Version': '4.4.0',
-    'instrument': 'DMC',
-    'owner': DeviceAttribute('DMC', 'responsible'),
-    'entry:NXentry': {
-        'default': 'data',
-        'title': DeviceDataset('Exp', 'title'),
-        'user:NXuser': {
-            'name': DeviceDataset('Exp', 'users'),
-            'email': DeviceDataset('Exp', 'localcontact')
-        },
-        'proposal_id': DeviceDataset('Exp', 'proposal'),
-        'start_time': NXTime(),
-        'sample:NXsample': {
-            'name': DeviceDataset('Sample', 'samplename'),
-            'rotation_angle': DeviceDataset('som',
-                                            dtype='float32',
-                                            units=NXAttribute('degree',
-                                                              'string')
-                                            ),
-            'polar_angle': DeviceDataset('a2',
-                                         dtype='float32',
-                                         units=NXAttribute('degree', 'string')
-                                         ),
-        },
-        'monitor:NXmonitor': {
-            'mode': DetectorDataset('mode', 'string'),
-            'preset': DetectorDataset('preset', 'float32'),
-            'monitor': DetectorDataset('monitorval', 'float32',
-                                       units=NXAttribute('counts', 'string')
-                                       ),
-            'time': DetectorDataset('elapsedtime', 'float32',
-                                    units=NXAttribute('seconds', 'string')
-                                    ),
-        },
-        'DMC:NXinstrument': {
-            'SINQ:NXSource': {
-                'name': 'SINQ',
-                'type': 'Continuous flux spallation source',
-            },
-            'monochromator:NXmonochromator': {
-                'curvature': DeviceDataset('mcv',
-                                           dtype='float32'),
-                'wavelength': DeviceDataset('wavelength',
-                                            dtype='float32'),
-                'rotation_angle': DeviceDataset('a1',
-                                                dtype='float32',
-                                                units=NXAttribute('degree',
-                                                                  'string')
-                                                ),
-                'type': 'Pyrolithic Graphite',
-
-                'translation_lower': DeviceDataset('mtl',
-                                                   dtype='float32',
-                                                   units=NXAttribute('mm',
-                                                                     'string')
-                                                   ),
-                'translation_upper': DeviceDataset('mtu',
-                                                   dtype='float32',
-                                                   units=NXAttribute('mm',
-                                                                     'string')
-                                                   ),
-                'goniometer_lower': DeviceDataset('mgl',
-                                                  dtype='float32',
-                                                  units=NXAttribute('degree',
-                                                                    'string')
-                                                  ),
-                'goniometer_upper': DeviceDataset('mgu',
-                                                  dtype='float32',
-                                                  units=NXAttribute('degree',
-                                                                    'string')
-                                                  ),
-                'curvature_vertical': DeviceDataset('mcv',
-                                                    dtype='float32',
-                                                    units=NXAttribute('degree',
-                                                                      'string')
-                                                    ),
-            },
-            'adaptive_optics:NXgroup': {
-                'taz': DeviceDataset('taz', dtype='float32'),
-            },
-            'detector:NXdetector': {
-                'counts': ImageDataset(0, 0, signal=NXAttribute(1, 'int32')),
-                'data': NXLink('/entry/DMC/detector/counts'),
-            }
         },
         'data:NXdata': {
             'signal': NXAttribute('data', 'string'),
@@ -355,5 +254,61 @@ dmc_event_mode = {
 
 
 class DMCTemplateProvider(NexusTemplateProvider):
+    """
+      NeXus template generation for DMC at SINQ
+    """
+
+    _detectors = ['detector', 'andorccd']
+
+    def makeAdaptiveOptics(self):
+        content = {}
+        if 'adaptive_optics' in session.loaded_setups:
+            content = {
+                'taz': DeviceDataset('taz', dtype='float32'),
+            }
+            return 'adaptive_optics', content
+        return None, None
+
+    def makeDetector(self):
+        content = {}
+
+        if 'andorccd' in session.experiment.detlist:
+            content['data'] = ImageDataset(0, 0,
+                                           signal=NXAttribute(1, 'int32'))
+            content['time_stamp'] = AbsoluteTime()
+            return 'andorccd', content
+
+        if 'detector' in session.experiment.detlist:
+            content['detector_position'] = DeviceDataset('a4', dtype='float32',
+                                                         units=NXAttribute(
+                                                             'degree', 'string'
+                                                         ))
+            content['counts'] = DetectorDataset('counts', dtype='int32',
+                                                units=NXAttribute('counts',
+                                                                  'string'))
+            return 'detector', content
+        return None, None
+
+    def makeData(self, name):
+        content = {
+            'data': NXLink(f'/entry/{name}/data'),
+            'None': NXScanLink()
+        }
+        return content
+
     def getTemplate(self):
-        return dmc_default
+        dmc_template = copy.deepcopy(dmc_base)
+        instrument = dmc_template['entry:NXentry']['DMC:NXinstrument']
+
+        name, content = self.makeDetector()
+        if name:
+            instrument[f'{name}:NXdetector'] = content
+            instrument['data:NXdata'] = self.makeData(name)
+        else:
+            session.log.info('No detector! May be: check setup???')
+
+        name, content = self.makeAdaptiveOptics()
+        if name:
+            instrument[f'{name}:NXGroup'] = content
+
+        return dmc_template

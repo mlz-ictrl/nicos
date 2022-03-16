@@ -2,7 +2,7 @@ description = 'DMC Mesytech detector'
 
 sysconfig = dict(datasinks = ['jbi_liveview'],)
 
-excludes = ['el737', 'andorccd']
+excludes = ['adaptive_optics', 'andorccd']
 
 devices = dict(
     a4=device('nicos_ess.devices.epics.motor.EpicsMotor',

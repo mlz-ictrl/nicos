@@ -2,7 +2,7 @@ description = 'Setup for the ANDOR CCD camera at BOA using the CCDWWW server'
 
 counterprefix = 'SQ:DMC:counter'
 
-excludes = ['detector', 'el737']
+excludes = ['detector']
 
 devices = dict(
     el737_preset = device('nicos_ess.devices.epics.detector.EpicsTimerActiveChannel',
