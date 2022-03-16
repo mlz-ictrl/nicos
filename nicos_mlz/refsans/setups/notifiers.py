@@ -8,9 +8,10 @@ devices = dict(
         mailserver = 'mailhost.frm2.tum.de',
         sender = 'refsans@frm2.tum.de',
         copies = [
-            #('matthias.pomm@hzg.de', 'all'),  # gets all messages
-            #('refsans@hzg.de', 'important'),
-            ('refsans@hzg.de', 'all'),
+            ('matthias.pomm@hereon.de', 'all'),  # gets all messages
+            #('matthias.pomm@web.de', 'all'),  # gets all messages
+            #('refsans@hereon.de', 'important'),
+            #('refsans@hereon.de', 'all'),
         ],
         subject = 'NICOS',
     ),
@@ -18,6 +19,9 @@ devices = dict(
     # Configure SMS receivers if wanted and registered with IT.
     smser = device('nicos.devices.notifiers.SMSer',
         server = 'triton.admin.frm2',
-        receivers = ['01799553828'],
+        receivers = [
+            #'015123629866',
+            '01799553828',
+            ],
     ),
 )
