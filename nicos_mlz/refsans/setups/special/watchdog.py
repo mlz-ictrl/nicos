@@ -2,6 +2,10 @@ description = 'setup for the NICOS watchdog'
 group = 'special'
 
 # watch_conditions:
+pressure_value = 0.018  # no precon
+pressure_precon = 0.015
+
+# watchlist:
 # The entries in this list are dictionaries. Possible keys:
 #
 # 'setup' -- setup that must be loaded (default '' to mean all setups)
@@ -32,31 +36,42 @@ watch_conditions = [
                      ' nl2b_value == "closed"',
          precondition = 'sixfold_value == "open" and '
                         'nl2b_value == "open" and '
-                        'reactorpower_value > 19.8',
+                        'reactorpower_value > 119.8',
          message = 'Reactor power falling or Sixfold or NL2b closed',
          type = 'critical',
     ),
+    # dict(
+    #     condition = 'reactorpower_value < 0.1',
+    #     message = 'reactorpower_value < 0.1',
+    #     type = 'critical',
+    # ),
     # dict(
     #     condition = '(sixfold_value == "closed" or nl2b_value == "closed") '
     #     'and reactorpower_value > 19.1',
     #     message = 'NL2b or sixfold shutter closed',
     #     type = 'critical',
     # ),
-    dict(condition = 'pressure_CB_value > 0.2',
-         precondition = 'pressure_CB_value < 0.1',
-         message = 'pressure_CB_value > 0.2',
+    dict(condition = 'pressure_CB_value > %.3f' % pressure_value,
+         precondition = 'pressure_CB_value < %.3f' % pressure_precon,
+         message = 'pressure_CB_value > %.3f' % pressure_value,
          type = 'critical',
         ),
-    dict(condition = 'pressure_SFK_value > 0.2',
-         precondition = 'pressure_SFK_value < 0.1',
-         message = 'pressure_SFK_value > 0.2',
+    dict(condition = 'pressure_SFK_value > %.3f' % pressure_value,
+         precondition = 'pressure_SFK_value < %.3f' % pressure_precon,
+         message = 'pressure_SFK_value > %.3f' % pressure_value,
          type = 'critical',
-        ),
-    dict(condition = 'pressure_SR_value > 0.2',
-         precondition = 'pressure_SR_value < 0.1',
-         message = 'pressure_SR_value > 0.2',
+    ),
+    dict(condition = 'pressure_SR_value > %.3f' % pressure_value,
+         precondition = 'pressure_SR_value < %.3f' % pressure_precon,
+         message = 'pressure_SR_value > %.3f' % pressure_value,
          type = 'critical',
-        ),
+    ),
+    dict(
+         condition = 't_memograph_in_value > 25',
+         message = 'Cooling water temperature greater than 25 C',
+         type = 'critical',
+         priority = 2,
+    ),
 ]
 
 includes = ['notifiers']
