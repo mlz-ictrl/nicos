@@ -277,7 +277,7 @@ class ExpPanel(PanelBase):
         width = table.width() - table.verticalHeader().width()
         num_cols = model.columnCount(0)
         for i in range(num_cols):
-            table.setColumnWidth(i, width / num_cols)
+            table.setColumnWidth(i, width // num_cols)
 
     def on_client_connected(self):
         PanelBase.on_client_connected(self)

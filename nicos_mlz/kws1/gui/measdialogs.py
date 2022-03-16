@@ -261,7 +261,8 @@ class DetsetDialog(QDialog):
         self.table.setHorizontalHeaderLabels(headers)
         self.table.resizeColumnsToContents()
         for i in range(len(measdef.getElements())):
-            self.table.setColumnWidth(i, max(50, 1.5 * self.table.columnWidth(i)))
+            self.table.setColumnWidth(
+                i, round(max(50, 1.5 * self.table.columnWidth(i))))
         self.table.resizeRowsToContents()
 
     def keyPressEvent(self, event):
