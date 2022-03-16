@@ -2,7 +2,7 @@ description = 'fallback for fail save'
 group = 'special'
 
 _expcolumn = Column(
-    Block('Experiment fallback for fail save', [
+    Block('Experiment fallback for fail save =src', [
         BlockRow(
             Field(name='Proposal', key='exp/proposal', width=7),
             Field(name='Title', key='exp/title', width=20, istext=True,
