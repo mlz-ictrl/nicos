@@ -11,12 +11,12 @@ devices = dict(
     #
     ## smccorvusserver b2 exports
     #
-    b2 = device(code_base + 'slits.DoubleSlit',
+    b2 = device('nicos.devices.generic.slit.VerticalGap',
         description = 'b2 at sample pos',
-        fmtstr = 'zpos: %.3f mm, open: %.3f mm',
-        unit = '',
-        slit_r = 'b2r',
-        slit_s = 'b2s',
+        bottom= 'b2s',
+        top = 'b2r',
+        opmode = 'offcentered',
+        min_opening = -1,
     ),
     b2r = device(code_base + 'slits.SingleSlit',
         # length: 13.0 mm
@@ -26,9 +26,9 @@ devices = dict(
         nok_end = 11064.50,
         nok_gap = 1.0,
         masks = {
-            'slit': 0.225,  # 2021-03-17 16:13:48 TheoMH 0.0
-            'point': 0.225,  # 2021-03-17 16:13:48 TheoMH 0.0
-            'gisans': 0.225,  # 2021-03-17 16:13:48 TheoMH 0.0
+            'slit': -5.775,  #gap 2024-03-12 0.225 # 2021-03-17 16:13:48 TheoMH 0.0
+            'point': -5.775,  #gap 2024-03-12 0.225 # 2021-03-17 16:13:48 TheoMH 0.0
+            'gisans': -5.775,  #gap 2024-03-12 0.225 # 2021-03-17 16:13:48 TheoMH 0.0
         },
         visibility = (),
         unit = 'mm',
@@ -41,9 +41,9 @@ devices = dict(
         nok_end = 11064.50,
         nok_gap = 1.0,
         masks = {
-            'slit': -1.225,  # 2021-03-17 16:13:48 TheoMH 0.0
-            'point': -1.225,  # 2021-03-17 16:13:48 TheoMH 0.0
-            'gisans': -85 * optic_values['gisans_scale'],
+            'slit': 4.775,  #gap 2024-03-12 -1.225 # 2021-03-17 16:13:48 TheoMH 0.0
+            'point': -4.775,  #gap 2024-03-12 -1.225 # 2021-03-17 16:13:48 TheoMH 0.0
+            'gisans': -79 * optic_values['gisans_scale'], #gap 2024-03-12 -85
         },
         unit = 'mm',
         visibility = (),

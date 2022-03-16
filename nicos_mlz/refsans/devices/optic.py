@@ -158,14 +158,16 @@ class Optic(Moveable):
                     line += ' debug'
                 else:
                     post = []
-                    if ele in ['nok5a', 'nok5b', 'zb0', 'zb1']:
+                    if ele in ['nok5a', 'nok5b', 'zb0', 'zb1', ]:
                         post.append(ele)
                     else:
-                        f.mode = self.masks[target][ele]
+                        if hasattr(f, 'mode'):
+                            f.mode = self.masks[target][ele]
                     for ele in post:
-                        f.mode = self.masks[target][ele]
                         f = getattr(self, '_attached_' + ele)
-                        f.wait()
+                        if hasattr(f, 'mode'):
+                            f.mode = self.masks[target][ele]
+                            f.wait()
                     line += ' %s' % self.masks[target][ele]
                 self.log.debug(line)
             else:

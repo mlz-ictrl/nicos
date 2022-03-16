@@ -8,13 +8,13 @@ code_base = instrument_values['code_base']
 
 devices = dict(
     h2_motor1 = device('nicos.devices.entangle.Actuator',
-        description = 'Horizontal slit: KWS side. towards TOFTOF is plus',
+        description = 'Horizontal slit: KWS side. towards KWS is positiv',
         tangodevice = tango_base + 'axis1',
         unit = 'mm',
         visibility = (),
     ),
     h2_motor2 = device('nicos.devices.entangle.Actuator',
-        description = 'Horizontal slit: TOFTOF side',
+        description = 'Horizontal slit: TOFTOF side. towards KWS is positiv',
         tangodevice = tango_base + 'axis2',
         unit = 'mm',
         visibility = (),

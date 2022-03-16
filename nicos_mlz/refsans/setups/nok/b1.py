@@ -18,12 +18,12 @@ index_s = 1
 # 2021-03-16 14:42:47 +- 2.6mm
 
 devices = dict(
-    b1 = device(code_base + 'slits.DoubleSlit',
+    b1 = device('nicos.devices.generic.slit.VerticalGap',
         description = 'b1 end of Chopperburg',
-        fmtstr = 'zpos: %.3f, open: %.3f',
-        slit_r = 'b1r',
-        slit_s = 'b1s',
-        unit = 'mm',
+        bottom= 'b1s',
+        top = 'b1r',
+        opmode = 'offcentered',
+        min_opening = -1,
     ),
     b1r = device(code_base + 'slits.SingleSlit',
         # length: 13.5 mm
@@ -62,7 +62,7 @@ devices = dict(
         slope = 10000,
         unit = 'mm',
         abslimits = (-133, 127),
-        ruler = 233.155,
+        ruler = 227.155, # gap 2024-03-12 233.155,
         visibility = (),
     ),
     b1s_motor = device(code_base + 'beckhoff.nok.BeckhoffMotorCab1M0x',
@@ -72,11 +72,11 @@ devices = dict(
         slope = 10000,
         unit = 'mm',
         abslimits = (-102, 170),
-        ruler = 140.388,
+        ruler = 146.388, # gap 2024-03-12 140.388,
         visibility = (),
     ),
 )
 
 alias_config = {
-    'primary_aperture': {'b1.opening': 300},
+    'primary_aperture': {'b1.height': 300},
 }

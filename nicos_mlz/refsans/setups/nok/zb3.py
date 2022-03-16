@@ -11,12 +11,12 @@ tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base']
 
 devices = dict(
-    zb3 = device(code_base + 'slits.DoubleSlit',
+    zb3 = device('nicos.devices.generic.slit.VerticalGap',
         description = 'ZB3 slit',
-        slit_r = 'zb3r',
-        slit_s = 'zb3s',
-        fmtstr = 'zpos: %.3f, open: %.3f',
-        unit = 'mm',
+        bottom= 'zb3s',
+        top = 'zb3r',
+        opmode = 'offcentered',
+        min_opening = -1,
     ),
     zb3r = device(code_base + 'slits.SingleSlit',
         # length: 13.0 mm
@@ -70,6 +70,7 @@ devices = dict(
          device2 = 'zb3r_analog',
          visibility = showcase_values['hide_acc'],
     ),
+
     zb3s_acc = device(code_base + 'accuracy.Accuracy',
          description = 'calc error Motor and poti',
          device1 = 'zb3s_motor',
@@ -79,5 +80,5 @@ devices = dict(
 )
 
 alias_config = {
-    'primary_aperture': {'zb3.opening': 100},
+    'primary_aperture': {'zb3.height': 100},
 }

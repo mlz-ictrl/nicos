@@ -1,4 +1,3 @@
-
 description = "DoubleSlit [slit k1] between nok8 and nok9"
 
 group = 'lowlevel'
@@ -13,12 +12,12 @@ tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base']
 
 devices = dict(
-    bs1 = device(code_base + 'slits.DoubleSlit',
+    bs1 = device('nicos.devices.generic.slit.VerticalGap',
         description = 'BS1 double between nok8 and nok9',
-        fmtstr = 'zpos: %.3f, open: %.3f',
-        unit = 'mm',
-        slit_r = 'bs1r',
-        slit_s = 'bs1s',
+        bottom= 'bs1s',
+        top = 'bs1r',
+        opmode = 'offcentered',
+        min_opening = -1,
     ),
     bs1r = device(code_base + 'slits.SingleSlit',
         # length: 6.0 mm
@@ -83,5 +82,5 @@ devices = dict(
 )
 
 alias_config = {
-    'primary_aperture': {'bs1.opening': 200},
+    'primary_aperture': {'bs1.height': 200},
 }
