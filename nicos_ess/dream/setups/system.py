@@ -21,7 +21,7 @@ devices = dict(
     ),
 
     Sample=device(
-        'nicos.devices.sample.Sample',
+        'nicos_ess.devices.sample.EssSample',
         description='The currently used sample',
     ),
 
