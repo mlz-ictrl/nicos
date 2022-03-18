@@ -125,8 +125,8 @@ class TimelineWidget(QGraphicsView):
         self.setSceneRect(0, 0, size.width(), size.height() - 5)
 
         if time_points:
-            self.setMinimumWidth(size.width() * 1.2)
-            self.setMaximumWidth(size.width() * 1.2)
+            self.setMinimumWidth(round(size.width() * 1.2))
+            self.setMaximumWidth(round(size.width() * 1.2))
 
     def mousePressEvent(self, event):
         """Handle mouse press events to support item selection."""

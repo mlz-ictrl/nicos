@@ -280,7 +280,7 @@ class NewViewDialog(DlgUtils, QDialog):
         tree.setColumnWidth(2, tree.columnWidth(2) // 2)
         tree.setColumnWidth(3, tree.columnWidth(3) // 2)
         tree.resizeColumnToContents(0)
-        tree.setColumnWidth(0, tree.columnWidth(0) * 1.5)
+        tree.setColumnWidth(0, round(tree.columnWidth(0) * 1.5))
         # disallow editing for name column
         tree.setItemDelegateForColumn(0, NoEditDelegate())
         tree.itemChanged.connect(self.on_deviceTree_itemChanged)
