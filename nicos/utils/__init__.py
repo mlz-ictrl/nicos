@@ -1423,6 +1423,19 @@ def num_sort(x, inf=float('inf')):
         return (inf, x)
 
 
+def natural_sort(values):
+    """Sorts a list of values using natural ordering.
+
+    :param values: list of values to sort.
+    :return: the sorted list.
+    """
+    def _natural_key(key):
+        parts = re.split(r'(\d*\.\d+|\d+)', str(key))
+        return tuple((e.swapcase() if i % 2 == 0 else float(e))
+                     for i, e in enumerate(parts))
+    return sorted(values, key=_natural_key)
+
+
 class ReaderRegistry:
     readers = {}
 

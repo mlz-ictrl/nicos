@@ -38,6 +38,7 @@ from nicos.guisupport.qt import QCheckBox, QComboBox, QFormLayout, QFrame, \
 from nicos.guisupport.utils import DoubleValidator
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.protocols.cache import cache_dump, cache_load
+from nicos.utils import natural_sort
 
 
 class DeviceValueEdit(NicosWidget, QWidget):
@@ -389,7 +390,7 @@ class ComboWidget(QComboBox):
 
     def __init__(self, parent, values, curvalue, add_other=False):
         QComboBox.__init__(self, parent)
-        self._values = sorted(values, key=str)
+        self._values = natural_sort(values)
         self._textvals = list(map(str, self._values))
         self._add_other = add_other
         if add_other:
