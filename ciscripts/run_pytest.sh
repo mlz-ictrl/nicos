@@ -12,4 +12,4 @@ export OMP_NUM_THREADS=1
 mkdir -p ~/test/testroot
 export NICOS_TEST_ROOT=~/test/testroot
 export TZ=Europe/Berlin
-python -m pytest -v test
+python -m pytest -v

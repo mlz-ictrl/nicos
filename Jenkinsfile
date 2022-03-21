@@ -243,6 +243,36 @@ addopts = --tb=short
   --cov-report=html:cov-$pyver
   --cov-report=xml:cobertura-${pyver}.xml
   --cov-report=term
+
+testpaths =
+    test
+    nicos_batan/dn3/test
+    nicos_ess/test
+    nicos_ess/estia/test
+    nicos_ess/loki/test
+    nicos_jcns/moke01/test
+    nicos_lahn/andes/test
+    nicos_mlz/antares/test
+    nicos_mlz/kompass/test
+    nicos_mlz/labs/physlab/test
+    nicos_mlz/maria/test
+    nicos_mlz/pgaa/test
+    nicos_mlz/puma/test
+    nicos_mlz/refsans/test
+    nicos_mlz/reseda/test
+    nicos_mlz/resi/test
+    nicos_mlz/sans1/test
+    nicos_mlz/spodi/test
+    nicos_mlz/stressi/test
+    nicos_mlz/toftof/test
+    nicos_sinq/test
+    nicos_sinq/amor/test
+    nicos_sinq/boa/test
+    nicos_sinq/camea/test
+    nicos_sinq/dmc/test
+    nicos_sinq/hrpt/test
+    nicos_sinq/morpheus/test
+    nicos_tuw/xccm/test
 """ : "")
     sh """
      [ -f pytest.ini ] || echo "[pytest]" > pytest.ini

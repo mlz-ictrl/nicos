@@ -75,7 +75,7 @@ check:
 setupcheck:
 	@$(PYTHON) tools/check-setups -s $(shell find . -mindepth 3 -type d -name setups | grep -v '\/test/') $(shell find . -name guiconfig.py)
 
-T = test
+T =
 
 test:
 	@$(PYTHON) -m pytest -v $(T) --ignore test/test_stresstest $(O)

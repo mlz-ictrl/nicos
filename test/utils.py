@@ -586,3 +586,67 @@ def selfDestructAfter(seconds=None):
 
     if hasattr(signal, 'alarm'):
         signal.alarm(seconds)
+
+
+try:
+    from nicos.devices.epics.pyepics.motor import EpicsMotor
+
+    class FakeEpicsMotor(EpicsMotor):
+        """Epics motor with fake getting and setting of PVs."""
+
+        position = 0
+
+        values = {
+            'speed': 10,
+            'basespeed': 0,
+            'maxspeed': 10,
+            'position': position,
+            'stop': 0,
+            'lowlimit': -110,
+            'highlimit': 110,
+            'readpv': position,
+            'writepv': position,
+            'offset': 0,
+            'enable': 1,
+            'direction': 0,
+            'resolution': 0,
+        }
+
+        def doPreinit(self, mode):
+            pass
+
+        def doInit(self, mode):
+            pass
+
+        def _get_pvctrl(self, pvparam, ctrl, default=None, update=False):
+            pass
+
+        def _put_pv(self, pvparam, value, wait=False):
+            self.values[pvparam] = value
+
+            if pvparam == 'offset':
+                self.values['lowlimit'] += value
+                self.values['highlimit'] += value
+
+        def _put_pv_blocking(self, pvparam, value, update_rate=0.1, timeout=60):
+            self.values[pvparam] = value
+
+            if pvparam == 'offset':
+                self.values['lowlimit'] += value
+                self.values['highlimit'] += value
+
+        def _get_pv(self, pvparam, as_string=False, use_monitor=True):
+            return self.values[pvparam]
+
+        def _put_pv_checked(self, pvparam, value, wait=False, update_rate=0.1,
+                            timeout=60, precision=0):
+            self._put_pv(pvparam, value, wait)
+
+
+    class DerivedEpicsMotor(FakeEpicsMotor):
+        def doPreinit(self, mode):
+            self._record_fields = dict(FakeEpicsMotor._record_fields)
+            self._record_fields.update({'extra_field': 'XTR'})
+
+except ModuleNotFoundError:
+    pass

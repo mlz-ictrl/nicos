@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Release 3.13.0
+--------------
+
+* Tests
+
+  - Change the structure for the facility specific setups
+
 Release 3.12.0
 --------------
 
