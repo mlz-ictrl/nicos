@@ -82,6 +82,7 @@ class EssExperiment(Experiment):
     def _canQueryProposals(self):
         if self._client:
             return True
+        return False
 
     def _update_cache(self):
         while True:

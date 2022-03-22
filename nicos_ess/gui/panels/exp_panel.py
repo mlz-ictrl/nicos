@@ -182,7 +182,7 @@ class ExpPanel(PanelBase):
         self.sampleTable.horizontalHeader().setSectionResizeMode(
             QHeaderView.Interactive)
 
-        self._text_controls = (self.expTitle, self.localContacts,
+        self._text_controls = (self.propTitle, self.localContacts,
                                self.proposalNum, self.proposalQuery)
 
         self.hide_samples = options.get('hide_sample', False)
@@ -255,7 +255,7 @@ class ExpPanel(PanelBase):
 
     def _update_panel(self):
         self.proposalNum.setText(self.old_proposal_settings.proposal_id)
-        self.expTitle.setText(self.old_proposal_settings.title)
+        self.propTitle.setText(self.old_proposal_settings.title)
         self.localContacts.setText(
             self.old_proposal_settings.local_contacts)
         self.errorAbortBox.setChecked(
@@ -285,15 +285,16 @@ class ExpPanel(PanelBase):
         self._is_proposal_system_available()
 
     def _is_proposal_system_available(self):
-        if self.client.eval('session.experiment._canQueryProposals()', None):
-            self.findProposalBox.setVisible(True)
-            self.proposalNum.setReadOnly(True)
-        else:
-            self.findProposalBox.setVisible(False)
-            self.proposalNum.setReadOnly(False)
+        available = self.client.eval('session.experiment._canQueryProposals()',
+                                     False)
+        self.findProposalBox.setVisible(available)
+        self.proposalNum.setReadOnly(available)
+        self.propTitle.setReadOnly(available)
+        self.userTable.setEnabled(not available)
+        self.addUserButton.setVisible(not available)
+        self.deleteUserButton.setVisible(not available)
 
     def on_client_disconnected(self):
-        PanelBase.on_client_disconnected(self)
         for control in self._text_controls:
             control.setText('')
         self._update_samples_model([])
@@ -301,6 +302,7 @@ class ExpPanel(PanelBase):
         self.notifEmails.setPlainText('')
         self.old_proposal_settings = ProposalSettings()
         self.new_proposal_settings = ProposalSettings()
+        PanelBase.on_client_disconnected(self)
 
     def on_client_setup(self, data):
         if 'system' in data[0]:
@@ -321,6 +323,7 @@ class ExpPanel(PanelBase):
             self._set_buttons_and_warning_behaviour(False)
         else:
             self._check_for_changes()
+            self._is_proposal_system_available()
 
     def _format_local_contacts(self, local_contacts):
         if local_contacts:
@@ -466,7 +469,7 @@ class ExpPanel(PanelBase):
                                    '\n'.join(result['warnings']))
                 # now transfer it into gui
                 self.proposalNum.setText(result.get('proposal', proposal))
-                self.expTitle.setText(result.get('title', ''))
+                self.propTitle.setText(result.get('title', ''))
                 self._update_users_model(result.get('users', []))
                 self._format_user_table()
                 self.localContacts.setText(
@@ -506,7 +509,7 @@ class ExpPanel(PanelBase):
         self._check_for_changes()
 
     @pyqtSlot(str)
-    def on_expTitle_textChanged(self, value):
+    def on_propTitle_textChanged(self, value):
         self.new_proposal_settings.title = value.strip()
         self._check_for_changes()
 
