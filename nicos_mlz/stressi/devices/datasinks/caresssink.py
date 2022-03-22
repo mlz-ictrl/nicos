@@ -194,7 +194,7 @@ class CaressScanfileSinkHandler(DataSinkHandler):
         self._defcmd(data + '(%s)' % ' '.join(d.keys()))
         self._string(data)
         for k, v in d.items():
-            if isinstance(v, numbers.Number):
+            if isinstance(v, numbers.Real):
                 self._write_float(v)
             elif isinstance(v, str) and (v in self.sink.mapping):
                 self.log.debug('%s = %r -> %r', k, v, self.sink.mapping[v])
