@@ -29,7 +29,9 @@ import time
 from yuos_query.exceptions import BaseYuosException
 from yuos_query.yuos_client import YuosCacheClient
 
-from nicos.core import Override, Param
+from nicos import session
+from nicos.core import Override, Param, SIMULATION, UsageError, listof, \
+    mailaddress
 from nicos.devices.experiment import Experiment
 from nicos.utils import createThread
 
@@ -48,6 +50,7 @@ class EssExperiment(Experiment):
         'serviceexp': Override(default='Service'),
         'sendmail': Override(default=False),
         'zipdata': Override(default=False),
+        'users': Override(default=[], type=listof(dict)),
     }
 
     def doInit(self, mode):
@@ -69,6 +72,69 @@ class EssExperiment(Experiment):
 
     def doReadUsers(self):
         return self.propinfo.get('users', [])
+
+    def new(self, proposal, title=None, localcontact=None, user=None, **kwds):
+        if self._mode == SIMULATION:
+            raise UsageError('Simulating switching experiments is not '
+                             'supported!')
+
+        proposal = str(proposal)
+
+        if not proposal.isnumeric():
+            raise UsageError('Proposal ID must be numeric')
+
+        # Handle back compatibility with user/users
+        users = user if user else kwds.get('users', [])
+
+        self._check_users(users)
+        self._check_local_contacts(localcontact)
+
+        # combine all arguments into the keywords dict
+        kwds['proposal'] = proposal
+        kwds['title'] = str(title) if title else ''
+        kwds['localcontacts'] = localcontact if localcontact else []
+        kwds['users'] = users
+
+        # give an opportunity to check proposal database etc.
+        propinfo = self._newPropertiesHook(proposal, kwds)
+        self._setROParam('propinfo', propinfo)
+        self._setROParam('proposal', proposal)
+
+        # Update cached values of the volatile parameters
+        self._pollParam('title')
+        self._pollParam('localcontact')
+        self._pollParam('users')
+        self._newSetupHook()
+        session.experimentCallback(self.proposal, None)
+
+    def update(self, title=None, users=None, localcontacts=None):
+        self._check_users(users)
+        self._check_local_contacts(localcontacts)
+        Experiment.update(self, title, users, localcontacts)
+
+    def _check_users(self, users):
+        if not users:
+            return
+        if not isinstance(users, list):
+            raise UsageError('users must be supplied as a list')
+
+        for user in users:
+            if not user.get('name'):
+                raise KeyError('user name must be supplied')
+            mailaddress(user.get('email', ''))
+
+    def _check_local_contacts(self, contacts):
+        if not contacts:
+            return
+        if not isinstance(contacts, list):
+            raise UsageError('local contacts must be supplied as a list')
+        for contact in contacts:
+            if not contact.get('name'):
+                raise KeyError('local contact name must be supplied')
+            mailaddress(contact.get('email', ''))
+
+    def finish(self):
+        pass
 
     def _canQueryProposals(self):
         if self._client:
