@@ -780,9 +780,9 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         pass  # not implemented
 
     def updateDisplay(self):
-        self._plot.title = self.titleString()
+        self._plot.title = self._adjustTitleLength(self.titleString())
         if self.subTitleString():
-            self._plot.subTitle = self.subTitleString()
+            self._plot.subTitle = self._adjustTitleLength(self.subTitleString())
         self._plot.xlabel = self.xaxisName()
         self._plot.ylabel = self.yaxisName()
         if self.normalized:
@@ -813,6 +813,15 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
                     curwin[1] = max(xmaxs)
             axes.setWindow(curwin[0], curwin[1], scale[0], scale[1])
         InteractiveGRWidget.update(self)
+
+    def _adjustTitleLength(self, title):
+        maxgrtextlen = gr.text_maxsize if hasattr(gr, 'text_maxsize') else 131
+        if len(title.encode()) > maxgrtextlen:
+            # truncate string to byte length(), incomplete 'UTF-8' chars will
+            # be removed
+            title = title.encode()[:maxgrtextlen - 3].decode(errors='ignore')
+            title += '...'  # indicate truncation
+        return title
 
     def isLegendEnabled(self):
         return self._plot.isLegendEnabled()
