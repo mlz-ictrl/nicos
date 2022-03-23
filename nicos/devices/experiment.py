@@ -686,7 +686,7 @@ class Experiment(Device):
         # set new experiment properties given by caller
         self._setROParam('proptype', proptype)
 
-        # give an opportunity to check propsal database etc.
+        # give an opportunity to check proposal database etc.
         propinfo = self._newPropertiesHook(proposal, kwds)
         self._setROParam('propinfo', propinfo)
         # Update cached values of the volatile parameters
