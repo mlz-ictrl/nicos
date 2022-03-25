@@ -99,6 +99,7 @@ class TableModel(QAbstractTableModel):
 
         row, column = self._get_row_and_column(index)
 
+        value = value.strip()
         self._table_data[row][column] = value
         col_name = self._headings[column]
         self._raw_data[row][self._mappings.get(col_name, col_name)] = value
@@ -351,7 +352,7 @@ class ExpPanel(PanelBase):
         users = [user for user in self.users_model.raw_data
                  if any(user.values())]
         for user in users:
-            if not all(field in user for field in self._user_fields):
+            if not all(user[field] for field in self._user_fields):
                 self.showError('User details not filled out completely')
                 return
 
