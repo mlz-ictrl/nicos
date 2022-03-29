@@ -36,6 +36,7 @@ devices = dict(
         unit = 'K',
         pollinterval = 5,
         maxage = 6,
+        visibility = ('metadata', ),
     ),
     wavelength = device('nicos.devices.generic.ReadonlySwitcher',
         description = 'wavelength',
