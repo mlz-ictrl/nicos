@@ -29,11 +29,7 @@ devices = dict(
         'nicos_ess.devices.experiment.EssExperiment',
         description='experiment object',
         dataroot='/opt/nicos-data/dream',
-        sendmail=False,
-        serviceexp='p0',
         sample='Sample',
-        server_url='https://useroffice-test.esss.lu.se/graphql',
-        instrument='DREAM',
         cache_filepath='/opt/nicos-data/dream/cached_proposals.json'
     ),
 

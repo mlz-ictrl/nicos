@@ -29,11 +29,7 @@ devices = dict(
         'nicos_ess.devices.experiment.EssExperiment',
         description='experiment object',
         dataroot=configdata('config.ESTIA_DATA_ROOT'),
-        sendmail=False,
-        serviceexp='p0',
         sample='Sample',
-        server_url='https://useroffice-test.esss.lu.se/graphql',
-        instrument='ESTIA',
         cache_filepath=f'{configdata("config.ESTIA_DATA_ROOT")}/'
                        f'cached_proposals.json'
     ),

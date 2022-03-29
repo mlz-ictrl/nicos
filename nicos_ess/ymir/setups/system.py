@@ -25,11 +25,9 @@ devices = dict(
                   ),
 
     Exp=device('nicos_ess.devices.experiment.EssExperiment',
-               description="The current experiment",
+               description='experiment object',
                dataroot='/opt/nicos-data/ymir',
                sample='Sample',
-               server_url='https://useroffice-test.esss.lu.se/graphql',
-               instrument='YMIR',
                cache_filepath='/opt/nicos-data/ymir/cached_proposals.json'
                ),
 

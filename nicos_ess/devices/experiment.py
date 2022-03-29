@@ -24,11 +24,10 @@
 
 """ESS Experiment device."""
 
-import os
 import time
 
 from yuos_query.exceptions import BaseYuosException
-from yuos_query.yuos_client import YuosClient
+from yuos_query.yuos_client import YuosCacheClient
 
 from nicos.core import Override, Param
 from nicos.devices.experiment import Experiment
@@ -37,12 +36,6 @@ from nicos.utils import createThread
 
 class EssExperiment(Experiment):
     parameters = {
-        'server_url': Param('URL of the proposal system',
-            type=str, category='experiment', mandatory=True, userparam=False
-        ),
-        'instrument': Param('The instrument name in the proposal system',
-            type=str, category='experiment', mandatory=True, userparam=False
-        ),
         'cache_filepath': Param('Path to the proposal cache',
             type=str, category='experiment', mandatory=True, userparam=False
         ),
@@ -63,12 +56,10 @@ class EssExperiment(Experiment):
         self._update_cache_worker = createThread(
             'update_cache', self._update_cache, start=False)
         try:
-            self._client = YuosClient(self.server_url,
-                                      os.environ.get('YUOS_TOKEN'),
-                                      self.instrument, self.cache_filepath)
+            self._client = YuosCacheClient.create(self.cache_filepath)
             self._update_cache_worker.start()
         except Exception as error:
-            self.log.warn('QueryDB not available: %s', error)
+            self.log.warn('proposal look-up not available: %s', error)
 
     def doReadTitle(self):
         if self.proptype == 'service':
@@ -86,9 +77,8 @@ class EssExperiment(Experiment):
 
     def _update_cache(self):
         while True:
-            # Client instantiation updates the cache. Thus wait before updating
-            time.sleep(self.update_interval * 3600)
             self._client.update_cache()
+            time.sleep(self.update_interval * 3600)
 
     def _queryProposals(self, proposal=None, kwds=None):
         if not proposal:
