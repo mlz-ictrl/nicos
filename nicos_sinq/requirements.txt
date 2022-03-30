@@ -3,3 +3,4 @@ lxml>=2.3.2
 colorcet
 polarTransform>=2.0.0
 python-logstash-async
+ess-streaming-data-types>=0.16.0

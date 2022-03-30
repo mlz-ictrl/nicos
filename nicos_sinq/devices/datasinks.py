@@ -22,9 +22,13 @@
 #   Mark Koennecke <mark.koennecke@psi.ch>
 #
 # *****************************************************************************
-
+import queue
 import socket
 from os import path
+from time import monotonic as currenttime
+
+import numpy as np
+from streaming_data_types import serialise_hs01
 
 from nicos import session
 from nicos.core import SIMULATION, Attach, DataSink, DataSinkHandler, \
@@ -32,10 +36,11 @@ from nicos.core import SIMULATION, Attach, DataSink, DataSinkHandler, \
 from nicos.core.errors import ProgrammingError
 from nicos.devices.generic.manual import ManualSwitch
 from nicos.nexus.nexussink import NexusSink
-from nicos.utils import readFileCounter, updateFileCounter
+from nicos.utils import createThread, readFileCounter, updateFileCounter
 
 from nicos_ess.devices.datasinks.nexussink import NexusFileWriterSink, \
     NexusFileWriterSinkHandler
+from nicos_ess.devices.kafka.producer import ProducesKafkaMessages
 
 
 def delete_keys_from_dict(dict_del, keys):
@@ -196,3 +201,52 @@ class SwitchableNexusSink(NexusSink):
             session.log.warning(
                 'NeXus file writing suppressed on user request')
             return []
+
+
+class ImageForwarderSinkHandler(DataSinkHandler):
+
+    def serialise(self, prefix, arr, index=0, num_images=1):
+        shape = arr.shape
+        dim_metadata = [
+            {'bin_boundaries': np.array(range(shape[0])) - .5,
+             'length': shape[0]},
+            {'bin_boundaries': np.array(range(shape[1])) - .5,
+             'length': shape[1]},
+        ]
+        data = {
+            'source': f'{prefix}_{index}' if num_images > 1 else prefix,
+            'timestamp': int(currenttime() * 1e3),
+            'current_shape': shape,
+            'dim_metadata': dim_metadata,
+            'data': arr,
+        }
+        return serialise_hs01(data)
+
+    def putResults(self, quality, results):
+        for source_prefix, value in results.items():
+            num_images = len(value[1])
+            for index, arr in enumerate(value[1]):
+                message = self.serialise(source_prefix, arr, index, num_images)
+                self.sink._queue.put(message)
+
+
+class ImageForwarderSink(ProducesKafkaMessages, DataSink):
+    parameters = {
+        'output_topic': Param('The topic to send data to',
+                              type=str, userparam=False, settable=False,
+                              mandatory=True,
+                              ),
+    }
+
+    handlerclass = ImageForwarderSinkHandler
+
+    def doInit(self, mode):
+        self._queue = queue.Queue(1000)
+        self._worker = createThread('det_image_to_kafka', self._processQueue,
+                                    start=True)
+
+    def _processQueue(self):
+        while True:
+            value = self._queue.get()
+            self.send(self.output_topic, value)
+            self._queue.task_done()

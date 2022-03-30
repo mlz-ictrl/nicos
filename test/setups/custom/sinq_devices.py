@@ -35,4 +35,8 @@ devices = dict(
         window = 5,
         dev = 'dev'
     ),
+    image_forwarder_sink = device('test.nicos_sinq.devices.test_det_image_forwarder.MockImageForwarderSink',
+        brokers = ['localhost:9092'],
+        output_topic = 'TEST_detector',
+    ),
 )

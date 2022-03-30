@@ -2,7 +2,7 @@
 -r ../requirements-gui.txt
 -r ../requirements-epics.txt
 
-ess-streaming-data-types>=0.9.0
+ess-streaming-data-types>=0.16.0
 file-writer-control>=1.1.5
 flatbuffers==1.12
 graypy
