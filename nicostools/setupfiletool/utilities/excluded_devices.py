@@ -36,7 +36,7 @@ excluded_device_classes = [
     'nicos.devices.abstract.MappedReadable',
     'nicos.devices.abstract.MappedMoveable',
     'nicos.devices.generic.detector.PassiveChannel',
-    'nicos.devices.generic.detector.PostProcessPassiveChannel',
+    'nicos.devices.generic.detector.PostprocessPassiveChannel',
     'nicos.devices.generic.detector.ScanningDetector',
     'nicos.devices.generic.magnet.BipolarSwitchingMagnet',
     'nicos.devices.generic.sequence.BaseSequencer',
