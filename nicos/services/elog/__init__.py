@@ -31,7 +31,6 @@ from nicos.core import CacheLockError, Override, Param, oneof
 from nicos.core.sessions.utils import sessionInfo
 from nicos.devices.cacheclient import BaseCacheClient
 from nicos.protocols.cache import OP_ASK, OP_SUBSCRIBE, OP_TELL, cache_load
-from nicos.services.elog.handler import Handler
 from nicos.utils import importString, timedRetryOnExcept
 
 
@@ -97,12 +96,11 @@ class Logbook(BaseCacheClient):
         key = key[len(self._prefix):]
         time = time and float(time)
         # self.log.info('got %s=%r', key, value)
-        if key in self._handler.handlers:
-            try:
-                value = cache_load(value)
-                self._handler.handlers[key](time, value)
-            except Exception:
-                self.log.exception('Error in handler for: %s=%r', key, value)
+        try:
+            value = cache_load(value)
+            self._handler.handle(key, time, value)
+        except Exception:
+            self.log.exception('Error in handler for: %s=%r', key, value)
 
     def _wait_data(self):
         if self._islocked:

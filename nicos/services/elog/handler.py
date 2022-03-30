@@ -334,15 +334,15 @@ class Handler:
     def __init__(self, log, plotformat):
         self.log = log
         self.plotformat = plotformat
-        self.handlers = {}
-        # register all handlers
-        for name in Handler.__dict__:
-            if name.startswith('handle_'):
-                self.handlers[name[7:].replace('_', '/')] = getattr(self, name)
 
         self.dir = self.logdir = None
         self.out = HtmlWriter()
         self.out_plain = TextWriter()
+
+    def handle(self, key, timestamp, data):
+        fun = getattr(self, f'handle_{key}', None)
+        if fun:
+            fun(timestamp, data)
 
     def close(self):
         self.out.close()
