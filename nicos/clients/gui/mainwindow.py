@@ -29,6 +29,8 @@ import sys
 import traceback
 from time import strftime, time as currenttime
 
+import gr
+
 from nicos import nicos_version
 from nicos.clients.base import ConnectionData
 from nicos.clients.gui.client import NicosGuiClient
@@ -701,9 +703,9 @@ class MainWindow(DlgUtils, QMainWindow):
             dinfo = {}
         dlg = dialogFromUi(self, 'dialogs/about.ui')
         dlg.clientVersion.setText(nicos_version)
-        dlg.pyVersion.setText('%s/%s/%s' % (sys.version.split()[0],
-                                            QT_VERSION_STR,
-                                            PYQT_VERSION_STR))
+        dlg.pyVersion.setText('%s/%s/%s/%s/%s' % (
+            sys.version.split()[0], QT_VERSION_STR, PYQT_VERSION_STR,
+            gr.runtime_version(), gr.__version__))
         dlg.serverHost.setText(dinfo.get('server_host', 'not connected'))
         dlg.nicosRoot.setText(dinfo.get('nicos_root', ''))
         dlg.serverVersion.setText(dinfo.get('daemon_version', ''))

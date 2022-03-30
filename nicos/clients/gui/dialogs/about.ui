@@ -398,7 +398,7 @@
        <item row="2" column="1">
         <widget class="QLabel" name="label_10">
          <property name="text">
-          <string>Python, Qt versions:</string>
+          <string>Python, Qt, GR versions:</string>
          </property>
         </widget>
        </item>
