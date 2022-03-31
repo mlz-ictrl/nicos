@@ -815,11 +815,11 @@ class NicosGrPlot(NicosPlot, InteractiveGRWidget):
         InteractiveGRWidget.update(self)
 
     def _adjustTitleLength(self, title):
-        maxgrtextlen = gr.text_maxsize if hasattr(gr, 'text_maxsize') else 131
-        if len(title.encode()) > maxgrtextlen:
-            # truncate string to byte length(), incomplete 'UTF-8' chars will
+        title_bytes = title.encode()
+        if len(title_bytes) > gr.text_maxsize:
+            # truncate string to byte length, incomplete UTF-8 chars will
             # be removed
-            title = title.encode()[:maxgrtextlen - 3].decode(errors='ignore')
+            title = title_bytes[:gr.text_maxsize - 3].decode(errors='ignore')
             title += '...'  # indicate truncation
         return title
 
