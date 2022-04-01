@@ -54,8 +54,8 @@ class RefAxis(Axis):
         elif self.autoref and self.autoref > 0:
             self._moves += 1
 
-        if self.autoref and self._moves > abs(self.autoref) and \
-           not self._referencing:
+        if session.mode != SIMULATION and not self._referencing and \
+           self.autoref and self._moves > abs(self.autoref):
             self.log.info('self.autoref limit reached => referencing NOW')
             self.reference(target)  # WARNING: This takes a while !
 
