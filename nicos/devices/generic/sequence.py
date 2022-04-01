@@ -455,7 +455,7 @@ class SequencerMixin(DeviceMixinBase):
         except NicosError as err:
             self._set_seq_status(status.ERROR, 'error %s upon ' % err +
                                  self._seq_status[1])
-            self.log.error(self._seq_status[1], exc=1)
+            self.log.debug(self._seq_status[1], exc=1)
         except Exception as err:
             self.log.error('%s', err, exc=1)
 
