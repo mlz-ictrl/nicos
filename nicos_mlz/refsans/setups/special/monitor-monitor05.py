@@ -260,6 +260,12 @@ _pumpstand = Column(
         ),
         ],
     ),
+    Block('yoke_acc', [
+        BlockRow(
+                Field(name='acc of yoke', dev='det_yoke_acc', width=7),
+        ),
+        ],
+    ),
 )
 
 _05_chopper = Column(
