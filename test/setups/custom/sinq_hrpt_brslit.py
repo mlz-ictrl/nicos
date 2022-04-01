@@ -57,6 +57,6 @@ devices = dict(
         top = 'brto',
         bottom = 'brbo',
         right = 'brri',
-        lowlevel = True
+        visibility = (),
     ),
 )
