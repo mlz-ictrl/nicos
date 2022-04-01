@@ -291,7 +291,8 @@ class RotAxis(RefAxis):
                 self.log.info('Referencing: FAST mode: find refswitch')
                 tries = int(self.wraparound/10 + 1)
                 while not refsw(m) and tries > 0:
-                    m.maw(m.doRead() + 10)
+                    m.move(m.doRead() + 10)
+                    m._hw_wait()  # not using maw() because target check will fail
                     tries -= 1
                 if tries == 0:
                     self.log.error('Referencing: switch not found after '
@@ -312,7 +313,8 @@ class RotAxis(RefAxis):
                 self.log.debug('at %f: another %d %f %s slots left to try',
                                m.doRead(),
                                tries, self.leaveswitchstep, self.unit)
-                m.maw(m.doRead() + self.leaveswitchstep)
+                m.move(m.doRead() + self.leaveswitchstep)
+                m._hw_wait()
                 tries -= 1
             m.stop()
             m.speed = oldspeed
