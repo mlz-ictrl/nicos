@@ -650,8 +650,12 @@ def setall(param, value):
         if param not in dev.parameters:
             continue
         prevalue = getattr(dev, param)
-        setattr(dev, param, value)
-        dev.log.info('%s set to %r (was %r)', param, value, prevalue)
+        try:
+            setattr(dev, param, value)
+        except Exception:
+            dev.log.error('could not set %s', param, exc=1)
+        else:
+            dev.log.info('%s set to %r (was %r)', param, value, prevalue)
 
 
 @usercommand
