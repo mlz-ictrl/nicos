@@ -76,6 +76,13 @@ class PANDA(SequencerMixin, TAS):
         # start
         self._startSequence(seq)
 
+    def _getWaiters(self):
+        # don't wait on subdevices, the sequence will do it at the
+        # correct time
+        if session.mode == SIMULATION:
+            return self._adevs
+        return []
+
     def _runFailed(self, step, action, exc_info):
         # stop all other motors on failure to start
         self.stop()
@@ -84,7 +91,7 @@ class PANDA(SequencerMixin, TAS):
     def _waitFailed(self, step, action, exc_info):
         # wait for all other motors on failure
         try:
-            multiWait(self._getWaiters())
+            multiWait(self._adevs)
         except Exception:  # we want to reraise the original exception
             pass
         raise exc_info[1]
