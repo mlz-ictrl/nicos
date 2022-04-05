@@ -321,6 +321,8 @@ class ExpPanel(PanelBase):
         self.userTable.setEnabled(not viewonly)
         self.addUserButton.setEnabled(not viewonly)
         self.deleteUserButton.setEnabled(not viewonly)
+        self.addSampleButton.setEnabled(not viewonly)
+        self.deleteSampleButton.setEnabled(not viewonly)
         if viewonly:
             self._set_buttons_and_warning_behaviour(False)
         else:
@@ -397,10 +399,10 @@ class ExpPanel(PanelBase):
         name = sample.get('name', '')
         name = name if name else f'sample {index + 1}'
         return f'SetSample({index}, \'{name}\', ' \
-               f'formula=\'{sample["formula"]}\', ' \
-               f'number_of={sample["number_of"]}, ' \
-               f'mass_volume=\'{sample["mass_volume"]}\', ' \
-               f'density=\'{sample["density"]}\')'
+               f'formula=\'{sample.get("formula", "")}\', ' \
+               f'number_of={sample.get("number_of", 1)}, ' \
+               f'mass_volume=\'{sample.get("mass_volume", "")}\', ' \
+               f'density=\'{sample.get("density", "")}\')'
 
     def _set_title(self, changes):
         if self.new_proposal_settings.title != self.old_proposal_settings.title:
@@ -558,3 +560,21 @@ class ExpPanel(PanelBase):
     @pyqtSlot()
     def on_proposalQuery_returnPressed(self):
         self.on_queryDBButton_clicked()
+
+    @pyqtSlot()
+    def on_addSampleButton_clicked(self):
+        samples = self.samples_model.raw_data
+        samples.append({})
+        self.samples_model.raw_data = samples
+        self._format_sample_table()
+
+    @pyqtSlot()
+    def on_deleteSampleButton_clicked(self):
+        samples = self.samples_model.raw_data
+        columns = set(index.column()
+                      for index in self.sampleTable.selectedIndexes())
+        for col in sorted(columns, reverse=True):
+            if col < len(samples):
+                samples.pop(col)
+        self.samples_model.raw_data = samples
+        self._format_sample_table()
