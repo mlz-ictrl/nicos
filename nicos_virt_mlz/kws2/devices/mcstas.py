@@ -58,6 +58,7 @@ class KwsSimulation(McStasSimulation):
         if sample_y > 37.5:
             sample_y -= 75
             sample_select += 12
+        sample_y /= 1000  # mm -> m
         # McStas simulation counts from -2 on (1 is first "real" sample)
         sample_select -= 2
 
