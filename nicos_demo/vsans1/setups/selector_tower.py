@@ -19,6 +19,7 @@ devices = dict(
         abslimits = (-140, 142.5),
         visibility = (),
         requires = dict(level='admin'),
+        curvalue = 2.4,
         unit = 'mm',
     ),
     selector_ng = device('nicos.devices.generic.Switcher',

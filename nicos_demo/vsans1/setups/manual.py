@@ -7,7 +7,7 @@ devices = dict(
         description = 'sample aperture 2',
         unit = 'mm',
         fmtstr = '%.0f',
-        default = 0,
+        default = 1,
         warnlimits = (1, 50),
         abslimits = (0, 50)
     ),
