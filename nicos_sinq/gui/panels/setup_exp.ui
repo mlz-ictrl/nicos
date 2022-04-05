@@ -217,7 +217,7 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QLineEdit" name="expTitle"/>
+            <widget class="LineEdit" name="expTitle"/>
            </item>
            <item row="4" column="1">
             <widget class="QLineEdit" name="localContacts"/>
@@ -309,6 +309,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>nicos_sinq.gui.panels.setup_panel</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -24,27 +24,55 @@
 
 """NICOS GUI experiment setup window."""
 
-from nicos.clients.flowui.panels.setup_panel import ExpPanel as EssExpPanel
-from nicos.guisupport.qt import QDialog, QFileDialog
+from nicos.clients.gui.panels.setup_panel import ExpPanel as MlzExpPanel
+from nicos.guisupport.qt import QDialog, QFileDialog, QLineEdit
+from nicos.guisupport.widget import NicosWidget, PropDef
 
 from nicos_sinq.gui import uipath
 
 
-class ExpPanel(EssExpPanel):
+class LineEdit(QLineEdit, NicosWidget):
+    key = PropDef('key', str, '', 'Cache key to display (without "nicos/"'
+                                  'prefix), set either "dev" or this')
+
+    def __init__(self, parent, designMode=False):
+        QLineEdit.__init__(self, parent)
+        NicosWidget.__init__(self)
+
+    def registerKeys(self):
+        self.registerKey(self.props['key'])
+
+    def on_keyChange(self, key, value, time, expired):
+        self.setText(value)
+
+
+class ExpPanel(MlzExpPanel):
     """
-    Extends the EssExpPanel and let the user select the experiment scriptpath
+    Extends the MlzExpPanel and let the user select the experiment scriptpath
     """
 
     ui = '%s/panels/setup_exp.ui' % uipath
 
     def __init__(self, parent, client, options):
-        EssExpPanel.__init__(self, parent, client, options)
+        MlzExpPanel.__init__(self, parent, client, options)
+        self.expTitle.key = 'exp/title'
+        self.expTitle.setClient(client)
         self.scriptPathLine.returnPressed.connect(self.on_script_path_changed)
         self.scriptPathButton.clicked.connect(
             self.on_script_path_button_clicked)
 
     def on_client_connected(self):
-        EssExpPanel.on_client_connected(self)
+        # fill proposal
+        self._update_proposal_info()
+        self.newBox.setVisible(True)
+        # check for capability to ask proposal database
+        if self.client.eval('session.experiment._canQueryProposals()',
+                            None):
+            self.propdbInfo.setVisible(True)
+            self.queryDBButton.setVisible(True)
+        else:
+            self.queryDBButton.setVisible(False)
+        self.setViewOnly(self.client.viewonly)
         scriptpath = self.client.eval('session.experiment.scriptpath', '.')
         self.scriptPathLine.setText(scriptpath)
 
