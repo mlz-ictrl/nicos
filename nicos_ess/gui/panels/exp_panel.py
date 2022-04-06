@@ -32,102 +32,12 @@ from copy import deepcopy
 from nicos.clients.gui.panels.setup_panel import ProposalDelegate, \
     combineUsers, splitUsers
 from nicos.clients.gui.utils import dialogFromUi, loadUi
-from nicos.guisupport.qt import QAbstractTableModel, QDialogButtonBox, \
-    QHeaderView, QIntValidator, QListWidgetItem, Qt, pyqtSignal, pyqtSlot
+from nicos.guisupport.qt import QDialogButtonBox, QHeaderView, QIntValidator, \
+    QListWidgetItem, Qt, pyqtSlot
+from nicos.guisupport.tablemodel import TableModel
 from nicos.utils import decodeAny, findResource
 
 from nicos_ess.gui.panels.panel import PanelBase
-
-
-class TableModel(QAbstractTableModel):
-    data_updated = pyqtSignal()
-
-    def __init__(self, headings, mappings=None, transposed=False):
-        """ Constructor.
-
-        :param headings: the column headings.
-        :param mappings: maps the keys in the underlying data to the headings.
-        :param transposed: whether to display the data rotated (headings on the
-                           left side).
-        """
-        super().__init__()
-        self._transposed = transposed
-        self._headings = headings
-        self._mappings = mappings if mappings else {}
-        # raw_data is the underlying NICOS data
-        self._raw_data = []
-        self._table_data = []
-
-    @property
-    def raw_data(self):
-        """
-        :return: list of dictionaries containing the underlying data.
-        """
-        return self._raw_data
-
-    @raw_data.setter
-    def raw_data(self, data):
-        """
-        Sets the underlying data for the table.
-
-        If the keys in the data don't match the fields then they are ignored.
-
-        :param data: list of dictionaries containing the data.
-        """
-        self._raw_data = data
-
-        new_table = self._empty_table(len(self._headings),
-                                      len(self._raw_data))
-
-        for i, item in enumerate(self._raw_data):
-            for j, heading in enumerate(self._headings):
-                key = self._mappings.get(heading, heading)
-                new_table[i][j] = item.get(key, '')
-
-        self._table_data = new_table
-        self.layoutChanged.emit()
-        self.data_updated.emit()
-
-    def data(self, index, role):
-        if role == Qt.DisplayRole or role == Qt.EditRole:
-            row, column = self._get_row_and_column(index)
-            return self._table_data[row][column]
-
-    def setData(self, index, value, role):
-        if role != Qt.EditRole:
-            return False
-
-        row, column = self._get_row_and_column(index)
-
-        value = value.strip()
-        self._table_data[row][column] = value
-        col_name = self._headings[column]
-        self._raw_data[row][self._mappings.get(col_name, col_name)] = value
-        self.data_updated.emit()
-        return True
-
-    def _get_row_and_column(self, index):
-        if self._transposed:
-            return index.column(), index.row()
-        return index.row(), index.column()
-
-    def columnCount(self, index):
-        return len(self._raw_data) if self._transposed else len(self._headings)
-
-    def rowCount(self, index):
-        return len(self._headings) if self._transposed else len(self._raw_data)
-
-    def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
-
-    def headerData(self, section, orientation, role):
-        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
-            return section + 1 if self._transposed else self._headings[section]
-        if role == Qt.DisplayRole and orientation == Qt.Vertical:
-            return self._headings[section] if self._transposed else section + 1
-
-    def _empty_table(self, columns, rows):
-        return [[''] * columns for _ in range(rows)]
 
 
 class ProposalSettings:
