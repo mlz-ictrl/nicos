@@ -123,7 +123,7 @@ devices = dict(
         unit = 'mm'
     ),
     det_table = device(code_base + 'focuspoint.FocusPoint',
-        description = 'detector table inside scatteringtube. with pivot',
+        description = 'detector table inside scatteringtube with pivot',
         unit = 'mm',
         table = 'det_table_ctrl',
         pivot = 'det_pivot',
