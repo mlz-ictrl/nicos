@@ -91,7 +91,8 @@ def inner_count(detectors, preset, temporary=False, threaded=False):
     if not session.experiment.forcescandata:
         for filename in point.filenames:
             msg.append('file = %s' % filename)
-        session.log.info('count: %s', ', '.join(msg))
+        if msg:
+            session.log.info('count: %s', ', '.join(msg))
 
     return result
 
@@ -128,7 +129,7 @@ def _count(*detlist, **preset):
     names = set(preset)
     for det in detectors:
         names.difference_update(det.presetInfo())
-    if names:
+    if names and detectors:
         session.log.warning('these preset keys were not recognized by any of '
                             'the detectors: %s -- detectors are %s',
                             ', '.join(names), ', '.join(map(str, detectors)))
