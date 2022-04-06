@@ -4,6 +4,8 @@ group = 'optional'
 
 tango_host = 'tango://puma5.puma.frm2:10000/puma/'
 
+includes = ['nanovoltmeter']
+
 devices = dict(
     B_pm = device('nicos.devices.entangle.Sensor',
         description = 'Hall sensor',
