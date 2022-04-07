@@ -68,11 +68,18 @@ main_window = docked(
          ),  # hsplit
          ),
         (
+            'Script Builder',
+            vsplit(
+                panel('nicos_ess.loki.gui.scriptbuilder.LokiScriptBuilderPanel',
+                      tools=None),
+            ),  # vsplit
+        ),
+        (
             'Script Editor',
             vsplit(
                 panel('nicos.clients.flowui.panels.editor.EditorPanel',
                       tools=None),
-            ), # vsplit
+            ),  # vsplit
         ),
         (
             'History',
@@ -86,9 +93,9 @@ main_window = docked(
             ),
          ),
         position='left',
-    ), # tabbed
+    ),  # tabbed
 
-    ) # docked
+    )  # docked
 
 windows = [ ]
 

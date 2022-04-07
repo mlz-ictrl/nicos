@@ -25,7 +25,6 @@
 # *****************************************************************************
 
 """LoKI Script Builder Panel."""
-
 import os.path as osp
 from collections import OrderedDict
 from functools import partial
@@ -74,10 +73,17 @@ class LokiScriptBuilderPanel(PanelBase):
         }
 
         self.optional_columns = {
-            'temperature': ('Temperature', self.chkShowTempColumn),
-            'pre-command': ('Pre-command', self.chkShowPreCommand),
-            'post-command': ('Post-command', self.chkShowPostCommand)
+            'temperature': 'Temperature',
+            'pre-command': 'Pre-command',
+            'post-command': 'Post-command',
         }
+
+        self.optional_columns_to_checkbox = {
+            'temperature': self.chkShowTempColumn,
+            'pre-command': self.chkShowPreCommand,
+            'post-command': self.chkShowPostCommand
+        }
+
         # Set up trans order combo-box
         self.comboTransOrder.addItems(self._available_trans_options.keys())
 
@@ -91,16 +97,21 @@ class LokiScriptBuilderPanel(PanelBase):
         headers = [
             self.permanent_columns[name]
             if name in self.permanent_columns
-            else self.optional_columns[name][0]
+            else self.optional_columns[name]
             for name in self.columns_in_order
         ]
 
-        self.model = LokiScriptModel(headers)
+        mappings = {v: k for k, v in self.permanent_columns.items()}
+        mappings.update({v: k for k, v in self.optional_columns.items()})
+        for option in self.duration_options:
+            mappings[f'TRANS Duration\n({option})'] = 'trans_duration'
+            mappings[f'SANS Duration\n({option})'] = 'sans_duration'
+
+        self.model = LokiScriptModel(headers, mappings)
         self.tableView.setModel(self.model)
         self.tableView.setSelectionMode(QTableView.ContiguousSelection)
 
-        for name, details in self.optional_columns.items():
-            _, checkbox = details
+        for name, checkbox in self.optional_columns_to_checkbox.items():
             checkbox.stateChanged.connect(
                 partial(self._on_optional_column_toggled, name))
             self._hide_column(name)
@@ -113,6 +124,7 @@ class LokiScriptBuilderPanel(PanelBase):
         self.tableView.horizontalHeader().setStretchLastSection(True)
         self.tableView.horizontalHeader().setSectionResizeMode(
             QHeaderView.Stretch)
+        self.tableView.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.tableView.resizeColumnsToContents()
         self.tableView.setAlternatingRowColors(True)
         self.tableView.setStyleSheet(TABLE_QSS)
@@ -205,44 +217,26 @@ class LokiScriptBuilderPanel(PanelBase):
             if not set(headers_from_file).issubset(set(self.columns_in_order)):
                 raise AttributeError('incorrect headers in file')
             # Clear existing table before populating from file
-            self.on_clearTableButton_clicked()
+            self.model.clear()
             self._fill_table(headers_from_file, data)
 
-            for optional in set(headers_from_file).intersection(
-                set(self.optional_columns.keys())):
-                self.optional_columns[optional][1].setChecked(True)
+            for name in headers_from_file:
+                if name in self.optional_columns:
+                    self.optional_columns_to_checkbox[name].setChecked(True)
         except Exception as error:
-            self.showError(f'Could not load {filename}:  {error}')
+            self.showError(f'Could not load selected file:  {error}')
 
     def _fill_table(self, headers, data):
-        # corresponding indices of elements in headers_from_file list to headers
-        indices = [index for index, element in
-                   enumerate(self.columns_in_order) if element in headers]
-
-        table_data = []
+        raw_data = []
         for row in data:
-            # create appropriate length list to fill the table row
-            row = self._fill_elements(row, indices, len(self.columns_in_order))
-            table_data.append(row)
-
-        self.model.table_data = table_data
-
-    def _fill_elements(self, row, indices, length):
-        """Returns a list with row elements placed in the given indices.
-        """
-        if len(row) == length:
-            return row
-        result = [''] * length
-        # Slicing similar to numpy arrays result[indices] = row
-        for index, value in zip(indices, row):
-            result[index] = value
-        return result
+            raw_data.append(dict(zip(headers, row)))
+        self.model.raw_data = raw_data
 
     @pyqtSlot()
     def on_saveTableButton_clicked(self):
         if self.is_data_in_hidden_columns():
-            self.showError('Cannot save because data in optional column(s).'
-                           'Select the optional column or clear the column.')
+            self.showError('Cannot save because there is data in a non-visible '
+                           'optional column(s).')
             return
 
         filename = QFileDialog.getSaveFileName(
@@ -306,21 +300,21 @@ class LokiScriptBuilderPanel(PanelBase):
         for index in self.tableView.selectedIndexes():
             rows_to_remove.add(index.row())
         rows_to_remove = list(rows_to_remove)
-        self.tableView.model().removeRows(rows_to_remove)
+        self.tableView.model().remove_rows(rows_to_remove)
 
     def _insert_row_above(self):
         lowest, _ = self._get_selected_rows_limits()
         if lowest is not None:
-            self.tableView.model().insertRow(lowest)
+            self.tableView.model().insert_row(lowest)
         elif self.model.num_rows == 0:
-            self.tableView.model().insertRow(0)
+            self.tableView.model().insert_row(0)
 
     def _insert_row_below(self):
         _, highest = self._get_selected_rows_limits()
         if highest is not None:
-            self.tableView.model().insertRow(highest + 1)
+            self.tableView.model().insert_row(highest + 1)
         elif self.model.num_rows == 0:
-            self.tableView.model().insertRow(0)
+            self.tableView.model().insert_row(0)
 
     def _get_selected_rows_limits(self):
         lowest = None
@@ -336,11 +330,11 @@ class LokiScriptBuilderPanel(PanelBase):
 
     def _handle_cut_cells(self):
         self._handle_copy_cells()
-        self._handle_delete_cells()
+        self._handle_clear_cells()
 
-    def _handle_delete_cells(self):
+    def _handle_clear_cells(self):
         for index in self.tableView.selectedIndexes():
-            self.model.update_data_at_index(index.row(), index.column(), '')
+            self.model.setData(index, '', Qt.EditRole)
 
     def _handle_copy_cells(self):
         selected_data = self._extract_selected_data()
@@ -355,7 +349,7 @@ class LokiScriptBuilderPanel(PanelBase):
                 continue
             selected_indices.append((index.row(), index.column()))
 
-        selected_data = self.model.select_data(selected_indices)
+        selected_data = self.model.select_table_data(selected_indices)
         return selected_data
 
     def _get_hidden_column_indices(self):
@@ -405,24 +399,22 @@ class LokiScriptBuilderPanel(PanelBase):
 
     def _do_bulk_update(self, value):
         for index in self.tableView.selectedIndexes():
-            self.model.update_data_at_index(index.row(), index.column(), value)
+            self.model.setData(index, value, Qt.EditRole)
 
     @pyqtSlot()
     def on_clearTableButton_clicked(self):
         self.model.clear()
 
-    def _extract_labeled_data(self):
+    def _extract_script_data(self):
         hidden_column_names = self._get_hidden_column_names()
-        labeled_data = []
-        for row_data in self.model.table_data:
-            labeled_row_data = dict(zip(self.columns_in_order, row_data))
+        # Row will contribute to script only if all permanent columns filled
+        raw_data = [dict(x) for x in self.model.raw_data
+                    if all(map(x.get, self.permanent_columns.keys()))]
+        for row in raw_data:
             for key in hidden_column_names:
-                del labeled_row_data[key]
-            # Row will contribute to script only if all permanent columns
-            # values are present
-            if all(map(labeled_row_data.get, self.permanent_columns.keys())):
-                labeled_data.append(labeled_row_data)
-        return labeled_data
+                if key in row:
+                    del row[key]
+        return raw_data
 
     @pyqtSlot()
     def on_generateScriptButton_clicked(self):
@@ -430,12 +422,12 @@ class LokiScriptBuilderPanel(PanelBase):
             self.showError('There is data in optional column(s) which will '
                            'not appear in the script')
 
-        labeled_data = self._extract_labeled_data()
+        script_data = self._extract_script_data()
 
         if self._available_trans_options[self.comboTransOrder.currentText()]\
                 == TransOrder.SIMULTANEOUS:
-            if not all((data['sans_duration'] == data['trans_duration']
-                        for data in labeled_data)):
+            if not all((row['sans_duration'] == row['trans_duration']
+                        for row in script_data)):
                 self.showError('Different SANS and TRANS duration specified '
                                'in SIMULTANEOUS mode. SANS duration will be '
                                'used in the script.'
@@ -444,7 +436,7 @@ class LokiScriptBuilderPanel(PanelBase):
         _trans_order = self._available_trans_options[
             self.comboTransOrder.currentText()]
         template = ScriptFactory.from_trans_order(_trans_order).\
-            generate_script(labeled_data,
+            generate_script(script_data,
                             self.comboTransDurationType.currentText(),
                             self.comboSansDurationType.currentText(),
                             self.sbTransTimes.value(),

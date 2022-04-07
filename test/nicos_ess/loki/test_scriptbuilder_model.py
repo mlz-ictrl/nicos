@@ -30,9 +30,9 @@ HEADERS = ['COLUMN_1', 'COLUMN_2', 'COLUMN_3']
 
 
 def create_loki_script_model(num_rows=4, data=None):
-    model = LokiScriptModel(HEADERS, num_rows)
+    model = LokiScriptModel(HEADERS, num_rows=num_rows)
     if data is not None:
-        model.table_data = data
+        model.raw_data = data
     return model
 
 
@@ -40,59 +40,55 @@ class TestScriptBuilderModel:
     def test_initialization_done_correctly(self):
         num_rows = 4
         model = create_loki_script_model(num_rows)
-        # check if initialized with empty data
-        assert not any(data for data in sum(model.table_data, []))
-        # check dimensions of the table_data
+
+        # check dimensions of the data
+        assert len(model.raw_data) == 4
         assert len(model.table_data) == num_rows
         assert all(len(data) == len(HEADERS) for data in model.table_data)
 
     def test_inserting_empty_row(self):
         data = [
-            ['00', '01', '02'],
-            ['10', '11', '12'],
-            ['20', '21', '22'],
-            ['30', '31', '32'],
+            {'COLUMN_1': 1, 'COLUMN_2': 2, 'COLUMN_3': 3},
+            {'COLUMN_1': 11, 'COLUMN_2': 12, 'COLUMN_3': 13},
+            {'COLUMN_1': 21, 'COLUMN_2': 22, 'COLUMN_3': 23},
         ]
-        # Create model with data
         model = create_loki_script_model(len(data), data)
 
         position = 2
-        model.insertRow(position)
+        model.insert_row(position)
 
-        assert len(model.table_data) == len(data) + 1
-        assert model.table_data[position - 1] == data[position - 1]
+        assert model.num_rows == 4
         assert model.table_data[position] == [''] * len(HEADERS)
-        assert model.table_data[position + 1] == data[position]
+        assert model.raw_data[position] == {}
 
     def test_removing_rows(self):
         data = [
-            ['00', '01', '02'],
-            ['10', '11', '12'],
-            ['20', '21', '22'],
-            ['30', '31', '32'],
+            {'COLUMN_1': 1, 'COLUMN_2': 2, 'COLUMN_3': 3},
+            {'COLUMN_1': 11, 'COLUMN_2': 12, 'COLUMN_3': 13},
+            {'COLUMN_1': 21, 'COLUMN_2': 22, 'COLUMN_3': 23},
         ]
-        # Create model with data
         model = create_loki_script_model(len(data), data)
 
         positions = [0, 1]
-        model.removeRows(positions)
+        model.remove_rows(positions)
 
-        assert len(model.table_data) == len(data) - len(positions)
-        assert model.table_data == data[2:]
+        assert model.num_rows == 1
+        assert model.raw_data == [{'COLUMN_1': 21, 'COLUMN_2': 22,
+                                   'COLUMN_3': 23}]
+        assert model.table_data == [[21, 22, 23]]
 
     def test_data_selected_for_selected_indices(self):
         data = [
-            ['00', '01', '02'],
-            ['10', '11', '12'],
-            ['20', '21', '22'],
-            ['30', '31', '32'],
+            {'COLUMN_1': 1, 'COLUMN_2': 2, 'COLUMN_3': 3},
+            {'COLUMN_1': 11, 'COLUMN_2': 12, 'COLUMN_3': 13},
+            {'COLUMN_1': 21, 'COLUMN_2': 22, 'COLUMN_3': 23},
         ]
         model = create_loki_script_model(len(data), data)
 
         selected_indices = [(0, 0), (0, 1), (1, 0), (1, 1)]
-        selected_data = model.select_data(selected_indices)
+        selected_data = model.select_table_data(selected_indices)
 
-        assert selected_data == [['00', '01'], ['10', '11']]
+        assert selected_data == [[1, 2], [11, 12]]
 
     def test_clipboard_data_gets_pasted_in_empty_table_at_top_left(self):
         model = create_loki_script_model()
@@ -107,6 +103,8 @@ class TestScriptBuilderModel:
             ['', '', ''],
             ['', '', ''],
         ]
+        assert model.raw_data == [{'COLUMN_1': 'A', 'COLUMN_2': 'B'},
+                                  {'COLUMN_1': 'C', 'COLUMN_2': 'D'}, {}, {}]
 
     def test_clipboard_data_pasting_outside_the_columns_gets_ignored(self):
         model = create_loki_script_model()
@@ -121,6 +119,7 @@ class TestScriptBuilderModel:
             ['', '', ''],
             ['', '', ''],
         ]
+        assert model.raw_data == [{'COLUMN_3': 'A'}, {'COLUMN_3': 'C'}, {}, {}]
 
     def test_clipboard_data_pasting_in_bottom_row_expands_the_table(self):
         num_rows = 4
@@ -139,26 +138,34 @@ class TestScriptBuilderModel:
             ['A', 'B', ''],
             ['C', 'D', ''],
         ]
+        assert model.raw_data == [{}, {}, {},
+                                  {'COLUMN_1': 'A', 'COLUMN_2': 'B'},
+                                  {'COLUMN_1': 'C', 'COLUMN_2': 'D'}]
 
     def test_clipboard_data_gets_pasted_at_index_in_table_with_data(self):
         data = [
-            ['00', '01', '02'],
-            ['10', '11', '12'],
-            ['20', '21', '22'],
-            ['30', '31', '32'],
+            {'COLUMN_1': 1, 'COLUMN_2': 2, 'COLUMN_3': 3},
+            {'COLUMN_1': 11, 'COLUMN_2': 12, 'COLUMN_3': 13},
+            {'COLUMN_1': 21, 'COLUMN_2': 22, 'COLUMN_3': 23},
+            {'COLUMN_1': 31, 'COLUMN_2': 32, 'COLUMN_3': 33},
         ]
-        # Create model with data
         model = create_loki_script_model(len(data), data)
+
         clipboard_data = [['A', 'B'], ['C', 'D']]
         index = (1, 0)
-
         model.update_data_from_clipboard(clipboard_data, index)
 
         assert model.table_data == [
-            ['00', '01', '02'],
-            ['A', 'B', '12'],
-            ['C', 'D', '22'],
-            ['30', '31', '32'],
+            [1, 2, 3],
+            ['A', 'B', 13],
+            ['C', 'D', 23],
+            [31, 32, 33],
+        ]
+        assert model.raw_data == [
+            {'COLUMN_1': 1, 'COLUMN_2': 2, 'COLUMN_3': 3},
+            {'COLUMN_1': 'A', 'COLUMN_2': 'B', 'COLUMN_3': 13},
+            {'COLUMN_1': 'C', 'COLUMN_2': 'D', 'COLUMN_3': 23},
+            {'COLUMN_1': 31, 'COLUMN_2': 32, 'COLUMN_3': 33},
         ]
 
     def test_hidden_column_skipped_when_pasting_clipboard_data(self):
@@ -177,3 +184,19 @@ class TestScriptBuilderModel:
             ['', '', ''],
             ['', '', ''],
         ]
+        assert model.raw_data == [{'COLUMN_1': 'A', 'COLUMN_3': 'B'},
+                                  {'COLUMN_1': 'C', 'COLUMN_3': 'D'}, {}, {}]
+
+    def test_clearing(self):
+        data = [
+            {'COLUMN_1': 1, 'COLUMN_2': 2, 'COLUMN_3': 3},
+            {'COLUMN_1': 11, 'COLUMN_2': 12, 'COLUMN_3': 13},
+            {'COLUMN_1': 21, 'COLUMN_2': 22, 'COLUMN_3': 23},
+        ]
+        model = create_loki_script_model(len(data), data)
+
+        model.clear()
+
+        assert model.num_rows == 3
+        assert model.raw_data == [{}, {}, {}]
+        assert model.table_data == [['', '', ''], ['', '', ''], ['', '', '']]

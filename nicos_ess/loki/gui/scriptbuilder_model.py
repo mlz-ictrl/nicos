@@ -28,107 +28,71 @@
 
 import copy
 
-from nicos.guisupport.qt import QAbstractTableModel, QModelIndex, Qt
+from nicos.guisupport.qt import Qt
+from nicos.guisupport.tablemodel import TableModel as BasicTableModel
 
 
-class LokiScriptModel(QAbstractTableModel):
-    def __init__(self, header_data, num_rows=25):
-        QAbstractTableModel.__init__(self)
-
-        self._header_data = header_data
+class LokiScriptModel(BasicTableModel):
+    def __init__(self, headings, mappings=None, num_rows=25):
+        BasicTableModel.__init__(self, headings, mappings)
         self._default_num_rows = num_rows
-        self._table_data = self.empty_table(num_rows, len(header_data))
+        self._raw_data = [{} for _ in range(num_rows)]
+        self._table_data = self._empty_table(len(headings), num_rows)
 
     @property
     def table_data(self):
-        return copy.deepcopy(self._table_data)
+        return copy.copy(self._table_data)
 
-    @table_data.setter
-    def table_data(self, new_data):
-        # Extend the list with empty rows if new data has less rows than the
-        # default
-        self._table_data = copy.deepcopy(new_data)
-        if len(self._table_data) < self._default_num_rows:
-            self._table_data.extend(self.empty_table(
-                self._default_num_rows - len(self._table_data),
-                len(self._header_data)))
-        self.layoutChanged.emit()
+    def insert_row(self, position):
+        self._raw_data.insert(position, {})
+        self._table_data.insert(position, [''] * len(self._headings))
+        self._emit_update()
 
-    def data(self, index, role):
-        if role == Qt.DisplayRole or role == Qt.EditRole:
-            return self._table_data[index.row()][index.column()]
-
-    def setData(self, index, value, role):
-        if role == Qt.EditRole:
-            self._table_data[index.row()][index.column()] = value
-            return True
-
-    def rowCount(self, index):
-        return len(self._table_data)
-
-    def columnCount(self, index):
-        return len(self._header_data)
-
-    def create_empty_row(self, position):
-        self._table_data.insert(position, [''] * len(self._header_data))
-
-    def update_data_at_index(self, row, column, value):
-        self._table_data[row][column] = value
-        self.layoutChanged.emit()
-
-    def insertRow(self, position, index=QModelIndex()):
-        self.beginInsertRows(index, position, position)
-        self.create_empty_row(position)
-        self.endInsertRows()
+    def remove_rows(self, row_indices):
+        for index in sorted(row_indices, reverse=True):
+            del self._raw_data[index]
+            del self._table_data[index]
+        self._emit_update()
         return True
-
-    def removeRows(self, rows, index=QModelIndex()):
-        for row in sorted(rows, reverse=True):
-            self.beginRemoveRows(QModelIndex(), row, row)
-            del self._table_data[row]
-            self.endRemoveRows()
-        return True
-
-    def flags(self, index):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
 
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
-            return self._header_data[section]
+            return self._headings[section]
         if role == Qt.DisplayRole and orientation == Qt.Vertical:
             return section + 1
 
     def setHeaderData(self, section, orientation, value, role=Qt.DisplayRole):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
-            self._header_data[section] = value
+            self._headings[section] = value
             self.headerDataChanged.emit(orientation, section, section)
         return True
 
     def update_data_from_clipboard(self, copied_data, top_left_index,
                                    hidden_columns=None):
+        hidden_columns = hidden_columns if hidden_columns else []
+        visible_headings = [x for i, x in enumerate(self._headings)
+                            if i not in hidden_columns]
+
         # Copied data is tabular so insert at top-left most position
         for row_index, row_data in enumerate(copied_data):
             col_index = 0
             current_row = top_left_index[0] + row_index
             if current_row >= len(self._table_data):
-                self.create_empty_row(current_row)
+                self.insert_row(current_row)
 
-            index = 0
-            while index < len(row_data):
-                if top_left_index[1] + col_index < len(self._header_data):
-                    current_column = top_left_index[1] + col_index
+            for value in row_data:
+                if top_left_index[1] + col_index < len(visible_headings):
+                    heading = visible_headings[top_left_index[1] + col_index]
                     col_index += 1
-                    if hidden_columns and current_column in hidden_columns:
-                        continue
-                    self._table_data[current_row][
-                        current_column] = row_data[index]
-                    index += 1
+                    self._raw_data[current_row][
+                        self._mappings.get(heading, heading)] = value
+                    current_column = self._headings.index(heading)
+                    self._table_data[current_row][current_column] = value
                 else:
                     break
+        self._emit_update()
 
-        self.layoutChanged.emit()
-
-    def select_data(self, selected_indices):
+    def select_table_data(self, selected_indices):
         curr_row = -1
         row_data = []
         selected_data = []
@@ -142,16 +106,15 @@ class LokiScriptModel(QAbstractTableModel):
 
         if row_data:
             selected_data.append(row_data)
-            row_data = []
         return selected_data
-
-    def clear(self):
-        self.table_data = self.empty_table(
-            len(self._table_data), len(self._header_data))
-
-    def empty_table(self, rows, columns):
-        return [[""] * columns for _ in range(rows)]
 
     @property
     def num_rows(self):
-        return len(self._table_data)
+        return len(self._raw_data)
+
+    def clear(self):
+        """Clears the data but keeps the rows."""
+        self._raw_data = [{} for _ in self._raw_data]
+        self._table_data = self._empty_table(len(self._headings),
+                                             len(self._raw_data))
+        self._emit_update()
