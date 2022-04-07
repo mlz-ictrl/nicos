@@ -75,8 +75,7 @@ class TableModel(QAbstractTableModel):
                 new_table[i][j] = item.get(key, '')
 
         self._table_data = new_table
-        self.layoutChanged.emit()
-        self.data_updated.emit()
+        self._emit_update()
 
     def data(self, index, role):
         if role == Qt.DisplayRole or role == Qt.EditRole:
@@ -93,8 +92,12 @@ class TableModel(QAbstractTableModel):
         self._table_data[row][column] = value
         col_name = self._headings[column]
         self._raw_data[row][self._mappings.get(col_name, col_name)] = value
-        self.data_updated.emit()
+        self._emit_update()
         return True
+
+    def _emit_update(self):
+        self.layoutChanged.emit()
+        self.data_updated.emit()
 
     def _get_row_and_column(self, index):
         if self._transposed:
