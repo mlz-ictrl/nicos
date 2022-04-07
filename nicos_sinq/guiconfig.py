@@ -1,3 +1,27 @@
+#  -*- coding: utf-8 -*-
+# *****************************************************************************
+# NICOS, the Networked Instrument Control System of the MLZ
+# Copyright (c) 2009-2022 by the NICOS contributors (see AUTHORS)
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc.,
+# 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Module authors:
+#   Michele Brambilla <michele.brambilla@psi.ch>
+#
+# *****************************************************************************
+
 """NICOS GUI default configuration."""
 
 main_window = docked(
@@ -6,12 +30,6 @@ main_window = docked(
          tabbed(
              ('Experiment',
               panel('nicos_sinq.gui.panels.setup_panel.ExpPanel')),
-             ('Samples',
-              panel(
-                  'nicos_mlz.kws1.gui.sampleconf.KWSSamplePanel',
-                  image='nicos_mlz/sans1/gui/sampleChanger22.png',
-                  positions=22, setups='sans and sc2')
-              ),
              ('Instrument',
               panel('nicos.clients.flowui.panels.setup_panel.SetupsPanel')),
          ),
@@ -31,8 +49,7 @@ main_window = docked(
                      ('Scan Plot',
                       panel('nicos.clients.flowui.panels.scans.ScansPanel')),
                      ('Detector Image',
-                      panel('nicos.clients.flowui.panels.live.MultiLiveDataPanel',
-                            main_detector='middle_detector')),
+                      panel('nicos.clients.flowui.panels.live.LiveDataPanel')),
                      ('Script Status',
                       panel('nicos.clients.flowui.panels.status.ScriptStatusPanel',
                             eta=True)),
@@ -42,11 +59,6 @@ main_window = docked(
              panel(
                  'nicos.clients.flowui.panels.devices.DevicesPanel',
                  dockpos='right',
-                 param_display={'tas': 'scanmode',
-                                'Exp': ['lastpoint', 'lastscan']},
-                 filters=[('Detector', 'det'),
-                          ('Temperatures', '^T'),
-                          ],
              ),
          ),  # hsplit
          ),
@@ -58,8 +70,8 @@ main_window = docked(
                       tools=None),
             ), # vsplit
         ),
-        ('Detector Image', panel('nicos.clients.flowui.panels.live.MultiLiveDataPanel',
-                                 main_detector='middlebank_detector')),
+        ('Detector Image',
+         panel('nicos.clients.flowui.panels.live.LiveDataPanel')),
         (
             'History',
             panel('nicos.clients.flowui.panels.history.HistoryPanel'),
@@ -91,5 +103,5 @@ tools = [
 ]
 
 options = {
-    'ess_gui' : True,
+    'facility': 'sinq',
 }
