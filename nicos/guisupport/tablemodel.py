@@ -36,7 +36,7 @@ class TableModel(QAbstractTableModel):
         """ Constructor.
 
         :param headings: the column headings.
-        :param mappings: maps the keys in the underlying data to the headings.
+        :param mappings: maps the headings to the keys in the underlying data.
         :param transposed: whether to display the data rotated (headings on the
                            left side).
         """
