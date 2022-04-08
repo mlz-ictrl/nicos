@@ -22,8 +22,7 @@
 #
 # *****************************************************************************
 
-from nicos.clients.flowui.mainwindow import MainWindow as MainWindowESS, \
-    get_icon
+from nicos.clients.flowui.mainwindow import MainWindow as MainWindowESS
 
 
 class MainWindowSINQ(MainWindowESS):
@@ -31,12 +30,6 @@ class MainWindowSINQ(MainWindowESS):
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         MainWindowESS.__init__(self, log, gui_conf, viewonly=False, tunnel='')
         self.facility_logo = ':/psi-logo-auth'
-
-    def set_icons(self):
-        MainWindowESS.set_icons(self)
-        self.actionEmergencyStop.setIcon(
-            get_icon('emergency_stop_cross_red-24px.svg')
-        )
 
     def _update_status_text(self, status):
         if status == 'disconnected':
