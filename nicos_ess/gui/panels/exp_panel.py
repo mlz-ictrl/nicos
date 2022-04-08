@@ -131,6 +131,8 @@ class ExpPanel(PanelBase):
         self.sampleTable.hide()
         self.sampleLabel.hide()
         self.sampleLine.hide()
+        self.addSampleButton.hide()
+        self.deleteSampleButton.hide()
 
     def initialise_connection_status_listeners(self):
         PanelBase.initialise_connection_status_listeners(self)
