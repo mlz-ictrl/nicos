@@ -214,6 +214,18 @@ class Coder(NicosCoder):
             raise CommunicationError(
                 self, 'cannot clear alarm for encoder') from err
 
+    def _endatreadalarm(self):
+        """Read alarm for a binary-endat encoder."""
+        if self._type is not None and 'endat-protocol' not in self._type:
+            return
+        try:
+            self._attached_bus.send(self.addr, 155, 185, 3)
+            session.delay(0.5)
+            return self._attached_bus.send(self.addr, 156, 0, 3)
+        except Exception as err:
+            raise CommunicationError(
+                self, 'cannot read alarm for encoder') from err
+
 
 class Resolver(Coder):
     """This class is for the IPC resolver cards.
