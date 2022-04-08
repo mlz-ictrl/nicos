@@ -72,7 +72,7 @@ class TableModel(QAbstractTableModel):
         for i, item in enumerate(self._raw_data):
             for j, heading in enumerate(self._headings):
                 key = self._mappings.get(heading, heading)
-                new_table[i][j] = item.get(key, '')
+                new_table[i][j] = str(item.get(key, ''))
 
         self._table_data = new_table
         self._emit_update()
