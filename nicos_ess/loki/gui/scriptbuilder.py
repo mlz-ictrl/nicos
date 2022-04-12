@@ -31,17 +31,16 @@ from functools import partial
 
 from nicos.clients.flowui.panels import get_icon
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QAction, QApplication, QCursor, QFileDialog, \
-    QHeaderView, QKeySequence, QMenu, QShortcut, Qt, QTableView, pyqtSlot
+from nicos.guisupport.qt import QAction, QCursor, QFileDialog, QHeaderView, \
+    QKeySequence, QMenu, QShortcut, Qt, QTableView, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_ess.gui.panels.panel import PanelBase
 from nicos_ess.loki.gui.script_generator import ScriptFactory, TransOrder
 from nicos_ess.loki.gui.scriptbuilder_model import LokiScriptModel
+from nicos_ess.loki.gui.table_helper import Clipboard, TableHelper
 from nicos_ess.utilities.csv_utils import export_table_to_csv, \
     import_table_from_csv
-from nicos_ess.utilities.table_utils import convert_table_to_clipboard_text, \
-    extract_table_from_clipboard_text
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
 
@@ -110,6 +109,7 @@ class LokiScriptBuilderPanel(PanelBase):
         self.model = LokiScriptModel(headers, mappings)
         self.tableView.setModel(self.model)
         self.tableView.setSelectionMode(QTableView.ContiguousSelection)
+        self.table_helper = TableHelper(self.tableView, self.model, Clipboard())
 
         for name, checkbox in self.optional_columns_to_checkbox.items():
             checkbox.stateChanged.connect(
@@ -140,17 +140,18 @@ class LokiScriptBuilderPanel(PanelBase):
         menu = QMenu()
 
         copy_action = QAction("Copy", self)
-        copy_action.triggered.connect(self._handle_copy_cells)
+        copy_action.triggered.connect(
+            self.table_helper.copy_selected_to_clipboard)
         copy_action.setIcon(get_icon("file_copy-24px.svg"))
         menu.addAction(copy_action)
 
         cut_action = QAction("Cut", self)
-        cut_action.triggered.connect(self._handle_cut_cells)
+        cut_action.triggered.connect(self.table_helper.cut_selected_to_clipboard)
         cut_action.setIcon(get_icon("cut_24px.svg"))
         menu.addAction(cut_action)
 
         paste_action = QAction("Paste", self)
-        paste_action.triggered.connect(self._handle_table_paste)
+        paste_action.triggered.connect(self.table_helper.paste_from_clipboard)
         paste_action.setIcon(get_icon("paste_24px.svg"))
         menu.addAction(paste_action)
 
@@ -163,9 +164,9 @@ class LokiScriptBuilderPanel(PanelBase):
 
     def _create_keyboard_shortcuts(self):
         for key, to_call in [
-            (QKeySequence.Paste, self._handle_table_paste),
-            (QKeySequence.Cut, self._handle_cut_cells),
-            (QKeySequence.Copy, self._handle_copy_cells),
+            (QKeySequence.Paste, self.table_helper.paste_from_clipboard),
+            (QKeySequence.Cut, self.table_helper.cut_selected_to_clipboard),
+            (QKeySequence.Copy, self.table_helper.copy_selected_to_clipboard),
             ("Ctrl+Backspace", self._delete_rows),
         ]:
             self._create_shortcut_key(key, to_call)
@@ -177,15 +178,15 @@ class LokiScriptBuilderPanel(PanelBase):
 
     @pyqtSlot()
     def on_cutButton_clicked(self):
-        self._handle_cut_cells()
+        self.table_helper.cut_selected_to_clipboard()
 
     @pyqtSlot()
     def on_copyButton_clicked(self):
-        self._handle_copy_cells()
+        self.table_helper.copy_selected_to_clipboard()
 
     @pyqtSlot()
     def on_pasteButton_clicked(self):
-        self._handle_table_paste()
+        self.table_helper.paste_from_clipboard()
 
     @pyqtSlot()
     def on_addAboveButton_clicked(self):
@@ -328,63 +329,9 @@ class LokiScriptBuilderPanel(PanelBase):
             highest = max(highest, index.row())
         return lowest, highest
 
-    def _handle_cut_cells(self):
-        self._handle_copy_cells()
-        self._handle_clear_cells()
-
-    def _handle_clear_cells(self):
-        for index in self.tableView.selectedIndexes():
-            self.model.setData(index, '', Qt.EditRole)
-
-    def _handle_copy_cells(self):
-        selected_data = self._extract_selected_data()
-        clipboard_text = convert_table_to_clipboard_text(selected_data)
-        QApplication.instance().clipboard().setText(clipboard_text)
-
-    def _extract_selected_data(self):
-        selected_indices = []
-        for index in self.tableView.selectedIndexes():
-            if self.tableView.isColumnHidden(index.column()):
-                # Don't select hidden columns
-                continue
-            selected_indices.append((index.row(), index.column()))
-
-        selected_data = self.model.select_table_data(selected_indices)
-        return selected_data
-
-    def _get_hidden_column_indices(self):
-        return [idx for idx, _ in enumerate(self.columns_in_order)
-                if self.tableView.isColumnHidden(idx)]
-
     def _get_hidden_column_names(self):
         return [name for idx, name in enumerate(self.columns_in_order)
                 if self.tableView.isColumnHidden(idx)]
-
-    def _handle_table_paste(self):
-        indices = []
-        for index in self.tableView.selectedIndexes():
-            indices.append((index.row(), index.column()))
-
-        if not indices:
-            return
-        top_left = indices[0]
-
-        data_type = QApplication.instance().clipboard().mimeData()
-
-        if not data_type.hasText():
-            # Don't paste images etc.
-            return
-
-        clipboard_text = QApplication.instance().clipboard().text()
-        copied_table = extract_table_from_clipboard_text(clipboard_text)
-
-        if len(copied_table) == 1 and len(copied_table[0]) == 1:
-            # Only one value, so put it in all selected cells
-            self._do_bulk_update(copied_table[0][0])
-            return
-
-        self.model.update_data_from_clipboard(
-            copied_table, top_left, self._get_hidden_column_indices())
 
     def _link_duration_combobox_to_column(self, column_name, combobox):
         combobox.addItems(self.duration_options)

@@ -26,12 +26,17 @@
 """LoKI Experiment Configuration dialog."""
 from functools import partial
 
+from nicos.clients.flowui.panels import get_icon
 from nicos.clients.gui.utils import loadUi
-from nicos.guisupport.qt import QAbstractSpinBox, QDoubleSpinBox, \
-    QItemDelegate, QTableWidgetItem, pyqtSlot
+from nicos.core import ConfigurationError
+from nicos.guisupport.qt import QAbstractSpinBox, QAction, QCursor, \
+    QDoubleSpinBox, QHeaderView, QItemDelegate, QKeySequence, QMenu, \
+    QShortcut, Qt, QTableView, QTableWidgetItem, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_ess.gui.panels.panel import PanelBase
+from nicos_ess.loki.gui.samples_model import SamplesTableModel
+from nicos_ess.loki.gui.table_helper import Clipboard, TableHelper
 
 
 def add_spinbox_limits(spinbox, minimum, maximum, precision):
@@ -40,7 +45,12 @@ def add_spinbox_limits(spinbox, minimum, maximum, precision):
     spinbox.setDecimals(precision)
 
 
-class TableDelegate(QItemDelegate):
+class ReadOnlyDelegate(QItemDelegate):
+    def createEditor(self, parent, option, index):
+        return None
+
+
+class LimitsDelegate(QItemDelegate):
     def __init__(self, x_limits=(0, 0), y_limits=(0, 0), x_precision=3,
                  y_precision=3):
         QItemDelegate.__init__(self)
@@ -89,13 +99,18 @@ class LokiSampleHolderPanel(PanelBase):
         self.cell_spacings = {}
         self.number_cells = {}
         self.cartridges = {}
-        self.delegate = TableDelegate()
+        self.delegate = LimitsDelegate()
         self.labelWarning.setStyleSheet('color: red')
         self.labelWarning.setVisible(False)
         self._configure_combos()
         self._configure_tables()
+        self._configure_sample_table()
         self._connect_up_widgets()
         self.initialise_connection_status_listeners()
+        self.tabWidget.setStyleSheet('QTabWidget::tab-bar {left: 0px;} '
+                                     'QTabWidget::pane {'
+                                     'border: 1px solid darkgray; '
+                                     'border-radius: 5px}')
 
     def initialise_connection_status_listeners(self):
         PanelBase.initialise_connection_status_listeners(self)
@@ -137,18 +152,33 @@ class LokiSampleHolderPanel(PanelBase):
             self.client.register(self, f'{self._dev_name}/cartridges')
             self.client.register(self, f'{self._dev_name}/number_cells')
             self.client.register(self, f'{self._dev_name}/cell_spacings')
+            self.client.register(self, f'{self._dev_name}/mapping')
+            self.client.register(self, 'sample/samples')
             self.client.on_connected_event()
 
     def on_keyChange(self, key, value, time, expired):
         if self._dev_name and key.startswith(self._dev_name):
             if key.endswith('/number_cells'):
                 self.number_cells = value
+                self._populate_data()
             if key.endswith('/cartridges'):
                 self.cartridges = value
+                self._populate_data()
             if key.endswith('/cell_spacings'):
                 self.cell_spacings = value
-                return
-            self._populate_data()
+            if key.endswith('/mapping'):
+                self._update_samples()
+        elif key == 'sample/samples':
+            self._update_samples()
+
+    def _update_samples(self):
+        if self._in_edit_mode or not self._dev_name:
+            return
+        mapping = self.client.eval(f'{self._dev_name}.mapping', {})
+        self.positions = list(mapping.keys())
+        self.samples_model.set_positions(self.positions)
+        samples = self.client.eval('session.experiment.get_samples()', {})
+        self.samples_model.set_samples(samples)
 
     def setViewOnly(self, viewonly):
         for combo in self.cartridge_combos:
@@ -157,6 +187,7 @@ class LokiSampleHolderPanel(PanelBase):
             table.setEnabled(not viewonly)
         for button in self.calculate_buttons:
             button.setEnabled(not viewonly)
+        self.set_samples_viewonly(viewonly)
         self.cancelButton.setEnabled(not viewonly)
         if viewonly:
             self.saveButton.setEnabled(False)
@@ -170,6 +201,16 @@ class LokiSampleHolderPanel(PanelBase):
             self._populate_data()
             self._read_mode()
 
+    def set_samples_viewonly(self, viewonly):
+        if viewonly:
+            self.sampleTable.setItemDelegate(ReadOnlyDelegate())
+            self.sampleTable.setStyleSheet(
+                'QTableView {background: gainsboro;}')
+        else:
+            self.sampleTable.setItemDelegate(QItemDelegate())
+            self.sampleTable.setStyleSheet(
+                'QTableView {background: white;}')
+
     def _read_mode(self):
         for combo in self.cartridge_combos:
             combo.setEnabled(False)
@@ -177,7 +218,7 @@ class LokiSampleHolderPanel(PanelBase):
             table.setEnabled(False)
         for button in self.calculate_buttons:
             button.setEnabled(False)
-
+        self.set_samples_viewonly(True)
         self.editButton.setVisible(True)
         self.cancelButton.setVisible(False)
         self.saveButton.setVisible(False)
@@ -187,16 +228,14 @@ class LokiSampleHolderPanel(PanelBase):
                                                   (0, 0))
         self.delegate.y_limits = self.client.eval(f'{self._dev_name}.ylimits',
                                                   (0, 0))
-        labels = [str(x + 1) for x in range(max(self.number_cells.values()))]
         for combo in self.cartridge_combos:
             combo.setEnabled(True)
         for table in self.cartridge_tables:
             table.setEnabled(True)
-            table.setVerticalHeaderLabels(labels)
         for button in self.calculate_buttons:
             button.setEnabled(True)
         self.set_enabled_controls()
-
+        self.set_samples_viewonly(False)
         self.editButton.setVisible(False)
         self.cancelButton.setVisible(True)
         self.saveButton.setVisible(True)
@@ -207,6 +246,23 @@ class LokiSampleHolderPanel(PanelBase):
             combo.setCurrentIndex(-1)
         self.comboTopFirst.addItems(['rotation'])
         self.comboBottomFirst.addItems(['rotation'])
+
+    def _configure_sample_table(self):
+        columns = {'Name': 'name', 'Formula': 'formula',
+                   'Concentration': 'concentration', 'Thickness': 'thickness',
+                   'Notes': 'notes'}
+        self.samples_model = SamplesTableModel(columns)
+        self.sampleTable.setModel(self.samples_model)
+        self.table_helper = TableHelper(self.sampleTable, self.samples_model,
+                                        Clipboard())
+        self.positions = []
+
+        self.sampleTable.setSelectionMode(QTableView.ContiguousSelection)
+        self.sampleTable.horizontalHeader().setStretchLastSection(True)
+        self.sampleTable.verticalHeader().setSectionResizeMode(
+            QHeaderView.Fixed)
+        self._create_keyboard_shortcuts()
+        self._init_right_click_context_menu()
 
     def _configure_tables(self):
         # Not connected yet, so use an aesthetically pleasing number of rows.
@@ -226,7 +282,7 @@ class LokiSampleHolderPanel(PanelBase):
             combo.currentTextChanged.connect(partial(self.on_cartridge_changed,
                                                      table, button))
             button.clicked.connect(partial(self.on_calculate_clicked,
-                                           combo, table, button))
+                                           combo, table))
 
     def _populate_data(self):
         if self._in_edit_mode or not self._dev_name:
@@ -239,32 +295,33 @@ class LokiSampleHolderPanel(PanelBase):
                 for i, (x, y) in enumerate(settings.get('positions', [])):
                     table.setItem(i, 0, QTableWidgetItem(f'{x}'))
                     table.setItem(i, 1, QTableWidgetItem(f'{y}'))
-                table.setVerticalHeaderLabels(settings.get('labels', []))
 
     def _clear_data(self):
         for combo in self.cartridge_combos:
             combo.setCurrentText('blank')
         for table in self.cartridge_tables:
             table.clearContents()
+        self.samples_model.clear()
 
     def on_cartridge_changed(self, table, button, value):
         if not value:
             return
         table.setRowCount(self.number_cells.get(value, 0))
+        self._update_position_headers()
         if self._in_edit_mode:
             self.set_enabled_controls()
         button.setEnabled(value != 'blank')
 
-    def on_calculate_clicked(self, combo, table, button):
-        button.setFocus(True)
+    def on_calculate_clicked(self, combo, table):
+        table.setFocus(False)
         if not table.item(0, 0) or not table.item(0, 1):
             self.showError('Please enter x and y values for the first cell.')
             return
         x = float(table.item(0, 0).text())
         y = float(table.item(0, 1).text())
         num_cells = self.number_cells[combo.currentText()]
-        if not self._check_x_valid(x * num_cells) or not self._check_y_range(y):
-            return
+        self._check_x_valid(x * num_cells)
+        self._check_y_range(y)
 
         for i in range(1, num_cells):
             x += self.cell_spacings[combo.currentText()]
@@ -272,10 +329,10 @@ class LokiSampleHolderPanel(PanelBase):
             table.setItem(i, 1, QTableWidgetItem(f'{y}'))
 
     def _check_y_range(self, y):
-        return self._check_in_range(y, self.delegate.y_limits, 'y')
+        self._check_in_range(y, self.delegate.y_limits, 'y')
 
     def _check_x_valid(self, x):
-        return self._check_in_range(x, self.delegate.x_limits, 'x')
+        self._check_in_range(x, self.delegate.x_limits, 'x')
 
     def set_enabled_controls(self):
         is_rotation = False
@@ -294,52 +351,88 @@ class LokiSampleHolderPanel(PanelBase):
             if current_text == 'blank':
                 table.clearContents()
 
+    def _update_position_headers(self):
+        self.positions.clear()
+        count = 0
+        for i, table in enumerate(self.cartridge_tables):
+            prefix = 'T' if i < 3 else 'B'
+            if i == 3:
+                count = 0
+            positions = []
+            for _ in range(table.rowCount()):
+                count += 1
+                positions.append(f'{prefix}{count}')
+            table.setVerticalHeaderLabels(positions)
+            self.positions.extend(positions)
+        self.samples_model.set_positions(self.positions)
+
     @pyqtSlot()
     def on_saveButton_clicked(self):
         self.saveButton.setFocus(True)
         if not self._dev_name:
             return
+        if self.mainwindow.current_status != 'idle':
+            self.showError('Could not set values as a command/script is in '
+                           'progress.')
+            return
+        try:
+            # Extract all data before sending to avoid samples and holders
+            # getting out of sync if there are validation errors.
+            samples = self.samples_model.extract_samples()
+            cartridges = self._extract_cartridges()
+            self._write_cartridges(cartridges)
+            self._write_samples(samples)
+        except ConfigurationError as error:
+            self.showError(str(error))
+            return
+
+        self._in_edit_mode = False
+        self._read_mode()
+
+    def _write_samples(self, samples):
+        self.client.eval('session.experiment.sample.clear()')
+        for index, sample in samples:
+            self.client.eval(
+                f'session.experiment.sample.set({index}, {sample})')
+
+    def _extract_cartridges(self):
         all_positions = set()
-        settings = []
-        count = 1
-        for i, (combo, table) in enumerate(zip(self.cartridge_combos,
-                                               self.cartridge_tables)):
+        cartridges = []
+        i = 0
+        for combo, table in zip(self.cartridge_combos, self.cartridge_tables):
             data = {
                 'type': combo.currentText(),
                 'positions': [],
                 'labels': []
             }
-            prefix = 'T' if i < 3 else 'B'
-            if i == 3:
-                count = 1
             for r in range(table.rowCount()):
-                x = float(table.item(r, 0).text()) if table.item(r, 0) else 0
-                y = float(table.item(r, 1).text()) if table.item(r, 1) else 0
-                if not self._check_x_valid(x) or not self._check_y_range(y):
-                    return
+                if not table.item(r, 0) or not table.item(r, 0).text() \
+                        or not table.item(r, 1) or not table.item(r, 1).text():
+                    raise ConfigurationError(
+                        'All cell-holder positions must be specified. '
+                        f'{self.positions[i]} is not specified.')
+                x = float(table.item(r, 0).text())
+                y = float(table.item(r, 1).text())
+                self._check_x_valid(x)
+                self._check_y_range(y)
                 if (x, y) in all_positions:
-                    self.showError(f'Could not set values as non-unique '
-                                   f'position {(x, y)} found.')
-                    return
+                    raise ConfigurationError('Duplicate cell-holder positions '
+                                             'are not allowed. Position '
+                                             f'{(x, y)} found multiple times.')
                 all_positions.add((x, y))
                 data['positions'].append((x, y))
-                data['labels'].append(f'{prefix}{count}')
-                count += 1
-            settings.append(data)
+                data['labels'].append(self.positions[i])
+                i += 1
+            cartridges.append(data)
+        return cartridges
 
-        if self.client.run(f'{self._dev_name}.cartridges = {settings}',
-                           noqueue=True) is None:
-            self.showError('Could not set values as a command/script is in '
-                           'progress.')
-            return
-        self._in_edit_mode = False
-        self._read_mode()
+    def _write_cartridges(self, cartridges):
+        self.client.run(f'{self._dev_name}.cartridges = {cartridges}')
 
     def _check_in_range(self, value, limits, axis):
         if value < limits[0] or value > limits[1]:
-            self.showError(f'All {axis} values must be in range {limits}')
-            return False
-        return True
+            raise ConfigurationError(
+                f'All {axis} values must be in range {limits}')
 
     @pyqtSlot()
     def on_editButton_clicked(self):
@@ -352,3 +445,60 @@ class LokiSampleHolderPanel(PanelBase):
         self._in_edit_mode = False
         self._populate_data()
         self._read_mode()
+
+    def _init_right_click_context_menu(self):
+        self.sampleTable.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.sampleTable.customContextMenuRequested.connect(
+            self._show_context_menu)
+
+    def _show_context_menu(self):
+        menu = QMenu()
+
+        copy_action = QAction("Copy", self)
+        copy_action.triggered.connect(
+            self.table_helper.copy_selected_to_clipboard)
+        copy_action.setIcon(get_icon("file_copy-24px.svg"))
+        menu.addAction(copy_action)
+
+        cut_action = QAction("Cut", self)
+        cut_action.triggered.connect(self._on_cut)
+        cut_action.setIcon(get_icon("cut_24px.svg"))
+        menu.addAction(cut_action)
+
+        paste_action = QAction("Paste", self)
+        paste_action.triggered.connect(self._on_paste)
+        paste_action.setIcon(get_icon("paste_24px.svg"))
+        menu.addAction(paste_action)
+
+        clear_action = QAction("Clear", self)
+        clear_action.triggered.connect(self._on_clear)
+        clear_action.setIcon(get_icon("remove-24px.svg"))
+        menu.addAction(clear_action)
+
+        menu.exec_(QCursor.pos())
+
+    def _create_keyboard_shortcuts(self):
+        for key, to_call in [
+            (QKeySequence.Paste, self._on_paste),
+            (QKeySequence.Cut, self._on_cut),
+            (QKeySequence.Copy, self.table_helper.copy_selected_to_clipboard),
+            ("Ctrl+Backspace", self._on_clear),
+        ]:
+            self._create_shortcut_key(key, to_call)
+
+    def _create_shortcut_key(self, shortcut_keys, to_call):
+        shortcut = QShortcut(shortcut_keys, self.sampleTable)
+        shortcut.activated.connect(to_call)
+        shortcut.setContext(Qt.WidgetShortcut)
+
+    def _on_paste(self):
+        if self._in_edit_mode:
+            self.table_helper.paste_from_clipboard(expand=False)
+
+    def _on_cut(self):
+        if self._in_edit_mode:
+            self.table_helper.cut_selected_to_clipboard()
+
+    def _on_clear(self):
+        if self._in_edit_mode:
+            self.table_helper.clear_selected()

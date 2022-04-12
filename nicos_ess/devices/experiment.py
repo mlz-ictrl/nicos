@@ -39,10 +39,10 @@ from nicos.utils import createThread
 class EssExperiment(Experiment):
     parameters = {
         'cache_filepath': Param('Path to the proposal cache',
-            type=str, category='experiment', mandatory=True, userparam=False
-        ),
+                                type=str, category='experiment',
+                                mandatory=True, userparam=False),
         'update_interval': Param('Time interval (in hrs.) for cache updates',
-            default=1.0, type=float, userparam=False)
+                                 default=1.0, type=float, userparam=False)
     }
 
     parameter_overrides = {

@@ -67,47 +67,6 @@ class LokiScriptModel(BasicTableModel):
             self.headerDataChanged.emit(orientation, section, section)
         return True
 
-    def update_data_from_clipboard(self, copied_data, top_left_index,
-                                   hidden_columns=None):
-        hidden_columns = hidden_columns if hidden_columns else []
-        visible_headings = [x for i, x in enumerate(self._headings)
-                            if i not in hidden_columns]
-
-        # Copied data is tabular so insert at top-left most position
-        for row_index, row_data in enumerate(copied_data):
-            col_index = 0
-            current_row = top_left_index[0] + row_index
-            if current_row >= len(self._table_data):
-                self.insert_row(current_row)
-
-            for value in row_data:
-                if top_left_index[1] + col_index < len(visible_headings):
-                    heading = visible_headings[top_left_index[1] + col_index]
-                    col_index += 1
-                    self._raw_data[current_row][
-                        self._mappings.get(heading, heading)] = value
-                    current_column = self._headings.index(heading)
-                    self._table_data[current_row][current_column] = value
-                else:
-                    break
-        self._emit_update()
-
-    def select_table_data(self, selected_indices):
-        curr_row = -1
-        row_data = []
-        selected_data = []
-        for row, column in selected_indices:
-            if row != curr_row:
-                if row_data:
-                    selected_data.append(row_data)
-                    row_data = []
-            curr_row = row
-            row_data.append(self._table_data[row][column])
-
-        if row_data:
-            selected_data.append(row_data)
-        return selected_data
-
     @property
     def num_rows(self):
         return len(self._raw_data)
