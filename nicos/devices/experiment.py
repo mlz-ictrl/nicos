@@ -69,6 +69,9 @@ class Experiment(Device):
 
     The experiment singleton is available at runtime as
     `nicos.session.experiment`.
+
+    If mailuser is specified, password should be stored in the nicos keyring
+    (domain: nicos) using the *mailserver_password* as identifier.
     """
 
     parameters = {
@@ -131,6 +134,12 @@ class Experiment(Device):
                                 type=none_or(mailaddress)),
         'mailtemplate':   Param('Mail template file name (in templates)',
                                 type=str, default='mailtext.txt'),
+        'mailsecurity':   Param('Used encryption layer for smtp communication',
+                                type=oneof('none', 'tls', 'ssl'),
+                                default='none', settable=True),
+        'mailuser':       Param('Username used to login to SMTP server',
+                                type=none_or(nonemptystring), default=None,
+                                settable=True),
         'serviceexp':     Param('Name of proposal to switch to after user '
                                 'experiment', type=nonemptystring,
                                 default='service'),
@@ -979,17 +988,18 @@ class Experiment(Device):
                 (proposal, instname, stats.get('from_date'), stats.get('to_date'))
 
         self.log.info('Sending data files via eMail to %s', receivers)
+        attach_files = []
         if os.stat(zipname).st_size < maxAttachmentSize:
             # small enough -> send directly
-            sendMail(self.mailserver, receivers, self.mailsender, topic, mailbody,
-                     [zipname], 1 if self.loglevel == 'debug' else 0)
+            attach_files = [zipname]
         else:
             # not small enough -> upload and send link
             self.log.info('Zipfile is too big to send via email and will be '
                           'uploaded to a temporary storage for download.')
             mailbody += self._upload(zipname)
-            sendMail(self.mailserver, receivers, self.mailsender, topic, mailbody,
-                     [], 1 if self.loglevel == 'debug' else 0)
+        sendMail(self.mailserver, receivers, self.mailsender, topic, mailbody,
+                 attach_files, self.loglevel == 'debug',
+                 security=self.security, username=self.mailuser)
 
     def _finish(self, pzip, proposalpath, proposal, proptype, stats, receivers):
         if pzip:

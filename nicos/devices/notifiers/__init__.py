@@ -29,7 +29,8 @@ from time import time as currenttime
 
 from nicos import session
 from nicos.core import ADMIN, AccessError, Device, Override, Param, \
-    floatrange, listof, mailaddress, oneof, tupleof, usermethod
+    floatrange, listof, mailaddress, oneof, tupleof, usermethod, none_or, \
+    nonemptystring
 from nicos.utils import createSubprocess, createThread
 from nicos.utils.emails import sendMail
 
@@ -119,6 +120,9 @@ class Mailer(Notifier):
     If a Mailer is configured as a notifier (the Mailer device is in the list
     of `notifiers` in the `sysconfig` entry), the receiver addresses (not
     copies) can be set by `.SetMailReceivers`.
+
+    If username is specified, password should be stored in the nicos keyring
+    (domain: nicos) using the *mailserver_password* as identifier.
     """
 
     parameters = {
@@ -126,6 +130,12 @@ class Mailer(Notifier):
                             settable=True),
         'sender':     Param('Mail sender address', type=mailaddress,
                             mandatory=True),
+        'security':   Param('Used encryption layer for smtp communication',
+                            type=oneof('none', 'tls', 'ssl'), default='none',
+                            settable=True),
+        'username':   Param('Username used to login to SMTP server',
+                            type=none_or(nonemptystring), default=None,
+                            settable=True),
     }
 
     parameter_overrides = {
@@ -145,7 +155,8 @@ class Mailer(Notifier):
             if not receivers:
                 return
             ret = sendMail(self.mailserver, receivers, self.sender,
-                           self.subject + ' -- ' + subject, body)
+                           self.subject + ' -- ' + subject, body,
+                           security=self.security, username=self.username)
             if not ret:  # on error, ret is a list of errors
                 self.log.info('%smail sent to %s',
                               what and what + ' ' or '', ', '.join(receivers))

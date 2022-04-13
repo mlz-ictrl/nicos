@@ -31,13 +31,15 @@ from email.mime.text import MIMEText
 from email.utils import formatdate
 from os import path
 
+from nicos.core import ConfigurationError
 from nicos.core.params import mailaddress
 
 # do not call this file email.py !
 
 
 def sendMail(mailserver, receiverlist, mailsender, topic, body,
-             attach_files=(), debuglevel=0):
+             attach_files=(), debuglevel=0, security="none",
+             username=None, keystoretoken='mailserver_password'):
     """Sends an email to a list of receivers with given topic and content via
     the given server.
 
@@ -49,6 +51,13 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
     sender is a valid E-Mail-address,
     topic and body are strings and the list of attach_files may be empty
     if attach_files is not empty, it must contain names of existing files!
+    debuglevel is passed to SMTP connection, could be 1/True or 2, see smtplib
+    manual
+    security is indicating used encryption layer for smtp communication.
+    It can be one of 'none', 'tls' or 'ssl',
+    if username is not empty, login is made using username and password
+    retrieved from nicos keyring (domain: nicos) using the ``keystoretoken``
+    as identifier (default is mailserver_password)
     """
     # try to check parameters
     errors = []
@@ -96,9 +105,22 @@ def sendMail(mailserver, receiverlist, mailsender, topic, body,
     # now comes the final part: send the mail
     mailer = None
     try:
-        mailer = smtplib.SMTP(mailserver)
-        if debuglevel == 'debug':
+        if security == 'ssl':
+            mailer = smtplib.SMTP_SSL(mailserver)
+        elif security in ('tls', 'none'):
+            mailer = smtplib.SMTP(mailserver)
+            if security == 'tls':
+                mailer.starttls()
+        else:
+            raise ConfigurationError(f'Unsupported parameter security ({security})')
+        if debuglevel:
             mailer.set_debuglevel(debuglevel)
+        if username:
+            from nicos.utils.credentials.keystore import nicoskeystore
+            password = nicoskeystore.getCredential(keystoretoken)
+            if not password:
+                raise ConfigurationError('Mailserver password token missing in keyring')
+            mailer.login(username,password)
         mailer.sendmail(mailsender, receiverlist + [mailsender], msg.as_string())
     except Exception as e:
         return [str(e)]
