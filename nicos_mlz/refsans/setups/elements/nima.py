@@ -30,7 +30,7 @@ devices = dict(
     nima_io = device(code_base + 'nima.Base',
         comm = 'nima_com',
         unit = 'foo',
-        visibility = lowlevel_devel,
+        visibility = (),
     ),
     nima_area = device(code_base + 'nima.Area',
         description = 'Area of Langmuir trough',
