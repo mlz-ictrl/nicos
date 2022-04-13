@@ -3,6 +3,19 @@
 EPICS classes
 =============
 
+.. note::
+
+   The EPICS Python module must be imported in the main threads
+   of :ref:`daemon <daemon>` and :ref:`poller <poller>` services before it can
+   be accessed by any device.
+   This can be achieved by adding the following line::
+
+      import nicos.devices.epics
+
+   to the :ref:`startupcode <setup-startupcode>` section of the
+   :ref:`daemon <daemon>` and :ref:`poller <poller>` setups.
+
+
 .. module:: nicos.devices.epics
 
 Basic EPICS binding mixin (pyepics)
