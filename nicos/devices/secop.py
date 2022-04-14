@@ -762,6 +762,9 @@ class SecopDevice(Device):
                 kwargs = dict(kwargs, fmtstr='%g')
             parameters[pname] = Param(volatile=True, **kwargs)
 
+            if pname == 'target':
+                continue  # special case: see SecopWritable.doReadTarget
+
             def do_read(self, maxage=None, pname=pname, validator=typ):
                 return self._read(pname, maxage, validator)
 
@@ -1054,6 +1057,15 @@ class SecopReadable(SecopDevice, Readable):
 
 
 class SecopWritable(SecopReadable, Moveable):
+
+    def doReadTarget(self, maxage=None):
+        try:
+            return self._read('target', maxage, anytype)
+        except NicosError:
+            # This might happen when the remote target is not initialized.
+            # We must not raise an error here when called from Moveable.start
+            # when comparing with the previous target.
+            return None
 
     def doStart(self, target):
         try:
