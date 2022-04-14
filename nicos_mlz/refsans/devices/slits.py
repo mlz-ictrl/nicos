@@ -181,7 +181,7 @@ class DoubleSlit(PseudoNOK, Moveable):
             self.valuetype((targets[0], 0))
         except ValueError as e:
             why.append('%s' % e)
-        for dev, pos in zip([self._attached_slit_r, self._attached_slit_s],
+        for dev, pos in zip(self._motors,
                             self._calculate_slits(targets, False)):
             ok, _why = dev.isAllowed(pos)
             if not ok:
