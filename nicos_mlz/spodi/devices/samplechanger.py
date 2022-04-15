@@ -22,9 +22,30 @@
 #
 # *****************************************************************************
 
-from nicos_mlz.spodi.devices.datasinks import CaressHistogram, \
-    CaressHistogramReader, LiveViewSink
-from nicos_mlz.spodi.devices.detector import Detector
-from nicos_mlz.spodi.devices.samplechanger import SampleChanger
-from nicos_mlz.spodi.devices.virtual import VirtualImage
-from nicos_mlz.spodi.devices.wavelength import Wavelength
+"""Sample changer devices."""
+
+from nicos import session
+from nicos.core.mixins import Override
+from nicos.devices.generic import MultiSwitcher
+
+
+class SampleChanger(MultiSwitcher):
+    """Sample changer device.
+
+    It selects the sample after reaching the target.
+    """
+
+    parameter_overrides = {
+        'blockingmove': Override(default=True, settable=False),
+    }
+
+    def doStart(self, target):
+        if self.doRead(0) != target:
+            return self._startRaw(self._mapTargetValue(target))
+
+    def _startRaw(self, target):
+        """Initiate movement of the moveable to the translated raw value."""
+        samplenr = int(self._mapReadValue(target)[1:])
+        self.log.debug('move to: %s %s', target, samplenr)
+        MultiSwitcher._startRaw(self, target)
+        session.experiment.sample.select(samplenr)
