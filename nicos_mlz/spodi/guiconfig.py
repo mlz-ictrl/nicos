@@ -11,7 +11,18 @@ main_window = docked(
            dockpos='right',)
     ),
     ('Experiment Information and Setup',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',)
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
+           sample_panel=tabbed(
+               ('Sample changer',
+                panel('nicos_mlz.gui.samplechanger.SamplechangerSetupPanel',
+                      positions=10, setups='samplechanger'),
+                ),
+               ('Sample',
+                panel('nicos.clients.gui.panels.setup_panel.GenericSamplePanel',
+                      setups='not samplechanger'),
+                ),
+            ),
+      ),
     ),
 )
 
@@ -56,5 +67,5 @@ tools = [
 ]
 
 options = {
-    'reader_classes': ['nicos_mlz.spodi.devices.datasinks.CaressHistogramReader'],
+    'reader_classes': ['nicos_mlz.spodi.devices.CaressHistogramReader'],
 }
