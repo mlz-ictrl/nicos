@@ -8,7 +8,7 @@ includes = [
 ]
 
 devices = dict(
-    wav = device('nicos_mlz.spodi.devices.wavelength.Wavelength',
+    wav = device('nicos_mlz.spodi.devices.Wavelength',
         description = 'The incoming wavelength',
         unit = 'AA',
         omgm = 'omgm',
