@@ -24,6 +24,6 @@
 
 """NECTAR specific devices."""
 
-from .focusring import FocusRing
-from .slit import BeamLimiter
-from .tcoll import ThermalCollimatorAxis
+from nicos_mlz.nectar.devices.focusring import FocusRing
+from nicos_mlz.nectar.devices.slit import BeamLimiter
+from nicos_mlz.nectar.devices.tcoll import ThermalCollimatorAxis
