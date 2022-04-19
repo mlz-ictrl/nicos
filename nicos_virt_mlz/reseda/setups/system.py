@@ -24,7 +24,7 @@ devices = dict(
         website = 'http://www.mlz-garching.de/reseda',
         operators = ['Technische Universität München (TUM)'],
     ),
-    Exp = device('nicos_mlz.reseda.devices.experiment.Experiment',
+    Exp = device('nicos_mlz.reseda.devices.Experiment',
         description = 'Experiment object',
         dataroot = 'data',
         sendmail = True,

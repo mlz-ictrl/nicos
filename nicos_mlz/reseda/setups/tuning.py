@@ -11,7 +11,7 @@ cbox_components = [
 ]
 
 devices = dict(
-    echotime = device('nicos_mlz.reseda.devices.tuning.EchoTime',
+    echotime = device('nicos_mlz.reseda.devices.EchoTime',
         description = 'Echo time and tunewave table device',
         wavelength = 'selector_lambda',
         dependencies = ['gf%i' % i for i in ([1, 2] + list(range(4, 11)))]

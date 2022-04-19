@@ -53,7 +53,7 @@ ARMING_STRING = (':TRIG1:SOUR BUS;'
 TRG_STRING = ('*TRG')
 
 devices = dict(
-    # scandet = device('nicos_mlz.reseda.devices.scandet.ScanningDetector',
+    # scandet = device('nicos_mlz.reseda.devices.ScanningDetector',
     #     description = 'Scanning detector for scans per echotime',
     #     scandev = 'nse0',
     #     detector = 'psd',

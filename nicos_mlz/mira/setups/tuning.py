@@ -14,7 +14,7 @@ modules = ['nicos_mlz.reseda.tuning_commands',  'nicos_mlz.mira.commands']
 
 
 devices = dict(
-    echotime = device('nicos_mlz.reseda.devices.tuning.EchoTime',
+    echotime = device('nicos_mlz.reseda.devices.EchoTime',
         description = 'Echo time and tunewave table device',
         wavelength = 'lam',
         dependencies = ['cbox%s_%s' % (pack, component)

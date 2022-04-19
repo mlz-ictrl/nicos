@@ -36,7 +36,7 @@ devices = dict(
         unit = 'foo',
         visibility = (),
     ),
-    active_regulator = device('nicos_mlz.reseda.devices.regulator.Regulator',
+    active_regulator = device('nicos_mlz.reseda.devices.Regulator',
         description = 'todo',
         sensor = 'height',
         moveable = 'gonio_z',

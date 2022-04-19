@@ -8,7 +8,7 @@ excludes = ['det_cascade']
 tango_base = 'tango://resedahw2.reseda.frm2:10000/reseda'
 
 devices = dict(
-    scandet = device('nicos_mlz.reseda.devices.scandet.ScanningDetector',
+    scandet = device('nicos_mlz.reseda.devices.ScanningDetector',
         description = 'Scanning detector for scans per echotime',
         scandev = 'nse1',
         detector = 'det',

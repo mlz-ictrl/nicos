@@ -47,7 +47,7 @@ devices = dict(
 #        pollinterval = 3,
 #        precision = 0.1,
 #    ),
-#    cbox_0 = device('nicos_mlz.reseda.devices.cbox.CBoxResonanceFrequency',
+#    cbox_0 = device('nicos_mlz.reseda.devices.CBoxResonanceFrequency',
 #        pollinterval = 3,
 #        description = 'CBox',
 #        unit = 'Hz',

@@ -8,7 +8,7 @@ includes = ['det_base']
 excludes = ['det_cascade']
 
 devices = dict(
-    scandet = device('nicos_mlz.reseda.devices.scandet.ScanningDetector',
+    scandet = device('nicos_mlz.reseda.devices.ScanningDetector',
         description = 'Scanning detector for scans per echotime',
         scandev = 'nse1',
         detector = 'det',

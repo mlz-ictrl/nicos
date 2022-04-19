@@ -18,11 +18,11 @@ devices = {
         ),
     '%s_reg_amp' % setupname:
         device('nicos.devices.generic.ManualMove',
-        # device('nicos_mlz.reseda.devices.rte1104.RTE1104YScaleSetting',
+        # device('nicos_mlz.reseda.devices.RTE1104YScaleSetting',
             description = 'amplitude setting chain of subdevices: setting channel 1',
             # io = 'rte1104_io',
             # channel = 1,
-            # regulator = device('nicos_mlz.reseda.devices.regulator.Regulator',
+            # regulator = device('nicos_mlz.reseda.devices.Regulator',
             #     description = 'Auto regulating amplitude',
             #     sensor = '%s_coil_rms' % setupname,
             #     moveable = '%s_fg_amp' % setupname,
@@ -60,7 +60,7 @@ devices = {
     #         unit = 'W',
     # ),
    '%s' % setupname:
-        device('nicos_mlz.reseda.devices.cbox.CBoxResonanceFrequency',
+        device('nicos_mlz.reseda.devices.CBoxResonanceFrequency',
             pollinterval = 30,
             description = 'CBox',
             unit = 'Hz',
@@ -161,7 +161,7 @@ devices = {
             ),
         ),
     # '%s_coil_rms' % setupname:
-    #     device('nicos_mlz.reseda.devices.rte1104.RTE1104',
+    #     device('nicos_mlz.reseda.devices.RTE1104',
     #         description = 'rms Coil voltage (Input Channel 1)',
     #         io = 'rte1104_io',
     #         channel = 1,
