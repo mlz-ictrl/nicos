@@ -29,7 +29,7 @@ devices = dict(
         states = ['', 'High current seen', 'High current', 'Trip'],
         pollinterval = 1,
     ),
-    b_hv = device('nicos_mlz.erwin.devices.charmhv.HVSwitch',
+    b_hv = device('nicos_mlz.erwin.devices.HVSwitch',
         description = 'HV supply small detector',
         anodes = ['b_anode%d' % i for i in range(1, 10)],
         banodes = ['b_banode%d' % i for i in range(1, 9)],

@@ -34,7 +34,7 @@ devices = dict(
         },
         pollinterval = 1,
     ),
-    s_hv = device('nicos_mlz.erwin.devices.charmhv.HVSwitch',
+    s_hv = device('nicos_mlz.erwin.devices.HVSwitch',
         description = 'HV supply small detector',
         anodes = ['s_anode1', 's_anode2'],
         banodes = ['s_banode1'],
