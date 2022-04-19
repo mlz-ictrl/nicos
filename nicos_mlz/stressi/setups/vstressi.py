@@ -14,7 +14,7 @@ sysconfig = dict(
 tango_base = 'tango://motorbox06.stressi.frm2.tum.de:10000/box/'
 
 devices = dict(
-    Sample = device('nicos_virt_mlz.stressi.devices.sample.Sample',
+    Sample = device('nicos_virt_mlz.stressi.devices.Sample',
         description = 'Simulation sample',
         samples = {
             1: {'name': 'Absorption experiment FoPra', 'sampletype': 1},

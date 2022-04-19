@@ -39,7 +39,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    Sample = device('nicos_mlz.stressi.devices.sample.Sample'),
+    Sample = device('nicos_mlz.stressi.devices.Sample'),
     tths = device('nicos.devices.generic.VirtualMotor',
         abslimits = (-180, 180),
         unit = 'deg',
@@ -128,7 +128,7 @@ devices = dict(
         precision = 0.01,
         unit = '',
     ),
-    wav = device('nicos_mlz.stressi.devices.wavelength.Wavelength',
+    wav = device('nicos_mlz.stressi.devices.Wavelength',
         omgm = 'omgm',
         crystal = 'transm',
         plane = '',
@@ -169,7 +169,7 @@ devices = dict(
         filenametemplate = ['m2%(scancounter)08d.nxs'],
         detectors = ['adet'],
     ),
-    tthm_r = device('nicos_mlz.stressi.devices.wavelength.TransformedMoveable',
+    tthm_r = device('nicos_mlz.stressi.devices.TransformedMoveable',
         dev = 'tthm',
         informula = '1./0.5 * x - 11.5 / 0.5',
         outformula = '0.5 * x + 11.5',

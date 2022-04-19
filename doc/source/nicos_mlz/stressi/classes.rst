@@ -18,13 +18,19 @@ Robot
 -----
 
 .. module:: nicos_mlz.stressi.devices.robot
-.. autoclass:: RobotMotor()
+.. autoclass:: Motor()
 
 Detector
 --------
 
 .. module:: nicos_mlz.stressi.devices.detector
-.. autoclass:: ImageChannel
+.. autoclass:: ImageChannel()
+
+Sample
+------
+
+.. module:: nicos_mlz.stressi.devices.sample
+.. autoclass:: Sample()
 
 Mixins
 ------

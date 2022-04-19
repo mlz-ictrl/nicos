@@ -23,6 +23,7 @@
 
 from nicos_mlz.stressi.devices.mixins import Formula, TransformMove, \
     TransformRead
+from nicos_mlz.stressi.devices.sample import Sample
 from nicos_mlz.stressi.devices.slits import OffCenteredTwoAxisSlit, \
     PreciseManualSwitch, SingleAxisGap
 from nicos_mlz.stressi.devices.wavelength import TransformedMoveable, \

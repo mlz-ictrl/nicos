@@ -24,10 +24,10 @@
 """Some robot specific CARESS devices."""
 
 from nicos.core.params import Attach, Override
-from nicos.devices.vendor.caress.motor import Motor
+from nicos.devices.vendor.caress.motor import Motor as CARESSMotor
 
 
-class RobotMotor(Motor):
+class Motor(CARESSMotor):
     """CARESS motor using the CARESS robot devices.
 
     CARESS uses a special device to control the speed.
@@ -35,7 +35,7 @@ class RobotMotor(Motor):
 
     attached_devices = {
         'speedmotor': Attach('Device to control the axis speed',
-                             Motor, multiple=False),
+                             CARESSMotor, multiple=False),
     }
 
     parameter_overrides = {

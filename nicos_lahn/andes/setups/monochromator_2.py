@@ -14,7 +14,7 @@ devices = dict(
                requires={'level': 'admin'},
                userlimits=(70, 110),
                ),
-    wavelength=device('nicos_mlz.stressi.devices.wavelength.Wavelength',
+    wavelength=device('nicos_mlz.stressi.devices.Wavelength',
                       description='the incoming wavelength',
                       omgm='omgm',
                       base='mtt',
