@@ -53,7 +53,7 @@ devices = dict(
 #        fallback = '<undefined>',
 #        precision = 0,
 #    ),
-#    fg1_frequency = device('nicos_mlz.sans1.devices.wmirfgen.Frequency',
+#    fg1_frequency = device('nicos_mlz.devices.wmirfgen.Frequency',
 #        description = 'Device the frequency and frequency modulation',
 #        abslimits = (0.1, 40000)
 #    ),
@@ -67,7 +67,7 @@ devices = dict(
 #        description = 'Tango device for the power level',
 #        abslimits = (-130, 30)
 #    ),
-#    fg2_frequency = device('nicos_mlz.sans1.devices.wmirfgen.Frequency',
+#    fg2_frequency = device('nicos_mlz.devices.wmirfgen.Frequency',
 #        description = 'Device the frequency and frequency modulation',
 #        abslimits = (0.1, 40000)
 #    ),

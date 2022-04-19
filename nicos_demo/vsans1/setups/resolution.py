@@ -5,7 +5,7 @@ group = 'lowlevel'
 includes = ['detector', 'det1', 'alias_det1', 'alias_lambda']
 
 devices = dict(
-    QRange = device('nicos_mlz.sans1.devices.resolution.Resolution',
+    QRange = device('nicos_mlz.sans1.devices.Resolution',
         description = 'Current q range',
         detector = 'det1',
         beamstop = 'bs1',

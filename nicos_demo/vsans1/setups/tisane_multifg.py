@@ -90,7 +90,7 @@ devices = dict(
 #                   'arm' : ARMING_STRING_FC,
 #                  }
 #        ),
-#    tisane_fg1_sample = device('nicos_mlz.sans1.devices.tisane.Burst',
+#    tisane_fg1_sample = device('nicos_mlz.sans1.devices.Burst',
 #        description = "Signal-generator for sample tisane signal",
 #        frequency = 1000,
 #        amplitude = 2.5,
@@ -99,7 +99,7 @@ devices = dict(
 #        duty = 50,
 #        mapping = dict(On = 1, Off = 0),
 #    ),
-#    tisane_fg2_det = device('nicos_mlz.sans1.devices.tisane.Burst',
+#    tisane_fg2_det = device('nicos_mlz.sans1.devices.Burst',
 #        description = "Signal-generator for detector tisane signal",
 #        frequency = 1000,
 #        amplitude = 5.0,

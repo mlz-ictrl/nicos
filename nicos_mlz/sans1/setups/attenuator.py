@@ -10,7 +10,7 @@ group = 'lowlevel'
 tangohost = 'tango://sans1hw.sans1.frm2:10000'
 
 devices = dict(
-    att = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliSwitcher',
+    att = device('nicos_mlz.sans1.devices.Sans1ColliSwitcher',
         description = 'Attenuator',
         mapping = dict(dia10=15.626, x10=108.626, x100=201.626, x1000=294.626, open=387.626),
         moveable = 'att_a',
@@ -29,7 +29,7 @@ devices = dict(
         visibility = (),
         jitter = 1,
     ),
-    att_m = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliMotor',
+    att_m = device('nicos_mlz.sans1.devices.Sans1ColliMotor',
         description = 'Attenuator motor',
         # IP-adresse: 172.25.49.107
         tangodevice='%s/coll/ng-pol/modbus'% (tangohost,),
@@ -44,7 +44,7 @@ devices = dict(
         autozero = None, # no auto referencing with an axis !!!
         #autozero = 80,
     ),
-    att_c = device('nicos_mlz.sans1.devices.collimotor.Sans1ColliCoder',
+    att_c = device('nicos_mlz.sans1.devices.Sans1ColliCoder',
         description = 'Attenuator coder',
         # IP-adresse: 172.25.49.107
         tangodevice='%s/coll/ng-pol/modbus'% (tangohost,),

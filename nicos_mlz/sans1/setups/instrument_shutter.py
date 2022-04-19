@@ -4,7 +4,7 @@ tango_base = 'tango://sans1hw.sans1.frm2:10000/sans1/instrument_shutter/'
 
 devices = dict(
     #instrument_shutter = device('nicos.devices.generic.MultiSwitcher',
-    instrument_shutter = device('nicos_mlz.sans1.devices.shutter.Shutter',
+    instrument_shutter = device('nicos_mlz.sans1.devices.Shutter',
         description = 'Instrument Shutter Switcher with readback',
         moveables = [device('nicos.devices.entangle.DigitalOutput',
                             tangodevice = tango_base + 'pressure_valve',

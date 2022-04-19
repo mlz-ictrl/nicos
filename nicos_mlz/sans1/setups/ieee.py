@@ -5,6 +5,6 @@ group = 'optional'
 devices = dict()
 
 for i in range(1, 11):
-    devices['ieee_%d' % i] = device('nicos_mlz.sans1.devices.bersans.IEEEDevice',
+    devices['ieee_%d' % i] = device('nicos_mlz.sans1.devices.IEEEDevice',
         description = 'IEEE device No. %d' % i
     )

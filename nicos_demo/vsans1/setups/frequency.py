@@ -5,7 +5,7 @@ excludes = ['tisane_multifg']
 # group = 'lowlevel'
 
 devices = dict(
-    # tisane_fg1_sample = device('nicos_mlz.sans1.devices.tisane.Burst',
+    # tisane_fg1_sample = device('nicos_mlz.sans1.devices.Burst',
     #     description = "Signal-generator for sample tisane signal",
     #     tangodevice = "%s/fg1_burst" % tango_base,
     #     frequency = 1000,
@@ -15,7 +15,7 @@ devices = dict(
     #     duty = 50,
     #     mapping = dict(On = 1, Off = 0),
     # ),
-    # tisane_fg2_det = device('nicos_mlz.sans1.devices.tisane.Burst',
+    # tisane_fg2_det = device('nicos_mlz.sans1.devices.Burst',
     #     description = "Signal-generator for detector tisane signal",
     #     tangodevice = "%s/fg2_burst" % tango_base,
     #     frequency = 1000,

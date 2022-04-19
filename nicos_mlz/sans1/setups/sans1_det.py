@@ -9,7 +9,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    det1 = device('nicos_mlz.sans1.devices.detector.Detector',
+    det1 = device('nicos_mlz.sans1.devices.Detector',
         description = 'QMesyDAQ Image type Detector1',
         timers = ['det1_timer'],
         monitors = ['det1_mon1', 'det1_mon2'],
