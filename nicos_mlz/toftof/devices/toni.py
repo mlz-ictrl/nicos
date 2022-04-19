@@ -38,7 +38,7 @@ class ToniBus(StringIO):
     """
 
     parameters = {
-        'source':   Param('Source address of host', type=int, default=0),
+        'source': Param('Source address of host', type=int, default=0),
     }
 
     parameter_overrides = {
@@ -79,16 +79,16 @@ class DelayBox(Moveable):
     """Toni TOFTOF-type programmable delay box."""
 
     attached_devices = {
-        'bus':  Attach('Toni communication bus', ToniBus),
+        'bus': Attach('Toni communication bus', ToniBus),
     }
 
     parameters = {
-        'addr':  Param('Bus address of the supply controller',
-                       type=intrange(0xF0, 0xFF), mandatory=True),
+        'addr': Param('Bus address of the supply controller',
+                      type=intrange(0xF0, 0xFF), mandatory=True),
     }
 
     parameter_overrides = {
-        'fmtstr':  Override(default='%d'),
+        'fmtstr': Override(default='%d'),
     }
 
     valuetype = int
