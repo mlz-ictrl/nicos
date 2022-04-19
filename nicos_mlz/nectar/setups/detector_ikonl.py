@@ -45,7 +45,7 @@ devices = dict(
         precision = 3,
         fmtstr = '%.0f',
     ),
-    sharpness = device('nicos_mlz.antares.devices.detector.Sharpness',
+    sharpness = device('nicos_mlz.antares.devices.Sharpness',
         description = 'Sharpness signal from the detector image'
     ),
     det_sharp = device('nicos.devices.generic.Detector',

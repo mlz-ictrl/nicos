@@ -115,7 +115,7 @@ devices = dict(
         pollinterval = 3,
         precision = 0.5,
     ),
-    selector_tilt = device('nicos_mlz.antares.devices.selector.SelectorTilt',
+    selector_tilt = device('nicos_mlz.antares.devices.SelectorTilt',
         description = 'tilt of velocity selector',
         selector = 'selector',
         motor = 'selector_tilt_motor',

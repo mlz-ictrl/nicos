@@ -22,13 +22,22 @@
 #
 # *****************************************************************************
 
-"""NICOS pulse device."""
-
 from nicos.core import Attach
 from nicos.devices.generic import Pulse, VirtualTimer
 
+from nicos_mlz.antares.devices.collimator import CollimatorLoverD, \
+    GeometricBlur
+from nicos_mlz.antares.devices.detector import AndorHFRCamera, \
+    AntaresIkonLCCD, AntaresNeo, Sharpness
+from nicos_mlz.antares.devices.experiment import Experiment
+from nicos_mlz.antares.devices.monochromator import Monochromator
+from nicos_mlz.antares.devices.partialdio import PartialDigitalInput, \
+    PartialDigitalOutput
+from nicos_mlz.antares.devices.selector import SelectorTilt
+
 
 class TriggerTimer(VirtualTimer):
+    """NICOS pulse device."""
 
     attached_devices = {
         'trigger': Attach('Pulser device', Pulse),

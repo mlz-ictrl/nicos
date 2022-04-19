@@ -19,7 +19,7 @@ devices = dict(
         images = ['ccd'],
         timers = ['timer'],
     ),
-    ccd = device('nicos_mlz.antares.devices.detector.AntaresIkonLCCD',
+    ccd = device('nicos_mlz.antares.devices.AntaresIkonLCCD',
         description = 'The CCD detector',
         tangodevice = tango_base + 'detector/limaccd',
         hwdevice = tango_base + 'detector/ikonl',
@@ -46,7 +46,7 @@ devices = dict(
         precision = 3,
         fmtstr = '%.0f',
     ),
-    sharpness = device('nicos_mlz.antares.devices.detector.Sharpness',
+    sharpness = device('nicos_mlz.antares.devices.Sharpness',
         description = 'Sharpness signal from the detector image'
     ),
     det_sharp = device('nicos.devices.generic.Detector',

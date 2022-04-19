@@ -19,7 +19,7 @@ devices = dict(
     Sample = device('nicos.devices.experiment.Sample',
         description = 'Default Sample',
     ),
-    Exp = device('nicos_mlz.antares.devices.experiment.Experiment',
+    Exp = device('nicos_mlz.antares.devices.Experiment',
         description = 'Antares Experiment',
         dataroot = '/data/FRM-II',
         sample = 'Sample',

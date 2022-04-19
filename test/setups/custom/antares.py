@@ -25,7 +25,7 @@
 name = 'test_antares setup'
 
 devices = dict(
-    mono = device('nicos_mlz.antares.devices.monochromator.Monochromator',
+    mono = device('nicos_mlz.antares.devices.Monochromator',
         dvalue1 = 3.354,
         dvalue2 = 3.354,
         distance = 97,
@@ -76,7 +76,7 @@ devices = dict(
         states = [2, 4.5, 9, 18, 36, 71, 'park'],
         unit = 'mm',
     ),
-    collimator = device('nicos_mlz.antares.devices.collimator.CollimatorLoverD',
+    collimator = device('nicos_mlz.antares.devices.CollimatorLoverD',
         l = 'L',
         d = 'pinhole',
         unit = 'L/D',
@@ -87,7 +87,7 @@ devices = dict(
         abslimits = (1e-5, 99999999),
         default = 1e-5,
     ),
-    blur = device('nicos_mlz.antares.devices.collimator.GeometricBlur',
+    blur = device('nicos_mlz.antares.devices.GeometricBlur',
         l = 'L',
         d = 'pinhole',
         sdd = 'L_sd',
@@ -98,7 +98,7 @@ devices = dict(
         jitter = 50,
         fmtstr = '%.0f',
     ),
-    selector_tilt = device('nicos_mlz.antares.devices.selector.SelectorTilt',
+    selector_tilt = device('nicos_mlz.antares.devices.SelectorTilt',
         selector = 'selector',
         motor = 'selector_tilt_motor',
         abslimits = (-5, 5),

@@ -20,7 +20,7 @@ devices = dict(
     Sample = device('nicos.devices.sample.Sample',
         description = 'sample object',
     ),
-    Exp = device('nicos_mlz.antares.devices.experiment.Experiment',
+    Exp = device('nicos_mlz.antares.devices.Experiment',
         description = 'experiment object',
         dataroot = '/data/FRM-II',
         serviceexp = 'service',
