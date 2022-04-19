@@ -75,7 +75,7 @@ class TestScriptBuilderModel:
         assert model.num_rows == 1
         assert model.raw_data == [{'COLUMN_1': 21, 'COLUMN_2': 22,
                                    'COLUMN_3': 23}]
-        assert model.table_data == [[21, 22, 23]]
+        assert model.table_data == [['21', '22', '23']]
 
     def test_data_selected_for_selected_indices(self):
         data = [
@@ -88,7 +88,7 @@ class TestScriptBuilderModel:
         selected_indices = [(0, 0), (0, 1), (1, 0), (1, 1)]
         selected_data = model.select_table_data(selected_indices)
 
-        assert selected_data == [[1, 2], [11, 12]]
+        assert selected_data == [['1', '2'], ['11', '12']]
 
     def test_clipboard_data_gets_pasted_in_empty_table_at_top_left(self):
         model = create_loki_script_model()
@@ -156,10 +156,10 @@ class TestScriptBuilderModel:
         model.update_data_from_clipboard(clipboard_data, index)
 
         assert model.table_data == [
-            [1, 2, 3],
-            ['A', 'B', 13],
-            ['C', 'D', 23],
-            [31, 32, 33],
+            ['1', '2', '3'],
+            ['A', 'B', '13'],
+            ['C', 'D', '23'],
+            ['31', '32', '33'],
         ]
         assert model.raw_data == [
             {'COLUMN_1': 1, 'COLUMN_2': 2, 'COLUMN_3': 3},
