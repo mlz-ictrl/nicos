@@ -12,7 +12,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    puma = device('nicos_mlz.puma.devices.spectro.PUMA',
+    puma = device('nicos_mlz.puma.devices.PUMA',
         description = 'DAS PUMA',
         instrument = 'PUMA',
         responsible = 'J. T. Park <jitae.park@frm2.tum.de>',

@@ -32,7 +32,7 @@ devices = dict(
         visibility = (),
         unit = ''
     ),
-    he_cell_lift = device('nicos_mlz.puma.devices.hecell.HeCellLifter',
+    he_cell_lift = device('nicos_mlz.puma.devices.HeCellLifter',
         description = 'He cell',
         moveables = ['he_cell_sw'],
         readables = ['he_cell_bottom', 'he_cell_top'],

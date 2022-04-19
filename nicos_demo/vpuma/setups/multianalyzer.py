@@ -28,7 +28,7 @@ devices = dict(
 for i in range(1, 12):
     devices['ta%d' % i] = device('nicos.devices.generic.Axis',
         description = 'Translation crystal %d multianalyzer' % i,
-        motor = device('nicos_mlz.puma.devices.virtual.VirtualReferenceMotor',
+        motor = device('nicos_mlz.puma.devices.VirtualReferenceMotor',
             abslimits = (-125.1, 125.1),
             userlimits = (-125, 125),
             unit = 'mm',
@@ -41,7 +41,7 @@ for i in range(1, 12):
     )
     devices['ra%d' % i] = device('nicos.devices.generic.Axis',
         description = 'Rotation crystal %d multianalyzer' % i,
-        motor = device('nicos_mlz.puma.devices.virtual.VirtualReferenceMotor',
+        motor = device('nicos_mlz.puma.devices.VirtualReferenceMotor',
             abslimits = (-60.1, 0.5),
             userlimits = (-60.05, 0.5),
             unit = 'deg',

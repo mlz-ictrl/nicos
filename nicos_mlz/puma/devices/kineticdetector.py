@@ -24,13 +24,7 @@
 
 """Special devices for kinetic measurements."""
 
-from nicos.core.constants import POINT
-from nicos.core.params import Attach, Override
-from nicos.devices.datasinks.file import FileSink
 from nicos.devices.generic.detector import ActiveChannel, Detector
-from nicos.devices.vendor.qmesydaq import Image
-
-from nicos_mlz.devices.qmesydaqsinks import ListmodeSinkHandler
 
 
 class KineticDetector(Detector):
@@ -65,19 +59,3 @@ class KineticDetector(Detector):
             if isinstance(dev, ActiveChannel):
                 yield ('img%d' % (i + 1), dev)
         yield ('live', None)
-
-
-class ListmodeSink(FileSink):
-    """Writer for the list mode files via QMesyDAQ itself."""
-
-    attached_devices = {
-        'image': Attach('Image device to set the file name', Image),
-    }
-
-    parameter_overrides = {
-        'settypes': Override(default=[POINT]),
-        'filenametemplate': Override(mandatory=False, userparam=False,
-                                     default=['D%(pointcounter)07d.mdat']),
-    }
-
-    handlerclass = ListmodeSinkHandler

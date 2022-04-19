@@ -5,7 +5,7 @@ group = 'optional'
 includes = ['motorbus6']
 
 devices = dict(
-    st_dslit = device('nicos_mlz.puma.devices.ipc.Motor',
+    st_dslit = device('nicos_mlz.puma.devices.Motor',
         bus = 'motorbus6',
         addr = 67,
         slope = 4500,
@@ -14,7 +14,7 @@ devices = dict(
         zerosteps = 500000,
         visibility = (),
     ),
-    co_dslit = device('nicos_mlz.puma.devices.ipc.Coder',
+    co_dslit = device('nicos_mlz.puma.devices.Coder',
         bus = 'motorbus6',
         addr = 97,
         poly = [-159./80, 1./80],

@@ -14,7 +14,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    puma = device('nicos_mlz.puma.devices.spectro.PUMA',
+    puma = device('nicos_mlz.puma.devices.PUMA',
         description = 'DAS PUMA',
         instrument = 'PUMA',
         responsible = 'R. Esponsible <r.esponsible@frm2.tum.de>',

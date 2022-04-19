@@ -80,7 +80,7 @@ class VirtualReferenceMotor(CanReference, VirtualMotor):
         return is_at_refpos
 
 
-class DigitalInput(Moveable):
+class VirtualDigitalInput(Moveable):
     """A test DigitalInput."""
 
     parameters = {
@@ -103,7 +103,7 @@ class DigitalInput(Moveable):
         return status.OK, 'idle'
 
 
-class LogoFeedBack(DigitalInput):
+class VirtualLogoFeedback(VirtualDigitalInput):
     """Device to simulate the PUMA specific LOGO PLC feed back.
 
     The PLC has for each of the switches 2 sensors to indicate the device
@@ -112,7 +112,7 @@ class LogoFeedBack(DigitalInput):
     """
 
     attached_devices = {
-        'input': Attach('Digital input device', DigitalInput),
+        'input': Attach('Digital input device', VirtualDigitalInput),
     }
 
     parameters = {
@@ -130,7 +130,7 @@ class LogoFeedBack(DigitalInput):
                    for i in range(8))
 
 
-class DigitalOutput(DigitalInput):
+class VirtualDigitalOutput(VirtualDigitalInput):
     """A test DigitalOutput."""
 
     def doStart(self, target):

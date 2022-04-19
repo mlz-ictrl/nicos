@@ -15,7 +15,7 @@ sysconfig = {
 tango_base = 'tango://mesydaq.puma.frm2.tum.de:10000/qm/qmesydaq/'
 
 devices = dict(
-    Listmode = device('nicos_mlz.puma.devices.kineticdetector.ListmodeSink',
+    Listmode = device('nicos_mlz.puma.devices.datasinks.ListmodeSink',
         description = 'Listmode data written via QMesyDAQ',
         image = 'image',
         subdir = 'list',
@@ -27,14 +27,14 @@ devices = dict(
         visibility = (),
         channels = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
     ),
-    cycles = device('nicos_mlz.puma.devices.tango.CycleCounter',
+    cycles = device('nicos_mlz.puma.devices.CycleCounter',
         description = 'QMesyDAQ cycle channel',
         tangodevice = tango_base + 'counter4',
         type = 'counter',
         visibility = (),
         fmtstr = '%d',
     ),
-    det = device('nicos_mlz.puma.devices.kineticdetector.KineticDetector',
+    det = device('nicos_mlz.puma.devices.KineticDetector',
         description = 'Puma detector QMesydaq device (11 counters)',
         timers = ['timer'],
         monitors = ['mon1', 'cycles'],

@@ -18,7 +18,7 @@ devices = dict(
         rotguide = ['rg1', 'rg2', 'rg3', 'rg4', 'rg5', 'rg6', 'rg7', 'rg8',
                     'rg9', 'rg10', 'rg11'],
         att = device('nicos.devices.generic.Axis',
-            motor = device('nicos_mlz.puma.devices.virtual.VirtualReferenceMotor',
+            motor = device('nicos_mlz.puma.devices.VirtualReferenceMotor',
                 abslimits = (-90, 15),
                 unit = 'deg',
                 refpos = -1,
@@ -66,7 +66,7 @@ devices = dict(
 for i in range(11):
     devices['rd%d' % (i + 1)] = device('nicos.devices.generic.Axis',
         description = 'Rotation detector %d multidetector' % (i + 1),
-        motor = device('nicos_mlz.puma.devices.virtual.VirtualReferenceMotor',
+        motor = device('nicos_mlz.puma.devices.VirtualReferenceMotor',
             abslimits = (-42 + (11 - (i + 1)) * 2.5, 13 - i * 2.4),
             unit = 'deg',
             refpos = -13.5 - i * 2.5,
@@ -78,7 +78,7 @@ for i in range(11):
     )
     devices['rg%d' % (i + 1)] = device('nicos.devices.generic.Axis',
         description = 'Rotation guide %d multidetector' % (i + 1),
-        motor = device('nicos_mlz.puma.devices.virtual.VirtualReferenceMotor',
+        motor = device('nicos_mlz.puma.devices.VirtualReferenceMotor',
             abslimits = (-8, 25),
             unit = 'deg',
             refpos = -7.7,
