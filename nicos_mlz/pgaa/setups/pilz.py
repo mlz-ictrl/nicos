@@ -5,7 +5,7 @@ group = 'lowlevel'
 tango_base = 'tango://pgaahw.pgaa.frm2.tum.de:10000/pgaa/pilz/'
 
 devices = dict(
-    shutter = device('nicos_mlz.pgaa.devices.pilz.Switch',
+    shutter = device('nicos_mlz.pgaa.devices.Switch',
         description = 'secondary experiment shutter',
         tangodevice = tango_base + 'shutter',
         readback = tango_base + 'ishutter',
@@ -17,7 +17,7 @@ devices = dict(
         pollinterval = 2,
         timeout = 3,
     ),
-    att1 = device('nicos_mlz.pgaa.devices.pilz.Attenuator',
+    att1 = device('nicos_mlz.pgaa.devices.AttenuatorSwitch',
         description = 'attenuator 1',
         tangodevice = tango_base + 'satt1',
         error = tango_base + 'eatt1',
@@ -29,7 +29,7 @@ devices = dict(
         pollinterval = 2,
         timeout = 3,
     ),
-    att2 = device('nicos_mlz.pgaa.devices.pilz.Attenuator',
+    att2 = device('nicos_mlz.pgaa.devices.AttenuatorSwitch',
         description = 'attenuator 2',
         tangodevice = tango_base + 'satt2',
         error = tango_base + 'eatt2',
@@ -41,7 +41,7 @@ devices = dict(
         pollinterval = 2,
         timeout = 3,
     ),
-    att3 = device('nicos_mlz.pgaa.devices.pilz.Attenuator',
+    att3 = device('nicos_mlz.pgaa.devices.AttenuatorSwitch',
         description = 'attenuator 3',
         tangodevice = tango_base + 'satt3',
         error = tango_base + 'eatt3',

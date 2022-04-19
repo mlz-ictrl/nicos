@@ -31,7 +31,7 @@ devices = dict(
                    'up': 0},
         visibility = (),
     ),
-    push = device('nicos_mlz.pgaa.devices.sampledevices.SamplePusher',
+    push = device('nicos_mlz.pgaa.devices.SamplePusher',
         description = 'Push sample up and down',
         unit = '',
         actuator = 'pushactuator',

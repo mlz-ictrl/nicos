@@ -102,7 +102,7 @@ class Switch(HasTimeout, NamedDigitalOutput):
         return status.ERROR, 'target not reached'
 
 
-class Attenuator(Switch):
+class AttenuatorSwitch(Switch):
     """The attentuator switch must write always a '1' to change the value."""
 
     def _writeValue(self, value):
