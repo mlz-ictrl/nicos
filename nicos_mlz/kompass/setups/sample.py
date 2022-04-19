@@ -46,7 +46,7 @@ devices = dict(
         mapping = dict(up=1, down=0),
     ),
 
-    stt = device('nicos_mlz.kompass.devices.pbs.SttWithPBS',
+    stt = device('nicos_mlz.kompass.devices.SttWithPBS',
         description = 'secondary spectrometer angle (A4) with pbs',
         stt = 'stt_ax',
         pbs = 'pbs',
