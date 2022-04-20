@@ -2293,7 +2293,10 @@ class DeviceAlias(Device):
         for pname in self._obj.parameters:
             if pname in self._ownparams:
                 continue
-            self._cache.put(self, pname, getattr(self._obj, pname))
+            try:
+                self._cache.put(self, pname, getattr(self._obj, pname))
+            except NicosError:
+                pass  # silently ignore
 
     def _recoverMissingDevice(self, devname):
         """Recover from not having a valid target (it does not exist, cannot be
