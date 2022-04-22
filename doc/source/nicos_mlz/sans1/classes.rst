@@ -25,9 +25,6 @@
 .. module:: nicos_mlz.sans1.devices.ccmsanssc
 .. autoclass:: SwordAxis()
 
-.. module:: nicos_mlz.sans1.devices.k34461a
-.. autoclass:: VoltageMeter()
-
 .. module:: nicos_mlz.sans1.devices.tisane
 .. autoclass:: Burst()
 

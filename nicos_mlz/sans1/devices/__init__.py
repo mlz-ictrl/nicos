@@ -33,7 +33,6 @@ from nicos_mlz.sans1.devices.detector import Detector, DetectorTranslation, \
     GatedDetector
 from nicos_mlz.sans1.devices.hv import Sans1HV, Sans1HVOffDuration, \
     Sans1ZMotor, VoltageSupply, VoltageSwitcher
-from nicos_mlz.sans1.devices.k34461a import VoltageMeter
 from nicos_mlz.sans1.devices.resolution import Resolution
 from nicos_mlz.sans1.devices.sans1_sample import Sans1Sample
 from nicos_mlz.sans1.devices.shutter import Shutter

@@ -76,9 +76,9 @@ devices = dict(
     #),
 
     # Keysight 34461A
-    U_spinflipper = device('nicos_mlz.sans1.devices.VoltageMeter',
+    U_spinflipper = device('nicos.devices.entangle.Sensor',
         description = 'Voltage of 34461A True RMS Meter',
-        tangodevice = tango_base_truerms + 'rmsspinflip/io',
+        tangodevice = tango_base_truerms + 'rmsspinflip/signal',
         unit = 'V',
         fmtstr = '%.2f',
         pollinterval = 5,
