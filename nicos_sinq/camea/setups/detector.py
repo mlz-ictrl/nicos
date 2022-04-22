@@ -5,9 +5,17 @@ includes = [
 ]  # The real thing
 #includes=['hm_config_sim',] # For simulation
 
+excludes = ['andorccd']
+
 pvprefix = 'SQ:CAMEA:counter'
 
 devices = dict(
+    nxsink=device('nicos.nexus.nexussink.NexusSink',
+                  description='Sink for NeXus file writer',
+                  filenametemplate=['camea%(year)sn%(scancounter)06d.hdf'],
+                  templateclass='nicos_sinq.camea.nexus.nexus_templates'
+                                '.CameaTemplateProvider',
+                  ),
     timepreset = device('nicos_ess.devices.epics.detector.EpicsTimerActiveChannel',
         description = 'Used to set and view time preset',
         unit = 'sec',

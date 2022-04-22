@@ -97,10 +97,4 @@ devices = dict(
         description = 'Sink for sending UDP datafile '
         'notifications'
     ),
-    nxsink = device('nicos.nexus.nexussink.NexusSink',
-        description = 'Sink for NeXus file writer',
-        filenametemplate = ['camea%(year)sn%(scancounter)06d.hdf'],
-        templateclass = 'nicos_sinq.camea.nexus.nexus_templates'
-        '.CameaTemplateProvider',
-    ),
 )

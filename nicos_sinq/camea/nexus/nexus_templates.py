@@ -19,6 +19,7 @@
 #
 # Module authors:
 #   Mark Koennecke <mark.koennecke@psi.ch>
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
@@ -27,13 +28,13 @@ import copy
 from nicos import session
 from nicos.nexus.elements import ConstDataset, DetectorDataset, \
     DeviceAttribute, DeviceDataset, ImageDataset, NXAttribute, NXLink, \
-    NXScanLink, NXTime
+    NXTime
 from nicos.nexus.nexussink import NexusTemplateProvider
 
 from nicos_sinq.camea.nexus.camea_elements import BoundaryArrayParam, \
     CameaAzimuthalAngle
 from nicos_sinq.nexus.specialelements import AbsoluteTime, ArrayParam, \
-    EnvDeviceDataset, OutSampleEnv, Reflection, ScanCommand, ScanVars
+    EnvDeviceDataset, OutSampleEnv, Reflection, ScanCommand, ScanVars, CellArray
 
 
 class CameaTemplateProvider(NexusTemplateProvider):
@@ -82,7 +83,6 @@ class CameaTemplateProvider(NexusTemplateProvider):
                         "summed_counts":
                             NXLink(
                             '/entry/CAMEA/detector/summed_counts'),
-                        "dummy": NXScanLink(),
                         }
                     }
                 }
@@ -134,6 +134,7 @@ class CameaTemplateProvider(NexusTemplateProvider):
                                units=NXAttribute('rlu', 'string')),
         "ql": EnvDeviceDataset('l', dtype='float32',
                                units=NXAttribute('rlu', 'string')),
+        "unit_cell": CellArray(),
     }
 
     _camea_inst = {
@@ -194,6 +195,7 @@ class CameaTemplateProvider(NexusTemplateProvider):
                                       dtype='float32',
                                       units=NXAttribute('mm', 'string')),
             "vertical_curvature": EnvDeviceDataset('mcv', dtype='float32'),
+            "horizontal_curvature": EnvDeviceDataset('mch', dtype='float32'),
         },
         "segment_1:NXdetector": {
             "data": DetectorDataset('monitor3', dtype='int32',
@@ -268,6 +270,121 @@ class CameaTemplateProvider(NexusTemplateProvider):
         inst = copy.deepcopy(self._camea_inst)
         inst['calib1:NXcollection'] = self._make_calib('calib1')
         inst['calib3:NXcollection'] = self._make_calib('calib3')
+        inst['calib5:NXcollection'] = self._make_calib('calib5')
         inst['calib8:NXcollection'] = self._make_calib('calib8')
         template['entry:NXentry']['CAMEA:NXinstrument'] = inst
+        return template
+
+
+class CameaCCDTemplateProvider(CameaTemplateProvider):
+    """
+    Template for writing NeXus files for CAMEA
+    """
+
+    _camea_inst = {
+        "analyzer:NXcrystal": {
+            "d_spacing": DeviceDataset('ana', parameter='dvalue',
+                                       dtype='float32',
+                                       units=NXAttribute('Angstroem',
+                                                         'string')),
+            "analyzer_selection": DeviceDataset('anaNo', dtype='int32',
+                                                units=NXAttribute(
+                                                    'selection', 'string')),
+            "nominal_energy": EnvDeviceDataset('ef', dtype='float32',
+                                               units=NXAttribute('mev',
+                                                                 'string')),
+            "type": ConstDataset('Pyrolythic Graphite', dtype='string'),
+            "polar_angle": EnvDeviceDataset('a4', dtype='float32',
+                                            units=NXAttribute('degree',
+                                                              'string')),
+            "polar_angle_offset": DeviceDataset('a4', parameter='a4offset',
+                                                dtype='float32',
+                                                units=NXAttribute('degree',
+                                                                  'string')),
+            "polar_angle_raw": EnvDeviceDataset('s2t', dtype='float32',
+                                                units=NXAttribute('degree',
+                                                                  'string')),
+        },
+        "monochromator:NXcrystal": {
+            "d_spacing": DeviceDataset('mono', parameter='dvalue',
+                                       dtype='float32',
+                                       units=NXAttribute('Angstroem',
+                                                         'string')),
+            "energy": EnvDeviceDataset('ei', dtype='float32',
+                                       units=NXAttribute('mev',
+                                                         'string')),
+            "type": ConstDataset('Pyrolythic Graphite', dtype='string'),
+            "rotation_angle": EnvDeviceDataset('a1', dtype='float32',
+                                               units=NXAttribute('degree',
+                                                                 'string')),
+            "rotation_angle_zero": DeviceDataset('a1', parameter='offset',
+                                                 dtype='float32',
+                                                 units=NXAttribute('degree',
+                                                                   'string')),
+            "gm": EnvDeviceDataset('gm', dtype='float32',
+                                   units=NXAttribute('degree',
+                                                     'string')),
+            "gm_zero": DeviceDataset('gm', parameter='offset',
+                                     dtype='float32',
+                                     units=NXAttribute('degree',
+                                                       'string')),
+            "tlm": EnvDeviceDataset('tlm', dtype='float32',
+                                    units=NXAttribute('mm', 'string')),
+            "tlm_zero": DeviceDataset('tlm', parameter='offset',
+                                      dtype='float32',
+                                      units=NXAttribute('mm', 'string')),
+            "tum": EnvDeviceDataset('tum', dtype='float32',
+                                    units=NXAttribute('mm', 'string')),
+            "tum_zero": DeviceDataset('tum', parameter='offset',
+                                      dtype='float32',
+                                      units=NXAttribute('mm', 'string')),
+            "vertical_curvature": EnvDeviceDataset('mcv', dtype='float32'),
+            "horizontal_curvature": EnvDeviceDataset('mch', dtype='float32'),
+        },
+        "detector:NXdetector": {
+            "data": ImageDataset(0, 0, signal=NXAttribute(1, 'int32')),
+            "summed_counts": DetectorDataset('counts', dtype='int32',
+                                             units=NXAttribute('counts',
+                                                               'string')),
+            "total_counts": DetectorDataset('camea_detector', dtype='int32',
+                                            units=NXAttribute('counts',
+                                                              'string')),
+            "monitor_1": DetectorDataset('monitor1', 'float32',
+                                         units=NXAttribute('counts',
+                                                           'string')),
+        },
+        "monochromator_slit:NXslit": {
+            "top": EnvDeviceDataset('mst', dtype='float32',
+                                    units=NXAttribute('mm', 'string')),
+            "top_zero": DeviceDataset('mst', parameter='offset',
+                                      dtype='float32',
+                                      units=NXAttribute('mm', 'string')),
+            "bottom": EnvDeviceDataset('msb', dtype='float32',
+                                       units=NXAttribute('mm', 'string')),
+            "bottom_zero": DeviceDataset('msb', parameter='offset',
+                                         dtype='float32',
+                                         units=NXAttribute('mm', 'string')),
+            "right": EnvDeviceDataset('msr', dtype='float32',
+                                      units=NXAttribute('mm', 'string')),
+            "right_zero": DeviceDataset('msr', parameter='offset',
+                                        dtype='float32',
+                                        units=NXAttribute('mm', 'string')),
+            "left": EnvDeviceDataset('msl', dtype='float32',
+                                     units=NXAttribute('mm', 'string')),
+            "left_zero": DeviceDataset('msl', parameter='offset',
+                                       dtype='float32',
+                                       units=NXAttribute('mm', 'string')),
+            "x_gap": EnvDeviceDataset('mslit_width', dtype='float32',
+                                      units=NXAttribute('mm', 'string')),
+            "y_gap": EnvDeviceDataset('mslit_height', dtype='float32',
+                                      units=NXAttribute('mm', 'string')),
+        },
+    }
+
+    def getTemplate(self):
+        template = copy.deepcopy(self._default)
+        template['entry:NXentry']['sample:NXsample'] = copy.deepcopy(self._camea_sample)
+        template['entry:NXentry']['CAMEA:NXinstrument'] = copy.deepcopy(
+            self._camea_inst
+        )
         return template
