@@ -31,7 +31,8 @@ from os import path
 import gr
 
 rootdir = path.abspath('..')
-guidir = path.join(rootdir, 'nicos', 'clients', 'gui')
+guidirs = [path.join('nicos', 'clients', 'gui'),
+           path.join('nicos', 'clients', 'flowui')]
 
 grrtdir = path.join(path.dirname(gr.__file__), 'bin')
 
@@ -60,11 +61,12 @@ def find_custom():
 # Include all .ui files for the main GUI module.
 def find_uis():
     res = []
-    for root, _dirs, files in os.walk(guidir):
-        if any(uifile for uifile in files if uifile.endswith('.ui')):
-            res.append((path.join(root, '*.ui'),
-                        path.join('nicos', 'clients', 'gui',
-                                  root[len(guidir) + 1:])))
+    for guidir in guidirs:
+        for root, _dirs, files in os.walk(path.join(rootdir, guidir)):
+            if any(uifile for uifile in files if uifile.endswith('.ui')):
+                res.append((path.join(root, '*.ui'),
+                            path.join(guidir,
+                                      root[len(path.join(rootdir, guidir)) + 1:])))
     return res
 
 
