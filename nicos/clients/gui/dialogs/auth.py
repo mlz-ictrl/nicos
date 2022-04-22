@@ -24,6 +24,7 @@
 # *****************************************************************************
 
 """Dialog for entering authentication data."""
+from os import path
 
 from nicos.clients.base import ConnectionData
 from nicos.clients.gui.utils import loadUi, splitTunnelString
@@ -35,7 +36,7 @@ from nicos.protocols.daemon.classic import DEFAULT_PORT
 class ConnectionDialog(QDialog):
     """A dialog to request connection parameters."""
 
-    ui = 'dialogs/auth.ui'
+    ui = path.join('dialogs', 'auth.ui')
 
     @classmethod
     def getConnectionData(cls, parent, connpresets, lastpreset, lastdata,

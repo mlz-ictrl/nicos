@@ -24,6 +24,7 @@
 
 """NICOS GUI panel with a list of all devices."""
 
+from os import path
 from logging import WARNING
 
 from nicos.clients.gui.dialogs.error import ErrorDialog
@@ -181,7 +182,7 @@ class DevicesPanel(Panel):
     """
 
     panelName = 'Devices'
-    ui = 'panels/devices.ui'
+    ui = path.join('panels', 'devices.ui')
 
     @classmethod
     def _createIcons(cls):

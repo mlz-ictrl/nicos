@@ -24,6 +24,8 @@
 
 """NICOS GUI experiment setup window."""
 
+from os import path
+
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.utils import dialogFromUi, loadUi
 from nicos.core import ConfigurationError
@@ -128,7 +130,7 @@ class ExpPanel(Panel):
     """
 
     panelName = 'Experiment setup'
-    ui = 'panels/setup_exp.ui'
+    ui = path.join('panels', 'setup_exp.ui')
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)

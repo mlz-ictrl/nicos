@@ -24,6 +24,8 @@
 
 """NICOS GUI virtual console panel component."""
 
+from os import path
+
 from nicos.clients.gui.panels.console import \
     ConsolePanel as DefaultConsolePanel
 from nicos.clients.gui.utils import enumerateWithProgress
@@ -54,7 +56,7 @@ class ConsolePanel(DefaultConsolePanel):
     """
 
     panelName = 'Console'
-    ui = 'panels/console.ui'
+    ui = path.join('panels', 'console.ui')
 
     def __init__(self, parent, client, options):
         DefaultConsolePanel.__init__(self, parent, client, options)

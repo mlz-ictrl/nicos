@@ -23,6 +23,8 @@
 # *****************************************************************************
 
 """NICOS GUI experiment setup window."""
+from os import path
+
 from nicos.clients.flowui import uipath
 from nicos.clients.gui.panels import Panel, PanelDialog
 from nicos.clients.gui.panels.setup_panel import ExpPanel as DefaultExpPanel, \
@@ -42,7 +44,7 @@ class ExpPanel(DefaultExpPanel):
     """
 
     panelName = 'Experiment setup'
-    ui = '%s/panels/ui_files/setup_exp.ui' % uipath
+    ui = path.join(uipath, 'panels', 'ui_files', 'setup_exp.ui')
 
     def __init__(self, parent, client, options):
         self._old_settings = {}

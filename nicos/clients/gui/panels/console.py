@@ -57,7 +57,7 @@ class ConsolePanel(Panel):
     """
 
     panelName = 'Console'
-    ui = 'panels/console.ui'
+    ui = path.join('panels', 'console.ui')
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
