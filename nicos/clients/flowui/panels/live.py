@@ -22,6 +22,7 @@
 #
 # *****************************************************************************
 from enum import Enum
+from os import path
 
 import numpy
 
@@ -278,7 +279,7 @@ class MultiLiveDataPanel(LiveDataPanel):
     widget
     """
     panelName = 'MultidetectorLiveDataView'
-    ui = f'{uipath}/panels/ui_files/live.ui'
+    ui = path.join(uipath, 'panels', 'ui_files', 'live.ui')
 
     def __init__(self, parent, client, options):
         self.fileList = QListWidget()

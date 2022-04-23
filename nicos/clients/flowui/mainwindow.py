@@ -49,7 +49,7 @@ class Spacer(QWidget):
 
 
 class MainWindow(DefaultMainWindow):
-    ui = '%s/main.ui' % uipath
+    ui = path.join(uipath, 'main.ui')
 
     def __init__(self, log, gui_conf, viewonly=False, tunnel=''):
         DefaultMainWindow.__init__(self, log, gui_conf, viewonly, tunnel)

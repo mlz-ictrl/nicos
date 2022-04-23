@@ -17,6 +17,7 @@ a = Analysis([binscript],
                  (path.join(rootdir, 'nicos', 'RELEASE-VERSION'), 'nicos')],
              hiddenimports=
                  find_modules('nicos', 'clients', 'gui') +
+                 find_modules('nicos', 'clients', 'flowui') +
                  find_modules('nicos', 'guisupport') +
                  find_modules('nicos', 'core') +
                  find_modules('nicos', 'devices'),

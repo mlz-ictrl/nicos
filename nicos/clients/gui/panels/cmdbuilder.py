@@ -25,6 +25,7 @@
 
 """NICOS GUI single cmdlet command input."""
 
+from os import path
 from nicos.clients.gui.cmdlets import all_categories, all_cmdlets
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import loadUi, modePrompt
@@ -47,7 +48,7 @@ class CommandPanel(Panel):
     """
 
     panelName = 'Command'
-    ui = 'panels/cmdbuilder.ui'
+    ui = path.join('panels', 'cmdbuilder.ui')
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)

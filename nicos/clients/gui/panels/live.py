@@ -180,7 +180,7 @@ class LiveDataPanel(Panel):
 
     panelName = 'Live data view'
 
-    ui = f'{uipath}/panels/live.ui'
+    ui = path.join(uipath, 'panels', 'live.ui')
 
     def __init__(self, parent, client, options):
         Panel.__init__(self, parent, client, options)
@@ -1138,7 +1138,7 @@ class ImagingLiveWidget(LiveWidget):
 class ImagingControls(QWidget):
     """Controls the filtering for the imaging instruments."""
 
-    controlsui = f'{uipath}/panels/imagecontrols.ui'
+    controlsui = path.join(uipath, 'panels', 'imagecontrols.ui')
 
     changed = pyqtSignal()
 
