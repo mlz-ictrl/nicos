@@ -47,13 +47,19 @@ devices = dict(
     ),
 )
 
-monitor_blocks = {
-   'default': Block('HUBER Small Sample Manipulator', [
-   BlockRow(
-       Field(dev='stx_huber'), Field(dev='sty_huber'), Field(dev='sry_huber'),
-       ),
-   BlockRow(
-       Field(dev='sgx_huber'), Field(dev='sgz_huber'),
-       ),
-   ], setups=setupname)
-}
+monitor_blocks = dict(
+   default = Block('HUBER Small Sample Manipulator',
+        [
+            BlockRow(
+                Field(dev='stx_huber'),
+                Field(dev='sty_huber'),
+                Field(dev='sry_huber'),
+            ),
+            BlockRow(
+                Field(dev='sgx_huber'),
+                Field(dev='sgz_huber'),
+            ),
+        ],
+        setups=setupname
+    ),
+)

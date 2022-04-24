@@ -9,3 +9,15 @@ devices = dict(
         tangodevice = tango_base + 'network/sr830',
     ),
 )
+
+monitor_blocks = dict(
+    default = Block('Lock-In',
+        [
+            BlockRow(
+                Field(dev='sr850[0]', name='X'),
+                Field(dev='sr850[1]', name='Y')
+            ),
+        ],
+        setups='sr850',
+    ),
+)

@@ -28,3 +28,16 @@ devices = dict(
         unit = 'deg',
     ),
 )
+
+monitor_blocks = dict(
+    default = Block('Cryostat Manipulator',
+        [
+            BlockRow(
+                Field(name='ctx', dev='ctx'),
+                Field(name='cty', dev='cty'),
+                Field(name='cry', dev='cry'),
+            ),
+        ],
+        setups=setupname,
+    ),
+)

@@ -23,15 +23,7 @@ _expcolumn = Column(
 
 _huberblock = SetupBlock('huber')
 
-_servostarblock = Block('Servostar Large Sample Manipulator', [
-    BlockRow(
-        Field(dev='stx_servostar'),
-        Field(dev='sty_servostar'),
-        Field(dev='sry_servostar'),
-    ),
-    ],
-    setups='servostar',
-)
+_servostarblock = SetupBlock('servostar')
 
 _detectorikonlcolumn = Column(
     Block('Detector Andor IkonL', [
@@ -101,60 +93,15 @@ _detectorzwo01column = Column(
     ),
 )
 
-_shutterblock = Block('Shutters & Collimators', [
-    BlockRow(
-        Field(name='Reactor', dev='ReactorPower', width=7),
-        Field(dev='collimator', width=10),
-        Field(dev='pinhole', width=10),
-    ),
-    BlockRow(
-        Field(dev='shutter1', width=10, istext = True),
-        Field(dev='shutter2', width=10, istext = True),
-        Field(dev='fastshutter', width=10, istext = True),
-    ),
-    ],
-    setups='basic',
-)
+_shutterblock = SetupBlock('basic', 'shutters')
 
-_basicblock = Block('Info', [
-    BlockRow(
-        Field(name='Ambient', dev='Ambient_pressure'),
-        Field(name='Flight Tube', dev='Flighttube_pressure'),
-        Field(dev='UBahn', width=12, istext=True),
-    ),
-    BlockRow(
-        Field(plot='Pressure', name='Ambient', dev='Ambient_pressure', width=40,
-              height=20, plotwindow=24*3600),
-        Field(plot='Pressure', name='Flight Tube', dev='Flighttube_pressure'),
-    ),
-    ],
-    setups='basic',
-)
+_basicblock = SetupBlock('basic', 'basic')
 
-_sblblock = Block('Small Beam Limiter', [
-    BlockRow(
-        Field(dev='sbl', name='sbl  [center[x,y], width[x,y]]', width=28),
-    ),
-    ],
-    setups='sbl',
-)
+_sblblock = SetupBlock('sbl')
 
-_lblblock = Block('Large Beam Limiter', [
-    BlockRow(
-        Field(dev='lbl', name='lbl  [center[x,y], width[x,y]]', width=28),
-    ),
-    ],
-    setups='lbl',
-)
+_lblblock = SetupBlock('lbl')
 
-_detector_translationblock = Block('Detector Translation', [
-    BlockRow(
-        Field(dev='dtx', width=13),
-        Field(dev='dty', width=13),
-    ),
-    ],
-    setups='detector_translation',
-)
+_detector_translationblock = SetupBlock('detector_translation')
 
 
 _leftcolumn = Column(

@@ -20,3 +20,16 @@ devices = dict(
         corr = 'dct2',
     ),
 )
+
+monitor_blocks = dict(
+    default = Block('Mezei-Flip',
+        [
+            BlockRow(
+                Field(dev='dct1'),
+                Field(dev='dct2'),
+                Field(dev='flip', width=5),
+            ),
+        ],
+        setups=setupname,
+    ),
+)

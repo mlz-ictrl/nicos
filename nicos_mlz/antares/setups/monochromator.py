@@ -96,3 +96,20 @@ devices = dict(
         precision = 0,
     ),
 )
+
+monitor_blocks = dict(
+    default = Block('Double Crystal PG Monochromator',
+        [
+            BlockRow(
+                Field(name='Lambda', dev='mono'),
+                Field(name='Position', dev='mono_inout')
+            ),
+            BlockRow(
+                Field(dev='mr1'),
+                Field(dev='mr2'),
+                Field(dev='mtz'),
+            ),
+        ],
+        setups=setupname,
+    ),
+)

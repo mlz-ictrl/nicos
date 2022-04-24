@@ -32,3 +32,16 @@ devices = dict(
         userlimits = (-9999, 9999),
     ),
 )
+
+monitor_blocks = dict(
+    default = Block('Servostar Large Sample Manipulator',
+        [
+            BlockRow(
+                Field(dev='stx_servostar'),
+                Field(dev='sty_servostar'),
+                Field(dev='sry_servostar'),
+            ),
+        ],
+        setups=setupname,
+    ),
+)

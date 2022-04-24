@@ -18,3 +18,15 @@ devices = dict(
         userlimits = (0, 300),
     ),
 )
+
+monitor_blocks = dict(
+    default = Block('Detector Translation',
+        [
+            BlockRow(
+                Field(dev='dtx', width=13),
+                Field(dev='dty', width=13),
+            ),
+        ],
+        setups=setupname,
+    ),
+)

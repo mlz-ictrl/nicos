@@ -37,86 +37,19 @@ _live = Block('Live image of Detector', [
     setups='liveimage_internal',
 )
 
+_sockets1block = SetupBlock('sockets', 'cabinet1')
 
-_sockets1block = Block('Sockets Cabinet 1', [
-    BlockRow(
-        Field(dev='socket01', width=9),
-        Field(dev='socket02', width=9),
-        Field(dev='socket03', width=9),
-    ),
-    ],
-    setups='sockets',
-)
+_sockets2block = SetupBlock('sockets', 'cabinet2')
 
-_sockets2block = Block('Sockets Cabinet 2', [
-    BlockRow(
-        Field(dev='socket04', width=9),
-        Field(dev='socket05', width=9),
-        Field(dev='socket06', width=9),
-    ),
-    ],
-    setups='sockets',
-)
+_sockets3block = SetupBlock('sockets', 'cabinet3')
 
-_sockets3block = Block('Sockets Cabinet 3', [
-    BlockRow(
-        Field(dev='socket07', width=9),
-        Field(dev='socket08', width=9),
-        Field(dev='socket09', width=9),
-    ),
-    ],
-    setups='sockets',
-)
+_sockets6block = SetupBlock('sockets', 'cabinet6')
 
-_sockets6block = Block('Sockets Cabinet 6', [
-    BlockRow(
-        Field(dev='socket10', width=9),
-        Field(dev='socket11', width=9),
-        Field(dev='socket12', width=9),
-    ),
-    ],
-    setups='sockets',
-)
+_sockets7block = SetupBlock('sockets', 'cabinet7')
 
-_sockets7block = Block('Sockets Cabinet 7', [
-    BlockRow(
-        Field(dev='socket13', width=9),
-        Field(dev='socket14', width=9),
-        Field(dev='socket15', width=9),
-    ),
-    ],
-    setups='sockets',
-)
+_filterwheelblock = SetupBlock('rm_filterwheel')
 
-_filterwheelblock = Block('Filterwheel', [
-    BlockRow(
-        Field(dev='filterwheel', width=14),
-        Field(dev='pbfilter', width=14),
-    ),
-    ],
-    setups='filterwheel',
-)
-
-_selectorblock = Block('Velocity Selector', [
-    BlockRow(
-        Field(name='Speed', dev='selector'),
-        Field(name='Lambda',dev='selector_lambda'),
-        Field(name='Tilt', dev='selector_tilt'),
-        Field(name='Position', dev='selector_inout'),
-    ),
-    BlockRow(
-        Field(dev='selector_vacuum', name='Vacuum'),
-        Field(dev='selector_rtemp', name='Rotor Temp'),
-        Field(dev='selector_vibrt', name='Vibration'),
-    ),
-    BlockRow(
-        Field(dev='selector_winlt', name='Water Inlet'),
-        Field(dev='selector_woutt', name='Water Outlet'),
-        Field(name='Water Flow',dev='selector_wflow'),
-    ),
-    ],
-    setups='selector',
-)
+_selectorblock = SetupBlock('selector')
 
 _temperatureblock = Block('Cryo Temperature', [
     BlockRow(
@@ -140,78 +73,15 @@ _garfieldblock = Block('Garfield Magnet', [
     setups='amagnet',
 )
 
-_flipperblock = Block('Mezei-Flip', [
-    BlockRow(
-        Field(dev='dct1'),
-        Field(dev='dct2'),
-        Field(dev='flip', width=5),
-    ),
-    ],
-    setups='mezeiflip',
-)
+_flipperblock = SetupBlock('mezeiflip')
 
-_lockinblock = Block('Lock-In', [
-    BlockRow(
-        Field(dev='sr850[0]', name='X'),
-        Field(dev='sr850[1]', name='Y')
-    ),
-    ],
-    setups='sr850',
-)
+_lockinblock = SetupBlock('sr850')
 
-_monochromatorblock = Block('Double Crystal PG Monochromator', [
-    BlockRow(
-        Field(name='Lambda', dev='mono'),
-        Field(name='Position', dev='mono_inout')
-    ),
-    BlockRow(
-        Field(dev='mr1'),
-        Field(dev='mr2'),
-        Field(dev='mtz'),
-    ),
-    ],
-    setups='monochromator',
-)
+_monochromatorblock = SetupBlock('monochromator')
 
-_ngiblock = Block('Neutron Grating Interferometer', [
-    BlockRow(
-        Field(name='G0rz', dev='G0rz'),
-        Field(name='G0ry', dev='G0ry'),
-        Field(name='G0tx', dev='G0tx'),
-    ),
-    BlockRow(
-        Field(name='G1rz', dev='G1rz'),
-        Field(name='G1tz', dev='G1tz'),
-        Field(name='G12rz', dev='G12rz'),
-    ),
-    ],
-    setups='ngi',
-)
+_ngiblock = SetupBlock('ngi')
 
-_ngi_jcnsblock = Block('Neutron Grating Interferometer', [
-    BlockRow(
-        Field(name='G0rz', dev='G0rz'),
-        Field(name='G0ry', dev='G0ry'),
-        Field(name='G0tx', dev='G0tx'),
-    ),
-    BlockRow(
-        Field(name='G1rz', dev='G1rz'),
-        Field(name='G1tz', dev='G1tz'),
-        Field(name='G12rz', dev='G12rz'),
-    ),
-    ],
-    setups='ngi_jcns',
-)
-
-_cryomanipulatorblock = Block('Cryostat Manipulator', [
-    BlockRow(
-        Field(name='ctx', dev='ctx'),
-        Field(name='cty', dev='cty'),
-        Field(name='cry', dev='cry'),
-    ),
-    ],
-    setups='cryomanipulator',
-)
+_cryomanipulatorblock = SetupBlock('cryomanipulator')
 
 # generic Cryo-stuff
 cryos = []
@@ -289,7 +159,6 @@ _rightcolumn = Column(
     _sockets6block,
     _sockets7block,
     _ngiblock,
-    _ngi_jcnsblock,
 )
 
 _rightcolumn += Column(*cryoplots)

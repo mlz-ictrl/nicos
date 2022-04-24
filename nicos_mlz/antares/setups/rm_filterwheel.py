@@ -56,3 +56,15 @@ devices = dict(
         blockingmove = True,
     ),
 )
+
+monitor_blocks = dict(
+    default = Block('Filterwheel',
+        [
+            BlockRow(
+                Field(dev='filterwheel', width=14),
+                Field(dev='pbfilter', width=14),
+            ),
+        ],
+        setups=setupname,
+    ),
+)

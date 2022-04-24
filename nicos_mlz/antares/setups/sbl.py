@@ -45,3 +45,14 @@ devices = dict(
         maxage = 10,
     ),
 )
+
+monitor_blocks = dict(
+    default = Block('Small Beam Limiter',
+        [
+            BlockRow(
+                Field(dev='sbl', name='sbl  [center[x,y], width[x,y]]', width=28),
+            ),
+        ],
+        setups=setupname,
+    ),
+)
