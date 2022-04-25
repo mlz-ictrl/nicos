@@ -147,7 +147,7 @@ def freqscan(device, start, step, numsteps, time=0.2):
     """
     with manualscan(device):
         for i in range(numsteps):
-            maw(device, start + step*i)
+            device.maw(start + step*i)
             session.delay(time)
             count(1)
 
