@@ -72,12 +72,12 @@ Instrument-specific code was contributed by:
 * Arno Frank <arno.frank@tuwien.ac.at>
 * Jonathan Frank <jonathan.frank@frm2.tum.de>
 * Christian Franz <christian.franz@frm2.tum.de>
-* Weimin Gan <weimin.gan@hzg.de>
+* Weimin Gan <weimin.gan@hereon.de>
 * Holger Gibhardt <hgibhar@gwdg.de>
 * Artur Glavic <artur.glavic@psi.ch>
-* Martin Haese <martin.haese@hzg.de>
+* Martin Haese <martin.haese@hereon.de>
 * Michael Hofmann <michael.hofmann@frm2.tum.de>
-* Markus Hölzel <markus.hölzel@frm2.tum.de>
+* Markus Hölzel <markus.hoelzel@frm2.tum.de>
 * Stefan Huber <stefan.huber@frm2.tum.de>
 * Leonardo Ibanez <leoo.davinci@gmail.com>
 * Johanna Jochum <johanna.jochum@frm2.tum.de>
@@ -87,12 +87,12 @@ Instrument-specific code was contributed by:
 * Wiebke Lohstroh <wiebke.lohstroh@frm2.tum.de>
 * Adrian Losko <adrian.losko@frm2.tum.de>
 * Avishek Maity <Avishek.Maity@frm2.tum.de>
-* Gaetano Mangiapia <gaetano.mangiapia@hzg.de>
+* Gaetano Mangiapia <gaetano.mangiapia@hereon.de>
 * Rifai Muslih <rifai@batan.go.id>
 * Thomas Müller <t.mueller@fz-juelich.de>
 * Dominic Oram <dominic.oram@stfc.ac.uk>
 * Ji Tae Park <jitae.park@frm2.tum.de>
-* Matthias Pomm <matthias.pomm@hzg.de>
+* Matthias Pomm <matthias.pomm@hereon.de>
 * Kirill Pshenichnyi <pshcyrill@mail.ru>
 * Andrew Sazonov <andrew.sazonov@frm2.tum.de>
 * Philipp Schmakat <philipp.schmakat@frm2.tum.de>
