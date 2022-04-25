@@ -29,7 +29,8 @@ from os import path
 
 from nicos import config
 from nicos.clients.gui.utils import SettingGroup, loadUi
-from nicos.guisupport.qt import QDialog, QIcon, QTreeWidgetItem
+from nicos.guisupport.qt import QDialog, QDialogButtonBox, QIcon, \
+    QTreeWidgetItem
 
 
 class InstrSelectDialog(QDialog):
@@ -46,6 +47,7 @@ class InstrSelectDialog(QDialog):
             self.saveBox.hide()
 
         self.confTree.itemDoubleClicked.connect(self.handleDoubleClick)
+        self.confTree.itemClicked.connect(self.handleClick)
         for entry in sorted(os.listdir(config.nicos_root)):
             full = path.join(config.nicos_root, entry)
             if not (entry.startswith('nicos_') and path.isdir(full)):
@@ -58,6 +60,11 @@ class InstrSelectDialog(QDialog):
                     continue
                 item = QTreeWidgetItem(pkgitem, [subentry])
                 item.setData(0, QTreeWidgetItem.UserType, configfile)
+        self.buttonBox.button(QDialogButtonBox.Ok).setDisabled(True)
+
+    def handleClick(self, item, _col):
+        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(
+            item.data(0, QTreeWidgetItem.UserType) is not None)
 
     def handleDoubleClick(self, item, _col):
         if item.data(0, QTreeWidgetItem.UserType):
