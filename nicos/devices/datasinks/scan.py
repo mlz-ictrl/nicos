@@ -136,7 +136,8 @@ class AsciiScanfileSinkHandler(DataSinkHandler):
     def prepare(self):
         self.manager.assignCounter(self.dataset)
         fp = self.manager.createDataFile(self.dataset, self._template,
-                                         self.sink.subdir)
+                                         self.sink.subdir,
+                                         filemode=self.sink.filemode)
         self._fname = fp.shortpath
         self._filepath = fp.filepath
         self._file = TextIOWrapper(fp, encoding='utf-8')
