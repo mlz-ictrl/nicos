@@ -406,14 +406,26 @@ class IEEEDevice(Readable):
         'unit':      Override(mandatory=False, default=''),
     }
 
+    hardware_access = False
+
     def doStatus(self, maxage=0):
-        return status.OK, ''
+        if not self.valuename:
+            return status.OK, ''
+
+        devname = self.valuename.rsplit('.', 1)[0]
+        if self._cache:
+            return self._cache.get(devname, 'status')
+        return session.getDevice(devname).status(maxage)
 
     def doRead(self, maxage=0):
         if not self.valuename:
             return ''
 
         if '.' in self.valuename:
-            devname, parname = self.valuename.split('.')
+            devname, parname = self.valuename.rsplit('.', 1)
+            if self._cache:
+                return self._cache.get(devname, parname)
             return getattr(session.getDevice(devname), parname)
+        if self._cache:
+            return self._cache.get(self.valuename, 'value')
         return session.getDevice(self.valuename).read(maxage)
