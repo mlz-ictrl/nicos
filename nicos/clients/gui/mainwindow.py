@@ -144,9 +144,8 @@ class MainWindow(DlgUtils, QMainWindow):
         self.allowoutputlinewrap = False
 
         # set-up the initial connection data
-        self.conndata = ConnectionData(host='localhost', port=1301,
-                                       user='guest', password=None,
-                                       viewonly=viewonly)
+        self.setConnData(ConnectionData('localhost', 1301, 'guest', None,
+                                        viewonly=viewonly))
 
         # state members
         self.current_status = None
@@ -368,7 +367,7 @@ class MainWindow(DlgUtils, QMainWindow):
         self.connpresets = {}
         # new setting key, with dictionary values
         for (k, v) in settings.value('connpresets_new', {}).items():
-            self.connpresets[k] = ConnectionData(**v)
+            self.connpresets[k] = ConnectionData(**v).copy()
         # if it was empty, try old setting key with list values
         if not self.connpresets:
             for (k, v) in settings.value('connpresets', {}).items():
@@ -376,7 +375,7 @@ class MainWindow(DlgUtils, QMainWindow):
                     host=v[0], port=int(v[1]), user=v[2], password=None)
         self.lastpreset = settings.value('lastpreset', '')
         if self.lastpreset in self.connpresets:
-            self.conndata = self.connpresets[self.lastpreset].copy()
+            self.setConnData(self.connpresets[self.lastpreset])
 
         self.instrument = settings.value('instrument', self.gui_conf.name)
         self.confirmexit = settings.value('confirmexit', True, bool)
@@ -735,10 +734,10 @@ class MainWindow(DlgUtils, QMainWindow):
             return
         if save:
             self.lastpreset = save
-            self.connpresets[save] = new_data
+            self.connpresets[save] = new_data.copy()
         else:
             self.lastpreset = new_name
-        self.conndata = new_data
+        self.setConnData(new_data)
         if tunnel:
             try:
                 host, username, password = splitTunnelString(tunnel)

@@ -58,8 +58,9 @@ class ConnectionData:
         self.expertmode = expertmode
 
     def copy(self):
-        return ConnectionData(self.host, self.port, self.user,
-                              self.password, self.viewonly, self.expertmode)
+        # the copy shouldn't get the password to enforce a retyping of it
+        return ConnectionData(self.host, self.port, self.user, None,
+                              self.viewonly, self.expertmode)
 
     def serialize(self):
         return vars(self)
