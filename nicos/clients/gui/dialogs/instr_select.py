@@ -24,8 +24,8 @@
 
 """Dialog for selecting an instrument guiconfig."""
 
-import os
 from os import path
+from pathlib import Path
 
 from nicos import config
 from nicos.clients.gui.utils import SettingGroup, loadUi
@@ -48,19 +48,32 @@ class InstrSelectDialog(QDialog):
 
         self.confTree.itemDoubleClicked.connect(self.handleDoubleClick)
         self.confTree.itemClicked.connect(self.handleClick)
-        for entry in sorted(os.listdir(config.nicos_root)):
-            full = path.join(config.nicos_root, entry)
-            if not (entry.startswith('nicos_') and path.isdir(full)):
-                continue
-            pkgitem = QTreeWidgetItem(self.confTree, [entry])
-            pkgitem.setIcon(0, icon)
-            for subentry in sorted(os.listdir(full)):
-                configfile = path.join(full, subentry, 'guiconfig.py')
-                if not path.isfile(configfile):
-                    continue
-                item = QTreeWidgetItem(pkgitem, [subentry])
-                item.setData(0, QTreeWidgetItem.UserType, configfile)
         self.buttonBox.button(QDialogButtonBox.Ok).setDisabled(True)
+        tree = {}
+
+        for entry in sorted(Path(config.nicos_root).rglob('guiconfig.py')):
+            parent = entry.relative_to(config.nicos_root).parent
+            if not parent.parts[0].startswith('nicos_'):
+                continue
+            ptree = tree
+            for part in parent.parts:
+                ptree = ptree.setdefault(part, {})
+            ptree['config'] = entry
+
+        def add_subitems(pitem, tree):
+            for k, v in tree.items():
+                item = QTreeWidgetItem(pitem, [k])
+                if 'config' in v:
+                    item.setData(0, QTreeWidgetItem.UserType, v['config'])
+                else:
+                    add_subitems(item, v)
+
+        for k, v in tree.items():
+            pkgitem = QTreeWidgetItem(self.confTree, [k])
+            pkgitem.setIcon(0, icon)
+            if 'config' in v:
+                pkgitem.setData(0, QTreeWidgetItem.UserType, v.pop('config'))
+            add_subitems(pkgitem, v)
 
     def handleClick(self, item, _col):
         self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(
