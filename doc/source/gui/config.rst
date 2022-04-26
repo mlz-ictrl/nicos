@@ -45,7 +45,14 @@ A small example configuration file looks like this:
        tool('Report NICOS bug', 'nicos.clients.gui.tools.website.WebsiteTool',
             url='http://forge.frm2.tum.de/redmine/projects/nicos/issues/new'),
    ]
-   options = {'reader_classes': ['nicos_demo.demo.demo_file.DemoReader']}
+
+   options = {
+       'reader_classes': ['nicos_demo.demo.demo_file.DemoReader'],
+       'connection_presets': {
+           'WONI': 'woni.example.my',
+           'INST': 'instrument.facility.my',
+       }
+   }
 
 
 There must be three top-level values called ``main_window``, ``windows`` and
@@ -60,8 +67,12 @@ The ``tools`` entry specifies a list of tools that can be run from the GUI's
 "Tools" menu.  They should be small, short-lived dialogs that typically do not
 stay open for very long.
 
-The ``options`` entry is a dict for further configuration.
-Currently ``reader_classes`` is supported for loading custom image readers.
+The optional ``options`` entry is a dict for further configuration.
+
+* ``reader_classes``:  a list of custom image readers
+* ``connection_presets``: a dict of connection presets witch key as preset name
+  and the preset connection string as used for the connection preset parameter
+  for :ref:`gui-invocation`
 
 
 Panel combinators

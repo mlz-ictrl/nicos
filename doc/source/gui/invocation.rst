@@ -1,3 +1,5 @@
+.. _gui-invocation:
+
 GUI invocation
 ==============
 

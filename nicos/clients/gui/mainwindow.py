@@ -54,7 +54,8 @@ from nicos.guisupport.qt import PYQT_VERSION_STR, QT_VERSION_STR, QAction, \
     QTimer, QWebView, pyqtSignal, pyqtSlot
 from nicos.protocols.daemon import BREAK_NOW, STATUS_IDLE, STATUS_IDLEEXC, \
     STATUS_INBREAK
-from nicos.utils import checkSetupSpec, importString
+from nicos.protocols.daemon.classic import DEFAULT_PORT
+from nicos.utils import checkSetupSpec, importString, parseConnectionString
 
 try:
     from sshtunnel import BaseSSHTunnelForwarderError, SSHTunnelForwarder
@@ -373,6 +374,18 @@ class MainWindow(DlgUtils, QMainWindow):
             for (k, v) in settings.value('connpresets', {}).items():
                 self.connpresets[k] = ConnectionData(
                     host=v[0], port=int(v[1]), user=v[2], password=None)
+        # if there are presets defined in the gui config add them and override
+        # existing ones
+        for key, connection in self.gui_conf.options.get(
+            'connection_presets', {}).items():
+            parsed = parseConnectionString(connection, DEFAULT_PORT)
+            if parsed:
+                parsed['viewonly'] = True
+                if key not in self.connpresets:
+                    self.connpresets[key] = ConnectionData(**parsed)
+                else:  # reset only host if connection is already configured
+                    self.connpresets[key].host = parsed['host']
+
         self.lastpreset = settings.value('lastpreset', '')
         if self.lastpreset in self.connpresets:
             self.setConnData(self.connpresets[self.lastpreset])

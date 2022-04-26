@@ -47,3 +47,19 @@ tools = [
          'nicos.clients.gui.tools.estop.EmergencyStopTool',
          runatstartup=False),
 ]
+
+options = {
+    'connection_presets': {
+        'ANTARES': 'antareshw.antares.frm2.tum.de',
+        'STRESSI': 'stressictrl.stressi.frm2.tum.de',
+        'PUMA': 'pumahw.puma.frm2.tum.de',
+        'SPODI': 'spodictrl.spodi.frm2.tum.de',
+        'NECTAR': 'nectarhw.nectar.frm2.tum.de',
+        'MIRA': 'miractrl.mira.frm2.tum.de',
+        'PGAA': 'pgaahw.pgaa.frm2.tum.de',
+        'SANS1': 'sans1ctrl.sans1.frm2.tum.de',
+        'RESEDA': 'resedactrl.reseda.frm2.tum.de',
+        'REFSANS': 'refsansctrl.refsans.frm2.tum.de',
+        'TOFTOF': 'tofhw.toftof.frm2.tum.de',
+    }
+}
