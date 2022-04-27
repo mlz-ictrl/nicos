@@ -1201,7 +1201,7 @@ class Session:
     def notifyConditionally(self, runtime, subject, body, what=None,
                             short=None, important=True):
         """Send a notification if the current runtime exceeds the configured
-        minimum runtimer for notifications.
+        minimum runtime for notifications.
         """
         if self._mode == SIMULATION:
             return
