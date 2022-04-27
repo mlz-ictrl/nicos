@@ -29,6 +29,7 @@ from time import localtime, strftime, time as currenttime
 
 from nicos import session
 from nicos.core import Override, Param, Readable, status
+from nicos.core.errors import ConfigurationError
 from nicos.core.utils import DeviceValueDict
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.utils import toAscii
@@ -403,10 +404,28 @@ class IEEEDevice(Readable):
                            unit=''),
     }
     parameter_overrides = {
-        'unit':      Override(mandatory=False, default=''),
+        'unit': Override(mandatory=False, default='', settable=False),
     }
 
     hardware_access = False
+
+    def doWriteValuename(self, valuename):
+        if valuename and '.' not in valuename:
+            if self._cache:
+                unit = self._cache.get(valuename, 'unit', '')
+            else:
+                unit = getattr(session.getDevice(valuename), 'unit', '')
+        else:
+            try:
+                devname, parname = valuename.rsplit('.', 1)
+                dev = session.getDevice(devname)
+                devunit = getattr(dev, 'unit', '')
+                unit = dev._getParamConfig(parname).unit or ''
+                if devunit:
+                    unit = unit.replace('main', devunit)
+            except ConfigurationError:
+                unit = ''
+        self._setROParam('unit', unit)
 
     def doStatus(self, maxage=0):
         if not self.valuename:
