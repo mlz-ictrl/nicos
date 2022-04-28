@@ -401,10 +401,11 @@ class IEEEDevice(Readable):
     parameters = {
         'valuename': Param('Device ("dev") or parameter ("dev.param") '
                            'to return on read', type=str, settable=True,
-                           unit=''),
+                           unit='', category='general'),
     }
     parameter_overrides = {
-        'unit': Override(mandatory=False, default='', settable=False),
+        'unit': Override(mandatory=False, default='', settable=False,
+                         category='general'),
     }
 
     hardware_access = False
