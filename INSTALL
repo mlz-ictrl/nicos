@@ -98,16 +98,15 @@ For Ubuntu::
 Packages to install for common distributions
 --------------------------------------------
 
-GR runtime packages (`gr` and `python-gr`) are available in the repositories linked at:
+GR runtime packages (`gr` and `python-gr`) are available in the repositories
+linked at:
 https://software.opensuse.org/download.html?project=science:gr-framework&package=gr
 
 Debian/Ubuntu
 ^^^^^^^^^^^^^
 
-You might have to use ``deb [trusted=yes]`` for the GR repository as the GPG signing
-is currently broken.
-
-The `pyctl` and `lttb` packages are available in the MLZ repositories linked at:
+The `nicos-pyctl` and `lttb` packages are available in the MLZ repositories
+linked at:
 https://forge.frm2.tum.de/wiki/projects:software_distribution:deb
 
 * Basic system::
