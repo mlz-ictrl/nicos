@@ -10,7 +10,7 @@ devices = dict(
                ],
     ),
     LDAPAuth=device('nicos_ess.devices.ldap.Authenticator',
-        uri='esss.lu.se',
+        uri=['esss.lu.se',],
         userbasedn='dc=esss,dc=lu,dc=se',
         grouproles={
             'ECDC': 'admin',

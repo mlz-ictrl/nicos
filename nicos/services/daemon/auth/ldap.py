@@ -26,7 +26,7 @@
 
 import ldap3  # pylint: disable=import-error
 
-from nicos.core import ACCESS_LEVELS, Param, User, dictof, oneof
+from nicos.core import ACCESS_LEVELS, Param, User, dictof, listof, oneof
 from nicos.services.daemon.auth import AuthenticationError, \
     Authenticator as BaseAuthenticator
 
@@ -51,7 +51,8 @@ class Authenticator(BaseAuthenticator):
     }
 
     parameters = {
-        'uri':         Param('LDAP connection URI', type=str, mandatory=True),
+        'uri':         Param('LDAP connection URIs',
+                             type=listof(str), mandatory=True),
         'bindmethod':  Param('LDAP port', type=oneof(*BIND_METHODS),
                              default='no_tls'),
         'userbasedn':  Param('Base dn to query users.',
