@@ -46,3 +46,6 @@
 
 .. module:: nicos_mlz.devices.barcodes
 .. autoclass:: BarcodeInterpreter()
+
+.. module:: nicos_mlz.devices.wmirfgen
+.. autoclass:: Frequency()
