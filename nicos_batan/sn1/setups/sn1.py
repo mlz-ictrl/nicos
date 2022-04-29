@@ -1,4 +1,4 @@
-description = 'BATAN virtual triple-axis spectrometer SN1'
+description = 'BATAN triple-axis spectrometer SN1'
 group = 'basic'
 
 modules = ['nicos.commands.tas']
