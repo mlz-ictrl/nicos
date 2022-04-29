@@ -56,7 +56,23 @@ main_window = docked(
            dockpos='right',)
     ),
     ('Experiment info',
-     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel')),
+     panel('nicos.clients.gui.panels.expinfo.ExpInfoPanel',
+           sample_panel=tabbed(
+               ('Sample changer',
+                panel('nicos_mlz.gui.samplechanger.SamplechangerSetupPanel',
+                      image='nicos_mlz/sans1/gui/sampleChanger22.png',
+                      positions = 22,
+                      setups='sc? or ccmsanssc',
+                ),
+               ),
+               ('Sample',
+                panel('nicos.clients.gui.panels.setup_panel.GenericSamplePanel',
+                      setups='not (sc? or ccmsanssc)',
+                ),
+               ),
+           ),
+          ),
+    ),
 )
 
 windows = [
@@ -74,6 +90,11 @@ windows = [
                       image='nicos_mlz/sans1/gui/sampleChanger22.png',
                       # positions = 11, setups='not setup22',)),
                       positions = 22, setups='sc? or ccmsanssc',),
+               ),
+               ('Sample',
+                panel('nicos.clients.gui.panels.setup_panel.GenericSamplePanel',
+                      setups='not (sc? or ccmsanssc)',
+                ),
                ),
            )
     ),
