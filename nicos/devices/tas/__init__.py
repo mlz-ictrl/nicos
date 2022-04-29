@@ -30,3 +30,4 @@ from nicos.devices.tas.mono import Monochromator
 from nicos.devices.tas.spectro import TAS, Energy, QModulus, TASIndex, \
     Wavelength, Wavevector
 from nicos.devices.tas.vgonio import VirtualGonio
+from nicos.devices.tas.monitor import OrderCorrectedMonitor

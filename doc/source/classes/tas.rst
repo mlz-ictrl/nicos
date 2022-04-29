@@ -31,3 +31,7 @@ are valid entries for the class name in a setup file.
 .. module:: nicos.devices.tas.vgonio
 
 .. autoclass:: VirtualGonio()
+
+.. module:: nicos.devices.tas.monitor
+
+.. autoclass:: OrderCorrectedMonitor
