@@ -1,7 +1,7 @@
 #! /bin/bash
 . $NICOS3VENV/bin/activate
 
-tools/check-setups -o setupcheck.log -s nicos_*/*/setups nicos_*/*/guiconfig*.py || ((res++)) || /bin/true
+tools/check-setups -o setupcheck.log -s $(shell find . -mindepth 3 -type d -name setups) $(shell find . -name guiconfig.py) || ((res++)) || /bin/true
 
 # temporary: ignore CARESS related messages
 sed -i -e '/CARESS/d' setupcheck.log
