@@ -19,17 +19,24 @@
 #
 # Module authors:
 #   Mark Koennecke <mark.koennecke@psi.ch>
+#   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
 
 import time
+from datetime import datetime
+from os import path
+
+import numpy as np
 
 from nicos import session
-from nicos.core import Override, Param, listof, nicosdev
+from nicos.core import Override, Param, PointDataset, ScanDataset, Value, \
+    listof, nicosdev
 from nicos.core.constants import POINT, SCAN
-from nicos.core.data import DataSinkHandler
+from nicos.core.data import DataSinkHandler, ScanData
 from nicos.core.errors import InvalidValueError
 from nicos.devices.datasinks import FileSink
+from nicos.devices.datasinks.image import ReaderMeta
 from nicos.devices.tas import TASSample
 
 
@@ -311,3 +318,106 @@ class ILLAsciiSink(FileSink):
     }
 
     handlerclass = ILLAsciiHandler
+
+
+def _drop_pre_header(f):
+    while True:
+        line = f.readline()
+        if not line.strip() or line.startswith('VVV'):
+            return
+
+
+def _parse_header(f, dataset):
+
+    def _make_time(created, ds):
+        TIMEFMT = '%Y-%m-%d %H:%M:%S'
+        TIMEFMT_OLD = '%d-%b-%Y %H:%M:%S'
+        try:
+            started = datetime.strptime(created, TIMEFMT)
+        except ValueError:
+            started = datetime.strptime(created, TIMEFMT_OLD)
+
+        ds.started = time.mktime(started.timetuple())
+
+    def _make_info(text, ds):
+        ds.info = text.strip().rstrip()
+
+    def _make_number(number, ds):
+        ds.counter = int(number.strip().rstrip())
+
+    def _make_devices(text, _):
+        lines = text.replace('=', ',')
+        return set([l.strip().rstrip() for l in lines.split(',') if l][0:-1:2])
+
+    header_processors = {
+        'DATE_': _make_time,
+        'FILE_': _make_number,
+        'VARIA': _make_devices,
+        'COMND': _make_info,
+    }
+
+    devices = set()
+    while True:
+        line = f.readline()
+        if not line.strip() or line.startswith('DATA_'):
+            return devices
+        splitline = [l.rstrip().lstrip() for l in line.split(':')]
+
+        key, text = splitline[0], ':'.join(splitline[1:])
+        if key in header_processors:
+            header_processors[key](text, dataset)
+
+
+def _parse_data(f, dataset):
+
+    detectors = ['M1', 'M2', 'TIME', 'CNTS', 'M3', 'M4']
+
+    class DevFake:
+        def __init__(self, name):
+            self.name = name
+
+    def get_dets_devs(names):
+        devs = [DevFake(name) for name in names if name not in detectors]
+        dets = [DevFake(name) for name in names if name in detectors]
+        return devs, dets
+
+    header = [h.strip().rstrip() for h in f.readline().split()]
+    _raw = np.loadtxt(f)
+
+    devs, dets = get_dets_devs(header)
+    dataset.devvalueinfo = [Value(d.name, unit='') for d in devs]
+    dataset.detvalueinfo = [Value(d.name, unit='') for d in dets]
+    dataset.envvalueinfo = []
+
+    def make_datapoint(row):
+        pds = PointDataset(devices=devs, detectors=dets)
+        for name, value in zip(header, row):
+            pds._addvalues({name: (None, value)})
+            pds.results.update({name: [value]})
+            pds.finished = True
+        return pds
+
+    for row in _raw:
+        dataset.subsets.append(make_datapoint(row))
+
+
+def readFile(filename, dataset):
+    with open(filename, 'r', encoding="utf8") as f:
+        _drop_pre_header(f)
+        _parse_header(f, dataset)
+        _parse_data(f, dataset)
+
+
+class ILLAsciiScanfileReader(metaclass=ReaderMeta):
+    filetypes = [('illscan', 'SINQ TAS files (*.dat *.scn)')]
+
+    def __init__(self, filename):
+        self.scandataset = ScanDataset()
+        self.metainfo = {}
+        self.scandataset.filenames = [filename.split('/')[:-1]]
+        self.scandataset.filepaths = [path.basename(filename)]
+        readFile(filename, self.scandataset)
+
+    @property
+    def scandata(self):
+        return ScanData(self.scandataset)

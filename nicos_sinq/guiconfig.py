@@ -47,7 +47,7 @@ main_window = docked(
                       panel('nicos.clients.flowui.panels.console.ConsolePanel',
                             hasinput=False)),
                      ('Scan Plot',
-                      panel('nicos.clients.flowui.panels.scans.ScansPanel')),
+                      panel('nicos_sinq.gui.panels.scans.ScansPanel')),
                      ('Detector Image',
                       panel('nicos.clients.flowui.panels.live.LiveDataPanel')),
                      ('Script Status',
