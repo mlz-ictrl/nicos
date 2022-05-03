@@ -566,7 +566,7 @@ def reset(*devlist):
 @spmsyntax(AnyDev, DevParam, Bare)
 @parallel_safe
 def set(dev, parameter, value):  # pylint: disable=redefined-builtin
-    """Set a the parameter of the device to a new value.
+    """Set a parameter of the device to a new value.
 
     The following commands are equivalent:
 
