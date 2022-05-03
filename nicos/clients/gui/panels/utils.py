@@ -78,6 +78,19 @@ def createHorizontalSplitter(item, window, menuwindow, topwindow, log):
     return HorizontalSplitter(item, window, menuwindow, topwindow)
 
 
+class NotClosableDockWidget(QDockWidget):
+    def __init__(self, title, parent):
+        QDockWidget.__init__(self, title, parent)
+        self.setFeatures(
+            QDockWidget.DockWidgetMovable | QDockWidget.DockWidgetFloatable)
+
+    def closeEvent(self, event):
+        # Workaround for the fact that undocked QDockWidgets can still be
+        # closed with Alt-F4 (or equivalent shortcuts) if DockWidgetClosable
+        # is not set in the features
+        event.ignore()
+
+
 def createDockedWidget(item, window, menuwindow, topwindow, log):
     dockPosMap = {'left': Qt.LeftDockWidgetArea,
                   'right': Qt.RightDockWidgetArea, 'top': Qt.TopDockWidgetArea,
@@ -86,10 +99,7 @@ def createDockedWidget(item, window, menuwindow, topwindow, log):
     mainitem, dockitems = item
     main = createWindowItem(mainitem, window, menuwindow, topwindow, log)
     for title, ditem in dockitems:
-        dw = QDockWidget(title, window)
-        # prevent closing the dock widget
-        dw.setFeatures(
-            QDockWidget.DockWidgetMovable | QDockWidget.DockWidgetFloatable)
+        dw = NotClosableDockWidget(title, window)
         # make the dock title bold
         dw.setStyleSheet('QDockWidget { font-weight: bold; }')
         dw.setObjectName(title)
