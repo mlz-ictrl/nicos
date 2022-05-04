@@ -79,16 +79,12 @@ if path.isfile(_DEFAULT) and 'INSTRUMENT' not in os.environ:
         printerr('  ERROR:', e)
         printerr('WARNING: Ignoring defaults in %s.' % _DEFAULT)
 
-# We need to read the nicos.conf file, so let nicos do that.
-from nicos import config  # isort:skip
-
-config.apply()
-
 
 def wait_for_hostname():
     hostname = 'localhost'
     last_err = 'no error'
-    timeout = time.time() + float(config.systemd_network_timeout)
+    timeout = time.time() + 60
+    last_err = 'timeout'
     while time.time() < timeout:
         try:
             hostname = socket.getfqdn().split('.')[0]
@@ -101,6 +97,14 @@ def wait_for_hostname():
              'nonspecific services.' % last_err)
     return ''
 
+hostname = wait_for_hostname()
+
+
+# We need to read the nicos.conf file, so let nicos do that.
+from nicos import config  # isort:skip
+
+config.apply()
+
 
 def get_configured_services(hostname):
     host_spec_services = 'services_%s' % hostname
@@ -112,7 +116,6 @@ def get_configured_services(hostname):
 
 
 def main():
-    hostname = wait_for_hostname()
     services = get_configured_services(hostname)
     wants_dir = path.join(UNITDIR, 'nicos.target.wants')
     if not path.isdir(wants_dir):
