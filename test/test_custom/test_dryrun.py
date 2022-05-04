@@ -157,7 +157,11 @@ def test_dryrun(session, facility, instr, script):
 
     for modname in needs_modules:
         try:
-            __import__(modname)
+            if modname.find('>=') > 0:
+                modname, minversion = modname.split('>=')
+                pytest.importorskip(modname, minversion=minversion)
+            else:
+                __import__(modname)
         except Exception:
             pytest.skip('required module %r is not available' % modname)
 
