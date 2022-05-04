@@ -24,7 +24,7 @@
 """Classes to display the TAS instruments."""
 
 from nicos.guisupport.qt import QBrush, QColor, QGraphicsEllipseItem, \
-    QGraphicsItemGroup, QPoint, QPointF, QRectF, QSizeF
+    QGraphicsItemGroup, QPointF, QRectF, QSizeF
 
 
 class TableBase(QGraphicsEllipseItem):
@@ -34,12 +34,12 @@ class TableBase(QGraphicsEllipseItem):
     _halo = None
 
     def __init__(self, x, y, size=40, parent=None, scene=None):
-        self._origin = QPoint(x, y)
+        self._origin = QPointF(x, y)
         self._size = size
         self._radius = size / 2
         if not self._color:
             self._color = QColor('white')
-        QGraphicsEllipseItem.__init__(self, QRectF(-QPoint(size, size),
+        QGraphicsEllipseItem.__init__(self, QRectF(-QPointF(size, size),
                                       QSizeF(2 * size, 2 * size)), parent)
         if not parent and scene:
             scene.addItem(self)

@@ -85,5 +85,5 @@ class TasWidget(NicosWidget, TasView):
             self.update()
 
     def sizeHint(self):
-        return QSize(self.props['width'] * self._scale + 2,
-                     self.props['height'] * self._scale + 2)
+        return QSize(round(self.props['width'] * self._scale) + 2,
+                     round(self.props['height'] * self._scale) + 2)
