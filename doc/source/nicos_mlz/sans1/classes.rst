@@ -28,7 +28,7 @@
 .. module:: nicos_mlz.sans1.devices.tisane
 .. autoclass:: Burst()
 
-.. module:: nicos_mlz.sans1.devices.bersans
+.. module:: nicos_mlz.sans1.devices.ieee
 .. autoclass:: IEEEDevice()
 
 .. module:: nicos_mlz.sans1.devices.wut
@@ -42,10 +42,10 @@
 Data Sinks
 ----------
 
-.. currentmodule:: nicos_mlz.sans1.devices.datasinks.bersans
+.. currentmodule:: nicos_mlz.sans1.datasinks.bersans
 .. autoclass:: BerSANSImageSink()
 
-.. currentmodule:: nicos_mlz.sans1.devices.datasinks.copysink
+.. currentmodule:: nicos_mlz.sans1.datasinks.copysink
 .. autoclass:: CopySink()
 
 Instrument specific widgets

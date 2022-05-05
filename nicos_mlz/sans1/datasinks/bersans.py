@@ -28,8 +28,7 @@ import os
 from time import localtime, strftime, time as currenttime
 
 from nicos import session
-from nicos.core import Override, Param, Readable, status
-from nicos.core.errors import ConfigurationError
+from nicos.core import Override
 from nicos.core.utils import DeviceValueDict
 from nicos.devices.datasinks.image import ImageSink, SingleFileSinkHandler
 from nicos.utils import toAscii
@@ -391,61 +390,3 @@ class BerSANSImageSink(ImageSink):
 
     def isActiveForArray(self, arraydesc):
         return len(arraydesc.shape) == 2
-
-
-class IEEEDevice(Readable):
-    """Special device to put arbitrary device values/parameters into the
-    BerSANS "IEEE" header fields (to be able to use them during analysis).
-    """
-
-    parameters = {
-        'valuename': Param('Device ("dev") or parameter ("dev.param") '
-                           'to return on read', type=str, settable=True,
-                           unit='', category='general'),
-    }
-    parameter_overrides = {
-        'unit': Override(mandatory=False, default='', settable=False,
-                         category='general'),
-    }
-
-    hardware_access = False
-
-    def doWriteValuename(self, valuename):
-        if valuename and '.' not in valuename:
-            if self._cache:
-                unit = self._cache.get(valuename, 'unit', '')
-            else:
-                unit = getattr(session.getDevice(valuename), 'unit', '')
-        else:
-            try:
-                devname, parname = valuename.rsplit('.', 1)
-                dev = session.getDevice(devname)
-                devunit = getattr(dev, 'unit', '')
-                unit = dev._getParamConfig(parname).unit or ''
-                if devunit:
-                    unit = unit.replace('main', devunit)
-            except ConfigurationError:
-                unit = ''
-        self._setROParam('unit', unit)
-
-    def doStatus(self, maxage=0):
-        if not self.valuename:
-            return status.OK, ''
-
-        devname = self.valuename.rsplit('.', 1)[0]
-        if self._cache:
-            return self._cache.get(devname, 'status')
-        return session.getDevice(devname).status(maxage)
-
-    def doRead(self, maxage=0):
-        if not self.valuename:
-            return ''
-
-        if '.' in self.valuename:
-            devname, parname = self.valuename.rsplit('.', 1)
-            if self._cache:
-                return self._cache.get(devname, parname)
-            return getattr(session.getDevice(devname), parname)
-        if self._cache:
-            return self._cache.get(self.valuename, 'value')
-        return session.getDevice(self.valuename).read(maxage)

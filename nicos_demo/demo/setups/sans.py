@@ -155,7 +155,7 @@ devices = dict(
         unit = 'm',
         curvalue = 10,
     ),
-    BerSANSImageSink = device('nicos_mlz.sans1.devices.bersans.BerSANSImageSink',
+    BerSANSImageSink = device('nicos_mlz.sans1.datasinks.BerSANSImageSink',
         description = 'Saves image data in BerSANS format',
         filenametemplate = [
             'D%(pointcounter)s.001',

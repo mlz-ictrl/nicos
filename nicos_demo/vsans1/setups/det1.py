@@ -10,7 +10,7 @@ sysconfig = dict(
 )
 
 devices = dict(
-    BerSANSFileSaver = device('nicos_mlz.sans1.devices.bersans.BerSANSImageSink',
+    BerSANSFileSaver = device('nicos_mlz.sans1.datasinks.BerSANSImageSink',
         description = 'Saves image data in BerSANS format',
         filenametemplate = [
             'D%(pointcounter)07d.001',
@@ -41,14 +41,14 @@ devices = dict(
     #     subdir = 'list',
     #     filenametemplate = ['%(pointcounter)07d.mdat'],
     # ),
-    # DetectorSetup = device('nicos_mlz.sans1.devices.copysink.CopySink',
+    # DetectorSetup = device('nicos_mlz.sans1.datasinks.CopySink',
     #     description = 'Save the current detector setup file',
     #     source = 'configfile',
     #     subdir = 'configs',
     #     path = 'data/qmesydaq/configs/configuration_2016_07_13',
     #     filenametemplate = ['config_%(pointcounter)07d.mcfg'],
     # ),
-    # DetectorCalibration = device('nicos_mlz.sans1.devices.copysink.CopySink',
+    # DetectorCalibration = device('nicos_mlz.sans1.datasinks.CopySink',
     #     description = 'Save the current detector calibration file',
     #     source = 'calibrationfile',
     #     subdir = 'configs',
