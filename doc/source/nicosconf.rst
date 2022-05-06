@@ -64,11 +64,6 @@ Section ``[nicos]``
     in the ``Service`` section.  For example, ``["LimitRSS=2G"]`` to limit the
     available memory for the process.
 
-  * ``systemd_network_timeout`` -- used by the NICOS systemd integration.  Can
-    be set to a time (in seconds) to wait for the hostname of the system to be
-    set, when deciding which host-specific services to start.  Default is 10
-    seconds.
-
 
 Section ``[environment]``
 -------------------------
