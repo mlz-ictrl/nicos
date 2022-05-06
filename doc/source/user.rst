@@ -12,3 +12,4 @@ using setups please check :doc:`installconfig`.
    commands
    userscripts
    gui/invocation
+   ipython
