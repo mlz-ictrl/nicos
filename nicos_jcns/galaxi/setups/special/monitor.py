@@ -1,9 +1,9 @@
-description = 'setup for the status monitor'
+description = 'Setup for the GALAXI status monitor'
 group = 'special'
 
 devices = dict(
     Monitor = device('nicos.services.monitor.qt.Monitor',
-        title = 'NICOS status monitor for GALAXI',
+        title = 'NICOS status monitor for GALAXI.',
         loglevel = 'info',
         cache = 'localhost:14869',
         font = 'Luxi Sans',

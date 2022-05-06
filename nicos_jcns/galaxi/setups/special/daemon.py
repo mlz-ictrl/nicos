@@ -1,4 +1,4 @@
-description = 'setup for the execution daemon'
+description = 'Setup for the GALAXI execution daemon'
 group = 'special'
 
 devices = dict(
@@ -10,7 +10,7 @@ devices = dict(
         ],
     ),
     LDAPAuth = device('nicos_jcns.devices.ldap.Authenticator',
-        uri = 'ldaps://iffldap.iff.kfa-juelich.de',
+        uri = 'ldaps://ldaps.iff.kfa-juelich.de',
         userbasedn = 'cn=users,cn=accounts,dc=iff,dc=kfa-juelich,dc=de',
         groupbasedn = 'cn=groups,cn=accounts,dc=iff,dc=kfa-juelich,dc=de',
         grouproles = {
@@ -20,7 +20,7 @@ devices = dict(
         },
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
-        description = 'Daemon, executing commands and scripts',
+        description = 'Daemon, executing commands and scripts.',
         server = '',
         authenticators = ['Auth', 'LDAPAuth'],
         loglevel = 'debug',
