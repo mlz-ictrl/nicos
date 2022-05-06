@@ -22,8 +22,5 @@ JCNS
 .. module:: nicos_mlz.jcns.devices.iviumstat
 .. autoclass:: StopNamedDigitalOutput()
 
-.. module:: nicos_mlz.jcns.devices.meteo
-.. autoclass:: MeteoStation()
-
 .. module:: nicos_mlz.jcns.devices.ohe
 .. autoclass:: HexapodSpecial()
