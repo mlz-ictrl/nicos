@@ -8,6 +8,12 @@ tango_base = instrument_values['tango_base']
 code_base = instrument_values['code_base']
 
 devices = dict(
+    b3g = device('nicos_mlz.refsans.devices.slits.Gap',
+        description = 'slit system',
+        left = 'b3s_motor',
+        right = 'b3r_motor',
+        opmode = 'offcentered',
+    ),
     b3 = device(code_base + 'slits.DoubleSlitSequence',
         description = 'b3 and h3 inside Samplechamber. towards TOFTOF is plus',
         fmtstr = '%.3f, %.3f',
@@ -66,6 +72,12 @@ devices = dict(
         abslimits = (22.0 - 103.365400, 160.0 - 103.365400),
         ruler = 103.365400,
         visibility = (),
+    ),
+    h3g = device('nicos_mlz.refsans.devices.slits.Gap',
+        description = 'Horizontal slit system',
+        left = 'h3s_motor',
+        right = 'h3r_motor',
+        opmode = 'offcentered',
     ),
     h3 = device(code_base + 'slits.DoubleSlit',
         description = 'h3 together with b3',
