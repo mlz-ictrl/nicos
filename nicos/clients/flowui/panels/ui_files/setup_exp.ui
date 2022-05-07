@@ -290,6 +290,17 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>proposalNum</tabstop>
+  <tabstop>queryDBButton</tabstop>
+  <tabstop>expTitle</tabstop>
+  <tabstop>users</tabstop>
+  <tabstop>localContacts</tabstop>
+  <tabstop>sampleName</tabstop>
+  <tabstop>notifEmails</tabstop>
+  <tabstop>dataEmails</tabstop>
+  <tabstop>errorAbortBox</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
