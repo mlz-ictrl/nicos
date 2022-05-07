@@ -21,94 +21,98 @@
 #   Michele Brambilla <michele.brambilla@psi.ch>
 #
 # *****************************************************************************
-import unittest
-from unittest.mock import patch
-
 import pytest
 
-from nicos.core import ConfigurationError
 from nicos.core.device import Device
 from nicos.devices.epics import EpicsDevice
 
-pytest.importorskip('kafka')
-
 from nicos_ess.devices.epics.extensions import HasDisablePv
-
-from test.nicos_ess.test_devices.utils import create_method_patch, \
-    create_patch, return_value_wrapper
 
 session_setup = 'ess_extensions'
 
 
 class EpicsDeviceThatHasDisablePv(HasDisablePv, EpicsDevice, Device):
-    pass
+    values = {
+        'switchpv:write': 0,
+        'switchpv:read': 0,
+    }
+
+    def doPreinit(self, mode):
+        pass
+
+    def doInit(self, mode):
+        pass
+
+    def poll(self, n=0, maxage=0):
+        pass
+
+    def _get_pvctrl(self, pvparam, ctrl, default=None, update=False):
+        pass
+
+    def _put_pv(self, pvparam, value, wait=False):
+        if 'write' in pvparam:
+            self.values[pvparam] = value
+            self.values['switchpv:read'] = value
+
+    def _put_pv_blocking(self, pvparam, value, update_rate=0.1, timeout=60):
+        self._put_pv(pvparam, value)
+
+    def _get_pv(self, pvparam, as_string=False):
+        return self.values[pvparam]
 
 
-class TestHasDisablePv(unittest.TestCase):
+class TestHasDisablePv:
 
     @pytest.fixture(autouse=True)
     def initialize_devices(self, session):
-        self.session = session
-        self.mock = create_patch(self, 'epics.pv.PV')
         self.device = session.getDevice('DeviceCanDisable')
-        self.mock.reset_mock()
+        self.device.values['switchpv:write'] = self.device.switchstates[
+            'disable']
+        self.device.values['switchpv:read'] = self.device.switchstates[
+            'disable']
+        self.device._sim_intercept = False
 
     def test_that_switch_pv_value_equals_switch_state_value_when_enabled(self):
-        raw_value = self.device.switchstates['enable']
-        create_method_patch(self, EpicsDeviceThatHasDisablePv, '_get_pv',
-                            return_value_wrapper(raw_value))
-        assert self.device._get_pv('switchpv:read') == raw_value
+        self.device.values['switchpv:read'] = self.device.switchstates[
+            'enable']
+
+        assert self.device._get_pv('switchpv:read') == \
+            self.device.switchstates['enable']
         assert self.device.isEnabled
 
-    def test_that_switch_pv_value_equals_switch_state_value_when_disabled(self):
-        raw_value = self.device.switchstates['disable']
-        create_method_patch(self, EpicsDeviceThatHasDisablePv, '_get_pv',
-                            return_value_wrapper(raw_value))
-        assert self.device._get_pv('switchpv:read') == raw_value
+    def test_that_switch_pv_value_equals_switch_state_value_when_disabled(
+            self):
+        self.device.values['switchpv:read'] = self.device.switchstates[
+            'disable']
+
+        assert self.device._get_pv('switchpv:read') == \
+            self.device.switchstates['disable']
         assert not self.device.isEnabled
 
-    def test_is_enabled_raise_exception_if_different_from_switchstates(self):
-        raw_value = 'on'
-        disable_value = self.device.switchstates['disable']
-        enable_value = self.device.switchstates['enable']
-        assert raw_value not in [disable_value, enable_value]
-        create_method_patch(self, EpicsDeviceThatHasDisablePv, '_get_pv',
-                            return_value_wrapper(raw_value))
-        with self.assertRaises(Exception) as context:
-            assert self.device._get_pv('switchpv:read') == raw_value
-            assert not self.device.isEnabled in [disable_value, enable_value]
-        assert isinstance(context.exception, ConfigurationError)
-
     def test_enable_does_nothing_if_already_enabled(self):
-        raw_value = self.device.switchstates['enable']
-        create_method_patch(self, EpicsDeviceThatHasDisablePv, 'isEnabled',
-                            raw_value)
+        self.device.values['switchpv:read'] = self.device.switchstates[
+            'enable']
         self.device.enable()
-        assert not self.mock.mock_calls
+        assert self.device.isEnabled
 
     def test_enable_sets_switchpv_write_if_not_enabled(self):
-        disable_value = self.device.switchstates['disable']
-        enable_value = self.device.switchstates['enable']
-        create_method_patch(self, EpicsDeviceThatHasDisablePv, 'isEnabled',
-                            disable_value)
-        with patch.object(EpicsDeviceThatHasDisablePv, '_put_pv') as \
-                mock_put_pv:
-            self.device.enable()
-            mock_put_pv.assert_called_once_with('switchpv:write', enable_value)
+        self.device.values['switchpv:read'] = self.device.switchstates[
+            'disable']
+
+        assert not self.device.isEnabled
+        self.device.enable()
+        assert self.device.isEnabled
 
     def test_disable_does_nothing_if_already_disabled(self):
-        raw_value = self.device.switchstates['disable']
-        create_method_patch(self, EpicsDeviceThatHasDisablePv, 'isEnabled',
-                            raw_value)
+        self.device.values['switchpv:read'] = self.device.switchstates[
+            'disable']
         self.device.disable()
-        assert not self.mock.mock_calls
+        assert not self.device.isEnabled
 
     def test_enable_sets_switchpv_write_if_not_disabled(self):
-        disable_value = self.device.switchstates['disable']
-        enable_value = self.device.switchstates['enable']
-        create_method_patch(self, EpicsDeviceThatHasDisablePv, 'isEnabled',
-                            enable_value)
-        with patch.object(EpicsDeviceThatHasDisablePv, '_put_pv') as \
-                mock_put_pv:
-            self.device.disable()
-            mock_put_pv.assert_called_once_with('switchpv:write', disable_value)
+        self.device.values['switchpv:read'] = self.device.switchstates[
+            'enable']
+
+        assert self.device.isEnabled
+        self.device.disable()
+        assert not self.device.isEnabled

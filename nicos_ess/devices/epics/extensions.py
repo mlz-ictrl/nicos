@@ -172,32 +172,22 @@ class HasDisablePv(CanDisable):
         raw_value = self._get_pv('switchpv:read')
 
         if raw_value not in self.switchstates.values():
-            raise ConfigurationError('State by attached switch device not '
-                                     'recognized.')
+            raise ConfigurationError(
+                self, 'State by attached switch device not recognized.')
 
         return raw_value == self.switchstates['enable']
 
-    @usermethod
-    def enable(self):
-        """
-        Switch the device on (writes the 'enable' of switchstates map to the
-        write-pv specified in switchpvs).
-        """
-        if not self.isEnabled:
-            self._put_pv('switchpv:write', self.switchstates['enable'])
+    def doEnable(self, on):
+        if on:
+            if not self.isEnabled:
+                self._put_pv('switchpv:write', self.switchstates['enable'])
+            else:
+                self.log.info('Device is already switched enabled')
         else:
-            self.log.info('Device is already switched on')
-
-    @usermethod
-    def disable(self):
-        """
-        Switch the device off (writes the 'disable' of switchstates map to the
-        write-pv specified in switchpvs).
-        """
-        if self.isEnabled:
-            self._put_pv('switchpv:write', self.switchstates['disable'])
-        else:
-            self.log.info('Device is already disabled')
+            if self.isEnabled:
+                self._put_pv('switchpv:write', self.switchstates['disable'])
+            else:
+                self.log.info('Device is already disabled')
 
 
 class EpicsCommandReply(EpicsDevice, Device):
