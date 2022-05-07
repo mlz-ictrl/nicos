@@ -659,7 +659,7 @@ def appendscan(numpoints=5, stepsize=None):
     # Find the last scan that wasn't an appendscan.
     i = len(dslist) - 1
     while i >= 0:
-        contuids.append(dslist[i].uid)
+        contuids.insert(0, dslist[i].uid)
         if not dslist[i].continuation:
             break
         i -= 1
