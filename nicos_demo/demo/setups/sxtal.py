@@ -5,8 +5,6 @@ modules = ['nicos.commands.sxtal']
 
 excludes = ['sans', 'tas', 'table']
 
-includes = ['cryo']
-
 sysconfig = dict(
     instrument = 'sxtal',
     datasinks = ['scanfilesink', 'hklfilesink'],
@@ -132,7 +130,6 @@ if mth() == 0:
     mth.speed = mtt.speed = ath.speed = att.speed = psi.speed = phi.speed = 0
     mono(0.7)
 SetDetectors(vdetsxtal)
-AddEnvironment(T)
 printinfo("===============================================================")
 printinfo("Welcome to the NICOS singe xtal demo setup.")
 printinfo("This demo is configured as a virtual single crystal instrument.")
