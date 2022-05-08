@@ -9,7 +9,7 @@ sysconfig = dict(
 )
 
 excludes = ['detector']
-includes = ['cryo', 'source']
+includes = ['source']
 
 devices = dict(
     Sample = device('nicos_mlz.sans1.devices.Sans1Sample',
