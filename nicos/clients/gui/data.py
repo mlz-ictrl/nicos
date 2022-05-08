@@ -201,9 +201,10 @@ class DataHandler(QObject):
         curves = []
         normindices = []
         dataset.datanorm = {}
-        xnameunits = [name_unit(name, unit) for name, unit
-                      in zip(dataset.xnames, dataset.xunits)]
+        xnameunits = ['point #'] + [name_unit(name, unit) for name, unit
+                                    in zip(dataset.xnames, dataset.xunits)]
         dataset.datax = {key: [] for key in xnameunits}
+
         for i, (name, info) in enumerate(zip(dataset.xnames, dataset.xvalueinfo)):
             if info.type != 'other':
                 continue
@@ -252,7 +253,8 @@ class DataHandler(QObject):
 
     def _update_curves(self, currentset, xvalues, yvalues):
         done = set()
-        for key, val in zip(currentset.xnameunits, xvalues):
+        currentset.datax['point #'].append(len(currentset.datax['point #']) + 1)
+        for key, val in zip(currentset.xnameunits[1:], xvalues):
             # avoid adding values twice
             if key not in done:
                 currentset.datax[key].append(val)
