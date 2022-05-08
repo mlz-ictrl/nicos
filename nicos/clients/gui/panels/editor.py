@@ -681,12 +681,13 @@ class EditorPanel(Panel):
         else:
             # reload without asking
             try:
-                with open(self.filenames[editor], encoding=LOCALE_ENCODING
-                          ) as f:
+                with open(self.filenames[editor],
+                          encoding=LOCALE_ENCODING) as f:
                     text = f.read()
             except Exception:
                 return
-            editor.setText(text)
+            if text != editor.text():
+                editor.setText(text)
             editor.setModified(False)
         # re-add the filename to the watcher if it was deleted
         # (happens for programs that do delete-write on save)
@@ -805,17 +806,16 @@ class EditorPanel(Panel):
         if not self.filenames[editor]:
             return self.saveFileAs(editor)
 
+        self.saving = True
         try:
-            self.saving = True
-            try:
-                with open(self.filenames[editor], 'w', encoding=LOCALE_ENCODING
-                          ) as f:
-                    f.write(editor.text())
-            finally:
-                self.saving = False
+            with open(self.filenames[editor], 'w',
+                      encoding=LOCALE_ENCODING) as f:
+                f.write(editor.text())
         except Exception as err:
             self.showError('Writing file failed: %s' % err)
             return False
+        finally:
+            self.saving = False
 
         self.watchers[editor].addPath(self.filenames[editor])
         editor.setModified(False)
