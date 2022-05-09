@@ -263,7 +263,6 @@ if mth() == 0:
     stt.speed = 1
     ath.speed = att.speed = 0.5
 SetDetectors(vdet)
-AddEnvironment(T)
 printinfo("============================================================")
 printinfo("Welcome to the NICOS triple-axis demo setup.")
 printinfo("This demo is configured as a virtual triple-axis instrument.")
