@@ -27,7 +27,7 @@ import os
 from os.path import join
 
 from nicos import session
-from nicos.commands import helparglist, usercommand
+from nicos.commands import helparglist, hiddenusercommand, usercommand
 from nicos.commands.device import maw
 from nicos.commands.scan import scan
 
@@ -89,26 +89,41 @@ def darkimage(shutter=None, nimages=1, *detlist, **preset):
 
 
 @usercommand
-@helparglist('n_images, p, angle, [detectors], [presets]')
+@helparglist('n_points, n_periods, img_per_step, [detectors], [presets]')
 # pylint: disable=keyword-arg-before-vararg
-def nGI_stepping(n_images, p=1, angle=0, *detlist, **preset):
-    """Performs a nGI stepping scan of G0 over p periods in n_images-1 steps.
+def nGI_stepping(n_points, n_periods=1, img_per_step=1, start_pos=0, *detlist,
+                 **preset):
+    """Performs an nGI stepping scan of G1tx over n_periods over n_points,
+    taking img_per_step images for each position.
 
-    Calculates the stepping period from the angle of the grating lines to the
-    vertical axis *angle*.
+    n_periods: number of periods the grating will be moved
+
+    start_pos: starting position of G1tx.
+
+    The period of the G1 grating is fixed to 12.2 um.
 
     Example:
 
-    >>> nGI_stepping(11,1,0,t=30) # steps G0 over one period from 0 to 1.6 mm
-    >>>                           # in 0.16 mm steps and count for 30 s
+    >>> nGI_stepping(11, 1, t=30) # steps G1 over one period from 0 to 12.2 um
+    >>>                           # in 1.22 um steps and counts for 30 s at each position
+
+    >>> nGI_stepping(21, 2, 2, 500, t=30) # steps G1 over two periods from 500 to 524.4 um
+    >>>                                   # in 1.22 um steps and acquires 2 images with 30 s
+    >>>                                   # at each position
     """
 
-    import numpy as np
+    # period of G1 grating is 12.2 um
+    n_points = max(n_points, 2)
+    stepwidth = 12.2 * n_periods / (n_points - 1)
 
-    stepwidth = 1.6 / np.cos(angle*2*np.pi/360) * p / (n_images-1)
-
-    session.log.info('Starting nGI scan.')
-
-    scan('G0tx', 0, stepwidth, n_images, *detlist, **preset)
-    maw('fastshutter', 'closed')
+    zero_pos = max(start_pos - 500, -12000)
+    scan('G1tx', start_pos, stepwidth, n_points, G1tx=zero_pos,
+         fastshutter=img_per_step * ['open'], *detlist, **preset)
+    session.getDevice('fastshutter').maw('closed')
     session.log.info('fastshutter closed')
+
+
+@hiddenusercommand
+def reset_grating():
+    maw('G1tx', -500)
+    maw('G1tx', 0)
