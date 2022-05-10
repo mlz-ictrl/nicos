@@ -146,8 +146,8 @@ class BlockBox(QFrame):
             mps = self.pos()
             msz = self.size()
             lsz = self._label.size()
-            self._label.move(mps.x() + 0.5*(msz.width() - lsz.width()),
-                             mps.y() - 0.5*lsz.height())
+            self._label.move(round(mps.x() + 0.5*(msz.width() - lsz.width())),
+                             round(mps.y() - 0.5*lsz.height()))
 
     def enableDisplay(self, layout, isvis):
         QFrame.setVisible(self, isvis)
@@ -242,7 +242,7 @@ class Monitor(BaseMonitor):
                                            QSizePolicy.Fixed)
             self._master.updateTitle.connect(self._titlelabel.setText)
             masterlayout.addWidget(self._titlelabel)
-            masterlayout.addSpacing(0.2 * tiheight)
+            masterlayout.addSpacing(round(0.2 * tiheight))
         else:
             self._titlelabel = None
 
@@ -352,7 +352,7 @@ class Monitor(BaseMonitor):
                     blocklayout_outer = QHBoxLayout()
                     blocklayout_outer.addStretch()
                     blocklayout = QVBoxLayout()
-                    blocklayout.addSpacing(0.5 * blheight)
+                    blocklayout.addSpacing(round(0.5 * blheight))
                     blockbox = BlockBox(displayframe, block._title, blockfont,
                                         block._options)
                     for row in block:
@@ -379,7 +379,7 @@ class Monitor(BaseMonitor):
                     if blockbox.setups:
                         self._onlyblocks.append((blocklayout_outer, blockbox))
                         blockbox.setHidden(True)  # start hidden
-                    blocklayout.addSpacing(0.3 * blheight)
+                    blocklayout.addSpacing(round(0.3 * blheight))
                     blockbox.setLayout(blocklayout)
                     blocklayout_outer.addWidget(blockbox)
                     blocklayout_outer.addStretch()

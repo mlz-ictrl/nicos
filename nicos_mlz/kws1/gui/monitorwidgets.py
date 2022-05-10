@@ -24,8 +24,8 @@
 
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
     WARN
-from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, QSize, Qt, \
-    QWidget
+from nicos.guisupport.qt import QBrush, QColor, QLineF, QPainter, QPen, \
+    QRectF, QSize, Qt, QTextOption, QWidget
 from nicos.guisupport.utils import scaledFont
 from nicos.guisupport.widget import NicosWidget, PropDef
 
@@ -75,10 +75,10 @@ class Tube(NicosWidget, QWidget):
         NicosWidget.__init__(self)
 
     def sizeHint(self):
-        return QSize(self.props['width'] * self._scale + 10,
-                     self.props['height'] * self._scale +
-                     (self.props['smalldet'] and 50 or 0) +
-                     (self.props['name'] and self._scale * 2.5 or 0) + 40)
+        return QSize(round(self.props['width'] * self._scale) + 10,
+                     round(self.props['height'] * self._scale) +
+                     round(self.props['smalldet'] and 50 or 0) +
+                     round(self.props['name'] and self._scale * 2.5 or 0) + 40)
 
     def registerKeys(self):
         for dev in self.props['devices']:
@@ -114,8 +114,9 @@ class Tube(NicosWidget, QWidget):
         # Draw name above tube
         if self.props['name']:
             painter.setFont(self.font())
-            painter.drawText(5, 0, w, fontscale * 2.5,
-                             Qt.AlignCenter, self.props['name'])
+            painter.drawText(QRectF(5, 0, w, fontscale * 2.5),
+                             self.props['name'],
+                             QTextOption(Qt.AlignCenter))
             yoff = fontscale * 2.5
         elif self.props['smalldet']:
             yoff = 50
@@ -124,23 +125,23 @@ class Tube(NicosWidget, QWidget):
 
         # Draw tube
         painter.setPen(self.color)
-        painter.drawEllipse(5, 5 + yoff, 50, h)
-        painter.drawRect(30, 5 + yoff, w - 50, h)
+        painter.drawEllipse(QRectF(5, 5 + yoff, 50, h))
+        painter.drawRect(QRectF(30, 5 + yoff, w - 50, h))
         painter.setPen(QColor('black'))
-        painter.drawArc(5, 5 + yoff, 50, h, 1440, 2880)
-        painter.drawLine(30, 5 + yoff, w - 25, 5 + yoff)
-        painter.drawLine(30, 5 + yoff + h, w - 25, 5 + yoff + h)
-        painter.drawEllipse(w - 45, 5 + yoff, 50, h)
+        painter.drawArc(QRectF(5, 5 + yoff, 50, h), 1440, 2880)
+        painter.drawLine(QLineF(30, 5 + yoff, w - 25, 5 + yoff))
+        painter.drawLine(QLineF(30, 5 + yoff + h, w - 25, 5 + yoff + h))
+        painter.drawEllipse(QRectF(w - 45, 5 + yoff, 50, h))
 
         if self.props['smalldet']:
             sw = 20
             sx = 30 + self.props['smalldet'] * posscale
             painter.setPen(self.color)
-            painter.drawRect(sx - sw, 2, 2*sw, yoff + 10)
+            painter.drawRect(QRectF(sx - sw, 2, 2*sw, yoff + 10))
             painter.setPen(QColor('black'))
-            painter.drawLine(sx - sw, 5 + yoff, sx - sw, 2)
-            painter.drawLine(sx - sw, 2, sx + sw, 2)
-            painter.drawLine(sx + sw, 2, sx + sw, 5 + yoff)
+            painter.drawLine(QLineF(sx - sw, 5 + yoff, sx - sw, 2))
+            painter.drawLine(QLineF(sx - sw, 2, sx + sw, 2))
+            painter.drawLine(QLineF(sx + sw, 2, sx + sw, 5 + yoff))
 
         # draw detector
         pos_val = self._curval[0]
@@ -161,8 +162,8 @@ class Tube(NicosWidget, QWidget):
             # Translate to detector position
             xp = 30 + pos_val * posscale
             painter.translate(xp + fontscale / 2., 15 + yoff + (h - 20) / 2.)
-            painter.drawRect(-fontscale / 2., - (h - 20) / 2., fontscale,
-                             h - 20)
+            painter.drawRect(QRectF(-fontscale / 2., - (h - 20) / 2., fontscale,
+                                    h - 20))
             painter.resetTransform()
             # Put X/Y values left or right of detector depending on position
             if pos_val < 14:
@@ -170,25 +171,24 @@ class Tube(NicosWidget, QWidget):
             else:
                 xoff = - 8.5 * fontscale
             # X translation
-            painter.drawText(xp + xoff, yoff + 2 * fontscale,
-                             7 * fontscale, 2 * fontscale, Qt.AlignRight,
-                             x_str)
+            painter.drawText(QRectF(xp + xoff, yoff + 2 * fontscale,
+                                    7 * fontscale, 2 * fontscale), x_str,
+                             QTextOption(Qt.AlignRight))
             # Y translation
-            painter.drawText(xp + xoff,
-                             yoff + 3.5 * fontscale,
-                             7 * fontscale, 2 * fontscale, Qt.AlignRight,
-                             y_str)
+            painter.drawText(QRectF(xp + xoff, yoff + 3.5 * fontscale,
+                                    7 * fontscale, 2 * fontscale), y_str,
+                             QTextOption(Qt.AlignRight))
             # Z position
             minx = max(0, xp + 5 - 4 * fontscale)
-            painter.drawText(minx,
-                             h + 10 + yoff, 8 * fontscale, 30, Qt.AlignCenter,
-                             pos_str)
+            painter.drawText(QRectF(minx, h + 10 + yoff, 8 * fontscale, 30),
+                             pos_str, QTextOption(Qt.AlignCenter))
 
             # draw beamstop
             if self.props['beamstop']:
                 painter.setPen(QPen(_blue.color()))
-                painter.drawRect(xp - 8, yoff + 15 + posscale / 350 * (1100 - y_val),
-                                 2, 10)
+                painter.drawRect(
+                    QRectF(xp - 8, yoff + 15 + posscale / 350 * (1100 - y_val),
+                           2, 10))
 
         # draw small detector
         if self.props['smalldet'] and self._curval[4] is not None:
@@ -203,14 +203,14 @@ class Tube(NicosWidget, QWidget):
             painter.setPen(QPen(_black.color()))
             painter.setFont(self.valueFont)
             sy = 10 + y_val * posscale / 250
-            painter.drawRect(sx - fontscale / 2., sy, fontscale, 30)
+            painter.drawRect(QRectF(sx - fontscale / 2., sy, fontscale, 30))
 
-            painter.drawText(sx - 10.5 * fontscale, sy,
-                             8 * fontscale, 2 * fontscale, Qt.AlignRight,
-                             x_str)
-            painter.drawText(sx - 10.5 * fontscale, sy + 1.5 * fontscale,
-                             8 * fontscale, 2 * fontscale, Qt.AlignRight,
-                             y_str)
+            painter.drawText(QRectF(sx - 10.5 * fontscale, sy,
+                                    8 * fontscale, 2 * fontscale), x_str,
+                             QTextOption(Qt.AlignRight))
+            painter.drawText(QRectF(sx - 10.5 * fontscale, sy + 1.5 * fontscale,
+                                    8 * fontscale, 2 * fontscale), y_str,
+                             QTextOption(Qt.AlignRight))
 
 
 collstatusbrush = {
@@ -247,8 +247,8 @@ class Collimation(NicosWidget, QWidget):
             self.registerDevice(str(dev))
 
     def sizeHint(self):
-        return QSize(self._scale * self.props['width'],
-                     self._scale * self.props['height'] * 1.2)
+        return QSize(round(self._scale * self.props['width']),
+                     round(self._scale * self.props['height'] * 1.2))
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         try:
@@ -287,7 +287,7 @@ class Collimation(NicosWidget, QWidget):
         for i in range(18):
             painter.setPen(QPen(_black.color()))
             painter.setBrush(_grey)
-            painter.drawRect(x, y, elwidth - 2, elheight)
+            painter.drawRect(QRectF(x, y, elwidth - 2, elheight))
             painter.setBrush(_blue)
             if is_in & (1 << (17 - i)):
                 ely = 3
@@ -295,18 +295,18 @@ class Collimation(NicosWidget, QWidget):
                 ely = 2 + elheight / 2
             else:
                 ely = 2 + elheight / 4
-            painter.drawRect(x + 3, y + ely, elwidth - 8, elheight / 3)
+            painter.drawRect(QRectF(x + 3, y + ely, elwidth - 8, elheight / 3))
             if i >= 18-pol_bits:
                 painter.setPen(QPen(_white.color()))
-                painter.drawText(x + 3, y + ely - 2, elwidth - 8, elheight / 3 + 2,
-                                 Qt.AlignHCenter, 'POL')
+                painter.drawText(QRectF(x + 3, y + ely - 2,
+                                        elwidth - 8, elheight / 3 + 2),
+                                 'POL', QTextOption(Qt.AlignHCenter))
                 painter.setPen(QPen(_black.color()))
-            painter.drawText(x, 3,
-                             elwidth, 2 * fontscale,
-                             Qt.AlignRight | Qt.AlignTop,
-                             str(19 - i))
+            painter.drawText(QRectF(x, 3, elwidth, 2 * fontscale),
+                             str(19 - i),
+                             QTextOption(Qt.AlignRight | Qt.AlignTop))
             x += elwidth
-        painter.fillRect(0, y + elheight / 3 - 5, w, 3, _yellow)
+        painter.fillRect(QRectF(0, y + elheight / 3 - 5, w, 3), _yellow)
         painter.setPen(pen)
 
         x = elwidth + 1
@@ -316,16 +316,17 @@ class Collimation(NicosWidget, QWidget):
         for i, slitpos in enumerate([20, 14, 8, 4, 2]):
             slitw, slith = self._curval[2 + i]
             xmiddle = x + ((20 - slitpos) * elwidth)
-            painter.drawLine(xmiddle, y, xmiddle, y + 15)
+            painter.drawLine(QLineF(xmiddle, y, xmiddle, y + 15))
             painter.setBrush(_white)
-            painter.drawRect(xmiddle - 0.5 * slhw, y + 15, slhw, slhw)
+            painter.drawRect(QRectF(xmiddle - 0.5 * slhw, y + 15, slhw, slhw))
             painter.setBrush(collstatusbrush[self._curstatus[2 + i]])
             w = (50 - slitw) * slhw / 100
             h = (50 - slith) * slhw / 100
-            painter.drawRect(xmiddle - 0.5 * slhw + w, y + 15 + h,
-                             slhw - 2 * w, slhw - 2 * h)
-            painter.drawText(xmiddle - 0.8 * elwidth, y + 15, slhw, slhw,
-                             Qt.AlignCenter, '%.1f\n%.1f' % (slitw, slith))
+            painter.drawRect(QRectF(xmiddle - 0.5 * slhw + w, y + 15 + h,
+                                    slhw - 2 * w, slhw - 2 * h))
+            painter.drawText(QRectF(xmiddle - 0.8 * elwidth, y + 15, slhw, slhw),
+                             '%.1f\n%.1f' % (slitw, slith),
+                             QTextOption(Qt.AlignCenter))
 
 
 class Lenses(NicosWidget, QWidget):
@@ -350,8 +351,8 @@ class Lenses(NicosWidget, QWidget):
             self.registerDevice(str(dev))
 
     def sizeHint(self):
-        return QSize(self._scale * self.props['width'],
-                     self._scale * self.props['height'])
+        return QSize(round(self._scale * self.props['width']),
+                     round(self._scale * self.props['height']))
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         try:
@@ -380,7 +381,7 @@ class Lenses(NicosWidget, QWidget):
         fontscale = float(self._scale)
         h = self.props['height'] * fontscale
         w = self.props['width'] * fontscale
-        painter.drawRect(2, 10, w - 4, h / 2)
+        painter.drawRect(QRectF(2, 10, w - 4, h / 2))
 
         is_in = int(self._curval[0])
         is_out = int(self._curval[1])
@@ -394,8 +395,8 @@ class Lenses(NicosWidget, QWidget):
             else:
                 lensy = h / 4 + 22
             for j in range(n):
-                painter.drawRect((1 + x + j) * lensw, lensy,
-                                 lensw + 1, lensheight)
+                painter.drawRect(QRectF((1 + x + j) * lensw, lensy,
+                                        lensw + 1, lensheight))
 
 
 class SampleSlit(NicosWidget, QWidget):
@@ -421,8 +422,8 @@ class SampleSlit(NicosWidget, QWidget):
         self.registerKey('%s/opmode' % self.props['device'])
 
     def sizeHint(self):
-        return QSize(self._scale * self.props['width'],
-                     self._scale * self.props['height'])
+        return QSize(round(self._scale * self.props['width']),
+                     round(self._scale * self.props['height']))
 
     def on_keyChange(self, key, value, time, expired):
         if key.endswith('/opmode'):
@@ -468,16 +469,16 @@ class SampleSlit(NicosWidget, QWidget):
 
         painter.setPen(QPen(_black.color()))
         painter.setBrush(_white)
-        painter.drawRect(2, 2, ww, wh)
+        painter.drawRect(QRectF(2, 2, ww, wh))
         painter.setBrush(collstatusbrush[self._curstatus])
-        painter.drawRect(2 + x0, 2 + y1, x1 - x0, y0 - y1)
+        painter.drawRect(QRectF(2 + x0, 2 + y1, x1 - x0, y0 - y1))
 
         painter.setFont(scaledFont(self.valueFont, 0.8))
-        painter.drawText(2, 2, ww, wh,
-                         Qt.AlignTop | Qt.AlignHCenter, l1)
-        painter.drawText(2, 2, ww, wh,
-                         Qt.AlignBottom | Qt.AlignHCenter, l2)
-        painter.drawText(2, 2, ww, wh,
-                         Qt.AlignVCenter | Qt.AlignLeft, l3)
-        painter.drawText(2, 2, ww, wh,
-                         Qt.AlignVCenter | Qt.AlignRight, l4)
+        painter.drawText(QRectF(2, 2, ww, wh), l1,
+                         QTextOption(Qt.AlignTop | Qt.AlignHCenter))
+        painter.drawText(QRectF(2, 2, ww, wh), l2,
+                         QTextOption(Qt.AlignBottom | Qt.AlignHCenter))
+        painter.drawText(QRectF(2, 2, ww, wh), l3,
+                         QTextOption(Qt.AlignVCenter | Qt.AlignLeft))
+        painter.drawText(QRectF(2, 2, ww, wh), l4,
+                         QTextOption(Qt.AlignVCenter | Qt.AlignRight))

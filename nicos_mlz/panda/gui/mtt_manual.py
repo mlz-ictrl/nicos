@@ -30,12 +30,12 @@ from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, Qt, QWidget, \
 from nicos.guisupport.widget import NicosWidget
 from nicos.protocols.cache import cache_load
 
-OUT_WIDTH  = 22.
-IN_WIDTH = 36.
-SEG_ANGLE = 11.
-EXTRA_SEG_ANGLE = 15.
+OUT_WIDTH  = 22
+IN_WIDTH = 36
+SEG_ANGLE = 11
+EXTRA_SEG_ANGLE = 15
 MAX_SEGS = 10
-MAX_ANGLE = 180.
+MAX_ANGLE = 180
 
 # (bit, invert, phi, r, talign, text)
 SWITCHES = [
@@ -107,40 +107,40 @@ class MonoBlocks(NicosWidget, QWidget):
 
         # outer circle
         painter.setBrush(self.br_back)
-        painter.drawEllipse(-dia/2, -dia/2, dia, dia)
+        painter.drawEllipse(-dia//2, -dia//2, dia, dia)
         # incoming beam
         painter.setBrush(self.br_empty)
-        painter.drawPie(-dia/2, -dia/2, dia, dia,
-                        16*(90 - IN_WIDTH/2), 16*IN_WIDTH)
+        painter.drawPie(-dia//2, -dia//2, dia, dia,
+                        16*(90 - IN_WIDTH//2), 16*IN_WIDTH)
 
         painter.setBrush(self.br_seg)
         start = IN_WIDTH / 2 + 90
         for _ in range(MAX_SEGS - self.values[4]):
-            painter.drawPie(-dia/2, -dia/2, dia, dia, 16*start, 16*SEG_ANGLE)
+            painter.drawPie(-dia//2, -dia//2, dia, dia, 16*start, 16*SEG_ANGLE)
             start += SEG_ANGLE
 
         painter.setBrush(self.br_empty)
-        painter.drawPie(-dia/2, -dia/2, dia, dia, 16*start, 16*OUT_WIDTH)
+        painter.drawPie(-dia//2, -dia//2, dia, dia, 16*start, 16*OUT_WIDTH)
 
         painter.setBrush(self.br_seg)
         start = -IN_WIDTH / 2 + 90
         for _ in range(self.values[4]):
-            painter.drawPie(-dia/2, -dia/2, dia, dia, 16*start, -16*SEG_ANGLE)
+            painter.drawPie(-dia//2, -dia//2, dia, dia, 16*start, -16*SEG_ANGLE)
             start -= SEG_ANGLE
 
         # inner circle
-        painter.drawEllipse(-dia_in/2, -dia_in/2, dia_in, dia_in)
+        painter.drawEllipse(-dia_in//2, -dia_in//2, dia_in, dia_in)
 
         # outgoing beam (mtt angle)
-        painter.drawLine(0, -dia/2, 0, 0)
+        painter.drawLine(0, -dia//2, 0, 0)
         painter.rotate(self.values[3])
-        painter.drawLine(0, 0, 0, dia/2)
+        painter.drawLine(0, 0, 0, dia//2)
         painter.rotate(-self.values[3])
 
         # mobil arm angle
         painter.setPen(self.p_red)
         painter.rotate(self.values[2])
-        painter.drawLine(0, 0, 0, -(dia + dia_in)/4)
+        painter.drawLine(0, 0, 0, -(dia + dia_in)//4)
         painter.rotate(-self.values[2])
         painter.setPen(self.p_black)
 
@@ -149,8 +149,8 @@ class MonoBlocks(NicosWidget, QWidget):
         for (bit, invert, phi, r, talign, text) in SWITCHES:
             on = (swvals & (1 << bit) != 0) ^ invert
             r = (r / 1800) * dia
-            posx = r * cos(radians(phi - 90))
-            posy = r * sin(radians(phi - 90))
+            posx = round(r * cos(radians(phi - 90)))
+            posy = round(r * sin(radians(phi - 90)))
             painter.setBrush(self.br_led[on])
             painter.drawEllipse(posx - 5, posy - 5, 10, 10)
             if talign == 1:

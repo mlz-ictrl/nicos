@@ -305,8 +305,8 @@ To access items of a sequence, use subscript notation, e.g. T.userlimits[0]
             self._showsecs = value < 300
         elif pname in ('width', 'height'):
             self.setMinimumSize(
-                QSize(self._scale * (self.props['width'] + .5),
-                      self._scale * (self.props['height'] + .5)))
+                QSize(round(self._scale * (self.props['width'] + .5)),
+                      round(self._scale * (self.props['height'] + .5))))
         elif pname == 'legend':
             self.plot.setLegend(value)
         NicosWidget.propertyUpdated(self, pname, value)

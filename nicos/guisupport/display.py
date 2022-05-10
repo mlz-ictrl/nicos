@@ -247,7 +247,7 @@ class ValueDisplay(NicosWidget, QWidget):
                 self.reinitLayout()
             else:
                 onechar = QFontMetrics(self.valueFont).width('0')
-                self.valuelabel.setMinimumSize(QSize(onechar * (value + .5), 0))
+                self.valuelabel.setMinimumSize(QSize(round(onechar * (value + .5)), 0))
         elif pname == 'istext':
             self.valuelabel.setFont(value and self.font() or self.valueFont)
             self.width = self.width
@@ -428,8 +428,8 @@ class PictureDisplay(NicosWidget, QWidget):
         pass
 
     def setPicture(self):
-        size = QSize(self.props['width'] * self._scale,
-                     self.props['height'] * self._scale)
+        size = QSize(round(self.props['width'] * self._scale),
+                     round(self.props['height'] * self._scale))
         if isfile(self._filePath):
             pixmap = QPixmap(self._filePath)
         else:

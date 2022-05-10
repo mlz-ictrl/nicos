@@ -27,8 +27,8 @@
 
 from nicos.core.status import BUSY, DISABLED, ERROR, NOTREACHED, OK, UNKNOWN, \
     WARN
-from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, QSize, Qt, \
-    QWidget
+from nicos.guisupport.qt import QBrush, QColor, QLineF, QPainter, QPen, \
+    QRectF, QSize, Qt, QTextOption, QWidget
 from nicos.guisupport.widget import NicosWidget, PropDef
 
 _magenta = QBrush(QColor('#A12F86'))
@@ -75,9 +75,9 @@ class Tube2(NicosWidget, QWidget):
     color = PropDef('color', 'QColor', _magenta.color(), 'Color of the tube')
 
     def sizeHint(self):
-        return QSize(self.props['width'] * self._scale + 10,
-                     self.props['height'] * self._scale +
-                     (self.props['name'] and self._scale * 2.5 or 0) + 40)
+        return QSize(round(self.props['width'] * self._scale) + 10,
+                     round(self.props['height'] * self._scale) +
+                     round(self.props['name'] and self._scale * 2.5 or 0) + 40)
 
     def registerKeys(self):
         for dev in self.props['devices']:
@@ -112,20 +112,20 @@ class Tube2(NicosWidget, QWidget):
 
         if self.props['name']:
             painter.setFont(self.font())
-            painter.drawText(5, 0, w, fontscale * 2.5,
-                             Qt.AlignCenter, self.props['name'])
+            painter.drawText(QRectF(5, 0, w, fontscale * 2.5),
+                             self.props['name'], QTextOption(Qt.AlignCenter))
             yoff = fontscale * 2.5
         else:
             yoff = 0
 
         painter.setPen(self.color)
-        painter.drawEllipse(5, 5 + yoff, 50, h)
-        painter.drawRect(30, 5 + yoff, w - 50, h)
+        painter.drawEllipse(QRectF(5, 5 + yoff, 50, h))
+        painter.drawRect(QRectF(30, 5 + yoff, w - 50, h))
         painter.setPen(QColor('black'))
-        painter.drawArc(5, 5 + yoff, 50, h, 1440, 2880)
-        painter.drawLine(30, 5 + yoff, w - 25, 5 + yoff)
-        painter.drawLine(30, 5 + yoff + h, w - 25, 5 + yoff + h)
-        painter.drawEllipse(w - 45, 5 + yoff, 50, h)
+        painter.drawArc(QRectF(5, 5 + yoff, 50, h), 1440, 2880)
+        painter.drawLine(QLineF(30, 5 + yoff, w - 25, 5 + yoff))
+        painter.drawLine(QLineF(30, 5 + yoff + h, w - 25, 5 + yoff + h))
+        painter.drawEllipse(QRectF(w - 45, 5 + yoff, 50, h))
 
         # draw Detector 1
         minx = 0
@@ -155,22 +155,21 @@ class Tube2(NicosWidget, QWidget):
             painter.translate(60 + pos_val * posscale + fontscale / 2.,
                               15 + yoff + shift_val * posscale + (h - 20) / 2.)
             painter.rotate(-tilt_val)
-            painter.drawRect(-fontscale / 2., - (h - 20) / 2., fontscale,
-                             h - 20)  # XXX tilt ???
+            painter.drawRect(QRectF(-fontscale / 2., - (h - 20) / 2., fontscale,
+                                    h - 20))  # XXX tilt ???
             painter.resetTransform()
             painter.setFont(self.valueFont)
-            painter.drawText(60 + pos_val * posscale - 10.5 * fontscale,
-                             -5 + yoff + h - fontscale,  # + (shift_val - 4) * posscale,
-                             9.5 * fontscale, 2 * fontscale, Qt.AlignRight,
-                             tilt_str)
-            painter.drawText(60 + pos_val * posscale - 6.5 * fontscale,
-                             yoff + fontscale,  # + (shift_val - 4) * posscale,
-                             9.5 * fontscale, 2 * fontscale, Qt.AlignLeft,
-                             shift_str)
+            painter.drawText(QRectF(60 + pos_val * posscale - 10.5 * fontscale,
+                                    -5 + yoff + h - fontscale,  # + (shift_val - 4) * posscale,
+                                    9.5 * fontscale, 2 * fontscale),
+                             tilt_str, QTextOption(Qt.AlignRight))
+            painter.drawText(QRectF(60 + pos_val * posscale - 6.5 * fontscale,
+                                    yoff + fontscale,  # + (shift_val - 4) * posscale,
+                                    9.5 * fontscale, 2 * fontscale),
+                             shift_str, QTextOption(Qt.AlignLeft))
             minx = max(minx, 60 + pos_val * posscale + 5 - 4 * fontscale)
-            painter.drawText(minx,
-                             h + 10 + yoff, 8 * fontscale, 30, Qt.AlignCenter,
-                             pos_str)
+            painter.drawText(QRectF(minx, h + 10 + yoff, 8 * fontscale, 30),
+                             pos_str, QTextOption(Qt.AlignCenter))
             minx = minx + 8 * fontscale
 
 #        # draw Detector 2
@@ -207,9 +206,9 @@ class BeamOption(NicosWidget, QWidget):
     name = PropDef('name', str, '', 'Display name')
 
     def sizeHint(self):
-        return QSize(self.props['width'] * self._scale,
-                     self.props['height'] * self._scale +
-                     (self.props['name'] and self._scale * 2.5 or 0))
+        return QSize(round(self.props['width'] * self._scale),
+                     round(self.props['height'] * self._scale) +
+                     round(self.props['name'] and self._scale * 2.5 or 0))
 
     def registerKeys(self):
         self.registerDevice(self.props['dev'])
@@ -236,16 +235,16 @@ class BeamOption(NicosWidget, QWidget):
 
         if self.props['name']:
             painter.setFont(self.font())
-            painter.drawText(0, 0, w, self._scale * 2.5,
-                             Qt.AlignCenter, self.props['name'])
+            painter.drawText(QRectF(0, 0, w, self._scale * 2.5),
+                             self.props['name'], QTextOption(Qt.AlignCenter))
             yoff = self._scale * 2.5
         else:
             yoff = 0
         painter.setBrush(statusbrush[self._curstatus])
-        painter.drawRect(2, 2 + yoff, w - 4, h - 4)
+        painter.drawRect(QRectF(2, 2 + yoff, w - 4, h - 4))
         painter.setFont(self.valueFont)
-        painter.drawText(2, 2 + yoff, w - 4, h - 4, Qt.AlignCenter,
-                         self._curstr)
+        painter.drawText(QRectF(2, 2 + yoff, w - 4, h - 4),
+                         self._curstr, QTextOption(Qt.AlignCenter))
 
 
 class CollimatorTable(NicosWidget, QWidget):
@@ -290,9 +289,9 @@ class CollimatorTable(NicosWidget, QWidget):
         self.registerDevice(self.props['dev'])
 
     def sizeHint(self):
-        return QSize(self._scale * self.props['width'],
-                     self._scale * 2.5 * self.props['height'] +
-                     (self.props['name'] and 2.5 * self._scale or 0))
+        return QSize(round(self._scale * self.props['width']),
+                     round(self._scale * 2.5 * self.props['height']) +
+                     round(self.props['name'] and 2.5 * self._scale or 0))
 
     def on_devValueChange(self, dev, value, strvalue, unitvalue, expired):
         self._curstr = strvalue
@@ -319,14 +318,14 @@ class CollimatorTable(NicosWidget, QWidget):
         if self.props['name']:
             painter.setFont(self.font())
             if self._curstatus != OK:
-                painter.fillRect(0, 0, w, self._scale * 2.5,
+                painter.fillRect(QRectF(0, 0, w, self._scale * 2.5),
                                  statusbrush[self._curstatus])
             if self._fixed:
                 painter.setPen(QPen(_blue.color()))
             else:
                 painter.setPen(QPen(_black.color()))
-            painter.drawText(0, 0, w, self._scale * 2.5,
-                             Qt.AlignCenter, self.props['name'])
+            painter.drawText(QRectF(0, 0, w, self._scale * 2.5),
+                             self.props['name'], QTextOption(Qt.AlignCenter))
             painter.setPen(pen)
             yoff = self._scale * 2.5
         else:
@@ -335,9 +334,9 @@ class CollimatorTable(NicosWidget, QWidget):
         painter.setPen(QPen(_blue.color()))
 
         y = h * 0.5 + yoff
-        painter.drawLine(0, y, w, y)
-        painter.drawLine(0, y+1, w, y+1)
-        painter.drawLine(0, y+2, w, y+2)
+        painter.drawLine(QLineF(0, y, w, y))
+        painter.drawLine(QLineF(0, y+1, w, y+1))
+        painter.drawLine(QLineF(0, y+2, w, y+2))
 
         # reset pen
         painter.setPen(pen)
@@ -351,7 +350,7 @@ class CollimatorTable(NicosWidget, QWidget):
         painter.setFont(self.valueFont)
 
         h0 = max(2 * self._scale, 2 * self._scale + 4)
-        painter.setClipRect(0, yoff, w, h)
+        painter.setClipRect(QRectF(0, yoff, w, h))
         for i, t in enumerate(self.props['options']):
             y = h * 0.5 + yoff + h0 * (self.shift - i - 0.45)
             b = statusbrush[self._curstatus]
@@ -359,6 +358,6 @@ class CollimatorTable(NicosWidget, QWidget):
                 painter.setBrush(b)
             else:
                 painter.setBrush(_grey if b == statusbrush[OK] else b)
-            painter.drawRect(5, y + 2, w - 10, h0 - 4)
-            painter.drawText(5, y + 2, w - 10, h0 - 4,
-                             Qt.AlignCenter, t)
+            painter.drawRect(QRectF(5, y + 2, w - 10, h0 - 4))
+            painter.drawText(QRectF(5, y + 2, w - 10, h0 - 4),
+                             t, QTextOption(Qt.AlignCenter))

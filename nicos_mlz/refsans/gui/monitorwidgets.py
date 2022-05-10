@@ -25,7 +25,7 @@
 
 from nicos.core.status import OK
 from nicos.guisupport.qt import QBrush, QColor, QPainter, QPen, QPointF, \
-    QPolygonF, QSize, Qt, QWidget
+    QPolygonF, QRectF, QSize, Qt, QWidget
 from nicos.guisupport.widget import NicosWidget, PropDef
 from nicos.utils import readonlylist
 
@@ -141,8 +141,8 @@ class VRefsans(NicosWidget, QWidget):
             self.update()
 
     def sizeHint(self):
-        return QSize(self.props['width'] * self._scale + 2,
-                     self.props['height'] * self._scale + 2)
+        return QSize(round(self.props['width'] * self._scale) + 2,
+                     round(self.props['height'] * self._scale) + 2)
 
     def _calculatePoint(self, ind, x, y):
         w, h = self.width * self._scale, self.height * self._scale
@@ -158,7 +158,7 @@ class VRefsans(NicosWidget, QWidget):
 
         painter.setPen(QColor('black'))
         painter.setBrush(_white)
-        painter.drawRect(1, 1, w, h)
+        painter.drawRect(QRectF(1, 1, w, h))
 
         # determine positions
         beam = QPolygonF([QPointF(4, 5)])

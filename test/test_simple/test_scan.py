@@ -393,12 +393,12 @@ def test_appendscan(session):
 
     appendscan(-3)
     dataset3 = dataman.getLastScans()[-1]
-    assert dataset3.continuation == [dataset2.uid, dataset1.uid]
+    assert dataset3.continuation == [dataset1.uid, dataset2.uid]
     assert dataset3.startpositions == [[-1], [-2], [-3]]
 
     appendscan(-3)
     dataset4 = dataman.getLastScans()[-1]
-    assert dataset4.continuation == [dataset3.uid, dataset2.uid, dataset1.uid]
+    assert dataset4.continuation == [dataset1.uid, dataset2.uid, dataset3.uid]
     assert dataset4.startpositions == [[-4], [-5], [-6]]
 
     scan([m2, m1], [0, 10], [1, 2], 3, det, t=0.)
