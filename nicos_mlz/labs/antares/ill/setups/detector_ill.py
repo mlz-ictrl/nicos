@@ -2,6 +2,8 @@ description = 'External ILL camera'
 
 group = 'optional'
 
+excludes = ['detector_neo']
+
 devices = dict(
     fastshutter_io = device('nicos.devices.generic.manual.ManualSwitch',
         description = 'fake fast shutter',
