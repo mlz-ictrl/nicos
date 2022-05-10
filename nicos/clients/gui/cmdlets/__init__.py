@@ -60,8 +60,9 @@ class Cmdlet(QWidget):
     cmdletRemove = pyqtSignal()
     valueModified = pyqtSignal()
 
-    def __init__(self, parent, client, uifile):
+    def __init__(self, parent, client, options, uifile):
         self.client = client
+        self.options = options
         QWidget.__init__(self, parent)
         loadUi(self, uifile)
         loadUi(self.buttons, 'cmdlets/buttons.ui')
@@ -160,8 +161,8 @@ class Move(Cmdlet):
     name = 'Move'
     category = 'Device'
 
-    def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'cmdlets/move.ui')
+    def __init__(self, parent, client, options):
+        Cmdlet.__init__(self, parent, client, options, 'cmdlets/move.ui')
         self.multiList.entryAdded.connect(self.on_entryAdded)
         self.multiList.uifile = findResource('nicos/clients/gui/cmdlets/move_one.ui')
         self.waitBox.stateChanged.connect(self.changed)
@@ -206,38 +207,61 @@ class Move(Cmdlet):
             for frm in self.multiList.entries()) + ')'
 
 
-class Count(Cmdlet):
+class PresetHelper:
+    def _addPresets(self, combo):
+        self._presetkeys = {'seconds': 't', 'minutes': 't'}
+        for preset in self.options.get('add_presets', []):
+            key, name = preset[:2]
+            self._presetkeys[name] = key
+            combo.addItem(name)
+
+    def _getPreset(self, values):
+        presetvalue, presetunit = values['preset'], values['presetunit']
+        presetkey = self._presetkeys[presetunit]
+        if presetunit == 'minutes':
+            presetvalue *= 60
+        return f'{presetkey}={presetvalue}'
+
+
+class Count(PresetHelper, Cmdlet):
 
     name = 'Count'
     category = 'Scan'
 
-    def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'cmdlets/count.ui')
-        self.seconds.valueChanged.connect(self.changed)
+    def __init__(self, parent, client, options):
+        Cmdlet.__init__(self, parent, client, options, 'cmdlets/count.ui')
+        self._addPresets(self.presetunit)
+        self.preset.valueChanged.connect(self.changed)
+        self.presetunit.currentTextChanged.connect(self.changed)
 
     def getValues(self):
-        return {'counttime': self.seconds.value()}
+        return {'preset': self.preset.value(),
+                'presetunit': self.presetunit.currentText()}
 
     def setValues(self, values):
-        if 'counttime' in values:
-            self.seconds.setValue(values['counttime'])
+        if 'preset' in values:
+            self.preset.setValue(values['preset'])
+        if 'presetunit' in values:
+            self.presetunit.setCurrentText(values['presetunit'])
 
     def isValid(self):
-        return self.markValid(self.seconds, self.seconds.value() > 0)
+        return self.markValid(self.preset, self.preset.value() > 0)
 
     def generate(self, mode):
+        preset = self._getPreset(self.getValues())
         if mode == 'simple':
-            return 'count %(counttime)s' % self.getValues()
-        return 'count(%(counttime)s)' % self.getValues()
+            return f'count {preset}'
+        return f'count({preset})'
 
 
-class CommonScan(Cmdlet):
+class CommonScan(PresetHelper, Cmdlet):
 
     cmdname = ''
     uiName = ''
 
-    def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, self.uiName)
+    def __init__(self, parent, client, options):
+        Cmdlet.__init__(self, parent, client, options, self.uiName)
+        self._addPresets(self.presetunit)
         self.device.addItems(self._getDeviceList())
         self.on_device_change(self.device.currentText())
         self.device.currentIndexChanged[str].connect(self.on_device_change)
@@ -246,7 +270,8 @@ class CommonScan(Cmdlet):
         self.start.textChanged.connect(self.on_range_change)
         self.step.textChanged.connect(self.on_range_change)
         self.numpoints.valueChanged.connect(self.on_range_change)
-        self.seconds.valueChanged.connect(self.changed)
+        self.preset.valueChanged.connect(self.changed)
+        self.presetunit.currentTextChanged.connect(self.changed)
         self.contBox.toggled.connect(self.changed)
 
     def on_device_change(self, text):
@@ -261,7 +286,8 @@ class CommonScan(Cmdlet):
                 'scanstep': self.step.text(),
                 'scanpoints': self.numpoints.value(),
                 'scancont': self.contBox.isChecked(),
-                'counttime': self.seconds.value()}
+                'preset': self.preset.value(),
+                'presetunit': self.presetunit.currentText()}
 
     def setValues(self, values):
         self._setDevice(values)
@@ -271,10 +297,12 @@ class CommonScan(Cmdlet):
             self.step.setText(values['scanstep'])
         if 'scanpoints' in values:
             self.numpoints.setValue(values['scanpoints'])
-        if 'counttime' in values:
-            self.seconds.setValue(int(values['counttime']))
         if 'scancont' in values:
             self.contBox.setChecked(values['scancont'])
+        if 'preset' in values:
+            self.preset.setValue(values['preset'])
+        if 'presetunit' in values:
+            self.presetunit.setCurrentText(values['presetunit'])
 
     def isValid(self):
         # NOTE: cannot use "return markValid() and markValid() and ..." because
@@ -283,27 +311,26 @@ class CommonScan(Cmdlet):
         valid = [
             self.markValid(self.start, isFloat(self.start)),
             self.markValid(self.step, isFloat(self.step)),
-            self.markValid(self.seconds, self.seconds.value() > 0),
+            self.markValid(self.preset, self.preset.value() > 0),
         ]
         return all(valid)
 
     def generate(self, mode):
         values = self.getValues()
-        if self.contBox.isChecked():
+        devrepr = self._getDeviceRepr(values['dev'])
+
+        if values['scancont']:
             start, end, speed, delta = self._getContParams(values)
             if mode == 'simple':
-                return 'contscan %s %s %s %s %s' % (values['dev'], start, end,
-                                                    speed, delta)
-            values['dev'] = self._getDeviceRepr(values['dev'])
-            return 'contscan(%s, %s, %s, %s, %s)' % (values['dev'], start, end,
-                                                     speed, delta)
-        else:
-            if mode == 'simple':
-                return self.cmdname + ' %(dev)s %(scanstart)s %(scanstep)s ' \
-                    '%(scanpoints)s %(counttime)s' % values
-            values['dev'] = self._getDeviceRepr(values['dev'])
-            return self.cmdname + '(%(dev)s, %(scanstart)s, %(scanstep)s, ' \
-                '%(scanpoints)s, %(counttime)s)' % values
+                return f'contscan {values["dev"]} {start} {end} {speed} {delta}'
+            return f'contscan({devrepr}, {start}, {end}, {speed}, {delta})'
+
+        preset = self._getPreset(values)
+        if mode == 'simple':
+            return f'{self.cmdname}{values["dev"]} {values["scanstart"]} ' \
+                f'{values["scanstep"]} {values["scanpoints"]} {preset}'
+        return f'{self.cmdname}({devrepr}, {values["scanstart"]}, ' \
+            f'{values["scanstep"]}, {values["scanpoints"]}, {preset})'
 
 
 class Scan(CommonScan):
@@ -329,7 +356,7 @@ class Scan(CommonScan):
         start, step, npoints, ctime = (float(values['scanstart']),
                                        float(values['scanstep']),
                                        float(values['scanpoints']),
-                                       values['counttime'])
+                                       values['preset'])
         end = start + (npoints - 1) * step
         return start, end, abs(end - start) / npoints / ctime, ctime
 
@@ -360,20 +387,22 @@ class CScan(CommonScan):
         center, step, npoints, ctime = (float(values['scanstart']),
                                         float(values['scanstep']),
                                         float(values['scanpoints']),
-                                        values['counttime'])
+                                        values['preset'])
         start = center - npoints * step
         end = center + npoints * step
         return start, end, abs(end - start) / (2*npoints + 1) / ctime, ctime
 
 
-class TimeScan(Cmdlet):
+class TimeScan(PresetHelper, Cmdlet):
 
     name = 'Time scan'
     category = 'Scan'
 
-    def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'cmdlets/timescan.ui')
-        self.seconds.valueChanged.connect(self.changed)
+    def __init__(self, parent, client, options):
+        Cmdlet.__init__(self, parent, client, options, 'cmdlets/timescan.ui')
+        self._addPresets(self.presetunit)
+        self.preset.valueChanged.connect(self.changed)
+        self.presetunit.currentTextChanged.connect(self.changed)
 
     def on_infBox_toggled(self, on):
         self.numpoints.setEnabled(not on)
@@ -381,26 +410,30 @@ class TimeScan(Cmdlet):
 
     def getValues(self):
         return {'scanpoints': self.numpoints.value(),
-                'counttime': self.seconds.value(),
-                'countinf': self.infBox.isChecked()}
+                'countinf': self.infBox.isChecked(),
+                'preset': self.preset.value(),
+                'presetunit': self.presetunit.currentText()}
 
     def setValues(self, values):
         if 'scanpoints' in values:
             self.numpoints.setValue(values['scanpoints'])
-        if 'counttime' in values:
-            self.seconds.setValue(int(values['counttime']))
         if 'countinf' in values:
             self.infBox.setChecked(bool(values['countinf']))
+        if 'preset' in values:
+            self.preset.setValue(values['preset'])
+        if 'presetunit' in values:
+            self.presetunit.setCurrentText(values['presetunit'])
 
     def isValid(self):
-        return self.markValid(self.seconds, self.seconds.value() > 0)
+        return self.markValid(self.preset, self.preset.value() > 0)
 
     def generate(self, mode):
-        npoints = -1 if self.infBox.isChecked() else self.numpoints.value()
-        counttime = self.seconds.value()
+        values = self.getValues()
+        preset = self._getPreset(values)
+        npoints = -1 if values['countinf'] else values['scanpoints']
         if mode == 'simple':
-            return 'timescan %s %s' % (npoints, counttime)
-        return 'timescan(%s, %s)' % (npoints, counttime)
+            return f'timescan {npoints} {preset}'
+        return 'timescan({npoints}, {preset})'
 
 
 class ContScan(Cmdlet):
@@ -408,8 +441,8 @@ class ContScan(Cmdlet):
     name = 'Continuous Scan'
     category = 'Scan'
 
-    def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'cmdlets/contscan.ui')
+    def __init__(self, parent, client, options):
+        Cmdlet.__init__(self, parent, client, options, 'cmdlets/contscan.ui')
         self.device.addItems(self._getDeviceList('hasattr(d, "speed")'))
         self.on_device_change(self.device.currentText())
         self.device.currentIndexChanged[str].connect(self.on_device_change)
@@ -451,7 +484,7 @@ class ContScan(Cmdlet):
                 'scanstart': self.start.text(),
                 'scanend': self.stop.text(),
                 'devspeed': self.speed.text(),
-                'counttime': float(self.delta.text())}
+                'preset': float(self.delta.text())}
 
     def setValues(self, values):
         self._setDevice(values)
@@ -461,8 +494,8 @@ class ContScan(Cmdlet):
             self.stop.setText(values['scanend'])
         if 'devspeed' in values:
             self.speed.setText(values['devspeed'])
-        if 'counttime' in values:
-            self.delta.setText(str(values['counttime']))
+        if 'preset' in values:
+            self.delta.setText(str(values['preset']))
 
     def isValid(self):
         valid = [
@@ -477,10 +510,10 @@ class ContScan(Cmdlet):
         values = self.getValues()
         if mode == 'simple':
             return 'contscan %(dev)s %(scanstart)s %(scanend)s %(devspeed)s ' \
-                   '%(counttime)s' % values
+                   '%(preset)s' % values
         values['dev'] = self._getDeviceRepr(values['dev'])
         return 'contscan(%(dev)s, %(scanstart)s, %(scanend)s, %(devspeed)s, ' \
-               '%(counttime)s)' % values
+               '%(preset)s)' % values
 
 
 class Sleep(Cmdlet):
@@ -488,8 +521,8 @@ class Sleep(Cmdlet):
     name = 'Sleep'
     category = 'Other'
 
-    def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'cmdlets/sleep.ui')
+    def __init__(self, parent, client, options):
+        Cmdlet.__init__(self, parent, client, options, 'cmdlets/sleep.ui')
         self.seconds.valueChanged.connect(self.changed)
 
     def getValues(self):
@@ -513,8 +546,8 @@ class Configure(Cmdlet):
     name = 'Configure'
     category = 'Device'
 
-    def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'cmdlets/configure.ui')
+    def __init__(self, parent, client, options):
+        Cmdlet.__init__(self, parent, client, options, 'cmdlets/configure.ui')
         self.paraminfo = {}
         self.paramvalues = {}
         self.target = DeviceParamEdit(self)
@@ -573,8 +606,8 @@ class NewSample(Cmdlet):
     name = 'New sample'
     category = 'Other'
 
-    def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, 'cmdlets/sample.ui')
+    def __init__(self, parent, client, options):
+        Cmdlet.__init__(self, parent, client, options, 'cmdlets/sample.ui')
         self.samplename.textChanged.connect(self.changed)
 
     def getValues(self):

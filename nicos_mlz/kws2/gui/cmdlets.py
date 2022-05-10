@@ -32,8 +32,8 @@ from nicos_mlz.kws1.gui.cmdlets import MeasureTable as KWS1MeasureTable
 
 class MeasureTable(KWS1MeasureTable):
 
-    def __init__(self, parent, client):
-        KWS1MeasureTable.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        KWS1MeasureTable.__init__(self, parent, client, options)
         self.hvBox = QCheckBox('Shut down GE detector HV at the end', self)
         self.hvBox.setChecked(True)
         self.extendedFrame.layout().addWidget(self.hvBox)

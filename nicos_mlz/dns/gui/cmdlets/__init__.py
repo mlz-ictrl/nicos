@@ -34,8 +34,8 @@ class DNSScan(Cmdlet):
     category = ''
     uiName = ''
 
-    def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client, self.uiName)
+    def __init__(self, parent, client, options):
+        Cmdlet.__init__(self, parent, client, options, self.uiName)
         for spin in [self.bankpositions, self.lowest_2theta, self.MonpMin,
                      self.SF, self.NSF]:
             spin.valueChanged.connect(self.changed)
@@ -239,8 +239,8 @@ class PowderScan(DNSScan):
     category = 'DNS'
     uiName = findResource('nicos_mlz/dns/gui/cmdlets/powder_scan.ui')
 
-    def __init__(self, parent, client):
-        DNSScan.__init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        DNSScan.__init__(self, parent, client, options)
         self.omega_start.valueChanged.connect(self.changed)
 
     def isValid(self):
@@ -280,8 +280,8 @@ class SingleCrystalScan(DNSScan):
     category = 'DNS'
     uiName = findResource('nicos_mlz/dns/gui/cmdlets/sc_scan.ui')
 
-    def __init__(self, parent, client):
-        DNSScan. __init__(self, parent, client)
+    def __init__(self, parent, client, options):
+        DNSScan. __init__(self, parent, client, options)
         self.update_omega_end()
         self.omega_step.valueChanged.connect(self.update_omega_end)
         self.omega_start.valueChanged.connect(self.update_omega_end)
@@ -349,8 +349,8 @@ class Shutter(Cmdlet):
     name = 'Shutter'
     category = 'DNS'
 
-    def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client,
+    def __init__(self, parent, client, options):
+        Cmdlet.__init__(self, parent, client, options,
                         findResource('nicos_mlz/dns/gui/cmdlets/shutter.ui'))
         self.shutter.currentIndexChanged.connect(self.changed)
 
@@ -367,8 +367,8 @@ class SetTemperature(Cmdlet):
     name = 'Set Temperature'
     category = 'DNS'
 
-    def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client,
+    def __init__(self, parent, client, options):
+        Cmdlet.__init__(self, parent, client, options,
                         findResource('nicos_mlz/dns/gui/cmdlets/temperature.ui'))
         self.temperature.valueChanged.connect(self.changed)
         self.waitfor.toggled.connect(self.changed)
@@ -395,8 +395,8 @@ class SlitScan(Cmdlet):
     category = 'DNS'
     slits = ['y_lower', 'y_upper', 'x_left', 'x_right']
 
-    def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client,
+    def __init__(self, parent, client, options):
+        Cmdlet.__init__(self, parent, client, options,
                         findResource('nicos_mlz/dns/gui/cmdlets/slit_scan.ui'))
         for box in self.slits + ['open_at_begin']:
             getattr(self, 'cB_' + box).stateChanged.connect(self.changed)

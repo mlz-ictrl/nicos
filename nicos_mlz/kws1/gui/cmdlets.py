@@ -40,9 +40,9 @@ class MeasureTable(Cmdlet):
 
     meas_def_class = MeasDef
 
-    def __init__(self, parent, client):
+    def __init__(self, parent, client, options):
         uipath = findResource('nicos_mlz/kws1/gui/table.ui')
-        Cmdlet.__init__(self, parent, client, uipath)
+        Cmdlet.__init__(self, parent, client, options, uipath)
         self.measdef = self.meas_def_class(rtmode=False)
         self.rt_settings = RtConfigDialog.DEFAULT_SETTINGS.copy()
         self.rtConfBtn.setEnabled(False)

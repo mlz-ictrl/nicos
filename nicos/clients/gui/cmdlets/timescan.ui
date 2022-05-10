@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>656</width>
-    <height>76</height>
+    <height>86</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -135,7 +135,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="seconds">
+      <widget class="QDoubleSpinBox" name="preset">
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
@@ -148,10 +148,17 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>seconds</string>
-       </property>
+      <widget class="QComboBox" name="presetunit">
+       <item>
+        <property name="text">
+         <string>seconds</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>minutes</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
@@ -180,7 +187,7 @@
  </widget>
  <tabstops>
   <tabstop>numpoints</tabstop>
-  <tabstop>seconds</tabstop>
+  <tabstop>preset</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../resources/nicos-gui.qrc"/>

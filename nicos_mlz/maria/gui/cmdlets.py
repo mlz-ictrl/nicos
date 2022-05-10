@@ -35,8 +35,8 @@ class SScan(Cmdlet):
     name = "Step Scan (start, step, end)"
     category = "Scan"
 
-    def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client,
+    def __init__(self, parent, client, options):
+        Cmdlet.__init__(self, parent, client, options,
                         findResource('nicos_mlz/maria/gui/sscan.ui'))
         self.device.addItems(self._getDeviceList())
         self.on_device_change(self.device.currentText())
@@ -119,8 +119,8 @@ class KScan(Cmdlet):
     name = 'Kinematic Scan'
     category = 'Scan'
 
-    def __init__(self, parent, client):
-        Cmdlet.__init__(self, parent, client,
+    def __init__(self, parent, client, options):
+        Cmdlet.__init__(self, parent, client, options,
                         findResource('nicos_mlz/maria/gui/kscan.ui'))
         self.device.addItems(self._getDeviceList('hasattr(d, "speed")'))
         self.on_device_change(self.device.currentText())
