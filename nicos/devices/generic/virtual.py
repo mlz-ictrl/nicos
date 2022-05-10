@@ -557,37 +557,12 @@ class VirtualRealTemperature(HasWindowTimeout, HasLimits, Moveable):
     def doStop(self):
         self.start(self.setpoint)
 
-    def doPoll(self, nr, maxage):
-        self._pollParam('setpoint', 1)
-        self._pollParam('curvalue', 1)
-        self._pollParam('curstatus', 1)
-
     #
     # Parameters
     #
     def doWriteMaxpower(self, newpower):
         self.heater = clamp(self.heater * self.maxpower / float(newpower),
                             0, 100)
-
-    def doReadCurvalue(self, maxage=0):
-        # to fix a poller warning
-        try:
-            return self._params['curvalue']
-        except KeyError:
-            return self.parameters['regulation'].default
-
-    def doReadCurstatus(self, maxage=0):
-        try:
-            return  self._params['curstatus']
-        except KeyError:
-            return self.parameters['curstatus'].default
-
-    def doReadSetpoint(self, maxage=0):
-        # to avoid warnings from doPoll
-        try:
-            return self._params['setpoint']
-        except KeyError:
-            return self.regulation
 
     def doReadTarget(self):
         # Bootstrapping helper, called at most once.
