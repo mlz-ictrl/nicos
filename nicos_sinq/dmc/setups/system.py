@@ -11,8 +11,7 @@ sysconfig = dict(
 )
 
 modules = [
-    'nicos.commands.standard', 'nicos_ess.commands.file_writing',
-    'nicos_sinq.commands.sics'
+    'nicos.commands.standard', 'nicos_sinq.commands.sics'
 ]
 
 devices = dict(
