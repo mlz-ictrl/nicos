@@ -3,7 +3,7 @@ description = 'vacuum system monitoring'
 group = 'lowlevel'
 
 tango_base = 'tango://phys.kws3.frm2:10000/kws3/'
-s7_analog = tango_base + 's7_analog/'
+s7_analog = tango_base + 's7_io/'
 
 devices = dict(
     pi2_1 = device('nicos.devices.entangle.Sensor',
