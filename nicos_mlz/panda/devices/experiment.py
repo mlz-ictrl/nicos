@@ -27,7 +27,8 @@
 
 from os import path
 
-from nicos.core import Override
+from nicos.core import Override, Param
+from nicos.core.params import host, none_or
 
 from nicos_mlz.devices.experiment import Experiment
 
@@ -36,6 +37,12 @@ class PandaExperiment(Experiment):
     parameter_overrides = {
         'templates':     Override(default='exp/template'),
         'servicescript': Override(default='start_service.py'),
+    }
+
+    parameters = {
+        'ariane_host': Param('Host for connection to ARIANE runtime',
+                             type=none_or(host(defaultport=11657)),
+                             default=None),
     }
 
     @property
