@@ -40,7 +40,7 @@ devices = dict(
         precision = 0.01,
     ),
     flip_set = device('nicos.devices.entangle.DigitalOutput',
-        tangodevice = tango_base + 's7_digital/flipper',
+        tangodevice = tango_base + 's7_io/flipper',
         visibility = (),
     ),
     flip_ps = device('nicos.devices.entangle.PowerSupply',

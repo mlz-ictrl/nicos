@@ -541,7 +541,7 @@ class listof:
 
     def __call__(self, val=None):
         val = val if val is not None else []
-        if not isinstance(val, (list, tuple)):
+        if not isinstance(val, (list, tuple, np.ndarray)):
             raise ValueError('value needs to be a list')
         return readonlylist(map(self.conv, val))
 
@@ -555,7 +555,7 @@ class nonemptylistof:
     def __call__(self, val=None):
         if val is None:
             return readonlylist([self.conv()])
-        if not isinstance(val, (list, tuple)) or len(val) < 1:
+        if not isinstance(val, (list, tuple, np.ndarray)) or len(val) < 1:
             raise ValueError('value needs to be a nonempty list')
         return readonlylist(map(self.conv, val))
 
@@ -590,7 +590,7 @@ class tupleof:
 def limits(val=None):
     """a tuple of lower and upper limit"""
     val = val if val is not None else (0, 0)
-    if not isinstance(val, (list, tuple)) or len(val) != 2:
+    if not isinstance(val, (list, tuple, np.ndarray)) or len(val) != 2:
         raise ValueError('value must be a list or tuple and have 2 elements')
     ll = float(val[0])
     ul = float(val[1])
