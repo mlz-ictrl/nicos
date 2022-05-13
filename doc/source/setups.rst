@@ -38,6 +38,7 @@ except the :ref:`description <setup-description>` entry:
 * :ref:`monitor_blocks <setup-monitor_blocks>`
 * :ref:`watch_conditions <setup-watch_conditions>`
 * :ref:`extended <setup-extended>`
+* :ref:`help_topics <setup-help_topics>`
 
 .. _setup-description:
 
@@ -354,6 +355,27 @@ except the :ref:`description <setup-description>` entry:
 
    document "extended" more once we have use for it. PANDA uses it now !!!
 
+.. _setup-help_topics:
+
+``help_topics``
+   A dictionary that contains additional help topics for setups.
+   Description supports RST. Dictionary keys should be unique within setups
+   that are loaded simultaneously.
+   All available topics are linked in the interactive help index, additionally
+   they can be shown by calling `help('topic')`.
+   Docstrings can be written in RST format, hyperlinks are supported.
+
+   Example::
+
+      help_topics = dict(
+         topic1 = '''Description.''',
+         topic2 = '''
+         Description.
+         Example link for `move <cmd:move>`_ command.
+         Example link for `demo <dev:demo>`_ device.
+         Example link for help topic `cryo <topic:nicos_demo_cryo>`_.
+         ''',
+      )
 
 .. _config-setups:
 

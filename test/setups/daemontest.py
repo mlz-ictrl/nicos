@@ -47,3 +47,13 @@ devices = dict(
         abslimits = (-100, 100),
     ),
 )
+
+help_topics = dict(
+    nicos_demo = '''
+This entry examples description of something very specific to nicos_demo.
+Since it is actually what is currently loaded.
+''',
+    RST = '''
+#. List entry **1**.
+''',
+)

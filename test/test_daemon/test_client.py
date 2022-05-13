@@ -117,6 +117,27 @@ def test_htmlhelp(client):
             # default help page is the index page
             assert data[1].startswith('<html>')
             break
+    client._signals = []
+    client.tell('exec', 'help("nicos_demo")')
+    for name, data, _exc in client.iter_signals(0, timeout=10.0):
+        if name == 'showhelp':
+            assert data[0] == 'nicos_demo'
+            assert 'This entry examples' in data[1]
+            break
+    client._signals = []
+    client.tell('exec', 'help("topic:nicos_demo")')
+    for name, data, _exc in client.iter_signals(0, timeout=10.0):
+        if name == 'showhelp':
+            assert data[0] == 'topic:nicos_demo'
+            assert 'This entry examples' in data[1]
+            break
+    client._signals = []
+    client.tell('exec', 'help("RST")')
+    for name, data, _exc in client.iter_signals(0, timeout=10.0):
+        if name == 'showhelp':
+            assert data[0] == 'RST'
+            assert '<li>List entry <strong>1</strong>.</li>' in data[1]
+            break
 
 
 def test_simulation(client):

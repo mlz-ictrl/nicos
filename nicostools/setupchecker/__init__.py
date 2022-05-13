@@ -77,9 +77,10 @@ class Logger(logging.Logger):
 class SetupChecker:
     all_setups_cache = {}
 
-    def __init__(self, filename, devs_seen, setup_info):
+    def __init__(self, filename, devs_seen, helptopics_seen, setup_info):
         self.filename = filename
         self.devs_seen = devs_seen
+        self.helptopics_seen = helptopics_seen
         self.setup_info = setup_info
         self.setupname = path.basename(filename)[:-3]
         self.log = logging.getLogger(filename)
@@ -416,7 +417,8 @@ class SetupChecker:
             ('devices', dict),
             ('alias_config', dict),
             ('startupcode', str),
-            ('extended', dict)
+            ('extended', dict),
+            ('help_topics', dict)
         ]:
             if vname in self.ns and not isinstance(self.ns[vname], vtype):
                 self.log_error(
@@ -492,6 +494,9 @@ class SetupChecker:
             self.check_device(
                 devname, devconfig, group in ('special', 'configdata')
             )
+
+        # check if help topics are duplicated
+        self.check_helptopics()
 
         # return overall "ok" flag
         return self.good
@@ -583,6 +588,28 @@ class SetupChecker:
                     )
             self.validate_setup_spec(spec)
 
+    def check_helptopics(self):
+        group = self.ns.get('group', 'optional')
+        if group != 'special':
+            helptopics = self.ns.get('help_topics', {})
+            for helpname in helptopics:
+                if helpname not in self.helptopics_seen:
+                    self.helptopics_seen[helpname] = self.setupname
+                    continue
+                other = self.helptopics_seen[helpname]
+                self_group = self.ns.get('group', 'optional')
+                other_group = self.setup_info[other].get('group', 'optional')
+                if self_group == 'basic' and other_group == 'basic':
+                    continue
+                if other in self.ns.get('excludes', []) or \
+                    self.setupname in self.setup_info[other].get('excludes', []):
+                    continue
+                self.log.error(
+                    'Help topic name %s duplicate: also in %s', helpname,
+                    self.helptopics_seen[helpname]
+                )
+        return self.good
+
     def validate_setup_spec(self, spec):
         """Validate the 'setups' option.
 
@@ -597,6 +624,7 @@ class SetupValidator:
     def __init__(self):
         self.devs_seen = {}
         self.setup_info = {}
+        self.helptopics_seen = {}
         self.result = True
 
     def walk(self, paths, separate=False):
@@ -622,4 +650,5 @@ class SetupValidator:
                     self.validateOne(path.join(root, f))
 
     def validateOne(self, p):
-        self.result &= SetupChecker(p, self.devs_seen, self.setup_info).check()
+        self.result &= SetupChecker(
+            p, self.devs_seen, self.helptopics_seen, self.setup_info).check()

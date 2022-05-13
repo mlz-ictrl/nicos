@@ -116,6 +116,8 @@ class Session:
         self.user_modules = set()
         # contains all loaded setups
         self.loaded_setups = set()
+        # contains help topics for loaded setups
+        self.help_topics = {}
         # contains all setups excluded from the currently loaded
         self.excluded_setups = set()
         # contains all explicitly loaded setups
@@ -778,6 +780,8 @@ class Session:
                            list(self.explicit_setups))
         if setupnames:
             self.log.info('setups loaded: %s', ', '.join(setupnames))
+
+        self.help_topics = self.readHelpTopics()
 
     def unloadSetup(self):
         """Unload the current setup.
@@ -1578,6 +1582,12 @@ class Session:
         if self.cache:
             self.cache.storeSysInfo(self.appname)
 
+    def readHelpTopics(self):
+        """Called when setups are read to add help topics to a session variable"""
+        helpdict = {}
+        for setup in self.loaded_setups:
+            helpdict.update(self._setup_info[setup].get('help_topics', {}))
+        return helpdict
 
 # must be imported after class definitions due to module interdependencies
 from nicos.devices.experiment import Experiment  # isort:skip
