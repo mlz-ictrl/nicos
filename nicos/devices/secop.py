@@ -1074,9 +1074,6 @@ class SecopWritable(SecopReadable, Moveable):
         except AttributeError:
             raise self._defunct_error() from None
 
-    def doStop(self):
-        self.log.info('stopping a Writable is a no-op')
-
 
 class SecopMoveable(SecopWritable):
 
