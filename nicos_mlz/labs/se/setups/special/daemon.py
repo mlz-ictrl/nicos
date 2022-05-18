@@ -10,8 +10,8 @@ devices = dict(
             'ldap://minos.admin.frm2.tum.de',
         ],
         bindmethod = 'tls_before_bind',
-        userbasedn = 'ou=People,dc=frm2,dc=de',
-        groupbasedn = 'ou=Group,dc=frm2,dc=de',
+        userbasedn = 'ou=People,dc=frm2,dc=tum,dc=de',
+        groupbasedn = 'ou=Group,dc=frm2,dc=tum,dc=de',
         grouproles = {
             'se': 'admin',
             'ictrl': 'admin',
