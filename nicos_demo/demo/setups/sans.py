@@ -12,7 +12,7 @@ excludes = ['detector']
 includes = ['source']
 
 devices = dict(
-    Sample = device('nicos_mlz.sans1.devices.Sans1Sample',
+    Sample = device('nicos_mlz.sans1.devices.sans1_sample.Sans1Sample',
         description = 'sample object',
     ),
     sans = device('nicos.devices.instrument.Instrument',
@@ -155,7 +155,7 @@ devices = dict(
         unit = 'm',
         curvalue = 10,
     ),
-    BerSANSImageSink = device('nicos_mlz.sans1.devices.datasinks.BerSANSImageSink',
+    BerSANSImageSink = device('nicos_mlz.sans1.devices.bersans.BerSANSImageSink',
         description = 'Saves image data in BerSANS format',
         filenametemplate = [
             'D%(pointcounter)s.001',

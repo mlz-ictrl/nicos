@@ -15,7 +15,7 @@ devices = dict(
         operators = ['ISIS developer team'],
         facility = 'ISIS demo instruments',
     ),
-    sample = device('nicos_mlz.sans1.devices.Sans1Sample',
+    sample = device('nicos_mlz.sans1.devices.sans1_sample.Sans1Sample',
         description = 'sample object',
     ),
     mot_z = device('nicos.devices.generic.VirtualMotor',

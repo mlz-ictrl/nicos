@@ -14,7 +14,7 @@ devices = dict(
         abslimits = (0, 600),
         unit = 'mm',
     ),
-    ccmsanssc_axis = device('nicos_mlz.sans1.devices.SwordAxis',
+    ccmsanssc_axis = device('nicos_mlz.sans1.devices.ccmsanssc.SwordAxis',
         description = 'translation of the sword',
         abslimits = (0, 600),
         motor = 'ccmsanssc_motor',

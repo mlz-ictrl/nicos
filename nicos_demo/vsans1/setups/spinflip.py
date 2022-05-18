@@ -6,7 +6,7 @@ modules = ['nicos_mlz.sans1.commands.spinflipper']
 
 devices = dict(
     # AG1016 amplifier
-#   P_spinflipper = device('nicos_mlz.sans1.devices.SpinflipperPower',
+#   P_spinflipper = device('nicos_mlz.sans1.devices.spinflipper.SpinflipperPower',
 #       description = 'overall power of ag1016',
 #       fmtstr = '%.1f',
 #       abslimits = (0.0, 100.0),
@@ -56,7 +56,7 @@ devices = dict(
 #   ),
 
     # WUT Box
-#   T_spinflipper = device('nicos_mlz.sans1.devices.WutReadValue',
+#   T_spinflipper = device('nicos_mlz.sans1.devices.wut.WutValue',
 #       hostname = 'sans1wut-temp-spinflip.sans1.frm2',
 #       port = '1',
 #       description = 'temperature of spinflipper',
@@ -66,7 +66,7 @@ devices = dict(
 #   ),
 
     # Keysight 34461A
-#   U_spinflipper = device('nicos_mlz.sans1.devices.VoltageMeter',
+#   U_spinflipper = device('nicos_mlz.sans1.devices.k34461a.VoltageMeter',
 #       description = 'Voltage of 34461A True RMS Meter',
 #       unit = 'V',
 #       fmtstr = '%.2f',

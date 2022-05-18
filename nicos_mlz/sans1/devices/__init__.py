@@ -21,21 +21,3 @@
 #   Jens Krüger <jens.krueger@frm2.tum.de>
 #
 # *****************************************************************************
-
-from nicos_mlz.sans1.devices.beamstop import BeamStop, BeamStopAxis, \
-    FunnySensor
-from nicos_mlz.sans1.devices.ccmsanssc import SwordAxis
-from nicos_mlz.sans1.devices.collimotor import Sans1ColliCoder, \
-    Sans1ColliMotor, Sans1ColliMotorAllParams, Sans1ColliSlit, \
-    Sans1ColliSwitcher
-from nicos_mlz.sans1.devices.datasinks.bersans import IEEEDevice
-from nicos_mlz.sans1.devices.detector import Detector, DetectorTranslation, \
-    GatedDetector
-from nicos_mlz.sans1.devices.hv import Sans1HV, Sans1HVOffDuration, \
-    Sans1ZMotor, VoltageSupply, VoltageSwitcher
-from nicos_mlz.sans1.devices.resolution import Resolution
-from nicos_mlz.sans1.devices.sans1_sample import Sans1Sample
-from nicos_mlz.sans1.devices.shutter import Shutter
-from nicos_mlz.sans1.devices.spinflipper import SpinflipperPower
-from nicos_mlz.sans1.devices.tisane import Burst
-from nicos_mlz.sans1.devices.wut import WutReadValue
