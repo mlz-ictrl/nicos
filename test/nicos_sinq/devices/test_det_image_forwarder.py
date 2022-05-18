@@ -25,7 +25,8 @@ from threading import Event
 
 import pytest
 
-pytest.importorskip('streaming_data_types')
+pytest.importorskip('streaming_data_types.deserialise_hs01',
+                    'streaming_data_types.serialise_hs01')
 import numpy as np
 from streaming_data_types import deserialise_hs01
 from streaming_data_types.utils import get_schema
