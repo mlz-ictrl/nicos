@@ -32,7 +32,7 @@ from functools import partial
 from nicos.clients.flowui.panels import get_icon
 from nicos.clients.gui.utils import loadUi
 from nicos.guisupport.qt import QAction, QCursor, QFileDialog, QHeaderView, \
-    QKeySequence, QMenu, QShortcut, Qt, QTableView, pyqtSlot
+    QKeySequence, QMenu, QShortcut, Qt, QTableView, QToolBar, pyqtSlot
 from nicos.utils import findResource
 
 from nicos_ess.gui.panels.panel import PanelBase
@@ -90,7 +90,64 @@ class LokiScriptBuilderPanel(PanelBase):
         self.columns_in_order.extend(self.optional_columns.keys())
         self.last_save_location = None
         self._init_table_panel()
+        self._create_actions()
+        self._create_toolbar()
         self._init_right_click_context_menu()
+
+    def _create_actions(self):
+        self.open_action = QAction('Open', self)
+        self.open_action.triggered.connect(self._open_file)
+        self.open_action.setIcon(get_icon('folder_open-24px.svg'))
+
+        self.save_action = QAction('Save', self)
+        self.save_action.triggered.connect(self._save_table)
+        self.save_action.setIcon(get_icon('save-24px.svg'))
+
+        self.copy_action = QAction('Copy', self)
+        self.copy_action.triggered.connect(
+            self.table_helper.copy_selected_to_clipboard)
+        self.copy_action.setIcon(get_icon('file_copy-24px.svg'))
+
+        self.cut_action = QAction('Cut', self)
+        self.cut_action.triggered.connect(
+            self.table_helper.cut_selected_to_clipboard)
+        self.cut_action.setIcon(get_icon('cut_24px.svg'))
+
+        self.paste_action = QAction('Paste', self)
+        self.paste_action.triggered.connect(
+            self.table_helper.paste_from_clipboard)
+        self.paste_action.setIcon(get_icon('paste_24px.svg'))
+
+        self.add_row_above_action = QAction('Add Row Above', self)
+        self.add_row_above_action.triggered.connect(self._insert_row_above)
+        self.add_row_above_action.setIcon(get_icon('add_row_above-24px.svg'))
+
+        self.add_row_below_action = QAction('Add Row Below', self)
+        self.add_row_below_action.triggered.connect(self._insert_row_below)
+        self.add_row_below_action.setIcon(get_icon('add_row_below-24px.svg'))
+
+        self.delete_row_action = QAction('Delete Row(s)', self)
+        self.delete_row_action.triggered.connect(self._delete_rows)
+        self.delete_row_action.setIcon(get_icon('delete_row-24px.svg'))
+
+        self.clear_action = QAction('Clear Table', self)
+        self.clear_action.triggered.connect(self.model.clear)
+        self.clear_action.setIcon(get_icon('delete-24px.svg'))
+
+    def _create_toolbar(self):
+        bar = QToolBar('Builder')
+        bar.addAction(self.open_action)
+        bar.addAction(self.save_action)
+        bar.addSeparator()
+        bar.addAction(self.copy_action)
+        bar.addAction(self.cut_action)
+        bar.addAction(self.paste_action)
+        bar.addSeparator()
+        bar.addAction(self.add_row_above_action)
+        bar.addAction(self.add_row_below_action)
+        bar.addAction(self.delete_row_action)
+        bar.addAction(self.clear_action)
+        self.verticalLayout.insertWidget(0, bar)
 
     def _init_table_panel(self):
         headers = [
@@ -138,28 +195,11 @@ class LokiScriptBuilderPanel(PanelBase):
 
     def _show_context_menu(self):
         menu = QMenu()
-
-        copy_action = QAction("Copy", self)
-        copy_action.triggered.connect(
-            self.table_helper.copy_selected_to_clipboard)
-        copy_action.setIcon(get_icon("file_copy-24px.svg"))
-        menu.addAction(copy_action)
-
-        cut_action = QAction("Cut", self)
-        cut_action.triggered.connect(self.table_helper.cut_selected_to_clipboard)
-        cut_action.setIcon(get_icon("cut_24px.svg"))
-        menu.addAction(cut_action)
-
-        paste_action = QAction("Paste", self)
-        paste_action.triggered.connect(self.table_helper.paste_from_clipboard)
-        paste_action.setIcon(get_icon("paste_24px.svg"))
-        menu.addAction(paste_action)
-
-        delete_action = QAction("Delete", self)
-        delete_action.triggered.connect(self._delete_rows)
-        delete_action.setIcon(get_icon("remove-24px.svg"))
-        menu.addAction(delete_action)
-
+        menu.addAction(self.copy_action)
+        menu.addAction(self.cut_action)
+        menu.addAction(self.paste_action)
+        menu.addSeparator()
+        menu.addAction(self.delete_row_action)
         menu.exec_(QCursor.pos())
 
     def _create_keyboard_shortcuts(self):
@@ -167,7 +207,7 @@ class LokiScriptBuilderPanel(PanelBase):
             (QKeySequence.Paste, self.table_helper.paste_from_clipboard),
             (QKeySequence.Cut, self.table_helper.cut_selected_to_clipboard),
             (QKeySequence.Copy, self.table_helper.copy_selected_to_clipboard),
-            ("Ctrl+Backspace", self._delete_rows),
+            ('Ctrl+Backspace', self._delete_rows),
         ]:
             self._create_shortcut_key(key, to_call)
 
@@ -176,32 +216,7 @@ class LokiScriptBuilderPanel(PanelBase):
         shortcut.activated.connect(to_call)
         shortcut.setContext(Qt.WidgetShortcut)
 
-    @pyqtSlot()
-    def on_cutButton_clicked(self):
-        self.table_helper.cut_selected_to_clipboard()
-
-    @pyqtSlot()
-    def on_copyButton_clicked(self):
-        self.table_helper.copy_selected_to_clipboard()
-
-    @pyqtSlot()
-    def on_pasteButton_clicked(self):
-        self.table_helper.paste_from_clipboard()
-
-    @pyqtSlot()
-    def on_addAboveButton_clicked(self):
-        self._insert_row_above()
-
-    @pyqtSlot()
-    def on_addBelowButton_clicked(self):
-        self._insert_row_below()
-
-    @pyqtSlot()
-    def on_deleteRowsButton_clicked(self):
-        self._delete_rows()
-
-    @pyqtSlot()
-    def on_loadTableButton_clicked(self):
+    def _open_file(self):
         try:
             filename = QFileDialog.getOpenFileName(
                 self,
@@ -233,8 +248,7 @@ class LokiScriptBuilderPanel(PanelBase):
             raw_data.append(dict(zip(headers, row)))
         self.model.raw_data = raw_data
 
-    @pyqtSlot()
-    def on_saveTableButton_clicked(self):
+    def _save_table(self):
         if self.is_data_in_hidden_columns():
             self.showError('Cannot save because there is data in a non-visible '
                            'optional column(s).')
@@ -342,15 +356,8 @@ class LokiScriptBuilderPanel(PanelBase):
 
     @pyqtSlot()
     def on_bulkUpdateButton_clicked(self):
-        self._do_bulk_update(self.txtValue.text())
-
-    def _do_bulk_update(self, value):
         for index in self.tableView.selectedIndexes():
-            self.model.setData(index, value, Qt.EditRole)
-
-    @pyqtSlot()
-    def on_clearTableButton_clicked(self):
-        self.model.clear()
+            self.model.setData(index, self.txtValue.text(), Qt.EditRole)
 
     def _extract_script_data(self):
         hidden_column_names = self._get_hidden_column_names()
