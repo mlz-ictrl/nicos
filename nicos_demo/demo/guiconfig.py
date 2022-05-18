@@ -43,6 +43,10 @@ main_window = docked(
                       image='nicos_mlz/sans1/gui/sampleChanger22.png',
                       positions=22, setups='sans and sc2'),
                ),
+               ('Sample',
+                panel('nicos.clients.gui.panels.setup_panel.GenericSamplePanel',
+                      setups='sans and not sc?'),
+               ),
                ('TAS sample',
                 panel('nicos.clients.gui.panels.setup_panel.TasSamplePanel',
                       setups='tas',)
