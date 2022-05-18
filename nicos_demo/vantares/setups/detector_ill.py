@@ -5,7 +5,7 @@ group = 'optional'
 devices = dict(
     trigger_hw = device('nicos.devices.generic.ManualSwitch',
         states = [0, 1],
-        lowlevel = True,
+        visibility = (),
     ),
     trigger = device('nicos.devices.generic.Pulse',
         description = 'Camera trigger',
