@@ -12,6 +12,23 @@ devices = dict(
     ),
     LDAPAuth = device('nicos.services.daemon.auth.ldap.Authenticator',
         uri = [
+            'ldap://sans1srv.sans1.frm2.tum.de',
+        ],
+        bindmethod = 'tls_before_bind',
+        userbasedn = 'ou=People,dc=sans1,dc=frm2,dc=tum,dc=de',
+        groupbasedn = 'ou=Group,dc=sans1,dc=frm2,dc=tum,dc=de',
+        userroles = {
+            'awilhelm': 'admin',
+            'aheinema': 'admin',
+            'smuehlba': 'admin',
+            'sbusch':   'admin',
+        },
+        grouproles = {
+            'sans1': 'user',
+        },
+    ),
+    LDAPAuthBU = device('nicos.services.daemon.auth.ldap.Authenticator',
+        uri = [
             'ldap://phaidra.admin.frm2.tum.de',
             'ldap://ariadne.admin.frm2.tum.de',
             'ldap://sarpedon.admin.frm2.tum.de',
@@ -34,7 +51,7 @@ devices = dict(
     ),
     Daemon = device('nicos.services.daemon.NicosDaemon',
         server = 'sans1ctrl.sans1.frm2',
-        authenticators = ['UserDBAuth', 'LDAPAuth'],
+        authenticators = ['UserDBAuth', 'LDAPAuth', 'LDAPAuthBU',],
         loglevel = 'debug',
     ),
 )
