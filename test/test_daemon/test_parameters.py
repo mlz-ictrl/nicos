@@ -35,6 +35,10 @@ def test_ldapuri():
     assert ldapuri('example.host.my') == 'example.host.my'
     assert ldapuri('ldap://example.host.my') == 'ldap://example.host.my'
     assert ldapuri('ldaps://example.host.my') == 'ldaps://example.host.my'
+    assert ldapuri('ldap://localhost:3389') == 'ldap://localhost:3389'
+    assert ldapuri('ldaps://localhost:6636') == 'ldaps://localhost:6636'
+    assert ldapuri('ldap://localhost:3389/') == 'ldap://localhost:3389/'
+    assert ldapuri('ldaps://localhost:6636/') == 'ldaps://localhost:6636/'
 
     assert raises(ValueError, ldapuri, 'lda://localhost')
     assert raises(ValueError, ldapuri, 'ldap//localhost')

@@ -37,11 +37,11 @@ from nicos.services.daemon.auth import AuthenticationError, \
 ldap3.Connection.__repr__ = object.__repr__
 
 ldapuri_re = re.compile(
-    r'^((ldaps|ldap)://)?[a-z0-9-]+(\.[a-z0-9-]+)*$', re.I)
+    r'^((ldaps|ldap)://)?[a-z0-9-]+(\.[a-z0-9-]+)*(:[1-9][0-9]*)?(/)?$', re.I)
 
 
 def ldapuri(val=None):
-    """a valid ldapuri"""
+    """a valid LDAP URI with just the host part like [ldap[s]://]host[:port]"""
     if val in ('', None):
         return ''
     val = string(val)
