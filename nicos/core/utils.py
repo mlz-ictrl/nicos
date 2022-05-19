@@ -258,7 +258,7 @@ def multiWait(devices):
                     eta = {dev.estimateTime(now - first_ts) for dev in devlist}
                     eta.discard(None)
                     # use max here as we wait for ALL movements to finish
-                    eta_str = ('estimated %s left / ' % formatDuration(max(eta))
+                    eta_str = ('Estimated %s left / ' % formatDuration(max(eta))
                                if eta else '')
                     session.action(eta_str + target_str)
                 session.delay(delay)

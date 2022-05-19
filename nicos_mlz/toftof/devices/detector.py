@@ -236,7 +236,7 @@ class Detector(GenericDetector):
         self._starttime = currenttime()
         self._setROParam('rates', [[0., 0.], [0., 0.]])
 
-        session.action('run# %06d' % session.experiment.lastpoint)
+        session.action('Run# %06d' % session.experiment.lastpoint)
 
         GenericDetector.doStart(self)
 
