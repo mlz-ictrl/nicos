@@ -108,7 +108,7 @@ class HelpGenerator:
             return '<pre>' + html.escape(markup) + '</pre>'
         else:
             try:
-                return publish_parts(markup, writer_name='html')['fragment']
+                return publish_parts(markup, writer_name='html')['html_body']
             except Exception:
                 return '<pre>' + html.escape(markup) + '</pre>'
 
