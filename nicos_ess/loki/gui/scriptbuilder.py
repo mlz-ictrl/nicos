@@ -311,25 +311,28 @@ class LokiScriptBuilderPanel(PanelBase):
         return data
 
     def _delete_rows(self):
-        rows_to_remove = set()
-        for index in self.tableView.selectedIndexes():
-            rows_to_remove.add(index.row())
-        rows_to_remove = list(rows_to_remove)
-        self.tableView.model().remove_rows(rows_to_remove)
+        to_remove = {index.row() for index in self.tableView.selectedIndexes()
+                     if index.isValid() and index.row() < self.model.num_rows}
+        self.tableView.model().remove_rows(to_remove)
 
     def _insert_row_above(self):
+        if self.model.num_rows == 0:
+            self.tableView.model().insert_row(0)
+            self.tableView.selectRow(0)
+            return
         lowest, _ = self._get_selected_rows_limits()
         if lowest is not None:
             self.tableView.model().insert_row(lowest)
-        elif self.model.num_rows == 0:
-            self.tableView.model().insert_row(0)
+            self.tableView.selectRow(lowest + 1)
 
     def _insert_row_below(self):
+        if self.model.num_rows == 0:
+            self.tableView.model().insert_row(0)
+            self.tableView.selectRow(0)
+            return
         _, highest = self._get_selected_rows_limits()
         if highest is not None:
             self.tableView.model().insert_row(highest + 1)
-        elif self.model.num_rows == 0:
-            self.tableView.model().insert_row(0)
 
     def _get_selected_rows_limits(self):
         lowest = None
@@ -351,8 +354,7 @@ class LokiScriptBuilderPanel(PanelBase):
         combobox.addItems(self.duration_options)
         combobox.currentTextChanged.connect(
             partial(self._on_duration_type_changed, column_name))
-        self._on_duration_type_changed(column_name,
-                                       combobox.currentText())
+        self._on_duration_type_changed(column_name, combobox.currentText())
 
     @pyqtSlot()
     def on_bulkUpdateButton_clicked(self):

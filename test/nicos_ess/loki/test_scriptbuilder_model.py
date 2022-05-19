@@ -69,7 +69,7 @@ class TestScriptBuilderModel:
         ]
         model = create_loki_script_model(len(data), data)
 
-        positions = [0, 1]
+        positions = {0, 1}
         model.remove_rows(positions)
 
         assert model.num_rows == 1
