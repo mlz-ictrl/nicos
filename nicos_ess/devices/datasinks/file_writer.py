@@ -586,7 +586,8 @@ class FileWriterControlSink(FileSink):
         funcs = [lambda job: str(job.job_number),
                  lambda job: job.get_state_string(),
                  lambda job: job.start_time.strftime(dt_format),
-                 lambda job: job.stop_time.strftime(dt_format),
+                 lambda job: job.stop_time.strftime(dt_format)
+                 if job.stop_time else '',
                  lambda job: str(job.replay_of) if job.replay_of else '',
                  lambda job: job.error_msg if job.error_msg else '']
         if session.daemon_device.current_script().user.level == ADMIN:
