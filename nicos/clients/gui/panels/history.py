@@ -1138,8 +1138,7 @@ class HistoryPanel(BaseHistoryWindow, Panel):
         # Always succeeds, but break up circular references so that the panel
         # object can be deleted properly.
         for v in self.views:
-            v.plot = None
-        self.currentPlot = None
+            v.cleanup()
         self.client.cache.disconnect(self.newvalue_callback)
         return True
 
