@@ -11,7 +11,7 @@
         }
       ],
       "children": [
-        {
+          {
           "module": "dataset",
           "config": {
             "name": "title",
@@ -60,21 +60,6 @@
                   }
                 },
                 {
-                  "name": "laser_intensity",
-                  "type": "group",
-                  "children": [
-                    {
-                      "module": "f142",
-                      "config": {
-                        "source": "SES-SCAN:LSR-001:AnalogInput-UTC",
-                        "topic": "Ymir_se",
-                        "dtype": "double",
-                        "value_units": ""
-                      }
-                    }
-                  ]
-                },
-                {
                   "name": "laser_intensity_fast_se",
                   "type": "group",
                   "children": [
@@ -94,7 +79,7 @@
                     {
                       "module": "tdct",
                       "config": {
-                        "source": "Utg-Ymir:TS-EVR-01-02:TS-I",
+                        "source": "Utg-Ymir:TS-EVR-01:02-TS-I",
                         "topic": "Ymir_se"
                       }
                     }
@@ -107,8 +92,23 @@
                     {
                       "module": "tdct",
                       "config": {
-                        "source": "Utg-Ymir:TS-EVR-01-03:TS-I",
+                        "source": "Utg-Ymir:TS-EVR-01:03-TS-I",
                         "topic": "Ymir_se"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "laser_intensity_alt",
+                  "type": "group",
+                  "children": [
+                    {
+                      "module": "f142",
+                      "config": {
+                        "source": "plc-ts:PLC:slowdata",
+                        "topic": "Ymir_se",
+                        "dtype": "double",
+                        "value_units": ""
                       }
                     }
                   ]
@@ -525,6 +525,95 @@
                     "topic": "Ymir_motion",
                     "dtype": "double",
                     "value_units": "mm"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Y-axis_non_PTP",
+              "type": "group",
+              "attributes": [
+                {
+                  "name": "units",
+                  "dtype": "string",
+                  "values": "mm"
+                }
+              ],
+              "children": [
+                {
+                  "module": "f142",
+                  "config": {
+                    "source": "SES-SCAN:MC-MCU-001:m2.RBV",
+                    "topic": "Ymir_motion",
+                    "dtype": "double",
+                    "value_units": "mm"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Z-axis_non_PTP",
+              "type": "group",
+              "attributes": [
+                {
+                  "name": "units",
+                  "dtype": "string",
+                  "values": "mm"
+                }
+              ],
+              "children": [
+                {
+                  "module": "f142",
+                  "config": {
+                    "source": "SES-SCAN:MC-MCU-001:m3.RBV",
+                    "topic": "Ymir_motion",
+                    "dtype": "double",
+                    "value_units": "mm"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "X-axis_encoder",
+              "type": "group",
+              "children": [
+                {
+                  "module": "f142",
+                  "config": {
+                    "source": "SES-SCAN:MC-MCU-001:m1-EncAct-UTC",
+                    "topic": "Ymir_motion",
+                    "dtype": "double",
+                    "value_units": ""
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Y-axis_encoder",
+              "type": "group",
+              "children": [
+                {
+                  "module": "f142",
+                  "config": {
+                    "source": "SES-SCAN:MC-MCU-001:m2-EncAct-UTC",
+                    "topic": "Ymir_motion",
+                    "dtype": "double",
+                    "value_units": ""
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Z-axis_encoder",
+              "type": "group",
+              "children": [
+                {
+                  "module": "f142",
+                  "config": {
+                    "source": "SES-SCAN:MC-MCU-001:m3-EncAct-UTC",
+                    "topic": "Ymir_motion",
+                    "dtype": "double",
+                    "value_units": ""
                   }
                 }
               ]

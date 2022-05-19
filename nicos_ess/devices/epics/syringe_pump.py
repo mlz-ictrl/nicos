@@ -24,7 +24,7 @@
 from nicos.core import Attach, InvalidValueError, Override, Param, pvname, \
     status, usermethod
 from nicos.devices.abstract import MappedMoveable
-from nicos.devices.epics import EpicsDevice, EpicsReadable
+from nicos.devices.epics import EpicsDevice, EpicsStringReadable
 
 
 class SyringePumpController(EpicsDevice, MappedMoveable):
@@ -51,8 +51,10 @@ class SyringePumpController(EpicsDevice, MappedMoveable):
     }
 
     attached_devices = {
-        'status': Attach('Status of device', EpicsReadable),
+        'status': Attach('Status of device', EpicsStringReadable),
     }
+
+    _commands = {}
 
     def doInit(self, mode):
         self._commands = {'start': self.start_pump, 'stop': self.stop_pump,
