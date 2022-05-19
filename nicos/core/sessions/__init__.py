@@ -1000,6 +1000,10 @@ class Session:
                 return self.showHelp(self.devices[obj])
             elif obj in self.namespace:
                 return self.showHelp(self.namespace[obj])
+            elif obj in self.help_topics:
+                for line in formatDocstring(self.help_topics[obj]):
+                    self.log.info(line)
+                return
         if obj is None:
             from nicos.commands.basic import ListCommands
             ListCommands()
