@@ -120,6 +120,8 @@ class NicosCmdClient(NicosClient):
         self.current_filename = ''
         # pending requests (i.e. scripts) in the daemon
         self.pending_requests = OrderedDict()
+        # last ACTION event, short form for the prompt
+        self.action = ''
         # filename of last edited/simulated script
         self.last_filename = ''
         # instrument name from NICOS, pre-filled with server name
@@ -313,7 +315,7 @@ class NicosCmdClient(NicosClient):
                                     self.instrument)
         for req in state['requests']:
             self.pending_requests[req['reqid']] = req
-        self.set_status(self.status)
+        self.refresh_prompt()
 
     stcolmap  = {'idle': 'blue',
                  'running': 'fuchsia',
@@ -327,6 +329,12 @@ class NicosCmdClient(NicosClient):
     def set_status(self, status):
         """Update the current execution status, and set a new prompt."""
         self.status = status
+        if status in ('idle', 'disconnected'):
+            # clear any leftover actions
+            self.action = ''
+        self.refresh_prompt()
+
+    def refresh_prompt(self):
         if self.stop_pending:
             pending = ' (stop pending)'
         elif self.pending_requests:
@@ -336,10 +344,11 @@ class NicosCmdClient(NicosClient):
         # \x01/\x02 are markers recognized by readline as "here come"
         # zero-width control characters; ESC[K means "clear whole line"
         self.prompt = '\x01' + colorize(
-            self.stcolmap[status],
-            '\r\x1b[K\x02# ' + (self.instrument or '') + '[%s%s]%s %s \x01' %
-            (self.modemap[self.current_mode], status, pending,
-             self.spy_mode and 'spy>' or '>>')) + '\x02'
+            self.stcolmap[self.status],
+            f'\r\x1b[K\x02# {self.instrument or ""}'
+            f'[{self.modemap[self.current_mode]}{self.status}]'
+            f'{self.action}{pending} {self.spy_mode and "spy>" or ">>"} \x01'
+        ) + '\x02'
         os.write(self.wakeup_pipe_w, b' ')
 
     def showhelp(self, html):
@@ -369,34 +378,42 @@ class NicosCmdClient(NicosClient):
         else:
             namefmt = '%-10s: ' % msg[0]
         levelno = msg[2]
+
+        # special handling for actions: show them (in full) in the terminal
+        # title bar, and show the last bit in the prompt
         if levelno == ACTION:
             action = namefmt + msg[3].rstrip()
             self.out.write('\x1b]0;NICOS%s\x07' %
                            (action and ' (%s)' % action or ''))
+            action = (' ' + msg[3].rsplit(' :: ', 1)[-1]).rstrip()
+            if len(action) > 50:
+                action = action[:50] + '...'
+            self.action = action
+            self.refresh_prompt()
             return
+
+        if self.subsec_ts:
+            timesuf = '.%.06d] ' % ((msg[1] % 1) * 1000000)
         else:
-            if self.subsec_ts:
-                timesuf = '.%.06d] ' % ((msg[1] % 1) * 1000000)
-            else:
-                timesuf = '] '
-            if levelno <= DEBUG:
-                timefmt = strftime('[%H:%M:%S', localtime(msg[1]))
-                newtext = colorize('lightgray', timefmt + timesuf) + \
-                    colorize('darkgray', namefmt + msg[3].rstrip())
-            elif levelno <= INFO:
-                timefmt = strftime('[%H:%M:%S', localtime(msg[1]))
-                newtext = colorize('lightgray', timefmt + timesuf) + \
-                    namefmt + msg[3].rstrip()
-            elif levelno == INPUT:
-                newtext = colorize('darkgreen', msg[3].rstrip())
-            elif levelno <= WARNING:
-                timefmt = strftime('[%Y-%m-%d %H:%M:%S', localtime(msg[1]))
-                newtext = colorize('purple', timefmt + timesuf + namefmt +
-                                   levels[levelno] + ': ' + msg[3].rstrip())
-            else:
-                timefmt = strftime('[%Y-%m-%d %H:%M:%S', localtime(msg[1]))
-                newtext = colorize('red', timefmt + timesuf + namefmt +
-                                   levels[levelno] + ': ' + msg[3].rstrip())
+            timesuf = '] '
+        if levelno <= DEBUG:
+            timefmt = strftime('[%H:%M:%S', localtime(msg[1]))
+            newtext = colorize('lightgray', timefmt + timesuf) + \
+                colorize('darkgray', namefmt + msg[3].rstrip())
+        elif levelno <= INFO:
+            timefmt = strftime('[%H:%M:%S', localtime(msg[1]))
+            newtext = colorize('lightgray', timefmt + timesuf) + \
+                namefmt + msg[3].rstrip()
+        elif levelno == INPUT:
+            newtext = colorize('darkgreen', msg[3].rstrip())
+        elif levelno <= WARNING:
+            timefmt = strftime('[%Y-%m-%d %H:%M:%S', localtime(msg[1]))
+            newtext = colorize('purple', timefmt + timesuf + namefmt +
+                               levels[levelno] + ': ' + msg[3].rstrip())
+        else:
+            timefmt = strftime('[%Y-%m-%d %H:%M:%S', localtime(msg[1]))
+            newtext = colorize('red', timefmt + timesuf + namefmt +
+                               levels[levelno] + ': ' + msg[3].rstrip())
         if sim:
             newtext = '(sim) ' + newtext
         self.put(newtext)
@@ -436,11 +453,11 @@ class NicosCmdClient(NicosClient):
                 if script != self.current_script:
                     self.current_script = script
                 self.pending_requests.pop(data['reqid'], None)
-                self.set_status(self.status)
+                self.refresh_prompt()
             elif name == 'request':
                 if 'script' in data:
                     self.pending_requests[data['reqid']] = data
-                self.set_status(self.status)
+                self.refresh_prompt()
             elif name == 'blocked':
                 removed = [_f for _f in (self.pending_requests.pop(reqid, None)
                                          for reqid in data) if _f]
@@ -448,7 +465,7 @@ class NicosCmdClient(NicosClient):
                     self.put_client('%d script(s) or command(s) removed from '
                                     'queue.' % len(removed))
                     self.show_pending()
-                self.set_status(self.status)
+                self.refresh_prompt()
             elif name == 'updated':
                 if 'script' in data:
                     self.pending_requests[data['reqid']] = data
@@ -493,7 +510,7 @@ class NicosCmdClient(NicosClient):
                                      (dnwidth, devname, dmin, dmax, aliascol))
             elif name == 'mode':
                 self.current_mode = data
-                self.set_status(self.status)
+                self.refresh_prompt()
             elif name == 'setup':
                 self.scriptpath = self.eval('session.experiment.scriptpath',
                                             '.')
@@ -736,12 +753,12 @@ class NicosCmdClient(NicosClient):
             # this is basically "stop at any well-defined breakpoint"
             self.tell('stop', BREAK_AFTER_STEP)
             self.stop_pending = True
-            self.set_status(self.status)
+            self.refresh_prompt()
         elif res == 'L':
             # this is "everywhere after a command in the script"
             self.tell('stop', BREAK_AFTER_LINE)
             self.stop_pending = True
-            self.set_status(self.status)
+            self.refresh_prompt()
         else:
             self.tell('emergency')
 
@@ -914,7 +931,7 @@ class NicosCmdClient(NicosClient):
             else:
                 self.put_client('Spy mode off.')
             self.spy_mode = not self.spy_mode
-            self.set_status(self.status)
+            self.refresh_prompt()
         elif cmd == 'plot':
             self.plot_data(xterm_mode=(arg == 'x'))
         elif cmd == 'subsec':
