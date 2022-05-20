@@ -33,8 +33,8 @@ from nicos.devices.entangle import AnalogInput
 from nicos.devices.generic.sequence import SeqCall, SeqDev, SequencerMixin
 from nicos.utils import num_sort
 
-from nicos_mlz.kws1.devices.detector import DetectorPosSwitcherMixin, \
-    oneof_detector
+from nicos_mlz.kws1.devices.detector import DetectorPosSwitcherMixin
+from nicos_mlz.kws1.devices.params import oneof_detector
 
 
 class DetectorPosSwitcher(DetectorPosSwitcherMixin, SequencerMixin,
