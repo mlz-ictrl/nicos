@@ -497,7 +497,7 @@ _notset = object()
 def convdoc(conv):
     if isinstance(conv, type):
         return conv.__name__
-    return conv.__doc__ or ''
+    return (conv.__doc__.splitlines() or [''])[0].strip()
 
 
 def fixup_conv(conv):
