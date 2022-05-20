@@ -56,8 +56,8 @@ from secop.client import SecopClient
 from secop.errors import CommunicationFailedError
 
 from nicos import session
-from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, NicosError, \
-    Override, Param, status, usermethod
+from nicos.core import POLLER, SIMULATION, Attach, DeviceAlias, \
+    HasOffset, HasLimits, NicosError, Override, Param, status, usermethod
 from nicos.core.device import Device, DeviceMeta, Moveable, Readable
 from nicos.core.errors import ConfigurationError
 from nicos.core.params import anytype, dictwith, floatrange, intrange, \
@@ -66,13 +66,6 @@ from nicos.core.utils import formatStatus
 from nicos.utils import printTable, readonlydict
 
 SecopStatus = secop.modules.Drivable.Status
-
-IFCLASSES = {
-    'Drivable': 'SecopMoveable',
-    'Writable': 'SecopWritable',
-    'Readable': 'SecopReadable',
-    'Module': 'SecopDevice',
-}
 
 
 class NicosSecopClient(SecopClient):
@@ -296,6 +289,14 @@ def get_attaching_devices(dev):
                 if getattr(sdev, '_attached_' + aname, None) == dev:
                     result.append((sdev, att.devclass))
     return result
+
+
+def secop_base_class(cls):
+    """find the first base class from IF_CLASSES in cls"""
+    assert issubclass(cls, SecopDevice)
+    for b in cls.__mro__:
+        if b in ALL_IF_CLASSES:
+            return b
 
 
 class SecNodeDevice(Readable):
@@ -529,17 +530,19 @@ class SecNodeDevice(Readable):
         for module, mod_desc in modules.items():
             params_cfg = {}
             commands_cfg = {}
-            module_properties = mod_desc.get('properties', None)
+            module_properties = mod_desc.get('properties', {})
             for ifclass in (module_properties.get('interface_classes', []) or
                             module_properties.get('interface_class', [])):
                 try:
-                    clsname = IFCLASSES[ifclass.title()]
+                    cls = IF_CLASSES[ifclass.title()]
                     break
                 except KeyError:
                     continue
             else:
-                clsname = 'SecopDevice'
-            kwds = {}
+                cls = SecopDevice
+            kwds = {
+                'secop_properties': module_properties,
+            }
             for pname, props in mod_desc['parameters'].items():
                 datainfo = props['datainfo']
                 typ = get_validator(datainfo)
@@ -581,7 +584,7 @@ class SecNodeDevice(Readable):
                 if 'result' in datainfo:
                     cmddict['resulttype'] = datainfo['result']
                 commands_cfg[cname] = cmddict
-            if clsname != 'SecopDevice':
+            if isinstance(cls, SecopReadable):
                 kwds.setdefault('unit', '')  # unit is mandatory on Readables
             if module_properties.get('visibility', 1) > self.visibility_level:
                 kwds['visibility'] = ()
@@ -593,7 +596,7 @@ class SecNodeDevice(Readable):
                         commands_cfg=commands_cfg,
                         **kwds)
             setup_info[prefix + module] = (
-                'nicos.devices.secop.%s' % clsname, desc)
+                'nicos.devices.secop.%s' % cls.__name__, desc)
         if not setup_info:
             self.log.info('creating devices for %s skipped', self.name)
             return
@@ -637,7 +640,7 @@ class SecNodeDevice(Readable):
                         dev._attached_secnode != self):
                     self.log.error('device %s already exists', devname)
                     continue
-                base = dev.__class__.__bases__[0]
+                base = secop_base_class(dev.__class__)
                 prevcfg = (base.__module__ + '.' + base.__name__,
                            dict(secnode=self.name, **dev._config))
             else:
@@ -702,6 +705,9 @@ class SecopDevice(Device):
     parameters = {
         'secop_module': Param('SECoP module', type=str, settable=False,
                               userparam=False),
+        'secop_properties': Param('SECoP module properties',
+                                  type=anytype, settable=False,
+                                  userparam=False),
     }
     STATUS_MAP = {
         0: status.DISABLED,
@@ -763,7 +769,7 @@ class SecopDevice(Device):
             parameters[pname] = Param(volatile=True, **kwargs)
 
             if pname == 'target':
-                continue  # special case: see SecopWritable.doReadTarget
+                continue  # special treatment of target in SecopWritable.doReadTarget
 
             def do_read(self, maxage=None, pname=pname, validator=typ):
                 return self._read(pname, maxage, validator)
@@ -833,12 +839,20 @@ class SecopDevice(Device):
             elif cname != 'stop':
                 # stop is handled separately, do not complain
                 session.log.warning(
-                    'skip command %s, as it would overwrite %r', cname, old)
+                    'skip command %s, as it would overwrite method of %r', cname, cls.__name__)
 
         classname = cls.__name__ + '_' + name
         # create a new class extending SecopDevice, apply DeviceMeta in order
         # to include the added parameters
-        newclass = DeviceMeta.__new__(DeviceMeta, classname, (cls,), attrs)
+        features = config['secop_properties'].get('features', [])
+        mixins = tuple(FEATURES[f] for f in features if f in FEATURES)
+        if mixins:
+            # create class to hold access methods
+            newclass = DeviceMeta.__new__(DeviceMeta, classname + '_base', (cls,), attrs)
+            # create class with mixins, with methods potentially overriding access methods
+            newclass = DeviceMeta.__new__(DeviceMeta, classname, mixins + (newclass,), {})
+        else:
+            newclass = DeviceMeta.__new__(DeviceMeta, classname, (cls,), attrs)
         newclass._modified_config = devcfg  # store temporarily for __init__
         return newclass
 
@@ -862,7 +876,7 @@ class SecopDevice(Device):
 
         happens when the structure for the device has changed
         """
-        cls = self.__class__.__bases__[0]
+        cls = secop_base_class(self.__class__)
         newclass = cls.makeDevClass(self.name, **config)
         bad_attached = False
         for dev, cls in get_attaching_devices(self):
@@ -1062,9 +1076,9 @@ class SecopWritable(SecopReadable, Moveable):
         try:
             return self._read('target', maxage, anytype)
         except NicosError:
-            # This might happen when the remote target is not initialized.
-            # We must not raise an error here when called from Moveable.start
-            # when comparing with the previous target.
+            # this might happen when the target is not initialized
+            # if we do not catch here, Moveable.start will raise
+            # when comparing with the previous value
             return None
 
     def doStart(self, target):
@@ -1085,3 +1099,55 @@ class SecopMoveable(SecopWritable):
             except Exception as e:
                 self.log.error('error while stopping: %r', e)
                 self.updateStatus()
+
+
+class SecopHasOffset(HasOffset):
+    """modified HasOffset mixin
+
+    goal: make the class to be accepted by the adjust command
+    """
+
+    def doWriteOffset(self, value):
+        # remark: possible adjustments of limits, targets have to be done
+        # in the remote implementation
+        self._write('offset', value, float)
+
+
+class SecopHasLimits(HasLimits):
+    """modifed HasLimits mixin
+
+    match the proposed SECoP feature HasOffset, with a limits parameter
+    corresponding to userlimits and the abslimits module _property_
+    """
+    parameter_overrides = {
+        'abslimits': Override(default=(-9e99, 9e99), prefercache=False),
+        'userlimits': Override(default=(-9e99, 9e99), volatile=True),
+        'limits': Override(userparam=False),
+    }
+
+    def doPreinit(self, mode):
+        super().doPreinit(mode)
+        if mode != SIMULATION:
+            self._config['abslimits'] = self.secop_properties.get('abslimits', (-9e99, 9e99))
+
+    def doReadUserlimits(self):
+        return self.limits
+
+    def doWriteUserlimits(self, value):
+        self.limits = value
+        return self.limits
+
+
+IF_CLASSES = {
+    'Drivable': SecopMoveable,
+    'Writable': SecopWritable,
+    'Readable': SecopReadable,
+    'Module': SecopDevice,
+}
+
+ALL_IF_CLASSES = set(IF_CLASSES.values())
+
+FEATURES = {
+    'HasLimits': SecopHasLimits,
+    'HasOffset': SecopHasOffset,
+}
