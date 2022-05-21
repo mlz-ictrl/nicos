@@ -20,7 +20,6 @@
 .. autoclass:: KWSDetector()
 
 .. module:: nicos_mlz.kws1.devices.detector
-.. autoclass:: oneof_detector()
 .. autoclass:: DetectorPosSwitcher()
 .. autoclass:: LockedMotor()
 .. autoclass:: DetectorZAxis()
@@ -47,6 +46,9 @@
 .. module:: nicos_mlz.kws1.devices.lens
 .. autoclass:: Lenses()
 .. autoclass:: LensControl()
+
+.. module:: nicos_mlz.kws1.devices.params
+.. autoclass:: oneof_detector()
 
 .. module:: nicos_mlz.kws1.devices.polarizer
 .. autoclass:: PolSwitcher()

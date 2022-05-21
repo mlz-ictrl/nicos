@@ -26,22 +26,13 @@
 
 from nicos.core import MASTER, SIMULATION, Attach, ConfigurationError, \
     DeviceMixinBase, HasLimits, Moveable, MoveError, Override, Param, dictof, \
-    dictwith, multiReset, multiStop, none_or, oneof, status
+    dictwith, multiReset, multiStop, none_or, status
 from nicos.devices.abstract import MappedMoveable
 from nicos.devices.entangle import Motor as TangoMotor
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqSleep, \
     SequencerMixin
 from nicos.utils import num_sort
-
-
-class oneof_detector(oneof):
-    def __call__(self, val=None):
-        try:
-            return oneof.__call__(self, val)
-        except ValueError:
-            raise ValueError(
-                'preset %r does not exist for the current selector setting' %
-                val) from None
+from nicos_mlz.kws1.devices.params import oneof_detector
 
 
 class DetectorPosSwitcherMixin(DeviceMixinBase):
