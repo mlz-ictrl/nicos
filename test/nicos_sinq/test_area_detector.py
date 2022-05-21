@@ -32,6 +32,11 @@ from unittest.mock import patch
 
 import numpy
 import pytest
+
+pytest.importorskip('epics')
+pytest.importorskip('kafka')
+pytest.importorskip('graypy')
+
 from epics import PV
 
 from nicos.core import CommunicationError, status
@@ -40,9 +45,6 @@ from nicos.core.constants import LIVE
 from nicos_ess.devices.epics.status import ADKafkaStatus
 
 from test.nicos_ess.test_devices.utils import create_hs00
-
-pytest.importorskip('kafka')
-pytest.importorskip('graypy')
 
 
 session_setup = "sinq_area_detector"

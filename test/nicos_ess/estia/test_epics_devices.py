@@ -32,10 +32,11 @@ from unittest.mock import patch
 
 import pytest
 
+pytest.importorskip('epics')
+pytest.importorskip('kafka')
+
 from nicos.core import status
 from nicos.devices.epics import EpicsDevice
-
-pytest.importorskip('kafka')
 
 from nicos_ess.devices.epics.base import EpicsReadableEss
 from nicos_ess.estia.devices.pt100 import EpicsPT100Temperature, error_bits, \

@@ -25,6 +25,8 @@
 import pytest
 from numpy import pi, sqrt, tan
 
+pytest.importorskip('epics')
+
 session_setup = "sinq_amor"
 
 

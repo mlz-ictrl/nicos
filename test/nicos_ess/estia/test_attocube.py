@@ -27,6 +27,8 @@ from unittest.mock import patch
 
 import pytest
 
+pytest.importorskip('epics')
+
 from nicos.core import status
 from nicos.devices.epics import EpicsMoveable, EpicsReadable
 
