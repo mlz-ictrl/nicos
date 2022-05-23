@@ -9,12 +9,12 @@ tango_base = 'tango://antareshw.antares.frm2:10000/antares/'
 devices = dict()
 
 for bit in range(10):
-    indev = device('nicos_mlz.antares.devices.PartialDigitalInput',
+    indev = device('nicos_mlz.antares.devices.partialdio.PartialDigitalInput',
         description = '1bit Flex Input',
         tangodevice = tango_base + 'fzjdp_digital/FlexInput',
         startbit = bit,
     )
-    outdev = device('nicos_mlz.antares.devices.PartialDigitalOutput',
+    outdev = device('nicos_mlz.antares.devices.partialdio.PartialDigitalOutput',
         description = '1bit Flex Output',
         tangodevice = tango_base + 'fzjdp_digital/FlexOutput',
         startbit = bit,

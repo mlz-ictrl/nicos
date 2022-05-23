@@ -26,7 +26,7 @@ devices = dict(
         description = 'The camera\'s internal timer',
         tangodevice = tango_base + 'detector/limaccd',
     ),
-    neo = device('nicos_mlz.antares.devices.AntaresNeo',
+    neo = device('nicos_mlz.antares.devices.detector.AntaresNeo',
         description = 'Andor Neo sCMOS camera detector image',
         tangodevice = tango_base + 'detector/limaccd',
         hwdevice = tango_base + 'detector/neo',
@@ -53,7 +53,7 @@ devices = dict(
         images = ['neo'],
         timers = ['timer_neo'],
     ),
-    sharpness = device('nicos_mlz.antares.devices.Sharpness',
+    sharpness = device('nicos_mlz.antares.devices.detector.Sharpness',
         description = 'Sharpness signal from the detector image'
     ),
     det_sharp = device('nicos.devices.generic.Detector',

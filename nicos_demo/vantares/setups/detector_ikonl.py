@@ -31,7 +31,7 @@ devices = dict(
         images = ['ikonl'],
         timers = ['timer_ikonl'],
     ),
-    sharpness = device('nicos_mlz.antares.devices.Sharpness',
+    sharpness = device('nicos_mlz.antares.devices.detector.Sharpness',
         description = 'Sharpness signal from the detector image'
     ),
     det_sharp = device('nicos.devices.generic.Detector',
