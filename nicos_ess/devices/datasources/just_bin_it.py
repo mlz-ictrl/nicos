@@ -26,7 +26,7 @@ import time
 
 import kafka
 import numpy as np
-from streaming_data_types.histogram_hs00 import deserialise_hs00
+from streaming_data_types import deserialise_hs00, deserialise_hs01
 from streaming_data_types.utils import get_schema
 
 from nicos.core import ArrayDesc, InvalidValueError, Override, Param, Value, \
@@ -146,6 +146,12 @@ hist_type_by_name = {
 }
 
 
+deserialiser_by_schema = {
+    'hs00': deserialise_hs00,
+    'hs01': deserialise_hs01,
+}
+
+
 class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
     parameters = {
         'hist_topic': Param('The topic to listen on for the histogram data',
@@ -231,9 +237,10 @@ class JustBinItImage(KafkaSubscriber, ImageChannelMixin, PassiveChannel):
 
     def new_messages_callback(self, messages):
         for _, message in messages:
-            if get_schema(message) != 'hs00':
+            deserialiser = deserialiser_by_schema.get(get_schema(message))
+            if not deserialiser:
                 continue
-            hist = deserialise_hs00(message)
+            hist = deserialiser(message)
             info = json.loads(hist['info'])
             self.log.debug('received unique id = {}'.format(info['id']))
             if info['id'] != self._unique_id:
@@ -329,6 +336,9 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
                              type=int, default=5, unit='s',
                              userparam=False, settable=False,
                              ),
+        'hist_schema': Param('Which schema to use for histograms',
+                             type=oneof(*deserialiser_by_schema.keys()),
+                             default='hs00', userparam=False, settable=True,),
     }
 
     parameter_overrides = {
@@ -475,6 +485,7 @@ class JustBinItDetector(Detector, KafkaStatusHandler):
         config_base = {
             'cmd': 'config',
             'msg_id': identifier,
+            'output_schema': self.hist_schema,
             'histograms': histograms
         }
 
