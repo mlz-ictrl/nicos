@@ -34,7 +34,7 @@ from time import localtime, mktime, time as currenttime
 
 from nicos.clients.gui.panels import Panel
 from nicos.clients.gui.utils import DlgUtils, dialogFromUi, \
-    enumerateWithProgress, loadUi
+    enumerateWithProgress, loadUi, split_query
 from nicos.clients.gui.widgets.plotting import ArbitraryFitter, CosineFitter, \
     ExponentialFitter, GaussFitter, LinearFitter, LorentzFitter, \
     PearsonVIIFitter, PseudoVoigtFitter, SigmoidFitter, TcFitter, ViewPlot
@@ -1143,8 +1143,9 @@ class HistoryPanel(BaseHistoryWindow, Panel):
         return True
 
     def gethistory_callback(self, key, fromtime, totime):
-        return self.client.ask('gethistory', key, str(fromtime), str(totime),
-                               default=[])
+        return split_query(fromtime, totime, lambda fr, to:
+                           self.client.ask('gethistory', key, str(fr), str(to),
+                                           default=[]))
 
     def on_client_disconnected(self):
         self._disconnected_since = currenttime()
@@ -1216,7 +1217,8 @@ class StandaloneHistoryWindow(DlgUtils, BaseHistoryWindow, QMainWindow):
         self.setStatusBar(self.statusBar)
 
     def gethistory_callback(self, key, fromtime, totime):
-        return self.app.history(None, key, fromtime, totime)
+        return split_query(fromtime, totime, lambda fr, to:
+                           self.app.history(None, key, fr, to))
 
     def closeEvent(self, event):
         self.saveSettings(self.settings)
