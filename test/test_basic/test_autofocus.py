@@ -35,8 +35,6 @@ from nicos.utils.gammafilter import gam_rem_adp_log, scharr_filter
 
 from test.utils import approx
 
-pytest.importorskip('cv2')
-
 
 def test_sharpness():
     img = scipy.misc.ascent().astype(np.uint16)
