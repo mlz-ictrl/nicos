@@ -11,7 +11,7 @@ devices = dict(
         speed = 0.5,
         visibility = (),
     ),
-    # cad = device('nicos_mlz.puma.devices.PumaCoupledAxis',
+    # cad = device('nicos_mlz.puma.devices.CoupledAxis',
     #     description = 'cad - combined axis for multianalyzer',
     #     tt = 'att_cad',
     #     th = 'ath',

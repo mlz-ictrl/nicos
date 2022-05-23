@@ -11,14 +11,14 @@
 .. autoclass:: HoveringAxis()
 
 .. module:: nicos_mlz.mira.devices.cascade
-.. autoclass:: MiraXmlHandler()
-.. autoclass:: MiraXmlSink()
+.. autoclass:: XmlHandler()
+.. autoclass:: XmlSink()
 
 .. module:: nicos_mlz.mira.devices.center
 .. autoclass:: CrappySensor()
 
 .. module:: nicos_mlz.mira.devices.experiment
-.. autoclass:: MiraExperiment()
+.. autoclass:: Experiment()
 
 .. module:: nicos_mlz.mira.devices.iseg
 .. autoclass:: CascadeIsegHV()

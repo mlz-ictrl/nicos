@@ -3,21 +3,21 @@
 
 
 .. module:: nicos_mlz.sans1.devices.collimotor
-.. autoclass:: Sans1ColliSlit()
-.. autoclass:: Sans1ColliSwitcher()
-.. autoclass:: Sans1ColliCoder()
-.. autoclass:: Sans1ColliMotor()
-.. autoclass:: Sans1ColliMotorAllParams()
+.. autoclass:: Slit()
+.. autoclass:: Switcher()
+.. autoclass:: Coder()
+.. autoclass:: Motor()
+.. autoclass:: MotorAllParams()
 
 .. module:: nicos_mlz.sans1.devices.hv
 .. autoclass:: VoltageSwitcher()
 .. autoclass:: VoltageSupply()
-.. autoclass:: Sans1HV()
-.. autoclass:: Sans1HVOffDuration()
-.. autoclass:: Sans1ZMotor()
+.. autoclass:: HV()
+.. autoclass:: HVOffDuration()
+.. autoclass:: ZMotor()
 
 .. module:: nicos_mlz.sans1.devices.sample
-.. autoclass:: Sans1Sample()
+.. autoclass:: Sample()
 
 .. module:: nicos_mlz.sans1.devices.spinflipper
 .. autoclass:: SpinflipperPower()

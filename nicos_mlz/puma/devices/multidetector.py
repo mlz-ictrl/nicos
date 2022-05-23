@@ -39,7 +39,7 @@ from nicos.devices.abstract import CanReference
 from nicos.devices.generic.sequence import BaseSequencer, SeqDev, SeqMethod
 
 
-class PumaMultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
+class MultiDetectorLayout(CanReference, HasTimeout, BaseSequencer):
     """PUMA multidetector arrangement device.
 
     There are 11 detector/blades(collimator) combinations moving on a circle.

@@ -33,7 +33,7 @@ from nicos.core.errors import PositionError
 from nicos.core.utils import filterExceptions, multiReset, multiStatus
 
 
-class PumaCoupledAxis(HasPrecision, HasLimits, Moveable):
+class CoupledAxis(HasPrecision, HasLimits, Moveable):
     """PUMA multianalyzer coupled 'att' axis.
 
     This axis moves two axes and the movement of one axis is allowed only

@@ -12,7 +12,7 @@
 .. autoclass:: StackedAxis()
 
 .. module:: nicos_mlz.puma.devices.filter
-.. autoclass:: PumaFilter()
+.. autoclass:: Filter()
 
 .. module:: nicos_mlz.puma.devices.focus
 .. autoclass:: FocusAxis()
@@ -33,13 +33,13 @@
 .. autoclass:: MttAxis()
 
 .. module:: nicos_mlz.puma.devices.multianalyzer
-.. autoclass:: PumaMultiAnalyzer()
+.. autoclass:: MultiAnalyzer()
 
 .. module:: nicos_mlz.puma.devices.multidetector
-.. autoclass:: PumaMultiDetectorLayout()
+.. autoclass:: MultiDetectorLayout()
 
 .. module:: nicos_mlz.puma.devices.coupledaxis
-.. autoclass:: PumaCoupledAxis()
+.. autoclass:: CoupledAxis()
 
 .. module:: nicos_mlz.puma.devices.pgfilter
 .. autoclass:: PGFilter()
@@ -57,10 +57,10 @@
 .. autoclass:: SR7Shutter()
 
 .. module:: nicos_mlz.puma.devices.seccoll
-.. autoclass:: PumaSecCollBlockChanger()
-.. autoclass:: PumaSecCollLift()
-.. autoclass:: PumaSecCollPair()
-.. autoclass:: PumaSecondaryCollimator()
+.. autoclass:: SecCollBlockChanger()
+.. autoclass:: SecCollLift()
+.. autoclass:: SecCollPair()
+.. autoclass:: SecondaryCollimator()
 
 .. module:: nicos_mlz.puma.devices.virtual
 .. autoclass:: VirtualReferenceMotor()

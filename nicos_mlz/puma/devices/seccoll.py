@@ -49,7 +49,7 @@ class BlockingSequencer(BaseSequencer):
         self._hw_wait()  # blocking move due to use of tt and st device!
 
 
-class PumaSecCollBlockChanger(Moveable):
+class SecCollBlockChanger(Moveable):
     """Implement the block changing device of he PUMA secondary collimator.
 
     The mechanics sometimes is blocked and the movement as to done again
@@ -134,7 +134,7 @@ class PumaSecCollBlockChanger(Moveable):
         self._hw_wait()
 
 
-class PumaSecCollLift(HasTimeout, BlockingSequencer):
+class SecCollLift(HasTimeout, BlockingSequencer):
     """Implement the lift of the PUMA secondary collimator.
 
     This can be both a cover and a frame holder. Only control instances of
@@ -220,7 +220,7 @@ class PumaSecCollLift(HasTimeout, BlockingSequencer):
         return seq
 
 
-class PumaSecCollPair(HasTimeout, BlockingSequencer):
+class SecCollPair(HasTimeout, BlockingSequencer):
     """Implements a single collimator changer.
 
     It uses both a cover lift and a frame lift and automatically sets the
@@ -325,7 +325,7 @@ class PumaSecCollPair(HasTimeout, BlockingSequencer):
         return seq
 
 
-class PumaSecondaryCollimator(HasTimeout, BlockingSequencer):
+class SecondaryCollimator(HasTimeout, BlockingSequencer):
     """Secondary collimator of Puma.
 
     Uses a couple of single collimators to set the desired collimation as a

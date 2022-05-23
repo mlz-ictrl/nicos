@@ -37,7 +37,7 @@ from nicos.devices.abstract import CanReference
 from nicos.devices.generic.sequence import BaseSequencer, SeqMethod
 
 
-class PumaMultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
+class MultiAnalyzer(CanReference, IsController, HasTimeout, BaseSequencer):
     """PUMA multianalyzer device.
 
     The device combines 11 devices consisting of a rotation and a translation.

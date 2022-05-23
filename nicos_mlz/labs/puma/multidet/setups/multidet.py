@@ -505,7 +505,7 @@ devices = dict(
         maxtries = 2,
         visibility = vis,
     ),
-    med = device('nicos_mlz.puma.devices.PumaMultiDetectorLayout',
+    med = device('nicos_mlz.puma.devices.MultiDetectorLayout',
         description = 'PUMA multi detector',
         rotdetector = ['rd1', 'rd2', 'rd3', 'rd4', 'rd5', 'rd6', 'rd7', 'rd8',
                        'rd9', 'rd10', 'rd11'],

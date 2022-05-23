@@ -16,7 +16,7 @@ modules = ['nicos.commands.standard']
 includes = ['notifiers']
 
 devices = dict(
-    Exp = device('nicos_mlz.mira.devices.experiment.MiraExperiment',
+    Exp = device('nicos_mlz.mira.devices.experiment.Experiment',
         description = 'experiment object',
         sample = 'Sample',
         dataroot = '/data',

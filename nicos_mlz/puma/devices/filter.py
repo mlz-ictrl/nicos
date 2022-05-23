@@ -29,7 +29,7 @@ from nicos.core import Attach, HasTimeout, Moveable, Override, Param, \
     PositionError, Readable, oneof, status
 
 
-class PumaFilter(HasTimeout, Moveable):
+class Filter(HasTimeout, Moveable):
     """Class for the PUMA PG filter.
 
     Components:

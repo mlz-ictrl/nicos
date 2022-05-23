@@ -41,7 +41,7 @@ from nicos.utils import enableDisableFileItem
 __all__ = ('MCASink', 'CHNSink', 'CSVDataSink')
 
 
-class PGAASinkHandler(DataSinkHandler):
+class SinkHandler(DataSinkHandler):
     """Base data sink handler for the PGAA files."""
 
     atts = {
@@ -129,7 +129,7 @@ class PGAASinkHandler(DataSinkHandler):
         raise NotImplementedError('Implement "_write_file" in subclasses.')
 
 
-class MCASinkHandler(PGAASinkHandler):
+class MCASinkHandler(SinkHandler):
     """Data sink handler for the Ortec MCA files."""
 
     def _write_file(self, addinfo, livetime, truetime, spectrum, ecalslope,
@@ -178,7 +178,7 @@ class MCASinkHandler(PGAASinkHandler):
             pass
 
 
-class CHNSinkHandler(PGAASinkHandler):
+class CHNSinkHandler(SinkHandler):
     """Data sink handler for the channel data files."""
 
     def _write_file(self, addinfo, livetime, truetime, spectrum, ecalslope,
@@ -240,7 +240,7 @@ class CHNSinkHandler(PGAASinkHandler):
             pass
 
 
-class PGAASink(FileSink):
+class Sink(FileSink):
     """Write spectrum to file in specific format."""
 
     parameter_overrides = {
@@ -251,16 +251,16 @@ class PGAASink(FileSink):
                      '%(Filename)s']),
     }
 
-    handlerclass = PGAASinkHandler
+    handlerclass = SinkHandler
 
 
-class MCASink(PGAASink):
+class MCASink(Sink):
     """Write spectrum to file in Ortec format."""
 
     handlerclass = MCASinkHandler
 
 
-class CHNSink(PGAASink):
+class CHNSink(Sink):
     """Write spectrum to file in channel format."""
 
     handlerclass = CHNSinkHandler

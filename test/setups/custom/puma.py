@@ -81,7 +81,7 @@ devices = dict(
         abslimits = (0, 60),
         precision = 0.05,
     ),
-    cad = device('nicos_mlz.puma.devices.PumaCoupledAxis',
+    cad = device('nicos_mlz.puma.devices.CoupledAxis',
         tt = device('nicos.devices.generic.VirtualMotor',
             unit = 'deg',
             abslimits = (-117, 117),

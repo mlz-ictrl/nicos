@@ -32,7 +32,7 @@ devices = dict(
         abslimits = (0, 5000),
         unit = 'mm',
     ),
-    psd_xmlformat = device('nicos_mlz.mira.devices.cascade.MiraXmlSink',
+    psd_xmlformat = device('nicos_mlz.mira.devices.cascade.XmlSink',
         subdir = 'cascade',
         timer = 'timer',
         monitor = 'monitor1',

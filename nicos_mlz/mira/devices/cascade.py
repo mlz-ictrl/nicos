@@ -32,7 +32,7 @@ from nicos.devices.generic.detector import ActiveChannel
 from nicos.devices.tas.mono import Monochromator, from_k, to_k
 
 
-class MiraXmlHandler(SingleFileSinkHandler):
+class XmlHandler(SingleFileSinkHandler):
     filetype = 'xml'
     accept_final_images_only = True
 
@@ -86,9 +86,9 @@ class MiraXmlHandler(SingleFileSinkHandler):
 ''')
 
 
-class MiraXmlSink(ImageSink):
+class XmlSink(ImageSink):
 
-    handlerclass = MiraXmlHandler
+    handlerclass = XmlHandler
 
     attached_devices = {
         'timer':     Attach('Timer readout', ActiveChannel),

@@ -258,8 +258,8 @@ devices = dict(
         filenametemplate = ['%(pointcounter)08d_0000.raw'],
     ),
     nxsink = device('nicos_mlz.toftof.devices.datasinks.NexusSink',
-        templateclass = 'nicos_mlz.toftof.devices.datasinks.nexustemplate.TofTofNexusLegacyTemplate',
+        templateclass = 'nicos_mlz.toftof.devices.datasinks.nexustemplate.LegacyTemplate',
         filenametemplate = ['TOFTOF%(pointcounter)08d.nxs'],
     ),
-    livesink = device('nicos_mlz.toftof.devices.datasinks.ToftofLiveViewSink'),
+    livesink = device('nicos_mlz.toftof.devices.datasinks.LiveViewSink'),
 )

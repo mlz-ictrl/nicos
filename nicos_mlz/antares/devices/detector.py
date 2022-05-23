@@ -76,7 +76,7 @@ class UsesFastshutter(DeviceMixinBase):
             fastshutter.maw('open')
 
 
-class AntaresIkonLCCD(UsesFastshutter, Andor2LimaCCD):
+class IkonLCCD(UsesFastshutter, Andor2LimaCCD):
     """
     Extension to Andor2LimaCCD; Adds the ability to open a fast shutter before
     the acquisition.
@@ -90,7 +90,7 @@ class AntaresIkonLCCD(UsesFastshutter, Andor2LimaCCD):
         Andor2LimaCCD.doStart(self, **preset)
 
 
-class AntaresNeo(UsesFastshutter, Andor3LimaCCD):
+class Neo(UsesFastshutter, Andor3LimaCCD):
     """
     Extension to Andor3LimaCCD; Adds the ability to open a fast shutter before
     the acquisition.

@@ -1,6 +1,6 @@
 
 devices = dict(
-    med = device('nicos_mlz.puma.devices.PumaMultiDetectorLayout',
+    med = device('nicos_mlz.puma.devices.MultiDetectorLayout',
         rotdetector = ['rd1', 'rd2', 'rd3', 'rd4', 'rd5', 'rd6', 'rd7', 'rd8',
                        'rd9', 'rd10', 'rd11'],
         rotguide = ['rg1', 'rg2', 'rg3', 'rg4', 'rg5', 'rg6', 'rg7', 'rg8',

@@ -719,7 +719,7 @@ devices = dict(
         visibility = vis,
         backlash = -1,
     ),
-    man = device('nicos_mlz.puma.devices.PumaMultiAnalyzer',
+    man = device('nicos_mlz.puma.devices.MultiAnalyzer',
         description = 'PUMA multi analyzer',
         translations = ['ta1', 'ta2', 'ta3', 'ta4', 'ta5', 'ta6', 'ta7', 'ta8',
                         'ta9', 'ta10', 'ta11'],

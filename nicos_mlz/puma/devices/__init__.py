@@ -25,10 +25,10 @@
 from nicos_mlz.puma.devices.attenuator import Attenuator
 from nicos_mlz.puma.devices.collimator import Collimator
 from nicos_mlz.puma.devices.comb_ax import CombAxis
-from nicos_mlz.puma.devices.coupledaxis import PumaCoupledAxis
+from nicos_mlz.puma.devices.coupledaxis import CoupledAxis
 from nicos_mlz.puma.devices.datasinks import PolarizationFileSink
 from nicos_mlz.puma.devices.deflector import Deflector
-from nicos_mlz.puma.devices.filter import PumaFilter
+from nicos_mlz.puma.devices.filter import Filter
 from nicos_mlz.puma.devices.focus import FocusAxis
 from nicos_mlz.puma.devices.hecell import HeCellLifter
 from nicos_mlz.puma.devices.ipc import Coder, Motor, Motor1, ReferenceMotor
@@ -36,11 +36,11 @@ from nicos_mlz.puma.devices.kineticdetector import KineticDetector
 from nicos_mlz.puma.devices.maglock import MagLock
 from nicos_mlz.puma.devices.mchanger import Mchanger
 from nicos_mlz.puma.devices.mtt import MttAxis
-from nicos_mlz.puma.devices.multianalyzer import PumaMultiAnalyzer
-from nicos_mlz.puma.devices.multidetector import PumaMultiDetectorLayout
+from nicos_mlz.puma.devices.multianalyzer import MultiAnalyzer
+from nicos_mlz.puma.devices.multidetector import MultiDetectorLayout
 from nicos_mlz.puma.devices.pgfilter import PGFilter
-from nicos_mlz.puma.devices.seccoll import PumaSecCollBlockChanger, \
-    PumaSecCollLift, PumaSecCollPair, PumaSecondaryCollimator
+from nicos_mlz.puma.devices.seccoll import SecCollBlockChanger, SecCollLift, \
+    SecCollPair, SecondaryCollimator
 from nicos_mlz.puma.devices.senseswitch import SenseSwitch
 from nicos_mlz.puma.devices.sh_cylinder import SH_Cylinder
 from nicos_mlz.puma.devices.spectro import PUMA

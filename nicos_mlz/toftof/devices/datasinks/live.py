@@ -26,10 +26,11 @@
 
 import numpy
 
-from nicos.devices.datasinks.special import LiveViewSink, LiveViewSinkHandler
+from nicos.devices.datasinks.special import LiveViewSink as BaseLiveViewSink, \
+    LiveViewSinkHandler as BaseLiveViewSinkHandler
 
 
-class ToftofLiveViewSinkHandler(LiveViewSinkHandler):
+class LiveViewSinkHandler(BaseLiveViewSinkHandler):
 
     def processArrays(self, result):
         data = result[1][0]
@@ -46,7 +47,7 @@ class ToftofLiveViewSinkHandler(LiveViewSinkHandler):
         }
 
 
-class ToftofLiveViewSink(LiveViewSink):
+class LiveViewSink(BaseLiveViewSink):
     """A data sink that sends images to attached clients for live preview."""
 
-    handlerclass = ToftofLiveViewSinkHandler
+    handlerclass = LiveViewSinkHandler

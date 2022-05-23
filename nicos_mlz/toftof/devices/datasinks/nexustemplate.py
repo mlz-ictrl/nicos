@@ -39,7 +39,7 @@ seconds = NXAttribute('s', 'string')
 signal = NXAttribute(1, 'int64')
 
 
-class TofTofNexusLegacyTemplate(NexusTemplateProvider):
+class LegacyTemplate(NexusTemplateProvider):
 
     def getTemplate(self):
         return {

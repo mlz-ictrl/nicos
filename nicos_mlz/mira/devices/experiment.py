@@ -26,15 +26,15 @@
 
 from nicos.core import Override
 
-from nicos_mlz.devices.experiment import Experiment
+from nicos_mlz.devices.experiment import Experiment as MLZExperiment
 
 
-class MiraExperiment(Experiment):
+class Experiment(MLZExperiment):
     """Experiment object customization for MIRA.
 
     Currently only the template path is set by default.
     """
 
     parameter_overrides = {
-        'templates':   Override(default='template'),
+        'templates': Override(default='template'),
     }

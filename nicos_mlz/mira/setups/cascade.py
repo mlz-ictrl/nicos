@@ -77,7 +77,7 @@ devices = dict(
     ),
     psd_liveview = device('nicos.devices.datasinks.LiveViewSink',
     ),
-    psd_xmlformat = device('nicos_mlz.mira.devices.cascade.MiraXmlSink',
+    psd_xmlformat = device('nicos_mlz.mira.devices.cascade.XmlSink',
         subdir = 'cascade',
         timer = 'timer',
         monitor = 'mon2',

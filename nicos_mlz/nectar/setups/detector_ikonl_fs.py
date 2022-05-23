@@ -19,7 +19,7 @@ devices = dict(
         images = ['ccd'],
         timers = ['timer'],
     ),
-    ccd = device('nicos_mlz.antares.devices.detector.AntaresIkonLCCD',
+    ccd = device('nicos_mlz.antares.devices.detector.IkonLCCD',
         description = 'The CCD detector',
         tangodevice = tango_base + 'detector/limaccd',
         hwdevice = tango_base + 'detector/ikonl',

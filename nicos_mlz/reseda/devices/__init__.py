@@ -26,7 +26,7 @@ from nicos_mlz.reseda.devices.armcontrol import ArmController
 from nicos_mlz.reseda.devices.astrium import SelectorLambda, \
     SelectorLambdaSpread
 from nicos_mlz.reseda.devices.cbox import CBoxResonanceFrequency
-from nicos_mlz.reseda.devices.datasinks import ResedaHDF5Sink
+from nicos_mlz.reseda.devices.datasinks import HDF5Sink
 from nicos_mlz.reseda.devices.experiment import Experiment
 from nicos_mlz.reseda.devices.regulator import Regulator
 from nicos_mlz.reseda.devices.rte1104 import RTE1104, \

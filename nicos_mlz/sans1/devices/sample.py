@@ -29,7 +29,7 @@ from nicos.core import Override
 from nicos.devices.sample import Sample as NicosSample
 
 
-class Sans1Sample(NicosSample):
+class Sample(NicosSample):
     """A special device to represent a sample.
 
     Represent a set of samples with a currently activated one.

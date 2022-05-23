@@ -34,7 +34,7 @@ from nicos.devices.datasinks import FileSink
 from nicos.utils import toAscii
 
 
-class ResedaHDF5DataFile(DataFileBase, h5py.File):
+class HDF5DataFile(DataFileBase, h5py.File):
     def __init__(self, shortpath, filepath):
         DataFileBase.__init__(self, shortpath, filepath)
         h5py.File.__init__(self, filepath, 'w')
@@ -70,7 +70,7 @@ class ResedaHDF5DataFile(DataFileBase, h5py.File):
                                                   % subst, data=data)
 
 
-class ResedaHDF5SinkHandler(DataSinkHandler):
+class HDF5SinkHandler(DataSinkHandler):
 
     def __init__(self, sink, dataset, detector):
         DataSinkHandler.__init__(self, sink, dataset, detector)
@@ -88,7 +88,7 @@ class ResedaHDF5SinkHandler(DataSinkHandler):
             self.manager.assignCounter(self.dataset)
             self.sink._current_scan_file = self.manager.createDataFile(
                 self.dataset, self.sink.filenametemplate, self.sink.subdir,
-                fileclass=ResedaHDF5DataFile)
+                fileclass=HDF5DataFile)
             self.current_file.subscan_group_tmpl = self.sink.subscangrouptmpl
             self.current_file.scalars_tmpl = self.sink.scalarstmpl
             self.current_file.image_tmpl = self.sink.imagetmpl
@@ -140,7 +140,7 @@ class ResedaHDF5SinkHandler(DataSinkHandler):
                 toAscii('%s %s' % (strvalue, unit)).strip()
 
 
-class ResedaHDF5Sink(FileSink):
+class HDF5Sink(FileSink):
     parameters = {
         'subscangrouptmpl': Param('Name of the sub scan specific group',
                                   type=str, default='echo_%(subscancounter)d'),
@@ -157,7 +157,7 @@ class ResedaHDF5Sink(FileSink):
         'settypes': Override(default=[SCAN, SUBSCAN]),
     }
 
-    handlerclass = ResedaHDF5SinkHandler
+    handlerclass = HDF5SinkHandler
 
     def doInit(self, mode):
         self._current_scan_file = None
