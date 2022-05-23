@@ -12,7 +12,7 @@ excludes = ['detector']
 includes = ['source']
 
 devices = dict(
-    Sample = device('nicos_mlz.sans1.devices.sans1_sample.Sans1Sample',
+    Sample = device('nicos_mlz.sans1.devices.sample.Sans1Sample',
         description = 'sample object',
     ),
     sans = device('nicos.devices.instrument.Instrument',

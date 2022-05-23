@@ -16,7 +16,7 @@
 .. autoclass:: Sans1HVOffDuration()
 .. autoclass:: Sans1ZMotor()
 
-.. module:: nicos_mlz.sans1.devices.sans1_sample
+.. module:: nicos_mlz.sans1.devices.sample
 .. autoclass:: Sans1Sample()
 
 .. module:: nicos_mlz.sans1.devices.spinflipper

@@ -16,7 +16,7 @@ modules = ['nicos.commands.standard']
 includes = ['notifiers', 'reactor', 'nl4a']
 
 devices = dict(
-    Sample = device('nicos_mlz.sans1.devices.sans1_sample.Sans1Sample',
+    Sample = device('nicos_mlz.sans1.devices.sample.Sans1Sample',
         description = 'sample',
     ),
     VSANS1 = device('nicos.devices.instrument.Instrument',

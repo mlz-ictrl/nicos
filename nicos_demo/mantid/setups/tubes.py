@@ -16,7 +16,7 @@ devices = dict(
         facility = 'ISIS demo instruments',
         idf = 'SANS2D_Definition_Tubes.xml'
     ),
-    sample = device('nicos_mlz.sans1.devices.sans1_sample.Sans1Sample',
+    sample = device('nicos_mlz.sans1.devices.sample.Sans1Sample',
         description = 'sample object',
     ),
     det_z = device('nicos.devices.generic.VirtualMotor',
