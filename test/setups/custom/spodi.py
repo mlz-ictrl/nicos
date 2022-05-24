@@ -66,9 +66,9 @@ devices = dict(
         maxage = 86400,
         liveinterval = 5,
     ),
-    spodisink = device('nicos_mlz.spodi.devices.CaressHistogram',
+    spodisink = device('nicos_mlz.spodi.datasinks.CaressHistogram',
         filenametemplate = ['m1%(pointcounter)08d.ctxt'],
         detectors = ['adet'],
     ),
-    spodilivesink = device('nicos_mlz.spodi.devices.LiveViewSink'),
+    spodilivesink = device('nicos_mlz.spodi.datasinks.LiveViewSink'),
 )

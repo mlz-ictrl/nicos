@@ -22,8 +22,6 @@
 #
 # *****************************************************************************
 
-from nicos_mlz.spodi.devices.datasinks import CaressHistogram, \
-    CaressHistogramReader, LiveViewSink
 from nicos_mlz.spodi.devices.detector import Detector
 from nicos_mlz.spodi.devices.samplechanger import SampleChanger
 from nicos_mlz.spodi.devices.virtual import VirtualImage

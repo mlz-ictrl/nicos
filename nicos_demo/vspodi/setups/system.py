@@ -49,11 +49,11 @@ devices = dict(
     filesink = device('nicos.devices.datasinks.AsciiScanfileSink'),
     conssink = device('nicos.devices.datasinks.ConsoleScanSink'),
     daemonsink = device('nicos.devices.datasinks.DaemonSink'),
-    spodisink = device('nicos_mlz.spodi.devices.CaressHistogram',
+    spodisink = device('nicos_mlz.spodi.datasinks.CaressHistogram',
         filenametemplate = ['m1%(pointcounter)08d.ctxt'],
         detectors = ['adet'],
     ),
-    spodilivesink = device('nicos_mlz.spodi.devices.LiveViewSink',
+    spodilivesink = device('nicos_mlz.spodi.datasinks.LiveViewSink',
         correctionfile='nicos_mlz/spodi/data/detcorrection.dat'
     ),
     Space = device('nicos.devices.generic.FreeSpace',

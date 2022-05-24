@@ -10,6 +10,6 @@ Detector
 Data formats
 ------------
 
-.. module:: nicos_mlz.spodi.devices.datasinks
+.. module:: nicos_mlz.spodi.datasinks
 .. autoclass:: CaressHistogram()
 .. autoclass:: LiveViewSink()

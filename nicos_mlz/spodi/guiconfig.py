@@ -67,5 +67,5 @@ tools = [
 ]
 
 options = {
-    'reader_classes': ['nicos_mlz.spodi.devices.CaressHistogramReader'],
+    'reader_classes': ['nicos_mlz.spodi.datasinks.CaressHistogramReader'],
 }
