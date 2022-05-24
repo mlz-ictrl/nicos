@@ -24,5 +24,5 @@
 
 """STRESSI specific data sinks."""
 
-from nicos_mlz.stressi.devices.datasinks.caresssink import CaressScanfileSink
-from nicos_mlz.stressi.devices.datasinks.yamlsink import YamlDatafileSink
+from nicos_mlz.stressi.datasinks.caresssink import CaressScanfileSink
+from nicos_mlz.stressi.datasinks.yamlsink import YamlDatafileSink

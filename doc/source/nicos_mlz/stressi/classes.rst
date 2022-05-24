@@ -11,7 +11,7 @@ Slits
 Data formats
 ------------
 
-.. module:: nicos_mlz.stressi.devices.datasinks
+.. module:: nicos_mlz.stressi.datasinks
 .. autoclass:: CaressScanfileSink()
 .. autoclass:: YamlDatafileSink()
 
