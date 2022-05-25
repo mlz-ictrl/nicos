@@ -26,7 +26,7 @@
 
 """LoKI Script Builder Panel."""
 import os.path as osp
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from functools import partial
 
 from nicos.clients.flowui.panels import get_icon
@@ -43,6 +43,9 @@ from nicos_ess.utilities.csv_utils import export_table_to_csv, \
     import_table_from_csv
 
 TABLE_QSS = 'alternate-background-color: aliceblue;'
+
+
+Column = namedtuple('Column', ['header', 'optional', 'header_style'])
 
 
 class LokiScriptBuilderPanel(PanelBase):
@@ -63,19 +66,23 @@ class LokiScriptBuilderPanel(PanelBase):
         self.window = parent
         self.duration_options = ['Mevents', 'seconds', 'frames']
 
-        self.permanent_columns = {
-            'position': 'Position',
-            'sample': 'Sample',
-            'thickness': 'Thickness\n(mm)',
-            'trans_duration': 'TRANS Duration',
-            'sans_duration': 'SANS Duration'
-        }
-
-        self.optional_columns = {
-            'temperature': 'Temperature',
-            'pre-command': 'Pre-command',
-            'post-command': 'Post-command',
-        }
+        self.columns = OrderedDict({
+            'position': Column('Position', False, QHeaderView.ResizeToContents),
+            'sample': Column('Sample', False, QHeaderView.Stretch),
+            'thickness': Column('Thickness\n(mm)', False,
+                                QHeaderView.ResizeToContents),
+            'trans_duration': Column('TRANS Duration', False,
+                                     QHeaderView.ResizeToContents),
+            'sans_duration': Column('SANS Duration', False,
+                                    QHeaderView.ResizeToContents),
+            'temperature': Column('Temperature', True,
+                                  QHeaderView.ResizeToContents),
+            'pre-command': Column('Pre-command', True,
+                                  QHeaderView.ResizeToContents),
+            'post-command': Column('Post-command', True,
+                                   QHeaderView.ResizeToContents),
+        })
+        self.columns_headers = list(self.columns.keys())
 
         self.optional_columns_to_checkbox = {
             'temperature': self.chkShowTempColumn,
@@ -86,8 +93,6 @@ class LokiScriptBuilderPanel(PanelBase):
         # Set up trans order combo-box
         self.comboTransOrder.addItems(self._available_trans_options.keys())
 
-        self.columns_in_order = list(self.permanent_columns.keys())
-        self.columns_in_order.extend(self.optional_columns.keys())
         self.last_save_location = None
         self._init_table_panel()
         self._create_actions()
@@ -150,15 +155,9 @@ class LokiScriptBuilderPanel(PanelBase):
         self.verticalLayout.insertWidget(0, bar)
 
     def _init_table_panel(self):
-        headers = [
-            self.permanent_columns[name]
-            if name in self.permanent_columns
-            else self.optional_columns[name]
-            for name in self.columns_in_order
-        ]
+        headers = [column.header for column in self.columns.values()]
 
-        mappings = {v: k for k, v in self.permanent_columns.items()}
-        mappings.update({v: k for k, v in self.optional_columns.items()})
+        mappings = {v.header: k for k, v in self.columns.items()}
         for option in self.duration_options:
             mappings[f'TRANS Duration\n({option})'] = 'trans_duration'
             mappings[f'SANS Duration\n({option})'] = 'sans_duration'
@@ -178,14 +177,12 @@ class LokiScriptBuilderPanel(PanelBase):
         self._link_duration_combobox_to_column('trans_duration',
                                                self.comboTransDurationType)
 
-        self.tableView.horizontalHeader().setStretchLastSection(True)
-        self.tableView.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Stretch)
         self.tableView.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
-        self.tableView.resizeColumnsToContents()
+        for i, column in enumerate(self.columns.values()):
+            self.tableView.horizontalHeader().setSectionResizeMode(
+                i, column.header_style)
         self.tableView.setAlternatingRowColors(True)
         self.tableView.setStyleSheet(TABLE_QSS)
-
         self._create_keyboard_shortcuts()
 
     def _init_right_click_context_menu(self):
@@ -230,14 +227,14 @@ class LokiScriptBuilderPanel(PanelBase):
 
             headers_from_file, data = import_table_from_csv(filename)
 
-            if not set(headers_from_file).issubset(set(self.columns_in_order)):
+            if not set(headers_from_file).issubset(set(self.columns_headers)):
                 raise AttributeError('incorrect headers in file')
             # Clear existing table before populating from file
             self.model.clear()
             self._fill_table(headers_from_file, data)
 
             for name in headers_from_file:
-                if name in self.optional_columns:
+                if name in self.columns and self.columns[name].optional:
                     self.optional_columns_to_checkbox[name].setChecked(True)
         except Exception as error:
             self.showError(f'Could not load selected file:  {error}')
@@ -277,8 +274,8 @@ class LokiScriptBuilderPanel(PanelBase):
 
     def is_data_in_hidden_columns(self):
         optional_indices = [index for index, element in
-                            enumerate(self.columns_in_order)
-                            if element in self.optional_columns]
+                            enumerate(self.columns.values())
+                            if element.optional]
         # Transform table_data to allow easy access to columns like data[0]
         data = list(zip(*self.model.table_data))
         return any(
@@ -287,8 +284,7 @@ class LokiScriptBuilderPanel(PanelBase):
              if self.tableView.isColumnHidden(column)))
 
     def _extract_headers_from_table(self):
-        headers = [column
-                   for idx, column in enumerate(self.columns_in_order)
+        headers = [column for idx, column in enumerate(self.columns_headers)
                    if not self.tableView.isColumnHidden(idx)]
         return headers
 
@@ -347,7 +343,7 @@ class LokiScriptBuilderPanel(PanelBase):
         return lowest, highest
 
     def _get_hidden_column_names(self):
-        return [name for idx, name in enumerate(self.columns_in_order)
+        return [name for idx, name in enumerate(self.columns_headers)
                 if self.tableView.isColumnHidden(idx)]
 
     def _link_duration_combobox_to_column(self, column_name, combobox):
@@ -365,7 +361,7 @@ class LokiScriptBuilderPanel(PanelBase):
         hidden_column_names = self._get_hidden_column_names()
         # Row will contribute to script only if all permanent columns filled
         raw_data = [dict(x) for x in self.model.raw_data
-                    if all(map(x.get, self.permanent_columns.keys()))]
+                    if all(map(x.get, self.columns.keys()))]
         for row in raw_data:
             for key in hidden_column_names:
                 if key in row:
@@ -407,17 +403,17 @@ class LokiScriptBuilderPanel(PanelBase):
             self._hide_column(column_name)
 
     def _hide_column(self, column_name):
-        column_number = self.columns_in_order.index(column_name)
+        column_number = self.columns_headers.index(column_name)
         self.tableView.setColumnHidden(column_number, True)
 
     def _show_column(self, column_name):
-        column_number = self.columns_in_order.index(column_name)
+        column_number = self.columns_headers.index(column_name)
         self.tableView.setColumnHidden(column_number, False)
 
     def _on_duration_type_changed(self, column_name, value):
-        column_number = self.columns_in_order.index(column_name)
+        column_number = self.columns_headers.index(column_name)
         self._set_column_title(column_number,
-                               f'{self.permanent_columns[column_name]}'
+                               f'{self.columns[column_name].header}'
                                f'\n({value})')
 
     def _set_column_title(self, index, title):
