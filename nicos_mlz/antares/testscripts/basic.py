@@ -1,6 +1,7 @@
 # pylint: skip-file
 
 # test: needs = astropy
+# test: needs = opencv
 # test: setups = detbox_blackbox
 # test: setupcode = SetDetectors(det_ikonl)
 
