@@ -48,14 +48,9 @@ Safety System
 Detector
 --------
 
-.. module:: nicos_mlz.toftof.devices.tofcounter
-
-.. autoclass:: Monitor()
-.. autoclass:: Timer()
-.. autoclass:: Image()
-
 .. module:: nicos_mlz.toftof.devices.detector
 
+.. autoclass:: TOFTOFChannel()
 .. autoclass:: Detector()
 
 .. module:: nicos_mlz.toftof.devices.toni

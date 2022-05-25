@@ -599,7 +599,6 @@ Currently NICOS supports the following list of common mixin classes:
 
 .. autoclass:: AutoDevice()
 
-
 .. currentmodule:: nicos.devices.abstract
 
 

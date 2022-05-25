@@ -10,12 +10,12 @@
 .. autoclass:: EpicsTimerActiveChannel()
 .. autoclass:: EpicsDetector()
 
-.. module:: nicos_ess.devices.epics.area_detector
+.. module:: nicos_sinq.devices.epics.area_detector
 .. autoclass:: EpicsAreaDetectorTimerPassiveChannel()
 .. autoclass:: EpicsAreaDetector()
 .. autoclass:: ADKafkaPlugin()
 
-.. module:: nicos_ess.devices.kafka.area_detector
+.. module:: nicos_sinq.devices.kafka.area_detector
 .. autoclass:: ADKafkaImageDetector()
 .. autoclass:: HistogramFlatbuffersDeserializer()
 

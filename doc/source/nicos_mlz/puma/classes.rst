@@ -64,9 +64,9 @@
 
 .. module:: nicos_mlz.puma.devices.virtual
 .. autoclass:: VirtualReferenceMotor()
-.. autoclass:: DigitalInput()
-.. autoclass:: LogoFeedBack()
-.. autoclass:: DigitalOutput()
+.. autoclass:: VirtualDigitalInput()
+.. autoclass:: VirtualLogoFeedback()
+.. autoclass:: VirtualDigitalOutput()
 
 .. module:: nicos_mlz.puma.devices.collimator
 .. autoclass:: Collimator()

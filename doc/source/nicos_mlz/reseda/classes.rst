@@ -30,6 +30,6 @@
 Data file formats
 -----------------
 
-.. module:: nicos_mlz.reseda.devices.hdf5
+.. module:: nicos_mlz.reseda.devices.datasinks
 .. autoclass:: ResedaHDF5DataFile()
 .. autoclass:: ResedaHDF5Sink()

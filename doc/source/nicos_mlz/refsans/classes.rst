@@ -64,7 +64,6 @@
 .. autoclass:: Sample()
 
 .. module:: nicos_mlz.refsans.devices.analog
-.. autoclass:: AnalogCalc()
 .. autoclass:: Accuracy()
 
 .. module:: nicos_mlz.refsans.devices.det_yoke_enc

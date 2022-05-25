@@ -3,7 +3,7 @@
 
 .. module:: nicos_mlz.pgaa.devices.pilz
 .. autoclass:: Switch()
-.. autoclass:: Attenuator()
+.. autoclass:: AttenuatorSwitch()
 
 .. module:: nicos_mlz.pgaa.devices.dspec
 .. autoclass:: DSPec()
@@ -13,9 +13,6 @@
 
 .. module:: nicos_mlz.pgaa.devices.beamfocus
 .. autoclass:: BeamFocus()
-
-.. module:: nicos_mlz.pgaa.devices.ellcol
-.. autoclass:: EllCol()
 
 .. module:: nicos_mlz.pgaa.devices.samplechanger
 .. autoclass:: SampleChanger()
