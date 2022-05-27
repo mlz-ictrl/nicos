@@ -16,3 +16,4 @@ standard interface to NICOS.
    frm2
    astrium
    lima
+   cascade

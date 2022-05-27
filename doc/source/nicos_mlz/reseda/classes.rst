@@ -14,9 +14,6 @@
 .. module:: nicos_mlz.reseda.devices.regulator
 .. autoclass:: Regulator()
 
-.. module:: nicos_mlz.reseda.devices.cascade
-.. autoclass:: CascadeDetector()
-
 .. module:: nicos_mlz.reseda.devices.scandet
 .. autoclass:: ScanningDetector()
 
