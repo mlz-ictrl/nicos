@@ -142,7 +142,6 @@ class LokiSampleHolderPanel(PanelBase):
             self._in_edit_mode = False
             self._clear_data()
         self._register_listeners()
-        self._populate_data()
         self._read_mode()
 
     def _register_listeners(self):
@@ -160,10 +159,10 @@ class LokiSampleHolderPanel(PanelBase):
         if self._dev_name and key.startswith(self._dev_name):
             if key.endswith('/number_cells'):
                 self.number_cells = value
-                self._populate_data()
+                self._update_cartridges()
             if key.endswith('/cartridges'):
                 self.cartridges = value
-                self._populate_data()
+                self._update_cartridges()
             if key.endswith('/cell_spacings'):
                 self.cell_spacings = value
             if key.endswith('/mapping'):
@@ -198,7 +197,8 @@ class LokiSampleHolderPanel(PanelBase):
         if self._in_edit_mode and not viewonly:
             self._edit_mode()
         elif not viewonly:
-            self._populate_data()
+            self._update_cartridges()
+            self._update_samples()
             self._read_mode()
 
     def set_samples_viewonly(self, viewonly):
@@ -284,7 +284,7 @@ class LokiSampleHolderPanel(PanelBase):
             button.clicked.connect(partial(self.on_calculate_clicked,
                                            combo, table))
 
-    def _populate_data(self):
+    def _update_cartridges(self):
         if self._in_edit_mode or not self._dev_name:
             return
         if self.cartridges and self.number_cells:
@@ -443,7 +443,8 @@ class LokiSampleHolderPanel(PanelBase):
     def on_cancelButton_clicked(self):
         self.cancelButton.setFocus(True)
         self._in_edit_mode = False
-        self._populate_data()
+        self._update_cartridges()
+        self._update_samples()
         self._read_mode()
 
     def _init_right_click_context_menu(self):

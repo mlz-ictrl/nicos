@@ -55,11 +55,18 @@ class SamplesTableModel(LokiScriptModel):
 
     def extract_samples(self):
         samples = []
+        sample_names = {}
         for index, (pos, sample) in enumerate(
                 zip(self.positions, self.raw_data)):
             if sample:
-                if not sample.get('Name', ''):
+                name = sample.get('Name', '').strip()
+                if not name:
                     raise ConfigurationError(f'Position {pos} requires a name.')
+                if name in sample_names:
+                    raise ConfigurationError('Sample names must be unique: '
+                                             f'"{name}" is already used for '
+                                             f'{sample_names[name]}')
+                sample_names[name] = pos
                 details = {self.columns.get(k, k): v
                            for k, v in sample.items()}
                 details['position'] = pos
