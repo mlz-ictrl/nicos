@@ -18,8 +18,5 @@
 .. module:: nicos_mlz.kws3.devices.sample
 .. autoclass:: SamplePos()
 
-.. module:: nicos_mlz.kws3.devices.selector
-.. autoclass:: SelectorSpeed()
-
 .. module:: nicos_mlz.kws3.devices.yamlformat
 .. autoclass:: YAMLFileSink()
