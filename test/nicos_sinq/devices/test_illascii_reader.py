@@ -24,8 +24,9 @@
 import time
 from os.path import basename
 
-from nicos_sinq.devices.illasciisink import ILLAsciiScanfileReader
 from nicos.utils import findResource
+
+from nicos_sinq.devices.illasciisink import ILLAsciiScanfileReader
 
 
 def test_tasp_scan_data():
