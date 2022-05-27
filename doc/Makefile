@@ -46,6 +46,7 @@ clean:
 	-rm -rf source/auto/*
 	-rm -rf source/custom/*/setups
 	-rm -rf source/nicos_*/*/setups/
+	-rm -rf source/nicos_*/labs/*/setups/
 
 codedoc:
 	-mkdir -p source/auto

@@ -22,9 +22,9 @@
 #
 # *****************************************************************************
 
-import os
 import re
 from os import path
+from pathlib import Path
 
 from docutils import nodes
 from docutils.parsers.rst import Directive
@@ -199,7 +199,8 @@ class SetupDirective(Directive):
     def _buildStartupcodeBlock(self, setupInfo):
         if not setupInfo['startupcode'].strip():
             return ''
-        setupInfo['startupcode'] = '\n    '.join(prepare_docstring(setupInfo['startupcode']))
+        setupInfo['startupcode'] = '\n    '.join(
+            prepare_docstring(setupInfo['startupcode']))
         return RST_STARTUPCODE % setupInfo
 
     def _buildDevicesBlock(self, setupInfo):
@@ -221,7 +222,8 @@ class SetupDirective(Directive):
             rst.append(devName)
             rst.append('~' * len(devName))
             rst.append('')
-            rst.append('Device class: :class:`%s.%s`' % (klass.__module__, klass.__name__))
+            rst.append('Device class: :class:`%s.%s`' % (
+                klass.__module__, klass.__name__))
             rst.append('')
 
             if 'description' in devParams:
@@ -323,20 +325,19 @@ class SetupDirective(Directive):
 
 
 def _getListOfFiles(root, suffix):
-    if not path.isdir(root):
-        return set()
+    result = set()
+    if not root.is_dir():
+        return result
 
-    result = []
-    for entry in os.listdir(root):
-        fullEntry = path.join(root, entry)
-        if path.isdir(fullEntry):
-            for subentry in os.listdir(path.join(root, entry)):
-                if subentry.endswith(suffix):
-                    result.append(path.join(entry, subentry)[:-len(suffix)])
-        elif entry.endswith(suffix):
-            result.append(entry[:-len(suffix)])
+    for fullEntry in root.iterdir():
+        if fullEntry.is_dir():
+            for subentry in fullEntry.iterdir():
+                if subentry.suffix == suffix:
+                    result.add('%s/%s' % (fullEntry.name, subentry.stem))
+        elif fullEntry.suffix == suffix:
+            result.add(fullEntry.stem)
 
-    return set(result)
+    return result
 
 
 def setupdoc_builder_inited(app):
@@ -348,20 +349,26 @@ def setupdoc_builder_inited(app):
     if not app.tags.has('customdoc'):
         return
 
-    base_dir = path.join(app.builder.srcdir,
-                         app.config.setupdoc_setup_base_dir)
+    base_dir = Path(app.builder.srcdir).joinpath(
+        app.config.setupdoc_setup_base_dir).resolve()
 
-    for facility in os.listdir(app.builder.srcdir):
-        if not facility.startswith('nicos_'):
+    # Check which facilities is in doc configured
+    for facility_dir in Path(app.builder.srcdir).glob('nicos_*'):
+        if not facility_dir.is_dir():
             continue
-        facilitydir = path.join(app.builder.srcdir, facility)
-        if not path.isdir(facilitydir):
-            continue
-        for instr in os.listdir(facilitydir):
-            setup_dir = path.join(base_dir, facility, instr, 'setups')
-            if not path.isdir(setup_dir):
+        facility = facility_dir.name
+        # Find all 'setups' directories facility source tree
+        for setup_dir in base_dir.joinpath(facility).rglob('setups'):
+            if not setup_dir.is_dir():
                 continue
-            dest_dir = path.join(facilitydir, instr, 'setups')
+            instr = setup_dir.relative_to(base_dir.joinpath(facility)).parent
+            instr_dir = facility_dir.joinpath(instr)
+            if not instr_dir.is_dir():
+                continue
+            if not any(instr_dir.iterdir()):  # directory is empty
+                instr_dir.rmdir()
+                continue
+            dest_dir = facility_dir.joinpath(instr, 'setups')
             setups = _getListOfFiles(setup_dir, '.py')
             rstfiles = _getListOfFiles(dest_dir, '.rst')
 
@@ -369,16 +376,17 @@ def setupdoc_builder_inited(app):
             deleted = rstfiles - setups
 
             for setup in deleted:
-                os.unlink(path.join(dest_dir, setup + '.rst'))
+                Path(dest_dir).joinpath(setup + '.rst').unlink()
 
             for setup in added:
-                rstname = path.join(dest_dir, setup + '.rst')
+                rstpath = Path(dest_dir).joinpath(setup + '.rst')
                 try:
-                    os.makedirs(path.dirname(rstname))
+                    Path(rstpath.parent).mkdir(
+                        mode=0o755, parents=True, exist_ok=True)
                 except OSError:
                     # ignore already existent dirs
                     pass
-                with open(rstname, 'w', encoding='utf-8') as f:
+                with rstpath.open('w', encoding='utf-8') as f:
                     f.write(RST_SETUP_FILE %
                             {'facility': facility, 'instr': instr,
                              'setupname': setup})
@@ -393,4 +401,4 @@ def setup(app):
 
     app.connect('builder-inited', setupdoc_builder_inited)
     return {'parallel_read_safe': True,
-            'version': '0.1.0'}
+            'version': '0.2.0'}
