@@ -25,23 +25,22 @@
 # *****************************************************************************
 
 """LoKI Script Model."""
+import re
 
-import copy
-
+from nicos.core import ConfigurationError
 from nicos.guisupport.qt import Qt
-from nicos.guisupport.tablemodel import TableModel as BasicTableModel
+from nicos.guisupport.tablemodel import TableModel
+
+SAMPLE_INFO_INDEX = 1   # The column where the sample info is displayed
 
 
-class LokiScriptModel(BasicTableModel):
+class LokiScriptModel(TableModel):
     def __init__(self, headings, mappings=None, num_rows=25):
-        BasicTableModel.__init__(self, headings, mappings)
+        TableModel.__init__(self, headings, mappings)
         self._default_num_rows = num_rows
         self._raw_data = [{} for _ in range(num_rows)]
         self._table_data = self._empty_table(len(headings), num_rows)
-
-    @property
-    def table_data(self):
-        return copy.copy(self._table_data)
+        self.samples = {}
 
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
@@ -61,3 +60,42 @@ class LokiScriptModel(BasicTableModel):
         self._table_data = self._empty_table(len(self._headings),
                                              len(self._raw_data))
         self._emit_update()
+
+    def setData(self, index, value, role):
+        if role != Qt.EditRole:
+            return False
+
+        row, column = self._get_row_and_column(index)
+        if column == SAMPLE_INFO_INDEX:
+            # Sample information is auto-filled
+            return
+        value = value.strip()
+        mapping = self._mappings.get(self._headings[column],
+                                     self._headings[column])
+        self._table_data[row][column] = value
+        self._raw_data[row][mapping] = value
+        self._update_sample_info(column, row, value)
+        self._emit_update()
+        return True
+
+    def _update_sample_info(self, column, row, value):
+        if column == 0 and value:
+            mapping = self._mappings.get(self._headings[SAMPLE_INFO_INDEX],
+                                         self._headings[SAMPLE_INFO_INDEX])
+            as_str = re.sub(r'[{}]', '', str(self.samples[value]))
+            self._table_data[row][SAMPLE_INFO_INDEX] = as_str
+            self._raw_data[row][mapping] = self.samples[value]
+
+    def update_all_samples(self, raise_error=True):
+        invalid_positions = []
+        for i, row in enumerate(self._raw_data):
+            position = row.get('position', '')
+            if not position:
+                continue
+            if position not in self.samples:
+                invalid_positions.append(position)
+                continue
+            self._update_sample_info(0, i, position)
+        if raise_error and invalid_positions:
+            raise ConfigurationError('invalid position(s) defined '
+                                     f'[{", ".join(invalid_positions)}]')

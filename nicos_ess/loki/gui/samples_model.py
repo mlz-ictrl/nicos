@@ -26,15 +26,27 @@
 """LoKI Samples Model."""
 from nicos.core import ConfigurationError
 from nicos.guisupport.qt import Qt
+from nicos.guisupport.tablemodel import TableModel
 
-from nicos_ess.loki.gui.scriptbuilder_model import LokiScriptModel
 
-
-class SamplesTableModel(LokiScriptModel):
+class SamplesTableModel(TableModel):
     def __init__(self, columns):
-        super().__init__(list(columns.keys()))
+        TableModel.__init__(self, list(columns.keys()), None)
+        self._raw_data = []
+        self._table_data = []
         self.positions = []
         self.columns = columns
+
+    def setData(self, index, value, role):
+        if role != Qt.EditRole:
+            return False
+
+        row, column = self._get_row_and_column(index)
+        value = value.strip()
+        self._table_data[row][column] = value
+        self._raw_data[row][self._headings[column]] = value
+        self._emit_update()
+        return True
 
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:

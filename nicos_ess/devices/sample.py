@@ -44,3 +44,6 @@ class EssSample(Sample):
     parameter_overrides = {
         'samples': Override(category='sample'),
     }
+
+    def set_samples(self, samples):
+        self.samples = samples

@@ -28,12 +28,12 @@ from unittest import mock
 import pytest
 
 from nicos.guisupport.qt import QTableView
+from nicos.guisupport.tablemodel import TableModel
 
 from nicos_ess.loki.gui.table_helper import Clipboard, TableHelper
 from nicos_ess.utilities.table_utils import convert_table_to_clipboard_text
 
-from test.nicos_ess.loki.test_scriptbuilder_model import HEADERS, \
-    create_loki_script_model
+HEADERS = ['COLUMN_1', 'COLUMN_2', 'COLUMN_3']
 
 
 class TestTableHelper:
@@ -44,7 +44,8 @@ class TestTableHelper:
             {'COLUMN_1': '', 'COLUMN_2': '', 'COLUMN_3': ''},
             {'COLUMN_1': '', 'COLUMN_2': '', 'COLUMN_3': ''},
         ]
-        self.model = create_loki_script_model(len(data), data)
+        self.model = TableModel(HEADERS)
+        self.model.raw_data = data
         self.table = mock.create_autospec(QTableView)
         self.clipboard = mock.create_autospec(Clipboard)
         self.table_helper = TableHelper(self.table, self.model, self.clipboard)
@@ -55,7 +56,7 @@ class TestTableHelper:
             {'COLUMN_1': '21', 'COLUMN_2': '22', 'COLUMN_3': '23'},
             {'COLUMN_1': '31', 'COLUMN_2': '32', 'COLUMN_3': '33'},
         ]
-        self.model = create_loki_script_model(len(data), data)
+        self.model.raw_data = data
         self.table_helper = TableHelper(self.table, self.model, self.clipboard)
 
         selected_indices = []
@@ -73,7 +74,7 @@ class TestTableHelper:
             {'COLUMN_1': '21', 'COLUMN_2': '22', 'COLUMN_3': '23'},
             {'COLUMN_1': '31', 'COLUMN_2': '32', 'COLUMN_3': '33'},
         ]
-        self.model = create_loki_script_model(len(data), data)
+        self.model.raw_data = data
         self.table_helper = TableHelper(self.table, self.model, self.clipboard)
 
         selected_indices = []
@@ -96,7 +97,7 @@ class TestTableHelper:
             {'COLUMN_1': '21', 'COLUMN_2': '22', 'COLUMN_3': '23'},
             {'COLUMN_1': '31', 'COLUMN_2': '32', 'COLUMN_3': '33'},
         ]
-        self.model = create_loki_script_model(len(data), data)
+        self.model.raw_data = data
         self.table_helper = TableHelper(self.table, self.model, self.clipboard)
 
         selected_indices = []

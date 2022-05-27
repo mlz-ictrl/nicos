@@ -23,8 +23,12 @@
 #   Matt Clarke <matt.clarke@ess.eu>
 #
 # *****************************************************************************
+from copy import deepcopy
 
-from nicos_ess.loki.gui.scriptbuilder_model import LokiScriptModel
+from nicos.guisupport.qt import Qt
+
+from nicos_ess.loki.gui.scriptbuilder_model import SAMPLE_INFO_INDEX, \
+    LokiScriptModel
 
 HEADERS = ['COLUMN_1', 'COLUMN_2', 'COLUMN_3']
 
@@ -90,3 +94,13 @@ class TestScriptBuilderModel:
         assert model.num_entries == 3
         assert model.raw_data == [{}, {}, {}]
         assert model.table_data == [['', '', ''], ['', '', ''], ['', '', '']]
+
+    def test_cannot_set_sample_info_directly(self):
+        data = [
+            {'COLUMN_1': 1, 'COLUMN_2': 2, 'COLUMN_3': 3},
+        ]
+        model = create_loki_script_model(len(data), deepcopy(data))
+
+        model.setData(model.index(0, SAMPLE_INFO_INDEX), '999', Qt.EditRole)
+
+        assert model.raw_data[0] == data[0]

@@ -19,7 +19,7 @@ devices = dict(
         website='https://europeanspallationsource.se/instruments/loki'
     ),
 
-    Sample=device('nicos.devices.sample.Sample',
+    Sample=device('nicos_ess.devices.sample.EssSample',
         description='The currently used sample',
     ),
 

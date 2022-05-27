@@ -390,10 +390,7 @@ class LokiSampleHolderPanel(PanelBase):
         self._read_mode()
 
     def _write_samples(self, samples):
-        self.client.eval('session.experiment.sample.clear()')
-        for index, sample in samples:
-            self.client.eval(
-                f'session.experiment.sample.set({index}, {sample})')
+        self.client.run(f'Exp.sample.set_samples({dict(samples)})')
 
     def _extract_cartridges(self):
         all_positions = set()
