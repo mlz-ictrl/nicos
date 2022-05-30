@@ -58,7 +58,7 @@ class SamplesTableModel(LokiScriptModel):
         sample_names = {}
         for index, (pos, sample) in enumerate(
                 zip(self.positions, self.raw_data)):
-            if sample:
+            if self._is_sample_defined(sample):
                 name = sample.get('Name', '').strip()
                 if not name:
                     raise ConfigurationError(f'Position {pos} requires a name.')
@@ -72,6 +72,9 @@ class SamplesTableModel(LokiScriptModel):
                 details['position'] = pos
                 samples.append((index, details))
         return samples
+
+    def _is_sample_defined(self, sample):
+        return sample and any(v.strip() for v in sample.values())
 
     def set_samples(self, samples):
         raw_data = [{} for _ in self.positions]
