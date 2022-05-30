@@ -22,44 +22,62 @@
 #
 # *****************************************************************************
 from nicos import session
-from nicos.core import MAIN, Param, status
+from nicos.core import MAIN, Param, pvname, status
 
-from nicos_ess.devices.epics import EpicsMotor
-from nicos_ess.devices.epics.extensions import HasDisablePv
+from nicos_ess.devices.epics import EpicsMotor as EssEpicsMotor
 
 
-class MotorCanDisable(HasDisablePv, EpicsMotor):
-
+class EpicsMotor(EssEpicsMotor):
     parameters = {
+        'can_disable': Param('Whether the motor can be enabled/disabled using '
+                             'a PV or not.', type=pvname, mandatory=False,
+                             settable=False, userparam=False),
         'auto_enable': Param('Automatically enable the motor when the setup is'
                              ' loaded', type=bool, default=False,
                              settable=False),
     }
 
+    def doPreinit(self, mode):
+        # We need to update the _record_field only if the motor has the PV,
+        # else the device will fail to create
+        if self.can_disable:
+            self._record_fields['enable'] = ':Enable'
+            self._record_fields['enable_rbv'] = ':Enable_RBV'
+        EssEpicsMotor.doPreinit(self, mode)
+
+    def _get_pv_name(self, pvparam):
+        pv_name = EssEpicsMotor._get_pv_name(self, pvparam)
+        return pv_name.replace('.:', ':')
+
     def doInit(self, mode):
-        EpicsMotor.doInit(self, mode)
+        EssEpicsMotor.doInit(self, mode)
         if session.sessiontype == MAIN and self.auto_enable:
             self.enable()
 
     def doShutdown(self):
-        if session.sessiontype == MAIN:
+        if session.sessiontype == MAIN and self.auto_enable:
             self.disable()
-        EpicsMotor.doShutdown(self)
+        EssEpicsMotor.doShutdown(self)
 
     def doStatus(self, maxage=0):
-        stat, message = self._get_status_message()
-        self._motor_status = stat, message
-        if stat == status.ERROR:
-            return stat, message or 'Unknown problem in record'
-        elif stat == status.WARN:
-            return stat, message
+        if self.can_disable:
+            target = self._get_pv('enable')
+            if target != self._get_pv('enable_rbv'):
+                return status.BUSY, f'{"En" if target else "Dis"}abling motor'
+            if not self._get_pv('enable_rbv'):
+                return status.WARN, 'Motor is disabled'
+        return EssEpicsMotor.doStatus(self, maxage)
 
-        if not self.isEnabled:
-            return status.WARN, 'Motor is disabled'
+    def _get_pv_parameters(self):
+        pvs = EssEpicsMotor._get_pv_parameters(self)
+        if self.can_disable:
+            pvs.add('enable')
+            pvs.add('enable_rbv')
+        return pvs
 
-        return EpicsMotor.doStatus(self, maxage)
-
-    def doIsAllowed(self, target):
-        if not self.isEnabled:
-            return False, 'Motor disabled'
-        return EpicsMotor.doIsAllowed(self, target)
+    def _enable(self, on):
+        if self.can_disable:
+            EssEpicsMotor._enable(self, on)
+            self.status()
+            self._cache.put(self, 'status', (status.BUSY,
+                            f'{"En" if on else "Dis"}abling'))
