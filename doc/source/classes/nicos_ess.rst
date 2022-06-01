@@ -1,10 +1,8 @@
-.. only:: customdoc
+ESS specific classes
+--------------------
 
-  ESS specific classes
-  --------------------
+.. toctree::
+   :maxdepth: 1
+   :glob:
 
-  .. toctree::
-     :maxdepth: 1
-     :glob:
-
-     ../../nicos_ess/*/classes
+   ../../nicos_ess/*/classes

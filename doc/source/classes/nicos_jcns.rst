@@ -1,10 +1,8 @@
-.. only:: customdoc
+JCNS specific classes
+---------------------
 
-  JCNS specific classes
-  ---------------------
+.. toctree::
+   :maxdepth: 1
+   :glob:
 
-  .. toctree::
-     :maxdepth: 1
-     :glob:
-
-     ../../nicos_jcns/*/classes
+   ../../nicos_jcns/*/classes

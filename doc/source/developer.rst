@@ -22,3 +22,4 @@ development environment and coding guidelines.
    protocols/index
    utils/index
    gui/index
+   classes/facility_classes

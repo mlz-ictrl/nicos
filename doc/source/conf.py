@@ -110,7 +110,7 @@ language = 'en'
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
 if not tags.has('customdoc'):
-    exclude_patterns = ['nicos_*/**.rst', 'customsetups.rst',
+    exclude_patterns = ['nicos_*/**/setups/**.rst', 'customsetups.rst',
                         'classes/custom.rst']
 
 

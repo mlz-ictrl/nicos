@@ -1,10 +1,8 @@
-.. only:: customdoc
+DEMO specific classes
+---------------------
 
-  DEMO specific classes
-  ---------------------
+.. toctree::
+   :maxdepth: 1
+   :glob:
 
-  .. toctree::
-     :maxdepth: 1
-     :glob:
-
-     ../../nicos_demo/*/classes
+   ../../nicos_demo/*/classes
