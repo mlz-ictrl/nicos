@@ -376,12 +376,12 @@ def setupdoc_builder_inited(app):
             deleted = rstfiles - setups
 
             for setup in deleted:
-                Path(dest_dir).joinpath(setup + '.rst').unlink()
+                dest_dir.joinpath(setup + '.rst').unlink()
 
             for setup in added:
-                rstpath = Path(dest_dir).joinpath(setup + '.rst')
+                rstpath = dest_dir.joinpath(setup + '.rst')
                 try:
-                    Path(rstpath.parent).mkdir(
+                    rstpath.parent.mkdir(
                         mode=0o755, parents=True, exist_ok=True)
                 except OSError:
                     # ignore already existent dirs
