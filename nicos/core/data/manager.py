@@ -177,6 +177,10 @@ class DataManager:
                 if sink.isActive(dataset):
                     handlers = sink.createHandlers(dataset)
                     dataset.handlers.extend(handlers)
+            # Sorting handlers for right execution order
+            dataset.handlers = sorted(
+                dataset.handlers,
+                key=lambda _handler: _handler.ordering)
         if self._current:
             self._current.subsets.append(dataset)
             dataset.number = len(self._current.subsets)

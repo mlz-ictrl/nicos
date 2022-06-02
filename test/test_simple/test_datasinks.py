@@ -33,6 +33,7 @@ import pytest
 
 from nicos import config
 from nicos.commands.scan import scan
+from nicos.core import ScanDataset
 from nicos.devices.datasinks.scan import AsciiScanfileReader
 from nicos.utils import readFile, updateFileCounter
 
@@ -67,34 +68,33 @@ year = time.strftime('%Y')
 session_setup = 'data'
 
 
-@pytest.fixture(scope='class', autouse=True)
-def setup_module(session):
-    """Setup dataroot and generate a dataset by scanning"""
-    exp = session.experiment
-    dataroot = path.join(config.nicos_root, 'testdata')
-    os.makedirs(dataroot)
-
-    counter = path.join(dataroot, exp.counterfile)
-    updateFileCounter(counter, 'scan', 42)
-    updateFileCounter(counter, 'point', 167)
-
-    exp._setROParam('dataroot', dataroot)
-    exp.new(1234, user='testuser', localcontact=exp.localcontact)
-    exp.sample.new({'name': 'mysample'})
-    assert path.abspath(exp.datapath) == \
-        path.abspath(path.join(config.nicos_root, 'testdata',
-                               year, 'p1234', 'data'))
-    m = session.getDevice('motor2')
-    det = session.getDevice('det')
-    tdev = session.getDevice('tdev')
-    session.experiment.setEnvironment([])
-
-    scan(m, 0, 1, 5, det, tdev, t=0.005)
-
-    yield
-
-
 class TestSinks:
+
+    @pytest.fixture(scope='class', autouse=True)
+    def root_setup(self, session):
+        """Setup dataroot and generate a dataset by scanning"""
+        exp = session.experiment
+        dataroot = path.join(config.nicos_root, 'testdata')
+        os.makedirs(dataroot)
+
+        counter = path.join(dataroot, exp.counterfile)
+        updateFileCounter(counter, 'scan', 42)
+        updateFileCounter(counter, 'point', 167)
+
+        exp._setROParam('dataroot', dataroot)
+        exp.new(1234, user='testuser', localcontact=exp.localcontact)
+        exp.sample.new({'name': 'mysample'})
+        assert path.abspath(exp.datapath) == \
+            path.abspath(path.join(config.nicos_root, 'testdata',
+                                   year, 'p1234', 'data'))
+        m = session.getDevice('motor2')
+        det = session.getDevice('det')
+        tdev = session.getDevice('tdev')
+        session.experiment.setEnvironment([])
+
+        scan(m, 0, 1, 5, det, tdev, t=0.005)
+
+        yield
 
     def test_sink_class(self, session):
         scansink = session.getDevice('testsink1')
@@ -292,3 +292,19 @@ class TestSinks:
         assert contents['experiment']['proposal'] == 'p1234'
         assert contents['measurement']['sample']['description']['name'] == \
             'mysample'
+
+
+def test_sink_ordering(session):
+    sinks = session.datasinks
+    sinks = sorted(sinks, key=lambda sink: sink.__class__.__name__)
+
+    def _test(sinks):
+        for i, sink in enumerate(sinks):
+            sink.handlerclass.ordering = i
+
+        dataset = session.experiment.data._init(ScanDataset())
+        assert all(h1.ordering <= h2.ordering for (h1, h2) in
+                   zip(dataset.handlers, dataset.handlers[1:]))
+
+    _test(sinks)
+    _test(reversed(sinks))
