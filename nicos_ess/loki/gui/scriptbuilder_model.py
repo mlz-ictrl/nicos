@@ -43,18 +43,6 @@ class LokiScriptModel(BasicTableModel):
     def table_data(self):
         return copy.copy(self._table_data)
 
-    def insert_row(self, position):
-        self._raw_data.insert(position, {})
-        self._table_data.insert(position, [''] * len(self._headings))
-        self._emit_update()
-
-    def remove_rows(self, row_indices):
-        for index in sorted(row_indices, reverse=True):
-            del self._raw_data[index]
-            del self._table_data[index]
-        self._emit_update()
-        return True
-
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
             return self._headings[section]
@@ -66,10 +54,6 @@ class LokiScriptModel(BasicTableModel):
             self._headings[section] = value
             self.headerDataChanged.emit(orientation, section, section)
         return True
-
-    @property
-    def num_rows(self):
-        return len(self._raw_data)
 
     def clear(self):
         """Clears the data but keeps the rows."""

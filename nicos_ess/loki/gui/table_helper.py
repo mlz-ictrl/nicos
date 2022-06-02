@@ -102,7 +102,7 @@ class TableHelper:
                           and i >= top_left.column()]
         for row_index, row_data in enumerate(copied_table):
             current_row = top_left.row() + row_index
-            if current_row == self.model.num_rows:
+            if current_row == self.model.num_entries:
                 if not expand:
                     break
                 self.model.insert_row(current_row)

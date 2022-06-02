@@ -308,18 +308,15 @@ class ExpPanel(PanelBase):
 
     @pyqtSlot()
     def on_addUserButton_clicked(self):
-        users = self.users_model.raw_data
-        users.append({})
-        self.users_model.raw_data = users
+        self.users_model.insert_row(self.users_model.num_entries)
 
     @pyqtSlot()
     def on_deleteUserButton_clicked(self):
-        users = self.users_model.raw_data
-        rows = set(index.row() for index in self.userTable.selectedIndexes())
-        for row in sorted(rows, reverse=True):
-            if row < len(users):
-                users.pop(row)
-        self.users_model.raw_data = users
+        to_remove = {index.row()
+                     for index in self.userTable.selectedIndexes()
+                     if index.isValid() and
+                     index.row() < self.users_model.num_entries}
+        self.users_model.remove_rows(to_remove)
 
     @pyqtSlot()
     def on_queryDBButton_clicked(self):
@@ -433,18 +430,14 @@ class ExpPanel(PanelBase):
 
     @pyqtSlot()
     def on_addSampleButton_clicked(self):
-        samples = self.samples_model.raw_data
-        samples.append({})
-        self.samples_model.raw_data = samples
+        self.samples_model.insert_row(self.samples_model.num_entries)
         self._format_sample_table()
 
     @pyqtSlot()
     def on_deleteSampleButton_clicked(self):
-        samples = self.samples_model.raw_data
-        columns = set(index.column()
-                      for index in self.sampleTable.selectedIndexes())
-        for col in sorted(columns, reverse=True):
-            if col < len(samples):
-                samples.pop(col)
-        self.samples_model.raw_data = samples
+        to_remove = {index.column()
+                     for index in self.sampleTable.selectedIndexes()
+                     if index.isValid() and
+                     index.column() < self.samples_model.num_entries}
+        self.samples_model.remove_rows(to_remove)
         self._format_sample_table()

@@ -57,7 +57,7 @@ class TestScriptBuilderModel:
         position = 2
         model.insert_row(position)
 
-        assert model.num_rows == 4
+        assert model.num_entries == 4
         assert model.table_data[position] == [''] * len(HEADERS)
         assert model.raw_data[position] == {}
 
@@ -72,7 +72,7 @@ class TestScriptBuilderModel:
         positions = {0, 1}
         model.remove_rows(positions)
 
-        assert model.num_rows == 1
+        assert model.num_entries == 1
         assert model.raw_data == [{'COLUMN_1': 21, 'COLUMN_2': 22,
                                    'COLUMN_3': 23}]
         assert model.table_data == [['21', '22', '23']]
@@ -87,6 +87,6 @@ class TestScriptBuilderModel:
 
         model.clear()
 
-        assert model.num_rows == 3
+        assert model.num_entries == 3
         assert model.raw_data == [{}, {}, {}]
         assert model.table_data == [['', '', ''], ['', '', ''], ['', '', '']]

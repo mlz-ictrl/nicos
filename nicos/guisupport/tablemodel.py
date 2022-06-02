@@ -25,6 +25,7 @@
 #   AÜC Hardal <umit.hardal@ess.eu>
 #
 # *****************************************************************************
+import copy
 
 from nicos.guisupport.qt import QAbstractTableModel, Qt, pyqtSignal
 
@@ -77,6 +78,10 @@ class TableModel(QAbstractTableModel):
         self._table_data = new_table
         self._emit_update()
 
+    @property
+    def table_data(self):
+        return copy.copy(self._table_data)
+
     def data(self, index, role):
         if role == Qt.DisplayRole or role == Qt.EditRole:
             row, column = self._get_row_and_column(index)
@@ -121,3 +126,19 @@ class TableModel(QAbstractTableModel):
 
     def _empty_table(self, columns, rows):
         return [[''] * columns for _ in range(rows)]
+
+    def insert_row(self, position):
+        self._raw_data.insert(position, {})
+        self._table_data.insert(position, [''] * len(self._headings))
+        self._emit_update()
+
+    def remove_rows(self, row_indices):
+        for index in sorted(row_indices, reverse=True):
+            del self._raw_data[index]
+            del self._table_data[index]
+        self._emit_update()
+        return True
+
+    @property
+    def num_entries(self):
+        return len(self._raw_data)

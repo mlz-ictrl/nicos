@@ -307,12 +307,14 @@ class LokiScriptBuilderPanel(PanelBase):
         return data
 
     def _delete_rows(self):
-        to_remove = {index.row() for index in self.tableView.selectedIndexes()
-                     if index.isValid() and index.row() < self.model.num_rows}
+        to_remove = {index.row()
+                     for index in self.tableView.selectedIndexes()
+                     if index.isValid() and
+                     index.row() < self.model.num_entries}
         self.tableView.model().remove_rows(to_remove)
 
     def _insert_row_above(self):
-        if self.model.num_rows == 0:
+        if self.model.num_entries == 0:
             self.tableView.model().insert_row(0)
             self.tableView.selectRow(0)
             return
@@ -322,7 +324,7 @@ class LokiScriptBuilderPanel(PanelBase):
             self.tableView.selectRow(lowest + 1)
 
     def _insert_row_below(self):
-        if self.model.num_rows == 0:
+        if self.model.num_entries == 0:
             self.tableView.model().insert_row(0)
             self.tableView.selectRow(0)
             return
