@@ -59,7 +59,7 @@ def pvput(name, value, wait=False, timeout=3.0):
     :param wait: whether to wait for completion
     :param timeout: the EPICS timeout
     """
-    _CONTEXT.put(name, value, timeout=timeout, wait=wait)
+    _CONTEXT.put(name, value, timeout=timeout, wait=wait, process='true')
 
 
 class P4pWrapper:
@@ -112,10 +112,10 @@ class P4pWrapper:
         return value
 
     def put_pv_value(self, pvname, value, wait=False):
-        _CONTEXT.put(pvname, value, timeout=self._timeout, wait=wait)
+        pvput(pvname, value, timeout=self._timeout, wait=wait)
 
     def put_pv_value_blocking(self, pvname, value, block_timeout=60):
-        _CONTEXT.put(pvname, value, timeout=block_timeout, wait=True)
+        pvput(pvname, value, timeout=block_timeout, wait=True)
 
     def get_pv_type(self, pvname):
         result = _CONTEXT.get(pvname, timeout=self._timeout)
