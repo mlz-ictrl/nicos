@@ -73,17 +73,14 @@ setupcheck:
 T = test
 
 test:
-	@if [ -z "`which py.test`" ]; then echo "py.test is required to run the test suite"; exit 1; fi
-	@$(PYTHON) `which py.test` -v $(T) --ignore test/test_stresstest $(O)
+	@$(PYTHON) -m pytest -v $(T) --ignore test/test_stresstest $(O)
 
 testall:
-	@if [ -z "`which py.test`" ]; then echo "py.test is required to run the test suite"; exit 1; fi
-	@$(PYTHON) `which py.test` -v $(T) $(O)
+	@$(PYTHON) -m pytest -v $(T) $(O)
 
 test-coverage:
-	@if [ -z "`which py.test`" ]; then echo "py.test is required to run the test suite"; exit 1; fi
 	@COVERAGE_PROCESS_START=.coveragerc \
-		$(PYTHON) `which py.test` -v $(T) --cov --cov-report=html --cov-report=term $(O)
+		$(PYTHON) -m pytest -v $(T) --cov --cov-report=html --cov-report=term $(O)
 
 lint:
 	@-PYTHONPATH=.:${PYTHONPATH} pylint --rcfile=./pylintrc nicos/ nicos_*/ nicostools/ tools/* bin/*
