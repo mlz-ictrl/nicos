@@ -10,12 +10,13 @@ include the management of
 * setups: loading and unloading setups
 * devices: creating and shutting down devices
 * special devices: providing access to special device instances
-* namespace:
+* the NICOS namespace: wherein user code is executed
 * the execution mode: switching modes
 * logging: handling the various NICOS loggers
 * notifications: sending notifications from devices or user code
 
 .. autoclass:: Session
+   :no-members:
 
    **Global configuration**
 
