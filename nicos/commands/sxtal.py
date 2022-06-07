@@ -39,9 +39,10 @@ class Intensity(DummyDetector):
 
 
 class HKLScan(Scan):
-    def __init__(self, devices, startpositions, scanmode='omega', endpositions=None,
-                 firstmoves=None, multistep=None, detlist=None, envlist=None,
-                 preset=None, scaninfo=None, subscan=False):
+    def __init__(self, devices, startpositions, scanmode='omega',
+                 endpositions=None, firstmoves=None, multistep=None,
+                 detlist=None, envlist=None, preset=None, scaninfo=None,
+                 subscan=False):
         self._intensity = Intensity('intensity')
         detlist = [self._intensity]
         Scan.__init__(self, devices, startpositions, endpositions,
@@ -57,7 +58,8 @@ class HKLScan(Scan):
                  if v.type == 'counter'][0]
         vals = [x[index] for x in subscan.detvaluelists]
         if vals:
-            session.experiment.data.putResults(FINAL, {'intensity': [max(vals)]})
+            session.experiment.data.putResults(FINAL,
+                                               {'intensity': [max(vals)]})
 
 
 @usercommand
@@ -118,6 +120,7 @@ def ScanT2T(hkl, preset=1., subscan=False):
     tp = instr._attached_ttheta.read(0)
     cscan([instr._attached_omega, instr._attached_ttheta], [op, tp],
           [sw, 2 * sw], sps // 2, instr, preset, subscan=subscan)
+
 
 _scanfuncs = {
     'omega': ScanOmega,

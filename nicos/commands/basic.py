@@ -307,7 +307,8 @@ def ListSetups(listall=False):
                       info['description'],
                       ', '.join(sorted(info['devices']))))
     items.sort()
-    printTable(('name', 'loaded', 'description', 'devices'), items, session.log.info)
+    printTable(('name', 'loaded', 'description', 'devices'), items,
+               session.log.info)
 
 
 @hiddenusercommand
@@ -969,7 +970,8 @@ def ListDataReceivers():
 @usercommand
 def _trace():
     if session._lastUnhandled:
-        session.log.info(''.join(traceback.format_exception(*session._lastUnhandled)))
+        session.log.info(''.join(
+            traceback.format_exception(*session._lastUnhandled)))
     else:
         session.log.info('No previous traceback.')
 
