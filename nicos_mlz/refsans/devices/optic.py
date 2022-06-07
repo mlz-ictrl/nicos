@@ -64,7 +64,7 @@ class Optic(Moveable):
         #                       settable=True,
         #                       userparam=True,
         #                       default='off'),
-        'setting': Param('Maps positon to attached devices positions for '
+        'setting': Param('Maps position to attached devices positions for '
                          'bending beam',
                          type=dict, mandatory=True),
         'masks': Param('Maps mask to attached devices positions',
