@@ -73,6 +73,7 @@ A simple setup file for the watchdog could look like this::
       dict(condition = 'reactorpower_value < 15',
            precondtion = 'reactorpower_value > 19.1',
            precondtime = 600,
+           precondcooldown = 300,
            gracetime = 120,
            setup = 'reactor',
            message = 'reactor power loss',
@@ -148,11 +149,16 @@ specification can have these keys:
 
 **precondition**
    If present, this condition must be fullfiled for at least ``precondtime``,
-   before condition will trigger.  The default is no precondition.  The syntax
-   is the same as for ``condition``.
+   before condition will trigger. If ``precondcooldown`` is present, the condition
+   can still be triggered for that interval after the precondition becomes false.
+   The default is no precondition. The syntax is the same as for ``condition``.
 
 **precondtime**
    The time a precondition must be fulfilled. Default is 5 seconds.
+
+**precondcooldown**
+   The time period after precondition might be already false but it would still
+   trigger the condition. By default is 0.
 
 **message**
    The message that should be emitted when a warning is generated from the

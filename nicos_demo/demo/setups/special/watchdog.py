@@ -61,7 +61,8 @@ watch_conditions = [
          message = 'Reactor power too low',
          type = 'critical',
          action = 'stop()',
-         gracetime = 30),
+         gracetime = 30,
+         precondcooldown = 30),
 ]
 
 # The Watchdog device has two lists of notifiers, one for priority 1 ('default')

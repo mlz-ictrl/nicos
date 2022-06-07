@@ -60,6 +60,7 @@ class Entry:
     okmessage = ''
     okaction = ''
     actiontimeout = 60
+    precondcooldown = 0
 
     from_setup = None
     cond_obj = None
@@ -76,7 +77,8 @@ class Entry:
         res = {attr: getattr(self, attr) for attr in
                ('id', 'setup', 'condition', 'gracetime', 'message',
                 'scriptaction', 'action', 'type', 'precondition',
-                'precondtime', 'okmessage', 'okaction', 'actiontimeout')}
+                'precondtime', 'okmessage', 'okaction', 'actiontimeout',
+                'precondcooldown')}
         res['enabled'] = self.cond_obj.enabled
         return res
 
@@ -195,7 +197,8 @@ class Watchdog(BaseCacheClient):
                 if entry.precondtime:
                     precond = DelayedTrigger(self.log, precond,
                                              entry.precondtime)
-                cond = Precondition(self.log, precond, cond)
+                cond = Precondition(self.log, precond, cond,
+                                    entry.precondcooldown)
             if not entry.enabled:
                 cond.enabled = False
             entry.cond_obj = cond

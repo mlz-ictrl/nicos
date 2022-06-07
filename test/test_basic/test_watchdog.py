@@ -112,18 +112,66 @@ def test_delayed():
 
 
 def test_precondition():
-    aexpr = Expression(DummyLog(), 'a', '')
-    bexpr = Expression(DummyLog(), 'b', '')
-    precond = Precondition(DummyLog(), aexpr, bexpr)
+    pre = Expression(DummyLog(), 'pre', '')
+    cond = Expression(DummyLog(), 'cond', '')
+    cooldown = 0
+    precond = Precondition(DummyLog(), pre, cond, cooldown)
 
-    assert precond.interesting_keys() == set(['a', 'b'])
+    assert precond.interesting_keys() == set(['pre', 'cond'])
 
-    precond.update(0, {'a': 0, 'b': 0})
+    precond.update(0, {'pre': 0, 'cond': 0})
     assert not precond.triggered
-    precond.update(0, {'a': 0, 'b': 1})
+    precond.update(0, {'pre': 0, 'cond': 1})
     assert not precond.triggered
-
-    precond.update(0, {'a': 1, 'b': 0})
+    precond.update(0, {'pre': 1, 'cond': 0})
     assert not precond.triggered
-    precond.update(0, {'a': 1, 'b': 1})
+    precond.update(0, {'pre': 1, 'cond': 1})
     assert precond.triggered
+
+
+def test_pre_with_cooldown():
+    pre = Expression(DummyLog(), 'pre', '')
+    pre = DelayedTrigger(DummyLog(), pre, 2)
+    cond = Expression(DummyLog(), 'cond', '')
+    cond = DelayedTrigger(DummyLog(), cond, 2)
+    cooldown = 5
+    precond = Precondition(DummyLog(), pre, cond, cooldown)
+
+    assert precond.interesting_keys() == set(['pre', 'cond'])
+
+    precond.update(0, {'pre': 0, 'cond': 0})
+    assert not precond.pre.triggered
+    assert not precond.cond.triggered
+    assert not precond.triggered
+    precond.update(10, {'pre': 1, 'cond': 0})
+    assert not precond.pre.triggered
+    precond.update(15, {'pre': 1, 'cond': 0})
+    assert precond.pre.triggered
+    assert not precond.triggered
+    precond.update(20, {'pre': 1, 'cond': 1})
+    assert not precond.triggered
+    precond.update(25, {'pre': 1, 'cond': 1})
+    assert precond.triggered
+    precond.update(30, {'pre': 0, 'cond': 1})
+    assert precond.triggered
+    precond.update(36, {'pre': 0, 'cond': 1})
+    assert not precond.triggered
+
+    precond.update(100, {'pre': 0, 'cond': 0})
+    assert not precond.pre.triggered
+    assert not precond.cond.triggered
+    assert not precond.triggered
+    precond.update(110, {'pre': 1, 'cond': 0})
+    assert not precond.pre.triggered
+    precond.update(115, {'pre': 1, 'cond': 0})
+    assert precond.pre.triggered
+    assert not precond.triggered
+    precond.update(120, {'pre': 0, 'cond': 1})
+    assert not precond.pre.triggered
+    assert not precond.triggered
+    precond.update(125, {'pre': 0, 'cond': 1})
+    assert not precond.pre.triggered
+    assert precond.triggered
+    precond.update(126, {'pre': 0, 'cond': 1})
+    assert not precond.pre.triggered
+    assert not precond.triggered
