@@ -167,6 +167,8 @@ class TestSinks:
         assert ds.envvaluelists == [[], [], [], [], []]
         assert len(ds.detvaluelists) == 5
         assert len(ds.subsets) == 5
+        # We want to compare including type here.
+        # pylint: disable=use-implicit-booleaness-not-comparison
         assert ds.devices == []
         assert ds.environment == []
         assert ds.detectors == []
