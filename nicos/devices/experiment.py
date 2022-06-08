@@ -494,7 +494,8 @@ class Experiment(Device):
                 self._setROParam('proposalpath',
                                  self.proposalpath_of(self.serviceexp))
                 self._setROParam('proptype', 'service')
-            ensureDirectory(path.join(self.proposalpath, 'logbook'))
+            ensureDirectory(path.join(self.proposalpath, 'logbook'),
+                            **self.managerights)
             session.elogEvent('directory', (self.proposalpath,
                                             instname, self.proposal))
             self._eloghandler = ELogHandler()
@@ -1043,7 +1044,8 @@ class Experiment(Device):
             return
 
         # create symlink
-        ensureDirectory(path.dirname(self.customproposalsymlink))
+        ensureDirectory(path.dirname(self.customproposalsymlink),
+                        **self.managerights)
         try:
             self.log.debug('create custom proposal symlink %r -> %r',
                            self.customproposalsymlink, self.proposalpath)
