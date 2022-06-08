@@ -140,19 +140,19 @@ class LokiScriptBuilderPanel(PanelBase):
         self.clear_action.setIcon(get_icon('delete-24px.svg'))
 
     def _create_toolbar(self):
-        bar = QToolBar('Builder')
-        bar.addAction(self.open_action)
-        bar.addAction(self.save_action)
-        bar.addSeparator()
-        bar.addAction(self.copy_action)
-        bar.addAction(self.cut_action)
-        bar.addAction(self.paste_action)
-        bar.addSeparator()
-        bar.addAction(self.add_row_above_action)
-        bar.addAction(self.add_row_below_action)
-        bar.addAction(self.delete_row_action)
-        bar.addAction(self.clear_action)
-        self.verticalLayout.insertWidget(0, bar)
+        self.toolbar = QToolBar('Builder')
+        self.toolbar.addAction(self.open_action)
+        self.toolbar.addAction(self.save_action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.copy_action)
+        self.toolbar.addAction(self.cut_action)
+        self.toolbar.addAction(self.paste_action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.add_row_above_action)
+        self.toolbar.addAction(self.add_row_below_action)
+        self.toolbar.addAction(self.delete_row_action)
+        self.toolbar.addAction(self.clear_action)
+        self.verticalLayout.insertWidget(0, self.toolbar)
 
     def _init_table_panel(self):
         headers = [column.header for column in self.columns.values()]
@@ -184,6 +184,15 @@ class LokiScriptBuilderPanel(PanelBase):
         self.tableView.setAlternatingRowColors(True)
         self.tableView.setStyleSheet(TABLE_QSS)
         self._create_keyboard_shortcuts()
+
+    def setViewOnly(self, viewonly):
+        for control in [self.comboTransOrder, self.sbSansTimes,
+                        self.sbTransTimes, self.comboTransDurationType,
+                        self.comboSansDurationType, self.chkShowTempColumn,
+                        self.chkShowPreCommand, self.chkShowPostCommand,
+                        self.generateScriptButton, self.tableView,
+                        self.txtValue, self.bulkUpdateButton, self.toolbar]:
+            control.setEnabled(not viewonly)
 
     def _init_right_click_context_menu(self):
         self.tableView.setContextMenuPolicy(Qt.CustomContextMenu)
