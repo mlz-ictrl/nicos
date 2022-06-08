@@ -181,7 +181,8 @@ def readConfig():
         raise RuntimeError('No instrument configured or detected.')
 
     # Now read the instrument-specific nicos.conf.
-    instr_cfg = readToml(path.join(setup_package_path, instr, 'nicos.conf'))
+    instr_cfg = readToml(
+        path.join(setup_package_path, *instr.split('.'), 'nicos.conf'))
 
     # Now read the whole configuration from both locations, where the
     # local config overrides the instrument specific config.
