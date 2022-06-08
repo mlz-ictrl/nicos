@@ -440,7 +440,7 @@ class Monitor(BaseMonitor):
                             html.escape(block._title))
                     blk += '\n    <table class="blocktable">'
                     for row in block:
-                        if row is None:
+                        if row in (None, '---'):
                             blk += '<tr></tr>'
                         else:
                             blk += '<tr><td class="center">'
