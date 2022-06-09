@@ -25,7 +25,7 @@
 """NICOS tests for the watchdog condition primitives."""
 
 from nicos.services.watchdog.conditions import DelayedTrigger, Expression, \
-    Precondition
+    ConditionWithPrecondition
 
 
 class DummyLog:
@@ -115,18 +115,25 @@ def test_precondition():
     pre = Expression(DummyLog(), 'pre', '')
     cond = Expression(DummyLog(), 'cond', '')
     cooldown = 0
-    precond = Precondition(DummyLog(), pre, cond, cooldown)
+    combined = ConditionWithPrecondition(DummyLog(), pre, cond, cooldown)
 
-    assert precond.interesting_keys() == set(['pre', 'cond'])
+    assert combined.interesting_keys() == set(['pre', 'cond'])
 
-    precond.update(0, {'pre': 0, 'cond': 0})
-    assert not precond.triggered
-    precond.update(0, {'pre': 0, 'cond': 1})
-    assert not precond.triggered
-    precond.update(0, {'pre': 1, 'cond': 0})
-    assert not precond.triggered
-    precond.update(0, {'pre': 1, 'cond': 1})
-    assert precond.triggered
+    combined.update(1, {'pre': 0, 'cond': 0})
+    assert not combined.triggered
+    combined.update(1, {'pre': 0, 'cond': 1})
+    assert not combined.triggered
+    combined.update(1, {'pre': 1, 'cond': 0})
+    assert not combined.triggered
+    combined.update(1, {'pre': 1, 'cond': 1})
+    assert combined.triggered
+
+    # if condition becomes true the instant precondition becomes false,
+    # we are still happy
+    combined.update(1, {'pre': 1, 'cond': 0})
+    assert not combined.triggered
+    combined.update(1, {'pre': 0, 'cond': 1})
+    assert combined.triggered
 
 
 def test_pre_with_cooldown():
@@ -135,43 +142,43 @@ def test_pre_with_cooldown():
     cond = Expression(DummyLog(), 'cond', '')
     cond = DelayedTrigger(DummyLog(), cond, 2)
     cooldown = 5
-    precond = Precondition(DummyLog(), pre, cond, cooldown)
+    combined = ConditionWithPrecondition(DummyLog(), pre, cond, cooldown)
 
-    assert precond.interesting_keys() == set(['pre', 'cond'])
+    assert combined.interesting_keys() == set(['pre', 'cond'])
 
-    precond.update(0, {'pre': 0, 'cond': 0})
-    assert not precond.pre.triggered
-    assert not precond.cond.triggered
-    assert not precond.triggered
-    precond.update(10, {'pre': 1, 'cond': 0})
-    assert not precond.pre.triggered
-    precond.update(15, {'pre': 1, 'cond': 0})
-    assert precond.pre.triggered
-    assert not precond.triggered
-    precond.update(20, {'pre': 1, 'cond': 1})
-    assert not precond.triggered
-    precond.update(25, {'pre': 1, 'cond': 1})
-    assert precond.triggered
-    precond.update(30, {'pre': 0, 'cond': 1})
-    assert precond.triggered
-    precond.update(36, {'pre': 0, 'cond': 1})
-    assert not precond.triggered
+    combined.update(0, {'pre': 0, 'cond': 0})
+    assert not combined.pre.triggered
+    assert not combined.cond.triggered
+    assert not combined.triggered
+    combined.update(10, {'pre': 1, 'cond': 0})
+    assert not combined.pre.triggered
+    combined.update(15, {'pre': 1, 'cond': 0})
+    assert combined.pre.triggered
+    assert not combined.triggered
+    combined.update(20, {'pre': 1, 'cond': 1})
+    assert not combined.triggered
+    combined.update(25, {'pre': 1, 'cond': 1})
+    assert combined.triggered
+    combined.update(30, {'pre': 0, 'cond': 1})
+    assert combined.triggered
+    combined.update(36, {'pre': 0, 'cond': 1})
+    assert not combined.triggered
 
-    precond.update(100, {'pre': 0, 'cond': 0})
-    assert not precond.pre.triggered
-    assert not precond.cond.triggered
-    assert not precond.triggered
-    precond.update(110, {'pre': 1, 'cond': 0})
-    assert not precond.pre.triggered
-    precond.update(115, {'pre': 1, 'cond': 0})
-    assert precond.pre.triggered
-    assert not precond.triggered
-    precond.update(120, {'pre': 0, 'cond': 1})
-    assert not precond.pre.triggered
-    assert not precond.triggered
-    precond.update(125, {'pre': 0, 'cond': 1})
-    assert not precond.pre.triggered
-    assert precond.triggered
-    precond.update(126, {'pre': 0, 'cond': 1})
-    assert not precond.pre.triggered
-    assert not precond.triggered
+    combined.update(100, {'pre': 0, 'cond': 0})
+    assert not combined.pre.triggered
+    assert not combined.cond.triggered
+    assert not combined.triggered
+    combined.update(110, {'pre': 1, 'cond': 0})
+    assert not combined.pre.triggered
+    combined.update(115, {'pre': 1, 'cond': 0})
+    assert combined.pre.triggered
+    assert not combined.triggered
+    combined.update(120, {'pre': 0, 'cond': 1})
+    assert not combined.pre.triggered
+    assert not combined.triggered
+    combined.update(125, {'pre': 0, 'cond': 1})
+    assert not combined.pre.triggered
+    assert combined.triggered
+    combined.update(126, {'pre': 0, 'cond': 1})
+    assert not combined.pre.triggered
+    assert not combined.triggered

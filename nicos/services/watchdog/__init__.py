@@ -38,7 +38,7 @@ from nicos.devices.notifiers import Mailer, Notifier
 from nicos.protocols.cache import OP_SUBSCRIBE, OP_TELL, OP_TELLOLD, \
     cache_dump, cache_load
 from nicos.services.watchdog.conditions import DelayedTrigger, Expression, \
-    Precondition
+    ConditionWithPrecondition
 from nicos.utils import LCDict, createSubprocess, createThread, \
     watchFileContent
 
@@ -197,8 +197,8 @@ class Watchdog(BaseCacheClient):
                 if entry.precondtime:
                     precond = DelayedTrigger(self.log, precond,
                                              entry.precondtime)
-                cond = Precondition(self.log, precond, cond,
-                                    entry.precondcooldown)
+                cond = ConditionWithPrecondition(self.log, precond, cond,
+                                                 entry.precondcooldown)
             if not entry.enabled:
                 cond.enabled = False
             entry.cond_obj = cond

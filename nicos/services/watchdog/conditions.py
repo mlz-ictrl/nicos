@@ -164,7 +164,7 @@ class DelayedTrigger(Condition):
             self.t_trigger = 0
 
 
-class Precondition(Condition):
+class ConditionWithPrecondition(Condition):
     """A condition that will be still triggered, even if precondition doesn't
     satisfy the new values, however it was triggered for enough of time in the
     past within a cooldown period
@@ -181,7 +181,7 @@ class Precondition(Condition):
     @property
     def triggered(self):
         return self.enabled and self.cond.triggered and \
-               (self.cooldown_flag or self.pre.triggered)
+            (self.cooldown_flag or self.pre.triggered)
 
     def is_expired(self, time):
         return self.pre.is_expired(time) or self.cond.is_expired(time)
@@ -200,12 +200,11 @@ class Precondition(Condition):
         prev_pre_triggered = self.pre.triggered
         self.pre.update(time, keydict)
         self.cond.update(time, keydict)
+
         if prev_pre_triggered and not self.pre.triggered:
             self.cooldown_timer = time + self.cooldown
         elif not prev_pre_triggered and self.pre.triggered:
             self.cooldown_timer = 0
+
         if self.cooldown_timer:
-            if time > self.cooldown_timer:
-                self.cooldown_flag = False
-            else:
-                self.cooldown_flag = True
+            self.cooldown_flag = time <= self.cooldown_timer
