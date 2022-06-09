@@ -53,6 +53,7 @@ class WatchdogPanel(Panel):
             tree.setHeaderLabels([
                 'Enabled', 'Message', 'Condition', 'Only for setup',
                 'Grace time', 'Precondition', 'Precondition time',
+                'Precondition cooldown',
                 'OK message', 'Script action', 'Warn action', 'OK action'
             ])
             tree.header().setSectionResizeMode(QHeaderView.Interactive)
@@ -104,8 +105,9 @@ class WatchdogPanel(Panel):
             item = QTreeWidgetItem(self.preconfTree, [
                 '', entry['message'], entry['condition'], entry['setup'],
                 str(entry['gracetime']), entry['precondition'],
-                str(entry['precondtime']), entry['okmessage'],
-                entry['scriptaction'], entry['action'], entry['okaction']
+                str(entry['precondtime']), str(entry['precondcooldown']),
+                entry['okmessage'], entry['scriptaction'], entry['action'],
+                entry['okaction']
             ])
             item.setCheckState(0, Qt.Checked if entry['enabled']
                                else Qt.Unchecked)
