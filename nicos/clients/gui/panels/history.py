@@ -150,10 +150,10 @@ class View(QObject):
                                     self, meta[0].get(key), meta[1].get(key))
                 self.series[key, expr] = series
                 if history:
-                    series.init_from_history(history, fromtime,
-                                             totime or currenttime())
+                    series.initFromHistory(history, fromtime,
+                                           totime or currenttime())
                 else:
-                    series.init_empty()
+                    series.initEmpty()
             self._key_exprs.setdefault(key, []).extend(real_exprs)
 
         self.listitem = None
@@ -177,7 +177,7 @@ class View(QObject):
 
     def on_timer_timeout(self):
         for series in self.series.values():
-            series.synthesize_value()
+            series.synthesizeValue()
 
     def on_timeSeriesUpdate(self, series):
         if self.plot:
@@ -188,7 +188,7 @@ class View(QObject):
             return
         for expr in self._key_exprs[key]:
             series = self.series[key, expr]
-            series.add_value(vtime, value)
+            series.addValue(vtime, value)
 
 
 class NewViewDialog(DlgUtils, QDialog):
