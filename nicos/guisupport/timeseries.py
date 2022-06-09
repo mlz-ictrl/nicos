@@ -217,6 +217,11 @@ class TimeSeries:
                            real=False, use_expr=False)
 
     def add_value(self, vtime, value, real=True, use_expr=True):
+        if use_expr and self.expr:
+            try:
+                value = eval(self.expr, KEYEXPR_NS, {'x': value})
+            except Exception:
+                return
         if not isinstance(value, number_types):
             if isinstance(value, str):
                 value = self.string_mapping.setdefault(value, len(self.string_mapping))
@@ -224,11 +229,6 @@ class TimeSeries:
                     '%g=%s' % (v, k) for (k, v) in
                     sorted(self.string_mapping.items(), key=lambda x: x[1]))
             else:
-                return
-        elif use_expr and self.expr:
-            try:
-                value = eval(self.expr, KEYEXPR_NS, {'x': value})
-            except Exception:
                 return
         n, real_n = self.n, self.real_n
         arrsize = self.data.shape[0]
