@@ -233,12 +233,12 @@ class ControlDetector(Detector):
         for det in self._attached_followers:
             det.stop()
 
-    def duringMeasurementHook(self, elapsed):
-        res = self._attached_trigger.duringMeasurementHook(elapsed)
+    def duringMeasureHook(self, elapsed):
+        res = self._attached_trigger.duringMeasureHook(elapsed)
         if res:
             return res
         for det in self._attached_followers:
-            res = det.duringMeasurementHook(elapsed)
+            res = det.duringMeasureHook(elapsed)
             if res:
                 return res
 
