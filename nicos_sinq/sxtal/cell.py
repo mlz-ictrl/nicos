@@ -116,6 +116,20 @@ def cellFromUB(UB):
     return Cell(a=a, b=b, c=c, alpha=alpha, beta=beta, gamma=gamma)
 
 
+def cellFromUBX(UB):
+    ubtran = UB.transpose()
+    GINV = UB * ubtran
+    G = np.linalg.inv(GINV)
+    a = np.sqrt(G[0][0])
+    b = np.sqrt(G[1][1])
+    c = np.sqrt(G[2][2])
+    alpha = Acosd(G[1][2] / (b * c))
+
+    beta = Acosd(G[2][0] / (a * c))
+    gamma = Acosd(G[0][1] / (a * b))  # Change c -> b
+    return Cell(a=a, b=b, c=c, alpha=alpha, beta=beta, gamma=gamma)
+
+
 class Cell():
     """Cell object to hold information about crystal cell structures"""
 

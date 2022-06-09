@@ -26,12 +26,14 @@ A test suite for the singlexlib for single crystal diffraction
 """
 
 import numpy as np
+import pytest
 
 from nicos_sinq.sxtal.cell import Cell
 from nicos_sinq.sxtal.singlexlib import angleBetweenReflections, \
     biToNormalBeam, calcNBUBFromCellAndReflections, \
-    calcUBFromCellAndReflections, calculateBMatrix, rotatePsi, z1FromAngles, \
-    z1FromNormalBeam, z1ToBisecting, z1ToNormalBeam
+    calcUBFromCellAndReflections, calculateBMatrix, eulerian_to_kappa, \
+    kappa_to_eulerian, rotatePsi, z1FromAngles, z1FromNormalBeam, \
+    z1ToBisecting, z1ToNormalBeam
 
 
 def test_bisecting_angles():
@@ -161,3 +163,29 @@ def test_angle_between_reflections():
     B = calculateBMatrix(cell)
     angle = angleBetweenReflections(B, r1, r2)
     assert(abs(np.rad2deg(angle) - 97.40) < .01)
+
+
+@pytest.mark.parametrize("om, chi, phi", [(15.29, 129.05, 134.19), ])
+def test_kappa(om, chi, phi):
+    """"
+    This tests only if the forward and backward calculation match up.
+    More tests will be required when a UB and test reflections become
+    available. Or more reflections.
+    """
+    status, komega, kappa, kphi = eulerian_to_kappa(om, chi, phi, 70., True)
+    assert status
+    status, omk, chik, phik = kappa_to_eulerian(komega, kappa, kphi, 70.,
+                                                True)
+    assert status
+    assert abs(om - omk) < .02
+    assert abs(chi - chik) < .02
+    assert abs(phi - phik) < .02
+
+    status, komega, kappa, kphi = eulerian_to_kappa(om, chi, phi, 70., False)
+    assert status
+    status, omk, chik, phik = kappa_to_eulerian(komega, kappa, kphi, 70.,
+                                                False)
+    assert status
+    assert abs(om - omk) < .02
+    assert abs(chi - chik) < .02
+    assert abs(phi - phik) < .02

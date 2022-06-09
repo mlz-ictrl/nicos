@@ -547,3 +547,57 @@ def angleBetweenReflections(B, r1, r2):
     ch1 = B.dot(h1)
     ch2 = B.dot(h2)
     return angleBetween(ch1, ch2)
+
+
+def eulerian_to_kappa(omega, chi, phi, alpha, right):
+    """
+    Calculate the kappa geometry angles from eulerian cradle
+    angles. omega, chi and phi are the eulerian cradle angels as
+    input. Alpha is the kappa angle. The kappa calculation has two
+    solutions: right arm and left arm. This is selected through the
+    right boolean. Input angles are in degrees, output angles as well.
+    The return is status, komega, kappa, kphi
+
+    The code was lifted from the HKL library
+    """
+    omegar = np.deg2rad(omega)
+    chir = np.deg2rad(chi)
+    phir = np.deg2rad(phi)
+    alphar = np.deg2rad(alpha)
+    if np.abs(chir) <= alphar*2.:
+        p = np.arcsin(np.tan(chir/2.)/np.tan(alphar))
+        if right:
+            komega = omegar - p + np.pi / 2.
+            kappa = 2. * np.arcsin(np.sin(chir/2.) / np.sin(alphar))
+            kphi = phir - p - np.pi / 2.
+        else:
+            komega = omegar + p - np.pi / 2.
+            kappa = -2. * np.arcsin(np.sin(chir/2.) / np.sin(alphar))
+            kphi = phir + p + np.pi / 2.
+        return True, np.rad2deg(komega), np.rad2deg(kappa), np.rad2deg(kphi)
+    return False, 0, 0, 0
+
+
+def kappa_to_eulerian(komega, kappa, kphi, alpha, right):
+    """
+    Calculates the eulerian cradle angles omegam chi, phi from
+    the kappa angles: komega, kappa, kphi and the kappa angle
+    alpha and the handedness of the goniometer.
+
+    The code was lifted from the HKL library
+    """
+    komegar = np.deg2rad(komega)
+    kappar = np.deg2rad(kappa)
+    kphir = np.deg2rad(kphi)
+    alphar = np.deg2rad(alpha)
+    p = np.arctan(np.tan(kappar/2.) * np.cos(alphar))
+
+    if right:
+        omega = komegar + p - np.pi/2.
+        chi = 2. * np.arcsin(np.sin(kappar/2.) * np.sin(alphar))
+        phi = kphir + p + np.pi/2.
+    else:
+        omega = komegar + p + np.pi/2.
+        chi = -2. * np.arcsin(np.sin(kappar/2.) * np.sin(alphar))
+        phi = kphir + p - np.pi/2.
+    return True, np.rad2deg(omega), np.rad2deg(chi), np.rad2deg(phi)
