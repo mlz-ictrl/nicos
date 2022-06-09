@@ -20,12 +20,10 @@ devices = dict(
         responsible='Ebad Kamil <ebad.kamil@ess.eu>',
         website='https://europeanspallationsource.se/instruments/bifrost'
     ),
-
     Sample=device(
         'nicos.devices.sample.Sample',
         description='The currently used sample',
     ),
-
     Exp=device(
         'nicos_ess.devices.experiment.EssExperiment',
         description='experiment object',
@@ -33,21 +31,15 @@ devices = dict(
         sample='Sample',
         cache_filepath='/opt/nicos-data/bifrost/cached_proposals.json'
     ),
-
-    filesink=device('nicos.devices.datasinks.AsciiScanfileSink',),
-
     conssink=device('nicos.devices.datasinks.ConsoleScanSink',),
-
     daemonsink=device('nicos.devices.datasinks.DaemonSink',),
     liveview=device('nicos.devices.datasinks.LiveViewSink', ),
-
     Space=device(
         'nicos.devices.generic.FreeSpace',
         description='The amount of free space for storing data',
         path=None,
         minfree=5,
     ),
-
     KafkaForwarderStatus=device(
         'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
         description='Monitors the status of the Forwarder',
@@ -55,6 +47,3 @@ devices = dict(
         brokers=["localhost"],
     ),
 )
-
-startupcode = '''
-'''

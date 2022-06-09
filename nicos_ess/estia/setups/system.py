@@ -3,10 +3,10 @@ description = 'system setup'
 group = 'lowlevel'
 
 sysconfig = dict(
-    cache = 'localhost',
-    instrument = 'ESTIA',
-    experiment = 'Exp',
-    datasinks = ['conssink', 'filesink', 'daemonsink'],
+    cache='localhost',
+    instrument='ESTIA',
+    experiment='Exp',
+    datasinks=['conssink', 'daemonsink'],
 )
 
 modules = ['nicos.commands.standard']
@@ -14,16 +14,16 @@ modules = ['nicos.commands.standard']
 includes = ['temp']
 
 devices = dict(
-    ESTIA = device('nicos.devices.instrument.Instrument',
-        description = 'instrument object',
-        instrument = 'estia',
-        responsible = 'Artur Glavic <artur.glavic@psi.ch>',
-        website = 'https://confluence.esss.lu.se/display/ESTIA',
-        operators = ['ESS'],
-        facility = 'Paul Scherrer Institut (PSI)',
+    ESTIA=device(
+        'nicos.devices.instrument.Instrument',
+        description='instrument object',
+        instrument='estia',
+        responsible='Artur Glavic <artur.glavic@psi.ch>',
+        website='https://confluence.esss.lu.se/display/ESTIA',
     ),
-    Sample = device('nicos.devices.sample.Sample',
-        description = 'The currently used sample',
+    Sample=device(
+        'nicos.devices.sample.Sample',
+        description='The currently used sample',
     ),
     Exp=device(
         'nicos_ess.devices.experiment.EssExperiment',
@@ -33,13 +33,13 @@ devices = dict(
         cache_filepath=f'{configdata("config.ESTIA_DATA_ROOT")}/'
                        f'cached_proposals.json'
     ),
-    filesink = device('nicos.devices.datasinks.AsciiScanfileSink', ),
-    conssink = device('nicos.devices.datasinks.ConsoleScanSink', ),
-    daemonsink = device('nicos.devices.datasinks.DaemonSink', ),
-    Space = device('nicos.devices.generic.FreeSpace',
-        description = 'The amount of free space for storing data',
-        path = None,
-        minfree = 5,
+    conssink=device('nicos.devices.datasinks.ConsoleScanSink', ),
+    daemonsink=device('nicos.devices.datasinks.DaemonSink', ),
+    Space=device(
+        'nicos.devices.generic.FreeSpace',
+        description='The amount of free space for storing data',
+        path=None,
+        minfree=5,
     ),
     KafkaForwarderStatus=device(
         'nicos_ess.devices.forwarder.EpicsKafkaForwarder',
